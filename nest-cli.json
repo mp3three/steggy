@@ -1,0 +1,16 @@
+{
+  "projects": {
+    "formio-sdk": {
+      "type": "library",
+      "root": "libs/formio-sdk",
+      "entryFile": "index",
+      "sourceRoot": "libs/formio-sdk/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/formio-sdk/tsconfig.lib.json"
+      }
+    }
+  },
+  "compilerOptions": {
+    "webpack": true
+  }
+}

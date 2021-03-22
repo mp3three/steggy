@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "type-writer": ["libs/type-writer/src/index.ts"],
-      "@automagical/logger": ["libs/logger/src/index.ts"]
+      "@automagical/logger": ["libs/logger/src/index.ts"],
+      "validation": ["libs/validation/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
