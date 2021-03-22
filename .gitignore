@@ -23,6 +23,7 @@
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+!.vscode/automagical.code-workspace
 
 # misc
 /.sass-cache
@@ -33,6 +34,7 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
+**/.local.env
 
 # System Files
 .DS_Store
