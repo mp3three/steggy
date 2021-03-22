@@ -1,9 +1,47 @@
 {
-  
-  
   "version": 2,
-  
-  "projects": {},
+  "projects": {
+    "type-writer": {
+      "root": "libs/type-writer",
+      "sourceRoot": "libs/type-writer/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/type-writer/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/type-writer"
+          ],
+          "options": {
+            "jestConfig": "libs/type-writer/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/type-writer",
+            "tsConfig": "libs/type-writer/tsconfig.lib.json",
+            "packageJson": "libs/type-writer/package.json",
+            "main": "libs/type-writer/src/index.ts",
+            "assets": [
+              "libs/type-writer/*.md"
+            ]
+          }
+        }
+      }
+    }
+  },
   "cli": {
     "defaultCollection": "@nrwl/workspace"
   }
