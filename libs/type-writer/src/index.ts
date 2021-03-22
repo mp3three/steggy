@@ -1,1 +1,2 @@
-export * from './lib/type-writer';
+export * from './type-writer.module';
+export * from './lib';
