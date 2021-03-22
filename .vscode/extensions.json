@@ -1,7 +1,21 @@
 {
   "recommendations": [
-     
-    "ms-vscode.vscode-typescript-tslint-plugin",
-    "esbenp.prettier-vscode"
-  ]
+    "coenraads.bracket-pair-colorizer-2",
+    "irongeek.vscode-env",
+    "dbaeumer.vscode-eslint",
+    "yzhang.markdown-all-in-one",
+    "shd101wyy.markdown-preview-enhanced",
+    "davidanson.vscode-markdownlint",
+    "pkief.material-icon-theme",
+    "christian-kohler.npm-intellisense",
+    "esbenp.prettier-vscode",
+    "wayou.vscode-todo-highlight",
+    "nsoult.typescript-imports-sort",
+    "redhat.vscode-yaml",
+    "orta.vscode-jest",
+    "kavod-io.vscode-jest-test-adapter",
+    "firsttris.vscode-jest-runner",
+    "ms-vscode.vscode-typescript-tslint-plugin"
+  ],
+  "unwantedRecommendations": []
 }
