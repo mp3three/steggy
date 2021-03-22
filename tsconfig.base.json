@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "type-writer": ["libs/type-writer/src/index.ts"]
+      "type-writer": ["libs/type-writer/src/index.ts"],
+      "@automagical/logger": ["libs/logger/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

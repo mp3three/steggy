@@ -26,7 +26,10 @@
     "help": "nx help"
   },
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "@types/debug": "^4.1.5",
+    "debug": "^4.3.1"
+  },
   "devDependencies": {
     "@nrwl/cli": "11.5.2",
     "@nrwl/eslint-plugin-nx": "11.5.2",

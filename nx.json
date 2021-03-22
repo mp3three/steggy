@@ -20,6 +20,6 @@
       }
     }
   },
-  "projects": { "type-writer": { "tags": [] } },
+  "projects": { "type-writer": { "tags": [] }, "logger": { "tags": [] } },
   "workspaceLayout": { "appsDir": "apps", "libsDir": "libs" }
 }
