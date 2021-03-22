@@ -105,6 +105,46 @@
           }
         }
       }
+    },
+    "home-assistant": {
+      "root": "libs/home-assistant",
+      "sourceRoot": "libs/home-assistant/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/home-assistant/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/home-assistant"
+          ],
+          "options": {
+            "jestConfig": "libs/home-assistant/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/home-assistant",
+            "tsConfig": "libs/home-assistant/tsconfig.lib.json",
+            "packageJson": "libs/home-assistant/package.json",
+            "main": "libs/home-assistant/src/index.ts",
+            "assets": [
+              "libs/home-assistant/*.md"
+            ]
+          }
+        }
+      }
     }
   },
   "cli": {
