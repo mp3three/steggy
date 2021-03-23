@@ -10,3 +10,9 @@ export enum NotificationGroup {
   serverStatus = 'Server Status',
   battery = 'Battery Watch',
 }
+
+export type HueEvent = {
+  event: number;
+  buttonEvent: string;
+  buttonNumber: '1' | '2' | '3' | '4';
+};

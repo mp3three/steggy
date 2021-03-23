@@ -1,15 +1,16 @@
+import {
+  EntityService,
+  HomeAssistantService,
+  RoomCode,
+  RoomService,
+  SceneRoom,
+} from '@automagical/home-assistant';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { EntityService } from '../../entity/entity.service';
-import { RoomCode } from '../../enums/room-codes.enum';
-import { HomeAssistantService } from '../../home-assistant/home-assistant.service';
-import logger from '../../log';
-import { RoomService } from '../room.service';
-import { SceneRoom } from '../scene.room';
-
-const { log, warn, debug, error } = logger('GamesService');
 
 @Injectable()
 export class GamesService extends SceneRoom {
+  // #region Constructors
+
   constructor(
     @Inject(forwardRef(() => HomeAssistantService))
     homeAssistantService: HomeAssistantService,
@@ -24,4 +25,6 @@ export class GamesService extends SceneRoom {
       entityService,
     });
   }
+
+  // #endregion Constructors
 }

@@ -7,3 +7,4 @@ export * from './room.service';
 export * from './scene.room';
 export * from './socket.service';
 export * from './tv.room';
+export * from './base.room';

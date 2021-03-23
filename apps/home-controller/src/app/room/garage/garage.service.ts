@@ -1,15 +1,15 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { BaseRoom } from '../base.room';
-import { RoomService } from '../room.service';
-import cron = require('node-cron');
-import dayjs = require('dayjs');
-import { EntityService } from '../../entity/entity.service';
-import { SwitchEntity } from '../../entity/types/switch.entity';
-import { RoomCode } from '../../enums/room-codes.enum';
-import { HomeAssistantService } from '../../home-assistant/home-assistant.service';
-import logger from '../../log';
-
-const { log, debug, error, warn, startup } = logger('GarageService');
+import { schedule } from 'node-cron';
+import * as dayjs from 'dayjs';
+import {
+  BaseRoom,
+  EntityService,
+  HomeAssistantService,
+  RoomCode,
+  RoomService,
+  SwitchEntity,
+} from '@automagical/home-assistant';
+import { Logger } from '@automagical/logger';
 
 type LightingSchedule = '12/12' | '18/6';
 type Tents = 'vipar' | 'qb';
@@ -24,12 +24,20 @@ export type GarageDoArgs = {
 
 @Injectable()
 export class GarageService extends BaseRoom {
+  // #region Object Properties
+
+  protected roomConfig;
+
+  private readonly _logger = Logger(GarageService);
+
   private qb: SwitchEntity;
   private qbLighting: LightingSchedule = '18/6';
   private vipar: SwitchEntity;
   private viparLighting: LightingSchedule = '18/6';
 
-  protected roomConfig;
+  // #endregion Object Properties
+
+  // #region Constructors
 
   constructor(
     @Inject(forwardRef(() => HomeAssistantService))
@@ -44,14 +52,20 @@ export class GarageService extends BaseRoom {
       roomService,
       entityService,
     });
-    startup(`QB Tent Schedule: ${this.qbLighting}`);
-    startup(`Vipar Tent Schedule: ${this.viparLighting}`);
   }
 
+  // #endregion Constructors
+
+  // #region Public Methods
+
   public async exec(args: GarageDoArgs) {
-    error(`Garage exec is not implemented!`, args);
+    this._logger.alert(`Garage exec is not implemented!`, args);
     return;
   }
+
+  // #endregion Public Methods
+
+  // #region Protected Methods
 
   protected async flowerLight(tent: Tents) {
     const now = dayjs();
@@ -68,7 +82,7 @@ export class GarageService extends BaseRoom {
     await super.init();
     this.vipar = await this.entityService.byId(TentEntities.vipar);
     this.qb = await this.entityService.byId(TentEntities.qb);
-    cron.schedule('0 */5 * * * *', () => {
+    schedule('0 */5 * * * *', () => {
       this[this.viparLighting === '12/12' ? 'flowerLight' : 'vegLight'](
         'vipar',
       );
@@ -84,4 +98,6 @@ export class GarageService extends BaseRoom {
     }
     return this[tent].turnOn();
   }
+
+  // #endregion Protected Methods
 }

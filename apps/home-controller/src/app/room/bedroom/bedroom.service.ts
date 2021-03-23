@@ -1,19 +1,28 @@
+import {
+  EntityService,
+  HomeAssistantService,
+  PicoButtons,
+  RoomCode,
+  RoomScene,
+  RoomService,
+  SceneRoom,
+  SwitchEntity,
+} from '@automagical/home-assistant';
+import { Logger } from '@automagical/logger';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { EntityService } from '../../entity/entity.service';
-import { SwitchEntity } from '../../entity/types/switch.entity';
-import { RoomCode } from '../../enums/room-codes.enum';
-import { PicoButtons } from '../../enums/room.enum';
-import { HomeAssistantService } from '../../home-assistant/home-assistant.service';
-import logger from '../../log';
-import { RoomService } from '../room.service';
-import { SceneRoom } from '../scene.room';
-import cron = require('node-cron');
-
-const { log, warn, debug, error, develop } = logger('BedroomService');
+import { schedule } from 'node-cron';
 
 @Injectable()
 export class BedroomService extends SceneRoom {
+  // #region Object Properties
+
+  private readonly _logger = Logger(BedroomService);
+
   private womp: SwitchEntity;
+
+  // #endregion Object Properties
+
+  // #region Constructors
 
   constructor(
     @Inject(forwardRef(() => HomeAssistantService))
@@ -30,6 +39,10 @@ export class BedroomService extends SceneRoom {
     });
   }
 
+  // #endregion Constructors
+
+  // #region Protected Methods
+
   protected async init() {
     await super.init();
     this.wakeupLightAlarm();
@@ -37,10 +50,14 @@ export class BedroomService extends SceneRoom {
     this.womp = await this.entityService.byId('switch.womp');
   }
 
+  // #endregion Protected Methods
+
+  // #region Private Methods
+
   private bedPico() {
     this.bindPico(
       'sensor.bed_pico',
-      button => this.bedPicoCb(button),
+      (button) => this.bedPicoCb(button),
       () => null,
     );
   }
@@ -74,15 +91,15 @@ export class BedroomService extends SceneRoom {
         return;
       }
       if (this.roomMode === 'off') {
-        warn(`wakeupLightAlarm step 2 disabled`);
+        this._logger.info(`wakeupLightAlarm step 2 disabled`);
         clearTimeout(timeout);
         timeout = null;
       }
     });
-    cron.schedule('0 40 7 * * Mon,Tue,Wed,Thu,Fri', () => {
-      log(`Wakeup Alarm`);
+    schedule('0 40 7 * * Mon,Tue,Wed,Thu,Fri', () => {
+      this._logger.info(`Wakeup Alarm`);
       this.exec({
-        scene: 'medium',
+        scene: RoomScene.medium,
       });
       timeout = setTimeout(() => {
         if (this.roomMode === 'off') {
@@ -94,4 +111,6 @@ export class BedroomService extends SceneRoom {
       }, 1000 * 60 * 10);
     });
   }
+
+  // #endregion Private Methods
 }

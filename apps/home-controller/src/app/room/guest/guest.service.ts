@@ -1,19 +1,24 @@
+import {
+  EntityService,
+  HomeAssistantService,
+  RoomCode,
+  RoomService,
+  SceneRoom,
+} from '@automagical/home-assistant';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { EntityService } from '../../entity/entity.service';
-import { RoomCode } from '../../enums/room-codes.enum';
-import { HomeAssistantService } from '../../home-assistant/home-assistant.service';
-import logger from '../../log';
-import { RoomService } from '../room.service';
-import { SceneRoom } from '../scene.room';
-
-const { log, warn, debug, error } = logger('GuestService');
 
 @Injectable()
 export class GuestService extends SceneRoom {
+  // #region Object Properties
+
   protected circadian = {
     low: 'switch.circadian_lighting_guest_low_brightness_circadian_light',
     high: 'switch.circadian_lighting_guest_circadian_light',
   };
+
+  // #endregion Object Properties
+
+  // #region Constructors
 
   constructor(
     @Inject(forwardRef(() => HomeAssistantService))
@@ -29,4 +34,6 @@ export class GuestService extends SceneRoom {
       entityService,
     });
   }
+
+  // #endregion Constructors
 }

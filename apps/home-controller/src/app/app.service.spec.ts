@@ -14,10 +14,5 @@ describe('AppService', () => {
   });
 
   describe('getData', () => {
-    it('should return "Welcome to Programmable Casa!"', () => {
-      expect(service.getData()).toEqual({
-        message: 'Welcome to Programmable Casa!',
-      });
-    });
   });
 });

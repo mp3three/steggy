@@ -1,7 +1,7 @@
 import { Logger } from '@automagical/logger';
+import * as _ from 'lodash';
 import { Dictionary } from 'lodash';
-import { FanSpeeds } from '../typings';
-import { PicoButtons } from '../typings/room.enum';
+import { FanSpeeds, PicoButtons } from '../typings';
 import { BaseRoom, BaseRoomConfig } from './base.room';
 import { FanEntity } from './entities/fan.entity';
 import { GroupEntity } from './entities/group.entity';
@@ -9,7 +9,6 @@ import { LightEntity } from './entities/light.entity';
 import { SensorEntity } from './entities/sensor.entity';
 import { SwitchEntity } from './entities/switch.entity';
 import { RoomDoArgs, RoomService } from './room.service';
-import * as _ from 'lodash';
 
 export enum RokuInputs {
   off = 'off',

@@ -121,7 +121,7 @@ export class HomeAssistantService {
       );
     });
     if (HomeAssistantService.ESPMapping === null) {
-      const configPath = join(process.env.CONFIG_PATH, 'core/esp-mapping.json');
+      const configPath = join(process.env.CONFIG_PATH, 'esp-mapping.json');
       HomeAssistantService.ESPMapping = JSON.parse(
         readFileSync(configPath, 'utf-8'),
       );

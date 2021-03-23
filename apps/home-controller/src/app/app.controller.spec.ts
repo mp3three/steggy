@@ -14,11 +14,11 @@ describe('AppController', () => {
   });
 
   describe('getData', () => {
-    it('should return "Welcome to Programmable Casa!"', () => {
-      const appController = app.get<AppController>(AppController);
-      expect(appController.getData()).toEqual({
-        message: 'Welcome to Programmable Casa!',
-      });
-    });
+    // it('should return "Welcome to Programmable Casa!"', () => {
+    //   const appController = app.get<AppController>(AppController);
+    //   expect(appController.getData()).toEqual({
+    //     message: 'Welcome to Programmable Casa!',
+    //   });
+    // });
   });
 });

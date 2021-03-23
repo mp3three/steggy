@@ -6,7 +6,7 @@ import { RokuInputs, SceneRoom, SceneRoomConfig } from './scene.room';
 export type TVRoomConfig = SceneRoomConfig & {
   config: {
     roku: {
-      defaultChannel: RokuInputs;
+      defaultChannel: RokuInputs | string;
       host: string;
     };
   };
@@ -15,7 +15,7 @@ export type TVRoomConfig = SceneRoomConfig & {
 export abstract class TVRoom extends SceneRoom {
   // #region Object Properties
 
-  protected rokuChannel: RokuInputs = null;
+  protected rokuChannel: RokuInputs | string = null;
   protected roomConfig: TVRoomConfig = null;
 
   private readonly _logger = Logger(TVRoom);
@@ -24,7 +24,7 @@ export abstract class TVRoom extends SceneRoom {
 
   // #region Public Methods
 
-  public async setRoku(channel: RokuInputs) {
+  public async setRoku(channel: RokuInputs | string) {
     this._logger.info(`${this.friendlyName} roku => ${channel}`);
     const { host } = this.roomConfig.config.roku;
 

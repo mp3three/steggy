@@ -6,8 +6,8 @@ import { EventEmitter } from 'events';
 import { RoomService } from './room.service';
 import { HomeAssistantService } from './home-assistant.service';
 import { EntityService } from './entity.service';
-import { RoomName } from '../typings/room.enum';
 import { RoomCode } from './scene.room';
+import { RoomName } from '../typings/room';
 
 export type BaseConfigure = {
   config?: AnyKindOfDictionary;

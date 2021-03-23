@@ -1,15 +1,15 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { EntityService } from '../../entity/entity.service';
-import { RemoteEntity } from '../../entity/types/remote.entity';
-import { RoomCode } from '../../enums/room-codes.enum';
-import { HomeAssistantService } from '../../home-assistant/home-assistant.service';
-import logger from '../../log';
-import { HueEvent } from '../../types/hue';
-import { RoomService } from '../room.service';
-import { TVRoom } from '../tv.room';
-import cron = require('node-cron');
-
-const { log, warn, debug, error, startup } = logger('LoftService');
+import {
+  EntityService,
+  HomeAssistantService,
+  RemoteEntity,
+  RoomCode,
+  RoomService,
+  TVRoom,
+} from '@automagical/home-assistant';
+import { schedule } from 'node-cron';
+import { Logger } from '../../../../../../libs/logger/src';
+import { HueEvent } from '../../../../typings';
 
 enum RokuInputs {
   off = 'off',
@@ -20,6 +20,14 @@ enum RokuInputs {
 
 @Injectable()
 export class LoftService extends TVRoom {
+  // #region Static Properties
+
+  private static readonly logger = Logger(LoftService);
+
+  // #endregion Static Properties
+
+  // #region Constructors
+
   constructor(
     @Inject(forwardRef(() => HomeAssistantService))
     homeAssistantService: HomeAssistantService,
@@ -35,31 +43,35 @@ export class LoftService extends TVRoom {
     });
   }
 
+  // #endregion Constructors
+
+  // #region Protected Methods
+
   protected async init() {
     await super.init();
     const backDeskLight = await this.entityService.byId(
       'switch.back_desk_light',
     );
-    cron.schedule('0 0 7 * * *', () => {
-      log(`Turn off back desk light`);
+    schedule('0 0 7 * * *', () => {
+      LoftService.logger.info(`Turn off back desk light`);
       backDeskLight.turnOn();
     });
 
-    cron.schedule('0 0 22 * * *', () => {
-      log(`Turn on back desk light`);
+    schedule('0 0 22 * * *', () => {
+      LoftService.logger.info(`Turn on back desk light`);
       backDeskLight.turnOff();
     });
 
-    cron.schedule('0 0 5 * * Mon,Tue,Wed,Thu,Fri', () => {
-      log(`Changing default screen into to work`);
+    schedule('0 0 5 * * Mon,Tue,Wed,Thu,Fri', () => {
+      LoftService.logger.info(`Changing default screen into to work`);
       this.roomConfig.config.roku.defaultChannel = RokuInputs.work;
     });
-    cron.schedule('0 0 17 * * Mon,Tue,Wed,Thu,Fri', () => {
-      log(`Changing default screen into to personal`);
+    schedule('0 0 17 * * Mon,Tue,Wed,Thu,Fri', () => {
+      LoftService.logger.info(`Changing default screen into to personal`);
       this.roomConfig.config.roku.defaultChannel = RokuInputs.personal;
     });
 
-    startup('Configure: Hue Remote');
+    LoftService.logger.info('Configure: Hue Remote');
     const entity = await this.entityService.byId<RemoteEntity>(
       'remote.bedroom_switch',
     );
@@ -72,10 +84,14 @@ export class LoftService extends TVRoom {
         '4': RokuInputs.off,
       };
       if (!map[event]) {
-        warn(`Could not figure hue event: ${args.buttonEvent}`);
+        LoftService.logger.warning(
+          `Could not figure hue event: ${args.buttonEvent}`,
+        );
         return;
       }
       this.setRoku(map[event]);
     });
   }
+
+  // #endregion Protected Methods
 }
