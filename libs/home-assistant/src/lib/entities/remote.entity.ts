@@ -1,13 +1,16 @@
+import { Logger } from '@automagical/logger';
+import * as dayjs from 'dayjs';
 import { BaseEntity } from './base.entity';
-import logger from '../../log';
-import dayjs = require('dayjs');
-
-const { log, debug, error, warn } = logger('SocketSerRemoteEntityvice');
 
 export class RemoteEntity extends BaseEntity {
-  // constructor(entityId: string, socketService: SocketService) {
-  //   super(entityId, socketService);
-  // }
+  // #region Object Properties
+
+  private readonly logger = Logger(RemoteEntity);
+
+  // #endregion Object Properties
+
+  // #region Public Methods
+
   public hueEvent(event: number) {
     // These will probably be missed (because of the hue polling)
     const map = {
@@ -31,14 +34,14 @@ export class RemoteEntity extends BaseEntity {
     };
     const buttonEvent = map[event] || null;
     if (!buttonEvent) {
-      warn(`Unknown button mapping: ${event}`);
+      this.logger.warning(`Unknown button mapping: ${event}`);
       return;
     }
     const buttonNumber = buttonEvent.charAt(0);
     if (
       this.state === buttonNumber &&
       dayjs()
-        .add(5, 's')
+        .add(5, 'seconds')
         .isBefore(this.lastChanged)
     ) {
       return;
@@ -51,4 +54,6 @@ export class RemoteEntity extends BaseEntity {
       buttonNumber,
     });
   }
+
+  // #endregion Public Methods
 }

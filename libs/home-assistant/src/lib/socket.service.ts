@@ -9,7 +9,7 @@ import {
   HassDomains,
   HassServices,
   HassSocketMessageTypes,
-} from '../typings';
+} from '../typings/socket';
 import { EntityStateDTO } from './dto';
 import { BaseEntity } from './entities';
 

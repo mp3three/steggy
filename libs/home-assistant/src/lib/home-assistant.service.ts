@@ -1,14 +1,43 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { readFileSync } from 'fs';
-import { EntityStateDTO } from '../dto';
-import { HassEvents } from '../typings';
 import { Logger } from '@automagical/logger';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import * as dayjs from 'dayjs';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { HassDomains, HassEvents } from '../typings';
+import { MqttResponse } from '../typings/mqtt';
+import { NotificationGroup } from '../typings/notifiction-group.enum';
+import { EventDTO, HassStateDTO } from './dto';
+import { LockEntity } from './entities/lock.entity';
+import { RemoteEntity } from './entities/remote.entity';
+import { EntityService } from './entity.service';
+import { RoomService } from './room.service';
+import { SocketService } from './socket.service';
+
+type MilageHistory = {
+  attributes: {
+    friendly_name: string;
+    icon: string;
+    unit_of_mesurement: string;
+  };
+  entity_id: string;
+  last_changed: string;
+  last_updated: string;
+  state: string;
+};
 
 @Injectable()
 export class HomeAssistantService {
+  // #region Static Properties
+
+  private static  ESPMapping: Record<string, string> = null;
+  private static backDoorLock: LockEntity;
+  private static frontDoorLock: LockEntity;
+
+  // #endregion Static Properties
+
   // #region Object Properties
 
-  private logger = Logger(HomeAssistantService);
+  private readonly logger = Logger(HomeAssistantService);
 
   // #endregion Object Properties
 
@@ -20,30 +49,13 @@ export class HomeAssistantService {
     private entityService: EntityService,
     public roomService: RoomService,
   ) {
-    HomeAssistantService.initComplete = true;
-    socketService.on('onEvent', (args) => this.onEvent(args));
-    socketService.on('allEntityUpdate', (args) => this.allEntityUpdate(args));
-    process.nextTick(async () => {
-      HomeAssistantService.frontDoorLock = await entityService.byId(
-        'lock.front_door',
-      );
-      HomeAssistantService.backDoorLock = await entityService.byId(
-        'lock.front_door',
-      );
-    });
-    if (HomeAssistantService.ESPMapping === null) {
-      const configPath = join(process.env.CONFIG_PATH, 'core/esp-mapping.json');
-      HomeAssistantService.ESPMapping = JSON.parse(
-        readFileSync(configPath, 'utf-8'),
-      );
-    }
   }
 
   // #endregion Constructors
 
   // #region Public Methods
 
-  public async allEntityUpdate(allEntities: hassState[]) {
+  public async allEntityUpdate(allEntities: HassStateDTO[]) {
     allEntities
       .sort((a, b) => {
         if (a.entity_id > b.entity_id) {
@@ -60,7 +72,7 @@ export class HomeAssistantService {
   }
 
   public async configureEsp(macAddress: string): Promise<MqttResponse> {
-    log(`configureEsp: ${macAddress}`);
+    this.logger.info(`configureEsp: ${macAddress}`);
     return {
       topic: `${macAddress}/configure/entity-id`,
       payload: HomeAssistantService.ESPMapping[macAddress],
@@ -97,84 +109,27 @@ export class HomeAssistantService {
       });
   }
 
-  public async getWarnings() {
-    return [...(await this.getAdguardWarning())];
-  }
-
-  // public quickSet(setActions: QuickSetArgs) {
-  //   develop(setActions);
-  //   Object.keys(setActions).forEach(action => {
-  //     setActions[action].forEach(async info => {
-  //       let entityId: string;
-  //       let data = null;
-  //       if (typeof info === 'object') {
-  //         entityId = info.entity_id as string;
-  //         data = info;
-  //       } else {
-  //         entityId = info;
-  //         data = {
-  //           entity_id: info,
-  //         };
-  //       }
-  //       const entity = await this.entityService.byId(entityId);
-  //       if (entity === null) {
-  //         error(`${entityId} is null`);
-  //         return;
-  //       }
-  //       entity.call(action as HassServices, data);
-  //     });
-  //   });
-  // }
-
-  // private async actionable() {
-  //   //   {
-  //   //     "message": "Would you like to close the garage door?",
-  //   //     "title": "Garage Door Left Open",
-  //   //     "data": {
-  //   //         "actions": [
-  //   //             {
-  //   //                 "action": "close_door",
-  //   //                 "title": "Close Door"
-  //   //             },
-  //   //             {
-  //   //                 "action": "ignore",
-  //   //                 "title": "Ignore"
-  //   //             }
-  //   //         ]
-  //   //     }
-  //   // }
-  //   // https://www.smarthomelab.ca/ios-actionable-notifications-with-home-companion/
-  //   // https://companion.home-assistant.io/docs/notifications/actionable-notifications/
-  //   // https://www.reddit.com/r/homeassistant/comments/gdoio9/actionable_notificationsfinally_fought_with_it/
-  //   return this.connection.call(HassDomains.notify, MobileDevice.generic, {
-  //     message: 'TEST message',
-  //     title: 'test titile',
-  //     data: {
-  //       subtitle: 'subtitle',
-  //       push: {
-  //         'thread-id': NotificationGroup.garageStatus,
-  //         category: 'test',
-  //       },
-  //     },
-  //   });
-  // }
-  public async sendDynamicAttachment(): Promise<never> {
-    error('Fill in this function');
-    process.exit();
-    // https://companion.home-assistant.io/docs/notifications/dynamic-content/
-    //   {
-    //     "message": "This is camera test!",
-    //     "data": {
-    //         "push": {
-    //             "category": "camera"
-    //         },
-    //         "entity_id": "camera.xxx"
-    //     }
-    // }
+  public onModuleInit() {
+    this.socketService.on('onEvent', (args) => this.onEvent(args));
+    this.socketService.on('allEntityUpdate', (args) => this.allEntityUpdate(args));
+    process.nextTick(async () => {
+      HomeAssistantService.frontDoorLock = await this.entityService.byId(
+        'lock.front_door',
+      );
+      HomeAssistantService.backDoorLock = await this.entityService.byId(
+        'lock.front_door',
+      );
+    });
+    if (HomeAssistantService.ESPMapping === null) {
+      const configPath = join(process.env.CONFIG_PATH, 'core/esp-mapping.json');
+      HomeAssistantService.ESPMapping = JSON.parse(
+        readFileSync(configPath, 'utf-8'),
+      );
+    }
   }
 
   public async sendNotification(
-    device: MobileDevice,
+    device: string,
     title: string,
     group: NotificationGroup,
     message = '',
@@ -190,30 +145,11 @@ export class HomeAssistantService {
     });
   }
 
-  public async setLocks(state: boolean) {
-    if (state) {
-      await HomeAssistantService.frontDoorLock.lock();
-      return HomeAssistantService.backDoorLock.lock();
-    }
-    await HomeAssistantService.frontDoorLock.unlock();
-    return HomeAssistantService.backDoorLock.unlock();
-  }
-
   // #endregion Public Methods
 
   // #region Private Methods
 
-  private async getAdguardWarning() {
-    const adguard = await this.entityService.byId<SwitchEntity>(
-      'switch.adguard_protection',
-    );
-    if (adguard.state === 'on') {
-      return [];
-    }
-    return ['Adguard protection currently disabled'];
-  }
-
-  private async onEvent(event: HassEvent) {
+  private async onEvent(event: EventDTO) {
     switch (event.event_type) {
       case HassEvents.state_changed:
         const state = event.data.new_state;
@@ -222,11 +158,11 @@ export class HomeAssistantService {
           return;
         }
         if (state === null) {
-          log(`null new state`);
-          log(event);
+          this.logger.info(`null new state`);
+          this.logger.debug(event);
           return;
         }
-        entity.setState(state);
+        entity.setState(event.data.new_state);
         return;
       case HassEvents.hue_event:
         const remote = await this.entityService.create<RemoteEntity>(

@@ -1,9 +1,6 @@
-import { HassServices } from '../../enums/hass-services.enum';
-import logger from '../../log';
-import { FanSpeeds } from '../../room/scene.room';
+import { Logger } from '@automagical/logger';
+import { FanSpeeds, HassServices } from '../../typings';
 import { BaseEntity } from './base.entity';
-
-const { log, warn, debug, error, develop } = logger('FanEntity');
 
 export type FanAttributes = {
   speed: FanSpeeds;
@@ -11,7 +8,15 @@ export type FanAttributes = {
 };
 
 export class FanEntity extends BaseEntity {
+  // #region Object Properties
+
   public attributes: FanAttributes;
+
+  private readonly logger = Logger(FanEntity);
+
+  // #endregion Object Properties
+
+  // #region Public Methods
 
   public async setSpeed(speed: FanSpeeds) {
     return this.call(HassServices.turn_on, {
@@ -25,7 +30,7 @@ export class FanEntity extends BaseEntity {
     const availableSpeeds = this.attributes.speed_list as FanSpeeds[];
     const idx = availableSpeeds.indexOf(currentSpeed);
     if (idx === 0) {
-      log(`Cannot speed down`);
+      this.logger.debug(`Cannot speed down`);
       return;
     }
     return this.setSpeed(availableSpeeds[idx - 1]);
@@ -36,7 +41,7 @@ export class FanEntity extends BaseEntity {
     const availableSpeeds = this.attributes.speed_list;
     const idx = availableSpeeds.indexOf(currentSpeed);
     if (idx === availableSpeeds.length - 1) {
-      log(`Cannot speed up`);
+      this.logger.debug(`Cannot speed up`);
       return;
     }
     return this.setSpeed(availableSpeeds[idx + 1]);
@@ -48,4 +53,6 @@ export class FanEntity extends BaseEntity {
       entity_id: this.entityId,
     });
   }
+
+  // #endregion Public Methods
 }

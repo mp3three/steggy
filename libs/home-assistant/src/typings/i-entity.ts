@@ -7,7 +7,7 @@ type f = (...args: unknown[]) => void;
 export interface iEntity {
   // #region Object Properties
 
-  attributes: Dictionary<unknown>;
+  attributes: Record<string, unknown>;
   domain: HassDomains;
   entityId: string;
   friendlyName: string;

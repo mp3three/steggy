@@ -1,13 +1,21 @@
+import { Logger } from '@automagical/logger';
 import { BaseEntity } from './base.entity';
-import { Dictionary } from 'lodash';
-import logger from '../../log';
-
-const { log, error, debug, develop, warn } = logger('GroupEntity');
 
 export class GroupEntity extends BaseEntity {
+  // #region Static Properties
+
   private static MAX_GROUP_NAME_LENGTH = 0;
 
-  private entityList: Dictionary<BaseEntity> = {};
+  // #endregion Static Properties
+
+  // #region Object Properties
+
+  private readonly entityList: Record<string, BaseEntity> = {};
+  private readonly logger = Logger(GroupEntity);
+
+  // #endregion Object Properties
+
+  // #region Constructors
 
   constructor(id, args) {
     super(id, args);
@@ -17,8 +25,12 @@ export class GroupEntity extends BaseEntity {
     }
   }
 
+  // #endregion Constructors
+
+  // #region Public Methods
+
   public async addEntities(entities: BaseEntity[]) {
-    entities.forEach(entity => {
+    entities.forEach((entity) => {
       if (!this.entityList[entity.entityId]) {
         this.entityList[entity.entityId] = entity;
       }
@@ -27,15 +39,15 @@ export class GroupEntity extends BaseEntity {
 
   public async turnOff() {
     await super.turnOff();
-    if (this.entityList.length === 0) {
-      error(`turnOff failed: no entities in group`);
+    if (Object.keys(this.entityList).length === 0) {
+      this.logger.warning(`turnOff failed: no entities in group`);
     }
     let id = this.entityId;
     while (id.length <= GroupEntity.MAX_GROUP_NAME_LENGTH) {
       id += ' ';
     }
     const list = Object.keys(this.entityList);
-    debug(`${id} *turn off* ${list.length}[${list.join(', ')}]`);
+    this.logger.debug(`${id} *turn off* ${list.length}[${list.join(', ')}]`);
     await Promise.all(
       Object.values(this.entityList).map(async (i: BaseEntity) => {
         i.turnOff();
@@ -45,19 +57,20 @@ export class GroupEntity extends BaseEntity {
 
   public async turnOn() {
     await super.turnOn();
-    if (this.entityList.length === 0) {
-      error(`turnOn failed: no entities in group`);
+    if (Object.keys(this.entityList).length === 0) {
+      this.logger.error(`turnOn failed: no entities in group`);
     }
     let id = this.entityId;
     while (id.length <= GroupEntity.MAX_GROUP_NAME_LENGTH) {
       id += ' ';
     }
     const list = Object.keys(this.entityList);
-    debug(`${id} *turn on* ${list.length}[${list.join(', ')}]`);
+    this.logger.info(`${id} *turn on* ${list.length}[${list.join(', ')}]`);
+
     await Promise.all(
-      Object.values(this.entityList).map(async (i: BaseEntity) => {
-        i.turnOn();
-      }),
+      Object.values(this.entityList).map((i) => i.turnOn()),
     );
   }
+
+  // #endregion Public Methods
 }

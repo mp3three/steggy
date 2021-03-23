@@ -1,7 +1,9 @@
-import { HassServices } from '../../enums/hass-services.enum';
+import { HassServices } from '../../typings';
 import { BaseEntity } from './base.entity';
 
 export class SwitchEntity extends BaseEntity {
+  // #region Public Methods
+
   public async toggle() {
     return this.call(HassServices.toggle, {
       entity_id: this.entityId,
@@ -24,4 +26,6 @@ export class SwitchEntity extends BaseEntity {
       entity_id: this.entityId,
     });
   }
+
+  // #endregion Public Methods
 }

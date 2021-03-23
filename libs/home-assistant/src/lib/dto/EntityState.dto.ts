@@ -1,22 +1,17 @@
-// export type hassState = {
-//   entity_id: string;
-//   state: knownStates;
-//   attributes: attributes;
-//   last_changed: Date;
-//   last_updated: Date;
-//   context: {
-//     id: string;
-//     parent_id: string;
-//     user_id: string;
-//   };
-// };
+import * as dayjs from 'dayjs';
+import { ContextDTO } from './Event.dto';
 
-export class EntityStateDTO {
+export class EntityStateDTO {}
+
+export class HassStateDTO<T extends EntityStateDTO = EntityStateDTO> {
   // #region Object Properties
 
-  public attributes: null;
+  public attributes: Record<string, unknown>;
+  public context: ContextDTO;
   public entity_id: string;
-  public state: null;
+  public last_changed: dayjs.Dayjs;
+  public last_updated: dayjs.Dayjs;
+  public state: T;
 
   // #endregion Object Properties
 }

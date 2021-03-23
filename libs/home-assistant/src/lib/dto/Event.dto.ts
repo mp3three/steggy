@@ -1,5 +1,5 @@
-import { EntityStateDTO } from '.';
-import { HassEvents } from '../typings';
+import { HassStateDTO } from '.';
+import { HassEvents } from '../../typings';
 
 export class EventDataDTO {
   // #region Object Properties
@@ -7,8 +7,8 @@ export class EventDataDTO {
   entity_id?: string;
   event?: number;
   id?: string;
-  new_state?: EntityStateDTO;
-  old_state?: EntityStateDTO;
+  new_state?: HassStateDTO;
+  old_state?: HassStateDTO;
 
   // #endregion Object Properties
 }
@@ -16,7 +16,8 @@ export class EventDataDTO {
 export class EventDTO {
   // #region Object Properties
 
-  public context: EventContextDTO;
+  public context: ContextDTO;
+  public data: EventDataDTO;
   public event_type: HassEvents;
   public origin: 'local';
   public time_fired: Date;
@@ -24,7 +25,7 @@ export class EventDTO {
   // #endregion Object Properties
 }
 
-export class EventContextDTO {
+export class ContextDTO {
   // #region Object Properties
 
   public id: string;

@@ -22,7 +22,7 @@ const LogLevels = {
   debug: '7',
 };
 
-export const LoggerRegistry = {};
+export const Registry = {};
 
 /**
  * | Value | Severity | Key | Description | Notes |
@@ -59,6 +59,6 @@ export const Logger = (
       fn(...args);
     };
   });
-  LoggerRegistry[prefix] = out;
+  Registry[prefix] = out;
   return out as iLogger;
 };

@@ -1,7 +1,9 @@
-import { HassServices } from '../../enums/hass-services.enum';
+import { HassServices } from '../../typings';
 import { BaseEntity } from './base.entity';
 
 export class LockEntity extends BaseEntity {
+  // #region Public Methods
+
   public async lock() {
     return this.call(HassServices.lock, {
       entity_id: this.entityId,
@@ -13,4 +15,6 @@ export class LockEntity extends BaseEntity {
       entity_id: this.entityId,
     });
   }
+
+  // #endregion Public Methods
 }

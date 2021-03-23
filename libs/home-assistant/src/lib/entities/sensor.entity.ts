@@ -1,11 +1,17 @@
-import { SocketService } from '../../home-assistant/socket/socket.service';
+import { SocketService } from '..';
 import { BaseEntity } from './base.entity';
 
 export class SensorEntity extends BaseEntity {
+  // #region Constructors
+
   constructor(entityId: string, socketService: SocketService) {
     super(entityId, socketService);
     this.init();
   }
+
+  // #endregion Constructors
+
+  // #region Private Methods
 
   private init() {
     this.picoInit();
@@ -16,4 +22,6 @@ export class SensorEntity extends BaseEntity {
       this.emit(`pico`);
     });
   }
+
+  // #endregion Private Methods
 }

@@ -1,18 +1,18 @@
-import dayjs = require('dayjs');
+import * as dayjs from 'dayjs';
 import { EventEmitter } from 'events';
 import { Dictionary } from 'lodash';
-import { HassServices } from '../../enums/hass-services.enum';
-import { SocketService } from '../../home-assistant/socket/socket.service';
-import logger from '../../log';
-import { hassState } from '../../types/hass-states';
-import { iEntity } from '../i-entity.interface';
-const { log, warn, error, debug, develop } = logger('BaseEntity');
+import { SocketService } from '..';
+import { HassServices, iEntity } from '../../typings';
+import { HassStateDTO } from '../dto';
 
-type f = () => void;
 export class BaseEntity extends EventEmitter implements iEntity {
-  private nextChangeCbs = [];
+  // #region Static Properties
 
   public static DISABLE_INTERACTIONS = false;
+
+  // #endregion Static Properties
+
+  // #region Object Properties
 
   public attributes: Dictionary<unknown> = {};
   public domain;
@@ -21,10 +21,23 @@ export class BaseEntity extends EventEmitter implements iEntity {
   public lastUpdated = dayjs();
   public state = null;
 
-  constructor(public entityId: string, protected socketService: SocketService) {
+  private readonly nextChangeCbs = [];
+
+  // #endregion Object Properties
+
+  // #region Constructors
+
+  constructor(
+    public readonly entityId: string,
+    protected readonly socketService: SocketService,
+  ) {
     super();
     this.domain = entityId.split('.')[0];
   }
+
+  // #endregion Constructors
+
+  // #region Public Methods
 
   public async call(service: HassServices, args?: Dictionary<unknown>) {
     args = args || {};
@@ -36,20 +49,18 @@ export class BaseEntity extends EventEmitter implements iEntity {
   }
 
   public onNextChange(): Promise<void> {
-    const p: Promise<void> = new Promise(done => {
-      done();
-    });
+    const p: Promise<void> = new Promise((done) => done());
     this.nextChangeCbs.push(p);
     return p;
   }
 
-  public async setState(newState: hassState) {
+  public async setState(newState: HassStateDTO) {
     if (!this.hasChanged(newState)) {
       return;
     }
     this.lastUpdated = dayjs(newState.last_updated);
     this.lastChanged = dayjs(newState.last_changed);
-    this.friendlyName = newState.attributes.friendly_name;
+    this.friendlyName = newState.attributes.friendly_name as string;
     this.state = newState.state;
     this.attributes = newState.attributes;
     this.onUpdate();
@@ -63,7 +74,11 @@ export class BaseEntity extends EventEmitter implements iEntity {
     // develop(`${this.entityId} turnOn`);
   }
 
-  protected hasChanged(newState: hassState) {
+  // #endregion Public Methods
+
+  // #region Protected Methods
+
+  protected hasChanged(newState: HassStateDTO) {
     return !!newState || true;
   }
 
@@ -74,4 +89,6 @@ export class BaseEntity extends EventEmitter implements iEntity {
     }
     this.emit(`update`);
   }
+
+  // #endregion Protected Methods
 }
