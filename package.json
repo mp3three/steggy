@@ -28,6 +28,7 @@
   "private": true,
   "dependencies": {
     "@nestjs/common": "^7.6.14",
+    "@nestjs/testing": "^7.6.15",
     "@types/ajv": "^1.0.0",
     "@types/debug": "^4.1.5",
     "@types/node-fetch": "^2.5.8",
