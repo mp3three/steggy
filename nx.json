@@ -24,7 +24,8 @@
     "type-writer": { "tags": [] },
     "logger": { "tags": [] },
     "validation": { "tags": [] },
-    "home-assistant": { "tags": [] }
+    "home-assistant": { "tags": [] },
+    "home-controller": { "tags": [] }
   },
   "workspaceLayout": { "appsDir": "apps", "libsDir": "libs" }
 }

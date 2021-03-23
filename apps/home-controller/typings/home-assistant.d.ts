@@ -1,0 +1,12 @@
+export enum MobileDevice {
+  iPhone = 'mobile_app_cameron_s_iphone',
+  pixel2 = 'mobile_app_pixel',
+  // iPad = 'mobile_app_camerons_ipad',
+  generic = 'notify',
+}
+
+export enum NotificationGroup {
+  door = 'Door Status',
+  serverStatus = 'Server Status',
+  battery = 'Battery Watch',
+}

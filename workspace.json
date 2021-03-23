@@ -145,9 +145,69 @@
           }
         }
       }
+    },
+    "home-controller": {
+      "root": "apps/home-controller",
+      "sourceRoot": "apps/home-controller/src",
+      "projectType": "application",
+      "prefix": "home-controller",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/apps/home-controller",
+            "main": "apps/home-controller/src/main.ts",
+            "tsConfig": "apps/home-controller/tsconfig.app.json",
+            "assets": [
+              "apps/home-controller/src/assets"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/home-controller/src/environments/environment.ts",
+                  "with": "apps/home-controller/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "home-controller:build"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "apps/home-controller/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/apps/home-controller"
+          ],
+          "options": {
+            "jestConfig": "apps/home-controller/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
     }
   },
   "cli": {
-    "defaultCollection": "@nrwl/workspace"
-  }
+    "defaultCollection": "@nrwl/nest"
+  },
+  "defaultProject": "home-controller"
 }

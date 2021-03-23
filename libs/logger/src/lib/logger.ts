@@ -25,7 +25,16 @@ const LogLevels = {
 export const LoggerRegistry = {};
 
 /**
- * @see Loggers
+ * | Value | Severity | Key | Description | Notes |
+ * | --- | --- | --- | --- | --- |
+ * | 0 | Emergency | `emerg` | System is unusable | 💣🔥 As bad as it gets |
+ * | 1 | Alert | `alert` | | Corrective action must be taken immediately by a human |
+ * | 2 | Critical | `crit` | Above and beyond a normal error | Potential effects elsewhere in the process |
+ * | 3 | Error | `error` | Something bad happened | Try/catch blocks usually |
+ * | 4 | Warning | `warning` | Might need eyes | Treading into dangerous waters |
+ * | 5 | Notice | `notice` | Normal, but significant conditions |
+ * | 6 | Informational | `info` | Informational messages | |
+ * | 7 | Debug | `debug` | Debug level messages | Messages that contain information normally of use only when debugging a program. |
  */
 export const Logger = (
   prefix: string | { name: string },
