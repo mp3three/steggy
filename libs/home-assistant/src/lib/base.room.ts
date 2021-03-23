@@ -8,6 +8,7 @@ import { HomeAssistantService } from './home-assistant.service';
 import { EntityService } from './entity.service';
 import { RoomCode } from './scene.room';
 import { RoomName } from '../typings/room';
+import { Logger } from '@automagical/logger';
 
 export type BaseConfigure = {
   config?: AnyKindOfDictionary;
@@ -38,6 +39,8 @@ export abstract class BaseRoom extends EventEmitter {
   protected roomConfig: BaseRoomConfig = null;
   protected roomService: RoomService;
 
+  private readonly _baseLogger = Logger(BaseRoom);
+
   // #endregion Object Properties
 
   // #region Constructors
@@ -45,6 +48,7 @@ export abstract class BaseRoom extends EventEmitter {
   constructor(protected roomCode: RoomCode, refs: BaseRoomConstructor) {
     super();
     if (BaseRoom.REGISTRY[roomCode]) {
+      this._baseLogger.alert(`Double register room: ${roomCode}`);
       return;
     }
     this.homeAssistantService = refs.homeAssistantService;
@@ -53,7 +57,6 @@ export abstract class BaseRoom extends EventEmitter {
     this.friendlyName = RoomName[roomCode];
     BaseRoom.REGISTRY[roomCode] = this;
     RoomService.ROOM_LIST[roomCode] = this;
-    process.nextTick(() => this.init());
   }
 
   // #endregion Constructors
@@ -64,21 +67,14 @@ export abstract class BaseRoom extends EventEmitter {
 
   // #endregion Public Abstract Methods
 
-  // #region Public Methods
-
-  public sleep(ms): Promise<void> {
-    return new Promise((done) => setTimeout(() => done(), ms));
-  }
-
-  // #endregion Public Methods
-
   // #region Protected Methods
 
-  protected async init() {
-    const configPath = join(
-      process.env.CONFIG_PATH,
-      `core/room/${this.roomCode}.yaml`,
-    );
+  /**
+   * Implementations of this class should be @Injectable() to take advantage of this
+   */
+  protected async onModuleInit() {
+    //
+    const configPath = join(process.env.CONFIG_PATH, `${this.roomCode}.yaml`);
     this.roomConfig = yaml.load(readFileSync(configPath, 'utf8'));
   }
 

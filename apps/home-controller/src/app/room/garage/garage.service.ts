@@ -78,8 +78,8 @@ export class GarageService extends BaseRoom {
     return this[tent].turnOn();
   }
 
-  protected async init() {
-    await super.init();
+  protected async onModuleInit() {
+    await super.onModuleInit();
     this.vipar = await this.entityService.byId(TentEntities.vipar);
     this.qb = await this.entityService.byId(TentEntities.qb);
     schedule('0 */5 * * * *', () => {

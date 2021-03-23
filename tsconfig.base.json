@@ -15,11 +15,12 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@automagical/type-writer": ["libs/type-writer/src/index.ts"],
-      "@automagical/logger": ["libs/logger/src/index.ts"],
-      "@automagical/validation": ["libs/validation/src/index.ts"],
       "@automagical/formio-sdk": ["libs/formio-sdk/src/index.ts"],
-      "@automagical/home-assistant": ["libs/home-assistant/src/index.ts"]
+      "@automagical/home-assistant": ["libs/home-assistant/src/index.ts"],
+      "@automagical/logger": ["libs/logger/src/index.ts"],
+      "@automagical/type-writer": ["libs/type-writer/src/index.ts"],
+      "@automagical/utilities": ["libs/utilities/src/index.ts"],
+      "@automagical/validation": ["libs/validation/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

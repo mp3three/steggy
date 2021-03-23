@@ -43,10 +43,10 @@ export class BedroomService extends SceneRoom {
 
   // #region Protected Methods
 
-  protected async init() {
-    await super.init();
+  protected async onModuleInit() {
+    await super.onModuleInit();
     this.wakeupLightAlarm();
-    this.bedPico();
+    this.bindPico('sensor.bed_pico', (button) => this.bedPicoCb(button));
     this.womp = await this.entityService.byId('switch.womp');
   }
 
@@ -54,15 +54,7 @@ export class BedroomService extends SceneRoom {
 
   // #region Private Methods
 
-  private bedPico() {
-    this.bindPico(
-      'sensor.bed_pico',
-      (button) => this.bedPicoCb(button),
-      () => null,
-    );
-  }
-
-  private async bedPicoCb(button) {
+  private async bedPicoCb(button: PicoButtons) {
     switch (button) {
       case PicoButtons.on:
         return this.execGlobal({

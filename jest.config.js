@@ -5,5 +5,6 @@ module.exports = {
     '<rootDir>/libs/validation',
     '<rootDir>/libs/home-assistant',
     '<rootDir>/apps/home-controller',
+    '<rootDir>/libs/utilities',
   ],
 };

@@ -257,14 +257,14 @@ export abstract class SceneRoom extends BaseRoom {
       button: PicoButtons,
       dblClick: (button: PicoButtons) => Promise<void>,
     ) => Promise<void>,
-    dblClick: (button: PicoButtons) => Promise<void>,
+    dblClick: (button: PicoButtons) => Promise<void> = () => null,
   ) {
     const pico = await this.entityService.byId<SensorEntity>(entityId);
     pico.on('update', () => singleClick(pico.state, dblClick));
   }
 
-  protected async init() {
-    await super.init();
+  protected async onModuleInit() {
+    await super.onModuleInit();
     if (this.roomConfig.groups) {
       await this.entityService.registerGroups(this.roomConfig.groups);
     }

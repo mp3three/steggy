@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import { Logger } from '../../../logger/src';
 import { BaseEntity } from './entities/base.entity';
 import { RokuInputs, SceneRoom, SceneRoomConfig } from './scene.room';
+import { sleep } from '@automagical/utilities';
 
 export type TVRoomConfig = SceneRoomConfig & {
   config: {
@@ -61,12 +62,12 @@ export abstract class TVRoom extends SceneRoom {
       return;
     }
     await fetch(url, { method: 'POST' });
-    await this.sleep(50);
+    await sleep(50);
     await fetch(url, { method: 'POST' });
   }
 
-  protected async init() {
-    await super.init();
+  protected async onModuleInit() {
+    await super.onModuleInit();
     this.on(`scene:off`, () => this.setRoku(RokuInputs.off));
   }
 
