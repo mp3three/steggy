@@ -6,5 +6,6 @@ module.exports = {
     '<rootDir>/libs/home-assistant',
     '<rootDir>/apps/home-controller',
     '<rootDir>/libs/utilities',
+    '<rootDir>/apps/api-server',
   ],
 };

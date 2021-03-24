@@ -26,7 +26,8 @@
     "validation": { "tags": [] },
     "home-assistant": { "tags": [] },
     "home-controller": { "tags": [] },
-    "utilities": { "tags": [] }
+    "utilities": { "tags": [] },
+    "api-server": { "tags": [] }
   },
   "workspaceLayout": { "appsDir": "apps", "libsDir": "libs" }
 }
