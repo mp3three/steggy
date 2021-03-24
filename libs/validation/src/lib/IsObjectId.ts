@@ -19,6 +19,7 @@ export function IsObjectId(
     });
   };
 }
+// FIXME: This doens't seem to generate using the same format as mongo as expected
 IsObjectId.fake = () => {
   return new ObjectId().toHexString();
 };

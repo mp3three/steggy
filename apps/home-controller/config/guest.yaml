@@ -1,0 +1,37 @@
+high:
+  all:
+    circadian: high
+    on:
+      - group.guest_circadian
+
+medium:
+  all:
+    circadian: high
+    on:
+      - group.guest_circadian
+
+low:
+  all:
+    circadian: low
+    on:
+      - group.guest_circadian
+
+off:
+  all:
+    circadian: off
+    off:
+      - group.guest_circadian
+
+config:
+  pico: sensor.guest_pico
+  fan: fan.guest_ceiling_fan
+  temperature: sensor.upstairs_temperature
+  circadian:
+    high: switch.circadian_lighting_guest_circadian_light
+    low: switch.circadian_lighting_guest_low_brightness_circadian_light
+
+groups:
+  guest_circadian:
+    - light.guest_left
+    - light.guest_right
+    - light.guest_door

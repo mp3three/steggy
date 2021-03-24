@@ -23,7 +23,10 @@
   "projects": {
     "type-writer": { "tags": [] },
     "logger": { "tags": [] },
-    "validation": { "tags": [] }
+    "validation": { "tags": [] },
+    "home-assistant": { "tags": [] },
+    "home-controller": { "tags": [] },
+    "utilities": { "tags": [] }
   },
   "workspaceLayout": { "appsDir": "apps", "libsDir": "libs" }
 }
