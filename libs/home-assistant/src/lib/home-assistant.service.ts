@@ -2,6 +2,7 @@ import { Logger } from '@automagical/logger';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import * as dayjs from 'dayjs';
 import { readFileSync } from 'fs';
+import { EventEmitter } from 'events';
 import { join } from 'path';
 import { HassDomains, HassEvents } from '../typings';
 import { MqttResponse } from '../typings/mqtt';
@@ -26,10 +27,10 @@ type MilageHistory = {
 };
 
 @Injectable()
-export class HomeAssistantService {
+export class HomeAssistantService extends EventEmitter {
   // #region Static Properties
 
-  private static  ESPMapping: Record<string, string> = null;
+  private static ESPMapping: Record<string, string> = null;
   private static backDoorLock: LockEntity;
   private static frontDoorLock: LockEntity;
 
@@ -49,6 +50,7 @@ export class HomeAssistantService {
     private entityService: EntityService,
     public roomService: RoomService,
   ) {
+    super();
   }
 
   // #endregion Constructors
@@ -109,17 +111,17 @@ export class HomeAssistantService {
       });
   }
 
-  public onModuleInit() {
+  public async onModuleInit() {
     this.socketService.on('onEvent', (args) => this.onEvent(args));
-    this.socketService.on('allEntityUpdate', (args) => this.allEntityUpdate(args));
-    process.nextTick(async () => {
-      HomeAssistantService.frontDoorLock = await this.entityService.byId(
-        'lock.front_door',
-      );
-      HomeAssistantService.backDoorLock = await this.entityService.byId(
-        'lock.front_door',
-      );
-    });
+    this.socketService.on('allEntityUpdate', (args) =>
+      this.allEntityUpdate(args),
+    );
+    HomeAssistantService.frontDoorLock = await this.entityService.byId(
+      'lock.front_door',
+    );
+    HomeAssistantService.backDoorLock = await this.entityService.byId(
+      'lock.front_door',
+    );
     if (HomeAssistantService.ESPMapping === null) {
       const configPath = join(process.env.CONFIG_PATH, 'esp-mapping.json');
       HomeAssistantService.ESPMapping = JSON.parse(
@@ -143,6 +145,15 @@ export class HomeAssistantService {
         },
       },
     });
+  }
+
+  public async setLocks(state: boolean) {
+    if (state) {
+      await HomeAssistantService.frontDoorLock.lock();
+      return HomeAssistantService.backDoorLock.lock();
+    }
+    await HomeAssistantService.frontDoorLock.unlock();
+    return HomeAssistantService.backDoorLock.unlock();
   }
 
   // #endregion Public Methods

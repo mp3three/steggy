@@ -8,8 +8,8 @@ import {
   TVRoom,
 } from '@automagical/home-assistant';
 import { schedule } from 'node-cron';
-import { Logger } from '../../../../../../libs/logger/src';
-import { HueEvent } from '../../../../typings';
+import { Logger } from '@automagical/logger';
+import { HueEvent } from '../../../typings';
 
 enum RokuInputs {
   off = 'off',
