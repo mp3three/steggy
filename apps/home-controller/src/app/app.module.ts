@@ -1,6 +1,7 @@
 import { HomeAssistantModule } from '@automagical/home-assistant';
+import { Logger } from '@automagical/logger';
 import { Module } from '@nestjs/common';
-import { MqttService } from 'nest-mqtt';
+import { MqttModule } from 'nest-mqtt';
 import { AppService } from './app.service';
 import { MqttClientService } from './mqtt-client.service';
 import { BedroomService } from './rooms/bedroom.service';
@@ -11,7 +12,16 @@ import { LivingService } from './rooms/living.service';
 import { LoftService } from './rooms/loft.service';
 
 @Module({
-  imports: [HomeAssistantModule],
+  imports: [
+    HomeAssistantModule,
+    MqttModule.forRoot({
+      host: process.env.MQTT_HOST,
+      port: Number(process.env.MQTT_PORT),
+      logger: {
+        useValue: Logger.forNest('nest-mqtt'),
+      },
+    }),
+  ],
   providers: [
     AppService,
     MqttClientService,
@@ -21,7 +31,7 @@ import { LoftService } from './rooms/loft.service';
     GuestService,
     LivingService,
     LoftService,
-    MqttService,
+    MqttClientService,
   ],
 })
 export class AppModule {}

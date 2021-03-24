@@ -62,3 +62,12 @@ export const Logger = (
   Registry[prefix] = out;
   return out as iLogger;
 };
+
+Logger.forNest = (name: string) => {
+  const logger = Logger(name);
+  return {
+    warn: logger.warning,
+    error: logger.error,
+    log: logger.info,
+  };
+};
