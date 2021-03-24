@@ -20,7 +20,8 @@
       "@automagical/logger": ["libs/logger/src/index.ts"],
       "@automagical/type-writer": ["libs/type-writer/src/index.ts"],
       "@automagical/utilities": ["libs/utilities/src/index.ts"],
-      "@automagical/validation": ["libs/validation/src/index.ts"]
+      "@automagical/validation": ["libs/validation/src/index.ts"],
+      "@automagical/licenses": ["libs/licenses/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

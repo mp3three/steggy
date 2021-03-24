@@ -7,5 +7,6 @@ module.exports = {
     '<rootDir>/apps/home-controller',
     '<rootDir>/libs/utilities',
     '<rootDir>/apps/api-server',
+    '<rootDir>/libs/licenses',
   ],
 };

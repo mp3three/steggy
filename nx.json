@@ -27,7 +27,8 @@
     "home-assistant": { "tags": [] },
     "home-controller": { "tags": [] },
     "utilities": { "tags": [] },
-    "api-server": { "tags": [] }
+    "api-server": { "tags": [] },
+    "licenses": { "tags": [] }
   },
   "workspaceLayout": { "appsDir": "apps", "libsDir": "libs" }
 }

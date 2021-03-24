@@ -288,6 +288,46 @@
           }
         }
       }
+    },
+    "licenses": {
+      "root": "libs/licenses",
+      "sourceRoot": "libs/licenses/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/licenses/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/licenses"
+          ],
+          "options": {
+            "jestConfig": "libs/licenses/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/licenses",
+            "tsConfig": "libs/licenses/tsconfig.lib.json",
+            "packageJson": "libs/licenses/package.json",
+            "main": "libs/licenses/src/index.ts",
+            "assets": [
+              "libs/licenses/*.md"
+            ]
+          }
+        }
+      }
     }
   },
   "cli": {
