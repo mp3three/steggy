@@ -1,6 +1,6 @@
+import { LicenseService } from '@automagical/licenses';
 import { Logger } from '@automagical/logger';
-import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Delete, Post } from '@nestjs/common';
 
 @Controller('/utilization')
 export class LicenseController {
@@ -12,7 +12,7 @@ export class LicenseController {
 
   // #region Constructors
 
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly licenseService: LicenseService) {}
 
   // #endregion Constructors
 
@@ -20,17 +20,17 @@ export class LicenseController {
 
   @Post('/disable')
   public disable() {
-    return this.appService.utilizationDisable();
+    return this.licenseService.utilizationDisable();
   }
 
   @Post('/enable')
   public enable() {
-    return this.appService.utilizationEnable();
+    return this.licenseService.utilizationEnable();
   }
 
   @Post()
   public utilization() {
-    return this.appService.utilizationFetch();
+    return this.licenseService.utilizationFetch();
   }
 
   /**
@@ -39,7 +39,7 @@ export class LicenseController {
   @Post('/delete')
   @Delete()
   public delete() {
-    return this.appService.utilizationDelete();
+    return this.licenseService.utilizationDelete();
   }
 
   // #endregion Public Methods

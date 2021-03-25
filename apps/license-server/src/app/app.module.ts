@@ -1,12 +1,10 @@
+import { LicensesModule } from '@automagical/licenses';
 import { Module } from '@nestjs/common';
-
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { LicenseController } from './license.controller';
 
 @Module({
-  imports: [],
+  imports: [LicensesModule],
   controllers: [AppController, LicenseController],
-  providers: [AppService],
 })
 export class AppModule {}

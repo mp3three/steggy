@@ -1,6 +1,6 @@
+import { LicenseService } from '@automagical/licenses';
 import { Logger } from '@automagical/logger';
-import { Controller, Get, Param, Post } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, Param } from '@nestjs/common';
 
 @Controller()
 export class AppController {
@@ -12,7 +12,7 @@ export class AppController {
 
   // #region Constructors
 
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly licenseService: LicenseService) {}
 
   // #endregion Constructors
 
@@ -27,12 +27,12 @@ export class AppController {
 
   @Get('/key/:key/scope')
   public getScope(@Param('key') key: string) {
-    return this.appService.getScope(key);
+    return this.licenseService.getScope(key);
   }
 
   @Get('/admin/license')
   public loadLicensesAdmin() {
-    return this.appService.loadLicensesAdmin();
+    return this.licenseService.loadLicensesAdmin();
   }
 
   // #endregion Public Methods
