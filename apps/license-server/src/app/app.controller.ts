@@ -1,6 +1,7 @@
 import { LicenseService } from '@automagical/licenses';
 import { Logger } from '@automagical/logger';
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { LocalAuthGuard } from '@automagical/authorization';
 
 @Controller()
 export class AppController {
@@ -18,13 +19,6 @@ export class AppController {
 
   // #region Public Methods
 
-  @Get()
-  public getData() {
-    return {
-      name: 'Licensing Server',
-    };
-  }
-
   @Get('/key/:key/scope')
   public getScope(@Param('key') key: string) {
     return this.licenseService.getScope(key);
@@ -33,6 +27,14 @@ export class AppController {
   @Get('/admin/license')
   public loadLicensesAdmin() {
     return this.licenseService.loadLicensesAdmin();
+  }
+
+  @UseGuards(LocalAuthGuard)
+  @Get()
+  public getData() {
+    return {
+      name: 'Licensing Server',
+    };
   }
 
   // #endregion Public Methods

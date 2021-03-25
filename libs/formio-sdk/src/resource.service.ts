@@ -1,7 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { iLogger, Logger } from '@automagical/logger';
 import { FormioSdkService, ResourceDTO } from '.';
-import { SDKConfig } from './typings/Config';
 import { FetchWith, IdentifierWithParent } from './typings/HTTP';
 import { HTTP_Methods } from './typings';
 
@@ -22,7 +21,6 @@ export class ResourceService {
   // #region Constructors
 
   constructor(
-    @Inject('SDKConfig') public readonly config: SDKConfig,
     @Inject(forwardRef(() => FormioSdkService))
     public readonly formioSdkService: FormioSdkService,
   ) {}

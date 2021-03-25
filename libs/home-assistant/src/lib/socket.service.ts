@@ -2,7 +2,7 @@ import { Logger } from '@automagical/logger';
 import { Injectable } from '@nestjs/common';
 import * as dayjs from 'dayjs';
 import { EventEmitter } from 'events';
-import fetch from 'node-fetch';
+import { Fetch } from '@automagical/fetch';
 import * as WS from 'ws';
 import {
   HassCommands,
@@ -41,10 +41,10 @@ export class SocketService extends EventEmitter {
     base: process.env.HOMEASSISTANT_HOST,
     token: process.env.HOMEASSISTANT_TOKEN,
   };
+  private readonly logger = Logger(SocketService);
 
   private connection: WebSocket;
   private isAuthenticated = false;
-  private logger = Logger(SocketService);
   private messageCount = 1;
   private waitingCallback: {
     [key: number]: {
@@ -86,17 +86,19 @@ export class SocketService extends EventEmitter {
   }
 
   public async fetchEntityHistory(days: number, entity_id: string) {
-    const historyStart = dayjs().subtract(days, 'd');
-    const url = `https://${
-      this.config.base
-    }/api/history/period/${historyStart.toISOString()}?filter_entity_id=${entity_id}&end_time=${dayjs().toISOString()}&significant_changes_only`;
     try {
-      const response = await fetch(url, {
+      return Fetch.fetch({
+        url: `/api/history/period/${dayjs().subtract(days, 'd').toISOString()}`,
+        params:  {
+          filter_entity_id: entity_id,
+          end_time: dayjs().toISOString(),
+          significant_changes_only: '',
+        },
+        baseUrl: this.config.base,
         headers: {
           Authorization: `Bearer ${this.config.token}`,
         },
       });
-      return response.json();
     } catch (err) {
       this.logger.error(err);
       return [];

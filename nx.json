@@ -29,7 +29,9 @@
     "utilities": { "tags": [] },
     "api-server": { "tags": [] },
     "licenses": { "tags": [] },
-    "license-server": { "tags": [] }
+    "license-server": { "tags": [] },
+    "authorization": { "tags": [] },
+    "fetch": { "tags": [] }
   },
   "workspaceLayout": { "appsDir": "apps", "libsDir": "libs" }
 }

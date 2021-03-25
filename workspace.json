@@ -387,6 +387,86 @@
           }
         }
       }
+    },
+    "authorization": {
+      "root": "libs/authorization",
+      "sourceRoot": "libs/authorization/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/authorization/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/authorization"
+          ],
+          "options": {
+            "jestConfig": "libs/authorization/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/authorization",
+            "tsConfig": "libs/authorization/tsconfig.lib.json",
+            "packageJson": "libs/authorization/package.json",
+            "main": "libs/authorization/src/index.ts",
+            "assets": [
+              "libs/authorization/*.md"
+            ]
+          }
+        }
+      }
+    },
+    "fetch": {
+      "root": "libs/fetch",
+      "sourceRoot": "libs/fetch/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/fetch/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/fetch"
+          ],
+          "options": {
+            "jestConfig": "libs/fetch/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/fetch",
+            "tsConfig": "libs/fetch/tsconfig.lib.json",
+            "packageJson": "libs/fetch/package.json",
+            "main": "libs/fetch/src/index.ts",
+            "assets": [
+              "libs/fetch/*.md"
+            ]
+          }
+        }
+      }
     }
   },
   "cli": {
