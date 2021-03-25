@@ -1,1 +1,2 @@
-export * from './lib/licenses.module';
+export * from './lib';
+export * from './typings';

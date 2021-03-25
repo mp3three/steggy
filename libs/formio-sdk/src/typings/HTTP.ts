@@ -1,9 +1,16 @@
-import { HTTP_Methods } from '@ccontour/data';
 import * as dayjs from 'dayjs';
 
 export type Identifier = { _id?: string; name?: string };
 export type IdentifierWithParent = Partial<{ parent: string } & Identifier>;
 export type Timestamp = string;
+
+export enum HTTP_Methods {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  DELETE = 'DELETE',
+  PATCH = 'PATCH',
+}
 
 interface FetchArgs {
   // #region Object Properties

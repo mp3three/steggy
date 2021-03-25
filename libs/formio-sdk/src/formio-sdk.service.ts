@@ -10,7 +10,7 @@ import {
   HTTP_Methods,
   Identifier,
   SDKConfig,
-  TempAuthToken,,
+  TempAuthToken,
 } from './typings';
 
 type CommonID = Identifier | string;
@@ -110,7 +110,7 @@ export class FormioSdkService {
    * Sets up a usable jwtToken before the application finishes bootstrapping
    */
   public async onModuleInit() {
-    if (this.config.PORTAL.LOGIN_PASSWORD) {
+    if (this.config.LOGIN_PASSWORD) {
       this.logger.info(`Attempting to log in`);
       await this.userLogin();
     }
@@ -369,7 +369,7 @@ export class FormioSdkService {
     this.logger.debug(`userLogin`, args);
     args.name = args.name || this.PORTAL_BASE;
     args.type = args.type || 'user';
-    const { LOGIN_EMAIL: email, LOGIN_PASSWORD: password } = this.config.PORTAL;
+    const { LOGIN_EMAIL: email, LOGIN_PASSWORD: password } = this.config;
     const res = (await this.fetch({
       url: this.projectUrl(args.name, `/${args.type}/login`),
       method: HTTP_Methods.POST,
@@ -493,7 +493,7 @@ export class FormioSdkService {
     }
 
     const token = args.token || this.jwtToken;
-    const apiKey = args.apiKey || this.config.PORTAL.API_KEY;
+    const apiKey = args.apiKey || this.config.API_KEY;
     if (token) {
       headers['x-jwt-token'] = token;
     }
@@ -511,7 +511,7 @@ export class FormioSdkService {
    * Resolve url provided in args into a full path w/ domain
    */
   protected fetchCreateUrl(args: FetchWith) {
-    const baseUrl = args.baseUrl || this.config.PORTAL.PORTAL_BASE_URL;
+    const baseUrl = args.baseUrl || this.config.PORTAL_BASE_URL;
     let url = args.rawUrl ? args.url : `${baseUrl}${args.url}`;
     if (args.tempAuthToken) {
       args.params = args.params || {};
