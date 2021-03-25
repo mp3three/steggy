@@ -28,7 +28,8 @@
     "home-controller": { "tags": [] },
     "utilities": { "tags": [] },
     "api-server": { "tags": [] },
-    "licenses": { "tags": [] }
+    "licenses": { "tags": [] },
+    "license-server": { "tags": [] }
   },
   "workspaceLayout": { "appsDir": "apps", "libsDir": "libs" }
 }

@@ -328,6 +328,65 @@
           }
         }
       }
+    },
+    "license-server": {
+      "root": "apps/license-server",
+      "sourceRoot": "apps/license-server/src",
+      "projectType": "application",
+      "prefix": "license-server",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/apps/license-server",
+            "main": "apps/license-server/src/main.ts",
+            "tsConfig": "apps/license-server/tsconfig.app.json",
+            "assets": [
+              "apps/license-server/src/assets"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/license-server/src/environments/environment.ts",
+                  "with": "apps/license-server/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "license-server:build"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "apps/license-server/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/apps/license-server"
+          ],
+          "options": {
+            "jestConfig": "apps/license-server/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
     }
   },
   "cli": {

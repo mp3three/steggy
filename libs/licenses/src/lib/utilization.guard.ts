@@ -27,7 +27,6 @@ export class UtilizationGuard implements CanActivate {
   public async canActivate(context: ExecutionContext) {
     const action = this.reflector.get<string>('action', context.getHandler());
     const body = {
-      timestamp: Date.now() - 6000,
       salt: null,
     };
 
@@ -48,10 +47,4 @@ export class UtilizationGuard implements CanActivate {
   }
 
   // #endregion Public Methods
-
-  // #region Protected Methods
-
-  protected async verifyHash() {}
-
-  // #endregion Protected Methods
 }

@@ -8,5 +8,6 @@ module.exports = {
     '<rootDir>/libs/utilities',
     '<rootDir>/apps/api-server',
     '<rootDir>/libs/licenses',
+    '<rootDir>/apps/license-server',
   ],
 };
