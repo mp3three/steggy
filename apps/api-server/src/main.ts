@@ -5,19 +5,21 @@
 
 import { Logger } from '@automagical/logger';
 import { NestFactory } from '@nestjs/core';
-
+import cors from 'cors';
+import * as helmet from 'helmet';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
-  const logger = Logger.forNest('api-server');
+  const prefix = 'api-server';
+  const logger = Logger.forNest(prefix);
+
   const app = await NestFactory.create(AppModule, {
     logger,
   });
-  const globalPrefix = 'api';
-  app.setGlobalPrefix(globalPrefix);
-  const port = process.env.PORT || 3333;
-  await app.listen(port, () => {
-    logger.log('Listening at http://localhost:' + port + '/' + globalPrefix);
+  app.setGlobalPrefix(prefix);
+  app.use(cors(), helmet());
+  await app.listen(process.env.PORT, () => {
+    logger.log(`Listening on ${process.env.PORT}`);
   });
 }
 

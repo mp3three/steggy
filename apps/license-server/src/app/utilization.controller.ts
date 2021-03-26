@@ -3,10 +3,10 @@ import { Logger } from '@automagical/logger';
 import { Controller, Delete, Post } from '@nestjs/common';
 
 @Controller('/utilization')
-export class LicenseController {
+export class UtilizationController {
   // #region Object Properties
 
-  private readonly logger = Logger(LicenseController);
+  private readonly logger = Logger(UtilizationController);
 
   // #endregion Object Properties
 

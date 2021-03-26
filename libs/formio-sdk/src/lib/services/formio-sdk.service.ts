@@ -2,13 +2,13 @@ import { Fetch } from '@automagical/fetch';
 import { iLogger, Logger } from '@automagical/logger';
 import { Injectable } from '@nestjs/common';
 import { Response } from 'node-fetch';
-import { ProjectDTO, UserDataDTO, UserDTO } from './dto';
+import { ProjectDTO, UserDataDTO, UserDTO } from '../dto';
 import {
   FetchWith,
   HTTP_Methods,
   Identifier,
-  TempAuthToken
-} from './typings';
+  TempAuthToken,
+} from '../../typings';
 
 type CommonID = Identifier | string;
 export type FetchError = { status: number; message: string };
@@ -315,6 +315,18 @@ export class FormioSdkService {
   }
 
   /**
+   * Retrieve userdata (or verify token)
+   */
+  public async userFetch(args: FetchWith = {}) {
+    this.logger.debug(`userRefresh`, args);
+    this.userDto = await this.fetch({
+      url: this.projectUrl(null, '/current'),
+      ...args,
+    });
+    return this.userDto;
+  }
+
+  /**
    * Retrieve a JWT, store it in this.jwtToken
    */
   public async userLogin(
@@ -356,18 +368,6 @@ export class FormioSdkService {
       ...args,
     });
     this.jwtToken = null;
-  }
-
-  /**
-   * Mostly a UI tool, but if you find a use 🤷‍♂️
-   */
-  public async userRefresh(args: FetchWith = {}) {
-    this.logger.debug(`userRefresh`, args);
-    this.userDto = await this.fetch({
-      url: this.projectUrl(null, '/current'),
-      ...args,
-    });
-    return this.userDto;
   }
 
   // #endregion Public Methods

@@ -2,8 +2,7 @@ import { FormioSdkService, HTTP_Methods } from '@automagical/formio-sdk';
 import { Logger } from '@automagical/logger';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { createHash } from 'crypto';
-import { UtilizationResponseDTO } from './dto/utilization';
+import { UtilizationResponseDTO } from '../dto';
 
 @Injectable()
 export class UtilizationGuard implements CanActivate {
@@ -31,7 +30,7 @@ export class UtilizationGuard implements CanActivate {
     };
 
     const response = await this.formioSdkService.fetch<UtilizationResponseDTO>({
-      baseUrl: this.formioSdkService.config.LICENSE_SERVER_BASE_URL,
+      baseUrl: process.env.FORMIO_SDK_LICENSE_SERVER_BASE_URL,
       url: `/utilization/${action}`,
       method: HTTP_Methods.POST,
       params: {

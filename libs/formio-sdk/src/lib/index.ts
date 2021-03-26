@@ -1,5 +1,4 @@
-export * from './licenses.module';
+export * from './formio-sdk.module';
 export * from './services';
-export * from './guards';
 export * from './dto';
 export * from './middleware';
