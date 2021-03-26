@@ -30,7 +30,7 @@ export class UtilizationGuard implements CanActivate {
     };
 
     const response = await this.formioSdkService.fetch<UtilizationResponseDTO>({
-      baseUrl: process.env.FORMIO_SDK_LICENSE_SERVER_BASE_URL,
+      baseUrl: process.env.FORMIO_SDK_LICENSE_SERVER_base_url,
       url: `/utilization/${action}`,
       method: HTTP_Methods.POST,
       params: {

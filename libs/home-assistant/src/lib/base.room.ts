@@ -74,7 +74,7 @@ export abstract class BaseRoom extends EventEmitter {
    */
   protected async onModuleInit() {
     //
-    const configPath = join(process.env.CONFIG_PATH, `${this.roomCode}.yaml`);
+    const configPath = join(process.env.HOMEASSISTANT_CONFIG_PATH, `${this.roomCode}.yaml`);
     this.roomConfig = yaml.load(readFileSync(configPath, 'utf8'));
   }
 

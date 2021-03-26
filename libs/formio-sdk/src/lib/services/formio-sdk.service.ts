@@ -348,7 +348,7 @@ export class FormioSdkService {
       },
       ...args,
     })) as Response;
-    this.jwtToken = res.headers.get(process.env.JWT_HEADER);
+    this.jwtToken = res.headers.get('x-jwt-token');
     this.userDto = await res.json();
     return this.userDto;
   }
