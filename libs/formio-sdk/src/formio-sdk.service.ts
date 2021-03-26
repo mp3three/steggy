@@ -31,7 +31,7 @@ export class FormioSdkService {
 
   // #region Object Properties
 
-  public PORTAL_BASE = 'formio';
+  public PORTAL_BASE = process.env.FORMIO_SDK_PORTAL_BASE_PROJECT;
   public jwtToken: string;
   public userDto: UserDTO = null;
 
@@ -336,7 +336,7 @@ export class FormioSdkService {
       },
       ...args,
     })) as Response;
-    this.jwtToken = res.headers.get('x-jwt-token');
+    this.jwtToken = res.headers.get(process.env.JWT_HEADER);
     this.userDto = await res.json();
     return this.userDto;
   }
