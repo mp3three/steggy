@@ -18,9 +18,7 @@ export class SensorEntity extends BaseEntity {
   }
 
   private picoInit() {
-    this.on('update', () => {
-      this.emit(`pico`);
-    });
+    this.on('update', () => this.emit(`pico`));
   }
 
   // #endregion Private Methods

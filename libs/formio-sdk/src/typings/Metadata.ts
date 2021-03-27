@@ -1,6 +1,9 @@
 import { SetMetadata } from '@nestjs/common';
-import { LicenseScopes } from '../dto';
+import { LicenseScopes } from '@automagical/contracts';
 
-export const UseUtilization = (
-  type: 'formRequest' | 'submissionRequest' | LicenseScopes,
-) => SetMetadata('licenseUtilization', type);
+export enum MetadataTypes {
+  getUser = 'getUser',
+}
+
+export const UseUtilization = (type: LicenseScopes) =>
+  SetMetadata('licenseUtilization', type);

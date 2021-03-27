@@ -53,7 +53,7 @@
     "license-server": {
       "tags": []
     },
-    "authorization": {
+    "authentication": {
       "tags": []
     },
     "fetch": {
