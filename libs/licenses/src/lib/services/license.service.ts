@@ -1,4 +1,9 @@
-import { LicenseDTO, UserDTO } from '@automagical/contracts';
+import {
+  LicenseDTO,
+  UserDTO,
+  UtilizationResponseDTO,
+  UtilizationUpdateDTO,
+} from '@automagical/contracts';
 import { FetchWith, FormioSdkService } from '@automagical/formio-sdk';
 import { env, Logger } from '@automagical/logger';
 import { Injectable } from '@nestjs/common';
@@ -129,7 +134,11 @@ export class LicenseService {
 
   public utilizationEnable() {}
 
-  public utilizationFetch() {}
+  public utilizationUpdate(
+    update: UtilizationUpdateDTO,
+  ): Promise<UtilizationResponseDTO> {
+    return null;
+  }
 
   // #endregion Public Methods
 

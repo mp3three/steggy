@@ -16,6 +16,7 @@ export enum PROJECT_PLAN_TYPES {
 export enum PROJECT_TYPES {
   project = 'project',
   stage = 'stage',
+  livestage = 'livestage',
 }
 
 export enum PROJECT_FRAMEWORKS {

@@ -5,38 +5,9 @@ import {
   IsString,
   ValidateNested,
 } from '@automagical/validation';
-import { LicenseKeyDTO, UserDTO } from '../..';
+import { LicenseKeyDTO, LicenseLocations, UserDTO } from '../..';
 import { LicenseAdminDTO, LicenseTermsDTO } from './LicenseAdmin.dto';
 
-export enum LicenseScopes {
-  'apiServer' = 'apiServer',
-  'pdfServer' = 'pdfServer',
-  'project' = 'project',
-  'tenant' = 'tenant',
-  'stage' = 'stage',
-  'form' = 'form',
-  'formManager' = 'formManager',
-  'formRequest' = 'formRequest',
-  'email' = 'email',
-  'pdf' = 'pdf',
-  'pdfDownload' = 'pdfDownload',
-  'vpat' = 'vpat',
-  'accessibility' = 'accessibility',
-  'submissionRequest' = 'submissionRequest',
-}
-
-export enum LicenseLocations {
-  'onPremise' = 'onPremise',
-  'hosted' = 'hosted',
-}
-
-export enum LicensePlans {
-  Basic = 'basic',
-  Independent = 'independent',
-  Team_Pro = 'team',
-  Enterprise = 'commercial',
-  Trial = 'trial',
-}
 export class LicenseDataDTO extends LicenseTermsDTO {
   // #region Object Properties
 

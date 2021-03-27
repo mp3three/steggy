@@ -9,7 +9,7 @@ export class LicenseOptionsDTO {
   @IsBoolean()
   public evaluation: boolean;
   /**
-   * @FIXME: Description
+   * Security and compliance
    */
   @IsBoolean()
   public sac: boolean;

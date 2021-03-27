@@ -1,6 +1,7 @@
 import { LicenseService } from '@automagical/licenses';
 import { Logger } from '@automagical/logger';
-import { Controller, Delete, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Post } from '@nestjs/common';
+import { UtilizationUpdateDTO } from '@automagical/contracts';
 
 @Controller('utilization')
 export class UtilizationController {
@@ -29,16 +30,16 @@ export class UtilizationController {
   }
 
   @Post()
-  public utilization() {
-    return this.licenseService.utilizationFetch();
+  public utilizationUpdate(@Body() body: UtilizationUpdateDTO) {
+    return this.licenseService.utilizationUpdate(body);
   }
 
   /**
-   * @Post is legacy
+   * @Post is legacy call
    */
   @Post('/delete')
   @Delete()
-  public delete() {
+  public utilizationDelete() {
     return this.licenseService.utilizationDelete();
   }
 
