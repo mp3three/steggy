@@ -1,7 +1,16 @@
-import { LicenseService } from '@automagical/licenses';
+import {
+  UtilizationResponseDTO,
+  UtilizationUpdateDTO,
+} from '@automagical/contracts';
+import { LicenseService, UtilizationCleanup } from '@automagical/licenses';
 import { Logger } from '@automagical/logger';
-import { Body, Controller, Delete, Post } from '@nestjs/common';
-import { UtilizationUpdateDTO } from '@automagical/contracts';
+import {
+  Body,
+  Controller,
+  Delete,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 
 @Controller('utilization')
 export class UtilizationController {
@@ -29,11 +38,6 @@ export class UtilizationController {
     return this.licenseService.utilizationEnable();
   }
 
-  @Post()
-  public utilizationUpdate(@Body() body: UtilizationUpdateDTO) {
-    return this.licenseService.utilizationUpdate(body);
-  }
-
   /**
    * @Post is legacy call
    */
@@ -41,6 +45,14 @@ export class UtilizationController {
   @Delete()
   public utilizationDelete() {
     return this.licenseService.utilizationDelete();
+  }
+
+  @Post()
+  @UseInterceptors(UtilizationCleanup)
+  public utilizationUpdate(
+    @Body() body: UtilizationUpdateDTO,
+  ): Promise<UtilizationResponseDTO> {
+    return this.licenseService.utilizationUpdate(body);
   }
 
   // #endregion Public Methods
