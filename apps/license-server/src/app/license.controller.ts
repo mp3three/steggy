@@ -2,7 +2,6 @@ import { LicenseService } from '@automagical/licenses';
 import { Logger } from '@automagical/logger';
 import { Controller, Get, Param, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { UserDTO } from '@automagical/formio-sdk';
 
 @Controller('license')
 export class LicenseController {
@@ -20,18 +19,21 @@ export class LicenseController {
 
   // #region Public Methods
 
-  @Get('/:id/admin')
-  public getAdminInfo(@Param('id') id: string) {
+  @Get('/:licenseId/admin')
+  public getAdminInfo(@Param('licenseId') id: string) {
     return this.licenseService.getAdminInfo(id);
   }
 
-  @Get('/:id/terms')
-  public getTerms(@Param('id') id: string) {
+  @Get('/:licenseId/terms')
+  public getTerms(@Param('licenseId') id: string) {
     this.licenseService.getTerms(id);
   }
 
-  @Get('/:id/utilizations/:type')
-  public getUtilizations(@Param('id') id: string, @Param('type') type: string) {
+  @Get('/:licenseId/utilizations/:type')
+  public getUtilizations(
+    @Param('licenseId') id: string,
+    @Param('type') type: string,
+  ) {
     return this.licenseService.getUtilizations(id, type);
   }
 
@@ -45,8 +47,8 @@ export class LicenseController {
     return res.locals.licenses;
   }
 
-  @Post('/:id/clear')
-  public clearLicense(@Param('id') id: string) {
+  @Post('/:licenseId/clear')
+  public clearLicense(@Param('licenseId') id: string) {
     return this.licenseService.clearLicense(id);
   }
 

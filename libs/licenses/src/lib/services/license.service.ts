@@ -96,7 +96,19 @@ export class LicenseService {
     };
   }
 
-  public licenseFetch(user: UserDTO) {
+  public licenseFetch(id: string) {
+    return this.fetch<LicenseDTO>({
+      url: LicenseService.FORM_PATH,
+      filters: [
+        {
+          field: '_id',
+          equals: id,
+        },
+      ],
+    });
+  }
+
+  public licenseFetchByUser(user: UserDTO) {
     return this.fetch<LicenseDTO[]>({
       url: LicenseService.FORM_PATH,
       filters: [

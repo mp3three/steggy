@@ -1,0 +1,51 @@
+{
+  "cli": "nx",
+  "id": "environment",
+  "type": "object",
+  "properties": {
+    "scope": {
+      "type": "string",
+      "description": "Library name",
+      "x-prompt": {
+        "message": "Which type of variable?",
+        "type": "list",
+        "items": [{
+            "value": "npm-module",
+            "label": "NPM Module"
+          },
+          {
+            "value": "application",
+            "label": "Application"
+          },
+          {
+            "value": "libarary",
+            "label": "Library"
+          }
+        ]
+      }
+    },
+    "name": {
+      "type": "string",
+      "description": "Environment variable name",
+      "visibleIf": {
+        "type": ["npm-module"]
+      }
+    },
+    "projectName": {
+      "type": "string",
+      "description": "Project Name",
+      "$default": {
+        "$source": "projectName"
+      }
+    },
+    "defaultValue": {
+      "description": "The directory of the new application.",
+      "type": "string"
+    },
+    "tags": {
+      "type": "string",
+      "description": "Add tags to the application (used for linting)"
+    }
+  },
+  "required": ["type"]
+}

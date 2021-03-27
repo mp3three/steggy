@@ -1,7 +1,7 @@
+import { LicenseDTO } from '@automagical/contracts';
 import { FetchLicense, License, LicenseService } from '@automagical/licenses';
 import { Logger } from '@automagical/logger';
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
-import { LicenseDTO } from '../../../../libs/contracts/src';
+import { Controller, Get, Param } from '@nestjs/common';
 
 @Controller()
 export class AppController {

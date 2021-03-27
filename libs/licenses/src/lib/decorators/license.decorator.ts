@@ -3,6 +3,7 @@ import {
   applyDecorators,
   createParamDecorator,
   ExecutionContext,
+  SetMetadata,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -15,8 +16,9 @@ import { FetchLicenseMiddleware } from '../middleware/fetch-license.middleware';
  *
  * Implies @FetchUser (@automagical/formio-sdk)
  */
-export function FetchLicense() {
+export function FetchLicense(idParam: string = null) {
   return applyDecorators(
+    SetMetadata('idParam', idParam),
     FetchUser(),
     UsePipes(FetchLicenseMiddleware),
     UseGuards(HasLicenseGuard),
