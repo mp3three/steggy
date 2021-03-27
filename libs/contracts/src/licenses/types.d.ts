@@ -1,3 +1,5 @@
+// Keeping track of all the magic strings
+
 export enum OnPremiseScopes {
   apiServer = 'apiServer',
   pdfServer = 'pdfServer',
@@ -15,22 +17,22 @@ export enum LicensePlans {
   trial = 'trial',
 }
 export enum LicenseScopes {
-  'apiServer' = 'apiServer',
-  'pdfServer' = 'pdfServer',
-  'project' = 'project',
-  'tenant' = 'tenant',
-  'stage' = 'stage',
-  'form' = 'form',
-  'formManager' = 'formManager',
-  'formRequest' = 'formRequest',
-  'email' = 'email',
-  'pdf' = 'pdf',
-  'pdfDownload' = 'pdfDownload',
-  'vpat' = 'vpat',
-  'accessibility' = 'accessibility',
-  'submissionRequest' = 'submissionRequest',
+  apiServer = 'apiServer',
+  pdfServer = 'pdfServer',
+  project = 'project',
+  tenant = 'tenant',
+  stage = 'stage',
+  form = 'form',
+  formManager = 'formManager',
+  formRequest = 'formRequest',
+  email = 'email',
+  pdf = 'pdf',
+  pdfDownload = 'pdfDownload',
+  vpat = 'vpat',
+  accessibility = 'accessibility',
+  submissionRequest = 'submissionRequest',
 }
 export enum LicenseLocations {
-  'onPremise' = 'onPremise',
-  'hosted' = 'hosted',
+  onPremise = 'onPremise',
+  hosted = 'hosted',
 }
