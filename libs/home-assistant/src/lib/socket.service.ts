@@ -55,15 +55,6 @@ export class SocketService extends EventEmitter {
 
   // #endregion Object Properties
 
-  // #region Constructors
-
-  constructor() {
-    super();
-    this.initConnection();
-  }
-
-  // #endregion Constructors
-
   // #region Public Methods
 
   public call(
@@ -89,7 +80,7 @@ export class SocketService extends EventEmitter {
     try {
       return Fetch.fetch({
         url: `/api/history/period/${dayjs().subtract(days, 'd').toISOString()}`,
-        params:  {
+        params: {
           filter_entity_id: entity_id,
           end_time: dayjs().toISOString(),
           significant_changes_only: '',
@@ -103,6 +94,10 @@ export class SocketService extends EventEmitter {
       this.logger.error(err);
       return [];
     }
+  }
+
+  public onModuleInit() {
+    return this.initConnection();
   }
 
   public sendMqtt(topic: string, payload: Record<string, unknown>) {

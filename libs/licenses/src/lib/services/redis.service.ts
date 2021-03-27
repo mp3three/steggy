@@ -2,6 +2,20 @@ import { env, Logger } from '@automagical/logger';
 import { Injectable } from '@nestjs/common';
 import { ClientOpts, createClient, RedisClient } from 'redis';
 
+interface iCacheItem {
+  // #region Object Properties
+
+  item: string;
+  lastUpdate: string;
+
+  // #endregion Object Properties
+}
+
+/**
+ * This code is legacy, typing is just so I can figure out wtf is going on.
+ *
+ * It's a PITA to work with, let's hope it doesn't need tweaks after this
+ */
 @Injectable()
 export class RedisService {
   // #region Object Properties
@@ -81,16 +95,13 @@ export class RedisService {
     }
   }
 
-  public async getInfo(key: string) {
+  public async getInfo(key: string): Promise<iCacheItem> {
     return new Promise((resolve, reject) => {
-      if (!this.db) {
-        return resolve({});
-      }
       this.db.hgetall(key, (err, result) => {
         if (err) {
           return reject(err);
         }
-        return resolve(result);
+        return resolve((result as unknown) as iCacheItem);
       });
     });
   }
@@ -128,6 +139,14 @@ export class RedisService {
         return resolve(data);
       });
     });
+  }
+
+  public onModuleDestroy() {
+    this.disconnect();
+  }
+
+  public onModuleInit() {
+    this.connect();
   }
 
   public setInfo(key: string, info) {

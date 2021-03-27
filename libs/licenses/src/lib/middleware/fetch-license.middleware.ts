@@ -32,7 +32,7 @@ export class FetchLicenseMiddleware implements NestMiddleware {
   // #region Public Methods
 
   public async use(req: Request, res: Response, next: NextFunction) {
-    res.locals.licenses = await this.licenseService.loadLicenses(
+    res.locals.licenses = await this.licenseService.licenseFetch(
       res.locals.user,
     );
     next();

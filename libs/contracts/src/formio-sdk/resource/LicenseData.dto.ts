@@ -5,8 +5,7 @@ import {
   IsString,
   ValidateNested,
 } from '@automagical/validation';
-import { LicenseKeyDTO, UserDTO } from '..';
-import { LicenseUsageDTO } from './license/Usage.dto';
+import { LicenseKeyDTO, UserDTO } from '../..';
 import { LicenseAdminDTO, LicenseTermsDTO } from './LicenseAdmin.dto';
 
 export enum LicenseScopes {
@@ -93,43 +92,3 @@ export class LicenseDataDTO extends LicenseTermsDTO {
 
   // #endregion Object Properties
 }
-
-export type LicenseApiServer = {
-  id: string;
-  status: '0' | '1';
-  environmentId: string;
-  hostName: string;
-  lastCheck: string;
-  mongoHash: string;
-};
-
-// export type LicenseItemCommon = {
-//   id: string;
-//   status: '0' | '1';
-//   remote: 'false' | 'true';
-//   projectType: 'stage' | 'project';
-//   projectId: string;
-//   name: string;
-//   title: string;
-// };
-
-// export type LicenseFormManager = LicenseItemCommon & {
-//   licenseId: string;
-//   stageId: string;
-//   tenantId: string;
-//   type?: 'formManager';
-// };
-
-// export type LicenseItem = LicenseItemCommon & {
-//   lastCheck: string;
-// };
-
-// export type LicenseReport = {
-//   admin: LicenseAdminDTO;
-//   apiServer?: LicenseApiServer[];
-//   projects?: LicenseItem[];
-//   stages?: LicenseItem[];
-//   pdfServers?: unknown[];
-//   tenants?: unknown[];
-//   formManager?: LicenseItem[];
-// };

@@ -1,5 +1,3 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { MqttService, Payload, Subscribe } from 'nest-mqtt';
 import {
   BaseEntity,
   HomeAssistantService,
@@ -8,8 +6,10 @@ import {
   RoomDoArgs,
   RoomService,
 } from '@automagical/home-assistant';
-import { MobileDevice, NotificationGroup } from '../../typings';
 import { Logger } from '@automagical/logger';
+import { Inject, Injectable } from '@nestjs/common';
+import { MqttService, Payload, Subscribe } from 'nest-mqtt';
+import { MobileDevice, NotificationGroup } from '../../typings';
 import { LivingService } from './rooms/living.service';
 import { LoftService } from './rooms/loft.service';
 
@@ -19,6 +19,7 @@ export class MqttClientService {
 
   private readonly logger = Logger(MqttClientService);
 
+  private _onlineInterval = null;
   private disableTimeout = null;
 
   // #endregion Object Properties
@@ -30,7 +31,18 @@ export class MqttClientService {
     @Inject(HomeAssistantService)
     private readonly homeAssistantService: HomeAssistantService,
     private readonly roomService: RoomService,
-  ) {
+  ) {}
+
+  // #endregion Constructors
+
+  // #region Public Methods
+
+  public onModuleDestroy() {
+    clearInterval(this._onlineInterval);
+    return this.beforeExit();
+  }
+
+  public onModuleInit() {
     this.homeAssistantService.on('mqtt', ({ topic, payload }) => {
       this.logger.debug(`>>> ${topic}`);
       this.mqttService.publish(topic, payload);
@@ -41,19 +53,11 @@ export class MqttClientService {
     this.logger.notice(
       `':::::::::::SENDING PAUSE / ${process.env.NODE_ENV}:::::::::::'`,
     );
-    setInterval(() => this.sendOnline(), 1000 * 60);
+    this._onlineInterval = setInterval(() => this.sendOnline(), 1000 * 60);
     process.nextTick(() => this.sendOnline());
-    [
-      'SIGINT',
-      'SIGQUIT',
-      'SIGTERM',
-      'uncaughtException',
-      'exit',
-      'SIGHUP',
-    ].forEach((i) => process.on(i, () => this.beforeExit()));
   }
 
-  // #endregion Constructors
+  // #endregion Public Methods
 
   // #region Private Methods
 

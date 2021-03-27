@@ -5,9 +5,9 @@ import {
   IsOptional,
   ValidateNested,
 } from '@automagical/validation';
-import { LicenseOptionsDTO } from './license/Options.dto';
-import { LicenseBaseDTO, LicenseUsageDTO } from './license/Usage.dto';
-import { LicensePlans, LicenseScopes, LicenseUsage } from './LicenseData.dto';
+import { LicenseOptionsDTO } from '../../licenses/Options.dto';
+import { LicenseBaseDTO, LicenseUsageDTO } from '../../licenses/Usage.dto';
+import { LicensePlans, LicenseScopes } from './LicenseData.dto';
 
 export class LicenseTermsDTO extends LicenseBaseDTO {
   // #region Object Properties
@@ -97,7 +97,7 @@ export class LicenseAdminDTO {
 
   public scopes: LicenseScopes[];
   public terms: LicenseTermsDTO;
-  public usage: LicenseUsage;
+  public usage: LicenseUsageDTO;
 
   // #endregion Object Properties
 }

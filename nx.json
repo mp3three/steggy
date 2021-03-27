@@ -1,9 +1,14 @@
 {
   "npmScope": "automagical",
-  "affected": { "defaultBase": "master" },
+  "affected": {
+    "defaultBase": "master"
+  },
   "implicitDependencies": {
     "workspace.json": "*",
-    "package.json": { "dependencies": "*", "devDependencies": "*" },
+    "package.json": {
+      "dependencies": "*",
+      "devDependencies": "*"
+    },
     "tsconfig.base.json": "*",
     "tslint.json": "*",
     ".eslintrc.json": "*",
@@ -21,17 +26,45 @@
     }
   },
   "projects": {
-    "type-writer": { "tags": [] },
-    "logger": { "tags": [] },
-    "validation": { "tags": [] },
-    "home-assistant": { "tags": [] },
-    "home-controller": { "tags": [] },
-    "utilities": { "tags": [] },
-    "api-server": { "tags": [] },
-    "licenses": { "tags": [] },
-    "license-server": { "tags": [] },
-    "authorization": { "tags": [] },
-    "fetch": { "tags": [] }
+    "type-writer": {
+      "tags": []
+    },
+    "logger": {
+      "tags": []
+    },
+    "validation": {
+      "tags": []
+    },
+    "home-assistant": {
+      "tags": []
+    },
+    "home-controller": {
+      "tags": []
+    },
+    "utilities": {
+      "tags": []
+    },
+    "api-server": {
+      "tags": []
+    },
+    "licenses": {
+      "tags": []
+    },
+    "license-server": {
+      "tags": []
+    },
+    "authorization": {
+      "tags": []
+    },
+    "fetch": {
+      "tags": []
+    },
+    "contracts": {
+      "tags": []
+    }
   },
-  "workspaceLayout": { "appsDir": "apps", "libsDir": "libs" }
+  "workspaceLayout": {
+    "appsDir": "apps",
+    "libsDir": "libs"
+  }
 }

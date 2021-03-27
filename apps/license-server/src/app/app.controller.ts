@@ -26,7 +26,7 @@ export class AppController {
 
   @Get('/admin/license')
   public loadLicensesAdmin() {
-    return this.licenseService.loadLicensesAdmin();
+    return this.licenseService.licenseAdminFetch();
   }
 
   @UseGuards(LocalAuthGuard)

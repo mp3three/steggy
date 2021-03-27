@@ -1,12 +1,8 @@
-import { FormioSdkService, LicenseDTO, UserDTO } from '@automagical/formio-sdk';
+import { LicenseDTO, UserDTO } from '@automagical/contracts';
+import { FetchWith, FormioSdkService } from '@automagical/formio-sdk';
+import { env, Logger } from '@automagical/logger';
 import { Injectable } from '@nestjs/common';
-import { createClient, RedisClient, ClientOpts } from 'redis';
-import { Logger, env } from '@automagical/logger';
-import { ObjectId } from 'mongodb';
-import {
-  LicenseResponseDTO,
-  UtilizationResponseDTO,
-} from '@automagical/contracts';
+import dayjs = require('dayjs');
 import { RedisService } from './redis.service';
 
 @Injectable()
@@ -19,6 +15,9 @@ export class LicenseService {
 
   // #region Object Properties
 
+  /**
+   * TODO Remove this legacy item
+   */
   private readonly config = Object.freeze({
     url: env.LICENSES_REDIS_URL,
     host: env.LICENSES_REDIS_HOST,
@@ -27,8 +26,6 @@ export class LicenseService {
     password: env.LICENSES_REDIS_PASSWORD,
   });
   private readonly logger = Logger(LicenseService);
-
-  private db: RedisClient = null;
 
   // #endregion Object Properties
 
@@ -63,8 +60,44 @@ export class LicenseService {
     return id;
   }
 
-  public loadLicenses(user: UserDTO) {
-    return this.formioSdkService.fetch<LicenseResponseDTO>({
+  public isActive(license: LicenseDTO) {
+    const started =
+      !license.data.startDate || dayjs().isAfter(dayjs(license.data.startDate));
+    const ended =
+      license.data.endDate && dayjs().isAfter(dayjs(license.data.startDate));
+
+    return started && !ended;
+  }
+
+  public async licenseAdminFetch(license: LicenseDTO) {
+    return {
+      // terms: await this.getTerms(),
+      // scopes: await this.getScope(),
+      usage: {
+        apiServers: await this.redisService.totalEnabled(
+          `license:${license._id}:apiServer`,
+        ),
+        pdfServers: await this.redisService.totalEnabled(
+          `license:${license._id}:pdfServer`,
+        ),
+        tenants: await this.redisService.totalEnabled(
+          `license:${license._id}:tenant`,
+        ),
+        projects: await this.redisService.totalEnabled(
+          `license:${license._id}:project`,
+        ),
+        formManagers: await this.redisService.totalEnabled(
+          `license:${license._id}:formManager`,
+        ),
+        vpat: await this.redisService.totalEnabled(
+          `license:${license._id}:vpat`,
+        ),
+      },
+    };
+  }
+
+  public licenseFetch(user: UserDTO) {
+    return this.fetch<LicenseDTO[]>({
       url: LicenseService.FORM_PATH,
       filters: [
         {
@@ -76,36 +109,6 @@ export class LicenseService {
         },
       ],
     });
-  }
-
-  public async loadLicensesAdmin(license: LicenseResponseDTO) {
-    const utilizations = {
-      apiServers: await this.redisService.totalEnabled(
-        `license:${license.id}:apiServer`,
-      ),
-      pdfServers: await this.redisService.totalEnabled(
-        `license:${license.id}:pdfServer`,
-      ),
-      tenants: await this.redisService.totalEnabled(
-        `license:${license.id}:tenant`,
-      ),
-      projects: await this.redisService.totalEnabled(
-        `license:${license.id}:project`,
-      ),
-      formManagers: await this.redisService.totalEnabled(
-        `license:${license.id}:formManager`,
-      ),
-      vpat: await this.redisService.totalEnabled(`license:${license.id}:vpat`),
-    };
-    return {
-      terms: await license.getTerms(),
-      usage: utilizations,
-      scopes: await license.getScope(),
-    };
-  }
-
-  public onModuleBootstrap() {
-    return;
   }
 
   public utilizationDelete() {}
@@ -120,75 +123,33 @@ export class LicenseService {
 
   // #region Private Methods
 
-  private async getKeys(license: LicenseDTO) {
-    const licenses = await this.formioSdkService.fetch<LicenseDTO[]>({
-      url: LicenseService.FORM_PATH,
-      filters: [
-        {
-          field: '_id',
-          equals: license._id,
-        },
-      ],
+  private fetch<T>(args: FetchWith) {
+    return this.formioSdkService.fetch<T>({
+      baseUrl: process.env.FORMIO_SDK_LICENSE_SERVER_base_url,
+      ...args,
     });
+  }
 
-    const scopes;
-    licenses.forEach((license) => {});
+  private async getCachedItem(url: string, cacheKey: string) {
+    const result = await this.redisService.getInfo(cacheKey);
 
-    if (!licenses.length) {
-      return {};
-    }
-
-    const keys = [];
-    // const scopes = Object.keys(this.scopesByKey);
-
-    _.each(licenses[0].data.licenseKeys, (key) => {
-      // Only add the key if it doesn't give us any additional scopes
-      if (!_.difference(key.scope, scopes).length) {
-        keys.push(key);
+    if (result && result.item) {
+      if (dayjs(result.lastUpdate).isBefore(dayjs().subtract(15, 'minutes'))) {
+        process.nextTick(() => this.refreshCache(url, cacheKey));
       }
-    });
-
-    return _.keyBy(keys, 'key');
+      return JSON.parse(result.item);
+    }
+    return this.refreshCache(url, cacheKey);
   }
 
-  private async getScope() {
-    const scopes = {};
-
-    // Get matching submission
-    const submissions = await util.get(formPath, {
-      qs: { _id: this.submission._id },
+  private async refreshCache(url: string, cacheKey: string) {
+    const newItems = await this.fetch<LicenseDTO[]>({ url });
+    const data = newItems[0];
+    this.redisService.setInfo(cacheKey, {
+      item: JSON.stringify(newItems[0]),
+      lastUpdate: dayjs(),
     });
-
-    submissions[0].data.licenseKeys.forEach((key) => {
-      key.scope.forEach((scope) => {
-        scopes[scope] = true;
-      });
-    });
-
-    return Object.keys(scopes);
-  }
-
-  private async getTerms() {
-    return _.pick(this.submission.data, TERMS);
-  }
-
-  // get id() {
-  //   return this.submission._id;
-  // }
-
-  // private isActive() {
-  //   const now     = moment().toDate()
-  //   const started = !this.data.startDate || moment(this.data.startDate).toDate() <= now
-  //   const ended   =  this.data.endDate   && moment(this.data.endDate  ).toDate() <  now
-
-  //   return started && !ended
-  // }
-
-  // private get isDevLicense() {
-  //   return !!this.data.developmentLicense;
-  // }
-  private hasAuthScope(type) {
-    return this.scopesByKey[type];
+    return data;
   }
 
   // #endregion Private Methods
