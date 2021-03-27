@@ -2,7 +2,7 @@ import { LicenseService } from '@automagical/licenses';
 import { Logger } from '@automagical/logger';
 import { Controller, Delete, Post } from '@nestjs/common';
 
-@Controller('/utilization')
+@Controller('utilization')
 export class UtilizationController {
   // #region Object Properties
 

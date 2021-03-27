@@ -1,8 +1,10 @@
 import { LicenseService } from '@automagical/licenses';
 import { Logger } from '@automagical/logger';
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post, Res } from '@nestjs/common';
+import { Response } from 'express';
+import { UserDTO } from '@automagical/formio-sdk';
 
-@Controller('/license')
+@Controller('license')
 export class LicenseController {
   // #region Object Properties
 
@@ -33,9 +35,14 @@ export class LicenseController {
     return this.licenseService.getUtilizations(id, type);
   }
 
+  /**
+   * Load licenses using x-jwt-token
+   *
+   * Data populated by middleware. See main.js
+   */
   @Get()
-  public loadLicenses() {
-    return this.licenseService.loadLicenses();
+  public loadLicenses(@Res() res: Response) {
+    return res.locals.licenses;
   }
 
   @Post('/:id/clear')

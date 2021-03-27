@@ -8,10 +8,9 @@ import {
   LicenseItem,
   LicenseReport,
   LicenseUsage,
-} from './dto';
+} from '@automagical/contracts';
 import { FormioSdkService } from '.';
-import { FetchWith } from './typings/HTTP';
-import { HTTP_Methods } from './typings';
+import { FetchWith, HTTP_Methods } from '../../typings';
 
 @Injectable()
 export class LicenseService {

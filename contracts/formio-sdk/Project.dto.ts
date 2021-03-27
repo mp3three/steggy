@@ -7,8 +7,7 @@ import {
   ValidateNested,
 } from '@automagical/validation';
 import * as faker from 'faker';
-import { AccessDTO, BaseOmitProps } from '../dto';
-import { BaseDTO } from './Base.dto';
+import { AccessDTO, BaseDTO, BaseOmitProps } from './Base.dto';
 
 export enum PROJECT_PLAN_TYPES {
   commercial = 'commercial',

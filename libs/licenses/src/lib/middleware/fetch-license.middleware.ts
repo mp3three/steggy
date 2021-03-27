@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { FormioSdkService, UserDTO } from '@automagical/formio-sdk';
+import { LicenseService } from '@automagical/licenses';
 
 @Injectable()
 export class FetchLicenseMiddleware implements NestMiddleware {
@@ -24,25 +25,16 @@ export class FetchLicenseMiddleware implements NestMiddleware {
 
   // #region Constructors
 
-  constructor(private readonly formioSdkService: FormioSdkService) {}
+  constructor(private readonly licenseService: LicenseService) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
   public async use(req: Request, res: Response, next: NextFunction) {
-    res.locals.licenses = await this.formioSdkService.fetch({
-      url: FetchLicenseMiddleware.FORM_PATH,
-      filters: [
-        {
-          field: 'data.user._id',
-          equals: (res.locals.user as UserDTO)._id,
-        },
-        {
-          limit: 100,
-        },
-      ],
-    });
+    res.locals.licenses = await this.licenseService.loadLicenses(
+      res.locals.user,
+    );
     next();
   }
 

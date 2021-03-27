@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { FormioSdkService } from '.';
 import { iLogger, Logger } from '@automagical/logger';
-import { FetchWith } from './typings/HTTP';
-import { HTTP_Methods } from './typings';
+import { FetchWith } from '../../typings/HTTP';
+import { HTTP_Methods } from '../../typings';
 
 type SubmissionArgs<
   T extends Record<never, string> = Record<never, string>

@@ -71,6 +71,36 @@ export class ProcessEnvDTO {
    */
   public HOMEASSISTANT_TOKEN: string;
   /**
+   * Connection param
+   *
+   * @see `@automagical/licenses`
+   */
+  public LICENSES_REDIS_HOST: string;
+  /**
+   * Connection param
+   *
+   * @see `@automagical/licenses`
+   */
+  public LICENSES_REDIS_PASSWORD: string;
+  /**
+   * Connection param
+   *
+   * @see `@automagical/licenses`
+   */
+  public LICENSES_REDIS_PORT: string;
+  /**
+   * Connection param
+   *
+   * @see `@automagical/licenses`
+   */
+  public LICENSES_REDIS_URL: string;
+  /**
+   * Connection param
+   *
+   * @see `@automagical/licenses`
+   */
+  public LICENSES_REDIS_USESSL: string;
+  /**
    * @see `@automagical/logger`
    */
   public LOG_PREFIX: string;
@@ -113,4 +143,4 @@ declare global {
   }
 }
 
-export {};
+export const env: ProcessEnvDTO = process.env;

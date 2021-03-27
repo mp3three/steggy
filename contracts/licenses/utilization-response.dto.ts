@@ -1,4 +1,9 @@
-import { IsOptional, IsString } from '@automagical/validation';
+import {
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from '@automagical/validation';
 import { createHash } from 'crypto';
 
 export class UtilizationResponseDTO {
@@ -17,9 +22,21 @@ export class UtilizationResponseDTO {
 
   // #region Object Properties
 
+  @IsBoolean()
+  public vpat: boolean;
+  @IsNumber()
+  public apiServers: number;
+  @IsNumber()
+  public formManagers: number;
+  @IsNumber()
+  public pdfServers: number;
+  @IsNumber()
+  public projects: number;
+  @IsNumber()
+  public tenants: number;
   @IsString()
   @IsOptional()
-  hash?: string;
+  public hash?: string;
 
   // #endregion Object Properties
 }

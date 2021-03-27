@@ -1,1 +1,1 @@
-export * from './fetch-userdata.middleware';
+export * from './fetch-license.middleware';

@@ -2,7 +2,7 @@ import { Fetch } from '@automagical/fetch';
 import { iLogger, Logger } from '@automagical/logger';
 import { Injectable } from '@nestjs/common';
 import { Response } from 'node-fetch';
-import { ProjectDTO, UserDataDTO, UserDTO } from '../dto';
+import { ProjectDTO, UserDataDTO, UserDTO } from '@automagical/contracts';
 import {
   FetchWith,
   HTTP_Methods,

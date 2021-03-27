@@ -2,6 +2,7 @@ import { FetchUserdataMiddleware } from '@automagical/formio-sdk';
 import { Logger } from '@automagical/logger';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
+import { FetchLicenseMiddleware } from '@automagical/licenses';
 
 async function bootstrap() {
   const prefix = 'license-server';
@@ -11,7 +12,7 @@ async function bootstrap() {
     logger,
   });
   app.setGlobalPrefix(prefix);
-  app.use(FetchUserdataMiddleware);
+  app.use(FetchUserdataMiddleware, FetchLicenseMiddleware);
   await app.listen(process.env.PORT, () => {
     logger.log(`Listening on ${process.env.PORT}`);
   });
