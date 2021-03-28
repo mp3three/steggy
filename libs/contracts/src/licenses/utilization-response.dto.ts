@@ -1,6 +1,7 @@
 import {
   IsBoolean,
   IsEnum,
+  IsOptional,
   IsString,
   ValidateNested,
 } from '@automagical/validation';
@@ -8,6 +9,7 @@ import { PROJECT_TYPES } from '../formio-sdk';
 import { LicenseKeyDTO } from './Key.dto';
 import { LicenseMonthlyUsageDTO } from './monthly-usage.dto';
 import { UtilizationResponseTermsDTO } from './terms.dto';
+import { LicenseScopes } from './types';
 
 // Not sure if this is useful right now, but I don't feel like re-writing later
 // import { createHash } from 'crypto';
@@ -25,14 +27,17 @@ export class UtilizationResponseDTO {
 
   @IsBoolean()
   public devLicense: boolean;
-  @IsEnum(PROJECT_TYPES)
-  public type: PROJECT_TYPES;
+  @IsEnum(LicenseScopes)
+  public type: LicenseScopes;
   @IsString()
   public licenseId: string;
   @IsString()
   public licenseKey: string;
   @IsString()
   public projectId: string;
+  @IsString()
+  @IsOptional()
+  hash?: string;
   @ValidateNested()
   public keys: Record<string, LicenseKeyDTO>;
   @ValidateNested()

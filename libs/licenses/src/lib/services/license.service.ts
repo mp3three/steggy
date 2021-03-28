@@ -2,6 +2,7 @@ import {
   LicenseDTO,
   LicenseKeyDTO,
   LicenseMonthlyUsageDTO,
+  LicenseScopes,
   PROJECT_TYPES,
   UserDTO,
   UtilizationResponseDTO,
@@ -159,13 +160,15 @@ export class LicenseService {
     }
 
     // * <Fix>: Authoring mode
-    if (update.type === PROJECT_TYPES.stage) {
-      update.type = PROJECT_TYPES.livestage;
+    if (update.type === LicenseScopes.stage) {
+      update.type = LicenseScopes.livestage;
     }
     // * </Fix>
     const keys: Record<string, LicenseKeyDTO> = {};
     licence.data.licenseKeys.forEach((i) => (keys[i.key] = i));
     return {
+      hash: '',
+      ...update,
       licenseId: licence._id,
       licenseKey: key.key,
       devLicense: licence.data.developmentLicense,
@@ -178,6 +181,31 @@ export class LicenseService {
   }
 
   // #endregion Public Methods
+
+  // #region Protected Methods
+
+  protected async getUsage(projectId) {
+    const now = new Date();
+    const yearMonth = `${now.getUTCFullYear()}:${now.getUTCMonth()}`;
+    return {
+      emails: await this.redisService.countCalls(
+        `project:${projectId}:email:${yearMonth}`,
+      ),
+      forms: await this.redisService.totalEnabled(`project:${projectId}:form`),
+      formRequests: await this.redisService.countCalls(
+        `project:${projectId}:formRequest:${yearMonth}`,
+      ),
+      pdfs: await this.redisService.totalEnabled(`project:${projectId}:pdf`),
+      pdfDownloads: await this.redisService.countCalls(
+        `project:${projectId}:pdfDownload:${yearMonth}`,
+      ),
+      submissionRequests: await this.redisService.countCalls(
+        `project:${projectId}:submissionRequest:${yearMonth}`,
+      ),
+    };
+  }
+
+  // #endregion Protected Methods
 
   // #region Private Methods
 
@@ -198,6 +226,28 @@ export class LicenseService {
       return JSON.parse(result.item);
     }
     return this.refreshCache(url, cacheKey);
+  }
+
+  private getMember(
+    license: LicenseDTO,
+    scope: LicenseScopes,
+    update: UtilizationUpdateDTO,
+  ) {
+    switch (scope) {
+      case LicenseScopes.accessibility:
+      case LicenseScopes.project:
+      case LicenseScopes.formManager:
+        return update.projectId;
+      case LicenseScopes.stage:
+      case LicenseScopes.livestage:
+        return update.stageId;
+      case LicenseScopes.tenant:
+        return update.tenantId;
+      case LicenseScopes.apiServer:
+      default:
+        this.logger.alert(`Unknown scope: ${scope}`);
+        return null;
+    }
   }
 
   private async monthlyUsage(
@@ -221,10 +271,11 @@ export class LicenseService {
     const calls = await this.redisService.countCalls(my);
 
     if (!limit || calls < limit) {
-      const out = await this.redisService.addMonthRecord(
-        `${my}:${now.getUTCDate()}`,
-        license,
-      );
+      // TODO: Finish logic
+      // const out = await this.redisService.addMonthRecord(
+      //   `${my}:${now.getUTCDate()}`,
+      //   license,
+      // );
     }
 
     throw new ForbiddenException(`${update.title} limit reached`);
@@ -238,6 +289,98 @@ export class LicenseService {
       lastUpdate: dayjs(),
     });
     return data;
+  }
+
+  private async totalUsage(
+    license: LicenseDTO,
+    auth: LicenseKeyDTO,
+    update: UtilizationUpdateDTO,
+  ) {
+    const record: Partial<UtilizationResponseDTO> = {
+      type: update.type,
+      licenseId: license._id,
+      licenseKey: auth.key,
+    };
+    const type = `${update.type}s` as keyof UtilizationResponseDTO;
+    const limit = license.data[type] || 0;
+
+    const set = `license:${record.licenseId}:${record.type}`;
+    const member = this.getMember(
+      license,
+      update.type as LicenseScopes,
+      update,
+    );
+
+    // const total = await this.redis.totalEnabled(set);
+
+    // // Allow checking before an item is created.
+    // if (this.getMember(record) === 'new') {
+    //   if (total >= limit) {
+    //     throw new Error.PaymentRequired(`${this.title} limit reached`);
+    //   }
+    //   return record;
+    // }
+
+    // let status = await this.redis.totalStatus(set, member);
+    // if (status === null) {
+    //   status = 'null';
+    // }
+
+    // // The function for set info of the utilization.
+    // const recordInfo = () => {
+    //   const {licenseKey, type, timestamp, ...info} = data;
+    //   const id = this.getMember(data);
+    //   this.redis.setInfo(`info:${type}:${id}`, {
+    //     ...info,
+    //     id,
+    //     status,
+    //     lastCheck: new Date().toISOString(),
+    //   });
+    // };
+    // // The function for get info of the utilization.
+    // const getItemInfo = () => {
+    //   const {type} = data;
+    //   const id = this.getMember(data);
+    //   return this.redis.getInfo(`info:${type}:${id}`);
+    // };
+
+    // if (status === '0') {
+    //   if (data && data.remote === true) {
+    //     return record;
+    //   }
+    //   const itemInfo = await getItemInfo();
+    //   // If the information about the utilization is equal null.
+    //   if (itemInfo === null) {
+    //      // Record the information about the utilization.
+    //      recordInfo();
+    //   }
+
+    //   throw new Error.PaymentRequired(`${this.title} license utilization is disabled`);
+    // }
+
+    // if (total > limit || (total === limit && (status === 'null' || status === null))) {
+    //   const itemInfo = await getItemInfo();
+    //   // If over limit and this is a new item, disable it.
+    //   if (status === 'null' || status === null || itemInfo === null) {
+    //     // Record the information about the utilization.
+    //     recordInfo();
+    //   }
+    //   await this.redis.totalDisable(set, member);
+    //   status = '0';
+    //   throw new Error.PaymentRequired(`${this.title} limit reached`);
+    // }
+
+    // if (status === 'null' || status === null) {
+    //   await this.redis.totalEnable(set, member);
+    //   status = '1';
+    // }
+
+    // // Record the information about the utilization.
+    // if (!sub) {
+    //   recordInfo();
+    // }
+
+    // return record;
   }
 
   // #endregion Private Methods

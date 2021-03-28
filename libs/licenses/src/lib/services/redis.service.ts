@@ -35,6 +35,21 @@ export class RedisService {
 
   // #region Public Methods
 
+  public addMonthRecord(key: string, data) {
+    return new Promise((resolve, reject) => {
+      if (!this.db) {
+        return resolve(data);
+      }
+      // Add this record, to the end of the list at the position of the key.
+      this.db.rpush(key, JSON.stringify(data), (err, length) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(data);
+      });
+    });
+  }
+
   public connect() {
     this.logger.notice('Connecting to Redis');
     if (!this.config.url) {
@@ -84,29 +99,7 @@ export class RedisService {
     });
   }
 
-  public async delInfo(key) {
-    this.db.hdel(key, 'item');
-    this.db.hdel(key, 'lastUpdate');
-  }
-
-  public disconnect() {
-    if (this.db) {
-      this.db.unref();
-    }
-  }
-
-  public async getInfo(key: string): Promise<iCacheItem> {
-    return new Promise((resolve, reject) => {
-      this.db.hgetall(key, (err, result) => {
-        if (err) {
-          return reject(err);
-        }
-        return resolve((result as unknown) as iCacheItem);
-      });
-    });
-  }
-
-  public monthLength(key: string) {
+  public countCalls(key: string): Promise<number> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
         return resolve(0);
@@ -126,17 +119,24 @@ export class RedisService {
     });
   }
 
-  public monthRecord(key: string, data) {
+  public async delInfo(key) {
+    this.db.hdel(key, 'item');
+    this.db.hdel(key, 'lastUpdate');
+  }
+
+  public disconnect() {
+    if (this.db) {
+      this.db.unref();
+    }
+  }
+
+  public async getInfo(key: string): Promise<iCacheItem> {
     return new Promise((resolve, reject) => {
-      if (!this.db) {
-        return resolve(data);
-      }
-      // Add this record, to the end of the list at the position of the key.
-      this.db.rpush(key, JSON.stringify(data), (err, length) => {
+      this.db.hgetall(key, (err, result) => {
         if (err) {
           return reject(err);
         }
-        return resolve(data);
+        return resolve((result as unknown) as iCacheItem);
       });
     });
   }
@@ -206,7 +206,7 @@ export class RedisService {
     });
   }
 
-  public totalEnabled(set) {
+  public totalEnabled(set): Promise<number> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
         return resolve(0);

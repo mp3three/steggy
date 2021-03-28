@@ -1,11 +1,17 @@
-import { IsBoolean, IsEnum, IsString } from '@automagical/validation';
+import {
+  IsBoolean,
+  IsEnum,
+  IsOptional,
+  IsString,
+} from '@automagical/validation';
 import { PROJECT_TYPES } from '../formio-sdk/Project.dto';
+import { LicenseScopes } from './types';
 
 export class UtilizationUpdateDTO {
   // #region Object Properties
 
   @IsBoolean()
-  public remote: null;
+  public remote: boolean;
   /**
    * TODO I'm pretty sure this definition isn't right, because then it'd be redundant
    */
@@ -14,28 +20,31 @@ export class UtilizationUpdateDTO {
   /**
    * project/stage
    */
-  @IsEnum(PROJECT_TYPES)
-  public type: PROJECT_TYPES;
+  @IsEnum(LicenseScopes)
+  public type: LicenseScopes;
   /**
    * License key associated with API server
    */
   @IsString()
-  public licenseKey: null;
+  public licenseKey: LicenseScopes;
   /**
    * project/stage name
    */
   @IsString()
-  public name: null;
-  /**
-   * (or stage id)
-   */
+  public name: string;
   @IsString()
-  public projectId: null;
+  public projectId: string;
   /**
    * project/stage title
    */
   @IsString()
-  public title: null;
+  public title: string;
+  @IsString()
+  @IsOptional()
+  public stageId: string;
+  @IsString()
+  @IsOptional()
+  public tenantId?: string;
 
   // #endregion Object Properties
 }

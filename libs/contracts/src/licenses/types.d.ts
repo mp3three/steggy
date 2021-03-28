@@ -17,19 +17,22 @@ export enum LicensePlans {
   trial = 'trial',
 }
 export enum LicenseScopes {
+  // On Premise
   apiServer = 'apiServer',
   pdfServer = 'pdfServer',
   project = 'project',
   tenant = 'tenant',
   stage = 'stage',
-  form = 'form',
+  livestage = 'livestage',
+  accessibility = 'accessibility',
   formManager = 'formManager',
+  // Hosted / Monthly
+  form = 'form',
   formRequest = 'formRequest',
   email = 'email',
   pdf = 'pdf',
   pdfDownload = 'pdfDownload',
   vpat = 'vpat',
-  accessibility = 'accessibility',
   submissionRequest = 'submissionRequest',
 }
 export enum LicenseLocations {
