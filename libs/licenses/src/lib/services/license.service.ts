@@ -15,6 +15,9 @@ import * as dayjs from 'dayjs';
 import { Request } from 'express';
 import { RedisService } from './redis.service';
 
+/**
+ * TODO 💣☄️🔥🧨
+ */
 @Injectable()
 export class LicenseService {
   // #region Static Properties
@@ -79,15 +82,6 @@ export class LicenseService {
     return started && !ended;
   }
 
-  public licenceIdFromReq(req: Request) {
-    return (
-      req.headers['x-license-key'] ||
-      req.params?.licenseKey ||
-      req.body?.licenseKey ||
-      null
-    );
-  }
-
   public async licenseAdminFetch(license: LicenseDTO) {
     return {
       // terms: await this.getTerms(),
@@ -142,6 +136,15 @@ export class LicenseService {
     });
   }
 
+  public licenseIdFromReq(req: Request) {
+    return (
+      req.headers['x-license-key'] ||
+      req.params?.licenseKey ||
+      req.body?.licenseKey ||
+      null
+    );
+  }
+
   public utilizationDelete() {}
 
   public utilizationDisable() {}
@@ -150,33 +153,48 @@ export class LicenseService {
 
   public async utilizationUpdate(
     update: UtilizationUpdateDTO,
-    licence: LicenseDTO,
+    license: LicenseDTO,
   ): Promise<UtilizationResponseDTO> {
-    const key = licence.data.licenseKeys.find(
-      (key) => key.key === update.licenseKey,
-    );
-    if (!key) {
+    const { licenseKeys, developmentLicense: devLicense } = license.data;
+    const auth = licenseKeys.find((key) => key.key === update.licenseKey);
+    if (!auth) {
       throw new ForbiddenException('Invalid license key');
     }
-
+    if (!this.isActive(license)) {
+      throw new ForbiddenException(`License expired`);
+    }
     // * <Fix>: Authoring mode
-    if (update.type === LicenseScopes.stage) {
-      update.type = LicenseScopes.livestage;
+    // * stages should be synonymous with livestage
+    switch (update.type) {
+      case LicenseScopes.stage:
+        update.type = LicenseScopes.livestage;
+        break;
+      case LicenseScopes.formRequest:
+        if (update.remote) {
+          // Hosted Only
+          break;
+        }
+        // Verify: Forms (Per Project, Tracked as Total)
+        break;
     }
     // * </Fix>
+    if (!(auth.scope as string[]).includes(update.type as string)) {
+      throw new ForbiddenException(`Missing license key scope: ${update.type}`);
+    }
     const keys: Record<string, LicenseKeyDTO> = {};
-    licence.data.licenseKeys.forEach((i) => (keys[i.key] = i));
+    licenseKeys.forEach((i) => (keys[i.key] = i));
+    // ! Hash
     return {
       hash: '',
       ...update,
-      licenseId: licence._id,
-      licenseKey: key.key,
-      devLicense: licence.data.developmentLicense,
-      type: update.type,
+      used: await this.monthlyUsage(license, auth, update),
+      licenseKey: update.licenseKey,
       projectId: update.projectId,
+      licenseId: license._id,
+      terms: license.data,
+      type: update.type,
+      devLicense,
       keys,
-      terms: licence.data,
-      used: await this.monthlyUsage(licence, key, update),
     };
   }
 
@@ -184,7 +202,7 @@ export class LicenseService {
 
   // #region Protected Methods
 
-  protected async getUsage(projectId) {
+  protected async getUsage(projectId: string) {
     const now = new Date();
     const yearMonth = `${now.getUTCFullYear()}:${now.getUTCMonth()}`;
     return {
@@ -228,6 +246,9 @@ export class LicenseService {
     return this.refreshCache(url, cacheKey);
   }
 
+  /**
+   * Get relevant identifier based on scope
+   */
   private getMember(
     license: LicenseDTO,
     scope: LicenseScopes,
@@ -250,32 +271,41 @@ export class LicenseService {
     }
   }
 
+  /**
+   * # Hosted Only
+   * ## Utilization update for monthly totals
+   *
+   * > **Per Project, Tracked Monthly**
+   *
+   * - Form Loads
+   * - Submission Requests
+   * - Emails
+   * - PDF Generations
+   *
+   * ## Related to:
+   * > **Per Project, Tracked as Total**
+   *
+   * - Forms
+   * - Hosted PDF Documents
+   */
   private async monthlyUsage(
     license: LicenseDTO,
     auth: LicenseKeyDTO,
     update: UtilizationUpdateDTO,
   ): Promise<LicenseMonthlyUsageDTO> {
-    if (!this.isActive(license)) {
-      throw new ForbiddenException(`License expired`);
-    }
-    if (!(auth.scope as string[]).includes(update.type as string)) {
-      throw new ForbiddenException(`Missing license key scope: ${update.type}`);
-    }
     const type = `${update.type}s` as keyof UtilizationResponseDTO;
     const limit = license.data[type] || 0;
-
     const { key } = auth;
-
+    // TODO dayjs() instead of date shenanigains
     const now = new Date();
-    const my = `${key}:${now.getUTCFullYear()}:${now.getUTCMonth()}`;
-    const calls = await this.redisService.countCalls(my);
+    const keyParts = [key, now.getUTCFullYear(), now.getUTCMonth()];
 
-    if (!limit || calls < limit) {
-      // TODO: Finish logic
-      // const out = await this.redisService.addMonthRecord(
-      //   `${my}:${now.getUTCDate()}`,
-      //   license,
-      // );
+    const calls = await this.redisService.countCalls(keyParts.join(':'));
+
+    if (!limit || calls <= limit) {
+      keyParts.push(now.getUTCMonth());
+      await this.redisService.addMonthRecord(keyParts.join(':'), update);
+      return this.getUsage(this.getMember(license, update.type, update));
     }
 
     throw new ForbiddenException(`${update.title} limit reached`);
@@ -305,82 +335,74 @@ export class LicenseService {
     const limit = license.data[type] || 0;
 
     const set = `license:${record.licenseId}:${record.type}`;
-    const member = this.getMember(
+    const id = await this.getMember(
       license,
       update.type as LicenseScopes,
       update,
     );
 
-    // const total = await this.redis.totalEnabled(set);
+    const total = await this.redisService.totalEnabled(set);
 
-    // // Allow checking before an item is created.
-    // if (this.getMember(record) === 'new') {
-    //   if (total >= limit) {
-    //     throw new Error.PaymentRequired(`${this.title} limit reached`);
-    //   }
-    //   return record;
-    // }
+    let status = await this.redisService.totalStatus(set, id);
+    if (status === null) {
+      status = 'null';
+    }
 
-    // let status = await this.redis.totalStatus(set, member);
-    // if (status === null) {
-    //   status = 'null';
-    // }
+    // The function for set info of the utilization.
+    const recordInfo = () => {
+      const { licenseKey, type, ...info } = update;
+      return this.redisService.setInfo(`info:${type}:${id}`, {
+        ...info,
+        id,
+        status,
+        lastCheck: new Date().toISOString(),
+      });
+    };
+    // The function for get info of the utilization.
+    const getItemInfo = () => {
+      return this.redisService.getInfo(`info:${type}:${id}`);
+    };
 
-    // // The function for set info of the utilization.
-    // const recordInfo = () => {
-    //   const {licenseKey, type, timestamp, ...info} = data;
-    //   const id = this.getMember(data);
-    //   this.redis.setInfo(`info:${type}:${id}`, {
-    //     ...info,
-    //     id,
-    //     status,
-    //     lastCheck: new Date().toISOString(),
-    //   });
-    // };
-    // // The function for get info of the utilization.
-    // const getItemInfo = () => {
-    //   const {type} = data;
-    //   const id = this.getMember(data);
-    //   return this.redis.getInfo(`info:${type}:${id}`);
-    // };
+    if (status === '0') {
+      if (update?.remote === true) {
+        return record;
+      }
+      const itemInfo = await getItemInfo();
+      // If the information about the utilization is equal null.
+      if (itemInfo === null) {
+        // Record the information about the utilization.
+        await recordInfo();
+      }
 
-    // if (status === '0') {
-    //   if (data && data.remote === true) {
-    //     return record;
-    //   }
-    //   const itemInfo = await getItemInfo();
-    //   // If the information about the utilization is equal null.
-    //   if (itemInfo === null) {
-    //      // Record the information about the utilization.
-    //      recordInfo();
-    //   }
+      throw new ForbiddenException(
+        `${update.title} license utilization is disabled`,
+      );
+    }
 
-    //   throw new Error.PaymentRequired(`${this.title} license utilization is disabled`);
-    // }
+    if (
+      total > limit ||
+      (total === limit && (status === 'null' || status === null))
+    ) {
+      const itemInfo = await getItemInfo();
+      // If over limit and this is a new item, disable it.
+      if (status === 'null' || status === null || itemInfo === null) {
+        // Record the information about the utilization.
+        recordInfo();
+      }
+      await this.redisService.totalDisable(set, id);
+      status = '0';
+      throw new ForbiddenException(`${update.title} limit reached`);
+    }
 
-    // if (total > limit || (total === limit && (status === 'null' || status === null))) {
-    //   const itemInfo = await getItemInfo();
-    //   // If over limit and this is a new item, disable it.
-    //   if (status === 'null' || status === null || itemInfo === null) {
-    //     // Record the information about the utilization.
-    //     recordInfo();
-    //   }
-    //   await this.redis.totalDisable(set, member);
-    //   status = '0';
-    //   throw new Error.PaymentRequired(`${this.title} limit reached`);
-    // }
+    if (status === 'null' || status === null) {
+      await this.redisService.totalEnable(set, id);
+      status = '1';
+    }
 
-    // if (status === 'null' || status === null) {
-    //   await this.redis.totalEnable(set, member);
-    //   status = '1';
-    // }
+    // Record the information about the utilization.
+    recordInfo();
 
-    // // Record the information about the utilization.
-    // if (!sub) {
-    //   recordInfo();
-    // }
-
-    // return record;
+    return record;
   }
 
   // #endregion Private Methods
