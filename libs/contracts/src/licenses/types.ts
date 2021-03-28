@@ -1,28 +1,9 @@
-// Keeping track of all the magic strings
+/**
+ * Putting all the magic strings into buckets
+ *
+ * Buckets serve as control logic also
+ */
 
-export enum RemoteScopes {
-  apiServer = LicenseScopes.apiServer,
-  pdfServer = LicenseScopes.pdfServer,
-  project = LicenseScopes.project,
-  tenant = LicenseScopes.tenant,
-  stage = LicenseScopes.stage,
-  dbts = LicenseScopes.dbts,
-  formManager = LicenseScopes.formManager,
-  accessibility = LicenseScopes.accessibility,
-}
-export enum MonthlyScopes {
-  formRequest = LicenseScopes.formRequest,
-  email = LicenseScopes.email,
-  pdfDownload = LicenseScopes.pdfDownload,
-  submissionRequest = LicenseScopes.submissionRequest,
-}
-export enum LicensePlans {
-  basic = 'basic',
-  independent = 'independent',
-  team = 'team',
-  commercial = 'commercial',
-  trial = 'trial',
-}
 export enum LicenseScopes {
   /**
    * - Title: API Environments
@@ -126,6 +107,53 @@ export enum LicenseScopes {
    */
   submissionRequest = 'submissionRequest',
 }
+
+/**
+ * All license scopes without "hosted only" items
+ */
+export enum LicenseRemoteScopes {
+  apiServer = LicenseScopes.apiServer,
+  pdfServer = LicenseScopes.pdfServer,
+  project = LicenseScopes.project,
+  tenant = LicenseScopes.tenant,
+  livestage = LicenseScopes.livestage,
+  stage = LicenseScopes.stage,
+  dbts = LicenseScopes.dbts,
+  formManager = LicenseScopes.formManager,
+  accessibility = LicenseScopes.accessibility,
+}
+/**
+ * Items that matter month to month
+ */
+export enum LicenseTrackedMonthlyScopes {
+  formRequest = LicenseScopes.formRequest,
+  email = LicenseScopes.email,
+  pdfDownload = LicenseScopes.pdfDownload,
+  submissionRequest = LicenseScopes.submissionRequest,
+}
+/**
+ * Items tracked as a whole against the license
+ */
+export enum LicenseTrackedLicenseScopes {
+  project = LicenseScopes.project,
+  tenant = LicenseScopes.tenant,
+  dbts = LicenseScopes.dbts,
+  formManager = LicenseScopes.formManager,
+}
+/**
+ * Items that are tracked per project
+ */
+export enum LicenseTrackedProjectScopes {
+  livestage = LicenseScopes.livestage,
+  stage = LicenseScopes.stage,
+  form = LicenseScopes.form,
+  formRequest = LicenseScopes.formRequest,
+  email = LicenseScopes.email,
+  pdfDownload = LicenseScopes.pdfDownload,
+  submissionRequest = LicenseScopes.submissionRequest,
+  pdf = LicenseScopes.pdf,
+}
+
 export enum LicenseLocations {
   /**
    * Interchangable with onPremise
@@ -133,4 +161,12 @@ export enum LicenseLocations {
   remote = 'onPremise',
   onPremise = 'onPremise',
   hosted = 'hosted',
+}
+
+export enum LicensePlans {
+  basic = 'basic',
+  independent = 'independent',
+  team = 'team',
+  commercial = 'commercial',
+  trial = 'trial',
 }
