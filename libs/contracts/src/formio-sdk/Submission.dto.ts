@@ -6,8 +6,7 @@ import {
   IsString,
   ValidateNested,
 } from '@automagical/validation';
-import { SubmissionStates } from '../data';
-import { BaseDTO } from './Base.dto';
+import { BaseDTO, SubmissionStates } from './Base.dto';
 
 export class SubmissionDTO<
   DATA extends Record<never, unknown> = Record<never, unknown>,

@@ -1,17 +1,22 @@
 import {
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsNumber,
   IsOptional,
   ValidateNested,
 } from '@automagical/validation';
+import { LicenseBaseDTO } from '../../licenses/license-base.dto';
 import { LicenseOptionsDTO } from '../../licenses/Options.dto';
-import { LicenseBaseDTO, LicenseUsageDTO } from '../../licenses/Usage.dto';
-import { LicensePlans, LicenseScopes } from './LicenseData.dto';
+import { LicensePlans, LicenseScopes } from '../../licenses/types';
+import { LicenseUsageDTO } from '../../licenses/Usage.dto';
 
 export class LicenseTermsDTO extends LicenseBaseDTO {
   // #region Object Properties
 
+  @IsBoolean()
+  @IsOptional()
+  public developmentLicense?: boolean;
   /**
    * License Terms > Plan > Start Date
    */

@@ -6,3 +6,4 @@ export * from './utilization-response.dto';
 export * from './utilization-update.dto';
 export * from './Report.dto';
 export * from './types';
+export * from './monthly-usage.dto';

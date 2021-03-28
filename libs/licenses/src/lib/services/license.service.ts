@@ -1,13 +1,17 @@
 import {
   LicenseDTO,
+  LicenseKeyDTO,
+  LicenseMonthlyUsageDTO,
+  PROJECT_TYPES,
   UserDTO,
   UtilizationResponseDTO,
   UtilizationUpdateDTO,
 } from '@automagical/contracts';
 import { FetchWith, FormioSdkService } from '@automagical/formio-sdk';
 import { env, Logger } from '@automagical/logger';
-import { Injectable } from '@nestjs/common';
-import dayjs = require('dayjs');
+import { ForbiddenException, Injectable } from '@nestjs/common';
+import * as dayjs from 'dayjs';
+import { Request } from 'express';
 import { RedisService } from './redis.service';
 
 @Injectable()
@@ -74,6 +78,15 @@ export class LicenseService {
     return started && !ended;
   }
 
+  public licenceIdFromReq(req: Request) {
+    return (
+      req.headers['x-license-key'] ||
+      req.params?.licenseKey ||
+      req.body?.licenseKey ||
+      null
+    );
+  }
+
   public async licenseAdminFetch(license: LicenseDTO) {
     return {
       // terms: await this.getTerms(),
@@ -134,10 +147,34 @@ export class LicenseService {
 
   public utilizationEnable() {}
 
-  public utilizationUpdate(
+  public async utilizationUpdate(
     update: UtilizationUpdateDTO,
+    licence: LicenseDTO,
   ): Promise<UtilizationResponseDTO> {
-    return null;
+    const key = licence.data.licenseKeys.find(
+      (key) => key.key === update.licenseKey,
+    );
+    if (!key) {
+      throw new ForbiddenException('Invalid license key');
+    }
+
+    // * <Fix>: Authoring mode
+    if (update.type === PROJECT_TYPES.stage) {
+      update.type = PROJECT_TYPES.livestage;
+    }
+    // * </Fix>
+    const keys: Record<string, LicenseKeyDTO> = {};
+    licence.data.licenseKeys.forEach((i) => (keys[i.key] = i));
+    return {
+      licenseId: licence._id,
+      licenseKey: key.key,
+      devLicense: licence.data.developmentLicense,
+      type: update.type,
+      projectId: update.projectId,
+      keys,
+      terms: licence.data,
+      used: await this.monthlyUsage(licence, key, update),
+    };
   }
 
   // #endregion Public Methods
@@ -161,6 +198,36 @@ export class LicenseService {
       return JSON.parse(result.item);
     }
     return this.refreshCache(url, cacheKey);
+  }
+
+  private async monthlyUsage(
+    license: LicenseDTO,
+    auth: LicenseKeyDTO,
+    update: UtilizationUpdateDTO,
+  ): Promise<LicenseMonthlyUsageDTO> {
+    if (!this.isActive(license)) {
+      throw new ForbiddenException(`License expired`);
+    }
+    if (!(auth.scope as string[]).includes(update.type as string)) {
+      throw new ForbiddenException(`Missing license key scope: ${update.type}`);
+    }
+    const type = `${update.type}s` as keyof UtilizationResponseDTO;
+    const limit = license.data[type] || 0;
+
+    const { key } = auth;
+
+    const now = new Date();
+    const my = `${key}:${now.getUTCFullYear()}:${now.getUTCMonth()}`;
+    const calls = await this.redisService.countCalls(my);
+
+    if (!limit || calls < limit) {
+      const out = await this.redisService.addMonthRecord(
+        `${my}:${now.getUTCDate()}`,
+        license,
+      );
+    }
+
+    throw new ForbiddenException(`${update.title} limit reached`);
   }
 
   private async refreshCache(url: string, cacheKey: string) {

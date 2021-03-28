@@ -23,6 +23,9 @@ export function FetchUser() {
 export const User = createParamDecorator(
   (data: string, ctx: ExecutionContext) => {
     const response = ctx.switchToHttp().getResponse();
-    return response.locals.user;
+    /**
+     * ? Is data a provided value that I am trying to override?
+     */
+    return data || response.locals.user;
   },
 );

@@ -18,7 +18,6 @@ import { FetchLicenseMiddleware } from '../middleware/fetch-license.middleware';
  */
 export function FetchLicense(idParam: string = null) {
   return applyDecorators(
-    SetMetadata('idParam', idParam),
     FetchUser(),
     UsePipes(FetchLicenseMiddleware),
     UseGuards(HasLicenseGuard),

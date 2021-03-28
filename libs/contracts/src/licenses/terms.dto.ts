@@ -5,12 +5,16 @@ import {
   IsOptional,
   ValidateNested,
 } from '@automagical/validation';
+import { LicenseKeyDTO } from './Key.dto';
 import { LicenseOptionsDTO } from './Options.dto';
 import { LicensePlans } from './types';
 
 export class UtilizationResponseTermsDTO {
   // #region Object Properties
 
+  @IsDateString()
+  @IsOptional()
+  public developmentLicense?: boolean;
   @IsDateString()
   @IsOptional()
   public startDate?: string;
@@ -20,8 +24,6 @@ export class UtilizationResponseTermsDTO {
   public apiServers: number;
   @IsNumber()
   public emails: number;
-  @IsNumber()
-  public endregion: number;
   @IsNumber()
   public formManagers: number;
   @IsNumber()
@@ -49,6 +51,9 @@ export class UtilizationResponseTermsDTO {
   public endDate?: string;
   @ValidateNested()
   public options: LicenseOptionsDTO;
+  @ValidateNested()
+  @IsOptional()
+  public licenseKeys: LicenseKeyDTO[];
 
   // #endregion Object Properties
 }

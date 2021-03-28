@@ -1,8 +1,14 @@
 import {
+  LicenseDTO,
   UtilizationResponseDTO,
   UtilizationUpdateDTO,
 } from '@automagical/contracts';
-import { LicenseService, UtilizationCleanup } from '@automagical/licenses';
+import {
+  FetchLicense,
+  License,
+  LicenseService,
+  UtilizationCleanup,
+} from '@automagical/licenses';
 import { Logger } from '@automagical/logger';
 import {
   Body,
@@ -48,11 +54,13 @@ export class UtilizationController {
   }
 
   @Post()
+  @FetchLicense()
   @UseInterceptors(UtilizationCleanup)
   public utilizationUpdate(
     @Body() body: UtilizationUpdateDTO,
+    @License() license: LicenseDTO,
   ): Promise<UtilizationResponseDTO> {
-    return this.licenseService.utilizationUpdate(body);
+    return this.licenseService.utilizationUpdate(body, license);
   }
 
   // #endregion Public Methods

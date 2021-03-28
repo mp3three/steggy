@@ -5,6 +5,15 @@ import { Reflector } from '@nestjs/core';
 import { NextFunction, Request, Response } from 'express';
 import { LicenseDTO, UserDTO } from '../../../../contracts/src';
 
+/**
+ * This middleware populates:
+ *
+ * - res.locals.licenses:LicenseDTO[]
+ *   - Based on x-jwt-token
+ * - res.locals.license:LicenseDTO
+ *   - Based on provided licenseId (and ownership of / admin status)
+ *   - See: licenseService.licenceIdFromReq for possible sources
+ */
 @Injectable()
 export class FetchLicenseMiddleware implements NestMiddleware {
   // #region Static Properties
@@ -31,9 +40,10 @@ export class FetchLicenseMiddleware implements NestMiddleware {
   // #region Public Methods
 
   public async use(req: Request, res: Response, next: NextFunction) {
+    const licenseId = this.licenseService.licenceIdFromReq(req);
     res.locals = {
       ...res.locals,
-      ...(await this.populate(req, res)),
+      ...(await this.populate(req, res, licenseId)),
     };
     next();
   }
@@ -69,7 +79,7 @@ export class FetchLicenseMiddleware implements NestMiddleware {
     );
   }
 
-  private async populate(req: Request, res: Response) {
+  private async populate(req: Request, res: Response, licenseId: string) {
     const licenseList = await this.licenseService.licenseFetchByUser(
       res.locals.user as UserDTO,
     );
@@ -78,21 +88,19 @@ export class FetchLicenseMiddleware implements NestMiddleware {
       return out;
     }
     out.licenses = licenseList;
-    if (!req.params.licenseId) {
+    if (!licenseId) {
       return;
     }
     const idx: Record<string, LicenseDTO> = {};
     licenseList.forEach((license) =>
       license.data.licenseKeys.forEach((key) => (idx[key.key] = license)),
     );
-    idx[req.params.licenseId] = idx[req.params.licenseId];
-    if (!idx[req.params.licenseId]) {
-      idx[req.params.licenseId] = await this.licenseService.licenseFetch(
-        req.params.licenseId,
-      );
+    idx[licenseId] = idx[licenseId];
+    if (!idx[licenseId]) {
+      idx[licenseId] = await this.licenseService.licenseFetch(licenseId);
     }
-    if (this.canView(idx[req.params.licenseId], req, res)) {
-      out.license = idx[req.params.licenseId];
+    if (this.canView(idx[licenseId], req, res)) {
+      out.license = idx[licenseId];
     }
     return out;
   }
