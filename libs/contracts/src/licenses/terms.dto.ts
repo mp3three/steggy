@@ -5,6 +5,7 @@ import {
   IsOptional,
   ValidateNested,
 } from '@automagical/validation';
+import { UserDTO } from '../formio-sdk';
 import { LicenseKeyDTO } from './Key.dto';
 import { LicenseOptionsDTO } from './Options.dto';
 import { LicensePlans } from './types';
@@ -49,6 +50,9 @@ export class UtilizationResponseTermsDTO {
   @IsOptional()
   @IsDateString()
   public endDate?: string;
+  @IsOptional()
+  @ValidateNested()
+  public user?: UserDTO[];
   @ValidateNested()
   public options: LicenseOptionsDTO;
   @ValidateNested()

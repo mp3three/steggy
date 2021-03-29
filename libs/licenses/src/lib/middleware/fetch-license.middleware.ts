@@ -40,8 +40,9 @@ export class FetchLicenseMiddleware implements NestMiddleware {
   // #region Public Methods
 
   public async use(req: Request, res: Response, next: NextFunction) {
-    const licenseId = this.licenseService.licenceIdFromReq(req);
+    const licenseId = this.licenseService.licenseIdFromReq(req);
     res.locals = {
+      licenseId,
       ...res.locals,
       ...(await this.populate(req, res, licenseId)),
     };

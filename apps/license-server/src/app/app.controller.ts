@@ -1,7 +1,20 @@
-import { LicenseDTO } from '@automagical/contracts';
-import { FetchLicense, License, LicenseService } from '@automagical/licenses';
+import { LicenseDTO, REPO_VERSION } from '@automagical/contracts';
+import {
+  FetchLicense,
+  License,
+  LicenseId,
+  LicenseService,
+} from '@automagical/licenses';
 import { Logger } from '@automagical/logger';
-import { Controller, Get, Param } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  Controller,
+  Get,
+  Inject,
+  NotImplementedException,
+  Param,
+} from '@nestjs/common';
+import { Cache } from 'cache-manager';
 
 @Controller()
 export class AppController {
@@ -13,7 +26,10 @@ export class AppController {
 
   // #region Constructors
 
-  constructor(private readonly licenseService: LicenseService) {}
+  constructor(
+    private readonly licenseService: LicenseService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   // #endregion Constructors
 
@@ -23,18 +39,27 @@ export class AppController {
   public getData() {
     return {
       name: 'Licensing Server',
+      version: REPO_VERSION,
     };
   }
 
   @Get('/key/:key/scope')
-  public getScope(@Param('key') key: string) {
-    return this.licenseService.getScope(key);
+  @FetchLicense()
+  public async getScope(
+    @Param('key') key: string,
+    @License() license: LicenseDTO,
+    @LicenseId() licenseId: string,
+  ) {
+    throw new NotImplementedException();
+    const cacheData = await this.licenseService.getCache(licenseId);
+    return cacheData;
   }
 
   @Get('/admin/license')
   @FetchLicense()
   public loadLicensesAdmin(@License() license: LicenseDTO) {
-    return this.licenseService.licenseAdminFetch(license);
+    throw new NotImplementedException();
+    // return this.licenseService.licenseAdminFetch(license);
   }
 
   // #endregion Public Methods

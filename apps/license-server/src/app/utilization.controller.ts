@@ -14,6 +14,7 @@ import {
   Body,
   Controller,
   Delete,
+  NotImplementedException,
   Post,
   UseInterceptors,
 } from '@nestjs/common';
@@ -36,12 +37,12 @@ export class UtilizationController {
 
   @Post('/disable')
   public disable() {
-    return this.licenseService.utilizationDisable();
+    throw new NotImplementedException();
   }
 
   @Post('/enable')
   public enable() {
-    return this.licenseService.utilizationEnable();
+    throw new NotImplementedException();
   }
 
   /**
@@ -50,7 +51,7 @@ export class UtilizationController {
   @Post('/delete')
   @Delete()
   public utilizationDelete() {
-    return this.licenseService.utilizationDelete();
+    throw new NotImplementedException();
   }
 
   @Post()

@@ -1,13 +1,11 @@
-import { FetchUser, FetchUserdataMiddleware } from '@automagical/formio-sdk';
+import { FetchUser } from '@automagical/formio-sdk';
 import {
   applyDecorators,
   createParamDecorator,
   ExecutionContext,
-  SetMetadata,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HasLicenseGuard } from '../guards/has-license.guard';
 import { FetchLicenseMiddleware } from '../middleware/fetch-license.middleware';
 
@@ -28,5 +26,12 @@ export const License = createParamDecorator(
   (data: string, ctx: ExecutionContext) => {
     const response = ctx.switchToHttp().getResponse();
     return response.locals.licenses;
+  },
+);
+
+export const LicenseId = createParamDecorator(
+  (data: string, ctx: ExecutionContext) => {
+    const response = ctx.switchToHttp().getResponse();
+    return response.locals.licenseId;
   },
 );

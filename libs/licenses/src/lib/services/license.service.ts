@@ -67,6 +67,17 @@ export class LicenseService {
 
   // #region Public Methods
 
+  public async getCache(licenseKey: string): Promise<CacheData> {
+    return (
+      (await this.cacheManager.get(licenseKey)) || {
+        environments: [],
+        apiKey: licenseKey,
+        projects: [],
+        formManagers: [],
+      }
+    );
+  }
+
   public licenseFetch(id: string) {
     return this.fetch<LicenseDTO>({
       url: LicenseService.FORM_PATH,
@@ -154,14 +165,7 @@ export class LicenseService {
       throw new ForbiddenException(`Missing license key scope: ${update.type}`);
     }
     // * #3
-    const cacheData: CacheData = (await this.cacheManager.get(
-      update.licenseKey,
-    )) || {
-      environments: [],
-      apiKey: update.licenseKey,
-      projects: [],
-      formManagers: [],
-    };
+    const cacheData: CacheData = await this.getCache(update.licenseKey);
     const args = {
       update,
       license,
