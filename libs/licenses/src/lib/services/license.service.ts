@@ -1,23 +1,47 @@
 import {
+  CacheData,
+  CacheEnvironmentDTO,
+  CacheFormDTO,
+  CacheProjectDTO,
   LicenseDTO,
   LicenseKeyDTO,
   LicenseMonthlyUsageDTO,
   LicenseScopes,
-  PROJECT_TYPES,
+  LicenseTrackedLicenseScopes,
+  LicenseTrackedMonthlyScopes,
+  LicenseTrackedProjectScopes,
+  SubmissionDTO,
   UserDTO,
   UtilizationResponseDTO,
+  UtilizationResponseTermsDTO,
   UtilizationUpdateDTO,
 } from '@automagical/contracts';
 import { FetchWith, FormioSdkService } from '@automagical/formio-sdk';
 import { env, Logger } from '@automagical/logger';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  CACHE_MANAGER,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotAcceptableException,
+  NotImplementedException,
+} from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import * as dayjs from 'dayjs';
 import { Request } from 'express';
-import { RedisService } from './redis.service';
 
-/**
- * TODO 💣☄️🔥🧨
- */
+type UpdateArgs = {
+  update: UtilizationUpdateDTO;
+  license: SubmissionDTO<Partial<UtilizationResponseTermsDTO>>;
+  /**
+   * ! This object will be frequently mutated by methods here
+   *
+   * * This is on purpose, maybe try to keep the variable local to the file
+   */
+  cacheData: CacheData;
+};
+
 @Injectable()
 export class LicenseService {
   // #region Static Properties
@@ -28,16 +52,6 @@ export class LicenseService {
 
   // #region Object Properties
 
-  /**
-   * TODO Remove this legacy item
-   */
-  private readonly config = Object.freeze({
-    url: env.LICENSES_REDIS_URL,
-    host: env.LICENSES_REDIS_HOST,
-    port: env.LICENSES_REDIS_PORT,
-    useSSL: env.LICENSES_REDIS_USESSL,
-    password: env.LICENSES_REDIS_PASSWORD,
-  });
   private readonly logger = Logger(LicenseService);
 
   // #endregion Object Properties
@@ -46,68 +60,12 @@ export class LicenseService {
 
   constructor(
     private readonly formioSdkService: FormioSdkService,
-    private readonly redisService: RedisService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
-
-  public clearLicense(id: string) {
-    return id;
-  }
-
-  public getAdminInfo(id: string) {
-    return id;
-  }
-
-  public getScope(key: string) {
-    return key;
-  }
-
-  public getTerms(id: string) {
-    return id;
-  }
-
-  public getUtilizations(id: string, type: string) {
-    return id;
-  }
-
-  public isActive(license: LicenseDTO) {
-    const started =
-      !license.data.startDate || dayjs().isAfter(dayjs(license.data.startDate));
-    const ended =
-      license.data.endDate && dayjs().isAfter(dayjs(license.data.startDate));
-
-    return started && !ended;
-  }
-
-  public async licenseAdminFetch(license: LicenseDTO) {
-    return {
-      // terms: await this.getTerms(),
-      // scopes: await this.getScope(),
-      usage: {
-        apiServers: await this.redisService.totalEnabled(
-          `license:${license._id}:apiServer`,
-        ),
-        pdfServers: await this.redisService.totalEnabled(
-          `license:${license._id}:pdfServer`,
-        ),
-        tenants: await this.redisService.totalEnabled(
-          `license:${license._id}:tenant`,
-        ),
-        projects: await this.redisService.totalEnabled(
-          `license:${license._id}:project`,
-        ),
-        formManagers: await this.redisService.totalEnabled(
-          `license:${license._id}:formManager`,
-        ),
-        vpat: await this.redisService.totalEnabled(
-          `license:${license._id}:vpat`,
-        ),
-      },
-    };
-  }
 
   public licenseFetch(id: string) {
     return this.fetch<LicenseDTO>({
@@ -145,49 +103,78 @@ export class LicenseService {
     );
   }
 
-  public utilizationDelete() {}
+  public async monthlyUsage(args: UpdateArgs): Promise<LicenseMonthlyUsageDTO> {
+    let project = await this.getProject(args);
+    project = (await this.getStage(args, project)) || project;
 
-  public utilizationDisable() {}
+    return {
+      emails: project.email,
+      formRequests: project.formRequests,
+      forms: project.forms.filter((i) => !i.disabled).length,
+      pdfDownloads: project.pdfDownload,
+      pdfs: project.pdf,
+      submissionRequests: project.submissionRequest,
+    };
+  }
 
-  public utilizationEnable() {}
-
+  /**
+   * General API Server is sending a utilizatino update handler
+   *
+   * 1. Verify license is actually active
+   * 2. Remap any needed scopes (stages)
+   * 3. For remote licenses, verify form utilization also
+   * 4. If item is tracked against project, verify project utilization
+   * 5. Verify count if utilization is tracked as total
+   */
   public async utilizationUpdate(
     update: UtilizationUpdateDTO,
     license: LicenseDTO,
   ): Promise<UtilizationResponseDTO> {
+    // Load auth associated with this specific license key
+    // Not all keys may be scoped for the full capabilities of the license
     const { licenseKeys, developmentLicense: devLicense } = license.data;
     const auth = licenseKeys.find((key) => key.key === update.licenseKey);
+    // * #1
     if (!auth) {
       throw new ForbiddenException('Invalid license key');
     }
     if (!this.isActive(license)) {
       throw new ForbiddenException(`License expired`);
     }
-    // * <Fix>: Authoring mode
-    // * stages should be synonymous with livestage
-    switch (update.type) {
-      case LicenseScopes.stage:
-        update.type = LicenseScopes.livestage;
-        break;
-      case LicenseScopes.formRequest:
-        if (update.remote) {
-          // Hosted Only
-          break;
-        }
-        // Verify: Forms (Per Project, Tracked as Total)
-        break;
+    // * #2
+    if (update.type === LicenseScopes.stage) {
+      // post authoring mode: all stages are livestages now
+      update.type = LicenseScopes.livestage;
     }
-    // * </Fix>
-    if (!(auth.scope as string[]).includes(update.type as string)) {
+    if (update.type === LicenseScopes.apiServer) {
+      return;
+    }
+    if (!auth.scope.includes(update.type)) {
+      // Verify they have the scope
       throw new ForbiddenException(`Missing license key scope: ${update.type}`);
     }
+    // * #3
+    const cacheData: CacheData = (await this.cacheManager.get(
+      update.licenseKey,
+    )) || {
+      environments: [],
+      apiKey: update.licenseKey,
+      projects: [],
+      formManagers: [],
+    };
+    const args = {
+      update,
+      license,
+      cacheData,
+    };
+    await this.processUpdate(args);
     const keys: Record<string, LicenseKeyDTO> = {};
     licenseKeys.forEach((i) => (keys[i.key] = i));
     // ! Hash
     return {
       hash: '',
       ...update,
-      used: await this.monthlyUsage(license, auth, update),
+      used: await this.monthlyUsage(args),
       licenseKey: update.licenseKey,
       projectId: update.projectId,
       licenseId: license._id,
@@ -202,25 +189,211 @@ export class LicenseService {
 
   // #region Protected Methods
 
-  protected async getUsage(projectId: string) {
-    const now = new Date();
-    const yearMonth = `${now.getUTCFullYear()}:${now.getUTCMonth()}`;
-    return {
-      emails: await this.redisService.countCalls(
-        `project:${projectId}:email:${yearMonth}`,
-      ),
-      forms: await this.redisService.totalEnabled(`project:${projectId}:form`),
-      formRequests: await this.redisService.countCalls(
-        `project:${projectId}:formRequest:${yearMonth}`,
-      ),
-      pdfs: await this.redisService.totalEnabled(`project:${projectId}:pdf`),
-      pdfDownloads: await this.redisService.countCalls(
-        `project:${projectId}:pdfDownload:${yearMonth}`,
-      ),
-      submissionRequests: await this.redisService.countCalls(
-        `project:${projectId}:submissionRequest:${yearMonth}`,
-      ),
+  protected async getApiServer(
+    args: UpdateArgs,
+    returnDisabled = false,
+  ): Promise<CacheEnvironmentDTO> {
+    const { update, license } = args;
+    const cacheData =
+      (await this.cacheManager.get<CacheEnvironmentDTO[]>(license._id)) || [];
+    const environmentMap: Record<string, CacheEnvironmentDTO> = {};
+    cacheData.forEach(
+      (environment) => (environmentMap[environment.mongoHash] = environment),
+    );
+    // <Already Exists>
+    const exists = environmentMap[update.formId];
+    if (exists) {
+      if (exists.disabled && !returnDisabled) {
+        throw new ForbiddenException(`Environment is disabled`);
+      }
+      return exists;
+    }
+    // </Already Exists>
+    // <Add New>
+    const limit = license.data.apiServers || 0; // Breaking the trend, 0 is default.
+    const current = cacheData.filter((i) => !i.disabled && !!i.mongoHash)
+      .length;
+    if (current >= limit) {
+      throw new BadRequestException('At api server limit');
+    }
+    const environment: CacheEnvironmentDTO = {
+      environmentId: update.environmentId,
+      hostname: update.hostname,
+      mongoHash: update.mongoHash,
     };
+    cacheData.push(environment);
+    await this.cacheManager.set(license._id, cacheData);
+    return environment;
+    // </Add New>
+  }
+
+  protected async getForm(
+    args: UpdateArgs,
+    project: CacheProjectDTO,
+    returnDisabled = false,
+  ): Promise<CacheFormDTO> {
+    const { update, license, cacheData } = args;
+    if (!update.formId) {
+      return null;
+    }
+    const formMap: Record<string, CacheFormDTO> = {};
+    project.forms.forEach((form) => (formMap[form.formId] = form));
+    // <Already Exists>
+    const exists = formMap[update.formId];
+    if (exists) {
+      if (exists.disabled && !returnDisabled) {
+        throw new ForbiddenException(`Project is disabled ${update.stageId}`);
+      }
+      return exists;
+    }
+    // </Already Exists>
+    // <Add New>
+    const limit = license.data.projects || Infinity;
+    const current = cacheData.projects.filter((i) => !i.disabled).length;
+    if (current >= limit) {
+      throw new BadRequestException('At project limit');
+    }
+    const form: CacheFormDTO = {
+      formId: update.formId,
+    };
+    project.forms.push(form);
+    await this.cacheManager.set(update.licenseKey, cacheData);
+    return form;
+    // </Add New>
+  }
+
+  protected async getProject(
+    args: UpdateArgs,
+    returnDisabled = false,
+  ): Promise<CacheProjectDTO> {
+    const { cacheData, update, license } = args;
+    const projectMap: Record<string, CacheProjectDTO> = {};
+    cacheData.projects.forEach(
+      (project) => (projectMap[project.projectId] = project),
+    );
+    // <Already Exists>
+    const exists = projectMap[update.projectId];
+    if (exists) {
+      if (exists.disabled && !returnDisabled) {
+        throw new ForbiddenException(`Project is disabled ${update.stageId}`);
+      }
+      return exists;
+    }
+    // </Already Exists>
+    // <Add New>
+    const limit = license.data.projects || Infinity;
+    const current = cacheData.projects.filter((i) => !i.disabled).length;
+    if (current >= limit) {
+      throw new BadRequestException('At project limit');
+    }
+    const project: CacheProjectDTO = {
+      projectId: update.projectId,
+    };
+    cacheData.projects.push(project);
+    await this.cacheManager.set(update.licenseKey, cacheData);
+    return project;
+    // </Add New>
+  }
+
+  protected async getStage(
+    args: UpdateArgs,
+    project: CacheProjectDTO,
+    returnDisabled = false,
+  ): Promise<CacheProjectDTO> {
+    const { cacheData, update, license } = args;
+    if (!update.stageId) {
+      return null;
+    }
+    const stageMap: Record<string, CacheProjectDTO> = {};
+    project.livestages.forEach((stage) => (stageMap[stage.stageId] = stage));
+    // <Already Exists>
+    const exists = stageMap[update.stageId];
+    if (exists) {
+      if (exists.disabled && !returnDisabled) {
+        throw new ForbiddenException(`Stage is disabled ${update.stageId}`);
+      }
+      return exists;
+    }
+    // </Already Exists>
+    // <Add New>
+    const limit = license.data.livestages || Infinity;
+    const current = project.livestages.filter((i) => !i.disabled).length;
+    if (current >= limit) {
+      throw new BadRequestException('At stage limit');
+    }
+    const stage: CacheProjectDTO = {
+      projectId: update.projectId,
+    };
+    project.livestages.push(stage);
+    await this.cacheManager.set(update.licenseKey, cacheData);
+    return stage;
+    // </Add New>
+  }
+
+  protected isActive(license: LicenseDTO) {
+    const started =
+      !license.data.startDate || dayjs().isAfter(dayjs(license.data.startDate));
+    const ended =
+      license.data.endDate && dayjs().isAfter(dayjs(license.data.startDate));
+    return started && !ended;
+  }
+
+  protected async processUpdate(args: UpdateArgs) {
+    const { cacheData, update, license } = args;
+    switch (update.type) {
+      case LicenseScopes.apiServer:
+        return this.getApiServer(args);
+      case LicenseScopes.pdfServer:
+        // TODO: PDF Server
+        throw new NotImplementedException('FIXME');
+    }
+    let project = await this.getProject(args);
+    project = (await this.getStage(args, project)) || project;
+    const form = await this.getForm(args, project);
+    // * Items tracked monthly
+    // Submission counts and such
+    if (Object.values(LicenseTrackedMonthlyScopes).includes(update.type)) {
+      if (!project || project.disabled) {
+        throw new BadRequestException('Bad project');
+      }
+      project[update.type] = project[update.type] || 0;
+      const limit = license.data[`${update.type}s`];
+      if (project[update.type] > limit) {
+        throw new NotAcceptableException('Exceeded monthly limit');
+      }
+      project[update.type]++;
+      return this.cacheManager.set(update.licenseKey, cacheData);
+    }
+    // * Items tracked against license
+    // project, tenants, formManager
+    if (Object.values(LicenseTrackedLicenseScopes).includes(update.type)) {
+      // Nothing to do, was basically validated by getProject(), or the switch up top
+      return cacheData;
+    }
+    if (Object.values(LicenseTrackedProjectScopes).includes(update.type)) {
+      switch (update.type) {
+        case LicenseScopes.pdf:
+          project[update.type] = project[update.type] || 0;
+          const limit = license.data[`${update.type}s`];
+          if (project[update.type] > limit) {
+            throw new NotAcceptableException('Exceeded project limit');
+          }
+          project[update.type]++;
+          return this.cacheManager.set(update.licenseKey, cacheData);
+        case LicenseScopes.form:
+        case LicenseScopes.stage:
+        case LicenseScopes.livestage:
+          return cacheData;
+      }
+      this.logger.alert(`Missed a spot`);
+      return cacheData;
+    }
+    // Not tracked against projects
+    // Not tracked against license
+    // Not tracked monthly
+    this.logger.crit(`Missing logic for scope: ${update.type}`);
+    throw new NotImplementedException();
+    return cacheData;
   }
 
   // #endregion Protected Methods
@@ -232,177 +405,6 @@ export class LicenseService {
       baseUrl: process.env.FORMIO_SDK_LICENSE_SERVER_base_url,
       ...args,
     });
-  }
-
-  private async getCachedItem(url: string, cacheKey: string) {
-    const result = await this.redisService.getInfo(cacheKey);
-
-    if (result && result.item) {
-      if (dayjs(result.lastUpdate).isBefore(dayjs().subtract(15, 'minutes'))) {
-        process.nextTick(() => this.refreshCache(url, cacheKey));
-      }
-      return JSON.parse(result.item);
-    }
-    return this.refreshCache(url, cacheKey);
-  }
-
-  /**
-   * Get relevant identifier based on scope
-   */
-  private getMember(
-    license: LicenseDTO,
-    scope: LicenseScopes,
-    update: UtilizationUpdateDTO,
-  ) {
-    switch (scope) {
-      case LicenseScopes.accessibility:
-      case LicenseScopes.project:
-      case LicenseScopes.formManager:
-        return update.projectId;
-      case LicenseScopes.stage:
-      case LicenseScopes.livestage:
-        return update.stageId;
-      case LicenseScopes.tenant:
-        return update.tenantId;
-      case LicenseScopes.apiServer:
-      default:
-        this.logger.alert(`Unknown scope: ${scope}`);
-        return null;
-    }
-  }
-
-  /**
-   * # Hosted Only
-   * ## Utilization update for monthly totals
-   *
-   * > **Per Project, Tracked Monthly**
-   *
-   * - Form Loads
-   * - Submission Requests
-   * - Emails
-   * - PDF Generations
-   *
-   * ## Related to:
-   * > **Per Project, Tracked as Total**
-   *
-   * - Forms
-   * - Hosted PDF Documents
-   */
-  private async monthlyUsage(
-    license: LicenseDTO,
-    auth: LicenseKeyDTO,
-    update: UtilizationUpdateDTO,
-  ): Promise<LicenseMonthlyUsageDTO> {
-    const type = `${update.type}s` as keyof UtilizationResponseDTO;
-    const limit = license.data[type] || 0;
-    const { key } = auth;
-    // TODO dayjs() instead of date shenanigains
-    const now = new Date();
-    const keyParts = [key, now.getUTCFullYear(), now.getUTCMonth()];
-
-    const calls = await this.redisService.countCalls(keyParts.join(':'));
-
-    if (!limit || calls <= limit) {
-      keyParts.push(now.getUTCMonth());
-      await this.redisService.addMonthRecord(keyParts.join(':'), update);
-      return this.getUsage(this.getMember(license, update.type, update));
-    }
-
-    throw new ForbiddenException(`${update.title} limit reached`);
-  }
-
-  private async refreshCache(url: string, cacheKey: string) {
-    const newItems = await this.fetch<LicenseDTO[]>({ url });
-    const data = newItems[0];
-    this.redisService.setInfo(cacheKey, {
-      item: JSON.stringify(newItems[0]),
-      lastUpdate: dayjs(),
-    });
-    return data;
-  }
-
-  private async totalUsage(
-    license: LicenseDTO,
-    auth: LicenseKeyDTO,
-    update: UtilizationUpdateDTO,
-  ) {
-    const record: Partial<UtilizationResponseDTO> = {
-      type: update.type,
-      licenseId: license._id,
-      licenseKey: auth.key,
-    };
-    const type = `${update.type}s` as keyof UtilizationResponseDTO;
-    const limit = license.data[type] || 0;
-
-    const set = `license:${record.licenseId}:${record.type}`;
-    const id = await this.getMember(
-      license,
-      update.type as LicenseScopes,
-      update,
-    );
-
-    const total = await this.redisService.totalEnabled(set);
-
-    let status = await this.redisService.totalStatus(set, id);
-    if (status === null) {
-      status = 'null';
-    }
-
-    // The function for set info of the utilization.
-    const recordInfo = () => {
-      const { licenseKey, type, ...info } = update;
-      return this.redisService.setInfo(`info:${type}:${id}`, {
-        ...info,
-        id,
-        status,
-        lastCheck: new Date().toISOString(),
-      });
-    };
-    // The function for get info of the utilization.
-    const getItemInfo = () => {
-      return this.redisService.getInfo(`info:${type}:${id}`);
-    };
-
-    if (status === '0') {
-      if (update?.remote === true) {
-        return record;
-      }
-      const itemInfo = await getItemInfo();
-      // If the information about the utilization is equal null.
-      if (itemInfo === null) {
-        // Record the information about the utilization.
-        await recordInfo();
-      }
-
-      throw new ForbiddenException(
-        `${update.title} license utilization is disabled`,
-      );
-    }
-
-    if (
-      total > limit ||
-      (total === limit && (status === 'null' || status === null))
-    ) {
-      const itemInfo = await getItemInfo();
-      // If over limit and this is a new item, disable it.
-      if (status === 'null' || status === null || itemInfo === null) {
-        // Record the information about the utilization.
-        recordInfo();
-      }
-      await this.redisService.totalDisable(set, id);
-      status = '0';
-      throw new ForbiddenException(`${update.title} limit reached`);
-    }
-
-    if (status === 'null' || status === null) {
-      await this.redisService.totalEnable(set, id);
-      status = '1';
-    }
-
-    // Record the information about the utilization.
-    recordInfo();
-
-    return record;
   }
 
   // #endregion Private Methods

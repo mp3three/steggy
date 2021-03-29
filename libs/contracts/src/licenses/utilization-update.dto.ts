@@ -22,6 +22,8 @@ export class UtilizationUpdateDTO {
    */
   @IsEnum(LicenseScopes)
   public type: LicenseScopes;
+  @IsString()
+  public hostname: string;
   /**
    * License key associated with API server
    */
@@ -41,7 +43,19 @@ export class UtilizationUpdateDTO {
   public title: string;
   @IsString()
   @IsOptional()
-  public stageId: string;
+  public environmentId?: string;
+  @IsString()
+  @IsOptional()
+  public formId?: string;
+  @IsString()
+  @IsOptional()
+  public hostName?: string;
+  @IsString()
+  @IsOptional()
+  public mongoHash?: string;
+  @IsString()
+  @IsOptional()
+  public stageId?: string;
   @IsString()
   @IsOptional()
   public tenantId?: string;
