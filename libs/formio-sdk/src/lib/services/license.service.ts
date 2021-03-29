@@ -1,13 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { iLogger, Logger } from '@automagical/logger';
 import {
-  LicenseAdmin,
+  LicenseAdminDTO,
   LicenseApiServer,
   LicenseDTO,
-  LicenseFormManager,
-  LicenseItem,
-  LicenseReport,
-  LicenseUsage,
+  LicenseUsageDTO,
 } from '@automagical/contracts';
 import { FormioSdkService } from '.';
 import { FetchWith, HTTP_Methods } from '../../typings';
@@ -50,13 +47,13 @@ export class LicenseService {
       licenseList.map(async (license) => {
         const admin = (await this.formioSdkService.fetch({
           url: `/license/${license._id}/admin`,
-        })) as LicenseAdmin;
+        })) as LicenseAdminDTO;
         const out = {
           admin,
         } as LicenseReport;
 
         await Promise.all(
-          Object.keys(admin.usage).map(async (key: keyof LicenseUsage) => {
+          Object.keys(admin.usage).map(async (key: keyof LicenseUsageDTO) => {
             if (['vpat', 'pdfServers'].includes(key)) {
               return;
             }

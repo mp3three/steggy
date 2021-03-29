@@ -66,6 +66,21 @@
         }
       }
     },
+    "contracts": {
+      "root": "contracts",
+      "sourceRoot": "contracts",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "contracts/**/*.ts"
+            ]
+          }
+        }
+      }
+    },
     "validation": {
       "root": "libs/validation",
       "sourceRoot": "libs/validation/src",
@@ -170,12 +185,10 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/home-controller/src/environments/environment.ts",
-                  "with": "apps/home-controller/src/environments/environment.prod.ts"
-                }
-              ]
+              "fileReplacements": [{
+                "replace": "apps/home-controller/src/environments/environment.ts",
+                "with": "apps/home-controller/src/environments/environment.prod.ts"
+              }]
             }
           }
         },
@@ -254,12 +267,10 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/api-server/src/environments/environment.ts",
-                  "with": "apps/api-server/src/environments/environment.prod.ts"
-                }
-              ]
+              "fileReplacements": [{
+                "replace": "apps/api-server/src/environments/environment.ts",
+                "with": "apps/api-server/src/environments/environment.prod.ts"
+              }]
             }
           }
         },
@@ -353,12 +364,10 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/license-server/src/environments/environment.ts",
-                  "with": "apps/license-server/src/environments/environment.prod.ts"
-                }
-              ]
+              "fileReplacements": [{
+                "replace": "apps/license-server/src/environments/environment.ts",
+                "with": "apps/license-server/src/environments/environment.prod.ts"
+              }]
             }
           }
         },
@@ -388,26 +397,26 @@
         }
       }
     },
-    "authorization": {
-      "root": "libs/authorization",
-      "sourceRoot": "libs/authorization/src",
+    "authentication": {
+      "root": "libs/authentication",
+      "sourceRoot": "libs/authentication/src",
       "projectType": "library",
       "targets": {
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": [
-              "libs/authorization/**/*.ts"
+              "libs/authentication/**/*.ts"
             ]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
           "outputs": [
-            "coverage/libs/authorization"
+            "coverage/libs/authentication"
           ],
           "options": {
-            "jestConfig": "libs/authorization/jest.config.js",
+            "jestConfig": "libs/authentication/jest.config.js",
             "passWithNoTests": true
           }
         },
@@ -417,12 +426,12 @@
             "{options.outputPath}"
           ],
           "options": {
-            "outputPath": "dist/libs/authorization",
-            "tsConfig": "libs/authorization/tsconfig.lib.json",
-            "packageJson": "libs/authorization/package.json",
-            "main": "libs/authorization/src/index.ts",
+            "outputPath": "dist/libs/authentication",
+            "tsConfig": "libs/authentication/tsconfig.lib.json",
+            "packageJson": "libs/authentication/package.json",
+            "main": "libs/authentication/src/index.ts",
             "assets": [
-              "libs/authorization/*.md"
+              "libs/authentication/*.md"
             ]
           }
         }

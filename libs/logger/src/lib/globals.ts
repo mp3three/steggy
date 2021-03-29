@@ -1,14 +1,63 @@
 /**
- * All of these are shared by the libs folder.
- * This file should be kept in sync with the `.env` file in the repo root.
+ * ## Description
  *
- * In development environments, store your overrides in `.local.env` in the repo root.
+ * This is the master interface for `process.env` inside of the repo.
+ * If there are any defaults to any of the variables, they will exist in one of two locations.
  *
- * (LIBRARY_NAME_)PROPERTY_WITH_SPACES(_attribute)
+ * ### Libraries & NPM Modules
+ *
+ * **File Location**: `/.env`
+ *
+ * **Description**: Most code will pull from here. This file does not represent a recommended minimum set of variables, just those with sane defaults.
+ *
+ * ### Applications
+ *
+ * **File Location**: `/apps/{app_name}/.env`
+ *
+ * **Description**: If a specific application needs to define an environment variable that is used nowhere else in the repo, it goes here.
+ *
+ * ## Providing your own values: developers
+ *
+ * ### Files
+ *
+ * - `/.local.env`
+ * - `/apps/{app_name}/.local.env`
+ *
+ * Local environment files are covered under .gitignore
+ *
+ * ### Resolution order
+ *
+ * First file to provide a value wins
+ *
+ * - `/apps/{app_name}/.local.env`
+ * - `/apps/{app_name}/.env`
+ * - `/.local.env`
+ * - `/.env`
+ *
+ * ## Adding new variables
+ *
+ * ### By Hand
+ *
+ * **Format**: (LIBRARY_NAME_)PROPERTY_WITH_SPACES(_attribute)
+ *
+ * Follow the documentation convention
+ *
+ * ### Workspace Generator
+ *
+ * WIP feature, will be the preferred method when complete.
+ *
+ * - `nx workspace-schematic environment`
+ * - VSCode Nx Console
+ *  - nx generate (ui) > workspace-schematic - environemnt
+ *
+ * ## Examples
  *
  * - DEBUG
  * - FORMIO_SDK_API_KEY
- * - SOME_LIBARARY_AUTH_password
+ * - FORMIO_SDK_AUTH_password
+ *
+ * TODO: attribute notation not correctly implemented in several variables
+ * TODO: some incorrectly formatted or missing library names
  */
 export class ProcessEnvDTO {
   // #region Object Properties
@@ -71,6 +120,14 @@ export class ProcessEnvDTO {
    */
   public HOMEASSISTANT_TOKEN: string;
   /**
+   * Allow the license server owner view api response on behalf of customer
+   *
+   * Requests contain licence data (utilization counts, environment metadata)
+   *
+   * @see `@automagical/licenses`
+   */
+  public LICENSES_ADMIN_TOKEN: string;
+  /**
    * Connection param
    *
    * @see `@automagical/licenses`
@@ -100,6 +157,12 @@ export class ProcessEnvDTO {
    * @see `@automagical/licenses`
    */
   public LICENSES_REDIS_USESSL: string;
+  /**
+   * Header name
+   *
+   * @see `@automagical/licenses`
+   */
+  public LICENSES_TOKEN_HEADER: string;
   /**
    * @see `@automagical/logger`
    */

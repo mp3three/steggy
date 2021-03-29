@@ -1,15 +1,23 @@
-import {
-  FetchUserdataMiddleware,
-  FormioSdkModule,
-} from '@automagical/formio-sdk';
+import { FormioSdkModule } from '@automagical/formio-sdk';
 import { LicensesModule } from '@automagical/licenses';
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
+import * as RedisStore from 'cache-manager-redis-store';
 import { AppController } from './app.controller';
 import { LicenseController } from './license.controller';
 import { UtilizationController } from './utilization.controller';
 
 @Module({
-  imports: [LicensesModule, FormioSdkModule],
+  imports: [
+    LicensesModule,
+    FormioSdkModule,
+    CacheModule.register({
+      max: Infinity,
+      ttl: null,
+      store: RedisStore,
+      host: process.env.LICENSES_REDIS_HOST,
+      port: process.env.LICENSES_REDIS_PORT,
+    }),
+  ],
   controllers: [AppController, LicenseController, UtilizationController],
 })
 export class AppModule {}

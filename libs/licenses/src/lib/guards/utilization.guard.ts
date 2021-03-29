@@ -2,7 +2,7 @@ import { FormioSdkService, HTTP_Methods } from '@automagical/formio-sdk';
 import { Logger } from '@automagical/logger';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UtilizationResponseDTO } from '../dto';
+import { UtilizationResponseDTO } from '@automagical/contracts';
 
 @Injectable()
 export class UtilizationGuard implements CanActivate {

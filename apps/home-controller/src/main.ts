@@ -11,6 +11,7 @@ async function bootstrap() {
     logger,
   });
   app.setGlobalPrefix(prefix);
+  app.enableShutdownHooks();
   await app.listen(process.env.PORT, () => {
     logger.log(`Listening on ${process.env.PORT}`);
   });

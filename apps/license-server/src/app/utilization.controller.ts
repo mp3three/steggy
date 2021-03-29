@@ -1,6 +1,23 @@
-import { LicenseService } from '@automagical/licenses';
+import {
+  LicenseDTO,
+  UtilizationResponseDTO,
+  UtilizationUpdateDTO,
+} from '@automagical/contracts';
+import {
+  FetchLicense,
+  License,
+  LicenseService,
+  UtilizationCleanup,
+} from '@automagical/licenses';
 import { Logger } from '@automagical/logger';
-import { Controller, Delete, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  NotImplementedException,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 
 @Controller('utilization')
 export class UtilizationController {
@@ -20,26 +37,31 @@ export class UtilizationController {
 
   @Post('/disable')
   public disable() {
-    return this.licenseService.utilizationDisable();
+    throw new NotImplementedException();
   }
 
   @Post('/enable')
   public enable() {
-    return this.licenseService.utilizationEnable();
-  }
-
-  @Post()
-  public utilization() {
-    return this.licenseService.utilizationFetch();
+    throw new NotImplementedException();
   }
 
   /**
-   * @Post is legacy
+   * @Post is legacy call
    */
   @Post('/delete')
   @Delete()
-  public delete() {
-    return this.licenseService.utilizationDelete();
+  public utilizationDelete() {
+    throw new NotImplementedException();
+  }
+
+  @Post()
+  @FetchLicense()
+  @UseInterceptors(UtilizationCleanup)
+  public utilizationUpdate(
+    @Body() body: UtilizationUpdateDTO,
+    @License() license: LicenseDTO,
+  ): Promise<UtilizationResponseDTO> {
+    return this.licenseService.utilizationUpdate(body, license);
   }
 
   // #endregion Public Methods
