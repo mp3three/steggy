@@ -10,3 +10,5 @@ libs:
     BASE_PROJECT: formio
   logger:
     LOG_PREFIX: automagical
+  licenses:
+    TOKEN_HEADER: x-admin-token

@@ -16,8 +16,12 @@ import {
   UtilizationResponseTermsDTO,
   UtilizationUpdateDTO,
 } from '@automagical/contracts';
-import { FetchWith, FormioSdkService } from '@automagical/formio-sdk';
-import { env, Logger } from '@automagical/logger';
+import {
+  FetchWith,
+  FormioSdkService,
+  LICENSE_SERVER,
+} from '@automagical/formio-sdk';
+import { Logger } from '@automagical/logger';
 import {
   BadRequestException,
   CACHE_MANAGER,
@@ -27,6 +31,7 @@ import {
   NotAcceptableException,
   NotImplementedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import * as dayjs from 'dayjs';
 import { Request } from 'express';
@@ -60,7 +65,8 @@ export class LicenseService {
 
   constructor(
     private readonly formioSdkService: FormioSdkService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly configService: ConfigService,
   ) {}
 
   // #endregion Constructors
@@ -406,7 +412,7 @@ export class LicenseService {
 
   private fetch<T>(args: FetchWith) {
     return this.formioSdkService.fetch<T>({
-      baseUrl: process.env.FORMIO_SDK_LICENSE_SERVER_base_url,
+      baseUrl: this.configService.get(LICENSE_SERVER),
       ...args,
     });
   }

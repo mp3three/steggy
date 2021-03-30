@@ -6,8 +6,13 @@
   "$id": "licenses.json",
   "properties": {
     "ADMIN_TOKEN": {
-      "description": "Allow the license server owner view api response on behalf of customer",
+      "description": "API token to allow access to a license providing API Server",
       "type": "string"
+    },
+    "TOKEN_HEADER": {
+      "description": "Owner token",
+      "type": "string",
+      "default": "x-admin-token"
     }
   }
 }
