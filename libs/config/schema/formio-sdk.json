@@ -1,148 +1,41 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "<form.io SDK> User Environment",
-  "description": "Personal settings that don't quite work right in a .env setting. Bindings to user ediable files provided through workspace file in repo root.",
+  "title": "@automagical/formio-sdk",
   "type": "object",
   "additionalProperties": false,
-  "$comment": "The twin to this is libs/formio-sdk/src/typings/Config.ts. THESE MUST BE KEPT IN SYNC",
-  "$id": "#/",
-
+  "$id": "formio-sdk.json",
   "properties": {
-    "PORTAL_REGISTRY": {
-      "description": "Listing of all portal logins you need locally. Can be spread across multiple environments. 'default' should be used as your standard connection, and all other portal connections should be named after",
-      "type": "object",
-      "required": ["default"],
-      "patternProperties": {
-        ".*": {
-          "description": "Environment name",
-          "$ref": "#/definitions/registry",
-          "type": "object"
-        }
-      },
-      "properties": {
-        "default": {
-          "oneOf": [{
-            "description": "Environment name",
-            "$ref": "#/definitions/registry",
-            "type": "object"
-          }, {
-            "type": "object",
-            "properties": {
-              "$ref": {
-                "type": "string",
-                "description": "Available for default only, refer to another registry entry by name"
-              }
-            },
-            "required": [
-              "$ref"
-            ]
-          }]
-        }
-      }
+    "API_KEY": {
+      "description": "Sent along with requests to provide access to the API server",
+      "type": "string"
     },
-    "SDK_CONFIG": {
-      "type": "object",
-      "properties": {
-        "LOG_PREFIX": {
-          "type": "string",
-          "default": "formio",
-          "description": "Prefix for all log messages from the SDK"
-        },
-        "CACHE_DIR": {
-          "type": "string",
-          "default": "~/.formio-sdk",
-          "description": "Where to store data locally. Will contain data like templates, see docs for details."
-        }
-      }
-    }
-  },
-  "definitions": {
-    "identifier": {
+    "LICENSE_SERVER": {
       "type": "string",
-      "description": "project.name"
-    },
-    "LOGIN_EMAIL": {
-      "type": "string",
-      "default": "you@your.portal",
-      "pattern": ".*@.*"
-    },
-    "LOGIN_PASSWORD": {
-      "type": "string",
-      "minLength": 4,
-      "description": "Your password"
-    },
-    "PORTAL_BASE_URL": {
-      "type": "string",
-      "description": "portal url",
-      "examples": [
-        "https://portal.form.io",
-        "https://license.form.io"
-      ]
+      "description": "The controlling license server for the api server",
+      "default": "https://license.form.io"
     },
     "AUTH": {
       "type": "object",
-      "description": "For use in situations where the API server is sending messages to the SDK (ex: Webhooks)",
       "additionalProperties": false,
-      "required": ["user", "password"],
+      "required": ["email", "password"],
       "properties": {
-        "user": {
+        "email": {
+          "description": "User login for the portal",
           "type": "string"
         },
         "password": {
+          "description": "User password for the portal",
           "type": "string"
         }
       }
     },
-    "API_KEY": {
-      "type": "string"
+    "BASE_PROJECT": {
+      "type": "string",
+      "default": "formio"
     },
-    "registry": {
-      "$comment": "There may be several valid configurations, they are listed here",
-      "allOf": [{
-          "anyOf": [{
-            "type": "object",
-            "properties": {
-              "LOGIN_EMAIL": {
-                "$ref": "#/definitions/LOGIN_EMAIL"
-              },
-              "LOGIN_PASSWORD": {
-                "$ref": "#/definitions/LOGIN_PASSWORD"
-              }
-            },
-            "required": [
-              "LOGIN_EMAIL", "LOGIN_PASSWORD"
-            ]
-          }]
-        },
-        {
-          "type": "object",
-          "properties": {
-            "PORTAL_BASE_URL": {
-              "$ref": "#/definitions/PORTAL_BASE_URL"
-            },
-            "LICENSE_SERVER_BASE_URL": {
-              "$ref": "#/definitions/PORTAL_BASE_URL"
-            },
-            "LIMIT_PROJECTS": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/identifier"
-              }
-            }
-          },
-          "required": ["PORTAL_BASE_URL"]
-        }, {
-          "type": "object",
-          "properties": {
-            "AUTH": {
-              "$ref": "#/definitions/AUTH"
-            }
-          }
-        }
-      ],
-      "default": {
-        "PORTAL_BASE_URL": "https://your.portal"
-      }
+    "PORTAL_BASE_URL": {
+      "type": "string",
+      "default": "https://portal.form.io"
     }
   }
 }

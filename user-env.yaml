@@ -1,0 +1,8 @@
+# This file sets up global defaults
+
+# To set up your own environment settings, create a user-env.local.yaml file
+# If using VSCode, intellisense bindings provided through YAML extension + provided .vscode workspace file
+libs:
+  formio-sdk:
+    PORTAL_BASE_URL: https://portal.form.io
+    LICENSE_SERVER: https://license.form.io

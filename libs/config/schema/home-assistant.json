@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "@automagical/home-assistant",
+  "type": "object",
+  "additionalProperties": false,
+  "$id": "home-assistant.json",
+  "properties": {
+    "HOST": {
+      "type": "string",
+      "examples": [
+        "https://homeassistant.your.domain"
+      ]
+    },
+    "TOKEN": {
+      "type": "string",
+      "description": "Auth token"
+    }
+  }
+}

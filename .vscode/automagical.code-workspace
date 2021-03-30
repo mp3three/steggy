@@ -1,34 +1,66 @@
 {
   "folders": [{
-      "path": ".."
-    }
-  ],
+    "path": ".."
+  }],
   "settings": {
-    // lib folder should use relative
-    // This just sets up how it will provide the path, not linting rules
-    "typescript.preferences.importModuleSpecifier": "relative",
+    // * <Global Standards>
     "editor.tabSize": 2,
     "editor.formatOnSave": true,
-
     // Should end with exactly 1 newline of whitespace
     "files.eol": "\n",
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
+    // * </Global Standards>
 
+    // * <Language>
+    "yaml.schemas": {
+      "libs/config/schema/user-env.json": [
+        "user-env.yaml",
+        "user-env.*.yaml",
+        "user-env.yml",
+        "user-env.*.yml"
+      ]
+    },
+    // * </Language>
+
+    // * <Decorative>
     // In case you want to match material icon themes: copy into your own settings
-    //
     // "material-icon-theme.folders.associations": {
+    //   // Apps
+    //   "home-controller": "delta",
+    //   "rooms": "custom",
+    //   "api-server": "api",
+    //   "license-server": "syntax",
+    //   "contracts": "mappings",
+
+    //   // Libs
     //   "formio-sdk": "middleware",
+    //   "home-assistant": "middleware",
     //   "type-writer": "template",
+    //   "logger": "log",
+    //   "validate": "rules",
+    //   "licenses": "helper",
+    //   "fetch": "connection",
+
+    //   // Repo Root
     //   "libs": "shared",
-    //   "license": "keys",
+
+    //   // Common / Common
+    //   "action": "azure-pipelines",
+    //   "license": "helper",
     //   "dto": "database",
-    //   "automated-tests": "test",
-    //   "features": "job",
-    //   "pdf": "components",
     //   "app": "vscode",
-    //   "action": "pipe",
+    //   "decorators": "delta",
+
+    //   // @automagical/home-assistant
+    //   "entities": "components",
+
+    //   // .github/workflows
+    //   "workflows": "github",
+
+    //   // tools/generators
+    //   "microservice": "template",
     // },
 
     // "material-icon-theme.files.associations": {
@@ -43,9 +75,11 @@
     //   "index.ts": "brainfuck",
     //   "log.ts": "log",
     //   "Logger.ts": "log",
-    //   "package.json": "npm"
+    //   "package.json": "npm",
     // },
+    // * </Decorative>
 
+    // * <Typescript Class Organizer>
     // VSCode Extension: aljazsim.tsco
     // TypeScript Class Organizer
     // Ignore the warnings being sent by these, the schema provided by the extension is wrong
@@ -260,4 +294,5 @@
       }
     ]
   }
+  // * </Typescript Class Organizer>
 }
