@@ -6,23 +6,6 @@
   "additionalProperties": false,
   "$id": "#/",
   "properties": {
-    "merge": {
-      "title": "Config merging",
-      "type": "object",
-      "description": "See @automagical/config for details on merging process",
-      "properties": {
-        "files": {
-          "description": "File paths to additional files. Can be specified as relative to current file",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "urls": {
-          "description": "Load config from URL"
-        }
-      }
-    },
     "libs": {
       "type": "object",
       "additionalProperties": false,
@@ -38,6 +21,25 @@
         },
         "home-assistant": {
           "$ref": "home-assistant.json"
+        }
+      }
+    }
+  },
+  "ideas": {
+    "merge": {
+      "title": "Config merging",
+      "type": "object",
+      "description": "See @automagical/config for details on merging process",
+      "properties": {
+        "files": {
+          "description": "File paths to additional files. Can be specified as relative to current file",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "urls": {
+          "description": "Load config from URL"
         }
       }
     }
