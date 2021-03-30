@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import * as NestConfig from '@nestjs/config';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 import { AutomagicalConfig } from '../typings';
 import * as yaml from 'js-yaml';
-import { readFileSync } from 'node:fs';
 
 @Module({})
 export class ConfigModule {
@@ -53,7 +52,7 @@ export class ConfigModule {
   // #region Private Static Methods
 
   private static async loadEnvFile(): Promise<AutomagicalConfig> {
-    const envFilePath = resolve(process.cwd(), '.env');
+    const envFilePath = resolve(process.cwd(), 'user-env.yaml');
     if (existsSync(envFilePath)) {
       return yaml.load(readFileSync(envFilePath, 'utf-8')) as AutomagicalConfig;
     }

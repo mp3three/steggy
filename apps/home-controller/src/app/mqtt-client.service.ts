@@ -9,7 +9,7 @@ import {
 import { Logger } from '@automagical/logger';
 import { Inject, Injectable } from '@nestjs/common';
 import { MqttService, Payload, Subscribe } from 'nest-mqtt';
-import { MobileDevice, NotificationGroup } from '../../typings';
+import { MobileDevice, NotificationGroup } from '../typings';
 import { LivingService } from './rooms/living.service';
 import { LoftService } from './rooms/loft.service';
 

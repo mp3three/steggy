@@ -176,21 +176,17 @@
             "outputPath": "dist/apps/home-controller",
             "main": "apps/home-controller/src/main.ts",
             "tsConfig": "apps/home-controller/tsconfig.app.json",
-            "assets": [
-              "apps/home-controller/src/assets"
-            ]
+            "assets": []
           },
           "configurations": {
             "production": {
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/home-controller/src/environments/environment.ts",
-                  "with": "apps/home-controller/src/environments/environment.prod.ts"
-                }
-              ]
+              "fileReplacements": [{
+                "replace": "apps/home-controller/src/environments/environment.ts",
+                "with": "apps/home-controller/src/environments/environment.prod.ts"
+              }]
             }
           }
         },
@@ -269,12 +265,10 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/api-server/src/environments/environment.ts",
-                  "with": "apps/api-server/src/environments/environment.prod.ts"
-                }
-              ]
+              "fileReplacements": [{
+                "replace": "apps/api-server/src/environments/environment.ts",
+                "with": "apps/api-server/src/environments/environment.prod.ts"
+              }]
             }
           }
         },
@@ -368,12 +362,10 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/license-server/src/environments/environment.ts",
-                  "with": "apps/license-server/src/environments/environment.prod.ts"
-                }
-              ]
+              "fileReplacements": [{
+                "replace": "apps/license-server/src/environments/environment.ts",
+                "with": "apps/license-server/src/environments/environment.prod.ts"
+              }]
             }
           }
         },
