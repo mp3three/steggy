@@ -34,7 +34,13 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
+
+# Environment
 **/.local.env
+**/user-env*.yaml
+**/user-env*.yml
+!**/user-env.yaml
+!**/user-env.yml
 
 # System Files
 .DS_Store

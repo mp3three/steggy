@@ -11,5 +11,6 @@ module.exports = {
     '<rootDir>/apps/license-server',
     '<rootDir>/libs/authorization',
     '<rootDir>/libs/fetch',
+    '<rootDir>/libs/config',
   ],
 };

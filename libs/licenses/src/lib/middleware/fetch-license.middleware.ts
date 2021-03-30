@@ -1,9 +1,10 @@
+import { LicenseDTO, UserDTO } from '@automagical/contracts';
 import { LicenseService } from '@automagical/licenses';
 import { Logger } from '@automagical/logger';
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import { NextFunction, Request, Response } from 'express';
-import { LicenseDTO, UserDTO } from '../../../../contracts/src';
+import { ADMIN_TOKEN, TOKEN_HEADER } from '../../typings';
 
 /**
  * This middleware populates:
@@ -32,7 +33,7 @@ export class FetchLicenseMiddleware implements NestMiddleware {
 
   constructor(
     private readonly licenseService: LicenseService,
-    private readonly reflector: Reflector,
+    private readonly configService: ConfigService,
   ) {}
 
   // #endregion Constructors
@@ -75,8 +76,8 @@ export class FetchLicenseMiddleware implements NestMiddleware {
    */
   private isAdmin(req: Request) {
     return (
-      process.env.LICENSES_ADMIN_TOKEN ===
-      req.headers[process.env.LICENSES_TOKEN_HEADER]
+      this.configService.get(ADMIN_TOKEN) ===
+      req.headers[this.configService.get(TOKEN_HEADER)]
     );
   }
 
