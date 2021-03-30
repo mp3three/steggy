@@ -9,6 +9,8 @@ import {
   Identifier,
   TempAuthToken,
 } from '../../typings';
+import { ConfigService } from '@nestjs/config';
+import { FormioSDKConfig } from '@automagical/config';
 
 type CommonID = Identifier | string;
 export type FetchError = { status: number; message: string };
@@ -31,7 +33,7 @@ export class FormioSdkService {
 
   // #region Object Properties
 
-  public PORTAL_BASE = process.env.FORMIO_SDK_PORTAL_BASE_PROJECT;
+  public config: FormioSDKConfig;
   public jwtToken: string;
   public userDto: UserDTO = null;
 
@@ -41,12 +43,18 @@ export class FormioSdkService {
 
   // #endregion Object Properties
 
+  // #region Constructors
+
+  constructor(private readonly configService: ConfigService) {}
+
+  // #endregion Constructors
+
   // #region Public Methods
 
   public fetch<T>(args: FetchWith) {
     return Fetch.fetch<T>({
-      baseUrl: process.env.FORMIO_SDK_PORTAL_BASE_URL,
-      apiKey: process.env.FORMIO_SDK_API_KEY,
+      baseUrl: this.config.PORTAL_BASE_URL,
+      apiKey: this.config.API_KEY,
       token: this.jwtToken,
       ...args,
     });
@@ -68,7 +76,9 @@ export class FormioSdkService {
    * Sets up a usable jwtToken before the application finishes bootstrapping
    */
   public async onModuleInit() {
-    if (process.env.FORMIO_SDK_LOGIN_PASSWORD) {
+    this.config = this.configService.get('libs.formio-sdk');
+
+    if (this.config.AUTH?.password) {
       this.logger.info(`Attempting to log in`);
       await this.userLogin();
     }
@@ -336,15 +346,14 @@ export class FormioSdkService {
     }> = {},
   ) {
     this.logger.debug(`userLogin`, args);
-    args.name = args.name || this.PORTAL_BASE;
+    args.name = args.name || this.config.BASE_PROJECT;
     args.type = args.type || 'user';
     const res = (await this.fetch({
       url: this.projectUrl(args.name, `/${args.type}/login`),
       method: HTTP_Methods.POST,
       process: false,
       data: {
-        email: process.env.FORMIO_SDK_AUTH_user,
-        password: process.env.FORMIO_SDK_AUTH_password,
+        ...this.config.AUTH,
       },
       ...args,
     })) as Response;
@@ -377,7 +386,10 @@ export class FormioSdkService {
   /**
    * 🤖 Advanced AI generates string from url parts
    */
-  private projectUrl(args: CommonID = this.PORTAL_BASE, path = ''): string {
+  private projectUrl(
+    args: CommonID = this.config.BASE_PROJECT,
+    path = '',
+  ): string {
     if (typeof args === 'string' || args.name) {
       return `/${typeof args === 'string' ? args : args.name}${path}`;
     }
