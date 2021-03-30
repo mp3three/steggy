@@ -36,16 +36,20 @@ import { Cache } from 'cache-manager';
 import * as dayjs from 'dayjs';
 import { Request } from 'express';
 
-type UpdateArgs = {
-  update: UtilizationUpdateDTO;
-  license: SubmissionDTO<Partial<UtilizationResponseTermsDTO>>;
+interface UpdateArgs {
+  // #region Object Properties
+
   /**
-   * ! This object will be frequently mutated by methods here
+   * ! cacheData object will be frequently mutated by methods here
    *
    * * This is on purpose, maybe try to keep the variable local to the file
    */
   cacheData: CacheData;
-};
+  license: SubmissionDTO<Partial<UtilizationResponseTermsDTO>>;
+  update: UtilizationUpdateDTO;
+
+  // #endregion Object Properties
+}
 
 @Injectable()
 export class LicenseService {

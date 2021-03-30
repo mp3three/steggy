@@ -3,11 +3,14 @@ import { HomeAssistantConfig } from './home-assistant';
 import { LicensesConfig } from './licenses';
 import { LoggerConfig } from './logger';
 
-export class AutomagicalConfig {
+export class AutomagicalConfig<
+  Application extends Record<never, unknown> = Record<never, unknown>
+> {
   ['formio-sdk']?: FormioSDKConfig;
   ['home-assistant']?: HomeAssistantConfig;
   logger?: LoggerConfig;
   licenses?: LicensesConfig;
+  application?: Application;
 }
 
 export * from './formio-sdk';
