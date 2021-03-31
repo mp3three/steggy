@@ -10,6 +10,7 @@ import {
 } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { schedule } from 'node-cron';
 
 @Injectable()
@@ -31,11 +32,13 @@ export class BedroomService extends SceneRoom {
     roomService: RoomService,
     @Inject(forwardRef(() => EntityService))
     entityService: EntityService,
+    protected readonly configService: ConfigService,
   ) {
     super(RoomCode.bedroom, {
       homeAssistantService,
       roomService,
       entityService,
+      configService,
     });
   }
 

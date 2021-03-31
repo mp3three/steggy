@@ -1,5 +1,10 @@
 import {
-  EntityService, HassDomains, HomeAssistantService, iEntity, SocketService, SwitchEntity
+  EntityService,
+  HassDomains,
+  HomeAssistantService,
+  iEntity,
+  SocketService,
+  SwitchEntity,
 } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
 import { Injectable } from '@nestjs/common';
@@ -46,7 +51,7 @@ export class AppService {
     this.batteryMonitor();
     this.doorMonitor();
     this.adguardMonitor();
-      this.onSocketReset();
+    this.onSocketReset();
     this.logger.info(
       `${process.env.NODE_ENV} cron started at: ${dayjs().format(
         'YYYY-MM-DD HH:mm:ss',
@@ -69,7 +74,9 @@ export class AppService {
         return;
       }
       if (deactivatedSince === null) {
-        this.logger.warning(`Adguard is currently disabled, re-enabling in an hour`);
+        this.logger.warning(
+          `Adguard is currently disabled, re-enabling in an hour`,
+        );
         deactivatedSince = dayjs();
         return;
       }

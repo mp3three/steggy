@@ -185,12 +185,10 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/home-controller/src/environments/environment.ts",
-                  "with": "apps/home-controller/src/environments/environment.prod.ts"
-                }
-              ]
+              "fileReplacements": [{
+                "replace": "apps/home-controller/src/environments/environment.ts",
+                "with": "apps/home-controller/src/environments/environment.prod.ts"
+              }]
             }
           }
         },
@@ -269,12 +267,10 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/api-server/src/environments/environment.ts",
-                  "with": "apps/api-server/src/environments/environment.prod.ts"
-                }
-              ]
+              "fileReplacements": [{
+                "replace": "apps/api-server/src/environments/environment.ts",
+                "with": "apps/api-server/src/environments/environment.prod.ts"
+              }]
             }
           }
         },
@@ -368,12 +364,10 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/license-server/src/environments/environment.ts",
-                  "with": "apps/license-server/src/environments/environment.prod.ts"
-                }
-              ]
+              "fileReplacements": [{
+                "replace": "apps/license-server/src/environments/environment.ts",
+                "with": "apps/license-server/src/environments/environment.prod.ts"
+              }]
             }
           }
         },

@@ -1,10 +1,9 @@
-import { Module, Global } from '@nestjs/common';
-import { EntityService } from './entity.service';
+import { Module } from '@nestjs/common';
 import { HomeAssistantService } from './home-assistant.service';
+import { EntityService } from './entity.service';
 import { RoomService } from './room.service';
 import { SocketService } from './socket.service';
 
-@Global()
 @Module({
   controllers: [],
   providers: [HomeAssistantService, EntityService, RoomService, SocketService],

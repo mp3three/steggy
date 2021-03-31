@@ -6,6 +6,7 @@ import {
   SceneRoom,
 } from '@automagical/home-assistant';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class GuestService extends SceneRoom {
@@ -27,11 +28,13 @@ export class GuestService extends SceneRoom {
     roomService: RoomService,
     @Inject(forwardRef(() => EntityService))
     entityService: EntityService,
+    protected readonly configService: ConfigService,
   ) {
     super(RoomCode.guest, {
       homeAssistantService,
       roomService,
       entityService,
+      configService,
     });
   }
 

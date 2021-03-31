@@ -1,3 +1,4 @@
+import { HTTP_Methods } from '@automagical/fetch';
 import {
   IsArray,
   IsBoolean,
@@ -5,7 +6,6 @@ import {
   IsOptional,
   IsString,
 } from '@automagical/validation';
-import { HTTP_Methods } from '../../typings';
 
 /**
  * Premium Action

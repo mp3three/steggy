@@ -1,9 +1,12 @@
 import { FetchWith, Filters, TempAuthToken } from '../typings/HTTP';
 import { Logger } from '@automagical/logger';
 import * as dayjs from 'dayjs';
+import fetch, { RequestInit, BodyInit, Response } from 'node-fetch';
 
 export class Fetch {
   // #region Static Properties
+
+  public static TRUNCATE_LENGTH = 200;
 
   private static readonly logger = Logger(Fetch);
 
@@ -116,7 +119,9 @@ export class Fetch {
             ...(args.data ? {} : (args.body as Record<string, unknown>)),
           })
         : args.body;
-    const headers = {};
+    const headers = {
+      ...(args.headers || {}),
+    } as Record<string, string>;
     let method = args.method || 'GET';
     if (body) {
       // Override
@@ -161,7 +166,15 @@ export class Fetch {
       return res;
     }
     const text = await res.text();
-    this.logger.debug(text);
+    if (Fetch.TRUNCATE_LENGTH > 0 && text.length > Fetch.TRUNCATE_LENGTH) {
+      this.logger.debug(
+        `${text.substr(0, Fetch.TRUNCATE_LENGTH)}... ${
+          text.length - Fetch.TRUNCATE_LENGTH
+        } more`,
+      );
+    } else {
+      this.logger.debug(text);
+    }
     if (!['{', '['].includes(text.charAt(0))) {
       // Personally, I think all responses should always be JSON. Fight me 🤜
       // This type of "is the string really an error?" is aggravating, not convenient

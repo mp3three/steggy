@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { iLogger, Logger } from '@automagical/logger';
 import {
   LicenseAdminDTO,
   LicenseApiServer,
   LicenseDTO,
+  LicenseItemDTO,
+  LicenseReportDTO,
   LicenseUsageDTO,
 } from '@automagical/contracts';
+import { iLogger, Logger } from '@automagical/logger';
+import { Injectable } from '@nestjs/common';
 import { FormioSdkService } from '.';
 import { FetchWith, HTTP_Methods } from '../../typings';
 
@@ -19,7 +21,7 @@ export class LicenseService {
 
   // #region Object Properties
 
-  public licenseData: LicenseReport[] = [];
+  public licenseData: LicenseReportDTO[] = [];
 
   /**
    * @type Loggers
@@ -50,7 +52,7 @@ export class LicenseService {
         })) as LicenseAdminDTO;
         const out = {
           admin,
-        } as LicenseReport;
+        } as LicenseReportDTO;
 
         await Promise.all(
           Object.keys(admin.usage).map(async (key: keyof LicenseUsageDTO) => {
@@ -66,7 +68,7 @@ export class LicenseService {
               );
               out.stages = await Promise.all(
                 out.projects.map(async (project) => {
-                  return this.formioSdkService.fetch<LicenseItem>({
+                  return this.formioSdkService.fetch<LicenseItemDTO>({
                     url: `/license/${license._id}/utilizations/stage`,
                     params: {
                       projectId: project.id,
@@ -87,7 +89,7 @@ export class LicenseService {
   public toggleUsage(
     args: FetchWith<{
       state: boolean;
-      body: LicenseApiServer | LicenseItem | LicenseFormManager;
+      body: LicenseApiServer | LicenseItemDTO;
     }>,
   ) {
     this.logger.debug(`toggleUsage`, args);

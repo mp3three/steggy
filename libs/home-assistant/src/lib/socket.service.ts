@@ -12,11 +12,9 @@ import {
 } from '../typings/socket';
 import { EntityStateDTO } from './dto';
 import { BaseEntity } from './entities';
+import { ConfigService } from '@nestjs/config';
+import { BASE_URL, HOST, TOKEN } from '../typings/constants';
 
-export type hassioConfig = {
-  base: string;
-  token: string;
-};
 type SocketMessage = {
   type: HassCommands;
   id?: number;
@@ -37,10 +35,6 @@ export class SocketService extends EventEmitter {
 
   // #region Object Properties
 
-  private readonly config: hassioConfig = {
-    base: process.env.HOMEASSISTANT_HOST,
-    token: process.env.HOMEASSISTANT_TOKEN,
-  };
   private readonly logger = Logger(SocketService);
 
   private connection: WebSocket;
@@ -54,6 +48,14 @@ export class SocketService extends EventEmitter {
   } = {};
 
   // #endregion Object Properties
+
+  // #region Constructors
+
+  constructor(private readonly configService: ConfigService) {
+    super();
+  }
+
+  // #endregion Constructors
 
   // #region Public Methods
 
@@ -76,19 +78,20 @@ export class SocketService extends EventEmitter {
     });
   }
 
-  public async fetchEntityHistory(days: number, entity_id: string) {
+  public async fetchEntityHistory<T>(days: number, entity_id: string) {
     try {
-      return Fetch.fetch({
+      const headers = {
+        Authorization: `Bearer ${this.configService.get(TOKEN)}`,
+      };
+      return Fetch.fetch<T>({
         url: `/api/history/period/${dayjs().subtract(days, 'd').toISOString()}`,
         params: {
           filter_entity_id: entity_id,
           end_time: dayjs().toISOString(),
           significant_changes_only: '',
         },
-        baseUrl: this.config.base,
-        headers: {
-          Authorization: `Bearer ${this.config.token}`,
-        },
+        baseUrl: this.configService.get(BASE_URL),
+        headers,
       });
     } catch (err) {
       this.logger.error(err);
@@ -134,7 +137,9 @@ export class SocketService extends EventEmitter {
       return;
     }
     try {
-      this.connection = new WS(`wss://${this.config.base}/api/websocket`);
+      this.connection = new WS(
+        `wss://${this.configService.get(HOST)}/api/websocket`,
+      );
       this.connection.onmessage = (msg) => {
         this.onMessage(JSON.parse(msg.data));
       };
@@ -165,7 +170,7 @@ export class SocketService extends EventEmitter {
       case HassSocketMessageTypes.auth_required:
         this.sendMsg({
           type: HassCommands.auth,
-          access_token: this.config.token,
+          access_token: this.configService.get(TOKEN),
         });
         return;
       case HassSocketMessageTypes.auth_ok:

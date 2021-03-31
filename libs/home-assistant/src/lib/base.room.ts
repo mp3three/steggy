@@ -1,25 +1,18 @@
-import { readFileSync } from 'fs';
-import { AnyKindOfDictionary, Dictionary } from 'lodash';
-import { join } from 'path';
-import * as yaml from 'js-yaml';
-import { EventEmitter } from 'events';
-import { RoomService } from './room.service';
-import { HomeAssistantService } from './home-assistant.service';
-import { EntityService } from './entity.service';
-import { RoomCode } from './scene.room';
-import { RoomName } from '../typings/room';
 import { Logger } from '@automagical/logger';
-
-export type BaseConfigure = {
-  config?: AnyKindOfDictionary;
-};
-
-export type BaseRoomConfig = {
-  config?: BaseConfigure;
-};
+import { EventEmitter } from 'events';
+import { readFileSync } from 'fs';
+import * as yaml from 'js-yaml';
+import { join } from 'path';
+import { RoomName } from '../typings/room';
+import { EntityService } from './entity.service';
+import { HomeAssistantService } from './home-assistant.service';
+import { RoomService } from './room.service';
+import { ConfigService } from '@nestjs/config';
+import { RoomCode } from './scene.room';
 
 export type BaseRoomConstructor = {
   homeAssistantService: HomeAssistantService;
+  configService: ConfigService;
   roomService: RoomService;
   entityService: EntityService;
 };
@@ -27,16 +20,19 @@ export type BaseRoomConstructor = {
 export abstract class BaseRoom extends EventEmitter {
   // #region Static Properties
 
-  protected static readonly REGISTRY: Dictionary<BaseRoom> = {};
+  protected static readonly REGISTRY: Record<string, BaseRoom> = {};
 
   // #endregion Static Properties
 
   // #region Object Properties
 
+  protected configService: ConfigService;
   protected entityService: EntityService;
   protected friendlyName: RoomName;
   protected homeAssistantService: HomeAssistantService;
-  protected roomConfig: BaseRoomConfig = null;
+  protected roomConfig: {
+    config: Record<string, unknown>;
+  } = null;
   protected roomService: RoomService;
 
   private readonly _baseLogger = Logger(BaseRoom);
@@ -54,6 +50,7 @@ export abstract class BaseRoom extends EventEmitter {
     this.homeAssistantService = refs.homeAssistantService;
     this.roomService = refs.roomService;
     this.entityService = refs.entityService;
+    this.configService = refs.configService;
     this.friendlyName = RoomName[roomCode];
     BaseRoom.REGISTRY[roomCode] = this;
     RoomService.ROOM_LIST[roomCode] = this;
@@ -73,9 +70,13 @@ export abstract class BaseRoom extends EventEmitter {
    * Implementations of this class should be @Injectable() to take advantage of this
    */
   protected async onModuleInit() {
-    //
-    const configPath = join(process.env.HOMEASSISTANT_CONFIG_PATH, `${this.roomCode}.yaml`);
-    this.roomConfig = yaml.load(readFileSync(configPath, 'utf8'));
+    const configPath = join(
+      this.configService.get('application.CONFIG_PATH'),
+      `${this.roomCode}.yaml`,
+    );
+    this.roomConfig = yaml.load(readFileSync(configPath, 'utf8')) as {
+      config: Record<string, unknown>;
+    };
   }
 
   // #endregion Protected Methods
