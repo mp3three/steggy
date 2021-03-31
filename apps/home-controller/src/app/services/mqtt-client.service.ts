@@ -49,7 +49,7 @@ export class MqttClientService {
       this.logger.debug(`>>> ${topic}`);
       this.mqttService.publish(topic, payload);
     });
-    if (this.configService.get('NODE_ENV') !== 'local') {
+    if (this.configService.get('NODE_ENV') !== 'development') {
       return;
     }
     this.logger.notice(`Sending pause from development to prod`);
@@ -70,7 +70,7 @@ export class MqttClientService {
     topic: '/core/pause/',
   })
   private async pauseService() {
-    if (process.env.NODE_ENV === 'development') {
+    if (this.configService.get('NODE_ENV') === 'development') {
       return;
     }
     if (this.disableTimeout) {
@@ -102,7 +102,7 @@ export class MqttClientService {
     topic: '/core/unpause/',
   })
   private async unpauseService() {
-    if (process.env.NODE_ENV === 'development') {
+    if (this.configService.get('NODE_ENV') === 'development') {
       process.exit();
     }
     this.logger.notice(`BaseEntity.DISABLE_INTERACTIONS = false`);
@@ -169,16 +169,22 @@ export class MqttClientService {
   }
 
   private async beforeExit() {
-    if (process.env.NODE_ENV !== 'development') {
+    if (this.configService.get('NODE_ENV') !== 'development') {
       return;
     }
     this.logger.notice(`Sending /core/unpause/`);
-    await this.mqttService.publish(`/core/unpause/`, process.env.NODE_ENV);
+    await this.mqttService.publish(
+      `/core/unpause/`,
+      this.configService.get('NODE_ENV'),
+    );
     process.exit();
   }
 
   private sendOnline() {
-    return this.mqttService.publish(`/core/pause/`, process.env.NODE_ENV);
+    return this.mqttService.publish(
+      `/core/pause/`,
+      this.configService.get('NODE_ENV'),
+    );
   }
 
   // #endregion Private Methods

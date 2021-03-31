@@ -56,7 +56,7 @@ export abstract class TVRoom extends SceneRoom {
   protected async fetch(url) {
     this._logger.debug(url);
     if (
-      process.env.NODE_ENV === 'development' ||
+      this.configService.get('NODE_ENV') === 'development' ||
       BaseEntity.DISABLE_INTERACTIONS
     ) {
       return;

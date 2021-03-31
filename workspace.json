@@ -167,19 +167,20 @@
       "projectType": "application",
       "prefix": "home-controller",
       "targets": {
-        "build-app": {
+        "build": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
+            "parallel": false,
             "commands": [{
-              "command": "cp user-env.yaml apps/home-controller/src/assets/"
+              "command": "nx run home-controller:build-app:production --envFile=apps/home-controller/.production.json"
             }, {
-              "command": "cp user-env.production.yaml apps/home-controller/src/assets/"
+              "command": "cp user-env.yaml dist/apps/home-controller/assets/"
             }, {
-              "command": "NODE_ENV=production nx run home-controller:build --generatePackageJson"
+              "command": "cp user-env.production.yaml dist/apps/home-controller/assets/"
             }]
           }
         },
-        "build": {
+        "build-app": {
           "executor": "@nrwl/node:build",
           "outputs": [
             "{options.outputPath}"
@@ -200,14 +201,12 @@
               "generatePackageJson": true,
               "showCircularDependencies": false,
               "statsJson": true,
-              "assets": [{
-                "glob": "*yaml",
-                "input": "./",
-                "output": "./assets"
-              }],
               "fileReplacements": [{
                 "replace": "apps/home-controller/src/environments/environment.ts",
                 "with": "apps/home-controller/src/environments/environment.prod.ts"
+              }, {
+                "replace": "apps/home-controller/src/assets/user-env.yaml",
+                "with": "./user-env.yaml"
               }]
             }
           }

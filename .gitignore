@@ -36,7 +36,7 @@ testem.log
 /typings
 
 # Environment
-**/.local.env
+**/.*.env
 **/user-env*.yaml
 **/user-env*.yml
 !**/user-env.yaml
