@@ -37,9 +37,13 @@ export class ConfigModule {
       load: [
         async () => {
           const config = {
-            ...(await this.loadEnvFile()),
+            ...(await this.loadEnvFile(
+              `user-env.${process.env.NODE_ENV.toLowerCase()}.yaml`,
+            )),
+            ...(await this.loadEnvFile('user-env.yaml')),
             ...MergeConfig,
-          };
+            NODE_ENV: process.env.NODE_ENV,
+          } as AutomagicalConfig<T>;
           ConfigModule.done(config);
           return config;
         },
@@ -51,8 +55,8 @@ export class ConfigModule {
 
   // #region Private Static Methods
 
-  private static async loadEnvFile(): Promise<AutomagicalConfig> {
-    const envFilePath = resolve(process.cwd(), 'user-env.yaml');
+  private static async loadEnvFile(file: string): Promise<AutomagicalConfig> {
+    const envFilePath = resolve(process.cwd(), file);
     if (existsSync(envFilePath)) {
       return yaml.load(readFileSync(envFilePath, 'utf-8')) as AutomagicalConfig;
     }

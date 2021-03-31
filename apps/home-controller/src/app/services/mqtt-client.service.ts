@@ -8,10 +8,11 @@ import {
 } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
 import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { MqttService, Payload, Subscribe } from 'nest-mqtt';
-import { MobileDevice, NotificationGroup } from '../typings';
-import { LivingService } from './rooms/living.service';
-import { LoftService } from './rooms/loft.service';
+import { MobileDevice, NotificationGroup } from '../../typings';
+import { LivingService } from '../rooms/living.service';
+import { LoftService } from '../rooms/loft.service';
 
 @Injectable()
 export class MqttClientService {
@@ -31,6 +32,7 @@ export class MqttClientService {
     @Inject(HomeAssistantService)
     private readonly homeAssistantService: HomeAssistantService,
     private readonly roomService: RoomService,
+    private readonly configService: ConfigService,
   ) {}
 
   // #endregion Constructors
@@ -42,17 +44,15 @@ export class MqttClientService {
     return this.beforeExit();
   }
 
-  public onModuleInit() {
+  public async onModuleInit() {
     this.homeAssistantService.on('mqtt', ({ topic, payload }) => {
       this.logger.debug(`>>> ${topic}`);
       this.mqttService.publish(topic, payload);
     });
-    if (process.env.NODE_ENV !== 'development') {
+    if (this.configService.get('NODE_ENV') !== 'local') {
       return;
     }
-    this.logger.notice(
-      `':::::::::::SENDING PAUSE / ${process.env.NODE_ENV}:::::::::::'`,
-    );
+    this.logger.notice(`Sending pause from development to prod`);
     this._onlineInterval = setInterval(() => this.sendOnline(), 1000 * 60);
     process.nextTick(() => this.sendOnline());
   }

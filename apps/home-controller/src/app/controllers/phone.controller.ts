@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { FanCommandDto } from '@automagical/home-assistant';
-import { PhoneService } from './phone.service';
+import { PhoneService } from '../services/phone.service';
 
 @Controller('phone')
 export class PhoneController {

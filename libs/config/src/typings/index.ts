@@ -11,6 +11,7 @@ export class AutomagicalConfig<
   logger?: LoggerConfig;
   licenses?: LicensesConfig;
   application?: Application;
+  NODE_ENV?: string;
 }
 
 export * from './formio-sdk';

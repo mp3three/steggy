@@ -9,3 +9,4 @@ export * from './types';
 export * from './cache-data.dto';
 export * from './monthly-usage.dto';
 export * from './terms.dto';
+export * from './Report.dto';

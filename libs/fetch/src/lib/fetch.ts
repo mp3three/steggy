@@ -1,6 +1,7 @@
 import { FetchWith, Filters, TempAuthToken } from '../typings/HTTP';
 import { Logger } from '@automagical/logger';
 import * as dayjs from 'dayjs';
+import fetch, { RequestInit, BodyInit, Response } from 'node-fetch';
 
 export class Fetch {
   // #region Static Properties

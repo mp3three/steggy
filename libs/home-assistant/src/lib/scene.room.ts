@@ -2,7 +2,7 @@ import { Logger } from '@automagical/logger';
 import * as _ from 'lodash';
 import { Dictionary } from 'lodash';
 import { FanSpeeds, PicoButtons } from '../typings';
-import { BaseRoom, BaseRoomConfig } from './base.room';
+import { BaseRoom } from './base.room';
 import { FanEntity } from './entities/fan.entity';
 import { GroupEntity } from './entities/group.entity';
 import { LightEntity } from './entities/light.entity';
@@ -39,26 +39,33 @@ export enum RoomScene {
   medium = 'medium',
   high = 'high',
 }
+export enum RoomModes {
+  all = 'all',
+  day = 'day',
+  evening = 'evening',
+}
+export enum LightModes {
+  off = 'off',
+  on = 'on',
+  acc = 'acc',
+}
 
 type SceneDefinition = Record<
-  'all' | 'day' | 'evening',
-  {
-    circadian: CircadianModes;
-  } & Record<'off' | 'on' | 'acc', string[]>
+  RoomModes,
+  Record<'circadian', CircadianModes> & Record<LightModes, string[]>
 >;
-export type SceneRoomConfig = Record<RoomScene, SceneDefinition> &
-  BaseRoomConfig & {
-    groups: Dictionary<string[]>;
-    config: {
-      temperature: string;
-      pico: string;
-      fan: string;
-      circadian: {
-        high: string;
-        low: string;
-      };
+export type SceneRoomConfig = Record<RoomScene, SceneDefinition> & {
+  groups: Dictionary<string[]>;
+  config: {
+    temperature: string;
+    pico: string;
+    fan: string;
+    circadian: {
+      high: string;
+      low: string;
     };
   };
+};
 
 export type SetArgs = {
   accessories?: boolean;

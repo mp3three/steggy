@@ -82,7 +82,9 @@ export class HomeAssistantService extends EventEmitter {
   }
 
   public async getMystiqueMilageHistory(entity_id: string) {
-    const history = await this.socketService.fetchEntityHistory(7, entity_id);
+    const history = await this.socketService.fetchEntityHistory<
+      MilageHistory[]
+    >(7, entity_id);
     const dayMilage = {};
     if (!history || history.length === 0) {
       return;
@@ -123,7 +125,10 @@ export class HomeAssistantService extends EventEmitter {
       'lock.front_door',
     );
     if (HomeAssistantService.ESPMapping === null) {
-      const configPath = join(process.env.HOMEASSISTANT_CONFIG_PATH, 'esp-mapping.json');
+      const configPath = join(
+        process.env.HOMEASSISTANT_CONFIG_PATH,
+        'esp-mapping.json',
+      );
       HomeAssistantService.ESPMapping = JSON.parse(
         readFileSync(configPath, 'utf-8'),
       );

@@ -6,8 +6,8 @@ import {
   ValidateNested,
 } from '@automagical/validation';
 import * as faker from 'faker';
-import { AccessDTO, BaseOmitProps, ResouceSettingsDTO } from '../data';
-import { BaseDTO } from './Base.dto';
+import { AccessDTO, BaseDTO, BaseOmitProps } from './Base.dto';
+import { ResouceSettingsDTO } from './resource/ResourceSettings.dto';
 
 export enum ResourceDisplay {
   Form = 'form',

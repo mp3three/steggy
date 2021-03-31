@@ -10,7 +10,7 @@ import { Logger } from '@automagical/logger';
 import { Injectable } from '@nestjs/common';
 import * as dayjs from 'dayjs';
 import * as cron from 'node-cron';
-import { MobileDevice, NotificationGroup } from '../typings';
+import { MobileDevice, NotificationGroup } from '../../typings';
 
 @Injectable()
 export class AppService {
