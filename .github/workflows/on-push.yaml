@@ -23,4 +23,4 @@ jobs:
         run: yarn install
       - name: Run Affected Lint
         shell: bash
-        run: yarn affected:lint --base=$BEFORE_SHA
+        run: yarn affected:lint
