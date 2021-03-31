@@ -46,7 +46,7 @@ export class BedroomService extends SceneRoom {
 
   // #region Protected Methods
 
-  protected async onModuleInit() {
+  protected async onModuleInit(): Promise<void> {
     await super.onModuleInit();
     this.wakeupLightAlarm();
     this.bindPico('sensor.bed_pico', (button) => this.bedPicoCb(button));

@@ -1,4 +1,3 @@
-import { FetchUserdataMiddleware } from '@automagical/formio-sdk';
 import { Logger } from '@automagical/logger';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';

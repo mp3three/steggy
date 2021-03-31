@@ -4,6 +4,7 @@ import {
   IsObjectId,
   IsOptional,
   validate,
+  ValidationError,
 } from '@automagical/validation';
 import * as faker from 'faker';
 import * as dayjs from 'dayjs';
@@ -37,11 +38,13 @@ export enum AccessPermission {
 export class CanFake {
   // #region Public Static Methods
 
-  public static fake() {
+  public static fake(): Record<never, unknown> {
     return {};
   }
 
-  public static validate<T extends Record<never, unknown>>(obj: T) {
+  public static validate<T extends Record<never, unknown>>(
+    obj: T,
+  ): Promise<ValidationError[]> {
     return validate(obj);
   }
 

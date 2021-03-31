@@ -8,12 +8,15 @@ import {
   iEntity,
   SocketService,
 } from '@automagical/home-assistant';
+import { Logger } from '@automagical/logger';
 
 type MilageHistory = {
   last7: string; // MYSTIQUE_MILAGE_LAST7
   current: string; // MYSTIQUE_MILAGE
   today: string; // MYSTIQUE_MILAGE_TODAY
 };
+
+export class PhoneResponseDTO {}
 
 @Injectable()
 export class PhoneService {
@@ -40,6 +43,8 @@ export class PhoneService {
 
   // #region Object Properties
 
+  private readonly logger = Logger(PhoneService);
+
   private milageHistory: MilageHistory;
 
   // #endregion Object Properties
@@ -58,7 +63,12 @@ export class PhoneService {
 
   // #region Public Methods
 
-  public async controlRoku(location: 'loft' | 'living_room', payload: string) {
+  public async controlRoku(
+    location: 'loft' | 'living_room',
+    payload: string,
+  ): Promise<null> {
+    this.logger.debug(`controlRoku`, location, payload);
+    return null;
     // const topic =
     //   MqttTopics[
     //     location === 'loft' ? 'loftMonitorCommand' : 'livingRoomTvCommand'
@@ -68,7 +78,7 @@ export class PhoneService {
     // });
   }
 
-  public async getPhoneState() {
+  public async getPhoneState(): Promise<PhoneResponseDTO> {
     const [
       viparLights,
       quantumBoards,
@@ -156,19 +166,19 @@ export class PhoneService {
     };
   }
 
-  public async leaveHome() {
+  public async leaveHome(): Promise<PhoneResponseDTO> {
     // await this.socketService.sendMqtt(MqttTopics.leaveHome, {
     //   payload: 'leave_home',
     // });
     return this.getPhoneState();
   }
 
-  public async lockHouse() {
+  public async lockHouse(): Promise<PhoneResponseDTO> {
     await this.setLocks(HassServices.lock);
     return this.getPhoneState();
   }
 
-  public async openFrunk() {
+  public async openFrunk(): Promise<PhoneResponseDTO> {
     const entity_id = 'lock.mystique_frunk_lock';
     PhoneService.addBackgroundTask(() =>
       this.socketService.call(HassDomains.lock, HassServices.unlock, {
@@ -178,7 +188,7 @@ export class PhoneService {
     return this.getPhoneState();
   }
 
-  public async setFan(command: FanCommandDto) {
+  public async setFan(command: FanCommandDto): Promise<PhoneResponseDTO> {
     const id = `fan.${command.room}_ceiling_fan`;
     const entity = await this.entityService.byId(id);
     if (!entity) {
@@ -195,7 +205,7 @@ export class PhoneService {
     return this.getPhoneState();
   }
 
-  public async toggleClimate() {
+  public async toggleClimate(): Promise<PhoneResponseDTO> {
     const entity_id = 'climate.mystique_hvac_climate_system';
     const entity = await this.entityService.byId(entity_id);
     PhoneService.addBackgroundTask(() =>
@@ -210,7 +220,7 @@ export class PhoneService {
     return this.getPhoneState();
   }
 
-  public async toggleSwitch(switchName: string) {
+  public async toggleSwitch(switchName: string): Promise<PhoneResponseDTO> {
     const entity = await this.entityService.byId(switchName);
     const onChange = entity.onNextChange();
     await this.socketService.call(HassDomains.switch, HassServices.toggle, {
@@ -220,7 +230,7 @@ export class PhoneService {
     return this.getPhoneState();
   }
 
-  public async unlockHouse() {
+  public async unlockHouse(): Promise<PhoneResponseDTO> {
     await this.setLocks(HassServices.unlock);
     return this.getPhoneState();
   }

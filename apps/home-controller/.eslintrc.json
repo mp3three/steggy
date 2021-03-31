@@ -1,15 +1,20 @@
 {
   "extends": "../../.eslintrc.json",
   "ignorePatterns": ["!**/*"],
-  "overrides": [
-    {
+  "overrides": [{
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "parserOptions": {
-        "project": ["apps/programmable-casa/tsconfig.*?.json"]
+        "project": ["apps/home-controller/tsconfig.*?.json"]
       },
       "rules": {}
     },
-    { "files": ["*.ts", "*.tsx"], "rules": {} },
-    { "files": ["*.js", "*.jsx"], "rules": {} }
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {}
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "rules": {}
+    }
   ]
 }

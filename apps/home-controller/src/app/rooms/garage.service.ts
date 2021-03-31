@@ -61,16 +61,15 @@ export class GarageService extends BaseRoom {
 
   // #region Public Methods
 
-  public async exec(args: GarageDoArgs) {
+  public async exec(args: GarageDoArgs): Promise<void> {
     this._logger.alert(`Garage exec is not implemented!`, args);
-    return;
   }
 
   // #endregion Public Methods
 
   // #region Protected Methods
 
-  protected async flowerLight(tent: Tents) {
+  protected async flowerLight(tent: Tents): Promise<void> {
     const now = dayjs();
     const hour = 5;
     const lightOff = now.startOf('d').add(hour, 'h');
@@ -81,7 +80,7 @@ export class GarageService extends BaseRoom {
     return this[tent].turnOn();
   }
 
-  protected async onModuleInit() {
+  protected async onModuleInit(): Promise<void> {
     await super.onModuleInit();
     this.vipar = await this.entityService.byId(TentEntities.vipar);
     this.qb = await this.entityService.byId(TentEntities.qb);
@@ -93,7 +92,7 @@ export class GarageService extends BaseRoom {
     });
   }
 
-  protected async vegLight(tent: Tents) {
+  protected async vegLight(tent: Tents): Promise<void> {
     const now = dayjs();
     const lightOn = now.startOf('d').add(6, 'h');
     if (now.isBefore(lightOn)) {

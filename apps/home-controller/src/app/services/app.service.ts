@@ -49,7 +49,7 @@ export class AppService {
 
   // #region Public Methods
 
-  public onModuleInit() {
+  public onModuleInit(): void {
     this.batteryMonitor();
     this.doorMonitor();
     this.adguardMonitor();

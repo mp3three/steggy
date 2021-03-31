@@ -63,6 +63,18 @@
             "jestConfig": "libs/logger/jest.config.js",
             "passWithNoTests": true
           }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/logger",
+            "tsConfig": "libs/logger/tsconfig.lib.json",
+            "packageJson": "libs/logger/package.json",
+            "main": "libs/logger/src/index.ts"
+          }
         }
       }
     },
@@ -75,7 +87,7 @@
           "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": [
-              "contracts/**/*.ts"
+              "libs/contracts/**/*.ts"
             ]
           }
         }
@@ -171,15 +183,20 @@
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "parallel": false,
-            "commands": [{
-              "command": "nx run home-controller:build-app:production"
-            }, {
-              "command": "echo; echo; echo Copying user-env files to assets; echo; echo;"
-            }, {
-              "command": "cp user-env.yaml dist/apps/home-controller/assets/"
-            }, {
-              "command": "cp user-env.production.yaml dist/apps/home-controller/assets/"
-            }]
+            "commands": [
+              {
+                "command": "nx run home-controller:build-app:production"
+              },
+              {
+                "command": "echo; echo; echo Copying user-env files to assets; echo; echo;"
+              },
+              {
+                "command": "cp user-env.yaml dist/apps/home-controller/assets/"
+              },
+              {
+                "command": "cp user-env.production.yaml dist/apps/home-controller/assets/"
+              }
+            ]
           }
         },
         "build-app": {
@@ -203,10 +220,12 @@
               "generatePackageJson": true,
               "showCircularDependencies": false,
               "statsJson": true,
-              "fileReplacements": [{
-                "replace": "apps/home-controller/src/environments/environment.ts",
-                "with": "apps/home-controller/src/environments/environment.prod.ts"
-              }]
+              "fileReplacements": [
+                {
+                  "replace": "apps/home-controller/src/environments/environment.ts",
+                  "with": "apps/home-controller/src/environments/environment.prod.ts"
+                }
+              ]
             }
           }
         },
@@ -285,10 +304,12 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [{
-                "replace": "apps/api-server/src/environments/environment.ts",
-                "with": "apps/api-server/src/environments/environment.prod.ts"
-              }]
+              "fileReplacements": [
+                {
+                  "replace": "apps/api-server/src/environments/environment.ts",
+                  "with": "apps/api-server/src/environments/environment.prod.ts"
+                }
+              ]
             }
           }
         },
@@ -382,10 +403,12 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [{
-                "replace": "apps/license-server/src/environments/environment.ts",
-                "with": "apps/license-server/src/environments/environment.prod.ts"
-              }]
+              "fileReplacements": [
+                {
+                  "replace": "apps/license-server/src/environments/environment.ts",
+                  "with": "apps/license-server/src/environments/environment.prod.ts"
+                }
+              ]
             }
           }
         },
