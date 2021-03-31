@@ -41,6 +41,8 @@ export class ConfigModule {
           [
             `user-env.${process.env.NODE_ENV.toLowerCase()}.yaml`,
             'user-env.yaml',
+            `assets/user-env.${process.env.NODE_ENV.toLowerCase()}.yaml`,
+            'assets/user-env.yaml',
           ].forEach(async (file) => {
             const data = await this.loadEnvFile(file);
             Object.keys(data).forEach((key) => {

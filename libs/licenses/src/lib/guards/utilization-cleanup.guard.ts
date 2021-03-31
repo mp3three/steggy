@@ -1,16 +1,11 @@
 import {
-  LicenseDataDTO,
-  LicenseDTO,
-  SubmissionDTO,
-} from '@automagical/contracts';
-import {
   CallHandler,
   ExecutionContext,
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { map } from 'rxjs/operators';
 import { Request } from 'express';
+import { map } from 'rxjs/operators';
 
 interface Output {
   // #region Object Properties

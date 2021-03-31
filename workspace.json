@@ -167,6 +167,18 @@
       "projectType": "application",
       "prefix": "home-controller",
       "targets": {
+        "build-app": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [{
+              "command": "cp user-env.yaml apps/home-controller/src/assets/"
+            }, {
+              "command": "cp user-env.production.yaml apps/home-controller/src/assets/"
+            }, {
+              "command": "NODE_ENV=production nx run home-controller:build --generatePackageJson"
+            }]
+          }
+        },
         "build": {
           "executor": "@nrwl/node:build",
           "outputs": [
@@ -185,6 +197,14 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
+              "generatePackageJson": true,
+              "showCircularDependencies": false,
+              "statsJson": true,
+              "assets": [{
+                "glob": "*yaml",
+                "input": "./",
+                "output": "./assets"
+              }],
               "fileReplacements": [{
                 "replace": "apps/home-controller/src/environments/environment.ts",
                 "with": "apps/home-controller/src/environments/environment.prod.ts"
