@@ -172,7 +172,9 @@
           "options": {
             "parallel": false,
             "commands": [{
-              "command": "nx run home-controller:build-app:production --envFile=apps/home-controller/.production.json"
+              "command": "nx run home-controller:build-app:production"
+            }, {
+              "command": "echo; echo; echo Copying user-env files to assets; echo; echo;"
             }, {
               "command": "cp user-env.yaml dist/apps/home-controller/assets/"
             }, {
@@ -204,9 +206,6 @@
               "fileReplacements": [{
                 "replace": "apps/home-controller/src/environments/environment.ts",
                 "with": "apps/home-controller/src/environments/environment.prod.ts"
-              }, {
-                "replace": "apps/home-controller/src/assets/user-env.yaml",
-                "with": "./user-env.yaml"
               }]
             }
           }
