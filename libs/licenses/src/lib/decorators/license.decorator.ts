@@ -14,7 +14,7 @@ import { FetchLicenseMiddleware } from '../middleware/fetch-license.middleware';
  *
  * Implies @FetchUser (@automagical/formio-sdk)
  */
-export function FetchLicense(idParam: string = null) {
+export function FetchLicense(): ReturnType<typeof applyDecorators> {
   return applyDecorators(
     FetchUser(),
     UsePipes(FetchLicenseMiddleware),
@@ -23,6 +23,12 @@ export function FetchLicense(idParam: string = null) {
 }
 
 export const License = createParamDecorator(
+  (data: string, ctx: ExecutionContext) => {
+    const response = ctx.switchToHttp().getResponse();
+    return response.locals.license;
+  },
+);
+export const AllLicenses = createParamDecorator(
   (data: string, ctx: ExecutionContext) => {
     const response = ctx.switchToHttp().getResponse();
     return response.locals.licenses;

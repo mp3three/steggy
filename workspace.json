@@ -83,6 +83,18 @@
       "sourceRoot": "contracts",
       "projectType": "library",
       "targets": {
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/contracts",
+            "tsConfig": "libs/contracts/tsconfig.lib.json",
+            "packageJson": "libs/contracts/package.json",
+            "main": "libs/contracts/src/index.ts"
+          }
+        },
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
@@ -183,8 +195,7 @@
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "parallel": false,
-            "commands": [
-              {
+            "commands": [{
                 "command": "nx run home-controller:build-app:production"
               },
               {
@@ -220,12 +231,10 @@
               "generatePackageJson": true,
               "showCircularDependencies": false,
               "statsJson": true,
-              "fileReplacements": [
-                {
-                  "replace": "apps/home-controller/src/environments/environment.ts",
-                  "with": "apps/home-controller/src/environments/environment.prod.ts"
-                }
-              ]
+              "fileReplacements": [{
+                "replace": "apps/home-controller/src/environments/environment.ts",
+                "with": "apps/home-controller/src/environments/environment.prod.ts"
+              }]
             }
           }
         },
@@ -304,12 +313,10 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/api-server/src/environments/environment.ts",
-                  "with": "apps/api-server/src/environments/environment.prod.ts"
-                }
-              ]
+              "fileReplacements": [{
+                "replace": "apps/api-server/src/environments/environment.ts",
+                "with": "apps/api-server/src/environments/environment.prod.ts"
+              }]
             }
           }
         },
@@ -403,12 +410,10 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/license-server/src/environments/environment.ts",
-                  "with": "apps/license-server/src/environments/environment.prod.ts"
-                }
-              ]
+              "fileReplacements": [{
+                "replace": "apps/license-server/src/environments/environment.ts",
+                "with": "apps/license-server/src/environments/environment.prod.ts"
+              }]
             }
           }
         },

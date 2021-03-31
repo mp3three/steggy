@@ -88,8 +88,8 @@ export class LicenseService {
     );
   }
 
-  public licenseFetch(id: string) {
-    return this.fetch<LicenseDTO>({
+  public licenseFetch(id: string): Promise<LicenseDTO> {
+    return this.fetch({
       url: LicenseService.FORM_PATH,
       filters: [
         {
@@ -100,8 +100,8 @@ export class LicenseService {
     });
   }
 
-  public licenseFetchByUser(user: UserDTO) {
-    return this.fetch<LicenseDTO[]>({
+  public licenseFetchByUser(user: UserDTO): Promise<LicenseDTO[]> {
+    return this.fetch({
       url: LicenseService.FORM_PATH,
       filters: [
         {
@@ -115,7 +115,7 @@ export class LicenseService {
     });
   }
 
-  public licenseIdFromReq(req: Request) {
+  public licenseIdFromReq(req: Request): string {
     return (
       req.headers['x-license-key'] ||
       req.params?.licenseKey ||
@@ -344,7 +344,7 @@ export class LicenseService {
     // </Add New>
   }
 
-  protected isActive(license: LicenseDTO) {
+  protected isActive(license: LicenseDTO): boolean {
     const started =
       !license.data.startDate || dayjs().isAfter(dayjs(license.data.startDate));
     const ended =
@@ -352,26 +352,28 @@ export class LicenseService {
     return started && !ended;
   }
 
-  protected async processUpdate(args: UpdateArgs) {
+  protected async processUpdate(args: UpdateArgs): Promise<CacheData> {
     const { cacheData, update, license } = args;
     switch (update.type) {
       case LicenseScopes.apiServer:
-        return this.getApiServer(args);
+        await this.getApiServer(args);
+        return cacheData;
       case LicenseScopes.pdfServer:
         // TODO: PDF Server
         throw new NotImplementedException('FIXME');
     }
     let project = await this.getProject(args);
     project = (await this.getStage(args, project)) || project;
-    const form = await this.getForm(args, project);
+    await this.getForm(args, project);
     // * Items tracked monthly
     // Submission counts and such
+    const pluralType = `${update.type}s`;
     if (Object.values(LicenseTrackedMonthlyScopes).includes(update.type)) {
       if (!project || project.disabled) {
         throw new BadRequestException('Bad project');
       }
       project[update.type] = project[update.type] || 0;
-      const limit = license.data[`${update.type}s`];
+      const limit = license.data[pluralType];
       if (project[update.type] > limit) {
         throw new NotAcceptableException('Exceeded monthly limit');
       }
@@ -385,10 +387,11 @@ export class LicenseService {
       return cacheData;
     }
     if (Object.values(LicenseTrackedProjectScopes).includes(update.type)) {
+      let limit;
       switch (update.type) {
         case LicenseScopes.pdf:
           project[update.type] = project[update.type] || 0;
-          const limit = license.data[`${update.type}s`];
+          limit = license.data[pluralType];
           if (project[update.type] > limit) {
             throw new NotAcceptableException('Exceeded project limit');
           }

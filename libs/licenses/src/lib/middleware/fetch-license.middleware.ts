@@ -40,7 +40,11 @@ export class FetchLicenseMiddleware implements NestMiddleware {
 
   // #region Public Methods
 
-  public async use(req: Request, res: Response, next: NextFunction) {
+  public async use(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     const licenseId = this.licenseService.licenseIdFromReq(req);
     res.locals = {
       licenseId,
@@ -97,7 +101,6 @@ export class FetchLicenseMiddleware implements NestMiddleware {
     licenseList.forEach((license) =>
       license.data.licenseKeys.forEach((key) => (idx[key.key] = license)),
     );
-    idx[licenseId] = idx[licenseId];
     if (!idx[licenseId]) {
       idx[licenseId] = await this.licenseService.licenseFetch(licenseId);
     }
