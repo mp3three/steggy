@@ -34,6 +34,7 @@
     "@nestjs/platform-fastify": "^7.6.15",
     "@nestjs/schedule": "^0.4.3",
     "@nestjs/swagger": "^4.8.0",
+    "@nx-tools/nx-docker": "^0.4.1",
     "ajv": "^7.2.3",
     "bson": "^4.2.3",
     "cache-manager": "^3.4.1",
@@ -60,6 +61,7 @@
     "rxjs": "~6.6.3",
     "solar-calc": "^1.1.0",
     "tslib": "^2.0.0",
+    "webpack-node-externals": "^2.5.2",
     "ws": "^7.4.4"
   },
   "devDependencies": {

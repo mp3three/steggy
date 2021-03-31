@@ -36,11 +36,12 @@ testem.log
 /typings
 
 # Environment
-**/.local.env
+**/.*.env
 **/user-env*.yaml
 **/user-env*.yml
 !**/user-env.yaml
 !**/user-env.yml
+apps/*/src/assets/user-env*.yaml
 
 # System Files
 .DS_Store

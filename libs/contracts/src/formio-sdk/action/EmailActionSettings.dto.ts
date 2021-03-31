@@ -1,3 +1,9 @@
+import {
+  IsObjectId,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from '@automagical/validation';
 // {
 //   _id: "60456c47fb0a1b056ab1c346",
 //   handler: ["after", "before"],
@@ -22,6 +28,7 @@
 //   condition: { eq: "", value: "", custom: "" },
 //   form: "60455a95fb0a1bb5e9b1c329",
 //   machineName: "formio:name:email",
+
 // }
 export class SaveActionSettingsDTO {
   // #region Object Properties

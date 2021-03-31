@@ -21,12 +21,12 @@ export class LicenseController {
 
   @Get('/:licenseId/admin')
   public getAdminInfo(@Param('licenseId') id: string) {
-    return this.licenseService.getAdminInfo(id);
+    // return this.licenseService.getAdminInfo(id);
   }
 
   @Get('/:licenseId/terms')
   public getTerms(@Param('licenseId') id: string) {
-    this.licenseService.getTerms(id);
+    // this.licenseService.getTerms(id);
   }
 
   @Get('/:licenseId/utilizations/:type')
@@ -34,7 +34,7 @@ export class LicenseController {
     @Param('licenseId') id: string,
     @Param('type') type: string,
   ) {
-    return this.licenseService.getUtilizations(id, type);
+    // return this.licenseService.getUtilizations(id, type);
   }
 
   /**
@@ -49,7 +49,7 @@ export class LicenseController {
 
   @Post('/:licenseId/clear')
   public clearLicense(@Param('licenseId') id: string) {
-    return this.licenseService.clearLicense(id);
+    // return this.licenseService.clearLicense(id);
   }
 
   // #endregion Public Methods

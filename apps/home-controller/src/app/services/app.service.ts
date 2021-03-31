@@ -8,6 +8,7 @@ import {
 } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as dayjs from 'dayjs';
 import * as cron from 'node-cron';
 import { MobileDevice, NotificationGroup } from '../../typings';
@@ -38,9 +39,10 @@ export class AppService {
   // #region Constructors
 
   constructor(
-    private homeAssistantService: HomeAssistantService,
-    private entityService: EntityService,
-    private socketService: SocketService,
+    private readonly homeAssistantService: HomeAssistantService,
+    private readonly entityService: EntityService,
+    private readonly socketService: SocketService,
+    private readonly configService: ConfigService,
   ) {}
 
   // #endregion Constructors
@@ -53,7 +55,7 @@ export class AppService {
     this.adguardMonitor();
     this.onSocketReset();
     this.logger.info(
-      `${process.env.NODE_ENV} cron started at: ${dayjs().format(
+      `${this.configService.get('NODE_ENV')} cron started at: ${dayjs().format(
         'YYYY-MM-DD HH:mm:ss',
       )}`,
     );

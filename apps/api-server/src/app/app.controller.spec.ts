@@ -13,12 +13,5 @@ describe('AppController', () => {
     }).compile();
   });
 
-  describe('getData', () => {
-    it('should return "Welcome to API Server!"', () => {
-      const appController = app.get<AppController>(AppController);
-      expect(appController.getData()).toEqual({
-        message: 'Welcome to API Server!',
-      });
-    });
-  });
+  describe('getData', () => {});
 });

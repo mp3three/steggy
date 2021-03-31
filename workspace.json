@@ -168,6 +168,21 @@
       "prefix": "home-controller",
       "targets": {
         "build": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "parallel": false,
+            "commands": [{
+              "command": "nx run home-controller:build-app:production"
+            }, {
+              "command": "echo; echo; echo Copying user-env files to assets; echo; echo;"
+            }, {
+              "command": "cp user-env.yaml dist/apps/home-controller/assets/"
+            }, {
+              "command": "cp user-env.production.yaml dist/apps/home-controller/assets/"
+            }]
+          }
+        },
+        "build-app": {
           "executor": "@nrwl/node:build",
           "outputs": [
             "{options.outputPath}"
@@ -185,6 +200,9 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
+              "generatePackageJson": true,
+              "showCircularDependencies": false,
+              "statsJson": true,
               "fileReplacements": [{
                 "replace": "apps/home-controller/src/environments/environment.ts",
                 "with": "apps/home-controller/src/environments/environment.prod.ts"
