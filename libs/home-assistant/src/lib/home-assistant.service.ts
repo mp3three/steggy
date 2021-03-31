@@ -13,6 +13,7 @@ import { RemoteEntity } from './entities/remote.entity';
 import { EntityService } from './entity.service';
 import { RoomService } from './room.service';
 import { SocketService } from './socket.service';
+import { ConfigService } from '@nestjs/config';
 
 type MilageHistory = {
   attributes: {
@@ -45,10 +46,11 @@ export class HomeAssistantService extends EventEmitter {
   // #region Constructors
 
   constructor(
-    public socketService: SocketService,
+    public readonly socketService: SocketService,
     @Inject(forwardRef(() => EntityService))
-    private entityService: EntityService,
-    public roomService: RoomService,
+    private readonly entityService: EntityService,
+    public readonly roomService: RoomService,
+    public readonly configService: ConfigService,
   ) {
     super();
   }
@@ -126,7 +128,7 @@ export class HomeAssistantService extends EventEmitter {
     );
     if (HomeAssistantService.ESPMapping === null) {
       const configPath = join(
-        process.env.HOMEASSISTANT_CONFIG_PATH,
+        this.configService.get('application.CONFIG_PATH'),
         'esp-mapping.json',
       );
       HomeAssistantService.ESPMapping = JSON.parse(

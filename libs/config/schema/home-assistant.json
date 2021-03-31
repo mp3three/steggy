@@ -8,6 +8,12 @@
     "HOST": {
       "type": "string",
       "examples": [
+        "homeassistant.your.domain"
+      ]
+    },
+    "BASE_URL": {
+      "type": "string",
+      "examples": [
         "https://homeassistant.your.domain"
       ]
     },

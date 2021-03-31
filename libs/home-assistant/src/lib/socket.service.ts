@@ -13,7 +13,7 @@ import {
 import { EntityStateDTO } from './dto';
 import { BaseEntity } from './entities';
 import { ConfigService } from '@nestjs/config';
-import { BASE_URL, TOKEN } from '../typings/constants';
+import { BASE_URL, HOST, TOKEN } from '../typings/constants';
 
 type SocketMessage = {
   type: HassCommands;
@@ -80,7 +80,9 @@ export class SocketService extends EventEmitter {
 
   public async fetchEntityHistory<T>(days: number, entity_id: string) {
     try {
-      this.logger.alert(this.configService.get('libs'));
+      const headers = {
+        Authorization: `Bearer ${this.configService.get(TOKEN)}`,
+      };
       return Fetch.fetch<T>({
         url: `/api/history/period/${dayjs().subtract(days, 'd').toISOString()}`,
         params: {
@@ -89,9 +91,7 @@ export class SocketService extends EventEmitter {
           significant_changes_only: '',
         },
         baseUrl: this.configService.get(BASE_URL),
-        headers: {
-          Authorization: `Bearer ${this.configService.get(TOKEN)}`,
-        },
+        headers,
       });
     } catch (err) {
       this.logger.error(err);
@@ -100,7 +100,7 @@ export class SocketService extends EventEmitter {
   }
 
   public onModuleInit() {
-    // return this.initConnection();
+    return this.initConnection();
   }
 
   public sendMqtt(topic: string, payload: Record<string, unknown>) {
@@ -138,7 +138,7 @@ export class SocketService extends EventEmitter {
     }
     try {
       this.connection = new WS(
-        `wss://${this.configService.get(BASE_URL)}/api/websocket`,
+        `wss://${this.configService.get(HOST)}/api/websocket`,
       );
       this.connection.onmessage = (msg) => {
         this.onMessage(JSON.parse(msg.data));

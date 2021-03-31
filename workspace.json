@@ -176,7 +176,9 @@
             "outputPath": "dist/apps/home-controller",
             "main": "apps/home-controller/src/main.ts",
             "tsConfig": "apps/home-controller/tsconfig.app.json",
-            "assets": []
+            "assets": [
+              "apps/home-controller/config"
+            ]
           },
           "configurations": {
             "production": {

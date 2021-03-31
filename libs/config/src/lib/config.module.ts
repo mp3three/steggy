@@ -36,14 +36,21 @@ export class ConfigModule {
       isGlobal: true,
       load: [
         async () => {
-          const config = {
-            ...(await this.loadEnvFile(
-              `user-env.${process.env.NODE_ENV.toLowerCase()}.yaml`,
-            )),
-            ...(await this.loadEnvFile('user-env.yaml')),
-            ...MergeConfig,
-            NODE_ENV: process.env.NODE_ENV,
-          } as AutomagicalConfig<T>;
+          const config: AutomagicalConfig<T> = MergeConfig || {};
+          config.NODE_ENV = process.env.NODE_ENV;
+          [
+            `user-env.${process.env.NODE_ENV.toLowerCase()}.yaml`,
+            'user-env.yaml',
+          ].forEach(async (file) => {
+            const data = await this.loadEnvFile(file);
+            Object.keys(data).forEach((key) => {
+              config[key] = config[key] || {};
+              config[key] = {
+                ...data[key],
+                ...config[key],
+              };
+            });
+          });
           ConfigModule.done(config);
           return config;
         },
@@ -60,6 +67,7 @@ export class ConfigModule {
     if (existsSync(envFilePath)) {
       return yaml.load(readFileSync(envFilePath, 'utf-8')) as AutomagicalConfig;
     }
+    console.log(`Could not find environment file: ${envFilePath}`);
     return {};
   }
 
