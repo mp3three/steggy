@@ -34,6 +34,7 @@
     "@nestjs/platform-fastify": "^7.6.15",
     "@nestjs/schedule": "^0.4.3",
     "@nestjs/swagger": "^4.8.0",
+    "@nx-tools/nx-docker": "^0.4.1",
     "ajv": "^7.2.3",
     "bson": "^4.2.3",
     "cache-manager": "^3.4.1",
