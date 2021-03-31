@@ -177,7 +177,7 @@
             "main": "apps/home-controller/src/main.ts",
             "tsConfig": "apps/home-controller/tsconfig.app.json",
             "assets": [
-              "apps/home-controller/config"
+              "apps/home-controller/src/assets"
             ]
           },
           "configurations": {

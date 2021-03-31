@@ -12,6 +12,7 @@ import { RoomCode } from './scene.room';
 
 export type BaseRoomConstructor = {
   homeAssistantService: HomeAssistantService;
+  configService: ConfigService;
   roomService: RoomService;
   entityService: EntityService;
 };
@@ -49,6 +50,7 @@ export abstract class BaseRoom extends EventEmitter {
     this.homeAssistantService = refs.homeAssistantService;
     this.roomService = refs.roomService;
     this.entityService = refs.entityService;
+    this.configService = refs.configService;
     this.friendlyName = RoomName[roomCode];
     BaseRoom.REGISTRY[roomCode] = this;
     RoomService.ROOM_LIST[roomCode] = this;
@@ -68,9 +70,8 @@ export abstract class BaseRoom extends EventEmitter {
    * Implementations of this class should be @Injectable() to take advantage of this
    */
   protected async onModuleInit() {
-    //
     const configPath = join(
-      this.configService.get('application.ROOM_CONFIG_PATH'),
+      this.configService.get('application.CONFIG_PATH'),
       `${this.roomCode}.yaml`,
     );
     this.roomConfig = yaml.load(readFileSync(configPath, 'utf8')) as {

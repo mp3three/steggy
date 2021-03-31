@@ -10,6 +10,7 @@ import {
 import { schedule } from 'node-cron';
 import { Logger } from '@automagical/logger';
 import { HueEvent } from '../../typings';
+import { ConfigService } from '@nestjs/config';
 
 enum RokuInputs {
   off = 'off',
@@ -35,11 +36,13 @@ export class LoftService extends TVRoom {
     roomService: RoomService,
     @Inject(forwardRef(() => EntityService))
     entityService: EntityService,
+    protected readonly configService: ConfigService,
   ) {
     super(RoomCode.loft, {
       homeAssistantService,
       roomService,
       entityService,
+      configService,
     });
   }
 

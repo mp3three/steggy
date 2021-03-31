@@ -10,6 +10,7 @@ import {
   SwitchEntity,
 } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
+import { ConfigService } from '@nestjs/config';
 
 type LightingSchedule = '12/12' | '18/6';
 type Tents = 'vipar' | 'qb';
@@ -46,11 +47,13 @@ export class GarageService extends BaseRoom {
     roomService: RoomService,
     @Inject(forwardRef(() => EntityService))
     entityService: EntityService,
+    protected readonly configService: ConfigService,
   ) {
     super(RoomCode.garage, {
       homeAssistantService,
       roomService,
       entityService,
+      configService,
     });
   }
 
