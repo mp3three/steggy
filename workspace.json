@@ -241,7 +241,7 @@
         "serve": {
           "executor": "@nrwl/node:execute",
           "options": {
-            "buildTarget": "home-controller:build"
+            "buildTarget": "home-controller:build-app"
           }
         },
         "lint": {

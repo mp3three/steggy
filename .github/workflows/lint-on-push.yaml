@@ -4,8 +4,6 @@ name: Lint
 on: push
 env:
   BEFORE_SHA: ${{ github.event.before }}
-  NX_BRANCH: ${{ github.event.number }}
-  NX_RUN_GROUP: ${{ github.run_id }}
 
 jobs:
   build:
@@ -32,3 +30,13 @@ jobs:
       - name: Run Affected Lint
         shell: bash
         run: yarn affected:lint --base=origin/develop
+        env:
+          NX_BRANCH: ${{ github.event.number }}
+          NX_RUN_GROUP: ${{ github.run_id }}
+
+      - name: Run Affected Test
+        shell: bash
+        run: yarn affected:test --base=origin/develop
+        env:
+          NX_BRANCH: ${{ github.event.number }}
+          NX_RUN_GROUP: ${{ github.run_id }}
