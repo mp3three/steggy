@@ -1,4 +1,4 @@
-import { SocketService } from '..';
+import { SocketService } from '../services';
 import { BaseEntity } from './base.entity';
 
 export class SensorEntity extends BaseEntity {

@@ -1,8 +1,8 @@
+import { HassStateDTO } from '@automagical/contracts';
 import * as dayjs from 'dayjs';
 import { EventEmitter } from 'events';
-import { SocketService } from '..';
 import { HassServices, iEntity } from '../../typings';
-import { HassStateDTO } from '../dto';
+import { SocketService } from '../services';
 
 export class BaseEntity extends EventEmitter implements iEntity {
   // #region Static Properties

@@ -4,16 +4,16 @@ import * as dayjs from 'dayjs';
 import { EventEmitter } from 'events';
 import { Fetch } from '@automagical/fetch';
 import * as WS from 'ws';
+import { ConfigService } from '@nestjs/config';
 import {
   HassCommands,
   HassDomains,
   HassServices,
   HassSocketMessageTypes,
-} from '../typings/socket';
-import { EntityStateDTO } from './dto';
-import { BaseEntity } from './entities';
-import { ConfigService } from '@nestjs/config';
-import { BASE_URL, HOST, TOKEN } from '../typings/constants';
+} from '../../typings/socket';
+import { BaseEntity } from '@automagical/home-assistant';
+import { BASE_URL, HOST, TOKEN } from '../../typings/constants';
+import { EntityStateDTO } from '@automagical/contracts';
 
 type SocketMessage = {
   type: HassCommands;

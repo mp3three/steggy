@@ -2,7 +2,6 @@ import {
   BaseEntity,
   HomeAssistantService,
   MqttResponse,
-  RokuInputs,
   RoomDoArgs,
   RoomService,
 } from '@automagical/home-assistant';
@@ -13,6 +12,7 @@ import { MqttService, Payload, Subscribe } from 'nest-mqtt';
 import { MobileDevice, NotificationGroup } from '../../typings';
 import { LivingService } from '../rooms/living.service';
 import { LoftService } from '../rooms/loft.service';
+import { RokuInputs } from '../scene.room';
 
 @Injectable()
 export class MqttClientService {
