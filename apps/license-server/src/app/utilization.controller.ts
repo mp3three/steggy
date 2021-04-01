@@ -36,12 +36,12 @@ export class UtilizationController {
   // #region Public Methods
 
   @Post('/disable')
-  public disable() {
+  public disable(): never {
     throw new NotImplementedException();
   }
 
   @Post('/enable')
-  public enable() {
+  public enable(): never {
     throw new NotImplementedException();
   }
 
@@ -50,7 +50,7 @@ export class UtilizationController {
    */
   @Post('/delete')
   @Delete()
-  public utilizationDelete() {
+  public utilizationDelete(): never {
     throw new NotImplementedException();
   }
 
