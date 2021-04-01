@@ -18,9 +18,8 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
-      - run: git fetch origin develop
       - name: yarn install
         run: yarn install
       - name: Run Affected Lint
         shell: bash
-        run: yarn affected:lint
+        run: nx affected:lint --base=origin/develop
