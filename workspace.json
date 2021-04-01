@@ -63,6 +63,18 @@
             "jestConfig": "libs/logger/jest.config.js",
             "passWithNoTests": true
           }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/logger",
+            "tsConfig": "libs/logger/tsconfig.lib.json",
+            "packageJson": "libs/logger/package.json",
+            "main": "libs/logger/src/index.ts"
+          }
         }
       }
     },
@@ -71,11 +83,23 @@
       "sourceRoot": "contracts",
       "projectType": "library",
       "targets": {
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/contracts",
+            "tsConfig": "libs/contracts/tsconfig.lib.json",
+            "packageJson": "libs/contracts/package.json",
+            "main": "libs/contracts/src/index.ts"
+          }
+        },
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": [
-              "contracts/**/*.ts"
+              "libs/contracts/**/*.ts"
             ]
           }
         }
@@ -172,14 +196,18 @@
           "options": {
             "parallel": false,
             "commands": [{
-              "command": "nx run home-controller:build-app:production"
-            }, {
-              "command": "echo; echo; echo Copying user-env files to assets; echo; echo;"
-            }, {
-              "command": "cp user-env.yaml dist/apps/home-controller/assets/"
-            }, {
-              "command": "cp user-env.production.yaml dist/apps/home-controller/assets/"
-            }]
+                "command": "nx run home-controller:build-app:production"
+              },
+              {
+                "command": "echo; echo; echo Copying user-env files to assets; echo; echo;"
+              },
+              {
+                "command": "cp user-env.yaml dist/apps/home-controller/assets/"
+              },
+              {
+                "command": "cp user-env.production.yaml dist/apps/home-controller/assets/"
+              }
+            ]
           }
         },
         "build-app": {
@@ -241,6 +269,18 @@
       "sourceRoot": "libs/utilities/src",
       "projectType": "library",
       "targets": {
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/utilities",
+            "tsConfig": "libs/utilities/tsconfig.lib.json",
+            "packageJson": "libs/utilities/package.json",
+            "main": "libs/utilities/src/index.ts"
+          }
+        },
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {

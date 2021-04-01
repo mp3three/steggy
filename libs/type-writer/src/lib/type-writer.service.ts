@@ -182,7 +182,7 @@ export class TypeWriterService {
    * Build types for an array of projects
    * return back
    */
-  public async print(project: iProject) {
+  public async print(project: iProject): Promise<string[]> {
     // Convert a project into an array of types
     const printer = createPrinter({ newLine: NewLineKind.LineFeed });
     const resultFile = createSourceFile(

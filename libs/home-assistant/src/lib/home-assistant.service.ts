@@ -59,7 +59,7 @@ export class HomeAssistantService extends EventEmitter {
 
   // #region Public Methods
 
-  public async allEntityUpdate(allEntities: HassStateDTO[]) {
+  public async allEntityUpdate(allEntities: HassStateDTO[]): Promise<void> {
     allEntities
       .sort((a, b) => {
         if (a.entity_id > b.entity_id) {
@@ -83,9 +83,11 @@ export class HomeAssistantService extends EventEmitter {
     };
   }
 
-  public async getMystiqueMilageHistory(entity_id: string) {
+  public async getMystiqueMilageHistory(
+    entity_id: string,
+  ): Promise<Record<string, unknown>[]> {
     const history = await this.socketService.fetchEntityHistory<
-      MilageHistory[]
+      MilageHistory[][]
     >(7, entity_id);
     const dayMilage = {};
     if (!history || history.length === 0) {
@@ -115,7 +117,7 @@ export class HomeAssistantService extends EventEmitter {
       });
   }
 
-  public async onModuleInit() {
+  public async onModuleInit(): Promise<void> {
     this.socketService.on('onEvent', (args) => this.onEvent(args));
     this.socketService.on('allEntityUpdate', (args) =>
       this.allEntityUpdate(args),
@@ -142,7 +144,7 @@ export class HomeAssistantService extends EventEmitter {
     title: string,
     group: NotificationGroup,
     message = '',
-  ) {
+  ): Promise<void> {
     return this.socketService.call(HassDomains.notify, device, {
       message,
       title,
@@ -154,7 +156,7 @@ export class HomeAssistantService extends EventEmitter {
     });
   }
 
-  public async setLocks(state: boolean) {
+  public async setLocks(state: boolean): Promise<void> {
     if (state) {
       await HomeAssistantService.frontDoorLock.lock();
       return HomeAssistantService.backDoorLock.lock();
@@ -168,10 +170,11 @@ export class HomeAssistantService extends EventEmitter {
   // #region Private Methods
 
   private async onEvent(event: EventDTO) {
+    let state, entity, remote;
     switch (event.event_type) {
       case HassEvents.state_changed:
-        const state = event.data.new_state;
-        const entity = await this.entityService.create(event.data.entity_id);
+        state = event.data.new_state;
+        entity = await this.entityService.create(event.data.entity_id);
         if (!entity) {
           return;
         }
@@ -183,7 +186,7 @@ export class HomeAssistantService extends EventEmitter {
         entity.setState(event.data.new_state);
         return;
       case HassEvents.hue_event:
-        const remote = await this.entityService.create<RemoteEntity>(
+        remote = await this.entityService.create<RemoteEntity>(
           `remote.${event.data.id}`,
         );
         remote.hueEvent(event.data.event);

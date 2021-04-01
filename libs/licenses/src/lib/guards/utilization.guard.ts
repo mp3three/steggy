@@ -29,7 +29,7 @@ export class UtilizationGuard implements CanActivate {
 
   // #region Public Methods
 
-  public async canActivate(context: ExecutionContext) {
+  public async canActivate(context: ExecutionContext): Promise<boolean> {
     const action = this.reflector.get<string>('action', context.getHandler());
     const body = {
       salt: null,
@@ -48,6 +48,7 @@ export class UtilizationGuard implements CanActivate {
       this.logger.notice(response);
       return false;
     }
+    return true;
     // return UtilizationResponseDTO.VerifyHash(response, body);
   }
 

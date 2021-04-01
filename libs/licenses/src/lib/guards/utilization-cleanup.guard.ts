@@ -5,6 +5,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 interface Output {
@@ -27,7 +28,7 @@ export class UtilizationCleanup
   public cleanup(
     license: Output,
     showOptions: Partial<Record<'terms' | 'keys', number>>,
-  ) {
+  ): Partial<Output> {
     if (!showOptions.keys) {
       license.keys = null;
     }
@@ -37,7 +38,10 @@ export class UtilizationCleanup
     return license;
   }
 
-  public intercept(context: ExecutionContext, next: CallHandler) {
+  public intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Observable<Partial<Output>> {
     const req = context.switchToHttp().getRequest() as Request;
     return next
       .handle()

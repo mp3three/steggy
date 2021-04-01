@@ -50,7 +50,7 @@ export class LoftService extends TVRoom {
 
   // #region Protected Methods
 
-  protected async onModuleInit() {
+  protected async onModuleInit(): Promise<void> {
     await super.onModuleInit();
     const backDeskLight = await this.entityService.byId(
       'switch.back_desk_light',

@@ -11,7 +11,7 @@ import {
   LockEntity,
   RemoteEntity,
   SensorEntity,
-  SwitchEntity
+  SwitchEntity,
 } from './entities';
 import { SocketService } from './socket.service';
 
@@ -66,7 +66,7 @@ export class EntityService {
     });
   }
 
-  public clearRegistry() {
+  public clearRegistry(): void {
     EntityService.registry = {};
   }
 
@@ -109,19 +109,19 @@ export class EntityService {
     return EntityService.registry[entityId] as T;
   }
 
-  public listEntities() {
+  public listEntities(): string[] {
     return Object.keys(EntityService.registry);
   }
 
-  public async registerGroups(groups: Record<string, string[]>) {
+  public async registerGroups(groups: Record<string, string[]>): Promise<void> {
     Object.assign(this.groupRegistry, groups);
     await Promise.all(
       Object.keys(groups).map(async (suffix) => {
         await this.create(`group.${suffix}`);
-        const str =  `Created group: ${suffix} ["${groups[suffix].join('", "')}"]`;
-        this.logger.info(
-str
-        );
+        const str = `Created group: ${suffix} ["${groups[suffix].join(
+          '", "',
+        )}"]`;
+        this.logger.info(str);
       }),
     );
   }

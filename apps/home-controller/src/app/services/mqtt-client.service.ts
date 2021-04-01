@@ -39,12 +39,12 @@ export class MqttClientService {
 
   // #region Public Methods
 
-  public onModuleDestroy() {
+  public onModuleDestroy(): Promise<void> {
     clearInterval(this._onlineInterval);
     return this.beforeExit();
   }
 
-  public async onModuleInit() {
+  public async onModuleInit(): Promise<void> {
     this.homeAssistantService.on('mqtt', ({ topic, payload }) => {
       this.logger.debug(`>>> ${topic}`);
       this.mqttService.publish(topic, payload);

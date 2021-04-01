@@ -18,14 +18,14 @@ export class FanEntity extends BaseEntity {
 
   // #region Public Methods
 
-  public async setSpeed(speed: FanSpeeds) {
+  public async setSpeed(speed: FanSpeeds): Promise<void> {
     return this.call(HassServices.turn_on, {
       entity_id: this.entityId,
       speed,
     });
   }
 
-  public async speedDown() {
+  public async speedDown(): Promise<void> {
     const currentSpeed = this.attributes.speed as FanSpeeds;
     const availableSpeeds = this.attributes.speed_list as FanSpeeds[];
     const idx = availableSpeeds.indexOf(currentSpeed);
@@ -36,7 +36,7 @@ export class FanEntity extends BaseEntity {
     return this.setSpeed(availableSpeeds[idx - 1]);
   }
 
-  public async speedUp() {
+  public async speedUp(): Promise<void> {
     const currentSpeed = this.attributes.speed;
     const availableSpeeds = this.attributes.speed_list;
     const idx = availableSpeeds.indexOf(currentSpeed);
@@ -47,7 +47,7 @@ export class FanEntity extends BaseEntity {
     return this.setSpeed(availableSpeeds[idx + 1]);
   }
 
-  public async turnOff() {
+  public async turnOff(): Promise<void> {
     await super.turnOff();
     return this.call(HassServices.turn_off, {
       entity_id: this.entityId,

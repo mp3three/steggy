@@ -69,7 +69,7 @@ export abstract class BaseRoom extends EventEmitter {
   /**
    * Implementations of this class should be @Injectable() to take advantage of this
    */
-  protected async onModuleInit() {
+  protected async onModuleInit(): Promise<void> {
     const configPath = join(
       this.configService.get('application.CONFIG_PATH'),
       `${this.roomCode}.yaml`,

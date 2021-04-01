@@ -1,4 +1,4 @@
-import { LicenseDTO, REPO_VERSION } from '@automagical/contracts';
+import { CacheData, LicenseDTO, REPO_VERSION } from '@automagical/contracts';
 import {
   FetchLicense,
   License,
@@ -36,7 +36,7 @@ export class AppController {
   // #region Public Methods
 
   @Get()
-  public getData() {
+  public getData(): Record<string, string | symbol> {
     return {
       name: 'Licensing Server',
       version: REPO_VERSION,
@@ -49,7 +49,7 @@ export class AppController {
     @Param('key') key: string,
     @License() license: LicenseDTO,
     @LicenseId() licenseId: string,
-  ) {
+  ): Promise<CacheData> {
     throw new NotImplementedException();
     const cacheData = await this.licenseService.getCache(licenseId);
     return cacheData;
@@ -57,8 +57,11 @@ export class AppController {
 
   @Get('/admin/license')
   @FetchLicense()
-  public loadLicensesAdmin(@License() license: LicenseDTO) {
+  public async loadLicensesAdmin(
+    @License() license: LicenseDTO,
+  ): Promise<LicenseDTO> {
     throw new NotImplementedException();
+    return license;
     // return this.licenseService.licenseAdminFetch(license);
   }
 

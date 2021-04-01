@@ -5,7 +5,6 @@ import {
   IsString,
   ValidateNested,
 } from '@automagical/validation';
-import { PROJECT_TYPES } from '../formio-sdk';
 import { LicenseKeyDTO } from './Key.dto';
 import { LicenseMonthlyUsageDTO } from './monthly-usage.dto';
 import { UtilizationResponseTermsDTO } from './terms.dto';

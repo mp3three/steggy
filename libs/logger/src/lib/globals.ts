@@ -97,9 +97,13 @@ export class ProcessEnvDTO {
 
   // #endregion Object Properties
 }
-
+/* eslint-disable @typescript-eslint/no-empty-interface */
+/* eslint-disable @typescript-eslint/no-namespace */
 /**
- * Bind to global so global so typescript know's what's up. Refactors made easy
+ * Bind to global so global so typescript know's what's up.
+ * Located in logger since this lib is basically guaranteed to be included.
+ *
+ * eslint hates this though
  */
 declare global {
   namespace NodeJS {

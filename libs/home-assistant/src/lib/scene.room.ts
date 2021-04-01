@@ -117,7 +117,7 @@ export abstract class SceneRoom extends BaseRoom {
 
   // #region Public Methods
 
-  public async exec(args: DoArgs = {}) {
+  public async exec(args: DoArgs = {}): Promise<void> {
     if (args.scene) {
       this.setMode(args.scene, args.accessories);
       const scene = this.roomConfig[args.scene];
@@ -178,7 +178,7 @@ export abstract class SceneRoom extends BaseRoom {
     }
   }
 
-  public async execGlobal(args: GlobalSetArgs = null) {
+  public async execGlobal(args: GlobalSetArgs = null): Promise<void> {
     DEFAULT_ARGS.setDir = args.setDir || !RoomService.IS_EVENING;
     const merged: GlobalSetArgs = _.defaults(args || {}, DEFAULT_ARGS);
 
@@ -224,7 +224,7 @@ export abstract class SceneRoom extends BaseRoom {
     return tempEntity.state;
   }
 
-  public async smart(args: DoArgs = {}) {
+  public async smart(args: DoArgs = {}): Promise<void> {
     process.nextTick(async () => {
       const defaults: GlobalSetArgs = {
         removeThis: true,
@@ -265,12 +265,12 @@ export abstract class SceneRoom extends BaseRoom {
       dblClick: (button: PicoButtons) => Promise<void>,
     ) => Promise<void>,
     dblClick: (button: PicoButtons) => Promise<void> = () => null,
-  ) {
+  ): Promise<void> {
     const pico = await this.entityService.byId<SensorEntity>(entityId);
     pico.on('update', () => singleClick(pico.state, dblClick));
   }
 
-  protected async onModuleInit() {
+  protected async onModuleInit(): Promise<void> {
     await super.onModuleInit();
     if (this.roomConfig.groups) {
       await this.entityService.registerGroups(this.roomConfig.groups);
@@ -311,7 +311,7 @@ export abstract class SceneRoom extends BaseRoom {
     }
   }
 
-  protected setMode(mode: RoomScene, accessories) {
+  protected setMode(mode: RoomScene, accessories: unknown): void {
     this.roomMode = mode;
     this.logger.info(`${this.friendlyName} setMode('${mode}', ${accessories})`);
     this.emit(`roomModeChanged`);

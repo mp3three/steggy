@@ -1,7 +1,11 @@
-import { LicenseService } from '@automagical/licenses';
+import { LicenseDTO } from '@automagical/contracts';
+import {
+  AllLicenses,
+  FetchLicense,
+  LicenseService,
+} from '@automagical/licenses';
 import { Logger } from '@automagical/logger';
-import { Controller, Get, Param, Post, Res } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Get, Param, Post } from '@nestjs/common';
 
 @Controller('license')
 export class LicenseController {
@@ -20,36 +24,36 @@ export class LicenseController {
   // #region Public Methods
 
   @Get('/:licenseId/admin')
-  public getAdminInfo(@Param('licenseId') id: string) {
+  public getAdminInfo(@Param('licenseId') id: string): string {
     // return this.licenseService.getAdminInfo(id);
+    return id;
   }
 
   @Get('/:licenseId/terms')
-  public getTerms(@Param('licenseId') id: string) {
+  public getTerms(@Param('licenseId') id: string): string {
     // this.licenseService.getTerms(id);
+    return id;
   }
 
   @Get('/:licenseId/utilizations/:type')
   public getUtilizations(
     @Param('licenseId') id: string,
     @Param('type') type: string,
-  ) {
+  ): void {
+    this.logger.debug(id, type);
     // return this.licenseService.getUtilizations(id, type);
   }
 
-  /**
-   * Load licenses using x-jwt-token
-   *
-   * Data populated by middleware. See main.js
-   */
   @Get()
-  public loadLicenses(@Res() res: Response) {
-    return res.locals.licenses;
+  @FetchLicense()
+  public loadLicenses(@AllLicenses() licenses: LicenseDTO[]): LicenseDTO[] {
+    return licenses;
   }
 
   @Post('/:licenseId/clear')
-  public clearLicense(@Param('licenseId') id: string) {
+  public clearLicense(@Param('licenseId') id: string): string {
     // return this.licenseService.clearLicense(id);
+    return id;
   }
 
   // #endregion Public Methods

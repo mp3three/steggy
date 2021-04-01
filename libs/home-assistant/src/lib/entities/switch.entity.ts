@@ -4,20 +4,20 @@ import { BaseEntity } from './base.entity';
 export class SwitchEntity extends BaseEntity {
   // #region Public Methods
 
-  public async toggle() {
+  public async toggle(): Promise<void> {
     return this.call(HassServices.toggle, {
       entity_id: this.entityId,
     });
   }
 
-  public async turnOff() {
+  public async turnOff(): Promise<void> {
     await super.turnOff();
     return this.call(HassServices.turn_off, {
       entity_id: this.entityId,
     });
   }
 
-  public async turnOn() {
+  public async turnOn(): Promise<void> {
     if (this.state === 'on') {
       return;
     }
