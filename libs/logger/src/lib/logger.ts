@@ -1,6 +1,5 @@
-// import debugLib from 'debug';
+import debugLib from 'debug';
 import { iLogger } from '../typings/iLogger';
-import * as winston from 'winston';
 
 // Color tables
 // See: image at "88/256 colors" / "foreground (text)"
@@ -37,29 +36,28 @@ export const Registry = {};
  * | 6 | Informational | `info` | Informational messages | |
  * | 7 | Debug | `debug` | Debug level messages | Messages that contain information normally of use only when debugging a program. |
  */
-export const Logger = (prefix: string | { name: string }): iLogger => {
+export const Logger = (
+  prefix: string | { name: string },
+  filters = {},
+): iLogger => {
   prefix = typeof prefix === 'string' ? prefix : prefix.name;
-  // const out: Partial<iLogger> = {};
-  // prefix = (process.env.LOG_PREFIX || 'automagical') + ':' + prefix;
-  // Object.keys(LogLevels).forEach((level) => {
-  //   out[level] = debugLib(`${prefix}:${level}`);
-  //   out[level].color = LogLevels[level].toString();
-  // });
+  const out: Partial<iLogger> = {};
+  prefix = (process.env.LOG_PREFIX || 'automagical') + ':' + prefix;
+  Object.keys(LogLevels).forEach((level) => {
+    out[level] = debugLib(`${prefix}:${level}`);
+    out[level].color = LogLevels[level].toString();
+  });
 
-  // Object.keys(out).forEach((key) => {
-  //   const fn = out[key];
-  //   out[key] = (...args) => {
-  //     if (filters[key]) {
-  //       if (!filters[key](...args)) {
-  //         return;
-  //       }
-  //     }
-  //     fn(...args);
-  //   };
-  // });
-
-  const out = winston.createLogger({
-    transports: [new winston.transports.Console()],
+  Object.keys(out).forEach((key) => {
+    const fn = out[key];
+    out[key] = (...args) => {
+      if (filters[key]) {
+        if (!filters[key](...args)) {
+          return;
+        }
+      }
+      fn(...args);
+    };
   });
   Registry[prefix] = out;
   return out as iLogger;
