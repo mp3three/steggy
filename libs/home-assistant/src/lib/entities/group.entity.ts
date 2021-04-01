@@ -17,7 +17,7 @@ export class GroupEntity extends BaseEntity {
 
   // #region Constructors
 
-  constructor(id, args) {
+  constructor(id: string, args: Record<string, unknown>) {
     super(id, args);
     const { length } = id;
     if (length > GroupEntity.MAX_GROUP_NAME_LENGTH) {
@@ -29,7 +29,7 @@ export class GroupEntity extends BaseEntity {
 
   // #region Public Methods
 
-  public async addEntities(entities: BaseEntity[]) {
+  public async addEntities(entities: BaseEntity[]): Promise<void> {
     entities.forEach((entity) => {
       if (!this.entityList[entity.entityId]) {
         this.entityList[entity.entityId] = entity;
@@ -37,7 +37,7 @@ export class GroupEntity extends BaseEntity {
     });
   }
 
-  public async turnOff() {
+  public async turnOff(): Promise<void> {
     await super.turnOff();
     if (Object.keys(this.entityList).length === 0) {
       this.logger.warning(`turnOff failed: no entities in group`);
@@ -55,7 +55,7 @@ export class GroupEntity extends BaseEntity {
     );
   }
 
-  public async turnOn() {
+  public async turnOn(): Promise<void> {
     await super.turnOn();
     if (Object.keys(this.entityList).length === 0) {
       this.logger.error(`turnOn failed: no entities in group`);
@@ -67,9 +67,7 @@ export class GroupEntity extends BaseEntity {
     const list = Object.keys(this.entityList);
     this.logger.info(`${id} *turn on* ${list.length}[${list.join(', ')}]`);
 
-    await Promise.all(
-      Object.values(this.entityList).map((i) => i.turnOn()),
-    );
+    await Promise.all(Object.values(this.entityList).map((i) => i.turnOn()));
   }
 
   // #endregion Public Methods

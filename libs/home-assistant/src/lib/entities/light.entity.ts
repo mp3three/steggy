@@ -11,14 +11,14 @@ export class LightEntity extends BaseEntity {
 
   // #region Public Methods
 
-  public async turnOff() {
+  public async turnOff(): Promise<void> {
     await super.turnOff();
     return this.call(HassServices.turn_off, {
       entity_id: this.entityId,
     });
   }
 
-  public async turnOn() {
+  public async turnOn(): Promise<void> {
     await super.turnOn();
     if (this.state === 'on') {
       this.logger.debug(`Skipping turn_on for: ${this.entityId}. Already on`);

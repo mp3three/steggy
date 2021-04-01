@@ -1,6 +1,5 @@
 import * as dayjs from 'dayjs';
 import { EventEmitter } from 'events';
-import { Dictionary } from 'lodash';
 import { SocketService } from '..';
 import { HassServices, iEntity } from '../../typings';
 import { HassStateDTO } from '../dto';
@@ -14,7 +13,7 @@ export class BaseEntity extends EventEmitter implements iEntity {
 
   // #region Object Properties
 
-  public attributes: Dictionary<unknown> = {};
+  public attributes: Record<string, unknown> = {};
   public domain;
   public friendlyName = '';
   public lastChanged = dayjs();
@@ -39,12 +38,15 @@ export class BaseEntity extends EventEmitter implements iEntity {
 
   // #region Public Methods
 
-  public async call(service: HassServices, args?: Dictionary<unknown>) {
+  public async call(
+    service: HassServices,
+    args?: Record<string, unknown>,
+  ): Promise<void> {
     args = args || {};
     return this.socketService.call(this.domain, service, args) as Promise<void>;
   }
 
-  public async getWarnings() {
+  public async getWarnings(): Promise<string[]> {
     return [];
   }
 
@@ -54,7 +56,7 @@ export class BaseEntity extends EventEmitter implements iEntity {
     return p;
   }
 
-  public async setState(newState: HassStateDTO) {
+  public async setState(newState: HassStateDTO): Promise<void> {
     if (!this.hasChanged(newState)) {
       return;
     }
@@ -66,11 +68,11 @@ export class BaseEntity extends EventEmitter implements iEntity {
     this.onUpdate();
   }
 
-  public async turnOff() {
+  public async turnOff(): Promise<void> {
     // develop(`${this.entityId} turnOff`);
   }
 
-  public async turnOn() {
+  public async turnOn(): Promise<void> {
     // develop(`${this.entityId} turnOn`);
   }
 
@@ -78,11 +80,11 @@ export class BaseEntity extends EventEmitter implements iEntity {
 
   // #region Protected Methods
 
-  protected hasChanged(newState: HassStateDTO) {
+  protected hasChanged(newState: HassStateDTO): boolean {
     return !!newState || true;
   }
 
-  protected onUpdate() {
+  protected onUpdate(): void {
     while (this.nextChangeCbs.length !== 0) {
       const cb = this.nextChangeCbs.pop();
       cb();

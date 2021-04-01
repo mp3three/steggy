@@ -20,7 +20,7 @@ type SocketMessage = {
   id?: number;
   domain?: HassDomains;
   service?: HassServices | string;
-  service_data?: any;
+  service_data?: unknown;
   access_token?: string;
 };
 
@@ -35,17 +35,20 @@ export class SocketService extends EventEmitter {
 
   // #region Object Properties
 
+  public asnyc;
+
   private readonly logger = Logger(SocketService);
 
   private connection: WebSocket;
   private isAuthenticated = false;
   private messageCount = 1;
-  private waitingCallback: {
-    [key: number]: {
-      data: any;
+  private waitingCallback: Record<
+    number,
+    {
+      data: Record<string, unknown>;
       done: (result) => void;
-    };
-  } = {};
+    }
+  > = {};
 
   // #endregion Object Properties
 
@@ -59,18 +62,18 @@ export class SocketService extends EventEmitter {
 
   // #region Public Methods
 
-  public call(
+  public async call(
     domain: HassDomains,
     service: HassServices | string,
-    service_data: any,
-  ) {
+    service_data: Record<string, unknown>,
+  ): Promise<void> {
     if (BaseEntity.DISABLE_INTERACTIONS) {
       this.logger.warning(
         `${domain}.${service} bocked: ${service_data.entity_id}`,
       );
       return;
     }
-    return this.sendMsg({
+    await this.sendMsg({
       type: HassCommands.call_service,
       domain,
       service,
@@ -78,7 +81,10 @@ export class SocketService extends EventEmitter {
     });
   }
 
-  public async fetchEntityHistory<T>(days: number, entity_id: string) {
+  public async fetchEntityHistory<T extends Array<unknown>>(
+    days: number,
+    entity_id: string,
+  ): Promise<T> {
     try {
       const headers = {
         Authorization: `Bearer ${this.configService.get(TOKEN)}`,
@@ -95,15 +101,18 @@ export class SocketService extends EventEmitter {
       });
     } catch (err) {
       this.logger.error(err);
-      return [];
+      return [] as T;
     }
   }
 
-  public onModuleInit() {
-    return this.initConnection();
+  public async onModuleInit(): Promise<void> {
+    await this.initConnection();
   }
 
-  public sendMqtt(topic: string, payload: Record<string, unknown>) {
+  public sendMqtt<T>(
+    topic: string,
+    payload: Record<string, unknown>,
+  ): Promise<T> {
     return this.sendMsg({
       type: HassCommands.call_service,
       domain: HassDomains.mqtt,
@@ -115,7 +124,7 @@ export class SocketService extends EventEmitter {
     });
   }
 
-  public async updateAllEntities() {
+  public async updateAllEntities(): Promise<void> {
     const allEntities = (await this.sendMsg({
       type: HassCommands.get_states,
     })) as EntityStateDTO[];
@@ -133,7 +142,7 @@ export class SocketService extends EventEmitter {
       this.isAuthenticated = false;
       this.connection = null;
     }
-    if (!!this.connection) {
+    if (this.connection) {
       return;
     }
     try {
@@ -183,12 +192,16 @@ export class SocketService extends EventEmitter {
         return;
       case HassSocketMessageTypes.event:
         this.emit('onEvent', msg.event);
+
+      // fall through
       case HassSocketMessageTypes.pong:
         if (this.waitingCallback[msg.id]) {
           const f = this.waitingCallback[msg.id].done;
           delete this.waitingCallback[msg.id];
           f(msg);
         }
+      // fall through
+
       case HassSocketMessageTypes.result:
         if (this.waitingCallback[msg.id]) {
           const f = this.waitingCallback[msg.id].done;
@@ -202,7 +215,9 @@ export class SocketService extends EventEmitter {
     }
   }
 
-  private sendMsg(data: SocketMessage) {
+  private sendMsg<T extends unknown = unknown>(
+    data: SocketMessage,
+  ): Promise<T> {
     if (data.type !== HassCommands.ping) {
       this.logger.debug(data);
     }
@@ -219,6 +234,10 @@ export class SocketService extends EventEmitter {
         done(null);
       });
     }
+    /**
+     * FIXME: need to fix this flow
+     */
+    // eslint-disable-next-line
     return new Promise(async (done) => {
       if (this.connection.readyState !== this.connection.OPEN) {
         this.logger.info(`re-init connection`);
@@ -229,7 +248,7 @@ export class SocketService extends EventEmitter {
             `Deferring message by 1s for connection reset`,
             data,
           );
-          done(res);
+          done(res as T);
         }, 1000);
         return;
       }

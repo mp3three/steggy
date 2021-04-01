@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { Logger } from '../../../logger/src';
+import { Logger } from '@automagical/logger';
 import { BaseEntity } from './entities/base.entity';
 import { RokuInputs, SceneRoom, SceneRoomConfig } from './scene.room';
 import { sleep } from '@automagical/utilities';
@@ -25,7 +25,7 @@ export abstract class TVRoom extends SceneRoom {
 
   // #region Public Methods
 
-  public async setRoku(channel: RokuInputs | string) {
+  public async setRoku(channel: RokuInputs | string): Promise<void> {
     this._logger.info(`${this.friendlyName} roku => ${channel}`);
     const { host } = this.roomConfig.config.roku;
 
@@ -41,7 +41,7 @@ export abstract class TVRoom extends SceneRoom {
     return this.fetch(`${host}/launch/${input}`);
   }
 
-  public async smart(args) {
+  public async smart(args: Record<string, unknown>): Promise<void> {
     await super.smart(args);
     const defaultRokuChannel = this.roomConfig.config.roku.defaultChannel;
     if (['off', defaultRokuChannel].includes(this.rokuChannel)) {
@@ -53,7 +53,7 @@ export abstract class TVRoom extends SceneRoom {
 
   // #region Protected Methods
 
-  protected async fetch(url) {
+  protected async fetch(url: string): Promise<void> {
     this._logger.debug(url);
     if (
       this.configService.get('NODE_ENV') === 'development' ||
@@ -66,7 +66,7 @@ export abstract class TVRoom extends SceneRoom {
     await fetch(url, { method: 'POST' });
   }
 
-  protected async onModuleInit() {
+  protected async onModuleInit(): Promise<void> {
     await super.onModuleInit();
     this.on(`scene:off`, () => this.setRoku(RokuInputs.off));
   }

@@ -11,7 +11,7 @@ export class RemoteEntity extends BaseEntity {
 
   // #region Public Methods
 
-  public hueEvent(event: number) {
+  public hueEvent(event: number): Promise<void> {
     // These will probably be missed (because of the hue polling)
     const map = {
       1000: '1_click',
@@ -40,9 +40,7 @@ export class RemoteEntity extends BaseEntity {
     const buttonNumber = buttonEvent.charAt(0);
     if (
       this.state === buttonNumber &&
-      dayjs()
-        .add(5, 'seconds')
-        .isBefore(this.lastChanged)
+      dayjs().add(5, 'seconds').isBefore(this.lastChanged)
     ) {
       return;
     }

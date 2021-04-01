@@ -12,7 +12,7 @@ export type RoomDoArgs = DoArgs & { roomCode: string };
 export class RoomService extends EventEmitter {
   // #region Static Properties
 
-  // Near Austin, TX.
+  // Near Austin, TX... I think. Deleted a few digits
   public static readonly LAT = 30.3114;
   public static readonly LONG = -97.534;
   public static readonly ROOM_LIST: Record<string, BaseRoom> = {};
@@ -23,7 +23,7 @@ export class RoomService extends EventEmitter {
 
   // #region Public Static Accessors
 
-  public static get IS_EVENING() {
+  public static get IS_EVENING(): boolean {
     // For the purpose of the house, it's considered evening if the sun has set, or it's past 6PM
 
     const now = dayjs();
@@ -39,6 +39,8 @@ export class RoomService extends EventEmitter {
       return this._SOLAR_CALC;
     }
     setTimeout(() => (this._SOLAR_CALC = null), 1000 * 30);
+    // typescript is wrong this time, it works as expected for me
+    // eslint-disable-next-line
     // @ts-ignore
     return new SolarCalc(new Date(), RoomService.LAT, RoomService.LONG);
   }
@@ -53,7 +55,7 @@ export class RoomService extends EventEmitter {
 
   // #region Public Methods
 
-  public exec(args: RoomDoArgs) {
+  public exec(args: RoomDoArgs): Promise<void> {
     if (!args.roomCode) {
       this.logger.alert(`RoomCode is required`);
       return;
@@ -66,7 +68,7 @@ export class RoomService extends EventEmitter {
     return room.exec(args);
   }
 
-  public globalExec(args: GlobalSetArgs) {
+  public async globalExec(args: GlobalSetArgs): Promise<void> {
     const room = Object.values(RoomService.ROOM_LIST).find(
       (room) => room instanceof SceneRoom,
     ) as SceneRoom;
