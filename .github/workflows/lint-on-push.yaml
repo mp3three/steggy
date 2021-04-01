@@ -32,3 +32,7 @@ jobs:
       - name: Run Affected Lint
         shell: bash
         run: yarn affected:lint --base=origin/develop
+
+      - name: Run Affected Test
+        shell: bash
+        run: yarn affected:test --base=origin/develop
