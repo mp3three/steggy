@@ -1,4 +1,5 @@
 import { Logger } from '@automagical/logger';
+import { SocketService } from '../socket.service';
 import { BaseEntity } from './base.entity';
 
 export class GroupEntity extends BaseEntity {
@@ -17,8 +18,8 @@ export class GroupEntity extends BaseEntity {
 
   // #region Constructors
 
-  constructor(id: string, args: Record<string, unknown>) {
-    super(id, args);
+  constructor(id: string, socketService: SocketService) {
+    super(id, socketService);
     const { length } = id;
     if (length > GroupEntity.MAX_GROUP_NAME_LENGTH) {
       GroupEntity.MAX_GROUP_NAME_LENGTH = length;
