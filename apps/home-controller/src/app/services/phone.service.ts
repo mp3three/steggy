@@ -284,12 +284,13 @@ export class PhoneService {
     }
     this.milageHistory = {
       last7: (
-        history[history.length - 1].miles - history[0].miles
+        Number(history[history.length - 1].miles) - Number(history[0].miles)
       ).toLocaleString(),
       today: (
-        history[history.length - 1].miles - history[history.length - 2].miles
+        Number(history[history.length - 1].miles) -
+        Number(history[history.length - 2].miles)
       ).toLocaleString(),
-      current: history[history.length - 1].miles.toLocaleString(),
+      current: Number(history[history.length - 1].miles).toLocaleString(),
     };
     setTimeout(() => this.updateMilageStats(), 1000 * 60 * 60);
   }
