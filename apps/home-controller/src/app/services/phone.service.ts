@@ -290,7 +290,7 @@ export class PhoneService {
         Number(history[history.length - 1].miles) -
         Number(history[history.length - 2].miles)
       ).toLocaleString(),
-      current: history[history.length - 1].miles.toLocaleString(),
+      current: Number(history[history.length - 1].miles).toLocaleString(),
     };
     setTimeout(() => this.updateMilageStats(), 1000 * 60 * 60);
   }
