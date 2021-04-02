@@ -1,5 +1,5 @@
-import { HassStateDTO } from '.';
 import { HassEvents } from './enums/socket';
+import { HassStateDTO } from './hass-state.dto';
 
 export class EventDataDTO {
   // #region Object Properties
@@ -23,7 +23,7 @@ export class ContextDTO {
   // #endregion Object Properties
 }
 
-export class EventDTO {
+export class HassEventDTO {
   // #region Object Properties
 
   public context: ContextDTO;

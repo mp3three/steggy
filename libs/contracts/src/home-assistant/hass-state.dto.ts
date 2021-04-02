@@ -1,5 +1,5 @@
 import * as dayjs from 'dayjs';
-import { ContextDTO } from './Event.dto';
+import { ContextDTO } from './hass-event.dto';
 
 export class HassStateDTO<
   T extends Record<never, unknown> = Record<never, unknown>

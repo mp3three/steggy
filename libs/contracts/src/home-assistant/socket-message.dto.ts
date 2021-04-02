@@ -1,3 +1,5 @@
+import { HassSocketMessageTypes } from './enums/socket';
+
 export class SocketMessageDTO {
   // #region Object Properties
 
