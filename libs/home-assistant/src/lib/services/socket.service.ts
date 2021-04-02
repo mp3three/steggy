@@ -1,12 +1,20 @@
-import { EntityStateDTO, SocketMessageDTO } from '@automagical/contracts';
+import {
+  ALL_ENTITIES_UPDATED,
+  CONNECTION_RESET,
+  HassStateDTO,
+  HA_RAW_EVENT,
+  SendSocketMessageDTO,
+  SocketMessageDTO,
+} from '@automagical/contracts';
 import { Fetch, FetchWith } from '@automagical/fetch';
 import { Logger } from '@automagical/logger';
+import { sleep } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import * as dayjs from 'dayjs';
-import { EventEmitter } from 'events';
 import * as WS from 'ws';
 import { BASE_URL, HOST, TOKEN } from '../../typings/constants';
 import {
@@ -15,25 +23,16 @@ import {
   HassServices,
   HassSocketMessageTypes,
 } from '../../typings/socket';
-import { sleep } from '@automagical/utilities';
 
-type SocketMessage = {
-  type: HassCommands;
-  id?: number;
-  domain?: HassDomains;
-  service?: HassServices | string;
-  service_data?: unknown;
-  access_token?: string;
-};
-
+/**
+ * SocketService deals with all communicationsto the HomeAssistant service
+ *
+ * This is primarily accomplished through the websocket API.
+ * However, some requests (such as reports) can only be done through HTTP calls.
+ * This service still handles those requests to keep things in one spot.
+ */
 @Injectable()
-export class SocketService extends EventEmitter {
-  // #region Static Properties
-
-  private static RESPONSE_TIMEOUT = 1000 * 30;
-
-  // #endregion Static Properties
-
+export class SocketService {
   // #region Object Properties
 
   private readonly logger = Logger(SocketService);
@@ -48,11 +47,10 @@ export class SocketService extends EventEmitter {
   // #region Constructors
 
   constructor(
-    private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-  ) {
-    super();
-  }
+    private readonly configService: ConfigService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   // #endregion Constructors
 
@@ -138,13 +136,15 @@ export class SocketService extends EventEmitter {
    *
    * This can be a pretty big list
    */
-  public async updateAllEntities(): Promise<EntityStateDTO[]> {
+  public async updateAllEntities(): Promise<HassStateDTO[]> {
     this.logger.notice(`updateAllEntities`);
-    const allEntities = await this.sendMsg<EntityStateDTO[]>({
+    const allEntities = await this.sendMsg<HassStateDTO[]>({
       type: HassCommands.get_states,
     });
     // As long as the info is handy...
-    process.nextTick(() => this.emit(`allEntityUpdate`, allEntities));
+    process.nextTick(() =>
+      this.eventEmitter.emit(ALL_ENTITIES_UPDATED, allEntities),
+    );
     return allEntities;
   }
 
@@ -157,6 +157,7 @@ export class SocketService extends EventEmitter {
    */
   @Cron('*/15 * * * * *')
   private async ping(): Promise<void> {
+    this.logger.debug('ping');
     try {
       const pong = await this.sendMsg({
         type: HassCommands.ping,
@@ -179,7 +180,7 @@ export class SocketService extends EventEmitter {
   private initConnection(reset = false): void {
     this.logger.info('initConnection');
     if (reset) {
-      this.emit('connection-reset');
+      this.eventEmitter.emit(CONNECTION_RESET);
       this.isAuthenticated = false;
       this.connection = null;
     }
@@ -213,6 +214,7 @@ export class SocketService extends EventEmitter {
    * Response to an outgoing emit. Value should be redirected to the promise returned by said emit
    */
   private async onMessage(msg: SocketMessageDTO) {
+    let lostInFlight: number;
     switch (msg.type as HassSocketMessageTypes) {
       case HassSocketMessageTypes.auth_required:
         this.sendMsg({
@@ -223,6 +225,14 @@ export class SocketService extends EventEmitter {
 
       case HassSocketMessageTypes.auth_ok:
         this.isAuthenticated = true;
+        lostInFlight = Object.values(this.waitingCallback).length;
+        if (lostInFlight !== 0) {
+          // ? Can the promises be rejected?
+          // ? Does the memory get reclaimed if I don't?
+          this.logger.warning(
+            `${lostInFlight} responses lost during connection reset`,
+          );
+        }
         this.waitingCallback = {};
         await this.sendMsg({
           type: HassCommands.subscribe_events,
@@ -231,9 +241,10 @@ export class SocketService extends EventEmitter {
         return;
 
       case HassSocketMessageTypes.event:
-        this.emit('onEvent', msg.event);
+        this.eventEmitter.emit(HA_RAW_EVENT, msg.event);
         return;
 
+      // 🏓
       case HassSocketMessageTypes.pong:
         if (this.waitingCallback[msg.id]) {
           const f = this.waitingCallback[msg.id].done;
@@ -250,8 +261,8 @@ export class SocketService extends EventEmitter {
         }
         return;
       default:
-        // Unhandled case, probably should know about it
-        this.logger.alert(JSON.stringify(msg, null, '  '));
+        this.logger.alert(`Unknown websocket message type: ${msg.type}`);
+        this.logger.debug(msg);
     }
   }
 
@@ -259,7 +270,7 @@ export class SocketService extends EventEmitter {
    * Send a message to HomeAssistant. Optionally, wait for a reply to come back & return
    */
   private async sendMsg<T extends unknown = unknown>(
-    data: SocketMessage,
+    data: SendSocketMessageDTO,
     waitForResponse = true,
   ): Promise<T> {
     if (data.type !== HassCommands.ping) {
@@ -276,17 +287,18 @@ export class SocketService extends EventEmitter {
       await sleep(1000);
       return this.sendMsg(data);
     }
-    while (this.isAuthenticated === false && data.type !== 'auth') {
+    while (this.isAuthenticated === false && data.type !== HassCommands.auth) {
       // Something is jumpy
+      // Maybe check a different lifecycle event
       this.logger.warning(`sendMsg waiting for authentication`);
       await sleep(100);
     }
     this.connection.send(JSON.stringify(data));
     if (!waitForResponse) {
       // Mostly an optimization thing
-      // TODO Add a timer to identify calls that don't receive replies
       return null;
     }
+    // TODO Add a timer to identify calls that don't receive replies
     return new Promise((done) => (this.waitingCallback[counter] = done));
   }
 

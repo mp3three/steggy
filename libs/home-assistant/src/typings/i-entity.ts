@@ -1,5 +1,5 @@
+import { HassStateDTO } from '@automagical/contracts';
 import * as dayjs from 'dayjs';
-import { EntityStateDTO } from '../lib/dto';
 import { HassDomains, HassServices } from './socket';
 
 type f = (...args: unknown[]) => void;
@@ -23,7 +23,7 @@ export interface iEntity {
   getWarnings(): Promise<string[]>;
   on(evt: string, cb: f);
   onNextChange(): Promise<void>;
-  setState(state: EntityStateDTO): Promise<void>;
+  setState(state: HassStateDTO): Promise<void>;
 
   // #endregion Public Methods
 }

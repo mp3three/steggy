@@ -16,9 +16,15 @@ import { AppService } from './services/app.service';
 import { MqttClientService } from './services/mqtt-client.service';
 import { PhoneService } from './services/phone.service';
 import { ScheduleModule } from '@nestjs/schedule';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot({
+      wildcard: true,
+      delimiter: '/',
+      verboseMemoryLeak: true,
+    }),
     ScheduleModule.forRoot(),
     ConfigModule.register<ApplicationConfig>({
       application: environment,
