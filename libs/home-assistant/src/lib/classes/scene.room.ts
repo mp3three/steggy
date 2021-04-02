@@ -1,14 +1,15 @@
 import { Logger } from '@automagical/logger';
 import * as _ from 'lodash';
 import { Dictionary } from 'lodash';
-import { FanSpeeds, PicoButtons } from '../typings';
+import { FanEntity } from '../entities/fan.entity';
+import { GroupEntity } from '../entities/group.entity';
+import { LightEntity } from '../entities/light.entity';
+import { SensorEntity } from '../entities/sensor.entity';
+import { SwitchEntity } from '../entities/switch.entity';
+import { RoomDoArgs, RoomService } from '../services/room.service';
+import { FanSpeeds, PicoButtons } from '../../typings';
 import { BaseRoom } from './base.room';
-import { FanEntity } from './entities/fan.entity';
-import { GroupEntity } from './entities/group.entity';
-import { LightEntity } from './entities/light.entity';
-import { SensorEntity } from './entities/sensor.entity';
-import { SwitchEntity } from './entities/switch.entity';
-import { RoomDoArgs, RoomService } from './room.service';
+import { EntityService } from '../services';
 
 export enum RokuInputs {
   off = 'off',
@@ -16,7 +17,6 @@ export enum RokuInputs {
   hdmi2 = 'hdmi2',
   hdmi3 = 'hdmi3',
 }
-
 export enum RoomCode {
   loft = 'loft',
   living = 'living_room',
@@ -26,7 +26,6 @@ export enum RoomCode {
   kitchen = 'kitchen',
   garage = 'garage',
 }
-
 export enum CircadianModes {
   off = 'off',
   low = 'low',
@@ -50,36 +49,80 @@ export enum LightModes {
   acc = 'acc',
 }
 
-type SceneDefinition = Record<
-  RoomModes,
-  Record<'circadian', CircadianModes> & Record<LightModes, string[]>
->;
-export type SceneRoomConfig = Record<RoomScene, SceneDefinition> & {
-  groups: Dictionary<string[]>;
-  config: {
-    temperature: string;
-    pico: string;
-    fan: string;
-    circadian: {
-      high: string;
-      low: string;
-    };
-  };
-};
+type Modes = Record<'circadian', CircadianModes>;
+export class SceneDefinitionDTO {
+  // #region Object Properties
 
-export type SetArgs = {
+  public acc: string[];
+  public all: Modes;
+  public day: Modes;
+  public evening: Modes;
+  public off: string[];
+  public on: string[];
+
+  // #endregion Object Properties
+}
+
+export class SceneRoomCircadianConfigDTO {
+  // #region Object Properties
+
+  public high: string;
+  public low: string;
+
+  // #endregion Object Properties
+}
+
+export class SceneRoomConfigDataDTO {
+  // #region Object Properties
+
+  public circadian: SceneRoomCircadianConfigDTO;
+  public fan: string;
+  public pico: string;
+  public temperature: string;
+
+  // #endregion Object Properties
+}
+
+export class SceneRoomConfigDTO {
+  // #region Object Properties
+
+  public config: SceneRoomConfigDataDTO;
+  public groups: Record<string, string[]>;
+  public high: SceneRoomConfigDataDTO;
+  public low: SceneRoomConfigDataDTO;
+  public medium: SceneRoomConfigDataDTO;
+  public off: SceneRoomConfigDataDTO;
+  public unknown: SceneRoomConfigDataDTO;
+
+  // #endregion Object Properties
+}
+
+export class SetArgs {
+  // #region Object Properties
+
   accessories?: boolean;
   leaveFan?: boolean;
-};
-export type DoArgs = SetArgs & {
+
+  // #endregion Object Properties
+}
+
+export class DoArgs extends SetArgs {
+  // #region Object Properties
+
   scene?: RoomScene;
-};
-export type GlobalSetArgs = SetArgs & {
-  setDir?: boolean;
-  removeThis?: boolean;
+
+  // #endregion Object Properties
+}
+export class GlobalSetArgs extends DoArgs {
+  // #region Object Properties
+
   everything?: boolean;
+  removeThis?: boolean;
   roomList?: RoomCode[];
-};
+  setDir?: boolean;
+
+  // #endregion Object Properties
+}
 export const DEFAULT_ARGS: GlobalSetArgs = {
   // Translate to all rooms + accessories
   everything: false,
@@ -93,59 +136,55 @@ export const DEFAULT_ARGS: GlobalSetArgs = {
   roomList: [],
 };
 
-const ALL_ROOMS = [
-  RoomCode.bedroom,
-  RoomCode.games,
-  RoomCode.guest,
-  RoomCode.living,
-  RoomCode.loft,
-];
+// const ALL_ROOMS = [
+//   RoomCode.bedroom,
+//   RoomCode.games,
+//   RoomCode.guest,
+//   RoomCode.living,
+//   RoomCode.loft,
+// ];
 
+/**
+ * ## Assumptions
+ *
+ * 1) There is a climate sensor available
+ * 2) There is a fan entity available for the room
+ * 3) There is a config compatible with the high / medium / low / off lighting logic
+ */
 export abstract class SceneRoom extends BaseRoom {
   // #region Object Properties
 
   protected climateSensor: SensorEntity = null;
   protected fan: FanEntity;
-  protected roomConfig: SceneRoomConfig;
+  protected roomConfig: SceneRoomConfigDTO;
   protected roomMode: RoomScene = RoomScene.unknown;
-
-  private readonly logger = Logger(SceneRoom);
-
-  private lastPicoButton: PicoButtons;
 
   // #endregion Object Properties
 
+  // #region Constructors
+
+  constructor(id: RoomCode, private readonly entityService: EntityService) {
+    super(id);
+  }
+
+  // #endregion Constructors
+
   // #region Public Methods
 
+  /**
+   * Set a room mode
+   */
   public async exec(args: DoArgs = {}): Promise<void> {
     if (args.scene) {
+      // announce
       this.setMode(args.scene, args.accessories);
+
       const scene = this.roomConfig[args.scene];
       const isEvening = RoomService.IS_EVENING;
       const actions = scene.all || (isEvening ? scene.evening : scene.day);
       const circadian = this.roomConfig.config.circadian;
       if (circadian) {
-        const high = await this.entityService.byId<SwitchEntity>(
-          circadian.high,
-        );
-        const low = await this.entityService.byId<SwitchEntity>(circadian.low);
-        switch (actions.circadian) {
-          case 'high':
-            this.logger.debug(`Circadian ${this.roomCode}: high:on,low:off`);
-            high.turnOn();
-            low.turnOff();
-            break;
-          case 'low':
-            this.logger.debug(`Circadian ${this.roomCode}: high:off,low:on`);
-            low.turnOn();
-            high.turnOff();
-            break;
-          case 'off':
-            this.logger.debug(`Circadian ${this.roomCode}: high:off,low:off`);
-            high.turnOff();
-            low.turnOff();
-            break;
-        }
+        return this.setCircadian(circadian, actions);
       }
       if (actions.on) {
         actions.on.forEach(async (entityId) => {
@@ -308,6 +347,31 @@ export abstract class SceneRoom extends BaseRoom {
           everything: true,
           setDir: false,
         });
+    }
+  }
+
+  protected async setCircadian(
+    circadian: SceneRoomCircadianConfigDTO,
+    actions,
+  ): Promise<void> {
+    const high = await this.entityService.byId<SwitchEntity>(circadian.high);
+    const low = await this.entityService.byId<SwitchEntity>(circadian.low);
+    switch (actions.circadian) {
+      case 'high':
+        this.logger.debug(`Circadian ${this.roomCode}: high:on,low:off`);
+        high.turnOn();
+        low.turnOff();
+        break;
+      case 'low':
+        this.logger.debug(`Circadian ${this.roomCode}: high:off,low:on`);
+        low.turnOn();
+        high.turnOff();
+        break;
+      case 'off':
+        this.logger.debug(`Circadian ${this.roomCode}: high:off,low:off`);
+        high.turnOff();
+        low.turnOff();
+        break;
     }
   }
 

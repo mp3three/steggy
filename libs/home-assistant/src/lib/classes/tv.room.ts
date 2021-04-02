@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import { Logger } from '@automagical/logger';
-import { BaseEntity } from './entities/base.entity';
+import { BaseEntity } from '../entities/base.entity';
 import { RokuInputs, SceneRoom, SceneRoomConfig } from './scene.room';
 import { sleep } from '@automagical/utilities';
 
@@ -55,12 +55,7 @@ export abstract class TVRoom extends SceneRoom {
 
   protected async fetch(url: string): Promise<void> {
     this._logger.debug(url);
-    if (
-      this.configService.get('NODE_ENV') === 'development' ||
-      BaseEntity.DISABLE_INTERACTIONS
-    ) {
-      return;
-    }
+
     await fetch(url, { method: 'POST' });
     await sleep(50);
     await fetch(url, { method: 'POST' });

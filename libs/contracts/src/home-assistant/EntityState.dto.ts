@@ -1,9 +1,9 @@
 import * as dayjs from 'dayjs';
 import { ContextDTO } from './Event.dto';
 
-export class EntityStateDTO {}
-
-export class HassStateDTO<T extends EntityStateDTO = EntityStateDTO> {
+export class HassStateDTO<
+  T extends Record<never, unknown> = Record<never, unknown>
+> {
   // #region Object Properties
 
   public attributes: Record<string, unknown>;

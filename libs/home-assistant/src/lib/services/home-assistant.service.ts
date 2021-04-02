@@ -17,10 +17,6 @@ import { SocketService } from './socket.service';
 
 @Injectable()
 export class HomeAssistantService extends EventEmitter {
-  // #region Static Properties
-
-  // #endregion Static Properties
-
   // #region Object Properties
 
   private readonly logger = Logger(HomeAssistantService);

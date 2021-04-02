@@ -2,10 +2,9 @@ import { Logger } from '@automagical/logger';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter } from 'events';
 import SolarCalcType from 'solar-calc/types/solarCalc';
-import { BaseRoom } from './base.room';
-import { DoArgs, GlobalSetArgs, SceneRoom } from './scene.room';
 import * as SolarCalc from 'solar-calc';
 import * as dayjs from 'dayjs';
+import { BaseRoom } from '../classes/base.room';
 
 export type RoomDoArgs = DoArgs & { roomCode: string };
 @Injectable()
@@ -13,8 +12,6 @@ export class RoomService extends EventEmitter {
   // #region Static Properties
 
   // Near Austin, TX... I think. Deleted a few digits
-  public static readonly LAT = 30.3114;
-  public static readonly LONG = -97.534;
   public static readonly ROOM_LIST: Record<string, BaseRoom> = {};
 
   private static _SOLAR_CALC = null;

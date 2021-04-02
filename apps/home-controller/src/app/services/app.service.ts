@@ -102,6 +102,16 @@ export class AppService {
       });
   }
 
+  // protected async loadRoomConfig(): Promise<BaseRoomConfigDTO> {
+  //   const configPath = join(
+  //     this.configService.get('application.CONFIG_PATH'),
+  //     `${this.roomCode}.yaml`,
+  //   );
+  //   this.roomConfig = yaml.load(readFileSync(configPath, 'utf8')) as {
+  //     config: Record<string, unknown>;
+  //   };
+  //   return this.roomConfig;
+  // }
   public onModuleInit(): void {
     this.batteryMonitor();
     this.doorMonitor();
