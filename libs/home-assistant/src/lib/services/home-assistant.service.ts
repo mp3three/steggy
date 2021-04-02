@@ -1,39 +1,23 @@
+import {
+  EventDTO,
+  HassDomains,
+  HassEvents,
+  HassStateDTO,
+} from '@automagical/contracts';
 import { Logger } from '@automagical/logger';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import * as dayjs from 'dayjs';
-import { readFileSync } from 'fs';
+import { ConfigService } from '@nestjs/config';
 import { EventEmitter } from 'events';
-import { join } from 'path';
-import { HassDomains, HassEvents } from '../typings';
-import { MqttResponse } from '../typings/mqtt';
-import { NotificationGroup } from '../typings/notifiction-group.enum';
-import { EventDTO, HassStateDTO } from './dto';
-import { LockEntity } from './entities/lock.entity';
-import { RemoteEntity } from './entities/remote.entity';
+import { NotificationGroup } from '../../typings/notifiction-group.enum';
+import { LockEntity } from '../entities/lock.entity';
+import { RemoteEntity } from '../entities/remote.entity';
 import { EntityService } from './entity.service';
 import { RoomService } from './room.service';
 import { SocketService } from './socket.service';
-import { ConfigService } from '@nestjs/config';
-
-type MilageHistory = {
-  attributes: {
-    friendly_name: string;
-    icon: string;
-    unit_of_mesurement: string;
-  };
-  entity_id: string;
-  last_changed: string;
-  last_updated: string;
-  state: string;
-};
 
 @Injectable()
 export class HomeAssistantService extends EventEmitter {
   // #region Static Properties
-
-  private static ESPMapping: Record<string, string> = null;
-  private static backDoorLock: LockEntity;
-  private static frontDoorLock: LockEntity;
 
   // #endregion Static Properties
 
@@ -59,8 +43,12 @@ export class HomeAssistantService extends EventEmitter {
 
   // #region Public Methods
 
-  public async allEntityUpdate(allEntities: HassStateDTO[]): Promise<void> {
+  /**
+   * event handler for when all entities update
+   */
+  public allEntityUpdate(allEntities: HassStateDTO[]): void {
     allEntities
+      // Sort is mostly to clean up logs
       .sort((a, b) => {
         if (a.entity_id > b.entity_id) {
           return 1;
@@ -75,70 +63,18 @@ export class HomeAssistantService extends EventEmitter {
       });
   }
 
-  public async configureEsp(macAddress: string): Promise<MqttResponse> {
-    this.logger.info(`configureEsp: ${macAddress}`);
-    return {
-      topic: `${macAddress}/configure/entity-id`,
-      payload: HomeAssistantService.ESPMapping[macAddress],
-    };
-  }
-
-  public async getMystiqueMilageHistory(
-    entity_id: string,
-  ): Promise<Record<string, unknown>[]> {
-    const history = await this.socketService.fetchEntityHistory<
-      MilageHistory[][]
-    >(7, entity_id);
-    const dayMilage = {};
-    if (!history || history.length === 0) {
-      return;
-    }
-    history[0].forEach((history: MilageHistory) => {
-      const d = dayjs(history.last_changed).endOf('d');
-      const timestamp = d.format('YYYY-MM-DD');
-      dayMilage[timestamp] = dayMilage[timestamp] || 0;
-      const miles = Number(history.state);
-      if (miles > dayMilage[timestamp]) {
-        dayMilage[timestamp] = miles;
-      }
-    });
-    return Object.keys(dayMilage)
-      .sort((a, b) => {
-        if (a > b) {
-          return 1;
-        }
-        return -1;
-      })
-      .map((date) => {
-        return {
-          date,
-          miles: Math.floor(dayMilage[date]),
-        };
-      });
-  }
-
   public async onModuleInit(): Promise<void> {
     this.socketService.on('onEvent', (args) => this.onEvent(args));
     this.socketService.on('allEntityUpdate', (args) =>
       this.allEntityUpdate(args),
     );
-    HomeAssistantService.frontDoorLock = await this.entityService.byId(
-      'lock.front_door',
-    );
-    HomeAssistantService.backDoorLock = await this.entityService.byId(
-      'lock.front_door',
-    );
-    if (HomeAssistantService.ESPMapping === null) {
-      const configPath = join(
-        this.configService.get('application.CONFIG_PATH'),
-        'esp-mapping.json',
-      );
-      HomeAssistantService.ESPMapping = JSON.parse(
-        readFileSync(configPath, 'utf-8'),
-      );
-    }
   }
 
+  /**
+   * Emit a notification.
+   *
+   * Can be set up to send push notifications to phones into notification groups
+   */
   public async sendNotification(
     device: string,
     title: string,
@@ -156,19 +92,44 @@ export class HomeAssistantService extends EventEmitter {
     });
   }
 
-  public async setLocks(state: boolean): Promise<void> {
-    if (state) {
-      await HomeAssistantService.frontDoorLock.lock();
-      return HomeAssistantService.backDoorLock.lock();
-    }
-    await HomeAssistantService.frontDoorLock.unlock();
-    return HomeAssistantService.backDoorLock.unlock();
+  /**
+   * Load locks, then set their state
+   */
+  public async setLocks(
+    state: boolean,
+    lockList: string[] = null,
+  ): Promise<void> {
+    const locks =
+      lockList ||
+      this.entityService
+        .listEntities()
+        .filter((key) => key.split('.')[0] === 'lock');
+    await Promise.all(
+      locks.map(async (entityId) => {
+        const lock = await this.entityService.byId<LockEntity>(entityId);
+        if (state) {
+          return lock.lock();
+        }
+        return lock.unlock();
+      }),
+    );
   }
 
   // #endregion Public Methods
 
   // #region Private Methods
 
+  /**
+   * ! This probably will get refactored in the future
+   *
+   * Event callback for socket events.
+   *
+   * ## state_changed
+   * Something changed about an entity. Create (if not exists) entity, then set it's state
+   *
+   * ## hue_event
+   * Watch for button press events from the hue remote integration.
+   */
   private async onEvent(event: EventDTO) {
     let state, entity, remote;
     switch (event.event_type) {

@@ -13,6 +13,17 @@ import * as dayjs from 'dayjs';
 import * as cron from 'node-cron';
 import { MobileDevice, NotificationGroup } from '../../typings';
 
+type MilageHistory = {
+  attributes: {
+    friendly_name: string;
+    icon: string;
+    unit_of_mesurement: string;
+  };
+  entity_id: string;
+  last_changed: string;
+  last_updated: string;
+  state: string;
+};
 @Injectable()
 export class AppService {
   // #region Static Properties
@@ -49,6 +60,48 @@ export class AppService {
 
   // #region Public Methods
 
+  public async configureEsp(macAddress: string): Promise<MqttResponse> {
+    this.logger.info(`configureEsp: ${macAddress}`);
+    return {
+      topic: `${macAddress}/configure/entity-id`,
+      payload: HomeAssistantService.ESPMapping[macAddress],
+    };
+  }
+
+  public async getMystiqueMilageHistory(
+    entity_id: string,
+  ): Promise<Record<string, unknown>[]> {
+    const history = await this.socketService.fetchEntityHistory<
+      MilageHistory[][]
+    >(7, entity_id);
+    const dayMilage = {};
+    if (!history || history.length === 0) {
+      return;
+    }
+    history[0].forEach((history: MilageHistory) => {
+      const d = dayjs(history.last_changed).endOf('d');
+      const timestamp = d.format('YYYY-MM-DD');
+      dayMilage[timestamp] = dayMilage[timestamp] || 0;
+      const miles = Number(history.state);
+      if (miles > dayMilage[timestamp]) {
+        dayMilage[timestamp] = miles;
+      }
+    });
+    return Object.keys(dayMilage)
+      .sort((a, b) => {
+        if (a > b) {
+          return 1;
+        }
+        return -1;
+      })
+      .map((date) => {
+        return {
+          date,
+          miles: Math.floor(dayMilage[date]),
+        };
+      });
+  }
+
   public onModuleInit(): void {
     this.batteryMonitor();
     this.doorMonitor();
@@ -59,6 +112,21 @@ export class AppService {
         'YYYY-MM-DD HH:mm:ss',
       )}`,
     );
+    // HomeAssistantService.frontDoorLock = await this.entityService.byId(
+    //   'lock.front_door',
+    // );
+    // HomeAssistantService.backDoorLock = await this.entityService.byId(
+    //   'lock.front_door',
+    // );
+    // if (HomeAssistantService.ESPMapping === null) {
+    //   const configPath = join(
+    //     this.configService.get('application.CONFIG_PATH'),
+    //     'esp-mapping.json',
+    //   );
+    //   HomeAssistantService.ESPMapping = JSON.parse(
+    //     readFileSync(configPath, 'utf-8'),
+    //   );
+    // }
   }
 
   // #endregion Public Methods
