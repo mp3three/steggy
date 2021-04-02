@@ -1,5 +1,5 @@
 import { Logger } from '@automagical/logger';
-import { SocketService } from '../socket.service';
+import { SocketService } from '../services/socket.service';
 import { BaseEntity } from './base.entity';
 
 export class GroupEntity extends BaseEntity {
@@ -30,7 +30,7 @@ export class GroupEntity extends BaseEntity {
 
   // #region Public Methods
 
-  public async addEntities(entities: BaseEntity[]): Promise<void> {
+  public async addMember(entities: BaseEntity[]): Promise<void> {
     entities.forEach((entity) => {
       if (!this.entityList[entity.entityId]) {
         this.entityList[entity.entityId] = entity;
