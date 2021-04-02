@@ -15,9 +15,11 @@ import { LoftService } from './rooms/loft.service';
 import { AppService } from './services/app.service';
 import { MqttClientService } from './services/mqtt-client.service';
 import { PhoneService } from './services/phone.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.register<ApplicationConfig>({
       application: environment,
     }),
