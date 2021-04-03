@@ -1,6 +1,4 @@
-import { HA_RAW_EVENT } from '@automagical/contracts/event-emitter';
 import {
-  HassEventDTO,
   HomeAssistantRoomConfigDTO,
   PicoButtons,
   RoomScene,
@@ -9,15 +7,17 @@ import {
   EntityService,
   HomeAssistantService,
   RoomService,
+  SceneRoom,
 } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
+import { BEDROOM_CONFIG } from '../../typings/config';
 
 @Injectable()
-export class BedroomService {
+export class BedroomService extends SceneRoom {
   // #region Object Properties
 
   private readonly logger = Logger(BedroomService);
@@ -28,59 +28,38 @@ export class BedroomService {
 
   constructor(
     private readonly homeAssistantService: HomeAssistantService,
-    private readonly roomService: RoomService,
+    protected readonly roomService: RoomService,
     private readonly entityService: EntityService,
     private readonly configService: ConfigService,
-  ) {}
+    @Inject(BEDROOM_CONFIG)
+    protected readonly roomConfig: HomeAssistantRoomConfigDTO,
+  ) {
+    super();
+  }
 
   // #endregion Constructors
-
-  // #region Protected Methods
-
-  protected async bindPico(
-    entityId: string,
-    singleClick: (
-      button: PicoButtons,
-      dblClick: (button: PicoButtons) => Promise<void>,
-    ) => Promise<void>,
-    dblClick: (button: PicoButtons) => Promise<void> = () => null,
-  ): Promise<void> {
-    const pico = await this.entityService.byId<SensorEntity>(entityId);
-    pico.on('update', () => singleClick(pico.state, dblClick));
-  }
-
-  protected async onModuleInit(): Promise<void> {
-    this.bindPico('sensor.bed_pico', (button) => this.bedPicoCb(button));
-    this.womp = await this.entityService.byId('switch.womp');
-  }
-
-  // #endregion Protected Methods
 
   // #region Private Methods
 
   @Cron('0 40 8 * * Mon,Tue,Wed,Thu,Fri')
   private wakeupLightAlarm() {
-    this.logger.info(`Wakeup Alarm`);
-    const config: HomeAssistantRoomConfigDTO = null;
-    return this.roomService.setScene(RoomScene.high, config, true);
+    this.logger.notice(`Wakeup Alarm`);
+    return this.roomService.setScene(RoomScene.high, this.roomConfig, true);
   }
 
-  @OnEvent(`entity.bed_pico/single`)
+  @OnEvent(`sensor.bed_pico/single`)
   private async bedPicoCb(button: PicoButtons) {
     switch (button) {
-      // case PicoButtons.high:
-      //   // return this.roomService.setScene();
+      case PicoButtons.high:
+        return this.roomService.setScene(RoomScene.high, this.roomConfig, true);
       case PicoButtons.off:
-        return this.execGlobal({
-          setDir: false,
-          everything: true,
-        });
+        return this.roomService.setScene(RoomScene.off, this.roomConfig, true);
       case PicoButtons.favorite:
-        return this.womp.toggle();
-      case PicoButtons.down:
-        return this.fan.speedDown();
-      case PicoButtons.up:
-        return this.fan.speedUp();
+        return this.entityService.toggle(`switch.womp`);
+      case PicoButtons.low:
+        return this.roomService.setFan(this.roomConfig.config.fan, 'down');
+      case PicoButtons.medium:
+        return this.roomService.setFan(this.roomConfig.config.fan, 'up');
     }
   }
 

@@ -1,16 +1,14 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import {
   EntityService,
-  HomeAssistantService,
-  RemoteEntity,
-  RoomCode,
   RoomService,
-  TVRoom,
+  SceneRoom,
 } from '@automagical/home-assistant';
-import { schedule } from 'node-cron';
 import { Logger } from '@automagical/logger';
-import { HueEvent } from '../../typings';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
+import { Cron } from '@nestjs/schedule';
+import { LOFT_CONFIG } from '../../typings';
 
 enum RokuInputs {
   off = 'off',
@@ -18,83 +16,79 @@ enum RokuInputs {
   personal = 'hdmi3',
   work = 'hdmi1',
 }
-
+/**
+ * ## In addition to normal functionality
+ *
+ * - Decorative light that that turns off during quiet hours
+ * - A hue remote that acts as a input selection switch for a roku tv
+ *   - AKA: big computer screen
+ */
 @Injectable()
-export class LoftService extends TVRoom {
-  // #region Static Properties
+export class LoftService extends SceneRoom {
+  // #region Object Properties
 
-  private static readonly logger = Logger(LoftService);
+  private readonly logger = Logger(LoftService);
 
-  // #endregion Static Properties
+  // #endregion Object Properties
 
   // #region Constructors
 
   constructor(
-    @Inject(forwardRef(() => HomeAssistantService))
-    homeAssistantService: HomeAssistantService,
-    @Inject(forwardRef(() => RoomService))
-    roomService: RoomService,
-    @Inject(forwardRef(() => EntityService))
-    entityService: EntityService,
-    protected readonly configService: ConfigService,
+    protected readonly entityService: EntityService,
+    protected readonly roomService: RoomService,
+    @Inject(LOFT_CONFIG)
+    protected readonly roomConfig: HomeAssistantRoomConfigDTO,
   ) {
-    super(RoomCode.loft, {
-      homeAssistantService,
-      roomService,
-      entityService,
-      configService,
-    });
+    super();
   }
 
   // #endregion Constructors
 
-  // #region Protected Methods
+  // #region Private Methods
 
-  protected async onModuleInit(): Promise<void> {
-    await super.onModuleInit();
-    const backDeskLight = await this.entityService.byId(
-      'switch.back_desk_light',
-    );
-    schedule('0 0 7 * * *', () => {
-      LoftService.logger.info(`Turn off back desk light`);
-      backDeskLight.turnOn();
-    });
-
-    schedule('0 0 22 * * *', () => {
-      LoftService.logger.info(`Turn on back desk light`);
-      backDeskLight.turnOff();
-    });
-
-    schedule('0 0 5 * * Mon,Tue,Wed,Thu,Fri', () => {
-      LoftService.logger.info(`Changing default screen into to work`);
-      this.roomConfig.config.roku.defaultChannel = RokuInputs.work;
-    });
-    schedule('0 0 17 * * Mon,Tue,Wed,Thu,Fri', () => {
-      LoftService.logger.info(`Changing default screen into to personal`);
-      this.roomConfig.config.roku.defaultChannel = RokuInputs.personal;
-    });
-
-    LoftService.logger.info('Configure: Hue Remote');
-    const entity = await this.entityService.byId<RemoteEntity>(
-      'remote.bedroom_switch',
-    );
-    entity.on(`hueButtonClick`, (args: HueEvent) => {
-      const event = args.buttonEvent.charAt(0);
-      const map: { [key: string]: RokuInputs } = {
-        '1': RokuInputs.windows,
-        '2': RokuInputs.personal,
-        '3': RokuInputs.work,
-        '4': RokuInputs.off,
-      };
-      if (!map[event]) {
-        LoftService.logger.warning(
-          `Could not figure hue event: ${args.buttonEvent}`,
-        );
-        return;
-      }
-      this.setRoku(map[event]);
-    });
+  @Cron('0 0 22 * * *')
+  private lightOff() {
+    this.logger.info(`Turn off back desk light`);
+    return this.entityService.turnOff('switch.back_desk_light');
   }
 
-  // #endregion Protected Methods
+  @Cron('0 0 7 * * *')
+  private lightOn() {
+    this.logger.info(`Turn on back desk light`);
+    return this.entityService.turnOn('switch.back_desk_light');
+  }
+
+  @OnEvent('remote.bedroom_switch/4')
+  private screenOff() {
+    return this.roomService.setRoku(
+      RokuInputs.off,
+      this.roomConfig.config.roku,
+    );
+  }
+
+  @OnEvent('remote.bedroom_switch/2')
+  private screenToPersonal() {
+    return this.roomService.setRoku(
+      RokuInputs.personal,
+      this.roomConfig.config.roku,
+    );
+  }
+
+  @OnEvent('remote.bedroom_switch/1')
+  private screenToWindows() {
+    return this.roomService.setRoku(
+      RokuInputs.windows,
+      this.roomConfig.config.roku,
+    );
+  }
+
+  @OnEvent('remote.bedroom_switch/3')
+  private screenToWork() {
+    return this.roomService.setRoku(
+      RokuInputs.work,
+      this.roomConfig.config.roku,
+    );
+  }
+
+  // #endregion Private Methods
 }

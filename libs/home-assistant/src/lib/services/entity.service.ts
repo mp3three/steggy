@@ -111,6 +111,14 @@ export class EntityService {
     return this.KNOWN_ENTITY_IDS;
   }
 
+  public async toggle(entityId: string): Promise<void> {
+    const entity = await this.byId(entityId);
+    if (entity.state === 'on') {
+      return this.turnOff(entityId);
+    }
+    return this.turnOn(entityId);
+  }
+
   public turnOff(
     entityId: string,
     groupData: Record<string, string[]> = {},

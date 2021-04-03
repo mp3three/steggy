@@ -105,6 +105,10 @@ export class HomeAssistantService {
     // 4001: '4_hold'
     // 4002: '4_click_up'
     // 4003: '4_hold_up'
+    // The reality of this device is the performance is too bad for most of these to be relevant
+    // It seems to work better with 1st party stuff
+
+    // The Lutron Pico devices are better in every way
     switch (Math.floor(Number(event.data.id) / 1000)) {
       case 1:
         return this.eventEmitter.emit(`${event.data.entity_id}/1`);
@@ -118,18 +122,21 @@ export class HomeAssistantService {
   }
 
   @OnEvent(HA_RAW_EVENT)
-  private async onRawEvent(event: HassEventDTO) {
+  private async onPicoEvent(event: HassEventDTO) {
     let domain, suffix, evt, prefix;
     switch (event.event_type) {
       case HassEvents.state_changed:
         [domain, suffix] = event.data.entity_id.split('.');
-        // TODO: Something about this seems wrong
         if ((domain as HassDomains) !== HassDomains.sensor) {
           return;
         }
         prefix = event.data.entity_id;
         if (suffix.includes('pico')) {
-          this.eventEmitter.emit(`${prefix}/pico`, event.data.new_state);
+          this.eventEmitter.emit(
+            `${prefix}/pico`,
+            event.data.new_state,
+            prefix,
+          );
         }
         evt = `${prefix}/single`;
         if (evt === this.lastEvent) {
@@ -140,8 +147,7 @@ export class HomeAssistantService {
           }
         }
         this.lastEvent = evt;
-        setTimeout;
-
+        setTimeout(() => (this.lastEvent = ''), 1000 * 5);
         return this.eventEmitter.emit(evt, event);
     }
   }

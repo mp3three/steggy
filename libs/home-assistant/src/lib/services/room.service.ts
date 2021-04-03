@@ -1,5 +1,9 @@
+import { HA_ALL_CONFIGS } from '@automagical/contracts/constants';
 import {
   CircadianModes,
+  FanSpeeds,
+  HassDomains,
+  HassServices,
   HomeAssistantRoomCircadianDTO,
   HomeAssistantRoomConfigDTO,
   HomeAssistantRoomModeDTO,
@@ -11,13 +15,14 @@ import {
 import { Fetch, HTTP_Methods } from '@automagical/fetch';
 import { Logger } from '@automagical/logger';
 import { sleep } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import * as dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
 import * as SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
 import { EntityService } from './entity.service';
+import { SocketService } from './socket.service';
 
 @Injectable()
 export class RoomService {
@@ -33,8 +38,11 @@ export class RoomService {
   // #region Constructors
 
   constructor(
+    @Inject(HA_ALL_CONFIGS)
+    private readonly ALL_CONFIGS: HomeAssistantRoomConfigDTO[],
     private readonly cacheService: Cache,
     private readonly entityService: EntityService,
+    private readonly socketService: SocketService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -94,6 +102,23 @@ export class RoomService {
         this.entityService.turnOff(config.high);
         return;
     }
+  }
+
+  public async setFan(
+    entityId: string,
+    speed: FanSpeeds | 'up' | 'down',
+  ): Promise<void> {
+    const fan = await this.entityService.byId(entityId);
+    if (speed === 'up') {
+      return this.entityService.fanSpeedUp(fan.state as FanSpeeds, entityId);
+    }
+    if (speed === 'down') {
+      return this.entityService.fanSpeedDown(fan.state as FanSpeeds, entityId);
+    }
+    return this.socketService.call(HassDomains.fan, HassServices.turn_on, {
+      entity_id: entityId,
+      speed: speed,
+    });
   }
 
   /**
@@ -214,11 +239,11 @@ export class RoomService {
 
   public async smart(
     room: HomeAssistantRoomConfigDTO,
-    extra?: HomeAssistantRoomConfigDTO[],
+    extra: HomeAssistantRoomConfigDTO[] = this.ALL_CONFIGS || [],
   ): Promise<void> {
-    extra?.forEach((otherRoom) =>
-      this.setScene(RoomScene.off, otherRoom, false),
-    );
+    extra
+      .filter((i) => i.name !== room.name)
+      .forEach((otherRoom) => this.setScene(RoomScene.off, otherRoom, false));
     return this.setScene(
       this.IS_EVENING ? RoomScene.medium : RoomScene.high,
       room,

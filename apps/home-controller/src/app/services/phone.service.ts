@@ -1,14 +1,10 @@
-import { Injectable } from '@nestjs/common';
 import {
   EntityService,
-  FanCommandDto,
-  HassDomains,
-  HassServices,
   HomeAssistantService,
-  iEntity,
   SocketService,
 } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
+import { Injectable } from '@nestjs/common';
 
 type MilageHistory = {
   last7: string; // MYSTIQUE_MILAGE_LAST7
@@ -52,9 +48,9 @@ export class PhoneService {
   // #region Constructors
 
   public constructor(
-    private socketService: SocketService,
-    private homeAssistantService: HomeAssistantService,
-    private entityService: EntityService,
+    private readonly socketService: SocketService,
+    private readonly homeAssistantService: HomeAssistantService,
+    private readonly entityService: EntityService,
   ) {
     setTimeout(() => this.updateMilageStats(), 1000);
   }
