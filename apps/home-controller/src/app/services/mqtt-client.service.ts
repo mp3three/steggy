@@ -1,7 +1,9 @@
+import { MQTT_PUBLISH } from '@automagical/contracts/constants';
 import { HomeAssistantService, RoomService } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { OnEvent } from '@nestjs/event-emitter';
 import { MqttService } from 'nest-mqtt';
 
 @Injectable()
@@ -23,6 +25,18 @@ export class MqttClientService {
   ) {}
 
   // #endregion Constructors
+
+  // #region Public Methods
+
+  @OnEvent(MQTT_PUBLISH)
+  public publishMessage(
+    topic: string,
+    body: string | Record<string, unknown> | Buffer,
+  ): void {
+    this.mqttService.publish(topic, body);
+  }
+
+  // #endregion Public Methods
   // public onModuleDestroy(): Promise<void> {
   //   clearInterval(this._onlineInterval);
   //   return this.beforeExit();

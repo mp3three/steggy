@@ -247,7 +247,7 @@ export class SocketService {
       // 🏓
       case HassSocketMessageTypes.pong:
         if (this.waitingCallback[msg.id]) {
-          const f = this.waitingCallback[msg.id].done;
+          const f = this.waitingCallback[msg.id];
           delete this.waitingCallback[msg.id];
           f(msg);
         }
@@ -255,7 +255,7 @@ export class SocketService {
 
       case HassSocketMessageTypes.result:
         if (this.waitingCallback[msg.id]) {
-          const f = this.waitingCallback[msg.id].done;
+          const f = this.waitingCallback[msg.id];
           delete this.waitingCallback[msg.id];
           f(msg.result);
         }

@@ -15,7 +15,7 @@ import {
 import { Fetch, HTTP_Methods } from '@automagical/fetch';
 import { Logger } from '@automagical/logger';
 import { sleep } from '@automagical/utilities';
-import { Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import * as dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
@@ -28,6 +28,11 @@ import { SocketService } from './socket.service';
 export class RoomService {
   // #region Object Properties
 
+  public readonly ROOM_REGISTRY: Record<
+    string,
+    HomeAssistantRoomConfigDTO
+  > = {};
+
   // Near Austin, TX... I think. Deleted a few digits
   private readonly logger = Logger(RoomService);
 
@@ -38,8 +43,7 @@ export class RoomService {
   // #region Constructors
 
   constructor(
-    @Inject(HA_ALL_CONFIGS)
-    private readonly ALL_CONFIGS: HomeAssistantRoomConfigDTO[],
+    @Inject(CACHE_MANAGER)
     private readonly cacheService: Cache,
     private readonly entityService: EntityService,
     private readonly socketService: SocketService,
@@ -239,7 +243,8 @@ export class RoomService {
 
   public async smart(
     room: HomeAssistantRoomConfigDTO,
-    extra: HomeAssistantRoomConfigDTO[] = this.ALL_CONFIGS || [],
+    extra: HomeAssistantRoomConfigDTO[] = Object.values(this.ROOM_REGISTRY) ||
+      [],
   ): Promise<void> {
     extra
       .filter((i) => i.name !== room.name)

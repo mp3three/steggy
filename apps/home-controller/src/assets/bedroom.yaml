@@ -49,3 +49,6 @@ groups:
     - light.bedroom_fan_top_left
     - light.speaker_light
     - light.bedroom_fan_top_right
+
+name: bedroom
+friendly_name: Master Bedroom

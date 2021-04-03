@@ -3,12 +3,12 @@ import { HA_ALL_CONFIGS } from '@automagical/contracts/constants';
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
-import { CacheModule, Global, Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
+import { readFileSync } from 'fs';
 import { load } from 'js-yaml';
 import { MqttModule, MqttModuleAsyncOptions } from 'nest-mqtt';
-import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ASSETS_PATH, environment } from '../environments/environment';
 import {
@@ -107,12 +107,6 @@ const configs = [
     MqttClientService,
     // PhoneService,
     ...configs,
-    {
-      provide: HA_ALL_CONFIGS,
-      useValue: configs.map((i) => i.useValue),
-    },
-  ],
-  exports: [
     {
       provide: HA_ALL_CONFIGS,
       useValue: configs.map((i) => i.useValue),
