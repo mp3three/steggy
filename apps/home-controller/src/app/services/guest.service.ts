@@ -1,12 +1,7 @@
-import {
-  EntityService,
-  HomeAssistantService,
-  RoomCode,
-  RoomService,
-  SceneRoom,
-} from '@automagical/home-assistant';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
+import { RoomService, SceneRoom } from '@automagical/home-assistant';
+import { Inject, Injectable } from '@nestjs/common';
+import { GUEST_CONFIG } from '../../typings';
 
 @Injectable()
 export class GuestService extends SceneRoom {
@@ -22,20 +17,11 @@ export class GuestService extends SceneRoom {
   // #region Constructors
 
   constructor(
-    @Inject(forwardRef(() => HomeAssistantService))
-    homeAssistantService: HomeAssistantService,
-    @Inject(forwardRef(() => RoomService))
-    roomService: RoomService,
-    @Inject(forwardRef(() => EntityService))
-    entityService: EntityService,
-    protected readonly configService: ConfigService,
+    @Inject(GUEST_CONFIG)
+    protected readonly roomConfig: HomeAssistantRoomConfigDTO,
+    protected readonly roomService: RoomService,
   ) {
-    super(RoomCode.guest, {
-      homeAssistantService,
-      roomService,
-      entityService,
-      configService,
-    });
+    super();
   }
 
   // #endregion Constructors

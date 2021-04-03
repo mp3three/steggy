@@ -11,21 +11,17 @@ import {
 } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
 import { sleep } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import * as dayjs from 'dayjs';
 import { load } from 'js-yaml';
-import { readFileSync } from 'node:fs';
+import { readFileSync } from 'fs';
 import { join } from 'path';
-import {
-  ASSETS_PATH,
-  MobileDevice,
-  NotificationGroup,
-  RoomsCode,
-} from '../../typings';
+import { ASSETS_PATH } from '../../environments/environment';
+import { MobileDevice, NotificationGroup, RoomsCode } from '../../typings';
 
 type MilageHistory = {
   attributes: {
@@ -54,7 +50,7 @@ export class AppService {
     private readonly entityService: EntityService,
     private readonly socketService: SocketService,
     private readonly configService: ConfigService,
-    private readonly cacheService: Cache,
+    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
   ) {}
 
   // #endregion Constructors

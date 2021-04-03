@@ -7,7 +7,12 @@ import {
 } from '@automagical/contracts/home-assistant';
 import { Logger } from '@automagical/logger';
 import { sleep } from '@automagical/utilities';
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cache } from 'cache-manager';
 import { SocketService } from './socket.service';
@@ -26,6 +31,7 @@ export class EntityService {
 
   constructor(
     private readonly socketService: SocketService,
+    @Inject(CACHE_MANAGER)
     private readonly cacheService: Cache,
   ) {}
 

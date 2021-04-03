@@ -3,13 +3,13 @@ import { HA_ALL_CONFIGS } from '@automagical/contracts/constants';
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
-import { Global, Module } from '@nestjs/common';
+import { CacheModule, Global, Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { load } from 'js-yaml';
 import { MqttModule, MqttModuleAsyncOptions } from 'nest-mqtt';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { ASSETS_PATH, environment } from '../environments/environment';
 import {
   ApplicationConfig,
@@ -20,7 +20,6 @@ import {
   LIVING_ROOM_CONFIG,
   LOFT_CONFIG,
 } from '../typings/';
-import { PhoneController } from './controllers/phone.controller';
 import { AppService } from './services/app.service';
 import { BedroomService } from './services/bedroom.service';
 import { GamesService } from './services/games.service';
@@ -29,7 +28,6 @@ import { GuestService } from './services/guest.service';
 import { LivingService } from './services/living.service';
 import { LoftService } from './services/loft.service';
 import { MqttClientService } from './services/mqtt-client.service';
-import { PhoneService } from './services/phone.service';
 
 const configs = [
   {
@@ -70,10 +68,9 @@ const configs = [
   },
 ];
 
-// @Global is to provide HA_ALL_CONFIGS injection back to libs without creating a dependency
-@Global()
 @Module({
   imports: [
+    CacheModule.register(),
     EventEmitterModule.forRoot({
       wildcard: true,
       // Expected format:
@@ -110,6 +107,12 @@ const configs = [
     MqttClientService,
     // PhoneService,
     ...configs,
+    {
+      provide: HA_ALL_CONFIGS,
+      useValue: configs.map((i) => i.useValue),
+    },
+  ],
+  exports: [
     {
       provide: HA_ALL_CONFIGS,
       useValue: configs.map((i) => i.useValue),
