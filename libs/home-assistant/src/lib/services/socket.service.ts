@@ -1,19 +1,19 @@
 import {
   ALL_ENTITIES_UPDATED,
+  BASE_URL,
   CONNECTION_RESET,
   HA_RAW_EVENT,
-} from '@automagical/contracts';
+  HOST,
+  TOKEN,
+} from '@automagical/contracts/constants';
 import {
-  BASE_URL,
   HassCommands,
   HassDomains,
   HassServices,
   HassSocketMessageTypes,
   HassStateDTO,
-  HOST,
   SendSocketMessageDTO,
   SocketMessageDTO,
-  TOKEN,
 } from '@automagical/contracts/home-assistant';
 import { Fetch, FetchWith } from '@automagical/fetch';
 import { Logger } from '@automagical/logger';

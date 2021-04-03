@@ -1,10 +1,9 @@
-import { HA_RAW_EVENT } from '@automagical/contracts';
+import { HA_RAW_EVENT } from '@automagical/contracts/constants';
 import {
   HassDomains,
   HassEventDTO,
   HassEvents,
   HassServices,
-  NotificationGroup,
 } from '@automagical/contracts/home-assistant';
 import { Logger } from '@automagical/logger';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
@@ -17,6 +16,8 @@ export class HomeAssistantService {
   // #region Object Properties
 
   private readonly logger = Logger(HomeAssistantService);
+
+  private lastEvent = '';
 
   // #endregion Object Properties
 
@@ -37,11 +38,13 @@ export class HomeAssistantService {
    * Emit a notification.
    *
    * Can be set up to send push notifications to phones into notification groups
+   *
+   * Type param is intended as allowing usage with an enum
    */
-  public async sendNotification(
+  public async sendNotification<Group extends string = string>(
     device: string,
     title: string,
-    group: NotificationGroup,
+    group: Group,
     message = '',
   ): Promise<void> {
     return this.socketService.call(HassDomains.notify, device, {
@@ -116,21 +119,30 @@ export class HomeAssistantService {
 
   @OnEvent(HA_RAW_EVENT)
   private async onRawEvent(event: HassEventDTO) {
-    let domain, suffix;
+    let domain, suffix, evt, prefix;
     switch (event.event_type) {
       case HassEvents.state_changed:
         [domain, suffix] = event.data.entity_id.split('.');
         // TODO: Something about this seems wrong
-        if (
-          (domain as HassDomains) === HassDomains.sensor &&
-          !suffix.includes('pico')
-        ) {
-          this.eventEmitter.emit(
-            `${event.data.entity_id}/pico`,
-            event.data.new_state,
-          );
+        if ((domain as HassDomains) !== HassDomains.sensor) {
+          return;
         }
-        return this.eventEmitter.emit(`${event.data.entity_id}/update`, event);
+        prefix = event.data.entity_id;
+        if (suffix.includes('pico')) {
+          this.eventEmitter.emit(`${prefix}/pico`, event.data.new_state);
+        }
+        evt = `${prefix}/single`;
+        if (evt === this.lastEvent) {
+          evt = `${prefix}/double`;
+        } else {
+          if (`${prefix}/double` === this.lastEvent) {
+            return;
+          }
+        }
+        this.lastEvent = evt;
+        setTimeout;
+
+        return this.eventEmitter.emit(evt, event);
     }
   }
 

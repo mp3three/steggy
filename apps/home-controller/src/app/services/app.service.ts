@@ -1,7 +1,8 @@
-import { CONNECTION_RESET } from '@automagical/contracts';
+import { CONNECTION_RESET } from '@automagical/contracts/constants';
 import {
   HassDomains,
   HassEventDTO,
+  HomeAssistantRoomConfigDTO,
 } from '@automagical/contracts/home-assistant';
 import {
   EntityService,
@@ -13,9 +14,18 @@ import { sleep } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
-import * as dayjs from 'dayjs';
-import { MobileDevice, NotificationGroup } from '../../typings';
 import { Cron } from '@nestjs/schedule';
+import { Cache } from 'cache-manager';
+import * as dayjs from 'dayjs';
+import { load } from 'js-yaml';
+import { readFileSync } from 'node:fs';
+import { join } from 'path';
+import {
+  ASSETS_PATH,
+  MobileDevice,
+  NotificationGroup,
+  RoomsCode,
+} from '../../typings';
 
 type MilageHistory = {
   attributes: {
@@ -44,6 +54,7 @@ export class AppService {
     private readonly entityService: EntityService,
     private readonly socketService: SocketService,
     private readonly configService: ConfigService,
+    private readonly cacheService: Cache,
   ) {}
 
   // #endregion Constructors
@@ -83,6 +94,22 @@ export class AppService {
           miles: Math.floor(dayMilage[date]),
         };
       });
+  }
+
+  public async loadRoomConfig(
+    room: RoomsCode,
+  ): Promise<HomeAssistantRoomConfigDTO> {
+    const cacheName = `${room}/config`;
+    const cachedValue = await this.cacheService.get<HomeAssistantRoomConfigDTO>(
+      cacheName,
+    );
+    if (cachedValue) {
+      return cachedValue;
+    }
+    const root = this.configService.get(ASSETS_PATH);
+    const text = readFileSync(join(root, `${room}.yaml`), 'utf-8');
+    const config = load(text) as HomeAssistantRoomConfigDTO;
+    return this.cacheService.set(cacheName, config);
   }
 
   // #endregion Public Methods

@@ -16,3 +16,12 @@ export type HueEvent = {
   buttonEvent: string;
   buttonNumber: '1' | '2' | '3' | '4';
 };
+
+export enum RoomsCode {
+  bedroom = 'bedroom',
+  games = 'games',
+  guest = 'guest',
+  garage = 'garage',
+  livingRoom = 'living_room',
+  loft = 'loft',
+}

@@ -36,3 +36,39 @@ export enum LightModes {
   on = 'on',
   acc = 'acc',
 }
+
+export enum FanSpeeds {
+  high = 'high',
+  medium_high = 'medium_high',
+  medium = 'medium',
+  low = 'low',
+  off = 'off',
+}
+
+/**
+ * The basic enum
+ */
+export enum PicoButtons {
+  high = 'high',
+  medium = 'medium',
+  low = 'low',
+  off = 'off',
+  favorite = 'favorite',
+}
+/**
+ * Binding to
+ */
+export enum PicoStates {
+  // Top
+  high = '1',
+  // Bottom
+  off = '4',
+  // Dimmer up
+  medium = '8',
+  // Dimmer down
+  low = '16',
+  // Favorite
+  magic = '2',
+  // Nothing being pressed
+  none = '0',
+}

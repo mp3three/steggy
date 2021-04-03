@@ -65,15 +65,11 @@ export class BedroomService {
     return this.roomService.setScene(RoomScene.high, config, true);
   }
 
-  @OnEvent('entity.bed_pico/update')
-  private async bedPicoCb(event: HassEventDTO) {
-    const button = event.data.new_state as PicoButtons;
+  @OnEvent(`entity.bed_pico/single`)
+  private async bedPicoCb(button: PicoButtons) {
     switch (button) {
-      case PicoButtons.on:
-        return this.execGlobal({
-          setDir: true,
-          everything: true,
-        });
+      // case PicoButtons.high:
+      //   // return this.roomService.setScene();
       case PicoButtons.off:
         return this.execGlobal({
           setDir: false,

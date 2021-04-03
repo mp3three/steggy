@@ -1,4 +1,4 @@
-import { ALL_ENTITIES_UPDATED } from '@automagical/contracts';
+import { ALL_ENTITIES_UPDATED } from '@automagical/contracts/constants';
 import {
   FanSpeeds,
   HassDomains,
