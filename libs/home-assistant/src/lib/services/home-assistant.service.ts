@@ -81,7 +81,7 @@ export class HomeAssistantService {
   // #region Private Methods
 
   @OnEvent(HA_RAW_EVENT)
-  private async onEvent(event: HassEventDTO) {
+  private async onHueEvent(event: HassEventDTO) {
     if (event.event_type !== HassEvents.hue_event) {
       return;
     }
@@ -111,6 +111,26 @@ export class HomeAssistantService {
         return this.eventEmitter.emit(`${event.data.entity_id}/3`);
       case 4:
         return this.eventEmitter.emit(`${event.data.entity_id}/4`);
+    }
+  }
+
+  @OnEvent(HA_RAW_EVENT)
+  private async onRawEvent(event: HassEventDTO) {
+    let domain, suffix;
+    switch (event.event_type) {
+      case HassEvents.state_changed:
+        [domain, suffix] = event.data.entity_id.split('.');
+        // TODO: Something about this seems wrong
+        if (
+          (domain as HassDomains) === HassDomains.sensor &&
+          !suffix.includes('pico')
+        ) {
+          this.eventEmitter.emit(
+            `${event.data.entity_id}/pico`,
+            event.data.new_state,
+          );
+        }
+        return this.eventEmitter.emit(`${event.data.entity_id}/update`, event);
     }
   }
 

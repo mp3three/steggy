@@ -14,6 +14,7 @@ import { sleep } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import * as dayjs from 'dayjs';
+import { EventEmitter2 } from 'eventemitter2';
 import * as SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
 import { EntityService } from './entity.service';
@@ -34,6 +35,7 @@ export class RoomService {
   constructor(
     private readonly cacheService: Cache,
     private readonly entityService: EntityService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   // #endregion Constructors
@@ -168,6 +170,7 @@ export class RoomService {
   ): Promise<void> {
     const setMode = this.IS_EVENING ? RoomModes.evening : RoomModes.day;
     const mode: HomeAssistantRoomModeDTO = room[scene];
+    this.eventEmitter.emit(`${room.name}/${scene}`);
 
     if (mode?.all?.circadian) {
       this.setCircadian(mode.all.circadian, room.config.circadian);

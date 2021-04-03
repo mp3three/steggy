@@ -102,6 +102,7 @@ export class HomeAssistantRoomConfigDTO {
   // #region Object Properties
 
   public config: HomeAssistantRoomDetailsDTO;
+  public friendlyName: string;
   /**
    * Virtual groups. Provide name (ex: loft_circadian), and a listing of other entities.
    * Allows local group entity to relay appropriate commands.
@@ -112,6 +113,7 @@ export class HomeAssistantRoomConfigDTO {
   public high: HomeAssistantRoomModeDTO;
   public low: HomeAssistantRoomModeDTO;
   public medium: HomeAssistantRoomModeDTO;
+  public name: string;
   public off: HomeAssistantRoomModeDTO;
 
   // #endregion Object Properties
