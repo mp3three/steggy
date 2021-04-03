@@ -1,26 +1,46 @@
+import {
+  CircadianModes,
+  HomeAssistantRoomCircadianDTO,
+  HomeAssistantRoomConfigDTO,
+  HomeAssistantRoomModeDTO,
+  HomeAssistantRoomRokuDTO,
+  RokuInputs,
+  RoomModes,
+  RoomScene,
+} from '@automagical/contracts/home-assistant';
+import { Fetch, HTTP_Methods } from '@automagical/fetch';
 import { Logger } from '@automagical/logger';
+import { sleep } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { EventEmitter } from 'events';
-import SolarCalcType from 'solar-calc/types/solarCalc';
-import * as SolarCalc from 'solar-calc';
+import { Cache } from 'cache-manager';
 import * as dayjs from 'dayjs';
-import { BaseRoom } from '../classes/base.room';
+import * as SolarCalc from 'solar-calc';
+import SolarCalcType from 'solar-calc/types/solarCalc';
+import { EntityService } from './entity.service';
 
-export type RoomDoArgs = DoArgs & { roomCode: string };
 @Injectable()
-export class RoomService extends EventEmitter {
-  // #region Static Properties
+export class RoomService {
+  // #region Object Properties
 
   // Near Austin, TX... I think. Deleted a few digits
-  public static readonly ROOM_LIST: Record<string, BaseRoom> = {};
+  private readonly logger = Logger(RoomService);
 
-  private static _SOLAR_CALC = null;
+  private _SOLAR_CALC = null;
 
-  // #endregion Static Properties
+  // #endregion Object Properties
 
-  // #region Public Static Accessors
+  // #region Constructors
 
-  public static get IS_EVENING(): boolean {
+  constructor(
+    private readonly cacheService: Cache,
+    private readonly entityService: EntityService,
+  ) {}
+
+  // #endregion Constructors
+
+  // #region Public Accessors
+
+  public get IS_EVENING(): boolean {
     // For the purpose of the house, it's considered evening if the sun has set, or it's past 6PM
 
     const now = dayjs();
@@ -31,7 +51,7 @@ export class RoomService extends EventEmitter {
     );
   }
 
-  public static get SOLAR_CALC(): SolarCalcType {
+  public get SOLAR_CALC(): SolarCalcType {
     if (this._SOLAR_CALC) {
       return this._SOLAR_CALC;
     }
@@ -42,34 +62,165 @@ export class RoomService extends EventEmitter {
     return new SolarCalc(new Date(), RoomService.LAT, RoomService.LONG);
   }
 
-  // #endregion Public Static Accessors
-
-  // #region Object Properties
-
-  private readonly logger = Logger(RoomService);
-
-  // #endregion Object Properties
+  // #endregion Public Accessors
 
   // #region Public Methods
 
-  public exec(args: RoomDoArgs): Promise<void> {
-    if (!args.roomCode) {
-      this.logger.alert(`RoomCode is required`);
-      return;
+  public async setCircadian(
+    mode: CircadianModes,
+    config: HomeAssistantRoomCircadianDTO,
+  ): Promise<void> {
+    switch (mode) {
+      case CircadianModes.high:
+        this.entityService.turnOff(config.low);
+        this.entityService.turnOff(config.medium);
+        this.entityService.turnOn(config.high);
+        return;
+      case CircadianModes.medium:
+        this.entityService.turnOff(config.low);
+        this.entityService.turnOff(config.high);
+        this.entityService.turnOn(config.medium);
+        return;
+      case CircadianModes.low:
+        this.entityService.turnOff(config.high);
+        this.entityService.turnOff(config.medium);
+        this.entityService.turnOn(config.low);
+        return;
+      case CircadianModes.off:
+        this.entityService.turnOff(config.low);
+        this.entityService.turnOff(config.medium);
+        this.entityService.turnOff(config.high);
+        return;
     }
-    const room = RoomService.ROOM_LIST[args.roomCode] as SceneRoom;
-    if (!room) {
-      this.logger.alert(`${args.roomCode} is not a valid Room`);
-      return;
-    }
-    return room.exec(args);
   }
 
-  public async globalExec(args: GlobalSetArgs): Promise<void> {
-    const room = Object.values(RoomService.ROOM_LIST).find(
-      (room) => room instanceof SceneRoom,
-    ) as SceneRoom;
-    room.exec(args);
+  /**
+   * At least on my devices, the first request doesn't always work.
+   *
+   * I think it might be because it's sleeping or something?
+   * The double request method seems to work around
+   */
+  public async setRoku(
+    channel: RokuInputs | string,
+    roku: HomeAssistantRoomRokuDTO,
+  ): Promise<void> {
+    this.logger.info(`setRoku`, channel);
+    const currentChannel = await this.cacheService.get(roku.host);
+    if (currentChannel === channel) {
+      return;
+    }
+    this.cacheService.set(roku.host, channel, {
+      ttl: 60 * 60,
+    });
+    // Because fuck working the first time you ask for something
+    if (channel === 'off') {
+      await Fetch.fetch({
+        url: '/keypress/PowerOff',
+        method: HTTP_Methods.POST,
+        baseUrl: roku.host,
+      });
+      await sleep(100);
+      return Fetch.fetch({
+        url: '/keypress/PowerOff',
+        method: HTTP_Methods.POST,
+        baseUrl: roku.host,
+      });
+    }
+    let input = channel as string;
+    if (channel.substr(0, 4) === 'hdmi') {
+      input = `tvinput.${channel}`;
+    }
+    await Fetch.fetch({
+      url: `/launch/${input}`,
+      method: HTTP_Methods.POST,
+      baseUrl: roku.host,
+    });
+    await sleep(100);
+    return Fetch.fetch({
+      url: `/launch/${input}`,
+      method: HTTP_Methods.POST,
+      baseUrl: roku.host,
+    });
+  }
+
+  /**
+   * This works in conjunction with Caseta Pico remotes I use as light switches.
+   * High / medium / low / off / "smart"/favorite
+   *
+   * - Pressing the high/medium/low/off should only affet the room as normal.
+   * - Smart button says "Adjust all the lights in the house relative to time of day + button pushed"
+   *   - During the day, things turn on more
+   *   - During the evening/night, things turn off more
+   *
+   * - Set circadian lighting mode
+   * - Turn on any listed entities
+   * - Turn off any others
+   * - If accessories:
+   *   - If evening, turn off accessories
+   *   - If daytime, turn on accessories
+   *   - Lock the doors
+   *   - If scene isn't "off", and the room is warm: turn on the ceiling fan
+   */
+  public async setScene(
+    scene: RoomScene,
+    room: HomeAssistantRoomConfigDTO,
+    accessories = false,
+  ): Promise<void> {
+    const setMode = this.IS_EVENING ? RoomModes.evening : RoomModes.day;
+    const mode: HomeAssistantRoomModeDTO = room[scene];
+
+    if (mode?.all?.circadian) {
+      this.setCircadian(mode.all.circadian, room.config.circadian);
+    }
+    if (accessories) {
+      mode?.all?.acc?.forEach((entityId) => {
+        if (this.IS_EVENING) {
+          return this.entityService.turnOff(entityId, room.groups);
+        }
+        return this.entityService.turnOn(entityId, room.groups);
+      });
+    }
+    const lightingNode = mode[setMode];
+    if (!lightingNode) {
+      return;
+    }
+    if (lightingNode.circadian) {
+      this.setCircadian(lightingNode.circadian, room.config.circadian);
+    }
+    lightingNode?.acc?.forEach((entityId) => {
+      if (this.IS_EVENING) {
+        return this.entityService.turnOff(entityId, room.groups);
+      }
+      return this.entityService.turnOn(entityId, room.groups);
+    });
+    lightingNode?.on?.forEach((entityId) =>
+      this.entityService.turnOn(entityId, room.groups),
+    );
+    lightingNode?.off?.forEach((entityId) =>
+      this.entityService.turnOff(entityId, room.groups),
+    );
+    const fan = room?.config?.fan;
+    if (!fan || !accessories) {
+      return;
+    }
+    const tempEntity = await this.entityService.byId(room.config.temperature);
+    if ((tempEntity.state as number) > 74) {
+      this.entityService.turnOn(fan);
+    }
+  }
+
+  public async smart(
+    room: HomeAssistantRoomConfigDTO,
+    extra?: HomeAssistantRoomConfigDTO[],
+  ): Promise<void> {
+    extra?.forEach((otherRoom) =>
+      this.setScene(RoomScene.off, otherRoom, false),
+    );
+    return this.setScene(
+      this.IS_EVENING ? RoomScene.medium : RoomScene.high,
+      room,
+      true,
+    );
   }
 
   // #endregion Public Methods

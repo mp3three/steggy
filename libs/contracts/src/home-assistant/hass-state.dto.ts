@@ -1,4 +1,5 @@
 import * as dayjs from 'dayjs';
+import { HomeAssistantEntityAttributes } from './entity-attributes.dto';
 import { ContextDTO } from './hass-event.dto';
 
 export class HassStateDTO<
@@ -6,7 +7,7 @@ export class HassStateDTO<
 > {
   // #region Object Properties
 
-  public attributes: Record<string, unknown>;
+  public attributes: HomeAssistantEntityAttributes<T>;
   public context: ContextDTO;
   public entity_id: string;
   public last_changed: dayjs.Dayjs;

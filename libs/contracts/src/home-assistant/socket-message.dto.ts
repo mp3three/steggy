@@ -4,11 +4,12 @@ import {
   HassServices,
   HassSocketMessageTypes,
 } from './enums/socket';
+import { HassEventDTO } from './hass-event.dto';
 
 export class SocketMessageDTO {
   // #region Object Properties
 
-  public event?: string;
+  public event?: HassEventDTO;
   public id: string;
   public result?: Record<string, unknown>;
   public type: HassSocketMessageTypes;

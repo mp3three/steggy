@@ -1,36 +1,23 @@
-import { Logger } from '@automagical/logger';
-import { Injectable } from '@nestjs/common';
-import { HassDomains } from '../../typings';
+import { ALL_ENTITIES_UPDATED } from '@automagical/contracts';
 import {
-  BaseEntity,
-  BinarySensorEntity,
-  ClimateEntity,
-  FanEntity,
-  GroupEntity,
-  LightEntity,
-  LockEntity,
-  RemoteEntity,
-  SensorEntity,
-  SwitchEntity,
-} from '../entities';
+  FanSpeeds,
+  HassDomains,
+  HassServices,
+  HassStateDTO,
+} from '@automagical/contracts/home-assistant';
+import { Logger } from '@automagical/logger';
+import { sleep } from '@automagical/utilities';
+import { Injectable, NotImplementedException } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
+import { Cache } from 'cache-manager';
 import { SocketService } from './socket.service';
 
 @Injectable()
 export class EntityService {
-  // #region Static Properties
-
-  private static waitingForEntities: Record<
-    string,
-    { done?: (unknown) => void; promise?: Promise<unknown> }
-  > = {};
-
-  // #endregion Static Properties
-
   // #region Object Properties
 
-  private readonly registry: Record<string, BaseEntity> = {};
+  private readonly KNOWN_ENTITY_IDS: string[] = [];
 
-  private groupRegistry: Record<string, string[]> = {};
   private logger = Logger(EntityService);
 
   // #endregion Object Properties
@@ -38,117 +25,158 @@ export class EntityService {
   // #region Constructors
 
   constructor(
-    private readonly socketService: SocketService, // private readonly cacheService: Cache,
+    private readonly socketService: SocketService,
+    private readonly cacheService: Cache,
   ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
+  @OnEvent(ALL_ENTITIES_UPDATED)
+  public allEntityUpdate(allEntities: HassStateDTO[]): void {
+    allEntities.forEach(async (entity) => {
+      if (!this.KNOWN_ENTITY_IDS.includes(entity.entity_id)) {
+        this.KNOWN_ENTITY_IDS.push(entity.entity_id);
+      }
+      return this.cacheService.set(entity.entity_id, entity);
+    });
+  }
+
   /**
    * Retrieve an entity by it's entityId
    */
-  public async byId<T extends BaseEntity = BaseEntity>(
+  public async byId<T extends HassStateDTO = HassStateDTO>(
     entityId: string,
   ): Promise<T> {
-    const cachedValue = this.registry[entityId];
+    const cachedValue = await this.cacheService.get(entityId);
     if (cachedValue) {
       return;
     }
-    if (EntityService.waitingForEntities[entityId]) {
-      return EntityService.waitingForEntities[entityId].promise as Promise<T>;
-    }
-    EntityService.waitingForEntities[entityId] = {};
-    EntityService.waitingForEntities[entityId].promise = new Promise(
-      (done) => (EntityService.waitingForEntities[entityId].done = done),
-    );
-    return EntityService.waitingForEntities[entityId].promise as Promise<T>;
+    await this.socketService.updateAllEntities();
+    // Probably way overkill
+    // Let the caching finish
+    await sleep(10);
+    return this.byId<T>(entityId);
   }
 
-  /**
-   * Clear the current entity registry
-   */
-  public clearRegistry(): void {
-    Object.keys(this.registry).forEach((key) => delete this.registry[key]);
+  public async fanSpeedDown(
+    currentSpeed: FanSpeeds,
+    entityId: string,
+  ): Promise<void> {
+    const availableSpeeds = [
+      FanSpeeds.high,
+      FanSpeeds.medium_high,
+      FanSpeeds.medium,
+      FanSpeeds.low,
+      FanSpeeds.off,
+    ];
+    const idx = availableSpeeds.indexOf(currentSpeed);
+    if (idx === 0) {
+      this.logger.debug(`Cannot speed down`);
+      return;
+    }
+    return this.socketService.call(HassDomains.fan, HassServices.turn_on, {
+      entity_id: entityId,
+      speed: availableSpeeds[idx - 1],
+    });
   }
 
-  /**
-   * Create a new entity object by id. {domain}.name, where domain is valid `HassDomains` (enum)
-   *
-   * Defaults to BaseEntity ctor if invalid domain
-   */
-  public async create<T extends BaseEntity>(entityId: string): Promise<T> {
-    if (!this.registry[entityId]) {
-      const domain = entityId.split('.')[0] as HassDomains;
-      const ctor =
-        {
-          [HassDomains.switch]: SwitchEntity,
-          [HassDomains.sensor]: SensorEntity,
-          [HassDomains.light]: LightEntity,
-          [HassDomains.fan]: FanEntity,
-          [HassDomains.lock]: LockEntity,
-          [HassDomains.group]: GroupEntity,
-          [HassDomains.binary_sensor]: BinarySensorEntity,
-          [HassDomains.sensor]: SensorEntity,
-          [HassDomains.remote]: RemoteEntity,
-          [HassDomains.climate]: ClimateEntity,
-        }[domain] || BaseEntity;
-      this.registry[entityId] = new ctor(entityId, this.socketService);
-
-      if (EntityService.waitingForEntities[entityId]) {
-        EntityService.waitingForEntities[entityId].done(
-          this.registry[entityId],
-        );
-        delete EntityService.waitingForEntities[entityId];
-      }
+  public async fanSpeedUp(
+    currentSpeed: FanSpeeds,
+    entityId: string,
+  ): Promise<void> {
+    const availableSpeeds = [
+      FanSpeeds.high,
+      FanSpeeds.medium_high,
+      FanSpeeds.medium,
+      FanSpeeds.low,
+      FanSpeeds.off,
+    ];
+    const idx = availableSpeeds.indexOf(currentSpeed);
+    if (idx === availableSpeeds.length - 1) {
+      this.logger.debug(`Cannot speed up`);
+      return;
     }
-
-    const entity = this.registry[entityId];
-    if (entity instanceof GroupEntity) {
-      const suffix = entityId.split('.').pop();
-      if (this.groupRegistry[suffix]) {
-        const entities = (await Promise.all(
-          this.groupRegistry[suffix].map((id) => this.byId(id)),
-        )) as BaseEntity[];
-        entity.addMember(entities);
-      }
-    }
-    return this.registry[entityId] as T;
+    return this.socketService.call(HassDomains.fan, HassServices.turn_on, {
+      entity_id: entityId,
+      speed: availableSpeeds[idx + 1],
+    });
   }
 
   /**
    * All known entity ids
    */
   public listEntities(): string[] {
-    return Object.keys(this.registry);
+    return this.KNOWN_ENTITY_IDS;
   }
 
-  /**
-   * TODO: Whatever this 🗑🔥 is
-   */
-  public async registerGroups(groups: Record<string, string[]>): Promise<void> {
-    Object.assign(this.groupRegistry, groups);
-    await Promise.all(
-      Object.keys(groups).map(async (suffix) => {
-        await this.create(`group.${suffix}`);
-        const str = `Created group: ${suffix} ["${groups[suffix].join(
-          '", "',
-        )}"]`;
-        this.logger.info(str);
+  public turnOff(
+    entityId: string,
+    groupData: Record<string, string[]> = {},
+  ): Promise<void> {
+    const parts = entityId.split('.');
+    const domain = parts[0] as HassDomains;
+    const suffix = parts[1];
+    switch (domain) {
+      case HassDomains.switch:
+      case HassDomains.light:
+        return this.socketService.call(domain, HassServices.turn_off, {
+          entity_id: entityId,
+        });
+      case HassDomains.fan:
+        return this.socketService.call(HassDomains.fan, HassServices.turn_off, {
+          entity_id: entityId,
+        });
+      case HassDomains.group:
+        if (!groupData[suffix]) {
+          throw new NotImplementedException(
+            `Cannot find group information for ${suffix}`,
+          );
+        }
+        groupData[suffix].forEach((id) => this.turnOn(id, groupData));
+        return;
+    }
+  }
 
-        //     if (entity instanceof GroupEntity) {
-        //       const suffix = entityId.split('.').pop();
-        //       const entityList = this.groupRegistry[suffix] || [];
-        //       entity.addMember(
-        //         (await Promise.all(
-        //           entityList.map((entityId) => this.byId(entityId)),
-        //         )) as BaseEntity[],
-        //       );
-        //     }
-        //     // debug(`${entityId} exists now`);
-        //     done(entity as T);
-      }),
-    );
+  public async turnOn(
+    entityId: string,
+    groupData: Record<string, string[]> = {},
+  ): Promise<void> {
+    const parts = entityId.split('.');
+    const domain = parts[0] as HassDomains;
+    const suffix = parts[1];
+    switch (domain) {
+      case HassDomains.switch:
+        return this.socketService.call(
+          HassDomains.switch,
+          HassServices.turn_on,
+          { entity_id: entityId },
+        );
+      case HassDomains.fan:
+        return this.socketService.call(HassDomains.fan, HassServices.turn_on, {
+          entity_id: entityId,
+          speed: FanSpeeds.medium,
+        });
+      case HassDomains.light:
+        return this.socketService.call(
+          HassDomains.light,
+          HassServices.turn_on,
+          {
+            entity_id: entityId,
+            brightness_pct: 50,
+            effect: 'random',
+          },
+        );
+      case HassDomains.group:
+        if (!groupData[suffix]) {
+          throw new NotImplementedException(
+            `Cannot find group information for ${suffix}`,
+          );
+        }
+        groupData[suffix].forEach((id) => this.turnOn(id, groupData));
+        return;
+    }
   }
 
   // #endregion Public Methods

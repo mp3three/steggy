@@ -2,6 +2,8 @@ import { ConfigModule } from '@automagical/config';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
 import { Module } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule } from '@nestjs/schedule';
 import { MqttModule, MqttModuleAsyncOptions } from 'nest-mqtt';
 import { environment } from '../environments/environment';
 import { ApplicationConfig } from '../typings/';
@@ -15,8 +17,6 @@ import { LoftService } from './rooms/loft.service';
 import { AppService } from './services/app.service';
 import { MqttClientService } from './services/mqtt-client.service';
 import { PhoneService } from './services/phone.service';
-import { ScheduleModule } from '@nestjs/schedule';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [

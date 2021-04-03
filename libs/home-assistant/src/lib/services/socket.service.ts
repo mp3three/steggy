@@ -1,11 +1,20 @@
 import {
   ALL_ENTITIES_UPDATED,
   CONNECTION_RESET,
-  HassStateDTO,
   HA_RAW_EVENT,
+} from '@automagical/contracts';
+import {
+  BASE_URL,
+  HassCommands,
+  HassDomains,
+  HassServices,
+  HassSocketMessageTypes,
+  HassStateDTO,
+  HOST,
   SendSocketMessageDTO,
   SocketMessageDTO,
-} from '@automagical/contracts';
+  TOKEN,
+} from '@automagical/contracts/home-assistant';
 import { Fetch, FetchWith } from '@automagical/fetch';
 import { Logger } from '@automagical/logger';
 import { sleep } from '@automagical/utilities';
@@ -16,13 +25,6 @@ import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import * as dayjs from 'dayjs';
 import * as WS from 'ws';
-import { BASE_URL, HOST, TOKEN } from '../../typings/constants';
-import {
-  HassCommands,
-  HassDomains,
-  HassServices,
-  HassSocketMessageTypes,
-} from '../../typings/socket';
 
 /**
  * SocketService deals with all communicationsto the HomeAssistant service
@@ -62,7 +64,7 @@ export class SocketService {
   public async call<T extends void = void>(
     domain: HassDomains,
     service: HassServices | string,
-    service_data: Record<string, unknown>,
+    service_data: Record<string, unknown> = {},
   ): Promise<T> {
     return this.sendMsg<T>({
       type: HassCommands.call_service,
@@ -142,9 +144,7 @@ export class SocketService {
       type: HassCommands.get_states,
     });
     // As long as the info is handy...
-    process.nextTick(() =>
-      this.eventEmitter.emit(ALL_ENTITIES_UPDATED, allEntities),
-    );
+    this.eventEmitter.emit(ALL_ENTITIES_UPDATED, allEntities);
     return allEntities;
   }
 
