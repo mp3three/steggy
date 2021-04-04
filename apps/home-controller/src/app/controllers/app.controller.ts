@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 
-@Controller('app')
+@Controller()
 export class AppController {
   // #region Public Methods
 
