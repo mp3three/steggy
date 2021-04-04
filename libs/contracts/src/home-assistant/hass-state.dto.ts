@@ -7,7 +7,7 @@ export class HassStateDTO<
 > {
   // #region Object Properties
 
-  public attributes: HomeAssistantEntityAttributes<T>;
+  public attributes: HomeAssistantEntityAttributes;
   public context: ContextDTO;
   public entity_id: string;
   public last_changed: dayjs.Dayjs;

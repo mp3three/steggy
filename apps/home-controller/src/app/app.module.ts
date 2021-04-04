@@ -70,7 +70,7 @@ const configs = [
 
 @Module({
   imports: [
-    CacheModule.register(),
+    CacheModule.register({}),
     EventEmitterModule.forRoot({
       wildcard: true,
       // Expected format:

@@ -27,7 +27,7 @@ export class BedroomService extends SceneRoom {
   // #region Constructors
 
   constructor(
-    private readonly homeAssistantService: HomeAssistantService,
+    protected readonly homeAssistantService: HomeAssistantService,
     protected readonly roomService: RoomService,
     private readonly entityService: EntityService,
     private readonly configService: ConfigService,

@@ -1,6 +1,7 @@
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import {
   EntityService,
+  HomeAssistantService,
   RoomService,
   SceneRoom,
 } from '@automagical/home-assistant';
@@ -34,6 +35,7 @@ export class LoftService extends SceneRoom {
   // #region Constructors
 
   constructor(
+    protected readonly homeAssistantService: HomeAssistantService,
     protected readonly entityService: EntityService,
     protected readonly roomService: RoomService,
     @Inject(LOFT_CONFIG)
@@ -61,10 +63,10 @@ export class LoftService extends SceneRoom {
 
   @OnEvent('switch.bedroom_switch/4')
   private screenOff() {
-    // return this.roomService.setRoku(
-    //   RokuInputs.off,
-    //   this.roomConfig.config.roku,
-    // );
+    return this.roomService.setRoku(
+      RokuInputs.off,
+      this.roomConfig.config.roku,
+    );
   }
 
   @OnEvent('switch.bedroom_switch/2')

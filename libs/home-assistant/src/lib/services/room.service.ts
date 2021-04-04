@@ -199,10 +199,7 @@ export class RoomService {
     room: HomeAssistantRoomConfigDTO,
     accessories = false,
   ): Promise<void> {
-    this.logger.info(
-      `Set scene ${scene} on room ${room.friendly_name}`,
-      accessories,
-    );
+    this.logger.info(`>> ${room.name}/${scene}`, accessories);
     const setMode = this.IS_EVENING ? RoomModes.evening : RoomModes.day;
     const mode: HomeAssistantRoomModeDTO = room[scene];
     this.eventEmitter.emit(`${room.name}/${scene}`);
@@ -257,17 +254,12 @@ export class RoomService {
 
   public async smart(
     room: HomeAssistantRoomConfigDTO,
-    extra: HomeAssistantRoomConfigDTO[] = Object.values(this.ROOM_REGISTRY) ||
-      [],
+    target: RoomScene = this.IS_EVENING ? RoomScene.medium : RoomScene.high,
   ): Promise<void> {
-    extra
+    Object.values(this.ROOM_REGISTRY)
       .filter((i) => i.name !== room.name)
       .forEach((otherRoom) => this.setScene(RoomScene.off, otherRoom, true));
-    return this.setScene(
-      this.IS_EVENING ? RoomScene.medium : RoomScene.high,
-      room,
-      true,
-    );
+    return this.setScene(target, room, true);
   }
 
   // #endregion Public Methods
