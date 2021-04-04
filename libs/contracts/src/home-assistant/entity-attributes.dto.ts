@@ -1,6 +1,4 @@
-export class HomeAssistantEntityAttributes<
-  T extends Record<never, unknown> = Record<never, unknown>
-> {
+export class HomeAssistantEntityAttributes {
   // #region Object Properties
 
   /**
