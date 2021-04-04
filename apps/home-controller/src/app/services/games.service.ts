@@ -1,10 +1,17 @@
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import { RoomService, SceneRoom } from '@automagical/home-assistant';
+import { Logger } from '@automagical/logger';
 import { Inject, Injectable } from '@nestjs/common';
 import { GAMES_CONFIG } from '../../typings';
 
 @Injectable()
 export class GamesService extends SceneRoom {
+  // #region Object Properties
+
+  protected readonly logger = Logger(GamesService);
+
+  // #endregion Object Properties
+
   // #region Constructors
 
   constructor(
@@ -13,6 +20,7 @@ export class GamesService extends SceneRoom {
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
   ) {
     super();
+    roomService.ROOM_REGISTRY.games = roomConfig;
   }
 
   // #endregion Constructors

@@ -1,4 +1,3 @@
-import { HA_ALL_CONFIGS } from '@automagical/contracts/constants';
 import {
   CircadianModes,
   FanSpeeds,
@@ -56,7 +55,6 @@ export class RoomService {
 
   public get IS_EVENING(): boolean {
     // For the purpose of the house, it's considered evening if the sun has set, or it's past 6PM
-
     const now = dayjs();
     return (
       now.isAfter(this.SOLAR_CALC.sunset) ||
@@ -73,7 +71,11 @@ export class RoomService {
     // typescript is wrong this time, it works as expected for me
     // eslint-disable-next-line
     // @ts-ignore
-    return new SolarCalc(new Date(), RoomService.LAT, RoomService.LONG);
+    return new SolarCalc(
+      new Date(),
+      Number(process.env.LAT),
+      Number(process.env.LONG),
+    );
   }
 
   // #endregion Public Accessors
@@ -197,10 +199,13 @@ export class RoomService {
     room: HomeAssistantRoomConfigDTO,
     accessories = false,
   ): Promise<void> {
+    this.logger.info(
+      `Set scene ${scene} on room ${room.friendly_name}`,
+      accessories,
+    );
     const setMode = this.IS_EVENING ? RoomModes.evening : RoomModes.day;
     const mode: HomeAssistantRoomModeDTO = room[scene];
     this.eventEmitter.emit(`${room.name}/${scene}`);
-
     if (mode?.all?.circadian) {
       this.setCircadian(mode.all.circadian, room.config.circadian);
     }
@@ -212,11 +217,20 @@ export class RoomService {
         return this.entityService.turnOn(entityId, room.groups);
       });
     }
+    mode?.all?.off?.forEach((entityId) =>
+      this.entityService.turnOff(entityId, room.groups),
+    );
+    mode?.all?.on?.forEach((entityId) =>
+      this.entityService.turnOn(entityId, room.groups),
+    );
     const lightingNode = mode[setMode];
     if (!lightingNode) {
+      if (!mode?.all) {
+        this.logger.debug(`No lighting mode`, setMode);
+      }
       return;
     }
-    if (lightingNode.circadian) {
+    if (lightingNode?.circadian) {
       this.setCircadian(lightingNode.circadian, room.config.circadian);
     }
     lightingNode?.acc?.forEach((entityId) => {
@@ -235,10 +249,10 @@ export class RoomService {
     if (!fan || !accessories) {
       return;
     }
-    const tempEntity = await this.entityService.byId(room.config.temperature);
-    if ((tempEntity.state as number) > 74) {
-      this.entityService.turnOn(fan);
-    }
+    // const tempEntity = await this.entityService.byId(room.config.temperature);
+    // if ((tempEntity.state as number) > 74) {
+    //   this.entityService.turnOn(fan);
+    // }
   }
 
   public async smart(
@@ -248,7 +262,7 @@ export class RoomService {
   ): Promise<void> {
     extra
       .filter((i) => i.name !== room.name)
-      .forEach((otherRoom) => this.setScene(RoomScene.off, otherRoom, false));
+      .forEach((otherRoom) => this.setScene(RoomScene.off, otherRoom, true));
     return this.setScene(
       this.IS_EVENING ? RoomScene.medium : RoomScene.high,
       room,

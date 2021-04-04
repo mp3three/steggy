@@ -27,7 +27,7 @@ enum RokuInputs {
 export class LoftService extends SceneRoom {
   // #region Object Properties
 
-  private readonly logger = Logger(LoftService);
+  protected readonly logger = Logger(LoftService);
 
   // #endregion Object Properties
 
@@ -40,6 +40,7 @@ export class LoftService extends SceneRoom {
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
   ) {
     super();
+    roomService.ROOM_REGISTRY.loft = roomConfig;
   }
 
   // #endregion Constructors
@@ -58,15 +59,15 @@ export class LoftService extends SceneRoom {
     return this.entityService.turnOn('switch.back_desk_light');
   }
 
-  @OnEvent('remote.bedroom_switch/4')
+  @OnEvent('switch.bedroom_switch/4')
   private screenOff() {
-    return this.roomService.setRoku(
-      RokuInputs.off,
-      this.roomConfig.config.roku,
-    );
+    // return this.roomService.setRoku(
+    //   RokuInputs.off,
+    //   this.roomConfig.config.roku,
+    // );
   }
 
-  @OnEvent('remote.bedroom_switch/2')
+  @OnEvent('switch.bedroom_switch/2')
   private screenToPersonal() {
     return this.roomService.setRoku(
       RokuInputs.personal,
@@ -74,7 +75,7 @@ export class LoftService extends SceneRoom {
     );
   }
 
-  @OnEvent('remote.bedroom_switch/1')
+  @OnEvent('switch.bedroom_switch/1')
   private screenToWindows() {
     return this.roomService.setRoku(
       RokuInputs.windows,
@@ -82,7 +83,7 @@ export class LoftService extends SceneRoom {
     );
   }
 
-  @OnEvent('remote.bedroom_switch/3')
+  @OnEvent('switch.bedroom_switch/3')
   private screenToWork() {
     return this.roomService.setRoku(
       RokuInputs.work,

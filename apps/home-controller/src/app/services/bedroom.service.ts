@@ -20,7 +20,7 @@ import { BEDROOM_CONFIG } from '../../typings/config';
 export class BedroomService extends SceneRoom {
   // #region Object Properties
 
-  private readonly logger = Logger(BedroomService);
+  protected readonly logger = Logger(BedroomService);
 
   // #endregion Object Properties
 
@@ -35,6 +35,7 @@ export class BedroomService extends SceneRoom {
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
   ) {
     super();
+    roomService.ROOM_REGISTRY.bedroom = roomConfig;
   }
 
   // #endregion Constructors

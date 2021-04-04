@@ -1,5 +1,6 @@
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import { RoomService, SceneRoom } from '@automagical/home-assistant';
+import { Logger } from '@automagical/logger';
 import { Inject, Injectable } from '@nestjs/common';
 import { GUEST_CONFIG } from '../../typings';
 
@@ -7,10 +8,7 @@ import { GUEST_CONFIG } from '../../typings';
 export class GuestService extends SceneRoom {
   // #region Object Properties
 
-  protected circadian = {
-    low: 'switch.circadian_lighting_guest_low_brightness_circadian_light',
-    high: 'switch.circadian_lighting_guest_circadian_light',
-  };
+  protected readonly logger = Logger(GuestService);
 
   // #endregion Object Properties
 
@@ -22,6 +20,7 @@ export class GuestService extends SceneRoom {
     protected readonly roomService: RoomService,
   ) {
     super();
+    roomService.ROOM_REGISTRY.guest = roomConfig;
   }
 
   // #endregion Constructors

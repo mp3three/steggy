@@ -3,6 +3,7 @@ import {
   PicoStates,
   RoomScene,
 } from '@automagical/contracts/home-assistant';
+import { iLogger } from '@automagical/logger';
 import { OnEvent } from '@nestjs/event-emitter';
 import { RoomService } from '../services';
 
@@ -13,6 +14,7 @@ export abstract class SceneRoom {
   protected readonly roomService: RoomService;
 
   protected allowGlobalAccess = true;
+  protected logger: iLogger;
 
   // #endregion Object Properties
 
@@ -23,9 +25,10 @@ export abstract class SceneRoom {
     button: PicoStates,
     entityId: string,
   ): Promise<void> {
-    if (entityId !== this.roomConfig.config.pico) {
+    if (entityId !== this?.roomConfig?.config?.pico) {
       return;
     }
+    this.logger.notice(`${entityId} pressed ${button}`);
     switch (button) {
       case PicoStates.high:
         return this.roomService.setScene(

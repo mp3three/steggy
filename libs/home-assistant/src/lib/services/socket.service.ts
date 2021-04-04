@@ -157,7 +157,7 @@ export class SocketService {
    */
   @Cron('*/15 * * * * *')
   private async ping(): Promise<void> {
-    this.logger.debug('ping');
+    // this.logger.debug('ping');
     try {
       const pong = await this.sendMsg({
         type: HassCommands.ping,
@@ -214,9 +214,18 @@ export class SocketService {
    * Response to an outgoing emit. Value should be redirected to the promise returned by said emit
    */
   private async onMessage(msg: SocketMessageDTO) {
-    let lostInFlight: number;
+    // let lostInFlight: number;
     switch (msg.type as HassSocketMessageTypes) {
       case HassSocketMessageTypes.auth_required:
+        // lostInFlight = Object.values(this.waitingCallback).length;
+        // if (lostInFlight !== 0) {
+        //   // ? Can the promises be rejected?
+        //   // ? Does the memory get reclaimed if I don't?
+        //   this.logger.warning(
+        //     `${lostInFlight} responses lost during connection reset`,
+        //   );
+        // }
+        // this.waitingCallback = {};
         this.sendMsg({
           type: HassCommands.auth,
           access_token: this.configService.get(TOKEN),
@@ -225,19 +234,10 @@ export class SocketService {
 
       case HassSocketMessageTypes.auth_ok:
         this.isAuthenticated = true;
-        lostInFlight = Object.values(this.waitingCallback).length;
-        if (lostInFlight !== 0) {
-          // ? Can the promises be rejected?
-          // ? Does the memory get reclaimed if I don't?
-          this.logger.warning(
-            `${lostInFlight} responses lost during connection reset`,
-          );
-        }
-        this.waitingCallback = {};
         await this.sendMsg({
           type: HassCommands.subscribe_events,
         });
-        this.updateAllEntities();
+        await this.updateAllEntities();
         return;
 
       case HassSocketMessageTypes.event:

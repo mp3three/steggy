@@ -9,6 +9,7 @@ import { Logger } from '@automagical/logger';
 import { sleep } from '@automagical/utilities';
 import {
   CACHE_MANAGER,
+  GoneException,
   Inject,
   Injectable,
   NotImplementedException,
@@ -39,8 +40,9 @@ export class EntityService {
 
   // #region Public Methods
 
-  @OnEvent(ALL_ENTITIES_UPDATED)
+  @OnEvent([ALL_ENTITIES_UPDATED])
   public allEntityUpdate(allEntities: HassStateDTO[]): void {
+    this.logger.notice(`allEntityUpdate: ${allEntities.length} items`);
     allEntities.forEach(async (entity) => {
       if (!this.KNOWN_ENTITY_IDS.includes(entity.entity_id)) {
         this.KNOWN_ENTITY_IDS.push(entity.entity_id);
@@ -54,16 +56,21 @@ export class EntityService {
    */
   public async byId<T extends HassStateDTO = HassStateDTO>(
     entityId: string,
+    abort = false,
   ): Promise<T> {
     const cachedValue = await this.cacheService.get(entityId);
     if (cachedValue) {
       return;
     }
+    if (abort) {
+      throw new GoneException(`${entityId} could not be found`);
+    }
+    this.logger.debug(`Cache Miss: ${entityId}`);
     await this.socketService.updateAllEntities();
     // Probably way overkill
     // Let the caching finish
     await sleep(10);
-    return this.byId<T>(entityId);
+    return this.byId<T>(entityId, true);
   }
 
   public async fanSpeedDown(
@@ -118,6 +125,9 @@ export class EntityService {
   }
 
   public async toggle(entityId: string): Promise<void> {
+    if (!entityId) {
+      return;
+    }
     const entity = await this.byId(entityId);
     if (entity.state === 'on') {
       return this.turnOff(entityId);
@@ -129,6 +139,10 @@ export class EntityService {
     entityId: string,
     groupData: Record<string, string[]> = {},
   ): Promise<void> {
+    if (!entityId) {
+      return;
+    }
+    this.logger.debug(`turnOff ${entityId}`);
     const parts = entityId.split('.');
     const domain = parts[0] as HassDomains;
     const suffix = parts[1];
@@ -148,7 +162,7 @@ export class EntityService {
             `Cannot find group information for ${suffix}`,
           );
         }
-        groupData[suffix].forEach((id) => this.turnOn(id, groupData));
+        groupData[suffix].forEach((id) => this.turnOff(id, groupData));
         return;
     }
   }
@@ -157,6 +171,10 @@ export class EntityService {
     entityId: string,
     groupData: Record<string, string[]> = {},
   ): Promise<void> {
+    if (!entityId) {
+      return;
+    }
+    this.logger.debug(`turnOn ${entityId}`);
     const parts = entityId.split('.');
     const domain = parts[0] as HassDomains;
     const suffix = parts[1];

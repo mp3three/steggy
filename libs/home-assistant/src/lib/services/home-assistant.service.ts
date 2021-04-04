@@ -83,7 +83,7 @@ export class HomeAssistantService {
 
   // #region Private Methods
 
-  @OnEvent(HA_RAW_EVENT)
+  @OnEvent([HA_RAW_EVENT])
   private async onHueEvent(event: HassEventDTO) {
     if (event.event_type !== HassEvents.hue_event) {
       return;
@@ -109,21 +109,22 @@ export class HomeAssistantService {
     // It seems to work better with 1st party stuff
 
     // The Lutron Pico devices are better in every way
-    switch (Math.floor(Number(event.data.id) / 1000)) {
+    switch (Math.floor(Number(event.data.event) / 1000)) {
       case 1:
-        return this.eventEmitter.emit(`${event.data.entity_id}/1`);
+        return this.eventEmitter.emit(`switch.${event.data.id}/1`);
       case 2:
-        return this.eventEmitter.emit(`${event.data.entity_id}/2`);
+        return this.eventEmitter.emit(`switch.${event.data.id}/2`);
       case 3:
-        return this.eventEmitter.emit(`${event.data.entity_id}/3`);
+        return this.eventEmitter.emit(`switch.${event.data.id}/3`);
       case 4:
-        return this.eventEmitter.emit(`${event.data.entity_id}/4`);
+        return this.eventEmitter.emit(`switch.${event.data.id}/4`);
     }
   }
 
-  @OnEvent(HA_RAW_EVENT)
+  @OnEvent([HA_RAW_EVENT])
   private async onPicoEvent(event: HassEventDTO) {
-    let domain, suffix, evt, prefix;
+    type t = { state: string };
+    let domain, suffix, evt, prefix, state: t;
     switch (event.event_type) {
       case HassEvents.state_changed:
         [domain, suffix] = event.data.entity_id.split('.');
@@ -148,7 +149,8 @@ export class HomeAssistantService {
         }
         this.lastEvent = evt;
         setTimeout(() => (this.lastEvent = ''), 1000 * 5);
-        return this.eventEmitter.emit(evt, event);
+        state = event.data.new_state as t;
+        return this.eventEmitter.emit(evt, state.state, prefix);
     }
   }
 

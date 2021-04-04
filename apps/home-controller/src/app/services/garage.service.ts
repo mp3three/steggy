@@ -17,7 +17,7 @@ import { GARAGE_CONFIG } from '../../typings';
 export class GarageService extends SceneRoom {
   // #region Object Properties
 
-  private readonly logger = Logger(GarageService);
+  protected readonly logger = Logger(GarageService);
 
   // #endregion Object Properties
 
@@ -30,6 +30,7 @@ export class GarageService extends SceneRoom {
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
   ) {
     super();
+    // roomService.ROOM_REGISTRY.garage = roomConfig;
   }
 
   // #endregion Constructors
