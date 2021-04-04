@@ -69,7 +69,9 @@ export class ConfigModule {
     if (existsSync(envFilePath)) {
       return yaml.load(readFileSync(envFilePath, 'utf-8')) as AutomagicalConfig;
     }
-    console.log(`Could not find environment file: ${envFilePath}`);
+    console.log(
+      `[WARN] config-module - Could not find environment file: ${envFilePath}`,
+    );
     return {};
   }
 

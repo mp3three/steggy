@@ -129,7 +129,10 @@ export class EntityService {
       return;
     }
     const entity = await this.byId(entityId);
-    if (entity.state !== 'off') {
+    if (!entity) {
+      this.logger.alert(`Missing entity: ${entityId}`);
+    }
+    if (entity?.state !== 'off') {
       this.logger.debug(`turnOff ${entityId}`);
     }
     const parts = entityId.split('.');

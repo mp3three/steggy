@@ -1,4 +1,5 @@
 import {
+  HassServices,
   HomeAssistantRoomConfigDTO,
   PicoStates,
   RokuInputs,
@@ -98,7 +99,7 @@ export abstract class SceneRoom {
   }
 
   protected async sceneSmart(): Promise<void> {
-    this.homeAssistantService.setLocks(true);
+    this.homeAssistantService.setLocks(HassServices.lock);
     return this.roomService.smart(this.roomConfig);
   }
 

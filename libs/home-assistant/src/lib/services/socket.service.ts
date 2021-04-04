@@ -139,7 +139,7 @@ export class SocketService {
    * This can be a pretty big list
    */
   public async updateAllEntities(): Promise<HassStateDTO[]> {
-    this.logger.notice(`updateAllEntities`);
+    this.logger.debug(`updateAllEntities`);
     const allEntities = await this.sendMsg<HassStateDTO[]>({
       type: HassCommands.get_states,
     });

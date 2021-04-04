@@ -62,7 +62,7 @@ export class HomeAssistantService {
    * Load locks, then set their state
    */
   public async setLocks(
-    state: boolean,
+    state: HassServices,
     lockList: string[] = null,
   ): Promise<void> {
     const locks =
@@ -72,7 +72,7 @@ export class HomeAssistantService {
         .filter((key) => key.split('.')[0] === 'lock');
     await Promise.all(
       locks.map(async (entityId) => {
-        return this.socketService.call(HassDomains.lock, HassServices.unlock, {
+        return this.socketService.call(HassDomains.lock, state, {
           entity_id: entityId,
         });
       }),
