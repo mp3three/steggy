@@ -57,7 +57,7 @@ export class RoomService {
     // For the purpose of the house, it's considered evening if the sun has set, or it's past 6PM
     const now = dayjs();
     return (
-      now.isAfter(this.SOLAR_CALC.sunset) ||
+      now.isAfter(this.SOLAR_CALC.goldenHourStart) ||
       now.isAfter(now.startOf('day').add(12 + 6, 'hour')) ||
       now.isBefore(this.SOLAR_CALC.sunrise)
     );
@@ -137,8 +137,8 @@ export class RoomService {
     channel: RokuInputs | string,
     roku: HomeAssistantRoomRokuDTO,
   ): Promise<void> {
-    this.logger.info(`setRoku`, channel);
     const currentChannel = await this.cacheService.get(roku.host);
+    this.logger.info(`setRoku (${roku.host}) ${currentChannel} => ${channel}`);
     if (currentChannel === channel) {
       return;
     }
@@ -151,12 +151,14 @@ export class RoomService {
         url: '/keypress/PowerOff',
         method: HTTP_Methods.POST,
         baseUrl: roku.host,
+        process: false,
       });
       await sleep(100);
       return Fetch.fetch({
         url: '/keypress/PowerOff',
         method: HTTP_Methods.POST,
         baseUrl: roku.host,
+        process: false,
       });
     }
     let input = channel as string;
@@ -167,12 +169,14 @@ export class RoomService {
       url: `/launch/${input}`,
       method: HTTP_Methods.POST,
       baseUrl: roku.host,
+      process: false,
     });
     await sleep(100);
     return Fetch.fetch({
       url: `/launch/${input}`,
       method: HTTP_Methods.POST,
       baseUrl: roku.host,
+      process: false,
     });
   }
 
@@ -208,7 +212,7 @@ export class RoomService {
     }
     if (accessories) {
       mode?.all?.acc?.forEach((entityId) => {
-        if (this.IS_EVENING) {
+        if (this.IS_EVENING || scene === RoomScene.off) {
           return this.entityService.turnOff(entityId, room.groups);
         }
         return this.entityService.turnOn(entityId, room.groups);
@@ -246,19 +250,27 @@ export class RoomService {
     if (!fan || !accessories) {
       return;
     }
-    // const tempEntity = await this.entityService.byId(room.config.temperature);
-    // if ((tempEntity.state as number) > 74) {
-    //   this.entityService.turnOn(fan);
-    // }
+    const tempEntity = await this.entityService.byId(room.config.temperature);
+    if (!tempEntity) {
+      this.logger.warning(`Could not find entity: ${room.config.temperature}`);
+    }
+    if ((tempEntity.state as number) > 74) {
+      this.entityService.turnOn(fan);
+    }
   }
 
   public async smart(
     room: HomeAssistantRoomConfigDTO,
     target: RoomScene = this.IS_EVENING ? RoomScene.medium : RoomScene.high,
   ): Promise<void> {
+    let altScene: RoomScene = RoomScene.high;
+    if (target === RoomScene.off || this.IS_EVENING) {
+      altScene = RoomScene.off;
+    }
+    this.logger.notice('altScene', altScene);
     Object.values(this.ROOM_REGISTRY)
       .filter((i) => i.name !== room.name)
-      .forEach((otherRoom) => this.setScene(RoomScene.off, otherRoom, true));
+      .forEach((otherRoom) => this.setScene(altScene, otherRoom, true));
     return this.setScene(target, room, true);
   }
 

@@ -128,16 +128,19 @@ export class EntityService {
     if (!entityId) {
       return;
     }
-    const entity = await this.byId(entityId);
-    if (!entity) {
-      this.logger.alert(`Missing entity: ${entityId}`);
-    }
-    if (entity?.state !== 'off') {
-      this.logger.debug(`turnOff ${entityId}`);
-    }
     const parts = entityId.split('.');
     const domain = parts[0] as HassDomains;
     const suffix = parts[1];
+    let entity;
+    if (domain !== HassDomains.group) {
+      entity = await this.byId(entityId);
+      if (!entity) {
+        this.logger.crit(`Could not find entity for ${entityId}`, groupData);
+      }
+      if (entity.state !== 'off') {
+        this.logger.warning(`turnOff ${entityId}`);
+      }
+    }
     switch (domain) {
       case HassDomains.switch:
       case HassDomains.light:
@@ -166,13 +169,19 @@ export class EntityService {
     if (!entityId) {
       return;
     }
-    const entity = await this.byId(entityId);
-    if (entity.state !== 'on') {
-      this.logger.debug(`turnOn ${entityId}`);
-    }
     const parts = entityId.split('.');
     const domain = parts[0] as HassDomains;
     const suffix = parts[1];
+    let entity;
+    if (domain !== HassDomains.group) {
+      entity = await this.byId(entityId);
+      if (!entity) {
+        this.logger.crit(`Could not find entity for ${entityId}`, groupData);
+      }
+      if (entity.state !== 'on') {
+        this.logger.debug(`turnOn ${entityId}`);
+      }
+    }
     switch (domain) {
       case HassDomains.switch:
         return this.socketService.call(
@@ -187,6 +196,7 @@ export class EntityService {
         });
       case HassDomains.light:
         if (entity.state === 'on') {
+          // this.logger.alert(entity);
           // The circadian throws things off with repeat on calls
           return;
         }

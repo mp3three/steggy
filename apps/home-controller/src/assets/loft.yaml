@@ -66,7 +66,7 @@ config:
     high: switch.circadian_lighting_loft_circadian_light
     low: switch.circadian_lighting_loft_low_brightness_circadian_light
   roku:
-    defaultChannel: hdmi3
+    defaultChannel: hdmi1
     host: http://10.0.0.32:8060
 
 groups:

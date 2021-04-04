@@ -7,6 +7,7 @@ import {
 import {
   EntityService,
   HomeAssistantService,
+  RoomService,
   SocketService,
 } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
@@ -49,6 +50,7 @@ export class AppService {
     private readonly homeAssistantService: HomeAssistantService,
     private readonly entityService: EntityService,
     private readonly socketService: SocketService,
+    private readonly roomService: RoomService,
     private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
   ) {}
@@ -132,10 +134,24 @@ export class AppService {
         this.homeAssistantService.sendNotification(
           MobileDevice.generic,
           `${entity.attributes.friendly_name} is at ${entity.state}%`,
-          NotificationGroup.battery,
+          NotificationGroup.environment,
         );
       }
     });
+  }
+
+  @Cron('0 0 11 * * *')
+  private dayInfo() {
+    const cal = this.roomService.SOLAR_CALC;
+    const start = dayjs(cal.goldenHourStart).format('hh:mm');
+    const end = dayjs(cal.goldenHourEnd).format('hh:mm');
+    const message = `🌄 ${dayjs().format('ddd MMM DD')}: ${start} - ${end}`;
+    this.homeAssistantService.sendNotification(
+      MobileDevice.generic,
+      message,
+      NotificationGroup.environment,
+    );
+    // this.logger.notice(message);
   }
 
   @OnEvent(CONNECTION_RESET)

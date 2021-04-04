@@ -4,6 +4,7 @@ import {
   HassEventDTO,
   HassEvents,
   HassServices,
+  PicoStates,
 } from '@automagical/contracts/home-assistant';
 import { Logger } from '@automagical/logger';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
@@ -131,6 +132,10 @@ export class HomeAssistantService {
         if ((domain as HassDomains) !== HassDomains.sensor) {
           return;
         }
+        state = event.data.new_state as t;
+        if (state.state === PicoStates.none) {
+          return;
+        }
         prefix = event.data.entity_id;
         if (suffix.includes('pico')) {
           this.eventEmitter.emit(
@@ -139,13 +144,12 @@ export class HomeAssistantService {
             prefix,
           );
         }
+        if (`${prefix}/double` === this.lastEvent) {
+          return;
+        }
         evt = `${prefix}/single`;
         if (evt === this.lastEvent) {
           evt = `${prefix}/double`;
-        } else {
-          if (`${prefix}/double` === this.lastEvent) {
-            return;
-          }
         }
         this.lastEvent = evt;
         setTimeout(() => (this.lastEvent = ''), 1000 * 5);

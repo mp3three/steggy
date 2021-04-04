@@ -31,26 +31,27 @@ export abstract class SceneRoom {
     if (entityId !== this?.roomConfig?.config?.pico) {
       return;
     }
-    this.logger.notice(`${entityId} pressed ${button}`);
+    this.logger.notice(`${entityId} double press ${button}`);
     switch (button) {
       case PicoStates.high:
         return this.sceneHigh();
       case PicoStates.off:
         return this.doubleOff();
-      case PicoStates.smart:
-        return this.doubleSmart();
     }
   }
 
   @OnEvent(['*', 'single'])
-  protected async wallSinle(
+  protected async wallSingle(
     button: PicoStates,
     entityId: string,
   ): Promise<void> {
     if (entityId !== this?.roomConfig?.config?.pico) {
       return;
     }
-    this.logger.notice(`${entityId} pressed ${button}`);
+    if (button === PicoStates.none) {
+      return;
+    }
+    this.logger.notice(`${entityId} single press ${button}`);
     switch (button) {
       case PicoStates.high:
         return this.sceneHigh();
@@ -61,7 +62,7 @@ export abstract class SceneRoom {
       case PicoStates.off:
         return this.sceneOff();
       case PicoStates.smart:
-        this.sceneSmart();
+        return this.sceneSmart();
     }
   }
 
@@ -71,14 +72,6 @@ export abstract class SceneRoom {
 
   protected doubleOff(): Promise<void> {
     return this.roomService.smart(this.roomConfig, RoomScene.off);
-  }
-
-  protected doubleSmart(): Promise<void> {
-    const rokuInfo = this.roomConfig.config?.roku;
-    if (!rokuInfo) {
-      return;
-    }
-    return this.roomService.setRoku(rokuInfo.defaultChannel, rokuInfo);
   }
 
   protected sceneHigh(): Promise<void> {
@@ -94,11 +87,18 @@ export abstract class SceneRoom {
   }
 
   protected sceneOff(): Promise<void> {
-    this.roomService.setRoku(RokuInputs.off, this.roomConfig.config?.roku);
+    const rokuInfo = this.roomConfig.config?.roku;
+    if (rokuInfo) {
+      this.roomService.setRoku(RokuInputs.off, rokuInfo);
+    }
     return this.roomService.setScene(RoomScene.off, this.roomConfig, false);
   }
 
   protected async sceneSmart(): Promise<void> {
+    const rokuInfo = this.roomConfig.config?.roku;
+    if (rokuInfo) {
+      this.roomService.setRoku(rokuInfo.defaultChannel, rokuInfo);
+    }
     this.homeAssistantService.setLocks(HassServices.lock);
     return this.roomService.smart(this.roomConfig);
   }
