@@ -1,0 +1,7 @@
+name: garage
+friendly_name: Gargage
+
+high:
+  all:
+    on:
+      - switch.kitchen_light

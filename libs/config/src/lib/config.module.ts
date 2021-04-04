@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import * as NestConfig from '@nestjs/config';
 import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
@@ -31,7 +31,7 @@ export class ConfigModule {
   public static register<
     T extends Record<never, unknown>,
     Arg extends AutomagicalConfig<T> = AutomagicalConfig<T>
-  >(MergeConfig: Arg) {
+  >(MergeConfig: Arg): DynamicModule {
     return NestConfig.ConfigModule.forRoot({
       isGlobal: true,
       load: [

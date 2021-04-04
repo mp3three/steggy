@@ -81,3 +81,6 @@ groups:
     - light.loft_fan_desk_right
     - light.loft_fan_desk_left
     - light.loft_fan_bench_left
+
+name: loft
+friendly_name: Loft

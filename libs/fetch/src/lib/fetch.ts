@@ -62,7 +62,7 @@ export class Fetch {
       filters?: Readonly<Filters[]>;
       params?: Record<string, string>;
     }>,
-  ) {
+  ): string {
     const out: Partial<Record<string, string>> = {};
     (args.filters || []).forEach((filter) => {
       Object.keys(filter).forEach((type: keyof Filters) => {
@@ -146,7 +146,7 @@ export class Fetch {
   /**
    * Resolve url provided in args into a full path w/ domain
    */
-  protected static fetchCreateUrl(args: FetchWith) {
+  protected static fetchCreateUrl(args: FetchWith): string {
     let url = args.rawUrl ? args.url : `${args.baseUrl}${args.url}`;
     if (args.tempAuthToken) {
       args.params = args.params || {};
@@ -161,9 +161,12 @@ export class Fetch {
   /**
    * Post processing function for fetch()
    */
-  protected static async fetchHandleResponse(args: FetchWith, res: Response) {
+  protected static async fetchHandleResponse<T extends unknown = unknown>(
+    args: FetchWith,
+    res: Response,
+  ): Promise<T> {
     if (args.process === false) {
-      return res;
+      return res as T;
     }
     const text = await res.text();
     if (Fetch.TRUNCATE_LENGTH > 0 && text.length > Fetch.TRUNCATE_LENGTH) {
@@ -184,7 +187,7 @@ export class Fetch {
         // Will try to keep the array up to date if any other edge cases pop up
         this.logger.alert(`Invalid API Response`, text);
       }
-      return text;
+      return text as T;
     }
     return JSON.parse(text);
   }

@@ -88,3 +88,6 @@ groups:
   living_accessories:
     - switch.couch_light
     - switch.media_center_light
+
+name: living_room
+friendly_name: Living Room

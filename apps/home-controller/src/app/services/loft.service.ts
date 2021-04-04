@@ -1,0 +1,95 @@
+import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
+import {
+  EntityService,
+  RoomService,
+  SceneRoom,
+} from '@automagical/home-assistant';
+import { Logger } from '@automagical/logger';
+import { Inject, Injectable } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
+import { Cron } from '@nestjs/schedule';
+import { LOFT_CONFIG } from '../../typings';
+
+enum RokuInputs {
+  off = 'off',
+  windows = 'hdmi2',
+  personal = 'hdmi3',
+  work = 'hdmi1',
+}
+/**
+ * ## In addition to normal functionality
+ *
+ * - Decorative light that that turns off during quiet hours
+ * - A hue remote that acts as a input selection switch for a roku tv
+ *   - AKA: big computer screen
+ */
+@Injectable()
+export class LoftService extends SceneRoom {
+  // #region Object Properties
+
+  protected readonly logger = Logger(LoftService);
+
+  // #endregion Object Properties
+
+  // #region Constructors
+
+  constructor(
+    protected readonly entityService: EntityService,
+    protected readonly roomService: RoomService,
+    @Inject(LOFT_CONFIG)
+    protected readonly roomConfig: HomeAssistantRoomConfigDTO,
+  ) {
+    super();
+    roomService.ROOM_REGISTRY.loft = roomConfig;
+  }
+
+  // #endregion Constructors
+
+  // #region Private Methods
+
+  @Cron('0 0 22 * * *')
+  private lightOff() {
+    this.logger.info(`Turn off back desk light`);
+    return this.entityService.turnOff('switch.back_desk_light');
+  }
+
+  @Cron('0 0 7 * * *')
+  private lightOn() {
+    this.logger.info(`Turn on back desk light`);
+    return this.entityService.turnOn('switch.back_desk_light');
+  }
+
+  @OnEvent('switch.bedroom_switch/4')
+  private screenOff() {
+    // return this.roomService.setRoku(
+    //   RokuInputs.off,
+    //   this.roomConfig.config.roku,
+    // );
+  }
+
+  @OnEvent('switch.bedroom_switch/2')
+  private screenToPersonal() {
+    return this.roomService.setRoku(
+      RokuInputs.personal,
+      this.roomConfig.config.roku,
+    );
+  }
+
+  @OnEvent('switch.bedroom_switch/1')
+  private screenToWindows() {
+    return this.roomService.setRoku(
+      RokuInputs.windows,
+      this.roomConfig.config.roku,
+    );
+  }
+
+  @OnEvent('switch.bedroom_switch/3')
+  private screenToWork() {
+    return this.roomService.setRoku(
+      RokuInputs.work,
+      this.roomConfig.config.roku,
+    );
+  }
+
+  // #endregion Private Methods
+}

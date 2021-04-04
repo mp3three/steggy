@@ -1,0 +1,48 @@
+name: Lint
+
+# Run this workflow every time a new commit pushed to your repository
+on:
+  pull_request:
+    branches:
+      - develop
+env:
+  NX_BRANCH: ${{ github.event.number }}
+  NX_RUN_GROUP: ${{ github.run_id }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - name: node_modules cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: yarn install
+        run: yarn install
+
+      - name: Run Affected Lint
+        shell: bash
+        run: yarn affected:lint --base=origin/develop
+        env:
+          NX_BRANCH: ${{ github.event.number }}
+          NX_RUN_GROUP: ${{ github.run_id }}
+
+      - name: Run Affected Test
+        shell: bash
+        run: yarn affected:test --base=origin/develop
+        env:
+          NX_BRANCH: ${{ github.event.number }}
+          NX_RUN_GROUP: ${{ github.run_id }}

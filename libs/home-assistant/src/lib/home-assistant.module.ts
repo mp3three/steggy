@@ -1,11 +1,11 @@
-import { Module } from '@nestjs/common';
-import { HomeAssistantService } from './home-assistant.service';
-import { EntityService } from './entity.service';
-import { RoomService } from './room.service';
-import { SocketService } from './socket.service';
+import { CacheModule, Module } from '@nestjs/common';
+import { EntityService } from './services/entity.service';
+import { HomeAssistantService } from './services/home-assistant.service';
+import { RoomService } from './services/room.service';
+import { SocketService } from './services/socket.service';
 
 @Module({
-  controllers: [],
+  imports: [CacheModule.register()],
   providers: [HomeAssistantService, EntityService, RoomService, SocketService],
   exports: [HomeAssistantService, EntityService, RoomService, SocketService],
 })

@@ -35,3 +35,6 @@ groups:
     - light.guest_left
     - light.guest_right
     - light.guest_door
+
+name: guest
+friendly_name: Guest Room
