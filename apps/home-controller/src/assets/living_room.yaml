@@ -73,8 +73,9 @@ config:
   fan: fan.living_room_ceiling_fan
   temperature: sensor.downstairs_temperature
   circadian:
-    high: switch.circadian_lighting_living_room_circadian_light
-    low: switch.circadian_lighting_living_low_brightness_room_circadian_light
+    high: switch.circadian_lighting_living_circadian_high
+    medium: switch.circadian_lighting_living_circadian_medium
+    low: switch.circadian_lighting_living_circadian_low
   roku:
     defaultChannel: hdmi1
     host: http://10.0.0.7:8060

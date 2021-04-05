@@ -4,6 +4,7 @@ import {
   HassEventDTO,
   HassEvents,
   HassServices,
+  PicoStates,
 } from '@automagical/contracts/home-assistant';
 import { Logger } from '@automagical/logger';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
@@ -58,27 +59,6 @@ export class HomeAssistantService {
     });
   }
 
-  /**
-   * Load locks, then set their state
-   */
-  public async setLocks(
-    state: boolean,
-    lockList: string[] = null,
-  ): Promise<void> {
-    const locks =
-      lockList ||
-      this.entityService
-        .listEntities()
-        .filter((key) => key.split('.')[0] === 'lock');
-    await Promise.all(
-      locks.map(async (entityId) => {
-        return this.socketService.call(HassDomains.lock, HassServices.unlock, {
-          entity_id: entityId,
-        });
-      }),
-    );
-  }
-
   // #endregion Public Methods
 
   // #region Private Methods
@@ -131,6 +111,10 @@ export class HomeAssistantService {
         if ((domain as HassDomains) !== HassDomains.sensor) {
           return;
         }
+        state = event.data.new_state as t;
+        if (state.state === PicoStates.none) {
+          return;
+        }
         prefix = event.data.entity_id;
         if (suffix.includes('pico')) {
           this.eventEmitter.emit(
@@ -139,13 +123,12 @@ export class HomeAssistantService {
             prefix,
           );
         }
+        if (`${prefix}/double` === this.lastEvent) {
+          return;
+        }
         evt = `${prefix}/single`;
         if (evt === this.lastEvent) {
           evt = `${prefix}/double`;
-        } else {
-          if (`${prefix}/double` === this.lastEvent) {
-            return;
-          }
         }
         this.lastEvent = evt;
         setTimeout(() => (this.lastEvent = ''), 1000 * 5);

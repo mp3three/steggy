@@ -6,24 +6,24 @@ import {
   HassStateDTO,
 } from '@automagical/contracts/home-assistant';
 import { Logger } from '@automagical/logger';
-import { sleep } from '@automagical/utilities';
 import {
   CACHE_MANAGER,
-  GoneException,
   Inject,
   Injectable,
   NotImplementedException,
 } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cache } from 'cache-manager';
+import * as dayjs from 'dayjs';
 import { SocketService } from './socket.service';
 
 @Injectable()
 export class EntityService {
   // #region Object Properties
 
-  private readonly KNOWN_ENTITY_IDS: string[] = [];
+  private readonly ENTITIES: Record<string, HassStateDTO> = {};
 
+  private lastUpdate = dayjs();
   private logger = Logger(EntityService);
 
   // #endregion Object Properties
@@ -42,13 +42,8 @@ export class EntityService {
 
   @OnEvent([ALL_ENTITIES_UPDATED])
   public allEntityUpdate(allEntities: HassStateDTO[]): void {
-    this.logger.notice(`allEntityUpdate: ${allEntities.length} items`);
-    allEntities.forEach(async (entity) => {
-      if (!this.KNOWN_ENTITY_IDS.includes(entity.entity_id)) {
-        this.KNOWN_ENTITY_IDS.push(entity.entity_id);
-      }
-      return this.cacheService.set(entity.entity_id, entity);
-    });
+    this.lastUpdate = dayjs();
+    allEntities.forEach((entity) => (this.ENTITIES[entity.entity_id] = entity));
   }
 
   /**
@@ -56,21 +51,12 @@ export class EntityService {
    */
   public async byId<T extends HassStateDTO = HassStateDTO>(
     entityId: string,
-    abort = false,
   ): Promise<T> {
-    const cachedValue = await this.cacheService.get(entityId);
-    if (cachedValue) {
-      return;
+    if (this.lastUpdate.isBefore(dayjs().subtract(5, 'minute'))) {
+      this.logger.debug(`Cache Miss: ${entityId}`);
+      await this.socketService.updateAllEntities();
     }
-    if (abort) {
-      throw new GoneException(`${entityId} could not be found`);
-    }
-    this.logger.debug(`Cache Miss: ${entityId}`);
-    await this.socketService.updateAllEntities();
-    // Probably way overkill
-    // Let the caching finish
-    await sleep(10);
-    return this.byId<T>(entityId, true);
+    return this.ENTITIES[entityId] as T;
   }
 
   public async fanSpeedDown(
@@ -121,7 +107,7 @@ export class EntityService {
    * All known entity ids
    */
   public listEntities(): string[] {
-    return this.KNOWN_ENTITY_IDS;
+    return Object.keys(this.ENTITIES);
   }
 
   public async toggle(entityId: string): Promise<void> {
@@ -135,17 +121,26 @@ export class EntityService {
     return this.turnOn(entityId);
   }
 
-  public turnOff(
+  public async turnOff(
     entityId: string,
     groupData: Record<string, string[]> = {},
   ): Promise<void> {
     if (!entityId) {
       return;
     }
-    this.logger.debug(`turnOff ${entityId}`);
     const parts = entityId.split('.');
     const domain = parts[0] as HassDomains;
     const suffix = parts[1];
+    let entity;
+    if (domain !== HassDomains.group) {
+      entity = await this.byId(entityId);
+      if (!entity) {
+        this.logger.crit(`Could not find entity for ${entityId}`, groupData);
+      }
+      if (entity.state !== 'off') {
+        this.logger.warning(`turnOff ${entityId}`);
+      }
+    }
     switch (domain) {
       case HassDomains.switch:
       case HassDomains.light:
@@ -174,10 +169,19 @@ export class EntityService {
     if (!entityId) {
       return;
     }
-    this.logger.debug(`turnOn ${entityId}`);
     const parts = entityId.split('.');
     const domain = parts[0] as HassDomains;
     const suffix = parts[1];
+    let entity;
+    if (domain !== HassDomains.group) {
+      entity = await this.byId(entityId);
+      if (!entity) {
+        this.logger.crit(`Could not find entity for ${entityId}`, groupData);
+      }
+      if (entity.state !== 'on') {
+        this.logger.debug(`turnOn ${entityId}`);
+      }
+    }
     switch (domain) {
       case HassDomains.switch:
         return this.socketService.call(
@@ -191,6 +195,11 @@ export class EntityService {
           speed: FanSpeeds.medium,
         });
       case HassDomains.light:
+        if (entity.state === 'on') {
+          // this.logger.alert(entity);
+          // The circadian throws things off with repeat on calls
+          return;
+        }
         return this.socketService.call(
           HassDomains.light,
           HassServices.turn_on,

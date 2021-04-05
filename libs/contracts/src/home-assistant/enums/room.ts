@@ -68,7 +68,7 @@ export enum PicoStates {
   // Dimmer down
   low = '16',
   // Favorite
-  magic = '2',
+  smart = '2',
   // Nothing being pressed
   none = '0',
 }

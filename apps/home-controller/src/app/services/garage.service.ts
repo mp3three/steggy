@@ -1,6 +1,7 @@
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import {
   EntityService,
+  HomeAssistantService,
   RoomService,
   SceneRoom,
 } from '@automagical/home-assistant';
@@ -24,6 +25,7 @@ export class GarageService extends SceneRoom {
   // #region Constructors
 
   constructor(
+    protected readonly homeAssistantService: HomeAssistantService,
     protected readonly entityService: EntityService,
     protected readonly roomService: RoomService,
     @Inject(GARAGE_CONFIG)
@@ -35,10 +37,20 @@ export class GarageService extends SceneRoom {
 
   // #endregion Constructors
 
+  // #region Public Methods
+
+  public async toggleTransferPump(): Promise<void> {
+    this.logger.debug('toggleTransferPump');
+    this.entityService.toggle('switch.transfer_pump');
+  }
+
+  // #endregion Public Methods
+
   // #region Protected Methods
 
   @Cron('0 */5 * * * *')
   protected async Schedule12_12(): Promise<void> {
+    this.logger.debug('Schedule12_12');
     const now = dayjs();
     const hour = 5;
     const lightOff = now.startOf('d').add(hour, 'h');
@@ -51,6 +63,7 @@ export class GarageService extends SceneRoom {
 
   @Cron('0 */5 * * * *')
   protected async Schedule18_6(): Promise<void> {
+    this.logger.debug('Schedule18_6');
     const now = dayjs();
     const lightOn = now.startOf('d').add(6, 'h');
     if (now.isBefore(lightOn)) {

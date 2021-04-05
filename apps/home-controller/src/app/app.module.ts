@@ -20,6 +20,7 @@ import {
   LIVING_ROOM_CONFIG,
   LOFT_CONFIG,
 } from '../typings/';
+import { AppController } from './controllers/app.controller';
 import { AppService } from './services/app.service';
 import { BedroomService } from './services/bedroom.service';
 import { GamesService } from './services/games.service';
@@ -70,7 +71,7 @@ const configs = [
 
 @Module({
   imports: [
-    CacheModule.register(),
+    CacheModule.register({}),
     EventEmitterModule.forRoot({
       wildcard: true,
       // Expected format:
@@ -112,7 +113,7 @@ const configs = [
       useValue: configs.map((i) => i.useValue),
     },
   ],
-  // controllers: [PhoneController],
+  controllers: [AppController],
 })
 export class AppModule {
   // #region Public Static Methods

@@ -9,6 +9,7 @@ export enum NotificationGroup {
   door = 'Door Status',
   serverStatus = 'Server Status',
   battery = 'Battery Watch',
+  environment = 'Environment',
 }
 
 export type HueEvent = {
@@ -23,5 +24,6 @@ export enum RoomsCode {
   guest = 'guest',
   garage = 'garage',
   livingRoom = 'living_room',
+  living = 'living',
   loft = 'loft',
 }

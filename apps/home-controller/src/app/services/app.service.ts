@@ -2,11 +2,13 @@ import { CONNECTION_RESET } from '@automagical/contracts/constants';
 import {
   HassDomains,
   HassEventDTO,
+  HassServices,
   HomeAssistantRoomConfigDTO,
 } from '@automagical/contracts/home-assistant';
 import {
   EntityService,
   HomeAssistantService,
+  RoomService,
   SocketService,
 } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
@@ -49,6 +51,7 @@ export class AppService {
     private readonly homeAssistantService: HomeAssistantService,
     private readonly entityService: EntityService,
     private readonly socketService: SocketService,
+    private readonly roomService: RoomService,
     private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
   ) {}
@@ -60,6 +63,7 @@ export class AppService {
   public async getCarMilageHistory(
     entity_id: string,
   ): Promise<Record<string, unknown>[]> {
+    this.logger.debug('getCarMilageHistory');
     const history = await this.socketService.fetchEntityHistory<
       MilageHistory[][]
     >(7, entity_id);
@@ -108,13 +112,37 @@ export class AppService {
     return this.cacheService.set(cacheName, config);
   }
 
+  /**
+   * All the locks, except the car
+   */
+  public async setLocks(
+    state: HassServices,
+    lockList: string[] = null,
+  ): Promise<void> {
+    const locks =
+      lockList ||
+      this.entityService
+        .listEntities()
+        .filter((key) => key.split('.')[0] === 'lock')
+        .filter((key) => !key.includes('mystique'));
+    this.logger.alert(`setLocks`, locks);
+    return;
+    await Promise.all(
+      locks.map(async (entityId) => {
+        return this.socketService.call(HassDomains.lock, state, {
+          entity_id: entityId,
+        });
+      }),
+    );
+  }
+
   // #endregion Public Methods
 
   // #region Private Methods
 
   @Cron('0 0 11 * * Wed,Sat')
   private async batteryMonitor() {
-    this.logger.info('Watch: Battery');
+    this.logger.debug('batteryMonitor');
     await this.socketService.updateAllEntities();
     await sleep(1000);
     const entities = this.entityService.listEntities().filter((entityId) => {
@@ -132,15 +160,36 @@ export class AppService {
         this.homeAssistantService.sendNotification(
           MobileDevice.generic,
           `${entity.attributes.friendly_name} is at ${entity.state}%`,
-          NotificationGroup.battery,
+          NotificationGroup.environment,
         );
       }
     });
   }
 
+  @Cron('0 0 11 * * *')
+  private dayInfo() {
+    this.logger.debug(`dayInfo`);
+    const cal = this.roomService.SOLAR_CALC;
+    const start = dayjs(cal.goldenHourStart).format('hh:mm');
+    const end = dayjs(cal.goldenHourEnd).format('hh:mm');
+    const message = `🌄 ${dayjs().format('ddd MMM DD')}: ${start} - ${end}`;
+    this.homeAssistantService.sendNotification(
+      MobileDevice.generic,
+      message,
+      NotificationGroup.environment,
+    );
+  }
+
+  @OnEvent(['*', 'double'])
+  private async autoLock() {
+    this.logger.debug(`autoLock`);
+    return this.setLocks(HassServices.lock);
+  }
+
   @OnEvent(CONNECTION_RESET)
   private async onSocketReset() {
-    await sleep(1000);
+    this.logger.debug('onSocketReset');
+    await sleep(10000);
     this.socketService.call(HassDomains.notify, MobileDevice.generic, {
       message: `Connection reset at ${new Date().toISOString()}`,
       title: `core temporarily lost connection with HomeAssistant`,

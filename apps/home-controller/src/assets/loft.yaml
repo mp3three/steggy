@@ -1,6 +1,5 @@
 high:
   evening:
-    circadian: high
     on:
       - group.loft_circadian
       - switch.desk_light
@@ -8,7 +7,6 @@ high:
       - switch.loft_hallway_light
       - switch.stair_lights
   day:
-    circadian: high
     on:
       - group.loft_circadian
       - switch.desk_light
@@ -19,7 +17,6 @@ high:
 medium:
   day:
     debug: day
-    circadian: high
     off:
       - switch.desk_light
       - switch.loft_hallway_light
@@ -27,7 +24,6 @@ medium:
       - group.loft_circadian
   evening:
     debug: evening
-    circadian: low
     off:
       - switch.loft_hallway_light
       - group.loft_light_panel
@@ -39,7 +35,6 @@ medium:
 
 low:
   all:
-    circadian: low
     on:
       - group.loft_fan
     off:
@@ -50,7 +45,6 @@ low:
 
 off:
   all:
-    circadian: off
     off:
       - group.loft_circadian
       - switch.desk_light
@@ -63,10 +57,11 @@ config:
   temperature: sensor.upstairs_temperature
   fan: fan.loft_ceiling_fan
   circadian:
-    high: switch.circadian_lighting_loft_circadian_light
-    low: switch.circadian_lighting_loft_low_brightness_circadian_light
+    high: switch.circadian_lighting_loft_circadian_high
+    medium: switch.circadian_lighting_loft_circadian_medium
+    low: switch.circadian_lighting_loft_circadian_low
   roku:
-    defaultChannel: hdmi3
+    defaultChannel: hdmi1
     host: http://10.0.0.32:8060
 
 groups:

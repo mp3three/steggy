@@ -6,6 +6,7 @@ export class AppController {
 
   @Get()
   public helloWorld(): string {
+    console.log('HELLO_WORLD');
     return 'Sup';
   }
 

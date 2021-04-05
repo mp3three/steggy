@@ -1,13 +1,11 @@
 high:
   all:
-    circadian: high
     on:
       - group.bedroom_circadian
       - switch.womp
 
 medium:
   day:
-    circadian: high
     off:
       - group.bedroom_circadian
       - switch.womp
@@ -21,7 +19,6 @@ medium:
 
 low:
   all:
-    circadian: low
     on:
       - group.bedroom_circadian
     off:
@@ -29,7 +26,6 @@ low:
 
 off:
   all:
-    circadian: off
     off:
       - switch.womp
       - group.bedroom_circadian
@@ -39,8 +35,9 @@ config:
   temperature: sensor.upstairs_temperature
   fan: fan.master_bedroom_ceiling_fan
   circadian:
-    high: switch.circadian_lighting_bedroom_circadian_light
-    low: switch.circadian_lighting_bedroom_low_brightness_circadian_light
+    high: switch.circadian_lighting_bedroom_circadian_high
+    medium: switch.circadian_lighting_bedroom_circadian_medium
+    low: switch.circadian_lighting_bedroom_circadian_low
 
 groups:
   bedroom_circadian:
