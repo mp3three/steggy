@@ -29,7 +29,7 @@ export class BedroomService extends SceneRoom {
   constructor(
     protected readonly homeAssistantService: HomeAssistantService,
     protected readonly roomService: RoomService,
-    private readonly entityService: EntityService,
+    protected readonly entityService: EntityService,
     private readonly configService: ConfigService,
     @Inject(BEDROOM_CONFIG)
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
@@ -44,12 +44,13 @@ export class BedroomService extends SceneRoom {
 
   @Cron('0 40 8 * * Mon,Tue,Wed,Thu,Fri')
   private wakeupLightAlarm() {
-    this.logger.notice(`Wakeup Alarm`);
+    this.logger.debug('wakeupLightAlarm');
     return this.roomService.setScene(RoomScene.high, this.roomConfig, true);
   }
 
   @OnEvent(`sensor.bed_pico/single`)
   private async bedPicoCb(button: PicoButtons) {
+    this.logger.debug('bedPicoCb');
     switch (button) {
       case PicoButtons.high:
         return this.roomService.setScene(RoomScene.high, this.roomConfig, true);

@@ -24,5 +24,6 @@ export enum RoomsCode {
   guest = 'guest',
   garage = 'garage',
   livingRoom = 'living_room',
+  living = 'living',
   loft = 'loft',
 }

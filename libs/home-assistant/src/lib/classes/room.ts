@@ -1,5 +1,5 @@
 import {
-  HassServices,
+  CircadianModes,
   HomeAssistantRoomConfigDTO,
   PicoStates,
   RokuInputs,
@@ -7,11 +7,18 @@ import {
 } from '@automagical/contracts/home-assistant';
 import { iLogger } from '@automagical/logger';
 import { OnEvent } from '@nestjs/event-emitter';
-import { HomeAssistantService, RoomService } from '../services';
+import { EntityService, HomeAssistantService, RoomService } from '../services';
 
 export abstract class SceneRoom {
+  // #region Static Properties
+
+  private static ROOM_REGISTRY: Record<string, SceneRoom> = {};
+
+  // #endregion Static Properties
+
   // #region Object Properties
 
+  protected readonly entityService: EntityService;
   protected readonly homeAssistantService: HomeAssistantService;
   protected readonly roomConfig: HomeAssistantRoomConfigDTO;
   protected readonly roomService: RoomService;
@@ -21,13 +28,10 @@ export abstract class SceneRoom {
 
   // #endregion Object Properties
 
-  // #region Protected Methods
+  // #region Public Methods
 
   @OnEvent(['*', 'double'])
-  protected async wallDouble(
-    button: PicoStates,
-    entityId: string,
-  ): Promise<void> {
+  public async wallDouble(button: PicoStates, entityId: string): Promise<void> {
     if (entityId !== this?.roomConfig?.config?.pico) {
       return;
     }
@@ -41,10 +45,7 @@ export abstract class SceneRoom {
   }
 
   @OnEvent(['*', 'single'])
-  protected async wallSingle(
-    button: PicoStates,
-    entityId: string,
-  ): Promise<void> {
+  public async wallSingle(button: PicoStates, entityId: string): Promise<void> {
     if (entityId !== this?.roomConfig?.config?.pico) {
       return;
     }
@@ -66,27 +67,31 @@ export abstract class SceneRoom {
     }
   }
 
-  protected doubleHigh(): Promise<void> {
+  public doubleHigh(): Promise<void> {
     return this.roomService.smart(this.roomConfig, RoomScene.high);
   }
 
-  protected doubleOff(): Promise<void> {
+  public doubleOff(): Promise<void> {
     return this.roomService.smart(this.roomConfig, RoomScene.off);
   }
 
-  protected sceneHigh(): Promise<void> {
+  public async onModuleInit(): Promise<void> {
+    SceneRoom.ROOM_REGISTRY[this.roomConfig.name] = this;
+  }
+
+  public sceneHigh(): Promise<void> {
     return this.roomService.setScene(RoomScene.high, this.roomConfig, false);
   }
 
-  protected sceneLow(): Promise<void> {
+  public sceneLow(): Promise<void> {
     return this.roomService.setScene(RoomScene.low, this.roomConfig, false);
   }
 
-  protected sceneMedium(): Promise<void> {
+  public sceneMedium(): Promise<void> {
     return this.roomService.setScene(RoomScene.medium, this.roomConfig, false);
   }
 
-  protected sceneOff(): Promise<void> {
+  public sceneOff(): Promise<void> {
     const rokuInfo = this.roomConfig.config?.roku;
     if (rokuInfo) {
       this.roomService.setRoku(RokuInputs.off, rokuInfo);
@@ -94,14 +99,68 @@ export abstract class SceneRoom {
     return this.roomService.setScene(RoomScene.off, this.roomConfig, false);
   }
 
-  protected async sceneSmart(): Promise<void> {
+  public async sceneSmart(): Promise<void> {
     const rokuInfo = this.roomConfig.config?.roku;
     if (rokuInfo) {
       this.roomService.setRoku(rokuInfo.defaultChannel, rokuInfo);
     }
-    this.homeAssistantService.setLocks(HassServices.lock);
     return this.roomService.smart(this.roomConfig);
   }
 
-  // #endregion Protected Methods
+  // #endregion Public Methods
+
+  // #region Private Methods
+
+  @OnEvent('room/circadian')
+  private async setCircadian(mode: CircadianModes, room: string) {
+    const name = this.roomConfig.name;
+    if (room !== name) {
+      return;
+    }
+
+    const high = `switch.circadian_lighting_${name}_circadian_high`;
+    const medium = `switch.circadian_lighting_${name}_circadian_high`;
+    const low = `switch.circadian_lighting_${name}_circadian_high`;
+    switch (mode) {
+      case CircadianModes.high:
+        this.entityService.turnOff(low);
+        this.entityService.turnOff(medium);
+        this.entityService.turnOn(high);
+        return;
+      case CircadianModes.medium:
+        this.entityService.turnOff(low);
+        this.entityService.turnOff(high);
+        this.entityService.turnOn(medium);
+        return;
+      case CircadianModes.low:
+        this.entityService.turnOff(high);
+        this.entityService.turnOff(medium);
+        this.entityService.turnOn(low);
+        return;
+      case CircadianModes.off:
+        this.entityService.turnOff(low);
+        this.entityService.turnOff(medium);
+        this.entityService.turnOff(high);
+        return;
+    }
+  }
+
+  @OnEvent('room/set-scene')
+  private async setSceneHandler(scene: RoomScene, roomName: string) {
+    if (roomName !== this.roomConfig.name) {
+      return;
+    }
+    switch (scene) {
+      case RoomScene.high:
+        return this.sceneHigh();
+      case RoomScene.medium:
+        return this.sceneMedium();
+      case RoomScene.low:
+        return this.sceneLow();
+      case RoomScene.off:
+        return this.sceneOff();
+    }
+  }
+
+  // #endregion Private Methods
 }

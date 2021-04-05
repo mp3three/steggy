@@ -1,9 +1,7 @@
 import {
-  CircadianModes,
   FanSpeeds,
   HassDomains,
   HassServices,
-  HomeAssistantRoomCircadianDTO,
   HomeAssistantRoomConfigDTO,
   HomeAssistantRoomModeDTO,
   HomeAssistantRoomRokuDTO,
@@ -81,34 +79,6 @@ export class RoomService {
   // #endregion Public Accessors
 
   // #region Public Methods
-
-  public async setCircadian(
-    mode: CircadianModes,
-    config: HomeAssistantRoomCircadianDTO,
-  ): Promise<void> {
-    switch (mode) {
-      case CircadianModes.high:
-        this.entityService.turnOff(config.low);
-        this.entityService.turnOff(config.medium);
-        this.entityService.turnOn(config.high);
-        return;
-      case CircadianModes.medium:
-        this.entityService.turnOff(config.low);
-        this.entityService.turnOff(config.high);
-        this.entityService.turnOn(config.medium);
-        return;
-      case CircadianModes.low:
-        this.entityService.turnOff(config.high);
-        this.entityService.turnOff(config.medium);
-        this.entityService.turnOn(config.low);
-        return;
-      case CircadianModes.off:
-        this.entityService.turnOff(config.low);
-        this.entityService.turnOff(config.medium);
-        this.entityService.turnOff(config.high);
-        return;
-    }
-  }
 
   public async setFan(
     entityId: string,
@@ -208,7 +178,7 @@ export class RoomService {
     const mode: HomeAssistantRoomModeDTO = room[scene];
     this.eventEmitter.emit(`${room.name}/${scene}`);
     if (mode?.all?.circadian) {
-      this.setCircadian(mode.all.circadian, room.config.circadian);
+      this.eventEmitter.emit('room/set-scene', scene, room.name);
     }
     if (accessories) {
       mode?.all?.acc?.forEach((entityId) => {
@@ -232,7 +202,7 @@ export class RoomService {
       return;
     }
     if (lightingNode?.circadian) {
-      this.setCircadian(lightingNode.circadian, room.config.circadian);
+      this.eventEmitter.emit('room/set-scene', scene, room.name);
     }
     lightingNode?.acc?.forEach((entityId) => {
       if (this.IS_EVENING) {
@@ -263,6 +233,7 @@ export class RoomService {
     room: HomeAssistantRoomConfigDTO,
     target: RoomScene = this.IS_EVENING ? RoomScene.medium : RoomScene.high,
   ): Promise<void> {
+    room = room || ({ name: null } as HomeAssistantRoomConfigDTO);
     let altScene: RoomScene = RoomScene.high;
     if (target === RoomScene.off || this.IS_EVENING) {
       altScene = RoomScene.off;
@@ -271,6 +242,9 @@ export class RoomService {
     Object.values(this.ROOM_REGISTRY)
       .filter((i) => i.name !== room.name)
       .forEach((otherRoom) => this.setScene(altScene, otherRoom, true));
+    if (room.name === null) {
+      return;
+    }
     return this.setScene(target, room, true);
   }
 

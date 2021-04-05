@@ -283,12 +283,19 @@ export class SocketService {
     }
     while (this.connection.readyState !== this.connection.OPEN) {
       this.logger.info(`re-init connection`);
-      await this.initConnection(true);
+      try {
+        await this.initConnection(true);
+      } catch (err) {
+        this.logger.error(err);
+        await sleep(5000);
+        continue;
+      }
       await sleep(1000);
       return this.sendMsg(data);
     }
     while (this.isAuthenticated === false && data.type !== HassCommands.auth) {
       // Something is jumpy
+      // Request went in post-connect but pre-auth (which is supposed to be quick)
       // Maybe check a different lifecycle event
       this.logger.warning(`sendMsg waiting for authentication`);
       await sleep(100);

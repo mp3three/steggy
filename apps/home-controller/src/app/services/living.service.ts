@@ -1,5 +1,6 @@
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import {
+  EntityService,
   HomeAssistantService,
   RoomService,
   SceneRoom,
@@ -20,6 +21,7 @@ export class LivingService extends SceneRoom {
 
   constructor(
     protected readonly homeAssistantService: HomeAssistantService,
+    protected readonly entityService: EntityService,
     protected readonly roomService: RoomService,
     @Inject(LIVING_ROOM_CONFIG)
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,

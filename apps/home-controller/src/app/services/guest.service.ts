@@ -1,5 +1,6 @@
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import {
+  EntityService,
   HomeAssistantService,
   RoomService,
   SceneRoom,
@@ -22,6 +23,7 @@ export class GuestService extends SceneRoom {
     @Inject(GUEST_CONFIG)
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
     protected readonly homeAssistantService: HomeAssistantService,
+    protected readonly entityService: EntityService,
     protected readonly roomService: RoomService,
   ) {
     super();
@@ -30,19 +32,22 @@ export class GuestService extends SceneRoom {
 
   // #endregion Constructors
 
-  // #region Protected Methods
+  // #region Public Methods
 
-  protected doubleHigh(): Promise<void> {
+  public doubleHigh(): Promise<void> {
+    this.logger.debug('doubleHigh');
     return;
   }
 
-  protected doubleOff(): Promise<void> {
+  public doubleOff(): Promise<void> {
+    this.logger.debug('doubleOff');
     return;
   }
 
-  protected async sceneSmart(): Promise<void> {
+  public async sceneSmart(): Promise<void> {
+    this.logger.debug('sceneSmart');
     return this.roomService.smart(this.roomConfig);
   }
 
-  // #endregion Protected Methods
+  // #endregion Public Methods
 }

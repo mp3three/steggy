@@ -1,24 +1,20 @@
 high:
   all:
-    circadian: high
     on:
       - group.games_circadian
 
 medium:
   all:
-    circadian: high
     on:
       - group.games_circadian
 
 low:
   all:
-    circadian: low
     on:
       - group.games_circadian
 
 off:
   all:
-    circadian: off
     off:
       - group.games_circadian
 
@@ -27,8 +23,9 @@ config:
   temperature: sensor.upstairs_temperature
   fan: fan.games_ceiling_fan
   circadian:
-    high: switch.circadian_lighting_games_circadian_light
-    low: switch.circadian_lighting_games_low_brightness_circadian_light
+    high: switch.circadian_lighting_games_circadian_high
+    medium: switch.circadian_lighting_games_circadian_medium
+    low: switch.circadian_lighting_games_circadian_low
 
 groups:
   games_circadian:

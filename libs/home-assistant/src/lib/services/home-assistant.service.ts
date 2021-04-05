@@ -59,27 +59,6 @@ export class HomeAssistantService {
     });
   }
 
-  /**
-   * Load locks, then set their state
-   */
-  public async setLocks(
-    state: HassServices,
-    lockList: string[] = null,
-  ): Promise<void> {
-    const locks =
-      lockList ||
-      this.entityService
-        .listEntities()
-        .filter((key) => key.split('.')[0] === 'lock');
-    await Promise.all(
-      locks.map(async (entityId) => {
-        return this.socketService.call(HassDomains.lock, state, {
-          entity_id: entityId,
-        });
-      }),
-    );
-  }
-
   // #endregion Public Methods
 
   // #region Private Methods
