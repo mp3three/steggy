@@ -7,7 +7,7 @@ export class EventDataDTO {
   entity_id?: string;
   event?: number;
   id?: string;
-  new_state?: HassStateDTO | unknown;
+  new_state?: HassStateDTO;
   old_state?: HassStateDTO | unknown;
 
   // #endregion Object Properties

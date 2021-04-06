@@ -1,4 +1,5 @@
 import {
+  CircadianModes,
   FanSpeeds,
   HassDomains,
   HassServices,
@@ -84,12 +85,14 @@ export class RoomService {
     entityId: string,
     speed: FanSpeeds | 'up' | 'down',
   ): Promise<void> {
+    this.logger.debug(entityId, speed);
     const fan = await this.entityService.byId(entityId);
+    const attributes = fan.attributes as { speed: FanSpeeds };
     if (speed === 'up') {
-      return this.entityService.fanSpeedUp(fan.state as FanSpeeds, entityId);
+      return this.entityService.fanSpeedUp(attributes.speed, entityId);
     }
     if (speed === 'down') {
-      return this.entityService.fanSpeedDown(fan.state as FanSpeeds, entityId);
+      return this.entityService.fanSpeedDown(attributes.speed, entityId);
     }
     return this.socketService.call(HassDomains.fan, HassServices.turn_on, {
       entity_id: entityId,
@@ -173,12 +176,12 @@ export class RoomService {
     room: HomeAssistantRoomConfigDTO,
     accessories = false,
   ): Promise<void> {
-    this.logger.info(`>> ${room.name}/${scene}`, accessories);
+    this.logger.debug(`setScene ${room.name}/${scene}`, accessories);
     const setMode = this.IS_EVENING ? RoomModes.evening : RoomModes.day;
     const mode: HomeAssistantRoomModeDTO = room[scene];
     this.eventEmitter.emit(`${room.name}/${scene}`);
-    if (mode?.all?.circadian) {
-      this.eventEmitter.emit('room/set-scene', scene, room.name);
+    if (CircadianModes[scene]) {
+      this.eventEmitter.emit('room/circadian', scene, room.name);
     }
     if (accessories) {
       mode?.all?.acc?.forEach((entityId) => {
@@ -200,9 +203,6 @@ export class RoomService {
         this.logger.debug(`No lighting mode`, setMode);
       }
       return;
-    }
-    if (lightingNode?.circadian) {
-      this.eventEmitter.emit('room/set-scene', scene, room.name);
     }
     lightingNode?.acc?.forEach((entityId) => {
       if (this.IS_EVENING) {
@@ -238,7 +238,7 @@ export class RoomService {
     if (target === RoomScene.off || this.IS_EVENING) {
       altScene = RoomScene.off;
     }
-    this.logger.notice('altScene', altScene);
+    this.logger.debug('altScene', altScene);
     Object.values(this.ROOM_REGISTRY)
       .filter((i) => i.name !== room.name)
       .forEach((otherRoom) => this.setScene(altScene, otherRoom, true));

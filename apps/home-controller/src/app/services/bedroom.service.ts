@@ -1,6 +1,6 @@
 import {
   HomeAssistantRoomConfigDTO,
-  PicoButtons,
+  PicoStates,
   RoomScene,
 } from '@automagical/contracts/home-assistant';
 import {
@@ -49,19 +49,36 @@ export class BedroomService extends SceneRoom {
   }
 
   @OnEvent(`sensor.bed_pico/single`)
-  private async bedPicoCb(button: PicoButtons) {
-    this.logger.debug('bedPicoCb');
+  private async bedPicoCb(button: PicoStates) {
+    this.logger.warning('bedPicoCb', button);
     switch (button) {
-      case PicoButtons.high:
-        return this.roomService.setScene(RoomScene.high, this.roomConfig, true);
-      case PicoButtons.off:
-        return this.roomService.setScene(RoomScene.off, this.roomConfig, true);
-      case PicoButtons.favorite:
+      case PicoStates.smart:
         return this.entityService.toggle(`switch.womp`);
-      case PicoButtons.low:
+      case PicoStates.low:
         return this.roomService.setFan(this.roomConfig.config.fan, 'down');
-      case PicoButtons.medium:
+      case PicoStates.medium:
         return this.roomService.setFan(this.roomConfig.config.fan, 'up');
+      case PicoStates.high:
+        return this.roomService.setScene(RoomScene.high, this.roomConfig, true);
+      case PicoStates.off:
+        return this.roomService.setScene(RoomScene.off, this.roomConfig, true);
+    }
+  }
+
+  @OnEvent(`sensor.bed_pico/double`)
+  private async bedPicoDoubleCb(button: PicoStates) {
+    this.logger.warning('bedPicoDoubleCb', button);
+    switch (button) {
+      case PicoStates.smart:
+        return this.entityService.toggle(`switch.womp`);
+      case PicoStates.low:
+        return this.roomService.setFan(this.roomConfig.config.fan, 'down');
+      case PicoStates.medium:
+        return this.roomService.setFan(this.roomConfig.config.fan, 'up');
+      case PicoStates.high:
+        return this.roomService.smart(null, RoomScene.high);
+      case PicoStates.off:
+        return this.roomService.smart(null, RoomScene.low);
     }
   }
 

@@ -48,7 +48,8 @@ export class GarageService extends SceneRoom {
 
   // #region Protected Methods
 
-  @Cron('0 */5 * * * *')
+  // @Cron('0 */5 * * * *')
+  @Cron('0 0 * * * *')
   protected async Schedule12_12(): Promise<void> {
     this.logger.debug('Schedule12_12');
     const now = dayjs();
@@ -61,7 +62,8 @@ export class GarageService extends SceneRoom {
     return this.entityService.turnOn('switch.quantum_boards');
   }
 
-  @Cron('0 */5 * * * *')
+  // @Cron('0 */5 * * * *')
+  @Cron('0 0 * * * *')
   protected async Schedule18_6(): Promise<void> {
     this.logger.debug('Schedule18_6');
     const now = dayjs();

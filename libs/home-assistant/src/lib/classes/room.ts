@@ -2,7 +2,6 @@ import {
   CircadianModes,
   HomeAssistantRoomConfigDTO,
   PicoStates,
-  RokuInputs,
   RoomScene,
 } from '@automagical/contracts/home-assistant';
 import { iLogger } from '@automagical/logger';
@@ -68,10 +67,12 @@ export abstract class SceneRoom {
   }
 
   public doubleHigh(): Promise<void> {
+    this.logger.info(`doubleHigh`);
     return this.roomService.smart(this.roomConfig, RoomScene.high);
   }
 
   public doubleOff(): Promise<void> {
+    this.logger.info(`doubleOff`);
     return this.roomService.smart(this.roomConfig, RoomScene.off);
   }
 
@@ -80,26 +81,27 @@ export abstract class SceneRoom {
   }
 
   public sceneHigh(): Promise<void> {
+    this.logger.info(`sceneHigh`);
     return this.roomService.setScene(RoomScene.high, this.roomConfig, false);
   }
 
   public sceneLow(): Promise<void> {
+    this.logger.info(`sceneLow`);
     return this.roomService.setScene(RoomScene.low, this.roomConfig, false);
   }
 
   public sceneMedium(): Promise<void> {
+    this.logger.info(`sceneMedium`);
     return this.roomService.setScene(RoomScene.medium, this.roomConfig, false);
   }
 
   public sceneOff(): Promise<void> {
-    const rokuInfo = this.roomConfig.config?.roku;
-    if (rokuInfo) {
-      this.roomService.setRoku(RokuInputs.off, rokuInfo);
-    }
+    this.logger.info(`sceneOff`);
     return this.roomService.setScene(RoomScene.off, this.roomConfig, false);
   }
 
   public async sceneSmart(): Promise<void> {
+    this.logger.info(`sceneSmart`);
     const rokuInfo = this.roomConfig.config?.roku;
     if (rokuInfo) {
       this.roomService.setRoku(rokuInfo.defaultChannel, rokuInfo);
@@ -113,14 +115,15 @@ export abstract class SceneRoom {
 
   @OnEvent('room/circadian')
   private async setCircadian(mode: CircadianModes, room: string) {
-    const name = this.roomConfig.name;
+    // FIXME: Split thing is a hack for my situation
+    const name = this.roomConfig.name.split('_').shift();
     if (room !== name) {
       return;
     }
-
+    this.logger.info(`Circadian`, mode);
     const high = `switch.circadian_lighting_${name}_circadian_high`;
-    const medium = `switch.circadian_lighting_${name}_circadian_high`;
-    const low = `switch.circadian_lighting_${name}_circadian_high`;
+    const medium = `switch.circadian_lighting_${name}_circadian_medium`;
+    const low = `switch.circadian_lighting_${name}_circadian_low`;
     switch (mode) {
       case CircadianModes.high:
         this.entityService.turnOff(low);

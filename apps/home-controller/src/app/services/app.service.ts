@@ -125,8 +125,7 @@ export class AppService {
         .listEntities()
         .filter((key) => key.split('.')[0] === 'lock')
         .filter((key) => !key.includes('mystique'));
-    this.logger.alert(`setLocks`, locks);
-    return;
+    this.logger.alert(dayjs().format('hh:mm'), `setLocks`, locks);
     await Promise.all(
       locks.map(async (entityId) => {
         return this.socketService.call(HassDomains.lock, state, {
@@ -180,12 +179,11 @@ export class AppService {
     );
   }
 
-  @OnEvent(['*', 'double'])
-  private async autoLock() {
-    this.logger.debug(`autoLock`);
-    return this.setLocks(HassServices.lock);
-  }
-
+  // @OnEvent(['*', 'double'])
+  // private async autoLock() {
+  //   this.logger.notice(`autoLock`);
+  //   return this.setLocks(HassServices.lock);
+  // }
   @OnEvent(CONNECTION_RESET)
   private async onSocketReset() {
     this.logger.debug('onSocketReset');
@@ -221,7 +219,7 @@ export class AppService {
       this.homeAssistantService.sendNotification(
         MobileDevice.generic,
         `${event.data.entity_id} is now ${
-          event.data.new_state === 'on' ? 'closed' : 'open'
+          event.data.new_state.state === 'on' ? 'closed' : 'open'
         }`,
         NotificationGroup.door,
       );

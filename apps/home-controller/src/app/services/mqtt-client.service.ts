@@ -45,43 +45,43 @@ export class MqttClientService {
 
   @Subscribe('mobile/car_ac')
   public async carAc(): Promise<void> {
-    this.logger.notice('carAc');
+    this.logger.notice('mobile/car_ac');
   }
 
   @Subscribe('mobile/leave_home')
   public async goodbye(): Promise<void> {
-    this.logger.notice('goodbye');
+    this.logger.notice('mobile/leave_home');
     this.roomService.smart(null, RoomScene.off);
     this.appService.setLocks(HassServices.lock);
   }
 
   @Subscribe('mobile/scene/living')
   public async livingRoomScene(): Promise<void> {
-    this.logger.notice('livingRoomScene');
+    this.logger.notice('mobile/scene/living');
     this.livingRoomService.sceneSmart();
   }
 
   @Subscribe('mobile/lock')
   public async lockHouse(): Promise<void> {
-    this.logger.notice('lockHouse');
+    this.logger.notice('mobile/lock');
     this.appService.setLocks(HassServices.lock);
   }
 
   @Subscribe('mobile/scene/loft')
   public async loftScene(): Promise<void> {
-    this.logger.notice('loftScene');
+    this.logger.notice('mobile/scene/loft');
     this.loftService.sceneSmart();
   }
 
   @Subscribe('mobile/transfer_pump')
   public async toggleTransferPump(): Promise<void> {
-    this.logger.notice('toggleTransferPump');
+    this.logger.notice('mobile/transfer_pump');
     this.garageService.toggleTransferPump();
   }
 
   @Subscribe('mobile/unlock')
   public async unlockHouse(): Promise<void> {
-    this.logger.notice('unlockHouse');
+    this.logger.notice('mobile/unlock');
     this.appService.setLocks(HassServices.unlock);
   }
 
