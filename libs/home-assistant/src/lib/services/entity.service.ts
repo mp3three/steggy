@@ -1,7 +1,11 @@
-import { ALL_ENTITIES_UPDATED } from '@automagical/contracts/constants';
+import {
+  ALL_ENTITIES_UPDATED,
+  HA_RAW_EVENT,
+} from '@automagical/contracts/constants';
 import {
   FanSpeeds,
   HassDomains,
+  HassEventDTO,
   HassServices,
   HassStateDTO,
 } from '@automagical/contracts/home-assistant';
@@ -16,6 +20,14 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Cache } from 'cache-manager';
 import * as dayjs from 'dayjs';
 import { SocketService } from './socket.service';
+
+const availableSpeeds = [
+  FanSpeeds.off,
+  FanSpeeds.low,
+  FanSpeeds.medium,
+  FanSpeeds.medium_high,
+  FanSpeeds.high,
+];
 
 @Injectable()
 export class EntityService {
@@ -40,12 +52,6 @@ export class EntityService {
 
   // #region Public Methods
 
-  @OnEvent([ALL_ENTITIES_UPDATED])
-  public allEntityUpdate(allEntities: HassStateDTO[]): void {
-    this.lastUpdate = dayjs();
-    allEntities.forEach((entity) => (this.ENTITIES[entity.entity_id] = entity));
-  }
-
   /**
    * Retrieve an entity by it's entityId
    */
@@ -63,14 +69,12 @@ export class EntityService {
     currentSpeed: FanSpeeds,
     entityId: string,
   ): Promise<void> {
-    const availableSpeeds = [
-      FanSpeeds.high,
-      FanSpeeds.medium_high,
-      FanSpeeds.medium,
-      FanSpeeds.low,
-      FanSpeeds.off,
-    ];
     const idx = availableSpeeds.indexOf(currentSpeed);
+    this.logger.debug(
+      `fanSpeedDown`,
+      entityId,
+      `${currentSpeed} => ${availableSpeeds[idx - 1]}`,
+    );
     if (idx === 0) {
       this.logger.debug(`Cannot speed down`);
       return;
@@ -85,18 +89,17 @@ export class EntityService {
     currentSpeed: FanSpeeds,
     entityId: string,
   ): Promise<void> {
-    const availableSpeeds = [
-      FanSpeeds.high,
-      FanSpeeds.medium_high,
-      FanSpeeds.medium,
-      FanSpeeds.low,
-      FanSpeeds.off,
-    ];
     const idx = availableSpeeds.indexOf(currentSpeed);
+    this.logger.debug(
+      `fanSpeedUp`,
+      entityId,
+      `${currentSpeed} => ${availableSpeeds[idx + 1]}`,
+    );
     if (idx === availableSpeeds.length - 1) {
       this.logger.debug(`Cannot speed up`);
       return;
     }
+    this.logger.debug(`fanSpeedUp`, entityId, availableSpeeds[idx + 1]);
     return this.socketService.call(HassDomains.fan, HassServices.turn_on, {
       entity_id: entityId,
       speed: availableSpeeds[idx + 1],
@@ -112,8 +115,10 @@ export class EntityService {
 
   public async toggle(entityId: string): Promise<void> {
     if (!entityId) {
+      // Some code flows just hope for the best
       return;
     }
+    this.logger.debug(`toggle ${entityId}`);
     const entity = await this.byId(entityId);
     if (entity.state === 'on') {
       return this.turnOff(entityId);
@@ -128,6 +133,7 @@ export class EntityService {
     if (!entityId) {
       return;
     }
+    this.logger.debug(`turnOff ${entityId}`);
     const parts = entityId.split('.');
     const domain = parts[0] as HassDomains;
     const suffix = parts[1];
@@ -136,9 +142,6 @@ export class EntityService {
       entity = await this.byId(entityId);
       if (!entity) {
         this.logger.crit(`Could not find entity for ${entityId}`, groupData);
-      }
-      if (entity.state !== 'off') {
-        this.logger.warning(`turnOff ${entityId}`);
       }
     }
     switch (domain) {
@@ -169,6 +172,7 @@ export class EntityService {
     if (!entityId) {
       return;
     }
+    this.logger.debug(`turnOn ${entityId}`);
     const parts = entityId.split('.');
     const domain = parts[0] as HassDomains;
     const suffix = parts[1];
@@ -177,9 +181,6 @@ export class EntityService {
       entity = await this.byId(entityId);
       if (!entity) {
         this.logger.crit(`Could not find entity for ${entityId}`, groupData);
-      }
-      if (entity.state !== 'on') {
-        this.logger.debug(`turnOn ${entityId}`);
       }
     }
     switch (domain) {
@@ -221,4 +222,24 @@ export class EntityService {
   }
 
   // #endregion Public Methods
+
+  // #region Private Methods
+
+  @OnEvent([ALL_ENTITIES_UPDATED])
+  private onAllEntitiesUpdated(allEntities: HassStateDTO[]) {
+    this.logger.debug(`onAllEntitiesUpdated`);
+    this.lastUpdate = dayjs();
+    allEntities.forEach((entity) => (this.ENTITIES[entity.entity_id] = entity));
+  }
+
+  @OnEvent([HA_RAW_EVENT])
+  private onEntityUpdate(event: HassEventDTO) {
+    if (!event.data.entity_id) {
+      // this.logger.warning(event);
+      return;
+    }
+    this.ENTITIES[event.data.entity_id] = event.data.new_state;
+  }
+
+  // #endregion Private Methods
 }

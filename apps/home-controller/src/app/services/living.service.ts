@@ -7,6 +7,7 @@ import {
 } from '@automagical/home-assistant';
 import { Logger } from '@automagical/logger';
 import { Inject, Injectable } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { LIVING_ROOM_CONFIG } from '../../typings';
 
 @Injectable()
@@ -31,4 +32,18 @@ export class LivingService extends SceneRoom {
   }
 
   // #endregion Constructors
+
+  // #region Private Methods
+
+  @OnEvent('living_room/off')
+  @OnEvent('living/off')
+  private screenOff() {
+    this.logger.debug('screenOff');
+    // return this.roomService.setRoku(
+    //   RokuInputs.off,
+    //   this.roomConfig.config.roku,
+    // );
+  }
+
+  // #endregion Private Methods
 }

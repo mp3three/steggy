@@ -3,7 +3,7 @@ import {
   HassDomains,
   HassEventDTO,
   HassEvents,
-  HassServices,
+  HassStateDTO,
   PicoStates,
 } from '@automagical/contracts/home-assistant';
 import { Logger } from '@automagical/logger';
@@ -103,15 +103,14 @@ export class HomeAssistantService {
 
   @OnEvent([HA_RAW_EVENT])
   private async onPicoEvent(event: HassEventDTO) {
-    type t = { state: string };
-    let domain, suffix, evt, prefix, state: t;
+    let domain, suffix, evt, prefix, state: HassStateDTO;
     switch (event.event_type) {
       case HassEvents.state_changed:
         [domain, suffix] = event.data.entity_id.split('.');
         if ((domain as HassDomains) !== HassDomains.sensor) {
           return;
         }
-        state = event.data.new_state as t;
+        state = event.data.new_state;
         if (state.state === PicoStates.none) {
           return;
         }
@@ -131,8 +130,8 @@ export class HomeAssistantService {
           evt = `${prefix}/double`;
         }
         this.lastEvent = evt;
-        setTimeout(() => (this.lastEvent = ''), 1000 * 5);
-        state = event.data.new_state as t;
+        setTimeout(() => (this.lastEvent = ''), 1000 * 3);
+        state = event.data.new_state;
         return this.eventEmitter.emit(evt, state.state, prefix);
     }
   }

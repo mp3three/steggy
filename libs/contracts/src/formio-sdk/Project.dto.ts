@@ -19,8 +19,19 @@ export enum PROJECT_TYPES {
   livestage = 'livestage',
 }
 
+/**
+ * As listed in formio-server at least 🤷‍♂️
+ */
 export enum PROJECT_FRAMEWORKS {
+  javascript = 'javascript',
+  angular2 = 'angular2',
+  aurelia = 'aurelia',
   angular = 'angular',
+  simple = 'simple',
+  custom = 'custom',
+  html5 = 'html5',
+  react = 'react',
+  vue = 'vue',
 }
 
 /**

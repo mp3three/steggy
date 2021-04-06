@@ -61,15 +61,6 @@ export class LoftService extends SceneRoom {
     return this.entityService.turnOn('switch.back_desk_light');
   }
 
-  @OnEvent('switch.bedroom_switch/4')
-  private screenOff() {
-    this.logger.debug('screenOff');
-    return this.roomService.setRoku(
-      RokuInputs.off,
-      this.roomConfig.config.roku,
-    );
-  }
-
   @OnEvent('switch.bedroom_switch/2')
   private screenToPersonal() {
     this.logger.debug('screenToPersonal');
@@ -93,6 +84,16 @@ export class LoftService extends SceneRoom {
     this.logger.debug('screenToWork');
     return this.roomService.setRoku(
       RokuInputs.work,
+      this.roomConfig.config.roku,
+    );
+  }
+
+  @OnEvent('loft/off')
+  @OnEvent('switch.bedroom_switch/4')
+  private screenOff() {
+    this.logger.debug('screenOff');
+    return this.roomService.setRoku(
+      RokuInputs.off,
       this.roomConfig.config.roku,
     );
   }
