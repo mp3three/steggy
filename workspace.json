@@ -195,7 +195,8 @@
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "parallel": false,
-            "commands": [{
+            "commands": [
+              {
                 "command": "nx run home-controller:build:production"
               },
               {
@@ -237,10 +238,12 @@
               "generatePackageJson": true,
               "showCircularDependencies": false,
               "statsJson": true,
-              "fileReplacements": [{
-                "replace": "apps/home-controller/src/environments/environment.ts",
-                "with": "apps/home-controller/src/environments/environment.prod.ts"
-              }]
+              "fileReplacements": [
+                {
+                  "replace": "apps/home-controller/src/environments/environment.ts",
+                  "with": "apps/home-controller/src/environments/environment.prod.ts"
+                }
+              ]
             }
           }
         },
@@ -331,10 +334,12 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [{
-                "replace": "apps/api-server/src/environments/environment.ts",
-                "with": "apps/api-server/src/environments/environment.prod.ts"
-              }]
+              "fileReplacements": [
+                {
+                  "replace": "apps/api-server/src/environments/environment.ts",
+                  "with": "apps/api-server/src/environments/environment.prod.ts"
+                }
+              ]
             }
           }
         },
@@ -428,10 +433,12 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [{
-                "replace": "apps/license-server/src/environments/environment.ts",
-                "with": "apps/license-server/src/environments/environment.prod.ts"
-              }]
+              "fileReplacements": [
+                {
+                  "replace": "apps/license-server/src/environments/environment.ts",
+                  "with": "apps/license-server/src/environments/environment.prod.ts"
+                }
+              ]
             }
           }
         },
@@ -562,6 +569,46 @@
           "options": {
             "jestConfig": "libs/config/jest.config.js",
             "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "resources": {
+      "root": "libs/resources",
+      "sourceRoot": "libs/resources/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/resources/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/resources"
+          ],
+          "options": {
+            "jestConfig": "libs/resources/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/resources",
+            "tsConfig": "libs/resources/tsconfig.lib.json",
+            "packageJson": "libs/resources/package.json",
+            "main": "libs/resources/src/index.ts",
+            "assets": [
+              "libs/resources/*.md"
+            ]
           }
         }
       }

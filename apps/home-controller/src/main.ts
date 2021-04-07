@@ -17,7 +17,6 @@ async function bootstrap() {
       logger,
     },
   );
-  app.enableShutdownHooks();
   await app.listen(process.env.PORT, () => {
     logger.log(`Listening on ${process.env.PORT}`);
   });

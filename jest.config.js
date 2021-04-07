@@ -12,5 +12,6 @@ module.exports = {
     '<rootDir>/libs/authorization',
     '<rootDir>/libs/fetch',
     '<rootDir>/libs/config',
+    '<rootDir>/libs/resources',
   ],
 };
