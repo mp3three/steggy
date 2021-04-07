@@ -69,6 +69,10 @@ export class ProcessEnvDTO {
    */
   public DEBUG: string;
   /**
+   * mongodb connection string
+   */
+  public MONGO: string;
+  /**
    * MQTT host provider.
    *
    * TODO: Categorize in a sane way

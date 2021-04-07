@@ -16,7 +16,6 @@ export enum PROJECT_PLAN_TYPES {
 export enum PROJECT_TYPES {
   project = 'project',
   stage = 'stage',
-  livestage = 'livestage',
 }
 
 /**
@@ -32,6 +31,16 @@ export enum PROJECT_FRAMEWORKS {
   html5 = 'html5',
   react = 'react',
   vue = 'vue',
+}
+
+export class ProjectSettingsDTO {
+  // #region Object Properties
+
+  @IsString()
+  @IsOptional()
+  public cors?: string;
+
+  // #endregion Object Properties
 }
 
 /**
@@ -68,10 +77,6 @@ export enum PROJECT_FRAMEWORKS {
  *   "modified": "2021-02-19T15:26:32.275Z"
  * }
  * ```
- */
-
-/**
- * asdf
  */
 export class ProjectDTO extends BaseDTO {
   // #region Public Static Methods
@@ -147,6 +152,9 @@ export class ProjectDTO extends BaseDTO {
   @IsOptional()
   @IsEnum(PROJECT_FRAMEWORKS)
   public framework?: string;
+  @IsOptional()
+  @ValidateNested()
+  public settings?: ProjectSettingsDTO;
   /**
    * Association of role ids
    */
