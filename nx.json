@@ -1,9 +1,14 @@
 {
   "npmScope": "automagical",
-  "affected": { "defaultBase": "develop" },
+  "affected": {
+    "defaultBase": "develop"
+  },
   "implicitDependencies": {
     "workspace.json": "*",
-    "package.json": { "dependencies": "*", "devDependencies": "*" },
+    "package.json": {
+      "dependencies": "*",
+      "devDependencies": "*"
+    },
     "tsconfig.base.json": "*",
     "tslint.json": "*",
     ".eslintrc.json": "*",
@@ -21,20 +26,54 @@
     }
   },
   "projects": {
-    "type-writer": { "tags": [] },
-    "logger": { "tags": [] },
-    "validation": { "tags": [] },
-    "home-assistant": { "tags": [] },
-    "home-controller": { "tags": [] },
-    "utilities": { "tags": [] },
-    "api-server": { "tags": [] },
-    "licenses": { "tags": [] },
-    "license-server": { "tags": [] },
-    "authentication": { "tags": [] },
-    "fetch": { "tags": [] },
-    "contracts": { "tags": [] },
-    "config": { "tags": [] },
-    "resources": { "tags": [] }
+    "type-writer": {
+      "tags": []
+    },
+    "formio-sdk": {
+      "tags": []
+    },
+    "logger": {
+      "tags": []
+    },
+    "validation": {
+      "tags": []
+    },
+    "home-assistant": {
+      "tags": []
+    },
+    "home-controller": {
+      "tags": []
+    },
+    "utilities": {
+      "tags": []
+    },
+    "api-server": {
+      "tags": []
+    },
+    "licenses": {
+      "tags": []
+    },
+    "license-server": {
+      "tags": []
+    },
+    "authentication": {
+      "tags": []
+    },
+    "fetch": {
+      "tags": []
+    },
+    "contracts": {
+      "tags": []
+    },
+    "config": {
+      "tags": []
+    },
+    "resources": {
+      "tags": []
+    }
   },
-  "workspaceLayout": { "appsDir": "apps", "libsDir": "libs" }
+  "workspaceLayout": {
+    "appsDir": "apps",
+    "libsDir": "libs"
+  }
 }
