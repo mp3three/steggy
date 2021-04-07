@@ -2306,6 +2306,11 @@
     "@types/qs" "*"
     "@types/serve-static" "*"
 
+"@types/faker@^5.5.0":
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/@types/faker/-/faker-5.5.0.tgz#c1d1d3015559e0f7ca3a7a2e3a2ee31066d5a0f9"
+  integrity sha512-WPBf6jgCsRrbPrgDuWHfbI+cd2CT33JUK+w8NM8jU7KmNr9PF+2eKhD0DKV32nMlyzdMnTHc5TSAG1jpkZbN5A==
+
 "@types/fs-extra@^8.0.1":
   version "8.1.1"
   resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-8.1.1.tgz#1e49f22d09aa46e19b51c0b013cb63d0d923a068"
