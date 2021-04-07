@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { LicenseScopes } from '@automagical/contracts';
+import { LicenseScopes } from '@automagical/contracts/licenses';
 
 export enum MetadataTypes {
   getUser = 'getUser',

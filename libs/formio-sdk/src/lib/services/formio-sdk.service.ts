@@ -2,7 +2,11 @@ import { Fetch } from '@automagical/fetch';
 import { iLogger, Logger } from '@automagical/logger';
 import { Injectable } from '@nestjs/common';
 import { Response } from 'node-fetch';
-import { ProjectDTO, UserDataDTO, UserDTO } from '@automagical/contracts';
+import {
+  ProjectDTO,
+  UserDataDTO,
+  UserDTO,
+} from '@automagical/contracts/formio-sdk';
 import {
   FetchWith,
   HTTP_Methods,
