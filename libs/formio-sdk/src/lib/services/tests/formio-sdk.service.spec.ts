@@ -19,5 +19,9 @@ describe('formio-sdk', () => {
       const str = faker.datatype.uuid();
       expect(formioSdkService.id(str)).toBe(str);
     });
+    it('should return _id if type is obj', () => {
+      const str = faker.datatype.uuid();
+      expect(formioSdkService.id({ _id: str })).toBe(str);
+    });
   });
 });
