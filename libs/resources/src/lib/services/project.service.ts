@@ -39,3 +39,66 @@ export class ProjectService {
 
   // #endregion Public Methods
 }
+// {
+//   message: 'Remote already connected to an environment.',
+//   validator(value) {
+//     return new Promise((resolve) => {
+//       if (!value || !value.project || !value.project._id) {
+//         return resolve(true);
+//       }
+
+//       const search: Record<string, unknown> = {
+//         'remote.url': value.url,
+//         'remote.project._id': value.project._id,
+//         deleted: { $eq: null },
+//       };
+
+//       if (this._id) {
+//         search._id = { $ne: this._id };
+//       }
+
+//       return mongoose
+//         .model('project')
+//         .findOne(search)
+//         .lean()
+//         .exec(function (err, result) {
+//           if (err) {
+//             logger.error(err);
+//           }
+//           if (err || result) {
+//             return resolve(false);
+//           }
+//           return resolve(true);
+//         });
+//     });
+//   },
+// },
+
+// {
+//   message: 'The Project name must be unique.',
+//   validator(value: string) {
+//     return new Promise((resolve) => {
+//       const search: Record<string, unknown> = {
+//         name: value,
+//         deleted: { $eq: null },
+//       };
+
+//       // Ignore the id if this is an update.
+//       if (this._id) {
+//         search._id = { $ne: this._id };
+//       }
+//       return model('project')
+//         .findOne(search)
+//         .lean()
+//         .exec((err, result) => {
+//           if (err) {
+//             logger.error(err);
+//           }
+//           if (err || result) {
+//             return resolve(false);
+//           }
+//           resolve(true);
+//         });
+//     });
+//   },
+// },

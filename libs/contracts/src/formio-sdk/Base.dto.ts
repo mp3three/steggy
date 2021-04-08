@@ -17,18 +17,19 @@ export enum SubmissionStates {
 }
 
 export enum AccessTypes {
-  createAll = 'create_all',
-  readAll = 'read_all',
-  deleteAll = 'delete_all',
-  updateAll = 'update_all',
-  self = 'self',
-  updateOwn = 'update_own',
-  deleteOwn = 'delete_own',
-  readOwn = 'read_own',
-  createOwn = 'create_own',
   teamAdmin = 'team_admin',
   teamWrite = 'team_write',
   teamRead = 'team_read',
+
+  create_all = 'create_all',
+  read_all = 'read_all',
+  update_all = 'update_all',
+  delete_all = 'delete_all',
+  create_own = 'create_own',
+  read_own = 'read_own',
+  update_own = 'update_own',
+  delete_own = 'delete_own',
+  self = 'self',
 }
 
 export enum AccessPermission {
@@ -59,7 +60,7 @@ export class AccessDTO extends CanFake {
     return {
       ...super.fake(),
       type: faker.random.arrayElement(Object.values(AccessTypes)),
-      roles: Array(faker.random.number(5)).map(() => faker.random.uuid()),
+      roles: Array(faker.datatype.number(5)).map(() => faker.random.uuid()),
     };
   }
 
