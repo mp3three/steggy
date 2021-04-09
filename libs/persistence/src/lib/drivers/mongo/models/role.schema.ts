@@ -1,12 +1,8 @@
 import { Schema, Types } from 'mongoose';
+import { project, owner, deleted } from './common.schema';
 
 export const RoleDefinition = {
-  project: {
-    type: Schema.Types.ObjectId,
-    ref: 'project',
-    index: true,
-    required: true,
-  },
+  project,
   tag: {
     type: String,
     description: 'The tag identifier.',
@@ -21,23 +17,8 @@ export const RoleDefinition = {
     type: Schema.Types.Mixed,
     description: 'The project template.',
   },
-  owner: {
-    type: Schema.Types.Mixed,
-    ref: 'submission',
-    index: true,
-    default: null,
-    set: (owner: string): Types.ObjectId => {
-      // Attempt to convert to objectId.
-      return Types.ObjectId(owner);
-    },
-    get: (owner: string): string => {
-      return owner ? owner.toString() : owner;
-    },
-  },
-  deleted: {
-    type: Number,
-    default: null,
-  },
+  owner,
+  deleted,
 };
 export const RoleSchema = new Schema(RoleDefinition);
 

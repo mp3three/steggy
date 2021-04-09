@@ -1,12 +1,10 @@
-import { Schema, Types } from 'mongoose';
+import { Schema } from 'mongoose';
+import { deleted, owner, project } from './common.schema';
 
 export const TagDefinition = {
-  project: {
-    type: Schema.Types.ObjectId,
-    ref: 'project',
-    index: true,
-    required: true,
-  },
+  project,
+  owner,
+  deleted,
   tag: {
     type: String,
     maxlength: 32,
@@ -18,23 +16,6 @@ export const TagDefinition = {
   },
   template: {
     type: Schema.Types.Mixed,
-  },
-  owner: {
-    type: Schema.Types.Mixed,
-    ref: 'submission',
-    index: true,
-    default: null,
-    set: (owner: string): Types.ObjectId => {
-      // Attempt to convert to objectId.
-      return Types.ObjectId(owner);
-    },
-    get: (owner: string): string => {
-      return owner ? owner.toString() : owner;
-    },
-  },
-  deleted: {
-    type: Number,
-    default: null,
   },
 };
 export const TagSchema = new Schema(TagDefinition);

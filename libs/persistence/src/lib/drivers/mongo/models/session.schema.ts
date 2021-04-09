@@ -1,26 +1,12 @@
-import { Schema, Types } from 'mongoose';
+import { Schema } from 'mongoose';
+import { owner, project } from './common.schema';
 
 export const SessionDefinition = {
-  project: {
-    type: Schema.Types.ObjectId,
-    ref: 'project',
-    required: true,
-  },
+  submission: owner,
+  project,
   form: {
     type: Schema.Types.ObjectId,
     ref: 'form',
-  },
-  submission: {
-    type: Schema.Types.ObjectId,
-    ref: 'submission',
-    index: true,
-    default: null,
-    set: (owner: string): Types.ObjectId => {
-      return Types.ObjectId(owner);
-    },
-    get: (owner?: string | Types.ObjectId): string => {
-      return (owner || '').toString();
-    },
   },
   logout: {
     type: Date,

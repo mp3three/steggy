@@ -1,36 +1,18 @@
 import {
-  AccessTypes,
   PROJECT_FRAMEWORKS,
   PROJECT_PLAN_TYPES,
   PROJECT_TYPES,
 } from '@automagical/contracts/formio-sdk';
-import { Schema, Types } from 'mongoose';
+import { Schema } from 'mongoose';
+import { access, name, owner, project, title } from './common.schema';
 
-export const ProjectSchema = new Schema({
-  title: {
-    type: String,
-    required: true,
-    index: true,
-    maxlength: 63,
-  },
-  name: {
-    type: String,
-    required: true,
-    maxlength: 63,
-    index: true,
-    validate: [
-      {
-        message:
-          'Name may only container numbers, letters, and dashes. Must not terminate with a dash',
-        validator(value: string) {
-          return (
-            !new RegExp('[0-9a-zA-Z-]').test(value) &&
-            [value[0], value.substr(-1)].includes('-')
-          );
-        },
-      },
-    ],
-  },
+export const ProjectDefinition = {
+  owner,
+  name,
+  access,
+  project,
+
+  title,
   type: {
     type: String,
     enum: Object.values(PROJECT_TYPES),
@@ -46,27 +28,12 @@ export const ProjectSchema = new Schema({
     maxlength: 32,
     default: '0.0.0',
   },
-  owner: {
-    type: Schema.Types.Mixed,
-    ref: 'submission',
-    index: true,
-    default: null,
-    set: (owner) => {
-      return Types.ObjectId(owner);
-    },
-    get: (owner?: string | Types.ObjectId) => {
-      return (owner || '').toString();
-    },
-  },
-  project: {
-    type: Schema.Types.ObjectId,
-    ref: 'project',
-    index: true,
-  },
   remote: {
     type: Map,
     of: String,
-    set: function (value: Record<'name' | 'title' | '_id', string>) {
+    set: function (
+      value: Record<'name' | 'title' | '_id', string>,
+    ): Record<'name' | 'title' | '_id', string> {
       return value || null;
     },
   },
@@ -103,20 +70,6 @@ export const ProjectSchema = new Schema({
     type: Number,
     default: null,
   },
-  access: [
-    {
-      type: {
-        enum: Object.values(AccessTypes),
-        required: true,
-        message:
-          'A permission type is required to associate an available permission with a given role.',
-      },
-      roles: {
-        ref: 'role',
-        type: [Schema.Types.ObjectId],
-      },
-    },
-  ],
   trial: {
     type: Date,
     default: Date.now,
@@ -145,7 +98,8 @@ export const ProjectSchema = new Schema({
     default: Date.now,
     __readonly: true,
   },
-});
+};
+export const ProjectSchema = new Schema(ProjectDefinition);
 ProjectSchema.set('minimize', false);
 ProjectSchema.pre('save', function (next: () => void) {
   // TODO Figure out how to attach `this` properly
