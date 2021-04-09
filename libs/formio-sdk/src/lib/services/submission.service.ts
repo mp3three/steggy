@@ -6,9 +6,7 @@ import { HTTP_Methods } from '../../typings';
 
 type SubmissionArgs<
   T extends Record<never, string> = Record<never, string>
-> = FetchWith<
-  Partial<Record<'form' | 'resource', string>> & { project: string } & T
->;
+> = FetchWith<{ project: string; form: string; id?: string } & T>;
 
 type Z<T extends Record<never, string> = Record<never, string>> = {
   foo: false;
@@ -38,7 +36,7 @@ export class SubmissionService {
 
   // #region Public Methods
 
-  public async list<T>(args: SubmissionArgs) {
+  public async get<T>(args: SubmissionArgs) {
     // resource & form are synonymous basically anywhere in the platform
     // The difference is in how you use them, but they both work over the same APIs
     // When in doubt, use resource > form here
@@ -48,8 +46,8 @@ export class SubmissionService {
     });
   }
 
-  public async patch(args: SubmissionArgs) {
-    return this.formioSdkService.fetch({
+  public async patch<T>(args: SubmissionArgs) {
+    return this.formioSdkService.fetch<T>({
       url: this.buildUrl(args),
       method: HTTP_Methods.PATCH,
       ...args,
@@ -76,7 +74,8 @@ export class SubmissionService {
   // #region Private Methods
 
   private buildUrl(args: SubmissionArgs) {
-    return `/${args.project}/form/${args.resource || args.form}/submission`;
+    const suffix = args.id ? `/${args.id}` : '';
+    return `/${args.project}/${args.form}/submission${suffix}`;
   }
 
   // #endregion Private Methods
