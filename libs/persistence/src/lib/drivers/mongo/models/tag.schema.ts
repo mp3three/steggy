@@ -1,6 +1,6 @@
 import { Schema, Types } from 'mongoose';
 
-export const SessionSchema = new Schema({
+export const TagDefinition = {
   project: {
     type: Schema.Types.ObjectId,
     ref: 'project',
@@ -9,7 +9,6 @@ export const SessionSchema = new Schema({
   },
   tag: {
     type: String,
-    description: 'The tag identifier.',
     maxlength: 32,
     required: true,
   },
@@ -19,18 +18,17 @@ export const SessionSchema = new Schema({
   },
   template: {
     type: Schema.Types.Mixed,
-    description: 'The project template.',
   },
   owner: {
     type: Schema.Types.Mixed,
     ref: 'submission',
     index: true,
     default: null,
-    set: (owner) => {
+    set: (owner: string): Types.ObjectId => {
       // Attempt to convert to objectId.
       return Types.ObjectId(owner);
     },
-    get: (owner) => {
+    get: (owner: string): string => {
       return owner ? owner.toString() : owner;
     },
   },
@@ -38,10 +36,11 @@ export const SessionSchema = new Schema({
     type: Number,
     default: null,
   },
-});
+};
+export const TagSchema = new Schema(TagDefinition);
 
-SessionSchema.set('minimize', false);
-SessionSchema.pre('save', function (next: () => void) {
+TagSchema.set('minimize', false);
+TagSchema.pre('save', function (next: () => void) {
   // TODO Figure out how to attach `this` properly
   // eslint-disable-next-line
   // @ts-ignore

@@ -14,7 +14,7 @@ export enum ResourceDisplay {
   Wizard = 'wizard',
   PDF = 'pdf',
 }
-export enum ResourceType {
+export enum FormType {
   resource = 'resource',
   form = 'form',
 }
@@ -30,7 +30,7 @@ export class ResourceDTO extends BaseDTO {
     const name = faker.lorem.word();
     return {
       ...super.fake(),
-      type: faker.random.arrayElement(Object.values(ResourceType)),
+      type: faker.random.arrayElement(Object.values(FormType)),
       display: faker.random.arrayElement(Object.values(ResourceDisplay)),
       controller: '',
       machineName: Array(2)
@@ -61,8 +61,8 @@ export class ResourceDTO extends BaseDTO {
   /**
    * Resource vs Form
    */
-  @IsEnum(ResourceType)
-  public type: ResourceType;
+  @IsEnum(FormType)
+  public type: FormType;
   /**
    * Stages need project references
    */

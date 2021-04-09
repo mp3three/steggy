@@ -1,6 +1,6 @@
 import { Schema, Types } from 'mongoose';
 
-export const SessionSchema = new Schema({
+export const SessionDefinition = {
   project: {
     type: Schema.Types.ObjectId,
     ref: 'project',
@@ -15,10 +15,10 @@ export const SessionSchema = new Schema({
     ref: 'submission',
     index: true,
     default: null,
-    set: (owner) => {
+    set: (owner: string): Types.ObjectId => {
       return Types.ObjectId(owner);
     },
-    get: (owner?: string | Types.ObjectId) => {
+    get: (owner?: string | Types.ObjectId): string => {
       return (owner || '').toString();
     },
   },
@@ -39,7 +39,8 @@ export const SessionSchema = new Schema({
     default: Date.now,
     __readonly: true,
   },
-});
+};
+export const SessionSchema = new Schema(SessionDefinition);
 SessionSchema.set('minimize', false);
 SessionSchema.pre('save', function (next: () => void) {
   // TODO Figure out how to attach `this` properly

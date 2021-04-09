@@ -1,5 +1,6 @@
 import {
   AccessTypes,
+  PROJECT_FRAMEWORKS,
   PROJECT_PLAN_TYPES,
   PROJECT_TYPES,
 } from '@automagical/contracts/formio-sdk';
@@ -86,19 +87,8 @@ export const ProjectSchema = new Schema({
   },
   framework: {
     type: String,
-    enum: [
-      'angular',
-      'angular2',
-      'react',
-      'vue',
-      'html5',
-      'simple',
-      'custom',
-      'aurelia',
-      'javascript',
-    ],
-    description: 'The target framework for the project.',
-    default: 'angular',
+    enum: Object.values(PROJECT_FRAMEWORKS),
+    default: PROJECT_FRAMEWORKS.angular,
     maxlength: 32,
   },
   protect: {

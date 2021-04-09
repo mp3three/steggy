@@ -13,6 +13,6 @@ module.exports = {
     '<rootDir>/libs/authentication',
     '<rootDir>/libs/fetch',
     '<rootDir>/libs/config',
-    '<rootDir>/libs/resources',
+    '<rootDir>/libs/persistence',
   ],
 };

@@ -606,26 +606,26 @@
         }
       }
     },
-    "resources": {
-      "root": "libs/resources",
-      "sourceRoot": "libs/resources/src",
+    "persistence": {
+      "root": "libs/persistence",
+      "sourceRoot": "libs/persistence/src",
       "projectType": "library",
       "targets": {
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": [
-              "libs/resources/**/*.ts"
+              "libs/persistence/**/*.ts"
             ]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
           "outputs": [
-            "coverage/libs/resources"
+            "coverage/libs/persistence"
           ],
           "options": {
-            "jestConfig": "libs/resources/jest.config.js",
+            "jestConfig": "libs/persistence/jest.config.js",
             "passWithNoTests": true
           }
         },
@@ -635,12 +635,12 @@
             "{options.outputPath}"
           ],
           "options": {
-            "outputPath": "dist/libs/resources",
-            "tsConfig": "libs/resources/tsconfig.lib.json",
-            "packageJson": "libs/resources/package.json",
-            "main": "libs/resources/src/index.ts",
+            "outputPath": "dist/libs/persistence",
+            "tsConfig": "libs/persistence/tsconfig.lib.json",
+            "packageJson": "libs/persistence/package.json",
+            "main": "libs/persistence/src/index.ts",
             "assets": [
-              "libs/resources/*.md"
+              "libs/persistence/*.md"
             ]
           }
         }

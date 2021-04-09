@@ -68,7 +68,7 @@
     "config": {
       "tags": []
     },
-    "resources": {
+    "persistence": {
       "tags": []
     }
   },
