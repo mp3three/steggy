@@ -8,33 +8,7 @@ import {
 } from '@automagical/validation';
 import * as faker from 'faker';
 import * as dayjs from 'dayjs';
-
-/**
- * @FIXME: Fill in rest of values
- */
-export enum SubmissionStates {
-  submitted = 'submitted',
-}
-
-export enum AccessTypes {
-  teamAdmin = 'team_admin',
-  teamWrite = 'team_write',
-  teamRead = 'team_read',
-
-  create_all = 'create_all',
-  read_all = 'read_all',
-  update_all = 'update_all',
-  delete_all = 'delete_all',
-  create_own = 'create_own',
-  read_own = 'read_own',
-  update_own = 'update_own',
-  delete_own = 'delete_own',
-  self = 'self',
-}
-
-export enum AccessPermission {
-  admin = 'admin',
-}
+import { AccessPermission, AccessTypes } from './constants';
 
 export class CanFake {
   // #region Public Static Methods

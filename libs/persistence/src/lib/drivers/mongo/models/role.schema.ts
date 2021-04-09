@@ -1,5 +1,5 @@
-import { Schema, Types } from 'mongoose';
-import { project, owner, deleted } from './common.schema';
+import { Schema } from 'mongoose';
+import { deleted, owner, project } from './common.schema';
 
 export const RoleDefinition = {
   project,

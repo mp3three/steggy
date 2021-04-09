@@ -5,3 +5,4 @@ export * from './Project.dto';
 export * from './resource';
 export * from './Resource.dto';
 export * from './Submission.dto';
+export * from './constants';

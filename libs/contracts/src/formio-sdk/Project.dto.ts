@@ -10,35 +10,11 @@ import {
 } from '@automagical/validation';
 import * as faker from 'faker';
 import { AccessDTO, BaseDTO, BaseOmitProps } from './Base.dto';
-
-export enum PROJECT_PLAN_TYPES {
-  basic = 'basic',
-  independent = 'independent',
-  team = 'team',
-  trial = 'trial',
-  commercial = 'commercial',
-}
-
-export enum PROJECT_TYPES {
-  project = 'project',
-  stage = 'stage',
-  tenant = 'tenant',
-}
-
-/**
- * As listed in formio-server at least 🤷‍♂️
- */
-export enum PROJECT_FRAMEWORKS {
-  javascript = 'javascript',
-  angular2 = 'angular2',
-  aurelia = 'aurelia',
-  angular = 'angular',
-  simple = 'simple',
-  custom = 'custom',
-  html5 = 'html5',
-  react = 'react',
-  vue = 'vue',
-}
+import {
+  PROJECT_FRAMEWORKS,
+  PROJECT_PLAN_TYPES,
+  PROJECT_TYPES,
+} from './constants';
 
 export class ProjectSettingsDTO {
   // #region Object Properties
@@ -186,19 +162,19 @@ export class ProjectDTO extends BaseDTO {
   })
   public access?: AccessDTO[];
   /**
-   * @FIXME: What is this? Short text that goes in the top tab?
-   */
-  @IsString()
-  @IsOptional()
-  @MaxLength(63)
-  public stageTitle?: string;
-  /**
    * @FIXME: What are the implications of this?
    */
   @IsString()
   @IsOptional()
   @IsEnum(PROJECT_PLAN_TYPES)
   public plan?: PROJECT_PLAN_TYPES;
+  /**
+   * @FIXME: What is this? Short text that goes in the top tab?
+   */
+  @IsString()
+  @IsOptional()
+  @MaxLength(63)
+  public stageTitle?: string;
   /**
    * Last deployed tag of the project.
    */

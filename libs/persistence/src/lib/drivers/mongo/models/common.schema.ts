@@ -52,6 +52,14 @@ export const project = {
   type: Schema.Types.ObjectId,
   ref: 'project',
   index: true,
+  required: true,
+};
+
+export const form = {
+  type: Schema.Types.ObjectId,
+  ref: 'form',
+  required: true,
+  index: true,
 };
 
 export const title = {

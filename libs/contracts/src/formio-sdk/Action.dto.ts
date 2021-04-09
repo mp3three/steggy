@@ -6,26 +6,7 @@ import {
   IsString,
   ValidateNested,
 } from '@automagical/validation';
-
-export enum Handers {
-  before = 'before',
-  after = 'after',
-}
-export enum Method {
-  create = 'create',
-  update = 'update',
-  delete = 'delete',
-  index = 'index',
-}
-export enum ActionConditionEQ {
-  // TODO: notEqual => notEquals
-  notEqual = 'notEqual',
-  equals = 'equals',
-}
-
-export enum ActionNames {
-  save = 'save',
-}
+import { ActionConditionEQ, ActionNames, Handers, Method } from './constants';
 
 /**
  * ActionDTO
