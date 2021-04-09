@@ -1,11 +1,10 @@
+import { LicenseAdminDTO, LicenseDTO } from '@automagical/contracts/formio-sdk';
 import {
-  LicenseAdminDTO,
   LicenseApiServer,
-  LicenseDTO,
   LicenseItemDTO,
   LicenseReportDTO,
   LicenseUsageDTO,
-} from '@automagical/contracts';
+} from '@automagical/contracts/licenses';
 import { iLogger, Logger } from '@automagical/logger';
 import { Injectable } from '@nestjs/common';
 import { FormioSdkService } from '.';

@@ -36,7 +36,7 @@ export class UserDataDTO extends CanFake {
     return {
       ...super.fake(),
       email: faker.internet.email(),
-      fullName: faker.name.firstName(),
+      name: faker.name.firstName(),
       password: faker.internet.password(),
     };
   }
@@ -48,7 +48,7 @@ export class UserDataDTO extends CanFake {
   @IsEmail()
   public email: string;
   @IsString()
-  public fullName: string;
+  public name: string;
   @IsString()
   @IsOptional()
   public password?: string;

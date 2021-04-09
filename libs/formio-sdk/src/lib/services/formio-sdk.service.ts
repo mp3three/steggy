@@ -1,6 +1,6 @@
 import { Fetch } from '@automagical/fetch';
 import { iLogger, Logger } from '@automagical/logger';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Response } from 'node-fetch';
 import {
   ProjectDTO,
@@ -56,12 +56,14 @@ export class FormioSdkService {
   // #region Public Methods
 
   public fetch<T>(args: FetchWith) {
-    return Fetch.fetch<T>({
-      baseUrl: this.config.PORTAL_BASE_URL,
-      apiKey: this.config.API_KEY,
-      token: this.jwtToken,
-      ...args,
-    });
+    return this.fetchHandler<T>(
+      Fetch.fetch<T>({
+        baseUrl: this.config.PORTAL_BASE_URL,
+        apiKey: this.config.API_KEY,
+        token: this.jwtToken,
+        ...args,
+      }),
+    );
   }
 
   /**
@@ -318,11 +320,12 @@ export class FormioSdkService {
   public userCreate(args: FetchWith<UserDataDTO>) {
     this.logger.debug(`userCreate`, args);
     return this.fetch<UserDTO>({
-      url: this.projectUrl(null, '/user/register'),
+      url: this.projectUrl(this.config.BASE_PROJECT, '/user/register'),
       method: HTTP_Methods.POST,
       data: {
         email: args.email,
         password: args.password,
+        name: args.name,
       },
       ...args,
     });
@@ -386,6 +389,21 @@ export class FormioSdkService {
   // #endregion Public Methods
 
   // #region Private Methods
+
+  private async fetchHandler<T>(res: T | Promise<T>): Promise<T> {
+    // De-promise
+    res = await res;
+    if (typeof res !== 'object') {
+      return res;
+    }
+    // TODO clean up this statement 🗑🔥
+    if (((res as unknown) as { name: string }).name === 'ValidationError') {
+      // This is likely a code error in the calling service
+      this.logger.crit(JSON.stringify(res, null, 2));
+      throw new InternalServerErrorException();
+    }
+    return res;
+  }
 
   /**
    * 🤖 Advanced AI generates string from url parts
