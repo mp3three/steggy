@@ -1,11 +1,14 @@
-import { AccessTypes } from '@automagical/contracts/formio-sdk';
 import { Schema, Types } from 'mongoose';
+import { PermissionDefinition } from './action.schema';
 
-export const owner = {
+export const submission = {
   type: Schema.Types.Mixed,
   ref: 'submission',
   index: true,
   default: null,
+};
+export const owner = {
+  ...submission,
   set: (owner: string): Types.ObjectId => {
     return Types.ObjectId(owner);
   },
@@ -33,20 +36,7 @@ export const name = {
   ],
 };
 
-export const access = [
-  {
-    type: {
-      enum: Object.values(AccessTypes),
-      required: true,
-      message:
-        'A permission type is required to associate an available permission with a given role.',
-    },
-    roles: {
-      ref: 'role',
-      type: [Schema.Types.ObjectId],
-    },
-  },
-];
+export const permission = [PermissionDefinition];
 
 export const project = {
   type: Schema.Types.ObjectId,
@@ -71,5 +61,6 @@ export const title = {
 
 export const deleted = {
   type: Number,
+  index: true,
   default: null,
 };

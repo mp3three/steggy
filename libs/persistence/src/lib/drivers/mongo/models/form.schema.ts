@@ -1,7 +1,7 @@
-import { AccessTypes, FormType } from '@automagical/contracts/formio-sdk';
-import { Schema, Types } from 'mongoose';
+import { FormType } from '@automagical/contracts/formio-sdk';
+import { Schema } from 'mongoose';
+import { deleted, name, owner, permission, title } from './common.schema';
 import { FieldMatchAccessPermissionDefinition } from './FieldMatchAccessPermission.schema';
-import { access, owner, name, title, deleted } from './common.schema';
 const INVALID_REGEX = /[^0-9a-zA-Z\-/]|^-|-$|^\/|\/$/;
 
 const uniqueMessage =
@@ -12,7 +12,7 @@ export const FormDefinition = {
   title,
   name,
   deleted,
-  access,
+  access: permission,
   path: {
     type: String,
     index: true,
@@ -48,7 +48,7 @@ export const FormDefinition = {
     type: [String],
     index: true,
   },
-  submissionAccess: access,
+  submissionAccess: permission,
   fieldMatchAccess: {
     type: {
       read: [FieldMatchAccessPermissionDefinition],

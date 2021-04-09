@@ -4,12 +4,12 @@ import {
   PROJECT_TYPES,
 } from '@automagical/contracts/formio-sdk';
 import { Schema } from 'mongoose';
-import { access, name, owner, project, title } from './common.schema';
+import { permission, name, owner, project, title } from './common.schema';
 
 export const ProjectDefinition = {
   owner,
   name,
-  access,
+  access: permission,
   project,
 
   title,

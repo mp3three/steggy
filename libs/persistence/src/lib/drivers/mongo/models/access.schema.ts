@@ -12,7 +12,6 @@ export const AccessDefinition = {
     type: [Schema.Types.Mixed],
     ref: 'form',
     set(resources: string[]): Types.ObjectId[] {
-      // Attempt to convert to objectId.
       return resources.map(Types.ObjectId);
     },
     get(resources: unknown[]): unknown[] {

@@ -81,3 +81,10 @@ export enum AccessTypes {
 export enum AccessPermission {
   admin = 'admin',
 }
+
+export enum ACTION_STATES {
+  new = 'new',
+  inprogress = 'inprogress',
+  complete = 'complete',
+  error = 'error',
+}
