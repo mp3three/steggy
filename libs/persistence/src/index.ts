@@ -1,3 +1,2 @@
-export * from './lib/resources.module';
-export * from './lib/resources.service';
-export * from './lib/resources.controller';
+export * from './lib';
+export * from './typings';

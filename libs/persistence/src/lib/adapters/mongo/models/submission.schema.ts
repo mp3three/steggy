@@ -7,7 +7,7 @@ const ExternalIdSchema = new Schema({
   resource: String,
   id: String,
 });
-export const TokenDefinition = {
+export const SubmissionDefinition = {
   form,
   owner,
   deleted,
@@ -50,4 +50,4 @@ export const TokenDefinition = {
     required: true,
   },
 };
-export const TokenSchema = new Schema(TokenDefinition);
+export const SubmissionSchema = new Schema(SubmissionDefinition);
