@@ -1,3 +1,5 @@
+// TODO: Figure out how to get the bindings right to fix this
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Schema, Types } from 'mongoose';
 import { ActionDefinition } from './action.schema';
 
@@ -76,10 +78,20 @@ export const created = {
   default: Date.now,
 };
 
+export const machineName = {
+  type: String,
+  description: 'A unique, exportable name.',
+  __readonly: true,
+};
+
 export function CreateSchema(
   definition: Record<string, unknown>,
-  args: { expires?: string } = {},
+  args: { expires?: string; minimize?: boolean; machineName?: boolean } = {},
 ): Schema {
+  const ENSURE_LIST = Object.keys(definition).filter(
+    (key) => typeof schema[key].ref === 'string',
+  );
+
   definition.modified = modified;
   definition.created = created;
   if (args.expires) {
@@ -89,13 +101,49 @@ export function CreateSchema(
     };
   }
   const schema = new Schema(definition);
-  schema.set('minimize', false);
-  schema.pre('save', function (next: () => void) {
-    // TODO Figure out how to attach `this` properly
-    // eslint-disable-next-line
+  if (args.minimize) {
+    schema.set('minimize', false);
+  }
+
+  if (args.machineName) {
+    definition.machineName = machineName;
+    schema.index(
+      { machineName: 1 },
+      { unique: true, partialFilterExpression: { deleted: { $eq: null } } },
+    );
+  }
+
+  schema.pre('save', function (next) {
+    // @ts-ignore
+    const data: Record<string, unknown> = this.data;
+    if (!data) {
+      return next();
+    }
+    EnsureIds(data, ENSURE_LIST);
     // @ts-ignore
     this.modified = new Date();
     next();
   });
+
   return schema;
+}
+
+export function EnsureIds<T extends Record<string, unknown>>(
+  data: T,
+  ensureList: string[],
+): T {
+  Object.keys(data).forEach((key) => {
+    if (['_id', ...ensureList].includes(key)) {
+      if (typeof data[key] === 'string') {
+        (data[key] as Types.ObjectId) = Types.ObjectId(data[key] as string);
+      }
+      return;
+    }
+    if (typeof data[key] === 'object') {
+      EnsureIds(data[key] as T, ensureList);
+      return;
+    }
+    return;
+  });
+  return data;
 }

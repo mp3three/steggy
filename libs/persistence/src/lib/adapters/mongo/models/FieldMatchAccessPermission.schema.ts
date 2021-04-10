@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose';
+import { CreateSchema } from './common.schema';
 
 export const FieldMatchAccessPermissionDefinition = {
   formFieldPath: {
@@ -44,8 +45,11 @@ export const FieldMatchAccessPermissionDefinition = {
     ref: 'role',
   },
 };
-export const FieldMatchAccessPermissionSchema = new Schema(
+export const FieldMatchAccessPermissionSchema = CreateSchema(
   FieldMatchAccessPermissionDefinition,
+  {
+    minimize: true,
+  },
 );
 
 FieldMatchAccessPermissionSchema.set('minimize', false);

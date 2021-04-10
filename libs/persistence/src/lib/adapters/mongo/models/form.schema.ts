@@ -1,6 +1,13 @@
 import { FormType } from '@automagical/contracts/formio-sdk';
 import { Schema } from 'mongoose';
-import { deleted, name, owner, permission, title } from './common.schema';
+import {
+  CreateSchema,
+  deleted,
+  name,
+  owner,
+  permission,
+  title,
+} from './common.schema';
 import { FieldMatchAccessPermissionDefinition } from './FieldMatchAccessPermission.schema';
 const INVALID_REGEX = /[^0-9a-zA-Z\-/]|^-|-$|^\/|\/$/;
 
@@ -68,4 +75,17 @@ export const FormDefinition = {
     type: Schema.Types.Mixed,
   },
 };
-export const FormSchema = new Schema(FormDefinition);
+export const FormSchema = CreateSchema(FormDefinition, {
+  machineName: true,
+  minimize: true,
+});
+FormSchema.index({ project: 1, type: 1, deleted: 1, modified: -1 })
+  .index({ project: 1, name: 1, deleted: 1 })
+  .index(
+    {
+      deleted: 1,
+    },
+    {
+      partialFilterExpression: { deleted: { $eq: null } },
+    },
+  );

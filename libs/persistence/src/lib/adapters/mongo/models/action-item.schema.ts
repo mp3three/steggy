@@ -32,7 +32,6 @@ export const ActionItemDefinition = {
     enum: Object.values(ACTION_STATES),
     required: true,
     default: ACTION_STATES.new,
-    description: 'The current status of this event.',
   },
   messages: {
     type: [String],
@@ -41,8 +40,10 @@ export const ActionItemDefinition = {
     type: Schema.Types.Mixed,
   },
 };
+
 export const ActionItemSchema = CreateSchema(ActionItemDefinition, {
   expires: '30d',
+  minimize: true,
 });
 
 ActionItemSchema.index({
@@ -50,17 +51,17 @@ ActionItemSchema.index({
   state: 1,
   deleted: 1,
   modified: -1,
-});
-ActionItemSchema.index({
-  project: 1,
-  handler: 1,
-  deleted: 1,
-  modified: -1,
-});
-ActionItemSchema.index({
-  project: 1,
-  handler: 1,
-  method: 1,
-  deleted: 1,
-  modified: -1,
-});
+})
+  .index({
+    project: 1,
+    handler: 1,
+    deleted: 1,
+    modified: -1,
+  })
+  .index({
+    project: 1,
+    handler: 1,
+    method: 1,
+    deleted: 1,
+    modified: -1,
+  });

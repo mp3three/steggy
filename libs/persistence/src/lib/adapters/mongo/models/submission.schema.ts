@@ -1,8 +1,8 @@
 import { Schema, Types } from 'mongoose';
-import { AccessDefinition } from './access.schema';
-import { deleted, form, owner } from './common.schema';
+import { AccessSchema } from './access.schema';
+import { CreateSchema, deleted, form, owner } from './common.schema';
 
-const ExternalIdSchema = new Schema({
+const ExternalIdSchema = CreateSchema({
   type: String,
   resource: String,
   id: String,
@@ -12,8 +12,6 @@ export const SubmissionDefinition = {
   owner,
   deleted,
 
-  // The roles associated with this submission, if any.
-  // Useful for complex custom resources.
   roles: {
     type: [Schema.Types.Mixed],
     ref: 'role',
@@ -29,25 +27,52 @@ export const SubmissionDefinition = {
     },
   },
 
-  // The access associated with this submission.
-  // Useful for complex custom permissions.
   access: {
-    type: [AccessDefinition],
+    type: [AccessSchema],
     index: true,
   },
 
   externalIds: [ExternalIdSchema],
 
-  // Configurable meta data associated with a submission.
   metadata: {
     type: Schema.Types.Mixed,
     default: {},
   },
 
-  // The data associated with this submission.
   data: {
     type: Schema.Types.Mixed,
     required: true,
   },
 };
-export const SubmissionSchema = new Schema(SubmissionDefinition);
+export const SubmissionSchema = CreateSchema(SubmissionDefinition, {
+  minimize: true,
+});
+
+SubmissionSchema.index({
+  project: 1,
+  deleted: 1,
+})
+  .index({
+    project: 1,
+    form: 1,
+    deleted: 1,
+  })
+  .index({
+    project: 1,
+    form: 1,
+    deleted: 1,
+    created: -1,
+  })
+  .index(
+    {
+      deleted: 1,
+    },
+    {
+      partialFilterExpression: { deleted: { $eq: null } },
+    },
+  )
+  .index({
+    form: 1,
+    deleted: 1,
+    created: -1,
+  });

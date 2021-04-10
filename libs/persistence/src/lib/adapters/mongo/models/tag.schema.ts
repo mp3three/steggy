@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { deleted, owner, project } from './common.schema';
+import { CreateSchema, deleted, owner, project } from './common.schema';
 
 export const TagDefinition = {
   project,
@@ -18,7 +18,9 @@ export const TagDefinition = {
     type: Schema.Types.Mixed,
   },
 };
-export const TagSchema = new Schema(TagDefinition);
+export const TagSchema = CreateSchema(TagDefinition, {
+  minimize: true,
+});
 
 TagSchema.set('minimize', false);
 TagSchema.pre('save', function (next: () => void) {

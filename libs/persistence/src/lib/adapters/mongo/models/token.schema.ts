@@ -1,5 +1,5 @@
 import * as faker from 'faker';
-import { Schema } from 'mongoose';
+import { CreateSchema } from './common.schema';
 
 export const TokenDefinition = {
   key: {
@@ -15,4 +15,5 @@ export const TokenDefinition = {
     type: Date,
   },
 };
-export const TokenSchema = new Schema(TokenDefinition);
+export const TokenSchema = CreateSchema(TokenDefinition, { minimize: true });
+TokenSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
