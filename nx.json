@@ -29,6 +29,9 @@
     "type-writer": {
       "tags": []
     },
+    "formio-sdk": {
+      "tags": []
+    },
     "logger": {
       "tags": []
     },
@@ -63,6 +66,9 @@
       "tags": []
     },
     "config": {
+      "tags": []
+    },
+    "persistence": {
       "tags": []
     }
   },

@@ -11,6 +11,7 @@
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
+    "jest.autoEnable": true,
     // * </Global Standards>
 
     // * <Language>

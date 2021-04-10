@@ -1,9 +1,9 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { iLogger, Logger } from '@automagical/logger';
 import { FormioSdkService } from './formio-sdk.service';
-import { ResourceDTO } from '@automagical/contracts';
 import { FetchWith, IdentifierWithParent } from '../../typings/HTTP';
 import { HTTP_Methods } from '../../typings';
+import { ResourceDTO } from '@automagical/contracts/formio-sdk';
 
 @Injectable()
 export class ResourceService {

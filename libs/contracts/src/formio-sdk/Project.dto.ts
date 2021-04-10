@@ -5,33 +5,25 @@ import {
   IsOptional,
   IsString,
   ValidateNested,
+  MaxLength,
+  Matches,
 } from '@automagical/validation';
 import * as faker from 'faker';
 import { AccessDTO, BaseDTO, BaseOmitProps } from './Base.dto';
+import {
+  PROJECT_FRAMEWORKS,
+  PROJECT_PLAN_TYPES,
+  PROJECT_TYPES,
+} from './constants';
 
-export enum PROJECT_PLAN_TYPES {
-  commercial = 'commercial',
-}
+export class ProjectSettingsDTO {
+  // #region Object Properties
 
-export enum PROJECT_TYPES {
-  project = 'project',
-  stage = 'stage',
-  livestage = 'livestage',
-}
+  @IsString()
+  @IsOptional()
+  public cors?: string;
 
-/**
- * As listed in formio-server at least 🤷‍♂️
- */
-export enum PROJECT_FRAMEWORKS {
-  javascript = 'javascript',
-  angular2 = 'angular2',
-  aurelia = 'aurelia',
-  angular = 'angular',
-  simple = 'simple',
-  custom = 'custom',
-  html5 = 'html5',
-  react = 'react',
-  vue = 'vue',
+  // #endregion Object Properties
 }
 
 /**
@@ -69,10 +61,6 @@ export enum PROJECT_FRAMEWORKS {
  * }
  * ```
  */
-
-/**
- * asdf
- */
 export class ProjectDTO extends BaseDTO {
   // #region Public Static Methods
 
@@ -92,6 +80,9 @@ export class ProjectDTO extends BaseDTO {
 
   // #region Object Properties
 
+  @IsBoolean()
+  @IsOptional()
+  public primary?: boolean;
   /**
    * - Project: My Precious Project
    *   - Stage: **Live\***
@@ -108,6 +99,11 @@ export class ProjectDTO extends BaseDTO {
   @IsEnum(PROJECT_TYPES)
   public type: PROJECT_TYPES;
   /**
+   * Unkown purpose currently
+   */
+  @IsOptional()
+  public billing?: Record<string, unknown>;
+  /**
    * Extra configuration options
    *
    * @FIXME: What are all the options here?
@@ -120,24 +116,25 @@ export class ProjectDTO extends BaseDTO {
    * @FIXME: What is this?
    */
   @IsOptional()
-  public formDefaults?: unknown;
-  /**
-   * @FIXME: What is this?
-   */
+  public formDefaults?: Record<string, unknown>;
   @IsOptional()
-  public steps?: unknown[];
+  @IsBoolean()
+  public deleted?: boolean;
   /**
-   * @FIXME: What does protecting a project do? Seems to default to false
+   * Disallow modifications while set
    */
   @IsOptional()
   @IsBoolean()
   public protect?: boolean;
+  @IsOptional()
+  @IsDateString()
+  public lastDeploy?: string;
   /**
    * If your account is a trial, this is when it will expire
    */
   @IsOptional()
   @IsDateString()
-  trial?: string;
+  public trial?: string;
   /**
    * Selected framework for this project
    *
@@ -148,6 +145,15 @@ export class ProjectDTO extends BaseDTO {
   @IsEnum(PROJECT_FRAMEWORKS)
   public framework?: string;
   /**
+   * @FIXME: What is this?
+   */
+  @IsOptional()
+  @IsString({ each: true })
+  public steps?: string[];
+  @IsOptional()
+  @ValidateNested()
+  public settings?: ProjectSettingsDTO;
+  /**
    * Association of role ids
    */
   @IsOptional()
@@ -156,33 +162,54 @@ export class ProjectDTO extends BaseDTO {
   })
   public access?: AccessDTO[];
   /**
+   * @FIXME: What are the implications of this?
+   */
+  @IsString()
+  @IsOptional()
+  @IsEnum(PROJECT_PLAN_TYPES)
+  public plan?: PROJECT_PLAN_TYPES;
+  /**
+   * @FIXME: What is this? Short text that goes in the top tab?
+   */
+  @IsString()
+  @IsOptional()
+  @MaxLength(63)
+  public stageTitle?: string;
+  /**
+   * Last deployed tag of the project.
+   */
+  @IsString()
+  @IsOptional()
+  @MaxLength(32)
+  public tag?: string;
+  /**
+   * Human understandable title
+   */
+  @IsString()
+  @MaxLength(63)
+  public title: string;
+  @IsString()
+  @MaxLength(512)
+  @IsOptional()
+  /**
+   * Description of project
+   */
+  public description?: string;
+  /**
    * Used for generating URL paths
    *
    * @example "Live Endpoint" http://your.portal/{name}
    */
   @IsString()
+  @MaxLength(63)
+  @Matches('^[0-9a-zA-Z][0-9a-zA-Z-]*[0-9a-zA-Z]?$', '', {
+    message:
+      'Name may only container numbers, letters, and dashes. Must not terminate with a dash',
+  })
   public name: string;
-  /**
-   * @FIXME: What is this? Short text that goes in the top tab?
-   */
-  @IsString()
-  public stageTitle: string;
-  /**
-   * Good default is `0.0.0`
-   */
-  @IsString()
-  public tag: string;
-  /**
-   * Human understandable title
-   */
-  @IsString()
-  public title: string;
-  /**
-   * @FIXME: What are the implications of this?
-   */
-  @IsString()
-  @IsEnum(PROJECT_PLAN_TYPES)
-  public plan: PROJECT_PLAN_TYPES;
+  @ValidateNested()
+  @IsOptional()
+  public remote?: Record<'name' | 'title' | '_id', string>;
 
   // #endregion Object Properties
 }
