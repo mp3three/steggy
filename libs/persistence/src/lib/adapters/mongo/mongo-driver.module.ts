@@ -7,7 +7,9 @@ import * as mongoose from 'mongoose';
     MongoProjectDriver,
     {
       provide: 'mongoose',
-      useFactory: () => {},
+      useFactory: () => {
+        return null;
+      },
     },
   ],
   exports: [MongoProjectDriver],
