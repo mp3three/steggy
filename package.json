@@ -39,6 +39,7 @@
     "@nestjs/platform-ws": "^7.6.15",
     "@nestjs/schedule": "^0.4.3",
     "@nestjs/swagger": "^4.8.0",
+    "@nestjs/throttler": "^1.1.3",
     "@nestjs/websockets": "^7.6.15",
     "@nx-tools/nx-docker": "^0.4.1",
     "bson": "^4.2.3",

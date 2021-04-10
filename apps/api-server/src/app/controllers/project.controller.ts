@@ -5,9 +5,16 @@ import {
   NotImplementedException,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ProjectDTO } from '@automagical/contracts/formio-sdk';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
+/**
+ * Rate limit request going into this controller.
+ * Defaults are set up in app.module
+ */
+@UseGuards(ThrottlerGuard)
 @Controller('project')
 export class ProjectController {
   // #region Public Methods
@@ -37,11 +44,6 @@ export class ProjectController {
     throw new NotImplementedException();
   }
 
-  @Post('/admin/login')
-  public adminLogin(): Promise<null> {
-    throw new NotImplementedException();
-  }
-
   @Post()
   public async createProject(
     @Body() project: Partial<ProjectDTO>,
@@ -61,6 +63,18 @@ export class ProjectController {
 
   @Put('/:projectId')
   public updateProject(): Promise<ProjectDTO> {
+    throw new NotImplementedException();
+  }
+
+  /**
+   * Since this is a login route, it is subject to more restrictive throttling rules.
+   *
+   * Log into a project as a project admin (2 attempts / min / IP).
+   * Don't screw up twice in a row or you gotta wait
+   */
+  @Throttle(2, 60)
+  @Post('/admin/login')
+  public adminLogin(): Promise<null> {
     throw new NotImplementedException();
   }
 
