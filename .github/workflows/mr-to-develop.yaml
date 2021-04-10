@@ -10,7 +10,7 @@ env:
   NX_RUN_GROUP: ${{ github.run_id }}
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -40,9 +40,21 @@ jobs:
           NX_BRANCH: ${{ github.event.number }}
           NX_RUN_GROUP: ${{ github.run_id }}
 
+  # unit-test:
+  #   runs-on: ubuntu-latest
+  #   needs: lint
+  #   steps:
       - name: Run Affected Test
         shell: bash
         run: yarn affected:test --base=origin/develop
         env:
           NX_BRANCH: ${{ github.event.number }}
           NX_RUN_GROUP: ${{ github.run_id }}
+
+  # docker-lint:
+  #   runs-on: ubuntu-latest
+  #   needs: lint
+  #   steps:
+      - uses: brpaz/hadolint-action@v1.2.1
+        with:
+          dockerfile: apps/home-controller/Dockerfile

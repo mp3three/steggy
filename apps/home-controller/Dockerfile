@@ -12,7 +12,7 @@ FROM node:lts-alpine
 USER node
 WORKDIR /app
 COPY --chown=node:node ./dist/apps/home-controller .
-COPY --from=builder /app/node_modules node_modules
+COPY --from=build /app/node_modules node_modules
 ENV PORT=3000
 EXPOSE 3000
 CMD ["node", "./main.js"]
