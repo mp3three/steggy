@@ -22,7 +22,7 @@
       "files": ["*.ts", "*.tsx"],
       "extends": [
         "plugin:@nrwl/nx/typescript",
-
+        "plugin:you-dont-need-lodash-underscore/compatible",
         "plugin:security/recommended",
         "plugin:@typescript-eslint/recommended"
       ],
