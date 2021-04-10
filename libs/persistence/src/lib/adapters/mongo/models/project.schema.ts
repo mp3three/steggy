@@ -4,7 +4,15 @@ import {
   PROJECT_TYPES,
 } from '@automagical/contracts/formio-sdk';
 import { Schema } from 'mongoose';
-import { permission, name, owner, project, title } from './common.schema';
+import {
+  CreateSchema,
+  deleted,
+  name,
+  owner,
+  permission,
+  project,
+  title,
+} from './common.schema';
 
 export const ProjectDefinition = {
   owner,
@@ -66,10 +74,7 @@ export const ProjectDefinition = {
     type: Boolean,
     default: false,
   },
-  deleted: {
-    type: Number,
-    default: null,
-  },
+  deleted,
   trial: {
     type: Date,
     default: Date.now,
@@ -87,24 +92,5 @@ export const ProjectDefinition = {
     type: String,
     maxlength: 63,
   },
-  modified: {
-    type: Date,
-    index: true,
-    __readonly: true,
-  },
-  created: {
-    type: Date,
-    index: true,
-    default: Date.now,
-    __readonly: true,
-  },
 };
-export const ProjectSchema = new Schema(ProjectDefinition);
-ProjectSchema.set('minimize', false);
-ProjectSchema.pre('save', function (next: () => void) {
-  // TODO Figure out how to attach `this` properly
-  // eslint-disable-next-line
-  // @ts-ignore
-  this.modified = new Date();
-  next();
-});
+export const ProjectSchema = CreateSchema(ProjectDefinition);

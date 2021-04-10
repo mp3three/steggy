@@ -1,5 +1,5 @@
 import { Schema, Types } from 'mongoose';
-import { PermissionDefinition } from './action.schema';
+import { ActionDefinition } from './action.schema';
 
 export const submission = {
   type: Schema.Types.Mixed,
@@ -36,7 +36,7 @@ export const name = {
   ],
 };
 
-export const permission = [PermissionDefinition];
+export const permission = [ActionDefinition];
 
 export const project = {
   type: Schema.Types.ObjectId,
@@ -64,3 +64,38 @@ export const deleted = {
   index: true,
   default: null,
 };
+
+export const modified = {
+  type: Date,
+  index: true,
+  __readonly: true,
+};
+
+export const created = {
+  ...modified,
+  default: Date.now,
+};
+
+export function CreateSchema(
+  definition: Record<string, unknown>,
+  args: { expires?: string } = {},
+): Schema {
+  definition.modified = modified;
+  definition.created = created;
+  if (args.expires) {
+    definition.created = {
+      ...created,
+      expires: args.expires,
+    };
+  }
+  const schema = new Schema(definition);
+  schema.set('minimize', false);
+  schema.pre('save', function (next: () => void) {
+    // TODO Figure out how to attach `this` properly
+    // eslint-disable-next-line
+    // @ts-ignore
+    this.modified = new Date();
+    next();
+  });
+  return schema;
+}

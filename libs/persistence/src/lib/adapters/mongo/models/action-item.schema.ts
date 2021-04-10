@@ -1,36 +1,66 @@
+import { ACTION_STATES } from '@automagical/contracts/formio-sdk';
 import { Schema } from 'mongoose';
-import { deleted, form, name, title } from './common.schema';
-
-export const ActionDefinition = {
+import {
+  CreateSchema,
+  deleted,
+  form,
+  project,
+  submission,
   title,
-  name,
+} from './common.schema';
+
+export const ActionItemDefinition = {
+  title,
+  project,
   form,
   deleted,
-  handler: [
-    {
-      type: String,
-      require: true,
-    },
-  ],
-  method: [
-    {
-      type: String,
-      require: true,
-    },
-  ],
-  condition: {
-    type: Schema.Types.Mixed,
-    required: false,
-  },
-  priority: {
-    type: Number,
+  submission,
+  action: {
+    type: String,
     require: true,
-    index: true,
-    default: 0,
   },
-  settings: {
+  handler: {
+    type: String,
+    require: true,
+  },
+  method: {
+    type: String,
+    require: true,
+  },
+  state: {
+    type: String,
+    enum: Object.values(ACTION_STATES),
+    required: true,
+    default: ACTION_STATES.new,
+    description: 'The current status of this event.',
+  },
+  messages: {
+    type: [String],
+  },
+  data: {
     type: Schema.Types.Mixed,
-    required: false,
   },
 };
-export const ActionSchema = new Schema(ActionDefinition);
+export const ActionItemSchema = CreateSchema(ActionItemDefinition, {
+  expires: '30d',
+});
+
+ActionItemSchema.index({
+  project: 1,
+  state: 1,
+  deleted: 1,
+  modified: -1,
+});
+ActionItemSchema.index({
+  project: 1,
+  handler: 1,
+  deleted: 1,
+  modified: -1,
+});
+ActionItemSchema.index({
+  project: 1,
+  handler: 1,
+  method: 1,
+  deleted: 1,
+  modified: -1,
+});

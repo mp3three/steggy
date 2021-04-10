@@ -1,7 +1,7 @@
 import { AccessTypes } from '@automagical/contracts/formio-sdk';
 import { Schema } from 'mongoose';
 
-export const PermissionDefinition = {
+export const ActionDefinition = {
   type: {
     enum: Object.values(AccessTypes),
     required: true,
@@ -13,4 +13,4 @@ export const PermissionDefinition = {
     type: [Schema.Types.ObjectId],
   },
 };
-export const PermissionSchema = new Schema(PermissionDefinition);
+export const PermissionSchema = new Schema(ActionDefinition);
