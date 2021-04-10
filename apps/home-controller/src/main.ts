@@ -5,6 +5,7 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { AsyncStorageMiddleware } from '@automagical/utilities';
 
 async function bootstrap() {
   const prefix = 'home-controller';
@@ -17,6 +18,7 @@ async function bootstrap() {
       logger,
     },
   );
+  app.use(AsyncStorageMiddleware);
   await app.listen(process.env.PORT, () => {
     logger.log(`Listening on ${process.env.PORT}`);
   });
