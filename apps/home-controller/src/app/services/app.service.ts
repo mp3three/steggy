@@ -67,7 +67,7 @@ export class AppService {
     const history = await this.socketService.fetchEntityHistory<
       MilageHistory[][]
     >(7, entity_id);
-    const dayMilage = {};
+    const dayMilage = new Map<string, number>();
     if (!history || history.length === 0) {
       return;
     }
@@ -75,10 +75,10 @@ export class AppService {
       const timestamp = dayjs(history.last_changed)
         .endOf('d')
         .format('YYYY-MM-DD');
-      dayMilage[timestamp] = dayMilage[timestamp] || 0;
+      dayMilage.set(timestamp, dayMilage.get(timestamp) || 0);
       const miles = Number(history.state);
-      if (miles > dayMilage[timestamp]) {
-        dayMilage[timestamp] = miles;
+      if (miles > dayMilage.get(timestamp)) {
+        dayMilage.set(timestamp, miles);
       }
     });
     return Object.keys(dayMilage)
@@ -91,7 +91,7 @@ export class AppService {
       .map((date) => {
         return {
           date,
-          miles: Math.floor(dayMilage[date]),
+          miles: Math.floor(dayMilage.get(date)),
         };
       });
   }
