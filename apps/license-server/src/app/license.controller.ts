@@ -1,23 +1,21 @@
-import { LicenseDTO } from '@automagical/contracts';
 import {
   AllLicenses,
   FetchLicense,
   LicenseService,
 } from '@automagical/licenses';
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Controller, Get, Param, Post } from '@nestjs/common';
+import { LicenseDTO } from '@automagical/contracts/formio-sdk';
 
 @Controller('license')
 export class LicenseController {
-  // #region Object Properties
-
-  private readonly logger = Logger(LicenseController);
-
-  // #endregion Object Properties
-
   // #region Constructors
 
-  constructor(private readonly licenseService: LicenseService) {}
+  constructor(
+    @InjectPinoLogger(LicenseController.name)
+    protected readonly logger: PinoLogger,
+    private readonly licenseService: LicenseService,
+  ) {}
 
   // #endregion Constructors
 

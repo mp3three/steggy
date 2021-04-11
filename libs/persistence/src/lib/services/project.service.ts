@@ -1,19 +1,17 @@
 import { ProjectDTO, PROJECT_TYPES } from '@automagical/contracts/formio-sdk';
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { iProjectDriver } from '../../typings/i-driver';
 
 @Injectable()
 export class ProjectService {
-  // #region Object Properties
-
-  private readonly logger = Logger(ProjectService);
-
-  // #endregion Object Properties
-
   // #region Constructors
 
-  constructor(private readonly driver: iProjectDriver) {}
+  constructor(
+    @InjectPinoLogger(ProjectService.name)
+    protected readonly logger: PinoLogger,
+    private readonly driver: iProjectDriver,
+  ) {}
 
   // #endregion Constructors
 

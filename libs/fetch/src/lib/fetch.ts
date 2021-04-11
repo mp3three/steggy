@@ -1,18 +1,26 @@
+import { Injectable } from '@nestjs/common';
+import dayjs from 'dayjs';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import fetch, { BodyInit, RequestInit, Response } from 'node-fetch';
 import { FetchWith, Filters, TempAuthToken } from '../typings/HTTP';
-import { Logger } from '@automagical/logger';
-import * as dayjs from 'dayjs';
-import fetch, { RequestInit, BodyInit, Response } from 'node-fetch';
 
-export class Fetch {
-  // #region Static Properties
+@Injectable()
+export class FetchService {
+  // #region Object Properties
 
-  public static TRUNCATE_LENGTH = 200;
+  public TRUNCATE_LENGTH = 200;
 
-  private static readonly logger = Logger(Fetch);
+  // #endregion Object Properties
 
-  // #endregion Static Properties
+  // #region Constructors
 
-  // #region Public Static Methods
+  constructor(
+    @InjectPinoLogger(FetchService.name) protected readonly logger: PinoLogger,
+  ) {}
+
+  // #endregion Constructors
+
+  // #region Public Methods
 
   /**
    * > ⚠️⚠️ See README @ libs/formio-sdk/README.md ⚠️⚠️
@@ -31,33 +39,33 @@ export class Fetch {
    * - Exporting all requests as curl request
    * - Exporting as postman compatible (convert a quick script into e2e tests?)
    */
-  public static async fetch<T>(args: FetchWith): Promise<T> {
+  public async fetch<T>(args: FetchWith): Promise<T> {
     const url: string = await this.fetchCreateUrl(args);
     const requestInit = await this.fetchCreateMeta(args);
-    this.logger.info(`${requestInit.method} ${url}`);
+    // this.logger.info(`${requestInit.method} ${url}`);
     // This log will probably contain user credentials
     if (!url.includes('/login')) {
-      this.logger.debug(requestInit);
+      // this.logger.debug(requestInit);
     }
     try {
       const res = await fetch(url, requestInit);
       return this.fetchHandleResponse(args, res);
     } catch (err) {
-      this.logger.error(err);
+      // this.logger.error(err);
       return null;
     }
   }
 
-  // #endregion Public Static Methods
+  // #endregion Public Methods
 
-  // #region Protected Static Methods
+  // #region Protected Methods
 
   /**
    * Resolve Filters and query params object into a query string.
    *
    * In case of collision, provided params take priority.
    */
-  protected static buildFilterString(
+  protected buildFilterString(
     args: FetchWith<{
       filters?: Readonly<Filters[]>;
       params?: Record<string, string>;
@@ -109,9 +117,7 @@ export class Fetch {
    *
    * Should return: headers, body, method
    */
-  protected static async fetchCreateMeta(
-    args: FetchWith,
-  ): Promise<RequestInit> {
+  protected async fetchCreateMeta(args: FetchWith): Promise<RequestInit> {
     const body =
       typeof args.body === 'object' || typeof args.data === 'object'
         ? JSON.stringify({
@@ -146,7 +152,7 @@ export class Fetch {
   /**
    * Resolve url provided in args into a full path w/ domain
    */
-  protected static fetchCreateUrl(args: FetchWith): string {
+  protected fetchCreateUrl(args: FetchWith): string {
     let url = args.rawUrl ? args.url : `${args.baseUrl}${args.url}`;
     if (args.tempAuthToken) {
       args.params = args.params || {};
@@ -161,7 +167,7 @@ export class Fetch {
   /**
    * Post processing function for fetch()
    */
-  protected static async fetchHandleResponse<T extends unknown = unknown>(
+  protected async fetchHandleResponse<T extends unknown = unknown>(
     args: FetchWith,
     res: Response,
   ): Promise<T> {
@@ -169,10 +175,10 @@ export class Fetch {
       return res as T;
     }
     const text = await res.text();
-    if (Fetch.TRUNCATE_LENGTH > 0 && text.length > Fetch.TRUNCATE_LENGTH) {
+    if (this.TRUNCATE_LENGTH > 0 && text.length > this.TRUNCATE_LENGTH) {
       this.logger.debug(
-        `${text.substr(0, Fetch.TRUNCATE_LENGTH)}... ${
-          text.length - Fetch.TRUNCATE_LENGTH
+        `${text.substr(0, this.TRUNCATE_LENGTH)}... ${
+          text.length - this.TRUNCATE_LENGTH
         } more`,
       );
     } else {
@@ -185,12 +191,12 @@ export class Fetch {
       if (!['OK'].includes(text)) {
         // It's probably a coding error error, and not something a user did.
         // Will try to keep the array up to date if any other edge cases pop up
-        this.logger.alert(`Invalid API Response`, text);
+        this.logger.warn(`Invalid API Response`, text);
       }
       return text as T;
     }
     return JSON.parse(text);
   }
 
-  // #endregion Protected Static Methods
+  // #endregion Protected Methods
 }

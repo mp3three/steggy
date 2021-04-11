@@ -11,14 +11,14 @@ import {
   RoomService,
   SocketService,
 } from '@automagical/home-assistant';
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { sleep } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { load } from 'js-yaml';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -40,7 +40,7 @@ type MilageHistory = {
 export class AppService {
   // #region Object Properties
 
-  private logger = Logger(AppService);
+  // private logger = Logger(AppService);
   private sendDoorNotificationTimeout = {};
 
   // #endregion Object Properties
@@ -52,6 +52,7 @@ export class AppService {
     private readonly entityService: EntityService,
     private readonly socketService: SocketService,
     private readonly roomService: RoomService,
+    protected readonly logger: Logger,
     private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
   ) {}
@@ -114,7 +115,7 @@ export class AppService {
 
   public async onModuleInit(): Promise<void> {
     setTimeout(() => {
-      this.logger.alert('Hello world @', new Date().toLocaleString());
+      this.logger.warn('Hello world @', new Date().toLocaleString());
     }, 5000);
   }
 
@@ -131,7 +132,7 @@ export class AppService {
         .listEntities()
         .filter((key) => key.split('.')[0] === 'lock')
         .filter((key) => !key.includes('mystique'));
-    this.logger.alert(dayjs().format('hh:mm'), `setLocks`, locks);
+    this.logger.warn(dayjs().format('hh:mm'), `setLocks`, locks);
     await Promise.all(
       locks.map(async (entityId) => {
         return this.socketService.call(HassDomains.lock, state, {
@@ -187,7 +188,7 @@ export class AppService {
 
   // @OnEvent(['*', 'double'])
   // private async autoLock() {
-  //   this.logger.notice(`autoLock`);
+  //   this.logger.info(`autoLock`);
   //   return this.setLocks(HassServices.lock);
   // }
   @OnEvent(CONNECTION_RESET)

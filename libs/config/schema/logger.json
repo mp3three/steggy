@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "@automagical/logger",
+  "title": "nestjs-pino",
   "type": "object",
   "additionalProperties": false,
   "$id": "logger.json",

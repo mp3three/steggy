@@ -1,7 +1,7 @@
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { NestFactory } from '@nestjs/core';
 import cors from 'cors';
-import * as helmet from 'helmet';
+import helmet from 'helmet';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
@@ -14,7 +14,7 @@ async function bootstrap() {
   app.setGlobalPrefix(prefix);
   // app.use(cors(), helmet());
   await app.listen(process.env.PORT, () => {
-    logger.log(`Listening on ${process.env.PORT}`);
+    logger.info(`Listening on ${process.env.PORT}`);
   });
 }
 

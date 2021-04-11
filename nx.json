@@ -32,9 +32,6 @@
     "formio-sdk": {
       "tags": []
     },
-    "logger": {
-      "tags": []
-    },
     "validation": {
       "tags": []
     },

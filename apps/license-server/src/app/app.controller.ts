@@ -1,11 +1,10 @@
-import { CacheData, LicenseDTO, REPO_VERSION } from '@automagical/contracts';
 import {
   FetchLicense,
   License,
   LicenseId,
   LicenseService,
 } from '@automagical/licenses';
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import {
   CACHE_MANAGER,
   Controller,
@@ -15,18 +14,15 @@ import {
   Param,
 } from '@nestjs/common';
 import { Cache } from 'cache-manager';
+import { LicenseDTO } from '@automagical/contracts/formio-sdk';
+import { CacheData } from '@automagical/contracts/licenses';
 
 @Controller()
 export class AppController {
-  // #region Object Properties
-
-  private readonly logger = Logger(AppController);
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(
+    @InjectPinoLogger(AppController.name) protected readonly logger: PinoLogger,
     private readonly licenseService: LicenseService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
@@ -39,7 +35,7 @@ export class AppController {
   public getData(): Record<string, string | symbol> {
     return {
       name: 'Licensing Server',
-      version: REPO_VERSION,
+      version: '0',
     };
   }
 

@@ -3,7 +3,10 @@ import * as NestConfig from '@nestjs/config';
 import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 import { AutomagicalConfig } from '../typings';
-import * as yaml from 'js-yaml';
+import yaml from 'js-yaml';
+import ini from 'ini';
+import JSON from 'comment-json';
+import rc from 'rc';
 
 @Module({})
 export class ConfigModule {
@@ -31,28 +34,31 @@ export class ConfigModule {
   public static register<
     T extends Record<never, unknown>,
     Arg extends AutomagicalConfig<T> = AutomagicalConfig<T>
-  >(MergeConfig: Arg): DynamicModule {
+  >(appName: string, defaultConfig: Arg = null): DynamicModule {
     return NestConfig.ConfigModule.forRoot({
       isGlobal: true,
       load: [
         async () => {
-          const config: AutomagicalConfig<T> = MergeConfig || {};
-          config.NODE_ENV = process.env.NODE_ENV;
-          [
-            `user-env.${process.env.NODE_ENV.toLowerCase()}.yaml`,
-            'user-env.yaml',
-            `assets/user-env.${process.env.NODE_ENV.toLowerCase()}.yaml`,
-            'assets/user-env.yaml',
-          ].forEach(async (file) => {
-            const data = await this.loadEnvFile(file);
-            Object.keys(data).forEach((key) => {
-              config[key] = config[key] || {};
-              config[key] = {
-                ...data[key],
-                ...config[key],
-              };
-            });
-          });
+          // File picking, loading, and merging handled by rc
+          const config: AutomagicalConfig<T> = rc(
+            appName,
+            defaultConfig,
+            null,
+            (content: string): Record<string, unknown> => {
+              // Attempt to parse as JSON
+              if (/^\s*\{/.test(content)) {
+                return JSON.parse(content);
+              }
+              // Attempt YAML next
+              const config = yaml.load(content) as Record<string, unknown>;
+              if (typeof config === 'object' && config !== null) {
+                return config;
+              }
+              // Default to ini
+              return ini.parse(content);
+            },
+          );
+          console.info('COmpleted config', config);
           ConfigModule.done(config);
           return config;
         },
@@ -72,7 +78,7 @@ export class ConfigModule {
     // TODO This entire loader needs an overhaul
     // It's a barely functional disaster
 
-    // console.log(
+    // console.info(
     //   `[WARN] config-module - Could not find environment file: ${envFilePath}`,
     // );
     return {};

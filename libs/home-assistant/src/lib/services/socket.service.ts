@@ -15,16 +15,16 @@ import {
   SendSocketMessageDTO,
   SocketMessageDTO,
 } from '@automagical/contracts/home-assistant';
-import { Fetch, FetchWith } from '@automagical/fetch';
-import { Logger } from '@automagical/logger';
+import { FetchService, FetchWith } from '@automagical/fetch';
 import { sleep } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
-import * as dayjs from 'dayjs';
-import * as WS from 'ws';
+import dayjs from 'dayjs';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import WS from 'ws';
 
 /**
  * SocketService deals with all communicationsto the HomeAssistant service
@@ -37,8 +37,6 @@ import * as WS from 'ws';
 export class SocketService {
   // #region Object Properties
 
-  private readonly logger = Logger(SocketService);
-
   private connection: WebSocket;
   private isAuthenticated = false;
   private messageCount = 1;
@@ -49,8 +47,10 @@ export class SocketService {
   // #region Constructors
 
   constructor(
+    private readonly fetchService: FetchService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly configService: ConfigService,
+    @InjectPinoLogger(SocketService.name) protected readonly logger: PinoLogger,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -78,7 +78,7 @@ export class SocketService {
    * Wrapper to set baseUrl
    */
   public fetch<T>(args: FetchWith): Promise<T> {
-    return Fetch.fetch<T>({
+    return this.fetchService.fetch<T>({
       baseUrl: this.configService.get(BASE_URL),
       ...args,
     });
@@ -167,7 +167,7 @@ export class SocketService {
       }
       // Tends to happen when HA resets
       // Resolution is to re-connect when it's up again
-      this.logger.crit(`Failed to pong!`);
+      this.logger.error(`Failed to pong!`);
     } catch (err) {
       this.logger.error(err);
     }
@@ -221,7 +221,7 @@ export class SocketService {
         // if (lostInFlight !== 0) {
         //   // ? Can the promises be rejected?
         //   // ? Does the memory get reclaimed if I don't?
-        //   this.logger.warning(
+        //   this.logger.warn(
         //     `${lostInFlight} responses lost during connection reset`,
         //   );
         // }
@@ -261,7 +261,7 @@ export class SocketService {
         }
         return;
       default:
-        this.logger.alert(`Unknown websocket message type: ${msg.type}`);
+        this.logger.warn(`Unknown websocket message type: ${msg.type}`);
         this.logger.debug(msg);
     }
   }
@@ -297,7 +297,7 @@ export class SocketService {
       // Something is jumpy
       // Request went in post-connect but pre-auth (which is supposed to be quick)
       // Maybe check a different lifecycle event
-      this.logger.warning(`sendMsg waiting for authentication`);
+      this.logger.warn(`sendMsg waiting for authentication`);
       await sleep(100);
     }
     this.connection.send(JSON.stringify(data));

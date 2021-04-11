@@ -4,8 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { FormioSdkService } from '../formio-sdk.service';
 import { SubmissionService } from '../submission.service';
-import * as faker from 'faker';
-import { iLogger, Logger } from '@automagical/logger';
+import faker from 'faker';
+import { iLogger, Logger } from 'nestjs-pino';
 import { UserDTO } from '@automagical/contracts/formio-sdk';
 
 /**
@@ -40,7 +40,7 @@ xdescribe('submission-service', () => {
     //     password,
     //   });
     //   expect(user).toBeDefined();
-    //   console.log(user._id);
+    //   console.info(user._id);
     // });
 
     // public async verifySubmission(args: {
@@ -75,9 +75,9 @@ xdescribe('submission-service', () => {
           },
         ]),
       });
-      logger.crit(result);
+      logger.error(result);
       const user = await submissionService.get<UserDTO>({ project, form, id });
-      logger.alert(user);
+      logger.warn(user);
     });
 
     // it('should call Fetch.fetch', async () => {

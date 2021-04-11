@@ -5,40 +5,36 @@ import {
   LicenseReportDTO,
   LicenseUsageDTO,
 } from '@automagical/contracts/licenses';
-import { iLogger, Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Injectable } from '@nestjs/common';
 import { FormioSdkService } from '.';
 import { FetchWith, HTTP_Methods } from '../../typings';
 
 @Injectable()
 export class LicenseService {
-  // #region Static Properties
-
-  public static logger: iLogger;
-
-  // #endregion Static Properties
-
   // #region Object Properties
 
   public licenseData: LicenseReportDTO[] = [];
-
-  /**
-   * @type Loggers
-   */
-  private logger = Logger(LicenseService);
 
   // #endregion Object Properties
 
   // #region Constructors
 
-  constructor(private readonly formioSdkService: FormioSdkService) {}
+  /**
+   * @type Loggers
+   */
+  constructor(
+    @InjectPinoLogger(LicenseService.name)
+    protected readonly logger: PinoLogger,
+    private readonly formioSdkService: FormioSdkService,
+  ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
   public async build() {
-    this.logger.notice(`Building license report`);
+    this.logger.info(`Building license report`);
     const licenseList = (await this.formioSdkService.fetch({
       url: `/license`,
     })) as LicenseDTO[];

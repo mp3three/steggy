@@ -1,10 +1,10 @@
-import { LicenseDTO, UserDTO } from '@automagical/contracts';
 import { LicenseService } from '@automagical/licenses';
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NextFunction, Request, Response } from 'express';
 import { ADMIN_TOKEN, TOKEN_HEADER } from '../../typings';
+import { LicenseDTO, UserDTO } from '@automagical/contracts/formio-sdk';
 
 /**
  * This middleware populates:
@@ -23,15 +23,11 @@ export class FetchLicenseMiddleware implements NestMiddleware {
 
   // #endregion Static Properties
 
-  // #region Object Properties
-
-  private readonly logger = Logger(FetchLicenseMiddleware);
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(
+    @InjectPinoLogger(FetchLicenseMiddleware.name)
+    protected readonly logger: PinoLogger,
     private readonly licenseService: LicenseService,
     private readonly configService: ConfigService,
   ) {}

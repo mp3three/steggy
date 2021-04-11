@@ -1,4 +1,4 @@
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { HomeAssistantEntityAttributes } from './entity-attributes.dto';
 import { ContextDTO } from './hass-event.dto';
 

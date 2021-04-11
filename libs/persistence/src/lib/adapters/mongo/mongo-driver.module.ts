@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongoProjectDriver } from './project';
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
 @Module({
   providers: [

@@ -9,7 +9,7 @@ import {
   HassServices,
   HassStateDTO,
 } from '@automagical/contracts/home-assistant';
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import {
   CACHE_MANAGER,
   Inject,
@@ -18,7 +18,7 @@ import {
 } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cache } from 'cache-manager';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { SocketService } from './socket.service';
 
 const availableSpeeds = [
@@ -36,13 +36,13 @@ export class EntityService {
   private readonly ENTITIES: Record<string, HassStateDTO> = {};
 
   private lastUpdate = dayjs();
-  private logger = Logger(EntityService);
 
   // #endregion Object Properties
 
   // #region Constructors
 
   constructor(
+    @InjectPinoLogger(EntityService.name) protected readonly logger: PinoLogger,
     private readonly socketService: SocketService,
     @Inject(CACHE_MANAGER)
     private readonly cacheService: Cache,
@@ -141,7 +141,7 @@ export class EntityService {
     if (domain !== HassDomains.group) {
       entity = await this.byId(entityId);
       if (!entity) {
-        this.logger.crit(`Could not find entity for ${entityId}`, groupData);
+        this.logger.error(`Could not find entity for ${entityId}`, groupData);
       }
     }
     switch (domain) {
@@ -180,7 +180,7 @@ export class EntityService {
     if (domain !== HassDomains.group) {
       entity = await this.byId(entityId);
       if (!entity) {
-        this.logger.crit(`Could not find entity for ${entityId}`, groupData);
+        this.logger.error(`Could not find entity for ${entityId}`, groupData);
       }
     }
     switch (domain) {
@@ -197,7 +197,7 @@ export class EntityService {
         });
       case HassDomains.light:
         if (entity.state === 'on') {
-          // this.logger.alert(entity);
+          // this.logger.warn(entity);
           // The circadian throws things off with repeat on calls
           return;
         }
@@ -235,7 +235,7 @@ export class EntityService {
   @OnEvent([HA_RAW_EVENT])
   private onEntityUpdate(event: HassEventDTO) {
     if (!event.data.entity_id) {
-      // this.logger.warning(event);
+      // this.logger.warn(event);
       return;
     }
     this.ENTITIES[event.data.entity_id] = event.data.new_state;

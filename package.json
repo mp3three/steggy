@@ -59,6 +59,7 @@
     "lodash": "^4.17.21",
     "mongoose": "^5.12.2",
     "nest-mqtt": "^0.1.6",
+    "nestjs-pino": "^1.4.0",
     "node-cron": "^3.0.0",
     "node-fetch": "^2.6.1",
     "passport": "^0.4.1",

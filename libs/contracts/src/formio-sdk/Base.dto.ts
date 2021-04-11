@@ -6,8 +6,8 @@ import {
   validate,
   ValidationError,
 } from '@automagical/validation';
-import * as faker from 'faker';
-import * as dayjs from 'dayjs';
+import faker from 'faker';
+import dayjs from 'dayjs';
 import { AccessPermission, AccessTypes } from './constants';
 
 export class CanFake {

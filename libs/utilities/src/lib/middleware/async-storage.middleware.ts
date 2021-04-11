@@ -1,9 +1,8 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Logger } from '@automagical/logger';
-import { v4 } from 'uuid';
 // const { AsyncLocalStorage } = require("async_hooks");
 import { AsyncLocalStorage } from 'async_hooks';
 import { NextFunction, Request, Response } from 'express';
+import { v4 } from 'uuid';
 
 const asyncLocalStorage = new AsyncLocalStorage();
 
@@ -14,12 +13,6 @@ const asyncLocalStorage = new AsyncLocalStorage();
  */
 @Injectable()
 export class AsyncStorageMiddleware implements NestMiddleware {
-  // #region Object Properties
-
-  private readonly logger = Logger(AsyncStorageMiddleware);
-
-  // #endregion Object Properties
-
   // #region Public Methods
 
   public use(req: Request, res: Response, next: NextFunction): void {

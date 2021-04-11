@@ -3,25 +3,21 @@ import {
   HTTP_Methods,
   LICENSE_SERVER,
 } from '@automagical/formio-sdk';
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UtilizationResponseDTO } from '@automagical/contracts';
 import { ConfigService } from '@nestjs/config';
+import { UtilizationResponseDTO } from '@automagical/contracts/licenses';
 
 @Injectable()
 export class UtilizationGuard implements CanActivate {
-  // #region Object Properties
-
-  private readonly logger = Logger(UtilizationGuard);
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(
     private readonly formioSdkService: FormioSdkService,
     private readonly reflector: Reflector,
+    @InjectPinoLogger(UtilizationGuard.name)
+    protected readonly logger: PinoLogger,
     private readonly configService: ConfigService,
   ) {}
 
@@ -45,7 +41,7 @@ export class UtilizationGuard implements CanActivate {
       body,
     });
     if (typeof response === 'string') {
-      this.logger.notice(response);
+      this.logger.info(response);
       return false;
     }
     return true;

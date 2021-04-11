@@ -1,15 +1,11 @@
-import {
-  LicenseDTO,
-  UtilizationResponseDTO,
-  UtilizationUpdateDTO,
-} from '@automagical/contracts';
+import { LicenseDTO } from '@automagical/contracts/formio-sdk';
 import {
   FetchLicense,
   License,
   LicenseService,
   UtilizationCleanup,
 } from '@automagical/licenses';
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import {
   Body,
   Controller,
@@ -18,18 +14,20 @@ import {
   Post,
   UseInterceptors,
 } from '@nestjs/common';
+import {
+  UtilizationResponseDTO,
+  UtilizationUpdateDTO,
+} from '@automagical/contracts/licenses';
 
 @Controller('utilization')
 export class UtilizationController {
-  // #region Object Properties
-
-  private readonly logger = Logger(UtilizationController);
-
-  // #endregion Object Properties
-
   // #region Constructors
 
-  constructor(private readonly licenseService: LicenseService) {}
+  constructor(
+    @InjectPinoLogger(UtilizationController.name)
+    protected readonly logger: PinoLogger,
+    private readonly licenseService: LicenseService,
+  ) {}
 
   // #endregion Constructors
 

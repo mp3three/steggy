@@ -1,4 +1,4 @@
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -6,7 +6,7 @@ import {
 } from '@nestjs/platform-fastify';
 import cors from 'cors';
 import { json } from 'express';
-import * as helmet from 'helmet';
+import helmet from 'helmet';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
@@ -28,7 +28,7 @@ async function bootstrap() {
     json({ limit: '50mb' }),
   );
   await app.listen(process.env.PORT, () => {
-    logger.log(`Listening on ${process.env.PORT}`);
+    logger.info(`Listening on ${process.env.PORT}`);
   });
 }
 

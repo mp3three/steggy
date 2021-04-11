@@ -1,7 +1,7 @@
 import { MQTT_PUBLISH } from '@automagical/contracts/constants';
 import { HassServices, RoomScene } from '@automagical/contracts/home-assistant';
 import { RoomService } from '@automagical/home-assistant';
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Ctx, MqttContext } from '@nestjs/microservices';
@@ -13,18 +13,14 @@ import { LoftService } from './loft.service';
 
 @Injectable()
 export class MqttClientService {
-  // #region Object Properties
-
-  private readonly logger = Logger(MqttClientService);
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(
     @Inject(MqttService) private readonly mqttService: MqttService,
     private readonly appService: AppService,
     private readonly roomService: RoomService,
+    @InjectPinoLogger(MqttClientService.name)
+    protected readonly logger: PinoLogger,
     private readonly eventEmitterService: EventEmitter2,
     private readonly livingRoomService: LivingService,
     private readonly loftService: LoftService,
@@ -45,43 +41,43 @@ export class MqttClientService {
 
   @Subscribe('mobile/car_ac')
   public async carAc(): Promise<void> {
-    this.logger.notice('mobile/car_ac');
+    this.logger.info('mobile/car_ac');
   }
 
   @Subscribe('mobile/leave_home')
   public async goodbye(): Promise<void> {
-    this.logger.notice('mobile/leave_home');
+    this.logger.info('mobile/leave_home');
     this.roomService.smart(null, RoomScene.off);
     this.appService.setLocks(HassServices.lock);
   }
 
   @Subscribe('mobile/scene/living')
   public async livingRoomScene(): Promise<void> {
-    this.logger.notice('mobile/scene/living');
+    this.logger.info('mobile/scene/living');
     this.livingRoomService.sceneSmart();
   }
 
   @Subscribe('mobile/lock')
   public async lockHouse(): Promise<void> {
-    this.logger.notice('mobile/lock');
+    this.logger.info('mobile/lock');
     this.appService.setLocks(HassServices.lock);
   }
 
   @Subscribe('mobile/scene/loft')
   public async loftScene(): Promise<void> {
-    this.logger.notice('mobile/scene/loft');
+    this.logger.info('mobile/scene/loft');
     this.loftService.sceneSmart();
   }
 
   @Subscribe('mobile/transfer_pump')
   public async toggleTransferPump(): Promise<void> {
-    this.logger.notice('mobile/transfer_pump');
+    this.logger.info('mobile/transfer_pump');
     this.garageService.toggleTransferPump();
   }
 
   @Subscribe('mobile/unlock')
   public async unlockHouse(): Promise<void> {
-    this.logger.notice('mobile/unlock');
+    this.logger.info('mobile/unlock');
     this.appService.setLocks(HassServices.unlock);
   }
 
@@ -92,7 +88,7 @@ export class MqttClientService {
     @Ctx() context: MqttContext,
   ): Promise<void> {
     // Currently seems to be borked
-    this.logger.crit(
+    this.logger.error(
       'room/set-scene',
       scene,
       context.getTopic().split('/').pop(),

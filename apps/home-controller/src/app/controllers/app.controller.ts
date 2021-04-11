@@ -1,13 +1,13 @@
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Controller, Get } from '@nestjs/common';
 
 @Controller()
 export class AppController {
-  // #region Object Properties
+  // #region Constructors
 
-  private readonly logger = Logger(AppController);
+  constructor(protected readonly logger: Logger) {}
 
-  // #endregion Object Properties
+  // #endregion Constructors
 
   // #region Public Methods
 

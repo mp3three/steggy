@@ -3,25 +3,22 @@ import {
   CacheEnvironmentDTO,
   CacheFormDTO,
   CacheProjectDTO,
-  LicenseDTO,
   LicenseKeyDTO,
   LicenseMonthlyUsageDTO,
   LicenseScopes,
   LicenseTrackedLicenseScopes,
   LicenseTrackedMonthlyScopes,
   LicenseTrackedProjectScopes,
-  SubmissionDTO,
-  UserDTO,
   UtilizationResponseDTO,
   UtilizationResponseTermsDTO,
   UtilizationUpdateDTO,
-} from '@automagical/contracts';
+} from '@automagical/contracts/licenses';
 import {
   FetchWith,
   FormioSdkService,
   LICENSE_SERVER,
 } from '@automagical/formio-sdk';
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import {
   BadRequestException,
   CACHE_MANAGER,
@@ -33,8 +30,13 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { Request } from 'express';
+import {
+  LicenseDTO,
+  SubmissionDTO,
+  UserDTO,
+} from '@automagical/contracts/formio-sdk';
 
 interface UpdateArgs {
   // #region Object Properties
@@ -59,15 +61,11 @@ export class LicenseService {
 
   // #endregion Static Properties
 
-  // #region Object Properties
-
-  private readonly logger = Logger(LicenseService);
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(
+    @InjectPinoLogger(LicenseService.name)
+    protected readonly logger: PinoLogger,
     private readonly formioSdkService: FormioSdkService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly configService: ConfigService,
@@ -402,13 +400,13 @@ export class LicenseService {
         case LicenseScopes.livestage:
           return cacheData;
       }
-      this.logger.alert(`Missed a spot`);
+      this.logger.warn(`Missed a spot`);
       return cacheData;
     }
     // Not tracked against projects
     // Not tracked against license
     // Not tracked monthly
-    this.logger.crit(`Missing logic for scope: ${update.type}`);
+    this.logger.error(`Missing logic for scope: ${update.type}`);
     throw new NotImplementedException();
     return cacheData;
   }

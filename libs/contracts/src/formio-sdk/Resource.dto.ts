@@ -5,7 +5,7 @@ import {
   IsString,
   ValidateNested,
 } from '@automagical/validation';
-import * as faker from 'faker';
+import faker from 'faker';
 import { AccessDTO, BaseDTO, BaseOmitProps } from './Base.dto';
 import { ResouceSettingsDTO } from './resource/ResourceSettings.dto';
 
