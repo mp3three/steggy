@@ -219,6 +219,15 @@
             ]
           }
         },
+        "serve-pretty": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "parallel": false,
+            "commands": [{
+              "command": "nx serve home-controller | pino-pretty"
+            }]
+          }
+        },
         "build": {
           "executor": "@nrwl/node:build",
           "outputs": [

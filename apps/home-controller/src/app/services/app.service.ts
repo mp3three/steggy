@@ -115,7 +115,7 @@ export class AppService {
 
   public async onModuleInit(): Promise<void> {
     setTimeout(() => {
-      this.logger.warn('Hello world @', new Date().toLocaleString());
+      this.logger.info(`Hello world @ ${new Date().toLocaleString()}`);
     }, 5000);
   }
 
