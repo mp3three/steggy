@@ -5,7 +5,9 @@ import { Controller, Get } from '@nestjs/common';
 export class AppController {
   // #region Constructors
 
-  constructor(protected readonly logger: Logger) {}
+  constructor(
+    @InjectPinoLogger(AppController.name) protected readonly logger: PinoLogger,
+  ) {}
 
   // #endregion Constructors
 

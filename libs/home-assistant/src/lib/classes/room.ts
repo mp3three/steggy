@@ -4,8 +4,8 @@ import {
   PicoStates,
   RoomScene,
 } from '@automagical/contracts/home-assistant';
-import { iLogger } from 'nestjs-pino';
 import { OnEvent } from '@nestjs/event-emitter';
+import { PinoLogger } from 'nestjs-pino';
 import { EntityService, HomeAssistantService, RoomService } from '../services';
 
 export abstract class SceneRoom {
@@ -23,7 +23,7 @@ export abstract class SceneRoom {
   protected readonly roomService: RoomService;
 
   protected allowGlobalAccess = true;
-  protected logger: iLogger;
+  protected logger: PinoLogger;
 
   // #endregion Object Properties
 

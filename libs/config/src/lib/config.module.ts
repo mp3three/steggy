@@ -58,7 +58,6 @@ export class ConfigModule {
               return ini.parse(content);
             },
           );
-          console.info('COmpleted config', config);
           ConfigModule.done(config);
           return config;
         },

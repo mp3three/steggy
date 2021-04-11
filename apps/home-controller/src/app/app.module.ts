@@ -2,17 +2,13 @@ import { ConfigModule } from '@automagical/config';
 import { HA_ALL_CONFIGS } from '@automagical/contracts/constants';
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import { HomeAssistantModule } from '@automagical/home-assistant';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { CacheModule, Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { readFileSync } from 'fs';
 import { load } from 'js-yaml';
-import {
-  MqttModule,
-  MqttModuleAsyncOptions,
-  MqttModuleOptions,
-} from 'nest-mqtt';
+import { MqttModule } from 'nest-mqtt';
+import { Logger, LoggerModule } from 'nestjs-pino';
 import { join } from 'path';
 import { ASSETS_PATH, environment } from '../environments/environment';
 import {
@@ -33,7 +29,7 @@ import { GuestService } from './services/guest.service';
 import { LivingService } from './services/living.service';
 import { LoftService } from './services/loft.service';
 import { MqttClientService } from './services/mqtt-client.service';
-import { LoggerModule } from 'nestjs-pino';
+import { FetchModule } from '@automagical/fetch';
 
 const configs = [
   {
@@ -76,6 +72,7 @@ const configs = [
 
 @Module({
   imports: [
+    FetchModule,
     HomeAssistantModule,
     LoggerModule.forRoot(),
     CacheModule.register({}),
@@ -116,15 +113,4 @@ const configs = [
   ],
   controllers: [AppController],
 })
-export class AppModule {
-  // #region Public Static Methods
-
-  public static loadConfigs(): {
-    useValue: HomeAssistantRoomConfigDTO;
-    provide: symbol;
-  }[] {
-    return;
-  }
-
-  // #endregion Public Static Methods
-}
+export class AppModule {}

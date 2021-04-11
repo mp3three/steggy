@@ -52,7 +52,7 @@ export class AppService {
     private readonly entityService: EntityService,
     private readonly socketService: SocketService,
     private readonly roomService: RoomService,
-    protected readonly logger: Logger,
+    @InjectPinoLogger(AppService.name) protected readonly logger: PinoLogger,
     private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
   ) {}

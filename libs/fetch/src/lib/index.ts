@@ -1,1 +1,2 @@
-export * from './fetch';
+export * from './fetch.service';
+export * from './fetch.module';
