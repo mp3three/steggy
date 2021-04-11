@@ -6,7 +6,7 @@ import {
   HassStateDTO,
   PicoStates,
 } from '@automagical/contracts/home-assistant';
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { EntityService } from './entity.service';
@@ -15,8 +15,6 @@ import { SocketService } from './socket.service';
 @Injectable()
 export class HomeAssistantService {
   // #region Object Properties
-
-  private readonly logger = Logger(HomeAssistantService);
 
   private lastEvent = '';
 
@@ -28,6 +26,8 @@ export class HomeAssistantService {
     private readonly socketService: SocketService,
     @Inject(forwardRef(() => EntityService))
     private readonly entityService: EntityService,
+    @InjectPinoLogger(HomeAssistantService.name)
+    protected readonly logger: PinoLogger,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 

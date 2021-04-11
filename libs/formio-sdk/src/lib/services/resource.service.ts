@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { iLogger, Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { FormioSdkService } from './formio-sdk.service';
 import { FetchWith, IdentifierWithParent } from '../../typings/HTTP';
 import { HTTP_Methods } from '../../typings';
@@ -7,21 +7,11 @@ import { ResourceDTO } from '@automagical/contracts/formio-sdk';
 
 @Injectable()
 export class ResourceService {
-  // #region Static Properties
-
-  public static logger: iLogger;
-
-  // #endregion Static Properties
-
-  // #region Object Properties
-
-  private logger = Logger(ResourceService);
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(
+    @InjectPinoLogger(ResourceService.name)
+    protected readonly logger: PinoLogger,
     @Inject(forwardRef(() => FormioSdkService))
     public readonly formioSdkService: FormioSdkService,
   ) {}

@@ -2,13 +2,13 @@ import { ConfigModule } from '@automagical/config';
 import { HA_ALL_CONFIGS } from '@automagical/contracts/constants';
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import { HomeAssistantModule } from '@automagical/home-assistant';
-import { Logger } from '@automagical/logger';
 import { CacheModule, Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { readFileSync } from 'fs';
 import { load } from 'js-yaml';
-import { MqttModule, MqttModuleAsyncOptions } from 'nest-mqtt';
+import { MqttModule } from 'nest-mqtt';
+import { Logger, LoggerModule } from 'nestjs-pino';
 import { join } from 'path';
 import { ASSETS_PATH, environment } from '../environments/environment';
 import {
@@ -29,6 +29,7 @@ import { GuestService } from './services/guest.service';
 import { LivingService } from './services/living.service';
 import { LoftService } from './services/loft.service';
 import { MqttClientService } from './services/mqtt-client.service';
+import { FetchModule } from '@automagical/fetch';
 
 const configs = [
   {
@@ -71,7 +72,14 @@ const configs = [
 
 @Module({
   imports: [
+    FetchModule,
+    HomeAssistantModule,
+    LoggerModule.forRoot(),
     CacheModule.register({}),
+    ScheduleModule.forRoot(),
+    ConfigModule.register<ApplicationConfig>('home-controller', {
+      application: environment,
+    }),
     EventEmitterModule.forRoot({
       wildcard: true,
       // Expected format:
@@ -79,21 +87,11 @@ const configs = [
       delimiter: '/',
       verboseMemoryLeak: true,
     }),
-    ScheduleModule.forRoot(),
-    ConfigModule.register<ApplicationConfig>({
-      application: environment,
-    }),
-    HomeAssistantModule,
-    MqttModule.forRootAsync({
-      useFactory: async () => {
-        const config = await ConfigModule.getConfig<ApplicationConfig>();
-        return {
-          host: config.application.MQTT_HOST,
-          port: config.application.MQTT_PORT,
-          logger: {
-            useValue: Logger.forNest('nest-mqtt'),
-          },
-        } as MqttModuleAsyncOptions;
+    MqttModule.forRoot({
+      host: environment.MQTT_HOST,
+      port: environment.MQTT_PORT,
+      logger: {
+        useClass: Logger,
       },
     }),
   ],
@@ -115,15 +113,4 @@ const configs = [
   ],
   controllers: [AppController],
 })
-export class AppModule {
-  // #region Public Static Methods
-
-  public static loadConfigs(): {
-    useValue: HomeAssistantRoomConfigDTO;
-    provide: symbol;
-  }[] {
-    return;
-  }
-
-  // #endregion Public Static Methods
-}
+export class AppModule {}

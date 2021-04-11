@@ -1,5 +1,5 @@
 import {
-  FetchUserdataMiddleware,
+  ,
   MetadataTypes,
 } from '@automagical/formio-sdk';
 import {
@@ -15,7 +15,7 @@ import { HasUserGuard } from '../guards/has-user.guard';
 
 export function FetchUser() {
   return applyDecorators(
-    UsePipes(FetchUserdataMiddleware),
+    UsePipes(),
     UseGuards(HasUserGuard),
     ApiUnauthorizedResponse({ description: 'Unauthorized' }),
   );

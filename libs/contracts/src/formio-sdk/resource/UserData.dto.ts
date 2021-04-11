@@ -1,5 +1,5 @@
 import { IsEmail, IsOptional, IsString } from '@automagical/validation';
-import * as faker from 'faker';
+import faker from 'faker';
 import { CanFake } from '..';
 
 /**

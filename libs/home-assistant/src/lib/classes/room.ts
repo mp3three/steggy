@@ -4,8 +4,8 @@ import {
   PicoStates,
   RoomScene,
 } from '@automagical/contracts/home-assistant';
-import { iLogger } from '@automagical/logger';
 import { OnEvent } from '@nestjs/event-emitter';
+import { PinoLogger } from 'nestjs-pino';
 import { EntityService, HomeAssistantService, RoomService } from '../services';
 
 export abstract class SceneRoom {
@@ -23,7 +23,7 @@ export abstract class SceneRoom {
   protected readonly roomService: RoomService;
 
   protected allowGlobalAccess = true;
-  protected logger: iLogger;
+  protected logger: PinoLogger;
 
   // #endregion Object Properties
 
@@ -34,7 +34,7 @@ export abstract class SceneRoom {
     if (entityId !== this?.roomConfig?.config?.pico) {
       return;
     }
-    this.logger.notice(`${entityId} double press ${button}`);
+    this.logger.info(`${entityId} double press ${button}`);
     switch (button) {
       case PicoStates.high:
         return this.sceneHigh();
@@ -51,7 +51,7 @@ export abstract class SceneRoom {
     if (button === PicoStates.none) {
       return;
     }
-    this.logger.notice(`${entityId} single press ${button}`);
+    this.logger.info(`${entityId} single press ${button}`);
     switch (button) {
       case PicoStates.high:
         return this.sceneHigh();

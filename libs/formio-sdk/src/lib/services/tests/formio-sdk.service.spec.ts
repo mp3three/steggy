@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { FormioSdkService } from '../formio-sdk.service';
-import * as faker from 'faker';
+import faker from 'faker';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Fetch } from '@automagical/fetch';
 

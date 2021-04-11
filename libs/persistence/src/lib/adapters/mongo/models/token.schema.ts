@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import faker from 'faker';
 import { CreateSchema } from './common.schema';
 
 export const TokenDefinition = {

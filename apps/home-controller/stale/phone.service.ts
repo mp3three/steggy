@@ -3,7 +3,7 @@
 //   HomeAssistantService,
 //   SocketService,
 // } from '@automagical/home-assistant';
-// import { Logger } from '@automagical/logger';
+// import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 // import { Injectable } from '@nestjs/common';
 
 // type MilageHistory = {
@@ -39,7 +39,7 @@
 
 //   // #region Object Properties
 
-//   private readonly logger = Logger(PhoneService);
+//   protected readonly logger = Logger(PhoneService);
 
 //   private milageHistory: MilageHistory;
 

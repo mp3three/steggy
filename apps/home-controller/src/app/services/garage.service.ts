@@ -5,10 +5,10 @@ import {
   RoomService,
   SceneRoom,
 } from '@automagical/home-assistant';
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Inject, Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { GARAGE_CONFIG } from '../../typings';
 
 /**
@@ -16,17 +16,12 @@ import { GARAGE_CONFIG } from '../../typings';
  */
 @Injectable()
 export class GarageService extends SceneRoom {
-  // #region Object Properties
-
-  protected readonly logger = Logger(GarageService);
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(
     protected readonly homeAssistantService: HomeAssistantService,
     protected readonly entityService: EntityService,
+    @InjectPinoLogger(GarageService.name) protected readonly logger: PinoLogger,
     protected readonly roomService: RoomService,
     @Inject(GARAGE_CONFIG)
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,

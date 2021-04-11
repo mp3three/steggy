@@ -9,7 +9,7 @@ import {
   RoomService,
   SceneRoom,
 } from '@automagical/home-assistant';
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -18,16 +18,12 @@ import { BEDROOM_CONFIG } from '../../typings/config';
 
 @Injectable()
 export class BedroomService extends SceneRoom {
-  // #region Object Properties
-
-  protected readonly logger = Logger(BedroomService);
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(
     protected readonly homeAssistantService: HomeAssistantService,
+    @InjectPinoLogger(BedroomService.name)
+    protected readonly logger: PinoLogger,
     protected readonly roomService: RoomService,
     protected readonly entityService: EntityService,
     private readonly configService: ConfigService,
@@ -50,7 +46,7 @@ export class BedroomService extends SceneRoom {
 
   @OnEvent(`sensor.bed_pico/single`)
   private async bedPicoCb(button: PicoStates) {
-    this.logger.warning('bedPicoCb', button);
+    this.logger.warn('bedPicoCb', button);
     switch (button) {
       case PicoStates.smart:
         return this.entityService.toggle(`switch.womp`);
@@ -67,7 +63,7 @@ export class BedroomService extends SceneRoom {
 
   @OnEvent(`sensor.bed_pico/double`)
   private async bedPicoDoubleCb(button: PicoStates) {
-    this.logger.warning('bedPicoDoubleCb', button);
+    this.logger.warn('bedPicoDoubleCb', button);
     switch (button) {
       case PicoStates.smart:
         return this.entityService.toggle(`switch.womp`);

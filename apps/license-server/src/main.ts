@@ -1,4 +1,4 @@
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 
@@ -11,7 +11,7 @@ async function bootstrap() {
   });
   app.setGlobalPrefix(prefix);
   await app.listen(process.env.PORT, () => {
-    logger.log(`Listening on ${process.env.PORT}`);
+    logger.info(`Listening on ${process.env.PORT}`);
   });
 }
 

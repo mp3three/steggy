@@ -81,43 +81,6 @@
         }
       }
     },
-    "logger": {
-      "root": "libs/logger",
-      "sourceRoot": "libs/logger/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": [
-              "libs/logger/**/*.ts"
-            ]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/logger"
-          ],
-          "options": {
-            "jestConfig": "libs/logger/jest.config.js",
-            "passWithNoTests": true
-          }
-        },
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
-          "options": {
-            "outputPath": "dist/libs/logger",
-            "tsConfig": "libs/logger/tsconfig.lib.json",
-            "packageJson": "libs/logger/package.json",
-            "main": "libs/logger/src/index.ts"
-          }
-        }
-      }
-    },
     "contracts": {
       "root": "contracts",
       "sourceRoot": "contracts",
@@ -254,6 +217,15 @@
                 "command": "docker save -o home-controller.tar automagical/home-controller:latest"
               }
             ]
+          }
+        },
+        "serve-pretty": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "parallel": false,
+            "commands": [{
+              "command": "nx serve home-controller | pino-pretty"
+            }]
           }
         },
         "build": {

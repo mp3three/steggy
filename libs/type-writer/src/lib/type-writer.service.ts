@@ -1,4 +1,6 @@
+import { FormioSdkService } from '@automagical/formio-sdk';
 import { Injectable } from '@nestjs/common';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import {
   // FIXME: For some reason, being normal with imports wasn't working
   createPrinter,
@@ -16,8 +18,6 @@ import {
   TypeLiteralNode,
   TypeNode,
 } from 'typescript';
-import { iLogger, Logger } from '@automagical/logger';
-import { FormioSdkService } from '@automagical/formio-sdk';
 
 type LabelValue = Record<'label' | 'value', string>;
 
@@ -104,7 +104,6 @@ export class TypeWriterService {
 
   public static DEFINITION_KEYWORD = 'Definition';
   public static RECURSIVE_KEYWORD = 'Recursive';
-  public static logger: iLogger;
 
   // #endregion Static Properties
 
@@ -112,13 +111,16 @@ export class TypeWriterService {
 
   private context: Context = null;
   private lock = false;
-  private logger = Logger(TypeWriterService);
 
   // #endregion Object Properties
 
   // #region Constructors
 
-  constructor(private readonly formioSdkService: FormioSdkService) {}
+  constructor(
+    @InjectPinoLogger(TypeWriterService.name)
+    protected readonly logger: PinoLogger,
+    private readonly formioSdkService: FormioSdkService,
+  ) {}
 
   // #endregion Constructors
 
@@ -156,7 +158,7 @@ export class TypeWriterService {
     this.reset();
     const name = form.name;
     this.context.baseName = `${name.charAt(0).toUpperCase()}${name.substr(1)}`;
-    this.logger.notice(`Creating type ${name}: ${form.title}`);
+    this.logger.info(`Creating type ${name}: ${form.title}`);
     await this.addDeclaration(
       this.context.baseName,
       factory.createTypeLiteralNode([
@@ -493,7 +495,7 @@ export class TypeWriterService {
         if (component.dataType === 'object') {
           // TODO: Is there any indication provided somewhere of the expected format?
           // Should this be an if/else situation, or just a default?
-          this.logger.warning(
+          this.logger.warn(
             `Using type "Record<string, unknown>" for key ${component.key}`,
           );
           type = this.record(this.string, this.unknown);
@@ -564,7 +566,7 @@ export class TypeWriterService {
         headers[header.key] = header.value;
       }
     });
-    this.logger.notice(`Fetching json from url: ${component.data.url}`);
+    this.logger.info(`Fetching json from url: ${component.data.url}`);
     // Maybe some sort of caching might be a good idea?
     // I could imagine the same dataset being copy/pasted a few times in different resources
     return this.formioSdkService.fetch<Record<string, unknown>[]>({

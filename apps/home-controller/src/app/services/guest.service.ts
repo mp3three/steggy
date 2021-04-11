@@ -5,23 +5,18 @@ import {
   RoomService,
   SceneRoom,
 } from '@automagical/home-assistant';
-import { Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Inject, Injectable } from '@nestjs/common';
 import { GUEST_CONFIG } from '../../typings';
 
 @Injectable()
 export class GuestService extends SceneRoom {
-  // #region Object Properties
-
-  protected readonly logger = Logger(GuestService);
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(
     @Inject(GUEST_CONFIG)
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
+    @InjectPinoLogger(GuestService.name) protected readonly logger: PinoLogger,
     protected readonly homeAssistantService: HomeAssistantService,
     protected readonly entityService: EntityService,
     protected readonly roomService: RoomService,

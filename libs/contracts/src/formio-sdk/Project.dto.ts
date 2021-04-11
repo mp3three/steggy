@@ -8,7 +8,7 @@ import {
   MaxLength,
   Matches,
 } from '@automagical/validation';
-import * as faker from 'faker';
+import faker from 'faker';
 import { AccessDTO, BaseDTO, BaseOmitProps } from './Base.dto';
 import {
   PROJECT_FRAMEWORKS,

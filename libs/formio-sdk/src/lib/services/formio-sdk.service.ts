@@ -1,20 +1,20 @@
-import { Fetch } from '@automagical/fetch';
-import { iLogger, Logger } from '@automagical/logger';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { Response } from 'node-fetch';
+import { FormioSDKConfig } from '@automagical/config';
 import {
   ProjectDTO,
   UserDataDTO,
   UserDTO,
 } from '@automagical/contracts/formio-sdk';
+import { FetchService } from '@automagical/fetch';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { Response } from 'node-fetch';
 import {
   FetchWith,
   HTTP_Methods,
   Identifier,
   TempAuthToken,
 } from '../../typings';
-import { ConfigService } from '@nestjs/config';
-import { FormioSDKConfig } from '@automagical/config';
 
 type CommonID = Identifier | string;
 export type FetchError = { status: number; message: string };
@@ -29,12 +29,6 @@ export type FetchError = { status: number; message: string };
  */
 @Injectable()
 export class FormioSdkService {
-  // #region Static Properties
-
-  public static logger: iLogger;
-
-  // #endregion Static Properties
-
   // #region Object Properties
 
   public config: FormioSDKConfig;
@@ -43,13 +37,16 @@ export class FormioSdkService {
 
   protected readonly ALL_PROJECTS: Record<string, ProjectDTO> = {};
 
-  private readonly logger = Logger(FormioSdkService);
-
   // #endregion Object Properties
 
   // #region Constructors
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    @InjectPinoLogger(FormioSdkService.name)
+    protected readonly logger: PinoLogger,
+    private readonly fetchService: FetchService,
+    private readonly configService: ConfigService,
+  ) {}
 
   // #endregion Constructors
 
@@ -57,7 +54,7 @@ export class FormioSdkService {
 
   public fetch<T>(args: FetchWith) {
     return this.fetchHandler<T>(
-      Fetch.fetch<T>({
+      this.fetchService.fetch<T>({
         baseUrl: this.config.PORTAL_BASE_URL,
         apiKey: this.config.API_KEY,
         token: this.jwtToken,
@@ -109,7 +106,7 @@ export class FormioSdkService {
    * @see projectCreateAdmin
    */
   public async projectAdminLogin(args: FetchWith<{ name: CommonID }>) {
-    this.logger.warning(`getAdminToken`, args);
+    this.logger.warn(`getAdminToken`, args);
     return this.userLogin({
       name: args.name,
       type: 'admin',
@@ -399,7 +396,7 @@ export class FormioSdkService {
     // TODO clean up this statement 🗑🔥
     if (((res as unknown) as { name: string }).name === 'ValidationError') {
       // This is likely a code error in the calling service
-      this.logger.crit(JSON.stringify(res, null, 2));
+      this.logger.error(JSON.stringify(res, null, 2));
       throw new InternalServerErrorException();
     }
     return res;

@@ -1,4 +1,4 @@
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 export type Identifier = { _id?: string; name?: string };
 export type IdentifierWithParent = Partial<{ parent: string } & Identifier>;

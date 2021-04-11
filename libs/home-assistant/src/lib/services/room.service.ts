@@ -10,14 +10,14 @@ import {
   RoomModes,
   RoomScene,
 } from '@automagical/contracts/home-assistant';
-import { Fetch, HTTP_Methods } from '@automagical/fetch';
-import { Logger } from '@automagical/logger';
+import { FetchService, HTTP_Methods } from '@automagical/fetch';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { sleep } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
-import * as SolarCalc from 'solar-calc';
+import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
 import { EntityService } from './entity.service';
 import { SocketService } from './socket.service';
@@ -32,8 +32,6 @@ export class RoomService {
   > = {};
 
   // Near Austin, TX... I think. Deleted a few digits
-  private readonly logger = Logger(RoomService);
-
   private _SOLAR_CALC = null;
 
   // #endregion Object Properties
@@ -43,7 +41,9 @@ export class RoomService {
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly cacheService: Cache,
+    private readonly fetchService: FetchService,
     private readonly entityService: EntityService,
+    @InjectPinoLogger(RoomService.name) protected readonly logger: PinoLogger,
     private readonly socketService: SocketService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
@@ -120,14 +120,14 @@ export class RoomService {
     });
     // Because fuck working the first time you ask for something
     if (channel === 'off') {
-      await Fetch.fetch({
+      await this.fetchService.fetch({
         url: '/keypress/PowerOff',
         method: HTTP_Methods.POST,
         baseUrl: roku.host,
         process: false,
       });
       await sleep(100);
-      return Fetch.fetch({
+      return this.fetchService.fetch({
         url: '/keypress/PowerOff',
         method: HTTP_Methods.POST,
         baseUrl: roku.host,
@@ -138,14 +138,14 @@ export class RoomService {
     if (channel.substr(0, 4) === 'hdmi') {
       input = `tvinput.${channel}`;
     }
-    await Fetch.fetch({
+    await this.fetchService.fetch({
       url: `/launch/${input}`,
       method: HTTP_Methods.POST,
       baseUrl: roku.host,
       process: false,
     });
     await sleep(100);
-    return Fetch.fetch({
+    return this.fetchService.fetch({
       url: `/launch/${input}`,
       method: HTTP_Methods.POST,
       baseUrl: roku.host,
@@ -222,7 +222,7 @@ export class RoomService {
     }
     const tempEntity = await this.entityService.byId(room.config.temperature);
     if (!tempEntity) {
-      this.logger.warning(`Could not find entity: ${room.config.temperature}`);
+      this.logger.warn(`Could not find entity: ${room.config.temperature}`);
     }
     if ((tempEntity.state as number) > 74) {
       this.entityService.turnOn(fan);

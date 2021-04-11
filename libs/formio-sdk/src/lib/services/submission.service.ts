@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { FormioSdkService } from '.';
-import { iLogger, Logger } from '@automagical/logger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { FetchWith } from '../../typings/HTTP';
 import { HTTP_Methods } from '../../typings';
 
@@ -16,21 +16,13 @@ Y.a = 'asdf';
 
 @Injectable()
 export class SubmissionService {
-  // #region Static Properties
-
-  public static logger: iLogger;
-
-  // #endregion Static Properties
-
-  // #region Object Properties
-
-  private logger = Logger(SubmissionService);
-
-  // #endregion Object Properties
-
   // #region Constructors
 
-  constructor(private readonly formioSdkService: FormioSdkService) {}
+  constructor(
+    @InjectPinoLogger(SubmissionService.name)
+    protected readonly logger: PinoLogger,
+    private readonly formioSdkService: FormioSdkService,
+  ) {}
 
   // #endregion Constructors
 
