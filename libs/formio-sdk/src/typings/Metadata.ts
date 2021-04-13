@@ -5,5 +5,5 @@ export enum MetadataTypes {
   getUser = 'getUser',
 }
 
-export const UseUtilization = (type: LicenseScopes) =>
+export const UseUtilization = (type: LicenseScopes): unknown =>
   SetMetadata('licenseUtilization', type);

@@ -1,12 +1,13 @@
 process.env.DEBUG = '*';
 import { ConfigModule } from '@automagical/config';
+import { UserDTO } from '@automagical/contracts/formio-sdk';
+import { FetchService, MockFetchService } from '@automagical/fetch';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
+import faker from 'faker';
+import pino from 'pino';
 import { FormioSdkService } from '../formio-sdk.service';
 import { SubmissionService } from '../submission.service';
-import faker from 'faker';
-import { iLogger, Logger } from 'nestjs-pino';
-import { UserDTO } from '@automagical/contracts/formio-sdk';
 
 /**
  * WIP / TDD thing. Made while testing working FIO-1285, code may be useful later
@@ -14,25 +15,37 @@ import { UserDTO } from '@automagical/contracts/formio-sdk';
 xdescribe('submission-service', () => {
   let formioSdkService: FormioSdkService;
   let submissionService: SubmissionService;
-  let logger: iLogger;
+  const logger = pino();
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [ConfigModule.register({})],
-      providers: [FormioSdkService, ConfigService, SubmissionService],
+      imports: [ConfigModule.register('formio-sdk-test')],
+      providers: [
+        FormioSdkService,
+        ConfigService,
+        SubmissionService,
+        {
+          provide: FetchService,
+          useClass: MockFetchService,
+        },
+      ],
     }).compile();
 
     formioSdkService = moduleRef.get(FormioSdkService);
     submissionService = moduleRef.get(SubmissionService);
-    logger = Logger('submission-service.spec');
 
     await formioSdkService.onModuleInit();
   });
 
-  describe('patch-flow', () => {
+  xdescribe('patch-flow', () => {
     const email = faker.internet.email();
     const fullName = faker.name.firstName();
     const password = faker.random.alphaNumeric(10);
+    logger.info({
+      email,
+      fullName,
+      password,
+    });
     // it('should register a user', async () => {
     //   const user = await formioSdkService.userCreate({
     //     email,

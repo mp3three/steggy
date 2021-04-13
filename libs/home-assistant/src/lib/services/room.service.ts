@@ -11,12 +11,13 @@ import {
   RoomScene,
 } from '@automagical/contracts/home-assistant';
 import { FetchService, HTTP_Methods } from '@automagical/fetch';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { sleep } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
 import { EntityService } from './entity.service';
@@ -42,6 +43,7 @@ export class RoomService {
     @Inject(CACHE_MANAGER)
     private readonly cacheService: Cache,
     private readonly fetchService: FetchService,
+    private readonly configService: ConfigService,
     private readonly entityService: EntityService,
     @InjectPinoLogger(RoomService.name) protected readonly logger: PinoLogger,
     private readonly socketService: SocketService,
@@ -66,14 +68,15 @@ export class RoomService {
     if (this._SOLAR_CALC) {
       return this._SOLAR_CALC;
     }
+
     setTimeout(() => (this._SOLAR_CALC = null), 1000 * 30);
     // typescript is wrong this time, it works as expected for me
     // eslint-disable-next-line
     // @ts-ignore
     return new SolarCalc(
       new Date(),
-      Number(process.env.LAT),
-      Number(process.env.LONG),
+      Number(this.configService.get('application.LAT')),
+      Number(this.configService.get('application.LONG')),
     );
   }
 
@@ -177,8 +180,10 @@ export class RoomService {
     accessories = false,
   ): Promise<void> {
     this.logger.debug(`setScene ${room.name}/${scene}`, accessories);
+    const groups = new Map(Object.entries(room.groups));
+    const modes = new Map(Object.entries(room));
     const setMode = this.IS_EVENING ? RoomModes.evening : RoomModes.day;
-    const mode: HomeAssistantRoomModeDTO = room[scene];
+    const mode: HomeAssistantRoomModeDTO = modes.get(scene);
     this.eventEmitter.emit(`${room.name}/${scene}`);
     if (CircadianModes[scene]) {
       this.eventEmitter.emit('room/circadian', scene, room.name);
@@ -186,16 +191,16 @@ export class RoomService {
     if (accessories) {
       mode?.all?.acc?.forEach((entityId) => {
         if (this.IS_EVENING || scene === RoomScene.off) {
-          return this.entityService.turnOff(entityId, room.groups);
+          return this.entityService.turnOff(entityId, groups);
         }
-        return this.entityService.turnOn(entityId, room.groups);
+        return this.entityService.turnOn(entityId, groups);
       });
     }
     mode?.all?.off?.forEach((entityId) =>
-      this.entityService.turnOff(entityId, room.groups),
+      this.entityService.turnOff(entityId, groups),
     );
     mode?.all?.on?.forEach((entityId) =>
-      this.entityService.turnOn(entityId, room.groups),
+      this.entityService.turnOn(entityId, groups),
     );
     const lightingNode = mode[setMode];
     if (!lightingNode) {
@@ -206,15 +211,15 @@ export class RoomService {
     }
     lightingNode?.acc?.forEach((entityId) => {
       if (this.IS_EVENING) {
-        return this.entityService.turnOff(entityId, room.groups);
+        return this.entityService.turnOff(entityId, groups);
       }
-      return this.entityService.turnOn(entityId, room.groups);
+      return this.entityService.turnOn(entityId, groups);
     });
     lightingNode?.on?.forEach((entityId) =>
-      this.entityService.turnOn(entityId, room.groups),
+      this.entityService.turnOn(entityId, groups),
     );
     lightingNode?.off?.forEach((entityId) =>
-      this.entityService.turnOff(entityId, room.groups),
+      this.entityService.turnOff(entityId, groups),
     );
     const fan = room?.config?.fan;
     if (!fan || !accessories) {

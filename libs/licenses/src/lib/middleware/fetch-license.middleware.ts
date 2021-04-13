@@ -1,10 +1,10 @@
+import { LicenseDTO, UserDTO } from '@automagical/contracts/formio-sdk';
 import { LicenseService } from '@automagical/licenses';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NextFunction, Request, Response } from 'express';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { ADMIN_TOKEN, TOKEN_HEADER } from '../../typings';
-import { LicenseDTO, UserDTO } from '@automagical/contracts/formio-sdk';
 
 /**
  * This middleware populates:
@@ -93,15 +93,15 @@ export class FetchLicenseMiddleware implements NestMiddleware {
     if (!licenseId) {
       return;
     }
-    const idx: Record<string, LicenseDTO> = {};
+    const idx = new Map<string, LicenseDTO>();
     licenseList.forEach((license) =>
       license.data.licenseKeys.forEach((key) => (idx[key.key] = license)),
     );
-    if (!idx[licenseId]) {
-      idx[licenseId] = await this.licenseService.licenseFetch(licenseId);
+    if (!idx.has(licenseId)) {
+      idx.set(licenseId, await this.licenseService.licenseFetch(licenseId));
     }
-    if (this.canView(idx[licenseId], req, res)) {
-      out.license = idx[licenseId];
+    if (this.canView(idx.get(licenseId), req, res)) {
+      out.license = idx.get(licenseId);
     }
     return out;
   }
