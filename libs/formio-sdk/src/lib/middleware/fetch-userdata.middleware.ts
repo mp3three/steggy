@@ -22,7 +22,11 @@ export class FetchUserdataMiddleware implements NestMiddleware {
 
   // #region Public Methods
 
-  public async use(req: Request, res: Response, next: NextFunction) {
+  public async use(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     if (!req.headers['x-jwt-token']) {
       throw new HttpException(
         {

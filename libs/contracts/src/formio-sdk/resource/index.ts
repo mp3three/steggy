@@ -1,5 +1,4 @@
-import { UserDataDTO } from '@automagical/contracts';
-import { SubmissionDTO } from '..';
+import { SubmissionDTO, UserDataDTO } from '..';
 import { UtilizationResponseTermsDTO } from '../../licenses/terms.dto';
 
 export * from './LicenseAdmin.dto';

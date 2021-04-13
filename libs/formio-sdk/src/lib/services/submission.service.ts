@@ -28,18 +28,18 @@ export class SubmissionService {
 
   // #region Public Methods
 
-  public async get<T>(args: SubmissionArgs) {
+  public async get<T>(args: SubmissionArgs): Promise<T[]> {
     // resource & form are synonymous basically anywhere in the platform
     // The difference is in how you use them, but they both work over the same APIs
     // When in doubt, use resource > form here
-    return this.formioSdkService.fetch<T[]>({
+    return await this.formioSdkService.fetch<T[]>({
       url: this.buildUrl(args),
       ...args,
     });
   }
 
-  public async patch<T>(args: SubmissionArgs) {
-    return this.formioSdkService.fetch<T>({
+  public async patch<T>(args: SubmissionArgs): Promise<T> {
+    return await this.formioSdkService.fetch<T>({
       url: this.buildUrl(args),
       method: HTTP_Methods.PATCH,
       ...args,
@@ -48,8 +48,8 @@ export class SubmissionService {
 
   public async report(
     args: SubmissionArgs<{ $match: Record<string, unknown> }>,
-  ) {
-    return this.formioSdkService.fetch({
+  ): Promise<unknown> {
+    return await this.formioSdkService.fetch({
       url: `/${args.project}/report`,
       method: HTTP_Methods.POST,
       body: JSON.stringify([

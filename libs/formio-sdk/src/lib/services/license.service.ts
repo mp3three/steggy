@@ -3,6 +3,7 @@ import {
   LicenseApiServer,
   LicenseItemDTO,
   LicenseReportDTO,
+  LicenseScopes,
   LicenseUsageDTO,
 } from '@automagical/contracts/licenses';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
@@ -33,7 +34,7 @@ export class LicenseService {
 
   // #region Public Methods
 
-  public async build() {
+  public async build(): Promise<LicenseReportDTO[]> {
     this.logger.info(`Building license report`);
     const licenseList = (await this.formioSdkService.fetch({
       url: `/license`,
@@ -42,39 +43,50 @@ export class LicenseService {
 
     this.licenseData = await Promise.all(
       licenseList.map(async (license) => {
-        const admin = (await this.formioSdkService.fetch({
+        const admin = await this.formioSdkService.fetch<LicenseAdminDTO>({
           url: `/license/${license._id}/admin`,
-        })) as LicenseAdminDTO;
-        const out = {
-          admin,
-        } as LicenseReportDTO;
+        });
+        const out = new Map();
+        out.set('admin', admin);
 
         await Promise.all(
           Object.keys(admin.usage).map(async (key: keyof LicenseUsageDTO) => {
-            if (['vpat', 'pdfServers'].includes(key)) {
+            if (
+              [LicenseScopes.vpat, LicenseScopes.pdfServer].includes(
+                key as LicenseScopes,
+              )
+            ) {
               return;
             }
-            out[key] = await this.formioSdkService.fetch({
-              url: `/license/${license._id}/utilizations/${key.slice(0, -1)}`,
-            });
-            if (key === 'projects' && out.projects.length > 0) {
+            out.set(
+              key,
+              await this.formioSdkService.fetch({
+                url: `/license/${license._id}/utilizations/${key.slice(0, -1)}`,
+              }),
+            );
+            if (key === 'projects' && out.has('projects')) {
               this.logger.info(
-                `Found ${out.projects.length} projects for ${license._id}`,
+                `Found ${out.get('projects').length} projects for ${
+                  license._id
+                }`,
               );
-              out.stages = await Promise.all(
-                out.projects.map(async (project) => {
-                  return this.formioSdkService.fetch<LicenseItemDTO>({
-                    url: `/license/${license._id}/utilizations/stage`,
-                    params: {
-                      projectId: project.id,
-                    },
-                  });
-                }),
+              out.set(
+                'stages',
+                await Promise.all(
+                  out.get('projects').map(async (project) => {
+                    return await this.formioSdkService.fetch<LicenseItemDTO>({
+                      url: `/license/${license._id}/utilizations/stage`,
+                      params: {
+                        projectId: project.id,
+                      },
+                    });
+                  }),
+                ),
               );
             }
           }),
         );
-        return out;
+        return Object.fromEntries(out) as LicenseReportDTO;
       }),
     );
 
@@ -86,7 +98,7 @@ export class LicenseService {
       state: boolean;
       body: LicenseApiServer | LicenseItemDTO;
     }>,
-  ) {
+  ): Promise<unknown> {
     this.logger.debug(`toggleUsage`, args);
     return this.formioSdkService.fetch({
       method: HTTP_Methods.POST,

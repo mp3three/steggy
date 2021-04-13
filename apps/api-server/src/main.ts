@@ -1,4 +1,3 @@
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -7,19 +6,18 @@ import {
 import cors from 'cors';
 import { json } from 'express';
 import helmet from 'helmet';
+import { Logger } from 'nestjs-pino';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
-  const prefix = 'api-server';
-  const logger = Logger.forNest(prefix);
-
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
-    {
-      logger,
-    },
+    // { logger: false },
   );
+  const logger = app.get(Logger);
+  app.useLogger(logger);
+  // app.use(AsyncStorageMiddleware);
   app.useStaticAssets({ root: 'assets/public' });
   app.use(
     cors(),
@@ -28,7 +26,7 @@ async function bootstrap() {
     json({ limit: '50mb' }),
   );
   await app.listen(process.env.PORT, () => {
-    logger.info(`Listening on ${process.env.PORT}`);
+    logger.log(`Listening on ${process.env.PORT}`);
   });
 }
 

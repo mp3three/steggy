@@ -1,19 +1,14 @@
 import {
-  ,
-  MetadataTypes,
-} from '@automagical/formio-sdk';
-import {
   applyDecorators,
   createParamDecorator,
   ExecutionContext,
-  SetMetadata,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HasUserGuard } from '../guards/has-user.guard';
 
-export function FetchUser() {
+export function FetchUser(): unknown {
   return applyDecorators(
     UsePipes(),
     UseGuards(HasUserGuard),

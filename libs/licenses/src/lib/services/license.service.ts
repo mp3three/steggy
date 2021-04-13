@@ -1,4 +1,9 @@
 import {
+  LicenseDTO,
+  SubmissionDTO,
+  UserDTO,
+} from '@automagical/contracts/formio-sdk';
+import {
   CacheData,
   CacheEnvironmentDTO,
   CacheFormDTO,
@@ -18,7 +23,6 @@ import {
   FormioSdkService,
   LICENSE_SERVER,
 } from '@automagical/formio-sdk';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import {
   BadRequestException,
   CACHE_MANAGER,
@@ -32,11 +36,7 @@ import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { Request } from 'express';
-import {
-  LicenseDTO,
-  SubmissionDTO,
-  UserDTO,
-} from '@automagical/contracts/formio-sdk';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 interface UpdateArgs {
   // #region Object Properties
@@ -352,6 +352,8 @@ export class LicenseService {
 
   protected async processUpdate(args: UpdateArgs): Promise<CacheData> {
     const { cacheData, update, license } = args;
+    const licenseData = new Map(Object.entries(license.data));
+
     switch (update.type) {
       case LicenseScopes.apiServer:
         await this.getApiServer(args);
@@ -371,7 +373,7 @@ export class LicenseService {
         throw new BadRequestException('Bad project');
       }
       project[update.type] = project[update.type] || 0;
-      const limit = license.data[pluralType];
+      const limit = licenseData.get(pluralType);
       if (project[update.type] > limit) {
         throw new NotAcceptableException('Exceeded monthly limit');
       }
@@ -389,7 +391,7 @@ export class LicenseService {
       switch (update.type) {
         case LicenseScopes.pdf:
           project[update.type] = project[update.type] || 0;
-          limit = license.data[pluralType];
+          limit = licenseData.get(pluralType);
           if (project[update.type] > limit) {
             throw new NotAcceptableException('Exceeded project limit');
           }

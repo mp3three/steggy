@@ -40,7 +40,7 @@ export class SocketService {
   private connection: WebSocket;
   private isAuthenticated = false;
   private messageCount = 1;
-  private waitingCallback: Record<number, (result) => void> = {};
+  private waitingCallback = new Map<number, (result) => void>();
 
   // #endregion Object Properties
 
@@ -214,6 +214,7 @@ export class SocketService {
    * Response to an outgoing emit. Value should be redirected to the promise returned by said emit
    */
   private async onMessage(msg: SocketMessageDTO) {
+    const id = Number(msg.id);
     // let lostInFlight: number;
     switch (msg.type as HassSocketMessageTypes) {
       case HassSocketMessageTypes.auth_required:
@@ -246,9 +247,9 @@ export class SocketService {
 
       // 🏓
       case HassSocketMessageTypes.pong:
-        if (this.waitingCallback[msg.id]) {
-          const f = this.waitingCallback[msg.id];
-          delete this.waitingCallback[msg.id];
+        if (this.waitingCallback.has(id)) {
+          const f = this.waitingCallback.get(id);
+          this.waitingCallback.delete(id);
           f(msg);
         }
         return;
@@ -306,7 +307,7 @@ export class SocketService {
       return null;
     }
     // TODO Add a timer to identify calls that don't receive replies
-    return new Promise((done) => (this.waitingCallback[counter] = done));
+    return new Promise((done) => this.waitingCallback.set(counter, done));
   }
 
   // #endregion Private Methods

@@ -33,7 +33,7 @@ const availableSpeeds = [
 export class EntityService {
   // #region Object Properties
 
-  private readonly ENTITIES: Record<string, HassStateDTO> = {};
+  private readonly ENTITIES = new Map<string, HassStateDTO>();
 
   private lastUpdate = dayjs();
 
@@ -62,7 +62,7 @@ export class EntityService {
       this.logger.debug(`Cache Miss: ${entityId}`);
       await this.socketService.updateAllEntities();
     }
-    return this.ENTITIES[entityId] as T;
+    return this.ENTITIES.get(entityId) as T;
   }
 
   public async fanSpeedDown(
@@ -128,7 +128,7 @@ export class EntityService {
 
   public async turnOff(
     entityId: string,
-    groupData: Record<string, string[]> = {},
+    groupData: Map<string, string[]> = new Map(),
   ): Promise<void> {
     if (!entityId) {
       return;
@@ -155,19 +155,19 @@ export class EntityService {
           entity_id: entityId,
         });
       case HassDomains.group:
-        if (!groupData[suffix]) {
+        if (!groupData.get(suffix)) {
           throw new NotImplementedException(
             `Cannot find group information for ${suffix}`,
           );
         }
-        groupData[suffix].forEach((id) => this.turnOff(id, groupData));
+        groupData.get(suffix).forEach((id) => this.turnOff(id, groupData));
         return;
     }
   }
 
   public async turnOn(
     entityId: string,
-    groupData: Record<string, string[]> = {},
+    groupData: Map<string, string[]> = new Map(),
   ): Promise<void> {
     if (!entityId) {
       return;
@@ -211,12 +211,12 @@ export class EntityService {
           },
         );
       case HassDomains.group:
-        if (!groupData[suffix]) {
+        if (!groupData.get(suffix)) {
           throw new NotImplementedException(
             `Cannot find group information for ${suffix}`,
           );
         }
-        groupData[suffix].forEach((id) => this.turnOn(id, groupData));
+        groupData.get(suffix).forEach((id) => this.turnOn(id, groupData));
         return;
     }
   }

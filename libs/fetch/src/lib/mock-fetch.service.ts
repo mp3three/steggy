@@ -1,21 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
-import fetch from 'node-fetch';
 import { FetchWith } from '../typings/HTTP';
 import { BaseFetch } from './base-fetch.service';
 
 @Injectable()
-export class FetchService extends BaseFetch {
-  // #region Object Properties
-
-  public TRUNCATE_LENGTH = 200;
-
-  // #endregion Object Properties
-
+export class MockFetchService extends BaseFetch {
   // #region Constructors
 
   constructor(
-    @InjectPinoLogger(FetchService.name)
+    @InjectPinoLogger(MockFetchService.name)
     protected readonly logger: PinoLogger,
   ) {
     super();
@@ -43,20 +36,8 @@ export class FetchService extends BaseFetch {
    * - Exporting as postman compatible (convert a quick script into e2e tests?)
    */
   public async fetch<T>(args: FetchWith): Promise<T> {
-    const url: string = await this.fetchCreateUrl(args);
-    const requestInit = await this.fetchCreateMeta(args);
-    this.logger.debug(`${requestInit.method} ${url}`);
-    // This log will probably contain user credentials
-    if (!url.includes('/login')) {
-      this.logger.debug(requestInit);
-    }
-    try {
-      const res = await fetch(url, requestInit);
-      return await this.fetchHandleResponse(args, res);
-    } catch (err) {
-      // this.logger.error(err);
-      return null;
-    }
+    args;
+    return null;
   }
 
   // #endregion Public Methods
