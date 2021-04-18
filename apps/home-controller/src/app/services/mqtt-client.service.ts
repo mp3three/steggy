@@ -1,11 +1,10 @@
-import { MQTT_PUBLISH } from '@automagical/contracts/constants';
-import { HassServices, RoomScene } from '@automagical/contracts/home-assistant';
+import { GLOBAL_OFF, MQTT_PUBLISH } from '@automagical/contracts/constants';
+import { HassServices } from '@automagical/contracts/home-assistant';
 import { RoomService } from '@automagical/home-assistant';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { Ctx, MqttContext } from '@nestjs/microservices';
 import { MqttService, Subscribe } from 'nest-mqtt';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { AppService } from './app.service';
 import { GarageService } from './garage.service';
 import { LivingService } from './living.service';
@@ -47,14 +46,14 @@ export class MqttClientService {
   @Subscribe('mobile/leave_home')
   public async goodbye(): Promise<void> {
     this.logger.info('mobile/leave_home');
-    this.roomService.smart(null, RoomScene.off);
+    this.eventEmitterService.emit(GLOBAL_OFF);
     this.appService.setLocks(HassServices.lock);
   }
 
   @Subscribe('mobile/scene/living')
   public async livingRoomScene(): Promise<void> {
     this.logger.info('mobile/scene/living');
-    this.livingRoomService.sceneSmart();
+    this.livingRoomService.setFavoriteScene();
   }
 
   @Subscribe('mobile/lock')
@@ -66,7 +65,7 @@ export class MqttClientService {
   @Subscribe('mobile/scene/loft')
   public async loftScene(): Promise<void> {
     this.logger.info('mobile/scene/loft');
-    this.loftService.sceneSmart();
+    this.loftService.setFavoriteScene();
   }
 
   @Subscribe('mobile/transfer_pump')
@@ -81,19 +80,19 @@ export class MqttClientService {
     this.appService.setLocks(HassServices.unlock);
   }
 
-  @Subscribe(['lovelace', 'scene', '*'])
-  @Subscribe('lovelace/scene/loft')
-  public async setLoftScene(
-    scene: RoomScene,
-    @Ctx() context: MqttContext,
-  ): Promise<void> {
-    // Currently seems to be borked
-    this.logger.error(
-      'room/set-scene',
-      scene,
-      context.getTopic().split('/').pop(),
-    );
-  }
-
   // #endregion Public Methods
 }
+
+// @Subscribe(['lovelace', 'scene', '*'])
+// @Subscribe('lovelace/scene/loft')
+// public async setLoftScene(
+//   scene: RoomScene,
+//   @Ctx() context: MqttContext,
+// ): Promise<void> {
+//   // Currently seems to be borked
+//   this.logger.error(
+//     'room/set-scene',
+//     scene,
+//     context.getTopic().split('/').pop(),
+//   );
+// }

@@ -3,29 +3,18 @@ import {
   HassDomains,
   HassEventDTO,
   HassEvents,
-  HassStateDTO,
-  PicoStates,
 } from '@automagical/contracts/home-assistant';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { EntityService } from './entity.service';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { SocketService } from './socket.service';
 
 @Injectable()
 export class HomeAssistantService {
-  // #region Object Properties
-
-  private lastEvent = '';
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(
     private readonly socketService: SocketService,
-    @Inject(forwardRef(() => EntityService))
-    private readonly entityService: EntityService,
     @InjectPinoLogger(HomeAssistantService.name)
     protected readonly logger: PinoLogger,
     private readonly eventEmitter: EventEmitter2,
@@ -98,41 +87,6 @@ export class HomeAssistantService {
         return this.eventEmitter.emit(`switch.${event.data.id}/3`);
       case 4:
         return this.eventEmitter.emit(`switch.${event.data.id}/4`);
-    }
-  }
-
-  @OnEvent([HA_RAW_EVENT])
-  private async onPicoEvent(event: HassEventDTO) {
-    let domain, suffix, evt, prefix, state: HassStateDTO;
-    switch (event.event_type) {
-      case HassEvents.state_changed:
-        [domain, suffix] = event.data.entity_id.split('.');
-        if ((domain as HassDomains) !== HassDomains.sensor) {
-          return;
-        }
-        state = event.data.new_state;
-        if (state.state === PicoStates.none) {
-          return;
-        }
-        prefix = event.data.entity_id;
-        if (suffix.includes('pico')) {
-          this.eventEmitter.emit(
-            `${prefix}/pico`,
-            event.data.new_state,
-            prefix,
-          );
-        }
-        if (`${prefix}/double` === this.lastEvent) {
-          return;
-        }
-        evt = `${prefix}/single`;
-        if (evt === this.lastEvent) {
-          evt = `${prefix}/double`;
-        }
-        this.lastEvent = evt;
-        setTimeout(() => (this.lastEvent = ''), 1000 * 3);
-        state = event.data.new_state;
-        return this.eventEmitter.emit(evt, state.state, prefix);
     }
   }
 

@@ -12,7 +12,7 @@ import { SubmissionService } from '../submission.service';
 /**
  * WIP / TDD thing. Made while testing working FIO-1285, code may be useful later
  */
-xdescribe('submission-service', () => {
+describe('submission-service', () => {
   let formioSdkService: FormioSdkService;
   let submissionService: SubmissionService;
   const logger = pino();
@@ -37,7 +37,7 @@ xdescribe('submission-service', () => {
     await formioSdkService.onModuleInit();
   });
 
-  xdescribe('patch-flow', () => {
+  describe('patch-flow', () => {
     const email = faker.internet.email();
     const fullName = faker.name.firstName();
     const password = faker.random.alphaNumeric(10);

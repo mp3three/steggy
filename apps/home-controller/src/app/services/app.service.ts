@@ -116,7 +116,7 @@ export class AppService {
   public async onModuleInit(): Promise<void> {
     setTimeout(() => {
       this.logger.info(`Hello world @ ${new Date().toLocaleString()}`);
-    }, 5000);
+    }, 1000);
   }
 
   /**
@@ -175,7 +175,7 @@ export class AppService {
   @Cron('0 0 11 * * *')
   private dayInfo() {
     this.logger.debug(`dayInfo`);
-    const cal = this.roomService.SOLAR_CALC;
+    const cal = this.entityService.SOLAR_CALC;
     const start = dayjs(cal.goldenHourStart).format('hh:mm');
     const end = dayjs(cal.goldenHourEnd).format('hh:mm');
     const message = `🌄 ${dayjs().format('ddd MMM DD')}: ${start} - ${end}`;

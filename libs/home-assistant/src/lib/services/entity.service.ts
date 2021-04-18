@@ -20,6 +20,10 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { SocketService } from './socket.service';
+import SolarCalc from 'solar-calc';
+import SolarCalcType from 'solar-calc/types/solarCalc';
+import { ConfigService } from '@nestjs/config';
+import e from 'express';
 
 const availableSpeeds = [
   FanSpeeds.off,
@@ -33,8 +37,10 @@ const availableSpeeds = [
 export class EntityService {
   // #region Object Properties
 
+  private readonly CIRCADIAN_BRIGHTNESS = new Map<string, number>();
   private readonly ENTITIES = new Map<string, HassStateDTO>();
 
+  private _SOLAR_CALC = null;
   private lastUpdate = dayjs();
 
   // #endregion Object Properties
@@ -44,11 +50,29 @@ export class EntityService {
   constructor(
     @InjectPinoLogger(EntityService.name) protected readonly logger: PinoLogger,
     private readonly socketService: SocketService,
-    @Inject(CACHE_MANAGER)
-    private readonly cacheService: Cache,
+    private readonly configService: ConfigService,
   ) {}
 
   // #endregion Constructors
+
+  // #region Public Accessors
+
+  public get SOLAR_CALC(): SolarCalcType {
+    if (this._SOLAR_CALC) {
+      return this._SOLAR_CALC;
+    }
+    setTimeout(() => (this._SOLAR_CALC = null), 1000 * 30);
+    // typescript is wrong this time, it works as expected for me
+    // eslint-disable-next-line
+    // @ts-ignore
+    return new SolarCalc(
+      new Date(),
+      Number(this.configService.get('application.LAT')),
+      Number(this.configService.get('application.LONG')),
+    );
+  }
+
+  // #endregion Public Accessors
 
   // #region Public Methods
 
@@ -65,15 +89,34 @@ export class EntityService {
     return this.ENTITIES.get(entityId) as T;
   }
 
+  public async circadianLight(entityId: string): Promise<void> {
+    const MIN_COLOR = 2500;
+    const MAX_COLOR = 5500;
+    const brightness = this.CIRCADIAN_BRIGHTNESS.get(entityId);
+    const temp = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
+    this.logger.warn(
+      {
+        entityId,
+        temp,
+      },
+      'circadianLighting',
+    );
+    return this.socketService.call(HassDomains.light, HassServices.turn_on, {
+      entity_id: entityId,
+      brightness_pct: brightness,
+      kelvin: temp,
+    });
+  }
+
   public async fanSpeedDown(
     currentSpeed: FanSpeeds,
     entityId: string,
   ): Promise<void> {
     const idx = availableSpeeds.indexOf(currentSpeed);
     this.logger.debug(
-      `fanSpeedDown`,
-      entityId,
-      `${currentSpeed} => ${availableSpeeds[idx - 1]}`,
+      `fanSpeedDown ${entityId}: ${currentSpeed} => ${
+        availableSpeeds[idx - 1]
+      }`,
     );
     if (idx === 0) {
       this.logger.debug(`Cannot speed down`);
@@ -91,19 +134,35 @@ export class EntityService {
   ): Promise<void> {
     const idx = availableSpeeds.indexOf(currentSpeed);
     this.logger.debug(
-      `fanSpeedUp`,
-      entityId,
-      `${currentSpeed} => ${availableSpeeds[idx + 1]}`,
+      `fanSpeedUp ${entityId}: ${currentSpeed} => ${availableSpeeds[idx + 1]}`,
     );
     if (idx === availableSpeeds.length - 1) {
       this.logger.debug(`Cannot speed up`);
       return;
     }
-    this.logger.debug(`fanSpeedUp`, entityId, availableSpeeds[idx + 1]);
     return this.socketService.call(HassDomains.fan, HassServices.turn_on, {
       entity_id: entityId,
       speed: availableSpeeds[idx + 1],
     });
+  }
+
+  public async lightDim(entityId: string, delta: number): Promise<void> {
+    if (!this.CIRCADIAN_BRIGHTNESS.has(entityId)) {
+      if (delta > 0) {
+        this.logger.warn(`Setting light: ${entityId} to full on`);
+        this.CIRCADIAN_BRIGHTNESS.set(entityId, 100);
+        this.circadianLight(entityId);
+        return;
+      }
+      this.logger.warn(`Setting light: ${entityId} to full off`);
+      this.CIRCADIAN_BRIGHTNESS.set(entityId, 0);
+      this.circadianLight(entityId);
+      return;
+    }
+    const brightness = this.CIRCADIAN_BRIGHTNESS.get(entityId) + delta;
+    this.logger.info(`${entityId} brightness dim ${delta}`);
+    this.CIRCADIAN_BRIGHTNESS.set(entityId, brightness);
+    this.circadianLight(entityId);
   }
 
   /**
@@ -173,9 +232,7 @@ export class EntityService {
       return;
     }
     this.logger.debug(`turnOn ${entityId}`);
-    const parts = entityId.split('.');
-    const domain = parts[0] as HassDomains;
-    const suffix = parts[1];
+    const [domain, suffix] = entityId.split('.');
     let entity;
     if (domain !== HassDomains.group) {
       entity = await this.byId(entityId);
@@ -193,7 +250,7 @@ export class EntityService {
       case HassDomains.fan:
         return this.socketService.call(HassDomains.fan, HassServices.turn_on, {
           entity_id: entityId,
-          speed: FanSpeeds.medium,
+          speed: FanSpeeds.low,
         });
       case HassDomains.light:
         if (entity.state === 'on') {
@@ -239,6 +296,25 @@ export class EntityService {
       return;
     }
     this.ENTITIES[event.data.entity_id] = event.data.new_state;
+  }
+
+  private getColorOffset(): number {
+    const calc = this.SOLAR_CALC;
+    const noon = dayjs(calc.solarNoon);
+    const dusk = dayjs(calc.dusk);
+    const dawn = dayjs(calc.dawn);
+    const now = dayjs();
+
+    if (now.isBefore(dawn)) {
+      return 0;
+    }
+    if (now.isBefore(noon)) {
+      return noon.diff(now, 's') / noon.diff(dawn, 's');
+    }
+    if (now.isBefore(dusk)) {
+      return noon.diff(now, 's') / noon.diff(dusk, 's');
+    }
+    return 0;
   }
 
   // #endregion Private Methods

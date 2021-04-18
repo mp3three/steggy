@@ -8,6 +8,7 @@ import {
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Inject, Injectable } from '@nestjs/common';
 import { GAMES_CONFIG } from '../../typings';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class GamesService extends SceneRoom {
@@ -15,6 +16,7 @@ export class GamesService extends SceneRoom {
 
   constructor(
     protected readonly homeAssistantService: HomeAssistantService,
+    protected readonly eventEmitter: EventEmitter2,
     protected readonly entityService: EntityService,
     @InjectPinoLogger(GamesService.name) protected readonly logger: PinoLogger,
     protected readonly roomService: RoomService,

@@ -10,6 +10,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { GARAGE_CONFIG } from '../../typings';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 /**
  * There isn't any pico remote
@@ -20,6 +21,7 @@ export class GarageService extends SceneRoom {
 
   constructor(
     protected readonly homeAssistantService: HomeAssistantService,
+    protected readonly eventEmitter: EventEmitter2,
     protected readonly entityService: EntityService,
     @InjectPinoLogger(GarageService.name) protected readonly logger: PinoLogger,
     protected readonly roomService: RoomService,

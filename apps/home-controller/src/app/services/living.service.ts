@@ -7,7 +7,7 @@ import {
 } from '@automagical/home-assistant';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Inject, Injectable } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { LIVING_ROOM_CONFIG } from '../../typings';
 
 @Injectable()
@@ -18,6 +18,7 @@ export class LivingService extends SceneRoom {
     protected readonly homeAssistantService: HomeAssistantService,
     @InjectPinoLogger(LivingService.name) protected readonly logger: PinoLogger,
     protected readonly entityService: EntityService,
+    protected readonly eventEmitter: EventEmitter2,
     protected readonly roomService: RoomService,
     @Inject(LIVING_ROOM_CONFIG)
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,

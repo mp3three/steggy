@@ -8,6 +8,7 @@ import {
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Inject, Injectable } from '@nestjs/common';
 import { GUEST_CONFIG } from '../../typings';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class GuestService extends SceneRoom {
@@ -18,6 +19,7 @@ export class GuestService extends SceneRoom {
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
     @InjectPinoLogger(GuestService.name) protected readonly logger: PinoLogger,
     protected readonly homeAssistantService: HomeAssistantService,
+    protected readonly eventEmitter: EventEmitter2,
     protected readonly entityService: EntityService,
     protected readonly roomService: RoomService,
   ) {
@@ -26,23 +28,4 @@ export class GuestService extends SceneRoom {
   }
 
   // #endregion Constructors
-
-  // #region Public Methods
-
-  public doubleHigh(): Promise<void> {
-    this.logger.debug('doubleHigh');
-    return;
-  }
-
-  public doubleOff(): Promise<void> {
-    this.logger.debug('doubleOff');
-    return;
-  }
-
-  public async sceneSmart(): Promise<void> {
-    this.logger.debug('sceneSmart');
-    return this.roomService.smart(this.roomConfig);
-  }
-
-  // #endregion Public Methods
 }

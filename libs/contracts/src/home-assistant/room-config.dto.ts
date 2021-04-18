@@ -1,26 +1,3 @@
-import { CircadianModes } from './enums';
-
-export class HomeAssistantRoomCircadianDTO {
-  // #region Object Properties
-
-  /**
-   * Bright / fully on
-   */
-  public high: string;
-  /**
-   * Dim / near minimum
-   */
-  public low: string;
-  /**
-   * Enough to make the room feel cozy. Typically 40-60% intensity
-   *
-   * Currently, the intensity is controlled on the Home Assistant side
-   */
-  public medium: string;
-
-  // #endregion Object Properties
-}
-
 export class HomeAssistantRoomRokuDTO {
   // #region Object Properties
 
@@ -48,20 +25,6 @@ export class RoomLightingModeDTO {
   // #region Object Properties
 
   /**
-   * List of accessory entities to the scene.
-   * Intended for use by nearby lights that don't have a 100% defined ownership by a room.
-   *
-   * For example: hallway lights.
-   *
-   * These may or may not get toggled depending on the needs of a given call.
-   * Turning on/off a room normally won't activate, but setting a whole house scene should.
-   */
-  public acc?: string[];
-  /**
-   * Mode for the circadian lighting controller
-   */
-  public circadian?: CircadianModes;
-  /**
    * List of entity ids to turn off
    */
   public off?: string[];
@@ -79,7 +42,6 @@ export class RoomLightingModeDTO {
 export class HomeAssistantRoomModeDTO {
   // #region Object Properties
 
-  public all?: RoomLightingModeDTO;
   public day?: RoomLightingModeDTO;
   public evening?: RoomLightingModeDTO;
 
@@ -89,8 +51,9 @@ export class HomeAssistantRoomModeDTO {
 export class HomeAssistantRoomDetailsDTO {
   // #region Object Properties
 
-  public circadian: HomeAssistantRoomCircadianDTO;
+  public accssories: string[];
   public fan: string;
+  public lights: string[];
   public pico: string;
   public roku: HomeAssistantRoomRokuDTO;
   public temperature: string;
@@ -101,7 +64,8 @@ export class HomeAssistantRoomDetailsDTO {
 export class HomeAssistantRoomConfigDTO {
   // #region Object Properties
 
-  public config: HomeAssistantRoomDetailsDTO;
+  public config?: HomeAssistantRoomDetailsDTO;
+  public favorite?: HomeAssistantRoomModeDTO;
   public friendly_name: string;
   /**
    * Virtual groups. Provide name (ex: loft_circadian), and a listing of other entities.
@@ -109,12 +73,8 @@ export class HomeAssistantRoomConfigDTO {
    *
    * Example usage: Group together light + fan into a single "the fan" group, which handles turn on/off for both functions together
    */
-  public groups: Record<string, string[]>;
-  public high: HomeAssistantRoomModeDTO;
-  public low: HomeAssistantRoomModeDTO;
-  public medium: HomeAssistantRoomModeDTO;
+  public groups?: Record<string, string[]>;
   public name: string;
-  public off: HomeAssistantRoomModeDTO;
 
   // #endregion Object Properties
 }

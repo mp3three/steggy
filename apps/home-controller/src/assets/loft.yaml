@@ -1,65 +1,27 @@
-high:
-  evening:
-    on:
-      - group.loft_circadian
-      - switch.desk_light
-    acc:
-      - switch.loft_hallway_light
-      - switch.stair_lights
+favorite:
   day:
     on:
-      - group.loft_circadian
       - switch.desk_light
       - switch.loft_hallway_light
-    acc:
-      - switch.stair_lights
-
-medium:
-  day:
-    debug: day
-    off:
-      - switch.desk_light
-      - switch.loft_hallway_light
-    on:
       - group.loft_circadian
   evening:
-    debug: evening
     off:
       - switch.loft_hallway_light
       - group.loft_light_panel
     on:
       - group.loft_fan
       - switch.desk_light
-    acc:
-      - switch.stair_lights
-
-low:
-  all:
-    on:
-      - group.loft_fan
-    off:
-      - group.loft_light_panel
-      - switch.desk_light
-      - switch.entryway_light
-      - switch.loft_hallway_light
-
-off:
-  all:
-    off:
-      - group.loft_circadian
-      - switch.desk_light
-      - switch.loft_hallway_light
-    acc:
-      - switch.stair_lights
 
 config:
   pico: sensor.loft_pico
   temperature: sensor.upstairs_temperature
   fan: fan.loft_ceiling_fan
-  circadian:
-    high: switch.circadian_lighting_loft_circadian_high
-    medium: switch.circadian_lighting_loft_circadian_medium
-    low: switch.circadian_lighting_loft_circadian_low
+  lights:
+    - switch.desk_light
+    - switch.loft_hallway_light
+    - group.loft_circadian
+  accessories:
+    - switch.stair_lights
   roku:
     defaultChannel: hdmi1
     host: http://10.0.0.32:8060
