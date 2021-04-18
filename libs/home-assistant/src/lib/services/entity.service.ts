@@ -9,21 +9,14 @@ import {
   HassServices,
   HassStateDTO,
 } from '@automagical/contracts/home-assistant';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
-import {
-  CACHE_MANAGER,
-  Inject,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
-import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
-import { SocketService } from './socket.service';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
-import { ConfigService } from '@nestjs/config';
-import e from 'express';
+import { SocketService } from './socket.service';
 
 const availableSpeeds = [
   FanSpeeds.off,
