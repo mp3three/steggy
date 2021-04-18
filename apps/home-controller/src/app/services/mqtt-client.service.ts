@@ -30,7 +30,7 @@ export class MqttClientService {
 
   // #region Public Methods
 
-  @OnEvent(MQTT_PUBLISH)
+  @OnEvent([MQTT_PUBLISH])
   public publishMessage(
     topic: string,
     body: string | Record<string, unknown> | Buffer,

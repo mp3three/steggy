@@ -86,6 +86,7 @@ const configs = [
       // * `sensor.sensor_name/event`
       delimiter: '/',
       verboseMemoryLeak: true,
+      maxListeners: 20,
     }),
     MqttModule.forRoot({
       host: environment.MQTT_HOST,

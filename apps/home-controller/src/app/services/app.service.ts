@@ -191,7 +191,7 @@ export class AppService {
   //   this.logger.info(`autoLock`);
   //   return this.setLocks(HassServices.lock);
   // }
-  @OnEvent(CONNECTION_RESET)
+  @OnEvent([CONNECTION_RESET])
   private async onSocketReset() {
     this.logger.debug('onSocketReset');
     await sleep(10000);

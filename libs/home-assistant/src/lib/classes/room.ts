@@ -143,22 +143,6 @@ export abstract class SceneRoom {
         .forEach((entityId) => this.entityService.turnOn(entityId));
       return;
     }
-
-    // prefix = event.data.entity_id;
-    // if (suffix.includes('pico')) {
-    //   this.eventEmitter.emit(`${prefix}/pico`, event.data.new_state, prefix);
-    // }
-    // if (`${prefix}/double` === this.lastEvent) {
-    //   return;
-    // }
-    // evt = `${prefix}/single`;
-    // if (evt === this.lastEvent) {
-    //   evt = `${prefix}/double`;
-    // }
-    // this.lastEvent = evt;
-    // setTimeout(() => (this.lastEvent = ''), 1000 * 3);
-    // state = event.data.new_state;
-    // return this.eventEmitter.emit(evt, state.state, prefix);
   }
 
   // #endregion Private Methods
