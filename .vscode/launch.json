@@ -4,6 +4,7 @@
     "name": "Debug Node App",
     "type": "node",
     "request": "attach",
-    "port": 57514
+    // Match this to the workspace.json
+    "port": 33333
   }]
 }

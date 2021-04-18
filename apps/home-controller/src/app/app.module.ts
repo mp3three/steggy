@@ -10,7 +10,7 @@ import { load } from 'js-yaml';
 import { MqttModule } from 'nest-mqtt';
 import { Logger, LoggerModule } from 'nestjs-pino';
 import { join } from 'path';
-import { ASSETS_PATH, environment } from '../environments/environment';
+import { ASSETS_PATH } from '../environments/environment';
 import {
   ApplicationConfig,
   BEDROOM_CONFIG,
@@ -30,6 +30,7 @@ import { LivingService } from './services/living.service';
 import { LoftService } from './services/loft.service';
 import { MqttClientService } from './services/mqtt-client.service';
 import { FetchModule } from '@automagical/fetch';
+import { ConfigService } from '@nestjs/config';
 
 const configs = [
   {
@@ -77,22 +78,28 @@ const configs = [
     LoggerModule.forRoot(),
     CacheModule.register({}),
     ScheduleModule.forRoot(),
-    ConfigModule.register<ApplicationConfig>('home-controller', {
-      application: environment,
-    }),
+    ConfigModule.register<ApplicationConfig>('home-controller', {}),
     EventEmitterModule.forRoot({
       wildcard: true,
       // Expected format:
       // * `sensor.sensor_name/event`
       delimiter: '/',
       verboseMemoryLeak: true,
+      // Things really get mad if you cross this limit
+      // Sometimes shows up as a "TypeError: Cannot convert a Symbol value to a string" on start
       maxListeners: 20,
     }),
-    MqttModule.forRoot({
-      host: environment.MQTT_HOST,
-      port: environment.MQTT_PORT,
-      logger: {
-        useClass: Logger,
+
+    MqttModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory(configService: ConfigService) {
+        return {
+          host: configService.get('application.MQTT_HOST'),
+          port: Number(configService.get('application.MQTT_PORT')),
+          logger: {
+            useClass: Logger,
+          },
+        };
       },
     }),
   ],

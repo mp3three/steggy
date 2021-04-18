@@ -202,15 +202,6 @@
                 "command": "nx run home-controller:build:production"
               },
               {
-                "command": "echo; echo; echo Copying user-env files to assets; echo; echo;"
-              },
-              {
-                "command": "cp user-env.yaml dist/apps/home-controller/assets/"
-              },
-              {
-                "command": "cp user-env.production.yaml dist/apps/home-controller/assets/"
-              },
-              {
                 "command": "docker build --no-cache -t automagical/home-controller:latest -f apps/home-controller/Dockerfile ."
               },
               {
@@ -233,7 +224,7 @@
           "options": {
             "parallel": false,
             "commands": [{
-              "command": "nx serve home-controller --inspect inspect-brk | pino-pretty"
+              "command": "nx serve home-controller --inspect inspect-brk --port 33333 | pino-pretty"
             }]
           }
         },
