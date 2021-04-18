@@ -63,11 +63,14 @@ export class BedroomService extends SceneRoom {
     this.logger.warn('bedPicoCb', button);
     switch (button) {
       case PicoStates.favorite:
-        return this.entityService.toggle(`switch.womp`);
+        this.entityService.toggle(`switch.womp`);
+        return;
       case PicoStates.low:
-        return this.roomService.setFan(this.roomConfig.config.fan, 'down');
+        this.roomService.setFan(this.roomConfig.config.fan, 'down');
+        return;
       case PicoStates.medium:
-        return this.roomService.setFan(this.roomConfig.config.fan, 'up');
+        this.roomService.setFan(this.roomConfig.config.fan, 'up');
+        return;
       case PicoStates.high:
         this.eventEmitter.emit(GLOBAL_ON);
         return;

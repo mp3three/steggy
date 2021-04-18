@@ -48,50 +48,38 @@ export class LoftService extends SceneRoom {
   @Cron('0 0 22 * * *')
   private lightOff() {
     this.logger.debug('lightOff');
-    return this.entityService.turnOff('switch.back_desk_light');
+    this.entityService.turnOff('switch.back_desk_light');
   }
 
   @Cron('0 0 7 * * *')
   private lightOn() {
     this.logger.debug('lightOn');
-    return this.entityService.turnOn('switch.back_desk_light');
+    this.entityService.turnOn('switch.back_desk_light');
   }
 
   @OnEvent('switch.bedroom_switch/2')
   private screenToPersonal() {
     this.logger.debug('screenToPersonal');
-    return this.roomService.setRoku(
-      RokuInputs.personal,
-      this.roomConfig.config.roku,
-    );
+    this.roomService.setRoku(RokuInputs.personal, this.roomConfig.config.roku);
   }
 
   @OnEvent('switch.bedroom_switch/1')
   private screenToWindows() {
     this.logger.debug('screenToWindows');
-    return this.roomService.setRoku(
-      RokuInputs.windows,
-      this.roomConfig.config.roku,
-    );
+    this.roomService.setRoku(RokuInputs.windows, this.roomConfig.config.roku);
   }
 
   @OnEvent('switch.bedroom_switch/3')
   private screenToWork() {
     this.logger.debug('screenToWork');
-    return this.roomService.setRoku(
-      RokuInputs.work,
-      this.roomConfig.config.roku,
-    );
+    this.roomService.setRoku(RokuInputs.work, this.roomConfig.config.roku);
   }
 
   @OnEvent('loft/off')
   @OnEvent('switch.bedroom_switch/4')
   private screenOff() {
     this.logger.debug('screenOff');
-    return this.roomService.setRoku(
-      RokuInputs.off,
-      this.roomConfig.config.roku,
-    );
+    this.roomService.setRoku(RokuInputs.off, this.roomConfig.config.roku);
   }
 
   // #endregion Private Methods
