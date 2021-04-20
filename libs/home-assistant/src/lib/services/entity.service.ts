@@ -60,6 +60,7 @@ export class EntityService {
     // @ts-ignore
     return new SolarCalc(
       new Date(),
+      // TODO: Can the LAT/LONG be populated via home assistant?
       Number(this.configService.get('application.LAT')),
       Number(this.configService.get('application.LONG')),
     );
@@ -94,7 +95,7 @@ export class EntityService {
       },
       'circadianLighting',
     );
-    return this.socketService.call(HassDomains.light, HassServices.turn_on, {
+    this.socketService.call(HassDomains.light, HassServices.turn_on, {
       entity_id: entityId,
       brightness_pct: brightness,
       kelvin: temp,
@@ -115,7 +116,7 @@ export class EntityService {
       this.logger.debug(`Cannot speed down`);
       return;
     }
-    return this.socketService.call(HassDomains.fan, HassServices.turn_on, {
+    this.socketService.call(HassDomains.fan, HassServices.turn_on, {
       entity_id: entityId,
       speed: availableSpeeds[idx - 1],
     });
@@ -133,27 +134,31 @@ export class EntityService {
       this.logger.debug(`Cannot speed up`);
       return;
     }
-    return this.socketService.call(HassDomains.fan, HassServices.turn_on, {
+    this.socketService.call(HassDomains.fan, HassServices.turn_on, {
       entity_id: entityId,
       speed: availableSpeeds[idx + 1],
     });
   }
 
-  public async lightDim(entityId: string, delta: number): Promise<void> {
+  public async lightDim(
+    entityId: string,
+    delta: number,
+    groupData: Map<string, string[]> = new Map(),
+  ): Promise<void> {
+    const [domain, suffix] = entityId.split('.');
+    if (domain === HassDomains.group) {
+      groupData
+        .get(suffix)
+        .forEach((id) => this.lightDim(id, delta, groupData));
+      return;
+    }
     if (!this.CIRCADIAN_BRIGHTNESS.has(entityId)) {
-      if (delta > 0) {
-        this.logger.warn(`Setting light: ${entityId} to full on`);
-        this.CIRCADIAN_BRIGHTNESS.set(entityId, 100);
-        this.circadianLight(entityId);
-        return;
-      }
-      this.logger.warn(`Setting light: ${entityId} to full off`);
-      this.CIRCADIAN_BRIGHTNESS.set(entityId, 0);
-      this.circadianLight(entityId);
+      // 🤷‍♂️
+      this.turnOn(entityId, groupData);
       return;
     }
     const brightness = this.CIRCADIAN_BRIGHTNESS.get(entityId) + delta;
-    this.logger.info(`${entityId} brightness dim ${delta}`);
+    this.logger.info(`${entityId} set brightness: ${brightness}% (${delta}%)`);
     this.CIRCADIAN_BRIGHTNESS.set(entityId, brightness);
     this.circadianLight(entityId);
   }
@@ -166,16 +171,13 @@ export class EntityService {
   }
 
   public async toggle(entityId: string): Promise<void> {
-    if (!entityId) {
-      // Some code flows just hope for the best
-      return;
-    }
     this.logger.debug(`toggle ${entityId}`);
     const entity = await this.byId(entityId);
     if (entity.state === 'on') {
-      return this.turnOff(entityId);
+      this.turnOff(entityId);
+      return;
     }
-    return this.turnOn(entityId);
+    this.turnOn(entityId);
   }
 
   public async turnOff(
@@ -197,15 +199,19 @@ export class EntityService {
       }
     }
     switch (domain) {
-      case HassDomains.switch:
       case HassDomains.light:
-        return this.socketService.call(domain, HassServices.turn_off, {
+        this.CIRCADIAN_BRIGHTNESS.delete(entityId);
+      // fall through
+      case HassDomains.switch:
+        this.socketService.call(domain, HassServices.turn_off, {
           entity_id: entityId,
         });
+        return;
       case HassDomains.fan:
-        return this.socketService.call(HassDomains.fan, HassServices.turn_off, {
+        this.socketService.call(HassDomains.fan, HassServices.turn_off, {
           entity_id: entityId,
         });
+        return;
       case HassDomains.group:
         if (!groupData.get(suffix)) {
           throw new NotImplementedException(
@@ -235,31 +241,30 @@ export class EntityService {
     }
     switch (domain) {
       case HassDomains.switch:
-        return this.socketService.call(
-          HassDomains.switch,
-          HassServices.turn_on,
-          { entity_id: entityId },
-        );
+        this.socketService.call(HassDomains.switch, HassServices.turn_on, {
+          entity_id: entityId,
+        });
+        return;
       case HassDomains.fan:
-        return this.socketService.call(HassDomains.fan, HassServices.turn_on, {
+        this.socketService.call(HassDomains.fan, HassServices.turn_on, {
           entity_id: entityId,
           speed: FanSpeeds.low,
         });
+        return;
       case HassDomains.light:
         if (entity.state === 'on') {
           // this.logger.warn(entity);
           // The circadian throws things off with repeat on calls
           return;
         }
-        return this.socketService.call(
-          HassDomains.light,
-          HassServices.turn_on,
-          {
-            entity_id: entityId,
-            brightness_pct: 50,
-            effect: 'random',
-          },
-        );
+        const brightness = this.getDefaultBrightness();
+        this.CIRCADIAN_BRIGHTNESS.set(entityId, brightness);
+        this.socketService.call(HassDomains.light, HassServices.turn_on, {
+          entity_id: entityId,
+          brightness_pct: brightness,
+          // effect: 'random',
+        });
+        return;
       case HassDomains.group:
         if (!groupData.get(suffix)) {
           throw new NotImplementedException(
@@ -273,6 +278,27 @@ export class EntityService {
 
   // #endregion Public Methods
 
+  // #region Protected Methods
+
+  /**
+   * - If it's relatively close to solar noon, lights come on at full brightness
+   * - If the sun is still out, come on as slightly dimmed
+   * - Come on at a more dim level if it's dark out
+   */
+  protected getDefaultBrightness(): number {
+    const offset = this.getColorOffset();
+
+    if (offset > 0.5) {
+      return 100;
+    }
+    if (offset > 0) {
+      return 80;
+    }
+    return 60;
+  }
+
+  // #endregion Protected Methods
+
   // #region Private Methods
 
   @OnEvent([ALL_ENTITIES_UPDATED])
@@ -285,12 +311,19 @@ export class EntityService {
   @OnEvent([HA_RAW_EVENT])
   private onEntityUpdate(event: HassEventDTO) {
     if (!event.data.entity_id) {
-      // this.logger.warn(event);
       return;
     }
     this.ENTITIES[event.data.entity_id] = event.data.new_state;
   }
 
+  /**
+   * Returns 0 when it's dark out, increasing to 1 at solar noon
+   *
+   * ### Future improvements
+   *
+   * The math could probably be improved, this seems more thought out:
+   * https://github.com/claytonjn/hass-circadian_lighting/blob/master/custom_components/circadian_lighting/__init__.py#L206
+   */
   private getColorOffset(): number {
     const calc = this.SOLAR_CALC;
     const noon = dayjs(calc.solarNoon);
@@ -299,14 +332,18 @@ export class EntityService {
     const now = dayjs();
 
     if (now.isBefore(dawn)) {
+      // After midnight, but before dawn
       return 0;
     }
     if (now.isBefore(noon)) {
+      // After dawn, but before solar noon
       return noon.diff(now, 's') / noon.diff(dawn, 's');
     }
     if (now.isBefore(dusk)) {
+      // Afternoon, but before dusk
       return noon.diff(now, 's') / noon.diff(dusk, 's');
     }
+    // Until midnight
     return 0;
   }
 
