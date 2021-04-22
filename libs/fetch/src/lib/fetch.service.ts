@@ -45,7 +45,7 @@ export class FetchService extends BaseFetch {
   public async fetch<T>(args: FetchWith): Promise<T> {
     const url: string = await this.fetchCreateUrl(args);
     const requestInit = await this.fetchCreateMeta(args);
-    this.logger.debug(`${requestInit.method} ${url}`);
+    this.logger.trace(`${requestInit.method} ${url}`);
     // This log will probably contain user credentials
     if (!url.includes('/login')) {
       this.logger.debug(requestInit);

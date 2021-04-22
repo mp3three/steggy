@@ -39,7 +39,7 @@ export class LicenseService {
     const licenseList = (await this.formioSdkService.fetch({
       url: `/license`,
     })) as LicenseDTO[];
-    this.logger.info(`${licenseList.length} licences found`);
+    this.logger.debug(`${licenseList.length} licences found`);
 
     this.licenseData = await Promise.all(
       licenseList.map(async (license) => {
@@ -93,14 +93,14 @@ export class LicenseService {
     return this.licenseData;
   }
 
-  public toggleUsage(
+  public async toggleUsage(
     args: FetchWith<{
       state: boolean;
       body: LicenseApiServer | LicenseItemDTO;
     }>,
   ): Promise<unknown> {
     this.logger.debug(`toggleUsage`, args);
-    return this.formioSdkService.fetch({
+    return await this.formioSdkService.fetch({
       method: HTTP_Methods.POST,
       url: `/utilization/${args.state ? 'enable' : 'disable'}`,
       ...args,

@@ -67,7 +67,7 @@ export class SocketService {
     service: HassServices | string,
     service_data: Record<string, unknown> = {},
   ): Promise<T> {
-    return this.sendMsg<T>({
+    return await this.sendMsg<T>({
       type: HassCommands.call_service,
       domain,
       service,
@@ -92,7 +92,7 @@ export class SocketService {
     days: number,
     entity_id: string,
   ): Promise<T> {
-    this.logger.debug(`fetchEntityHistory`, entity_id);
+    this.logger.trace(`fetchEntityHistory ${entity_id}`);
     try {
       return this.fetch<T>({
         url: `/api/history/period/${dayjs().subtract(days, 'd').toISOString()}`,
@@ -122,7 +122,7 @@ export class SocketService {
     topic: string,
     payload: Record<string, unknown>,
   ): Promise<T> {
-    this.logger.debug(`sendMqtt`, topic);
+    this.logger.trace(`sendMqtt: ${topic}`);
     return await this.sendMsg<T>({
       type: HassCommands.call_service,
       domain: HassDomains.mqtt,
@@ -165,7 +165,7 @@ export class SocketService {
    */
   @Cron('*/15 * * * * *')
   private async ping(): Promise<void> {
-    // this.logger.debug('ping');
+    this.logger.trace('ping');
     try {
       const pong = await this.sendMsg({
         type: HassCommands.ping,

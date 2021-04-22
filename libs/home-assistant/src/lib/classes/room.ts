@@ -44,7 +44,6 @@ export abstract class SceneRoom {
 
   public async setFavoriteScene(): Promise<void> {
     const scene = this.roomService.IS_EVENING ? GLOBAL_OFF : GLOBAL_ON;
-    this.logger.debug(scene.toString());
     this.eventEmitter.emit(scene, this.roomConfig.name);
     if (!this.roomConfig.favorite) {
       this.roomConfig.config?.lights?.forEach(async (entityId) => {
@@ -112,12 +111,12 @@ export abstract class SceneRoom {
     if (this.NEXT_FAVORITE) {
       this.NEXT_FAVORITE = false;
       if (state.state === PicoStates.high) {
-        this.logger.debug('GLOBAL_ON');
+        this.logger.trace('GLOBAL_ON');
         this.eventEmitter.emit(GLOBAL_ON);
         return;
       }
       if (state.state === PicoStates.off) {
-        this.logger.debug('GLOBAL_OFF');
+        this.logger.trace('GLOBAL_OFF');
         this.eventEmitter.emit(GLOBAL_OFF);
         return;
       }

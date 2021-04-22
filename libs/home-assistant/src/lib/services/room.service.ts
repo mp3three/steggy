@@ -61,7 +61,7 @@ export class RoomService {
     entityId: string,
     speed: FanSpeeds | 'up' | 'down',
   ): Promise<void> {
-    this.logger.debug(entityId, speed);
+    this.logger.trace({ entityId, speed }, 'setFan');
     const fan = await this.entityService.byId(entityId);
     const attributes = fan.attributes as { speed: FanSpeeds };
     if (speed === 'up') {

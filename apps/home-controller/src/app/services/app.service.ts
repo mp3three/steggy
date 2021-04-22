@@ -132,7 +132,6 @@ export class AppService {
         .listEntities()
         .filter((key) => key.split('.')[0] === 'lock')
         .filter((key) => !key.includes('mystique'));
-    this.logger.warn(dayjs().format('hh:mm'), `setLocks`, locks);
     await Promise.all(
       locks.map(async (entityId) => {
         return this.socketService.call(HassDomains.lock, state, {
@@ -195,7 +194,7 @@ export class AppService {
   private async onSocketReset() {
     this.logger.debug('onSocketReset');
     await sleep(10000);
-    this.socketService.call(HassDomains.notify, MobileDevice.generic, {
+    await this.socketService.call(HassDomains.notify, MobileDevice.generic, {
       message: `Connection reset at ${new Date().toISOString()}`,
       title: `core temporarily lost connection with HomeAssistant`,
       data: {

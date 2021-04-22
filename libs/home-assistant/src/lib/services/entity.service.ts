@@ -161,7 +161,7 @@ export class EntityService {
       return;
     }
     const brightness = this.CIRCADIAN_BRIGHTNESS.get(entityId) + delta;
-    this.logger.info(`${entityId} set brightness: ${brightness}% (${delta}%)`);
+    this.logger.debug(`${entityId} set brightness: ${brightness}% (${delta}%)`);
     this.CIRCADIAN_BRIGHTNESS.set(entityId, brightness);
     await this.circadianLight(entityId);
   }
@@ -174,7 +174,7 @@ export class EntityService {
   }
 
   public async toggle(entityId: string): Promise<void> {
-    this.logger.debug(`toggle ${entityId}`);
+    this.logger.trace(`toggle ${entityId}`);
     const entity = await this.byId(entityId);
     if (entity.state === 'on') {
       await this.turnOff(entityId);
@@ -190,7 +190,7 @@ export class EntityService {
     if (!entityId) {
       return;
     }
-    this.logger.debug(`turnOff ${entityId}`);
+    this.logger.trace(`turnOff ${entityId}`);
     const parts = entityId.split('.');
     const domain = parts[0] as HassDomains;
     const suffix = parts[1];
@@ -235,7 +235,7 @@ export class EntityService {
     if (!entityId) {
       return;
     }
-    this.logger.debug(`turnOn ${entityId}`);
+    this.logger.trace(`turnOn ${entityId}`);
     const [domain, suffix] = entityId.split('.');
     let entity;
     if (domain !== HassDomains.group) {
@@ -311,7 +311,7 @@ export class EntityService {
 
   @OnEvent([ALL_ENTITIES_UPDATED])
   private onAllEntitiesUpdated(allEntities: HassStateDTO[]) {
-    this.logger.debug(`onAllEntitiesUpdated`);
+    this.logger.trace(`onAllEntitiesUpdated`);
     this.lastUpdate = dayjs();
     allEntities.forEach((entity) =>
       this.ENTITIES.set(entity.entity_id, entity),
