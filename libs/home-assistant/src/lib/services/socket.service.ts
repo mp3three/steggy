@@ -40,6 +40,7 @@ export class SocketService {
   private connection: WebSocket;
   private isAuthenticated = false;
   private messageCount = 1;
+  private updateAllPromise: Promise<HassStateDTO[]>;
   private waitingCallback = new Map<number, (result) => void>();
 
   // #endregion Object Properties
@@ -117,12 +118,12 @@ export class SocketService {
   /**
    * Ask Home Assistant to send a MQTT message
    */
-  public sendMqtt<T = unknown>(
+  public async sendMqtt<T = unknown>(
     topic: string,
     payload: Record<string, unknown>,
   ): Promise<T> {
     this.logger.debug(`sendMqtt`, topic);
-    return this.sendMsg<T>({
+    return await this.sendMsg<T>({
       type: HassCommands.call_service,
       domain: HassDomains.mqtt,
       service: HassServices.publish,
@@ -140,12 +141,19 @@ export class SocketService {
    */
   public async updateAllEntities(): Promise<HassStateDTO[]> {
     this.logger.debug(`updateAllEntities`);
-    const allEntities = await this.sendMsg<HassStateDTO[]>({
-      type: HassCommands.get_states,
+    if (this.updateAllPromise) {
+      return await this.updateAllPromise;
+    }
+    this.updateAllPromise = new Promise<HassStateDTO[]>(async (done) => {
+      const allEntities = await this.sendMsg<HassStateDTO[]>({
+        type: HassCommands.get_states,
+      });
+      // As long as the info is handy...
+      this.eventEmitter.emit(ALL_ENTITIES_UPDATED, allEntities);
+      done(allEntities);
+      this.updateAllPromise = null;
     });
-    // As long as the info is handy...
-    this.eventEmitter.emit(ALL_ENTITIES_UPDATED, allEntities);
-    return allEntities;
+    return await this.updateAllPromise;
   }
 
   // #endregion Public Methods
@@ -227,19 +235,17 @@ export class SocketService {
         //   );
         // }
         // this.waitingCallback = {};
-        this.sendMsg({
+        return await this.sendMsg({
           type: HassCommands.auth,
           access_token: this.configService.get(TOKEN),
         });
-        return;
 
       case HassSocketMessageTypes.auth_ok:
         this.isAuthenticated = true;
         await this.sendMsg({
           type: HassCommands.subscribe_events,
         });
-        await this.updateAllEntities();
-        return;
+        return await this.updateAllEntities();
 
       case HassSocketMessageTypes.event:
         this.eventEmitter.emit(HA_RAW_EVENT, msg.event);
@@ -292,7 +298,7 @@ export class SocketService {
         continue;
       }
       await sleep(1000);
-      return this.sendMsg(data);
+      return await this.sendMsg(data);
     }
     while (this.isAuthenticated === false && data.type !== HassCommands.auth) {
       // Something is jumpy

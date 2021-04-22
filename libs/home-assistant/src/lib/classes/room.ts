@@ -47,16 +47,20 @@ export abstract class SceneRoom {
     this.logger.debug(scene.toString());
     this.eventEmitter.emit(scene, this.roomConfig.name);
     if (!this.roomConfig.favorite) {
-      this.roomConfig.config?.lights?.forEach((entityId) =>
-        this.entityService.turnOn(entityId),
-      );
+      this.roomConfig.config?.lights?.forEach(async (entityId) => {
+        await this.entityService.turnOn(entityId);
+      });
       return;
     }
     const grouping = this.roomService.IS_EVENING
       ? this.roomConfig.favorite.evening
       : this.roomConfig.favorite.day;
-    grouping?.on?.forEach((entityId) => this.entityService.turnOn(entityId));
-    grouping?.off?.forEach((entityId) => this.entityService.turnOff(entityId));
+    grouping?.on?.forEach(async (entityId) => {
+      await this.entityService.turnOn(entityId);
+    });
+    grouping?.off?.forEach(async (entityId) => {
+      await this.entityService.turnOff(entityId);
+    });
   }
 
   // #endregion Public Methods
@@ -68,13 +72,13 @@ export abstract class SceneRoom {
     if (exclude === this.roomConfig.name) {
       return;
     }
-    this.roomConfig?.config?.lights?.forEach((entityId) =>
-      this.entityService.turnOff(entityId),
-    );
+    this.roomConfig?.config?.lights?.forEach(async (entityId) => {
+      await this.entityService.turnOff(entityId);
+    });
     if (!this.roomService.IS_EVENING) {
-      this.roomConfig?.config?.accssories?.forEach((entityId) =>
-        this.entityService.turnOff(entityId),
-      );
+      this.roomConfig?.config?.accssories?.forEach(async (entityId) => {
+        await this.entityService.turnOff(entityId);
+      });
     }
   }
 
@@ -83,13 +87,13 @@ export abstract class SceneRoom {
     if (exclude === this.roomConfig.name) {
       return;
     }
-    this.roomConfig?.config?.lights?.forEach((entityId) =>
-      this.entityService.turnOn(entityId),
-    );
+    this.roomConfig?.config?.lights?.forEach(async (entityId) => {
+      await this.entityService.turnOn(entityId);
+    });
     if (!this.roomService.IS_EVENING) {
-      this.roomConfig?.config?.accssories?.forEach((entityId) =>
-        this.entityService.turnOn(entityId),
-      );
+      this.roomConfig?.config?.accssories?.forEach(async (entityId) => {
+        await this.entityService.turnOn(entityId);
+      });
     }
   }
 
@@ -118,29 +122,32 @@ export abstract class SceneRoom {
         return;
       }
       if (state.state === PicoStates.favorite) {
-        this.setFavoriteScene();
+        await this.setFavoriteScene();
         return;
       }
       this.logger.warn('up/down favorite not implemented');
       return;
     }
     this.NEXT_FAVORITE = true;
+    const groups = new Map(Object.entries(this.roomConfig.groups));
     if (state.state === PicoStates.high) {
-      this.roomConfig?.config?.lights?.forEach((entityId) =>
-        this.entityService.turnOn(entityId),
-      );
+      this.roomConfig?.config?.lights?.forEach(async (entityId) => {
+        await this.entityService.turnOn(entityId, groups);
+      });
       return;
     }
     if (state.state === PicoStates.off) {
-      this.roomConfig?.config?.lights?.forEach((entityId) =>
-        this.entityService.turnOn(entityId),
-      );
+      this.roomConfig?.config?.lights?.forEach(async (entityId) => {
+        await this.entityService.turnOff(entityId, groups);
+      });
       return;
     }
     if (state.state === PicoStates.favorite) {
       this.roomConfig?.config?.lights
         ?.filter((entityId) => entityId.split('.')[0] === HassDomains.switch)
-        .forEach((entityId) => this.entityService.turnOn(entityId));
+        .forEach(async (entityId) => {
+          await this.entityService.turnOn(entityId, groups);
+        });
       return;
     }
   }

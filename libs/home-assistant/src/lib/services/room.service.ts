@@ -65,15 +65,19 @@ export class RoomService {
     const fan = await this.entityService.byId(entityId);
     const attributes = fan.attributes as { speed: FanSpeeds };
     if (speed === 'up') {
-      return this.entityService.fanSpeedUp(attributes.speed, entityId);
+      return await this.entityService.fanSpeedUp(attributes.speed, entityId);
     }
     if (speed === 'down') {
-      return this.entityService.fanSpeedDown(attributes.speed, entityId);
+      return await this.entityService.fanSpeedDown(attributes.speed, entityId);
     }
-    return this.socketService.call(HassDomains.fan, HassServices.turn_on, {
-      entity_id: entityId,
-      speed: speed,
-    });
+    return await this.socketService.call(
+      HassDomains.fan,
+      HassServices.turn_on,
+      {
+        entity_id: entityId,
+        speed: speed,
+      },
+    );
   }
 
   /**
@@ -91,6 +95,7 @@ export class RoomService {
     if (currentChannel === channel) {
       return;
     }
+    return;
     this.cacheService.set(roku.host, channel, {
       ttl: 60 * 60,
     });
@@ -103,7 +108,7 @@ export class RoomService {
         process: false,
       });
       await sleep(100);
-      return this.fetchService.fetch({
+      return await this.fetchService.fetch({
         url: '/keypress/PowerOff',
         method: HTTP_Methods.POST,
         baseUrl: roku.host,
@@ -121,7 +126,7 @@ export class RoomService {
       process: false,
     });
     await sleep(100);
-    return this.fetchService.fetch({
+    return await this.fetchService.fetch({
       url: `/launch/${input}`,
       method: HTTP_Methods.POST,
       baseUrl: roku.host,
@@ -133,18 +138,18 @@ export class RoomService {
 
   // #region Private Methods
 
-  private turnOff(
+  private async turnOff(
     entityId: string,
     groupData: Map<string, string[]> = new Map(),
   ) {
-    this.entityService.turnOff(entityId, groupData);
+    await this.entityService.turnOff(entityId, groupData);
   }
 
-  private turnOn(
+  private async turnOn(
     entityId: string,
     groupData: Map<string, string[]> = new Map(),
   ) {
-    this.entityService.turnOn(entityId, groupData);
+    await this.entityService.turnOn(entityId, groupData);
   }
 
   // #endregion Private Methods

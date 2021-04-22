@@ -46,40 +46,49 @@ export class LoftService extends SceneRoom {
   // #region Private Methods
 
   @Cron('0 0 22 * * *')
-  private lightOff() {
+  private async lightOff() {
     this.logger.debug('lightOff');
-    this.entityService.turnOff('switch.back_desk_light');
+    await this.entityService.turnOff('switch.back_desk_light');
   }
 
   @Cron('0 0 7 * * *')
-  private lightOn() {
+  private async lightOn() {
     this.logger.debug('lightOn');
-    this.entityService.turnOn('switch.back_desk_light');
+    await this.entityService.turnOn('switch.back_desk_light');
   }
 
   @OnEvent('switch.bedroom_switch/2')
-  private screenToPersonal() {
+  private async screenToPersonal() {
     this.logger.debug('screenToPersonal');
-    this.roomService.setRoku(RokuInputs.personal, this.roomConfig.config.roku);
+    await this.roomService.setRoku(
+      RokuInputs.personal,
+      this.roomConfig.config.roku,
+    );
   }
 
   @OnEvent('switch.bedroom_switch/1')
-  private screenToWindows() {
+  private async screenToWindows() {
     this.logger.debug('screenToWindows');
-    this.roomService.setRoku(RokuInputs.windows, this.roomConfig.config.roku);
+    await this.roomService.setRoku(
+      RokuInputs.windows,
+      this.roomConfig.config.roku,
+    );
   }
 
   @OnEvent('switch.bedroom_switch/3')
-  private screenToWork() {
+  private async screenToWork() {
     this.logger.debug('screenToWork');
-    this.roomService.setRoku(RokuInputs.work, this.roomConfig.config.roku);
+    await this.roomService.setRoku(
+      RokuInputs.work,
+      this.roomConfig.config.roku,
+    );
   }
 
   @OnEvent('loft/off')
   @OnEvent('switch.bedroom_switch/4')
-  private screenOff() {
+  private async screenOff() {
     this.logger.debug('screenOff');
-    this.roomService.setRoku(RokuInputs.off, this.roomConfig.config.roku);
+    await this.roomService.setRoku(RokuInputs.off, this.roomConfig.config.roku);
   }
 
   // #endregion Private Methods

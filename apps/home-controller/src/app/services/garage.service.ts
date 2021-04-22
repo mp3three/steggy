@@ -54,10 +54,10 @@ export class GarageService extends SceneRoom {
     const lightOff = now.startOf('d').add(hour, 'h');
     const lightOn = now.startOf('d').add(hour + 12, 'h');
     if (now.isAfter(lightOff) && now.isBefore(lightOn)) {
-      this.entityService.turnOff('switch.quantum_boards');
+      await this.entityService.turnOff('switch.quantum_boards');
       return;
     }
-    this.entityService.turnOn('switch.quantum_boards');
+    await this.entityService.turnOn('switch.quantum_boards');
   }
 
   // @Cron('0 */5 * * * *')
@@ -67,10 +67,10 @@ export class GarageService extends SceneRoom {
     const now = dayjs();
     const lightOn = now.startOf('d').add(6, 'h');
     if (now.isBefore(lightOn)) {
-      this.entityService.turnOff('switch.vipar_lights');
+      await this.entityService.turnOff('switch.vipar_lights');
       return;
     }
-    this.entityService.turnOn('switch.vipar_lights');
+    await this.entityService.turnOn('switch.vipar_lights');
   }
 
   // #endregion Protected Methods

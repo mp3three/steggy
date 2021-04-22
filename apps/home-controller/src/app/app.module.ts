@@ -75,7 +75,11 @@ const configs = [
   imports: [
     FetchModule,
     HomeAssistantModule,
-    LoggerModule.forRoot(),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: 'trace',
+      },
+    }),
     CacheModule.register({}),
     ScheduleModule.forRoot(),
     ConfigModule.register<ApplicationConfig>('home-controller', {}),

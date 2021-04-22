@@ -12,7 +12,7 @@ import {
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
@@ -34,7 +34,7 @@ export class EntityService {
   private readonly ENTITIES = new Map<string, HassStateDTO>();
 
   private _SOLAR_CALC = null;
-  private lastUpdate = dayjs();
+  private lastUpdate: Dayjs;
 
   // #endregion Object Properties
 
@@ -76,7 +76,10 @@ export class EntityService {
   public async byId<T extends HassStateDTO = HassStateDTO>(
     entityId: string,
   ): Promise<T> {
-    if (this.lastUpdate.isBefore(dayjs().subtract(5, 'minute'))) {
+    if (
+      !this.lastUpdate ||
+      this.lastUpdate.isBefore(dayjs().subtract(5, 'minute'))
+    ) {
       this.logger.debug(`Cache Miss: ${entityId}`);
       await this.socketService.updateAllEntities();
     }
@@ -147,9 +150,9 @@ export class EntityService {
   ): Promise<void> {
     const [domain, suffix] = entityId.split('.');
     if (domain === HassDomains.group) {
-      groupData
-        .get(suffix)
-        .forEach((id) => this.lightDim(id, delta, groupData));
+      groupData.get(suffix).forEach(async (id) => {
+        await this.lightDim(id, delta, groupData);
+      });
       return;
     }
     if (!this.CIRCADIAN_BRIGHTNESS.has(entityId)) {
@@ -160,7 +163,7 @@ export class EntityService {
     const brightness = this.CIRCADIAN_BRIGHTNESS.get(entityId) + delta;
     this.logger.info(`${entityId} set brightness: ${brightness}% (${delta}%)`);
     this.CIRCADIAN_BRIGHTNESS.set(entityId, brightness);
-    this.circadianLight(entityId);
+    await this.circadianLight(entityId);
   }
 
   /**
@@ -174,10 +177,10 @@ export class EntityService {
     this.logger.debug(`toggle ${entityId}`);
     const entity = await this.byId(entityId);
     if (entity.state === 'on') {
-      this.turnOff(entityId);
+      await this.turnOff(entityId);
       return;
     }
-    this.turnOn(entityId);
+    await this.turnOn(entityId);
   }
 
   public async turnOff(
@@ -195,7 +198,7 @@ export class EntityService {
     if (domain !== HassDomains.group) {
       entity = await this.byId(entityId);
       if (!entity) {
-        this.logger.error(`Could not find entity for ${entityId}`, groupData);
+        this.logger.error(groupData, `Could not find entity for ${entityId}`);
       }
     }
     switch (domain) {
@@ -218,7 +221,9 @@ export class EntityService {
             `Cannot find group information for ${suffix}`,
           );
         }
-        groupData.get(suffix).forEach((id) => this.turnOff(id, groupData));
+        groupData.get(suffix).forEach(async (id) => {
+          await this.turnOff(id, groupData);
+        });
         return;
     }
   }
@@ -236,7 +241,7 @@ export class EntityService {
     if (domain !== HassDomains.group) {
       entity = await this.byId(entityId);
       if (!entity) {
-        this.logger.error(`Could not find entity for ${entityId}`, groupData);
+        this.logger.error(groupData, `Could not find entity for ${entityId}`);
       }
     }
     switch (domain) {
@@ -267,11 +272,14 @@ export class EntityService {
         return;
       case HassDomains.group:
         if (!groupData.get(suffix)) {
+          this.logger.warn(JSON.stringify(Object.entries(groupData)));
           throw new NotImplementedException(
             `Cannot find group information for ${suffix}`,
           );
         }
-        groupData.get(suffix).forEach((id) => this.turnOn(id, groupData));
+        groupData.get(suffix).forEach(async (id) => {
+          await this.turnOn(id, groupData);
+        });
         return;
     }
   }
@@ -305,7 +313,9 @@ export class EntityService {
   private onAllEntitiesUpdated(allEntities: HassStateDTO[]) {
     this.logger.debug(`onAllEntitiesUpdated`);
     this.lastUpdate = dayjs();
-    allEntities.forEach((entity) => (this.ENTITIES[entity.entity_id] = entity));
+    allEntities.forEach((entity) =>
+      this.ENTITIES.set(entity.entity_id, entity),
+    );
   }
 
   @OnEvent([HA_RAW_EVENT])
