@@ -140,10 +140,10 @@ export class SocketService {
    * This can be a pretty big list
    */
   public async updateAllEntities(): Promise<HassStateDTO[]> {
-    this.logger.debug(`updateAllEntities`);
     if (this.updateAllPromise) {
       return await this.updateAllPromise;
     }
+    this.logger.debug(`updateAllEntities`);
     this.updateAllPromise = new Promise<HassStateDTO[]>(async (done) => {
       const allEntities = await this.sendMsg<HassStateDTO[]>({
         type: HassCommands.get_states,
@@ -261,9 +261,9 @@ export class SocketService {
         return;
 
       case HassSocketMessageTypes.result:
-        if (this.waitingCallback[msg.id]) {
-          const f = this.waitingCallback[msg.id];
-          delete this.waitingCallback[msg.id];
+        if (this.waitingCallback.has(id)) {
+          const f = this.waitingCallback.get(id);
+          this.waitingCallback.delete(id);
           f(msg.result);
         }
         return;
@@ -281,7 +281,7 @@ export class SocketService {
     waitForResponse = true,
   ): Promise<T> {
     if (data.type !== HassCommands.ping) {
-      this.logger.debug(data);
+      this.logger.debug(data, 'sendMsg');
     }
     this.messageCount++;
     const counter = this.messageCount;

@@ -77,7 +77,7 @@ const configs = [
     HomeAssistantModule,
     LoggerModule.forRoot({
       pinoHttp: {
-        level: 'trace',
+        level: 'debug',
       },
     }),
     CacheModule.register({}),
