@@ -31,6 +31,7 @@ import { LoftService } from './services/loft.service';
 import { MqttClientService } from './services/mqtt-client.service';
 import { FetchModule } from '@automagical/fetch';
 import { ConfigService } from '@nestjs/config';
+import RedisStore from 'cache-manager-redis-store';
 
 const configs = [
   {
@@ -75,14 +76,25 @@ const configs = [
   imports: [
     FetchModule,
     HomeAssistantModule,
+    ScheduleModule.forRoot(),
+    ConfigModule.register<ApplicationConfig>('home-controller', {}),
     LoggerModule.forRoot({
       pinoHttp: {
         level: 'debug',
       },
     }),
-    CacheModule.register({}),
-    ScheduleModule.forRoot(),
-    ConfigModule.register<ApplicationConfig>('home-controller', {}),
+    CacheModule.registerAsync({
+      inject: [ConfigService],
+      useFactory(configService: ConfigService) {
+        return {
+          max: Infinity,
+          ttl: null,
+          store: RedisStore,
+          host: configService.get('application.REDIS_HOST'),
+          port: configService.get('application.REDIS_PORT'),
+        };
+      },
+    }),
     EventEmitterModule.forRoot({
       wildcard: true,
       // Expected format:
@@ -93,7 +105,6 @@ const configs = [
       // Sometimes shows up as a "TypeError: Cannot convert a Symbol value to a string" on start
       maxListeners: 20,
     }),
-
     MqttModule.forRootAsync({
       inject: [ConfigService],
       useFactory(configService: ConfigService) {
