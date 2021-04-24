@@ -1,10 +1,13 @@
 import { ConfigModule } from '@automagical/config';
 import { HA_ALL_CONFIGS } from '@automagical/contracts/constants';
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
+import { FetchModule } from '@automagical/fetch';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import { CacheModule, Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
+import RedisStore from 'cache-manager-redis-store';
 import { readFileSync } from 'fs';
 import { load } from 'js-yaml';
 import { MqttModule } from 'nest-mqtt';
@@ -29,9 +32,6 @@ import { GuestService } from './services/guest.service';
 import { LivingService } from './services/living.service';
 import { LoftService } from './services/loft.service';
 import { MqttClientService } from './services/mqtt-client.service';
-import { FetchModule } from '@automagical/fetch';
-import { ConfigService } from '@nestjs/config';
-import RedisStore from 'cache-manager-redis-store';
 
 const configs = [
   {
@@ -77,7 +77,19 @@ const configs = [
     FetchModule,
     HomeAssistantModule,
     ScheduleModule.forRoot(),
-    ConfigModule.register<ApplicationConfig>('home-controller', {}),
+    ConfigModule.register<ApplicationConfig>('home-controller', {
+      LOG_LEVEL: 'info',
+    }),
+    LoggerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory(configService: ConfigService) {
+        return {
+          pinoHttp: {
+            level: configService.get('LOG_LEVEL'),
+          },
+        };
+      },
+    }),
     LoggerModule.forRoot({
       pinoHttp: {
         level: 'debug',
