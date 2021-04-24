@@ -1,6 +1,8 @@
+import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import { ResourceDTO } from '@automagical/contracts/formio-sdk';
+import { InjectLogger } from '@automagical/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import { HTTP_Methods } from '../../typings';
 import { FetchWith, IdentifierWithParent } from '../../typings/HTTP';
 import { FormioSdkService } from './formio-sdk.service';
@@ -10,7 +12,7 @@ export class ResourceService {
   // #region Constructors
 
   constructor(
-    @InjectPinoLogger(ResourceService.name)
+    @InjectLogger(ResourceService, LIB_FORMIO_SDK)
     protected readonly logger: PinoLogger,
     @Inject(forwardRef(() => FormioSdkService))
     public readonly formioSdkService: FormioSdkService,

@@ -1,3 +1,4 @@
+import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import { LicenseAdminDTO, LicenseDTO } from '@automagical/contracts/formio-sdk';
 import {
   LicenseApiServer,
@@ -6,8 +7,9 @@ import {
   LicenseScopes,
   LicenseUsageDTO,
 } from '@automagical/contracts/licenses';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import { PinoLogger } from 'nestjs-pino';
 import { FormioSdkService } from '.';
 import { FetchWith, HTTP_Methods } from '../../typings';
 
@@ -25,7 +27,7 @@ export class LicenseService {
    * @type Loggers
    */
   constructor(
-    @InjectPinoLogger(LicenseService.name)
+    @InjectLogger(LicenseService, LIB_FORMIO_SDK)
     protected readonly logger: PinoLogger,
     private readonly formioSdkService: FormioSdkService,
   ) {}

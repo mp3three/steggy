@@ -1,4 +1,7 @@
-import { CONNECTION_RESET } from '@automagical/contracts/constants';
+import {
+  APP_HOME_CONTROLLER,
+  CONNECTION_RESET,
+} from '@automagical/contracts/constants';
 import {
   HassDomains,
   HassEventDTO,
@@ -11,16 +14,16 @@ import {
   RoomService,
   SocketService,
 } from '@automagical/home-assistant';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
-import { sleep } from '@automagical/utilities';
+import { InjectLogger, sleep } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
-import { load } from 'js-yaml';
 import { readFileSync } from 'fs';
+import { load } from 'js-yaml';
+import { PinoLogger } from 'nestjs-pino';
 import { join } from 'path';
 import { ASSETS_PATH } from '../../environments/environment';
 import { MobileDevice, NotificationGroup, RoomsCode } from '../../typings';
@@ -52,7 +55,8 @@ export class AppService {
     private readonly entityService: EntityService,
     private readonly socketService: SocketService,
     private readonly roomService: RoomService,
-    @InjectPinoLogger(AppService.name) protected readonly logger: PinoLogger,
+    @InjectLogger(AppService, APP_HOME_CONTROLLER)
+    protected readonly logger: PinoLogger,
     private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
   ) {}

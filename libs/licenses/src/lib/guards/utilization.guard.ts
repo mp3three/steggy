@@ -1,13 +1,15 @@
+import { LIB_LICENSES } from '@automagical/contracts/constants';
+import { UtilizationResponseDTO } from '@automagical/contracts/licenses';
 import {
   FormioSdkService,
   HTTP_Methods,
   LICENSE_SERVER,
 } from '@automagical/formio-sdk';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { InjectLogger } from '@automagical/utilities';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { UtilizationResponseDTO } from '@automagical/contracts/licenses';
+import { Reflector } from '@nestjs/core';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class UtilizationGuard implements CanActivate {
@@ -16,7 +18,7 @@ export class UtilizationGuard implements CanActivate {
   constructor(
     private readonly formioSdkService: FormioSdkService,
     private readonly reflector: Reflector,
-    @InjectPinoLogger(UtilizationGuard.name)
+    @InjectLogger(UtilizationGuard, LIB_LICENSES)
     protected readonly logger: PinoLogger,
     private readonly configService: ConfigService,
   ) {}

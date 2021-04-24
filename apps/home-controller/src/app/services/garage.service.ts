@@ -1,3 +1,4 @@
+import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import {
   EntityService,
@@ -5,12 +6,13 @@ import {
   RoomService,
   SceneRoom,
 } from '@automagical/home-assistant';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { InjectLogger } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import dayjs from 'dayjs';
+import { PinoLogger } from 'nestjs-pino';
 import { GARAGE_CONFIG } from '../../typings';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 
 /**
  * There isn't any pico remote
@@ -23,7 +25,8 @@ export class GarageService extends SceneRoom {
     protected readonly homeAssistantService: HomeAssistantService,
     protected readonly eventEmitter: EventEmitter2,
     protected readonly entityService: EntityService,
-    @InjectPinoLogger(GarageService.name) protected readonly logger: PinoLogger,
+    @InjectLogger(GarageService, APP_HOME_CONTROLLER)
+    protected readonly logger: PinoLogger,
     protected readonly roomService: RoomService,
     @Inject(GARAGE_CONFIG)
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,

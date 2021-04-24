@@ -1,9 +1,10 @@
+import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
+import { InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import { PinoLogger } from 'nestjs-pino';
 import { FormioSdkService } from '.';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
-import { FetchWith } from '../../typings/HTTP';
 import { HTTP_Methods } from '../../typings';
-
+import { FetchWith } from '../../typings/HTTP';
 type SubmissionArgs<
   T extends Record<never, string> = Record<never, string>
 > = FetchWith<{ project: string; form: string; id?: string } & T>;
@@ -19,7 +20,7 @@ export class SubmissionService {
   // #region Constructors
 
   constructor(
-    @InjectPinoLogger(SubmissionService.name)
+    @InjectLogger(SubmissionService, LIB_FORMIO_SDK)
     protected readonly logger: PinoLogger,
     private readonly formioSdkService: FormioSdkService,
   ) {}

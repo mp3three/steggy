@@ -1,9 +1,11 @@
+import { LIB_LICENSES } from '@automagical/contracts/constants';
 import { LicenseDTO, UserDTO } from '@automagical/contracts/formio-sdk';
 import { LicenseService } from '@automagical/licenses';
+import { InjectLogger } from '@automagical/utilities';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NextFunction, Request, Response } from 'express';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import { ADMIN_TOKEN, TOKEN_HEADER } from '../../typings';
 
 /**
@@ -26,7 +28,7 @@ export class FetchLicenseMiddleware implements NestMiddleware {
   // #region Constructors
 
   constructor(
-    @InjectPinoLogger(FetchLicenseMiddleware.name)
+    @InjectLogger(FetchLicenseMiddleware, LIB_LICENSES)
     protected readonly logger: PinoLogger,
     private readonly licenseService: LicenseService,
     private readonly configService: ConfigService,

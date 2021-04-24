@@ -1,10 +1,15 @@
-import { GLOBAL_OFF, MQTT_PUBLISH } from '@automagical/contracts/constants';
+import {
+  APP_HOME_CONTROLLER,
+  GLOBAL_OFF,
+  MQTT_PUBLISH,
+} from '@automagical/contracts/constants';
 import { HassServices } from '@automagical/contracts/home-assistant';
 import { RoomService } from '@automagical/home-assistant';
+import { InjectLogger } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MqttService, Subscribe } from 'nest-mqtt';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import { AppService } from './app.service';
 import { GarageService } from './garage.service';
 import { LivingService } from './living.service';
@@ -18,7 +23,7 @@ export class MqttClientService {
     @Inject(MqttService) private readonly mqttService: MqttService,
     private readonly appService: AppService,
     private readonly roomService: RoomService,
-    @InjectPinoLogger(MqttClientService.name)
+    @InjectLogger(MqttClientService, APP_HOME_CONTROLLER)
     protected readonly logger: PinoLogger,
     private readonly eventEmitterService: EventEmitter2,
     private readonly livingRoomService: LivingService,

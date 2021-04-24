@@ -1,3 +1,4 @@
+import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import {
   EntityService,
@@ -5,10 +6,11 @@ import {
   RoomService,
   SceneRoom,
 } from '@automagical/home-assistant';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { InjectLogger } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
+import { PinoLogger } from 'nestjs-pino';
 import { LOFT_CONFIG } from '../../typings';
 
 enum RokuInputs {
@@ -30,7 +32,8 @@ export class LoftService extends SceneRoom {
 
   constructor(
     protected readonly homeAssistantService: HomeAssistantService,
-    @InjectPinoLogger(LoftService.name) protected readonly logger: PinoLogger,
+    @InjectLogger(LoftService, APP_HOME_CONTROLLER)
+    protected readonly logger: PinoLogger,
     protected readonly entityService: EntityService,
     protected readonly eventEmitter: EventEmitter2,
     protected readonly roomService: RoomService,

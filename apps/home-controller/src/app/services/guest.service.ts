@@ -1,3 +1,4 @@
+import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import {
   EntityService,
@@ -5,10 +6,11 @@ import {
   RoomService,
   SceneRoom,
 } from '@automagical/home-assistant';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { InjectLogger } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
-import { GUEST_CONFIG } from '../../typings';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PinoLogger } from 'nestjs-pino';
+import { GUEST_CONFIG } from '../../typings';
 
 @Injectable()
 export class GuestService extends SceneRoom {
@@ -17,7 +19,8 @@ export class GuestService extends SceneRoom {
   constructor(
     @Inject(GUEST_CONFIG)
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
-    @InjectPinoLogger(GuestService.name) protected readonly logger: PinoLogger,
+    @InjectLogger(GuestService, APP_HOME_CONTROLLER)
+    protected readonly logger: PinoLogger,
     protected readonly homeAssistantService: HomeAssistantService,
     protected readonly eventEmitter: EventEmitter2,
     protected readonly entityService: EntityService,

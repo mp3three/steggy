@@ -7,12 +7,12 @@ import {
   RokuInputs,
 } from '@automagical/contracts/home-assistant';
 import { FetchService, HTTP_Methods } from '@automagical/fetch';
-import { sleep } from '@automagical/utilities';
+import { InjectLogger, sleep } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import { EntityService } from './entity.service';
 import { SocketService } from './socket.service';
 
@@ -34,7 +34,8 @@ export class RoomService {
     private readonly cacheService: Cache,
     private readonly fetchService: FetchService,
     private readonly entityService: EntityService,
-    @InjectPinoLogger(RoomService.name) protected readonly logger: PinoLogger,
+    @InjectLogger(RoomService, 'home-assistant')
+    private readonly logger: PinoLogger,
     private readonly socketService: SocketService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
@@ -95,10 +96,7 @@ export class RoomService {
     if (currentChannel === channel) {
       return;
     }
-    return;
-    this.cacheService.set(roku.host, channel, {
-      ttl: 60 * 60,
-    });
+    await this.cacheService.set(roku.host, channel);
     // Because fuck working the first time you ask for something
     if (channel === 'off') {
       await this.fetchService.fetch({
@@ -142,14 +140,14 @@ export class RoomService {
     entityId: string,
     groupData: Map<string, string[]> = new Map(),
   ) {
-    await this.entityService.turnOff(entityId, groupData);
+    return await this.entityService.turnOff(entityId, groupData);
   }
 
   private async turnOn(
     entityId: string,
     groupData: Map<string, string[]> = new Map(),
   ) {
-    await this.entityService.turnOn(entityId, groupData);
+    return await this.entityService.turnOn(entityId, groupData);
   }
 
   // #endregion Private Methods

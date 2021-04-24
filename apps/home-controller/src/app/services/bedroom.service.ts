@@ -1,4 +1,5 @@
 import {
+  APP_HOME_CONTROLLER,
   GLOBAL_OFF,
   GLOBAL_ON,
   HA_RAW_EVENT,
@@ -15,11 +16,12 @@ import {
   RoomService,
   SceneRoom,
 } from '@automagical/home-assistant';
+import { InjectLogger } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import { BEDROOM_CONFIG } from '../../typings/config';
 
 @Injectable()
@@ -27,7 +29,7 @@ export class BedroomService extends SceneRoom {
   // #region Constructors
 
   constructor(
-    @InjectPinoLogger(BedroomService.name)
+    @InjectLogger(BedroomService, APP_HOME_CONTROLLER)
     protected readonly logger: PinoLogger,
     @Inject(BEDROOM_CONFIG)
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,

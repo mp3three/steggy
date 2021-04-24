@@ -1,12 +1,16 @@
-import { HA_RAW_EVENT } from '@automagical/contracts/constants';
+import {
+  HA_RAW_EVENT,
+  LIB_HOME_ASSISTANT,
+} from '@automagical/contracts/constants';
 import {
   HassDomains,
   HassEventDTO,
   HassEvents,
 } from '@automagical/contracts/home-assistant';
+import { InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import { SocketService } from './socket.service';
 
 @Injectable()
@@ -15,7 +19,7 @@ export class HomeAssistantService {
 
   constructor(
     private readonly socketService: SocketService,
-    @InjectPinoLogger(HomeAssistantService.name)
+    @InjectLogger(HomeAssistantService, LIB_HOME_ASSISTANT)
     protected readonly logger: PinoLogger,
     private readonly eventEmitter: EventEmitter2,
   ) {}

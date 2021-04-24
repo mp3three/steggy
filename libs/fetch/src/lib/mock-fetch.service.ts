@@ -1,5 +1,7 @@
+import { LIB_FETCH } from '@automagical/contracts/constants';
+import { InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import { FetchWith } from '../typings/HTTP';
 import { BaseFetch } from './base-fetch.service';
 
@@ -8,7 +10,7 @@ export class MockFetchService extends BaseFetch {
   // #region Constructors
 
   constructor(
-    @InjectPinoLogger(MockFetchService.name)
+    @InjectLogger(MockFetchService, LIB_FETCH)
     protected readonly logger: PinoLogger,
   ) {
     super();

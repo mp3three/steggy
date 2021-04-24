@@ -1,6 +1,8 @@
+import { TYPE_WRITER } from '@automagical/contracts/constants';
 import { FormioSdkService } from '@automagical/formio-sdk';
+import { InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import {
   // FIXME: For some reason, being normal with imports wasn't working
   createPrinter,
@@ -117,7 +119,7 @@ export class TypeWriterService {
   // #region Constructors
 
   constructor(
-    @InjectPinoLogger(TypeWriterService.name)
+    @InjectLogger(TypeWriterService, TYPE_WRITER)
     protected readonly logger: PinoLogger,
     private readonly formioSdkService: FormioSdkService,
   ) {}

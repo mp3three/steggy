@@ -1,6 +1,7 @@
 import {
   ALL_ENTITIES_UPDATED,
   HA_RAW_EVENT,
+  LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {
   FanSpeeds,
@@ -9,11 +10,18 @@ import {
   HassServices,
   HassStateDTO,
 } from '@automagical/contracts/home-assistant';
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { InjectLogger } from '@automagical/utilities';
+import {
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
+import { Cache } from 'cache-manager';
 import dayjs, { Dayjs } from 'dayjs';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
 import { SocketService } from './socket.service';
@@ -26,11 +34,32 @@ const availableSpeeds = [
   FanSpeeds.high,
 ];
 
+/**
+ * ## Lights
+ *
+ * Right now, this service assumes that light.turnOn implies the lights should automatically go into a circadian lighting mode.
+ * The color of the lights in this situatino are managed by the position of the sun relative to LAT/LONG provided to the application.
+ *
+ * Brightness is controlled via dimmer style controls. Turning on the light will make a best guess at a sane value for the current time.
+ * If it's dark outside, default "turn on / high" is closer to 60%. During the daytime, this should be closer to 100%.
+ * This number may include offsets in the future, so the "true brightness" as reported by Home Assistant could end up being different from a brightness target.
+ *
+ * **For example**: Animations may run through a range of brighnesses before settling into an end brightness. The end target is what will be cached
+ *
+ *
+ * The cache service is brought in to store the intended brightness target. This way, the data can be persisted across restarts / processes easily.
+ *
+ * ## Dealing with desync
+ *
+ * Sometimes, devices aren't in the state that the code thinks they are.
+ * This service should always treat a "turn off" command as a "reset your current state" type of command.
+ *
+ * **For example**: If anything is being cached, it should be deleted rather than be set to 0
+ */
 @Injectable()
 export class EntityService {
   // #region Object Properties
 
-  private readonly CIRCADIAN_BRIGHTNESS = new Map<string, number>();
   private readonly ENTITIES = new Map<string, HassStateDTO>();
 
   private _SOLAR_CALC = null;
@@ -41,7 +70,9 @@ export class EntityService {
   // #region Constructors
 
   constructor(
-    @InjectPinoLogger(EntityService.name) protected readonly logger: PinoLogger,
+    @InjectLogger(EntityService, LIB_HOME_ASSISTANT)
+    protected readonly logger: PinoLogger,
+    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
     private readonly socketService: SocketService,
     private readonly configService: ConfigService,
   ) {}
@@ -89,7 +120,7 @@ export class EntityService {
   public async circadianLight(entityId: string): Promise<void> {
     const MIN_COLOR = 2500;
     const MAX_COLOR = 5500;
-    const brightness = this.CIRCADIAN_BRIGHTNESS.get(entityId);
+    const brightness = await this.cacheService.get(this.cacheKey(entityId));
     const temp = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
     this.logger.warn(
       {
@@ -98,11 +129,15 @@ export class EntityService {
       },
       'circadianLighting',
     );
-    this.socketService.call(HassDomains.light, HassServices.turn_on, {
-      entity_id: entityId,
-      brightness_pct: brightness,
-      kelvin: temp,
-    });
+    return await this.socketService.call(
+      HassDomains.light,
+      HassServices.turn_on,
+      {
+        entity_id: entityId,
+        brightness_pct: brightness,
+        kelvin: temp,
+      },
+    );
   }
 
   public async fanSpeedDown(
@@ -119,10 +154,14 @@ export class EntityService {
       this.logger.debug(`Cannot speed down`);
       return;
     }
-    this.socketService.call(HassDomains.fan, HassServices.turn_on, {
-      entity_id: entityId,
-      speed: availableSpeeds[idx - 1],
-    });
+    return await this.socketService.call(
+      HassDomains.fan,
+      HassServices.turn_on,
+      {
+        entity_id: entityId,
+        speed: availableSpeeds[idx - 1],
+      },
+    );
   }
 
   public async fanSpeedUp(
@@ -137,10 +176,14 @@ export class EntityService {
       this.logger.debug(`Cannot speed up`);
       return;
     }
-    this.socketService.call(HassDomains.fan, HassServices.turn_on, {
-      entity_id: entityId,
-      speed: availableSpeeds[idx + 1],
-    });
+    return await this.socketService.call(
+      HassDomains.fan,
+      HassServices.turn_on,
+      {
+        entity_id: entityId,
+        speed: availableSpeeds[idx + 1],
+      },
+    );
   }
 
   public async lightDim(
@@ -155,15 +198,18 @@ export class EntityService {
       });
       return;
     }
-    if (!this.CIRCADIAN_BRIGHTNESS.has(entityId)) {
+    let brightness: number = await this.cacheService.get(
+      this.cacheKey(entityId),
+    );
+    if (typeof brightness !== 'number') {
       // 🤷‍♂️
       this.turnOn(entityId, groupData);
       return;
     }
-    const brightness = this.CIRCADIAN_BRIGHTNESS.get(entityId) + delta;
+    brightness = brightness + delta;
     this.logger.debug(`${entityId} set brightness: ${brightness}% (${delta}%)`);
-    this.CIRCADIAN_BRIGHTNESS.set(entityId, brightness);
-    await this.circadianLight(entityId);
+    await this.cacheService.set(this.cacheKey(entityId), brightness);
+    return await this.circadianLight(entityId);
   }
 
   /**
@@ -177,10 +223,9 @@ export class EntityService {
     this.logger.trace(`toggle ${entityId}`);
     const entity = await this.byId(entityId);
     if (entity.state === 'on') {
-      await this.turnOff(entityId);
-      return;
+      return await this.turnOff(entityId);
     }
-    await this.turnOn(entityId);
+    return await this.turnOn(entityId);
   }
 
   public async turnOff(
@@ -203,18 +248,20 @@ export class EntityService {
     }
     switch (domain) {
       case HassDomains.light:
-        this.CIRCADIAN_BRIGHTNESS.delete(entityId);
+        this.cacheService.del(this.cacheKey(entityId));
       // fall through
       case HassDomains.switch:
-        this.socketService.call(domain, HassServices.turn_off, {
+        return await this.socketService.call(domain, HassServices.turn_off, {
           entity_id: entityId,
         });
-        return;
       case HassDomains.fan:
-        this.socketService.call(HassDomains.fan, HassServices.turn_off, {
-          entity_id: entityId,
-        });
-        return;
+        return await this.socketService.call(
+          HassDomains.fan,
+          HassServices.turn_off,
+          {
+            entity_id: entityId,
+          },
+        );
       case HassDomains.group:
         if (!groupData.get(suffix)) {
           throw new NotImplementedException(
@@ -263,7 +310,7 @@ export class EntityService {
           return;
         }
         const brightness = this.getDefaultBrightness();
-        this.CIRCADIAN_BRIGHTNESS.set(entityId, brightness);
+        await this.cacheService.set(this.cacheKey(entityId), brightness);
         this.socketService.call(HassDomains.light, HassServices.turn_on, {
           entity_id: entityId,
           brightness_pct: brightness,
@@ -324,6 +371,10 @@ export class EntityService {
       return;
     }
     this.ENTITIES[event.data.entity_id] = event.data.new_state;
+  }
+
+  private cacheKey(entityId: string) {
+    return `brightness.${entityId}`;
   }
 
   /**

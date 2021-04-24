@@ -1,13 +1,15 @@
 import { FormioSDKConfig } from '@automagical/config';
+import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import {
   ProjectDTO,
   UserDataDTO,
   UserDTO,
 } from '@automagical/contracts/formio-sdk';
 import { FetchService } from '@automagical/fetch';
+import { InjectLogger } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import { Response } from 'node-fetch';
 import {
   FetchWith,
@@ -42,7 +44,7 @@ export class FormioSdkService {
   // #region Constructors
 
   constructor(
-    @InjectPinoLogger(FormioSdkService.name)
+    @InjectLogger(FormioSdkService, LIB_FORMIO_SDK)
     protected readonly logger: PinoLogger,
     private readonly fetchService: FetchService,
     private readonly configService: ConfigService,

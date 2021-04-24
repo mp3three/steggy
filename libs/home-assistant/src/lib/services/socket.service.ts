@@ -4,6 +4,7 @@ import {
   CONNECTION_RESET,
   HA_RAW_EVENT,
   HOST,
+  LIB_HOME_ASSISTANT,
   TOKEN,
 } from '@automagical/contracts/constants';
 import {
@@ -16,14 +17,14 @@ import {
   SocketMessageDTO,
 } from '@automagical/contracts/home-assistant';
 import { FetchService, FetchWith } from '@automagical/fetch';
-import { sleep } from '@automagical/utilities';
+import { InjectLogger, sleep } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import WS from 'ws';
 
 /**
@@ -51,7 +52,8 @@ export class SocketService {
     private readonly fetchService: FetchService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly configService: ConfigService,
-    @InjectPinoLogger(SocketService.name) protected readonly logger: PinoLogger,
+    @InjectLogger(SocketService, LIB_HOME_ASSISTANT)
+    protected readonly logger: PinoLogger,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 

@@ -1,4 +1,5 @@
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
+import { InjectLogger } from '@automagical/utilities';
 import {
   HttpException,
   HttpStatus,
@@ -6,6 +7,7 @@ import {
   NestMiddleware,
 } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
+import { PinoLogger } from 'nestjs-pino';
 import { FormioSdkService } from '../services';
 
 @Injectable()
@@ -13,7 +15,7 @@ export class FetchUserdataMiddleware implements NestMiddleware {
   // #region Constructors
 
   constructor(
-    @InjectPinoLogger(FetchUserdataMiddleware.name)
+    @InjectLogger(FetchUserdataMiddleware, LIB_FORMIO_SDK)
     protected readonly logger: PinoLogger,
     private readonly formioSdkService: FormioSdkService,
   ) {}
