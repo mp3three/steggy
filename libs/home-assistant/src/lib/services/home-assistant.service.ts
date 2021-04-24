@@ -1,5 +1,6 @@
 import {
   HA_RAW_EVENT,
+  HA_SOCKET_READY,
   LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {
@@ -41,15 +42,19 @@ export class HomeAssistantService {
     group: Group,
     message = '',
   ): Promise<void> {
-    return this.socketService.call(HassDomains.notify, device, {
-      message,
-      title,
-      data: {
-        push: {
-          'thread-id': group,
+    return this.socketService.call(
+      device,
+      {
+        message,
+        title,
+        data: {
+          push: {
+            'thread-id': group,
+          },
         },
       },
-    });
+      HassDomains.notify,
+    );
   }
 
   // #endregion Public Methods
@@ -92,6 +97,11 @@ export class HomeAssistantService {
       case 4:
         return this.eventEmitter.emit(`switch.${event.data.id}/4`);
     }
+  }
+
+  @OnEvent([HA_SOCKET_READY])
+  private onSocketReady() {
+    return;
   }
 
   // #endregion Private Methods

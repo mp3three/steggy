@@ -61,14 +61,10 @@ export class RoomService {
     if (speed === 'down') {
       return await this.entityService.fanSpeedDown(attributes.speed, entityId);
     }
-    return await this.socketService.call(
-      HassDomains.fan,
-      HassServices.turn_on,
-      {
-        entity_id: entityId,
-        speed: speed,
-      },
-    );
+    return await this.socketService.call(HassServices.turn_on, {
+      entity_id: entityId,
+      speed: speed,
+    });
   }
 
   /**

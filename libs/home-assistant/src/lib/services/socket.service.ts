@@ -3,6 +3,7 @@ import {
   BASE_URL,
   CONNECTION_RESET,
   HA_RAW_EVENT,
+  HA_SOCKET_READY,
   HOST,
   LIB_HOME_ASSISTANT,
   TOKEN,
@@ -63,18 +64,23 @@ export class SocketService {
 
   /**
    * Convenience wrapper around sendMsg
+   *
+   * Does not wait for a response, meant for issuing commands
    */
   public async call<T extends void = void>(
-    domain: HassDomains,
     service: HassServices | string,
     service_data: Record<string, unknown> = {},
+    domain: HassDomains = HassDomains.homeassistant,
   ): Promise<T> {
-    return await this.sendMsg<T>({
-      type: HassCommands.call_service,
-      domain,
-      service,
-      service_data,
-    });
+    return await this.sendMsg<T>(
+      {
+        type: HassCommands.call_service,
+        domain,
+        service,
+        service_data,
+      },
+      false,
+    );
   }
 
   /**
@@ -186,9 +192,11 @@ export class SocketService {
 
   /**
    * Set up a new websocket connection to home assistant
+   *
+   * TODO: Make this blocking until HA_SOCKET_READY
    */
   private initConnection(reset = false): void {
-    this.logger.info('initConnection');
+    this.logger.debug('initConnection');
     if (reset) {
       this.eventEmitter.emit(CONNECTION_RESET);
       this.isAuthenticated = false;
@@ -224,6 +232,7 @@ export class SocketService {
    * Response to an outgoing emit. Value should be redirected to the promise returned by said emit
    */
   private async onMessage(msg: SocketMessageDTO) {
+    this.logger.trace({ msg }, 'onMessage');
     const id = Number(msg.id);
     // let lostInFlight: number;
     switch (msg.type as HassSocketMessageTypes) {
@@ -247,7 +256,11 @@ export class SocketService {
         await this.sendMsg({
           type: HassCommands.subscribe_events,
         });
-        return await this.updateAllEntities();
+        await this.updateAllEntities();
+        // Theoretially, all entities are present, and we have an authorized connection
+        // Open the floodgates
+        this.eventEmitter.emit(HA_SOCKET_READY);
+        return;
 
       case HassSocketMessageTypes.event:
         this.eventEmitter.emit(HA_RAW_EVENT, msg.event);
@@ -271,7 +284,6 @@ export class SocketService {
         return;
       default:
         this.logger.warn(`Unknown websocket message type: ${msg.type}`);
-        this.logger.debug(msg);
     }
   }
 
@@ -282,9 +294,7 @@ export class SocketService {
     data: SendSocketMessageDTO,
     waitForResponse = true,
   ): Promise<T> {
-    if (data.type !== HassCommands.ping) {
-      this.logger.debug(data, 'sendMsg');
-    }
+    this.logger.trace(data, 'sendMsg');
     this.messageCount++;
     const counter = this.messageCount;
     if (data.type !== HassCommands.auth) {
@@ -305,7 +315,7 @@ export class SocketService {
     while (this.isAuthenticated === false && data.type !== HassCommands.auth) {
       // Something is jumpy
       // Request went in post-connect but pre-auth (which is supposed to be quick)
-      // Maybe check a different lifecycle event
+      // HA_SOCKET_READY is the event to watch for
       this.logger.warn(`sendMsg waiting for authentication`);
       await sleep(100);
     }

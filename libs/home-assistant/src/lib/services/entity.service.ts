@@ -129,15 +129,11 @@ export class EntityService {
       },
       'circadianLighting',
     );
-    return await this.socketService.call(
-      HassDomains.light,
-      HassServices.turn_on,
-      {
-        entity_id: entityId,
-        brightness_pct: brightness,
-        kelvin,
-      },
-    );
+    return await this.socketService.call(HassServices.turn_on, {
+      entity_id: entityId,
+      brightness_pct: brightness,
+      kelvin,
+    });
   }
 
   /**
@@ -163,14 +159,10 @@ export class EntityService {
       this.logger.debug(`Cannot speed down`);
       return;
     }
-    return await this.socketService.call(
-      HassDomains.fan,
-      HassServices.turn_on,
-      {
-        entity_id: entityId,
-        speed: availableSpeeds[idx - 1],
-      },
-    );
+    return await this.socketService.call(HassServices.turn_on, {
+      entity_id: entityId,
+      speed: availableSpeeds[idx - 1],
+    });
   }
 
   public async fanSpeedUp(
@@ -185,14 +177,10 @@ export class EntityService {
       this.logger.debug(`Cannot speed up`);
       return;
     }
-    return await this.socketService.call(
-      HassDomains.fan,
-      HassServices.turn_on,
-      {
-        entity_id: entityId,
-        speed: availableSpeeds[idx + 1],
-      },
-    );
+    return await this.socketService.call(HassServices.turn_on, {
+      entity_id: entityId,
+      speed: availableSpeeds[idx + 1],
+    });
   }
 
   public async lightDim(entityId: string, delta: number): Promise<void> {
@@ -220,18 +208,13 @@ export class EntityService {
   }
 
   public async turnOff(entityId: string): Promise<void> {
-    if (!entityId) {
-      return;
-    }
     this.logger.trace(`turnOff ${entityId}`);
     const parts = entityId.split('.');
     const domain = parts[0] as HassDomains;
-    let entity;
-    if (domain !== HassDomains.group) {
-      entity = await this.byId(entityId);
-      if (!entity) {
-        this.logger.error(`Could not find entity for ${entityId}`);
-      }
+    const entity = await this.byId(entityId);
+    if (!entity) {
+      this.logger.error(`Could not find entity for ${entityId}`);
+      return;
     }
     switch (domain) {
       case HassDomains.group:
@@ -239,63 +222,40 @@ export class EntityService {
         this.cacheService.del(this.cacheKey(entityId));
       // fall through
       case HassDomains.switch:
-        return await this.socketService.call(domain, HassServices.turn_off, {
+        return await this.socketService.call(HassServices.turn_off, {
           entity_id: entityId,
         });
       case HassDomains.fan:
-        return await this.socketService.call(
-          HassDomains.fan,
-          HassServices.turn_off,
-          {
-            entity_id: entityId,
-          },
-        );
+        return await this.socketService.call(HassServices.turn_off, {
+          entity_id: entityId,
+        });
     }
   }
 
   public async turnOn(entityId: string): Promise<void> {
-    if (!entityId) {
-      return;
-    }
     this.logger.trace(`turnOn ${entityId}`);
     const [domain] = entityId.split('.');
-    let entity;
-    if (domain !== HassDomains.group) {
-      entity = await this.byId(entityId);
-      if (!entity) {
-        this.logger.error(`Could not find entity for ${entityId}`);
-      }
+    const entity = await this.byId(entityId);
+    if (!entity) {
+      this.logger.error(`Could not find entity for ${entityId}`);
     }
     switch (domain) {
       case HassDomains.switch:
-        this.socketService.call(HassDomains.switch, HassServices.turn_on, {
+        this.socketService.call(HassServices.turn_on, {
           entity_id: entityId,
         });
         return;
       case HassDomains.fan:
-        this.socketService.call(HassDomains.fan, HassServices.turn_on, {
+        this.socketService.call(HassServices.turn_on, {
           entity_id: entityId,
           speed: FanSpeeds.low,
         });
         return;
       case HassDomains.group:
       case HassDomains.light:
-        if (entity.state === 'on') {
-          // this.logger.warn(entity);
-          // The circadian throws things off with repeat on calls
-          return;
-        }
         const brightness = this.getDefaultBrightness();
         await this.cacheService.set(this.cacheKey(entityId), brightness);
-        return await this.socketService.call(
-          HassDomains.light,
-          HassServices.turn_on,
-          {
-            entity_id: entityId,
-            brightness_pct: brightness,
-            // effect: 'random',
-          },
-        );
+        return await this.circadianLight(entityId);
     }
   }
 

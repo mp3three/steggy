@@ -45,21 +45,30 @@ export abstract class SceneRoom {
   public async setFavoriteScene(): Promise<void> {
     const scene = this.roomService.IS_EVENING ? GLOBAL_OFF : GLOBAL_ON;
     this.eventEmitter.emit(scene, this.roomConfig.name);
-    if (!this.roomConfig.favorite) {
-      this.roomConfig.config?.lights?.forEach(async (entityId) => {
+    if (this.roomConfig?.favorite) {
+      const scene = this.roomService.IS_EVENING
+        ? this.roomConfig.favorite.evening
+        : this.roomConfig.favorite.day;
+
+      this.logger.warn(
+        {
+          scene,
+        },
+        'setFavoriteScene',
+      );
+      scene.on?.forEach(async (entityId) => {
         await this.entityService.turnOn(entityId);
+      });
+      scene.off?.forEach(async (entityId) => {
+        await this.entityService.turnOff(entityId);
       });
       return;
     }
-    const grouping = this.roomService.IS_EVENING
-      ? this.roomConfig.favorite.evening
-      : this.roomConfig.favorite.day;
-    grouping?.on?.forEach(async (entityId) => {
-      await this.entityService.turnOn(entityId);
-    });
-    grouping?.off?.forEach(async (entityId) => {
-      await this.entityService.turnOff(entityId);
-    });
+    return this.roomConfig?.config?.lights
+      ?.filter((entityId) => entityId.split('.')[0] === HassDomains.switch)
+      .forEach(async (entityId) => {
+        await this.entityService.toggle(entityId);
+      });
   }
 
   // #endregion Public Methods
@@ -139,23 +148,7 @@ export abstract class SceneRoom {
       });
     }
     if (state.state === PicoStates.favorite) {
-      if (this.roomConfig?.favorite) {
-        const scene = this.roomService.IS_EVENING
-          ? this.roomConfig.favorite.evening
-          : this.roomConfig.favorite.day;
-        scene.on?.forEach(async (entityId) => {
-          await this.entityService.turnOn(entityId);
-        });
-        scene.off?.forEach(async (entityId) => {
-          await this.entityService.turnOff(entityId);
-        });
-        return;
-      }
-      return this.roomConfig?.config?.lights
-        ?.filter((entityId) => entityId.split('.')[0] === HassDomains.switch)
-        .forEach(async (entityId) => {
-          await this.entityService.toggle(entityId);
-        });
+      return await this.setFavoriteScene();
     }
   }
 

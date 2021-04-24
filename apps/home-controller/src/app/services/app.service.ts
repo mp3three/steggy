@@ -134,13 +134,17 @@ export class AppService {
       lockList ||
       this.entityService
         .entityList()
-        .filter((key) => key.split('.')[0] === 'lock')
+        .filter((key) => key.split('.')[0] === HassDomains.lock)
         .filter((key) => !key.includes('mystique'));
     await Promise.all(
       locks.map(async (entityId) => {
-        return this.socketService.call(HassDomains.lock, state, {
-          entity_id: entityId,
-        });
+        return this.socketService.call(
+          state,
+          {
+            entity_id: entityId,
+          },
+          HassDomains.lock,
+        );
       }),
     );
   }
@@ -198,15 +202,19 @@ export class AppService {
   private async onSocketReset() {
     this.logger.debug('onSocketReset');
     await sleep(10000);
-    await this.socketService.call(HassDomains.notify, MobileDevice.generic, {
-      message: `Connection reset at ${new Date().toISOString()}`,
-      title: `core temporarily lost connection with HomeAssistant`,
-      data: {
-        push: {
-          'thread-id': NotificationGroup.serverStatus,
+    await this.socketService.call(
+      MobileDevice.generic,
+      {
+        message: `Connection reset at ${new Date().toISOString()}`,
+        title: `core temporarily lost connection with HomeAssistant`,
+        data: {
+          push: {
+            'thread-id': NotificationGroup.serverStatus,
+          },
         },
       },
-    });
+      HassDomains.notify,
+    );
   }
 
   /**

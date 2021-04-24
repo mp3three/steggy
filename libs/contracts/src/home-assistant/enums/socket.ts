@@ -25,6 +25,7 @@ export enum HassDomains {
   lock = 'lock',
   notify = 'notify',
   configurator = 'configurator',
+  homeassistant = 'homeassistant',
 }
 
 export enum HassCommands {
