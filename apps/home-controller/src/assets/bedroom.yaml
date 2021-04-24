@@ -1,18 +1,9 @@
 config:
   pico: sensor.bedroom_pico
-  temperature: sensor.upstairs_temperature
   fan: fan.master_bedroom_ceiling_fan
   lights:
     - switch.womp
     - group.bedroom_circadian
-
-groups:
-  bedroom_circadian:
-    - light.bedroom_fan_bottom_left
-    - light.bedroom_fan_bottom_right
-    - light.bedroom_fan_top_left
-    - light.speaker_light
-    - light.bedroom_fan_top_right
 
 name: bedroom
 friendly_name: Master Bedroom

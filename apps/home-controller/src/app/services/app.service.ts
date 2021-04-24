@@ -133,7 +133,7 @@ export class AppService {
     const locks =
       lockList ||
       this.entityService
-        .listEntities()
+        .entityList()
         .filter((key) => key.split('.')[0] === 'lock')
         .filter((key) => !key.includes('mystique'));
     await Promise.all(
@@ -154,7 +154,7 @@ export class AppService {
     this.logger.debug('batteryMonitor');
     await this.socketService.updateAllEntities();
     await sleep(1000);
-    const entities = this.entityService.listEntities().filter((entityId) => {
+    const entities = this.entityService.entityList().filter((entityId) => {
       const [domain, suffix] = entityId.split('.');
       return (
         (domain as HassDomains) !== HassDomains.sensor ||

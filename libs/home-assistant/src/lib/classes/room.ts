@@ -121,33 +121,41 @@ export abstract class SceneRoom {
         return;
       }
       if (state.state === PicoStates.favorite) {
-        await this.setFavoriteScene();
-        return;
+        return await this.setFavoriteScene();
       }
       this.logger.warn('up/down favorite not implemented');
       return;
     }
     this.NEXT_FAVORITE = true;
-    const groups = new Map(Object.entries(this.roomConfig.groups));
+    setTimeout(() => (this.NEXT_FAVORITE = false), 1000);
     if (state.state === PicoStates.high) {
-      this.roomConfig?.config?.lights?.forEach(async (entityId) => {
-        await this.entityService.turnOn(entityId, groups);
+      return this.roomConfig?.config?.lights?.forEach(async (entityId) => {
+        await this.entityService.turnOn(entityId);
       });
-      return;
     }
     if (state.state === PicoStates.off) {
-      this.roomConfig?.config?.lights?.forEach(async (entityId) => {
-        await this.entityService.turnOff(entityId, groups);
+      return this.roomConfig?.config?.lights?.forEach(async (entityId) => {
+        await this.entityService.turnOff(entityId);
       });
-      return;
     }
     if (state.state === PicoStates.favorite) {
-      this.roomConfig?.config?.lights
+      if (this.roomConfig?.favorite) {
+        const scene = this.roomService.IS_EVENING
+          ? this.roomConfig.favorite.evening
+          : this.roomConfig.favorite.day;
+        scene.on?.forEach(async (entityId) => {
+          await this.entityService.turnOn(entityId);
+        });
+        scene.off?.forEach(async (entityId) => {
+          await this.entityService.turnOff(entityId);
+        });
+        return;
+      }
+      return this.roomConfig?.config?.lights
         ?.filter((entityId) => entityId.split('.')[0] === HassDomains.switch)
         .forEach(async (entityId) => {
-          await this.entityService.turnOn(entityId, groups);
+          await this.entityService.toggle(entityId);
         });
-      return;
     }
   }
 

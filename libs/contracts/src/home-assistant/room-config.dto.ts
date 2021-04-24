@@ -56,7 +56,6 @@ export class HomeAssistantRoomDetailsDTO {
   public lights: string[];
   public pico: string;
   public roku: HomeAssistantRoomRokuDTO;
-  public temperature: string;
 
   // #endregion Object Properties
 }
@@ -67,13 +66,6 @@ export class HomeAssistantRoomConfigDTO {
   public config?: HomeAssistantRoomDetailsDTO;
   public favorite?: HomeAssistantRoomModeDTO;
   public friendly_name: string;
-  /**
-   * Virtual groups. Provide name (ex: loft_circadian), and a listing of other entities.
-   * Allows local group entity to relay appropriate commands.
-   *
-   * Example usage: Group together light + fan into a single "the fan" group, which handles turn on/off for both functions together
-   */
-  public groups?: Record<string, string[]>;
   public name: string;
 
   // #endregion Object Properties

@@ -1,15 +1,7 @@
 config:
   pico: sensor.guest_pico
-  fan: fan.guest_ceiling_fan
-  temperature: sensor.upstairs_temperature
   lights:
     - group.guest_circadian
-
-groups:
-  guest_circadian:
-    - light.guest_left
-    - light.guest_right
-    - light.guest_door
 
 name: guest
 friendly_name: Guest Room

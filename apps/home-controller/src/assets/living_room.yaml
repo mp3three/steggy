@@ -16,8 +16,6 @@ favorite:
 
 config:
   pico: sensor.living_pico
-  fan: fan.living_room_ceiling_fan
-  temperature: sensor.downstairs_temperature
   lights:
     - group.living_circadian
     - switch.bar_light
@@ -31,16 +29,6 @@ config:
   roku:
     defaultChannel: hdmi1
     host: http://10.0.0.7:8060
-
-groups:
-  living_circadian:
-    - light.living_room_back
-    - light.living_room_front
-    - light.living_room_left
-    - light.living_room_right
-  living_accessories:
-    - switch.couch_light
-    - switch.media_center_light
 
 name: living_room
 friendly_name: Living Room

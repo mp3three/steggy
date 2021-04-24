@@ -1,16 +1,7 @@
 config:
   pico: sensor.games_pico
-  temperature: sensor.upstairs_temperature
-  fan: fan.games_ceiling_fan
   lights:
     - group.games_circadian
-
-groups:
-  games_circadian:
-    - light.games_1
-    - light.games_2
-    - light.games_3
-    - light.games_lamp
 
 name: games
 friendly_name: Games Room

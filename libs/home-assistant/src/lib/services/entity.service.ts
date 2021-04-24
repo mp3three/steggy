@@ -11,14 +11,10 @@ import {
   HassStateDTO,
 } from '@automagical/contracts/home-assistant';
 import { InjectLogger } from '@automagical/utilities';
-import {
-  CACHE_MANAGER,
-  Inject,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
+import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import dayjs, { Dayjs } from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
@@ -121,11 +117,15 @@ export class EntityService {
     const MIN_COLOR = 2500;
     const MAX_COLOR = 5500;
     const brightness = await this.cacheService.get(this.cacheKey(entityId));
-    const temp = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
+    if (!brightness) {
+      return;
+    }
+    this.logger.debug({ entityId }, 'circadianLight');
+    const kelvin = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
     this.logger.warn(
       {
         entityId,
-        temp,
+        kelvin,
       },
       'circadianLighting',
     );
@@ -135,9 +135,18 @@ export class EntityService {
       {
         entity_id: entityId,
         brightness_pct: brightness,
-        kelvin: temp,
+        kelvin,
       },
     );
+  }
+
+  /**
+   * All known entity ids
+   */
+  public entityList(): string[] {
+    const out = [];
+    this.ENTITIES.forEach((value, key) => out.push(key));
+    return out;
   }
 
   public async fanSpeedDown(
@@ -186,24 +195,13 @@ export class EntityService {
     );
   }
 
-  public async lightDim(
-    entityId: string,
-    delta: number,
-    groupData: Map<string, string[]> = new Map(),
-  ): Promise<void> {
-    const [domain, suffix] = entityId.split('.');
-    if (domain === HassDomains.group) {
-      groupData.get(suffix).forEach(async (id) => {
-        await this.lightDim(id, delta, groupData);
-      });
-      return;
-    }
+  public async lightDim(entityId: string, delta: number): Promise<void> {
     let brightness: number = await this.cacheService.get(
       this.cacheKey(entityId),
     );
     if (typeof brightness !== 'number') {
       // 🤷‍♂️
-      this.turnOn(entityId, groupData);
+      this.turnOn(entityId);
       return;
     }
     brightness = brightness + delta;
@@ -212,44 +210,31 @@ export class EntityService {
     return await this.circadianLight(entityId);
   }
 
-  /**
-   * All known entity ids
-   */
-  public listEntities(): string[] {
-    return Object.keys(this.ENTITIES);
-  }
-
-  public async toggle(
-    entityId: string,
-    groupData: Map<string, string[]> = new Map(),
-  ): Promise<void> {
+  public async toggle(entityId: string): Promise<void> {
     this.logger.trace(`toggle ${entityId}`);
     const entity = await this.byId(entityId);
     if (entity.state === 'on') {
-      return await this.turnOff(entityId, groupData);
+      return await this.turnOff(entityId);
     }
-    return await this.turnOn(entityId, groupData);
+    return await this.turnOn(entityId);
   }
 
-  public async turnOff(
-    entityId: string,
-    groupData: Map<string, string[]> = new Map(),
-  ): Promise<void> {
+  public async turnOff(entityId: string): Promise<void> {
     if (!entityId) {
       return;
     }
     this.logger.trace(`turnOff ${entityId}`);
     const parts = entityId.split('.');
     const domain = parts[0] as HassDomains;
-    const suffix = parts[1];
     let entity;
     if (domain !== HassDomains.group) {
       entity = await this.byId(entityId);
       if (!entity) {
-        this.logger.error(groupData, `Could not find entity for ${entityId}`);
+        this.logger.error(`Could not find entity for ${entityId}`);
       }
     }
     switch (domain) {
+      case HassDomains.group:
       case HassDomains.light:
         this.cacheService.del(this.cacheKey(entityId));
       // fall through
@@ -265,33 +250,20 @@ export class EntityService {
             entity_id: entityId,
           },
         );
-      case HassDomains.group:
-        if (!groupData.get(suffix)) {
-          throw new NotImplementedException(
-            `Cannot find group information for ${suffix}`,
-          );
-        }
-        groupData.get(suffix).forEach(async (id) => {
-          await this.turnOff(id, groupData);
-        });
-        return;
     }
   }
 
-  public async turnOn(
-    entityId: string,
-    groupData: Map<string, string[]> = new Map(),
-  ): Promise<void> {
+  public async turnOn(entityId: string): Promise<void> {
     if (!entityId) {
       return;
     }
     this.logger.trace(`turnOn ${entityId}`);
-    const [domain, suffix] = entityId.split('.');
+    const [domain] = entityId.split('.');
     let entity;
     if (domain !== HassDomains.group) {
       entity = await this.byId(entityId);
       if (!entity) {
-        this.logger.error(groupData, `Could not find entity for ${entityId}`);
+        this.logger.error(`Could not find entity for ${entityId}`);
       }
     }
     switch (domain) {
@@ -306,6 +278,7 @@ export class EntityService {
           speed: FanSpeeds.low,
         });
         return;
+      case HassDomains.group:
       case HassDomains.light:
         if (entity.state === 'on') {
           // this.logger.warn(entity);
@@ -314,23 +287,15 @@ export class EntityService {
         }
         const brightness = this.getDefaultBrightness();
         await this.cacheService.set(this.cacheKey(entityId), brightness);
-        this.socketService.call(HassDomains.light, HassServices.turn_on, {
-          entity_id: entityId,
-          brightness_pct: brightness,
-          // effect: 'random',
-        });
-        return;
-      case HassDomains.group:
-        if (!groupData.get(suffix)) {
-          this.logger.warn(JSON.stringify(Object.entries(groupData)));
-          throw new NotImplementedException(
-            `Cannot find group information for ${suffix}`,
-          );
-        }
-        groupData.get(suffix).forEach(async (id) => {
-          await this.turnOn(id, groupData);
-        });
-        return;
+        return await this.socketService.call(
+          HassDomains.light,
+          HassServices.turn_on,
+          {
+            entity_id: entityId,
+            brightness_pct: brightness,
+            // effect: 'random',
+          },
+        );
     }
   }
 
@@ -358,6 +323,26 @@ export class EntityService {
   // #endregion Protected Methods
 
   // #region Private Methods
+
+  // @Cron('*/5 * * * * *')
+  @Cron('0 */5 * * * *')
+  private async circadianLightingUpdate() {
+    this.logger.debug(`circadianLightingUpdate`);
+    const entityList = this.entityList().filter((i) =>
+      [HassDomains.group, HassDomains.light].includes(
+        i.split('.')[0] as HassDomains,
+      ),
+    );
+    this.logger.info(
+      {
+        entityList,
+      },
+      'entityList',
+    );
+    entityList.forEach(async (entityId) => {
+      await this.circadianLight(entityId);
+    });
+  }
 
   @OnEvent([ALL_ENTITIES_UPDATED])
   private onAllEntitiesUpdated(allEntities: HassStateDTO[]) {

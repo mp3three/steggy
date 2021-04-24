@@ -126,18 +126,12 @@ export class RoomService {
 
   // #region Private Methods
 
-  private async turnOff(
-    entityId: string,
-    groupData: Map<string, string[]> = new Map(),
-  ) {
-    return await this.entityService.turnOff(entityId, groupData);
+  private async turnOff(entityId: string) {
+    return await this.entityService.turnOff(entityId);
   }
 
-  private async turnOn(
-    entityId: string,
-    groupData: Map<string, string[]> = new Map(),
-  ) {
-    return await this.entityService.turnOn(entityId, groupData);
+  private async turnOn(entityId: string) {
+    return await this.entityService.turnOn(entityId);
   }
 
   // #endregion Private Methods

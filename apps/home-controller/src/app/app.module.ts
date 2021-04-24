@@ -102,8 +102,8 @@ const configs = [
           max: Infinity,
           ttl: null,
           store: RedisStore,
-          host: configService.get('application.REDIS_HOST'),
-          port: configService.get('application.REDIS_PORT'),
+          host: configService.get('REDIS_HOST'),
+          port: configService.get('REDIS_PORT'),
         };
       },
     }),
