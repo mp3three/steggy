@@ -27,7 +27,6 @@ export class GuestService extends SceneRoom {
     protected readonly roomService: RoomService,
   ) {
     super();
-    roomService.ROOM_REGISTRY.guest = roomConfig;
   }
 
   // #endregion Constructors

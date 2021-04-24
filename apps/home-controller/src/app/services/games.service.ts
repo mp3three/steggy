@@ -27,7 +27,6 @@ export class GamesService extends SceneRoom {
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
   ) {
     super();
-    roomService.ROOM_REGISTRY.games = roomConfig;
   }
 
   // #endregion Constructors

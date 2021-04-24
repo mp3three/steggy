@@ -27,7 +27,6 @@ export class LivingService extends SceneRoom {
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
   ) {
     super();
-    roomService.ROOM_REGISTRY.living_room = roomConfig;
   }
 
   // #endregion Constructors

@@ -2,7 +2,6 @@ import {
   FanSpeeds,
   HassDomains,
   HassServices,
-  HomeAssistantRoomConfigDTO,
   HomeAssistantRoomRokuDTO,
   RokuInputs,
 } from '@automagical/contracts/home-assistant';
@@ -18,15 +17,6 @@ import { SocketService } from './socket.service';
 
 @Injectable()
 export class RoomService {
-  // #region Object Properties
-
-  public readonly ROOM_REGISTRY: Record<
-    string,
-    HomeAssistantRoomConfigDTO
-  > = {};
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(

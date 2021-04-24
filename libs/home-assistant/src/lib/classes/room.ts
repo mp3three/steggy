@@ -17,7 +17,7 @@ import { EntityService, HomeAssistantService, RoomService } from '../services';
 export abstract class SceneRoom {
   // #region Static Properties
 
-  private static ROOM_REGISTRY: Record<string, SceneRoom> = {};
+  private static ROOM_REGISTRY = new Map<string, SceneRoom>();
 
   // #endregion Static Properties
 
@@ -39,7 +39,7 @@ export abstract class SceneRoom {
   // #region Public Methods
 
   public async onModuleInit(): Promise<void> {
-    SceneRoom.ROOM_REGISTRY[this.roomConfig.name] = this;
+    SceneRoom.ROOM_REGISTRY.set(this.roomConfig.name, this);
   }
 
   public async setFavoriteScene(): Promise<void> {

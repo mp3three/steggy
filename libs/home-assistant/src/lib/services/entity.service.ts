@@ -219,13 +219,16 @@ export class EntityService {
     return Object.keys(this.ENTITIES);
   }
 
-  public async toggle(entityId: string): Promise<void> {
+  public async toggle(
+    entityId: string,
+    groupData: Map<string, string[]> = new Map(),
+  ): Promise<void> {
     this.logger.trace(`toggle ${entityId}`);
     const entity = await this.byId(entityId);
     if (entity.state === 'on') {
-      return await this.turnOff(entityId);
+      return await this.turnOff(entityId, groupData);
     }
-    return await this.turnOn(entityId);
+    return await this.turnOn(entityId, groupData);
   }
 
   public async turnOff(

@@ -32,7 +32,6 @@ export class GarageService extends SceneRoom {
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
   ) {
     super();
-    // roomService.ROOM_REGISTRY.garage = roomConfig;
   }
 
   // #endregion Constructors

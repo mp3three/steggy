@@ -40,7 +40,6 @@ export class BedroomService extends SceneRoom {
     private readonly configService: ConfigService,
   ) {
     super();
-    roomService.ROOM_REGISTRY.bedroom = roomConfig;
   }
 
   // #endregion Constructors

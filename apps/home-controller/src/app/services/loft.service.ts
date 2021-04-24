@@ -41,7 +41,6 @@ export class LoftService extends SceneRoom {
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
   ) {
     super();
-    roomService.ROOM_REGISTRY.loft = roomConfig;
   }
 
   // #endregion Constructors
