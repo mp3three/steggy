@@ -292,7 +292,7 @@ export class EntityService {
   }
 
   @OnEvent([ALL_ENTITIES_UPDATED])
-  @Trace()
+  @Trace({ omitArgs: true })
   private onAllEntitiesUpdated(allEntities: HassStateDTO[]) {
     this.lastUpdate = dayjs();
     allEntities.forEach((entity) =>

@@ -38,9 +38,13 @@ export function Trace(config: TraceArgs = {}) {
       return;
     }
     const originalMethod = descriptor.value;
-    descriptor.value = function (...args) {
-      this.logger.debug(config.omitArgs ? {} : { args }, propertyKey);
-      return originalMethod.apply(this, args);
+    descriptor.value = function (...params) {
+      const args: Record<string, unknown> = {};
+      if (!config.omitArgs) {
+        args.params = params;
+      }
+      this.logger.trace(args, propertyKey);
+      return originalMethod.apply(this, params);
     };
     return descriptor;
   };
