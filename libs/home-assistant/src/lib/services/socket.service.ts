@@ -10,6 +10,8 @@ import {
 } from '@automagical/contracts/constants';
 import {
   AreaDTO,
+  DeviceListItemDTO,
+  EntityListItemDTO,
   HassCommands,
   HassDomains,
   HassServices,
@@ -120,9 +122,45 @@ export class SocketService {
     }
   }
 
+  /**
+   * Request a current listing of all entities + their states
+   *
+   * This can be a pretty big list
+   */
+  public async getAllEntitities(): Promise<HassStateDTO[]> {
+    if (this.updateAllPromise) {
+      return await this.updateAllPromise;
+    }
+    this.logger.trace(`updateAllEntities`);
+    this.updateAllPromise = new Promise<HassStateDTO[]>(async (done) => {
+      const allEntities = await this.sendMsg<HassStateDTO[]>({
+        type: HassCommands.get_states,
+      });
+      // As long as the info is handy...
+      this.eventEmitter.emit(ALL_ENTITIES_UPDATED, allEntities);
+      done(allEntities);
+      this.updateAllPromise = null;
+    });
+    return await this.updateAllPromise;
+  }
+
   public async getAreas(): Promise<AreaDTO[]> {
     return await this.sendMsg({
       type: HassCommands.area_list,
+    });
+  }
+
+  public async listDevices(): Promise<DeviceListItemDTO[]> {
+    this.logger.trace(`listDevices`);
+    return await this.sendMsg({
+      type: HassCommands.device_list,
+    });
+  }
+
+  public async listEntities(): Promise<EntityListItemDTO[]> {
+    this.logger.trace(`listEntities`);
+    return await this.sendMsg({
+      type: HassCommands.entity_list,
     });
   }
 
@@ -147,28 +185,6 @@ export class SocketService {
         ...payload,
       },
     });
-  }
-
-  /**
-   * Request a current listing of all entities + their states
-   *
-   * This can be a pretty big list
-   */
-  public async getAllEntitities(): Promise<HassStateDTO[]> {
-    if (this.updateAllPromise) {
-      return await this.updateAllPromise;
-    }
-    this.logger.debug(`updateAllEntities`);
-    this.updateAllPromise = new Promise<HassStateDTO[]>(async (done) => {
-      const allEntities = await this.sendMsg<HassStateDTO[]>({
-        type: HassCommands.get_states,
-      });
-      // As long as the info is handy...
-      this.eventEmitter.emit(ALL_ENTITIES_UPDATED, allEntities);
-      done(allEntities);
-      this.updateAllPromise = null;
-    });
-    return await this.updateAllPromise;
   }
 
   public async updateEntity(entityId: string): Promise<HassDomains> {

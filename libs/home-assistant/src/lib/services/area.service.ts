@@ -1,9 +1,9 @@
 import {
   HA_RAW_EVENT,
   HA_SOCKET_READY,
+  LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {
-  AreaDTO,
   FanSpeeds,
   HassDomains,
   HassEventDTO,
@@ -17,6 +17,7 @@ import {
 import { FetchService, HTTP_Methods } from '@automagical/fetch';
 import { InjectLogger, sleep } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
@@ -29,19 +30,15 @@ import { SocketService } from './socket.service';
 export class AreaService {
   // #region Static Properties
 
-  private static TRACK_DOMAINS = [
-    HassDomains.group,
-    HassDomains.light,
-    HassDomains.switch,
-  ];
+  private static TRACK_DOMAINS = [HassDomains.light, HassDomains.switch];
 
   // #endregion Static Properties
 
   // #region Object Properties
 
-  private AREA_MAP: Map<string, HassStateDTO[]>;
+  private AREA_MAP: Map<string, string[]>;
   private CONTROLLER_MAP: Map<string, string>;
-  private FAVORITE_TIMEOUT: Map<string, boolean>;
+  private FAVORITE_TIMEOUT = new Map<string, boolean>();
 
   // #endregion Object Properties
 
@@ -51,8 +48,9 @@ export class AreaService {
     @Inject(CACHE_MANAGER)
     private readonly cacheService: Cache,
     private readonly fetchService: FetchService,
+    private readonly configService: ConfigService,
     private readonly entityService: EntityService,
-    @InjectLogger(AreaService, 'home-assistant')
+    @InjectLogger(AreaService, LIB_HOME_ASSISTANT)
     private readonly logger: PinoLogger,
     private readonly socketService: SocketService,
     private readonly eventEmitter: EventEmitter2,
@@ -81,26 +79,33 @@ export class AreaService {
     this.AREA_MAP = new Map();
     this.CONTROLLER_MAP = new Map();
 
-    const [areaList, entities] = await Promise.all([
+    const [areaList, entities, devices] = await Promise.all([
       this.socketService.getAreas(),
-      this.socketService.getAllEntitities(),
+      this.socketService.listEntities(),
+      this.socketService.listDevices(),
     ]);
 
-    areaList.forEach((area) => this.AREA_MAP.set(area.name, []));
+    areaList.forEach((area) => this.AREA_MAP.set(area.area_id, []));
 
     entities.forEach((entity) => {
       const domain = entity.entity_id.split('.')[0] as HassDomains;
       if (this.isController(entity)) {
-        this.CONTROLLER_MAP.set(entity.entity_id, entity.attributes.area_name);
+        this.CONTROLLER_MAP.set(entity.entity_id, entity.area_id);
         return;
       }
       if (!AreaService.TRACK_DOMAINS.includes(domain)) {
         return;
       }
-      if (!this.AREA_MAP.has(entity.attributes.area_name)) {
+      let areaId = entity.area_id;
+      if (!areaId) {
+        areaId = devices.find((device) => device.id === entity.device_id)
+          .area_id;
+      }
+      if (!areaId) {
         return;
       }
-      this.AREA_MAP.get(entity.attributes.area_name).push(entity);
+      const list = [...this.AREA_MAP.get(areaId), entity.entity_id];
+      this.AREA_MAP.set(areaId, list);
     });
   }
 
@@ -120,6 +125,27 @@ export class AreaService {
     return await this.socketService.call(HassServices.turn_on, {
       entity_id: entityId,
       speed: speed,
+    });
+  }
+
+  public async setFavoriteScene(areaName: string): Promise<void> {
+    const scene = this.configService.get(`favorites.${areaName}`) as Record<
+      'day' | 'evening',
+      Record<'on' | 'off', string[]>
+    >;
+    if (scene) {
+      const part = this.IS_EVENING ? scene.evening : scene.day;
+      part?.on?.forEach(async (entityId) => {
+        await this.entityService.turnOn(entityId);
+      });
+      part?.off?.forEach(async (entityId) => {
+        await this.entityService.turnOff(entityId);
+      });
+      return;
+    }
+    const area = this.AREA_MAP.get(areaName);
+    area.forEach(async (entityId) => {
+      await this.entityService.turnOn(entityId);
     });
   }
 
@@ -178,14 +204,9 @@ export class AreaService {
 
   // #region Protected Methods
 
-  protected isController(entity: HassStateDTO): boolean {
+  protected isController(entity: { entity_id: string }): boolean {
     const [domain, name] = entity.entity_id.split('.') as [HassDomains, string];
     return domain === HassDomains.sensor && name.includes('pico');
-  }
-
-  protected async setFavoriteScene(areaName: string): Promise<void> {
-    const area = this.AREA_MAP.get(areaName);
-    return;
   }
 
   // #endregion Protected Methods
@@ -222,24 +243,49 @@ export class AreaService {
       if (state.state === PicoStates.favorite) {
         return await this.setFavoriteScene(areaName);
       }
-      this.logger.warn('up/down favorite not implemented');
+      if (state.state === PicoStates.medium) {
+        this.logger.trace({ areaName }, 'up');
+        return await this.lightDim(areaName, 10);
+      }
+      if (state.state === PicoStates.low) {
+        this.logger.trace({ areaName }, 'down');
+        return await this.lightDim(areaName, -10);
+      }
       return;
     }
-    this.FAVORITE_TIMEOUT.set(entityId, true);
-    setTimeout(() => this.FAVORITE_TIMEOUT.delete(entityId), 1000);
     if (state.state === PicoStates.high) {
-      return area.forEach(async (entity) => {
-        await this.entityService.turnOn(entity.entity_id);
+      return area.forEach(async (entityId) => {
+        await this.entityService.turnOn(entityId);
       });
     }
     if (state.state === PicoStates.off) {
-      return area.forEach(async (entity) => {
-        await this.entityService.turnOff(entity.entity_id);
+      return area.forEach(async (entityId) => {
+        await this.entityService.turnOff(entityId);
       });
     }
     if (state.state === PicoStates.favorite) {
+      this.FAVORITE_TIMEOUT.set(entityId, true);
+      setTimeout(() => this.FAVORITE_TIMEOUT.delete(entityId), 5000);
       return await this.setFavoriteScene(areaName);
     }
+    if (state.state === PicoStates.medium) {
+      this.logger.trace({ areaName }, 'up');
+      return await this.lightDim(areaName, 10);
+    }
+    if (state.state === PicoStates.low) {
+      this.logger.trace({ areaName }, 'down');
+      return await this.lightDim(areaName, -10);
+    }
+  }
+
+  private async lightDim(areaName: string, amount: number) {
+    const area = this.AREA_MAP.get(areaName);
+    area.forEach(async (entityId) => {
+      if (entityId.split('.')[0] === HassDomains.switch) {
+        return;
+      }
+      await this.entityService.lightDim(entityId, amount);
+    });
   }
 
   private async turnOff(entityId: string) {

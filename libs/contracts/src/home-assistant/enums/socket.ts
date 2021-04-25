@@ -33,6 +33,8 @@ export enum HassCommands {
   auth = 'auth',
   call_service = 'call_service',
   area_list = 'config/area_registry/list',
+  entity_list = 'config/entity_registry/list',
+  device_list = 'config/device_registry/list',
   get_states = 'get_states',
   ping = 'ping',
 }

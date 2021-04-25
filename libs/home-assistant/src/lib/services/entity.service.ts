@@ -113,15 +113,14 @@ export class EntityService {
     return this.ENTITIES.get(entityId) as T;
   }
 
-  public async circadianLight(entityId: string): Promise<void> {
+  public async circadianLight(
+    entityId: string,
+    brightness_pct?: number,
+  ): Promise<void> {
     const MIN_COLOR = 2500;
     const MAX_COLOR = 5500;
-    const brightness_pct = await this.cacheService.get(this.cacheKey(entityId));
-    if (!brightness_pct) {
-      return;
-    }
     const kelvin = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
-    this.logger.debug({ entityId, kelvin }, 'circadianLight');
+    this.logger.trace({ entityId, kelvin, brightness_pct }, 'circadianLight');
     return await this.socketService.call(HassServices.turn_on, {
       entity_id: entityId,
       brightness_pct,
@@ -177,18 +176,15 @@ export class EntityService {
   }
 
   public async lightDim(entityId: string, delta: number): Promise<void> {
-    let brightness: number = await this.cacheService.get(
-      this.cacheKey(entityId),
-    );
+    let brightness = await this.lightBrightness(entityId);
     if (typeof brightness !== 'number') {
       // 🤷‍♂️
-      this.turnOn(entityId);
+      // this.turnOn(entityId);
       return;
     }
     brightness = brightness + delta;
     this.logger.debug(`${entityId} set brightness: ${brightness}% (${delta}%)`);
-    await this.cacheService.set(this.cacheKey(entityId), brightness);
-    return await this.circadianLight(entityId);
+    return await this.circadianLight(entityId, brightness);
   }
 
   public async toggle(entityId: string): Promise<void> {
@@ -246,9 +242,7 @@ export class EntityService {
         return;
       case HassDomains.group:
       case HassDomains.light:
-        const brightness = this.getDefaultBrightness();
-        await this.cacheService.set(this.cacheKey(entityId), brightness);
-        return await this.circadianLight(entityId);
+        return await this.circadianLight(entityId, this.getDefaultBrightness());
     }
   }
 
@@ -281,6 +275,7 @@ export class EntityService {
   @Cron('0 */5 * * * *')
   private async circadianLightingUpdate() {
     this.logger.debug(`circadianLightingUpdate`);
+    return;
     const entityList = this.entityList().filter((i) =>
       [HassDomains.group, HassDomains.light].includes(
         i.split('.')[0] as HassDomains,
@@ -311,7 +306,7 @@ export class EntityService {
     if (!event.data.entity_id) {
       return;
     }
-    this.ENTITIES[event.data.entity_id] = event.data.new_state;
+    this.ENTITIES.set(event.data.entity_id, event.data.new_state);
   }
 
   private cacheKey(entityId: string) {
@@ -347,6 +342,19 @@ export class EntityService {
     }
     // Until midnight
     return 0;
+  }
+
+  private async lightBrightness(entityId: string) {
+    const entity = this.ENTITIES.get(entityId) as HassStateDTO<
+      string,
+      {
+        brightness: number;
+      }
+    >;
+    if (entity.state === 'off') {
+      return null;
+    }
+    return Math.round((entity.attributes.brightness / 256) * 100);
   }
 
   // #endregion Private Methods
