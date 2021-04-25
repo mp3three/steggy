@@ -1,6 +1,5 @@
 import {
   HA_RAW_EVENT,
-  HA_SOCKET_READY,
   LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {

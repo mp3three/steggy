@@ -154,7 +154,7 @@ export class SocketService {
    *
    * This can be a pretty big list
    */
-  public async updateAllEntities(): Promise<HassStateDTO[]> {
+  public async getAllEntitities(): Promise<HassStateDTO[]> {
     if (this.updateAllPromise) {
       return await this.updateAllPromise;
     }
@@ -275,7 +275,7 @@ export class SocketService {
         await this.sendMsg({
           type: HassCommands.subscribe_events,
         });
-        await this.updateAllEntities();
+        await this.getAllEntitities();
         // Theoretially, all entities are present, and we have an authorized connection
         // Open the floodgates
         this.eventEmitter.emit(HA_SOCKET_READY);

@@ -58,18 +58,23 @@ import { MqttClientService } from './services/mqtt-client.service';
       // Sometimes shows up as a "TypeError: Cannot convert a Symbol value to a string" on start
       maxListeners: 20,
     }),
-    MqttModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory(configService: ConfigService) {
-        return {
-          host: configService.get('application.MQTT_HOST'),
-          port: Number(configService.get('application.MQTT_PORT')),
-          logger: {
-            useClass: Logger,
-          },
-        };
-      },
+    MqttModule.forRoot({
+      host: '10.0.0.33',
+      port: 1883,
     }),
+    // MqttModule.forRootAsync({
+    //   inject: [ConfigService],
+    //   useFactory(configService: ConfigService) {
+    //     const config = {
+    //       host: configService.get('application.MQTT_HOST'),
+    //       port: Number(configService.get('application.MQTT_PORT')),
+    //       // logger: {
+    //       //   useClass: Logger,
+    //       // },
+    //     };
+    //     return config;
+    //   },
+    // }),
   ],
   providers: [AppService, MqttClientService],
   controllers: [AppController],

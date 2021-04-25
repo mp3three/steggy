@@ -12,7 +12,7 @@ import {
 } from '@automagical/contracts/home-assistant';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PinoLogger } from 'nestjs-pino';
-import { EntityService, HomeAssistantService, RoomService } from '../services';
+import { EntityService, HomeAssistantService, AreaService } from '../services';
 
 export abstract class SceneRoom {
   // #region Static Properties
@@ -27,7 +27,7 @@ export abstract class SceneRoom {
   protected readonly eventEmitter: EventEmitter2;
   protected readonly homeAssistantService: HomeAssistantService;
   protected readonly roomConfig: HomeAssistantRoomConfigDTO;
-  protected readonly roomService: RoomService;
+  protected readonly roomService: AreaService;
 
   protected allowGlobalAccess = true;
   protected logger: PinoLogger;

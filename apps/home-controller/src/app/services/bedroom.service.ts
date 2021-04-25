@@ -13,7 +13,7 @@ import {
 import {
   EntityService,
   HomeAssistantService,
-  RoomService,
+  AreaService,
   SceneRoom,
 } from '@automagical/home-assistant';
 import { InjectLogger } from '@automagical/utilities';
@@ -34,7 +34,7 @@ export class BedroomService extends SceneRoom {
     @Inject(BEDROOM_CONFIG)
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
     protected readonly homeAssistantService: HomeAssistantService,
-    protected readonly roomService: RoomService,
+    protected readonly roomService: AreaService,
     protected readonly eventEmitter: EventEmitter2,
     protected readonly entityService: EntityService,
     private readonly configService: ConfigService,

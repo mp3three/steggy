@@ -11,7 +11,7 @@ import {
 import {
   EntityService,
   HomeAssistantService,
-  RoomService,
+  AreaService,
   SocketService,
 } from '@automagical/home-assistant';
 import { InjectLogger, sleep } from '@automagical/utilities';
@@ -54,7 +54,7 @@ export class AppService {
     private readonly homeAssistantService: HomeAssistantService,
     private readonly entityService: EntityService,
     private readonly socketService: SocketService,
-    private readonly roomService: RoomService,
+    private readonly roomService: AreaService,
     @InjectLogger(AppService, APP_HOME_CONTROLLER)
     protected readonly logger: PinoLogger,
     private readonly configService: ConfigService,
@@ -156,7 +156,7 @@ export class AppService {
   @Cron('0 0 11 * * Wed,Sat')
   private async batteryMonitor() {
     this.logger.debug('batteryMonitor');
-    await this.socketService.updateAllEntities();
+    await this.socketService.getAllEntitities();
     await sleep(1000);
     const entities = this.entityService.entityList().filter((entityId) => {
       const [domain, suffix] = entityId.split('.');

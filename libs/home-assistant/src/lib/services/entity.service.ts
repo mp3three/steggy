@@ -108,7 +108,7 @@ export class EntityService {
       this.lastUpdate.isBefore(dayjs().subtract(5, 'minute'))
     ) {
       this.logger.debug(`Cache Miss: ${entityId}`);
-      await this.socketService.updateAllEntities();
+      await this.socketService.getAllEntitities();
     }
     return this.ENTITIES.get(entityId) as T;
   }
@@ -116,22 +116,15 @@ export class EntityService {
   public async circadianLight(entityId: string): Promise<void> {
     const MIN_COLOR = 2500;
     const MAX_COLOR = 5500;
-    const brightness = await this.cacheService.get(this.cacheKey(entityId));
-    if (!brightness) {
+    const brightness_pct = await this.cacheService.get(this.cacheKey(entityId));
+    if (!brightness_pct) {
       return;
     }
-    this.logger.debug({ entityId }, 'circadianLight');
     const kelvin = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
-    this.logger.warn(
-      {
-        entityId,
-        kelvin,
-      },
-      'circadianLighting',
-    );
+    this.logger.debug({ entityId, kelvin }, 'circadianLight');
     return await this.socketService.call(HassServices.turn_on, {
       entity_id: entityId,
-      brightness_pct: brightness,
+      brightness_pct,
       kelvin,
     });
   }

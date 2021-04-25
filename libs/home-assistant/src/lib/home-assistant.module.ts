@@ -3,7 +3,7 @@ import { CacheModule, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EntityService } from './services/entity.service';
 import { HomeAssistantService } from './services/home-assistant.service';
-import { RoomService } from './services/room.service';
+import { AreaService } from './services/area.service';
 import { SocketService } from './services/socket.service';
 import RedisStore from 'cache-manager-redis-store';
 
@@ -23,7 +23,7 @@ import RedisStore from 'cache-manager-redis-store';
     }),
     FetchModule,
   ],
-  providers: [HomeAssistantService, EntityService, RoomService, SocketService],
-  exports: [HomeAssistantService, EntityService, RoomService, SocketService],
+  providers: [HomeAssistantService, EntityService, AreaService, SocketService],
+  exports: [HomeAssistantService, EntityService, AreaService, SocketService],
 })
 export class HomeAssistantModule {}

@@ -3,7 +3,7 @@ import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistan
 import {
   EntityService,
   HomeAssistantService,
-  RoomService,
+  AreaService,
   SceneRoom,
 } from '@automagical/home-assistant';
 import { InjectLogger } from '@automagical/utilities';
@@ -27,7 +27,7 @@ export class GarageService extends SceneRoom {
     protected readonly entityService: EntityService,
     @InjectLogger(GarageService, APP_HOME_CONTROLLER)
     protected readonly logger: PinoLogger,
-    protected readonly roomService: RoomService,
+    protected readonly roomService: AreaService,
     @Inject(GARAGE_CONFIG)
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
   ) {
