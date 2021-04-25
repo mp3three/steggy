@@ -21,3 +21,27 @@ export function InjectLogger(
   lib = lib.length ? `${lib}:` : '';
   return InjectPinoLogger(`${lib}${cls.name}`);
 }
+
+type TraceArgs = {
+  omitArgs?: boolean;
+};
+const TRACE_ENABLED = true;
+export function Trace(config: TraceArgs = {}) {
+  return function (
+    target: unknown,
+    propertyKey: string,
+    descriptor: PropertyDescriptor,
+  ): unknown {
+    // Disabling here will leave the source function unaltered
+    // Trace logging is a performance hit (even if minor), so better this than changing the log level
+    if (!TRACE_ENABLED) {
+      return;
+    }
+    const originalMethod = descriptor.value;
+    descriptor.value = function (...args) {
+      this.logger.debug(config.omitArgs ? {} : { args }, propertyKey);
+      return originalMethod.apply(this, args);
+    };
+    return descriptor;
+  };
+}

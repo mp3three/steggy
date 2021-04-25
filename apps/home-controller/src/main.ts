@@ -17,7 +17,7 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   app.useLogger(logger);
   await app.listen(config.get('PORT'), () => {
-    logger.log(`Listening on ${config.get('PORT')}`);
+    logger.log(`Listening on ${config.get('PORT')}`, 'main.js');
   });
 }
 

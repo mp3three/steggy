@@ -117,12 +117,6 @@ export class AppService {
     return this.cacheService.set(cacheName, config);
   }
 
-  private async onModuleInit(): Promise<void> {
-    setTimeout(() => {
-      this.logger.info(`Hello world @ ${new Date().toLocaleString()}`);
-    }, 1000);
-  }
-
   /**
    * All the locks, except the car
    */

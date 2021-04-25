@@ -21,7 +21,7 @@ import {
   SocketMessageDTO,
 } from '@automagical/contracts/home-assistant';
 import { FetchService, FetchWith } from '@automagical/fetch';
-import { InjectLogger, sleep } from '@automagical/utilities';
+import { InjectLogger, sleep, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -70,6 +70,7 @@ export class SocketService {
    *
    * Does not wait for a response, meant for issuing commands
    */
+  @Trace()
   public async call<T extends void = void>(
     service: HassServices | string,
     service_data: Record<string, unknown> = {},
@@ -89,6 +90,7 @@ export class SocketService {
   /**
    * Wrapper to set baseUrl
    */
+  @Trace()
   public fetch<T>(args: FetchWith): Promise<T> {
     return this.fetchService.fetch<T>({
       baseUrl: this.configService.get(BASE_URL),
@@ -99,11 +101,11 @@ export class SocketService {
   /**
    * Request historical information about an entity
    */
+  @Trace()
   public async fetchEntityHistory<T extends unknown[] = unknown[]>(
     days: number,
     entity_id: string,
   ): Promise<T> {
-    this.logger.trace(`fetchEntityHistory ${entity_id}`);
     try {
       return this.fetch<T>({
         url: `/api/history/period/${dayjs().subtract(days, 'd').toISOString()}`,
@@ -127,11 +129,11 @@ export class SocketService {
    *
    * This can be a pretty big list
    */
+  @Trace()
   public async getAllEntitities(): Promise<HassStateDTO[]> {
     if (this.updateAllPromise) {
       return await this.updateAllPromise;
     }
-    this.logger.trace(`updateAllEntities`);
     this.updateAllPromise = new Promise<HassStateDTO[]>(async (done) => {
       const allEntities = await this.sendMsg<HassStateDTO[]>({
         type: HassCommands.get_states,
@@ -144,21 +146,22 @@ export class SocketService {
     return await this.updateAllPromise;
   }
 
+  @Trace()
   public async getAreas(): Promise<AreaDTO[]> {
     return await this.sendMsg({
       type: HassCommands.area_list,
     });
   }
 
+  @Trace()
   public async listDevices(): Promise<DeviceListItemDTO[]> {
-    this.logger.trace(`listDevices`);
     return await this.sendMsg({
       type: HassCommands.device_list,
     });
   }
 
+  @Trace()
   public async listEntities(): Promise<EntityListItemDTO[]> {
-    this.logger.trace(`listEntities`);
     return await this.sendMsg({
       type: HassCommands.entity_list,
     });
@@ -167,11 +170,11 @@ export class SocketService {
   /**
    * Ask Home Assistant to send a MQTT message
    */
+  @Trace()
   public async sendMqtt<T = unknown>(
     topic: string,
     payload: Record<string, unknown>,
   ): Promise<T> {
-    this.logger.trace(`sendMqtt: ${topic}`);
     return await this.sendMsg<T>({
       type: HassCommands.call_service,
       domain: HassDomains.mqtt,
@@ -183,6 +186,7 @@ export class SocketService {
     });
   }
 
+  @Trace()
   public async updateEntity(entityId: string): Promise<HassDomains> {
     return await this.sendMsg({
       type: HassCommands.call_service,
@@ -203,8 +207,8 @@ export class SocketService {
    * Run ping every 15 seconds. Keep connection alive during the slow times
    */
   @Cron('*/15 * * * * *')
+  @Trace()
   private async ping(): Promise<void> {
-    this.logger.trace('ping');
     try {
       const pong = await this.sendMsg({
         type: HassCommands.ping,
@@ -226,8 +230,8 @@ export class SocketService {
    *
    * TODO: Make this blocking until HA_SOCKET_READY
    */
+  @Trace()
   private initConnection(reset = false): void {
-    this.logger.debug('initConnection');
     if (reset) {
       this.eventEmitter.emit(CONNECTION_RESET);
       this.isAuthenticated = false;
@@ -262,8 +266,8 @@ export class SocketService {
    * ## result
    * Response to an outgoing emit. Value should be redirected to the promise returned by said emit
    */
+  @Trace({ omitArgs: true })
   private async onMessage(msg: SocketMessageDTO) {
-    this.logger.trace({ msg }, 'onMessage');
     const id = Number(msg.id);
     // let lostInFlight: number;
     switch (msg.type as HassSocketMessageTypes) {
@@ -318,18 +322,14 @@ export class SocketService {
     }
   }
 
-  private async onModuleInit(): Promise<void> {
-    await this.initConnection();
-  }
-
   /**
    * Send a message to HomeAssistant. Optionally, wait for a reply to come back & return
    */
+  @Trace()
   private async sendMsg<T extends unknown = unknown>(
     data: SendSocketMessageDTO,
     waitForResponse = true,
   ): Promise<T> {
-    this.logger.trace(data, 'sendMsg');
     this.messageCount++;
     const counter = this.messageCount;
     if (data.type !== HassCommands.auth) {
@@ -361,6 +361,10 @@ export class SocketService {
     }
     // TODO Add a timer to identify calls that don't receive replies
     return new Promise((done) => this.waitingCallback.set(counter, done));
+  }
+
+  private async onModuleInit(): Promise<void> {
+    await this.initConnection();
   }
 
   // #endregion Private Methods

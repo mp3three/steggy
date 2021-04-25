@@ -9,13 +9,12 @@ import {
   HassEventDTO,
   HassEvents,
   HassServices,
-  HassStateDTO,
   HomeAssistantRoomRokuDTO,
   PicoStates,
   RokuInputs,
 } from '@automagical/contracts/home-assistant';
 import { FetchService, HTTP_Methods } from '@automagical/fetch';
-import { InjectLogger, sleep } from '@automagical/utilities';
+import { InjectLogger, sleep, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -75,6 +74,7 @@ export class AreaService {
   // #region Public Methods
 
   @OnEvent([HA_SOCKET_READY])
+  @Trace()
   public async areaReload(): Promise<void> {
     this.AREA_MAP = new Map();
     this.CONTROLLER_MAP = new Map();
@@ -109,11 +109,11 @@ export class AreaService {
     });
   }
 
+  @Trace()
   public async setFan(
     entityId: string,
     speed: FanSpeeds | 'up' | 'down',
   ): Promise<void> {
-    this.logger.trace({ entityId, speed }, 'setFan');
     const fan = await this.entityService.byId(entityId);
     const attributes = fan.attributes as { speed: FanSpeeds };
     if (speed === 'up') {
@@ -128,6 +128,7 @@ export class AreaService {
     });
   }
 
+  @Trace()
   public async setFavoriteScene(areaName: string): Promise<void> {
     const scene = this.configService.get(`favorites.${areaName}`) as Record<
       'day' | 'evening',
@@ -155,6 +156,7 @@ export class AreaService {
    * I think it might be because it's sleeping or something?
    * The double request method seems to work around
    */
+  @Trace()
   public async setRoku(
     channel: RokuInputs | string,
     roku: HomeAssistantRoomRokuDTO,
@@ -231,12 +233,12 @@ export class AreaService {
     if (this.FAVORITE_TIMEOUT.has(entityId)) {
       this.FAVORITE_TIMEOUT.delete(entityId);
       if (state.state === PicoStates.high) {
-        this.logger.trace('GLOBAL_ON');
+        this.logger.debug('GLOBAL_ON');
         // this.eventEmitter.emit(GLOBAL_ON);
         return;
       }
       if (state.state === PicoStates.off) {
-        this.logger.trace('GLOBAL_OFF');
+        this.logger.debug('GLOBAL_OFF');
         // this.eventEmitter.emit(GLOBAL_OFF);
         return;
       }
@@ -244,11 +246,11 @@ export class AreaService {
         return await this.setFavoriteScene(areaName);
       }
       if (state.state === PicoStates.medium) {
-        this.logger.trace({ areaName }, 'up');
+        this.logger.debug({ areaName }, 'up');
         return await this.lightDim(areaName, 10);
       }
       if (state.state === PicoStates.low) {
-        this.logger.trace({ areaName }, 'down');
+        this.logger.debug({ areaName }, 'down');
         return await this.lightDim(areaName, -10);
       }
       return;
@@ -269,15 +271,16 @@ export class AreaService {
       return await this.setFavoriteScene(areaName);
     }
     if (state.state === PicoStates.medium) {
-      this.logger.trace({ areaName }, 'up');
+      this.logger.debug({ areaName }, 'up');
       return await this.lightDim(areaName, 10);
     }
     if (state.state === PicoStates.low) {
-      this.logger.trace({ areaName }, 'down');
+      this.logger.debug({ areaName }, 'down');
       return await this.lightDim(areaName, -10);
     }
   }
 
+  @Trace()
   private async lightDim(areaName: string, amount: number) {
     const area = this.AREA_MAP.get(areaName);
     area.forEach(async (entityId) => {
@@ -288,10 +291,12 @@ export class AreaService {
     });
   }
 
+  @Trace()
   private async turnOff(entityId: string) {
     return await this.entityService.turnOff(entityId);
   }
 
+  @Trace()
   private async turnOn(entityId: string) {
     return await this.entityService.turnOn(entityId);
   }
