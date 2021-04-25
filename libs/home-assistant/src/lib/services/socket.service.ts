@@ -3,10 +3,15 @@ import {
   BASE_URL,
   CONNECTION_RESET,
   HA_RAW_EVENT,
+  HA_SOCKET_READY,
   HOST,
+  LIB_HOME_ASSISTANT,
   TOKEN,
 } from '@automagical/contracts/constants';
 import {
+  AreaDTO,
+  DeviceListItemDTO,
+  EntityListItemDTO,
   HassCommands,
   HassDomains,
   HassServices,
@@ -16,14 +21,14 @@ import {
   SocketMessageDTO,
 } from '@automagical/contracts/home-assistant';
 import { FetchService, FetchWith } from '@automagical/fetch';
-import { sleep } from '@automagical/utilities';
+import { InjectLogger, sleep } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import WS from 'ws';
 
 /**
@@ -40,6 +45,7 @@ export class SocketService {
   private connection: WebSocket;
   private isAuthenticated = false;
   private messageCount = 1;
+  private updateAllPromise: Promise<HassStateDTO[]>;
   private waitingCallback = new Map<number, (result) => void>();
 
   // #endregion Object Properties
@@ -50,7 +56,8 @@ export class SocketService {
     private readonly fetchService: FetchService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly configService: ConfigService,
-    @InjectPinoLogger(SocketService.name) protected readonly logger: PinoLogger,
+    @InjectLogger(SocketService, LIB_HOME_ASSISTANT)
+    protected readonly logger: PinoLogger,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -60,18 +67,23 @@ export class SocketService {
 
   /**
    * Convenience wrapper around sendMsg
+   *
+   * Does not wait for a response, meant for issuing commands
    */
   public async call<T extends void = void>(
-    domain: HassDomains,
     service: HassServices | string,
     service_data: Record<string, unknown> = {},
+    domain: HassDomains = HassDomains.homeassistant,
   ): Promise<T> {
-    return this.sendMsg<T>({
-      type: HassCommands.call_service,
-      domain,
-      service,
-      service_data,
-    });
+    return await this.sendMsg<T>(
+      {
+        type: HassCommands.call_service,
+        domain,
+        service,
+        service_data,
+      },
+      false,
+    );
   }
 
   /**
@@ -91,7 +103,7 @@ export class SocketService {
     days: number,
     entity_id: string,
   ): Promise<T> {
-    this.logger.debug(`fetchEntityHistory`, entity_id);
+    this.logger.trace(`fetchEntityHistory ${entity_id}`);
     try {
       return this.fetch<T>({
         url: `/api/history/period/${dayjs().subtract(days, 'd').toISOString()}`,
@@ -110,6 +122,48 @@ export class SocketService {
     }
   }
 
+  /**
+   * Request a current listing of all entities + their states
+   *
+   * This can be a pretty big list
+   */
+  public async getAllEntitities(): Promise<HassStateDTO[]> {
+    if (this.updateAllPromise) {
+      return await this.updateAllPromise;
+    }
+    this.logger.trace(`updateAllEntities`);
+    this.updateAllPromise = new Promise<HassStateDTO[]>(async (done) => {
+      const allEntities = await this.sendMsg<HassStateDTO[]>({
+        type: HassCommands.get_states,
+      });
+      // As long as the info is handy...
+      this.eventEmitter.emit(ALL_ENTITIES_UPDATED, allEntities);
+      done(allEntities);
+      this.updateAllPromise = null;
+    });
+    return await this.updateAllPromise;
+  }
+
+  public async getAreas(): Promise<AreaDTO[]> {
+    return await this.sendMsg({
+      type: HassCommands.area_list,
+    });
+  }
+
+  public async listDevices(): Promise<DeviceListItemDTO[]> {
+    this.logger.trace(`listDevices`);
+    return await this.sendMsg({
+      type: HassCommands.device_list,
+    });
+  }
+
+  public async listEntities(): Promise<EntityListItemDTO[]> {
+    this.logger.trace(`listEntities`);
+    return await this.sendMsg({
+      type: HassCommands.entity_list,
+    });
+  }
+
   public async onModuleInit(): Promise<void> {
     await this.initConnection();
   }
@@ -117,12 +171,12 @@ export class SocketService {
   /**
    * Ask Home Assistant to send a MQTT message
    */
-  public sendMqtt<T = unknown>(
+  public async sendMqtt<T = unknown>(
     topic: string,
     payload: Record<string, unknown>,
   ): Promise<T> {
-    this.logger.debug(`sendMqtt`, topic);
-    return this.sendMsg<T>({
+    this.logger.trace(`sendMqtt: ${topic}`);
+    return await this.sendMsg<T>({
       type: HassCommands.call_service,
       domain: HassDomains.mqtt,
       service: HassServices.publish,
@@ -133,19 +187,16 @@ export class SocketService {
     });
   }
 
-  /**
-   * Request a current listing of all entities + their states
-   *
-   * This can be a pretty big list
-   */
-  public async updateAllEntities(): Promise<HassStateDTO[]> {
-    this.logger.debug(`updateAllEntities`);
-    const allEntities = await this.sendMsg<HassStateDTO[]>({
-      type: HassCommands.get_states,
+  public async updateEntity(entityId: string): Promise<HassDomains> {
+    return await this.sendMsg({
+      type: HassCommands.call_service,
+      service: HassServices.update_entity,
+      domain: HassDomains.homeassistant,
+      service_data: {
+        entity_id: entityId,
+      },
     });
-    // As long as the info is handy...
-    this.eventEmitter.emit(ALL_ENTITIES_UPDATED, allEntities);
-    return allEntities;
+    // return null;
   }
 
   // #endregion Public Methods
@@ -157,7 +208,7 @@ export class SocketService {
    */
   @Cron('*/15 * * * * *')
   private async ping(): Promise<void> {
-    // this.logger.debug('ping');
+    this.logger.trace('ping');
     try {
       const pong = await this.sendMsg({
         type: HassCommands.ping,
@@ -176,9 +227,11 @@ export class SocketService {
 
   /**
    * Set up a new websocket connection to home assistant
+   *
+   * TODO: Make this blocking until HA_SOCKET_READY
    */
   private initConnection(reset = false): void {
-    this.logger.info('initConnection');
+    this.logger.debug('initConnection');
     if (reset) {
       this.eventEmitter.emit(CONNECTION_RESET);
       this.isAuthenticated = false;
@@ -214,6 +267,7 @@ export class SocketService {
    * Response to an outgoing emit. Value should be redirected to the promise returned by said emit
    */
   private async onMessage(msg: SocketMessageDTO) {
+    this.logger.trace({ msg }, 'onMessage');
     const id = Number(msg.id);
     // let lostInFlight: number;
     switch (msg.type as HassSocketMessageTypes) {
@@ -227,18 +281,20 @@ export class SocketService {
         //   );
         // }
         // this.waitingCallback = {};
-        this.sendMsg({
+        return await this.sendMsg({
           type: HassCommands.auth,
           access_token: this.configService.get(TOKEN),
         });
-        return;
 
       case HassSocketMessageTypes.auth_ok:
         this.isAuthenticated = true;
         await this.sendMsg({
           type: HassCommands.subscribe_events,
         });
-        await this.updateAllEntities();
+        await this.getAllEntitities();
+        // Theoretially, all entities are present, and we have an authorized connection
+        // Open the floodgates
+        this.eventEmitter.emit(HA_SOCKET_READY);
         return;
 
       case HassSocketMessageTypes.event:
@@ -255,15 +311,14 @@ export class SocketService {
         return;
 
       case HassSocketMessageTypes.result:
-        if (this.waitingCallback[msg.id]) {
-          const f = this.waitingCallback[msg.id];
-          delete this.waitingCallback[msg.id];
+        if (this.waitingCallback.has(id)) {
+          const f = this.waitingCallback.get(id);
+          this.waitingCallback.delete(id);
           f(msg.result);
         }
         return;
       default:
         this.logger.warn(`Unknown websocket message type: ${msg.type}`);
-        this.logger.debug(msg);
     }
   }
 
@@ -274,9 +329,7 @@ export class SocketService {
     data: SendSocketMessageDTO,
     waitForResponse = true,
   ): Promise<T> {
-    if (data.type !== HassCommands.ping) {
-      this.logger.debug(data);
-    }
+    this.logger.trace(data, 'sendMsg');
     this.messageCount++;
     const counter = this.messageCount;
     if (data.type !== HassCommands.auth) {
@@ -292,12 +345,12 @@ export class SocketService {
         continue;
       }
       await sleep(1000);
-      return this.sendMsg(data);
+      return await this.sendMsg(data);
     }
     while (this.isAuthenticated === false && data.type !== HassCommands.auth) {
       // Something is jumpy
       // Request went in post-connect but pre-auth (which is supposed to be quick)
-      // Maybe check a different lifecycle event
+      // HA_SOCKET_READY is the event to watch for
       this.logger.warn(`sendMsg waiting for authentication`);
       await sleep(100);
     }

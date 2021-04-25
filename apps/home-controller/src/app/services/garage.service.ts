@@ -1,14 +1,17 @@
+import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { HomeAssistantRoomConfigDTO } from '@automagical/contracts/home-assistant';
 import {
   EntityService,
   HomeAssistantService,
-  RoomService,
+  AreaService,
   SceneRoom,
 } from '@automagical/home-assistant';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { InjectLogger } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import dayjs from 'dayjs';
+import { PinoLogger } from 'nestjs-pino';
 import { GARAGE_CONFIG } from '../../typings';
 
 /**
@@ -20,14 +23,15 @@ export class GarageService extends SceneRoom {
 
   constructor(
     protected readonly homeAssistantService: HomeAssistantService,
+    protected readonly eventEmitter: EventEmitter2,
     protected readonly entityService: EntityService,
-    @InjectPinoLogger(GarageService.name) protected readonly logger: PinoLogger,
-    protected readonly roomService: RoomService,
+    @InjectLogger(GarageService, APP_HOME_CONTROLLER)
+    protected readonly logger: PinoLogger,
+    protected readonly roomService: AreaService,
     @Inject(GARAGE_CONFIG)
     protected readonly roomConfig: HomeAssistantRoomConfigDTO,
   ) {
     super();
-    // roomService.ROOM_REGISTRY.garage = roomConfig;
   }
 
   // #endregion Constructors
@@ -52,9 +56,10 @@ export class GarageService extends SceneRoom {
     const lightOff = now.startOf('d').add(hour, 'h');
     const lightOn = now.startOf('d').add(hour + 12, 'h');
     if (now.isAfter(lightOff) && now.isBefore(lightOn)) {
-      return this.entityService.turnOff('switch.quantum_boards');
+      await this.entityService.turnOff('switch.quantum_boards');
+      return;
     }
-    return this.entityService.turnOn('switch.quantum_boards');
+    await this.entityService.turnOn('switch.quantum_boards');
   }
 
   // @Cron('0 */5 * * * *')
@@ -64,9 +69,10 @@ export class GarageService extends SceneRoom {
     const now = dayjs();
     const lightOn = now.startOf('d').add(6, 'h');
     if (now.isBefore(lightOn)) {
-      return this.entityService.turnOff('switch.vipar_lights');
+      await this.entityService.turnOff('switch.vipar_lights');
+      return;
     }
-    return this.entityService.turnOn('switch.vipar_lights');
+    await this.entityService.turnOn('switch.vipar_lights');
   }
 
   // #endregion Protected Methods

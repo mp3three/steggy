@@ -1,13 +1,15 @@
 import { FormioSDKConfig } from '@automagical/config';
+import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import {
   ProjectDTO,
   UserDataDTO,
   UserDTO,
 } from '@automagical/contracts/formio-sdk';
 import { FetchService } from '@automagical/fetch';
+import { InjectLogger } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import { Response } from 'node-fetch';
 import {
   FetchWith,
@@ -42,7 +44,7 @@ export class FormioSdkService {
   // #region Constructors
 
   constructor(
-    @InjectPinoLogger(FormioSdkService.name)
+    @InjectLogger(FormioSdkService, LIB_FORMIO_SDK)
     protected readonly logger: PinoLogger,
     private readonly fetchService: FetchService,
     private readonly configService: ConfigService,
@@ -93,7 +95,7 @@ export class FormioSdkService {
   public async projectAccessInfo(
     args: FetchWith<{ project: CommonID }>,
   ): Promise<unknown> {
-    this.logger.debug('projectAccessInfo', args);
+    this.logger.trace(args, 'projectAccessInfo');
     return await this.fetch({
       url: this.projectUrl(args.project, '/access'),
       ...args,
@@ -110,7 +112,7 @@ export class FormioSdkService {
   public async projectAdminLogin(
     args: FetchWith<{ name: CommonID }>,
   ): Promise<UserDTO> {
-    this.logger.warn(`getAdminToken`, args);
+    this.logger.warn(`getAdminToken`);
     return await this.userLogin({
       name: args.name,
       type: 'admin',
@@ -140,7 +142,7 @@ export class FormioSdkService {
       allowList?: Map<HTTP_Methods, string[]>;
     }>,
   ): Promise<TempAuthToken> {
-    this.logger.debug('projectAuthToken', args);
+    this.logger.trace(args, 'projectAuthToken');
     let header;
     if (args.allowList) {
       const parts: string[] = [];
@@ -165,7 +167,7 @@ export class FormioSdkService {
   public async projectCreate(
     args: FetchWith<{ body: ProjectDTO }>,
   ): Promise<ProjectDTO> {
-    this.logger.debug('projectCreate', args);
+    this.logger.trace(args, 'projectCreate');
     // TODO: Templates
     return await this.fetch<ProjectDTO>({
       url: '/project',
@@ -184,7 +186,7 @@ export class FormioSdkService {
       password: string;
     }>,
   ): Promise<UserDTO> {
-    this.logger.debug('projectCreateAdmin', args);
+    this.logger.trace(args, 'projectCreateAdmin');
     return await this.fetch({
       url: this.projectUrl(args.project, '/admin'),
       method: HTTP_Methods.POST,
@@ -202,7 +204,7 @@ export class FormioSdkService {
   public async projectDelete(
     args: FetchWith<{ project: CommonID }>,
   ): Promise<unknown> {
-    this.logger.debug(`projectDelete`, args);
+    this.logger.trace(args, `projectDelete`);
     return await this.fetch({
       url: this.projectUrl(args.project),
       method: HTTP_Methods.DELETE,
@@ -216,7 +218,7 @@ export class FormioSdkService {
   public async projectExport(
     args: FetchWith<{ project: CommonID }>,
   ): Promise<unknown> {
-    this.logger.debug('projectExport', args);
+    this.logger.trace(args, 'projectExport');
     return await this.fetch({
       url: this.projectUrl(args.project, '/export'),
       ...args,
@@ -229,7 +231,7 @@ export class FormioSdkService {
   public async projectGet(
     args: FetchWith<{ project: CommonID }>,
   ): Promise<ProjectDTO> {
-    this.logger.debug(`projectGet`, args);
+    this.logger.trace(args, `projectGet`);
     return await this.fetch<ProjectDTO>({
       url: this.projectUrl(args.project),
       ...args,
@@ -240,7 +242,7 @@ export class FormioSdkService {
    * List all projects your user has access to
    */
   public async projectList(args: FetchWith = {}): Promise<ProjectDTO[]> {
-    this.logger.debug(`projectList`, args);
+    this.logger.info(args, `projectList`);
     return await this.fetch<ProjectDTO[]>({
       url: '/project',
       ...args,
@@ -253,7 +255,7 @@ export class FormioSdkService {
   public async projectRoleCreate(
     args: FetchWith<{ project: CommonID }>,
   ): Promise<unknown> {
-    this.logger.debug(`projectRoleCreate`, args);
+    this.logger.info(args, `projectRoleCreate`);
     return await this.fetch({
       url: this.projectUrl(args.project, '/role'),
       method: HTTP_Methods.POST,
@@ -267,7 +269,7 @@ export class FormioSdkService {
   public async projectRoleList(
     args: FetchWith<{ project: CommonID }>,
   ): Promise<unknown> {
-    this.logger.debug(`projectRoleList`, args);
+    this.logger.info(args, `projectRoleList`);
     return await this.fetch<ProjectDTO[]>({
       url: this.projectUrl(args.project, '/role'),
       ...args,
@@ -284,7 +286,7 @@ export class FormioSdkService {
       body: Record<'title' | 'description', string>;
     }>,
   ): Promise<unknown> {
-    this.logger.debug(`projectRoleUpdate`, args);
+    this.logger.info(args, `projectRoleUpdate`);
     return await this.fetch({
       url: this.projectUrl(args.project, `/role/${this.id(args.role)}`),
       method: HTTP_Methods.PUT,
@@ -320,7 +322,7 @@ export class FormioSdkService {
   public async projectUpdate(
     args: FetchWith<{ project: Identifier; body: ProjectDTO }>,
   ): Promise<unknown> {
-    this.logger.debug(`projectUpdate`, args);
+    this.logger.debug(`projectUpdate`);
     return await this.fetch<ProjectDTO>({
       url: this.projectUrl(args.project),
       method: HTTP_Methods.PUT,
@@ -333,7 +335,7 @@ export class FormioSdkService {
    * Create a new user (register)
    */
   public async userCreate(args: FetchWith<UserDataDTO>): Promise<UserDTO> {
-    this.logger.debug(`userCreate`, args);
+    this.logger.debug(`userCreate`);
     return await this.fetch<UserDTO>({
       url: this.projectUrl(this.config.BASE_PROJECT, '/user/register'),
       method: HTTP_Methods.POST,
@@ -350,7 +352,7 @@ export class FormioSdkService {
    * Retrieve userdata (or verify token)
    */
   public async userFetch(args: FetchWith = {}): Promise<unknown> {
-    this.logger.debug(`userRefresh`, args);
+    this.logger.debug(`userRefresh`);
     this.userDto = await this.fetch({
       url: this.projectUrl(null, '/current'),
       ...args,
@@ -367,7 +369,7 @@ export class FormioSdkService {
       type?: 'user' | 'admin';
     }> = {},
   ): Promise<UserDTO> {
-    this.logger.debug(`userLogin`, args);
+    this.logger.debug(`userLogin`);
     args.name = args.name || this.config.BASE_PROJECT;
     args.type = args.type || 'user';
     const res = (await this.fetch({
@@ -390,7 +392,7 @@ export class FormioSdkService {
    * @FIXME: Does this actually do anything on the server side?
    */
   public async userLogout(args: FetchWith = {}): Promise<unknown> {
-    this.logger.debug(`userLogout`, args);
+    this.logger.debug(`userLogout`);
     if (!this.jwtToken) {
       return;
     }

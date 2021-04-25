@@ -26,7 +26,10 @@
         "plugin:security/recommended",
         "plugin:@typescript-eslint/recommended"
       ],
-      "rules": {}
+      "rules": {
+        "no-case-declarations": "off",
+        "no-async-promise-executor": "off"
+      }
     },
     {
       "files": ["*.js", "*.jsx"],

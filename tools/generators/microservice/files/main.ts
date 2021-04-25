@@ -1,7 +1,4 @@
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { NestFactory } from '@nestjs/core';
-import cors from 'cors';
-import helmet from 'helmet';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {

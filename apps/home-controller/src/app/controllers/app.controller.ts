@@ -1,12 +1,15 @@
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
+import { InjectLogger } from '@automagical/utilities';
 import { Controller, Get } from '@nestjs/common';
+import { PinoLogger } from 'nestjs-pino';
 
 @Controller()
 export class AppController {
   // #region Constructors
 
   constructor(
-    @InjectPinoLogger(AppController.name) protected readonly logger: PinoLogger,
+    @InjectLogger(AppController, APP_HOME_CONTROLLER)
+    protected readonly logger: PinoLogger,
   ) {}
 
   // #endregion Constructors

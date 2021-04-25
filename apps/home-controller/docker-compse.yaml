@@ -1,4 +1,3 @@
-
 ---
 version: "2.1"
 
@@ -26,3 +25,10 @@ services:
       # As precise as you want, used for calculating golden hour / sunset / etc times
       - LAT=30.2672
       - LONG=-97.7431
+
+  redis:
+    container_name: home-controller_redis
+    image: redis
+    volumes:
+      - /mnt/tier_1/automagical/home-controller/redis:/data
+    restart: unless-stopped

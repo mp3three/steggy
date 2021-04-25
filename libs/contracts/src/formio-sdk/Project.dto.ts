@@ -137,9 +137,6 @@ export class ProjectDTO extends BaseDTO {
   public trial?: string;
   /**
    * Selected framework for this project
-   *
-   * @FIXME: Generate full list
-   * @FIXME: Is this just cosmetic?
    */
   @IsOptional()
   @IsEnum(PROJECT_FRAMEWORKS)

@@ -1,4 +1,7 @@
-import { CONNECTION_RESET } from '@automagical/contracts/constants';
+import {
+  APP_HOME_CONTROLLER,
+  CONNECTION_RESET,
+} from '@automagical/contracts/constants';
 import {
   HassDomains,
   HassEventDTO,
@@ -8,19 +11,19 @@ import {
 import {
   EntityService,
   HomeAssistantService,
-  RoomService,
+  AreaService,
   SocketService,
 } from '@automagical/home-assistant';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
-import { sleep } from '@automagical/utilities';
+import { InjectLogger, sleep } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
-import { load } from 'js-yaml';
 import { readFileSync } from 'fs';
+import { load } from 'js-yaml';
+import { PinoLogger } from 'nestjs-pino';
 import { join } from 'path';
 import { ASSETS_PATH } from '../../environments/environment';
 import { MobileDevice, NotificationGroup, RoomsCode } from '../../typings';
@@ -51,8 +54,9 @@ export class AppService {
     private readonly homeAssistantService: HomeAssistantService,
     private readonly entityService: EntityService,
     private readonly socketService: SocketService,
-    private readonly roomService: RoomService,
-    @InjectPinoLogger(AppService.name) protected readonly logger: PinoLogger,
+    private readonly roomService: AreaService,
+    @InjectLogger(AppService, APP_HOME_CONTROLLER)
+    protected readonly logger: PinoLogger,
     private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
   ) {}
@@ -116,7 +120,7 @@ export class AppService {
   public async onModuleInit(): Promise<void> {
     setTimeout(() => {
       this.logger.info(`Hello world @ ${new Date().toLocaleString()}`);
-    }, 5000);
+    }, 1000);
   }
 
   /**
@@ -129,15 +133,18 @@ export class AppService {
     const locks =
       lockList ||
       this.entityService
-        .listEntities()
-        .filter((key) => key.split('.')[0] === 'lock')
+        .entityList()
+        .filter((key) => key.split('.')[0] === HassDomains.lock)
         .filter((key) => !key.includes('mystique'));
-    this.logger.warn(dayjs().format('hh:mm'), `setLocks`, locks);
     await Promise.all(
       locks.map(async (entityId) => {
-        return this.socketService.call(HassDomains.lock, state, {
-          entity_id: entityId,
-        });
+        return this.socketService.call(
+          state,
+          {
+            entity_id: entityId,
+          },
+          HassDomains.lock,
+        );
       }),
     );
   }
@@ -149,9 +156,9 @@ export class AppService {
   @Cron('0 0 11 * * Wed,Sat')
   private async batteryMonitor() {
     this.logger.debug('batteryMonitor');
-    await this.socketService.updateAllEntities();
+    await this.socketService.getAllEntitities();
     await sleep(1000);
-    const entities = this.entityService.listEntities().filter((entityId) => {
+    const entities = this.entityService.entityList().filter((entityId) => {
       const [domain, suffix] = entityId.split('.');
       return (
         (domain as HassDomains) !== HassDomains.sensor ||
@@ -175,7 +182,7 @@ export class AppService {
   @Cron('0 0 11 * * *')
   private dayInfo() {
     this.logger.debug(`dayInfo`);
-    const cal = this.roomService.SOLAR_CALC;
+    const cal = this.entityService.SOLAR_CALC;
     const start = dayjs(cal.goldenHourStart).format('hh:mm');
     const end = dayjs(cal.goldenHourEnd).format('hh:mm');
     const message = `🌄 ${dayjs().format('ddd MMM DD')}: ${start} - ${end}`;
@@ -191,19 +198,23 @@ export class AppService {
   //   this.logger.info(`autoLock`);
   //   return this.setLocks(HassServices.lock);
   // }
-  @OnEvent(CONNECTION_RESET)
+  @OnEvent([CONNECTION_RESET])
   private async onSocketReset() {
     this.logger.debug('onSocketReset');
     await sleep(10000);
-    this.socketService.call(HassDomains.notify, MobileDevice.generic, {
-      message: `Connection reset at ${new Date().toISOString()}`,
-      title: `core temporarily lost connection with HomeAssistant`,
-      data: {
-        push: {
-          'thread-id': NotificationGroup.serverStatus,
+    await this.socketService.call(
+      MobileDevice.generic,
+      {
+        message: `Connection reset at ${new Date().toISOString()}`,
+        title: `core temporarily lost connection with HomeAssistant`,
+        data: {
+          push: {
+            'thread-id': NotificationGroup.serverStatus,
+          },
         },
       },
-    });
+      HassDomains.notify,
+    );
   }
 
   /**

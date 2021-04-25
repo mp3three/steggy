@@ -1,3 +1,4 @@
+import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import { LicenseAdminDTO, LicenseDTO } from '@automagical/contracts/formio-sdk';
 import {
   LicenseApiServer,
@@ -6,8 +7,9 @@ import {
   LicenseScopes,
   LicenseUsageDTO,
 } from '@automagical/contracts/licenses';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import { PinoLogger } from 'nestjs-pino';
 import { FormioSdkService } from '.';
 import { FetchWith, HTTP_Methods } from '../../typings';
 
@@ -25,7 +27,7 @@ export class LicenseService {
    * @type Loggers
    */
   constructor(
-    @InjectPinoLogger(LicenseService.name)
+    @InjectLogger(LicenseService, LIB_FORMIO_SDK)
     protected readonly logger: PinoLogger,
     private readonly formioSdkService: FormioSdkService,
   ) {}
@@ -39,7 +41,7 @@ export class LicenseService {
     const licenseList = (await this.formioSdkService.fetch({
       url: `/license`,
     })) as LicenseDTO[];
-    this.logger.info(`${licenseList.length} licences found`);
+    this.logger.debug(`${licenseList.length} licences found`);
 
     this.licenseData = await Promise.all(
       licenseList.map(async (license) => {
@@ -93,14 +95,14 @@ export class LicenseService {
     return this.licenseData;
   }
 
-  public toggleUsage(
+  public async toggleUsage(
     args: FetchWith<{
       state: boolean;
       body: LicenseApiServer | LicenseItemDTO;
     }>,
   ): Promise<unknown> {
     this.logger.debug(`toggleUsage`, args);
-    return this.formioSdkService.fetch({
+    return await this.formioSdkService.fetch({
       method: HTTP_Methods.POST,
       url: `/utilization/${args.state ? 'enable' : 'disable'}`,
       ...args,

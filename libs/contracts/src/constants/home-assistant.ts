@@ -13,4 +13,6 @@ export const CONNECTION_RESET = Symbol('CONNECTION_RESET');
  * home-assistant/SocketService#onMessage
  */
 export const HA_RAW_EVENT = Symbol('HA_RAW_EVENT');
-export const HA_ALL_CONFIGS = Symbol('HA_ALL_CONFIGS');
+export const HA_SOCKET_READY = Symbol('HA_SOCKET_READY');
+export const GLOBAL_ON = Symbol('GLOBAL_ON');
+export const GLOBAL_OFF = Symbol('GLOBAL_OFF');

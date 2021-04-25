@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -13,10 +14,10 @@ async function bootstrap() {
     // { logger: false },
   );
   const logger = app.get(Logger);
+  const config = app.get(ConfigService);
   app.useLogger(logger);
-  // app.use(AsyncStorageMiddleware);
-  await app.listen(process.env.PORT, () => {
-    logger.log(`Listening on ${process.env.PORT}`);
+  await app.listen(config.get('PORT'), () => {
+    logger.log(`Listening on ${config.get('PORT')}`);
   });
 }
 

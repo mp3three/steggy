@@ -1,3 +1,4 @@
+import { LIB_LICENSES } from '@automagical/contracts/constants';
 import {
   LicenseDTO,
   SubmissionDTO,
@@ -23,6 +24,7 @@ import {
   FormioSdkService,
   LICENSE_SERVER,
 } from '@automagical/formio-sdk';
+import { InjectLogger } from '@automagical/utilities';
 import {
   BadRequestException,
   CACHE_MANAGER,
@@ -36,7 +38,7 @@ import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { Request } from 'express';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 
 interface UpdateArgs {
   // #region Object Properties
@@ -64,7 +66,7 @@ export class LicenseService {
   // #region Constructors
 
   constructor(
-    @InjectPinoLogger(LicenseService.name)
+    @InjectLogger(LicenseService, LIB_LICENSES)
     protected readonly logger: PinoLogger,
     private readonly formioSdkService: FormioSdkService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
