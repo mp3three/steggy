@@ -4,6 +4,7 @@ import {
   LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {
+  domain,
   FanSpeeds,
   HassDomains,
   HassEventDTO,
@@ -13,6 +14,7 @@ import {
   HomeAssistantRoomRokuDTO,
   PicoStates,
   RokuInputs,
+  split,
 } from '@automagical/contracts/home-assistant';
 import { FetchService, HTTP_Methods } from '@automagical/fetch';
 import { InjectLogger, sleep } from '@automagical/utilities';
@@ -88,12 +90,11 @@ export class AreaService {
     areaList.forEach((area) => this.AREA_MAP.set(area.area_id, []));
 
     entities.forEach((entity) => {
-      const domain = entity.entity_id.split('.')[0] as HassDomains;
       if (this.isController(entity)) {
         this.CONTROLLER_MAP.set(entity.entity_id, entity.area_id);
         return;
       }
-      if (!AreaService.TRACK_DOMAINS.includes(domain)) {
+      if (!AreaService.TRACK_DOMAINS.includes(domain(entity))) {
         return;
       }
       let areaId = entity.area_id;
@@ -205,7 +206,7 @@ export class AreaService {
   // #region Protected Methods
 
   protected isController(entity: { entity_id: string }): boolean {
-    const [domain, name] = entity.entity_id.split('.') as [HassDomains, string];
+    const [domain, name] = split(entity);
     return domain === HassDomains.sensor && name.includes('pico');
   }
 
@@ -281,7 +282,7 @@ export class AreaService {
   private async lightDim(areaName: string, amount: number) {
     const area = this.AREA_MAP.get(areaName);
     area.forEach(async (entityId) => {
-      if (entityId.split('.')[0] === HassDomains.switch) {
+      if (split(entityId)[0] === HassDomains.switch) {
         return;
       }
       await this.entityService.lightDim(entityId, amount);

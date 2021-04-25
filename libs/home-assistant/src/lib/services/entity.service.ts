@@ -4,6 +4,7 @@ import {
   LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {
+  domain,
   FanSpeeds,
   HassDomains,
   HassEventDTO,
@@ -198,14 +199,12 @@ export class EntityService {
 
   public async turnOff(entityId: string): Promise<void> {
     this.logger.trace(`turnOff ${entityId}`);
-    const parts = entityId.split('.');
-    const domain = parts[0] as HassDomains;
     const entity = await this.byId(entityId);
     if (!entity) {
       this.logger.error(`Could not find entity for ${entityId}`);
       return;
     }
-    switch (domain) {
+    switch (domain(entityId)) {
       case HassDomains.group:
       case HassDomains.light:
         this.cacheService.del(this.cacheKey(entityId));
@@ -223,12 +222,11 @@ export class EntityService {
 
   public async turnOn(entityId: string): Promise<void> {
     this.logger.trace(`turnOn ${entityId}`);
-    const [domain] = entityId.split('.');
     const entity = await this.byId(entityId);
     if (!entity) {
       this.logger.error(`Could not find entity for ${entityId}`);
     }
-    switch (domain) {
+    switch (domain(entityId)) {
       case HassDomains.switch:
         this.socketService.call(HassServices.turn_on, {
           entity_id: entityId,
@@ -277,9 +275,7 @@ export class EntityService {
     this.logger.debug(`circadianLightingUpdate`);
     return;
     const entityList = this.entityList().filter((i) =>
-      [HassDomains.group, HassDomains.light].includes(
-        i.split('.')[0] as HassDomains,
-      ),
+      [HassDomains.group, HassDomains.light].includes(domain(i)),
     );
     this.logger.info(
       {
