@@ -80,7 +80,7 @@ export class FormioSdkService {
    *
    * Sets up a usable jwtToken before the application finishes bootstrapping
    */
-  public async onModuleInit(): Promise<void> {
+  private async onModuleInit(): Promise<void> {
     this.config = this.configService.get('libs.formio-sdk');
 
     if (this.config.AUTH?.password) {

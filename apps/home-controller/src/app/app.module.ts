@@ -1,13 +1,16 @@
 import { ConfigModule } from '@automagical/config';
 import { FetchModule } from '@automagical/fetch';
-import { HomeAssistantModule } from '@automagical/home-assistant';
+import {
+  EntityController,
+  HomeAssistantModule,
+} from '@automagical/home-assistant';
 import { CacheModule, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import RedisStore from 'cache-manager-redis-store';
 import { MqttModule } from 'nest-mqtt';
-import { Logger, LoggerModule } from 'nestjs-pino';
+import { LoggerModule } from 'nestjs-pino';
 import { ApplicationConfig } from '../typings/';
 import { AppController } from './controllers/app.controller';
 import { AppService } from './services/app.service';
@@ -77,6 +80,6 @@ import { MqttClientService } from './services/mqtt-client.service';
     // }),
   ],
   providers: [AppService, MqttClientService],
-  controllers: [AppController],
+  controllers: [AppController, EntityController],
 })
 export class AppModule {}

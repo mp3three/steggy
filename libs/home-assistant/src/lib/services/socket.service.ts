@@ -164,10 +164,6 @@ export class SocketService {
     });
   }
 
-  public async onModuleInit(): Promise<void> {
-    await this.initConnection();
-  }
-
   /**
    * Ask Home Assistant to send a MQTT message
    */
@@ -320,6 +316,10 @@ export class SocketService {
       default:
         this.logger.warn(`Unknown websocket message type: ${msg.type}`);
     }
+  }
+
+  private async onModuleInit(): Promise<void> {
+    await this.initConnection();
   }
 
   /**
