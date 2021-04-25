@@ -8,7 +8,7 @@ import {
 import { ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HasUserGuard } from '../guards/has-user.guard';
 
-export function FetchUser(): unknown {
+export function FetchUser(): ReturnType<typeof applyDecorators> {
   return applyDecorators(
     UsePipes(),
     UseGuards(HasUserGuard),

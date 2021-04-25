@@ -21,6 +21,7 @@ import { InjectLogger, sleep } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
+import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
@@ -214,6 +215,23 @@ export class AreaService {
 
   // #region Private Methods
 
+  @Cron('0 */5 * * * *')
+  // @Cron('*/5 * * * * *') // For debugging
+  private async circadianLightingUpdate() {
+    this.logger.debug(`circadianLightingUpdate`);
+    this.AREA_MAP.forEach((entities) => {
+      entities = entities.filter((i) =>
+        [HassDomains.group, HassDomains.light].includes(domain(i)),
+      );
+      entities.forEach(async (entityId) => {
+        await this.entityService.circadianLight(entityId);
+      });
+    });
+  }
+
+  /**
+   * TODO: Make
+   */
   @OnEvent([HA_RAW_EVENT])
   private async onControllerEvent(event: HassEventDTO): Promise<void> {
     if (event.event_type !== HassEvents.state_changed) {
@@ -231,7 +249,7 @@ export class AreaService {
     }
     if (this.FAVORITE_TIMEOUT.has(entityId)) {
       this.FAVORITE_TIMEOUT.delete(entityId);
-      if (state.state === PicoStates.high) {
+      if (state.state === PicoStates.on) {
         this.logger.trace('GLOBAL_ON');
         // this.eventEmitter.emit(GLOBAL_ON);
         return;
@@ -244,17 +262,17 @@ export class AreaService {
       if (state.state === PicoStates.favorite) {
         return await this.setFavoriteScene(areaName);
       }
-      if (state.state === PicoStates.medium) {
+      if (state.state === PicoStates.up) {
         this.logger.trace({ areaName }, 'up');
         return await this.lightDim(areaName, 10);
       }
-      if (state.state === PicoStates.low) {
+      if (state.state === PicoStates.down) {
         this.logger.trace({ areaName }, 'down');
         return await this.lightDim(areaName, -10);
       }
       return;
     }
-    if (state.state === PicoStates.high) {
+    if (state.state === PicoStates.on) {
       return area.forEach(async (entityId) => {
         await this.entityService.turnOn(entityId);
       });
@@ -269,11 +287,11 @@ export class AreaService {
       setTimeout(() => this.FAVORITE_TIMEOUT.delete(entityId), 5000);
       return await this.setFavoriteScene(areaName);
     }
-    if (state.state === PicoStates.medium) {
+    if (state.state === PicoStates.up) {
       this.logger.trace({ areaName }, 'up');
       return await this.lightDim(areaName, 10);
     }
-    if (state.state === PicoStates.low) {
+    if (state.state === PicoStates.down) {
       this.logger.trace({ areaName }, 'down');
       return await this.lightDim(areaName, -10);
     }

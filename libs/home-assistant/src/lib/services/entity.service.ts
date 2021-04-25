@@ -179,8 +179,6 @@ export class EntityService {
   public async lightDim(entityId: string, delta: number): Promise<void> {
     let brightness = await this.lightBrightness(entityId);
     if (typeof brightness !== 'number') {
-      // 🤷‍♂️
-      // this.turnOn(entityId);
       return;
     }
     brightness = brightness + delta;
@@ -269,25 +267,6 @@ export class EntityService {
 
   // #region Private Methods
 
-  // @Cron('*/5 * * * * *')
-  @Cron('0 */5 * * * *')
-  private async circadianLightingUpdate() {
-    this.logger.debug(`circadianLightingUpdate`);
-    return;
-    const entityList = this.entityList().filter((i) =>
-      [HassDomains.group, HassDomains.light].includes(domain(i)),
-    );
-    this.logger.info(
-      {
-        entityList,
-      },
-      'entityList',
-    );
-    entityList.forEach(async (entityId) => {
-      await this.circadianLight(entityId);
-    });
-  }
-
   @OnEvent([ALL_ENTITIES_UPDATED])
   private onAllEntitiesUpdated(allEntities: HassStateDTO[]) {
     this.logger.trace(`onAllEntitiesUpdated`);
@@ -330,7 +309,7 @@ export class EntityService {
     }
     if (now.isBefore(noon)) {
       // After dawn, but before solar noon
-      return noon.diff(now, 's') / noon.diff(dawn, 's');
+      return Math.abs(noon.diff(now, 's') / noon.diff(dawn, 's') - 1);
     }
     if (now.isBefore(dusk)) {
       // Afternoon, but before dusk
