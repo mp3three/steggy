@@ -1,3 +1,4 @@
+import { HA_SOCKET_READY } from '@automagical/contracts/constants';
 import {
   FanSpeeds,
   HassDomains,
@@ -8,6 +9,7 @@ import {
 import { FetchService, HTTP_Methods } from '@automagical/fetch';
 import { InjectLogger, sleep } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
@@ -121,6 +123,16 @@ export class RoomService {
   // #endregion Public Methods
 
   // #region Private Methods
+
+  @OnEvent([HA_SOCKET_READY])
+  private async onSocketReady() {
+    const areas = await this.socketService.getAreas();
+    areas.forEach((area) => {
+      return;
+    });
+    // this.logger.info({ result }, 'getAreas');
+    // return;
+  }
 
   private async turnOff(entityId: string) {
     return await this.entityService.turnOff(entityId);

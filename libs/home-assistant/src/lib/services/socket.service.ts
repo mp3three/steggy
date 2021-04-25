@@ -9,6 +9,7 @@ import {
   TOKEN,
 } from '@automagical/contracts/constants';
 import {
+  AreaDTO,
   HassCommands,
   HassDomains,
   HassServices,
@@ -119,6 +120,12 @@ export class SocketService {
     }
   }
 
+  public async getAreas(): Promise<AreaDTO[]> {
+    return await this.sendMsg({
+      type: HassCommands.area_list,
+    });
+  }
+
   public async onModuleInit(): Promise<void> {
     await this.initConnection();
   }
@@ -162,6 +169,18 @@ export class SocketService {
       this.updateAllPromise = null;
     });
     return await this.updateAllPromise;
+  }
+
+  public async updateEntity(entityId: string): Promise<HassDomains> {
+    return await this.sendMsg({
+      type: HassCommands.call_service,
+      service: HassServices.update_entity,
+      domain: HassDomains.homeassistant,
+      service_data: {
+        entity_id: entityId,
+      },
+    });
+    // return null;
   }
 
   // #endregion Public Methods

@@ -1,9 +1,0 @@
-config:
-  pico: sensor.bedroom_pico
-  fan: fan.master_bedroom_ceiling_fan
-  lights:
-    - switch.womp
-    - group.bedroom_circadian
-
-name: bedroom
-friendly_name: Master Bedroom

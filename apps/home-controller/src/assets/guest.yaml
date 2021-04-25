@@ -1,7 +1,0 @@
-config:
-  pico: sensor.guest_pico
-  lights:
-    - group.guest_circadian
-
-name: guest
-friendly_name: Guest Room

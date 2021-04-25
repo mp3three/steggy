@@ -6,6 +6,15 @@ import {
 } from './enums/socket';
 import { HassEventDTO } from './hass-event.dto';
 
+export class AreaDTO {
+  // #region Object Properties
+
+  public area_id: string;
+  public name: string;
+
+  // #endregion Object Properties
+}
+
 export class SocketMessageDTO {
   // #region Object Properties
 

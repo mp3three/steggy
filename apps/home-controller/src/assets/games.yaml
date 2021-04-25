@@ -1,7 +1,0 @@
-config:
-  pico: sensor.games_pico
-  lights:
-    - group.games_circadian
-
-name: games
-friendly_name: Games Room

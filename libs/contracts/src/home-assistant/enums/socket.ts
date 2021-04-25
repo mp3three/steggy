@@ -32,6 +32,7 @@ export enum HassCommands {
   subscribe_events = 'subscribe_events',
   auth = 'auth',
   call_service = 'call_service',
+  area_list = 'config/area_registry/list',
   get_states = 'get_states',
   ping = 'ping',
 }
@@ -43,6 +44,7 @@ export enum HassServices {
   publish = 'publish',
   set_speed = 'set_speed',
   lock = 'lock',
+  update_entity = 'update_entity',
   unlock = 'unlock',
 }
 

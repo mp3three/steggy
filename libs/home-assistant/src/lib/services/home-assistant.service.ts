@@ -99,10 +99,5 @@ export class HomeAssistantService {
     }
   }
 
-  @OnEvent([HA_SOCKET_READY])
-  private onSocketReady() {
-    return;
-  }
-
   // #endregion Private Methods
 }
