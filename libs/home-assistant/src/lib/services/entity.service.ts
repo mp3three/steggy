@@ -4,6 +4,7 @@ import {
   LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {
+  domain,
   FanSpeeds,
   HassDomains,
   HassEventDTO,

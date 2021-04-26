@@ -268,6 +268,7 @@ export class SocketService {
    */
   @Trace({ omitArgs: true })
   private async onMessage(msg: SocketMessageDTO) {
+    this.logger.trace({ msg }, 'onMessage');
     const id = Number(msg.id);
     // let lostInFlight: number;
     switch (msg.type as HassSocketMessageTypes) {

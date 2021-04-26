@@ -98,9 +98,5 @@ export class HomeAssistantService {
     }
   }
 
-  private async onModuleInit(): Promise<void> {
-    return;
-  }
-
   // #endregion Private Methods
 }
