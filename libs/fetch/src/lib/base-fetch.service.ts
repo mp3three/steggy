@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
-import { FetchWith, Filters, TempAuthToken } from '../typings';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
+import { FetchWith, Filters, TempAuthToken } from '../typings';
 
 export class BaseFetch {
   // #region Object Properties

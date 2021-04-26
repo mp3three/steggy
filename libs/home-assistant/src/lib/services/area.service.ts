@@ -11,7 +11,6 @@ import {
   HassEventDTO,
   HassEvents,
   HassServices,
-  HassStateDTO,
   HomeAssistantRoomRokuDTO,
   PicoStates,
   RokuInputs,

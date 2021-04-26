@@ -1,14 +1,9 @@
-import {
-  APP_HOME_CONTROLLER,
-  GLOBAL_OFF,
-  MQTT_PUBLISH,
-} from '@automagical/contracts/constants';
-import { HassServices } from '@automagical/contracts/home-assistant';
+import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { AreaService } from '@automagical/home-assistant';
 import { InjectLogger } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { MqttService, Subscribe } from 'nest-mqtt';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { MqttService } from 'nest-mqtt';
 import { PinoLogger } from 'nestjs-pino';
 import { AppService } from './app.service';
 
