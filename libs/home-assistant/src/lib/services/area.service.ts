@@ -4,18 +4,19 @@ import {
   LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {
+  AreaFlags,
+  domain,
   FanSpeeds,
   HassDomains,
   HassEventDTO,
   HassEvents,
   HassServices,
-  HassStateDTO,
   HomeAssistantRoomRokuDTO,
   PicoStates,
   RokuInputs,
 } from '@automagical/contracts/home-assistant';
 import { FetchService, HTTP_Methods } from '@automagical/fetch';
-import { InjectLogger, sleep } from '@automagical/utilities';
+import { InjectLogger, sleep, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -36,6 +37,14 @@ export class AreaService {
 
   // #region Object Properties
 
+  /**
+   * Populated by using input_boolean entities
+   *
+   * Created via configuration.yaml, feature flag added in customize.yaml
+   *
+   * Would really like to be able to add attributes to areas, this is a headache
+   */
+  private AREA_FLAGS: Map<string, AreaFlags[]>;
   private AREA_MAP: Map<string, string[]>;
   private CONTROLLER_MAP: Map<string, string>;
   private FAVORITE_TIMEOUT = new Map<string, boolean>();
@@ -75,8 +84,10 @@ export class AreaService {
   // #region Public Methods
 
   @OnEvent([HA_SOCKET_READY])
+  @Trace()
   public async areaReload(): Promise<void> {
     this.AREA_MAP = new Map();
+    this.AREA_FLAGS = new Map();
     this.CONTROLLER_MAP = new Map();
 
     const [areaList, entities, devices] = await Promise.all([
@@ -88,32 +99,88 @@ export class AreaService {
     areaList.forEach((area) => this.AREA_MAP.set(area.area_id, []));
 
     entities.forEach((entity) => {
-      const domain = entity.entity_id.split('.')[0] as HassDomains;
-      if (this.isController(entity)) {
-        this.CONTROLLER_MAP.set(entity.entity_id, entity.area_id);
-        return;
-      }
-      if (!AreaService.TRACK_DOMAINS.includes(domain)) {
-        return;
-      }
+      const entityId = entity.entity_id;
       let areaId = entity.area_id;
-      if (!areaId) {
+      if (this.isController(entity)) {
+        this.CONTROLLER_MAP.set(entityId, areaId);
+        return;
+      }
+      if (!AreaService.TRACK_DOMAINS.includes(domain(entity))) {
+        return;
+      }
+      if (!areaId && entity.device_id) {
         areaId = devices.find((device) => device.id === entity.device_id)
           .area_id;
       }
       if (!areaId) {
         return;
       }
-      const list = [...this.AREA_MAP.get(areaId), entity.entity_id];
+      const list = this.AREA_MAP.get(areaId) || [];
+      list.push(entityId);
       this.AREA_MAP.set(areaId, list);
+    });
+
+    entities.forEach(async (entity) => {
+      if (domain(entity) !== HassDomains.input_boolean) {
+        return;
+      }
+      const entityId = entity.entity_id;
+      const state = await this.entityService.byId(entityId);
+      if (state.state !== 'on') {
+        return;
+      }
+      const customizations = await this.socketService.fetchEntityCustomizations(
+        entityId,
+      );
+      const feature = customizations.local.feature as AreaFlags;
+      const area: string = entity.area_id;
+      const flags = this.AREA_FLAGS.get(area) || [];
+      flags.push(feature);
+      this.AREA_FLAGS.set(area, flags);
     });
   }
 
+  @Trace()
+  public async areaOff(areaName: string): Promise<void> {
+    const area = this.AREA_MAP.get(areaName);
+    area.forEach(async (entityId) => {
+      await this.entityService.turnOff(entityId);
+    });
+  }
+
+  @Trace()
+  public async areaOn(areaName: string): Promise<void> {
+    const area = this.AREA_MAP.get(areaName);
+    area.forEach(async (entityId) => {
+      await this.entityService.turnOn(entityId);
+    });
+  }
+
+  @Trace()
+  public async globalOff(areaName?: string): Promise<void> {
+    if (!this.isCommonArea(areaName)) {
+      return await this.areaOff(areaName);
+    }
+    (await this.getCommonAreas()).forEach(async (areaName) => {
+      await this.areaOff(areaName);
+    });
+  }
+
+  @Trace()
+  public async globalOn(areaName?: string): Promise<void> {
+    if (!this.isCommonArea(areaName)) {
+      return await this.areaOff(areaName);
+    }
+    (await this.getCommonAreas()).forEach(async (areaName) => {
+      await this.areaOff(areaName);
+    });
+  }
+
+  @Trace()
   public async setFan(
     entityId: string,
     speed: FanSpeeds | 'up' | 'down',
   ): Promise<void> {
-    this.logger.trace({ entityId, speed }, 'setFan');
     const fan = await this.entityService.byId(entityId);
     const attributes = fan.attributes as { speed: FanSpeeds };
     if (speed === 'up') {
@@ -128,7 +195,24 @@ export class AreaService {
     });
   }
 
-  public async setFavoriteScene(areaName: string): Promise<void> {
+  @Trace()
+  public async setFavoriteScene(
+    areaName: string,
+    global = false,
+  ): Promise<void> {
+    if (global && this.isCommonArea(areaName)) {
+      this.logger.info(`global relay`);
+      this.getCommonAreas().forEach(async (name) => {
+        if (name === areaName) {
+          return;
+        }
+        if (this.IS_EVENING) {
+          this.logger.info(name);
+          return await this.areaOff(name);
+        }
+        await this.setFavoriteScene(areaName);
+      });
+    }
     const scene = this.configService.get(`favorites.${areaName}`) as Record<
       'day' | 'evening',
       Record<'on' | 'off', string[]>
@@ -155,6 +239,7 @@ export class AreaService {
    * I think it might be because it's sleeping or something?
    * The double request method seems to work around
    */
+  @Trace()
   public async setRoku(
     channel: RokuInputs | string,
     roku: HomeAssistantRoomRokuDTO,
@@ -223,77 +308,87 @@ export class AreaService {
       return;
     }
     const areaName = this.CONTROLLER_MAP.get(entityId);
-    const area = this.AREA_MAP.get(areaName);
     const state = event.data.new_state;
     if (state.state === PicoStates.none) {
       return;
     }
     if (this.FAVORITE_TIMEOUT.has(entityId)) {
       this.FAVORITE_TIMEOUT.delete(entityId);
-      if (state.state === PicoStates.high) {
-        this.logger.trace('GLOBAL_ON');
-        // this.eventEmitter.emit(GLOBAL_ON);
-        return;
+      switch (state.state) {
+        case PicoStates.on:
+          return await this.setCommon(true);
+        case PicoStates.off:
+          return await this.setCommon(false);
+        case PicoStates.up:
+          return await this.lightDim(areaName, 10);
+        case PicoStates.down:
+          return await this.lightDim(areaName, -10);
+        case PicoStates.favorite:
+          return await this.setFavoriteScene(areaName, true);
       }
-      if (state.state === PicoStates.off) {
-        this.logger.trace('GLOBAL_OFF');
-        // this.eventEmitter.emit(GLOBAL_OFF);
-        return;
-      }
-      if (state.state === PicoStates.favorite) {
-        return await this.setFavoriteScene(areaName);
-      }
-      if (state.state === PicoStates.medium) {
-        this.logger.trace({ areaName }, 'up');
-        return await this.lightDim(areaName, 10);
-      }
-      if (state.state === PicoStates.low) {
-        this.logger.trace({ areaName }, 'down');
-        return await this.lightDim(areaName, -10);
-      }
+      this.logger.error({ state }, 'Unknown button');
       return;
     }
-    if (state.state === PicoStates.high) {
-      return area.forEach(async (entityId) => {
-        await this.entityService.turnOn(entityId);
-      });
-    }
-    if (state.state === PicoStates.off) {
-      return area.forEach(async (entityId) => {
-        await this.entityService.turnOff(entityId);
-      });
-    }
-    if (state.state === PicoStates.favorite) {
-      this.FAVORITE_TIMEOUT.set(entityId, true);
-      setTimeout(() => this.FAVORITE_TIMEOUT.delete(entityId), 5000);
-      return await this.setFavoriteScene(areaName);
-    }
-    if (state.state === PicoStates.medium) {
-      this.logger.trace({ areaName }, 'up');
-      return await this.lightDim(areaName, 10);
-    }
-    if (state.state === PicoStates.low) {
-      this.logger.trace({ areaName }, 'down');
-      return await this.lightDim(areaName, -10);
+    switch (state.state) {
+      case PicoStates.on:
+        return this.areaOn(areaName);
+      case PicoStates.off:
+        return this.areaOff(areaName);
+      case PicoStates.up:
+        return await this.lightDim(areaName, 10);
+      case PicoStates.down:
+        return await this.lightDim(areaName, -10);
+      case PicoStates.favorite:
+        this.FAVORITE_TIMEOUT.set(entityId, true);
+        setTimeout(() => this.FAVORITE_TIMEOUT.delete(entityId), 5000);
+        return await this.setFavoriteScene(areaName);
     }
   }
 
+  @Trace()
   private async lightDim(areaName: string, amount: number) {
     const area = this.AREA_MAP.get(areaName);
     area.forEach(async (entityId) => {
-      if (entityId.split('.')[0] === HassDomains.switch) {
+      if (domain(entityId) === HassDomains.switch) {
         return;
       }
       await this.entityService.lightDim(entityId, amount);
     });
   }
 
+  @Trace()
+  private async setCommon(state: boolean) {
+    this.getCommonAreas().forEach(async (areaName) => {
+      if (state) {
+        return await this.areaOn(areaName);
+      }
+      await this.areaOff(areaName);
+    });
+  }
+
+  @Trace()
   private async turnOff(entityId: string) {
     return await this.entityService.turnOff(entityId);
   }
 
+  @Trace()
   private async turnOn(entityId: string) {
     return await this.entityService.turnOn(entityId);
+  }
+
+  private getCommonAreas(): string[] {
+    const out = [];
+    this.AREA_FLAGS.forEach((flags, area) => {
+      if (flags.includes(AreaFlags.COMMON_AREA)) {
+        out.push(area);
+      }
+    });
+    return out;
+  }
+
+  private isCommonArea(areaName): boolean {
+    const flags = this.AREA_FLAGS.get(areaName);
+    return flags.includes(AreaFlags.COMMON_AREA);
   }
 
   // #endregion Private Methods

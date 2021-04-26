@@ -3,10 +3,12 @@ import {
   CONNECTION_RESET,
 } from '@automagical/contracts/constants';
 import {
+  domain,
   HassDomains,
   HassEventDTO,
   HassServices,
   HomeAssistantRoomConfigDTO,
+  split,
 } from '@automagical/contracts/home-assistant';
 import {
   EntityService,
@@ -27,7 +29,12 @@ import { PinoLogger } from 'nestjs-pino';
 import { join } from 'path';
 import { ASSETS_PATH } from '../../environments/environment';
 import { MobileDevice, NotificationGroup, RoomsCode } from '../../typings';
-
+enum LoftRokuInputs {
+  off = 'off',
+  windows = 'hdmi2',
+  personal = 'hdmi3',
+  work = 'hdmi1',
+}
 type MilageHistory = {
   attributes: {
     friendly_name: string;
@@ -117,12 +124,6 @@ export class AppService {
     return this.cacheService.set(cacheName, config);
   }
 
-  public async onModuleInit(): Promise<void> {
-    setTimeout(() => {
-      this.logger.info(`Hello world @ ${new Date().toLocaleString()}`);
-    }, 1000);
-  }
-
   /**
    * All the locks, except the car
    */
@@ -134,7 +135,7 @@ export class AppService {
       lockList ||
       this.entityService
         .entityList()
-        .filter((key) => key.split('.')[0] === HassDomains.lock)
+        .filter((key) => domain(key) === HassDomains.lock)
         .filter((key) => !key.includes('mystique'));
     await Promise.all(
       locks.map(async (entityId) => {
@@ -149,7 +150,44 @@ export class AppService {
     );
   }
 
+  public async toggleTransferPump(): Promise<void> {
+    this.logger.debug('toggleTransferPump');
+    this.entityService.toggle('switch.transfer_pump');
+  }
+
   // #endregion Public Methods
+
+  // #region Protected Methods
+
+  // @Cron('0 */5 * * * *')
+  @Cron('0 0 * * * *')
+  protected async Schedule12_12(): Promise<void> {
+    this.logger.debug('Schedule12_12');
+    const now = dayjs();
+    const hour = 5;
+    const lightOff = now.startOf('d').add(hour, 'h');
+    const lightOn = now.startOf('d').add(hour + 12, 'h');
+    if (now.isAfter(lightOff) && now.isBefore(lightOn)) {
+      await this.entityService.turnOff('switch.quantum_boards');
+      return;
+    }
+    await this.entityService.turnOn('switch.quantum_boards');
+  }
+
+  // @Cron('0 */5 * * * *')
+  @Cron('0 0 * * * *')
+  protected async Schedule18_6(): Promise<void> {
+    this.logger.debug('Schedule18_6');
+    const now = dayjs();
+    const lightOn = now.startOf('d').add(6, 'h');
+    if (now.isBefore(lightOn)) {
+      await this.entityService.turnOff('switch.vipar_lights');
+      return;
+    }
+    await this.entityService.turnOn('switch.vipar_lights');
+  }
+
+  // #endregion Protected Methods
 
   // #region Private Methods
 
@@ -159,11 +197,8 @@ export class AppService {
     await this.socketService.getAllEntitities();
     await sleep(1000);
     const entities = this.entityService.entityList().filter((entityId) => {
-      const [domain, suffix] = entityId.split('.');
-      return (
-        (domain as HassDomains) !== HassDomains.sensor ||
-        !suffix.includes('battery')
-      );
+      const [domain, suffix] = split(entityId);
+      return domain !== HassDomains.sensor || !suffix.includes('battery');
     });
 
     entities.forEach(async (item) => {
@@ -193,6 +228,18 @@ export class AppService {
     );
   }
 
+  @Cron('0 0 22 * * *')
+  private async lightOff() {
+    this.logger.debug('lightOff');
+    await this.entityService.turnOff('switch.back_desk_light');
+  }
+
+  @Cron('0 0 7 * * *')
+  private async lightOn() {
+    this.logger.debug('lightOn');
+    await this.entityService.turnOn('switch.back_desk_light');
+  }
+
   // @OnEvent(['*', 'double'])
   // private async autoLock() {
   //   this.logger.info(`autoLock`);
@@ -217,13 +264,40 @@ export class AppService {
     );
   }
 
+  @OnEvent('switch.bedroom_switch/2')
+  private async screenToPersonal() {
+    this.logger.debug('screenToPersonal');
+    await this.roomService.setRoku(
+      LoftRokuInputs.personal,
+      this.configService.get('roku.loft.host'),
+    );
+  }
+
+  @OnEvent('switch.bedroom_switch/1')
+  private async screenToWindows() {
+    this.logger.debug('screenToWindows');
+    await this.roomService.setRoku(
+      LoftRokuInputs.windows,
+      this.configService.get('roku.loft.host'),
+    );
+  }
+
+  @OnEvent('switch.bedroom_switch/3')
+  private async screenToWork() {
+    this.logger.debug('screenToWork');
+    await this.roomService.setRoku(
+      LoftRokuInputs.work,
+      this.configService.get('roku.loft.host'),
+    );
+  }
+
   /**
    * Watch binary sensors w/ "door" in the name for changes.
    * Notify on change.
    */
   @OnEvent(`*/update`)
   private sendDoorNotification(event: HassEventDTO) {
-    const [domain, suffix] = event.data.entity_id.split('.');
+    const [domain, suffix] = split(event.data.entity_id);
     if (
       (domain as HassDomains) !== HassDomains.binary_sensor ||
       !suffix.includes('door')
@@ -243,6 +317,16 @@ export class AppService {
       );
       this.sendDoorNotificationTimeout[event.data.entity_id] = null;
     }, 250);
+  }
+
+  @OnEvent('loft/off')
+  @OnEvent('switch.bedroom_switch/4')
+  private async screenOff() {
+    this.logger.debug('screenOff');
+    await this.roomService.setRoku(
+      LoftRokuInputs.off,
+      this.configService.get('roku.loft.host'),
+    );
   }
 
   // #endregion Private Methods

@@ -1,9 +1,9 @@
-import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
-import { InjectLogger } from '@automagical/utilities';
+import { LIB_FETCH, LIB_FORMIO_SDK } from '@automagical/contracts/constants';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 import fetch from 'node-fetch';
-import { FetchWith } from '../typings/HTTP';
+import { FetchArgs } from '../typings';
 import { BaseFetch } from './base-fetch.service';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class FetchService extends BaseFetch {
   // #region Constructors
 
   constructor(
-    @InjectLogger(FetchService, LIB_FORMIO_SDK)
+    @InjectLogger(FetchService, LIB_FETCH)
     protected readonly logger: PinoLogger,
   ) {
     super();
@@ -44,14 +44,10 @@ export class FetchService extends BaseFetch {
    * - Exporting all requests as curl request
    * - Exporting as postman compatible (convert a quick script into e2e tests?)
    */
-  public async fetch<T>(args: FetchWith): Promise<T> {
+  @Trace()
+  public async fetch<T>(args: Partial<FetchArgs>): Promise<T> {
     const url: string = await this.fetchCreateUrl(args);
     const requestInit = await this.fetchCreateMeta(args);
-    this.logger.trace(`${requestInit.method} ${url}`);
-    // This log will probably contain user credentials
-    if (!url.includes('/login')) {
-      this.logger.debug(requestInit);
-    }
     try {
       const res = await fetch(url, requestInit);
       return await this.fetchHandleResponse(args, res);

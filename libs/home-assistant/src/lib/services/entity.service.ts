@@ -4,18 +4,19 @@ import {
   LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {
+  domain,
   FanSpeeds,
   HassDomains,
   HassEventDTO,
   HassServices,
   HassStateDTO,
+  HomeAssistantEntityAttributes,
 } from '@automagical/contracts/home-assistant';
-import { InjectLogger } from '@automagical/utilities';
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { InjectLogger, Trace } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
-import { Cache } from 'cache-manager';
 import dayjs, { Dayjs } from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 import SolarCalc from 'solar-calc';
@@ -68,7 +69,6 @@ export class EntityService {
   constructor(
     @InjectLogger(EntityService, LIB_HOME_ASSISTANT)
     protected readonly logger: PinoLogger,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
     private readonly socketService: SocketService,
     private readonly configService: ConfigService,
   ) {}
@@ -87,7 +87,7 @@ export class EntityService {
     // @ts-ignore
     return new SolarCalc(
       new Date(),
-      // TODO: Can the LAT/LONG be populated via home assistant?
+      // TODO: Populated via home assistant
       Number(this.configService.get('application.LAT')),
       Number(this.configService.get('application.LONG')),
     );
@@ -97,12 +97,122 @@ export class EntityService {
 
   // #region Public Methods
 
+  @Trace()
+  public async fanSpeedDown(
+    currentSpeed: FanSpeeds,
+    entityId: string,
+  ): Promise<void> {
+    const idx = availableSpeeds.indexOf(currentSpeed);
+    this.logger.debug(
+      `fanSpeedDown ${entityId}: ${currentSpeed} => ${
+        availableSpeeds[idx - 1]
+      }`,
+    );
+    if (idx === 0) {
+      this.logger.debug(`Cannot speed down`);
+      return;
+    }
+    return await this.socketService.call(HassServices.turn_on, {
+      entity_id: entityId,
+      speed: availableSpeeds[idx - 1],
+    });
+  }
+
+  @Trace()
+  public async fanSpeedUp(
+    currentSpeed: FanSpeeds,
+    entityId: string,
+  ): Promise<void> {
+    const idx = availableSpeeds.indexOf(currentSpeed);
+    this.logger.debug(
+      `fanSpeedUp ${entityId}: ${currentSpeed} => ${availableSpeeds[idx + 1]}`,
+    );
+    if (idx === availableSpeeds.length - 1) {
+      this.logger.debug(`Cannot speed up`);
+      return;
+    }
+    return await this.socketService.call(HassServices.turn_on, {
+      entity_id: entityId,
+      speed: availableSpeeds[idx + 1],
+    });
+  }
+
+  @Trace()
+  public async lightDim(entityId: string, delta: number): Promise<void> {
+    let brightness = await this.lightBrightness(entityId);
+    if (typeof brightness !== 'number') {
+      // 🤷‍♂️
+      // this.turnOn(entityId);
+      return;
+    }
+    brightness = brightness + delta;
+    this.logger.debug(`${entityId} set brightness: ${brightness}% (${delta}%)`);
+    return await this.circadianLight(entityId, brightness);
+  }
+
+  @Trace()
+  public async toggle(entityId: string): Promise<void> {
+    const entity = await this.byId(entityId);
+    if (entity.state === 'on') {
+      return await this.turnOff(entityId);
+    }
+    return await this.turnOn(entityId);
+  }
+
+  @Trace()
+  public async turnOff(entityId: string): Promise<void> {
+    const entity = await this.byId(entityId);
+    if (!entity) {
+      this.logger.error(`Could not find entity for ${entityId}`);
+      return;
+    }
+    switch (domain(entityId)) {
+      case HassDomains.group:
+      case HassDomains.light:
+      case HassDomains.switch:
+        return await this.socketService.call(HassServices.turn_off, {
+          entity_id: entityId,
+        });
+      case HassDomains.fan:
+        return await this.socketService.call(HassServices.turn_off, {
+          entity_id: entityId,
+        });
+    }
+  }
+
+  @Trace()
+  public async turnOn(entityId: string): Promise<void> {
+    const entity = await this.byId(entityId);
+    if (!entity) {
+      this.logger.error(`Could not find entity for ${entityId}`);
+    }
+    switch (domain(entityId)) {
+      case HassDomains.switch:
+        this.socketService.call(HassServices.turn_on, {
+          entity_id: entityId,
+        });
+        return;
+      case HassDomains.fan:
+        this.socketService.call(HassServices.turn_on, {
+          entity_id: entityId,
+          speed: FanSpeeds.low,
+        });
+        return;
+      case HassDomains.group:
+      case HassDomains.light:
+        return await this.circadianLight(entityId, this.getDefaultBrightness());
+    }
+  }
+
   /**
    * Retrieve an entity by it's entityId
    */
-  public async byId<T extends HassStateDTO = HassStateDTO>(
-    entityId: string,
-  ): Promise<T> {
+  public async byId<
+    T extends HassStateDTO = HassStateDTO<
+      unknown,
+      HomeAssistantEntityAttributes
+    >
+  >(entityId: string): Promise<T> {
     if (
       !this.lastUpdate ||
       this.lastUpdate.isBefore(dayjs().subtract(5, 'minute'))
@@ -137,115 +247,6 @@ export class EntityService {
     return out;
   }
 
-  public async fanSpeedDown(
-    currentSpeed: FanSpeeds,
-    entityId: string,
-  ): Promise<void> {
-    const idx = availableSpeeds.indexOf(currentSpeed);
-    this.logger.debug(
-      `fanSpeedDown ${entityId}: ${currentSpeed} => ${
-        availableSpeeds[idx - 1]
-      }`,
-    );
-    if (idx === 0) {
-      this.logger.debug(`Cannot speed down`);
-      return;
-    }
-    return await this.socketService.call(HassServices.turn_on, {
-      entity_id: entityId,
-      speed: availableSpeeds[idx - 1],
-    });
-  }
-
-  public async fanSpeedUp(
-    currentSpeed: FanSpeeds,
-    entityId: string,
-  ): Promise<void> {
-    const idx = availableSpeeds.indexOf(currentSpeed);
-    this.logger.debug(
-      `fanSpeedUp ${entityId}: ${currentSpeed} => ${availableSpeeds[idx + 1]}`,
-    );
-    if (idx === availableSpeeds.length - 1) {
-      this.logger.debug(`Cannot speed up`);
-      return;
-    }
-    return await this.socketService.call(HassServices.turn_on, {
-      entity_id: entityId,
-      speed: availableSpeeds[idx + 1],
-    });
-  }
-
-  public async lightDim(entityId: string, delta: number): Promise<void> {
-    let brightness = await this.lightBrightness(entityId);
-    if (typeof brightness !== 'number') {
-      // 🤷‍♂️
-      // this.turnOn(entityId);
-      return;
-    }
-    brightness = brightness + delta;
-    this.logger.debug(`${entityId} set brightness: ${brightness}% (${delta}%)`);
-    return await this.circadianLight(entityId, brightness);
-  }
-
-  public async toggle(entityId: string): Promise<void> {
-    this.logger.trace(`toggle ${entityId}`);
-    const entity = await this.byId(entityId);
-    if (entity.state === 'on') {
-      return await this.turnOff(entityId);
-    }
-    return await this.turnOn(entityId);
-  }
-
-  public async turnOff(entityId: string): Promise<void> {
-    this.logger.trace(`turnOff ${entityId}`);
-    const parts = entityId.split('.');
-    const domain = parts[0] as HassDomains;
-    const entity = await this.byId(entityId);
-    if (!entity) {
-      this.logger.error(`Could not find entity for ${entityId}`);
-      return;
-    }
-    switch (domain) {
-      case HassDomains.group:
-      case HassDomains.light:
-        this.cacheService.del(this.cacheKey(entityId));
-      // fall through
-      case HassDomains.switch:
-        return await this.socketService.call(HassServices.turn_off, {
-          entity_id: entityId,
-        });
-      case HassDomains.fan:
-        return await this.socketService.call(HassServices.turn_off, {
-          entity_id: entityId,
-        });
-    }
-  }
-
-  public async turnOn(entityId: string): Promise<void> {
-    this.logger.trace(`turnOn ${entityId}`);
-    const [domain] = entityId.split('.');
-    const entity = await this.byId(entityId);
-    if (!entity) {
-      this.logger.error(`Could not find entity for ${entityId}`);
-    }
-    switch (domain) {
-      case HassDomains.switch:
-        this.socketService.call(HassServices.turn_on, {
-          entity_id: entityId,
-        });
-        return;
-      case HassDomains.fan:
-        this.socketService.call(HassServices.turn_on, {
-          entity_id: entityId,
-          speed: FanSpeeds.low,
-        });
-        return;
-      case HassDomains.group:
-      case HassDomains.light:
-        return await this.circadianLight(entityId, this.getDefaultBrightness());
-    }
-  }
-
   // #endregion Public Methods
 
   // #region Protected Methods
@@ -273,8 +274,8 @@ export class EntityService {
 
   // @Cron('*/5 * * * * *')
   @Cron('0 */5 * * * *')
+  @Trace()
   private async circadianLightingUpdate() {
-    this.logger.debug(`circadianLightingUpdate`);
     return;
     const entityList = this.entityList().filter((i) =>
       [HassDomains.group, HassDomains.light].includes(
@@ -293,8 +294,8 @@ export class EntityService {
   }
 
   @OnEvent([ALL_ENTITIES_UPDATED])
+  @Trace({ omitArgs: true })
   private onAllEntitiesUpdated(allEntities: HassStateDTO[]) {
-    this.logger.trace(`onAllEntitiesUpdated`);
     this.lastUpdate = dayjs();
     allEntities.forEach((entity) =>
       this.ENTITIES.set(entity.entity_id, entity),
@@ -302,15 +303,12 @@ export class EntityService {
   }
 
   @OnEvent([HA_RAW_EVENT])
+  @Trace()
   private onEntityUpdate(event: HassEventDTO) {
     if (!event.data.entity_id) {
       return;
     }
     this.ENTITIES.set(event.data.entity_id, event.data.new_state);
-  }
-
-  private cacheKey(entityId: string) {
-    return `brightness.${entityId}`;
   }
 
   /**
@@ -334,17 +332,17 @@ export class EntityService {
     }
     if (now.isBefore(noon)) {
       // After dawn, but before solar noon
-      return noon.diff(now, 's') / noon.diff(dawn, 's');
+      return Math.abs(noon.diff(now, 's') / noon.diff(dawn, 's') - 1);
     }
     if (now.isBefore(dusk)) {
       // Afternoon, but before dusk
-      return noon.diff(now, 's') / noon.diff(dusk, 's');
+      return Math.abs(noon.diff(now, 's') / noon.diff(dusk, 's') - 1);
     }
     // Until midnight
     return 0;
   }
 
-  private async lightBrightness(entityId: string) {
+  private lightBrightness(entityId: string) {
     const entity = this.ENTITIES.get(entityId) as HassStateDTO<
       string,
       {

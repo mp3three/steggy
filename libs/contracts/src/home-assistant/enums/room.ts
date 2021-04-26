@@ -27,9 +27,9 @@ export enum FanSpeeds {
  * The basic enum
  */
 export enum PicoButtons {
-  high = 'high',
-  medium = 'medium',
-  low = 'low',
+  on = 'high',
+  up = 'medium',
+  down = 'low',
   off = 'off',
   favorite = 'favorite',
 }
@@ -38,13 +38,13 @@ export enum PicoButtons {
  */
 export enum PicoStates {
   // Top
-  high = '1',
+  on = '1',
   // Bottom
   off = '4',
   // Dimmer up
-  medium = '8',
+  up = '8',
   // Dimmer down
-  low = '16',
+  down = '16',
   // Favorite
   favorite = '2',
   // Nothing being pressed

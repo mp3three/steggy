@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
-import { FetchWith, Filters, TempAuthToken } from '../typings';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
+import { FetchWith, Filters, TempAuthToken } from '../typings';
 
 export class BaseFetch {
   // #region Object Properties
@@ -140,7 +140,7 @@ export class BaseFetch {
         } more`,
       );
     } else {
-      this.logger.debug(text);
+      this.logger.debug({ text }, 'Full response text');
     }
     if (!['{', '['].includes(text.charAt(0))) {
       // Personally, I think all responses should always be JSON. Fight me 🤜

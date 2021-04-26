@@ -12,7 +12,7 @@ export enum HTTP_Methods {
   PATCH = 'PATCH',
 }
 
-interface FetchArgs {
+export interface FetchArgs {
   // #region Object Properties
 
   /**
