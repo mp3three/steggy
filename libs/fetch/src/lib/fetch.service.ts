@@ -1,4 +1,4 @@
-import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
+import { LIB_FETCH, LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
@@ -17,7 +17,7 @@ export class FetchService extends BaseFetch {
   // #region Constructors
 
   constructor(
-    @InjectLogger(FetchService, LIB_FORMIO_SDK)
+    @InjectLogger(FetchService, LIB_FETCH)
     protected readonly logger: PinoLogger,
   ) {
     super();

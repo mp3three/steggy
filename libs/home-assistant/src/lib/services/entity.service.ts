@@ -10,6 +10,7 @@ import {
   HassEventDTO,
   HassServices,
   HassStateDTO,
+  HomeAssistantEntityAttributes,
 } from '@automagical/contracts/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -181,12 +182,11 @@ export class EntityService {
 
   @Trace()
   public async turnOn(entityId: string): Promise<void> {
-    const [domain] = entityId.split('.');
     const entity = await this.byId(entityId);
     if (!entity) {
       this.logger.error(`Could not find entity for ${entityId}`);
     }
-    switch (domain) {
+    switch (domain(entityId)) {
       case HassDomains.switch:
         this.socketService.call(HassServices.turn_on, {
           entity_id: entityId,
@@ -207,9 +207,12 @@ export class EntityService {
   /**
    * Retrieve an entity by it's entityId
    */
-  public async byId<T extends HassStateDTO = HassStateDTO>(
-    entityId: string,
-  ): Promise<T> {
+  public async byId<
+    T extends HassStateDTO = HassStateDTO<
+      unknown,
+      HomeAssistantEntityAttributes
+    >
+  >(entityId: string): Promise<T> {
     if (
       !this.lastUpdate ||
       this.lastUpdate.isBefore(dayjs().subtract(5, 'minute'))

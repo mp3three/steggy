@@ -140,7 +140,7 @@ export class BaseFetch {
         } more`,
       );
     } else {
-      this.logger.debug(text);
+      this.logger.debug({ text }, 'Full response text');
     }
     if (!['{', '['].includes(text.charAt(0))) {
       // Personally, I think all responses should always be JSON. Fight me 🤜

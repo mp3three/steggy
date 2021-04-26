@@ -1,10 +1,9 @@
 import dayjs from 'dayjs';
-import { HomeAssistantEntityAttributes } from './entity-attributes.dto';
 import { ContextDTO } from './hass-event.dto';
 
 export class HassStateDTO<
-  STATE extends Record<never, unknown> = Record<never, unknown>,
-  ATTRIBUTES extends Record<never, unknown> = HomeAssistantEntityAttributes
+  STATE extends Record<never, unknown> = unknown,
+  ATTRIBUTES extends Record<never, unknown> = Record<never, unknown>
 > {
   // #region Object Properties
 

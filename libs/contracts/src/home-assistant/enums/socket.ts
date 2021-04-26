@@ -17,6 +17,7 @@ export enum HassDomains {
   scene = 'scene',
   binary_sensor = 'binary_sensor',
   media_player = 'media_player',
+  input_boolean = 'input_boolean',
   zone = 'zone',
   device_tracker = 'device_tracker',
   remote = 'remote',

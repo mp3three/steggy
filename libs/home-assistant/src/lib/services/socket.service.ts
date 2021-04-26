@@ -94,7 +94,22 @@ export class SocketService {
   public fetch<T>(args: Partial<FetchArgs>): Promise<T> {
     return this.fetchService.fetch<T>({
       baseUrl: this.configService.get(BASE_URL),
+      headers: {
+        Authorization: `Bearer ${this.configService.get(TOKEN)}`,
+      },
       ...args,
+    });
+  }
+
+  @Trace()
+  public async fetchEntityCustomizations<
+    T extends Record<never, unknown> = Record<
+      'global' | 'local',
+      Record<string, string>
+    >
+  >(entityId: string): Promise<T> {
+    return await this.fetch<T>({
+      url: `/api/config/customize/config/${entityId}`,
     });
   }
 
@@ -106,22 +121,14 @@ export class SocketService {
     days: number,
     entity_id: string,
   ): Promise<T> {
-    try {
-      return this.fetch<T>({
-        url: `/api/history/period/${dayjs().subtract(days, 'd').toISOString()}`,
-        params: {
-          filter_entity_id: entity_id,
-          end_time: dayjs().toISOString(),
-          significant_changes_only: '',
-        },
-        headers: {
-          Authorization: `Bearer ${this.configService.get(TOKEN)}`,
-        },
-      });
-    } catch (err) {
-      this.logger.error(err);
-      return [] as T;
-    }
+    return await this.fetch<T>({
+      url: `/api/history/period/${dayjs().subtract(days, 'd').toISOString()}`,
+      params: {
+        filter_entity_id: entity_id,
+        end_time: dayjs().toISOString(),
+        significant_changes_only: '',
+      },
+    });
   }
 
   /**
