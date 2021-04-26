@@ -24,9 +24,20 @@ export function InjectLogger(
 
 type TraceArgs = {
   omitArgs?: boolean;
+  level?: 'trace' | 'debug' | 'info';
 };
 const TRACE_ENABLED = true;
-export function Trace(config: TraceArgs = {}) {
+export function Trace(
+  config: TraceArgs = {},
+): (
+  target: unknown,
+  propertyKey: string,
+  descriptor: PropertyDescriptor,
+) => void {
+  config.level = config.level || 'trace';
+  if (!['trace', 'debug', 'info'].includes(config.level)) {
+    throw new Error(`Bad log level: ${config.level}`);
+  }
   return function (
     target: unknown,
     propertyKey: string,
@@ -43,7 +54,7 @@ export function Trace(config: TraceArgs = {}) {
       if (!config.omitArgs) {
         args.params = params;
       }
-      this.logger.trace(args, propertyKey);
+      this.logger[config.level](args, propertyKey);
       return originalMethod.apply(this, params);
     };
     return descriptor;

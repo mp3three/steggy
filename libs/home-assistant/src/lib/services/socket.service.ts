@@ -2,6 +2,7 @@ import {
   ALL_ENTITIES_UPDATED,
   BASE_URL,
   CONNECTION_RESET,
+  HA_EVENT_STATE_CHANGE,
   HA_RAW_EVENT,
   HA_SOCKET_READY,
   HOST,
@@ -14,6 +15,7 @@ import {
   EntityListItemDTO,
   HassCommands,
   HassDomains,
+  HassEvents,
   HassServices,
   HassSocketMessageTypes,
   HassStateDTO,
@@ -307,6 +309,9 @@ export class SocketService {
 
       case HassSocketMessageTypes.event:
         this.eventEmitter.emit(HA_RAW_EVENT, msg.event);
+        if (msg.event.event_type === HassEvents.state_changed) {
+          this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, msg.event);
+        }
         return;
 
       // 🏓
