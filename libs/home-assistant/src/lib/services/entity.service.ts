@@ -160,14 +160,12 @@ export class EntityService {
 
   @Trace()
   public async turnOff(entityId: string): Promise<void> {
-    const parts = entityId.split('.');
-    const domain = parts[0] as HassDomains;
     const entity = await this.byId(entityId);
     if (!entity) {
       this.logger.error(`Could not find entity for ${entityId}`);
       return;
     }
-    switch (domain) {
+    switch (domain(entityId)) {
       case HassDomains.group:
       case HassDomains.light:
       case HassDomains.switch:

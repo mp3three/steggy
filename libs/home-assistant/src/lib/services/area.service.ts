@@ -12,6 +12,7 @@ import {
   HomeAssistantRoomRokuDTO,
   PicoStates,
   RokuInputs,
+  domain,
 } from '@automagical/contracts/home-assistant';
 import { FetchService, HTTP_Methods } from '@automagical/fetch';
 import { InjectLogger, sleep, Trace } from '@automagical/utilities';
@@ -232,51 +233,52 @@ export class AreaService {
     }
     if (this.FAVORITE_TIMEOUT.has(entityId)) {
       this.FAVORITE_TIMEOUT.delete(entityId);
-      if (state.state === PicoStates.high) {
-        this.logger.debug('GLOBAL_ON');
-        // this.eventEmitter.emit(GLOBAL_ON);
-        return;
-      }
-      if (state.state === PicoStates.off) {
-        this.logger.debug('GLOBAL_OFF');
-        // this.eventEmitter.emit(GLOBAL_OFF);
-        return;
-      }
-      if (state.state === PicoStates.favorite) {
-        return await this.setFavoriteScene(areaName);
-      }
-      if (state.state === PicoStates.medium) {
-        this.logger.debug({ areaName }, 'up');
-        return await this.lightDim(areaName, 10);
-      }
-      if (state.state === PicoStates.low) {
-        this.logger.debug({ areaName }, 'down');
-        return await this.lightDim(areaName, -10);
+
+      switch (state.state) {
+        case PicoStates.on:
+          return area.forEach(async (entityId) => {
+            await this.entityService.turnOn(entityId);
+          });
+
+        case PicoStates.off:
+          return area.forEach(async (entityId) => {
+            await this.entityService.turnOff(entityId);
+          });
+
+        case PicoStates.up:
+          return await this.lightDim(areaName, 10);
+
+        case PicoStates.down:
+          return await this.lightDim(areaName, -10);
+
+        case PicoStates.favorite:
+          this.FAVORITE_TIMEOUT.set(entityId, true);
+          setTimeout(() => this.FAVORITE_TIMEOUT.delete(entityId), 5000);
+          return await this.setFavoriteScene(areaName);
       }
       return;
     }
-    if (state.state === PicoStates.high) {
-      return area.forEach(async (entityId) => {
-        await this.entityService.turnOn(entityId);
-      });
-    }
-    if (state.state === PicoStates.off) {
-      return area.forEach(async (entityId) => {
-        await this.entityService.turnOff(entityId);
-      });
-    }
-    if (state.state === PicoStates.favorite) {
-      this.FAVORITE_TIMEOUT.set(entityId, true);
-      setTimeout(() => this.FAVORITE_TIMEOUT.delete(entityId), 5000);
-      return await this.setFavoriteScene(areaName);
-    }
-    if (state.state === PicoStates.medium) {
-      this.logger.debug({ areaName }, 'up');
-      return await this.lightDim(areaName, 10);
-    }
-    if (state.state === PicoStates.low) {
-      this.logger.debug({ areaName }, 'down');
-      return await this.lightDim(areaName, -10);
+    switch (state.state) {
+      case PicoStates.on:
+        return area.forEach(async (entityId) => {
+          await this.entityService.turnOn(entityId);
+        });
+
+      case PicoStates.off:
+        return area.forEach(async (entityId) => {
+          await this.entityService.turnOff(entityId);
+        });
+
+      case PicoStates.up:
+        return await this.lightDim(areaName, 10);
+
+      case PicoStates.down:
+        return await this.lightDim(areaName, -10);
+
+      case PicoStates.favorite:
+        this.FAVORITE_TIMEOUT.set(entityId, true);
+        setTimeout(() => this.FAVORITE_TIMEOUT.delete(entityId), 5000);
+        return await this.setFavoriteScene(areaName);
     }
   }
 
@@ -284,7 +286,7 @@ export class AreaService {
   private async lightDim(areaName: string, amount: number) {
     const area = this.AREA_MAP.get(areaName);
     area.forEach(async (entityId) => {
-      if (entityId.split('.')[0] === HassDomains.switch) {
+      if (domain(entityId) === HassDomains.switch) {
         return;
       }
       await this.entityService.lightDim(entityId, amount);
