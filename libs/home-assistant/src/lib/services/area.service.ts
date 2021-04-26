@@ -36,6 +36,7 @@ export class AreaService {
 
   // #region Object Properties
 
+  private AREA_LOOKUP: Map<string, string>;
   private AREA_MAP: Map<string, string[]>;
   private CONTROLLER_MAP: Map<string, string>;
   private FAVORITE_TIMEOUT = new Map<string, boolean>();
@@ -111,6 +112,42 @@ export class AreaService {
   }
 
   @Trace()
+  public async areaOff(areaName: string): Promise<void> {
+    const area = this.AREA_MAP.get(areaName);
+    area.forEach(async (entityId) => {
+      await this.entityService.turnOff(entityId);
+    });
+  }
+
+  @Trace()
+  public async areaOn(areaName: string): Promise<void> {
+    const area = this.AREA_MAP.get(areaName);
+    area.forEach(async (entityId) => {
+      await this.entityService.turnOn(entityId);
+    });
+  }
+
+  @Trace()
+  public async globalOff(areaName?: string): Promise<void> {
+    if (!this.isCommonArea(areaName)) {
+      return await this.areaOff(areaName);
+    }
+    this.getCommonAreas().forEach(async (areaName) => {
+      await this.areaOff(areaName);
+    });
+  }
+
+  @Trace()
+  public async globalOn(areaName?: string): Promise<void> {
+    if (!this.isCommonArea(areaName)) {
+      return await this.areaOff(areaName);
+    }
+    this.getCommonAreas().forEach(async (areaName) => {
+      await this.areaOff(areaName);
+    });
+  }
+
+  @Trace()
   public async setFan(
     entityId: string,
     speed: FanSpeeds | 'up' | 'down',
@@ -130,7 +167,10 @@ export class AreaService {
   }
 
   @Trace()
-  public async setFavoriteScene(areaName: string): Promise<void> {
+  public async setFavoriteScene(
+    areaName: string,
+    global = false,
+  ): Promise<void> {
     const scene = this.configService.get(`favorites.${areaName}`) as Record<
       'day' | 'evening',
       Record<'on' | 'off', string[]>
@@ -226,24 +266,18 @@ export class AreaService {
       return;
     }
     const areaName = this.CONTROLLER_MAP.get(entityId);
-    const area = this.AREA_MAP.get(areaName);
     const state = event.data.new_state;
     if (state.state === PicoStates.none) {
       return;
     }
     if (this.FAVORITE_TIMEOUT.has(entityId)) {
       this.FAVORITE_TIMEOUT.delete(entityId);
-
       switch (state.state) {
         case PicoStates.on:
-          return area.forEach(async (entityId) => {
-            await this.entityService.turnOn(entityId);
-          });
+          return this.areaOn(areaName);
 
         case PicoStates.off:
-          return area.forEach(async (entityId) => {
-            await this.entityService.turnOff(entityId);
-          });
+          return this.areaOff(areaName);
 
         case PicoStates.up:
           return await this.lightDim(areaName, 10);
@@ -256,18 +290,15 @@ export class AreaService {
           setTimeout(() => this.FAVORITE_TIMEOUT.delete(entityId), 5000);
           return await this.setFavoriteScene(areaName);
       }
+      this.logger.error({ state }, 'Unknown button');
       return;
     }
     switch (state.state) {
       case PicoStates.on:
-        return area.forEach(async (entityId) => {
-          await this.entityService.turnOn(entityId);
-        });
+        return this.areaOn(areaName);
 
       case PicoStates.off:
-        return area.forEach(async (entityId) => {
-          await this.entityService.turnOff(entityId);
-        });
+        return this.areaOff(areaName);
 
       case PicoStates.up:
         return await this.lightDim(areaName, 10);
@@ -301,6 +332,21 @@ export class AreaService {
   @Trace()
   private async turnOn(entityId: string) {
     return await this.entityService.turnOn(entityId);
+  }
+
+  private getCommonAreas(): string[] {
+    return this.entityService
+      .entityList()
+      .filter((entity) => {
+        return domain(entity) === HassDomains.binary_sensor;
+      })
+      .map((entity) => {
+        return '';
+      });
+  }
+
+  private isCommonArea(areaName): boolean {
+    return true;
   }
 
   // #endregion Private Methods
