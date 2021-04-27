@@ -31,7 +31,11 @@ import { SocketService } from './socket.service';
 export class AreaService {
   // #region Static Properties
 
-  private static TRACK_DOMAINS = [HassDomains.light, HassDomains.switch];
+  private static TRACK_DOMAINS = [
+    HassDomains.light,
+    HassDomains.switch,
+    HassDomains.remote,
+  ];
 
   // #endregion Static Properties
 
@@ -47,7 +51,7 @@ export class AreaService {
   private AREA_FLAGS: Map<string, AreaFlags[]>;
   private AREA_MAP: Map<string, string[]>;
   private CONTROLLER_MAP: Map<string, string>;
-  private FAVORITE_TIMEOUT = new Map<string, boolean>();
+  private FAVORITE_TIMEOUT = new Map<string, PicoStates>();
 
   // #endregion Object Properties
 
@@ -152,6 +156,9 @@ export class AreaService {
   public async areaOn(areaName: string): Promise<void> {
     const area = this.AREA_MAP.get(areaName);
     area.forEach(async (entityId) => {
+      if (domain(entityId) === HassDomains.remote) {
+        return;
+      }
       await this.entityService.turnOn(entityId);
     });
   }
@@ -161,7 +168,7 @@ export class AreaService {
     if (!this.isCommonArea(areaName)) {
       return await this.areaOff(areaName);
     }
-    (await this.getCommonAreas()).forEach(async (areaName) => {
+    this.getCommonAreas().forEach(async (areaName) => {
       await this.areaOff(areaName);
     });
   }
@@ -171,7 +178,7 @@ export class AreaService {
     if (!this.isCommonArea(areaName)) {
       return await this.areaOff(areaName);
     }
-    (await this.getCommonAreas()).forEach(async (areaName) => {
+    this.getCommonAreas().forEach(async (areaName) => {
       await this.areaOff(areaName);
     });
   }
@@ -233,6 +240,12 @@ export class AreaService {
           return await this.areaOff(name);
         }
         await this.areaOn(areaName);
+      });
+      this.AREA_MAP.get(areaName).forEach(async (entityId) => {
+        if (domain(entityId) !== HassDomains.remote) {
+          return;
+        }
+        await this.entityService.turnOn(entityId);
       });
       return;
     }
@@ -358,7 +371,7 @@ export class AreaService {
     if (state.state === PicoStates.none) {
       return;
     }
-    if (this.FAVORITE_TIMEOUT.has(entityId)) {
+    if (this.FAVORITE_TIMEOUT.get(entityId) === state.state) {
       this.FAVORITE_TIMEOUT.delete(entityId);
       switch (state.state) {
         case PicoStates.on:
@@ -375,17 +388,17 @@ export class AreaService {
       this.logger.error({ state }, 'Unknown button');
       return;
     }
+    this.FAVORITE_TIMEOUT.set(entityId, state.state as PicoStates);
     switch (state.state) {
       case PicoStates.on:
-        return this.areaOn(areaName);
+        return await this.areaOn(areaName);
       case PicoStates.off:
-        return this.areaOff(areaName);
+        return await this.areaOff(areaName);
       case PicoStates.up:
         return await this.lightDim(areaName, 10);
       case PicoStates.down:
         return await this.lightDim(areaName, -10);
       case PicoStates.favorite:
-        this.FAVORITE_TIMEOUT.set(entityId, true);
         setTimeout(
           () => this.FAVORITE_TIMEOUT.delete(entityId),
           this.configService.get('libs.home-assistant.DBL_CLICK_TIMEOUT') ||
