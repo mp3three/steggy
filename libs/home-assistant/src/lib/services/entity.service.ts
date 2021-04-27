@@ -175,13 +175,13 @@ export class EntityService {
       case HassDomains.group:
       case HassDomains.light:
       case HassDomains.switch:
-        return await this.socketService.call(HassServices.turn_off, {
-          entity_id: entityId,
-        });
+      case HassDomains.remote:
       case HassDomains.fan:
         return await this.socketService.call(HassServices.turn_off, {
           entity_id: entityId,
         });
+      default:
+        this.logger.warn({ entityId }, 'domain not whitelisted for turnOff');
     }
   }
 
@@ -192,17 +192,16 @@ export class EntityService {
       this.logger.error(`Could not find entity for ${entityId}`);
     }
     switch (domain(entityId)) {
+      case HassDomains.remote:
       case HassDomains.switch:
-        this.socketService.call(HassServices.turn_on, {
+        return await this.socketService.call(HassServices.turn_on, {
           entity_id: entityId,
         });
-        return;
       case HassDomains.fan:
-        this.socketService.call(HassServices.turn_on, {
+        return await this.socketService.call(HassServices.turn_on, {
           entity_id: entityId,
           speed: FanSpeeds.low,
         });
-        return;
       case HassDomains.group:
       case HassDomains.light:
         return await this.circadianLight(entityId, this.getDefaultBrightness());

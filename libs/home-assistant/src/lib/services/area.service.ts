@@ -233,7 +233,6 @@ export class AreaService {
     global = false,
   ): Promise<void> {
     if (global && this.isCommonArea(areaName)) {
-      this.logger.info(`global relay`);
       this.getCommonAreas().forEach(async (name) => {
         if (this.IS_EVENING) {
           this.logger.info(name);
@@ -241,6 +240,8 @@ export class AreaService {
         }
         await this.areaOn(areaName);
       });
+      // Double press favorite = turn on all things controlled by remote for the room
+      // Like a TV
       this.AREA_MAP.get(areaName).forEach(async (entityId) => {
         if (domain(entityId) !== HassDomains.remote) {
           return;
@@ -368,6 +369,7 @@ export class AreaService {
     }
     const areaName = this.CONTROLLER_MAP.get(entityId);
     const state = event.data.new_state;
+    this.logger.info({ state, entityId }, `Controller state updated`);
     if (state.state === PicoStates.none) {
       return;
     }
@@ -412,7 +414,7 @@ export class AreaService {
   private async lightDim(areaName: string, amount: number) {
     const area = this.AREA_MAP.get(areaName);
     area.forEach(async (entityId) => {
-      if (domain(entityId) === HassDomains.switch) {
+      if (domain(entityId) !== HassDomains.light) {
         return;
       }
       await this.entityService.lightDim(entityId, amount);
