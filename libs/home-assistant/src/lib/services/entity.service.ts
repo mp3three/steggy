@@ -16,7 +16,6 @@ import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
-import { Cron } from '@nestjs/schedule';
 import dayjs, { Dayjs } from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 import SolarCalc from 'solar-calc';
@@ -137,16 +136,22 @@ export class EntityService {
     });
   }
 
+  /**
+   * Brightness (as controlled by the dimmer) must remain in the 5-100% range
+   *
+   * To go under 5, turn off the light instead
+   */
   @Trace()
-  public async lightDim(entityId: string, delta: number): Promise<void> {
+  public async lightDim(entityId: string, amount: number): Promise<void> {
     let brightness = await this.lightBrightness(entityId);
-    if (typeof brightness !== 'number') {
-      // 🤷‍♂️
-      // this.turnOn(entityId);
-      return;
+    brightness = brightness + amount;
+    if (brightness > 100) {
+      brightness = 100;
     }
-    brightness = brightness + delta;
-    this.logger.debug(`${entityId} set brightness: ${brightness}% (${delta}%)`);
+    if (brightness < 5) {
+      brightness = 5;
+    }
+    this.logger.debug({ amount }, `${entityId} set brightness: ${brightness}%`);
     return await this.circadianLight(entityId, brightness);
   }
 
@@ -170,13 +175,13 @@ export class EntityService {
       case HassDomains.group:
       case HassDomains.light:
       case HassDomains.switch:
-        return await this.socketService.call(HassServices.turn_off, {
-          entity_id: entityId,
-        });
+      case HassDomains.remote:
       case HassDomains.fan:
         return await this.socketService.call(HassServices.turn_off, {
           entity_id: entityId,
         });
+      default:
+        this.logger.warn({ entityId }, 'domain not whitelisted for turnOff');
     }
   }
 
@@ -187,17 +192,16 @@ export class EntityService {
       this.logger.error(`Could not find entity for ${entityId}`);
     }
     switch (domain(entityId)) {
+      case HassDomains.remote:
       case HassDomains.switch:
-        this.socketService.call(HassServices.turn_on, {
+        return await this.socketService.call(HassServices.turn_on, {
           entity_id: entityId,
         });
-        return;
       case HassDomains.fan:
-        this.socketService.call(HassServices.turn_on, {
+        return await this.socketService.call(HassServices.turn_on, {
           entity_id: entityId,
           speed: FanSpeeds.low,
         });
-        return;
       case HassDomains.group:
       case HassDomains.light:
         return await this.circadianLight(entityId, this.getDefaultBrightness());
@@ -206,6 +210,8 @@ export class EntityService {
 
   /**
    * Retrieve an entity by it's entityId
+   *
+   * TODO: Decide if exiring cache makes sense. Current opinion: no
    */
   public async byId<
     T extends HassStateDTO = HassStateDTO<
@@ -213,13 +219,13 @@ export class EntityService {
       HomeAssistantEntityAttributes
     >
   >(entityId: string): Promise<T> {
-    if (
-      !this.lastUpdate ||
-      this.lastUpdate.isBefore(dayjs().subtract(5, 'minute'))
-    ) {
-      this.logger.debug(`Cache Miss: ${entityId}`);
-      await this.socketService.getAllEntitities();
-    }
+    // if (
+    //   !this.lastUpdate ||
+    //   this.lastUpdate.isBefore(dayjs().subtract(5, 'minute'))
+    // ) {
+    //   this.logger.debug(`Cache Miss: ${entityId}`);
+    //   await this.socketService.getAllEntitities();
+    // }
     return this.ENTITIES.get(entityId) as T;
   }
 
@@ -271,27 +277,6 @@ export class EntityService {
   // #endregion Protected Methods
 
   // #region Private Methods
-
-  // @Cron('*/5 * * * * *')
-  @Cron('0 */5 * * * *')
-  @Trace()
-  private async circadianLightingUpdate() {
-    return;
-    const entityList = this.entityList().filter((i) =>
-      [HassDomains.group, HassDomains.light].includes(
-        i.split('.')[0] as HassDomains,
-      ),
-    );
-    this.logger.info(
-      {
-        entityList,
-      },
-      'entityList',
-    );
-    entityList.forEach(async (entityId) => {
-      await this.circadianLight(entityId);
-    });
-  }
 
   @OnEvent([ALL_ENTITIES_UPDATED])
   @Trace({ omitArgs: true })
@@ -350,7 +335,7 @@ export class EntityService {
       }
     >;
     if (entity.state === 'off') {
-      return null;
+      return 0;
     }
     return Math.round((entity.attributes.brightness / 256) * 100);
   }

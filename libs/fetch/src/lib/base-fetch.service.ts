@@ -133,15 +133,6 @@ export class BaseFetch {
       return res as T;
     }
     const text = await res.text();
-    if (this.TRUNCATE_LENGTH > 0 && text.length > this.TRUNCATE_LENGTH) {
-      this.logger.debug(
-        `${text.substr(0, this.TRUNCATE_LENGTH)}... ${
-          text.length - this.TRUNCATE_LENGTH
-        } more`,
-      );
-    } else {
-      this.logger.debug({ text }, 'Full response text');
-    }
     if (!['{', '['].includes(text.charAt(0))) {
       // Personally, I think all responses should always be JSON. Fight me 🤜
       // This type of "is the string really an error?" is aggravating, not convenient
@@ -149,11 +140,17 @@ export class BaseFetch {
       if (!['OK'].includes(text)) {
         // It's probably a coding error error, and not something a user did.
         // Will try to keep the array up to date if any other edge cases pop up
-        this.logger.warn(`Invalid API Response`, text);
+
+        // This part specifically applies to the formio-sdk, so there may be some additional work needed for this function as other libs
+        this.logger.warn({ text }, `Unexpected API Response`);
+      } else {
+        this.logger.debug({ text }, 'Full response text');
       }
       return text as T;
     }
-    return JSON.parse(text);
+    const response = JSON.parse(text);
+    this.logger.debug({ response }, 'Parsed response');
+    return response;
   }
 
   // #endregion Protected Methods

@@ -28,7 +28,6 @@ export class EntityController {
   // #region Private Methods
 
   private async onModuleInit() {
-    this.logger.warn('hit');
     return;
   }
 

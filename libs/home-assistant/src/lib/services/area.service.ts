@@ -1,5 +1,5 @@
 import {
-  HA_RAW_EVENT,
+  HA_EVENT_STATE_CHANGE,
   HA_SOCKET_READY,
   LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
@@ -9,7 +9,6 @@ import {
   FanSpeeds,
   HassDomains,
   HassEventDTO,
-  HassEvents,
   HassServices,
   HomeAssistantRoomRokuDTO,
   PicoStates,
@@ -20,6 +19,7 @@ import { InjectLogger, sleep, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
+import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
@@ -31,7 +31,11 @@ import { SocketService } from './socket.service';
 export class AreaService {
   // #region Static Properties
 
-  private static TRACK_DOMAINS = [HassDomains.light, HassDomains.switch];
+  private static TRACK_DOMAINS = [
+    HassDomains.light,
+    HassDomains.switch,
+    HassDomains.remote,
+  ];
 
   // #endregion Static Properties
 
@@ -47,7 +51,7 @@ export class AreaService {
   private AREA_FLAGS: Map<string, AreaFlags[]>;
   private AREA_MAP: Map<string, string[]>;
   private CONTROLLER_MAP: Map<string, string>;
-  private FAVORITE_TIMEOUT = new Map<string, boolean>();
+  private FAVORITE_TIMEOUT = new Map<string, PicoStates>();
 
   // #endregion Object Properties
 
@@ -152,6 +156,9 @@ export class AreaService {
   public async areaOn(areaName: string): Promise<void> {
     const area = this.AREA_MAP.get(areaName);
     area.forEach(async (entityId) => {
+      if (domain(entityId) === HassDomains.remote) {
+        return;
+      }
       await this.entityService.turnOn(entityId);
     });
   }
@@ -161,7 +168,7 @@ export class AreaService {
     if (!this.isCommonArea(areaName)) {
       return await this.areaOff(areaName);
     }
-    (await this.getCommonAreas()).forEach(async (areaName) => {
+    this.getCommonAreas().forEach(async (areaName) => {
       await this.areaOff(areaName);
     });
   }
@@ -171,7 +178,7 @@ export class AreaService {
     if (!this.isCommonArea(areaName)) {
       return await this.areaOff(areaName);
     }
-    (await this.getCommonAreas()).forEach(async (areaName) => {
+    this.getCommonAreas().forEach(async (areaName) => {
       await this.areaOff(areaName);
     });
   }
@@ -195,23 +202,53 @@ export class AreaService {
     });
   }
 
+  /**
+   * General "turn stuff on, but maybe not all the way" function
+   *
+   * ## Scene
+   * TODO: Currently, it loads the scene via config service.
+   * This would be better done with a HA yaml scene
+   *
+   * ## Smart turn on
+   * If there are switches in the room (smart switches tied to lights). Turn only those on
+   *
+   * If there are no switches, act the same as the "turn on" button.
+   *
+   * ## Common area
+   *
+   * If the 2nd argument (global) is set to true, then attempt to communicate with other areas.
+   * If this area is flagged as a common area (like the living room), then relay the request to other common areas
+   *
+   * This is intended for use primarily in the evenings, where one might want to turn off all the non-bedroom lights, and watch a movie or something.
+   * Since my place is particularly dark during the day, this will also act as a "turn on all the common areas" during the day
+   *
+   * ## Expansions
+   *
+   * Automatically turn on the tv if registered with the area
+   * Emit events that can be picked up by the application
+   */
   @Trace()
   public async setFavoriteScene(
     areaName: string,
     global = false,
   ): Promise<void> {
     if (global && this.isCommonArea(areaName)) {
-      this.logger.info(`global relay`);
       this.getCommonAreas().forEach(async (name) => {
-        if (name === areaName) {
-          return;
-        }
         if (this.IS_EVENING) {
           this.logger.info(name);
           return await this.areaOff(name);
         }
-        await this.setFavoriteScene(areaName);
+        await this.areaOn(areaName);
       });
+      // Double press favorite = turn on all things controlled by remote for the room
+      // Like a TV
+      this.AREA_MAP.get(areaName).forEach(async (entityId) => {
+        if (domain(entityId) !== HassDomains.remote) {
+          return;
+        }
+        await this.entityService.turnOn(entityId);
+      });
+      return;
     }
     const scene = this.configService.get(`favorites.${areaName}`) as Record<
       'day' | 'evening',
@@ -228,9 +265,17 @@ export class AreaService {
       return;
     }
     const area = this.AREA_MAP.get(areaName);
+    let containsSwitches = false;
     area.forEach(async (entityId) => {
+      if (domain(entityId) !== HassDomains.switch) {
+        return;
+      }
+      containsSwitches = true;
       await this.entityService.turnOn(entityId);
     });
+    if (!containsSwitches) {
+      await this.areaOn(areaName);
+    }
   }
 
   /**
@@ -239,7 +284,7 @@ export class AreaService {
    * I think it might be because it's sleeping or something?
    * The double request method seems to work around
    */
-  @Trace()
+  @Trace({ level: 'debug' })
   public async setRoku(
     channel: RokuInputs | string,
     roku: HomeAssistantRoomRokuDTO,
@@ -298,21 +343,37 @@ export class AreaService {
 
   // #region Private Methods
 
-  @OnEvent([HA_RAW_EVENT])
+  // @Cron('*/5 * * * * *')
+  @Cron('0 */5 * * * *')
+  @Trace({ omitArgs: true, level: 'info' })
+  private async circadianLightingUpdate() {
+    this.AREA_MAP.forEach((entities) => {
+      entities.forEach(async (entityId) => {
+        if (domain(entityId) !== HassDomains.light) {
+          return;
+        }
+        const entity = await this.entityService.byId(entityId);
+        if (entity.state !== 'on') {
+          return;
+        }
+        await this.entityService.circadianLight(entityId);
+      });
+    });
+  }
+
+  @OnEvent([HA_EVENT_STATE_CHANGE])
   private async onControllerEvent(event: HassEventDTO): Promise<void> {
-    if (event.event_type !== HassEvents.state_changed) {
-      return;
-    }
     const entityId = event.data.entity_id;
     if (!this.CONTROLLER_MAP.has(entityId)) {
       return;
     }
     const areaName = this.CONTROLLER_MAP.get(entityId);
     const state = event.data.new_state;
+    this.logger.info({ state, entityId }, `Controller state updated`);
     if (state.state === PicoStates.none) {
       return;
     }
-    if (this.FAVORITE_TIMEOUT.has(entityId)) {
+    if (this.FAVORITE_TIMEOUT.get(entityId) === state.state) {
       this.FAVORITE_TIMEOUT.delete(entityId);
       switch (state.state) {
         case PicoStates.on:
@@ -329,18 +390,22 @@ export class AreaService {
       this.logger.error({ state }, 'Unknown button');
       return;
     }
+    this.FAVORITE_TIMEOUT.set(entityId, state.state as PicoStates);
     switch (state.state) {
       case PicoStates.on:
-        return this.areaOn(areaName);
+        return await this.areaOn(areaName);
       case PicoStates.off:
-        return this.areaOff(areaName);
+        return await this.areaOff(areaName);
       case PicoStates.up:
         return await this.lightDim(areaName, 10);
       case PicoStates.down:
         return await this.lightDim(areaName, -10);
       case PicoStates.favorite:
-        this.FAVORITE_TIMEOUT.set(entityId, true);
-        setTimeout(() => this.FAVORITE_TIMEOUT.delete(entityId), 5000);
+        setTimeout(
+          () => this.FAVORITE_TIMEOUT.delete(entityId),
+          this.configService.get('libs.home-assistant.DBL_CLICK_TIMEOUT') ||
+            1000,
+        );
         return await this.setFavoriteScene(areaName);
     }
   }
@@ -349,7 +414,11 @@ export class AreaService {
   private async lightDim(areaName: string, amount: number) {
     const area = this.AREA_MAP.get(areaName);
     area.forEach(async (entityId) => {
-      if (domain(entityId) === HassDomains.switch) {
+      if (domain(entityId) !== HassDomains.light) {
+        return;
+      }
+      const entity = await this.entityService.byId(entityId);
+      if (entity.state === 'off') {
         return;
       }
       await this.entityService.lightDim(entityId, amount);
