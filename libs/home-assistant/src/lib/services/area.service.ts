@@ -417,6 +417,10 @@ export class AreaService {
       if (domain(entityId) !== HassDomains.light) {
         return;
       }
+      const entity = await this.entityService.byId(entityId);
+      if (entity.state === 'off') {
+        return;
+      }
       await this.entityService.lightDim(entityId, amount);
     });
   }

@@ -311,11 +311,15 @@ export class SocketService {
         this.eventEmitter.emit(HA_RAW_EVENT, msg.event);
         if (msg.event.event_type === HassEvents.state_changed) {
           this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, msg.event);
+          this.eventEmitter.emit([
+            HA_EVENT_STATE_CHANGE,
+            msg.event.data.entity_id,
+          ]);
         }
         return;
 
-      // 🏓
       case HassSocketMessageTypes.pong:
+        // 🏓
         if (this.waitingCallback.has(id)) {
           const f = this.waitingCallback.get(id);
           this.waitingCallback.delete(id);
