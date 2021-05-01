@@ -24,6 +24,9 @@
       "@automagical/licenses": ["libs/licenses/src/index.ts"],
       "@automagical/authentication": ["libs/authentication/src/index.ts"],
       "@automagical/fetch": ["libs/fetch/src/index.ts"],
+      "@automagical/contracts": [
+        "libs/contracts/src/index.ts"
+      ],
       "@automagical/contracts/home-assistant": [
         "libs/contracts/src/libs/home-assistant/index.ts"
       ],

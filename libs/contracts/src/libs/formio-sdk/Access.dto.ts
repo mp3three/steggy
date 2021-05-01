@@ -1,7 +1,7 @@
-import { CanFake } from './Base.dto';
 import faker from 'faker';
 import { AccessTypes, ACCESS_PERMISSION } from './constants';
 import { IsEnum, IsObjectId, IsOptional } from '@automagical/validation';
+import { CanFake } from '@automagical/contracts';
 
 export class AccessDTO extends CanFake {
   // #region Public Static Methods

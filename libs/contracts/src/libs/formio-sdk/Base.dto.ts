@@ -1,33 +1,13 @@
+import { CanFake } from '@automagical/contracts';
 import {
   IsDateString,
-  IsEnum,
   IsNumber,
   IsObjectId,
   IsOptional,
-  validate,
-  ValidationError,
 } from '@automagical/validation';
-import faker from 'faker';
-import dayjs from 'dayjs';
-import { ACCESS_PERMISSION, AccessTypes } from './constants';
 import { Prop } from '@nestjs/mongoose';
+import dayjs from 'dayjs';
 import { Schema as MongooseSchema } from 'mongoose';
-
-export class CanFake {
-  // #region Public Static Methods
-
-  public static fake(): Record<never, unknown> {
-    return {};
-  }
-
-  public static validate<T extends Record<never, unknown>>(
-    obj: T,
-  ): Promise<ValidationError[]> {
-    return validate(obj);
-  }
-
-  // #endregion Public Static Methods
-}
 
 export type BaseOmitProps = 'owner' | 'project';
 export const timestamps = {
