@@ -2,7 +2,7 @@ import { ACTION_STATES } from '@automagical/contracts/formio-sdk';
 import { Schema } from 'mongoose';
 import { form, submission, title } from './common.schema';
 
-export const ActionItemDefinition = {
+export const PermissionItemDefinition = {
   title,
   form,
   submission,
@@ -31,4 +31,4 @@ export const ActionItemDefinition = {
     type: Schema.Types.Mixed,
   },
 };
-export const ActionItemSchema = new Schema(ActionItemDefinition);
+export const PermissionItemSchema = new Schema(PermissionItemDefinition);

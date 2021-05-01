@@ -1,17 +1,19 @@
+import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
 import { ProjectDTO, PROJECT_TYPES } from '@automagical/contracts/formio-sdk';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { PROJECT_PERSISTENCE_DRIVER } from '@automagical/contracts/persistence';
+import { InjectLogger, Trace } from '@automagical/utilities';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 import { iProjectDriver } from '../../typings/i-driver';
-import { InjectLogger } from '@automagical/utilities';
-import { PERSISTENCE } from '@automagical/contracts/constants';
 
 @Injectable()
 export class ProjectService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(ProjectService, PERSISTENCE)
+    @InjectLogger(ProjectService, LIB_PERSISTENCE)
     protected readonly logger: PinoLogger,
+    @Inject(() => PROJECT_PERSISTENCE_DRIVER)
     private readonly driver: iProjectDriver,
   ) {}
 
@@ -24,6 +26,7 @@ export class ProjectService {
    *
    * Ask driver to store data
    */
+  @Trace()
   public async createProject(
     project: Partial<ProjectDTO>,
   ): Promise<ProjectDTO> {

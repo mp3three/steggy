@@ -1,12 +1,12 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import * as NestConfig from '@nestjs/config';
-import { existsSync, readFileSync } from 'fs';
-import { resolve } from 'path';
-import { AutomagicalConfig } from '../typings';
-import yaml from 'js-yaml';
-import ini from 'ini';
 import JSON from 'comment-json';
+import { existsSync, readFileSync } from 'fs';
+import ini from 'ini';
+import yaml from 'js-yaml';
+import { resolve } from 'path';
 import rc from 'rc';
+import { AutomagicalConfig } from '../typings';
 
 @Module({})
 export class ConfigModule {
@@ -74,12 +74,6 @@ export class ConfigModule {
     if (existsSync(envFilePath)) {
       return yaml.load(readFileSync(envFilePath, 'utf-8')) as AutomagicalConfig;
     }
-    // TODO This entire loader needs an overhaul
-    // It's a barely functional disaster
-
-    // console.info(
-    //   `[WARN] config-module - Could not find environment file: ${envFilePath}`,
-    // );
     return {};
   }
 

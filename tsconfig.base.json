@@ -36,6 +36,9 @@
       "@automagical/contracts/licenses": [
         "libs/contracts/src/licenses/index.ts"
       ],
+      "@automagical/contracts/persistence": [
+        "libs/contracts/src/persistence/index.ts"
+      ],
       "@automagical/config": ["libs/config/src/index.ts"],
       "@automagical/persistence": ["libs/persistence/src/index.ts"]
     }

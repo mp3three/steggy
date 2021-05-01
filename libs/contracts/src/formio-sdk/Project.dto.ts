@@ -61,7 +61,9 @@ export class ProjectSettingsDTO {
  * }
  * ```
  */
-export class ProjectDTO extends BaseDTO {
+export class ProjectDTO<
+  Settings extends Record<never, unknown> = ProjectSettingsDTO
+> extends BaseDTO {
   // #region Public Static Methods
 
   public static fake(): Omit<ProjectDTO, BaseOmitProps> {
@@ -149,7 +151,7 @@ export class ProjectDTO extends BaseDTO {
   public steps?: string[];
   @IsOptional()
   @ValidateNested()
-  public settings?: ProjectSettingsDTO;
+  public settings?: Settings;
   /**
    * Association of role ids
    */

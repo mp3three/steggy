@@ -27,6 +27,8 @@
   },
   "dependencies": {
     "@angular-devkit/architect": "^0.1102.6",
+    "@formio/api": "^0.6.10",
+    "@formio/ce": "^3.0.0-alpha.8",
     "@nestjs/common": "^7.6.14",
     "@nestjs/config": "^0.6.3",
     "@nestjs/core": "^7.0.0",
