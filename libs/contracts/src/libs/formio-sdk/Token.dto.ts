@@ -1,35 +1,29 @@
-import { IsBoolean, IsOptional, IsString } from '@automagical/validation';
+import { IsDate, IsOptional, IsString, Length } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
-import { BaseDTO, CanFake, timestamps } from './Base.dto';
+import faker from 'faker';
+import { BaseDTO, timestamps } from './Base.dto';
 
 @Schema({
   minimize: false,
   timestamps,
 })
-export class TokenDTO extends CanFake {
+export class TokenDTO extends BaseDTO {
   // #region Object Properties
 
+  @IsDate()
+  @IsOptional()
+  @Prop()
+  public expireAt?: Date;
   @IsString()
-  @Prop({})
-  public machineName: string;
+  @Length(30, 30)
   @Prop({
-    required: true,
-    index: true,
+    default: () => faker.random.alphaNumeric(30),
   })
+  @IsOptional()
+  public key!: string;
   @IsString()
-  public title: string;
-  @Prop({ default: false })
-  @IsOptional()
-  @IsBoolean()
-  public admin?: boolean;
-  @Prop({ default: false })
-  @IsOptional()
-  @IsBoolean()
-  public default?: boolean;
-  @Prop({ default: '' })
-  @IsString()
-  @IsOptional()
-  public description?: string;
+  @Prop({ required: true })
+  public value!: string;
 
   // #endregion Object Properties
 }

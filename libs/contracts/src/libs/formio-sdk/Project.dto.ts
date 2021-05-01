@@ -9,7 +9,8 @@ import {
   Matches,
 } from '@automagical/validation';
 import faker from 'faker';
-import { AccessDTO, BaseDTO, BaseOmitProps } from './Base.dto';
+import { AccessDTO } from './Access.dto';
+import { BaseDTO, BaseOmitProps } from './Base.dto';
 import {
   PROJECT_FRAMEWORKS,
   PROJECT_PLAN_TYPES,

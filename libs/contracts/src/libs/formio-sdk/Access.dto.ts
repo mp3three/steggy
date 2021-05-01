@@ -10,7 +10,7 @@ export class AccessDTO extends CanFake {
     return {
       ...super.fake(),
       type: faker.random.arrayElement(Object.values(AccessTypes)),
-      roles: Array(faker.datatype.number(5)).map(() => faker.random.uuid()),
+      roles: Array(faker.datatype.number(5)).map(() => faker.datatype.uuid()),
     };
   }
 

@@ -9,6 +9,7 @@ export * from './resource';
 export * from './Resource.dto';
 export * from './Role.dto';
 export * from './Submission.dto';
+export * from './Token.dto';
 
 /**
  * May contain alphnumeric, and dashes.
