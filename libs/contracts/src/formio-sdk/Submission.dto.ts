@@ -11,8 +11,6 @@ import mongoose from 'mongoose';
 import { AccessDTO, BaseDTO } from './Base.dto';
 import { SUBMISSION_STATES } from './constants';
 
-export type SubmissionDocument = SubmissionDTO & Document;
-
 @Schema({
   minimize: false,
   timestamps: {

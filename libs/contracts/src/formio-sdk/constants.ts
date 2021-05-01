@@ -7,6 +7,23 @@ export enum ACCESS_TYPES {
   admin = 'admin',
 }
 
+export enum VALUE_TYPES {
+  'string' = 'string',
+  'number' = 'number',
+  'boolean' = 'boolean',
+  '[string]' = '[string]',
+  '[number]' = '[number]',
+}
+
+export enum OPERATORS {
+  eq = '$eq',
+  lt = '$lt',
+  gt = '$gt',
+  lte = '$lte',
+  gte = '$gte',
+  in = '$in',
+}
+
 export enum PROJECT_PLAN_TYPES {
   basic = 'basic',
   independent = 'independent',
@@ -87,4 +104,9 @@ export enum ACTION_STATES {
   inprogress = 'inprogress',
   complete = 'complete',
   error = 'error',
+}
+
+export enum FORM_TYPES {
+  form = 'form',
+  resource = 'resource',
 }
