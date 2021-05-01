@@ -6,7 +6,7 @@ import {
   IsString,
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
+import { Schema as MongooseSchema } from 'mongoose';
 import { OPERATORS, VALUE_TYPES } from './constants';
 
 @Schema({
@@ -68,7 +68,7 @@ export class FieldMatchAccessPermissionDTO {
   @IsString({ each: true })
   @Prop({
     ref: 'role',
-    type: mongoose.Schema.Types.ObjectId,
+    type: MongooseSchema.Types.ObjectId,
   })
   public roles: string;
 

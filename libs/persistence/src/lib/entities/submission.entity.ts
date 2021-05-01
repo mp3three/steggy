@@ -1,20 +1,22 @@
 import { IsNotEmpty } from '@automagical/validation';
-import { ObjectID } from 'mongodb';
 import { Schema } from '@nestjs/mongoose';
+import { ObjectID } from 'mongodb';
 import {
   Column,
   DeleteDateColumn,
   Entity,
   Index,
-  JoinColumn,
   JoinTable,
-  ManyToMany,
-  ManyToOne,
   PrimaryGeneratedColumn,
   RelationId,
 } from 'typeorm';
 import { AccessEntity } from './access.entity';
 
+/**
+ * POC work, do not use
+ *
+ * Refer to SubmissionDTO for real work
+ */
 @Entity()
 @Schema()
 export class SubmissionEntity {

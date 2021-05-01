@@ -1,7 +1,5 @@
 // TODO: Figure out how to get the bindings right to fix this
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Type } from '@nestjs/common';
-import { SchemaFactory } from '@nestjs/mongoose';
 import { Schema, Types } from 'mongoose';
 import { ActionDefinition } from './action.schema';
 
@@ -98,7 +96,7 @@ export function CreateSchema(
       expires: args.expires,
     };
   }
-  const schema = SchemaFactory.createForClass(definition);
+  const schema = new Schema(definition);
   if (args.minimize) {
     schema.set('minimize', false);
   }

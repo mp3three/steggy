@@ -46,18 +46,6 @@ export class FormDTO extends BaseDTO {
   @Prop()
   @IsOptional()
   public components?: Record<string, unknown>[];
-  /**
-   * User reference for form owner
-   *
-   * @default null
-   */
-  @IsObjectId()
-  @IsOptional()
-  @Prop({ ref: 'submission', default: null, index: true })
-  public owner: string;
-  @IsOptional()
-  @IsBoolean()
-  public deleted?: boolean;
   @IsOptional()
   @ValidateNested({
     each: true,

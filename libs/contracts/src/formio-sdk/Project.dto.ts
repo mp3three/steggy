@@ -119,9 +119,6 @@ export class ProjectDTO<
    */
   @IsOptional()
   public formDefaults?: Record<string, unknown>;
-  @IsOptional()
-  @IsBoolean()
-  public deleted?: boolean;
   /**
    * Disallow modifications while set
    */

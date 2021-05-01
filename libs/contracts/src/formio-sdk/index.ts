@@ -7,6 +7,7 @@ export * from './Resource.dto';
 export * from './Submission.dto';
 export * from './constants';
 export * from './Form.dto';
+export * from './Role.dto';
 
 /**
  * May contain alphnumeric, and dashes.
