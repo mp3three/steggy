@@ -58,7 +58,7 @@ export enum ActionNames {
 /**
  * @FIXME: Fill in rest of values
  */
-export enum SubmissionStates {
+export enum SUBMISSION_STATES {
   submitted = 'submitted',
 }
 
@@ -78,7 +78,7 @@ export enum AccessTypes {
   self = 'self',
 }
 
-export enum AccessPermission {
+export enum ACCESS_PERMISSION {
   admin = 'admin',
 }
 

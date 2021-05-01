@@ -1,5 +1,7 @@
 // TODO: Figure out how to get the bindings right to fix this
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { Type } from '@nestjs/common';
+import { SchemaFactory } from '@nestjs/mongoose';
 import { Schema, Types } from 'mongoose';
 import { ActionDefinition } from './action.schema';
 
@@ -88,10 +90,6 @@ export function CreateSchema(
   definition: Record<string, unknown>,
   args: { expires?: string; minimize?: boolean; machineName?: boolean } = {},
 ): Schema {
-  const ENSURE_LIST = Object.keys(definition).filter(
-    (key) => typeof schema[key].ref === 'string',
-  );
-
   definition.modified = modified;
   definition.created = created;
   if (args.expires) {
@@ -100,7 +98,7 @@ export function CreateSchema(
       expires: args.expires,
     };
   }
-  const schema = new Schema(definition);
+  const schema = SchemaFactory.createForClass(definition);
   if (args.minimize) {
     schema.set('minimize', false);
   }
@@ -119,7 +117,6 @@ export function CreateSchema(
     if (!data) {
       return next();
     }
-    EnsureIds(data, ENSURE_LIST);
     // @ts-ignore
     this.modified = new Date();
     next();

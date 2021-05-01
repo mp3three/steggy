@@ -1,5 +1,6 @@
 import { IsNotEmpty } from '@automagical/validation';
 import { ObjectID } from 'mongodb';
+import { Schema } from '@nestjs/mongoose';
 import {
   Column,
   DeleteDateColumn,
@@ -15,6 +16,7 @@ import {
 import { AccessEntity } from './access.entity';
 
 @Entity()
+@Schema()
 export class SubmissionEntity {
   // #region Object Properties
 
