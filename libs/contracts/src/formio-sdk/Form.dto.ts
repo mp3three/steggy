@@ -1,9 +1,10 @@
 import {
   IsBoolean,
   IsEnum,
+  IsObject,
+  IsObjectId,
   IsOptional,
   IsString,
-  MATCHES,
   Matches,
   MaxLength,
   ValidateNested,
@@ -33,6 +34,27 @@ export class FormDTO extends BaseDTO {
     index: true,
   })
   public type: FORM_TYPES;
+  @IsObject()
+  @IsOptional()
+  @Prop()
+  public properties?: Record<string, unknown>;
+  @IsObject()
+  @IsOptional()
+  @Prop()
+  public settings?: Record<string, unknown>;
+  @IsObject({ each: true })
+  @Prop()
+  @IsOptional()
+  public components?: Record<string, unknown>[];
+  /**
+   * User reference for form owner
+   *
+   * @default null
+   */
+  @IsObjectId()
+  @IsOptional()
+  @Prop({ ref: 'submission', default: null, index: true })
+  public owner: string;
   @IsOptional()
   @IsBoolean()
   public deleted?: boolean;
@@ -41,13 +63,13 @@ export class FormDTO extends BaseDTO {
     each: true,
   })
   @Prop()
-  public access: AccessDTO[];
+  public access?: AccessDTO[];
   @IsOptional()
   @ValidateNested({
     each: true,
   })
   @Prop()
-  public submissionAccess: AccessDTO[];
+  public submissionAccess?: AccessDTO[];
   /**
    * A custom action URL to submit the data to.
    */
@@ -86,6 +108,9 @@ export class FormDTO extends BaseDTO {
   })
   public title: string;
   @IsString()
+  @Prop({})
+  public machineName: string;
+  @IsString()
   @Prop({
     trim: true,
     lowercase: true,
@@ -98,7 +123,8 @@ export class FormDTO extends BaseDTO {
       'Name may only container numbers, letters, and dashes. Must not terminate with a dash',
   })
   public path: string;
-
+  @ValidateNested({ each: true })
+  @Prop()
   public fieldMatchAccess: Record<
     'type',
     Record<ACCESS_TYPES, FieldMatchAccessPermissionDTO>
