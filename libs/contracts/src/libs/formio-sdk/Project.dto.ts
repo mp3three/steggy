@@ -7,6 +7,7 @@ import {
   ValidateNested,
   MaxLength,
   Matches,
+  IsSemVer,
 } from '@automagical/validation';
 import faker from 'faker';
 import { AccessDTO } from './Access.dto';
@@ -16,6 +17,7 @@ import {
   PROJECT_PLAN_TYPES,
   PROJECT_TYPES,
 } from './constants';
+import { Prop } from '@nestjs/mongoose';
 
 export class ProjectSettingsDTO {
   // #region Object Properties
@@ -100,7 +102,13 @@ export class ProjectDTO<
    * The portal UI presents it as it's own distinct stage visually.
    */
   @IsEnum(PROJECT_TYPES)
-  public type: PROJECT_TYPES;
+  @Prop({
+    default: PROJECT_TYPES.project,
+    index: true,
+    type: 'enum',
+    enum: PROJECT_TYPES,
+  })
+  public type!: PROJECT_TYPES;
   /**
    * Unkown purpose currently
    */
@@ -178,16 +186,12 @@ export class ProjectDTO<
   @IsString()
   @IsOptional()
   @MaxLength(32)
+  @Prop({ default: '0.0.0', maxlength: 32 })
   public tag?: string;
-  /**
-   * Human understandable title
-   */
-  @IsString()
-  @MaxLength(63)
-  public title: string;
   @IsString()
   @MaxLength(512)
   @IsOptional()
+  @Prop({ maxlength: 512 })
   /**
    * Description of project
    */
@@ -203,7 +207,15 @@ export class ProjectDTO<
     message:
       'Name may only container numbers, letters, and dashes. Must not terminate with a dash',
   })
+  @Prop({ maxlength: 63, index: true, required: true })
   public name: string;
+  /**
+   * Human understandable title
+   */
+  @IsString()
+  @MaxLength(63)
+  @Prop({ maxlength: 63, index: true, required: true })
+  public title: string;
   @ValidateNested()
   @IsOptional()
   public remote?: Record<'name' | 'title' | '_id', string>;

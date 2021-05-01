@@ -4,5 +4,5 @@ import { Document } from 'mongoose';
 
 export type TokenDocument = TokenDTO & Document;
 
-export const TokenDocument = SchemaFactory.createForClass(TokenDTO);
-TokenDocument.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
+export const TokenSchema = SchemaFactory.createForClass(TokenDTO);
+TokenSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });

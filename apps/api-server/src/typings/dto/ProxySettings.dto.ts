@@ -1,4 +1,4 @@
-export class Proxy {
+export class TenantProxy {
   // #region Object Properties
 
   public apiKey: string;
@@ -10,7 +10,7 @@ export class Proxy {
 export class TenantSettings {
   // #region Object Properties
 
-  public proxy?: Proxy;
+  public proxy?: TenantProxy;
 
   // #endregion Object Properties
 }

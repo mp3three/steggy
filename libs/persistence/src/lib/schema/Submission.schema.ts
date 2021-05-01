@@ -4,8 +4,8 @@ import { Document } from 'mongoose';
 
 export type SubmissionDocument = SubmissionDTO & Document;
 
-export const SubmissionDocument = SchemaFactory.createForClass(SubmissionDTO);
-SubmissionDocument.index({
+export const SubmissionSchema = SchemaFactory.createForClass(SubmissionDTO);
+SubmissionSchema.index({
   project: 1,
   deleted: 1,
 })

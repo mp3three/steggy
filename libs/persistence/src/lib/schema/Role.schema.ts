@@ -4,8 +4,8 @@ import { Document } from 'mongoose';
 
 export type RoleDocument = RoleDTO & Document;
 
-export const RoleDocument = SchemaFactory.createForClass(RoleDTO);
-RoleDocument.index(
+export const RoleSchema = SchemaFactory.createForClass(RoleDTO);
+RoleSchema.index(
   { machineName: 1 },
   { unique: true, partialFilterExpression: { deleted: { $eq: null } } },
 );

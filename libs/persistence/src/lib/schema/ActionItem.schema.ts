@@ -4,8 +4,8 @@ import { Document } from 'mongoose';
 
 export type ActionItemDocument = ActionItemDTO & Document;
 
-export const ActionItemDocument = SchemaFactory.createForClass(ActionItemDTO);
-ActionItemDocument.index({
+export const ActionItemSchema = SchemaFactory.createForClass(ActionItemDTO);
+ActionItemSchema.index({
   project: 1,
   state: 1,
   deleted: 1,

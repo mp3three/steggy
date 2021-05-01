@@ -4,8 +4,8 @@ import { Document } from 'mongoose';
 
 export type TagDocument = TagDTO & Document;
 
-export const TagDocument = SchemaFactory.createForClass(TagDTO);
-TagDocument.index(
+export const TagSchema = SchemaFactory.createForClass(TagDTO);
+TagSchema.index(
   { machineName: 1 },
   { unique: true, partialFilterExpression: { deleted: { $eq: null } } },
 );

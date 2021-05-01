@@ -4,8 +4,8 @@ import { Document } from 'mongoose';
 
 export type FormDocument = FormDTO & Document;
 
-export const FormDocument = SchemaFactory.createForClass(FormDTO);
-FormDocument.index({
+export const FormSchema = SchemaFactory.createForClass(FormDTO);
+FormSchema.index({
   project: 1,
   type: 1,
   deleted: 1,

@@ -1,6 +1,7 @@
 export * from './Action.schema';
 export * from './ActionItem.schema';
 export * from './Form.schema';
+export * from './Project.schema';
 export * from './Role.schema';
 export * from './Schema.schema';
 export * from './Session.schema';
