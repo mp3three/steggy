@@ -13,6 +13,7 @@ export * from './Session.dto';
 export * from './Submission.dto';
 export * from './Tag.dto';
 export * from './Token.dto';
+export * from './Schema.dto';
 
 /**
  * May contain alphnumeric, and dashes.
