@@ -4,18 +4,21 @@ import { PROJECT_PERSISTENCE_DRIVER } from '@automagical/contracts/persistence';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
-import { iProjectDriver } from '../../typings/i-driver';
+import { iDriver } from '../../typings/i-driver';
+import { BaseDriver } from './base.driver';
 
 @Injectable()
-export class ProjectService {
+export class ProjectDriver extends BaseDriver {
   // #region Constructors
 
   constructor(
-    @InjectLogger(ProjectService, LIB_PERSISTENCE)
+    @InjectLogger(ProjectDriver, LIB_PERSISTENCE)
     protected readonly logger: PinoLogger,
     @Inject(() => PROJECT_PERSISTENCE_DRIVER)
-    private readonly driver: iProjectDriver,
-  ) {}
+    protected readonly driver: iDriver,
+  ) {
+    super();
+  }
 
   // #endregion Constructors
 
@@ -27,17 +30,15 @@ export class ProjectService {
    * Ask driver to store data
    */
   @Trace()
-  public async createProject(
-    project: Partial<ProjectDTO>,
-  ): Promise<ProjectDTO> {
-    if (!project.name) {
+  public async create(project: Partial<ProjectDTO>): Promise<ProjectDTO> {
+    if (!project?.name) {
       throw new BadRequestException(`name is required`);
     }
     project.type = PROJECT_TYPES.project;
     project.title = project.title || project.name;
     project.settings = project.settings || {};
     project.settings.cors = project.settings.cors || '*';
-    return this.driver.create(project);
+    return (await super.create(project)) as ProjectDTO;
   }
 
   // #endregion Public Methods
