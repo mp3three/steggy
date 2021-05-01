@@ -10,7 +10,7 @@ import {
 } from '@automagical/validation';
 import faker from 'faker';
 import { AccessDTO } from './Access.dto';
-import { BaseDTO, BaseOmitProps } from './Base.dto';
+import { BaseDTO, BaseOmitProps } from '.';
 import {
   PROJECT_FRAMEWORKS,
   PROJECT_PLAN_TYPES,

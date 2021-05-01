@@ -8,7 +8,8 @@ import {
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { AccessDTO, BaseDTO, timestamps } from './Base.dto';
+import { AccessDTO } from './Access.dto';
+import { BaseDTO, timestamps } from '.';
 import { SUBMISSION_STATES } from './constants';
 
 @Schema({

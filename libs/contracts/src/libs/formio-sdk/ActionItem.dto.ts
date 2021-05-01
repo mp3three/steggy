@@ -6,7 +6,7 @@ import {
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
-import { BaseDTO, timestamps } from './Base.dto';
+import { BaseDTO, timestamps } from '.';
 import {
   ACTION_NAMES,
   ACTION_STATES,

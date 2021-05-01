@@ -7,13 +7,9 @@ import {
 import { Prop } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import { Schema as MongooseSchema } from 'mongoose';
-import { DBFake } from '../../classes/DBFake.dto';
+import { BaseOmitProps } from '.';
+import { DBFake } from '@automagical/contracts';
 
-export type BaseOmitProps = 'owner' | 'project';
-export const timestamps = {
-  updatedAt: 'modified',
-  createdAt: 'created',
-};
 /**
  * Common properties between all objects
  */

@@ -1,7 +1,7 @@
 import { IsDate, IsOptional, IsString, Length } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
 import faker from 'faker';
-import { BaseDTO, timestamps } from './Base.dto';
+import { BaseDTO, timestamps } from '.';
 
 @Schema({
   minimize: false,
