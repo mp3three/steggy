@@ -1,7 +1,6 @@
 import { ConfigModule } from '@automagical/config';
 import { FetchModule } from '@automagical/fetch';
 import { PersistenceModule } from '@automagical/persistence';
-import { MongoDriverModule } from '@automagical/persistence/mongo';
 import { CacheModule, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -30,7 +29,7 @@ import { CEWrapperService } from './services/';
       limit: 10,
     }),
     FetchModule,
-    MongoDriverModule.register(),
+    PersistenceModule.registerMongoose(),
     ScheduleModule.forRoot(),
     ConfigModule.register('api-server', {
       REDIS_HOST: 'localost',
