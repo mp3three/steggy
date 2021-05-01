@@ -1,18 +1,12 @@
-import {
-  IsBoolean,
-  IsDateString,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from '@automagical/validation';
+import { IsBoolean, IsOptional, IsString } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
-import { BaseDTO, timestamps } from './Base.dto';
+import { BaseDTO, CanFake, timestamps } from './Base.dto';
 
 @Schema({
   minimize: false,
   timestamps,
 })
-export class RoleDTO extends BaseDTO {
+export class TokenDTO extends CanFake {
   // #region Object Properties
 
   @IsString()

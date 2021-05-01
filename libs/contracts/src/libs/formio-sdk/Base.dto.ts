@@ -29,35 +29,6 @@ export class CanFake {
   // #endregion Public Static Methods
 }
 
-//
-export class AccessDTO extends CanFake {
-  // #region Public Static Methods
-
-  public static fake(): AccessDTO {
-    return {
-      ...super.fake(),
-      type: faker.random.arrayElement(Object.values(AccessTypes)),
-      roles: Array(faker.datatype.number(5)).map(() => faker.random.uuid()),
-    };
-  }
-
-  // #endregion Public Static Methods
-
-  // #region Object Properties
-
-  @IsEnum(AccessTypes)
-  public type: AccessTypes;
-  @IsEnum(ACCESS_PERMISSION)
-  @IsOptional()
-  public permission?: ACCESS_PERMISSION;
-  @IsObjectId({
-    each: true,
-  })
-  public roles: string[];
-
-  // #endregion Object Properties
-}
-
 export type BaseOmitProps = 'owner' | 'project';
 export const timestamps = {
   updatedAt: 'modified',

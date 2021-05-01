@@ -1,7 +1,5 @@
 import {
   IsEnum,
-  IsNumber,
-  IsObjectId,
   IsOptional,
   IsString,
   ValidateNested,
@@ -10,11 +8,10 @@ import { Prop, Schema } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 import { BaseDTO, timestamps } from './Base.dto';
 import {
-  ACTION_CONDITION_EQ,
   ACTION_NAMES,
+  ACTION_STATES,
   HANDLERS,
   HTTP_METHODS,
-  ACTION_STATES,
 } from './constants';
 
 @Schema({
