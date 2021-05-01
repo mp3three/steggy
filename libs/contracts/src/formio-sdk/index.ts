@@ -1,13 +1,14 @@
 export * from './action';
 export * from './Action.dto';
+export * from './ActionItem.dto';
 export * from './Base.dto';
+export * from './constants';
+export * from './Form.dto';
 export * from './Project.dto';
 export * from './resource';
 export * from './Resource.dto';
-export * from './Submission.dto';
-export * from './constants';
-export * from './Form.dto';
 export * from './Role.dto';
+export * from './Submission.dto';
 
 /**
  * May contain alphnumeric, and dashes.

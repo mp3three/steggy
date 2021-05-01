@@ -11,7 +11,7 @@ import { Schema as MongooseSchema } from 'mongoose';
 import { BaseDTO, timestamps } from './Base.dto';
 import {
   ACTION_CONDITION_EQ,
-  ActionNames,
+  ACTION_NAMES,
   HANDLERS,
   HTTP_METHODS,
 } from './constants';
@@ -68,8 +68,8 @@ export class ActionDTO<
   /**
    * Which action to run
    */
-  @IsEnum(ActionNames)
-  public name: ActionNames;
+  @IsEnum(ACTION_NAMES)
+  public name: ACTION_NAMES;
   /**
    * When this action should run
    */

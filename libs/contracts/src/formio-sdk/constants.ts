@@ -69,7 +69,7 @@ export enum ACTION_CONDITION_EQ {
   equals = 'equals',
 }
 
-export enum ActionNames {
+export enum ACTION_NAMES {
   save = 'save',
 }
 /**
