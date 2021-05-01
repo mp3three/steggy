@@ -1,7 +1,7 @@
 export interface iDriver {
   // #region Public Methods
 
-  create<T extends Record<never, unknown>>(project: T): Promise<T>;
+  create(project: unknown): Promise<unknown>;
 
   // #endregion Public Methods
 }

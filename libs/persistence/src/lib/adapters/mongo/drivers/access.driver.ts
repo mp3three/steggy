@@ -1,24 +1,28 @@
 import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
-import { ACCESS_PERSISTENCE } from '@automagical/contracts/persistence';
-import { iDriver } from '@automagical/persistence';
+import { AccessDTO } from '@automagical/contracts/formio-sdk';
 import { InjectLogger } from '@automagical/utilities';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
-import { BaseDriver } from './base.driver';
+import { AccessSchema } from '../models';
 
 @Injectable()
-export class AccessDriver extends BaseDriver {
+export class AccessDriver {
   // #region Constructors
 
   constructor(
     @InjectLogger(AccessDriver, LIB_PERSISTENCE)
     protected readonly logger: PinoLogger,
-
-    @Inject(() => ACCESS_PERSISTENCE)
-    protected readonly driver: iDriver,
-  ) {
-    super();
-  }
+  ) {}
 
   // #endregion Constructors
+
+  // #region Public Methods
+
+  public async create(arg: AccessDTO): Promise<AccessDTO> {
+    // AccessSchema
+    // return await this.driver.create(arg);
+    return null;
+  }
+
+  // #endregion Public Methods
 }

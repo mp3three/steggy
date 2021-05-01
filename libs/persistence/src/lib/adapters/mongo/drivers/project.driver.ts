@@ -1,24 +1,19 @@
 import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
 import { ProjectDTO, PROJECT_TYPES } from '@automagical/contracts/formio-sdk';
-import { PROJECT_PERSISTENCE } from '@automagical/contracts/persistence';
+import { PROJECT_PERSISTENCE_DRIVER } from '@automagical/contracts/persistence';
 import { iDriver } from '@automagical/persistence';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
-import { BaseDriver } from './base.driver';
 
 @Injectable()
-export class ProjectDriver extends BaseDriver {
+export class ProjectDriver {
   // #region Constructors
 
   constructor(
     @InjectLogger(ProjectDriver, LIB_PERSISTENCE)
     protected readonly logger: PinoLogger,
-    @Inject(() => PROJECT_PERSISTENCE)
-    protected readonly driver: iDriver,
-  ) {
-    super();
-  }
+  ) {}
 
   // #endregion Constructors
 
@@ -31,14 +26,15 @@ export class ProjectDriver extends BaseDriver {
    */
   @Trace()
   public async create(project: Partial<ProjectDTO>): Promise<ProjectDTO> {
-    if (!project?.name) {
-      throw new BadRequestException(`name is required`);
-    }
-    project.type = PROJECT_TYPES.project;
-    project.title = project.title || project.name;
-    project.settings = project.settings || {};
-    project.settings.cors = project.settings.cors || '*';
-    return (await super.create(project)) as ProjectDTO;
+    // if (!project?.name) {
+    //   throw new BadRequestException(`name is required`);
+    // }
+    // project.type = PROJECT_TYPES.project;
+    // project.title = project.title || project.name;
+    // project.settings = project.settings || {};
+    // project.settings.cors = project.settings.cors || '*';
+    // return (await super.create(project)) as ProjectDTO;
+    return project as ProjectDTO;
   }
 
   // #endregion Public Methods
