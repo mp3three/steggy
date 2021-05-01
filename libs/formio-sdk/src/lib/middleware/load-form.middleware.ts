@@ -1,17 +1,17 @@
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import { FormDTO } from '@automagical/contracts/formio-sdk';
+import { FormDocument } from '@automagical/persistence';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import {
-  HttpException,
-  HttpStatus,
+  BadRequestException,
   Injectable,
   NestMiddleware,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { NextFunction, Request, Response } from 'express';
-import { PinoLogger } from 'nestjs-pino';
-import { FormSchema } from '@automagical/persistence';
 import { InjectModel } from '@nestjs/mongoose';
+import { NextFunction, Request, Response } from 'express';
+import { Model } from 'mongoose';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class LoadFormMiddleware implements NestMiddleware {
@@ -20,7 +20,7 @@ export class LoadFormMiddleware implements NestMiddleware {
   constructor(
     @InjectLogger(LoadFormMiddleware, LIB_FORMIO_SDK)
     protected readonly logger: PinoLogger,
-    @InjectModel(Cat.name) private catModel: Model<CatDocument>,
+    @InjectModel(FormDTO.name) private readonly formModel: Model<FormDocument>,
   ) {}
 
   // #endregion Constructors
@@ -29,50 +29,23 @@ export class LoadFormMiddleware implements NestMiddleware {
 
   @Trace()
   public async use(
-    req: Request<{ form: string }>,
+    req: Request<{ formId: string }>,
     res: Response<unknown, { form: FormDTO }>,
     next: NextFunction,
   ): Promise<void> {
-    if (!req.params.form) {
+    if (!req.params.formId) {
       throw new UnprocessableEntityException();
     }
-    FormSchema.fi;
-    // FormDocument.
-    // FormDocument.find({
-    //   _id: req.params.form
-    // });
-    // if (!req.headers['x-jwt-token']) {
-    //   throw new HttpException(
-    //     {
-    //       status: HttpStatus.FORBIDDEN,
-    //       error: 'x-jwt-token required',
-    //     },
-    //     HttpStatus.FORBIDDEN,
-    //   );
-    // }
-    // const user = await this.formioSdkService.userFetch({
-    //   token: req.headers['x-jwt-token'] as string,
-    // });
-    // if (!user) {
-    //   throw new HttpException(
-    //     {
-    //       status: HttpStatus.FORBIDDEN,
-    //       error: 'invalid x-jwt-token',
-    //     },
-    //     HttpStatus.FORBIDDEN,
-    //   );
-    // }
-    // res.locals.user = user;
+    res.locals.form = await this.formModel
+      .findOne({
+        _id: req.params.formId,
+      })
+      .exec();
+    if (!res.locals.form) {
+      throw new BadRequestException();
+    }
     next();
   }
 
   // #endregion Public Methods
 }
-
-// public loadEntities(req, model, query, options = {}) {
-//   return this.models[model].find(query, options, req.context ? req.context.params : {});
-// }
-
-// public loadEntity(req, model, query, options = {}) {
-//   return this.loadEntities(req, model, query, options).then((docs) => Array.isArray(docs) ? docs[0] : docs);
-// }
