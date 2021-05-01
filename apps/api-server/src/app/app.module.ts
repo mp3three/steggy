@@ -1,17 +1,21 @@
 import { ConfigModule } from '@automagical/config';
-import { PROJECT_PERSISTENCE_DRIVER } from '@automagical/contracts/persistence';
+import {
+  MONGOOSE,
+  PROJECT_PERSISTENCE,
+} from '@automagical/contracts/persistence';
 import { FetchModule } from '@automagical/fetch';
+import { ProjectDriver } from '@automagical/persistence/mongo';
 import { CacheModule, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import RedisStore from 'cache-manager-redis-store';
+import mongoose from 'mongoose';
 import { LoggerModule } from 'nestjs-pino';
 import { PortalController } from './controllers';
 import { LocalsInitMiddlware } from './middleware';
 import { CEWrapperService } from './services/';
-import { MongoProjectDriver } from '@automagical/persistence'
 
 @Module({
   imports: [
@@ -70,11 +74,34 @@ import { MongoProjectDriver } from '@automagical/persistence'
     }),
   ],
   providers: [
+    {
+      provide: MONGOOSE,
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => {
+        const options = {
+          connectTimeoutMS: 300000,
+          socketTimeoutMS: 300000,
+          useNewUrlParser: true,
+          keepAlive: true,
+          useCreateIndex: true,
+        } as mongoose.ConnectOptions;
+        /**
+         * TODO connection string as array
+         * - turns on high availability
+         * TODO ssl
+         */
+        await mongoose.connect(config.get('MONGO'), options);
+
+        mongoose.set('useFindAndModify', false);
+        mongoose.set('useCreateIndex', true);
+        return mongoose;
+      },
+    },
     CEWrapperService,
     LocalsInitMiddlware,
     {
-      provide: PROJECT_PERSISTENCE_DRIVER,
-      useValue: MongoProjectDriver,
+      provide: PROJECT_PERSISTENCE,
+      useValue: ProjectDriver,
     },
   ],
   controllers: [PortalController],

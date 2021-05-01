@@ -19,7 +19,7 @@ export class LocalsInitMiddlware implements NestMiddleware {
 
   // #region Public Methods
 
-  @Trace() r;
+  @Trace()
   public async use(req: Request, res: Res, next: NextFunction): Promise<void> {
     this.initPermissions(res);
     next();

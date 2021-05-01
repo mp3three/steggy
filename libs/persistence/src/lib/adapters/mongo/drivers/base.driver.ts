@@ -12,7 +12,7 @@ export abstract class BaseDriver {
   // #region Public Methods
 
   public async create(arg: unknown): Promise<unknown> {
-    return this.driver.create(arg);
+    return await this.driver.create(arg);
   }
 
   // #endregion Public Methods

@@ -1,10 +1,10 @@
 import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
 import { ProjectDTO, PROJECT_TYPES } from '@automagical/contracts/formio-sdk';
-import { PROJECT_PERSISTENCE_DRIVER } from '@automagical/contracts/persistence';
+import { PROJECT_PERSISTENCE } from '@automagical/contracts/persistence';
+import { iDriver } from '@automagical/persistence';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
-import { iDriver } from '../../typings/i-driver';
 import { BaseDriver } from './base.driver';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class ProjectDriver extends BaseDriver {
   constructor(
     @InjectLogger(ProjectDriver, LIB_PERSISTENCE)
     protected readonly logger: PinoLogger,
-    @Inject(() => PROJECT_PERSISTENCE_DRIVER)
+    @Inject(() => PROJECT_PERSISTENCE)
     protected readonly driver: iDriver,
   ) {
     super();

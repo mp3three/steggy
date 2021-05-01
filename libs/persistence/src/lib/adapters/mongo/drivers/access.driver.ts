@@ -1,5 +1,5 @@
 import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
-import { ACCESS_PERSISTENCE_DRIVER } from '@automagical/contracts/persistence';
+import { ACCESS_PERSISTENCE } from '@automagical/contracts/persistence';
 import { iDriver } from '@automagical/persistence';
 import { InjectLogger } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
@@ -14,7 +14,7 @@ export class AccessDriver extends BaseDriver {
     @InjectLogger(AccessDriver, LIB_PERSISTENCE)
     protected readonly logger: PinoLogger,
 
-    @Inject(() => ACCESS_PERSISTENCE_DRIVER)
+    @Inject(() => ACCESS_PERSISTENCE)
     protected readonly driver: iDriver,
   ) {
     super();

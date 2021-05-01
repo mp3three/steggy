@@ -40,6 +40,7 @@
         "libs/contracts/src/persistence/index.ts"
       ],
       "@automagical/config": ["libs/config/src/index.ts"],
+      "@automagical/persistence/mongo": ["libs/persistence/src/lib/adapters/mongo/index.ts"],
       "@automagical/persistence": ["libs/persistence/src/index.ts"]
     }
   },
