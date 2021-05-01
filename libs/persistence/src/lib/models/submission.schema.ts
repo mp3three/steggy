@@ -1,5 +1,4 @@
 import { Schema, Types } from 'mongoose';
-import { AccessSchema } from './access.schema';
 import { CreateSchema, deleted, form, owner } from './common.schema';
 
 const ExternalIdSchema = CreateSchema({

@@ -8,15 +8,12 @@ import {
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { AccessDTO, BaseDTO } from './Base.dto';
+import { AccessDTO, BaseDTO, timestamps } from './Base.dto';
 import { SUBMISSION_STATES } from './constants';
 
 @Schema({
   minimize: false,
-  timestamps: {
-    createdAt: 'created',
-    updatedAt: 'modified',
-  },
+  timestamps,
 })
 export class SubmissionDTO<
   DATA extends Record<never, unknown> = Record<never, unknown>,

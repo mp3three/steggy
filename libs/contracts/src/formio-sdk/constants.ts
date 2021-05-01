@@ -53,18 +53,18 @@ export enum PROJECT_FRAMEWORKS {
   vue = 'vue',
 }
 
-export enum Handers {
+export enum HANDLERS {
   before = 'before',
   after = 'after',
 }
-export enum Method {
+export enum HTTP_METHODS {
   create = 'create',
   update = 'update',
   delete = 'delete',
   index = 'index',
 }
-export enum ActionConditionEQ {
-  // TODO: notEqual => notEquals
+export enum ACTION_CONDITION_EQ {
+  // TODO: notEqual => notEquals (will that break anything?)
   notEqual = 'notEqual',
   equals = 'equals',
 }

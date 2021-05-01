@@ -59,7 +59,10 @@ export class AccessDTO extends CanFake {
 }
 
 export type BaseOmitProps = 'owner' | 'project';
-
+export const timestamps = {
+  updatedAt: 'modified',
+  createdAt: 'created',
+};
 /**
  * Common properties between all objects
  */
@@ -123,10 +126,11 @@ export abstract class BaseDTO extends CanFake {
     type: MongooseSchema.Types.ObjectId,
     index: true,
     required: true,
+    default: null,
   })
   public project?: string;
   @IsOptional()
-  @Prop()
+  @Prop({ default: null })
   @IsNumber()
   public deleted?: number;
 

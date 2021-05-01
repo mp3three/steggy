@@ -6,14 +6,11 @@ import {
   IsString,
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
-import { BaseDTO } from './Base.dto';
+import { BaseDTO, timestamps } from './Base.dto';
 
 @Schema({
   minimize: false,
-  timestamps: {
-    updatedAt: 'modified',
-    createdAt: 'created',
-  },
+  timestamps,
 })
 export class RoleDTO extends BaseDTO {
   // #region Object Properties
