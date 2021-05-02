@@ -28,7 +28,12 @@ import { load } from 'js-yaml';
 import { PinoLogger } from 'nestjs-pino';
 import { join } from 'path';
 import { ASSETS_PATH } from '../../environments/environment';
-import { MobileDevice, NotificationGroup, RoomsCode } from '../../typings';
+import {
+  LOFT_MONITOR,
+  MobileDevice,
+  NotificationGroup,
+  RoomsCode,
+} from '../../typings';
 enum LoftRokuInputs {
   off = 'off',
   windows = 'hdmi2',
@@ -269,7 +274,7 @@ export class AppService {
     this.logger.debug('screenToPersonal');
     await this.roomService.setRoku(
       LoftRokuInputs.personal,
-      this.configService.get('roku.loft.host'),
+      this.configService.get(LOFT_MONITOR),
     );
   }
 
@@ -278,7 +283,7 @@ export class AppService {
     this.logger.debug('screenToWindows');
     await this.roomService.setRoku(
       LoftRokuInputs.windows,
-      this.configService.get('roku.loft.host'),
+      this.configService.get(LOFT_MONITOR),
     );
   }
 
@@ -287,7 +292,7 @@ export class AppService {
     this.logger.debug('screenToWork');
     await this.roomService.setRoku(
       LoftRokuInputs.work,
-      this.configService.get('roku.loft.host'),
+      this.configService.get(LOFT_MONITOR),
     );
   }
 
@@ -325,7 +330,7 @@ export class AppService {
     this.logger.debug('screenOff');
     await this.roomService.setRoku(
       LoftRokuInputs.off,
-      this.configService.get('roku.loft.host'),
+      this.configService.get(LOFT_MONITOR),
     );
   }
 

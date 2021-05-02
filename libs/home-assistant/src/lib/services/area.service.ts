@@ -179,7 +179,7 @@ export class AreaService {
       return await this.areaOff(areaName);
     }
     this.getCommonAreas().forEach(async (areaName) => {
-      await this.areaOff(areaName);
+      await this.areaOn(areaName);
     });
   }
 

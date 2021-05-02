@@ -1,6 +1,5 @@
 import { APP_LICENSE_SERVER } from '@automagical/contracts/constants';
 import { LicenseDTO } from '@automagical/contracts/formio-sdk';
-import { CacheData } from '@automagical/contracts/licenses';
 import {
   FetchLicense,
   License,
@@ -48,10 +47,11 @@ export class AppController {
     @Param('key') key: string,
     @License() license: LicenseDTO,
     @LicenseId() licenseId: string,
-  ): Promise<CacheData> {
+  ): Promise<unknown> {
     throw new NotImplementedException();
-    const cacheData = await this.licenseService.getCache(licenseId);
-    return cacheData;
+    // const cacheData = await this.licenseService.getCache(licenseId);
+    // return cacheData;
+    return licenseId;
   }
 
   @Get('/admin/license')

@@ -6,3 +6,5 @@ export class ApplicationConfig {
 
   // #endregion Object Properties
 }
+
+export const LOFT_MONITOR = 'roku.loft.host';

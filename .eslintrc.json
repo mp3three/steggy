@@ -1,7 +1,7 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nrwl/nx", "security"],
+  "plugins": ["@nrwl/nx", "security", "radar"],
   "overrides": [{
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
@@ -24,7 +24,8 @@
         "plugin:@nrwl/nx/typescript",
         "plugin:you-dont-need-lodash-underscore/compatible",
         "plugin:security/recommended",
-        "plugin:@typescript-eslint/recommended"
+        "plugin:@typescript-eslint/recommended",
+        "plugin:radar/recommended"
       ],
       "rules": {
         "no-case-declarations": "off",

@@ -53,7 +53,6 @@ export const indexQuery = (
         tmp[`$${selector}`] = cast(selector, value);
         out.set(name, tmp);
     }
-    return;
   });
   return out;
 };
@@ -87,7 +86,6 @@ export const indexOptions = (
         );
         break;
     }
-    return;
   });
   return options;
 };
