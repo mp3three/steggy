@@ -58,7 +58,7 @@ export class EntityService {
 
   private readonly ENTITIES = new Map<string, HassStateDTO>();
 
-  private _SOLAR_CALC = null;
+  private _SOLAR_CALC;
   private lastUpdate: Dayjs;
 
   // #endregion Object Properties
@@ -80,9 +80,9 @@ export class EntityService {
     if (this._SOLAR_CALC) {
       return this._SOLAR_CALC;
     }
-    setTimeout(() => (this._SOLAR_CALC = null), 1000 * 30);
+    setTimeout(() => (this._SOLAR_CALC = undefined), 1000 * 30);
     // typescript is wrong this time, it works as expected for me
-    // eslint-disable-next-line
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new SolarCalc(
       new Date(),
@@ -101,19 +101,19 @@ export class EntityService {
     currentSpeed: FanSpeeds,
     entityId: string,
   ): Promise<void> {
-    const idx = availableSpeeds.indexOf(currentSpeed);
+    const index = availableSpeeds.indexOf(currentSpeed);
     this.logger.debug(
       `fanSpeedDown ${entityId}: ${currentSpeed} => ${
-        availableSpeeds[idx - 1]
+        availableSpeeds[index - 1]
       }`,
     );
-    if (idx === 0) {
+    if (index === 0) {
       this.logger.debug(`Cannot speed down`);
       return;
     }
     return await this.socketService.call(HassServices.turn_on, {
       entity_id: entityId,
-      speed: availableSpeeds[idx - 1],
+      speed: availableSpeeds[index - 1],
     });
   }
 
@@ -122,17 +122,19 @@ export class EntityService {
     currentSpeed: FanSpeeds,
     entityId: string,
   ): Promise<void> {
-    const idx = availableSpeeds.indexOf(currentSpeed);
+    const index = availableSpeeds.indexOf(currentSpeed);
     this.logger.debug(
-      `fanSpeedUp ${entityId}: ${currentSpeed} => ${availableSpeeds[idx + 1]}`,
+      `fanSpeedUp ${entityId}: ${currentSpeed} => ${
+        availableSpeeds[index + 1]
+      }`,
     );
-    if (idx === availableSpeeds.length - 1) {
+    if (index === availableSpeeds.length - 1) {
       this.logger.debug(`Cannot speed up`);
       return;
     }
     return await this.socketService.call(HassServices.turn_on, {
       entity_id: entityId,
-      speed: availableSpeeds[idx + 1],
+      speed: availableSpeeds[index + 1],
     });
   }
 

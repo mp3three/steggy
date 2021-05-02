@@ -312,7 +312,7 @@ export class AreaService {
       });
     }
     let input = channel as string;
-    if (channel.substr(0, 4) === 'hdmi') {
+    if (channel.slice(0, 4) === 'hdmi') {
       input = `tvinput.${channel}`;
     }
     await this.fetchService.fetch({

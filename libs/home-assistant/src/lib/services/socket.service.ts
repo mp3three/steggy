@@ -93,13 +93,13 @@ export class SocketService {
    * Wrapper to set baseUrl
    */
   @Trace()
-  public fetch<T>(args: Partial<FetchArguments>): Promise<T> {
+  public fetch<T>(arguments_: Partial<FetchArguments>): Promise<T> {
     return this.fetchService.fetch<T>({
       baseUrl: this.configService.get(BASE_URL),
       headers: {
         Authorization: `Bearer ${this.configService.get(TOKEN)}`,
       },
-      ...args,
+      ...arguments_,
     });
   }
 
@@ -150,7 +150,7 @@ export class SocketService {
       // As long as the info is handy...
       this.eventEmitter.emit(ALL_ENTITIES_UPDATED, allEntities);
       done(allEntities);
-      this.updateAllPromise = null;
+      this.updateAllPromise = undefined;
     });
     return await this.updateAllPromise;
   }
@@ -228,8 +228,8 @@ export class SocketService {
       // Tends to happen when HA resets
       // Resolution is to re-connect when it's up again
       this.logger.error(`Failed to pong!`);
-    } catch (err) {
-      this.logger.error(err);
+    } catch (error) {
+      this.logger.error(error);
     }
     this.initConnection(true);
   }
@@ -244,7 +244,7 @@ export class SocketService {
     if (reset) {
       this.eventEmitter.emit(CONNECTION_RESET);
       this.isAuthenticated = false;
-      this.connection = null;
+      this.connection = undefined;
     }
     if (this.connection) {
       return;
@@ -253,11 +253,11 @@ export class SocketService {
       this.connection = new WS(
         `wss://${this.configService.get(HOST)}/api/websocket`,
       );
-      this.connection.onmessage = (msg) => {
-        this.onMessage(JSON.parse(msg.data));
-      };
-    } catch (err) {
-      this.logger.error(err);
+      this.connection.addEventListener('message', (message) => {
+        this.onMessage(JSON.parse(message.data));
+      });
+    } catch (error) {
+      this.logger.error(error);
     }
   }
 
@@ -276,11 +276,11 @@ export class SocketService {
    * Response to an outgoing emit. Value should be redirected to the promise returned by said emit
    */
   @Trace({ omitArgs: true })
-  private async onMessage(msg: SocketMessageDTO) {
-    this.logger.trace({ msg }, 'onMessage');
-    const id = Number(msg.id);
+  private async onMessage(message: SocketMessageDTO) {
+    this.logger.trace({ msg: message }, 'onMessage');
+    const id = Number(message.id);
     // let lostInFlight: number;
-    switch (msg.type as HassSocketMessageTypes) {
+    switch (message.type as HassSocketMessageTypes) {
       case HassSocketMessageTypes.auth_required:
         // lostInFlight = Object.values(this.waitingCallback).length;
         // if (lostInFlight !== 0) {
@@ -308,12 +308,12 @@ export class SocketService {
         return;
 
       case HassSocketMessageTypes.event:
-        this.eventEmitter.emit(HA_RAW_EVENT, msg.event);
-        if (msg.event.event_type === HassEvents.state_changed) {
-          this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, msg.event);
+        this.eventEmitter.emit(HA_RAW_EVENT, message.event);
+        if (message.event.event_type === HassEvents.state_changed) {
+          this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
           this.eventEmitter.emit([
             HA_EVENT_STATE_CHANGE,
-            msg.event.data.entity_id,
+            message.event.data.entity_id,
           ]);
         }
         return;
@@ -323,7 +323,7 @@ export class SocketService {
         if (this.waitingCallback.has(id)) {
           const f = this.waitingCallback.get(id);
           this.waitingCallback.delete(id);
-          f(msg);
+          f(message);
         }
         return;
 
@@ -331,11 +331,11 @@ export class SocketService {
         if (this.waitingCallback.has(id)) {
           const f = this.waitingCallback.get(id);
           this.waitingCallback.delete(id);
-          f(msg.result);
+          f(message.result);
         }
         return;
       default:
-        this.logger.warn(`Unknown websocket message type: ${msg.type}`);
+        this.logger.warn(`Unknown websocket message type: ${message.type}`);
     }
   }
 
@@ -356,8 +356,8 @@ export class SocketService {
       this.logger.info(`re-init connection`);
       try {
         await this.initConnection(true);
-      } catch (err) {
-        this.logger.error(err);
+      } catch (error) {
+        this.logger.error(error);
         await sleep(5000);
         continue;
       }
@@ -374,7 +374,7 @@ export class SocketService {
     this.connection.send(JSON.stringify(data));
     if (!waitForResponse) {
       // Mostly an optimization thing
-      return null;
+      return;
     }
     // TODO Add a timer to identify calls that don't receive replies
     return new Promise((done) => this.waitingCallback.set(counter, done));
