@@ -58,7 +58,7 @@ import { CEWrapperService } from './services/';
       wildcard: true,
       delimiter: '/',
       verboseMemoryLeak: true,
-      // Things really get mad if you cross this limit, increase in increments of 10 as needed
+      // Instability occurrs if you cross this limit, increase in increments of 10 as needed
       // Sometimes shows up as a "TypeError: Cannot convert a Symbol value to a string" on start
       maxListeners: 20,
     }),

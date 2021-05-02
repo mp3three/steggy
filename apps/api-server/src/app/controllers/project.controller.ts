@@ -12,7 +12,7 @@ import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 /**
  * Rate limit request going into this controller.
- * Defaults are set up in app.module
+ * Defaults set in app.module
  */
 @UseGuards(ThrottlerGuard)
 @Controller('project')
@@ -67,7 +67,7 @@ export class ProjectController {
   }
 
   /**
-   * Since this is a login route, it is subject to more restrictive throttling rules.
+   * Since this is a login route, enforce more restrictive throttling rules
    *
    * Log into a project as a project admin (2 attempts / min / IP).
    * Don't screw up twice in a row or you gotta wait
