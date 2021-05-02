@@ -1,7 +1,7 @@
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import { SubmissionDTO, UserDTO } from '@automagical/contracts/formio-sdk';
 import { indexOptions, indexQuery } from '@automagical/fetch';
-import { FormDocument } from '@automagical/persistence';
+import { SubmissionDocument } from '@automagical/persistence';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -9,14 +9,14 @@ import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
-export class FormService {
+export class SubmissionService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(FormService, LIB_FORMIO_SDK)
+    @InjectLogger(SubmissionService, LIB_FORMIO_SDK)
     private readonly logger: PinoLogger,
     @InjectModel(SubmissionDTO.name)
-    private readonly formModel: Model<FormDocument>,
+    private readonly submissionModel: Model<SubmissionDocument>,
   ) {}
 
   // #endregion Constructors
@@ -24,21 +24,21 @@ export class FormService {
   // #region Public Methods
 
   @Trace()
-  public async byId(formId: string): Promise<SubmissionDTO> {
-    return await this.formModel
+  public async byId(submissionId: string): Promise<SubmissionDTO> {
+    return await this.submissionModel
       .findOne({
-        _id: formId,
+        _id: submissionId,
       })
       .exec();
   }
 
   @Trace()
   public async create(
-    form: SubmissionDTO,
+    submission: SubmissionDTO,
     owner?: UserDTO,
   ): Promise<SubmissionDTO> {
-    form.owner = form.owner || owner?._id;
-    return await this.formModel.create(form);
+    submission.owner = submission.owner || owner?._id;
+    return await this.submissionModel.create(submission);
   }
 
   @Trace()
@@ -51,20 +51,20 @@ export class FormService {
     map = indexOptions(query, map);
     const search = Object.fromEntries(map.entries());
     return {
-      count: await this.formModel.count(search),
-      items: await this.formModel.find(search),
+      count: await this.submissionModel.count(search),
+      items: await this.submissionModel.find(search),
     };
   }
 
   @Trace()
   public async update(
-    formId: string,
-    form: SubmissionDTO,
+    submissionId: string,
+    submission: SubmissionDTO,
   ): Promise<SubmissionDTO> {
     // Shame on you
-    form._id = formId;
-    await this.formModel.updateOne({ _id: formId }, form);
-    return form;
+    submission._id = submissionId;
+    await this.submissionModel.updateOne({ _id: submissionId }, submission);
+    return submission;
   }
 
   // #endregion Public Methods

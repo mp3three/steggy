@@ -1,12 +1,12 @@
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
-import { FormDTO } from '@automagical/contracts/formio-sdk';
+import { SubmissionDTO } from '@automagical/contracts/formio-sdk';
 import { FormService } from '@automagical/persistence';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import {
   BadRequestException,
   Injectable,
   NestMiddleware,
-  UnprocessableEntityException,
+  PreconditionFailedException,
 } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { PinoLogger } from 'nestjs-pino';
@@ -28,11 +28,11 @@ export class LoadFormMiddleware implements NestMiddleware {
   @Trace()
   public async use(
     req: Request<{ formId: string }>,
-    res: Response<unknown, { form: FormDTO }>,
+    res: Response<unknown, { form: SubmissionDTO }>,
     next: NextFunction,
   ): Promise<void> {
     if (!req.params.formId) {
-      throw new UnprocessableEntityException();
+      throw new PreconditionFailedException();
     }
     res.locals.form = await this.formService.byId(req.params.formId);
     if (!res.locals.form) {

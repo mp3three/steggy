@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import mongoose from 'mongoose';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FormSchema, ProjectSchema } from './schema';
-import { FormDTO, ProjectDTO } from '@automagical/contracts/formio-sdk';
+import { SubmissionDTO, ProjectDTO } from '@automagical/contracts/formio-sdk';
 
 @Module({})
 export class PersistenceModule {
@@ -17,7 +17,7 @@ export class PersistenceModule {
       module: PersistenceModule,
       imports: [
         MongooseModule.forFeature([
-          { name: FormDTO.name, schema: FormSchema },
+          { name: SubmissionDTO.name, schema: FormSchema },
           { name: ProjectDTO.name, schema: ProjectSchema },
         ]),
       ],

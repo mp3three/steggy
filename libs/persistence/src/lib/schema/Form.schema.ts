@@ -1,10 +1,10 @@
-import { FormDTO } from '@automagical/contracts/formio-sdk';
+import { SubmissionDTO } from '@automagical/contracts/formio-sdk';
 import { SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type FormDocument = FormDTO & Document;
+export type FormDocument = SubmissionDTO & Document;
 
-export const FormSchema = SchemaFactory.createForClass(FormDTO);
+export const FormSchema = SchemaFactory.createForClass(SubmissionDTO);
 FormSchema.index({
   project: 1,
   type: 1,
