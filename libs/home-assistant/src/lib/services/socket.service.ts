@@ -22,7 +22,7 @@ import {
   SendSocketMessageDTO,
   SocketMessageDTO,
 } from '@automagical/contracts/home-assistant';
-import { FetchArgs, FetchService } from '@automagical/fetch';
+import { FetchArguments, FetchService } from '@automagical/fetch';
 import { InjectLogger, sleep, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -37,14 +37,14 @@ import WS from 'ws';
  * SocketService deals with all communicationsto the HomeAssistant service
  *
  * This is primarily accomplished through the websocket API.
- * However, some requests (such as reports) can only be done through HTTP calls.
- * This service still handles those requests to keep things in one spot.
+ * Some requests (such as reports) must go through HTTP calls.
+ * This service still handles those requests to keep a unified interface
  */
 @Injectable()
 export class SocketService {
   // #region Object Properties
 
-  private connection: WebSocket;
+  private connection: WS;
   private isAuthenticated = false;
   private messageCount = 1;
   private updateAllPromise: Promise<HassStateDTO[]>;
@@ -80,10 +80,10 @@ export class SocketService {
   ): Promise<T> {
     return await this.sendMsg<T>(
       {
-        type: HassCommands.call_service,
         domain,
         service,
         service_data,
+        type: HassCommands.call_service,
       },
       false,
     );
@@ -93,13 +93,13 @@ export class SocketService {
    * Wrapper to set baseUrl
    */
   @Trace()
-  public fetch<T>(args: Partial<FetchArgs>): Promise<T> {
+  public fetch<T>(arguments_: Partial<FetchArguments>): Promise<T> {
     return this.fetchService.fetch<T>({
       baseUrl: this.configService.get(BASE_URL),
       headers: {
         Authorization: `Bearer ${this.configService.get(TOKEN)}`,
       },
-      ...args,
+      ...arguments_,
     });
   }
 
@@ -124,12 +124,12 @@ export class SocketService {
     entity_id: string,
   ): Promise<T> {
     return await this.fetch<T>({
-      url: `/api/history/period/${dayjs().subtract(days, 'd').toISOString()}`,
       params: {
-        filter_entity_id: entity_id,
         end_time: dayjs().toISOString(),
+        filter_entity_id: entity_id,
         significant_changes_only: '',
       },
+      url: `/api/history/period/${dayjs().subtract(days, 'd').toISOString()}`,
     });
   }
 
@@ -150,7 +150,7 @@ export class SocketService {
       // As long as the info is handy...
       this.eventEmitter.emit(ALL_ENTITIES_UPDATED, allEntities);
       done(allEntities);
-      this.updateAllPromise = null;
+      this.updateAllPromise = undefined;
     });
     return await this.updateAllPromise;
   }
@@ -185,25 +185,25 @@ export class SocketService {
     payload: Record<string, unknown>,
   ): Promise<T> {
     return await this.sendMsg<T>({
-      type: HassCommands.call_service,
       domain: HassDomains.mqtt,
       service: HassServices.publish,
       service_data: {
         topic,
         ...payload,
       },
+      type: HassCommands.call_service,
     });
   }
 
   @Trace()
   public async updateEntity(entityId: string): Promise<HassDomains> {
     return await this.sendMsg({
-      type: HassCommands.call_service,
-      service: HassServices.update_entity,
       domain: HassDomains.homeassistant,
+      service: HassServices.update_entity,
       service_data: {
         entity_id: entityId,
       },
+      type: HassCommands.call_service,
     });
     // return null;
   }
@@ -228,8 +228,8 @@ export class SocketService {
       // Tends to happen when HA resets
       // Resolution is to re-connect when it's up again
       this.logger.error(`Failed to pong!`);
-    } catch (err) {
-      this.logger.error(err);
+    } catch (error) {
+      this.logger.error(error);
     }
     this.initConnection(true);
   }
@@ -244,7 +244,7 @@ export class SocketService {
     if (reset) {
       this.eventEmitter.emit(CONNECTION_RESET);
       this.isAuthenticated = false;
-      this.connection = null;
+      this.connection = undefined;
     }
     if (this.connection) {
       return;
@@ -253,11 +253,11 @@ export class SocketService {
       this.connection = new WS(
         `wss://${this.configService.get(HOST)}/api/websocket`,
       );
-      this.connection.onmessage = (msg) => {
-        this.onMessage(JSON.parse(msg.data));
-      };
-    } catch (err) {
-      this.logger.error(err);
+      this.connection.addEventListener('message', (message) => {
+        this.onMessage(JSON.parse(message.data));
+      });
+    } catch (error) {
+      this.logger.error(error);
     }
   }
 
@@ -273,27 +273,18 @@ export class SocketService {
    * ## pong
    * Reply to outgoing ping()
    * ## result
-   * Response to an outgoing emit. Value should be redirected to the promise returned by said emit
+   * Response to an outgoing emit
    */
   @Trace({ omitArgs: true })
-  private async onMessage(msg: SocketMessageDTO) {
-    this.logger.trace({ msg }, 'onMessage');
-    const id = Number(msg.id);
+  private async onMessage(message: SocketMessageDTO) {
+    this.logger.trace({ msg: message }, 'onMessage');
+    const id = Number(message.id);
     // let lostInFlight: number;
-    switch (msg.type as HassSocketMessageTypes) {
+    switch (message.type as HassSocketMessageTypes) {
       case HassSocketMessageTypes.auth_required:
-        // lostInFlight = Object.values(this.waitingCallback).length;
-        // if (lostInFlight !== 0) {
-        //   // ? Can the promises be rejected?
-        //   // ? Does the memory get reclaimed if I don't?
-        //   this.logger.warn(
-        //     `${lostInFlight} responses lost during connection reset`,
-        //   );
-        // }
-        // this.waitingCallback = {};
         return await this.sendMsg({
-          type: HassCommands.auth,
           access_token: this.configService.get(TOKEN),
+          type: HassCommands.auth,
         });
 
       case HassSocketMessageTypes.auth_ok:
@@ -303,17 +294,16 @@ export class SocketService {
         });
         await this.getAllEntitities();
         // Theoretially, all entities are present, and we have an authorized connection
-        // Open the floodgates
         this.eventEmitter.emit(HA_SOCKET_READY);
         return;
 
       case HassSocketMessageTypes.event:
-        this.eventEmitter.emit(HA_RAW_EVENT, msg.event);
-        if (msg.event.event_type === HassEvents.state_changed) {
-          this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, msg.event);
+        this.eventEmitter.emit(HA_RAW_EVENT, message.event);
+        if (message.event.event_type === HassEvents.state_changed) {
+          this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
           this.eventEmitter.emit([
             HA_EVENT_STATE_CHANGE,
-            msg.event.data.entity_id,
+            message.event.data.entity_id,
           ]);
         }
         return;
@@ -323,7 +313,7 @@ export class SocketService {
         if (this.waitingCallback.has(id)) {
           const f = this.waitingCallback.get(id);
           this.waitingCallback.delete(id);
-          f(msg);
+          f(message);
         }
         return;
 
@@ -331,11 +321,11 @@ export class SocketService {
         if (this.waitingCallback.has(id)) {
           const f = this.waitingCallback.get(id);
           this.waitingCallback.delete(id);
-          f(msg.result);
+          f(message.result);
         }
         return;
       default:
-        this.logger.warn(`Unknown websocket message type: ${msg.type}`);
+        this.logger.warn(`Unknown websocket message type: ${message.type}`);
     }
   }
 
@@ -352,29 +342,30 @@ export class SocketService {
     if (data.type !== HassCommands.auth) {
       data.id = counter;
     }
+    // eslint-disable-next-line no-loops/no-loops
     while (this.connection.readyState !== this.connection.OPEN) {
       this.logger.info(`re-init connection`);
       try {
         await this.initConnection(true);
-      } catch (err) {
-        this.logger.error(err);
+      } catch (error) {
+        this.logger.error(error);
         await sleep(5000);
         continue;
       }
       await sleep(1000);
       return await this.sendMsg(data);
     }
+    // eslint-disable-next-line no-loops/no-loops
     while (this.isAuthenticated === false && data.type !== HassCommands.auth) {
       // Something is jumpy
-      // Request went in post-connect but pre-auth (which is supposed to be quick)
+      // Request went in post-connect but pre-auth
       // HA_SOCKET_READY is the event to watch for
       this.logger.warn(`sendMsg waiting for authentication`);
       await sleep(100);
     }
     this.connection.send(JSON.stringify(data));
     if (!waitForResponse) {
-      // Mostly an optimization thing
-      return null;
+      return;
     }
     // TODO Add a timer to identify calls that don't receive replies
     return new Promise((done) => this.waitingCallback.set(counter, done));

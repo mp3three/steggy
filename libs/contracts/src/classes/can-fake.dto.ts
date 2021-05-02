@@ -8,9 +8,9 @@ export class CanFake {
   }
 
   public static validate<T extends Record<never, unknown>>(
-    obj: T,
+    target: T,
   ): Promise<ValidationError[]> {
-    return validate(obj);
+    return validate(target);
   }
 
   // #endregion Public Static Methods

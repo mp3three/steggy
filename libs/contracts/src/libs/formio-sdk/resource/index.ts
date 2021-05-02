@@ -1,9 +1,9 @@
-import { SubmissionDTO, UserDataDTO } from '..';
 import { UtilizationResponseTermsDTO } from '../../licenses/terms.dto';
+import { SubmissionDTO, UserDataDTO } from '..';
 
-export * from './LicenseAdmin.dto';
-export * from './ResourceSettings.dto';
-export * from './UserData.dto';
+export * from './license-admin.dto';
+export * from './resource-settings.dto';
+export * from './user-data.dto';
 
 /**
  * Built types

@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-const IGNORE_LIST = ['limit', 'skip', 'select', 'sort', 'populate'];
+const IGNORE_LIST = new Set(['limit', 'skip', 'select', 'sort', 'populate']);
 
 const cast = (field: string, value) => {
   switch (field) {
@@ -16,44 +16,52 @@ export const indexQuery = (
 ): Map<string, unknown> => {
   const out = new Map<string, unknown>();
   query.forEach((value, key) => {
-    if (IGNORE_LIST.includes(key)) {
+    if (IGNORE_LIST.has(key)) {
       return;
     }
     const [name, selector] = key.split('__');
-    let tmp;
+    let temporary;
     switch (selector) {
       case 'regex':
-        tmp = value.match(new RegExp('(?:/([^/]+))', 'gm'));
+        temporary = value.match(new RegExp('(?:/([^/]+))', 'gm'));
         try {
           out.set(name, {
-            // eslint-disable-next-line security/detect-non-literal-regexp
-            $regex: new RegExp(tmp[1]),
-            $options: tmp[2] || 'i',
+            
+            
+            $options: temporary[2] || 'i',
+            // Users gotta user input
+// eslint-disable-next-line security/detect-non-literal-regexp
+$regex: new RegExp(temporary[1]),
           });
-        } catch (err) {
+        } catch {
           out.set(name, {
-            $regex: null,
-            $options: tmp[2] || 'i',
+            
+            
+            $options: temporary[2] || 'i',
+            // Unclear what a different falsy value will do
+// eslint-disable-next-line unicorn/no-null
+$regex: null,
           });
         }
         break;
       case 'exists':
-        tmp = out.get(name) || {};
-        tmp[`$${selector}`] = ['true', '1'].includes(value);
-        out.set(name, tmp);
+        temporary = out.get(name) || {};
+        temporary[`$${selector}`] = ['true', '1'].includes(value);
+        out.set(name, temporary);
         break;
       case 'in':
       case 'nin':
-        tmp = out.get(name) || {};
-        tmp[`$${selector}`] = value.split(',').map((v) => cast(selector, v));
-        out.set(name, tmp);
+        temporary = out.get(name) || {};
+        temporary[`$${selector}`] = value
+          .split(',')
+          .map((v) => cast(selector, v));
+        out.set(name, temporary);
         break;
       default:
-        tmp = out.get(name) || {};
-        tmp[`$${selector}`] = cast(selector, value);
-        out.set(name, tmp);
+        temporary = out.get(name) || {};
+        temporary[`$${selector}`] = cast(selector, value);
+        out.set(name, temporary);
     }
-    return;
   });
   return out;
 };
@@ -66,28 +74,20 @@ export const indexOptions = (
     switch (key) {
       case 'limit':
       case 'skip':
-        options.set(key, parseInt(value, 10));
+        options.set(key, Number.parseInt(value, 10));
         break;
       case 'sort':
       case 'select':
         // Select has changed to projection.
-        options.set(
-          key === 'select' ? 'projection' : key,
-          Object.fromEntries(
-            value
-              .split(',')
-              .map((item) => item.trim())
-              .reduce((map, item) => {
-                const value = item.charAt(0) === '-' ? -1 : 1;
-                map.set(value === -1 ? item.substring(1) : item, value);
-                return map;
-              }, new Map<string, number>())
-              .entries(),
-          ),
-        );
+        const temporary = new Map<string, number>();
+        value.split(',').forEach((item) => {
+          item = item.trim();
+          const value = item.charAt(0) === '-' ? -1 : 1;
+          temporary.set(value === -1 ? item.slice(1) : item, value);
+        });
+        options.set(key === 'select' ? 'projection' : key, temporary);
         break;
     }
-    return;
   });
   return options;
 };

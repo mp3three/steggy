@@ -7,6 +7,7 @@ import {
 import { json } from 'express';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
+
 import { LocalsInitMiddlware } from './app';
 import { AppModule } from './app/app.module';
 

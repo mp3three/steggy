@@ -5,6 +5,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MqttService } from 'nest-mqtt';
 import { PinoLogger } from 'nestjs-pino';
+
 import { AppService } from './app.service';
 
 @Injectable()
@@ -21,7 +22,7 @@ export class MqttClientService {
   ) {}
 
   // #endregion Constructors
-  // // #endregion Constructors
+// // #endregion Constructors
 
   // // #region Public Methods
 
@@ -73,17 +74,3 @@ export class MqttClientService {
   //   this.appService.setLocks(HassServices.unlock);
   // }
 }
-
-// @Subscribe(['lovelace', 'scene', '*'])
-// @Subscribe('lovelace/scene/loft')
-// public async setLoftScene(
-//   scene: RoomScene,
-//   @Ctx() context: MqttContext,
-// ): Promise<void> {
-//   // Currently seems to be borked
-//   this.logger.error(
-//     'room/set-scene',
-//     scene,
-//     context.getTopic().split('/').pop(),
-//   );
-// }

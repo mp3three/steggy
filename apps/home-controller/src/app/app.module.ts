@@ -11,12 +11,14 @@ import { ScheduleModule } from '@nestjs/schedule';
 import RedisStore from 'cache-manager-redis-store';
 import { MqttModule } from 'nest-mqtt';
 import { LoggerModule } from 'nestjs-pino';
+
 import { ApplicationConfig } from '../typings/';
 import { AppController } from './controllers/app.controller';
 import { AppService } from './services/app.service';
 import { MqttClientService } from './services/mqtt-client.service';
 
 @Module({
+  controllers: [AppController, EntityController],
   imports: [
     FetchModule,
     HomeAssistantModule,
@@ -38,23 +40,28 @@ import { MqttClientService } from './services/mqtt-client.service';
       inject: [ConfigService],
       useFactory(configService: ConfigService) {
         return {
-          max: Infinity,
-          ttl: null,
-          store: RedisStore,
           host: configService.get('REDIS_HOST'),
+          max: Number.POSITIVE_INFINITY,
           port: configService.get('REDIS_PORT'),
+          store: RedisStore,
         };
       },
     }),
     EventEmitterModule.forRoot({
-      wildcard: true,
       // Expected format:
-      // * `sensor.sensor_name/event`
-      delimiter: '/',
-      verboseMemoryLeak: true,
-      // Things really get mad if you cross this limit
-      // Sometimes shows up as a "TypeError: Cannot convert a Symbol value to a string" on start
-      maxListeners: 20,
+// * `sensor.sensor_name/event`
+delimiter: '/',
+      
+      
+      // Instability occurrs if you cross this limit, increase in increments of 10 as needed
+// Sometimes shows up as a "TypeError: Cannot convert a Symbol value to a string" on start
+maxListeners: 20,
+      
+
+verboseMemoryLeak: true,
+      
+      
+      wildcard: true,
     }),
     MqttModule.forRoot({
       host: '10.0.0.33',
@@ -75,6 +82,5 @@ import { MqttClientService } from './services/mqtt-client.service';
     // }),
   ],
   providers: [AppService, MqttClientService],
-  controllers: [AppController, EntityController],
 })
 export class AppModule {}

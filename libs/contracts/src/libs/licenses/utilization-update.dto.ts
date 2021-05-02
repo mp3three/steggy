@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsString,
 } from '@automagical/validation';
+
 import { PROJECT_TYPES } from '../formio-sdk';
 import { LicenseScopes } from './types';
 

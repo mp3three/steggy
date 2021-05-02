@@ -42,7 +42,7 @@ export class AutomagicalConfig<
    */
   public THROTTLE_TTL?: number;
   /**
-   * Custom stuff for implementations
+   * Custom variables for implementations
    */
   public application?: Application;
   /**

@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import faker from 'faker';
 import pino from 'pino';
+
 import { FormioSdkService } from '../formio-sdk.service';
 import { SubmissionService } from '../submission.service';
 
@@ -18,7 +19,7 @@ describe('submission-service', () => {
   const logger = pino();
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
+    const moduleReference = await Test.createTestingModule({
       imports: [ConfigModule.register('formio-sdk-test')],
       providers: [
         FormioSdkService,
@@ -31,10 +32,10 @@ describe('submission-service', () => {
       ],
     }).compile();
 
-    formioSdkService = moduleRef.get(FormioSdkService);
-    submissionService = moduleRef.get(SubmissionService);
+    formioSdkService = moduleReference.get(FormioSdkService);
+    submissionService = moduleReference.get(SubmissionService);
 
-    await formioSdkService.onModuleInit();
+    await formioSdkService['onModuleInit']();
   });
 
   describe('patch-flow', () => {
@@ -78,18 +79,18 @@ describe('submission-service', () => {
       const project = 'formio';
       const form = 'user';
       const result = await submissionService.patch<UserDTO>({
-        project,
-        form,
-        id,
         body: JSON.stringify([
           {
             op: 'remove',
             path: '/data/fullName',
           },
         ]),
+        form,
+        id,
+        project,
       });
       logger.error(result);
-      const user = await submissionService.get<UserDTO>({ project, form, id });
+      const user = await submissionService.get<UserDTO>({ form, id, project });
       logger.warn(user);
     });
 

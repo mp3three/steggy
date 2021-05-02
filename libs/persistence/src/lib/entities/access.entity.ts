@@ -9,8 +9,8 @@ export class AccessEntity {
   @Column({ array: true })
   public resources: ObjectID[];
   @Column({
-    type: 'enum',
     enum: ACCESS_TYPES,
+    type: 'enum',
   })
   public type: ACCESS_TYPES;
 

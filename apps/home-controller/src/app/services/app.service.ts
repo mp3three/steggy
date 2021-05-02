@@ -11,9 +11,9 @@ import {
   split,
 } from '@automagical/contracts/home-assistant';
 import {
+  AreaService,
   EntityService,
   HomeAssistantService,
-  AreaService,
   SocketService,
 } from '@automagical/home-assistant';
 import { InjectLogger, sleep } from '@automagical/utilities';
@@ -27,8 +27,14 @@ import { readFileSync } from 'fs';
 import { load } from 'js-yaml';
 import { PinoLogger } from 'nestjs-pino';
 import { join } from 'path';
+
 import { ASSETS_PATH } from '../../environments/environment';
-import { MobileDevice, NotificationGroup, RoomsCode } from '../../typings';
+import {
+  LOFT_MONITOR,
+  MobileDevice,
+  NotificationGroup,
+  RoomsCode,
+} from '../../typings';
 enum LoftRokuInputs {
   off = 'off',
   windows = 'hdmi2',
@@ -129,7 +135,7 @@ export class AppService {
    */
   public async setLocks(
     state: HassServices,
-    lockList: string[] = null,
+    lockList?: string[],
   ): Promise<void> {
     const locks =
       lockList ||
@@ -252,13 +258,13 @@ export class AppService {
     await this.socketService.call(
       MobileDevice.generic,
       {
-        message: `Connection reset at ${new Date().toISOString()}`,
-        title: `core temporarily lost connection with HomeAssistant`,
         data: {
           push: {
             'thread-id': NotificationGroup.serverStatus,
           },
         },
+        message: `Connection reset at ${new Date().toISOString()}`,
+        title: `core temporarily lost connection with HomeAssistant`,
       },
       HassDomains.notify,
     );
@@ -269,7 +275,7 @@ export class AppService {
     this.logger.debug('screenToPersonal');
     await this.roomService.setRoku(
       LoftRokuInputs.personal,
-      this.configService.get('roku.loft.host'),
+      this.configService.get(LOFT_MONITOR),
     );
   }
 
@@ -278,7 +284,7 @@ export class AppService {
     this.logger.debug('screenToWindows');
     await this.roomService.setRoku(
       LoftRokuInputs.windows,
-      this.configService.get('roku.loft.host'),
+      this.configService.get(LOFT_MONITOR),
     );
   }
 
@@ -287,7 +293,7 @@ export class AppService {
     this.logger.debug('screenToWork');
     await this.roomService.setRoku(
       LoftRokuInputs.work,
-      this.configService.get('roku.loft.host'),
+      this.configService.get(LOFT_MONITOR),
     );
   }
 
@@ -315,7 +321,7 @@ export class AppService {
         }`,
         NotificationGroup.door,
       );
-      this.sendDoorNotificationTimeout[event.data.entity_id] = null;
+      this.sendDoorNotificationTimeout[event.data.entity_id] = undefined;
     }, 250);
   }
 
@@ -325,7 +331,7 @@ export class AppService {
     this.logger.debug('screenOff');
     await this.roomService.setRoku(
       LoftRokuInputs.off,
-      this.configService.get('roku.loft.host'),
+      this.configService.get(LOFT_MONITOR),
     );
   }
 

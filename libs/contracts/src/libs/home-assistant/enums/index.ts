@@ -1,3 +1,3 @@
-export * from './socket';
-export * from './room';
 export * from './flags';
+export * from './room';
+export * from './socket';

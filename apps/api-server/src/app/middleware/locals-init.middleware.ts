@@ -3,9 +3,10 @@ import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { PinoLogger } from 'nestjs-pino';
+
 import { ResponseLocalsDTO } from '../../typings';
 
-type Res = Response<unknown, ResponseLocalsDTO>;
+type LocalsResponse = Response<unknown, ResponseLocalsDTO>;
 @Injectable()
 export class LocalsInitMiddlware implements NestMiddleware {
   // #region Constructors
@@ -20,8 +21,12 @@ export class LocalsInitMiddlware implements NestMiddleware {
   // #region Public Methods
 
   @Trace()
-  public async use(req: Request, res: Res, next: NextFunction): Promise<void> {
-    this.initPermissions(res);
+  public async use(
+    request: Request,
+    response: LocalsResponse,
+    next: NextFunction,
+  ): Promise<void> {
+    this.initPermissions(response);
     next();
   }
 
@@ -29,11 +34,11 @@ export class LocalsInitMiddlware implements NestMiddleware {
 
   // #region Protected Methods
 
-  protected initPermissions(res: Res): void {
-    res.locals.permissions = {
+  protected initPermissions(response: LocalsResponse): void {
+    response.locals.permissions = {
+      admin: false,
       all: false,
       own: false,
-      admin: false,
       self: false,
     };
   }

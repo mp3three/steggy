@@ -1,189 +1,59 @@
 {
   "version": 2,
   "projects": {
-    "formio-sdk": {
-      "root": "libs/formio-sdk",
-      "sourceRoot": "libs/formio-sdk/src",
-      "projectType": "library",
+    "api-server": {
+      "root": "apps/api-server",
+      "sourceRoot": "apps/api-server/src",
+      "projectType": "application",
+      "prefix": "api-server",
       "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/apps/api-server",
+            "main": "apps/api-server/src/main.ts",
+            "tsConfig": "apps/api-server/tsconfig.app.json",
+            "assets": [
+              "apps/api-server/src/assets"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [{
+                "replace": "apps/api-server/src/environments/environment.ts",
+                "with": "apps/api-server/src/environments/environment.production.ts"
+              }]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "api-server:build"
+          }
+        },
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": [
-              "libs/formio-sdk/**/*.ts"
+              "apps/api-server/**/*.ts"
             ]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
           "outputs": [
-            "coverage/libs/formio-sdk"
+            "coverage/apps/api-server"
           ],
           "options": {
-            "jestConfig": "libs/formio-sdk/jest.config.js",
+            "jestConfig": "apps/api-server/jest.config.js",
             "passWithNoTests": true
-          }
-        },
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
-          "options": {
-            "outputPath": "dist/libs/formio-sdk",
-            "tsConfig": "libs/formio-sdk/tsconfig.lib.json",
-            "packageJson": "libs/formio-sdk/package.json",
-            "main": "libs/formio-sdk/src/index.ts",
-            "assets": [
-              "libs/formio-sdk/*.md"
-            ]
-          }
-        }
-      }
-    },
-    "type-writer": {
-      "root": "libs/type-writer",
-      "sourceRoot": "libs/type-writer/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": [
-              "libs/type-writer/**/*.ts"
-            ]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/type-writer"
-          ],
-          "options": {
-            "jestConfig": "libs/type-writer/jest.config.js",
-            "passWithNoTests": true
-          }
-        },
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
-          "options": {
-            "outputPath": "dist/libs/type-writer",
-            "tsConfig": "libs/type-writer/tsconfig.lib.json",
-            "packageJson": "libs/type-writer/package.json",
-            "main": "libs/type-writer/src/index.ts",
-            "assets": [
-              "libs/type-writer/*.md"
-            ]
-          }
-        }
-      }
-    },
-    "contracts": {
-      "root": "contracts",
-      "sourceRoot": "contracts",
-      "projectType": "library",
-      "targets": {
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
-          "options": {
-            "outputPath": "dist/libs/contracts",
-            "tsConfig": "libs/contracts/tsconfig.lib.json",
-            "packageJson": "libs/contracts/package.json",
-            "main": "libs/contracts/src/index.ts"
-          }
-        },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": [
-              "libs/contracts/**/*.ts"
-            ]
-          }
-        }
-      }
-    },
-    "validation": {
-      "root": "libs/validation",
-      "sourceRoot": "libs/validation/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": [
-              "libs/validation/**/*.ts"
-            ]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/validation"
-          ],
-          "options": {
-            "jestConfig": "libs/validation/jest.config.js",
-            "passWithNoTests": true
-          }
-        },
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
-          "options": {
-            "outputPath": "dist/libs/validation",
-            "tsConfig": "libs/validation/tsconfig.lib.json",
-            "packageJson": "libs/validation/package.json",
-            "main": "libs/validation/src/index.ts",
-            "assets": [
-              "libs/validation/*.md"
-            ]
-          }
-        }
-      }
-    },
-    "home-assistant": {
-      "root": "libs/home-assistant",
-      "sourceRoot": "libs/home-assistant/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": [
-              "libs/home-assistant/**/*.ts"
-            ]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/home-assistant"
-          ],
-          "options": {
-            "jestConfig": "libs/home-assistant/jest.config.js",
-            "passWithNoTests": true
-          }
-        },
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
-          "options": {
-            "outputPath": "dist/libs/home-assistant",
-            "tsConfig": "libs/home-assistant/tsconfig.lib.json",
-            "packageJson": "libs/home-assistant/package.json",
-            "main": "libs/home-assistant/src/index.ts",
-            "assets": [
-              "libs/home-assistant/*.md"
-            ]
           }
         }
       }
@@ -251,7 +121,7 @@
               "statsJson": true,
               "fileReplacements": [{
                 "replace": "apps/home-controller/src/environments/environment.ts",
-                "with": "apps/home-controller/src/environments/environment.prod.ts"
+                "with": "apps/home-controller/src/environments/environment.production.ts"
               }]
             }
           }
@@ -282,140 +152,6 @@
         }
       }
     },
-    "utilities": {
-      "root": "libs/utilities",
-      "sourceRoot": "libs/utilities/src",
-      "projectType": "library",
-      "targets": {
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
-          "options": {
-            "outputPath": "dist/libs/utilities",
-            "tsConfig": "libs/utilities/tsconfig.lib.json",
-            "packageJson": "libs/utilities/package.json",
-            "main": "libs/utilities/src/index.ts"
-          }
-        },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": [
-              "libs/utilities/**/*.ts"
-            ]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/utilities"
-          ],
-          "options": {
-            "jestConfig": "libs/utilities/jest.config.js",
-            "passWithNoTests": true
-          }
-        }
-      }
-    },
-    "api-server": {
-      "root": "apps/api-server",
-      "sourceRoot": "apps/api-server/src",
-      "projectType": "application",
-      "prefix": "api-server",
-      "targets": {
-        "build": {
-          "executor": "@nrwl/node:build",
-          "outputs": [
-            "{options.outputPath}"
-          ],
-          "options": {
-            "outputPath": "dist/apps/api-server",
-            "main": "apps/api-server/src/main.ts",
-            "tsConfig": "apps/api-server/tsconfig.app.json",
-            "assets": [
-              "apps/api-server/src/assets"
-            ]
-          },
-          "configurations": {
-            "production": {
-              "optimization": true,
-              "extractLicenses": true,
-              "inspect": false,
-              "fileReplacements": [{
-                "replace": "apps/api-server/src/environments/environment.ts",
-                "with": "apps/api-server/src/environments/environment.prod.ts"
-              }]
-            }
-          }
-        },
-        "serve": {
-          "executor": "@nrwl/node:execute",
-          "options": {
-            "buildTarget": "api-server:build"
-          }
-        },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": [
-              "apps/api-server/**/*.ts"
-            ]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/apps/api-server"
-          ],
-          "options": {
-            "jestConfig": "apps/api-server/jest.config.js",
-            "passWithNoTests": true
-          }
-        }
-      }
-    },
-    "licenses": {
-      "root": "libs/licenses",
-      "sourceRoot": "libs/licenses/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": [
-              "libs/licenses/**/*.ts"
-            ]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/licenses"
-          ],
-          "options": {
-            "jestConfig": "libs/licenses/jest.config.js",
-            "passWithNoTests": true
-          }
-        },
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
-          "options": {
-            "outputPath": "dist/libs/licenses",
-            "tsConfig": "libs/licenses/tsconfig.lib.json",
-            "packageJson": "libs/licenses/package.json",
-            "main": "libs/licenses/src/index.ts",
-            "assets": [
-              "libs/licenses/*.md"
-            ]
-          }
-        }
-      }
-    },
     "license-server": {
       "root": "apps/license-server",
       "sourceRoot": "apps/license-server/src",
@@ -442,7 +178,7 @@
               "inspect": false,
               "fileReplacements": [{
                 "replace": "apps/license-server/src/environments/environment.ts",
-                "with": "apps/license-server/src/environments/environment.prod.ts"
+                "with": "apps/license-server/src/environments/environment.production.ts"
               }]
             }
           }
@@ -513,46 +249,7 @@
         }
       }
     },
-    "fetch": {
-      "root": "libs/fetch",
-      "sourceRoot": "libs/fetch/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": [
-              "libs/fetch/**/*.ts"
-            ]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/fetch"
-          ],
-          "options": {
-            "jestConfig": "libs/fetch/jest.config.js",
-            "passWithNoTests": true
-          }
-        },
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
-          "options": {
-            "outputPath": "dist/libs/fetch",
-            "tsConfig": "libs/fetch/tsconfig.lib.json",
-            "packageJson": "libs/fetch/package.json",
-            "main": "libs/fetch/src/index.ts",
-            "assets": [
-              "libs/fetch/*.md"
-            ]
-          }
-        }
-      }
-    },
+
     "config": {
       "root": "libs/config",
       "sourceRoot": "libs/config/src",
@@ -593,6 +290,194 @@
         }
       }
     },
+    "contracts": {
+      "root": "contracts",
+      "sourceRoot": "contracts",
+      "projectType": "library",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/contracts",
+            "tsConfig": "libs/contracts/tsconfig.lib.json",
+            "packageJson": "libs/contracts/package.json",
+            "main": "libs/contracts/src/index.ts"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/contracts/**/*.ts"
+            ]
+          }
+        }
+      }
+    },
+    "fetch": {
+      "root": "libs/fetch",
+      "sourceRoot": "libs/fetch/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/fetch/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/fetch"
+          ],
+          "options": {
+            "jestConfig": "libs/fetch/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/fetch",
+            "tsConfig": "libs/fetch/tsconfig.lib.json",
+            "packageJson": "libs/fetch/package.json",
+            "main": "libs/fetch/src/index.ts",
+            "assets": [
+              "libs/fetch/*.md"
+            ]
+          }
+        }
+      }
+    },
+
+    "formio-sdk": {
+      "root": "libs/formio-sdk",
+      "sourceRoot": "libs/formio-sdk/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/formio-sdk/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/formio-sdk"
+          ],
+          "options": {
+            "jestConfig": "libs/formio-sdk/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/formio-sdk",
+            "tsConfig": "libs/formio-sdk/tsconfig.lib.json",
+            "packageJson": "libs/formio-sdk/package.json",
+            "main": "libs/formio-sdk/src/index.ts",
+            "assets": [
+              "libs/formio-sdk/*.md"
+            ]
+          }
+        }
+      }
+    },
+    "home-assistant": {
+      "root": "libs/home-assistant",
+      "sourceRoot": "libs/home-assistant/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/home-assistant/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/home-assistant"
+          ],
+          "options": {
+            "jestConfig": "libs/home-assistant/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/home-assistant",
+            "tsConfig": "libs/home-assistant/tsconfig.lib.json",
+            "packageJson": "libs/home-assistant/package.json",
+            "main": "libs/home-assistant/src/index.ts",
+            "assets": [
+              "libs/home-assistant/*.md"
+            ]
+          }
+        }
+      }
+    },
+    "licenses": {
+      "root": "libs/licenses",
+      "sourceRoot": "libs/licenses/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/licenses/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/licenses"
+          ],
+          "options": {
+            "jestConfig": "libs/licenses/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/licenses",
+            "tsConfig": "libs/licenses/tsconfig.lib.json",
+            "packageJson": "libs/licenses/package.json",
+            "main": "libs/licenses/src/index.ts",
+            "assets": [
+              "libs/licenses/*.md"
+            ]
+          }
+        }
+      }
+    },
     "persistence": {
       "root": "libs/persistence",
       "sourceRoot": "libs/persistence/src",
@@ -628,6 +513,123 @@
             "main": "libs/persistence/src/index.ts",
             "assets": [
               "libs/persistence/*.md"
+            ]
+          }
+        }
+      }
+    },
+    "type-writer": {
+      "root": "libs/type-writer",
+      "sourceRoot": "libs/type-writer/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/type-writer/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/type-writer"
+          ],
+          "options": {
+            "jestConfig": "libs/type-writer/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/type-writer",
+            "tsConfig": "libs/type-writer/tsconfig.lib.json",
+            "packageJson": "libs/type-writer/package.json",
+            "main": "libs/type-writer/src/index.ts",
+            "assets": [
+              "libs/type-writer/*.md"
+            ]
+          }
+        }
+      }
+    },
+    "utilities": {
+      "root": "libs/utilities",
+      "sourceRoot": "libs/utilities/src",
+      "projectType": "library",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/utilities",
+            "tsConfig": "libs/utilities/tsconfig.lib.json",
+            "packageJson": "libs/utilities/package.json",
+            "main": "libs/utilities/src/index.ts"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/utilities/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/utilities"
+          ],
+          "options": {
+            "jestConfig": "libs/utilities/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "validation": {
+      "root": "libs/validation",
+      "sourceRoot": "libs/validation/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/validation/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/validation"
+          ],
+          "options": {
+            "jestConfig": "libs/validation/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/validation",
+            "tsConfig": "libs/validation/tsconfig.lib.json",
+            "packageJson": "libs/validation/package.json",
+            "main": "libs/validation/src/index.ts",
+            "assets": [
+              "libs/validation/*.md"
             ]
           }
         }

@@ -3,6 +3,7 @@ import { ResourceDTO } from '@automagical/contracts/formio-sdk';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
+
 import { HTTP_Methods } from '../../typings';
 import { FetchWith, IdentifierWithParent } from '../../typings/HTTP';
 import { FormioSdkService } from './formio-sdk.service';
@@ -23,65 +24,67 @@ export class ResourceService {
   // #region Public Methods
 
   @Trace()
-  public async delete(args: FetchWith<IdentifierWithParent>): Promise<unknown> {
+  public async delete(
+    arguments_: FetchWith<IdentifierWithParent>,
+  ): Promise<unknown> {
     return await this.formioSdkService.fetch({
-      url: this.buildResourcePath(args),
       method: HTTP_Methods.DELETE,
-      ...args,
+      url: this.buildResourcePath(arguments_),
+      ...arguments_,
     });
   }
 
   @Trace()
   public async get(
-    args: FetchWith<IdentifierWithParent>,
+    arguments_: FetchWith<IdentifierWithParent>,
   ): Promise<ResourceDTO> {
     return await this.formioSdkService.fetch<ResourceDTO>({
-      url: this.buildResourcePath(args),
-      ...args,
+      url: this.buildResourcePath(arguments_),
+      ...arguments_,
     });
   }
 
   @Trace()
   public async list(
-    args: FetchWith<IdentifierWithParent>,
+    arguments_: FetchWith<IdentifierWithParent>,
   ): Promise<ResourceDTO[]> {
     return await this.formioSdkService.fetch<ResourceDTO[]>({
-      url: this.buildResourcePath({ ...args, alias: 'form' }),
-      ...args,
+      url: this.buildResourcePath({ ...arguments_, alias: 'form' }),
+      ...arguments_,
     });
   }
 
   @Trace()
   public async listVersions(
-    args: FetchWith<IdentifierWithParent>,
+    arguments_: FetchWith<IdentifierWithParent>,
   ): Promise<ResourceDTO[]> {
     return await this.formioSdkService.fetch<ResourceDTO[]>({
-      url: this.buildResourcePath({ ...args, alias: 'form/v' }),
-      ...args,
+      url: this.buildResourcePath({ ...arguments_, alias: 'form/v' }),
+      ...arguments_,
     });
   }
 
   @Trace()
   public async save(
-    args: FetchWith<IdentifierWithParent>,
+    arguments_: FetchWith<IdentifierWithParent>,
   ): Promise<ResourceDTO> {
     return await this.formioSdkService.fetch({
-      url: this.buildResourcePath(args),
-      method: HTTP_Methods[args._id ? 'PUT' : 'POST'],
-      ...args,
+      method: HTTP_Methods[arguments_._id ? 'PUT' : 'POST'],
+      url: this.buildResourcePath(arguments_),
+      ...arguments_,
     });
   }
 
   public buildResourcePath(
-    args: FetchWith<IdentifierWithParent & { alias?: string }>,
+    arguments_: FetchWith<IdentifierWithParent & { alias?: string }>,
   ): string {
     const url = [''];
-    if (args.parent) {
-      url.push(args.parent);
+    if (arguments_.parent) {
+      url.push(arguments_.parent);
     }
-    url.push(args.name || args._id);
-    if (args.alias) {
-      url.push(args.alias);
+    url.push(arguments_.name || arguments_._id);
+    if (arguments_.alias) {
+      url.push(arguments_.alias);
     }
     return url.join('/');
   }

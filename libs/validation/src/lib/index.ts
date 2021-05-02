@@ -1,1 +1,1 @@
-export * from './IsObjectId';
+export * from './is-object-id';

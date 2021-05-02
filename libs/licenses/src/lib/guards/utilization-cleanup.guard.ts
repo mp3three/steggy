@@ -30,10 +30,10 @@ export class UtilizationCleanup
     showOptions: Partial<Record<'terms' | 'keys', number>>,
   ): Partial<Output> {
     if (!showOptions.keys) {
-      license.keys = null;
+      license.keys = undefined;
     }
     if (!showOptions.terms) {
-      license.terms = null;
+      license.terms = undefined;
     }
     return license;
   }
@@ -42,10 +42,10 @@ export class UtilizationCleanup
     context: ExecutionContext,
     next: CallHandler,
   ): Observable<Partial<Output>> {
-    const req = context.switchToHttp().getRequest() as Request;
+    const request = context.switchToHttp().getRequest() as Request;
     return next
       .handle()
-      .pipe(map((res: Output) => this.cleanup(res, req.params)));
+      .pipe(map((result: Output) => this.cleanup(result, request.params)));
   }
 
   // #endregion Public Methods

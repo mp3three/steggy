@@ -1,3 +1,3 @@
 export * from './constants';
-export * from './HTTP';
-export * from './Metadata';
+export * from './http';
+export * from './metadata';

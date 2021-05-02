@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+
 import { ContextDTO } from './hass-event.dto';
 
 export class HassStateDTO<

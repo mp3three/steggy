@@ -6,17 +6,13 @@ import ini from 'ini';
 import yaml from 'js-yaml';
 import { resolve } from 'path';
 import rc from 'rc';
+
 import { AutomagicalConfig } from '../typings';
 
 @Module({})
 export class ConfigModule {
   // #region Static Properties
 
-  /**
-   * This serves many libs, but realistically a running app will only ever have 1 config at a time.
-   * It is stored here for easy access by anything that isn't using the config service.
-   * Probably a bootstrapping process.
-   */
   public static readonly config: Promise<AutomagicalConfig> = new Promise(
     (done) => (ConfigModule.done = done),
   );
@@ -33,8 +29,8 @@ export class ConfigModule {
 
   public static register<
     T extends Record<never, unknown>,
-    Arg extends AutomagicalConfig<T> = AutomagicalConfig<T>
-  >(appName: string, defaultConfig: Arg = null): DynamicModule {
+    Argument extends AutomagicalConfig<T> = AutomagicalConfig<T>
+  >(appName: string, defaultConfig?: Argument): DynamicModule {
     return NestConfig.ConfigModule.forRoot({
       isGlobal: true,
       load: [
@@ -43,10 +39,10 @@ export class ConfigModule {
           const config: AutomagicalConfig<T> = rc(
             appName,
             defaultConfig,
-            null,
+            undefined,
             (content: string): Record<string, unknown> => {
               // Attempt to parse as JSON
-              if (/^\s*\{/.test(content)) {
+              if (/^\s*{/.test(content)) {
                 return JSON.parse(content);
               }
               // Attempt YAML next
@@ -70,9 +66,11 @@ export class ConfigModule {
   // #region Private Static Methods
 
   private static async loadEnvFile(file: string): Promise<AutomagicalConfig> {
-    const envFilePath = resolve(process.cwd(), file);
-    if (existsSync(envFilePath)) {
-      return yaml.load(readFileSync(envFilePath, 'utf-8')) as AutomagicalConfig;
+    const environmentFilePath = resolve(process.cwd(), file);
+    if (existsSync(environmentFilePath)) {
+      return yaml.load(
+        readFileSync(environmentFilePath, 'utf-8'),
+      ) as AutomagicalConfig;
     }
     return {};
   }

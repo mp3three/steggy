@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { PinoLogger } from 'nestjs-pino';
+
 import { FormioSdkService } from '../services';
 
 @Injectable()
@@ -25,32 +26,32 @@ export class FetchUserdataMiddleware implements NestMiddleware {
   // #region Public Methods
 
   public async use(
-    req: Request,
-    res: Response,
+    request: Request,
+    response: Response,
     next: NextFunction,
   ): Promise<void> {
-    if (!req.headers['x-jwt-token']) {
+    if (!request.headers['x-jwt-token']) {
       throw new HttpException(
         {
-          status: HttpStatus.FORBIDDEN,
           error: 'x-jwt-token required',
+          status: HttpStatus.FORBIDDEN,
         },
         HttpStatus.FORBIDDEN,
       );
     }
     const user = await this.formioSdkService.userFetch({
-      token: req.headers['x-jwt-token'] as string,
+      token: request.headers['x-jwt-token'] as string,
     });
     if (!user) {
       throw new HttpException(
         {
-          status: HttpStatus.FORBIDDEN,
           error: 'invalid x-jwt-token',
+          status: HttpStatus.FORBIDDEN,
         },
         HttpStatus.FORBIDDEN,
       );
     }
-    res.locals.user = user;
+    response.locals.user = user;
     next();
   }
 

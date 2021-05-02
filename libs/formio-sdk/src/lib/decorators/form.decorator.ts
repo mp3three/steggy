@@ -12,8 +12,8 @@ export function FetchForm(): ReturnType<typeof applyDecorators> {
 }
 
 export const Form = createParamDecorator(
-  (data: SubmissionDTO, ctx: ExecutionContext) => {
-    const response = ctx.switchToHttp().getResponse();
+  (data: SubmissionDTO, context: ExecutionContext) => {
+    const response = context.switchToHttp().getResponse();
     /**
      * ? Is data a provided value that I am trying to override?
      */

@@ -12,23 +12,23 @@ export const sleep = (ms: number): Promise<void> =>
  */
 export function InjectLogger(
   cls: { name: string },
-  lib?: string | symbol,
+  library?: string | symbol,
 ): ReturnType<typeof InjectPinoLogger> {
-  if (typeof lib === 'symbol') {
-    lib = lib.description;
+  if (typeof library === 'symbol') {
+    library = library.description;
   }
-  lib = lib || '';
-  lib = lib.length ? `${lib}:` : '';
-  return InjectPinoLogger(`${lib}${cls.name}`);
+  library = library || '';
+  library = library.length > 0 ? `${library}:` : '';
+  return InjectPinoLogger(`${library}${cls.name}`);
 }
 
-type TraceArgs = {
+type TraceArguments = {
   omitArgs?: boolean;
   level?: 'trace' | 'debug' | 'info';
 };
 const TRACE_ENABLED = true;
 export function Trace(
-  config: TraceArgs = {},
+  config: TraceArguments = {},
 ): (
   target: unknown,
   propertyKey: string,
@@ -49,13 +49,13 @@ export function Trace(
       return;
     }
     const originalMethod = descriptor.value;
-    descriptor.value = function (...params) {
-      const args: Record<string, unknown> = {};
+    descriptor.value = function (...parameters) {
+      const arguments_: Record<string, unknown> = {};
       if (!config.omitArgs) {
-        args.params = params;
+        arguments_.params = parameters;
       }
-      this.logger[config.level](args, propertyKey);
-      return originalMethod.apply(this, params);
+      this.logger[config.level](arguments_, propertyKey);
+      return originalMethod.apply(this, parameters);
     };
     return descriptor;
   };

@@ -20,6 +20,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
+
 import { SocketService } from './socket.service';
 
 const availableSpeeds = [
@@ -34,23 +35,10 @@ const availableSpeeds = [
  * ## Lights
  *
  * Right now, this service assumes that light.turnOn implies the lights should automatically go into a circadian lighting mode.
- * The color of the lights in this situatino are managed by the position of the sun relative to LAT/LONG provided to the application.
+ * Controlled light color by the position of the sun relative to LAT/LONG provided to the application.
  *
- * Brightness is controlled via dimmer style controls. Turning on the light will make a best guess at a sane value for the current time.
+ * Brightness controlled via dimmer style controls. Turning on the light will make a best guess at a sane value for the current time.
  * If it's dark outside, default "turn on / high" is closer to 60%. During the daytime, this should be closer to 100%.
- * This number may include offsets in the future, so the "true brightness" as reported by Home Assistant could end up being different from a brightness target.
- *
- * **For example**: Animations may run through a range of brighnesses before settling into an end brightness. The end target is what will be cached
- *
- *
- * The cache service is brought in to store the intended brightness target. This way, the data can be persisted across restarts / processes easily.
- *
- * ## Dealing with desync
- *
- * Sometimes, devices aren't in the state that the code thinks they are.
- * This service should always treat a "turn off" command as a "reset your current state" type of command.
- *
- * **For example**: If anything is being cached, it should be deleted rather than be set to 0
  */
 @Injectable()
 export class EntityService {
@@ -58,7 +46,7 @@ export class EntityService {
 
   private readonly ENTITIES = new Map<string, HassStateDTO>();
 
-  private _SOLAR_CALC = null;
+  private _SOLAR_CALC;
   private lastUpdate: Dayjs;
 
   // #endregion Object Properties
@@ -80,9 +68,9 @@ export class EntityService {
     if (this._SOLAR_CALC) {
       return this._SOLAR_CALC;
     }
-    setTimeout(() => (this._SOLAR_CALC = null), 1000 * 30);
+    setTimeout(() => (this._SOLAR_CALC = undefined), 1000 * 30);
     // typescript is wrong this time, it works as expected for me
-    // eslint-disable-next-line
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return new SolarCalc(
       new Date(),
@@ -101,19 +89,19 @@ export class EntityService {
     currentSpeed: FanSpeeds,
     entityId: string,
   ): Promise<void> {
-    const idx = availableSpeeds.indexOf(currentSpeed);
+    const index = availableSpeeds.indexOf(currentSpeed);
     this.logger.debug(
       `fanSpeedDown ${entityId}: ${currentSpeed} => ${
-        availableSpeeds[idx - 1]
+        availableSpeeds[index - 1]
       }`,
     );
-    if (idx === 0) {
+    if (index === 0) {
       this.logger.debug(`Cannot speed down`);
       return;
     }
     return await this.socketService.call(HassServices.turn_on, {
       entity_id: entityId,
-      speed: availableSpeeds[idx - 1],
+      speed: availableSpeeds[index - 1],
     });
   }
 
@@ -122,17 +110,19 @@ export class EntityService {
     currentSpeed: FanSpeeds,
     entityId: string,
   ): Promise<void> {
-    const idx = availableSpeeds.indexOf(currentSpeed);
+    const index = availableSpeeds.indexOf(currentSpeed);
     this.logger.debug(
-      `fanSpeedUp ${entityId}: ${currentSpeed} => ${availableSpeeds[idx + 1]}`,
+      `fanSpeedUp ${entityId}: ${currentSpeed} => ${
+        availableSpeeds[index + 1]
+      }`,
     );
-    if (idx === availableSpeeds.length - 1) {
+    if (index === availableSpeeds.length - 1) {
       this.logger.debug(`Cannot speed up`);
       return;
     }
     return await this.socketService.call(HassServices.turn_on, {
       entity_id: entityId,
-      speed: availableSpeeds[idx + 1],
+      speed: availableSpeeds[index + 1],
     });
   }
 
@@ -236,10 +226,10 @@ export class EntityService {
     const MIN_COLOR = 2500;
     const MAX_COLOR = 5500;
     const kelvin = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
-    this.logger.trace({ entityId, kelvin, brightness_pct }, 'circadianLight');
+    this.logger.trace({ brightness_pct, entityId, kelvin }, 'circadianLight');
     return await this.socketService.call(HassServices.turn_on, {
-      entity_id: entityId,
       brightness_pct,
+      entity_id: entityId,
       kelvin,
     });
   }
@@ -258,7 +248,7 @@ export class EntityService {
   // #region Protected Methods
 
   /**
-   * - If it's relatively close to solar noon, lights come on at full brightness
+   * - If it's near solar noon, lights come on at full brightness
    * - If the sun is still out, come on as slightly dimmed
    * - Come on at a more dim level if it's dark out
    */
@@ -301,7 +291,7 @@ export class EntityService {
    *
    * ### Future improvements
    *
-   * The math could probably be improved, this seems more thought out:
+   * The math needs work, this seems more thought out:
    * https://github.com/claytonjn/hass-circadian_lighting/blob/master/custom_components/circadian_lighting/__init__.py#L206
    */
   private getColorOffset(): number {

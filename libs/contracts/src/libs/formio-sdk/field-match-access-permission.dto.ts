@@ -6,6 +6,7 @@ import {
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
+
 import { OPERATORS, VALUE_TYPES } from './constants';
 
 @Schema({
@@ -19,17 +20,17 @@ export class FieldMatchAccessPermissionDTO {
 
   @IsEnum(OPERATORS)
   @Prop({
-    type: 'enum',
-    enum: OPERATORS,
     default: OPERATORS.eq,
+    enum: OPERATORS,
+    type: 'enum',
   })
   public operator?: OPERATORS;
   @IsEnum(VALUE_TYPES)
   @Prop({
-    type: 'enum',
+    default: VALUE_TYPES.string,
     enum: VALUE_TYPES,
     required: true,
-    default: VALUE_TYPES.string,
+    type: 'enum',
   })
   public valueType?: VALUE_TYPES;
   /**

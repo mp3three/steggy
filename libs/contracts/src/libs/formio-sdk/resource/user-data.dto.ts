@@ -1,6 +1,6 @@
+import { CanFake } from '@automagical/contracts';
 import { IsEmail, IsOptional, IsString } from '@automagical/validation';
 import faker from 'faker';
-import { CanFake } from '..';
 
 /**
  * Example object

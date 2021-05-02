@@ -1,7 +1,24 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nrwl/nx", "security"],
+  "plugins": [
+    "@nrwl/nx",
+    "security",
+    "radar",
+    "unicorn",
+    "jsx-a11y",
+    "react",
+    "react-hooks",
+    "react-native",
+    "react-redux",
+    "jsonc",
+    "woke",
+    "write-good-comments",
+    "sort-keys-fix",
+    "no-loops",
+    "no-unsanitized",
+    "simple-import-sort"
+  ],
   "overrides": [{
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
@@ -24,12 +41,41 @@
         "plugin:@nrwl/nx/typescript",
         "plugin:you-dont-need-lodash-underscore/compatible",
         "plugin:security/recommended",
-        "plugin:@typescript-eslint/recommended"
+        "plugin:@typescript-eslint/recommended",
+        "plugin:radar/recommended",
+        "plugin:unicorn/recommended",
+        "plugin:jsx-a11y/recommended",
+        "plugin:react/recommended",
+        "plugin:react-hooks/recommended",
+        "plugin:react-native/all",
+        "plugin:react-redux/recommended",
+        "plugin:jsonc/recommended-with-jsonc",
+        "plugin:no-unsanitized/DOM"
       ],
       "rules": {
         "no-case-declarations": "off",
-        "no-async-promise-executor": "off"
+        "no-async-promise-executor": "off",
+        "unicorn/prefer-node-protocol": "off",
+        "unicorn/no-array-for-each": "off",
+        "unicorn/import-style": "off",
+        "woke/all": 2,
+        "write-good-comments/write-good-comments": "warn",
+        "sort-keys-fix/sort-keys-fix": "warn",
+        "no-loops/no-loops": 2,
+        "simple-import-sort/imports": "error",
+        "simple-import-sort/exports": "error"
+      },
+      "settings": {
+        "react": {
+          "version": "detect"
+        }
       }
+    },
+    {
+      "files": ["*.graphql"],
+      "parser": "@graphql-eslint/eslint-plugin",
+      "plugins": ["@graphql-eslint"],
+      "rules": {}
     },
     {
       "files": ["*.js", "*.jsx"],

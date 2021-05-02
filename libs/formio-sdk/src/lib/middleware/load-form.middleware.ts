@@ -27,15 +27,15 @@ export class LoadFormMiddleware implements NestMiddleware {
 
   @Trace()
   public async use(
-    req: Request<{ formId: string }>,
-    res: Response<unknown, { form: SubmissionDTO }>,
+    request: Request<{ formId: string }>,
+    response: Response<unknown, { form: SubmissionDTO }>,
     next: NextFunction,
   ): Promise<void> {
-    if (!req.params.formId) {
+    if (!request.params.formId) {
       throw new PreconditionFailedException();
     }
-    res.locals.form = await this.formService.byId(req.params.formId);
-    if (!res.locals.form) {
+    response.locals.form = await this.formService.byId(request.params.formId);
+    if (!response.locals.form) {
       throw new BadRequestException();
     }
     next();

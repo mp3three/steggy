@@ -1,19 +1,19 @@
-export * from './Access.dto';
+export * from './access.dto';
 export * from './action';
-export * from './Action.dto';
-export * from './ActionItem.dto';
-export * from './Base.dto';
+export * from './action.dto';
+export * from './action-item.dto';
+export * from './base.dto';
 export * from './constants';
-export * from './Form.dto';
-export * from './Project.dto';
+export * from './form.dto';
+export * from './project.dto';
 export * from './resource';
-export * from './Resource.dto';
-export * from './Role.dto';
-export * from './Session.dto';
-export * from './Submission.dto';
-export * from './Tag.dto';
-export * from './Token.dto';
-export * from './Schema.dto';
+export * from './resource.dto';
+export * from './role.dto';
+export * from './schema.dto';
+export * from './session.dto';
+export * from './submission.dto';
+export * from './tag.dto';
+export * from './token.dto';
 
 /**
  * May contain alphnumeric, and dashes.
@@ -23,8 +23,8 @@ export * from './Schema.dto';
  */
 export const NAME_REGEX = '^(?!-)[0-9a-zA-Z-]*(?<!submission|action|-)$';
 
-export type BaseOmitProps = 'owner' | 'project';
+export type BaseOmitProperties = 'owner' | 'project';
 export const timestamps = {
-  updatedAt: 'modified',
   createdAt: 'created',
+  updatedAt: 'modified',
 };

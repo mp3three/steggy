@@ -42,11 +42,11 @@ export class SubmissionService {
   }
 
   @Trace()
-  public async list(args: {
+  public async list(arguments_: {
     query?: Record<string, string>;
     user?: UserDTO;
   }): Promise<{ count: number; items: SubmissionDTO[] }> {
-    const query = new Map(Object.entries(args.query || {}));
+    const query = new Map(Object.entries(arguments_.query || {}));
     let map = indexQuery(query);
     map = indexOptions(query, map);
     const search = Object.fromEntries(map.entries());

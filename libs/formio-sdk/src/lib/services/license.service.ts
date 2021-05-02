@@ -10,8 +10,9 @@ import {
 import { InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
-import { FormioSdkService } from '.';
+
 import { FetchWith, HTTP_Methods } from '../../typings';
+import { FormioSdkService } from '.';
 
 @Injectable()
 export class LicenseService {
@@ -77,10 +78,10 @@ export class LicenseService {
                 await Promise.all(
                   out.get('projects').map(async (project) => {
                     return await this.formioSdkService.fetch<LicenseItemDTO>({
-                      url: `/license/${license._id}/utilizations/stage`,
                       params: {
                         projectId: project.id,
                       },
+                      url: `/license/${license._id}/utilizations/stage`,
                     });
                   }),
                 ),
@@ -96,16 +97,16 @@ export class LicenseService {
   }
 
   public async toggleUsage(
-    args: FetchWith<{
+    arguments_: FetchWith<{
       state: boolean;
       body: LicenseApiServer | LicenseItemDTO;
     }>,
   ): Promise<unknown> {
-    this.logger.debug(`toggleUsage`, args);
+    this.logger.debug(`toggleUsage`, arguments_);
     return await this.formioSdkService.fetch({
       method: HTTP_Methods.POST,
-      url: `/utilization/${args.state ? 'enable' : 'disable'}`,
-      ...args,
+      url: `/utilization/${arguments_.state ? 'enable' : 'disable'}`,
+      ...arguments_,
     });
   }
 

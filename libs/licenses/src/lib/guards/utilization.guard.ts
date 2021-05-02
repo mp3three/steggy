@@ -30,17 +30,17 @@ export class UtilizationGuard implements CanActivate {
   public async canActivate(context: ExecutionContext): Promise<boolean> {
     const action = this.reflector.get<string>('action', context.getHandler());
     const body = {
-      salt: null,
+      salt: undefined,
     };
 
     const response = await this.formioSdkService.fetch<UtilizationResponseDTO>({
       baseUrl: this.configService.get(LICENSE_SERVER),
-      url: `/utilization/${action}`,
+      body,
       method: HTTP_Methods.POST,
       params: {
         qs: '1',
       },
-      body,
+      url: `/utilization/${action}`,
     });
     if (typeof response === 'string') {
       this.logger.info(response);

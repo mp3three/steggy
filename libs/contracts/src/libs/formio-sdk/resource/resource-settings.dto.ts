@@ -1,3 +1,4 @@
+import { CanFake } from '@automagical/contracts';
 import {
   IsBoolean,
   IsEnum,
@@ -5,7 +6,6 @@ import {
   IsString,
   IsUrl,
 } from '@automagical/validation';
-import { CanFake } from '..';
 
 export enum ResourcePDFLayout {
   Landscape = 'Landscape',

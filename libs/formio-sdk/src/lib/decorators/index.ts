@@ -1,2 +1,2 @@
-export * from './user.decorator';
 export * from './form.decorator';
+export * from './user.decorator';

@@ -22,13 +22,13 @@ export class SaveActionSettingsDTO {
    *
    * destinationKey: sourceKey (ex: "email") / "data" (whole submission) / "page[0-9]+"
    *
-   * FIXME: How does the `page#` part work? Is this the wizard? It is valid as dest or source
+   * FIXME: How does the `page#` part work? Is this the wizard? Valid as dest or source
    */
   @IsOptional()
   @ValidateNested()
   public fields: Record<string, string>;
   /**
-   * Reference to the resource where the data should be ssaved
+   * Reference to the resource where the data will get saved
    */
   @IsString()
   public resource: string;

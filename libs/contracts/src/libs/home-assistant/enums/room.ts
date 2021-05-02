@@ -47,6 +47,6 @@ export enum PicoStates {
   down = '16',
   // Favorite
   favorite = '2',
-  // Nothing being pressed
+  // Nothing
   none = '0',
 }
