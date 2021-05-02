@@ -1,7 +1,9 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nrwl/nx", "security", "radar", "unicorn"],
+  "plugins": [
+    "@nrwl/nx", "security", "radar", "unicorn", "jsx-a11y", "react", "react-hooks", "react-native", "react-redux"
+  ],
   "overrides": [{
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
@@ -26,7 +28,12 @@
         "plugin:security/recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:radar/recommended",
-        "plugin:unicorn/recommended"
+        "plugin:unicorn/recommended",
+        "plugin:jsx-a11y/recommended",
+        "plugin:react/recommended",
+        "plugin:react-hooks/recommended",
+        "plugin:react-native/all",
+        "plugin:react-redux/recommended"
       ],
       "rules": {
         "no-case-declarations": "off",
@@ -34,6 +41,11 @@
         "unicorn/prefer-node-protocol": "off",
         "unicorn/no-array-for-each": "off",
         "unicorn/import-style": "off"
+      },
+      "settings": {
+        "react": {
+          "version": "detect"
+        }
       }
     },
     {
