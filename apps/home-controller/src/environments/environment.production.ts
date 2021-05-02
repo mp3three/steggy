@@ -1,5 +1,3 @@
-// prod is a special word
-/* eslint-disable unicorn/prevent-abbreviations */
 import { ApplicationConfig } from '../typings/config';
 
 export const environment: ApplicationConfig = {
