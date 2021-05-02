@@ -66,16 +66,6 @@ export class FetchLicenseMiddleware implements NestMiddleware {
     return ownsLicense || this.isAdmin(request);
   }
 
-  /**
-   * Server owner must be able to validate responses going to customer API servers
-   *
-   * Responses may contain:
-   *
-   * - license information (linked user ids / names)
-   * - utilization (project / stage counts)
-   * - environment metadata (project names, ids, active states)
-   * - licensed api server capabilities (array of basic strings usually)
-   */
   private isAdmin(request: Request) {
     return (
       this.configService.get(ADMIN_TOKEN) ===

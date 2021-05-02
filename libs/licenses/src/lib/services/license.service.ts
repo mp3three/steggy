@@ -43,11 +43,6 @@ import { PinoLogger } from 'nestjs-pino';
 interface UpdateArguments {
   // #region Object Properties
 
-  /**
-   * ! cacheData object will be frequently mutated by methods here
-   *
-   * * This is on purpose, maybe try to keep the variable local to the file
-   */
   cacheData: CacheData;
   license: SubmissionDTO<Partial<UtilizationResponseTermsDTO>>;
   update: UtilizationUpdateDTO;
@@ -139,21 +134,11 @@ export class LicenseService {
     };
   }
 
-  /**
-   * General API Server is sending a utilizatino update handler
-   *
-   * 1. Verify license is actually active
-   * 2. Remap any needed scopes (stages)
-   * 3. For remote licenses, verify form utilization also
-   * 4. If item is tracked against project, verify project utilization
-   * 5. Verify count if utilization is tracked as total
-   */
   public async utilizationUpdate(
     update: UtilizationUpdateDTO,
     license: LicenseDTO,
   ): Promise<UtilizationResponseDTO> {
     // Load auth associated with this specific license key
-    // Not all keys may be scoped for the full capabilities of the license
     const {
       licenseKeys,
       developmentLicense: developmentLicense,
@@ -167,10 +152,6 @@ export class LicenseService {
       throw new ForbiddenException(`License expired`);
     }
     // * #2
-    if (update.type === LicenseScopes.stage) {
-      // post authoring mode: all stages are livestages now
-      update.type = LicenseScopes.livestage;
-    }
     if (update.type === LicenseScopes.apiServer) {
       return;
     }
@@ -413,7 +394,6 @@ export class LicenseService {
           return this.cacheManager.set(update.licenseKey, cacheData);
         case LicenseScopes.form:
         case LicenseScopes.stage:
-        case LicenseScopes.livestage:
           return cacheData;
       }
       this.logger.warn(`Missed a spot`);

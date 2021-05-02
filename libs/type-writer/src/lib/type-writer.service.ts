@@ -1,6 +1,6 @@
 import { LIB_TYPE_WRITER } from '@automagical/contracts/constants';
 import { FormioSdkService } from '@automagical/formio-sdk';
-import { InjectLogger } from '@automagical/utilities';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 import {
@@ -24,22 +24,14 @@ import {
 type LabelValue = Record<'label' | 'value', string>;
 
 /**
- * Comment convention for this file -
- * // FIXME: Items that need to be changed, and the solution is stated
- * // TODO: Try to make these go away. Resolve in the indicated way, or remove TODO if confirmed not possible
- *
  * #1 DEV TOOL FOR THIS FILE
  * -- https://ts-ast-viewer.com/#code/KYDwDg9gTgLgBDAnmYcBiEJwLxwEQBCAhlHnAD77EB2RteQA
- * Build back to the calls you need to make given a piece of code
- * It's the only thing that made this even feasible
- *
- * I hope this code is clear, because it was a headache to make.
  */
 
 /**
  * Properties that affect the type definition
  *
- * Custom components might have additional logic not accounted for here
+ * Custom components might have logic not accounted for here
  */
 export interface Component {
   // #region Object Properties
@@ -70,7 +62,7 @@ export interface Component {
   // #endregion Object Properties
 }
 
-type property = {
+export type property = {
   key: string;
   optional?: boolean;
   type?: TypeNode;
@@ -79,10 +71,10 @@ type property = {
 };
 
 type Context = Partial<{
-  declarationList: Record<string, TypeAliasDeclaration>;
+  declarationList: Map<string, TypeAliasDeclaration>;
   baseName: string;
-  waitingForIdentifiers: Record<string, ((value?: unknown) => unknown)[]>;
-  identifiers: Record<string, Identifier>;
+  waitingForIdentifiers: Map<string, ((value?: unknown) => unknown)[]>;
+  identifiers: Map<string, Identifier>;
 }>;
 
 export interface indexProject {
@@ -155,7 +147,7 @@ export class TypeWriterService {
       // It's more work to pass contexts around
       throw new Error('Cannot do simultanious builds');
     }
-    // recursive components like trees inject additional declarations
+    // recursive components like trees inject declarations
     this.lock = true;
     this.reset();
     const name = form.name;
@@ -206,14 +198,33 @@ export class TypeWriterService {
 
   // #region Private Methods
 
+  /**
+   * Pull json from a url
+   */
+  @Trace()
+  private async valuesFromUrl(component: Component) {
+    // TODO: Determine if any substitutions need to happen
+    const headers = {};
+    component.data.headers.forEach((header) => {
+      if (header.key) {
+        headers[header.key] = header.value;
+      }
+    });
+    return await this.formioSdkService.fetch<Record<string, unknown>[]>({
+      url: component.data.url,
+      rawUrl: true,
+      headers,
+    });
+  }
+
   private async addDeclaration(
     name: string,
     body: TypeLiteralNode,
     exportDeclaration = true,
   ) {
     const declaration = factory.createTypeAliasDeclaration(
-      // TODO: Can any useful decorators be added?
-      // As far as I can tell, this and the 3rd param only exist to be API consistent
+      // TODO: Decorators
+      // As far as I can tell, this and the 3rd param exists to be API consistent
       undefined,
       exportDeclaration
         ? [factory.createModifier(SyntaxKind.ExportKeyword)]
@@ -226,7 +237,7 @@ export class TypeWriterService {
       // The body of the type definition
       body,
     );
-    this.context.declarationList[name] = declaration;
+    this.context.declarationList.set(name, declaration);
   }
 
   /**
@@ -250,8 +261,6 @@ export class TypeWriterService {
     const children = component.columns || component.components;
     if (children) {
       if (['container', 'datagrid', 'tree'].includes(component.type)) {
-        // I whole heartedly disagree with the input-ness of these
-        // Really tho, you'll make a lint error error at best
         component.input = false;
         // key: { ...components }
         let literal: TypeNode = factory.createTypeLiteralNode(
@@ -307,51 +316,52 @@ export class TypeWriterService {
   }
 
   /**
-   * All of the properties not coming from components
+   * Properties not coming from components
    */
   private getApiProperties(): PropertySignature[] {
     // A lot of these are pretty generic, would like to convert to relevant objects
-    const APIProperties: property[] = [
-      // 📈
-      ...(['roles'].map((index) => ({
-        key: index,
-        type: this.string,
-        array: true,
-      })) as property[]),
-      { key: 'state', union: ['submitted'] },
-      { key: 'deleted', optional: true, type: this.boolean },
-      ...(['access', 'externalIds', 'externalTokens'].map((index) => ({
-        key: index,
-        type: this.unknown,
-        array: true,
-      })) as property[]),
-      ...(['owner', 'form', 'project', 'created', 'modified', '_id'].map(
-        (index) => ({
-          key: index,
-          type: this.string,
-        }),
-      ) as property[]),
-    ];
+    // const APIProperties: property[] = [
+    //   // 📈
+    //   ...(['roles'].map((index) => ({
+    //     key: index,
+    //     type: this.string,
+    //     array: true,
+    //   })) as property[]),
+    //   { key: 'state', union: ['submitted'] },
+    //   { key: 'deleted', optional: true, type: this.boolean },
+    //   ...(['access', 'externalIds', 'externalTokens'].map((index) => ({
+    //     key: index,
+    //     type: this.unknown,
+    //     array: true,
+    //   })) as property[]),
+    //   ...(['owner', 'form', 'project', 'created', 'modified', '_id'].map(
+    //     (index) => ({
+    //       key: index,
+    //       type: this.string,
+    //     }),
+    //   ) as property[]),
+    // ];
 
-    return this.flatten<PropertySignature>(
-      Object.keys(APIProperties).map((key) =>
-        APIProperties[key].map((def: property) => {
-          let type: TypeNode = def.type || this.stringUnion(def.union);
-          if (def.array) {
-            type = factory.createArrayTypeNode(type);
-          }
-          return this.createProperty(def.key, type, def.optional);
-        }),
-      ),
-    );
+    // return this.flatten<PropertySignature>(
+    //   Object.keys(APIProperties).map((key) =>
+    //     APIProperties[key].map((def: property) => {
+    //       let type: TypeNode = def.type || this.stringUnion(def.union);
+    //       if (def.array) {
+    //         type = factory.createArrayTypeNode(type);
+    //       }
+    //       return this.createProperty(def.key, type, def.optional);
+    //     }),
+    //   ),
+    // );
+    return;
   }
 
   private async getIdentifier(
     name: string,
     waitForCreate = false,
   ): Promise<Identifier> {
-    if (this.context.identifiers[name]) {
-      return this.context.identifiers[name];
+    if (this.context.identifiers.has(name)) {
+      return this.context.identifiers.get(name);
     }
     /**
      * PICK UP HERE:
@@ -362,21 +372,22 @@ export class TypeWriterService {
      * Need to set up identifier registry to trace back id to name (and the relevant type)
      */
     if (waitForCreate) {
-      this.context.waitingForIdentifiers =
-        this.context.waitingForIdentifiers || {};
-      this.context.waitingForIdentifiers[name] =
-        this.context.waitingForIdentifiers[name] || [];
       await new Promise((done) =>
-        this.context.waitingForIdentifiers[name].push(done),
+        this.context.waitingForIdentifiers.set(name, [
+          ...(this.context.waitingForIdentifiers.get(name) || []),
+          done,
+        ]),
       );
     }
-    this.context.identifiers[name] =
-      this.context.identifiers[name] || factory.createIdentifier(name);
-    if (this.context.waitingForIdentifiers[name]) {
-      this.context.waitingForIdentifiers[name].forEach((index) => index());
-      delete this.context.waitingForIdentifiers[name];
+    this.context.identifiers.set(
+      name,
+      this.context.identifiers.get(name) || factory.createIdentifier(name),
+    );
+    if (this.context.waitingForIdentifiers.has(name)) {
+      this.context.waitingForIdentifiers.get(name).forEach((index) => index());
+      this.context.waitingForIdentifiers.delete(name);
     }
-    return this.context.identifiers[name];
+    return this.context.identifiers.get(name);
   }
 
   /**
@@ -391,8 +402,8 @@ export class TypeWriterService {
 
   private reset() {
     this.context = this.context || {};
-    this.context.declarationList = {};
-    this.context.waitingForIdentifiers = {};
+    this.context.declarationList = new Map();
+    this.context.waitingForIdentifiers = new Map();
   }
 
   /**
@@ -429,7 +440,7 @@ export class TypeWriterService {
     await Promise.all(
       componentList.map(async (component) => {
         // TODO: Unsupported components -
-        // Address (no api key to validate with on hand)
+        // Address (no api key to confirm with on hand)
         // Edit Grid (I'm stupid, how does this work? Send help)
 
         const groups = this.extractGroups(component);
@@ -448,7 +459,6 @@ export class TypeWriterService {
         // Validator thinks it isn't required
         // Protected inputs won't appear in incoming data
         //// Someone might use this type to provide that data going out though, so it's preserved as optional
-        //// TODO: Can something the factory generates be used to indicate that this is the case?
         const isOptional = component.protected || !component.validate?.required;
 
         switch (component.type) {
@@ -485,7 +495,7 @@ export class TypeWriterService {
             break;
         }
 
-        // Anything kind enough to just hand us a type
+        // Anything kind enough to hand us a type
         const simpleTypes = {
           auto: SyntaxKind.UnknownKeyword,
           string: SyntaxKind.StringKeyword,
@@ -498,8 +508,6 @@ export class TypeWriterService {
           : this.unknown;
 
         if (component.dataType === 'object') {
-          // TODO: Is there any indication provided somewhere of the expected format?
-          // Should this be an if/else situation, or just a default?
           this.logger.warn(
             `Using type "Record<string, unknown>" for key ${component.key}`,
           );
@@ -519,7 +527,6 @@ export class TypeWriterService {
             );
 
         // key: value => key: value[]
-        // tags, anything with a "multiple" option
         if (component.storeas === 'array' || component.multiple) {
           type = factory.createArrayTypeNode(type);
         }
@@ -553,27 +560,6 @@ export class TypeWriterService {
 
     this.addDeclaration(recursiveName, recursiveBody, false);
     return rTreeName;
-  }
-
-  /**
-   * Pull json from a url
-   */
-  private valuesFromUrl(component: Component) {
-    // TODO: Determine if any substitutions need to happen
-    const headers = {};
-    component.data.headers.forEach((header) => {
-      if (header.key) {
-        headers[header.key] = header.value;
-      }
-    });
-    this.logger.info(`Fetching json from url: ${component.data.url}`);
-    // Maybe some sort of caching might be a good idea?
-    // I could imagine the same dataset being copy/pasted a few times in different resources
-    return this.formioSdkService.fetch<Record<string, unknown>[]>({
-      url: component.data.url,
-      rawUrl: true,
-      headers,
-    });
   }
 
   // #endregion Private Methods

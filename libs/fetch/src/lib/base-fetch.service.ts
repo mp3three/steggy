@@ -28,14 +28,11 @@ export class BaseFetch {
     }
     const text = await response.text();
     if (!['{', '['].includes(text.charAt(0))) {
-      // Personally, I think all responses should always be JSON. Fight me 🤜
-      // This type of "is the string really an error?" is aggravating, not convenient
-
       if (!['OK'].includes(text)) {
         // It's probably a coding error error, and not something a user did.
         // Will try to keep the array up to date if any other edge cases pop up
 
-        // This part specifically applies to the formio-sdk, so there may be some additional work needed for this function as other libs
+        // This part specifically applies to the formio-sdk, so there may be some work needed for this function as other libs
         this.logger.warn({ text }, `Unexpected API Response`);
       } else {
         this.logger.debug({ text }, 'Full response text');
@@ -125,7 +122,7 @@ export class BaseFetch {
     if (body) {
       // Override
       method = arguments_.method === 'GET' ? 'POST' : arguments_.method;
-      // Header is needed
+      // Required header
       headers['Content-Type'] = 'application/json';
     }
 

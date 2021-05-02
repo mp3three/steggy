@@ -34,23 +34,10 @@ const availableSpeeds = [
  * ## Lights
  *
  * Right now, this service assumes that light.turnOn implies the lights should automatically go into a circadian lighting mode.
- * The color of the lights in this situatino are managed by the position of the sun relative to LAT/LONG provided to the application.
+ * Controlled light color by the position of the sun relative to LAT/LONG provided to the application.
  *
- * Brightness is controlled via dimmer style controls. Turning on the light will make a best guess at a sane value for the current time.
+ * Brightness controlled via dimmer style controls. Turning on the light will make a best guess at a sane value for the current time.
  * If it's dark outside, default "turn on / high" is closer to 60%. During the daytime, this should be closer to 100%.
- * This number may include offsets in the future, so the "true brightness" as reported by Home Assistant could end up being different from a brightness target.
- *
- * **For example**: Animations may run through a range of brighnesses before settling into an end brightness. The end target is what will be cached
- *
- *
- * The cache service is brought in to store the intended brightness target. This way, the data can be persisted across restarts / processes easily.
- *
- * ## Dealing with desync
- *
- * Sometimes, devices aren't in the state that the code thinks they are.
- * This service should always treat a "turn off" command as a "reset your current state" type of command.
- *
- * **For example**: If anything is being cached, it should be deleted rather than be set to 0
  */
 @Injectable()
 export class EntityService {
@@ -260,7 +247,7 @@ export class EntityService {
   // #region Protected Methods
 
   /**
-   * - If it's relatively close to solar noon, lights come on at full brightness
+   * - If it's near solar noon, lights come on at full brightness
    * - If the sun is still out, come on as slightly dimmed
    * - Come on at a more dim level if it's dark out
    */
@@ -303,7 +290,7 @@ export class EntityService {
    *
    * ### Future improvements
    *
-   * The math could probably be improved, this seems more thought out:
+   * The math needs work, this seems more thought out:
    * https://github.com/claytonjn/hass-circadian_lighting/blob/master/custom_components/circadian_lighting/__init__.py#L206
    */
   private getColorOffset(): number {

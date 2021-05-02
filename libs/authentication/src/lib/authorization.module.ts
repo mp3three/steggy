@@ -11,5 +11,5 @@ import { LocalStrategy } from './local.strategy';
 })
 export class AuthorizationModule {}
 
-// Note for future buildout, placed here since it won't be missed
+// Note for future buildout, placed here for visibility
 // https://github.com/goldbergyoni/nodebestpractices/blob/master/sections/security/userpasswords.md

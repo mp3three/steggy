@@ -20,7 +20,7 @@ interface FetchArguments {
    */
   apiKey?: string;
   /**
-   * By default, it goes to portal base. Maybe you need the license server
+   * Frequently filled in by wrapper services
    */
   baseUrl?: string;
   /**
@@ -32,7 +32,7 @@ interface FetchArguments {
    *
    * Shorthand since a lot of requests look for data attribute
    *
-   * If both body and data are provided, a best attempt at merging is done. Don't expect miracles, use body if you want to be 100% sure
+   * If both body and data exists, attempt to merge. Don't expect miracles, use body if you want to be 100% sure
    */
   data?: Record<string, unknown>;
   /**
@@ -40,7 +40,7 @@ interface FetchArguments {
    */
   filters?: Filters[];
   /**
-   * Additional headers to send
+   * Headers to append
    */
   headers?: Record<string, unknown>;
   /**
@@ -52,9 +52,7 @@ interface FetchArguments {
    */
   params?: Record<string, string>;
   /**
-   * false = "just return back the text"
-   *
-   * true = "give me back the response object, and bypass postprocessing"
+   * Built in post-processing
    */
   process?: boolean;
   /**

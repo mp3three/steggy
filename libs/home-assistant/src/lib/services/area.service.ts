@@ -46,7 +46,7 @@ export class AreaService {
    *
    * Created via configuration.yaml, feature flag added in customize.yaml
    *
-   * Would really like to be able to add attributes to areas, this is a headache
+   * This is a headache, looking for a better way
    */
   private AREA_FLAGS: Map<string, AreaFlags[]>;
   private AREA_MAP: Map<string, string[]>;
@@ -74,7 +74,7 @@ export class AreaService {
   // #region Public Accessors
 
   public get IS_EVENING(): boolean {
-    // For the purpose of the house, it's considered evening if the sun has set, or it's past 6PM
+    // Considered evening if the sun has set, or it's past 6PM
     const now = dayjs();
     return (
       now.isAfter(this.entityService.SOLAR_CALC.goldenHourStart) ||
@@ -203,29 +203,29 @@ export class AreaService {
   }
 
   /**
-   * General "turn stuff on, but maybe not all the way" function
+   * General "turn device on" function
    *
    * ## Scene
-   * TODO: Currently, it loads the scene via config service.
+   * TODO: Loading HA scenes
    * This would be better done with a HA yaml scene
    *
    * ## Smart turn on
-   * If there are switches in the room (smart switches tied to lights). Turn only those on
+   * If there are switches in the room (smart switches tied to lights). Turn those on
    *
    * If there are no switches, act the same as the "turn on" button.
    *
    * ## Common area
    *
-   * If the 2nd argument (global) is set to true, then attempt to communicate with other areas.
-   * If this area is flagged as a common area (like the living room), then relay the request to other common areas
+   * If the 2nd argument (global) is true, then attempt to communicate with other areas.
+   * If this area is a common area (like the living room), then relay the request to other common areas
    *
-   * This is intended for use primarily in the evenings, where one might want to turn off all the non-bedroom lights, and watch a movie or something.
-   * Since my place is particularly dark during the day, this will also act as a "turn on all the common areas" during the day
+   * Intended for use primarily in the evenings, where one might want to turn off all the non-bedroom lights, and watch a movie or something.
+   * This will also act as a "turn on all the common areas" during the day
    *
    * ## Expansions
    *
    * Automatically turn on the tv if registered with the area
-   * Emit events that can be picked up by the application
+   * Emit events for the application
    */
   @Trace()
   public async setFavoriteScene(
@@ -240,8 +240,6 @@ export class AreaService {
         }
         await this.areaOn(areaName);
       });
-      // Double press favorite = turn on all things controlled by remote for the room
-      // Like a TV
       this.AREA_MAP.get(areaName).forEach(async (entityId) => {
         if (domain(entityId) !== HassDomains.remote) {
           return;

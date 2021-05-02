@@ -37,14 +37,14 @@ import WS from 'ws';
  * SocketService deals with all communicationsto the HomeAssistant service
  *
  * This is primarily accomplished through the websocket API.
- * However, some requests (such as reports) can only be done through HTTP calls.
- * This service still handles those requests to keep things in one spot.
+ * Some requests (such as reports) must go through HTTP calls.
+ * This service still handles those requests to keep a unified interface
  */
 @Injectable()
 export class SocketService {
   // #region Object Properties
 
-  private connection: WebSocket;
+  private connection: WS;
   private isAuthenticated = false;
   private messageCount = 1;
   private updateAllPromise: Promise<HassStateDTO[]>;
@@ -273,7 +273,7 @@ export class SocketService {
    * ## pong
    * Reply to outgoing ping()
    * ## result
-   * Response to an outgoing emit. Value should be redirected to the promise returned by said emit
+   * Response to an outgoing emit
    */
   @Trace({ omitArgs: true })
   private async onMessage(message: SocketMessageDTO) {
@@ -282,15 +282,6 @@ export class SocketService {
     // let lostInFlight: number;
     switch (message.type as HassSocketMessageTypes) {
       case HassSocketMessageTypes.auth_required:
-        // lostInFlight = Object.values(this.waitingCallback).length;
-        // if (lostInFlight !== 0) {
-        //   // ? Can the promises be rejected?
-        //   // ? Does the memory get reclaimed if I don't?
-        //   this.logger.warn(
-        //     `${lostInFlight} responses lost during connection reset`,
-        //   );
-        // }
-        // this.waitingCallback = {};
         return await this.sendMsg({
           type: HassCommands.auth,
           access_token: this.configService.get(TOKEN),
@@ -303,7 +294,6 @@ export class SocketService {
         });
         await this.getAllEntitities();
         // Theoretially, all entities are present, and we have an authorized connection
-        // Open the floodgates
         this.eventEmitter.emit(HA_SOCKET_READY);
         return;
 
@@ -366,14 +356,13 @@ export class SocketService {
     }
     while (this.isAuthenticated === false && data.type !== HassCommands.auth) {
       // Something is jumpy
-      // Request went in post-connect but pre-auth (which is supposed to be quick)
+      // Request went in post-connect but pre-auth
       // HA_SOCKET_READY is the event to watch for
       this.logger.warn(`sendMsg waiting for authentication`);
       await sleep(100);
     }
     this.connection.send(JSON.stringify(data));
     if (!waitForResponse) {
-      // Mostly an optimization thing
       return;
     }
     // TODO Add a timer to identify calls that don't receive replies

@@ -80,7 +80,7 @@ export class FormioSdkService {
   }
 
   /**
-   * If you need to authenticate any user for a specific endpoint ONLY, then the best method is to use a Temporary Token.
+   * If you need to authenticate any user for a specific endpoint, then the best method is to use a Temporary Token.
    * This allows you to restrict access for a specific path for a short period of time.
    * This is ideal if you need to create a "download" url that a person can use to download a file.
    * You can also use this method for "authentication" integration where the token is safe to include in the URL of the integration system.
@@ -236,7 +236,7 @@ export class FormioSdkService {
   }
 
   /**
-   * Modify a role in the project
+   * Update a role in the project
    */
   @Trace()
   public async projectRoleUpdate(
@@ -278,7 +278,7 @@ export class FormioSdkService {
   }
 
   /**
-   * Modify a project
+   * Update a project
    *
    * TODO: Send back modifications, or whole object
    */
@@ -369,9 +369,7 @@ export class FormioSdkService {
   }
 
   /**
-   * Simple resolver, works great for non-project-y things.
-   *
-   * Those sometimes prefer using names
+   * Simple resolver
    */
   public id(id: CommonID): string {
     // Shorthand type resolver
@@ -410,7 +408,6 @@ export class FormioSdkService {
     if (
       ((response as unknown) as { name: string }).name === 'ValidationError'
     ) {
-      // This is likely a code error in the calling service
       this.logger.error(JSON.stringify(response, undefined, 2));
       throw new InternalServerErrorException();
     }

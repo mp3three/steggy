@@ -28,13 +28,6 @@ export class HomeAssistantService {
 
   // #region Public Methods
 
-  /**
-   * Emit a notification.
-   *
-   * Can be set up to send push notifications to phones into notification groups
-   *
-   * Type param is intended as allowing usage with an enum
-   */
   public async sendNotification<Group extends string = string>(
     device: string,
     title: string,
@@ -83,7 +76,6 @@ export class HomeAssistantService {
     // 4002: '4_click_up'
     // 4003: '4_hold_up'
     // The reality of this device is the performance is too bad for most of these to be relevant
-    // It seems to work better with 1st party stuff
 
     // The Lutron Pico devices are better in every way
     switch (Math.floor(Number(event.data.event) / 1000)) {

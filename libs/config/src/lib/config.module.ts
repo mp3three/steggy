@@ -12,11 +12,6 @@ import { AutomagicalConfig } from '../typings';
 export class ConfigModule {
   // #region Static Properties
 
-  /**
-   * This serves many libs, but realistically a running app will only ever have 1 config at a time.
-   * It is stored here for easy access by anything that isn't using the config service.
-   * Probably a bootstrapping process.
-   */
   public static readonly config: Promise<AutomagicalConfig> = new Promise(
     (done) => (ConfigModule.done = done),
   );
