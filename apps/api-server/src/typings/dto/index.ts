@@ -1,2 +1,2 @@
-export * from './ProxySettings.dto';
-export * from './ResLocals.dto';
+export * from './proxy-settings.dto';
+export * from './response-locals.dto';

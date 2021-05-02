@@ -52,8 +52,7 @@ import { CEWrapperService } from './services/';
       inject: [ConfigService],
       useFactory(configService: ConfigService) {
         return {
-          max: Infinity,
-          ttl: null,
+          max: Number.POSITIVE_INFINITY,
           store: RedisStore,
           host: configService.get('REDIS_HOST'),
           port: configService.get('REDIS_PORT'),
