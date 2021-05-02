@@ -6,6 +6,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NextFunction, Request, Response } from 'express';
 import { PinoLogger } from 'nestjs-pino';
+
 import { ADMIN_TOKEN, TOKEN_HEADER } from '../../typings';
 
 /**

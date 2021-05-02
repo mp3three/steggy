@@ -4,6 +4,7 @@ import { FetchService } from '@automagical/fetch';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
+
 import { TenantSettings } from '../../typings';
 
 @Injectable()

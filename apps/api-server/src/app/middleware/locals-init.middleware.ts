@@ -3,6 +3,7 @@ import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { PinoLogger } from 'nestjs-pino';
+
 import { ResponseLocalsDTO } from '../../typings';
 
 type LocalsResponse = Response<unknown, ResponseLocalsDTO>;

@@ -1,4 +1,5 @@
 import { IsNumber } from '@automagical/validation';
+
 import { LicenseBaseDTO } from './license-base.dto';
 
 /**

@@ -3,6 +3,7 @@ import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 import fetch from 'node-fetch';
+
 import { FetchArguments } from '../typings';
 import { BaseFetch } from './base-fetch.service';
 

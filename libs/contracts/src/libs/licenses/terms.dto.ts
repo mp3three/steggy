@@ -5,6 +5,7 @@ import {
   IsOptional,
   ValidateNested,
 } from '@automagical/validation';
+
 import { UserDTO } from '../formio-sdk';
 import { LicenseKeyDTO } from './Key.dto';
 import { LicenseOptionsDTO } from './Options.dto';

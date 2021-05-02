@@ -6,6 +6,7 @@ import {
   IsOptional,
   ValidateNested,
 } from '@automagical/validation';
+
 import { LicenseBaseDTO } from '../../licenses/license-base.dto';
 import { LicenseOptionsDTO } from '../../licenses/Options.dto';
 import { LicensePlans, LicenseScopes } from '../../licenses/types';

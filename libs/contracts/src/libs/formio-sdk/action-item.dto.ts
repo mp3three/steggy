@@ -6,6 +6,7 @@ import {
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
+
 import { BaseDTO, timestamps } from '.';
 import {
   ACTION_NAMES,
@@ -30,13 +31,6 @@ export class ActionItemDTO<
     type: 'enum',
   })
   public state?: ACTION_STATES;
-  @IsEnum(HANDLERS)
-  @Prop({
-    enum: HANDLERS,
-    required: true,
-    type: 'enum',
-  })
-  public handler: HANDLERS;
   @IsEnum(ACTION_NAMES)
   @Prop({
     enum: ACTION_NAMES,
@@ -44,6 +38,13 @@ export class ActionItemDTO<
     type: 'enum',
   })
   public action: ACTION_NAMES;
+  @IsEnum(HANDLERS)
+  @Prop({
+    enum: HANDLERS,
+    required: true,
+    type: 'enum',
+  })
+  public handler: HANDLERS;
   @IsEnum(HTTP_METHODS)
   @Prop({
     enum: HTTP_METHODS,

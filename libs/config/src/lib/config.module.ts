@@ -6,6 +6,7 @@ import ini from 'ini';
 import yaml from 'js-yaml';
 import { resolve } from 'path';
 import rc from 'rc';
+
 import { AutomagicalConfig } from '../typings';
 
 @Module({})

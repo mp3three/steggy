@@ -2,6 +2,7 @@ import { Trace } from '@automagical/utilities';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
+
 import { FetchWith, Filters, TemporaryAuthToken } from '../typings';
 
 export class BaseFetch {

@@ -2,6 +2,7 @@ import { LIB_FETCH } from '@automagical/contracts/constants';
 import { InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
+
 import { FetchWith } from '../typings/HTTP';
 import { BaseFetch } from './base-fetch.service';
 

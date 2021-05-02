@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { PinoLogger } from 'nestjs-pino';
+
 import { FormioSdkService } from '../services';
 
 @Injectable()

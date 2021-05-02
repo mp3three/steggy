@@ -2,6 +2,7 @@ import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { InjectLogger } from '@automagical/utilities';
 import { Controller, Get } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
+
 import { EntityService } from '../services';
 
 @Controller('entity')

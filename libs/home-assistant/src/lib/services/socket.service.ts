@@ -342,6 +342,7 @@ export class SocketService {
     if (data.type !== HassCommands.auth) {
       data.id = counter;
     }
+    // eslint-disable-next-line no-loops/no-loops
     while (this.connection.readyState !== this.connection.OPEN) {
       this.logger.info(`re-init connection`);
       try {
@@ -354,6 +355,7 @@ export class SocketService {
       await sleep(1000);
       return await this.sendMsg(data);
     }
+    // eslint-disable-next-line no-loops/no-loops
     while (this.isAuthenticated === false && data.type !== HassCommands.auth) {
       // Something is jumpy
       // Request went in post-connect but pre-auth

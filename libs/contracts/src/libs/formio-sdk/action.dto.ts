@@ -7,6 +7,7 @@ import {
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
+
 import { BaseDTO, timestamps } from '.';
 import {
   ACTION_CONDITION_EQ,

@@ -2,12 +2,13 @@ import { DBFake } from '@automagical/contracts';
 import {
   IsDateString,
   IsNumber,
-  IsString,
   IsOptional,
+  IsString,
 } from '@automagical/validation';
 import { Prop } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import { Schema as MongooseSchema } from 'mongoose';
+
 import { BaseOmitProperties } from '.';
 
 /**

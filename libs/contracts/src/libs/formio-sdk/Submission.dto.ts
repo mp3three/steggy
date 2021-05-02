@@ -7,6 +7,7 @@ import {
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+
 import { BaseDTO, timestamps } from '.';
 import { AccessDTO } from './Access.dto';
 import { SUBMISSION_STATES } from './constants';

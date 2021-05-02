@@ -5,6 +5,7 @@ import {
   ValidateNested,
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
+
 import { BaseDTO, timestamps } from '.';
 
 @Schema({

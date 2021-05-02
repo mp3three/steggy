@@ -1,5 +1,5 @@
-import { SubmissionDTO, UserDataDTO } from '..';
 import { UtilizationResponseTermsDTO } from '../../licenses/terms.dto';
+import { SubmissionDTO, UserDataDTO } from '..';
 
 export * from './license-admin.dto';
 export * from './resource-settings.dto';

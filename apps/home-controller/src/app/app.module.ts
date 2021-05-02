@@ -11,6 +11,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import RedisStore from 'cache-manager-redis-store';
 import { MqttModule } from 'nest-mqtt';
 import { LoggerModule } from 'nestjs-pino';
+
 import { ApplicationConfig } from '../typings/';
 import { AppController } from './controllers/app.controller';
 import { AppService } from './services/app.service';

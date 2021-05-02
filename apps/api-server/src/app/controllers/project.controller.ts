@@ -1,3 +1,4 @@
+import { ProjectDTO } from '@automagical/contracts/formio-sdk';
 import {
   Body,
   Controller,
@@ -7,7 +8,6 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { ProjectDTO } from '@automagical/contracts/formio-sdk';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 /**

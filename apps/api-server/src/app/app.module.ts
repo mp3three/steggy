@@ -8,6 +8,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import RedisStore from 'cache-manager-redis-store';
 import { LoggerModule } from 'nestjs-pino';
+
 import { PortalController } from './controllers';
 import { LocalsInitMiddlware } from './middleware';
 import { CEWrapperService } from './services/';

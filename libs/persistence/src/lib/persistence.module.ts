@@ -1,12 +1,13 @@
-import { DynamicModule, Module } from '@nestjs/common';
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { ProjectDTO,SubmissionDTO } from '@automagical/contracts/formio-sdk';
 import { MONGOOSE } from '@automagical/contracts/persistence';
+import { DynamicModule, Module } from '@nestjs/common';
 // import { AccessDriver, ProjectDriver } from './drivers';
 import { ConfigService } from '@nestjs/config';
-import mongoose from 'mongoose';
 import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import mongoose from 'mongoose';
+
 import { FormSchema, ProjectSchema } from './schema';
-import { SubmissionDTO, ProjectDTO } from '@automagical/contracts/formio-sdk';
 
 @Module({})
 export class PersistenceModule {

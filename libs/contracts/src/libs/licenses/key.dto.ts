@@ -1,4 +1,5 @@
 import { IsEnum, IsString } from '@automagical/validation';
+
 import { LicenseScopes } from './types';
 
 export class LicenseKeyDTO {

@@ -6,6 +6,7 @@ import {
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
+
 import { OPERATORS, VALUE_TYPES } from './constants';
 
 @Schema({

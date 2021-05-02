@@ -1,2 +1,2 @@
-export * from './home-assistant';
 export * from './config';
+export * from './home-assistant';

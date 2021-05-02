@@ -11,9 +11,9 @@ import {
   split,
 } from '@automagical/contracts/home-assistant';
 import {
+  AreaService,
   EntityService,
   HomeAssistantService,
-  AreaService,
   SocketService,
 } from '@automagical/home-assistant';
 import { InjectLogger, sleep } from '@automagical/utilities';
@@ -27,6 +27,7 @@ import { readFileSync } from 'fs';
 import { load } from 'js-yaml';
 import { PinoLogger } from 'nestjs-pino';
 import { join } from 'path';
+
 import { ASSETS_PATH } from '../../environments/environment';
 import {
   LOFT_MONITOR,

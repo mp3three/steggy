@@ -10,8 +10,9 @@ import {
 import { InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
-import { FormioSdkService } from '.';
+
 import { FetchWith, HTTP_Methods } from '../../typings';
+import { FormioSdkService } from '.';
 
 @Injectable()
 export class LicenseService {

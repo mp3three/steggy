@@ -20,6 +20,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
+
 import { SocketService } from './socket.service';
 
 const availableSpeeds = [

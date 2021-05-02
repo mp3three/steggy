@@ -6,6 +6,7 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
+
 import { HasLicenseGuard } from '../guards/has-license.guard';
 import { FetchLicenseMiddleware } from '../middleware/fetch-license.middleware';
 

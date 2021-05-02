@@ -11,6 +11,7 @@ import { InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PinoLogger } from 'nestjs-pino';
+
 import { SocketService } from './socket.service';
 
 @Injectable()

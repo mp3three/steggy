@@ -7238,6 +7238,16 @@ eslint-plugin-jsx-a11y@^6.4.1:
     jsx-ast-utils "^3.1.0"
     language-tags "^1.0.5"
 
+eslint-plugin-no-loops@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-no-loops/-/eslint-plugin-no-loops-0.3.0.tgz#e81fecb4eaaf494a926d9caba9a7cd84d1fede7d"
+  integrity sha1-6B/stOqvSUqSbZyrqafNhNH+3n0=
+
+eslint-plugin-no-unsanitized@^3.1.5:
+  version "3.1.5"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-no-unsanitized/-/eslint-plugin-no-unsanitized-3.1.5.tgz#7e1ee74cf41ae59fec48c2ee2e21a7dcb86965fb"
+  integrity sha512-s/6w++p1590h/H/dE2Wo660bOkaM/3OEK14Y7xm1UT0bafxkKw1Cq0ksjxkxLdH/WWd014DlsLKuD6CyNrR2Dw==
+
 eslint-plugin-radar@^0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/eslint-plugin-radar/-/eslint-plugin-radar-0.2.1.tgz#5b5e696f0df1c1aacf26b6cb1b708d862659bfb2"
@@ -7293,6 +7303,11 @@ eslint-plugin-security@^1.4.0:
   integrity sha512-xlS7P2PLMXeqfhyf3NpqbvbnW04kN8M9NtmhpR3XGyOvt/vNKS7XPXT5EDbwKW9vCjWH4PpfQvgD/+JgN0VJKA==
   dependencies:
     safe-regex "^1.1.0"
+
+eslint-plugin-simple-import-sort@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-simple-import-sort/-/eslint-plugin-simple-import-sort-7.0.0.tgz#a1dad262f46d2184a90095a60c66fef74727f0f8"
+  integrity sha512-U3vEDB5zhYPNfxT5TYR7u01dboFZp+HNpnGhkDB2g/2E4wZ/g1Q9Ton8UwCLfRV9yAKyYqDh62oHOamvkFxsvw==
 
 eslint-plugin-sort-keys-fix@^1.1.1:
   version "1.1.1"

@@ -1,3 +1,4 @@
+import { DBFake } from '@automagical/contracts';
 import {
   IsBoolean,
   IsOptional,
@@ -5,8 +6,8 @@ import {
   IsString,
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
+
 import { timestamps } from '.';
-import { DBFake } from '@automagical/contracts';
 
 @Schema({
   minimize: false,

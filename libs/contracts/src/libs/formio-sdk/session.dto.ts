@@ -1,6 +1,7 @@
 import { IsDate, IsOptional, IsString } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
+
 import { BaseDTO, timestamps } from '.';
 
 @Schema({

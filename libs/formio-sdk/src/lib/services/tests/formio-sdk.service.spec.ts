@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import faker from 'faker';
 import { LoggerModule } from 'nestjs-pino';
+
 import { FormioSdkService } from '../formio-sdk.service';
 
 describe('formio-sdk', () => {
