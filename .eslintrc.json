@@ -2,7 +2,16 @@
   "root": true,
   "ignorePatterns": ["**/*"],
   "plugins": [
-    "@nrwl/nx", "security", "radar", "unicorn", "jsx-a11y", "react", "react-hooks", "react-native", "react-redux"
+    "@nrwl/nx",
+    "security",
+    "radar",
+    "unicorn",
+    "jsx-a11y",
+    "react",
+    "react-hooks",
+    "react-native",
+    "react-redux",
+    "jsonc"
   ],
   "overrides": [{
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
@@ -33,7 +42,8 @@
         "plugin:react/recommended",
         "plugin:react-hooks/recommended",
         "plugin:react-native/all",
-        "plugin:react-redux/recommended"
+        "plugin:react-redux/recommended",
+        "plugin:jsonc/recommended-with-jsonc"
       ],
       "rules": {
         "no-case-declarations": "off",
