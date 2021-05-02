@@ -40,7 +40,7 @@ import dayjs from 'dayjs';
 import { Request } from 'express';
 import { PinoLogger } from 'nestjs-pino';
 
-interface UpdateArgs {
+interface UpdateArguments {
   // #region Object Properties
 
   /**
@@ -115,23 +115,24 @@ export class LicenseService {
     });
   }
 
-  public licenseIdFromReq(req: Request): string {
+  public licenseIdFromReq(request: Request): string {
     return (
-      req.headers['x-license-key'] ||
-      req.params?.licenseKey ||
-      req.body?.licenseKey ||
-      null
+      request.headers['x-license-key'] ||
+      request.params?.licenseKey ||
+      request.body?.licenseKey
     );
   }
 
-  public async monthlyUsage(args: UpdateArgs): Promise<LicenseMonthlyUsageDTO> {
-    let project = await this.getProject(args);
-    project = (await this.getStage(args, project)) || project;
+  public async monthlyUsage(
+    arguments_: UpdateArguments,
+  ): Promise<LicenseMonthlyUsageDTO> {
+    let project = await this.getProject(arguments_);
+    project = (await this.getStage(arguments_, project)) || project;
 
     return {
       emails: project.email,
       formRequests: project.formRequests,
-      forms: project.forms.filter((i) => !i.disabled).length,
+      forms: project.forms.filter((index) => !index.disabled).length,
       pdfDownloads: project.pdfDownload,
       pdfs: project.pdf,
       submissionRequests: project.submissionRequest,
@@ -153,7 +154,10 @@ export class LicenseService {
   ): Promise<UtilizationResponseDTO> {
     // Load auth associated with this specific license key
     // Not all keys may be scoped for the full capabilities of the license
-    const { licenseKeys, developmentLicense: devLicense } = license.data;
+    const {
+      licenseKeys,
+      developmentLicense: developmentLicense,
+    } = license.data;
     const auth = licenseKeys.find((key) => key.key === update.licenseKey);
     // * #1
     if (!auth) {
@@ -176,25 +180,25 @@ export class LicenseService {
     }
     // * #3
     const cacheData: CacheData = await this.getCache(update.licenseKey);
-    const args = {
+    const arguments_ = {
       update,
       license,
       cacheData,
     };
-    await this.processUpdate(args);
+    await this.processUpdate(arguments_);
     const keys: Record<string, LicenseKeyDTO> = {};
-    licenseKeys.forEach((i) => (keys[i.key] = i));
+    licenseKeys.forEach((index) => (keys[index.key] = index));
     // ! Hash
     return {
       hash: '',
       ...update,
-      used: await this.monthlyUsage(args),
+      used: await this.monthlyUsage(arguments_),
       licenseKey: update.licenseKey,
       projectId: update.projectId,
       licenseId: license._id,
       terms: license.data,
       type: update.type,
-      devLicense,
+      devLicense: developmentLicense,
       keys,
     };
   }
@@ -204,10 +208,10 @@ export class LicenseService {
   // #region Protected Methods
 
   protected async getApiServer(
-    args: UpdateArgs,
+    arguments_: UpdateArguments,
     returnDisabled = false,
   ): Promise<CacheEnvironmentDTO> {
-    const { update, license } = args;
+    const { update, license } = arguments_;
     const cacheData =
       (await this.cacheManager.get<CacheEnvironmentDTO[]>(license._id)) || [];
     const environmentMap: Record<string, CacheEnvironmentDTO> = {};
@@ -225,8 +229,9 @@ export class LicenseService {
     // </Already Exists>
     // <Add New>
     const limit = license.data.apiServers || 0; // Breaking the trend, 0 is default.
-    const current = cacheData.filter((i) => !i.disabled && !!i.mongoHash)
-      .length;
+    const current = cacheData.filter(
+      (index) => !index.disabled && !!index.mongoHash,
+    ).length;
     if (current >= limit) {
       throw new BadRequestException('At api server limit');
     }
@@ -242,13 +247,13 @@ export class LicenseService {
   }
 
   protected async getForm(
-    args: UpdateArgs,
+    arguments_: UpdateArguments,
     project: CacheProjectDTO,
     returnDisabled = false,
   ): Promise<CacheFormDTO> {
-    const { update, license, cacheData } = args;
+    const { update, license, cacheData } = arguments_;
     if (!update.formId) {
-      return null;
+      return undefined;
     }
     const formMap: Record<string, CacheFormDTO> = {};
     project.forms.forEach((form) => (formMap[form.formId] = form));
@@ -262,8 +267,9 @@ export class LicenseService {
     }
     // </Already Exists>
     // <Add New>
-    const limit = license.data.projects || Infinity;
-    const current = cacheData.projects.filter((i) => !i.disabled).length;
+    const limit = license.data.projects || Number.POSITIVE_INFINITY;
+    const current = cacheData.projects.filter((index) => !index.disabled)
+      .length;
     if (current >= limit) {
       throw new BadRequestException('At project limit');
     }
@@ -277,10 +283,10 @@ export class LicenseService {
   }
 
   protected async getProject(
-    args: UpdateArgs,
+    arguments_: UpdateArguments,
     returnDisabled = false,
   ): Promise<CacheProjectDTO> {
-    const { cacheData, update, license } = args;
+    const { cacheData, update, license } = arguments_;
     const projectMap: Record<string, CacheProjectDTO> = {};
     cacheData.projects.forEach(
       (project) => (projectMap[project.projectId] = project),
@@ -295,8 +301,9 @@ export class LicenseService {
     }
     // </Already Exists>
     // <Add New>
-    const limit = license.data.projects || Infinity;
-    const current = cacheData.projects.filter((i) => !i.disabled).length;
+    const limit = license.data.projects || Number.POSITIVE_INFINITY;
+    const current = cacheData.projects.filter((index) => !index.disabled)
+      .length;
     if (current >= limit) {
       throw new BadRequestException('At project limit');
     }
@@ -310,13 +317,13 @@ export class LicenseService {
   }
 
   protected async getStage(
-    args: UpdateArgs,
+    arguments_: UpdateArguments,
     project: CacheProjectDTO,
     returnDisabled = false,
   ): Promise<CacheProjectDTO> {
-    const { cacheData, update, license } = args;
+    const { cacheData, update, license } = arguments_;
     if (!update.stageId) {
-      return null;
+      return undefined;
     }
     const stageMap: Record<string, CacheProjectDTO> = {};
     project.livestages.forEach((stage) => (stageMap[stage.stageId] = stage));
@@ -330,8 +337,9 @@ export class LicenseService {
     }
     // </Already Exists>
     // <Add New>
-    const limit = license.data.livestages || Infinity;
-    const current = project.livestages.filter((i) => !i.disabled).length;
+    const limit = license.data.livestages || Number.POSITIVE_INFINITY;
+    const current = project.livestages.filter((index) => !index.disabled)
+      .length;
     if (current >= limit) {
       throw new BadRequestException('At stage limit');
     }
@@ -352,21 +360,25 @@ export class LicenseService {
     return started && !ended;
   }
 
-  protected async processUpdate(args: UpdateArgs): Promise<CacheData> {
-    const { cacheData, update, license } = args;
+  // TODO: Refactor method to simplify
+  // eslint-disable-next-line radar/cognitive-complexity
+  protected async processUpdate(
+    arguments_: UpdateArguments,
+  ): Promise<CacheData> {
+    const { cacheData, update, license } = arguments_;
     const licenseData = new Map(Object.entries(license.data));
 
     switch (update.type) {
       case LicenseScopes.apiServer:
-        await this.getApiServer(args);
+        await this.getApiServer(arguments_);
         return cacheData;
       case LicenseScopes.pdfServer:
         // TODO: PDF Server
         throw new NotImplementedException('FIXME');
     }
-    let project = await this.getProject(args);
-    project = (await this.getStage(args, project)) || project;
-    await this.getForm(args, project);
+    let project = await this.getProject(arguments_);
+    project = (await this.getStage(arguments_, project)) || project;
+    await this.getForm(arguments_, project);
     // * Items tracked monthly
     // Submission counts and such
     const pluralType = `${update.type}s`;
@@ -419,10 +431,10 @@ export class LicenseService {
 
   // #region Private Methods
 
-  private fetch<T>(args: FetchWith) {
+  private fetch<T>(arguments_: FetchWith) {
     return this.formioSdkService.fetch<T>({
       baseUrl: this.configService.get(LICENSE_SERVER),
-      ...args,
+      ...arguments_,
     });
   }
 

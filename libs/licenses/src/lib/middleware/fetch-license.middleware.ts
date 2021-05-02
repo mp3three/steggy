@@ -39,15 +39,15 @@ export class FetchLicenseMiddleware implements NestMiddleware {
   // #region Public Methods
 
   public async use(
-    req: Request,
-    res: Response,
+    request: Request,
+    response: Response,
     next: NextFunction,
   ): Promise<void> {
-    const licenseId = this.licenseService.licenseIdFromReq(req);
-    res.locals = {
+    const licenseId = this.licenseService.licenseIdFromReq(request);
+    response.locals = {
       licenseId,
-      ...res.locals,
-      ...(await this.populate(req, res, licenseId)),
+      ...response.locals,
+      ...(await this.populate(request, response, licenseId)),
     };
     next();
   }
@@ -56,14 +56,14 @@ export class FetchLicenseMiddleware implements NestMiddleware {
 
   // #region Private Methods
 
-  private canView(license: LicenseDTO, req: Request, res: Response) {
+  private canView(license: LicenseDTO, request: Request, response: Response) {
     if (!license) {
       return false;
     }
     const ownsLicense = license.data.user.some(
-      (user) => user._id === res.locals.user._id,
+      (user) => user._id === response.locals.user._id,
     );
-    return ownsLicense || this.isAdmin(req);
+    return ownsLicense || this.isAdmin(request);
   }
 
   /**
@@ -76,16 +76,20 @@ export class FetchLicenseMiddleware implements NestMiddleware {
    * - environment metadata (project names, ids, active states)
    * - licensed api server capabilities (array of basic strings usually)
    */
-  private isAdmin(req: Request) {
+  private isAdmin(request: Request) {
     return (
       this.configService.get(ADMIN_TOKEN) ===
-      req.headers[this.configService.get(TOKEN_HEADER)]
+      request.headers[this.configService.get(TOKEN_HEADER)]
     );
   }
 
-  private async populate(req: Request, res: Response, licenseId: string) {
+  private async populate(
+    request: Request,
+    response: Response,
+    licenseId: string,
+  ) {
     const licenseList = await this.licenseService.licenseFetchByUser(
-      res.locals.user as UserDTO,
+      response.locals.user as UserDTO,
     );
     const out: { license?: LicenseDTO; licenses?: LicenseDTO[] } = {};
     if (!licenseList) {
@@ -95,15 +99,15 @@ export class FetchLicenseMiddleware implements NestMiddleware {
     if (!licenseId) {
       return;
     }
-    const idx = new Map<string, LicenseDTO>();
+    const index = new Map<string, LicenseDTO>();
     licenseList.forEach((license) =>
-      license.data.licenseKeys.forEach((key) => (idx[key.key] = license)),
+      license.data.licenseKeys.forEach((key) => (index[key.key] = license)),
     );
-    if (!idx.has(licenseId)) {
-      idx.set(licenseId, await this.licenseService.licenseFetch(licenseId));
+    if (!index.has(licenseId)) {
+      index.set(licenseId, await this.licenseService.licenseFetch(licenseId));
     }
-    if (this.canView(idx.get(licenseId), req, res)) {
-      out.license = idx.get(licenseId);
+    if (this.canView(index.get(licenseId), request, response)) {
+      out.license = index.get(licenseId);
     }
     return out;
   }

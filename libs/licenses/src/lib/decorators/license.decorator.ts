@@ -23,21 +23,21 @@ export function FetchLicense(): ReturnType<typeof applyDecorators> {
 }
 
 export const License = createParamDecorator(
-  (data: string, ctx: ExecutionContext) => {
-    const response = ctx.switchToHttp().getResponse();
+  (data: string, context: ExecutionContext) => {
+    const response = context.switchToHttp().getResponse();
     return response.locals.license;
   },
 );
 export const AllLicenses = createParamDecorator(
-  (data: string, ctx: ExecutionContext) => {
-    const response = ctx.switchToHttp().getResponse();
+  (data: string, context: ExecutionContext) => {
+    const response = context.switchToHttp().getResponse();
     return response.locals.licenses;
   },
 );
 
 export const LicenseId = createParamDecorator(
-  (data: string, ctx: ExecutionContext) => {
-    const response = ctx.switchToHttp().getResponse();
+  (data: string, context: ExecutionContext) => {
+    const response = context.switchToHttp().getResponse();
     return response.locals.licenseId;
   },
 );

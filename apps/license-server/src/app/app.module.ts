@@ -11,8 +11,7 @@ import { UtilizationController } from './utilization.controller';
     LicensesModule,
     FormioSdkModule,
     CacheModule.register({
-      max: Infinity,
-      ttl: null,
+      max: Number.POSITIVE_INFINITY,
       store: RedisStore,
       host: process.env.LICENSES_REDIS_HOST,
       port: process.env.LICENSES_REDIS_PORT,
