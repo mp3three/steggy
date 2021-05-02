@@ -4,20 +4,19 @@ import {
   IsEnum,
   IsOptional,
   IsString,
-  ValidateNested,
-  MaxLength,
   Matches,
-  IsSemVer,
+  MaxLength,
+  ValidateNested,
 } from '@automagical/validation';
+import { Prop } from '@nestjs/mongoose';
 import faker from 'faker';
-import { AccessDTO } from './Access.dto';
 import { BaseDTO, BaseOmitProps } from '.';
+import { AccessDTO } from './Access.dto';
 import {
   PROJECT_FRAMEWORKS,
   PROJECT_PLAN_TYPES,
   PROJECT_TYPES,
 } from './constants';
-import { Prop } from '@nestjs/mongoose';
 
 export class ProjectSettingsDTO {
   // #region Object Properties

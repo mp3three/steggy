@@ -1,9 +1,4 @@
-import {
-  IsObjectId,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from '@automagical/validation';
+import { IsOptional, IsString, ValidateNested } from '@automagical/validation';
 
 // {
 //   resources: ["6045267faf1db665e0de9327"],
@@ -16,11 +11,6 @@ import {
 export class SaveActionSettingsDTO {
   // #region Object Properties
 
-  /**
-   * Reference to the resource where the data should be ssaved
-   */
-  @IsObjectId()
-  public resource: string;
   /**
    * Assign this resource to property name (on resource)
    */
@@ -37,6 +27,11 @@ export class SaveActionSettingsDTO {
   @IsOptional()
   @ValidateNested()
   public fields: Record<string, string>;
+  /**
+   * Reference to the resource where the data should be ssaved
+   */
+  @IsString()
+  public resource: string;
   /**
    * ## Transform Mappings
    *

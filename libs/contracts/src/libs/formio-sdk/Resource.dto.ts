@@ -1,6 +1,5 @@
 import {
   IsEnum,
-  IsObjectId,
   IsOptional,
   IsString,
   ValidateNested,
@@ -67,7 +66,7 @@ export class ResourceDTO extends BaseDTO {
    * Stages need project references
    */
   @IsOptional()
-  @IsObjectId()
+  @IsString()
   public project?: string;
   /**
    * Custom controller logic. See README in lib base

@@ -4,7 +4,6 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import cors from 'cors';
 import { json } from 'express';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
@@ -20,9 +19,9 @@ async function bootstrap() {
   const logger = app.get(Logger);
   const config = app.get(ConfigService);
   app.useLogger(logger);
+  app.enableCors({});
   app.useStaticAssets({ root: 'assets/public' });
   app.use(
-    cors(),
     helmet(),
     json({ limit: config.get('BODY_SIZE') }),
     LocalsInitMiddlware,

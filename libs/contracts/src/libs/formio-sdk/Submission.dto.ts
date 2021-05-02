@@ -1,15 +1,14 @@
 import {
   IsArray,
   IsEnum,
-  IsObjectId,
   IsOptional,
   IsString,
   ValidateNested,
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { AccessDTO } from './Access.dto';
 import { BaseDTO, timestamps } from '.';
+import { AccessDTO } from './Access.dto';
 import { SUBMISSION_STATES } from './constants';
 
 @Schema({
@@ -22,12 +21,6 @@ export class SubmissionDTO<
 > extends BaseDTO {
   // #region Object Properties
 
-  /**
-   * Reference to the resource that created this
-   */
-  @IsObjectId()
-  @Prop({ ref: 'form', required: true, index: true })
-  public form: string;
   /**
    * @FIXME: What is this?
    */
@@ -61,6 +54,12 @@ export class SubmissionDTO<
     index: true,
   })
   public access?: AccessDTO[];
+  /**
+   * Reference to the resource that created this
+   */
+  @IsString()
+  @Prop({ ref: 'form', required: true, index: true })
+  public form: string;
   /**
    * Supplemental information for your submission
    */
