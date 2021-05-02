@@ -1,7 +1,7 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nrwl/nx", "security", "radar"],
+  "plugins": ["@nrwl/nx", "security", "radar", "unicorn"],
   "overrides": [{
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
@@ -25,11 +25,15 @@
         "plugin:you-dont-need-lodash-underscore/compatible",
         "plugin:security/recommended",
         "plugin:@typescript-eslint/recommended",
-        "plugin:radar/recommended"
+        "plugin:radar/recommended",
+        "plugin:unicorn/recommended"
       ],
       "rules": {
         "no-case-declarations": "off",
-        "no-async-promise-executor": "off"
+        "no-async-promise-executor": "off",
+        "unicorn/prefer-node-protocol": "off",
+        "unicorn/no-array-for-each": "off",
+        "unicorn/import-style": "off"
       }
     },
     {

@@ -96,16 +96,16 @@ export class LicenseService {
   }
 
   public async toggleUsage(
-    args: FetchWith<{
+    arguments_: FetchWith<{
       state: boolean;
       body: LicenseApiServer | LicenseItemDTO;
     }>,
   ): Promise<unknown> {
-    this.logger.debug(`toggleUsage`, args);
+    this.logger.debug(`toggleUsage`, arguments_);
     return await this.formioSdkService.fetch({
       method: HTTP_Methods.POST,
-      url: `/utilization/${args.state ? 'enable' : 'disable'}`,
-      ...args,
+      url: `/utilization/${arguments_.state ? 'enable' : 'disable'}`,
+      ...arguments_,
     });
   }
 

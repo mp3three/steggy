@@ -16,8 +16,8 @@ export function FetchUser(): ReturnType<typeof applyDecorators> {
   );
 }
 export const User = createParamDecorator(
-  (data: string, ctx: ExecutionContext) => {
-    const response = ctx.switchToHttp().getResponse();
+  (data: string, context: ExecutionContext) => {
+    const response = context.switchToHttp().getResponse();
     /**
      * ? Is data a provided value that I am trying to override?
      */

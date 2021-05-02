@@ -18,7 +18,7 @@ describe('submission-service', () => {
   const logger = pino();
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
+    const moduleReference = await Test.createTestingModule({
       imports: [ConfigModule.register('formio-sdk-test')],
       providers: [
         FormioSdkService,
@@ -31,10 +31,10 @@ describe('submission-service', () => {
       ],
     }).compile();
 
-    formioSdkService = moduleRef.get(FormioSdkService);
-    submissionService = moduleRef.get(SubmissionService);
+    formioSdkService = moduleReference.get(FormioSdkService);
+    submissionService = moduleReference.get(SubmissionService);
 
-    await formioSdkService.onModuleInit();
+    await formioSdkService['onModuleInit']();
   });
 
   describe('patch-flow', () => {

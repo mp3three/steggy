@@ -3,7 +3,7 @@ import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 import fetch from 'node-fetch';
-import { FetchArgs } from '../typings';
+import { FetchArguments } from '../typings';
 import { BaseFetch } from './base-fetch.service';
 
 @Injectable()
@@ -45,7 +45,7 @@ export class FetchService extends BaseFetch {
    * - Exporting as postman compatible (convert a quick script into e2e tests?)
    */
   @Trace()
-  public async fetch<T>(args: Partial<FetchArgs>): Promise<T> {
+  public async fetch<T>(args: Partial<FetchArguments>): Promise<T> {
     const url: string = await this.fetchCreateUrl(args);
     const requestInit = await this.fetchCreateMeta(args);
     try {

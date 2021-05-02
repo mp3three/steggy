@@ -15,7 +15,7 @@ import {
   FetchWith,
   HTTP_Methods,
   Identifier,
-  TempAuthToken,
+  TemporaryAuthToken as TemporaryAuthToken,
 } from '../../typings';
 
 type CommonID = Identifier | string;
@@ -35,7 +35,7 @@ export class FormioSdkService {
 
   public config: FormioSDKConfig;
   public jwtToken: string;
-  public userDto: UserDTO = null;
+  public userDto: UserDTO;
 
   protected readonly ALL_PROJECTS: Record<string, ProjectDTO> = {};
 
@@ -55,13 +55,13 @@ export class FormioSdkService {
   // #region Public Methods
 
   @Trace()
-  public async fetch<T>(args: FetchWith): Promise<T> {
+  public async fetch<T>(arguments_: FetchWith): Promise<T> {
     return await this.fetchHandler<T>(
       this.fetchService.fetch<T>({
         baseUrl: this.config.PORTAL_BASE_URL,
         apiKey: this.config.API_KEY,
         token: this.jwtToken,
-        ...args,
+        ...arguments_,
       }),
     );
   }
@@ -71,11 +71,11 @@ export class FormioSdkService {
    */
   @Trace()
   public async projectAccessInfo(
-    args: FetchWith<{ project: CommonID }>,
+    arguments_: FetchWith<{ project: CommonID }>,
   ): Promise<unknown> {
     return await this.fetch({
-      url: this.projectUrl(args.project, '/access'),
-      ...args,
+      url: this.projectUrl(arguments_.project, '/access'),
+      ...arguments_,
     });
   }
 
@@ -97,21 +97,21 @@ export class FormioSdkService {
    */
   @Trace()
   public async projectAuthToken(
-    args: FetchWith<{
+    arguments_: FetchWith<{
       project: CommonID;
       allowList?: Map<HTTP_Methods, string[]>;
     }>,
-  ): Promise<TempAuthToken> {
+  ): Promise<TemporaryAuthToken> {
     let header;
-    if (args.allowList) {
+    if (arguments_.allowList) {
       const parts: string[] = [];
-      args.allowList.forEach((value, key) =>
+      arguments_.allowList.forEach((value, key) =>
         parts.push(`${key}:${value.join(',')}`),
       );
       header = parts.join(',');
     }
-    return await this.fetch<TempAuthToken>({
-      url: this.projectUrl(args.project, '/token'),
+    return await this.fetch<TemporaryAuthToken>({
+      url: this.projectUrl(arguments_.project, '/token'),
       headers: {
         'x-allow': header,
       },
@@ -125,13 +125,13 @@ export class FormioSdkService {
    */
   @Trace()
   public async projectCreate(
-    args: FetchWith<{ body: ProjectDTO }>,
+    arguments_: FetchWith<{ body: ProjectDTO }>,
   ): Promise<ProjectDTO> {
     // TODO: Templates
     return await this.fetch<ProjectDTO>({
       url: '/project',
       method: HTTP_Methods.POST,
-      ...args,
+      ...arguments_,
     });
   }
 
@@ -140,20 +140,20 @@ export class FormioSdkService {
    */
   @Trace()
   public async projectCreateAdmin(
-    args: FetchWith<{
+    arguments_: FetchWith<{
       project: CommonID;
       email: string;
       password: string;
     }>,
   ): Promise<UserDTO> {
     return await this.fetch({
-      url: this.projectUrl(args.project, '/admin'),
+      url: this.projectUrl(arguments_.project, '/admin'),
       method: HTTP_Methods.POST,
       data: {
-        email: args.email,
-        password: args.password,
+        email: arguments_.email,
+        password: arguments_.password,
       },
-      ...args,
+      ...arguments_,
     });
   }
 
@@ -162,12 +162,12 @@ export class FormioSdkService {
    */
   @Trace()
   public async projectDelete(
-    args: FetchWith<{ project: CommonID }>,
+    arguments_: FetchWith<{ project: CommonID }>,
   ): Promise<unknown> {
     return await this.fetch({
-      url: this.projectUrl(args.project),
+      url: this.projectUrl(arguments_.project),
       method: HTTP_Methods.DELETE,
-      ...args,
+      ...arguments_,
     });
   }
 
@@ -176,11 +176,11 @@ export class FormioSdkService {
    */
   @Trace()
   public async projectExport(
-    args: FetchWith<{ project: CommonID }>,
+    arguments_: FetchWith<{ project: CommonID }>,
   ): Promise<unknown> {
     return await this.fetch({
-      url: this.projectUrl(args.project, '/export'),
-      ...args,
+      url: this.projectUrl(arguments_.project, '/export'),
+      ...arguments_,
     });
   }
 
@@ -189,11 +189,11 @@ export class FormioSdkService {
    */
   @Trace()
   public async projectGet(
-    args: FetchWith<{ project: CommonID }>,
+    arguments_: FetchWith<{ project: CommonID }>,
   ): Promise<ProjectDTO> {
     return await this.fetch<ProjectDTO>({
-      url: this.projectUrl(args.project),
-      ...args,
+      url: this.projectUrl(arguments_.project),
+      ...arguments_,
     });
   }
 
@@ -201,10 +201,10 @@ export class FormioSdkService {
    * List all projects your user has access to
    */
   @Trace()
-  public async projectList(args: FetchWith = {}): Promise<ProjectDTO[]> {
+  public async projectList(arguments_: FetchWith = {}): Promise<ProjectDTO[]> {
     return await this.fetch<ProjectDTO[]>({
       url: '/project',
-      ...args,
+      ...arguments_,
     });
   }
 
@@ -213,12 +213,12 @@ export class FormioSdkService {
    */
   @Trace()
   public async projectRoleCreate(
-    args: FetchWith<{ project: CommonID }>,
+    arguments_: FetchWith<{ project: CommonID }>,
   ): Promise<unknown> {
     return await this.fetch({
-      url: this.projectUrl(args.project, '/role'),
+      url: this.projectUrl(arguments_.project, '/role'),
       method: HTTP_Methods.POST,
-      ...args,
+      ...arguments_,
     });
   }
 
@@ -227,11 +227,11 @@ export class FormioSdkService {
    */
   @Trace()
   public async projectRoleList(
-    args: FetchWith<{ project: CommonID }>,
+    arguments_: FetchWith<{ project: CommonID }>,
   ): Promise<unknown> {
     return await this.fetch<ProjectDTO[]>({
-      url: this.projectUrl(args.project, '/role'),
-      ...args,
+      url: this.projectUrl(arguments_.project, '/role'),
+      ...arguments_,
     });
   }
 
@@ -240,16 +240,19 @@ export class FormioSdkService {
    */
   @Trace()
   public async projectRoleUpdate(
-    args: FetchWith<{
+    arguments_: FetchWith<{
       project: CommonID;
       role: CommonID;
       body: Record<'title' | 'description', string>;
     }>,
   ): Promise<unknown> {
     return await this.fetch({
-      url: this.projectUrl(args.project, `/role/${this.id(args.role)}`),
+      url: this.projectUrl(
+        arguments_.project,
+        `/role/${this.id(arguments_.role)}`,
+      ),
       method: HTTP_Methods.PUT,
-      ...args,
+      ...arguments_,
     });
   }
 
@@ -260,16 +263,16 @@ export class FormioSdkService {
    */
   @Trace()
   public async projectTemplateImport(
-    args: FetchWith<{
+    arguments_: FetchWith<{
       project: CommonID;
       template: Record<string, unknown>;
     }>,
   ): Promise<unknown> {
     return await this.fetch({
-      url: this.projectUrl(args.project, '/import'),
+      url: this.projectUrl(arguments_.project, '/import'),
       method: HTTP_Methods.POST,
       data: {
-        template: args.template,
+        template: arguments_.template,
       },
     });
   }
@@ -281,13 +284,13 @@ export class FormioSdkService {
    */
   @Trace()
   public async projectUpdate(
-    args: FetchWith<{ project: Identifier; body: ProjectDTO }>,
+    arguments_: FetchWith<{ project: Identifier; body: ProjectDTO }>,
   ): Promise<unknown> {
     return await this.fetch<ProjectDTO>({
-      url: this.projectUrl(args.project),
+      url: this.projectUrl(arguments_.project),
       method: HTTP_Methods.PUT,
-      body: args.body,
-      ...args,
+      body: arguments_.body,
+      ...arguments_,
     });
   }
 
@@ -295,16 +298,18 @@ export class FormioSdkService {
    * Create a new user (register)
    */
   @Trace()
-  public async userCreate(args: FetchWith<UserDataDTO>): Promise<UserDTO> {
+  public async userCreate(
+    arguments_: FetchWith<UserDataDTO>,
+  ): Promise<UserDTO> {
     return await this.fetch<UserDTO>({
       url: this.projectUrl(this.config.BASE_PROJECT, '/user/register'),
       method: HTTP_Methods.POST,
       data: {
-        email: args.email,
-        password: args.password,
-        name: args.name,
+        email: arguments_.email,
+        password: arguments_.password,
+        name: arguments_.name,
       },
-      ...args,
+      ...arguments_,
     });
   }
 
@@ -312,10 +317,10 @@ export class FormioSdkService {
    * Retrieve userdata (or verify token)
    */
   @Trace()
-  public async userFetch(args: FetchWith = {}): Promise<unknown> {
+  public async userFetch(arguments_: FetchWith = {}): Promise<unknown> {
     this.userDto = await this.fetch({
-      url: this.projectUrl(null, '/current'),
-      ...args,
+      url: this.projectUrl(this.config.BASE_PROJECT, '/current'),
+      ...arguments_,
     });
     return this.userDto;
   }
@@ -325,24 +330,24 @@ export class FormioSdkService {
    */
   @Trace()
   public async userLogin(
-    args: FetchWith<{
+    arguments_: FetchWith<{
       name?: CommonID;
       type?: 'user' | 'admin';
     }> = {},
   ): Promise<UserDTO> {
-    args.name = args.name || this.config.BASE_PROJECT;
-    args.type = args.type || 'user';
-    const res = (await this.fetch({
-      url: this.projectUrl(args.name, `/${args.type}/login`),
+    arguments_.name = arguments_.name || this.config.BASE_PROJECT;
+    arguments_.type = arguments_.type || 'user';
+    const response = (await this.fetch({
+      url: this.projectUrl(arguments_.name, `/${arguments_.type}/login`),
       method: HTTP_Methods.POST,
       process: false,
       data: {
         ...this.config.AUTH,
       },
-      ...args,
+      ...arguments_,
     })) as Response;
-    this.jwtToken = res.headers.get('x-jwt-token');
-    this.userDto = await res.json();
+    this.jwtToken = response.headers.get('x-jwt-token');
+    this.userDto = await response.json();
     return this.userDto;
   }
 
@@ -352,15 +357,15 @@ export class FormioSdkService {
    * @FIXME: Does this actually do anything on the server side?
    */
   @Trace()
-  public async userLogout(args: FetchWith = {}): Promise<unknown> {
+  public async userLogout(arguments_: FetchWith = {}): Promise<unknown> {
     if (!this.jwtToken) {
       return;
     }
     await this.fetch({
-      url: this.projectUrl(null, '/logout'),
-      ...args,
+      url: this.projectUrl(this.config.BASE_PROJECT, '/logout'),
+      ...arguments_,
     });
-    this.jwtToken = null;
+    this.jwtToken = undefined;
   }
 
   /**
@@ -381,13 +386,13 @@ export class FormioSdkService {
    * @see projectCreateAdmin
    */
   public async projectAdminLogin(
-    args: FetchWith<{ name: CommonID }>,
+    arguments_: FetchWith<{ name: CommonID }>,
   ): Promise<UserDTO> {
     this.logger.warn(`getAdminToken`);
     return await this.userLogin({
-      name: args.name,
+      name: arguments_.name,
       type: 'admin',
-      ...args,
+      ...arguments_,
     });
   }
 
@@ -395,19 +400,21 @@ export class FormioSdkService {
 
   // #region Private Methods
 
-  private async fetchHandler<T>(res: T | Promise<T>): Promise<T> {
+  private async fetchHandler<T>(response: T | Promise<T>): Promise<T> {
     // De-promise
-    res = await res;
-    if (typeof res !== 'object') {
-      return res;
+    response = await response;
+    if (typeof response !== 'object') {
+      return response;
     }
     // TODO clean up this statement 🗑🔥
-    if (((res as unknown) as { name: string }).name === 'ValidationError') {
+    if (
+      ((response as unknown) as { name: string }).name === 'ValidationError'
+    ) {
       // This is likely a code error in the calling service
-      this.logger.error(JSON.stringify(res, null, 2));
+      this.logger.error(JSON.stringify(response, undefined, 2));
       throw new InternalServerErrorException();
     }
-    return res;
+    return response;
   }
 
   /**
@@ -427,17 +434,17 @@ export class FormioSdkService {
    * 🤖 Advanced AI generates string from url parts
    */
   private projectUrl(
-    args: CommonID = this.config.BASE_PROJECT,
+    project: CommonID = this.config.BASE_PROJECT,
     path = '',
   ): string {
-    if (typeof args === 'string' || args.name) {
-      return `/${typeof args === 'string' ? args : args.name}${path}`;
+    if (typeof project === 'string' || project.name) {
+      return `/${typeof project === 'string' ? project : project.name}${path}`;
     }
-    if (args.name) {
-      return `/${args.name}${path}`;
+    if (project.name) {
+      return `/${project.name}${path}`;
     }
-    if (args._id) {
-      return `/project/${args._id}${path}`;
+    if (project._id) {
+      return `/project/${project._id}${path}`;
     }
     // yolo?
     return `/formio${path}`;

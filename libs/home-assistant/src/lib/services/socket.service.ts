@@ -22,7 +22,7 @@ import {
   SendSocketMessageDTO,
   SocketMessageDTO,
 } from '@automagical/contracts/home-assistant';
-import { FetchArgs, FetchService } from '@automagical/fetch';
+import { FetchArguments, FetchService } from '@automagical/fetch';
 import { InjectLogger, sleep, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -93,7 +93,7 @@ export class SocketService {
    * Wrapper to set baseUrl
    */
   @Trace()
-  public fetch<T>(args: Partial<FetchArgs>): Promise<T> {
+  public fetch<T>(args: Partial<FetchArguments>): Promise<T> {
     return this.fetchService.fetch<T>({
       baseUrl: this.configService.get(BASE_URL),
       headers: {

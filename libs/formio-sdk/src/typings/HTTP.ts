@@ -12,7 +12,7 @@ export enum HTTP_Methods {
   PATCH = 'PATCH',
 }
 
-interface FetchArgs {
+interface FetchArguments {
   // #region Object Properties
 
   /**
@@ -64,7 +64,7 @@ interface FetchArgs {
   /**
    * Temporary auth token
    */
-  tempAuthToken?: TempAuthToken;
+  tempAuthToken?: TemporaryAuthToken;
   /**
    * Temp Auth Token
    */
@@ -76,23 +76,23 @@ interface FetchArgs {
 
   // #endregion Object Properties
 }
-// export type FetchArgs = Readonly<iFetchArgs>;
+// export type FetchArguments = Readonly<iFetchArguments>;
 
 /**
  * Constructs an object that can optionally accept params destined for fetch(), but also named params for this intermediate call
  */
 export type FetchWith<
   T extends Record<never, string> = Record<never, string>
-> = Partial<FetchArgs> & T;
+> = Partial<FetchArguments> & T;
 
 /**
  * Same thing as FetchWith, but the function doesn't need any args
  *
  * This is a work around, for some reason the default value approach isn't work as I had hoped
  */
-export type BaseFetch = Partial<FetchArgs>;
+export type BaseFetch = Partial<FetchArguments>;
 
-export type TempAuthToken = {
+export type TemporaryAuthToken = {
   token?: string;
   key: string;
 };

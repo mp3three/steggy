@@ -5,7 +5,7 @@ import { PinoLogger } from 'nestjs-pino';
 import { FormioSdkService } from '.';
 import { HTTP_Methods } from '../../typings';
 import { FetchWith } from '../../typings/HTTP';
-type SubmissionArgs<
+type SubmissionArguments<
   T extends Record<never, string> = Record<never, string>
 > = FetchWith<{ project: string; form: string; id?: string } & T>;
 
@@ -30,38 +30,38 @@ export class SubmissionService {
   // #region Public Methods
 
   @Trace()
-  public async get<T>(args: SubmissionArgs): Promise<T[]> {
+  public async get<T>(arguments_: SubmissionArguments): Promise<T[]> {
     // resource & form are synonymous basically anywhere in the platform
     // The difference is in how you use them, but they both work over the same APIs
     // When in doubt, use resource > form here
     return await this.formioSdkService.fetch<T[]>({
-      url: this.buildUrl(args),
-      ...args,
+      url: this.buildUrl(arguments_),
+      ...arguments_,
     });
   }
 
   @Trace()
-  public async patch<T>(args: SubmissionArgs): Promise<T> {
+  public async patch<T>(arguments_: SubmissionArguments): Promise<T> {
     return await this.formioSdkService.fetch<T>({
-      url: this.buildUrl(args),
+      url: this.buildUrl(arguments_),
       method: HTTP_Methods.PATCH,
-      ...args,
+      ...arguments_,
     });
   }
 
   @Trace()
   public async report(
-    args: SubmissionArgs<{ $match: Record<string, unknown> }>,
+    arguments_: SubmissionArguments<{ $match: Record<string, unknown> }>,
   ): Promise<unknown> {
     return await this.formioSdkService.fetch({
-      url: `/${args.project}/report`,
+      url: `/${arguments_.project}/report`,
       method: HTTP_Methods.POST,
       body: JSON.stringify([
         {
-          $match: args.$match,
+          $match: arguments_.$match,
         },
       ]),
-      ...args,
+      ...arguments_,
     });
   }
 
@@ -69,9 +69,9 @@ export class SubmissionService {
 
   // #region Private Methods
 
-  private buildUrl(args: SubmissionArgs) {
-    const suffix = args.id ? `/${args.id}` : '';
-    return `/${args.project}/${args.form}/submission${suffix}`;
+  private buildUrl(arguments_: SubmissionArguments) {
+    const suffix = arguments_.id ? `/${arguments_.id}` : '';
+    return `/${arguments_.project}/${arguments_.form}/submission${suffix}`;
   }
 
   // #endregion Private Methods
