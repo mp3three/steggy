@@ -1,4 +1,4 @@
-import { TYPE_WRITER } from '@automagical/contracts/constants';
+import { LIB_TYPE_WRITER } from '@automagical/contracts/constants';
 import { FormioSdkService } from '@automagical/formio-sdk';
 import { InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -41,11 +41,11 @@ type LabelValue = Record<'label' | 'value', string>;
  *
  * Custom components might have additional logic not accounted for here
  */
-export interface iComponent {
+export interface Component {
   // #region Object Properties
 
-  columns?: iComponent[];
-  components?: iComponent[];
+  columns?: Component[];
+  components?: Component[];
   data?: {
     url?: string;
     headers?: Record<'key' | 'value', string>[];
@@ -59,7 +59,7 @@ export interface iComponent {
   multiple?: boolean;
   protected?: boolean;
   questions?: LabelValue[];
-  rows?: { components: iComponent[] }[][];
+  rows?: { components: Component[] }[][];
   storeas?: 'array' | 'string';
   // types that have specific callouts, not all supported types
   type: 'signature' | 'container' | 'datamap' | 'datagrid' | 'tree';
@@ -70,7 +70,7 @@ export interface iComponent {
   // #endregion Object Properties
 }
 
-type prop = {
+type property = {
   key: string;
   optional?: boolean;
   type?: TypeNode;
@@ -85,10 +85,10 @@ type Context = Partial<{
   identifiers: Record<string, Identifier>;
 }>;
 
-export interface iProject {
+export interface indexProject {
   // #region Object Properties
 
-  components: iComponent[];
+  components: Component[];
   name: string;
   title: string;
 
@@ -111,7 +111,7 @@ export class TypeWriterService {
 
   // #region Object Properties
 
-  private context: Context = null;
+  private context: Context;
   private lock = false;
 
   // #endregion Object Properties
@@ -119,7 +119,7 @@ export class TypeWriterService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(TypeWriterService, TYPE_WRITER)
+    @InjectLogger(TypeWriterService, LIB_TYPE_WRITER)
     protected readonly logger: PinoLogger,
     private readonly formioSdkService: FormioSdkService,
   ) {}
@@ -150,7 +150,7 @@ export class TypeWriterService {
    *
    * 💥 Don't do simultanious calls to build using the same instance of this service 💥
    */
-  public async build(form: iProject): Promise<TypeAliasDeclaration[]> {
+  public async build(form: indexProject): Promise<TypeAliasDeclaration[]> {
     if (this.lock) {
       // It's more work to pass contexts around
       throw new Error('Cannot do simultanious builds');
@@ -159,7 +159,7 @@ export class TypeWriterService {
     this.lock = true;
     this.reset();
     const name = form.name;
-    this.context.baseName = `${name.charAt(0).toUpperCase()}${name.substr(1)}`;
+    this.context.baseName = `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
     this.logger.info(`Creating type ${name}: ${form.title}`);
     await this.addDeclaration(
       this.context.baseName,
@@ -186,12 +186,12 @@ export class TypeWriterService {
    * Build types for an array of projects
    * return back
    */
-  public async print(project: iProject): Promise<string[]> {
+  public async print(project: indexProject): Promise<string[]> {
     // Convert a project into an array of types
     const printer = createPrinter({ newLine: NewLineKind.LineFeed });
     const resultFile = createSourceFile(
-      null,
-      null,
+      undefined,
+      undefined,
       ScriptTarget.Latest,
       false,
       ScriptKind.TS,
@@ -244,7 +244,7 @@ export class TypeWriterService {
   }
 
   private async extractGroups(
-    component: iComponent,
+    component: Component,
   ): Promise<PropertySignature[]> {
     // Basic layout
     const children = component.columns || component.components;
@@ -292,14 +292,18 @@ export class TypeWriterService {
       );
     }
 
-    return null;
+    return undefined;
   }
 
   /**
    * something[][] => something[]
    */
-  private flatten<T>(arr: T[][]): T[] {
-    return arr.reduce((accumulator, value) => accumulator.concat(value), []);
+  private flatten<T>(array: T[][]): T[] {
+    // eslint-disable-next-line unicorn/no-array-reduce
+    return array.reduce((accumulator, value) => {
+      // eslint-disable-next-line unicorn/prefer-spread
+      return accumulator.concat(value);
+    }, []);
   }
 
   /**
@@ -307,31 +311,31 @@ export class TypeWriterService {
    */
   private getApiProperties(): PropertySignature[] {
     // A lot of these are pretty generic, would like to convert to relevant objects
-    const APIProperties: prop[] = [
+    const APIProperties: property[] = [
       // 📈
-      ...(['roles'].map((i) => ({
-        key: i,
+      ...(['roles'].map((index) => ({
+        key: index,
         type: this.string,
         array: true,
-      })) as prop[]),
+      })) as property[]),
       { key: 'state', union: ['submitted'] },
       { key: 'deleted', optional: true, type: this.boolean },
-      ...(['access', 'externalIds', 'externalTokens'].map((i) => ({
-        key: i,
+      ...(['access', 'externalIds', 'externalTokens'].map((index) => ({
+        key: index,
         type: this.unknown,
         array: true,
-      })) as prop[]),
+      })) as property[]),
       ...(['owner', 'form', 'project', 'created', 'modified', '_id'].map(
-        (i) => ({
-          key: i,
+        (index) => ({
+          key: index,
           type: this.string,
         }),
-      ) as prop[]),
+      ) as property[]),
     ];
 
     return this.flatten<PropertySignature>(
       Object.keys(APIProperties).map((key) =>
-        APIProperties[key].map((def: prop) => {
+        APIProperties[key].map((def: property) => {
           let type: TypeNode = def.type || this.stringUnion(def.union);
           if (def.array) {
             type = factory.createArrayTypeNode(type);
@@ -369,7 +373,7 @@ export class TypeWriterService {
     this.context.identifiers[name] =
       this.context.identifiers[name] || factory.createIdentifier(name);
     if (this.context.waitingForIdentifiers[name]) {
-      this.context.waitingForIdentifiers[name].forEach((i) => i());
+      this.context.waitingForIdentifiers[name].forEach((index) => index());
       delete this.context.waitingForIdentifiers[name];
     }
     return this.context.identifiers[name];
@@ -396,19 +400,19 @@ export class TypeWriterService {
    */
   private stringUnion<T extends LabelValue | string | StringLiteral>(
     items: T[],
-    key: string = null,
+    key?: string,
   ) {
     // item[0] | item[0] | item[0]
     return factory.createUnionTypeNode(
-      items.map((i) => {
+      items.map((index) => {
         if (key !== null) {
           // TODO: Is 'value' the correct default, or
-          i = i[key || 'value'];
+          index = index[key || 'value'];
         }
-        if (typeof i === 'string') {
-          i = factory.createStringLiteral(i) as T;
+        if (typeof index === 'string') {
+          index = factory.createStringLiteral(index) as T;
         }
-        return factory.createLiteralTypeNode(i as StringLiteral);
+        return factory.createLiteralTypeNode(index as StringLiteral);
       }),
     );
   }
@@ -419,7 +423,7 @@ export class TypeWriterService {
    * There is not a 1=1 relationship in arrays
    */
   private async toProperties(
-    componentList: iComponent[],
+    componentList: Component[],
   ): Promise<PropertySignature[]> {
     let out = [];
     await Promise.all(
@@ -430,6 +434,7 @@ export class TypeWriterService {
 
         const groups = this.extractGroups(component);
         if (groups !== null) {
+          // eslint-disable-next-line unicorn/prefer-spread
           out = out.concat(groups);
           return;
         }
@@ -488,11 +493,9 @@ export class TypeWriterService {
           boolean: SyntaxKind.BooleanKeyword,
         };
         let type: TypeNode;
-        if (simpleTypes[component.dataType]) {
-          type = factory.createKeywordTypeNode(simpleTypes[component.dataType]);
-        } else {
-          type = this.unknown;
-        }
+        type = simpleTypes[component.dataType]
+          ? factory.createKeywordTypeNode(simpleTypes[component.dataType])
+          : this.unknown;
 
         if (component.dataType === 'object') {
           // TODO: Is there any indication provided somewhere of the expected format?
@@ -505,20 +508,15 @@ export class TypeWriterService {
 
         // Handling the "value" property
         // Survey
-        if (component.questions) {
-          // key: Record<questions, values>
-          type = this.record(
-            this.stringUnion(component.questions),
-            this.stringUnion(component.values),
-          );
-        } else {
-          // Select, or compatible
-          // key: value[0] | value[1] | value[2]
-          type = this.stringUnion(
-            component.data.values,
-            component.valueProperty || 'value',
-          );
-        }
+        type = component.questions
+          ? this.record(
+              this.stringUnion(component.questions),
+              this.stringUnion(component.values),
+            )
+          : this.stringUnion(
+              component.data.values,
+              component.valueProperty || 'value',
+            );
 
         // key: value => key: value[]
         // tags, anything with a "multiple" option
@@ -533,7 +531,7 @@ export class TypeWriterService {
     return out;
   }
 
-  private async treeBuilder(body: TypeLiteralNode, component: iComponent) {
+  private async treeBuilder(body: TypeLiteralNode, component: Component) {
     const name = `_${this.context.baseName}_${component.key}_${TypeWriterService.DEFINITION_KEYWORD}`;
     await this.getIdentifier(name);
     const recursiveName = `_${this.context.baseName}_${component.key}_${TypeWriterService.RECURSIVE_KEYWORD}`;
@@ -560,7 +558,7 @@ export class TypeWriterService {
   /**
    * Pull json from a url
    */
-  private valuesFromUrl(component: iComponent) {
+  private valuesFromUrl(component: Component) {
     // TODO: Determine if any substitutions need to happen
     const headers = {};
     component.data.headers.forEach((header) => {
