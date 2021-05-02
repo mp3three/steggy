@@ -1,9 +1,4 @@
-import {
-  IsDateString,
-  IsEnum,
-  IsObjectId,
-  IsString,
-} from '@automagical/validation';
+import { IsDateString, IsEnum, IsString } from '@automagical/validation';
 
 export enum IsActive {
   inactive = '0',
@@ -16,14 +11,14 @@ export class LicenseApiServer {
   public lastCheck: string;
   @IsEnum(IsActive)
   public status: IsActive;
-  @IsObjectId()
+  @IsString()
   public environmentId: string;
-  @IsObjectId()
-  public id: string;
-  @IsObjectId()
-  public mongoHash: string;
   @IsString()
   public hostName: string;
+  @IsString()
+  public id: string;
+  @IsString()
+  public mongoHash: string;
 
   // #endregion Object Properties
 }

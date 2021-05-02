@@ -1,7 +1,6 @@
 import {
   IsEnum,
   IsNumber,
-  IsObjectId,
   IsOptional,
   IsString,
   ValidateNested,
@@ -105,7 +104,7 @@ export class ActionDTO<
    *
    * TODO: This probably should be `resource`
    */
-  @IsObjectId()
+  @IsString()
   @IsOptional()
   @Prop({
     type: MongooseSchema.Types.ObjectId,

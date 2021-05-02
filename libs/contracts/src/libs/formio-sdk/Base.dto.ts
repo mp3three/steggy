@@ -1,14 +1,14 @@
+import { DBFake } from '@automagical/contracts';
 import {
   IsDateString,
   IsNumber,
-  IsObjectId,
-  IsOptional,
+  IsString,
+  IsOptional
 } from '@automagical/validation';
 import { Prop } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import { Schema as MongooseSchema } from 'mongoose';
 import { BaseOmitProps } from '.';
-import { DBFake } from '@automagical/contracts';
 
 /**
  * Common properties between all objects
@@ -33,7 +33,7 @@ export abstract class BaseDTO extends DBFake {
    *
    * See Users collection in Portal Base
    */
-  @IsObjectId()
+  @IsString()
   @IsOptional()
   @Prop({ ref: 'submission', required: true, index: true })
   public owner?: string;
@@ -61,7 +61,7 @@ export abstract class BaseDTO extends DBFake {
    * If this is defined, then this must be a stage. ID reference to another project
    */
   @IsOptional()
-  @IsObjectId()
+  @IsString()
   @Prop({
     ref: 'project',
     type: MongooseSchema.Types.ObjectId,

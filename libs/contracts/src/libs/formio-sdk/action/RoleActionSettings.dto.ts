@@ -1,4 +1,4 @@
-import { IsEnum, IsObjectId } from '@automagical/validation';
+import { IsEnum, IsString } from '@automagical/validation';
 
 export enum RoleActionTypes {
   add = 'add',
@@ -28,7 +28,7 @@ export class RoleActionSettingsDTO {
   /**
    * ID Reference to role
    */
-  @IsObjectId()
+  @IsString()
   public role: string;
 
   // #endregion Object Properties

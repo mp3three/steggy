@@ -1,9 +1,4 @@
-import {
-  IsDateString,
-  IsEnum,
-  IsObjectId,
-  IsString,
-} from '@automagical/validation';
+import { IsDateString, IsEnum, IsString } from '@automagical/validation';
 import { LicenseAdminDTO } from '../formio-sdk/resource/LicenseAdmin.dto';
 import { LicenseApiServer } from './ApiServer.dto';
 
@@ -18,12 +13,12 @@ export class LicenseItemCommonDTO {
 
   @IsEnum(ProjectType)
   public projectType: ProjectType;
-  @IsObjectId()
+  @IsString()
   public id: string;
-  @IsObjectId()
-  public projectId: string;
   @IsString()
   public name: string;
+  @IsString()
+  public projectId: string;
   @IsString()
   public title: string;
 

@@ -1,12 +1,7 @@
-import {
-  IsDate,
-  IsObjectId,
-  IsOptional,
-  IsString,
-} from '@automagical/validation';
+import { IsDate, IsOptional, IsString } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
-import { BaseDTO, timestamps } from '.';
 import { Schema as MongooseSchema } from 'mongoose';
+import { BaseDTO, timestamps } from '.';
 
 @Schema({
   minimize: false,
@@ -15,12 +10,6 @@ import { Schema as MongooseSchema } from 'mongoose';
 export class SessionDTO extends BaseDTO {
   // #region Object Properties
 
-  @IsObjectId()
-  @Prop({ ref: 'form', required: true, index: true })
-  public form: string;
-  @IsObjectId()
-  @Prop({ ref: 'submission', required: true, index: true })
-  public submission: string;
   @IsOptional()
   @IsDate()
   @Prop()
@@ -29,6 +18,12 @@ export class SessionDTO extends BaseDTO {
   @IsString()
   @Prop()
   public source?: string;
+  @IsString()
+  @Prop({ ref: 'form', required: true, index: true })
+  public form: string;
+  @IsString()
+  @Prop({ ref: 'submission', required: true, index: true })
+  public submission: string;
   @Prop({
     ref: 'project',
     type: MongooseSchema.Types.ObjectId,
