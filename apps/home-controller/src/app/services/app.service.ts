@@ -134,7 +134,7 @@ export class AppService {
    */
   public async setLocks(
     state: HassServices,
-    lockList: string[] = null,
+    lockList?: string[],
   ): Promise<void> {
     const locks =
       lockList ||
@@ -320,7 +320,7 @@ export class AppService {
         }`,
         NotificationGroup.door,
       );
-      this.sendDoorNotificationTimeout[event.data.entity_id] = null;
+      this.sendDoorNotificationTimeout[event.data.entity_id] = undefined;
     }, 250);
   }
 

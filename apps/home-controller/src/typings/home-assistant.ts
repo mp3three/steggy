@@ -1,4 +1,6 @@
 export enum MobileDevice {
+  // 😂
+  // eslint-disable-next-line unicorn/prevent-abbreviations
   iPhone = 'mobile_app_cameron_s_iphone',
   pixel2 = 'mobile_app_pixel',
   // iPad = 'mobile_app_camerons_ipad',
