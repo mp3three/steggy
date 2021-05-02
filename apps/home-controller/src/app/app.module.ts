@@ -51,7 +51,7 @@ import { MqttClientService } from './services/mqtt-client.service';
       // * `sensor.sensor_name/event`
       delimiter: '/',
       verboseMemoryLeak: true,
-      // Things really get mad if you cross this limit
+      // Instability occurrs if you cross this limit, increase in increments of 10 as needed
       // Sometimes shows up as a "TypeError: Cannot convert a Symbol value to a string" on start
       maxListeners: 20,
     }),

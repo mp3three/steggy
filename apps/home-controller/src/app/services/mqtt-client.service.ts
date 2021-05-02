@@ -21,7 +21,7 @@ export class MqttClientService {
   ) {}
 
   // #endregion Constructors
-  // // #endregion Constructors
+// // #endregion Constructors
 
   // // #region Public Methods
 
@@ -73,17 +73,3 @@ export class MqttClientService {
   //   this.appService.setLocks(HassServices.unlock);
   // }
 }
-
-// @Subscribe(['lovelace', 'scene', '*'])
-// @Subscribe('lovelace/scene/loft')
-// public async setLoftScene(
-//   scene: RoomScene,
-//   @Ctx() context: MqttContext,
-// ): Promise<void> {
-//   // Currently seems to be borked
-//   this.logger.error(
-//     'room/set-scene',
-//     scene,
-//     context.getTopic().split('/').pop(),
-//   );
-// }
