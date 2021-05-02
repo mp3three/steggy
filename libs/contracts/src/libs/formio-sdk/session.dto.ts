@@ -19,18 +19,22 @@ export class SessionDTO extends BaseDTO {
   @Prop()
   public source?: string;
   @IsString()
-  @Prop({ ref: 'form', required: true, index: true })
+  @Prop({ index: true, ref: 'form', required: true })
   public form: string;
   @IsString()
-  @Prop({ ref: 'submission', required: true, index: true })
+  @Prop({ index: true, ref: 'submission', required: true })
   public submission: string;
   @Prop({
-    ref: 'project',
-    type: MongooseSchema.Types.ObjectId,
-    index: true,
-    required: true,
     // eslint-disable-next-line unicorn/no-null
-    default: null,
+default: null,
+    
+index: true,
+    
+ref: 'project',
+    
+required: true,
+    
+    type: MongooseSchema.Types.ObjectId,
   })
   public project?: string;
 

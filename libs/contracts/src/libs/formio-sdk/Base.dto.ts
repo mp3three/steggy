@@ -54,12 +54,16 @@ export abstract class BaseDTO extends DBFake {
   @IsOptional()
   @IsString()
   @Prop({
-    ref: 'project',
-    type: MongooseSchema.Types.ObjectId,
-    index: true,
-    required: true,
     // eslint-disable-next-line unicorn/no-null
-    default: null,
+default: null,
+    
+index: true,
+    
+ref: 'project',
+    
+required: true,
+    
+    type: MongooseSchema.Types.ObjectId,
   })
   public project?: string;
   @IsOptional()
@@ -74,7 +78,7 @@ export abstract class BaseDTO extends DBFake {
    */
   @IsString()
   @IsOptional()
-  @Prop({ ref: 'submission', required: true, index: true })
+  @Prop({ index: true, ref: 'submission', required: true })
   public owner?: string;
 
   // #endregion Object Properties

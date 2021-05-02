@@ -225,10 +225,10 @@ export class EntityService {
     const MIN_COLOR = 2500;
     const MAX_COLOR = 5500;
     const kelvin = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
-    this.logger.trace({ entityId, kelvin, brightness_pct }, 'circadianLight');
+    this.logger.trace({ brightness_pct, entityId, kelvin }, 'circadianLight');
     return await this.socketService.call(HassServices.turn_on, {
-      entity_id: entityId,
       brightness_pct,
+      entity_id: entityId,
       kelvin,
     });
   }

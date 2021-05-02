@@ -27,8 +27,8 @@ export class ResourceService {
     arguments_: FetchWith<IdentifierWithParent>,
   ): Promise<unknown> {
     return await this.formioSdkService.fetch({
-      url: this.buildResourcePath(arguments_),
       method: HTTP_Methods.DELETE,
+      url: this.buildResourcePath(arguments_),
       ...arguments_,
     });
   }
@@ -68,8 +68,8 @@ export class ResourceService {
     arguments_: FetchWith<IdentifierWithParent>,
   ): Promise<ResourceDTO> {
     return await this.formioSdkService.fetch({
-      url: this.buildResourcePath(arguments_),
       method: HTTP_Methods[arguments_._id ? 'PUT' : 'POST'],
+      url: this.buildResourcePath(arguments_),
       ...arguments_,
     });
   }

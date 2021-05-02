@@ -37,13 +37,13 @@ export class HomeAssistantService {
     return this.socketService.call(
       device,
       {
-        message,
-        title,
         data: {
           push: {
             'thread-id': group,
           },
         },
+        message,
+        title,
       },
       HassDomains.notify,
     );

@@ -133,8 +133,8 @@ export class BaseFetch {
       headers['x-token'] = arguments_.apiKey;
     }
     return {
-      headers,
       body: body as BodyInit,
+      headers,
       method,
     };
   }

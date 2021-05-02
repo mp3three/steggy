@@ -9,10 +9,10 @@ export class AccessDTO extends CanFake {
   public static fake(): AccessDTO {
     return {
       ...super.fake(),
-      type: faker.random.arrayElement(Object.values(AccessTypes)),
       roles: Array.from({ length: faker.datatype.number(5) }).map(() =>
         faker.datatype.uuid(),
       ),
+      type: faker.random.arrayElement(Object.values(AccessTypes)),
     };
   }
 

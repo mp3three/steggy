@@ -43,8 +43,8 @@ export class SubmissionService {
   @Trace()
   public async patch<T>(arguments_: SubmissionArguments): Promise<T> {
     return await this.formioSdkService.fetch<T>({
-      url: this.buildUrl(arguments_),
       method: HTTP_Methods.PATCH,
+      url: this.buildUrl(arguments_),
       ...arguments_,
     });
   }
@@ -54,13 +54,13 @@ export class SubmissionService {
     arguments_: SubmissionArguments<{ $match: Record<string, unknown> }>,
   ): Promise<unknown> {
     return await this.formioSdkService.fetch({
-      url: `/${arguments_.project}/report`,
-      method: HTTP_Methods.POST,
       body: JSON.stringify([
         {
           $match: arguments_.$match,
         },
       ]),
+      method: HTTP_Methods.POST,
+      url: `/${arguments_.project}/report`,
       ...arguments_,
     });
   }

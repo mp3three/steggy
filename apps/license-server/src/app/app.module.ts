@@ -7,16 +7,16 @@ import { LicenseController } from './license.controller';
 import { UtilizationController } from './utilization.controller';
 
 @Module({
+  controllers: [AppController, LicenseController, UtilizationController],
   imports: [
     LicensesModule,
     FormioSdkModule,
     CacheModule.register({
-      max: Number.POSITIVE_INFINITY,
-      store: RedisStore,
       host: process.env.LICENSES_REDIS_HOST,
+      max: Number.POSITIVE_INFINITY,
       port: process.env.LICENSES_REDIS_PORT,
+      store: RedisStore,
     }),
   ],
-  controllers: [AppController, LicenseController, UtilizationController],
 })
 export class AppModule {}

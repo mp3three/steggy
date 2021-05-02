@@ -22,8 +22,8 @@ describe('formio-sdk', () => {
               return {
                 libs: {
                   'formio-sdk': {
-                    PORTAL_BASE_URL,
                     API_KEY,
+                    PORTAL_BASE_URL,
                   },
                 },
               };
@@ -86,8 +86,8 @@ describe('formio-sdk', () => {
       formioSdkService.fetch({});
       expect(fetchService.fetch).toHaveBeenCalledWith(
         expect.objectContaining({
-          baseUrl: PORTAL_BASE_URL,
           apiKey: API_KEY,
+          baseUrl: PORTAL_BASE_URL,
           token: jwtToken,
         }),
       );
@@ -101,14 +101,14 @@ describe('formio-sdk', () => {
       const jwtToken = faker.datatype.uuid();
       formioSdkService.jwtToken = jwtToken;
       formioSdkService.fetch({
-        baseUrl: 'FOO',
         apiKey: 'BAR',
+        baseUrl: 'FOO',
         token: 'banana',
       });
       expect(fetchService.fetch).toHaveBeenCalledWith(
         expect.objectContaining({
-          baseUrl: 'FOO',
           apiKey: 'BAR',
+          baseUrl: 'FOO',
           token: 'banana',
         }),
       );

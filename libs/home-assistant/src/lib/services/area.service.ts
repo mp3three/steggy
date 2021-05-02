@@ -296,17 +296,17 @@ export class AreaService {
     // Because fuck working the first time you ask for something
     if (channel === 'off') {
       await this.fetchService.fetch({
-        url: '/keypress/PowerOff',
-        method: HTTP_Methods.POST,
         baseUrl: roku.host,
+        method: HTTP_Methods.POST,
         process: false,
+        url: '/keypress/PowerOff',
       });
       await sleep(100);
       return await this.fetchService.fetch({
-        url: '/keypress/PowerOff',
-        method: HTTP_Methods.POST,
         baseUrl: roku.host,
+        method: HTTP_Methods.POST,
         process: false,
+        url: '/keypress/PowerOff',
       });
     }
     let input = channel as string;
@@ -314,17 +314,17 @@ export class AreaService {
       input = `tvinput.${channel}`;
     }
     await this.fetchService.fetch({
-      url: `/launch/${input}`,
-      method: HTTP_Methods.POST,
       baseUrl: roku.host,
+      method: HTTP_Methods.POST,
       process: false,
+      url: `/launch/${input}`,
     });
     await sleep(100);
     return await this.fetchService.fetch({
-      url: `/launch/${input}`,
-      method: HTTP_Methods.POST,
       baseUrl: roku.host,
+      method: HTTP_Methods.POST,
       process: false,
+      url: `/launch/${input}`,
     });
   }
 
@@ -343,7 +343,7 @@ export class AreaService {
 
   // @Cron('*/5 * * * * *')
   @Cron('0 */5 * * * *')
-  @Trace({ omitArgs: true, level: 'info' })
+  @Trace({ level: 'info', omitArgs: true })
   private async circadianLightingUpdate() {
     this.AREA_MAP.forEach((entities) => {
       entities.forEach(async (entityId) => {
@@ -367,7 +367,7 @@ export class AreaService {
     }
     const areaName = this.CONTROLLER_MAP.get(entityId);
     const state = event.data.new_state;
-    this.logger.info({ state, entityId }, `Controller state updated`);
+    this.logger.info({ entityId, state }, `Controller state updated`);
     if (state.state === PicoStates.none) {
       return;
     }

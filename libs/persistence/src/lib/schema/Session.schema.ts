@@ -8,5 +8,5 @@ export const SessionSchema = SchemaFactory.createForClass(SessionDTO);
 SessionSchema.index(
   { machineName: 1 },
   // eslint-disable-next-line unicorn/no-null
-  { unique: true, partialFilterExpression: { deleted: { $eq: null } } },
+  { partialFilterExpression: { deleted: { $eq: null } }, unique: true },
 );

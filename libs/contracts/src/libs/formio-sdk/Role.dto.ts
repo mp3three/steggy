@@ -13,8 +13,8 @@ export class RoleDTO extends BaseDTO {
   @Prop({})
   public machineName: string;
   @Prop({
-    required: true,
     index: true,
+    required: true,
   })
   @IsString()
   public title: string;

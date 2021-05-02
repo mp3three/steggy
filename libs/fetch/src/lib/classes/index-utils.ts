@@ -26,17 +26,21 @@ export const indexQuery = (
         temporary = value.match(new RegExp('(?:/([^/]+))', 'gm'));
         try {
           out.set(name, {
-            // Users gotta user input
-            // eslint-disable-next-line security/detect-non-literal-regexp
-            $regex: new RegExp(temporary[1]),
+            
+            
             $options: temporary[2] || 'i',
+            // Users gotta user input
+// eslint-disable-next-line security/detect-non-literal-regexp
+$regex: new RegExp(temporary[1]),
           });
         } catch {
           out.set(name, {
-            // Unclear what a different falsy value will do
-            // eslint-disable-next-line unicorn/no-null
-            $regex: null,
+            
+            
             $options: temporary[2] || 'i',
+            // Unclear what a different falsy value will do
+// eslint-disable-next-line unicorn/no-null
+$regex: null,
           });
         }
         break;

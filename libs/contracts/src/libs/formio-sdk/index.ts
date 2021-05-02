@@ -25,6 +25,6 @@ export const NAME_REGEX = '^(?!-)[0-9a-zA-Z-]*(?<!submission|action|-)$';
 
 export type BaseOmitProperties = 'owner' | 'project';
 export const timestamps = {
-  updatedAt: 'modified',
   createdAt: 'created',
+  updatedAt: 'modified',
 };

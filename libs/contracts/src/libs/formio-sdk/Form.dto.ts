@@ -25,11 +25,11 @@ export class FormDTO extends BaseDTO {
 
   @IsEnum(FORM_TYPES)
   @Prop({
-    type: 'enum',
-    enum: FORM_TYPES,
-    required: true,
     default: FORM_TYPES.form,
+    enum: FORM_TYPES,
     index: true,
+    required: true,
+    type: 'enum',
   })
   public type: FORM_TYPES;
   @IsObject()
@@ -98,11 +98,11 @@ export class FormDTO extends BaseDTO {
   public machineName: string;
   @IsString()
   @Prop({
-    trim: true,
+    index: true,
     lowercase: true,
     required: true,
+    trim: true,
     unique: true,
-    index: true,
   })
   @Matches(NAME_REGEX, '', {
     message:

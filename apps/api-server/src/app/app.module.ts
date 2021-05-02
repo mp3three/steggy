@@ -13,13 +13,14 @@ import { LocalsInitMiddlware } from './middleware';
 import { CEWrapperService } from './services/';
 
 @Module({
+  controllers: [PortalController],
   imports: [
     ThrottlerModule.forRootAsync({
       inject: [ConfigService],
       useFactory(configService: ConfigService) {
         return {
-          ttl: configService.get('THROTTLE_TTL'),
           limit: configService.get('THROTTLE_LIMIT'),
+          ttl: configService.get('THROTTLE_TTL'),
         };
       },
     }),
@@ -27,11 +28,11 @@ import { CEWrapperService } from './services/';
     PersistenceModule.registerMongoose(),
     ScheduleModule.forRoot(),
     ConfigModule.register('api-server', {
-      REDIS_HOST: 'localhost',
       LOG_LEVEL: 'info',
+      REDIS_HOST: 'localhost',
+      REDIS_PORT: 6379,
       THROTTLE_LIMIT: 10,
       THROTTLE_TTL: 60,
-      REDIS_PORT: 6379,
     }),
     LoggerModule.forRootAsync({
       inject: [ConfigService],
@@ -47,23 +48,26 @@ import { CEWrapperService } from './services/';
       inject: [ConfigService],
       useFactory(configService: ConfigService) {
         return {
-          max: Number.POSITIVE_INFINITY,
-          store: RedisStore,
           host: configService.get('REDIS_HOST'),
+          max: Number.POSITIVE_INFINITY,
           port: configService.get('REDIS_PORT'),
+          store: RedisStore,
         };
       },
     }),
     EventEmitterModule.forRoot({
-      wildcard: true,
       delimiter: '/',
-      verboseMemoryLeak: true,
       // Instability occurrs if you cross this limit, increase in increments of 10 as needed
-      // Sometimes shows up as a "TypeError: Cannot convert a Symbol value to a string" on start
-      maxListeners: 20,
+// Sometimes shows up as a "TypeError: Cannot convert a Symbol value to a string" on start
+maxListeners: 20,
+      
+
+verboseMemoryLeak: true,
+      
+      
+      wildcard: true,
     }),
   ],
   providers: [CEWrapperService, LocalsInitMiddlware],
-  controllers: [PortalController],
 })
 export class AppModule {}

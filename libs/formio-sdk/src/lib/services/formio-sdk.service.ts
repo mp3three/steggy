@@ -58,8 +58,8 @@ export class FormioSdkService {
   public async fetch<T>(arguments_: FetchWith): Promise<T> {
     return await this.fetchHandler<T>(
       this.fetchService.fetch<T>({
-        baseUrl: this.config.PORTAL_BASE_URL,
         apiKey: this.config.API_KEY,
+        baseUrl: this.config.PORTAL_BASE_URL,
         token: this.jwtToken,
         ...arguments_,
       }),
@@ -111,10 +111,10 @@ export class FormioSdkService {
       header = parts.join(',');
     }
     return await this.fetch<TemporaryAuthToken>({
-      url: this.projectUrl(arguments_.project, '/token'),
       headers: {
         'x-allow': header,
       },
+      url: this.projectUrl(arguments_.project, '/token'),
     });
   }
 
@@ -129,8 +129,8 @@ export class FormioSdkService {
   ): Promise<ProjectDTO> {
     // TODO: Templates
     return await this.fetch<ProjectDTO>({
-      url: '/project',
       method: HTTP_Methods.POST,
+      url: '/project',
       ...arguments_,
     });
   }
@@ -147,12 +147,12 @@ export class FormioSdkService {
     }>,
   ): Promise<UserDTO> {
     return await this.fetch({
-      url: this.projectUrl(arguments_.project, '/admin'),
-      method: HTTP_Methods.POST,
       data: {
         email: arguments_.email,
         password: arguments_.password,
       },
+      method: HTTP_Methods.POST,
+      url: this.projectUrl(arguments_.project, '/admin'),
       ...arguments_,
     });
   }
@@ -165,8 +165,8 @@ export class FormioSdkService {
     arguments_: FetchWith<{ project: CommonID }>,
   ): Promise<unknown> {
     return await this.fetch({
-      url: this.projectUrl(arguments_.project),
       method: HTTP_Methods.DELETE,
+      url: this.projectUrl(arguments_.project),
       ...arguments_,
     });
   }
@@ -216,8 +216,8 @@ export class FormioSdkService {
     arguments_: FetchWith<{ project: CommonID }>,
   ): Promise<unknown> {
     return await this.fetch({
-      url: this.projectUrl(arguments_.project, '/role'),
       method: HTTP_Methods.POST,
+      url: this.projectUrl(arguments_.project, '/role'),
       ...arguments_,
     });
   }
@@ -247,11 +247,11 @@ export class FormioSdkService {
     }>,
   ): Promise<unknown> {
     return await this.fetch({
+      method: HTTP_Methods.PUT,
       url: this.projectUrl(
         arguments_.project,
         `/role/${this.id(arguments_.role)}`,
       ),
-      method: HTTP_Methods.PUT,
       ...arguments_,
     });
   }
@@ -269,11 +269,11 @@ export class FormioSdkService {
     }>,
   ): Promise<unknown> {
     return await this.fetch({
-      url: this.projectUrl(arguments_.project, '/import'),
-      method: HTTP_Methods.POST,
       data: {
         template: arguments_.template,
       },
+      method: HTTP_Methods.POST,
+      url: this.projectUrl(arguments_.project, '/import'),
     });
   }
 
@@ -287,9 +287,9 @@ export class FormioSdkService {
     arguments_: FetchWith<{ project: Identifier; body: ProjectDTO }>,
   ): Promise<unknown> {
     return await this.fetch<ProjectDTO>({
-      url: this.projectUrl(arguments_.project),
-      method: HTTP_Methods.PUT,
       body: arguments_.body,
+      method: HTTP_Methods.PUT,
+      url: this.projectUrl(arguments_.project),
       ...arguments_,
     });
   }
@@ -302,13 +302,13 @@ export class FormioSdkService {
     arguments_: FetchWith<UserDataDTO>,
   ): Promise<UserDTO> {
     return await this.fetch<UserDTO>({
-      url: this.projectUrl(this.config.BASE_PROJECT, '/user/register'),
-      method: HTTP_Methods.POST,
       data: {
         email: arguments_.email,
-        password: arguments_.password,
         name: arguments_.name,
+        password: arguments_.password,
       },
+      method: HTTP_Methods.POST,
+      url: this.projectUrl(this.config.BASE_PROJECT, '/user/register'),
       ...arguments_,
     });
   }
@@ -338,12 +338,12 @@ export class FormioSdkService {
     arguments_.name = arguments_.name || this.config.BASE_PROJECT;
     arguments_.type = arguments_.type || 'user';
     const response = (await this.fetch({
-      url: this.projectUrl(arguments_.name, `/${arguments_.type}/login`),
-      method: HTTP_Methods.POST,
-      process: false,
       data: {
         ...this.config.AUTH,
       },
+      method: HTTP_Methods.POST,
+      process: false,
+      url: this.projectUrl(arguments_.name, `/${arguments_.type}/login`),
       ...arguments_,
     })) as Response;
     this.jwtToken = response.headers.get('x-jwt-token');

@@ -211,9 +211,9 @@ export class TypeWriterService {
       }
     });
     return await this.formioSdkService.fetch<Record<string, unknown>[]>({
-      url: component.data.url,
-      rawUrl: true,
       headers,
+      rawUrl: true,
+      url: component.data.url,
     });
   }
 
@@ -498,9 +498,9 @@ export class TypeWriterService {
         // Anything kind enough to hand us a type
         const simpleTypes = {
           auto: SyntaxKind.UnknownKeyword,
-          string: SyntaxKind.StringKeyword,
-          number: SyntaxKind.NumberKeyword,
           boolean: SyntaxKind.BooleanKeyword,
+          number: SyntaxKind.NumberKeyword,
+          string: SyntaxKind.StringKeyword,
         };
         let type: TypeNode;
         type = simpleTypes[component.dataType]

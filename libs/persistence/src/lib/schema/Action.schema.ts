@@ -8,5 +8,5 @@ export const SchemaSchema = SchemaFactory.createForClass(SchemaDTO);
 SchemaSchema.index(
   { machineName: 1 },
   // eslint-disable-next-line unicorn/no-null
-  { unique: true, partialFilterExpression: { deleted: { $eq: null } } },
+  { partialFilterExpression: { deleted: { $eq: null } }, unique: true },
 );

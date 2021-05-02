@@ -8,19 +8,19 @@ import { ResourceService } from './services/resource.service';
 import { SubmissionService } from './services/submission.service';
 
 @Module({
+  exports: [
+    FormioSdkService,
+    LoadFormMiddleware,
+    ResourceService,
+    SubmissionService,
+    LicenseService,
+  ],
   imports: [FetchModule],
   providers: [
     FormioSdkService,
     ResourceService,
     SubmissionService,
     LoadFormMiddleware,
-    LicenseService,
-  ],
-  exports: [
-    FormioSdkService,
-    LoadFormMiddleware,
-    ResourceService,
-    SubmissionService,
     LicenseService,
   ],
 })

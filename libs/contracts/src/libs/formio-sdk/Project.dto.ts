@@ -71,12 +71,12 @@ export class ProjectDTO<
   public static fake(): Omit<ProjectDTO, BaseOmitProperties> {
     return {
       ...super.fake(),
+      name: faker.lorem.slug(1),
+      plan: faker.random.arrayElement(Object.values(PROJECT_PLAN_TYPES)),
       stageTitle: faker.lorem.word(),
       tag: faker.system.semver(),
       title: faker.lorem.word(8),
-      name: faker.lorem.slug(1),
       type: faker.random.arrayElement(Object.values(PROJECT_TYPES)),
-      plan: faker.random.arrayElement(Object.values(PROJECT_PLAN_TYPES)),
     };
   }
 
@@ -103,9 +103,9 @@ export class ProjectDTO<
   @IsEnum(PROJECT_TYPES)
   @Prop({
     default: PROJECT_TYPES.project,
+    enum: PROJECT_TYPES,
     index: true,
     type: 'enum',
-    enum: PROJECT_TYPES,
   })
   public type!: PROJECT_TYPES;
   /**
@@ -206,14 +206,14 @@ export class ProjectDTO<
     message:
       'Name may only container numbers, letters, and dashes. Must not terminate with a dash',
   })
-  @Prop({ maxlength: 63, index: true, required: true })
+  @Prop({ index: true, maxlength: 63, required: true })
   public name: string;
   /**
    * Human understandable title
    */
   @IsString()
   @MaxLength(63)
-  @Prop({ maxlength: 63, index: true, required: true })
+  @Prop({ index: true, maxlength: 63, required: true })
   public title: string;
   @ValidateNested()
   @IsOptional()

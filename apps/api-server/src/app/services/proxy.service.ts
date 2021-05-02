@@ -28,21 +28,21 @@ export class ProxyService {
       headers: {
         'x-token': tenant.settings.proxy.apiKey,
       },
-      url: tenant.settings.proxy.url,
       rawUrl: true,
+      url: tenant.settings.proxy.url,
     });
     if (!project._id) {
       throw new InternalServerErrorException('Invalid response');
     }
     return {
       ...project,
-      title: tenant.title,
+      _id: tenant._id,
       description: tenant.description,
       name: tenant.name,
       owner: tenant.owner,
-      _id: tenant._id,
       project: undefined,
       proxy: true,
+      title: tenant.title,
     };
   }
 

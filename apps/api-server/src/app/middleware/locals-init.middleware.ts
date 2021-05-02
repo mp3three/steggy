@@ -35,9 +35,9 @@ export class LocalsInitMiddlware implements NestMiddleware {
 
   protected initPermissions(response: LocalsResponse): void {
     response.locals.permissions = {
+      admin: false,
       all: false,
       own: false,
-      admin: false,
       self: false,
     };
   }

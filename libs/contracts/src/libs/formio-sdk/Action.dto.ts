@@ -28,8 +28,8 @@ export class ActionConditionDTO {
   @IsEnum(ACTION_CONDITION_EQ)
   @IsOptional()
   @Prop({
-    type: 'enum',
     enum: ACTION_CONDITION_EQ,
+    type: 'enum',
   })
   public eq?: ACTION_CONDITION_EQ;
   /**
@@ -75,9 +75,9 @@ export class ActionDTO<
    */
   @IsEnum(HANDLERS, { each: true })
   @Prop({
-    type: 'enum',
     enum: HANDLERS,
     required: true,
+    type: 'enum',
   })
   public handler: HANDLERS[];
   /**
@@ -85,9 +85,9 @@ export class ActionDTO<
    */
   @IsEnum(HTTP_METHODS, { each: true })
   @Prop({
-    type: 'enum',
     enum: HTTP_METHODS,
     required: true,
+    type: 'enum',
   })
   public method: HTTP_METHODS[];
   /**
@@ -96,17 +96,17 @@ export class ActionDTO<
   @IsNumber()
   @IsOptional()
   @Prop({
-    index: true,
     default: 0,
+    index: true,
   })
   public priority?: number;
   @IsString()
   @IsOptional()
   @Prop({
-    type: MongooseSchema.Types.ObjectId,
-    ref: 'form',
     index: true,
+    ref: 'form',
     required: true,
+    type: MongooseSchema.Types.ObjectId,
   })
   public form: string;
   @IsString()

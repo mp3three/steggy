@@ -78,18 +78,18 @@ describe('submission-service', () => {
       const project = 'formio';
       const form = 'user';
       const result = await submissionService.patch<UserDTO>({
-        project,
-        form,
-        id,
         body: JSON.stringify([
           {
             op: 'remove',
             path: '/data/fullName',
           },
         ]),
+        form,
+        id,
+        project,
       });
       logger.error(result);
-      const user = await submissionService.get<UserDTO>({ project, form, id });
+      const user = await submissionService.get<UserDTO>({ form, id, project });
       logger.warn(user);
     });
 

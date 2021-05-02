@@ -8,9 +8,9 @@ export class ActionItem {
   // #region Object Properties
 
   @Column({
-    type: 'enum',
-    enum: ACTION_STATES,
     default: ACTION_STATES.new,
+    enum: ACTION_STATES,
+    type: 'enum',
   })
   public state: ACTION_STATES;
   @Column({ nullable: false })

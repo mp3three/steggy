@@ -25,30 +25,30 @@ export class ActionItemDTO<
   @IsEnum(ACTION_STATES)
   @IsOptional()
   @Prop({
-    type: 'enum',
-    enum: ACTION_STATES,
     default: ACTION_STATES.new,
+    enum: ACTION_STATES,
+    type: 'enum',
   })
   public state?: ACTION_STATES;
   @IsEnum(HANDLERS)
   @Prop({
+    enum: HANDLERS,
     required: true,
     type: 'enum',
-    enum: HANDLERS,
   })
   public handler: HANDLERS;
   @IsEnum(ACTION_NAMES)
   @Prop({
-    type: 'enum',
     enum: ACTION_NAMES,
     required: true,
+    type: 'enum',
   })
   public action: ACTION_NAMES;
   @IsEnum(HTTP_METHODS)
   @Prop({
-    type: 'enum',
     enum: HTTP_METHODS,
     required: true,
+    type: 'enum',
   })
   public method: HTTP_METHODS;
   @IsOptional()
@@ -57,18 +57,18 @@ export class ActionItemDTO<
   public messages?: { type: unknown[] };
   @IsString()
   @Prop({
-    type: MongooseSchema.Types.ObjectId,
-    ref: 'form',
     index: true,
+    ref: 'form',
     required: true,
+    type: MongooseSchema.Types.ObjectId,
   })
   public form: string;
   @IsString()
   @Prop({
-    type: MongooseSchema.Types.ObjectId,
-    ref: 'submission',
     index: true,
+    ref: 'submission',
     required: true,
+    type: MongooseSchema.Types.ObjectId,
   })
   public submission: string;
   /**

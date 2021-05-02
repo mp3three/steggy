@@ -32,8 +32,8 @@ export class FetchUserdataMiddleware implements NestMiddleware {
     if (!request.headers['x-jwt-token']) {
       throw new HttpException(
         {
-          status: HttpStatus.FORBIDDEN,
           error: 'x-jwt-token required',
+          status: HttpStatus.FORBIDDEN,
         },
         HttpStatus.FORBIDDEN,
       );
@@ -44,8 +44,8 @@ export class FetchUserdataMiddleware implements NestMiddleware {
     if (!user) {
       throw new HttpException(
         {
-          status: HttpStatus.FORBIDDEN,
           error: 'invalid x-jwt-token',
+          status: HttpStatus.FORBIDDEN,
         },
         HttpStatus.FORBIDDEN,
       );

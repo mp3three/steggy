@@ -22,7 +22,7 @@ import { AccessEntity } from './access.entity';
 export class SubmissionEntity {
   // #region Object Properties
 
-  @Column({ nullable: false, array: true })
+  @Column({ array: true, nullable: false })
   @IsNotEmpty()
   @Index()
   public roles: ObjectID[];

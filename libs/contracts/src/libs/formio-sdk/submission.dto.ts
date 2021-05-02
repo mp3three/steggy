@@ -33,8 +33,8 @@ export class SubmissionDTO<
   @IsOptional()
   @IsEnum(SUBMISSION_STATES)
   @Prop({
-    type: 'enum',
     enum: SUBMISSION_STATES,
+    type: 'enum',
   })
   public state?: SUBMISSION_STATES;
   /**
@@ -43,9 +43,9 @@ export class SubmissionDTO<
   @IsOptional()
   @IsString({ each: true })
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'role',
     index: true,
+    ref: 'role',
+    type: mongoose.Schema.Types.ObjectId,
   })
   public roles?: string[];
   @IsOptional()
@@ -58,15 +58,15 @@ export class SubmissionDTO<
    * Reference to the resource that created this
    */
   @IsString()
-  @Prop({ ref: 'form', required: true, index: true })
+  @Prop({ index: true, ref: 'form', required: true })
   public form: string;
   /**
    * Supplemental information for your submission
    */
   @ValidateNested()
   @Prop({
-    type: mongoose.Schema.Types.Mixed,
     default: {},
+    type: mongoose.Schema.Types.Mixed,
   })
   public metadata?: METADATA;
   /**
@@ -74,8 +74,8 @@ export class SubmissionDTO<
    */
   @ValidateNested()
   @Prop({
-    type: mongoose.Schema.Types.Mixed,
     required: true,
+    type: mongoose.Schema.Types.Mixed,
   })
   public data: DATA;
 

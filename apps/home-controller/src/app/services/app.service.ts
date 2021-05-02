@@ -257,13 +257,13 @@ export class AppService {
     await this.socketService.call(
       MobileDevice.generic,
       {
-        message: `Connection reset at ${new Date().toISOString()}`,
-        title: `core temporarily lost connection with HomeAssistant`,
         data: {
           push: {
             'thread-id': NotificationGroup.serverStatus,
           },
         },
+        message: `Connection reset at ${new Date().toISOString()}`,
+        title: `core temporarily lost connection with HomeAssistant`,
       },
       HassDomains.notify,
     );

@@ -6,19 +6,19 @@ export type SubmissionDocument = SubmissionDTO & Document;
 
 export const SubmissionSchema = SchemaFactory.createForClass(SubmissionDTO);
 SubmissionSchema.index({
-  project: 1,
   deleted: 1,
+  project: 1,
 })
   .index({
-    project: 1,
-    form: 1,
     deleted: 1,
+    form: 1,
+    project: 1,
   })
   .index({
-    project: 1,
-    form: 1,
-    deleted: 1,
     created: -1,
+    deleted: 1,
+    form: 1,
+    project: 1,
   })
   .index(
     {
@@ -30,7 +30,7 @@ SubmissionSchema.index({
     },
   )
   .index({
-    form: 1,
-    deleted: 1,
     created: -1,
+    deleted: 1,
+    form: 1,
   });

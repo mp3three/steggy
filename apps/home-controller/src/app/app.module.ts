@@ -17,6 +17,7 @@ import { AppService } from './services/app.service';
 import { MqttClientService } from './services/mqtt-client.service';
 
 @Module({
+  controllers: [AppController, EntityController],
   imports: [
     FetchModule,
     HomeAssistantModule,
@@ -38,22 +39,28 @@ import { MqttClientService } from './services/mqtt-client.service';
       inject: [ConfigService],
       useFactory(configService: ConfigService) {
         return {
-          max: Number.POSITIVE_INFINITY,
-          store: RedisStore,
           host: configService.get('REDIS_HOST'),
+          max: Number.POSITIVE_INFINITY,
           port: configService.get('REDIS_PORT'),
+          store: RedisStore,
         };
       },
     }),
     EventEmitterModule.forRoot({
-      wildcard: true,
       // Expected format:
-      // * `sensor.sensor_name/event`
-      delimiter: '/',
-      verboseMemoryLeak: true,
+// * `sensor.sensor_name/event`
+delimiter: '/',
+      
+      
       // Instability occurrs if you cross this limit, increase in increments of 10 as needed
-      // Sometimes shows up as a "TypeError: Cannot convert a Symbol value to a string" on start
-      maxListeners: 20,
+// Sometimes shows up as a "TypeError: Cannot convert a Symbol value to a string" on start
+maxListeners: 20,
+      
+
+verboseMemoryLeak: true,
+      
+      
+      wildcard: true,
     }),
     MqttModule.forRoot({
       host: '10.0.0.33',
@@ -74,6 +81,5 @@ import { MqttClientService } from './services/mqtt-client.service';
     // }),
   ],
   providers: [AppService, MqttClientService],
-  controllers: [AppController, EntityController],
 })
 export class AppModule {}

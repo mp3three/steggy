@@ -8,8 +8,8 @@ import { Prop, Schema } from '@nestjs/mongoose';
 import { BaseDTO, timestamps } from '.';
 
 @Schema({
-  timestamps,
   minimize: false,
+  timestamps,
 })
 export class TagDTO<
   TEMPLATE extends Record<never, unknown> = Record<string, unknown>
@@ -19,8 +19,8 @@ export class TagDTO<
   @IsString()
   @MaxLength(32)
   @Prop({
-    required: true,
     maxlength: 32,
+    required: true,
   })
   public tag: string;
   @MaxLength(256)

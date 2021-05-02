@@ -28,26 +28,26 @@ export class ResourceDTO extends BaseDTO {
     const name = faker.lorem.word();
     return {
       ...super.fake(),
-      type: faker.random.arrayElement(Object.values(FormType)),
-      display: faker.random.arrayElement(Object.values(ResourceDisplay)),
+      access: Array.from({ length: faker.random.number(5) }).map(() =>
+        AccessDTO.fake(),
+      ),
+      components: [],
       controller: '',
+      display: faker.random.arrayElement(Object.values(ResourceDisplay)),
       machineName: Array.from({ length: 2 })
         .map(() => faker.lorem.word())
         .join(':'),
       name,
       path: name,
+      properties: {},
       revisions: 'current',
+      settings: ResouceSettingsDTO.fake(),
+      submissionAccess: [],
       tags: Array.from({ length: faker.random.number(5) }).map(() =>
         faker.lorem.word(),
       ),
       title: faker.lorem.word(),
-      properties: {},
-      settings: ResouceSettingsDTO.fake(),
-      access: Array.from({ length: faker.random.number(5) }).map(() =>
-        AccessDTO.fake(),
-      ),
-      components: [],
-      submissionAccess: [],
+      type: faker.random.arrayElement(Object.values(FormType)),
     };
   }
 

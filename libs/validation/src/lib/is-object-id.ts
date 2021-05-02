@@ -8,9 +8,9 @@ export function IsObjectId(
   return (object: Record<string, string>, propertyName: string) => {
     registerDecorator({
       name: 'isObjectId',
-      target: object.constructor,
-      propertyName,
       options: validationOptions,
+      propertyName,
+      target: object.constructor,
       validator: {
         validate(value: string) {
           return Types.ObjectId.isValid(value);

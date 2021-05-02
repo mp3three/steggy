@@ -77,10 +77,10 @@ export class LicenseService {
                 await Promise.all(
                   out.get('projects').map(async (project) => {
                     return await this.formioSdkService.fetch<LicenseItemDTO>({
-                      url: `/license/${license._id}/utilizations/stage`,
                       params: {
                         projectId: project.id,
                       },
+                      url: `/license/${license._id}/utilizations/stage`,
                     });
                   }),
                 ),

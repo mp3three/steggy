@@ -80,10 +80,10 @@ export class SocketService {
   ): Promise<T> {
     return await this.sendMsg<T>(
       {
-        type: HassCommands.call_service,
         domain,
         service,
         service_data,
+        type: HassCommands.call_service,
       },
       false,
     );
@@ -124,12 +124,12 @@ export class SocketService {
     entity_id: string,
   ): Promise<T> {
     return await this.fetch<T>({
-      url: `/api/history/period/${dayjs().subtract(days, 'd').toISOString()}`,
       params: {
-        filter_entity_id: entity_id,
         end_time: dayjs().toISOString(),
+        filter_entity_id: entity_id,
         significant_changes_only: '',
       },
+      url: `/api/history/period/${dayjs().subtract(days, 'd').toISOString()}`,
     });
   }
 
@@ -185,25 +185,25 @@ export class SocketService {
     payload: Record<string, unknown>,
   ): Promise<T> {
     return await this.sendMsg<T>({
-      type: HassCommands.call_service,
       domain: HassDomains.mqtt,
       service: HassServices.publish,
       service_data: {
         topic,
         ...payload,
       },
+      type: HassCommands.call_service,
     });
   }
 
   @Trace()
   public async updateEntity(entityId: string): Promise<HassDomains> {
     return await this.sendMsg({
-      type: HassCommands.call_service,
-      service: HassServices.update_entity,
       domain: HassDomains.homeassistant,
+      service: HassServices.update_entity,
       service_data: {
         entity_id: entityId,
       },
+      type: HassCommands.call_service,
     });
     // return null;
   }
@@ -283,8 +283,8 @@ export class SocketService {
     switch (message.type as HassSocketMessageTypes) {
       case HassSocketMessageTypes.auth_required:
         return await this.sendMsg({
-          type: HassCommands.auth,
           access_token: this.configService.get(TOKEN),
+          type: HassCommands.auth,
         });
 
       case HassSocketMessageTypes.auth_ok:

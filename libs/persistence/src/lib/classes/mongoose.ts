@@ -38,10 +38,10 @@ export class MongooseConnection {
   private async getOptions(): Promise<mongoose.ConnectOptions> {
     return {
       connectTimeoutMS: 300000,
-      socketTimeoutMS: 300000,
-      useNewUrlParser: true,
       keepAlive: true,
+      socketTimeoutMS: 300000,
       useCreateIndex: true,
+      useNewUrlParser: true,
     };
   }
 

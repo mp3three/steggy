@@ -75,38 +75,38 @@ export class LicenseService {
   public async getCache(licenseKey: string): Promise<CacheData> {
     return (
       (await this.cacheManager.get(licenseKey)) || {
-        environments: [],
         apiKey: licenseKey,
-        projects: [],
+        environments: [],
         formManagers: [],
+        projects: [],
       }
     );
   }
 
   public licenseFetch(id: string): Promise<LicenseDTO> {
     return this.fetch({
-      url: LicenseService.FORM_PATH,
       filters: [
         {
-          field: '_id',
           equals: id,
+          field: '_id',
         },
       ],
+      url: LicenseService.FORM_PATH,
     });
   }
 
   public licenseFetchByUser(user: UserDTO): Promise<LicenseDTO[]> {
     return this.fetch({
-      url: LicenseService.FORM_PATH,
       filters: [
         {
-          field: 'data.user._id',
           equals: user._id,
+          field: 'data.user._id',
         },
         {
           limit: 100,
         },
       ],
+      url: LicenseService.FORM_PATH,
     });
   }
 
@@ -162,9 +162,9 @@ export class LicenseService {
     // * #3
     const cacheData: CacheData = await this.getCache(update.licenseKey);
     const arguments_ = {
-      update,
-      license,
       cacheData,
+      license,
+      update,
     };
     await this.processUpdate(arguments_);
     const keys: Record<string, LicenseKeyDTO> = {};
@@ -173,14 +173,14 @@ export class LicenseService {
     return {
       hash: '',
       ...update,
-      used: await this.monthlyUsage(arguments_),
-      licenseKey: update.licenseKey,
-      projectId: update.projectId,
-      licenseId: license._id,
-      terms: license.data,
-      type: update.type,
       devLicense: developmentLicense,
       keys,
+      licenseId: license._id,
+      licenseKey: update.licenseKey,
+      projectId: update.projectId,
+      terms: license.data,
+      type: update.type,
+      used: await this.monthlyUsage(arguments_),
     };
   }
 

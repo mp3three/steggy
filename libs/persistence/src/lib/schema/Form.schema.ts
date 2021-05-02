@@ -6,15 +6,15 @@ export type FormDocument = SubmissionDTO & Document;
 
 export const FormSchema = SchemaFactory.createForClass(SubmissionDTO);
 FormSchema.index({
-  project: 1,
-  type: 1,
   deleted: 1,
   modified: -1,
+  project: 1,
+  type: 1,
 })
   .index({
-    project: 1,
-    name: 1,
     deleted: 1,
+    name: 1,
+    project: 1,
   })
   .index(
     {
@@ -28,5 +28,5 @@ FormSchema.index({
   .index(
     { machineName: 1 },
     // eslint-disable-next-line unicorn/no-null
-    { unique: true, partialFilterExpression: { deleted: { $eq: null } } },
+    { partialFilterExpression: { deleted: { $eq: null } }, unique: true },
   );

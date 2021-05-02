@@ -14,24 +14,24 @@ export class PersistenceModule {
 
   public static registerMongoose(): DynamicModule {
     return {
-      module: PersistenceModule,
       imports: [
         MongooseModule.forFeature([
           { name: SubmissionDTO.name, schema: FormSchema },
           { name: ProjectDTO.name, schema: ProjectSchema },
         ]),
       ],
+      module: PersistenceModule,
       providers: [
         {
-          provide: MONGOOSE,
           inject: [ConfigService],
+          provide: MONGOOSE,
           useFactory: async (config: ConfigService) => {
             const options = {
               connectTimeoutMS: 300000,
-              socketTimeoutMS: 300000,
-              useNewUrlParser: true,
               keepAlive: true,
+              socketTimeoutMS: 300000,
               useCreateIndex: true,
+              useNewUrlParser: true,
             } as mongoose.ConnectOptions;
             /**
              * TODO ssl
@@ -51,8 +51,8 @@ export class PersistenceModule {
     options: TypeOrmModuleOptions = {},
   ): DynamicModule {
     return {
-      module: PersistenceModule,
       imports: [TypeOrmModule.forRoot(options)],
+      module: PersistenceModule,
     };
   }
 

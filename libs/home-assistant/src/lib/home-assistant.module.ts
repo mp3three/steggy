@@ -8,21 +8,21 @@ import { SocketService } from './services/socket.service';
 import RedisStore from 'cache-manager-redis-store';
 
 @Module({
+  exports: [HomeAssistantService, EntityService, AreaService, SocketService],
   imports: [
     CacheModule.registerAsync({
       inject: [ConfigService],
       useFactory(configService: ConfigService) {
         return {
-          max: Number.POSITIVE_INFINITY,
-          store: RedisStore,
           host: configService.get('REDIS_HOST'),
+          max: Number.POSITIVE_INFINITY,
           port: configService.get('REDIS_PORT'),
+          store: RedisStore,
         };
       },
     }),
     FetchModule,
   ],
   providers: [HomeAssistantService, EntityService, AreaService, SocketService],
-  exports: [HomeAssistantService, EntityService, AreaService, SocketService],
 })
 export class HomeAssistantModule {}
