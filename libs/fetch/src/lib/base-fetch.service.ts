@@ -1,7 +1,8 @@
+import { Trace } from '@automagical/utilities';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
-import { FetchWith, Filters, TempAuthToken } from '../typings';
+import { FetchWith, Filters, TemporaryAuthToken } from '../typings';
 
 export class BaseFetch {
   // #region Object Properties
@@ -15,21 +16,53 @@ export class BaseFetch {
   // #region Protected Methods
 
   /**
+   * Post processing function for fetch()
+   */
+  @Trace()
+  protected async fetchHandleResponse<T extends unknown = unknown>(
+    arguments_: FetchWith,
+    response: Response,
+  ): Promise<T> {
+    if (arguments_.process === false) {
+      return response as T;
+    }
+    const text = await response.text();
+    if (!['{', '['].includes(text.charAt(0))) {
+      // Personally, I think all responses should always be JSON. Fight me 🤜
+      // This type of "is the string really an error?" is aggravating, not convenient
+
+      if (!['OK'].includes(text)) {
+        // It's probably a coding error error, and not something a user did.
+        // Will try to keep the array up to date if any other edge cases pop up
+
+        // This part specifically applies to the formio-sdk, so there may be some additional work needed for this function as other libs
+        this.logger.warn({ text }, `Unexpected API Response`);
+      } else {
+        this.logger.debug({ text }, 'Full response text');
+      }
+      return text as T;
+    }
+    const parsed = JSON.parse(text);
+    this.logger.debug({ parsed }, 'Parsed response');
+    return parsed;
+  }
+
+  /**
    * Resolve Filters and query params object into a query string.
    *
    * In case of collision, provided params take priority.
    */
   protected buildFilterString(
-    args: FetchWith<{
+    arguments_: FetchWith<{
       filters?: Readonly<Filters[]>;
       params?: Record<string, string>;
     }>,
   ): string {
     const out = new Map<string, string>();
-    (args.filters || []).forEach((f) => {
+    (arguments_.filters || []).forEach((f) => {
       const filter = new Map(Object.entries(f));
       Object.keys(filter).forEach((type: keyof Filters) => {
-        let value: string | RegExp | dayjs.Dayjs = null;
+        let value: string | RegExp | dayjs.Dayjs;
         switch (type) {
           case 'select':
           case 'sort':
@@ -66,7 +99,7 @@ export class BaseFetch {
     });
     return new URLSearchParams({
       ...Object.fromEntries(out),
-      ...(args.params || {}),
+      ...(arguments_.params || {}),
     }).toString();
   }
 
@@ -75,30 +108,32 @@ export class BaseFetch {
    *
    * Should return: headers, body, method
    */
-  protected async fetchCreateMeta(args: FetchWith): Promise<RequestInit> {
+  protected async fetchCreateMeta(arguments_: FetchWith): Promise<RequestInit> {
     const body =
-      typeof args.body === 'object' || typeof args.data === 'object'
+      typeof arguments_.body === 'object' || typeof arguments_.data === 'object'
         ? JSON.stringify({
-            data: args.data ? { ...args.data } : undefined,
-            ...(args.data ? {} : (args.body as Record<string, unknown>)),
+            data: arguments_.data ? { ...arguments_.data } : undefined,
+            ...(arguments_.data
+              ? {}
+              : (arguments_.body as Record<string, unknown>)),
           })
-        : args.body;
+        : arguments_.body;
     const headers = {
-      ...(args.headers || {}),
+      ...(arguments_.headers || {}),
     } as Record<string, string>;
-    let method = args.method || 'GET';
+    let method = arguments_.method || 'GET';
     if (body) {
       // Override
-      method = args.method === 'GET' ? 'POST' : args.method;
+      method = arguments_.method === 'GET' ? 'POST' : arguments_.method;
       // Header is needed
       headers['Content-Type'] = 'application/json';
     }
 
-    if (args.token) {
-      headers['x-jwt-token'] = args.token;
+    if (arguments_.token) {
+      headers['x-jwt-token'] = arguments_.token;
     }
-    if (args.apiKey) {
-      headers['x-token'] = args.apiKey;
+    if (arguments_.apiKey) {
+      headers['x-token'] = arguments_.apiKey;
     }
     return {
       headers,
@@ -110,47 +145,18 @@ export class BaseFetch {
   /**
    * Resolve url provided in args into a full path w/ domain
    */
-  protected fetchCreateUrl(args: FetchWith): string {
-    let url = args.rawUrl ? args.url : `${args.baseUrl}${args.url}`;
-    if (args.tempAuthToken) {
-      args.params = args.params || {};
-      args.params.token = (args.tempAuthToken as TempAuthToken).key;
+  protected fetchCreateUrl(arguments_: FetchWith): string {
+    let url = arguments_.rawUrl
+      ? arguments_.url
+      : `${arguments_.baseUrl}${arguments_.url}`;
+    if (arguments_.tempAuthToken) {
+      arguments_.params = arguments_.params || {};
+      arguments_.params.token = (arguments_.tempAuthToken as TemporaryAuthToken).key;
     }
-    if (args.filters || args.params) {
-      url = `${url}?${this.buildFilterString(args)}`;
+    if (arguments_.filters || arguments_.params) {
+      url = `${url}?${this.buildFilterString(arguments_)}`;
     }
     return url;
-  }
-
-  /**
-   * Post processing function for fetch()
-   */
-  protected async fetchHandleResponse<T extends unknown = unknown>(
-    args: FetchWith,
-    res: Response,
-  ): Promise<T> {
-    if (args.process === false) {
-      return res as T;
-    }
-    const text = await res.text();
-    if (!['{', '['].includes(text.charAt(0))) {
-      // Personally, I think all responses should always be JSON. Fight me 🤜
-      // This type of "is the string really an error?" is aggravating, not convenient
-
-      if (!['OK'].includes(text)) {
-        // It's probably a coding error error, and not something a user did.
-        // Will try to keep the array up to date if any other edge cases pop up
-
-        // This part specifically applies to the formio-sdk, so there may be some additional work needed for this function as other libs
-        this.logger.warn({ text }, `Unexpected API Response`);
-      } else {
-        this.logger.debug({ text }, 'Full response text');
-      }
-      return text as T;
-    }
-    const response = JSON.parse(text);
-    this.logger.debug({ response }, 'Parsed response');
-    return response;
   }
 
   // #endregion Protected Methods

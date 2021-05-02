@@ -45,15 +45,15 @@ export class FetchService extends BaseFetch {
    * - Exporting as postman compatible (convert a quick script into e2e tests?)
    */
   @Trace()
-  public async fetch<T>(args: Partial<FetchArguments>): Promise<T> {
-    const url: string = await this.fetchCreateUrl(args);
-    const requestInit = await this.fetchCreateMeta(args);
+  public async fetch<T>(arguments_: Partial<FetchArguments>): Promise<T> {
+    const url: string = await this.fetchCreateUrl(arguments_);
+    const requestInit = await this.fetchCreateMeta(arguments_);
     try {
-      const res = await fetch(url, requestInit);
-      return await this.fetchHandleResponse(args, res);
-    } catch (err) {
-      // this.logger.error(err);
-      return null;
+      const response = await fetch(url, requestInit);
+      return await this.fetchHandleResponse(arguments_, response);
+    } catch (error) {
+      this.logger.error(error);
+      return undefined;
     }
   }
 

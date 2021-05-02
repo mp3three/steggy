@@ -37,9 +37,9 @@ export class MockFetchService extends BaseFetch {
    * - Exporting all requests as curl request
    * - Exporting as postman compatible (convert a quick script into e2e tests?)
    */
-  public async fetch<T>(args: FetchWith): Promise<T> {
-    args;
-    return null;
+  public async fetch<T>(arguments_: FetchWith): Promise<T> {
+    arguments_;
+    return undefined;
   }
 
   // #endregion Public Methods

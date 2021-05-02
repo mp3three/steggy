@@ -64,7 +64,7 @@ export interface FetchArguments {
   /**
    * Temporary auth token
    */
-  tempAuthToken?: TempAuthToken;
+  tempAuthToken?: TemporaryAuthToken;
   /**
    * Temp Auth Token
    */
@@ -92,7 +92,7 @@ export type FetchWith<
  */
 export type BaseFetch = Partial<FetchArguments>;
 
-export type TempAuthToken = {
+export type TemporaryAuthToken = {
   token?: string;
   key: string;
 };

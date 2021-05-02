@@ -23,11 +23,6 @@ import { CEWrapperService } from './services/';
         };
       },
     }),
-    ThrottlerModule.forRoot({
-      // Limit to 10 requests against a single endpoint per min per ip
-      ttl: 60,
-      limit: 10,
-    }),
     FetchModule,
     PersistenceModule.registerMongoose(),
     ScheduleModule.forRoot(),
@@ -67,7 +62,6 @@ import { CEWrapperService } from './services/';
       // Sometimes shows up as a "TypeError: Cannot convert a Symbol value to a string" on start
       maxListeners: 20,
     }),
-    PersistenceModule,
   ],
   providers: [CEWrapperService, LocalsInitMiddlware],
   controllers: [PortalController],
