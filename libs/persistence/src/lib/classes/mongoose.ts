@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 export class MongooseConnection {
   // #region Object Properties
 
-  private done: (arg) => void;
+  private done: (argument) => void;
 
   // #endregion Object Properties
 
