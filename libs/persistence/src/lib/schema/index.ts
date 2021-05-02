@@ -1,5 +1,5 @@
 export * from './action.schema';
-export * from './actionItem.schema';
+export * from './action-item.schema';
 export * from './form.schema';
 export * from './project.schema';
 export * from './role.schema';

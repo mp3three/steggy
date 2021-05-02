@@ -25,6 +25,7 @@ SubmissionSchema.index({
       deleted: 1,
     },
     {
+      // eslint-disable-next-line unicorn/no-null
       partialFilterExpression: { deleted: { $eq: null } },
     },
   )

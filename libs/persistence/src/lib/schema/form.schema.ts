@@ -21,10 +21,12 @@ FormSchema.index({
       deleted: 1,
     },
     {
+      // eslint-disable-next-line unicorn/no-null
       partialFilterExpression: { deleted: { $eq: null } },
     },
   )
   .index(
     { machineName: 1 },
+    // eslint-disable-next-line unicorn/no-null
     { unique: true, partialFilterExpression: { deleted: { $eq: null } } },
   );
