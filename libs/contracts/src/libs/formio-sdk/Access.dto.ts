@@ -1,7 +1,7 @@
+import { CanFake } from '@automagical/contracts';
+import { IsEnum, IsOptional, IsString } from '@automagical/validation';
 import faker from 'faker';
 import { AccessTypes, ACCESS_PERMISSION } from './constants';
-import { IsEnum, IsObjectId, IsOptional } from '@automagical/validation';
-import { CanFake } from '@automagical/contracts';
 
 export class AccessDTO extends CanFake {
   // #region Public Static Methods
@@ -10,7 +10,9 @@ export class AccessDTO extends CanFake {
     return {
       ...super.fake(),
       type: faker.random.arrayElement(Object.values(AccessTypes)),
-      roles: Array(faker.datatype.number(5)).map(() => faker.datatype.uuid()),
+      roles: Array.from({ length: faker.datatype.number(5) }).map(() =>
+        faker.datatype.uuid(),
+      ),
     };
   }
 
@@ -23,7 +25,7 @@ export class AccessDTO extends CanFake {
   @IsEnum(ACCESS_PERMISSION)
   @IsOptional()
   public permission?: ACCESS_PERMISSION;
-  @IsObjectId({
+  @IsString({
     each: true,
   })
   public roles: string[];

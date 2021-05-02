@@ -10,7 +10,7 @@ import {
 } from '@automagical/validation';
 import { Prop } from '@nestjs/mongoose';
 import faker from 'faker';
-import { BaseDTO, BaseOmitProps } from '.';
+import { BaseDTO, BaseOmitProperties } from '.';
 import { AccessDTO } from './Access.dto';
 import {
   PROJECT_FRAMEWORKS,
@@ -68,7 +68,7 @@ export class ProjectDTO<
 > extends BaseDTO {
   // #region Public Static Methods
 
-  public static fake(): Omit<ProjectDTO, BaseOmitProps> {
+  public static fake(): Omit<ProjectDTO, BaseOmitProperties> {
     return {
       ...super.fake(),
       stageTitle: faker.lorem.word(),

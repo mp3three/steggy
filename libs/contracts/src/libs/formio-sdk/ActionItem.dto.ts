@@ -71,6 +71,9 @@ export class ActionItemDTO<
     required: true,
   })
   public submission: string;
+  /**
+   * Complex data to be filled in
+   */
   @Prop({
     type: MongooseSchema.Types.Mixed,
   })

@@ -3,12 +3,12 @@ import {
   IsDateString,
   IsNumber,
   IsString,
-  IsOptional
+  IsOptional,
 } from '@automagical/validation';
 import { Prop } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import { Schema as MongooseSchema } from 'mongoose';
-import { BaseOmitProps } from '.';
+import { BaseOmitProperties } from '.';
 
 /**
  * Common properties between all objects
@@ -16,7 +16,7 @@ import { BaseOmitProps } from '.';
 export abstract class BaseDTO extends DBFake {
   // #region Public Static Methods
 
-  public static fake(): Omit<BaseDTO, BaseOmitProps> {
+  public static fake(): Omit<BaseDTO, BaseOmitProperties> {
     return {
       ...super.fake(),
       created: dayjs().toISOString(),

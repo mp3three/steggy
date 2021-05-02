@@ -5,7 +5,7 @@ import {
   ValidateNested,
 } from '@automagical/validation';
 import faker from 'faker';
-import { AccessDTO, BaseDTO, BaseOmitProps } from '.';
+import { AccessDTO, BaseDTO, BaseOmitProperties } from '.';
 import { ResouceSettingsDTO } from './resource/ResourceSettings.dto';
 
 export enum ResourceDisplay {
@@ -25,24 +25,28 @@ export class ComponentDTO {}
 export class ResourceDTO extends BaseDTO {
   // #region Public Static Methods
 
-  public static fake(): Omit<ResourceDTO, BaseOmitProps> {
+  public static fake(): Omit<ResourceDTO, BaseOmitProperties> {
     const name = faker.lorem.word();
     return {
       ...super.fake(),
       type: faker.random.arrayElement(Object.values(FormType)),
       display: faker.random.arrayElement(Object.values(ResourceDisplay)),
       controller: '',
-      machineName: Array(2)
+      machineName: Array.from({ length: 2 })
         .map(() => faker.lorem.word())
         .join(':'),
       name,
       path: name,
       revisions: 'current',
-      tags: Array(faker.random.number(5)).map(() => faker.lorem.word()),
+      tags: Array.from({ length: faker.random.number(5) }).map(() =>
+        faker.lorem.word(),
+      ),
       title: faker.lorem.word(),
       properties: {},
       settings: ResouceSettingsDTO.fake(),
-      access: Array(faker.random.number(5)).map(() => AccessDTO.fake()),
+      access: Array.from({ length: faker.random.number(5) }).map(() =>
+        AccessDTO.fake(),
+      ),
       components: [],
       submissionAccess: [],
     };
