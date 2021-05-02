@@ -1,2 +1,2 @@
-export * from './CanFake.dto';
-export * from './DBFake.dto';
+export * from './can-fake.dto';
+export * from './database-fake.dto';

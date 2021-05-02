@@ -21,12 +21,14 @@ export class SchemaDTO extends DBFake {
   @IsSemVer()
   @IsOptional()
   @Prop({
+    // eslint-disable-next-line unicorn/no-null
     default: null,
   })
   version?: string;
   @IsString()
   @IsOptional()
   @Prop({
+    // eslint-disable-next-line unicorn/no-null
     default: null,
   })
   public value: string;

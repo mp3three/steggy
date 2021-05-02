@@ -1,6 +1,6 @@
 import { IsDateString, IsEnum, IsString } from '@automagical/validation';
-import { LicenseAdminDTO } from '../formio-sdk/resource/LicenseAdmin.dto';
-import { LicenseApiServer } from './ApiServer.dto';
+import { LicenseAdminDTO } from '@automagical/contracts/formio-sdk';
+import { LicenseApiServer } from './api-server.dto';
 
 enum ProjectType {
   stage = 'stage',

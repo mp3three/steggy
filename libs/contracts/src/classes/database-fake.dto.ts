@@ -1,6 +1,6 @@
 import { IsString, IsOptional } from '@automagical/validation';
 import { Types } from 'mongoose';
-import { CanFake } from './CanFake.dto';
+import { CanFake } from './can-fake.dto';
 
 export class DBFake extends CanFake {
   // #region Public Static Methods

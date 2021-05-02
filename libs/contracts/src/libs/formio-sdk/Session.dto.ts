@@ -29,6 +29,7 @@ export class SessionDTO extends BaseDTO {
     type: MongooseSchema.Types.ObjectId,
     index: true,
     required: true,
+    // eslint-disable-next-line unicorn/no-null
     default: null,
   })
   public project?: string;
