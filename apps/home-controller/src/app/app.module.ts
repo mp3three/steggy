@@ -34,11 +34,6 @@ import { MqttClientService } from './services/mqtt-client.service';
         };
       },
     }),
-    LoggerModule.forRoot({
-      pinoHttp: {
-        level: 'debug',
-      },
-    }),
     CacheModule.registerAsync({
       inject: [ConfigService],
       useFactory(configService: ConfigService) {

@@ -1,9 +1,7 @@
-import { ProjectDTO } from '@automagical/contracts/formio-sdk';
-
-export interface iProjectDriver {
+export interface iDriver {
   // #region Public Methods
 
-  create(project: Partial<ProjectDTO>): Promise<ProjectDTO>;
+  create(project: unknown): Promise<unknown>;
 
   // #endregion Public Methods
 }

@@ -1,5 +1,5 @@
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
-import { InjectLogger } from '@automagical/utilities';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 import { FormioSdkService } from '.';
@@ -29,6 +29,7 @@ export class SubmissionService {
 
   // #region Public Methods
 
+  @Trace()
   public async get<T>(args: SubmissionArgs): Promise<T[]> {
     // resource & form are synonymous basically anywhere in the platform
     // The difference is in how you use them, but they both work over the same APIs
@@ -39,6 +40,7 @@ export class SubmissionService {
     });
   }
 
+  @Trace()
   public async patch<T>(args: SubmissionArgs): Promise<T> {
     return await this.formioSdkService.fetch<T>({
       url: this.buildUrl(args),
@@ -47,6 +49,7 @@ export class SubmissionService {
     });
   }
 
+  @Trace()
   public async report(
     args: SubmissionArgs<{ $match: Record<string, unknown> }>,
   ): Promise<unknown> {

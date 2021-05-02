@@ -1,3 +1,4 @@
-export * from './resources.module';
-export * from './adapters';
+export * from './persistence.module';
+export * from './schema';
+export * from './classes';
 export * from './services';

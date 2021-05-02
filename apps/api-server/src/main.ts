@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -7,6 +8,7 @@ import cors from 'cors';
 import { json } from 'express';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
+import { LocalsInitMiddlware } from './app';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
@@ -16,18 +18,17 @@ async function bootstrap() {
     // { logger: false },
   );
   const logger = app.get(Logger);
+  const config = app.get(ConfigService);
   app.useLogger(logger);
-  // app.use(AsyncStorageMiddleware);
   app.useStaticAssets({ root: 'assets/public' });
   app.use(
     cors(),
     helmet(),
-    // TODO Environment var?
-    json({ limit: '50mb' }),
+    json({ limit: config.get('BODY_SIZE') }),
+    LocalsInitMiddlware,
   );
-  await app.listen(process.env.PORT, () => {
-    logger.log(`Listening on ${process.env.PORT}`);
-  });
+  const port = config.get('PORT');
+  await app.listen(port, () => logger.log(`Listening on ${port}`));
 }
 
 bootstrap();
