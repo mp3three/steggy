@@ -32,7 +32,7 @@ import { CEWrapperService } from './services/';
     PersistenceModule.registerMongoose(),
     ScheduleModule.forRoot(),
     ConfigModule.register('api-server', {
-      REDIS_HOST: 'localost',
+      REDIS_HOST: 'localhost',
       LOG_LEVEL: 'info',
       THROTTLE_LIMIT: 10,
       THROTTLE_TTL: 60,

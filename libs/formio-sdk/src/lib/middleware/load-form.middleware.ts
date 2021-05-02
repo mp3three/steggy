@@ -12,6 +12,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { NextFunction, Request, Response } from 'express';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
+import { FormService } from '../services/form.service';
 
 @Injectable()
 export class LoadFormMiddleware implements NestMiddleware {
@@ -20,7 +21,7 @@ export class LoadFormMiddleware implements NestMiddleware {
   constructor(
     @InjectLogger(LoadFormMiddleware, LIB_FORMIO_SDK)
     protected readonly logger: PinoLogger,
-    @InjectModel(FormDTO.name) private readonly formModel: Model<FormDocument>,
+    private readonly formService: FormService,
   ) {}
 
   // #endregion Constructors
@@ -36,11 +37,7 @@ export class LoadFormMiddleware implements NestMiddleware {
     if (!req.params.formId) {
       throw new UnprocessableEntityException();
     }
-    res.locals.form = await this.formModel
-      .findOne({
-        _id: req.params.formId,
-      })
-      .exec();
+    res.locals.form = await this.formService.byId(req.params.formId);
     if (!res.locals.form) {
       throw new BadRequestException();
     }

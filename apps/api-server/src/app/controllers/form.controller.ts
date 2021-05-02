@@ -2,7 +2,7 @@ import { APP_API_SERVER } from '@automagical/contracts/constants';
 import { FormDTO } from '@automagical/contracts/formio-sdk';
 import { FetchForm, Form } from '@automagical/formio-sdk';
 import { InjectLogger } from '@automagical/utilities';
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 
 @Controller()
@@ -21,6 +21,11 @@ export class FormController {
   @Get('/project/:projectId/:formId')
   @FetchForm()
   public async getForm(@Form() form: FormDTO): Promise<FormDTO> {
+    return form;
+  }
+
+  @Post('/project/:projectId/:formId')
+  public async createForm(@Body() form: FormDTO): Promise<FormDTO> {
     return form;
   }
 
