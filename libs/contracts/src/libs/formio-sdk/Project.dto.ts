@@ -109,7 +109,7 @@ export class ProjectDTO<
   })
   public type!: PROJECT_TYPES;
   /**
-   * Unkown purpose currently
+   * Unkown purpose
    */
   @IsOptional()
   public billing?: Record<string, unknown>;

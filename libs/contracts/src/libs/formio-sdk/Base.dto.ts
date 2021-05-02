@@ -49,7 +49,7 @@ export abstract class BaseDTO extends DBFake {
   })
   public modified?: string;
   /**
-   * If this is defined, then this must be a stage. ID reference to another project
+   * If defined, then this must be a stage. ID reference to another project
    */
   @IsOptional()
   @IsString()

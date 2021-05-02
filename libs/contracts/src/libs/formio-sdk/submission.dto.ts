@@ -28,7 +28,7 @@ export class SubmissionDTO<
   @IsArray()
   public externalIds?: unknown[];
   /**
-   * @FIXME: Is this just internal use?
+   * @FIXME: Is this for internal use?
    */
   @IsOptional()
   @IsEnum(SUBMISSION_STATES)

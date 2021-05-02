@@ -91,7 +91,7 @@ export class ActionDTO<
   })
   public method: HTTP_METHODS[];
   /**
-   * FIXME: What is this? Can it be set on the UI? Which direction is it sorted?
+   * FIXME: What is this? Can controlled on the UI? Which direction is it sorted?
    */
   @IsNumber()
   @IsOptional()
@@ -100,11 +100,6 @@ export class ActionDTO<
     default: 0,
   })
   public priority?: number;
-  /**
-   * Resource reference to the form this is attached to
-   *
-   * TODO: This probably should be `resource`
-   */
   @IsString()
   @IsOptional()
   @Prop({

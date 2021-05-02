@@ -41,11 +41,6 @@ export enum LicenseScopes {
    */
   stage = 'stage',
   /**
-   * - Title: Additional Live Stages
-   * - Tracked: Per Project
-   */
-  livestage = 'livestage',
-  /**
    * Accessibility
    *
    * ? How does this work? What is it? What sets it?
@@ -61,7 +56,7 @@ export enum LicenseScopes {
    * - Title: Forms
    * - Tracked: Per Project
    * - Modifiers
-   *   - Hosted Only
+   *   - Hosted
    */
   form = 'form',
   /**
@@ -69,7 +64,7 @@ export enum LicenseScopes {
    * - Tracked: Per Project
    * - Modifiers
    *   - Monthly count
-   *   - Hosted Only
+   *   - Hosted
    */
   formRequest = 'formRequest',
   /**
@@ -77,14 +72,14 @@ export enum LicenseScopes {
    * - Tracked: Per Project
    * - Modifiers
    *   - Monthly count
-   *   - Hosted Only
+   *   - Hosted
    */
   email = 'email',
   /**
    * - Title: Hosted PDF Documents
    * - Tracked: Per Project
    * - Modifiers
-   *   - Hosted Only
+   *   - Hosted
    */
   pdf = 'pdf',
   /**
@@ -97,7 +92,7 @@ export enum LicenseScopes {
    * - Tracked: Per Project
    * - Modifiers
    *   - Monthly count
-   *   - Hosted Only
+   *   - Hosted
    *   - Granted w/ pdfServer
    */
   pdfDownload = 'pdfDownload',
@@ -113,13 +108,13 @@ export enum LicenseScopes {
    * - Tracked: Per Project
    * - Modifiers
    *   - Monthly count
-   *   - Hosted Only
+   *   - Hosted
    */
   submissionRequest = 'submissionRequest',
 }
 
 /**
- * All license scopes without "hosted only" items
+ * All license scopes without "Hosted" items
  *
  * 📉 stonks sorted list
  */
@@ -129,7 +124,6 @@ export enum LicenseRemoteScopes {
   pdfServer = LicenseScopes.pdfServer,
   pdfUpload = LicenseScopes.pdfUpload,
   formManager = LicenseScopes.formManager,
-  livestage = LicenseScopes.livestage,
   project = LicenseScopes.project,
   tenant = LicenseScopes.tenant,
   dbts = LicenseScopes.dbts,
@@ -154,13 +148,12 @@ export enum LicenseTrackedLicenseScopes {
   dbts = LicenseScopes.dbts,
 }
 /**
- * Items that are tracked per project
+ * Items tracked per project
  */
 export enum LicenseTrackedProjectScopes {
   submissionRequest = LicenseScopes.submissionRequest,
   formRequest = LicenseScopes.formRequest,
   pdfDownload = LicenseScopes.pdfDownload,
-  livestage = LicenseScopes.livestage,
   stage = LicenseScopes.stage,
   email = LicenseScopes.email,
   form = LicenseScopes.form,

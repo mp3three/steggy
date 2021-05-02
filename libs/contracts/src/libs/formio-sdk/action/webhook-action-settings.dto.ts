@@ -14,9 +14,7 @@ export class WebhookActionSettingsDTO {
   // #region Object Properties
 
   /**
-   * Additional heades
-   *
-   * FIXME: Wrong annotations (how can I get it to do an array of string records?)
+   * Headers to merge
    */
   @IsArray()
   @IsOptional()
@@ -30,7 +28,7 @@ export class WebhookActionSettingsDTO {
   /**
    * ## Request Method
    *
-   * What types of call the API server should initiate this webhook on
+   * What types of call the API server should activate with
    */
   @IsEnum(HTTP_Methods)
   public method: HTTP_Methods;
@@ -43,7 +41,7 @@ export class WebhookActionSettingsDTO {
   /**
    * ## Request URL
    *
-   * The URL the request will be made to. You can interpolate the URL with data.myfield or externalId variables.
+   * The URL for the request. You can interpolate the URL with data.myfield or externalId variables.
    */
   @IsString()
   public url: string;

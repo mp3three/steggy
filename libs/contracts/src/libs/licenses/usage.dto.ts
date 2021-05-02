@@ -2,7 +2,7 @@ import { IsNumber } from '@automagical/validation';
 import { LicenseBaseDTO } from './license-base.dto';
 
 /**
- * Mostly built this way for documentation reasons
+ * Built this way for documentation reasons
  */
 export class LicenseUsageDTO extends LicenseBaseDTO {
   // #region Object Properties

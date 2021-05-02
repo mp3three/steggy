@@ -19,7 +19,7 @@ export class HomeAssistantRoomRokuDTO {
 }
 
 /**
- * The specific entities to operate on to achieve various room modes
+ * The specific entities to operate on to achieve room modes
  */
 export class RoomLightingModeDTO {
   // #region Object Properties
@@ -37,7 +37,7 @@ export class RoomLightingModeDTO {
 }
 
 /**
- * Describes how a room should operate at various times of the day
+ * Describes how a room should operate at times of the day
  */
 export class HomeAssistantRoomModeDTO {
   // #region Object Properties

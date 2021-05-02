@@ -5,8 +5,7 @@ import {
   ValidateNested,
 } from '@automagical/validation';
 import faker from 'faker';
-import { AccessDTO, BaseDTO, BaseOmitProperties } from '.';
-import { ResouceSettingsDTO } from './resource/ResourceSettings.dto';
+import { AccessDTO, BaseDTO, BaseOmitProperties, ResouceSettingsDTO } from '.';
 
 export enum ResourceDisplay {
   Form = 'form',
@@ -79,7 +78,7 @@ export class ResourceDTO extends BaseDTO {
   public controller: string;
   /**
    * > Warning: Tampering with the Form machineName can break Project imports and exports.
-   * > This should not be tampered with, unless you know what you're doing.
+   * > Don't touch unless you know what you're doing.
    *
    * @FIXME: I don't know what I'm doing.. what is this?
    */
