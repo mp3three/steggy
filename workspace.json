@@ -491,6 +491,15 @@
             ]
           }
         },
+        "test-pretty": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "parallel": false,
+            "commands": [{
+              "command": "nx test persistence | pino-pretty"
+            }]
+          }
+        },
         "test": {
           "executor": "@nrwl/jest:jest",
           "outputs": [

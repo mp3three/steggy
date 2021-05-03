@@ -45,7 +45,7 @@
       ]
     },
     {
-      "files": ["*.ts", "*.tsx"],
+      "files": ["*.ts", "*.tsx", "*js"],
       "extends": [
         "plugin:@nrwl/nx/typescript",
         "plugin:you-dont-need-lodash-underscore/compatible",
