@@ -17,7 +17,9 @@
     "sort-keys-fix",
     "no-loops",
     "no-unsanitized",
-    "simple-import-sort"
+    "simple-import-sort",
+    "jest-formatting",
+    "jest"
   ],
   "overrides": [{
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
@@ -33,6 +35,19 @@
             }]
           }
         ]
+      }
+    },
+    {
+      "files": ["*.spec.ts"],
+      "extends": [
+        "plugin:jest/all",
+        "plugin:jest-formatting/recommended"
+      ],
+      "rules": {
+        "jest/no-hooks": "off"
+      },
+      "env": {
+        "jest/globals": true
       }
     },
     {
