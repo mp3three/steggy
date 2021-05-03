@@ -2,16 +2,20 @@ import {
   IsBoolean,
   IsDateString,
   IsEnum,
+  IsNumber,
   IsOptional,
   IsString,
   Matches,
   MaxLength,
   ValidateNested,
 } from '@automagical/validation';
-import { Prop } from '@nestjs/mongoose';
+import { Prop, Schema } from '@nestjs/mongoose';
+import dayjs from 'dayjs';
 import faker from 'faker';
+import { Schema as MongooseSchema } from 'mongoose';
 
-import { BaseDTO, BaseOmitProperties } from '.';
+import { CanFake, DBFake } from '../../classes';
+import { BaseDTO, BaseOmitProperties, timestamps } from '.';
 import { AccessDTO } from './Access.dto';
 import {
   PROJECT_FRAMEWORKS,
@@ -64,12 +68,22 @@ export class ProjectSettingsDTO {
  * }
  * ```
  */
+@Schema({
+  collection: 'project',
+  minimize: false,
+  timestamps: {
+    createdAt: 'created',
+    updatedAt: 'modified',
+  },
+})
 export class ProjectDTO<
   Settings extends Record<never, unknown> = ProjectSettingsDTO
-> extends BaseDTO {
+> extends DBFake {
   // #region Public Static Methods
 
-  public static fake(): Omit<ProjectDTO, BaseOmitProperties> {
+  public static fake(
+    mixin: Partial<ProjectDTO> = {},
+  ): Omit<ProjectDTO, BaseOmitProperties> {
     return {
       ...super.fake(),
       name: faker.lorem.slug(1),
@@ -78,6 +92,7 @@ export class ProjectDTO<
       tag: faker.system.semver(),
       title: faker.lorem.word(8),
       type: faker.random.arrayElement(Object.values(PROJECT_TYPES)),
+      ...mixin,
     };
   }
 
@@ -106,13 +121,64 @@ export class ProjectDTO<
     default: PROJECT_TYPES.project,
     enum: PROJECT_TYPES,
     index: true,
-    type: 'enum',
   })
   public type!: PROJECT_TYPES;
+  /**
+   * Disallow modifications while set
+   */
+  @IsOptional()
+  @IsBoolean()
+  @Prop()
+  public protect?: boolean;
+  @IsOptional()
+  @IsDateString()
+  @Prop()
+  public lastDeploy?: string;
+  /**
+   * If your account is a trial, this is when it will expire
+   */
+  @IsOptional()
+  @IsDateString()
+  @Prop()
+  public trial?: string;
+  /**
+   * Selected framework for this project
+   */
+  @IsOptional()
+  @IsEnum(PROJECT_FRAMEWORKS)
+  @Prop({
+    enum: PROJECT_FRAMEWORKS,
+  })
+  public framework?: string;
+  /**
+   * If defined, then this must be a stage. ID reference to another project
+   */
+  @IsOptional()
+  @IsString()
+  @Prop({
+    // eslint-disable-next-line unicorn/no-null
+    default: null,
+    index: true,
+    ref: 'project',
+    type: MongooseSchema.Types.ObjectId,
+  })
+  public project?: string;
+  /**
+   * @FIXME: What is this?
+   */
+  @IsOptional()
+  @IsString({ each: true })
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
+  public steps?: string[];
   /**
    * Unkown purpose
    */
   @IsOptional()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
   public billing?: Record<string, unknown>;
   /**
    * Extra configuration options
@@ -120,6 +186,9 @@ export class ProjectDTO<
    * @FIXME: What are all the options here?
    */
   @IsOptional()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
   public config?: {
     defaultStageName?: string;
   };
@@ -127,37 +196,15 @@ export class ProjectDTO<
    * @FIXME: What is this?
    */
   @IsOptional()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
   public formDefaults?: Record<string, unknown>;
-  /**
-   * Disallow modifications while set
-   */
   @IsOptional()
-  @IsBoolean()
-  public protect?: boolean;
-  @IsOptional()
-  @IsDateString()
-  public lastDeploy?: string;
-  /**
-   * If your account is a trial, this is when it will expire
-   */
-  @IsOptional()
-  @IsDateString()
-  public trial?: string;
-  /**
-   * Selected framework for this project
-   */
-  @IsOptional()
-  @IsEnum(PROJECT_FRAMEWORKS)
-  public framework?: string;
-  /**
-   * @FIXME: What is this?
-   */
-  @IsOptional()
-  @IsString({ each: true })
-  public steps?: string[];
-  @IsOptional()
-  @ValidateNested()
-  public settings?: Settings;
+  // eslint-disable-next-line unicorn/no-null
+  @Prop({ default: null })
+  @IsNumber()
+  public deleted?: number;
   /**
    * Association of role ids
    */
@@ -165,13 +212,32 @@ export class ProjectDTO<
   @ValidateNested({
     each: true,
   })
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
   public access?: AccessDTO[];
+  @IsOptional()
+  @ValidateNested()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
+  public settings?: Settings;
+  /**
+   * User ID for owner of this entity
+   *
+   * See Users collection in Portal Base
+   */
+  @IsString()
+  @IsOptional()
+  // @Prop({ index: true, ref: 'submission', required: true })
+  public owner?: string;
   /**
    * @FIXME: What are the implications of this?
    */
   @IsString()
   @IsOptional()
   @IsEnum(PROJECT_PLAN_TYPES)
+  @Prop()
   public plan?: PROJECT_PLAN_TYPES;
   /**
    * @FIXME: What is this? Short text that goes in the top tab?
@@ -179,6 +245,7 @@ export class ProjectDTO<
   @IsString()
   @IsOptional()
   @MaxLength(63)
+  @Prop()
   public stageTitle?: string;
   /**
    * Last deployed tag of the project.
@@ -218,6 +285,9 @@ export class ProjectDTO<
   public title: string;
   @ValidateNested()
   @IsOptional()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
   public remote?: Record<'name' | 'title' | '_id', string>;
 
   // #endregion Object Properties

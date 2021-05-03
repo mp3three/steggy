@@ -8,6 +8,8 @@ export const LIB_LICENSES = Symbol('licenses');
 export const LIB_FORMIO_SDK = Symbol('formio-sdk');
 export const LIB_HOME_ASSISTANT = Symbol('home-assistant');
 export const LIB_FETCH = Symbol('fetch');
+// export const LIB_TESTING = Symbol('testing');
+export const LIB_TESTING = 'jest-test';
 
 /**
 import { InjectLogger } from '@automagical/utilities';

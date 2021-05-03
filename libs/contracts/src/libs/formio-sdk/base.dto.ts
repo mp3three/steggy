@@ -36,7 +36,6 @@ export abstract class BaseDTO extends DBFake {
   @IsDateString()
   @Prop({
     index: true,
-    type: Date,
   })
   public created?: string;
   /**
@@ -46,7 +45,6 @@ export abstract class BaseDTO extends DBFake {
   @IsDateString()
   @Prop({
     index: true,
-    type: Date,
   })
   public modified?: string;
   /**
