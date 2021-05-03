@@ -1,6 +1,7 @@
 export * from './access.dto';
 export * from './action';
 export * from './action.dto';
+export * from './action-condition.dto';
 export * from './action-item.dto';
 export * from './base.dto';
 export * from './constants';

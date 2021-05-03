@@ -35,7 +35,6 @@ export class SubmissionDTO<
   @IsEnum(SUBMISSION_STATES)
   @Prop({
     enum: SUBMISSION_STATES,
-    type: 'enum',
   })
   public state?: SUBMISSION_STATES;
   /**

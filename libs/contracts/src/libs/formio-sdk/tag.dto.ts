@@ -5,6 +5,7 @@ import {
   ValidateNested,
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
+import { Schema as MongooseSchema } from 'mongoose';
 
 import { BaseDTO, timestamps } from '.';
 
@@ -32,7 +33,9 @@ export class TagDTO<
   @IsOptional()
   public description?: string;
   @ValidateNested()
-  @Prop()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
   public template: TEMPLATE;
 
   // #endregion Object Properties

@@ -25,10 +25,12 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [{
-                "replace": "apps/api-server/src/environments/environment.ts",
-                "with": "apps/api-server/src/environments/environment.production.ts"
-              }]
+              "fileReplacements": [
+                {
+                  "replace": "apps/api-server/src/environments/environment.ts",
+                  "with": "apps/api-server/src/environments/environment.production.ts"
+                }
+              ]
             }
           }
         },
@@ -68,7 +70,8 @@
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "parallel": false,
-            "commands": [{
+            "commands": [
+              {
                 "command": "nx run home-controller:build:production"
               },
               {
@@ -84,18 +87,22 @@
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "parallel": false,
-            "commands": [{
-              "command": "nx serve home-controller | pino-pretty"
-            }]
+            "commands": [
+              {
+                "command": "nx serve home-controller | pino-pretty"
+              }
+            ]
           }
         },
         "serve-inspect": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "parallel": false,
-            "commands": [{
-              "command": "nx serve home-controller --inspect inspect-brk --port 33333 | pino-pretty"
-            }]
+            "commands": [
+              {
+                "command": "nx serve home-controller --inspect inspect-brk --port 33333 | pino-pretty"
+              }
+            ]
           }
         },
         "build": {
@@ -119,10 +126,12 @@
               "generatePackageJson": true,
               "showCircularDependencies": false,
               "statsJson": true,
-              "fileReplacements": [{
-                "replace": "apps/home-controller/src/environments/environment.ts",
-                "with": "apps/home-controller/src/environments/environment.production.ts"
-              }]
+              "fileReplacements": [
+                {
+                  "replace": "apps/home-controller/src/environments/environment.ts",
+                  "with": "apps/home-controller/src/environments/environment.production.ts"
+                }
+              ]
             }
           }
         },
@@ -176,10 +185,12 @@
               "optimization": true,
               "extractLicenses": true,
               "inspect": false,
-              "fileReplacements": [{
-                "replace": "apps/license-server/src/environments/environment.ts",
-                "with": "apps/license-server/src/environments/environment.production.ts"
-              }]
+              "fileReplacements": [
+                {
+                  "replace": "apps/license-server/src/environments/environment.ts",
+                  "with": "apps/license-server/src/environments/environment.production.ts"
+                }
+              ]
             }
           }
         },
@@ -249,7 +260,6 @@
         }
       }
     },
-
     "config": {
       "root": "libs/config",
       "sourceRoot": "libs/config/src",
@@ -357,7 +367,6 @@
         }
       }
     },
-
     "formio-sdk": {
       "root": "libs/formio-sdk",
       "sourceRoot": "libs/formio-sdk/src",
@@ -495,9 +504,11 @@
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "parallel": false,
-            "commands": [{
-              "command": "nx test persistence | pino-pretty"
-            }]
+            "commands": [
+              {
+                "command": "nx test persistence | pino-pretty"
+              }
+            ]
           }
         },
         "test": {
@@ -640,6 +651,31 @@
             "assets": [
               "libs/validation/*.md"
             ]
+          }
+        }
+      }
+    },
+    "testing": {
+      "root": "libs/testing",
+      "sourceRoot": "libs/testing/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/testing/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/testing"
+          ],
+          "options": {
+            "jestConfig": "libs/testing/jest.config.js",
+            "passWithNoTests": true
           }
         }
       }

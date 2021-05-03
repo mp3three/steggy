@@ -8,11 +8,12 @@ import {
   ValidateNested,
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
+import { Schema as MongooseSchema } from 'mongoose';
 
 import { NAME_REGEX } from '.';
 import { AccessDTO, BaseDTO } from '.';
 import { ACCESS_TYPES, FORM_TYPES } from './constants';
-import { FieldMatchAccessPermissionDTO } from './FieldMatchAccessPermission.dto';
+import { FieldMatchAccessPermissionDTO } from './field-match-access-permission.dto';
 
 @Schema({
   minimize: false,
@@ -35,11 +36,15 @@ export class FormDTO extends BaseDTO {
   public type: FORM_TYPES;
   @IsObject()
   @IsOptional()
-  @Prop()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
   public properties?: Record<string, unknown>;
   @IsObject()
   @IsOptional()
-  @Prop()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
   public settings?: Record<string, unknown>;
   @IsObject({ each: true })
   @Prop()
@@ -111,7 +116,9 @@ export class FormDTO extends BaseDTO {
   })
   public path: string;
   @ValidateNested({ each: true })
-  @Prop()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
   public fieldMatchAccess: Record<
     'type',
     Record<ACCESS_TYPES, FieldMatchAccessPermissionDTO>
