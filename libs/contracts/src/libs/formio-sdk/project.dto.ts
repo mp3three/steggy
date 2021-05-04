@@ -10,12 +10,11 @@ import {
   ValidateNested,
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
-import dayjs from 'dayjs';
 import faker from 'faker';
 import { Schema as MongooseSchema } from 'mongoose';
 
-import { CanFake, DBFake } from '../../classes';
-import { BaseDTO, BaseOmitProperties, timestamps } from '.';
+import { DBFake } from '../../classes';
+import { BaseOmitProperties } from '.';
 import { AccessDTO } from './Access.dto';
 import {
   PROJECT_FRAMEWORKS,
@@ -34,6 +33,18 @@ export class ProjectSettingsDTO {
 }
 
 /**
+ * # Description
+ * Standard top level projet object. Comes in minor variations depending on use case.
+ * Acts as an organizational tool for forms and portal resources.
+ *
+ * ## type: Project
+ *
+ * Tippy top level, this will also have ProjectDTO.project unset
+ *
+ * ## type: Stage
+ *
+ * A child project. Child links to parent via ProjectDTO.project. Parent is unaware
+ *
  * # Example object
  *
  * ```json
@@ -83,10 +94,11 @@ export class ProjectDTO<
 
   public static fake(
     mixin: Partial<ProjectDTO> = {},
+    withID = false,
   ): Omit<ProjectDTO, BaseOmitProperties> {
     return {
-      ...super.fake(),
-      name: faker.lorem.slug(1),
+      ...(withID ? super.fake() : {}),
+      name: faker.lorem.slug(5),
       plan: faker.random.arrayElement(Object.values(PROJECT_PLAN_TYPES)),
       stageTitle: faker.lorem.word(),
       tag: faker.system.semver(),

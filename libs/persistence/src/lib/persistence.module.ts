@@ -1,4 +1,3 @@
-import { ConfigModule } from '@automagical/config';
 import {
   FormDTO,
   ProjectDTO,
@@ -14,6 +13,12 @@ import { ProjectService } from './services';
 @Module({})
 export class PersistenceModule {
   // #region Public Static Methods
+
+  public static mongooseRoot(uri: string): DynamicModule {
+    return MongooseModule.forRoot(uri, {
+      useCreateIndex: true,
+    });
+  }
 
   public static registerMongoose(): DynamicModule {
     return {

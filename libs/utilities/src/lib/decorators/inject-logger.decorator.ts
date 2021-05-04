@@ -49,8 +49,9 @@ export function Trace(
       if (!config.omitArgs) {
         arguments_.params = parameters;
       }
-      this.logger[config.level](arguments_, propertyKey);
-      return originalMethod.apply(this, parameters);
+      const result = originalMethod.apply(this, parameters);
+      this.logger[config.level]({ parameters, result }, propertyKey);
+      return result;
     };
     return descriptor;
   };

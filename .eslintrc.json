@@ -28,7 +28,9 @@
         "plugin:jest-formatting/recommended"
       ],
       "rules": {
-        "jest/no-hooks": "off"
+        "jest/no-hooks": "off",
+        "jest/no-disabled-tests": "warn",
+        "jest/no-focused-tests": "warn"
       },
       "env": {
         "jest/globals": true
@@ -78,7 +80,13 @@
         "sort-keys-fix/sort-keys-fix": "warn",
         "no-loops/no-loops": "error",
         "simple-import-sort/imports": "warn",
-        "simple-import-sort/exports": "warn"
+        "simple-import-sort/exports": "warn",
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          {
+            "varsIgnorePattern": "logger"
+          }
+        ]
       },
       "settings": {
         "react": {

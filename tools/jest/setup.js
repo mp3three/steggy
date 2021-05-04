@@ -11,7 +11,8 @@ module.exports = async () => {
   if (!mongod.isRunning) {
     await mongod.start();
   }
-  console.log('')
+  //
+  console.log('');
 
   const options = getMongodbMemoryOptions();
 
