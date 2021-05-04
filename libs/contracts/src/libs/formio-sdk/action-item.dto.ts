@@ -7,7 +7,8 @@ import {
 import { Prop, Schema } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 
-import { BaseDTO, timestamps } from '.';
+import { timestamps } from '.';
+import { BaseDTO } from './base.dto';
 import {
   ACTION_NAMES,
   ACTION_STATES,
@@ -28,34 +29,35 @@ export class ActionItemDTO<
   @Prop({
     default: ACTION_STATES.new,
     enum: ACTION_STATES,
-    type: 'enum',
   })
   public state?: ACTION_STATES;
   @IsEnum(ACTION_NAMES)
   @Prop({
     enum: ACTION_NAMES,
     required: true,
-    type: 'enum',
   })
   public action: ACTION_NAMES;
   @IsEnum(HANDLERS)
   @Prop({
     enum: HANDLERS,
     required: true,
-    type: 'enum',
   })
   public handler: HANDLERS;
   @IsEnum(HTTP_METHODS)
   @Prop({
     enum: HTTP_METHODS,
     required: true,
-    type: 'enum',
   })
   public method: HTTP_METHODS;
   @IsOptional()
-  @Prop()
   @ValidateNested()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
   public messages?: { type: unknown[] };
+  @IsString()
+  @Prop({ required: true })
+  public title: string;
   @IsString()
   @Prop({
     index: true,
@@ -75,15 +77,12 @@ export class ActionItemDTO<
   /**
    * Complex data provided by caller
    */
+  @ValidateNested()
+  @IsOptional()
   @Prop({
     type: MongooseSchema.Types.Mixed,
   })
-  @ValidateNested()
-  @IsOptional()
   public data?: DATA;
-  @Prop({ required: true })
-  @IsString()
-  public title: string;
 
   // #endregion Object Properties
 }

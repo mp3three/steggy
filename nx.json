@@ -39,25 +39,25 @@
       "tags": []
     },
     "home-controller": {
-      "tags": []
+      "tags": ["backend"]
     },
     "utilities": {
       "tags": []
     },
     "api-server": {
-      "tags": []
+      "tags": ["backend"]
     },
     "licenses": {
       "tags": []
     },
     "license-server": {
-      "tags": []
+      "tags": ["backend"]
     },
     "authentication": {
-      "tags": []
+      "tags": ["backend"]
     },
     "fetch": {
-      "tags": []
+      "tags": ["backend"]
     },
     "contracts": {
       "tags": []
@@ -66,7 +66,7 @@
       "tags": []
     },
     "persistence": {
-      "tags": []
+      "tags": ["backend", "data"]
     }
   },
   "workspaceLayout": {

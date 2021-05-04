@@ -1,15 +1,15 @@
 module.exports = {
+  coverageDirectory: '../../coverage/libs/persistence',
   displayName: 'persistence',
-  preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
       tsconfig: '<rootDir>/tsconfig.spec.json',
     },
   },
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]sx?$': 'ts-jest',
   },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: '../../coverage/libs/persistence',
 };

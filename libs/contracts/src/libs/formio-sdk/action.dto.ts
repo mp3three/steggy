@@ -8,55 +8,9 @@ import {
 import { Prop, Schema } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 
-import { BaseDTO, timestamps } from '.';
-import {
-  ACTION_CONDITION_EQ,
-  ACTION_NAMES,
-  HANDLERS,
-  HTTP_METHODS,
-} from './constants';
-
-/**
- * ActionDTO
- */
-@Schema()
-export class ActionConditionDTO {
-  // #region Object Properties
-
-  /**
-   * Equals vs not equals
-   */
-  @IsEnum(ACTION_CONDITION_EQ)
-  @IsOptional()
-  @Prop({
-    enum: ACTION_CONDITION_EQ,
-    type: 'enum',
-  })
-  public eq?: ACTION_CONDITION_EQ;
-  /**
-   * Custom javascript or [JSON](https://jsonlogic.com/)
-   */
-  @IsString()
-  @IsOptional()
-  @Prop()
-  public custom?: string;
-  /**
-   * Field key
-   */
-  @IsString()
-  @IsOptional()
-  @Prop()
-  public field?: string;
-  /**
-   * Comparison value
-   */
-  @IsString()
-  @IsOptional()
-  @Prop()
-  public value?: string;
-
-  // #endregion Object Properties
-}
+import { ActionConditionDTO, timestamps } from '.';
+import { BaseDTO } from './base.dto';
+import { ACTION_NAMES, HANDLERS, HTTP_METHODS } from './constants';
 
 @Schema({
   timestamps,
@@ -76,9 +30,7 @@ export class ActionDTO<
    */
   @IsEnum(HANDLERS, { each: true })
   @Prop({
-    enum: HANDLERS,
     required: true,
-    type: 'enum',
   })
   public handler: HANDLERS[];
   /**
@@ -86,9 +38,7 @@ export class ActionDTO<
    */
   @IsEnum(HTTP_METHODS, { each: true })
   @Prop({
-    enum: HTTP_METHODS,
     required: true,
-    type: 'enum',
   })
   public method: HTTP_METHODS[];
   /**
@@ -127,13 +77,17 @@ export class ActionDTO<
    */
   @ValidateNested()
   @IsOptional()
-  @Prop()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
   public condition?: ActionConditionDTO;
   /**
    * Settings provided by specific action
    */
   @ValidateNested()
-  @Prop()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
   public settings?: SETTINGS;
 
   // #endregion Object Properties

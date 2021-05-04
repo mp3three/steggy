@@ -47,3 +47,4 @@ apps/*/src/assets/user-env*.yaml
 # System Files
 .DS_Store
 Thumbs.db
+globalConfig.json

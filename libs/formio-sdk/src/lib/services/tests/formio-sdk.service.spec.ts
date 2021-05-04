@@ -53,10 +53,13 @@ describe('formio-sdk', () => {
       expect(formioSdkService.id).toBeDefined());
 
     it('should return arg if arg is string', () => {
+      expect.assertions(1);
       const id = faker.datatype.uuid();
       expect(formioSdkService.id(id)).toBe(id);
     });
+
     it('should return _id if type is obj', () => {
+      expect.assertions(1);
       const string = faker.datatype.uuid();
       expect(formioSdkService.id({ _id: string })).toBe(string);
     });
@@ -66,10 +69,12 @@ describe('formio-sdk', () => {
     afterEach(() => {
       jest.restoreAllMocks();
     });
+
     it('fetch should be defined', () =>
       expect(formioSdkService.fetch).toBeDefined());
 
     it('should call Fetch.fetch', () => {
+      expect.assertions(2);
       jest.spyOn(fetchService, 'fetch');
       const jwtToken = faker.datatype.uuid();
       formioSdkService.jwtToken = jwtToken;
@@ -78,6 +83,7 @@ describe('formio-sdk', () => {
     });
 
     it('should set standard values', () => {
+      expect.assertions(1);
       const out: string = undefined;
       jest.spyOn(fetchService, 'fetch').mockImplementation(async () => {
         return out;
@@ -95,6 +101,7 @@ describe('formio-sdk', () => {
     });
 
     it('should not override provided values', () => {
+      expect.assertions(1);
       const out: string = undefined;
       jest.spyOn(fetchService, 'fetch').mockImplementation(async () => {
         return out;
@@ -120,74 +127,92 @@ describe('formio-sdk', () => {
     it('projectAccessInfo should be defined', () =>
       expect(formioSdkService.projectAccessInfo).toBeDefined());
   });
+
   describe('projectAdminLogin', () => {
     it('projectAdminLogin should be defined', () =>
       expect(formioSdkService.projectAdminLogin).toBeDefined());
   });
+
   describe('projectAuthToken', () => {
     it('projectAuthToken should be defined', () =>
       expect(formioSdkService.projectAuthToken).toBeDefined());
   });
+
   describe('projectCreate', () => {
     it('projectCreate should be defined', () =>
       expect(formioSdkService.projectCreate).toBeDefined());
   });
+
   describe('projectCreateAdmin', () => {
     it('projectCreateAdmin should be defined', () =>
       expect(formioSdkService.projectCreateAdmin).toBeDefined());
   });
+
   describe('projectDelete', () => {
     it('projectDelete should be defined', () =>
       expect(formioSdkService.projectDelete).toBeDefined());
   });
+
   describe('projectExport', () => {
     it('projectExport should be defined', () =>
       expect(formioSdkService.projectExport).toBeDefined());
   });
+
   describe('projectGet', () => {
     it('projectGet should be defined', () =>
       expect(formioSdkService.projectGet).toBeDefined());
   });
+
   describe('projectList', () => {
     it('projectList should be defined', () =>
       expect(formioSdkService.projectList).toBeDefined());
   });
+
   describe('projectRoleCreate', () => {
     it('projectRoleCreate should be defined', () =>
       expect(formioSdkService.projectRoleCreate).toBeDefined());
   });
+
   describe('projectRoleList', () => {
     it('projectRoleList should be defined', () =>
       expect(formioSdkService.projectRoleList).toBeDefined());
   });
+
   describe('projectRoleUpdate', () => {
     it('projectRoleUpdate should be defined', () =>
       expect(formioSdkService.projectRoleUpdate).toBeDefined());
   });
+
   describe('projectTemplateImport', () => {
     it('projectTemplateImport should be defined', () =>
       expect(formioSdkService.projectTemplateImport).toBeDefined());
   });
+
   describe('projectUpdate', () => {
     it('projectUpdate should be defined', () =>
       expect(formioSdkService.projectUpdate).toBeDefined());
   });
+
   describe('userCreate', () => {
     it('userCreate should be defined', () =>
       expect(formioSdkService.userCreate).toBeDefined());
   });
+
   describe('userFetch', () => {
     it('userFetch should be defined', () =>
       expect(formioSdkService.userFetch).toBeDefined());
   });
+
   describe('userLogin', () => {
     it('userLogin should be defined', () =>
       expect(formioSdkService.userLogin).toBeDefined());
   });
+
   describe('userLogout', () => {
     it('userLogout should be defined', () =>
       expect(formioSdkService.userLogout).toBeDefined());
   });
+
   describe('projectUrl', () => {
     it('projectUrl should be defined', () =>
       expect(formioSdkService['projectUrl']).toBeDefined());

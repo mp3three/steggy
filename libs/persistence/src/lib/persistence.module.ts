@@ -1,50 +1,37 @@
-import { ProjectDTO,SubmissionDTO } from '@automagical/contracts/formio-sdk';
-import { MONGOOSE } from '@automagical/contracts/persistence';
+import {
+  FormDTO,
+  ProjectDTO,
+  SubmissionDTO,
+} from '@automagical/contracts/formio-sdk';
 import { DynamicModule, Module } from '@nestjs/common';
-// import { AccessDriver, ProjectDriver } from './drivers';
-import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import mongoose from 'mongoose';
 
-import { FormSchema, ProjectSchema } from './schema';
+import { FormSchema, ProjectSchema, SubmissionSchema } from './schema';
+import { ProjectService } from './services';
 
 @Module({})
 export class PersistenceModule {
   // #region Public Static Methods
 
+  public static mongooseRoot(uri: string): DynamicModule {
+    return MongooseModule.forRoot(uri, {
+      useCreateIndex: true,
+    });
+  }
+
   public static registerMongoose(): DynamicModule {
     return {
+      exports: [ProjectService],
       imports: [
         MongooseModule.forFeature([
-          { name: SubmissionDTO.name, schema: FormSchema },
+          { name: SubmissionDTO.name, schema: SubmissionSchema },
+          { name: FormDTO.name, schema: FormSchema },
           { name: ProjectDTO.name, schema: ProjectSchema },
         ]),
       ],
       module: PersistenceModule,
-      providers: [
-        {
-          inject: [ConfigService],
-          provide: MONGOOSE,
-          useFactory: async (config: ConfigService) => {
-            const options = {
-              connectTimeoutMS: 300000,
-              keepAlive: true,
-              socketTimeoutMS: 300000,
-              useCreateIndex: true,
-              useNewUrlParser: true,
-            } as mongoose.ConnectOptions;
-            /**
-             * TODO ssl
-             */
-            await mongoose.connect(config.get('MONGO'), options);
-
-            mongoose.set('useFindAndModify', false);
-            mongoose.set('useCreateIndex', true);
-            return mongoose;
-          },
-        },
-      ],
+      providers: [ProjectService],
     };
   }
 

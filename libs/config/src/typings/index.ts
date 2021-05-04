@@ -18,6 +18,10 @@ export class AutomagicalConfig<
    */
   public LOG_LEVEL?: keyof typeof PinoLogger.prototype;
   /**
+   * mongodb connection uri
+   */
+  public MONGO?: string;
+  /**
    * 🤷‍♂️
    */
   public NODE_ENV?: string;

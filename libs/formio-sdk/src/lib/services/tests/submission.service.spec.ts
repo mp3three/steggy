@@ -47,34 +47,9 @@ describe('submission-service', () => {
       fullName,
       password,
     });
-    // it('should register a user', async () => {
-    //   const user = await formioSdkService.userCreate({
-    //     email,
-    //     name: fullName,
-    //     password,
-    //   });
-    //   expect(user).toBeDefined();
-    //   console.info(user._id);
-    // });
-
-    // public async verifySubmission(args: {
-    //   project: string;
-    //   resource: string;
-    //   _id: string;
-    // }) {
-    //   return this.submissionService.patch({
-    //     ...args,
-    //     body: [
-    //       {
-    //         op: 'add',
-    //         path: '/metadata/verified',
-    //         value: dayjs().toISOString(),
-    //       },
-    //     ],
-    //   });
-    // }
 
     it('should be able to patch users', async () => {
+      expect.assertions(0);
       const id = '606fa8227fa964e96a09fdbd';
       const project = 'formio';
       const form = 'user';
@@ -93,19 +68,5 @@ describe('submission-service', () => {
       const user = await submissionService.get<UserDTO>({ form, id, project });
       logger.warn(user);
     });
-
-    // it('should call Fetch.fetch', async () => {
-    //   expect(formioSdkService.jwtToken).toBeTruthy();
-    //   const userList = await submissionService.list({
-    //     project: 'formio',
-    //     form: 'user',
-    //   });
-    //   expect(userList.length).toBeGreaterThan(0);
-    // jest.spyOn(Fetch, 'fetch').mockImplementation(() => null);
-    // const jwtToken = faker.datatype.uuid();
-    // formioSdkService.jwtToken = jwtToken;
-    // formioSdkService.fetch({});
-    // expect(Fetch.fetch).toHaveBeenCalled();
-    // });
   });
 });

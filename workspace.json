@@ -249,7 +249,6 @@
         }
       }
     },
-
     "config": {
       "root": "libs/config",
       "sourceRoot": "libs/config/src",
@@ -357,7 +356,6 @@
         }
       }
     },
-
     "formio-sdk": {
       "root": "libs/formio-sdk",
       "sourceRoot": "libs/formio-sdk/src",
@@ -489,6 +487,15 @@
             "lintFilePatterns": [
               "libs/persistence/**/*.ts"
             ]
+          }
+        },
+        "test-pretty": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "parallel": false,
+            "commands": [{
+              "command": "nx test persistence | pino-pretty"
+            }]
           }
         },
         "test": {
