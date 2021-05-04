@@ -3,6 +3,8 @@ import { ProjectDTO } from '@automagical/contracts/formio-sdk';
 import { ProjectService } from '@automagical/persistence';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
+import faker from 'faker';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import { LoggerModule } from 'nestjs-pino';
 import pino from 'pino';
 
@@ -11,14 +13,16 @@ import { PersistenceModule } from '../../persistence.module';
 describe('project', () => {
   let projectService: ProjectService;
   const logger = pino();
+  let mongod: MongoMemoryServer;
 
   beforeAll(async () => {
+    mongod = new MongoMemoryServer();
     const moduleReference = await Test.createTestingModule({
       imports: [
         ConfigModule.register('jest-test'),
         PersistenceModule.registerMongoose(),
         LoggerModule.forRoot(),
-        PersistenceModule.mongooseRoot(process.env.MONGO_URL),
+        PersistenceModule.mongooseRoot(await mongod.getUri()),
       ],
       providers: [ConfigService],
     }).compile();
@@ -50,12 +54,27 @@ describe('project', () => {
 
     it('should be able to findOne by name', async () => {
       expect.assertions(2);
-
       const project = ProjectDTO.fake({});
       const created = await projectService.create(project);
       expect(created._id).toBeDefined();
       const found = await projectService.findByName(created);
       expect(found._id).toStrictEqual(created._id);
+    });
+
+    it('should be able to find many', async () => {
+      expect.assertions(1);
+
+      const stageTitle = faker.random.alphaNumeric(20);
+      const projects = [
+        ProjectDTO.fake({ stageTitle }),
+        ProjectDTO.fake({ stageTitle }),
+        ProjectDTO.fake({ stageTitle }),
+      ];
+      await projectService.create(projects[0]);
+      await projectService.create(projects[1]);
+      await projectService.create(projects[2]);
+      const results = await projectService.findMany({ stageTitle });
+      expect(results).toHaveLength(3);
     });
   });
 

@@ -13,6 +13,5 @@ module.exports = {
     '<rootDir>/libs/fetch',
     '<rootDir>/libs/config',
     '<rootDir>/libs/persistence',
-    '<rootDir>/libs/testing',
   ],
 };
