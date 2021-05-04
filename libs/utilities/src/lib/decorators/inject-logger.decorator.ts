@@ -22,6 +22,13 @@ type TraceArguments = {
   level?: 'trace' | 'debug' | 'info';
 };
 const TRACE_ENABLED = true;
+
+/**
+ * Emits log message after function is complete
+ * Contains function name as log message, function parameters, and return result.
+ *
+ * Must follow the repository pattern of injecting PinoLogger as this.logger
+ */
 export function Trace(
   config: TraceArguments = {},
 ): (

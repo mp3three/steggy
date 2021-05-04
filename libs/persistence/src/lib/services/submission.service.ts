@@ -1,21 +1,21 @@
-import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
+import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
 import { SubmissionDTO, UserDTO } from '@automagical/contracts/formio-sdk';
 import { indexOptions, indexQuery } from '@automagical/fetch';
 import { SubmissionDocument } from '@automagical/persistence';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { InjectLogger, InjectMongo, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
 
+/* eslint-disable unicorn/no-null */
 @Injectable()
 export class SubmissionService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(SubmissionService, LIB_FORMIO_SDK)
+    @InjectLogger(SubmissionService, LIB_PERSISTENCE)
     private readonly logger: PinoLogger,
-    @InjectModel(SubmissionDTO.name)
+    @InjectMongo(SubmissionDTO)
     private readonly submissionModel: Model<SubmissionDocument>,
   ) {}
 
