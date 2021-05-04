@@ -35,7 +35,7 @@ export class ProjectSettingsDTO {
 /* eslint-disable unicorn/no-null */
 /**
  * # Description
- * Standard top level projet object. Comes in minor variations depending on use case.
+ * Standard top level project object. Comes in minor variations depending on use case.
  * Acts as an organizational tool for forms and portal resources.
  *
  * ## type: Project
@@ -44,41 +44,7 @@ export class ProjectSettingsDTO {
  *
  * ## type: Stage
  *
- * A child project. Child links to parent via ProjectDTO.project. Parent is unaware
- *
- * # Example object
- *
- * ```json
- * {
- *   "_id": "602fd8a8c4eb75cabbcfa01f",
- *   "type": "stage",
- *   "tag": "0.0.0",
- *   "owner": "602fd7dcc4eb753dc6cf9ff3",
- *   "plan": "commercial",
- *   "steps": [],
- *   "framework": "angular",
- *   "protect": false,
- *   "formDefaults": null,
- *   "title": "Dev",
- *   "stageTitle": "Dev",
- *   "project": "602fd8a7c4eb757f4dcfa001",
- *   "name": "dev-wlpudpkxpjrppad",
- *   "config": {
- *     "defaultStageName": "dev"
- *   },
- *   "access": [
- *     {
- *       "roles": [
- *         "602fd8a8c4eb750328cfa020"
- *       ],
- *       "type": "create_all"
- *     }
- *   ],
- *   "trial": "2021-02-19T15:26:32.273Z",
- *   "created": "2021-02-19T15:26:32.273Z",
- *   "modified": "2021-02-19T15:26:32.275Z"
- * }
- * ```
+ * A child project. Child links to parent via ProjectDTO.project. Not double linked
  */
 @Schema({
   collection: MONGO_COLLECTIONS.project,
@@ -113,6 +79,10 @@ export class ProjectDTO<
 
   // #region Object Properties
 
+  @IsBoolean()
+  @IsOptional()
+  @Prop()
+  public primary?: boolean;
   /**
    * Disallow modifications while set
    */
@@ -132,25 +102,25 @@ export class ProjectDTO<
   @Prop()
   public trial?: string;
   /**
-   * @FIXME: What are the implications of this?
-   */
-  @IsEnum(PROJECT_PLAN_TYPES)
-  @IsOptional()
-  @Prop()
-  public plan?: PROJECT_PLAN_TYPES;
-  /**
    * Selected framework for this project
    */
   @IsEnum(PROJECT_FRAMEWORKS)
   @IsOptional()
   @Prop({
+    default: PROJECT_FRAMEWORKS.angular,
     enum: PROJECT_FRAMEWORKS,
   })
   public framework?: string;
   /**
-  @IsBoolean()
+   * @FIXME: What are the implications of this?
+   */
+  @IsEnum(PROJECT_PLAN_TYPES)
   @IsOptional()
-  public primary?: boolean;
+  @Prop({
+    default: PROJECT_PLAN_TYPES.trial,
+    enum: PROJECT_PLAN_TYPES,
+  })
+  public plan?: PROJECT_PLAN_TYPES;
   /**
    * - Project: My Precious Project
    *   - Stage: **Live\***
@@ -250,13 +220,13 @@ export class ProjectDTO<
     type: MongooseSchema.Types.Mixed,
   })
   public steps?: string[];
+  /**
+   * Description of project
+   */
   @IsString()
   @MaxLength(512)
   @IsOptional()
   @Prop({ maxlength: 512 })
-  /**
-   * Description of project
-   */
   public description?: string;
   /**
    * @FIXME: What is this? Short text that goes in the top tab?

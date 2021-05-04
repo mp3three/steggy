@@ -105,6 +105,18 @@ export class FormDTO extends DBFake {
     type: MongooseSchema.Types.ObjectId,
   })
   public project?: string;
+  /**
+   * User ID for owner of this entity
+   *
+   * See Users collection in Portal Base
+   */
+  @IsString()
+  @IsOptional()
+  @Prop({
+    index: true,
+    ref: MONGO_COLLECTIONS.submission,
+  })
+  public owner?: string;
   @IsString()
   @Matches(NAME_REGEX, '', {
     message:
