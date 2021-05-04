@@ -1,5 +1,7 @@
+import { DBFake } from '@automagical/contracts';
 import {
   IsEnum,
+  IsNumber,
   IsObject,
   IsOptional,
   IsString,
@@ -8,21 +10,41 @@ import {
   ValidateNested,
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
+import faker from 'faker';
 import { Schema as MongooseSchema } from 'mongoose';
 
-import { NAME_REGEX } from '.';
-import { AccessDTO, BaseDTO } from '.';
+import { AccessDTO, BaseOmitProperties, NAME_REGEX } from '.';
 import { ACCESS_TYPES, FORM_TYPES } from './constants';
 import { FieldMatchAccessPermissionDTO } from './field-match-access-permission.dto';
 
 @Schema({
+  collection: 'form',
   minimize: false,
   timestamps: {
     createdAt: 'created',
     updatedAt: 'modified',
   },
 })
-export class FormDTO extends BaseDTO {
+export class FormDTO extends DBFake {
+  // #region Public Static Methods
+
+  public static fake(
+    mixin: Partial<FormDTO> = {},
+    withID = false,
+  ): Omit<FormDTO, BaseOmitProperties> {
+    return {
+      ...(withID ? super.fake() : {}),
+      machineName: faker.lorem.slug(3).split('-').join(':'),
+      name: faker.lorem.slug(8),
+      path: faker.lorem.slug(2),
+      title: faker.lorem.word(8),
+      type: faker.random.arrayElement(Object.values(FORM_TYPES)),
+      ...mixin,
+    };
+  }
+
+  // #endregion Public Static Methods
+
   // #region Object Properties
 
   @IsEnum(FORM_TYPES)
@@ -31,9 +53,12 @@ export class FormDTO extends BaseDTO {
     enum: FORM_TYPES,
     index: true,
     required: true,
-    type: 'enum',
   })
   public type: FORM_TYPES;
+  @IsObject({ each: true })
+  @IsOptional()
+  @Prop()
+  public components?: Record<string, unknown>[];
   @IsObject()
   @IsOptional()
   @Prop({
@@ -46,22 +71,11 @@ export class FormDTO extends BaseDTO {
     type: MongooseSchema.Types.Mixed,
   })
   public settings?: Record<string, unknown>;
-  @IsObject({ each: true })
-  @Prop()
   @IsOptional()
-  public components?: Record<string, unknown>[];
-  @IsOptional()
-  @ValidateNested({
-    each: true,
-  })
-  @Prop()
-  public access?: AccessDTO[];
-  @IsOptional()
-  @ValidateNested({
-    each: true,
-  })
-  @Prop()
-  public submissionAccess?: AccessDTO[];
+  @IsNumber()
+  // eslint-disable-next-line unicorn/no-null
+  @Prop({ default: null })
+  public deleted?: number;
   /**
    * A custom action URL to submit the data to.
    */
@@ -77,6 +91,19 @@ export class FormDTO extends BaseDTO {
   @IsOptional()
   @Prop({ index: true })
   public tags?: string[];
+  @IsString()
+  @Matches(NAME_REGEX, '', {
+    message:
+      'Name may only container numbers, letters, and dashes. Must not terminate with a dash',
+  })
+  @Prop({
+    index: true,
+    lowercase: true,
+    required: true,
+    trim: true,
+    unique: true,
+  })
+  public path: string;
   /**
    * Used for generating URL paths
    *
@@ -102,24 +129,24 @@ export class FormDTO extends BaseDTO {
   @IsString()
   @Prop({})
   public machineName: string;
-  @IsString()
-  @Prop({
-    index: true,
-    lowercase: true,
-    required: true,
-    trim: true,
-    unique: true,
+  @ValidateNested({
+    each: true,
   })
-  @Matches(NAME_REGEX, '', {
-    message:
-      'Name may only container numbers, letters, and dashes. Must not terminate with a dash',
+  @IsOptional()
+  @Prop()
+  public access?: AccessDTO[];
+  @ValidateNested({
+    each: true,
   })
-  public path: string;
+  @IsOptional()
+  @Prop()
+  public submissionAccess?: AccessDTO[];
   @ValidateNested({ each: true })
+  @IsOptional()
   @Prop({
     type: MongooseSchema.Types.Mixed,
   })
-  public fieldMatchAccess: Record<
+  public fieldMatchAccess?: Record<
     'type',
     Record<ACCESS_TYPES, FieldMatchAccessPermissionDTO>
   >;
