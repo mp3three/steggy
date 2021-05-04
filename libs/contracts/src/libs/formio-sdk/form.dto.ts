@@ -1,4 +1,5 @@
 import { DBFake } from '@automagical/contracts';
+import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import {
   IsEnum,
   IsNumber,
@@ -17,8 +18,9 @@ import { AccessDTO, BaseOmitProperties, NAME_REGEX } from '.';
 import { ACCESS_TYPES, FORM_TYPES } from './constants';
 import { FieldMatchAccessPermissionDTO } from './field-match-access-permission.dto';
 
+/* eslint-disable unicorn/no-null */
 @Schema({
-  collection: 'form',
+  collection: MONGO_COLLECTIONS.form,
   minimize: false,
   timestamps: {
     createdAt: 'created',
@@ -91,6 +93,18 @@ export class FormDTO extends DBFake {
   @IsOptional()
   @Prop({ index: true })
   public tags?: string[];
+  /**
+   * If defined, then this must be a stage. ID reference to another project
+   */
+  @IsString()
+  @IsOptional()
+  @Prop({
+    default: null,
+    index: true,
+    ref: MONGO_COLLECTIONS.project,
+    type: MongooseSchema.Types.ObjectId,
+  })
+  public project?: string;
   @IsString()
   @Matches(NAME_REGEX, '', {
     message:

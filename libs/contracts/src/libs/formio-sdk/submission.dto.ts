@@ -1,3 +1,4 @@
+import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import {
   IsArray,
   IsEnum,
@@ -16,7 +17,7 @@ import { SUBMISSION_STATES } from './constants';
 
 /* eslint-disable unicorn/no-null */
 @Schema({
-  collection: 'submission',
+  collection: MONGO_COLLECTIONS.submission,
   minimize: false,
   timestamps: {
     createdAt: 'created',
@@ -72,7 +73,7 @@ export class SubmissionDTO<
   @Prop({
     default: null,
     index: true,
-    ref: 'project',
+    ref: MONGO_COLLECTIONS.project,
     type: MongooseSchema.Types.ObjectId,
   })
   public project?: string;
@@ -83,7 +84,7 @@ export class SubmissionDTO<
   @IsOptional()
   @Prop({
     index: true,
-    ref: 'role',
+    ref: MONGO_COLLECTIONS.role,
     type: MongooseSchema.Types.ObjectId,
   })
   public roles?: string[];
@@ -96,14 +97,18 @@ export class SubmissionDTO<
   @IsOptional()
   @Prop({
     index: true,
-    ref: 'submission',
+    ref: MONGO_COLLECTIONS.submission,
   })
   public owner?: string;
   /**
    * Reference to the resource that created this
    */
   @IsString()
-  @Prop({ index: true, ref: 'form', required: true })
+  @Prop({
+    index: true,
+    ref: MONGO_COLLECTIONS.role,
+    required: true,
+  })
   public form: string;
   /**
    * Supplemental information for your submission

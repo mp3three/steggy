@@ -1,36 +1,42 @@
+import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import { IsBoolean, IsOptional, IsString } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
 
-import { BaseDTO, timestamps } from '.';
+import { DBFake } from '../../classes';
 
 @Schema({
+  collection: MONGO_COLLECTIONS.role,
   minimize: false,
-  timestamps,
+  timestamps: {
+    createdAt: 'created',
+    updatedAt: 'modified',
+  },
 })
-export class RoleDTO extends BaseDTO {
+export class RoleDTO extends DBFake {
   // #region Object Properties
 
+  @IsBoolean()
+  @IsOptional()
+  @Prop({ default: false })
+  public admin?: boolean;
+  @IsBoolean()
+  @IsOptional()
+  @Prop({ default: false })
+  public default?: boolean;
   @IsString()
-  @Prop({})
-  public machineName: string;
+  @IsOptional()
+  @Prop({ default: '' })
+  public description?: string;
+  @IsString()
+  @IsOptional()
+  @Prop()
+  public machineName?: string;
+  @IsString()
   @Prop({
     index: true,
     required: true,
   })
-  @IsString()
   public title: string;
-  @Prop({ default: false })
-  @IsOptional()
-  @IsBoolean()
-  public admin?: boolean;
-  @Prop({ default: false })
-  @IsOptional()
-  @IsBoolean()
-  public default?: boolean;
-  @Prop({ default: '' })
-  @IsString()
-  @IsOptional()
-  public description?: string;
 
   // #endregion Object Properties
 }
