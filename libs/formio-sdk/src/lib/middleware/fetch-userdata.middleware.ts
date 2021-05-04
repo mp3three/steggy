@@ -1,5 +1,5 @@
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
-import { InjectLogger } from '@automagical/utilities';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import {
   HttpException,
   HttpStatus,
@@ -25,6 +25,7 @@ export class FetchUserdataMiddleware implements NestMiddleware {
 
   // #region Public Methods
 
+  @Trace()
   public async use(
     request: Request,
     response: Response,
