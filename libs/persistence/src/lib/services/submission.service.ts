@@ -1,6 +1,5 @@
 import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
 import { SubmissionDTO, UserDTO } from '@automagical/contracts/formio-sdk';
-import { indexOptions, indexQuery } from '@automagical/fetch';
 import { SubmissionDocument } from '@automagical/persistence';
 import { InjectLogger, InjectMongo, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -24,47 +23,78 @@ export class SubmissionService {
   // #region Public Methods
 
   @Trace()
-  public async byId(submissionId: string): Promise<SubmissionDTO> {
+  public async create(
+    project: SubmissionDTO,
+    owner?: UserDTO,
+  ): Promise<SubmissionDTO> {
+    project.owner = project.owner || owner?._id;
+    return await this.submissionModel.create(project);
+  }
+
+  @Trace()
+  public async delete(project: SubmissionDTO | string): Promise<boolean> {
+    if (typeof project === 'object') {
+      project = project._id;
+    }
+    const result = await this.submissionModel
+      .updateOne(
+        { _id: project },
+        {
+          deleted: Date.now(),
+        },
+      )
+      .exec();
+    return result.ok === 1;
+  }
+
+  @Trace()
+  public async findById(
+    project: SubmissionDTO | string,
+  ): Promise<SubmissionDTO> {
+    if (typeof project === 'object') {
+      project = project._id;
+    }
+    return await this.submissionModel.findOne({
+      _id: project,
+      deleted: null,
+    });
+  }
+
+  @Trace()
+  public async findMany(
+    query: Record<string, unknown> = {},
+  ): Promise<SubmissionDTO[]> {
     return await this.submissionModel
-      .findOne({
-        _id: submissionId,
+      .find({
+        deleted: null,
+        ...query,
       })
       .exec();
   }
 
   @Trace()
-  public async create(
-    submission: SubmissionDTO,
-    owner?: UserDTO,
-  ): Promise<SubmissionDTO> {
-    submission.owner = submission.owner || owner?._id;
-    return await this.submissionModel.create(submission);
-  }
-
-  @Trace()
-  public async list(arguments_: {
-    query?: Record<string, string>;
-    user?: UserDTO;
-  }): Promise<{ count: number; items: SubmissionDTO[] }> {
-    const query = new Map(Object.entries(arguments_.query || {}));
-    let map = indexQuery(query);
-    map = indexOptions(query, map);
-    const search = Object.fromEntries(map.entries());
-    return {
-      count: await this.submissionModel.count(search),
-      items: await this.submissionModel.find(search),
-    };
+  public async hardDelete(project: SubmissionDTO | string): Promise<boolean> {
+    if (typeof project === 'object') {
+      project = project._id;
+    }
+    const result = await this.submissionModel.deleteOne({
+      _id: project,
+    });
+    return result.ok === 1;
   }
 
   @Trace()
   public async update(
-    submissionId: string,
-    submission: SubmissionDTO,
-  ): Promise<SubmissionDTO> {
-    // Shame on you
-    submission._id = submissionId;
-    await this.submissionModel.updateOne({ _id: submissionId }, submission);
-    return submission;
+    source: SubmissionDTO | string,
+    update: Omit<Partial<SubmissionDTO>, '_id' | 'created'>,
+  ): Promise<boolean> {
+    if (typeof source === 'object') {
+      source = source._id;
+    }
+    const result = await this.submissionModel
+      .updateOne({ _id: source, deleted: null }, update)
+      .exec();
+    return result.ok === 1;
   }
 
   // #endregion Public Methods

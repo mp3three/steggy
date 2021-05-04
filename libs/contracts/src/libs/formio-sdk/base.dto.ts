@@ -61,10 +61,10 @@ export abstract class BaseDTO extends DBFake {
     type: MongooseSchema.Types.ObjectId,
   })
   public project?: string;
+  @IsNumber()
   @IsOptional()
   // eslint-disable-next-line unicorn/no-null
   @Prop({ default: null })
-  @IsNumber()
   public deleted?: number;
   /**
    * User ID for owner of this entity
