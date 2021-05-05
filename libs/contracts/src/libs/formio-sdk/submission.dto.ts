@@ -61,6 +61,7 @@ export class SubmissionDTO<
   @IsOptional()
   @Prop({
     enum: SUBMISSION_STATES,
+    type: MongooseSchema.Types.String,
   })
   public state?: SUBMISSION_STATES;
   @IsNumber()

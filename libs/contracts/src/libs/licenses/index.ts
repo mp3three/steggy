@@ -1,6 +1,7 @@
 export * from './api-server.dto';
 export * from './cache-data.dto';
 export * from './key.dto';
+export * from './license-base.dto';
 export * from './monthly-usage.dto';
 export * from './options.dto';
 export * from './report.dto';

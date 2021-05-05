@@ -56,24 +56,28 @@ export class ActionItemDTO<
   @Prop({
     default: ACTION_STATES.new,
     enum: ACTION_STATES,
+    type: MongooseSchema.Types.String,
   })
   public state?: ACTION_STATES;
   @IsEnum(ACTION_NAMES)
   @Prop({
     enum: ACTION_NAMES,
     required: true,
+    type: MongooseSchema.Types.String,
   })
   public action: ACTION_NAMES;
   @IsEnum(HANDLERS)
   @Prop({
     enum: HANDLERS,
     required: true,
+    type: MongooseSchema.Types.String,
   })
   public handler: HANDLERS;
   @IsEnum(HTTP_METHODS)
   @Prop({
     enum: HTTP_METHODS,
     required: true,
+    type: MongooseSchema.Types.String,
   })
   public method: HTTP_METHODS;
   @IsNumber()

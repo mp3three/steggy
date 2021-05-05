@@ -1,4 +1,11 @@
 import {
+  LicenseBaseDTO,
+  LicenseOptionsDTO,
+  LicensePlans,
+  LicenseScopes,
+  LicenseUsageDTO,
+} from '@automagical/contracts/licenses';
+import {
   IsBoolean,
   IsDateString,
   IsEnum,
@@ -6,11 +13,6 @@ import {
   IsOptional,
   ValidateNested,
 } from '@automagical/validation';
-
-import { LicenseBaseDTO } from '../../licenses/license-base.dto';
-import { LicenseOptionsDTO } from '../../licenses/Options.dto';
-import { LicensePlans, LicenseScopes } from '../../licenses/types';
-import { LicenseUsageDTO } from '../../licenses/Usage.dto';
 
 export class LicenseTermsDTO extends LicenseBaseDTO {
   // #region Object Properties

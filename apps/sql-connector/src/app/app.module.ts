@@ -1,6 +1,7 @@
 import { AuthorizationModule } from '@automagical/authentication';
 import { ConfigModule } from '@automagical/config';
 import { FetchModule } from '@automagical/fetch';
+import { FormioSdkModule, FormioSdkService } from '@automagical/formio-sdk';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
@@ -14,6 +15,12 @@ import { AppService } from './services/app.service';
 @Module({
   controllers: [ConnectorController],
   imports: [
+    {
+      exports: [FormioSdkService],
+      imports: [FetchModule],
+      module: FormioSdkModule,
+      providers: [FormioSdkService],
+    },
     PassportModule,
     FetchModule,
     AuthorizationModule,

@@ -118,6 +118,7 @@ export class ProjectDTO<
   @Prop({
     default: PROJECT_PLAN_TYPES.trial,
     enum: PROJECT_PLAN_TYPES,
+    type: MongooseSchema.Types.String,
   })
   public plan?: PROJECT_PLAN_TYPES;
   /**
@@ -138,6 +139,7 @@ export class ProjectDTO<
     default: PROJECT_TYPES.project,
     enum: PROJECT_TYPES,
     index: true,
+    type: MongooseSchema.Types.String,
   })
   public type?: PROJECT_TYPES;
   @IsNumber()
