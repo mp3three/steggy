@@ -1,4 +1,7 @@
-import { APP_SQL_CONNECTOR } from '@automagical/contracts/constants';
+import {
+  APP_SQL_CONNECTOR,
+  KNEX_CONNECTION_TYPES,
+} from '@automagical/contracts/constants';
 import {
   FormioSdkService,
   FormService,
@@ -8,11 +11,16 @@ import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response, Router } from 'express';
-import knex from 'knex';
 import { InjectKnex, Knex } from 'nestjs-knex';
 import { PinoLogger } from 'nestjs-pino';
+import { get } from 'object-path';
 
-import { ConnectorRoute, ConnectorRouteDTO } from '../../typings';
+import {
+  ConnectorRoute,
+  ConnectorRouteDTO,
+  MysqlResult,
+  PostgresResult,
+} from '../../typings';
 export class Locals {
   // #region Object Properties
 
@@ -89,7 +97,7 @@ export class AppService {
   protected async processQuery(
     queries: string[][],
     lookup: Record<string, unknown>,
-  ): Promise<void> {
+  ): Promise<unknown> {
     // Example query
     // [
     //   ["INSERT INTO customers (firstName, lastName, email) VALUES (?, ?, ?);", "body.firstName", "body.lastName", "body.email"],
@@ -98,101 +106,35 @@ export class AppService {
     //
 
     // Using for loop to force sync order with async operations
+    let returnResult: unknown;
     // eslint-disable-next-line no-loops/no-loops
     for (const list of queries) {
-      const parameters: string[] = [];
-      list.forEach((element) => {
-        const value = _.get(request, element as string);
-
-        parameters.push(value);
-      });
-      // params builder
-      // for (const element_ of query) {
-      //   if (typeof element_ === 'string') {
-      //     const value = _.get(request, element_ as string);
-      //     if (value === undefined) {
-      //       log(
-      //         `[${res.locals.requestId}] lookup failed for param "${element_}"`,
-      //       );
-      //       debug(request.body);
-      //       return ErrorCodes.paramLookupFailed;
-      //     }
-      //     parameters.push(value);
-      //   }
-      // } // /params builder
-    }
-
-    let result: AnyKindOfDictionary[] = null;
-    for (const element of routeQuery) {
-      const query = [...(element as PreparedQuery)];
-      const queryString = query.shift() as string;
-      const parameters: string[] = [];
-
-      // params builder
-      for (const element_ of query) {
-        if (typeof element_ === 'string') {
-          const value = _.get(request, element_ as string);
-          if (value === undefined) {
-            log(
-              `[${res.locals.requestId}] lookup failed for param "${element_}"`,
-            );
-            debug(request.body);
-            return ErrorCodes.paramLookupFailed;
-          }
-          parameters.push(value);
-        } else {
-          parameters.push(
-            await (element_ as QueryParamLookup)({
-              knex: knexClient,
-              req: request,
-              res,
-              resquel: this,
-            }),
-          );
-        }
-      } // /params builder
-      try {
-        result = this.resultProcess(
-          knexClient,
-          await knexClient.raw(queryString, parameters),
-        );
-      } catch (error_) {
-        error('QUERY FAILED');
-        error({
-          params: parameters,
-          queryString,
-          result,
-        });
-        error(error_);
-        continue;
-      }
-      // Example result:
-      // [
-      //   {
-      //     id: 1,
-      //     firstName: 'John',
-      //     lastName: 'Doe',
-      //     email: 'example@example.com',
-      //   },
-      // ];
-      //
-      // Example prepared query that utilizes result:
-      // ["SELECT * FROM customer WHERE id=?", "res.locals.queries[0].id"]
-      //
-      // This works because `req.res` is a thing:
-      // express: After middleware.init executed, Request will contain res and next properties
-      // See: express/lib/middleware/init.js
-      //
-
-      queries.push({
-        params: parameters,
+      const queryString = list.shift();
+      const parameters: string[] = list.map((path) => get(lookup, path));
+      const result = await this.knex.raw<PostgresResult | MysqlResult>(
         queryString,
-        result,
-      });
+        parameters,
+      );
+      switch (this.knex.client.config.client as KNEX_CONNECTION_TYPES) {
+        case 'postgresql':
+          returnResult = (result as PostgresResult).rows;
+          break;
+        case 'mysql':
+          if ((result as MysqlResult).length === 1) {
+            returnResult = result;
+            break;
+          }
+          if (result[0].affectedRows !== undefined) {
+            returnResult = [];
+            break;
+          }
+          returnResult = result[0];
+          break;
+        default:
+          returnResult = result;
+      }
     }
-    return {
-      rows: result,
-    };
+    return returnResult;
   }
 
   // #endregion Protected Methods

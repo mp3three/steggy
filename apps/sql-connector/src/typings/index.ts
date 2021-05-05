@@ -42,3 +42,5 @@ export enum ConnetorTags {
   route = 'route',
   database = 'database',
 }
+export type PostgresResult = { rows: Record<string, unknown> };
+export type MysqlResult = unknown[];
