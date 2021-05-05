@@ -1,6 +1,13 @@
 export enum MONGO_COLLECTIONS {
-  submission = 'submission',
-  form = 'form',
-  project = 'project',
-  role = 'role',
+  actionitems = 'actionitems',
+  actions = 'actions',
+  // formrevisions = 'formrevisions',
+  forms = 'forms',
+  projects = 'projects',
+  roles = 'roles',
+  schema = 'schema',
+  sessions = 'sessions',
+  submissions = 'submissions',
+  tags = 'tags',
+  tokens = 'tokens',
 }

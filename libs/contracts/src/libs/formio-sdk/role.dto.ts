@@ -12,7 +12,7 @@ import { DBFake } from '../../classes';
 import { BaseOmitProperties } from '.';
 
 @Schema({
-  collection: MONGO_COLLECTIONS.role,
+  collection: MONGO_COLLECTIONS.roles,
   minimize: false,
   timestamps: {
     createdAt: 'created',

@@ -19,7 +19,7 @@ import { ACCESS_TYPES, FORM_TYPES } from './constants';
 import { FieldMatchAccessPermissionDTO } from './field-match-access-permission.dto';
 
 @Schema({
-  collection: MONGO_COLLECTIONS.form,
+  collection: MONGO_COLLECTIONS.forms,
   minimize: false,
   timestamps: {
     createdAt: 'created',
@@ -99,7 +99,7 @@ export class FormDTO extends DBFake {
   @Prop({
     default: null,
     index: true,
-    ref: MONGO_COLLECTIONS.project,
+    ref: MONGO_COLLECTIONS.projects,
     type: MongooseSchema.Types.ObjectId,
   })
   public project?: string;
@@ -112,7 +112,7 @@ export class FormDTO extends DBFake {
   @IsOptional()
   @Prop({
     index: true,
-    ref: MONGO_COLLECTIONS.submission,
+    ref: MONGO_COLLECTIONS.submissions,
   })
   public owner?: string;
   @IsString()

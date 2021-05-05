@@ -16,7 +16,7 @@ import { AccessDTO } from './Access.dto';
 import { SUBMISSION_STATES } from './constants';
 
 @Schema({
-  collection: MONGO_COLLECTIONS.submission,
+  collection: MONGO_COLLECTIONS.submissions,
   minimize: false,
   timestamps: {
     createdAt: 'created',
@@ -72,7 +72,7 @@ export class SubmissionDTO<
   @Prop({
     default: null,
     index: true,
-    ref: MONGO_COLLECTIONS.project,
+    ref: MONGO_COLLECTIONS.projects,
     type: MongooseSchema.Types.ObjectId,
   })
   public project?: string;
@@ -83,7 +83,7 @@ export class SubmissionDTO<
   @IsOptional()
   @Prop({
     index: true,
-    ref: MONGO_COLLECTIONS.role,
+    ref: MONGO_COLLECTIONS.roles,
     type: MongooseSchema.Types.ObjectId,
   })
   public roles?: string[];
@@ -96,7 +96,7 @@ export class SubmissionDTO<
   @IsOptional()
   @Prop({
     index: true,
-    ref: MONGO_COLLECTIONS.submission,
+    ref: MONGO_COLLECTIONS.submissions,
   })
   public owner?: string;
   /**
@@ -105,7 +105,7 @@ export class SubmissionDTO<
   @IsString()
   @Prop({
     index: true,
-    ref: MONGO_COLLECTIONS.role,
+    ref: MONGO_COLLECTIONS.roles,
     required: true,
   })
   public form: string;

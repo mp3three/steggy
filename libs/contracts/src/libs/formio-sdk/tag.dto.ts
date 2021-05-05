@@ -1,3 +1,4 @@
+import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import {
   IsOptional,
   IsString,
@@ -5,19 +6,48 @@ import {
   ValidateNested,
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
+import faker from 'faker';
 import { Schema as MongooseSchema } from 'mongoose';
 
-import { BaseDTO, timestamps } from '.';
+import { DBFake } from '../../classes';
+import { BaseOmitProperties } from '.';
 
 @Schema({
+  collection: MONGO_COLLECTIONS.tags,
   minimize: false,
-  timestamps,
+  timestamps: {
+    createdAt: 'created',
+    updatedAt: 'modified',
+  },
 })
 export class TagDTO<
   TEMPLATE extends Record<never, unknown> = Record<string, unknown>
-> extends BaseDTO {
+> extends DBFake {
+  // #region Public Static Methods
+
+  public static fake(
+    mixin: Partial<TagDTO> = {},
+    withID = false,
+  ): Omit<TagDTO, BaseOmitProperties> {
+    return {
+      ...(withID ? super.fake() : {}),
+      tag: faker.random.alphaNumeric(10),
+      template: {},
+      ...mixin,
+    };
+  }
+
+  // #endregion Public Static Methods
+
   // #region Object Properties
 
+  @IsString()
+  @MaxLength(256)
+  @IsOptional()
+  @Prop({
+    maxlength: 256,
+  })
+  public description?: string;
   @IsString()
   @MaxLength(32)
   @Prop({
@@ -25,13 +55,6 @@ export class TagDTO<
     required: true,
   })
   public tag: string;
-  @MaxLength(256)
-  @IsString()
-  @Prop({
-    maxlength: 256,
-  })
-  @IsOptional()
-  public description?: string;
   @ValidateNested()
   @Prop({
     type: MongooseSchema.Types.Mixed,

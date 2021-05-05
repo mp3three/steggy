@@ -46,7 +46,7 @@ export class ProjectSettingsDTO {
  * A child project. Child links to parent via ProjectDTO.project. Not double linked
  */
 @Schema({
-  collection: MONGO_COLLECTIONS.project,
+  collection: MONGO_COLLECTIONS.projects,
   minimize: false,
   timestamps: {
     createdAt: 'created',
@@ -206,7 +206,7 @@ export class ProjectDTO<
   @Prop({
     default: null,
     index: true,
-    ref: MONGO_COLLECTIONS.project,
+    ref: MONGO_COLLECTIONS.projects,
     type: MongooseSchema.Types.ObjectId,
   })
   public project?: string;
