@@ -15,7 +15,6 @@ import { BaseOmitProperties } from '.';
 import { AccessDTO } from './Access.dto';
 import { SUBMISSION_STATES } from './constants';
 
-/* eslint-disable unicorn/no-null */
 @Schema({
   collection: MONGO_COLLECTIONS.submission,
   minimize: false,

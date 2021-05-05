@@ -18,7 +18,6 @@ import { AccessDTO, BaseOmitProperties, NAME_REGEX } from '.';
 import { ACCESS_TYPES, FORM_TYPES } from './constants';
 import { FieldMatchAccessPermissionDTO } from './field-match-access-permission.dto';
 
-/* eslint-disable unicorn/no-null */
 @Schema({
   collection: MONGO_COLLECTIONS.form,
   minimize: false,
@@ -38,7 +37,7 @@ export class FormDTO extends DBFake {
       ...(withID ? super.fake() : {}),
       machineName: faker.lorem.slug(3).split('-').join(':'),
       name: faker.lorem.slug(8),
-      path: faker.lorem.slug(2),
+      path: faker.lorem.slug(4),
       title: faker.lorem.word(8),
       type: faker.random.arrayElement(Object.values(FORM_TYPES)),
       ...mixin,
@@ -75,7 +74,6 @@ export class FormDTO extends DBFake {
   public settings?: Record<string, unknown>;
   @IsOptional()
   @IsNumber()
-  // eslint-disable-next-line unicorn/no-null
   @Prop({ default: null })
   public deleted?: number;
   /**

@@ -1,8 +1,15 @@
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
-import { IsBoolean, IsOptional, IsString } from '@automagical/validation';
+import {
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
+import faker from 'faker';
 
 import { DBFake } from '../../classes';
+import { BaseOmitProperties } from '.';
 
 @Schema({
   collection: MONGO_COLLECTIONS.role,
@@ -13,6 +20,22 @@ import { DBFake } from '../../classes';
   },
 })
 export class RoleDTO extends DBFake {
+  // #region Public Static Methods
+
+  public static fake(
+    mixin: Partial<RoleDTO> = {},
+    withID = false,
+  ): Omit<RoleDTO, BaseOmitProperties> {
+    return {
+      ...(withID ? super.fake() : {}),
+      machineName: faker.lorem.slug(3).split('-').join(':'),
+      title: faker.lorem.word(8),
+      ...mixin,
+    };
+  }
+
+  // #endregion Public Static Methods
+
   // #region Object Properties
 
   @IsBoolean()
@@ -23,6 +46,10 @@ export class RoleDTO extends DBFake {
   @IsOptional()
   @Prop({ default: false })
   public default?: boolean;
+  @IsOptional()
+  @IsNumber()
+  @Prop({ default: null })
+  public deleted?: number;
   @IsString()
   @IsOptional()
   @Prop({ default: '' })

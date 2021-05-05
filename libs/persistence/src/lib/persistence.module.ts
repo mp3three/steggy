@@ -1,14 +1,20 @@
 import {
   FormDTO,
   ProjectDTO,
+  RoleDTO,
   SubmissionDTO,
 } from '@automagical/contracts/formio-sdk';
 import { DynamicModule, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 
-import { FormSchema, ProjectSchema, SubmissionSchema } from './schema';
-import { FormService, ProjectService, SubmissionService } from './services';
+import {
+  FormSchema,
+  ProjectSchema,
+  RoleSchema,
+  SubmissionSchema,
+} from './schema';
+import { ProjectService, RoleService, SubmissionService } from './services';
 
 @Module({})
 export class PersistenceModule {
@@ -21,11 +27,17 @@ export class PersistenceModule {
   }
 
   public static registerMongoose(): DynamicModule {
-    const services = [ProjectService, FormService, SubmissionService];
+    const services = [
+      ProjectService,
+      RoleService,
+      SubmissionService,
+      RoleService,
+    ];
     return {
       exports: services,
       imports: [
         MongooseModule.forFeature([
+          { name: RoleDTO.name, schema: RoleSchema },
           { name: SubmissionDTO.name, schema: SubmissionSchema },
           { name: FormDTO.name, schema: FormSchema },
           { name: ProjectDTO.name, schema: ProjectSchema },

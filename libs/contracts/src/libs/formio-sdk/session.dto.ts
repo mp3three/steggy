@@ -26,15 +26,10 @@ export class SessionDTO extends BaseDTO {
   @Prop({ index: true, ref: 'submission', required: true })
   public submission: string;
   @Prop({
-    // eslint-disable-next-line unicorn/no-null
-default: null,
-    
-index: true,
-    
-ref: 'project',
-    
-required: true,
-    
+    default: null,
+    index: true,
+    ref: 'project',
+    required: true,
     type: MongooseSchema.Types.ObjectId,
   })
   public project?: string;

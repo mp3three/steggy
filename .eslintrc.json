@@ -43,11 +43,12 @@
         "plugin:react/recommended",
         "plugin:react-hooks/recommended",
         "plugin:react-native/all",
-        "plugin:react-redux/recommended"
+        "plugin:react-redux/recommended",
+        "plugin:no-unsanitized/DOM"
       ]
     },
     {
-      "files": ["*.ts", "*.tsx", "*js"],
+      "files": ["*.ts", "*.tsx"],
       "extends": [
         "plugin:@nrwl/nx/typescript",
         "plugin:you-dont-need-lodash-underscore/compatible",
@@ -55,8 +56,7 @@
         "plugin:@typescript-eslint/recommended",
         "plugin:radar/recommended",
         "plugin:unicorn/recommended",
-        "plugin:jsonc/recommended-with-jsonc",
-        "plugin:no-unsanitized/DOM"
+        "plugin:jsonc/recommended-with-jsonc"
       ],
       "rules": {
         "@nrwl/nx/enforce-module-boundaries": [
@@ -86,7 +86,8 @@
           {
             "varsIgnorePattern": "logger"
           }
-        ]
+        ],
+        "@typescript-eslint/no-explicit-any": "error"
       },
       "settings": {
         "react": {

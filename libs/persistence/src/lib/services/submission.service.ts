@@ -6,7 +6,6 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
 
-/* eslint-disable unicorn/no-null */
 @Injectable()
 export class SubmissionService {
   // #region Constructors

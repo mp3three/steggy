@@ -32,7 +32,6 @@ export class ProjectSettingsDTO {
 
   // #endregion Object Properties
 }
-/* eslint-disable unicorn/no-null */
 /**
  * # Description
  * Standard top level project object. Comes in minor variations depending on use case.
