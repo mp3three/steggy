@@ -14,6 +14,12 @@ export class AutomagicalConfig<
    */
   public BODY_SIZE?: string;
   /**
+   * Default value: "*"
+   *
+   * Used with configuring application cors libraries
+   */
+  public CORS?: string;
+  /**
    * Lower limit for log levels
    */
   public LOG_LEVEL?: keyof typeof PinoLogger.prototype;

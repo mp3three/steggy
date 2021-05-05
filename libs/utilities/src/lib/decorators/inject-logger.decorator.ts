@@ -20,6 +20,7 @@ export function InjectLogger(
 type TraceArguments = {
   omitArgs?: boolean;
   level?: keyof PinoLogger;
+  omitResult?: boolean;
 };
 const TRACE_ENABLED = true;
 
@@ -49,15 +50,15 @@ export function Trace(
     }
     const originalMethod = descriptor.value;
     descriptor.value = function (...parameters) {
-      const arguments_: Record<string, unknown> = {};
       if (!config.omitArgs) {
-        arguments_.params = parameters;
+        this.logger[config.level]({ parameters }, propertyKey);
       }
       const result = originalMethod.apply(this, parameters);
-      this.logger[config.level as keyof PinoLogger](
-        { parameters, result },
-        propertyKey,
-      );
+      (async () => {
+        if (!config.omitResult) {
+          this.logger[config.level]({ result: await result }, propertyKey);
+        }
+      })();
       return result;
     };
     return descriptor;

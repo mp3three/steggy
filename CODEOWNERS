@@ -1,0 +1,16 @@
+apps/api-server @ccontour
+apps/license-server @ccontour
+apps/sql-connector @ccontour
+libs/authentication @ccontour
+libs/config @ccontour
+libs/contracts @ccontour
+libs/fetch @ccontour
+libs/formio-sdk @ccontour
+libs/licenses @ccontour
+libs/persistence @ccontour
+libs/type-writer @ccontour
+libs/utilities @ccontour
+libs/validation @ccontour
+nx.json @ccontour
+workspace.json @ccontour
+.vscode @ccontour

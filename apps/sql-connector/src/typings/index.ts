@@ -8,7 +8,7 @@ export class ConnectorRoute {
   public db?: string;
   public endpoint: string;
   public method: HTTP_Methods;
-  public query: string[];
+  public query: string[][];
 
   // #endregion Object Properties
 }
@@ -37,7 +37,7 @@ export class ConnectorConfig {
 
 export type ConnectorRouteDTO = SubmissionDTO<ConnectorRoute>;
 
-export enum ConnetorTags {
+export enum ConnectorTags {
   sqlconnector = 'sqlconnector',
   route = 'route',
   database = 'database',

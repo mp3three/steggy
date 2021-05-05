@@ -1,0 +1,24 @@
+LOG_LEVEL=info
+CORS=*
+BODY_SIZE=50mb
+
+[libs.formio-sdk]
+  API_KEY=
+  BASE_PROJECT=
+  PORTAL_BASE_URL=
+
+; [libs.formio-sdk.auth]
+;   email=
+;   password=
+
+; Blank example
+; [knex]
+;   host=localhost
+;   user=root
+;   password=password
+;   database=test
+
+[knex]
+  client=sqlite3
+  connection=:memory:
+  useNullAsDefault=true

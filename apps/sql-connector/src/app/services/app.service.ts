@@ -16,28 +16,22 @@ import { PinoLogger } from 'nestjs-pino';
 import { get } from 'object-path';
 
 import {
-  ConnectorRoute,
   ConnectorRouteDTO,
+  ConnectorTags,
   MysqlResult,
   PostgresResult,
 } from '../../typings';
-export class Locals {
-  // #region Object Properties
-
-  queries?: {
-    queryString: string;
-    params: unknown[];
-    result: Record<string, unknown>[];
-  }[];
-  public result: Record<string, unknown>[];
-  route?: ConnectorRoute;
-  status?: number;
-
-  // #endregion Object Properties
-}
 
 @Injectable()
 export class AppService {
+  // #region Public Static Methods
+
+  public static Middleware(appService: AppService) {
+    return;
+  }
+
+  // #endregion Public Static Methods
+
   // #region Object Properties
 
   public readonly router = Router();
@@ -66,60 +60,39 @@ export class AppService {
     routes.forEach(({ data: route }) => {
       this.router[route.method](
         route.endpoint,
-        async (request: Request, response: Response<unknown>) => {
-          const locals = response.locals as Locals;
-          locals.route = route;
-          const result = await this.processQuery(route.query, request);
-          if (typeof result === 'number') {
-            this.sendError(
-              response,
-              'processRouteQuery failed, did you send all the needed args for the query? See error logs for details',
-              result,
-            );
-            return;
-          }
-          locals.result = result;
-          await this.runHook(route, 'after', request, response);
-          // Don't send responses if a route handler did
-          if (response.writableEnded) {
-            log(`[${locals.requestId}] Response sent by route hook`);
-            return;
-          }
-          log(`[${locals.requestId}] Sending result`);
-          this.sendResponse(response);
+        async (request: Request, response: Response) => {
+          response.json(await this.processQuery(route.query, request));
         },
       );
-      return;
     });
   }
 
   @Trace()
   protected async processQuery(
     queries: string[][],
-    lookup: Record<string, unknown>,
+    request: Request,
   ): Promise<unknown> {
-    // Example query
+    // Example queries
     // [
     //   ["INSERT INTO customers (firstName, lastName, email) VALUES (?, ?, ?);", "body.firstName", "body.lastName", "body.email"],
-    //   "SELECT * FROM customers WHERE id=SCOPE_IDENTITY();"
+    //   ["SELECT * FROM customers WHERE id=SCOPE_IDENTITY();"]
     // ]
     //
-
     // Using for loop to force sync order with async operations
     let returnResult: unknown;
     // eslint-disable-next-line no-loops/no-loops
     for (const list of queries) {
       const queryString = list.shift();
-      const parameters: string[] = list.map((path) => get(lookup, path));
+      const parameters: string[] = list.map((path) => get(request, path));
       const result = await this.knex.raw<PostgresResult | MysqlResult>(
         queryString,
         parameters,
       );
       switch (this.knex.client.config.client as KNEX_CONNECTION_TYPES) {
-        case 'postgresql':
+        case KNEX_CONNECTION_TYPES.postgresql:
           returnResult = (result as PostgresResult).rows;
           break;
-        case 'mysql':
+        case KNEX_CONNECTION_TYPES.mysql:
           if ((result as MysqlResult).length === 1) {
             returnResult = result;
             break;
@@ -131,6 +104,8 @@ export class AppService {
           returnResult = result[0];
           break;
         default:
+          // Hope for the best?
+          // mssql works here
           returnResult = result;
       }
     }
@@ -153,7 +128,10 @@ export class AppService {
     const forms = await this.formService.list();
     const routesForms = forms.filter((form) => {
       const tags = form.tags || [];
-      return tags.includes('sqlconnector') && tags.includes('routes');
+      return (
+        tags.includes(ConnectorTags.sqlconnector) &&
+        tags.includes(ConnectorTags.route)
+      );
     });
     const out: ConnectorRouteDTO[] = [];
     await Promise.all(
@@ -161,9 +139,7 @@ export class AppService {
         const routes = await this.submissionService.list<ConnectorRouteDTO>({
           form,
         });
-        routes.forEach((route) => {
-          out.push(route);
-        });
+        routes.forEach((route) => out.push(route));
       }),
     );
     return out;
