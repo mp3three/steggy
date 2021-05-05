@@ -21,15 +21,15 @@ import { ACTION_NAMES, HANDLERS, HTTP_METHODS } from './constants';
     updatedAt: 'modified',
   },
 })
-export class SchemaDTO<
+export class ActionDTO<
   SETTINGS extends Record<never, string> = Record<never, string>
 > extends BaseDTO {
   // #region Public Static Methods
 
   public static fake(
-    mixin: Partial<SchemaDTO> = {},
+    mixin: Partial<ActionDTO> = {},
     withID = false,
-  ): Omit<SchemaDTO, BaseOmitProperties> {
+  ): Omit<ActionDTO, BaseOmitProperties> {
     return {
       ...(withID ? super.fake() : {}),
       form: Types.ObjectId().toHexString(),
@@ -72,6 +72,10 @@ export class SchemaDTO<
     required: true,
   })
   public method: HTTP_METHODS[];
+  @IsNumber()
+  @IsOptional()
+  @Prop({ default: null })
+  public deleted?: number;
   /**
    * FIXME: What is this? Can controlled on the UI? Which direction is it sorted?
    */

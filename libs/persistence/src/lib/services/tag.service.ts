@@ -15,7 +15,7 @@ export class TagService {
     @InjectLogger(TagService, LIB_PERSISTENCE)
     private readonly logger: PinoLogger,
     @InjectMongo(TagDTO)
-    private readonly myRoleModel: Model<TagDocument>, // Don't judge me
+    private readonly myRoleModel: Model<TagDocument>,
   ) {}
 
   // #endregion Constructors

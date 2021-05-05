@@ -15,7 +15,7 @@ export class TokenService {
     @InjectLogger(TokenService, LIB_PERSISTENCE)
     private readonly logger: PinoLogger,
     @InjectMongo(TokenDTO)
-    private readonly myRoleModel: Model<TokenDocument>, // Don't judge me
+    private readonly myRoleModel: Model<TokenDocument>,
   ) {}
 
   // #endregion Constructors

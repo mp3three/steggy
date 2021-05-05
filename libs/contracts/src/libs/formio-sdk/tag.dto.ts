@@ -1,5 +1,6 @@
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import {
+  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
@@ -41,6 +42,10 @@ export class TagDTO<
 
   // #region Object Properties
 
+  @IsNumber()
+  @IsOptional()
+  @Prop({ default: null })
+  public deleted?: number;
   @IsString()
   @MaxLength(256)
   @IsOptional()

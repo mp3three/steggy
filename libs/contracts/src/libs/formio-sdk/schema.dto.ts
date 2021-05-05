@@ -2,6 +2,7 @@ import { DBFake } from '@automagical/contracts';
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import {
   IsBoolean,
+  IsNumber,
   IsOptional,
   IsSemVer,
   IsString,
@@ -44,13 +45,17 @@ export class SchemaDTO extends DBFake {
   @Prop({
     default: false,
   })
-  isLocked!: boolean;
+  public isLocked!: boolean;
+  @IsNumber()
+  @IsOptional()
+  @Prop({ default: null })
+  public deleted?: number;
   @IsSemVer()
   @IsOptional()
   @Prop({
     default: null,
   })
-  version?: string;
+  public version?: string;
   @IsString()
   @IsOptional()
   @Prop({

@@ -1,6 +1,6 @@
 import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
-import { SchemaDTO } from '@automagical/contracts/formio-sdk';
-import { SchemaDocument } from '@automagical/persistence';
+import { ActionDTO } from '@automagical/contracts/formio-sdk';
+import { ActionDocument } from '@automagical/persistence';
 import { InjectLogger, InjectMongo, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
@@ -13,8 +13,8 @@ export class ActionService {
   constructor(
     @InjectLogger(ActionService, LIB_PERSISTENCE)
     private readonly logger: PinoLogger,
-    @InjectMongo(SchemaDTO)
-    private readonly myRoleModel: Model<SchemaDocument>, // Don't judge me
+    @InjectMongo(ActionDTO)
+    private readonly myRoleModel: Model<ActionDocument>,
   ) {}
 
   // #endregion Constructors
@@ -22,12 +22,12 @@ export class ActionService {
   // #region Public Methods
 
   @Trace()
-  public async create(form: SchemaDTO): Promise<SchemaDTO> {
+  public async create(form: ActionDTO): Promise<ActionDTO> {
     return await this.myRoleModel.create(form);
   }
 
   @Trace()
-  public async delete(role: SchemaDTO | string): Promise<boolean> {
+  public async delete(role: ActionDTO | string): Promise<boolean> {
     if (typeof role === 'object') {
       role = role._id;
     }
@@ -43,7 +43,7 @@ export class ActionService {
   }
 
   @Trace()
-  public async findById(role: SchemaDTO | string): Promise<SchemaDTO> {
+  public async findById(role: ActionDTO | string): Promise<ActionDTO> {
     if (typeof role === 'object') {
       role = role._id;
     }
@@ -56,7 +56,7 @@ export class ActionService {
   @Trace()
   public async findMany(
     query: Record<string, unknown> = {},
-  ): Promise<SchemaDTO[]> {
+  ): Promise<ActionDTO[]> {
     return await this.myRoleModel
       .find({
         deleted: null,
@@ -66,7 +66,7 @@ export class ActionService {
   }
 
   @Trace()
-  public async hardDelete(role: SchemaDTO | string): Promise<boolean> {
+  public async hardDelete(role: ActionDTO | string): Promise<boolean> {
     if (typeof role === 'object') {
       role = role._id;
     }
@@ -78,8 +78,8 @@ export class ActionService {
 
   @Trace()
   public async update(
-    source: SchemaDTO | string,
-    update: Omit<Partial<SchemaDTO>, '_id' | 'created'>,
+    source: ActionDTO | string,
+    update: Omit<Partial<ActionDTO>, '_id' | 'created'>,
   ): Promise<boolean> {
     if (typeof source === 'object') {
       source = source._id;

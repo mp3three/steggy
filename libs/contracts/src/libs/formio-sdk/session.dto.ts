@@ -1,7 +1,11 @@
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
-import { IsDate, IsOptional, IsString } from '@automagical/validation';
+import {
+  IsDate,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
-import faker from 'faker';
 import { Schema as MongooseSchema, Types } from 'mongoose';
 
 import { DBFake } from '../../classes';
@@ -38,6 +42,10 @@ export class SessionDTO extends DBFake {
   @IsOptional()
   @Prop()
   public logout?: Date;
+  @IsNumber()
+  @IsOptional()
+  @Prop({ default: null })
+  public deleted?: number;
   @IsString()
   @IsOptional()
   @Prop()

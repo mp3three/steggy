@@ -14,7 +14,7 @@ export class SchemaService {
     @InjectLogger(SchemaService, LIB_PERSISTENCE)
     private readonly logger: PinoLogger,
     @InjectMongo(SchemaDTO)
-    private readonly myRoleModel: Model<SchemaDocument>, // Don't judge me
+    private readonly myRoleModel: Model<SchemaDocument>,
   ) {}
 
   // #endregion Constructors

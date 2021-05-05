@@ -15,7 +15,7 @@ export class SessionService {
     @InjectLogger(SessionService, LIB_PERSISTENCE)
     private readonly logger: PinoLogger,
     @InjectMongo(SessionDTO)
-    private readonly myRoleModel: Model<SessionDocument>, // Don't judge me
+    private readonly myRoleModel: Model<SessionDocument>,
   ) {}
 
   // #endregion Constructors

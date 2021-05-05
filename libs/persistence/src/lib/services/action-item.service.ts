@@ -14,7 +14,7 @@ export class ActionItemService {
     @InjectLogger(ActionItemService, LIB_PERSISTENCE)
     private readonly logger: PinoLogger,
     @InjectMongo(ActionItemDTO)
-    private readonly myRoleModel: Model<ActionItemDocument>, // Don't judge me
+    private readonly myRoleModel: Model<ActionItemDocument>,
   ) {}
 
   // #endregion Constructors

@@ -5,8 +5,3 @@ import { Document } from 'mongoose';
 export type SchemaDocument = SchemaDTO & Document;
 
 export const SchemaSchema = SchemaFactory.createForClass(SchemaDTO);
-SchemaSchema.index(
-  { machineName: 1 },
-  // eslint-disable-next-line unicorn/no-null
-  { partialFilterExpression: { deleted: { $eq: null } }, unique: true },
-);

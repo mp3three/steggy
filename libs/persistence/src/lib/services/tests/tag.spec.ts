@@ -1,5 +1,5 @@
 import { ConfigModule } from '@automagical/config';
-import { FormDTO } from '@automagical/contracts/formio-sdk';
+import { TagDTO } from '@automagical/contracts/formio-sdk';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import faker from 'faker';
@@ -8,10 +8,10 @@ import { LoggerModule } from 'nestjs-pino';
 import pino from 'pino';
 
 import { PersistenceModule } from '../../persistence.module';
-import { FormService } from '../form.service';
+import { TagService } from '../tag.service';
 
 describe('tag', () => {
-  let tagService: FormService;
+  let tagService: TagService;
   const logger = pino();
   let mongod: MongoMemoryServer;
 
@@ -26,7 +26,7 @@ describe('tag', () => {
       ],
       providers: [ConfigService],
     }).compile();
-    tagService = moduleReference.get(FormService);
+    tagService = moduleReference.get(TagService);
   });
 
   afterAll(async () => {
@@ -37,7 +37,7 @@ describe('tag', () => {
     it('should return an id,created,modified on create', async () => {
       expect.assertions(3);
 
-      const form = FormDTO.fake({});
+      const form = TagDTO.fake({});
       const result = await tagService.create(form);
       expect(result._id).toBeDefined();
       expect(result.created).toBeDefined();
@@ -49,35 +49,26 @@ describe('tag', () => {
     it('should be able to findOne by id', async () => {
       expect.assertions(2);
 
-      const form = FormDTO.fake({});
+      const form = TagDTO.fake({});
       const created = await tagService.create(form);
       expect(created._id).toBeDefined();
       const found = await tagService.findById(created);
       expect(found._id).toStrictEqual(created._id);
     });
 
-    it('should be able to findOne by name', async () => {
-      expect.assertions(2);
-      const form = FormDTO.fake({});
-      const created = await tagService.create(form);
-      expect(created._id).toBeDefined();
-      const found = await tagService.findByName(created);
-      expect(found._id).toStrictEqual(created._id);
-    });
-
     it('should be able to find many', async () => {
       expect.assertions(1);
 
-      const action = faker.random.alphaNumeric(20);
+      const description = faker.random.alphaNumeric(20);
       const forms = [
-        FormDTO.fake({ action }),
-        FormDTO.fake({ action }),
-        FormDTO.fake({ action }),
+        TagDTO.fake({ description }),
+        TagDTO.fake({ description }),
+        TagDTO.fake({ description }),
       ];
       await tagService.create(forms[0]);
       await tagService.create(forms[1]);
       await tagService.create(forms[2]);
-      const results = await tagService.findMany({ action });
+      const results = await tagService.findMany({ description });
       expect(results).toHaveLength(3);
     });
   });
@@ -88,22 +79,22 @@ describe('tag', () => {
       const original = 'original';
       const updated = 'updated';
 
-      const form = FormDTO.fake({ title: original });
+      const form = TagDTO.fake({ description: original });
       const created = await tagService.create(form);
       expect(created._id).toBeDefined();
       const result = await tagService.update(created, {
-        title: updated,
+        description: updated,
       });
       expect(result).toStrictEqual(true);
       const found = await tagService.findById(created);
-      expect(found.title).toStrictEqual(updated);
+      expect(found.description).toStrictEqual(updated);
     });
   });
 
   describe('delete', () => {
     it('should soft delete', async () => {
       expect.assertions(2);
-      const form = FormDTO.fake({});
+      const form = TagDTO.fake({});
       const created = await tagService.create(form);
       expect(created._id).toBeDefined();
       await tagService.delete(created);

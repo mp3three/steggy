@@ -1,6 +1,7 @@
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import {
   IsEnum,
+  IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
@@ -75,6 +76,10 @@ export class ActionItemDTO<
     required: true,
   })
   public method: HTTP_METHODS;
+  @IsNumber()
+  @IsOptional()
+  @Prop({ default: null })
+  public deleted?: number;
   @IsOptional()
   @ValidateNested()
   @Prop({

@@ -1,17 +1,17 @@
 import { ConfigModule } from '@automagical/config';
-import { FormDTO } from '@automagical/contracts/formio-sdk';
+import { SessionDTO } from '@automagical/contracts/formio-sdk';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
-import faker from 'faker';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Types } from 'mongoose';
 import { LoggerModule } from 'nestjs-pino';
 import pino from 'pino';
 
 import { PersistenceModule } from '../../persistence.module';
-import { FormService } from '../form.service';
+import { SessionService } from '..';
 
 describe('session', () => {
-  let sessionService: FormService;
+  let sessionService: SessionService;
   const logger = pino();
   let mongod: MongoMemoryServer;
 
@@ -26,7 +26,7 @@ describe('session', () => {
       ],
       providers: [ConfigService],
     }).compile();
-    sessionService = moduleReference.get(FormService);
+    sessionService = moduleReference.get(SessionService);
   });
 
   afterAll(async () => {
@@ -37,7 +37,7 @@ describe('session', () => {
     it('should return an id,created,modified on create', async () => {
       expect.assertions(3);
 
-      const form = FormDTO.fake({});
+      const form = SessionDTO.fake({});
       const result = await sessionService.create(form);
       expect(result._id).toBeDefined();
       expect(result.created).toBeDefined();
@@ -49,35 +49,26 @@ describe('session', () => {
     it('should be able to findOne by id', async () => {
       expect.assertions(2);
 
-      const form = FormDTO.fake({});
+      const form = SessionDTO.fake({});
       const created = await sessionService.create(form);
       expect(created._id).toBeDefined();
       const found = await sessionService.findById(created);
       expect(found._id).toStrictEqual(created._id);
     });
 
-    it('should be able to findOne by name', async () => {
-      expect.assertions(2);
-      const form = FormDTO.fake({});
-      const created = await sessionService.create(form);
-      expect(created._id).toBeDefined();
-      const found = await sessionService.findByName(created);
-      expect(found._id).toStrictEqual(created._id);
-    });
-
     it('should be able to find many', async () => {
       expect.assertions(1);
 
-      const action = faker.random.alphaNumeric(20);
+      const source = Types.ObjectId().toHexString();
       const forms = [
-        FormDTO.fake({ action }),
-        FormDTO.fake({ action }),
-        FormDTO.fake({ action }),
+        SessionDTO.fake({ source }),
+        SessionDTO.fake({ source }),
+        SessionDTO.fake({ source }),
       ];
       await sessionService.create(forms[0]);
       await sessionService.create(forms[1]);
       await sessionService.create(forms[2]);
-      const results = await sessionService.findMany({ action });
+      const results = await sessionService.findMany({ source });
       expect(results).toHaveLength(3);
     });
   });
@@ -88,22 +79,22 @@ describe('session', () => {
       const original = 'original';
       const updated = 'updated';
 
-      const form = FormDTO.fake({ title: original });
+      const form = SessionDTO.fake({ source: original });
       const created = await sessionService.create(form);
       expect(created._id).toBeDefined();
       const result = await sessionService.update(created, {
-        title: updated,
+        source: updated,
       });
       expect(result).toStrictEqual(true);
       const found = await sessionService.findById(created);
-      expect(found.title).toStrictEqual(updated);
+      expect(found.source).toStrictEqual(updated);
     });
   });
 
   describe('delete', () => {
     it('should soft delete', async () => {
       expect.assertions(2);
-      const form = FormDTO.fake({});
+      const form = SessionDTO.fake({});
       const created = await sessionService.create(form);
       expect(created._id).toBeDefined();
       await sessionService.delete(created);
