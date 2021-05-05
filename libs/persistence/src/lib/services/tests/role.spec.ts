@@ -1,6 +1,5 @@
 import { ConfigModule } from '@automagical/config';
-import { ProjectDTO } from '@automagical/contracts/formio-sdk';
-import { ProjectService } from '@automagical/persistence';
+import { RoleDTO } from '@automagical/contracts/formio-sdk';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import faker from 'faker';
@@ -9,9 +8,10 @@ import { LoggerModule } from 'nestjs-pino';
 import pino from 'pino';
 
 import { PersistenceModule } from '../../persistence.module';
+import { RoleService } from '../role.service';
 
-describe('project', () => {
-  let projectService: ProjectService;
+describe('role', () => {
+  let roleService: RoleService;
   const logger = pino();
   let mongod: MongoMemoryServer;
 
@@ -26,7 +26,7 @@ describe('project', () => {
       ],
       providers: [ConfigService],
     }).compile();
-    projectService = moduleReference.get(ProjectService);
+    roleService = moduleReference.get(RoleService);
   });
 
   afterAll(async () => {
@@ -37,8 +37,8 @@ describe('project', () => {
     it('should return an id,created,modified on create', async () => {
       expect.assertions(3);
 
-      const project = ProjectDTO.fake({});
-      const result = await projectService.create(project);
+      const form = RoleDTO.fake({});
+      const result = await roleService.create(form);
       expect(result._id).toBeDefined();
       expect(result.created).toBeDefined();
       expect(result.modified).toBeDefined();
@@ -49,35 +49,26 @@ describe('project', () => {
     it('should be able to findOne by id', async () => {
       expect.assertions(2);
 
-      const project = ProjectDTO.fake({});
-      const created = await projectService.create(project);
+      const form = RoleDTO.fake({});
+      const created = await roleService.create(form);
       expect(created._id).toBeDefined();
-      const found = await projectService.findById(created);
-      expect(found._id).toStrictEqual(created._id);
-    });
-
-    it('should be able to findOne by name', async () => {
-      expect.assertions(2);
-      const project = ProjectDTO.fake({});
-      const created = await projectService.create(project);
-      expect(created._id).toBeDefined();
-      const found = await projectService.findByName(created);
+      const found = await roleService.findById(created);
       expect(found._id).toStrictEqual(created._id);
     });
 
     it('should be able to find many', async () => {
       expect.assertions(1);
 
-      const stageTitle = faker.random.alphaNumeric(20);
-      const projects = [
-        ProjectDTO.fake({ stageTitle }),
-        ProjectDTO.fake({ stageTitle }),
-        ProjectDTO.fake({ stageTitle }),
+      const description = faker.random.alphaNumeric(20);
+      const forms = [
+        RoleDTO.fake({ description }),
+        RoleDTO.fake({ description }),
+        RoleDTO.fake({ description }),
       ];
-      await projectService.create(projects[0]);
-      await projectService.create(projects[1]);
-      await projectService.create(projects[2]);
-      const results = await projectService.findMany({ stageTitle });
+      await roleService.create(forms[0]);
+      await roleService.create(forms[1]);
+      await roleService.create(forms[2]);
+      const results = await roleService.findMany({ description });
       expect(results).toHaveLength(3);
     });
   });
@@ -88,14 +79,14 @@ describe('project', () => {
       const original = 'original';
       const updated = 'updated';
 
-      const project = ProjectDTO.fake({ title: original });
-      const created = await projectService.create(project);
+      const form = RoleDTO.fake({ title: original });
+      const created = await roleService.create(form);
       expect(created._id).toBeDefined();
-      const result = await projectService.update(created, {
+      const result = await roleService.update(created, {
         title: updated,
       });
       expect(result).toStrictEqual(true);
-      const found = await projectService.findById(created);
+      const found = await roleService.findById(created);
       expect(found.title).toStrictEqual(updated);
     });
   });
@@ -103,11 +94,11 @@ describe('project', () => {
   describe('delete', () => {
     it('should soft delete', async () => {
       expect.assertions(2);
-      const project = ProjectDTO.fake({});
-      const created = await projectService.create(project);
+      const form = RoleDTO.fake({});
+      const created = await roleService.create(form);
       expect(created._id).toBeDefined();
-      await projectService.delete(created);
-      const found = await projectService.findById(created);
+      await roleService.delete(created);
+      const found = await roleService.findById(created);
       expect(found).toBeFalsy();
     });
   });

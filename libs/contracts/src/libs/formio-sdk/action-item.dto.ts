@@ -1,14 +1,17 @@
+import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import {
   IsEnum,
+  IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
-import { Schema as MongooseSchema } from 'mongoose';
+import faker from 'faker';
+import { Schema as MongooseSchema, Types } from 'mongoose';
 
-import { timestamps } from '.';
-import { BaseDTO } from './base.dto';
+import { DBFake } from '../../classes';
+import { BaseOmitProperties } from '.';
 import {
   ACTION_NAMES,
   ACTION_STATES,
@@ -17,11 +20,35 @@ import {
 } from './constants';
 
 @Schema({
-  timestamps,
+  collection: MONGO_COLLECTIONS.actionitems,
+  timestamps: {
+    createdAt: 'created',
+    updatedAt: 'modified',
+  },
 })
 export class ActionItemDTO<
   DATA extends Record<never, string> = Record<never, string>
-> extends BaseDTO {
+> extends DBFake {
+  // #region Public Static Methods
+
+  public static fake(
+    mixin: Partial<ActionItemDTO> = {},
+    withID = false,
+  ): Omit<ActionItemDTO, BaseOmitProperties> {
+    return {
+      ...(withID ? super.fake() : {}),
+      action: faker.random.arrayElement(Object.values(ACTION_NAMES)),
+      form: Types.ObjectId().toHexString(),
+      handler: faker.random.arrayElement(Object.values(HANDLERS)),
+      method: faker.random.arrayElement(Object.values(HTTP_METHODS)),
+      submission: Types.ObjectId().toHexString(),
+      title: faker.lorem.word(8),
+      ...mixin,
+    };
+  }
+
+  // #endregion Public Static Methods
+
   // #region Object Properties
 
   @IsEnum(ACTION_STATES)
@@ -49,6 +76,10 @@ export class ActionItemDTO<
     required: true,
   })
   public method: HTTP_METHODS;
+  @IsNumber()
+  @IsOptional()
+  @Prop({ default: null })
+  public deleted?: number;
   @IsOptional()
   @ValidateNested()
   @Prop({
@@ -61,7 +92,7 @@ export class ActionItemDTO<
   @IsString()
   @Prop({
     index: true,
-    ref: 'form',
+    ref: MONGO_COLLECTIONS.forms,
     required: true,
     type: MongooseSchema.Types.ObjectId,
   })
@@ -69,7 +100,7 @@ export class ActionItemDTO<
   @IsString()
   @Prop({
     index: true,
-    ref: 'submission',
+    ref: MONGO_COLLECTIONS.submissions,
     required: true,
     type: MongooseSchema.Types.ObjectId,
   })

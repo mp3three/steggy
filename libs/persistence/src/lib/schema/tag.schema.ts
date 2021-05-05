@@ -5,8 +5,3 @@ import { Document } from 'mongoose';
 export type TagDocument = TagDTO & Document;
 
 export const TagSchema = SchemaFactory.createForClass(TagDTO);
-TagSchema.index(
-  { machineName: 1 },
-  // eslint-disable-next-line unicorn/no-null
-  { partialFilterExpression: { deleted: { $eq: null } }, unique: true },
-);

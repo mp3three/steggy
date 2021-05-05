@@ -1,4 +1,4 @@
-import { InjectPinoLogger } from 'nestjs-pino';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 /**
  * Standardized way of injecting the logger
@@ -19,9 +19,16 @@ export function InjectLogger(
 
 type TraceArguments = {
   omitArgs?: boolean;
-  level?: 'trace' | 'debug' | 'info';
+  level?: keyof PinoLogger;
 };
 const TRACE_ENABLED = true;
+
+/**
+ * Emits log message after function is complete
+ * Contains function name as log message, function parameters, and return result.
+ *
+ * Must follow the repository pattern of injecting PinoLogger as this.logger
+ */
 export function Trace(
   config: TraceArguments = {},
 ): (
@@ -30,9 +37,6 @@ export function Trace(
   descriptor: PropertyDescriptor,
 ) => void {
   config.level = config.level || 'trace';
-  if (!['trace', 'debug', 'info'].includes(config.level)) {
-    throw new Error(`Bad log level: ${config.level}`);
-  }
   return function (
     target: unknown,
     propertyKey: string,
@@ -50,7 +54,10 @@ export function Trace(
         arguments_.params = parameters;
       }
       const result = originalMethod.apply(this, parameters);
-      this.logger[config.level]({ parameters, result }, propertyKey);
+      this.logger[config.level as keyof PinoLogger](
+        { parameters, result },
+        propertyKey,
+      );
       return result;
     };
     return descriptor;

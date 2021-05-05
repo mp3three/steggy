@@ -1,14 +1,43 @@
 import {
+  ActionDTO,
+  ActionItemDTO,
   FormDTO,
   ProjectDTO,
+  RoleDTO,
+  SchemaDTO,
+  SessionDTO,
   SubmissionDTO,
+  TagDTO,
+  TokenDTO,
 } from '@automagical/contracts/formio-sdk';
 import { DynamicModule, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 
-import { FormSchema, ProjectSchema, SubmissionSchema } from './schema';
-import { ProjectService } from './services';
+import {
+  ActionItemSchema,
+  ActionSchema,
+  FormSchema,
+  ProjectSchema,
+  RoleSchema,
+  SchemaSchema,
+  SessionSchema,
+  SubmissionSchema,
+  TagSchema,
+  TokenSchema,
+} from './schema';
+import {
+  ActionItemService,
+  ActionService,
+  FormService,
+  ProjectService,
+  RoleService,
+  SchemaService,
+  SessionService,
+  SubmissionService,
+  TagService,
+  TokenService,
+} from './services';
 
 @Module({})
 export class PersistenceModule {
@@ -21,17 +50,36 @@ export class PersistenceModule {
   }
 
   public static registerMongoose(): DynamicModule {
+    const services = [
+      ActionItemService,
+      ActionService,
+      FormService,
+      ProjectService,
+      RoleService,
+      SchemaService,
+      SessionService,
+      SubmissionService,
+      TagService,
+      TokenService,
+    ];
     return {
-      exports: [ProjectService],
+      exports: services,
       imports: [
         MongooseModule.forFeature([
-          { name: SubmissionDTO.name, schema: SubmissionSchema },
+          { name: ActionItemDTO.name, schema: ActionItemSchema },
+          { name: ActionDTO.name, schema: ActionSchema },
           { name: FormDTO.name, schema: FormSchema },
           { name: ProjectDTO.name, schema: ProjectSchema },
+          { name: RoleDTO.name, schema: RoleSchema },
+          { name: SchemaDTO.name, schema: SchemaSchema },
+          { name: SessionDTO.name, schema: SessionSchema },
+          { name: SubmissionDTO.name, schema: SubmissionSchema },
+          { name: TagDTO.name, schema: TagSchema },
+          { name: TokenDTO.name, schema: TokenSchema },
         ]),
       ],
       module: PersistenceModule,
-      providers: [ProjectService],
+      providers: services,
     };
   }
 

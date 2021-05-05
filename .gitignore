@@ -48,3 +48,4 @@ apps/*/src/assets/user-env*.yaml
 .DS_Store
 Thumbs.db
 globalConfig.json
+report.*.json

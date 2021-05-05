@@ -1,3 +1,4 @@
+import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import {
   IsBoolean,
   IsDateString,
@@ -31,10 +32,9 @@ export class ProjectSettingsDTO {
 
   // #endregion Object Properties
 }
-
 /**
  * # Description
- * Standard top level projet object. Comes in minor variations depending on use case.
+ * Standard top level project object. Comes in minor variations depending on use case.
  * Acts as an organizational tool for forms and portal resources.
  *
  * ## type: Project
@@ -43,44 +43,10 @@ export class ProjectSettingsDTO {
  *
  * ## type: Stage
  *
- * A child project. Child links to parent via ProjectDTO.project. Parent is unaware
- *
- * # Example object
- *
- * ```json
- * {
- *   "_id": "602fd8a8c4eb75cabbcfa01f",
- *   "type": "stage",
- *   "tag": "0.0.0",
- *   "owner": "602fd7dcc4eb753dc6cf9ff3",
- *   "plan": "commercial",
- *   "steps": [],
- *   "framework": "angular",
- *   "protect": false,
- *   "formDefaults": null,
- *   "title": "Dev",
- *   "stageTitle": "Dev",
- *   "project": "602fd8a7c4eb757f4dcfa001",
- *   "name": "dev-wlpudpkxpjrppad",
- *   "config": {
- *     "defaultStageName": "dev"
- *   },
- *   "access": [
- *     {
- *       "roles": [
- *         "602fd8a8c4eb750328cfa020"
- *       ],
- *       "type": "create_all"
- *     }
- *   ],
- *   "trial": "2021-02-19T15:26:32.273Z",
- *   "created": "2021-02-19T15:26:32.273Z",
- *   "modified": "2021-02-19T15:26:32.275Z"
- * }
- * ```
+ * A child project. Child links to parent via ProjectDTO.project. Not double linked
  */
 @Schema({
-  collection: 'project',
+  collection: MONGO_COLLECTIONS.projects,
   minimize: false,
   timestamps: {
     createdAt: 'created',
@@ -114,7 +80,46 @@ export class ProjectDTO<
 
   @IsBoolean()
   @IsOptional()
+  @Prop()
   public primary?: boolean;
+  /**
+   * Disallow modifications while set
+   */
+  @IsBoolean()
+  @IsOptional()
+  @Prop()
+  public protect?: boolean;
+  @IsDateString()
+  @IsOptional()
+  @Prop()
+  public lastDeploy?: string;
+  /**
+   * If your account is a trial, this is when it will expire
+   */
+  @IsDateString()
+  @IsOptional()
+  @Prop()
+  public trial?: string;
+  /**
+   * Selected framework for this project
+   */
+  @IsEnum(PROJECT_FRAMEWORKS)
+  @IsOptional()
+  @Prop({
+    default: PROJECT_FRAMEWORKS.angular,
+    enum: PROJECT_FRAMEWORKS,
+  })
+  public framework?: string;
+  /**
+   * @FIXME: What are the implications of this?
+   */
+  @IsEnum(PROJECT_PLAN_TYPES)
+  @IsOptional()
+  @Prop({
+    default: PROJECT_PLAN_TYPES.trial,
+    enum: PROJECT_PLAN_TYPES,
+  })
+  public plan?: PROJECT_PLAN_TYPES;
   /**
    * - Project: My Precious Project
    *   - Stage: **Live\***
@@ -134,56 +139,11 @@ export class ProjectDTO<
     enum: PROJECT_TYPES,
     index: true,
   })
-  public type!: PROJECT_TYPES;
-  /**
-   * Disallow modifications while set
-   */
+  public type?: PROJECT_TYPES;
+  @IsNumber()
   @IsOptional()
-  @IsBoolean()
-  @Prop()
-  public protect?: boolean;
-  @IsOptional()
-  @IsDateString()
-  @Prop()
-  public lastDeploy?: string;
-  /**
-   * If your account is a trial, this is when it will expire
-   */
-  @IsOptional()
-  @IsDateString()
-  @Prop()
-  public trial?: string;
-  /**
-   * Selected framework for this project
-   */
-  @IsOptional()
-  @IsEnum(PROJECT_FRAMEWORKS)
-  @Prop({
-    enum: PROJECT_FRAMEWORKS,
-  })
-  public framework?: string;
-  /**
-   * If defined, then this must be a stage. ID reference to another project
-   */
-  @IsOptional()
-  @IsString()
-  @Prop({
-    // eslint-disable-next-line unicorn/no-null
-    default: null,
-    index: true,
-    ref: 'project',
-    type: MongooseSchema.Types.ObjectId,
-  })
-  public project?: string;
-  /**
-   * @FIXME: What is this?
-   */
-  @IsOptional()
-  @IsString({ each: true })
-  @Prop({
-    type: MongooseSchema.Types.Mixed,
-  })
-  public steps?: string[];
+  @Prop({ default: null })
+  public deleted?: number;
   /**
    * Unkown purpose
    */
@@ -212,11 +172,6 @@ export class ProjectDTO<
     type: MongooseSchema.Types.Mixed,
   })
   public formDefaults?: Record<string, unknown>;
-  @IsOptional()
-  // eslint-disable-next-line unicorn/no-null
-  @Prop({ default: null })
-  @IsNumber()
-  public deleted?: number;
   /**
    * Association of role ids
    */
@@ -244,37 +199,50 @@ export class ProjectDTO<
   // @Prop({ index: true, ref: 'submission', required: true })
   public owner?: string;
   /**
-   * @FIXME: What are the implications of this?
+   * If defined, then this must be a stage. ID reference to another project
    */
   @IsString()
   @IsOptional()
-  @IsEnum(PROJECT_PLAN_TYPES)
-  @Prop()
-  public plan?: PROJECT_PLAN_TYPES;
+  @Prop({
+    default: null,
+    index: true,
+    ref: MONGO_COLLECTIONS.projects,
+    type: MongooseSchema.Types.ObjectId,
+  })
+  public project?: string;
+  /**
+   * @FIXME: What is this?
+   */
+  @IsString({ each: true })
+  @IsOptional()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
+  public steps?: string[];
+  /**
+   * Description of project
+   */
+  @IsString()
+  @MaxLength(512)
+  @IsOptional()
+  @Prop({ maxlength: 512 })
+  public description?: string;
   /**
    * @FIXME: What is this? Short text that goes in the top tab?
    */
   @IsString()
-  @IsOptional()
   @MaxLength(63)
+  @IsOptional()
   @Prop()
   public stageTitle?: string;
   /**
    * Last deployed tag of the project.
    */
   @IsString()
-  @IsOptional()
   @MaxLength(32)
+  @IsOptional()
   @Prop({ default: '0.0.0', maxlength: 32 })
   public tag?: string;
-  @IsString()
-  @MaxLength(512)
-  @IsOptional()
-  @Prop({ maxlength: 512 })
-  /**
-   * Description of project
-   */
-  public description?: string;
   /**
    * Used for generating URL paths
    *

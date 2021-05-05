@@ -8,9 +8,9 @@ import { CanFake } from './can-fake.dto';
 export class DBFake extends CanFake {
   // #region Public Static Methods
 
-  public static fake(): Record<never, unknown> {
+  public static fake(): DBFake {
     return {
-      _id: Types.ObjectId(),
+      _id: Types.ObjectId().toHexString(),
       created: dayjs().toDate(),
       modified: dayjs().toDate(),
     };

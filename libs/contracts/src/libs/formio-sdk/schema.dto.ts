@@ -1,35 +1,64 @@
 import { DBFake } from '@automagical/contracts';
+import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import {
   IsBoolean,
+  IsNumber,
   IsOptional,
   IsSemVer,
   IsString,
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
+import faker from 'faker';
 
-import { timestamps } from '.';
+import { BaseOmitProperties } from '.';
 
 @Schema({
+  collection: MONGO_COLLECTIONS.schema,
   minimize: false,
-  timestamps,
+  timestamps: {
+    createdAt: 'created',
+    updatedAt: 'modified',
+  },
 })
 export class SchemaDTO extends DBFake {
+  // #region Public Static Methods
+
+  public static fake(
+    mixin: Partial<SchemaDTO> = {},
+    withID = false,
+  ): Omit<SchemaDTO, BaseOmitProperties> {
+    return {
+      ...(withID ? super.fake() : {}),
+      isLocked: false,
+      key: faker.random.alphaNumeric(20),
+      value: faker.random.alphaNumeric(20),
+      ...mixin,
+    };
+  }
+
+  // #endregion Public Static Methods
+
   // #region Object Properties
 
   @IsBoolean()
-  @Prop({ default: false })
-  isLocked!: boolean;
+  @IsOptional()
+  @Prop({
+    default: false,
+  })
+  public isLocked!: boolean;
+  @IsNumber()
+  @IsOptional()
+  @Prop({ default: null })
+  public deleted?: number;
   @IsSemVer()
   @IsOptional()
   @Prop({
-    // eslint-disable-next-line unicorn/no-null
     default: null,
   })
-  version?: string;
+  public version?: string;
   @IsString()
   @IsOptional()
   @Prop({
-    // eslint-disable-next-line unicorn/no-null
     default: null,
   })
   public value: string;

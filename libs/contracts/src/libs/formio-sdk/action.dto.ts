@@ -1,3 +1,4 @@
+import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import {
   IsEnum,
   IsNumber,
@@ -6,24 +7,53 @@ import {
   ValidateNested,
 } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
-import { Schema as MongooseSchema } from 'mongoose';
+import faker from 'faker';
+import { Schema as MongooseSchema, Types } from 'mongoose';
 
-import { ActionConditionDTO, timestamps } from '.';
+import { ActionConditionDTO, BaseOmitProperties } from '.';
 import { BaseDTO } from './base.dto';
 import { ACTION_NAMES, HANDLERS, HTTP_METHODS } from './constants';
 
 @Schema({
-  timestamps,
+  collection: MONGO_COLLECTIONS.actions,
+  timestamps: {
+    createdAt: 'created',
+    updatedAt: 'modified',
+  },
 })
 export class ActionDTO<
   SETTINGS extends Record<never, string> = Record<never, string>
 > extends BaseDTO {
+  // #region Public Static Methods
+
+  public static fake(
+    mixin: Partial<ActionDTO> = {},
+    withID = false,
+  ): Omit<ActionDTO, BaseOmitProperties> {
+    return {
+      ...(withID ? super.fake() : {}),
+      form: Types.ObjectId().toHexString(),
+      handler: [faker.random.arrayElement(Object.values(HANDLERS))],
+      machineName: faker.lorem.slug(3).split('-').join(':'),
+      method: [faker.random.arrayElement(Object.values(HTTP_METHODS))],
+      name: faker.random.arrayElement(Object.values(ACTION_NAMES)),
+      title: faker.lorem.word(8),
+      ...mixin,
+    };
+  }
+
+  // #endregion Public Static Methods
+
   // #region Object Properties
 
   /**
    * Which action to run
    */
   @IsEnum(ACTION_NAMES)
+  @Prop({
+    enum: ACTION_NAMES,
+    required: true,
+  })
   public name: ACTION_NAMES;
   /**
    * When this action should run
@@ -31,6 +61,7 @@ export class ActionDTO<
   @IsEnum(HANDLERS, { each: true })
   @Prop({
     required: true,
+    type: MongooseSchema.Types.Mixed,
   })
   public handler: HANDLERS[];
   /**
@@ -41,6 +72,10 @@ export class ActionDTO<
     required: true,
   })
   public method: HTTP_METHODS[];
+  @IsNumber()
+  @IsOptional()
+  @Prop({ default: null })
+  public deleted?: number;
   /**
    * FIXME: What is this? Can controlled on the UI? Which direction is it sorted?
    */
@@ -55,7 +90,7 @@ export class ActionDTO<
   @IsOptional()
   @Prop({
     index: true,
-    ref: 'form',
+    ref: MONGO_COLLECTIONS.forms,
     required: true,
     type: MongooseSchema.Types.ObjectId,
   })
@@ -85,6 +120,7 @@ export class ActionDTO<
    * Settings provided by specific action
    */
   @ValidateNested()
+  @IsOptional()
   @Prop({
     type: MongooseSchema.Types.Mixed,
   })

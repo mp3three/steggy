@@ -1,6 +1,6 @@
 import { ConfigModule } from '@automagical/config';
-import { ProjectDTO } from '@automagical/contracts/formio-sdk';
-import { ProjectService } from '@automagical/persistence';
+import { ActionDTO } from '@automagical/contracts/formio-sdk';
+import { ActionService } from '@automagical/persistence';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import faker from 'faker';
@@ -10,8 +10,8 @@ import pino from 'pino';
 
 import { PersistenceModule } from '../../persistence.module';
 
-describe('project', () => {
-  let projectService: ProjectService;
+describe('action', () => {
+  let actionService: ActionService;
   const logger = pino();
   let mongod: MongoMemoryServer;
 
@@ -26,7 +26,7 @@ describe('project', () => {
       ],
       providers: [ConfigService],
     }).compile();
-    projectService = moduleReference.get(ProjectService);
+    actionService = moduleReference.get(ActionService);
   });
 
   afterAll(async () => {
@@ -37,8 +37,8 @@ describe('project', () => {
     it('should return an id,created,modified on create', async () => {
       expect.assertions(3);
 
-      const project = ProjectDTO.fake({});
-      const result = await projectService.create(project);
+      const form = ActionDTO.fake({});
+      const result = await actionService.create(form);
       expect(result._id).toBeDefined();
       expect(result.created).toBeDefined();
       expect(result.modified).toBeDefined();
@@ -49,35 +49,26 @@ describe('project', () => {
     it('should be able to findOne by id', async () => {
       expect.assertions(2);
 
-      const project = ProjectDTO.fake({});
-      const created = await projectService.create(project);
+      const form = ActionDTO.fake({});
+      const created = await actionService.create(form);
       expect(created._id).toBeDefined();
-      const found = await projectService.findById(created);
-      expect(found._id).toStrictEqual(created._id);
-    });
-
-    it('should be able to findOne by name', async () => {
-      expect.assertions(2);
-      const project = ProjectDTO.fake({});
-      const created = await projectService.create(project);
-      expect(created._id).toBeDefined();
-      const found = await projectService.findByName(created);
+      const found = await actionService.findById(created);
       expect(found._id).toStrictEqual(created._id);
     });
 
     it('should be able to find many', async () => {
       expect.assertions(1);
 
-      const stageTitle = faker.random.alphaNumeric(20);
-      const projects = [
-        ProjectDTO.fake({ stageTitle }),
-        ProjectDTO.fake({ stageTitle }),
-        ProjectDTO.fake({ stageTitle }),
+      const machineName = faker.random.alphaNumeric(20);
+      const forms = [
+        ActionDTO.fake({ machineName }),
+        ActionDTO.fake({ machineName }),
+        ActionDTO.fake({ machineName }),
       ];
-      await projectService.create(projects[0]);
-      await projectService.create(projects[1]);
-      await projectService.create(projects[2]);
-      const results = await projectService.findMany({ stageTitle });
+      await actionService.create(forms[0]);
+      await actionService.create(forms[1]);
+      await actionService.create(forms[2]);
+      const results = await actionService.findMany({ machineName });
       expect(results).toHaveLength(3);
     });
   });
@@ -88,14 +79,14 @@ describe('project', () => {
       const original = 'original';
       const updated = 'updated';
 
-      const project = ProjectDTO.fake({ title: original });
-      const created = await projectService.create(project);
+      const form = ActionDTO.fake({ title: original });
+      const created = await actionService.create(form);
       expect(created._id).toBeDefined();
-      const result = await projectService.update(created, {
+      const result = await actionService.update(created, {
         title: updated,
       });
       expect(result).toStrictEqual(true);
-      const found = await projectService.findById(created);
+      const found = await actionService.findById(created);
       expect(found.title).toStrictEqual(updated);
     });
   });
@@ -103,11 +94,11 @@ describe('project', () => {
   describe('delete', () => {
     it('should soft delete', async () => {
       expect.assertions(2);
-      const project = ProjectDTO.fake({});
-      const created = await projectService.create(project);
+      const form = ActionDTO.fake({});
+      const created = await actionService.create(form);
       expect(created._id).toBeDefined();
-      await projectService.delete(created);
-      const found = await projectService.findById(created);
+      await actionService.delete(created);
+      const found = await actionService.findById(created);
       expect(found).toBeFalsy();
     });
   });

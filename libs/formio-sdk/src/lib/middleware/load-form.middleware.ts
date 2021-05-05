@@ -1,5 +1,5 @@
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
-import { SubmissionDTO } from '@automagical/contracts/formio-sdk';
+import { FormDTO } from '@automagical/contracts/formio-sdk';
 import { FormService } from '@automagical/persistence';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import {
@@ -28,13 +28,15 @@ export class LoadFormMiddleware implements NestMiddleware {
   @Trace()
   public async use(
     request: Request<{ formId: string }>,
-    response: Response<unknown, { form: SubmissionDTO }>,
+    response: Response<unknown, { form: FormDTO }>,
     next: NextFunction,
   ): Promise<void> {
     if (!request.params.formId) {
       throw new PreconditionFailedException();
     }
-    response.locals.form = await this.formService.byId(request.params.formId);
+    response.locals.form = await this.formService.findById(
+      request.params.formId,
+    );
     if (!response.locals.form) {
       throw new BadRequestException();
     }

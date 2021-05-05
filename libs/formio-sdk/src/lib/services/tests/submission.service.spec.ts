@@ -5,6 +5,7 @@ import { FetchService, MockFetchService } from '@automagical/fetch';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import faker from 'faker';
+import { LoggerModule } from 'nestjs-pino';
 import pino from 'pino';
 
 import { FormioSdkService } from '../formio-sdk.service';
@@ -13,14 +14,15 @@ import { SubmissionService } from '../submission.service';
 /**
  * WIP / TDD thing. Made while testing working FIO-1285, code may be useful later
  */
-describe('submission-service', () => {
+/* eslint-disable jest/no-disabled-tests */
+describe.skip('submission-service', () => {
   let formioSdkService: FormioSdkService;
   let submissionService: SubmissionService;
   const logger = pino();
 
   beforeAll(async () => {
     const moduleReference = await Test.createTestingModule({
-      imports: [ConfigModule.register('formio-sdk-test')],
+      imports: [ConfigModule.register('jest-test'), LoggerModule.forRoot()],
       providers: [
         FormioSdkService,
         ConfigService,

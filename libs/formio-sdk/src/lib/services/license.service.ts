@@ -7,7 +7,7 @@ import {
   LicenseScopes,
   LicenseUsageDTO,
 } from '@automagical/contracts/licenses';
-import { InjectLogger } from '@automagical/utilities';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -37,8 +37,8 @@ export class LicenseService {
 
   // #region Public Methods
 
+  @Trace({ level: 'warn' })
   public async build(): Promise<LicenseReportDTO[]> {
-    this.logger.info(`Building license report`);
     const licenseList = (await this.formioSdkService.fetch({
       url: `/license`,
     })) as LicenseDTO[];
@@ -96,6 +96,7 @@ export class LicenseService {
     return this.licenseData;
   }
 
+  @Trace()
   public async toggleUsage(
     arguments_: FetchWith<{
       state: boolean;

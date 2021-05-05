@@ -1,6 +1,5 @@
-import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
-import { SubmissionDTO, UserDTO } from '@automagical/contracts/formio-sdk';
-import { indexOptions, indexQuery } from '@automagical/fetch';
+import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
+import { FormDTO, UserDTO } from '@automagical/contracts/formio-sdk';
 import { FormDocument } from '@automagical/persistence';
 import { InjectLogger, InjectMongo, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -12,9 +11,9 @@ export class FormService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(FormService, LIB_FORMIO_SDK)
+    @InjectLogger(FormService, LIB_PERSISTENCE)
     private readonly logger: PinoLogger,
-    @InjectMongo(SubmissionDTO)
+    @InjectMongo(FormDTO)
     private readonly formModel: Model<FormDocument>,
   ) {}
 
@@ -23,47 +22,84 @@ export class FormService {
   // #region Public Methods
 
   @Trace()
-  public async byId(formId: string): Promise<SubmissionDTO> {
-    return await this.formModel
-      .findOne({
-        _id: formId,
-      })
-      .exec();
-  }
-
-  @Trace()
-  public async create(
-    form: SubmissionDTO,
-    owner?: UserDTO,
-  ): Promise<SubmissionDTO> {
+  public async create(form: FormDTO, owner?: UserDTO): Promise<FormDTO> {
     form.owner = form.owner || owner?._id;
     return await this.formModel.create(form);
   }
 
   @Trace()
-  public async list(arguments_: {
-    query?: Record<string, string>;
-    user?: UserDTO;
-  }): Promise<{ count: number; items: SubmissionDTO[] }> {
-    const query = new Map(Object.entries(arguments_.query || {}));
-    let map = indexQuery(query);
-    map = indexOptions(query, map);
-    const search = Object.fromEntries(map.entries());
-    return {
-      count: await this.formModel.count(search),
-      items: await this.formModel.find(search),
-    };
+  public async delete(project: FormDTO | string): Promise<boolean> {
+    if (typeof project === 'object') {
+      project = project._id;
+    }
+    const result = await this.formModel
+      .updateOne(
+        { _id: project },
+        {
+          deleted: Date.now(),
+        },
+      )
+      .exec();
+    return result.ok === 1;
+  }
+
+  @Trace()
+  public async findById(form: FormDTO | string): Promise<FormDTO> {
+    if (typeof form === 'object') {
+      form = form._id;
+    }
+    return await this.formModel.findOne({
+      _id: form,
+      deleted: null,
+    });
+  }
+
+  @Trace()
+  public async findByName(form: FormDTO | string): Promise<FormDTO> {
+    if (typeof form === 'object') {
+      form = form.name;
+    }
+    return await this.formModel.findOne({
+      deleted: null,
+      name: form,
+    });
+  }
+
+  @Trace()
+  public async findMany(
+    query: Record<string, unknown> = {},
+  ): Promise<FormDTO[]> {
+    return await this.formModel
+      .find({
+        deleted: null,
+        ...query,
+      })
+      .exec();
+  }
+
+  @Trace()
+  public async hardDelete(project: FormDTO | string): Promise<boolean> {
+    if (typeof project === 'object') {
+      project = project._id;
+    }
+    const result = await this.formModel.deleteOne({
+      _id: project,
+    });
+    return result.ok === 1;
   }
 
   @Trace()
   public async update(
-    formId: string,
-    form: SubmissionDTO,
-  ): Promise<SubmissionDTO> {
-    // Shame on you
-    form._id = formId;
-    await this.formModel.updateOne({ _id: formId }, form);
-    return form;
+    source: FormDTO | string,
+    update: Omit<Partial<FormDTO>, '_id' | 'created'>,
+  ): Promise<boolean> {
+    if (typeof source === 'object') {
+      source = source._id;
+    }
+    const result = await this.formModel
+      .updateOne({ _id: source, deleted: null }, update)
+      .exec();
+    return result.ok === 1;
   }
 
   // #endregion Public Methods

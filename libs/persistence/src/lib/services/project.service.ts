@@ -7,7 +7,6 @@ import { PinoLogger } from 'nestjs-pino';
 
 import { ProjectDocument } from '../schema';
 
-/* eslint-disable unicorn/no-null */
 @Injectable()
 export class ProjectService {
   // #region Constructors

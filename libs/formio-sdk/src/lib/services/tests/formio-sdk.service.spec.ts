@@ -74,12 +74,12 @@ describe('formio-sdk', () => {
       expect(formioSdkService.fetch).toBeDefined());
 
     it('should call Fetch.fetch', () => {
-      expect.assertions(2);
+      expect.assertions(1);
       jest.spyOn(fetchService, 'fetch');
       const jwtToken = faker.datatype.uuid();
       formioSdkService.jwtToken = jwtToken;
       formioSdkService.fetch({});
-      expect(fetchService.fetch).toHaveBeenCalled();
+      expect(fetchService.fetch).toHaveBeenCalledTimes(1);
     });
 
     it('should set standard values', () => {
