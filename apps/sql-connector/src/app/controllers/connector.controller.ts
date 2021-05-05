@@ -3,8 +3,6 @@ import { InjectLogger } from '@automagical/utilities';
 import { Controller, Get } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 
-import { AppService } from './app.service';
-
 @Controller('sqlconnector')
 export class ConnectorController {
   // #region Constructors
@@ -12,7 +10,6 @@ export class ConnectorController {
   constructor(
     @InjectLogger(ConnectorController, APP_SQL_CONNECTOR)
     private readonly logger: PinoLogger,
-    private readonly appService: AppService,
   ) {}
 
   // #endregion Constructors
