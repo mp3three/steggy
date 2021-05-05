@@ -5,7 +5,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { json } from 'express';
-import helmet from 'helmet';
+import helmet from 'fastify-helmet';
 import { Logger } from 'nestjs-pino';
 
 import { AppModule } from './app/app.module';
@@ -24,8 +24,8 @@ async function bootstrap() {
   app.enableCors({
     origin: config.get('CORS'),
   });
+  app.register(helmet);
   app.use(
-    helmet(),
     json({ limit: config.get('BODY_SIZE') }),
     AppService.Middleware(appService),
   );
