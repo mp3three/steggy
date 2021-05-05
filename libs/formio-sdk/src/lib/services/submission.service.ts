@@ -1,4 +1,5 @@
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
+import { SubmissionDTO } from '@automagical/contracts/formio-sdk';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
@@ -6,9 +7,10 @@ import { PinoLogger } from 'nestjs-pino';
 import { HTTP_Methods } from '../../typings';
 import { FetchWith } from '../../typings/HTTP';
 import { FormioSdkService } from '.';
+import { CommonID } from './formio-sdk.service';
 type SubmissionArguments<
   T extends Record<never, string> = Record<never, string>
-> = FetchWith<{ project: string; form: string; id?: string } & T>;
+> = FetchWith<{ project?: CommonID; form: CommonID; id?: string } & T>;
 
 type Z<T extends Record<never, string> = Record<never, string>> = {
   foo: false;
@@ -31,7 +33,9 @@ export class SubmissionService {
   // #region Public Methods
 
   @Trace()
-  public async get<T>(arguments_: SubmissionArguments): Promise<T[]> {
+  public async get<T extends SubmissionDTO>(
+    arguments_: SubmissionArguments,
+  ): Promise<T[]> {
     // resource & form are synonymous basically anywhere in the platform
     // The difference is in how you use them, but they both work over the same APIs
     // When in doubt, use resource > form here
@@ -66,13 +70,24 @@ export class SubmissionService {
     });
   }
 
+  public async list<T extends SubmissionDTO>(
+    arguments_: SubmissionArguments,
+  ): Promise<T[]> {
+    return await this.formioSdkService.fetch({
+      url: this.buildUrl(arguments_),
+    });
+  }
+
   // #endregion Public Methods
 
   // #region Private Methods
 
   private buildUrl(arguments_: SubmissionArguments) {
     const suffix = arguments_.id ? `/${arguments_.id}` : '';
-    return `/${arguments_.project}/${arguments_.form}/submission${suffix}`;
+    return this.formioSdkService.projectUrl(
+      arguments_.project,
+      `/${this.formioSdkService.id(arguments_.form)}/submission${suffix}`,
+    );
   }
 
   // #endregion Private Methods

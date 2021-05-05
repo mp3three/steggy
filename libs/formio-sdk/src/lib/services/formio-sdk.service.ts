@@ -12,12 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';
 import { Response } from 'node-fetch';
 
-import {
-  FetchWith,
-  HTTP_Methods,
-  Identifier,
-  TemporaryAuthToken as TemporaryAuthToken,
-} from '../../typings';
+import { FetchWith, HTTP_Methods, Identifier } from '../../typings';
 
 export type CommonID = Identifier | string;
 export type FetchError = { status: number; message: string };
@@ -174,6 +169,7 @@ export class FormioSdkService {
     project: CommonID = this.config.BASE_PROJECT,
     path = '',
   ): string {
+    project = project || this.config.BASE_PROJECT;
     if (typeof project === 'string' || project.name) {
       return `/${typeof project === 'string' ? project : project.name}${path}`;
     }

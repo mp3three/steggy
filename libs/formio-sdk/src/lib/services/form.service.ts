@@ -26,10 +26,12 @@ export class FormService {
    */
   @Trace()
   public async list(
-    arguments_: FetchWith<{ project: CommonID }>,
+    arguments_: FetchWith<{ project?: CommonID }> = {},
   ): Promise<FormDTO[]> {
+    const project =
+      arguments_.project || this.formioSdkService.config.BASE_PROJECT;
     return await this.formioSdkService.fetch<FormDTO[]>({
-      url: this.formioSdkService.projectUrl(arguments_.project, '/form'),
+      url: this.formioSdkService.projectUrl(project, '/form'),
       ...arguments_,
     });
   }

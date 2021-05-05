@@ -36,3 +36,9 @@ export class ConnectorConfig {
 }
 
 export type ConnectorRouteDTO = SubmissionDTO<ConnectorRoute>;
+
+export enum ConnetorTags {
+  sqlconnector = 'sqlconnector',
+  route = 'route',
+  database = 'database',
+}
