@@ -1,19 +1,14 @@
 {
-  "npmScope": "automagical",
-  "affected": {
-    "defaultBase": "develop"
-  },
   "implicitDependencies": {
     "workspace.json": "*",
-    "package.json": {
-      "dependencies": "*",
-      "devDependencies": "*"
-    },
+    "package.json": { "dependencies": "*", "devDependencies": "*" },
     "tsconfig.base.json": "*",
     "tslint.json": "*",
     ".eslintrc.json": "*",
     "nx.json": "*"
   },
+  "affected": { "defaultBase": "develop" },
+  "npmScope": "automagical",
   "tasksRunnerOptions": {
     "default": {
       "runner": "@nrwl/nx-cloud",
@@ -25,52 +20,22 @@
       }
     }
   },
+  "workspaceLayout": { "appsDir": "apps", "libsDir": "libs" },
   "projects": {
-    "type-writer": {
-      "tags": []
-    },
-    "formio-sdk": {
-      "tags": []
-    },
-    "validation": {
-      "tags": []
-    },
-    "home-assistant": {
-      "tags": []
-    },
-    "home-controller": {
-      "tags": ["backend"]
-    },
-    "utilities": {
-      "tags": []
-    },
-    "api-server": {
-      "tags": ["backend"]
-    },
-    "licenses": {
-      "tags": []
-    },
-    "license-server": {
-      "tags": ["backend"]
-    },
-    "authentication": {
-      "tags": ["backend"]
-    },
-    "fetch": {
-      "tags": ["backend"]
-    },
-    "contracts": {
-      "tags": []
-    },
-    "config": {
-      "tags": []
-    },
-    "persistence": {
-      "tags": ["backend", "data"]
-    }
-  },
-  "workspaceLayout": {
-    "appsDir": "apps",
-    "libsDir": "libs"
+    "type-writer": { "tags": [] },
+    "formio-sdk": { "tags": [] },
+    "validation": { "tags": [] },
+    "home-assistant": { "tags": [] },
+    "home-controller": { "tags": ["backend"] },
+    "utilities": { "tags": [] },
+    "api-server": { "tags": ["backend"] },
+    "licenses": { "tags": [] },
+    "license-server": { "tags": ["backend"] },
+    "authentication": { "tags": ["backend"] },
+    "fetch": { "tags": ["backend"] },
+    "contracts": { "tags": [] },
+    "config": { "tags": [] },
+    "persistence": { "tags": ["backend", "data"] },
+    "sql-connector": { "tags": [] }
   }
 }

@@ -1,6 +1,7 @@
 export const APP_HOME_CONTROLLER = Symbol('home-controller');
 export const APP_LICENSE_SERVER = Symbol('license-server');
 export const APP_API_SERVER = Symbol('api-server');
+export const APP_SQL_CONNECTOR = Symbol('sql-connector');
 
 export const LIB_TYPE_WRITER = Symbol('type-writer');
 export const LIB_PERSISTENCE = Symbol('persistence');
