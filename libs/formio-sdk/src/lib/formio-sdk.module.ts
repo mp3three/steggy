@@ -1,7 +1,6 @@
 import { FetchModule } from '@automagical/fetch';
 import { Module } from '@nestjs/common';
 
-import {} from './middleware';
 import { FormService } from './services';
 import { FormioSdkService } from './services/formio-sdk.service';
 import { LicenseService } from './services/license.service';

@@ -1,4 +1,5 @@
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
+import { FormioSdkService } from '@automagical/formio-sdk';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import {
   HttpException,
@@ -8,8 +9,6 @@ import {
 } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { PinoLogger } from 'nestjs-pino';
-
-import { FormioSdkService } from '../services';
 
 @Injectable()
 export class FetchUserdataMiddleware implements NestMiddleware {

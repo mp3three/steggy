@@ -36,6 +36,7 @@
     "contracts": { "tags": [] },
     "config": { "tags": [] },
     "persistence": { "tags": ["backend", "data"] },
-    "sql-connector": { "tags": [] }
+    "sql-connector": { "tags": [] },
+    "server": { "tags": [] }
   }
 }

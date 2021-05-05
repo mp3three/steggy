@@ -39,7 +39,22 @@ import {
   TokenService,
 } from './services';
 
-@Module({})
+const services = [
+  ActionItemService,
+  ActionService,
+  FormService,
+  ProjectService,
+  RoleService,
+  SchemaService,
+  SessionService,
+  SubmissionService,
+  TagService,
+  TokenService,
+];
+@Module({
+  exports: services,
+  providers: services,
+})
 export class PersistenceModule {
   // #region Public Static Methods
 
@@ -50,18 +65,6 @@ export class PersistenceModule {
   }
 
   public static registerMongoose(): DynamicModule {
-    const services = [
-      ActionItemService,
-      ActionService,
-      FormService,
-      ProjectService,
-      RoleService,
-      SchemaService,
-      SessionService,
-      SubmissionService,
-      TagService,
-      TokenService,
-    ];
     return {
       exports: services,
       imports: [
@@ -87,8 +90,10 @@ export class PersistenceModule {
     options: TypeOrmModuleOptions = {},
   ): DynamicModule {
     return {
+      exports: services,
       imports: [TypeOrmModule.forRoot(options)],
       module: PersistenceModule,
+      providers: services,
     };
   }
 

@@ -14,5 +14,6 @@ module.exports = {
     '<rootDir>/libs/config',
     '<rootDir>/libs/persistence',
     '<rootDir>/apps/sql-connector',
+    '<rootDir>/libs/server',
   ],
 };

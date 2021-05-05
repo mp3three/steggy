@@ -42,7 +42,8 @@
         "libs/contracts/src/libs/persistence/index.ts"
       ],
       "@automagical/config": ["libs/config/src/index.ts"],
-      "@automagical/persistence": ["libs/persistence/src/index.ts"]
+      "@automagical/persistence": ["libs/persistence/src/index.ts"],
+      "@automagical/server": ["libs/server/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
