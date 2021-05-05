@@ -7,11 +7,11 @@ import { Request } from 'express';
 import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
-export class LocalAuthGuard extends AuthGuard('local') {
+export class BasicAuthGuard extends AuthGuard('local') {
   // #region Constructors
 
   constructor(
-    @InjectLogger(LocalAuthGuard, LIB_AUTHENTICATION)
+    @InjectLogger(BasicAuthGuard, LIB_AUTHENTICATION)
     private readonly logger: PinoLogger,
     private readonly configService: ConfigService,
   ) {

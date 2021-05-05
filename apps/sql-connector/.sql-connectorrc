@@ -7,18 +7,12 @@ BODY_SIZE=50mb
   BASE_PROJECT=
   PORTAL_BASE_URL=
 
-; [libs.formio-sdk.auth]
-;   email=
-;   password=
+[application.knex]
+  host=localhost
+  user=root
+  password=password
+  database=test
 
-; Blank example
-; [knex]
-;   host=localhost
-;   user=root
-;   password=password
-;   database=test
-
-[knex]
-  client=sqlite3
-  connection=:memory:
-  useNullAsDefault=true
+[libs.authentication]
+  username=foo
+  password=bar

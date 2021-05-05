@@ -1,1 +1,1 @@
-export * from './local-auth.guard';
+export * from './basic-auth.guard';

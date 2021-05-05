@@ -44,3 +44,6 @@ export enum ConnectorTags {
 }
 export type PostgresResult = { rows: Record<string, unknown> };
 export type MysqlResult = unknown[];
+export const CONFIG_ROUTES = 'application.routes';
+export const CONFIG_KNEX = 'application.knex';
+export const CONNECTOR_ROUTE = '/sqlconnector?format=v2';

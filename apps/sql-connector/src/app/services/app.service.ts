@@ -16,6 +16,8 @@ import { PinoLogger } from 'nestjs-pino';
 import { get } from 'object-path';
 
 import {
+  CONFIG_ROUTES,
+  CONNECTOR_ROUTE,
   ConnectorRoute,
   ConnectorRouteDTO,
   ConnectorTags,
@@ -61,6 +63,7 @@ export class AppService {
 
   // #region Public Methods
 
+  @Trace({ level: 'warn' })
   public async refresh(): Promise<void> {
     this.router = Router();
     await this.buildRoutes();
@@ -119,9 +122,8 @@ export class AppService {
           }
           returnResult = result[0];
           break;
+        case KNEX_CONNECTION_TYPES.mssql:
         default:
-          // Hope for the best?
-          // mssql works here
           returnResult = result;
       }
     }
@@ -134,7 +136,8 @@ export class AppService {
 
   @Trace()
   private async loadConfigRoutes(): Promise<ConnectorRouteDTO[]> {
-    const routes = this.configService.get<ConnectorRoute[]>('routes') || [];
+    const routes =
+      this.configService.get<ConnectorRoute[]>(CONFIG_ROUTES) || [];
     return routes.map((route) => {
       return {
         data: route,
@@ -146,7 +149,7 @@ export class AppService {
   @Trace()
   private async loadProjectRoutes(): Promise<ConnectorRouteDTO[]> {
     return await this.formioSdkService.fetch({
-      url: '/sqlconnector?format=v2',
+      url: CONNECTOR_ROUTE,
     });
   }
 

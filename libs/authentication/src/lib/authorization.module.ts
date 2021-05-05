@@ -2,11 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 
-import { LocalAuthGuard } from './guards';
+import { BasicAuthGuard } from './guards';
 import { AuthService } from './services';
-import { LocalStrategy } from './strategies';
 
-const providers = [AuthService, LocalStrategy, LocalAuthGuard];
+const providers = [AuthService, BasicAuthGuard];
 @Module({
   controllers: [],
   exports: providers,
