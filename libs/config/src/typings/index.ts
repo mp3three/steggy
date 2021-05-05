@@ -4,6 +4,8 @@ export * from './formio-sdk';
 export * from './home-assistant';
 import { PinoLogger } from 'nestjs-pino';
 
+import { AuthenticationConfig } from './authentication';
+
 export class AutomagicalConfig<
   Application extends Record<never, unknown> = Record<never, unknown>
 > {
@@ -59,6 +61,7 @@ export class AutomagicalConfig<
    * Libraries
    */
   public libs?: {
+    authentication?: AuthenticationConfig;
     ['formio-sdk']?: FormioSDKConfig;
     ['home-assistant']?: HomeAssistantConfig;
   };

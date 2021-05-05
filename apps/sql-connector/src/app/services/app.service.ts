@@ -10,12 +10,13 @@ import {
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Request, Response, Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 import { InjectKnex, Knex } from 'nestjs-knex';
 import { PinoLogger } from 'nestjs-pino';
 import { get } from 'object-path';
 
 import {
+  ConnectorRoute,
   ConnectorRouteDTO,
   ConnectorTags,
   MysqlResult,
@@ -27,14 +28,20 @@ export class AppService {
   // #region Public Static Methods
 
   public static Middleware(appService: AppService) {
-    return;
+    return function (
+      request: Request,
+      response: Response,
+      next: NextFunction,
+    ): void {
+      appService.router(request, response, next);
+    };
   }
 
   // #endregion Public Static Methods
 
   // #region Object Properties
 
-  public readonly router = Router();
+  public router: Router;
 
   // #endregion Object Properties
 
@@ -51,6 +58,15 @@ export class AppService {
   ) {}
 
   // #endregion Constructors
+
+  // #region Public Methods
+
+  public async refresh(): Promise<void> {
+    this.router = Router();
+    await this.buildRoutes();
+  }
+
+  // #endregion Public Methods
 
   // #region Protected Methods
 
@@ -117,6 +133,17 @@ export class AppService {
   // #region Private Methods
 
   @Trace()
+  private async loadConfigRoutes(): Promise<ConnectorRouteDTO[]> {
+    const routes = this.configService.get<ConnectorRoute[]>('routes') || [];
+    return routes.map((route) => {
+      return {
+        data: route,
+        form: undefined,
+      };
+    });
+  }
+
+  @Trace()
   private async loadProjectRoutes(): Promise<ConnectorRouteDTO[]> {
     return await this.formioSdkService.fetch({
       url: '/sqlconnector?format=v2',
@@ -151,6 +178,11 @@ export class AppService {
       ...(await this.loadProjectRoutes()),
       ...(await this.loadResourceRoutes()),
     ];
+  }
+
+  @Trace()
+  private async onApplicationBootstrap() {
+    await this.refresh();
   }
 
   // #endregion Private Methods

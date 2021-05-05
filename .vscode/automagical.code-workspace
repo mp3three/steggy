@@ -26,6 +26,7 @@
     // * </Language>
 
     // * <Decorative>
+
     // In case you want to match material icon themes: copy into your own settings
     // "material-icon-theme.folders.associations": {
     //   // Apps
@@ -33,6 +34,7 @@
     //   "rooms": "custom",
     //   "api-server": "api",
     //   "license-server": "syntax",
+    //   "sql-connector": "database",
     //   "contracts": "mappings",
 
     //   // Libs
@@ -43,37 +45,68 @@
     //   "validate": "rules",
     //   "licenses": "helper",
     //   "fetch": "connection",
+    //   "persistence": "database",
 
     //   // Repo Root
     //   "libs": "shared",
+    //   "jest": "test",
+    //   ".well-known": "public",
 
     //   // Common / Common
     //   "action": "azure-pipelines",
+    //   "adapters": "custom",
     //   "license": "helper",
     //   "dto": "database",
     //   "app": "vscode",
     //   "decorators": "delta",
 
+    //   // @automagical/authentication
+    //   "strategies": "animation",
+
+    //   // @automagical/contracts
+    //   "enums": "constant",
+    //   "event-emitter": "event",
+
     //   // @automagical/home-assistant
     //   "entities": "components",
 
+    //   // @automagical/resources
+    //   "mongo": "ngrx-store", // Chosen for it's remarkable green-ness
+
     //   // .github/workflows
-    //   "workflows": "github",
+    //   "workflows": "ci",
 
     //   // tools/generators
     //   "microservice": "template",
     // },
 
     // "material-icon-theme.files.associations": {
-    //   "tsconfig.json": "roadmap",
-    //   "tsconfig.lib.json": "roadmap",
-    //   "tsconfig.build.json": "roadmap",
+    //   "workspace.json": "nrwl",
+    //   // Make these suffixes more distinctive
+    //   "*.dto.ts": "pug",
+    //   "*.schema.ts": "bithound",
+    //   "*.entity.ts": "bithound",
+    //   "*.strategy.ts": "nest-resolver",
+    //   "*.driver.ts": "slim",
+
+    //   // tsconfig*
+    //   "tsconfig.json": "nodejs_alt",
+    //   "tsconfig.lib.json": "nodejs_alt",
+    //   "tsconfig.build.json": "nodejs_alt",
+    //   "tsconfig.base.json": "nodejs_alt",
+    //   "tsconfig.spec.json": "nodejs_alt",
+
+    //   // docker
     //   "docker-compose.automated-testing.yaml": "docker",
     //   "docker-compose.hermes.yaml": "docker",
+
+    //   // user-env
     //   "user-env.yaml": "settings",
     //   "user-env.yml": "settings",
     //   "user-env.json": "settings",
-    //   "index.ts": "brainfuck",
+
+    //   // Specific files
+    //   "index.ts": "yang",
     //   "log.ts": "log",
     //   "Logger.ts": "log",
     //   "package.json": "npm",

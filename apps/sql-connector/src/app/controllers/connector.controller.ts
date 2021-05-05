@@ -3,6 +3,8 @@ import { InjectLogger } from '@automagical/utilities';
 import { Controller, Get } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 
+import { AppService } from '../services/app.service';
+
 @Controller('sqlconnector')
 export class ConnectorController {
   // #region Constructors
@@ -10,6 +12,7 @@ export class ConnectorController {
   constructor(
     @InjectLogger(ConnectorController, APP_SQL_CONNECTOR)
     private readonly logger: PinoLogger,
+    private readonly appService: AppService,
   ) {}
 
   // #endregion Constructors
@@ -18,7 +21,7 @@ export class ConnectorController {
 
   @Get('/refresh')
   public async refresh(): Promise<void> {
-    return;
+    await this.appService.refresh();
   }
 
   // #endregion Public Methods
