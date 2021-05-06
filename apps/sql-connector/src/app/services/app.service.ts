@@ -1,4 +1,3 @@
-import { AutomagicalConfig } from '@automagical/config';
 import {
   APP_SQL_CONNECTOR,
   KNEX_CONNECTION_TYPES,
