@@ -1,17 +1,34 @@
+; CURRENT FILE FORMAT = INI
 LOG_LEVEL=info
 CORS=*
 BODY_SIZE=50mb
+PORT=3002
+
+;; SQLITE
+; knex.client=sqlite3
+; [knex.connection]
+;   filename=./mydb.sqlite
+
+;; PG
+; knex.client=pg
+; knex.version=7.2
+; [knex.connection]
+;   host=127.0.0.1
+;   user=username
+;   password=password
+;   database=database
+
+;; MYSQL
+; knex.client=mysql
+; [knex.connection]
+;   host=127.0.0.1
+;   user=username
+;   password=password
+;   database=database
 
 [libs.formio-sdk]
   API_KEY=
-  BASE_PROJECT=
-  PORTAL_BASE_URL=
-
-[application.knex]
-  host=localhost
-  user=root
-  password=password
-  database=test
+  PROJECT_URL=
 
 [libs.authentication]
   username=foo
