@@ -7,8 +7,8 @@ import {
 } from '@automagical/validation';
 
 import { UserDTO } from '../formio-sdk';
-import { LicenseKeyDTO } from './Key.dto';
-import { LicenseOptionsDTO } from './Options.dto';
+import { LicenseKeyDTO } from './key.dto';
+import { LicenseOptionsDTO } from './options.dto';
 import { LicensePlans } from './types';
 
 export class UtilizationResponseTermsDTO {

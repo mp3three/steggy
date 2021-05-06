@@ -1,16 +1,15 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 
-import { AuthService } from './auth.service';
-import { LocalStrategy } from './local.strategy';
+import { BasicAuthGuard } from './guards';
+import { AuthService } from './services';
 
+const providers = [AuthService, BasicAuthGuard];
 @Module({
   controllers: [],
-  exports: [AuthService, LocalStrategy],
-  imports: [PassportModule],
-  providers: [AuthService, LocalStrategy],
+  exports: providers,
+  imports: [PassportModule, ConfigModule],
+  providers: providers,
 })
 export class AuthorizationModule {}
-
-// Note for future buildout, placed here for visibility
-// https://github.com/goldbergyoni/nodebestpractices/blob/master/sections/security/userpasswords.md

@@ -14,6 +14,7 @@ export class FormioSDKConfig {
   public BASE_PROJECT?: string;
   public LICENSE_SERVER?: string;
   public PORTAL_BASE_URL?: string;
+  public PROJECT_URL?: string;
 
   // #endregion Object Properties
 }

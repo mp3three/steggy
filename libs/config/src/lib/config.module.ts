@@ -8,6 +8,7 @@ import { resolve } from 'path';
 import rc from 'rc';
 
 import { AutomagicalConfig } from '../typings';
+import { GlobalDefaults } from './defaults';
 
 @Module({})
 export class ConfigModule {
@@ -38,7 +39,10 @@ export class ConfigModule {
           // File picking, loading, and merging handled by rc
           const config: AutomagicalConfig<T> = rc(
             appName,
-            defaultConfig,
+            {
+              ...GlobalDefaults,
+              ...(defaultConfig || {}),
+            },
             undefined,
             (content: string): Record<string, unknown> => {
               // Attempt to parse as JSON

@@ -53,6 +53,7 @@ export class ActionDTO<
   @Prop({
     enum: ACTION_NAMES,
     required: true,
+    type: MongooseSchema.Types.String,
   })
   public name: ACTION_NAMES;
   /**

@@ -54,6 +54,7 @@ export class FormDTO extends DBFake {
     enum: FORM_TYPES,
     index: true,
     required: true,
+    type: MongooseSchema.Types.String,
   })
   public type: FORM_TYPES;
   @IsObject({ each: true })

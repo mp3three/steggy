@@ -1,5 +1,9 @@
 {
   "version": 2,
+  "cli": {
+    "defaultCollection": "@nrwl/nest"
+  },
+  "defaultProject": "home-controller",
   "projects": {
     "api-server": {
       "root": "apps/api-server",
@@ -204,6 +208,71 @@
           ],
           "options": {
             "jestConfig": "apps/license-server/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "sql-connector": {
+      "root": "apps/sql-connector",
+      "sourceRoot": "apps/sql-connector/src",
+      "projectType": "application",
+      "targets": {
+        "serve-pretty": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "parallel": false,
+            "commands": [{
+              "command": "nx serve sql-connector | pino-pretty"
+            }]
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/apps/sql-connector",
+            "main": "apps/sql-connector/src/main.ts",
+            "tsConfig": "apps/sql-connector/tsconfig.app.json",
+            "assets": [
+              "apps/sql-connector/src/assets"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [{
+                "replace": "apps/sql-connector/src/environments/environment.ts",
+                "with": "apps/sql-connector/src/environments/environment.production.ts"
+              }]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "sql-connector:build"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "apps/sql-connector/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/apps/sql-connector"
+          ],
+          "options": {
+            "jestConfig": "apps/sql-connector/jest.config.js",
             "passWithNoTests": true
           }
         }
@@ -641,10 +710,31 @@
           }
         }
       }
+    },
+    "server": {
+      "root": "libs/server",
+      "sourceRoot": "libs/server/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/server/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/server"
+          ],
+          "options": {
+            "jestConfig": "libs/server/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
     }
-  },
-  "cli": {
-    "defaultCollection": "@nrwl/nest"
-  },
-  "defaultProject": "home-controller"
+  }
 }

@@ -4,6 +4,8 @@ export * from './formio-sdk';
 export * from './home-assistant';
 import { PinoLogger } from 'nestjs-pino';
 
+import { AuthenticationConfig } from './authentication';
+
 export class AutomagicalConfig<
   Application extends Record<never, unknown> = Record<never, unknown>
 > {
@@ -13,6 +15,12 @@ export class AutomagicalConfig<
    * Body parsing max size
    */
   public BODY_SIZE?: string;
+  /**
+   * Default value: "*"
+   *
+   * Used with configuring application cors libraries
+   */
+  public CORS?: string;
   /**
    * Lower limit for log levels
    */
@@ -53,6 +61,7 @@ export class AutomagicalConfig<
    * Libraries
    */
   public libs?: {
+    authentication?: AuthenticationConfig;
     ['formio-sdk']?: FormioSDKConfig;
     ['home-assistant']?: HomeAssistantConfig;
   };

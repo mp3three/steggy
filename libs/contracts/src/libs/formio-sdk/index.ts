@@ -8,7 +8,6 @@ export * from './constants';
 export * from './form.dto';
 export * from './project.dto';
 export * from './resource';
-export * from './resource.dto';
 export * from './role.dto';
 export * from './schema.dto';
 export * from './session.dto';

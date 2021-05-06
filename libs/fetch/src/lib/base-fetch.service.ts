@@ -127,8 +127,8 @@ export class BaseFetch {
       headers['Content-Type'] = 'application/json';
     }
 
-    if (arguments_.token) {
-      headers['x-jwt-token'] = arguments_.token;
+    if (arguments_.jwtToken) {
+      headers['x-jwt-token'] = arguments_.jwtToken;
     }
     if (arguments_.apiKey) {
       headers['x-token'] = arguments_.apiKey;

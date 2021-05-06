@@ -13,5 +13,7 @@ module.exports = {
     '<rootDir>/libs/fetch',
     '<rootDir>/libs/config',
     '<rootDir>/libs/persistence',
+    '<rootDir>/apps/sql-connector',
+    '<rootDir>/libs/server',
   ],
 };
