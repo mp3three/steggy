@@ -44,6 +44,10 @@ export interface FetchArguments {
    */
   headers?: Record<string, unknown>;
   /**
+   * Temp Auth Token
+   */
+  jwtToken?: string;
+  /**
    * Which HTTP method?
    */
   method?: HTTP_Methods;
@@ -63,10 +67,6 @@ export interface FetchArguments {
    * Temporary auth token
    */
   tempAuthToken?: TemporaryAuthToken;
-  /**
-   * Temp Auth Token
-   */
-  token?: string;
   /**
    * URL to send request to
    */

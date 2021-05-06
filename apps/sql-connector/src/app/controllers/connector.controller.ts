@@ -17,7 +17,8 @@ import { PinoLogger } from 'nestjs-pino';
 
 import { AppService } from '../services/app.service';
 
-@Controller('sqlconnector')
+@Controller()
+@UseGuards(BasicAuthGuard)
 export class ConnectorController {
   // #region Constructors
 
@@ -31,18 +32,40 @@ export class ConnectorController {
 
   // #region Public Methods
 
-  @UseGuards(BasicAuthGuard)
+  @Delete()
+  public async callThroughDelete(
+    @Req() request: Request,
+    @Res() response: Response,
+    @Next() next: NextFunction,
+  ): Promise<void> {
+    await this.appService.router(request, response, next);
+  }
+
+  @Get()
+  public async callThroughGet(
+    @Req() request: Request,
+    @Res() response: Response,
+    @Next() next: NextFunction,
+  ): Promise<void> {
+    await this.appService.router(request, response, next);
+  }
+
   @Get('/refresh')
   public async refresh(): Promise<void> {
     await this.appService.refresh();
   }
 
-  @UseGuards(BasicAuthGuard)
-  @Get()
   @Post()
-  @Delete()
+  public async callThroughPost(
+    @Req() request: Request,
+    @Res() response: Response,
+    @Next() next: NextFunction,
+  ): Promise<void> {
+    await this.appService.router(request, response, next);
+  }
+
   @Put()
-  public async callThrough(
+  public async callThroughPut(
     @Req() request: Request,
     @Res() response: Response,
     @Next() next: NextFunction,

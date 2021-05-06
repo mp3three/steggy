@@ -1,3 +1,4 @@
+import { AutomagicalConfig } from '@automagical/config';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import {
@@ -9,7 +10,6 @@ import helmet from 'fastify-helmet';
 import { Logger } from 'nestjs-pino';
 
 import { AppModule } from './app/app.module';
-import { AppService } from './app/services/app.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -18,17 +18,13 @@ async function bootstrap() {
     // { logger: false },
   );
   const logger = app.get(Logger);
-  const config = app.get(ConfigService);
-  const appService = app.get(AppService);
+  const config = app.get<ConfigService<AutomagicalConfig>>(ConfigService);
   app.useLogger(logger);
   app.enableCors({
     origin: config.get('CORS'),
   });
   app.register(helmet);
-  app.use(
-    json({ limit: config.get('BODY_SIZE') }),
-    AppService.Middleware(appService),
-  );
+  app.use(json({ limit: config.get('BODY_SIZE') }));
   const port = config.get('PORT');
   await app.listen(port, () => logger.log(`Listening on ${port}`));
 }

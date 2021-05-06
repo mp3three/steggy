@@ -55,8 +55,8 @@ export class FormioSdkService {
     return await this.fetchHandler<T>(
       this.fetchService.fetch<T>({
         apiKey: this.config.API_KEY,
-        baseUrl: this.config.PORTAL_BASE_URL,
-        token: this.jwtToken,
+        baseUrl: this.config.PROJECT_URL || this.config.PORTAL_BASE_URL,
+        jwtToken: this.jwtToken,
         ...arguments_,
       }),
     );
@@ -165,10 +165,10 @@ export class FormioSdkService {
   /**
    * 🤖 Advanced AI generates string from url parts
    */
-  public projectUrl(
-    project: CommonID = this.config.BASE_PROJECT,
-    path = '',
-  ): string {
+  public projectUrl(project?: CommonID, path = ''): string {
+    if (!project && this.config.PROJECT_URL) {
+      return path;
+    }
     project = project || this.config.BASE_PROJECT;
     if (typeof project === 'string' || project.name) {
       return `/${typeof project === 'string' ? project : project.name}${path}`;

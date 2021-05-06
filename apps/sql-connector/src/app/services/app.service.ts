@@ -1,3 +1,4 @@
+import { AutomagicalConfig } from '@automagical/config';
 import {
   APP_SQL_CONNECTOR,
   KNEX_CONNECTION_TYPES,
@@ -8,9 +9,9 @@ import {
   SubmissionService,
 } from '@automagical/formio-sdk';
 import { InjectLogger, Trace } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NextFunction, Request, Response, Router } from 'express';
+import { Request, Response, Router } from 'express';
 import { InjectKnex, Knex } from 'nestjs-knex';
 import { PinoLogger } from 'nestjs-pino';
 import { get } from 'object-path';
@@ -27,20 +28,6 @@ import {
 
 @Injectable()
 export class AppService {
-  // #region Public Static Methods
-
-  public static Middleware(appService: AppService) {
-    return function (
-      request: Request,
-      response: Response,
-      next: NextFunction,
-    ): void {
-      appService.router(request, response, next);
-    };
-  }
-
-  // #endregion Public Static Methods
-
   // #region Object Properties
 
   public router: Router;
@@ -63,7 +50,7 @@ export class AppService {
 
   // #region Public Methods
 
-  @Trace({ level: 'warn' })
+  @Trace({ levels: { before: 'warn' } })
   public async refresh(): Promise<void> {
     this.router = Router();
     await this.buildRoutes();
@@ -76,11 +63,11 @@ export class AppService {
   @Trace()
   protected async buildRoutes(): Promise<void> {
     const routes = await this.loadRoutes();
-    routes.forEach(({ data: route }) => {
-      this.router[route.method](
-        route.endpoint,
+    routes.forEach((data) => {
+      this.router[data.method.toLocaleLowerCase()](
+        data.endpoint,
         async (request: Request, response: Response) => {
-          response.json(await this.processQuery(route.query, request));
+          response.json(await this.processQuery(data.query, request));
         },
       );
     });
@@ -135,26 +122,24 @@ export class AppService {
   // #region Private Methods
 
   @Trace()
-  private async loadConfigRoutes(): Promise<ConnectorRouteDTO[]> {
-    const routes =
-      this.configService.get<ConnectorRoute[]>(CONFIG_ROUTES) || [];
-    return routes.map((route) => {
-      return {
-        data: route,
-        form: undefined,
-      };
-    });
+  private async loadConfigRoutes(): Promise<ConnectorRoute[]> {
+    return this.configService.get<ConnectorRoute[]>(CONFIG_ROUTES) || [];
   }
 
   @Trace()
-  private async loadProjectRoutes(): Promise<ConnectorRouteDTO[]> {
-    return await this.formioSdkService.fetch({
+  private async loadProjectRoutes(): Promise<ConnectorRoute[]> {
+    const results = await this.formioSdkService.fetch<ConnectorRoute[]>({
       url: CONNECTOR_ROUTE,
     });
+    if (typeof results === 'string') {
+      this.logger.fatal(results);
+      throw new UnauthorizedException(results);
+    }
+    return results;
   }
 
   @Trace()
-  private async loadResourceRoutes(): Promise<ConnectorRouteDTO[]> {
+  private async loadResourceRoutes(): Promise<ConnectorRoute[]> {
     const forms = await this.formService.list();
     const routesForms = forms.filter((form) => {
       const tags = form.tags || [];
@@ -172,14 +157,15 @@ export class AppService {
         routes.forEach((route) => out.push(route));
       }),
     );
-    return out;
+    return out.map((item) => item.data);
   }
 
   @Trace()
   private async loadRoutes() {
     return [
+      ...(await this.loadConfigRoutes()),
       ...(await this.loadProjectRoutes()),
-      ...(await this.loadResourceRoutes()),
+      // ...(await this.loadResourceRoutes()),
     ];
   }
 

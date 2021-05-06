@@ -37,7 +37,7 @@ export class LicenseService {
 
   // #region Public Methods
 
-  @Trace({ level: 'warn' })
+  @Trace({ levels: { before: 'warn' } })
   public async build(): Promise<LicenseReportDTO[]> {
     const licenseList = (await this.formioSdkService.fetch({
       url: `/license`,
