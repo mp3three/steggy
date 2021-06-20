@@ -27,19 +27,32 @@
       "@automagical/contracts/home-assistant": [
         "libs/contracts/src/libs/home-assistant/index.ts"
       ],
+      "@automagical/documentation": ["libs/documentation/src/index.ts"],
+
+      "@automagical/contracts/action": ["libs/contracts/src/libs/action/index.ts"],
+      "@automagical/contracts/authentication": [
+        "libs/contracts/src/libs/authentication/index.ts"
+      ],
+      "@automagical/contracts/components": [
+        "libs/contracts/src/libs/components/index.ts"
+      ],
+      "@automagical/contracts/constants": ["libs/contracts/src/constants/index.ts"],
+      "@automagical/contracts/email": ["libs/contracts/src/libs/email/index.ts"],
+      "@automagical/contracts/fetch": ["libs/contracts/src/libs/fetch/index.ts"],
       "@automagical/contracts/formio-sdk": [
         "libs/contracts/src/libs/formio-sdk/index.ts"
-      ],
-      "@automagical/contracts/constants": [
-        "libs/contracts/src/constants/index.ts"
       ],
       "@automagical/contracts/licenses": [
         "libs/contracts/src/libs/licenses/index.ts"
       ],
-      "@automagical/documentation": ["libs/documentation/src/index.ts"],
       "@automagical/contracts/persistence": [
         "libs/contracts/src/libs/persistence/index.ts"
       ],
+      "@automagical/contracts/server": ["libs/contracts/src/libs/server/index.ts"],
+      "@automagical/contracts/validation": [
+        "libs/contracts/src/libs/validation/index.ts"
+      ],
+
       "@automagical/config": ["libs/config/src/index.ts"],
       "@automagical/persistence": ["libs/persistence/src/index.ts"],
       "@automagical/server": ["libs/server/src/index.ts"]

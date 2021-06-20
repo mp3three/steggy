@@ -9,6 +9,36 @@
       "projectType": "application",
       "prefix": "home-controller",
       "targets": {
+        "serve-pretty": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "parallel": false,
+            "commands": [
+              { "command": "nx serve home-controller | pino-pretty" }
+            ]
+          }
+        },
+        "serve-inspect-brk": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "parallel": false,
+            "commands": [
+              {
+                "command": "nx serve home-controller --inspect inspect-brk --port 33333 | pino-pretty"
+              }
+            ]
+          }
+        },"serve-inspect": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "parallel": false,
+            "commands": [
+              {
+                "command": "nx serve home-controller --inspect --port 33333 | pino-pretty"
+              }
+            ]
+          }
+        },
         "build-docker": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
@@ -20,26 +50,6 @@
               },
               {
                 "command": "docker save -o home-controller.tar automagical/home-controller:latest"
-              }
-            ]
-          }
-        },
-        "serve-pretty": {
-          "executor": "@nrwl/workspace:run-commands",
-          "options": {
-            "parallel": false,
-            "commands": [
-              { "command": "nx serve home-controller | pino-pretty" }
-            ]
-          }
-        },
-        "serve-inspect": {
-          "executor": "@nrwl/workspace:run-commands",
-          "options": {
-            "parallel": false,
-            "commands": [
-              {
-                "command": "nx serve home-controller --inspect inspect-brk --port 33333 | pino-pretty"
               }
             ]
           }

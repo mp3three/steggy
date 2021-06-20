@@ -1,4 +1,3 @@
-import { SaveActionService } from '@automagical/action';
 import { ActionCRUD, FormCRUD } from '@automagical/contracts';
 import {
   CREATE_FORM,
@@ -29,21 +28,11 @@ export class PortalEventsService {
     @Inject(FormCRUD)
     private readonly formService: FormCRUD,
     private readonly eventEmitter: EventEmitter2,
-    private readonly saveActionService: SaveActionService,
   ) {}
 
   // #endregion Constructors
 
   // #region Private Methods
-
-  @OnEvent(CREATE_FORM)
-  @Trace()
-  /**
-   * Insert a Save Submission action (using default settings) into form on create
-   */
-  private async onFormCreate(form: FormDTO) {
-    await this.actionService.create(this.saveActionService.info.defaults, form);
-  }
 
   @OnEvent(DELETE_FORM)
   @Trace()

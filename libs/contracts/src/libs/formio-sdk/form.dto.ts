@@ -1,6 +1,5 @@
 import { DBFake } from '@automagical/contracts';
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
-import { Utils } from '@automagical/wrapper';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -58,28 +57,6 @@ export class FormDTO extends DBFake {
       type: faker.random.arrayElement(Object.values(FORM_TYPES)),
       ...mixin,
     };
-  }
-
-  public static flattenComponents(form: FormDTO): FlattenedComponents {
-    if (form[FLATTENED]) {
-      return form[FLATTENED];
-    }
-    const flattened = Utils.flattenComponents(form.components, true);
-    const out: FlattenedComponents = new Set();
-    Object.keys(flattened).forEach((path) => {
-      const parts = path.split('.');
-      const temporary: FlatComponent = {
-        component: flattened[parts.join('.')],
-        path,
-      };
-      if (parts.length > 1) {
-        parts.pop();
-        temporary.parent = flattened[parts.join('.')];
-      }
-      out.add(temporary);
-    });
-    form[FLATTENED] = out;
-    return out;
   }
 
   // #endregion Public Static Methods

@@ -1,5 +1,5 @@
 import { LIB_FETCH } from '@automagical/contracts/constants';
-import { FetchArguments } from '@automagical/contracts/fetch';
+import type { FetchWith } from '@automagical/contracts/fetch';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
@@ -29,7 +29,7 @@ export class FetchService extends BaseFetch {
   // #region Public Methods
 
   @Trace()
-  public async fetch<T>(arguments_: Partial<FetchArguments>): Promise<T> {
+  public async fetch<T>(arguments_: FetchWith): Promise<T> {
     const url: string = await this.fetchCreateUrl(arguments_);
     const requestInit = await this.fetchCreateMeta(arguments_);
     try {

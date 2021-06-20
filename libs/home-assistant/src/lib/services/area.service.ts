@@ -3,6 +3,7 @@ import {
   HA_SOCKET_READY,
   LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
+import { HTTP_METHODS } from '@automagical/contracts/fetch';
 import {
   AreaFlags,
   domain,
@@ -14,7 +15,7 @@ import {
   PicoStates,
   RokuInputs,
 } from '@automagical/contracts/home-assistant';
-import { FetchService, HTTP_Methods } from '@automagical/fetch';
+import { FetchService } from '@automagical/fetch';
 import { InjectLogger, sleep, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -114,8 +115,9 @@ export class AreaService {
         return;
       }
       if (!areaId && entity.device_id) {
-        areaId = devices.find((device) => device.id === entity.device_id)
-          .area_id;
+        areaId = devices.find(
+          (device) => device.id === entity.device_id,
+        ).area_id;
       }
       if (!areaId) {
         return;
@@ -283,7 +285,7 @@ export class AreaService {
    * I think it might be because it's sleeping or something?
    * The double request method seems to work around
    */
-  @Trace({ level: 'debug' })
+  @Trace()
   public async setRoku(
     channel: RokuInputs | string,
     roku: HomeAssistantRoomRokuDTO,
@@ -298,14 +300,14 @@ export class AreaService {
     if (channel === 'off') {
       await this.fetchService.fetch({
         baseUrl: roku.host,
-        method: HTTP_Methods.POST,
+        method: HTTP_METHODS.post,
         process: false,
         url: '/keypress/PowerOff',
       });
       await sleep(100);
       return await this.fetchService.fetch({
         baseUrl: roku.host,
-        method: HTTP_Methods.POST,
+        method: HTTP_METHODS.post,
         process: false,
         url: '/keypress/PowerOff',
       });
@@ -316,14 +318,14 @@ export class AreaService {
     }
     await this.fetchService.fetch({
       baseUrl: roku.host,
-      method: HTTP_Methods.POST,
+      method: HTTP_METHODS.post,
       process: false,
       url: `/launch/${input}`,
     });
     await sleep(100);
     return await this.fetchService.fetch({
       baseUrl: roku.host,
-      method: HTTP_Methods.POST,
+      method: HTTP_METHODS.post,
       process: false,
       url: `/launch/${input}`,
     });
@@ -344,7 +346,7 @@ export class AreaService {
 
   // @Cron('*/5 * * * * *')
   @Cron('0 */5 * * * *')
-  @Trace({ level: 'info', omitArgs: true })
+  @Trace({ omitArgs: true })
   private async circadianLightingUpdate() {
     this.AREA_MAP.forEach((entities) => {
       entities.forEach(async (entityId) => {

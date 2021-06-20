@@ -28,7 +28,6 @@ import { load } from 'js-yaml';
 import { PinoLogger } from 'nestjs-pino';
 import { join } from 'path';
 
-import { ASSETS_PATH } from '../../environments/environment';
 import {
   LOFT_MONITOR,
   MobileDevice,
@@ -53,7 +52,7 @@ type MilageHistory = {
   state: string;
 };
 @Injectable()
-export class AppService {
+export class ApplicationService {
   // #region Object Properties
 
   // private logger = Logger(AppService);
@@ -68,7 +67,7 @@ export class AppService {
     private readonly entityService: EntityService,
     private readonly socketService: SocketService,
     private readonly roomService: AreaService,
-    @InjectLogger(AppService, APP_HOME_CONTROLLER)
+    @InjectLogger(ApplicationService, APP_HOME_CONTROLLER)
     protected readonly logger: PinoLogger,
     private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
@@ -124,10 +123,12 @@ export class AppService {
     if (cachedValue) {
       return cachedValue;
     }
-    const root = this.configService.get(ASSETS_PATH);
-    const text = readFileSync(join(root, `${room}.yaml`), 'utf-8');
-    const config = load(text) as HomeAssistantRoomConfigDTO;
-    return this.cacheService.set(cacheName, config);
+    // const root = this.configService.get(ASSETS_PATH);
+    // const text = readFileSync(join(root, `${room}.yaml`), 'utf-8');
+    // const config = load(text) as HomeAssistantRoomConfigDTO;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return this.cacheService.set(cacheName, {});
   }
 
   /**

@@ -1,0 +1,29 @@
+---
+version: "2.1"
+
+services:
+  # home-controller:
+  #   image: automagical/home-controller:latest
+  #   container_name: home-controller
+  #   volumes:
+  #     # Sync the server time with the container time
+  #     - /usr/share/zoneinfo/US/Central:/etc/localtime
+  #     - /etc/timezone:/etc/timezone
+  #   restart: unless-stopped
+  #   ports:
+  #     - 10319:3000
+
+  # redis:
+  #   container_name: home-controller_redis
+  #   image: redis
+    # restart: unless-stopped
+
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto:2.0
+    restart: unless-stopped
+    ports:
+      - 1883:1883
+      - 9001:9001
+    volumes:
+      - ~/.config/mosquitto:/mosquitto

@@ -9,6 +9,7 @@ import {
   LIB_HOME_ASSISTANT,
   TOKEN,
 } from '@automagical/contracts/constants';
+import type { FetchWith } from '@automagical/contracts/fetch';
 import {
   AreaDTO,
   DeviceListItemDTO,
@@ -22,7 +23,7 @@ import {
   SendSocketMessageDTO,
   SocketMessageDTO,
 } from '@automagical/contracts/home-assistant';
-import { FetchArguments, FetchService } from '@automagical/fetch';
+import { FetchService } from '@automagical/fetch';
 import { InjectLogger, sleep, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -93,12 +94,10 @@ export class SocketService {
    * Wrapper to set baseUrl
    */
   @Trace()
-  public fetch<T>(arguments_: Partial<FetchArguments>): Promise<T> {
+  public fetch<T>(arguments_: FetchWith): Promise<T> {
     return this.fetchService.fetch<T>({
       baseUrl: this.configService.get(BASE_URL),
-      headers: {
-        Authorization: `Bearer ${this.configService.get(TOKEN)}`,
-      },
+      bearer: this.configService.get(TOKEN),
       ...arguments_,
     });
   }
@@ -108,7 +107,7 @@ export class SocketService {
     T extends Record<never, unknown> = Record<
       'global' | 'local',
       Record<string, string>
-    >
+    >,
   >(entityId: string): Promise<T> {
     return await this.fetch<T>({
       url: `/api/config/customize/config/${entityId}`,
@@ -329,6 +328,11 @@ export class SocketService {
     }
   }
 
+  @Trace()
+  private async onModuleInit(): Promise<void> {
+    await this.initConnection();
+  }
+
   /**
    * Send a message to HomeAssistant. Optionally, wait for a reply to come back & return
    */
@@ -369,10 +373,6 @@ export class SocketService {
     }
     // TODO Add a timer to identify calls that don't receive replies
     return new Promise((done) => this.waitingCallback.set(counter, done));
-  }
-
-  private async onModuleInit(): Promise<void> {
-    await this.initConnection();
   }
 
   // #endregion Private Methods

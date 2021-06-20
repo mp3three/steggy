@@ -7,15 +7,6 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 
-import {
-  ActionController,
-  FormController,
-  FormStorageController,
-  GoogleSheetsController,
-  ProjectController,
-  RoleController,
-  SubmissionController,
-} from './controllers';
 import { ValidateParametersGuard } from './guards';
 import { InitMiddleware } from './middleware';
 import { UrlRewriteMiddleware } from './middleware/url-rewrite.middleware';
@@ -39,15 +30,6 @@ export class ServerModule {
 
   public static withControllers(CRUD_WIRING: Provider[]): DynamicModule {
     return {
-      controllers: [
-        RoleController,
-        ActionController,
-        FormController,
-        ProjectController,
-        FormStorageController,
-        GoogleSheetsController,
-        SubmissionController,
-      ],
       exports: [UrlRewriteMiddleware],
       imports: [
         CacheModule.register(),

@@ -65,6 +65,10 @@ export type FetchArguments = FetchAuth & {
    * URL to send request to
    */
   url: string;
+  /**
+   * Outgoing bearer auth
+   */
+  bearer?: string;
 };
 
 /**

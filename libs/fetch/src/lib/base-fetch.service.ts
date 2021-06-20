@@ -1,5 +1,5 @@
+import type { FetchWith } from '@automagical/contracts/fetch';
 import {
-  FetchArguments,
   HTTP_METHODS,
   ResultControlDTO,
   TemporaryAuthToken,
@@ -8,8 +8,6 @@ import { controlToQuery, Trace } from '@automagical/utilities';
 import { PinoLogger } from 'nestjs-pino';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
-type FetchWith<T extends Record<never, string> = Record<never, string>> =
-  Partial<FetchArguments> & T;
 export class BaseFetch {
   // #region Object Properties
 
@@ -95,7 +93,9 @@ export class BaseFetch {
       // Required header
       headers['Content-Type'] = 'application/json';
     }
-
+    if (arguments_.bearer) {
+      headers['authorization'] = `Bearer ${arguments_.bearer}`;
+    }
     if (arguments_.jwtToken) {
       headers['x-jwt-token'] = arguments_.jwtToken;
     }
