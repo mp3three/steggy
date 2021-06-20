@@ -11,6 +11,7 @@ const cast = (field: string, value) => {
   return value;
 };
 
+/* eslint-disable security/detect-non-literal-regexp, unicorn/no-null */
 export const indexQuery = (
   query: Map<string, string>,
 ): Map<string, unknown> => {
@@ -26,21 +27,13 @@ export const indexQuery = (
         temporary = value.match(new RegExp('(?:/([^/]+))', 'gm'));
         try {
           out.set(name, {
-            
-            
             $options: temporary[2] || 'i',
-            // Users gotta user input
-// eslint-disable-next-line security/detect-non-literal-regexp
-$regex: new RegExp(temporary[1]),
+            $regex: new RegExp(temporary[1]),
           });
         } catch {
           out.set(name, {
-            
-            
             $options: temporary[2] || 'i',
-            // Unclear what a different falsy value will do
-// eslint-disable-next-line unicorn/no-null
-$regex: null,
+            $regex: null,
           });
         }
         break;
@@ -65,6 +58,7 @@ $regex: null,
   });
   return out;
 };
+/* eslint-enable security/detect-non-literal-regexp, unicorn/no-null */
 
 export const indexOptions = (
   query: Map<string, string>,

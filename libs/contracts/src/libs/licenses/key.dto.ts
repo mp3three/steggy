@@ -1,6 +1,6 @@
-import { IsEnum, IsString } from '@automagical/validation';
+import { IsEnum, IsString } from 'class-validator';
 
-import { LicenseScopes } from './types';
+import { LicenseScopes } from './scopes';
 
 export class LicenseKeyDTO {
   // #region Object Properties

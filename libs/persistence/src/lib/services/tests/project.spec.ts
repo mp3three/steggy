@@ -1,36 +1,29 @@
 import { ConfigModule } from '@automagical/config';
 import { ProjectDTO } from '@automagical/contracts/formio-sdk';
-import { ProjectService } from '@automagical/persistence';
+import { ProjectPersistenceMongoService } from '@automagical/persistence';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import faker from 'faker';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { LoggerModule } from 'nestjs-pino';
 import pino from 'pino';
 
 import { PersistenceModule } from '../../persistence.module';
 
 describe('project', () => {
-  let projectService: ProjectService;
+  let projectService: ProjectPersistenceMongoService;
   const logger = pino();
-  let mongod: MongoMemoryServer;
 
   beforeAll(async () => {
-    mongod = new MongoMemoryServer();
     const moduleReference = await Test.createTestingModule({
       imports: [
         ConfigModule.register('jest-test'),
-        PersistenceModule.registerMongoose(),
+        PersistenceModule.forFeature(),
         LoggerModule.forRoot(),
-        PersistenceModule.mongooseRoot(await mongod.getUri()),
+        PersistenceModule.forRoot(process.env.MONGO),
       ],
       providers: [ConfigService],
     }).compile();
-    projectService = moduleReference.get(ProjectService);
-  });
-
-  afterAll(async () => {
-    await mongod.stop();
+    projectService = moduleReference.get(ProjectPersistenceMongoService);
   });
 
   describe('create', () => {
@@ -77,7 +70,9 @@ describe('project', () => {
       await projectService.create(projects[0]);
       await projectService.create(projects[1]);
       await projectService.create(projects[2]);
-      const results = await projectService.findMany({ stageTitle });
+      const results = await projectService.findMany(
+        new Map(Object.entries({ stageTitle })),
+      );
       expect(results).toHaveLength(3);
     });
   });

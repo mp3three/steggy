@@ -1,7 +1,11 @@
-import { validate, ValidationError } from '@automagical/validation';
+import { validate, ValidationError } from 'class-validator';
 
 export class CanFake {
   // #region Public Static Methods
+
+  public static clone<T extends CanFake = CanFake>(target: T): T {
+    return JSON.parse(JSON.stringify(target));
+  }
 
   public static fake(): Record<never, unknown> {
     return {};

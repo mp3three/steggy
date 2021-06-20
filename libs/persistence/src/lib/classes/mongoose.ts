@@ -1,8 +1,103 @@
-import { Injectable } from '@nestjs/common';
+import {
+  FILTER_OPERATIONS,
+  FilterValueType,
+  ResultControlDTO,
+} from '@automagical/contracts/fetch';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import dayjs from 'dayjs';
 import mongoose from 'mongoose';
 
 @Injectable()
 export class MongooseConnection {
+  // #region Public Static Methods
+
+  /* eslint-disable security/detect-non-literal-regexp, unicorn/no-null, radar/cognitive-complexity */
+  /**
+   * Convert standard filter query params into a mongo search object
+   *
+   * TODO: Break up function to reduce complexity
+   */
+  public static filtersToMongoQuery(
+    query: ResultControlDTO,
+  ): Map<string, unknown> {
+    const out = new Map<string, unknown>();
+
+    (query.filters ?? new Set()).forEach((filter) => {
+      if (typeof filter.exists !== 'undefined') {
+        out.set(
+          `$${filter.field}`,
+          ['true', '1'].includes(filter.value.toString()),
+        );
+        return;
+      }
+      filter.operation ??= FILTER_OPERATIONS.eq;
+      switch (filter.operation) {
+        case 'regex':
+          if (filter.value instanceof RegExp) {
+            return out.set(filter.field, {
+              $regex: filter.value,
+            });
+          }
+          const regexParts = (filter.value as string).match(
+            new RegExp('(?:/([^/]+))', 'gm'),
+          );
+          try {
+            return out.set(filter.field, {
+              $options: regexParts[2] || 'i',
+              $regex: new RegExp(regexParts[1]),
+            });
+          } catch {
+            // Invalid regex?
+            return out.set(filter.field, {
+              $options: regexParts[2] || 'i',
+              $regex: null,
+            });
+          }
+        case 'elem':
+          return out.set(filter.field, {
+            $elemMatch: filter.value,
+          });
+        case 'in':
+        case 'nin':
+          const value: FilterValueType[] = Array.isArray(filter.value)
+            ? filter.value
+            : filter.value.toString().split(',');
+          return out.set(filter.field, {
+            [`$${filter.operation}`]: value.map((v) =>
+              this.cast(filter.field, v),
+            ),
+          });
+        case 'gte':
+        case 'lte':
+        case 'gt':
+        case 'lt':
+        case 'eq':
+        case 'ne':
+          return out.set(filter.field, this.cast(filter.field, filter.value));
+        default:
+          throw new BadRequestException(
+            `Unknown operator: ${filter.operation}`,
+          );
+      }
+    });
+    return out;
+  }
+
+  // #endregion Public Static Methods
+
+  // #region Private Static Methods
+
+  private static cast(field: string, value) {
+    switch (field) {
+      case 'created':
+      case 'updated':
+        return dayjs(value).toDate();
+    }
+    return value;
+  }
+
+  // #endregion Private Static Methods
+
   // #region Object Properties
 
   private done: (argument) => void;
@@ -11,6 +106,7 @@ export class MongooseConnection {
 
   // #region Public Methods
 
+  /* eslint-enable security/detect-non-literal-regexp, unicorn/no-null */
   public async onModuleBootstrap(): Promise<void> {
     return new Promise((done) => {
       this.done = done;

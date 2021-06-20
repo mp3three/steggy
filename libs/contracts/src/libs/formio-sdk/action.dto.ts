@@ -1,18 +1,20 @@
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
+import { Prop, Schema } from '@nestjs/mongoose';
 import {
   IsEnum,
   IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
-} from '@automagical/validation';
-import { Prop, Schema } from '@nestjs/mongoose';
+} from 'class-validator';
 import faker from 'faker';
 import { Schema as MongooseSchema, Types } from 'mongoose';
 
+import { ACTION_METHOD } from '../server';
 import { ActionConditionDTO, BaseOmitProperties } from '.';
 import { BaseDTO } from './base.dto';
-import { ACTION_NAMES, HANDLERS, HTTP_METHODS } from './constants';
+import { ACTION_NAMES, HANDLERS } from './constants';
+import { TransformObjectId } from './transform-object-id.decorator';
 
 @Schema({
   collection: MONGO_COLLECTIONS.actions,
@@ -22,7 +24,7 @@ import { ACTION_NAMES, HANDLERS, HTTP_METHODS } from './constants';
   },
 })
 export class ActionDTO<
-  SETTINGS extends Record<never, string> = Record<never, string>
+  SETTINGS extends Record<never, string> = Record<never, string>,
 > extends BaseDTO {
   // #region Public Static Methods
 
@@ -35,7 +37,7 @@ export class ActionDTO<
       form: Types.ObjectId().toHexString(),
       handler: [faker.random.arrayElement(Object.values(HANDLERS))],
       machineName: faker.lorem.slug(3).split('-').join(':'),
-      method: [faker.random.arrayElement(Object.values(HTTP_METHODS))],
+      method: [faker.random.arrayElement(Object.values(ACTION_METHOD))],
       name: faker.random.arrayElement(Object.values(ACTION_NAMES)),
       title: faker.lorem.word(8),
       ...mixin,
@@ -68,11 +70,11 @@ export class ActionDTO<
   /**
    * Trigger action on methods
    */
-  @IsEnum(HTTP_METHODS, { each: true })
+  @IsEnum(ACTION_METHOD, { each: true })
   @Prop({
     required: true,
   })
-  public method: HTTP_METHODS[];
+  public method: ACTION_METHOD[];
   @IsNumber()
   @IsOptional()
   @Prop({ default: null })
@@ -95,10 +97,8 @@ export class ActionDTO<
     required: true,
     type: MongooseSchema.Types.ObjectId,
   })
+  @TransformObjectId()
   public form: string;
-  @IsString()
-  @Prop()
-  public machineName: string;
   /**
    * User understandable title
    */
@@ -108,6 +108,10 @@ export class ActionDTO<
     required: true,
   })
   public title: string;
+  @IsString()
+  @Prop()
+  @IsOptional()
+  public machineName?: string;
   /**
    * Conditionals to prevent running the action from running
    */

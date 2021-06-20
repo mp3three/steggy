@@ -1,15 +1,11 @@
+import { DBFake } from '@automagical/contracts';
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
-import {
-  IsDate,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
+import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Schema as MongooseSchema, Types } from 'mongoose';
 
-import { DBFake } from '../../classes';
 import { BaseOmitProperties } from '.';
+import { TransformObjectId } from './transform-object-id.decorator';
 
 @Schema({
   collection: MONGO_COLLECTIONS.sessions,
@@ -58,6 +54,7 @@ export class SessionDTO extends DBFake {
     ref: MONGO_COLLECTIONS.projects,
     type: MongooseSchema.Types.ObjectId,
   })
+  @TransformObjectId()
   public project?: string;
   @IsString()
   @Prop({
@@ -65,6 +62,7 @@ export class SessionDTO extends DBFake {
     ref: MONGO_COLLECTIONS.forms,
     required: true,
   })
+  @TransformObjectId()
   public form: string;
   @IsString()
   @Prop({
@@ -72,6 +70,7 @@ export class SessionDTO extends DBFake {
     ref: MONGO_COLLECTIONS.submissions,
     required: true,
   })
+  @TransformObjectId()
   public submission: string;
 
   // #endregion Object Properties

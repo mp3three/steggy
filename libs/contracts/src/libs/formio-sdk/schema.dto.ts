@@ -1,13 +1,13 @@
 import { DBFake } from '@automagical/contracts';
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
+import { Prop, Schema } from '@nestjs/mongoose';
 import {
   IsBoolean,
   IsNumber,
   IsOptional,
   IsSemVer,
   IsString,
-} from '@automagical/validation';
-import { Prop, Schema } from '@nestjs/mongoose';
+} from 'class-validator';
 import faker from 'faker';
 
 import { BaseOmitProperties } from '.';
@@ -45,7 +45,7 @@ export class SchemaDTO extends DBFake {
   @Prop({
     default: false,
   })
-  public isLocked!: boolean;
+  public isLocked?: boolean;
   @IsNumber()
   @IsOptional()
   @Prop({ default: null })

@@ -1,36 +1,29 @@
 import { ConfigModule } from '@automagical/config';
 import { ActionDTO } from '@automagical/contracts/formio-sdk';
-import { ActionService } from '@automagical/persistence';
+import { ActionPersistenceMongoService } from '@automagical/persistence';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import faker from 'faker';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { LoggerModule } from 'nestjs-pino';
 import pino from 'pino';
 
 import { PersistenceModule } from '../../persistence.module';
 
 describe('action', () => {
-  let actionService: ActionService;
+  let actionService: ActionPersistenceMongoService;
   const logger = pino();
-  let mongod: MongoMemoryServer;
 
   beforeAll(async () => {
-    mongod = new MongoMemoryServer();
     const moduleReference = await Test.createTestingModule({
       imports: [
         ConfigModule.register('jest-test'),
-        PersistenceModule.registerMongoose(),
+        PersistenceModule.forFeature(),
         LoggerModule.forRoot(),
-        PersistenceModule.mongooseRoot(await mongod.getUri()),
+        PersistenceModule.forRoot(process.env.MONGO),
       ],
       providers: [ConfigService],
     }).compile();
-    actionService = moduleReference.get(ActionService);
-  });
-
-  afterAll(async () => {
-    await mongod.stop();
+    actionService = moduleReference.get(ActionPersistenceMongoService);
   });
 
   describe('create', () => {

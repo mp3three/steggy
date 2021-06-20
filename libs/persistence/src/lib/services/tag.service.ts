@@ -1,6 +1,6 @@
 import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
 import { TagDTO } from '@automagical/contracts/formio-sdk';
-import { InjectLogger, InjectMongo, Trace } from '@automagical/utilities';
+import { InjectLogger, InjectMongo, ToClass, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
@@ -8,11 +8,11 @@ import { PinoLogger } from 'nestjs-pino';
 import { TagDocument } from '../schema';
 
 @Injectable()
-export class TagService {
+export class TagPersistenceMongoService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(TagService, LIB_PERSISTENCE)
+    @InjectLogger(TagPersistenceMongoService, LIB_PERSISTENCE)
     private readonly logger: PinoLogger,
     @InjectMongo(TagDTO)
     private readonly myRoleModel: Model<TagDocument>,
@@ -23,15 +23,7 @@ export class TagService {
   // #region Public Methods
 
   @Trace()
-  public async create(form: TagDTO): Promise<TagDTO> {
-    return await this.myRoleModel.create(form);
-  }
-
-  @Trace()
-  public async delete(role: TagDTO | string): Promise<boolean> {
-    if (typeof role === 'object') {
-      role = role._id;
-    }
+  public async delete(role: TagDTO): Promise<boolean> {
     const result = await this.myRoleModel
       .updateOne(
         { _id: role },
@@ -41,29 +33,6 @@ export class TagService {
       )
       .exec();
     return result.ok === 1;
-  }
-
-  @Trace()
-  public async findById(role: TagDTO | string): Promise<TagDTO> {
-    if (typeof role === 'object') {
-      role = role._id;
-    }
-    return await this.myRoleModel.findOne({
-      _id: role,
-      deleted: null,
-    });
-  }
-
-  @Trace()
-  public async findMany(
-    query: Record<string, unknown> = {},
-  ): Promise<TagDTO[]> {
-    return await this.myRoleModel
-      .find({
-        deleted: null,
-        ...query,
-      })
-      .exec();
   }
 
   @Trace()
@@ -81,14 +50,51 @@ export class TagService {
   public async update(
     source: TagDTO | string,
     update: Omit<Partial<TagDTO>, '_id' | 'created'>,
-  ): Promise<boolean> {
+  ): Promise<TagDTO> {
     if (typeof source === 'object') {
       source = source._id;
     }
     const result = await this.myRoleModel
       .updateOne({ _id: source, deleted: null }, update)
       .exec();
-    return result.ok === 1;
+    if (result.ok === 1) {
+      return await this.findById(source);
+    }
+  }
+
+  @Trace()
+  @ToClass(TagDTO)
+  public async create(form: TagDTO): Promise<TagDTO> {
+    return (await this.myRoleModel.create(form)).toObject();
+  }
+
+  @Trace()
+  @ToClass(TagDTO)
+  public async findById(role: TagDTO | string): Promise<TagDTO> {
+    if (typeof role === 'object') {
+      role = role._id;
+    }
+    return await this.myRoleModel
+      .findOne({
+        _id: role,
+        deleted: null,
+      })
+      .lean()
+      .exec();
+  }
+
+  @Trace()
+  @ToClass(TagDTO)
+  public async findMany(
+    query: Record<string, unknown> = {},
+  ): Promise<TagDTO[]> {
+    return await this.myRoleModel
+      .find({
+        deleted: null,
+        ...query,
+      })
+      .lean()
+      .exec();
   }
 
   // #endregion Public Methods

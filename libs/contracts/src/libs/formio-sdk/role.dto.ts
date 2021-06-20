@@ -1,12 +1,8 @@
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
-import {
-  IsBoolean,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 import faker from 'faker';
+import { Schema as MongooseSchema } from 'mongoose';
 
 import { DBFake } from '../../classes';
 import { BaseOmitProperties } from '.';
@@ -58,6 +54,13 @@ export class RoleDTO extends DBFake {
   @IsOptional()
   @Prop()
   public machineName?: string;
+  @IsString()
+  @Prop({
+    index: true,
+    ref: MONGO_COLLECTIONS.projects,
+    type: MongooseSchema.Types.ObjectId,
+  })
+  public project?: string;
   @IsString()
   @Prop({
     index: true,

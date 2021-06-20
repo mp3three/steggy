@@ -1,44 +1,60 @@
+import { ProjectCRUD } from '@automagical/contracts';
 import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
-import { ProjectDTO, UserDTO } from '@automagical/contracts/formio-sdk';
-import { InjectLogger, InjectMongo, Trace } from '@automagical/utilities';
+import { ResultControlDTO } from '@automagical/contracts/fetch';
+import { ProjectDTO } from '@automagical/contracts/formio-sdk';
+import { InjectLogger, InjectMongo, ToClass, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
 
 import { ProjectDocument } from '../schema';
+import { BaseMongoService } from './base-mongo.service';
+import { EncryptionService } from './encryption.service';
 
 @Injectable()
-export class ProjectService {
+export class ProjectPersistenceMongoService
+  extends BaseMongoService
+  implements ProjectCRUD
+{
   // #region Constructors
 
   constructor(
-    @InjectLogger(ProjectService, LIB_PERSISTENCE)
+    @InjectLogger(ProjectPersistenceMongoService, LIB_PERSISTENCE)
     private readonly logger: PinoLogger,
     @InjectMongo(ProjectDTO)
     private readonly projectModel: Model<ProjectDocument>,
-  ) {}
+    private readonly encryptionService: EncryptionService,
+  ) {
+    super();
+  }
 
   // #endregion Constructors
 
   // #region Public Methods
 
   @Trace()
-  public async create(
-    project: ProjectDTO,
-    owner?: UserDTO,
-  ): Promise<ProjectDTO> {
-    project.owner = project.owner || owner?._id;
-    return await this.projectModel.create(project);
+  public decrypt(
+    project: ProjectDTO | ProjectDTO[],
+  ): ProjectDTO | ProjectDTO[] {
+    if (Array.isArray(project)) {
+      return project.map((project) => this.decrypt(project) as ProjectDTO);
+    }
+    if (!project.settings_encrypted) {
+      return project;
+    }
+    project = {
+      ...project,
+      settings: this.encryptionService.decrypt(project.settings_encrypted),
+    };
+    delete project.settings_encrypted;
+    return project;
   }
 
   @Trace()
   public async delete(project: ProjectDTO | string): Promise<boolean> {
-    if (typeof project === 'object') {
-      project = project._id;
-    }
     const result = await this.projectModel
       .updateOne(
-        { _id: project },
+        this.merge(typeof project === 'string' ? project : project._id),
         {
           deleted: Date.now(),
         },
@@ -48,71 +64,93 @@ export class ProjectService {
   }
 
   @Trace()
-  public async findById(project: ProjectDTO | string): Promise<ProjectDTO> {
-    if (typeof project === 'object') {
-      project = project._id;
+  public encrypt(project: ProjectDTO): ProjectDTO {
+    if (!project.settings) {
+      return project;
     }
-    return await this.projectModel.findOne({
-      _id: project,
-      deleted: null,
-    });
+    project = {
+      ...project,
+      settings_encrypted: this.encryptionService.encrypt(project.settings),
+    };
+    delete project.settings;
+    return project;
   }
 
   @Trace()
-  public async findByName(project: ProjectDTO | string): Promise<ProjectDTO> {
-    if (typeof project === 'object') {
-      project = project.name;
-    }
-    return await this.projectModel.findOne({
-      deleted: null,
-      name: project,
-    });
-  }
-
-  @Trace()
-  public async findMany(
-    query: Record<string, unknown> = {},
-  ): Promise<ProjectDTO[]> {
-    return await this.projectModel
-      .find({
-        deleted: null,
-        ...query,
-      })
-      .exec();
-  }
-
-  @Trace()
-  public async hardDelete(project: ProjectDTO | string): Promise<boolean> {
-    if (typeof project === 'object') {
-      project = project._id;
-    }
-    const result = await this.projectModel.deleteOne({
-      _id: project,
-    });
-    return result.ok === 1;
-  }
-
-  @Trace()
-  public async update(
-    source: ProjectDTO | string,
-    update: Omit<Partial<ProjectDTO>, '_id' | 'created'>,
-  ): Promise<boolean> {
-    if (typeof source === 'object') {
-      source = source._id;
-    }
+  public async update(project: ProjectDTO): Promise<ProjectDTO> {
     const result = await this.projectModel
-      .updateOne({ _id: source, deleted: null }, update)
+      .updateOne(this.merge(project._id), this.encrypt(project))
       .exec();
-    return result.ok === 1;
+    if (result.ok === 1) {
+      return await this.findById(project._id);
+    }
+  }
+
+  @Trace()
+  @ToClass(ProjectDTO)
+  public async create(project: ProjectDTO): Promise<ProjectDTO> {
+    return (await this.projectModel.create(this.encrypt(project))).toObject();
+  }
+
+  @Trace()
+  @ToClass(ProjectDTO)
+  public async findById(
+    project: string,
+    control?: ResultControlDTO,
+  ): Promise<ProjectDTO> {
+    const found = await this.modifyQuery(
+      control,
+      this.projectModel.findOne(this.merge(control, project)),
+    )
+      .lean()
+      .exec();
+    if (!found) {
+      return found;
+    }
+    return this.decrypt(found) as ProjectDTO;
+  }
+
+  @Trace()
+  @ToClass(ProjectDTO)
+  public async findByName(
+    project: string,
+    control?: ResultControlDTO,
+  ): Promise<ProjectDTO> {
+    const found = await this.modifyQuery(
+      control,
+      this.projectModel.findOne(
+        this.merge(
+          {
+            filters: new Set([
+              {
+                field: 'name',
+                value: project,
+              },
+            ]),
+          },
+          undefined,
+          undefined,
+          control,
+        ),
+      ),
+    )
+      .lean()
+      .exec();
+    if (!found) {
+      return found;
+    }
+    return this.decrypt(found) as ProjectDTO;
+  }
+
+  @Trace()
+  @ToClass(ProjectDTO)
+  public async findMany(query: ResultControlDTO = {}): Promise<ProjectDTO[]> {
+    return this.decrypt(
+      await this.modifyQuery(query, this.projectModel.find(this.merge(query)))
+        .lean()
+        .exec(),
+    ) as ProjectDTO[];
   }
 
   // #endregion Public Methods
-
-  // #region Private Methods
-
-  private async truncate() {
-    await this.projectModel.deleteMany();
-  }
-
-  // #endregion Private Methods
 }

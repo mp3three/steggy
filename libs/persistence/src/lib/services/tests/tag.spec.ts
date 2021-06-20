@@ -3,34 +3,27 @@ import { TagDTO } from '@automagical/contracts/formio-sdk';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import faker from 'faker';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { LoggerModule } from 'nestjs-pino';
 import pino from 'pino';
 
 import { PersistenceModule } from '../../persistence.module';
-import { TagService } from '../tag.service';
+import { TagPersistenceMongoService } from '../tag.service';
 
 describe('tag', () => {
-  let tagService: TagService;
+  let tagService: TagPersistenceMongoService;
   const logger = pino();
-  let mongod: MongoMemoryServer;
 
   beforeAll(async () => {
-    mongod = new MongoMemoryServer();
     const moduleReference = await Test.createTestingModule({
       imports: [
         ConfigModule.register('jest-test'),
-        PersistenceModule.registerMongoose(),
+        PersistenceModule.forFeature(),
         LoggerModule.forRoot(),
-        PersistenceModule.mongooseRoot(await mongod.getUri()),
+        PersistenceModule.forRoot(process.env.MONGO),
       ],
       providers: [ConfigService],
     }).compile();
-    tagService = moduleReference.get(TagService);
-  });
-
-  afterAll(async () => {
-    await mongod.stop();
+    tagService = moduleReference.get(TagPersistenceMongoService);
   });
 
   describe('create', () => {

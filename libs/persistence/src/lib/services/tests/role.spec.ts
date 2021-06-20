@@ -3,34 +3,27 @@ import { RoleDTO } from '@automagical/contracts/formio-sdk';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import faker from 'faker';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { LoggerModule } from 'nestjs-pino';
 import pino from 'pino';
 
 import { PersistenceModule } from '../../persistence.module';
-import { RoleService } from '../role.service';
+import { RolePersistenceMongoService } from '../role.service';
 
 describe('role', () => {
-  let roleService: RoleService;
+  let roleService: RolePersistenceMongoService;
   const logger = pino();
-  let mongod: MongoMemoryServer;
 
   beforeAll(async () => {
-    mongod = new MongoMemoryServer();
     const moduleReference = await Test.createTestingModule({
       imports: [
         ConfigModule.register('jest-test'),
-        PersistenceModule.registerMongoose(),
+        PersistenceModule.forFeature(),
         LoggerModule.forRoot(),
-        PersistenceModule.mongooseRoot(await mongod.getUri()),
+        PersistenceModule.forRoot(process.env.MONGO),
       ],
       providers: [ConfigService],
     }).compile();
-    roleService = moduleReference.get(RoleService);
-  });
-
-  afterAll(async () => {
-    await mongod.stop();
+    roleService = moduleReference.get(RolePersistenceMongoService);
   });
 
   describe('create', () => {

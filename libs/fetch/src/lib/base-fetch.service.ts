@@ -1,13 +1,19 @@
-import { Trace } from '@automagical/utilities';
-import dayjs from 'dayjs';
+import {
+  FetchArguments,
+  HTTP_METHODS,
+  ResultControlDTO,
+  TemporaryAuthToken,
+} from '@automagical/contracts/fetch';
+import { controlToQuery, Trace } from '@automagical/utilities';
 import { PinoLogger } from 'nestjs-pino';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
-import { FetchWith, Filters, TemporaryAuthToken } from '../typings';
-
+type FetchWith<T extends Record<never, string> = Record<never, string>> =
+  Partial<FetchArguments> & T;
 export class BaseFetch {
   // #region Object Properties
 
+  public BASE_URL: string;
   public TRUNCATE_LENGTH = 200;
 
   protected readonly logger: PinoLogger;
@@ -41,7 +47,6 @@ export class BaseFetch {
       return text as T;
     }
     const parsed = JSON.parse(text);
-    this.logger.debug({ parsed }, 'Parsed response');
     return parsed;
   }
 
@@ -52,51 +57,12 @@ export class BaseFetch {
    */
   protected buildFilterString(
     arguments_: FetchWith<{
-      filters?: Readonly<Filters[]>;
+      filters?: Readonly<ResultControlDTO>;
       params?: Record<string, string>;
     }>,
   ): string {
-    const out = new Map<string, string>();
-    (arguments_.filters || []).forEach((f) => {
-      const filter = new Map(Object.entries(f));
-      Object.keys(filter).forEach((type: keyof Filters) => {
-        let value: string | RegExp | dayjs.Dayjs;
-        switch (type) {
-          case 'select':
-          case 'sort':
-          case 'in':
-          case 'nin':
-            if (filter.has(type)) {
-              value = (filter.get(type) as unknown[]).join(',');
-              break;
-            }
-        }
-        if (
-          typeof filter.get(type) !== 'string' &&
-          (filter.get(type) as dayjs.Dayjs).toISOString
-        ) {
-          value = (filter.get(type) as dayjs.Dayjs).toISOString();
-        }
-        value = filter.get(type).toString();
-        switch (type) {
-          case 'select':
-          case 'skip':
-          case 'limit':
-          case 'sort':
-            out.set(type, value);
-            return;
-          case 'field':
-            return;
-          case 'equals':
-            out.set(f.field, value);
-            return;
-          default:
-            out.set(`${f.field}__${type}`, value);
-        }
-      });
-    });
     return new URLSearchParams({
-      ...Object.fromEntries(out),
+      ...controlToQuery(arguments_.control),
       ...(arguments_.params || {}),
     }).toString();
   }
@@ -122,7 +88,10 @@ export class BaseFetch {
     let method = arguments_.method || 'GET';
     if (body) {
       // Override
-      method = arguments_.method === 'GET' ? 'POST' : arguments_.method;
+      method =
+        arguments_.method === HTTP_METHODS.get
+          ? HTTP_METHODS.post
+          : arguments_.method;
       // Required header
       headers['Content-Type'] = 'application/json';
     }
@@ -146,12 +115,14 @@ export class BaseFetch {
   protected fetchCreateUrl(arguments_: FetchWith): string {
     let url = arguments_.rawUrl
       ? arguments_.url
-      : `${arguments_.baseUrl}${arguments_.url}`;
+      : `${arguments_.baseUrl ?? this.BASE_URL}${arguments_.url}`;
     if (arguments_.tempAuthToken) {
-      arguments_.params = arguments_.params || {};
-      arguments_.params.token = (arguments_.tempAuthToken as TemporaryAuthToken).key;
+      arguments_.params ??= {};
+      arguments_.params.token = (
+        arguments_.tempAuthToken as TemporaryAuthToken
+      ).key;
     }
-    if (arguments_.filters || arguments_.params) {
+    if (arguments_.control || arguments_.params) {
       url = `${url}?${this.buildFilterString(arguments_)}`;
     }
     return url;

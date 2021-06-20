@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 
 import { FetchService } from './fetch.service';
 
+@Global()
 @Module({
   exports: [FetchService],
   providers: [FetchService],

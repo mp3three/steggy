@@ -1,19 +1,32 @@
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
+import { Prop, Schema } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
+  IsDefined,
   IsEnum,
   IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
-} from '@automagical/validation';
-import { Prop, Schema } from '@nestjs/mongoose';
+} from 'class-validator';
 import { Schema as MongooseSchema, Types } from 'mongoose';
 
 import { DBFake } from '../../classes';
 import { BaseOmitProperties } from '.';
 import { AccessDTO } from './Access.dto';
 import { SUBMISSION_STATES } from './constants';
+import { TransformObjectId } from './transform-object-id.decorator';
+
+export class ExternalSubmissionIdDTO {
+  // #region Object Properties
+
+  public id: string;
+  public resource?: string;
+  public type?: 'resource' | string;
+
+  // #endregion Object Properties
+}
 
 @Schema({
   collection: MONGO_COLLECTIONS.submissions,
@@ -25,7 +38,7 @@ import { SUBMISSION_STATES } from './constants';
 })
 export class SubmissionDTO<
   DATA extends Record<never, unknown> = Record<never, unknown>,
-  METADATA extends Record<never, unknown> = Record<never, unknown>
+  METADATA extends Record<never, unknown> = Record<never, unknown>,
 > extends DBFake {
   // #region Public Static Methods
 
@@ -46,17 +59,11 @@ export class SubmissionDTO<
   // #region Object Properties
 
   /**
-   * @FIXME: What is this?
-   */
-  @IsArray()
-  @IsOptional()
-  @Prop({
-    type: MongooseSchema.Types.Mixed,
-  })
-  public externalIds?: unknown[];
-  /**
    * @FIXME: Is this for internal use?
    */
+  @ApiProperty({
+    enum: SUBMISSION_STATES,
+  })
   @IsEnum(SUBMISSION_STATES)
   @IsOptional()
   @Prop({
@@ -64,9 +71,24 @@ export class SubmissionDTO<
     type: MongooseSchema.Types.String,
   })
   public state?: SUBMISSION_STATES;
+  /**
+   * @FIXME: What is this?
+   */
+  @IsArray()
+  @IsOptional()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
+  @ApiProperty({
+    readOnly: true,
+  })
+  public externalIds?: ExternalSubmissionIdDTO[];
   @IsNumber()
   @IsOptional()
   @Prop({ default: null })
+  @ApiProperty({
+    readOnly: true,
+  })
   public deleted?: number;
   @IsString()
   @IsOptional()
@@ -76,6 +98,8 @@ export class SubmissionDTO<
     ref: MONGO_COLLECTIONS.projects,
     type: MongooseSchema.Types.ObjectId,
   })
+  @ApiProperty({})
+  @TransformObjectId()
   public project?: string;
   /**
    * Ties back to ProjectDTO.access
@@ -87,6 +111,8 @@ export class SubmissionDTO<
     ref: MONGO_COLLECTIONS.roles,
     type: MongooseSchema.Types.ObjectId,
   })
+  @ApiProperty()
+  @TransformObjectId()
   public roles?: string[];
   /**
    * User ID for owner of this entity
@@ -99,6 +125,8 @@ export class SubmissionDTO<
     index: true,
     ref: MONGO_COLLECTIONS.submissions,
   })
+  @ApiProperty()
+  @TransformObjectId()
   public owner?: string;
   /**
    * Reference to the resource that created this
@@ -109,7 +137,20 @@ export class SubmissionDTO<
     ref: MONGO_COLLECTIONS.roles,
     required: true,
   })
+  @ApiProperty()
+  @TransformObjectId()
   public form: string;
+  /**
+   * Your data
+   */
+  @ValidateNested()
+  @IsDefined()
+  @Prop({
+    required: true,
+    type: MongooseSchema.Types.Mixed,
+  })
+  @ApiProperty()
+  public data: DATA;
   /**
    * Supplemental information for your submission
    */
@@ -119,22 +160,15 @@ export class SubmissionDTO<
     default: {},
     type: MongooseSchema.Types.Mixed,
   })
+  @ApiProperty()
   public metadata?: METADATA;
   @ValidateNested()
   @IsOptional()
   @Prop({
     index: true,
   })
+  @ApiProperty()
   public access?: AccessDTO[];
-  /**
-   * Your data
-   */
-  @ValidateNested()
-  @Prop({
-    required: true,
-    type: MongooseSchema.Types.Mixed,
-  })
-  public data: DATA;
 
   // #endregion Object Properties
 }

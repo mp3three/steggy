@@ -6,6 +6,8 @@ module.exports = {
       tsconfig: '<rootDir>/tsconfig.spec.json',
     },
   },
+  globalSetup: '../../tools/jest/setup.js',
+  globalTeardown: '../../tools/jest/teardown.js',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   preset: '../../jest.preset.js',
   testEnvironment: 'node',

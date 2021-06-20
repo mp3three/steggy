@@ -1,27 +1,61 @@
-import { FetchModule } from '@automagical/fetch';
-import { Module } from '@nestjs/common';
+import {
+  CacheModule,
+  DynamicModule,
+  Global,
+  Module,
+  Provider,
+} from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 
-import { FormService } from './services';
-import { FormioSdkService } from './services/formio-sdk.service';
-import { LicenseService } from './services/license.service';
-import { ResourceService } from './services/resource.service';
-import { SubmissionService } from './services/submission.service';
+import {
+  FormioSdkService,
+  FormService,
+  MemberService,
+  ProjectService,
+  SubmissionService,
+  TeamService,
+  UserService,
+} from './services';
+import { PortalEventsService } from './services/portal-events.service';
 
+@Global()
 @Module({
-  exports: [
-    FormioSdkService,
-    ResourceService,
-    SubmissionService,
-    LicenseService,
-    FormService,
-  ],
-  imports: [FetchModule],
+  exports: [FormioSdkService, SubmissionService, FormService, ProjectService],
+  imports: [ConfigModule],
   providers: [
     FormioSdkService,
-    ResourceService,
+    PortalEventsService,
     SubmissionService,
-    LicenseService,
     FormService,
+    ProjectService,
   ],
 })
-export class FormioSdkModule {}
+export class FormioSdkModule {
+  // #region Public Static Methods
+
+  public static register(CRUD_WIRING: Provider[], full = true): DynamicModule {
+    const extras = full ? [TeamService, MemberService, UserService] : [];
+    return {
+      exports: [
+        FormioSdkService,
+        SubmissionService,
+        FormService,
+        ProjectService,
+        ...extras,
+      ],
+      imports: [ConfigModule, CacheModule.register()],
+      module: FormioSdkModule,
+      providers: [
+        FormioSdkService,
+        SubmissionService,
+        FormService,
+        ProjectService,
+        PortalEventsService,
+        ...extras,
+        ...CRUD_WIRING,
+      ],
+    };
+  }
+
+  // #endregion Public Static Methods
+}

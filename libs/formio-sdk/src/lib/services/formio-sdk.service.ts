@@ -1,18 +1,27 @@
-import { FormioSDKConfig } from '@automagical/config';
-import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import {
-  ProjectDTO,
-  UserDataDTO,
-  UserDTO,
-} from '@automagical/contracts/formio-sdk';
+  API_KEY,
+  AUTH_EMAIL,
+  AUTH_PASSWORD,
+  BASE_PROJECT,
+  PORTAL_BASE_URL,
+  PROJECT_URL,
+} from '@automagical/config';
+import { ProjectCRUD } from '@automagical/contracts';
+import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
+import type { FetchWith } from '@automagical/contracts/fetch';
+import { HTTP_METHODS, Identifier } from '@automagical/contracts/fetch';
+import { ProjectDTO, UserDataDTO, UserDTO } from '@automagical/contracts/formio-sdk';
 import { FetchService } from '@automagical/fetch';
 import { InjectLogger, Trace } from '@automagical/utilities';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';
 import { Response } from 'node-fetch';
-
-import { FetchWith, HTTP_Methods, Identifier } from '../../typings';
 
 export type CommonID = Identifier | string;
 export type FetchError = { status: number; message: string };
@@ -29,7 +38,7 @@ export type FetchError = { status: number; message: string };
 export class FormioSdkService {
   // #region Object Properties
 
-  public config: FormioSDKConfig;
+  public PORTAL_BASE: ProjectDTO;
   public jwtToken: string;
   public userDto: UserDTO;
 
@@ -44,6 +53,10 @@ export class FormioSdkService {
     protected readonly logger: PinoLogger,
     private readonly fetchService: FetchService,
     private readonly configService: ConfigService,
+    // Note: forwardRef is required here
+    // If removed, it the server can silently halt part through init
+    @Inject(forwardRef(() => ProjectCRUD))
+    private readonly projectService: ProjectCRUD,
   ) {}
 
   // #endregion Constructors
@@ -54,8 +67,10 @@ export class FormioSdkService {
   public async fetch<T>(arguments_: FetchWith): Promise<T> {
     return await this.fetchHandler<T>(
       this.fetchService.fetch<T>({
-        apiKey: this.config.API_KEY,
-        baseUrl: this.config.PROJECT_URL || this.config.PORTAL_BASE_URL,
+        apiKey: this.configService.get(API_KEY),
+        baseUrl:
+          this.configService.get(PROJECT_URL) ||
+          this.configService.get(PORTAL_BASE_URL),
         jwtToken: this.jwtToken,
         ...arguments_,
       }),
@@ -75,8 +90,11 @@ export class FormioSdkService {
         name: arguments_.name,
         password: arguments_.password,
       },
-      method: HTTP_Methods.POST,
-      url: this.projectUrl(this.config.BASE_PROJECT, '/user/register'),
+      method: HTTP_METHODS.post,
+      url: this.projectUrl(
+        this.configService.get(BASE_PROJECT),
+        '/user/register',
+      ),
       ...arguments_,
     });
   }
@@ -85,9 +103,9 @@ export class FormioSdkService {
    * Retrieve userdata (or verify token)
    */
   @Trace()
-  public async userFetch(arguments_: FetchWith = {}): Promise<unknown> {
+  public async userFetch(arguments_: FetchWith = {}): Promise<UserDTO> {
     this.userDto = await this.fetch({
-      url: this.projectUrl(this.config.BASE_PROJECT, '/current'),
+      url: this.projectUrl(this.configService.get(BASE_PROJECT), '/current'),
       ...arguments_,
     });
     return this.userDto;
@@ -103,13 +121,14 @@ export class FormioSdkService {
       type?: 'user' | 'admin';
     }> = {},
   ): Promise<UserDTO> {
-    arguments_.name = arguments_.name || this.config.BASE_PROJECT;
-    arguments_.type = arguments_.type || 'user';
+    arguments_.name ??= this.configService.get(BASE_PROJECT);
+    arguments_.type ??= 'user';
     const response = (await this.fetch({
       data: {
-        ...this.config.AUTH,
+        email: this.configService.get(AUTH_EMAIL),
+        password: this.configService.get(AUTH_PASSWORD),
       },
-      method: HTTP_Methods.POST,
+      method: HTTP_METHODS.post,
       process: false,
       url: this.projectUrl(arguments_.name, `/${arguments_.type}/login`),
       ...arguments_,
@@ -130,7 +149,7 @@ export class FormioSdkService {
       return;
     }
     await this.fetch({
-      url: this.projectUrl(this.config.BASE_PROJECT, '/logout'),
+      url: this.projectUrl(this.configService.get(BASE_PROJECT), '/logout'),
       ...arguments_,
     });
     this.jwtToken = undefined;
@@ -166,10 +185,10 @@ export class FormioSdkService {
    * 🤖 Advanced AI generates string from url parts
    */
   public projectUrl(project?: CommonID, path = ''): string {
-    if (!project && this.config.PROJECT_URL) {
+    if (!project && this.configService.get(PROJECT_URL)) {
       return path;
     }
-    project = project || this.config.BASE_PROJECT;
+    project ??= this.configService.get(BASE_PROJECT);
     if (typeof project === 'string' || project.name) {
       return `/${typeof project === 'string' ? project : project.name}${path}`;
     }
@@ -194,9 +213,7 @@ export class FormioSdkService {
       return response;
     }
     // TODO clean up this statement 🗑🔥
-    if (
-      ((response as unknown) as { name: string }).name === 'ValidationError'
-    ) {
+    if ((response as unknown as { name: string }).name === 'ValidationError') {
       this.logger.error(JSON.stringify(response, undefined, 2));
       throw new InternalServerErrorException();
     }
@@ -209,10 +226,13 @@ export class FormioSdkService {
    * Sets up a usable jwtToken before the application finishes bootstrapping
    */
   private async onModuleInit(): Promise<void> {
-    this.config = this.configService.get('libs.formio-sdk');
-    if (this.config.AUTH?.password) {
+    if (this.configService.get(AUTH_PASSWORD)) {
       this.logger.info(`Attempting to log in`);
       await this.userLogin();
+    }
+    const baseProject = this.configService.get<string>(BASE_PROJECT);
+    if (baseProject) {
+      this.PORTAL_BASE = await this.projectService.findById(baseProject);
     }
   }
 

@@ -1,69 +1,45 @@
-import { FormioSDKConfig } from './formio-sdk';
-import { HomeAssistantConfig } from './home-assistant';
-export * from './formio-sdk';
-export * from './home-assistant';
-import { PinoLogger } from 'nestjs-pino';
-
 import { AuthenticationConfig } from './authentication';
-
+import { CommonConfig } from './common';
+import { EmailConfig } from './email';
+import { FormioSDKConfig } from './formio-sdk';
+import { LicenseConfig } from './license';
+import { PersistenceConfig } from './persistence';
+import { ServerConfig } from './server';
+import { UtilsConfig } from './utils';
+export * from './authentication';
+export * from './common';
+export * from './email';
+export * from './formio-sdk';
+export * from './license';
+export * from './persistence';
+export * from './server';
+export * from './utils';
+/**
+ * Top level configuration object
+ *
+ * Extends the global common config, adding a section for the top level application to chuck in data without affecting things
+ * Also provides dedicated sections for libraries to store their own configuration options
+ */
 export class AutomagicalConfig<
-  Application extends Record<never, unknown> = Record<never, unknown>
-> {
+  ApplicationConfig extends Record<never, unknown> = Record<never, unknown>,
+> extends CommonConfig {
   // #region Object Properties
 
   /**
-   * Body parsing max size
-   */
-  public BODY_SIZE?: string;
-  /**
-   * Default value: "*"
-   *
-   * Used with configuring application cors libraries
-   */
-  public CORS?: string;
-  /**
-   * Lower limit for log levels
-   */
-  public LOG_LEVEL?: keyof typeof PinoLogger.prototype;
-  /**
-   * mongodb connection uri
-   */
-  public MONGO?: string;
-  /**
-   * 🤷‍♂️
-   */
-  public NODE_ENV?: string;
-  /**
-   * For binding http server
-   */
-  public PORT?: number;
-  /**
-   * Cache server
-   */
-  public REDIS_HOST?: string;
-  /**
-   * Cache server
-   */
-  public REDIS_PORT?: number;
-  /**
-   * Http request throttling (IP + route)
-   */
-  public THROTTLE_LIMIT?: number;
-  /**
-   * Http request throttling (IP + route)
-   */
-  public THROTTLE_TTL?: number;
-  /**
    * Custom variables for implementations
    */
-  public application?: Application;
+  public application?: ApplicationConfig;
   /**
    * Libraries
    */
   public libs?: {
     authentication?: AuthenticationConfig;
     ['formio-sdk']?: FormioSDKConfig;
-    ['home-assistant']?: HomeAssistantConfig;
+    server?: ServerConfig;
+    utils?: UtilsConfig;
+    license?: LicenseConfig;
+    persistence?: PersistenceConfig;
+    email?: EmailConfig;
   };
 
   // #endregion Object Properties

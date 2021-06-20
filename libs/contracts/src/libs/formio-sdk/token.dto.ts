@@ -1,6 +1,6 @@
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
-import { IsDate, IsOptional, IsString, Length } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
+import { IsDate, IsOptional, IsString, Length } from 'class-validator';
 import faker from 'faker';
 
 import { DBFake } from '../../classes';

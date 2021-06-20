@@ -1,22 +1,16 @@
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
-import { SubmissionDTO } from '@automagical/contracts/formio-sdk';
+import type { FetchWith } from '@automagical/contracts/fetch';
+import { HTTP_METHODS, ResultControlDTO } from '@automagical/contracts/fetch';
+import {
+  FormDTO,
+  ProjectDTO,
+  SubmissionDTO,
+} from '@automagical/contracts/formio-sdk';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 
-import { HTTP_Methods } from '../../typings';
-import { FetchWith } from '../../typings/HTTP';
-import { FormioSdkService } from '.';
-import { CommonID } from './formio-sdk.service';
-type SubmissionArguments<
-  T extends Record<never, string> = Record<never, string>
-> = FetchWith<{ project?: CommonID; form: CommonID; id?: string } & T>;
-
-type Z<T extends Record<never, string> = Record<never, string>> = {
-  foo: false;
-} & T;
-const Y: Z<Partial<Record<'a', string>>> = { foo: false };
-Y.a = 'asdf';
+import { FormioSdkService } from './formio-sdk.service';
 
 @Injectable()
 export class SubmissionService {
@@ -33,48 +27,93 @@ export class SubmissionService {
   // #region Public Methods
 
   @Trace()
-  public async get<T extends SubmissionDTO>(
-    arguments_: SubmissionArguments,
-  ): Promise<T[]> {
-    // resource & form are synonymous basically anywhere in the platform
-    // The difference is in how you use them, but they both work over the same APIs
-    // When in doubt, use resource > form here
-    return await this.formioSdkService.fetch<T[]>({
-      url: this.buildUrl(arguments_),
-      ...arguments_,
-    });
-  }
-
-  @Trace()
-  public async patch<T>(arguments_: SubmissionArguments): Promise<T> {
-    return await this.formioSdkService.fetch<T>({
-      method: HTTP_Methods.PATCH,
-      url: this.buildUrl(arguments_),
-      ...arguments_,
-    });
-  }
-
-  @Trace()
-  public async report(
-    arguments_: SubmissionArguments<{ $match: Record<string, unknown> }>,
-  ): Promise<unknown> {
+  public async create<T extends SubmissionDTO = SubmissionDTO>(
+    submission: SubmissionDTO,
+    form: FormDTO,
+    project: ProjectDTO,
+    fetchArguments: FetchWith = {},
+  ): Promise<T> {
     return await this.formioSdkService.fetch({
-      body: JSON.stringify([
-        {
-          $match: arguments_.$match,
+      ...fetchArguments,
+      body: submission,
+      method: HTTP_METHODS.post,
+      url: this.buildUrl(undefined, form, project),
+    });
+  }
+
+  @Trace()
+  public async delete(
+    submission: SubmissionDTO | string,
+    form: FormDTO,
+    project: ProjectDTO,
+    fetchArguments: FetchWith = {},
+  ): Promise<boolean> {
+    return await this.formioSdkService.fetch({
+      ...fetchArguments,
+      method: HTTP_METHODS.delete,
+      url: this.buildUrl(submission, form, project),
+    });
+  }
+
+  @Trace()
+  public async findById<T extends SubmissionDTO = SubmissionDTO>(
+    submission: SubmissionDTO | string,
+    form: FormDTO,
+    project: ProjectDTO,
+    fetchArguments: FetchWith = {},
+  ): Promise<T> {
+    return await this.formioSdkService.fetch({
+      ...fetchArguments,
+      url: this.buildUrl(submission, form, project),
+    });
+  }
+
+  @Trace()
+  public async findMany<T extends SubmissionDTO = SubmissionDTO>(
+    query: ResultControlDTO,
+    form: FormDTO,
+    project: ProjectDTO,
+    fetchArguments: FetchWith = {},
+  ): Promise<T[]> {
+    return await this.formioSdkService.fetch({
+      ...fetchArguments,
+      control: query,
+      url: this.buildUrl(undefined, form, project),
+    });
+  }
+
+  @Trace()
+  public async findOne<T extends SubmissionDTO = SubmissionDTO>(
+    query: ResultControlDTO,
+    form: FormDTO,
+    project: ProjectDTO,
+    fetchArguments: FetchWith = {},
+  ): Promise<T> {
+    return (
+      await this.formioSdkService.fetch<T[]>({
+        ...fetchArguments,
+        control: {
+          limit: 1,
+          ...query,
         },
-      ]),
-      method: HTTP_Methods.POST,
-      url: `/${arguments_.project}/report`,
-      ...arguments_,
-    });
+        url: this.buildUrl(undefined, form, project),
+      })
+    ).shift();
   }
 
-  public async list<T extends SubmissionDTO>(
-    arguments_: SubmissionArguments,
-  ): Promise<T[]> {
+  @Trace()
+  public async update<T extends SubmissionDTO = SubmissionDTO>(
+    source: SubmissionDTO | string,
+    form: FormDTO,
+    project: ProjectDTO,
+    update?: SubmissionDTO,
+    fetchArguments: FetchWith = {},
+  ): Promise<T> {
     return await this.formioSdkService.fetch({
-      url: this.buildUrl(arguments_),
+      ...fetchArguments,
+      body: update,
+      method: HTTP_METHODS.put,
+      url: this.buildUrl(source, form, project),
     });
   }
 
@@ -82,11 +121,16 @@ export class SubmissionService {
 
   // #region Private Methods
 
-  private buildUrl(arguments_: SubmissionArguments) {
-    const suffix = arguments_.id ? `/${arguments_.id}` : '';
+  private buildUrl(
+    submission: SubmissionDTO | string,
+    form: FormDTO,
+    project: ProjectDTO,
+  ): string {
+    submission = typeof submission === 'string' ? submission : submission._id;
+    const suffix = submission ? `/${submission}` : '';
     return this.formioSdkService.projectUrl(
-      arguments_.project,
-      `/${this.formioSdkService.id(arguments_.form)}/submission${suffix}`,
+      project._id,
+      `/${this.formioSdkService.id(form._id)}/submission${suffix}`,
     );
   }
 

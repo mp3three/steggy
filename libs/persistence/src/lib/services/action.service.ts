@@ -1,39 +1,48 @@
+import { ActionCRUD } from '@automagical/contracts';
 import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
-import { ActionDTO } from '@automagical/contracts/formio-sdk';
-import { ActionDocument } from '@automagical/persistence';
-import { InjectLogger, InjectMongo, Trace } from '@automagical/utilities';
+import { ResultControlDTO } from '@automagical/contracts/fetch';
+import { ActionDTO, FormDTO } from '@automagical/contracts/formio-sdk';
+import { InjectLogger, InjectMongo, ToClass, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
 
+import { ActionDocument } from '../schema';
+import { BaseMongoService } from './base-mongo.service';
+
 @Injectable()
-export class ActionService {
+export class ActionPersistenceMongoService
+  extends BaseMongoService
+  implements ActionCRUD
+{
   // #region Constructors
 
   constructor(
-    @InjectLogger(ActionService, LIB_PERSISTENCE)
+    @InjectLogger(ActionPersistenceMongoService, LIB_PERSISTENCE)
     private readonly logger: PinoLogger,
+    // 🦸‍♀️
     @InjectMongo(ActionDTO)
-    private readonly myRoleModel: Model<ActionDocument>,
-  ) {}
+    private readonly actionModel: Model<ActionDocument>,
+  ) {
+    super();
+  }
 
   // #endregion Constructors
 
   // #region Public Methods
 
   @Trace()
-  public async create(form: ActionDTO): Promise<ActionDTO> {
-    return await this.myRoleModel.create(form);
-  }
-
-  @Trace()
-  public async delete(role: ActionDTO | string): Promise<boolean> {
-    if (typeof role === 'object') {
-      role = role._id;
-    }
-    const result = await this.myRoleModel
+  public async delete(
+    action: ActionDTO | string,
+    form: FormDTO,
+  ): Promise<boolean> {
+    const result = await this.actionModel
       .updateOne(
-        { _id: role },
+        this.merge(
+          typeof action === 'string' ? action : action._id,
+          undefined,
+          form,
+        ),
         {
           deleted: Date.now(),
         },
@@ -43,51 +52,48 @@ export class ActionService {
   }
 
   @Trace()
-  public async findById(role: ActionDTO | string): Promise<ActionDTO> {
-    if (typeof role === 'object') {
-      role = role._id;
+  public async update(action: ActionDTO, form: FormDTO): Promise<ActionDTO> {
+    const result = await this.actionModel
+      .updateOne(this.merge(action._id, undefined, form), action)
+      .exec();
+    if (result.ok === 1) {
+      return await this.findById(action._id, form);
     }
-    return await this.myRoleModel.findOne({
-      _id: role,
-      deleted: null,
-    });
   }
 
   @Trace()
+  @ToClass(ActionDTO)
+  public async create(form: ActionDTO): Promise<ActionDTO> {
+    return (await this.actionModel.create(form)).toObject();
+  }
+
+  @Trace()
+  @ToClass(ActionDTO)
+  public async findById(
+    action: string,
+    form: FormDTO | string,
+    query?: ResultControlDTO,
+  ): Promise<ActionDTO> {
+    return await this.modifyQuery(
+      query,
+      this.actionModel.findOne(this.merge(action, undefined, form, query)),
+    )
+      .lean()
+      .exec();
+  }
+
+  @Trace()
+  @ToClass(ActionDTO)
   public async findMany(
-    query: Record<string, unknown> = {},
+    query: ResultControlDTO,
+    form: FormDTO,
   ): Promise<ActionDTO[]> {
-    return await this.myRoleModel
-      .find({
-        deleted: null,
-        ...query,
-      })
+    return await this.modifyQuery(
+      query,
+      this.actionModel.find(this.merge(query, undefined, form)),
+    )
+      .lean()
       .exec();
-  }
-
-  @Trace()
-  public async hardDelete(role: ActionDTO | string): Promise<boolean> {
-    if (typeof role === 'object') {
-      role = role._id;
-    }
-    const result = await this.myRoleModel.deleteOne({
-      _id: role,
-    });
-    return result.ok === 1;
-  }
-
-  @Trace()
-  public async update(
-    source: ActionDTO | string,
-    update: Omit<Partial<ActionDTO>, '_id' | 'created'>,
-  ): Promise<boolean> {
-    if (typeof source === 'object') {
-      source = source._id;
-    }
-    const result = await this.myRoleModel
-      .updateOne({ _id: source, deleted: null }, update)
-      .exec();
-    return result.ok === 1;
   }
 
   // #endregion Public Methods

@@ -1,15 +1,11 @@
 import { DBFake } from '@automagical/contracts';
-import {
-  IsDateString,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from '@automagical/validation';
 import { Prop } from '@nestjs/mongoose';
+import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
 import dayjs from 'dayjs';
 import { Schema as MongooseSchema } from 'mongoose';
 
 import { BaseOmitProperties } from '.';
+import { TransformObjectId } from './transform-object-id.decorator';
 
 /**
  * Common properties between all objects
@@ -63,6 +59,7 @@ export abstract class BaseDTO extends DBFake {
     required: true,
     type: MongooseSchema.Types.ObjectId,
   })
+  @TransformObjectId()
   public project?: string;
   /**
    * User ID for owner of this entity
@@ -71,7 +68,8 @@ export abstract class BaseDTO extends DBFake {
    */
   @IsString()
   @IsOptional()
-  // @Prop({ index: true, ref: 'submission', required: true })
+  @Prop({ index: true })
+  @TransformObjectId()
   public owner?: string;
 
   // #endregion Object Properties

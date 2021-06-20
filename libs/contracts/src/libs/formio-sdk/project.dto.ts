@@ -1,4 +1,7 @@
+import type { EmailConfig } from '@automagical/config';
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
+import { Prop, Schema } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsDateString,
@@ -9,19 +12,19 @@ import {
   Matches,
   MaxLength,
   ValidateNested,
-} from '@automagical/validation';
-import { Prop, Schema } from '@nestjs/mongoose';
+} from 'class-validator';
 import faker from 'faker';
 import { Schema as MongooseSchema } from 'mongoose';
 
 import { DBFake } from '../../classes';
 import { BaseOmitProperties } from '.';
-import { AccessDTO } from './Access.dto';
+import { AccessDTO } from './access.dto';
 import {
   PROJECT_FRAMEWORKS,
   PROJECT_PLAN_TYPES,
   PROJECT_TYPES,
 } from './constants';
+import { TransformObjectId } from './transform-object-id.decorator';
 
 export class ProjectSettingsDTO {
   // #region Object Properties
@@ -29,6 +32,15 @@ export class ProjectSettingsDTO {
   @IsString()
   @IsOptional()
   public cors?: string;
+  @IsString()
+  @IsOptional()
+  public secret?: string;
+  @ValidateNested()
+  @IsOptional()
+  public email?: EmailConfig;
+  @ValidateNested()
+  @IsOptional()
+  public keys?: Record<'key' | 'name', string>[];
 
   // #endregion Object Properties
 }
@@ -54,7 +66,7 @@ export class ProjectSettingsDTO {
   },
 })
 export class ProjectDTO<
-  Settings extends Record<never, unknown> = ProjectSettingsDTO
+  Settings extends Record<never, unknown> = ProjectSettingsDTO,
 > extends DBFake {
   // #region Public Static Methods
 
@@ -64,6 +76,7 @@ export class ProjectDTO<
   ): Omit<ProjectDTO, BaseOmitProperties> {
     return {
       ...(withID ? super.fake() : {}),
+      machineName: faker.lorem.slug(3).split('-').join(':'),
       name: faker.lorem.slug(5),
       plan: faker.random.arrayElement(Object.values(PROJECT_PLAN_TYPES)),
       stageTitle: faker.lorem.word(),
@@ -81,6 +94,9 @@ export class ProjectDTO<
   @IsBoolean()
   @IsOptional()
   @Prop()
+  @ApiProperty({
+    type: 'boolean',
+  })
   public primary?: boolean;
   /**
    * Disallow modifications while set
@@ -88,10 +104,16 @@ export class ProjectDTO<
   @IsBoolean()
   @IsOptional()
   @Prop()
+  @ApiProperty({
+    type: 'boolean',
+  })
   public protect?: boolean;
   @IsDateString()
   @IsOptional()
   @Prop()
+  @ApiProperty({
+    type: 'string',
+  })
   public lastDeploy?: string;
   /**
    * If your account is a trial, this is when it will expire
@@ -99,6 +121,9 @@ export class ProjectDTO<
   @IsDateString()
   @IsOptional()
   @Prop()
+  @ApiProperty({
+    type: 'string',
+  })
   public trial?: string;
   /**
    * Selected framework for this project
@@ -107,6 +132,9 @@ export class ProjectDTO<
   @IsOptional()
   @Prop({
     default: PROJECT_FRAMEWORKS.angular,
+    enum: PROJECT_FRAMEWORKS,
+  })
+  @ApiProperty({
     enum: PROJECT_FRAMEWORKS,
   })
   public framework?: string;
@@ -119,6 +147,9 @@ export class ProjectDTO<
     default: PROJECT_PLAN_TYPES.trial,
     enum: PROJECT_PLAN_TYPES,
     type: MongooseSchema.Types.String,
+  })
+  @ApiProperty({
+    enum: PROJECT_PLAN_TYPES,
   })
   public plan?: PROJECT_PLAN_TYPES;
   /**
@@ -141,11 +172,26 @@ export class ProjectDTO<
     index: true,
     type: MongooseSchema.Types.String,
   })
+  @ApiProperty({
+    enum: PROJECT_TYPES,
+  })
   public type?: PROJECT_TYPES;
   @IsNumber()
   @IsOptional()
   @Prop({ default: null })
+  @ApiProperty({
+    description: 'Deletion timestamp',
+    readOnly: true,
+  })
   public deleted?: number;
+  /**
+   * @FIXME: What is this?
+   */
+  @IsOptional()
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+  })
+  public formDefaults?: Record<string, unknown>;
   /**
    * Unkown purpose
    */
@@ -153,6 +199,7 @@ export class ProjectDTO<
   @Prop({
     type: MongooseSchema.Types.Mixed,
   })
+  @ApiProperty({})
   public billing?: Record<string, unknown>;
   /**
    * Extra configuration options
@@ -163,17 +210,18 @@ export class ProjectDTO<
   @Prop({
     type: MongooseSchema.Types.Mixed,
   })
+  @ApiProperty({})
   public config?: {
     defaultStageName?: string;
   };
-  /**
-   * @FIXME: What is this?
-   */
   @IsOptional()
   @Prop({
-    type: MongooseSchema.Types.Mixed,
+    type: MongooseSchema.Types.String,
   })
-  public formDefaults?: Record<string, unknown>;
+  /**
+   * Internal variable. Only used inside database adapters
+   */
+  public settings_encrypted?: Buffer;
   /**
    * Association of role ids
    */
@@ -184,12 +232,16 @@ export class ProjectDTO<
   @Prop({
     type: MongooseSchema.Types.Mixed,
   })
+  @ApiProperty({
+    type: AccessDTO,
+  })
   public access?: AccessDTO[];
   @IsOptional()
   @ValidateNested()
   @Prop({
     type: MongooseSchema.Types.Mixed,
   })
+  @ApiProperty()
   public settings?: Settings;
   /**
    * User ID for owner of this entity
@@ -199,6 +251,11 @@ export class ProjectDTO<
   @IsString()
   @IsOptional()
   // @Prop({ index: true, ref: 'submission', required: true })
+  @ApiProperty({
+    description:
+      'User ID for owner of this entity. See Users collection in Portal Base',
+    readOnly: true,
+  })
   public owner?: string;
   /**
    * If defined, then this must be a stage. ID reference to another project
@@ -211,6 +268,11 @@ export class ProjectDTO<
     ref: MONGO_COLLECTIONS.projects,
     type: MongooseSchema.Types.ObjectId,
   })
+  @ApiProperty({
+    description: 'External project reference',
+    readOnly: true,
+  })
+  @TransformObjectId()
   public project?: string;
   /**
    * @FIXME: What is this?
@@ -220,15 +282,12 @@ export class ProjectDTO<
   @Prop({
     type: MongooseSchema.Types.Mixed,
   })
+  @ApiProperty({
+    items: {
+      type: 'string',
+    },
+  })
   public steps?: string[];
-  /**
-   * Description of project
-   */
-  @IsString()
-  @MaxLength(512)
-  @IsOptional()
-  @Prop({ maxlength: 512 })
-  public description?: string;
   /**
    * @FIXME: What is this? Short text that goes in the top tab?
    */
@@ -244,7 +303,23 @@ export class ProjectDTO<
   @MaxLength(32)
   @IsOptional()
   @Prop({ default: '0.0.0', maxlength: 32 })
+  @ApiProperty({
+    maxLength: 32,
+    type: 'string',
+  })
   public tag?: string;
+  /**
+   * Description of project
+   */
+  @IsString()
+  @MaxLength(512)
+  @IsOptional()
+  @Prop({ maxlength: 512 })
+  @ApiProperty({
+    maxLength: 512,
+    type: 'string',
+  })
+  public description?: string;
   /**
    * Used for generating URL paths
    *
@@ -257,6 +332,10 @@ export class ProjectDTO<
       'Name may only container numbers, letters, and dashes. Must not terminate with a dash',
   })
   @Prop({ index: true, maxlength: 63, required: true })
+  @ApiProperty({
+    maxLength: 63,
+    type: 'string',
+  })
   public name: string;
   /**
    * Human understandable title
@@ -264,7 +343,18 @@ export class ProjectDTO<
   @IsString()
   @MaxLength(63)
   @Prop({ index: true, maxlength: 63, required: true })
+  @ApiProperty({
+    maxLength: 63,
+    type: 'string',
+  })
   public title: string;
+  @IsString()
+  @Prop({})
+  @ApiProperty({
+    description:
+      'Globally unique string for indexing. Auto calculates as projectName[:formName[:submissionId]]',
+  })
+  public machineName: string;
   @ValidateNested()
   @IsOptional()
   @Prop({

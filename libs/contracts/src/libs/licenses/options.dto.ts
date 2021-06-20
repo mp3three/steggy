@@ -1,4 +1,4 @@
-import { IsBoolean } from '@automagical/validation';
+import { IsBoolean } from 'class-validator';
 
 export class LicenseOptionsDTO {
   // #region Object Properties

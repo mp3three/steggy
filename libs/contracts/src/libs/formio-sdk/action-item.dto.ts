@@ -1,23 +1,22 @@
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
+import { Prop, Schema } from '@nestjs/mongoose';
 import {
   IsEnum,
   IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
-} from '@automagical/validation';
-import { Prop, Schema } from '@nestjs/mongoose';
+} from 'class-validator';
 import faker from 'faker';
 import { Schema as MongooseSchema, Types } from 'mongoose';
 
 import { DBFake } from '../../classes';
+import { HTTP_METHODS } from '../fetch';
 import { BaseOmitProperties } from '.';
-import {
-  ACTION_NAMES,
-  ACTION_STATES,
-  HANDLERS,
-  HTTP_METHODS,
-} from './constants';
+import { ACTION_NAMES, ACTION_STATES, HANDLERS } from './constants';
+import { TransformObjectId } from './transform-object-id.decorator';
+
+export type ActionMessage = { type?: unknown[] };
 
 @Schema({
   collection: MONGO_COLLECTIONS.actionitems,
@@ -27,7 +26,7 @@ import {
   },
 })
 export class ActionItemDTO<
-  DATA extends Record<never, string> = Record<never, string>
+  DATA extends Record<never, string> = Record<never, string>,
 > extends DBFake {
   // #region Public Static Methods
 
@@ -89,7 +88,7 @@ export class ActionItemDTO<
   @Prop({
     type: MongooseSchema.Types.Mixed,
   })
-  public messages?: { type: unknown[] };
+  public messages?: ActionMessage | undefined;
   @IsString()
   @Prop({ required: true })
   public title: string;
@@ -100,13 +99,15 @@ export class ActionItemDTO<
     required: true,
     type: MongooseSchema.Types.ObjectId,
   })
+  @TransformObjectId()
   public form: string;
   @IsString()
   @Prop({
     index: true,
     ref: MONGO_COLLECTIONS.submissions,
-    required: true,
     type: MongooseSchema.Types.ObjectId,
+    // Current code flows prevent this from actually being required in mongo
+    // But for all intents and purposes it should always exist
   })
   public submission: string;
   /**

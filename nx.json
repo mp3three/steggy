@@ -24,19 +24,14 @@
   "projects": {
     "type-writer": { "tags": [] },
     "formio-sdk": { "tags": [] },
-    "validation": { "tags": [] },
     "home-assistant": { "tags": [] },
     "home-controller": { "tags": ["backend"] },
     "utilities": { "tags": [] },
-    "api-server": { "tags": ["backend"] },
-    "licenses": { "tags": [] },
-    "license-server": { "tags": ["backend"] },
     "authentication": { "tags": ["backend"] },
     "fetch": { "tags": ["backend"] },
     "contracts": { "tags": [] },
     "config": { "tags": [] },
     "persistence": { "tags": ["backend", "data"] },
-    "sql-connector": { "tags": [] },
     "server": { "tags": [] }
   }
 }

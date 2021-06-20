@@ -1,11 +1,9 @@
 {
   "extends": ["../../.eslintrc.json"],
   "ignorePatterns": ["!**/*"],
-  "overrides": [{
+  "overrides": [
+    {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "parserOptions": {
-        "project": ["libs/formio-sdk/tsconfig.*?.json"]
-      },
       "rules": {}
     },
     {

@@ -3,34 +3,27 @@ import { FormDTO } from '@automagical/contracts/formio-sdk';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import faker from 'faker';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { LoggerModule } from 'nestjs-pino';
 import pino from 'pino';
 
 import { PersistenceModule } from '../../persistence.module';
-import { FormService } from '../form.service';
+import { FormPersistenceMongoService } from '../form.service';
 
 describe('form', () => {
-  let formService: FormService;
+  let formService: FormPersistenceMongoService;
   const logger = pino();
-  let mongod: MongoMemoryServer;
 
   beforeAll(async () => {
-    mongod = new MongoMemoryServer();
     const moduleReference = await Test.createTestingModule({
       imports: [
         ConfigModule.register('jest-test'),
-        PersistenceModule.registerMongoose(),
+        PersistenceModule.forFeature(),
         LoggerModule.forRoot(),
-        PersistenceModule.mongooseRoot(await mongod.getUri()),
+        PersistenceModule.forRoot(process.env.MONGO),
       ],
       providers: [ConfigService],
     }).compile();
-    formService = moduleReference.get(FormService);
-  });
-
-  afterAll(async () => {
-    await mongod.stop();
+    formService = moduleReference.get(FormPersistenceMongoService);
   });
 
   describe('create', () => {
@@ -77,7 +70,9 @@ describe('form', () => {
       await formService.create(forms[0]);
       await formService.create(forms[1]);
       await formService.create(forms[2]);
-      const results = await formService.findMany({ action });
+      const results = await formService.findMany(
+        new Map(Object.entries({ action })),
+      );
       expect(results).toHaveLength(3);
     });
   });

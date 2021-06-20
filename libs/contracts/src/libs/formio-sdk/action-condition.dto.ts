@@ -1,5 +1,5 @@
-import { IsEnum, IsOptional, IsString } from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 import { ACTION_CONDITION_EQ } from './constants';
 

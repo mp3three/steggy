@@ -1,13 +1,9 @@
-import {
-  IsDateString,
-  IsEnum,
-  IsOptional,
-  IsString,
-} from '@automagical/validation';
 import { Prop, Schema } from '@nestjs/mongoose';
+import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
 import { Schema as MongooseSchema } from 'mongoose';
 
 import { OPERATORS, VALUE_TYPES } from './constants';
+import { TransformObjectId } from './transform-object-id.decorator';
 
 @Schema({
   minimize: true,
@@ -70,6 +66,7 @@ export class FieldMatchAccessPermissionDTO {
     ref: 'role',
     type: MongooseSchema.Types.ObjectId,
   })
+  @TransformObjectId()
   public roles: string;
 
   // #endregion Object Properties

@@ -1,94 +1,84 @@
+import { TokenCRUD } from '@automagical/contracts';
 import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
+import { ResultControlDTO } from '@automagical/contracts/fetch';
 import { TokenDTO } from '@automagical/contracts/formio-sdk';
-import { InjectLogger, InjectMongo, Trace } from '@automagical/utilities';
+import { InjectLogger, InjectMongo, ToClass, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
 
 import { TokenDocument } from '../schema';
+import { BaseMongoService } from './base-mongo.service';
 
 @Injectable()
-export class TokenService {
+export class TokenPersistenceMongoService
+  extends BaseMongoService
+  implements TokenCRUD
+{
   // #region Constructors
 
   constructor(
-    @InjectLogger(TokenService, LIB_PERSISTENCE)
+    @InjectLogger(TokenPersistenceMongoService, LIB_PERSISTENCE)
     private readonly logger: PinoLogger,
     @InjectMongo(TokenDTO)
-    private readonly myRoleModel: Model<TokenDocument>,
-  ) {}
+    private readonly tokenModel: Model<TokenDocument>,
+  ) {
+    super();
+  }
 
   // #endregion Constructors
 
   // #region Public Methods
 
   @Trace()
-  public async create(form: TokenDTO): Promise<TokenDTO> {
-    return await this.myRoleModel.create(form);
-  }
-
-  @Trace()
-  public async delete(role: TokenDTO | string): Promise<boolean> {
-    if (typeof role === 'object') {
-      role = role._id;
-    }
-    const result = await this.myRoleModel
-      .updateOne(
-        { _id: role },
-        {
-          deleted: Date.now(),
-        },
-      )
-      .exec();
-    return result.ok === 1;
-  }
-
-  @Trace()
-  public async findById(role: TokenDTO | string): Promise<TokenDTO> {
-    if (typeof role === 'object') {
-      role = role._id;
-    }
-    return await this.myRoleModel.findOne({
-      _id: role,
-      deleted: null,
-    });
-  }
-
-  @Trace()
-  public async findMany(
-    query: Record<string, unknown> = {},
-  ): Promise<TokenDTO[]> {
-    return await this.myRoleModel
-      .find({
-        deleted: null,
-        ...query,
+  public async delete(token: TokenDTO | string): Promise<boolean> {
+    const result = await this.tokenModel
+      .updateOne(this.merge(typeof token === 'string' ? token : token._id), {
+        deleted: Date.now(),
       })
       .exec();
-  }
-
-  @Trace()
-  public async hardDelete(role: TokenDTO | string): Promise<boolean> {
-    if (typeof role === 'object') {
-      role = role._id;
-    }
-    const result = await this.myRoleModel.deleteOne({
-      _id: role,
-    });
     return result.ok === 1;
   }
 
   @Trace()
-  public async update(
-    source: TokenDTO | string,
-    update: Omit<Partial<TokenDTO>, '_id' | 'created'>,
-  ): Promise<boolean> {
-    if (typeof source === 'object') {
-      source = source._id;
-    }
-    const result = await this.myRoleModel
-      .updateOne({ _id: source, deleted: null }, update)
+  public async update(source: TokenDTO): Promise<TokenDTO> {
+    const result = await this.tokenModel
+      .updateOne(this.merge(source._id), source)
       .exec();
-    return result.ok === 1;
+    if (result.ok === 1) {
+      return await this.findById(source._id);
+    }
+  }
+
+  @Trace()
+  @ToClass(TokenDTO)
+  public async create(form: TokenDTO): Promise<TokenDTO> {
+    return (await this.tokenModel.create(form)).toObject();
+  }
+
+  @Trace()
+  @ToClass(TokenDTO)
+  public async findById(
+    token: string,
+    control?: ResultControlDTO,
+  ): Promise<TokenDTO> {
+    return await this.modifyQuery(
+      control,
+      this.tokenModel.findOne(this.merge(token, undefined, undefined, control)),
+    )
+      .lean()
+      .exec();
+  }
+
+  @Trace()
+  @ToClass(TokenDTO)
+  public async findMany(query: ResultControlDTO): Promise<TokenDTO[]> {
+    return await this.modifyQuery(
+      query,
+      this.tokenModel.find(this.merge(query)),
+    )
+      .lean()
+      .exec();
   }
 
   // #endregion Public Methods

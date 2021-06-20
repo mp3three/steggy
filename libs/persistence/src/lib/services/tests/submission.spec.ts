@@ -3,34 +3,27 @@ import { SubmissionDTO } from '@automagical/contracts/formio-sdk';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import faker from 'faker';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { LoggerModule } from 'nestjs-pino';
 import pino from 'pino';
 
 import { PersistenceModule } from '../../persistence.module';
-import { SubmissionService } from '../submission.service';
+import { SubmissionPersistenceMongoService } from '../submission.service';
 
 describe('submission', () => {
-  let submissionService: SubmissionService;
+  let submissionService: SubmissionPersistenceMongoService;
   const logger = pino();
-  let mongod: MongoMemoryServer;
 
   beforeAll(async () => {
-    mongod = new MongoMemoryServer();
     const moduleReference = await Test.createTestingModule({
       imports: [
         ConfigModule.register('jest-test'),
-        PersistenceModule.registerMongoose(),
+        PersistenceModule.forFeature(),
         LoggerModule.forRoot(),
-        PersistenceModule.mongooseRoot(await mongod.getUri()),
+        PersistenceModule.forRoot(process.env.MONGO),
       ],
       providers: [ConfigService],
     }).compile();
-    submissionService = moduleReference.get(SubmissionService);
-  });
-
-  afterAll(async () => {
-    await mongod.stop();
+    submissionService = moduleReference.get(SubmissionPersistenceMongoService);
   });
 
   describe('create', () => {
@@ -68,7 +61,9 @@ describe('submission', () => {
       await submissionService.create(submissions[0]);
       await submissionService.create(submissions[1]);
       await submissionService.create(submissions[2]);
-      const results = await submissionService.findMany({ form });
+      const results = await submissionService.findMany(
+        new Map(Object.entries({ form })),
+      );
       expect(results).toHaveLength(3);
     });
   });

@@ -1,12 +1,12 @@
 import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
+import { Prop, Schema } from '@nestjs/mongoose';
 import {
   IsNumber,
   IsOptional,
   IsString,
   MaxLength,
   ValidateNested,
-} from '@automagical/validation';
-import { Prop, Schema } from '@nestjs/mongoose';
+} from 'class-validator';
 import faker from 'faker';
 import { Schema as MongooseSchema } from 'mongoose';
 

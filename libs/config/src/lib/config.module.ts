@@ -1,8 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import * as NestConfig from '@nestjs/config';
-import JSON from 'comment-json';
 import { existsSync, readFileSync } from 'fs';
-import ini from 'ini';
 import yaml from 'js-yaml';
 import { resolve } from 'path';
 import rc from 'rc';
@@ -31,33 +29,19 @@ export class ConfigModule {
   public static register<
     T extends Record<never, unknown>,
     Argument extends AutomagicalConfig<T> = AutomagicalConfig<T>
-  >(appName: string, defaultConfig?: Argument): DynamicModule {
+  >(appName: string | symbol, defaultConfig?: Argument): DynamicModule {
     return NestConfig.ConfigModule.forRoot({
       isGlobal: true,
       load: [
         async () => {
           // File picking, loading, and merging handled by rc
-          const config: AutomagicalConfig<T> = rc(
-            appName,
-            {
-              ...GlobalDefaults,
-              ...(defaultConfig || {}),
-            },
-            undefined,
-            (content: string): Record<string, unknown> => {
-              // Attempt to parse as JSON
-              if (/^\s*{/.test(content)) {
-                return JSON.parse(content);
-              }
-              // Attempt YAML next
-              const config = yaml.load(content) as Record<string, unknown>;
-              if (typeof config === 'object' && config !== null) {
-                return config;
-              }
-              // Default to ini
-              return ini.parse(content);
-            },
-          );
+          if (typeof appName === 'symbol') {
+            appName = appName.description;
+          }
+          const config: AutomagicalConfig<T> = rc(appName, {
+            ...GlobalDefaults,
+            ...(defaultConfig || {}),
+          });
           ConfigModule.done(config);
           return config;
         },

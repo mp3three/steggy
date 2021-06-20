@@ -1,46 +1,42 @@
+import { ProjectCRUD } from '@automagical/contracts';
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
+import type { FetchAuth, FetchWith } from '@automagical/contracts/fetch';
+import {
+  HTTP_METHODS,
+  ResultControlDTO,
+  TemporaryAuthToken,
+} from '@automagical/contracts/fetch';
 import { ProjectDTO, UserDTO } from '@automagical/contracts/formio-sdk';
 import { InjectLogger, Trace } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 
-import {
-  FetchWith,
-  HTTP_Methods,
-  Identifier,
-  TemporaryAuthToken as TemporaryAuthToken,
-} from '../../typings';
-import { FormioSdkService } from './formio-sdk.service';
-type CommonID = Identifier | string;
+import { CommonID, FormioSdkService } from './formio-sdk.service';
 
 @Injectable()
-export class ProjectService {
+export class ProjectService implements ProjectCRUD {
   // #region Constructors
 
   constructor(
     @InjectLogger(ProjectService, LIB_FORMIO_SDK)
-    private readonly logger: PinoLogger,
-    private readonly formioSdkService: FormioSdkService,
+    protected readonly logger: PinoLogger,
+    protected readonly formioSdkService: FormioSdkService,
   ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
-  /**
-   * Create a new project
-   *
-   * To create a stage, add "project":"{{projectId}}" to the body
-   */
   @Trace()
   public async create(
-    arguments_: FetchWith<{ body: ProjectDTO }>,
+    project: ProjectDTO,
+    auth: FetchAuth = {},
   ): Promise<ProjectDTO> {
-    // TODO: Templates
-    return await this.formioSdkService.fetch<ProjectDTO>({
-      method: HTTP_Methods.POST,
-      url: '/project',
-      ...arguments_,
+    return await this.formioSdkService.fetch({
+      body: project,
+      method: HTTP_METHODS.post,
+      url: this.url(''),
+      ...auth,
     });
   }
 
@@ -60,23 +56,21 @@ export class ProjectService {
         email: arguments_.email,
         password: arguments_.password,
       },
-      method: HTTP_Methods.POST,
+      method: HTTP_METHODS.post,
       url: this.formioSdkService.projectUrl(arguments_.project, '/admin'),
       ...arguments_,
     });
   }
 
-  /**
-   * Purge a project 💣
-   */
   @Trace()
   public async delete(
-    arguments_: FetchWith<{ project: CommonID }>,
-  ): Promise<unknown> {
+    project: ProjectDTO | string,
+    auth: FetchAuth = {},
+  ): Promise<boolean> {
     return await this.formioSdkService.fetch({
-      method: HTTP_Methods.DELETE,
-      url: this.formioSdkService.projectUrl(arguments_.project),
-      ...arguments_,
+      method: HTTP_METHODS.delete,
+      url: this.url(project),
+      ...auth,
     });
   }
 
@@ -93,27 +87,43 @@ export class ProjectService {
     });
   }
 
-  /**
-   * Get project data. Does not include resources
-   */
   @Trace()
-  public async get(
-    arguments_: FetchWith<{ project: CommonID }>,
+  public async findById(
+    project: string,
+    control?: ResultControlDTO,
+    auth: FetchAuth = {},
   ): Promise<ProjectDTO> {
-    return await this.formioSdkService.fetch<ProjectDTO>({
-      url: this.formioSdkService.projectUrl(arguments_.project),
-      ...arguments_,
+    return await this.formioSdkService.fetch({
+      control,
+      url: this.url(project),
+      ...auth,
     });
   }
 
-  /**
-   * List all projects your user has access to
-   */
   @Trace()
-  public async list(arguments_: FetchWith = {}): Promise<ProjectDTO[]> {
-    return await this.formioSdkService.fetch<ProjectDTO[]>({
-      url: '/project',
-      ...arguments_,
+  public async findByName(
+    name: string,
+    control: ResultControlDTO = {},
+    auth: FetchAuth = {},
+  ): Promise<ProjectDTO> {
+    control.filters ??= new Set();
+    control.filters.add({
+      field: 'name',
+      value: name,
+    });
+    const results = await this.findMany(control, auth);
+    return results[0];
+  }
+
+  @Trace()
+  public async findMany(
+    query: ResultControlDTO,
+    auth: FetchAuth = {},
+  ): Promise<ProjectDTO[]> {
+    return await await this.formioSdkService.fetch({
+      control: query,
+      url: this.url(''),
+      ...auth,
     });
   }
 
@@ -150,7 +160,7 @@ export class ProjectService {
   public async projectAuthToken(
     arguments_: FetchWith<{
       project: CommonID;
-      allowList?: Map<HTTP_Methods, string[]>;
+      allowList?: Map<HTTP_METHODS, string[]>;
     }>,
   ): Promise<TemporaryAuthToken> {
     let header;
@@ -177,7 +187,7 @@ export class ProjectService {
     arguments_: FetchWith<{ project: CommonID }>,
   ): Promise<unknown> {
     return await this.formioSdkService.fetch({
-      method: HTTP_Methods.POST,
+      method: HTTP_METHODS.post,
       url: this.formioSdkService.projectUrl(arguments_.project, '/role'),
       ...arguments_,
     });
@@ -208,7 +218,7 @@ export class ProjectService {
     }>,
   ): Promise<unknown> {
     return await this.formioSdkService.fetch({
-      method: HTTP_Methods.PUT,
+      method: HTTP_METHODS.put,
       url: this.formioSdkService.projectUrl(
         arguments_.project,
         `/role/${this.formioSdkService.id(arguments_.role)}`,
@@ -233,27 +243,37 @@ export class ProjectService {
       data: {
         template: arguments_.template,
       },
-      method: HTTP_Methods.POST,
+      method: HTTP_METHODS.post,
       url: this.formioSdkService.projectUrl(arguments_.project, '/import'),
     });
   }
 
-  /**
-   * Update a project
-   *
-   * TODO: Send back modifications, or whole object
-   */
   @Trace()
   public async update(
-    arguments_: FetchWith<{ project: Identifier; body: ProjectDTO }>,
-  ): Promise<unknown> {
-    return await this.formioSdkService.fetch<ProjectDTO>({
-      body: arguments_.body,
-      method: HTTP_Methods.PUT,
-      url: this.formioSdkService.projectUrl(arguments_.project),
-      ...arguments_,
+    source: ProjectDTO | string,
+    update: Omit<Partial<ProjectDTO>, '_id' | 'created'>,
+    auth: FetchAuth = {},
+  ): Promise<ProjectDTO> {
+    const result = await this.formioSdkService.fetch<ProjectDTO>({
+      body: update,
+      method: HTTP_METHODS.put,
+      url: this.url(source),
+      ...auth,
     });
+    return result;
+  }
+
+  public async hardDelete(): Promise<never> {
+    throw new NotImplementedException();
   }
 
   // #endregion Public Methods
+
+  // #region Protected Methods
+
+  protected url(project: ProjectDTO | string): string {
+    return `/project/${typeof project === 'string' ? project : project._id}`;
+  }
+
+  // #endregion Protected Methods
 }

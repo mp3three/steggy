@@ -3,34 +3,27 @@ import { SchemaDTO } from '@automagical/contracts/formio-sdk';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import faker from 'faker';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { LoggerModule } from 'nestjs-pino';
 import pino from 'pino';
 
 import { PersistenceModule } from '../../persistence.module';
-import { SchemaService } from '../schema.service';
+import { SchemaPersistenceMongoService } from '../schema.service';
 
 describe('schema', () => {
-  let schemaService: SchemaService;
+  let schemaService: SchemaPersistenceMongoService;
   const logger = pino();
-  let mongod: MongoMemoryServer;
 
   beforeAll(async () => {
-    mongod = new MongoMemoryServer();
     const moduleReference = await Test.createTestingModule({
       imports: [
         ConfigModule.register('jest-test'),
-        PersistenceModule.registerMongoose(),
+        PersistenceModule.forFeature(),
         LoggerModule.forRoot(),
-        PersistenceModule.mongooseRoot(await mongod.getUri()),
+        PersistenceModule.forRoot(process.env.MONGO),
       ],
       providers: [ConfigService],
     }).compile();
-    schemaService = moduleReference.get(SchemaService);
-  });
-
-  afterAll(async () => {
-    await mongod.stop();
+    schemaService = moduleReference.get(SchemaPersistenceMongoService);
   });
 
   describe('create', () => {

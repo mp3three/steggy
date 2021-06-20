@@ -4,14 +4,21 @@ import {
   IsNumber,
   IsOptional,
   ValidateNested,
-} from '@automagical/validation';
+} from 'class-validator';
 
 import { UserDTO } from '../formio-sdk';
 import { LicenseKeyDTO } from './key.dto';
 import { LicenseOptionsDTO } from './options.dto';
-import { LicensePlans } from './types';
 
-export class UtilizationResponseTermsDTO {
+export enum LicensePlans {
+  independent = 'independent',
+  commercial = 'commercial',
+  basic = 'basic',
+  trial = 'trial',
+  team = 'team',
+}
+
+export class LicenseDataDTO {
   // #region Object Properties
 
   @IsDateString()
@@ -33,8 +40,6 @@ export class UtilizationResponseTermsDTO {
   @IsNumber()
   public forms: number;
   @IsNumber()
-  public livestages: number;
-  @IsNumber()
   public pdfDownloads: number;
   @IsNumber()
   public pdfServers: number;
@@ -42,6 +47,8 @@ export class UtilizationResponseTermsDTO {
   public pdfs: number;
   @IsNumber()
   public projects: number;
+  @IsNumber()
+  public stages: number;
   @IsNumber()
   public submissionRequests: number;
   @IsNumber()

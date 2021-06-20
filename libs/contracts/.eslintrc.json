@@ -15,8 +15,10 @@
       }
     },
     {
-      "files": ["*.js", "*.jsx"],
-      "rules": {}
+      "files": ["src/mock/**/*ts"],
+      "rules": {
+        "radar/no-duplicate-string": "off"
+      }
     }
   ]
 }

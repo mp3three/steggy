@@ -1,5 +1,6 @@
 export * from './action.service';
 export * from './action-item.service';
+export * from './encryption.service';
 export * from './form.service';
 export * from './project.service';
 export * from './role.service';
@@ -7,4 +8,5 @@ export * from './schema.service';
 export * from './session.service';
 export * from './submission.service';
 export * from './tag.service';
+export * from './team.service';
 export * from './token.service';

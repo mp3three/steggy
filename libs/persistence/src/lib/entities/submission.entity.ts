@@ -1,5 +1,5 @@
-import { IsNotEmpty } from '@automagical/validation';
 import { Schema } from '@nestjs/mongoose';
+import { IsNotEmpty } from 'class-validator';
 import { ObjectID } from 'mongodb';
 import {
   Column,

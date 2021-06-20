@@ -1,40 +1,45 @@
+import { FormCRUD } from '@automagical/contracts';
 import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
-import { FormDTO, UserDTO } from '@automagical/contracts/formio-sdk';
-import { FormDocument } from '@automagical/persistence';
-import { InjectLogger, InjectMongo, Trace } from '@automagical/utilities';
+import { ResultControlDTO } from '@automagical/contracts/fetch';
+import { FormDTO, ProjectDTO } from '@automagical/contracts/formio-sdk';
+import { FetchService } from '@automagical/fetch';
+import { InjectLogger, InjectMongo, ToClass, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
 
+import { FormDocument } from '../schema';
+import { BaseMongoService } from './base-mongo.service';
+
 @Injectable()
-export class FormService {
+export class FormPersistenceMongoService
+  extends BaseMongoService
+  implements FormCRUD
+{
   // #region Constructors
 
   constructor(
-    @InjectLogger(FormService, LIB_PERSISTENCE)
+    @InjectLogger(FormPersistenceMongoService, LIB_PERSISTENCE)
     private readonly logger: PinoLogger,
     @InjectMongo(FormDTO)
     private readonly formModel: Model<FormDocument>,
-  ) {}
+    private readonly fetchService: FetchService,
+  ) {
+    super();
+  }
 
   // #endregion Constructors
 
   // #region Public Methods
 
   @Trace()
-  public async create(form: FormDTO, owner?: UserDTO): Promise<FormDTO> {
-    form.owner = form.owner || owner?._id;
-    return await this.formModel.create(form);
-  }
-
-  @Trace()
-  public async delete(project: FormDTO | string): Promise<boolean> {
-    if (typeof project === 'object') {
-      project = project._id;
-    }
+  public async delete(
+    form: FormDTO | string,
+    project: ProjectDTO,
+  ): Promise<boolean> {
     const result = await this.formModel
       .updateOne(
-        { _id: project },
+        this.merge(typeof form === 'string' ? form : form._id, project),
         {
           deleted: Date.now(),
         },
@@ -44,62 +49,76 @@ export class FormService {
   }
 
   @Trace()
-  public async findById(form: FormDTO | string): Promise<FormDTO> {
-    if (typeof form === 'object') {
-      form = form._id;
-    }
-    return await this.formModel.findOne({
-      _id: form,
-      deleted: null,
-    });
-  }
-
-  @Trace()
-  public async findByName(form: FormDTO | string): Promise<FormDTO> {
-    if (typeof form === 'object') {
-      form = form.name;
-    }
-    return await this.formModel.findOne({
-      deleted: null,
-      name: form,
-    });
-  }
-
-  @Trace()
-  public async findMany(
-    query: Record<string, unknown> = {},
-  ): Promise<FormDTO[]> {
-    return await this.formModel
-      .find({
-        deleted: null,
-        ...query,
-      })
-      .exec();
-  }
-
-  @Trace()
-  public async hardDelete(project: FormDTO | string): Promise<boolean> {
-    if (typeof project === 'object') {
-      project = project._id;
-    }
-    const result = await this.formModel.deleteOne({
-      _id: project,
-    });
-    return result.ok === 1;
-  }
-
-  @Trace()
-  public async update(
-    source: FormDTO | string,
-    update: Omit<Partial<FormDTO>, '_id' | 'created'>,
-  ): Promise<boolean> {
-    if (typeof source === 'object') {
-      source = source._id;
-    }
+  public async update(form: FormDTO, project: ProjectDTO): Promise<FormDTO> {
     const result = await this.formModel
-      .updateOne({ _id: source, deleted: null }, update)
+      .updateOne(this.merge(form._id, project), form)
       .exec();
-    return result.ok === 1;
+    if (result.ok === 1) {
+      return await this.findById(form._id, project);
+    }
+  }
+
+  @Trace()
+  @ToClass(FormDTO)
+  public async create(form: FormDTO): Promise<FormDTO> {
+    return (await this.formModel.create(form)).toObject();
+  }
+
+  @Trace()
+  @ToClass(FormDTO)
+  public async findById(
+    form: string,
+    project: ProjectDTO,
+    control?: ResultControlDTO,
+  ): Promise<FormDTO> {
+    return await this.modifyQuery(
+      control,
+      this.formModel.findOne(this.merge(form, project, undefined, control)),
+    )
+      .lean()
+      .exec();
+  }
+
+  @Trace()
+  @ToClass(FormDTO)
+  public async findByName(
+    form: string,
+    project: ProjectDTO,
+    control?: ResultControlDTO,
+  ): Promise<FormDTO> {
+    return await this.modifyQuery(
+      control,
+      this.formModel.findOne(
+        this.merge(
+          {
+            filters: new Set([
+              {
+                field: 'name',
+                value: form,
+              },
+            ]),
+          },
+          project,
+          undefined,
+          control,
+        ),
+      ),
+    )
+      .lean()
+      .exec();
+  }
+
+  @Trace()
+  @ToClass(FormDTO)
+  public async findMany(
+    query: ResultControlDTO = {},
+    project: ProjectDTO,
+  ): Promise<FormDTO[]> {
+    const search = this.modifyQuery(
+      query,
+      this.formModel.find(this.merge(query, project)),
+    );
+    return await search.lean().exec();
   }
 
   // #endregion Public Methods
