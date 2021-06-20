@@ -20,7 +20,8 @@ import { InjectLogger, sleep, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { each } from 'async';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
@@ -251,23 +252,22 @@ export class AreaService {
       });
       return;
     }
-    const scene = this.configService.get(`favorites.${areaName}`) as Record<
-      'day' | 'evening',
-      Record<'on' | 'off', string[]>
-    >;
+    const scene = this.configService.get(
+      `application.favorites.${areaName}`,
+    ) as Record<'day' | 'evening', Record<'on' | 'off', string[]>>;
     if (scene) {
       const part = this.IS_EVENING ? scene.evening : scene.day;
-      part?.on?.forEach(async (entityId) => {
+      await each(part?.on ?? [], async (entityId) => {
         await this.entityService.turnOn(entityId);
       });
-      part?.off?.forEach(async (entityId) => {
+      await each(part?.off ?? [], async (entityId) => {
         await this.entityService.turnOff(entityId);
       });
       return;
     }
     const area = this.AREA_MAP.get(areaName);
     let containsSwitches = false;
-    area.forEach(async (entityId) => {
+    await each(area, async (entityId) => {
       if (domain(entityId) !== HassDomains.switch) {
         return;
       }
@@ -344,9 +344,8 @@ export class AreaService {
 
   // #region Private Methods
 
-  // @Cron('*/5 * * * * *')
-  @Cron('0 */5 * * * *')
-  @Trace({ omitArgs: true })
+  @Cron(CronExpression.EVERY_MINUTE)
+  @Trace()
   private async circadianLightingUpdate() {
     this.AREA_MAP.forEach((entities) => {
       entities.forEach(async (entityId) => {

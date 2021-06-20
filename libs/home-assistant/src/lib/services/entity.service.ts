@@ -207,7 +207,7 @@ export class EntityService {
     T extends HassStateDTO = HassStateDTO<
       unknown,
       HomeAssistantEntityAttributes
-    >
+    >,
   >(entityId: string): Promise<T> {
     // if (
     //   !this.lastUpdate ||
