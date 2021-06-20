@@ -7,3 +7,6 @@ export class HomeAssistantConfig {
 
   // #endregion Object Properties
 }
+export const HOME_ASSISTANT_BASE_URL = 'libs.home-assistant.BASE_URL';
+export const HOME_ASSISTANT_HOST = 'libs.home-assistant.HOST';
+export const HOME_ASSISTANT_TOKEN = 'libs.home-assistant.TOKEN';

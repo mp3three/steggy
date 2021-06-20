@@ -1,6 +1,7 @@
 export * from './config';
 export * from './events';
 export * from './global';
+export * from './home-assistant';
 export * from './library-names';
 export * from './mongo';
 export * from './persistence';

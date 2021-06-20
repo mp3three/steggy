@@ -7,7 +7,7 @@ import {
   HassEventDTO,
   HassEvents,
 } from '@automagical/contracts/home-assistant';
-import { InjectLogger } from '@automagical/utilities';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PinoLogger } from 'nestjs-pino';
@@ -29,6 +29,7 @@ export class HomeAssistantService {
 
   // #region Public Methods
 
+  @Trace()
   public async sendNotification<Group extends string = string>(
     device: string,
     title: string,

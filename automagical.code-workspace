@@ -1,117 +1,74 @@
 {
   "folders": [{
-    "path": ".."
+    "path": "."
   }],
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      // FIXME: Doesn't seem to work as expected
+      // {
+      //   "name": "Inspect api-server",
+      //   "request": "launch",
+      //   "runtimeArgs": [
+      //     "run",
+      //     "api-server:serve"
+      //   ],
+      //   "runtimeExecutable": "nx",
+      //   "skipFiles": [
+      //     "<node_internals>/**"
+      //   ],
+      //   "type": "pwa-node"
+      // },
+      {
+        "name": "Debug Node App",
+        "type": "node",
+        "request": "attach",
+        // Match this to the workspace.json
+        "port": 33333
+      }
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      // Beautify
+      "hookyqr.beautify",
+      // Bracket pair colorizer
+      "coenraads.bracket-pair-colorizer-2",
+      // .env support
+      "irongeek.vscode-env",
+      // eslint
+      "dbaeumer.vscode-eslint",
+      // Markdown tools
+      "yzhang.markdown-all-in-one",
+      // Markdown previews
+      "shd101wyy.markdown-preview-enhanced",
+      // "davidanson.vscode-markdownlint",
+      // Typescript class organizer
+      "aljazsim.tsco",
+      // Material icon theme
+      "pkief.material-icon-theme",
+      // Additional support for npm paths
+      "christian-kohler.npm-intellisense",
+      // in-ide git tools
+      "eamodio.gitlens",
+      // dockerfile linting
+      "exiasr.hadolint",
+      // More code formatting
+      "esbenp.prettier-vscode",
+      // Highlighter for specific comment strings
+      "wayou.vscode-todo-highlight",
+      // Import sorting
+      "nsoult.typescript-imports-sort",
+      // jest related
+      "orta.vscode-jest",
+      "kavod-io.vscode-jest-test-adapter",
+      "firsttris.vscode-jest-runner"
+    ],
+    "unwantedRecommendations": []
+  },
+
   "settings": {
-    // * <Global Standards>
-    "editor.tabSize": 2,
-    "editor.formatOnSave": true,
-    // Should end with exactly 1 newline of whitespace
-    "files.eol": "\n",
-    "files.trimTrailingWhitespace": true,
-    "files.insertFinalNewline": true,
-    "files.trimFinalNewlines": true,
-    "jest.autoEnable": true,
-    // * </Global Standards>
-
-    // * <Language>
-    "yaml.schemas": {
-      "libs/config/schema/user-env.json": [
-        "user-env.yaml",
-        "user-env.*.yaml",
-        "user-env.yml",
-        "user-env.*.yml"
-      ]
-    },
-    // * </Language>
-
     // * <Decorative>
-
-    // In case you want to match material icon themes: copy into your own settings
-    // "material-icon-theme.folders.associations": {
-    //   // Apps
-    //   "home-controller": "delta",
-    //   "rooms": "custom",
-    //   "api-server": "api",
-    //   "license-server": "syntax",
-    //   "sql-connector": "database",
-    //   "contracts": "mappings",
-
-    //   // Libs
-    //   "formio-sdk": "middleware",
-    //   "home-assistant": "middleware",
-    //   "type-writer": "template",
-    //   "logger": "log",
-    //   "validate": "rules",
-    //   "licenses": "helper",
-    //   "fetch": "connection",
-    //   "persistence": "database",
-
-    //   // Repo Root
-    //   "libs": "shared",
-    //   "jest": "test",
-    //   ".well-known": "public",
-
-    //   // Common / Common
-    //   "action": "azure-pipelines",
-    //   "adapters": "custom",
-    //   "license": "helper",
-    //   "dto": "database",
-    //   "app": "vscode",
-    //   "decorators": "delta",
-
-    //   // @automagical/authentication
-    //   "strategies": "animation",
-
-    //   // @automagical/contracts
-    //   "enums": "constant",
-    //   "event-emitter": "event",
-
-    //   // @automagical/home-assistant
-    //   "entities": "components",
-
-    //   // @automagical/resources
-    //   "mongo": "ngrx-store", // Chosen for it's remarkable green-ness
-
-    //   // .github/workflows
-    //   "workflows": "ci",
-
-    //   // tools/generators
-    //   "microservice": "template",
-    // },
-
-    // "material-icon-theme.files.associations": {
-    //   "workspace.json": "nrwl",
-    //   // Make these suffixes more distinctive
-    //   "*.dto.ts": "pug",
-    //   "*.schema.ts": "bithound",
-    //   "*.entity.ts": "bithound",
-    //   "*.strategy.ts": "nest-resolver",
-    //   "*.driver.ts": "slim",
-
-    //   // tsconfig*
-    //   "tsconfig.json": "nodejs_alt",
-    //   "tsconfig.lib.json": "nodejs_alt",
-    //   "tsconfig.build.json": "nodejs_alt",
-    //   "tsconfig.base.json": "nodejs_alt",
-    //   "tsconfig.spec.json": "nodejs_alt",
-
-    //   // docker
-    //   "docker-compose.automated-testing.yaml": "docker",
-    //   "docker-compose.hermes.yaml": "docker",
-
-    //   // user-env
-    //   "user-env.yaml": "settings",
-    //   "user-env.yml": "settings",
-    //   "user-env.json": "settings",
-
-    //   // Specific files
-    //   "index.ts": "yang",
-    //   "log.ts": "log",
-    //   "Logger.ts": "log",
-    //   "package.json": "npm",
-    // },
-
     "better-comments.tags": [{
         "tag": "!",
         "color": "#FF2D00",
@@ -374,6 +331,6 @@
         ]
       }
     ]
+    // * </Typescript Class Organizer>
   }
-  // * </Typescript Class Organizer>
 }

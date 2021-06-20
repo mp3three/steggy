@@ -12,8 +12,6 @@
     "react-native",
     "react-redux",
     "jsonc",
-    "woke",
-    "write-good-comments",
     "sort-keys-fix",
     "no-loops",
     "no-unsanitized",
@@ -22,21 +20,6 @@
     "jest"
   ],
   "overrides": [{
-      "files": ["*.spec.ts"],
-      "extends": [
-        "plugin:jest/all",
-        "plugin:jest-formatting/recommended"
-      ],
-      "rules": {
-        "jest/no-hooks": "off",
-        "jest/no-disabled-tests": "warn",
-        "jest/no-focused-tests": "warn"
-      },
-      "env": {
-        "jest/globals": true
-      }
-    },
-    {
       "files": ["*.tsx"],
       "extends": [
         "plugin:jsx-a11y/recommended",
@@ -59,6 +42,7 @@
         "plugin:jsonc/recommended-with-jsonc"
       ],
       "rules": {
+        "radar/prefer-immediate-return": "off",
         "@nrwl/nx/enforce-module-boundaries": [
           "error",
           {
@@ -75,12 +59,12 @@
         "unicorn/prefer-node-protocol": "off",
         "unicorn/no-array-for-each": "off",
         "unicorn/import-style": "off",
-        "woke/all": "warn",
-        "write-good-comments/write-good-comments": "warn",
+        "security/detect-non-literal-fs-filename": "off",
         "sort-keys-fix/sort-keys-fix": "warn",
         "no-loops/no-loops": "error",
         "simple-import-sort/imports": "warn",
         "simple-import-sort/exports": "warn",
+        "no-console": ["error"],
         "@typescript-eslint/no-unused-vars": [
           "warn",
           {
@@ -96,10 +80,35 @@
       }
     },
     {
+      "files": ["*.controller.ts"],
+      "rules": {
+        "radar/no-duplicate-string": "off"
+      }
+    },
+    {
       "files": ["*.graphql"],
       "parser": "@graphql-eslint/eslint-plugin",
       "plugins": ["@graphql-eslint"],
       "rules": {}
+    },
+    {
+      "files": ["*.spec.ts"],
+      "extends": [
+        "plugin:jest/all",
+        "plugin:jest-formatting/recommended"
+      ],
+      "rules": {
+        "jest/no-hooks": "off",
+        "jest/no-disabled-tests": "warn",
+        "jest/no-focused-tests": "warn",
+        "jest/expect-expect": ["error", {
+          "assertFunctionNames": ["expect", "request.**.expect"]
+        }],
+        "radar/cognitive-complexity": "off"
+      },
+      "env": {
+        "jest/globals": true
+      }
     }
   ]
 }

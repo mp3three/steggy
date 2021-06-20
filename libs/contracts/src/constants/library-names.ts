@@ -1,5 +1,6 @@
 export const APP_LICENSE_SERVER = Symbol('license-server');
 export const APP_API_SERVER = Symbol('api-server');
+export const APP_HOME_CONTROLLER = Symbol('home-controller');
 export const APP_SUBMISSION_SERVER = Symbol('submission-server');
 export const APP_SQL_CONNECTOR = Symbol('sql-connector');
 export const APP_DEVTOOLS = Symbol('devtools');
@@ -18,3 +19,4 @@ export const LIB_ACTION = Symbol('action');
 export const LIB_EMAIL = Symbol('email');
 export const LIB_UTILS = Symbol('utils');
 export const LIB_PROXY = Symbol('proxy');
+export const LIB_HOME_ASSISTANT = Symbol('home-assistant');
