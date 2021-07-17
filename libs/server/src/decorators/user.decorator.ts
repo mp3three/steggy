@@ -1,4 +1,4 @@
-import { UserDTO } from '@formio/contracts/formio-sdk';
+import { UserDTO } from '@automagical/contracts/formio-sdk';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const User = createParamDecorator(

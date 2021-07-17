@@ -1,8 +1,8 @@
-import { ResponseFlags } from '@formio/contracts';
-import { LIB_AUTHENTICATION } from '@formio/contracts/constants';
-import { UserDTO } from '@formio/contracts/formio-sdk';
-import { APIResponse, JWT_HEADER } from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+import { ResponseFlags } from '@automagical/contracts';
+import { LIB_AUTHENTICATION } from '@automagical/contracts/constants';
+import { UserDTO } from '@automagical/contracts/formio-sdk';
+import { APIResponse, JWT_HEADER } from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';

@@ -1,6 +1,6 @@
-import { LIB_UTILS } from '@formio/contracts/constants';
-import { SubmissionDTO } from '@formio/contracts/formio-sdk';
-import { APIRequest } from '@formio/contracts/server';
+import { LIB_UTILS } from '@automagical/contracts/constants';
+import { SubmissionDTO } from '@automagical/contracts/formio-sdk';
+import { APIRequest } from '@automagical/contracts/server';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import dayjs from 'dayjs';
 import _ from 'lodash';

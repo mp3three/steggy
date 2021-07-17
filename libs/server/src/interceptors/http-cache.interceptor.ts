@@ -1,4 +1,4 @@
-import { APIRequest, REQUEST_CACHE_PREFIX } from '@formio/contracts/server';
+import { APIRequest, REQUEST_CACHE_PREFIX } from '@automagical/contracts/server';
 import { CacheInterceptor, ExecutionContext, Injectable } from '@nestjs/common';
 
 @Injectable()

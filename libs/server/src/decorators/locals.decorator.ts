@@ -1,5 +1,5 @@
-import { ResponseLocals } from '@formio/contracts';
-import { APIResponse } from '@formio/contracts/server';
+import { ResponseLocals } from '@automagical/contracts';
+import { APIResponse } from '@automagical/contracts/server';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const Locals = createParamDecorator(

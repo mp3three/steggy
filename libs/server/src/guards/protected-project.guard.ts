@@ -1,11 +1,11 @@
-import { LIB_SERVER } from '@formio/contracts/constants';
-import { ProjectDTO } from '@formio/contracts/formio-sdk';
+import { LIB_SERVER } from '@automagical/contracts/constants';
+import { ProjectDTO } from '@automagical/contracts/formio-sdk';
 import {
   ACCESS_LEVEL,
   APIRequest,
   SERVER_METADATA,
-} from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+} from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PinoLogger } from 'nestjs-pino';

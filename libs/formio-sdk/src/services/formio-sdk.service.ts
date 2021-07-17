@@ -5,12 +5,12 @@ import {
   BASE_PROJECT,
   PORTAL_BASE_URL,
   PROJECT_URL,
-} from '@formio/contracts/config';
-import { LIB_FORMIO_SDK } from '@formio/contracts/constants';
-import type { FetchWith } from '@formio/contracts/fetch';
-import { HTTP_METHODS, Identifier } from '@formio/contracts/fetch';
-import { ProjectDTO, UserDataDTO, UserDTO } from '@formio/contracts/formio-sdk';
-import { FetchService, InjectLogger, Trace } from '@formio/utilities';
+} from '@automagical/contracts/config';
+import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
+import type { FetchWith } from '@automagical/contracts/fetch';
+import { HTTP_METHODS, Identifier } from '@automagical/contracts/fetch';
+import { ProjectDTO, UserDataDTO, UserDTO } from '@automagical/contracts/formio-sdk';
+import { FetchService, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';

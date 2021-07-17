@@ -1,11 +1,11 @@
-import { ResponseFlags, ResponseLocals } from '@formio/contracts';
-import { SessionTokenDTO } from '@formio/contracts/authentication';
-import { REMOTE_SECRET } from '@formio/contracts/config';
-import { LIB_AUTHENTICATION } from '@formio/contracts/constants';
-import { HTTP_METHODS } from '@formio/contracts/fetch';
-import { PERMISSION_ACCESS_TYPES, UserDTO } from '@formio/contracts/formio-sdk';
-import { APIResponse, REMOTE_TOKEN_HEADER } from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+import { ResponseFlags, ResponseLocals } from '@automagical/contracts';
+import { SessionTokenDTO } from '@automagical/contracts/authentication';
+import { REMOTE_SECRET } from '@automagical/contracts/config';
+import { LIB_AUTHENTICATION } from '@automagical/contracts/constants';
+import { HTTP_METHODS } from '@automagical/contracts/fetch';
+import { PERMISSION_ACCESS_TYPES, UserDTO } from '@automagical/contracts/formio-sdk';
+import { APIResponse, REMOTE_TOKEN_HEADER } from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import {
   CanActivate,
   ExecutionContext,

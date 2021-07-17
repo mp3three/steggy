@@ -1,8 +1,8 @@
-import { SchemaCRUD } from '@formio/contracts';
-import { LIB_PERSISTENCE } from '@formio/contracts/constants';
-import { SchemaDTO } from '@formio/contracts/formio-sdk';
-import { SCHEMA_KEYS } from '@formio/contracts/persistence';
-import { InjectLogger, InjectMongo, ToClass, Trace } from '@formio/utilities';
+import { SchemaCRUD } from '@automagical/contracts';
+import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
+import { SchemaDTO } from '@automagical/contracts/formio-sdk';
+import { SCHEMA_KEYS } from '@automagical/contracts/persistence';
+import { InjectLogger, InjectMongo, ToClass, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';

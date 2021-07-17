@@ -124,7 +124,7 @@ export enum SwaggerAnnotations {
 export enum TransformerAnnotations {
   Type = 'Type',
 }
-export const LIB_VALIDATOR_IMPORT = '@formio/wrapper';
+export const LIB_VALIDATOR_IMPORT = '@automagical/wrapper';
 export const LIB_SWAGGER_IMPORT = '@nestjs/swagger';
 export const LIB_TRANSFORMER = 'class-transformer';
 export type AnnotationsList = ValidatorAnnotations | SwaggerAnnotations;

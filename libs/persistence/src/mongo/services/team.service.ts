@@ -1,14 +1,14 @@
-import { TeamAdapter } from '@formio/contracts';
-import { LIB_PERSISTENCE } from '@formio/contracts/constants';
-import { ResultControlDTO } from '@formio/contracts/fetch';
+import { TeamAdapter } from '@automagical/contracts';
+import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
+import { ResultControlDTO } from '@automagical/contracts/fetch';
 import {
   ProjectDTO,
   SubmissionDTO,
   TeamDTO,
   TeamMemberDTO,
-} from '@formio/contracts/formio-sdk';
-import { MONGO_COLLECTIONS } from '@formio/contracts/persistence';
-import { InjectLogger, InjectMongo, Trace } from '@formio/utilities';
+} from '@automagical/contracts/formio-sdk';
+import { MONGO_COLLECTIONS } from '@automagical/contracts/persistence';
+import { InjectLogger, InjectMongo, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';

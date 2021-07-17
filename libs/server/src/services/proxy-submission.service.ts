@@ -1,14 +1,14 @@
-import { CrudOptions, SubmissionCRUD } from '@formio/contracts';
-import { PROJECT_KEYS } from '@formio/contracts/config';
-import { APP_API_SERVER } from '@formio/contracts/constants';
-import { ResultControlDTO } from '@formio/contracts/fetch';
+import { CrudOptions, SubmissionCRUD } from '@automagical/contracts';
+import { PROJECT_KEYS } from '@automagical/contracts/config';
+import { APP_API_SERVER } from '@automagical/contracts/constants';
+import { ResultControlDTO } from '@automagical/contracts/fetch';
 import {
   FormDTO,
   ProjectDTO,
   SubmissionDTO,
-} from '@formio/contracts/formio-sdk';
-import { SubmissionService } from '@formio/formio-sdk';
-import { InjectLogger, Trace } from '@formio/utilities';
+} from '@automagical/contracts/formio-sdk';
+import { SubmissionService } from '@automagical/formio-sdk';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';

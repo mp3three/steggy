@@ -1,4 +1,4 @@
-import { APIRequest, APIResponse } from '@formio/contracts/server';
+import { APIRequest, APIResponse } from '@automagical/contracts/server';
 
 export const PINO_SERIALIZERS = {
   parameters(parameters: unknown[]): unknown[] {

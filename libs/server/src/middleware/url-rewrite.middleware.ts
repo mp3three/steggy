@@ -1,12 +1,12 @@
-import { FormCRUD, ProjectCRUD } from '@formio/contracts';
-import { PROJECT_KEYS } from '@formio/contracts/config';
+import { FormCRUD, ProjectCRUD } from '@automagical/contracts';
+import { PROJECT_KEYS } from '@automagical/contracts/config';
 import {
   API_KEY_HEADER,
   APIRequest,
   APIResponse,
   JWT_HEADER,
   RESERVED_WORDS,
-} from '@formio/contracts/server';
+} from '@automagical/contracts/server';
 import { BadRequestException, INestApplication, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import cors from 'cors';

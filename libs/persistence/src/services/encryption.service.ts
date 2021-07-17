@@ -1,23 +1,23 @@
 import {
   BaseComponentDTO,
   BaseInputComponentDTO,
-} from '@formio/contracts/components';
+} from '@automagical/contracts/components';
 import {
   ALGORITHM,
   DB_SECRET,
   DEFAULT_DB_SECRET,
   DEFAULT_SALT_LENGTH,
   SALT_LENGTH,
-} from '@formio/contracts/config';
-import { LIB_PERSISTENCE } from '@formio/contracts/constants';
+} from '@automagical/contracts/config';
+import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
 import {
   FlattenedComponents,
   FormDTO,
   ProjectDTO,
   ProjectSettingsDTO,
   SubmissionDTO,
-} from '@formio/contracts/formio-sdk';
-import { InjectLogger, Trace } from '@formio/utilities';
+} from '@automagical/contracts/formio-sdk';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Binary } from 'bson';

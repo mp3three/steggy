@@ -1,5 +1,5 @@
-import { ResultControlDTO } from '@formio/contracts/fetch';
-import { APIRequest } from '@formio/contracts/server';
+import { ResultControlDTO } from '@automagical/contracts/fetch';
+import { APIRequest } from '@automagical/contracts/server';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const Control = createParamDecorator(

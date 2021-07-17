@@ -4,13 +4,13 @@ import {
   ProjectCRUD,
   SubmissionCRUD,
   TeamAdapter,
-} from '@formio/contracts';
+} from '@automagical/contracts';
 import {
   CREATE_MEMBER_EVENT,
   LIB_FORMIO_SDK,
   TRUNCATE_TEAM_EVENT,
-} from '@formio/contracts/constants';
-import { ResultControlDTO } from '@formio/contracts/fetch';
+} from '@automagical/contracts/constants';
+import { ResultControlDTO } from '@automagical/contracts/fetch';
 import {
   FormDTO,
   PERMISSION_ACCESS_TYPES,
@@ -18,12 +18,12 @@ import {
   ProjectDTO,
   TeamDTO,
   UserDTO,
-} from '@formio/contracts/formio-sdk';
+} from '@automagical/contracts/formio-sdk';
 import {
   TeamProjectListDTO,
   TeamProjectPermissionDTO,
-} from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+} from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';

@@ -1,7 +1,7 @@
-import { LIB_SERVER } from '@formio/contracts/constants';
-import { SubmissionDTO } from '@formio/contracts/formio-sdk';
-import { APIRequest } from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+import { LIB_SERVER } from '@automagical/contracts/constants';
+import { SubmissionDTO } from '@automagical/contracts/formio-sdk';
+import { APIRequest } from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Inject, Injectable, PipeTransform, Scope } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 

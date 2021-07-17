@@ -1,4 +1,4 @@
-import { EXPIRES_IN, JWT_SECRET } from '@formio/contracts/config';
+import { EXPIRES_IN, JWT_SECRET } from '@automagical/contracts/config';
 import { CacheModule, Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';

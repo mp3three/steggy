@@ -1,5 +1,5 @@
-import { FetchAuth } from '@formio/contracts/fetch';
-import { APIResponse } from '@formio/contracts/server';
+import { FetchAuth } from '@automagical/contracts/fetch';
+import { APIResponse } from '@automagical/contracts/server';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 /**

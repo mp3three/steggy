@@ -3,8 +3,8 @@ import {
   ProjectDTO,
   SUBMISSION_STATES,
   SubmissionDTO,
-} from '@formio/contracts/formio-sdk';
-import { ConfigModule, queryToControl } from '@formio/utilities';
+} from '@automagical/contracts/formio-sdk';
+import { ConfigModule, queryToControl } from '@automagical/utilities';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';

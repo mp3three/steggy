@@ -3,7 +3,7 @@ import {
   FilterDTO,
   FilterValueType,
   ResultControlDTO,
-} from '@formio/contracts/fetch';
+} from '@automagical/contracts/fetch';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { isNumberString } from 'class-validator';
 import dayjs from 'dayjs';

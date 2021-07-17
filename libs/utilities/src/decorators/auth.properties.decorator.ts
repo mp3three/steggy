@@ -1,9 +1,9 @@
-import { FetchAuth } from '@formio/contracts/fetch';
+import { FetchAuth } from '@automagical/contracts/fetch';
 import {
   API_KEY_HEADER,
   APIRequest,
   JWT_HEADER,
-} from '@formio/contracts/server';
+} from '@automagical/contracts/server';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const AuthProperties = createParamDecorator(

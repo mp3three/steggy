@@ -1,5 +1,5 @@
-import { FormDTO } from '@formio/contracts/formio-sdk';
-import { APIResponse } from '@formio/contracts/server';
+import { FormDTO } from '@automagical/contracts/formio-sdk';
+import { APIResponse } from '@automagical/contracts/server';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const Form = createParamDecorator(

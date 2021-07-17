@@ -1,5 +1,5 @@
-import { APIRequest, APIResponse } from '@formio/contracts/server';
-import { InjectLogger } from '@formio/utilities';
+import { APIRequest, APIResponse } from '@automagical/contracts/server';
+import { InjectLogger } from '@automagical/utilities';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction } from 'express';
 import { PinoLogger } from 'nestjs-pino';

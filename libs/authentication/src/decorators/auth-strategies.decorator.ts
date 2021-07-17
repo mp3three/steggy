@@ -1,4 +1,4 @@
-import { ACCESS_LEVEL, SERVER_METADATA } from '@formio/contracts/server';
+import { ACCESS_LEVEL, SERVER_METADATA } from '@automagical/contracts/server';
 import {
   applyDecorators,
   Header,

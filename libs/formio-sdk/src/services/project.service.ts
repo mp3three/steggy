@@ -1,15 +1,15 @@
-import { CrudOptions, ProjectCRUD, ProjectSupport } from '@formio/contracts';
-import { BASE_PROJECT, PROJECT_URL } from '@formio/contracts/config';
-import { LIB_FORMIO_SDK } from '@formio/contracts/constants';
-import type { FetchWith } from '@formio/contracts/fetch';
+import { CrudOptions, ProjectCRUD, ProjectSupport } from '@automagical/contracts';
+import { BASE_PROJECT, PROJECT_URL } from '@automagical/contracts/config';
+import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
+import type { FetchWith } from '@automagical/contracts/fetch';
 import {
   HTTP_METHODS,
   ResultControlDTO,
   TemporaryAuthToken,
-} from '@formio/contracts/fetch';
-import { ProjectDTO, UserDTO } from '@formio/contracts/formio-sdk';
-import { ProjectExportDetailsDTO } from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+} from '@automagical/contracts/fetch';
+import { ProjectDTO, UserDTO } from '@automagical/contracts/formio-sdk';
+import { ProjectExportDetailsDTO } from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';

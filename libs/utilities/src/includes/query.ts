@@ -1,4 +1,4 @@
-import { FILTER_OPERATIONS, ResultControlDTO } from '@formio/contracts/fetch';
+import { FILTER_OPERATIONS, ResultControlDTO } from '@automagical/contracts/fetch';
 
 export function controlToQuery(
   value: Readonly<ResultControlDTO>,

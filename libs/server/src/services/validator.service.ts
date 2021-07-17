@@ -1,9 +1,9 @@
-import { ResponseFlags } from '@formio/contracts';
-import { LIB_SERVER } from '@formio/contracts/constants';
-import { SubmissionDTO } from '@formio/contracts/formio-sdk';
-import type { APIRequest } from '@formio/contracts/server';
-import { FormValidator } from '@formio/contracts/validation';
-import { InjectLogger, Trace } from '@formio/utilities';
+import { ResponseFlags } from '@automagical/contracts';
+import { LIB_SERVER } from '@automagical/contracts/constants';
+import { SubmissionDTO } from '@automagical/contracts/formio-sdk';
+import type { APIRequest } from '@automagical/contracts/server';
+import { FormValidator } from '@automagical/contracts/validation';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';

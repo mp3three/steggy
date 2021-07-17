@@ -1,4 +1,4 @@
-import { ACTION_STATES } from '@formio/contracts/formio-sdk';
+import { ACTION_STATES } from '@automagical/contracts/formio-sdk';
 import { IsNotEmpty } from 'class-validator';
 import { ObjectID } from 'mongodb';
 import { Column, DeleteDateColumn, Entity, Index } from 'typeorm';

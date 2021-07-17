@@ -1,4 +1,4 @@
-import { ACCESS_TYPES } from '@formio/contracts/formio-sdk';
+import { ACCESS_TYPES } from '@automagical/contracts/formio-sdk';
 import { ObjectID } from 'mongodb';
 import { Column, Entity } from 'typeorm';
 

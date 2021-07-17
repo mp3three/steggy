@@ -1,6 +1,6 @@
-import { CrudOptions, FormSupport } from '@formio/contracts';
-import { FormDTO } from '@formio/contracts/formio-sdk';
-import { InjectLogger, Trace } from '@formio/utilities';
+import { CrudOptions, FormSupport } from '@automagical/contracts';
+import { FormDTO } from '@automagical/contracts/formio-sdk';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 

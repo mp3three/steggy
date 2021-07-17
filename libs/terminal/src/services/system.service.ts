@@ -1,6 +1,6 @@
-import { AutomagicalConfig } from '@formio/contracts/config';
-import { APPLICATION_LIST, LIBRARY_LIST } from '@formio/contracts/constants';
-import { NXAffected, NXWorkspaceDTO } from '@formio/contracts/terminal';
+import { AutomagicalConfig } from '@automagical/contracts/config';
+import { APPLICATION_LIST, LIBRARY_LIST } from '@automagical/contracts/constants';
+import { NXAffected, NXWorkspaceDTO } from '@automagical/contracts/terminal';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
@@ -13,7 +13,7 @@ import { join } from 'path';
 import { cwd } from 'process';
 import { inc } from 'semver';
 import { MainCLIREPL } from '../repl/main-cli.repl';
-import { filterUnique } from '@formio/utilities';
+import { filterUnique } from '@automagical/utilities';
 
 /**
  * Class for working with the host operating system,

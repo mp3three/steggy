@@ -1,7 +1,7 @@
-import { LocalStashDTO, ResponseLocals } from '@formio/contracts';
-import { MAX_STASH_DEPTH } from '@formio/contracts/config';
-import { LIB_UTILS } from '@formio/contracts/constants';
-import { APIRequest } from '@formio/contracts/server';
+import { LocalStashDTO, ResponseLocals } from '@automagical/contracts';
+import { MAX_STASH_DEPTH } from '@automagical/contracts/config';
+import { LIB_UTILS } from '@automagical/contracts/constants';
+import { APIRequest } from '@automagical/contracts/server';
 import {
   Inject,
   Injectable,

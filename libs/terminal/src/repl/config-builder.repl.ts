@@ -1,19 +1,19 @@
 import {
   ConfigLibraryVisibility,
   DefaultConfigOptions,
-} from '@formio/contracts';
+} from '@automagical/contracts';
 import {
   AutomagicalConfig,
   CommonConfig,
   CONFIGURABLE_APPS,
   CONFIGURABLE_LIBS,
-} from '@formio/contracts/config';
-import { APPLICATION_LIST } from '@formio/contracts/constants';
+} from '@automagical/contracts/config';
+import { APPLICATION_LIST } from '@automagical/contracts/constants';
 import {
   CLIService,
   CONFIG_PROVIDERS,
   FigletFonts,
-} from '@formio/contracts/terminal';
+} from '@automagical/contracts/terminal';
 import {
   Injectable,
   InternalServerErrorException,

@@ -1,20 +1,20 @@
-import type { ResponseLocals } from '@formio/contracts';
+import type { ResponseLocals } from '@automagical/contracts';
 import {
   ActionCRUD,
   FormCRUD,
   ProjectCRUD,
   SubmissionCRUD,
-} from '@formio/contracts';
-import { PROJECT_KEYS } from '@formio/contracts/config';
-import { LIB_SERVER } from '@formio/contracts/constants';
+} from '@automagical/contracts';
+import { PROJECT_KEYS } from '@automagical/contracts/config';
+import { LIB_SERVER } from '@automagical/contracts/constants';
 import {
   ActionDTO,
   FormDTO,
   ProjectDTO,
   SubmissionDTO,
-} from '@formio/contracts/formio-sdk';
-import type { APIRequest, APIResponse } from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+} from '@automagical/contracts/formio-sdk';
+import type { APIRequest, APIResponse } from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import {
   CanActivate,
   ExecutionContext,

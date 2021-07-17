@@ -1,5 +1,5 @@
-import { JIRA_CONFIG } from '@formio/contracts/config';
-import { LIB_WRAPPER } from '@formio/contracts/constants';
+import { JIRA_CONFIG } from '@automagical/contracts/config';
+import { LIB_WRAPPER } from '@automagical/contracts/constants';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import JiraApi from 'jira-client';

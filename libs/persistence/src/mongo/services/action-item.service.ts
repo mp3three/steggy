@@ -1,8 +1,8 @@
-import { ActionItemCRUD } from '@formio/contracts';
-import { LIB_PERSISTENCE } from '@formio/contracts/constants';
-import { ResultControlDTO } from '@formio/contracts/fetch';
-import { ActionItemDTO, FormDTO } from '@formio/contracts/formio-sdk';
-import { InjectLogger, InjectMongo, ToClass, Trace } from '@formio/utilities';
+import { ActionItemCRUD } from '@automagical/contracts';
+import { LIB_PERSISTENCE } from '@automagical/contracts/constants';
+import { ResultControlDTO } from '@automagical/contracts/fetch';
+import { ActionItemDTO, FormDTO } from '@automagical/contracts/formio-sdk';
+import { InjectLogger, InjectMongo, ToClass, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';

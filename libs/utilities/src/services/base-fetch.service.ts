@@ -3,7 +3,7 @@ import {
   HTTP_METHODS,
   ResultControlDTO,
   TemporaryAuthToken,
-} from '@formio/contracts/fetch';
+} from '@automagical/contracts/fetch';
 import { PinoLogger } from 'nestjs-pino';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 

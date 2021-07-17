@@ -9,8 +9,8 @@ import {
   SubmissionDTO,
   TagDTO,
   TokenDTO,
-} from '@formio/contracts/formio-sdk';
-import { MinimalSdkModule } from '@formio/formio-sdk';
+} from '@automagical/contracts/formio-sdk';
+import { MinimalSdkModule } from '@automagical/formio-sdk';
 import { CacheModule, DynamicModule, Global, Module } from '@nestjs/common';
 import { ModelDefinition, MongooseModule } from '@nestjs/mongoose';
 

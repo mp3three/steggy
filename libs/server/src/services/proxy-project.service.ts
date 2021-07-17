@@ -1,10 +1,10 @@
-import { CrudOptions, ProjectCRUD } from '@formio/contracts';
-import { PORTAL_ADMIN_KEY, PROJECT_KEYS } from '@formio/contracts/config';
-import { LIB_SERVER } from '@formio/contracts/constants';
-import type { ResultControlDTO } from '@formio/contracts/fetch';
-import { ProjectDTO } from '@formio/contracts/formio-sdk';
-import { ProjectService } from '@formio/formio-sdk';
-import { InjectLogger, Trace } from '@formio/utilities';
+import { CrudOptions, ProjectCRUD } from '@automagical/contracts';
+import { PORTAL_ADMIN_KEY, PROJECT_KEYS } from '@automagical/contracts/config';
+import { LIB_SERVER } from '@automagical/contracts/constants';
+import type { ResultControlDTO } from '@automagical/contracts/fetch';
+import { ProjectDTO } from '@automagical/contracts/formio-sdk';
+import { ProjectService } from '@automagical/formio-sdk';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import {
   CACHE_MANAGER,
   Inject,

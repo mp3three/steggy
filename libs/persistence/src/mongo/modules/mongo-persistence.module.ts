@@ -2,7 +2,7 @@ import {
   MONGO_CERTS,
   MONGO_CONFIG,
   MongoCerts,
-} from '@formio/contracts/config';
+} from '@automagical/contracts/config';
 import {
   ActionDTO,
   ActionItemDTO,
@@ -14,9 +14,9 @@ import {
   SubmissionDTO,
   TagDTO,
   TokenDTO,
-} from '@formio/contracts/formio-sdk';
-import { FormioSdkModule } from '@formio/formio-sdk';
-import { FetchService } from '@formio/utilities';
+} from '@automagical/contracts/formio-sdk';
+import { FormioSdkModule } from '@automagical/formio-sdk';
+import { FetchService } from '@automagical/utilities';
 import { CacheModule, DynamicModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {

@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 import inquirer from 'inquirer';
 import { sign } from 'jsonwebtoken';
 
-import { CLIService, FigletFonts } from '@formio/contracts/terminal';
+import { CLIService, FigletFonts } from '@automagical/contracts/terminal';
 import { MainCLIREPL } from './main-cli.repl';
 
 interface ResultType {

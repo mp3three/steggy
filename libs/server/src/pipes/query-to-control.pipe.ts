@@ -1,6 +1,6 @@
-import { LIB_SERVER } from '@formio/contracts/constants';
-import { ResultControlDTO } from '@formio/contracts/fetch';
-import { InjectLogger, queryToControl } from '@formio/utilities';
+import { LIB_SERVER } from '@automagical/contracts/constants';
+import { ResultControlDTO } from '@automagical/contracts/fetch';
+import { InjectLogger, queryToControl } from '@automagical/utilities';
 import { Injectable, PipeTransform } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 

@@ -3,10 +3,10 @@ import {
   AuthenticationConfig,
   DEFAULT_BASIC_PASSWORD,
   DEFAULT_BASIC_USERNAME,
-} from '@formio/contracts/config';
-import { LIB_AUTHENTICATION } from '@formio/contracts/constants';
-import { APIResponse, AUTHENTICATION_HEADER } from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+} from '@automagical/contracts/config';
+import { LIB_AUTHENTICATION } from '@automagical/contracts/constants';
+import { APIResponse, AUTHENTICATION_HEADER } from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';

@@ -4,16 +4,16 @@ import {
   FormCRUD,
   ProjectSupport,
   RoleCRUD,
-} from '@formio/contracts';
-import { LIB_SERVER } from '@formio/contracts/constants';
+} from '@automagical/contracts';
+import { LIB_SERVER } from '@automagical/contracts/constants';
 import {
   ActionDTO,
   FormDTO,
   ProjectDTO,
   RoleDTO,
-} from '@formio/contracts/formio-sdk';
-import { ProjectExportDetailsDTO } from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+} from '@automagical/contracts/formio-sdk';
+import { ProjectExportDetailsDTO } from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Inject, NotImplementedException } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 

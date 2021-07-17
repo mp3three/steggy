@@ -1,4 +1,4 @@
-import { FormDTO } from '@formio/contracts/formio-sdk';
+import { FormDTO } from '@automagical/contracts/formio-sdk';
 import { SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 

@@ -1,7 +1,7 @@
-import { ResponseLocals } from '@formio/contracts';
-import { LIB_SERVER } from '@formio/contracts/constants';
-import { APIResponse, SERVER_METADATA } from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+import { ResponseLocals } from '@automagical/contracts';
+import { LIB_SERVER } from '@automagical/contracts/constants';
+import { APIResponse, SERVER_METADATA } from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import {
   CallHandler,
   ExecutionContext,

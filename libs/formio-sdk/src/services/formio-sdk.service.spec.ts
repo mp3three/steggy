@@ -3,14 +3,14 @@ import {
   APIServerApplicationSettingsDTO,
   PORTAL_BASE_URL,
   PROJECT_URL,
-} from '@formio/contracts/config';
-import { LIB_TESTING } from '@formio/contracts/constants';
+} from '@automagical/contracts/config';
+import { LIB_TESTING } from '@automagical/contracts/constants';
 import {
   DEFAULT_TEST_SETTINGS,
   MockFetchService,
   UpdatableConfigService,
-} from '@formio/testing';
-import { ConfigModule, FetchService, UtilitiesModule } from '@formio/utilities';
+} from '@automagical/testing';
+import { ConfigModule, FetchService, UtilitiesModule } from '@automagical/utilities';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { LoggerModule, PinoLogger } from 'nestjs-pino';

@@ -1,5 +1,5 @@
-import { ResponseLocals } from '@formio/contracts';
-import { SERVER_METADATA } from '@formio/contracts/server';
+import { ResponseLocals } from '@automagical/contracts';
+import { SERVER_METADATA } from '@automagical/contracts/server';
 import { applyDecorators, SetMetadata, UseInterceptors } from '@nestjs/common';
 
 import { EmitAfterInterceptor } from '../interceptors/emit-after.interceptor';

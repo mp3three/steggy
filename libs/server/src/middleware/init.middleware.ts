@@ -1,16 +1,16 @@
-import { ResponseLocals } from '@formio/contracts';
-import { WEBHOOK_USER_AGENT } from '@formio/contracts/action';
-import { EVERYONE_ROLE } from '@formio/contracts/authentication';
-import { LIB_SERVER } from '@formio/contracts/constants';
-import { HTTP_METHODS } from '@formio/contracts/fetch';
+import { ResponseLocals } from '@automagical/contracts';
+import { WEBHOOK_USER_AGENT } from '@automagical/contracts/action';
+import { EVERYONE_ROLE } from '@automagical/contracts/authentication';
+import { LIB_SERVER } from '@automagical/contracts/constants';
+import { HTTP_METHODS } from '@automagical/contracts/fetch';
 import {
   API_KEY_HEADER,
   APIRequest,
   APIResponse,
   JWT_HEADER,
   USERAGENT_HEADER,
-} from '@formio/contracts/server';
-import { InjectLogger, queryToControl } from '@formio/utilities';
+} from '@automagical/contracts/server';
+import { InjectLogger, queryToControl } from '@automagical/utilities';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction } from 'express';
 import { PinoLogger } from 'nestjs-pino';

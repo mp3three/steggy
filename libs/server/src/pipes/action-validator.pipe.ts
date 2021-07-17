@@ -1,13 +1,13 @@
-import { FormCRUD } from '@formio/contracts';
-import { SaveActionSettingsDTO } from '@formio/contracts/action';
-import { LIB_SERVER } from '@formio/contracts/constants';
+import { FormCRUD } from '@automagical/contracts';
+import { SaveActionSettingsDTO } from '@automagical/contracts/action';
+import { LIB_SERVER } from '@automagical/contracts/constants';
 import {
   ACTION_NAMES,
   ActionDTO,
   SubmissionDTO,
-} from '@formio/contracts/formio-sdk';
-import { APIRequest } from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+} from '@automagical/contracts/formio-sdk';
+import { APIRequest } from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import {
   ArgumentMetadata,
   BadRequestException,

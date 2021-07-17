@@ -1,4 +1,4 @@
-import { EmailActionSettingsDTO } from '@formio/contracts/action';
+import { EmailActionSettingsDTO } from '@automagical/contracts/action';
 import {
   EMAIL_CHUNK_SIZE,
   EMAIL_GMAIL_CONFIG,
@@ -11,16 +11,16 @@ import {
   EmailMandrillConfig,
   EmailSendgridConfig,
   EmailSMTPConfig,
-} from '@formio/contracts/config';
-import { LIB_UTILS } from '@formio/contracts/constants';
+} from '@automagical/contracts/config';
+import { LIB_UTILS } from '@automagical/contracts/constants';
 import type {
   NunjucksOptions,
   NunjucksParametersDTO,
   NunjucksRenderDTO,
-} from '@formio/contracts/email';
-import { ProjectDTO, SubmissionDTO } from '@formio/contracts/formio-sdk';
-import { APIRequest } from '@formio/contracts/server';
-import { Thread } from '@formio/wrapper';
+} from '@automagical/contracts/email';
+import { ProjectDTO, SubmissionDTO } from '@automagical/contracts/formio-sdk';
+import { APIRequest } from '@automagical/contracts/server';
+import { Thread } from '@automagical/wrapper';
 import {
   Inject,
   Injectable,

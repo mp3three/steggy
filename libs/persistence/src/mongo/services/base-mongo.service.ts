@@ -1,5 +1,5 @@
-import { FILTER_OPERATIONS, ResultControlDTO } from '@formio/contracts/fetch';
-import { FormDTO, ProjectDTO } from '@formio/contracts/formio-sdk';
+import { FILTER_OPERATIONS, ResultControlDTO } from '@automagical/contracts/fetch';
+import { FormDTO, ProjectDTO } from '@automagical/contracts/formio-sdk';
 import { Document, Query, Types } from 'mongoose';
 
 import { MongooseConnection } from '../classes';

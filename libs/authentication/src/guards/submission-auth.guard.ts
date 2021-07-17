@@ -1,10 +1,10 @@
-import { LIB_AUTHENTICATION } from '@formio/contracts/constants';
+import { LIB_AUTHENTICATION } from '@automagical/contracts/constants';
 import {
   ACCESS_LEVEL,
   APIResponse,
   SERVER_METADATA,
-} from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+} from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PinoLogger } from 'nestjs-pino';

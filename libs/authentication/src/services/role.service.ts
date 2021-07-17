@@ -1,15 +1,15 @@
-import type { ResponseLocals } from '@formio/contracts';
-import { ResponseFlags, RoleCRUD } from '@formio/contracts';
-import { LIB_AUTHENTICATION } from '@formio/contracts/constants';
-import { ResultControlDTO } from '@formio/contracts/fetch';
+import type { ResponseLocals } from '@automagical/contracts';
+import { ResponseFlags, RoleCRUD } from '@automagical/contracts';
+import { LIB_AUTHENTICATION } from '@automagical/contracts/constants';
+import { ResultControlDTO } from '@automagical/contracts/fetch';
 import {
   AccessDTO,
   PERMISSION_ACCESS_TYPES,
   ProjectDTO,
   RoleDTO,
-} from '@formio/contracts/formio-sdk';
-import { ACCESS_LEVEL } from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+} from '@automagical/contracts/formio-sdk';
+import { ACCESS_LEVEL } from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 

@@ -1,5 +1,5 @@
-import { ActionItemDTO, FormDTO } from '@formio/contracts/formio-sdk';
-import { ConfigModule } from '@formio/utilities';
+import { ActionItemDTO, FormDTO } from '@automagical/contracts/formio-sdk';
+import { ConfigModule } from '@automagical/utilities';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';

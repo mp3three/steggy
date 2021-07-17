@@ -1,5 +1,5 @@
-import { FormCRUD, SubmissionCRUD } from '@formio/contracts';
-import { FormDTO } from '@formio/contracts/formio-sdk';
+import { FormCRUD, SubmissionCRUD } from '@automagical/contracts';
+import { FormDTO } from '@automagical/contracts/formio-sdk';
 import {
   ChangelogDataDTO,
   ChangelogDTO,
@@ -8,7 +8,7 @@ import {
   CHANGELOG_TAGS,
   CHANGELOG_TICKETSOURCE,
   CLIService,
-} from '@formio/contracts/terminal';
+} from '@automagical/contracts/terminal';
 import { Inject, Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';

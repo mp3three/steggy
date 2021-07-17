@@ -1,5 +1,5 @@
-import { LIB_UTILS } from '@formio/contracts/constants';
-import { FetchArguments } from '@formio/contracts/fetch';
+import { LIB_UTILS } from '@automagical/contracts/constants';
+import { FetchArguments } from '@automagical/contracts/fetch';
 import { Injectable, Scope } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 import fetch from 'node-fetch';

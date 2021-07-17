@@ -1,4 +1,4 @@
-import { AuthenticationModule } from '@formio/authentication';
+import { AuthenticationModule } from '@automagical/authentication';
 import {
   CacheModule,
   Global,

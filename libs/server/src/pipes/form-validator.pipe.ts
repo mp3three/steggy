@@ -1,7 +1,7 @@
-import { LIB_SERVER } from '@formio/contracts/constants';
-import { FormDTO } from '@formio/contracts/formio-sdk';
-import { APIRequest } from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+import { LIB_SERVER } from '@automagical/contracts/constants';
+import { FormDTO } from '@automagical/contracts/formio-sdk';
+import { APIRequest } from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import {
   ArgumentMetadata,
   BadRequestException,

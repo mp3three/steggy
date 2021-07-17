@@ -1,4 +1,4 @@
-import { BaseDTO } from '@formio/contracts/formio-sdk';
+import { BaseDTO } from '@automagical/contracts/formio-sdk';
 
 /**
  * @example await sleep(5000);

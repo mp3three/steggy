@@ -1,4 +1,4 @@
-import { AutomagicalConfig, BODY_SIZE, PORT } from '@formio/contracts/config';
+import { AutomagicalConfig, BODY_SIZE, PORT } from '@automagical/contracts/config';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { json } from 'express';

@@ -1,8 +1,8 @@
-import { ResponseFlags } from '@formio/contracts';
-import { LIB_AUTHENTICATION } from '@formio/contracts/constants';
-import { UserDTO } from '@formio/contracts/formio-sdk';
-import { API_KEY_HEADER, APIResponse } from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+import { ResponseFlags } from '@automagical/contracts';
+import { LIB_AUTHENTICATION } from '@automagical/contracts/constants';
+import { UserDTO } from '@automagical/contracts/formio-sdk';
+import { API_KEY_HEADER, APIResponse } from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import {
   CanActivate,
   ExecutionContext,

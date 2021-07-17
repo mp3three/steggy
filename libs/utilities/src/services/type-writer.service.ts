@@ -1,5 +1,5 @@
-import { LIB_UTILS } from '@formio/contracts/constants';
-import { FormDTO } from '@formio/contracts/formio-sdk';
+import { LIB_UTILS } from '@automagical/contracts/constants';
+import { FormDTO } from '@automagical/contracts/formio-sdk';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 import {

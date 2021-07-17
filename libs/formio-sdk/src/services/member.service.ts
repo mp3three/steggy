@@ -3,13 +3,13 @@ import {
   FormCRUD,
   SubmissionCRUD,
   TeamAdapter,
-} from '@formio/contracts';
+} from '@automagical/contracts';
 import {
   CREATE_MEMBER_EVENT,
   LIB_FORMIO_SDK,
   TRUNCATE_TEAM_EVENT,
-} from '@formio/contracts/constants';
-import { FilterDTO, ResultControlDTO } from '@formio/contracts/fetch';
+} from '@automagical/contracts/constants';
+import { FilterDTO, ResultControlDTO } from '@automagical/contracts/fetch';
 import {
   FormDTO,
   PORTAL_RESOURCES,
@@ -17,8 +17,8 @@ import {
   TeamMemberDataDTO,
   TeamMemberDTO,
   UserDTO,
-} from '@formio/contracts/formio-sdk';
-import { InjectLogger, Trace } from '@formio/utilities';
+} from '@automagical/contracts/formio-sdk';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import {
   BadRequestException,
   forwardRef,

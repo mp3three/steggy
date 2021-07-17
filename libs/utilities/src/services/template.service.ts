@@ -1,5 +1,5 @@
-import { LIB_UTILS } from '@formio/contracts/constants';
-import { SubmissionDTO } from '@formio/contracts/formio-sdk';
+import { LIB_UTILS } from '@automagical/contracts/constants';
+import { SubmissionDTO } from '@automagical/contracts/formio-sdk';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { PinoLogger } from 'nestjs-pino';

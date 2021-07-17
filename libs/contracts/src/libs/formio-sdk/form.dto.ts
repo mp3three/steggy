@@ -1,4 +1,4 @@
-import { Utils } from '@formio/wrapper';
+import { Utils } from '@automagical/wrapper';
 import { InternalServerErrorException } from '@nestjs/common';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';

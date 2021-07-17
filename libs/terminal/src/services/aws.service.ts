@@ -1,9 +1,9 @@
-import { AWS_ENVIRONMENTS } from '@formio/contracts/config';
-import { CONFIG_PROVIDERS } from '@formio/contracts/terminal';
+import { AWS_ENVIRONMENTS } from '@automagical/contracts/config';
+import { CONFIG_PROVIDERS } from '@automagical/contracts/terminal';
 import {
   EBApplicationDTO,
   EBEnvironmentDTO,
-} from '@formio/contracts/utilities';
+} from '@automagical/contracts/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import execa from 'execa';

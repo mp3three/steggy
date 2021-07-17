@@ -1,8 +1,8 @@
-import { ResponseFlags } from '@formio/contracts';
-import { ADMIN_KEY } from '@formio/contracts/config';
-import { LIB_AUTHENTICATION } from '@formio/contracts/constants';
-import { ADMIN_KEY_HEADER, APIResponse } from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+import { ResponseFlags } from '@automagical/contracts';
+import { ADMIN_KEY } from '@automagical/contracts/config';
+import { LIB_AUTHENTICATION } from '@automagical/contracts/constants';
+import { ADMIN_KEY_HEADER, APIResponse } from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import {
   CanActivate,
   ExecutionContext,

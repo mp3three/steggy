@@ -1,11 +1,11 @@
-import { BaseInputComponentDTO, DataType } from '@formio/contracts/components';
-import { LIB_UTILS } from '@formio/contracts/constants';
+import { BaseInputComponentDTO, DataType } from '@automagical/contracts/components';
+import { LIB_UTILS } from '@automagical/contracts/constants';
 import {
   LIB_SWAGGER_IMPORT,
   LIB_VALIDATOR_IMPORT,
   SwaggerAnnotations,
   ValidatorAnnotations,
-} from '@formio/contracts/validation';
+} from '@automagical/contracts/validation';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 import {
@@ -22,7 +22,7 @@ import { InjectLogger } from '../decorators';
 export class AnnotationBuilderService {
   // #region Static Properties
 
-  private static readonly LIB_VALIDATOR = '@formio/wrapper';
+  private static readonly LIB_VALIDATOR = '@automagical/wrapper';
 
   // #endregion Static Properties
 

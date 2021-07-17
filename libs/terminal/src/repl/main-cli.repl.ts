@@ -1,4 +1,4 @@
-import { CLIService, FigletFonts } from '@formio/contracts/terminal';
+import { CLIService, FigletFonts } from '@automagical/contracts/terminal';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import clear from 'clear';

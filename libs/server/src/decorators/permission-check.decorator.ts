@@ -1,9 +1,9 @@
-import { AuthOptions, AuthStrategies } from '@formio/authentication';
+import { AuthOptions, AuthStrategies } from '@automagical/authentication';
 import {
   ACCESS_LEVEL,
   ACCESS_TYPE,
   SERVER_METADATA,
-} from '@formio/contracts/server';
+} from '@automagical/contracts/server';
 import { applyDecorators, SetMetadata, UseGuards } from '@nestjs/common';
 
 import { ValidateParametersGuard } from '../guards';

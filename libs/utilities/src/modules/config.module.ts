@@ -1,5 +1,5 @@
-import { AutomagicalConfig } from '@formio/contracts/config';
-import { LIB_TESTING } from '@formio/contracts/constants';
+import { AutomagicalConfig } from '@automagical/contracts/config';
+import { LIB_TESTING } from '@automagical/contracts/constants';
 import { DynamicModule, Module } from '@nestjs/common';
 import * as NestConfig from '@nestjs/config';
 import rc from 'rc';

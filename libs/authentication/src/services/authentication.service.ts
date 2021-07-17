@@ -1,5 +1,5 @@
-import { SessionCRUD } from '@formio/contracts';
-import { SessionTokenDTO } from '@formio/contracts/authentication';
+import { SessionCRUD } from '@automagical/contracts';
+import { SessionTokenDTO } from '@automagical/contracts/authentication';
 import {
   DEFAULT_JWT_SECRET,
   DEFAULT_REMOTE_SECRET,
@@ -7,15 +7,15 @@ import {
   JWT_SECRET,
   REMOTE_SECRET,
   VERIFY_JWT,
-} from '@formio/contracts/config';
-import { LIB_AUTHENTICATION } from '@formio/contracts/constants';
+} from '@automagical/contracts/config';
+import { LIB_AUTHENTICATION } from '@automagical/contracts/constants';
 import {
   FormDTO,
   PERMISSION_ACCESS_TYPES,
   ProjectDTO,
   UserDTO,
-} from '@formio/contracts/formio-sdk';
-import { InjectLogger, Trace } from '@formio/utilities';
+} from '@automagical/contracts/formio-sdk';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import {
   BadRequestException,
   CACHE_MANAGER,

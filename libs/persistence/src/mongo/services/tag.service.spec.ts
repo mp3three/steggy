@@ -1,5 +1,5 @@
-import { TagDTO } from '@formio/contracts/formio-sdk';
-import { ConfigModule } from '@formio/utilities';
+import { TagDTO } from '@automagical/contracts/formio-sdk';
+import { ConfigModule } from '@automagical/utilities';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';

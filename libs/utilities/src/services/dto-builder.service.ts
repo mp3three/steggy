@@ -4,9 +4,9 @@ import {
   LABEL_VALUE,
   SelectComponentDTO,
   SurveyComponent,
-} from '@formio/contracts/components';
-import { LIB_UTILS } from '@formio/contracts/constants';
-import { FormDTO } from '@formio/contracts/formio-sdk';
+} from '@automagical/contracts/components';
+import { LIB_UTILS } from '@automagical/contracts/constants';
+import { FormDTO } from '@automagical/contracts/formio-sdk';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 import {

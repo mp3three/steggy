@@ -1,10 +1,10 @@
-import { CrudOptions } from '@formio/contracts';
-import { APIServerApplicationSettingsDTO } from '@formio/contracts/config';
-import { LIB_TESTING } from '@formio/contracts/constants';
-import { HTTP_METHODS, ResultControlDTO } from '@formio/contracts/fetch';
-import { ActionDTO, FormDTO, ProjectDTO } from '@formio/contracts/formio-sdk';
-import { DEFAULT_TEST_SETTINGS, MockFetchService } from '@formio/testing';
-import { ConfigModule, FetchService, UtilitiesModule } from '@formio/utilities';
+import { CrudOptions } from '@automagical/contracts';
+import { APIServerApplicationSettingsDTO } from '@automagical/contracts/config';
+import { LIB_TESTING } from '@automagical/contracts/constants';
+import { HTTP_METHODS, ResultControlDTO } from '@automagical/contracts/fetch';
+import { ActionDTO, FormDTO, ProjectDTO } from '@automagical/contracts/formio-sdk';
+import { DEFAULT_TEST_SETTINGS, MockFetchService } from '@automagical/testing';
+import { ConfigModule, FetchService, UtilitiesModule } from '@automagical/utilities';
 import { Test } from '@nestjs/testing';
 import { LoggerModule, PinoLogger } from 'nestjs-pino';
 

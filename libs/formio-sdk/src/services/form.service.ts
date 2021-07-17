@@ -1,8 +1,8 @@
-import { CrudOptions, FormCRUD } from '@formio/contracts';
-import { LIB_FORMIO_SDK } from '@formio/contracts/constants';
-import { HTTP_METHODS, ResultControlDTO } from '@formio/contracts/fetch';
-import { FormDTO, ProjectDTO } from '@formio/contracts/formio-sdk';
-import { InjectLogger, Trace } from '@formio/utilities';
+import { CrudOptions, FormCRUD } from '@automagical/contracts';
+import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
+import { HTTP_METHODS, ResultControlDTO } from '@automagical/contracts/fetch';
+import { FormDTO, ProjectDTO } from '@automagical/contracts/formio-sdk';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 

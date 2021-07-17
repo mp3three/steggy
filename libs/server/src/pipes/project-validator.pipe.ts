@@ -1,8 +1,8 @@
-import { LIB_SERVER } from '@formio/contracts/constants';
-import { HTTP_METHODS } from '@formio/contracts/fetch';
-import { ProjectDTO } from '@formio/contracts/formio-sdk';
-import { APIRequest } from '@formio/contracts/server';
-import { InjectLogger, Trace } from '@formio/utilities';
+import { LIB_SERVER } from '@automagical/contracts/constants';
+import { HTTP_METHODS } from '@automagical/contracts/fetch';
+import { ProjectDTO } from '@automagical/contracts/formio-sdk';
+import { APIRequest } from '@automagical/contracts/server';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import {
   ArgumentMetadata,
   BadRequestException,
