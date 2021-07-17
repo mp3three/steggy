@@ -1,5 +1,3 @@
-import { SessionTokenDTO } from '../libs/authentication';
-import { HTTP_METHODS } from '../libs/fetch';
 import {
   ActionDTO,
   FormDTO,
@@ -8,7 +6,6 @@ import {
   SubmissionDTO,
   UserDTO,
 } from '../libs/formio-sdk';
-import { LicenseDTO } from '../libs/licenses';
 import { ACTION_METHOD } from '../libs/server';
 import { CrudOptions } from './crud-options';
 

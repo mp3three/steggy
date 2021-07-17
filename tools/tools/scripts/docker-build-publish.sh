@@ -7,16 +7,16 @@ fi
 # BUILD
 tools/scripts/docker-build.sh $IMAGE $DIR
 
+NAME=$(cat package.json | grep name | head -n 1 | awk -F: '{ print $2 }' | awk -F, '{ print $1 }'| xargs)
 VERSION=$(cat "apps/$DIR/package.json" | grep version | awk -F: '{ print $2 }' | awk -F, '{ print $1 }'| xargs)
-SHA=$(docker inspect --format='{{index .RepoDigests 0}}' formio/$IMAGE:latest)
+SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $NAME/$IMAGE:latest)
 GIT_ID=$(git log -1 --pretty=%h)
 TAGS=$(ts-node tools/scripts/create-tags.js $VERSION $GIT_ID)
-IMAGE=$(echo "formio/$IMAGE")
-LATEST=$(echo "latest")
+IMAGE=$(echo "$NAME/$IMAGE")
 
 for TAG in $TAGS
 do
-  if [ "$TAG" != "$LATEST" ]; then
+  if [ "$TAG" != "latest" ]; then
     COMMAND="docker tag $IMAGE:latest $IMAGE:$TAG"
     echo $COMMAND
     echo $COMMAND | sh

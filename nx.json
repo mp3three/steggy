@@ -1,13 +1,18 @@
 {
   "implicitDependencies": {
     "workspace.json": "*",
-    "package.json": { "dependencies": "*", "devDependencies": "*" },
+    "package.json": {
+      "dependencies": "*",
+      "devDependencies": "*"
+    },
     "tsconfig.base.json": "*",
     "tslint.json": "*",
     ".eslintrc.json": "*",
     "nx.json": "*"
   },
-  "affected": { "defaultBase": "develop" },
+  "affected": {
+    "defaultBase": "develop"
+  },
   "npmScope": "automagical",
   "tasksRunnerOptions": {
     "default": {
@@ -20,18 +25,49 @@
       }
     }
   },
-  "workspaceLayout": { "appsDir": "apps", "libsDir": "libs" },
+  "workspaceLayout": {
+    "appsDir": "apps",
+    "libsDir": "libs"
+  },
   "projects": {
-    "type-writer": { "tags": [] },
-    "formio-sdk": { "tags": [] },
-    "home-assistant": { "tags": [] },
-    "home-controller": { "tags": ["backend"] },
-    "utilities": { "tags": [] },
-    "authentication": { "tags": ["backend"] },
-    "fetch": { "tags": ["backend"] },
-    "contracts": { "tags": [] },
-    "config": { "tags": [] },
-    "persistence": { "tags": ["backend", "data"] },
-    "server": { "tags": [] }
+    "authentication": {
+      "tags": ["backend"]
+    },
+    "config": {
+      "tags": []
+    },
+    "contracts": {
+      "tags": []
+    },
+    "devtools": {
+      "tags": []
+    },
+    "fetch": {
+      "tags": ["backend"]
+    },
+    "formio-sdk": {
+      "tags": []
+    },
+    "home-assistant": {
+      "tags": []
+    },
+    "home-controller": {
+      "tags": ["backend"]
+    },
+    "living-docs": {
+      "tags": []
+    },
+    "persistence": {
+      "tags": ["backend", "data"]
+    },
+    "server": {
+      "tags": []
+    },
+    "type-writer": {
+      "tags": []
+    },
+    "utilities": {
+      "tags": []
+    }
   }
 }

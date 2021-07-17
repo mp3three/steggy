@@ -4,9 +4,15 @@
 /dist
 /tmp
 /out-tsc
+apps/**/yarn.lock
+/apps/**/deployments/**/*zip
+# Private keys
+/apps/**/config/*
+# /apps/support-tools/**/*key
+/apps/living-docs/docker/*yaml
 
 # dependencies
-/node_modules
+**/node_modules
 
 # IDEs and editors
 /.idea
@@ -49,3 +55,7 @@ apps/*/src/assets/user-env*.yaml
 Thumbs.db
 globalConfig.json
 report.*.json
+
+# tools/security
+tools/security/*pem
+.gitsecret/keys/random_seed

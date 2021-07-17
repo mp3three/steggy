@@ -1,0 +1,8 @@
+# For local consumption
+---
+theme: vagrant
+includes: ./
+output: ../../dist/living-docs
+includesName: Markdown Docs
+hideGenerator: true
+assetsFolder: ./assets

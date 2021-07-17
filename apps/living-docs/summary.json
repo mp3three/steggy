@@ -1,0 +1,63 @@
+[{
+    "title": "Docker Images",
+    "file": "./README.md",
+    "children": [{
+        "title": "Home Controlle",
+        "file": "../home-controller/README.md"
+      },
+      {
+        "title": "Living Docs",
+        "file": "./README.md",
+        "children": [{
+          "title": "Deploy living-docs",
+          "file": "./deployments/README.md"
+        }]
+      }
+    ]
+  },
+  {
+    "title": "Internal Libraries",
+    "file": "./documentation/internal_libraries.md",
+    "children": [{
+        "title": "Authentication",
+        "file": "../../libs/authentication/README.md"
+      },
+      {
+        "title": "Contracts",
+        "file": "../../libs/contracts/README.md",
+        "children": [{
+          "title": "Symbols",
+          "file": "../../libs/contracts/src/symbols/README.md"
+        }]
+      },
+      {
+        "title": "Formio SDK",
+        "file": "../../libs/formio-sdk/README.md"
+      },
+      {
+        "title": "Persistence",
+        "file": "../../libs/persistence/README.md"
+      },
+      {
+        "title": "Server",
+        "file": "../../libs/server/README.md"
+      },
+      {
+        "title": "Utilities",
+        "file": "../../libs/utilities/README.md"
+      }
+    ]
+  }, {
+    "title": "Developer Notes",
+    "file": "./documentation/developer_notes.md",
+    "children": [{
+        "title": "Configuration",
+        "file": "../../libs/contracts/src/config/README.md"
+      },
+      {
+        "title": "Debugging with Elastic Beanstalk",
+        "file": "./documentation/debugging_elastic_beanstalk.md"
+      }
+    ]
+  }
+]

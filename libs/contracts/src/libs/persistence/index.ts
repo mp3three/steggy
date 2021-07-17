@@ -18,4 +18,3 @@ export const TOKEN_PERSISTENCE_DRIVER = Symbol('TOKEN_PERSISTENCE_DRIVER');
 
 export const MONGOOSE = Symbol('MONGOOSE');
 export * from './mongo';
-export * from './schema';

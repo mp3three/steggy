@@ -18,18 +18,6 @@ if ! command -v wget &> /dev/null
 then
   MISSING_BREW="$MISSING_BREW wget"
 fi
-if ! command -v cowsay &> /dev/null
-then
-  MISSING_BREW="$MISSING_BREW cowsay"
-fi
-if ! command -v fortune &> /dev/null
-then
-  MISSING_BREW="$MISSING_BREW fortune"
-fi
-if ! command -v lolcat &> /dev/null
-then
-  MISSING_BREW="$MISSING_BREW lolcat"
-fi
 if ! command -v curl &> /dev/null
 then
   MISSING_BREW="$MISSING_BREW curl"
@@ -105,27 +93,15 @@ fi
 #### PATH
 ##########################
 
-SUB='support-tools'
-if [[ "$PATH" != *"$SUB"* ]]; then
-  PWD=$(printf "%q\n" "$(pwd)")
-  export PATH="$PATH:$PWD/apps/support-tools/scripts"
-  if test -f ~/.zshrc; then
-    echo "export PATH=\"$PATH:$PWD/apps/support-tools/scripts\"" >> ~/.zshrc
-  fi
-  if test -f ~/.bash_profile; then
-    echo "export PATH=\"$PATH:$PWD/apps/support-tools/scripts\"" >> ~/.bash_profile
-  fi
-  echo "export PATH=\"$PATH:$PWD/apps/support-tools/scripts\"" >> ~/.bashrc
-fi
-SUB='devtools'
-if [[ "$PATH" != *"$SUB"* ]]; then
-  PWD=$(printf "%q\n" "$(pwd)")
-  export PATH="$PATH:$PWD/apps/devtools/scripts"
-  if test -f ~/.zshrc; then
-    echo "export PATH=\"\$PATH:$PWD/apps/devtools/scripts\"" >> ~/.zshrc
-  fi
-  if test -f ~/.bash_profile; then
-    echo "export PATH=\"\$PATH:$PWD/apps/devtools/scripts\"" >> ~/.bash_profile
-  fi
-  echo "export PATH=\"\$PATH:$PWD/apps/devtools/scripts\"" >> ~/.bashrc
-fi
+# SUB='devtools'
+# if [[ "$PATH" != *"$SUB"* ]]; then
+#   PWD=$(printf "%q\n" "$(pwd)")
+#   export PATH="$PATH:$PWD/apps/devtools/scripts"
+#   if test -f ~/.zshrc; then
+#     echo "export PATH=\"\$PATH:$PWD/apps/devtools/scripts\"" >> ~/.zshrc
+#   fi
+#   if test -f ~/.bash_profile; then
+#     echo "export PATH=\"\$PATH:$PWD/apps/devtools/scripts\"" >> ~/.bash_profile
+#   fi
+#   echo "export PATH=\"\$PATH:$PWD/apps/devtools/scripts\"" >> ~/.bashrc
+# fi

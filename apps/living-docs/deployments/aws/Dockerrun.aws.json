@@ -1,0 +1,22 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "volumes": [
+  ],
+  "containerDefinitions": [
+    {
+      "name": "living-docs",
+      "image": "formiobot/living-docs:latest",
+      "memory": 128,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        }
+      ],
+      "links": [
+      ],
+      "mountPoints": [
+      ]
+    }
+  ]
+}

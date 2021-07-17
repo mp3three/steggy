@@ -1,0 +1,8 @@
+{
+  "version": "0.0.9",
+  "name": "living-docs",
+  "license": "MIT",
+  "scripts": {
+    "multicontainer": "./scripts/multicontainer-update.sh"
+  }
+}

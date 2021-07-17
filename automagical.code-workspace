@@ -30,8 +30,6 @@
   },
   "extensions": {
     "recommendations": [
-      // Beautify
-      "hookyqr.beautify",
       // Bracket pair colorizer
       "coenraads.bracket-pair-colorizer-2",
       // .env support
@@ -68,6 +66,10 @@
   },
 
   "settings": {
+    // * <Rules>
+    "git.enableCommitSigning": false,
+    // * </Rules>
+
     // * <Decorative>
     "better-comments.tags": [{
         "tag": "!",

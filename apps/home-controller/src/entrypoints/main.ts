@@ -1,17 +1,15 @@
-import { AutomagicalConfig } from '@automagical/config';
-import { BODY_SIZE, PORT } from '@automagical/contracts/constants';
-import { ServerSwaggerInit } from '@automagical/documentation';
-import { BasicNestLogger } from '@automagical/server';
+import { BasicNestLogger, ServerSwaggerInit } from '@automagical/server';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { json } from 'express';
 import helmet from 'helmet';
+import { AutomagicalConfig, BODY_SIZE, PORT } from 'libs/contracts/src/config';
 import { Logger } from 'nestjs-pino';
 
-import { AppModule } from './app/application.module';
+import { ApplicationModule } from '../modules';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create(ApplicationModule, {
     cors: true,
     logger: BasicNestLogger(),
   });

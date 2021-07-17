@@ -10,5 +10,7 @@ module.exports = {
     '<rootDir>/libs/config',
     '<rootDir>/libs/persistence',
     '<rootDir>/libs/server',
+    '<rootDir>/apps/living-docs',
+    '<rootDir>/apps/devtools',
   ],
 };

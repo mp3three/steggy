@@ -1,8 +1,147 @@
 {
   "version": 2,
-  "cli": { "defaultCollection": "@nrwl/nest" },
+  "cli": {
+    "defaultCollection": "@nrwl/nest"
+  },
   "defaultProject": "home-controller",
   "projects": {
+    "authentication": {
+      "root": "libs/authentication",
+      "sourceRoot": "libs/authentication/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["libs/authentication/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/authentication"],
+          "options": {
+            "jestConfig": "libs/authentication/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/libs/authentication",
+            "tsConfig": "libs/authentication/tsconfig.lib.json",
+            "packageJson": "libs/authentication/package.json",
+            "main": "libs/authentication/src/index.ts",
+            "assets": ["libs/authentication/*.md"]
+          }
+        }
+      }
+    },
+    "contracts": {
+      "root": "libs/contracts",
+      "sourceRoot": "contracts",
+      "projectType": "library",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/libs/contracts",
+            "tsConfig": "libs/contracts/tsconfig.lib.json",
+            "packageJson": "libs/contracts/package.json",
+            "main": "libs/contracts/src/index.ts"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["libs/contracts/**/*.ts"]
+          }
+        }
+      }
+    },
+    "devtools": {
+      "root": "apps/devtools",
+      "sourceRoot": "apps/devtools/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/devtools",
+            "main": "apps/devtools/src/main.ts",
+            "tsConfig": "apps/devtools/tsconfig.app.json",
+            "assets": ["apps/devtools/src/assets"]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/devtools/src/environments/environment.ts",
+                  "with": "apps/devtools/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "devtools:build"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["apps/devtools/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/devtools"],
+          "options": {
+            "jestConfig": "apps/devtools/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "formio-sdk": {
+      "root": "libs/formio-sdk",
+      "sourceRoot": "libs/formio-sdk/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["libs/formio-sdk/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/formio-sdk"],
+          "options": {
+            "jestConfig": "libs/formio-sdk/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/libs/formio-sdk",
+            "tsConfig": "libs/formio-sdk/tsconfig.lib.json",
+            "packageJson": "libs/formio-sdk/package.json",
+            "main": "libs/formio-sdk/src/index.ts",
+            "assets": ["libs/formio-sdk/*.md"]
+          }
+        }
+      }
+    },
     "home-controller": {
       "root": "apps/home-controller",
       "sourceRoot": "apps/home-controller/src",
@@ -22,9 +161,7 @@
         },
         "build": {
           "executor": "@nrwl/node:build",
-          "outputs": [
-            "{options.outputPath}"
-          ],
+          "outputs": ["{options.outputPath}"],
           "options": {
             "outputPath": "dist/apps/home-controller",
             "generatePackageJson": true,
@@ -35,16 +172,12 @@
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": [
-              "apps/home-controller/**/*.ts"
-            ]
+            "lintFilePatterns": ["apps/home-controller/**/*.ts"]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/apps/home-controller"
-          ],
+          "outputs": ["coverage/apps/home-controller"],
           "options": {
             "jestConfig": "apps/home-controller/jest.config.js",
             "passWithNoTests": true
@@ -52,109 +185,52 @@
         }
       }
     },
-    "authentication": {
-      "root": "libs/authentication",
-      "sourceRoot": "libs/authentication/src",
-      "projectType": "library",
+    "living-docs": {
+      "root": "apps/living-docs",
+      "sourceRoot": "apps/living-docs/src",
+      "projectType": "application",
       "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/living-docs",
+            "main": "apps/living-docs/src/main.ts",
+            "tsConfig": "apps/living-docs/tsconfig.app.json",
+            "assets": ["apps/living-docs/src/assets"]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/living-docs/src/environments/environment.ts",
+                  "with": "apps/living-docs/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "living-docs:build"
+          }
+        },
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": [
-              "libs/authentication/**/*.ts"
-            ]
+            "lintFilePatterns": ["apps/living-docs/**/*.ts"]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/authentication"
-          ],
+          "outputs": ["coverage/apps/living-docs"],
           "options": {
-            "jestConfig": "libs/authentication/jest.config.js",
+            "jestConfig": "apps/living-docs/jest.config.js",
             "passWithNoTests": true
-          }
-        },
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
-          "options": {
-            "outputPath": "dist/libs/authentication",
-            "tsConfig": "libs/authentication/tsconfig.lib.json",
-            "packageJson": "libs/authentication/package.json",
-            "main": "libs/authentication/src/index.ts",
-            "assets": [
-              "libs/authentication/*.md"
-            ]
-          }
-        }
-      }
-    },
-    "contracts": {
-      "root": "libs/contracts",
-      "sourceRoot": "contracts",
-      "projectType": "library",
-      "targets": {
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
-          "options": {
-            "outputPath": "dist/libs/contracts",
-            "tsConfig": "libs/contracts/tsconfig.lib.json",
-            "packageJson": "libs/contracts/package.json",
-            "main": "libs/contracts/src/index.ts"
-          }
-        },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": [
-              "libs/contracts/**/*.ts"
-            ]
-          }
-        }
-      }
-    },
-    "formio-sdk": {
-      "root": "libs/formio-sdk",
-      "sourceRoot": "libs/formio-sdk/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": [
-              "libs/formio-sdk/**/*.ts"
-            ]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/formio-sdk"
-          ],
-          "options": {
-            "jestConfig": "libs/formio-sdk/jest.config.js",
-            "passWithNoTests": true
-          }
-        },
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
-          "options": {
-            "outputPath": "dist/libs/formio-sdk",
-            "tsConfig": "libs/formio-sdk/tsconfig.lib.json",
-            "packageJson": "libs/formio-sdk/package.json",
-            "main": "libs/formio-sdk/src/index.ts",
-            "assets": [
-              "libs/formio-sdk/*.md"
-            ]
           }
         }
       }
@@ -167,9 +243,7 @@
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": [
-              "libs/persistence/**/*.ts"
-            ]
+            "lintFilePatterns": ["libs/persistence/**/*.ts"]
           }
         },
         "test-pretty": {
@@ -185,9 +259,7 @@
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/persistence"
-          ],
+          "outputs": ["coverage/libs/persistence"],
           "options": {
             "jestConfig": "libs/persistence/jest.config.js",
             "passWithNoTests": true
@@ -195,17 +267,13 @@
         },
         "build": {
           "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
+          "outputs": ["{options.outputPath}"],
           "options": {
             "outputPath": "dist/libs/persistence",
             "tsConfig": "libs/persistence/tsconfig.lib.json",
             "packageJson": "libs/persistence/package.json",
             "main": "libs/persistence/src/index.ts",
-            "assets": [
-              "libs/persistence/*.md"
-            ]
+            "assets": ["libs/persistence/*.md"]
           }
         }
       }
@@ -218,16 +286,12 @@
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": [
-              "libs/server/**/*.ts"
-            ]
+            "lintFilePatterns": ["libs/server/**/*.ts"]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/server"
-          ],
+          "outputs": ["coverage/libs/server"],
           "options": {
             "jestConfig": "libs/server/jest.config.js",
             "passWithNoTests": true
@@ -235,17 +299,13 @@
         },
         "build": {
           "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
+          "outputs": ["{options.outputPath}"],
           "options": {
             "outputPath": "dist/libs/server",
             "tsConfig": "libs/server/tsconfig.lib.json",
             "packageJson": "libs/server/package.json",
             "main": "libs/server/src/index.ts",
-            "assets": [
-              "libs/server/*.md"
-            ]
+            "assets": ["libs/server/*.md"]
           }
         }
       }
@@ -258,16 +318,12 @@
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": [
-              "libs/terminal/**/*.ts"
-            ]
+            "lintFilePatterns": ["libs/terminal/**/*.ts"]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/terminal"
-          ],
+          "outputs": ["coverage/libs/terminal"],
           "options": {
             "jestConfig": "libs/terminal/jest.config.js",
             "passWithNoTests": true
@@ -282,9 +338,7 @@
       "targets": {
         "build": {
           "executor": "@nrwl/node:package",
-          "outputs": [
-            "{options.outputPath}"
-          ],
+          "outputs": ["{options.outputPath}"],
           "options": {
             "outputPath": "dist/libs/utilities",
             "tsConfig": "libs/utilities/tsconfig.lib.json",
@@ -295,16 +349,12 @@
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": [
-              "libs/utilities/**/*.ts"
-            ]
+            "lintFilePatterns": ["libs/utilities/**/*.ts"]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/utilities"
-          ],
+          "outputs": ["coverage/libs/utilities"],
           "options": {
             "jestConfig": "libs/utilities/jest.config.js",
             "passWithNoTests": true

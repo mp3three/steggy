@@ -17,45 +17,41 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@automagical/formio-sdk": ["libs/formio-sdk/src/index.ts"],
-      "@automagical/home-assistant": ["libs/home-assistant/src/index.ts"],
-      "@automagical/type-writer": ["libs/type-writer/src/index.ts"],
-      "@automagical/utilities": ["libs/utilities/src/index.ts"],
       "@automagical/authentication": ["libs/authentication/src/index.ts"],
-      "@automagical/fetch": ["libs/fetch/src/index.ts"],
       "@automagical/contracts": ["libs/contracts/src/index.ts"],
-      "@automagical/contracts/home-assistant": [
-        "libs/contracts/src/libs/home-assistant/index.ts"
-      ],
-      "@automagical/documentation": ["libs/documentation/src/index.ts"],
-
-      "@automagical/contracts/action": ["libs/contracts/src/libs/action/index.ts"],
       "@automagical/contracts/authentication": [
         "libs/contracts/src/libs/authentication/index.ts"
       ],
-      "@automagical/contracts/components": [
-        "libs/contracts/src/libs/components/index.ts"
+      "@automagical/contracts/config": ["libs/contracts/src/config/index.ts"],
+      "@automagical/contracts/constants": [
+        "libs/contracts/src/constants/index.ts"
       ],
-      "@automagical/contracts/constants": ["libs/contracts/src/constants/index.ts"],
-      "@automagical/contracts/email": ["libs/contracts/src/libs/email/index.ts"],
-      "@automagical/contracts/fetch": ["libs/contracts/src/libs/fetch/index.ts"],
       "@automagical/contracts/formio-sdk": [
         "libs/contracts/src/libs/formio-sdk/index.ts"
       ],
-      "@automagical/contracts/licenses": [
-        "libs/contracts/src/libs/licenses/index.ts"
+      "@automagical/contracts/home-assistant": [
+        "libs/contracts/src/libs/home-assistant/index.ts"
       ],
       "@automagical/contracts/persistence": [
         "libs/contracts/src/libs/persistence/index.ts"
       ],
-      "@automagical/contracts/server": ["libs/contracts/src/libs/server/index.ts"],
-      "@automagical/contracts/validation": [
-        "libs/contracts/src/libs/validation/index.ts"
+      "@automagical/contracts/server": [
+        "libs/contracts/src/libs/server/index.ts"
       ],
-
-      "@automagical/config": ["libs/config/src/index.ts"],
+      "@automagical/contracts/terminal": [
+        "libs/contracts/src/libs/terminal/index.ts"
+      ],
+      "@automagical/contracts/utilities": [
+        "libs/contracts/src/libs/utilities/index.ts"
+      ],
+      "@automagical/formio-sdk": ["libs/formio-sdk/src/index.ts"],
+      "@automagical/home-assistant": ["libs/home-assistant/src/index.ts"],
       "@automagical/persistence": ["libs/persistence/src/index.ts"],
-      "@automagical/server": ["libs/server/src/index.ts"]
+      "@automagical/persistence/mongo": ["libs/persistence/src/mongo/index.ts"],
+      "@automagical/server": ["libs/server/src/index.ts"],
+      "@automagical/terminal": ["libs/terminal/src/index.ts"],
+      "@automagical/testing": ["libs/testing/src/index.ts"],
+      "@automagical/utilities": ["libs/utilities/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

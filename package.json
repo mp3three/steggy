@@ -36,8 +36,6 @@
     "solar-calc": "^1.1.0",
     "@angular-devkit/architect": "^0.1102.6",
     "@apollo/client": "^3.3.16",
-    "@automagical/choices.js": "^9.0.1",
-    "@automagical/node-fetch-http-proxy": "^1.1.0",
     "@mailchimp/mailchimp_transactional": "^1.0.26",
     "@nestjs/common": "^7.6.14",
     "@nestjs/config": "^0.6.3",
