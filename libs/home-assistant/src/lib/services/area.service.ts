@@ -1,3 +1,4 @@
+import { DBL_CLICK_TIMEOUT } from '@automagical/config';
 import {
   HA_EVENT_STATE_CHANGE,
   HA_SOCKET_READY,
@@ -237,20 +238,7 @@ export class AreaService {
     global = false,
   ): Promise<void> {
     if (global && this.isCommonArea(areaName)) {
-      this.getCommonAreas().forEach(async (name) => {
-        if (this.IS_EVENING) {
-          this.logger.info(name);
-          return await this.areaOff(name);
-        }
-        await this.areaOn(areaName);
-      });
-      this.AREA_MAP.get(areaName).forEach(async (entityId) => {
-        if (domain(entityId) !== HassDomains.remote) {
-          return;
-        }
-        await this.entityService.turnOn(entityId);
-      });
-      return;
+      return await this.setGlobalFavorite(areaName);
     }
     const scene = this.configService.get(
       `application.favorites.${areaName}`,
@@ -335,18 +323,9 @@ export class AreaService {
 
   // #region Protected Methods
 
-  protected isController(entity: { entity_id: string }): boolean {
-    const [domain, name] = entity.entity_id.split('.') as [HassDomains, string];
-    return domain === HassDomains.sensor && name.includes('pico');
-  }
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
-
   @Cron(CronExpression.EVERY_MINUTE)
   @Trace()
-  private async circadianLightingUpdate() {
+  protected async circadianLightingUpdate(): Promise<void> {
     this.AREA_MAP.forEach((entities) => {
       entities.forEach(async (entityId) => {
         if (domain(entityId) !== HassDomains.light) {
@@ -362,7 +341,7 @@ export class AreaService {
   }
 
   @OnEvent([HA_EVENT_STATE_CHANGE])
-  private async onControllerEvent(event: HassEventDTO): Promise<void> {
+  protected async onControllerEvent(event: HassEventDTO): Promise<void> {
     const entityId = event.data.entity_id;
     if (!this.CONTROLLER_MAP.has(entityId)) {
       return;
@@ -403,12 +382,20 @@ export class AreaService {
       case PicoStates.favorite:
         setTimeout(
           () => this.FAVORITE_TIMEOUT.delete(entityId),
-          this.configService.get('libs.home-assistant.DBL_CLICK_TIMEOUT') ||
-            1000,
+          this.configService.get(DBL_CLICK_TIMEOUT) || 1000,
         );
         return await this.setFavoriteScene(areaName);
     }
   }
+
+  protected isController(entity: { entity_id: string }): boolean {
+    const [domain, name] = entity.entity_id.split('.') as [HassDomains, string];
+    return domain === HassDomains.sensor && name.includes('pico');
+  }
+
+  // #endregion Protected Methods
+
+  // #region Private Methods
 
   @Trace()
   private async lightDim(areaName: string, amount: number) {
@@ -432,6 +419,23 @@ export class AreaService {
         return await this.areaOn(areaName);
       }
       await this.areaOff(areaName);
+    });
+  }
+
+  @Trace()
+  private async setGlobalFavorite(areaName: string): Promise<void> {
+    this.getCommonAreas().forEach(async (name) => {
+      if (this.IS_EVENING) {
+        this.logger.info(name);
+        return await this.areaOff(name);
+      }
+      await this.areaOn(areaName);
+    });
+    this.AREA_MAP.get(areaName).forEach(async (entityId) => {
+      if (domain(entityId) !== HassDomains.remote) {
+        return;
+      }
+      await this.entityService.turnOn(entityId);
     });
   }
 

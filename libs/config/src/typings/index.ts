@@ -10,6 +10,7 @@ export * from './authentication';
 export * from './common';
 export * from './email';
 export * from './formio-sdk';
+export * from './home-assistant';
 export * from './license';
 export * from './persistence';
 export * from './server';
