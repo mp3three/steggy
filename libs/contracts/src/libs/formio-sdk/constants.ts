@@ -78,6 +78,7 @@ export enum ACTION_NAMES {
  */
 export enum SUBMISSION_STATES {
   submitted = 'submitted',
+  testing = 'testing',
 }
 
 /**
@@ -112,9 +113,4 @@ export enum ACTION_STATES {
   complete = 'complete',
   error = 'error',
   new = 'new',
-}
-
-export enum FORM_TYPES {
-  resource = 'resource',
-  form = 'form',
 }

@@ -23,4 +23,5 @@ export * from './tag.dto';
 export * from './token.dto';
 
 // Extends
+export * from './portal';
 export * from './submission';

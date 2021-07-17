@@ -1,22 +1,52 @@
-export const APP_LICENSE_SERVER = Symbol('license-server');
-export const APP_API_SERVER = Symbol('api-server');
-export const APP_HOME_CONTROLLER = Symbol('home-controller');
-export const APP_SUBMISSION_SERVER = Symbol('submission-server');
-export const APP_SQL_CONNECTOR = Symbol('sql-connector');
-export const APP_DEVTOOLS = Symbol('devtools');
+// These characters are banned from app symbol names due to breaking functionality elsewhere:
+// -_.
 
-export const LIB_TYPE_WRITER = Symbol('type-writer');
-export const LIB_PERSISTENCE = Symbol('persistence');
-export const LIB_LICENSES = Symbol('licenses');
-export const LIB_FORMIO_SDK = Symbol('formio-sdk');
-export const LIB_SERVER = Symbol('server');
-export const LIB_FETCH = Symbol('fetch');
-export const LIB_AUTHENTICATION = Symbol('authentication');
-export const LIB_TESTING = 'jest-test';
-export const LIB_VALIDATION = Symbol('validation');
-export const LIB_DOCUMENTATION = Symbol('documentation');
+export const APP_LICENSE_SERVER = Symbol('license');
+export const APP_API_SERVER = Symbol('api');
+export const APP_SQL_CONNECTOR = Symbol('sqlconnector');
+export const APP_DEVTOOLS = Symbol('devtools');
+export const APP_LIVING_DOCS = Symbol('livingdocs');
+export const APP_SUPPORT_TOOLS = Symbol('support');
+
+// Make sure these line up with lib names in config/index.ts if adding
 export const LIB_ACTION = Symbol('action');
-export const LIB_EMAIL = Symbol('email');
+export const LIB_AUTHENTICATION = Symbol('authentication');
+export const LIB_CONTRACTS = Symbol('contracts');
+export const LIB_FORMIO_SDK = Symbol('formiosdk');
+export const LIB_LICENSES = Symbol('licenses');
+export const LIB_PERSISTENCE = Symbol('persistence');
+export const LIB_SERVER = Symbol('server');
+export const LIB_TESTING = 'jest-test';
 export const LIB_UTILS = Symbol('utils');
-export const LIB_PROXY = Symbol('proxy');
-export const LIB_HOME_ASSISTANT = Symbol('home-assistant');
+export const LIB_WRAPPER = Symbol('wrapper');
+
+export const APPLICATION_LIST = [
+  APP_API_SERVER.description,
+  APP_DEVTOOLS.description,
+  APP_LICENSE_SERVER.description,
+  APP_SQL_CONNECTOR.description,
+  APP_LIVING_DOCS.description,
+  APP_SUPPORT_TOOLS.description,
+];
+
+export const APPLICATION_SYMBOL_MAP = new Map(
+  Object.entries({
+    [APP_API_SERVER.description]: APP_API_SERVER,
+    [APP_DEVTOOLS.description]: APP_DEVTOOLS,
+    [APP_LICENSE_SERVER.description]: APP_LICENSE_SERVER,
+    [APP_SQL_CONNECTOR.description]: APP_SQL_CONNECTOR,
+    [APP_SUPPORT_TOOLS.description]: APP_SUPPORT_TOOLS,
+  }),
+);
+export const LIBRARY_LIST = [
+  LIB_ACTION.description,
+  LIB_AUTHENTICATION.description,
+  LIB_CONTRACTS.description,
+  LIB_FORMIO_SDK.description,
+  LIB_LICENSES.description,
+  LIB_PERSISTENCE.description,
+  LIB_SERVER.description,
+  LIB_TESTING,
+  LIB_UTILS.description,
+  LIB_WRAPPER.description,
+];

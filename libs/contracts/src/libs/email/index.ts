@@ -1,6 +1,6 @@
 import { EmailActionSettingsDTO } from '../action';
 import { SessionTokenDTO } from '../authentication';
-import { SubmissionDTO, UserDTO } from '../formio-sdk';
+import { FormDTO, SubmissionDTO, UserDTO } from '../formio-sdk';
 
 export class NunjucksRenderDTO {
   // #region Object Properties
@@ -17,7 +17,7 @@ export class NunjucksRenderDTO {
   // #endregion Object Properties
 }
 
-export type NunjucksOptions = SubmissionDTO & {
+export type NunjucksOptions = Omit<SubmissionDTO, 'form'> & {
   req: {
     user: UserDTO;
     token?: SessionTokenDTO;
@@ -26,6 +26,7 @@ export type NunjucksOptions = SubmissionDTO & {
     body: SubmissionDTO;
   };
   settings: EmailActionSettingsDTO;
+  form: FormDTO;
   res?: {
     token?: string;
   };

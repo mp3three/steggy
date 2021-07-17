@@ -1,9 +1,9 @@
-import { DBFake } from '@automagical/contracts';
-import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Schema as MongooseSchema, Types } from 'mongoose';
 
+import { DBFake } from '../../classes';
+import { MONGO_COLLECTIONS } from '../persistence/mongo';
 import { BaseOmitProperties } from '.';
 import { TransformObjectId } from './transform-object-id.decorator';
 

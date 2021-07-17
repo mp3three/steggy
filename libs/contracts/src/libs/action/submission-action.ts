@@ -1,4 +1,4 @@
-import { ACTION_NAMES, ActionDTO } from '@automagical/contracts/formio-sdk';
+import { ACTION_NAMES, ActionDTO } from '../formio-sdk';
 
 export class SubmissionActionInfoDTO {
   // #region Object Properties

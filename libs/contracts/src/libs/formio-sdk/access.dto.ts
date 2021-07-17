@@ -1,8 +1,8 @@
-import { CanFake } from '@automagical/contracts';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 import faker from 'faker';
 
+import { CanFake } from '../../classes';
 import { ACCESS_PERMISSION, PERMISSION_ACCESS_TYPES } from './constants';
 
 export class AccessDTO extends CanFake {

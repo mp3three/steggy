@@ -3,7 +3,7 @@ import {
   PERMISSION_ACCESS_TYPES,
   ProjectDTO,
   UserDTO,
-} from '@automagical/contracts/formio-sdk';
+} from '../formio-sdk';
 
 export class SessionTokenDTO {
   // #region Object Properties

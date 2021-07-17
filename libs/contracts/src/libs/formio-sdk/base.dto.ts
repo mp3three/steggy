@@ -1,9 +1,9 @@
-import { DBFake } from '@automagical/contracts';
 import { Prop } from '@nestjs/mongoose';
 import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
 import dayjs from 'dayjs';
 import { Schema as MongooseSchema } from 'mongoose';
 
+import { DBFake } from '../../classes';
 import { BaseOmitProperties } from '.';
 import { TransformObjectId } from './transform-object-id.decorator';
 

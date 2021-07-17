@@ -1,4 +1,3 @@
-import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import { Prop, Schema } from '@nestjs/mongoose';
 import {
   IsEnum,
@@ -12,6 +11,7 @@ import { Schema as MongooseSchema, Types } from 'mongoose';
 
 import { DBFake } from '../../classes';
 import { HTTP_METHODS } from '../fetch';
+import { MONGO_COLLECTIONS } from '../persistence/mongo';
 import { BaseOmitProperties } from '.';
 import { ACTION_NAMES, ACTION_STATES, HANDLERS } from './constants';
 import { TransformObjectId } from './transform-object-id.decorator';

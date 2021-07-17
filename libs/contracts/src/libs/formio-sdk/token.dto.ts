@@ -1,9 +1,9 @@
-import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { IsDate, IsOptional, IsString, Length } from 'class-validator';
 import faker from 'faker';
 
 import { DBFake } from '../../classes';
+import { MONGO_COLLECTIONS } from '../persistence/mongo';
 import { BaseOmitProperties } from '.';
 
 @Schema({

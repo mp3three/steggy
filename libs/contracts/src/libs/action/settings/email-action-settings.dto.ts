@@ -23,7 +23,7 @@
 //   form: "60455a95fb0a1bb5e9b1c329",
 //   machineName: "formio:name:email",
 
-import { EmailConfig } from '@automagical/config';
+import { EmailConfig } from '../../../config';
 
 // }
 export class EmailActionSettingsDTO {

@@ -1,6 +1,7 @@
-import { ResponseLocals, StandardParameters } from '@automagical/contracts';
 import { REQUEST } from '@nestjs/core';
 import { Request, Response } from 'express';
+
+import { ResponseLocals, StandardParameters } from '../../interfaces';
 
 type EmptyObject = Record<never, unknown>;
 
@@ -28,6 +29,7 @@ class GenericQuery {
    * License server
    */
   licenseKey?: string;
+  live?: boolean;
   /**
    * Super secret "bypass validation" flag
    */
@@ -50,6 +52,11 @@ export const APIRequest = REQUEST;
  */
 export type APIResponse<ResponseBody extends EmptyObject = EmptyObject> =
   Response<ResponseBody, ResponseLocals>;
+export const APIResponse = REQUEST;
+export * from './headers';
 export * from './metadata';
-export * from './requests';
-export * from './response';
+export * from './project-export-details.dto';
+export * from './reserved-words';
+export * from './status.dto';
+export * from './team-project-list.dto';
+export * from './team-project-permission.dto';

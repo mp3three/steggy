@@ -13,13 +13,13 @@ import {
   TextAreaComponentDTO,
   TextFieldComponentDTO,
   WellComponentDTO,
-} from '@automagical/contracts/components';
+} from '../../components';
 import {
   ACTION_NAMES,
   FormDTO,
   ProjectDTO,
   RoleDTO,
-} from '@automagical/contracts/formio-sdk';
+} from '../../formio-sdk';
 
 export const ROLE_INFO = {
   access: { handler: false, method: false },

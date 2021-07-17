@@ -1,4 +1,4 @@
-import { SubmissionActionInfoDTO } from '@automagical/contracts/action';
+import { SubmissionActionInfoDTO } from '../../action';
 import {
   BaseComponentDTO,
   ButtonComponentDTO,
@@ -14,14 +14,9 @@ import {
   TextAreaComponentDTO,
   TextFieldComponentDTO,
   WellComponentDTO,
-} from '@automagical/contracts/components';
-import {
-  ACTION_NAMES,
-  FormDTO,
-  HANDLERS,
-  ProjectDTO,
-} from '@automagical/contracts/formio-sdk';
-import { ACTION_METHOD } from '@automagical/contracts/server';
+} from '../../components';
+import { ACTION_NAMES, FormDTO, HANDLERS, ProjectDTO } from '../../formio-sdk';
+import { ACTION_METHOD } from '../../server';
 
 /* eslint-disable radar/no-duplicate-string */
 
@@ -44,6 +39,7 @@ export const EMAIL_INFO: SubmissionActionInfoDTO = {
 export const EMAIL_SETTINGS = (
   project: ProjectDTO,
   form: FormDTO,
+  transports: Record<'transport' | 'title', string>[],
 ): { action: string; components: BaseComponentDTO[] } => {
   return {
     action: `/project/${project._id}/form/${form._id}/action`,
@@ -70,7 +66,13 @@ export const EMAIL_SETTINGS = (
             components: [
               {
                 data: {
-                  json: '[{"transport":"default","title":"Default (charges may apply)"}]',
+                  json: JSON.stringify([
+                    {
+                      title: 'Default (charges may apply)',
+                      transport: 'default',
+                    },
+                    ...transports,
+                  ]),
                 },
                 dataSrc: 'json',
                 defaultValue: 'default',

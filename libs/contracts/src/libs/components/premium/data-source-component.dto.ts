@@ -1,5 +1,4 @@
-import { HTTP_METHODS } from '@automagical/contracts/fetch';
-
+import { HTTP_METHODS } from '../../fetch';
 import { BaseComponentDTO } from '../base-component.dto';
 import { ComponentTypes } from '../enums';
 import { LABEL_VALUE } from '../include';

@@ -1,0 +1,9 @@
+export const JWT_HEADER = 'x-jwt-token';
+export const API_KEY_HEADER = 'x-token';
+export const LICENSE_KEY_HEADER = 'x-license-key';
+export const REMOTE_TOKEN_HEADER = 'x-remote-token';
+export const ADMIN_KEY_HEADER = 'x-admin-key';
+export const FOWARD_AUTH_HEADER = 'forward-auth';
+export const AUTHENTICATION_HEADER = 'authentication';
+export const USERAGENT_HEADER = 'user-agent';
+export const REQUEST_CACHE_PREFIX = 'request-cache';

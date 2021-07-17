@@ -1,9 +1,8 @@
-import { DBFake } from '@automagical/contracts';
-import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
+import { Utils } from '@formio/wrapper';
+import { InternalServerErrorException } from '@nestjs/common';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsEnum,
   IsNumber,
   IsObject,
   IsOptional,
@@ -15,9 +14,11 @@ import {
 import faker from 'faker';
 import { Schema as MongooseSchema } from 'mongoose';
 
+import { DBFake } from '../../classes';
 import { BaseComponentDTO } from '../components';
+import { MONGO_COLLECTIONS } from '../persistence/mongo';
 import { AccessDTO, BaseOmitProperties } from '.';
-import { ACCESS_TYPES, FORM_TYPES } from './constants';
+import { ACCESS_TYPES } from './constants';
 import { FieldMatchAccessPermissionDTO } from './field-match-access-permission.dto';
 import { TransformObjectId } from './transform-object-id.decorator';
 
@@ -54,9 +55,36 @@ export class FormDTO extends DBFake {
       name: faker.lorem.slug(8),
       path: faker.lorem.slug(4),
       title: faker.lorem.word(8),
-      type: faker.random.arrayElement(Object.values(FORM_TYPES)),
+      type: 'form',
       ...mixin,
     };
+  }
+
+  public static flattenComponents(form: FormDTO): FlattenedComponents {
+    if (!form) {
+      throw new InternalServerErrorException(
+        `Invalid form provided to flattenComponents`,
+      );
+    }
+    if (form[FLATTENED]) {
+      return form[FLATTENED];
+    }
+    const flattened = Utils.flattenComponents(form.components, true);
+    const out: FlattenedComponents = new Set();
+    Object.keys(flattened).forEach((path) => {
+      const parts = path.split('.');
+      const temporary: FlatComponent = {
+        component: flattened[parts.join('.')],
+        path,
+      };
+      if (parts.length > 1) {
+        parts.pop();
+        temporary.parent = flattened[parts.join('.')];
+      }
+      out.add(temporary);
+    });
+    form[FLATTENED] = out;
+    return out;
   }
 
   // #endregion Public Static Methods
@@ -66,17 +94,14 @@ export class FormDTO extends DBFake {
   @ApiProperty({
     description:
       'These operate the same on the inside, type is for categorization purposes',
-    enum: FORM_TYPES,
   })
-  @IsEnum(FORM_TYPES)
   @Prop({
-    default: FORM_TYPES.form,
-    enum: FORM_TYPES,
+    default: 'form',
     index: true,
     required: true,
     type: MongooseSchema.Types.String,
   })
-  public type?: FORM_TYPES;
+  public type?: 'form' | 'resource';
   @ApiProperty({
     description: 'An array of form components to build forms/data models from',
     type: BaseComponentDTO,

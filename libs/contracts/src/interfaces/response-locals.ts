@@ -1,5 +1,5 @@
-import { SessionTokenDTO } from '@automagical/contracts/authentication';
-import { HTTP_METHODS } from '@automagical/contracts/fetch';
+import { SessionTokenDTO } from '../libs/authentication';
+import { HTTP_METHODS } from '../libs/fetch';
 import {
   ActionDTO,
   FormDTO,
@@ -7,9 +7,10 @@ import {
   ProjectDTO,
   SubmissionDTO,
   UserDTO,
-} from '@automagical/contracts/formio-sdk';
-import { LicenseDTO } from '@automagical/contracts/licenses';
-import { ACTION_METHOD } from '@automagical/contracts/server';
+} from '../libs/formio-sdk';
+import { LicenseDTO } from '../libs/licenses';
+import { ACTION_METHOD } from '../libs/server';
+import { CrudOptions } from './crud-options';
 
 export enum ResponseFlags {
   /**
@@ -48,7 +49,7 @@ export class LocalStashDTO {
 
   // #endregion Object Properties
 }
-export interface ResponseLocals {
+export interface ResponseLocals extends CrudOptions {
   // #region Object Properties
 
   ACTION_TYPE?: ACTION_METHOD;
@@ -61,14 +62,12 @@ export interface ResponseLocals {
   /**
    * Form loaded via path params
    */
-  form?: FormDTO;
   headers: Map<string, string>;
   license?: LicenseDTO;
   licenseId?: string;
   licenseList?: LicenseDTO[];
   method: HTTP_METHODS;
   parameters: Map<string, string>;
-  project?: ProjectDTO;
   projectApiKey?: string;
   query: Map<string, string>;
   remotePermission?: PERMISSION_ACCESS_TYPES;

@@ -1,5 +1,3 @@
-import { DBFake } from '@automagical/contracts';
-import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import { Prop, Schema } from '@nestjs/mongoose';
 import {
   IsBoolean,
@@ -10,6 +8,8 @@ import {
 } from 'class-validator';
 import faker from 'faker';
 
+import { DBFake } from '../../classes';
+import { MONGO_COLLECTIONS } from '../persistence/mongo';
 import { BaseOmitProperties } from '.';
 
 @Schema({

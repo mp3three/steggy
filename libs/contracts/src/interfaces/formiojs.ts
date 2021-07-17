@@ -1,4 +1,4 @@
-import { FormDTO, SubmissionDTO } from '@automagical/contracts/formio-sdk';
+import { FormDTO, SubmissionDTO } from '../libs/formio-sdk';
 
 export class FormioJSValidationConfig {
   // #region Object Properties

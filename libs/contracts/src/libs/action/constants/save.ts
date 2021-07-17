@@ -11,14 +11,14 @@ import {
   TextAreaComponentDTO,
   TextFieldComponentDTO,
   WellComponentDTO,
-} from '@automagical/contracts/components';
+} from '../../components';
 import {
   ACTION_NAMES,
   FormDTO,
   HANDLERS,
   ProjectDTO,
-} from '@automagical/contracts/formio-sdk';
-import { ACTION_METHOD } from '@automagical/contracts/server';
+} from '../../formio-sdk';
+import { ACTION_METHOD } from '../../server';
 
 export const SAVE_INFO = {
   access: {

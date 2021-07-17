@@ -18,6 +18,10 @@ export type FetchAuth = {
    * Temporary auth token
    */
   tempAuthToken?: TemporaryAuthToken;
+  /**
+   * Server admin key
+   */
+  adminKey?: string;
 };
 
 export type FetchArguments = FetchAuth & {
@@ -65,10 +69,6 @@ export type FetchArguments = FetchAuth & {
    * URL to send request to
    */
   url: string;
-  /**
-   * Outgoing bearer auth
-   */
-  bearer?: string;
 };
 
 /**

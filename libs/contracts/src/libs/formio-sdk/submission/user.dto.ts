@@ -1,8 +1,8 @@
-import { CanFake } from '@automagical/contracts';
 import { Type } from 'class-transformer';
 import { IsEmail, IsOptional, IsString } from 'class-validator';
 import faker from 'faker';
 
+import { CanFake } from '../../../classes';
 import { SubmissionDTO } from '..';
 
 /**

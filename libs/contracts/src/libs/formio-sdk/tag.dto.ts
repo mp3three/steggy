@@ -1,4 +1,3 @@
-import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import { Prop, Schema } from '@nestjs/mongoose';
 import {
   IsNumber,
@@ -11,6 +10,7 @@ import faker from 'faker';
 import { Schema as MongooseSchema } from 'mongoose';
 
 import { DBFake } from '../../classes';
+import { MONGO_COLLECTIONS } from '../persistence/mongo';
 import { BaseOmitProperties } from '.';
 
 @Schema({
@@ -22,7 +22,7 @@ import { BaseOmitProperties } from '.';
   },
 })
 export class TagDTO<
-  TEMPLATE extends Record<never, unknown> = Record<string, unknown>
+  TEMPLATE extends Record<never, unknown> = Record<string, unknown>,
 > extends DBFake {
   // #region Public Static Methods
 

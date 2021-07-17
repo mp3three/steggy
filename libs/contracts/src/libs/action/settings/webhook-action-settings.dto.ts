@@ -1,4 +1,3 @@
-import { HTTP_METHODS } from '@automagical/contracts/fetch';
 import {
   IsArray,
   IsBoolean,
@@ -6,6 +5,8 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+
+import { HTTP_METHODS } from '../../fetch';
 
 /**
  * Premium Action

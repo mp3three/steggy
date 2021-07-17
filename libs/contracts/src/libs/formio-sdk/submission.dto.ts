@@ -1,4 +1,3 @@
-import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -13,6 +12,7 @@ import {
 import { Schema as MongooseSchema, Types } from 'mongoose';
 
 import { DBFake } from '../../classes';
+import { MONGO_COLLECTIONS } from '../persistence/mongo';
 import { BaseOmitProperties } from '.';
 import { AccessDTO } from './Access.dto';
 import { SUBMISSION_STATES } from './constants';
@@ -24,6 +24,21 @@ export class ExternalSubmissionIdDTO {
   public id: string;
   public resource?: string;
   public type?: 'resource' | string;
+
+  // #endregion Object Properties
+}
+
+export class GenericSubmissionMetadataDTO {
+  // #region Object Properties
+
+  public browsername: string;
+  public offset: number;
+  public onLine: boolean;
+  public origin: string;
+  public pathName: string;
+  public referrrer: string;
+  public timezone: string;
+  public userAgent: string;
 
   // #endregion Object Properties
 }
@@ -139,7 +154,7 @@ export class SubmissionDTO<
   })
   @ApiProperty()
   @TransformObjectId()
-  public form: string;
+  public form?: string;
   /**
    * Your data
    */

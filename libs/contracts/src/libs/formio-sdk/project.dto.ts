@@ -1,5 +1,3 @@
-import type { EmailConfig } from '@automagical/config';
-import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -17,6 +15,8 @@ import faker from 'faker';
 import { Schema as MongooseSchema } from 'mongoose';
 
 import { DBFake } from '../../classes';
+import { EmailConfig } from '../../config/utils';
+import { MONGO_COLLECTIONS } from '../persistence/mongo';
 import { BaseOmitProperties } from '.';
 import { AccessDTO } from './access.dto';
 import {
@@ -350,11 +350,12 @@ export class ProjectDTO<
   public title: string;
   @IsString()
   @Prop({})
+  @IsOptional()
   @ApiProperty({
     description:
       'Globally unique string for indexing. Auto calculates as projectName[:formName[:submissionId]]',
   })
-  public machineName: string;
+  public machineName?: string;
   @ValidateNested()
   @IsOptional()
   @Prop({

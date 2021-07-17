@@ -1,4 +1,4 @@
-import { HTTP_METHODS } from '@automagical/contracts/fetch';
+import { HTTP_METHODS } from '../../fetch';
 
 export class WebhookActionSettingsDTO {
   // #region Object Properties

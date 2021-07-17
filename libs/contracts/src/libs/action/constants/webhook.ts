@@ -1,4 +1,4 @@
-import { SubmissionActionInfoDTO } from '@automagical/contracts/action';
+import { SubmissionActionInfoDTO } from '../../action';
 import {
   BaseComponentDTO,
   BaseLayoutComponentDTO,
@@ -16,14 +16,9 @@ import {
   TextAreaComponentDTO,
   TextFieldComponentDTO,
   WellComponentDTO,
-} from '@automagical/contracts/components';
-import {
-  ACTION_NAMES,
-  FormDTO,
-  HANDLERS,
-  ProjectDTO,
-} from '@automagical/contracts/formio-sdk';
-import { ACTION_METHOD } from '@automagical/contracts/server';
+} from '../../components';
+import { ACTION_NAMES, FormDTO, HANDLERS, ProjectDTO } from '../../formio-sdk';
+import { ACTION_METHOD } from '../../server';
 /* eslint-disable radar/no-duplicate-string */
 export const WEBHOOK_USER_AGENT = 'Form.io Webhook Action';
 export const WEBHOOK_INFO: SubmissionActionInfoDTO = {

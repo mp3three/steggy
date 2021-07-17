@@ -1,4 +1,11 @@
-import { FormDTO, SubmissionDTO } from '../formio-sdk';
+import {
+  ActionDTO,
+  ActionItemDTO,
+  FormDTO,
+  HANDLERS,
+  SubmissionDTO,
+} from '../formio-sdk';
+import { ACTION_METHOD } from '../server';
 
 /**
  * Starting with those provided by class-validator, but will expand to locally created ones
@@ -117,7 +124,7 @@ export enum SwaggerAnnotations {
 export enum TransformerAnnotations {
   Type = 'Type',
 }
-export const LIB_VALIDATOR_IMPORT = '@automagical/validator';
+export const LIB_VALIDATOR_IMPORT = '@formio/wrapper';
 export const LIB_SWAGGER_IMPORT = '@nestjs/swagger';
 export const LIB_TRANSFORMER = 'class-transformer';
 export type AnnotationsList = ValidatorAnnotations | SwaggerAnnotations;
@@ -129,3 +136,15 @@ export interface FormValidator {
   // #endregion Public Methods
 }
 export const FormValidator = Symbol('FormValidator');
+export interface ActionRunner {
+  // #region Public Methods
+
+  runForm(
+    method: ACTION_METHOD,
+    handler?: HANDLERS,
+    actions?: ActionDTO[],
+  ): Promise<ActionItemDTO[]>;
+
+  // #endregion Public Methods
+}
+export const ActionRunner = Symbol('ActionRunner');

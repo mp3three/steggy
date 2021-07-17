@@ -1,4 +1,3 @@
-import { MONGO_COLLECTIONS } from '@automagical/contracts/constants';
 import { Prop, Schema } from '@nestjs/mongoose';
 import {
   IsEnum,
@@ -10,6 +9,7 @@ import {
 import faker from 'faker';
 import { Schema as MongooseSchema, Types } from 'mongoose';
 
+import { MONGO_COLLECTIONS } from '../persistence/mongo';
 import { ACTION_METHOD } from '../server';
 import { ActionConditionDTO, BaseOmitProperties } from '.';
 import { BaseDTO } from './base.dto';
