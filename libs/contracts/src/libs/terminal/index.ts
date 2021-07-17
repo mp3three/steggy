@@ -1,5 +1,4 @@
 export * from './cli-service';
-export * from './config-provider';
 export * from './dto';
 export * from './figlet';
 

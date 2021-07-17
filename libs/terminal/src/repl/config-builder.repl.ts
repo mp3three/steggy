@@ -1,19 +1,16 @@
 import {
-  ConfigLibraryVisibility,
-  DefaultConfigOptions,
-} from '@automagical/contracts';
-import {
   AutomagicalConfig,
   CommonConfig,
   CONFIGURABLE_APPS,
   CONFIGURABLE_LIBS,
 } from '@automagical/contracts/config';
 import { APPLICATION_LIST } from '@automagical/contracts/constants';
+import { CLIService, FigletFonts } from '@automagical/contracts/terminal';
 import {
-  CLIService,
+  ConfigLibraryVisibility,
+  DefaultConfigOptions,
   CONFIG_PROVIDERS,
-  FigletFonts,
-} from '@automagical/contracts/terminal';
+} from '@automagical/utilities';
 import {
   Injectable,
   InternalServerErrorException,
@@ -238,7 +235,7 @@ export class ConfigBuilderREPL implements CLIService {
   // #region Protected Methods
 
   protected async onModuleInit(): Promise<void> {
-    this.provider.set(CONFIG_PROVIDERS.application, async () => {
+    this.provider.set('application', async () => {
       const { application } = await inquirer.prompt([
         {
           name: 'application',

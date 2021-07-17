@@ -30,9 +30,6 @@
     "libsDir": "libs"
   },
   "projects": {
-    "authentication": {
-      "tags": ["backend"]
-    },
     "config": {
       "tags": []
     },
@@ -63,6 +60,10 @@
     "server": {
       "tags": []
     },
+    "testing": {
+      "tags": []
+    },
+    "terminal": {},
     "type-writer": {
       "tags": []
     },

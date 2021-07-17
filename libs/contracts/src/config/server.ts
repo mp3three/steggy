@@ -1,47 +1,44 @@
-import { APP_API_SERVER, LIB_SERVER } from '../constants';
-import { CreateAnnotation } from '../decorators';
+import { CreateConfigurableAnnotation } from '@automagical/utilities';
 
-const UsesConfig = CreateAnnotation(LIB_SERVER.description);
+import { LIB_FORMIO_SDK, LIB_SERVER } from '../constants';
+
+const UsesConfig = CreateConfigurableAnnotation(LIB_SERVER.description);
 export class ServerConfig {
   // #region Object Properties
 
   @UsesConfig({
-    applications: {
-      [APP_API_SERVER.description]: 'available',
-    },
+    applications: {},
     type: 'password',
   })
   public ADMIN_KEY?: string;
   @UsesConfig({
-    applications: {
-      [APP_API_SERVER.description]: 'default',
+    applications: {},
+    title: 'Project',
+    type: {
+      key: {
+        title: 'Project ID',
+        type: 'string',
+      },
+      value: {
+        title: 'API Key',
+        type: 'string',
+      },
     },
-    record: {
-      key: 'Project ID',
-      value: 'API Key',
-    },
-    type: 'record',
-    what: 'Project',
   })
   public PROJECT_KEYS?: Record<string, string>;
   @UsesConfig({
-    applications: {
-      [APP_API_SERVER.description]: 'default',
-    },
-    type: 'array',
+    applications: {},
+    array: true,
+    type: 'string',
   })
   public RESERVED_WORDS_LIST?: string[];
   @UsesConfig({
-    applications: {
-      [APP_API_SERVER.description]: 'default',
-    },
+    applications: {},
     type: 'password',
   })
   public PORTAL_ADMIN_KEY?: string;
   @UsesConfig({
-    applications: {
-      [APP_API_SERVER.description]: 'hidden',
-    },
+    applications: {},
     type: 'boolean',
   })
   public COMPRESSION?: boolean;
@@ -52,8 +49,8 @@ export class ServerConfig {
 /**
  * Encryption key for x-jwt-token
  */
-export const ADMIN_KEY = 'libs.server.ADMIN_KEY';
-export const COMPRESSION = 'libs.serve.COMPRESSION';
-export const RESERVED_WORDS_LIST = 'libs.server.RESERVED_WORDS_LIST';
-export const PORTAL_ADMIN_KEY = 'libs.server.PORTAL_ADMIN_KEY';
-export const PROJECT_KEYS = 'libs.server.PROJECT_KEYS';
+export const ADMIN_KEY = `libs.${LIB_FORMIO_SDK.description}.ADMIN_KEY`;
+export const COMPRESSION = `libs.${LIB_FORMIO_SDK.description}.COMPRESSION`;
+export const RESERVED_WORDS_LIST = `libs.${LIB_FORMIO_SDK.description}.RESERVED_WORDS_LIST`;
+export const PORTAL_ADMIN_KEY = `libs.${LIB_FORMIO_SDK.description}.PORTAL_ADMIN_KEY`;
+export const PROJECT_KEYS = `libs.${LIB_FORMIO_SDK.description}.PROJECT_KEYS`;

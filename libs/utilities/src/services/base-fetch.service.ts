@@ -2,8 +2,7 @@ import {
   FetchArguments,
   HTTP_METHODS,
   ResultControlDTO,
-  TemporaryAuthToken,
-} from '@automagical/contracts/fetch';
+} from '@automagical/contracts/utilities';
 import { PinoLogger } from 'nestjs-pino';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
@@ -122,9 +121,6 @@ export class BaseFetch {
       : `${arguments_.baseUrl ?? this.BASE_URL}${arguments_.url}`;
     if (arguments_.tempAuthToken) {
       arguments_.params ??= {};
-      arguments_.params.token = (
-        arguments_.tempAuthToken as TemporaryAuthToken
-      ).key;
     }
     if (arguments_.control || arguments_.params) {
       url = `${url}?${this.buildFilterString(arguments_)}`;

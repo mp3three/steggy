@@ -1,14 +1,17 @@
-import { CrudOptions, ProjectCRUD, ProjectSupport } from '@automagical/contracts';
+import {
+  CrudOptions,
+  ProjectCRUD,
+  ProjectSupport,
+} from '@automagical/contracts';
 import { BASE_PROJECT, PROJECT_URL } from '@automagical/contracts/config';
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
-import type { FetchWith } from '@automagical/contracts/fetch';
+import { ProjectDTO, UserDTO } from '@automagical/contracts/formio-sdk';
 import {
+  FetchWith,
   HTTP_METHODS,
   ResultControlDTO,
   TemporaryAuthToken,
-} from '@automagical/contracts/fetch';
-import { ProjectDTO, UserDTO } from '@automagical/contracts/formio-sdk';
-import { ProjectExportDetailsDTO } from '@automagical/contracts/server';
+} from '@automagical/contracts/utilities';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -148,7 +151,7 @@ export class ProjectService implements ProjectCRUD, ProjectSupport {
   public async export(
     project: ProjectDTO,
     { auth }: CrudOptions,
-  ): Promise<ProjectExportDetailsDTO> {
+  ): Promise<Record<string, unknown>> {
     return await this.formioSdkService.fetch({
       url: this.formioSdkService.projectUrl(project, '/export'),
       ...(auth || {}),

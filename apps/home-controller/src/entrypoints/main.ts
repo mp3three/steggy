@@ -1,9 +1,9 @@
-import { BasicNestLogger, ServerSwaggerInit } from '@automagical/server';
+import { BODY_SIZE, PORT } from '@automagical/contracts/config';
+import { BasicNestLogger } from '@automagical/server';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { json } from 'express';
 import helmet from 'helmet';
-import { AutomagicalConfig, BODY_SIZE, PORT } from 'libs/contracts/src/config';
 import { Logger } from 'nestjs-pino';
 
 import { ApplicationModule } from '../modules';
@@ -14,9 +14,8 @@ async function bootstrap() {
     logger: BasicNestLogger(),
   });
   process.nextTick(async () => {
-    ServerSwaggerInit(app);
     const logger = app.get(Logger);
-    const config = app.get<ConfigService<AutomagicalConfig>>(ConfigService);
+    const config = app.get<ConfigService>(ConfigService);
     app.use(helmet());
     const limit = config.get(BODY_SIZE);
     if (limit) {

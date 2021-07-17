@@ -1,10 +1,6 @@
-import {
-  APP_API_SERVER,
-  APP_SQL_CONNECTOR,
-  LIB_AUTHENTICATION,
-} from '../constants';
-import { CreateAnnotation } from '../decorators';
+import { CreateConfigurableAnnotation } from '@automagical/utilities';
 
+import { LIB_AUTHENTICATION } from '../constants';
 /**
  * Encryption key for x-jwt-token
  */
@@ -29,17 +25,17 @@ export const DEFAULT_JWT_SECRET = 'changeme';
 export const DEFAULT_EXPIRES_IN = 1000;
 export const DEFAULT_VERIFY_JWT = false;
 
-const UsesConfig = CreateAnnotation(LIB_AUTHENTICATION.description);
+const ConfigurableProperty = CreateConfigurableAnnotation(
+  LIB_AUTHENTICATION.description,
+);
 export class AuthenticationConfig {
   // #region Object Properties
 
   /**
    * JWT expiry time in minutes
    */
-  @UsesConfig({
-    applications: {
-      [APP_API_SERVER.description]: 'available',
-    },
+  @ConfigurableProperty({
+    applications: {},
     default: DEFAULT_EXPIRES_IN,
     type: 'number',
   })
@@ -47,10 +43,8 @@ export class AuthenticationConfig {
   /**
    * Secret for signing jwt tokens
    */
-  @UsesConfig({
-    applications: {
-      [APP_API_SERVER.description]: 'default',
-    },
+  @ConfigurableProperty({
+    applications: {},
     default: DEFAULT_JWT_SECRET,
     type: 'password',
   })
@@ -58,10 +52,8 @@ export class AuthenticationConfig {
   /**
    * Secret for validating on premise environment tokens
    */
-  @UsesConfig({
-    applications: {
-      [APP_API_SERVER.description]: 'default',
-    },
+  @ConfigurableProperty({
+    applications: {},
     default: DEFAULT_REMOTE_SECRET,
     type: 'password',
   })
@@ -71,10 +63,8 @@ export class AuthenticationConfig {
    *
    * Defaults to true / verify. Not recommended to turn off
    */
-  @UsesConfig({
-    applications: {
-      [APP_API_SERVER.description]: 'hidden',
-    },
+  @ConfigurableProperty({
+    applications: {},
     default: DEFAULT_VERIFY_JWT,
     type: 'boolean',
   })
@@ -82,10 +72,8 @@ export class AuthenticationConfig {
   /**
    * For containers that use basic auth
    */
-  @UsesConfig({
-    applications: {
-      [APP_SQL_CONNECTOR.description]: 'default',
-    },
+  @ConfigurableProperty({
+    applications: {},
     default: DEFAULT_BASIC_PASSWORD,
     type: 'password',
   })
@@ -93,11 +81,10 @@ export class AuthenticationConfig {
   /**
    * For containers that use basic auth
    */
-  @UsesConfig({
-    applications: {
-      [APP_SQL_CONNECTOR.description]: 'default',
-    },
+  @ConfigurableProperty({
+    applications: {},
     default: DEFAULT_BASIC_USERNAME,
+    type: 'string',
   })
   public BASIC_USERNAME?: string;
 

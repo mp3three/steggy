@@ -1,10 +1,10 @@
+import { CreateConfigurableAnnotation } from '@automagical/utilities';
 import type { MongooseModuleOptions } from '@nestjs/mongoose';
 import type { CipherGCMTypes } from 'crypto';
 
-import { APP_API_SERVER, LIB_PERSISTENCE } from '../constants';
-import { CreateAnnotation } from '../decorators';
+import { LIB_PERSISTENCE } from '../constants';
 
-const UsesConfig = CreateAnnotation(LIB_PERSISTENCE.description);
+const UsesConfig = CreateConfigurableAnnotation(LIB_PERSISTENCE.description);
 export class MongoCerts {
   // #region Object Properties
 
@@ -19,9 +19,8 @@ export class PersistenceConfig {
   // #region Object Properties
 
   @UsesConfig({
-    applications: {
-      [APP_API_SERVER.description]: 'available',
-    },
+    applications: {},
+    type: 'string',
   })
   /**
    * Used for encrypting data before going into the database
@@ -31,23 +30,35 @@ export class PersistenceConfig {
    * Used for encrypting project settings
    */
   @UsesConfig({
-    applications: {
-      [APP_API_SERVER.description]: 'default',
-    },
+    applications: {},
+    type: 'password',
   })
   public DB_SECRET?: string;
 
   /**
    * Load certs by path / url
    */
+  @UsesConfig({
+    applications: {},
+    type: MongoCerts,
+  })
   public MONGO_CERTS?: MongoCerts;
   /**
    * How long to make the salt for database encryption work
    */
+  @UsesConfig({
+    applications: {},
+    default: 40,
+    type: 'number',
+  })
   public SALT_LENGTH?: number;
   /**
    * Connectino options specific mongo
    */
+  @UsesConfig({
+    applications: {},
+    type: 'todo',
+  })
   public mongo?: MongooseModuleOptions;
 
   // #endregion Object Properties

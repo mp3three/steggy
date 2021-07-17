@@ -17,7 +17,6 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@automagical/authentication": ["libs/authentication/src/index.ts"],
       "@automagical/contracts": ["libs/contracts/src/index.ts"],
       "@automagical/contracts/authentication": [
         "libs/contracts/src/libs/authentication/index.ts"

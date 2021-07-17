@@ -93,15 +93,15 @@ fi
 #### PATH
 ##########################
 
-# SUB='devtools'
-# if [[ "$PATH" != *"$SUB"* ]]; then
-#   PWD=$(printf "%q\n" "$(pwd)")
-#   export PATH="$PATH:$PWD/apps/devtools/scripts"
-#   if test -f ~/.zshrc; then
-#     echo "export PATH=\"\$PATH:$PWD/apps/devtools/scripts\"" >> ~/.zshrc
-#   fi
-#   if test -f ~/.bash_profile; then
-#     echo "export PATH=\"\$PATH:$PWD/apps/devtools/scripts\"" >> ~/.bash_profile
-#   fi
-#   echo "export PATH=\"\$PATH:$PWD/apps/devtools/scripts\"" >> ~/.bashrc
-# fi
+SUB='devtools'
+if [[ "$PATH" != *"$SUB"* ]]; then
+  PWD=$(printf "%q\n" "$(pwd)")
+  export PATH="$PATH:$PWD/apps/devtools/scripts"
+  if test -f ~/.zshrc; then
+    echo "export PATH=\"\$PATH:$PWD/apps/devtools/scripts\"" >> ~/.zshrc
+  fi
+  if test -f ~/.bash_profile; then
+    echo "export PATH=\"\$PATH:$PWD/apps/devtools/scripts\"" >> ~/.bash_profile
+  fi
+  echo "export PATH=\"\$PATH:$PWD/apps/devtools/scripts\"" >> ~/.bashrc
+fi

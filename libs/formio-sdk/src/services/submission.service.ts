@@ -1,12 +1,15 @@
 import { CrudOptions, SubmissionCRUD } from '@automagical/contracts';
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
-import type { FetchWith } from '@automagical/contracts/fetch';
-import { HTTP_METHODS, ResultControlDTO } from '@automagical/contracts/fetch';
 import {
   FormDTO,
   ProjectDTO,
   SubmissionDTO,
 } from '@automagical/contracts/formio-sdk';
+import {
+  FetchWith,
+  HTTP_METHODS,
+  ResultControlDTO,
+} from '@automagical/contracts/utilities';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';

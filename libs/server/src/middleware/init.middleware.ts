@@ -1,15 +1,11 @@
 import { ResponseLocals } from '@automagical/contracts';
-import { WEBHOOK_USER_AGENT } from '@automagical/contracts/action';
-import { EVERYONE_ROLE } from '@automagical/contracts/authentication';
 import { LIB_SERVER } from '@automagical/contracts/constants';
-import { HTTP_METHODS } from '@automagical/contracts/fetch';
 import {
-  API_KEY_HEADER,
   APIRequest,
   APIResponse,
-  JWT_HEADER,
   USERAGENT_HEADER,
 } from '@automagical/contracts/server';
+import { HTTP_METHODS } from '@automagical/contracts/utilities';
 import { InjectLogger, queryToControl } from '@automagical/utilities';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction } from 'express';
@@ -48,21 +44,12 @@ export class InitMiddleware implements NestMiddleware {
     delete request.query.live;
     locals.flags = new Set();
     locals.auth ??= {};
-    locals.auth.apiKey =
-      locals.headers.get(API_KEY_HEADER) ?? locals.auth.apiKey;
-    locals.auth.jwtToken ??= locals.headers.get(JWT_HEADER);
     locals.control = queryToControl(request.query as Record<string, string>);
     locals.method = request.method.toLowerCase() as HTTP_METHODS;
     locals.parameters = new Map(Object.entries(request.params));
-    locals.roles = new Set([EVERYONE_ROLE]);
+    locals.roles = new Set([]);
     locals.authenticated = false;
     locals.query = new Map(Object.entries(request.query));
-    if (locals.headers.get(USERAGENT_HEADER) === WEBHOOK_USER_AGENT) {
-      // TODO: add depth check to useragent string
-      // ex: `${WEBHOOK_USER_AGENT}[-${depth}]`
-      // The worry is around an accidental infinite loop of webhooks
-      this.logger.warn({ WEBHOOK_USER_AGENT }, 'Request sent by webhook');
-    }
     next();
   }
 

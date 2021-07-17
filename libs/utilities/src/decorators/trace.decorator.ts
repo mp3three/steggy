@@ -1,4 +1,5 @@
 import { PinoLogger } from 'nestjs-pino';
+import rxjs from 'rxjs';
 
 type TraceArguments = {
   omitArgs?: boolean;

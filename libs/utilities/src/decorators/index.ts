@@ -1,4 +1,5 @@
 export * from './auth.properties.decorator';
+export * from './config.decorator';
 export * from './inject-logger.decorator';
 export * from './inject-mongo.decorator';
 export * from './inject-s3.decorator';

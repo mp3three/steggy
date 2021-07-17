@@ -7,9 +7,16 @@ import {
   PROJECT_URL,
 } from '@automagical/contracts/config';
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
-import type { FetchWith } from '@automagical/contracts/fetch';
-import { HTTP_METHODS, Identifier } from '@automagical/contracts/fetch';
-import { ProjectDTO, UserDataDTO, UserDTO } from '@automagical/contracts/formio-sdk';
+import {
+  ProjectDTO,
+  UserDataDTO,
+  UserDTO,
+} from '@automagical/contracts/formio-sdk';
+import {
+  FetchWith,
+  HTTP_METHODS,
+  Identifier,
+} from '@automagical/contracts/utilities';
 import { FetchService, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

@@ -5,38 +5,6 @@
   },
   "defaultProject": "home-controller",
   "projects": {
-    "authentication": {
-      "root": "libs/authentication",
-      "sourceRoot": "libs/authentication/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/authentication/**/*.ts"]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/authentication"],
-          "options": {
-            "jestConfig": "libs/authentication/jest.config.js",
-            "passWithNoTests": true
-          }
-        },
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": ["{options.outputPath}"],
-          "options": {
-            "outputPath": "dist/libs/authentication",
-            "tsConfig": "libs/authentication/tsconfig.lib.json",
-            "packageJson": "libs/authentication/package.json",
-            "main": "libs/authentication/src/index.ts",
-            "assets": ["libs/authentication/*.md"]
-          }
-        }
-      }
-    },
     "contracts": {
       "root": "libs/contracts",
       "sourceRoot": "contracts",
@@ -56,6 +24,46 @@
           "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": ["libs/contracts/**/*.ts"]
+          }
+        }
+      }
+    },
+    "testing": {
+      "root": "libs/testing",
+      "sourceRoot": "libs/testing/src",
+      "projectType": "library",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/libs/testing",
+            "tsConfig": "libs/testing/tsconfig.lib.json",
+            "packageJson": "libs/testing/package.json",
+            "main": "libs/testing/src/index.ts",
+            "assets": [
+              "libs/testing/*.md"
+            ]
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/testing/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/testing"
+          ],
+          "options": {
+            "jestConfig": "libs/testing/jest.config.js",
+            "passWithNoTests": true
           }
         }
       }

@@ -6,26 +6,13 @@ import {
   FormService,
   ProjectService,
   SubmissionService,
-  UserService,
 } from '../services';
 
 @Global()
 @Module({
-  exports: [
-    FormioSdkService,
-    SubmissionService,
-    FormService,
-    ProjectService,
-    UserService,
-  ],
+  exports: [FormioSdkService, SubmissionService, FormService, ProjectService],
   imports: [ConfigModule],
-  providers: [
-    FormioSdkService,
-    SubmissionService,
-    FormService,
-    ProjectService,
-    UserService,
-  ],
+  providers: [FormioSdkService, SubmissionService, FormService, ProjectService],
 })
 export class MinimalSdkModule {
   // #region Public Static Methods

@@ -1,6 +1,5 @@
 import {
   API_KEY,
-  APIServerApplicationSettingsDTO,
   PORTAL_BASE_URL,
   PROJECT_URL,
 } from '@automagical/contracts/config';
@@ -10,7 +9,11 @@ import {
   MockFetchService,
   UpdatableConfigService,
 } from '@automagical/testing';
-import { ConfigModule, FetchService, UtilitiesModule } from '@automagical/utilities';
+import {
+  ConfigModule,
+  FetchService,
+  UtilitiesModule,
+} from '@automagical/utilities';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { LoggerModule, PinoLogger } from 'nestjs-pino';
@@ -29,10 +32,7 @@ describe('formio-sdk service', () => {
       imports: [
         LoggerModule.forRoot(),
         UtilitiesModule,
-        ConfigModule.register<APIServerApplicationSettingsDTO>(
-          LIB_TESTING,
-          DEFAULT_TEST_SETTINGS,
-        ),
+        ConfigModule.register(LIB_TESTING, DEFAULT_TEST_SETTINGS),
       ],
       providers: [
         FormService,

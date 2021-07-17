@@ -1,6 +1,6 @@
 # Generate node_modules
 FROM node:16-alpine AS build
-ARG CONFIGURATION=api-server
+ARG CONFIGURATION='home-controller'
 
 USER node
 WORKDIR /app

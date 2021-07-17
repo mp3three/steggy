@@ -1,8 +1,9 @@
-import { APP_API_SERVER, APP_DEVTOOLS, LIB_UTILS } from '../constants';
-import { CreateAnnotation } from '../decorators';
+import { CreateConfigurableAnnotation } from '@automagical/utilities';
+
+import { LIB_UTILS } from '../constants';
 import { AWSUtilitiesConfig } from './external';
 
-const UsesConfig = CreateAnnotation(LIB_UTILS.description);
+const UsesConfig = CreateConfigurableAnnotation(LIB_UTILS.description);
 export class EmailCustomConfig {
   // #region Object Properties
 
@@ -60,9 +61,7 @@ export class EmailConfig {
   // #region Object Properties
 
   @UsesConfig({
-    applications: {
-      [APP_API_SERVER.description]: 'available',
-    },
+    applications: {},
     type: 'string',
   })
   public EMAIL_DEFAULT_FROM?: string;
@@ -85,36 +84,45 @@ export class UtilsConfig {
    *
    */
   @UsesConfig({
-    applications: {
-      [APP_DEVTOOLS.description]: 'available',
-    },
-    external: AWSUtilitiesConfig,
-    type: 'external',
+    applications: {},
+    type: AWSUtilitiesConfig,
   })
   public AWS?: AWSUtilitiesConfig;
 
+  @UsesConfig({
+    applications: {},
+    type: 'number',
+  })
   public CHUNK_SIZE?: number;
+  @UsesConfig({
+    applications: {},
+    type: 'string',
+  })
   public EMAIL_DEFAULT_FROM?: string;
   /**
    * Used with potentially recursive operations such as a save action triggering another save actions
    */
+  @UsesConfig({
+    applications: {},
+    type: 'number',
+  })
   public MAX_STASH_DEPTH: number;
+  @UsesConfig({
+    applications: {},
+    type: EmailConfig,
+  })
   public email?: EmailConfig;
 
   // #endregion Object Properties
 }
 
-/**
- * Encryption key for x-jwt-token
- */
 export const MAX_STASH_DEPTH = 'libs.utils.MAX_STASH_DEPTH';
-
-export const EMAIL_CUSTOM_CONFIG = 'libs.utils.email.custom';
-export const EMAIL_GMAIL_CONFIG = 'libs.utils.email.gmail';
-export const EMAIL_MAILGUN_CONFIG = 'libs.utils.email.mailgun';
-export const EMAIL_MANDRILL_CONFIG = 'utils.libs.email.mandrill';
-export const EMAIL_SENDGRID_CONFIG = 'libs.utils.email.sendgrid';
-export const EMAIL_SMTP_CONFIG = 'libs.utils.email.smtp';
-export const EMAIL_DEFAULT_FROM = 'libs.utils.email.EMAIL_DEFAULT_FROM';
-export const EMAIL_CHUNK_SIZE = 'libs.utils.email.CHUNK_SIZE';
-export const UTILS_AWS = 'libs.utils.AWS';
+export const EMAIL_CUSTOM_CONFIG = `libs.${LIB_UTILS.description}.email.custom`;
+export const EMAIL_GMAIL_CONFIG = `libs.${LIB_UTILS.description}.email.gmail`;
+export const EMAIL_MAILGUN_CONFIG = `libs.${LIB_UTILS.description}.email.mailgun`;
+export const EMAIL_MANDRILL_CONFIG = `utils.${LIB_UTILS.description}.email.mandrill`;
+export const EMAIL_SENDGRID_CONFIG = `libs.${LIB_UTILS.description}.email.sendgrid`;
+export const EMAIL_SMTP_CONFIG = `libs.${LIB_UTILS.description}.email.smtp`;
+export const EMAIL_DEFAULT_FROM = `libs.${LIB_UTILS.description}.email.EMAIL_DEFAULT_FROM`;
+export const EMAIL_CHUNK_SIZE = `libs.${LIB_UTILS.description}.email.CHUNK_SIZE`;
+export const AWS_CONFIG = `libs.${LIB_UTILS.description}.AWS`;
