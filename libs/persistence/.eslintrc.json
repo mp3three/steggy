@@ -9,7 +9,8 @@
     {
       "files": ["*.ts", "*.tsx"],
       "rules": {
-        "unicorn/no-null": "off"
+        "unicorn/no-null": "off",
+        "unicorn/no-array-callback-reference": "off"
       }
     },
     {

@@ -26,3 +26,7 @@ If any one of them succeeds, it will set a flag on the locals. All other auth gu
 ### 3 - Final verdict
 
 At the very end of the pipeline, a check is done to verify at least one of the previous guards set the authorized flag. If none gave a thumbs up, this guard will reject the request
+
+## Configuration
+
+Available properities
