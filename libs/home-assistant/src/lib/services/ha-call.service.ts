@@ -64,6 +64,28 @@ export class HACallService {
   }
 
   @Trace()
+  public async sendNotification<Group extends string = string>(
+    device: string,
+    title: string,
+    group: Group,
+    message = '',
+  ): Promise<void> {
+    return this.call(
+      device,
+      {
+        data: {
+          push: {
+            'thread-id': group,
+          },
+        },
+        message,
+        title,
+      },
+      HassDomains.notify,
+    );
+  }
+
+  @Trace()
   public async updateEntity(entityId: string): Promise<HassDomains> {
     return await this.socketService.sendMsg({
       domain: HassDomains.homeassistant,

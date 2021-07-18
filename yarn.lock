@@ -17072,6 +17072,11 @@ socks@^2.3.3:
     ip "^1.1.5"
     smart-buffer "^4.1.0"
 
+solar-calc@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/solar-calc/-/solar-calc-1.1.0.tgz#8fd27e05bed92329fd8a4a3f9a185a646e403fc7"
+  integrity sha1-j9J+Bb7ZIyn9iko/mhhaZG5AP8c=
+
 sonic-boom@^1.0.2:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/sonic-boom/-/sonic-boom-1.4.1.tgz#d35d6a74076624f12e6f917ade7b9d75e918f53e"

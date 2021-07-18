@@ -92,6 +92,7 @@
     "redis": "^3.0.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "~6.6.3",
+    "solar-calc": "^1.1.0",
     "sqlite3": "^5.0.2",
     "swagger-ui-express": "^4.1.6",
     "terminal-kit": "^2.1.5",

@@ -30,6 +30,7 @@ export enum HassDomains {
 }
 
 export enum HASSIO_WS_COMMAND {
+  // Normal use / already implemented
   subscribe_events = 'subscribe_events',
   auth = 'auth',
   call_service = 'call_service',
@@ -38,7 +39,7 @@ export enum HASSIO_WS_COMMAND {
   device_list = 'config/device_registry/list',
   get_states = 'get_states',
   ping = 'ping',
-
+  // Used by lovelace, but no use here (yet)
   get_themes = 'frontend/get_themes',
   current_user = 'auth/current_user',
   lovelace_config = 'lovelace/config',
@@ -60,17 +61,6 @@ export enum HASSIO_WS_COMMAND {
   unsubscribe_events = 'unsubscribe_events',
 }
 
-export enum HassServices {
-  toggle = 'toggle',
-  turn_on = 'turn_on',
-  turn_off = 'turn_off',
-  publish = 'publish',
-  set_speed = 'set_speed',
-  lock = 'lock',
-  update_entity = 'update_entity',
-  unlock = 'unlock',
-}
-
 export enum HassSocketMessageTypes {
   auth_required = 'auth_required',
   auth_ok = 'auth_ok',
@@ -78,3 +68,14 @@ export enum HassSocketMessageTypes {
   result = 'result',
   pong = 'pong',
 }
+
+// export enum HassServices {
+//   toggle = 'toggle',
+//   turn_on = 'turn_on',
+//   turn_off = 'turn_off',
+//   publish = 'publish',
+//   set_speed = 'set_speed',
+//   lock = 'lock',
+//   update_entity = 'update_entity',
+//   unlock = 'unlock',
+// }

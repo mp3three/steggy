@@ -1,30 +1,36 @@
 import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
-import { InjectLogger } from '@automagical/utilities';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 
+import { HACallService } from '../services';
+
 @Injectable()
-export class SwitchEntityService {
+export class LightDomainService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(SwitchEntityService, LIB_HOME_ASSISTANT)
+    @InjectLogger(LightDomainService, LIB_HOME_ASSISTANT)
     private readonly logger: PinoLogger,
+    private readonly callService: HACallService,
   ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
-  public turnOn(): Promise<void> {
+  @Trace()
+  public toggle(): Promise<void> {
     return;
   }
 
+  @Trace()
   public turnOff(): Promise<void> {
     return;
   }
 
-  public toggle(): Promise<void> {
+  @Trace()
+  public turnOn(): Promise<void> {
     return;
   }
 

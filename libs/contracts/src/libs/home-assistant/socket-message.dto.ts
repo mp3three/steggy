@@ -1,6 +1,6 @@
 import {
-  HASSIO_WS_COMMAND,
   HassDomains,
+  HASSIO_WS_COMMAND,
   HassServices,
   HassSocketMessageTypes,
 } from './enums/socket';

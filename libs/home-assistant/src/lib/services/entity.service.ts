@@ -12,16 +12,13 @@ import {
   HassStateDTO,
   HomeAssistantEntityAttributes,
 } from '@automagical/contracts/home-assistant';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { InjectLogger, SolarCalcService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import dayjs, { Dayjs } from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
-import SolarCalc from 'solar-calc';
-import SolarCalcType from 'solar-calc/types/solarCalc';
 
-import { SocketService } from './socket.service';
+import { HACallService } from './ha-call.service';
 
 const availableSpeeds = [
   FanSpeeds.off,
@@ -46,7 +43,6 @@ export class EntityService {
 
   private readonly ENTITIES = new Map<string, HassStateDTO>();
 
-  private _SOLAR_CALC;
   private lastUpdate: Dayjs;
 
   // #endregion Object Properties
@@ -56,31 +52,11 @@ export class EntityService {
   constructor(
     @InjectLogger(EntityService, LIB_HOME_ASSISTANT)
     protected readonly logger: PinoLogger,
-    private readonly socketService: SocketService,
-    private readonly configService: ConfigService,
+    private readonly socketService: HACallService,
+    private readonly solarCalcService: SolarCalcService,
   ) {}
 
   // #endregion Constructors
-
-  // #region Public Accessors
-
-  public get SOLAR_CALC(): SolarCalcType {
-    if (this._SOLAR_CALC) {
-      return this._SOLAR_CALC;
-    }
-    setTimeout(() => (this._SOLAR_CALC = undefined), 1000 * 30);
-    // typescript is wrong this time, it works as expected for me
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return new SolarCalc(
-      new Date(),
-      // TODO: Populated via home assistant
-      Number(this.configService.get('application.LAT')),
-      Number(this.configService.get('application.LONG')),
-    );
-  }
-
-  // #endregion Public Accessors
 
   // #region Public Methods
 
@@ -295,7 +271,7 @@ export class EntityService {
    * https://github.com/claytonjn/hass-circadian_lighting/blob/master/custom_components/circadian_lighting/__init__.py#L206
    */
   private getColorOffset(): number {
-    const calc = this.SOLAR_CALC;
+    const calc = this.solarCalcService.SOLAR_CALC;
     const noon = dayjs(calc.solarNoon);
     const dusk = dayjs(calc.dusk);
     const dawn = dayjs(calc.dawn);
