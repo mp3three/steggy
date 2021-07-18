@@ -19,6 +19,7 @@ export * from './automagical';
 export * from './common';
 export * from './external';
 export * from './formio-sdk';
+export * from './home-assistant';
 export * from './persistence';
 export * from './server';
 export * from './utils';

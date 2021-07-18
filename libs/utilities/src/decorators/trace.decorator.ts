@@ -1,5 +1,4 @@
 import { PinoLogger } from 'nestjs-pino';
-import rxjs from 'rxjs';
 
 type TraceArguments = {
   omitArgs?: boolean;
@@ -24,6 +23,35 @@ export function SetTrace(state: boolean): void {
  * Must follow the repository pattern of injecting PinoLogger as this.logger
  */
 export function Trace(config: TraceArguments = {}): MethodDecorator {
+  return function (
+    target: unknown,
+    propertyKey: string,
+    descriptor: PropertyDescriptor,
+  ): unknown {
+    // Disabling here will leave the source function unaltered
+    // Trace logging is a performance hit (even if minor), so better this than changing the log level
+
+    const originalMethod = descriptor.value;
+    descriptor.value = function (...parameters) {
+      if (!config.omitArgs && TRACE_ENABLED) {
+        this.logger[config?.levels?.before || 'trace'](
+          `${config.message || propertyKey} pre`,
+        );
+      }
+      const result = originalMethod.apply(this, parameters);
+      (async () => {
+        if (!config.omitResult && TRACE_ENABLED) {
+          this.logger[config?.levels?.after || 'trace'](
+            `${config.message || propertyKey} post`,
+          );
+        }
+      })();
+      return result;
+    };
+    return descriptor;
+  };
+}
+export function Debug(config: TraceArguments = {}): MethodDecorator {
   return function (
     target: unknown,
     propertyKey: string,

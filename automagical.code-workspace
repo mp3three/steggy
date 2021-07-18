@@ -66,9 +66,35 @@
   },
 
   "settings": {
-    // * <Rules>
-    "git.enableCommitSigning": false,
-    // * </Rules>
+    "files.exclude": {
+      "**/.git": true,
+      "**/.svn": true,
+      "**/.hg": true,
+      "**/CVS": true,
+      "**/.DS_Store": true,
+      "**/*.secret": true,
+      "SECURITY.md": true,
+      ".gitsecret": true,
+      "node_modules": true,
+      "**/yarn.lock": true,
+      "*tar": true,
+      "**/yarn-error.log": true,
+      "**/.prettierrc": true,
+      "**/.yarnclean": true,
+      "LICENSE": true,
+      "**/.gitkeep": true,
+      // "**/tsconfig.spec.json": true,
+      // "**/tsconfig.lib.json": true,
+      // "**/tsconfig.json": true,
+      "**/jest.*.js": true,
+      // "**/tsconfig.*json": true,
+      "**/.babelrc": true,
+      "**/.prettierignore": true,
+      ".editorconfig": true,
+      // "dist": true,
+      // "**/.gitignore": true,
+    },
+    "prettier.arrowParens": "avoid",
 
     // * <Decorative>
     "better-comments.tags": [{
@@ -126,6 +152,7 @@
     // Removing the warning items negatively affects organization
     "tsco.accessorsBeforeCtor": true,
     "tsco.addRegionCaptionToRegionEnd": true,
+    "tsco.groupPropertiesWithDecorators": true,
     "tsco.addRowNumberInRegionName": false,
     "tsco.addRegionIndentation": true,
     "tsco.organizeOnSave": true,

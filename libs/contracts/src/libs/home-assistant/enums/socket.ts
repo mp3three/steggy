@@ -29,7 +29,7 @@ export enum HassDomains {
   homeassistant = 'homeassistant',
 }
 
-export enum HassCommands {
+export enum HASSIO_WS_COMMAND {
   subscribe_events = 'subscribe_events',
   auth = 'auth',
   call_service = 'call_service',
@@ -38,6 +38,26 @@ export enum HassCommands {
   device_list = 'config/device_registry/list',
   get_states = 'get_states',
   ping = 'ping',
+
+  get_themes = 'frontend/get_themes',
+  current_user = 'auth/current_user',
+  lovelace_config = 'lovelace/config',
+  lovelace_resources = 'lovelace/resources',
+  get_user_data = 'frontend/get_user_data',
+  translations = 'frontend/get_translations',
+  persistent_notification = 'persistent_notification/get',
+  trace_contexts = 'trace/contexts',
+  auth_list = 'config/auth/list',
+  render_template = 'render_template',
+  cloud_status = 'cloud/status',
+  search_related = 'search/related',
+  get_config = 'get_config',
+  network = 'network',
+  analytics = 'analytics',
+  core_update = 'config/core/update',
+  setup_info = 'integration/setup_info',
+  system_health = 'system_health/info',
+  unsubscribe_events = 'unsubscribe_events',
 }
 
 export enum HassServices {
