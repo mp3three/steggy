@@ -26,63 +26,63 @@ export class ClimateDomainService {
   // #region Public Methods
 
   @Trace()
-  public async setAuxHeat(entityId: string): Promise<void> {
+  public async setAuxHeat(entityId: string | string[]): Promise<void> {
     return await this.callService.call('set_aux_heat', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async setFanMode(entityId: string): Promise<void> {
+  public async setFanMode(entityId: string | string[]): Promise<void> {
     return await this.callService.call('set_fan_mode', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async setHumidity(entityId: string): Promise<void> {
+  public async setHumidity(entityId: string | string[]): Promise<void> {
     return await this.callService.call('set_humidity', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async setHvacMode(entityId: string): Promise<void> {
+  public async setHvacMode(entityId: string | string[]): Promise<void> {
     return await this.callService.call('set_hvac_mode', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async setPresetMode(entityId: string): Promise<void> {
+  public async setPresetMode(entityId: string | string[]): Promise<void> {
     return await this.callService.call('set_preset_mode', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async setSwingMode(entityId: string): Promise<void> {
+  public async setSwingMode(entityId: string | string[]): Promise<void> {
     return await this.callService.call('set_swing_mode', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async setTemperature(entityId: string): Promise<void> {
+  public async setTemperature(entityId: string | string[]): Promise<void> {
     return await this.callService.call('set_temperature', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async turnOff(entityId: string): Promise<void> {
+  public async turnOff(entityId: string | string[]): Promise<void> {
     return await this.callService.call('turn_off', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async turnOn(entityId: string): Promise<void> {
+  public async turnOn(entityId: string | string[]): Promise<void> {
     return await this.callService.call('turn_on', {
       entity_id: entityId,
     });

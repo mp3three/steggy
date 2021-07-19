@@ -1,15 +1,32 @@
 import { PicoStates } from '@automagical/contracts/home-assistant';
 
+/**
+ * For basic standardized modes
+ *
+ * Intended workflow pressing the turn on button:
+ * - 1st press: turn on main lights / switches
+ * - 2nd press: turn on nearby hallway / transition lights
+ * - 3rd press: turn on common areas
+ */
+export class RoomDeviceDTO {
+  // #region Object Properties
+
+  public comboCount: number;
+  public target: string[];
+  public type: 'light' | 'switch' | 'room';
+
+  // #endregion Object Properties
+}
+
 export class ControllerSettings {
   // #region Object Properties
 
+  public devices: RoomDeviceDTO[];
   public dimPercent?: number;
   /**
    * default: 2500
    */
   public konamiTimeout?: number;
-  public lights?: string[];
-  public switches?: string[];
 
   // #endregion Object Properties
 }
@@ -17,7 +34,7 @@ export class ControllerSettings {
 export interface RoomController {
   // #region Object Properties
 
-  controller: ControllerSettings;
+  autoControl: ControllerSettings;
   name: string;
 
   // #endregion Object Properties
@@ -27,11 +44,11 @@ export interface RoomController {
   /**
    * Return false to block built in off command
    */
-  areaOff(): Promise<boolean>;
+  areaOff(count: number): Promise<boolean>;
   /**
    * Return false to block built in on command
    */
-  areaOn(): Promise<boolean>;
+  areaOn(count: number): Promise<boolean>;
   /**
    * Got your own secret konami code?
    *
@@ -41,15 +58,15 @@ export interface RoomController {
   /**
    * Return false to block built in dim up command
    */
-  dimDown(): Promise<boolean>;
+  dimDown(count: number): Promise<boolean>;
   /**
    * Return false to block built in dim down command
    */
-  dimUp(): Promise<boolean>;
+  dimUp(count: number): Promise<boolean>;
   /**
    * Provide some logic for the favorite button in the middle
    */
-  favorite(): Promise<void>;
+  favorite(count: number): Promise<boolean>;
 
   // #endregion Public Methods
 }

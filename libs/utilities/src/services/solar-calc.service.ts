@@ -1,5 +1,6 @@
 import { LIB_UTILS } from '@automagical/contracts/constants';
 import { ConfigService } from '@nestjs/config';
+import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
@@ -24,6 +25,16 @@ export class SolarCalcService {
   // #endregion Constructors
 
   // #region Public Accessors
+
+  public get IS_EVENING(): boolean {
+    // Considered evening if the sun has set, or it's past 6PM
+    const now = dayjs();
+    return (
+      now.isAfter(this.SOLAR_CALC.goldenHourStart) ||
+      now.isAfter(now.startOf('day').add(12 + 6, 'hour')) ||
+      now.isBefore(this.SOLAR_CALC.sunrise)
+    );
+  }
 
   public get SOLAR_CALC(): SolarCalcType {
     if (this._SOLAR_CALC) {

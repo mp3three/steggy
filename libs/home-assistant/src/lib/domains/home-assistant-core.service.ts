@@ -53,21 +53,21 @@ export class HomeAssistantCoreService {
   }
 
   @Trace()
-  public async toggle(entityId: string): Promise<void> {
+  public async toggle(entityId: string | string[]): Promise<void> {
     await this.callService.call('toggle', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async turnOff(entityId: string): Promise<void> {
+  public async turnOff(entityId: string | string[]): Promise<void> {
     await this.callService.call('turn_off', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async turnOn(entityId: string): Promise<void> {
+  public async turnOn(entityId: string | string[]): Promise<void> {
     await this.callService.call('turn_on', {
       entity_id: entityId,
     });

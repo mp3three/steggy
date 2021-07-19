@@ -23,21 +23,21 @@ export class LockDomainService {
   // #region Public Methods
 
   @Trace()
-  public async lock(entityId: string): Promise<void> {
+  public async lock(entityId: string | string[]): Promise<void> {
     return await this.callService.call('lock', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async open(entityId: string): Promise<void> {
+  public async open(entityId: string | string[]): Promise<void> {
     return await this.callService.call('open', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async unlock(entityId: string): Promise<void> {
+  public async unlock(entityId: string | string[]): Promise<void> {
     return await this.callService.call('unlock', {
       entity_id: entityId,
     });

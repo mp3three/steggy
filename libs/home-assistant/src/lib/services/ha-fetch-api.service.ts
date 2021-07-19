@@ -43,7 +43,7 @@ export class HomeAssistantFetchAPIService {
       'global' | 'local',
       Record<string, string>
     >,
-  >(entityId: string): Promise<T> {
+  >(entityId: string | string[]): Promise<T> {
     return await this.fetch<T>({
       url: `/api/config/customize/config/${entityId}`,
     });

@@ -93,3 +93,72 @@ export class FanDomainService {
 
   // #endregion Public Methods
 }
+
+// const availableSpeeds = [
+//   FanSpeeds.off,
+//   FanSpeeds.low,
+//   FanSpeeds.medium,
+//   FanSpeeds.medium_high,
+//   FanSpeeds.high,
+// ];
+
+// @Trace()
+// public async fanSpeedDown(
+//   currentSpeed: FanSpeeds,
+//   entityId: string,
+// ): Promise<void> {
+//   const index = availableSpeeds.indexOf(currentSpeed);
+//   this.logger.debug(
+//     `fanSpeedDown ${entityId}: ${currentSpeed} => ${
+//       availableSpeeds[index - 1]
+//     }`,
+//   );
+//   if (index === 0) {
+//     this.logger.debug(`Cannot speed down`);
+//     return;
+//   }
+//   return await this.socketService.call('turn_on', {
+//     entity_id: entityId,
+//     speed: availableSpeeds[index - 1],
+//   });
+// }
+
+// @Trace()
+// public async fanSpeedUp(
+//   currentSpeed: FanSpeeds,
+//   entityId: string,
+// ): Promise<void> {
+//   const index = availableSpeeds.indexOf(currentSpeed);
+//   this.logger.debug(
+//     `fanSpeedUp ${entityId}: ${currentSpeed} => ${
+//       availableSpeeds[index + 1]
+//     }`,
+//   );
+//   if (index === availableSpeeds.length - 1) {
+//     this.logger.debug(`Cannot speed up`);
+//     return;
+//   }
+//   return await this.socketService.call('turn_on', {
+//     entity_id: entityId,
+//     speed: availableSpeeds[index + 1],
+//   });
+// }
+
+// @Trace()
+// public async setFan(
+//   entityId: string,
+//   speed: FanSpeeds | 'up' | 'down',
+// ): Promise<void> {
+//   const fan = await this.entityService.byId(entityId);
+//   const attributes = fan.attributes as { speed: FanSpeeds };
+//   if (speed === 'up') {
+//     return await this.entityService.fanSpeedUp(attributes.speed, entityId);
+//   }
+//   if (speed === 'down') {
+//     return await this.entityService.fanSpeedDown(attributes.speed, entityId);
+//   }
+//   return await this.socketService.call(HassServices.turn_on, {
+//     entity_id: entityId,
+//     speed: speed,
+//   });
+// }

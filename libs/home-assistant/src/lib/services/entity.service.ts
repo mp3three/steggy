@@ -1,46 +1,30 @@
 import {
   ALL_ENTITIES_UPDATED,
-  HA_RAW_EVENT,
+  HA_EVENT_STATE_CHANGE,
   LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {
-  FanSpeeds,
   HassEventDTO,
   HassStateDTO,
-  HomeAssistantEntityAttributes,
 } from '@automagical/contracts/home-assistant';
-import { InjectLogger, SolarCalcService, Trace } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { InjectLogger, Trace } from '@automagical/utilities';
+import { Injectable, Scope } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import dayjs, { Dayjs } from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 
-import { HACallService } from './ha-call.service';
+const DEFAULT_STATE: HassStateDTO = undefined;
 
-const availableSpeeds = [
-  FanSpeeds.off,
-  FanSpeeds.low,
-  FanSpeeds.medium,
-  FanSpeeds.medium_high,
-  FanSpeeds.high,
-];
-
-/**
- * ## Lights
- *
- * Right now, this service assumes that light.turnOn implies the lights should automatically go into a circadian lighting mode.
- * Controlled light color by the position of the sun relative to LAT/LONG provided to the application.
- *
- * Brightness controlled via dimmer style controls. Turning on the light will make a best guess at a sane value for the current time.
- * If it's dark outside, default "turn on / high" is closer to 60%. During the daytime, this should be closer to 100%.
- */
-@Injectable()
+@Injectable({ scope: Scope.TRANSIENT })
 export class EntityService {
   // #region Object Properties
 
-  private readonly ENTITIES = new Map<string, HassStateDTO>();
-
-  private lastUpdate: Dayjs;
+  /**
+   * Mental note:
+   *
+   * This potentially results in duplication of data since this is a transient class.
+   * I don't think it's an issue in practical terms, but it'd be nice to resolve that
+   */
+  public readonly ENTITIES = new Map<string, HassStateDTO>();
 
   // #endregion Object Properties
 
@@ -49,8 +33,6 @@ export class EntityService {
   constructor(
     @InjectLogger(EntityService, LIB_HOME_ASSISTANT)
     protected readonly logger: PinoLogger,
-    private readonly socketService: HACallService,
-    private readonly solarCalcService: SolarCalcService,
   ) {}
 
   // #endregion Constructors
@@ -58,192 +40,42 @@ export class EntityService {
   // #region Public Methods
 
   @Trace()
-  public async fanSpeedDown(
-    currentSpeed: FanSpeeds,
-    entityId: string,
-  ): Promise<void> {
-    const index = availableSpeeds.indexOf(currentSpeed);
-    this.logger.debug(
-      `fanSpeedDown ${entityId}: ${currentSpeed} => ${
-        availableSpeeds[index - 1]
-      }`,
-    );
-    if (index === 0) {
-      this.logger.debug(`Cannot speed down`);
-      return;
+  public trackEntity(entityId: string | string[]): void {
+    if (typeof entityId === 'string') {
+      entityId = [entityId];
     }
-    return await this.socketService.call('turn_on', {
-      entity_id: entityId,
-      speed: availableSpeeds[index - 1],
+    entityId.forEach((item) => {
+      if (!this.ENTITIES.has(item)) {
+        this.ENTITIES.set(item, DEFAULT_STATE);
+      }
     });
-  }
-
-  @Trace()
-  public async fanSpeedUp(
-    currentSpeed: FanSpeeds,
-    entityId: string,
-  ): Promise<void> {
-    const index = availableSpeeds.indexOf(currentSpeed);
-    this.logger.debug(
-      `fanSpeedUp ${entityId}: ${currentSpeed} => ${
-        availableSpeeds[index + 1]
-      }`,
-    );
-    if (index === availableSpeeds.length - 1) {
-      this.logger.debug(`Cannot speed up`);
-      return;
-    }
-    return await this.socketService.call('turn_on', {
-      entity_id: entityId,
-      speed: availableSpeeds[index + 1],
-    });
-  }
-
-  /**
-   * Brightness (as controlled by the dimmer) must remain in the 5-100% range
-   *
-   * To go under 5, turn off the light instead
-   */
-  @Trace()
-  public async lightDim(entityId: string, amount: number): Promise<void> {
-    let brightness = await this.lightBrightness(entityId);
-    brightness = brightness + amount;
-    if (brightness > 100) {
-      brightness = 100;
-    }
-    if (brightness < 5) {
-      brightness = 5;
-    }
-    this.logger.debug({ amount }, `${entityId} set brightness: ${brightness}%`);
-    return await this.circadianLight(entityId, brightness);
-  }
-
-  public async byId<
-    T extends HassStateDTO = HassStateDTO<
-      unknown,
-      HomeAssistantEntityAttributes
-    >,
-  >(entityId: string): Promise<T> {
-    // if (
-    //   !this.lastUpdate ||
-    //   this.lastUpdate.isBefore(dayjs().subtract(5, 'minute'))
-    // ) {
-    //   this.logger.debug(`Cache Miss: ${entityId}`);
-    //   await this.socketService.getAllEntitities();
-    // }
-    return this.ENTITIES.get(entityId) as T;
-  }
-
-  public async circadianLight(
-    entityId: string,
-    brightness_pct?: number,
-  ): Promise<void> {
-    const MIN_COLOR = 2500;
-    const MAX_COLOR = 5500;
-    const kelvin = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
-    this.logger.trace({ brightness_pct, entityId, kelvin }, 'circadianLight');
-    return await this.socketService.call('turn_on', {
-      brightness_pct,
-      entity_id: entityId,
-      kelvin,
-    });
-  }
-
-  /**
-   * All known entity ids
-   */
-  public entityList(): string[] {
-    const out = [];
-    this.ENTITIES.forEach((value, key) => out.push(key));
-    return out;
   }
 
   // #endregion Public Methods
 
   // #region Protected Methods
 
-  /**
-   * - If it's near solar noon, lights come on at full brightness
-   * - If the sun is still out, come on as slightly dimmed
-   * - Come on at a more dim level if it's dark out
-   */
-  protected getDefaultBrightness(): number {
-    const offset = this.getColorOffset();
-
-    if (offset > 0.5) {
-      return 100;
-    }
-    if (offset > 0) {
-      return 80;
-    }
-    return 60;
-  }
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
-
   @OnEvent([ALL_ENTITIES_UPDATED])
-  @Trace({ omitArgs: true })
-  private onAllEntitiesUpdated(allEntities: HassStateDTO[]) {
-    this.lastUpdate = dayjs();
+  @Trace()
+  protected async onAllEntitiesUpdated(
+    allEntities: HassStateDTO[],
+  ): Promise<void> {
     allEntities.forEach((entity) =>
       this.ENTITIES.set(entity.entity_id, entity),
     );
   }
 
-  @OnEvent([HA_RAW_EVENT])
   @Trace()
-  private onEntityUpdate(event: HassEventDTO) {
-    if (!event.data.entity_id) {
-      return;
-    }
-    this.ENTITIES.set(event.data.entity_id, event.data.new_state);
-  }
-
-  /**
-   * Returns 0 when it's dark out, increasing to 1 at solar noon
-   *
-   * ### Future improvements
-   *
-   * The math needs work, this seems more thought out:
-   * https://github.com/claytonjn/hass-circadian_lighting/blob/master/custom_components/circadian_lighting/__init__.py#L206
-   */
-  private getColorOffset(): number {
-    const calc = this.solarCalcService.SOLAR_CALC;
-    const noon = dayjs(calc.solarNoon);
-    const dusk = dayjs(calc.dusk);
-    const dawn = dayjs(calc.dawn);
-    const now = dayjs();
-
-    if (now.isBefore(dawn)) {
-      // After midnight, but before dawn
-      return 0;
-    }
-    if (now.isBefore(noon)) {
-      // After dawn, but before solar noon
-      return Math.abs(noon.diff(now, 's') / noon.diff(dawn, 's') - 1);
-    }
-    if (now.isBefore(dusk)) {
-      // Afternoon, but before dusk
-      return Math.abs(noon.diff(now, 's') / noon.diff(dusk, 's') - 1);
-    }
-    // Until midnight
-    return 0;
-  }
-
-  private lightBrightness(entityId: string) {
-    const entity = this.ENTITIES.get(entityId) as HassStateDTO<
-      string,
-      {
-        brightness: number;
+  @OnEvent(HA_EVENT_STATE_CHANGE)
+  protected async onUpdate(eventList: HassEventDTO[]): Promise<void> {
+    eventList.forEach((event) => {
+      const { entity_id, new_state } = event.data;
+      if (!this.ENTITIES.has(entity_id)) {
+        return;
       }
-    >;
-    if (entity.state === 'off') {
-      return 0;
-    }
-    return Math.round((entity.attributes.brightness / 256) * 100);
+      this.ENTITIES.set(entity_id, new_state);
+    });
   }
 
-  // #endregion Private Methods
+  // #endregion Protected Methods
 }

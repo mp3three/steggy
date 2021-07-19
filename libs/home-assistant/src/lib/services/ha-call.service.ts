@@ -93,7 +93,7 @@ export class HACallService {
   }
 
   @Trace()
-  public async updateEntity(entityId: string): Promise<HASS_DOMAINS> {
+  public async updateEntity(entityId: string | string[]): Promise<HASS_DOMAINS> {
     return await this.socketService.sendMsg({
       domain: HASS_DOMAINS.homeassistant,
       service: 'update_entity',

@@ -1,11 +1,12 @@
 import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
-import { HASS_DOMAINS } from '@automagical/contracts/home-assistant';
+import { domain, HASS_DOMAINS } from '@automagical/contracts/home-assistant';
 import { InjectLogger, SolarCalcService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 
-import { HACallService } from '../services';
+import { EntityService, HACallService } from '../services';
 
 /**
  * https://www.home-assistant.io/integrations/light/
@@ -19,6 +20,7 @@ export class LightDomainService {
     private readonly logger: PinoLogger,
     private readonly solarCalcService: SolarCalcService,
     private readonly callService: HACallService,
+    private readonly entityService: EntityService,
   ) {
     callService.domain = HASS_DOMAINS.light;
   }
@@ -29,9 +31,10 @@ export class LightDomainService {
 
   @Trace()
   public async circadianLight(
-    entityId: string,
+    entityId: string | string[],
     brightness_pct?: number,
   ): Promise<void> {
+    this.entityService.trackEntity(entityId);
     const MIN_COLOR = 2500;
     const MAX_COLOR = 5500;
     const kelvin = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
@@ -44,21 +47,24 @@ export class LightDomainService {
   }
 
   @Trace()
-  public async toggle(entityId: string): Promise<void> {
+  public async toggle(entityId: string | string[]): Promise<void> {
+    this.entityService.trackEntity(entityId);
     return await this.callService.call('toggle', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async turnOff(entityId: string): Promise<void> {
+  public async turnOff(entityId: string | string[]): Promise<void> {
+    this.entityService.trackEntity(entityId);
     return await this.callService.call('turn_off', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async turnOn(entityId: string): Promise<void> {
+  public async turnOn(entityId: string | string[]): Promise<void> {
+    this.entityService.trackEntity(entityId);
     return await this.callService.call('turn_on', {
       entity_id: entityId,
     });
@@ -67,6 +73,19 @@ export class LightDomainService {
   // #endregion Public Methods
 
   // #region Protected Methods
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  @Trace()
+  protected async circadianLightingUpdate(): Promise<void> {
+    const activeLights: string[] = [];
+    this.entityService.ENTITIES.forEach(async (entity, entity_id) => {
+      if (entity.state !== 'on') {
+        return;
+      }
+      activeLights.push(entity_id);
+    });
+    await this.circadianLight(activeLights);
+  }
 
   /**
    * - If it's near solar noon, lights come on at full brightness
@@ -122,3 +141,21 @@ export class LightDomainService {
 
   // #endregion Private Methods
 }
+// /**
+//  * Brightness (as controlled by the dimmer) must remain in the 5-100% range
+//  *
+//  * To go under 5, turn off the light instead
+//  */
+//  @Trace()
+//  public async lightDim(entityId: string, amount: number): Promise<void> {
+//    let brightness = await this.lightBrightness(entityId);
+//    brightness = brightness + amount;
+//    if (brightness > 100) {
+//      brightness = 100;
+//    }
+//    if (brightness < 5) {
+//      brightness = 5;
+//    }
+//    this.logger.debug({ amount }, `${entityId} set brightness: ${brightness}%`);
+//    return await this.circadianLight(entityId, brightness);
+//  }
