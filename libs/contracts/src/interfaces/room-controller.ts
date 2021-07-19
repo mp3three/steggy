@@ -1,5 +1,13 @@
 import { PicoStates } from '@automagical/contracts/home-assistant';
 
+class RoomToRoomDTO {
+  // #region Object Properties
+
+  public name: string;
+  public type?: 'on' | 'off' | 'all';
+
+  // #endregion Object Properties
+}
 /**
  * For basic standardized modes
  *
@@ -12,8 +20,8 @@ export class RoomDeviceDTO {
   // #region Object Properties
 
   public comboCount: number;
-  public target: string[];
-  public type: 'light' | 'switch' | 'room';
+  public rooms?: (string | RoomToRoomDTO)[];
+  public target?: string[];
 
   // #endregion Object Properties
 }
@@ -34,7 +42,7 @@ export class ControllerSettings {
 export interface RoomController {
   // #region Object Properties
 
-  autoControl: ControllerSettings;
+  _CONTROLLER_SETTINGS: ControllerSettings;
   name: string;
 
   // #endregion Object Properties

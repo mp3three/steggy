@@ -1,4 +1,8 @@
-import { RoomController } from '@automagical/contracts';
+import {
+  ControllerSettings,
+  RoomController,
+  RoomDeviceDTO,
+} from '@automagical/contracts';
 import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { PicoStates } from '@automagical/contracts/home-assistant';
 import {
@@ -17,16 +21,33 @@ import { ROOM_NAMES } from '../typings';
 export class LoftService implements RoomController {
   // #region Object Properties
 
-  public readonly autoControl = {
-    lights: [
-      'light.loft_wall_bottom',
-      'light.loft_wall_top',
-      'light.loft_fan_bench_right',
-      'light.loft_fan_desk_right',
-      'light.loft_fan_desk_left',
-      'light.loft_fan_bench_left',
+  public readonly _CONTROLLER_SETTINGS: ControllerSettings = {
+    devices: [
+      {
+        comboCount: 1,
+        target: [
+          'light.loft_wall_bottom',
+          'light.loft_wall_top',
+          'light.loft_fan_bench_right',
+          'light.loft_fan_desk_right',
+          'light.loft_fan_desk_left',
+          'light.loft_fan_bench_left',
+          'switch.desk_light',
+        ],
+      },
+      {
+        comboCount: 2,
+        target: ['switch.loft_hallway_light'],
+      },
+      {
+        comboCount: 3,
+        rooms: [
+          ROOM_NAMES.downstairs,
+          { name: ROOM_NAMES.master, type: 'off' },
+          { name: ROOM_NAMES.games, type: 'off' },
+        ],
+      },
     ],
-    switch: ['switch.desk_light', 'switch.loft_hallway_light'],
   };
 
   public name = ROOM_NAMES.loft;
@@ -59,7 +80,7 @@ export class LoftService implements RoomController {
   }
 
   @Trace()
-  public async combo(actions: PicoStates[]): Promise<boolean> {
+  public async combo(): Promise<boolean> {
     return true;
   }
 
@@ -74,8 +95,8 @@ export class LoftService implements RoomController {
   }
 
   @Trace()
-  public async favorite(): Promise<void> {
-    return;
+  public async favorite(): Promise<boolean> {
+    return true;
   }
 
   // #endregion Public Methods

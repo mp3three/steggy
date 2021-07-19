@@ -1,5 +1,8 @@
 import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
-import { domain, HASS_DOMAINS } from '@automagical/contracts/home-assistant';
+import {
+  HASS_DOMAINS,
+  HassStateDTO,
+} from '@automagical/contracts/home-assistant';
 import { InjectLogger, SolarCalcService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -13,6 +16,12 @@ import { EntityService, HACallService } from '../services';
  */
 @Injectable()
 export class LightDomainService {
+  // #region Object Properties
+
+  private CIRCADIAN_LIGHTING = new Set<string>();
+
+  // #endregion Object Properties
+
   // #region Constructors
 
   constructor(
@@ -31,19 +40,46 @@ export class LightDomainService {
 
   @Trace()
   public async circadianLight(
-    entityId: string | string[],
+    entity_id: string | string[],
     brightness_pct?: number,
   ): Promise<void> {
-    this.entityService.trackEntity(entityId);
+    if (typeof entity_id === 'string') {
+      entity_id = [entity_id];
+    }
+    entity_id.forEach((id) => {
+      if (!this.CIRCADIAN_LIGHTING.has(id)) {
+        this.CIRCADIAN_LIGHTING.add(id);
+      }
+    });
+    this.entityService.trackEntity(entity_id);
     const MIN_COLOR = 2500;
     const MAX_COLOR = 5500;
     const kelvin = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
-    this.logger.trace({ brightness_pct, entityId, kelvin }, 'circadianLight');
+
     return await this.callService.call('turn_on', {
       brightness_pct,
-      entity_id: entityId,
+      entity_id,
       kelvin,
     });
+  }
+
+  /**
+   * Brightness (as controlled by the dimmer) must remain in the 5-100% range
+   *
+   * To go under 5, turn off the light instead
+   */
+  @Trace()
+  public async lightDim(entityId: string, amount: number): Promise<void> {
+    let brightness = await this.lightBrightness(entityId);
+    brightness = brightness + amount;
+    if (brightness > 100) {
+      brightness = 100;
+    }
+    if (brightness < 5) {
+      brightness = 5;
+    }
+    this.logger.debug({ amount }, `${entityId} set brightness: ${brightness}%`);
+    return await this.circadianLight(entityId, brightness);
   }
 
   @Trace()
@@ -55,18 +91,26 @@ export class LightDomainService {
   }
 
   @Trace()
-  public async turnOff(entityId: string | string[]): Promise<void> {
-    this.entityService.trackEntity(entityId);
+  public async turnOff(entity_id: string | string[]): Promise<void> {
+    if (typeof entity_id === 'string') {
+      entity_id = [entity_id];
+    }
+    entity_id.forEach((id) => {
+      if (this.CIRCADIAN_LIGHTING.has(id)) {
+        this.CIRCADIAN_LIGHTING.delete(id);
+      }
+    });
+    this.entityService.trackEntity(entity_id);
     return await this.callService.call('turn_off', {
-      entity_id: entityId,
+      entity_id,
     });
   }
 
   @Trace()
-  public async turnOn(entityId: string | string[]): Promise<void> {
-    this.entityService.trackEntity(entityId);
+  public async turnOn(entity_id: string | string[]): Promise<void> {
+    this.entityService.trackEntity(entity_id);
     return await this.callService.call('turn_on', {
-      entity_id: entityId,
+      entity_id: entity_id,
     });
   }
 
@@ -139,23 +183,23 @@ export class LightDomainService {
     return 0;
   }
 
+  /**
+   * return 0 if off
+   *
+   * return brightness on a 0-100 scale
+   */
+  private lightBrightness(entityId: string) {
+    const entity = this.entityService.ENTITIES.get(entityId) as HassStateDTO<
+      string,
+      {
+        brightness: number;
+      }
+    >;
+    if (entity.state === 'off') {
+      return 0;
+    }
+    return Math.round((entity.attributes.brightness / 256) * 100);
+  }
+
   // #endregion Private Methods
 }
-// /**
-//  * Brightness (as controlled by the dimmer) must remain in the 5-100% range
-//  *
-//  * To go under 5, turn off the light instead
-//  */
-//  @Trace()
-//  public async lightDim(entityId: string, amount: number): Promise<void> {
-//    let brightness = await this.lightBrightness(entityId);
-//    brightness = brightness + amount;
-//    if (brightness > 100) {
-//      brightness = 100;
-//    }
-//    if (brightness < 5) {
-//      brightness = 5;
-//    }
-//    this.logger.debug({ amount }, `${entityId} set brightness: ${brightness}%`);
-//    return await this.circadianLight(entityId, brightness);
-//  }

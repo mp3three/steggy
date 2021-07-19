@@ -17,7 +17,7 @@ import { ROOM_NAMES } from '../typings';
 export class MasterBedroomService implements RoomController {
   // #region Object Properties
 
-  public readonly autoControl = {
+  public readonly _CONTROLLER_SETTINGS = {
     lights: [
       'light.loft_wall_bottom',
       'light.loft_wall_top',
@@ -73,8 +73,8 @@ export class MasterBedroomService implements RoomController {
   }
 
   @Trace()
-  public async favorite(): Promise<void> {
-    return;
+  public async favorite(): Promise<boolean> {
+    return true;
   }
 
   // #endregion Public Methods

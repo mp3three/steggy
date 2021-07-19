@@ -4,6 +4,7 @@ import {
   LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {
+  domain,
   HASS_DOMAINS,
   HassEventDTO,
   PicoStates,
@@ -56,7 +57,7 @@ export class LutronPicoService {
       return;
     }
     await each(
-      controller.autoControl.devices,
+      controller._CONTROLLER_SETTINGS.devices,
       async (device: RoomDeviceDTO, callback) => {
         if (device.comboCount !== count) {
           return;
@@ -76,7 +77,7 @@ export class LutronPicoService {
       return;
     }
     await each(
-      controller.autoControl.devices,
+      controller._CONTROLLER_SETTINGS.devices,
       async (device: RoomDeviceDTO, callback) => {
         if (device.comboCount !== count) {
           return;
@@ -84,7 +85,7 @@ export class LutronPicoService {
         const lights: string[] = [];
         const others: string[] = [];
         device.target.forEach((item) => {
-          if (item.split('.')[0] === HASS_DOMAINS.light) {
+          if (domain(item) === HASS_DOMAINS.light) {
             lights.push(item);
             return;
           }
@@ -109,6 +110,11 @@ export class LutronPicoService {
     if (!(await controller.dimDown(count))) {
       return;
     }
+    const lights = this.findDimmableLights(controller);
+    await each(lights, async (entity_id: string, callback) => {
+      await this.lightService.lightDim(entity_id, -10);
+      callback();
+    });
   }
 
   @Trace()
@@ -117,7 +123,10 @@ export class LutronPicoService {
       return;
     }
     const lights = this.findDimmableLights(controller);
-    // await this.lightService
+    await each(lights, async (entity_id: string, callback) => {
+      await this.lightService.lightDim(entity_id, 10);
+      callback();
+    });
   }
 
   public setRoomController(controller: string, room: RoomController): void {
@@ -150,7 +159,7 @@ export class LutronPicoService {
     );
     const timeout = setTimeout(
       () => this.ACTION_TIMEOUT.delete(entityId),
-      controller.autoControl?.konamiTimeout ?? 2500,
+      controller._CONTROLLER_SETTINGS?.konamiTimeout ?? 2500,
     );
     if (this.ACTION_TIMEOUT.has(entityId)) {
       clearTimeout(this.ACTION_TIMEOUT.get(entityId));
