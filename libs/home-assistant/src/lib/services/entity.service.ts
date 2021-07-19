@@ -4,11 +4,8 @@ import {
   LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {
-  domain,
   FanSpeeds,
-  HassDomains,
   HassEventDTO,
-  HassServices,
   HassStateDTO,
   HomeAssistantEntityAttributes,
 } from '@automagical/contracts/home-assistant';
@@ -75,7 +72,7 @@ export class EntityService {
       this.logger.debug(`Cannot speed down`);
       return;
     }
-    return await this.socketService.call(HassServices.turn_on, {
+    return await this.socketService.call('turn_on', {
       entity_id: entityId,
       speed: availableSpeeds[index - 1],
     });
@@ -96,7 +93,7 @@ export class EntityService {
       this.logger.debug(`Cannot speed up`);
       return;
     }
-    return await this.socketService.call(HassServices.turn_on, {
+    return await this.socketService.call('turn_on', {
       entity_id: entityId,
       speed: availableSpeeds[index + 1],
     });
@@ -121,64 +118,6 @@ export class EntityService {
     return await this.circadianLight(entityId, brightness);
   }
 
-  @Trace()
-  public async toggle(entityId: string): Promise<void> {
-    const entity = await this.byId(entityId);
-    if (entity.state === 'on') {
-      return await this.turnOff(entityId);
-    }
-    return await this.turnOn(entityId);
-  }
-
-  @Trace()
-  public async turnOff(entityId: string): Promise<void> {
-    const entity = await this.byId(entityId);
-    if (!entity) {
-      this.logger.error(`Could not find entity for ${entityId}`);
-      return;
-    }
-    switch (domain(entityId)) {
-      case HassDomains.group:
-      case HassDomains.light:
-      case HassDomains.switch:
-      case HassDomains.remote:
-      case HassDomains.fan:
-        return await this.socketService.call(HassServices.turn_off, {
-          entity_id: entityId,
-        });
-      default:
-        this.logger.warn({ entityId }, 'domain not whitelisted for turnOff');
-    }
-  }
-
-  @Trace()
-  public async turnOn(entityId: string): Promise<void> {
-    const entity = await this.byId(entityId);
-    if (!entity) {
-      this.logger.error(`Could not find entity for ${entityId}`);
-    }
-    switch (domain(entityId)) {
-      case HassDomains.remote:
-      case HassDomains.switch:
-        return await this.socketService.call(HassServices.turn_on, {
-          entity_id: entityId,
-        });
-      case HassDomains.fan:
-        return await this.socketService.call(HassServices.turn_on, {
-          entity_id: entityId,
-          speed: FanSpeeds.low,
-        });
-      case HassDomains.group:
-      case HassDomains.light:
-        return await this.circadianLight(entityId, this.getDefaultBrightness());
-    }
-  }
-
-  /**
-   * Retrieve an entity by it's entityId
-   *
-   * TODO: Decide if exiring cache makes sense. Current opinion: no
-   */
   public async byId<
     T extends HassStateDTO = HassStateDTO<
       unknown,
@@ -203,7 +142,7 @@ export class EntityService {
     const MAX_COLOR = 5500;
     const kelvin = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
     this.logger.trace({ brightness_pct, entityId, kelvin }, 'circadianLight');
-    return await this.socketService.call(HassServices.turn_on, {
+    return await this.socketService.call('turn_on', {
       brightness_pct,
       entity_id: entityId,
       kelvin,

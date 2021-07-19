@@ -1,15 +1,22 @@
 import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
 import {
-  HassDomains,
+  HASS_DOMAINS,
   HASSIO_WS_COMMAND,
-  HassServices,
 } from '@automagical/contracts/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
+import { Injectable, Scope } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 
 import { HASocketAPIService } from './ha-socket-api.service';
 
+@Injectable({ scope: Scope.TRANSIENT })
 export class HACallService {
+  // #region Object Properties
+
+  public domain: HASS_DOMAINS;
+
+  // #endregion Object Properties
+
   // #region Constructors
 
   constructor(
@@ -29,13 +36,13 @@ export class HACallService {
    */
   @Trace()
   public async call<T extends void = void>(
-    service: HassServices | string,
+    service: string,
     service_data: Record<string, unknown> = {},
-    domain: HassDomains = HassDomains.homeassistant,
+    domain: HASS_DOMAINS = HASS_DOMAINS.homeassistant,
   ): Promise<T> {
     return await this.socketService.sendMsg<T>(
       {
-        domain,
+        domain: domain ?? this.domain,
         service,
         service_data,
         type: HASSIO_WS_COMMAND.call_service,
@@ -53,8 +60,8 @@ export class HACallService {
     payload: Record<string, unknown>,
   ): Promise<T> {
     return await this.socketService.sendMsg<T>({
-      domain: HassDomains.mqtt,
-      service: HassServices.publish,
+      domain: HASS_DOMAINS.mqtt,
+      service: 'publish',
       service_data: {
         topic,
         ...payload,
@@ -81,15 +88,15 @@ export class HACallService {
         message,
         title,
       },
-      HassDomains.notify,
+      HASS_DOMAINS.notify,
     );
   }
 
   @Trace()
-  public async updateEntity(entityId: string): Promise<HassDomains> {
+  public async updateEntity(entityId: string): Promise<HASS_DOMAINS> {
     return await this.socketService.sendMsg({
-      domain: HassDomains.homeassistant,
-      service: HassServices.update_entity,
+      domain: HASS_DOMAINS.homeassistant,
+      service: 'update_entity',
       service_data: {
         entity_id: entityId,
       },

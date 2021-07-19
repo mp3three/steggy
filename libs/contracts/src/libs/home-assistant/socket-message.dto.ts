@@ -1,5 +1,5 @@
 import {
-  HassDomains,
+  HASS_DOMAINS,
   HASSIO_WS_COMMAND,
   HassServices,
   HassSocketMessageTypes,
@@ -65,7 +65,7 @@ export class SendSocketMessageDTO {
   // #region Object Properties
 
   public access_token?: string;
-  public domain?: HassDomains;
+  public domain?: HASS_DOMAINS;
   public id?: number;
   public service?: HassServices | string;
   public service_data?: unknown;

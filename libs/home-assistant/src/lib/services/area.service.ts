@@ -9,7 +9,7 @@ import {
   AreaFlags,
   domain,
   FanSpeeds,
-  HassDomains,
+  HASS_DOMAINS,
   HassEventDTO,
   HassServices,
   HomeAssistantRoomRokuDTO,
@@ -36,9 +36,9 @@ export class AreaService {
   // #region Static Properties
 
   private static TRACK_DOMAINS = [
-    HassDomains.light,
-    HassDomains.switch,
-    HassDomains.remote,
+    HASS_DOMAINS.light,
+    HASS_DOMAINS.switch,
+    HASS_DOMAINS.remote,
   ];
 
   // #endregion Static Properties
@@ -130,7 +130,7 @@ export class AreaService {
     });
 
     entities.forEach(async (entity) => {
-      if (domain(entity) !== HassDomains.input_boolean) {
+      if (domain(entity) !== HASS_DOMAINS.input_boolean) {
         return;
       }
       const entityId = entity.entity_id;
@@ -161,7 +161,7 @@ export class AreaService {
   public async areaOn(areaName: string): Promise<void> {
     const area = this.AREA_MAP.get(areaName);
     area.forEach(async (entityId) => {
-      if (domain(entityId) === HassDomains.remote) {
+      if (domain(entityId) === HASS_DOMAINS.remote) {
         return;
       }
       await this.entityService.turnOn(entityId);
@@ -256,7 +256,7 @@ export class AreaService {
     const area = this.AREA_MAP.get(areaName);
     let containsSwitches = false;
     await each(area, async (entityId) => {
-      if (domain(entityId) !== HassDomains.switch) {
+      if (domain(entityId) !== HASS_DOMAINS.switch) {
         return;
       }
       containsSwitches = true;
@@ -328,7 +328,7 @@ export class AreaService {
   protected async circadianLightingUpdate(): Promise<void> {
     this.AREA_MAP.forEach((entities) => {
       entities.forEach(async (entityId) => {
-        if (domain(entityId) !== HassDomains.light) {
+        if (domain(entityId) !== HASS_DOMAINS.light) {
           return;
         }
         const entity = await this.entityService.byId(entityId);
@@ -389,8 +389,8 @@ export class AreaService {
   }
 
   protected isController(entity: { entity_id: string }): boolean {
-    const [domain, name] = entity.entity_id.split('.') as [HassDomains, string];
-    return domain === HassDomains.sensor && name.includes('pico');
+    const [domain, name] = entity.entity_id.split('.') as [HASS_DOMAINS, string];
+    return domain === HASS_DOMAINS.sensor && name.includes('pico');
   }
 
   // #endregion Protected Methods
@@ -401,7 +401,7 @@ export class AreaService {
   private async lightDim(areaName: string, amount: number) {
     const area = this.AREA_MAP.get(areaName);
     area.forEach(async (entityId) => {
-      if (domain(entityId) !== HassDomains.light) {
+      if (domain(entityId) !== HASS_DOMAINS.light) {
         return;
       }
       const entity = await this.entityService.byId(entityId);
@@ -432,7 +432,7 @@ export class AreaService {
       await this.areaOn(areaName);
     });
     this.AREA_MAP.get(areaName).forEach(async (entityId) => {
-      if (domain(entityId) !== HassDomains.remote) {
+      if (domain(entityId) !== HASS_DOMAINS.remote) {
         return;
       }
       await this.entityService.turnOn(entityId);

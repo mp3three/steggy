@@ -30,17 +30,11 @@
     "libsDir": "libs"
   },
   "projects": {
-    "config": {
-      "tags": []
-    },
     "contracts": {
       "tags": []
     },
     "devtools": {
       "tags": []
-    },
-    "fetch": {
-      "tags": ["backend"]
     },
     "formio-sdk": {
       "tags": []
@@ -64,9 +58,6 @@
       "tags": []
     },
     "terminal": {},
-    "type-writer": {
-      "tags": []
-    },
     "utilities": {
       "tags": []
     }

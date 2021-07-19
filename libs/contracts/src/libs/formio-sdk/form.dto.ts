@@ -1,5 +1,3 @@
-import { Utils } from '@automagical/wrapper';
-import { InternalServerErrorException } from '@nestjs/common';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -15,7 +13,6 @@ import faker from 'faker';
 import { Schema as MongooseSchema } from 'mongoose';
 
 import { DBFake } from '../../classes';
-import { BaseComponentDTO } from '../components';
 import { MONGO_COLLECTIONS } from '../persistence/mongo';
 import { AccessDTO, BaseOmitProperties } from '.';
 import { ACCESS_TYPES } from './constants';
@@ -27,13 +24,6 @@ const NAME_REGEX = '^(?!-)[0-9a-zA-Z-]*(?<!submission|action|-)$';
 const NAME_ERROR =
   'May only container numbers, letters, and dashes. Must not terminate with a dash';
 
-const FLATTENED = Symbol('flattened-components');
-export type FlatComponent = {
-  path: string;
-  parent?: BaseComponentDTO;
-  component: BaseComponentDTO;
-};
-export type FlattenedComponents = Set<FlatComponent>;
 @Schema({
   collection: MONGO_COLLECTIONS.forms,
   minimize: false,
@@ -60,33 +50,6 @@ export class FormDTO extends DBFake {
     };
   }
 
-  public static flattenComponents(form: FormDTO): FlattenedComponents {
-    if (!form) {
-      throw new InternalServerErrorException(
-        `Invalid form provided to flattenComponents`,
-      );
-    }
-    if (form[FLATTENED]) {
-      return form[FLATTENED];
-    }
-    const flattened = Utils.flattenComponents(form.components, true);
-    const out: FlattenedComponents = new Set();
-    Object.keys(flattened).forEach((path) => {
-      const parts = path.split('.');
-      const temporary: FlatComponent = {
-        component: flattened[parts.join('.')],
-        path,
-      };
-      if (parts.length > 1) {
-        parts.pop();
-        temporary.parent = flattened[parts.join('.')];
-      }
-      out.add(temporary);
-    });
-    form[FLATTENED] = out;
-    return out;
-  }
-
   // #endregion Public Static Methods
 
   // #region Object Properties
@@ -104,12 +67,11 @@ export class FormDTO extends DBFake {
   public type?: 'form' | 'resource';
   @ApiProperty({
     description: 'An array of form components to build forms/data models from',
-    type: BaseComponentDTO,
   })
   @IsObject({ each: true })
   @IsOptional()
   @Prop()
-  public components?: BaseComponentDTO[];
+  public components?: Record<string, unknown>[];
   @ApiProperty({
     description: 'Date of deletion',
     readOnly: true,

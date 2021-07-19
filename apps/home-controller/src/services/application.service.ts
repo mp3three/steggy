@@ -4,18 +4,12 @@ import {
 } from '@automagical/contracts/constants';
 import {
   domain,
-  HassDomains,
+  HASS_DOMAINS,
   HassEventDTO,
-  HassServices,
   HomeAssistantRoomConfigDTO,
   split,
 } from '@automagical/contracts/home-assistant';
-import {
-  AreaService,
-  EntityService,
-  HomeAssistantService,
-  SocketService,
-} from '@automagical/home-assistant';
+import { AreaService, EntityService } from '@automagical/home-assistant';
 import { InjectLogger, sleep } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -28,12 +22,6 @@ import { load } from 'js-yaml';
 import { PinoLogger } from 'nestjs-pino';
 import { join } from 'path';
 
-import {
-  LOFT_MONITOR,
-  MobileDevice,
-  NotificationGroup,
-  RoomsCode,
-} from '../../typings';
 enum LoftRokuInputs {
   off = 'off',
   windows = 'hdmi2',
@@ -142,7 +130,7 @@ export class ApplicationService {
       lockList ||
       this.entityService
         .entityList()
-        .filter((key) => domain(key) === HassDomains.lock)
+        .filter((key) => domain(key) === HASS_DOMAINS.lock)
         .filter((key) => !key.includes('mystique'));
     await Promise.all(
       locks.map(async (entityId) => {
@@ -151,7 +139,7 @@ export class ApplicationService {
           {
             entity_id: entityId,
           },
-          HassDomains.lock,
+          HASS_DOMAINS.lock,
         );
       }),
     );
@@ -205,7 +193,7 @@ export class ApplicationService {
     await sleep(1000);
     const entities = this.entityService.entityList().filter((entityId) => {
       const [domain, suffix] = split(entityId);
-      return domain !== HassDomains.sensor || !suffix.includes('battery');
+      return domain !== HASS_DOMAINS.sensor || !suffix.includes('battery');
     });
 
     entities.forEach(async (item) => {
@@ -267,7 +255,7 @@ export class ApplicationService {
         message: `Connection reset at ${new Date().toISOString()}`,
         title: `core temporarily lost connection with HomeAssistant`,
       },
-      HassDomains.notify,
+      HASS_DOMAINS.notify,
     );
   }
 
@@ -306,7 +294,7 @@ export class ApplicationService {
   private sendDoorNotification(event: HassEventDTO) {
     const [domain, suffix] = split(event.data.entity_id);
     if (
-      (domain as HassDomains) !== HassDomains.binary_sensor ||
+      (domain as HASS_DOMAINS) !== HASS_DOMAINS.binary_sensor ||
       !suffix.includes('door')
     ) {
       return;

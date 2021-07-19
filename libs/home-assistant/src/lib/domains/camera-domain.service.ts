@@ -6,19 +6,16 @@ import { PinoLogger } from 'nestjs-pino';
 
 import { HACallService } from '../services';
 
-/**
- * https://www.home-assistant.io/integrations/climate/
- */
 @Injectable()
-export class ClimateDomainService {
+export class CameraDomainService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(ClimateDomainService, LIB_HOME_ASSISTANT)
+    @InjectLogger(CameraDomainService, LIB_HOME_ASSISTANT)
     private readonly logger: PinoLogger,
     private readonly callService: HACallService,
   ) {
-    callService.domain = HASS_DOMAINS.climate;
+    callService.domain = HASS_DOMAINS.camera;
   }
 
   // #endregion Constructors
@@ -26,50 +23,36 @@ export class ClimateDomainService {
   // #region Public Methods
 
   @Trace()
-  public async setAuxHeat(entityId: string): Promise<void> {
-    return await this.callService.call('set_aux_heat', {
+  public async disableMotionDetection(entityId: string): Promise<void> {
+    return await this.callService.call('disable_motion_detection', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async setFanMode(entityId: string): Promise<void> {
-    return await this.callService.call('set_fan_mode', {
+  public async enableMotionDetection(entityId: string): Promise<void> {
+    return await this.callService.call('enable_motion_detection', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async setHumidity(entityId: string): Promise<void> {
-    return await this.callService.call('set_humidity', {
+  public async playStream(entityId: string): Promise<void> {
+    return await this.callService.call('play_stream', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async setHvacMode(entityId: string): Promise<void> {
-    return await this.callService.call('set_hvac_mode', {
+  public async record(entityId: string): Promise<void> {
+    return await this.callService.call('record', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async setPresetMode(entityId: string): Promise<void> {
-    return await this.callService.call('set_preset_mode', {
-      entity_id: entityId,
-    });
-  }
-
-  @Trace()
-  public async setSwingMode(entityId: string): Promise<void> {
-    return await this.callService.call('set_swing_mode', {
-      entity_id: entityId,
-    });
-  }
-
-  @Trace()
-  public async setTemperature(entityId: string): Promise<void> {
-    return await this.callService.call('set_temperature', {
+  public async snapshot(entityId: string): Promise<void> {
+    return await this.callService.call('snapshot', {
       entity_id: entityId,
     });
   }

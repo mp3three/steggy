@@ -3,18 +3,22 @@ export enum HassEvents {
   hue_event = 'hue_event',
 }
 
-export enum HassDomains {
+export enum HASS_DOMAINS {
   switch = 'switch',
   light = 'light',
   mqtt = 'mqtt',
   sun = 'sun',
   sensor = 'sensor',
   weather = 'weather',
+  camera = 'camera',
   climate = 'climate',
   person = 'person',
+  humidifier = 'humidifier',
   automation = 'automation',
+  cover = 'cover',
   group = 'group',
   scene = 'scene',
+  icloud = 'icloud',
   binary_sensor = 'binary_sensor',
   media_player = 'media_player',
   input_boolean = 'input_boolean',

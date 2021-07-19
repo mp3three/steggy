@@ -1,5 +1,4 @@
-import { CreateConfigurableAnnotation } from '@automagical/utilities';
-
+import { CreateConfigurableAnnotation } from '../decorators';
 import {
   AuthenticationConfig,
   DevtoolsApplicationSettingsDTO,
@@ -63,11 +62,7 @@ type ApplicationConfigs =
  */
 export class AutomagicalConfig {
   // #region Object Properties
-  @ConfigurableProperty({
-    applications: 'default',
-    type: CommonConfig,
-  })
-  public common?: CommonConfig;
+
   /**
    * Custom variables for implementations
    */
@@ -76,6 +71,11 @@ export class AutomagicalConfig {
     type: 'todo',
   })
   public application?: ApplicationConfigs;
+  @ConfigurableProperty({
+    applications: 'default',
+    type: CommonConfig,
+  })
+  public common?: CommonConfig;
   /**
    * Libraries
    */

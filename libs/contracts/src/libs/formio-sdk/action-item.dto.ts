@@ -10,8 +10,8 @@ import faker from 'faker';
 import { Schema as MongooseSchema, Types } from 'mongoose';
 
 import { DBFake } from '../../classes';
-import { HTTP_METHODS } from '../fetch';
 import { MONGO_COLLECTIONS } from '../persistence/mongo';
+import { HTTP_METHODS } from '../utilities';
 import { BaseOmitProperties } from '.';
 import { ACTION_NAMES, ACTION_STATES, HANDLERS } from './constants';
 import { TransformObjectId } from './transform-object-id.decorator';

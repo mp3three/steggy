@@ -1,22 +1,23 @@
-import { CreateAnnotation } from '../../decorators';
-import { CONFIG_PROVIDERS } from '../../libs/terminal/config-provider';
+import { CreateConfigurableAnnotation } from '../../decorators';
 
-const UsesConfig = CreateAnnotation();
+const UsesConfig = CreateConfigurableAnnotation();
 export class DevtoolsApplicationSettingsDTO {
   // #region Object Properties
 
   @UsesConfig({
     applications: 'available',
-    record: {
-      key: 'Environment Name',
-      value: 'Version Label',
+
+    title: 'AWS Environment',
+    type: {
+      key: {
+        title: 'Environment Name',
+        type: 'string',
+      },
+      value: {
+        title: 'Version label',
+        type: 'string',
+      },
     },
-    recordProvider: {
-      key: CONFIG_PROVIDERS.ebenvironment,
-      value: CONFIG_PROVIDERS.application,
-    },
-    type: 'record',
-    what: 'AWS Environment',
   })
   public AWS_ENVIRONMENTS: Record<string, string>;
 

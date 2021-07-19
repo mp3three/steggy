@@ -7,15 +7,15 @@ import { PinoLogger } from 'nestjs-pino';
 import { HACallService } from '../services';
 
 @Injectable()
-export class LockDomainService {
+export class NotifyDomainService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(LockDomainService, LIB_HOME_ASSISTANT)
+    @InjectLogger(NotifyDomainService, LIB_HOME_ASSISTANT)
     private readonly logger: PinoLogger,
     private readonly callService: HACallService,
   ) {
-    callService.domain = HASS_DOMAINS.lock;
+    callService.domain = HASS_DOMAINS.notify;
   }
 
   // #endregion Constructors
@@ -23,23 +23,17 @@ export class LockDomainService {
   // #region Public Methods
 
   @Trace()
-  public async lock(entityId: string): Promise<void> {
-    return await this.callService.call('lock', {
-      entity_id: entityId,
-    });
-  }
-
-  @Trace()
-  public async open(entityId: string): Promise<void> {
-    return await this.callService.call('open', {
-      entity_id: entityId,
-    });
-  }
-
-  @Trace()
-  public async unlock(entityId: string): Promise<void> {
-    return await this.callService.call('unlock', {
-      entity_id: entityId,
+  public async notify(
+    message: string,
+    optional: {
+      title?: string;
+      target?: string;
+      data?: Record<string, unknown>;
+    } = {},
+  ): Promise<void> {
+    await this.callService.call('notify', {
+      message,
+      ...optional,
     });
   }
 

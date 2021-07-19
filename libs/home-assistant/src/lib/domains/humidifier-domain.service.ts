@@ -1,31 +1,38 @@
 import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
+import { HASS_DOMAINS } from '@automagical/contracts/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 
 import { HACallService } from '../services';
 
-/**
- * https://www.home-assistant.io/integrations/remote/
- */
-@Injectable()
-export class RemoteDomainService {
+export class HumidifierDomain {
   // #region Constructors
 
   constructor(
-    @InjectLogger(RemoteDomainService, LIB_HOME_ASSISTANT)
+    @InjectLogger(HumidifierDomain, LIB_HOME_ASSISTANT)
     private readonly logger: PinoLogger,
     private readonly callService: HACallService,
-  ) {}
+  ) {
+    callService.domain = HASS_DOMAINS.humidifier;
+  }
 
   // #endregion Constructors
 
   // #region Public Methods
 
   @Trace()
-  public async sendCommand(entityId: string): Promise<void> {
-    return await this.callService.call('send_command', {
+  public async setHumidity(entityId: string, humidity: number): Promise<void> {
+    await this.callService.call('set_humidity', {
       entity_id: entityId,
+      humidity,
+    });
+  }
+
+  @Trace()
+  public async setMode(entityId: string, mode: string): Promise<void> {
+    await this.callService.call('set_mode', {
+      entity_id: entityId,
+      mode,
     });
   }
 
