@@ -1,5 +1,5 @@
-import { MainCLIREPL } from '@formio/terminal';
-import { SetTrace, sleep } from '@formio/utilities';
+import { MainCLIREPL } from '@automagical/terminal';
+import { SetTrace, sleep } from '@automagical/utilities';
 import { NestFactory } from '@nestjs/core';
 
 import { DevtoolsModule } from '../modules';

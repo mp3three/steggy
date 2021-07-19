@@ -1,7 +1,7 @@
-import { ActionCRUD, CrudOptions } from '@formio/contracts';
-import { ResultControlDTO } from '@formio/contracts/fetch';
-import { ActionDTO } from '@formio/contracts/formio-sdk';
-import { InjectLogger, toId, Trace } from '@formio/utilities';
+import { ActionCRUD, CrudOptions } from '@automagical/contracts';
+import { ResultControlDTO } from '@automagical/contracts/fetch';
+import { ActionDTO } from '@automagical/contracts/formio-sdk';
+import { InjectLogger, toId, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 

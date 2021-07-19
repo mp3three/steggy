@@ -1,25 +1,25 @@
-import { FormCRUD, ProjectCRUD, SubmissionCRUD } from '@formio/contracts';
-import { LOG_LEVEL, UTILS_AWS } from '@formio/contracts/config';
-import { APP_DEVTOOLS } from '@formio/contracts/constants';
+import { FormCRUD, ProjectCRUD, SubmissionCRUD } from '@automagical/contracts';
+import { LOG_LEVEL, UTILS_AWS } from '@automagical/contracts/config';
+import { APP_DEVTOOLS } from '@automagical/contracts/constants';
 import {
   FormService,
   MinimalSdkModule,
   ProjectService,
   SubmissionService,
-} from '@formio/formio-sdk';
+} from '@automagical/formio-sdk';
 import {
   AWSService,
   ChangelogREPL,
   ConfigBuilderREPL,
   MainCLIModule,
-} from '@formio/terminal';
+} from '@automagical/terminal';
 import {
   ConfigModule,
   EBSModule,
   S3Module,
   SymbolProviderModule,
   UtilitiesModule,
-} from '@formio/utilities';
+} from '@automagical/utilities';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';

@@ -1,5 +1,5 @@
-import { LOG_LEVEL } from '@formio/contracts/config';
-import { ConfigModule, JiraService } from '@formio/utilities';
+import { LOG_LEVEL } from '@automagical/contracts/config';
+import { ConfigModule, JiraService } from '@automagical/utilities';
 import { CacheModule, DynamicModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';

@@ -1,8 +1,4 @@
-import {
-  APP_API_SERVER,
-  APP_LICENSE_SERVER,
-  APP_SQL_CONNECTOR,
-} from '@formio/contracts/constants';
+import {} from '@automagical/contracts/constants';
 
 export enum MULTICONTAINERS {
   submissionServer = 'submission-erver',
@@ -11,16 +7,7 @@ export enum MULTICONTAINERS {
   sqlConnector = 'sql-connector',
 }
 
-export const MulticontainerMap = new Map(
-  Object.entries({
-    [APP_API_SERVER.description]: [
-      MULTICONTAINERS.submissionServer,
-      MULTICONTAINERS.submissionServerGov,
-    ],
-    [APP_SQL_CONNECTOR.description]: [MULTICONTAINERS.sqlConnector],
-    [APP_LICENSE_SERVER.description]: [MULTICONTAINERS.livingDocs],
-  }),
-);
+export const MulticontainerMap = new Map(Object.entries({}));
 
 export const MULTICONTAINER_ROOT = new Map(
   Object.entries({

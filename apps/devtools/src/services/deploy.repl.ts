@@ -1,5 +1,5 @@
-import { AWSService, MainCLIREPL } from '@formio/terminal';
-import { filterUnique } from '@formio/utilities';
+import { AWSService, MainCLIREPL } from '@automagical/terminal';
+import { filterUnique } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { each } from 'async';

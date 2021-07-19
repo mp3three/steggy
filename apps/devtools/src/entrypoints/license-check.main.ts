@@ -1,7 +1,7 @@
-// import { AutomagicalConfig, LOG_LEVEL } from '@formio/contracts/config';
-// import { APP_DEVTOOLS } from '@formio/contracts/constants';
-// import { BasicNestLogger } from '@formio/server';
-// import { ConfigModule } from '@formio/utilities';
+// import { AutomagicalConfig, LOG_LEVEL } from '@automagical/contracts/config';
+// import { APP_DEVTOOLS } from '@automagical/contracts/constants';
+// import { BasicNestLogger } from '@automagical/server';
+// import { ConfigModule } from '@automagical/utilities';
 // import { CacheModule } from '@nestjs/common';
 // import { ConfigService } from '@nestjs/config';
 // import { NestFactory } from '@nestjs/core';

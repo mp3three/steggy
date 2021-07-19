@@ -4,7 +4,7 @@ import {
   DEFAULT_DB_SECRET,
   DEFAULT_EXPIRES_IN,
   DEFAULT_VERIFY_JWT,
-} from '@formio/contracts/config';
+} from '@automagical/contracts/config';
 
 export const DEFAULT_TEST_SETTINGS: AutomagicalConfig = {
   BODY_SIZE: '50mb',
@@ -21,10 +21,6 @@ export const DEFAULT_TEST_SETTINGS: AutomagicalConfig = {
       JWT_SECRET: 'DEFAULT_JWT_SECRET',
       REMOTE_SECRET: 'DEFAULT_REMOTE_SECRET',
       VERIFY_JWT: DEFAULT_VERIFY_JWT,
-    },
-    license: {
-      LICENSE_KEY: 'yL5js5P5aNxd7hpIsBPumXjdz73P2I',
-      _DEV_MODE: true,
     },
     persistence: {
       ALGORITHM: DEFAULT_ALGORITHM,

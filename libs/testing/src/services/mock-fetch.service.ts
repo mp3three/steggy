@@ -1,6 +1,6 @@
-import { LIB_UTILS } from '@formio/contracts/constants';
-import { FetchArguments } from '@formio/contracts/fetch';
-import { BaseFetch, InjectLogger } from '@formio/utilities';
+import { LIB_UTILS } from '@automagical/contracts/constants';
+import { FetchArguments } from '@automagical/contracts/fetch';
+import { BaseFetch, InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 

@@ -1,5 +1,5 @@
-import { APP_DEVTOOLS } from '@formio/contracts/constants';
-import { FetchService, InjectLogger } from '@formio/utilities';
+import { APP_DEVTOOLS } from '@automagical/contracts/constants';
+import { FetchService, InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { eachLimit } from 'async';
