@@ -2,11 +2,11 @@ import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { InjectLogger } from '@automagical/utilities';
 import { PinoLogger } from 'nestjs-pino';
 
-export class MasterBedroomService {
+export class DownstairsService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(MasterBedroomService, APP_HOME_CONTROLLER)
+    @InjectLogger(DownstairsService, APP_HOME_CONTROLLER)
     private readonly logger: PinoLogger,
   ) {}
 

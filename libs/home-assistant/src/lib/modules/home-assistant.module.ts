@@ -1,14 +1,41 @@
+import { CacheModule, Module, Provider } from '@nestjs/common';
+
+import { LutronPicoService } from '../devices';
 import {
-  AreaService,
-  EntityService,
-  HomeAssistantService,
-  SocketService,
-} from '@automagical/home-assistant';
-import { CacheModule, Module } from '@nestjs/common';
+  CameraDomainService,
+  ClimateDomainService,
+  CoverDomainService,
+  FanDomainService,
+  HomeAssistantCoreService,
+  HumidifierDomain,
+  iCloudDomainService,
+  LightDomainService,
+  LockDomainService,
+  NotifyDomainService,
+  RemoteDomainService,
+  SwitchDomainService,
+} from '../domains';
+
+const services: Provider[] = [
+  LutronPicoService,
+  CameraDomainService,
+  ClimateDomainService,
+  CoverDomainService,
+  FanDomainService,
+  HomeAssistantCoreService,
+  HumidifierDomain,
+  iCloudDomainService,
+  LightDomainService,
+  LockDomainService,
+  NotifyDomainService,
+  RemoteDomainService,
+  RemoteDomainService,
+  SwitchDomainService,
+];
 
 @Module({
-  exports: [HomeAssistantService, EntityService, AreaService, SocketService],
+  exports: services,
   imports: [CacheModule],
-  providers: [HomeAssistantService, EntityService, AreaService, SocketService],
+  providers: services,
 })
 export class HomeAssistantModule {}

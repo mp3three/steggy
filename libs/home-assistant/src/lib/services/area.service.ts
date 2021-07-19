@@ -340,7 +340,7 @@ export class AreaService {
     });
   }
 
-  @OnEvent([HA_EVENT_STATE_CHANGE])
+  @OnEvent(HA_EVENT_STATE_CHANGE)
   protected async onControllerEvent(event: HassEventDTO): Promise<void> {
     const entityId = event.data.entity_id;
     if (!this.CONTROLLER_MAP.has(entityId)) {

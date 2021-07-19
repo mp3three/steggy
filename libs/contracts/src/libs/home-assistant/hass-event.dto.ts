@@ -1,14 +1,17 @@
 import { HassEvents } from './enums/socket';
 import { HassStateDTO } from './hass-state.dto';
 
-export class EventDataDTO {
+export class EventDataDTO<
+  STATE extends Record<never, unknown> = unknown,
+  ATTRIBUTES extends Record<never, unknown> = Record<never, unknown>,
+> {
   // #region Object Properties
 
   entity_id?: string;
   event?: number;
   id?: string;
-  new_state?: HassStateDTO;
-  old_state?: HassStateDTO | unknown;
+  new_state?: HassStateDTO<STATE, ATTRIBUTES>;
+  old_state?: HassStateDTO<STATE, ATTRIBUTES> | unknown;
 
   // #endregion Object Properties
 }
@@ -23,11 +26,14 @@ export class ContextDTO {
   // #endregion Object Properties
 }
 
-export class HassEventDTO {
+export class HassEventDTO<
+  STATE extends Record<never, unknown> = unknown,
+  ATTRIBUTES extends Record<never, unknown> = Record<never, unknown>,
+> {
   // #region Object Properties
 
   public context: ContextDTO;
-  public data: EventDataDTO;
+  public data: EventDataDTO<STATE, ATTRIBUTES>;
   public event_type: HassEvents;
   public origin: 'local';
   public time_fired: Date;

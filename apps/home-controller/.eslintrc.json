@@ -6,7 +6,9 @@
       "parserOptions": {
         "project": ["apps/home-controller/tsconfig.*?.json"]
       },
-      "rules": {}
+      "rules": {
+        "woke/all": "off"
+      }
     },
     {
       "files": ["*.ts", "*.tsx"],
