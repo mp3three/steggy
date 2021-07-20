@@ -1,4 +1,3 @@
-export * from './action.decorator';
 export * from './auth-properties.decorator';
 export * from './auth-properties.decorator';
 export * from './cache-route.decorator';

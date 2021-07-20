@@ -1,12 +1,11 @@
 import {
-  ActionDTO,
   FormDTO,
   PERMISSION_ACCESS_TYPES,
   ProjectDTO,
   SubmissionDTO,
   UserDTO,
 } from '../libs/formio-sdk';
-import { ACTION_METHOD } from '../libs/server';
+import { HTTP_METHODS } from '../libs/utilities/fetch';
 import { CrudOptions } from './crud-options';
 
 export enum ResponseFlags {
@@ -38,7 +37,6 @@ export enum ResponseFlags {
 export class LocalStashDTO {
   // #region Object Properties
 
-  public action?: ActionDTO;
   public body?: unknown;
   public form?: FormDTO;
   public project?: ProjectDTO;
@@ -49,8 +47,6 @@ export class LocalStashDTO {
 export interface ResponseLocals extends CrudOptions {
   // #region Object Properties
 
-  ACTION_TYPE?: ACTION_METHOD;
-  action?: ActionDTO;
   /**
    * Did one of the auth guards say no?
    */
@@ -60,16 +56,13 @@ export interface ResponseLocals extends CrudOptions {
    * Form loaded via path params
    */
   headers: Map<string, string>;
-  license?: LicenseDTO;
   licenseId?: string;
-  licenseList?: LicenseDTO[];
   method: HTTP_METHODS;
   parameters: Map<string, string>;
   projectApiKey?: string;
   query: Map<string, string>;
   remotePermission?: PERMISSION_ACCESS_TYPES;
   roles: Set<string>;
-  session?: SessionTokenDTO;
   stash?: LocalStashDTO[];
   submission?: SubmissionDTO;
   user?: UserDTO;

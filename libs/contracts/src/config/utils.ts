@@ -1,4 +1,4 @@
-import { LIB_UTILS } from '../constants';
+import { APP_HOME_CONTROLLER, LIB_UTILS } from '../constants';
 import { CreateConfigurableAnnotation } from '../decorators';
 import { AWSUtilitiesConfig } from './external';
 
@@ -80,6 +80,20 @@ export class UtilsConfig {
   // #region Object Properties
 
   @UsesConfig({
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'default',
+    },
+    type: 'number',
+  })
+  public LATITUDE?: number;
+  @UsesConfig({
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'default',
+    },
+    type: 'number',
+  })
+  public LONGITUDE?: number;
+  @UsesConfig({
     applications: {},
     type: 'number',
   })
@@ -124,3 +138,5 @@ export const EMAIL_SMTP_CONFIG = `libs.${LIB_UTILS.description}.email.smtp`;
 export const EMAIL_DEFAULT_FROM = `libs.${LIB_UTILS.description}.email.EMAIL_DEFAULT_FROM`;
 export const EMAIL_CHUNK_SIZE = `libs.${LIB_UTILS.description}.email.CHUNK_SIZE`;
 export const AWS_CONFIG = `libs.${LIB_UTILS.description}.AWS`;
+export const LATITUDE = `libs.${LIB_UTILS.description}.LATITUDE`;
+export const LONGITUDE = `libs.${LIB_UTILS.description}.LONGITUDE`;

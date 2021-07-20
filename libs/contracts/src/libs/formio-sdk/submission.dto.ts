@@ -14,7 +14,6 @@ import { Schema as MongooseSchema, Types } from 'mongoose';
 import { DBFake } from '../../classes';
 import { MONGO_COLLECTIONS } from '../persistence/mongo';
 import { BaseOmitProperties } from '.';
-import { AccessDTO } from './Access.dto';
 import { SUBMISSION_STATES } from './constants';
 import { TransformObjectId } from './transform-object-id.decorator';
 
@@ -177,13 +176,6 @@ export class SubmissionDTO<
   })
   @ApiProperty()
   public metadata?: METADATA;
-  @ValidateNested()
-  @IsOptional()
-  @Prop({
-    index: true,
-  })
-  @ApiProperty()
-  public access?: AccessDTO[];
 
   // #endregion Object Properties
 }

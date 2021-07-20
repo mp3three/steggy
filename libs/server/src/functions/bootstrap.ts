@@ -1,4 +1,4 @@
-import { AutomagicalConfig, BODY_SIZE, PORT } from '@automagical/contracts/config';
+import { BODY_SIZE, PORT } from '@automagical/contracts/config';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { json } from 'express';
@@ -44,7 +44,7 @@ export const StandardBootstrap = async (
   const app = await NestFactory.create(module, BootstrapLogger());
   process.nextTick(async () => {
     const logger = app.get(Logger);
-    const config = app.get<ConfigService<AutomagicalConfig>>(ConfigService);
+    const config = app.get<ConfigService>(ConfigService);
     // const origin = config.get(CORS);
     // if (origin) {
     //   app.enableCors({

@@ -1,10 +1,10 @@
-import { FetchAuth } from '@automagical/contracts/fetch';
 import {
   API_KEY_HEADER,
   APIRequest,
   APIResponse,
   JWT_HEADER,
 } from '@automagical/contracts/server';
+import { FetchAuth } from '@automagical/contracts/utilities';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const AuthProperties = createParamDecorator(

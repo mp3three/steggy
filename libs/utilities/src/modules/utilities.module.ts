@@ -1,11 +1,16 @@
 import { CacheModule, Global, Module } from '@nestjs/common';
 
-import { FetchService, LocalsService, TemplateService } from '../services';
+import {
+  FetchService,
+  LocalsService,
+  SolarCalcService,
+  TemplateService,
+} from '../services';
 
 @Global()
 @Module({
-  exports: [TemplateService, LocalsService, FetchService],
+  exports: [TemplateService, LocalsService, FetchService, SolarCalcService],
   imports: [CacheModule.register()],
-  providers: [TemplateService, LocalsService, FetchService],
+  providers: [TemplateService, LocalsService, FetchService, SolarCalcService],
 })
 export class UtilitiesModule {}

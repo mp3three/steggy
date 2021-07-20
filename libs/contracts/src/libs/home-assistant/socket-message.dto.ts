@@ -1,7 +1,6 @@
 import {
   HASS_DOMAINS,
   HASSIO_WS_COMMAND,
-  HassServices,
   HassSocketMessageTypes,
 } from './enums/socket';
 import { HassEventDTO } from './hass-event.dto';
@@ -67,7 +66,7 @@ export class SendSocketMessageDTO {
   public access_token?: string;
   public domain?: HASS_DOMAINS;
   public id?: number;
-  public service?: HassServices | string;
+  public service?: string;
   public service_data?: unknown;
   public type: HASSIO_WS_COMMAND;
 

@@ -22,6 +22,10 @@ export type FetchAuth = {
    * Server admin key
    */
   adminKey?: string;
+  /**
+   * Bearer token
+   */
+  bearer?: string;
 };
 
 export type FetchArguments = FetchAuth & {

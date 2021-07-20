@@ -1,5 +1,5 @@
-import { FetchAuth, ResultControlDTO } from '../libs/fetch';
 import { FormDTO, ProjectDTO } from '../libs/formio-sdk';
+import { FetchAuth, ResultControlDTO } from '../libs/utilities/fetch';
 
 export class CrudOptions {
   // #region Object Properties

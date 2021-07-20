@@ -15,9 +15,17 @@ import {
   RemoteDomainService,
   SwitchDomainService,
 } from '../domains';
+import {
+  EntityService,
+  HACallService,
+  HASocketAPIService,
+  HomeAssistantFetchAPIService,
+} from '../services';
 
 const services: Provider[] = [
+  // Devices
   LutronPicoService,
+  // Domains
   CameraDomainService,
   ClimateDomainService,
   CoverDomainService,
@@ -31,6 +39,11 @@ const services: Provider[] = [
   RemoteDomainService,
   RemoteDomainService,
   SwitchDomainService,
+  // Service
+  EntityService,
+  HACallService,
+  HomeAssistantFetchAPIService,
+  HASocketAPIService,
 ];
 
 @Module({

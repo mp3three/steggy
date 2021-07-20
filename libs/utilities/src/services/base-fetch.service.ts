@@ -28,10 +28,10 @@ export class BaseFetch {
    */
   @Trace()
   protected async fetchHandleResponse<T extends unknown = unknown>(
-    arguments_: FetchWith,
+    fetchWith: FetchWith,
     response: Response,
   ): Promise<T> {
-    if (arguments_.process === false) {
+    if (fetchWith.process === false) {
       return response as T;
     }
     const text = await response.text();
@@ -57,14 +57,14 @@ export class BaseFetch {
    * In case of collision, provided params take priority.
    */
   protected buildFilterString(
-    arguments_: FetchWith<{
+    fetchWith: FetchWith<{
       filters?: Readonly<ResultControlDTO>;
       params?: Record<string, string>;
     }>,
   ): string {
     return new URLSearchParams({
-      ...controlToQuery(arguments_.control),
-      ...(arguments_.params || {}),
+      ...controlToQuery(fetchWith.control),
+      ...(fetchWith.params || {}),
     }).toString();
   }
 
@@ -73,37 +73,40 @@ export class BaseFetch {
    *
    * Should return: headers, body, method
    */
-  protected async fetchCreateMeta(arguments_: FetchWith): Promise<RequestInit> {
+  protected async fetchCreateMeta(fetchWitch: FetchWith): Promise<RequestInit> {
     const body =
-      typeof arguments_.body === 'object' || typeof arguments_.data === 'object'
+      typeof fetchWitch.body === 'object' || typeof fetchWitch.data === 'object'
         ? JSON.stringify({
-            data: arguments_.data ? { ...arguments_.data } : undefined,
-            ...(arguments_.data
+            data: fetchWitch.data ? { ...fetchWitch.data } : undefined,
+            ...(fetchWitch.data
               ? {}
-              : (arguments_.body as Record<string, unknown>)),
+              : (fetchWitch.body as Record<string, unknown>)),
           })
-        : arguments_.body;
+        : fetchWitch.body;
     const headers = {
-      ...(arguments_.headers || {}),
+      ...(fetchWitch.headers || {}),
     } as Record<string, string>;
-    let method = arguments_.method || 'GET';
+    let method = fetchWitch.method || 'GET';
     if (body) {
       // Override
       method =
-        arguments_.method === HTTP_METHODS.get
+        fetchWitch.method === HTTP_METHODS.get
           ? HTTP_METHODS.post
-          : arguments_.method;
+          : fetchWitch.method;
       headers['Content-Type'] = 'application/json';
     }
 
-    if (arguments_.jwtToken) {
-      headers['x-jwt-token'] = arguments_.jwtToken;
+    if (fetchWitch.jwtToken) {
+      headers['x-jwt-token'] = fetchWitch.jwtToken;
     }
-    if (arguments_.apiKey) {
-      headers['x-token'] = arguments_.apiKey;
+    if (fetchWitch.apiKey) {
+      headers['x-token'] = fetchWitch.apiKey;
     }
-    if (arguments_.adminKey) {
-      headers['x-admin-key'] = arguments_.adminKey;
+    if (fetchWitch.adminKey) {
+      headers['x-admin-key'] = fetchWitch.adminKey;
+    }
+    if (fetchWitch.bearer) {
+      headers['Authorization'] = `Bearer ${fetchWitch.bearer}`;
     }
     return {
       body: body as BodyInit,
@@ -115,15 +118,15 @@ export class BaseFetch {
   /**
    * Resolve url provided in args into a full path w/ domain
    */
-  protected fetchCreateUrl(arguments_: FetchWith): string {
-    let url = arguments_.rawUrl
-      ? arguments_.url
-      : `${arguments_.baseUrl ?? this.BASE_URL}${arguments_.url}`;
-    if (arguments_.tempAuthToken) {
-      arguments_.params ??= {};
+  protected fetchCreateUrl(fetchWith: FetchWith): string {
+    let url = fetchWith.rawUrl
+      ? fetchWith.url
+      : `${fetchWith.baseUrl ?? this.BASE_URL}${fetchWith.url}`;
+    if (fetchWith.tempAuthToken) {
+      fetchWith.params ??= {};
     }
-    if (arguments_.control || arguments_.params) {
-      url = `${url}?${this.buildFilterString(arguments_)}`;
+    if (fetchWith.control || fetchWith.params) {
+      url = `${url}?${this.buildFilterString(fetchWith)}`;
     }
     return url;
   }

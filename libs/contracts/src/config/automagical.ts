@@ -84,6 +84,17 @@ export class AutomagicalConfig {
     type: ConfigLibs,
   })
   public libs?: ConfigLibs;
+  /**
+   * For debugging purposes, your config will be printed by default
+   *
+   * After things seem like they're working, set this to false
+   */
+  @ConfigurableProperty({
+    applications: {},
+    default: false,
+    type: 'boolean',
+  })
+  public SKIP_CONFIG_PRINT?: boolean;
 
   // #endregion Object Properties
 }

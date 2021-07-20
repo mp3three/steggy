@@ -142,17 +142,6 @@ export class CommonConfig {
     type: 'number',
   })
   public REDIS_PORT?: number;
-  /**
-   * For debugging purposes, your config will be printed by default
-   *
-   * After things seem like they're working, set this to false
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: false,
-    type: 'boolean',
-  })
-  public SKIP_CONFIG_PRINT?: boolean;
 
   /**
    * 🤷‍♂️ This doesn't have a clear usage at runtime anymore

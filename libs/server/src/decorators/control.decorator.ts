@@ -1,5 +1,5 @@
-import { ResultControlDTO } from '@automagical/contracts/fetch';
 import { APIRequest } from '@automagical/contracts/server';
+import { ResultControlDTO } from '@automagical/contracts/utilities';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const Control = createParamDecorator(

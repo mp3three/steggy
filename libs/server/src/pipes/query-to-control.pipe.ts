@@ -1,5 +1,5 @@
 import { LIB_SERVER } from '@automagical/contracts/constants';
-import { ResultControlDTO } from '@automagical/contracts/fetch';
+import { ResultControlDTO } from '@automagical/contracts/utilities';
 import { InjectLogger, queryToControl } from '@automagical/utilities';
 import { Injectable, PipeTransform } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
