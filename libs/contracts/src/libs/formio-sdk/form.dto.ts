@@ -7,7 +7,6 @@ import {
   IsString,
   Matches,
   MaxLength,
-  ValidateNested,
 } from 'class-validator';
 import faker from 'faker';
 import { Schema as MongooseSchema } from 'mongoose';
@@ -15,7 +14,6 @@ import { Schema as MongooseSchema } from 'mongoose';
 import { DBFake } from '../../classes';
 import { MONGO_COLLECTIONS } from '../persistence/mongo';
 import { BaseOmitProperties } from '.';
-import { ACCESS_TYPES } from './constants';
 import { TransformObjectId } from './transform-object-id.decorator';
 
 /* eslint-disable security/detect-object-injection */

@@ -1,6 +1,10 @@
 import { AutomagicalConfig } from '@automagical/contracts/config';
-import { APPLICATION_LIST, LIBRARY_LIST } from '@automagical/contracts/constants';
+import {
+  APPLICATION_LIST,
+  LIBRARY_LIST,
+} from '@automagical/contracts/constants';
 import { NXAffected, NXWorkspaceDTO } from '@automagical/contracts/terminal';
+import { filterUnique } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
@@ -12,8 +16,8 @@ import { homedir } from 'os';
 import { join } from 'path';
 import { cwd } from 'process';
 import { inc } from 'semver';
+
 import { MainCLIREPL } from '../repl/main-cli.repl';
-import { filterUnique } from '@automagical/utilities';
 
 /**
  * Class for working with the host operating system,
@@ -54,10 +58,6 @@ export class SystemService {
         const { version } = this.packageGet(application);
         const { action } = await inquirer.prompt([
           {
-            message: application,
-            suffix: `@${version}`,
-            type: 'expand',
-            name: 'action',
             choices: [
               {
                 key: 'm',
@@ -75,6 +75,10 @@ export class SystemService {
                 value: 'rc',
               },
             ],
+            message: application,
+            name: 'action',
+            suffix: `@${version}`,
+            type: 'expand',
           },
         ]);
         const updated =
@@ -171,7 +175,7 @@ export class SystemService {
       if (typeof projects[project] === 'undefined') {
         const updated = Object.keys(projects).some((key) => {
           // Match based off of the first 3 characters
-          if (key.substr(0, 3) === project.substr(0, 3)) {
+          if (key.slice(0, 3) === project.slice(0, 3)) {
             project = key;
             this.nameMap.set(project, key);
             return true;

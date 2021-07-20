@@ -1,4 +1,4 @@
-import { PicoStates } from '@automagical/contracts/home-assistant';
+import { PicoStates } from '../libs/home-assistant/enums';
 
 class RoomToRoomDTO {
   // #region Object Properties

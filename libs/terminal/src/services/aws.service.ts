@@ -1,14 +1,14 @@
 import { AWS_ENVIRONMENTS } from '@automagical/contracts/config';
-import { CONFIG_PROVIDERS } from '@automagical/contracts/terminal';
 import {
   EBApplicationDTO,
   EBEnvironmentDTO,
 } from '@automagical/contracts/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import Table from 'cli-table';
 import execa from 'execa';
 import inquirer from 'inquirer';
-import Table from 'cli-table';
+
 import { ConfigBuilderREPL } from '../repl/config-builder.repl';
 
 @Injectable()
@@ -42,18 +42,18 @@ export class AWSService {
 
     const { list } = await inquirer.prompt([
       {
-        type: 'checkbox',
         choices: environmentsNames,
         message: 'Which environments?',
+        type: 'checkbox',
       },
     ]);
 
     const applications = await this.describeEnvironments();
     const { environment } = await inquirer.prompt([
       {
-        name: 'environment',
-        message: 'Select an application',
         choices: applications.map((item) => item.EnvironmentName),
+        message: 'Select an application',
+        name: 'environment',
         type: 'list',
       },
     ]);
@@ -79,17 +79,17 @@ export class AWSService {
 
   // #region Protected Methods
 
-  protected onModuleInit() {
+  protected onModuleInit(): void {
     this.configBuilder.provider.set(
-      CONFIG_PROVIDERS.ebenvironment,
+      'ebenvironment',
       async (defaultValue: unknown) => {
         this.environments ??= await this.describeEnvironments();
         const { environment } = await inquirer.prompt([
           {
-            name: 'environment',
-            message: 'Select an environment',
             choices: this.environments.map((item) => item.EnvironmentName),
             default: defaultValue,
+            message: 'Select an environment',
+            name: 'environment',
             type: 'list',
           },
         ]);
@@ -115,11 +115,11 @@ export class AWSService {
   }: {
     environmentName?: string;
   } = {}): Promise<EBEnvironmentDTO[]> {
-    const args = ['elasticbeanstalk', 'describe-environments'];
+    const arguments_ = ['elasticbeanstalk', 'describe-environments'];
     if (environmentName) {
-      args.push('--environment-names', environmentName);
+      arguments_.push('--environment-names', environmentName);
     }
-    const { stdout } = await execa('aws', args);
+    const { stdout } = await execa('aws', arguments_);
     const environments = JSON.parse(stdout).Environments as EBEnvironmentDTO[];
     const columns: (keyof EBEnvironmentDTO)[] = [
       'EnvironmentName',
@@ -129,8 +129,8 @@ export class AWSService {
       'EndpointURL',
     ];
     const table = new Table({ head: columns });
-    environments.forEach((env) => {
-      table.push(columns.map((col) => env[col]));
+    environments.forEach((environment) => {
+      table.push(columns.map((col) => environment[col]));
     });
     console.log(table.toString());
     return environments;

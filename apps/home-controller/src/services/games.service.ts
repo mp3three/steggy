@@ -1,6 +1,5 @@
 import { ControllerSettings, RoomController } from '@automagical/contracts';
 import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
-import { PicoStates } from '@automagical/contracts/home-assistant';
 import {
   LutronPicoService,
   SwitchDomainService,
@@ -57,7 +56,7 @@ export class GamesRoomService implements RoomController {
   }
 
   @Trace()
-  public async combo(actions: PicoStates[]): Promise<boolean> {
+  public async combo(): Promise<boolean> {
     return true;
   }
 

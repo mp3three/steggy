@@ -1,6 +1,7 @@
 import { DynamicModule, Provider } from '@nestjs/common';
 import inquirer from 'inquirer';
 import datePrompt from 'inquirer-date-prompt';
+
 import { MainCLIREPL } from '../repl';
 import { SystemService } from '../services';
 
@@ -20,9 +21,9 @@ export class MainCLIModule {
     repl.push(MainCLIREPL);
     return {
       exports: repl,
-      module: MainCLIModule,
       global: true,
       imports: [],
+      module: MainCLIModule,
       providers: [...repl, ...service, SystemService],
     };
   }

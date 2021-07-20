@@ -5,7 +5,10 @@ import {
   REDIS_PORT,
 } from '@automagical/contracts/config';
 import { HomeAssistantModule } from '@automagical/home-assistant';
-import { ConfigModule, UtilitiesModule } from '@automagical/utilities';
+import {
+  AutomagicalConfigModule,
+  UtilitiesModule,
+} from '@automagical/utilities';
 import { CacheModule, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -27,7 +30,7 @@ import {
     HomeAssistantModule,
     UtilitiesModule,
     ScheduleModule.forRoot(),
-    ConfigModule.register(APP_NAME, DEFAULT_SETTINGS),
+    AutomagicalConfigModule.register(APP_NAME, DEFAULT_SETTINGS),
     LoggerModule.forRootAsync({
       inject: [ConfigService],
       useFactory(configService: ConfigService) {

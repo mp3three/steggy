@@ -55,11 +55,12 @@ export class FanDomainService {
 
   @Trace()
   public async setPercentage(
-    entityId?: string,
-    percentage?: number,
+    entityId: string,
+    percentage: number,
   ): Promise<void> {
     return await this.callService.call('set_percentage', {
       entity_id: entityId,
+      percentage,
     });
   }
 

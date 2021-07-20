@@ -1,7 +1,7 @@
 import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
 import {
-  RokuInputs,
   HomeAssistantRoomRokuDTO,
+  RokuInputs,
 } from '@automagical/contracts/home-assistant';
 import { HTTP_METHODS } from '@automagical/contracts/utilities';
 import {
@@ -10,9 +10,9 @@ import {
   sleep,
   Trace,
 } from '@automagical/utilities';
-import { Inject, CACHE_MANAGER, Injectable } from '@nestjs/common';
-import { PinoLogger } from 'nestjs-pino';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
+import { PinoLogger } from 'nestjs-pino';
 
 /**
  * Half abandoned side project

@@ -259,12 +259,6 @@
             "buildTarget": "living-docs:build"
           }
         },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["apps/living-docs/**/*.ts"]
-          }
-        },
         "test": {
           "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/apps/living-docs"],

@@ -1,17 +1,18 @@
-import { FormCRUD, SubmissionCRUD } from '@automagical/contracts';
 import { FormDTO } from '@automagical/contracts/formio-sdk';
 import {
-  ChangelogDataDTO,
-  ChangelogDTO,
-  ChangelogTicketDTO,
   CHANGELOG_FORM,
   CHANGELOG_TAGS,
   CHANGELOG_TICKETSOURCE,
+  ChangelogDataDTO,
+  ChangelogDTO,
+  ChangelogTicketDTO,
   CLIService,
 } from '@automagical/contracts/terminal';
-import { Inject, Injectable } from '@nestjs/common';
+import { FormService, SubmissionService } from '@automagical/formio-sdk';
+import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
+
 import { SystemService } from '../services';
 import { MainCLIREPL } from './main-cli.repl';
 
@@ -30,10 +31,8 @@ export class ChangelogREPL implements CLIService {
 
   constructor(
     private readonly cli: MainCLIREPL,
-    @Inject(FormCRUD)
-    private readonly formCrud: FormCRUD,
-    @Inject(SubmissionCRUD)
-    private readonly submissionCrud: SubmissionCRUD,
+    private readonly formCrud: FormService,
+    private readonly submissionCrud: SubmissionService,
     private readonly systemService: SystemService,
   ) {
     this.cli.addScript(this);
@@ -46,20 +45,20 @@ export class ChangelogREPL implements CLIService {
   public async exec(): Promise<void> {
     const affected = await this.systemService.getAffected();
     const nodeModules = affected.projects.filter(
-      (item) => item.substr(0, 3) === 'npm',
+      (item) => item.slice(0, 3) === 'npm',
     );
     if (nodeModules) {
       console.log(chalk`{bgGreen.black Node Dependencies}`);
-      console.log(nodeModules.map((item) => ` - ${item.substr(4)}`).join(`\n`));
+      console.log(nodeModules.map((item) => ` - ${item.slice(4)}`).join(`\n`));
     }
     console.log();
     const repoAffected = affected.projects.filter(
-      (item) => item.substr(0, 3) !== 'npm',
+      (item) => item.slice(0, 3) !== 'npm',
     );
     await this.versionBump(repoAffected);
-    const changelog = await this.buildChangelog(
+    await this.buildChangelog(
       repoAffected,
-      nodeModules.map((item) => item.substr(4)),
+      nodeModules.map((item) => item.slice(4)),
     );
   }
 
@@ -83,19 +82,6 @@ export class ChangelogREPL implements CLIService {
     const comments = await this.getComments();
     const tags = await this.getTags();
     const changelog = {
-      rootVersion: this.systemService.bumpRootPackageVersion(),
-      tags,
-      comments,
-      nodeModules,
-      libraryUpdates: projects
-        .filter((item) => this.systemService.isLibrary(item))
-        .map((name) => {
-          return {
-            name,
-            version: this.systemService.packageGet(name).version,
-          };
-        }),
-      ticket,
       appVersions: projects
         .filter((item) => !this.systemService.isLibrary(item))
         .map((name) => {
@@ -104,6 +90,19 @@ export class ChangelogREPL implements CLIService {
             version: this.systemService.packageGet(name).version,
           };
         }),
+      comments,
+      libraryUpdates: projects
+        .filter((item) => this.systemService.isLibrary(item))
+        .map((name) => {
+          return {
+            name,
+            version: this.systemService.packageGet(name).version,
+          };
+        }),
+      nodeModules,
+      rootVersion: this.systemService.bumpRootPackageVersion(),
+      tags,
+      ticket,
     } as ChangelogDataDTO;
     return await this.submissionCrud.create(
       { data: changelog },
@@ -116,14 +115,14 @@ export class ChangelogREPL implements CLIService {
   private async getComments(): Promise<string> {
     const { comments } = await inquirer.prompt([
       {
-        message: 'Changelog Comments',
-        name: 'comments',
-        type: 'editor',
         default: [
           `Commit Messages`,
           ``,
           ...(await this.getCommitMessages()).map((item) => ` * ${item}`),
         ].join(`\n`),
+        message: 'Changelog Comments',
+        name: 'comments',
+        type: 'editor',
       },
     ]);
     return comments;
@@ -150,10 +149,10 @@ export class ChangelogREPL implements CLIService {
     const { source } = await inquirer.prompt([
       {
         choices: Object.values(CHANGELOG_TICKETSOURCE),
+        default: CHANGELOG_TICKETSOURCE.none,
         message: 'Ticket Source',
         name: 'source',
         type: 'list',
-        default: CHANGELOG_TICKETSOURCE.none,
       },
     ]);
     let ticketNumber = '';
@@ -170,9 +169,9 @@ export class ChangelogREPL implements CLIService {
       description = '';
     }
     return {
+      description,
       source,
       ticketNumber,
-      description,
     };
   }
 
@@ -180,10 +179,6 @@ export class ChangelogREPL implements CLIService {
     const { workspace } = this.systemService;
     const { list } = (await inquirer.prompt([
       {
-        type: 'checkbox',
-        message: 'Version Bump',
-        name: 'list',
-        pageSize: 20,
         choices: [
           new inquirer.Separator('Applications'),
           ...projects
@@ -192,8 +187,8 @@ export class ChangelogREPL implements CLIService {
             )
             .map((name) => {
               return {
-                name,
                 checked: true,
+                name,
               };
             }),
           new inquirer.Separator('Libraries'),
@@ -203,11 +198,15 @@ export class ChangelogREPL implements CLIService {
             )
             .map((name) => {
               return {
-                name,
                 checked: true,
+                name,
               };
             }),
         ],
+        message: 'Version Bump',
+        name: 'list',
+        pageSize: 20,
+        type: 'checkbox',
       },
     ])) as Record<'list', string[]>;
     await this.systemService.bumpLibraries(list);

@@ -1,4 +1,4 @@
-import { HASS_DOMAINS } from '@automagical/contracts/home-assistant';
+import { HASS_DOMAINS } from '../enums';
 
 export function split(
   entity: { entity_id: string } | string,

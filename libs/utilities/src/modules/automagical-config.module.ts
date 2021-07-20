@@ -1,15 +1,15 @@
 import { AutomagicalConfig } from '@automagical/contracts/config';
 import { LIB_TESTING } from '@automagical/contracts/constants';
 import { DynamicModule, Module } from '@nestjs/common';
-import * as NestConfig from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import rc from 'rc';
 
 @Module({})
-export class ConfigModule {
+export class AutomagicalConfigModule {
   // #region Static Properties
 
   public static readonly config: Promise<AutomagicalConfig> = new Promise(
-    (done) => (ConfigModule.done = done),
+    (done) => (AutomagicalConfigModule.done = done),
   );
 
   private static done;
@@ -22,11 +22,11 @@ export class ConfigModule {
     return this.config as Promise<AutomagicalConfig>;
   }
 
-  public static register<
-    T extends Record<never, unknown>,
-    Argument extends AutomagicalConfig = AutomagicalConfig,
-  >(appName: string | symbol, defaultConfig?: Argument): DynamicModule {
-    return NestConfig.ConfigModule.forRoot({
+  public static register(
+    appName: string | symbol,
+    defaultConfig?: Partial<AutomagicalConfig>,
+  ): DynamicModule {
+    return ConfigModule.forRoot({
       isGlobal: true,
       load: [
         async () => {
@@ -37,7 +37,7 @@ export class ConfigModule {
           const config = rc(appName, {
             ...(defaultConfig || {}),
           }) as AutomagicalConfig & { configs: string[] };
-          ConfigModule.done(config);
+          AutomagicalConfigModule.done(config);
           /**
            * Life can be unpredictable if the config isn't what you thought it was
            *
