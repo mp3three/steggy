@@ -1,14 +1,12 @@
-import { RoomController } from '@automagical/contracts';
+import { ControllerSettings, RoomController } from '@automagical/contracts';
 import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { PicoStates } from '@automagical/contracts/home-assistant';
 import {
   LutronPicoService,
-  RemoteDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
 import { PinoLogger } from 'nestjs-pino';
 
 import { ROOM_NAMES } from '../typings';
@@ -17,19 +15,31 @@ import { ROOM_NAMES } from '../typings';
 export class MasterBedroomService implements RoomController {
   // #region Object Properties
 
-  public readonly _CONTROLLER_SETTINGS = {
-    lights: [
-      'light.loft_wall_bottom',
-      'light.loft_wall_top',
-      'light.loft_fan_bench_right',
-      'light.loft_fan_desk_right',
-      'light.loft_fan_desk_left',
-      'light.loft_fan_bench_left',
+  public readonly _CONTROLLER_SETTINGS: ControllerSettings = {
+    devices: [
+      {
+        comboCount: 1,
+        target: [
+          'switch.womp',
+          'light.speaker_light',
+          'light.bedroom_fan_top_left',
+          'light.bedroom_fan_top_right',
+          'light.bedroom_fan_bottom_left',
+          'light.bedroom_fan_bottom_right',
+        ],
+      },
+      {
+        comboCount: 2,
+        rooms: [ROOM_NAMES.loft, { name: ROOM_NAMES.downstairs, type: 'off' }],
+      },
+      {
+        comboCount: 3,
+        rooms: [ROOM_NAMES.downstairs],
+      },
     ],
-    switch: ['switch.desk_light', 'switch.loft_hallway_light'],
   };
 
-  public name = ROOM_NAMES.loft;
+  public name = ROOM_NAMES.master;
 
   // #endregion Object Properties
 
@@ -39,7 +49,6 @@ export class MasterBedroomService implements RoomController {
     @InjectLogger(MasterBedroomService, APP_HOME_CONTROLLER)
     private readonly logger: PinoLogger,
     private readonly picoService: LutronPicoService,
-    private readonly remoteService: RemoteDomainService,
     private readonly switchService: SwitchDomainService,
   ) {}
 

@@ -104,14 +104,14 @@ export class LoftService implements RoomController {
   // #region Protected Methods
 
   @Cron('0 0 22 * * *')
+  @Trace()
   protected async lightOff(): Promise<void> {
-    this.logger.debug('lightOff');
     await this.switchService.turnOff('switch.back_desk_light');
   }
 
   @Cron('0 0 7 * * *')
+  @Trace()
   protected async lightOn(): Promise<void> {
-    this.logger.debug('lightOn');
     await this.switchService.turnOn('switch.back_desk_light');
   }
 
