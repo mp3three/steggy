@@ -6,7 +6,6 @@ export * from './control.decorator';
 export * from './emit-after.decorator';
 export * from './form.decorator';
 export * from './locals.decorator';
-export * from './permission-check.decorator';
 export * from './project.decorator';
 export * from './submission.decorator';
 export * from './user.decorator';

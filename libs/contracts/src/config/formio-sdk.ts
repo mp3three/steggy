@@ -1,6 +1,5 @@
-import { CreateConfigurableAnnotation } from '@automagical/utilities';
-
 import { LIB_FORMIO_SDK } from '../constants';
+import { CreateConfigurableAnnotation } from '../decorators';
 
 const UsesConfig = CreateConfigurableAnnotation(LIB_FORMIO_SDK.description);
 
@@ -8,14 +7,16 @@ export class FormioSDKConfig {
   // #region Object Properties
 
   /**
-   * Best used when the calling service needs access to more than one project
+   * Log in, then provide jwt-token as if signed in user
+   *
+   * Useful for some applicatins, and script consumers
    */
   @UsesConfig({
     applications: {},
-    default: 'https://api.form.io',
-    type: 'url',
+    default: '',
+    type: 'password',
   })
-  public PORTAL_BASE_URL?: string;
+  public AUTH_PASSWORD: string;
   /**
    * Provide a globally usable api key
    *
@@ -28,16 +29,6 @@ export class FormioSDKConfig {
   })
   public API_KEY?: string;
   /**
-   * Takes precedence over PORTAL_BASE_URL.
-   * Found as live endpoint
-   */
-  @UsesConfig({
-    applications: {},
-    default: '',
-    type: 'url',
-  })
-  public PROJECT_URL?: string;
-  /**
    * Log in, then provide jwt-token as if signed in user
    *
    * Useful for some applicatins, and script consumers
@@ -49,16 +40,24 @@ export class FormioSDKConfig {
   })
   public AUTH_EMAIL: string;
   /**
-   * Log in, then provide jwt-token as if signed in user
-   *
-   * Useful for some applicatins, and script consumers
+   * Takes precedence over PORTAL_BASE_URL.
+   * Found as live endpoint
    */
   @UsesConfig({
     applications: {},
     default: '',
-    type: 'password',
+    type: 'url',
   })
-  public AUTH_PASSWORD: string;
+  public PROJECT_URL?: string;
+  /**
+   * Best used when the calling service needs access to more than one project
+   */
+  @UsesConfig({
+    applications: {},
+    default: 'https://api.form.io',
+    type: 'url',
+  })
+  public PORTAL_BASE_URL?: string;
 
   /**
    * Default project to send all requests to.

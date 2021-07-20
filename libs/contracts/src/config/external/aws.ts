@@ -1,6 +1,5 @@
-import { CreateConfigurableAnnotation } from '@automagical/utilities';
-
 import { LIB_UTILS } from '../../constants/library-names';
+import { CreateConfigurableAnnotation } from '../../decorators';
 
 const UsesConfig = CreateConfigurableAnnotation(LIB_UTILS.description);
 export class AWSUtilitiesConfig {

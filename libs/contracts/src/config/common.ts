@@ -1,5 +1,6 @@
-import { ConfigurableProperty } from '@automagical/utilities';
 import type { PinoLogger } from 'nestjs-pino';
+
+import { ConfigurableProperty } from '../decorators';
 
 /**
  * The generic top level configuration items that are plausible across all applications
@@ -10,36 +11,17 @@ export class CommonConfig {
   // #region Object Properties
 
   /**
-   * Lower limit for log levels in http messages
-   *
-   * TODO: Non-request related logging is debug+ (fixme)
+   * Prefix for all routes
    */
-  @ConfigurableProperty({
-    applications: {},
-    default: 'info',
-    type: ['info', 'warn', 'debug', 'trace'],
-  })
-  public LOG_LEVEL?: keyof typeof PinoLogger.prototype;
   /**
-   * For binding http server
+   * Cache server
    */
   @ConfigurableProperty({
     applications: {},
-    default: 3000,
-    type: 'number',
+    default: '',
+    type: 'string',
   })
-  public PORT?: number;
-  /**
-   * For debugging purposes, your config will be printed by default
-   *
-   * After things seem like they're working, set this to false
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: false,
-    type: 'boolean',
-  })
-  public SKIP_CONFIG_PRINT?: boolean;
+  public GLOBAL_PREFIX?: string;
   /**
    * Default value: "*"
    *
@@ -52,6 +34,19 @@ export class CommonConfig {
   })
   public CORS?: string;
   /**
+   * Configuration for helmet
+   */
+
+  /**
+   * Cache server
+   */
+  @ConfigurableProperty({
+    applications: {},
+    default: '*',
+    type: 'string',
+  })
+  public HELMET?: false | Record<string, unknown>;
+  /**
    * Body parsing max size
    */
   @ConfigurableProperty({
@@ -60,6 +55,26 @@ export class CommonConfig {
     type: 'string',
   })
   public BODY_SIZE?: string;
+  /**
+   * Lower limit for log levels in http messages
+   *
+   * TODO: Non-request related logging is debug+ (fixme)
+   */
+  @ConfigurableProperty({
+    applications: {},
+    default: 'info',
+    type: ['info', 'warn', 'debug', 'trace'],
+  })
+  public LOG_LEVEL?: keyof typeof PinoLogger.prototype;
+  /**
+   * Cache server
+   */
+  @ConfigurableProperty({
+    applications: {},
+    default: 'localhost',
+    type: 'string',
+  })
+  public MQTT_HOST?: string;
   /**
    * - memory = inside node's memory
    * - redis = external redis server (preferred)
@@ -82,6 +97,36 @@ export class CommonConfig {
   /**
    * Http request throttling (IP + route)
    */
+  /**
+   * Cache server
+   */
+  @ConfigurableProperty({
+    applications: {},
+    default: 1000,
+    type: 'number',
+  })
+  public THROTTLE_LIMIT?: number;
+  /**
+   * Cache server
+   */
+  @ConfigurableProperty({
+    applications: {},
+    default: 1883,
+    type: 'number',
+  })
+  public MQTT_PORT?: string;
+  /**
+   * For binding http server
+   */
+  @ConfigurableProperty({
+    applications: {},
+    default: 3000,
+    type: 'number',
+  })
+  public PORT?: number;
+  /**
+   * Http request throttling (IP + route)
+   */
   @ConfigurableProperty({
     applications: {},
     default: 60,
@@ -97,66 +142,22 @@ export class CommonConfig {
     type: 'number',
   })
   public REDIS_PORT?: number;
-
   /**
-   * Prefix for all routes
-   */
-  /**
-   * Cache server
+   * For debugging purposes, your config will be printed by default
+   *
+   * After things seem like they're working, set this to false
    */
   @ConfigurableProperty({
     applications: {},
-    default: '',
-    type: 'string',
+    default: false,
+    type: 'boolean',
   })
-  public GLOBAL_PREFIX?: string;
-  /**
-   * Configuration for helmet
-   */
+  public SKIP_CONFIG_PRINT?: boolean;
 
-  /**
-   * Cache server
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: '*',
-    type: 'string',
-  })
-  public HELMET?: false | Record<string, unknown>;
   /**
    * 🤷‍♂️ This doesn't have a clear usage at runtime anymore
    */
   public NODE_ENV?: string;
-  /**
-   * Http request throttling (IP + route)
-   */
-  /**
-   * Cache server
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: 1000,
-    type: 'number',
-  })
-  public THROTTLE_LIMIT?: number;
-  /**
-   * Cache server
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: 'localhost',
-    type: 'string',
-  })
-  public MQTT_HOST?: string;
-  /**
-   * Cache server
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: 1883,
-    type: 'number',
-  })
-  public MQTT_PORT?: string;
 
   // #endregion Object Properties
 }

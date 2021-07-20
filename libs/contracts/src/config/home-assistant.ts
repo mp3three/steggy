@@ -1,6 +1,5 @@
-import { CreateConfigurableAnnotation } from '@automagical/utilities';
-
 import { LIB_HOME_ASSISTANT } from '../constants';
+import { CreateConfigurableAnnotation } from '../decorators';
 
 const UsesConfig = CreateConfigurableAnnotation(LIB_HOME_ASSISTANT.description);
 export class HomeAssistantConfig {

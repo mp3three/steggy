@@ -14,7 +14,13 @@ import RedisStore from 'cache-manager-redis-store';
 import { LoggerModule } from 'nestjs-pino';
 
 import { APP_NAME, DEFAULT_SETTINGS } from '../environments/environment';
-import { ApplicationService } from '../services';
+import {
+  DownstairsService,
+  GamesService,
+  GuestBedroomService,
+  LoftService,
+  MasterBedroomService,
+} from '../services';
 
 @Module({
   imports: [
@@ -53,6 +59,12 @@ import { ApplicationService } from '../services';
       wildcard: true,
     }),
   ],
-  providers: [ApplicationService],
+  providers: [
+    DownstairsService,
+    GamesService,
+    GuestBedroomService,
+    LoftService,
+    MasterBedroomService,
+  ],
 })
 export class ApplicationModule {}

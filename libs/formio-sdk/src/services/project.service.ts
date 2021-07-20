@@ -1,8 +1,4 @@
-import {
-  CrudOptions,
-  ProjectCRUD,
-  ProjectSupport,
-} from '@automagical/contracts';
+import { CrudOptions } from '@automagical/contracts';
 import { BASE_PROJECT, PROJECT_URL } from '@automagical/contracts/config';
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import { ProjectDTO, UserDTO } from '@automagical/contracts/formio-sdk';
@@ -20,7 +16,7 @@ import { PinoLogger } from 'nestjs-pino';
 import { CommonID, FormioSdkService } from './formio-sdk.service';
 
 @Injectable()
-export class ProjectService implements ProjectCRUD, ProjectSupport {
+export class ProjectService {
   // #region Constructors
 
   constructor(

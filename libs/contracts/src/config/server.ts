@@ -1,6 +1,5 @@
-import { CreateConfigurableAnnotation } from '@automagical/utilities';
-
 import { LIB_FORMIO_SDK, LIB_SERVER } from '../constants';
+import { CreateConfigurableAnnotation } from '../decorators';
 
 const UsesConfig = CreateConfigurableAnnotation(LIB_SERVER.description);
 export class ServerConfig {
@@ -8,9 +7,10 @@ export class ServerConfig {
 
   @UsesConfig({
     applications: {},
-    type: 'password',
+    array: true,
+    type: 'string',
   })
-  public ADMIN_KEY?: string;
+  public RESERVED_WORDS_LIST?: string[];
   @UsesConfig({
     applications: {},
     title: 'Project',
@@ -28,20 +28,19 @@ export class ServerConfig {
   public PROJECT_KEYS?: Record<string, string>;
   @UsesConfig({
     applications: {},
-    array: true,
-    type: 'string',
+    type: 'boolean',
   })
-  public RESERVED_WORDS_LIST?: string[];
+  public COMPRESSION?: boolean;
+  @UsesConfig({
+    applications: {},
+    type: 'password',
+  })
+  public ADMIN_KEY?: string;
   @UsesConfig({
     applications: {},
     type: 'password',
   })
   public PORTAL_ADMIN_KEY?: string;
-  @UsesConfig({
-    applications: {},
-    type: 'boolean',
-  })
-  public COMPRESSION?: boolean;
 
   // #endregion Object Properties
 }

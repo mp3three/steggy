@@ -1,4 +1,7 @@
-import { FILTER_OPERATIONS, ResultControlDTO } from '@automagical/contracts/fetch';
+import {
+  FILTER_OPERATIONS,
+  ResultControlDTO,
+} from '@automagical/contracts/utilities';
 
 export function controlToQuery(
   value: Readonly<ResultControlDTO>,

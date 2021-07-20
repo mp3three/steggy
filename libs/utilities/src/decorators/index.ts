@@ -1,4 +1,3 @@
-export * from './config.decorator';
 export * from './emit-after.decorator';
 export * from './inject-logger.decorator';
 export * from './inject-mongo.decorator';

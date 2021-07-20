@@ -1,6 +1,5 @@
-import { CreateConfigurableAnnotation } from '@automagical/utilities';
-
 import { LIB_AUTHENTICATION } from '../constants';
+import { CreateConfigurableAnnotation } from '../decorators';
 /**
  * Encryption key for x-jwt-token
  */
@@ -31,6 +30,24 @@ const ConfigurableProperty = CreateConfigurableAnnotation(
 export class AuthenticationConfig {
   // #region Object Properties
 
+  /**
+   * For containers that use basic auth
+   */
+  @ConfigurableProperty({
+    applications: {},
+    default: DEFAULT_BASIC_PASSWORD,
+    type: 'password',
+  })
+  public BASIC_PASSWORD?: string;
+  /**
+   * For containers that use basic auth
+   */
+  @ConfigurableProperty({
+    applications: {},
+    default: DEFAULT_BASIC_USERNAME,
+    type: 'string',
+  })
+  public BASIC_USERNAME?: string;
   /**
    * JWT expiry time in minutes
    */
@@ -69,24 +86,6 @@ export class AuthenticationConfig {
     type: 'boolean',
   })
   public VERIFY_JWT?: boolean;
-  /**
-   * For containers that use basic auth
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: DEFAULT_BASIC_PASSWORD,
-    type: 'password',
-  })
-  public BASIC_PASSWORD?: string;
-  /**
-   * For containers that use basic auth
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: DEFAULT_BASIC_USERNAME,
-    type: 'string',
-  })
-  public BASIC_USERNAME?: string;
 
   // #endregion Object Properties
 }

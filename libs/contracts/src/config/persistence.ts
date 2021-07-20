@@ -1,8 +1,8 @@
-import { CreateConfigurableAnnotation } from '@automagical/utilities';
 import type { MongooseModuleOptions } from '@nestjs/mongoose';
 import type { CipherGCMTypes } from 'crypto';
 
 import { LIB_PERSISTENCE } from '../constants';
+import { CreateConfigurableAnnotation } from '../decorators';
 
 const UsesConfig = CreateConfigurableAnnotation(LIB_PERSISTENCE.description);
 export class MongoCerts {
@@ -18,31 +18,6 @@ export class MongoCerts {
 export class PersistenceConfig {
   // #region Object Properties
 
-  @UsesConfig({
-    applications: {},
-    type: 'string',
-  })
-  /**
-   * Used for encrypting data before going into the database
-   */
-  public ALGORITHM?: CipherGCMTypes | string;
-  /**
-   * Used for encrypting project settings
-   */
-  @UsesConfig({
-    applications: {},
-    type: 'password',
-  })
-  public DB_SECRET?: string;
-
-  /**
-   * Load certs by path / url
-   */
-  @UsesConfig({
-    applications: {},
-    type: MongoCerts,
-  })
-  public MONGO_CERTS?: MongoCerts;
   /**
    * How long to make the salt for database encryption work
    */
@@ -53,6 +28,22 @@ export class PersistenceConfig {
   })
   public SALT_LENGTH?: number;
   /**
+   * Used for encrypting project settings
+   */
+  @UsesConfig({
+    applications: {},
+    type: 'password',
+  })
+  public DB_SECRET?: string;
+  @UsesConfig({
+    applications: {},
+    type: 'string',
+  })
+  /**
+   * Used for encrypting data before going into the database
+   */
+  public ALGORITHM?: CipherGCMTypes | string;
+  /**
    * Connectino options specific mongo
    */
   @UsesConfig({
@@ -60,6 +51,14 @@ export class PersistenceConfig {
     type: 'todo',
   })
   public mongo?: MongooseModuleOptions;
+  /**
+   * Load certs by path / url
+   */
+  @UsesConfig({
+    applications: {},
+    type: MongoCerts,
+  })
+  public MONGO_CERTS?: MongoCerts;
 
   // #endregion Object Properties
 }

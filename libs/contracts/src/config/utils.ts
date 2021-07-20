@@ -1,6 +1,5 @@
-import { CreateConfigurableAnnotation } from '@automagical/utilities';
-
 import { LIB_UTILS } from '../constants';
+import { CreateConfigurableAnnotation } from '../decorators';
 import { AWSUtilitiesConfig } from './external';
 
 const UsesConfig = CreateConfigurableAnnotation(LIB_UTILS.description);
@@ -80,25 +79,11 @@ export class EmailConfig {
 export class UtilsConfig {
   // #region Object Properties
 
-  /**
-   *
-   */
-  @UsesConfig({
-    applications: {},
-    type: AWSUtilitiesConfig,
-  })
-  public AWS?: AWSUtilitiesConfig;
-
   @UsesConfig({
     applications: {},
     type: 'number',
   })
   public CHUNK_SIZE?: number;
-  @UsesConfig({
-    applications: {},
-    type: 'string',
-  })
-  public EMAIL_DEFAULT_FROM?: string;
   /**
    * Used with potentially recursive operations such as a save action triggering another save actions
    */
@@ -107,6 +92,19 @@ export class UtilsConfig {
     type: 'number',
   })
   public MAX_STASH_DEPTH: number;
+  @UsesConfig({
+    applications: {},
+    type: 'string',
+  })
+  public EMAIL_DEFAULT_FROM?: string;
+  /**
+   *
+   */
+  @UsesConfig({
+    applications: {},
+    type: AWSUtilitiesConfig,
+  })
+  public AWS?: AWSUtilitiesConfig;
   @UsesConfig({
     applications: {},
     type: EmailConfig,

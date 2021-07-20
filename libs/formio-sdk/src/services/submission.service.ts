@@ -1,4 +1,4 @@
-import { CrudOptions, SubmissionCRUD } from '@automagical/contracts';
+import { CrudOptions } from '@automagical/contracts';
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import {
   FormDTO,
@@ -17,7 +17,7 @@ import { PinoLogger } from 'nestjs-pino';
 import { FormioSdkService } from './formio-sdk.service';
 
 @Injectable()
-export class SubmissionService implements SubmissionCRUD {
+export class SubmissionService {
   // #region Object Properties
 
   private form?: FormDTO;
