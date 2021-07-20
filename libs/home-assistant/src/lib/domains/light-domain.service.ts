@@ -63,6 +63,14 @@ export class LightDomainService {
     });
   }
 
+  @Trace()
+  public isOn(entityId: string): boolean {
+    if (!this.entityService.ENTITIES.has(entityId)) {
+      return false;
+    }
+    return this.entityService.ENTITIES.get(entityId).state === 'on';
+  }
+
   /**
    * Brightness (as controlled by the dimmer) must remain in the 5-100% range
    *
@@ -157,7 +165,7 @@ export class LightDomainService {
    *
    * ### Future improvements
    *
-   * The math needs work, this seems more thought out:
+   * The math needs work, this seems more thought out because math reasons:
    * https://github.com/claytonjn/hass-circadian_lighting/blob/master/custom_components/circadian_lighting/__init__.py#L206
    */
   private getColorOffset(): number {

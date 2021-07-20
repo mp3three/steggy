@@ -201,8 +201,18 @@ export class LutronPicoService {
 
   // #region Private Methods
 
+  @Trace()
   private findDimmableLights(controller: RoomController): string[] {
-    return [];
+    const lights = [];
+    controller._CONTROLLER_SETTINGS.devices.forEach((item) => {
+      const targets = item.target ?? [];
+      targets.forEach((id) => {
+        if (domain(id) === HASS_DOMAINS.light && !lights.includes(id)) {
+          lights.push(id);
+        }
+      });
+    });
+    return lights.filter((light) => this.lightService.isOn(light));
   }
 
   // #endregion Private Methods

@@ -74,7 +74,7 @@ export class DownstairsService implements RoomController {
   }
 
   @Trace()
-  public async combo(actions: PicoStates[]): Promise<boolean> {
+  public async combo(): Promise<boolean> {
     return true;
   }
 
