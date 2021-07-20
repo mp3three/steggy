@@ -18,7 +18,6 @@ import { DBFake } from '../../classes';
 import { EmailConfig } from '../../config/utils';
 import { MONGO_COLLECTIONS } from '../persistence/mongo';
 import { BaseOmitProperties } from '.';
-import { AccessDTO } from './access.dto';
 import {
   PROJECT_FRAMEWORKS,
   PROJECT_PLAN_TYPES,
@@ -222,20 +221,6 @@ export class ProjectDTO<
    * Internal variable. Only used inside database adapters
    */
   public settings_encrypted?: Buffer;
-  /**
-   * Association of role ids
-   */
-  @IsOptional()
-  @ValidateNested({
-    each: true,
-  })
-  @Prop({
-    type: MongooseSchema.Types.Mixed,
-  })
-  @ApiProperty({
-    type: AccessDTO,
-  })
-  public access?: AccessDTO[];
   @IsOptional()
   @ValidateNested()
   @Prop({

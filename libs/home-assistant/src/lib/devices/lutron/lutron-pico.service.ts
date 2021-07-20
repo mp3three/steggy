@@ -1,4 +1,4 @@
-import { RoomController, RoomDeviceDTO } from '@automagical/contracts';
+import type { RoomController, RoomDeviceDTO } from '@automagical/contracts';
 import {
   HA_EVENT_STATE_CHANGE,
   LIB_HOME_ASSISTANT,

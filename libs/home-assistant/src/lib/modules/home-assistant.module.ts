@@ -1,4 +1,4 @@
-import { CacheModule, Module, Provider } from '@nestjs/common';
+import { Module, Provider } from '@nestjs/common';
 
 import { LutronPicoService } from '../devices';
 import {
@@ -35,7 +35,6 @@ const services: Provider[] = [
 
 @Module({
   exports: services,
-  imports: [CacheModule],
   providers: services,
 })
 export class HomeAssistantModule {}

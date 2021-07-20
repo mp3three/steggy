@@ -3,7 +3,7 @@ import {
   HOME_ASSISTANT_TOKEN,
 } from '@automagical/contracts/config';
 import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
-import { FetchWith } from '@automagical/contracts/utilities';
+import type { FetchWith } from '@automagical/contracts/utilities';
 import { FetchService, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

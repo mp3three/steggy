@@ -14,9 +14,8 @@ import { Schema as MongooseSchema } from 'mongoose';
 
 import { DBFake } from '../../classes';
 import { MONGO_COLLECTIONS } from '../persistence/mongo';
-import { AccessDTO, BaseOmitProperties } from '.';
+import { BaseOmitProperties } from '.';
 import { ACCESS_TYPES } from './constants';
-import { FieldMatchAccessPermissionDTO } from './field-match-access-permission.dto';
 import { TransformObjectId } from './transform-object-id.decorator';
 
 /* eslint-disable security/detect-object-injection */
@@ -196,35 +195,6 @@ export class FormDTO extends DBFake {
       'Globally unique string for indexing. Auto calculates as projectName[:formName[:submissionId]]',
   })
   public machineName: string;
-  @ValidateNested({
-    each: true,
-  })
-  @IsOptional()
-  @Prop()
-  @ApiProperty({
-    description: 'Disallow actions based on team / etc',
-    type: AccessDTO,
-  })
-  public access?: AccessDTO[];
-  @ValidateNested({
-    each: true,
-  })
-  @IsOptional()
-  @Prop()
-  @ApiProperty({
-    type: AccessDTO,
-  })
-  public submissionAccess?: AccessDTO[];
-  @ValidateNested({ each: true })
-  @IsOptional()
-  @Prop({
-    type: MongooseSchema.Types.Mixed,
-  })
-  @ApiProperty({})
-  public fieldMatchAccess?: Record<
-    'type',
-    Record<ACCESS_TYPES, FieldMatchAccessPermissionDTO>
-  >;
 
   // #endregion Object Properties
 }

@@ -4,18 +4,11 @@ import {
   MongoCerts,
 } from '@automagical/contracts/config';
 import {
-  ActionDTO,
-  ActionItemDTO,
   FormDTO,
   ProjectDTO,
-  RoleDTO,
-  SchemaDTO,
-  SessionDTO,
   SubmissionDTO,
-  TagDTO,
-  TokenDTO,
 } from '@automagical/contracts/formio-sdk';
-import { FormioSdkModule } from '@automagical/formio-sdk';
+import { MinimalSdkModule } from '@automagical/formio-sdk';
 import { FetchService } from '@automagical/utilities';
 import { CacheModule, DynamicModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -27,18 +20,7 @@ import {
 import { existsSync, readFileSync } from 'fs';
 
 import { EncryptionService } from '../../services/encryption.service';
-import {
-  ActionItemSchema,
-  ActionSchema,
-  FormSchema,
-  ProjectSchema,
-  RoleSchema,
-  SchemaSchema,
-  SessionSchema,
-  SubmissionSchema,
-  TagSchema,
-  TokenSchema,
-} from '../schema';
+import { FormSchema, ProjectSchema, SubmissionSchema } from '../schema';
 import {
   ActionItemPersistenceMongoService,
   ActionPersistenceMongoService,
@@ -55,15 +37,8 @@ import {
 const SchemaMap = new Map<string, ModelDefinition[]>(
   Object.entries({
     default: [
-      { name: ActionItemDTO.name, schema: ActionItemSchema },
-      { name: ActionDTO.name, schema: ActionSchema },
       { name: FormDTO.name, schema: FormSchema },
       { name: ProjectDTO.name, schema: ProjectSchema },
-      { name: RoleDTO.name, schema: RoleSchema },
-      { name: SessionDTO.name, schema: SessionSchema },
-      { name: TagDTO.name, schema: TagSchema },
-      { name: TokenDTO.name, schema: TokenSchema },
-      { name: SchemaDTO.name, schema: SchemaSchema },
       { name: SubmissionDTO.name, schema: SubmissionSchema },
     ],
     submission: [],
@@ -133,7 +108,7 @@ export class MongoPersistenceModule {
     return {
       exports: [...services, ...schemas],
       global: true,
-      imports: [...schemas, CacheModule.register(), FormioSdkModule],
+      imports: [...schemas, CacheModule.register(), MinimalSdkModule],
       module: MongoPersistenceModule,
       providers: [...services],
     };
