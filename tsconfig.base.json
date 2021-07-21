@@ -43,6 +43,7 @@
       "@automagical/contracts/utilities": [
         "libs/contracts/src/libs/utilities/index.ts"
       ],
+      "@automagical/custom": ["libs/custom/src/index.ts"],
       "@automagical/formio-sdk": ["libs/formio-sdk/src/index.ts"],
       "@automagical/home-assistant": ["libs/home-assistant/src/index.ts"],
       "@automagical/persistence": ["libs/persistence/src/index.ts"],

@@ -33,6 +33,9 @@
     "contracts": {
       "tags": []
     },
+    "custom": {
+      "tags": []
+    },
     "devtools": {
       "tags": []
     },
@@ -54,10 +57,10 @@
     "server": {
       "tags": []
     },
+    "terminal": {},
     "testing": {
       "tags": []
     },
-    "terminal": {},
     "utilities": {
       "tags": []
     }

@@ -1,7 +1,7 @@
 import { ControllerSettings, RoomController } from '@automagical/contracts';
 import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
+import { LutronPicoService } from '@automagical/custom';
 import {
-  LutronPicoService,
   RemoteDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';

@@ -9,13 +9,15 @@ import {
   HassEventDTO,
   PicoStates,
 } from '@automagical/contracts/home-assistant';
+import {
+  HomeAssistantCoreService,
+  LightDomainService,
+} from '@automagical/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { each } from 'async';
 import { PinoLogger } from 'nestjs-pino';
-
-import { HomeAssistantCoreService, LightDomainService } from '../../domains';
 
 @Injectable()
 /**

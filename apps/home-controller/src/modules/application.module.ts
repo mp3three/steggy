@@ -1,3 +1,4 @@
+import { HomeControllerCustomModule } from '@automagical/custom';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import {
   AutomagicalConfigModule,
@@ -18,6 +19,7 @@ import {
 @Module({
   imports: [
     HomeAssistantModule,
+    HomeControllerCustomModule,
     UtilitiesModule,
     AutomagicalConfigModule.register(APP_NAME, DEFAULT_SETTINGS),
     ...CommonImports(),

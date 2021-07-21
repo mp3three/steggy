@@ -1,6 +1,5 @@
-import { Module, Provider } from '@nestjs/common';
+import { Global, Module, Provider } from '@nestjs/common';
 
-import { LutronPicoService } from '../devices';
 import {
   CameraDomainService,
   ClimateDomainService,
@@ -23,8 +22,6 @@ import {
 } from '../services';
 
 const services: Provider[] = [
-  // Devices
-  LutronPicoService,
   // Domains
   CameraDomainService,
   ClimateDomainService,
@@ -46,6 +43,7 @@ const services: Provider[] = [
   HASocketAPIService,
 ];
 
+@Global()
 @Module({
   exports: services,
   providers: services,

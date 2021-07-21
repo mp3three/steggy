@@ -1,9 +1,7 @@
 import { ControllerSettings, RoomController } from '@automagical/contracts';
 import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
-import {
-  LutronPicoService,
-  SwitchDomainService,
-} from '@automagical/home-assistant';
+import { LutronPicoService } from '@automagical/custom';
+import { SwitchDomainService } from '@automagical/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
