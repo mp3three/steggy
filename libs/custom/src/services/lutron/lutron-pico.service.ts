@@ -14,10 +14,15 @@ import {
   LightDomainService,
 } from '@automagical/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { each } from 'async';
 import { PinoLogger } from 'nestjs-pino';
+
+/**
+ * return false to stop additional processing
+ */
+export type PicoDirectCallback = (state: PicoStates) => Promise<boolean>;
 
 @Injectable()
 /**
@@ -33,7 +38,15 @@ export class LutronPicoService {
     string,
     ReturnType<typeof setTimeout>
   >();
+  private readonly CALLBACKS = new Map<string, PicoDirectCallback>();
+  /**
+   * entity_id to controller
+   */
   private readonly CONTROLLER_MAP = new Map<string, RoomController>();
+  /**
+   * ROOM_NAME to controller
+   */
+  private readonly ROOM_MAP = new Map<string, RoomController>();
 
   // #endregion Object Properties
 
@@ -54,6 +67,7 @@ export class LutronPicoService {
   public async areaOff(
     count: number,
     controller: RoomController,
+    recurse = false,
   ): Promise<void> {
     if (!(await controller.areaOff(count))) {
       return;
@@ -65,6 +79,19 @@ export class LutronPicoService {
           return;
         }
         await this.hassCoreService.turnOff(device.target);
+        if (device.rooms && recurse === false) {
+          await each(device.rooms, async (room, nestedCallback) => {
+            if (typeof room === 'object') {
+              const type = room.type;
+              if (type === 'on') {
+                return;
+              }
+              room = room.name;
+            }
+            await this.areaOff(count, this.ROOM_MAP.get(room), true);
+            nestedCallback();
+          });
+        }
         callback();
       },
     );
@@ -74,6 +101,7 @@ export class LutronPicoService {
   public async areaOn(
     count: number,
     controller: RoomController,
+    recurse = false,
   ): Promise<void> {
     if (!(await controller.areaOn(count))) {
       return;
@@ -84,20 +112,24 @@ export class LutronPicoService {
         if (device.comboCount !== count) {
           return;
         }
-        const lights: string[] = [];
-        const others: string[] = [];
-        device.target.forEach((item) => {
-          if (domain(item) === HASS_DOMAINS.light) {
-            lights.push(item);
-            return;
-          }
-          others.push(item);
-        });
-        if (lights.length > 0) {
-          await this.lightService.circadianLight(lights);
-        }
-        if (others.length > 0) {
-          await this.hassCoreService.turnOn(others);
+        await this.lightService.circadianLight(
+          device.target.filter((item) => domain(item) === HASS_DOMAINS.light),
+        );
+        await this.hassCoreService.turnOn(
+          device.target.filter((item) => domain(item) !== HASS_DOMAINS.light),
+        );
+        if (device.rooms && recurse === false) {
+          await each(device.rooms, async (room, nestedCallback) => {
+            if (typeof room === 'object') {
+              const type = room.type;
+              if (type === 'off') {
+                return;
+              }
+              room = room.name;
+            }
+            await this.areaOn(count, this.ROOM_MAP.get(room), true);
+            nestedCallback();
+          });
         }
         callback();
       },
@@ -133,6 +165,16 @@ export class LutronPicoService {
 
   public setRoomController(controller: string, room: RoomController): void {
     this.CONTROLLER_MAP.set(controller, room);
+    this.ROOM_MAP.set(room.name, room);
+  }
+
+  public watch(entityId: string, callback: PicoDirectCallback): void {
+    if (this.CALLBACKS.has(entityId)) {
+      throw new InternalServerErrorException(
+        `Cannot have multiple watchers on ${entityId}`,
+      );
+    }
+    this.CALLBACKS.set(entityId, callback);
   }
 
   // #endregion Public Methods
@@ -145,8 +187,14 @@ export class LutronPicoService {
   ): Promise<void> {
     // 1 = Filter out events for unrelated devices
     // TODO: find a better event for @OnEvent to prevent this
-    const { entity_id } = event.data;
-    const { new_state } = event.data;
+    const { entity_id, new_state } = event.data;
+    if (this.CALLBACKS.has(entity_id)) {
+      const callback = this.CALLBACKS.get(entity_id);
+      const result = await callback(new_state.state);
+      if (!result) {
+        return;
+      }
+    }
     if (
       new_state.state === PicoStates.none ||
       !this.CONTROLLER_MAP.has(entity_id)
@@ -169,6 +217,7 @@ export class LutronPicoService {
     this.ACTION_TIMEOUT.set(entity_id, timeout);
     const recent = this.ACTIONS_LIST.get(entity_id) ?? [];
     recent.push(new_state.state);
+    this.logger.info({ recent }, `recents`);
     this.ACTIONS_LIST.set(entity_id, recent);
     if (!(await controller.combo(recent))) {
       return;

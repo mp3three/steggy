@@ -15,7 +15,6 @@ import {
   SwitchDomainService,
 } from '../domains';
 import {
-  EntityService,
   HACallService,
   HASocketAPIService,
   HomeAssistantFetchAPIService,
@@ -37,7 +36,6 @@ const services: Provider[] = [
   RemoteDomainService,
   SwitchDomainService,
   // Service
-  EntityService,
   HACallService,
   HomeAssistantFetchAPIService,
   HASocketAPIService,

@@ -40,6 +40,14 @@ export class HACallService {
     service_data: Record<string, unknown> = {},
     domain: HASS_DOMAINS = HASS_DOMAINS.homeassistant,
   ): Promise<T> {
+    // Filter out superfluous calls here
+    // Simplify logic in higher level classes
+    if (
+      Array.isArray(service_data.entity_id) &&
+      service_data.entity_id.length === 0
+    ) {
+      return;
+    }
     return await this.socketService.sendMsg<T>(
       {
         domain: domain ?? this.domain,
@@ -93,7 +101,9 @@ export class HACallService {
   }
 
   @Trace()
-  public async updateEntity(entityId: string | string[]): Promise<HASS_DOMAINS> {
+  public async updateEntity(
+    entityId: string | string[],
+  ): Promise<HASS_DOMAINS> {
     return await this.socketService.sendMsg({
       domain: HASS_DOMAINS.homeassistant,
       service: 'update_entity',

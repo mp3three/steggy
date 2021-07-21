@@ -4,6 +4,7 @@ import { LutronPicoService } from '@automagical/custom';
 import { SwitchDomainService } from '@automagical/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { PinoLogger } from 'nestjs-pino';
 
 import { ROOM_NAMES } from '../typings';
@@ -44,31 +45,36 @@ export class GamesRoomService implements RoomController {
   // #region Public Methods
 
   @Trace()
-  public async areaOff(): Promise<boolean> {
-    return true;
-  }
-
-  @Trace()
-  public async areaOn(): Promise<boolean> {
-    return true;
-  }
-
-  @Trace()
   public async combo(): Promise<boolean> {
     return true;
   }
 
   @Trace()
+  @OnEvent(`${ROOM_NAMES.games}/areaOff`)
+  public async areaOff(): Promise<boolean> {
+    return true;
+  }
+
+  @Trace()
+  @OnEvent(`${ROOM_NAMES.games}/areaOn`)
+  public async areaOn(): Promise<boolean> {
+    return true;
+  }
+
+  @Trace()
+  @OnEvent(`${ROOM_NAMES.games}/dimDown`)
   public async dimDown(): Promise<boolean> {
     return true;
   }
 
   @Trace()
+  @OnEvent(`${ROOM_NAMES.games}/dimUp`)
   public async dimUp(): Promise<boolean> {
     return true;
   }
 
   @Trace()
+  @OnEvent(`${ROOM_NAMES.games}/favorite`)
   public async favorite(): Promise<boolean> {
     return true;
   }

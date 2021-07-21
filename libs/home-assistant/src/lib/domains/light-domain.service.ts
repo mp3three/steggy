@@ -15,7 +15,7 @@ import { EntityService, HACallService } from '../services';
  * https://www.home-assistant.io/integrations/light/
  */
 @Injectable()
-export class LightDomainService {
+export class LightDomainService extends EntityService {
   // #region Object Properties
 
   private CIRCADIAN_LIGHTING = new Set<string>();
@@ -26,11 +26,11 @@ export class LightDomainService {
 
   constructor(
     @InjectLogger(LightDomainService, LIB_HOME_ASSISTANT)
-    private readonly logger: PinoLogger,
+    protected readonly logger: PinoLogger,
     private readonly solarCalcService: SolarCalcService,
     private readonly callService: HACallService,
-    private readonly entityService: EntityService,
   ) {
+    super();
     callService.domain = HASS_DOMAINS.light;
   }
 
@@ -51,7 +51,7 @@ export class LightDomainService {
         this.CIRCADIAN_LIGHTING.add(id);
       }
     });
-    this.entityService.trackEntity(entity_id);
+    this.trackEntity(entity_id);
     const MIN_COLOR = 2500;
     const MAX_COLOR = 5500;
     const kelvin = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
@@ -65,10 +65,10 @@ export class LightDomainService {
 
   @Trace()
   public isOn(entityId: string): boolean {
-    if (!this.entityService.ENTITIES.has(entityId)) {
+    if (!this.ENTITIES.has(entityId)) {
       return false;
     }
-    return this.entityService.ENTITIES.get(entityId).state === 'on';
+    return this.ENTITIES.get(entityId).state === 'on';
   }
 
   /**
@@ -92,7 +92,7 @@ export class LightDomainService {
 
   @Trace()
   public async toggle(entityId: string | string[]): Promise<void> {
-    this.entityService.trackEntity(entityId);
+    this.trackEntity(entityId);
     return await this.callService.call('toggle', {
       entity_id: entityId,
     });
@@ -108,7 +108,7 @@ export class LightDomainService {
         this.CIRCADIAN_LIGHTING.delete(id);
       }
     });
-    this.entityService.trackEntity(entity_id);
+    this.trackEntity(entity_id);
     return await this.callService.call('turn_off', {
       entity_id,
     });
@@ -116,7 +116,7 @@ export class LightDomainService {
 
   @Trace()
   public async turnOn(entity_id: string | string[]): Promise<void> {
-    this.entityService.trackEntity(entity_id);
+    this.trackEntity(entity_id);
     return await this.callService.call('turn_on', {
       entity_id: entity_id,
     });
@@ -130,8 +130,11 @@ export class LightDomainService {
   @Trace()
   protected async circadianLightingUpdate(): Promise<void> {
     const activeLights: string[] = [];
-    this.entityService.ENTITIES.forEach(async (entity, entity_id) => {
-      if (entity.state !== 'on') {
+    this.ENTITIES.forEach(async (entity, entity_id) => {
+      if (!entity) {
+        this.logger.warn(`${entity_id} has no associated data`);
+      }
+      if (entity?.state !== 'on') {
         return;
       }
       activeLights.push(entity_id);
@@ -197,7 +200,7 @@ export class LightDomainService {
    * return brightness on a 0-100 scale
    */
   private lightBrightness(entityId: string) {
-    const entity = this.entityService.ENTITIES.get(entityId) as HassStateDTO<
+    const entity = this.ENTITIES.get(entityId) as HassStateDTO<
       string,
       {
         brightness: number;

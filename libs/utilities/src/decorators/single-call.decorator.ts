@@ -17,7 +17,7 @@ export function SingleCall({
         promise = undefined;
         done(result);
         if (emitAfter) {
-          return;
+          this.eventEmitter.emit(emitAfter, result);
         }
       });
       return promise;
