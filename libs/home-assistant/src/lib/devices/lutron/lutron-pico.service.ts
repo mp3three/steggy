@@ -143,31 +143,31 @@ export class LutronPicoService {
   ): Promise<void> {
     // 1 = Filter out events for unrelated devices
     // TODO: find a better event for @OnEvent to prevent this
-    const entityId = event.data.entity_id;
+    const { entity_id } = event.data;
     const { new_state } = event.data;
     if (
       new_state.state === PicoStates.none ||
-      !this.CONTROLLER_MAP.has(entityId)
+      !this.CONTROLLER_MAP.has(entity_id)
     ) {
       return;
     }
     // Load
-    const controller = this.CONTROLLER_MAP.get(entityId);
+    const controller = this.CONTROLLER_MAP.get(entity_id);
     this.logger.info(
-      { entityId, state: new_state },
-      `Controller state updated`,
+      { entityId: entity_id, state: new_state },
+      `${entity_id} state updated`,
     );
-    const timeout = setTimeout(
-      () => this.ACTION_TIMEOUT.delete(entityId),
-      controller._CONTROLLER_SETTINGS?.konamiTimeout ?? 2500,
-    );
-    if (this.ACTION_TIMEOUT.has(entityId)) {
-      clearTimeout(this.ACTION_TIMEOUT.get(entityId));
+    const timeout = setTimeout(() => {
+      this.ACTION_TIMEOUT.delete(entity_id);
+      this.ACTIONS_LIST.delete(entity_id);
+    }, controller._CONTROLLER_SETTINGS?.konamiTimeout ?? 2500);
+    if (this.ACTION_TIMEOUT.has(entity_id)) {
+      clearTimeout(this.ACTION_TIMEOUT.get(entity_id));
     }
-    this.ACTION_TIMEOUT.set(entityId, timeout);
-    const recent = this.ACTIONS_LIST.get(entityId) ?? [];
+    this.ACTION_TIMEOUT.set(entity_id, timeout);
+    const recent = this.ACTIONS_LIST.get(entity_id) ?? [];
     recent.push(new_state.state);
-    this.ACTIONS_LIST.set(entityId, recent);
+    this.ACTIONS_LIST.set(entity_id, recent);
     if (!(await controller.combo(recent))) {
       return;
     }

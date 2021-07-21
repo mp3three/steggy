@@ -5,7 +5,8 @@
   "publisher": "automagicl",
   "author": {
     "email": "cameron@automagicl.dev",
-    "name": "Cameron Contour"
+    "name": "Cameron Contour",
+    "url": "https://github.com/ccontour/Automagical"
   },
   "dependencies": {
     "@angular-devkit/architect": "^0.1102.6",
