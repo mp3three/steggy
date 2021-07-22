@@ -1,6 +1,6 @@
 import { ControllerSettings, RoomController } from '@automagical/contracts';
 import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
-import { LutronPicoService } from '@automagical/custom';
+import { LightingControllerService } from '@automagical/custom';
 import { SwitchDomainService } from '@automagical/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -31,7 +31,7 @@ export class GuestBedroomService implements RoomController {
   constructor(
     @InjectLogger(GuestBedroomService, APP_HOME_CONTROLLER)
     private readonly logger: PinoLogger,
-    private readonly picoService: LutronPicoService,
+    private readonly lightingController: LightingControllerService,
     private readonly switchService: SwitchDomainService,
   ) {}
 
@@ -80,7 +80,7 @@ export class GuestBedroomService implements RoomController {
 
   @Trace()
   protected onModuleInit(): void {
-    this.picoService.setRoomController('sensor.bedroom_pico', this);
+    this.lightingController.setRoomController('sensor.bedroom_pico', this);
   }
 
   // #endregion Protected Methods

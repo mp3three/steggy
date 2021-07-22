@@ -3,8 +3,8 @@ import dayjs from 'dayjs';
 import { ContextDTO } from './hass-event.dto';
 
 export class HassStateDTO<
-  STATE extends Record<never, unknown> = unknown,
-  ATTRIBUTES extends Record<never, unknown> = Record<never, unknown>
+  STATE extends unknown = unknown,
+  ATTRIBUTES extends Record<never, unknown> = Record<never, unknown>,
 > {
   // #region Object Properties
 

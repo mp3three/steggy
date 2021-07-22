@@ -1,6 +1,6 @@
 import { ControllerSettings, RoomController } from '@automagical/contracts';
 import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
-import { LutronPicoService } from '@automagical/custom';
+import { LightingControllerService } from '@automagical/custom';
 import {
   EntityService,
   LightDomainService,
@@ -59,7 +59,7 @@ export class LoftService extends EntityService implements RoomController {
   constructor(
     @InjectLogger(LoftService, APP_HOME_CONTROLLER)
     protected readonly logger: PinoLogger,
-    private readonly picoService: LutronPicoService,
+    private readonly lightingController: LightingControllerService,
     private readonly remoteService: RemoteDomainService,
     private readonly switchService: SwitchDomainService,
     private readonly lightService: LightDomainService,
@@ -137,7 +137,7 @@ export class LoftService extends EntityService implements RoomController {
   }
 
   protected onModuleInit(): void {
-    this.picoService.setRoomController('sensor.loft_pico', this);
+    this.lightingController.setRoomController('sensor.loft_pico', this);
     this.trackEntity(monitor);
   }
 
@@ -148,7 +148,7 @@ export class LoftService extends EntityService implements RoomController {
   @Trace()
   private async eveningFavorite(count: number): Promise<void> {
     if (count === 1) {
-      await this.lightService.circadianLight([
+      await this.lightingController.circadianLight([
         'light.loft_fan_bench_right',
         'light.loft_fan_desk_right',
         'light.loft_fan_desk_left',

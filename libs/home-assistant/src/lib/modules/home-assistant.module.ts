@@ -15,6 +15,7 @@ import {
   SwitchDomainService,
 } from '../domains';
 import {
+  EntityManagerService,
   HACallService,
   HASocketAPIService,
   HomeAssistantFetchAPIService,
@@ -39,6 +40,7 @@ const services: Provider[] = [
   HACallService,
   HomeAssistantFetchAPIService,
   HASocketAPIService,
+  EntityManagerService,
 ];
 
 @Global()

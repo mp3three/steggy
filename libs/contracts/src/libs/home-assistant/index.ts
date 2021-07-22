@@ -1,3 +1,4 @@
+export * from './entities';
 export * from './entity-attributes.dto';
 export * from './enums';
 export * from './hass-event.dto';

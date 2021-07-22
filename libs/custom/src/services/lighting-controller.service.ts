@@ -7,16 +7,20 @@ import {
   domain,
   HASS_DOMAINS,
   HassEventDTO,
+  LightStateDTO,
   PicoStates,
 } from '@automagical/contracts/home-assistant';
 import {
+  EntityManagerService,
   HomeAssistantCoreService,
   LightDomainService,
 } from '@automagical/home-assistant';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { InjectLogger, SolarCalcService, Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { each } from 'async';
+import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 
 /**
@@ -30,7 +34,7 @@ export type PicoDirectCallback = (state: PicoStates) => Promise<boolean>;
  *
  * Only single press interactions are accepted right now
  */
-export class LutronPicoService {
+export class LightingControllerService {
   // #region Object Properties
 
   private readonly ACTIONS_LIST = new Map<string, PicoStates[]>();
@@ -44,6 +48,12 @@ export class LutronPicoService {
    */
   private readonly CONTROLLER_MAP = new Map<string, RoomController>();
   /**
+   * active light domain entities only
+   *
+   * entity id to brightness (1-100)
+   */
+  private readonly ENTITY_BRIGHTNESS = new Map<string, number>();
+  /**
    * ROOM_NAME to controller
    */
   private readonly ROOM_MAP = new Map<string, RoomController>();
@@ -53,10 +63,12 @@ export class LutronPicoService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(LutronPicoService, LIB_HOME_ASSISTANT)
+    @InjectLogger(LightingControllerService, LIB_HOME_ASSISTANT)
     private readonly logger: PinoLogger,
     private readonly lightService: LightDomainService,
     private readonly hassCoreService: HomeAssistantCoreService,
+    private readonly solarCalcService: SolarCalcService,
+    private readonly entityManagerService: EntityManagerService,
   ) {}
 
   // #endregion Constructors
@@ -79,6 +91,9 @@ export class LutronPicoService {
           return;
         }
         await this.hassCoreService.turnOff(device.target);
+        device.target.forEach((target) =>
+          this.ENTITY_BRIGHTNESS.delete(target),
+        );
         if (device.rooms && recurse === false) {
           await each(device.rooms, async (room, nestedCallback) => {
             if (typeof room === 'object') {
@@ -112,9 +127,10 @@ export class LutronPicoService {
         if (device.comboCount !== count) {
           return;
         }
-        await this.lightService.circadianLight(
-          device.target.filter((item) => domain(item) === HASS_DOMAINS.light),
+        const lights = device.target.filter(
+          (item) => domain(item) === HASS_DOMAINS.light,
         );
+        await this.circadianLight(lights, 100);
         await this.hassCoreService.turnOn(
           device.target.filter((item) => domain(item) !== HASS_DOMAINS.light),
         );
@@ -137,6 +153,26 @@ export class LutronPicoService {
   }
 
   @Trace()
+  public async circadianLight(
+    entity_id: string | string[],
+    brightness_pct?: number,
+  ): Promise<void> {
+    if (typeof entity_id === 'string') {
+      entity_id = [entity_id];
+    }
+    entity_id.forEach((id) => {
+      this.ENTITY_BRIGHTNESS.set(id, brightness_pct);
+    });
+    const MIN_COLOR = 2500;
+    const MAX_COLOR = 5500;
+    const kelvin = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
+    return await this.lightService.turnOn(entity_id, {
+      brightness_pct,
+      kelvin,
+    });
+  }
+
+  @Trace()
   public async dimDown(
     count: number,
     controller: RoomController,
@@ -146,7 +182,7 @@ export class LutronPicoService {
     }
     const lights = this.findDimmableLights(controller);
     await each(lights, async (entity_id: string, callback) => {
-      await this.lightService.lightDim(entity_id, -10);
+      await this.lightDim(entity_id, -10);
       callback();
     });
   }
@@ -158,9 +194,29 @@ export class LutronPicoService {
     }
     const lights = this.findDimmableLights(controller);
     await each(lights, async (entity_id: string, callback) => {
-      await this.lightService.lightDim(entity_id, 10);
+      await this.lightDim(entity_id, 10);
       callback();
     });
+  }
+
+  /**
+   * Brightness (as controlled by the dimmer) must remain in the 5-100% range
+   *
+   * To go under 5, turn off the light instead
+   */
+  @Trace()
+  public async lightDim(entityId: string, amount: number): Promise<void> {
+    let brightness = this.ENTITY_BRIGHTNESS.get(entityId) - 10;
+    // let brightness = await this.lightBrightness(entityId);
+    brightness = brightness + amount;
+    if (brightness > 100) {
+      brightness = 100;
+    }
+    if (brightness < 5) {
+      brightness = 5;
+    }
+    this.logger.debug({ amount }, `${entityId} set brightness: ${brightness}%`);
+    return await this.circadianLight(entityId, brightness);
   }
 
   public setRoomController(controller: string, room: RoomController): void {
@@ -180,6 +236,23 @@ export class LutronPicoService {
   // #endregion Public Methods
 
   // #region Protected Methods
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  @Trace()
+  protected async circadianLightingUpdate(): Promise<void> {
+    const activeLights: string[] = [];
+    this.ENTITY_BRIGHTNESS.forEach(async (brightness, entity_id) => {
+      const entity = this.entityManagerService.getEntity(entity_id);
+      if (!entity) {
+        this.logger.warn(`${entity_id} has no associated data`);
+      }
+      if (entity?.state !== 'on') {
+        return;
+      }
+      activeLights.push(entity_id);
+    });
+    await this.circadianLight(activeLights);
+  }
 
   @OnEvent(HA_EVENT_STATE_CHANGE)
   protected async onControllerEvent(
@@ -263,7 +336,52 @@ export class LutronPicoService {
         }
       });
     });
-    return lights.filter((light) => this.lightService.isOn(light));
+    return lights.filter((light) => this.ENTITY_BRIGHTNESS.has(light));
+  }
+
+  /**
+   * return 0 if off
+   *
+   * return brightness on a 0-100 scale
+   */
+  @Trace()
+  private lightBrightness(entityId: string) {
+    const entity = this.entityManagerService.getEntity<LightStateDTO>(entityId);
+    if (entity.state === 'off') {
+      return 0;
+    }
+    return Math.round((entity.attributes.brightness / 256) * 100);
+  }
+
+  /**
+   * Returns 0 when it's dark out, increasing to 1 at solar noon
+   *
+   * ### Future improvements
+   *
+   * The math needs work, this seems more thought out because math reasons:
+   * https://github.com/claytonjn/hass-circadian_lighting/blob/master/custom_components/circadian_lighting/__init__.py#L206
+   */
+  private getColorOffset(): number {
+    const calc = this.solarCalcService.SOLAR_CALC;
+    const noon = dayjs(calc.solarNoon);
+    const dusk = dayjs(calc.dusk);
+    const dawn = dayjs(calc.dawn);
+    const now = dayjs();
+
+    if (now.isBefore(dawn)) {
+      // After midnight, but before dawn
+      return 0;
+    }
+    if (now.isBefore(noon)) {
+      // After dawn, but before solar noon
+      return Math.abs(noon.diff(now, 's') / noon.diff(dawn, 's') - 1);
+    }
+    if (now.isBefore(dusk)) {
+      // Afternoon, but before dusk
+      return Math.abs(noon.diff(now, 's') / noon.diff(dusk, 's') - 1);
+    }
+    // Until midnight
+    return 0;
   }
 
   // #endregion Private Methods

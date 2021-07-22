@@ -1,7 +1,7 @@
 import { ControllerSettings, RoomController } from '@automagical/contracts';
 import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { PicoStates } from '@automagical/contracts/home-assistant';
-import { LutronPicoService } from '@automagical/custom';
+import { LightingControllerService } from '@automagical/custom';
 import {
   FanDomainService,
   LightDomainService,
@@ -51,7 +51,7 @@ export class MasterBedroomService implements RoomController {
   constructor(
     @InjectLogger(MasterBedroomService, APP_HOME_CONTROLLER)
     private readonly logger: PinoLogger,
-    private readonly picoService: LutronPicoService,
+    private readonly picoService: LightingControllerService,
     private readonly switchService: SwitchDomainService,
     private readonly solarCalcService: SolarCalcService,
     private readonly lightService: LightDomainService,

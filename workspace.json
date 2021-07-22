@@ -218,7 +218,7 @@
         "serve": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
-            "command": "nx webpack-dev home-controller --inspect --port 33333 | pino-pretty"
+            "command": "nx webpack-dev home-controller --inspect --port 33334 | pino-pretty"
           }
         },
         "webpack-dev": {

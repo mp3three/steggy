@@ -24,7 +24,7 @@
         "type": "node",
         "request": "attach",
         // Match this to the workspace.json
-        "port": 33333
+        "port": 33334
       }
     ]
   },

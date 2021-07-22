@@ -1,10 +1,10 @@
 import { Global, Module } from '@nestjs/common';
 
-import { LutronPicoService } from '../services';
+import { LightingControllerService } from '../services';
 
 @Global()
 @Module({
-  exports: [LutronPicoService],
-  providers: [LutronPicoService],
+  exports: [LightingControllerService],
+  providers: [LightingControllerService],
 })
 export class HomeControllerCustomModule {}
