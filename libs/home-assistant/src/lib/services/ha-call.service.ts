@@ -38,7 +38,7 @@ export class HACallService {
   public async call<T extends void = void>(
     service: string,
     service_data: Record<string, unknown> = {},
-    domain: HASS_DOMAINS = HASS_DOMAINS.homeassistant,
+    domain?: HASS_DOMAINS,
   ): Promise<T> {
     // Filter out superfluous calls here
     // Simplify logic in higher level classes

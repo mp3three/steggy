@@ -1,5 +1,6 @@
 import type { RoomController, RoomDeviceDTO } from '@automagical/contracts';
 import {
+  ALL_ENTITIES_UPDATED,
   HA_EVENT_STATE_CHANGE,
   LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
@@ -9,6 +10,7 @@ import {
   HassEventDTO,
   LightStateDTO,
   PicoStates,
+  REVERSE_LOOKUP_PICO_STATES,
 } from '@automagical/contracts/home-assistant';
 import {
   EntityManagerService,
@@ -22,6 +24,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { each } from 'async';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
+import { Observable } from 'rxjs';
 
 /**
  * return false to stop additional processing
@@ -57,6 +60,7 @@ export class LightingControllerService {
    * ROOM_NAME to controller
    */
   private readonly ROOM_MAP = new Map<string, RoomController>();
+  private readonly SUBSCRIBERS = new Map<string, Observable<LightStateDTO>>();
 
   // #endregion Object Properties
 
@@ -91,7 +95,7 @@ export class LightingControllerService {
           return;
         }
         await this.hassCoreService.turnOff(device.target);
-        device.target.forEach((target) =>
+        device.target?.forEach((target) =>
           this.ENTITY_BRIGHTNESS.delete(target),
         );
         if (device.rooms && recurse === false) {
@@ -103,7 +107,8 @@ export class LightingControllerService {
               }
               room = room.name;
             }
-            await this.areaOff(count, this.ROOM_MAP.get(room), true);
+            const controller = this.ROOM_MAP.get(room);
+            await this.areaOff(count, controller, true);
             nestedCallback();
           });
         }
@@ -160,8 +165,13 @@ export class LightingControllerService {
     if (typeof entity_id === 'string') {
       entity_id = [entity_id];
     }
+    if (entity_id.length === 0) {
+      return;
+    }
+    brightness_pct ??= this.ENTITY_BRIGHTNESS.get(entity_id[0]);
     entity_id.forEach((id) => {
       this.ENTITY_BRIGHTNESS.set(id, brightness_pct);
+      this.generateSubscribers(id);
     });
     const MIN_COLOR = 2500;
     const MAX_COLOR = 5500;
@@ -206,9 +216,7 @@ export class LightingControllerService {
    */
   @Trace()
   public async lightDim(entityId: string, amount: number): Promise<void> {
-    let brightness = this.ENTITY_BRIGHTNESS.get(entityId) - 10;
-    // let brightness = await this.lightBrightness(entityId);
-    brightness = brightness + amount;
+    let brightness = this.ENTITY_BRIGHTNESS.get(entityId) + amount;
     if (brightness > 100) {
       brightness = 100;
     }
@@ -217,6 +225,18 @@ export class LightingControllerService {
     }
     this.logger.debug({ amount }, `${entityId} set brightness: ${brightness}%`);
     return await this.circadianLight(entityId, brightness);
+  }
+
+  @Trace()
+  public async roomOff(room: string): Promise<void> {
+    const controller = this.ROOM_MAP.get(room);
+    await this.areaOff(1, controller, true);
+  }
+
+  @Trace()
+  public async roomOn(room: string): Promise<void> {
+    const controller = this.ROOM_MAP.get(room);
+    await this.areaOn(1, controller, true);
   }
 
   public setRoomController(controller: string, room: RoomController): void {
@@ -238,7 +258,6 @@ export class LightingControllerService {
   // #region Protected Methods
 
   @Cron(CronExpression.EVERY_MINUTE)
-  @Trace()
   protected async circadianLightingUpdate(): Promise<void> {
     const activeLights: string[] = [];
     this.ENTITY_BRIGHTNESS.forEach(async (brightness, entity_id) => {
@@ -252,6 +271,28 @@ export class LightingControllerService {
       activeLights.push(entity_id);
     });
     await this.circadianLight(activeLights);
+  }
+
+  @OnEvent(ALL_ENTITIES_UPDATED)
+  protected async onAllEntitiesUpdated(
+    allEntities: LightStateDTO[],
+  ): Promise<void> {
+    allEntities.forEach((entity) => {
+      if (
+        domain(entity.entity_id) !== HASS_DOMAINS.light ||
+        this.ENTITY_BRIGHTNESS.has(entity.entity_id)
+      ) {
+        return;
+      }
+      if (entity.state !== 'on') {
+        this.ENTITY_BRIGHTNESS.delete(entity.entity_id);
+        return;
+      }
+      this.ENTITY_BRIGHTNESS.set(
+        entity.entity_id,
+        Math.round((entity.attributes.brightness / 256) * 100),
+      );
+    });
   }
 
   @OnEvent(HA_EVENT_STATE_CHANGE)
@@ -276,10 +317,7 @@ export class LightingControllerService {
     }
     // Load
     const controller = this.CONTROLLER_MAP.get(entity_id);
-    this.logger.info(
-      { entityId: entity_id, state: new_state },
-      `${entity_id} state updated`,
-    );
+
     const timeout = setTimeout(() => {
       this.ACTION_TIMEOUT.delete(entity_id);
       this.ACTIONS_LIST.delete(entity_id);
@@ -290,7 +328,12 @@ export class LightingControllerService {
     this.ACTION_TIMEOUT.set(entity_id, timeout);
     const recent = this.ACTIONS_LIST.get(entity_id) ?? [];
     recent.push(new_state.state);
-    this.logger.info({ recent }, `recents`);
+    this.logger.info(
+      { recent: recent.map((item) => REVERSE_LOOKUP_PICO_STATES.get(item)) },
+      `${entity_id} updated: ${REVERSE_LOOKUP_PICO_STATES.get(
+        new_state.state as PicoStates,
+      )}`,
+    );
     this.ACTIONS_LIST.set(entity_id, recent);
     if (!(await controller.combo(recent))) {
       return;
@@ -306,7 +349,7 @@ export class LightingControllerService {
     switch (new_state.state) {
       case PicoStates.favorite:
         const result = await controller.favorite(count);
-        if (result) {
+        if (!result) {
           return;
         }
       // fall through
@@ -327,15 +370,7 @@ export class LightingControllerService {
 
   @Trace()
   private findDimmableLights(controller: RoomController): string[] {
-    const lights = [];
-    controller._CONTROLLER_SETTINGS.devices.forEach((item) => {
-      const targets = item.target ?? [];
-      targets.forEach((id) => {
-        if (domain(id) === HASS_DOMAINS.light && !lights.includes(id)) {
-          lights.push(id);
-        }
-      });
-    });
+    const lights = this.findLights(controller);
     return lights.filter((light) => this.ENTITY_BRIGHTNESS.has(light));
   }
 
@@ -351,6 +386,33 @@ export class LightingControllerService {
       return 0;
     }
     return Math.round((entity.attributes.brightness / 256) * 100);
+  }
+
+  private findLights(controller: RoomController): string[] {
+    const lights = [];
+    controller._CONTROLLER_SETTINGS.devices.forEach((item) => {
+      const targets = item.target ?? [];
+      targets.forEach((id) => {
+        if (domain(id) === HASS_DOMAINS.light && !lights.includes(id)) {
+          lights.push(id);
+        }
+      });
+    });
+    return lights;
+  }
+
+  private generateSubscribers(id: string): void {
+    if (this.SUBSCRIBERS.has(id)) {
+      return;
+    }
+    const subscriber =
+      this.entityManagerService.getObservable<LightStateDTO>(id);
+    this.SUBSCRIBERS.set(id, subscriber);
+    subscriber.subscribe((state) => {
+      if (state.state === 'off') {
+        this.ENTITY_BRIGHTNESS.delete(id);
+      }
+    });
   }
 
   /**

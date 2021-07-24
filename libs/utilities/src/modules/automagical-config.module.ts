@@ -43,7 +43,10 @@ export class AutomagicalConfigModule {
            *
            * Print out the config at boot by default in a human readable form
            */
-          if (appName !== LIB_TESTING && config.SKIP_CONFIG_PRINT !== true) {
+          if (
+            appName !== LIB_TESTING.description &&
+            config.SKIP_CONFIG_PRINT !== true
+          ) {
             /* eslint-disable no-console */
             console.log(`<LOADED CONFIGURATION>`);
             console.log(JSON.stringify(config, undefined, '  '));

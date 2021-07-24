@@ -3,6 +3,7 @@ import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { LightingControllerService } from '@automagical/custom';
 import {
   EntityService,
+  FanDomainService,
   LightDomainService,
   RemoteDomainService,
   SwitchDomainService,
@@ -65,6 +66,7 @@ export class LoftService extends EntityService implements RoomController {
     private readonly lightService: LightDomainService,
     private readonly solarCalcService: SolarCalcService,
     private readonly eventEmitterService: EventEmitter2,
+    private readonly fanService: FanDomainService,
   ) {
     super();
   }
@@ -148,12 +150,15 @@ export class LoftService extends EntityService implements RoomController {
   @Trace()
   private async eveningFavorite(count: number): Promise<void> {
     if (count === 1) {
-      await this.lightingController.circadianLight([
-        'light.loft_fan_bench_right',
-        'light.loft_fan_desk_right',
-        'light.loft_fan_desk_left',
-        'light.loft_fan_bench_left',
-      ]);
+      await this.lightingController.circadianLight(
+        [
+          'light.loft_fan_bench_right',
+          'light.loft_fan_desk_right',
+          'light.loft_fan_desk_left',
+          'light.loft_fan_bench_left',
+        ],
+        50,
+      );
       await this.lightService.turnOff([
         'light.loft_wall_bottom',
         'light.loft_wall_top',

@@ -1,4 +1,4 @@
-import { CrudOptions, FormCRUD } from '@automagical/contracts';
+import { CrudOptions } from '@automagical/contracts';
 import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import { FormDTO, ProjectDTO } from '@automagical/contracts/formio-sdk';
 import {
@@ -12,7 +12,7 @@ import { PinoLogger } from 'nestjs-pino';
 import { FormioSdkService } from './formio-sdk.service';
 
 @Injectable()
-export class FormService implements FormCRUD {
+export class FormService {
   // #region Constructors
 
   constructor(

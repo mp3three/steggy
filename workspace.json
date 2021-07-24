@@ -84,24 +84,11 @@
           ],
           "options": {
             "outputPath": "dist/apps/devtools",
-            "main": "apps/devtools/src/main.ts",
+            "main": "apps/devtools/src/entrypoints/main.ts",
             "tsConfig": "apps/devtools/tsconfig.app.json",
             "assets": [
               "apps/devtools/src/assets"
             ]
-          },
-          "configurations": {
-            "production": {
-              "optimization": true,
-              "extractLicenses": true,
-              "inspect": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/devtools/src/environments/environment.ts",
-                  "with": "apps/devtools/src/environments/environment.prod.ts"
-                }
-              ]
-            }
           }
         },
         "serve": {

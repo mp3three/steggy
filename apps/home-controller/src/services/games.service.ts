@@ -75,8 +75,21 @@ export class GamesRoomService implements RoomController {
 
   @Trace()
   @OnEvent(`${ROOM_NAMES.games}/favorite`)
-  public async favorite(): Promise<boolean> {
-    return true;
+  public async favorite(count: number): Promise<boolean> {
+    if (count === 1) {
+      await this.lightingController.circadianLight(
+        ['light.games_1', 'light.games_2', 'light.games_3', 'light.games_lamp'],
+        30,
+      );
+      return false;
+    }
+    if (count === 2) {
+      await this.lightingController.roomOff(ROOM_NAMES.loft);
+      await this.lightingController.roomOff(ROOM_NAMES.downstairs);
+      await this.lightingController.roomOff(ROOM_NAMES.master);
+      return false;
+    }
+    return false;
   }
 
   // #endregion Public Methods
@@ -85,7 +98,7 @@ export class GamesRoomService implements RoomController {
 
   @Trace()
   protected onModuleInit(): void {
-    this.lightingController.setRoomController('sensor.bedroom_pico', this);
+    this.lightingController.setRoomController('sensor.games_pico', this);
   }
 
   // #endregion Protected Methods

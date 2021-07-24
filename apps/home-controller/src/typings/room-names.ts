@@ -5,4 +5,5 @@ export enum ROOM_NAMES {
   guest = 'guest',
   loft = 'loft',
   master = 'master',
+  bed = 'bed',
 }

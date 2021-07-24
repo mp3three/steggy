@@ -64,8 +64,12 @@
     ],
     "unwantedRecommendations": []
   },
-
   "settings": {
+    "files.associations": {
+      "api": "ini",
+      "devtools": "ini",
+      "jest-test": "ini"
+    },
     "files.exclude": {
       "**/.git": true,
       "**/.svn": true,

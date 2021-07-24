@@ -39,6 +39,13 @@ export class EntityManagerService {
     return this.ENTITIES.get(entityId) as T;
   }
 
+  @Trace()
+  public getObservable<T extends HassStateDTO = HassStateDTO>(
+    entityId: string,
+  ): Observable<T> {
+    return this.OBSERVABLES.get(entityId) as Observable<T>;
+  }
+
   // #endregion Public Methods
 
   // #region Protected Methods
@@ -53,6 +60,7 @@ export class EntityManagerService {
       if (state?.last_changed === entity.last_changed) {
         return;
       }
+      this.ENTITIES.set(entity.entity_id, entity);
       const subscriber = this.SUBSCRIBERS.get(entity.entity_id);
       subscriber?.next(entity);
     });

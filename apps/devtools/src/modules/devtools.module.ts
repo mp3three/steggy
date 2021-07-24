@@ -1,23 +1,9 @@
-import { FormCRUD, ProjectCRUD, SubmissionCRUD } from '@automagical/contracts';
-import { LOG_LEVEL, UTILS_AWS } from '@automagical/contracts/config';
+import { LOG_LEVEL } from '@automagical/contracts/config';
 import { APP_DEVTOOLS } from '@automagical/contracts/constants';
+import { MinimalSdkModule } from '@automagical/formio-sdk';
+import { MainCLIModule } from '@automagical/terminal';
 import {
-  FormService,
-  MinimalSdkModule,
-  ProjectService,
-  SubmissionService,
-} from '@automagical/formio-sdk';
-import {
-  AWSService,
-  ChangelogREPL,
-  ConfigBuilderREPL,
-  MainCLIModule,
-} from '@automagical/terminal';
-import {
-  ConfigModule,
-  EBSModule,
-  S3Module,
-  SymbolProviderModule,
+  AutomagicalConfigModule,
   UtilitiesModule,
 } from '@automagical/utilities';
 import { Module } from '@nestjs/common';
@@ -25,7 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { LoggerModule } from 'nestjs-pino';
 
-import { DeployREPL } from '../services/deploy.repl';
+import { YoinkService } from '../services';
 
 @Module({
   imports: [
@@ -33,13 +19,8 @@ import { DeployREPL } from '../services/deploy.repl';
     UtilitiesModule,
 
     EventEmitterModule.forRoot(),
-    MainCLIModule.selectServices([
-      AWSService,
-      ConfigBuilderREPL,
-      ChangelogREPL,
-      DeployREPL,
-    ]),
-    ConfigModule.register(APP_DEVTOOLS, {
+    MainCLIModule.selectServices([YoinkService]),
+    AutomagicalConfigModule.register(APP_DEVTOOLS, {
       SKIP_CONFIG_PRINT: true,
     }),
     LoggerModule.forRootAsync({
@@ -52,21 +33,7 @@ import { DeployREPL } from '../services/deploy.repl';
         };
       },
     }),
-    SymbolProviderModule.forRoot([
-      {
-        provide: ProjectCRUD,
-        useClass: ProjectService,
-      },
-      {
-        provide: FormCRUD,
-        useClass: FormService,
-      },
-      {
-        provide: SubmissionCRUD,
-        useClass: SubmissionService,
-      },
-    ]),
   ],
-  providers: [DeployREPL],
+  providers: [YoinkService],
 })
 export class DevtoolsModule {}

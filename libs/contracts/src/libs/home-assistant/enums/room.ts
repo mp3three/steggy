@@ -50,3 +50,12 @@ export enum PicoStates {
   // Nothing
   none = '0',
 }
+
+export const REVERSE_LOOKUP_PICO_STATES = new Map<PicoStates, string>([
+  [PicoStates.none, 'none'],
+  [PicoStates.on, 'on'],
+  [PicoStates.down, 'down'],
+  [PicoStates.favorite, 'favorite'],
+  [PicoStates.off, 'off'],
+  [PicoStates.up, 'up'],
+]);

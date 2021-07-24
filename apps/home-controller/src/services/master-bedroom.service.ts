@@ -51,7 +51,7 @@ export class MasterBedroomService implements RoomController {
   constructor(
     @InjectLogger(MasterBedroomService, APP_HOME_CONTROLLER)
     private readonly logger: PinoLogger,
-    private readonly picoService: LightingControllerService,
+    private readonly lightingController: LightingControllerService,
     private readonly switchService: SwitchDomainService,
     private readonly solarCalcService: SolarCalcService,
     private readonly lightService: LightDomainService,
@@ -108,14 +108,7 @@ export class MasterBedroomService implements RoomController {
 
   @Trace()
   protected onModuleInit(): void {
-    this.picoService.setRoomController('sensor.bedroom_pico', this);
-    this.picoService.watch(
-      'sensor.bed_pico',
-      async (button: PicoStates): Promise<boolean> => {
-        await this.bedPico(button);
-        return false;
-      },
-    );
+    this.lightingController.setRoomController('sensor.bedroom_pico', this);
   }
 
   // #endregion Protected Methods
@@ -123,26 +116,8 @@ export class MasterBedroomService implements RoomController {
   // #region Private Methods
 
   @Trace()
-  private async bedPico(button: PicoStates): Promise<void> {
-    switch (button) {
-      case PicoStates.favorite:
-        await this.switchService.toggle('switch.womp');
-        return;
-      case PicoStates.off:
-        await this.areaOff();
-        return;
-      case PicoStates.on:
-        await this.areaOn();
-        return;
-      case PicoStates.up:
-        await this.fanService.increaseSpeed('fan');
-        return;
-    }
-  }
-
-  @Trace()
   private async dayFavorite(): Promise<void> {
-    await this.switchService.toggle('switch.womp');
+    await this.lightingController.areaOn(1, this);
   }
 
   @Trace()
