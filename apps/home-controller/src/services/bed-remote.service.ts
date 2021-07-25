@@ -38,19 +38,19 @@ export class BedRemoteService implements RoomController {
 
   @Trace()
   public async areaOff(): Promise<boolean> {
-    await this.lightingController.areaOff(3, this.masterBedroom);
+    await this.lightingController.areaOff(1, this.masterBedroom);
     return false;
   }
 
   @Trace()
-  public async areaOn(): Promise<boolean> {
-    await this.lightingController.areaOn(1, this.masterBedroom);
+  public async areaOn(count: number): Promise<boolean> {
+    await this.lightingController.areaOn(count, this.masterBedroom);
     return false;
   }
 
   @Trace()
   public async combo(): Promise<boolean> {
-    return false;
+    return true;
   }
 
   @Trace()

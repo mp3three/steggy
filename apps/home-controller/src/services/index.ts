@@ -1,3 +1,4 @@
+export * from './bed-remote.service';
 export * from './downstairs.service';
 export * from './games.service';
 export * from './garage.service';

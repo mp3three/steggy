@@ -54,7 +54,9 @@ export class FanDomainService {
 
   @Trace()
   public async fanSpeedDown(entityId: string): Promise<void> {
-    const { attributes } = this.entityManager.getEntity<FanStateDTO>(entityId);
+    const [{ attributes }] = this.entityManager.getEntity<FanStateDTO>([
+      entityId,
+    ]);
     const currentSpeed = attributes.speed;
     const index = availableSpeeds.indexOf(currentSpeed);
     this.logger.debug(
@@ -74,7 +76,9 @@ export class FanDomainService {
 
   @Trace()
   public async fanSpeedUp(entityId: string): Promise<void> {
-    const { attributes } = this.entityManager.getEntity<FanStateDTO>(entityId);
+    const [{ attributes }] = this.entityManager.getEntity<FanStateDTO>([
+      entityId,
+    ]);
     const currentSpeed = attributes.speed;
     const index = availableSpeeds.indexOf(currentSpeed);
     this.logger.debug(

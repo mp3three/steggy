@@ -35,8 +35,10 @@ export class EntityManagerService {
   // #region Public Methods
 
   @Trace()
-  public getEntity<T extends HassStateDTO = HassStateDTO>(entityId: string): T {
-    return this.ENTITIES.get(entityId) as T;
+  public getEntity<T extends HassStateDTO = HassStateDTO>(
+    entityId: string[],
+  ): T[] {
+    return entityId.map((id) => this.ENTITIES.get(id) as T);
   }
 
   @Trace()

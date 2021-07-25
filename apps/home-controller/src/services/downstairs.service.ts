@@ -102,7 +102,7 @@ export class DownstairsService implements RoomController {
 
   @Trace()
   protected onModuleInit(): void {
-    this.lightingController.setRoomController('sensor.bedroom_pico', this);
+    this.lightingController.setRoomController('sensor.living_pico', this);
   }
 
   // #endregion Protected Methods

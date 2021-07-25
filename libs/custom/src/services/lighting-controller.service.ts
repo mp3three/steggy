@@ -244,6 +244,11 @@ export class LightingControllerService {
     this.ROOM_MAP.set(room.name, room);
   }
 
+  public async turnOff(entity_id: string[]): Promise<void> {
+    await this.hassCoreService.turnOff(entity_id);
+    entity_id.forEach((target) => this.ENTITY_BRIGHTNESS.delete(target));
+  }
+
   public watch(entityId: string, callback: PicoDirectCallback): void {
     if (this.CALLBACKS.has(entityId)) {
       throw new InternalServerErrorException(
@@ -261,7 +266,7 @@ export class LightingControllerService {
   protected async circadianLightingUpdate(): Promise<void> {
     const activeLights: string[] = [];
     this.ENTITY_BRIGHTNESS.forEach(async (brightness, entity_id) => {
-      const entity = this.entityManagerService.getEntity(entity_id);
+      const [entity] = this.entityManagerService.getEntity([entity_id]);
       if (!entity) {
         this.logger.warn(`${entity_id} has no associated data`);
       }
@@ -317,7 +322,6 @@ export class LightingControllerService {
     }
     // Load
     const controller = this.CONTROLLER_MAP.get(entity_id);
-
     const timeout = setTimeout(() => {
       this.ACTION_TIMEOUT.delete(entity_id);
       this.ACTIONS_LIST.delete(entity_id);
@@ -381,7 +385,9 @@ export class LightingControllerService {
    */
   @Trace()
   private lightBrightness(entityId: string) {
-    const entity = this.entityManagerService.getEntity<LightStateDTO>(entityId);
+    const [entity] = this.entityManagerService.getEntity<LightStateDTO>([
+      entityId,
+    ]);
     if (entity.state === 'off') {
       return 0;
     }

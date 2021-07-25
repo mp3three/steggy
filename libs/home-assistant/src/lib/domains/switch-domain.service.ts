@@ -1,4 +1,5 @@
 import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
+import { HASS_DOMAINS } from '@automagical/contracts/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
@@ -13,30 +14,32 @@ export class SwitchDomainService {
     @InjectLogger(SwitchDomainService, LIB_HOME_ASSISTANT)
     private readonly logger: PinoLogger,
     private readonly callService: HACallService,
-  ) {}
+  ) {
+    this.callService.domain = HASS_DOMAINS.switch;
+  }
 
   // #endregion Constructors
 
   // #region Public Methods
 
   @Trace()
-  public async toggle(entityId: string | string[]): Promise<void> {
+  public async toggle(entity_id: string | string[]): Promise<void> {
     return await this.callService.call('toggle', {
-      entity_id: entityId,
+      entity_id,
     });
   }
 
   @Trace()
-  public async turnOff(entityId: string | string[]): Promise<void> {
+  public async turnOff(entity_id: string | string[]): Promise<void> {
     return await this.callService.call('turn_off', {
-      entity_id: entityId,
+      entity_id,
     });
   }
 
   @Trace()
-  public async turnOn(entityId: string | string[]): Promise<void> {
+  public async turnOn(entity_id: string | string[]): Promise<void> {
     return await this.callService.call('turn_on', {
-      entity_id: entityId,
+      entity_id,
     });
   }
 
