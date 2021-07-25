@@ -6,6 +6,7 @@
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
         "no-console": "off",
+        "no-loops/no-loops": "off",
         "security/detect-object-injection": "off"
       }
     },

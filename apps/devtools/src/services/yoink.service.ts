@@ -1,4 +1,6 @@
+import { YOINK_DEFAULT_PATH } from '@automagical/contracts/config';
 import { CLIService } from '@automagical/contracts/terminal';
+import { MainCLIREPL } from '@automagical/terminal';
 import { FetchService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -27,16 +29,25 @@ export class YoinkService implements CLIService {
   // #region Constructors
 
   constructor(
+    private readonly cli: MainCLIREPL,
     private readonly configService: ConfigService,
     private readonly fetchService: FetchService,
-  ) {}
+  ) {
+    this.cli.addScript(this);
+  }
 
   // #endregion Constructors
 
   // #region Public Methods
 
   public async exec(): Promise<void> {
-    const { dirname, url } = await inquirer.prompt([
+    const { dirname, url, path } = await inquirer.prompt([
+      {
+        default: this.configService.get(YOINK_DEFAULT_PATH),
+        message: 'Path',
+        name: 'path',
+        type: 'input',
+      },
       {
         message: 'Destination Folder',
         name: 'dirname',
@@ -48,7 +59,7 @@ export class YoinkService implements CLIService {
         name: 'url',
       },
     ]);
-    const destination = join(this.configService.get(''), dirname);
+    const destination = join(path, dirname);
     mkdirSync(join(destination, dirname), { recursive: true });
     const zip = join(destination, 'output.zip');
     await this.fetchService.download({

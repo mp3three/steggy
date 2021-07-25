@@ -92,6 +92,12 @@
           }
         },
         "serve": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "nx webpack-dev devtools --inspect --port 33334 | pino-pretty"
+          }
+        },
+        "webpack-dev": {
           "executor": "@nrwl/node:execute",
           "options": {
             "buildTarget": "devtools:build"

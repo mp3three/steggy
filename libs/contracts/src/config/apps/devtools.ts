@@ -6,21 +6,10 @@ export class DevtoolsApplicationSettingsDTO {
 
   @UsesConfig({
     applications: 'available',
-
-    title: 'AWS Environment',
-    type: {
-      key: {
-        title: 'Environment Name',
-        type: 'string',
-      },
-      value: {
-        title: 'Version label',
-        type: 'string',
-      },
-    },
+    type: 'string',
   })
-  public AWS_ENVIRONMENTS: Record<string, string>;
+  public YOINK_DEFAULT_PATH: string;
 
   // #endregion Object Properties
 }
-export const AWS_ENVIRONMENTS = 'application.AWS_ENVIRONMENTS';
+export const YOINK_DEFAULT_PATH = 'application.YOINK_DEFAULT_PATH';

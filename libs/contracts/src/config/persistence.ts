@@ -48,7 +48,7 @@ export class PersistenceConfig {
    */
   @UsesConfig({
     applications: {},
-    type: 'todo',
+    type: undefined,
   })
   public mongo?: MongooseModuleOptions;
   /**
@@ -56,7 +56,9 @@ export class PersistenceConfig {
    */
   @UsesConfig({
     applications: {},
-    type: MongoCerts,
+    type: {
+      reference: MongoCerts,
+    },
   })
   public MONGO_CERTS?: MongoCerts;
 

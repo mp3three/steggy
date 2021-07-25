@@ -15,10 +15,7 @@ import { Cache } from 'cache-manager';
 import { PinoLogger } from 'nestjs-pino';
 
 /**
- * Half abandoned side project
- *
- * Probably would be best replaced with a match for the roku api.
- * If that doesn't need to be broken out for some reason.
+ * Half abandoned side project. Use at your own risk?
  */
 @Injectable()
 export class RokuService {

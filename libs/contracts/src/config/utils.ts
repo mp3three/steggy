@@ -116,12 +116,16 @@ export class UtilsConfig {
    */
   @UsesConfig({
     applications: {},
-    type: AWSUtilitiesConfig,
+    type: {
+      reference: AWSUtilitiesConfig,
+    },
   })
   public AWS?: AWSUtilitiesConfig;
   @UsesConfig({
     applications: {},
-    type: EmailConfig,
+    type: {
+      reference: EmailConfig,
+    },
   })
   public email?: EmailConfig;
 

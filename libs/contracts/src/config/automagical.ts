@@ -18,32 +18,44 @@ class ConfigLibs {
 
   @ConfigurableProperty({
     applications: {},
-    type: AuthenticationConfig,
+    type: {
+      reference: AuthenticationConfig,
+    },
   })
   public authentication?: AuthenticationConfig;
   @ConfigurableProperty({
     applications: {},
-    type: FormioSDKConfig,
+    type: {
+      reference: FormioSDKConfig,
+    },
   })
   public formiosdk?: FormioSDKConfig;
   @ConfigurableProperty({
     applications: {},
-    type: HomeAssistantConfig,
+    type: {
+      reference: HomeAssistantConfig,
+    },
   })
   public homeassistant?: HomeAssistantConfig;
   @ConfigurableProperty({
     applications: {},
-    type: PersistenceConfig,
+    type: {
+      reference: PersistenceConfig,
+    },
   })
   public persistence?: PersistenceConfig;
   @ConfigurableProperty({
     applications: {},
-    type: ServerConfig,
+    type: {
+      reference: ServerConfig,
+    },
   })
   public server?: ServerConfig;
   @ConfigurableProperty({
     applications: {},
-    type: UtilsConfig,
+    type: {
+      reference: UtilsConfig,
+    },
   })
   public utils?: UtilsConfig;
 
@@ -68,12 +80,14 @@ export class AutomagicalConfig {
    */
   @ConfigurableProperty({
     applications: 'default',
-    type: 'todo',
+    type: undefined,
   })
   public application?: ApplicationConfigs;
   @ConfigurableProperty({
     applications: 'default',
-    type: CommonConfig,
+    type: {
+      reference: CommonConfig,
+    },
   })
   public common?: CommonConfig;
   /**
@@ -81,7 +95,9 @@ export class AutomagicalConfig {
    */
   @ConfigurableProperty({
     applications: 'default',
-    type: ConfigLibs,
+    type: {
+      reference: ConfigLibs,
+    },
   })
   public libs?: ConfigLibs;
   /**

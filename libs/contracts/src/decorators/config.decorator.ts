@@ -1,58 +1,73 @@
 import { ClassConstructor } from 'class-transformer';
 
-export type CONFIG_PROVIDERS = 'ebenvironment' | 'application';
-
-export type ConfigLibraryVisibility = 'default' | 'available' | 'hidden';
-export type ConfigType =
+export type COMPLEX_CONFIG_PROVIDERS = 'ebenvironment' | 'application';
+export type SIMPLE_CONFIG_PROVIDERS =
   | 'string'
+  | 'string[]'
   | 'url'
   | 'number'
   | 'boolean'
-  | 'array'
-  | 'record'
-  | 'password'
-  | 'todo'
-  // functions
-  | CONFIG_PROVIDERS
-  // enum
-  | string[]
-  // record
-  | Record<
-      'key' | 'value',
-      Pick<DefaultConfigOptions, 'type' | 'title' | 'default'>
-    >
-  // external
-  | ClassConstructor<unknown>;
+  | 'password';
 
-export interface DefaultConfigOptions {
+export enum ConfigLibraryVisibility {
+  default = 'default',
+  available = 'available',
+  hidden = 'hidden',
+}
+export type ConfigRecordType = Record<
+  'key' | 'value',
+  Pick<DefaultConfigOptions, 'type' | 'title' | 'default'>
+>;
+export type ConfigReferenceType = {
+  reference: ClassConstructor<unknown>;
+};
+export type ConfigType =
+  | SIMPLE_CONFIG_PROVIDERS
+  // functions
+  | COMPLEX_CONFIG_PROVIDERS
+  // key/value pairs
+  | ConfigRecordType
+  | ConfigReferenceType
+  | undefined
+  // enum
+  | string[];
+
+export interface DefaultConfigOptions<T extends ConfigType = ConfigType> {
   // #region Object Properties
 
-  array?: boolean;
   /**
    * Which applications are interested in this item
    */
   applications:
-    | Record<string, ConfigLibraryVisibility>
-    | ConfigLibraryVisibility;
-
+    | Record<
+        string,
+        // #endregion Object Properties
+        `${ConfigLibraryVisibility}`
+      >
+    | `${ConfigLibraryVisibility}`;
+  array?: boolean;
   default?: unknown;
   /**
-   * Which `@automagical` lib does this belong to?
+   * lib name
    */
   library?: string;
-  /**
-   * Format / provider of the value
-   */
-  type: ConfigType;
   /**
    * Human understandable title
    */
   title?: string;
-
-  // #endregion Object Properties
+  /**
+   * Format / provider of the value
+   */
+  type: T;
 }
 
 const config = new Map<string, Map<string, DefaultConfigOptions>>();
+
+export function LoadConfigDefinition(
+  reference: string,
+): Map<string, DefaultConfigOptions> {
+  return config.get(reference);
+}
 
 export function ConfigurableProperty(
   options: DefaultConfigOptions,

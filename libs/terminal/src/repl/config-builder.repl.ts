@@ -1,7 +1,9 @@
 import {
-  CONFIG_PROVIDERS,
+  COMPLEX_CONFIG_PROVIDERS,
   ConfigLibraryVisibility,
+  ConfigType,
   DefaultConfigOptions,
+  LoadConfigDefinition,
 } from '@automagical/contracts';
 import {
   AutomagicalConfig,
@@ -11,11 +13,7 @@ import {
 } from '@automagical/contracts/config';
 import { APPLICATION_LIST } from '@automagical/contracts/constants';
 import { CLIService, FigletFonts } from '@automagical/contracts/terminal';
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotImplementedException,
-} from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import { ClassConstructor, plainToClass } from 'class-transformer';
@@ -24,24 +22,25 @@ import Table from 'cli-table';
 import figlet from 'figlet';
 import ini from 'ini';
 import inquirer from 'inquirer';
-import { get, set } from 'object-path';
+import { set } from 'object-path';
 
-import { SystemService } from '../services';
+import { SystemService } from '../services/system.service';
+import { TypePromptService } from '../services/type-prompt.service';
 import { MainCLIREPL } from './main-cli.repl';
 
-type o = Record<string, string>;
-type PromptResult<T extends unknown = unknown> = Record<'value', T>;
 const LEVEL_MAP = {
   Common: 'available',
   Required: 'default',
   Secret: 'hidden',
 } as Record<string, ConfigLibraryVisibility>;
-const LEVEL_PRIORITIES: ConfigLibraryVisibility[] = [
-  'default',
-  'available',
-  'hidden',
-];
-type KeyedConfig = DefaultConfigOptions & { key: string; current?: unknown };
+const LEVEL_PRIORITIES: ConfigLibraryVisibility[] = Object.values(
+  ConfigLibraryVisibility,
+);
+type KeyedConfig<T extends ConfigType = ConfigType> =
+  DefaultConfigOptions<T> & {
+    key: string;
+    current?: unknown;
+  };
 
 @Injectable()
 export class ConfigBuilderREPL implements CLIService {
@@ -61,11 +60,9 @@ export class ConfigBuilderREPL implements CLIService {
   ];
   public name = 'Config Builder';
   public provider = new Map<
-    CONFIG_PROVIDERS,
+    COMPLEX_CONFIG_PROVIDERS,
     (defaultValue: unknown) => Promise<unknown>
   >();
-
-  private CURRENT_CONFIG: AutomagicalConfig;
 
   // #endregion Object Properties
 
@@ -74,6 +71,7 @@ export class ConfigBuilderREPL implements CLIService {
   constructor(
     private readonly cli: MainCLIREPL,
     private readonly systemService: SystemService,
+    private readonly typePrompt: TypePromptService,
   ) {
     this.cli.addScript(this);
   }
@@ -82,20 +80,19 @@ export class ConfigBuilderREPL implements CLIService {
 
   // #region Public Methods
 
-  public async assembleConfig({
-    type: application,
-    level,
-  }: {
-    type: string;
-    level: keyof typeof LEVEL_MAP;
-  }): Promise<AutomagicalConfig> {
+  public async assembleConfig(
+    application: string,
+    level: keyof typeof LEVEL_MAP,
+  ): Promise<AutomagicalConfig> {
+    const appConfig = await this.buildApplicationConfig(application);
+    return {};
     const configOptions = this.buildConfig(application, LEVEL_MAP[level]);
     const config: AutomagicalConfig = {
-      application: await this.buildApplicationConfig(application),
+      application: appConfig,
     };
     this.configTable(application, configOptions);
     await eachSeries(configOptions, async (item, callback) => {
-      const results = await this.prompt(item, application);
+      const results = await this.typePrompt.prompt(item, application);
       const path =
         item.library === '-' ? item.key : `libs.${item.library}.${item.key}`;
       set(config, path, results.value);
@@ -104,6 +101,9 @@ export class ConfigBuilderREPL implements CLIService {
     return config;
   }
 
+  /**
+   * Build the data for the application portion of the config
+   */
   public async buildApplicationConfig(
     application: string,
   ): Promise<Record<string, unknown>> {
@@ -111,24 +111,19 @@ export class ConfigBuilderREPL implements CLIService {
     if (!CONFIGURABLE_APPS.has(application)) {
       return out;
     }
-    const nested = this.loadApplicationConfigData(
-      {
-        external: CONFIGURABLE_APPS.get(application),
-      },
+    const nested = this.loadConfig(
+      CONFIGURABLE_APPS.get(application),
       application,
-      'application',
     );
     this.configTable(application, nested);
     const output = {};
     await eachSeries(nested, async (item, callback) => {
-      const results = await this.prompt(
+      const results = await this.typePrompt.prompt(
         {
           ...item,
-          current: get(this.CURRENT_CONFIG, `application.${item.key}`),
           key: `application.${item.key}`,
         },
         application,
-        '',
       );
       set(output, item.key, results.value);
       callback();
@@ -144,11 +139,11 @@ export class ConfigBuilderREPL implements CLIService {
    * - Passes off to handler
    */
   public async exec(): Promise<void> {
-    const { type, level } = (await inquirer.prompt([
+    const { application, level } = (await inquirer.prompt([
       {
-        choices: APPLICATION_LIST,
+        choices: [...CONFIGURABLE_APPS.keys()],
         message: 'Config Type',
-        name: 'type',
+        name: 'application',
         type: 'list',
       },
       {
@@ -165,10 +160,10 @@ export class ConfigBuilderREPL implements CLIService {
         name: 'level',
         type: 'list',
       },
-    ])) as { type: string; level: keyof typeof LEVEL_MAP };
+    ])) as { application: string; level: keyof typeof LEVEL_MAP };
     clear();
-    const config = await this.assembleConfig({ level, type });
-    await this.handleConfig(config, type);
+    const config = await this.assembleConfig(application, level);
+    await this.handleConfig(config, application);
   }
 
   /**
@@ -253,31 +248,6 @@ export class ConfigBuilderREPL implements CLIService {
 
   // #region Private Methods
 
-  private async arrayBuilder(config: KeyedConfig): Promise<PromptResult> {
-    console.log(chalk.blueBright('?'), 'Blank value when done');
-    let repeat = true;
-    const value = [];
-    // Tis is a loopy situation, sorry eslint
-    // eslint-disable-next-line no-loops/no-loops
-    while (repeat) {
-      const result = await inquirer.prompt([
-        {
-          message: `${config.key}[]`,
-          name: 'value',
-          type: 'input',
-        },
-      ]);
-      if (!result.value) {
-        repeat = false;
-        break;
-      }
-      value.push(result.value);
-    }
-    return {
-      value,
-    };
-  }
-
   /**
    * Go through CommonConfig & all library configs to generate list of
    * advertised options for a given application.
@@ -288,37 +258,31 @@ export class ConfigBuilderREPL implements CLIService {
     application: string,
     level: ConfigLibraryVisibility,
   ): KeyedConfig[] {
-    const out: KeyedConfig[] = [];
-    this.CURRENT_CONFIG = this.systemService.loadConfig(application);
-    const config = plainToClass(
-      CommonConfig,
-      {},
-      {
-        groups: [application],
-        strategy: 'excludeAll',
-      },
-    ) as unknown as Record<string, DefaultConfigOptions>;
-    Object.keys(config).forEach((key) => {
-      if (['application', 'libs'].includes(key)) {
-        return;
-      }
-      out.push({ ...config[key], current: get(this.CURRENT_CONFIG, key), key });
-    });
+    const out: KeyedConfig[] = [...this.loadConfig(CommonConfig, application)];
+
     CONFIGURABLE_LIBS.forEach(
       (value: ClassConstructor<unknown>, key: string) => {
-        out.push(
-          ...this.loadApplicationConfigData(
-            {
-              external: value,
-              library: key,
-            },
-            application,
-          ),
-        );
+        const config = this.loadConfig(value, application).map((item) => {
+          item.library = key;
+          return item;
+        });
+        out.push(...config);
       },
     );
-    const lte = LEVEL_PRIORITIES.indexOf(level);
-    return out
+
+    return this.configFilterSort(
+      out,
+      application,
+      LEVEL_PRIORITIES.indexOf(level),
+    );
+  }
+
+  private configFilterSort(
+    config: KeyedConfig[],
+    application: string,
+    lte: number,
+  ): KeyedConfig[] {
+    return config
       .filter((item) => {
         const priority = LEVEL_PRIORITIES.indexOf(
           item.applications[application] ?? item.applications,
@@ -375,251 +339,21 @@ export class ConfigBuilderREPL implements CLIService {
     console.log(table.toString());
   }
 
-  private loadApplicationConfigData(
-    { library }: Pick<KeyedConfig, 'type'>,
+  private loadConfig(
+    reference: ClassConstructor<unknown>,
     application: string,
-    prefix?: string,
   ): KeyedConfig[] {
     const out = [];
-    prefix ??= `libs.${library}`;
-    const prompts = plainToClass(
-      external,
-      {},
-      {
-        groups: [application],
-        strategy: 'excludeAll',
-      },
-    ) as unknown as Record<string, DefaultConfigOptions>;
+    console.log(reference.name);
+    const prompts = LoadConfigDefinition(reference.name);
+    console.log(prompts);
     const keys = Object.keys(prompts);
     keys.forEach((key) => {
       out.push({
         ...prompts[key],
-        current: get(this.CURRENT_CONFIG, `${prefix}.${key}`),
         key,
       });
     });
-    return out;
-  }
-
-  private async prompt(
-    config: KeyedConfig,
-    application: string,
-    prefix?: string,
-  ): Promise<PromptResult> {
-    prefix ??= `libs.${config.library}`;
-    switch (config.type) {
-      case 'external':
-        return await this.section(
-          chalk`External Config: {magenta ${config.key}}`,
-          async () => {
-            return await this.runExternal(config, application);
-          },
-        );
-      case 'string':
-      case 'url':
-        return await inquirer.prompt([
-          {
-            default: config.current ?? config.default,
-            message: config.key,
-            name: 'value',
-            prefix,
-            type: 'input',
-          },
-        ]);
-      case 'password':
-        return await inquirer.prompt([
-          {
-            default: config.current ?? config.default,
-            message: config.key,
-            name: 'value',
-            prefix,
-            type: 'password',
-          },
-        ]);
-      case 'number':
-        return await inquirer.prompt([
-          {
-            default: config.current ?? config.default,
-            message: config.key,
-            name: 'value',
-            prefix,
-            type: 'number',
-          },
-        ]);
-      case 'boolean':
-        return await inquirer.prompt([
-          {
-            choices: config.enum,
-            default: config.current ?? config.default,
-            message: config.key,
-            name: 'value',
-            prefix,
-            type: 'confirm',
-          },
-        ]);
-      case 'enum':
-        return await inquirer.prompt([
-          {
-            choices: config.enum,
-            default: config.current ?? config.default,
-            message: config.key,
-            name: 'value',
-            prefix,
-            type: 'enum',
-          },
-        ]);
-      case 'record':
-        prefix = prefix ? `${prefix}.` : '';
-        return await this.section(
-          `Object Builder: ${prefix}${config.key}`,
-          async () => {
-            return await this.recordBuilder({ application, config });
-          },
-        );
-      case 'array':
-        prefix = prefix ? `${prefix}.` : '';
-        return await this.section(
-          `Array Builder: ${prefix}${config.key}`,
-          async () => {
-            return await this.arrayBuilder(config);
-          },
-        );
-    }
-    throw new InternalServerErrorException(
-      `type not implemented: ${config.type}`,
-    );
-  }
-
-  /**
-   * Assemble an object using key / value pairs
-   *
-   * - If a default property on the application config, function will require at least one item
-   * - User is prompted for if they wish to add another after each prompt
-   * - Prints final object when user finally selects no
-   * - Wraps entire section visually with <Object Builder> lines
-   */
-  private async recordBuilder({
-    config,
-    application,
-    recurse,
-    restore,
-  }: {
-    config: KeyedConfig;
-    application: string;
-    recurse?: boolean;
-    restore?: [string, string][];
-  }): Promise<PromptResult<o>> {
-    restore ??= [];
-    let out: PromptResult<o> = {
-      value: {},
-    };
-    if (
-      restore.length > 0 ||
-      recurse ||
-      (config.applications[application] ?? config.applications) === 'default'
-    ) {
-      const [defaultKey, defaultValue] =
-        restore.length > 0 ? restore.shift() : [];
-      const key = config.recordProvider.key
-        ? await this.provider.get(config.recordProvider.key)(defaultKey)
-        : await inquirer.prompt([
-            {
-              default: defaultKey,
-              message: config.record?.key ?? 'key',
-              name: 'key',
-              type: 'input',
-            },
-          ]);
-      const value = config.recordProvider.value
-        ? await this.provider.get(config.recordProvider.value)(defaultValue)
-        : await inquirer.prompt([
-            {
-              default: defaultValue,
-              message: config.record?.value ?? 'value',
-              name: 'value',
-              type: 'input',
-            },
-          ]);
-      out = {
-        value: {
-          [key]: value,
-        },
-      };
-    }
-    const { next } =
-      restore.length > 0
-        ? { next: true }
-        : await inquirer.prompt([
-            {
-              choices: [
-                {
-                  key: 'y',
-                  name: 'Yes',
-                  value: true,
-                },
-                {
-                  key: 'n',
-                  name: 'No',
-                  value: false,
-                },
-              ],
-              message: `Add ${config.what}?: `,
-              name: 'next',
-              type: 'expand',
-            },
-          ]);
-    if (next) {
-      out.value = {
-        ...(out.value as o),
-        ...(
-          await this.recordBuilder({
-            application,
-            config,
-            recurse: true,
-            restore,
-          })
-        ).value,
-      };
-    }
-    return out;
-  }
-
-  private async runExternal(
-    config: KeyedConfig,
-    application: string,
-  ): Promise<PromptResult<o>> {
-    const nested = this.loadApplicationConfigData(config, application);
-    this.configTable(application, nested);
-    const output = {};
-    await eachSeries(nested, async (item, callback) => {
-      const results = await this.prompt(
-        {
-          ...item,
-          current: get(
-            this.CURRENT_CONFIG,
-            `libs.${config.library}.${config.key}.${item.key}`,
-          ),
-          key: `${config.key}.${item.key}`,
-        },
-        application,
-      );
-      set(output, item.key, results.value);
-      callback();
-    });
-    return {
-      value: output,
-    };
-  }
-
-  private async section<T extends unknown = unknown>(
-    name: string,
-    callback: () => Promise<PromptResult<T>>,
-  ): Promise<PromptResult<T>> {
-    console.log(chalk.inverse(`\n\n<${name}>\n`));
-    const out = await callback();
-    // console.log(chalk.inverse(chalk.yellowBright('\n Completed Section ')));
-    // console.log(ini.encode(out.value));
-    console.log(chalk.inverse(`</${name}>\n`));
     return out;
   }
 

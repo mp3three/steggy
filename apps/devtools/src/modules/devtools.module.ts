@@ -19,7 +19,7 @@ import { YoinkService } from '../services';
     UtilitiesModule,
 
     EventEmitterModule.forRoot(),
-    MainCLIModule.selectServices([YoinkService]),
+    MainCLIModule,
     AutomagicalConfigModule.register(APP_DEVTOOLS, {
       SKIP_CONFIG_PRINT: true,
     }),

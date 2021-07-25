@@ -1,4 +1,3 @@
-import { AWS_ENVIRONMENTS } from '@automagical/contracts/config';
 import {
   EBApplicationDTO,
   EBEnvironmentDTO,
@@ -10,7 +9,7 @@ import execa from 'execa';
 import inquirer from 'inquirer';
 
 import { ConfigBuilderREPL } from '../repl/config-builder.repl';
-
+const AWS_ENVIRONMENTS = '';
 @Injectable()
 export class AWSService {
   // #region Object Properties
