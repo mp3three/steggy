@@ -3,6 +3,7 @@ import { HomeAssistantModule } from '@automagical/home-assistant';
 import {
   AutomagicalConfigModule,
   CommonImports,
+  MqttModule,
   UtilitiesModule,
 } from '@automagical/utilities';
 import { Module } from '@nestjs/common';
@@ -23,25 +24,7 @@ import {
     HomeAssistantModule,
     HomeControllerCustomModule,
     UtilitiesModule,
-    // MqttModule.forRootAsync({
-    //   inject: [ConfigService],
-    //   useFactory(configService: ConfigService) {
-    //     return {
-    //       host: '10.0.0.33',
-    //       logger: {
-    //         useValue: BasicNestLogger(),
-    //       },
-    //       port: 1883,
-    //     } as MqttModuleOptions;
-    //   },
-    // }),
-    // MqttModule.forRoot({
-    //   host: '10.0.0.33',
-    //   logger: {
-    //     useValue: BasicNestLogger(),
-    //   },
-    //   port: 1883,
-    // }),
+    MqttModule.forRoot({}),
     AutomagicalConfigModule.register(APP_NAME, DEFAULT_SETTINGS),
     ...CommonImports(),
   ],

@@ -9,7 +9,7 @@ import {
   RemoteDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { InjectLogger, SolarCalcService, Trace } from '@automagical/utilities';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
@@ -27,12 +27,7 @@ const FAN_LIGHTS = [
   'light.loft_fan_bench_left',
 ];
 const EVENING_BRIGHTNESS = 40;
-/**
- * 100-BRIGHTNESS = distance to cover
- * distance / 2 (30 secs / tick) = minutes
- * 60 - minutes = start minute
- */
-const FAN_DIM_START_MINUTE = 60 - (100 - EVENING_BRIGHTNESS) / 2;
+
 /**
  * If in auto mode:
  *
@@ -83,7 +78,6 @@ export class LoftService extends EntityService implements RoomController {
     private readonly entityManager: EntityManagerService,
     private readonly remoteService: RemoteDomainService,
     private readonly switchService: SwitchDomainService,
-    private readonly solarCalcService: SolarCalcService,
     private readonly fanService: FanDomainService,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,

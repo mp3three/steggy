@@ -48,6 +48,7 @@
     "dnsmasq": "environment",
     "libs": "lib",
     "jest": "test",
+    "mqtt": "connection",
     ".well-known": "public",
     "maintenance": "rules",
     "strings": "template",
