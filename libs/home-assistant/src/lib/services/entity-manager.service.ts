@@ -66,6 +66,11 @@ export class EntityManagerService {
     return this.OBSERVABLES.get(entityId) as Observable<T>;
   }
 
+  @Trace()
+  public listEntities(): string[] {
+    return [...this.ENTITIES.keys()];
+  }
+
   // #endregion Public Methods
 
   // #region Protected Methods

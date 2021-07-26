@@ -19,7 +19,7 @@ import {
 } from '@automagical/home-assistant';
 import { InjectLogger, SolarCalcService, Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { each } from 'async';
 import dayjs from 'dayjs';
@@ -73,6 +73,7 @@ export class LightingControllerService {
     private readonly hassCoreService: HomeAssistantCoreService,
     private readonly solarCalcService: SolarCalcService,
     private readonly entityManagerService: EntityManagerService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   // #endregion Constructors
@@ -115,6 +116,7 @@ export class LightingControllerService {
         callback();
       },
     );
+    this.eventEmitter.emit(`${controller.name}/areaOff`, count);
   }
 
   @Trace()
@@ -155,6 +157,7 @@ export class LightingControllerService {
         callback();
       },
     );
+    this.eventEmitter.emit(`${controller.name}/areaOn`, count);
   }
 
   @Trace()

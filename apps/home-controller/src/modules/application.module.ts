@@ -10,6 +10,7 @@ import { Module } from '@nestjs/common';
 
 import { APP_NAME, DEFAULT_SETTINGS } from '../environments/environment';
 import {
+  ApplicationService,
   BedRemoteService,
   DownstairsService,
   GamesRoomService,
@@ -31,6 +32,7 @@ import {
   providers: [
     DownstairsService,
     GarageService,
+    ApplicationService,
     GamesRoomService,
     GuestBedroomService,
     BedRemoteService,
