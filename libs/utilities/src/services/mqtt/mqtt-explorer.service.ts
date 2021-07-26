@@ -155,7 +155,7 @@ export class MqttExplorerService {
               }),
             );
           } catch (error) {
-            this.logger.error(error);
+            this.logger.error({ error }, 'message failed');
           }
         }
       },

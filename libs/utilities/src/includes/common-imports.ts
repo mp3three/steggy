@@ -35,6 +35,7 @@ export function CommonImports(): DynamicModule[] {
           max: Number.POSITIVE_INFINITY,
           port: configService.get(REDIS_PORT),
           store: RedisStore,
+          ttl: 60 * 60 * 24,
         };
       },
     }),

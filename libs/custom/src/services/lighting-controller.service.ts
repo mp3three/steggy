@@ -134,7 +134,7 @@ export class LightingControllerService {
         if (device.comboCount !== count) {
           return;
         }
-        const lights = device.target.filter(
+        const lights = device.target?.filter(
           (item) => domain(item) === HASS_DOMAINS.light,
         );
         await this.circadianLight(lights, 100);
@@ -165,7 +165,8 @@ export class LightingControllerService {
     entity_id: string | string[],
     brightness_pct?: number,
   ): Promise<void> {
-    if (typeof entity_id === 'string') {
+    entity_id ??= [];
+    if (!Array.isArray(entity_id)) {
       entity_id = [entity_id];
     }
     if (entity_id.length === 0) {
@@ -177,7 +178,7 @@ export class LightingControllerService {
       this.generateSubscribers(id);
     });
     const MIN_COLOR = 2500;
-    const MAX_COLOR = 5500;
+    const MAX_COLOR = 6000;
     const kelvin = (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR;
     return await this.lightService.turnOn(entity_id, {
       brightness_pct,
@@ -210,6 +211,16 @@ export class LightingControllerService {
       await this.lightDim(entity_id, 10);
       callback();
     });
+  }
+
+  @Trace()
+  public getBrightness(entityId: string): number {
+    return this.ENTITY_BRIGHTNESS.get(entityId);
+  }
+
+  @Trace()
+  public isOn(entity_id: string): boolean {
+    return this.ENTITY_BRIGHTNESS.has(entity_id);
   }
 
   /**

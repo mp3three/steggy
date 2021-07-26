@@ -63,43 +63,53 @@ export class MasterBedroomService implements RoomController {
   // #region Public Methods
 
   @Trace()
-  public async combo(): Promise<boolean> {
+  public async areaOff(count: number): Promise<boolean> {
+    if (count === 3) {
+      await this.fanService.turnOff('fan.master_bedroom_ceiling_fan');
+    }
     return true;
   }
 
   @Trace()
-  @OnEvent(`${ROOM_NAMES.master}/areaOff`)
-  public async areaOff(): Promise<boolean> {
-    return true;
-  }
-
-  @Trace()
-  @OnEvent(`${ROOM_NAMES.master}/areaOn`)
   public async areaOn(): Promise<boolean> {
     return true;
   }
 
   @Trace()
-  @OnEvent(`${ROOM_NAMES.master}/dimDown`)
+  public async combo(): Promise<boolean> {
+    return true;
+  }
+
+  @Trace()
   public async dimDown(): Promise<boolean> {
     return true;
   }
 
   @Trace()
-  @OnEvent(`${ROOM_NAMES.master}/dimUp`)
   public async dimUp(): Promise<boolean> {
     return true;
   }
 
   @Trace()
-  @OnEvent(`${ROOM_NAMES.master}/favorite`)
   public async favorite(count: number): Promise<boolean> {
-    if (this.solarCalcService.IS_EVENING) {
-      await this.eveningFavorite(count);
-      return true;
+    if (count === 1) {
+      await this.switchService.turnOff('switch.womp');
+      await this.lightService.turnOff([
+        'light.bedroom_fan_top_left',
+        'light.bedroom_fan_top_right',
+        'light.bedroom_fan_bottom_left',
+        'light.bedroom_fan_bottom_right',
+      ]);
+      await this.lightingController.circadianLight(['light.speaker_light'], 40);
     }
-    await this.dayFavorite();
-    return true;
+    if (count === 2) {
+      await this.lightingController.roomOff([
+        ROOM_NAMES.loft,
+        ROOM_NAMES.downstairs,
+        ROOM_NAMES.games,
+      ]);
+    }
+    return false;
   }
 
   // #endregion Public Methods
@@ -112,27 +122,4 @@ export class MasterBedroomService implements RoomController {
   }
 
   // #endregion Protected Methods
-
-  // #region Private Methods
-
-  @Trace()
-  private async dayFavorite(): Promise<void> {
-    await this.lightingController.areaOn(1, this);
-  }
-
-  @Trace()
-  private async eveningFavorite(count: number): Promise<void> {
-    if (count === 1) {
-      await this.switchService.turnOff('switch.womp');
-      await this.lightService.turnOff([
-        'light.bedroom_fan_top_left',
-        'light.bedroom_fan_top_right',
-        'light.bedroom_fan_bottom_left',
-        'light.bedroom_fan_bottom_right',
-      ]);
-      await this.lightService.turnOn(['light.speaker_light']);
-    }
-  }
-
-  // #endregion Private Methods
 }

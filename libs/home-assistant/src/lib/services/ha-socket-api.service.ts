@@ -124,7 +124,7 @@ export class HASocketAPIService {
       // Resolution is to re-connect when it's up again
       this.logger.error(`Failed to pong!`);
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error({ error }, `ping error`);
     }
     this.initConnection(true);
   }
@@ -157,7 +157,7 @@ export class HASocketAPIService {
         this.onMessage(JSON.parse(message.data));
       });
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error({ error }, `initConnection error`);
     }
   }
 

@@ -93,7 +93,7 @@ export class LoftService extends EntityService implements RoomController {
 
   @Trace()
   public async areaOff(count: number): Promise<boolean> {
-    await this.cacheManager.set(`LOFT_AUTO_MODE`, false);
+    await this.cacheManager.del(`LOFT_AUTO_MODE`);
     if (count === 2) {
       await this.remoteService.turnOff(monitor);
       this.eventEmitter.emit(GLOBAL_TRANSITION);
@@ -106,7 +106,7 @@ export class LoftService extends EntityService implements RoomController {
 
   @Trace()
   public async areaOn(): Promise<boolean> {
-    await this.cacheManager.set(`LOFT_AUTO_MODE`, false);
+    await this.cacheManager.del(`LOFT_AUTO_MODE`);
     return true;
   }
 
@@ -117,24 +117,23 @@ export class LoftService extends EntityService implements RoomController {
 
   @Trace()
   public async dimDown(): Promise<boolean> {
-    await this.cacheManager.set(`LOFT_AUTO_MODE`, false);
+    await this.cacheManager.del(`LOFT_AUTO_MODE`);
     return true;
   }
 
   @Trace()
   public async dimUp(): Promise<boolean> {
-    await this.cacheManager.set(`LOFT_AUTO_MODE`, false);
+    await this.cacheManager.del(`LOFT_AUTO_MODE`);
     return true;
   }
 
   @Trace()
   public async favorite(count: number): Promise<boolean> {
-    await this.cacheManager.set(`LOFT_AUTO_MODE`, true);
+    await this.cacheManager.set(`LOFT_AUTO_MODE`, true, {
+      ttl: 60 * 60 * 24,
+    });
     if (count === 1) {
-      const entity = this.ENTITIES.get(monitor);
-      if (entity?.state !== 'on') {
-        await this.remoteService.turnOn(monitor);
-      }
+      await this.remoteService.turnOn(monitor);
     }
     const hour = dayjs().hour();
     if (count === 1) {
@@ -181,26 +180,14 @@ export class LoftService extends EntityService implements RoomController {
       return;
     }
     const brightness = this.fanAutoBrightness();
-    const [light] = this.entityManager.getEntity<LightStateDTO>(FAN_LIGHTS);
     if (brightness === 0) {
-      if (light.state === 'on') {
-        await this.lightingController.turnOff(PANEL_LIGHTS);
-      }
+      await this.lightingController.turnOff(PANEL_LIGHTS);
       return;
     }
-    if (light.attributes.brightness === brightness) {
+    if (this.lightingController.getBrightness(FAN_LIGHTS[0]) === brightness) {
       return;
     }
     await this.lightingController.circadianLight(FAN_LIGHTS, brightness);
-  }
-
-  @Cron('0 0 23 * * *')
-  protected async goToBed(): Promise<void> {
-    if (!(await this.cacheManager.get(`LOFT_AUTO_MODE`))) {
-      return;
-    }
-    await this.cacheManager.set(`LOFT_AUTO_MODE`, false);
-    this.switchService.turnOff(['switch.desk_light']);
   }
 
   @Cron('0 0 22 * * *')
@@ -235,9 +222,19 @@ export class LoftService extends EntityService implements RoomController {
     await this.lightingController.circadianLight(PANEL_LIGHTS, brightness);
   }
 
-  protected onModuleInit(): void {
+  @Cron('0 45 22 * * *')
+  protected async windDown(): Promise<void> {
+    if (!(await this.cacheManager.get(`LOFT_AUTO_MODE`))) {
+      return;
+    }
+    this.switchService.turnOff(['switch.desk_light']);
+  }
+
+  protected async onModuleInit(): Promise<void> {
     this.lightingController.setRoomController('sensor.loft_pico', this);
     this.trackEntity(monitor);
+    const LOFT_AUTO_MODE = await this.cacheManager.get(`LOFT_AUTO_MODE`);
+    this.logger.debug({ LOFT_AUTO_MODE }, 'LOFT_AUTO_MODE');
   }
 
   // #endregion Protected Methods
@@ -310,7 +307,14 @@ export class LoftService extends EntityService implements RoomController {
     }
     // Start winding down
     if (hour === 16) {
-      const brightness = 100 - this.ticksThisHour(minute, second);
+      if (minute < 10) {
+        return;
+      }
+      const brightness = 120 - this.ticksThisHour(minute, second);
+      this.logger.debug(
+        { brightness },
+        `panelAutoBrightness wind down ${dayjs().format('HH:mm:ss')}`,
+      );
       return brightness < 0 ? 0 : brightness;
     }
     return 0;
@@ -320,7 +324,7 @@ export class LoftService extends EntityService implements RoomController {
    * Increase by 1 every 30 seconds
    */
   private ticksThisHour(minute: number, second: number): number {
-    return minute * 2 + (second > 30 ? 1 : 0);
+    return minute * 2 + (second >= 30 ? 1 : 0);
   }
 
   // #endregion Private Methods

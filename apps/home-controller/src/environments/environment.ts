@@ -5,6 +5,7 @@ export const DEFAULT_SETTINGS: AutomagicalConfig = {
   application: {},
   common: {
     BODY_SIZE: '50mb',
+    CACHE_PROVIDER: 'redis',
     LOG_LEVEL: 'info',
     PORT: 4001,
     REDIS_HOST: 'localhost',
