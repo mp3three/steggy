@@ -1,4 +1,4 @@
-export function EmitAfter(): MethodDecorator {
+export function EmitAfter(eventName: string): MethodDecorator {
   return function (
     target: unknown,
     propertyKey: string,
@@ -6,8 +6,11 @@ export function EmitAfter(): MethodDecorator {
   ): unknown {
     const originalMethod = descriptor.value;
     descriptor.value = async function (...parameters) {
-      const result = await originalMethod.apply(this, parameters);
-      return result;
+      return new Promise(async (done) => {
+        const result = await originalMethod.apply(this, parameters);
+        done(result);
+        this.eventEmitter.emit(eventName, result);
+      });
     };
     return descriptor;
   };

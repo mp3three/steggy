@@ -21,7 +21,7 @@ import {
   SendSocketMessageDTO,
   SocketMessageDTO,
 } from '@automagical/contracts/home-assistant';
-import { InjectLogger, SingleCall, sleep, Trace } from '@automagical/utilities';
+import { EmitAfter, InjectLogger, sleep, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -132,7 +132,7 @@ export class HASocketAPIService {
    * This can be a pretty big list
    */
   @Trace()
-  @SingleCall({ emitAfter: ALL_ENTITIES_UPDATED })
+  @EmitAfter(ALL_ENTITIES_UPDATED)
   public async getAllEntitities(): Promise<HassStateDTO[]> {
     return await this.sendMsg<HassStateDTO[]>({
       type: HASSIO_WS_COMMAND.get_states,
@@ -160,11 +160,6 @@ export class HASocketAPIService {
       this.logger.error(error);
     }
     this.initConnection(true);
-  }
-
-  @Trace()
-  protected async onApplicationBootstrap(): Promise<void> {
-    await this.getAllEntitities();
   }
 
   @Trace()
@@ -233,8 +228,6 @@ export class HASocketAPIService {
         await this.sendMsg({
           type: HASSIO_WS_COMMAND.subscribe_events,
         });
-        await this.getAllEntitities();
-        // Theoretially, all entities are present, and we have an authorized connection
         this.eventEmitter.emit(HA_SOCKET_READY);
         return;
 
