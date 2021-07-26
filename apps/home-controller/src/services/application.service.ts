@@ -7,17 +7,26 @@ import {
   domain,
   HASS_DOMAINS,
 } from '@automagical/contracts/home-assistant';
+import { LightingControllerService } from '@automagical/custom';
 import {
   EntityManagerService,
+  LockDomainService,
   NotifyDomainService,
 } from '@automagical/home-assistant';
-import { InjectLogger, sleep, SolarCalcService } from '@automagical/utilities';
+import {
+  InjectLogger,
+  sleep,
+  SolarCalcService,
+  Subscribe,
+} from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Cron, Timeout } from '@nestjs/schedule';
 import { each } from 'async';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
+
+import { GLOBAL_TRANSITION, ROOM_NAMES } from '../typings';
 
 @Injectable()
 export class ApplicationService {
@@ -36,19 +45,38 @@ export class ApplicationService {
     private readonly solarCalc: SolarCalcService,
     private readonly notifyService: NotifyDomainService,
     private readonly entityManager: EntityManagerService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly lockService: LockDomainService,
+    private readonly lightController: LightingControllerService,
   ) {}
 
   // #endregion Constructors
 
+  // #region Public Accessors
+
+  public get locks(): string[] {
+    return this.entityManager.listEntities().filter((id) => {
+      return domain(id) === HASS_DOMAINS.lock && id.includes('door');
+    });
+  }
+
+  // #endregion Public Accessors
+
   // #region Public Methods
+
+  @Subscribe('mobile/unlock')
+  public async unlockDoors(): Promise<void> {
+    await this.lockService.unlock(this.locks);
+  }
+
+  @Subscribe('mobile/lock')
+  @OnEvent(GLOBAL_TRANSITION)
+  public async lockDoors(): Promise<void> {
+    await this.lockService.lock(this.locks);
+  }
 
   public onModuleInit(): void {
     setTimeout(async () => {
-      this.eventEmitter.emit('asdf', 1);
-      await sleep(100);
-      this.eventEmitter.emit('qwerty', 2);
-      // await this.dayInfo();
+      // await this.lockDoors();
     }, 1000);
   }
 
@@ -111,6 +139,23 @@ export class ApplicationService {
         title: `Temporarily lost connection with Home Assistant`,
       },
     );
+  }
+
+  /**
+   * Home Assistant relayed this request via a mobile app action
+   *
+   * Intended to lock up, turn off the lights, and send back verification
+   */
+  @Subscribe('mobile/leave_home')
+  protected async leaveHome(): Promise<void> {
+    await this.lockDoors();
+    await this.lightController.roomOff([
+      ROOM_NAMES.master,
+      ROOM_NAMES.loft,
+      ROOM_NAMES.downstairs,
+      ROOM_NAMES.guest,
+    ]);
+    //
   }
 
   // #endregion Protected Methods

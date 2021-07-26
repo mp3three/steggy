@@ -11,12 +11,13 @@ import {
 } from '@automagical/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 
-import { ROOM_NAMES } from '../typings';
+import { GLOBAL_TRANSITION, ROOM_NAMES } from '../typings';
 
 const monitor = 'media_player.monitor';
 const PANEL_LIGHTS = ['light.loft_wall_bottom', 'light.loft_wall_top'];
@@ -77,6 +78,7 @@ export class LoftService extends EntityService implements RoomController {
     private readonly lightingController: LightingControllerService,
     private readonly entityManager: EntityManagerService,
     private readonly remoteService: RemoteDomainService,
+    private readonly eventEmitter: EventEmitter2,
     private readonly switchService: SwitchDomainService,
     private readonly fanService: FanDomainService,
     @Inject(CACHE_MANAGER)
@@ -94,6 +96,7 @@ export class LoftService extends EntityService implements RoomController {
     await this.cacheManager.set(`LOFT_AUTO_MODE`, false);
     if (count === 2) {
       await this.remoteService.turnOff(monitor);
+      this.eventEmitter.emit(GLOBAL_TRANSITION);
     }
     if (count === 3) {
       await this.fanService.turnOff('fan.loft_ceiling_fan');

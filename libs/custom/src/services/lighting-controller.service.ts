@@ -231,9 +231,15 @@ export class LightingControllerService {
   }
 
   @Trace()
-  public async roomOff(room: string): Promise<void> {
-    const controller = this.ROOM_MAP.get(room);
-    await this.areaOff(1, controller, true);
+  public async roomOff(rooms: string | string[]): Promise<void> {
+    if (!Array.isArray(rooms)) {
+      rooms = [rooms];
+    }
+    await each(rooms, async (room, callback) => {
+      const controller = this.ROOM_MAP.get(room);
+      await this.areaOff(3, controller, true);
+      callback();
+    });
   }
 
   @Trace()
