@@ -10,7 +10,7 @@ import {
 } from '@automagical/contracts/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PinoLogger } from 'nestjs-pino';
 import { Observable, Subscriber } from 'rxjs';
 
@@ -38,6 +38,7 @@ export class EntityManagerService {
     @InjectLogger(EntityManagerService, LIB_HOME_ASSISTANT)
     private readonly logger: PinoLogger,
     private readonly socketService: HASocketAPIService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   // #endregion Constructors
@@ -104,6 +105,7 @@ export class EntityManagerService {
     this.ENTITIES.set(entity_id, new_state);
     const subscriber = this.SUBSCRIBERS.get(entity_id);
     subscriber?.next(new_state);
+    this.eventEmitter.emit(`${entity_id}/update`, event);
   }
 
   @OnEvent(HA_SOCKET_READY)

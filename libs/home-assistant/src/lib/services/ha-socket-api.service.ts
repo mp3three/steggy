@@ -6,7 +6,6 @@ import {
   ALL_ENTITIES_UPDATED,
   CONNECTION_RESET,
   HA_EVENT_STATE_CHANGE,
-  HA_RAW_EVENT,
   HA_SOCKET_READY,
   LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
@@ -21,7 +20,7 @@ import {
   SendSocketMessageDTO,
   SocketMessageDTO,
 } from '@automagical/contracts/home-assistant';
-import { EmitAfter, InjectLogger, sleep, Trace } from '@automagical/utilities';
+import { EmitAfter, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -29,19 +28,11 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { PinoLogger } from 'nestjs-pino';
 import WS from 'ws';
 
-/**
- * SocketService deals with all communicationsto the HomeAssistant service
- *
- * This is primarily accomplished through the websocket API.
- * Some requests (such as reports) must go through HTTP calls.
- * This service still handles those requests to keep a unified interface
- */
 @Injectable()
 export class HASocketAPIService {
   // #region Object Properties
 
   private connection: WS;
-  private isAuthenticated = false;
   private messageCount = 1;
   private waitingCallback = new Map<number, (result) => void>();
 
@@ -92,37 +83,13 @@ export class HASocketAPIService {
     this.messageCount++;
     const counter = this.messageCount;
     if (data.type !== HASSIO_WS_COMMAND.auth) {
+      // You want know how annoying this one was to debug?!
       data.id = counter;
-    }
-    // eslint-disable-next-line no-loops/no-loops
-    while (this.connection.readyState !== this.connection.OPEN) {
-      this.logger.info(`re-init connection`);
-      try {
-        await this.initConnection(true);
-      } catch (error) {
-        this.logger.error(error);
-        await sleep(5000);
-        continue;
-      }
-      await sleep(1000);
-      return await this.sendMsg(data);
-    }
-    // eslint-disable-next-line no-loops/no-loops
-    while (
-      this.isAuthenticated === false &&
-      data.type !== HASSIO_WS_COMMAND.auth
-    ) {
-      // Something is jumpy
-      // Request went in post-connect but pre-auth
-      // HA_SOCKET_READY is the event to watch for
-      this.logger.warn(`sendMsg waiting for authentication`);
-      await sleep(100);
     }
     this.connection.send(JSON.stringify(data));
     if (!waitForResponse) {
       return;
     }
-    // TODO Add a timer to identify calls that don't receive replies
     return new Promise((done) => this.waitingCallback.set(counter, done));
   }
 
@@ -173,14 +140,11 @@ export class HASocketAPIService {
 
   /**
    * Set up a new websocket connection to home assistant
-   *
-   * TODO: Make this blocking until HA_SOCKET_READY
    */
   @Trace()
   private initConnection(reset = false): void {
     if (reset) {
       this.eventEmitter.emit(CONNECTION_RESET);
-      this.isAuthenticated = false;
       this.connection = undefined;
     }
     if (this.connection) {
@@ -198,9 +162,11 @@ export class HASocketAPIService {
   }
 
   /**
-   * Called on incoming message, acts as router
+   * Called on incoming message.
+   * Intended to interpret the basic concept of the message,
+   * and route it to the correct callback / global channel / etc
    *
-   * ## auth_requored
+   * ## auth_required
    * Hello message from server, should reply back with an auth msg
    * ## auth_ok
    * Follow up with a request to receive all events, and request a current state listing
@@ -213,9 +179,7 @@ export class HASocketAPIService {
    */
   @Trace()
   private async onMessage(message: SocketMessageDTO) {
-    this.logger.trace({ msg: message }, 'onMessage');
     const id = Number(message.id);
-    // let lostInFlight: number;
     switch (message.type as HassSocketMessageTypes) {
       case HassSocketMessageTypes.auth_required:
         return await this.sendMsg({
@@ -224,7 +188,6 @@ export class HASocketAPIService {
         });
 
       case HassSocketMessageTypes.auth_ok:
-        this.isAuthenticated = true;
         await this.sendMsg({
           type: HASSIO_WS_COMMAND.subscribe_events,
         });
@@ -232,13 +195,8 @@ export class HASocketAPIService {
         return;
 
       case HassSocketMessageTypes.event:
-        this.eventEmitter.emit(HA_RAW_EVENT, message.event);
         if (message.event.event_type === HassEvents.state_changed) {
           this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
-          this.eventEmitter.emit(
-            `${message.event.data.entity_id}/update`,
-            message.event,
-          );
         }
         return;
 
@@ -258,6 +216,7 @@ export class HASocketAPIService {
           f(message.result);
         }
         return;
+
       default:
         this.logger.warn(`Unknown websocket message type: ${message.type}`);
     }
