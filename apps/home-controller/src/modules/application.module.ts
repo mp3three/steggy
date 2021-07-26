@@ -3,7 +3,7 @@ import { HomeAssistantModule } from '@automagical/home-assistant';
 import {
   AutomagicalConfigModule,
   CommonImports,
-  MqttModule,
+  MQTTModule,
   UtilitiesModule,
 } from '@automagical/utilities';
 import { Module } from '@nestjs/common';
@@ -24,7 +24,7 @@ import {
     HomeAssistantModule,
     HomeControllerCustomModule,
     UtilitiesModule,
-    MqttModule.forRoot({}),
+    MQTTModule,
     AutomagicalConfigModule.register(APP_NAME, DEFAULT_SETTINGS),
     ...CommonImports(),
   ],

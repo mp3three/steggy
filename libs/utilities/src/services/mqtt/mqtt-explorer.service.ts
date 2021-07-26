@@ -1,11 +1,13 @@
 import { LIB_UTILS } from '@automagical/contracts/constants';
-import type { MqttModuleOptions } from '@automagical/contracts/utilities';
+import type {
+  MqttModuleOptions,
+  MqttSubscribeOptions,
+} from '@automagical/contracts/utilities';
 import {
   MQTT_CLIENT_INSTANCE,
   MQTT_OPTION_PROVIDER,
   MQTT_SUBSCRIBE_OPTIONS,
   MQTT_SUBSCRIBER_PARAMS,
-  MqttSubscribeOptions,
   MqttSubscriber,
   MqttSubscriberParameter,
 } from '@automagical/contracts/utilities';
@@ -17,7 +19,7 @@ import { Client } from 'mqtt';
 import { Packet } from 'mqtt-packet';
 import { PinoLogger } from 'nestjs-pino';
 
-import { InjectLogger } from '../../decorators';
+import { InjectLogger, Trace } from '../../decorators';
 
 /* eslint-disable no-loops/no-loops, security/detect-object-injection, security/detect-non-literal-regexp */
 
@@ -66,29 +68,28 @@ export class MqttExplorerService {
 
   // #region Object Properties
 
-  public subscribers: MqttSubscriber[];
+  public subscribers: MqttSubscriber[] = [];
 
   // #endregion Object Properties
 
   // #region Constructors
 
   constructor(
-    private readonly discoveryService: DiscoveryService,
-    private readonly metadataScanner: MetadataScanner,
     @InjectLogger(MqttExplorerService, LIB_UTILS)
     private readonly logger: PinoLogger,
-    private readonly reflector: Reflector,
     @Inject(MQTT_CLIENT_INSTANCE) private readonly client: Client,
     @Inject(MQTT_OPTION_PROVIDER) private readonly options: MqttModuleOptions,
-  ) {
-    this.subscribers = [];
-  }
+    private readonly discoveryService: DiscoveryService,
+    private readonly metadataScanner: MetadataScanner,
+    private readonly reflector: Reflector,
+  ) {}
 
   // #endregion Constructors
 
-  // #region Public Methods
+  // #region Protected Methods
 
-  public explore(): void {
+  @Trace()
+  protected onModuleInit(): void {
     const providers: InstanceWrapper[] = this.discoveryService.getProviders();
     providers.forEach((wrapper: InstanceWrapper) => {
       const { instance } = wrapper;
@@ -161,7 +162,12 @@ export class MqttExplorerService {
     );
   }
 
-  public preprocess(options: MqttSubscribeOptions): string | string[] {
+  // #endregion Protected Methods
+
+  // #region Private Methods
+
+  @Trace()
+  private preprocess(options: MqttSubscribeOptions): string | string[] {
     const processTopic = (topic) => {
       const queue =
         typeof options.queue === 'boolean' ? options.queue : this.options.queue;
@@ -185,7 +191,16 @@ export class MqttExplorerService {
       : processTopic(options.topic);
   }
 
-  public subscribe(
+  private getSubscriber(topic: string): MqttSubscriber {
+    for (const subscriber of this.subscribers) {
+      subscriber.regexp.lastIndex = 0;
+      if (subscriber.regexp.test(topic)) {
+        return subscriber;
+      }
+    }
+  }
+
+  private subscribe(
     options: MqttSubscribeOptions,
     parameters: MqttSubscriberParameter[],
     handle: (...parameters) => void,
@@ -214,27 +229,6 @@ export class MqttExplorerService {
         this.logger.error(`subscribe topic [${options.topic} failed]`);
       }
     });
-  }
-
-  // #endregion Public Methods
-
-  // #region Protected Methods
-
-  protected onModuleInit(): void {
-    this.explore();
-  }
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
-
-  private getSubscriber(topic: string): MqttSubscriber {
-    for (const subscriber of this.subscribers) {
-      subscriber.regexp.lastIndex = 0;
-      if (subscriber.regexp.test(topic)) {
-        return subscriber;
-      }
-    }
   }
 
   // #endregion Private Methods

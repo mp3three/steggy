@@ -34,6 +34,7 @@
     "interfaces": "mappings",
     "formio-sdk": "middleware",
     "terminal": "batch",
+    "injectors": "expo",
     "compodoc": "docs",
     "home-assistant": "middleware",
     "type-writer": "template",

@@ -1,5 +1,5 @@
 import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
-import { InjectLogger } from '@automagical/utilities';
+import { InjectLogger, Subscribe } from '@automagical/utilities';
 import { PinoLogger } from 'nestjs-pino';
 
 export class GarageService {
@@ -11,4 +11,13 @@ export class GarageService {
   ) {}
 
   // #endregion Constructors
+
+  // #region Protected Methods
+
+  @Subscribe('test')
+  protected subscriber(): void {
+    return;
+  }
+
+  // #endregion Protected Methods
 }
