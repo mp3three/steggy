@@ -24,21 +24,7 @@ export function CommonImports(): DynamicModule[] {
         };
       },
     }),
-    CacheModule.registerAsync({
-      inject: [ConfigService],
-      useFactory(configService: ConfigService) {
-        if (configService.get(CACHE_PROVIDER) === 'memory') {
-          return {};
-        }
-        return {
-          host: configService.get(REDIS_HOST),
-          max: Number.POSITIVE_INFINITY,
-          port: configService.get(REDIS_PORT),
-          store: RedisStore,
-          ttl: 60 * 60 * 24,
-        };
-      },
-    }),
+    CacheImport(),
     EventEmitterModule.forRoot({
       delimiter: '/',
       maxListeners: 20,
@@ -46,4 +32,21 @@ export function CommonImports(): DynamicModule[] {
       wildcard: true,
     }),
   ];
+}
+export function CacheImport(): DynamicModule {
+  return CacheModule.registerAsync({
+    inject: [ConfigService],
+    useFactory(configService: ConfigService) {
+      if (configService.get(CACHE_PROVIDER) === 'memory') {
+        return {};
+      }
+      return {
+        host: configService.get(REDIS_HOST),
+        max: Number.POSITIVE_INFINITY,
+        port: configService.get(REDIS_PORT),
+        store: RedisStore,
+        ttl: 60 * 60 * 24,
+      };
+    },
+  });
 }

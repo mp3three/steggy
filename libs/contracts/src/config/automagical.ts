@@ -1,14 +1,15 @@
+import { APP_HOME_CONTROLLER } from '../constants';
 import { CreateConfigurableAnnotation } from '../decorators';
 import {
   AuthenticationConfig,
   DevtoolsApplicationSettingsDTO,
   FormioSDKConfig,
-  PersistenceConfig,
   ServerConfig,
   UtilsConfig,
 } from '.';
 import { HomeControllerApplicationSettingsDTO } from './apps';
 import { CommonConfig } from './common';
+import { CustomLogicConfig } from './custom';
 import { HomeAssistantConfig } from './home-assistant';
 
 const ConfigurableProperty = CreateConfigurableAnnotation();
@@ -16,6 +17,15 @@ const ConfigurableProperty = CreateConfigurableAnnotation();
 class ConfigLibs {
   // #region Object Properties
 
+  @ConfigurableProperty({
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'available',
+    },
+    type: {
+      reference: CustomLogicConfig,
+    },
+  })
+  public custom?: CustomLogicConfig;
   @ConfigurableProperty({
     applications: {},
     type: {
@@ -37,13 +47,6 @@ class ConfigLibs {
     },
   })
   public homeassistant?: HomeAssistantConfig;
-  @ConfigurableProperty({
-    applications: {},
-    type: {
-      reference: PersistenceConfig,
-    },
-  })
-  public persistence?: PersistenceConfig;
   @ConfigurableProperty({
     applications: {},
     type: {

@@ -8,11 +8,11 @@ import { HACallService } from '../services';
  * https://www.home-assistant.io/integrations/remote/
  */
 @Injectable()
-export class RemoteDomainService {
+export class MediaPlayerDomainService {
   // #region Constructors
 
   constructor(private readonly callService: HACallService) {
-    callService.domain = HASS_DOMAINS.remote;
+    callService.domain = HASS_DOMAINS.media_player;
   }
 
   // #endregion Constructors

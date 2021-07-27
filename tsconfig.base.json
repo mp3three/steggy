@@ -25,6 +25,9 @@
       "@automagical/contracts/constants": [
         "libs/contracts/src/constants/index.ts"
       ],
+      "@automagical/contracts/custom": [
+        "libs/contracts/src/libs/custom/index.ts"
+      ],
       "@automagical/contracts/formio-sdk": [
         "libs/contracts/src/libs/formio-sdk/index.ts"
       ],

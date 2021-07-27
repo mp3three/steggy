@@ -1,11 +1,14 @@
-import { ControllerSettings, RoomController } from '@automagical/contracts';
+import { RoomController } from '@automagical/contracts';
 import { LightStateDTO } from '@automagical/contracts/home-assistant';
-import { LightingControllerService } from '@automagical/custom';
+import {
+  LightingControllerService,
+  LightManagerService,
+} from '@automagical/custom';
 import {
   EntityManagerService,
   EntityService,
   FanDomainService,
-  RemoteDomainService,
+  MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
 import { Debug, InjectLogger, sleep, Trace } from '@automagical/utilities';
@@ -53,9 +56,10 @@ export class LoftService extends EntityService implements RoomController {
   constructor(
     @InjectLogger()
     protected readonly logger: PinoLogger,
+    private readonly lightManager: LightManagerService,
     private readonly lightingController: LightingControllerService,
     private readonly entityManager: EntityManagerService,
-    private readonly remoteService: RemoteDomainService,
+    private readonly remoteService: MediaPlayerDomainService,
     private readonly eventEmitter: EventEmitter2,
     private readonly switchService: SwitchDomainService,
     private readonly fanService: FanDomainService,
@@ -85,6 +89,7 @@ export class LoftService extends EntityService implements RoomController {
       this.eventEmitter.emit(GLOBAL_TRANSITION);
     }
     if (count === 3) {
+      await this.remoteService.turnOff(monitor);
       await this.fanService.turnOff('fan.loft_ceiling_fan');
     }
     return true;
@@ -118,9 +123,6 @@ export class LoftService extends EntityService implements RoomController {
     await this.cacheManager.set(`LOFT_AUTO_MODE`, true, {
       ttl: 60 * 60 * 24,
     });
-    if (count === 1) {
-      await this.remoteService.turnOn(monitor);
-    }
     const hour = dayjs().hour();
     if (count === 1) {
       // Set fan
@@ -149,6 +151,7 @@ export class LoftService extends EntityService implements RoomController {
       return false;
     }
     if (count === 2) {
+      await this.remoteService.turnOn(monitor);
       this.lightingController.roomOff(ROOM_NAMES.master);
       this.lightingController.roomOff(ROOM_NAMES.downstairs);
       this.lightingController.roomOff(ROOM_NAMES.games);
@@ -175,15 +178,12 @@ export class LoftService extends EntityService implements RoomController {
     if (!(await this.AUTO_MODE)) {
       return;
     }
-    const brightness = this.fanAutoBrightness();
-    if (brightness === 0) {
+    const target = this.fanAutoBrightness();
+    if (target === 0) {
       await this.lightingController.turnOff(PANEL_LIGHTS);
       return;
     }
-    if (this.lightingController.getBrightness(FAN_LIGHTS[0]) === brightness) {
-      return;
-    }
-    await this.lightingController.circadianLight(FAN_LIGHTS, brightness);
+    await this.lightingController.circadianLight(FAN_LIGHTS, target);
   }
 
   @Cron('0 0 22 * * *')

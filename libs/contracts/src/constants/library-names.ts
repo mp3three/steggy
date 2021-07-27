@@ -10,7 +10,6 @@ export const LIB_CONTRACTS = Symbol('contracts');
 export const LIB_CUSTOM = Symbol('custom');
 export const LIB_FORMIO_SDK = Symbol('formiosdk');
 export const LIB_HOME_ASSISTANT = Symbol('homeassistant');
-export const LIB_PERSISTENCE = Symbol('persistence');
 export const LIB_TERMINAL = Symbol('terminal');
 export const LIB_SERVER = Symbol('server');
 export const LIB_TESTING = Symbol('testing');
@@ -34,7 +33,6 @@ export const LIBRARY_LIST = [
   LIB_CUSTOM.description,
   LIB_FORMIO_SDK.description,
   LIB_HOME_ASSISTANT.description,
-  LIB_PERSISTENCE.description,
   LIB_SERVER.description,
   LIB_TERMINAL.description,
   LIB_TESTING.description,
