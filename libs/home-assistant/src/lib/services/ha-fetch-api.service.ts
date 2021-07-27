@@ -2,21 +2,17 @@ import {
   HOME_ASSISTANT_BASE_URL,
   HOME_ASSISTANT_TOKEN,
 } from '@automagical/contracts/config';
-import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
 import type { FetchWith } from '@automagical/contracts/utilities';
-import { FetchService, InjectLogger, Trace } from '@automagical/utilities';
+import { FetchService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import dayjs from 'dayjs';
-import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class HomeAssistantFetchAPIService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(HomeAssistantFetchAPIService, LIB_HOME_ASSISTANT)
-    private readonly logger: PinoLogger,
     private readonly configService: ConfigService,
     private readonly fetchService: FetchService,
   ) {}

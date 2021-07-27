@@ -1,6 +1,5 @@
 import { LocalStashDTO, ResponseLocals } from '@automagical/contracts';
 import { MAX_STASH_DEPTH } from '@automagical/contracts/config';
-import { LIB_UTILS } from '@automagical/contracts/constants';
 import { APIRequest } from '@automagical/contracts/server';
 import {
   Inject,
@@ -28,7 +27,7 @@ export class LocalsService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(LocalsService, LIB_UTILS) private readonly logger: PinoLogger,
+    @InjectLogger() private readonly logger: PinoLogger,
     @Inject(APIRequest) private readonly request: APIRequest,
     private readonly configService: ConfigService,
   ) {}

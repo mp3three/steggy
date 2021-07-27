@@ -1,7 +1,6 @@
 import { ResponseLocals } from '@automagical/contracts';
-import { LIB_SERVER } from '@automagical/contracts/constants';
 import { APIResponse, SERVER_METADATA } from '@automagical/contracts/server';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { Trace } from '@automagical/utilities';
 import {
   CallHandler,
   ExecutionContext,
@@ -10,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { PinoLogger } from 'nestjs-pino';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -19,8 +17,6 @@ export class EmitAfterInterceptor implements NestInterceptor {
   // #region Constructors
 
   constructor(
-    @InjectLogger(EmitAfterInterceptor, LIB_SERVER)
-    private readonly logger: PinoLogger,
     private readonly reflector: Reflector,
     private readonly eventEmitter: EventEmitter2,
   ) {}

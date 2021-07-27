@@ -1,4 +1,3 @@
-import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
 import {
   FanSpeeds,
   FanStateDTO,
@@ -26,7 +25,7 @@ export class FanDomainService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(FanDomainService, LIB_HOME_ASSISTANT)
+    @InjectLogger()
     private readonly logger: PinoLogger,
     private readonly callService: HACallService,
     private readonly entityManager: EntityManagerService,

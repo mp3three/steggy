@@ -1,8 +1,6 @@
-import { LIB_AUTHENTICATION } from '@automagical/contracts/constants';
 import { APIResponse } from '@automagical/contracts/server';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { Trace } from '@automagical/utilities';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { PinoLogger } from 'nestjs-pino';
 import { Observable } from 'rxjs';
 
 /**
@@ -10,15 +8,6 @@ import { Observable } from 'rxjs';
  */
 @Injectable()
 export class AuthBypassGuard implements CanActivate {
-  // #region Constructors
-
-  constructor(
-    @InjectLogger(AuthBypassGuard, LIB_AUTHENTICATION)
-    private readonly logger: PinoLogger,
-  ) {}
-
-  // #endregion Constructors
-
   // #region Public Methods
 
   @Trace()

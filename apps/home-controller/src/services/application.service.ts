@@ -1,7 +1,4 @@
-import {
-  APP_HOME_CONTROLLER,
-  HA_SOCKET_READY,
-} from '@automagical/contracts/constants';
+import { HA_SOCKET_READY } from '@automagical/contracts/constants';
 import {
   BatteryStateDTO,
   domain,
@@ -14,15 +11,16 @@ import {
   NotifyDomainService,
 } from '@automagical/home-assistant';
 import {
+  Debug,
   InjectLogger,
-  sleep,
   SolarCalcService,
   Subscribe,
+  Trace,
+  Warn,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { Cron, Timeout } from '@nestjs/schedule';
-import { each } from 'async';
+import { OnEvent } from '@nestjs/event-emitter';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -40,7 +38,7 @@ export class ApplicationService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(ApplicationService, APP_HOME_CONTROLLER)
+    @InjectLogger()
     protected readonly logger: PinoLogger,
     private readonly solarCalc: SolarCalcService,
     private readonly notifyService: NotifyDomainService,
@@ -63,15 +61,17 @@ export class ApplicationService {
 
   // #region Public Methods
 
-  @Subscribe('mobile/unlock')
-  public async unlockDoors(): Promise<void> {
-    await this.lockService.unlock(this.locks);
-  }
-
   @Subscribe('mobile/lock')
   @OnEvent(GLOBAL_TRANSITION)
+  @Warn('Lock Doors')
   public async lockDoors(): Promise<void> {
     await this.lockService.lock(this.locks);
+  }
+
+  @Subscribe('mobile/unlock')
+  @Warn('Unlock Doors')
+  public async unlockDoors(): Promise<void> {
+    await this.lockService.unlock(this.locks);
   }
 
   public onModuleInit(): void {
@@ -90,6 +90,7 @@ export class ApplicationService {
    * Maybe add it as a weekend item
    */
   @Cron('0 0 11 * * Sat')
+  @Debug('Battery monitor')
   protected async batteryMonitor(): Promise<void> {
     const entities = this.entityManager.listEntities().filter((id) => {
       return (
@@ -114,6 +115,7 @@ export class ApplicationService {
    * What time is the big light bulb in the sky going away?
    */
   @Cron('0 0 11 * * *')
+  @Debug('Sending day info')
   protected async dayInfo(): Promise<void> {
     const { SOLAR_CALC } = this.solarCalc;
     const start = dayjs(SOLAR_CALC.goldenHourStart).format('hh:mm');
@@ -128,6 +130,7 @@ export class ApplicationService {
   }
 
   @OnEvent(HA_SOCKET_READY)
+  @Trace()
   protected async onSocketReset(): Promise<void> {
     if (!this.connectionReady) {
       this.connectionReady = true;
@@ -147,6 +150,7 @@ export class ApplicationService {
    * Intended to lock up, turn off the lights, and send back verification
    */
   @Subscribe('mobile/leave_home')
+  @Debug('Home Assistant => Leave Home')
   protected async leaveHome(): Promise<void> {
     await this.lockDoors();
     await this.lightController.roomOff([
@@ -155,7 +159,6 @@ export class ApplicationService {
       ROOM_NAMES.downstairs,
       ROOM_NAMES.guest,
     ]);
-    //
   }
 
   // #endregion Protected Methods

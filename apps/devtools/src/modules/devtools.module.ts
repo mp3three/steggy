@@ -4,6 +4,7 @@ import { MinimalSdkModule } from '@automagical/formio-sdk';
 import { MainCLIModule } from '@automagical/terminal';
 import {
   AutomagicalConfigModule,
+  LoggableModule,
   UtilitiesModule,
 } from '@automagical/utilities';
 import { Module } from '@nestjs/common';
@@ -36,4 +37,5 @@ import { YoinkService } from '../services';
   ],
   providers: [YoinkService],
 })
+@LoggableModule(APP_DEVTOOLS)
 export class DevtoolsModule {}

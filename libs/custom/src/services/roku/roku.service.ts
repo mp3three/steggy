@@ -1,4 +1,3 @@
-import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
 import {
   HomeAssistantRoomRokuDTO,
   RokuInputs,
@@ -22,7 +21,7 @@ export class RokuService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(RokuService, LIB_HOME_ASSISTANT)
+    @InjectLogger()
     private readonly logger: PinoLogger,
     @Inject(CACHE_MANAGER)
     private readonly cacheService: Cache,

@@ -6,7 +6,6 @@ import {
   PORTAL_BASE_URL,
   PROJECT_URL,
 } from '@automagical/contracts/config';
-import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import {
   ProjectDTO,
   UserDataDTO,
@@ -60,7 +59,7 @@ export class FormioSdkService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(FormioSdkService, LIB_FORMIO_SDK)
+    @InjectLogger()
     protected readonly logger: PinoLogger,
     private readonly fetchService: FetchService,
     private readonly configService: ConfigService,

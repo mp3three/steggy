@@ -178,6 +178,12 @@
             "command": "nx webpack-dev home-controller --inspect --port 33334 | pino-pretty"
           }
         },
+        "inspect": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "nx webpack-dev home-controller --inspect inspect-brk --port 33334 | pino-pretty"
+          }
+        },
         "webpack-dev": {
           "executor": "@nrwl/node:execute",
           "options": {
@@ -250,49 +256,6 @@
           "options": {
             "jestConfig": "apps/living-docs/jest.config.js",
             "passWithNoTests": true
-          }
-        }
-      }
-    },
-    "persistence": {
-      "root": "libs/persistence",
-      "sourceRoot": "libs/persistence/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/persistence/**/*.ts"]
-          }
-        },
-        "test-pretty": {
-          "executor": "@nrwl/workspace:run-commands",
-          "options": {
-            "parallel": false,
-            "commands": [
-              {
-                "command": "nx test persistence | pino-pretty"
-              }
-            ]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/persistence"],
-          "options": {
-            "jestConfig": "libs/persistence/jest.config.js",
-            "passWithNoTests": true
-          }
-        },
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": ["{options.outputPath}"],
-          "options": {
-            "outputPath": "dist/libs/persistence",
-            "tsConfig": "libs/persistence/tsconfig.lib.json",
-            "packageJson": "libs/persistence/package.json",
-            "main": "libs/persistence/src/index.ts",
-            "assets": ["libs/persistence/*.md"]
           }
         }
       }

@@ -1,18 +1,14 @@
-import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
 import { HASS_DOMAINS } from '@automagical/contracts/home-assistant';
-import { InjectLogger, Trace } from '@automagical/utilities';
-import { PinoLogger } from 'nestjs-pino';
+import { Trace } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 
 import { HACallService } from '../services';
 
+@Injectable()
 export class iCloudDomainService {
   // #region Constructors
 
-  constructor(
-    @InjectLogger(iCloudDomainService, LIB_HOME_ASSISTANT)
-    private readonly logger: PinoLogger,
-    private readonly callService: HACallService,
-  ) {
+  constructor(private readonly callService: HACallService) {
     callService.domain = HASS_DOMAINS.icloud;
   }
 

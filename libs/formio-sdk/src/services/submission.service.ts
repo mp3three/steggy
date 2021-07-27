@@ -1,5 +1,4 @@
 import { CrudOptions } from '@automagical/contracts';
-import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import {
   FormDTO,
   ProjectDTO,
@@ -28,7 +27,7 @@ export class SubmissionService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(SubmissionService, LIB_FORMIO_SDK)
+    @InjectLogger()
     protected readonly logger: PinoLogger,
     private readonly formioSdkService: FormioSdkService,
   ) {}

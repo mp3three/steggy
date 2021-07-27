@@ -1,5 +1,7 @@
+import { LIB_UTILS } from '@automagical/contracts/constants';
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 
+import { LoggableModule } from '../../decorators';
 import {
   createEBSConnection,
   EBSModuleAsyncOptions,
@@ -11,6 +13,7 @@ import {
 
 @Global()
 @Module({})
+@LoggableModule(LIB_UTILS)
 export class EBSModule {
   // #region Public Static Methods
 

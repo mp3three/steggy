@@ -1,11 +1,8 @@
-import { ControllerSettings, RoomController } from '@automagical/contracts';
-import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
+import { RoomController } from '@automagical/contracts';
 import { LightingControllerService } from '@automagical/custom';
-import { SwitchDomainService } from '@automagical/home-assistant';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { PinoLogger } from 'nestjs-pino';
 
 import { ROOM_NAMES } from '../typings';
 
@@ -13,68 +10,44 @@ import { ROOM_NAMES } from '../typings';
 export class GamesRoomService implements RoomController {
   // #region Object Properties
 
-  public readonly _CONTROLLER_SETTINGS: ControllerSettings = {
-    devices: [
-      {
-        comboCount: 1,
-        target: [
-          'light.games_1',
-          'light.games_2',
-          'light.games_3',
-          'light.games_lamp',
-        ],
-      },
-    ],
-  };
-
   public name = ROOM_NAMES.games;
 
   // #endregion Object Properties
 
   // #region Constructors
 
-  constructor(
-    @InjectLogger(GamesRoomService, APP_HOME_CONTROLLER)
-    private readonly logger: PinoLogger,
-    private readonly lightingController: LightingControllerService,
-    private readonly switchService: SwitchDomainService,
-  ) {}
+  constructor(private readonly lightingController: LightingControllerService) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
-  @Trace()
-  public async combo(): Promise<boolean> {
-    return true;
-  }
-
-  @Trace()
   @OnEvent(`${ROOM_NAMES.games}/areaOff`)
+  @Trace()
   public async areaOff(): Promise<boolean> {
     return true;
   }
 
-  @Trace()
   @OnEvent(`${ROOM_NAMES.games}/areaOn`)
+  @Trace()
   public async areaOn(): Promise<boolean> {
     return true;
   }
 
-  @Trace()
   @OnEvent(`${ROOM_NAMES.games}/dimDown`)
+  @Trace()
   public async dimDown(): Promise<boolean> {
     return true;
   }
 
-  @Trace()
   @OnEvent(`${ROOM_NAMES.games}/dimUp`)
+  @Trace()
   public async dimUp(): Promise<boolean> {
     return true;
   }
 
-  @Trace()
   @OnEvent(`${ROOM_NAMES.games}/favorite`)
+  @Trace()
   public async favorite(count: number): Promise<boolean> {
     if (count === 1) {
       await this.lightingController.circadianLight(
@@ -92,13 +65,30 @@ export class GamesRoomService implements RoomController {
     return false;
   }
 
+  @Trace()
+  public async combo(): Promise<boolean> {
+    return true;
+  }
+
   // #endregion Public Methods
 
   // #region Protected Methods
 
   @Trace()
   protected onModuleInit(): void {
-    this.lightingController.setRoomController('sensor.games_pico', this);
+    this.lightingController.setRoomController('sensor.games_pico', this, {
+      devices: [
+        {
+          comboCount: 1,
+          target: [
+            'light.games_1',
+            'light.games_2',
+            'light.games_3',
+            'light.games_lamp',
+          ],
+        },
+      ],
+    });
   }
 
   // #endregion Protected Methods

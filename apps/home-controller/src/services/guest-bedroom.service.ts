@@ -1,11 +1,8 @@
 import { ControllerSettings, RoomController } from '@automagical/contracts';
-import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { LightingControllerService } from '@automagical/custom';
-import { SwitchDomainService } from '@automagical/home-assistant';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { PinoLogger } from 'nestjs-pino';
 
 import { ROOM_NAMES } from '../typings';
 
@@ -13,27 +10,13 @@ import { ROOM_NAMES } from '../typings';
 export class GuestBedroomService implements RoomController {
   // #region Object Properties
 
-  public readonly _CONTROLLER_SETTINGS: ControllerSettings = {
-    devices: [
-      {
-        comboCount: 1,
-        target: ['light.guest_left', 'light.guest_right', 'light.guest_door'],
-      },
-    ],
-  };
-
   public name = ROOM_NAMES.guest;
 
   // #endregion Object Properties
 
   // #region Constructors
 
-  constructor(
-    @InjectLogger(GuestBedroomService, APP_HOME_CONTROLLER)
-    private readonly logger: PinoLogger,
-    private readonly lightingController: LightingControllerService,
-    private readonly switchService: SwitchDomainService,
-  ) {}
+  constructor(private readonly lightingController: LightingControllerService) {}
 
   // #endregion Constructors
 
@@ -80,7 +63,14 @@ export class GuestBedroomService implements RoomController {
 
   @Trace()
   protected onModuleInit(): void {
-    this.lightingController.setRoomController('sensor.bedroom_pico', this);
+    this.lightingController.setRoomController('sensor.bedroom_pico', this, {
+      devices: [
+        {
+          comboCount: 1,
+          target: ['light.guest_left', 'light.guest_right', 'light.guest_door'],
+        },
+      ],
+    });
   }
 
   // #endregion Protected Methods

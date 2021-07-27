@@ -1,5 +1,7 @@
+import { LIB_UTILS } from '@automagical/contracts/constants';
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 
+import { LoggableModule } from '../../decorators';
 import {
   createS3Connection,
   getS3ConnectionToken,
@@ -11,6 +13,7 @@ import {
 
 @Global()
 @Module({})
+@LoggableModule(LIB_UTILS)
 export class S3Module {
   // #region Public Static Methods
 

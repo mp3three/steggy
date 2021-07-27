@@ -1,8 +1,10 @@
+import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { HomeControllerCustomModule } from '@automagical/custom';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import {
   AutomagicalConfigModule,
   CommonImports,
+  LoggableModule,
   MQTTModule,
   UtilitiesModule,
 } from '@automagical/utilities';
@@ -40,4 +42,5 @@ import {
     MasterBedroomService,
   ],
 })
+@LoggableModule(APP_HOME_CONTROLLER)
 export class ApplicationModule {}

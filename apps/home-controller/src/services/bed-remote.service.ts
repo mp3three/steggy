@@ -1,22 +1,19 @@
 import { ControllerSettings, RoomController } from '@automagical/contracts';
-import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { LightingControllerService } from '@automagical/custom';
 import {
   FanDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { InjectLogger, Trace } from '@automagical/utilities';
-import { PinoLogger } from 'nestjs-pino';
+import { Trace } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 
 import { ROOM_NAMES } from '../typings';
 import { MasterBedroomService } from './master-bedroom.service';
 
+@Injectable()
 export class BedRemoteService implements RoomController {
   // #region Object Properties
 
-  public readonly _CONTROLLER_SETTINGS: ControllerSettings = {
-    devices: [],
-  };
   public readonly name = ROOM_NAMES.bed;
 
   // #endregion Object Properties
@@ -24,8 +21,6 @@ export class BedRemoteService implements RoomController {
   // #region Constructors
 
   constructor(
-    @InjectLogger(BedRemoteService, APP_HOME_CONTROLLER)
-    private readonly logger: PinoLogger,
     private readonly switchService: SwitchDomainService,
     private readonly fanService: FanDomainService,
     private readonly lightingController: LightingControllerService,
@@ -77,7 +72,9 @@ export class BedRemoteService implements RoomController {
 
   @Trace()
   protected onModuleInit(): void {
-    this.lightingController.setRoomController('sensor.bed_pico', this);
+    this.lightingController.setRoomController('sensor.bed_pico', this, {
+      devices: [],
+    });
   }
 
   // #endregion Protected Methods

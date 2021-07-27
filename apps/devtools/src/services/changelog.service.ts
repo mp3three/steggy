@@ -1,4 +1,3 @@
-import { APP_DEVTOOLS } from '@automagical/contracts/constants';
 import { FormDTO } from '@automagical/contracts/formio-sdk';
 import {
   ChangelogDataDTO,
@@ -22,7 +21,7 @@ export class ChangelogREPL2 {
   // #region Constructors
 
   constructor(
-    @InjectLogger(ChangelogREPL2, APP_DEVTOOLS)
+    @InjectLogger()
     private readonly logger: PinoLogger,
     private readonly submissionService: SubmissionService,
     private readonly formService: FormService,

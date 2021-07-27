@@ -1,4 +1,3 @@
-import { LIB_UTILS } from '@automagical/contracts/constants';
 import { FetchArguments } from '@automagical/contracts/utilities';
 import { Injectable, Scope } from '@nestjs/common';
 import { createWriteStream } from 'fs';
@@ -19,7 +18,7 @@ export class FetchService extends BaseFetch {
   // #region Constructors
 
   constructor(
-    @InjectLogger(FetchService, LIB_UTILS)
+    @InjectLogger()
     protected readonly logger: PinoLogger,
   ) {
     super();

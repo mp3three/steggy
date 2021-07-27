@@ -1,13 +1,11 @@
 import { CrudOptions } from '@automagical/contracts';
-import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import { FormDTO, ProjectDTO } from '@automagical/contracts/formio-sdk';
 import {
   HTTP_METHODS,
   ResultControlDTO,
 } from '@automagical/contracts/utilities';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { PinoLogger } from 'nestjs-pino';
 
 import { FormioSdkService } from './formio-sdk.service';
 
@@ -15,11 +13,7 @@ import { FormioSdkService } from './formio-sdk.service';
 export class FormService {
   // #region Constructors
 
-  constructor(
-    @InjectLogger(FormService, LIB_FORMIO_SDK)
-    private readonly logger: PinoLogger,
-    private readonly formioSdkService: FormioSdkService,
-  ) {}
+  constructor(private readonly formioSdkService: FormioSdkService) {}
 
   // #endregion Constructors
 

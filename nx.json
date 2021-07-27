@@ -51,9 +51,6 @@
     "living-docs": {
       "tags": []
     },
-    "persistence": {
-      "tags": ["backend", "data"]
-    },
     "server": {
       "tags": []
     },

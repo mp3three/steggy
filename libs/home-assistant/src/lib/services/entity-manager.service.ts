@@ -2,16 +2,14 @@ import {
   ALL_ENTITIES_UPDATED,
   HA_EVENT_STATE_CHANGE,
   HA_SOCKET_READY,
-  LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {
   HassEventDTO,
   HassStateDTO,
 } from '@automagical/contracts/home-assistant';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { PinoLogger } from 'nestjs-pino';
 import { Observable, Subscriber } from 'rxjs';
 
 import { HASocketAPIService } from './ha-socket-api.service';
@@ -35,8 +33,6 @@ export class EntityManagerService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(EntityManagerService, LIB_HOME_ASSISTANT)
-    private readonly logger: PinoLogger,
     private readonly socketService: HASocketAPIService,
     private readonly eventEmitter: EventEmitter2,
   ) {}

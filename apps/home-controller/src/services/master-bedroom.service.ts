@@ -1,46 +1,18 @@
 import { ControllerSettings, RoomController } from '@automagical/contracts';
-import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
-import { PicoStates } from '@automagical/contracts/home-assistant';
 import { LightingControllerService } from '@automagical/custom';
 import {
   FanDomainService,
   LightDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { InjectLogger, SolarCalcService, Trace } from '@automagical/utilities';
+import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
-import { PinoLogger } from 'nestjs-pino';
 
 import { ROOM_NAMES } from '../typings';
 
 @Injectable()
 export class MasterBedroomService implements RoomController {
   // #region Object Properties
-
-  public readonly _CONTROLLER_SETTINGS: ControllerSettings = {
-    devices: [
-      {
-        comboCount: 1,
-        target: [
-          'switch.womp',
-          'light.speaker_light',
-          'light.bedroom_fan_top_left',
-          'light.bedroom_fan_top_right',
-          'light.bedroom_fan_bottom_left',
-          'light.bedroom_fan_bottom_right',
-        ],
-      },
-      {
-        comboCount: 2,
-        rooms: [ROOM_NAMES.loft, { name: ROOM_NAMES.downstairs, type: 'off' }],
-      },
-      {
-        comboCount: 3,
-        rooms: [ROOM_NAMES.downstairs],
-      },
-    ],
-  };
 
   public name = ROOM_NAMES.master;
 
@@ -49,11 +21,8 @@ export class MasterBedroomService implements RoomController {
   // #region Constructors
 
   constructor(
-    @InjectLogger(MasterBedroomService, APP_HOME_CONTROLLER)
-    private readonly logger: PinoLogger,
     private readonly lightingController: LightingControllerService,
     private readonly switchService: SwitchDomainService,
-    private readonly solarCalcService: SolarCalcService,
     private readonly lightService: LightDomainService,
     private readonly fanService: FanDomainService,
   ) {}
@@ -118,7 +87,32 @@ export class MasterBedroomService implements RoomController {
 
   @Trace()
   protected onModuleInit(): void {
-    this.lightingController.setRoomController('sensor.bedroom_pico', this);
+    this.lightingController.setRoomController('sensor.bedroom_pico', this, {
+      devices: [
+        {
+          comboCount: 1,
+          target: [
+            'switch.womp',
+            'light.speaker_light',
+            'light.bedroom_fan_top_left',
+            'light.bedroom_fan_top_right',
+            'light.bedroom_fan_bottom_left',
+            'light.bedroom_fan_bottom_right',
+          ],
+        },
+        {
+          comboCount: 2,
+          rooms: [
+            ROOM_NAMES.loft,
+            { name: ROOM_NAMES.downstairs, type: 'off' },
+          ],
+        },
+        {
+          comboCount: 3,
+          rooms: [ROOM_NAMES.downstairs],
+        },
+      ],
+    });
   }
 
   // #endregion Protected Methods

@@ -1,4 +1,3 @@
-import { LIB_CUSTOM } from '@automagical/contracts/constants';
 import { InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
@@ -13,7 +12,7 @@ export class LightFlashService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(LightFlashService, LIB_CUSTOM)
+    @InjectLogger()
     private readonly logger: PinoLogger,
     private readonly lightingController: LightingControllerService,
   ) {}

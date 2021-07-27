@@ -1,10 +1,13 @@
 import { AutomagicalConfig } from '@automagical/contracts/config';
-import { LIB_TESTING } from '@automagical/contracts/constants';
+import { LIB_TESTING, LIB_UTILS } from '@automagical/contracts/constants';
 import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import rc from 'rc';
 
+import { LoggableModule } from '../decorators';
+
 @Module({})
+@LoggableModule(LIB_UTILS)
 export class AutomagicalConfigModule {
   // #region Static Properties
 

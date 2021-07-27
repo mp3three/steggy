@@ -1,6 +1,5 @@
 import { CrudOptions } from '@automagical/contracts';
 import { BASE_PROJECT, PROJECT_URL } from '@automagical/contracts/config';
-import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
 import { ProjectDTO, UserDTO } from '@automagical/contracts/formio-sdk';
 import {
   FetchWith,
@@ -20,7 +19,7 @@ export class ProjectService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(ProjectService, LIB_FORMIO_SDK)
+    @InjectLogger()
     protected readonly logger: PinoLogger,
     @Inject(forwardRef(() => FormioSdkService))
     protected readonly formioSdkService: FormioSdkService,

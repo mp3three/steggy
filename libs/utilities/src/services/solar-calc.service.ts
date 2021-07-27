@@ -1,13 +1,11 @@
 import { LATITUDE, LONGITUDE } from '@automagical/contracts/config';
-import { LIB_UTILS } from '@automagical/contracts/constants';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import dayjs from 'dayjs';
-import { PinoLogger } from 'nestjs-pino';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
 
-import { InjectLogger } from '../decorators';
-
+@Injectable()
 export class SolarCalcService {
   // #region Object Properties
 
@@ -17,11 +15,7 @@ export class SolarCalcService {
 
   // #region Constructors
 
-  constructor(
-    @InjectLogger(SolarCalcService, LIB_UTILS)
-    private readonly logger: PinoLogger,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly configService: ConfigService) {}
 
   // #endregion Constructors
 

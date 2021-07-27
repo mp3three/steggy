@@ -1,3 +1,4 @@
+import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
 import { PinoLogger } from 'nestjs-pino';
 
 type TraceArguments = {
@@ -12,7 +13,7 @@ type TraceArguments = {
 };
 let TRACE_ENABLED = true;
 
-export function SetTrace(state: boolean): void {
+export function SetTrace2(state: boolean): void {
   TRACE_ENABLED = state;
 }
 
@@ -22,7 +23,7 @@ export function SetTrace(state: boolean): void {
  *
  * Must follow the repository pattern of injecting PinoLogger as this.logger
  */
-export function Trace(config: TraceArguments = {}): MethodDecorator {
+export function Trace2(config: TraceArguments = {}): MethodDecorator {
   return function (
     target: unknown,
     propertyKey: string,
@@ -51,7 +52,7 @@ export function Trace(config: TraceArguments = {}): MethodDecorator {
     return descriptor;
   };
 }
-export function Debug(config: TraceArguments = {}): MethodDecorator {
+export function Debug2(config: TraceArguments = {}): MethodDecorator {
   return function (
     target: unknown,
     propertyKey: string,
@@ -85,8 +86,8 @@ export function Debug(config: TraceArguments = {}): MethodDecorator {
 export function CallAlert(
   message?: string,
   level?: keyof PinoLogger,
-): ReturnType<typeof Trace> {
-  return Trace({
+): ReturnType<typeof Trace2> {
+  return Trace2({
     levels: {
       before: level || 'warn',
     },

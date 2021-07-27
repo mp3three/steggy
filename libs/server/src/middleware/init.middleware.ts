@@ -1,15 +1,13 @@
 import { ResponseLocals } from '@automagical/contracts';
-import { LIB_SERVER } from '@automagical/contracts/constants';
 import {
   APIRequest,
   APIResponse,
   USERAGENT_HEADER,
 } from '@automagical/contracts/server';
 import { HTTP_METHODS } from '@automagical/contracts/utilities';
-import { InjectLogger, queryToControl } from '@automagical/utilities';
+import { queryToControl } from '@automagical/utilities';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction } from 'express';
-import { PinoLogger } from 'nestjs-pino';
 
 /**
  * Retreive current user data through a provided JWT_TOKEN header
@@ -18,15 +16,6 @@ import { PinoLogger } from 'nestjs-pino';
  */
 @Injectable()
 export class InitMiddleware implements NestMiddleware {
-  // #region Constructors
-
-  constructor(
-    @InjectLogger(InitMiddleware, LIB_SERVER)
-    private readonly logger: PinoLogger,
-  ) {}
-
-  // #endregion Constructors
-
   // #region Public Methods
 
   public async use(

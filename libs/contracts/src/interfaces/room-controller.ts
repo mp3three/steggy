@@ -42,7 +42,6 @@ export class ControllerSettings {
 export interface RoomController {
   // #region Object Properties
 
-  _CONTROLLER_SETTINGS: ControllerSettings;
   name: string;
 
   // #endregion Object Properties

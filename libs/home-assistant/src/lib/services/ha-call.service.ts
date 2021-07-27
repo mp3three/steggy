@@ -1,11 +1,9 @@
-import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
 import {
   HASS_DOMAINS,
   HASSIO_WS_COMMAND,
 } from '@automagical/contracts/home-assistant';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { Trace } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
-import { PinoLogger } from 'nestjs-pino';
 
 import { HASocketAPIService } from './ha-socket-api.service';
 
@@ -19,11 +17,7 @@ export class HACallService {
 
   // #region Constructors
 
-  constructor(
-    @InjectLogger(HACallService, LIB_HOME_ASSISTANT)
-    private readonly logger: PinoLogger,
-    private readonly socketService: HASocketAPIService,
-  ) {}
+  constructor(private readonly socketService: HASocketAPIService) {}
 
   // #endregion Constructors
 

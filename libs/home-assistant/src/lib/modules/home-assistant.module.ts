@@ -1,3 +1,5 @@
+import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
+import { LoggableModule } from '@automagical/utilities';
 import { Global, Module, Provider } from '@nestjs/common';
 
 import {
@@ -48,4 +50,5 @@ const services: Provider[] = [
   exports: services,
   providers: services,
 })
+@LoggableModule(LIB_HOME_ASSISTANT)
 export class HomeAssistantModule {}

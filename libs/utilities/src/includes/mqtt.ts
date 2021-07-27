@@ -1,7 +1,8 @@
+import { MQTT_HOST, MQTT_PORT } from '@automagical/contracts/config';
+import { LIB_UTILS } from '@automagical/contracts/constants';
 import {
   MQTT_CLIENT_INSTANCE,
   MqttMessageTransformer,
-  MqttModuleOptions,
 } from '@automagical/contracts/utilities';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -16,6 +17,12 @@ export const TextTransform: MqttMessageTransformer = (payload) => {
   return payload.toString('utf-8');
 };
 
+const logger = new PinoLogger({
+  pinoHttp: {
+    level: 'debug',
+  },
+});
+
 export function getTransform(
   transform: 'json' | 'text' | MqttMessageTransformer,
 ): typeof TextTransform {
@@ -25,39 +32,39 @@ export function getTransform(
     return transform === 'text' ? TextTransform : JsonTransform;
   }
 }
+const context = `${LIB_UTILS.description}:includes/mqtt`;
 export function createClientProvider(): Provider {
   return {
-    inject: [ConfigService, PinoLogger],
+    inject: [ConfigService],
     provide: MQTT_CLIENT_INSTANCE,
-    useFactory: (configService: ConfigService, logger: PinoLogger) => {
-      const options: MqttModuleOptions = {
-        host: '10.0.0.33',
-        port: 1883,
-      };
-      const client = connect(options);
+    useFactory: (configService: ConfigService) => {
+      const client = connect({
+        host: configService.get(MQTT_HOST),
+        port: configService.get(MQTT_PORT),
+      });
 
       client.on('connect', () => {
-        logger.info('MQTT connected');
+        logger.debug({ context }, 'MQTT connected');
       });
 
       client.on('disconnect', (packet) => {
-        logger.info({ packet }, 'MQTT disconnected');
+        logger.warn({ context, packet }, 'MQTT disconnected');
       });
 
       client.on('error', (error) => {
-        logger.error({ error }, 'MQTT error');
+        logger.error({ context, error }, 'MQTT error');
       });
 
       client.on('reconnect', () => {
-        logger.info('MQTT reconnecting');
+        logger.debug({ context }, 'MQTT reconnecting');
       });
 
       client.on('close', () => {
-        logger.info('MQTT closed');
+        logger.debug({ context }, 'MQTT closed');
       });
 
       client.on('offline', () => {
-        logger.info('MQTT offline');
+        logger.warn({ context }, 'MQTT offline');
       });
 
       return client;

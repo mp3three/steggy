@@ -1,22 +1,16 @@
-import { LIB_UTILS } from '@automagical/contracts/constants';
 import { SubmissionDTO } from '@automagical/contracts/formio-sdk';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import { PinoLogger } from 'nestjs-pino';
 import hash from 'object-hash';
 import { get } from 'object-path';
 
-import { InjectLogger, Trace } from '../decorators';
+import { Trace } from '../decorators';
 
 @Injectable()
 export class TemplateService {
   // #region Constructors
 
-  constructor(
-    @InjectLogger(TemplateService, LIB_UTILS)
-    private readonly logger: PinoLogger,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
-  ) {}
+  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
   // #endregion Constructors
 

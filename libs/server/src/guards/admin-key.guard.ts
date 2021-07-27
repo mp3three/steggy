@@ -1,6 +1,5 @@
 import { ResponseFlags } from '@automagical/contracts';
 import { ADMIN_KEY } from '@automagical/contracts/config';
-import { LIB_AUTHENTICATION } from '@automagical/contracts/constants';
 import { ADMIN_KEY_HEADER, APIResponse } from '@automagical/contracts/server';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import {
@@ -20,7 +19,7 @@ export class AdminKeyGuard implements CanActivate {
   // #region Constructors
 
   constructor(
-    @InjectLogger(AdminKeyGuard, LIB_AUTHENTICATION)
+    @InjectLogger()
     private readonly logger: PinoLogger,
     private readonly configService: ConfigService,
   ) {}

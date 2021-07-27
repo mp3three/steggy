@@ -7,7 +7,6 @@ import {
   CONNECTION_RESET,
   HA_EVENT_STATE_CHANGE,
   HA_SOCKET_READY,
-  LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {
   AreaDTO,
@@ -41,7 +40,7 @@ export class HASocketAPIService {
   // #region Constructors
 
   constructor(
-    @InjectLogger(HASocketAPIService, LIB_HOME_ASSISTANT)
+    @InjectLogger()
     protected readonly logger: PinoLogger,
     private readonly configService: ConfigService,
     private readonly eventEmitter: EventEmitter2,

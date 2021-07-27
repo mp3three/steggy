@@ -1,8 +1,11 @@
-import type { RoomController, RoomDeviceDTO } from '@automagical/contracts';
+import type {
+  ControllerSettings,
+  RoomController,
+  RoomDeviceDTO,
+} from '@automagical/contracts';
 import {
   ALL_ENTITIES_UPDATED,
   HA_EVENT_STATE_CHANGE,
-  LIB_HOME_ASSISTANT,
 } from '@automagical/contracts/constants';
 import {
   domain,
@@ -50,6 +53,10 @@ export class LightingControllerService {
    * entity_id to controller
    */
   private readonly CONTROLLER_MAP = new Map<string, RoomController>();
+  private readonly CONTROLLER_SETTINGS = new Map<
+    RoomController,
+    ControllerSettings
+  >();
   /**
    * active light domain entities only
    *
@@ -62,12 +69,14 @@ export class LightingControllerService {
   private readonly ROOM_MAP = new Map<string, RoomController>();
   private readonly SUBSCRIBERS = new Map<string, Observable<LightStateDTO>>();
 
+  private CURRENT_TEMP = 0;
+
   // #endregion Object Properties
 
   // #region Constructors
 
   constructor(
-    @InjectLogger(LightingControllerService, LIB_HOME_ASSISTANT)
+    @InjectLogger()
     private readonly logger: PinoLogger,
     private readonly lightService: LightDomainService,
     private readonly hassCoreService: HomeAssistantCoreService,
@@ -90,7 +99,7 @@ export class LightingControllerService {
       return;
     }
     await each(
-      controller._CONTROLLER_SETTINGS.devices,
+      this.CONTROLLER_SETTINGS.get(controller).devices,
       async (device: RoomDeviceDTO, callback) => {
         if (device.comboCount !== count) {
           return;
@@ -129,7 +138,7 @@ export class LightingControllerService {
       return;
     }
     await each(
-      controller._CONTROLLER_SETTINGS.devices,
+      this.CONTROLLER_SETTINGS.get(controller).devices,
       async (device: RoomDeviceDTO, callback) => {
         if (device.comboCount !== count) {
           return;
@@ -259,9 +268,15 @@ export class LightingControllerService {
     await this.areaOn(1, controller, true);
   }
 
-  public setRoomController(controller: string, room: RoomController): void {
+  @Trace()
+  public setRoomController(
+    controller: string,
+    room: RoomController,
+    settings: ControllerSettings,
+  ): void {
     this.CONTROLLER_MAP.set(controller, room);
     this.ROOM_MAP.set(room.name, room);
+    this.CONTROLLER_SETTINGS.set(room, settings);
   }
 
   public async turnOff(entity_id: string[]): Promise<void> {
@@ -284,18 +299,20 @@ export class LightingControllerService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   protected async circadianLightingUpdate(): Promise<void> {
-    const activeLights: string[] = [];
-    this.ENTITY_BRIGHTNESS.forEach(async (brightness, entity_id) => {
-      const [entity] = this.entityManagerService.getEntity([entity_id]);
-      if (!entity) {
-        this.logger.warn(`${entity_id} has no associated data`);
-      }
-      if (entity?.state !== 'on') {
-        return;
-      }
-      activeLights.push(entity_id);
-    });
-    await this.circadianLight(activeLights);
+    await each(
+      this.ENTITY_BRIGHTNESS.entries(),
+      async ([entity_id, brightness], callback) => {
+        const [entity] = this.entityManagerService.getEntity([entity_id]);
+        if (!entity) {
+          this.logger.warn(`${entity_id} has no associated data`);
+        }
+        if (entity?.state !== 'on') {
+          return;
+        }
+        await this.circadianLight(entity_id, brightness);
+        callback();
+      },
+    );
   }
 
   @OnEvent(ALL_ENTITIES_UPDATED)
@@ -345,7 +362,7 @@ export class LightingControllerService {
     const timeout = setTimeout(() => {
       this.ACTION_TIMEOUT.delete(entity_id);
       this.ACTIONS_LIST.delete(entity_id);
-    }, controller._CONTROLLER_SETTINGS?.konamiTimeout ?? 2500);
+    }, this.CONTROLLER_SETTINGS.get(controller)?.konamiTimeout ?? 2500);
     if (this.ACTION_TIMEOUT.has(entity_id)) {
       clearTimeout(this.ACTION_TIMEOUT.get(entity_id));
     }
@@ -398,25 +415,9 @@ export class LightingControllerService {
     return lights.filter((light) => this.ENTITY_BRIGHTNESS.has(light));
   }
 
-  /**
-   * return 0 if off
-   *
-   * return brightness on a 0-100 scale
-   */
-  @Trace()
-  private lightBrightness(entityId: string) {
-    const [entity] = this.entityManagerService.getEntity<LightStateDTO>([
-      entityId,
-    ]);
-    if (entity.state === 'off') {
-      return 0;
-    }
-    return Math.round((entity.attributes.brightness / 256) * 100);
-  }
-
   private findLights(controller: RoomController): string[] {
     const lights = [];
-    controller._CONTROLLER_SETTINGS.devices.forEach((item) => {
+    this.CONTROLLER_SETTINGS.get(controller).devices.forEach((item) => {
       const targets = item.target ?? [];
       targets.forEach((id) => {
         if (domain(id) === HASS_DOMAINS.light && !lights.includes(id)) {

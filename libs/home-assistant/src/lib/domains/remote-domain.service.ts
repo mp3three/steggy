@@ -1,7 +1,5 @@
-import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { PinoLogger } from 'nestjs-pino';
 
 import { HACallService } from '../services';
 
@@ -12,11 +10,7 @@ import { HACallService } from '../services';
 export class RemoteDomainService {
   // #region Constructors
 
-  constructor(
-    @InjectLogger(RemoteDomainService, LIB_HOME_ASSISTANT)
-    private readonly logger: PinoLogger,
-    private readonly callService: HACallService,
-  ) {}
+  constructor(private readonly callService: HACallService) {}
 
   // #endregion Constructors
 
