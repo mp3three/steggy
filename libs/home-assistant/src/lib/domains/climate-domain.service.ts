@@ -1,4 +1,7 @@
-import { HASS_DOMAINS } from '@automagical/contracts/home-assistant';
+import {
+  HASS_DOMAINS,
+  HassStateDTO,
+} from '@automagical/contracts/home-assistant';
 import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
@@ -20,30 +23,40 @@ export class ClimateDomainService {
   // #region Public Methods
 
   @Trace()
-  public async setAuxHeat(entityId: string | string[]): Promise<void> {
-    return await this.callService.call('set_aux_heat', {
+  public async setAuxHeat<T extends HassStateDTO = HassStateDTO>(
+    entityId: string | string[],
+  ): Promise<T> {
+    return await this.callService.call<T>('set_aux_heat', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async setFanMode(entityId: string | string[]): Promise<void> {
-    return await this.callService.call('set_fan_mode', {
+  public async setFanMode<T extends HassStateDTO = HassStateDTO>(
+    entityId: string | string[],
+  ): Promise<T> {
+    return await this.callService.call<T>('set_fan_mode', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async setHumidity(entityId: string | string[]): Promise<void> {
-    return await this.callService.call('set_humidity', {
+  public async setHumidity<T extends HassStateDTO = HassStateDTO>(
+    entityId: string | string[],
+  ): Promise<T> {
+    return await this.callService.call<T>('set_humidity', {
       entity_id: entityId,
     });
   }
 
   @Trace()
-  public async setHvacMode(entityId: string | string[]): Promise<void> {
-    return await this.callService.call('set_hvac_mode', {
+  public async setHvacMode<T extends HassStateDTO = HassStateDTO>(
+    entityId: string | string[],
+    hvac_mode: 'heat_cool' | 'off' | string,
+  ): Promise<T> {
+    return await this.callService.call<T>('set_hvac_mode', {
       entity_id: entityId,
+      hvac_mode,
     });
   }
 

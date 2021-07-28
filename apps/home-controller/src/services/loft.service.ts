@@ -1,12 +1,8 @@
 import { RoomController } from '@automagical/contracts';
 import { LightStateDTO } from '@automagical/contracts/home-assistant';
-import {
-  LightingControllerService,
-  LightManagerService,
-} from '@automagical/custom';
+import { LightingControllerService } from '@automagical/custom';
 import {
   EntityManagerService,
-  EntityService,
   FanDomainService,
   MediaPlayerDomainService,
   SwitchDomainService,
@@ -21,7 +17,7 @@ import { PinoLogger } from 'nestjs-pino';
 
 import { GLOBAL_TRANSITION, ROOM_NAMES } from '../typings';
 
-const monitor = 'media_player.monitor';
+const MONITOR = 'media_player.monitor';
 const PANEL_LIGHTS = ['light.loft_wall_bottom', 'light.loft_wall_top'];
 const FAN_LIGHTS = [
   'light.loft_fan_bench_right',
@@ -44,7 +40,7 @@ const EVENING_BRIGHTNESS = 40;
  * during development.
  */
 @Injectable()
-export class LoftService extends EntityService implements RoomController {
+export class LoftService implements RoomController {
   // #region Object Properties
 
   public name = ROOM_NAMES.loft;
@@ -56,18 +52,15 @@ export class LoftService extends EntityService implements RoomController {
   constructor(
     @InjectLogger()
     protected readonly logger: PinoLogger,
-    private readonly lightManager: LightManagerService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
     private readonly lightingController: LightingControllerService,
     private readonly entityManager: EntityManagerService,
     private readonly remoteService: MediaPlayerDomainService,
     private readonly eventEmitter: EventEmitter2,
     private readonly switchService: SwitchDomainService,
     private readonly fanService: FanDomainService,
-    @Inject(CACHE_MANAGER)
-    private readonly cacheManager: Cache,
-  ) {
-    super();
-  }
+  ) {}
 
   // #endregion Constructors
 
@@ -85,11 +78,11 @@ export class LoftService extends EntityService implements RoomController {
   public async areaOff(count: number): Promise<boolean> {
     await this.cacheManager.del(`LOFT_AUTO_MODE`);
     if (count === 2) {
-      await this.remoteService.turnOff(monitor);
+      await this.remoteService.turnOff(MONITOR);
       this.eventEmitter.emit(GLOBAL_TRANSITION);
     }
     if (count === 3) {
-      await this.remoteService.turnOff(monitor);
+      await this.remoteService.turnOff(MONITOR);
       await this.fanService.turnOff('fan.loft_ceiling_fan');
     }
     return true;
@@ -145,13 +138,13 @@ export class LoftService extends EntityService implements RoomController {
       // Turn off stair light
       await this.switchService.turnOff(['switch.stair_lights']);
       // Hallway light during the day
-      await (hour > 8 && hour < 17
+      await (hour < 17
         ? this.switchService.turnOn(['switch.loft_hallway_light'])
         : this.switchService.turnOff(['switch.loft_hallway_light']));
       return false;
     }
     if (count === 2) {
-      await this.remoteService.turnOn(monitor);
+      await this.remoteService.turnOn(MONITOR);
       this.lightingController.roomOff(ROOM_NAMES.master);
       this.lightingController.roomOff(ROOM_NAMES.downstairs);
       this.lightingController.roomOff(ROOM_NAMES.games);
@@ -162,6 +155,18 @@ export class LoftService extends EntityService implements RoomController {
   // #endregion Public Methods
 
   // #region Protected Methods
+
+  @Cron('0 0 22 * * *')
+  @Debug('Back desk light off')
+  protected async lightOff(): Promise<void> {
+    await this.switchService.turnOff('switch.back_desk_light');
+  }
+
+  @Cron('0 0 7 * * *')
+  @Debug('Back desk light on')
+  protected async lightOn(): Promise<void> {
+    await this.switchService.turnOn('switch.back_desk_light');
+  }
 
   @Cron('0 45 22 * * *')
   @Debug(`Wind Down`)
@@ -180,27 +185,12 @@ export class LoftService extends EntityService implements RoomController {
     }
     const target = this.fanAutoBrightness();
     if (target === 0) {
-      await this.lightingController.turnOff(PANEL_LIGHTS);
+      await this.lightingController.turnOff(FAN_LIGHTS);
       return;
     }
     await this.lightingController.circadianLight(FAN_LIGHTS, target);
   }
 
-  @Cron('0 0 22 * * *')
-  @Trace()
-  protected async lightOff(): Promise<void> {
-    await this.switchService.turnOff('switch.back_desk_light');
-  }
-
-  @Cron('0 0 7 * * *')
-  @Trace()
-  protected async lightOn(): Promise<void> {
-    await this.switchService.turnOn('switch.back_desk_light');
-  }
-
-  /**
-   * 4PM AUTO: Dim panel slowly
-   */
   @Cron(CronExpression.EVERY_30_SECONDS)
   @Trace()
   protected async panelSchedule(): Promise<void> {
@@ -246,7 +236,6 @@ export class LoftService extends EntityService implements RoomController {
         },
       ],
     });
-    this.trackEntity(monitor);
     const LOFT_AUTO_MODE = await this.cacheManager.get(`LOFT_AUTO_MODE`);
     this.logger.debug({ LOFT_AUTO_MODE }, 'LOFT_AUTO_MODE');
   }

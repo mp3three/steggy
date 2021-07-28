@@ -1,7 +1,14 @@
 export enum LightingCacheMode {
+  /**
+   * Circadian lighting controller owns the logic for this device currently
+   */
   circadian = 'circadian',
+  /**
+   * The device is acknowledged as on, but nothing has control currently
+   *
+   * Perhaps manually turned on via home assistant or some other process
+   */
   on = 'on',
-  paused = 'paused',
 }
 
 export class LightingCacheDTO {

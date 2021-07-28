@@ -44,7 +44,7 @@ export function createClientProvider(): Provider {
       });
 
       client.on('connect', () => {
-        logger.debug({ context }, 'MQTT connected');
+        logger.info({ context }, 'MQTT connected');
       });
 
       client.on('disconnect', (packet) => {

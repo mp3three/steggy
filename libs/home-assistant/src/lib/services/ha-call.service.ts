@@ -1,6 +1,7 @@
 import {
   HASS_DOMAINS,
   HASSIO_WS_COMMAND,
+  HassStateDTO,
 } from '@automagical/contracts/home-assistant';
 import { Trace } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
@@ -29,7 +30,7 @@ export class HACallService {
    * Does not wait for a response, meant for issuing commands
    */
   @Trace()
-  public async call<T extends void = void>(
+  public async call<T extends unknown = HassStateDTO>(
     service: string,
     service_data: Record<string, unknown> = {},
     domain?: HASS_DOMAINS,

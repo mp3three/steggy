@@ -8,14 +8,14 @@ fi
 # BUILD
 tools/scripts/docker-build.sh $IMAGE $DIR
 
-NAME=$(cat package.json | grep name | head -n 1 | awk -F: '{ print $2 }' | awk -F, '{ print $1 }'| xargs)
-VERSION=$(cat "apps/$DIR/package.json" | grep version | awk -F: '{ print $2 }' | awk -F, '{ print $1 }'| xargs)
+NAME=$(cat package.json | jq .name)
+VERSION=$(cat "apps/$DIR/package.json" | jq .version)
 SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $NAME/$IMAGE:latest)
 GIT_ID=$(git log -1 --pretty=%h)
 IMAGE=$(echo "$NAME/$IMAGE")
 
 # build up list of tags
-TAGS=$(ts-node tools/scripts/create-tags.js $VERSION $GIT_ID)
+TAGS=$(npx ts-node tools/scripts/create-tags.ts $VERSION $GIT_ID)
 # add tags to image and push
 for TAG in $TAGS
 do

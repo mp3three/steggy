@@ -9,14 +9,13 @@ import {
   HomeAssistantCoreService,
   LightDomainService,
 } from '@automagical/home-assistant';
-import { InjectLogger, SolarCalcService, Trace } from '@automagical/utilities';
+import { SolarCalcService, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { each } from 'async';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
-import { PinoLogger } from 'nestjs-pino';
 
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
 const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
@@ -25,14 +24,13 @@ const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
 export class LightManagerService {
   // #region Object Properties
 
-  private CURRENT_LIGHT_TEMPERATURE: number;
+  public CURRENT_LIGHT_TEMPERATURE: number;
 
   // #endregion Object Properties
 
   // #region Constructors
 
   constructor(
-    @InjectLogger() private readonly logger: PinoLogger,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly hassCoreService: HomeAssistantCoreService,
     private readonly solarCalcService: SolarCalcService,
@@ -118,7 +116,6 @@ export class LightManagerService {
     if (kelvin === this.CURRENT_LIGHT_TEMPERATURE) {
       return;
     }
-    this.logger.debug(`Temperature updated: ${kelvin} k`);
     const lights = await this.getActiveLights();
     await each(lights, async (id, callback) => {
       const state = await this.getState(id);
@@ -126,7 +123,7 @@ export class LightManagerService {
         return;
       }
       await this.turnOn(id, {
-        brightness: state.brightness,
+        ...state,
         kelvin,
       });
       callback();

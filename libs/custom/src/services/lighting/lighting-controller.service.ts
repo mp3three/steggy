@@ -16,7 +16,7 @@ import {
   EntityManagerService,
   HomeAssistantCoreService,
 } from '@automagical/home-assistant';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { Debug, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { each } from 'async';
@@ -75,35 +75,11 @@ export class LightingControllerService {
   public async areaOff(
     count: number,
     controller: RoomController,
-    recurse = false,
   ): Promise<void> {
     if (!(await controller.areaOff(count))) {
       return;
     }
-    await each(
-      this.CONTROLLER_SETTINGS.get(controller).devices,
-      async (device: RoomDeviceDTO, callback) => {
-        if (device.comboCount !== count) {
-          return;
-        }
-        await this.lightManager.turnOff(device.target);
-        if (device.rooms && recurse === false) {
-          await each(device.rooms, async (room, nestedCallback) => {
-            if (typeof room === 'object') {
-              const type = room.type;
-              if (type === 'on') {
-                return;
-              }
-              room = room.name;
-            }
-            const controller = this.ROOM_MAP.get(room);
-            await this.areaOff(count, controller, true);
-            nestedCallback();
-          });
-        }
-        callback();
-      },
-    );
+    await this.passthrough(false, count, controller);
     this.eventEmitter.emit(`${controller.name}/areaOff`, count);
   }
 
@@ -111,40 +87,11 @@ export class LightingControllerService {
   public async areaOn(
     count: number,
     controller: RoomController,
-    recurse = false,
   ): Promise<void> {
     if (!(await controller.areaOn(count))) {
       return;
     }
-    await each(
-      this.CONTROLLER_SETTINGS.get(controller).devices,
-      async (device: RoomDeviceDTO, callback) => {
-        if (device.comboCount !== count) {
-          return;
-        }
-        const lights = device.target?.filter(
-          (item) => domain(item) === HASS_DOMAINS.light,
-        );
-        await this.circadianLight(lights, 100);
-        await this.hassCoreService.turnOn(
-          device.target.filter((item) => domain(item) !== HASS_DOMAINS.light),
-        );
-        if (device.rooms && recurse === false) {
-          await each(device.rooms, async (room, nestedCallback) => {
-            if (typeof room === 'object') {
-              const type = room.type;
-              if (type === 'off') {
-                return;
-              }
-              room = room.name;
-            }
-            await this.areaOn(count, this.ROOM_MAP.get(room), true);
-            nestedCallback();
-          });
-        }
-        callback();
-      },
-    );
+    await this.passthrough(true, count, controller);
     this.eventEmitter.emit(`${controller.name}/areaOn`, count);
   }
 
@@ -221,7 +168,7 @@ export class LightingControllerService {
     }
     await each(rooms, async (room, callback) => {
       const controller = this.ROOM_MAP.get(room);
-      await this.areaOff(3, controller, true);
+      await this.areaOff(3, controller);
       callback();
     });
   }
@@ -229,7 +176,7 @@ export class LightingControllerService {
   @Trace()
   public async roomOn(room: string): Promise<void> {
     const controller = this.ROOM_MAP.get(room);
-    await this.areaOn(1, controller, true);
+    await this.areaOn(1, controller);
   }
 
   @Trace()
@@ -243,10 +190,12 @@ export class LightingControllerService {
     this.CONTROLLER_SETTINGS.set(room, settings);
   }
 
+  @Trace()
   public async turnOff(entity_id: string | string[]): Promise<void> {
     await this.lightManager.turnOff(entity_id);
   }
 
+  @Trace()
   public watch(entityId: string, callback: PicoDirectCallback): void {
     if (this.CALLBACKS.has(entityId)) {
       throw new InternalServerErrorException(
@@ -259,6 +208,65 @@ export class LightingControllerService {
   // #endregion Public Methods
 
   // #region Protected Methods
+
+  @Debug(`Set lighting passthrough`)
+  protected async passthrough(
+    turnOn: boolean,
+    count: number,
+    controller: RoomController,
+    recurse = true,
+  ): Promise<void> {
+    await each(
+      this.CONTROLLER_SETTINGS.get(controller).devices,
+      async (device: RoomDeviceDTO, callback) => {
+        // Filter out wrong results
+        if (device.comboCount !== count) {
+          callback();
+          return;
+        }
+        const lights = device.target?.filter(
+          (item) => domain(item) === HASS_DOMAINS.light,
+        );
+        await (turnOn
+          ? this.circadianLight(lights, 100)
+          : this.turnOff(lights));
+        const switches = device.target?.filter(
+          (item) => domain(item) !== HASS_DOMAINS.light,
+        );
+        await (turnOn
+          ? this.hassCoreService.turnOn(switches)
+          : this.hassCoreService.turnOff(switches));
+        if (!recurse) {
+          callback();
+          return;
+        }
+        if (device.rooms) {
+          await each(device.rooms, async (room, nestedCallback) => {
+            if (typeof room === 'object') {
+              if (
+                (room.type === 'off' && turnOn === true) ||
+                (room.type === 'on' && turnOn === false)
+              ) {
+                nestedCallback();
+                return;
+              }
+              room = room.name;
+            }
+            const levels = Array.from({ length: count }).map(
+              (item, index) => index + 1,
+            );
+            await Promise.all(
+              levels.map(async (level) => {
+                await this.passthrough(turnOn, level, controller, false);
+              }),
+            );
+            nestedCallback();
+          });
+        }
+        callback();
+      },
+    );
+  }
 
   @OnEvent(HA_EVENT_STATE_CHANGE)
   protected async onControllerEvent(
@@ -275,7 +283,7 @@ export class LightingControllerService {
       }
     }
     if (
-      new_state.state === PicoStates.none ||
+      new_state?.state === PicoStates.none ||
       !this.CONTROLLER_MAP.has(entity_id)
     ) {
       return;

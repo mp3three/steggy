@@ -2,8 +2,8 @@ import { APP_HOME_CONTROLLER, LIB_CUSTOM } from '../constants';
 import { CreateConfigurableAnnotation } from '../decorators';
 
 const UsesConfig = CreateConfigurableAnnotation(LIB_CUSTOM.description);
-export const DEFAULT_CIRCADIAN_MIN_TEMP = 2500;
-export const DEFAULT_CIRCADIAN_MAX_TEMP = 6000;
+export const DEFAULT_CIRCADIAN_MIN_TEMP = 2000;
+export const DEFAULT_CIRCADIAN_MAX_TEMP = 5500;
 
 export class CustomLogicConfig {
   // #region Object Properties

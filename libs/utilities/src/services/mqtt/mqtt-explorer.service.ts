@@ -23,7 +23,7 @@ import { getTransform } from '../../includes';
 /* eslint-disable no-loops/no-loops, security/detect-object-injection, security/detect-non-literal-regexp */
 
 @Injectable()
-export class MqttExplorerService {
+export class MQTTExplorerService {
   // #region Private Static Methods
 
   private static matchGroups(string: string, regex: RegExp) {
@@ -108,6 +108,9 @@ export class MqttExplorerService {
             instance[key],
           );
           if (subscribeOptions) {
+            this.logger.info(
+              `MQTT Subscribe ${instance.constructor.name}#${key} (${subscribeOptions.topic})`,
+            );
             this.subscribe(
               subscribeOptions,
               parameters,
@@ -146,7 +149,7 @@ export class MqttExplorerService {
                   case 'packet':
                     return packet;
                   case 'params':
-                    return MqttExplorerService.matchGroups(
+                    return MQTTExplorerService.matchGroups(
                       topic,
                       subscriber.regexp,
                     );
@@ -217,7 +220,7 @@ export class MqttExplorerService {
             options,
             parameters,
             provider,
-            regexp: MqttExplorerService.topicToRegexp(topic),
+            regexp: MQTTExplorerService.topicToRegexp(topic),
             route: topic
               .replace('$queue/', '')
               .replace(/^\$share\/([\dA-Za-z]+)\//, ''),

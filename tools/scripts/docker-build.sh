@@ -14,17 +14,17 @@ fi
 
 ## build metadata
 # application version
-VERSION=$(cat "apps/$DIR/package.json" | grep version | awk -F: '{ print $2 }' | awk -F, '{ print $1 }'| xargs)
+VERSION=$(cat "apps/$DIR/package.json" | jq .version)
 # application description
-DESCRIPTION=$(cat "apps/$DIR/package.json" | grep version | awk -F: '{ print $2 }' | awk -F, '{ print $1 }'| xargs)
+DESCRIPTION=$(cat "apps/$DIR/package.json" | jq .version)
 # root home page
-HOMEPAGE=$(cat package.json | grep url | head -n 1 | awk -F\": '{ print $2 }' | awk -F, '{ print $1 }'| xargs)
+HOMEPAGE=$(cat package.json | jq .author.url)
 # root email
-EMAIL=$(cat package.json | grep email | head -n 1 | awk -F: '{ print $2 }' | awk -F, '{ print $1 }'| xargs)
+EMAIL=$(cat package.json | jq .author.email)
 # root publisher
-PUBLISHER=$(cat package.json | grep publisher | head -n 1 | awk -F: '{ print $2 }' | awk -F, '{ print $1 }'| xargs)
+PUBLISHER=$(cat package.json | jq .publisher)
 # root name ()
-NAME=$(head -n 15 package.json | grep name | tail -n 1 | awk -F: '{ print $2 }' | awk -F, '{ print $1 }'| xargs)
+NAME=$(head -n 15 package.json | jq .author.name)
 BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 VCS_REF=$(git rev-parse --short HEAD)
 VCS_URL=$(git config --get remote.origin.url)

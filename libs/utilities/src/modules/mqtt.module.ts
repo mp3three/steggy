@@ -5,7 +5,7 @@ import { DiscoveryModule } from '@nestjs/core';
 
 import { LoggableModule } from '../decorators';
 import { createClientProvider } from '../includes';
-import { MqttExplorerService, MqttService } from '../services';
+import { MQTTExplorerService, MqttService } from '../services';
 
 @Global()
 @Module({
@@ -17,7 +17,7 @@ import { MqttExplorerService, MqttService } from '../services';
       provide: MQTT_OPTION_PROVIDER,
       useValue: {},
     },
-    MqttExplorerService,
+    MQTTExplorerService,
     MqttService,
   ],
 })

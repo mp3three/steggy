@@ -67,6 +67,17 @@ export class EntityManagerService {
     return [...this.ENTITIES.keys()];
   }
 
+  @Trace()
+  public async nextState<T extends HassStateDTO = HassStateDTO>(
+    entityId: string,
+  ): Promise<T> {
+    return new Promise<T>((done) => {
+      this.eventEmitter.once(`${entityId}/update`, (result) => {
+        done(result);
+      });
+    });
+  }
+
   // #endregion Public Methods
 
   // #region Protected Methods

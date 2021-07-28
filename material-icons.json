@@ -96,6 +96,7 @@
     "*.strategy.ts": "nest-resolver",
     "*.driver.ts": "slim",
     "tsconfig.doc.json": "nodejs_alt",
+    ".pino-prettyrc": "prettier",
     "*.interceptor.ts": "nest-pipe",
     "*.code-workspace": "contributing",
     "*.docker-compose.yaml": "docker",
@@ -112,7 +113,7 @@
     "tsconfig.app.json": "nodejs_alt",
 
     // Specific files
-    "index.ts": "yang",
+    "index.ts": "stitches",
     "material-icons.json": "elm",
     "summary.json": "purescript",
     "package.json": "npm"
