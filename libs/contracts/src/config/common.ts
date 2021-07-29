@@ -1,5 +1,6 @@
 import type { PinoLogger } from 'nestjs-pino';
 
+import { APP_HOME_CONTROLLER } from '../constants';
 import { ConfigurableProperty } from '../decorators';
 
 /**
@@ -10,6 +11,62 @@ import { ConfigurableProperty } from '../decorators';
 export class CommonConfig {
   // #region Object Properties
 
+  /**
+   * Lower limit for log levels in http messages
+   *
+   * TODO: Non-request related logging is debug+ (fixme)
+   */
+  @ConfigurableProperty({
+    applications: 'available',
+    default: 'info',
+    type: ['info', 'warn', 'debug', 'trace'],
+  })
+  public LOG_LEVEL?: keyof typeof PinoLogger.prototype;
+  /**
+   * - memory = inside node's memory
+   * - redis = external redis server (preferred)
+   */
+  @ConfigurableProperty({
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'available',
+    },
+    default: 'memory',
+    type: ['redis', 'memory'],
+  })
+  public CACHE_PROVIDER?: 'redis' | 'memory';
+  /**
+   * Cache server
+   */
+  @ConfigurableProperty({
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'available',
+    },
+    default: 'redis',
+    type: 'number',
+  })
+  public REDIS_HOST?: string;
+  /**
+   * For binding http server
+   */
+  @ConfigurableProperty({
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'available',
+    },
+    default: 3000,
+    type: 'number',
+  })
+  public PORT?: number;
+  /**
+   * Cache server
+   */
+  @ConfigurableProperty({
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'available',
+    },
+    default: 6379,
+    type: 'number',
+  })
+  public REDIS_PORT?: number;
   /**
    * Prefix for all routes
    */
@@ -56,45 +113,6 @@ export class CommonConfig {
   })
   public BODY_SIZE?: string;
   /**
-   * Lower limit for log levels in http messages
-   *
-   * TODO: Non-request related logging is debug+ (fixme)
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: 'info',
-    type: ['info', 'warn', 'debug', 'trace'],
-  })
-  public LOG_LEVEL?: keyof typeof PinoLogger.prototype;
-  /**
-   * Cache server
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: 'localhost',
-    type: 'string',
-  })
-  public MQTT_HOST?: string;
-  /**
-   * - memory = inside node's memory
-   * - redis = external redis server (preferred)
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: 'memory',
-    type: ['redis', 'memory'],
-  })
-  public CACHE_PROVIDER?: 'redis' | 'memory';
-  /**
-   * Cache server
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: 'redis',
-    type: 'number',
-  })
-  public REDIS_HOST?: string;
-  /**
    * Http request throttling (IP + route)
    */
   /**
@@ -107,24 +125,6 @@ export class CommonConfig {
   })
   public THROTTLE_LIMIT?: number;
   /**
-   * Cache server
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: 1883,
-    type: 'number',
-  })
-  public MQTT_PORT?: string;
-  /**
-   * For binding http server
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: 3000,
-    type: 'number',
-  })
-  public PORT?: number;
-  /**
    * Http request throttling (IP + route)
    */
   @ConfigurableProperty({
@@ -133,15 +133,6 @@ export class CommonConfig {
     type: 'number',
   })
   public THROTTLE_TTL?: number;
-  /**
-   * Cache server
-   */
-  @ConfigurableProperty({
-    applications: {},
-    default: 6379,
-    type: 'number',
-  })
-  public REDIS_PORT?: number;
 
   /**
    * 🤷‍♂️ This doesn't have a clear usage at runtime anymore

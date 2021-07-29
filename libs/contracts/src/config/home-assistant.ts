@@ -1,4 +1,4 @@
-import { LIB_HOME_ASSISTANT } from '../constants';
+import { APP_HOME_CONTROLLER, LIB_HOME_ASSISTANT } from '../constants';
 import { CreateConfigurableAnnotation } from '../decorators';
 
 const UsesConfig = CreateConfigurableAnnotation(LIB_HOME_ASSISTANT.description);
@@ -6,17 +6,16 @@ export class HomeAssistantConfig {
   // #region Object Properties
 
   @UsesConfig({
-    applications: {},
-    type: 'number',
-  })
-  public DBL_CLICK_TIMEOUT?: number;
-  @UsesConfig({
-    applications: {},
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'default',
+    },
     type: 'password',
   })
   public TOKEN?: string;
   @UsesConfig({
-    applications: {},
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'default',
+    },
     type: 'url',
   })
   public BASE_URL?: string;

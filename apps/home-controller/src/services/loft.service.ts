@@ -200,12 +200,7 @@ export class LoftService implements RoomController {
     const brightness = this.panelAutoBrightness();
     const [light] = this.entityManager.getEntity<LightStateDTO>(PANEL_LIGHTS);
     if (brightness === 0) {
-      if (light.state === 'on') {
-        await this.lightingController.turnOff(PANEL_LIGHTS);
-        // Sometimes one gets stuck
-        await sleep(2000);
-        await this.lightingController.turnOff(PANEL_LIGHTS);
-      }
+      await this.lightingController.turnOff(PANEL_LIGHTS);
       return;
     }
     if (light.attributes.brightness === brightness) {

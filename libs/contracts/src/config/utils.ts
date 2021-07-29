@@ -81,6 +81,22 @@ export class UtilsConfig {
 
   @UsesConfig({
     applications: {
+      [APP_HOME_CONTROLLER.description]: 'available',
+    },
+    default: 'localhost',
+    type: 'string',
+  })
+  public MQTT_HOST?: string;
+  @UsesConfig({
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'available',
+    },
+    default: 1883,
+    type: 'number',
+  })
+  public MQTT_PORT?: number;
+  @UsesConfig({
+    applications: {
       [APP_HOME_CONTROLLER.description]: 'default',
     },
     type: 'number',
@@ -144,3 +160,5 @@ export const EMAIL_CHUNK_SIZE = `libs.${LIB_UTILS.description}.email.CHUNK_SIZE`
 export const AWS_CONFIG = `libs.${LIB_UTILS.description}.AWS`;
 export const LATITUDE = `libs.${LIB_UTILS.description}.LATITUDE`;
 export const LONGITUDE = `libs.${LIB_UTILS.description}.LONGITUDE`;
+export const MQTT_HOST = `libs.${LIB_UTILS.description}.MQTT_HOST`;
+export const MQTT_PORT = `libs.${LIB_UTILS.description}.MQTT_PORT`;

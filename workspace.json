@@ -71,6 +71,7 @@
           "options": {
             "outputPath": "dist/apps/devtools",
             "main": "apps/devtools/src/entrypoints/main.ts",
+            "generatePackageJson": true,
             "tsConfig": "apps/devtools/tsconfig.app.json",
             "assets": ["apps/devtools/src/assets"]
           }
@@ -79,6 +80,12 @@
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "command": "nx webpack-dev devtools --inspect --port 33334 | pino-pretty"
+          }
+        },
+        "inspect": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "nx webpack-dev devtools --inspect inspect-brk --port 33334 | pino-pretty"
           }
         },
         "webpack-dev": {

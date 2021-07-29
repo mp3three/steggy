@@ -16,13 +16,14 @@ import { CLIService, FigletFonts } from '@automagical/contracts/terminal';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
-import { ClassConstructor, plainToClass } from 'class-transformer';
+import { ClassConstructor } from 'class-transformer';
 import clear from 'clear';
 import Table from 'cli-table';
 import figlet from 'figlet';
-import ini from 'ini';
+import ini, { encode } from 'ini';
 import inquirer from 'inquirer';
 import { set } from 'object-path';
+import rc from 'rc';
 
 import { SystemService } from '../services/system.service';
 import { TypePromptService } from '../services/type-prompt.service';
@@ -39,7 +40,6 @@ const LEVEL_PRIORITIES: ConfigLibraryVisibility[] = Object.values(
 type KeyedConfig<T extends ConfigType = ConfigType> =
   DefaultConfigOptions<T> & {
     key: string;
-    current?: unknown;
   };
 
 @Injectable()
@@ -85,16 +85,17 @@ export class ConfigBuilderREPL implements CLIService {
     level: keyof typeof LEVEL_MAP,
   ): Promise<AutomagicalConfig> {
     const appConfig = await this.buildApplicationConfig(application);
-    return {};
     const configOptions = this.buildConfig(application, LEVEL_MAP[level]);
     const config: AutomagicalConfig = {
       application: appConfig,
     };
-    this.configTable(application, configOptions);
+    if (configOptions.length > 0) {
+      console.log(chalk`{bgBlue.whiteBright Libraries Config}`);
+      this.configTable(application, configOptions);
+    }
     await eachSeries(configOptions, async (item, callback) => {
       const results = await this.typePrompt.prompt(item, application);
-      const path =
-        item.library === '-' ? item.key : `libs.${item.library}.${item.key}`;
+      const path = item.library === '-' ? item.key : `${item.key}`;
       set(config, path, results.value);
       callback();
     });
@@ -113,9 +114,12 @@ export class ConfigBuilderREPL implements CLIService {
     }
     const nested = this.loadConfig(
       CONFIGURABLE_APPS.get(application),
-      application,
+      `application.`,
     );
-    this.configTable(application, nested);
+    if (nested.length > 0) {
+      console.log(chalk`{bgBlue.whiteBright Application Config}`);
+      this.configTable(application, nested);
+    }
     const output = {};
     await eachSeries(nested, async (item, callback) => {
       const results = await this.typePrompt.prompt(
@@ -162,6 +166,8 @@ export class ConfigBuilderREPL implements CLIService {
       },
     ])) as { application: string; level: keyof typeof LEVEL_MAP };
     clear();
+    this.typePrompt.config = rc(application);
+    console.log(encode(this.typePrompt.config));
     const config = await this.assembleConfig(application, level);
     await this.handleConfig(config, application);
   }
@@ -258,11 +264,11 @@ export class ConfigBuilderREPL implements CLIService {
     application: string,
     level: ConfigLibraryVisibility,
   ): KeyedConfig[] {
-    const out: KeyedConfig[] = [...this.loadConfig(CommonConfig, application)];
+    const out: KeyedConfig[] = [...this.loadConfig(CommonConfig, `common.`)];
 
     CONFIGURABLE_LIBS.forEach(
       (value: ClassConstructor<unknown>, key: string) => {
-        const config = this.loadConfig(value, application).map((item) => {
+        const config = this.loadConfig(value, `libs.`).map((item) => {
           item.library = key;
           return item;
         });
@@ -284,9 +290,18 @@ export class ConfigBuilderREPL implements CLIService {
   ): KeyedConfig[] {
     return config
       .filter((item) => {
+        if (!item.applications) {
+          return false;
+        }
+        if (Object.keys(item.applications).length === 0) {
+          return false;
+        }
         const priority = LEVEL_PRIORITIES.indexOf(
           item.applications[application] ?? item.applications,
         );
+        if (priority === -1) {
+          return false;
+        }
         return lte >= priority;
       })
       .sort((a, b) => {
@@ -328,12 +343,14 @@ export class ConfigBuilderREPL implements CLIService {
     config.forEach((configOptions) => {
       table.push([
         this.typeTag(
-          configOptions.applications[application] ?? configOptions.applications,
+          typeof configOptions.applications === 'string'
+            ? configOptions.applications
+            : configOptions.applications[application],
         ),
-        configOptions.library,
+        configOptions.library ?? '',
         chalk.bold(configOptions.key),
         configOptions.type,
-        configOptions.default ?? '',
+        (configOptions.default ?? '').toString(),
       ]);
     });
     console.log(table.toString());
@@ -341,23 +358,25 @@ export class ConfigBuilderREPL implements CLIService {
 
   private loadConfig(
     reference: ClassConstructor<unknown>,
-    application: string,
+    prefix: string,
   ): KeyedConfig[] {
     const out = [];
-    console.log(reference.name);
     const prompts = LoadConfigDefinition(reference.name);
-    console.log(prompts);
-    const keys = Object.keys(prompts);
+    if (!prompts) {
+      return out;
+    }
+    const keys = [...prompts.keys()];
     keys.forEach((key) => {
+      const library = prompts.get(key).library;
       out.push({
-        ...prompts[key],
-        key,
+        ...prompts.get(key),
+        key: `${prefix}${library ? `${library}.` : ''}${key}`,
       });
     });
     return out;
   }
 
-  private typeTag(type: ConfigLibraryVisibility) {
+  private typeTag(type: keyof typeof ConfigLibraryVisibility) {
     const formatted = type[0].toUpperCase() + type.slice(1);
     switch (type) {
       case 'available':

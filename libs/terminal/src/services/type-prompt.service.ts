@@ -4,20 +4,28 @@ import {
   ConfigType,
   DefaultConfigOptions,
 } from '@automagical/contracts';
-import { InternalServerErrorException } from '@nestjs/common';
+import { AutomagicalConfig } from '@automagical/contracts/config';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
+import { get } from 'object-path';
 
 type PromptResult<T extends unknown = unknown> = Record<'value', T>;
 type KeyedConfig<T extends ConfigType = ConfigType> =
   DefaultConfigOptions<T> & {
     key?: string;
-    current?: unknown;
   };
 
+@Injectable()
 export class TypePromptService {
   // #region Object Properties
 
+  /**
+   * Reference configuration for prompts
+   *
+   * Intended to be modifed by the consuming class
+   */
+  public config: AutomagicalConfig = {};
   public provider = new Map<
     COMPLEX_CONFIG_PROVIDERS,
     (defaultValue: unknown) => Promise<unknown>
@@ -33,11 +41,11 @@ export class TypePromptService {
   ): Promise<PromptResult> {
     return await inquirer.prompt([
       {
-        default: config.current ?? config.default,
+        default: get(this.config, config.key) ?? config.default,
         message: config.title ?? config.key,
         name: 'value',
         prefix,
-        type: 'checkbox',
+        type: 'confirm',
       },
     ]);
   }
@@ -49,7 +57,7 @@ export class TypePromptService {
     return await inquirer.prompt([
       {
         choices: config.type,
-        default: config.current ?? config.default,
+        default: get(this.config, config.key) ?? config.default,
         message: config.title ?? config.key,
         name: 'value',
         prefix,
@@ -64,7 +72,7 @@ export class TypePromptService {
   ): Promise<PromptResult> {
     return await inquirer.prompt([
       {
-        default: config.current ?? config.default,
+        default: get(this.config, config.key) ?? config.default,
         message: config.title ?? config.key,
         name: 'value',
         prefix,
@@ -79,7 +87,7 @@ export class TypePromptService {
   ): Promise<PromptResult> {
     return await inquirer.prompt([
       {
-        default: config.current ?? config.default,
+        default: get(this.config, config.key) ?? config.default,
         message: config.title ?? config.key,
         name: 'value',
         prefix,
@@ -156,7 +164,7 @@ export class TypePromptService {
   ): Promise<PromptResult<string>> {
     return await inquirer.prompt([
       {
-        default: config.current ?? config.default,
+        default: get(this.config, config.key) ?? config.default,
         message: config.title ?? config.key,
         name: 'value',
         prefix,

@@ -2,6 +2,7 @@ import { RoomController } from '@automagical/contracts';
 import { LightingControllerService } from '@automagical/custom';
 import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+
 import { ROOM_NAMES } from '../typings';
 
 @Injectable()
@@ -47,7 +48,7 @@ export class DownstairsService implements RoomController {
 
   @Trace()
   public async favorite(): Promise<boolean> {
-    return true;
+    return false;
   }
 
   // #endregion Public Methods
@@ -75,7 +76,7 @@ export class DownstairsService implements RoomController {
         },
         {
           comboCount: 3,
-          rooms: [ROOM_NAMES.loft],
+          rooms: [ROOM_NAMES.loft, ROOM_NAMES.master, ROOM_NAMES.guest],
           target: [
             'switch.dining_room_light',
             'switch.kitchen_light',

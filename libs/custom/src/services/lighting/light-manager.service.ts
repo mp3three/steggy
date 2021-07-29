@@ -9,13 +9,14 @@ import {
   HomeAssistantCoreService,
   LightDomainService,
 } from '@automagical/home-assistant';
-import { SolarCalcService, Trace } from '@automagical/utilities';
+import { InjectLogger, SolarCalcService, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { each } from 'async';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
+import { PinoLogger } from 'nestjs-pino';
 
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
 const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
@@ -31,6 +32,7 @@ export class LightManagerService {
   // #region Constructors
 
   constructor(
+    @InjectLogger() private readonly logger: PinoLogger,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly hassCoreService: HomeAssistantCoreService,
     private readonly solarCalcService: SolarCalcService,
@@ -93,12 +95,6 @@ export class LightManagerService {
       CACHE_KEY(entity_id),
     );
     settings.brightness ??= current?.brightness ?? 100;
-    if (
-      current?.brightness === settings.brightness &&
-      current?.kelvin === settings.kelvin
-    ) {
-      return;
-    }
     await this.cache.set(CACHE_KEY(entity_id), settings);
     await this.lightService.turnOn(entity_id, {
       brightness_pct: settings.brightness,
@@ -111,21 +107,20 @@ export class LightManagerService {
   // #region Protected Methods
 
   @Cron(CronExpression.EVERY_MINUTE)
+  @Trace()
   protected async circadianLightingUpdate(): Promise<void> {
     const kelvin = this.getCurrentTemperature();
     if (kelvin === this.CURRENT_LIGHT_TEMPERATURE) {
       return;
     }
+    this.CURRENT_LIGHT_TEMPERATURE = kelvin;
     const lights = await this.getActiveLights();
     await each(lights, async (id, callback) => {
       const state = await this.getState(id);
       if (state.mode !== 'circadian' || state.kelvin === kelvin) {
         return;
       }
-      await this.turnOn(id, {
-        ...state,
-        kelvin,
-      });
+      await this.turnOn(id, state);
       callback();
     });
   }
@@ -142,6 +137,7 @@ export class LightManagerService {
    * The math needs work, this seems more thought out because math reasons:
    * https://github.com/claytonjn/hass-circadian_lighting/blob/master/custom_components/circadian_lighting/__init__.py#L206
    */
+  @Trace()
   private getColorOffset(): number {
     const calc = this.solarCalcService.SOLAR_CALC;
     const noon = dayjs(calc.solarNoon);
@@ -165,6 +161,7 @@ export class LightManagerService {
     return 0;
   }
 
+  @Trace()
   private getCurrentTemperature() {
     const MIN_COLOR = this.configService.get(
       CIRCADIAN_MIN_TEMP,

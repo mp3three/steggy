@@ -1,3 +1,4 @@
+import { APP_DEVTOOLS } from '../../constants/library-names';
 import { CreateConfigurableAnnotation } from '../../decorators';
 
 const UsesConfig = CreateConfigurableAnnotation();
@@ -5,7 +6,9 @@ export class DevtoolsApplicationSettingsDTO {
   // #region Object Properties
 
   @UsesConfig({
-    applications: 'available',
+    applications: {
+      [APP_DEVTOOLS.description]: 'available',
+    },
     type: 'string',
   })
   public YOINK_DEFAULT_PATH: string;

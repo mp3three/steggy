@@ -27,6 +27,33 @@ class ConfigLibs {
   })
   public custom?: CustomLogicConfig;
   @ConfigurableProperty({
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'available',
+    },
+    type: {
+      reference: ServerConfig,
+    },
+  })
+  public server?: ServerConfig;
+  @ConfigurableProperty({
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'default',
+    },
+    type: {
+      reference: HomeAssistantConfig,
+    },
+  })
+  public homeassistant?: HomeAssistantConfig;
+  @ConfigurableProperty({
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'default',
+    },
+    type: {
+      reference: UtilsConfig,
+    },
+  })
+  public utils?: UtilsConfig;
+  @ConfigurableProperty({
     applications: {},
     type: {
       reference: AuthenticationConfig,
@@ -40,27 +67,6 @@ class ConfigLibs {
     },
   })
   public formiosdk?: FormioSDKConfig;
-  @ConfigurableProperty({
-    applications: {},
-    type: {
-      reference: HomeAssistantConfig,
-    },
-  })
-  public homeassistant?: HomeAssistantConfig;
-  @ConfigurableProperty({
-    applications: {},
-    type: {
-      reference: ServerConfig,
-    },
-  })
-  public server?: ServerConfig;
-  @ConfigurableProperty({
-    applications: {},
-    type: {
-      reference: UtilsConfig,
-    },
-  })
-  public utils?: UtilsConfig;
 
   // #endregion Object Properties
 }

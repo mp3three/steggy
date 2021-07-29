@@ -73,7 +73,7 @@ export function ConfigurableProperty(
   options: DefaultConfigOptions,
 ): PropertyDecorator {
   return (target: ClassConstructor<unknown>, key: string) => {
-    const name = target.name;
+    const name = target.constructor.name;
     if (!config.has(name)) {
       config.set(name, new Map());
     }
