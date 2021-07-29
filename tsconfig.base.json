@@ -8,6 +8,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
+    "jsx": "react",
     "importHelpers": true,
     "target": "es2015",
     "allowJs": true,

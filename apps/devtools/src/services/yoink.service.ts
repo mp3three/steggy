@@ -3,10 +3,13 @@ import { CLIService } from '@automagical/contracts/terminal';
 import { MainCLIREPL } from '@automagical/terminal';
 import { AutoConfigService, FetchService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import blessed from 'blessed';
 import execa from 'execa';
 import { lstatSync, mkdirSync, readdirSync, renameSync } from 'fs';
 import inquirer from 'inquirer';
 import { join } from 'path';
+import React, { Component } from 'react';
+import { render } from 'react-blessed';
 
 /* eslint-disable security/detect-non-literal-regexp */
 
