@@ -15,9 +15,9 @@ export const VERIFY_JWT = 'libs.authentication.VERIFY_JWT';
 
 export const DEFAULT_BASIC_PASSWORD = 'changeme';
 export const DEFAULT_BASIC_USERNAME = 'changeme';
-export const DEFAULT_JWT_SECRET = 'changeme';
-export const DEFAULT_EXPIRES_IN = 1000;
-export const DEFAULT_VERIFY_JWT = false;
+const DEFAULT_JWT_SECRET = 'changeme';
+const DEFAULT_EXPIRES_IN = 1000;
+const DEFAULT_VERIFY_JWT = false;
 
 const ConfigurableProperty = CreateConfigurableAnnotation(
   LIB_AUTHENTICATION.description,

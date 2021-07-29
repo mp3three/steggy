@@ -1,15 +1,20 @@
-import { CacheModule, DynamicModule, Provider } from '@nestjs/common';
+import { ACTIVE_APPLICATION } from '@automagical/contracts/utilities';
+import { DynamicModule, Provider } from '@nestjs/common';
 
 export class SymbolProviderModule {
   // #region Public Static Methods
 
-  public static forRoot(CRUD_WIRING: Provider[]): DynamicModule {
+  public static forRoot(APPLICATION:symbol, GLOBAL_SYMBOLS: Provider[] = []): DynamicModule {
+    GLOBAL_SYMBOLS.push({
+      provide: ACTIVE_APPLICATION,
+      useValue: APPLICATION
+    });
     return {
-      exports: CRUD_WIRING,
+      exports: GLOBAL_SYMBOLS,
       global: true,
-      imports: [CacheModule.register()],
+      imports: [],
       module: SymbolProviderModule,
-      providers: CRUD_WIRING,
+      providers: GLOBAL_SYMBOLS,
     };
   }
 

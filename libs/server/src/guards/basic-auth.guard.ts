@@ -1,16 +1,13 @@
 import {
-  AUTHENTICATION_CONFIG,
-  AuthenticationConfig,
-  DEFAULT_BASIC_PASSWORD,
-  DEFAULT_BASIC_USERNAME,
+  AuthenticationConfig, AUTHENTICATION_CONFIG, DEFAULT_BASIC_PASSWORD,
+  DEFAULT_BASIC_USERNAME
 } from '@automagical/contracts/config';
 import {
   APIResponse,
-  AUTHENTICATION_HEADER,
+  AUTHENTICATION_HEADER
 } from '@automagical/contracts/server';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { AutoConfigService, InjectLogger, Trace } from '@automagical/utilities';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
@@ -20,7 +17,7 @@ export class BasicAuthGuard implements CanActivate {
   constructor(
     @InjectLogger()
     private readonly logger: PinoLogger,
-    private readonly configService: ConfigService,
+    private readonly configService: AutoConfigService,
   ) {}
 
   // #endregion Constructors

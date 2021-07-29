@@ -1,11 +1,10 @@
 import { AWSService, MainCLIREPL } from '@automagical/terminal';
-import { filterUnique } from '@automagical/utilities';
+import { AutoConfigService, filterUnique } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { each } from 'async';
 import inquirer from 'inquirer';
-
 import { MULTICONTAINERS } from '../typings/multicontainer';
+
 
 enum DeploymentActions {
   redeploy = 'Redeploy Environment',
@@ -29,7 +28,7 @@ export class DeployREPL {
 
   constructor(
     private readonly cli: MainCLIREPL,
-    private readonly configService: ConfigService,
+    private readonly configService: AutoConfigService,
     private readonly awsService: AWSService,
   ) {}
 
@@ -54,7 +53,7 @@ export class DeployREPL {
           {
             choices: filterUnique(
               Object.values(
-                this.configService.get(`application.AWS_ENVIRONMENTS`, {}),
+                this.configService.get(`application.AWS_ENVIRONMENTS`),
               ),
             ),
             message: 'Which applications?',
@@ -80,7 +79,6 @@ export class DeployREPL {
   public async updateDeployment(applications: string[]): Promise<void> {
     const environmentList = this.configService.get(
       `application.AWS_ENVIRONMENTS`,
-      {},
     );
     const environments = Object.keys(environmentList);
     await Promise.all(

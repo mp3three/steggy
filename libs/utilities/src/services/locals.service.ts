@@ -5,12 +5,12 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
-  Scope,
+  Scope
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';
-
 import { InjectLogger, Trace } from '../decorators';
+import { AutoConfigService } from './auto-config.service';
+
 
 const STASH_PROP_LIST = [
   'action',
@@ -29,7 +29,7 @@ export class LocalsService {
   constructor(
     @InjectLogger() private readonly logger: PinoLogger,
     @Inject(APIRequest) private readonly request: APIRequest,
-    private readonly configService: ConfigService,
+    private readonly configService: AutoConfigService,
   ) {}
 
   // #endregion Constructors
@@ -55,7 +55,7 @@ export class LocalsService {
   public stash(): void {
     const { locals } = this.request.res;
     locals.stash ??= [];
-    const maxSize = this.configService.get(MAX_STASH_DEPTH);
+    const maxSize = this.configService.get<number>(MAX_STASH_DEPTH);
     if (locals.stash.length >= maxSize) {
       throw new InternalServerErrorException(
         `MAX_STASH_DEPTH exceeded (${maxSize})`,

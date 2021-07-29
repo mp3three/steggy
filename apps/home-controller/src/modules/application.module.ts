@@ -2,15 +2,14 @@ import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { HomeControllerCustomModule } from '@automagical/custom';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import {
-  AutomagicalConfigModule,
   CommonImports,
   LoggableModule,
   MQTTModule,
+  SymbolProviderModule,
   UtilitiesModule,
 } from '@automagical/utilities';
 import { Module } from '@nestjs/common';
 
-import { APP_NAME, DEFAULT_SETTINGS } from '../environments/environment';
 import {
   ApplicationService,
   BedRemoteService,
@@ -28,7 +27,7 @@ import {
     HomeControllerCustomModule,
     UtilitiesModule,
     MQTTModule,
-    AutomagicalConfigModule.register(APP_NAME, DEFAULT_SETTINGS),
+    SymbolProviderModule.forRoot(APP_HOME_CONTROLLER),
     ...CommonImports(),
   ],
   providers: [

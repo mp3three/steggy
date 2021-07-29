@@ -5,18 +5,19 @@ import {
   REDIS_PORT,
 } from '@automagical/contracts/config';
 import { CacheModule, DynamicModule } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import RedisStore from 'cache-manager-redis-store';
 import { LoggerModule } from 'nestjs-pino';
 
+import { AutoConfigService } from '../services';
+
 export function CommonImports(): DynamicModule[] {
   return [
     ScheduleModule.forRoot(),
     LoggerModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory(configService: ConfigService) {
+      inject: [AutoConfigService],
+      useFactory(configService: AutoConfigService) {
         return {
           pinoHttp: {
             level: configService.get(LOG_LEVEL),
@@ -35,8 +36,8 @@ export function CommonImports(): DynamicModule[] {
 }
 export function CacheImport(): DynamicModule {
   return CacheModule.registerAsync({
-    inject: [ConfigService],
-    useFactory(configService: ConfigService) {
+    inject: [AutoConfigService],
+    useFactory(configService: AutoConfigService) {
       if (configService.get(CACHE_PROVIDER) === 'memory') {
         return {};
       }

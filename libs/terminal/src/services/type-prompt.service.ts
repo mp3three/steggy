@@ -61,7 +61,7 @@ export class TypePromptService {
         message: config.title ?? config.key,
         name: 'value',
         prefix,
-        type: 'confirm',
+        type: 'list',
       },
     ]);
   }

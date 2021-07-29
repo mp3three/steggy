@@ -4,6 +4,7 @@ import { DiscoveryModule } from '@nestjs/core';
 
 import { LoggableModule } from '..';
 import {
+  AutoConfigService,
   FetchService,
   LocalsService,
   LogExplorerService,
@@ -13,11 +14,12 @@ import {
 
 @Global()
 @Module({
-  exports: [TemplateService, LocalsService, FetchService, SolarCalcService],
+  exports: [TemplateService, AutoConfigService, LocalsService, FetchService, SolarCalcService],
   imports: [CacheModule.register(), DiscoveryModule],
   providers: [
     TemplateService,
     LocalsService,
+    AutoConfigService,
     FetchService,
     SolarCalcService,
     LogExplorerService,

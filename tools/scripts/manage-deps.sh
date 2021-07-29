@@ -22,6 +22,10 @@ if ! command -v curl &> /dev/null
 then
   MISSING_BREW="$MISSING_BREW curl"
 fi
+if ! command -v jq &> /dev/null
+then
+  MISSING_BREW="$MISSING_BREW jq"
+fi
 if [[ "$MISSING_BREW" == *" "* ]]; then
   COMMAND="brew install $MISSING_BREW"
   echo $COMMAND

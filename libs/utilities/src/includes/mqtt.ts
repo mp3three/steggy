@@ -1,13 +1,12 @@
 import { MQTT_HOST, MQTT_PORT } from '@automagical/contracts/config';
 import { LIB_UTILS } from '@automagical/contracts/constants';
 import {
-  MQTT_CLIENT_INSTANCE,
-  MqttMessageTransformer,
+  MqttMessageTransformer, MQTT_CLIENT_INSTANCE
 } from '@automagical/contracts/utilities';
 import { Provider } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { connect } from 'mqtt';
 import { PinoLogger } from 'nestjs-pino';
+import { AutoConfigService } from '../services/auto-config.service';
 
 export const JsonTransform: MqttMessageTransformer = (payload) => {
   return JSON.parse(payload.toString('utf-8'));
@@ -35,9 +34,9 @@ export function getTransform(
 const context = `${LIB_UTILS.description}:includes/mqtt`;
 export function createClientProvider(): Provider {
   return {
-    inject: [ConfigService],
+    inject: [AutoConfigService],
     provide: MQTT_CLIENT_INSTANCE,
-    useFactory: (configService: ConfigService) => {
+    useFactory: (configService: AutoConfigService) => {
       const client = connect({
         host: configService.get(MQTT_HOST),
         port: configService.get(MQTT_PORT),

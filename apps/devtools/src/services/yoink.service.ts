@@ -1,9 +1,8 @@
 import { YOINK_DEFAULT_PATH } from '@automagical/contracts/config';
 import { CLIService } from '@automagical/contracts/terminal';
 import { MainCLIREPL } from '@automagical/terminal';
-import { FetchService } from '@automagical/utilities';
+import { AutoConfigService, FetchService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import execa from 'execa';
 import { lstatSync, mkdirSync, readdirSync, renameSync } from 'fs';
 import inquirer from 'inquirer';
@@ -30,7 +29,7 @@ export class YoinkService implements CLIService {
 
   constructor(
     private readonly cli: MainCLIREPL,
-    private readonly configService: ConfigService,
+    private readonly configService: AutoConfigService,
     private readonly fetchService: FetchService,
   ) {
     this.cli.addScript(this);

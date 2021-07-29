@@ -1,5 +1,5 @@
 import { BODY_SIZE, PORT } from '@automagical/contracts/config';
-import { ConfigService } from '@nestjs/config';
+import { AutoConfigService } from '@automagical/utilities';
 import { NestFactory } from '@nestjs/core';
 import { json } from 'express';
 import { Logger, PinoLogger } from 'nestjs-pino';
@@ -44,7 +44,7 @@ export const StandardBootstrap = async (
   const app = await NestFactory.create(module, BootstrapLogger());
   process.nextTick(async () => {
     const logger = app.get(Logger);
-    const config = app.get<ConfigService>(ConfigService);
+    const config = app.get(AutoConfigService);
     // const origin = config.get(CORS);
     // if (origin) {
     //   app.enableCors({
@@ -52,11 +52,11 @@ export const StandardBootstrap = async (
     //   });
     // }
     // app.use(helmet);
-    const limit = config.get(BODY_SIZE);
+    const limit = config.get<number>(BODY_SIZE);
     if (limit) {
       app.use(json({ limit }));
     }
-    const port = config.get(PORT);
+    const port = config.get<number>(PORT);
     await app.listen(port, () => logger.log(`Listening on ${port}`));
   });
   return app;

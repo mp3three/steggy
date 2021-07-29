@@ -5,14 +5,13 @@ import {
   FetchWith,
   HTTP_METHODS,
   ResultControlDTO,
-  TemporaryAuthToken,
+  TemporaryAuthToken
 } from '@automagical/contracts/utilities';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { AutoConfigService, InjectLogger, Trace } from '@automagical/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';
-
 import { CommonID, FormioSdkService } from './formio-sdk.service';
+
 
 @Injectable()
 export class ProjectService {
@@ -23,7 +22,7 @@ export class ProjectService {
     protected readonly logger: PinoLogger,
     @Inject(forwardRef(() => FormioSdkService))
     protected readonly formioSdkService: FormioSdkService,
-    protected readonly configService: ConfigService,
+    protected readonly configService: AutoConfigService,
   ) {}
 
   // #endregion Constructors

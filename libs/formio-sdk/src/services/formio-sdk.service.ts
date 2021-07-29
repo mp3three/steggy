@@ -4,21 +4,20 @@ import {
   AUTH_PASSWORD,
   BASE_PROJECT,
   PORTAL_BASE_URL,
-  PROJECT_URL,
+  PROJECT_URL
 } from '@automagical/contracts/config';
 import {
   ProjectDTO,
   UserDataDTO,
-  UserDTO,
+  UserDTO
 } from '@automagical/contracts/formio-sdk';
 import {
   FetchWith,
   HTTP_METHODS,
-  Identifier,
+  Identifier
 } from '@automagical/contracts/utilities';
-import { FetchService, InjectLogger, Trace } from '@automagical/utilities';
+import { AutoConfigService, FetchService, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';
 import { Response } from 'node-fetch';
 
@@ -62,7 +61,7 @@ export class FormioSdkService {
     @InjectLogger()
     protected readonly logger: PinoLogger,
     private readonly fetchService: FetchService,
-    private readonly configService: ConfigService,
+    private readonly configService: AutoConfigService,
   ) {}
 
   // #endregion Constructors

@@ -1,12 +1,12 @@
 import {
   HOME_ASSISTANT_BASE_URL,
-  HOME_ASSISTANT_TOKEN,
+  HOME_ASSISTANT_TOKEN
 } from '@automagical/contracts/config';
 import {
   ALL_ENTITIES_UPDATED,
   CONNECTION_RESET,
   HA_EVENT_STATE_CHANGE,
-  HA_SOCKET_READY,
+  HA_SOCKET_READY
 } from '@automagical/contracts/constants';
 import {
   AreaDTO,
@@ -17,11 +17,10 @@ import {
   HassSocketMessageTypes,
   HassStateDTO,
   SendSocketMessageDTO,
-  SocketMessageDTO,
+  SocketMessageDTO
 } from '@automagical/contracts/home-assistant';
-import { EmitAfter, InjectLogger, Trace } from '@automagical/utilities';
+import { AutoConfigService, EmitAfter, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PinoLogger } from 'nestjs-pino';
@@ -42,7 +41,7 @@ export class HASocketAPIService {
   constructor(
     @InjectLogger()
     protected readonly logger: PinoLogger,
-    private readonly configService: ConfigService,
+    private readonly configService: AutoConfigService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 

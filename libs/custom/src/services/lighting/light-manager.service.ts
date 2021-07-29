@@ -2,21 +2,19 @@ import {
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
   DEFAULT_CIRCADIAN_MAX_TEMP,
-  DEFAULT_CIRCADIAN_MIN_TEMP,
+  DEFAULT_CIRCADIAN_MIN_TEMP
 } from '@automagical/contracts/config';
 import { LightingCacheDTO } from '@automagical/contracts/custom';
 import {
   HomeAssistantCoreService,
-  LightDomainService,
+  LightDomainService
 } from '@automagical/home-assistant';
-import { InjectLogger, SolarCalcService, Trace } from '@automagical/utilities';
+import { AutoConfigService, SolarCalcService, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { each } from 'async';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
-import { PinoLogger } from 'nestjs-pino';
 
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
 const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
@@ -32,12 +30,11 @@ export class LightManagerService {
   // #region Constructors
 
   constructor(
-    @InjectLogger() private readonly logger: PinoLogger,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly hassCoreService: HomeAssistantCoreService,
     private readonly solarCalcService: SolarCalcService,
     private readonly lightService: LightDomainService,
-    private readonly configService: ConfigService,
+    private readonly configService: AutoConfigService,
   ) {}
 
   // #endregion Constructors
@@ -163,13 +160,11 @@ export class LightManagerService {
 
   @Trace()
   private getCurrentTemperature() {
-    const MIN_COLOR = this.configService.get(
+    const MIN_COLOR = this.configService.get<number>(
       CIRCADIAN_MIN_TEMP,
-      DEFAULT_CIRCADIAN_MIN_TEMP,
     );
-    const MAX_COLOR = this.configService.get(
+    const MAX_COLOR = this.configService.get<number>(
       CIRCADIAN_MAX_TEMP,
-      DEFAULT_CIRCADIAN_MAX_TEMP,
     );
     return Math.floor(
       (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR,

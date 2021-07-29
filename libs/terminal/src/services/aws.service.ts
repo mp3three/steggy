@@ -1,14 +1,14 @@
 import {
   EBApplicationDTO,
-  EBEnvironmentDTO,
+  EBEnvironmentDTO
 } from '@automagical/contracts/utilities';
+import { AutoConfigService } from '@automagical/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import Table from 'cli-table';
 import execa from 'execa';
 import inquirer from 'inquirer';
-
 import { ConfigBuilderREPL } from '../repl/config-builder.repl';
+
 const AWS_ENVIRONMENTS = '';
 @Injectable()
 export class AWSService {
@@ -21,7 +21,7 @@ export class AWSService {
   // #region Constructors
 
   constructor(
-    private readonly configService: ConfigService,
+    private readonly configService: AutoConfigService,
     @Inject(forwardRef(() => ConfigBuilderREPL))
     private readonly configBuilder: ConfigBuilderREPL,
   ) {}
@@ -36,7 +36,7 @@ export class AWSService {
    *   value: 'Version Label',
    */
   public async buildConfigMapping(): Promise<Record<string, string>> {
-    const environments = this.configService.get(AWS_ENVIRONMENTS, {});
+    const environments = this.configService.get(AWS_ENVIRONMENTS);
     const environmentsNames = Object.keys(environments);
 
     const { list } = await inquirer.prompt([
