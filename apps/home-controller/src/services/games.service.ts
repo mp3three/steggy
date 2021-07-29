@@ -141,6 +141,7 @@ export class GamesRoomService implements RoomController {
   /**
    * Return what the brightness should be for the fan lights in auto mode
    */
+  // eslint-disable-next-line radar/cognitive-complexity
   private fanAutoBrightness(): number {
     const now = dayjs();
     const hour = now.hour();
@@ -160,13 +161,23 @@ export class GamesRoomService implements RoomController {
       const brightness = 75 + minute;
       return brightness > 100 ? 100 : brightness;
     }
-    // Stay on all day until 6PM
-    if (hour < 18) {
+    // Stay on all day until 8PM
+    if (hour < 16) {
       return 100;
     }
-    // Start winding down
-    if (hour === 18) {
+    // Stay on all day until 8PM
+    if (hour === 16) {
       const brightness = 100 - this.ticksThisHour(minute, second);
+      const MINIMUM = EVENING_BRIGHTNESS * 2;
+      return brightness < MINIMUM ? MINIMUM : brightness;
+    }
+    if (hour < 20) {
+      return EVENING_BRIGHTNESS * 2;
+    }
+    // Start winding down
+    if (hour === 20) {
+      const brightness =
+        EVENING_BRIGHTNESS * 2 - this.ticksThisHour(minute, second);
       return brightness < EVENING_BRIGHTNESS ? EVENING_BRIGHTNESS : brightness;
     }
     if (hour < 23) {

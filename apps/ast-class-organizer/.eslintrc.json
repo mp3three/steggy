@@ -4,7 +4,10 @@
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "rules": {}
+      "rules": {
+        "security/detect-non-literal-regexp": "off",
+        "security/detect-object-injection": "off"
+      }
     },
     {
       "files": ["*.ts", "*.tsx"],

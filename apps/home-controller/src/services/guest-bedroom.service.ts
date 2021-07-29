@@ -1,4 +1,4 @@
-import { ControllerSettings, RoomController } from '@automagical/contracts';
+import { RoomController } from '@automagical/contracts';
 import { LightingControllerService } from '@automagical/custom';
 import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -63,7 +63,7 @@ export class GuestBedroomService implements RoomController {
 
   @Trace()
   protected onModuleInit(): void {
-    this.lightingController.setRoomController('sensor.bedroom_pico', this, {
+    this.lightingController.setRoomController('sensor.guest_pico', this, {
       devices: [
         {
           comboCount: 1,

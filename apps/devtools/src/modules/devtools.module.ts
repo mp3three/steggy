@@ -13,6 +13,7 @@ import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { LoggerModule } from 'nestjs-pino';
 
+import { RecentUpdatesService } from '../dashboard';
 import { YoinkService } from '../services';
 import { DashboardService } from '../services/dashboard.service';
 
@@ -37,7 +38,7 @@ import { DashboardService } from '../services/dashboard.service';
       },
     }),
   ],
-  providers: [YoinkService, DashboardService],
+  providers: [YoinkService, DashboardService, RecentUpdatesService],
 })
 @LoggableModule(APP_DEVTOOLS)
 export class DevtoolsModule {}
