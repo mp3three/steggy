@@ -1,0 +1,51 @@
+{
+  "root": "apps/devtools",
+  "sourceRoot": "apps/devtools/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/devtools",
+        "main": "apps/devtools/src/entrypoints/main.ts",
+        "generatePackageJson": true,
+        "tsConfig": "apps/devtools/tsconfig.app.json",
+        "assets": ["apps/devtools/src/assets"]
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "command": "nx webpack-dev devtools --inspect --port 33334 | pino-pretty"
+      }
+    },
+    "inspect": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "command": "nx webpack-dev devtools --inspect inspect-brk --port 33334 | pino-pretty"
+      }
+    },
+    "webpack-dev": {
+      "executor": "@nrwl/node:execute",
+      "options": {
+        "buildTarget": "devtools:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/devtools/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/devtools"],
+      "options": {
+        "jestConfig": "apps/devtools/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

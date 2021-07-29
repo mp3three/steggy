@@ -29,39 +29,7 @@
     "appsDir": "apps",
     "libsDir": "libs"
   },
-  "projects": {
-    "contracts": {
-      "tags": []
-    },
-    "custom": {
-      "tags": []
-    },
-    "devtools": {
-      "tags": []
-    },
-    "formio-sdk": {
-      "tags": []
-    },
-    "home-assistant": {
-      "tags": []
-    },
-    "home-controller": {
-      "tags": ["backend"]
-    },
-    "living-docs": {
-      "tags": []
-    },
-    "server": {
-      "tags": []
-    },
-    "terminal": {},
-    "testing": {
-      "tags": []
-    },
-    "utilities": {
-      "tags": []
-    }
-  },
+  "projects": {},
   "targetDependencies": {
     "build": [
       {

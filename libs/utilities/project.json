@@ -1,0 +1,32 @@
+{
+  "root": "libs/utilities",
+  "sourceRoot": "libs/utilities/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/utilities",
+        "tsConfig": "libs/utilities/tsconfig.lib.json",
+        "packageJson": "libs/utilities/package.json",
+        "main": "libs/utilities/src/index.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["libs/utilities/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/utilities"],
+      "options": {
+        "jestConfig": "libs/utilities/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

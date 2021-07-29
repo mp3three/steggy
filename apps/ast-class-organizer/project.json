@@ -1,0 +1,51 @@
+{
+  "root": "apps/ast-class-organizer",
+  "sourceRoot": "apps/ast-class-organizer/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/ast-class-organizer",
+        "main": "apps/ast-class-organizer/src/main.ts",
+        "tsConfig": "apps/ast-class-organizer/tsconfig.app.json",
+        "assets": ["apps/ast-class-organizer/src/assets"]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/ast-class-organizer/src/environments/environment.ts",
+              "with": "apps/ast-class-organizer/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/node:execute",
+      "options": {
+        "buildTarget": "ast-class-organizer:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/ast-class-organizer/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/ast-class-organizer"],
+      "options": {
+        "jestConfig": "apps/ast-class-organizer/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

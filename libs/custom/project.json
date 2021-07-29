@@ -1,0 +1,33 @@
+{
+  "root": "libs/custom",
+  "sourceRoot": "libs/custom/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/custom",
+        "tsConfig": "libs/custom/tsconfig.lib.json",
+        "packageJson": "libs/custom/package.json",
+        "main": "libs/custom/src/index.ts",
+        "assets": ["libs/custom/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["libs/custom/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/custom"],
+      "options": {
+        "jestConfig": "libs/custom/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

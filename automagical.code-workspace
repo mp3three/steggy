@@ -25,6 +25,18 @@
         "request": "attach",
         // Match this to the workspace.json
         "port": 33334
+      },
+      {
+        "name": "Run AST Class Organizer",
+        "type": "extensionHost",
+        "request": "launch",
+        "runtimeExecutable": "${execPath}",
+        "args": [
+            "--extensionDevelopmentPath=${workspaceFolder}/apps/ast-class-organizer"
+        ],
+        "outFiles": [
+            "${workspaceFolder}/dist/apps/ast-class-organizer/**/*.js"
+        ],
       }
     ]
   },

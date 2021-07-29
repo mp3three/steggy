@@ -224,6 +224,18 @@ export class SystemService {
   // #region Protected Methods
 
   protected onModuleInit(): void {
+    Object.keys(this.workspace.projects).forEach((key) => {
+      this.workspace.projects[key] = JSON.parse(
+        readFileSync(
+          join(
+            // After initial loading, this type is correct
+            this.workspace.projects[key] as unknown as string,
+            'project.json',
+          ),
+          'utf-8',
+        ),
+      );
+    });
     APPLICATION_LIST.forEach((application) => {
       const file = this.applicationConfigPath(application);
       if (existsSync(file)) {

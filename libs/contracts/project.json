@@ -1,0 +1,24 @@
+{
+  "root": "libs/contracts",
+  "sourceRoot": "contracts",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/contracts",
+        "tsConfig": "libs/contracts/tsconfig.lib.json",
+        "packageJson": "libs/contracts/package.json",
+        "main": "libs/contracts/src/index.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["libs/contracts/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}
