@@ -1,5 +1,5 @@
 import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
-import { HomeControllerCustomModule } from '@automagical/custom';
+import { HomeControllerCustomModule } from '@automagical/controller-logic';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import {
   CommonImports,

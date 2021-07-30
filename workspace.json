@@ -9,14 +9,13 @@
     "devtools": "apps/devtools",
     "home-controller": "apps/home-controller",
     "living-docs": "apps/living-docs",
-
     "contracts": "libs/contracts",
-    "custom": "libs/custom",
     "formio-sdk": "libs/formio-sdk",
     "home-assistant": "libs/home-assistant",
     "server": "libs/server",
     "terminal": "libs/terminal",
     "testing": "libs/testing",
-    "utilities": "libs/utilities"
+    "utilities": "libs/utilities",
+    "controller-logic": "libs/controller-logic"
   }
 }

@@ -1,5 +1,5 @@
 import { RoomController } from '@automagical/contracts';
-import { LightingControllerService } from '@automagical/custom';
+import { LightingControllerService } from '@automagical/controller-logic';
 import { MediaPlayerDomainService } from '@automagical/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';

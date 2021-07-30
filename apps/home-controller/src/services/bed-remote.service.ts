@@ -1,5 +1,5 @@
-import { ControllerSettings, RoomController } from '@automagical/contracts';
-import { LightingControllerService } from '@automagical/custom';
+import { RoomController } from '@automagical/contracts';
+import { LightingControllerService } from '@automagical/controller-logic';
 import {
   FanDomainService,
   SwitchDomainService,

@@ -1,6 +1,6 @@
 import { RoomController } from '@automagical/contracts';
 import { LightStateDTO } from '@automagical/contracts/home-assistant';
-import { LightingControllerService } from '@automagical/custom';
+import { LightingControllerService } from '@automagical/controller-logic';
 import {
   EntityManagerService,
   FanDomainService,

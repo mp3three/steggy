@@ -1,5 +1,5 @@
 module.exports = {
-  displayName: 'custom',
+  displayName: 'controller-logic',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -11,5 +11,5 @@ module.exports = {
     '^.+\\.[tj]sx?$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: '../../coverage/libs/custom',
+  coverageDirectory: '../../coverage/libs/controller-logic',
 };

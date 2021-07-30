@@ -1,0 +1,41 @@
+{
+  "root": "libs/controller-logic",
+  "sourceRoot": "libs/controller-logic/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/libs/controller-logic",
+        "tsConfig": "libs/controller-logic/tsconfig.lib.json",
+        "packageJson": "libs/controller-logic/package.json",
+        "main": "libs/controller-logic/src/index.ts",
+        "assets": [
+          "libs/controller-logic/*.md"
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/controller-logic/**/*.ts"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": [
+        "coverage/libs/controller-logic"
+      ],
+      "options": {
+        "jestConfig": "libs/controller-logic/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

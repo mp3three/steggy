@@ -4,7 +4,7 @@ import {
   domain,
   HASS_DOMAINS,
 } from '@automagical/contracts/home-assistant';
-import { LightingControllerService } from '@automagical/custom';
+import { LightingControllerService } from '@automagical/controller-logic';
 import {
   EntityManagerService,
   LockDomainService,
