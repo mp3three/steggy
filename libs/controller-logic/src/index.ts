@@ -1,2 +1,2 @@
+export * from './lighting';
 export * from './modules';
-export * from './services';

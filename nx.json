@@ -22,7 +22,8 @@
           "build",
           "lint",
           "test",
-          "e2e"
+          "e2e",
+          "build-vsix"
         ],
         "accessToken": "ZWQ1ZWQyMTEtNjQwMi00MmEzLTgwZjMtYjQ4NTYyNzMxZGI4fHJlYWQtd3JpdGU=",
         "canTrackAnalytics": false,

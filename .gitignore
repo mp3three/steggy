@@ -10,6 +10,7 @@ apps/**/yarn.lock
 /apps/**/config/*
 # /apps/support-tools/**/*key
 /apps/living-docs/docker/*yaml
+**/*vsix
 
 # dependencies
 **/node_modules
@@ -41,14 +42,6 @@ yarn-error.log
 testem.log
 /typings
 /*.tar
-
-# Environment
-**/.*.env
-**/user-env*.yaml
-**/user-env*.yml
-!**/user-env.yaml
-!**/user-env.yml
-apps/*/src/assets/user-env*.yaml
 
 # System Files
 .DS_Store

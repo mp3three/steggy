@@ -51,29 +51,29 @@ export interface RoomController {
   /**
    * Return false to block built in off command
    */
-  areaOff(count: number): Promise<boolean>;
+  areaOff(...parameters: unknown[]): Promise<boolean>;
   /**
    * Return false to block built in on command
    */
-  areaOn(count: number): Promise<boolean>;
+  areaOn(...parameters: unknown[]): Promise<boolean>;
   /**
    * Got your own secret konami code?
    *
    * Return false to block additional processing, is run first
    */
-  combo(actions: PicoStates[]): Promise<boolean>;
+  combo(...parameters: unknown[]): Promise<boolean>;
   /**
    * Return false to block built in dim up command
    */
-  dimDown(count: number): Promise<boolean>;
+  dimDown(...parameters: unknown[]): Promise<boolean>;
   /**
    * Return false to block built in dim down command
    */
-  dimUp(count: number): Promise<boolean>;
+  dimUp(...parameters: unknown[]): Promise<boolean>;
   /**
    * Provide some logic for the favorite button in the middle
    */
-  favorite(count: number): Promise<boolean>;
+  favorite(...parameters: unknown[]): Promise<boolean>;
 
   // #endregion Public Methods
 }

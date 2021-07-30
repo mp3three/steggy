@@ -9,78 +9,82 @@
     "name": "Cameron Contour",
     "url": "https://github.com/ccontour/automagical"
   },
-  "icon": "assets/logo.png",
   "galleryBanner": {
     "color": "#4c725d",
     "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.22.0"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/ccontour/automagical"
   },
   "activationEvents": [
-    "onLanguage:typescript"
+    "onLanguage:typescript",
+    "onCommand:ast-class-organizer.organize"
   ],
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    "vscode:prepublish": "npx nx build ast-class-organizer",
+    "compile": "npx nx build ast-class-organizer",
+    "watch": "npx nx webpack-dev ast-class-organizer",
+    "postinstall": "npx nx vscode ast-class-organizer --configuration=postinstall",
+    "test": "npx nx vscode ast-class-organizer --configuration=test"
   },
   "categories": [
-      "Formatters"
+    "Formatters"
   ],
+  "main": "../../dist/apps/ast-class-organizer/main.js",
   "contributes": {
     "configuration": {
       "title": "Typescript Class Organizer configuration",
       "properties": {
-        "tsco.useRegions": {
+        "ast-class-organizer.useRegions": {
           "type": "boolean",
           "default": true,
           "description": "Adds regions when organizing a class."
         },
-        "tsco.addRowNumberInRegionName": {
+        "ast-class-organizer.addRowNumberInRegionName": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "Add region children count on title."
         },
-        "tsco.accessorsBeforeCtor": {
+        "ast-class-organizer.accessorsBeforeCtor": {
           "type": "boolean",
           "default": false,
           "description": "during organization : put accessor before ctor."
         },
-        "tsco.addPublicModifierIfMissing": {
+        "ast-class-organizer.addPublicModifierIfMissing": {
           "type": "boolean",
           "default": true,
           "description": "Adds a public access modifier if missing."
         },
-        "tsco.addRegionIndentation": {
+        "ast-class-organizer.addRegionIndentation": {
           "type": "boolean",
           "default": true,
           "description": "Adds region Indentation."
         },
-        "tsco.addRegionCaptionToRegionEnd": {
+        "ast-class-organizer.addRegionCaptionToRegionEnd": {
           "type": "boolean",
           "default": true,
           "description": "Adds region caption to region end."
         },
-        "tsco.groupPropertiesWithDecorators": {
+        "ast-class-organizer.groupPropertiesWithDecorators": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "When true properties with decorators will come first."
         },
-        "tsco.treatArrowFunctionPropertiesAsMethods": {
+        "ast-class-organizer.treatArrowFunctionPropertiesAsMethods": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "When true arrow function properties will be treated as methods."
         },
-        "tsco.organizeOnSave": {
+        "ast-class-organizer.organizeOnSave": {
           "type": "boolean",
           "default": false,
           "description": "When true file will get organized automatically whenever saved."
         },
-        "tsco.memberOrder": {
+        "ast-class-organizer.memberOrder": {
           "type": "array",
           "items": {
             "type": "object",
@@ -124,6 +128,15 @@
                     "privateStaticIndexes",
                     "privateIndexes",
                     "privateAbstractIndexes",
+                    "publicStaticGettersAndSetters",
+                    "publicGettersAndSetters",
+                    "publicAbstractGettersAndSetters",
+                    "privateStaticGettersAndSetters",
+                    "privateGettersAndSetters",
+                    "privateAbstractGettersAndSetters",
+                    "protectedStaticGettersAndSetters",
+                    "protectedGettersAndSetters",
+                    "protectedAbstractGettersAndSetters",
                     "publicStaticMethods",
                     "publicMethods",
                     "publicAbstractMethods",
@@ -140,7 +153,8 @@
               "description": "Nested member type sub-groups."
             }
           },
-          "default": [{
+          "default": [
+            {
               "caption": "Properties",
               "memberTypes": [
                 "privateStaticConstProperties",
@@ -336,11 +350,16 @@
         }
       }
     },
-    "commands": [{
-      "command": "tsco.organize",
-      "title": "Organize Current File",
-      "category": "TypeScript Class Organizer",
-      "when": "editorTextFocus && editorLangId == typescript"
-    }]
+    "commands": [
+      {
+        "command": "ast-class-organizer.organize",
+        "title": "Organize Current File",
+        "category": "AST Class Organizer",
+        "when": "editorTextFocus && editorLangId == typescript"
+      }
+    ]
+  },
+  "devDependencies": {
+    "vscode": "1.1.37"
   }
 }

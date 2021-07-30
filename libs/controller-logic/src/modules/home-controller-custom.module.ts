@@ -1,4 +1,4 @@
-import { LIB_CUSTOM } from '@automagical/contracts/constants';
+import { LIB_CONTROLLER_LOGIC } from '@automagical/contracts/constants';
 import { CacheImport, LoggableModule } from '@automagical/utilities';
 import { Global, Module } from '@nestjs/common';
 
@@ -6,7 +6,7 @@ import {
   LightFlashService,
   LightingControllerService,
   LightManagerService,
-} from '../services';
+} from '../lighting';
 
 @Global()
 @Module({
@@ -18,5 +18,5 @@ import {
     LightManagerService,
   ],
 })
-@LoggableModule(LIB_CUSTOM)
+@LoggableModule(LIB_CONTROLLER_LOGIC)
 export class HomeControllerCustomModule {}

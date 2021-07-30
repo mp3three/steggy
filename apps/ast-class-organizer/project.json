@@ -8,7 +8,7 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/ast-class-organizer",
-        "main": "apps/ast-class-organizer/src/main.ts",
+        "main": "apps/ast-class-organizer/src/entrypoints/main.ts",
         "tsConfig": "apps/ast-class-organizer/tsconfig.app.json",
         "assets": ["apps/ast-class-organizer/src/assets"]
       },
@@ -16,6 +16,7 @@
         "production": {
           "optimization": true,
           "extractLicenses": true,
+          "generatePackageJson": true,
           "inspect": false,
           "fileReplacements": [
             {
@@ -26,7 +27,7 @@
         }
       }
     },
-    "serve": {
+    "webpack-dev": {
       "executor": "@nrwl/node:execute",
       "options": {
         "buildTarget": "ast-class-organizer:build"
@@ -44,6 +45,44 @@
       "options": {
         "jestConfig": "apps/ast-class-organizer/jest.config.js",
         "passWithNoTests": true
+      }
+    },
+    "build-vsix": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "rm dist/apps/ast-class-organizer/*vsix;echo"
+          },
+          {
+            "command": "cd apps/ast-class-organizer;pwd"
+          },
+          {
+            "command": "npx vsce package"
+          },
+          {
+            "command": "mv *vsix ../../dist/apps/ast-class-organizer"
+          }
+        ]
+      }
+    },
+    "vscode": {
+      "executor": "@nrwl/workspace:run-commands",
+      "configurations": {
+        "postinstall": {
+          "command": "node ./node_modules/vscode/bin/install"
+        },
+        "test": {
+          "commands": [
+            {
+              "command": "npx nx build ast-class-organizer"
+            },
+            {
+              "command": "node ./node_modules/vscode/bin/test"
+            }
+          ]
+        }
       }
     }
   },

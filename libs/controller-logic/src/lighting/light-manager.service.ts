@@ -1,15 +1,17 @@
 import {
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
-  DEFAULT_CIRCADIAN_MAX_TEMP,
-  DEFAULT_CIRCADIAN_MIN_TEMP
 } from '@automagical/contracts/config';
-import { LightingCacheDTO } from '@automagical/contracts/custom';
+import { LightingCacheDTO } from '@automagical/contracts/controller-logic';
 import {
   HomeAssistantCoreService,
-  LightDomainService
+  LightDomainService,
 } from '@automagical/home-assistant';
-import { AutoConfigService, SolarCalcService, Trace } from '@automagical/utilities';
+import {
+  AutoConfigService,
+  SolarCalcService,
+  Trace,
+} from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { each } from 'async';
@@ -160,12 +162,8 @@ export class LightManagerService {
 
   @Trace()
   private getCurrentTemperature() {
-    const MIN_COLOR = this.configService.get<number>(
-      CIRCADIAN_MIN_TEMP,
-    );
-    const MAX_COLOR = this.configService.get<number>(
-      CIRCADIAN_MAX_TEMP,
-    );
+    const MIN_COLOR = this.configService.get<number>(CIRCADIAN_MIN_TEMP);
+    const MAX_COLOR = this.configService.get<number>(CIRCADIAN_MAX_TEMP);
     return Math.floor(
       (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR,
     );

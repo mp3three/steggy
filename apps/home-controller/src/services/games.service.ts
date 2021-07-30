@@ -108,6 +108,7 @@ export class GamesRoomService implements RoomController {
       return;
     }
     const target = this.fanAutoBrightness();
+    this.logger.info({ target });
     if (target === 0) {
       await this.lightingController.turnOff(FAN_LIGHTS);
       return;
@@ -147,6 +148,7 @@ export class GamesRoomService implements RoomController {
     const hour = now.hour();
     const minute = now.minute();
     const second = now.second();
+    this.logger.info({hour,minute,second})
     // If before 6AM, 5% (min brightness)
     if (hour < 7) {
       return 5;
@@ -180,10 +182,18 @@ export class GamesRoomService implements RoomController {
         EVENING_BRIGHTNESS * 2 - this.ticksThisHour(minute, second);
       return brightness < EVENING_BRIGHTNESS ? EVENING_BRIGHTNESS : brightness;
     }
-    if (hour < 23) {
+    if( hour === 21 ) {
       return EVENING_BRIGHTNESS;
     }
-    const brightness = EVENING_BRIGHTNESS - this.ticksThisHour(minute, second);
+    if( hour === 22 ) {
+      const brightness = EVENING_BRIGHTNESS - Math.floor(this.ticksThisHour(minute, second)/2);
+      const MINIMUM = EVENING_BRIGHTNESS / 2;
+      return brightness < MINIMUM ? MINIMUM : brightness;
+    }
+    if (hour < 23) {
+      return EVENING_BRIGHTNESS/2;
+    }
+    const brightness = (EVENING_BRIGHTNESS/2) - this.ticksThisHour(minute, second);
     return brightness < 10 ? 10 : brightness;
   }
 

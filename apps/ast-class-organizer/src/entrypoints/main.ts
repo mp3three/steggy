@@ -1,5 +1,15 @@
+import eslint from 'eslint';
 import { createSourceFile, ScriptKind, ScriptTarget } from 'typescript';
-import * as vscode from 'vscode';
+import {
+  commands,
+  ExtensionContext,
+  Position,
+  Range,
+  TextEditor,
+  window,
+  workspace,
+  WorkspaceEdit,
+} from 'vscode';
 
 import {
   compare,
@@ -30,31 +40,31 @@ import { MemberType } from '../typings';
 
 let configuration = getConfiguration();
 
-export function activate(context: vscode.ExtensionContext): void {
+export function activate(context: ExtensionContext): void {
   context.subscriptions.push(
-    vscode.commands.registerCommand('tsco.organize', () =>
-      organize(vscode.window.activeTextEditor, configuration),
-    ),
-    vscode.commands.registerCommand('tsco.organizeAll', () =>
+    commands.registerCommand('ast-class-organizer.organize', () => {
+      organize(window.activeTextEditor, configuration);
+    }),
+    commands.registerCommand('ast-class-organizer.organizeAll', () =>
       organizeAll(configuration),
     ),
   );
-  vscode.workspace.onDidChangeConfiguration(
+  workspace.onDidChangeConfiguration(
     () => (configuration = getConfiguration()),
   );
-  vscode.workspace.onWillSaveTextDocument((e) => {
+  workspace.onWillSaveTextDocument((e) => {
     if (
-      vscode.window.activeTextEditor &&
-      vscode.window.activeTextEditor.document.fileName == e.document.fileName &&
+      window.activeTextEditor &&
+      window.activeTextEditor.document.fileName == e.document.fileName &&
       configuration.organizeOnSave
     ) {
-      organize(vscode.window.activeTextEditor, getConfiguration());
+      organize(window.activeTextEditor, getConfiguration());
     }
   });
 }
 
 function getConfiguration() {
-  const configuration = vscode.workspace.getConfiguration('tsco');
+  const configuration = workspace.getConfiguration('ast-class-organizer');
 
   return new Configuration(
     configuration.get<boolean>('useRegions') === true,
@@ -73,13 +83,11 @@ function getConfiguration() {
 
 function getMemberOrderConfig(): ElementNodeGroupConfiguration[] {
   const memberTypeOrderConfiguration =
-    vscode.workspace
-      .getConfiguration('tsco')
+    workspace
+      .getConfiguration('ast-class-organizer')
       .get<ElementNodeGroupConfiguration[]>('memberOrder') || [];
   const memberTypeOrder: ElementNodeGroupConfiguration[] = [];
-  const defaultMemberTypeOrder = Object.keys(MemberType) // same order as in the enum
-    .filter((x) => !Number.isNaN(Number.parseInt(x, 10))) // do not include int value
-    .map((x) => <MemberType>Number.parseInt(x, 10));
+  const defaultMemberTypeOrder = Object.values(MemberType); // same order as in the enum
 
   // map member type order from configuration
   memberTypeOrderConfiguration.forEach((x: ElementNodeGroupConfiguration) =>
@@ -126,7 +134,8 @@ function parseElementNodeGroupConfiguration(
 
   elementNodeGroupConfiguration.caption = configuration.caption;
   elementNodeGroupConfiguration.memberTypes = configuration.memberTypes.map(
-    (key) => MemberType[key],
+    // TODO: Seriously.. wtf is this shit
+    (y) => MemberType[y] as unknown as MemberType,
   );
 
   return elementNodeGroupConfiguration;
@@ -154,14 +163,14 @@ function getIndentation(sourceCode: string): string {
 }
 
 function organizeAll(configuration: Configuration) {
-  vscode.workspace
+  workspace
     .findFiles('**/*.ts', '**/node_modules/**')
     .then((typescriptFiles) =>
       typescriptFiles.forEach((typescriptFile) =>
-        vscode.workspace
+        workspace
           .openTextDocument(typescriptFile)
           .then((document) =>
-            vscode.window
+            window
               .showTextDocument(document)
               .then((editor) => organize(editor, configuration) !== undefined),
           ),
@@ -170,13 +179,13 @@ function organizeAll(configuration: Configuration) {
 }
 
 function organize(
-  editor: vscode.TextEditor | undefined,
+  editor: TextEditor | undefined,
   configuration: Configuration,
 ) {
-  let edit: vscode.WorkspaceEdit;
-  let start: vscode.Position;
-  let end: vscode.Position;
-  let range: vscode.Range;
+  let edit: WorkspaceEdit;
+  let start: Position;
+  let end: Position;
+  let range: Range;
 
   if (editor) {
     let sourceCode = editor.document.getText();
@@ -184,17 +193,17 @@ function organize(
 
     sourceCode = organizeTypes(sourceCode, fileName, configuration);
 
-    start = new vscode.Position(0, 0);
-    end = new vscode.Position(
+    start = new Position(0, 0);
+    end = new Position(
       editor.document.lineCount,
       editor.document.lineAt(editor.document.lineCount - 1).text.length,
     );
-    range = new vscode.Range(start, end);
+    range = new Range(start, end);
 
-    edit = new vscode.WorkspaceEdit();
+    edit = new WorkspaceEdit();
     edit.replace(editor.document.uri, range, sourceCode);
 
-    return vscode.workspace.applyEdit(edit);
+    return workspace.applyEdit(edit);
   }
 }
 
@@ -534,10 +543,10 @@ function organizeInterfaceMembers(
   const regions: ElementNodeGroup[] = [];
   let memberGroups: ElementNodeGroup[];
 
-  for (const memberTypeGroup of memberTypeOrder) {
+  memberTypeOrder.forEach((memberTypeGroup) => {
     memberGroups = [];
 
-    for (const memberType of memberTypeGroup.memberTypes) {
+    memberTypeGroup.memberTypes.forEach((memberType) => {
       switch (memberType) {
         case MemberType.publicConstProperties: {
           // public const properties
@@ -606,12 +615,12 @@ function organizeInterfaceMembers(
         }
         // No default
       }
-    }
+    });
 
     regions.push(
       new ElementNodeGroup(memberTypeGroup.caption, memberGroups, [], true),
     );
-  }
+  });
 
   return regions;
 }
@@ -628,7 +637,7 @@ function organizeClassMembers(
     memberGroups = [];
 
     memberTypeGroup.memberTypes.forEach((memberType) => {
-      const name = `get${memberType.charAt(0).toUpperCase}${memberType.slice(
+      const name = `get${memberType.charAt(0).toUpperCase()}${memberType.slice(
         1,
       )}` as keyof ClassNode;
       const method = classNode[name] as (
@@ -638,7 +647,7 @@ function organizeClassMembers(
         new ElementNodeGroup(
           undefined,
           [],
-          method(groupElementsWithDecorators),
+          method.bind(classNode)(groupElementsWithDecorators),
           false,
         ),
       );

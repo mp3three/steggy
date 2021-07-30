@@ -52,9 +52,6 @@
       "yzhang.markdown-all-in-one",
       // Markdown previews
       "shd101wyy.markdown-preview-enhanced",
-      // "davidanson.vscode-markdownlint",
-      // Typescript class organizer
-      "aljazsim.tsco",
       // Material icon theme
       "pkief.material-icon-theme",
       // Additional support for npm paths
@@ -100,11 +97,11 @@
       "**/.yarnclean": true,
       "LICENSE": true,
       "**/.gitkeep": true,
-      // "**/tsconfig.spec.json": true,
-      // "**/tsconfig.lib.json": true,
-      // "**/tsconfig.json": true,
+      // "**/ast-class-organizernfig.spec.json": true,
+      // "**/ast-class-organizernfig.lib.json": true,
+      // "**/ast-class-organizernfig.json": true,
       "**/jest.*.js": true,
-      // "**/tsconfig.*json": true,
+      // "**/ast-class-organizernfig.*json": true,
       "**/.babelrc": true,
       "**/.prettierignore": true,
       ".editorconfig": true,
@@ -163,18 +160,14 @@
     // * </Decorative>
 
     // * <Typescript Class Organizer>
-    // VSCode Extension: aljazsim.tsco
-    // TypeScript Class Organizer
-    // Ignore the warnings being sent by these, the schema provided by the extension is wrong
-    // Removing the warning items negatively affects organization
-    "tsco.accessorsBeforeCtor": true,
-    "tsco.addRegionCaptionToRegionEnd": true,
-    "tsco.groupPropertiesWithDecorators": true,
-    "tsco.addRowNumberInRegionName": false,
-    "tsco.addRegionIndentation": true,
-    "tsco.organizeOnSave": true,
-    "tsco.useRegions": true,
-    "tsco.memberOrder": [{
+    "ast-class-organizer.accessorsBeforeCtor": true,
+    "ast-class-organizer.addRegionCaptionToRegionEnd": true,
+    "ast-class-organizer.groupPropertiesWithDecorators": true,
+    "ast-class-organizer.addRowNumberInRegionName": false,
+    "ast-class-organizer.addRegionIndentation": true,
+    "ast-class-organizer.organizeOnSave": true,
+    "ast-class-organizer.useRegions": true,
+    "ast-class-organizer.memberOrder": [{
         "caption": "Static Properties",
         "memberTypes": [
           "publicStaticConstProperties",
@@ -262,7 +255,6 @@
           "constructors"
         ]
       },
-
       {
         "caption": "Public Abstract Accessors",
         "memberTypes": [

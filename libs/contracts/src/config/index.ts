@@ -1,13 +1,13 @@
 import {
   LIB_AUTHENTICATION,
-  LIB_CUSTOM,
+  LIB_CONTROLLER_LOGIC,
   LIB_FORMIO_SDK,
   LIB_HOME_ASSISTANT,
   LIB_SERVER,
   LIB_UTILS,
 } from '../constants';
 import { AuthenticationConfig } from './authentication';
-import { CustomLogicConfig } from './custom';
+import { CustomLogicConfig } from './controller-logic';
 import { FormioSDKConfig } from './formio-sdk';
 import { HomeAssistantConfig } from './home-assistant';
 import { ServerConfig } from './server';
@@ -17,7 +17,7 @@ export * from './apps';
 export * from './authentication';
 export * from './automagical';
 export * from './common';
-export * from './custom';
+export * from './controller-logic';
 export * from './external';
 export * from './formio-sdk';
 export * from './home-assistant';
@@ -26,7 +26,7 @@ export * from './utils';
 
 export const CONFIGURABLE_LIBS = new Map(
   Object.entries({
-    [LIB_CUSTOM.description]: CustomLogicConfig,
+    [LIB_CONTROLLER_LOGIC.description]: CustomLogicConfig,
     [LIB_AUTHENTICATION.description]: AuthenticationConfig,
     [LIB_FORMIO_SDK.description]: FormioSDKConfig,
     [LIB_SERVER.description]: ServerConfig,

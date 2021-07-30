@@ -9,7 +9,7 @@ import {
 } from '.';
 import { HomeControllerApplicationSettingsDTO } from './apps';
 import { CommonConfig } from './common';
-import { CustomLogicConfig } from './custom';
+import { CustomLogicConfig } from './controller-logic';
 import { HomeAssistantConfig } from './home-assistant';
 
 const ConfigurableProperty = CreateConfigurableAnnotation();
