@@ -1,5 +1,5 @@
 import { AutomagicalConfig } from '@automagical/contracts/config';
-import { LIB_TESTING, LIB_UTILS } from '@automagical/contracts/constants';
+import { LIB_UTILS } from '@automagical/contracts/constants';
 import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import rc from 'rc';
@@ -26,18 +26,14 @@ export class AutomagicalConfigModule {
   }
 
   public static register(
-    appName: string | symbol,
+    appName: symbol,
     defaultConfig?: Partial<AutomagicalConfig>,
   ): DynamicModule {
     return ConfigModule.forRoot({
       isGlobal: true,
       load: [
         async () => {
-          // File picking, loading, and merging handled by rc
-          if (typeof appName === 'symbol') {
-            appName = appName.description;
-          }
-          const config = rc(appName, {
+          const config = rc(appName.description, {
             ...(defaultConfig || {}),
           }) as AutomagicalConfig & { configs: string[] };
           AutomagicalConfigModule.done(config);
@@ -46,10 +42,7 @@ export class AutomagicalConfigModule {
            *
            * Print out the config at boot by default in a human readable form
            */
-          if (
-            appName !== LIB_TESTING.description &&
-            config.SKIP_CONFIG_PRINT !== true
-          ) {
+          if (config.PRINT_CONFIG_AT_STARTUP === true) {
             /* eslint-disable no-console */
             console.log(`<LOADED CONFIGURATION>`);
             console.log(JSON.stringify(config, undefined, '  '));

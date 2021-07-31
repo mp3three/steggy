@@ -1,6 +1,6 @@
 import type { PinoLogger } from 'nestjs-pino';
 
-import { APP_HOME_CONTROLLER } from '../constants';
+import { APP_DASHBOARD, APP_HOME_CONTROLLER } from '../constants';
 import { ConfigurableProperty } from '../decorators';
 
 /**
@@ -29,6 +29,7 @@ export class CommonConfig {
   @ConfigurableProperty({
     applications: {
       [APP_HOME_CONTROLLER.description]: 'available',
+      [APP_DASHBOARD.description]: 'available',
     },
     default: 'memory',
     type: ['redis', 'memory'],
@@ -40,11 +41,24 @@ export class CommonConfig {
   @ConfigurableProperty({
     applications: {
       [APP_HOME_CONTROLLER.description]: 'available',
+      [APP_DASHBOARD.description]: 'available',
     },
     default: 'redis',
     type: 'number',
   })
   public REDIS_HOST?: string;
+  /**
+   * Cache server
+   */
+  @ConfigurableProperty({
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'available',
+      [APP_DASHBOARD.description]: 'available',
+    },
+    default: 6379,
+    type: 'number',
+  })
+  public REDIS_PORT?: number;
   /**
    * For binding http server
    */
@@ -56,17 +70,6 @@ export class CommonConfig {
     type: 'number',
   })
   public PORT?: number;
-  /**
-   * Cache server
-   */
-  @ConfigurableProperty({
-    applications: {
-      [APP_HOME_CONTROLLER.description]: 'available',
-    },
-    default: 6379,
-    type: 'number',
-  })
-  public REDIS_PORT?: number;
   /**
    * Prefix for all routes
    */

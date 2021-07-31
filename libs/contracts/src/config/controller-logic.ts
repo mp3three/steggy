@@ -1,4 +1,8 @@
-import { APP_HOME_CONTROLLER, LIB_CONTROLLER_LOGIC } from '../constants';
+import {
+  APP_DASHBOARD,
+  APP_HOME_CONTROLLER,
+  LIB_CONTROLLER_LOGIC,
+} from '../constants';
 import { CreateConfigurableAnnotation } from '../decorators';
 
 const UsesConfig = CreateConfigurableAnnotation(
@@ -13,6 +17,7 @@ export class CustomLogicConfig {
   @UsesConfig({
     applications: {
       [APP_HOME_CONTROLLER.description]: 'available',
+      [APP_DASHBOARD.description]: 'available',
     },
     default: DEFAULT_CIRCADIAN_MAX_TEMP,
     type: 'number',
@@ -21,6 +26,7 @@ export class CustomLogicConfig {
   @UsesConfig({
     applications: {
       [APP_HOME_CONTROLLER.description]: 'available',
+      [APP_DASHBOARD.description]: 'available',
     },
     default: DEFAULT_CIRCADIAN_MIN_TEMP,
     type: 'number',

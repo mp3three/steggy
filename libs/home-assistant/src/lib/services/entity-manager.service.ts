@@ -104,13 +104,22 @@ export class EntityManagerService {
     });
   }
 
+  @OnEvent(HA_SOCKET_READY)
+  protected async socketReady(): Promise<void> {
+    await this.socketService.getAllEntitities();
+  }
+
+  @Trace()
+  protected onApplicationBootstrap(): void {
+    this.socketService.EVENT_STREAM.subscribe((event) => this.onUpdate(event));
+  }
+
   /**
    * Listen in on the HA_EVENT_STATE_CHANGE event
    *
    * This happens any time any entity has an update.
    * Global collection of updates
    */
-  @OnEvent(HA_EVENT_STATE_CHANGE)
   protected async onUpdate(event: HassEventDTO): Promise<void> {
     const { entity_id, new_state } = event.data;
     this.createObservable(entity_id);
@@ -118,11 +127,6 @@ export class EntityManagerService {
     const subscriber = this.SUBSCRIBERS.get(entity_id);
     subscriber?.next(new_state);
     this.eventEmitter.emit(`${entity_id}/update`, event);
-  }
-
-  @OnEvent(HA_SOCKET_READY)
-  protected async socketReady(): Promise<void> {
-    await this.socketService.getAllEntitities();
   }
 
   // #endregion Protected Methods

@@ -1,59 +1,63 @@
-import { Injectable } from '@nestjs/common';
-import blessed from 'blessed';
+import { HassEventDTO } from '@automagical/contracts/home-assistant';
+import { HASocketAPIService } from '@automagical/home-assistant';
+import { Inject, Injectable } from '@nestjs/common';
+import { Widgets } from 'blessed';
+import {
+  grid as Grid,
+  log as Log,
+  Widgets as ContribWidgets,
+} from 'blessed-contrib';
+
+import { BLESSED_SCREEN } from '../typings';
 
 @Injectable()
 export class RecentUpdatesService {
+  // #region Object Properties
+
+  private WIDGET: ContribWidgets.LogElement;
+
+  // #endregion Object Properties
+
+  // #region Constructors
+
+  constructor(
+    @Inject(BLESSED_SCREEN) private readonly SCREEN: Widgets.Screen,
+    private readonly socketService: HASocketAPIService,
+  ) {}
+
+  // #endregion Constructors
+
   // #region Public Methods
 
-  public appendTo(screen: blessed.Widgets.Screen): void {
-    const box = blessed.box({
-      border: {
-        type: 'line',
-      },
-      content: 'Hello {bold}world{/bold}!',
-      height: '100%',
-      right: 0,
+  public async attachInstance(grid: Grid): Promise<void> {
+    this.WIDGET = grid.set(0, 10, 6, 2, Log, {
+      draggable: true,
+      fg: 'green',
+      label: 'HomeAssistant entity update stream',
       scrollable: true,
-      style: {
-        bg: '#2222FF',
-        border: {
-          fg: '#f0f0f0',
-        },
-        fg: 'white',
-      },
       tags: true,
-      width: '20%',
-    });
-
-    // If our box is clicked, change the content.
-    box.on('click', function (data) {
-      box.setContent(
-        Array.from({ length: 100 })
-          .map(
-            (_, i) => `{center}Some different {red-fg}${i}{/red-fg}.{/center}`,
-          )
-          .join(`\n`),
-      );
-      screen.render();
-    });
-
-    // // If box is focused, handle `enter`/`return` and give us some more content.
-    // box.key('enter', function (ch, key) {
-    //   box.setContent(
-    //     '{right}Even different {black-fg}content{/black-fg}.{/right}\n',
-    //   );
-    //   box.setLine(1, 'bar');
-    //   box.insertLine(1, 'foo');
-    //   screen.render();
-    // });
-
-    // Focus our element.
-    box.focus();
-
-    // Append our box to the screen.
-    screen.append(box);
-    //
+    } as ContribWidgets.LogOptions);
+    this.SCREEN.render();
   }
 
   // #endregion Public Methods
+
+  // #region Protected Methods
+
+  protected async onApplicationBootstrap(): Promise<void> {
+    this.socketService.EVENT_STREAM.subscribe((event: HassEventDTO) => {
+      this.WIDGET.log(this.buildLine(event));
+      this.SCREEN.render();
+    });
+  }
+
+  // #endregion Protected Methods
+
+  // #region Private Methods
+
+  private buildLine(event: HassEventDTO): string {
+    return `{bold}${event.data.entity_id}{/bold} => ${event?.data?.new_state?.state}`;
+  }
+
+  // #endregion Private Methods
 }

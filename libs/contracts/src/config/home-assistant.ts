@@ -1,4 +1,8 @@
-import { APP_HOME_CONTROLLER, LIB_HOME_ASSISTANT } from '../constants';
+import {
+  APP_DASHBOARD,
+  APP_HOME_CONTROLLER,
+  LIB_HOME_ASSISTANT,
+} from '../constants';
 import { CreateConfigurableAnnotation } from '../decorators';
 
 const UsesConfig = CreateConfigurableAnnotation(LIB_HOME_ASSISTANT.description);
@@ -8,6 +12,7 @@ export class HomeAssistantConfig {
   @UsesConfig({
     applications: {
       [APP_HOME_CONTROLLER.description]: 'default',
+      [APP_DASHBOARD.description]: 'default',
     },
     type: 'password',
   })
@@ -15,6 +20,7 @@ export class HomeAssistantConfig {
   @UsesConfig({
     applications: {
       [APP_HOME_CONTROLLER.description]: 'default',
+      [APP_DASHBOARD.description]: 'default',
     },
     type: 'url',
   })
@@ -24,4 +30,3 @@ export class HomeAssistantConfig {
 }
 export const HOME_ASSISTANT_BASE_URL = `libs.${LIB_HOME_ASSISTANT.description}.BASE_URL`;
 export const HOME_ASSISTANT_TOKEN = `libs.${LIB_HOME_ASSISTANT.description}.TOKEN`;
-export const DBL_CLICK_TIMEOUT = `libs.${LIB_HOME_ASSISTANT.description}.DBL_CLICK_TIMEOUT`;

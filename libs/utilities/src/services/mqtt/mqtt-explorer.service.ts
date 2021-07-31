@@ -1,13 +1,13 @@
 import type {
   MqttModuleOptions,
   MqttSubscribeOptions,
+  MqttSubscriber,
 } from '@automagical/contracts/utilities';
 import {
   MQTT_CLIENT_INSTANCE,
   MQTT_OPTION_PROVIDER,
   MQTT_SUBSCRIBE_OPTIONS,
   MQTT_SUBSCRIBER_PARAMS,
-  MqttSubscriber,
   MqttSubscriberParameter,
 } from '@automagical/contracts/utilities';
 import { Inject, Injectable } from '@nestjs/common';
@@ -18,7 +18,6 @@ import { Packet } from 'mqtt-packet';
 import { PinoLogger } from 'nestjs-pino';
 
 import { InjectLogger, Trace } from '../../decorators';
-import { getTransform } from '../../includes';
 
 /* eslint-disable no-loops/no-loops, security/detect-object-injection, security/detect-non-literal-regexp */
 
@@ -88,7 +87,99 @@ export class MQTTExplorerService {
   // #region Protected Methods
 
   @Trace()
+  protected onApplicationBootstrap(): void {
+    this.listenForMessages();
+  }
+
+  @Trace()
   protected onModuleInit(): void {
+    this.scanForSubscribers();
+  }
+
+  // #endregion Protected Methods
+
+  // #region Private Methods
+
+  @Trace()
+  private getSubscriber(topic: string): MqttSubscriber {
+    for (const subscriber of this.subscribers) {
+      subscriber.regexp.lastIndex = 0;
+      if (subscriber.regexp.test(topic)) {
+        return subscriber;
+      }
+    }
+  }
+
+  @Trace()
+  private listenForMessages() {
+    this.client.on(
+      'message',
+      (topic: string, payload: Buffer, packet: Packet) => {
+        const subscriber = this.getSubscriber(topic);
+        if (subscriber) {
+          const parameters = subscriber.parameters || [];
+          const scatterParameters: MqttSubscriberParameter[] = [];
+          for (const parameter of parameters) {
+            scatterParameters[parameter.index] = parameter;
+          }
+          try {
+            // add a option to do something before handle message.
+            if (this.options.beforeHandle) {
+              this.options.beforeHandle(topic, payload, packet);
+            }
+
+            subscriber.handle.bind(subscriber.provider)(
+              ...scatterParameters.map((parameter) => {
+                switch (parameter?.type) {
+                  case 'payload':
+                    return this.handlePayload(payload);
+                  case 'topic':
+                    return topic;
+                  case 'packet':
+                    return packet;
+                  case 'params':
+                    return MQTTExplorerService.matchGroups(
+                      topic,
+                      subscriber.regexp,
+                    );
+                }
+              }),
+            );
+          } catch (error) {
+            this.logger.error({ error }, 'message failed');
+          }
+        }
+      },
+    );
+  }
+
+  @Trace()
+  private preprocess(options: MqttSubscribeOptions): string | string[] {
+    const processTopic = (topic) => {
+      const queue =
+        typeof options.queue === 'boolean' ? options.queue : this.options.queue;
+      const share =
+        typeof options.share === 'string' ? options.share : this.options.share;
+      topic = topic
+        .replace('$queue/', '')
+        .replace(/^\$share\/([\dA-Za-z]+)\//, '');
+      if (queue) {
+        return `$queue/${topic}`;
+      }
+
+      if (share) {
+        return `$share/${share}/${topic}`;
+      }
+
+      return topic;
+    };
+    return Array.isArray(options.topic)
+      ? options.topic.map((topic) => processTopic(topic))
+      : processTopic(options.topic);
+  }
+
+  @Trace()
+  private scanForSubscribers() {
     const providers: InstanceWrapper[] = this.discoveryService.getProviders();
     providers.forEach((wrapper: InstanceWrapper) => {
       const { instance } = wrapper;
@@ -121,87 +212,9 @@ export class MQTTExplorerService {
         },
       );
     });
-    this.client.on(
-      'message',
-      (topic: string, payload: Buffer, packet: Packet) => {
-        const subscriber = this.getSubscriber(topic);
-        if (subscriber) {
-          const parameters = subscriber.parameters || [];
-          const scatterParameters: MqttSubscriberParameter[] = [];
-          for (const parameter of parameters) {
-            scatterParameters[parameter.index] = parameter;
-          }
-          try {
-            const transform = getTransform(subscriber.options.transform);
-
-            // add a option to do something before handle message.
-            if (this.options.beforeHandle) {
-              this.options.beforeHandle(topic, payload, packet);
-            }
-
-            subscriber.handle.bind(subscriber.provider)(
-              ...scatterParameters.map((parameter) => {
-                switch (parameter?.type) {
-                  case 'payload':
-                    return transform(payload);
-                  case 'topic':
-                    return topic;
-                  case 'packet':
-                    return packet;
-                  case 'params':
-                    return MQTTExplorerService.matchGroups(
-                      topic,
-                      subscriber.regexp,
-                    );
-                }
-              }),
-            );
-          } catch (error) {
-            this.logger.error({ error }, 'message failed');
-          }
-        }
-      },
-    );
   }
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
 
   @Trace()
-  private preprocess(options: MqttSubscribeOptions): string | string[] {
-    const processTopic = (topic) => {
-      const queue =
-        typeof options.queue === 'boolean' ? options.queue : this.options.queue;
-      const share =
-        typeof options.share === 'string' ? options.share : this.options.share;
-      topic = topic
-        .replace('$queue/', '')
-        .replace(/^\$share\/([\dA-Za-z]+)\//, '');
-      if (queue) {
-        return `$queue/${topic}`;
-      }
-
-      if (share) {
-        return `$share/${share}/${topic}`;
-      }
-
-      return topic;
-    };
-    return Array.isArray(options.topic)
-      ? options.topic.map((topic) => processTopic(topic))
-      : processTopic(options.topic);
-  }
-
-  private getSubscriber(topic: string): MqttSubscriber {
-    for (const subscriber of this.subscribers) {
-      subscriber.regexp.lastIndex = 0;
-      if (subscriber.regexp.test(topic)) {
-        return subscriber;
-      }
-    }
-  }
-
   private subscribe(
     options: MqttSubscribeOptions,
     parameters: MqttSubscriberParameter[],
@@ -231,6 +244,14 @@ export class MQTTExplorerService {
         this.logger.error(`subscribe topic [${options.topic} failed]`);
       }
     });
+  }
+
+  private handlePayload(payload: Buffer): unknown {
+    const text = payload.toString('utf-8');
+    if (!['{', '['].includes(text.charAt(0))) {
+      return text;
+    }
+    return JSON.parse(text);
   }
 
   // #endregion Private Methods

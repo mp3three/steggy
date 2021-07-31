@@ -1,4 +1,4 @@
-import { APP_HOME_CONTROLLER, LIB_UTILS } from '../constants';
+import { APP_DASHBOARD, APP_HOME_CONTROLLER, LIB_UTILS } from '../constants';
 import { CreateConfigurableAnnotation } from '../decorators';
 import { AWSUtilitiesConfig } from './external';
 
@@ -82,6 +82,7 @@ export class UtilsConfig {
   @UsesConfig({
     applications: {
       [APP_HOME_CONTROLLER.description]: 'available',
+      [APP_DASHBOARD.description]: 'available',
     },
     default: 'localhost',
     type: 'string',
@@ -90,6 +91,7 @@ export class UtilsConfig {
   @UsesConfig({
     applications: {
       [APP_HOME_CONTROLLER.description]: 'available',
+      [APP_DASHBOARD.description]: 'available',
     },
     default: 1883,
     type: 'number',
@@ -98,15 +100,19 @@ export class UtilsConfig {
   @UsesConfig({
     applications: {
       [APP_HOME_CONTROLLER.description]: 'default',
+      [APP_DASHBOARD.description]: 'available',
     },
-    type: 'number',
+    // Doesn't seem to cast negative numbers properly when set to number
+    type: 'string',
   })
   public LATITUDE?: number;
   @UsesConfig({
     applications: {
       [APP_HOME_CONTROLLER.description]: 'default',
+      [APP_DASHBOARD.description]: 'available',
     },
-    type: 'number',
+    // Doesn't seem to cast negative numbers properly when set to number
+    type: 'string',
   })
   public LONGITUDE?: number;
   @UsesConfig({

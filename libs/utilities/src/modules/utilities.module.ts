@@ -1,5 +1,12 @@
 import { LIB_UTILS } from '@automagical/contracts/constants';
-import { CacheModule, Global, Module } from '@nestjs/common';
+import { ACTIVE_APPLICATION } from '@automagical/contracts/utilities';
+import {
+  CacheModule,
+  DynamicModule,
+  Global,
+  Module,
+  Provider,
+} from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { LoggableModule } from '..';
@@ -14,7 +21,13 @@ import {
 
 @Global()
 @Module({
-  exports: [TemplateService, AutoConfigService, LocalsService, FetchService, SolarCalcService],
+  exports: [
+    TemplateService,
+    AutoConfigService,
+    LocalsService,
+    FetchService,
+    SolarCalcService,
+  ],
   imports: [CacheModule.register(), DiscoveryModule],
   providers: [
     TemplateService,
@@ -26,4 +39,42 @@ import {
   ],
 })
 @LoggableModule(LIB_UTILS)
-export class UtilitiesModule {}
+export class UtilitiesModule {
+  // #region Public Static Methods
+
+  public static forRoot(
+    APP_NAME: symbol,
+    globalProviders: Provider[] = [],
+  ): DynamicModule {
+    const ACTIVE_APP = {
+      provide: ACTIVE_APPLICATION,
+      useValue: APP_NAME,
+    };
+    return {
+      exports: [
+        TemplateService,
+        AutoConfigService,
+        LocalsService,
+        FetchService,
+        ACTIVE_APP,
+        ...globalProviders,
+        SolarCalcService,
+      ],
+      global: true,
+      imports: [CacheModule.register(), DiscoveryModule],
+      module: UtilitiesModule,
+      providers: [
+        TemplateService,
+        LocalsService,
+        ACTIVE_APP,
+        AutoConfigService,
+        ...globalProviders,
+        FetchService,
+        SolarCalcService,
+        LogExplorerService,
+      ],
+    };
+  }
+
+  // #endregion Public Static Methods
+}

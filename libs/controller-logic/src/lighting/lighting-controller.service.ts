@@ -3,7 +3,6 @@ import type {
   RoomController,
   RoomDeviceDTO,
 } from '@automagical/contracts';
-import { HA_EVENT_STATE_CHANGE } from '@automagical/contracts/constants';
 import {
   domain,
   HASS_DOMAINS,
@@ -14,11 +13,12 @@ import {
 } from '@automagical/contracts/home-assistant';
 import {
   EntityManagerService,
+  HASocketAPIService,
   HomeAssistantCoreService,
 } from '@automagical/home-assistant';
 import { Debug, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { each } from 'async';
 import { PinoLogger } from 'nestjs-pino';
 import { Observable } from 'rxjs';
@@ -65,6 +65,7 @@ export class LightingControllerService {
     private readonly entityManagerService: EntityManagerService,
     private readonly eventEmitter: EventEmitter2,
     private readonly lightManager: LightManagerService,
+    private readonly socketService: HASocketAPIService,
   ) {}
 
   // #endregion Constructors
@@ -268,7 +269,7 @@ export class LightingControllerService {
     );
   }
 
-  @OnEvent(HA_EVENT_STATE_CHANGE)
+  @Trace()
   protected async onControllerEvent(
     event: HassEventDTO<PicoStates>,
   ): Promise<void> {
@@ -334,6 +335,12 @@ export class LightingControllerService {
       case PicoStates.down:
         return await this.dimDown(count, controller);
     }
+  }
+
+  protected onApplicationBootstrap(): void {
+    this.socketService.EVENT_STREAM.subscribe((event: HassEventDTO) =>
+      this.onControllerEvent(event as HassEventDTO<PicoStates>),
+    );
   }
 
   // #endregion Protected Methods

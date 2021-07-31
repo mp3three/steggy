@@ -1,37 +1,47 @@
 import {
   HOME_ASSISTANT_BASE_URL,
-  HOME_ASSISTANT_TOKEN
+  HOME_ASSISTANT_TOKEN,
 } from '@automagical/contracts/config';
 import {
   ALL_ENTITIES_UPDATED,
   CONNECTION_RESET,
   HA_EVENT_STATE_CHANGE,
-  HA_SOCKET_READY
+  HA_SOCKET_READY,
 } from '@automagical/contracts/constants';
 import {
   AreaDTO,
   DeviceListItemDTO,
   EntityListItemDTO,
+  HassEventDTO,
   HassEvents,
   HASSIO_WS_COMMAND,
   HassSocketMessageTypes,
   HassStateDTO,
   SendSocketMessageDTO,
-  SocketMessageDTO
+  SocketMessageDTO,
 } from '@automagical/contracts/home-assistant';
-import { AutoConfigService, EmitAfter, InjectLogger, Trace } from '@automagical/utilities';
+import {
+  AutoConfigService,
+  EmitAfter,
+  InjectLogger,
+  Trace,
+} from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PinoLogger } from 'nestjs-pino';
+import { Observable, Subscriber } from 'rxjs';
 import WS from 'ws';
 
 @Injectable()
 export class HASocketAPIService {
   // #region Object Properties
 
+  public EVENT_STREAM: Observable<HassEventDTO>;
+
   private connection: WS;
   private messageCount = 1;
+  private subscriber: Subscriber<HassEventDTO>;
   private waitingCallback = new Map<number, (result) => void>();
 
   // #endregion Object Properties
@@ -43,7 +53,11 @@ export class HASocketAPIService {
     protected readonly logger: PinoLogger,
     private readonly configService: AutoConfigService,
     private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) {
+    this.EVENT_STREAM = new Observable(
+      (subscriber) => (this.subscriber = subscriber),
+    );
+  }
 
   // #endregion Constructors
 
@@ -195,6 +209,7 @@ export class HASocketAPIService {
       case HassSocketMessageTypes.event:
         if (message.event.event_type === HassEvents.state_changed) {
           this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
+          this.subscriber.next(message.event);
         }
         return;
 
