@@ -6,16 +6,17 @@
   "defaultProject": "home-controller",
   "projects": {
     "ast-class-organizer": "apps/ast-class-organizer",
-    "devtools": "apps/devtools",
-    "home-controller": "apps/home-controller",
-    "living-docs": "apps/living-docs",
     "contracts": "libs/contracts",
+    "controller-logic": "libs/controller-logic",
+    "dashboard": "apps/dashboard",
+    "devtools": "apps/devtools",
     "formio-sdk": "libs/formio-sdk",
     "home-assistant": "libs/home-assistant",
+    "home-controller": "apps/home-controller",
+    "living-docs": "apps/living-docs",
     "server": "libs/server",
     "terminal": "libs/terminal",
     "testing": "libs/testing",
-    "utilities": "libs/utilities",
-    "controller-logic": "libs/controller-logic"
+    "utilities": "libs/utilities"
   }
 }

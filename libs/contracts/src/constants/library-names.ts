@@ -1,6 +1,7 @@
 // These characters are banned from app symbol names due to breaking functionality elsewhere:
 // -_.
 
+export const APP_DASHBOARD = Symbol('dashboard');
 export const APP_DEVTOOLS = Symbol('devtools');
 export const APP_LIVING_DOCS = Symbol('livingdocs');
 export const APP_HOME_CONTROLLER = Symbol('home');
@@ -19,6 +20,7 @@ export const APPLICATION_LIST = [
   APP_HOME_CONTROLLER.description,
   APP_DEVTOOLS.description,
   APP_LIVING_DOCS.description,
+  APP_DASHBOARD.description,
 ];
 
 export const APPLICATION_SYMBOL_MAP = new Map(
@@ -26,6 +28,7 @@ export const APPLICATION_SYMBOL_MAP = new Map(
     [APP_HOME_CONTROLLER.description]: APP_HOME_CONTROLLER,
     [APP_DEVTOOLS.description]: APP_DEVTOOLS,
     [APP_LIVING_DOCS.description]: APP_LIVING_DOCS,
+    [APP_DASHBOARD.description]: APP_DASHBOARD,
   }),
 );
 export const LIBRARY_LIST = [

@@ -32,10 +32,10 @@
         "request": "launch",
         "runtimeExecutable": "${execPath}",
         "args": [
-            "--extensionDevelopmentPath=${workspaceFolder}/apps/ast-class-organizer"
+            "--extensionDevelopmentPath=${workspaceFolder}/apps/tsco"
         ],
         "outFiles": [
-            "${workspaceFolder}/dist/apps/ast-class-organizer/**/*.js"
+            "${workspaceFolder}/dist/apps/tsco/**/*.js"
         ],
       }
     ]
@@ -84,6 +84,7 @@
       "**/.git": true,
       "**/.svn": true,
       "**/.hg": true,
+      "**/*vsix" : true,
       "**/CVS": true,
       "**/.DS_Store": true,
       "**/*.secret": true,
@@ -97,16 +98,10 @@
       "**/.yarnclean": true,
       "LICENSE": true,
       "**/.gitkeep": true,
-      // "**/ast-class-organizernfig.spec.json": true,
-      // "**/ast-class-organizernfig.lib.json": true,
-      // "**/ast-class-organizernfig.json": true,
       "**/jest.*.js": true,
-      // "**/ast-class-organizernfig.*json": true,
       "**/.babelrc": true,
       "**/.prettierignore": true,
       ".editorconfig": true,
-      // "dist": true,
-      // "**/.gitignore": true,
     },
     "prettier.arrowParens": "avoid",
 
@@ -160,14 +155,14 @@
     // * </Decorative>
 
     // * <Typescript Class Organizer>
-    "ast-class-organizer.accessorsBeforeCtor": true,
-    "ast-class-organizer.addRegionCaptionToRegionEnd": true,
-    "ast-class-organizer.groupPropertiesWithDecorators": true,
-    "ast-class-organizer.addRowNumberInRegionName": false,
-    "ast-class-organizer.addRegionIndentation": true,
-    "ast-class-organizer.organizeOnSave": true,
-    "ast-class-organizer.useRegions": true,
-    "ast-class-organizer.memberOrder": [{
+    "tsco.accessorsBeforeCtor": true,
+    "tsco.addRegionCaptionToRegionEnd": true,
+    "tsco.groupPropertiesWithDecorators": true,
+    "tsco.addRowNumberInRegionName": false,
+    "tsco.addRegionIndentation": true,
+    "tsco.organizeOnSave": true,
+    "tsco.useRegions": true,
+    "tsco.memberOrder": [{
         "caption": "Static Properties",
         "memberTypes": [
           "publicStaticConstProperties",
@@ -216,7 +211,6 @@
           "privateStaticIndexes"
         ]
       },
-
       {
         "caption": "Public Static Methods",
         "memberTypes": [

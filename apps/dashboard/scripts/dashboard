@@ -1,0 +1,12 @@
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+cd $SCRIPT_DIR
+cd ../../../
+
+VERSION=$(cat "apps/dashboard/package.json" | jq .version)
+BUILT=$(cat "dist/apps/dashboard/package.json" | jq .version)
+
+if [ "$VERSION" != "$BUILT" ]; then
+  npx nx build dashboard
+fi
+
+node ./dist/apps/dashboard/main.js $1

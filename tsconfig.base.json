@@ -13,23 +13,16 @@
     "target": "es2015",
     "allowJs": true,
     "module": "esnext",
-    "lib": [
-      "es2019",
-      "dom"
-    ],
+    "lib": ["es2019", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@automagical/contracts": [
-        "libs/contracts/src/index.ts"
-      ],
+      "@automagical/contracts": ["libs/contracts/src/index.ts"],
       "@automagical/contracts/authentication": [
         "libs/contracts/src/libs/authentication/index.ts"
       ],
-      "@automagical/contracts/config": [
-        "libs/contracts/src/config/index.ts"
-      ],
+      "@automagical/contracts/config": ["libs/contracts/src/config/index.ts"],
       "@automagical/contracts/constants": [
         "libs/contracts/src/constants/index.ts"
       ],
@@ -54,34 +47,15 @@
       "@automagical/contracts/utilities": [
         "libs/contracts/src/libs/utilities/index.ts"
       ],
-      "@automagical/formio-sdk": [
-        "libs/formio-sdk/src/index.ts"
-      ],
-      "@automagical/home-assistant": [
-        "libs/home-assistant/src/index.ts"
-      ],
-      "@automagical/persistence/mongo": [
-        "libs/persistence/src/mongo/index.ts"
-      ],
-      "@automagical/server": [
-        "libs/server/src/index.ts"
-      ],
-      "@automagical/terminal": [
-        "libs/terminal/src/index.ts"
-      ],
-      "@automagical/testing": [
-        "libs/testing/src/index.ts"
-      ],
-      "@automagical/utilities": [
-        "libs/utilities/src/index.ts"
-      ],
-      "@automagical/controller-logic": [
-        "libs/controller-logic/src/index.ts"
-      ]
+      "@automagical/controller-logic": ["libs/controller-logic/src/index.ts"],
+      "@automagical/formio-sdk": ["libs/formio-sdk/src/index.ts"],
+      "@automagical/home-assistant": ["libs/home-assistant/src/index.ts"],
+      "@automagical/persistence/mongo": ["libs/persistence/src/mongo/index.ts"],
+      "@automagical/server": ["libs/server/src/index.ts"],
+      "@automagical/terminal": ["libs/terminal/src/index.ts"],
+      "@automagical/testing": ["libs/testing/src/index.ts"],
+      "@automagical/utilities": ["libs/utilities/src/index.ts"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "tmp"
-  ]
+  "exclude": ["node_modules", "tmp"]
 }

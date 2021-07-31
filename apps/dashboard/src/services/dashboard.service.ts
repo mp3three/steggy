@@ -3,7 +3,7 @@ import { MainCLIREPL } from '@automagical/terminal';
 import { Injectable } from '@nestjs/common';
 import blessed from 'blessed';
 
-import { RecentUpdatesService } from '../dashboard';
+import { RecentUpdatesService } from './recent-updates.service';
 
 @Injectable()
 export class DashboardService implements CLIService {

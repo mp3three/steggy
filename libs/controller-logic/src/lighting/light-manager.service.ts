@@ -116,7 +116,7 @@ export class LightManagerService {
     const lights = await this.getActiveLights();
     await each(lights, async (id, callback) => {
       const state = await this.getState(id);
-      if (state.mode !== 'circadian' || state.kelvin === kelvin) {
+      if (state?.mode !== 'circadian' || state.kelvin === kelvin) {
         return;
       }
       await this.turnOn(id, state);
