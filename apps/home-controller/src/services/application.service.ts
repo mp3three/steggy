@@ -1,9 +1,16 @@
-import { HA_SOCKET_READY } from '@automagical/contracts/constants';
+import { RoomController } from '@automagical/contracts';
+import {
+  HA_EVENT_STATE_CHANGE,
+  HA_SOCKET_READY,
+  METADATA_CACHE_KEY,
+} from '@automagical/contracts/constants';
 import {
   BatteryStateDTO,
   domain,
   HASS_DOMAINS,
+  HassEventDTO,
 } from '@automagical/contracts/home-assistant';
+import { SET_ROOM_STATE } from '@automagical/contracts/utilities';
 import { LightingControllerService } from '@automagical/controller-logic';
 import {
   EntityManagerService,
@@ -18,13 +25,21 @@ import {
   Trace,
   Warn,
 } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
+import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 
-import { GLOBAL_TRANSITION, ROOM_NAMES } from '../typings';
+import {
+  GLOBAL_TRANSITION,
+  HOMEASSISTANT_LEAVE_HOME,
+  HOMEASSISTANT_MOBILE_LOCK,
+  HOMEASSISTANT_MOBILE_UNLOCK,
+  ROOM_FAVORITE,
+  ROOM_NAMES,
+} from '../typings';
 
 @Injectable()
 export class ApplicationService {
@@ -40,11 +55,13 @@ export class ApplicationService {
   constructor(
     @InjectLogger()
     protected readonly logger: PinoLogger,
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly solarCalc: SolarCalcService,
     private readonly notifyService: NotifyDomainService,
     private readonly entityManager: EntityManagerService,
     private readonly lockService: LockDomainService,
     private readonly lightController: LightingControllerService,
+    private readonly eventEmitterService: EventEmitter2,
   ) {}
 
   // #endregion Constructors
@@ -61,14 +78,14 @@ export class ApplicationService {
 
   // #region Public Methods
 
-  @Subscribe('mobile/lock')
+  @Subscribe(HOMEASSISTANT_MOBILE_LOCK)
   @OnEvent(GLOBAL_TRANSITION)
   @Warn('Lock Doors')
   public async lockDoors(): Promise<void> {
     await this.lockService.lock(this.locks);
   }
 
-  @Subscribe('mobile/unlock')
+  @Subscribe(HOMEASSISTANT_MOBILE_UNLOCK)
   @Warn('Unlock Doors')
   public async unlockDoors(): Promise<void> {
     await this.lockService.unlock(this.locks);
@@ -76,6 +93,7 @@ export class ApplicationService {
 
   public onModuleInit(): void {
     setTimeout(async () => {
+      // this.eventEmitterService.emit(ROOM_FAVORITE(ROOM_NAMES.games));
       // await this.lockDoors();
     }, 1000);
   }
@@ -129,6 +147,14 @@ export class ApplicationService {
     await this.notifyService.notify(`${message}\n${message}`);
   }
 
+  @OnEvent(HA_EVENT_STATE_CHANGE)
+  @Trace()
+  protected async eventStats(): Promise<void> {
+    const key = METADATA_CACHE_KEY('HASS_EVENT_COUNT');
+    const value = (await this.cache.get<number>(key)) ?? 0;
+    await this.cache.set(key, value);
+  }
+
   @OnEvent(HA_SOCKET_READY)
   @Trace()
   protected async onSocketReset(): Promise<void> {
@@ -144,12 +170,36 @@ export class ApplicationService {
     );
   }
 
+  @Subscribe(SET_ROOM_STATE)
+  protected async setRoomState(
+    room: ROOM_NAMES,
+    state: keyof RoomController,
+  ): Promise<void> {
+    switch (state) {
+      case 'areaOff':
+        await this.lightController.roomOff(room);
+        return;
+      case 'areaOn':
+        await this.lightController.roomOn(room);
+        return;
+      case 'dimUp':
+        await this.lightController.dimUp(1, room);
+        return;
+      case 'dimDown':
+        await this.lightController.dimDown(1, room);
+        return;
+      case 'favorite':
+        this.eventEmitterService.emit(ROOM_FAVORITE(room));
+        return;
+    }
+  }
+
   /**
    * Home Assistant relayed this request via a mobile app action
    *
    * Intended to lock up, turn off the lights, and send back verification
    */
-  @Subscribe('mobile/leave_home')
+  @Subscribe(HOMEASSISTANT_LEAVE_HOME)
   @Debug('Home Assistant => Leave Home')
   protected async leaveHome(): Promise<void> {
     await this.lockDoors();

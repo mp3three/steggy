@@ -75,8 +75,11 @@ export class LightingControllerService {
   @Trace()
   public async areaOff(
     count: number,
-    controller: RoomController,
+    controller: RoomController | string,
   ): Promise<void> {
+    if (typeof controller === 'string') {
+      controller = this.ROOM_MAP.get(controller);
+    }
     if (!(await controller.areaOff(count))) {
       return;
     }
@@ -87,8 +90,11 @@ export class LightingControllerService {
   @Trace()
   public async areaOn(
     count: number,
-    controller: RoomController,
+    controller: RoomController | string,
   ): Promise<void> {
+    if (typeof controller === 'string') {
+      controller = this.ROOM_MAP.get(controller);
+    }
     if (!(await controller.areaOn(count))) {
       return;
     }
@@ -119,8 +125,11 @@ export class LightingControllerService {
   @Trace()
   public async dimDown(
     count: number,
-    controller: RoomController,
+    controller: RoomController | string,
   ): Promise<void> {
+    if (typeof controller === 'string') {
+      controller = this.ROOM_MAP.get(controller);
+    }
     if (!(await controller.dimDown(count))) {
       return;
     }
@@ -132,7 +141,13 @@ export class LightingControllerService {
   }
 
   @Trace()
-  public async dimUp(count: number, controller: RoomController): Promise<void> {
+  public async dimUp(
+    count: number,
+    controller: RoomController | string,
+  ): Promise<void> {
+    if (typeof controller === 'string') {
+      controller = this.ROOM_MAP.get(controller);
+    }
     if (!(await controller.dimUp(count))) {
       return;
     }

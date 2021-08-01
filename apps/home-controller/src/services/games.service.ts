@@ -3,12 +3,13 @@ import { LightingControllerService } from '@automagical/controller-logic';
 import { MediaPlayerDomainService } from '@automagical/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 
-import { ROOM_NAMES } from '../typings';
+import { ROOM_FAVORITE, ROOM_NAMES } from '../typings';
 
 const MONITOR = 'media_player.monitor';
 const EVENING_BRIGHTNESS = 40;
@@ -44,6 +45,31 @@ export class GamesRoomService implements RoomController {
 
   // #region Public Methods
 
+  @OnEvent(ROOM_FAVORITE(ROOM_NAMES.games))
+  @Trace()
+  public async favorite(count: number): Promise<boolean> {
+    await this.cacheManager.set(`GAMES_AUTO_MODE`, true, {
+      ttl: 60 * 60 * 24,
+    });
+    if (count === 1) {
+      await this.lightingController.circadianLight(
+        ['light.games_1', 'light.games_2', 'light.games_3', 'light.games_lamp'],
+        30,
+      );
+      return false;
+    }
+    if (count === 2) {
+      await this.lightingController.roomOff(ROOM_NAMES.loft);
+      await this.lightingController.roomOff(ROOM_NAMES.downstairs);
+      await this.lightingController.roomOff(ROOM_NAMES.master);
+      return false;
+    }
+    if (count === 3) {
+      await this.remoteService.turnOff(MONITOR);
+    }
+    return false;
+  }
+
   @Trace()
   public async areaOff(): Promise<boolean> {
     await this.cacheManager.del(`GAMES_AUTO_MODE`);
@@ -73,30 +99,6 @@ export class GamesRoomService implements RoomController {
     return true;
   }
 
-  @Trace()
-  public async favorite(count: number): Promise<boolean> {
-    await this.cacheManager.set(`GAMES_AUTO_MODE`, true, {
-      ttl: 60 * 60 * 24,
-    });
-    if (count === 1) {
-      await this.lightingController.circadianLight(
-        ['light.games_1', 'light.games_2', 'light.games_3', 'light.games_lamp'],
-        30,
-      );
-      return false;
-    }
-    if (count === 2) {
-      await this.lightingController.roomOff(ROOM_NAMES.loft);
-      await this.lightingController.roomOff(ROOM_NAMES.downstairs);
-      await this.lightingController.roomOff(ROOM_NAMES.master);
-      return false;
-    }
-    if (count === 3) {
-      await this.remoteService.turnOff(MONITOR);
-    }
-    return false;
-  }
-
   // #endregion Public Methods
 
   // #region Protected Methods
@@ -108,16 +110,23 @@ export class GamesRoomService implements RoomController {
       return;
     }
     const target = this.fanAutoBrightness();
-    this.logger.info({ target });
     if (target === 0) {
-      await this.lightingController.turnOff(FAN_LIGHTS);
+      await this.lightingController.turnOff([
+        'light.games_1',
+        'light.games_2',
+        'light.games_3',
+        'light.games_lamp',
+      ]);
       return;
     }
-    await this.lightingController.circadianLight(FAN_LIGHTS, target);
+    await this.lightingController.circadianLight(
+      ['light.games_1', 'light.games_2', 'light.games_3', 'light.games_lamp'],
+      target,
+    );
   }
 
   @Trace()
-  protected async onModuleInit(): Promise<void> {
+  protected async onApplicationBootstrap(): Promise<void> {
     this.lightingController.setRoomController('sensor.games_pico', this, {
       devices: [
         {
@@ -148,7 +157,6 @@ export class GamesRoomService implements RoomController {
     const hour = now.hour();
     const minute = now.minute();
     const second = now.second();
-    this.logger.info({hour,minute,second})
     // If before 6AM, 5% (min brightness)
     if (hour < 7) {
       return 5;
@@ -182,18 +190,20 @@ export class GamesRoomService implements RoomController {
         EVENING_BRIGHTNESS * 2 - this.ticksThisHour(minute, second);
       return brightness < EVENING_BRIGHTNESS ? EVENING_BRIGHTNESS : brightness;
     }
-    if( hour === 21 ) {
+    if (hour === 21) {
       return EVENING_BRIGHTNESS;
     }
-    if( hour === 22 ) {
-      const brightness = EVENING_BRIGHTNESS - Math.floor(this.ticksThisHour(minute, second)/2);
+    if (hour === 22) {
+      const brightness =
+        EVENING_BRIGHTNESS - Math.floor(this.ticksThisHour(minute, second) / 2);
       const MINIMUM = EVENING_BRIGHTNESS / 2;
       return brightness < MINIMUM ? MINIMUM : brightness;
     }
     if (hour < 23) {
-      return EVENING_BRIGHTNESS/2;
+      return EVENING_BRIGHTNESS / 2;
     }
-    const brightness = (EVENING_BRIGHTNESS/2) - this.ticksThisHour(minute, second);
+    const brightness =
+      EVENING_BRIGHTNESS / 2 - this.ticksThisHour(minute, second);
     return brightness < 10 ? 10 : brightness;
   }
 

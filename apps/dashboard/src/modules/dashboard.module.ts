@@ -7,13 +7,12 @@ import {
   CommonImports,
   LoggableModule,
   MQTTModule,
-  SymbolProviderModule,
   UtilitiesModule,
 } from '@automagical/utilities';
 import { Module } from '@nestjs/common';
 import { program as Program, screen as Screen } from 'blessed';
 
-import { BLESSED_COLORS, BlessedTheme } from '../includes';
+import { BLESSED_COLORS } from '../includes';
 import {
   ApplicationService,
   LoftService,
@@ -28,12 +27,10 @@ import { BLESSED_SCREEN, BLESSED_THEME } from '../typings';
   imports: [
     UtilitiesModule.forRoot(APP_DASHBOARD, [
       {
-        inject: [AutoConfigService, BLESSED_THEME],
+        inject: [AutoConfigService],
         provide: BLESSED_SCREEN,
-        useFactory(config: AutoConfigService, { program }: BlessedTheme) {
+        useFactory(config: AutoConfigService) {
           const program2 = Program();
-          program2.bg(program.bg);
-          program2.fg(program.fg);
           const out = Screen({
             autoPadding: true,
             program: program2,

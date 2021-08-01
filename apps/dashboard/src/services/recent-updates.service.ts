@@ -32,9 +32,7 @@ export class RecentUpdatesService {
   public async attachInstance(grid: Grid): Promise<void> {
     this.WIDGET = grid.set(0, 10, 6, 2, Log, {
       draggable: true,
-      fg: 'green',
       label: 'HomeAssistant entity update stream',
-      scrollable: true,
       tags: true,
     } as ContribWidgets.LogOptions);
     this.SCREEN.render();

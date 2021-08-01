@@ -37,4 +37,3 @@ export class BlessedTheme {
 
   // #endregion Object Properties
 }
-console.log(BLESSED_COLORS);

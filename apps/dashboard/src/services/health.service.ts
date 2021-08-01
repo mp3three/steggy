@@ -1,24 +1,23 @@
 import { MQTT_HEALTH_CHECK } from '@automagical/contracts/utilities';
 import { Payload, Subscribe } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
-import { box as Box, button as Button, Widgets } from 'blessed';
-import blessed from 'blessed';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { box as Box, Widgets } from 'blessed';
 import {
-  grid as Grid,
-  log as Log,
+  markdown as Markdown,
   Widgets as ContribWidgets,
 } from 'blessed-contrib';
-import contrib from 'blessed-contrib';
+import chalk from 'chalk';
 import dayjs from 'dayjs';
 
-import { BlessedTheme } from '../includes';
-import { BLESSED_SCREEN, BLESSED_THEME } from '../typings';
+import { BLESSED_SCREEN } from '../typings';
 
 @Injectable()
 export class HealthService {
   // #region Object Properties
 
-  private WIDGET: ContribWidgets.LogElement;
+  private SERVICES = new Map<string, dayjs.Dayjs>();
+  private WIDGET: ContribWidgets.MarkdownElement;
 
   // #endregion Object Properties
 
@@ -26,24 +25,22 @@ export class HealthService {
 
   constructor(
     @Inject(BLESSED_SCREEN) private readonly SCREEN: Widgets.Screen,
-    @Inject(BLESSED_THEME) private readonly THEME: BlessedTheme,
   ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
-  public async attachInstance(grid: Grid): Promise<void> {
-    const { style, border } = this.THEME.header;
-    this.WIDGET = grid.set(6, 10, 6, 2, Log, {
-      bg: style.bg,
-      // border,
+  public async attachInstance(grid: ContribWidgets.GridElement): Promise<void> {
+    this.WIDGET = grid.set<
+      ContribWidgets.MarkdownOptions,
+      ContribWidgets.MarkdownElement
+    >(10, 10, 2, 2, Markdown, {
       draggable: true,
-      fg: style.fg,
-      label: 'Health Checks',
-      scrollable: true,
-      tags: true,
-    } as ContribWidgets.LogOptions);
+      label: 'System Health',
+      markdown: `# Waiting....`,
+      padding: 1,
+    } as ContribWidgets.MarkdownOptions);
     this.SCREEN.render();
   }
 
@@ -51,9 +48,35 @@ export class HealthService {
 
   // #region Protected Methods
 
+  @Cron(CronExpression.EVERY_SECOND)
+  protected updateTable(): void {
+    const online = [];
+    const offline = [];
+    this.SERVICES.forEach((update, appName) => {
+      if (update.isBefore(dayjs().subtract(10, 'second'))) {
+        offline.push(appName);
+        return;
+      }
+      online.push(appName);
+    });
+    const md = [];
+    if (online.length > 0) {
+      md.push(chalk`{green Online}`, ...online.map((i) => `- ${i}`));
+    }
+    if (offline.length > 0) {
+      if (md.length > 0) {
+        md.push('');
+      }
+      md.push(chalk`{red Offline}`, ...offline.map((i) => `- ${i}`));
+    }
+    this.WIDGET.setMarkdown(md.join(`\n`));
+    this.SCREEN.render();
+  }
+
   @Subscribe(MQTT_HEALTH_CHECK)
   protected onHealthCheck(@Payload() app: string): void {
-    this.WIDGET.log(`${dayjs().format('HH:mm:ss')} ${app}`);
+    this.SERVICES.set(app, dayjs());
+    this.updateTable();
   }
 
   // #endregion Protected Methods

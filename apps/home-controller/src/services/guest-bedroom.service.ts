@@ -4,7 +4,7 @@ import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 
-import { ROOM_NAMES } from '../typings';
+import { ROOM_FAVORITE, ROOM_NAMES } from '../typings';
 
 @Injectable()
 export class GuestBedroomService implements RoomController {
@@ -22,38 +22,34 @@ export class GuestBedroomService implements RoomController {
 
   // #region Public Methods
 
+  @OnEvent(ROOM_FAVORITE(ROOM_NAMES.guest))
+  @Trace()
+  public async favorite(): Promise<boolean> {
+    return true;
+  }
+
+  @Trace()
+  public async areaOff(): Promise<boolean> {
+    return true;
+  }
+
+  @Trace()
+  public async areaOn(): Promise<boolean> {
+    return true;
+  }
+
   @Trace()
   public async combo(): Promise<boolean> {
     return true;
   }
 
   @Trace()
-  @OnEvent(`${ROOM_NAMES.guest}/areaOff`)
-  public async areaOff(): Promise<boolean> {
-    return true;
-  }
-
-  @Trace()
-  @OnEvent(`${ROOM_NAMES.guest}/areaOn`)
-  public async areaOn(): Promise<boolean> {
-    return true;
-  }
-
-  @Trace()
-  @OnEvent(`${ROOM_NAMES.guest}/dimDown`)
   public async dimDown(): Promise<boolean> {
     return true;
   }
 
   @Trace()
-  @OnEvent(`${ROOM_NAMES.guest}/dimUp`)
   public async dimUp(): Promise<boolean> {
-    return true;
-  }
-
-  @Trace()
-  @OnEvent(`${ROOM_NAMES.guest}/favorite`)
-  public async favorite(): Promise<boolean> {
     return true;
   }
 

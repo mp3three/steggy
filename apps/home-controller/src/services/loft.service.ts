@@ -7,15 +7,15 @@ import {
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { Debug, InjectLogger, sleep, Trace } from '@automagical/utilities';
+import { Debug, InjectLogger, Trace } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 
-import { GLOBAL_TRANSITION, ROOM_NAMES } from '../typings';
+import { GLOBAL_TRANSITION, ROOM_FAVORITE, ROOM_NAMES } from '../typings';
 
 const MONITOR = 'media_player.monitor';
 const PANEL_LIGHTS = ['light.loft_wall_bottom', 'light.loft_wall_top'];
@@ -74,43 +74,7 @@ export class LoftService implements RoomController {
 
   // #region Public Methods
 
-  @Trace()
-  public async areaOff(count: number): Promise<boolean> {
-    await this.cacheManager.del(`LOFT_AUTO_MODE`);
-    if (count === 2) {
-      await this.remoteService.turnOff(MONITOR);
-      this.eventEmitter.emit(GLOBAL_TRANSITION);
-    }
-    if (count === 3) {
-      await this.remoteService.turnOff(MONITOR);
-      await this.fanService.turnOff('fan.loft_ceiling_fan');
-    }
-    return true;
-  }
-
-  @Trace()
-  public async areaOn(): Promise<boolean> {
-    await this.cacheManager.del(`LOFT_AUTO_MODE`);
-    return true;
-  }
-
-  @Trace()
-  public async combo(): Promise<boolean> {
-    return true;
-  }
-
-  @Trace()
-  public async dimDown(): Promise<boolean> {
-    await this.cacheManager.del(`LOFT_AUTO_MODE`);
-    return true;
-  }
-
-  @Trace()
-  public async dimUp(): Promise<boolean> {
-    await this.cacheManager.del(`LOFT_AUTO_MODE`);
-    return true;
-  }
-
+  @OnEvent(ROOM_FAVORITE(ROOM_NAMES.loft))
   @Trace()
   public async favorite(count: number): Promise<boolean> {
     await this.cacheManager.set(`LOFT_AUTO_MODE`, true, {
@@ -150,6 +114,43 @@ export class LoftService implements RoomController {
       this.lightingController.roomOff(ROOM_NAMES.games);
     }
     return false;
+  }
+
+  @Trace()
+  public async areaOff(count: number): Promise<boolean> {
+    await this.cacheManager.del(`LOFT_AUTO_MODE`);
+    if (count === 2) {
+      await this.remoteService.turnOff(MONITOR);
+      this.eventEmitter.emit(GLOBAL_TRANSITION);
+    }
+    if (count === 3) {
+      await this.remoteService.turnOff(MONITOR);
+      await this.fanService.turnOff('fan.loft_ceiling_fan');
+    }
+    return true;
+  }
+
+  @Trace()
+  public async areaOn(): Promise<boolean> {
+    await this.cacheManager.del(`LOFT_AUTO_MODE`);
+    return true;
+  }
+
+  @Trace()
+  public async combo(): Promise<boolean> {
+    return true;
+  }
+
+  @Trace()
+  public async dimDown(): Promise<boolean> {
+    await this.cacheManager.del(`LOFT_AUTO_MODE`);
+    return true;
+  }
+
+  @Trace()
+  public async dimUp(): Promise<boolean> {
+    await this.cacheManager.del(`LOFT_AUTO_MODE`);
+    return true;
   }
 
   // #endregion Public Methods

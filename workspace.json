@@ -18,5 +18,21 @@
     "terminal": "libs/terminal",
     "testing": "libs/testing",
     "utilities": "libs/utilities"
+  },
+  "generators": {
+    "@nrwl/react": {
+      "application": {
+        "style": "css",
+        "linter": "eslint",
+        "babel": true
+      },
+      "component": {
+        "style": "css"
+      },
+      "library": {
+        "style": "css",
+        "linter": "eslint"
+      }
+    }
   }
 }

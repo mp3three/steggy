@@ -99,4 +99,13 @@ export const MQTT_SUBSCRIBE_OPTIONS = '__mqtt_subscribe_options';
 export const MQTT_SUBSCRIBER_PARAMS = '__mqtt_subscriber_params';
 export const MQTT_CLIENT_INSTANCE = 'MQTT_CLIENT_INSTANCE';
 export const MQTT_OPTION_PROVIDER = 'MQTT_OPTION_PROVIDER';
+
+// internal messages
+/**
+ * PARAMS = appName: string
+ */
 export const MQTT_HEALTH_CHECK = 'MQTT_HEALTH_CHECK';
+/**
+ * PARAMS = roomName: string, state: 'turnOn' | 'turnOff' | 'favorite' | 'dimUp' | 'dimDown'
+ */
+export const SET_ROOM_STATE = 'internal/set_room_state'
