@@ -6,10 +6,14 @@ import {
 import { ControllerStateDTO } from '@automagical/contracts/controller-logic';
 import { domain, HASS_DOMAINS } from '@automagical/contracts/home-assistant';
 import { HomeAssistantCoreService } from '@automagical/home-assistant';
-import { Debug, Trace } from '@automagical/utilities';
-import { CACHE_MANAGER, Inject, Injectable, Scope } from '@nestjs/common';
+import {
+  CacheManagerService,
+  Debug,
+  InjectCache,
+  Trace,
+} from '@automagical/utilities';
+import { Injectable, Scope } from '@nestjs/common';
 import { each } from 'async';
-import { Cache } from 'cache-manager';
 
 export const LOADED_ROOMS = new Map<RoomController, RoomCoordinatorService>();
 const CACHE_KEY = ({ controller }: { controller: RoomController }): string =>
@@ -27,7 +31,7 @@ export class RoomCoordinatorService {
   // #region Constructors
 
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    @InjectCache() private readonly cache: CacheManagerService,
     private readonly hassCoreService: HomeAssistantCoreService,
   ) {}
 

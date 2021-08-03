@@ -8,7 +8,6 @@ import {
   BatteryStateDTO,
   domain,
   HASS_DOMAINS,
-  HassEventDTO,
 } from '@automagical/contracts/home-assistant';
 import { SET_ROOM_STATE } from '@automagical/contracts/utilities';
 import { LightingControllerService } from '@automagical/controller-logic';
@@ -18,7 +17,9 @@ import {
   NotifyDomainService,
 } from '@automagical/home-assistant';
 import {
+  CacheManagerService,
   Debug,
+  InjectCache,
   InjectLogger,
   Payload,
   SolarCalcService,
@@ -26,10 +27,9 @@ import {
   Trace,
   Warn,
 } from '@automagical/utilities';
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
-import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -56,7 +56,7 @@ export class ApplicationService {
   constructor(
     @InjectLogger()
     protected readonly logger: PinoLogger,
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    @InjectCache() private readonly cache: CacheManagerService,
     private readonly solarCalc: SolarCalcService,
     private readonly notifyService: NotifyDomainService,
     private readonly entityManager: EntityManagerService,

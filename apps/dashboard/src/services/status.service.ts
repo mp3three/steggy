@@ -1,9 +1,9 @@
 import { HassEventDTO } from '@automagical/contracts/home-assistant';
-import { BLESSED_SCREEN } from '@automagical/contracts/terminal';
+import { RefreshAfter } from '@automagical/terminal';
+import { CacheManagerService, InjectCache } from '@automagical/utilities';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { box as Box, Widgets } from 'blessed';
 import { grid as Grid } from 'blessed-contrib';
-import { Cache } from 'cache-manager';
 
 // const BOX_SETTINGS: Widgets.BoxOptions = {
 //   alwaysScroll: true,
@@ -29,14 +29,14 @@ export class StatusService {
   // #region Constructors
 
   constructor(
-    @Inject(BLESSED_SCREEN) private readonly SCREEN: Widgets.Screen,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    @InjectCache() private readonly cacheManager: CacheManagerService,
   ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
+  @RefreshAfter()
   public async attachInstance(grid: Grid): Promise<void> {
     this.WIDGET = grid.set(0, 0, 3, 1, Box, {
       label: 'Quick Status',
@@ -45,7 +45,6 @@ export class StatusService {
     cache.forEach((event) => {
       this.WIDGET.insertLine(0, this.buildLine(event));
     });
-    this.SCREEN.render();
   }
 
   // #endregion Public Methods

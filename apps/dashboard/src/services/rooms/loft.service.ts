@@ -1,5 +1,5 @@
-import { BLESSED_SCREEN } from '@automagical/contracts/terminal';
 import { SEND_ROOM_STATE } from '@automagical/contracts/utilities';
+import { RefreshAfter } from '@automagical/terminal';
 import { InjectMQTT } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { box as Box, button as Button, Widgets } from 'blessed';
@@ -9,6 +9,8 @@ import { Client } from 'mqtt';
 import { BLESSED_GRID } from '../../typings';
 
 const BUTTON_SETTINGS = {
+  align: 'center',
+  height: 'shrink',
   mouse: true,
   padding: {
     bottom: 1,
@@ -16,8 +18,9 @@ const BUTTON_SETTINGS = {
     right: 10,
     top: 1,
   },
-  shrink: true,
-};
+  width: '100%',
+  // shrink: true,
+} as Widgets.ButtonOptions;
 
 @Injectable()
 export class LoftService {
@@ -30,7 +33,6 @@ export class LoftService {
   // #region Constructors
 
   constructor(
-    @Inject(BLESSED_SCREEN) private readonly SCREEN: Widgets.Screen,
     @Inject(BLESSED_GRID) private readonly GRID: ContribWidgets.GridElement,
     @InjectMQTT() private readonly mqttClient: Client,
   ) {}
@@ -39,17 +41,19 @@ export class LoftService {
 
   // #region Protected Methods
 
+  @RefreshAfter()
   protected onApplicationBootstrap(): void {
-    this.BOX = this.GRID.set(0, 0, 4, 2, Box, {
+    this.BOX = this.GRID.set(0, 2, 5, 2, Box, {
       draggable: true,
       fg: 'green',
+      hideBorder: true,
       label: 'Loft State',
       scrollable: true,
       tags: true,
     });
+    this.BOX.border = {};
     Button({
       content: 'Area On',
-      left: 1,
       parent: this.BOX,
       style: {
         bg: 'green',
@@ -62,24 +66,23 @@ export class LoftService {
     Button({
       content: 'Area Off',
       parent: this.BOX,
-      right: 1,
       style: {
         bg: 'red',
         fg: 'black',
       },
+      top: 4,
       ...BUTTON_SETTINGS,
     }).on('press', () => {
       this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'areaOff'));
     });
     Button({
       content: 'Dim Up',
-      left: 1,
       parent: this.BOX,
       style: {
         bg: 'cyan',
         fg: 'black',
       },
-      top: 4,
+      top: 8,
       ...BUTTON_SETTINGS,
     }).on('press', () => {
       this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'dimUp'));
@@ -87,31 +90,27 @@ export class LoftService {
     Button({
       content: 'Dim Down',
       parent: this.BOX,
-      right: 1,
       style: {
         bg: 'yellow',
         fg: 'black',
       },
-      top: 4,
+      top: 12,
       ...BUTTON_SETTINGS,
     }).on('press', () => {
       this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'dimDown'));
     });
     Button({
       content: 'Favorite',
-      left: 'center',
       parent: this.BOX,
       style: {
         bg: 'magenta',
         fg: 'black',
       },
-      top: 8,
+      top: 16,
       ...BUTTON_SETTINGS,
     }).on('press', () => {
       this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'favorite'));
     });
-    //
-    this.SCREEN.render();
   }
 
   // #endregion Protected Methods

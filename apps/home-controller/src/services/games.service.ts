@@ -1,11 +1,15 @@
 import { RoomController } from '@automagical/contracts';
 import { LightingControllerService } from '@automagical/controller-logic';
 import { MediaPlayerDomainService } from '@automagical/home-assistant';
-import { InjectLogger, Trace } from '@automagical/utilities';
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import {
+  CacheManagerService,
+  InjectCache,
+  InjectLogger,
+  Trace,
+} from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -27,8 +31,8 @@ export class GamesRoomService implements RoomController {
 
   constructor(
     @InjectLogger() private readonly logger: PinoLogger,
-    @Inject(CACHE_MANAGER)
-    private readonly cacheManager: Cache,
+    @InjectCache()
+    private readonly cacheManager: CacheManagerService,
     private readonly remoteService: MediaPlayerDomainService,
     private readonly lightingController: LightingControllerService,
   ) {}

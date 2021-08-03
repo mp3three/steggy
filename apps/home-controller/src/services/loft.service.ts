@@ -7,11 +7,16 @@ import {
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { Debug, InjectLogger, Trace } from '@automagical/utilities';
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import {
+  CacheManagerService,
+  Debug,
+  InjectCache,
+  InjectLogger,
+  Trace,
+} from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -52,8 +57,8 @@ export class LoftService implements RoomController {
   constructor(
     @InjectLogger()
     protected readonly logger: PinoLogger,
-    @Inject(CACHE_MANAGER)
-    private readonly cacheManager: Cache,
+    @InjectCache()
+    private readonly cacheManager: CacheManagerService,
     private readonly lightingController: LightingControllerService,
     private readonly entityManager: EntityManagerService,
     private readonly remoteService: MediaPlayerDomainService,

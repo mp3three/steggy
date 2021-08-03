@@ -1,9 +1,8 @@
-import { BLESSED_SCREEN } from '@automagical/contracts/terminal';
 import { MQTT_HEALTH_CHECK } from '@automagical/contracts/utilities';
+import { RefreshAfter } from '@automagical/terminal';
 import { Payload, Subscribe } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { Widgets } from 'blessed';
 import {
   markdown as Markdown,
   Widgets as ContribWidgets,
@@ -25,7 +24,6 @@ export class HealthService {
   // #region Constructors
 
   constructor(
-    @Inject(BLESSED_SCREEN) private readonly SCREEN: Widgets.Screen,
     @Inject(BLESSED_GRID)
     private readonly GRID: ContribWidgets.GridElement,
   ) {}
@@ -35,6 +33,7 @@ export class HealthService {
   // #region Protected Methods
 
   @Cron(CronExpression.EVERY_SECOND)
+  @RefreshAfter()
   protected updateTable(): void {
     const online = [];
     const offline = [];
@@ -56,15 +55,9 @@ export class HealthService {
       md.push(chalk`{red Offline}`, ...offline.map((i) => `- ${i}`));
     }
     this.WIDGET.setMarkdown(md.join(`\n`));
-    this.SCREEN.render();
   }
 
-  @Subscribe(MQTT_HEALTH_CHECK)
-  protected onHealthCheck(@Payload() app: string): void {
-    this.SERVICES.set(app, dayjs());
-    this.updateTable();
-  }
-
+  @RefreshAfter()
   protected onApplicationBootstrap(): void {
     this.WIDGET = this.GRID.set<
       ContribWidgets.MarkdownOptions,
@@ -75,7 +68,12 @@ export class HealthService {
       markdown: `# Waiting....`,
       padding: 1,
     } as ContribWidgets.MarkdownOptions);
-    this.SCREEN.render();
+  }
+
+  @Subscribe(MQTT_HEALTH_CHECK)
+  protected onHealthCheck(@Payload() app: string): void {
+    this.SERVICES.set(app, dayjs());
+    this.updateTable();
   }
 
   // #endregion Protected Methods

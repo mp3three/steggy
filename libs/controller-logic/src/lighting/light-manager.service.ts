@@ -9,13 +9,14 @@ import {
 } from '@automagical/home-assistant';
 import {
   AutoConfigService,
+  CacheManagerService,
+  InjectCache,
   SolarCalcService,
   Trace,
 } from '@automagical/utilities';
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { each } from 'async';
-import { Cache } from 'cache-manager';
 import dayjs from 'dayjs';
 
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
@@ -32,7 +33,7 @@ export class LightManagerService {
   // #region Constructors
 
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    @InjectCache() private readonly cache: CacheManagerService,
     private readonly hassCoreService: HomeAssistantCoreService,
     private readonly solarCalcService: SolarCalcService,
     private readonly lightService: LightDomainService,

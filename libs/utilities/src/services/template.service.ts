@@ -1,16 +1,16 @@
 import { SubmissionDTO } from '@automagical/contracts/formio-sdk';
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import { Injectable } from '@nestjs/common';
 import hash from 'object-hash';
 import { get } from 'object-path';
 
-import { Trace } from '../decorators';
+import { InjectCache, Trace } from '../decorators';
+import { CacheManagerService } from './cache-manager.service';
 
 @Injectable()
 export class TemplateService {
   // #region Constructors
 
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  constructor(@InjectCache() private cacheManager: CacheManagerService) {}
 
   // #endregion Constructors
 
