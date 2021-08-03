@@ -1,2 +1,1 @@
-export const BLESSED_THEME = Symbol('BLESSED_THEME');
-export const BLESSED_SCREEN = Symbol('BLESSED_SCREEN');
+export const BLESSED_GRID = Symbol('BLESSED_GRID');

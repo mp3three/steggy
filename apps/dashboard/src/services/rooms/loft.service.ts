@@ -1,9 +1,23 @@
+import { BLESSED_SCREEN } from '@automagical/contracts/terminal';
+import { SEND_ROOM_STATE } from '@automagical/contracts/utilities';
+import { InjectMQTT } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
-import { box as Box, Widgets } from 'blessed';
-import { log as Log, Widgets as ContribWidgets } from 'blessed-contrib';
+import { box as Box, button as Button, Widgets } from 'blessed';
+import { Widgets as ContribWidgets } from 'blessed-contrib';
+import { Client } from 'mqtt';
 
-import { BLESSED_SCREEN } from '../../typings';
-import { ApplicationService } from '../application.service';
+import { BLESSED_GRID } from '../../typings';
+
+const BUTTON_SETTINGS = {
+  mouse: true,
+  padding: {
+    bottom: 1,
+    left: 10,
+    right: 10,
+    top: 1,
+  },
+  shrink: true,
+};
 
 @Injectable()
 export class LoftService {
@@ -16,8 +30,9 @@ export class LoftService {
   // #region Constructors
 
   constructor(
-    private readonly applicationService: ApplicationService,
     @Inject(BLESSED_SCREEN) private readonly SCREEN: Widgets.Screen,
+    @Inject(BLESSED_GRID) private readonly GRID: ContribWidgets.GridElement,
+    @InjectMQTT() private readonly mqttClient: Client,
   ) {}
 
   // #endregion Constructors
@@ -25,38 +40,77 @@ export class LoftService {
   // #region Protected Methods
 
   protected onApplicationBootstrap(): void {
-    this.BOX = this.applicationService.GRID.set(0, 0, 4, 2, Box, {
+    this.BOX = this.GRID.set(0, 0, 4, 2, Box, {
       draggable: true,
       fg: 'green',
       label: 'Loft State',
       scrollable: true,
       tags: true,
-    } as Widgets.BoxOptions);
-    const b = Box({
-      content: 'test\ntest2',
-      height: 'shrink',
+    });
+    Button({
+      content: 'Area On',
+      left: 1,
+      parent: this.BOX,
+      style: {
+        bg: 'green',
+        fg: 'black',
+      },
+      ...BUTTON_SETTINGS,
+    }).on('press', () => {
+      this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'areaOn'));
+    });
+    Button({
+      content: 'Area Off',
+      parent: this.BOX,
+      right: 1,
+      style: {
+        bg: 'red',
+        fg: 'black',
+      },
+      ...BUTTON_SETTINGS,
+    }).on('press', () => {
+      this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'areaOff'));
+    });
+    Button({
+      content: 'Dim Up',
+      left: 1,
+      parent: this.BOX,
+      style: {
+        bg: 'cyan',
+        fg: 'black',
+      },
+      top: 4,
+      ...BUTTON_SETTINGS,
+    }).on('press', () => {
+      this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'dimUp'));
+    });
+    Button({
+      content: 'Dim Down',
+      parent: this.BOX,
+      right: 1,
+      style: {
+        bg: 'yellow',
+        fg: 'black',
+      },
+      top: 4,
+      ...BUTTON_SETTINGS,
+    }).on('press', () => {
+      this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'dimDown'));
+    });
+    Button({
+      content: 'Favorite',
+      left: 'center',
+      parent: this.BOX,
       style: {
         bg: 'magenta',
+        fg: 'black',
       },
-      width: '100%',
+      top: 8,
+      ...BUTTON_SETTINGS,
+    }).on('press', () => {
+      this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'favorite'));
     });
-    this.BOX.append(b);
-    this.SCREEN.render();
-    // console.log(JSON.stringify(b.height));
-    this.BOX.append(
-      Box({
-        content: `test3\ntest32\n${JSON.stringify(
-          b.height,
-        )} - ${typeof b.height}\nasdf`,
-        height: 'shrink',
-        style: {
-          bg: 'blue',
-        },
-        top: '20%',
-        width: '100%',
-      } as Widgets.BoxOptions),
-    );
-
+    //
     this.SCREEN.render();
   }
 

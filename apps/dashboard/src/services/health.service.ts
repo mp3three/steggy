@@ -1,8 +1,9 @@
+import { BLESSED_SCREEN } from '@automagical/contracts/terminal';
 import { MQTT_HEALTH_CHECK } from '@automagical/contracts/utilities';
 import { Payload, Subscribe } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { box as Box, Widgets } from 'blessed';
+import { Widgets } from 'blessed';
 import {
   markdown as Markdown,
   Widgets as ContribWidgets,
@@ -10,7 +11,7 @@ import {
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 
-import { BLESSED_SCREEN } from '../typings';
+import { BLESSED_GRID } from '../typings';
 
 @Injectable()
 export class HealthService {
@@ -25,26 +26,11 @@ export class HealthService {
 
   constructor(
     @Inject(BLESSED_SCREEN) private readonly SCREEN: Widgets.Screen,
+    @Inject(BLESSED_GRID)
+    private readonly GRID: ContribWidgets.GridElement,
   ) {}
 
   // #endregion Constructors
-
-  // #region Public Methods
-
-  public async attachInstance(grid: ContribWidgets.GridElement): Promise<void> {
-    this.WIDGET = grid.set<
-      ContribWidgets.MarkdownOptions,
-      ContribWidgets.MarkdownElement
-    >(10, 10, 2, 2, Markdown, {
-      draggable: true,
-      label: 'System Health',
-      markdown: `# Waiting....`,
-      padding: 1,
-    } as ContribWidgets.MarkdownOptions);
-    this.SCREEN.render();
-  }
-
-  // #endregion Public Methods
 
   // #region Protected Methods
 
@@ -77,6 +63,19 @@ export class HealthService {
   protected onHealthCheck(@Payload() app: string): void {
     this.SERVICES.set(app, dayjs());
     this.updateTable();
+  }
+
+  protected onApplicationBootstrap(): void {
+    this.WIDGET = this.GRID.set<
+      ContribWidgets.MarkdownOptions,
+      ContribWidgets.MarkdownElement
+    >(10, 10, 2, 2, Markdown, {
+      draggable: true,
+      label: 'System Health',
+      markdown: `# Waiting....`,
+      padding: 1,
+    } as ContribWidgets.MarkdownOptions);
+    this.SCREEN.render();
   }
 
   // #endregion Protected Methods

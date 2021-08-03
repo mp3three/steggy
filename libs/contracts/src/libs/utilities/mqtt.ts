@@ -2,6 +2,8 @@ import { LoggerService, Type } from '@nestjs/common';
 import { ModuleMetadata } from '@nestjs/common/interfaces';
 import { IClientOptions, Packet } from 'mqtt';
 
+import { RoomController } from '../../interfaces';
+
 export type MqttMessageTransformer = (payload: Buffer) => unknown;
 
 export type LoggerConstructor = new (...parameters) => LoggerService;
@@ -106,6 +108,10 @@ export const MQTT_OPTION_PROVIDER = 'MQTT_OPTION_PROVIDER';
  */
 export const MQTT_HEALTH_CHECK = 'MQTT_HEALTH_CHECK';
 /**
- * PARAMS = roomName: string, state: 'turnOn' | 'turnOff' | 'favorite' | 'dimUp' | 'dimDown'
+ * PARAMS = roomName: string, state: keyof RoomController
  */
-export const SET_ROOM_STATE = 'internal/set_room_state'
+export const SET_ROOM_STATE = 'internal/set_room_state';
+export const SEND_ROOM_STATE = (
+  room: string,
+  action: keyof RoomController,
+): [string, string] => [SET_ROOM_STATE, JSON.stringify([room, action])];

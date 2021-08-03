@@ -20,6 +20,7 @@ import {
 import {
   Debug,
   InjectLogger,
+  Payload,
   SolarCalcService,
   Subscribe,
   Trace,
@@ -172,8 +173,7 @@ export class ApplicationService {
 
   @Subscribe(SET_ROOM_STATE)
   protected async setRoomState(
-    room: ROOM_NAMES,
-    state: keyof RoomController,
+    @Payload() [room, state]: [ROOM_NAMES, keyof RoomController],
   ): Promise<void> {
     switch (state) {
       case 'areaOff':

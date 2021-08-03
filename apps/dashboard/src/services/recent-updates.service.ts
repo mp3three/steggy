@@ -1,14 +1,11 @@
 import { HassEventDTO } from '@automagical/contracts/home-assistant';
+import { BLESSED_SCREEN } from '@automagical/contracts/terminal';
 import { HASocketAPIService } from '@automagical/home-assistant';
 import { Inject, Injectable } from '@nestjs/common';
 import { Widgets } from 'blessed';
-import {
-  grid as Grid,
-  log as Log,
-  Widgets as ContribWidgets,
-} from 'blessed-contrib';
+import { log as Log, Widgets as ContribWidgets } from 'blessed-contrib';
 
-import { BLESSED_SCREEN } from '../typings';
+import { BLESSED_GRID } from '../typings';
 
 @Injectable()
 export class RecentUpdatesService {
@@ -22,27 +19,23 @@ export class RecentUpdatesService {
 
   constructor(
     @Inject(BLESSED_SCREEN) private readonly SCREEN: Widgets.Screen,
+
+    @Inject(BLESSED_GRID)
+    private readonly GRID: ContribWidgets.GridElement,
     private readonly socketService: HASocketAPIService,
   ) {}
 
   // #endregion Constructors
 
-  // #region Public Methods
+  // #region Protected Methods
 
-  public async attachInstance(grid: Grid): Promise<void> {
-    this.WIDGET = grid.set(0, 10, 6, 2, Log, {
+  protected async onApplicationBootstrap(): Promise<void> {
+    this.WIDGET = this.GRID.set(0, 10, 6, 2, Log, {
       draggable: true,
       label: 'HomeAssistant entity update stream',
       tags: true,
     } as ContribWidgets.LogOptions);
     this.SCREEN.render();
-  }
-
-  // #endregion Public Methods
-
-  // #region Protected Methods
-
-  protected async onApplicationBootstrap(): Promise<void> {
     this.socketService.EVENT_STREAM.subscribe((event: HassEventDTO) => {
       this.WIDGET.log(this.buildLine(event));
       this.SCREEN.render();

@@ -1,5 +1,8 @@
 import { LIB_UTILS } from '@automagical/contracts/constants';
-import { MQTT_OPTION_PROVIDER } from '@automagical/contracts/utilities';
+import {
+  MQTT_CLIENT_INSTANCE,
+  MQTT_OPTION_PROVIDER,
+} from '@automagical/contracts/utilities';
 import { Global, Module } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
@@ -9,7 +12,7 @@ import { MQTTExplorerService, MqttService } from '../services';
 
 @Global()
 @Module({
-  exports: [MqttService],
+  exports: [MqttService, MQTT_CLIENT_INSTANCE],
   imports: [DiscoveryModule],
   providers: [
     createClientProvider(),

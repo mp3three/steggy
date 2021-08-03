@@ -1,10 +1,9 @@
 import { HassEventDTO } from '@automagical/contracts/home-assistant';
+import { BLESSED_SCREEN } from '@automagical/contracts/terminal';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { box as Box, Widgets } from 'blessed';
 import { grid as Grid } from 'blessed-contrib';
 import { Cache } from 'cache-manager';
-
-import { BLESSED_SCREEN } from '../typings';
 
 // const BOX_SETTINGS: Widgets.BoxOptions = {
 //   alwaysScroll: true,

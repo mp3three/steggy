@@ -24,16 +24,3 @@ export const BLESSED_COLORS = {
     fg: foreground,
   },
 };
-
-export class BlessedTheme {
-  // #region Object Properties
-
-  public colors: Record<string, unknown>;
-  public header: {
-    border: Record<'bg' | 'fg' | 'type', string> & { type: 'line' };
-    style: Record<'bg' | 'fg', string>;
-  };
-  public program: Record<'bg' | 'fg', string>;
-
-  // #endregion Object Properties
-}

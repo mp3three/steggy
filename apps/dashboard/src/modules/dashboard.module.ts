@@ -1,8 +1,8 @@
-import { SCREEN_TITLE } from '@automagical/contracts/config';
 import { APP_DASHBOARD } from '@automagical/contracts/constants';
+import { BLESSED_SCREEN } from '@automagical/contracts/terminal';
 import { HomeAssistantModule } from '@automagical/home-assistant';
+import { BlessedModule } from '@automagical/terminal';
 import {
-  AutoConfigService,
   AutomagicalConfigModule,
   CommonImports,
   LoggableModule,
@@ -10,55 +10,40 @@ import {
   UtilitiesModule,
 } from '@automagical/utilities';
 import { Module } from '@nestjs/common';
-import { program as Program, screen as Screen } from 'blessed';
+import { Widgets } from 'blessed';
 
-import { BLESSED_COLORS } from '../includes';
+import { BLESSED_COLORS, Grid } from '../includes';
 import {
-  ApplicationService,
   LoftService,
   PicoAliasService,
   RecentUpdatesService,
   StatusService,
 } from '../services';
 import { HealthService } from '../services/health.service';
-import { BLESSED_SCREEN, BLESSED_THEME } from '../typings';
+import { BLESSED_GRID } from '../typings';
 
 @Module({
   imports: [
     UtilitiesModule.forRoot(APP_DASHBOARD, [
       {
-        inject: [AutoConfigService],
-        provide: BLESSED_SCREEN,
-        useFactory(config: AutoConfigService) {
-          const program2 = Program();
-          const out = Screen({
-            autoPadding: true,
-            program: program2,
-            smartCSR: true,
-            title: config.get(SCREEN_TITLE),
+        inject: [BLESSED_SCREEN],
+        provide: BLESSED_GRID,
+        useFactory(screen: Widgets.Screen) {
+          return new Grid({
+            cols: 12,
+            rows: 12,
+            screen,
           });
-          // Quit on Escape, q, or Control-C.
-          out.key(['escape', 'q', 'C-c'], function () {
-            // eslint-disable-next-line unicorn/no-process-exit
-            return process.exit(0);
-          });
-          out.render();
-          out;
-          return out;
         },
       },
-      {
-        provide: BLESSED_THEME,
-        useValue: BLESSED_COLORS,
-      },
     ]),
+    BlessedModule.forRoot(BLESSED_COLORS),
     ...CommonImports(),
     HomeAssistantModule,
     MQTTModule,
     AutomagicalConfigModule.register(APP_DASHBOARD),
   ],
   providers: [
-    ApplicationService,
     RecentUpdatesService,
     StatusService,
     PicoAliasService,

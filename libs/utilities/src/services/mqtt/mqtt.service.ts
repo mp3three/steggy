@@ -1,5 +1,4 @@
-import { MQTT_CLIENT_INSTANCE } from '@automagical/contracts/utilities';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   Client,
   IClientPublishOptions,
@@ -8,13 +7,15 @@ import {
   Packet,
 } from 'mqtt';
 
+import { InjectMQTT } from '../../decorators';
+
 /* eslint-disable radar/no-identical-functions */
 
 @Injectable()
 export class MqttService {
   // #region Constructors
 
-  constructor(@Inject(MQTT_CLIENT_INSTANCE) private readonly client: Client) {}
+  constructor(@InjectMQTT() private readonly client: Client) {}
 
   // #endregion Constructors
 
