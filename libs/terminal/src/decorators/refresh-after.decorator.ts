@@ -1,19 +1,15 @@
-import { SCREEN_REFESH } from '@automagical/contracts/terminal';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-
-let eventEmitterService: EventEmitter2;
+let refreshCallback: () => void;
 
 export function RefreshAfter(): MethodDecorator {
   return function (target, key, descriptor: PropertyDescriptor) {
     const original = descriptor.value;
     descriptor.value = async function (...parameters) {
-      //
       const value = await original.apply(this, parameters);
-      eventEmitterService.emit(SCREEN_REFESH);
+      refreshCallback();
       return value;
     };
   };
 }
-RefreshAfter.setEmitter = function (eventEmitter: EventEmitter2) {
-  eventEmitterService = eventEmitter;
+RefreshAfter.setEmitter = function (callback: () => void) {
+  refreshCallback = callback;
 };

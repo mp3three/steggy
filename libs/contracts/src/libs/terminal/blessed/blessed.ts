@@ -1,11 +1,6 @@
 import blessed from 'blessed';
 import contrib from 'blessed-contrib';
 
-// Base Nodes / Misc
-export type Widgets = typeof blessed.Widgets;
-// export const Widgets = blessed.Widgets;
-export const ContribWidgets = contrib.Widgets;
-
 // Boxes
 export const Box = blessed.box;
 export const Screen = blessed.screen;

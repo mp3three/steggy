@@ -27,9 +27,7 @@ export function CommonImports(): DynamicModule[] {
     }),
     CacheImport(),
     EventEmitterModule.forRoot({
-      delimiter: '/',
       maxListeners: 20,
-      verboseMemoryLeak: true,
       wildcard: true,
     }),
   ];

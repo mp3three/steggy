@@ -1,5 +1,5 @@
 import { APP_DASHBOARD } from '@automagical/contracts/constants';
-import { BLESSED_SCREEN } from '@automagical/contracts/terminal';
+import { BLESSED_SCREEN, Grid } from '@automagical/contracts/terminal';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import { BlessedModule } from '@automagical/terminal';
 import {
@@ -12,14 +12,18 @@ import {
 import { Module } from '@nestjs/common';
 import { Widgets } from 'blessed';
 
-import { BLESSED_COLORS, Grid } from '../includes';
+import { BLESSED_COLORS } from '../includes';
 import {
+  HealthService,
+  LeftMenuService,
   LoftService,
   PicoAliasService,
   RecentUpdatesService,
   StatusService,
+  StonksService,
+  WeatherService,
+  WorkspaceService,
 } from '../services';
-import { HealthService } from '../services/health.service';
 import { BLESSED_GRID } from '../typings';
 
 @Module({
@@ -30,6 +34,10 @@ import { BLESSED_GRID } from '../typings';
         provide: BLESSED_GRID,
         useFactory(screen: Widgets.Screen) {
           return new Grid({
+            // Bad typescript definitions
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            color: 'white',
             cols: 12,
             rows: 12,
             screen,
@@ -46,9 +54,15 @@ import { BLESSED_GRID } from '../typings';
   providers: [
     RecentUpdatesService,
     StatusService,
+    WorkspaceService,
     PicoAliasService,
+    LeftMenuService,
     HealthService,
+    // Items that get appended to left menu
+    // Currently, the order below determines the order on the menu
     LoftService,
+    WeatherService,
+    StonksService,
   ],
 })
 @LoggableModule(APP_DASHBOARD)

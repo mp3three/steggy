@@ -1,12 +1,7 @@
 import { SCREEN_TITLE } from '@automagical/contracts/config';
-import {
-  BLESSED_SCREEN,
-  BLESSED_THEME,
-  SCREEN_REFESH,
-} from '@automagical/contracts/terminal';
+import { BLESSED_SCREEN, BLESSED_THEME } from '@automagical/contracts/terminal';
 import { AutoConfigService } from '@automagical/utilities';
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { screen as Screen } from 'blessed';
 
 import { RefreshAfter } from '../decorators';
@@ -22,16 +17,18 @@ export class BlessedModule {
   public static forRoot(BLESSED_COLORS: unknown): DynamicModule {
     const symbols = [
       {
-        inject: [AutoConfigService, EventEmitter2],
+        inject: [AutoConfigService],
         provide: BLESSED_SCREEN,
-        useFactory(config: AutoConfigService, eventEmitter: EventEmitter2) {
+        useFactory(config: AutoConfigService) {
           const out = Screen({
             autoPadding: true,
             smartCSR: true,
             title: config.get(SCREEN_TITLE),
           });
-          eventEmitter.on(SCREEN_REFESH, () => out.render());
-          RefreshAfter.setEmitter(eventEmitter);
+          // eventEmitter.on
+          RefreshAfter.setEmitter(() => {
+            out.render();
+          });
           return out;
         },
       },
