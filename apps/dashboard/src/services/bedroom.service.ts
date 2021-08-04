@@ -8,33 +8,15 @@ import { LoadWorkspace, WorkspaceElement } from '../decorators';
 import { BLESSED_GRID, GridElement, Workspace } from '../typings';
 import { RemoteService } from './remote.service';
 
-const BUTTON_SETTINGS = {
-  align: 'center',
-  height: 'shrink',
-  left: 2,
-  mouse: true,
-  padding: {
-    bottom: 1,
-    left: 10,
-    right: 10,
-    top: 1,
-  },
-} as Widgets.ButtonOptions;
-
 @Injectable()
-@LoadWorkspace()
+@LoadWorkspace(['Room Controller', 'Bedroom'])
 export class BedroomService implements Workspace {
   // #region Object Properties
-
-  public readonly menuPosition = ['Room Controller', 'Bedroom'];
 
   @WorkspaceElement()
   private BOX: Widgets.BoxElement;
   @WorkspaceElement()
   private HEADER: Widgets.BoxElement;
-
-  private buttons: Widgets.ButtonElement[] = [];
-  private position = 20;
 
   // #endregion Object Properties
 
@@ -64,7 +46,7 @@ export class BedroomService implements Workspace {
     this.HEADER = this.grid.set(0.5, 2.5, 2, 5, Box, {
       content: chalk.greenBright(
         figlet.textSync('Bedroom', {
-          font: 'Electronic',
+          font: 'DOS Rebel',
         }),
       ),
       hidden: true,

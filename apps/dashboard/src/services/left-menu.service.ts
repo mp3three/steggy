@@ -2,13 +2,13 @@ import { Tree } from '@automagical/contracts/terminal';
 import { Inject, Injectable } from '@nestjs/common';
 import { Widgets as ContribWidgets } from 'blessed-contrib';
 
+import { LoadWorkspace } from '../decorators';
 import { BLESSED_GRID, GridElement, Workspace } from '../typings';
 
 @Injectable()
 export class LeftMenuService {
   // #region Static Properties
 
-  public static readonly AVAILABLE_WORKSPACES = new Map<Workspace, string>();
   public static readonly WORKSPACE_ELEMENTS = new Map<string, string[]>();
 
   // #endregion Static Properties
@@ -31,10 +31,10 @@ export class LeftMenuService {
   // #region Protected Methods
 
   protected onApplicationBootstrap(): void {
-    LeftMenuService.AVAILABLE_WORKSPACES.forEach((name, workspace) => {
+    LoadWorkspace.AVAILABLE_WORKSPACES.forEach(({ name, menu }, workspace) => {
       let next: Record<string, unknown> = this.treeData;
-      const length = workspace.menuPosition.length;
-      workspace.menuPosition.forEach((menuItem, index) => {
+      const length = menu.length;
+      menu.forEach((menuItem, index) => {
         if (typeof next.children === 'undefined') {
           next.children = {};
         }
@@ -72,16 +72,16 @@ export class LeftMenuService {
         return;
       }
       if (this.activeWorkspace) {
-        const activeName = LeftMenuService.AVAILABLE_WORKSPACES.get(
+        const activeName = LoadWorkspace.AVAILABLE_WORKSPACES.get(
           this.activeWorkspace,
-        );
+        ).name;
         LeftMenuService.WORKSPACE_ELEMENTS.get(activeName)?.forEach(
           (element) => {
             this.activeWorkspace[element]?.hide();
           },
         );
       }
-      const name = LeftMenuService.AVAILABLE_WORKSPACES.get(workspace);
+      const name = LoadWorkspace.AVAILABLE_WORKSPACES.get(workspace).name;
 
       LeftMenuService.WORKSPACE_ELEMENTS.get(name)?.forEach((element) => {
         workspace[element]?.show();
@@ -101,9 +101,9 @@ export class LeftMenuService {
     this.TREE.border.fg = 120;
     this.TREE.focus();
     this.TREE.on('select', (node) => {
-      const workspace = [
-        ...LeftMenuService.AVAILABLE_WORKSPACES.entries(),
-      ].find(([, name]) => name === node.workspace)[0];
+      const workspace = [...LoadWorkspace.AVAILABLE_WORKSPACES.entries()].find(
+        ([, name]) => name === node.workspace,
+      )[0];
       try {
         this.onTreeSelect(workspace);
       } catch (error) {

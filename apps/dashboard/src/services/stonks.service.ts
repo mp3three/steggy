@@ -10,11 +10,9 @@ import { LoadWorkspace, WorkspaceElement } from '../decorators';
 import { BLESSED_GRID, Workspace } from '../typings';
 
 @Injectable()
-@LoadWorkspace()
+@LoadWorkspace(['Stonks'])
 export class StonksService implements Workspace {
   // #region Object Properties
-
-  public readonly menuPosition = ['Stonks'];
 
   @WorkspaceElement()
   private BOX: Widgets.BoxElement;

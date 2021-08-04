@@ -15,7 +15,7 @@ import { LoadWorkspace, WorkspaceElement } from '../decorators';
 import { BLESSED_GRID, Workspace } from '../typings';
 
 @Injectable()
-@LoadWorkspace()
+@LoadWorkspace(['Weather'])
 export class WeatherService implements Workspace {
   // #region Object Properties
 
