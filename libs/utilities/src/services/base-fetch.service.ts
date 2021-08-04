@@ -35,6 +35,9 @@ export class BaseFetch {
       return response as T;
     }
     const text = await response.text();
+    if (fetchWith.process === 'text') {
+      return text as unknown as T;
+    }
     if (!['{', '['].includes(text.charAt(0))) {
       if (!['OK'].includes(text)) {
         // It's probably a coding error error, and not something a user did.

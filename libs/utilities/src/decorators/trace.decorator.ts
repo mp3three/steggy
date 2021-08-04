@@ -1,4 +1,3 @@
-import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
 import { PinoLogger } from 'nestjs-pino';
 
 type TraceArguments = {

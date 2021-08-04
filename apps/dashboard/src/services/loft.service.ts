@@ -1,12 +1,11 @@
 import { SEND_ROOM_STATE } from '@automagical/contracts/utilities';
-import { RefreshAfter } from '@automagical/terminal';
 import { InjectMQTT } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
-import { box as Box, button as Button, Widgets } from 'blessed';
+import { button as Button, Widgets } from 'blessed';
 import { Client } from 'mqtt';
 
+import { LoadWorkspace } from '../decorators/workspace.decorator';
 import { BLESSED_GRID, GridElement, Workspace } from '../typings';
-import { WorkspaceService } from './workspace.service';
 
 const BUTTON_SETTINGS = {
   align: 'center',
@@ -22,6 +21,7 @@ const BUTTON_SETTINGS = {
 } as Widgets.ButtonOptions;
 
 @Injectable()
+@LoadWorkspace()
 export class LoftService implements Workspace {
   // #region Object Properties
 
@@ -38,32 +38,25 @@ export class LoftService implements Workspace {
   constructor(
     @Inject(BLESSED_GRID) private readonly GRID: GridElement,
     @InjectMQTT() private readonly mqttClient: Client,
-    private readonly workspaceService: WorkspaceService,
   ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
-  @RefreshAfter()
-  public toggleVisibility(): void {
-    this.BOX.toggle();
+  public hide(): void {
+    this.BOX.hide();
+  }
+
+  public show(): void {
+    this.BOX.show();
   }
 
   // #endregion Public Methods
 
   // #region Protected Methods
 
-  @RefreshAfter()
   protected onApplicationBootstrap(): void {
-    this.BOX = this.workspaceService.addSpace(
-      Box,
-      {
-        hidden: true,
-        label: 'Loft State',
-      },
-      this,
-    );
     this.addButton(
       {
         content: 'Area On',

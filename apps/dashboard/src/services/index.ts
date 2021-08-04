@@ -6,4 +6,3 @@ export * from './recent-updates.service';
 export * from './status.service';
 export * from './stonks.service';
 export * from './weather.service';
-export * from './workspace.service';

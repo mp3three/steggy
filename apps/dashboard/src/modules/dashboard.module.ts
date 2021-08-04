@@ -22,7 +22,6 @@ import {
   StatusService,
   StonksService,
   WeatherService,
-  WorkspaceService,
 } from '../services';
 import { BLESSED_GRID } from '../typings';
 
@@ -54,7 +53,6 @@ import { BLESSED_GRID } from '../typings';
   providers: [
     RecentUpdatesService,
     StatusService,
-    WorkspaceService,
     PicoAliasService,
     LeftMenuService,
     HealthService,

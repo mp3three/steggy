@@ -64,7 +64,7 @@ export type FetchArguments = FetchAuth & {
   /**
    * Built in post-processing
    */
-  process?: boolean;
+  process?: boolean | 'text';
   /**
    * true for "this is not a url relative to portal base"
    */

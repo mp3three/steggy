@@ -1,29 +1,32 @@
 import { Box } from '@automagical/contracts/terminal';
-import { FetchService } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { FetchService, SliceLines } from '@automagical/utilities';
+import { Inject, Injectable } from '@nestjs/common';
 import { Widgets } from 'blessed';
-import { Response } from 'node-fetch';
+import { Widgets as ContribWidgets } from 'blessed-contrib';
+import chalk from 'chalk';
+import figlet from 'figlet';
 
-import { Workspace } from '../typings';
-import { WorkspaceService } from './workspace.service';
+import { LoadWorkspace, WorkspaceElement } from '../decorators';
+import { BLESSED_GRID, Workspace } from '../typings';
 
-let id = 0;
 @Injectable()
+@LoadWorkspace()
 export class StonksService implements Workspace {
   // #region Object Properties
 
   public readonly menuPosition = ['Stonks'];
 
-  private readonly id = id++;
-
+  @WorkspaceElement()
   private BOX: Widgets.BoxElement;
+  @WorkspaceElement()
+  private HEADER: Widgets.BoxElement;
 
   // #endregion Object Properties
 
   // #region Constructors
 
   constructor(
-    private readonly workspaceService: WorkspaceService,
+    @Inject(BLESSED_GRID) private readonly grid: ContribWidgets.GridElement,
     private readonly fetchService: FetchService,
   ) {}
 
@@ -31,9 +34,8 @@ export class StonksService implements Workspace {
 
   // #region Public Methods
 
-  // @RefreshAfter()
-  public toggleVisibility(): void {
-    this.BOX.toggle();
+  public show(): void {
+    this.reload();
   }
 
   // #endregion Public Methods
@@ -41,31 +43,54 @@ export class StonksService implements Workspace {
   // #region Protected Methods
 
   protected async onApplicationBootstrap(): Promise<void> {
-    this.BOX = this.workspaceService.addSpace(
-      Box,
-      {
-        content: await this.getStonks(),
+    try {
+      this.BOX = this.grid.set(0, 2, 12, 8, Box, {
+        align: 'center',
         hidden: true,
-      },
-      this,
-    );
-    this.BOX.border = {};
+        padding: {
+          bottom: 10,
+        },
+        valign: 'bottom',
+      });
+      this.BOX.border = {};
+
+      this.HEADER = this.grid.set(0.5, 2.5, 2, 5, Box, {
+        border: {},
+        content: chalk.yellow(
+          figlet.textSync('Stonks', {
+            font: 'Star Wars',
+            // font: 'Univers',
+          }),
+        ),
+        hidden: true,
+      });
+      this.HEADER.border = {};
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   // #endregion Protected Methods
 
   // #region Private Methods
 
+  @SliceLines(0, -4)
   private async getStonks(): Promise<string> {
-    const response = await this.fetchService.fetch<Response>({
+    return await this.fetchService.fetch<string>({
       headers: {
         'User-Agent': 'curl/7.64.0',
       },
-      process: false,
+      process: 'text',
       rawUrl: true,
-      url: `https://stonks.icu/gme`,
+      url: `https://stonks.icu/gme/amd`,
     });
-    return await response.text();
+  }
+
+  private reload(): void {
+    process.nextTick(async () => {
+      this.BOX.setContent(chalk`{magenta Loading...}`);
+      this.BOX.setContent(await this.getStonks());
+    });
   }
 
   // #endregion Private Methods
