@@ -1,14 +1,12 @@
 import { Box } from '@automagical/contracts/terminal';
-import { SEND_ROOM_STATE } from '@automagical/contracts/utilities';
-import { InjectMQTT } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { button as Button, Widgets } from 'blessed';
 import chalk from 'chalk';
 import figlet from 'figlet';
-import { Client } from 'mqtt';
 
 import { LoadWorkspace, WorkspaceElement } from '../decorators';
 import { BLESSED_GRID, GridElement, Workspace } from '../typings';
+import { RemoteService } from './remote.service';
 
 const BUTTON_SETTINGS = {
   align: 'center',
@@ -44,7 +42,7 @@ export class LoftService implements Workspace {
 
   constructor(
     @Inject(BLESSED_GRID) private readonly grid: GridElement,
-    @InjectMQTT() private readonly mqttClient: Client,
+    private readonly remoteService: RemoteService,
   ) {}
 
   // #endregion Constructors
@@ -60,14 +58,8 @@ export class LoftService implements Workspace {
   // #region Protected Methods
 
   protected onApplicationBootstrap(): void {
-    this.BOX = this.grid.set(0, 2, 12, 8, Box, {
-      align: 'center',
-      hidden: true,
-      padding: {
-        bottom: 10,
-      },
-      valign: 'bottom',
-    });
+    this.remoteService.room = 'loft';
+    this.BOX = this.remoteService.BOX;
     this.BOX.border = {};
     this.HEADER = this.grid.set(0.5, 2.5, 2, 5, Box, {
       content: chalk.greenBright(
@@ -78,82 +70,7 @@ export class LoftService implements Workspace {
       hidden: true,
     });
     this.HEADER.border = {};
-    this.addButton(
-      {
-        content: 'Area On',
-        parent: this.BOX,
-        style: {
-          bg: 'green',
-          fg: 'black',
-        },
-      },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'areaOn')),
-    );
-    this.addButton(
-      {
-        content: 'Dim Up',
-        parent: this.BOX,
-        style: {
-          bg: 'cyan',
-          fg: 'black',
-        },
-      },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'dimUp')),
-    );
-    this.addButton(
-      {
-        content: 'Dim Down',
-        parent: this.BOX,
-        style: {
-          bg: 'yellow',
-          fg: 'black',
-        },
-      },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'dimDown')),
-    );
-    this.addButton(
-      {
-        content: 'Area Off',
-        parent: this.BOX,
-        style: {
-          bg: 'red',
-          fg: 'black',
-        },
-      },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'areaOff')),
-    );
-    this.addButton(
-      {
-        content: 'Favorite',
-        parent: this.BOX,
-        style: {
-          bg: 'magenta',
-          fg: 'black',
-        },
-      },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'favorite')),
-    );
   }
 
   // #endregion Protected Methods
-
-  // #region Private Methods
-
-  private addButton(
-    settings: Widgets.ButtonOptions,
-    callback: () => Promise<void> | void | unknown,
-  ): void {
-    const button = Button({
-      ...BUTTON_SETTINGS,
-      ...settings,
-      top: this.position,
-    });
-    this.position += 4;
-    button.on('press', () => {
-      callback();
-    });
-    this.buttons.push(button);
-  }
-
-  // #endregion Private Methods
 }
