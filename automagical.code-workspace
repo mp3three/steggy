@@ -27,6 +27,13 @@
         "port": 33334
       },
       {
+        "name": "Debug Dashboard",
+        "type": "node",
+        "request": "attach",
+        // Match this to the workspace.json
+        "port": 33335
+      },
+      {
         "name": "Run AST Class Organizer",
         "type": "extensionHost",
         "request": "launch",

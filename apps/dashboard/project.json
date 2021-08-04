@@ -22,7 +22,14 @@
     "serve": {
       "executor": "@nrwl/node:execute",
       "options": {
-        "buildTarget": "dashboard:build"
+        "buildTarget": "dashboard:build",
+        "inspect": "inspect",
+        "port": 33335
+      },
+      "configurations": {
+        "brk": {
+          "inspect": "inspect-brk"
+        }
       }
     },
     "lint": {
