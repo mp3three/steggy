@@ -25,10 +25,10 @@ const BUTTON_SETTINGS = {
 
 @Injectable()
 @LoadWorkspace()
-export class LoftService implements Workspace {
+export class GamesService implements Workspace {
   // #region Object Properties
 
-  public readonly menuPosition = ['Room Controller', 'Loft'];
+  public readonly menuPosition = ['Room Controller', 'Games'];
 
   @WorkspaceElement()
   private BOX: Widgets.BoxElement;
@@ -71,7 +71,7 @@ export class LoftService implements Workspace {
     this.BOX.border = {};
     this.HEADER = this.grid.set(0.5, 2.5, 2, 5, Box, {
       content: chalk.greenBright(
-        figlet.textSync('Loft', {
+        figlet.textSync('Games', {
           font: 'Electronic',
         }),
       ),
@@ -87,7 +87,7 @@ export class LoftService implements Workspace {
           fg: 'black',
         },
       },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'areaOn')),
+      () => this.mqttClient.publish(...SEND_ROOM_STATE('games', 'areaOn')),
     );
     this.addButton(
       {
@@ -98,7 +98,7 @@ export class LoftService implements Workspace {
           fg: 'black',
         },
       },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'dimUp')),
+      () => this.mqttClient.publish(...SEND_ROOM_STATE('games', 'dimUp')),
     );
     this.addButton(
       {
@@ -109,7 +109,7 @@ export class LoftService implements Workspace {
           fg: 'black',
         },
       },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'dimDown')),
+      () => this.mqttClient.publish(...SEND_ROOM_STATE('games', 'dimDown')),
     );
     this.addButton(
       {
@@ -120,7 +120,7 @@ export class LoftService implements Workspace {
           fg: 'black',
         },
       },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'areaOff')),
+      () => this.mqttClient.publish(...SEND_ROOM_STATE('games', 'areaOff')),
     );
     this.addButton(
       {
@@ -131,7 +131,7 @@ export class LoftService implements Workspace {
           fg: 'black',
         },
       },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE('loft', 'favorite')),
+      () => this.mqttClient.publish(...SEND_ROOM_STATE('games', 'favorite')),
     );
   }
 

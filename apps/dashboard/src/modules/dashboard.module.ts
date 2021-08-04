@@ -23,6 +23,10 @@ import {
   StonksService,
   WeatherService,
 } from '../services';
+import { BedroomService } from '../services/bedroom.service';
+import { DownstairsService } from '../services/downstairs.service';
+import { GamesService } from '../services/games.service';
+import { GuestService } from '../services/guest.service';
 import { BLESSED_GRID } from '../typings';
 
 @Module({
@@ -59,6 +63,10 @@ import { BLESSED_GRID } from '../typings';
     // Items that get appended to left menu
     // Currently, the order below determines the order on the menu
     LoftService,
+    GamesService,
+    BedroomService,
+    GuestService,
+    DownstairsService,
     WeatherService,
     StonksService,
   ],

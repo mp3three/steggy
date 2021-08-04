@@ -47,7 +47,7 @@ export class LeftMenuService {
           }
         }
         next = next.children[menuItem];
-        if (menuItem === 'Stonks') {
+        if (menuItem === 'Loft') {
           setTimeout(() => {
             this.onTreeSelect(workspace);
           }, 10);

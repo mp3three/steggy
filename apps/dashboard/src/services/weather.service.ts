@@ -44,8 +44,12 @@ export class WeatherService implements Workspace {
 
   // #region Public Methods
 
-  public show(): void {
-    //
+  public async show(): Promise<void> {
+    const LOADING = chalk.magenta(`Loading`);
+    this.MOON.setContent(LOADING);
+    this.FORECAST.setContent(LOADING);
+    this.MOON.setContent(await this.getMoon());
+    this.FORECAST.setContent(await this.getWeatherReport());
   }
 
   // #endregion Public Methods
@@ -87,7 +91,6 @@ export class WeatherService implements Workspace {
       content: chalk.yellow(
         figlet.textSync('Weather', {
           font: 'Star Wars',
-          // font: 'Univers',
         }),
       ),
       hidden: true,
@@ -95,7 +98,6 @@ export class WeatherService implements Workspace {
     this.HEADER.border = {};
     process.nextTick(async () => {
       this.MOON = this.grid.set(0.25, 7.75, 5, 2, Box, {
-        content: await this.getMoon(),
         hidden: true,
       });
       this.MOON.border = {};
@@ -103,7 +105,6 @@ export class WeatherService implements Workspace {
     process.nextTick(async () => {
       this.FORECAST = this.grid.set(5, 2, 8, 8, Box, {
         align: 'center',
-        content: await this.getWeatherReport(),
         hidden: true,
       } as Widgets.BoxOptions);
       this.FORECAST.border = {};

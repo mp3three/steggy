@@ -34,8 +34,9 @@ export class StonksService implements Workspace {
 
   // #region Public Methods
 
-  public show(): void {
-    this.reload();
+  public async show(): Promise<void> {
+    this.BOX.setContent(chalk`{magenta Loading...}`);
+    this.BOX.setContent(await this.getStonks());
   }
 
   // #endregion Public Methods
@@ -83,13 +84,6 @@ export class StonksService implements Workspace {
       process: 'text',
       rawUrl: true,
       url: `https://stonks.icu/gme/amd`,
-    });
-  }
-
-  private reload(): void {
-    process.nextTick(async () => {
-      this.BOX.setContent(chalk`{magenta Loading...}`);
-      this.BOX.setContent(await this.getStonks());
     });
   }
 

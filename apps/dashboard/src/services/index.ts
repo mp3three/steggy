@@ -1,3 +1,7 @@
+// export * from './bedroom.service';
+// export * from './downstairs.service';
+// export * from './games.service';
+// export * from './guest.service';
 export * from './health.service';
 export * from './left-menu.service';
 export * from './loft.service';
