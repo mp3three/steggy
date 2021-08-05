@@ -5,15 +5,18 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 
 import { LoadWorkspace, WorkspaceElement } from '../decorators';
-import { BLESSED_GRID, GridElement, Workspace } from '../typings';
+import {
+  BLESSED_GRID,
+  FIGLET_ROOM_HEADER,
+  GridElement,
+  Workspace,
+} from '../typings';
 import { RemoteService } from './remote.service';
 
 @Injectable()
-@LoadWorkspace(['Room Controller', 'Downstairs'])
+@LoadWorkspace(['Downstairs'])
 export class DownstairsService implements Workspace {
   // #region Object Properties
-
-  public readonly menuPosition = ['Room Controller', 'Downstairs'];
 
   @WorkspaceElement()
   private BOX: Widgets.BoxElement;
@@ -34,7 +37,7 @@ export class DownstairsService implements Workspace {
   // #region Public Methods
 
   public show(): void {
-    this.BOX.show();
+    //
   }
 
   // #endregion Public Methods
@@ -47,7 +50,7 @@ export class DownstairsService implements Workspace {
     this.HEADER = this.grid.set(0.5, 2.5, 2, 6, Box, {
       content: chalk.yellowBright(
         figlet.textSync('Downstairs', {
-          font: 'DOS Rebel',
+          font: FIGLET_ROOM_HEADER,
         }),
       ),
       hidden: true,

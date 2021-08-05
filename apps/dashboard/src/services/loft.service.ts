@@ -5,11 +5,16 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 
 import { LoadWorkspace, WorkspaceElement } from '../decorators';
-import { BLESSED_GRID, GridElement, Workspace } from '../typings';
+import {
+  BLESSED_GRID,
+  FIGLET_ROOM_HEADER,
+  GridElement,
+  Workspace,
+} from '../typings';
 import { RemoteService } from './remote.service';
 
 @Injectable()
-@LoadWorkspace(['Room Controller', 'Loft'])
+@LoadWorkspace(['Loft'])
 export class LoftService implements Workspace {
   // #region Object Properties
 
@@ -32,7 +37,7 @@ export class LoftService implements Workspace {
   // #region Public Methods
 
   public show(): void {
-    this.BOX.show();
+    //
   }
 
   // #endregion Public Methods
@@ -46,7 +51,7 @@ export class LoftService implements Workspace {
     this.HEADER = this.grid.set(0.5, 2.5, 2, 5, Box, {
       content: chalk.greenBright(
         figlet.textSync('Loft', {
-          font: 'DOS Rebel',
+          font: FIGLET_ROOM_HEADER,
         }),
       ),
       hidden: true,

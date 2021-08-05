@@ -102,7 +102,9 @@ export class LeftMenuService {
     this.TREE.focus();
     this.TREE.on('select', (node) => {
       const workspace = [...LoadWorkspace.AVAILABLE_WORKSPACES.entries()].find(
-        ([, name]) => name === node.workspace,
+        ([, { name }]) => {
+          return name === node.workspace;
+        },
       )[0];
       try {
         this.onTreeSelect(workspace);

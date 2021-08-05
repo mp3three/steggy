@@ -1,6 +1,6 @@
 import { BLESSED_SCREEN } from '@automagical/contracts/terminal';
 import { Inject, Injectable } from '@nestjs/common';
-import { box as Box, button as Button, Widgets } from 'blessed';
+import { Widgets } from 'blessed';
 import { grid as Grid, Widgets as ContribWidgets } from 'blessed-contrib';
 
 @Injectable()

@@ -53,9 +53,7 @@ export class RemoteService {
     const button = Button({
       ...BUTTON_SETTINGS,
       ...settings,
-      top: this.position,
     });
-    this.position += 4;
     button.on('press', () => {
       callback();
     });
@@ -80,53 +78,60 @@ export class RemoteService {
         content: 'Area On',
         parent: this.BOX,
         style: {
-          bg: 'green',
+          bg: 'white',
           fg: 'black',
         },
+        top: this.position,
       },
       () => this.mqttClient.publish(...SEND_ROOM_STATE(this.room, 'areaOn')),
+    );
+    this.addButton(
+      {
+        content: 'Area Off',
+        left: 35,
+        parent: this.BOX,
+        style: {
+          bg: 'white',
+          fg: 'black',
+        },
+        top: this.position,
+      },
+      () => this.mqttClient.publish(...SEND_ROOM_STATE(this.room, 'areaOff')),
     );
     this.addButton(
       {
         content: 'Dim Up',
         parent: this.BOX,
         style: {
-          bg: 'cyan',
+          bg: 'white',
           fg: 'black',
         },
+        top: 4 + this.position,
       },
       () => this.mqttClient.publish(...SEND_ROOM_STATE(this.room, 'dimUp')),
     );
     this.addButton(
       {
         content: 'Dim Down',
+        left: 35,
         parent: this.BOX,
         style: {
-          bg: 'yellow',
+          bg: 'white',
           fg: 'black',
         },
+        top: 4 + this.position,
       },
       () => this.mqttClient.publish(...SEND_ROOM_STATE(this.room, 'dimDown')),
-    );
-    this.addButton(
-      {
-        content: 'Area Off',
-        parent: this.BOX,
-        style: {
-          bg: 'red',
-          fg: 'black',
-        },
-      },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE(this.room, 'areaOff')),
     );
     this.addButton(
       {
         content: 'Favorite',
         parent: this.BOX,
         style: {
-          bg: 'magenta',
+          bg: 'white',
           fg: 'black',
         },
+        top: 8 + this.position,
       },
       () => this.mqttClient.publish(...SEND_ROOM_STATE(this.room, 'favorite')),
     );
