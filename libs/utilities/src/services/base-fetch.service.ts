@@ -66,7 +66,7 @@ export class BaseFetch {
     }>,
   ): string {
     return new URLSearchParams({
-      ...controlToQuery(fetchWith.control),
+      ...controlToQuery(fetchWith.control ?? {}),
       ...(fetchWith.params || {}),
     }).toString();
   }

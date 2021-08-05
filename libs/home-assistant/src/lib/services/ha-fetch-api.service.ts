@@ -1,7 +1,8 @@
 import {
   HOME_ASSISTANT_BASE_URL,
-  HOME_ASSISTANT_TOKEN
+  HOME_ASSISTANT_TOKEN,
 } from '@automagical/contracts/config';
+import { HassStateDTO } from '@automagical/contracts/home-assistant';
 import type { FetchWith } from '@automagical/contracts/utilities';
 import { AutoConfigService, FetchService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -48,18 +49,21 @@ export class HomeAssistantFetchAPIService {
    * Request historical information about an entity
    */
   @Trace()
-  public async fetchEntityHistory<T extends unknown[] = unknown[]>(
-    days: number,
+  public async fetchEntityHistory<T extends HassStateDTO = HassStateDTO>(
     entity_id: string,
-  ): Promise<T> {
-    return await this.fetch<T>({
+    from: dayjs.Dayjs,
+    to: dayjs.Dayjs,
+    parameters: Record<string, string> = {},
+  ): Promise<T[]> {
+    const [history] = await this.fetch({
       params: {
-        end_time: dayjs().toISOString(),
+        end_time: to.toISOString(),
         filter_entity_id: entity_id,
-        significant_changes_only: '',
+        ...parameters,
       },
-      url: `/api/history/period/${dayjs().subtract(days, 'd').toISOString()}`,
+      url: `/api/history/period/${from.toISOString()}`,
     });
+    return history;
   }
 
   // #endregion Public Methods

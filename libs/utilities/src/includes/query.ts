@@ -7,16 +7,16 @@ export function controlToQuery(
   value: Readonly<ResultControlDTO>,
 ): Record<string, string> {
   const out = new Map<string, string>();
-  if (value.limit) {
+  if (value?.limit) {
     out.set('limit', value.limit.toString());
   }
-  if (value.skip) {
+  if (value?.skip) {
     out.set('skip', value.skip.toString());
   }
-  if (value.sort) {
+  if (value?.sort) {
     out.set('sort', value.sort.join(','));
   }
-  if (value.select) {
+  if (value?.select) {
     out.set('select', value.select.join(','));
   }
   value?.filters?.forEach((f) => {
