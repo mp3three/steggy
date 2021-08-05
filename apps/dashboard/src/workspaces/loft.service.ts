@@ -1,9 +1,8 @@
 import { EcobeeClimateStateDTO } from '@automagical/contracts/home-assistant';
-import { Box, Button, LineChart } from '@automagical/contracts/terminal';
+import { Box, LineChart } from '@automagical/contracts/terminal';
 import { HomeAssistantFetchAPIService } from '@automagical/home-assistant';
 import { RefreshAfter } from '@automagical/terminal';
 import { Inject, Injectable } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { Widgets } from 'blessed';
 import { Widgets as ContribWidgets } from 'blessed-contrib';
 import chalk from 'chalk';
@@ -11,13 +10,13 @@ import dayjs from 'dayjs';
 import figlet from 'figlet';
 
 import { LoadWorkspace, WorkspaceElement } from '../decorators';
+import { RemoteService } from '../services';
 import {
   BLESSED_GRID,
   FIGLET_ROOM_HEADER,
   GridElement,
   Workspace,
 } from '../typings';
-import { RemoteService } from './remote.service';
 
 @Injectable()
 @LoadWorkspace(['Loft'])

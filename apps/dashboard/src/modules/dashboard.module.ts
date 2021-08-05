@@ -13,22 +13,23 @@ import { Module } from '@nestjs/common';
 import { Widgets } from 'blessed';
 
 import { BLESSED_COLORS } from '../includes';
+import { StatusService } from '../services';
+import { RemoteService } from '../services/remote.service';
+import { BLESSED_GRID } from '../typings';
 import {
   HealthService,
   LeftMenuService,
-  LoftService,
-  PicoAliasService,
   RecentUpdatesService,
-  StatusService,
+} from '../widgets';
+import {
+  BedroomService,
+  DownstairsService,
+  GamesService,
+  GuestService,
+  LoftService,
   StonksService,
   WeatherService,
-} from '../services';
-import { BedroomService } from '../services/bedroom.service';
-import { DownstairsService } from '../services/downstairs.service';
-import { GamesService } from '../services/games.service';
-import { GuestService } from '../services/guest.service';
-import { RemoteService } from '../services/remote.service';
-import { BLESSED_GRID } from '../typings';
+} from '../workspaces';
 
 @Module({
   imports: [
@@ -58,7 +59,6 @@ import { BLESSED_GRID } from '../typings';
   providers: [
     RecentUpdatesService,
     StatusService,
-    PicoAliasService,
     LeftMenuService,
     HealthService,
     RemoteService,

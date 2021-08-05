@@ -5,17 +5,17 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 
 import { LoadWorkspace, WorkspaceElement } from '../decorators';
+import { RemoteService } from '../services';
 import {
   BLESSED_GRID,
   FIGLET_ROOM_HEADER,
   GridElement,
   Workspace,
 } from '../typings';
-import { RemoteService } from './remote.service';
 
 @Injectable()
-@LoadWorkspace(['Guest'])
-export class GuestService implements Workspace {
+@LoadWorkspace(['Games'])
+export class GamesService implements Workspace {
   // #region Object Properties
 
   @WorkspaceElement()
@@ -45,12 +45,12 @@ export class GuestService implements Workspace {
   // #region Protected Methods
 
   protected onApplicationBootstrap(): void {
-    this.remoteService.room = 'guest';
+    this.remoteService.room = 'games';
     this.BOX = this.remoteService.BOX;
     this.BOX.border = {};
     this.HEADER = this.grid.set(0.5, 2.5, 2, 5, Box, {
       content: chalk.greenBright(
-        figlet.textSync('Guest', {
+        figlet.textSync('Games', {
           font: FIGLET_ROOM_HEADER,
         }),
       ),

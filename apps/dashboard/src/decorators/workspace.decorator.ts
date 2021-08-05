@@ -1,8 +1,14 @@
-import { LeftMenuService } from '../services';
 import { Workspace } from '../typings';
+import { LeftMenuService } from '../widgets';
 
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any , @typescript-eslint/ban-types */
+
 export function LoadWorkspace(menu: string[]) {
+  /**
+   * TODO: refactor to work with the nest discovery module instead of.. this
+   *
+   * This implementation should be able to be refactored
+   */
   return function <T extends { new (...arguments_: any[]): Workspace }>(
     constructor: T,
   ) {
