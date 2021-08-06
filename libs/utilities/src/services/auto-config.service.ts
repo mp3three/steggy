@@ -1,12 +1,11 @@
 import { LoadConfigDefinition } from '@automagical/contracts';
 import {
+  ACTIVE_APPLICATION,
   AutomagicalConfig,
   CommonConfig,
   CONFIGURABLE_APPS,
   CONFIGURABLE_LIBS,
 } from '@automagical/contracts/config';
-import { LIB_TESTING } from '@automagical/contracts/constants';
-import { ACTIVE_APPLICATION } from '@automagical/contracts/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { get, set } from 'object-path';

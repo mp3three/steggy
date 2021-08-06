@@ -3,7 +3,8 @@ import { Injectable } from '@nestjs/common';
 import hash from 'object-hash';
 import { get } from 'object-path';
 
-import { InjectCache, Trace } from '../decorators';
+import { InjectCache } from '../decorators/injectors/inject-cache.decorator';
+import { Trace } from '../decorators/logger/trace.decorator';
 import { CacheManagerService } from './cache-manager.service';
 
 @Injectable()

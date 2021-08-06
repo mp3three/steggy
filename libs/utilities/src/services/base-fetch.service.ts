@@ -6,7 +6,7 @@ import {
 import { PinoLogger } from 'nestjs-pino';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
-import { Trace } from '../decorators';
+import { Trace } from '../decorators/logger/trace.decorator';
 import { controlToQuery } from '../includes';
 
 type FetchWith<T extends Record<never, string> = Record<never, string>> =

@@ -4,7 +4,7 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import rc from 'rc';
 
-import { LoggableModule } from '../decorators';
+import { LoggableModule } from '../decorators/logger/loggable-module.decorator';
 
 @Module({})
 @LoggableModule(LIB_UTILS)

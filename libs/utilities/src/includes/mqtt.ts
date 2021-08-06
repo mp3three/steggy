@@ -1,7 +1,11 @@
-import { LOG_LEVEL, MQTT_HOST, MQTT_PORT } from '@automagical/contracts/config';
-import { LIB_UTILS } from '@automagical/contracts/constants';
 import {
   ACTIVE_APPLICATION,
+  LOG_LEVEL,
+  MQTT_HOST,
+  MQTT_PORT,
+} from '@automagical/contracts/config';
+import { LIB_UTILS } from '@automagical/contracts/constants';
+import {
   MQTT_CLIENT_INSTANCE,
   MQTT_HEALTH_CHECK,
 } from '@automagical/contracts/utilities';

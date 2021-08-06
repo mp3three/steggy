@@ -6,7 +6,7 @@ import {
 import { Global, Module } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { LoggableModule } from '../decorators';
+import { LoggableModule } from '../decorators/logger/loggable-module.decorator';
 import { createClientProvider } from '../includes';
 import { MQTTExplorerService, MqttService } from '../services';
 

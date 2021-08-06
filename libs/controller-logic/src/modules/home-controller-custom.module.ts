@@ -6,7 +6,7 @@ import {
   LightFlashService,
   LightingControllerService,
   LightManagerService,
-} from '../lighting';
+} from '../services';
 
 @Global()
 @Module({

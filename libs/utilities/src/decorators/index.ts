@@ -1,3 +1,4 @@
+export * from './application-module.decorator';
 export * from './emit-after.decorator';
 export * from './injectors';
 export * from './logger';

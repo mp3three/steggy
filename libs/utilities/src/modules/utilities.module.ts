@@ -1,5 +1,5 @@
+import { ACTIVE_APPLICATION } from '@automagical/contracts/config';
 import { LIB_UTILS } from '@automagical/contracts/constants';
-import { ACTIVE_APPLICATION } from '@automagical/contracts/utilities';
 import {
   CacheModule,
   DynamicModule,
@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { LoggableModule } from '..';
+import { LoggableModule } from '../decorators/logger/loggable-module.decorator';
 import {
   AutoConfigService,
   FetchService,

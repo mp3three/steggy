@@ -7,7 +7,7 @@ import {
   Packet,
 } from 'mqtt';
 
-import { InjectMQTT } from '../../decorators';
+import { InjectMQTT } from '../../decorators/injectors/inject-mqtt.decorator';
 
 /* eslint-disable radar/no-identical-functions */
 

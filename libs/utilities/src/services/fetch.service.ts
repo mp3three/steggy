@@ -4,7 +4,8 @@ import { createWriteStream } from 'fs';
 import { PinoLogger } from 'nestjs-pino';
 import fetch from 'node-fetch';
 
-import { InjectLogger, Trace } from '../decorators';
+import { InjectLogger } from '../decorators/injectors/inject-logger.decorator';
+import { Trace } from '../decorators/logger/trace.decorator';
 import { BaseFetch } from './base-fetch.service';
 
 @Injectable({ scope: Scope.TRANSIENT })

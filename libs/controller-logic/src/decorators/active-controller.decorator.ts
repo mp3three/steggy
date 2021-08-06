@@ -1,7 +1,7 @@
 import { iRoomController } from '@automagical/contracts';
 import { ClassConstructor } from 'class-transformer';
 
-import { RoomCoordinatorService } from '../lighting/room-coordinator.service';
+import { RoomCoordinatorService } from '../services/room-coordinator.service';
 
 type Controller = {
   coordinator: RoomCoordinatorService;

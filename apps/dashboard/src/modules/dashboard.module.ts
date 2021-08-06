@@ -3,6 +3,7 @@ import { BLESSED_SCREEN, Grid } from '@automagical/contracts/terminal';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import { BlessedModule } from '@automagical/terminal';
 import {
+  ApplicationModule,
   AutomagicalConfigModule,
   CommonImports,
   LoggableModule,
@@ -31,39 +32,9 @@ import {
   WeatherService,
 } from '../workspaces';
 
-@Module({
-  imports: [
-    UtilitiesModule.forRoot(APP_DASHBOARD, [
-      {
-        inject: [BLESSED_SCREEN],
-        provide: BLESSED_GRID,
-        useFactory(screen: Widgets.Screen) {
-          return new Grid({
-            // Bad typescript definitions
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            color: 'white',
-            cols: 12,
-            rows: 12,
-            screen,
-          });
-        },
-      },
-    ]),
-    BlessedModule.forRoot(BLESSED_COLORS),
-    ...CommonImports(),
-    HomeAssistantModule,
-    MQTTModule,
-    AutomagicalConfigModule.register(APP_DASHBOARD),
-  ],
-  providers: [
-    RecentUpdatesService,
-    StatusService,
-    LeftMenuService,
-    HealthService,
-    RemoteService,
-    // Items that get appended to left menu
-    // Currently, the order below determines the order on the menu
+@ApplicationModule({
+  application: APP_DASHBOARD,
+  dashboards: [
     LoftService,
     GamesService,
     BedroomService,
@@ -72,6 +43,30 @@ import {
     WeatherService,
     StonksService,
   ],
+  globals: [
+    {
+      inject: [BLESSED_SCREEN],
+      provide: BLESSED_GRID,
+      useFactory(screen: Widgets.Screen) {
+        return new Grid({
+          // Bad typescript definitions
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          color: 'white',
+          cols: 12,
+          rows: 12,
+          screen,
+        });
+      },
+    },
+  ],
+  imports: [BlessedModule.forRoot(BLESSED_COLORS), HomeAssistantModule],
+  providers: [
+    RecentUpdatesService,
+    StatusService,
+    LeftMenuService,
+    HealthService,
+    RemoteService,
+  ],
 })
-@LoggableModule(APP_DASHBOARD)
 export class DashboardModule {}

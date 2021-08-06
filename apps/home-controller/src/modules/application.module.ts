@@ -1,14 +1,7 @@
 import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
 import { HomeControllerCustomModule } from '@automagical/controller-logic';
 import { HomeAssistantModule } from '@automagical/home-assistant';
-import {
-  CommonImports,
-  LoggableModule,
-  MQTTModule,
-  SymbolProviderModule,
-  UtilitiesModule,
-} from '@automagical/utilities';
-import { Module } from '@nestjs/common';
+import { ApplicationModule } from '@automagical/utilities';
 
 import {
   ApplicationService,
@@ -21,25 +14,16 @@ import {
   MasterBedroomService,
 } from '../services';
 
-@Module({
-  imports: [
-    HomeAssistantModule,
-    HomeControllerCustomModule,
-    UtilitiesModule,
-    MQTTModule,
-    SymbolProviderModule.forRoot(APP_HOME_CONTROLLER),
-    ...CommonImports(),
-  ],
-  providers: [
+@ApplicationModule({
+  application: APP_HOME_CONTROLLER,
+  imports: [HomeAssistantModule, HomeControllerCustomModule],
+  providers: [ApplicationService, BedRemoteService, GarageService],
+  rooms: [
     DownstairsService,
-    GarageService,
-    ApplicationService,
     GamesRoomService,
     GuestBedroomService,
-    BedRemoteService,
     LoftService,
     MasterBedroomService,
   ],
 })
-@LoggableModule(APP_HOME_CONTROLLER)
-export class ApplicationModule {}
+export class HomeControllerModule {}

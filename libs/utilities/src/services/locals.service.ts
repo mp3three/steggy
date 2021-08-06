@@ -5,12 +5,13 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
-  Scope
+  Scope,
 } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
-import { InjectLogger, Trace } from '../decorators';
-import { AutoConfigService } from './auto-config.service';
 
+import { InjectLogger } from '../decorators/injectors/inject-logger.decorator';
+import { Trace } from '../decorators/logger/trace.decorator';
+import { AutoConfigService } from './auto-config.service';
 
 const STASH_PROP_LIST = [
   'action',

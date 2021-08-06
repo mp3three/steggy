@@ -5,11 +5,11 @@ import { NestFactory } from '@nestjs/core';
 import { json } from 'express';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
-import { ApplicationModule } from '../modules';
 
+import { HomeControllerModule } from '../modules';
 
 async function bootstrap() {
-  const app = await NestFactory.create(ApplicationModule, {
+  const app = await NestFactory.create(HomeControllerModule, {
     cors: true,
     logger: BasicNestLogger(),
   });

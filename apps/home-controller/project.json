@@ -4,6 +4,12 @@
   "projectType": "application",
   "targets": {
     "serve": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "command": "npx nx webpack-dev home-controller | pino-pretty"
+      }
+    },
+    "webpack-dev": {
       "executor": "@nrwl/node:execute",
       "options": {
         "buildTarget": "home-controller:build",

@@ -18,7 +18,8 @@ import { Client } from 'mqtt';
 import { Packet } from 'mqtt-packet';
 import { PinoLogger } from 'nestjs-pino';
 
-import { InjectLogger, Trace } from '../../decorators';
+import { InjectLogger } from '../../decorators/injectors/inject-logger.decorator';
+import { Trace } from '../../decorators/logger/trace.decorator';
 import { AutoConfigService } from '../auto-config.service';
 
 /* eslint-disable no-loops/no-loops, security/detect-object-injection, security/detect-non-literal-regexp */
