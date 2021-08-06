@@ -1,6 +1,6 @@
 import {
   ControllerSettings,
-  RoomController,
+  iRoomController,
   RoomDeviceDTO,
 } from '@automagical/contracts';
 import { ControllerStateDTO } from '@automagical/contracts/controller-logic';
@@ -15,15 +15,15 @@ import {
 import { Injectable, Scope } from '@nestjs/common';
 import { each } from 'async';
 
-export const LOADED_ROOMS = new Map<RoomController, RoomCoordinatorService>();
-const CACHE_KEY = ({ controller }: { controller: RoomController }): string =>
+export const LOADED_ROOMS = new Map<iRoomController, RoomCoordinatorService>();
+const CACHE_KEY = ({ controller }: { controller: iRoomController }): string =>
   `COORDINATOR:${controller.name}`;
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class RoomCoordinatorService {
   // #region Object Properties
 
-  public controller: RoomController;
+  public controller: iRoomController;
   public settings: ControllerSettings;
 
   // #endregion Object Properties
@@ -42,7 +42,7 @@ export class RoomCoordinatorService {
   @Trace()
   public async areaOff(
     count: number,
-    controller: RoomController,
+    controller: iRoomController,
   ): Promise<void> {
     if (!(await controller.areaOff(count))) {
       return;
@@ -53,7 +53,7 @@ export class RoomCoordinatorService {
   @Trace()
   public async areaOn(
     count: number,
-    controller: RoomController,
+    controller: iRoomController,
   ): Promise<void> {
     if (!(await controller.areaOn(count))) {
       return;

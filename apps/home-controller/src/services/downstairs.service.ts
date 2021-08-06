@@ -1,4 +1,4 @@
-import { RoomController } from '@automagical/contracts';
+import { iRoomController } from '@automagical/contracts';
 import { LightingControllerService } from '@automagical/controller-logic';
 import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -7,7 +7,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { ROOM_FAVORITE, ROOM_NAMES } from '../typings';
 
 @Injectable()
-export class DownstairsService implements RoomController {
+export class DownstairsService implements iRoomController {
   // #region Object Properties
 
   public name = ROOM_NAMES.downstairs;

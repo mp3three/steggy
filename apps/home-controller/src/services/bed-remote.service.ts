@@ -1,4 +1,4 @@
-import { RoomController } from '@automagical/contracts';
+import { iRoomController } from '@automagical/contracts';
 import { LightingControllerService } from '@automagical/controller-logic';
 import {
   FanDomainService,
@@ -11,7 +11,7 @@ import { ROOM_NAMES } from '../typings';
 import { MasterBedroomService } from './master-bedroom.service';
 
 @Injectable()
-export class BedRemoteService implements RoomController {
+export class BedRemoteService implements iRoomController {
   // #region Object Properties
 
   public readonly name = ROOM_NAMES.bed;

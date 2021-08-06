@@ -1,4 +1,4 @@
-import { RoomController } from '@automagical/contracts';
+import { iRoomController } from '@automagical/contracts';
 import { LightingControllerService } from '@automagical/controller-logic';
 import { MediaPlayerDomainService } from '@automagical/home-assistant';
 import {
@@ -20,7 +20,7 @@ const EVENING_BRIGHTNESS = 40;
 const FAN_LIGHTS = ['light.games_1', 'light.games_2', 'light.games_3'];
 
 @Injectable()
-export class GamesRoomService implements RoomController {
+export class GamesRoomService implements iRoomController {
   // #region Object Properties
 
   public name = ROOM_NAMES.games;

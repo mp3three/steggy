@@ -39,7 +39,7 @@ export class ControllerSettings {
   // #endregion Object Properties
 }
 
-export interface RoomController {
+export interface iRoomController {
   // #region Object Properties
 
   name: string;

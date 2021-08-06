@@ -1,13 +1,13 @@
-import { RoomController } from '@automagical/contracts';
+import { iRoomController } from '@automagical/contracts';
 
 type Controller = {
-  controller: RoomController;
+  controller: iRoomController;
 };
 
 export function ControllerFirst(): MethodDecorator {
   return function (
     { controller }: Controller,
-    key: keyof Omit<RoomController, 'name'>,
+    key: keyof Omit<iRoomController, 'name'>,
     descriptor: PropertyDescriptor,
   ) {
     const originalMethod = descriptor.value;

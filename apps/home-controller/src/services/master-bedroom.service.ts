@@ -1,5 +1,8 @@
-import { RoomController } from '@automagical/contracts';
-import { LightingControllerService } from '@automagical/controller-logic';
+import { iRoomController } from '@automagical/contracts';
+import {
+  LightingControllerService,
+  RoomController,
+} from '@automagical/controller-logic';
 import {
   FanDomainService,
   LightDomainService,
@@ -12,7 +15,11 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { ROOM_FAVORITE, ROOM_NAMES } from '../typings';
 
 @Injectable()
-export class MasterBedroomService implements RoomController {
+@RoomController({
+  friendlyName: 'Master Bedroom',
+  name: 'master',
+})
+export class MasterBedroomService implements iRoomController {
   // #region Object Properties
 
   public name = ROOM_NAMES.master;

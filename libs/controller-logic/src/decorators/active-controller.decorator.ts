@@ -1,4 +1,4 @@
-import { RoomController } from '@automagical/contracts';
+import { iRoomController } from '@automagical/contracts';
 import { ClassConstructor } from 'class-transformer';
 
 import { RoomCoordinatorService } from '../lighting/room-coordinator.service';
@@ -12,7 +12,7 @@ export function ActiveController({
 }: ClassConstructor<unknown>): MethodDecorator {
   return function (
     { coordinator }: Controller,
-    key: keyof Omit<RoomController, 'name'>,
+    key: keyof Omit<iRoomController, 'name'>,
     descriptor: PropertyDescriptor,
   ) {
     const originalMethod = descriptor.value;

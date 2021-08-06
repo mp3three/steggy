@@ -1,4 +1,4 @@
-import { RoomController } from '@automagical/contracts';
+import { iRoomController } from '@automagical/contracts';
 import { LightStateDTO } from '@automagical/contracts/home-assistant';
 import { LightingControllerService } from '@automagical/controller-logic';
 import {
@@ -45,7 +45,7 @@ const EVENING_BRIGHTNESS = 40;
  * during development.
  */
 @Injectable()
-export class LoftService implements RoomController {
+export class LoftService implements iRoomController {
   // #region Object Properties
 
   public name = ROOM_NAMES.loft;

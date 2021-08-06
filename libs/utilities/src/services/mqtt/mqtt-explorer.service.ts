@@ -1,3 +1,4 @@
+import { LOG_LEVEL } from '@automagical/contracts/config';
 import type {
   MqttModuleOptions,
   MqttSubscribeOptions,
@@ -18,6 +19,7 @@ import { Packet } from 'mqtt-packet';
 import { PinoLogger } from 'nestjs-pino';
 
 import { InjectLogger, Trace } from '../../decorators';
+import { AutoConfigService } from '../auto-config.service';
 
 /* eslint-disable no-loops/no-loops, security/detect-object-injection, security/detect-non-literal-regexp */
 
@@ -80,6 +82,7 @@ export class MQTTExplorerService {
     private readonly discoveryService: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
+    private readonly configService: AutoConfigService,
   ) {}
 
   // #endregion Constructors
@@ -126,23 +129,17 @@ export class MQTTExplorerService {
             // add a option to do something before handle message.
             if (this.options.beforeHandle) {
               this.options.beforeHandle(topic, payload, packet);
+            } else if (this.configService.get(LOG_LEVEL) !== 'silent') {
+              this.logger.info(`>>> MQTT Message ${topic}`);
             }
 
             subscriber.handle.bind(subscriber.provider)(
-              ...scatterParameters.map((parameter) => {
-                switch (parameter?.type) {
-                  case 'payload':
-                    return this.handlePayload(payload);
-                  case 'topic':
-                    return topic;
-                  case 'packet':
-                    return packet;
-                  case 'params':
-                    return MQTTExplorerService.matchGroups(
-                      topic,
-                      subscriber.regexp,
-                    );
-                }
+              ...this.mapParameters({
+                packet,
+                payload,
+                scatterParameters,
+                subscriber,
+                topic,
               }),
             );
           } catch (error) {
@@ -151,6 +148,40 @@ export class MQTTExplorerService {
         }
       },
     );
+  }
+
+  @Trace()
+  private mapParameters({
+    scatterParameters,
+    topic,
+    subscriber,
+    packet,
+    payload,
+  }: {
+    scatterParameters: MqttSubscriberParameter[];
+    topic: string;
+    payload: Buffer;
+    packet: Packet;
+    subscriber: MqttSubscriber;
+  }) {
+    return scatterParameters.map((parameter) => {
+      switch (parameter?.type) {
+        case 'payload':
+          const out = this.handlePayload(payload);
+          if (this.configService.get(LOG_LEVEL) !== 'silent') {
+            this.logger.debug({
+              payload: out,
+            });
+          }
+          return out;
+        case 'topic':
+          return topic;
+        case 'packet':
+          return packet;
+        case 'params':
+          return MQTTExplorerService.matchGroups(topic, subscriber.regexp);
+      }
+    });
   }
 
   @Trace()

@@ -1,4 +1,4 @@
-import { RoomController } from '@automagical/contracts';
+import { iRoomController } from '@automagical/contracts';
 import {
   HA_EVENT_STATE_CHANGE,
   HA_SOCKET_READY,
@@ -173,7 +173,7 @@ export class ApplicationService {
 
   @Subscribe(SET_ROOM_STATE)
   protected async setRoomState(
-    @Payload() [room, state]: [ROOM_NAMES, keyof RoomController],
+    @Payload() [room, state]: [ROOM_NAMES, keyof iRoomController],
   ): Promise<void> {
     switch (state) {
       case 'areaOff':

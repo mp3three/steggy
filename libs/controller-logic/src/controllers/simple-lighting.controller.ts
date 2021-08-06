@@ -1,4 +1,4 @@
-import { RoomController } from '@automagical/contracts';
+import { iRoomController } from '@automagical/contracts';
 import {
   HassStateDTO,
   PicoStates,
@@ -11,10 +11,10 @@ import { ControllerFirst } from '../decorators/controller-first.decorator';
 import { RoomCoordinatorService } from '../lighting/room-coordinator.service';
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class SimpleLightingController implements Partial<RoomController> {
+export class SimpleLightingController implements Partial<iRoomController> {
   // #region Object Properties
 
-  public controller: RoomController;
+  public controller: iRoomController;
 
   // #endregion Object Properties
 

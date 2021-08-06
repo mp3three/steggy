@@ -122,6 +122,12 @@
       "env": {
         "jest/globals": true
       }
+    },
+    {
+      "files": ["*.decorator.ts"],
+      "rules": {
+        "security/detect-object-injection": "off"
+      }
     }
   ]
 }

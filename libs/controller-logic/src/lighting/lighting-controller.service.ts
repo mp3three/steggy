@@ -1,6 +1,6 @@
 import type {
   ControllerSettings,
-  RoomController,
+  iRoomController,
   RoomDeviceDTO,
 } from '@automagical/contracts';
 import {
@@ -43,15 +43,15 @@ export class LightingControllerService {
   /**
    * entity_id to controller
    */
-  private readonly CONTROLLER_MAP = new Map<string, RoomController>();
+  private readonly CONTROLLER_MAP = new Map<string, iRoomController>();
   private readonly CONTROLLER_SETTINGS = new Map<
-    RoomController,
+    iRoomController,
     ControllerSettings
   >();
   /**
    * ROOM_NAME to controller
    */
-  private readonly ROOM_MAP = new Map<string, RoomController>();
+  private readonly ROOM_MAP = new Map<string, iRoomController>();
   private readonly SUBSCRIBERS = new Map<string, Observable<LightStateDTO>>();
 
   // #endregion Object Properties
@@ -75,7 +75,7 @@ export class LightingControllerService {
   @Trace()
   public async areaOff(
     count: number,
-    controller: RoomController | string,
+    controller: iRoomController | string,
   ): Promise<void> {
     if (typeof controller === 'string') {
       controller = this.ROOM_MAP.get(controller);
@@ -90,7 +90,7 @@ export class LightingControllerService {
   @Trace()
   public async areaOn(
     count: number,
-    controller: RoomController | string,
+    controller: iRoomController | string,
   ): Promise<void> {
     if (typeof controller === 'string') {
       controller = this.ROOM_MAP.get(controller);
@@ -125,7 +125,7 @@ export class LightingControllerService {
   @Trace()
   public async dimDown(
     count: number,
-    controller: RoomController | string,
+    controller: iRoomController | string,
   ): Promise<void> {
     if (typeof controller === 'string') {
       controller = this.ROOM_MAP.get(controller);
@@ -143,7 +143,7 @@ export class LightingControllerService {
   @Trace()
   public async dimUp(
     count: number,
-    controller: RoomController | string,
+    controller: iRoomController | string,
   ): Promise<void> {
     if (typeof controller === 'string') {
       controller = this.ROOM_MAP.get(controller);
@@ -198,7 +198,7 @@ export class LightingControllerService {
   @Trace()
   public setRoomController(
     controller: string,
-    room: RoomController,
+    room: iRoomController,
     settings: ControllerSettings,
   ): void {
     this.CONTROLLER_MAP.set(controller, room);
@@ -229,7 +229,7 @@ export class LightingControllerService {
   protected async passthrough(
     turnOn: boolean,
     count: number,
-    controller: RoomController,
+    controller: iRoomController,
     recurse = true,
   ): Promise<void> {
     await each(
@@ -364,7 +364,7 @@ export class LightingControllerService {
 
   @Trace()
   private async findDimmableLights(
-    controller: RoomController,
+    controller: iRoomController,
   ): Promise<string[]> {
     const lights = await this.lightManager.getActiveLights();
     const roomLights = this.findLights(controller);
@@ -372,7 +372,7 @@ export class LightingControllerService {
   }
 
   @Trace()
-  private findLights(controller: RoomController): string[] {
+  private findLights(controller: iRoomController): string[] {
     const lights = [];
     this.CONTROLLER_SETTINGS.get(controller).devices.forEach((item) => {
       const targets = item.target ?? [];
