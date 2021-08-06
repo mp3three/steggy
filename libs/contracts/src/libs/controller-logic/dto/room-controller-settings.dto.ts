@@ -10,8 +10,8 @@ export class RoomControllerSettingsDTO {
    * Entities that can be controlled with the circadian lighting controller
    */
   public lights?: string[];
-  public remote?: string;
   public name: string;
+  public remote?: string;
   /**
    *  Primary lights for the room
    */
@@ -19,4 +19,4 @@ export class RoomControllerSettingsDTO {
 
   // #endregion Object Properties
 }
-export const CONTROLLER_SETTINGS = Symbol('CONTROLLER_SETTINGS');
+export const ROOM_CONTROLLER_SETTINGS = Symbol('ROOM_CONTROLLER_SETTINGS');

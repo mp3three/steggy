@@ -75,7 +75,7 @@ export class LightingControllerService {
   @Trace()
   public async areaOff(
     count: number,
-    controller: iRoomController | string,
+    controller: Pick<iRoomController, 'areaOff' | 'name'> | string,
   ): Promise<void> {
     if (typeof controller === 'string') {
       controller = this.ROOM_MAP.get(controller);
@@ -83,7 +83,7 @@ export class LightingControllerService {
     if (!(await controller.areaOff(count))) {
       return;
     }
-    await this.passthrough(false, count, controller);
+    await this.passthrough(false, count, controller as iRoomController);
     this.eventEmitter.emit(`${controller.name}/areaOff`, count);
   }
 

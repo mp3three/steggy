@@ -1,4 +1,5 @@
 import { BODY_SIZE, PORT } from '@automagical/contracts/config';
+import { RoomExplorerService } from '@automagical/controller-logic';
 import { BasicNestLogger } from '@automagical/server';
 import { AutoConfigService } from '@automagical/utilities';
 import { NestFactory } from '@nestjs/core';
@@ -14,6 +15,8 @@ async function bootstrap() {
     logger: BasicNestLogger(),
   });
   process.nextTick(async () => {
+    const explorer = app.get(RoomExplorerService);
+    explorer.finalize(app);
     const logger = app.get(Logger);
     const config = app.get(AutoConfigService);
     app.use(helmet());

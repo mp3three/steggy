@@ -40,40 +40,34 @@ export class ControllerSettings {
 }
 
 export interface iRoomController {
-  // #region Object Properties
-
-  name: string;
-
-  // #endregion Object Properties
-
   // #region Public Methods
 
   /**
    * Return false to block built in off command
    */
-  areaOff(...parameters: unknown[]): Promise<boolean>;
+  areaOff(...parameters: unknown[]): Promise<boolean | void>;
   /**
    * Return false to block built in on command
    */
-  areaOn(...parameters: unknown[]): Promise<boolean>;
+  areaOn(...parameters: unknown[]): Promise<boolean | void>;
   /**
    * Got your own secret konami code?
    *
    * Return false to block additional processing, is run first
    */
-  combo(...parameters: unknown[]): Promise<boolean>;
+  combo(...parameters: unknown[]): Promise<boolean | void>;
   /**
    * Return false to block built in dim up command
    */
-  dimDown(...parameters: unknown[]): Promise<boolean>;
+  dimDown(...parameters: unknown[]): Promise<boolean | void>;
   /**
    * Return false to block built in dim down command
    */
-  dimUp(...parameters: unknown[]): Promise<boolean>;
+  dimUp(...parameters: unknown[]): Promise<boolean | void>;
   /**
    * Provide some logic for the favorite button in the middle
    */
-  favorite(...parameters: unknown[]): Promise<boolean>;
+  favorite(...parameters: unknown[]): Promise<boolean | void>;
 
   // #endregion Public Methods
 }

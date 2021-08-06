@@ -1,6 +1,9 @@
 import { iRoomController } from '@automagical/contracts';
 import { LightStateDTO } from '@automagical/contracts/home-assistant';
-import { LightingControllerService } from '@automagical/controller-logic';
+import {
+  LightingControllerService,
+  RoomController,
+} from '@automagical/controller-logic';
 import {
   EntityManagerService,
   FanDomainService,
@@ -44,7 +47,13 @@ const EVENING_BRIGHTNESS = 40;
  * Caching needs to be provided by something off-process to persist properly to make auto mode work
  * during development.
  */
-@Injectable()
+@RoomController({
+  accessories: ['switch.loft_hallway_light'],
+  friendlyName: 'Loft',
+  lights: [...PANEL_LIGHTS, ...FAN_LIGHTS],
+  name: 'loft',
+  switches: ['switch.desk_light', 'sensor.loft_pico'],
+})
 export class LoftService implements iRoomController {
   // #region Object Properties
 
@@ -217,26 +226,6 @@ export class LoftService implements iRoomController {
 
   @Trace()
   protected async onModuleInit(): Promise<void> {
-    this.lightingController.setRoomController('sensor.loft_pico', this, {
-      devices: [
-        {
-          comboCount: 1,
-          target: [...PANEL_LIGHTS, ...FAN_LIGHTS, 'switch.desk_light'],
-        },
-        {
-          comboCount: 2,
-          target: ['switch.loft_hallway_light', 'switch.stair_light'],
-        },
-        {
-          comboCount: 3,
-          rooms: [
-            ROOM_NAMES.downstairs,
-            { name: ROOM_NAMES.master, type: 'off' },
-            { name: ROOM_NAMES.games, type: 'off' },
-          ],
-        },
-      ],
-    });
     const LOFT_AUTO_MODE = await this.cacheManager.get(`LOFT_AUTO_MODE`);
     this.logger.debug({ LOFT_AUTO_MODE }, 'LOFT_AUTO_MODE');
   }

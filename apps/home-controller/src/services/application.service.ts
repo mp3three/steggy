@@ -46,7 +46,6 @@ import {
 export class ApplicationService {
   // #region Object Properties
 
-  // private logger = Logger(AppService);
   private connectionReady = false;
 
   // #endregion Object Properties
@@ -94,6 +93,7 @@ export class ApplicationService {
 
   public onModuleInit(): void {
     setTimeout(async () => {
+      // debugger;
       // this.eventEmitterService.emit(ROOM_FAVORITE(ROOM_NAMES.games));
       // await this.lockDoors();
     }, 1000);

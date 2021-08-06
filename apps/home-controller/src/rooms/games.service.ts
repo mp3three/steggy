@@ -10,7 +10,6 @@ import {
   InjectLogger,
   Trace,
 } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
@@ -32,13 +31,7 @@ const EVENING_BRIGHTNESS = 40;
   name: 'games',
   remote: 'sensor.games_pico',
 })
-export class GamesRoomService implements iRoomController {
-  // #region Object Properties
-
-  public name = ROOM_NAMES.games;
-
-  // #endregion Object Properties
-
+export class GamesRoomService implements Partial<iRoomController> {
   // #region Constructors
 
   constructor(
@@ -50,14 +43,6 @@ export class GamesRoomService implements iRoomController {
   ) {}
 
   // #endregion Constructors
-
-  // #region Private Accessors
-
-  private get AUTO_MODE(): Promise<boolean> {
-    return this.cacheManager.get(`GAMES_AUTO_MODE`);
-  }
-
-  // #endregion Private Accessors
 
   // #region Public Methods
 
@@ -84,35 +69,6 @@ export class GamesRoomService implements iRoomController {
       await this.remoteService.turnOff(MONITOR);
     }
     return false;
-  }
-
-  @Trace()
-  public async areaOff(): Promise<boolean> {
-    await this.cacheManager.del(`GAMES_AUTO_MODE`);
-    return true;
-  }
-
-  @Trace()
-  public async areaOn(): Promise<boolean> {
-    await this.cacheManager.del(`GAMES_AUTO_MODE`);
-    return true;
-  }
-
-  @Trace()
-  public async combo(): Promise<boolean> {
-    return true;
-  }
-
-  @Trace()
-  public async dimDown(): Promise<boolean> {
-    await this.cacheManager.del(`GAMES_AUTO_MODE`);
-    return true;
-  }
-
-  @Trace()
-  public async dimUp(): Promise<boolean> {
-    await this.cacheManager.del(`GAMES_AUTO_MODE`);
-    return true;
   }
 
   // #endregion Public Methods
@@ -143,19 +99,6 @@ export class GamesRoomService implements iRoomController {
 
   @Trace()
   protected async onApplicationBootstrap(): Promise<void> {
-    this.lightingController.setRoomController('sensor.games_pico', this, {
-      devices: [
-        {
-          comboCount: 1,
-          target: [
-            'light.games_1',
-            'light.games_2',
-            'light.games_3',
-            'light.games_lamp',
-          ],
-        },
-      ],
-    });
     const GAMES_AUTO_MODE = await this.cacheManager.get(`GAMES_AUTO_MODE`);
     this.logger.debug({ GAMES_AUTO_MODE }, 'GAMES_AUTO_MODE');
   }

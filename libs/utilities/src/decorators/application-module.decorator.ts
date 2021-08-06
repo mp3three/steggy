@@ -8,7 +8,12 @@ import {
   REDIS_PORT,
 } from '@automagical/contracts/config';
 import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
-import { CacheModule, ModuleMetadata, Provider } from '@nestjs/common';
+import {
+  CacheModule,
+  INestApplicationContext,
+  ModuleMetadata,
+  Provider,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -162,26 +167,3 @@ export function ApplicationModule(
     });
   };
 }
-
-// @ApplicationModule({
-//   application: APP_HOME_CONTROLLER,
-//   imports: [
-//     HomeAssistantModule,
-//     HomeControllerCustomModule,
-//     UtilitiesModule,
-//     MQTTModule,
-//     SymbolProviderModule.forRoot(APP_HOME_CONTROLLER),
-//     ...CommonImports(),
-//   ],
-//   providers: [
-//     DownstairsService,
-//     GarageService,
-//     ApplicationService,
-//     GamesRoomService,
-//     GuestBedroomService,
-//     BedRemoteService,
-//     LoftService,
-//     MasterBedroomService,
-//   ],
-// })
-// @LoggableModule(APP_HOME_CONTROLLER)
