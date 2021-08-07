@@ -10,7 +10,10 @@ import {
   HASS_DOMAINS,
 } from '@automagical/contracts/home-assistant';
 import { SET_ROOM_STATE } from '@automagical/contracts/utilities';
-import { LightingControllerService } from '@automagical/controller-logic';
+import {
+  LightingControllerService,
+  RelayService,
+} from '@automagical/controller-logic';
 import {
   EntityManagerService,
   LockDomainService,
@@ -62,6 +65,7 @@ export class ApplicationService {
     private readonly lockService: LockDomainService,
     private readonly lightController: LightingControllerService,
     private readonly eventEmitterService: EventEmitter2,
+    private readonly relayService: RelayService,
   ) {}
 
   // #endregion Constructors
@@ -177,16 +181,16 @@ export class ApplicationService {
   ): Promise<void> {
     switch (state) {
       case 'areaOff':
-        await this.lightController.roomOff(room);
+        await this.relayService.turnOff([room]);
         return;
       case 'areaOn':
-        await this.lightController.roomOn(room);
+        await this.relayService.turnOn([room]);
         return;
       case 'dimUp':
-        await this.lightController.dimUp(1, room);
+        await this.relayService.dimUp([room]);
         return;
       case 'dimDown':
-        await this.lightController.dimDown(1, room);
+        await this.relayService.dimDown([room]);
         return;
       case 'favorite':
         this.eventEmitterService.emit(ROOM_FAVORITE(room));
@@ -203,7 +207,7 @@ export class ApplicationService {
   @Debug('Home Assistant => Leave Home')
   protected async leaveHome(): Promise<void> {
     await this.lockDoors();
-    await this.lightController.roomOff([
+    await this.relayService.turnOff([
       ROOM_NAMES.master,
       ROOM_NAMES.loft,
       ROOM_NAMES.downstairs,

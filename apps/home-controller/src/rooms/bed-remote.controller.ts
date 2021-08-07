@@ -2,6 +2,7 @@ import { iRoomController } from '@automagical/contracts';
 import {
   LightingController,
   LightingControllerService,
+  RelayService,
   RoomController,
 } from '@automagical/controller-logic';
 import {
@@ -9,8 +10,6 @@ import {
   SwitchDomainService,
 } from '@automagical/home-assistant';
 import { Trace } from '@automagical/utilities';
-
-import { MasterBedroomService } from './master-bedroom.service';
 
 @RoomController({
   friendlyName: 'Bed Remote',
@@ -21,7 +20,7 @@ export class BedRemoteController implements Partial<iRoomController> {
   // #region Object Properties
 
   @LightingController()
-  protected readonly controller: LightingControllerService;
+  public readonly controller: LightingControllerService;
 
   // #endregion Object Properties
 
@@ -30,7 +29,7 @@ export class BedRemoteController implements Partial<iRoomController> {
   constructor(
     private readonly switchService: SwitchDomainService,
     private readonly fanService: FanDomainService,
-    private readonly masterBedroom: MasterBedroomService,
+    private readonly relayService: RelayService,
   ) {}
 
   // #endregion Constructors
@@ -38,38 +37,28 @@ export class BedRemoteController implements Partial<iRoomController> {
   // #region Public Methods
 
   @Trace()
-  public async areaOff(): Promise<boolean> {
-    await this.controller.areaOff(1, this.masterBedroom);
-    return false;
+  public async areaOff(): Promise<void> {
+    await this.relayService.turnOff(['master']);
   }
 
   @Trace()
-  public async areaOn(count: number): Promise<boolean> {
-    await this.controller.areaOn(count, this.masterBedroom);
-    return false;
+  public async areaOn(): Promise<void> {
+    await this.relayService.turnOn(['master']);
   }
 
   @Trace()
-  public async combo(): Promise<boolean> {
-    return true;
-  }
-
-  @Trace()
-  public async dimDown(): Promise<boolean> {
+  public async dimDown(): Promise<void> {
     await this.fanService.fanSpeedDown('fan.master_bedroom_ceiling_fan');
-    return false;
   }
 
   @Trace()
-  public async dimUp(): Promise<boolean> {
+  public async dimUp(): Promise<void> {
     await this.fanService.fanSpeedUp('fan.master_bedroom_ceiling_fan');
-    return false;
   }
 
   @Trace()
-  public async favorite(): Promise<boolean> {
+  public async favorite(): Promise<void> {
     await this.switchService.toggle('switch.womp');
-    return false;
   }
 
   // #endregion Public Methods

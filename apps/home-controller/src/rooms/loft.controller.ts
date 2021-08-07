@@ -1,26 +1,25 @@
 import { iRoomController } from '@automagical/contracts';
 import { LightStateDTO } from '@automagical/contracts/home-assistant';
-import { LightingControllerService } from '@automagical/controller-logic';
+import {
+  LightingControllerService,
+  LightManagerService,
+  RoomController,
+  StateManager,
+  StateManagerService,
+} from '@automagical/controller-logic';
 import {
   EntityManagerService,
   FanDomainService,
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import {
-  CacheManagerService,
-  Debug,
-  InjectCache,
-  InjectLogger,
-  Trace,
-} from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { Debug, InjectLogger, Trace } from '@automagical/utilities';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 
-import { GLOBAL_TRANSITION, ROOM_FAVORITE, ROOM_NAMES } from '../typings';
+import { GLOBAL_TRANSITION } from '../typings';
 
 const MONITOR = 'media_player.monitor';
 const PANEL_LIGHTS = ['light.loft_wall_bottom', 'light.loft_wall_top'];
@@ -31,6 +30,7 @@ const FAN_LIGHTS = [
   'light.loft_fan_bench_left',
 ];
 const EVENING_BRIGHTNESS = 40;
+const AUTO_STATE = 'AUTO_STATE';
 
 /**
  * If in auto mode:
@@ -44,11 +44,18 @@ const EVENING_BRIGHTNESS = 40;
  * Caching needs to be provided by something off-process to persist properly to make auto mode work
  * during development.
  */
-@Injectable()
-export class LoftService implements iRoomController {
+@RoomController({
+  accessories: ['switch.loft_hallway_light'],
+  friendlyName: 'Loft',
+  lights: [...PANEL_LIGHTS, ...FAN_LIGHTS],
+  name: 'loft',
+  switches: ['switch.desk_light', 'sensor.loft_pico'],
+})
+export class LoftController implements Partial<iRoomController> {
   // #region Object Properties
 
-  public name = ROOM_NAMES.loft;
+  @StateManager()
+  private readonly stateManager: StateManagerService;
 
   // #endregion Object Properties
 
@@ -57,34 +64,36 @@ export class LoftService implements iRoomController {
   constructor(
     @InjectLogger()
     protected readonly logger: PinoLogger,
-    @InjectCache()
-    private readonly cacheManager: CacheManagerService,
     private readonly lightingController: LightingControllerService,
     private readonly entityManager: EntityManagerService,
     private readonly remoteService: MediaPlayerDomainService,
     private readonly eventEmitter: EventEmitter2,
     private readonly switchService: SwitchDomainService,
     private readonly fanService: FanDomainService,
+    private readonly lightManager: LightManagerService,
   ) {}
 
   // #endregion Constructors
 
-  // #region Private Accessors
-
-  private get AUTO_MODE(): Promise<boolean> {
-    return this.cacheManager.get(`LOFT_AUTO_MODE`);
-  }
-
-  // #endregion Private Accessors
-
   // #region Public Methods
 
-  @OnEvent(ROOM_FAVORITE(ROOM_NAMES.loft))
+  @Trace()
+  public async areaOff(count: number): Promise<boolean> {
+    await this.stateManager.removeFlag(AUTO_STATE);
+    if (count === 2) {
+      await this.remoteService.turnOff(MONITOR);
+      this.eventEmitter.emit(GLOBAL_TRANSITION);
+    }
+    if (count === 3) {
+      await this.remoteService.turnOff(MONITOR);
+      await this.fanService.turnOff('fan.loft_ceiling_fan');
+    }
+    return true;
+  }
+
   @Trace()
   public async favorite(count: number): Promise<boolean> {
-    await this.cacheManager.set(`LOFT_AUTO_MODE`, true, {
-      ttl: 60 * 60 * 24,
-    });
+    await this.stateManager.addFlag(AUTO_STATE);
     const hour = dayjs().hour();
     if (count === 1) {
       // Set fan
@@ -95,7 +104,7 @@ export class LoftService implements iRoomController {
       // Set panel
       const panelBrightness = this.panelAutoBrightness();
       await (panelBrightness === 0
-        ? this.lightingController.turnOff(PANEL_LIGHTS)
+        ? this.lightManager.turnOff(PANEL_LIGHTS)
         : this.lightingController.circadianLight(
             PANEL_LIGHTS,
             panelBrightness,
@@ -114,48 +123,11 @@ export class LoftService implements iRoomController {
     }
     if (count === 2) {
       await this.remoteService.turnOn(MONITOR);
-      this.lightingController.roomOff(ROOM_NAMES.master);
-      this.lightingController.roomOff(ROOM_NAMES.downstairs);
-      this.lightingController.roomOff(ROOM_NAMES.games);
+      // this.lightingController.roomOff(ROOM_NAMES.master);
+      // this.lightingController.roomOff(ROOM_NAMES.downstairs);
+      // this.lightingController.roomOff(ROOM_NAMES.games);
     }
     return false;
-  }
-
-  @Trace()
-  public async areaOff(count: number): Promise<boolean> {
-    await this.cacheManager.del(`LOFT_AUTO_MODE`);
-    if (count === 2) {
-      await this.remoteService.turnOff(MONITOR);
-      this.eventEmitter.emit(GLOBAL_TRANSITION);
-    }
-    if (count === 3) {
-      await this.remoteService.turnOff(MONITOR);
-      await this.fanService.turnOff('fan.loft_ceiling_fan');
-    }
-    return true;
-  }
-
-  @Trace()
-  public async areaOn(): Promise<boolean> {
-    await this.cacheManager.del(`LOFT_AUTO_MODE`);
-    return true;
-  }
-
-  @Trace()
-  public async combo(): Promise<boolean> {
-    return true;
-  }
-
-  @Trace()
-  public async dimDown(): Promise<boolean> {
-    await this.cacheManager.del(`LOFT_AUTO_MODE`);
-    return true;
-  }
-
-  @Trace()
-  public async dimUp(): Promise<boolean> {
-    await this.cacheManager.del(`LOFT_AUTO_MODE`);
-    return true;
   }
 
   // #endregion Public Methods
@@ -177,7 +149,7 @@ export class LoftService implements iRoomController {
   @Cron('0 45 22 * * *')
   @Debug(`Wind Down`)
   protected async windDown(): Promise<void> {
-    if (!(await this.AUTO_MODE)) {
+    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
       return;
     }
     this.switchService.turnOff(['switch.desk_light']);
@@ -186,12 +158,12 @@ export class LoftService implements iRoomController {
   @Cron(CronExpression.EVERY_30_SECONDS)
   @Trace()
   protected async fanLightSchedule(): Promise<void> {
-    if (!(await this.AUTO_MODE)) {
+    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
       return;
     }
     const target = this.fanAutoBrightness();
     if (target === 0) {
-      await this.lightingController.turnOff(FAN_LIGHTS);
+      await this.lightManager.turnOff(FAN_LIGHTS);
       return;
     }
     await this.lightingController.circadianLight(FAN_LIGHTS, target);
@@ -200,45 +172,19 @@ export class LoftService implements iRoomController {
   @Cron(CronExpression.EVERY_30_SECONDS)
   @Trace()
   protected async panelSchedule(): Promise<void> {
-    if (!(await this.AUTO_MODE)) {
+    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
       return;
     }
     const brightness = this.panelAutoBrightness();
     const [light] = this.entityManager.getEntity<LightStateDTO>(PANEL_LIGHTS);
     if (brightness === 0) {
-      await this.lightingController.turnOff(PANEL_LIGHTS);
+      await this.lightManager.turnOff(PANEL_LIGHTS);
       return;
     }
     if (light.attributes.brightness === brightness) {
       return;
     }
     await this.lightingController.circadianLight(PANEL_LIGHTS, brightness);
-  }
-
-  @Trace()
-  protected async onModuleInit(): Promise<void> {
-    this.lightingController.setRoomController('sensor.loft_pico', this, {
-      devices: [
-        {
-          comboCount: 1,
-          target: [...PANEL_LIGHTS, ...FAN_LIGHTS, 'switch.desk_light'],
-        },
-        {
-          comboCount: 2,
-          target: ['switch.loft_hallway_light', 'switch.stair_light'],
-        },
-        {
-          comboCount: 3,
-          rooms: [
-            ROOM_NAMES.downstairs,
-            { name: ROOM_NAMES.master, type: 'off' },
-            { name: ROOM_NAMES.games, type: 'off' },
-          ],
-        },
-      ],
-    });
-    const LOFT_AUTO_MODE = await this.cacheManager.get(`LOFT_AUTO_MODE`);
-    this.logger.debug({ LOFT_AUTO_MODE }, 'LOFT_AUTO_MODE');
   }
 
   // #endregion Protected Methods

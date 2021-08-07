@@ -10,7 +10,7 @@ import {
 } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
 
-const CACHE_KEY = (room) => `${room}`;
+const CACHE_KEY = (room, flag) => `FLAGS:${room}/${flag}`;
 /**
  * Intended to operate 1=1 with room controllers
  */
@@ -35,61 +35,21 @@ export class StateManagerService {
 
   @Trace()
   public async addFlag(flagName: string): Promise<void> {
-    const current = await this.getState();
-    this.setStateProperty('activeFlags', [...current.activeFlags, flagName]);
-  }
-
-  @Trace()
-  public async getState(): Promise<RoomStateDTO> {
-    return (
-      (await this.cacheService.get(CACHE_KEY(this.settings.name))) ?? {
-        activeFlags: [],
-        lightingMode: 'unmanaged',
-        lights: {},
-      }
-    );
+    await this.cacheService.set(CACHE_KEY(this.settings.name, flagName), true);
   }
 
   @Trace()
   public async hasFlag(flagName: string): Promise<boolean> {
-    const state = await this.getState();
-    return state.activeFlags.includes(flagName);
+    return await this.cacheService.wrap<boolean>(
+      CACHE_KEY(this.settings.name, flagName),
+      () => false,
+    );
   }
 
   @Trace()
-  public async setStateProperty(
-    key: keyof RoomStateDTO,
-    value: unknown,
-  ): Promise<void> {
-    const cache = await this.getState();
-    await this.cacheService.set(CACHE_KEY(this.settings.name), {
-      ...cache,
-      [key]: value,
-    });
+  public async removeFlag(flagName: string): Promise<void> {
+    this.cacheService.del(CACHE_KEY(this.settings.name, flagName));
   }
 
   // #endregion Public Methods
-
-  // #region Protected Methods
-
-  protected finalize(): void {
-    ['areaOff', 'areaOn', 'dimDown', 'dimUp', 'favorite'].forEach((key) => {
-      if (this.controller[key]) {
-        const descriptor = Object.getOwnPropertyDescriptor(
-          this.controller,
-          key,
-        );
-        const original = descriptor.value;
-        descriptor.value = function (...parameters) {
-          const value = original.apply(this, parameters);
-          if (value === false) {
-            return;
-          }
-          this[key]();
-        };
-      }
-    });
-  }
-
-  // #endregion Protected Methods
 }

@@ -6,4 +6,4 @@ import { RoomController } from '@automagical/controller-logic';
   name: 'Guest',
   remote: 'sensor.guest_pico',
 })
-export class GuestBedroomService {}
+export class GuestBedroomController {}

@@ -1,7 +1,11 @@
 import { iRoomController } from '@automagical/contracts';
 import {
   LightingControllerService,
+  LightManagerService,
+  RelayService,
   RoomController,
+  StateManager,
+  StateManagerService,
 } from '@automagical/controller-logic';
 import { MediaPlayerDomainService } from '@automagical/home-assistant';
 import {
@@ -19,6 +23,7 @@ import { ROOM_FAVORITE, ROOM_NAMES } from '../typings';
 
 const MONITOR = 'media_player.monitor';
 const EVENING_BRIGHTNESS = 40;
+const AUTO_STATE = 'AUTO_STATE';
 
 @RoomController({
   friendlyName: 'Games Room',
@@ -31,7 +36,14 @@ const EVENING_BRIGHTNESS = 40;
   name: 'games',
   remote: 'sensor.games_pico',
 })
-export class GamesRoomService implements Partial<iRoomController> {
+export class GamesRoomController implements Partial<iRoomController> {
+  // #region Object Properties
+
+  @StateManager()
+  private readonly stateManager: StateManagerService;
+
+  // #endregion Object Properties
+
   // #region Constructors
 
   constructor(
@@ -40,18 +52,17 @@ export class GamesRoomService implements Partial<iRoomController> {
     private readonly cacheManager: CacheManagerService,
     private readonly remoteService: MediaPlayerDomainService,
     private readonly lightingController: LightingControllerService,
+    private readonly lightManager: LightManagerService,
+    private readonly relayService: RelayService,
   ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
-  @OnEvent(ROOM_FAVORITE(ROOM_NAMES.games))
   @Trace()
   public async favorite(count: number): Promise<boolean> {
-    await this.cacheManager.set(`GAMES_AUTO_MODE`, true, {
-      ttl: 60 * 60 * 24,
-    });
+    await this.stateManager.addFlag(AUTO_STATE);
     if (count === 1) {
       await this.lightingController.circadianLight(
         ['light.games_1', 'light.games_2', 'light.games_3', 'light.games_lamp'],
@@ -60,9 +71,7 @@ export class GamesRoomService implements Partial<iRoomController> {
       return false;
     }
     if (count === 2) {
-      await this.lightingController.roomOff(ROOM_NAMES.loft);
-      await this.lightingController.roomOff(ROOM_NAMES.downstairs);
-      await this.lightingController.roomOff(ROOM_NAMES.master);
+      await this.relayService.turnOff(['loft', 'downstairs', 'master']);
       return false;
     }
     if (count === 3) {
@@ -78,12 +87,12 @@ export class GamesRoomService implements Partial<iRoomController> {
   @Cron(CronExpression.EVERY_30_SECONDS)
   @Trace()
   protected async fanLightSchedule(): Promise<void> {
-    if (!(await this.AUTO_MODE)) {
+    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
       return;
     }
     const target = this.fanAutoBrightness();
     if (target === 0) {
-      await this.lightingController.turnOff([
+      await this.lightManager.turnOff([
         'light.games_1',
         'light.games_2',
         'light.games_3',

@@ -1,6 +1,5 @@
 import {
   ALL_ENTITIES_UPDATED,
-  HA_EVENT_STATE_CHANGE,
   HA_SOCKET_READY,
 } from '@automagical/contracts/constants';
 import {

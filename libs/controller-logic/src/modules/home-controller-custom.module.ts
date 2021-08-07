@@ -4,22 +4,28 @@ import { Global, Module } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
 import {
-  LightFlashService,
+  CircadianService,
+  LightingControllerService,
+  LightManagerService,
+  RelayService,
+  RoomExplorerService,
+  StateManagerService,
+} from '../services';
+
+const providers = [
   LightingControllerService,
   LightManagerService,
   RoomExplorerService,
-} from '../services';
+  CircadianService,
+  RelayService,
+  StateManagerService,
+];
 
 @Global()
 @Module({
-  exports: [LightingControllerService, LightFlashService, LightManagerService],
+  exports: providers,
   imports: [CacheImport(), DiscoveryModule],
-  providers: [
-    LightingControllerService,
-    LightFlashService,
-    LightManagerService,
-    RoomExplorerService,
-  ],
+  providers,
 })
 @LoggableModule(LIB_CONTROLLER_LOGIC)
 export class HomeControllerCustomModule {}

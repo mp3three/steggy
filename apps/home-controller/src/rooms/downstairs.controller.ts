@@ -17,4 +17,4 @@ import { RoomController } from '@automagical/controller-logic';
     'switch.couch_light',
   ],
 })
-export class DownstairsService {}
+export class DownstairsController {}

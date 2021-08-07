@@ -10,8 +10,6 @@ import {
 import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
-import { ROOM_NAMES } from '../typings';
-
 @Injectable()
 @RoomController({
   friendlyName: 'Master Bedroom',
@@ -24,7 +22,7 @@ import { ROOM_NAMES } from '../typings';
   name: 'master',
   switches: ['switch.womp'],
 })
-export class MasterBedroomService implements Partial<iRoomController> {
+export class MasterBedroomController implements Partial<iRoomController> {
   // #region Constructors
 
   constructor(
@@ -38,24 +36,15 @@ export class MasterBedroomService implements Partial<iRoomController> {
   // #region Public Methods
 
   @Trace()
-  public async favorite(count: number): Promise<boolean> {
-    if (count === 1) {
-      await this.switchService.turnOff('switch.womp');
-      await this.lightService.turnOff([
-        'light.bedroom_fan_top_left',
-        'light.bedroom_fan_top_right',
-        'light.bedroom_fan_bottom_left',
-        'light.bedroom_fan_bottom_right',
-      ]);
-      await this.lightingController.circadianLight(['light.speaker_light'], 40);
-    }
-    if (count === 2) {
-      await this.lightingController.roomOff([
-        ROOM_NAMES.loft,
-        ROOM_NAMES.downstairs,
-        ROOM_NAMES.games,
-      ]);
-    }
+  public async favorite(): Promise<boolean> {
+    await this.switchService.turnOff('switch.womp');
+    await this.lightService.turnOff([
+      'light.bedroom_fan_top_left',
+      'light.bedroom_fan_top_right',
+      'light.bedroom_fan_bottom_left',
+      'light.bedroom_fan_bottom_right',
+    ]);
+    await this.lightingController.circadianLight(['light.speaker_light'], 40);
     return false;
   }
 

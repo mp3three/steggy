@@ -4,26 +4,26 @@ import { HomeAssistantModule } from '@automagical/home-assistant';
 import { ApplicationModule } from '@automagical/utilities';
 
 import {
-  ApplicationService,
-  BedRemoteService,
-  DownstairsService,
-  GamesRoomService,
-  GarageService,
-  GuestBedroomService,
-  LoftService,
-  MasterBedroomService,
-} from '../services';
+  DownstairsController,
+  GamesRoomController,
+  GuestBedroomController,
+  LoftController,
+  MasterBedroomController,
+} from '../rooms';
+import { BedRemoteController } from '../rooms/bed-remote.controller';
+import { ApplicationService, GarageService } from '../services';
 
 @ApplicationModule({
   application: APP_HOME_CONTROLLER,
   imports: [HomeAssistantModule, HomeControllerCustomModule],
-  providers: [ApplicationService, BedRemoteService, GarageService],
+  providers: [ApplicationService, GarageService],
   rooms: [
-    DownstairsService,
-    GamesRoomService,
-    GuestBedroomService,
-    LoftService,
-    MasterBedroomService,
+    DownstairsController,
+    BedRemoteController,
+    GamesRoomController,
+    GuestBedroomController,
+    LoftController,
+    MasterBedroomController,
   ],
 })
 export class HomeControllerModule {}

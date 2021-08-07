@@ -19,7 +19,7 @@ import { StateManagerService } from './state-manager.service';
 export class RoomExplorerService {
   // #region Object Properties
 
-  private readonly rooms = new Set<InstanceWrapper>();
+  public readonly rooms = new Set<InstanceWrapper>();
 
   // #endregion Object Properties
 
@@ -48,6 +48,10 @@ export class RoomExplorerService {
       (instance[STATE_MANAGER] as StateManagerService).controller = instance;
       (instance[STATE_MANAGER] as StateManagerService).settings =
         instance[ROOM_CONTROLLER_SETTINGS];
+      (instance[LIGHTING_CONTROLLER] as LightingControllerService).controller =
+        instance;
+      (instance[LIGHTING_CONTROLLER] as LightingControllerService).settings =
+        instance[ROOM_CONTROLLER_SETTINGS];
 
       this.metadataScanner.scanFromPrototype(
         instance,
@@ -59,7 +63,7 @@ export class RoomExplorerService {
             instance[key],
           );
           if (loadController === true) {
-            instance[key] = '';
+            instance[key] = instance[LIGHTING_CONTROLLER];
             return;
           }
           // Inject entity observables
@@ -83,6 +87,16 @@ export class RoomExplorerService {
         },
       );
     });
+  }
+
+  public getController({
+    instance,
+  }: InstanceWrapper): LightingControllerService {
+    return instance[LIGHTING_CONTROLLER];
+  }
+
+  public getSettings({ instance }: InstanceWrapper): RoomControllerSettingsDTO {
+    return instance[ROOM_CONTROLLER_SETTINGS];
   }
 
   // #endregion Public Methods
