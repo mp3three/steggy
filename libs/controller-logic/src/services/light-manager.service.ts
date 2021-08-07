@@ -16,6 +16,11 @@ import { CircadianService } from './circadian.service';
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
 const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
 
+/**
+ * - State management for lights
+ * - Forwards commands to light domain service
+ * - Management of the light temperature for lights flagged as circadian mode
+ */
 @Injectable()
 export class LightManagerService {
   // #region Constructors

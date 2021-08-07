@@ -4,16 +4,16 @@ import {
   ControllerStates,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
+import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-
-import { RemoteAdapterService } from './remote-adapter.service';
+import { PinoLogger } from 'nestjs-pino';
 
 /**
- * Glue between kunami codes and controllers
+ * For the tracking of multiple button press sequences on remotes
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class ComplexLogicService {
+export class KunamiCodeService {
   // #region Object Properties
 
   public controller: Partial<iRoomController>;
@@ -24,26 +24,28 @@ export class ComplexLogicService {
   // #region Constructors
 
   constructor(
-    private readonly remoteAdapter: RemoteAdapterService,
+    @InjectLogger() private readonly logger: PinoLogger,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
   // #endregion Constructors
 
-  // #region Public Methods
+  // #region Protected Methods
 
-  public init(): void {
-    if (!this.settings?.remote) {
+  @Trace()
+  protected onApplicationBootstrap(): void {
+    if (!this.settings.remote) {
       return;
     }
-    this.remoteAdapter.watch(this.settings.remote);
     this.eventEmitter.on(
-      CONTROLLER_STATE_EVENT(this.settings.remote, ControllerStates.favorite),
-      async () => {
-        await this.controller?.favorite(1);
+      CONTROLLER_STATE_EVENT(this.settings.remote, '*'),
+      (state: ControllerStates) => {
+        this.logger.debug({ state });
+        //
       },
     );
+    //
   }
 
-  // #endregion Public Methods
+  // #endregion Protected Methods
 }

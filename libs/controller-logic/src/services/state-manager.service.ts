@@ -9,7 +9,8 @@ import { Injectable, Scope } from '@nestjs/common';
 
 const CACHE_KEY = (room, flag) => `FLAGS:${room}/${flag}`;
 /**
- * Intended to operate 1=1 with room controllers
+ * This service exists to manage room flags.
+ * Future expansion as specific room functionality demands it's own state management
  */
 @Injectable({ scope: Scope.TRANSIENT })
 export class StateManagerService {

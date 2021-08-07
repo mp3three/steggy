@@ -1,5 +1,6 @@
 export * from './circadian.service';
 export * from './complex-logic.service';
+export * from './kunami-code.service';
 export * from './light-manager.service';
 export * from './lighting-controller.service';
 export * from './relay.service';

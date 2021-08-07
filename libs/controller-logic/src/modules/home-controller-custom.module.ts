@@ -6,6 +6,7 @@ import { DiscoveryModule } from '@nestjs/core';
 import {
   CircadianService,
   ComplexLogicService,
+  KunamiCodeService,
   LightingControllerService,
   LightManagerService,
   RelayService,
@@ -23,6 +24,7 @@ const providers = [
   RemoteAdapterService,
   StateManagerService,
   ComplexLogicService,
+  KunamiCodeService,
 ];
 
 @Global()

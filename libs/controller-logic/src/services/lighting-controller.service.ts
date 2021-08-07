@@ -14,6 +14,13 @@ import { PinoLogger } from 'nestjs-pino';
 import { LightManagerService } from './light-manager.service';
 import { RemoteAdapterService } from './remote-adapter.service';
 
+/**
+ * Mixed use -
+ *
+ * - Sets the state of all the room's lights based off it's declared settings
+ * - Works with both switches and lights
+ * - Implements dimming logic
+ */
 @Injectable({ scope: Scope.TRANSIENT })
 export class LightingControllerService {
   // #region Object Properties

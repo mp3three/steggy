@@ -125,7 +125,11 @@ export function ApplicationModule(
       case AutoImport.events:
         return metadata.imports.push(
           EventEmitterModule.forRoot({
+            delimiter: '/',
+            global: true,
             maxListeners: 20,
+            newListener: false,
+            removeListener: false,
             wildcard: true,
           }),
         );

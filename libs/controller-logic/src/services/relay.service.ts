@@ -3,6 +3,11 @@ import { Injectable } from '@nestjs/common';
 
 import { RoomExplorerService } from './room-explorer.service';
 
+/**
+ * For situation where very basic room to room events are needed
+ *
+ * - "Turn on/off this list of rooms"
+ */
 @Injectable()
 export class RelayService {
   // #region Constructors

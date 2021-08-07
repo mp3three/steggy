@@ -12,6 +12,11 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { Observable, Subscriber } from 'rxjs';
 
+/**
+ * This service is responsible for managing the current temperature for circadian lightining
+ *
+ * The temperature can be looked up on demand, and subscribed to via an observable
+ */
 @Injectable()
 export class CircadianService {
   // #region Object Properties

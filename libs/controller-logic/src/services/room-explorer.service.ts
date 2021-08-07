@@ -16,6 +16,11 @@ import { ComplexLogicService } from './complex-logic.service';
 import { LightingControllerService } from './lighting-controller.service';
 import { StateManagerService } from './state-manager.service';
 
+/**
+ * This service searches through all the declared providers looking for rooms.
+ * When one is found, secondary classes such as state management and lighting controllers are added.
+ * Additionally, this service performs injection on specifically annotated properties
+ */
 @Injectable()
 export class RoomExplorerService {
   // #region Object Properties
