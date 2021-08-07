@@ -16,7 +16,8 @@ async function bootstrap() {
   });
   process.nextTick(async () => {
     const explorer = app.get(RoomExplorerService);
-    explorer.finalize(app);
+    explorer.application = app;
+    await app.init();
     const logger = app.get(Logger);
     const config = app.get(AutoConfigService);
     app.use(helmet());

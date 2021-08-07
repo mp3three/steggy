@@ -8,7 +8,7 @@ import {
 import { EntityManagerService } from '@automagical/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { INestApplicationContext, Injectable } from '@nestjs/common';
-import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
+import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -21,6 +21,8 @@ export class RoomExplorerService {
 
   public readonly rooms = new Set<InstanceWrapper>();
 
+  public application: INestApplicationContext;
+
   // #endregion Object Properties
 
   // #region Constructors
@@ -28,66 +30,12 @@ export class RoomExplorerService {
   constructor(
     @InjectLogger() private readonly logger: PinoLogger,
     private readonly discoveryService: DiscoveryService,
-    private readonly metadataScanner: MetadataScanner,
-    private readonly reflector: Reflector,
     private readonly entityManager: EntityManagerService,
   ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
-
-  @Trace()
-  public finalize(application: INestApplicationContext): void {
-    this.rooms.forEach((wrapper) => {
-      const { instance } = wrapper;
-      instance[LIGHTING_CONTROLLER] = application.get(
-        LightingControllerService,
-      );
-      instance[STATE_MANAGER] = application.get(StateManagerService);
-      (instance[STATE_MANAGER] as StateManagerService).controller = instance;
-      (instance[STATE_MANAGER] as StateManagerService).settings =
-        instance[ROOM_CONTROLLER_SETTINGS];
-      (instance[LIGHTING_CONTROLLER] as LightingControllerService).controller =
-        instance;
-      (instance[LIGHTING_CONTROLLER] as LightingControllerService).settings =
-        instance[ROOM_CONTROLLER_SETTINGS];
-
-      this.metadataScanner.scanFromPrototype(
-        instance,
-        Object.getPrototypeOf(instance),
-        (key) => {
-          // Inject lighting controllers
-          const loadController = this.reflector.get<boolean>(
-            LIGHTING_CONTROLLER,
-            instance[key],
-          );
-          if (loadController === true) {
-            instance[key] = instance[LIGHTING_CONTROLLER];
-            return;
-          }
-          // Inject entity observables
-          const loadEntity = this.reflector.get<string>(
-            HASS_ENTITY_ID,
-            instance[key],
-          );
-          if (typeof loadEntity === 'string') {
-            instance[key] = this.entityManager.getObservable(loadEntity);
-            return;
-          }
-          // Inject state manager
-          const loadState = this.reflector.get<boolean>(
-            STATE_MANAGER,
-            instance[key],
-          );
-          if (loadState === true) {
-            instance[key] = instance[STATE_MANAGER];
-          }
-          return true;
-        },
-      );
-    });
-  }
 
   public getController({
     instance,
@@ -96,7 +44,8 @@ export class RoomExplorerService {
   }
 
   public getSettings({ instance }: InstanceWrapper): RoomControllerSettingsDTO {
-    return instance[ROOM_CONTROLLER_SETTINGS];
+    const constructor = instance?.constructor ?? {};
+    return constructor[ROOM_CONTROLLER_SETTINGS];
   }
 
   // #endregion Public Methods
@@ -106,29 +55,51 @@ export class RoomExplorerService {
   @Trace()
   protected onModuleInit(): void {
     const providers: InstanceWrapper[] = this.discoveryService.getProviders();
-    providers.forEach((wrapper) => {
-      const { instance } = wrapper;
-      if (!instance || !instance[ROOM_CONTROLLER_SETTINGS]) {
+    providers.forEach(async (wrapper) => {
+      const settings = this.getSettings(wrapper);
+      if (!settings) {
         return;
       }
-      this.addRoom(wrapper);
+      this.rooms.add(wrapper);
+      const { instance } = wrapper;
+      this.logger.info(`Loading RoomController: ${settings.friendlyName}`);
+      const lightingController = await this.application.resolve(
+        LightingControllerService,
+      );
+      const stateManager = await this.application.resolve(StateManagerService);
+
+      instance[LIGHTING_CONTROLLER] = lightingController;
+      instance[STATE_MANAGER] = stateManager;
+
+      stateManager.settings = settings;
+      stateManager.controller = instance;
+      lightingController.settings = settings;
+      lightingController.controller = instance;
+
+      const { constructor } = instance;
+      if (constructor[LIGHTING_CONTROLLER]) {
+        this.logger.debug(
+          `Inject Lighting Controller => ${settings.friendlyName} ## ${constructor[LIGHTING_CONTROLLER]}`,
+        );
+        instance[constructor[LIGHTING_CONTROLLER]] = lightingController;
+      }
+      if (constructor[STATE_MANAGER]) {
+        this.logger.debug(
+          `Inject Lighting Controller => ${settings.friendlyName} ## ${constructor[STATE_MANAGER]}`,
+        );
+        instance[constructor[STATE_MANAGER]] = stateManager;
+      }
+      if (constructor[HASS_ENTITY_ID]) {
+        this.logger.debug(
+          `Inject Entity {${constructor[HASS_ENTITY_ID].target}} => ${settings.friendlyName} ## ${constructor[HASS_ENTITY_ID].target}`,
+        );
+        instance[constructor[HASS_ENTITY_ID].target] =
+          this.entityManager.getObservable(
+            constructor[HASS_ENTITY_ID].entity_id,
+          );
+      }
     });
   }
 
   // #endregion Protected Methods
-
-  // #region Private Methods
-
-  @Trace()
-  private addRoom(wrapper: InstanceWrapper): void {
-    const { instance } = wrapper;
-    const settings = instance[
-      ROOM_CONTROLLER_SETTINGS
-    ] as RoomControllerSettingsDTO;
-
-    this.logger.info(`Loading RoomController: ${settings.friendlyName}`);
-    this.rooms.add(wrapper);
-  }
-
-  // #endregion Private Methods
 }

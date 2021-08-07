@@ -13,7 +13,7 @@ import {
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { Debug, InjectLogger, Trace } from '@automagical/utilities';
+import { Debug, InjectLogger, Trace, TryCatch } from '@automagical/utilities';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
@@ -156,6 +156,7 @@ export class LoftController implements Partial<iRoomController> {
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS)
+  @TryCatch()
   @Trace()
   protected async fanLightSchedule(): Promise<void> {
     if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
@@ -170,6 +171,7 @@ export class LoftController implements Partial<iRoomController> {
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS)
+  @TryCatch()
   @Trace()
   protected async panelSchedule(): Promise<void> {
     if (!(await this.stateManager.hasFlag(AUTO_STATE))) {

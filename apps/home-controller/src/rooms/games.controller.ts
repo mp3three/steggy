@@ -14,12 +14,9 @@ import {
   InjectLogger,
   Trace,
 } from '@automagical/utilities';
-import { OnEvent } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
-
-import { ROOM_FAVORITE, ROOM_NAMES } from '../typings';
 
 const MONITOR = 'media_player.monitor';
 const EVENING_BRIGHTNESS = 40;
