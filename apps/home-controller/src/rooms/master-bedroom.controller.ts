@@ -20,6 +20,7 @@ import { Injectable } from '@nestjs/common';
     'light.bedroom_fan_bottom_right',
   ],
   name: 'master',
+  remote: 'sensor.bedroom_pico',
   switches: ['switch.womp'],
 })
 export class MasterBedroomController implements Partial<iRoomController> {

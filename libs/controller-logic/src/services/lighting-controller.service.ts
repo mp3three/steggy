@@ -1,6 +1,8 @@
 import type { iRoomController } from '@automagical/contracts';
-import { RoomControllerSettingsDTO } from '@automagical/contracts/controller-logic';
-import { PicoStates } from '@automagical/contracts/home-assistant';
+import {
+  ControllerStates,
+  RoomControllerSettingsDTO,
+} from '@automagical/contracts/controller-logic';
 import { HomeAssistantCoreService } from '@automagical/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
@@ -8,11 +10,7 @@ import { each } from 'async';
 import { PinoLogger } from 'nestjs-pino';
 
 import { LightManagerService } from './light-manager.service';
-
-/**
- * return false to stop additional processing
- */
-export type PicoDirectCallback = (state: PicoStates) => Promise<boolean>;
+import { RemoteAdapterService } from './remote-adapter.service';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class LightingControllerService {
@@ -30,6 +28,7 @@ export class LightingControllerService {
     private readonly logger: PinoLogger,
     private readonly hassCoreService: HomeAssistantCoreService,
     private readonly lightManager: LightManagerService,
+    private readonly remoteAdapter: RemoteAdapterService,
   ) {}
 
   // #endregion Constructors
@@ -107,6 +106,30 @@ export class LightingControllerService {
       await this.lightDim(entity_id, 10);
       callback();
     });
+  }
+
+  @Trace()
+  public init(): void {
+    if (this.settings?.remote) {
+      this.remoteAdapter
+        .watch(this.settings.remote)
+        .subscribe(async (command) => {
+          switch (command) {
+            case ControllerStates.on:
+              await this.areaOn();
+              return;
+            case ControllerStates.off:
+              await this.areaOff();
+              return;
+            case ControllerStates.up:
+              await this.dimUp();
+              return;
+            case ControllerStates.down:
+              await this.dimDown();
+              return;
+          }
+        });
+    }
   }
 
   /**

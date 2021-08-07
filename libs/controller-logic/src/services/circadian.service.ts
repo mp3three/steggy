@@ -44,6 +44,13 @@ export class CircadianService {
     this.subscriber.next(this.CURRENT_LIGHT_TEMPERATURE);
   }
 
+  @Trace()
+  protected onModuleInit(): void {
+    this.observable = new Observable((subscriber) => {
+      this.subscriber = subscriber;
+    });
+  }
+
   // #endregion Protected Methods
 
   // #region Private Methods

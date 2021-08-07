@@ -1,5 +1,3 @@
-import { PicoStates } from '../libs/home-assistant/enums';
-
 class RoomToRoomDTO {
   // #region Object Properties
 

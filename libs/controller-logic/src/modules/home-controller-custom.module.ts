@@ -5,9 +5,11 @@ import { DiscoveryModule } from '@nestjs/core';
 
 import {
   CircadianService,
+  ComplexLogicService,
   LightingControllerService,
   LightManagerService,
   RelayService,
+  RemoteAdapterService,
   RoomExplorerService,
   StateManagerService,
 } from '../services';
@@ -18,7 +20,9 @@ const providers = [
   RoomExplorerService,
   CircadianService,
   RelayService,
+  RemoteAdapterService,
   StateManagerService,
+  ComplexLogicService,
 ];
 
 @Global()

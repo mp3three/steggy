@@ -3,6 +3,7 @@ import { LightStateDTO } from '@automagical/contracts/home-assistant';
 import {
   LightingControllerService,
   LightManagerService,
+  RelayService,
   RoomController,
   StateManager,
   StateManagerService,
@@ -19,7 +20,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { PinoLogger } from 'nestjs-pino';
 
-import { GLOBAL_TRANSITION } from '../typings';
+import { GLOBAL_TRANSITION, ROOM_NAMES } from '../typings';
 
 const MONITOR = 'media_player.monitor';
 const PANEL_LIGHTS = ['light.loft_wall_bottom', 'light.loft_wall_top'];
@@ -49,6 +50,7 @@ const AUTO_STATE = 'AUTO_STATE';
   friendlyName: 'Loft',
   lights: [...PANEL_LIGHTS, ...FAN_LIGHTS],
   name: 'loft',
+  remote: 'sensor.loft_pico',
   switches: ['switch.desk_light', 'sensor.loft_pico'],
 })
 export class LoftController implements Partial<iRoomController> {
@@ -71,6 +73,7 @@ export class LoftController implements Partial<iRoomController> {
     private readonly switchService: SwitchDomainService,
     private readonly fanService: FanDomainService,
     private readonly lightManager: LightManagerService,
+    private readonly relayService: RelayService,
   ) {}
 
   // #endregion Constructors
@@ -123,9 +126,11 @@ export class LoftController implements Partial<iRoomController> {
     }
     if (count === 2) {
       await this.remoteService.turnOn(MONITOR);
-      // this.lightingController.roomOff(ROOM_NAMES.master);
-      // this.lightingController.roomOff(ROOM_NAMES.downstairs);
-      // this.lightingController.roomOff(ROOM_NAMES.games);
+      await this.relayService.turnOff([
+        ROOM_NAMES.master,
+        ROOM_NAMES.downstairs,
+        ROOM_NAMES.games,
+      ]);
     }
     return false;
   }

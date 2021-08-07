@@ -1,8 +1,5 @@
 import { iRoomController } from '@automagical/contracts';
-import {
-  RoomControllerSettingsDTO,
-  RoomStateDTO,
-} from '@automagical/contracts/controller-logic';
+import { RoomControllerSettingsDTO } from '@automagical/contracts/controller-logic';
 import {
   CacheManagerService,
   InjectCache,

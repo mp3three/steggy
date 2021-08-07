@@ -12,6 +12,7 @@ import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { PinoLogger } from 'nestjs-pino';
 
+import { ComplexLogicService } from './complex-logic.service';
 import { LightingControllerService } from './lighting-controller.service';
 import { StateManagerService } from './state-manager.service';
 
@@ -67,6 +68,7 @@ export class RoomExplorerService {
         LightingControllerService,
       );
       const stateManager = await this.application.resolve(StateManagerService);
+      const complexLogic = await this.application.resolve(ComplexLogicService);
 
       instance[LIGHTING_CONTROLLER] = lightingController;
       instance[STATE_MANAGER] = stateManager;
@@ -75,6 +77,10 @@ export class RoomExplorerService {
       stateManager.controller = instance;
       lightingController.settings = settings;
       lightingController.controller = instance;
+      complexLogic.settings = settings;
+      complexLogic.controller = instance;
+      lightingController.init();
+      complexLogic.init();
 
       const { constructor } = instance;
       if (constructor[LIGHTING_CONTROLLER]) {
