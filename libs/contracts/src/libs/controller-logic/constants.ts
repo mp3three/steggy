@@ -10,3 +10,7 @@ export enum ControllerStates {
   favorite = 'favorite',
   none = 'none',
 }
+export const CONTROLLER_STATE_EVENT = (
+  entity_id: string,
+  state: ControllerStates,
+): string => `controller/${entity_id}/${state}`;

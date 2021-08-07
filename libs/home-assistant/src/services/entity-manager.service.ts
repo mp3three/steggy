@@ -125,6 +125,7 @@ export class EntityManagerService {
     this.ENTITIES.set(entity_id, new_state);
     const subscriber = this.SUBSCRIBERS.get(entity_id);
     subscriber?.next(new_state);
+    // this.log
     this.eventEmitter.emit(`${entity_id}/update`, event);
   }
 
@@ -133,7 +134,7 @@ export class EntityManagerService {
   // #region Private Methods
 
   private createObservable(entityId: string): void {
-    if (this.ENTITIES.has(entityId)) {
+    if (this.OBSERVABLES.has(entityId)) {
       return;
     }
     const observable = new Observable<HassStateDTO>((subscriber) => {

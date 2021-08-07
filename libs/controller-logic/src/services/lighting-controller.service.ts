@@ -1,11 +1,13 @@
 import type { iRoomController } from '@automagical/contracts';
 import {
+  CONTROLLER_STATE_EVENT,
   ControllerStates,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
 import { HomeAssistantCoreService } from '@automagical/home-assistant';
 import { InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { each } from 'async';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -29,6 +31,7 @@ export class LightingControllerService {
     private readonly hassCoreService: HomeAssistantCoreService,
     private readonly lightManager: LightManagerService,
     private readonly remoteAdapter: RemoteAdapterService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   // #endregion Constructors
@@ -111,24 +114,31 @@ export class LightingControllerService {
   @Trace()
   public init(): void {
     if (this.settings?.remote) {
-      this.remoteAdapter
-        .watch(this.settings.remote)
-        .subscribe(async (command) => {
-          switch (command) {
-            case ControllerStates.on:
-              await this.areaOn();
-              return;
-            case ControllerStates.off:
-              await this.areaOff();
-              return;
-            case ControllerStates.up:
-              await this.dimUp();
-              return;
-            case ControllerStates.down:
-              await this.dimDown();
-              return;
-          }
-        });
+      this.remoteAdapter.watch(this.settings.remote);
+      this.eventEmitter.on(
+        CONTROLLER_STATE_EVENT(this.settings.remote, ControllerStates.on),
+        async () => {
+          await this.areaOn();
+        },
+      );
+      this.eventEmitter.on(
+        CONTROLLER_STATE_EVENT(this.settings.remote, ControllerStates.off),
+        async () => {
+          await this.areaOff();
+        },
+      );
+      this.eventEmitter.on(
+        CONTROLLER_STATE_EVENT(this.settings.remote, ControllerStates.up),
+        async () => {
+          await this.dimUp();
+        },
+      );
+      this.eventEmitter.on(
+        CONTROLLER_STATE_EVENT(this.settings.remote, ControllerStates.down),
+        async () => {
+          await this.dimDown();
+        },
+      );
     }
   }
 

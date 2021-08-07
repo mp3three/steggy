@@ -1,16 +1,22 @@
-import { ControllerStates } from '@automagical/contracts/controller-logic';
-import { PicoStates } from '@automagical/contracts/home-assistant';
+import {
+  CONTROLLER_STATE_EVENT,
+  ControllerStates,
+} from '@automagical/contracts/controller-logic';
+import {
+  HassEventDTO,
+  PicoStates,
+} from '@automagical/contracts/home-assistant';
 import { EntityManagerService } from '@automagical/home-assistant';
 import { InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from 'eventemitter2';
 import { PinoLogger } from 'nestjs-pino';
-import { Observable } from 'rxjs';
 
 @Injectable()
 export class RemoteAdapterService {
   // #region Object Properties
 
-  private readonly lookup = new Map<string, Observable<ControllerStates>>();
+  private readonly lookup = new Set<string>();
 
   // #endregion Object Properties
 
@@ -19,39 +25,59 @@ export class RemoteAdapterService {
   constructor(
     @InjectLogger() private readonly logger: PinoLogger,
     private readonly entityManagerService: EntityManagerService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
-  public watch(entity_id: string): Observable<ControllerStates> {
+  public watch(entity_id: string): void {
     if (this.lookup.has(entity_id)) {
-      return this.lookup.get(entity_id);
+      return;
     }
-    const observable = new Observable<ControllerStates>((subscription) => {
-      this.entityManagerService.getObservable(entity_id).subscribe((state) => {
-        switch (state.state as PicoStates) {
-          case PicoStates.up:
-            return subscription.next(ControllerStates.up);
-          case PicoStates.down:
-            return subscription.next(ControllerStates.down);
-          case PicoStates.on:
-            return subscription.next(ControllerStates.on);
-          case PicoStates.off:
-            return subscription.next(ControllerStates.off);
-          case PicoStates.favorite:
-            return subscription.next(ControllerStates.favorite);
-          case PicoStates.none:
-            return subscription.next(ControllerStates.none);
-        }
-      });
+    this.eventEmitter.on(`${entity_id}/update`, ({ data }: HassEventDTO) => {
+      const state = data.new_state;
+      switch (state.state as PicoStates) {
+        case PicoStates.up:
+          this.logger.debug(`${entity_id} => ControllerStates.up`);
+          this.eventEmitter.emit(
+            CONTROLLER_STATE_EVENT(entity_id, ControllerStates.up),
+          );
+          return;
+        case PicoStates.down:
+          this.logger.debug(`${entity_id} => ControllerStates.down`);
+          this.eventEmitter.emit(
+            CONTROLLER_STATE_EVENT(entity_id, ControllerStates.down),
+          );
+          return;
+        case PicoStates.on:
+          this.logger.debug(`${entity_id} => ControllerStates.on`);
+          this.eventEmitter.emit(
+            CONTROLLER_STATE_EVENT(entity_id, ControllerStates.on),
+          );
+          return;
+        case PicoStates.off:
+          this.logger.debug(`${entity_id} => ControllerStates.off`);
+          this.eventEmitter.emit(
+            CONTROLLER_STATE_EVENT(entity_id, ControllerStates.off),
+          );
+          return;
+        case PicoStates.favorite:
+          this.logger.debug(`${entity_id} => ControllerStates.favorite`);
+          this.eventEmitter.emit(
+            CONTROLLER_STATE_EVENT(entity_id, ControllerStates.favorite),
+          );
+          return;
+        case PicoStates.none:
+          this.logger.debug(`${entity_id} => ControllerStates.none`);
+          this.eventEmitter.emit(
+            CONTROLLER_STATE_EVENT(entity_id, ControllerStates.none),
+          );
+          return;
+      }
     });
-    observable.subscribe((state) => {
-      this.logger.fatal({ state });
-    });
-    this.lookup.set(entity_id, observable);
-    return observable;
+    this.lookup.add(entity_id);
   }
 
   // #endregion Public Methods
