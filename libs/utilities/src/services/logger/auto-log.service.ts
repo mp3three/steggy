@@ -10,6 +10,7 @@ type LoggerFunction =
 
 let logger = pino();
 import chalk from 'chalk';
+const NEST = '@nestjs';
 let prettyPrint = false;
 
 @Injectable({ scope: Scope.TRANSIENT })
@@ -54,21 +55,21 @@ export class AutoLogService {
           logger.error({ context }, message);
           return;
         }
-        logger.error(chalk`{bold @nest:${context}} ${message}`);
+        logger.error(chalk`{bold ${NEST}:${context}} ${message}`);
       },
       log: (message, context) => {
         if (!prettyPrint) {
           logger.info({ context }, message);
           return;
         }
-        logger.info(chalk`{bold @nest:${context}} ${message}`);
+        logger.info(chalk`{bold ${NEST}:${context}} ${message}`);
       },
       warn: (message, context) => {
         if (!prettyPrint) {
           logger.warn({ context }, message);
           return;
         }
-        logger.warn(chalk`{bold @nest:${context}} ${message}`);
+        logger.warn(chalk`{bold ${NEST}:${context}} ${message}`);
       },
     };
   }

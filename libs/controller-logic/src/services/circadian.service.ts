@@ -89,9 +89,8 @@ export class CircadianService {
   private getCurrentTemperature() {
     const MIN_COLOR = this.configService.get<number>(CIRCADIAN_MIN_TEMP);
     const MAX_COLOR = this.configService.get<number>(CIRCADIAN_MAX_TEMP);
-    return Math.floor(
-      (MAX_COLOR - MIN_COLOR) * this.getColorOffset() + MIN_COLOR,
-    );
+    const offset = this.getColorOffset();
+    return Math.floor((MAX_COLOR - MIN_COLOR) * offset + MIN_COLOR);
   }
 
   // #endregion Private Methods

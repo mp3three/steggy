@@ -85,7 +85,7 @@ export class LightManagerService {
       return;
     }
     if (settings.mode === 'circadian') {
-      settings.kelvin = this.circadianService.CURRENT_LIGHT_TEMPERATURE;
+      settings.kelvin = await this.circadianService.CURRENT_LIGHT_TEMPERATURE;
     }
     const current = await this.cache.get<LightingCacheDTO>(
       CACHE_KEY(entity_id),

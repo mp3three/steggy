@@ -62,8 +62,8 @@ export class LightingControllerService implements HiddenService {
 
   @Trace()
   public async areaOn(accessories = false): Promise<void> {
-    if (this.controller.areaOff) {
-      const result = await this.controller.areaOff();
+    if (this.controller.areaOn) {
+      const result = await this.controller.areaOn();
       if (result === false) {
         return;
       }

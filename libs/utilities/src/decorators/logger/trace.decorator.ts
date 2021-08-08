@@ -13,7 +13,7 @@ export function Trace(message?: string): MethodDecorator {
     if (prefix) {
       prefix = `${prefix}:`;
     }
-    descriptor.value = async function (...parameters) {
+    descriptor.value = function (...parameters) {
       AutoLogService.call(
         'trace',
         `${prefix}${target.constructor.name}`,
