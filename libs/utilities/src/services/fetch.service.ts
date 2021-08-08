@@ -5,8 +5,8 @@ import fetch from 'node-fetch';
 
 import { InjectLogger } from '../decorators/injectors/inject-logger.decorator';
 import { Trace } from '../decorators/logger/trace.decorator';
-import { AutoLogService } from './auto-log.service';
 import { BaseFetch } from './base-fetch.service';
+import { AutoLogService } from './logger';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class FetchService extends BaseFetch {

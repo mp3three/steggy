@@ -20,7 +20,7 @@ import { Packet } from 'mqtt-packet';
 import { InjectLogger } from '../../decorators/injectors/inject-logger.decorator';
 import { Trace } from '../../decorators/logger/trace.decorator';
 import { AutoConfigService } from '../auto-config.service';
-import { AutoLogService } from '../auto-log.service';
+import { AutoLogService } from '../logger';
 
 /* eslint-disable no-loops/no-loops, security/detect-object-injection, security/detect-non-literal-regexp */
 

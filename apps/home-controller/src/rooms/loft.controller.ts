@@ -86,6 +86,7 @@ export class LoftController implements Partial<iRoomController> {
 
   @Trace()
   public async areaOff(count: number): Promise<boolean> {
+    this.logger.info({ count });
     await this.stateManager.removeFlag(AUTO_STATE);
     if (count === 2) {
       await this.remoteService.turnOff(MONITOR);

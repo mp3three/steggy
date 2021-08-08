@@ -31,10 +31,50 @@ export class KunamiCodeService implements HiddenService {
 
   // #region Constructors
 
-  constructor(
-    @InjectLogger() private readonly logger: AutoLogService,
-    private readonly eventEmitter: EventEmitter2,
-  ) {}
+  constructor(private readonly eventEmitter: EventEmitter2) {
+    this.addMatch(
+      [
+        ControllerStates.on,
+        ControllerStates.none,
+        ControllerStates.on,
+        ControllerStates.none,
+      ],
+      () => {
+        if (!this.controller.areaOn) {
+          return;
+        }
+        this.controller.areaOn(2);
+      },
+    );
+    this.addMatch(
+      [
+        ControllerStates.off,
+        ControllerStates.none,
+        ControllerStates.off,
+        ControllerStates.none,
+      ],
+      () => {
+        if (!this.controller.areaOff) {
+          return;
+        }
+        this.controller.areaOff(2);
+      },
+    );
+    this.addMatch(
+      [
+        ControllerStates.favorite,
+        ControllerStates.none,
+        ControllerStates.favorite,
+        ControllerStates.none,
+      ],
+      () => {
+        if (!this.controller.favorite) {
+          return;
+        }
+        this.controller.favorite(2);
+      },
+    );
+  }
 
   // #endregion Constructors
 
@@ -56,6 +96,7 @@ export class KunamiCodeService implements HiddenService {
           this.code = [];
         }, 1500);
         this.code.push(state);
+        this.match();
       },
     );
   }
@@ -65,35 +106,6 @@ export class KunamiCodeService implements HiddenService {
   }
 
   // #endregion Public Methods
-
-  // #region Protected Methods
-
-  @Trace()
-  protected onApplicationBootstrap(): void {
-    this.addMatch([ControllerStates.on, ControllerStates.on], () => {
-      if (!this.controller.areaOn) {
-        return;
-      }
-      this.controller.areaOn(2);
-    });
-    this.addMatch([ControllerStates.off, ControllerStates.off], () => {
-      if (!this.controller.areaOff) {
-        return;
-      }
-      this.controller.areaOff(2);
-    });
-    this.addMatch(
-      [ControllerStates.favorite, ControllerStates.favorite],
-      () => {
-        if (!this.controller.favorite) {
-          return;
-        }
-        this.controller.favorite(2);
-      },
-    );
-  }
-
-  // #endregion Protected Methods
 
   // #region Private Methods
 

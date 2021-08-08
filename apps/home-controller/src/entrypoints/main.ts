@@ -1,16 +1,18 @@
 import { RoomExplorerService } from '@automagical/controller-logic';
 import { NestFactory } from '@nestjs/core';
+import chalk from 'chalk';
 import pino from 'pino';
 
 import { HomeControllerModule } from '../modules';
 
 async function bootstrap() {
-  const nestLogger = pino();
+  const nestLogger = pino({ level: 'debug' });
   const app = await NestFactory.create(HomeControllerModule, {
     cors: true,
     logger: {
       error: (...parameters) => nestLogger.error(...parameters),
-      log: (...parameters) => nestLogger.info(...parameters),
+      log: (message, context) =>
+        nestLogger.debug(chalk`{bold ${context}}: ${message}`),
       warn: (...parameters) => nestLogger.warn(...parameters),
     },
   });

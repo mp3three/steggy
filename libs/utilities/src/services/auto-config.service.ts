@@ -12,7 +12,7 @@ import { ClassConstructor } from 'class-transformer';
 import { get, set } from 'object-path';
 import rc from 'rc';
 
-import { AutoLogService } from './auto-log.service';
+import { AutoLogService } from './logger';
 
 @Injectable()
 export class AutoConfigService {

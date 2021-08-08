@@ -2,7 +2,7 @@ import { ACTIVE_APPLICATION } from '@automagical/contracts/config';
 import { Inject, Provider } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 
-import { AutoLogService } from '../../services/auto-log.service';
+import { AutoLogService } from '../../services/logger';
 
 export const contextNames = new Set<string>();
 const token = 'AutoLogger';
