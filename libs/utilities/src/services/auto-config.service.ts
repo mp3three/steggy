@@ -5,11 +5,14 @@ import {
   CommonConfig,
   CONFIGURABLE_APPS,
   CONFIGURABLE_LIBS,
+  LOG_LEVEL,
 } from '@automagical/contracts/config';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { get, set } from 'object-path';
 import rc from 'rc';
+
+import { AutoLogService } from './auto-log.service';
 
 @Injectable()
 export class AutoConfigService {
@@ -26,6 +29,7 @@ export class AutoConfigService {
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
   ) {
     this.config = rc(this.APPLICATION.description);
+    AutoLogService.logger.level = this.get(LOG_LEVEL);
   }
 
   // #endregion Constructors

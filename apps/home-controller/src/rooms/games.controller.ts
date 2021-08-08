@@ -8,13 +8,7 @@ import {
   StateManagerService,
 } from '@automagical/controller-logic';
 import { MediaPlayerDomainService } from '@automagical/home-assistant';
-import {
-  AutoLogService,
-  CacheManagerService,
-  InjectCache,
-  InjectLogger,
-  Trace,
-} from '@automagical/utilities';
+import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 
@@ -45,8 +39,6 @@ export class GamesRoomController implements Partial<iRoomController> {
 
   constructor(
     @InjectLogger() private readonly logger: AutoLogService,
-    @InjectCache()
-    private readonly cacheManager: CacheManagerService,
     private readonly remoteService: MediaPlayerDomainService,
     private readonly lightingController: LightingControllerService,
     private readonly lightManager: LightManagerService,
@@ -56,6 +48,16 @@ export class GamesRoomController implements Partial<iRoomController> {
   // #endregion Constructors
 
   // #region Public Methods
+
+  @Trace()
+  public async areaOff(): Promise<void> {
+    await this.stateManager.removeFlag(AUTO_STATE);
+  }
+
+  @Trace()
+  public async areaOn(): Promise<void> {
+    await this.stateManager.removeFlag(AUTO_STATE);
+  }
 
   @Trace()
   public async favorite(count: number): Promise<boolean> {
@@ -82,7 +84,6 @@ export class GamesRoomController implements Partial<iRoomController> {
   // #region Protected Methods
 
   @Cron(CronExpression.EVERY_30_SECONDS)
-  @Trace()
   protected async fanLightSchedule(): Promise<void> {
     if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
       return;
@@ -105,7 +106,8 @@ export class GamesRoomController implements Partial<iRoomController> {
 
   @Trace()
   protected async onApplicationBootstrap(): Promise<void> {
-    const GAMES_AUTO_MODE = await this.cacheManager.get(`GAMES_AUTO_MODE`);
+    await this.stateManager.removeFlag(AUTO_STATE);
+    const GAMES_AUTO_MODE = await this.stateManager.hasFlag(AUTO_STATE);
     this.logger.debug({ GAMES_AUTO_MODE }, 'GAMES_AUTO_MODE');
   }
 

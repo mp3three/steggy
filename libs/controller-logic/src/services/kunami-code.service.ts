@@ -19,6 +19,14 @@ export class KunamiCodeService implements HiddenService {
   public controller: Partial<iRoomController>;
   public settings: RoomControllerSettingsDTO;
 
+  private readonly callbacks = new Map<
+    ControllerStates[],
+    (code: ControllerStates[]) => void
+  >();
+
+  private code: ControllerStates[] = [];
+  private timeout: ReturnType<typeof setTimeout>;
+
   // #endregion Object Properties
 
   // #region Constructors
@@ -40,12 +48,68 @@ export class KunamiCodeService implements HiddenService {
     this.eventEmitter.on(
       CONTROLLER_STATE_EVENT(this.settings.remote, '*'),
       (state: ControllerStates) => {
-        this.logger.debug({ state });
-        //
+        if (this.timeout) {
+          clearTimeout(this.timeout);
+        }
+        this.timeout = setTimeout(() => {
+          this.timeout = undefined;
+          this.code = [];
+        }, 1500);
+        this.code.push(state);
       },
     );
-    //
+  }
+
+  public addMatch(match: ControllerStates[], callback: () => void): void {
+    this.callbacks.set(match, callback);
   }
 
   // #endregion Public Methods
+
+  // #region Protected Methods
+
+  @Trace()
+  protected onApplicationBootstrap(): void {
+    this.addMatch([ControllerStates.on, ControllerStates.on], () => {
+      if (!this.controller.areaOn) {
+        return;
+      }
+      this.controller.areaOn(2);
+    });
+    this.addMatch([ControllerStates.off, ControllerStates.off], () => {
+      if (!this.controller.areaOff) {
+        return;
+      }
+      this.controller.areaOff(2);
+    });
+    this.addMatch(
+      [ControllerStates.favorite, ControllerStates.favorite],
+      () => {
+        if (!this.controller.favorite) {
+          return;
+        }
+        this.controller.favorite(2);
+      },
+    );
+  }
+
+  // #endregion Protected Methods
+
+  // #region Private Methods
+
+  private match(): void {
+    const size = this.code.length;
+    this.callbacks.forEach((callback, list) => {
+      if (size !== list.length) {
+        return;
+      }
+      const matches = list.every((item, index) => this.code[index] === item);
+      if (!matches) {
+        return;
+      }
+      callback(this.code);
+    });
+  }
+
+  // #endregion Private Methods
 }

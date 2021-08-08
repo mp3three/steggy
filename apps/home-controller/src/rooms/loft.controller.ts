@@ -19,7 +19,6 @@ import {
   Debug,
   InjectLogger,
   Trace,
-  TryCatch,
 } from '@automagical/utilities';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -100,6 +99,11 @@ export class LoftController implements Partial<iRoomController> {
   }
 
   @Trace()
+  public async areaOn(): Promise<void> {
+    await this.stateManager.removeFlag(AUTO_STATE);
+  }
+
+  @Trace()
   public async favorite(count: number): Promise<boolean> {
     await this.stateManager.addFlag(AUTO_STATE);
     const hour = dayjs().hour();
@@ -144,6 +148,37 @@ export class LoftController implements Partial<iRoomController> {
 
   // #region Protected Methods
 
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  protected async fanLightSchedule(): Promise<void> {
+    const exists = await this.stateManager.hasFlag(AUTO_STATE);
+    if (!exists) {
+      return;
+    }
+    const target = this.fanAutoBrightness();
+    if (target === 0) {
+      await this.lightManager.turnOff(FAN_LIGHTS);
+      return;
+    }
+    await this.lightingController.circadianLight(FAN_LIGHTS, target);
+  }
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  protected async panelSchedule(): Promise<void> {
+    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
+      return;
+    }
+    const brightness = this.panelAutoBrightness();
+    const [light] = this.entityManager.getEntity<LightStateDTO>(PANEL_LIGHTS);
+    if (brightness === 0) {
+      await this.lightManager.turnOff(PANEL_LIGHTS);
+      return;
+    }
+    if (light.attributes.brightness === brightness) {
+      return;
+    }
+    await this.lightingController.circadianLight(PANEL_LIGHTS, brightness);
+  }
+
   @Cron('0 0 22 * * *')
   @Debug('Back desk light off')
   protected async lightOff(): Promise<void> {
@@ -163,40 +198,6 @@ export class LoftController implements Partial<iRoomController> {
       return;
     }
     this.switchService.turnOff(['switch.desk_light']);
-  }
-
-  @Cron(CronExpression.EVERY_30_SECONDS)
-  @TryCatch()
-  @Trace()
-  protected async fanLightSchedule(): Promise<void> {
-    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
-      return;
-    }
-    const target = this.fanAutoBrightness();
-    if (target === 0) {
-      await this.lightManager.turnOff(FAN_LIGHTS);
-      return;
-    }
-    await this.lightingController.circadianLight(FAN_LIGHTS, target);
-  }
-
-  @Cron(CronExpression.EVERY_30_SECONDS)
-  @TryCatch()
-  @Trace()
-  protected async panelSchedule(): Promise<void> {
-    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
-      return;
-    }
-    const brightness = this.panelAutoBrightness();
-    const [light] = this.entityManager.getEntity<LightStateDTO>(PANEL_LIGHTS);
-    if (brightness === 0) {
-      await this.lightManager.turnOff(PANEL_LIGHTS);
-      return;
-    }
-    if (light.attributes.brightness === brightness) {
-      return;
-    }
-    await this.lightingController.circadianLight(PANEL_LIGHTS, brightness);
   }
 
   // #endregion Protected Methods
