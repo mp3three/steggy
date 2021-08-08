@@ -2,6 +2,7 @@ import { iRoomController } from '@automagical/contracts';
 import {
   CONTROLLER_STATE_EVENT,
   ControllerStates,
+  HiddenService,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
 import { Injectable, Scope } from '@nestjs/common';
@@ -13,7 +14,7 @@ import { RemoteAdapterService } from './remote-adapter.service';
  * Glue between kunami codes and controllers
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class ComplexLogicService {
+export class ComplexLogicService implements HiddenService {
   // #region Object Properties
 
   public controller: Partial<iRoomController>;
@@ -32,7 +33,7 @@ export class ComplexLogicService {
 
   // #region Public Methods
 
-  public init(): void {
+  public async init(): Promise<void> {
     if (!this.settings?.remote) {
       return;
     }

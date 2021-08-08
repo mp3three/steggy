@@ -85,7 +85,7 @@ export function ApplicationModule(
       providers: GLOBAL_SYMBOLS,
     },
     MQTTModule,
-    UtilitiesModule,
+    UtilitiesModule.forRoot(),
   );
   (metadata.auto_import ?? Object.keys(AutoImport)).forEach((name) => {
     switch (name as AutoImport) {

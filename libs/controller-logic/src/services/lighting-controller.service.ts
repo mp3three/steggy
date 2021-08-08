@@ -2,6 +2,7 @@ import type { iRoomController } from '@automagical/contracts';
 import {
   CONTROLLER_STATE_EVENT,
   ControllerStates,
+  HiddenService,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
 import { HomeAssistantCoreService } from '@automagical/home-assistant';
@@ -22,7 +23,7 @@ import { RemoteAdapterService } from './remote-adapter.service';
  * - Implements dimming logic
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class LightingControllerService {
+export class LightingControllerService implements HiddenService {
   // #region Object Properties
 
   public controller: Partial<iRoomController>;
@@ -119,7 +120,7 @@ export class LightingControllerService {
   }
 
   @Trace()
-  public init(): void {
+  public async init(): Promise<void> {
     if (this.settings?.remote) {
       this.remoteAdapter.watch(this.settings.remote);
       this.eventEmitter.on(

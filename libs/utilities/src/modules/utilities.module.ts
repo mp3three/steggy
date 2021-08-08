@@ -9,9 +9,11 @@ import {
 } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
+import { createProvidersForDecorated } from '../decorators';
 import { LoggableModule } from '../decorators/logger/loggable-module.decorator';
 import {
   AutoConfigService,
+  AutoLogService,
   FetchService,
   LocalsService,
   LogExplorerService,
@@ -26,11 +28,13 @@ import {
     AutoConfigService,
     LocalsService,
     FetchService,
+    AutoLogService,
     SolarCalcService,
   ],
   imports: [CacheModule.register(), DiscoveryModule],
   providers: [
     TemplateService,
+    AutoLogService,
     LocalsService,
     AutoConfigService,
     FetchService,
@@ -42,22 +46,16 @@ import {
 export class UtilitiesModule {
   // #region Public Static Methods
 
-  public static forRoot(
-    APP_NAME: symbol,
-    globalProviders: Provider[] = [],
-  ): DynamicModule {
-    const ACTIVE_APP = {
-      provide: ACTIVE_APPLICATION,
-      useValue: APP_NAME,
-    };
+  public static forRoot(): DynamicModule {
+    const decorated = createProvidersForDecorated();
     return {
       exports: [
         TemplateService,
         AutoConfigService,
+        AutoLogService,
+        ...decorated,
         LocalsService,
         FetchService,
-        ACTIVE_APP,
-        ...globalProviders,
         SolarCalcService,
       ],
       global: true,
@@ -65,10 +63,10 @@ export class UtilitiesModule {
       module: UtilitiesModule,
       providers: [
         TemplateService,
+        ...decorated,
         LocalsService,
-        ACTIVE_APP,
         AutoConfigService,
-        ...globalProviders,
+        AutoLogService,
         FetchService,
         SolarCalcService,
         LogExplorerService,

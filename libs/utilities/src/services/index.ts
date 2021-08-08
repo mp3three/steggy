@@ -1,4 +1,5 @@
 export * from './auto-config.service';
+export * from './auto-log.service';
 export * from './base-fetch.service';
 export * from './cache-manager.service';
 export * from './fetch.service';

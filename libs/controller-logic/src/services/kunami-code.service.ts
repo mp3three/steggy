@@ -2,6 +2,7 @@ import { iRoomController } from '@automagical/contracts';
 import {
   CONTROLLER_STATE_EVENT,
   ControllerStates,
+  HiddenService,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
 import { InjectLogger, Trace } from '@automagical/utilities';
@@ -13,7 +14,7 @@ import { PinoLogger } from 'nestjs-pino';
  * For the tracking of multiple button press sequences on remotes
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class KunamiCodeService {
+export class KunamiCodeService implements HiddenService {
   // #region Object Properties
 
   public controller: Partial<iRoomController>;
@@ -30,10 +31,10 @@ export class KunamiCodeService {
 
   // #endregion Constructors
 
-  // #region Protected Methods
+  // #region Public Methods
 
   @Trace()
-  protected onApplicationBootstrap(): void {
+  public async init(): Promise<void> {
     if (!this.settings.remote) {
       return;
     }
@@ -47,5 +48,5 @@ export class KunamiCodeService {
     //
   }
 
-  // #endregion Protected Methods
+  // #endregion Public Methods
 }

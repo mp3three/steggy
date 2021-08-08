@@ -1,5 +1,8 @@
 import { iRoomController } from '@automagical/contracts';
-import { RoomControllerSettingsDTO } from '@automagical/contracts/controller-logic';
+import {
+  HiddenService,
+  RoomControllerSettingsDTO,
+} from '@automagical/contracts/controller-logic';
 import {
   CacheManagerService,
   InjectCache,
@@ -13,7 +16,7 @@ const CACHE_KEY = (room, flag) => `FLAGS:${room}/${flag}`;
  * Future expansion as specific room functionality demands it's own state management
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class StateManagerService {
+export class StateManagerService implements HiddenService {
   // #region Object Properties
 
   public controller: Partial<iRoomController>;
@@ -42,6 +45,11 @@ export class StateManagerService {
       CACHE_KEY(this.settings.name, flagName),
       () => false,
     );
+  }
+
+  @Trace()
+  public async init(): Promise<void> {
+    //
   }
 
   @Trace()

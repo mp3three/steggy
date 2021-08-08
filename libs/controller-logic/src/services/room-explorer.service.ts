@@ -1,5 +1,9 @@
+import { iRoomController } from '@automagical/contracts';
 import {
+  COMPLEX_LOGIC,
   HASS_ENTITY_ID,
+  HiddenService,
+  KUNAMI_CODE,
   LIGHTING_CONTROLLER,
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
@@ -10,9 +14,12 @@ import { InjectLogger, Trace } from '@automagical/utilities';
 import { INestApplicationContext, Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+import { each } from 'async';
+import { ClassConstructor } from 'class-transformer';
 import { PinoLogger } from 'nestjs-pino';
 
 import { ComplexLogicService } from './complex-logic.service';
+import { KunamiCodeService } from './kunami-code.service';
 import { LightingControllerService } from './lighting-controller.service';
 import { StateManagerService } from './state-manager.service';
 
@@ -69,36 +76,38 @@ export class RoomExplorerService {
       this.rooms.add(wrapper);
       const { instance } = wrapper;
       this.logger.info(`Loading RoomController: ${settings.friendlyName}`);
-      const lightingController = await this.application.resolve(
-        LightingControllerService,
+      await each(
+        [
+          [LIGHTING_CONTROLLER, LightingControllerService],
+          [STATE_MANAGER, StateManagerService],
+          [KUNAMI_CODE, ComplexLogicService],
+          [COMPLEX_LOGIC, KunamiCodeService],
+        ] as [symbol, ClassConstructor<HiddenService>][],
+        async ([symbol, constructor], callback) => {
+          const item = await this.application.resolve<HiddenService>(
+            constructor,
+          );
+          instance[symbol] = item;
+          item.controller = instance;
+          item.settings = settings;
+          item.init();
+          callback();
+        },
       );
-      const stateManager = await this.application.resolve(StateManagerService);
-      const complexLogic = await this.application.resolve(ComplexLogicService);
-
-      instance[LIGHTING_CONTROLLER] = lightingController;
-      instance[STATE_MANAGER] = stateManager;
-
-      stateManager.settings = settings;
-      stateManager.controller = instance;
-      lightingController.settings = settings;
-      lightingController.controller = instance;
-      complexLogic.settings = settings;
-      complexLogic.controller = instance;
-      lightingController.init();
-      complexLogic.init();
 
       const { constructor } = instance;
       if (constructor[LIGHTING_CONTROLLER]) {
         this.logger.debug(
           `Inject Lighting Controller => ${settings.friendlyName} ## ${constructor[LIGHTING_CONTROLLER]}`,
         );
-        instance[constructor[LIGHTING_CONTROLLER]] = lightingController;
+        instance[constructor[LIGHTING_CONTROLLER]] =
+          instance[LIGHTING_CONTROLLER];
       }
       if (constructor[STATE_MANAGER]) {
         this.logger.debug(
           `Inject Lighting Controller => ${settings.friendlyName} ## ${constructor[STATE_MANAGER]}`,
         );
-        instance[constructor[STATE_MANAGER]] = stateManager;
+        instance[constructor[STATE_MANAGER]] = instance[STATE_MANAGER];
       }
       if (constructor[HASS_ENTITY_ID]) {
         this.logger.debug(
