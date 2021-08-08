@@ -3,11 +3,11 @@ import {
   HTTP_METHODS,
   ResultControlDTO,
 } from '@automagical/contracts/utilities';
-import { PinoLogger } from 'nestjs-pino';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
 import { Trace } from '../decorators/logger/trace.decorator';
 import { controlToQuery } from '../includes';
+import { AutoLogService } from './auto-log.service';
 
 type FetchWith<T extends Record<never, string> = Record<never, string>> =
   Partial<FetchArguments> & T;
@@ -17,7 +17,7 @@ export class BaseFetch {
   public BASE_URL: string;
   public TRUNCATE_LENGTH = 200;
 
-  protected readonly logger: PinoLogger;
+  protected readonly logger: AutoLogService;
 
   // #endregion Object Properties
 

@@ -1,5 +1,3 @@
-import type { PinoLogger } from 'nestjs-pino';
-
 import { APP_DASHBOARD, APP_HOME_CONTROLLER } from '../constants';
 import { ConfigurableProperty } from '../decorators';
 
@@ -11,17 +9,12 @@ import { ConfigurableProperty } from '../decorators';
 export class CommonConfig {
   // #region Object Properties
 
-  /**
-   * Lower limit for log levels in http messages
-   *
-   * TODO: Non-request related logging is debug+ (fixme)
-   */
   @ConfigurableProperty({
     applications: 'available',
     default: 'info',
     type: ['info', 'warn', 'debug', 'trace'],
   })
-  public LOG_LEVEL?: keyof typeof PinoLogger.prototype;
+  public LOG_LEVEL?: 'info' | 'warn' | 'debug' | 'trace';
   /**
    * - memory = inside node's memory
    * - redis = external redis server (preferred)

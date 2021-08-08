@@ -5,10 +5,9 @@ import {
   HiddenService,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { PinoLogger } from 'nestjs-pino';
 
 /**
  * For the tracking of multiple button press sequences on remotes
@@ -25,7 +24,7 @@ export class KunamiCodeService implements HiddenService {
   // #region Constructors
 
   constructor(
-    @InjectLogger() private readonly logger: PinoLogger,
+    @InjectLogger() private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 

@@ -9,9 +9,8 @@ import {
   HTTP_METHODS,
   ResultControlDTO,
 } from '@automagical/contracts/utilities';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { PinoLogger } from 'nestjs-pino';
 
 import { FormioSdkService } from './formio-sdk.service';
 
@@ -28,7 +27,7 @@ export class SubmissionService {
 
   constructor(
     @InjectLogger()
-    protected readonly logger: PinoLogger,
+    protected readonly logger: AutoLogService,
     private readonly formioSdkService: FormioSdkService,
   ) {}
 

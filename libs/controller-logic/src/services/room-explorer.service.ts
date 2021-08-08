@@ -1,4 +1,3 @@
-import { iRoomController } from '@automagical/contracts';
 import {
   COMPLEX_LOGIC,
   HASS_ENTITY_ID,
@@ -10,13 +9,12 @@ import {
   STATE_MANAGER,
 } from '@automagical/contracts/controller-logic';
 import { EntityManagerService } from '@automagical/home-assistant';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
 import { INestApplicationContext, Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { each } from 'async';
 import { ClassConstructor } from 'class-transformer';
-import { PinoLogger } from 'nestjs-pino';
 
 import { ComplexLogicService } from './complex-logic.service';
 import { KunamiCodeService } from './kunami-code.service';
@@ -41,7 +39,7 @@ export class RoomExplorerService {
   // #region Constructors
 
   constructor(
-    @InjectLogger() private readonly logger: PinoLogger,
+    @InjectLogger() private readonly logger: AutoLogService,
     private readonly discoveryService: DiscoveryService,
     private readonly entityManager: EntityManagerService,
   ) {}

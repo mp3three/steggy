@@ -14,11 +14,16 @@ import {
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { Debug, InjectLogger, Trace, TryCatch } from '@automagical/utilities';
+import {
+  AutoLogService,
+  Debug,
+  InjectLogger,
+  Trace,
+  TryCatch,
+} from '@automagical/utilities';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
-import { PinoLogger } from 'nestjs-pino';
 
 import { GLOBAL_TRANSITION, ROOM_NAMES } from '../typings';
 
@@ -65,7 +70,7 @@ export class LoftController implements Partial<iRoomController> {
 
   constructor(
     @InjectLogger()
-    protected readonly logger: PinoLogger,
+    protected readonly logger: AutoLogService,
     private readonly lightingController: LightingControllerService,
     private readonly entityManager: EntityManagerService,
     private readonly remoteService: MediaPlayerDomainService,

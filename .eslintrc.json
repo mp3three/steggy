@@ -70,6 +70,7 @@
         "unicorn/prefer-node-protocol": "off",
         "unicorn/no-array-for-each": "off",
         "unicorn/import-style": "off",
+        "security/detect-possible-timing-attacks": "off",
         "security/detect-object-injection": "off",
         "security/detect-non-literal-fs-filename": "off",
         "woke/all": "warn",

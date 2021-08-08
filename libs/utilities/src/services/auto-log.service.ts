@@ -1,6 +1,4 @@
-import { ACTIVE_APPLICATION } from '@automagical/contracts/config';
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Scope } from '@nestjs/common';
 import pino from 'pino';
 type LoggerFunction =
   | ((message: string, ...arguments_: unknown[]) => void)
@@ -105,7 +103,10 @@ export class AutoLogService {
   private mergeContext(
     context: Record<string, unknown>,
   ): Record<string, unknown> {
-    return context;
+    return {
+      context: this.context,
+      ...context,
+    };
   }
 
   // #endregion Private Methods

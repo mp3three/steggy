@@ -1,14 +1,18 @@
 import { ResponseFlags } from '@automagical/contracts';
 import { ADMIN_KEY } from '@automagical/contracts/config';
 import { ADMIN_KEY_HEADER, APIResponse } from '@automagical/contracts/server';
-import { AutoConfigService, InjectLogger, Trace } from '@automagical/utilities';
+import {
+  AutoConfigService,
+  AutoLogService,
+  InjectLogger,
+  Trace,
+} from '@automagical/utilities';
 import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  UnauthorizedException
+  UnauthorizedException,
 } from '@nestjs/common';
-import { PinoLogger } from 'nestjs-pino';
 
 /**
  * Retrieve an admin key from the config, and check against provided value
@@ -19,7 +23,7 @@ export class AdminKeyGuard implements CanActivate {
 
   constructor(
     @InjectLogger()
-    private readonly logger: PinoLogger,
+    private readonly logger: AutoLogService,
     private readonly configService: AutoConfigService,
   ) {}
 
@@ -36,7 +40,8 @@ export class AdminKeyGuard implements CanActivate {
     if (!token) {
       return true;
     }
-    if (token === this.configService.get(ADMIN_KEY)) {
+    const adminKey = this.configService.get(ADMIN_KEY);
+    if (token === adminKey) {
       this.logger.warn('Rejected ADMIN_KEY request');
       throw new UnauthorizedException();
     }

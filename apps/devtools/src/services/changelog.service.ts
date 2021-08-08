@@ -1,12 +1,16 @@
 import { FormDTO } from '@automagical/contracts/formio-sdk';
 import {
   ChangelogDataDTO,
-  ChangelogDTO
+  ChangelogDTO,
 } from '@automagical/contracts/terminal';
 import { FormService, SubmissionService } from '@automagical/formio-sdk';
-import { AutoConfigService, InjectLogger, Trace } from '@automagical/utilities';
+import {
+  AutoConfigService,
+  AutoLogService,
+  InjectLogger,
+  Trace,
+} from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { PinoLogger } from 'nestjs-pino';
 import prompts from 'prompts';
 
 @Injectable()
@@ -21,7 +25,7 @@ export class ChangelogREPL2 {
 
   constructor(
     @InjectLogger()
-    private readonly logger: PinoLogger,
+    private readonly logger: AutoLogService,
     private readonly submissionService: SubmissionService,
     private readonly formService: FormService,
     private readonly configService: AutoConfigService,

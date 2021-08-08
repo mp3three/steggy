@@ -6,5 +6,4 @@ export * from './mqtt.decorator';
 export * from './single-call.decorator';
 export * from './string.decorator';
 export * from './to-class.decorator';
-export * from './trace.decorator';
 export * from './try-catch.decorator';

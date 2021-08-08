@@ -16,11 +16,11 @@ import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Client } from 'mqtt';
 import { Packet } from 'mqtt-packet';
-import { PinoLogger } from 'nestjs-pino';
 
 import { InjectLogger } from '../../decorators/injectors/inject-logger.decorator';
 import { Trace } from '../../decorators/logger/trace.decorator';
 import { AutoConfigService } from '../auto-config.service';
+import { AutoLogService } from '../auto-log.service';
 
 /* eslint-disable no-loops/no-loops, security/detect-object-injection, security/detect-non-literal-regexp */
 
@@ -77,7 +77,7 @@ export class MQTTExplorerService {
 
   constructor(
     @InjectLogger()
-    private readonly logger: PinoLogger,
+    private readonly logger: AutoLogService,
     @Inject(MQTT_CLIENT_INSTANCE) private readonly client: Client,
     @Inject(MQTT_OPTION_PROVIDER) private readonly options: MqttModuleOptions,
     private readonly discoveryService: DiscoveryService,

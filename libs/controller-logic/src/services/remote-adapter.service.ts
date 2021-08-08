@@ -6,10 +6,9 @@ import {
   HassEventDTO,
   PicoStates,
 } from '@automagical/contracts/home-assistant';
-import { InjectLogger } from '@automagical/utilities';
+import { AutoLogService, InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
-import { PinoLogger } from 'nestjs-pino';
 
 /**
  * This service adapts from device specific 5 button remote events to a standardized ControllerStates enum.
@@ -26,7 +25,7 @@ export class RemoteAdapterService {
   // #region Constructors
 
   constructor(
-    @InjectLogger() private readonly logger: PinoLogger,
+    @InjectLogger() private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 

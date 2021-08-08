@@ -3,23 +3,16 @@ import {
   ACTIVE_APPLICATION,
   AutomagicalConfig,
   CACHE_PROVIDER,
-  LOG_LEVEL,
   REDIS_HOST,
   REDIS_PORT,
 } from '@automagical/contracts/config';
 import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
-import {
-  CacheModule,
-  INestApplicationContext,
-  ModuleMetadata,
-  Provider,
-} from '@nestjs/common';
+import { CacheModule, ModuleMetadata, Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import RedisStore from 'cache-manager-redis-store';
 import { encode } from 'ini';
-import { LoggerModule } from 'nestjs-pino';
 import rc from 'rc';
 
 import { AutoConfigService } from '..';
@@ -27,7 +20,6 @@ import { MQTTModule, UtilitiesModule } from '../modules';
 
 enum AutoImport {
   schedule = 'schedule',
-  logger = 'logger',
   cache = 'cache',
   events = 'events',
   config = 'config',
@@ -91,19 +83,6 @@ export function ApplicationModule(
     switch (name as AutoImport) {
       case AutoImport.schedule:
         return metadata.imports.push(ScheduleModule.forRoot());
-      case AutoImport.logger:
-        return metadata.imports.push(
-          LoggerModule.forRootAsync({
-            inject: [AutoConfigService],
-            useFactory(configService: AutoConfigService) {
-              return {
-                pinoHttp: {
-                  level: configService.get(LOG_LEVEL),
-                },
-              };
-            },
-          }),
-        );
       case AutoImport.cache:
         return metadata.imports.push(
           CacheModule.registerAsync({

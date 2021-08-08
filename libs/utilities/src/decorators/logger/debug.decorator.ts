@@ -1,13 +1,9 @@
 import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
-import { PinoLogger } from 'nestjs-pino';
+import pino from 'pino';
 
 import { DEBUG_ENABLED } from '.';
 
-const BACKUP_LOGGER = new PinoLogger({
-  pinoHttp: {
-    level: 'debug',
-  },
-});
+const BACKUP_LOGGER = pino();
 
 /**
  * Annotation to cause a class method to emit a debug message prior to executing
@@ -24,7 +20,7 @@ export function Debug(message?: string): MethodDecorator {
     descriptor.value = function (...parameters) {
       // eslint-disable-next-line security/detect-object-injection
       let prefix = target.constructor[LOGGER_LIBRARY] ?? '';
-      const logger: PinoLogger = this.logger ?? BACKUP_LOGGER;
+      const logger: typeof BACKUP_LOGGER = this.logger ?? BACKUP_LOGGER;
       if (prefix) {
         prefix = `${prefix}:`;
       }

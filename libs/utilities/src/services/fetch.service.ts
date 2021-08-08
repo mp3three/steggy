@@ -1,11 +1,11 @@
 import { FetchArguments } from '@automagical/contracts/utilities';
 import { Injectable, Scope } from '@nestjs/common';
 import { createWriteStream } from 'fs';
-import { PinoLogger } from 'nestjs-pino';
 import fetch from 'node-fetch';
 
 import { InjectLogger } from '../decorators/injectors/inject-logger.decorator';
 import { Trace } from '../decorators/logger/trace.decorator';
+import { AutoLogService } from './auto-log.service';
 import { BaseFetch } from './base-fetch.service';
 
 @Injectable({ scope: Scope.TRANSIENT })
@@ -20,7 +20,7 @@ export class FetchService extends BaseFetch {
 
   constructor(
     @InjectLogger()
-    protected readonly logger: PinoLogger,
+    protected readonly logger: AutoLogService,
   ) {
     super();
   }

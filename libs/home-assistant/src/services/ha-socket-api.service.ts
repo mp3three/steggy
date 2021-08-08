@@ -22,6 +22,7 @@ import {
 } from '@automagical/contracts/home-assistant';
 import {
   AutoConfigService,
+  AutoLogService,
   EmitAfter,
   InjectLogger,
   Trace,
@@ -29,7 +30,6 @@ import {
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PinoLogger } from 'nestjs-pino';
 import { Observable, Subscriber } from 'rxjs';
 import WS from 'ws';
 
@@ -50,7 +50,7 @@ export class HASocketAPIService {
 
   constructor(
     @InjectLogger()
-    protected readonly logger: PinoLogger,
+    protected readonly logger: AutoLogService,
     private readonly configService: AutoConfigService,
     private readonly eventEmitter: EventEmitter2,
   ) {

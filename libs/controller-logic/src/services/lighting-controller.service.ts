@@ -6,11 +6,10 @@ import {
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
 import { HomeAssistantCoreService } from '@automagical/home-assistant';
-import { InjectLogger, Trace } from '@automagical/utilities';
+import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { each } from 'async';
-import { PinoLogger } from 'nestjs-pino';
 
 import { LightManagerService } from './light-manager.service';
 import { RemoteAdapterService } from './remote-adapter.service';
@@ -35,7 +34,7 @@ export class LightingControllerService implements HiddenService {
 
   constructor(
     @InjectLogger()
-    private readonly logger: PinoLogger,
+    private readonly logger: AutoLogService,
     private readonly hassCoreService: HomeAssistantCoreService,
     private readonly lightManager: LightManagerService,
     private readonly remoteAdapter: RemoteAdapterService,

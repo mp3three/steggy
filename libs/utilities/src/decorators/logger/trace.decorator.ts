@@ -1,10 +1,9 @@
 import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
-import { PinoLogger } from 'nestjs-pino';
+import pino from 'pino';
 
 import { TRACE_ENABLED } from '.';
 
-const BACKUP_LOGGER = new PinoLogger({});
-
+const BACKUP_LOGGER = pino();
 /**
  * Emits log message after function is complete
  * Contains function name as log message, function parameters, and return result.
@@ -21,7 +20,7 @@ export function Trace(message?: string): MethodDecorator {
     descriptor.value = function (...parameters) {
       // eslint-disable-next-line security/detect-object-injection
       let prefix = target.constructor[LOGGER_LIBRARY] ?? '';
-      const logger: PinoLogger = this.logger ?? BACKUP_LOGGER;
+      const logger: typeof BACKUP_LOGGER = this.logger ?? BACKUP_LOGGER;
       if (prefix) {
         prefix = `${prefix}:`;
       }

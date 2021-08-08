@@ -9,6 +9,7 @@ import {
 } from '@automagical/controller-logic';
 import { MediaPlayerDomainService } from '@automagical/home-assistant';
 import {
+  AutoLogService,
   CacheManagerService,
   InjectCache,
   InjectLogger,
@@ -16,7 +17,6 @@ import {
 } from '@automagical/utilities';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
-import { PinoLogger } from 'nestjs-pino';
 
 const MONITOR = 'media_player.monitor';
 const EVENING_BRIGHTNESS = 40;
@@ -44,7 +44,7 @@ export class GamesRoomController implements Partial<iRoomController> {
   // #region Constructors
 
   constructor(
-    @InjectLogger() private readonly logger: PinoLogger,
+    @InjectLogger() private readonly logger: AutoLogService,
     @InjectCache()
     private readonly cacheManager: CacheManagerService,
     private readonly remoteService: MediaPlayerDomainService,

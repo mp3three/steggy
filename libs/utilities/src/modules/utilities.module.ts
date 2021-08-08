@@ -1,16 +1,21 @@
-import { ACTIVE_APPLICATION } from '@automagical/contracts/config';
+import { LOG_LEVEL } from '@automagical/contracts/config';
 import { LIB_UTILS } from '@automagical/contracts/constants';
+import { APIRequest, APIResponse } from '@automagical/contracts/server';
 import {
   CacheModule,
   DynamicModule,
   Global,
+  MiddlewareConsumer,
   Module,
-  Provider,
+  RequestMethod,
 } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
+import { NextFunction } from 'express';
+import pinoHttp from 'pino-http';
 
 import { createProvidersForDecorated } from '../decorators';
 import { LoggableModule } from '../decorators/logger/loggable-module.decorator';
+import { expressContextMiddleware, expressContextSetValue } from '../includes';
 import {
   AutoConfigService,
   AutoLogService,
@@ -20,6 +25,8 @@ import {
   SolarCalcService,
   TemplateService,
 } from '../services';
+
+const DEFAULT_ROUTES = [{ method: RequestMethod.ALL, path: '*' }];
 
 @Global()
 @Module({
@@ -75,4 +82,35 @@ export class UtilitiesModule {
   }
 
   // #endregion Public Static Methods
+
+  // #region Constructors
+
+  constructor(private readonly configService: AutoConfigService) {}
+
+  // #endregion Constructors
+
+  // #region Protected Methods
+
+  protected configure(consumer: MiddlewareConsumer): void {
+    consumer
+      .apply(
+        expressContextMiddleware,
+        pinoHttp({
+          level: this.configService.get(LOG_LEVEL),
+        }),
+        bindLoggerMiddleware,
+      )
+      .forRoutes(...DEFAULT_ROUTES);
+  }
+
+  // #endregion Protected Methods
+}
+
+function bindLoggerMiddleware(
+  request: APIRequest,
+  response: APIResponse,
+  next: NextFunction,
+) {
+  expressContextSetValue('logger', request.log);
+  next();
 }
