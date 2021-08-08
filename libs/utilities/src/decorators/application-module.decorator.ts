@@ -2,20 +2,16 @@ import { iRoomController } from '@automagical/contracts';
 import {
   ACTIVE_APPLICATION,
   AutomagicalConfig,
-  CACHE_PROVIDER,
-  REDIS_HOST,
-  REDIS_PORT,
 } from '@automagical/contracts/config';
 import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
-import { CacheModule, ModuleMetadata, Provider } from '@nestjs/common';
+import { ModuleMetadata, Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
-import RedisStore from 'cache-manager-redis-store';
 import { encode } from 'ini';
 import rc from 'rc';
 
-import { AutoConfigService } from '..';
+import { RegisterCache } from '../includes/';
 import { MQTTModule, UtilitiesModule } from '../modules';
 
 enum AutoImport {
@@ -84,23 +80,7 @@ export function ApplicationModule(
       case AutoImport.schedule:
         return metadata.imports.push(ScheduleModule.forRoot());
       case AutoImport.cache:
-        return metadata.imports.push(
-          CacheModule.registerAsync({
-            inject: [AutoConfigService],
-            useFactory(configService: AutoConfigService) {
-              if (configService.get(CACHE_PROVIDER) === 'memory') {
-                return {};
-              }
-              return {
-                host: configService.get(REDIS_HOST),
-                max: Number.POSITIVE_INFINITY,
-                port: configService.get(REDIS_PORT),
-                store: RedisStore,
-                ttl: 60 * 60 * 24,
-              };
-            },
-          }),
-        );
+        return metadata.imports.push(RegisterCache());
       case AutoImport.events:
         return metadata.imports.push(
           EventEmitterModule.forRoot({

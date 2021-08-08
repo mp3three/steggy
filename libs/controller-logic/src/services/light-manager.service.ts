@@ -1,4 +1,7 @@
-import { LightingCacheDTO } from '@automagical/contracts/controller-logic';
+import {
+  CIRCADIAN_UPDATE,
+  LightingCacheDTO,
+} from '@automagical/contracts/controller-logic';
 import {
   HomeAssistantCoreService,
   LightDomainService,
@@ -9,6 +12,7 @@ import {
   Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { each } from 'async';
 
 import { CircadianService } from './circadian.service';
@@ -98,18 +102,16 @@ export class LightManagerService {
 
   // #region Protected Methods
 
-  @Trace()
-  protected async circadianLightingUpdate(): Promise<void> {
-    this.circadianService.observable.subscribe(async (kelvin) => {
-      const lights = await this.getActiveLights();
-      await each(lights, async (id, callback) => {
-        const state = await this.getState(id);
-        if (state?.mode !== 'circadian' || state.kelvin === kelvin) {
-          return;
-        }
-        await this.turnOn(id, state);
-        callback();
-      });
+  @OnEvent(CIRCADIAN_UPDATE)
+  protected async circadianLightingUpdate(kelvin: number): Promise<void> {
+    const lights = await this.getActiveLights();
+    await each(lights, async (id, callback) => {
+      const state = await this.getState(id);
+      if (state?.mode !== 'circadian' || state.kelvin === kelvin) {
+        return;
+      }
+      await this.turnOn(id, state);
+      callback();
     });
   }
 

@@ -1,6 +1,6 @@
 import { LIB_CONTROLLER_LOGIC } from '@automagical/contracts/constants';
-import { LoggableModule } from '@automagical/utilities';
-import { CacheModule, Global, Module } from '@nestjs/common';
+import { LoggableModule, RegisterCache } from '@automagical/utilities';
+import { Global, Module } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
 import {
@@ -30,7 +30,7 @@ const providers = [
 @Global()
 @Module({
   exports: providers,
-  imports: [CacheModule.register(), DiscoveryModule],
+  imports: [RegisterCache(), DiscoveryModule],
   providers,
 })
 @LoggableModule(LIB_CONTROLLER_LOGIC)

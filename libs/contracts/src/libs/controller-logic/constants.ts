@@ -3,6 +3,7 @@ export const HASS_ENTITY_ID = Symbol('HASS_ENTITY_ID');
 export const STATE_MANAGER = Symbol('STATE_MANAGER');
 export const KUNAMI_CODE = Symbol('KUNAMI_CODE');
 export const COMPLEX_LOGIC = Symbol('COMPLEX_LOGIC');
+export const CIRCADIAN_UPDATE = 'CIRCADIAN_UPDATE';
 
 export enum ControllerStates {
   on = 'on',

@@ -10,7 +10,7 @@ import { ClassConstructor } from 'class-transformer';
 
 /* eslint-disable security/detect-object-injection */
 
-export function Subscribe(
+export function OnMQTT(
   topicOrOptions: string | string[] | MqttSubscribeOptions,
 ): CustomDecorator {
   return typeof topicOrOptions === 'string' || Array.isArray(topicOrOptions)

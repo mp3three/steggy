@@ -2,15 +2,16 @@ import {
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
 } from '@automagical/contracts/config';
+import { CIRCADIAN_UPDATE } from '@automagical/contracts/controller-logic';
 import {
   AutoConfigService,
   SolarCalcService,
   Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
-import { Observable, Subscriber } from 'rxjs';
 
 /**
  * This service is responsible for managing the current temperature for circadian lightining
@@ -22,8 +23,6 @@ export class CircadianService {
   // #region Object Properties
 
   public CURRENT_LIGHT_TEMPERATURE: number;
-  public observable: Observable<number>;
-  public subscriber: Subscriber<number>;
 
   // #endregion Object Properties
 
@@ -32,6 +31,7 @@ export class CircadianService {
   constructor(
     private readonly solarCalcService: SolarCalcService,
     private readonly configService: AutoConfigService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   // #endregion Constructors
@@ -46,14 +46,7 @@ export class CircadianService {
       return;
     }
     this.CURRENT_LIGHT_TEMPERATURE = kelvin;
-    this.subscriber.next(this.CURRENT_LIGHT_TEMPERATURE);
-  }
-
-  @Trace()
-  protected onModuleInit(): void {
-    this.observable = new Observable((subscriber) => {
-      this.subscriber = subscriber;
-    });
+    this.eventEmitter.emit(CIRCADIAN_UPDATE, kelvin);
   }
 
   // #endregion Protected Methods

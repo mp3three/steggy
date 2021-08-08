@@ -1,9 +1,5 @@
-import { BODY_SIZE, PORT } from '@automagical/contracts/config';
 import { RoomExplorerService } from '@automagical/controller-logic';
-import { AutoConfigService, AutoLogService } from '@automagical/utilities';
 import { NestFactory } from '@nestjs/core';
-import { json } from 'express';
-import helmet from 'helmet';
 import pino from 'pino';
 
 import { HomeControllerModule } from '../modules';

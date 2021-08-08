@@ -22,9 +22,9 @@ import {
   Debug,
   InjectCache,
   InjectLogger,
+  OnMQTT,
   Payload,
   SolarCalcService,
-  Subscribe,
   Trace,
   Warn,
 } from '@automagical/utilities';
@@ -78,14 +78,14 @@ export class ApplicationService {
 
   // #region Public Methods
 
-  @Subscribe(HOMEASSISTANT_MOBILE_LOCK)
+  @OnMQTT(HOMEASSISTANT_MOBILE_LOCK)
   @OnEvent(GLOBAL_TRANSITION)
   @Warn('Lock Doors')
   public async lockDoors(): Promise<void> {
     await this.lockService.lock(this.locks);
   }
 
-  @Subscribe(HOMEASSISTANT_MOBILE_UNLOCK)
+  @OnMQTT(HOMEASSISTANT_MOBILE_UNLOCK)
   @Warn('Unlock Doors')
   public async unlockDoors(): Promise<void> {
     await this.lockService.unlock(this.locks);
@@ -171,7 +171,7 @@ export class ApplicationService {
     );
   }
 
-  @Subscribe(SET_ROOM_STATE)
+  @OnMQTT(SET_ROOM_STATE)
   protected async setRoomState(
     @Payload() [room, state]: [ROOM_NAMES, keyof iRoomController],
   ): Promise<void> {
@@ -199,7 +199,7 @@ export class ApplicationService {
    *
    * Intended to lock up, turn off the lights, and send back verification
    */
-  @Subscribe(HOMEASSISTANT_LEAVE_HOME)
+  @OnMQTT(HOMEASSISTANT_LEAVE_HOME)
   @Debug('Home Assistant => Leave Home')
   protected async leaveHome(): Promise<void> {
     await this.lockDoors();

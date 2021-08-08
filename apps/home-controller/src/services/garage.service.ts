@@ -5,7 +5,7 @@ import {
   LockDomainService,
   NotifyDomainService,
 } from '@automagical/home-assistant';
-import { Debug, Subscribe } from '@automagical/utilities';
+import { Debug, OnMQTT } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class GarageService {
 
   // #region Public Methods
 
-  @Subscribe('mobile/car_ac')
+  @OnMQTT('mobile/car_ac')
   @Debug('Turning on car AC')
   public async carAc(): Promise<void> {
     await this.climateService.setHvacMode(
@@ -38,7 +38,7 @@ export class GarageService {
     await this.notifyService.notify(`HVAC confirmed ${state.state}`);
   }
 
-  @Subscribe('mobile/car_frunk')
+  @OnMQTT('mobile/car_frunk')
   @Debug('Turning on car AC')
   public async carFrunk(): Promise<void> {
     await this.lockService.unlock('lock.mystique_frunk_lock');
