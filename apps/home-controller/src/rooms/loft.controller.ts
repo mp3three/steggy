@@ -169,7 +169,9 @@ export class LoftController implements Partial<iRoomController> {
       return;
     }
     const brightness = this.panelAutoBrightness();
-    const [light] = this.entityManager.getEntity<LightStateDTO>(PANEL_LIGHTS);
+    const [light] = await this.entityManager.getEntity<LightStateDTO>(
+      PANEL_LIGHTS,
+    );
     if (brightness === 0) {
       await this.lightManager.turnOff(PANEL_LIGHTS);
       return;

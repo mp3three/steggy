@@ -1,20 +1,13 @@
 import { RoomExplorerService } from '@automagical/controller-logic';
+import { AutoLogService } from '@automagical/utilities';
 import { NestFactory } from '@nestjs/core';
-import chalk from 'chalk';
-import pino from 'pino';
 
 import { HomeControllerModule } from '../modules';
 
 async function bootstrap() {
-  const nestLogger = pino({ level: 'debug' });
   const app = await NestFactory.create(HomeControllerModule, {
     cors: true,
-    logger: {
-      error: (...parameters) => nestLogger.error(...parameters),
-      log: (message, context) =>
-        nestLogger.debug(chalk`{bold ${context}}: ${message}`),
-      warn: (...parameters) => nestLogger.warn(...parameters),
-    },
+    logger: AutoLogService.nestLogger(),
   });
   const explorer = app.get(RoomExplorerService);
   explorer.application = app;
@@ -30,5 +23,5 @@ async function bootstrap() {
   // const port = config.get(PORT);
   // await app.listen(port, () => logger.info(`Listening on ${port}`));
 }
-
+AutoLogService.prettyLog();
 bootstrap();

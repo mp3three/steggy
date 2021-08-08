@@ -1,15 +1,7 @@
 import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
-import pino from 'pino';
 
-import { TRACE_ENABLED } from '.';
+import { AutoLogService } from '../../services';
 
-const BACKUP_LOGGER = pino();
-/**
- * Emits log message after function is complete
- * Contains function name as log message, function parameters, and return result.
- *
- * Must follow the repository pattern of injecting PinoLogger as this.logger
- */
 export function Trace(message?: string): MethodDecorator {
   return function (
     target: unknown,
@@ -17,32 +9,22 @@ export function Trace(message?: string): MethodDecorator {
     descriptor: PropertyDescriptor,
   ): unknown {
     const originalMethod = descriptor.value;
-    descriptor.value = function (...parameters) {
-      // eslint-disable-next-line security/detect-object-injection
-      let prefix = target.constructor[LOGGER_LIBRARY] ?? '';
-      const logger: typeof BACKUP_LOGGER = this.logger ?? BACKUP_LOGGER;
-      if (prefix) {
-        prefix = `${prefix}:`;
-      }
-      if (TRACE_ENABLED) {
-        logger.trace(
-          {
-            context: `${prefix}${target.constructor.name}`,
-          },
-          `${message ?? `${prefix}${propertyKey}`} pre`,
-        );
-      }
+    let prefix = target.constructor[LOGGER_LIBRARY] ?? '';
+    if (prefix) {
+      prefix = `${prefix}:`;
+    }
+    descriptor.value = async function (...parameters) {
+      AutoLogService.call(
+        'trace',
+        `${prefix}${target.constructor.name}`,
+        `${message ?? `${prefix}${propertyKey}`} pre`,
+      );
       const result = originalMethod.apply(this, parameters);
-      (async () => {
-        if (TRACE_ENABLED) {
-          logger.trace(
-            {
-              context: `${prefix}${target.constructor.name}`,
-            },
-            `${message ?? `${prefix}${propertyKey}`} post`,
-          );
-        }
-      })();
+      AutoLogService.call(
+        'trace',
+        `${prefix}${target.constructor.name}`,
+        `${message ?? `${prefix}${propertyKey}`} post`,
+      );
       return result;
     };
     return descriptor;

@@ -1,7 +1,6 @@
 import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
-import pino from 'pino';
 
-const BACKUP_LOGGER = pino();
+import { AutoLogService } from '../../services';
 
 /**
  * Emits log message after function is complete
@@ -17,18 +16,16 @@ export function Warn(message?: string): MethodDecorator {
   ): unknown {
     const originalMethod = descriptor.value;
     descriptor.value = function (...parameters) {
-      // eslint-disable-next-line security/detect-object-injection
       let prefix = target.constructor[LOGGER_LIBRARY] ?? '';
-      const logger: typeof BACKUP_LOGGER = this.logger ?? BACKUP_LOGGER;
       if (prefix) {
         prefix = `${prefix}:`;
       }
-      logger.warn(
-        {
-          context: `${prefix}${target.constructor.name}`,
-        },
+      AutoLogService.call(
+        'warn',
+        `${prefix}${target.constructor.name}`,
         message ?? `${prefix}${propertyKey}`,
       );
+
       return originalMethod.apply(this, parameters);
     };
     return descriptor;
