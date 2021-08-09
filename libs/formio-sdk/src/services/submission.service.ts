@@ -9,7 +9,7 @@ import {
   HTTP_METHODS,
   ResultControlDTO,
 } from '@automagical/contracts/utilities';
-import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
+import { AutoLogService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { FormioSdkService } from './formio-sdk.service';
@@ -26,7 +26,6 @@ export class SubmissionService {
   // #region Constructors
 
   constructor(
-    @InjectLogger()
     protected readonly logger: AutoLogService,
     private readonly formioSdkService: FormioSdkService,
   ) {}

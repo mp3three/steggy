@@ -1,14 +1,15 @@
 import { SCREEN_TITLE } from '@automagical/contracts/config';
+import { LIB_TERMINAL } from '@automagical/contracts/constants';
 import { BLESSED_SCREEN, BLESSED_THEME } from '@automagical/contracts/terminal';
-import { AutoConfigService } from '@automagical/utilities';
-import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
+import { AutoConfigService, LibraryModule } from '@automagical/utilities';
+import { DynamicModule, Provider } from '@nestjs/common';
 import { screen as Screen } from 'blessed';
 
 import { RefreshAfter } from '../decorators';
 
-@Global()
-@Module({
+@LibraryModule({
   exports: [BlessedModule],
+  library: LIB_TERMINAL,
   providers: [BlessedModule],
 })
 export class BlessedModule {

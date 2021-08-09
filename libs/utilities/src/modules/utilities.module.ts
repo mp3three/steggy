@@ -4,17 +4,14 @@ import { APIRequest, APIResponse } from '@automagical/contracts/server';
 import {
   CacheModule,
   DynamicModule,
-  Global,
   MiddlewareConsumer,
-  Module,
   RequestMethod,
 } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 import { NextFunction } from 'express';
 import pinoHttp from 'pino-http';
 
-import { INJECT_LOGGER_CONTEXTS } from '../decorators';
-import { LoggableModule } from '../decorators/logger/loggable-module.decorator';
+import { LibraryModule } from '../decorators/library-module.decorator';
 import { expressContextMiddleware, expressContextSetValue } from '../includes';
 import {
   AutoConfigService,
@@ -26,10 +23,7 @@ import {
   TemplateService,
 } from '../services';
 
-const DEFAULT_ROUTES = [{ method: RequestMethod.ALL, path: '*' }];
-
-@Global()
-@Module({
+@LibraryModule({
   exports: [
     TemplateService,
     AutoConfigService,
@@ -39,6 +33,7 @@ const DEFAULT_ROUTES = [{ method: RequestMethod.ALL, path: '*' }];
     SolarCalcService,
   ],
   imports: [CacheModule.register(), DiscoveryModule],
+  library: LIB_UTILS,
   providers: [
     TemplateService,
     AutoLogService,
@@ -49,12 +44,11 @@ const DEFAULT_ROUTES = [{ method: RequestMethod.ALL, path: '*' }];
     LogExplorerService,
   ],
 })
-@LoggableModule(LIB_UTILS)
 export class UtilitiesModule {
   // #region Public Static Methods
 
   public static forRoot(): DynamicModule {
-    const decorated = [...INJECT_LOGGER_CONTEXTS];
+    const decorated = [];
     return {
       exports: [
         AutoConfigService,
@@ -101,7 +95,7 @@ export class UtilitiesModule {
         }),
         bindLoggerMiddleware,
       )
-      .forRoutes(...DEFAULT_ROUTES);
+      .forRoutes(...[{ method: RequestMethod.ALL, path: '*' }]);
   }
 
   // #endregion Protected Methods

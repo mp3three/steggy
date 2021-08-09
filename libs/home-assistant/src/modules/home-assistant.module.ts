@@ -1,6 +1,6 @@
 import { LIB_HOME_ASSISTANT } from '@automagical/contracts/constants';
-import { LoggableModule } from '@automagical/utilities';
-import { Global, Module, Provider } from '@nestjs/common';
+import { LibraryModule } from '@automagical/utilities';
+import { Provider } from '@nestjs/common';
 
 import {
   CameraDomainService,
@@ -47,10 +47,9 @@ const services: Provider[] = [
   EntityManagerService,
 ];
 
-@Global()
-@Module({
+@LibraryModule({
   exports: services,
+  library: LIB_HOME_ASSISTANT,
   providers: services,
 })
-@LoggableModule(LIB_HOME_ASSISTANT)
 export class HomeAssistantModule {}

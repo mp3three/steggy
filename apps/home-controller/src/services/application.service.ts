@@ -21,7 +21,6 @@ import {
   CacheManagerService,
   Debug,
   InjectCache,
-  InjectLogger,
   OnMQTT,
   Payload,
   SolarCalcService,
@@ -32,7 +31,6 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import dayjs from 'dayjs';
-
 import {
   GLOBAL_TRANSITION,
   HOMEASSISTANT_LEAVE_HOME,
@@ -53,7 +51,6 @@ export class ApplicationService {
   // #region Constructors
 
   constructor(
-    @InjectLogger()
     protected readonly logger: AutoLogService,
     @InjectCache() private readonly cache: CacheManagerService,
     private readonly solarCalc: SolarCalcService,

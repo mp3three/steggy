@@ -4,7 +4,6 @@ import { ADMIN_KEY_HEADER, APIResponse } from '@automagical/contracts/server';
 import {
   AutoConfigService,
   AutoLogService,
-  InjectLogger,
   Trace,
 } from '@automagical/utilities';
 import {
@@ -22,7 +21,6 @@ export class AdminKeyGuard implements CanActivate {
   // #region Constructors
 
   constructor(
-    @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly configService: AutoConfigService,
   ) {}

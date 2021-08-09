@@ -20,8 +20,6 @@ When the logger is attached to a Nest `@Injectable()` class, context will automa
 The library name is provided at the module which will contain any given `Provider`, and is inherited to all the services.
 The specific logger name is based off the class name of the service.
 
-> **Note:** `@InjectLogger()` is required to inject the logger with context as a class property
-
 ### Manual Generation
 
 Some files aren't able to work with automatic generation/nest DI.

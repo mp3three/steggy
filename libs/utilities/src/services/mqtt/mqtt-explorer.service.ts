@@ -1,12 +1,11 @@
 import { LOG_LEVEL } from '@automagical/contracts/config';
 import type {
-  MqttModuleOptions,
   MqttSubscribeOptions,
   MqttSubscriber,
 } from '@automagical/contracts/utilities';
 import {
+  LOG_CONTEXT,
   MQTT_CLIENT_INSTANCE,
-  MQTT_OPTION_PROVIDER,
   MQTT_SUBSCRIBE_OPTIONS,
   MQTT_SUBSCRIBER_PARAMS,
   MqttSubscriberParameter,
@@ -17,7 +16,6 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Client } from 'mqtt';
 import { Packet } from 'mqtt-packet';
 
-import { InjectLogger } from '../../decorators/injectors/inject-logger.decorator';
 import { Trace } from '../../decorators/logger/trace.decorator';
 import { AutoConfigService } from '../auto-config.service';
 import { AutoLogService } from '../logger';
@@ -76,10 +74,8 @@ export class MQTTExplorerService {
   // #region Constructors
 
   constructor(
-    @InjectLogger()
     private readonly logger: AutoLogService,
     @Inject(MQTT_CLIENT_INSTANCE) private readonly client: Client,
-    @Inject(MQTT_OPTION_PROVIDER) private readonly options: MqttModuleOptions,
     private readonly discoveryService: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
@@ -92,12 +88,8 @@ export class MQTTExplorerService {
 
   @Trace()
   protected onApplicationBootstrap(): void {
-    this.listenForMessages();
-  }
-
-  @Trace()
-  protected onModuleInit(): void {
     this.scanForSubscribers();
+    this.listenForMessages();
   }
 
   // #endregion Protected Methods
@@ -128,9 +120,7 @@ export class MQTTExplorerService {
           }
           try {
             // add a option to do something before handle message.
-            if (this.options.beforeHandle) {
-              this.options.beforeHandle(topic, payload, packet);
-            } else if (this.configService.get(LOG_LEVEL) !== 'silent') {
+            if (this.configService.get(LOG_LEVEL) !== 'silent') {
               this.logger.info(`>>> MQTT Message ${topic}`);
             }
 
@@ -188,10 +178,7 @@ export class MQTTExplorerService {
   @Trace()
   private preprocess(options: MqttSubscribeOptions): string | string[] {
     const processTopic = (topic) => {
-      const queue =
-        typeof options.queue === 'boolean' ? options.queue : this.options.queue;
-      const share =
-        typeof options.share === 'string' ? options.share : this.options.share;
+      const { queue, share } = options;
       topic = topic
         .replace('$queue/', '')
         .replace(/^\$share\/([\dA-Za-z]+)\//, '');
@@ -232,7 +219,7 @@ export class MQTTExplorerService {
           );
           if (subscribeOptions) {
             this.logger.info(
-              `MQTT Subscribe ${instance.constructor.name}#${key} (${subscribeOptions.topic})`,
+              `MQTT Subscribe ${instance.constructor[LOG_CONTEXT]}#${key} {${subscribeOptions.topic}}`,
             );
             this.subscribe(
               subscribeOptions,

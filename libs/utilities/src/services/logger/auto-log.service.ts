@@ -1,5 +1,10 @@
+import { LOG_CONTEXT } from '@automagical/contracts/utilities';
 import { Inject, Injectable, Scope } from '@nestjs/common';
+import { INQUIRER } from '@nestjs/core';
+import chalk from 'chalk';
+import { ClassConstructor } from 'class-transformer';
 import pino from 'pino';
+
 type LoggerFunction =
   | ((message: string, ...arguments_: unknown[]) => void)
   | ((
@@ -8,13 +13,43 @@ type LoggerFunction =
       ...arguments_: unknown[]
     ) => void);
 
-import { ACTIVE_APPLICATION } from '@automagical/contracts/config';
-import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
-import { INQUIRER } from '@nestjs/core';
-import chalk from 'chalk';
-import { ClassConstructor } from 'class-transformer';
 const NEST = '@nestjs';
 let prettyPrint = false;
+
+const highlightContext = (
+  context: string,
+  level: 'bgBlue' | 'bgYellow' | 'bgGreen' | 'bgRed' | 'bgMagenta',
+): string => chalk`{bold.${level.slice(2).toLowerCase()} [${context}]}`;
+
+const methodColors = new Map<
+  pino.Level,
+  'bgBlue' | 'bgYellow' | 'bgGreen' | 'bgRed' | 'bgMagenta'
+>([
+  ['debug', 'bgBlue'],
+  ['warn', 'bgBlue'],
+  ['error', 'bgRed'],
+  ['info', 'bgGreen'],
+  ['fatal', 'bgMagenta'],
+]);
+
+const prettyFormatMessage = (message: string): string => {
+  let matches = message.match(new RegExp('([^ ]+#[^ ]+)'));
+  if (matches) {
+    message = message.replace(matches[0], chalk.bold(matches[0]));
+  }
+  matches = message.match(new RegExp('(\\[[^\\]]+\\])'));
+  if (matches) {
+    message = message.replace(matches[0], chalk.magenta(matches[0]));
+  }
+  matches = message.match(new RegExp('(\\{[^\\]]+\\})'));
+  if (matches) {
+    message = message.replace(
+      matches[0],
+      chalk`{underline ${matches[0].slice(1, -1)}}`,
+    );
+  }
+  return message;
+};
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class AutoLogService {
@@ -54,27 +89,34 @@ export class AutoLogService {
   > {
     return {
       error: (message, context) => {
+        context = `${NEST}:${context}`;
         if (!prettyPrint) {
           AutoLogService.logger.error({ context }, message);
           return;
         }
         AutoLogService.logger.error(
-          chalk`{bold ${NEST}:${context}} ${message}`,
+          `${highlightContext(context, 'bgRed')} ${message}`,
         );
       },
       log: (message, context) => {
+        context = `${NEST}:${context}`;
         if (!prettyPrint) {
           AutoLogService.logger.info({ context }, message);
           return;
         }
-        AutoLogService.logger.info(chalk`{bold ${NEST}:${context}} ${message}`);
+        AutoLogService.logger.info(
+          `${highlightContext(context, 'bgGreen')} ${message}`,
+        );
       },
       warn: (message, context) => {
+        context = `${NEST}:${context}`;
         if (!prettyPrint) {
           AutoLogService.logger.warn({ context }, message);
           return;
         }
-        AutoLogService.logger.warn(chalk`{bold ${NEST}:${context}} ${message}`);
+        AutoLogService.logger.warn(
+          `${highlightContext(context, 'bgYellow')} ${message}`,
+        );
       },
     };
   }
@@ -92,10 +134,9 @@ export class AutoLogService {
         errorProps: '',
         hideObject: false,
         ignore: 'pid,hostname',
-        levelFirst: false,
-        levelKey: 'level',
+        levelKey: ``,
         messageKey: 'msg',
-        singleLine: false,
+        singleLine: true,
         timestampKey: 'time',
         translateTime: 'SYS:ddd hh:MM:ss.l',
       },
@@ -135,13 +176,19 @@ export class AutoLogService {
     if (typeof parameters[0] === 'object') {
       AutoLogService.logger[method](
         parameters.shift() as Record<string, unknown>,
-        chalk`{bold ${context}} ${parameters.shift()}`,
+        `${highlightContext(
+          context,
+          methodColors.get(method),
+        )} ${prettyFormatMessage(parameters.shift() as string)}`,
         ...parameters,
       );
       return;
     }
     AutoLogService.logger[method](
-      chalk`{bold ${context}} ${parameters.shift()}`,
+      `${highlightContext(
+        context,
+        methodColors.get(method),
+      )} ${prettyFormatMessage(parameters.shift() as string)}`,
       ...parameters,
     );
   }
@@ -158,7 +205,6 @@ export class AutoLogService {
 
   constructor(
     @Inject(INQUIRER) private readonly inquirerer: ClassConstructor<unknown>,
-    @Inject(ACTIVE_APPLICATION) private readonly application: symbol,
   ) {}
 
   // #endregion Constructors
@@ -172,7 +218,11 @@ export class AutoLogService {
     ...arguments_: unknown[]
   ): void;
   public debug(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call('debug', this.context, ...arguments_);
+    AutoLogService.call(
+      'debug',
+      this.inquirerer.constructor[LOG_CONTEXT],
+      ...arguments_,
+    );
   }
 
   public error(message: string, ...arguments_: unknown[]): void;
@@ -182,7 +232,11 @@ export class AutoLogService {
     ...arguments_: unknown[]
   ): void;
   public error(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call('error', this.context, ...arguments_);
+    AutoLogService.call(
+      'error',
+      this.inquirerer.constructor[LOG_CONTEXT],
+      ...arguments_,
+    );
   }
 
   public fatal(message: string, ...arguments_: unknown[]): void;
@@ -192,7 +246,11 @@ export class AutoLogService {
     ...arguments_: unknown[]
   ): void;
   public fatal(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call('fatal', this.context, ...arguments_);
+    AutoLogService.call(
+      'fatal',
+      this.inquirerer.constructor[LOG_CONTEXT],
+      ...arguments_,
+    );
   }
 
   public info(message: string, ...arguments_: unknown[]): void;
@@ -202,7 +260,11 @@ export class AutoLogService {
     ...arguments_: unknown[]
   ): void;
   public info(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call('info', this.context, ...arguments_);
+    AutoLogService.call(
+      'info',
+      this.inquirerer.constructor[LOG_CONTEXT],
+      ...arguments_,
+    );
   }
 
   public warn(message: string, ...arguments_: unknown[]): void;
@@ -212,26 +274,16 @@ export class AutoLogService {
     ...arguments_: unknown[]
   ): void;
   public warn(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call('warn', this.context, ...arguments_);
+    AutoLogService.call(
+      'warn',
+      this.inquirerer.constructor[LOG_CONTEXT],
+      ...arguments_,
+    );
   }
 
   // #endregion Public Methods
+}
 
-  // #region Protected Methods
-
-  protected onModuleInit(): void {
-    if (!this.inquirerer) {
-      return;
-    }
-    const libraryCtor = this.inquirerer.constructor;
-    let library: string;
-    if (libraryCtor[LOGGER_LIBRARY]) {
-      library = libraryCtor[LOGGER_LIBRARY];
-    }
-    this.context = `${library ?? this.application.description}:${
-      libraryCtor?.name ?? 'unknown'
-    }`;
-  }
-
-  // #endregion Protected Methods
+if (chalk.supportsColor) {
+  AutoLogService.prettyLog();
 }

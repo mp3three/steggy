@@ -11,7 +11,6 @@ import {
 import {
   AutoConfigService,
   AutoLogService,
-  InjectLogger,
   Trace,
 } from '@automagical/utilities';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
@@ -21,7 +20,6 @@ export class BasicAuthGuard implements CanActivate {
   // #region Constructors
 
   constructor(
-    @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly configService: AutoConfigService,
   ) {}

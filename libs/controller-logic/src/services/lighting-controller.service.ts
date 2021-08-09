@@ -6,7 +6,7 @@ import {
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
 import { HomeAssistantCoreService } from '@automagical/home-assistant';
-import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
+import { AutoLogService, Trace } from '@automagical/utilities';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -29,7 +29,6 @@ export class LightingControllerService {
   constructor(
     @Inject(INQUIRER)
     private readonly controller: Partial<iRoomController>,
-    @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly hassCoreService: HomeAssistantCoreService,
     private readonly lightManager: LightManagerService,

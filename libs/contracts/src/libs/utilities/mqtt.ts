@@ -1,6 +1,6 @@
 import { LoggerService, Type } from '@nestjs/common';
 import { ModuleMetadata } from '@nestjs/common/interfaces';
-import { IClientOptions, Packet } from 'mqtt';
+import { IClientOptions } from 'mqtt';
 
 import { iRoomController } from '../../interfaces';
 
@@ -55,8 +55,6 @@ export interface MqttLoggerOptions {
 export interface MqttModuleOptions extends IClientOptions {
   // #region Object Properties
 
-  beforeHandle?: (topic: string, payload: Buffer, packet: Packet) => unknown;
-  logger?: MqttLoggerOptions;
   /**
    * Global queue subscribe.
    * All topic will be prepend '$queue/' prefix automatically.
@@ -100,7 +98,6 @@ export interface MqttModuleAsyncOptions
 export const MQTT_SUBSCRIBE_OPTIONS = '__mqtt_subscribe_options';
 export const MQTT_SUBSCRIBER_PARAMS = '__mqtt_subscriber_params';
 export const MQTT_CLIENT_INSTANCE = 'MQTT_CLIENT_INSTANCE';
-export const MQTT_OPTION_PROVIDER = 'MQTT_OPTION_PROVIDER';
 
 // internal messages
 /**

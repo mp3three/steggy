@@ -9,7 +9,7 @@ import {
   StateManagerService,
 } from '@automagical/controller-logic';
 import { MediaPlayerDomainService } from '@automagical/home-assistant';
-import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
+import { AutoLogService, Trace } from '@automagical/utilities';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 
@@ -32,7 +32,7 @@ export class GamesRoomController implements Partial<iRoomController> {
   // #region Constructors
 
   constructor(
-    @InjectLogger() private readonly logger: AutoLogService,
+    private readonly logger: AutoLogService,
     private readonly remoteService: MediaPlayerDomainService,
     private readonly kunamiService: KunamiCodeService,
     private readonly stateManager: StateManagerService,

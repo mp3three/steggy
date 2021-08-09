@@ -8,7 +8,6 @@ import {
   Scope,
 } from '@nestjs/common';
 
-import { InjectLogger } from '../decorators/injectors/inject-logger.decorator';
 import { Trace } from '../decorators/logger/trace.decorator';
 import { AutoConfigService } from './auto-config.service';
 import { AutoLogService } from './logger';
@@ -28,7 +27,7 @@ export class LocalsService {
   // #region Constructors
 
   constructor(
-    @InjectLogger() private readonly logger: AutoLogService,
+    private readonly logger: AutoLogService,
     @Inject(APIRequest) private readonly request: APIRequest,
     private readonly configService: AutoConfigService,
   ) {}

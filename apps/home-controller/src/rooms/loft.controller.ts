@@ -13,12 +13,7 @@ import {
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import {
-  AutoLogService,
-  Debug,
-  InjectLogger,
-  Trace,
-} from '@automagical/utilities';
+import { AutoLogService, Debug, Trace } from '@automagical/utilities';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
@@ -60,7 +55,6 @@ export class LoftController implements Partial<iRoomController> {
   // #region Constructors
 
   constructor(
-    @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly lightingController: LightingControllerService,
     private readonly entityManager: EntityManagerService,

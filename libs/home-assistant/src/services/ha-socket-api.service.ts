@@ -24,7 +24,6 @@ import {
   AutoConfigService,
   AutoLogService,
   EmitAfter,
-  InjectLogger,
   Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -49,7 +48,6 @@ export class HASocketAPIService {
   // #region Constructors
 
   constructor(
-    @InjectLogger()
     protected readonly logger: AutoLogService,
     private readonly configService: AutoConfigService,
     private readonly eventEmitter: EventEmitter2,

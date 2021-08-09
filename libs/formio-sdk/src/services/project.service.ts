@@ -10,7 +10,6 @@ import {
 import {
   AutoConfigService,
   AutoLogService,
-  InjectLogger,
   Trace,
 } from '@automagical/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
@@ -22,7 +21,6 @@ export class ProjectService {
   // #region Constructors
 
   constructor(
-    @InjectLogger()
     protected readonly logger: AutoLogService,
     @Inject(forwardRef(() => FormioSdkService))
     protected readonly formioSdkService: FormioSdkService,

@@ -1,6 +1,8 @@
+import { LIB_UTILS } from '@automagical/contracts/constants';
 import {
   DEBUG_LOG,
   DebugLogDTO,
+  LOG_CONTEXT,
   LOGGER_LIBRARY,
   TRACE_LOG,
   TraceLogDTO,
@@ -50,15 +52,12 @@ export class LogExplorerService {
       if (!instance) {
         return;
       }
-      this.metadataScanner.scanFromPrototype(
-        instance,
-        Object.getPrototypeOf(instance),
-        (key) => {
-          this.traceLog(wrapper, key);
-          this.debugLog(wrapper, key);
-          this.warnLog(wrapper, key);
-        },
-      );
+      const proto = Object.getPrototypeOf(instance);
+      this.metadataScanner.scanFromPrototype(instance, proto, (key) => {
+        this.traceLog(wrapper, key);
+        this.debugLog(wrapper, key);
+        this.warnLog(wrapper, key);
+      });
     });
   }
 
@@ -88,11 +87,23 @@ export class LogExplorerService {
       if (!proto || !proto[LOGGER_LIBRARY]) {
         return;
       }
+      const loggerContext: string = proto[LOGGER_LIBRARY];
       host.providers.forEach(({ metatype }) => {
-        if (!metatype) {
+        if (
+          !metatype ||
+          ['ModuleRef', '', 'useFactory'].includes(metatype.name ?? '') ||
+          typeof metatype[LOG_CONTEXT] !== 'undefined'
+        ) {
           return;
         }
-        metatype[LOGGER_LIBRARY] = proto[LOGGER_LIBRARY];
+        const context = `${loggerContext}:${metatype.name}`;
+        metatype[LOG_CONTEXT] ??= context;
+        AutoLogService.call(
+          'debug',
+          `${LIB_UTILS.description}:${LogExplorerService.name}`,
+          `Created log context {${context}}`,
+        );
+        metatype[LOGGER_LIBRARY] ??= loggerContext;
       });
     });
   }

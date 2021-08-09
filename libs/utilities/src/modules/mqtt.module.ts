@@ -1,28 +1,15 @@
 import { LIB_UTILS } from '@automagical/contracts/constants';
-import {
-  MQTT_CLIENT_INSTANCE,
-  MQTT_OPTION_PROVIDER,
-} from '@automagical/contracts/utilities';
-import { Global, Module } from '@nestjs/common';
+import { MQTT_CLIENT_INSTANCE } from '@automagical/contracts/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { LoggableModule } from '../decorators/logger/loggable-module.decorator';
+import { LibraryModule } from '../decorators/library-module.decorator';
 import { createClientProvider } from '../includes';
 import { MQTTExplorerService, MqttService } from '../services';
 
-@Global()
-@Module({
+@LibraryModule({
   exports: [MqttService, MQTT_CLIENT_INSTANCE],
   imports: [DiscoveryModule],
-  providers: [
-    createClientProvider(),
-    {
-      provide: MQTT_OPTION_PROVIDER,
-      useValue: {},
-    },
-    MQTTExplorerService,
-    MqttService,
-  ],
+  library: LIB_UTILS,
+  providers: [createClientProvider(), MQTTExplorerService, MqttService],
 })
-@LoggableModule(LIB_UTILS)
 export class MQTTModule {}

@@ -3,7 +3,7 @@ import {
   FanStateDTO,
   HASS_DOMAINS,
 } from '@automagical/contracts/home-assistant';
-import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
+import { AutoLogService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { EntityManagerService, HACallService } from '../services';
@@ -24,7 +24,6 @@ export class FanDomainService {
   // #region Constructors
 
   constructor(
-    @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly callService: HACallService,
     private readonly entityManager: EntityManagerService,

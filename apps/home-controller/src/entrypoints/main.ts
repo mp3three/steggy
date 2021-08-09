@@ -20,5 +20,4 @@ async function bootstrap() {
   // const port = config.get(PORT);
   // await app.listen(port, () => logger.info(`Listening on ${port}`));
 }
-AutoLogService.prettyLog();
 bootstrap();

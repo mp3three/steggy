@@ -3,7 +3,7 @@ import {
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
-import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
+import { AutoLogService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
@@ -26,7 +26,7 @@ export class RoomExplorerService {
   // #region Constructors
 
   constructor(
-    @InjectLogger() private readonly logger: AutoLogService,
+    private readonly logger: AutoLogService,
     private readonly discoveryService: DiscoveryService,
   ) {}
 
@@ -50,14 +50,14 @@ export class RoomExplorerService {
   // #region Protected Methods
 
   @Trace()
-  protected onModuleInit(): void {
+  protected onApplicationBootstrap(): void {
     const providers: InstanceWrapper[] = this.discoveryService.getProviders();
     providers.forEach(async (wrapper) => {
       const settings = this.getSettings(wrapper);
       if (!settings) {
         return;
       }
-      this.logger.info(`Loading RoomController: ${settings.friendlyName}`);
+      this.logger.info(`Loading RoomController [${settings.friendlyName}]`);
       this.rooms.add(wrapper);
     });
   }

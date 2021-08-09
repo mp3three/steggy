@@ -7,7 +7,6 @@ import { FormService, SubmissionService } from '@automagical/formio-sdk';
 import {
   AutoConfigService,
   AutoLogService,
-  InjectLogger,
   Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -24,7 +23,6 @@ export class ChangelogREPL2 {
   // #region Constructors
 
   constructor(
-    @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly submissionService: SubmissionService,
     private readonly formService: FormService,

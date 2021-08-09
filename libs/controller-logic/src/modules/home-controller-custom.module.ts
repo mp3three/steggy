@@ -1,6 +1,6 @@
 import { LIB_CONTROLLER_LOGIC } from '@automagical/contracts/constants';
-import { LoggableModule, RegisterCache } from '@automagical/utilities';
-import { DynamicModule, Global, Module } from '@nestjs/common';
+import { LibraryModule, RegisterCache } from '@automagical/utilities';
+import { DynamicModule } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { DynamicRoomProviders } from '../decorators';
@@ -28,13 +28,12 @@ const providers = [
   KunamiCodeService,
 ];
 
-@Global()
-@Module({
+@LibraryModule({
   exports: providers,
   imports: [RegisterCache(), DiscoveryModule],
+  library: LIB_CONTROLLER_LOGIC,
   providers,
 })
-@LoggableModule(LIB_CONTROLLER_LOGIC)
 export class HomeControllerCustomModule {
   // #region Public Static Methods
 

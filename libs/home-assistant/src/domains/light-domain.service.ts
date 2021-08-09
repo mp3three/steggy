@@ -1,5 +1,5 @@
 import { HASS_DOMAINS } from '@automagical/contracts/home-assistant';
-import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
+import { AutoLogService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { EntityService, HACallService } from '../services';
@@ -18,7 +18,6 @@ export class LightDomainService extends EntityService {
   // #region Constructors
 
   constructor(
-    @InjectLogger()
     protected readonly logger: AutoLogService,
     private readonly callService: HACallService,
   ) {

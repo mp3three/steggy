@@ -20,7 +20,6 @@ import {
   AutoConfigService,
   AutoLogService,
   FetchService,
-  InjectLogger,
   Trace,
 } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
@@ -63,7 +62,6 @@ export class FormioSdkService {
   // #region Constructors
 
   constructor(
-    @InjectLogger()
     protected readonly logger: AutoLogService,
     private readonly fetchService: FetchService,
     private readonly configService: AutoConfigService,
