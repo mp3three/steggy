@@ -1,4 +1,6 @@
+import { iRoomController } from '@automagical/contracts';
 import {
+  ControllerStates,
   LIGHTING_CONTROLLER,
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
@@ -6,8 +8,10 @@ import {
 import { AutoLogService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
+import { Injector } from '@nestjs/core/injector/injector';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
+import { KunamiCodeService } from './kunami-code.service';
 import { LightingControllerService } from './lighting-controller.service';
 
 /**
@@ -21,6 +25,8 @@ export class RoomExplorerService {
 
   public readonly rooms = new Set<InstanceWrapper>();
 
+  private readonly injector = new Injector();
+
   // #endregion Object Properties
 
   // #region Constructors
@@ -28,6 +34,7 @@ export class RoomExplorerService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly discoveryService: DiscoveryService,
+    private readonly kunamiCode: KunamiCodeService,
   ) {}
 
   // #endregion Constructors
@@ -51,7 +58,8 @@ export class RoomExplorerService {
 
   @Trace()
   protected onApplicationBootstrap(): void {
-    const providers: InstanceWrapper[] = this.discoveryService.getProviders();
+    const providers: InstanceWrapper<Partial<iRoomController>>[] =
+      this.discoveryService.getProviders();
     providers.forEach(async (wrapper) => {
       const settings = this.getSettings(wrapper);
       if (!settings) {
@@ -59,6 +67,55 @@ export class RoomExplorerService {
       }
       this.logger.info(`Loading RoomController [${settings.friendlyName}]`);
       this.rooms.add(wrapper);
+      const { instance } = wrapper;
+
+      this.kunamiCode.addMatch(
+        settings.remote,
+        new Map([
+          [
+            [
+              ControllerStates.on,
+              ControllerStates.none,
+              ControllerStates.on,
+              ControllerStates.none,
+            ],
+            () => {
+              if (!instance.areaOn) {
+                return;
+              }
+              instance.areaOn(2);
+            },
+          ],
+          [
+            [
+              ControllerStates.off,
+              ControllerStates.none,
+              ControllerStates.off,
+              ControllerStates.none,
+            ],
+            () => {
+              if (!instance.areaOn) {
+                return;
+              }
+              instance.areaOff(2);
+            },
+          ],
+          [
+            [
+              ControllerStates.favorite,
+              ControllerStates.none,
+              ControllerStates.favorite,
+              ControllerStates.none,
+            ],
+            () => {
+              if (!instance.areaOn) {
+                return;
+              }
+              instance.favorite(2);
+            },
+          ],
+        ]),
+      );
     });
   }
 

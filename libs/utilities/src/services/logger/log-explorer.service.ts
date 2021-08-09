@@ -54,7 +54,7 @@ export class LogExplorerService {
       }
       const proto = Object.getPrototypeOf(instance);
       this.metadataScanner.scanFromPrototype(instance, proto, (key) => {
-        this.traceLog(wrapper, key);
+        // this.traceLog(wrapper, key);
         this.debugLog(wrapper, key);
         this.warnLog(wrapper, key);
       });

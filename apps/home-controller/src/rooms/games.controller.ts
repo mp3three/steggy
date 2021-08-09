@@ -17,6 +17,7 @@ const MONITOR = 'media_player.monitor';
 const EVENING_BRIGHTNESS = 40;
 const AUTO_STATE = 'AUTO_STATE';
 
+const remote = 'sensor.games_pico';
 @RoomController({
   friendlyName: 'Games Room',
   lights: [
@@ -26,7 +27,7 @@ const AUTO_STATE = 'AUTO_STATE';
     'light.games_lamp',
   ],
   name: 'games',
-  remote: 'sensor.games_pico',
+  remote,
 })
 export class GamesRoomController implements Partial<iRoomController> {
   // #region Constructors
@@ -102,15 +103,19 @@ export class GamesRoomController implements Partial<iRoomController> {
 
   protected async onApplicationBootstrap(): Promise<void> {
     this.kunamiService.addMatch(
-      [ControllerStates.favorite, ControllerStates.none],
-      () => {
-        this.favorite(1);
-      },
+      remote,
+      new Map([
+        [
+          [ControllerStates.favorite, ControllerStates.none],
+          () => {
+            this.favorite(1);
+          },
+        ],
+      ]),
     );
     setInterval(() => {
       this.fanLightSchedule();
     }, 30000);
-    await this.stateManager.removeFlag(AUTO_STATE);
     const GAMES_AUTO_MODE = await this.stateManager.hasFlag(AUTO_STATE);
     this.logger.debug({ GAMES_AUTO_MODE }, 'GAMES_AUTO_MODE');
   }

@@ -4,6 +4,7 @@ import {
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
 import {
+  AutoLogService,
   CacheManagerService,
   InjectCache,
   Trace,
@@ -24,6 +25,7 @@ export class StateManagerService {
     @Inject(INQUIRER)
     private readonly controller: Partial<iRoomController>,
     @InjectCache() private readonly cacheService: CacheManagerService,
+    private readonly logger: AutoLogService,
   ) {}
 
   // #endregion Constructors
@@ -40,7 +42,11 @@ export class StateManagerService {
 
   @Trace()
   public async addFlag(flagName: string): Promise<void> {
-    await this.cacheService.set(CACHE_KEY(this.settings.name, flagName), true);
+    this.logger.debug(`Add flag ${this.settings.name}#${flagName}`);
+    const name = CACHE_KEY(this.settings.name, flagName);
+    await this.cacheService.set(name, true, {
+      ttl: 24 * 60 * 60,
+    });
   }
 
   @Trace()
@@ -52,12 +58,8 @@ export class StateManagerService {
   }
 
   @Trace()
-  public async init(): Promise<void> {
-    //
-  }
-
-  @Trace()
   public async removeFlag(flagName: string): Promise<void> {
+    this.logger.debug(`Remove flag ${this.settings.name}#${flagName}`);
     this.cacheService.del(CACHE_KEY(this.settings.name, flagName));
   }
 

@@ -1,6 +1,6 @@
 import { MQTT_HEALTH_CHECK } from '@automagical/contracts/utilities';
 import { RefreshAfter } from '@automagical/terminal';
-import { Payload, Subscribe } from '@automagical/utilities';
+import { OnMQTT, Payload } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import {
@@ -57,6 +57,12 @@ export class HealthService {
     this.WIDGET.setMarkdown(md.join(`\n`));
   }
 
+  @OnMQTT(MQTT_HEALTH_CHECK)
+  protected onHealthCheck(@Payload() app: string): void {
+    this.SERVICES.set(app, dayjs());
+    this.updateTable();
+  }
+
   @RefreshAfter()
   protected onApplicationBootstrap(): void {
     this.WIDGET = this.GRID.set<
@@ -68,12 +74,6 @@ export class HealthService {
       markdown: `# Waiting....`,
       padding: 1,
     } as ContribWidgets.MarkdownOptions);
-  }
-
-  @Subscribe(MQTT_HEALTH_CHECK)
-  protected onHealthCheck(@Payload() app: string): void {
-    this.SERVICES.set(app, dayjs());
-    this.updateTable();
   }
 
   // #endregion Protected Methods

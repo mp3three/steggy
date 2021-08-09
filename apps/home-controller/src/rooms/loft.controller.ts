@@ -1,6 +1,8 @@
 import { iRoomController } from '@automagical/contracts';
+import { ControllerStates } from '@automagical/contracts/controller-logic';
 import { LightStateDTO } from '@automagical/contracts/home-assistant';
 import {
+  KunamiCodeService,
   LightingControllerService,
   LightManagerService,
   RelayService,
@@ -31,6 +33,8 @@ const FAN_LIGHTS = [
 const EVENING_BRIGHTNESS = 40;
 const AUTO_STATE = 'AUTO_STATE';
 
+const remote = 'sensor.loft_pico';
+
 /**
  * If in auto mode:
  *
@@ -48,7 +52,7 @@ const AUTO_STATE = 'AUTO_STATE';
   friendlyName: 'Loft',
   lights: [...PANEL_LIGHTS, ...FAN_LIGHTS],
   name: 'loft',
-  remote: 'sensor.loft_pico',
+  remote,
   switches: ['switch.desk_light', 'sensor.loft_pico'],
 })
 export class LoftController implements Partial<iRoomController> {
@@ -56,6 +60,7 @@ export class LoftController implements Partial<iRoomController> {
 
   constructor(
     private readonly logger: AutoLogService,
+    private readonly kunamiService: KunamiCodeService,
     private readonly lightingController: LightingControllerService,
     private readonly entityManager: EntityManagerService,
     private readonly stateManager: StateManagerService,
@@ -189,6 +194,26 @@ export class LoftController implements Partial<iRoomController> {
     this.switchService.turnOff(['switch.desk_light']);
   }
 
+  @Trace()
+  protected async onModuleInit(): Promise<void> {
+    this.kunamiService.addMatch(
+      remote,
+      new Map([
+        [
+          [ControllerStates.favorite, ControllerStates.none],
+          () => {
+            this.favorite(1);
+          },
+        ],
+      ]),
+    );
+    setInterval(() => {
+      this.fanLightSchedule();
+    }, 30000);
+    const LOFT_AUTO_MODE = await this.stateManager.hasFlag(AUTO_STATE);
+    this.logger.debug({ LOFT_AUTO_MODE }, 'Loft Flags');
+  }
+
   // #endregion Protected Methods
 
   // #region Private Methods
@@ -265,7 +290,7 @@ export class LoftController implements Partial<iRoomController> {
       const brightness = 120 - this.ticksThisHour(minute, second);
       this.logger.debug(
         { brightness },
-        `panelAutoBrightness wind down ${dayjs().format('HH:mm:ss')}`,
+        `panelAutoBrightness wind down {${dayjs().format('HH:mm:ss')}}`,
       );
       return brightness < 0 ? 0 : brightness;
     }

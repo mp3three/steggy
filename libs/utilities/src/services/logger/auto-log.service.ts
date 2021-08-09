@@ -1,4 +1,4 @@
-import { LOG_CONTEXT } from '@automagical/contracts/utilities';
+import { LOG_CONTEXT, MISSING_CONTEXT } from '@automagical/contracts/utilities';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import chalk from 'chalk';
@@ -39,13 +39,16 @@ const prettyFormatMessage = (message: string): string => {
   }
   matches = message.match(new RegExp('(\\[[^\\]]+\\])'));
   if (matches) {
-    message = message.replace(matches[0], chalk.magenta(matches[0]));
+    message = message.replace(
+      matches[0],
+      chalk`{underline.bold ${matches[0]}}`,
+    );
   }
   matches = message.match(new RegExp('(\\{[^\\]]+\\})'));
   if (matches) {
     message = message.replace(
       matches[0],
-      chalk`{underline ${matches[0].slice(1, -1)}}`,
+      chalk`{bold.gray ${matches[0].slice(1, -1)}}`,
     );
   }
   return message;
@@ -220,7 +223,7 @@ export class AutoLogService {
   public debug(...arguments_: Parameters<LoggerFunction>): void {
     AutoLogService.call(
       'debug',
-      this.inquirerer.constructor[LOG_CONTEXT],
+      this.inquirerer?.constructor[LOG_CONTEXT] ?? MISSING_CONTEXT,
       ...arguments_,
     );
   }
