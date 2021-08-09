@@ -1,4 +1,3 @@
-import { RoomExplorerService } from '@automagical/controller-logic';
 import { AutoLogService } from '@automagical/utilities';
 import { NestFactory } from '@nestjs/core';
 
@@ -9,8 +8,6 @@ async function bootstrap() {
     cors: true,
     logger: AutoLogService.nestLogger(),
   });
-  const explorer = app.get(RoomExplorerService);
-  explorer.application = app;
   await app.init();
 
   // const logger = app.get(AutoLogService);

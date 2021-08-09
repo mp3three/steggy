@@ -2,10 +2,11 @@ import { iRoomController } from '@automagical/contracts';
 import {
   CONTROLLER_STATE_EVENT,
   ControllerStates,
-  HiddenService,
+  ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
-import { Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
+import { INQUIRER } from '@nestjs/core';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { RemoteAdapterService } from './remote-adapter.service';
@@ -14,37 +15,34 @@ import { RemoteAdapterService } from './remote-adapter.service';
  * Glue between kunami codes and controllers
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class ComplexLogicService implements HiddenService {
-  // #region Object Properties
-
-  public controller: Partial<iRoomController>;
-  public settings: RoomControllerSettingsDTO;
-
-  // #endregion Object Properties
-
+export class ComplexLogicService {
   // #region Constructors
 
   constructor(
+    @Inject(INQUIRER)
+    private readonly controller: Partial<iRoomController>,
     private readonly remoteAdapter: RemoteAdapterService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
   // #endregion Constructors
 
-  // #region Public Methods
+  // #region Protected Methods
 
-  public async init(): Promise<void> {
-    if (!this.settings?.remote) {
+  protected onModuleInit(): void {
+    const settings: RoomControllerSettingsDTO =
+      this.controller.constructor[ROOM_CONTROLLER_SETTINGS];
+    if (!settings?.remote) {
       return;
     }
-    this.remoteAdapter.watch(this.settings.remote);
+    this.remoteAdapter.watch(settings.remote);
     this.eventEmitter.on(
-      CONTROLLER_STATE_EVENT(this.settings.remote, ControllerStates.favorite),
+      CONTROLLER_STATE_EVENT(settings.remote, ControllerStates.favorite),
       async () => {
         await this.controller?.favorite(1);
       },
     );
   }
 
-  // #endregion Public Methods
+  // #endregion Protected Methods
 }

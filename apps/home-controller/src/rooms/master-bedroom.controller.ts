@@ -8,9 +8,7 @@ import {
   SwitchDomainService,
 } from '@automagical/home-assistant';
 import { Trace } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
 
-@Injectable()
 @RoomController({
   friendlyName: 'Master Bedroom',
   lights: [

@@ -2,22 +2,20 @@ import { iRoomController } from '@automagical/contracts';
 import {
   CONTROLLER_STATE_EVENT,
   ControllerStates,
-  HiddenService,
+  ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
-import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
-import { Injectable, Scope } from '@nestjs/common';
+import { Trace } from '@automagical/utilities';
+import { Inject, Injectable, Scope } from '@nestjs/common';
+import { INQUIRER } from '@nestjs/core';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 /**
  * For the tracking of multiple button press sequences on remotes
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class KunamiCodeService implements HiddenService {
+export class KunamiCodeService {
   // #region Object Properties
-
-  public controller: Partial<iRoomController>;
-  public settings: RoomControllerSettingsDTO;
 
   private readonly callbacks = new Map<
     ControllerStates[],
@@ -31,7 +29,11 @@ export class KunamiCodeService implements HiddenService {
 
   // #region Constructors
 
-  constructor(private readonly eventEmitter: EventEmitter2) {
+  constructor(
+    @Inject(INQUIRER)
+    private readonly controller: Partial<iRoomController>,
+    private readonly eventEmitter: EventEmitter2,
+  ) {
     this.addMatch(
       [
         ControllerStates.on,
@@ -80,13 +82,23 @@ export class KunamiCodeService implements HiddenService {
 
   // #region Public Methods
 
+  public addMatch(match: ControllerStates[], callback: () => void): void {
+    this.callbacks.set(match, callback);
+  }
+
+  // #endregion Public Methods
+
+  // #region Protected Methods
+
   @Trace()
-  public async init(): Promise<void> {
-    if (!this.settings.remote) {
+  protected async onModuleInit(): Promise<void> {
+    const settings: RoomControllerSettingsDTO =
+      this.controller.constructor[ROOM_CONTROLLER_SETTINGS];
+    if (!settings.remote) {
       return;
     }
     this.eventEmitter.on(
-      CONTROLLER_STATE_EVENT(this.settings.remote, '*'),
+      CONTROLLER_STATE_EVENT(settings.remote, '*'),
       (state: ControllerStates) => {
         if (this.timeout) {
           clearTimeout(this.timeout);
@@ -101,11 +113,7 @@ export class KunamiCodeService implements HiddenService {
     );
   }
 
-  public addMatch(match: ControllerStates[], callback: () => void): void {
-    this.callbacks.set(match, callback);
-  }
-
-  // #endregion Public Methods
+  // #endregion Protected Methods
 
   // #region Private Methods
 

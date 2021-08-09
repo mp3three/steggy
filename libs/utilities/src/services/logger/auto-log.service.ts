@@ -1,4 +1,4 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import pino from 'pino';
 type LoggerFunction =
   | ((message: string, ...arguments_: unknown[]) => void)
@@ -9,7 +9,11 @@ type LoggerFunction =
     ) => void);
 
 let logger = pino();
+import { ACTIVE_APPLICATION } from '@automagical/contracts/config';
+import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
+import { INQUIRER } from '@nestjs/core';
 import chalk from 'chalk';
+import { ClassConstructor } from 'class-transformer';
 const NEST = '@nestjs';
 let prettyPrint = false;
 
@@ -149,6 +153,15 @@ export class AutoLogService {
 
   // #endregion Object Properties
 
+  // #region Constructors
+
+  constructor(
+    @Inject(INQUIRER) private readonly inquirerer: ClassConstructor<unknown>,
+    @Inject(ACTIVE_APPLICATION) private readonly application: symbol,
+  ) {}
+
+  // #endregion Constructors
+
   // #region Public Methods
 
   public debug(message: string, ...arguments_: unknown[]): void;
@@ -202,4 +215,22 @@ export class AutoLogService {
   }
 
   // #endregion Public Methods
+
+  // #region Protected Methods
+
+  protected onModuleInit(): void {
+    const libraryCtor = this.inquirerer?.constructor;
+    let library: string;
+    if (libraryCtor && libraryCtor[LOGGER_LIBRARY]) {
+      library = libraryCtor[LOGGER_LIBRARY];
+    }
+    this.context = `${library ?? this.application.description}:${
+      libraryCtor?.name ?? 'unknown'
+    }`;
+    if (!libraryCtor?.name) {
+      this.warn(`Partial context`);
+    }
+  }
+
+  // #endregion Protected Methods
 }

@@ -5,7 +5,6 @@ import {
   LightManagerService,
   RelayService,
   RoomController,
-  StateManager,
   StateManagerService,
 } from '@automagical/controller-logic';
 import {
@@ -58,20 +57,14 @@ const AUTO_STATE = 'AUTO_STATE';
   switches: ['switch.desk_light', 'sensor.loft_pico'],
 })
 export class LoftController implements Partial<iRoomController> {
-  // #region Object Properties
-
-  @StateManager()
-  private readonly stateManager: StateManagerService;
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(
     @InjectLogger()
-    protected readonly logger: AutoLogService,
+    private readonly logger: AutoLogService,
     private readonly lightingController: LightingControllerService,
     private readonly entityManager: EntityManagerService,
+    private readonly stateManager: StateManagerService,
     private readonly remoteService: MediaPlayerDomainService,
     private readonly eventEmitter: EventEmitter2,
     private readonly switchService: SwitchDomainService,
@@ -86,7 +79,6 @@ export class LoftController implements Partial<iRoomController> {
 
   @Trace()
   public async areaOff(count: number): Promise<boolean> {
-    this.logger.info({ count });
     await this.stateManager.removeFlag(AUTO_STATE);
     if (count === 2) {
       await this.remoteService.turnOff(MONITOR);

@@ -57,26 +57,27 @@ export class UtilitiesModule {
     const decorated = createProvidersForDecorated();
     return {
       exports: [
-        TemplateService,
         AutoConfigService,
         AutoLogService,
-        ...decorated,
-        LocalsService,
         FetchService,
+        LocalsService,
+        LogExplorerService,
         SolarCalcService,
+        TemplateService,
+        ...decorated,
       ],
       global: true,
       imports: [CacheModule.register(), DiscoveryModule],
       module: UtilitiesModule,
       providers: [
-        TemplateService,
-        ...decorated,
-        LocalsService,
         AutoConfigService,
         AutoLogService,
         FetchService,
-        SolarCalcService,
+        LocalsService,
         LogExplorerService,
+        SolarCalcService,
+        TemplateService,
+        ...decorated,
       ],
     };
   }

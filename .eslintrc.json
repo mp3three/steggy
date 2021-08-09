@@ -128,7 +128,8 @@
     {
       "files": ["*.decorator.ts"],
       "rules": {
-        "security/detect-object-injection": "off"
+        "security/detect-object-injection": "off",
+        "radar/no-unused-collection": "off"
       }
     }
   ]

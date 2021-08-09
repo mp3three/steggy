@@ -2,12 +2,13 @@ import type { iRoomController } from '@automagical/contracts';
 import {
   CONTROLLER_STATE_EVENT,
   ControllerStates,
-  HiddenService,
+  ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
 import { HomeAssistantCoreService } from '@automagical/home-assistant';
 import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
-import { Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
+import { INQUIRER } from '@nestjs/core';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { each } from 'async';
 
@@ -22,17 +23,12 @@ import { RemoteAdapterService } from './remote-adapter.service';
  * - Implements dimming logic
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class LightingControllerService implements HiddenService {
-  // #region Object Properties
-
-  public controller: Partial<iRoomController>;
-  public settings: RoomControllerSettingsDTO;
-
-  // #endregion Object Properties
-
+export class LightingControllerService {
   // #region Constructors
 
   constructor(
+    @Inject(INQUIRER)
+    private readonly controller: Partial<iRoomController>,
     @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly hassCoreService: HomeAssistantCoreService,
@@ -42,6 +38,14 @@ export class LightingControllerService implements HiddenService {
   ) {}
 
   // #endregion Constructors
+
+  // #region Private Accessors
+
+  private get settings(): RoomControllerSettingsDTO {
+    return this.controller.constructor[ROOM_CONTROLLER_SETTINGS];
+  }
+
+  // #endregion Private Accessors
 
   // #region Public Methods
 

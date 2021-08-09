@@ -1,6 +1,5 @@
 import { iRoomController } from '@automagical/contracts';
 import {
-  LightingController,
   LightingControllerService,
   RelayService,
   RoomController,
@@ -17,17 +16,11 @@ import { Trace } from '@automagical/utilities';
   remote: 'sensor.bed_pico',
 })
 export class BedRemoteController implements Partial<iRoomController> {
-  // #region Object Properties
-
-  @LightingController()
-  public readonly controller: LightingControllerService;
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(
     private readonly switchService: SwitchDomainService,
+    public readonly controller: LightingControllerService,
     private readonly fanService: FanDomainService,
     private readonly relayService: RelayService,
   ) {}

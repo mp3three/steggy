@@ -4,7 +4,6 @@ import {
   LightManagerService,
   RelayService,
   RoomController,
-  StateManager,
   StateManagerService,
 } from '@automagical/controller-logic';
 import { MediaPlayerDomainService } from '@automagical/home-assistant';
@@ -28,18 +27,12 @@ const AUTO_STATE = 'AUTO_STATE';
   remote: 'sensor.games_pico',
 })
 export class GamesRoomController implements Partial<iRoomController> {
-  // #region Object Properties
-
-  @StateManager()
-  private readonly stateManager: StateManagerService;
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(
     @InjectLogger() private readonly logger: AutoLogService,
     private readonly remoteService: MediaPlayerDomainService,
+    private readonly stateManager: StateManagerService,
     private readonly lightingController: LightingControllerService,
     private readonly lightManager: LightManagerService,
     private readonly relayService: RelayService,

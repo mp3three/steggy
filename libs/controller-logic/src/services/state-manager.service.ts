@@ -1,6 +1,6 @@
 import { iRoomController } from '@automagical/contracts';
 import {
-  HiddenService,
+  ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
 import {
@@ -8,7 +8,8 @@ import {
   InjectCache,
   Trace,
 } from '@automagical/utilities';
-import { Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
+import { INQUIRER } from '@nestjs/core';
 
 const CACHE_KEY = (room, flag) => `FLAGS:${room}/${flag}`;
 /**
@@ -16,21 +17,24 @@ const CACHE_KEY = (room, flag) => `FLAGS:${room}/${flag}`;
  * Future expansion as specific room functionality demands it's own state management
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class StateManagerService implements HiddenService {
-  // #region Object Properties
-
-  public controller: Partial<iRoomController>;
-  public settings: RoomControllerSettingsDTO;
-
-  // #endregion Object Properties
-
+export class StateManagerService {
   // #region Constructors
 
   constructor(
+    @Inject(INQUIRER)
+    private readonly controller: Partial<iRoomController>,
     @InjectCache() private readonly cacheService: CacheManagerService,
   ) {}
 
   // #endregion Constructors
+
+  // #region Private Accessors
+
+  private get settings(): RoomControllerSettingsDTO {
+    return this.controller.constructor[ROOM_CONTROLLER_SETTINGS];
+  }
+
+  // #endregion Private Accessors
 
   // #region Public Methods
 
