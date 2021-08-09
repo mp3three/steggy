@@ -123,7 +123,9 @@ export class KunamiCodeService {
       if (size !== list.length) {
         return;
       }
-      const matches = list.every((item, index) => this.code[index] === item);
+      const matches = list.every((item, index) => {
+        return this.code[index] === item;
+      });
       if (!matches) {
         return;
       }

@@ -12,6 +12,7 @@ import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { ClassConstructor } from 'class-transformer';
 
+import { getLogContext } from '../../includes/logger';
 import { AutoLogService } from './auto-log.service';
 
 /**
@@ -69,11 +70,8 @@ export class LogExplorerService {
     }
     const originalMethod = instance[key];
     instance[key] = function (...parameters) {
-      AutoLogService.call(
-        'debug',
-        `${this.context}${instance.constructor.name}`,
-        `${options.message ?? `${this.context}#${key}`}`,
-      );
+      const message = options.message ?? `${this.context}#${key}`;
+      AutoLogService.call('debug', getLogContext(instance), message);
       return originalMethod.apply(this, parameters);
     };
   }
@@ -107,17 +105,10 @@ export class LogExplorerService {
     }
     const originalMethod = instance[key];
     instance[key] = function (...parameters) {
-      AutoLogService.call(
-        'trace',
-        `${this.context}${instance.constructor.name}:PRE`,
-        `${options.message ?? `${this.context}#${key}`}`,
-      );
+      const message = options.message ?? `${this.context}#${key}`;
+      AutoLogService.call('trace', getLogContext(instance) + ':PRE', message);
       const result = originalMethod.apply(this, parameters);
-      AutoLogService.call(
-        'trace',
-        `${this.context}${instance.constructor.name}:POST`,
-        `${options.message ?? `${this.context}#${key}`}`,
-      );
+      AutoLogService.call('trace', getLogContext(instance) + ':POST', message);
       return result;
     };
   }
@@ -133,11 +124,8 @@ export class LogExplorerService {
     }
     const originalMethod = instance[key];
     instance[key] = function (...parameters) {
-      AutoLogService.call(
-        'warn',
-        `${this.context}${instance.constructor.name}`,
-        `${options.message ?? `${this.context}#${key}`}`,
-      );
+      const message = options.message ?? `${this.context}#${key}`;
+      AutoLogService.call('warn', getLogContext(instance) + ':POST', message);
       return originalMethod.apply(this, parameters);
     };
   }

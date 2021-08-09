@@ -1,5 +1,7 @@
 import { iRoomController } from '@automagical/contracts';
+import { ControllerStates } from '@automagical/contracts/controller-logic';
 import {
+  KunamiCodeService,
   LightingControllerService,
   LightManagerService,
   RelayService,
@@ -32,6 +34,7 @@ export class GamesRoomController implements Partial<iRoomController> {
   constructor(
     @InjectLogger() private readonly logger: AutoLogService,
     private readonly remoteService: MediaPlayerDomainService,
+    private readonly kunamiService: KunamiCodeService,
     private readonly stateManager: StateManagerService,
     private readonly lightingController: LightingControllerService,
     private readonly lightManager: LightManagerService,
@@ -97,8 +100,16 @@ export class GamesRoomController implements Partial<iRoomController> {
     );
   }
 
-  @Trace()
   protected async onApplicationBootstrap(): Promise<void> {
+    this.kunamiService.addMatch(
+      [ControllerStates.favorite, ControllerStates.none],
+      () => {
+        this.favorite(1);
+      },
+    );
+    setInterval(() => {
+      this.fanLightSchedule();
+    }, 30000);
     await this.stateManager.removeFlag(AUTO_STATE);
     const GAMES_AUTO_MODE = await this.stateManager.hasFlag(AUTO_STATE);
     this.logger.debug({ GAMES_AUTO_MODE }, 'GAMES_AUTO_MODE');

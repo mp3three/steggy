@@ -47,7 +47,7 @@ export class AutoConfigService {
     }
     const baseObject = this.getBaseObject(path);
     const result = LoadConfigDefinition(baseObject.name);
-    const [group, name, ...suffix] = path.split('.');
+    const suffix = path.split('.').slice(2);
     const item = result?.get(suffix.join('.'));
     this.defaults.set(path, item?.default);
     return item?.default as T;

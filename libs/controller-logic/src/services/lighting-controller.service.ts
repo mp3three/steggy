@@ -122,8 +122,27 @@ export class LightingControllerService {
     });
   }
 
+  /**
+   * Brightness (as controlled by the dimmer) must remain in the 5-100% range
+   *
+   * To go under 5, turn off the light instead
+   */
   @Trace()
-  public async init(): Promise<void> {
+  public async lightDim(entityId: string, amount: number): Promise<void> {
+    let { brightness } = await this.lightManager.getState(entityId);
+    brightness += amount;
+    if (brightness > 100) {
+      brightness = 100;
+    }
+    if (brightness < 5) {
+      brightness = 5;
+    }
+    this.logger.debug({ amount }, `${entityId} set brightness: ${brightness}%`);
+    return await this.circadianLight(entityId, brightness);
+  }
+
+  @Trace()
+  public async onApplicationBootstrap(): Promise<void> {
     if (this.settings?.remote) {
       this.remoteAdapter.watch(this.settings.remote);
       this.eventEmitter.on(
@@ -151,25 +170,6 @@ export class LightingControllerService {
         },
       );
     }
-  }
-
-  /**
-   * Brightness (as controlled by the dimmer) must remain in the 5-100% range
-   *
-   * To go under 5, turn off the light instead
-   */
-  @Trace()
-  public async lightDim(entityId: string, amount: number): Promise<void> {
-    let { brightness } = await this.lightManager.getState(entityId);
-    brightness += amount;
-    if (brightness > 100) {
-      brightness = 100;
-    }
-    if (brightness < 5) {
-      brightness = 5;
-    }
-    this.logger.debug({ amount }, `${entityId} set brightness: ${brightness}%`);
-    return await this.circadianLight(entityId, brightness);
   }
 
   // #endregion Public Methods

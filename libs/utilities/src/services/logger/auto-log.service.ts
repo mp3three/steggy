@@ -8,7 +8,6 @@ type LoggerFunction =
       ...arguments_: unknown[]
     ) => void);
 
-let logger = pino();
 import { ACTIVE_APPLICATION } from '@automagical/contracts/config';
 import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
 import { INQUIRER } from '@nestjs/core';
@@ -21,7 +20,7 @@ let prettyPrint = false;
 export class AutoLogService {
   // #region Static Properties
 
-  public static logger = logger;
+  public static logger = pino();
 
   // #endregion Static Properties
 
@@ -38,7 +37,7 @@ export class AutoLogService {
     context: string,
     ...parameters: Parameters<LoggerFunction>
   ): void {
-    if (method === 'trace' && logger.level !== 'trace') {
+    if (method === 'trace' && AutoLogService.logger.level !== 'trace') {
       // early shortcut
       return;
     }
@@ -56,32 +55,34 @@ export class AutoLogService {
     return {
       error: (message, context) => {
         if (!prettyPrint) {
-          logger.error({ context }, message);
+          AutoLogService.logger.error({ context }, message);
           return;
         }
-        logger.error(chalk`{bold ${NEST}:${context}} ${message}`);
+        AutoLogService.logger.error(
+          chalk`{bold ${NEST}:${context}} ${message}`,
+        );
       },
       log: (message, context) => {
         if (!prettyPrint) {
-          logger.info({ context }, message);
+          AutoLogService.logger.info({ context }, message);
           return;
         }
-        logger.info(chalk`{bold ${NEST}:${context}} ${message}`);
+        AutoLogService.logger.info(chalk`{bold ${NEST}:${context}} ${message}`);
       },
       warn: (message, context) => {
         if (!prettyPrint) {
-          logger.warn({ context }, message);
+          AutoLogService.logger.warn({ context }, message);
           return;
         }
-        logger.warn(chalk`{bold ${NEST}:${context}} ${message}`);
+        AutoLogService.logger.warn(chalk`{bold ${NEST}:${context}} ${message}`);
       },
     };
   }
 
   public static prettyLog(): void {
-    const level = logger.level;
+    const level = AutoLogService.logger.level;
     prettyPrint = true;
-    logger = pino({
+    AutoLogService.logger = pino({
       level,
       prettyPrint: {
         colorize: true,
@@ -116,7 +117,7 @@ export class AutoLogService {
         : {};
     const message =
       typeof parameters[0] === 'string' ? (parameters.shift() as string) : ``;
-    logger[method](
+    AutoLogService.logger[method](
       {
         context,
         ...data,
@@ -132,14 +133,14 @@ export class AutoLogService {
     parameters: Parameters<LoggerFunction>,
   ): void {
     if (typeof parameters[0] === 'object') {
-      logger[method](
+      AutoLogService.logger[method](
         parameters.shift() as Record<string, unknown>,
         chalk`{bold ${context}} ${parameters.shift()}`,
         ...parameters,
       );
       return;
     }
-    logger[method](
+    AutoLogService.logger[method](
       chalk`{bold ${context}} ${parameters.shift()}`,
       ...parameters,
     );
@@ -219,17 +220,17 @@ export class AutoLogService {
   // #region Protected Methods
 
   protected onModuleInit(): void {
-    const libraryCtor = this.inquirerer?.constructor;
+    if (!this.inquirerer) {
+      return;
+    }
+    const libraryCtor = this.inquirerer.constructor;
     let library: string;
-    if (libraryCtor && libraryCtor[LOGGER_LIBRARY]) {
+    if (libraryCtor[LOGGER_LIBRARY]) {
       library = libraryCtor[LOGGER_LIBRARY];
     }
     this.context = `${library ?? this.application.description}:${
       libraryCtor?.name ?? 'unknown'
     }`;
-    if (!libraryCtor?.name) {
-      this.warn(`Partial context`);
-    }
   }
 
   // #endregion Protected Methods
