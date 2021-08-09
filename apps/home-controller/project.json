@@ -9,11 +9,6 @@
         "buildTarget": "home-controller:build",
         "inspect": "inspect",
         "port": 33334
-      },
-      "configurations": {
-        "brk": {
-          "inspect": "inspect-brk"
-        }
       }
     },
     "build": {

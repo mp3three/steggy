@@ -13,7 +13,7 @@ import { DiscoveryModule } from '@nestjs/core';
 import { NextFunction } from 'express';
 import pinoHttp from 'pino-http';
 
-import { createProvidersForDecorated } from '../decorators';
+import { INJECT_LOGGER_CONTEXTS } from '../decorators';
 import { LoggableModule } from '../decorators/logger/loggable-module.decorator';
 import { expressContextMiddleware, expressContextSetValue } from '../includes';
 import {
@@ -54,7 +54,7 @@ export class UtilitiesModule {
   // #region Public Static Methods
 
   public static forRoot(): DynamicModule {
-    const decorated = createProvidersForDecorated();
+    const decorated = [...INJECT_LOGGER_CONTEXTS];
     return {
       exports: [
         AutoConfigService,

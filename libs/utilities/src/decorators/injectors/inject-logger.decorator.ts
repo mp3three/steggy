@@ -4,25 +4,19 @@ import { ClassConstructor } from 'class-transformer';
 
 import { AutoLogService } from '../../services/logger';
 
-export const contextNames = new Set<string>();
+export const INJECT_LOGGER_CONTEXTS = new Set<Provider<AutoLogService>>();
 const token = 'AutoLogger';
 
 export function InjectLogger(): ParameterDecorator {
   return function (target: ClassConstructor<unknown>, key, index) {
-    contextNames.add(target.name);
-    return Inject(`${token}:${target.name}`)(target, key, index);
-  };
-}
-
-export function createProvidersForDecorated(): Provider<AutoLogService>[] {
-  return [...contextNames.values()].map((context) => {
-    return {
+    INJECT_LOGGER_CONTEXTS.add({
       inject: [AutoLogService, ACTIVE_APPLICATION],
-      provide: `${token}:${context}`,
+      provide: `${token}:${target.name}`,
       useFactory: (logger: AutoLogService, application: symbol) => {
-        logger['context'] = `${application.description}:${context}`;
+        logger['context'] = `${application.description}:${target.name}`;
         return logger;
       },
-    };
-  });
+    });
+    return Inject(`${token}:${target.name}`)(target, key, index);
+  };
 }

@@ -1,32 +1,9 @@
-import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
+import { TRACE_LOG, TraceLogDTO } from '@automagical/contracts/utilities';
+import { SetMetadata } from '@nestjs/common';
 
-import { AutoLogService } from '../../services';
-
-export function Trace(message?: string): MethodDecorator {
-  return function (
-    target: unknown,
-    propertyKey: string,
-    descriptor: PropertyDescriptor,
-  ): unknown {
-    const originalMethod = descriptor.value;
-    let prefix = target.constructor[LOGGER_LIBRARY] ?? '';
-    if (prefix) {
-      prefix = `${prefix}:`;
-    }
-    descriptor.value = function (...parameters) {
-      AutoLogService.call(
-        'trace',
-        `${prefix}${target.constructor.name}`,
-        `${message ?? `${prefix}${propertyKey}`} pre`,
-      );
-      const result = originalMethod.apply(this, parameters);
-      AutoLogService.call(
-        'trace',
-        `${prefix}${target.constructor.name}`,
-        `${message ?? `${prefix}${propertyKey}`} post`,
-      );
-      return result;
-    };
-    return descriptor;
-  };
+export function Trace(message?: string | TraceLogDTO): MethodDecorator {
+  return SetMetadata(
+    TRACE_LOG,
+    typeof message === 'string' ? { message } : message ?? {},
+  );
 }
