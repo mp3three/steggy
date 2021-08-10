@@ -2,7 +2,6 @@ import { iRoomController } from '@automagical/contracts';
 import { ControllerStates } from '@automagical/contracts/controller-logic';
 import {
   KunamiCodeService,
-  LightingControllerService,
   LightManagerService,
   RelayService,
   RoomController,
@@ -29,16 +28,15 @@ const remote = 'sensor.games_pico';
   name: 'games',
   remote,
 })
-export class GamesRoomController implements Partial<iRoomController> {
+export class GamesRoomController implements iRoomController {
   // #region Constructors
 
   constructor(
+    public readonly lightManager: LightManagerService,
     private readonly logger: AutoLogService,
     private readonly remoteService: MediaPlayerDomainService,
     private readonly kunamiService: KunamiCodeService,
     private readonly stateManager: StateManagerService,
-    private readonly lightingController: LightingControllerService,
-    private readonly lightManager: LightManagerService,
     private readonly relayService: RelayService,
   ) {}
 
@@ -60,7 +58,7 @@ export class GamesRoomController implements Partial<iRoomController> {
   public async favorite(count: number): Promise<boolean> {
     await this.stateManager.addFlag(AUTO_STATE);
     if (count === 1) {
-      await this.lightingController.circadianLight(
+      await this.lightManager.circadianLight(
         ['light.games_1', 'light.games_2', 'light.games_3', 'light.games_lamp'],
         30,
       );
@@ -87,7 +85,7 @@ export class GamesRoomController implements Partial<iRoomController> {
     }
     const target = this.fanAutoBrightness();
     if (target === 0) {
-      await this.lightManager.turnOff([
+      await this.lightManager.turnOffEntities([
         'light.games_1',
         'light.games_2',
         'light.games_3',
@@ -95,7 +93,7 @@ export class GamesRoomController implements Partial<iRoomController> {
       ]);
       return;
     }
-    await this.lightingController.circadianLight(
+    await this.lightManager.circadianLight(
       ['light.games_1', 'light.games_2', 'light.games_3', 'light.games_lamp'],
       target,
     );

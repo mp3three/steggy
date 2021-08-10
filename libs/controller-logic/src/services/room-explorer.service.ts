@@ -1,18 +1,16 @@
 import { iRoomController } from '@automagical/contracts';
 import {
   ControllerStates,
-  LIGHTING_CONTROLLER,
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
 import { AutoLogService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
-import { Injector } from '@nestjs/core/injector/injector';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
 import { KunamiCodeService } from './kunami-code.service';
-import { LightingControllerService } from './lighting-controller.service';
+import { RemoteAdapterService } from './remote-adapter.service';
 
 /**
  * This service searches through all the declared providers looking for rooms.
@@ -23,9 +21,7 @@ import { LightingControllerService } from './lighting-controller.service';
 export class RoomExplorerService {
   // #region Object Properties
 
-  public readonly rooms = new Set<InstanceWrapper>();
-
-  private readonly injector = new Injector();
+  public readonly rooms = new Set<InstanceWrapper<iRoomController>>();
 
   // #endregion Object Properties
 
@@ -34,18 +30,13 @@ export class RoomExplorerService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly discoveryService: DiscoveryService,
+    private readonly remoteAdapter: RemoteAdapterService,
     private readonly kunamiCode: KunamiCodeService,
   ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
-
-  public getController({
-    instance,
-  }: InstanceWrapper): LightingControllerService {
-    return instance[LIGHTING_CONTROLLER];
-  }
 
   public getSettings({ instance }: InstanceWrapper): RoomControllerSettingsDTO {
     const constructor = instance?.constructor ?? {};
@@ -58,7 +49,7 @@ export class RoomExplorerService {
 
   @Trace()
   protected onApplicationBootstrap(): void {
-    const providers: InstanceWrapper<Partial<iRoomController>>[] =
+    const providers: InstanceWrapper<iRoomController>[] =
       this.discoveryService.getProviders();
     providers.forEach(async (wrapper) => {
       const settings = this.getSettings(wrapper);
@@ -68,56 +59,67 @@ export class RoomExplorerService {
       this.logger.info(`Loading RoomController [${settings.friendlyName}]`);
       this.rooms.add(wrapper);
       const { instance } = wrapper;
-
-      this.kunamiCode.addMatch(
-        settings.remote,
-        new Map([
-          [
-            [
-              ControllerStates.on,
-              ControllerStates.none,
-              ControllerStates.on,
-              ControllerStates.none,
-            ],
-            () => {
-              if (!instance.areaOn) {
-                return;
-              }
-              instance.areaOn(2);
-            },
-          ],
-          [
-            [
-              ControllerStates.off,
-              ControllerStates.none,
-              ControllerStates.off,
-              ControllerStates.none,
-            ],
-            () => {
-              if (!instance.areaOn) {
-                return;
-              }
-              instance.areaOff(2);
-            },
-          ],
-          [
-            [
-              ControllerStates.favorite,
-              ControllerStates.none,
-              ControllerStates.favorite,
-              ControllerStates.none,
-            ],
-            () => {
-              if (!instance.areaOn) {
-                return;
-              }
-              instance.favorite(2);
-            },
-          ],
-        ]),
-      );
+      this.remoteAdapter.watch(settings.remote);
+      this.controllerDefaults(settings, instance);
     });
   }
 
   // #endregion Protected Methods
+
+  // #region Private Methods
+
+  private controllerDefaults(
+    settings: RoomControllerSettingsDTO,
+    instance: iRoomController,
+  ): void {
+    this.kunamiCode.addMatch(
+      settings.remote,
+      new Map([
+        [
+          [
+            ControllerStates.on,
+            ControllerStates.none,
+            ControllerStates.on,
+            ControllerStates.none,
+          ],
+          () => {
+            if (!instance.areaOn) {
+              return;
+            }
+            instance.areaOn(2);
+          },
+        ],
+        [
+          [
+            ControllerStates.off,
+            ControllerStates.none,
+            ControllerStates.off,
+            ControllerStates.none,
+          ],
+          () => {
+            if (!instance.areaOff) {
+              return;
+            }
+            instance.areaOff(2);
+          },
+        ],
+        [
+          [
+            ControllerStates.favorite,
+            ControllerStates.none,
+            ControllerStates.favorite,
+            ControllerStates.none,
+          ],
+          () => {
+            if (!instance.favorite) {
+              return;
+            }
+            instance.favorite(2);
+          },
+        ],
+      ]),
+    );
+  }
+
+  // #endregion Private Methods
 }

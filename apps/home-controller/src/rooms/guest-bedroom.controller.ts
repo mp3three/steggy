@@ -1,4 +1,8 @@
-import { RoomController } from '@automagical/controller-logic';
+import { iRoomController } from '@automagical/contracts';
+import {
+  LightManagerService,
+  RoomController,
+} from '@automagical/controller-logic';
 
 @RoomController({
   friendlyName: 'Guest Bedroom',
@@ -6,4 +10,10 @@ import { RoomController } from '@automagical/controller-logic';
   name: 'Guest',
   remote: 'sensor.guest_pico',
 })
-export class GuestBedroomController {}
+export class GuestBedroomController implements iRoomController {
+  // #region Constructors
+
+  constructor(public readonly lightManager: LightManagerService) {}
+
+  // #endregion Constructors
+}

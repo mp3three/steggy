@@ -9,7 +9,6 @@ import {
   CircadianService,
   ComplexLogicService,
   KunamiCodeService,
-  LightingControllerService,
   LightManagerService,
   RelayService,
   RemoteAdapterService,
@@ -18,7 +17,6 @@ import {
 } from '../services';
 
 const providers = [
-  LightingControllerService,
   LightManagerService,
   CircadianService,
   RelayService,

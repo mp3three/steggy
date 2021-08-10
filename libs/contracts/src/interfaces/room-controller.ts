@@ -37,7 +37,7 @@ export class ControllerSettings {
   // #endregion Object Properties
 }
 
-export interface iRoomController {
+export interface iRoomControllerMethods {
   // #region Public Methods
 
   /**
@@ -68,4 +68,23 @@ export interface iRoomController {
   favorite(...parameters: unknown[]): Promise<boolean | void>;
 
   // #endregion Public Methods
+}
+
+export interface iLightManager {
+  // #region Public Methods
+
+  areaOff(): Promise<void>;
+  areaOn(): Promise<void>;
+  dimDown(): Promise<void>;
+  dimUp(): Promise<void>;
+
+  // #endregion Public Methods
+}
+
+export interface iRoomController extends Partial<iRoomControllerMethods> {
+  // #region Object Properties
+
+  lightManager: iLightManager;
+
+  // #endregion Object Properties
 }

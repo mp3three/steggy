@@ -25,8 +25,7 @@ export class RelayService {
       if (!rooms.includes(settings.name)) {
         return;
       }
-      const controller = this.roomExplorer.getController(wrapper);
-      await controller.dimDown();
+      await wrapper.instance.lightManager.dimDown();
     });
   }
 
@@ -37,8 +36,7 @@ export class RelayService {
       if (!rooms.includes(settings.name)) {
         return;
       }
-      const controller = this.roomExplorer.getController(wrapper);
-      await controller.dimUp();
+      await wrapper.instance.lightManager.dimUp();
     });
   }
 
@@ -49,8 +47,7 @@ export class RelayService {
       if (!rooms.includes(settings.name)) {
         return;
       }
-      const controller = this.roomExplorer.getController(wrapper);
-      await controller.areaOff();
+      await wrapper.instance.lightManager.areaOff();
     });
   }
 
@@ -61,8 +58,7 @@ export class RelayService {
       if (!rooms.includes(settings.name)) {
         return;
       }
-      const controller = this.roomExplorer.getController(wrapper);
-      await controller.areaOn();
+      await wrapper.instance.lightManager.areaOn();
     });
   }
 

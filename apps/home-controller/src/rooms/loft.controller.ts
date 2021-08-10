@@ -3,7 +3,6 @@ import { ControllerStates } from '@automagical/contracts/controller-logic';
 import { LightStateDTO } from '@automagical/contracts/home-assistant';
 import {
   KunamiCodeService,
-  LightingControllerService,
   LightManagerService,
   RelayService,
   RoomController,
@@ -55,20 +54,19 @@ const remote = 'sensor.loft_pico';
   remote,
   switches: ['switch.desk_light', 'sensor.loft_pico'],
 })
-export class LoftController implements Partial<iRoomController> {
+export class LoftController implements iRoomController {
   // #region Constructors
 
   constructor(
+    public readonly lightManager: LightManagerService,
     private readonly logger: AutoLogService,
     private readonly kunamiService: KunamiCodeService,
-    private readonly lightingController: LightingControllerService,
     private readonly entityManager: EntityManagerService,
     private readonly stateManager: StateManagerService,
     private readonly remoteService: MediaPlayerDomainService,
     private readonly eventEmitter: EventEmitter2,
     private readonly switchService: SwitchDomainService,
     private readonly fanService: FanDomainService,
-    private readonly lightManager: LightManagerService,
     private readonly relayService: RelayService,
   ) {}
 
@@ -78,6 +76,9 @@ export class LoftController implements Partial<iRoomController> {
 
   @Trace()
   public async areaOff(count: number): Promise<boolean> {
+    if (!this.stateManager) {
+      return;
+    }
     await this.stateManager.removeFlag(AUTO_STATE);
     if (count === 2) {
       await this.remoteService.turnOff(MONITOR);
@@ -101,18 +102,15 @@ export class LoftController implements Partial<iRoomController> {
     const hour = dayjs().hour();
     if (count === 1) {
       // Set fan
-      await this.lightingController.circadianLight(
+      await this.lightManager.circadianLight(
         FAN_LIGHTS,
         this.fanAutoBrightness(),
       );
       // Set panel
       const panelBrightness = this.panelAutoBrightness();
       await (panelBrightness === 0
-        ? this.lightManager.turnOff(PANEL_LIGHTS)
-        : this.lightingController.circadianLight(
-            PANEL_LIGHTS,
-            panelBrightness,
-          ));
+        ? this.lightManager.turnOffEntities(PANEL_LIGHTS)
+        : this.lightManager.circadianLight(PANEL_LIGHTS, panelBrightness));
       // Set desk light
       await (hour === 23
         ? this.switchService.turnOff(['switch.desk_light'])
@@ -148,10 +146,10 @@ export class LoftController implements Partial<iRoomController> {
     }
     const target = this.fanAutoBrightness();
     if (target === 0) {
-      await this.lightManager.turnOff(FAN_LIGHTS);
+      await this.lightManager.turnOffEntities(FAN_LIGHTS);
       return;
     }
-    await this.lightingController.circadianLight(FAN_LIGHTS, target);
+    await this.lightManager.circadianLight(FAN_LIGHTS, target);
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS)
@@ -164,13 +162,13 @@ export class LoftController implements Partial<iRoomController> {
       PANEL_LIGHTS,
     );
     if (brightness === 0) {
-      await this.lightManager.turnOff(PANEL_LIGHTS);
+      await this.lightManager.turnOffEntities(PANEL_LIGHTS);
       return;
     }
     if (light.attributes.brightness === brightness) {
       return;
     }
-    await this.lightingController.circadianLight(PANEL_LIGHTS, brightness);
+    await this.lightManager.circadianLight(PANEL_LIGHTS, brightness);
   }
 
   @Cron('0 0 22 * * *')
@@ -207,11 +205,6 @@ export class LoftController implements Partial<iRoomController> {
         ],
       ]),
     );
-    setInterval(() => {
-      this.fanLightSchedule();
-    }, 30000);
-    const LOFT_AUTO_MODE = await this.stateManager.hasFlag(AUTO_STATE);
-    this.logger.debug({ LOFT_AUTO_MODE }, 'Loft Flags');
   }
 
   // #endregion Protected Methods

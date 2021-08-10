@@ -1,6 +1,6 @@
 import { iRoomController } from '@automagical/contracts';
 import {
-  LightingControllerService,
+  LightManagerService,
   RoomController,
 } from '@automagical/controller-logic';
 import {
@@ -21,11 +21,11 @@ import { Trace } from '@automagical/utilities';
   remote: 'sensor.bedroom_pico',
   switches: ['switch.womp'],
 })
-export class MasterBedroomController implements Partial<iRoomController> {
+export class MasterBedroomController implements iRoomController {
   // #region Constructors
 
   constructor(
-    private readonly lightingController: LightingControllerService,
+    public readonly lightManager: LightManagerService,
     private readonly switchService: SwitchDomainService,
     private readonly lightService: LightDomainService,
   ) {}
@@ -43,7 +43,7 @@ export class MasterBedroomController implements Partial<iRoomController> {
       'light.bedroom_fan_bottom_left',
       'light.bedroom_fan_bottom_right',
     ]);
-    await this.lightingController.circadianLight(['light.speaker_light'], 40);
+    await this.lightManager.circadianLight(['light.speaker_light'], 40);
     return false;
   }
 
