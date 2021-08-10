@@ -1,7 +1,7 @@
-import { iRoomController } from '@automagical/contracts';
 import {
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
+  iRoomController,
 } from '@automagical/contracts/controller-logic';
 import {
   AutoLogService,

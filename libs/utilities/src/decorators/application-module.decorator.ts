@@ -1,8 +1,8 @@
-import { iRoomController } from '@automagical/contracts';
 import {
   ACTIVE_APPLICATION,
   AutomagicalConfig,
 } from '@automagical/contracts/config';
+import type { iRoomController } from '@automagical/contracts/controller-logic';
 import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
 import { ModuleMetadata, Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';

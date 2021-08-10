@@ -1,7 +1,7 @@
-import { iRoomController } from '@automagical/contracts';
+import { iRoomController } from '@automagical/contracts/controller-logic';
 import {
+  KunamiCodeService,
   LightManagerService,
-  RelayService,
   RoomController,
 } from '@automagical/controller-logic';
 import {
@@ -20,9 +20,9 @@ export class BedRemoteController implements iRoomController {
 
   constructor(
     public readonly lightManager: LightManagerService,
+    public readonly kunamiService: KunamiCodeService,
     private readonly switchService: SwitchDomainService,
     private readonly fanService: FanDomainService,
-    private readonly relayService: RelayService,
   ) {}
 
   // #endregion Constructors
@@ -31,12 +31,12 @@ export class BedRemoteController implements iRoomController {
 
   @Trace()
   public async areaOff(): Promise<void> {
-    await this.relayService.turnOff(['master']);
+    // await this.relayService.turnOff(['master']);
   }
 
   @Trace()
   public async areaOn(): Promise<void> {
-    await this.relayService.turnOn(['master']);
+    // await this.relayService.turnOn(['master']);
   }
 
   @Trace()

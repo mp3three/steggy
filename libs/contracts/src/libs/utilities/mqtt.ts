@@ -2,7 +2,7 @@ import { LoggerService, Type } from '@nestjs/common';
 import { ModuleMetadata } from '@nestjs/common/interfaces';
 import { IClientOptions } from 'mqtt';
 
-import { iRoomController } from '../../interfaces';
+import { iRoomController } from '../controller-logic';
 
 export type MqttMessageTransformer = (payload: Buffer) => unknown;
 

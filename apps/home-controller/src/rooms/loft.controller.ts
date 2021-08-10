@@ -1,10 +1,11 @@
-import { iRoomController } from '@automagical/contracts';
-import { ControllerStates } from '@automagical/contracts/controller-logic';
+import {
+  ControllerStates,
+  iRoomController,
+} from '@automagical/contracts/controller-logic';
 import { LightStateDTO } from '@automagical/contracts/home-assistant';
 import {
   KunamiCodeService,
   LightManagerService,
-  RelayService,
   RoomController,
   StateManagerService,
 } from '@automagical/controller-logic';
@@ -19,7 +20,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 
-import { GLOBAL_TRANSITION, ROOM_NAMES } from '../typings';
+import { GLOBAL_TRANSITION } from '../typings';
 
 const MONITOR = 'media_player.monitor';
 const PANEL_LIGHTS = ['light.loft_wall_bottom', 'light.loft_wall_top'];
@@ -59,15 +60,14 @@ export class LoftController implements iRoomController {
 
   constructor(
     public readonly lightManager: LightManagerService,
+    public readonly kunamiService: KunamiCodeService,
     private readonly logger: AutoLogService,
-    private readonly kunamiService: KunamiCodeService,
     private readonly entityManager: EntityManagerService,
     private readonly stateManager: StateManagerService,
     private readonly remoteService: MediaPlayerDomainService,
     private readonly eventEmitter: EventEmitter2,
     private readonly switchService: SwitchDomainService,
     private readonly fanService: FanDomainService,
-    private readonly relayService: RelayService,
   ) {}
 
   // #endregion Constructors
@@ -125,11 +125,11 @@ export class LoftController implements iRoomController {
     }
     if (count === 2) {
       await this.remoteService.turnOn(MONITOR);
-      await this.relayService.turnOff([
-        ROOM_NAMES.master,
-        ROOM_NAMES.downstairs,
-        ROOM_NAMES.games,
-      ]);
+      // await this.relayService.turnOff([
+      //   ROOM_NAMES.master,
+      //   ROOM_NAMES.downstairs,
+      //   ROOM_NAMES.games,
+      // ]);
     }
     return false;
   }
@@ -194,17 +194,15 @@ export class LoftController implements iRoomController {
 
   @Trace()
   protected async onModuleInit(): Promise<void> {
-    this.kunamiService.addMatch(
-      remote,
-      new Map([
-        [
-          [ControllerStates.favorite, ControllerStates.none],
-          () => {
-            this.favorite(1);
-          },
-        ],
-      ]),
-    );
+    this.kunamiService.addCommand({
+      activate: {
+        ignoreRelease: true,
+        states: [ControllerStates.favorite],
+      },
+      callback: () => {
+        this.favorite(1);
+      },
+    });
   }
 
   // #endregion Protected Methods

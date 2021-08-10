@@ -1,14 +1,16 @@
-import { iRoomController } from '@automagical/contracts';
-import { ControllerStates } from '@automagical/contracts/controller-logic';
+import {
+  ControllerStates,
+  iRoomController,
+} from '@automagical/contracts/controller-logic';
 import {
   KunamiCodeService,
   LightManagerService,
-  RelayService,
   RoomController,
   StateManagerService,
 } from '@automagical/controller-logic';
 import { MediaPlayerDomainService } from '@automagical/home-assistant';
-import { AutoLogService, Trace } from '@automagical/utilities';
+import { Trace } from '@automagical/utilities';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 
@@ -33,11 +35,10 @@ export class GamesRoomController implements iRoomController {
 
   constructor(
     public readonly lightManager: LightManagerService,
-    private readonly logger: AutoLogService,
+    public readonly kunamiService: KunamiCodeService,
     private readonly remoteService: MediaPlayerDomainService,
-    private readonly kunamiService: KunamiCodeService,
+    private readonly eventEmitter: EventEmitter2,
     private readonly stateManager: StateManagerService,
-    private readonly relayService: RelayService,
   ) {}
 
   // #endregion Constructors
@@ -65,7 +66,8 @@ export class GamesRoomController implements iRoomController {
       return false;
     }
     if (count === 2) {
-      await this.relayService.turnOff(['loft', 'downstairs', 'master']);
+      // ['loft', 'downstairs', 'master'].forEach(room => this.eventEmitter.emit(CONTROLLER_STATE_EVENT(entity_id, ControllerStates.down)))
+      // await this.relayService.turnOff();
       return false;
     }
     if (count === 3) {
@@ -100,22 +102,15 @@ export class GamesRoomController implements iRoomController {
   }
 
   protected async onApplicationBootstrap(): Promise<void> {
-    this.kunamiService.addMatch(
-      remote,
-      new Map([
-        [
-          [ControllerStates.favorite, ControllerStates.none],
-          () => {
-            this.favorite(1);
-          },
-        ],
-      ]),
-    );
-    setInterval(() => {
-      this.fanLightSchedule();
-    }, 30000);
-    const GAMES_AUTO_MODE = await this.stateManager.hasFlag(AUTO_STATE);
-    this.logger.debug({ GAMES_AUTO_MODE }, 'GAMES_AUTO_MODE');
+    this.kunamiService.addCommand({
+      activate: {
+        ignoreRelease: true,
+        states: [ControllerStates.favorite],
+      },
+      callback: () => {
+        this.favorite(1);
+      },
+    });
   }
 
   // #endregion Protected Methods

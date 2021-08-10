@@ -37,6 +37,7 @@ export class RemoteAdapterService {
     if (this.lookup.has(entity_id)) {
       return;
     }
+    this.logger.debug(`Watching remote {${entity_id}}`);
     this.eventEmitter.on(`${entity_id}/update`, ({ data }: HassEventDTO) => {
       const state = data.new_state;
       switch (state.state as PicoStates) {

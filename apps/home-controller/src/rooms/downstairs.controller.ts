@@ -1,4 +1,9 @@
-import { RoomController } from '@automagical/controller-logic';
+import { iRoomController } from '@automagical/contracts/controller-logic';
+import {
+  KunamiCodeService,
+  LightManagerService,
+  RoomController,
+} from '@automagical/controller-logic';
 
 @RoomController({
   accessories: ['switch.bar_light', 'switch.entryway_light'],
@@ -17,4 +22,13 @@ import { RoomController } from '@automagical/controller-logic';
     'switch.couch_light',
   ],
 })
-export class DownstairsController {}
+export class DownstairsController implements iRoomController {
+  // #region Constructors
+
+  constructor(
+    public readonly kunamiService: KunamiCodeService,
+    public readonly lightManager: LightManagerService,
+  ) {}
+
+  // #endregion Constructors
+}

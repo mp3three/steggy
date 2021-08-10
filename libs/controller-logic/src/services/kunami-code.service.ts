@@ -1,71 +1,82 @@
-import { iRoomController } from '@automagical/contracts';
+import type {
+  iKunamiService,
+  iRoomController,
+} from '@automagical/contracts/controller-logic';
 import {
   CONTROLLER_STATE_EVENT,
   ControllerStates,
+  KunamiCommandDTO,
 } from '@automagical/contracts/controller-logic';
-import { Inject, Injectable } from '@nestjs/common';
+import { AutoLogService } from '@automagical/utilities';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-const timeouts = new Map<
-  string,
-  {
-    timeout: ReturnType<typeof setTimeout>;
-    codes: ControllerStates[];
-  }
->();
 /**
  * For the tracking of multiple button press sequences on remotes
  */
-@Injectable()
-export class KunamiCodeService {
+@Injectable({ scope: Scope.TRANSIENT })
+export class KunamiCodeService implements iKunamiService {
+  // #region Object Properties
+
+  private callbacks = new Map<
+    ControllerStates[],
+    (states: ControllerStates[]) => void
+  >();
+  private codes: ControllerStates[];
+  private timeout: ReturnType<typeof setTimeout>;
+
+  // #endregion Object Properties
+
   // #region Constructors
 
   constructor(
-    @Inject(INQUIRER)
-    private readonly controller: Partial<iRoomController>,
+    @Inject(INQUIRER) private readonly room: iRoomController,
     private readonly eventEmitter: EventEmitter2,
+    private readonly logger: AutoLogService,
   ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
-  public addMatch(
-    remote: string,
-    callbacks: Map<ControllerStates[], () => void>,
-  ): void {
+  public addCommand(command: KunamiCommandDTO): void {
+    //
+  }
+
+  // #endregion Public Methods
+
+  // #region Protected Methods
+
+  protected onApplicationBootStrap(): void {
     this.eventEmitter.on(
-      CONTROLLER_STATE_EVENT(remote, '*'),
+      CONTROLLER_STATE_EVENT('this.room', '*'),
       (state: ControllerStates) => {
-        let codes = [];
-        if (timeouts.has(remote)) {
-          clearTimeout(timeouts.get(remote).timeout);
-          codes = timeouts.get(remote).codes;
+        this.logger.warn({ state });
+        if (this.timeout) {
+          clearTimeout(this.timeout);
         }
-        codes.push(state);
-        timeouts.set(remote, {
-          codes,
-          timeout: setTimeout(() => {
-            timeouts.delete(remote);
-          }, 1500),
-        });
-        const size = codes.length;
-        callbacks.forEach((callback, states) => {
+        this.codes.push(state);
+        this.logger.debug({ codes: this.codes }, 'added');
+        this.timeout = setTimeout(() => {
+          this.timeout = undefined;
+        }, 1500);
+        const size = this.codes.length;
+        this.callbacks.forEach((callback, states) => {
           if (size !== states.length) {
             return;
           }
           const matches = states.every((item, index) => {
-            return codes[index] === item;
+            return this.codes[index] === item;
           });
           if (!matches) {
             return;
           }
-          callback();
+          callback(this.codes);
         });
       },
     );
   }
 
-  // #endregion Public Methods
+  // #endregion Protected Methods
 }

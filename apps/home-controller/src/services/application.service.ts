@@ -1,4 +1,3 @@
-import { iRoomController } from '@automagical/contracts';
 import {
   HA_EVENT_STATE_CHANGE,
   HA_SOCKET_READY,
@@ -9,8 +8,6 @@ import {
   domain,
   HASS_DOMAINS,
 } from '@automagical/contracts/home-assistant';
-import { SET_ROOM_STATE } from '@automagical/contracts/utilities';
-import { RelayService } from '@automagical/controller-logic';
 import {
   EntityManagerService,
   LockDomainService,
@@ -22,7 +19,6 @@ import {
   Debug,
   InjectCache,
   OnMQTT,
-  Payload,
   SolarCalcService,
   Trace,
   Warn,
@@ -31,13 +27,11 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import dayjs from 'dayjs';
+
 import {
   GLOBAL_TRANSITION,
-  HOMEASSISTANT_LEAVE_HOME,
   HOMEASSISTANT_MOBILE_LOCK,
   HOMEASSISTANT_MOBILE_UNLOCK,
-  ROOM_FAVORITE,
-  ROOM_NAMES,
 } from '../typings';
 
 @Injectable()
@@ -58,7 +52,6 @@ export class ApplicationService {
     private readonly entityManager: EntityManagerService,
     private readonly lockService: LockDomainService,
     private readonly eventEmitterService: EventEmitter2,
-    private readonly relayService: RelayService,
   ) {}
 
   // #endregion Constructors
@@ -168,45 +161,45 @@ export class ApplicationService {
     );
   }
 
-  @OnMQTT(SET_ROOM_STATE)
-  protected async setRoomState(
-    @Payload() [room, state]: [ROOM_NAMES, keyof iRoomController],
-  ): Promise<void> {
-    switch (state) {
-      case 'areaOff':
-        await this.relayService.turnOff([room]);
-        return;
-      case 'areaOn':
-        await this.relayService.turnOn([room]);
-        return;
-      case 'dimUp':
-        await this.relayService.dimUp([room]);
-        return;
-      case 'dimDown':
-        await this.relayService.dimDown([room]);
-        return;
-      case 'favorite':
-        this.eventEmitterService.emit(ROOM_FAVORITE(room));
-        return;
-    }
-  }
-
-  /**
-   * Home Assistant relayed this request via a mobile app action
-   *
-   * Intended to lock up, turn off the lights, and send back verification
-   */
-  @OnMQTT(HOMEASSISTANT_LEAVE_HOME)
-  @Debug('Home Assistant => Leave Home')
-  protected async leaveHome(): Promise<void> {
-    await this.lockDoors();
-    await this.relayService.turnOff([
-      ROOM_NAMES.master,
-      ROOM_NAMES.loft,
-      ROOM_NAMES.downstairs,
-      ROOM_NAMES.guest,
-    ]);
-  }
-
   // #endregion Protected Methods
 }
+
+// @OnMQTT(SET_ROOM_STATE)
+// protected async setRoomState(
+//   @Payload() [room, state]: [ROOM_NAMES, keyof iRoomController],
+// ): Promise<void> {
+//   switch (state) {
+//     case 'areaOff':
+//       await this.relayService.turnOff([room]);
+//       return;
+//     case 'areaOn':
+//       await this.relayService.turnOn([room]);
+//       return;
+//     case 'dimUp':
+//       await this.relayService.dimUp([room]);
+//       return;
+//     case 'dimDown':
+//       await this.relayService.dimDown([room]);
+//       return;
+//     case 'favorite':
+//       this.eventEmitterService.emit(ROOM_FAVORITE(room));
+//       return;
+//   }
+// }
+
+// /**
+//  * Home Assistant relayed this request via a mobile app action
+//  *
+//  * Intended to lock up, turn off the lights, and send back verification
+//  */
+// @OnMQTT(HOMEASSISTANT_LEAVE_HOME)
+// @Debug('Home Assistant => Leave Home')
+// protected async leaveHome(): Promise<void> {
+//   await this.lockDoors();
+//   await this.relayService.turnOff([
+//     ROOM_NAMES.master,
+//     ROOM_NAMES.loft,
+//     ROOM_NAMES.downstairs,
+//     ROOM_NAMES.guest,
+//   ]);
+// }

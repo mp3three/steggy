@@ -1,6 +1,6 @@
-import { iRoomController } from '@automagical/contracts';
 import {
   ControllerStates,
+  iRoomController,
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
@@ -56,11 +56,11 @@ export class RoomExplorerService {
       if (!settings) {
         return;
       }
-      this.logger.info(`Loading RoomController [${settings.friendlyName}]`);
       this.rooms.add(wrapper);
       const { instance } = wrapper;
       this.remoteAdapter.watch(settings.remote);
       this.controllerDefaults(settings, instance);
+      this.logger.info(`[${settings.friendlyName}] initialized`);
     });
   }
 
@@ -72,53 +72,42 @@ export class RoomExplorerService {
     settings: RoomControllerSettingsDTO,
     instance: iRoomController,
   ): void {
-    this.kunamiCode.addMatch(
-      settings.remote,
-      new Map([
-        [
-          [
-            ControllerStates.on,
-            ControllerStates.none,
-            ControllerStates.on,
-            ControllerStates.none,
-          ],
-          () => {
-            if (!instance.areaOn) {
-              return;
-            }
-            instance.areaOn(2);
-          },
-        ],
-        [
-          [
-            ControllerStates.off,
-            ControllerStates.none,
-            ControllerStates.off,
-            ControllerStates.none,
-          ],
-          () => {
-            if (!instance.areaOff) {
-              return;
-            }
-            instance.areaOff(2);
-          },
-        ],
-        [
-          [
-            ControllerStates.favorite,
-            ControllerStates.none,
-            ControllerStates.favorite,
-            ControllerStates.none,
-          ],
-          () => {
-            if (!instance.favorite) {
-              return;
-            }
-            instance.favorite(2);
-          },
-        ],
-      ]),
-    );
+    this.kunamiCode.addCommand({
+      activate: {
+        ignoreRelease: true,
+        states: [ControllerStates.on, ControllerStates.on],
+      },
+      callback: () => {
+        if (!instance.areaOn) {
+          return;
+        }
+        instance.areaOn(2);
+      },
+    });
+    this.kunamiCode.addCommand({
+      activate: {
+        ignoreRelease: true,
+        states: [ControllerStates.off, ControllerStates.off],
+      },
+      callback: () => {
+        if (!instance.areaOn) {
+          return;
+        }
+        instance.areaOff(2);
+      },
+    });
+    this.kunamiCode.addCommand({
+      activate: {
+        ignoreRelease: true,
+        states: [ControllerStates.favorite, ControllerStates.favorite],
+      },
+      callback: () => {
+        if (!instance.areaOn) {
+          return;
+        }
+        instance.favorite(2);
+      },
+    });
   }
 
   // #endregion Private Methods

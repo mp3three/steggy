@@ -26,13 +26,16 @@ const methodColors = new Map<
   'bgBlue' | 'bgYellow' | 'bgGreen' | 'bgRed' | 'bgMagenta'
 >([
   ['debug', 'bgBlue'],
-  ['warn', 'bgBlue'],
+  ['warn', 'bgYellow'],
   ['error', 'bgRed'],
   ['info', 'bgGreen'],
   ['fatal', 'bgMagenta'],
 ]);
 
 const prettyFormatMessage = (message: string): string => {
+  if (!message) {
+    return ``;
+  }
   let matches = message.match(new RegExp('([^ ]+#[^ ]+)'));
   if (matches) {
     message = message.replace(matches[0], chalk.bold(matches[0]));

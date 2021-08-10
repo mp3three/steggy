@@ -1,4 +1,4 @@
-import { iRoomController } from '@automagical/contracts';
+import type { iRoomController } from '@automagical/contracts/controller-logic';
 import {
   CIRCADIAN_UPDATE,
   CONTROLLER_STATE_EVENT,
@@ -35,7 +35,7 @@ const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
 export class LightManagerService {
   // #region Object Properties
 
-  private controller: Partial<iRoomController>;
+  private controller: iRoomController;
 
   // #endregion Object Properties
 
@@ -93,7 +93,7 @@ export class LightManagerService {
   }
 
   @Trace()
-  public bind(controller: Partial<iRoomController>): void {
+  public bind(controller: iRoomController): void {
     this.controller = controller;
     this.eventEmitter.on(
       CONTROLLER_STATE_EVENT(this.settings.remote, ControllerStates.on),

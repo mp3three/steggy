@@ -27,6 +27,7 @@ export class LogExplorerService {
   // #region Constructors
 
   constructor(
+    private readonly logger: AutoLogService,
     private readonly discoveryService: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
@@ -40,6 +41,7 @@ export class LogExplorerService {
     const providers = this.discoveryService.getProviders();
     this.mergeLoggerLibraries(providers);
     this.annotationLoggers(providers);
+    this.logger.info(`Logger initialized`);
   }
 
   // #endregion Protected Methods

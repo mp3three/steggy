@@ -1,5 +1,6 @@
-import { iRoomController } from '@automagical/contracts';
+import { iRoomController } from '@automagical/contracts/controller-logic';
 import {
+  KunamiCodeService,
   LightManagerService,
   RoomController,
 } from '@automagical/controller-logic';
@@ -26,6 +27,7 @@ export class MasterBedroomController implements iRoomController {
 
   constructor(
     public readonly lightManager: LightManagerService,
+    public readonly kunamiService: KunamiCodeService,
     private readonly switchService: SwitchDomainService,
     private readonly lightService: LightDomainService,
   ) {}

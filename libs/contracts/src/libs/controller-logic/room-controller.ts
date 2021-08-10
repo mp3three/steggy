@@ -1,41 +1,4 @@
-class RoomToRoomDTO {
-  // #region Object Properties
-
-  public name: string;
-  public type?: 'on' | 'off' | 'all';
-
-  // #endregion Object Properties
-}
-/**
- * For basic standardized modes
- *
- * Intended workflow pressing the turn on button:
- * - 1st press: turn on main lights / switches
- * - 2nd press: turn on nearby hallway / transition lights
- * - 3rd press: turn on common areas
- */
-export class RoomDeviceDTO {
-  // #region Object Properties
-
-  public comboCount: number;
-  public rooms?: (string | RoomToRoomDTO)[];
-  public target?: string[];
-
-  // #endregion Object Properties
-}
-
-export class ControllerSettings {
-  // #region Object Properties
-
-  public devices: RoomDeviceDTO[];
-  public dimPercent?: number;
-  /**
-   * default: 2500
-   */
-  public konamiTimeout?: number;
-
-  // #endregion Object Properties
-}
+import { ControllerStates } from './constants';
 
 export interface iRoomControllerMethods {
   // #region Public Methods
@@ -81,9 +44,50 @@ export interface iLightManager {
   // #endregion Public Methods
 }
 
+export class KunamiCallbackParametersDTO {
+  // #region Object Properties
+
+  public events: ControllerStates[];
+
+  // #endregion Object Properties
+}
+export class KunamiActivateDTO {
+  // #region Object Properties
+
+  /**
+   *
+   */
+  ignoreRelease?: boolean;
+  states?: ControllerStates[];
+
+  // #endregion Object Properties
+}
+
+export type KunamiCallback = (
+  data: KunamiCallbackParametersDTO,
+) => void | Promise<void>;
+
+export class KunamiCommandDTO {
+  // #region Object Properties
+
+  public activate: KunamiActivateDTO;
+  public callback: KunamiCallback;
+
+  // #endregion Object Properties
+}
+
+export interface iKunamiService {
+  // #region Public Methods
+
+  addCommand(command: KunamiCommandDTO): void;
+
+  // #endregion Public Methods
+}
+
 export interface iRoomController extends Partial<iRoomControllerMethods> {
   // #region Object Properties
 
+  kunamiService: iKunamiService;
   lightManager: iLightManager;
 
   // #endregion Object Properties

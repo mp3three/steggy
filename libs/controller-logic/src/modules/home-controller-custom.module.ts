@@ -7,10 +7,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { DynamicRoomProviders } from '../decorators';
 import {
   CircadianService,
-  ComplexLogicService,
   KunamiCodeService,
   LightManagerService,
-  RelayService,
   RemoteAdapterService,
   RoomExplorerService,
   StateManagerService,
@@ -19,11 +17,9 @@ import {
 const providers = [
   LightManagerService,
   CircadianService,
-  RelayService,
   RemoteAdapterService,
   RoomExplorerService,
   StateManagerService,
-  ComplexLogicService,
   KunamiCodeService,
 ];
 
