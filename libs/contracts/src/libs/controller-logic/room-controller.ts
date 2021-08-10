@@ -1,34 +1,26 @@
 import { ControllerStates } from './constants';
 
-export interface iRoomControllerMethods {
+export class RoomControllerParametersDTO {
+  // #region Object Properties
+
+  count?: number;
+
+  // #endregion Object Properties
+}
+
+export type RoomControllerMethodReturn =
+  | Promise<void>
+  | Promise<boolean>
+  | boolean
+  | void;
+
+export interface iRoomControllerMethods extends iLightManager {
   // #region Public Methods
 
   /**
-   * Return false to block built in off command
-   */
-  areaOff(...parameters: unknown[]): Promise<boolean | void>;
-  /**
-   * Return false to block built in on command
-   */
-  areaOn(...parameters: unknown[]): Promise<boolean | void>;
-  /**
-   * Got your own secret konami code?
-   *
-   * Return false to block additional processing, is run first
-   */
-  combo(...parameters: unknown[]): Promise<boolean | void>;
-  /**
-   * Return false to block built in dim up command
-   */
-  dimDown(...parameters: unknown[]): Promise<boolean | void>;
-  /**
-   * Return false to block built in dim down command
-   */
-  dimUp(...parameters: unknown[]): Promise<boolean | void>;
-  /**
    * Provide some logic for the favorite button in the middle
    */
-  favorite(...parameters: unknown[]): Promise<boolean | void>;
+  favorite(data: RoomControllerParametersDTO): RoomControllerMethodReturn;
 
   // #endregion Public Methods
 }
@@ -36,10 +28,10 @@ export interface iRoomControllerMethods {
 export interface iLightManager {
   // #region Public Methods
 
-  areaOff(): Promise<void>;
-  areaOn(): Promise<void>;
-  dimDown(): Promise<void>;
-  dimUp(): Promise<void>;
+  areaOff(data: RoomControllerParametersDTO): RoomControllerMethodReturn;
+  areaOn(data: RoomControllerParametersDTO): RoomControllerMethodReturn;
+  dimDown(data: RoomControllerParametersDTO): RoomControllerMethodReturn;
+  dimUp(data: RoomControllerParametersDTO): RoomControllerMethodReturn;
 
   // #endregion Public Methods
 }
@@ -72,6 +64,10 @@ export class KunamiCommandDTO {
 
   public activate: KunamiActivateDTO;
   public callback: KunamiCallback;
+  /**
+   * For quick identification by humans
+   */
+  public name: string;
 
   // #endregion Object Properties
 }

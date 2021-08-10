@@ -11,6 +11,7 @@ import { DiscoveryModule } from '@nestjs/core';
 import { NextFunction } from 'express';
 import pinoHttp from 'pino-http';
 
+import { injectedLoggers } from '../decorators/injectors';
 import { LibraryModule } from '../decorators/library-module.decorator';
 import { expressContextMiddleware, expressContextSetValue } from '../includes';
 import {
@@ -48,7 +49,7 @@ export class UtilitiesModule {
   // #region Public Static Methods
 
   public static forRoot(): DynamicModule {
-    const decorated = [];
+    const decorated = [...injectedLoggers.values()];
     return {
       exports: [
         AutoConfigService,

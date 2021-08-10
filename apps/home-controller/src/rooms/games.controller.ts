@@ -1,6 +1,7 @@
 import {
   ControllerStates,
   iRoomController,
+  RoomControllerParametersDTO,
 } from '@automagical/contracts/controller-logic';
 import {
   KunamiCodeService,
@@ -56,7 +57,9 @@ export class GamesRoomController implements iRoomController {
   }
 
   @Trace()
-  public async favorite(count: number): Promise<boolean> {
+  public async favorite({
+    count,
+  }: RoomControllerParametersDTO): Promise<boolean> {
     await this.stateManager.addFlag(AUTO_STATE);
     if (count === 1) {
       await this.lightManager.circadianLight(
@@ -108,8 +111,9 @@ export class GamesRoomController implements iRoomController {
         states: [ControllerStates.favorite],
       },
       callback: () => {
-        this.favorite(1);
+        this.favorite({ count: 1 });
       },
+      name: 'Favorite',
     });
   }
 

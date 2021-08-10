@@ -1,12 +1,13 @@
 import {
+  iRoomController,
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
-  iRoomController,
 } from '@automagical/contracts/controller-logic';
 import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
+  InjectLogger,
   Trace,
 } from '@automagical/utilities';
 import { Inject, Injectable, Scope } from '@nestjs/common';
@@ -26,7 +27,7 @@ export class StateManagerService {
     @Inject(INQUIRER)
     private readonly controller: Partial<iRoomController>,
     @InjectCache() private readonly cacheService: CacheManagerService,
-    private readonly logger: AutoLogService,
+    @InjectLogger() private readonly logger: AutoLogService,
   ) {}
 
   // #endregion Constructors

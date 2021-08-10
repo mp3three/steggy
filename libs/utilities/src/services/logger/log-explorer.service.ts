@@ -14,6 +14,7 @@ import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { ClassConstructor } from 'class-transformer';
 
+import { mappedContexts } from '../../decorators/injectors';
 import { getLogContext } from '../../includes/logger';
 import { AutoLogService } from './auto-log.service';
 
@@ -99,6 +100,11 @@ export class LogExplorerService {
           return;
         }
         const context = `${loggerContext}:${metatype.name}`;
+        mappedContexts.forEach((value, key) => {
+          if (value === metatype.name) {
+            mappedContexts.set(key, context);
+          }
+        });
         metatype[LOG_CONTEXT] ??= context;
         AutoLogService.call(
           'debug',

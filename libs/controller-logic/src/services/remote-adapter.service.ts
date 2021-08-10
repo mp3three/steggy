@@ -6,7 +6,7 @@ import {
   HassEventDTO,
   PicoStates,
 } from '@automagical/contracts/home-assistant';
-import { AutoLogService } from '@automagical/utilities';
+import { AutoLogService, InjectLogger } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 
@@ -25,6 +25,7 @@ export class RemoteAdapterService {
   // #region Constructors
 
   constructor(
+    @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter2,
   ) {}

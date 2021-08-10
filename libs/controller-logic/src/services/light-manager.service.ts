@@ -1,4 +1,8 @@
-import type { iRoomController } from '@automagical/contracts/controller-logic';
+import type {
+  iLightManager,
+  iRoomController,
+  RoomControllerParametersDTO,
+} from '@automagical/contracts/controller-logic';
 import {
   CIRCADIAN_UPDATE,
   CONTROLLER_STATE_EVENT,
@@ -17,7 +21,8 @@ import {
   InjectCache,
   Trace,
 } from '@automagical/utilities';
-import { Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
+import { INQUIRER } from '@nestjs/core';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { each } from 'async';
 
@@ -32,7 +37,7 @@ const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
  * - Management of the light temperature for lights flagged as circadian mode
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class LightManagerService {
+export class LightManagerService implements iLightManager {
   // #region Object Properties
 
   private controller: iRoomController;
@@ -63,62 +68,35 @@ export class LightManagerService {
   // #region Public Methods
 
   @Trace()
-  public async areaOff(accessories = false): Promise<void> {
+  public async areaOff(parameters: RoomControllerParametersDTO): Promise<void> {
+    const { count } = parameters;
     if (this.controller.areaOff) {
-      const result = await this.controller.areaOff();
+      const result = await this.controller.areaOff(parameters);
       if (result === false) {
         return;
       }
     }
     await this.turnOffEntities(this.settings.lights ?? []);
     await this.hassCoreService.turnOff(this.settings.switches ?? []);
-    if (accessories) {
+    if (count > 1) {
       await this.hassCoreService.turnOff(this.settings.accessories ?? []);
     }
   }
 
   @Trace()
-  public async areaOn(accessories = false): Promise<void> {
+  public async areaOn(parameters: RoomControllerParametersDTO): Promise<void> {
+    const { count } = parameters;
     if (this.controller.areaOn) {
-      const result = await this.controller.areaOn();
+      const result = await this.controller.areaOn(parameters);
       if (result === false) {
         return;
       }
     }
     await this.circadianLight(this.settings.lights ?? []);
     await this.hassCoreService.turnOn(this.settings.switches ?? []);
-    if (accessories) {
+    if (count > 1) {
       await this.hassCoreService.turnOn(this.settings.accessories ?? []);
     }
-  }
-
-  @Trace()
-  public bind(controller: iRoomController): void {
-    this.controller = controller;
-    this.eventEmitter.on(
-      CONTROLLER_STATE_EVENT(this.settings.remote, ControllerStates.on),
-      async () => {
-        await this.areaOn();
-      },
-    );
-    this.eventEmitter.on(
-      CONTROLLER_STATE_EVENT(this.settings.remote, ControllerStates.off),
-      async () => {
-        await this.areaOff();
-      },
-    );
-    this.eventEmitter.on(
-      CONTROLLER_STATE_EVENT(this.settings.remote, ControllerStates.up),
-      async () => {
-        await this.dimUp();
-      },
-    );
-    this.eventEmitter.on(
-      CONTROLLER_STATE_EVENT(this.settings.remote, ControllerStates.down),
-      async () => {
-        await this.dimDown();
-      },
-    );
   }
 
   @Trace()
@@ -141,8 +119,8 @@ export class LightManagerService {
   }
 
   @Trace()
-  public async dimDown(): Promise<void> {
-    if (this.controller.dimDown && !(await this.controller.dimDown())) {
+  public async dimDown(data: RoomControllerParametersDTO): Promise<void> {
+    if (this.controller.dimDown && !(await this.controller.dimDown(data))) {
       return;
     }
     const lights = await this.findDimmableLights();
@@ -153,8 +131,8 @@ export class LightManagerService {
   }
 
   @Trace()
-  public async dimUp(): Promise<void> {
-    if (this.controller.dimUp && !(await this.controller.dimUp())) {
+  public async dimUp(data: RoomControllerParametersDTO): Promise<void> {
+    if (this.controller.dimUp && !(await this.controller.dimUp(data))) {
       return;
     }
     const lights = await this.findDimmableLights();
@@ -244,6 +222,11 @@ export class LightManagerService {
   // #endregion Public Methods
 
   // #region Protected Methods
+
+  @Trace()
+  protected bind(controller: iRoomController): void {
+    this.controller = controller;
+  }
 
   protected async circadianLightingUpdate(kelvin: number): Promise<void> {
     const lights = await this.getActiveLights();

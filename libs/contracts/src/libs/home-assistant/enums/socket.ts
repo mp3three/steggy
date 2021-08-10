@@ -71,6 +71,7 @@ export enum HassSocketMessageTypes {
   event = 'event',
   result = 'result',
   pong = 'pong',
+  auth_invalid = 'auth_invalid',
 }
 
 // export enum HassServices {

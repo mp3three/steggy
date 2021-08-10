@@ -228,6 +228,10 @@ export class HASocketAPIService {
         }
         return;
 
+      case HassSocketMessageTypes.auth_invalid:
+        this.logger.error(message.message);
+        return;
+
       default:
         this.logger.warn(`Unknown websocket message type: ${message.type}`);
     }

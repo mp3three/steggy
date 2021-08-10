@@ -1,6 +1,7 @@
 import {
   ControllerStates,
   iRoomController,
+  RoomControllerParametersDTO,
 } from '@automagical/contracts/controller-logic';
 import { LightStateDTO } from '@automagical/contracts/home-assistant';
 import {
@@ -75,7 +76,9 @@ export class LoftController implements iRoomController {
   // #region Public Methods
 
   @Trace()
-  public async areaOff(count: number): Promise<boolean> {
+  public async areaOff({
+    count,
+  }: RoomControllerParametersDTO): Promise<boolean> {
     if (!this.stateManager) {
       return;
     }
@@ -97,7 +100,9 @@ export class LoftController implements iRoomController {
   }
 
   @Trace()
-  public async favorite(count: number): Promise<boolean> {
+  public async favorite({
+    count,
+  }: RoomControllerParametersDTO): Promise<boolean> {
     await this.stateManager.addFlag(AUTO_STATE);
     const hour = dayjs().hour();
     if (count === 1) {
@@ -200,8 +205,9 @@ export class LoftController implements iRoomController {
         states: [ControllerStates.favorite],
       },
       callback: () => {
-        this.favorite(1);
+        this.favorite({ count: 1 });
       },
+      name: 'Favorite',
     });
   }
 

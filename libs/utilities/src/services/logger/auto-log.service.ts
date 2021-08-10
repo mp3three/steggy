@@ -5,6 +5,8 @@ import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
 import pino from 'pino';
 
+import { mappedContexts } from '../../decorators/injectors';
+
 type LoggerFunction =
   | ((message: string, ...arguments_: unknown[]) => void)
   | ((
@@ -203,7 +205,7 @@ export class AutoLogService {
 
   // #region Object Properties
 
-  private context = '';
+  private contextId: string;
 
   // #endregion Object Properties
 
@@ -215,6 +217,17 @@ export class AutoLogService {
 
   // #endregion Constructors
 
+  // #region Private Accessors
+
+  private get context(): string {
+    if (this.contextId) {
+      return mappedContexts.get(this.contextId);
+    }
+    return this.inquirerer?.constructor[LOG_CONTEXT] ?? MISSING_CONTEXT;
+  }
+
+  // #endregion Private Accessors
+
   // #region Public Methods
 
   public debug(message: string, ...arguments_: unknown[]): void;
@@ -224,11 +237,7 @@ export class AutoLogService {
     ...arguments_: unknown[]
   ): void;
   public debug(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call(
-      'debug',
-      this.inquirerer?.constructor[LOG_CONTEXT] ?? MISSING_CONTEXT,
-      ...arguments_,
-    );
+    AutoLogService.call('debug', this.context, ...arguments_);
   }
 
   public error(message: string, ...arguments_: unknown[]): void;
@@ -238,11 +247,7 @@ export class AutoLogService {
     ...arguments_: unknown[]
   ): void;
   public error(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call(
-      'error',
-      this.inquirerer.constructor[LOG_CONTEXT],
-      ...arguments_,
-    );
+    AutoLogService.call('error', this.context, ...arguments_);
   }
 
   public fatal(message: string, ...arguments_: unknown[]): void;
@@ -252,11 +257,7 @@ export class AutoLogService {
     ...arguments_: unknown[]
   ): void;
   public fatal(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call(
-      'fatal',
-      this.inquirerer.constructor[LOG_CONTEXT],
-      ...arguments_,
-    );
+    AutoLogService.call('fatal', this.context, ...arguments_);
   }
 
   public info(message: string, ...arguments_: unknown[]): void;
@@ -266,11 +267,7 @@ export class AutoLogService {
     ...arguments_: unknown[]
   ): void;
   public info(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call(
-      'info',
-      this.inquirerer.constructor[LOG_CONTEXT],
-      ...arguments_,
-    );
+    AutoLogService.call('info', this.context, ...arguments_);
   }
 
   public warn(message: string, ...arguments_: unknown[]): void;
@@ -280,11 +277,7 @@ export class AutoLogService {
     ...arguments_: unknown[]
   ): void;
   public warn(...arguments_: Parameters<LoggerFunction>): void {
-    AutoLogService.call(
-      'warn',
-      this.inquirerer.constructor[LOG_CONTEXT],
-      ...arguments_,
-    );
+    AutoLogService.call('warn', this.context, ...arguments_);
   }
 
   // #endregion Public Methods

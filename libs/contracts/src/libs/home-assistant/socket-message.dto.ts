@@ -54,6 +54,7 @@ export class SocketMessageDTO {
 
   public event?: HassEventDTO;
   public id: string;
+  public message?: string;
   public result?: Record<string, unknown>;
   public type: HassSocketMessageTypes;
 

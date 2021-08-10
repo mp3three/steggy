@@ -4,12 +4,13 @@ import {
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
-import { AutoLogService, Trace } from '@automagical/utilities';
+import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
 import { KunamiCodeService } from './kunami-code.service';
+import { LightManagerService } from './light-manager.service';
 import { RemoteAdapterService } from './remote-adapter.service';
 
 /**
@@ -28,6 +29,7 @@ export class RoomExplorerService {
   // #region Constructors
 
   constructor(
+    @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly discoveryService: DiscoveryService,
     private readonly remoteAdapter: RemoteAdapterService,
@@ -48,7 +50,7 @@ export class RoomExplorerService {
   // #region Protected Methods
 
   @Trace()
-  protected onApplicationBootstrap(): void {
+  protected onModuleInit(): void {
     const providers: InstanceWrapper<iRoomController>[] =
       this.discoveryService.getProviders();
     providers.forEach(async (wrapper) => {
@@ -58,8 +60,10 @@ export class RoomExplorerService {
       }
       this.rooms.add(wrapper);
       const { instance } = wrapper;
+      instance.lightManager['bind'](instance);
+      instance.kunamiService['room'] = instance;
       this.remoteAdapter.watch(settings.remote);
-      this.controllerDefaults(settings, instance);
+      this.controllerDefaults(instance);
       this.logger.info(`[${settings.friendlyName}] initialized`);
     });
   }
@@ -68,45 +72,24 @@ export class RoomExplorerService {
 
   // #region Private Methods
 
-  private controllerDefaults(
-    settings: RoomControllerSettingsDTO,
-    instance: iRoomController,
-  ): void {
-    this.kunamiCode.addCommand({
-      activate: {
-        ignoreRelease: true,
-        states: [ControllerStates.on, ControllerStates.on],
-      },
-      callback: () => {
-        if (!instance.areaOn) {
-          return;
-        }
-        instance.areaOn(2);
-      },
-    });
-    this.kunamiCode.addCommand({
-      activate: {
-        ignoreRelease: true,
-        states: [ControllerStates.off, ControllerStates.off],
-      },
-      callback: () => {
-        if (!instance.areaOn) {
-          return;
-        }
-        instance.areaOff(2);
-      },
-    });
-    this.kunamiCode.addCommand({
-      activate: {
-        ignoreRelease: true,
-        states: [ControllerStates.favorite, ControllerStates.favorite],
-      },
-      callback: () => {
-        if (!instance.areaOn) {
-          return;
-        }
-        instance.favorite(2);
-      },
+  private controllerDefaults(instance: iRoomController): void {
+    const list = [
+      [ControllerStates.off, 'areaOff'],
+      [ControllerStates.on, 'areaOn'],
+    ] as [ControllerStates, keyof LightManagerService][];
+    Array.from({ length: 2 }).forEach((item, index) => {
+      list.forEach(([state, method]) => {
+        instance.kunamiService.addCommand({
+          activate: {
+            ignoreRelease: true,
+            states: Array.from({ length: index + 1 }).map(() => state),
+          },
+          callback: () => {
+            instance.lightManager[method]({ count: index + 1 });
+          },
+          name: `Quick ${method}`,
+        });
+      });
     });
   }
 

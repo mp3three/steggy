@@ -7,10 +7,12 @@ import {
   ControllerStates,
   KunamiCommandDTO,
 } from '@automagical/contracts/controller-logic';
-import { AutoLogService } from '@automagical/utilities';
+import { AutoLogService, InjectLogger } from '@automagical/utilities';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+
+import { RoomSettings } from '../includes/room-settings';
 
 /**
  * For the tracking of multiple button press sequences on remotes
@@ -19,10 +21,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 export class KunamiCodeService implements iKunamiService {
   // #region Object Properties
 
-  private callbacks = new Map<
-    ControllerStates[],
-    (states: ControllerStates[]) => void
-  >();
+  private callbacks = new Set<KunamiCommandDTO>();
   private codes: ControllerStates[];
   private timeout: ReturnType<typeof setTimeout>;
 
@@ -33,6 +32,7 @@ export class KunamiCodeService implements iKunamiService {
   constructor(
     @Inject(INQUIRER) private readonly room: iRoomController,
     private readonly eventEmitter: EventEmitter2,
+    @InjectLogger()
     private readonly logger: AutoLogService,
   ) {}
 
@@ -41,7 +41,12 @@ export class KunamiCodeService implements iKunamiService {
   // #region Public Methods
 
   public addCommand(command: KunamiCommandDTO): void {
-    //
+    this.logger.debug(
+      `[${RoomSettings(this.room).friendlyName}] Added Command {${
+        command.name
+      }}`,
+    );
+    this.callbacks.add(command);
   }
 
   // #endregion Public Methods
@@ -61,22 +66,41 @@ export class KunamiCodeService implements iKunamiService {
         this.timeout = setTimeout(() => {
           this.timeout = undefined;
         }, 1500);
-        const size = this.codes.length;
-        this.callbacks.forEach((callback, states) => {
-          if (size !== states.length) {
-            return;
-          }
-          const matches = states.every((item, index) => {
-            return this.codes[index] === item;
-          });
-          if (!matches) {
-            return;
-          }
-          callback(this.codes);
-        });
+        this.findMatches();
       },
     );
   }
 
   // #endregion Protected Methods
+
+  // #region Private Methods
+
+  private compare(a: ControllerStates[], b: ControllerStates[]): boolean {
+    if (a.length !== b.length) {
+      return false;
+    }
+    return a.every((code, index) => b[index] === code);
+  }
+
+  private findMatches(): void {
+    const fullCodes = this.codes;
+    const partialCodes = this.codes.filter(
+      (code) => code !== ControllerStates.off,
+    );
+    this.callbacks.forEach((kunamiCode) => {
+      const { callback, activate } = kunamiCode;
+      if (activate.ignoreRelease) {
+        if (!this.compare(partialCodes, activate?.states || [])) {
+          return;
+        }
+        return callback({ events: partialCodes });
+      }
+      if (!this.compare(fullCodes, activate?.states || [])) {
+        return;
+      }
+      callback({ events: fullCodes });
+    });
+  }
+
+  // #endregion Private Methods
 }
