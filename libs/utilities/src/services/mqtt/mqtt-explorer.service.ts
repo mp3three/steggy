@@ -5,17 +5,17 @@ import type {
 } from '@automagical/contracts/utilities';
 import {
   LOG_CONTEXT,
-  MQTT_CLIENT_INSTANCE,
   MQTT_SUBSCRIBE_OPTIONS,
   MQTT_SUBSCRIBER_PARAMS,
   MqttSubscriberParameter,
 } from '@automagical/contracts/utilities';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Client } from 'mqtt';
 import { Packet } from 'mqtt-packet';
 
+import { InjectMQTT } from '../../decorators/injectors/inject-mqtt.decorator';
 import { Trace } from '../../decorators/logger/trace.decorator';
 import { SAFE_CALLBACK } from '../../includes';
 import { AutoConfigService } from '../auto-config.service';
@@ -76,7 +76,7 @@ export class MQTTExplorerService {
 
   constructor(
     private readonly logger: AutoLogService,
-    @Inject(MQTT_CLIENT_INSTANCE) private readonly client: Client,
+    @InjectMQTT() private readonly client: Client,
     private readonly discoveryService: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
@@ -92,6 +92,35 @@ export class MQTTExplorerService {
     this.scanForSubscribers();
     this.listenForMessages();
     this.logger.info(`MQTT initialized`);
+  }
+
+  @Trace()
+  protected onModuleInit(): void {
+    const client = this.client;
+
+    client.on('connect', () => {
+      this.logger.info('MQTT connected');
+    });
+
+    client.on('disconnect', (packet) => {
+      this.logger.warn({ packet }, 'MQTT disconnected');
+    });
+
+    client.on('error', (error) => {
+      this.logger.error({ error }, 'MQTT error');
+    });
+
+    client.on('reconnect', () => {
+      this.logger.debug('MQTT reconnecting');
+    });
+
+    client.on('close', () => {
+      this.logger.debug('MQTT closed');
+    });
+
+    client.on('offline', () => {
+      this.logger.warn('MQTT offline');
+    });
   }
 
   // #endregion Protected Methods
@@ -125,7 +154,6 @@ export class MQTTExplorerService {
             if (this.configService.get(LOG_LEVEL) !== 'silent') {
               this.logger.info(`>>> MQTT Message ${topic}`);
             }
-
             subscriber.handle(
               ...this.mapParameters({
                 packet,
@@ -222,7 +250,7 @@ export class MQTTExplorerService {
             instance[key],
           );
           if (subscribeOptions) {
-            this.logger.info(
+            this.logger.debug(
               `${instance.constructor[LOG_CONTEXT]}#${key} subscribe {${subscribeOptions.topic}}`,
             );
             this.subscribe(

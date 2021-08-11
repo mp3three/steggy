@@ -45,7 +45,7 @@ export class EventsExplorerService {
           instance,
           prototype,
           (key: string) => {
-            this.subscribeToEventIfListener(instance, key);
+            this.subscribe(instance, key);
           },
         );
       });
@@ -71,10 +71,7 @@ export class EventsExplorerService {
   // #region Private Methods
 
   @Trace()
-  private subscribeToEventIfListener<T extends Record<string, Type>>(
-    instance: T,
-    key: keyof T,
-  ) {
+  private subscribe<T extends Record<string, Type>>(instance: T, key: keyof T) {
     const eventListenerMetadata = this.getEventHandlerMetadata(instance[key]);
     if (!eventListenerMetadata) {
       return;

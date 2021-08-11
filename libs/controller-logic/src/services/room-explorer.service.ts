@@ -58,7 +58,6 @@ export class RoomExplorerService {
 
   @Trace()
   protected onModuleInit(): void {
-    this.logger.info(`Loading rooms`);
     const providers: InstanceWrapper<iRoomController>[] =
       this.discoveryService.getProviders();
     providers.forEach(async (wrapper) => {
