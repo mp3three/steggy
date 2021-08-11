@@ -6,7 +6,7 @@ import {
   HassEventDTO,
   PicoStates,
 } from '@automagical/contracts/home-assistant';
-import { AutoLogService, InjectLogger } from '@automagical/utilities';
+import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 
@@ -34,7 +34,11 @@ export class RemoteAdapterService {
 
   // #region Public Methods
 
+  @Trace()
   public watch(entity_id: string): void {
+    if (!entity_id) {
+      return;
+    }
     if (this.lookup.has(entity_id)) {
       return;
     }

@@ -24,6 +24,7 @@ import {
   AutoConfigService,
   AutoLogService,
   EmitAfter,
+  InjectLogger,
   Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -48,7 +49,8 @@ export class HASocketAPIService {
   // #region Constructors
 
   constructor(
-    protected readonly logger: AutoLogService,
+    @InjectLogger()
+    private readonly logger: AutoLogService,
     private readonly configService: AutoConfigService,
     private readonly eventEmitter: EventEmitter2,
   ) {
@@ -141,6 +143,11 @@ export class HASocketAPIService {
 
   @Trace()
   protected async onModuleInit(): Promise<void> {
+    // Kick off the connection process
+    // Do not wait for it to actually complete through auth though
+    //
+    // That causes some race conditions that screw with the state managers
+    // The current flow forces the auth frames to get sent after app is started
     await this.initConnection();
   }
 
@@ -162,6 +169,7 @@ export class HASocketAPIService {
     }
     const url = new URL(this.configService.get(HOME_ASSISTANT_BASE_URL));
     try {
+      this.logger.debug('Creating new socket connection');
       this.connection = new WS(`wss://${url.hostname}/api/websocket`);
       this.connection.addEventListener('message', (message) => {
         this.onMessage(JSON.parse(message.data));
@@ -192,6 +200,7 @@ export class HASocketAPIService {
     const id = Number(message.id);
     switch (message.type as HassSocketMessageTypes) {
       case HassSocketMessageTypes.auth_required:
+        this.logger.debug(`Sending auth`);
         return await this.sendMsg({
           access_token: this.configService.get(HOME_ASSISTANT_TOKEN),
           type: HASSIO_WS_COMMAND.auth,
@@ -201,6 +210,7 @@ export class HASocketAPIService {
         await this.sendMsg({
           type: HASSIO_WS_COMMAND.subscribe_events,
         });
+        this.logger.info('Socket ready');
         this.eventEmitter.emit(HA_SOCKET_READY);
         return;
 
@@ -233,7 +243,8 @@ export class HASocketAPIService {
         return;
 
       default:
-        this.logger.warn(`Unknown websocket message type: ${message.type}`);
+        // Code error
+        this.logger.error(`Unknown websocket message type: ${message.type}`);
     }
   }
 

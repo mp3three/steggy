@@ -237,6 +237,7 @@ export class LightManagerService implements iLightManager {
 
   // #region Protected Methods
 
+  @Trace()
   protected async circadianLightingUpdate(kelvin: number): Promise<void> {
     const lights = await this.getActiveLights();
     await each(lights, async (id, callback) => {
@@ -249,6 +250,7 @@ export class LightManagerService implements iLightManager {
     });
   }
 
+  @Trace()
   protected onModuleInit(): void {
     this.eventEmitter.on(CIRCADIAN_UPDATE, (kelvin) =>
       this.circadianLightingUpdate(kelvin),

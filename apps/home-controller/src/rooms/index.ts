@@ -1,3 +1,4 @@
+export * from './dining.controller';
 export * from './downstairs.controller';
 export * from './games.controller';
 export * from './guest-bedroom.controller';

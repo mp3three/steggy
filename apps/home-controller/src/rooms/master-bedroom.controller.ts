@@ -13,8 +13,10 @@ import {
   LightDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { PEAT, Trace } from '@automagical/utilities';
+import { PEAT, SolarCalcService, Trace } from '@automagical/utilities';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+
+import { GLOBAL_TRANSITION } from '../typings';
 
 @RoomController({
   friendlyName: 'Master Bedroom',
@@ -37,6 +39,7 @@ export class MasterBedroomController implements iRoomController {
     private readonly switchService: SwitchDomainService,
     private readonly lightService: LightDomainService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly solarCalc: SolarCalcService,
   ) {}
 
   // #endregion Constructors
@@ -44,22 +47,52 @@ export class MasterBedroomController implements iRoomController {
   // #region Public Methods
 
   @Trace()
+  public areaOff({ count }: RoomControllerParametersDTO): void {
+    if (count === 3) {
+      ['games', 'loft', 'downstairs'].forEach((room) =>
+        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), { count }),
+      );
+      this.eventEmitter.emit(GLOBAL_TRANSITION);
+    }
+  }
+
+  @Trace()
+  public areaOn({ count }: RoomControllerParametersDTO): void {
+    if (count === 3) {
+      ['games', 'loft', 'downstairs'].forEach((room) =>
+        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOn'), { count }),
+      );
+      this.eventEmitter.emit(GLOBAL_TRANSITION);
+    }
+  }
+
+  @Trace()
   public async favorite({ count }: RoomControllerParametersDTO): Promise<void> {
     if (count === 1) {
-      await this.switchService.turnOff('switch.womp');
+      let brightness = 100;
+      if (this.solarCalc.IS_EVENING) {
+        await this.switchService.turnOff('switch.womp');
+        brightness = 40;
+      } else {
+        await this.switchService.turnOn('switch.womp');
+      }
       await this.lightService.turnOff([
         'light.bedroom_fan_top_left',
         'light.bedroom_fan_top_right',
         'light.bedroom_fan_bottom_left',
         'light.bedroom_fan_bottom_right',
       ]);
-      await this.lightManager.circadianLight(['light.speaker_light'], 40);
+      await this.lightManager.circadianLight(
+        ['light.speaker_light'],
+        brightness,
+      );
       return;
     }
     if (count === 2) {
       ['games', 'loft', 'downstairs'].forEach((room) =>
         this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), { count }),
       );
+      this.eventEmitter.emit(GLOBAL_TRANSITION);
     }
   }
 
@@ -67,6 +100,7 @@ export class MasterBedroomController implements iRoomController {
 
   // #region Protected Methods
 
+  @Trace()
   protected onModuleInit(): void {
     PEAT(2).forEach((count) => {
       this.kunamiService.addCommand({
@@ -79,6 +113,26 @@ export class MasterBedroomController implements iRoomController {
         },
         name: `Favorite (${count})`,
       });
+    });
+    this.kunamiService.addCommand({
+      activate: {
+        ignoreRelease: true,
+        states: PEAT(3, ControllerStates.off),
+      },
+      callback: async () => {
+        await this.areaOff({ count: 3 });
+      },
+      name: `areaOff (3)`,
+    });
+    this.kunamiService.addCommand({
+      activate: {
+        ignoreRelease: true,
+        states: PEAT(3, ControllerStates.on),
+      },
+      callback: async () => {
+        await this.areaOn({ count: 3 });
+      },
+      name: `areaOn (3)`,
     });
   }
 

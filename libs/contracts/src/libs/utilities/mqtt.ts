@@ -35,7 +35,7 @@ export interface MqttSubscriber {
   handle: (...parameters) => void;
   options: MqttSubscribeOptions;
   parameters: MqttSubscriberParameter[];
-  provider: unknown;
+  // provider: unknown;
   regexp: RegExp;
   route: string;
   topic: string;

@@ -4,6 +4,7 @@ import { HomeAssistantModule } from '@automagical/home-assistant';
 import { ApplicationModule } from '@automagical/utilities';
 
 import {
+  DiningController,
   DownstairsController,
   GamesRoomController,
   GuestBedroomController,
@@ -18,8 +19,9 @@ import { ApplicationService, GarageService } from '../services';
   imports: [HomeAssistantModule, HomeControllerCustomModule],
   providers: [ApplicationService, GarageService],
   rooms: [
-    DownstairsController,
     BedRemoteController,
+    DiningController,
+    DownstairsController,
     GamesRoomController,
     GuestBedroomController,
     LoftController,

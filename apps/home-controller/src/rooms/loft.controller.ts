@@ -1,6 +1,7 @@
 import {
   ControllerStates,
   iRoomController,
+  ROOM_COMMAND,
   RoomControllerParametersDTO,
 } from '@automagical/contracts/controller-logic';
 import { LightStateDTO } from '@automagical/contracts/home-assistant';
@@ -12,11 +13,10 @@ import {
 } from '@automagical/controller-logic';
 import {
   EntityManagerService,
-  FanDomainService,
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { AutoLogService, Debug, Trace } from '@automagical/utilities';
+import { AutoLogService, PEAT, Trace } from '@automagical/utilities';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
@@ -68,7 +68,6 @@ export class LoftController implements iRoomController {
     private readonly remoteService: MediaPlayerDomainService,
     private readonly eventEmitter: EventEmitter2,
     private readonly switchService: SwitchDomainService,
-    private readonly fanService: FanDomainService,
   ) {}
 
   // #endregion Constructors
@@ -86,10 +85,6 @@ export class LoftController implements iRoomController {
     if (count === 2) {
       await this.remoteService.turnOff(MONITOR);
       this.eventEmitter.emit(GLOBAL_TRANSITION);
-    }
-    if (count === 3) {
-      await this.remoteService.turnOff(MONITOR);
-      await this.fanService.turnOff('fan.loft_ceiling_fan');
     }
     return true;
   }
@@ -130,11 +125,9 @@ export class LoftController implements iRoomController {
     }
     if (count === 2) {
       await this.remoteService.turnOn(MONITOR);
-      // await this.relayService.turnOff([
-      //   ROOM_NAMES.master,
-      //   ROOM_NAMES.downstairs,
-      //   ROOM_NAMES.games,
-      // ]);
+      ['games', 'master', 'downstairs'].forEach((room) =>
+        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), { count }),
+      );
     }
     return false;
   }
@@ -157,39 +150,52 @@ export class LoftController implements iRoomController {
     await this.lightManager.circadianLight(FAN_LIGHTS, target);
   }
 
+  @Cron('0 0 16 * * *')
+  protected async hallwayOff(): Promise<void> {
+    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
+      return;
+    }
+    await this.switchService.turnOff('switch.loft_hallway_light');
+  }
+
+  @Cron('0 0 22 * * *')
+  protected async lightOff(): Promise<void> {
+    await this.switchService.turnOff('switch.back_desk_light');
+  }
+
+  @Cron('0 0 7 * * *')
+  protected async lightOn(): Promise<void> {
+    await this.switchService.turnOn('switch.back_desk_light');
+  }
+
   @Cron(CronExpression.EVERY_30_SECONDS)
   protected async panelSchedule(): Promise<void> {
     if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
       return;
     }
     const brightness = this.panelAutoBrightness();
-    const [light] = await this.entityManager.getEntity<LightStateDTO>(
+    const [{ attributes }] = await this.entityManager.getEntity<LightStateDTO>(
       PANEL_LIGHTS,
     );
     if (brightness === 0) {
       await this.lightManager.turnOffEntities(PANEL_LIGHTS);
       return;
     }
-    if (light.attributes.brightness === brightness) {
+    if (attributes.brightness === brightness) {
       return;
     }
     await this.lightManager.circadianLight(PANEL_LIGHTS, brightness);
   }
 
-  @Cron('0 0 22 * * *')
-  @Debug('Back desk light off')
-  protected async lightOff(): Promise<void> {
-    await this.switchService.turnOff('switch.back_desk_light');
-  }
-
-  @Cron('0 0 7 * * *')
-  @Debug('Back desk light on')
-  protected async lightOn(): Promise<void> {
-    await this.switchService.turnOn('switch.back_desk_light');
+  @Cron('0 0 18 * * *')
+  protected async stairsOff(): Promise<void> {
+    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
+      return;
+    }
+    await this.switchService.turnOff('switch.stair_lights');
   }
 
   @Cron('0 45 22 * * *')
-  @Debug(`Wind Down`)
   protected async windDown(): Promise<void> {
     if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
       return;
@@ -199,16 +205,18 @@ export class LoftController implements iRoomController {
 
   @Trace()
   protected async onModuleInit(): Promise<void> {
-    this.kunamiService.addCommand({
-      activate: {
-        ignoreRelease: true,
-        states: [ControllerStates.favorite],
-      },
-      callback: () => {
-        this.favorite({ count: 1 });
-      },
-      name: 'Favorite',
-    });
+    PEAT(2).forEach((count) =>
+      this.kunamiService.addCommand({
+        activate: {
+          ignoreRelease: true,
+          states: PEAT(count, ControllerStates.favorite),
+        },
+        callback: async () => {
+          await this.favorite({ count });
+        },
+        name: `Favorite (${count})`,
+      }),
+    );
   }
 
   // #endregion Protected Methods

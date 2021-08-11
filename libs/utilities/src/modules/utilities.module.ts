@@ -96,7 +96,7 @@ export class UtilitiesModule {
         }),
         bindLoggerMiddleware,
       )
-      .forRoutes(...[{ method: RequestMethod.ALL, path: '*' }]);
+      .forRoutes({ method: RequestMethod.ALL, path: '*' });
   }
 
   // #endregion Protected Methods

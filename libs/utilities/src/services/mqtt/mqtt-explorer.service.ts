@@ -17,6 +17,7 @@ import { Client } from 'mqtt';
 import { Packet } from 'mqtt-packet';
 
 import { Trace } from '../../decorators/logger/trace.decorator';
+import { SAFE_CALLBACK } from '../../includes';
 import { AutoConfigService } from '../auto-config.service';
 import { AutoLogService } from '../logger';
 
@@ -90,6 +91,7 @@ export class MQTTExplorerService {
   protected onApplicationBootstrap(): void {
     this.scanForSubscribers();
     this.listenForMessages();
+    this.logger.debug(`MQTT initialized`);
   }
 
   // #endregion Protected Methods
@@ -124,7 +126,7 @@ export class MQTTExplorerService {
               this.logger.info(`>>> MQTT Message ${topic}`);
             }
 
-            subscriber.handle.bind(subscriber.provider)(
+            subscriber.handle(
               ...this.mapParameters({
                 packet,
                 payload,
@@ -221,13 +223,12 @@ export class MQTTExplorerService {
           );
           if (subscribeOptions) {
             this.logger.info(
-              `MQTT Subscribe ${instance.constructor[LOG_CONTEXT]}#${key} {${subscribeOptions.topic}}`,
+              `${instance.constructor[LOG_CONTEXT]}#${key} subscribe {${subscribeOptions.topic}}`,
             );
             this.subscribe(
               subscribeOptions,
               parameters,
-              instance[key],
-              instance,
+              SAFE_CALLBACK(instance, key),
             );
           }
         },
@@ -240,11 +241,9 @@ export class MQTTExplorerService {
     options: MqttSubscribeOptions,
     parameters: MqttSubscriberParameter[],
     handle: (...parameters) => void,
-    provider: unknown,
   ): void {
     this.client.subscribe(this.preprocess(options), (error) => {
       if (!error) {
-        // put it into this.subscribers;
         (Array.isArray(options.topic)
           ? options.topic
           : [options.topic]
@@ -253,7 +252,6 @@ export class MQTTExplorerService {
             handle,
             options,
             parameters,
-            provider,
             regexp: MQTTExplorerService.topicToRegexp(topic),
             route: topic
               .replace('$queue/', '')
@@ -262,7 +260,7 @@ export class MQTTExplorerService {
           });
         });
       } else {
-        this.logger.error(`subscribe topic [${options.topic} failed]`);
+        this.logger.error(`Subscribe failed {${options.topic}}`);
       }
     });
   }
