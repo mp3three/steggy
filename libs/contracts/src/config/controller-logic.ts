@@ -10,6 +10,7 @@ const UsesConfig = CreateConfigurableAnnotation(
 );
 export const DEFAULT_CIRCADIAN_MIN_TEMP = 2000;
 export const DEFAULT_CIRCADIAN_MAX_TEMP = 5500;
+export const DEFAULT_DIM_PERCENT = 10;
 
 export class CustomLogicConfig {
   // #region Object Properties
@@ -32,9 +33,18 @@ export class CustomLogicConfig {
     type: 'number',
   })
   public CIRCADIAN_MIN_TEMP?: number;
+  @UsesConfig({
+    applications: {
+      [APP_HOME_CONTROLLER.description]: 'available',
+    },
+    default: DEFAULT_DIM_PERCENT,
+    type: 'number',
+  })
+  public DIM_PERCENT?: number;
 
   // #endregion Object Properties
 }
 
 export const CIRCADIAN_MIN_TEMP = `libs.${LIB_CONTROLLER_LOGIC.description}.CIRCADIAN_MIN_TEMP`;
 export const CIRCADIAN_MAX_TEMP = `libs.${LIB_CONTROLLER_LOGIC.description}.CIRCADIAN_MAX_TEMP`;
+export const DIM_PERCENT = `libs.${LIB_CONTROLLER_LOGIC.description}.DIM_PERCENT`;

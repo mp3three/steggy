@@ -17,3 +17,8 @@ export const CONTROLLER_STATE_EVENT = (
   entity_id: string,
   state: ControllerStates | '*',
 ): string => `controller/${entity_id}/${state}`;
+
+export const ROOM_COMMAND = (
+  room: string,
+  state: 'areaOn' | 'areaOff' | '*',
+): string => [`room`, room, state].join('/');

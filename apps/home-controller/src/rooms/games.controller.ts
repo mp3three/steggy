@@ -1,6 +1,7 @@
 import {
   ControllerStates,
   iRoomController,
+  ROOM_COMMAND,
   RoomControllerParametersDTO,
 } from '@automagical/contracts/controller-logic';
 import {
@@ -10,7 +11,7 @@ import {
   StateManagerService,
 } from '@automagical/controller-logic';
 import { MediaPlayerDomainService } from '@automagical/home-assistant';
-import { Trace } from '@automagical/utilities';
+import { PEAT, Trace } from '@automagical/utilities';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
@@ -38,8 +39,8 @@ export class GamesRoomController implements iRoomController {
     public readonly lightManager: LightManagerService,
     public readonly kunamiService: KunamiCodeService,
     private readonly remoteService: MediaPlayerDomainService,
-    private readonly eventEmitter: EventEmitter2,
     private readonly stateManager: StateManagerService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   // #endregion Constructors
@@ -64,13 +65,14 @@ export class GamesRoomController implements iRoomController {
     if (count === 1) {
       await this.lightManager.circadianLight(
         ['light.games_1', 'light.games_2', 'light.games_3', 'light.games_lamp'],
-        30,
+        this.fanAutoBrightness(),
       );
       return false;
     }
     if (count === 2) {
-      // ['loft', 'downstairs', 'master'].forEach(room => this.eventEmitter.emit(CONTROLLER_STATE_EVENT(entity_id, ControllerStates.down)))
-      // await this.relayService.turnOff();
+      ['loft', 'downstairs', 'master'].forEach((room) => {
+        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'));
+      });
       return false;
     }
     if (count === 3) {
@@ -105,15 +107,31 @@ export class GamesRoomController implements iRoomController {
   }
 
   protected async onApplicationBootstrap(): Promise<void> {
+    PEAT(3).forEach((index) => {
+      this.kunamiService.addCommand({
+        activate: {
+          ignoreRelease: true,
+          states: PEAT(index, ControllerStates.favorite),
+        },
+        callback: () => {
+          this.favorite({ count: index });
+        },
+        name: `Favorite (${index})`,
+      });
+    });
     this.kunamiService.addCommand({
       activate: {
         ignoreRelease: true,
-        states: [ControllerStates.favorite],
+        states: PEAT(3, ControllerStates.off),
       },
       callback: () => {
-        this.favorite({ count: 1 });
+        ['loft', 'downstairs', 'master'].forEach((room) =>
+          this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), {
+            count: 2,
+          } as RoomControllerParametersDTO),
+        );
       },
-      name: 'Favorite',
+      name: `Relay off`,
     });
   }
 

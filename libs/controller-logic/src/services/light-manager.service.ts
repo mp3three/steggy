@@ -1,3 +1,4 @@
+import { DIM_PERCENT } from '@automagical/contracts/config';
 import type {
   iLightManager,
   iRoomController,
@@ -5,10 +6,7 @@ import type {
 } from '@automagical/contracts/controller-logic';
 import {
   CIRCADIAN_UPDATE,
-  CONTROLLER_STATE_EVENT,
-  ControllerStates,
   LightingCacheDTO,
-  ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
 import {
@@ -16,16 +14,17 @@ import {
   LightDomainService,
 } from '@automagical/home-assistant';
 import {
+  AutoConfigService,
   AutoLogService,
   CacheManagerService,
   InjectCache,
   Trace,
 } from '@automagical/utilities';
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import { INQUIRER } from '@nestjs/core';
+import { Injectable, Scope } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { each } from 'async';
 
+import { RoomSettings } from '../includes';
 import { CircadianService } from './circadian.service';
 
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
@@ -40,7 +39,7 @@ const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
 export class LightManagerService implements iLightManager {
   // #region Object Properties
 
-  private controller: iRoomController;
+  private room: iRoomController;
 
   // #endregion Object Properties
 
@@ -53,6 +52,7 @@ export class LightManagerService implements iLightManager {
     private readonly logger: AutoLogService,
     private readonly circadianService: CircadianService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly configService: AutoConfigService,
   ) {}
 
   // #endregion Constructors
@@ -60,7 +60,7 @@ export class LightManagerService implements iLightManager {
   // #region Private Accessors
 
   private get settings(): RoomControllerSettingsDTO {
-    return this.controller.constructor[ROOM_CONTROLLER_SETTINGS];
+    return RoomSettings(this.room);
   }
 
   // #endregion Private Accessors
@@ -70,8 +70,8 @@ export class LightManagerService implements iLightManager {
   @Trace()
   public async areaOff(parameters: RoomControllerParametersDTO): Promise<void> {
     const { count } = parameters;
-    if (this.controller.areaOff) {
-      const result = await this.controller.areaOff(parameters);
+    if (this.room.areaOff) {
+      const result = await this.room.areaOff(parameters);
       if (result === false) {
         return;
       }
@@ -86,13 +86,13 @@ export class LightManagerService implements iLightManager {
   @Trace()
   public async areaOn(parameters: RoomControllerParametersDTO): Promise<void> {
     const { count } = parameters;
-    if (this.controller.areaOn) {
-      const result = await this.controller.areaOn(parameters);
+    if (this.room.areaOn) {
+      const result = await this.room.areaOn(parameters);
       if (result === false) {
         return;
       }
     }
-    await this.circadianLight(this.settings.lights ?? []);
+    await this.circadianLight(this.settings.lights ?? [], 100);
     await this.hassCoreService.turnOn(this.settings.switches ?? []);
     if (count > 1) {
       await this.hassCoreService.turnOn(this.settings.accessories ?? []);
@@ -120,26 +120,40 @@ export class LightManagerService implements iLightManager {
 
   @Trace()
   public async dimDown(data: RoomControllerParametersDTO): Promise<void> {
-    if (this.controller.dimDown && !(await this.controller.dimDown(data))) {
+    if (this.room.dimDown && !(await this.room.dimDown(data))) {
       return;
     }
+    const { count } = data;
     const lights = await this.findDimmableLights();
     await each(lights, async (entity_id: string, callback) => {
-      await this.lightDim(entity_id, -10);
+      await this.lightDim(
+        entity_id,
+        this.configService.get<number>(DIM_PERCENT) * count * -1,
+      );
       callback();
     });
   }
 
   @Trace()
   public async dimUp(data: RoomControllerParametersDTO): Promise<void> {
-    if (this.controller.dimUp && !(await this.controller.dimUp(data))) {
+    if (this.room.dimUp && !(await this.room.dimUp(data))) {
       return;
     }
+    const { count } = data;
     const lights = await this.findDimmableLights();
     await each(lights, async (entity_id: string, callback) => {
-      await this.lightDim(entity_id, 10);
+      await this.lightDim(
+        entity_id,
+        this.configService.get<number>(DIM_PERCENT) * count,
+      );
       callback();
     });
+  }
+
+  @Trace()
+  public async findDimmableLights(): Promise<string[]> {
+    const lights = await this.getActiveLights();
+    return this.settings.lights.filter((light) => lights.includes(light));
   }
 
   /**
@@ -223,11 +237,6 @@ export class LightManagerService implements iLightManager {
 
   // #region Protected Methods
 
-  @Trace()
-  protected bind(controller: iRoomController): void {
-    this.controller = controller;
-  }
-
   protected async circadianLightingUpdate(kelvin: number): Promise<void> {
     const lights = await this.getActiveLights();
     await each(lights, async (id, callback) => {
@@ -247,14 +256,4 @@ export class LightManagerService implements iLightManager {
   }
 
   // #endregion Protected Methods
-
-  // #region Private Methods
-
-  @Trace()
-  private async findDimmableLights(): Promise<string[]> {
-    const lights = await this.getActiveLights();
-    return this.settings.lights.filter((light) => lights.includes(light));
-  }
-
-  // #endregion Private Methods
 }

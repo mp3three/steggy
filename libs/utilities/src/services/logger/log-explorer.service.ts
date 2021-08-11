@@ -1,4 +1,3 @@
-import { LIB_UTILS } from '@automagical/contracts/constants';
 import {
   DEBUG_LOG,
   DebugLogDTO,
@@ -106,11 +105,6 @@ export class LogExplorerService {
           }
         });
         metatype[LOG_CONTEXT] ??= context;
-        AutoLogService.call(
-          'debug',
-          `${LIB_UTILS.description}:${LogExplorerService.name}`,
-          `Created log context {${context}}`,
-        );
         metatype[LOGGER_LIBRARY] ??= loggerContext;
       });
     });

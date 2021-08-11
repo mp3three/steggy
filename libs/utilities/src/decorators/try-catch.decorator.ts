@@ -1,3 +1,5 @@
+import { AutoLogService } from '../services';
+
 export function TryCatch(): MethodDecorator {
   return function (
     target: unknown,
@@ -9,7 +11,12 @@ export function TryCatch(): MethodDecorator {
       try {
         return originalMethod.apply(this, parameters);
       } catch (error) {
-        console.error(error);
+        AutoLogService.call(
+          'error',
+          `TryCatch:Annotation:FIXME`,
+          { error },
+          'Caught error',
+        );
       }
     };
     return descriptor;

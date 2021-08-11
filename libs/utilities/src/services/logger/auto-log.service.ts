@@ -112,6 +112,14 @@ export class AutoLogService {
           AutoLogService.logger.info({ context }, message);
           return;
         }
+        if (context === `${NEST}:InstanceLoader`) {
+          message = prettyFormatMessage(
+            message
+              .split(' ')
+              .map((item, index) => (index === 0 ? `[${item}]` : item))
+              .join(' '),
+          );
+        }
         AutoLogService.logger.info(
           `${highlightContext(context, 'bgGreen')} ${message}`,
         );

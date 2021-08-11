@@ -44,6 +44,9 @@ export class StateManagerService {
 
   @Trace()
   public async addFlag(flagName: string): Promise<void> {
+    if (await this.hasFlag(flagName)) {
+      return;
+    }
     this.logger.debug(`[${this.settings.friendlyName}] Add flag {${flagName}}`);
     const name = CACHE_KEY(this.settings.name, flagName);
     await this.cacheService.set(name, true, {
@@ -61,6 +64,9 @@ export class StateManagerService {
 
   @Trace()
   public async removeFlag(flagName: string): Promise<void> {
+    if (!(await this.hasFlag(flagName))) {
+      return;
+    }
     this.logger.debug(
       `[${this.settings.friendlyName}] Remove flag {${flagName}}`,
     );

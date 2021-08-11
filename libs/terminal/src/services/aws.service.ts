@@ -7,6 +7,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import Table from 'cli-table';
 import execa from 'execa';
 import inquirer from 'inquirer';
+
 import { ConfigBuilderREPL } from '../repl/config-builder.repl';
 
 const AWS_ENVIRONMENTS = '';

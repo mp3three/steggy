@@ -8,8 +8,7 @@ import {
   KunamiCommandDTO,
 } from '@automagical/contracts/controller-logic';
 import { AutoLogService, InjectLogger } from '@automagical/utilities';
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import { INQUIRER } from '@nestjs/core';
+import { Injectable, Scope } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { RoomSettings } from '../includes/room-settings';
@@ -21,6 +20,8 @@ import { RoomSettings } from '../includes/room-settings';
 export class KunamiCodeService implements iKunamiService {
   // #region Object Properties
 
+  private readonly room: iRoomController;
+
   private callbacks = new Set<KunamiCommandDTO>();
   private codes: ControllerStates[];
   private timeout: ReturnType<typeof setTimeout>;
@@ -30,7 +31,6 @@ export class KunamiCodeService implements iKunamiService {
   // #region Constructors
 
   constructor(
-    @Inject(INQUIRER) private readonly room: iRoomController,
     private readonly eventEmitter: EventEmitter2,
     @InjectLogger()
     private readonly logger: AutoLogService,
@@ -53,18 +53,18 @@ export class KunamiCodeService implements iKunamiService {
 
   // #region Protected Methods
 
-  protected onApplicationBootStrap(): void {
+  protected onApplicationBootstrap(): void {
+    this.codes = [];
     this.eventEmitter.on(
-      CONTROLLER_STATE_EVENT('this.room', '*'),
+      CONTROLLER_STATE_EVENT(RoomSettings(this.room).remote, '*'),
       (state: ControllerStates) => {
-        this.logger.warn({ state });
         if (this.timeout) {
           clearTimeout(this.timeout);
         }
         this.codes.push(state);
-        this.logger.debug({ codes: this.codes }, 'added');
         this.timeout = setTimeout(() => {
           this.timeout = undefined;
+          this.codes = [];
         }, 1500);
         this.findMatches();
       },
@@ -85,11 +85,14 @@ export class KunamiCodeService implements iKunamiService {
   private findMatches(): void {
     const fullCodes = this.codes;
     const partialCodes = this.codes.filter(
-      (code) => code !== ControllerStates.off,
+      (code) => code !== ControllerStates.none,
     );
     this.callbacks.forEach((kunamiCode) => {
       const { callback, activate } = kunamiCode;
       if (activate.ignoreRelease) {
+        if (this.codes[this.codes.length - 1] !== ControllerStates.none) {
+          return;
+        }
         if (!this.compare(partialCodes, activate?.states || [])) {
           return;
         }

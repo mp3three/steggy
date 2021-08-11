@@ -199,7 +199,9 @@ export class MQTTExplorerService {
 
   @Trace()
   private scanForSubscribers() {
-    const providers: InstanceWrapper[] = this.discoveryService.getProviders();
+    const providers: InstanceWrapper[] = this.discoveryService
+      .getProviders()
+      .filter((wrapper) => wrapper.isDependencyTreeStatic());
     providers.forEach((wrapper: InstanceWrapper) => {
       const { instance } = wrapper;
       if (!instance) {

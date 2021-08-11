@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
+
 import { AutoConfigService } from './auto-config.service';
 
 @Injectable()

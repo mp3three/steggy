@@ -11,6 +11,7 @@ export class RoomControllerSettingsDTO {
    */
   public lights?: string[];
   public name: string;
+  public omitRoomEvents?: boolean;
   public remote?: string;
   /**
    *  Primary lights for the room

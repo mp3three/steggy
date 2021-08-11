@@ -30,6 +30,10 @@ export interface iLightManager {
 
   areaOff(data: RoomControllerParametersDTO): RoomControllerMethodReturn;
   areaOn(data: RoomControllerParametersDTO): RoomControllerMethodReturn;
+  circadianLight(
+    entity_id: string | string[],
+    brightness?: number,
+  ): Promise<void>;
   dimDown(data: RoomControllerParametersDTO): RoomControllerMethodReturn;
   dimUp(data: RoomControllerParametersDTO): RoomControllerMethodReturn;
 

@@ -1,4 +1,9 @@
-import { iRoomController } from '@automagical/contracts/controller-logic';
+import {
+  ControllerStates,
+  iRoomController,
+  ROOM_COMMAND,
+  RoomControllerParametersDTO,
+} from '@automagical/contracts/controller-logic';
 import {
   KunamiCodeService,
   LightManagerService,
@@ -8,7 +13,8 @@ import {
   LightDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { Trace } from '@automagical/utilities';
+import { PEAT, Trace } from '@automagical/utilities';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @RoomController({
   friendlyName: 'Master Bedroom',
@@ -30,6 +36,7 @@ export class MasterBedroomController implements iRoomController {
     public readonly kunamiService: KunamiCodeService,
     private readonly switchService: SwitchDomainService,
     private readonly lightService: LightDomainService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   // #endregion Constructors
@@ -37,17 +44,43 @@ export class MasterBedroomController implements iRoomController {
   // #region Public Methods
 
   @Trace()
-  public async favorite(): Promise<boolean> {
-    await this.switchService.turnOff('switch.womp');
-    await this.lightService.turnOff([
-      'light.bedroom_fan_top_left',
-      'light.bedroom_fan_top_right',
-      'light.bedroom_fan_bottom_left',
-      'light.bedroom_fan_bottom_right',
-    ]);
-    await this.lightManager.circadianLight(['light.speaker_light'], 40);
-    return false;
+  public async favorite({ count }: RoomControllerParametersDTO): Promise<void> {
+    if (count === 1) {
+      await this.switchService.turnOff('switch.womp');
+      await this.lightService.turnOff([
+        'light.bedroom_fan_top_left',
+        'light.bedroom_fan_top_right',
+        'light.bedroom_fan_bottom_left',
+        'light.bedroom_fan_bottom_right',
+      ]);
+      await this.lightManager.circadianLight(['light.speaker_light'], 40);
+      return;
+    }
+    if (count === 2) {
+      ['games', 'loft', 'downstairs'].forEach((room) =>
+        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), { count }),
+      );
+    }
   }
 
   // #endregion Public Methods
+
+  // #region Protected Methods
+
+  protected onModuleInit(): void {
+    PEAT(2).forEach((count) => {
+      this.kunamiService.addCommand({
+        activate: {
+          ignoreRelease: true,
+          states: PEAT(count, ControllerStates.favorite),
+        },
+        callback: async () => {
+          await this.favorite({ count });
+        },
+        name: `Favorite (${count})`,
+      });
+    });
+  }
+
+  // #endregion Protected Methods
 }

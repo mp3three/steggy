@@ -41,7 +41,7 @@ export class FetchService extends BaseFetch {
     }
   }
 
-  public async download<T>(
+  public async download(
     fetchWith: Partial<FetchArguments> & { destination: string },
   ): Promise<void> {
     const url: string = await this.fetchCreateUrl(fetchWith);

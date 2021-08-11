@@ -78,7 +78,7 @@ export class RemoteAdapterService {
           );
           return;
         case PicoStates.none:
-          this.logger.debug(`${entity_id} => ControllerStates.none`);
+          // this.logger.debug(`${entity_id} => ControllerStates.none`);
           this.eventEmitter.emit(
             CONTROLLER_STATE_EVENT(entity_id, ControllerStates.none),
             ControllerStates.none,
