@@ -12,9 +12,9 @@ import {
 } from '@automagical/controller-logic';
 import { MediaPlayerDomainService } from '@automagical/home-assistant';
 import { PEAT, Trace } from '@automagical/utilities';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
+import { EventEmitter2 } from 'eventemitter2';
 
 const MONITOR = 'media_player.monitor';
 const EVENING_BRIGHTNESS = 40;

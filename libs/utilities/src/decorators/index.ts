@@ -1,5 +1,6 @@
 export * from './application-module.decorator';
 export * from './emit-after.decorator';
+export * from './events.decorator';
 export * from './injectors';
 export * from './library-module.decorator';
 export * from './logger';

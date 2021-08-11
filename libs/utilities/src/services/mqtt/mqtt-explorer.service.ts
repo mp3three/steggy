@@ -91,7 +91,7 @@ export class MQTTExplorerService {
   protected onApplicationBootstrap(): void {
     this.scanForSubscribers();
     this.listenForMessages();
-    this.logger.debug(`MQTT initialized`);
+    this.logger.info(`MQTT initialized`);
   }
 
   // #endregion Protected Methods

@@ -6,8 +6,7 @@ import {
   HassEventDTO,
   HassStateDTO,
 } from '@automagical/contracts/home-assistant';
-import { AutoLogService } from '@automagical/utilities';
-import { OnEvent } from '@nestjs/event-emitter';
+import { AutoLogService, OnEvent } from '@automagical/utilities';
 
 const DEFAULT_STATE: HassStateDTO = undefined;
 

@@ -17,6 +17,7 @@ import { expressContextMiddleware, expressContextSetValue } from '../includes';
 import {
   AutoConfigService,
   AutoLogService,
+  EventsExplorerService,
   FetchService,
   LocalsService,
   LogExplorerService,
@@ -40,6 +41,7 @@ import {
     AutoLogService,
     LocalsService,
     AutoConfigService,
+    EventsExplorerService,
     FetchService,
     SolarCalcService,
     LogExplorerService,

@@ -9,7 +9,7 @@ import {
 } from '@automagical/contracts/controller-logic';
 import { AutoLogService, InjectLogger } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2 } from 'eventemitter2';
 
 import { RoomSettings } from '../includes/room-settings';
 

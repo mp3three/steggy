@@ -17,9 +17,9 @@ import {
   SwitchDomainService,
 } from '@automagical/home-assistant';
 import { AutoLogService, PEAT, Trace } from '@automagical/utilities';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
+import { EventEmitter2 } from 'eventemitter2';
 
 import { GLOBAL_TRANSITION } from '../typings';
 

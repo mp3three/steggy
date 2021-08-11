@@ -13,7 +13,7 @@ import {
   FanDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2 } from 'eventemitter2';
 
 const remote = 'sensor.bed_pico';
 @RoomController({

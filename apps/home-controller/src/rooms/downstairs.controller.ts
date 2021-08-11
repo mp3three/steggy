@@ -11,7 +11,7 @@ import {
 } from '@automagical/controller-logic';
 import { SwitchDomainService } from '@automagical/home-assistant';
 import { PEAT, SolarCalcService, Trace } from '@automagical/utilities';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2 } from 'eventemitter2';
 
 import { GLOBAL_TRANSITION } from '../typings';
 

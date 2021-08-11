@@ -5,21 +5,11 @@ import {
 import type { iRoomController } from '@automagical/contracts/controller-logic';
 import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
 import { ModuleMetadata, Provider } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { EventEmitterModule } from '@nestjs/event-emitter';
-import { ScheduleModule } from '@nestjs/schedule';
-import { encode } from 'ini';
-import rc from 'rc';
+import { EventEmitter2 } from 'eventemitter2';
 
 import { RegisterCache } from '../includes/';
 import { MQTTModule, UtilitiesModule } from '../modules';
 
-enum AutoImport {
-  schedule = 'schedule',
-  cache = 'cache',
-  events = 'events',
-  config = 'config',
-}
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
   // #region Object Properties
 
@@ -27,7 +17,6 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
   /**
    * If omitted, will default to all
    */
-  auto_import?: (keyof AutoImport)[];
   dashboards?: Provider[];
   default_config?: Partial<AutomagicalConfig>;
   globals?: Provider[];
@@ -65,6 +54,16 @@ export function ApplicationModule(
       provide: ACTIVE_APPLICATION,
       useValue: metadata.application,
     },
+    {
+      provide: EventEmitter2,
+      useValue: new EventEmitter2({
+        delimiter: '/',
+        maxListeners: 20,
+        newListener: false,
+        removeListener: false,
+        wildcard: true,
+      }),
+    },
     ...metadata.globals,
   ];
   metadata.imports.push(
@@ -76,53 +75,8 @@ export function ApplicationModule(
     },
     MQTTModule,
     UtilitiesModule.forRoot(),
+    RegisterCache(),
   );
-  (metadata.auto_import ?? Object.keys(AutoImport)).forEach((name) => {
-    switch (name as AutoImport) {
-      case AutoImport.schedule:
-        return metadata.imports.push(ScheduleModule.forRoot());
-      case AutoImport.cache:
-        return metadata.imports.push(RegisterCache());
-      case AutoImport.events:
-        return metadata.imports.push(
-          EventEmitterModule.forRoot({
-            delimiter: '/',
-            global: true,
-            maxListeners: 20,
-            newListener: false,
-            removeListener: false,
-            wildcard: true,
-          }),
-        );
-      case AutoImport.config:
-        return metadata.imports.push(
-          ConfigModule.forRoot({
-            isGlobal: true,
-            load: [
-              async () => {
-                const config = rc(metadata.application.description, {
-                  ...(metadata.default_config ?? {}),
-                }) as AutomagicalConfig & { configs: string[] };
-                /**
-                 * Life can be unpredictable if the config isn't what you thought it was
-                 *
-                 * Print out the config at boot by default in a human readable form
-                 */
-                if (config.PRINT_CONFIG_AT_STARTUP === true) {
-                  // eslint-disable-next-line no-console
-                  console.log([
-                    `<LOADED CONFIGURATION>`,
-                    encode(config),
-                    `</LOADED CONFIGURATION>`,
-                  ]);
-                }
-                return config;
-              },
-            ],
-          }),
-        );
-    }
-  });
 
   return (target) => {
     target[LOGGER_LIBRARY] = metadata.application.description;

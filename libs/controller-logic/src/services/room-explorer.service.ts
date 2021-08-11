@@ -15,7 +15,7 @@ import {
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2 } from 'eventemitter2';
 
 import { LightManagerService } from './light-manager.service';
 import { RemoteAdapterService } from './remote-adapter.service';

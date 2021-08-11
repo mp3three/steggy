@@ -6,9 +6,9 @@ import {
   HassEventDTO,
   HassStateDTO,
 } from '@automagical/contracts/home-assistant';
-import { Trace } from '@automagical/utilities';
+import { OnEvent, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2 } from 'eventemitter2';
 import { Observable, Subscriber } from 'rxjs';
 
 import { HASocketAPIService } from './ha-socket-api.service';

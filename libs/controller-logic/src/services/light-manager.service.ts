@@ -21,8 +21,8 @@ import {
   Trace,
 } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { each } from 'async';
+import { EventEmitter2 } from 'eventemitter2';
 
 import { RoomSettings } from '../includes';
 import { CircadianService } from './circadian.service';

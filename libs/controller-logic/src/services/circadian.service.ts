@@ -9,9 +9,9 @@ import {
   Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
+import { EventEmitter2 } from 'eventemitter2';
 
 /**
  * This service is responsible for managing the current temperature for circadian lightining

@@ -18,15 +18,16 @@ import {
   CacheManagerService,
   Debug,
   InjectCache,
+  OnEvent,
   OnMQTT,
   SolarCalcService,
   Trace,
   Warn,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
 import dayjs from 'dayjs';
+import { EventEmitter2 } from 'eventemitter2';
 
 import {
   GLOBAL_TRANSITION,
