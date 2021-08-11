@@ -52,6 +52,7 @@ export function ApplicationModule(
   const propertiesKeys = Object.keys(metadata);
   metadata.imports ??= [];
   metadata.providers ??= [];
+  metadata.globals ??= [];
   metadata.rooms ??= [];
   metadata.dashboards ??= [];
   metadata.providers = [
@@ -64,6 +65,7 @@ export function ApplicationModule(
       provide: ACTIVE_APPLICATION,
       useValue: metadata.application,
     },
+    ...metadata.globals,
   ];
   metadata.imports.push(
     {

@@ -2,15 +2,7 @@ import { APP_DASHBOARD } from '@automagical/contracts/constants';
 import { BLESSED_SCREEN, Grid } from '@automagical/contracts/terminal';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import { BlessedModule } from '@automagical/terminal';
-import {
-  ApplicationModule,
-  AutomagicalConfigModule,
-  CommonImports,
-  LoggableModule,
-  MQTTModule,
-  UtilitiesModule,
-} from '@automagical/utilities';
-import { Module } from '@nestjs/common';
+import { ApplicationModule } from '@automagical/utilities';
 import { Widgets } from 'blessed';
 
 import { BLESSED_COLORS } from '../includes';

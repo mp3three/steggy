@@ -9,13 +9,14 @@
       "options": {
         "outputPath": "dist/apps/dashboard",
         "main": "apps/dashboard/src/entrypoints/main.ts",
+        "inspect": true,
         "tsConfig": "apps/dashboard/tsconfig.app.json"
       },
       "configurations": {
         "production": {
           "optimization": true,
           "extractLicenses": true,
-          "inspect": true
+          "inspect": false
         }
       }
     },
@@ -25,11 +26,12 @@
         "buildTarget": "dashboard:build",
         "inspect": "inspect",
         "port": 33335
-      },
-      "configurations": {
-        "brk": {
-          "inspect": "inspect-brk"
-        }
+      }
+    },
+    "brk":{
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "command": "npx nx serve dashboard --inspect inspect-brk"
       }
     },
     "lint": {
