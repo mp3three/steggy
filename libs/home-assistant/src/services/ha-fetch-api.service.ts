@@ -4,7 +4,12 @@ import {
 } from '@automagical/contracts/config';
 import { HassStateDTO } from '@automagical/contracts/home-assistant';
 import type { FetchWith } from '@automagical/contracts/utilities';
-import { AutoConfigService, FetchService, Trace } from '@automagical/utilities';
+import {
+  AutoConfigService,
+  AutoLogService,
+  FetchService,
+  Trace,
+} from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 
@@ -14,6 +19,7 @@ export class HomeAssistantFetchAPIService {
 
   constructor(
     private readonly configService: AutoConfigService,
+    private readonly logger: AutoLogService,
     private readonly fetchService: FetchService,
   ) {}
 
@@ -55,6 +61,10 @@ export class HomeAssistantFetchAPIService {
     to: dayjs.Dayjs,
     parameters: Record<string, string> = {},
   ): Promise<T[]> {
+    this.logger.info(
+      { from: from.toISOString(), to: to.toISOString() },
+      `[${entity_id}] Fetch entity history`,
+    );
     const [history] = await this.fetch({
       params: {
         end_time: to.toISOString(),

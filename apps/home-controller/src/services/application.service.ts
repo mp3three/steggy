@@ -19,6 +19,7 @@ import {
   Cron,
   Debug,
   InjectCache,
+  MqttService,
   OnEvent,
   OnMQTT,
   SolarCalcService,
@@ -53,6 +54,7 @@ export class ApplicationService {
     private readonly entityManager: EntityManagerService,
     private readonly lockService: LockDomainService,
     private readonly eventEmitterService: EventEmitter2,
+    private readonly mqtt: MqttService,
   ) {}
 
   // #endregion Constructors
@@ -83,11 +85,12 @@ export class ApplicationService {
   }
 
   public onModuleInit(): void {
-    setTimeout(async () => {
-      // debugger;
-      // this.eventEmitterService.emit(ROOM_FAVORITE(ROOM_NAMES.games));
-      // await this.lockDoors();
-    }, 1000);
+    // setInterval(() => {
+    //   this.mqtt.publish(
+    //     SEND_ROOM_STATE('loft', 'areaOn'),
+    //     JSON.stringify({ count: 2 } as RoomControllerParametersDTO),
+    //   );
+    // }, 1000);
   }
 
   // #endregion Public Methods

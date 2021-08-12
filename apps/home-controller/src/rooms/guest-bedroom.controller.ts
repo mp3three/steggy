@@ -8,7 +8,7 @@ import {
 @RoomController({
   friendlyName: 'Guest Bedroom',
   lights: ['light.guest_left', 'light.guest_right', 'light.guest_door'],
-  name: 'Guest',
+  name: 'guest',
   remote: 'sensor.guest_pico',
 })
 export class GuestBedroomController implements iRoomController {

@@ -1,14 +1,17 @@
 import {
   ControllerStates,
   iRoomController,
+  iRoomControllerMethods,
   ROOM_COMMAND,
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerParametersDTO,
   RoomControllerSettingsDTO,
 } from '@automagical/contracts/controller-logic';
+import { SEND_ROOM_STATE } from '@automagical/contracts/utilities';
 import {
   AutoLogService,
   InjectLogger,
+  MqttService,
   PEAT,
   Trace,
 } from '@automagical/utilities';
@@ -41,6 +44,7 @@ export class RoomExplorerService {
     private readonly discoveryService: DiscoveryService,
     private readonly remoteAdapter: RemoteAdapterService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly mqtt: MqttService,
   ) {}
 
   // #endregion Constructors
@@ -110,18 +114,40 @@ export class RoomExplorerService {
     { name }: RoomControllerSettingsDTO,
     instance: iRoomController,
   ): void {
-    this.eventEmitter.on(
-      ROOM_COMMAND(name, 'areaOff'),
-      (parameters: RoomControllerParametersDTO) => {
-        instance.lightManager.areaOff(parameters);
-      },
-    );
-    this.eventEmitter.on(
-      ROOM_COMMAND(name, 'areaOn'),
-      (parameters: RoomControllerParametersDTO) => {
-        instance.lightManager.areaOn(parameters);
-      },
-    );
+    const mappings = new Map<
+      keyof iRoomControllerMethods,
+      (parameters: RoomControllerParametersDTO) => void
+    >([
+      [
+        'areaOn',
+        (parameters: RoomControllerParametersDTO) =>
+          instance.lightManager.areaOn(parameters),
+      ],
+      [
+        'areaOff',
+        (parameters: RoomControllerParametersDTO) =>
+          instance.lightManager.areaOff(parameters),
+      ],
+      [
+        'dimUp',
+        (parameters: RoomControllerParametersDTO) =>
+          instance.lightManager.dimUp(parameters),
+      ],
+      [
+        'dimDown',
+        (parameters: RoomControllerParametersDTO) =>
+          instance.lightManager.dimDown(parameters),
+      ],
+      [
+        'favorite',
+        (parameters: RoomControllerParametersDTO) =>
+          instance.favorite ? instance.favorite(parameters) : undefined,
+      ],
+    ]);
+    mappings.forEach((callback, event) => {
+      this.mqtt.subscribe(SEND_ROOM_STATE(name, event), callback);
+      this.eventEmitter.on(ROOM_COMMAND(name, event), callback);
+    });
   }
 
   // #endregion Private Methods

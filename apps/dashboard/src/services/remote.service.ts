@@ -1,9 +1,9 @@
+import { RoomControllerParametersDTO } from '@automagical/contracts/controller-logic';
 import { Box, Button } from '@automagical/contracts/terminal';
 import { SEND_ROOM_STATE } from '@automagical/contracts/utilities';
-import { InjectMQTT } from '@automagical/utilities';
+import { MqttService } from '@automagical/utilities';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { Widgets } from 'blessed';
-import { Client } from 'mqtt';
 
 import { WorkspaceElement } from '../decorators';
 import { BLESSED_GRID, GridElement } from '../typings';
@@ -39,7 +39,7 @@ export class RemoteService {
 
   constructor(
     @Inject(BLESSED_GRID) private readonly grid: GridElement,
-    @InjectMQTT() private readonly mqttClient: Client,
+    private readonly mqttClient: MqttService,
   ) {}
 
   // #endregion Constructors
@@ -83,7 +83,11 @@ export class RemoteService {
         },
         top: this.position,
       },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE(this.room, 'areaOn')),
+      () =>
+        this.mqttClient.publish(
+          SEND_ROOM_STATE(this.room, 'areaOn'),
+          JSON.stringify({ count: 2 } as RoomControllerParametersDTO),
+        ),
     );
     this.addButton(
       {
@@ -96,7 +100,11 @@ export class RemoteService {
         },
         top: this.position,
       },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE(this.room, 'areaOff')),
+      () =>
+        this.mqttClient.publish(
+          SEND_ROOM_STATE(this.room, 'areaOff'),
+          JSON.stringify({ count: 2 } as RoomControllerParametersDTO),
+        ),
     );
     this.addButton(
       {
@@ -108,7 +116,11 @@ export class RemoteService {
         },
         top: 4 + this.position,
       },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE(this.room, 'dimUp')),
+      () =>
+        this.mqttClient.publish(
+          SEND_ROOM_STATE(this.room, 'dimUp'),
+          JSON.stringify({}),
+        ),
     );
     this.addButton(
       {
@@ -121,7 +133,11 @@ export class RemoteService {
         },
         top: 4 + this.position,
       },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE(this.room, 'dimDown')),
+      () =>
+        this.mqttClient.publish(
+          SEND_ROOM_STATE(this.room, 'dimDown'),
+          JSON.stringify({}),
+        ),
     );
     this.addButton(
       {
@@ -133,7 +149,11 @@ export class RemoteService {
         },
         top: 8 + this.position,
       },
-      () => this.mqttClient.publish(...SEND_ROOM_STATE(this.room, 'favorite')),
+      () =>
+        this.mqttClient.publish(
+          SEND_ROOM_STATE(this.room, 'favorite'),
+          JSON.stringify({ count: 2 } as RoomControllerParametersDTO),
+        ),
     );
   }
 

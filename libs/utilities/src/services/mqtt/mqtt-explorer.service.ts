@@ -152,7 +152,7 @@ export class MQTTExplorerService {
           try {
             // add a option to do something before handle message.
             if (this.configService.get(LOG_LEVEL) !== 'silent') {
-              this.logger.info(`>>> MQTT Message ${topic}`);
+              this.logger.debug(`>>> MQTT Message ${topic}`);
             }
             subscriber.handle(
               ...this.mapParameters({

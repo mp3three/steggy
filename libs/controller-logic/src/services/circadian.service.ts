@@ -40,7 +40,7 @@ export class CircadianService {
   // #region Protected Methods
 
   @Cron(CronExpression.EVERY_MINUTE)
-  protected async circadianLightingUpdate(): Promise<void> {
+  protected async updateKelvin(): Promise<void> {
     const kelvin = this.getCurrentTemperature();
     if (kelvin === this.CURRENT_LIGHT_TEMPERATURE) {
       return;

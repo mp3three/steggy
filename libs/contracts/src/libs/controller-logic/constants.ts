@@ -1,3 +1,5 @@
+import { iRoomControllerMethods } from './room-controller';
+
 export const LIGHTING_CONTROLLER = Symbol('LIGHTING_CONTROLLER');
 export const HASS_ENTITY_ID = Symbol('HASS_ENTITY_ID');
 export const STATE_MANAGER = Symbol('STATE_MANAGER');
@@ -20,5 +22,5 @@ export const CONTROLLER_STATE_EVENT = (
 
 export const ROOM_COMMAND = (
   room: string,
-  state: 'areaOn' | 'areaOff' | '*',
+  state: keyof iRoomControllerMethods | '*',
 ): string => [`room`, room, state].join('/');

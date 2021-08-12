@@ -68,7 +68,9 @@ export class LightManagerService implements iLightManager {
   // #region Public Methods
 
   @Trace()
-  public async areaOff(parameters: RoomControllerParametersDTO): Promise<void> {
+  public async areaOff(
+    parameters: RoomControllerParametersDTO = {},
+  ): Promise<void> {
     const { count } = parameters;
     if (this.room.areaOff) {
       const result = await this.room.areaOff(parameters);
@@ -84,7 +86,9 @@ export class LightManagerService implements iLightManager {
   }
 
   @Trace()
-  public async areaOn(parameters: RoomControllerParametersDTO): Promise<void> {
+  public async areaOn(
+    parameters: RoomControllerParametersDTO = {},
+  ): Promise<void> {
     const { count } = parameters;
     if (this.room.areaOn) {
       const result = await this.room.areaOn(parameters);
@@ -119,7 +123,7 @@ export class LightManagerService implements iLightManager {
   }
 
   @Trace()
-  public async dimDown(data: RoomControllerParametersDTO): Promise<void> {
+  public async dimDown(data: RoomControllerParametersDTO = {}): Promise<void> {
     if (this.room.dimDown && !(await this.room.dimDown(data))) {
       return;
     }
@@ -135,7 +139,7 @@ export class LightManagerService implements iLightManager {
   }
 
   @Trace()
-  public async dimUp(data: RoomControllerParametersDTO): Promise<void> {
+  public async dimUp(data: RoomControllerParametersDTO = {}): Promise<void> {
     if (this.room.dimUp && !(await this.room.dimUp(data))) {
       return;
     }
