@@ -25,6 +25,7 @@ import { GLOBAL_TRANSITION } from '../typings';
     'light.bedroom_fan_top_right',
     'light.bedroom_fan_bottom_left',
     'light.bedroom_fan_bottom_right',
+    'light.speaker_light',
   ],
   name: 'master',
   remote: 'sensor.bedroom_pico',

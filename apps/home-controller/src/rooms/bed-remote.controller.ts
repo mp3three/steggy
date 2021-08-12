@@ -13,6 +13,7 @@ import {
   FanDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
+import { SolarCalcService } from '@automagical/utilities';
 import { EventEmitter2 } from 'eventemitter2';
 
 const remote = 'sensor.bed_pico';
@@ -31,6 +32,7 @@ export class BedRemoteController implements iRoomController {
     private readonly switchService: SwitchDomainService,
     private readonly fanService: FanDomainService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly solarCalc: SolarCalcService,
   ) {}
 
   // #endregion Constructors

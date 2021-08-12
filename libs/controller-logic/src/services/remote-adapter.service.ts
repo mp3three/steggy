@@ -47,47 +47,35 @@ export class RemoteAdapterService {
       const state = data.new_state;
       switch (state.state as PicoStates) {
         case PicoStates.up:
-          this.logger.debug(`${entity_id} => ControllerStates.up`);
-          this.eventEmitter.emit(
+          return this.eventEmitter.emit(
             CONTROLLER_STATE_EVENT(entity_id, ControllerStates.up),
             ControllerStates.up,
           );
-          return;
         case PicoStates.down:
-          this.logger.debug(`${entity_id} => ControllerStates.down`);
-          this.eventEmitter.emit(
+          return this.eventEmitter.emit(
             CONTROLLER_STATE_EVENT(entity_id, ControllerStates.down),
             ControllerStates.down,
           );
-          return;
         case PicoStates.on:
-          this.logger.debug(`${entity_id} => ControllerStates.on`);
-          this.eventEmitter.emit(
+          return this.eventEmitter.emit(
             CONTROLLER_STATE_EVENT(entity_id, ControllerStates.on),
             ControllerStates.on,
           );
-          return;
         case PicoStates.off:
-          this.logger.debug(`${entity_id} => ControllerStates.off`);
-          this.eventEmitter.emit(
+          return this.eventEmitter.emit(
             CONTROLLER_STATE_EVENT(entity_id, ControllerStates.off),
             ControllerStates.off,
           );
-          return;
         case PicoStates.favorite:
-          this.logger.debug(`${entity_id} => ControllerStates.favorite`);
-          this.eventEmitter.emit(
+          return this.eventEmitter.emit(
             CONTROLLER_STATE_EVENT(entity_id, ControllerStates.favorite),
             ControllerStates.favorite,
           );
-          return;
         case PicoStates.none:
-          // this.logger.debug(`${entity_id} => ControllerStates.none`);
-          this.eventEmitter.emit(
+          return this.eventEmitter.emit(
             CONTROLLER_STATE_EVENT(entity_id, ControllerStates.none),
             ControllerStates.none,
           );
-          return;
       }
     });
     this.lookup.add(entity_id);
