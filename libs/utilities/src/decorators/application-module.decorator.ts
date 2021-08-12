@@ -66,17 +66,18 @@ export function ApplicationModule(
     },
     ...metadata.globals,
   ];
-  metadata.imports.push(
+  metadata.imports = [
+    UtilitiesModule.forRoot(),
+    MQTTModule,
     {
       exports: GLOBAL_SYMBOLS,
       global: true,
       module: class {},
       providers: GLOBAL_SYMBOLS,
     },
-    MQTTModule,
-    UtilitiesModule.forRoot(),
     RegisterCache(),
-  );
+    ...metadata.imports,
+  ];
 
   return (target) => {
     target[LOGGER_LIBRARY] = metadata.application.description;

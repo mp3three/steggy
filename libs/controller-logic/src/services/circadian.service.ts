@@ -3,13 +3,14 @@ import {
   CIRCADIAN_MIN_TEMP,
 } from '@automagical/contracts/config';
 import { CIRCADIAN_UPDATE } from '@automagical/contracts/controller-logic';
+import { CronExpression } from '@automagical/contracts/utilities';
 import {
   AutoConfigService,
+  Cron,
   SolarCalcService,
   Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
 

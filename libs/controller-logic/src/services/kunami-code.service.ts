@@ -42,7 +42,7 @@ export class KunamiCodeService implements iKunamiService {
 
   public addCommand(command: KunamiCommandDTO): void {
     this.logger.debug(
-      `[${RoomSettings(this.room).friendlyName}] Added Command {${
+      `[${RoomSettings(this.room).friendlyName}] Added command {${
         command.name
       }}`,
     );

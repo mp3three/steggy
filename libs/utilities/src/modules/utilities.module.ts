@@ -21,6 +21,7 @@ import {
   FetchService,
   LocalsService,
   LogExplorerService,
+  ScheduleExplorerService,
   SolarCalcService,
   TemplateService,
 } from '../services';
@@ -37,6 +38,7 @@ import {
   imports: [CacheModule.register(), DiscoveryModule],
   library: LIB_UTILS,
   providers: [
+    LogExplorerService,
     TemplateService,
     AutoLogService,
     LocalsService,
@@ -44,7 +46,7 @@ import {
     EventsExplorerService,
     FetchService,
     SolarCalcService,
-    LogExplorerService,
+    ScheduleExplorerService,
   ],
 })
 export class UtilitiesModule {
@@ -58,7 +60,6 @@ export class UtilitiesModule {
         AutoLogService,
         FetchService,
         LocalsService,
-        LogExplorerService,
         SolarCalcService,
         TemplateService,
         ...decorated,
@@ -67,11 +68,13 @@ export class UtilitiesModule {
       imports: [CacheModule.register(), DiscoveryModule],
       module: UtilitiesModule,
       providers: [
+        LogExplorerService,
+        ScheduleExplorerService,
+        EventsExplorerService,
         AutoConfigService,
         AutoLogService,
         FetchService,
         LocalsService,
-        LogExplorerService,
         SolarCalcService,
         TemplateService,
         ...decorated,

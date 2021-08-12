@@ -16,6 +16,7 @@ import {
 import {
   AutoLogService,
   CacheManagerService,
+  Cron,
   Debug,
   InjectCache,
   OnEvent,
@@ -25,7 +26,6 @@ import {
   Warn,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
 

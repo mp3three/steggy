@@ -31,19 +31,15 @@ export class LogExplorerService {
     private readonly discoveryService: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
-  ) {
-    const providers = this.discoveryService.getProviders();
-    // Merge as early as possible to get ahead of init messages
-    this.mergeLoggerLibraries(providers);
-  }
+  ) {}
 
   // #endregion Constructors
 
   // #region Protected Methods
 
-  protected onApplicationBootstrap(): void {
-    // DO NOT CHANGE TO MODULE INIT
+  protected onModuleInit(): void {
     const providers = this.discoveryService.getProviders();
+    this.mergeLoggerLibraries(providers);
     this.annotationLoggers(providers);
     this.logger.info(`Logger initialized`);
   }
@@ -112,7 +108,6 @@ export class LogExplorerService {
         metatype[LOGGER_LIBRARY] ??= loggerContext;
       });
     });
-    this.logger.info(`Logger contexts initialized`);
   }
 
   private traceLog(wrapper: InstanceWrapper, key: string): void {

@@ -5,6 +5,7 @@ import {
   RoomControllerParametersDTO,
 } from '@automagical/contracts/controller-logic';
 import { LightStateDTO } from '@automagical/contracts/home-assistant';
+import { CronExpression } from '@automagical/contracts/utilities';
 import {
   KunamiCodeService,
   LightManagerService,
@@ -16,8 +17,7 @@ import {
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { AutoLogService, PEAT, Trace } from '@automagical/utilities';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { AutoLogService, Cron, PEAT, Trace } from '@automagical/utilities';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
 

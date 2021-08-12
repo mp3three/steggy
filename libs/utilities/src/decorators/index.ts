@@ -5,6 +5,7 @@ export * from './injectors';
 export * from './library-module.decorator';
 export * from './logger';
 export * from './mqtt.decorator';
+export * from './schedule.decorator';
 export * from './single-call.decorator';
 export * from './string.decorator';
 export * from './to-class.decorator';

@@ -6,5 +6,6 @@ export * from './fetch.service';
 export * from './locals.service';
 export * from './logger';
 export * from './mqtt';
+export * from './schedule-explorer.service';
 export * from './solar-calc.service';
 export * from './template.service';

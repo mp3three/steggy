@@ -2,7 +2,6 @@ import { LIB_CONTROLLER_LOGIC } from '@automagical/contracts/constants';
 import { LibraryModule, RegisterCache } from '@automagical/utilities';
 import { DynamicModule } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
-import { ScheduleModule } from '@nestjs/schedule';
 
 import { DynamicRoomProviders } from '../decorators';
 import {
@@ -37,7 +36,7 @@ export class HomeControllerCustomModule {
     return {
       exports: [...providers, ...decorated],
       global: true,
-      imports: [RegisterCache(), DiscoveryModule, ScheduleModule],
+      imports: [RegisterCache(), DiscoveryModule],
       module: HomeControllerCustomModule,
       providers: [...providers, ...decorated],
     };

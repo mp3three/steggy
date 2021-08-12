@@ -20,15 +20,16 @@ import {
   SendSocketMessageDTO,
   SocketMessageDTO,
 } from '@automagical/contracts/home-assistant';
+import { CronExpression } from '@automagical/contracts/utilities';
 import {
   AutoConfigService,
   AutoLogService,
+  Cron,
   EmitAfter,
   InjectLogger,
   Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { EventEmitter2 } from 'eventemitter2';
 import { Observable, Subscriber } from 'rxjs';
 import WS from 'ws';
