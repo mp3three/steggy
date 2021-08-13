@@ -3,6 +3,7 @@ import {
   BLESSED_GRID,
   Box,
   GridElement,
+  iWorkspace,
   LineChart,
 } from '@automagical/contracts/terminal';
 import { HomeAssistantFetchAPIService } from '@automagical/home-assistant';
@@ -26,7 +27,7 @@ import { FIGLET_ROOM_HEADER } from '../typings';
   menu: ['Loft'],
   name: 'loft',
 })
-export class LoftService {
+export class LoftService implements iWorkspace {
   // #region Object Properties
 
   @WorkspaceElement()
@@ -52,7 +53,7 @@ export class LoftService {
 
   // #region Public Methods
 
-  public show(): void {
+  public onShow(): void {
     this.getHistory();
   }
 

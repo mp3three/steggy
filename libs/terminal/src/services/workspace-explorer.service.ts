@@ -1,5 +1,6 @@
 import {
   iWorkspace,
+  WORKSPACE_ELEMENT,
   WORKSPACE_SETTINGS,
   WorkspaceElementSettingsDTO,
   WorkspaceSettingsDTO,
@@ -14,7 +15,10 @@ import { EventEmitter2 } from 'eventemitter2';
 export class WorkspaceExplorerService {
   // #region Object Properties
 
-  public readonly elements = new Map<iWorkspace, WorkspaceElementSettingsDTO>();
+  public readonly elements = new Map<
+    iWorkspace,
+    Map<string, WorkspaceElementSettingsDTO>
+  >();
   public readonly workspaces = new Map<iWorkspace, WorkspaceSettingsDTO>();
 
   private readonly workspaceByName = new Map<string, iWorkspace>();
@@ -37,14 +41,20 @@ export class WorkspaceExplorerService {
   // #region Protected Methods
 
   @Trace()
-  protected onApplicationBootstrap(): void {
+  protected onModuleInit(): void {
     this.discoveryService
       .getProviders()
-      .filter(({ instance }) => !!instance && instance[WORKSPACE_SETTINGS])
       .forEach(({ instance }: InstanceWrapper<iWorkspace>) => {
-        const settings = instance[WORKSPACE_SETTINGS] as WorkspaceSettingsDTO;
+        if (!instance || !instance.constructor[WORKSPACE_SETTINGS]) {
+          return;
+        }
+        const settings = instance.constructor[
+          WORKSPACE_SETTINGS
+        ] as WorkspaceSettingsDTO;
+        const elements = instance.constructor[WORKSPACE_ELEMENT];
         this.workspaces.set(instance, settings);
         this.workspaceByName.set(settings.name, instance);
+        this.elements.set(instance, elements);
       });
 
     this.logger.info(`Workspaces initialized`);

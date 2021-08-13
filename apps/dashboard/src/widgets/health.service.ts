@@ -1,4 +1,9 @@
-import { BLESSED_GRID } from '@automagical/contracts/terminal';
+import {
+  BLESSED_GRID,
+  GridElement,
+  MarkdownElement,
+  MarkdownOptions,
+} from '@automagical/contracts/terminal';
 import {
   CronExpression,
   MQTT_HEALTH_CHECK,
@@ -18,7 +23,7 @@ export class HealthService {
   // #region Object Properties
 
   private SERVICES = new Map<string, dayjs.Dayjs>();
-  private WIDGET: ContribWidgets.MarkdownElement;
+  private WIDGET: MarkdownElement;
 
   // #endregion Object Properties
 
@@ -26,7 +31,7 @@ export class HealthService {
 
   constructor(
     @Inject(BLESSED_GRID)
-    private readonly GRID: ContribWidgets.GridElement,
+    private readonly GRID: GridElement,
   ) {}
 
   // #endregion Constructors
@@ -66,15 +71,19 @@ export class HealthService {
 
   @RefreshAfter()
   protected onApplicationBootstrap(): void {
-    this.WIDGET = this.GRID.set<
-      ContribWidgets.MarkdownOptions,
-      ContribWidgets.MarkdownElement
-    >(10, 10, 2, 2, Markdown, {
-      draggable: true,
-      label: 'System Health',
-      markdown: `# Waiting....`,
-      padding: 1,
-    } as ContribWidgets.MarkdownOptions);
+    this.WIDGET = this.GRID.set<MarkdownOptions, MarkdownElement>(
+      10,
+      10,
+      2,
+      2,
+      Markdown,
+      {
+        draggable: true,
+        label: 'System Health',
+        markdown: `# Waiting....`,
+        padding: 1,
+      } as MarkdownOptions,
+    );
   }
 
   // #endregion Protected Methods

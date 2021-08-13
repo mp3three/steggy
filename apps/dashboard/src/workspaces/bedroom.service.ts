@@ -18,7 +18,7 @@ import { FIGLET_ROOM_HEADER } from '../typings';
   menu: ['Bedroom'],
   name: 'bedroom',
 })
-export class BedroomService implements iWorkspace {
+export class BedroomService {
   // #region Object Properties
 
   @WorkspaceElement()
@@ -36,14 +36,6 @@ export class BedroomService implements iWorkspace {
   ) {}
 
   // #endregion Constructors
-
-  // #region Public Methods
-
-  public onShow(): void {
-    //
-  }
-
-  // #endregion Public Methods
 
   // #region Protected Methods
 

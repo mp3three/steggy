@@ -11,12 +11,6 @@ import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class LeftMenuService {
-  // #region Static Properties
-
-  public static readonly WORKSPACE_ELEMENTS = new Map<string, string[]>();
-
-  // #endregion Static Properties
-
   // #region Object Properties
 
   public activeWorkspace: iWorkspace;
@@ -79,23 +73,22 @@ export class LeftMenuService {
         return;
       }
       if (this.activeWorkspace) {
-        const activeName = this.workspaceExplorer.workspaces.get(
-          this.activeWorkspace,
-        ).name;
-        LeftMenuService.WORKSPACE_ELEMENTS.get(activeName)?.forEach(
-          (element) => {
-            this.activeWorkspace[element]?.hide();
-          },
-        );
+        this.workspaceExplorer.elements
+          .get(this.activeWorkspace)
+          .forEach((settings, key) => {
+            this.activeWorkspace[key]?.hide();
+          });
+
         if (workspace.onHide) {
           await workspace.onHide();
         }
       }
-      const name = this.workspaceExplorer.workspaces.get(workspace).name;
+      this.workspaceExplorer.elements
+        .get(workspace)
+        .forEach((settings, key) => {
+          workspace[key]?.show();
+        });
 
-      LeftMenuService.WORKSPACE_ELEMENTS.get(name)?.forEach((element) => {
-        workspace[element]?.show();
-      });
       if (workspace.onShow) {
         await workspace.onShow();
       }

@@ -23,7 +23,7 @@ export class BlessedModule {
   // #region Public Static Methods
 
   public static forRoot(BLESSED_COLORS: unknown): DynamicModule {
-    const symbols = [
+    const providers = [
       WorkspaceExplorerService,
       {
         inject: [AutoConfigService],
@@ -62,11 +62,11 @@ export class BlessedModule {
       },
     ] as Provider[];
     return {
-      exports: symbols,
+      exports: providers,
       global: true,
       imports: [DiscoveryModule],
       module: BlessedModule,
-      providers: symbols,
+      providers,
     };
   }
 

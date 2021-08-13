@@ -1,4 +1,4 @@
-import { BLESSED_GRID, Box } from '@automagical/contracts/terminal';
+import { BLESSED_GRID, Box, iWorkspace } from '@automagical/contracts/terminal';
 import { Workspace, WorkspaceElement } from '@automagical/terminal';
 import { FetchService, SliceLines } from '@automagical/utilities';
 import { Inject } from '@nestjs/common';
@@ -12,7 +12,7 @@ import figlet from 'figlet';
   menu: ['Stonks'],
   name: 'stonks',
 })
-export class StonksService {
+export class StonksService implements iWorkspace {
   // #region Object Properties
 
   @WorkspaceElement()
@@ -33,7 +33,7 @@ export class StonksService {
 
   // #region Public Methods
 
-  public async show(): Promise<void> {
+  public async onShow(): Promise<void> {
     this.BOX.setContent(chalk`{magenta Loading...}`);
     this.BOX.setContent(await this.getStonks());
   }

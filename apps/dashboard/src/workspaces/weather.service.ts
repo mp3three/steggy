@@ -1,5 +1,5 @@
 import { LATITUDE, LONGITUDE } from '@automagical/contracts/config';
-import { BLESSED_GRID, Box } from '@automagical/contracts/terminal';
+import { BLESSED_GRID, Box, iWorkspace } from '@automagical/contracts/terminal';
 import { Workspace, WorkspaceElement } from '@automagical/terminal';
 import {
   AutoConfigService,
@@ -17,7 +17,7 @@ import figlet from 'figlet';
   menu: ['Weather'],
   name: 'weather',
 })
-export class WeatherService {
+export class WeatherService implements iWorkspace {
   // #region Object Properties
 
   public readonly menuPosition = ['Weather'];
@@ -45,7 +45,7 @@ export class WeatherService {
 
   // #region Public Methods
 
-  public async show(): Promise<void> {
+  public async onShow(): Promise<void> {
     const LOADING = chalk.magenta(`Loading`);
     this.MOON.setContent(LOADING);
     this.FORECAST.setContent(LOADING);

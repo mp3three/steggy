@@ -36,14 +36,6 @@ export class GuestService {
 
   // #endregion Constructors
 
-  // #region Public Methods
-
-  public show(): void {
-    //
-  }
-
-  // #endregion Public Methods
-
   // #region Protected Methods
 
   protected onApplicationBootstrap(): void {

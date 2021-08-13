@@ -61,3 +61,5 @@ export type BoxElement = blessed.Widgets.BoxElement;
 export type Screen = blessed.Widgets.Screen;
 export type TreeElement = contrib.Widgets.TreeElement;
 export type TreeOptions = contrib.Widgets.TreeOptions;
+export type MarkdownElement = contrib.Widgets.MarkdownElement;
+export type MarkdownOptions = contrib.Widgets.MarkdownOptions;
