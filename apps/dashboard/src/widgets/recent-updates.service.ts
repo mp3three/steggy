@@ -1,12 +1,10 @@
 import { HassEventDTO } from '@automagical/contracts/home-assistant';
-import { BLESSED_SCREEN } from '@automagical/contracts/terminal';
+import { BLESSED_GRID, BLESSED_SCREEN } from '@automagical/contracts/terminal';
 import { HASocketAPIService } from '@automagical/home-assistant';
 import { RefreshAfter } from '@automagical/terminal';
 import { Inject, Injectable } from '@nestjs/common';
 import { Widgets } from 'blessed';
 import { log as Log, Widgets as ContribWidgets } from 'blessed-contrib';
-
-import { BLESSED_GRID } from '../typings';
 
 @Injectable()
 export class RecentUpdatesService {

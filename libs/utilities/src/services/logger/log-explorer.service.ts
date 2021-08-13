@@ -1,20 +1,10 @@
-import {
-  DEBUG_LOG,
-  DebugLogDTO,
-  LOG_CONTEXT,
-  LOGGER_LIBRARY,
-  TRACE_LOG,
-  TraceLogDTO,
-  WARNING_LOG,
-  WarningLogDTO,
-} from '@automagical/contracts/utilities';
+import { LOG_CONTEXT, LOGGER_LIBRARY } from '@automagical/contracts/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { ClassConstructor } from 'class-transformer';
 
 import { mappedContexts } from '../../decorators/injectors';
-import { getLogContext } from '../../includes/logger';
 import { AutoLogService } from './auto-log.service';
 
 /**
@@ -29,8 +19,6 @@ export class LogExplorerService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly discoveryService: DiscoveryService,
-    private readonly metadataScanner: MetadataScanner,
-    private readonly reflector: Reflector,
   ) {}
 
   // #endregion Constructors
@@ -38,9 +26,10 @@ export class LogExplorerService {
   // #region Protected Methods
 
   protected onModuleInit(): void {
-    const providers = this.discoveryService.getProviders();
+    const providers = this.discoveryService
+      .getProviders()
+      .filter(({ instance }) => !!instance);
     this.mergeLoggerLibraries(providers);
-    this.annotationLoggers(providers);
     this.logger.info(`Logger initialized`);
   }
 
@@ -48,43 +37,11 @@ export class LogExplorerService {
 
   // #region Private Methods
 
-  private annotationLoggers(providers: InstanceWrapper[]): void {
-    providers.forEach((wrapper: InstanceWrapper) => {
-      const { instance } = wrapper;
-      if (!instance) {
-        return;
-      }
-      const proto = Object.getPrototypeOf(instance);
-      this.metadataScanner.scanFromPrototype(instance, proto, (key) => {
-        // this.traceLog(wrapper, key);
-        this.debugLog(wrapper, key);
-        this.warnLog(wrapper, key);
-      });
-    });
-  }
-
-  private debugLog(wrapper: InstanceWrapper, key: string): void {
-    const { instance } = wrapper;
-    const options = this.reflector.get<DebugLogDTO>(DEBUG_LOG, instance[key]);
-    if (!options) {
-      return;
-    }
-    const originalMethod = instance[key];
-    instance[key] = function (...parameters) {
-      const message = options.message ?? `${this.context}#${key}`;
-      AutoLogService.call('debug', getLogContext(instance), message);
-      return originalMethod.apply(this, parameters);
-    };
-  }
-
   private mergeLoggerLibraries(
     providers: InstanceWrapper<ClassConstructor<unknown>>[],
   ): void {
     providers.forEach((wrapper) => {
       const { instance, host } = wrapper;
-      if (!instance) {
-        return;
-      }
       const proto = instance.constructor;
       if (!proto || !proto[LOGGER_LIBRARY]) {
         return;
@@ -108,39 +65,6 @@ export class LogExplorerService {
         metatype[LOGGER_LIBRARY] ??= loggerContext;
       });
     });
-  }
-
-  private traceLog(wrapper: InstanceWrapper, key: string): void {
-    const { instance } = wrapper;
-    const options = this.reflector.get<TraceLogDTO>(TRACE_LOG, instance[key]);
-    if (!options) {
-      return;
-    }
-    const originalMethod = instance[key];
-    instance[key] = function (...parameters) {
-      const message = options.message ?? `${this.context}#${key}`;
-      AutoLogService.call('trace', getLogContext(instance) + ':PRE', message);
-      const result = originalMethod.apply(this, parameters);
-      AutoLogService.call('trace', getLogContext(instance) + ':POST', message);
-      return result;
-    };
-  }
-
-  private warnLog(wrapper: InstanceWrapper, key: string): void {
-    const { instance } = wrapper;
-    const options = this.reflector.get<WarningLogDTO>(
-      WARNING_LOG,
-      instance[key],
-    );
-    if (!options) {
-      return;
-    }
-    const originalMethod = instance[key];
-    instance[key] = function (...parameters) {
-      const message = options.message ?? `${this.context}#${key}`;
-      AutoLogService.call('warn', getLogContext(instance) + ':POST', message);
-      return originalMethod.apply(this, parameters);
-    };
   }
 
   // #endregion Private Methods

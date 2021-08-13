@@ -1,26 +1,32 @@
 import { EcobeeClimateStateDTO } from '@automagical/contracts/home-assistant';
-import { Box, LineChart } from '@automagical/contracts/terminal';
+import {
+  BLESSED_GRID,
+  Box,
+  GridElement,
+  LineChart,
+} from '@automagical/contracts/terminal';
 import { HomeAssistantFetchAPIService } from '@automagical/home-assistant';
-import { RefreshAfter } from '@automagical/terminal';
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  RefreshAfter,
+  Workspace,
+  WorkspaceElement,
+} from '@automagical/terminal';
+import { Inject } from '@nestjs/common';
 import { Widgets } from 'blessed';
 import { Widgets as ContribWidgets } from 'blessed-contrib';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 import figlet from 'figlet';
 
-import { LoadWorkspace, WorkspaceElement } from '../decorators';
 import { RemoteService } from '../services';
-import {
-  BLESSED_GRID,
-  FIGLET_ROOM_HEADER,
-  GridElement,
-  Workspace,
-} from '../typings';
+import { FIGLET_ROOM_HEADER } from '../typings';
 
-@Injectable()
-@LoadWorkspace(['Loft'])
-export class LoftService implements Workspace {
+@Workspace({
+  friendlyName: 'Loft',
+  menu: ['Loft'],
+  name: 'loft',
+})
+export class LoftService {
   // #region Object Properties
 
   @WorkspaceElement()

@@ -1,9 +1,13 @@
-import { Tree } from '@automagical/contracts/terminal';
+import {
+  BLESSED_GRID,
+  GridElement,
+  iWorkspace,
+  Tree,
+  TreeElement,
+  TreeOptions,
+} from '@automagical/contracts/terminal';
+import { WorkspaceExplorerService } from '@automagical/terminal';
 import { Inject, Injectable } from '@nestjs/common';
-import { Widgets as ContribWidgets } from 'blessed-contrib';
-
-import { LoadWorkspace } from '../decorators';
-import { BLESSED_GRID, GridElement, Workspace } from '../typings';
 
 @Injectable()
 export class LeftMenuService {
@@ -15,23 +19,26 @@ export class LeftMenuService {
 
   // #region Object Properties
 
-  public activeWorkspace: Workspace;
+  public activeWorkspace: iWorkspace;
 
-  private TREE: ContribWidgets.TreeElement;
-  private treeData: Pick<ContribWidgets.TreeOptions, 'children'> = {};
+  private TREE: TreeElement;
+  private treeData: Pick<TreeOptions, 'children'> = {};
 
   // #endregion Object Properties
 
   // #region Constructors
 
-  constructor(@Inject(BLESSED_GRID) private readonly grid: GridElement) {}
+  constructor(
+    @Inject(BLESSED_GRID) private readonly grid: GridElement,
+    private readonly workspaceExplorer: WorkspaceExplorerService,
+  ) {}
 
   // #endregion Constructors
 
   // #region Protected Methods
 
   protected onApplicationBootstrap(): void {
-    LoadWorkspace.AVAILABLE_WORKSPACES.forEach(({ name, menu }, workspace) => {
+    this.workspaceExplorer.workspaces.forEach(({ name, menu }, workspace) => {
       let next: Record<string, unknown> = this.treeData;
       const length = menu.length;
       menu.forEach((menuItem, index) => {
@@ -66,13 +73,13 @@ export class LeftMenuService {
 
   // #region Private Methods
 
-  private onTreeSelect(workspace: Workspace): void {
+  private async onTreeSelect(workspace: iWorkspace): Promise<void> {
     try {
       if (!workspace) {
         return;
       }
       if (this.activeWorkspace) {
-        const activeName = LoadWorkspace.AVAILABLE_WORKSPACES.get(
+        const activeName = this.workspaceExplorer.workspaces.get(
           this.activeWorkspace,
         ).name;
         LeftMenuService.WORKSPACE_ELEMENTS.get(activeName)?.forEach(
@@ -80,13 +87,18 @@ export class LeftMenuService {
             this.activeWorkspace[element]?.hide();
           },
         );
+        if (workspace.onHide) {
+          await workspace.onHide();
+        }
       }
-      const name = LoadWorkspace.AVAILABLE_WORKSPACES.get(workspace).name;
+      const name = this.workspaceExplorer.workspaces.get(workspace).name;
 
       LeftMenuService.WORKSPACE_ELEMENTS.get(name)?.forEach((element) => {
         workspace[element]?.show();
       });
-      workspace.show();
+      if (workspace.onShow) {
+        await workspace.onShow();
+      }
       this.activeWorkspace = workspace;
     } catch (error) {
       console.log(error);
@@ -101,7 +113,7 @@ export class LeftMenuService {
     this.TREE.border.fg = 120;
     this.TREE.focus();
     this.TREE.on('select', (node) => {
-      const workspace = [...LoadWorkspace.AVAILABLE_WORKSPACES.entries()].find(
+      const workspace = [...this.workspaceExplorer.workspaces.entries()].find(
         ([, { name }]) => {
           return name === node.workspace;
         },

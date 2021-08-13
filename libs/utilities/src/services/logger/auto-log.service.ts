@@ -6,6 +6,7 @@ import { ClassConstructor } from 'class-transformer';
 import pino from 'pino';
 
 import { mappedContexts } from '../../decorators/injectors';
+/* eslint-disable security/detect-non-literal-regexp */
 
 type LoggerFunction =
   | ((message: string, ...arguments_: unknown[]) => void)
@@ -59,6 +60,50 @@ const prettyFormatMessage = (message: string): string => {
   return message;
 };
 
+const prettyErrorMessage = (message: string): string => {
+  if (!message) {
+    return ``;
+  }
+  const lines = message.split(`\n`);
+  const prefix = "Nest can't resolve dependencies of the ";
+  if (lines[0].includes(prefix)) {
+    // eslint-disable-next-line prefer-const
+    let [service, module] = lines[0].split('.');
+    service = service.slice(prefix.length);
+    const provider = service.slice(0, service.indexOf(' '));
+    service = service.slice(service.indexOf(' ') + 1);
+    const ctorArguments = service
+      .slice(1, -1)
+      .split(',')
+      .map((item) => item.trim());
+    const match = module.match(new RegExp('in the ([^ ]+) context'));
+    if (match) {
+      message = message.replace(
+        new RegExp(provider, 'g'),
+        chalk.bold.yellow(provider),
+      );
+      ctorArguments.forEach((parameter) => {
+        let out = parameter;
+        out = parameter === '?' ? chalk.bold.red('?') : chalk.bold.green(out);
+        message = message.replace(parameter, out);
+      });
+      message = message.replace(
+        new RegExp(match[1], 'g'),
+        chalk.bold(match[1]),
+      );
+    }
+  }
+  // Nest can't resolve dependencies of the RecentUpdatesService (BLESSED_SCREEN, ?, HASocketAPIService). Please make sure that the argument dependency at index [1] is available in the DashboardModule context.
+
+  // Potential solutions:
+  // - If dependency is a provider, is it part of the current DashboardModule?
+  // - If dependency is exported from a separate @Module, is that module imported within DashboardModule?
+  //   @Module({
+  //     imports: [ /* the Module containing dependency */ ]
+  //   })
+  return message;
+};
+
 @Injectable({ scope: Scope.TRANSIENT })
 export class AutoLogService {
   // #region Static Properties
@@ -92,15 +137,41 @@ export class AutoLogService {
   }
 
   public static nestLogger(): Record<
-    'log' | 'warn' | 'error',
+    'log' | 'warn' | 'error' | 'debug' | 'verbose',
     (a: string, b: string) => void
   > {
-    return {
-      error: (message, context) => {
+    const out = {
+      debug: (message, context) => {
+        context = `${NEST}:${context}`;
+        if (!prettyPrint) {
+          AutoLogService.logger.info({ context }, message);
+          return;
+        }
+        if (context === `${NEST}:InstanceLoader`) {
+          message = prettyFormatMessage(
+            message
+              .split(' ')
+              .map((item, index) => (index === 0 ? `[${item}]` : item))
+              .join(' '),
+          );
+        }
+        // Never actually seen this come through
+        // Using magenta to make it obvious if it happens, but will change to blue later
+        AutoLogService.logger.debug(
+          `${highlightContext(context, 'bgMagenta')} ${message}`,
+        );
+      },
+      error: (message: string, context: string) => {
         context = `${NEST}:${context}`;
         if (!prettyPrint) {
           AutoLogService.logger.error({ context }, message);
           return;
+        }
+        if (context.length > 20) {
+          // Context contains the stack trace of the nest injector
+          // Nothing actually useful for debugging
+          context = `@nestjs:ErrorMessage`;
+          message = prettyErrorMessage(message);
         }
         AutoLogService.logger.error(
           `${highlightContext(context, 'bgRed')} ${message}`,
@@ -124,6 +195,10 @@ export class AutoLogService {
           `${highlightContext(context, 'bgGreen')} ${message}`,
         );
       },
+
+      verbose: (message, context) => {
+        out.debug(message, context);
+      },
       warn: (message, context) => {
         context = `${NEST}:${context}`;
         if (!prettyPrint) {
@@ -135,6 +210,7 @@ export class AutoLogService {
         );
       },
     };
+    return out;
   }
 
   public static prettyLog(): void {

@@ -3,6 +3,7 @@ import {
   HA_SOCKET_READY,
   METADATA_CACHE_KEY,
 } from '@automagical/contracts/constants';
+import { ROOM_COMMAND } from '@automagical/contracts/controller-logic';
 import {
   BatteryStateDTO,
   domain,
@@ -32,6 +33,7 @@ import { EventEmitter2 } from 'eventemitter2';
 
 import {
   GLOBAL_TRANSITION,
+  HOMEASSISTANT_LEAVE_HOME,
   HOMEASSISTANT_MOBILE_LOCK,
   HOMEASSISTANT_MOBILE_UNLOCK,
 } from '../typings';
@@ -165,45 +167,19 @@ export class ApplicationService {
     );
   }
 
+  /**
+   * Home Assistant relayed this request via a mobile app action
+   *
+   * Intended to lock up, turn off the lights, and send back verification
+   */
+  @OnMQTT(HOMEASSISTANT_LEAVE_HOME)
+  @Debug('Home Assistant => Leave Home')
+  protected async leaveHome(): Promise<void> {
+    await this.lockDoors();
+    ['master', 'loft', 'downstairs', 'guest'].forEach((room) =>
+      this.eventEmitterService.emit(ROOM_COMMAND(room, 'areaOff')),
+    );
+  }
+
   // #endregion Protected Methods
 }
-
-// @OnMQTT(SET_ROOM_STATE)
-// protected async setRoomState(
-//   @Payload() [room, state]: [ROOM_NAMES, keyof iRoomController],
-// ): Promise<void> {
-//   switch (state) {
-//     case 'areaOff':
-//       await this.relayService.turnOff([room]);
-//       return;
-//     case 'areaOn':
-//       await this.relayService.turnOn([room]);
-//       return;
-//     case 'dimUp':
-//       await this.relayService.dimUp([room]);
-//       return;
-//     case 'dimDown':
-//       await this.relayService.dimDown([room]);
-//       return;
-//     case 'favorite':
-//       this.eventEmitterService.emit(ROOM_FAVORITE(room));
-//       return;
-//   }
-// }
-
-// /**
-//  * Home Assistant relayed this request via a mobile app action
-//  *
-//  * Intended to lock up, turn off the lights, and send back verification
-//  */
-// @OnMQTT(HOMEASSISTANT_LEAVE_HOME)
-// @Debug('Home Assistant => Leave Home')
-// protected async leaveHome(): Promise<void> {
-//   await this.lockDoors();
-//   await this.relayService.turnOff([
-//     ROOM_NAMES.master,
-//     ROOM_NAMES.loft,
-//     ROOM_NAMES.downstairs,
-//     ROOM_NAMES.guest,
-//   ]);
-// }

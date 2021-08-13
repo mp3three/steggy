@@ -1,22 +1,23 @@
 import { LATITUDE, LONGITUDE } from '@automagical/contracts/config';
-import { Box } from '@automagical/contracts/terminal';
+import { BLESSED_GRID, Box } from '@automagical/contracts/terminal';
+import { Workspace, WorkspaceElement } from '@automagical/terminal';
 import {
   AutoConfigService,
   FetchService,
   SliceLines,
 } from '@automagical/utilities';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { Widgets } from 'blessed';
 import { Widgets as ContribWidgets } from 'blessed-contrib';
 import chalk from 'chalk';
 import figlet from 'figlet';
 
-import { LoadWorkspace, WorkspaceElement } from '../decorators';
-import { BLESSED_GRID, Workspace } from '../typings';
-
-@Injectable()
-@LoadWorkspace(['Weather'])
-export class WeatherService implements Workspace {
+@Workspace({
+  friendlyName: 'Weather',
+  menu: ['Weather'],
+  name: 'weather',
+})
+export class WeatherService {
   // #region Object Properties
 
   public readonly menuPosition = ['Weather'];

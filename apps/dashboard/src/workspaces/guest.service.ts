@@ -1,21 +1,23 @@
-import { Box } from '@automagical/contracts/terminal';
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  BLESSED_GRID,
+  Box,
+  GridElement,
+} from '@automagical/contracts/terminal';
+import { Workspace, WorkspaceElement } from '@automagical/terminal';
+import { Inject } from '@nestjs/common';
 import { Widgets } from 'blessed';
 import chalk from 'chalk';
 import figlet from 'figlet';
 
-import { LoadWorkspace, WorkspaceElement } from '../decorators';
 import { RemoteService } from '../services';
-import {
-  BLESSED_GRID,
-  FIGLET_ROOM_HEADER,
-  GridElement,
-  Workspace,
-} from '../typings';
+import { FIGLET_ROOM_HEADER } from '../typings';
 
-@Injectable()
-@LoadWorkspace(['Guest'])
-export class GuestService implements Workspace {
+@Workspace({
+  friendlyName: 'Guest',
+  menu: ['Guest'],
+  name: 'guest',
+})
+export class GuestService {
   // #region Object Properties
 
   @WorkspaceElement()

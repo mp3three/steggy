@@ -1,9 +1,24 @@
-import { DEBUG_LOG, DebugLogDTO } from '@automagical/contracts/utilities';
-import { SetMetadata } from '@nestjs/common';
+import { LOG_CONTEXT } from '@automagical/contracts/utilities';
 
-export function Debug(message?: string | DebugLogDTO): MethodDecorator {
-  return SetMetadata(
-    DEBUG_LOG,
-    typeof message === 'string' ? { message } : message ?? {},
-  );
+import { AutoLogService } from '../../services';
+
+export function Debug(message: string): MethodDecorator {
+  return function (
+    target: unknown,
+    key: string,
+    descriptor: PropertyDescriptor,
+  ): unknown {
+    // Disabling here will leave the source function unaltered
+    // Trace logging is a performance hit (even if minor), so better this than changing the log level
+    const original = descriptor.value;
+    descriptor.value = function (...parameters) {
+      AutoLogService.call(
+        'debug',
+        target.constructor[LOG_CONTEXT],
+        message ?? `${target.constructor[LOG_CONTEXT]}#${key} called`,
+      );
+      return original.apply(this, parameters);
+    };
+    return descriptor;
+  };
 }

@@ -1,9 +1,10 @@
+import { BLESSED_GRID } from '@automagical/contracts/terminal';
 import {
   CronExpression,
   MQTT_HEALTH_CHECK,
 } from '@automagical/contracts/utilities';
 import { RefreshAfter } from '@automagical/terminal';
-import { Cron, OnMQTT, Payload } from '@automagical/utilities';
+import { Cron, OnMQTT } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import {
   markdown as Markdown,
@@ -11,8 +12,6 @@ import {
 } from 'blessed-contrib';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
-
-import { BLESSED_GRID } from '../typings';
 
 @Injectable()
 export class HealthService {
@@ -60,7 +59,7 @@ export class HealthService {
   }
 
   @OnMQTT(MQTT_HEALTH_CHECK)
-  protected onHealthCheck(@Payload() app: string): void {
+  protected onHealthCheck(app: string): void {
     this.SERVICES.set(app, dayjs());
     this.updateTable();
   }

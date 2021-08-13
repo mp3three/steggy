@@ -1,17 +1,18 @@
-import { Box } from '@automagical/contracts/terminal';
+import { BLESSED_GRID, Box } from '@automagical/contracts/terminal';
+import { Workspace, WorkspaceElement } from '@automagical/terminal';
 import { FetchService, SliceLines } from '@automagical/utilities';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { Widgets } from 'blessed';
 import { Widgets as ContribWidgets } from 'blessed-contrib';
 import chalk from 'chalk';
 import figlet from 'figlet';
 
-import { LoadWorkspace, WorkspaceElement } from '../decorators';
-import { BLESSED_GRID, Workspace } from '../typings';
-
-@Injectable()
-@LoadWorkspace(['Stonks'])
-export class StonksService implements Workspace {
+@Workspace({
+  friendlyName: 'Stonks',
+  menu: ['Stonks'],
+  name: 'stonks',
+})
+export class StonksService {
   // #region Object Properties
 
   @WorkspaceElement()

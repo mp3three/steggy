@@ -1,1 +1,2 @@
 export const FIGLET_ROOM_HEADER = 'DOS Rebel';
+export const TOGGLE_LOFT_CONTROLLER = 'TOGGLE_LOFT_CONTROLLER';

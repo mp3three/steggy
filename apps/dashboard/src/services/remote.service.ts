@@ -1,12 +1,15 @@
 import { RoomControllerParametersDTO } from '@automagical/contracts/controller-logic';
-import { Box, Button } from '@automagical/contracts/terminal';
+import {
+  BLESSED_GRID,
+  Box,
+  Button,
+  GridElement,
+} from '@automagical/contracts/terminal';
 import { SEND_ROOM_STATE } from '@automagical/contracts/utilities';
+import { WorkspaceElement } from '@automagical/terminal';
 import { MqttService } from '@automagical/utilities';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { Widgets } from 'blessed';
-
-import { WorkspaceElement } from '../decorators';
-import { BLESSED_GRID, GridElement } from '../typings';
 
 const BUTTON_SETTINGS = {
   align: 'center',

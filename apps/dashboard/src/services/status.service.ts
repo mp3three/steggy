@@ -1,7 +1,7 @@
 import { HassEventDTO } from '@automagical/contracts/home-assistant';
 import { RefreshAfter } from '@automagical/terminal';
 import { CacheManagerService, InjectCache } from '@automagical/utilities';
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { box as Box, Widgets } from 'blessed';
 import { grid as Grid } from 'blessed-contrib';
 

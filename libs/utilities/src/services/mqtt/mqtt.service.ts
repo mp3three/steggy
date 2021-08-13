@@ -17,6 +17,7 @@ export type MqttCallback<T = Record<string, unknown>> = (
   payload: T,
   packet?: Packet,
 ) => void;
+
 @Injectable()
 export class MqttService {
   // #region Object Properties
@@ -54,10 +55,9 @@ export class MqttService {
       });
       this.client.subscribe(topics, options, (error, granted) => {
         if (error) {
-          reject(error);
-        } else {
-          resolve(granted);
+          return reject(error);
         }
+        resolve(granted);
       });
     });
   }
@@ -75,17 +75,20 @@ export class MqttService {
       this.logger.debug(`Publish {${topic}}`);
       this.client.publish(topic, message, options, (error, packet) => {
         if (error) {
-          reject(error);
-        } else {
-          resolve(packet);
+          return reject(error);
         }
+        resolve(packet);
       });
     });
   }
 
   @Trace()
-  public subscribe(topic: string, callback: MqttCallback): void {
-    this.listen(topic);
+  public subscribe(
+    topic: string,
+    callback: MqttCallback,
+    options?: IClientSubscribeOptions,
+  ): void {
+    this.listen(topic, options);
     const callbacks = this.callbacks.get(topic) ?? [];
     callbacks.push(callback);
     this.callbacks.set(topic, callbacks);
@@ -99,10 +102,9 @@ export class MqttService {
     return new Promise<Packet>((resolve, reject) => {
       this.client.unsubscribe(topic, options, (error, packet) => {
         if (error) {
-          reject(error);
-        } else {
-          resolve(packet);
+          return reject(error);
         }
+        resolve(packet);
       });
     });
   }

@@ -1,27 +1,30 @@
-import { Box } from '@automagical/contracts/terminal';
-import { Inject, Injectable } from '@nestjs/common';
-import { Widgets } from 'blessed';
+import {
+  BLESSED_GRID,
+  Box,
+  BoxElement,
+  GridElement,
+  iWorkspace,
+} from '@automagical/contracts/terminal';
+import { Workspace, WorkspaceElement } from '@automagical/terminal';
+import { Inject } from '@nestjs/common';
 import chalk from 'chalk';
 import figlet from 'figlet';
 
-import { LoadWorkspace, WorkspaceElement } from '../decorators';
 import { RemoteService } from '../services';
-import {
-  BLESSED_GRID,
-  FIGLET_ROOM_HEADER,
-  GridElement,
-  Workspace,
-} from '../typings';
+import { FIGLET_ROOM_HEADER } from '../typings';
 
-@Injectable()
-@LoadWorkspace(['Bedroom'])
-export class BedroomService implements Workspace {
+@Workspace({
+  friendlyName: 'Master Bedroom',
+  menu: ['Bedroom'],
+  name: 'bedroom',
+})
+export class BedroomService implements iWorkspace {
   // #region Object Properties
 
   @WorkspaceElement()
-  private BOX: Widgets.BoxElement;
+  private BOX: BoxElement;
   @WorkspaceElement()
-  private HEADER: Widgets.BoxElement;
+  private HEADER: BoxElement;
 
   // #endregion Object Properties
 
@@ -36,7 +39,7 @@ export class BedroomService implements Workspace {
 
   // #region Public Methods
 
-  public show(): void {
+  public onShow(): void {
     //
   }
 

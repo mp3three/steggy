@@ -21,6 +21,7 @@
     "submission-server": "sublime",
     "requests": "content",
     "symbols": "mappings",
+    "blessed": "views",
     "wrapper": "global",
     "workers": "tasks",
     ".config": "config",

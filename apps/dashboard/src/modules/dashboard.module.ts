@@ -1,14 +1,17 @@
 import { APP_DASHBOARD } from '@automagical/contracts/constants';
-import { BLESSED_SCREEN, Grid } from '@automagical/contracts/terminal';
+import {
+  BLESSED_GRID,
+  BLESSED_SCREEN,
+  Grid,
+  Screen,
+} from '@automagical/contracts/terminal';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import { BlessedModule } from '@automagical/terminal';
 import { ApplicationModule } from '@automagical/utilities';
-import { Widgets } from 'blessed';
 
 import { BLESSED_COLORS } from '../includes';
 import { StatusService } from '../services';
 import { RemoteService } from '../services/remote.service';
-import { BLESSED_GRID } from '../typings';
 import {
   HealthService,
   LeftMenuService,
@@ -39,7 +42,7 @@ import {
     {
       inject: [BLESSED_SCREEN],
       provide: BLESSED_GRID,
-      useFactory(screen: Widgets.Screen) {
+      useFactory(screen: Screen) {
         return new Grid({
           // Bad typescript definitions
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
