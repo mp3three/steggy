@@ -1,6 +1,9 @@
-import { LocalStashDTO, ResponseLocals } from '@automagical/contracts';
 import { MAX_STASH_DEPTH } from '@automagical/contracts/config';
-import { APIRequest } from '@automagical/contracts/server';
+import {
+  APIRequest,
+  LocalStashDTO,
+  ResponseLocals,
+} from '@automagical/contracts/server';
 import {
   Inject,
   Injectable,

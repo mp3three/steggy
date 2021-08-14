@@ -1,8 +1,6 @@
 import {
   ALL_ENTITIES_UPDATED,
   HA_EVENT_STATE_CHANGE,
-} from '@automagical/contracts/constants';
-import {
   HassEventDTO,
   HassStateDTO,
 } from '@automagical/contracts/home-assistant';

@@ -1,8 +1,0 @@
-export const RUN_ACTIONS = 'RUN_ACTIONS';
-export const TRUNCATE_TEAM_EVENT = 'TRUNCATE_TEAM';
-export const CREATE_MEMBER_EVENT = 'CREATE_MEMBER';
-export const CREATE_PROJECT = 'CREATE_PROJECT';
-export const DELETE_PROJECT = 'DELETE_PROJECT';
-export const CREATE_FORM = 'CREATE_FORM';
-export const UPDATE_FORM = 'UPDATE_FORM';
-export const DELETE_FORM = 'DELETE_FORM';

@@ -1,12 +1,8 @@
-import {
-  HA_EVENT_STATE_CHANGE,
-  HA_SOCKET_READY,
-  METADATA_CACHE_KEY,
-} from '@automagical/contracts/constants';
 import { ROOM_COMMAND } from '@automagical/contracts/controller-logic';
 import {
   BatteryStateDTO,
   domain,
+  HA_SOCKET_READY,
   HASS_DOMAINS,
 } from '@automagical/contracts/home-assistant';
 import {
@@ -142,14 +138,6 @@ export class ApplicationService {
       `🌃 Dusk: ${dusk}`,
     ].join(`\n`);
     await this.notifyService.notify(`${message}\n${message}`);
-  }
-
-  @OnEvent(HA_EVENT_STATE_CHANGE)
-  @Trace()
-  protected async eventStats(): Promise<void> {
-    const key = METADATA_CACHE_KEY('HASS_EVENT_COUNT');
-    const value = (await this.cache.get<number>(key)) ?? 0;
-    await this.cache.set(key, value);
   }
 
   @OnEvent(HA_SOCKET_READY)

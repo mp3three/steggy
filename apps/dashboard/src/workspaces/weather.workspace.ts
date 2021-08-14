@@ -22,7 +22,7 @@ import chalk from 'chalk';
 
 @Workspace({
   friendlyName: 'Weather',
-  menu: [` ${WeatherIcons.day_cloudy_high}  Weather`],
+  menu: [chalk` ${WeatherIcons.day_cloudy_high}  {bold Weather}`],
   name: 'weather',
 })
 export class WeatherWorkspace implements iWorkspace {
@@ -94,7 +94,7 @@ export class WeatherWorkspace implements iWorkspace {
 
   private async render() {
     process.nextTick(async () => {
-      this.MOON = this.grid.set(0.25, 7.75, 5, 2, Box, {
+      this.MOON = this.grid.set(0.25, 7.25, 5, 2.5, Box, {
         hidden: true,
       });
       this.MOON.border = {};

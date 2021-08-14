@@ -1,8 +1,9 @@
 import { FontAwesomeIcons, Workspace } from '@automagical/terminal';
+import chalk from 'chalk';
 
 @Workspace({
   friendlyName: `Guest`,
-  menu: [` ${FontAwesomeIcons.user_circle_o}  Guest`],
+  menu: [chalk` ${FontAwesomeIcons.user_circle_o}  {bold Guest}`],
   name: 'guest',
   roomRemote: true,
 })

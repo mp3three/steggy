@@ -14,12 +14,12 @@ import {
   WorkspaceElement,
 } from '@automagical/terminal';
 import { Inject } from '@nestjs/common';
+import chalk from 'chalk';
 import dayjs from 'dayjs';
 
 @Workspace({
-  defaultWorkspace: true,
   friendlyName: 'Loft',
-  menu: [` ${MDIIcons.desktop_mac}  Loft`],
+  menu: [chalk` ${MDIIcons.desktop_mac}  {bold Loft}`],
   name: 'loft',
   roomRemote: true,
 })
@@ -38,11 +38,7 @@ export class LoftWorkspace implements iWorkspace {
   constructor(
     @Inject(BLESSED_GRID) private readonly grid: GridElement,
     private readonly fetchService: HomeAssistantFetchAPIService,
-  ) {
-    setInterval(() => {
-      return this;
-    }, 1000);
-  }
+  ) {}
 
   // #endregion Constructors
 

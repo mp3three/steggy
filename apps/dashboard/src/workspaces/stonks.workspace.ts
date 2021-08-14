@@ -18,7 +18,7 @@ import figlet from 'figlet';
 @Workspace({
   customHeader: true,
   friendlyName: 'Stonks',
-  menu: [` ${FontAwesomeIcons.line_chart}  Stonks`],
+  menu: [chalk` ${FontAwesomeIcons.line_chart}  {bold Stonks}`],
   name: 'stonks',
   roomRemote: true,
 })

@@ -16,6 +16,7 @@ import {
   GamesWorkspace,
   GuestWorkspace,
   LoftWorkspace,
+  LoggerWorkspace,
   StonksWorkspace,
   WeatherWorkspace,
 } from '../workspaces';
@@ -23,11 +24,12 @@ import {
 @ApplicationModule({
   application: APP_DASHBOARD,
   dashboards: [
+    LoggerWorkspace,
+    LoftWorkspace,
     BedroomWorkspace,
     DownstairsWorkspace,
     GamesWorkspace,
     GuestWorkspace,
-    LoftWorkspace,
     StonksWorkspace,
     WeatherWorkspace,
   ],

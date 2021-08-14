@@ -1,7 +1,7 @@
 import { REQUEST } from '@nestjs/core';
 import { Request, Response } from 'express';
 
-import { ResponseLocals, StandardParameters } from '../../interfaces';
+import { ResponseLocals } from './response-locals';
 
 export const APIResponse = REQUEST;
 type EmptyObject = Record<never, unknown>;
@@ -46,7 +46,13 @@ class GenericQuery {
 export type APIRequest<
   RequestBody extends EmptyObject = GenericBody,
   Query extends EmptyObject = GenericQuery,
-> = Request<StandardParameters, unknown, RequestBody, Query, ResponseLocals>;
+> = Request<
+  Record<string, unknown>,
+  unknown,
+  RequestBody,
+  Query,
+  ResponseLocals
+>;
 export const APIRequest = REQUEST;
 /**
  * Alias that contains the standard set of response locals.

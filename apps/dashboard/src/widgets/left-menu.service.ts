@@ -128,7 +128,8 @@ export class LeftMenuService {
       label: 'Application Menu',
       mouse: true,
       selectedBg: 'red',
-    });
+      selectedFg: 'white',
+    } as TreeOptions);
     this.TREE.border.fg = 120;
     this.TREE.focus();
     this.TREE.on('select', (node) => {

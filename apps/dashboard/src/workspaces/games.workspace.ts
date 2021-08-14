@@ -1,8 +1,9 @@
 import { MDIIcons, Workspace } from '@automagical/terminal';
+import chalk from 'chalk';
 
 @Workspace({
   friendlyName: 'Games',
-  menu: [` ${MDIIcons.dice_multiple}  Games`],
+  menu: [chalk` ${MDIIcons.dice_multiple}  {bold Games}`],
   name: 'games',
   roomRemote: true,
 })

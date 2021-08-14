@@ -1,12 +1,5 @@
-import {
-  FormDTO,
-  PERMISSION_ACCESS_TYPES,
-  ProjectDTO,
-  SubmissionDTO,
-  UserDTO,
-} from '../libs/formio-sdk';
-import { HTTP_METHODS } from '../libs/utilities/fetch';
-import { CrudOptions } from './crud-options';
+import { PERMISSION_ACCESS_TYPES, SubmissionDTO, UserDTO } from '../formio-sdk';
+import { FetchAuth, HTTP_METHODS, ResultControlDTO } from '../utilities';
 
 export enum ResponseFlags {
   /**
@@ -38,12 +31,19 @@ export class LocalStashDTO {
   // #region Object Properties
 
   public body?: unknown;
-  public form?: FormDTO;
-  public project?: ProjectDTO;
-  public submission?: SubmissionDTO;
 
   // #endregion Object Properties
 }
+
+export class CrudOptions {
+  // #region Object Properties
+
+  auth?: FetchAuth;
+  control?: ResultControlDTO;
+
+  // #endregion Object Properties
+}
+
 export interface ResponseLocals extends CrudOptions {
   // #region Object Properties
 
