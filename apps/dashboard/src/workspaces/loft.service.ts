@@ -1,43 +1,35 @@
 import { EcobeeClimateStateDTO } from '@automagical/contracts/home-assistant';
 import {
   BLESSED_GRID,
-  Box,
   GridElement,
   iWorkspace,
   LineChart,
+  LineElement,
 } from '@automagical/contracts/terminal';
 import { HomeAssistantFetchAPIService } from '@automagical/home-assistant';
 import {
+  MDIIcons,
   RefreshAfter,
   Workspace,
   WorkspaceElement,
 } from '@automagical/terminal';
 import { Inject } from '@nestjs/common';
-import { Widgets } from 'blessed';
-import { Widgets as ContribWidgets } from 'blessed-contrib';
-import chalk from 'chalk';
 import dayjs from 'dayjs';
-import figlet from 'figlet';
-
-import { RemoteService } from '../services';
-import { FIGLET_ROOM_HEADER } from '../typings';
 
 @Workspace({
+  defaultWorkspace: true,
   friendlyName: 'Loft',
-  menu: ['Loft'],
+  menu: [` ${MDIIcons.desktop_mac}  Loft`],
   name: 'loft',
+  roomRemote: true,
 })
 export class LoftService implements iWorkspace {
   // #region Object Properties
 
   @WorkspaceElement()
-  private BOX: Widgets.BoxElement;
+  private HUMIDITY: LineElement;
   @WorkspaceElement()
-  private HEADER: Widgets.BoxElement;
-  @WorkspaceElement()
-  private HUMIDITY: ContribWidgets.LineElement;
-  @WorkspaceElement()
-  private TEMPERATURE: ContribWidgets.LineElement;
+  private TEMPERATURE: LineElement;
 
   // #endregion Object Properties
 
@@ -45,9 +37,12 @@ export class LoftService implements iWorkspace {
 
   constructor(
     @Inject(BLESSED_GRID) private readonly grid: GridElement,
-    private readonly remoteService: RemoteService,
     private readonly fetchService: HomeAssistantFetchAPIService,
-  ) {}
+  ) {
+    setInterval(() => {
+      return this;
+    }, 1000);
+  }
 
   // #endregion Constructors
 
@@ -102,18 +97,6 @@ export class LoftService implements iWorkspace {
   }
 
   protected onApplicationBootstrap(): void {
-    this.remoteService.room = 'loft';
-    this.BOX = this.remoteService.BOX;
-    this.BOX.border = {};
-    this.HEADER = this.grid.set(0.5, 2.5, 2, 5, Box, {
-      content: chalk.greenBright(
-        figlet.textSync('Loft', {
-          font: FIGLET_ROOM_HEADER,
-        }),
-      ),
-      hidden: true,
-    });
-    this.HEADER.border = {};
     this.renderGraph();
   }
 

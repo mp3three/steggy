@@ -58,8 +58,21 @@ export const Markdown = contrib.markdown;
 export const Grid = contrib.grid;
 export type GridElement = contrib.Widgets.GridElement;
 export type BoxElement = blessed.Widgets.BoxElement;
+export type BoxOptions = blessed.Widgets.BoxOptions;
 export type Screen = blessed.Widgets.Screen;
-export type TreeElement = contrib.Widgets.TreeElement;
+
 export type TreeOptions = contrib.Widgets.TreeOptions;
 export type MarkdownElement = contrib.Widgets.MarkdownElement;
 export type MarkdownOptions = contrib.Widgets.MarkdownOptions;
+export type LineElement = contrib.Widgets.LineElement;
+export type LineOptions = contrib.Widgets.LineOptions;
+
+//
+// WRONG DEFINITIONS CORRECTION AREA
+// Need to use @ts-ignore otherwise
+//
+
+export type TreeElement = contrib.Widgets.TreeElement &
+  Partial<{
+    setData(data: TreeOptions): void;
+  }>;

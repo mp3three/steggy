@@ -1,4 +1,5 @@
 export * from './decorators';
+export * from './icons';
 export * from './modules';
 export * from './repl';
 export * from './services';

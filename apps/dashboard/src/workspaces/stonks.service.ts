@@ -1,31 +1,41 @@
-import { BLESSED_GRID, Box, iWorkspace } from '@automagical/contracts/terminal';
-import { Workspace, WorkspaceElement } from '@automagical/terminal';
+import {
+  BLESSED_GRID,
+  Box,
+  BoxElement,
+  GridElement,
+  iWorkspace,
+} from '@automagical/contracts/terminal';
+import {
+  FontAwesomeIcons,
+  Workspace,
+  WorkspaceElement,
+} from '@automagical/terminal';
 import { FetchService, SliceLines } from '@automagical/utilities';
 import { Inject } from '@nestjs/common';
-import { Widgets } from 'blessed';
-import { Widgets as ContribWidgets } from 'blessed-contrib';
 import chalk from 'chalk';
 import figlet from 'figlet';
 
 @Workspace({
+  customHeader: true,
   friendlyName: 'Stonks',
-  menu: ['Stonks'],
+  menu: [` ${FontAwesomeIcons.line_chart}  Stonks`],
   name: 'stonks',
+  roomRemote: true,
 })
 export class StonksService implements iWorkspace {
   // #region Object Properties
 
   @WorkspaceElement()
-  private BOX: Widgets.BoxElement;
+  private BOX: BoxElement;
   @WorkspaceElement()
-  private HEADER: Widgets.BoxElement;
+  private HEADER: BoxElement;
 
   // #endregion Object Properties
 
   // #region Constructors
 
   constructor(
-    @Inject(BLESSED_GRID) private readonly grid: ContribWidgets.GridElement,
+    @Inject(BLESSED_GRID) private readonly grid: GridElement,
     private readonly fetchService: FetchService,
   ) {}
 

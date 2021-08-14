@@ -56,13 +56,11 @@ export class FanDomainService {
     ]);
     const currentSpeed = attributes.speed;
     const index = availableSpeeds.indexOf(currentSpeed);
-    this.logger.debug(
-      `fanSpeedDown ${entityId}: ${currentSpeed} => ${
-        availableSpeeds[index - 1]
-      }`,
+    this.logger.info(
+      `[${entityId}] ${currentSpeed} => ${availableSpeeds[index - 1]}`,
     );
     if (index === 0) {
-      this.logger.debug(`Cannot speed down`);
+      this.logger.warn(`Cannot speed down`);
       return;
     }
     return await this.callService.call('turn_on', {
@@ -78,13 +76,11 @@ export class FanDomainService {
     ]);
     const currentSpeed = attributes.speed;
     const index = availableSpeeds.indexOf(currentSpeed);
-    this.logger.debug(
-      `fanSpeedUp ${entityId}: ${currentSpeed} => ${
-        availableSpeeds[index + 1]
-      }`,
+    this.logger.info(
+      `[${entityId}] ${currentSpeed} => ${availableSpeeds[index + 1]}`,
     );
     if (index === availableSpeeds.length - 1) {
-      this.logger.debug(`Cannot speed up`);
+      this.logger.warn(`Cannot speed up`);
       return;
     }
     return await this.callService.call('turn_on', {

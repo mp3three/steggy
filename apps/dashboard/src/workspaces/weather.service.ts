@@ -1,6 +1,10 @@
 import { LATITUDE, LONGITUDE } from '@automagical/contracts/config';
 import { BLESSED_GRID, Box, iWorkspace } from '@automagical/contracts/terminal';
-import { Workspace, WorkspaceElement } from '@automagical/terminal';
+import {
+  WeatherIcons,
+  Workspace,
+  WorkspaceElement,
+} from '@automagical/terminal';
 import {
   AutoConfigService,
   FetchService,
@@ -10,11 +14,10 @@ import { Inject } from '@nestjs/common';
 import { Widgets } from 'blessed';
 import { Widgets as ContribWidgets } from 'blessed-contrib';
 import chalk from 'chalk';
-import figlet from 'figlet';
 
 @Workspace({
   friendlyName: 'Weather',
-  menu: ['Weather'],
+  menu: [` ${WeatherIcons.day_cloudy_high}  Weather`],
   name: 'weather',
 })
 export class WeatherService implements iWorkspace {
@@ -26,8 +29,6 @@ export class WeatherService implements iWorkspace {
 
   @WorkspaceElement()
   private FORECAST: Widgets.BoxElement;
-  @WorkspaceElement()
-  private HEADER: Widgets.BoxElement;
   @WorkspaceElement()
   private MOON: Widgets.BoxElement;
 
@@ -87,16 +88,6 @@ export class WeatherService implements iWorkspace {
   }
 
   private async render() {
-    this.HEADER = this.grid.set(0.5, 2.5, 2, 5, Box, {
-      border: {},
-      content: chalk.yellow(
-        figlet.textSync('Weather', {
-          font: 'Star Wars',
-        }),
-      ),
-      hidden: true,
-    });
-    this.HEADER.border = {};
     process.nextTick(async () => {
       this.MOON = this.grid.set(0.25, 7.75, 5, 2, Box, {
         hidden: true,

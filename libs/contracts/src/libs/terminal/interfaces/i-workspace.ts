@@ -6,4 +6,10 @@ export interface iWorkspaceMethods {
 
   // #endregion Public Methods
 }
-export type iWorkspace = Partial<iWorkspaceMethods>;
+export interface iWorkspace extends Partial<iWorkspaceMethods> {
+  // #region Object Properties
+
+  customHeader?: boolean;
+
+  // #endregion Object Properties
+}

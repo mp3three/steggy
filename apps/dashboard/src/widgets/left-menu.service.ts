@@ -6,7 +6,7 @@ import {
   TreeElement,
   TreeOptions,
 } from '@automagical/contracts/terminal';
-import { WorkspaceExplorerService } from '@automagical/terminal';
+import { RefreshAfter, WorkspaceExplorerService } from '@automagical/terminal';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -36,6 +36,7 @@ export class LeftMenuService {
       let next: Record<string, unknown> = this.treeData;
       const length = menu.length;
       menu.forEach((menuItem, index) => {
+        const settings = this.workspaceExplorer.workspaces.get(workspace);
         if (typeof next.children === 'undefined') {
           next.children = {};
         }
@@ -48,7 +49,7 @@ export class LeftMenuService {
           }
         }
         next = next.children[menuItem];
-        if (menuItem === 'Loft') {
+        if (settings.defaultWorkspace) {
           setTimeout(() => {
             this.onTreeSelect(workspace);
           }, 10);
@@ -56,10 +57,6 @@ export class LeftMenuService {
       });
     });
     this.renderTree();
-    // ts definitions are wrong here
-    //
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     this.TREE.setData({ ...this.treeData, extended: true });
   }
 
@@ -67,16 +64,33 @@ export class LeftMenuService {
 
   // #region Private Methods
 
+  @RefreshAfter()
+  // TODO: fixme
+  // eslint-disable-next-line radar/cognitive-complexity
   private async onTreeSelect(workspace: iWorkspace): Promise<void> {
     try {
       if (!workspace) {
         return;
       }
-      if (this.activeWorkspace) {
+      if (this.activeWorkspace && this.activeWorkspace !== workspace) {
         this.workspaceExplorer.elements
           .get(this.activeWorkspace)
-          .forEach((settings, key) => {
+          ?.forEach((settings, key) => {
+            if (
+              !this.activeWorkspace[key] ||
+              this.activeWorkspace[key].hidden
+            ) {
+              return;
+            }
             this.activeWorkspace[key]?.hide();
+          });
+        this.workspaceExplorer.internalElements
+          .get(this.activeWorkspace)
+          ?.forEach((element) => {
+            if (element.hidden) {
+              return;
+            }
+            element.hide();
           });
 
         if (workspace.onHide) {
@@ -86,9 +100,20 @@ export class LeftMenuService {
       this.workspaceExplorer.elements
         .get(workspace)
         .forEach((settings, key) => {
+          if (!workspace[key] || !workspace[key].hidden) {
+            return;
+          }
           workspace[key]?.show();
         });
 
+      this.workspaceExplorer.internalElements
+        .get(workspace)
+        ?.forEach((element) => {
+          if (!element || !element.hidden) {
+            return;
+          }
+          element.show();
+        });
       if (workspace.onShow) {
         await workspace.onShow();
       }
