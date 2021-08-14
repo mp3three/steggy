@@ -1,4 +1,4 @@
-import { APP_DASHBOARD, APP_HOME_CONTROLLER } from '../constants';
+import { APP_DASHBOARD, APP_HOME_CONTROLLER } from '..';
 import { CreateConfigurableAnnotation } from '../decorators';
 import {
   AuthenticationConfig,

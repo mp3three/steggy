@@ -1,5 +1,5 @@
+import { LIB_TERMINAL } from '@automagical/contracts';
 import { SCREEN_TITLE } from '@automagical/contracts/config';
-import { LIB_TERMINAL } from '@automagical/contracts/constants';
 import {
   BLESSED_GRID,
   BLESSED_SCREEN,

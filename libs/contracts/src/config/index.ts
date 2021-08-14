@@ -8,7 +8,7 @@ import {
   LIB_HOME_ASSISTANT,
   LIB_SERVER,
   LIB_UTILS,
-} from '../constants';
+} from '..';
 import {
   DashboardApplicationSettingsDTO,
   DevtoolsApplicationSettingsDTO,

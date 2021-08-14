@@ -1,4 +1,5 @@
 import {
+  APPLICATION_LIST,
   COMPLEX_CONFIG_PROVIDERS,
   ConfigLibraryVisibility,
   ConfigType,
@@ -11,7 +12,6 @@ import {
   CONFIGURABLE_APPS,
   CONFIGURABLE_LIBS,
 } from '@automagical/contracts/config';
-import { APPLICATION_LIST } from '@automagical/contracts/constants';
 import { CLIService, FigletFonts } from '@automagical/contracts/terminal';
 import { AutoConfigService } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
@@ -73,7 +73,7 @@ export class ConfigBuilderREPL implements CLIService {
     private readonly cli: MainCLIREPL,
     private readonly systemService: SystemService,
     private readonly typePrompt: TypePromptService,
-    private readonly configService: AutoConfigService
+    private readonly configService: AutoConfigService,
   ) {
     this.cli.addScript(this);
   }
@@ -98,7 +98,7 @@ export class ConfigBuilderREPL implements CLIService {
     await eachSeries(configOptions, async (item, callback) => {
       const results = await this.typePrompt.prompt(item, application);
       const path = item.library === '-' ? item.key : `${item.key}`;
-      if( results.value === this.configService.getDefault(item.key) ) {
+      if (results.value === this.configService.getDefault(item.key)) {
         return callback();
       }
       set(config, path, results.value);

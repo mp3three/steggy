@@ -1,4 +1,4 @@
-import { APP_DASHBOARD } from '@automagical/contracts/constants';
+import { APP_DASHBOARD } from '@automagical/contracts';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import { BlessedModule } from '@automagical/terminal';
 import { ApplicationModule } from '@automagical/utilities';

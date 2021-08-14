@@ -1,4 +1,4 @@
-import { LIB_UTILS } from '../../constants/library-names';
+import { LIB_UTILS } from '../..';
 import { CreateConfigurableAnnotation } from '../../decorators';
 
 const UsesConfig = CreateConfigurableAnnotation(LIB_UTILS.description);

@@ -1,4 +1,4 @@
-import { APP_DASHBOARD, APP_HOME_CONTROLLER, LIB_UTILS } from '../constants';
+import { APP_DASHBOARD, APP_HOME_CONTROLLER, LIB_UTILS } from '..';
 import { CreateConfigurableAnnotation } from '../decorators';
 import { AWSUtilitiesConfig } from './external';
 

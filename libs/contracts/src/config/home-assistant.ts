@@ -1,8 +1,4 @@
-import {
-  APP_DASHBOARD,
-  APP_HOME_CONTROLLER,
-  LIB_HOME_ASSISTANT,
-} from '../constants';
+import { APP_DASHBOARD, APP_HOME_CONTROLLER, LIB_HOME_ASSISTANT } from '..';
 import { CreateConfigurableAnnotation } from '../decorators';
 
 const UsesConfig = CreateConfigurableAnnotation(LIB_HOME_ASSISTANT.description);

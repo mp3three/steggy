@@ -1,4 +1,4 @@
-import { LIB_AUTHENTICATION } from '../constants';
+import { LIB_AUTHENTICATION } from '..';
 import { CreateConfigurableAnnotation } from '../decorators';
 /**
  * Encryption key for x-jwt-token

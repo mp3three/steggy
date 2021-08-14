@@ -23,9 +23,6 @@
         "libs/contracts/src/libs/authentication/index.ts"
       ],
       "@automagical/contracts/config": ["libs/contracts/src/config/index.ts"],
-      "@automagical/contracts/constants": [
-        "libs/contracts/src/constants/index.ts"
-      ],
       "@automagical/contracts/controller-logic": [
         "libs/contracts/src/libs/controller-logic/index.ts"
       ],

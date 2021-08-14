@@ -1,4 +1,4 @@
-import { LIB_FORMIO_SDK } from '../constants';
+import { LIB_FORMIO_SDK } from '..';
 import { CreateConfigurableAnnotation } from '../decorators';
 
 const UsesConfig = CreateConfigurableAnnotation(LIB_FORMIO_SDK.description);

@@ -1,4 +1,4 @@
-import { APP_DEVTOOLS } from '@automagical/contracts/constants';
+import { APP_DEVTOOLS } from '@automagical/contracts';
 import { MinimalSdkModule } from '@automagical/formio-sdk';
 import { MainCLIModule } from '@automagical/terminal';
 import { ApplicationModule, UtilitiesModule } from '@automagical/utilities';

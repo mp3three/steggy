@@ -1,8 +1,5 @@
+import { APPLICATION_LIST, LIBRARY_LIST } from '@automagical/contracts';
 import { AutomagicalConfig } from '@automagical/contracts/config';
-import {
-  APPLICATION_LIST,
-  LIBRARY_LIST,
-} from '@automagical/contracts/constants';
 import { NXAffected, NXWorkspaceDTO } from '@automagical/contracts/terminal';
 import { filterUnique } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';

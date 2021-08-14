@@ -1,4 +1,4 @@
-import { APP_HOME_CONTROLLER, LIB_SERVER } from '../constants';
+import { APP_HOME_CONTROLLER, LIB_SERVER } from '..';
 import { CreateConfigurableAnnotation } from '../decorators';
 
 const UsesConfig = CreateConfigurableAnnotation(LIB_SERVER.description);

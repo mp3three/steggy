@@ -1,4 +1,4 @@
-import { APP_HOME_CONTROLLER } from '@automagical/contracts/constants';
+import { APP_HOME_CONTROLLER } from '@automagical/contracts';
 import { HomeControllerCustomModule } from '@automagical/controller-logic';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import { ApplicationModule } from '@automagical/utilities';

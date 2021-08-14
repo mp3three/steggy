@@ -1,5 +1,5 @@
-import { APP_DEVTOOLS } from '../../constants/library-names';
 import { CreateConfigurableAnnotation } from '../../decorators';
+import { APP_DEVTOOLS } from '../../library-names';
 
 const UsesConfig = CreateConfigurableAnnotation();
 export class DevtoolsApplicationSettingsDTO {

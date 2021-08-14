@@ -4,14 +4,12 @@ import {
 } from '@automagical/contracts/config';
 import {
   ALL_ENTITIES_UPDATED,
-  CONNECTION_RESET,
-  HA_EVENT_STATE_CHANGE,
-  HA_SOCKET_READY,
-} from '@automagical/contracts/constants';
-import {
   AreaDTO,
+  CONNECTION_RESET,
   DeviceListItemDTO,
   EntityListItemDTO,
+  HA_EVENT_STATE_CHANGE,
+  HA_SOCKET_READY,
   HassEventDTO,
   HassEvents,
   HASSIO_WS_COMMAND,

@@ -1,9 +1,9 @@
+import { LIB_UTILS } from '@automagical/contracts';
 import {
   ACTIVE_APPLICATION,
   MQTT_HOST,
   MQTT_PORT,
 } from '@automagical/contracts/config';
-import { LIB_UTILS } from '@automagical/contracts/constants';
 import {
   MQTT_CLIENT_INSTANCE,
   MQTT_HEALTH_CHECK,

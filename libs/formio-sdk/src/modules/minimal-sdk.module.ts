@@ -1,4 +1,4 @@
-import { LIB_FORMIO_SDK } from '@automagical/contracts/constants';
+import { LIB_FORMIO_SDK } from '@automagical/contracts';
 import { LibraryModule } from '@automagical/utilities';
 import { DynamicModule } from '@nestjs/common';
 

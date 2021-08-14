@@ -1,5 +1,5 @@
+import { LIB_SERVER } from '@automagical/contracts';
 import { BODY_SIZE } from '@automagical/contracts/config';
-import { LIB_SERVER } from '@automagical/contracts/constants';
 import {
   AutoConfigService,
   AutoLogService,

@@ -1,4 +1,4 @@
-import { LIB_TERMINAL } from '@automagical/contracts/constants';
+import { LIB_TERMINAL } from '@automagical/contracts';
 import { LibraryModule } from '@automagical/utilities';
 
 import { ConfigBuilderREPL, MainCLIREPL } from '../repl';
