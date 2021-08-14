@@ -1,25 +1,31 @@
 import { HassEventDTO } from '@automagical/contracts/home-assistant';
-import { BLESSED_GRID, BLESSED_SCREEN } from '@automagical/contracts/terminal';
+import {
+  BLESSED_GRID,
+  BLESSED_SCREEN,
+  GridElement,
+  Log,
+  LogElement,
+  LogOptions,
+  Screen,
+} from '@automagical/contracts/terminal';
 import { HASocketAPIService } from '@automagical/home-assistant';
 import { RefreshAfter } from '@automagical/terminal';
 import { Inject, Injectable } from '@nestjs/common';
-import { Widgets } from 'blessed';
-import { log as Log, Widgets as ContribWidgets } from 'blessed-contrib';
 
 @Injectable()
 export class RecentUpdatesService {
   // #region Object Properties
 
-  private WIDGET: ContribWidgets.LogElement;
+  private WIDGET: LogElement;
 
   // #endregion Object Properties
 
   // #region Constructors
 
   constructor(
-    @Inject(BLESSED_SCREEN) private readonly SCREEN: Widgets.Screen,
+    @Inject(BLESSED_SCREEN) private readonly SCREEN: Screen,
     @Inject(BLESSED_GRID)
-    private readonly GRID: ContribWidgets.GridElement,
+    private readonly GRID: GridElement,
     private readonly socketService: HASocketAPIService,
   ) {}
 
@@ -33,7 +39,7 @@ export class RecentUpdatesService {
       draggable: true,
       label: 'HomeAssistant entity update stream',
       tags: true,
-    } as ContribWidgets.LogOptions);
+    } as LogOptions);
     this.socketService.EVENT_STREAM.subscribe((event: HassEventDTO) => {
       this.WIDGET.log(this.buildLine(event));
       this.SCREEN.render();

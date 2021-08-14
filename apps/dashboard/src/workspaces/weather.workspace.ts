@@ -1,5 +1,12 @@
 import { LATITUDE, LONGITUDE } from '@automagical/contracts/config';
-import { BLESSED_GRID, Box, iWorkspace } from '@automagical/contracts/terminal';
+import {
+  BLESSED_GRID,
+  Box,
+  BoxElement,
+  BoxOptions,
+  GridElement,
+  iWorkspace,
+} from '@automagical/contracts/terminal';
 import {
   WeatherIcons,
   Workspace,
@@ -11,8 +18,6 @@ import {
   SliceLines,
 } from '@automagical/utilities';
 import { Inject } from '@nestjs/common';
-import { Widgets } from 'blessed';
-import { Widgets as ContribWidgets } from 'blessed-contrib';
 import chalk from 'chalk';
 
 @Workspace({
@@ -20,7 +25,7 @@ import chalk from 'chalk';
   menu: [` ${WeatherIcons.day_cloudy_high}  Weather`],
   name: 'weather',
 })
-export class WeatherService implements iWorkspace {
+export class WeatherWorkspace implements iWorkspace {
   // #region Object Properties
 
   public readonly menuPosition = ['Weather'];
@@ -28,16 +33,16 @@ export class WeatherService implements iWorkspace {
   public defaultActive = true;
 
   @WorkspaceElement()
-  private FORECAST: Widgets.BoxElement;
+  private FORECAST: BoxElement;
   @WorkspaceElement()
-  private MOON: Widgets.BoxElement;
+  private MOON: BoxElement;
 
   // #endregion Object Properties
 
   // #region Constructors
 
   constructor(
-    @Inject(BLESSED_GRID) private readonly grid: ContribWidgets.GridElement,
+    @Inject(BLESSED_GRID) private readonly grid: GridElement,
     private readonly fetchService: FetchService,
     private readonly configService: AutoConfigService,
   ) {}
@@ -98,7 +103,7 @@ export class WeatherService implements iWorkspace {
       this.FORECAST = this.grid.set(5, 2, 8, 8, Box, {
         align: 'center',
         hidden: true,
-      } as Widgets.BoxOptions);
+      } as BoxOptions);
       this.FORECAST.border = {};
     });
   }

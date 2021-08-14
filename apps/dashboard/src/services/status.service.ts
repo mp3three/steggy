@@ -1,9 +1,8 @@
 import { HassEventDTO } from '@automagical/contracts/home-assistant';
+import { Box, BoxElement, GridElement } from '@automagical/contracts/terminal';
 import { RefreshAfter } from '@automagical/terminal';
 import { CacheManagerService, InjectCache } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { box as Box, Widgets } from 'blessed';
-import { grid as Grid } from 'blessed-contrib';
 
 // const BOX_SETTINGS: Widgets.BoxOptions = {
 //   alwaysScroll: true,
@@ -22,7 +21,7 @@ import { grid as Grid } from 'blessed-contrib';
 export class StatusService {
   // #region Object Properties
 
-  private WIDGET: Widgets.BoxElement;
+  private WIDGET: BoxElement;
 
   // #endregion Object Properties
 
@@ -37,7 +36,7 @@ export class StatusService {
   // #region Public Methods
 
   @RefreshAfter()
-  public async attachInstance(grid: Grid): Promise<void> {
+  public async attachInstance(grid: GridElement): Promise<void> {
     this.WIDGET = grid.set(0, 0, 3, 1, Box, {
       label: 'Quick Status',
     });

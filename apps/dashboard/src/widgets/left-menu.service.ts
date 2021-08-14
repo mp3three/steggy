@@ -127,6 +127,7 @@ export class LeftMenuService {
     this.TREE = this.grid.set(0, 0, 12, 2, Tree, {
       label: 'Application Menu',
       mouse: true,
+      selectedBg: 'red',
     });
     this.TREE.border.fg = 120;
     this.TREE.focus();

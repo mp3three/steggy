@@ -278,6 +278,9 @@ export class LoftController implements iRoomController {
       const brightness = this.ticksThisHour(minute, second);
       return brightness > 75 ? 75 : brightness;
     }
+    if (hour === 8) {
+      return 75;
+    }
     // Finish wakeup @ 9AM
     if (hour === 9) {
       const brightness = 75 + this.ticksThisHour(minute, second);

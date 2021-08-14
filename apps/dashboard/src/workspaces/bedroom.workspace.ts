@@ -6,4 +6,4 @@ import { FontAwesomeIcons, Workspace } from '@automagical/terminal';
   name: 'bedroom',
   roomRemote: true,
 })
-export class BedroomService {}
+export class BedroomWorkspace {}

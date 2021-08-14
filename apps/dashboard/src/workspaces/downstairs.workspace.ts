@@ -6,4 +6,4 @@ import { MDIIcons, Workspace } from '@automagical/terminal';
   name: 'downstairs',
   roomRemote: true,
 })
-export class DownstairsService {}
+export class DownstairsWorkspace {}

@@ -1,6 +1,7 @@
 import {
   BLESSED_GRID,
   GridElement,
+  Markdown,
   MarkdownElement,
   MarkdownOptions,
 } from '@automagical/contracts/terminal';
@@ -11,10 +12,6 @@ import {
 import { RefreshAfter } from '@automagical/terminal';
 import { Cron, OnMQTT } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  markdown as Markdown,
-  Widgets as ContribWidgets,
-} from 'blessed-contrib';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 

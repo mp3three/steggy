@@ -22,7 +22,7 @@ import figlet from 'figlet';
   name: 'stonks',
   roomRemote: true,
 })
-export class StonksService implements iWorkspace {
+export class StonksWorkspace implements iWorkspace {
   // #region Object Properties
 
   @WorkspaceElement()

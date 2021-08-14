@@ -57,7 +57,12 @@ export const Tree = contrib.tree;
 export const Markdown = contrib.markdown;
 export const Grid = contrib.grid;
 export type GridElement = contrib.Widgets.GridElement;
-export type BoxElement = blessed.Widgets.BoxElement;
+export type BoxElement = blessed.Widgets.BoxElement & {
+  border: {
+    fg?: number | string;
+    type?: 'line';
+  };
+};
 export type BoxOptions = blessed.Widgets.BoxOptions;
 export type Screen = blessed.Widgets.Screen;
 
@@ -76,3 +81,5 @@ export type TreeElement = contrib.Widgets.TreeElement &
   Partial<{
     setData(data: TreeOptions): void;
   }>;
+export type LogOptions = contrib.Widgets.LogOptions;
+export type LogElement = contrib.Widgets.LogElement;

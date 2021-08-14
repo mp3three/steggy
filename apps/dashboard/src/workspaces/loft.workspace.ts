@@ -23,7 +23,7 @@ import dayjs from 'dayjs';
   name: 'loft',
   roomRemote: true,
 })
-export class LoftService implements iWorkspace {
+export class LoftWorkspace implements iWorkspace {
   // #region Object Properties
 
   @WorkspaceElement()
