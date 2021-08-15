@@ -16,6 +16,7 @@
     "server": "libs/server",
     "terminal": "libs/terminal",
     "testing": "libs/testing",
+    "tty": "libs/tty",
     "utilities": "libs/utilities"
   },
   "generators": {

@@ -15,12 +15,7 @@ import { Trace } from '../decorators/logger/trace.decorator';
 import { AutoConfigService } from './auto-config.service';
 import { AutoLogService } from './logger';
 
-const STASH_PROP_LIST = [
-  'action',
-  'project',
-  'form',
-  'submission',
-] as (keyof ResponseLocals)[];
+const STASH_PROP_LIST = [] as (keyof ResponseLocals)[];
 
 // Working from a hard coded list of properties, does not apply
 /* eslint-disable security/detect-object-injection, unicorn/no-process-exit */
