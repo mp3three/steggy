@@ -9,7 +9,6 @@ export const APP_HOME_CONTROLLER = Symbol('home');
 export const LIB_AUTHENTICATION = Symbol('authentication');
 export const LIB_CONTRACTS = Symbol('contracts');
 export const LIB_CONTROLLER_LOGIC = Symbol('controller');
-export const LIB_FORMIO_SDK = Symbol('formiosdk');
 export const LIB_HOME_ASSISTANT = Symbol('homeassistant');
 export const LIB_TERMINAL = Symbol('terminal');
 export const LIB_SERVER = Symbol('server');
@@ -36,7 +35,6 @@ export const LIBRARY_LIST = [
   LIB_AUTHENTICATION.description,
   LIB_CONTRACTS.description,
   LIB_CONTROLLER_LOGIC.description,
-  LIB_FORMIO_SDK.description,
   LIB_HOME_ASSISTANT.description,
   LIB_TERMINAL.description,
   LIB_SERVER.description,

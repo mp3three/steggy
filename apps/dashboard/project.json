@@ -28,7 +28,7 @@
         "port": 33335
       }
     },
-    "brk":{
+    "brk": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "command": "npx nx serve dashboard --inspect inspect-brk"

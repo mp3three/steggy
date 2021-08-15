@@ -42,8 +42,6 @@ export class BaseFetch {
       if (!['OK'].includes(text)) {
         // It's probably a coding error error, and not something a user did.
         // Will try to keep the array up to date if any other edge cases pop up
-
-        // This part specifically applies to the formio-sdk, so there may be some work needed for this function as other libs
         this.logger.warn({ text }, `Unexpected API Response`);
       } else {
         this.logger.debug({ text }, 'Full response text');

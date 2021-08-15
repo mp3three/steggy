@@ -23,12 +23,10 @@ import {
   LogExplorerService,
   ScheduleExplorerService,
   SolarCalcService,
-  TemplateService,
 } from '../services';
 
 @LibraryModule({
   exports: [
-    TemplateService,
     AutoConfigService,
     LocalsService,
     FetchService,
@@ -39,7 +37,6 @@ import {
   library: LIB_UTILS,
   providers: [
     LogExplorerService,
-    TemplateService,
     AutoLogService,
     LocalsService,
     AutoConfigService,
@@ -61,7 +58,6 @@ export class UtilitiesModule {
         FetchService,
         LocalsService,
         SolarCalcService,
-        TemplateService,
         ...decorated,
       ],
       global: true,
@@ -76,7 +72,6 @@ export class UtilitiesModule {
         FetchService,
         LocalsService,
         SolarCalcService,
-        TemplateService,
         ...decorated,
       ],
     };

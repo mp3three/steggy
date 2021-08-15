@@ -1,11 +1,6 @@
 import { APP_DASHBOARD, APP_HOME_CONTROLLER } from '..';
 import { CreateConfigurableAnnotation } from '../decorators';
-import {
-  AuthenticationConfig,
-  FormioSDKConfig,
-  ServerConfig,
-  UtilsConfig,
-} from '.';
+import { AuthenticationConfig, ServerConfig, UtilsConfig } from '.';
 import { CustomLogicConfig } from './controller-logic';
 import { HomeAssistantConfig } from './home-assistant';
 import { TerminalConfig } from './terminal';
@@ -69,13 +64,6 @@ export class ConfigLibs {
     },
   })
   public authentication?: AuthenticationConfig;
-  @ConfigurableProperty({
-    applications: {},
-    type: {
-      reference: FormioSDKConfig,
-    },
-  })
-  public formiosdk?: FormioSDKConfig;
 
   // #endregion Object Properties
 }

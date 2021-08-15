@@ -4,7 +4,6 @@ import { IsDateString, IsOptional, IsString } from 'class-validator';
 import dayjs from 'dayjs';
 import { Types } from 'mongoose';
 
-import { TransformObjectId } from '../libs/formio-sdk/transform-object-id.decorator';
 import { CanFake } from './can-fake.dto';
 
 export class DBFake extends CanFake {
@@ -51,7 +50,6 @@ export class DBFake extends CanFake {
    */
   @IsOptional()
   @IsString()
-  @TransformObjectId()
   public _id?: string;
 
   // #endregion Object Properties

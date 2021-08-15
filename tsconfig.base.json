@@ -26,9 +26,6 @@
       "@automagical/contracts/controller-logic": [
         "libs/contracts/src/libs/controller-logic/index.ts"
       ],
-      "@automagical/contracts/formio-sdk": [
-        "libs/contracts/src/libs/formio-sdk/index.ts"
-      ],
       "@automagical/contracts/home-assistant": [
         "libs/contracts/src/libs/home-assistant/index.ts"
       ],
@@ -45,7 +42,6 @@
         "libs/contracts/src/libs/utilities/index.ts"
       ],
       "@automagical/controller-logic": ["libs/controller-logic/src/index.ts"],
-      "@automagical/formio-sdk": ["libs/formio-sdk/src/index.ts"],
       "@automagical/home-assistant": ["libs/home-assistant/src/index.ts"],
       "@automagical/persistence/mongo": ["libs/persistence/src/mongo/index.ts"],
       "@automagical/server": ["libs/server/src/index.ts"],

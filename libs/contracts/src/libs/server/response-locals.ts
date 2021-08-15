@@ -1,32 +1,6 @@
-import { PERMISSION_ACCESS_TYPES, SubmissionDTO, UserDTO } from '../formio-sdk';
 import { FetchAuth, HTTP_METHODS, ResultControlDTO } from '../utilities';
 
-export enum ResponseFlags {
-  /**
-   * Request was authenticated using REMOTE_TOKEN_HEADER
-   */
-  REMOTE_TOKEN,
-  /**
-   * Request was authenticated using API_KEY_HEADER
-   */
-  API_KEY,
-  /**
-   * Request was authenticated using ADMIN_KEY_HEADER
-   */
-  ADMIN_KEY,
-  /**
-   * Request was authenticated using JWT_TOKEN_HEADER
-   */
-  JWT_TOKEN,
-  /**
-   * Authentication determined request has admin level access for this request
-   */
-  ADMIN,
-  /**
-   * User is project owner
-   */
-  PROJECT_OWNER,
-}
+export enum ResponseFlags {}
 export class LocalStashDTO {
   // #region Object Properties
 
@@ -59,13 +33,8 @@ export interface ResponseLocals extends CrudOptions {
   licenseId?: string;
   method: HTTP_METHODS;
   parameters: Map<string, string>;
-  projectApiKey?: string;
   query: Map<string, string>;
-  remotePermission?: PERMISSION_ACCESS_TYPES;
-  roles: Set<string>;
   stash?: LocalStashDTO[];
-  submission?: SubmissionDTO;
-  user?: UserDTO;
 
   // #endregion Object Properties
 }
