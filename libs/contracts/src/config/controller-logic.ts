@@ -41,6 +41,17 @@ export class CustomLogicConfig {
   // #endregion Object Properties
 }
 
+/**
+ * The reddest the lighting can go
+ */
 export const CIRCADIAN_MIN_TEMP = `libs.${LIB_CONTROLLER_LOGIC.description}.CIRCADIAN_MIN_TEMP`;
+
+/**
+ * The bluest the lighting can go
+ */
 export const CIRCADIAN_MAX_TEMP = `libs.${LIB_CONTROLLER_LOGIC.description}.CIRCADIAN_MAX_TEMP`;
+
+/**
+ * Single press dimmer button: how far to move the brightness
+ */
 export const DIM_PERCENT = `libs.${LIB_CONTROLLER_LOGIC.description}.DIM_PERCENT`;

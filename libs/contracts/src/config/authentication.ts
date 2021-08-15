@@ -1,5 +1,6 @@
 import { LIB_AUTHENTICATION } from '..';
 import { CreateConfigurableAnnotation } from '../decorators';
+
 /**
  * Encryption key for x-jwt-token
  */
@@ -7,17 +8,31 @@ export const JWT_SECRET = 'libs.authentication.JWT_SECRET';
 /**
  * How long to sign JWT tokens for
  */
-export const EXPIRES_IN = 'libs.authentication.EXPIRES_IN';
-export const AUTHENTICATION_CONFIG = 'libs.authentication';
-export const BASIC_PASSWORD = 'libs.authentication.BASIC_PASSWORD';
-export const BASIC_USERNAME = 'libs.authentication.BASIC_USERNAME';
-export const VERIFY_JWT = 'libs.authentication.VERIFY_JWT';
+export const EXPIRES_IN = `libs.${LIB_AUTHENTICATION.description}.EXPIRES_IN`;
+/**
+ * Reference to base config object
+ */
+export const AUTHENTICATION_CONFIG = `libs.${LIB_AUTHENTICATION.description}`;
+/**
+ * Password to be used in basic auth middleware
+ */
+export const BASIC_PASSWORD = `libs.${LIB_AUTHENTICATION.description}.BASIC_PASSWORD`;
+/**
+ * Username to be used in basic auth middleware
+ */
+export const BASIC_USERNAME = `libs.${LIB_AUTHENTICATION.description}.BASIC_USERNAME`;
+/**
+ * Should the signature of the jwt token be verified after decoding?
+ *
+ * Has security implications to turn off
+ */
+export const VERIFY_JWT = `libs.${LIB_AUTHENTICATION.description}.VERIFY_JWT`;
 
 export const DEFAULT_BASIC_PASSWORD = 'changeme';
 export const DEFAULT_BASIC_USERNAME = 'changeme';
-const DEFAULT_JWT_SECRET = 'changeme';
-const DEFAULT_EXPIRES_IN = 1000;
-const DEFAULT_VERIFY_JWT = false;
+export const DEFAULT_JWT_SECRET = 'changeme';
+export const DEFAULT_EXPIRES_IN = 1000;
+export const DEFAULT_VERIFY_JWT = true;
 
 const ConfigurableProperty = CreateConfigurableAnnotation(
   LIB_AUTHENTICATION.description,

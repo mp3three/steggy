@@ -69,9 +69,24 @@ export class FormioSDKConfig {
   // #endregion Object Properties
 }
 
+/**
+ * API key to be used for authentication
+ */
 export const API_KEY = `libs.${LIB_FORMIO_SDK.description}.API_KEY`;
 export const BASE_PROJECT = `libs.${LIB_FORMIO_SDK.description}.BASE_PROJECT`;
+/**
+ * example: https://api.form.io
+ */
 export const PORTAL_BASE_URL = `libs.${LIB_FORMIO_SDK.description}.PORTAL_BASE_URL`;
+/**
+ * example: https://project-name.form.io
+ */
 export const PROJECT_URL = `libs.${LIB_FORMIO_SDK.description}.PROJECT_URL`;
+/**
+ * Prefetch a jwt token for auth using this email to log in
+ */
 export const AUTH_EMAIL = `libs.${LIB_FORMIO_SDK.description}.AUTH_EMAIL`;
+/**
+ * Prefetch a jwt token for auth using this password to log in
+ */
 export const AUTH_PASSWORD = `libs.${LIB_FORMIO_SDK.description}.AUTH_PASSWORD`;

@@ -8,11 +8,21 @@ import {
 } from '.';
 import { CustomLogicConfig } from './controller-logic';
 import { HomeAssistantConfig } from './home-assistant';
+import { TerminalConfig } from './terminal';
 
 const ConfigurableProperty = CreateConfigurableAnnotation();
 export class ConfigLibs {
   // #region Object Properties
 
+  @ConfigurableProperty({
+    applications: {
+      [APP_DASHBOARD.description]: 'available',
+    },
+    type: {
+      reference: TerminalConfig,
+    },
+  })
+  public terminal?: TerminalConfig;
   @ConfigurableProperty({
     applications: {
       [APP_HOME_CONTROLLER.description]: 'available',

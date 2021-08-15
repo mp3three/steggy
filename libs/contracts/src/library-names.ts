@@ -1,4 +1,4 @@
-// These characters are banned from app symbol names due to breaking functionality elsewhere:
+// These characters are banned from app symbol descriptions due to breaking functionality with configuration:
 // -_.
 
 export const APP_DASHBOARD = Symbol('dashboard');
@@ -31,13 +31,15 @@ export const APPLICATION_SYMBOL_MAP = new Map(
     [APP_DASHBOARD.description]: APP_DASHBOARD,
   }),
 );
+
 export const LIBRARY_LIST = [
+  LIB_AUTHENTICATION.description,
   LIB_CONTRACTS.description,
   LIB_CONTROLLER_LOGIC.description,
   LIB_FORMIO_SDK.description,
   LIB_HOME_ASSISTANT.description,
-  LIB_SERVER.description,
   LIB_TERMINAL.description,
+  LIB_SERVER.description,
   LIB_TESTING.description,
   LIB_UTILS.description,
 ];

@@ -1,4 +1,6 @@
+import { DEFAULT_HEADER_FONT } from '@automagical/contracts/config';
 import { CLIService, FigletFonts } from '@automagical/contracts/terminal';
+import { AutoConfigService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import clear from 'clear';
@@ -12,6 +14,12 @@ export class MainCLIREPL {
   public readonly scripts = new Map<string, CLIService>();
 
   // #endregion Object Properties
+
+  // #region Constructors
+
+  constructor(private readonly configService: AutoConfigService) {}
+
+  // #endregion Constructors
 
   // #region Public Methods
 
@@ -36,7 +44,7 @@ export class MainCLIREPL {
     // Print list of available commands
     clear();
     let header = figlet.textSync(headerText, {
-      font: FigletFonts.header,
+      font: this.configService.get<figlet.Fonts>(DEFAULT_HEADER_FONT),
     });
     console.log(chalk.cyan(header), '\n');
     let scriptName = process.argv[2];
@@ -55,7 +63,7 @@ export class MainCLIREPL {
     // Print header for script, then execute
     const script = this.scripts.get(scriptName);
     header = figlet.textSync(script.name, {
-      font: FigletFonts.header,
+      font: this.configService.get<figlet.Fonts>(DEFAULT_HEADER_FONT),
     });
     clear();
     console.log(chalk.cyan(header), '\n');

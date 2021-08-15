@@ -24,5 +24,12 @@ export class HomeAssistantConfig {
 
   // #endregion Object Properties
 }
+
+/**
+ * The URL for your home assistant instance
+ */
 export const HOME_ASSISTANT_BASE_URL = `libs.${LIB_HOME_ASSISTANT.description}.BASE_URL`;
+/**
+ * Authorization token for home assistant
+ */
 export const HOME_ASSISTANT_TOKEN = `libs.${LIB_HOME_ASSISTANT.description}.TOKEN`;

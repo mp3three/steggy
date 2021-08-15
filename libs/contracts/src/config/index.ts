@@ -9,6 +9,7 @@ import {
   LIB_SERVER,
   LIB_UTILS,
 } from '..';
+import { LIB_TERMINAL } from '../library-names';
 import {
   DashboardApplicationSettingsDTO,
   DevtoolsApplicationSettingsDTO,
@@ -19,6 +20,7 @@ import { CustomLogicConfig } from './controller-logic';
 import { FormioSDKConfig } from './formio-sdk';
 import { HomeAssistantConfig } from './home-assistant';
 import { ServerConfig } from './server';
+import { TerminalConfig } from './terminal';
 import { UtilsConfig } from './utils';
 
 export * from './apps';
@@ -31,6 +33,7 @@ export * from './formio-sdk';
 export * from './home-assistant';
 export * from './libs-config';
 export * from './server';
+export * from './terminal';
 export * from './utils';
 
 export const ACTIVE_APPLICATION = Symbol('ACTIVE_APPLICATION');
@@ -55,6 +58,7 @@ export const CONFIGURABLE_LIBS = new Map(
     [LIB_FORMIO_SDK.description]: FormioSDKConfig,
     [LIB_SERVER.description]: ServerConfig,
     [LIB_UTILS.description]: UtilsConfig,
+    [LIB_TERMINAL.description]: TerminalConfig,
     [LIB_HOME_ASSISTANT.description]: HomeAssistantConfig,
   }),
 );

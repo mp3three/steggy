@@ -11,6 +11,7 @@ import {
   CommonConfig,
   CONFIGURABLE_APPS,
   CONFIGURABLE_LIBS,
+  OUTPUT_HEADER_FONT,
 } from '@automagical/contracts/config';
 import { CLIService, FigletFonts } from '@automagical/contracts/terminal';
 import { AutoConfigService } from '@automagical/utilities';
@@ -222,7 +223,7 @@ export class ConfigBuilderREPL implements CLIService {
         console.log(
           chalk.yellow(
             figlet.textSync('Completed Config', {
-              font: FigletFonts.output,
+              font: this.configService.get<figlet.Fonts>(OUTPUT_HEADER_FONT),
             }),
           ),
         );
