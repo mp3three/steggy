@@ -5,7 +5,7 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { EventEmitter2 } from 'eventemitter2';
 
 import { EVENT_LISTENER_METADATA, OnEventMetadata } from '../decorators';
-import { Trace } from '../decorators/logger';
+import { Info, Trace } from '../decorators/logger.decorator';
 import { AutoLogService } from './logger';
 
 @Injectable()
@@ -55,10 +55,9 @@ export class EventsExplorerService {
 
   // #region Protected Methods
 
-  @Trace()
+  @Info({ after: `Events initialized` })
   protected onApplicationBootstrap(): void {
     this.loadEventListeners();
-    this.logger.info(`Events initialized`);
   }
 
   @Trace()

@@ -174,9 +174,14 @@ export class LoftController implements iRoomController {
       return;
     }
     const brightness = this.panelAutoBrightness();
-    const [{ attributes }] = await this.entityManager.getEntity<LightStateDTO>(
+    const result = await this.entityManager.getEntity<LightStateDTO>(
       PANEL_LIGHTS,
     );
+    // this.logger.warn({ result: typeo });
+    const [{ attributes }] = result;
+    // const [{ attributes }] = await this.entityManager.getEntity<LightStateDTO>(
+    //   PANEL_LIGHTS,
+    // );
     if (brightness === 0) {
       await this.lightManager.turnOffEntities(PANEL_LIGHTS);
       return;

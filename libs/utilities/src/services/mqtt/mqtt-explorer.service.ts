@@ -1,4 +1,12 @@
-import type { MqttSubscriber } from '@automagical/contracts/utilities';
+import {
+  MQTT_CLOSE,
+  MQTT_CONNECT,
+  MQTT_DISCONNECT,
+  MQTT_ERROR,
+  MQTT_OFFLINE,
+  MQTT_RECONNECT,
+  MqttSubscriber,
+} from '@automagical/contracts/utilities';
 import {
   LOG_CONTEXT,
   MQTT_SUBSCRIBER_PARAMS,
@@ -6,11 +14,12 @@ import {
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+import { EventEmitter2 } from 'eventemitter2';
 import { Client } from 'mqtt';
 
 import { MQTT_SUBSCRIBE_OPTIONS } from '../../decorators';
 import { InjectMQTT } from '../../decorators/injectors/inject-mqtt.decorator';
-import { Trace } from '../../decorators/logger/trace.decorator';
+import { Info, Trace } from '../../decorators/logger.decorator';
 import { AutoLogService } from '../logger';
 import { MqttService } from './mqtt.service';
 
@@ -74,53 +83,15 @@ export class MQTTExplorerService {
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
     private readonly mqttService: MqttService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   // #endregion Constructors
 
   // #region Protected Methods
 
-  @Trace()
+  @Info('MQTT Initialized')
   protected onApplicationBootstrap(): void {
-    this.scanForSubscribers();
-    this.logger.info(`MQTT initialized`);
-  }
-
-  @Trace()
-  protected onModuleInit(): void {
-    const client = this.client;
-
-    client.on('connect', () => {
-      this.logger.info('MQTT connected');
-    });
-
-    client.on('disconnect', (packet) => {
-      this.logger.warn({ packet }, 'MQTT disconnected');
-    });
-
-    client.on('error', (error) => {
-      this.logger.error({ error }, 'MQTT error');
-    });
-
-    client.on('reconnect', () => {
-      this.logger.debug('MQTT reconnecting');
-    });
-
-    client.on('close', () => {
-      this.logger.debug('MQTT closed');
-    });
-
-    client.on('offline', () => {
-      this.logger.warn('MQTT offline');
-    });
-  }
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
-
-  @Trace()
-  private scanForSubscribers() {
     const providers: InstanceWrapper[] = this.discoveryService.getProviders();
     providers.forEach((wrapper: InstanceWrapper) => {
       const { instance } = wrapper;
@@ -160,5 +131,40 @@ export class MQTTExplorerService {
     });
   }
 
-  // #endregion Private Methods
+  @Trace()
+  protected onModuleInit(): void {
+    const client = this.client;
+
+    client.on('connect', () => {
+      this.logger.info('MQTT connected');
+      this.eventEmitter.emit(MQTT_CONNECT);
+    });
+
+    client.on('disconnect', (packet) => {
+      this.logger.warn({ packet }, 'MQTT disconnected');
+      this.eventEmitter.emit(MQTT_DISCONNECT);
+    });
+
+    client.on('error', (error) => {
+      this.logger.error({ error }, 'MQTT error');
+      this.eventEmitter.emit(MQTT_ERROR);
+    });
+
+    client.on('reconnect', () => {
+      this.logger.debug('MQTT reconnecting');
+      this.eventEmitter.emit(MQTT_RECONNECT);
+    });
+
+    client.on('close', () => {
+      this.logger.debug('MQTT closed');
+      this.eventEmitter.emit(MQTT_CLOSE);
+    });
+
+    client.on('offline', () => {
+      this.logger.warn('MQTT offline');
+      this.eventEmitter.emit(MQTT_OFFLINE);
+    });
+  }
+
+  // #endregion Protected Methods
 }

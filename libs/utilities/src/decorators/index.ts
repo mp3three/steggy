@@ -4,7 +4,7 @@ export * from './emit-after.decorator';
 export * from './events.decorator';
 export * from './injectors';
 export * from './library-module.decorator';
-export * from './logger';
+export * from './logger.decorator';
 export * from './mqtt.decorator';
 export * from './schedule.decorator';
 export * from './single-call.decorator';
