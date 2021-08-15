@@ -25,6 +25,14 @@
            "with": "apps/home-controller/src/environments/develop.environment.ts"
          }
         ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": []
+        }
       }
     },
     "lint": {

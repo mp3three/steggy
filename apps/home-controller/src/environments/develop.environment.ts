@@ -1,10 +1,17 @@
-import { UsePrettyLogger } from '@automagical/utilities';
+import { AutoLogService, UsePrettyLogger } from '@automagical/utilities';
+import { NestFactory } from '@nestjs/core';
 import chalk from 'chalk';
+import { ClassConstructor } from 'class-transformer';
 
-export async function Activate(): Promise<void> {
-  //
-}
-
-if (chalk.supportsColor) {
-  UsePrettyLogger();
+export async function Bootstrap(
+  module: ClassConstructor<unknown>,
+): Promise<void> {
+  if (chalk.supportsColor) {
+    UsePrettyLogger();
+  }
+  await (
+    await NestFactory.create(module, {
+      logger: AutoLogService.nestLogger,
+    })
+  ).init();
 }
