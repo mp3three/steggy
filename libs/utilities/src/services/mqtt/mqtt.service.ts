@@ -8,7 +8,7 @@ import {
 } from 'mqtt';
 
 import { InjectMQTT } from '../../decorators/injectors/inject-mqtt.decorator';
-import { Trace } from '../../decorators/logger/trace.decorator';
+import { Trace } from '../../decorators/logger.decorator';
 import { AutoLogService } from '../logger';
 
 /* eslint-disable radar/no-identical-functions */

@@ -5,7 +5,7 @@ import {
 } from '@automagical/contracts/utilities';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
-import { Trace } from '../../decorators/logger';
+import { Trace } from '../../decorators/logger.decorator';
 import { controlToQuery } from '../../includes';
 import { AutoLogService } from '../logger/auto-log.service';
 

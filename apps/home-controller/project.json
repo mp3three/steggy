@@ -18,7 +18,13 @@
         "outputPath": "dist/apps/home-controller",
         "generatePackageJson": true,
         "main": "apps/home-controller/src/entrypoints/main.ts",
-        "tsConfig": "apps/home-controller/tsconfig.app.json"
+        "tsConfig": "apps/home-controller/tsconfig.app.json",
+        "fileReplacements": [
+         {
+           "replace": "apps/home-controller/src/environments/environment.ts",
+           "with": "apps/home-controller/src/environments/develop.environment.ts"
+         }
+        ]
       }
     },
     "lint": {

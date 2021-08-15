@@ -7,7 +7,7 @@ import {
 import { Inject, InternalServerErrorException, Scope } from '@nestjs/common';
 
 import { ConsumesConfig } from '../decorators/consumes-configuration.decorator';
-import { Trace } from '../decorators/logger/trace.decorator';
+import { Trace } from '../decorators/logger.decorator';
 import { AutoConfigService } from './auto-config.service';
 import { AutoLogService } from './logger';
 

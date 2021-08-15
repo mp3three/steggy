@@ -7,7 +7,6 @@ import {
 } from '@automagical/contracts/utilities';
 import { Inject, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
-import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
 import pino from 'pino';
 
@@ -16,7 +15,7 @@ import { mappedContexts } from '../../decorators/injectors';
 
 /* eslint-disable security/detect-non-literal-regexp */
 
-type LoggerFunction =
+export type LoggerFunction =
   | ((message: string, ...arguments_: unknown[]) => void)
   | ((
       object: Record<string, unknown>,
@@ -25,91 +24,6 @@ type LoggerFunction =
     ) => void);
 
 const NEST = '@nestjs';
-let prettyPrint = false;
-
-const highlightContext = (
-  context: string,
-  level: 'bgBlue' | 'bgYellow' | 'bgGreen' | 'bgRed' | 'bgMagenta',
-): string => chalk`{bold.${level.slice(2).toLowerCase()} [${context}]}`;
-
-const methodColors = new Map<
-  pino.Level,
-  'bgBlue' | 'bgYellow' | 'bgGreen' | 'bgRed' | 'bgMagenta'
->([
-  ['debug', 'bgBlue'],
-  ['warn', 'bgYellow'],
-  ['error', 'bgRed'],
-  ['info', 'bgGreen'],
-  ['fatal', 'bgMagenta'],
-]);
-
-const prettyFormatMessage = (message: string): string => {
-  if (!message) {
-    return ``;
-  }
-  let matches = message.match(new RegExp('([^ ]+#[^ ]+)'));
-  if (matches) {
-    message = message.replace(matches[0], chalk.bold(matches[0]));
-  }
-  matches = message.match(new RegExp('(\\[[^\\]]+\\])'));
-  if (matches) {
-    message = message.replace(
-      matches[0],
-      chalk`{underline.bold ${matches[0]}}`,
-    );
-  }
-  matches = message.match(new RegExp('(\\{[^\\]]+\\})'));
-  if (matches) {
-    message = message.replace(
-      matches[0],
-      chalk`{bold.gray ${matches[0].slice(1, -1)}}`,
-    );
-  }
-  return message;
-};
-
-/**
- * Draw attention to:
- *
- * - Broken module name
- * - Broken service name
- * - Working vs broken injection args
- */
-const prettyErrorMessage = (message: string): string => {
-  if (!message) {
-    return ``;
-  }
-  const lines = message.split(`\n`);
-  const prefix = "Nest can't resolve dependencies of the ";
-  if (lines[0].includes(prefix)) {
-    // eslint-disable-next-line prefer-const
-    let [service, module] = lines[0].split('.');
-    service = service.slice(prefix.length);
-    const provider = service.slice(0, service.indexOf(' '));
-    service = service.slice(service.indexOf(' ') + 1);
-    const ctorArguments = service
-      .slice(1, -1)
-      .split(',')
-      .map((item) => item.trim());
-    const match = module.match(new RegExp('in the ([^ ]+) context'));
-    if (match) {
-      message = message.replace(
-        new RegExp(provider, 'g'),
-        chalk.bold.yellow(provider),
-      );
-      ctorArguments.forEach((parameter) => {
-        let out = parameter;
-        out = parameter === '?' ? chalk.bold.red('?') : chalk.bold.green(out);
-        message = message.replace(parameter, out);
-      });
-      message = message.replace(
-        new RegExp(match[1], 'g'),
-        chalk.bold(match[1]),
-      );
-    }
-  }
-  return message;
-};
 
 /**
  * Use `@InjectLogger()` if context is not automatically found
@@ -119,6 +33,21 @@ export class AutoLogService implements iLogger {
   // #region Static Properties
 
   public static logger: iLogger = pino() as iLogger;
+  public static nestLogger: Record<
+    'log' | 'warn' | 'error' | 'debug' | 'verbose',
+    (a: string, b: string) => void
+  > = {
+    debug: (message, context: string) =>
+      AutoLogService.logger.debug({ context: `${NEST}:${context}` }, message),
+    error: (message: string, context: string) =>
+      AutoLogService.logger.error({ context: `${NEST}:${context}` }, message),
+    log: (message, context) =>
+      AutoLogService.logger.info({ context: `${NEST}:${context}` }, message),
+    verbose: (message, context) =>
+      AutoLogService.logger.debug({ context: `${NEST}:${context}` }, message),
+    warn: (message, context) =>
+      AutoLogService.logger.warn({ context: `${NEST}:${context}` }, message),
+  };
 
   // #endregion Static Properties
 
@@ -139,121 +68,6 @@ export class AutoLogService implements iLogger {
       // early shortcut for an over used call
       return;
     }
-    if (prettyPrint) {
-      this.callPretty(method, context, parameters);
-      return;
-    }
-    this.callNormal(method, context, parameters);
-  }
-
-  public static nestLogger(): Record<
-    'log' | 'warn' | 'error' | 'debug' | 'verbose',
-    (a: string, b: string) => void
-  > {
-    const out = {
-      debug: (message, context: string) => {
-        context = `${NEST}:${context}`;
-        if (!prettyPrint) {
-          AutoLogService.logger.info({ context }, message);
-          return;
-        }
-        if (context === `${NEST}:InstanceLoader`) {
-          message = prettyFormatMessage(
-            message
-              .split(' ')
-              .map((item, index) => (index === 0 ? `[${item}]` : item))
-              .join(' '),
-          );
-        }
-        // Never actually seen this come through
-        // Using magenta to make it obvious if it happens, but will change to blue later
-        AutoLogService.logger.debug(
-          `${highlightContext(context, 'bgMagenta')} ${message}`,
-        );
-      },
-      error: (message: string, context: string) => {
-        context = `${NEST}:${context}`;
-        if (!prettyPrint) {
-          AutoLogService.logger.error({ context }, message);
-          return;
-        }
-        if (context.length > 20) {
-          // Context contains the stack trace of the nest injector
-          // Nothing actually useful for debugging
-          context = `@nestjs:ErrorMessage`;
-          message = prettyErrorMessage(message);
-        }
-        AutoLogService.logger.error(
-          `${highlightContext(context, 'bgRed')} ${message}`,
-        );
-      },
-      log: (message, context) => {
-        context = `${NEST}:${context}`;
-        if (!prettyPrint) {
-          AutoLogService.logger.info({ context }, message);
-          return;
-        }
-        if (context === `${NEST}:InstanceLoader`) {
-          message = prettyFormatMessage(
-            message
-              .split(' ')
-              .map((item, index) => (index === 0 ? `[${item}]` : item))
-              .join(' '),
-          );
-        }
-        AutoLogService.logger.info(
-          `${highlightContext(context, 'bgGreen')} ${message}`,
-        );
-      },
-
-      verbose: (message, context) => {
-        out.debug(message, context);
-      },
-      warn: (message, context) => {
-        context = `${NEST}:${context}`;
-        if (!prettyPrint) {
-          AutoLogService.logger.warn({ context }, message);
-          return;
-        }
-        AutoLogService.logger.warn(
-          `${highlightContext(context, 'bgYellow')} ${message}`,
-        );
-      },
-    };
-    return out;
-  }
-
-  public static prettyLog(): void {
-    const level = AutoLogService.logger.level;
-    prettyPrint = true;
-    AutoLogService.logger = pino({
-      level,
-      prettyPrint: {
-        colorize: true,
-        crlf: false,
-        customPrettifiers: {},
-        errorLikeObjectKeys: ['err', 'error'],
-        errorProps: '',
-        hideObject: false,
-        ignore: 'pid,hostname',
-        levelKey: ``,
-        messageKey: 'msg',
-        singleLine: true,
-        timestampKey: 'time',
-        translateTime: 'SYS:ddd hh:MM:ss.l',
-      },
-    });
-  }
-
-  // #endregion Public Static Methods
-
-  // #region Private Static Methods
-
-  private static callNormal(
-    method: pino.Level,
-    context: string,
-    parameters: Parameters<LoggerFunction>,
-  ): void {
     const data =
       typeof parameters[0] === 'object'
         ? (parameters.shift() as Record<string, unknown>)
@@ -270,32 +84,7 @@ export class AutoLogService implements iLogger {
     );
   }
 
-  private static callPretty(
-    method: pino.Level,
-    context: string,
-    parameters: Parameters<LoggerFunction>,
-  ): void {
-    if (typeof parameters[0] === 'object') {
-      AutoLogService.logger[method](
-        parameters.shift() as Record<string, unknown>,
-        `${highlightContext(
-          context,
-          methodColors.get(method),
-        )} ${prettyFormatMessage(parameters.shift() as string)}`,
-        ...parameters,
-      );
-      return;
-    }
-    AutoLogService.logger[method](
-      `${highlightContext(
-        context,
-        methodColors.get(method),
-      )} ${prettyFormatMessage(parameters.shift() as string)}`,
-      ...parameters,
-    );
-  }
-
-  // #endregion Private Static Methods
+  // #endregion Public Static Methods
 
   // #region Object Properties
 
@@ -393,8 +182,4 @@ export class AutoLogService implements iLogger {
   }
 
   // #endregion Public Methods
-}
-
-if (chalk.supportsColor) {
-  AutoLogService.prettyLog();
 }

@@ -3,7 +3,7 @@ import { Injectable, Scope } from '@nestjs/common';
 import { createWriteStream } from 'fs';
 import fetch from 'node-fetch';
 
-import { Trace } from '../../decorators/logger';
+import { Trace } from '../../decorators/logger.decorator';
 import { AutoLogService } from '../logger/auto-log.service';
 import { BaseFetch } from './base-fetch.service';
 
