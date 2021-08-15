@@ -14,11 +14,14 @@ import { DiscoveryModule } from '@nestjs/core';
 import { RefreshAfter } from '../decorators';
 import { WorkspaceExplorerService } from '../services';
 
-@LibraryModule({
-  exports: [BlessedModule],
-  library: LIB_TERMINAL,
-  providers: [BlessedModule],
-})
+@LibraryModule(
+  {
+    exports: [BlessedModule],
+    library: LIB_TERMINAL,
+    providers: [BlessedModule],
+  },
+  [SCREEN_TITLE],
+)
 export class BlessedModule {
   // #region Public Static Methods
 

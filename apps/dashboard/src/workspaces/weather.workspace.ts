@@ -20,11 +20,14 @@ import {
 import { Inject } from '@nestjs/common';
 import chalk from 'chalk';
 
-@Workspace({
-  friendlyName: 'Weather',
-  menu: [chalk` ${WeatherIcons.day_cloudy_high}  {bold Weather}`],
-  name: 'weather',
-})
+@Workspace(
+  {
+    friendlyName: 'Weather',
+    menu: [chalk` ${WeatherIcons.day_cloudy_high}  {bold Weather}`],
+    name: 'weather',
+  },
+  [LATITUDE, LONGITUDE],
+)
 export class WeatherWorkspace implements iWorkspace {
   // #region Object Properties
 

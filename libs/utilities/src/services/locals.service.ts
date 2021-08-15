@@ -4,13 +4,9 @@ import {
   LocalStashDTO,
   ResponseLocals,
 } from '@automagical/contracts/server';
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  Scope,
-} from '@nestjs/common';
+import { Inject, InternalServerErrorException, Scope } from '@nestjs/common';
 
+import { ConsumesConfig } from '../decorators/consumes-configuration.decorator';
 import { Trace } from '../decorators/logger/trace.decorator';
 import { AutoConfigService } from './auto-config.service';
 import { AutoLogService } from './logger';
@@ -20,7 +16,7 @@ const STASH_PROP_LIST = [] as (keyof ResponseLocals)[];
 // Working from a hard coded list of properties, does not apply
 /* eslint-disable security/detect-object-injection, unicorn/no-process-exit */
 
-@Injectable({ scope: Scope.REQUEST })
+@ConsumesConfig([MAX_STASH_DEPTH], { scope: Scope.REQUEST })
 export class LocalsService {
   // #region Constructors
 

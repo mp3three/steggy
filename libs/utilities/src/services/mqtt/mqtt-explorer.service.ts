@@ -11,7 +11,6 @@ import { Client } from 'mqtt';
 import { MQTT_SUBSCRIBE_OPTIONS } from '../../decorators';
 import { InjectMQTT } from '../../decorators/injectors/inject-mqtt.decorator';
 import { Trace } from '../../decorators/logger/trace.decorator';
-import { AutoConfigService } from '../auto-config.service';
 import { AutoLogService } from '../logger';
 import { MqttService } from './mqtt.service';
 
@@ -74,7 +73,6 @@ export class MQTTExplorerService {
     private readonly discoveryService: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
-    private readonly configService: AutoConfigService,
     private readonly mqttService: MqttService,
   ) {}
 

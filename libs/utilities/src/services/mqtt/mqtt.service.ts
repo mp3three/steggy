@@ -18,6 +18,9 @@ export type MqttCallback<T = Record<string, unknown>> = (
   packet?: Packet,
 ) => void;
 
+/**
+ * DO NOT USE `@InjectMQTT()` WITH THIS!
+ */
 @Injectable()
 export class MqttService {
   // #region Object Properties

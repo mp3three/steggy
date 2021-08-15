@@ -1,13 +1,12 @@
 import { DEFAULT_HEADER_FONT } from '@automagical/contracts/config';
-import { CLIService, FigletFonts } from '@automagical/contracts/terminal';
-import { AutoConfigService } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { CLIService } from '@automagical/contracts/terminal';
+import { AutoConfigService, ConsumesConfig } from '@automagical/utilities';
 import chalk from 'chalk';
 import clear from 'clear';
 import figlet from 'figlet';
 import inquirer from 'inquirer';
 
-@Injectable()
+@ConsumesConfig([DEFAULT_HEADER_FONT])
 export class MainCLIREPL {
   // #region Object Properties
 

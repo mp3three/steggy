@@ -4,17 +4,11 @@
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "rules": {
-        "no-console": "off",
-        "no-loops/no-loops": "off",
-        "security/detect-object-injection": "off"
-      }
+      "rules": {}
     },
     {
-      "files": ["*repl.ts"],
-      "rules": {
-        "radar/no-identical-functions": "off"
-      }
+      "files": ["*.ts", "*.tsx"],
+      "rules": {}
     },
     {
       "files": ["*.js", "*.jsx"],

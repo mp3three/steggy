@@ -1,16 +1,19 @@
+import { LOG_LEVEL } from '@automagical/contracts/config';
 import {
   iLogger,
   LOG_CONTEXT,
   LogLevels,
   MISSING_CONTEXT,
 } from '@automagical/contracts/utilities';
-import { Inject, Injectable, LogLevel, Scope } from '@nestjs/common';
+import { Inject, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
 import pino from 'pino';
 
+import { ConsumesConfig } from '../../decorators/consumes-configuration.decorator';
 import { mappedContexts } from '../../decorators/injectors';
+
 /* eslint-disable security/detect-non-literal-regexp */
 
 type LoggerFunction =
@@ -108,7 +111,10 @@ const prettyErrorMessage = (message: string): string => {
   return message;
 };
 
-@Injectable({ scope: Scope.TRANSIENT })
+/**
+ * Use `@InjectLogger()` if context is not automatically found
+ */
+@ConsumesConfig([LOG_LEVEL], { scope: Scope.TRANSIENT })
 export class AutoLogService implements iLogger {
   // #region Static Properties
 

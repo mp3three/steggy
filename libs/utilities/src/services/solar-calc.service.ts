@@ -1,12 +1,12 @@
 import { LATITUDE, LONGITUDE } from '@automagical/contracts/config';
-import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
 
+import { ConsumesConfig } from '../decorators/consumes-configuration.decorator';
 import { AutoConfigService } from './auto-config.service';
 
-@Injectable()
+@ConsumesConfig([LONGITUDE, LATITUDE])
 export class SolarCalcService {
   // #region Object Properties
 

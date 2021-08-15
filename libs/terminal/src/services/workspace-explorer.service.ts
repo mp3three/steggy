@@ -5,7 +5,6 @@ import {
   Box,
   BoxElement,
   Button,
-  FigletFonts,
   GridElement,
   iWorkspace,
   WORKSPACE_ELEMENT,
@@ -17,10 +16,11 @@ import { SEND_ROOM_STATE } from '@automagical/contracts/utilities';
 import {
   AutoConfigService,
   AutoLogService,
+  ConsumesConfig,
   MqttService,
   Trace,
 } from '@automagical/utilities';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import chalk from 'chalk';
@@ -29,7 +29,7 @@ import figlet from 'figlet';
 import { FontAwesomeIcons, MDIIcons } from '../icons';
 
 type WorkspaceElements = Map<string, WorkspaceElementSettingsDTO>;
-@Injectable()
+@ConsumesConfig([DEFAULT_HEADER_FONT])
 export class WorkspaceExplorerService {
   // #region Object Properties
 

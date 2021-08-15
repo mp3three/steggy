@@ -8,14 +8,13 @@ import {
 } from '@automagical/contracts';
 import {
   AutomagicalConfig,
-  CommonConfig,
   CONFIGURABLE_APPS,
   CONFIGURABLE_LIBS,
   OUTPUT_HEADER_FONT,
 } from '@automagical/contracts/config';
-import { CLIService, FigletFonts } from '@automagical/contracts/terminal';
-import { AutoConfigService } from '@automagical/utilities';
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { CLIService } from '@automagical/contracts/terminal';
+import { AutoConfigService, ConsumesConfig } from '@automagical/utilities';
+import { NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
@@ -44,7 +43,7 @@ type KeyedConfig<T extends ConfigType = ConfigType> =
     key: string;
   };
 
-@Injectable()
+@ConsumesConfig([OUTPUT_HEADER_FONT])
 export class ConfigBuilderREPL implements CLIService {
   // #region Object Properties
 
@@ -270,7 +269,7 @@ export class ConfigBuilderREPL implements CLIService {
     application: string,
     level: ConfigLibraryVisibility,
   ): KeyedConfig[] {
-    const out: KeyedConfig[] = [...this.loadConfig(CommonConfig, `common.`)];
+    const out: KeyedConfig[] = [];
 
     CONFIGURABLE_LIBS.forEach(
       (value: ClassConstructor<unknown>, key: string) => {

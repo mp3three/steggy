@@ -1,5 +1,10 @@
 import { LIB_UTILS } from '@automagical/contracts';
-import { LOG_LEVEL } from '@automagical/contracts/config';
+import {
+  CACHE_PROVIDER,
+  LOG_LEVEL,
+  REDIS_HOST,
+  REDIS_PORT,
+} from '@automagical/contracts/config';
 import { APIRequest, APIResponse } from '@automagical/contracts/server';
 import {
   CacheModule,
@@ -25,27 +30,30 @@ import {
   SolarCalcService,
 } from '../services';
 
-@LibraryModule({
-  exports: [
-    AutoConfigService,
-    LocalsService,
-    FetchService,
-    AutoLogService,
-    SolarCalcService,
-  ],
-  imports: [CacheModule.register(), DiscoveryModule],
-  library: LIB_UTILS,
-  providers: [
-    LogExplorerService,
-    AutoLogService,
-    LocalsService,
-    AutoConfigService,
-    EventsExplorerService,
-    FetchService,
-    SolarCalcService,
-    ScheduleExplorerService,
-  ],
-})
+@LibraryModule(
+  {
+    exports: [
+      AutoConfigService,
+      LocalsService,
+      FetchService,
+      AutoLogService,
+      SolarCalcService,
+    ],
+    imports: [CacheModule.register(), DiscoveryModule],
+    library: LIB_UTILS,
+    providers: [
+      LogExplorerService,
+      AutoLogService,
+      LocalsService,
+      AutoConfigService,
+      EventsExplorerService,
+      FetchService,
+      SolarCalcService,
+      ScheduleExplorerService,
+    ],
+  },
+  [LOG_LEVEL, CACHE_PROVIDER, REDIS_HOST, REDIS_PORT],
+)
 export class UtilitiesModule {
   // #region Public Static Methods
 

@@ -22,17 +22,17 @@ import { CronExpression } from '@automagical/contracts/utilities';
 import {
   AutoConfigService,
   AutoLogService,
+  ConsumesConfig,
   Cron,
   EmitAfter,
   InjectLogger,
   Trace,
 } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 import { Observable, Subscriber } from 'rxjs';
 import WS from 'ws';
 
-@Injectable()
+@ConsumesConfig([HOME_ASSISTANT_BASE_URL, HOME_ASSISTANT_TOKEN])
 export class HASocketAPIService {
   // #region Object Properties
 

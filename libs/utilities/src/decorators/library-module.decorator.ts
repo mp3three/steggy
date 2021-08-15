@@ -1,4 +1,7 @@
-import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
+import {
+  CONSUMES_CONFIG,
+  LOGGER_LIBRARY,
+} from '@automagical/contracts/utilities';
 import { Global, ModuleMetadata } from '@nestjs/common';
 
 export interface LibraryModuleMetadata extends Partial<ModuleMetadata> {
@@ -9,9 +12,13 @@ export interface LibraryModuleMetadata extends Partial<ModuleMetadata> {
   // #endregion Object Properties
 }
 
-export function LibraryModule(metadata: LibraryModuleMetadata): ClassDecorator {
+export function LibraryModule(
+  metadata: LibraryModuleMetadata,
+  config?: string[],
+): ClassDecorator {
   const propertiesKeys = Object.keys(metadata);
   return (target) => {
+    target[CONSUMES_CONFIG] = config;
     target[LOGGER_LIBRARY] = metadata.library.description;
     Global()(target);
     propertiesKeys.forEach((property) => {

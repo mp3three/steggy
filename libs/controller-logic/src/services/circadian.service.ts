@@ -6,11 +6,11 @@ import { CIRCADIAN_UPDATE } from '@automagical/contracts/controller-logic';
 import { CronExpression } from '@automagical/contracts/utilities';
 import {
   AutoConfigService,
+  ConsumesConfig,
   Cron,
   SolarCalcService,
   Trace,
 } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
 
@@ -19,7 +19,7 @@ import { EventEmitter2 } from 'eventemitter2';
  *
  * The temperature can be looked up on demand, and subscribed to via an observable
  */
-@Injectable()
+@ConsumesConfig([CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP])
 export class CircadianService {
   // #region Object Properties
 

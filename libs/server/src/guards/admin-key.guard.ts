@@ -1,22 +1,21 @@
-import { ResponseFlags } from '@automagical/contracts';
 import { ADMIN_KEY } from '@automagical/contracts/config';
 import { ADMIN_KEY_HEADER, APIResponse } from '@automagical/contracts/server';
 import {
   AutoConfigService,
   AutoLogService,
+  ConsumesConfig,
   Trace,
 } from '@automagical/utilities';
 import {
   CanActivate,
   ExecutionContext,
-  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 
 /**
  * Retrieve an admin key from the config, and check against provided value
  */
-@Injectable()
+@ConsumesConfig([ADMIN_KEY])
 export class AdminKeyGuard implements CanActivate {
   // #region Constructors
 
@@ -43,8 +42,8 @@ export class AdminKeyGuard implements CanActivate {
       this.logger.warn('Rejected ADMIN_KEY request');
       throw new UnauthorizedException();
     }
-    locals.flags.add(ResponseFlags.ADMIN_KEY);
-    locals.flags.add(ResponseFlags.ADMIN);
+    // locals.flags.add(ResponseFlags.ADMIN_KEY);
+    // locals.flags.add(ResponseFlags.ADMIN);
     locals.authenticated = true;
     return true;
   }

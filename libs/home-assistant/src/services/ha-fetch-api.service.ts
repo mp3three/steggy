@@ -7,13 +7,13 @@ import type { FetchWith } from '@automagical/contracts/utilities';
 import {
   AutoConfigService,
   AutoLogService,
+  ConsumesConfig,
   FetchService,
   Trace,
 } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 
-@Injectable()
+@ConsumesConfig([HOME_ASSISTANT_BASE_URL, HOME_ASSISTANT_TOKEN])
 export class HomeAssistantFetchAPIService {
   // #region Constructors
 

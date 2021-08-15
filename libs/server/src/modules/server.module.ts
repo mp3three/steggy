@@ -8,9 +8,12 @@ import {
 import { MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { json } from 'express';
 import helmet from 'helmet';
-@LibraryModule({
-  library: LIB_SERVER,
-})
+@LibraryModule(
+  {
+    library: LIB_SERVER,
+  },
+  [BODY_SIZE],
+)
 export class ServerModule {
   // #region Constructors
 
