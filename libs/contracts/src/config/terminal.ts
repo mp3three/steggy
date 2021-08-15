@@ -1,7 +1,6 @@
-import { FigletFonts } from '@automagical/contracts/terminal';
-
 import { CreateConfigurableAnnotation } from '..';
 import { APP_DASHBOARD, LIB_TERMINAL } from '../library-names';
+import { FigletFonts } from '../libs/terminal/figlet';
 
 const UsesConfig = CreateConfigurableAnnotation(LIB_TERMINAL.description);
 

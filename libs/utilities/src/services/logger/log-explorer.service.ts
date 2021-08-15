@@ -1,6 +1,6 @@
 import { LOG_CONTEXT, LOGGER_LIBRARY } from '@automagical/contracts/utilities';
 import { Injectable } from '@nestjs/common';
-import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
+import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { ClassConstructor } from 'class-transformer';
 

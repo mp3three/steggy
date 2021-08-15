@@ -5,11 +5,9 @@
   },
   "defaultProject": "home-controller",
   "projects": {
-    "ast-class-organizer": "apps/ast-class-organizer",
     "contracts": "libs/contracts",
     "controller-logic": "libs/controller-logic",
     "dashboard": "apps/dashboard",
-    "devtools": "apps/devtools",
     "home-assistant": "libs/home-assistant",
     "home-controller": "apps/home-controller",
     "living-docs": "apps/living-docs",
