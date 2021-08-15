@@ -1,6 +1,5 @@
 import { CreateConfigurableAnnotation } from '../decorators';
 import type { ApplicationConfigs } from '.';
-import { CommonConfig } from './common';
 import { ConfigLibs } from './libs-config';
 
 const ConfigurableProperty = CreateConfigurableAnnotation();
@@ -22,13 +21,6 @@ export class AutomagicalConfig {
     type: undefined,
   })
   public application?: ApplicationConfigs;
-  @ConfigurableProperty({
-    applications: 'default',
-    type: {
-      reference: CommonConfig,
-    },
-  })
-  public common?: CommonConfig;
   /**
    * Libraries
    */

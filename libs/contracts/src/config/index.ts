@@ -24,7 +24,6 @@ import { UtilsConfig } from './utils';
 export * from './apps';
 export * from './authentication';
 export * from './automagical';
-export * from './common';
 export * from './controller-logic';
 export * from './external';
 export * from './home-assistant';

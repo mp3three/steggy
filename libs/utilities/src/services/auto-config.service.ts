@@ -2,7 +2,6 @@ import { LoadConfigDefinition } from '@automagical/contracts';
 import {
   ACTIVE_APPLICATION,
   AutomagicalConfig,
-  CommonConfig,
   CONFIGURABLE_APPS,
   CONFIGURABLE_LIBS,
   LOG_LEVEL,
@@ -28,7 +27,8 @@ export class AutoConfigService {
   constructor(
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
   ) {
-    this.config = rc(this.APPLICATION.description);
+    // Don't move logic out of constructor
+    this.config = rc(APPLICATION.description);
     AutoLogService.logger.level = this.get(LOG_LEVEL);
   }
 
@@ -68,8 +68,6 @@ export class AutoConfigService {
         return CONFIGURABLE_LIBS.get(name);
       case 'application':
         return CONFIGURABLE_APPS.get(this.APPLICATION.description);
-      case 'common':
-        return CommonConfig;
     }
   }
 

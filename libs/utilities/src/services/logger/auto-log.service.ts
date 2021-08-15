@@ -1,5 +1,10 @@
-import { LOG_CONTEXT, MISSING_CONTEXT } from '@automagical/contracts/utilities';
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import {
+  iLogger,
+  LOG_CONTEXT,
+  LogLevels,
+  MISSING_CONTEXT,
+} from '@automagical/contracts/utilities';
+import { Inject, Injectable, LogLevel, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
@@ -60,6 +65,13 @@ const prettyFormatMessage = (message: string): string => {
   return message;
 };
 
+/**
+ * Draw attention to:
+ *
+ * - Broken module name
+ * - Broken service name
+ * - Working vs broken injection args
+ */
 const prettyErrorMessage = (message: string): string => {
   if (!message) {
     return ``;
@@ -93,22 +105,14 @@ const prettyErrorMessage = (message: string): string => {
       );
     }
   }
-  // Nest can't resolve dependencies of the RecentUpdatesService (BLESSED_SCREEN, ?, HASocketAPIService). Please make sure that the argument dependency at index [1] is available in the DashboardModule context.
-
-  // Potential solutions:
-  // - If dependency is a provider, is it part of the current DashboardModule?
-  // - If dependency is exported from a separate @Module, is that module imported within DashboardModule?
-  //   @Module({
-  //     imports: [ /* the Module containing dependency */ ]
-  //   })
   return message;
 };
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class AutoLogService {
+export class AutoLogService implements iLogger {
   // #region Static Properties
 
-  public static logger = pino();
+  public static logger: iLogger = pino() as iLogger;
 
   // #endregion Static Properties
 
@@ -126,7 +130,7 @@ export class AutoLogService {
     ...parameters: Parameters<LoggerFunction>
   ): void {
     if (method === 'trace' && AutoLogService.logger.level !== 'trace') {
-      // early shortcut
+      // early shortcut for an over used call
       return;
     }
     if (prettyPrint) {
@@ -141,7 +145,7 @@ export class AutoLogService {
     (a: string, b: string) => void
   > {
     const out = {
-      debug: (message, context) => {
+      debug: (message, context: string) => {
         context = `${NEST}:${context}`;
         if (!prettyPrint) {
           AutoLogService.logger.info({ context }, message);
@@ -301,6 +305,14 @@ export class AutoLogService {
 
   // #endregion Constructors
 
+  // #region Public Accessors
+
+  public get level(): LogLevels {
+    return AutoLogService.logger.level as LogLevels;
+  }
+
+  // #endregion Public Accessors
+
   // #region Private Accessors
 
   private get context(): string {
@@ -352,6 +364,16 @@ export class AutoLogService {
   ): void;
   public info(...arguments_: Parameters<LoggerFunction>): void {
     AutoLogService.call('info', this.context, ...arguments_);
+  }
+
+  public trace(message: string, ...arguments_: unknown[]): void;
+  public trace(
+    object: Record<string, unknown>,
+    message?: string,
+    ...arguments_: unknown[]
+  ): void;
+  public trace(...arguments_: Parameters<LoggerFunction>): void {
+    AutoLogService.call('trace', this.context, ...arguments_);
   }
 
   public warn(message: string, ...arguments_: unknown[]): void;

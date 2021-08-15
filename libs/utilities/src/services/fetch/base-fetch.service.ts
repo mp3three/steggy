@@ -5,9 +5,9 @@ import {
 } from '@automagical/contracts/utilities';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
-import { Trace } from '../decorators/logger/trace.decorator';
-import { controlToQuery } from '../includes';
-import { AutoLogService } from './logger';
+import { Trace } from '../../decorators/logger';
+import { controlToQuery } from '../../includes';
+import { AutoLogService } from '../logger/auto-log.service';
 
 type FetchWith<T extends Record<never, string> = Record<never, string>> =
   Partial<FetchArguments> & T;
