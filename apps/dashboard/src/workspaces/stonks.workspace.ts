@@ -15,10 +15,12 @@ import { Inject } from '@nestjs/common';
 import chalk from 'chalk';
 import figlet from 'figlet';
 
+import { HOME_MENU } from '../typings';
+
 @Workspace({
   customHeader: true,
   friendlyName: 'Stonks',
-  menu: [chalk` ${FontAwesomeIcons.line_chart}  {bold Stonks}`],
+  menu: [HOME_MENU, chalk` ${FontAwesomeIcons.line_chart}  {bold Stonks}`],
   name: 'stonks',
   roomRemote: true,
 })

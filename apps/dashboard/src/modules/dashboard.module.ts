@@ -23,13 +23,16 @@ import {
 @ApplicationModule({
   application: APP_DASHBOARD,
   dashboards: [
-    LoggerWorkspace,
-    HomeAssistantWorkspace,
-    LoftWorkspace,
+    // Rooms
     BedroomWorkspace,
     DownstairsWorkspace,
     GamesWorkspace,
     GuestWorkspace,
+    LoftWorkspace,
+    // Utilitity
+    LoggerWorkspace,
+    HomeAssistantWorkspace,
+    // Misc
     StonksWorkspace,
     WeatherWorkspace,
   ],

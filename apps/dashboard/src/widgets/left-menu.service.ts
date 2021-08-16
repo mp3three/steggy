@@ -11,6 +11,7 @@ import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
+  Trace,
 } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 
@@ -41,6 +42,7 @@ export class LeftMenuService {
 
   // #region Protected Methods
 
+  @Trace()
   protected async onApplicationBootstrap(): Promise<void> {
     const activeName = await this.cacheService.get(CACHE_KEY);
     this.workspaceExplorer.workspaces.forEach(({ name, menu }, workspace) => {
@@ -77,6 +79,7 @@ export class LeftMenuService {
   // #region Private Methods
 
   @RefreshAfter()
+  @Trace()
   // TODO: fixme
   // eslint-disable-next-line radar/cognitive-complexity
   private async onTreeSelect(workspace: iWorkspace): Promise<void> {
@@ -133,10 +136,11 @@ export class LeftMenuService {
       const settings = this.workspaceExplorer.workspaces.get(workspace);
       await this.cacheService.set(CACHE_KEY, settings.name);
     } catch (error) {
-      console.log(error);
+      this.logger.error({ error });
     }
   }
 
+  @Trace()
   private renderTree(): void {
     this.TREE = this.grid.set(0, 0, 12, 2, Tree, {
       label: 'Application Menu',
@@ -151,11 +155,15 @@ export class LeftMenuService {
         ([, { name }]) => {
           return name === node.workspace;
         },
-      )[0];
+      );
       try {
-        this.onTreeSelect(workspace);
+        if (!workspace) {
+          this.logger.debug(`No callback for {${node.name.trim()}}`);
+          return;
+        }
+        this.onTreeSelect(workspace[0]);
       } catch (error) {
-        console.log(error);
+        this.logger.error({ error });
       }
     });
   }

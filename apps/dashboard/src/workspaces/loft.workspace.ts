@@ -17,9 +17,11 @@ import { Inject } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 
+import { HOME_MENU } from '../typings';
+
 @Workspace({
   friendlyName: 'Loft',
-  menu: [chalk` ${MDIIcons.desktop_mac}  {bold Loft}`],
+  menu: [HOME_MENU, chalk` ${MDIIcons.desktop_mac}  {bold Loft}`],
   name: 'loft',
   roomRemote: true,
 })

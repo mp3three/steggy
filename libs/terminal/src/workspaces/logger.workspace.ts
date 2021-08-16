@@ -14,13 +14,13 @@ import {
 import {
   FontAwesomeIcons,
   OnLoggerActivate,
-  REPLAY_MESSAGES,
   Workspace,
 } from '@automagical/terminal';
 import {
   AutoConfigService,
   AutoLogService,
   CONTEXT_COLORS,
+  Debug,
   highlightContext,
   prettyFormatMessage,
 } from '@automagical/utilities';
@@ -43,6 +43,7 @@ const LEVELS = new Map<LogLevels, number>([
 ]);
 
 @Workspace({
+  customHeader: true,
   friendlyName: 'Logger',
   menu: [chalk` ${FontAwesomeIcons.server}  {bold Logger}`],
   name: 'logger',
@@ -64,9 +65,7 @@ export class LoggerWorkspace implements iLoggerCore {
     private readonly GRID: GridElement,
     private readonly configService: AutoConfigService,
     private readonly logger: AutoLogService,
-  ) {
-    this.level = this.configService.get(LOG_LEVEL);
-  }
+  ) {}
 
   // #endregion Constructors
 
@@ -124,13 +123,13 @@ export class LoggerWorkspace implements iLoggerCore {
 
   // #region Protected Methods
 
+  @Debug({ after: 'Logger workspace attached' })
   protected onModuleInit(): void {
-    this.WIDGET = this.GRID.set(2.5, 2, 9, 8, Log, {
-      draggable: true,
+    this.level = this.configService.get(LOG_LEVEL);
+    this.WIDGET = this.GRID.set(0, 2, 12, 10, Log, {
       fg: 'cyan',
       hidden: true,
     } as LogOptions);
-
     this.WIDGET.border = {};
     AutoLogService.logger = this;
     const REPLAY_MESSAGES = OnLoggerActivate(this);
