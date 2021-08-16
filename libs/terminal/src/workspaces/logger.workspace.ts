@@ -11,7 +11,12 @@ import {
   LogLevels,
   MISSING_CONTEXT,
 } from '@automagical/contracts/utilities';
-import { FontAwesomeIcons, Workspace } from '@automagical/terminal';
+import {
+  FontAwesomeIcons,
+  OnLoggerActivate,
+  REPLAY_MESSAGES,
+  Workspace,
+} from '@automagical/terminal';
 import {
   AutoConfigService,
   AutoLogService,
@@ -25,7 +30,7 @@ import dayjs from 'dayjs';
 
 import { WorkspaceElement } from '../decorators';
 
-type LogData = Record<string, unknown> & { context?: string };
+type LOG_DATA = Record<string, unknown> & { context?: string };
 
 const LEVELS = new Map<LogLevels, number>([
   ['trace', 1],
@@ -38,7 +43,6 @@ const LEVELS = new Map<LogLevels, number>([
 ]);
 
 @Workspace({
-  defaultWorkspace: true,
   friendlyName: 'Logger',
   menu: [chalk` ${FontAwesomeIcons.server}  {bold Logger}`],
   name: 'logger',
@@ -61,14 +65,14 @@ export class LoggerWorkspace implements iLoggerCore {
     private readonly configService: AutoConfigService,
     private readonly logger: AutoLogService,
   ) {
-    AutoLogService.logger = this;
+    this.level = this.configService.get(LOG_LEVEL);
   }
 
   // #endregion Constructors
 
   // #region Public Methods
 
-  public debug(data: LogData, message: string): void {
+  public debug(data: LOG_DATA, message: string): void {
     if (LEVELS.get(this.level) > LEVELS.get('debug')) {
       return;
     }
@@ -76,7 +80,7 @@ export class LoggerWorkspace implements iLoggerCore {
     this.logMessage(data, message, 'bgBlue');
   }
 
-  public error(data: LogData, message: string): void {
+  public error(data: LOG_DATA, message: string): void {
     if (LEVELS.get(this.level) > LEVELS.get('error')) {
       return;
     }
@@ -84,7 +88,7 @@ export class LoggerWorkspace implements iLoggerCore {
     this.logMessage(data, message, 'bgRed');
   }
 
-  public fatal(data: LogData, message: string): void {
+  public fatal(data: LOG_DATA, message: string): void {
     if (LEVELS.get(this.level) > LEVELS.get('fatal')) {
       return;
     }
@@ -92,7 +96,7 @@ export class LoggerWorkspace implements iLoggerCore {
     this.logMessage(data, message, 'bgMagenta');
   }
 
-  public info(data: LogData, message: string): void {
+  public info(data: LOG_DATA, message: string): void {
     if (LEVELS.get(this.level) > LEVELS.get('info')) {
       return;
     }
@@ -100,7 +104,7 @@ export class LoggerWorkspace implements iLoggerCore {
     this.logMessage(data, message, 'bgGreen');
   }
 
-  public trace(data: LogData, message: string): void {
+  public trace(data: LOG_DATA, message: string): void {
     if (LEVELS.get(this.level) > LEVELS.get('trace')) {
       return;
     }
@@ -108,7 +112,7 @@ export class LoggerWorkspace implements iLoggerCore {
     this.logMessage(data, message, 'bgGrey');
   }
 
-  public warn(data: LogData, message: string): void {
+  public warn(data: LOG_DATA, message: string): void {
     if (LEVELS.get(this.level) > LEVELS.get('warn')) {
       return;
     }
@@ -120,14 +124,19 @@ export class LoggerWorkspace implements iLoggerCore {
 
   // #region Protected Methods
 
-  protected async onApplicationBootstrap(): Promise<void> {
-    this.WIDGET = this.GRID.set(3, 2, 9, 8, Log, {
+  protected onModuleInit(): void {
+    this.WIDGET = this.GRID.set(2.5, 2, 9, 8, Log, {
       draggable: true,
       fg: 'cyan',
       hidden: true,
-      label: 'Logger',
     } as LogOptions);
-    this.level = this.configService.get(LOG_LEVEL);
+
+    this.WIDGET.border = {};
+    AutoLogService.logger = this;
+    const REPLAY_MESSAGES = OnLoggerActivate(this);
+    REPLAY_MESSAGES.forEach(([message, context]) => {
+      this.logger.info({ context }, message);
+    });
   }
 
   // #endregion Protected Methods
@@ -135,7 +144,7 @@ export class LoggerWorkspace implements iLoggerCore {
   // #region Private Methods
 
   private logMessage(
-    { context, ...data }: LogData,
+    { context, ...data }: LOG_DATA,
     message: string,
     color: CONTEXT_COLORS,
   ): void {

@@ -1,5 +1,6 @@
 import {
   ALL_ENTITIES_UPDATED,
+  HA_EVENT_STATE_CHANGE,
   HA_SOCKET_READY,
   HassEventDTO,
   HassStateDTO,
@@ -79,6 +80,11 @@ export class EntityManagerService {
 
   // #region Protected Methods
 
+  @OnEvent(HA_SOCKET_READY)
+  protected async socketReady(): Promise<void> {
+    await this.socketService.getAllEntitities();
+  }
+
   /**
    * Listen in on the ALL_ENTITIES_UPDATED event
    *
@@ -86,6 +92,7 @@ export class EntityManagerService {
    * Aldo does a great job of initial population of the data
    */
   @OnEvent(ALL_ENTITIES_UPDATED)
+  @Trace()
   protected async onAllEntitiesUpdated(
     allEntities: HassStateDTO[],
   ): Promise<void> {
@@ -101,22 +108,14 @@ export class EntityManagerService {
     });
   }
 
-  @OnEvent(HA_SOCKET_READY)
-  protected async socketReady(): Promise<void> {
-    await this.socketService.getAllEntitities();
-  }
-
-  @Trace()
-  protected onApplicationBootstrap(): void {
-    this.socketService.EVENT_STREAM.subscribe((event) => this.onUpdate(event));
-  }
-
   /**
    * Listen in on the HA_EVENT_STATE_CHANGE event
    *
    * This happens any time any entity has an update.
    * Global collection of updates
    */
+  @OnEvent(HA_EVENT_STATE_CHANGE)
+  @Trace()
   protected async onUpdate(event: HassEventDTO): Promise<void> {
     const { entity_id, new_state } = event.data;
     this.createObservable(entity_id);

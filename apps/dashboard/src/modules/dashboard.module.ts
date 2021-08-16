@@ -1,15 +1,16 @@
 import { APP_DASHBOARD } from '@automagical/contracts';
 import { HomeAssistantModule } from '@automagical/home-assistant';
-import { BlessedModule, LoggerWorkspace } from '@automagical/terminal';
+import {
+  BlessedModule,
+  HomeAssistantWorkspace,
+  LoggerWorkspace,
+  WeatherWorkspace,
+} from '@automagical/terminal';
 import { ApplicationModule } from '@automagical/utilities';
 
 import { BLESSED_COLORS } from '../includes';
 import { StatusService } from '../services';
-import {
-  HealthService,
-  LeftMenuService,
-  RecentUpdatesService,
-} from '../widgets';
+import { LeftMenuService } from '../widgets';
 import {
   BedroomWorkspace,
   DownstairsWorkspace,
@@ -17,13 +18,13 @@ import {
   GuestWorkspace,
   LoftWorkspace,
   StonksWorkspace,
-  WeatherWorkspace,
 } from '../workspaces';
 
 @ApplicationModule({
   application: APP_DASHBOARD,
   dashboards: [
     LoggerWorkspace,
+    HomeAssistantWorkspace,
     LoftWorkspace,
     BedroomWorkspace,
     DownstairsWorkspace,
@@ -32,13 +33,7 @@ import {
     StonksWorkspace,
     WeatherWorkspace,
   ],
-  globals: [],
   imports: [BlessedModule.forRoot(BLESSED_COLORS), HomeAssistantModule],
-  providers: [
-    RecentUpdatesService,
-    StatusService,
-    LeftMenuService,
-    HealthService,
-  ],
+  providers: [StatusService, LeftMenuService],
 })
 export class DashboardModule {}

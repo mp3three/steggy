@@ -10,7 +10,6 @@ import {
   EntityListItemDTO,
   HA_EVENT_STATE_CHANGE,
   HA_SOCKET_READY,
-  HassEventDTO,
   HassEvents,
   HASSIO_WS_COMMAND,
   HassSocketMessageTypes,
@@ -24,23 +23,20 @@ import {
   AutoLogService,
   ConsumesConfig,
   Cron,
+  Debug,
   EmitAfter,
   InjectLogger,
   Trace,
 } from '@automagical/utilities';
 import { EventEmitter2 } from 'eventemitter2';
-import { Observable, Subscriber } from 'rxjs';
 import WS from 'ws';
 
 @ConsumesConfig([HOME_ASSISTANT_BASE_URL, HOME_ASSISTANT_TOKEN])
 export class HASocketAPIService {
   // #region Object Properties
 
-  public EVENT_STREAM: Observable<HassEventDTO>;
-
   private connection: WS;
   private messageCount = 1;
-  private subscriber: Subscriber<HassEventDTO>;
   private waitingCallback = new Map<number, (result) => void>();
 
   // #endregion Object Properties
@@ -52,34 +48,43 @@ export class HASocketAPIService {
     private readonly logger: AutoLogService,
     private readonly configService: AutoConfigService,
     private readonly eventEmitter: EventEmitter2,
-  ) {
-    this.EVENT_STREAM = new Observable(
-      (subscriber) => (this.subscriber = subscriber),
-    );
-  }
+  ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
-  @Trace()
+  @Debug('List all areas')
   public async getAreas(): Promise<AreaDTO[]> {
     return await this.sendMsg({
       type: HASSIO_WS_COMMAND.area_list,
     });
   }
 
-  @Trace()
+  @Debug('List all devices')
   public async listDevices(): Promise<DeviceListItemDTO[]> {
     return await this.sendMsg({
       type: HASSIO_WS_COMMAND.device_list,
     });
   }
 
-  @Trace()
+  @Debug('List all entities')
   public async listEntities(): Promise<EntityListItemDTO[]> {
     return await this.sendMsg({
       type: HASSIO_WS_COMMAND.entity_list,
+    });
+  }
+
+  /**
+   * Request a current listing of all entities + their states
+   *
+   * This can be a pretty big list
+   */
+  @EmitAfter(ALL_ENTITIES_UPDATED)
+  @Debug('Update all entities')
+  public async getAllEntitities(): Promise<HassStateDTO[]> {
+    return await this.sendMsg<HassStateDTO[]>({
+      type: HASSIO_WS_COMMAND.get_states,
     });
   }
 
@@ -97,6 +102,13 @@ export class HASocketAPIService {
       // You want know how annoying this one was to debug?!
       data.id = counter;
     }
+    if (this.connection.readyState !== WS.OPEN) {
+      this.logger.error(
+        { data },
+        `Cannot send message, connection is not open`,
+      );
+      return;
+    }
     this.connection.send(JSON.stringify(data));
     if (!waitForResponse) {
       return;
@@ -104,25 +116,11 @@ export class HASocketAPIService {
     return new Promise((done) => this.waitingCallback.set(counter, done));
   }
 
-  /**
-   * Request a current listing of all entities + their states
-   *
-   * This can be a pretty big list
-   */
-  @Trace()
-  @EmitAfter(ALL_ENTITIES_UPDATED)
-  public async getAllEntitities(): Promise<HassStateDTO[]> {
-    return await this.sendMsg<HassStateDTO[]>({
-      type: HASSIO_WS_COMMAND.get_states,
-    });
-  }
-
   // #endregion Public Methods
 
   // #region Protected Methods
 
   @Cron(CronExpression.EVERY_10_SECONDS)
-  @Trace()
   protected async ping(): Promise<void> {
     try {
       const pong = await this.sendMsg({
@@ -216,7 +214,6 @@ export class HASocketAPIService {
       case HassSocketMessageTypes.event:
         if (message.event.event_type === HassEvents.state_changed) {
           this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
-          this.subscriber.next(message.event);
         }
         return;
 
@@ -242,7 +239,7 @@ export class HASocketAPIService {
         return;
 
       default:
-        // Code error
+        // Code error probably
         this.logger.error(`Unknown websocket message type: ${message.type}`);
     }
   }

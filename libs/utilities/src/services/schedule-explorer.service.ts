@@ -23,7 +23,7 @@ export class ScheduleExplorerService {
 
   // #region Protected Methods
 
-  @Info({ after: `Scheduler initialized` })
+  @Info({ after: `[Scheduler] initialized` })
   protected onApplicationBootstrap(): void {
     const instanceWrappers: InstanceWrapper[] = [
       ...this.discoveryService.getControllers(),

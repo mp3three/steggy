@@ -2,7 +2,6 @@ export class WorkspaceSettingsDTO {
   // #region Object Properties
 
   public customHeader?: boolean;
-  public defaultWorkspace?: boolean;
   public friendlyName: string;
   public menu?: string[];
   public name: string;

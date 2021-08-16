@@ -54,7 +54,7 @@ export const prettyFormatMessage = (message: string): string => {
   if (matches) {
     message = message.replace(
       matches[0],
-      chalk`{underline.bold ${matches[0]}}`,
+      chalk.bold.magenta(matches[0].slice(1, -1)),
     );
   }
   matches = message.match(new RegExp('(\\{[^\\]]+\\})'));

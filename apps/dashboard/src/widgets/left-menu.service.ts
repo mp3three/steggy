@@ -7,7 +7,14 @@ import {
   TreeOptions,
 } from '@automagical/contracts/terminal';
 import { RefreshAfter, WorkspaceExplorerService } from '@automagical/terminal';
+import {
+  AutoLogService,
+  CacheManagerService,
+  InjectCache,
+} from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
+
+const CACHE_KEY = 'LEFTMENU:activeWorkspace';
 
 @Injectable()
 export class LeftMenuService {
@@ -25,18 +32,28 @@ export class LeftMenuService {
   constructor(
     @Inject(BLESSED_GRID) private readonly grid: GridElement,
     private readonly workspaceExplorer: WorkspaceExplorerService,
+    @InjectCache()
+    private readonly cacheService: CacheManagerService,
+    private readonly logger: AutoLogService,
   ) {}
 
   // #endregion Constructors
 
   // #region Protected Methods
 
-  protected onApplicationBootstrap(): void {
+  protected async onApplicationBootstrap(): Promise<void> {
+    const activeName = await this.cacheService.get(CACHE_KEY);
     this.workspaceExplorer.workspaces.forEach(({ name, menu }, workspace) => {
       let next: Record<string, unknown> = this.treeData;
       const length = menu.length;
       menu.forEach((menuItem, index) => {
         const settings = this.workspaceExplorer.workspaces.get(workspace);
+        if (settings.name === activeName) {
+          process.nextTick(() => {
+            this.onTreeSelect(workspace);
+            this.logger.debug(`[${settings.friendlyName}] Restoring workspace`);
+          });
+        }
         if (typeof next.children === 'undefined') {
           next.children = {};
         }
@@ -49,11 +66,6 @@ export class LeftMenuService {
           }
         }
         next = next.children[menuItem];
-        if (settings.defaultWorkspace) {
-          setTimeout(() => {
-            this.onTreeSelect(workspace);
-          }, 10);
-        }
       });
     });
     this.renderTree();
@@ -118,6 +130,8 @@ export class LeftMenuService {
         await workspace.onShow();
       }
       this.activeWorkspace = workspace;
+      const settings = this.workspaceExplorer.workspaces.get(workspace);
+      await this.cacheService.set(CACHE_KEY, settings.name);
     } catch (error) {
       console.log(error);
     }

@@ -88,7 +88,7 @@ export class MQTTExplorerService {
 
   // #region Protected Methods
 
-  @Info('MQTT Initialized')
+  @Info('[MQTT] initialized')
   protected onApplicationBootstrap(): void {
     const providers: InstanceWrapper[] = this.discoveryService.getProviders();
     providers.forEach((wrapper: InstanceWrapper) => {

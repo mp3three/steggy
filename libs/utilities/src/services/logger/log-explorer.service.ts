@@ -21,7 +21,7 @@ export class LogExplorerService {
 
   // #region Protected Methods
 
-  @Info({ after: 'Logger Initialized' })
+  @Info({ after: '[Logger] Initialized' })
   protected onModuleInit(): void {
     const providers = this.discoveryService
       .getProviders()

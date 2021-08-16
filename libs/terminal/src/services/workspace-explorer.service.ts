@@ -17,6 +17,7 @@ import {
   AutoConfigService,
   AutoLogService,
   ConsumesConfig,
+  Info,
   MqttService,
   Trace,
 } from '@automagical/utilities';
@@ -59,7 +60,7 @@ export class WorkspaceExplorerService {
 
   // #region Protected Methods
 
-  @Trace()
+  @Info({ after: 'Workspaces initialized' })
   protected onApplicationBootstrap(): void {
     this.discoveryService
       .getProviders()
@@ -80,8 +81,6 @@ export class WorkspaceExplorerService {
         this.header(settings, instance);
         this.elements.set(instance, elements);
       });
-
-    this.logger.info(`Workspaces initialized`);
   }
 
   // #endregion Protected Methods

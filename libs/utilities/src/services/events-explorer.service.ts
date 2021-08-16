@@ -55,7 +55,7 @@ export class EventsExplorerService {
 
   // #region Protected Methods
 
-  @Info({ after: `Events initialized` })
+  @Info({ after: `[Events] initialized` })
   protected onApplicationBootstrap(): void {
     this.loadEventListeners();
   }
