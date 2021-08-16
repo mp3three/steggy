@@ -1,6 +1,6 @@
 import { APP_DASHBOARD } from '@automagical/contracts';
 import { HomeAssistantModule } from '@automagical/home-assistant';
-import { BlessedModule } from '@automagical/terminal';
+import { BlessedModule, LoggerWorkspace } from '@automagical/terminal';
 import { ApplicationModule } from '@automagical/utilities';
 
 import { BLESSED_COLORS } from '../includes';
@@ -16,7 +16,6 @@ import {
   GamesWorkspace,
   GuestWorkspace,
   LoftWorkspace,
-  LoggerWorkspace,
   StonksWorkspace,
   WeatherWorkspace,
 } from '../workspaces';

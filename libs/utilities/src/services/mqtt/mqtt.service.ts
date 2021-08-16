@@ -1,3 +1,4 @@
+import type { MqttSubscribeOptions } from '@automagical/contracts/utilities';
 import { Injectable } from '@nestjs/common';
 import {
   Client,
@@ -25,7 +26,10 @@ export type MqttCallback<T = Record<string, unknown>> = (
 export class MqttService {
   // #region Object Properties
 
-  private readonly callbacks = new Map<string, MqttCallback[]>();
+  private readonly callbacks = new Map<
+    string,
+    [MqttCallback[], MqttSubscribeOptions]
+  >();
   private readonly subscriptions = new Set<string>();
 
   // #endregion Object Properties
@@ -89,12 +93,15 @@ export class MqttService {
   public subscribe(
     topic: string,
     callback: MqttCallback,
-    options?: IClientSubscribeOptions,
+    options?: MqttSubscribeOptions,
   ): void {
-    this.listen(topic, options);
-    const callbacks = this.callbacks.get(topic) ?? [];
+    this.listen(topic, { ...options, qos: 1 });
+    const [callbacks, options_] = this.callbacks.get(topic) ?? [
+      [] as MqttCallback[],
+      options,
+    ];
     callbacks.push(callback);
-    this.callbacks.set(topic, callbacks);
+    this.callbacks.set(topic, [callbacks, options_]);
   }
 
   @Trace()
@@ -121,12 +128,14 @@ export class MqttService {
     this.client.on(
       'message',
       (topic: string, payload: Buffer, packet: Packet) => {
-        const callbacks = this.callbacks.get(topic) ?? [];
+        const [callbacks, options] = this.callbacks.get(topic) ?? [];
         if (callbacks.length === 0) {
           this.logger.warn(`Incoming MQTT {${topic}} with no callbacks`);
           return;
         }
-        this.logger.debug(`Incoming MQTT {${topic}} (${callbacks.length})`);
+        if (!options?.omitIncoming) {
+          this.logger.debug(`Incoming MQTT {${topic}} (${callbacks.length})`);
+        }
         callbacks.forEach((callback) => {
           callback(this.handlePayload(payload), packet);
         });

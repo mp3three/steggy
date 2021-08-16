@@ -93,23 +93,17 @@ export class LoftWorkspace implements iWorkspace {
   }
 
   protected onApplicationBootstrap(): void {
-    this.renderGraph();
-  }
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
-
-  private renderGraph(): void {
     this.TEMPERATURE = this.grid.set(7, 2, 5, 4, LineChart, {
+      hidden: true,
       label: 'Temperature',
       style: { baseline: 'red', line: 'cyan', text: 'white' },
     });
     this.HUMIDITY = this.grid.set(7, 6, 5, 4, LineChart, {
+      hidden: true,
       label: 'Humidity',
       style: { baseline: 'blue', line: 'cyan', text: 'white' },
     });
   }
 
-  // #endregion Private Methods
+  // #endregion Protected Methods
 }

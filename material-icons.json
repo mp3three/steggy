@@ -31,6 +31,7 @@
     "roku": "other",
     "devices": "project",
     "domains": "mappings",
+    "tty":"command",
     "workspaces": "examples",
     ".gitsecret": "git",
     "proxy": "routes",

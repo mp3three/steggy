@@ -1,6 +1,6 @@
 import { LoggerService, Type } from '@nestjs/common';
 import { ModuleMetadata } from '@nestjs/common/interfaces';
-import { IClientOptions } from 'mqtt';
+import { IClientOptions, IClientSubscribeOptions } from 'mqtt';
 
 import { iRoomControllerMethods } from '../controller-logic';
 
@@ -8,13 +8,11 @@ export type MqttMessageTransformer = (payload: Buffer) => unknown;
 
 export type LoggerConstructor = new (...parameters) => LoggerService;
 
-export interface MqttSubscribeOptions {
+export interface MqttSubscribeOptions extends Partial<IClientSubscribeOptions> {
   // #region Object Properties
 
-  queue?: boolean;
-  share?: string;
-  topic: string | string[];
-  transform?: 'json' | 'text' | MqttMessageTransformer;
+  omitIncoming?: boolean;
+  topic?: string | string[];
 
   // #endregion Object Properties
 }
@@ -95,7 +93,7 @@ export interface MqttModuleAsyncOptions
   // #endregion Object Properties
 }
 
-export const MQTT_SUBSCRIBER_PARAMS = '__mqtt_subscriber_params';
+// export const MQTT_SUBSCRIBER_PARAMS = '__mqtt_subscriber_params';
 export const MQTT_CLIENT_INSTANCE = 'MQTT_CLIENT_INSTANCE';
 
 // internal messages

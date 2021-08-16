@@ -60,7 +60,7 @@ export class HealthService {
     this.WIDGET.setMarkdown(md.join(`\n`));
   }
 
-  @OnMQTT(MQTT_HEALTH_CHECK)
+  @OnMQTT(MQTT_HEALTH_CHECK, { omitIncoming: true })
   protected onHealthCheck(app: string): void {
     this.SERVICES.set(app, dayjs());
     this.updateTable();

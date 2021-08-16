@@ -85,6 +85,7 @@
       ".pino-prettyrc": "json",
       "home": "ini",
       "devtools": "ini",
+      "dashboard": "ini",
       "jest-test": "ini"
     },
     "files.exclude": {

@@ -9,7 +9,6 @@ import {
   Screen,
 } from '@automagical/contracts/terminal';
 import { HASocketAPIService } from '@automagical/home-assistant';
-import { RefreshAfter } from '@automagical/terminal';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -33,7 +32,6 @@ export class RecentUpdatesService {
 
   // #region Protected Methods
 
-  @RefreshAfter()
   protected async onApplicationBootstrap(): Promise<void> {
     this.WIDGET = this.GRID.set(0, 10, 6, 2, Log, {
       draggable: true,

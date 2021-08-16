@@ -1,6 +1,7 @@
 import { LOG_LEVEL } from '@automagical/contracts/config';
 import {
   iLogger,
+  iLoggerCore,
   LOG_CONTEXT,
   LogLevels,
   MISSING_CONTEXT,
@@ -32,7 +33,7 @@ const NEST = '@nestjs';
 export class AutoLogService implements iLogger {
   // #region Static Properties
 
-  public static logger: iLogger = pino() as iLogger;
+  public static logger: iLoggerCore = pino() as iLogger;
   public static nestLogger: Record<
     'log' | 'warn' | 'error' | 'debug' | 'verbose',
     (a: string, b: string) => void

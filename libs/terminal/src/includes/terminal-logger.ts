@@ -1,11 +1,9 @@
+import { AutoLogService, LoggerFunction } from '@automagical/utilities';
 import chalk from 'chalk';
 import pino from 'pino';
 
-import {
-  AutoLogService,
-  LoggerFunction,
-} from '../services/logger/auto-log.service';
 /* eslint-disable security/detect-non-literal-regexp */
+
 const logger = pino({
   level: AutoLogService.logger.level,
   prettyPrint: {
@@ -23,26 +21,22 @@ const logger = pino({
     translateTime: 'SYS:ddd hh:MM:ss.l',
   },
 });
-export type CONTEXT_COLORS =
-  | 'bgBlue'
-  | 'bgYellow'
-  | 'bgGreen'
-  | 'bgRed'
-  | 'bgMagenta'
-  | 'bgGrey';
-export const highlightContext = (
+const highlightContext = (
   context: string,
-  level: CONTEXT_COLORS,
+  level: 'bgBlue' | 'bgYellow' | 'bgGreen' | 'bgRed' | 'bgMagenta',
 ): string => chalk`{bold.${level.slice(2).toLowerCase()} [${context}]}`;
 const NEST = '@nestjs';
-export const methodColors = new Map<pino.Level, CONTEXT_COLORS>([
+const methodColors = new Map<
+  pino.Level,
+  'bgBlue' | 'bgYellow' | 'bgGreen' | 'bgRed' | 'bgMagenta'
+>([
   ['debug', 'bgBlue'],
   ['warn', 'bgYellow'],
   ['error', 'bgRed'],
   ['info', 'bgGreen'],
   ['fatal', 'bgMagenta'],
 ]);
-export const prettyFormatMessage = (message: string): string => {
+const prettyFormatMessage = (message: string): string => {
   if (!message) {
     return ``;
   }
@@ -110,24 +104,13 @@ const prettyErrorMessage = (message: string): string => {
   return message;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = (): void => {};
 export const PrettyNestLogger: Record<
   'log' | 'warn' | 'error' | 'debug' | 'verbose',
   (a: string, b: string) => void
 > = {
-  debug: (message, context: string) => {
-    context = `${NEST}:${context}`;
-    if (context === `${NEST}:InstanceLoader`) {
-      message = prettyFormatMessage(
-        message
-          .split(' ')
-          .map((item, index) => (index === 0 ? `[${item}]` : item))
-          .join(' '),
-      );
-    }
-    // Never actually seen this come through
-    // Using magenta to make it obvious if it happens, but will change to blue later
-    logger.debug(`${highlightContext(context, 'bgMagenta')} ${message}`);
-  },
+  debug: noop,
   error: (message: string, context: string) => {
     context = `${NEST}:${context}`;
     if (context.length > 20) {
@@ -138,30 +121,12 @@ export const PrettyNestLogger: Record<
     }
     logger.error(`${highlightContext(context, 'bgRed')} ${message}`);
   },
-  log: (message, context) => {
-    context = `${NEST}:${context}`;
-    if (context === `${NEST}:InstanceLoader`) {
-      message = prettyFormatMessage(
-        message
-          .split(' ')
-          .map((item, index) => (index === 0 ? `[${item}]` : item))
-          .join(' '),
-      );
-    }
-    logger.info(`${highlightContext(context, 'bgGreen')} ${message}`);
-  },
-
-  verbose: (message, context) => {
-    PrettyNestLogger.debug(message, context);
-  },
-  warn: (message, context) => {
-    logger.warn(
-      `${highlightContext(`${NEST}:${context}`, 'bgYellow')} ${message}`,
-    );
-  },
+  log: noop,
+  verbose: noop,
+  warn: noop,
 };
 
-export function UsePrettyLogger(): void {
+export function UseTerminalLogger(): void {
   AutoLogService.nestLogger = PrettyNestLogger;
   AutoLogService.logger = logger;
   AutoLogService.call = function (

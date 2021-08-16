@@ -2,14 +2,17 @@ import { MqttSubscribeOptions } from '@automagical/contracts/utilities';
 import { SetMetadata } from '@nestjs/common';
 
 export function OnMQTT(
-  topicOrOptions: string | string[] | MqttSubscribeOptions,
+  topic: string | string[],
+  options: MqttSubscribeOptions = {},
 ): MethodDecorator {
   return function (target, key, descriptor) {
     target[key][MQTT_SUBSCRIBE_OPTIONS] = {
-      topic: topicOrOptions,
+      topic: topic,
+      ...options,
     };
     SetMetadata(MQTT_SUBSCRIBE_OPTIONS, {
-      topic: topicOrOptions,
+      topic: topic,
+      ...options,
     })(target, key, descriptor);
   };
 }

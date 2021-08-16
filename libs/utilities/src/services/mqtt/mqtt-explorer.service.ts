@@ -1,15 +1,13 @@
 import {
+  LOG_CONTEXT,
   MQTT_CLOSE,
   MQTT_CONNECT,
   MQTT_DISCONNECT,
   MQTT_ERROR,
   MQTT_OFFLINE,
   MQTT_RECONNECT,
+  MqttSubscribeOptions,
   MqttSubscriber,
-} from '@automagical/contracts/utilities';
-import {
-  LOG_CONTEXT,
-  MQTT_SUBSCRIBER_PARAMS,
 } from '@automagical/contracts/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
@@ -102,12 +100,9 @@ export class MQTTExplorerService {
         instance,
         Object.getPrototypeOf(instance),
         (key) => {
-          const subscribeOptions =
+          const subscribeOptions: MqttSubscribeOptions =
             instance.__proto__[key][MQTT_SUBSCRIBE_OPTIONS];
-          const parameters = this.reflector.get(
-            MQTT_SUBSCRIBER_PARAMS,
-            instance[key],
-          );
+
           if (subscribeOptions) {
             const topics =
               typeof subscribeOptions.topic === 'string'
@@ -122,7 +117,7 @@ export class MQTTExplorerService {
                 async (value, packet) => {
                   await instance[key](value, { packet, topic });
                 },
-                parameters,
+                subscribeOptions,
               );
             });
           }
