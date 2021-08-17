@@ -107,6 +107,7 @@
     "api": "prolog",
     "deep": "perl",
     ".pino-prettyrc": "prettier",
+    "*.layout.ts": "diff",
     "license": "prolog",
     "support": "prolog",
     "sqlconnector": "prolog",

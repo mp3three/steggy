@@ -17,7 +17,13 @@ import {
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { AutoLogService, Cron, PEAT, Trace } from '@automagical/utilities';
+import {
+  AutoLogService,
+  Cron,
+  Debug,
+  PEAT,
+  Trace,
+} from '@automagical/utilities';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
 
@@ -150,24 +156,6 @@ export class LoftController implements iRoomController {
     await this.lightManager.circadianLight(FAN_LIGHTS, target);
   }
 
-  @Cron('0 0 16 * * *')
-  protected async hallwayOff(): Promise<void> {
-    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
-      return;
-    }
-    await this.switchService.turnOff('switch.loft_hallway_light');
-  }
-
-  @Cron('0 0 22 * * *')
-  protected async lightOff(): Promise<void> {
-    await this.switchService.turnOff('switch.back_desk_light');
-  }
-
-  @Cron('0 0 7 * * *')
-  protected async lightOn(): Promise<void> {
-    await this.switchService.turnOn('switch.back_desk_light');
-  }
-
   @Cron(CronExpression.EVERY_30_SECONDS)
   protected async panelSchedule(): Promise<void> {
     if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
@@ -192,7 +180,29 @@ export class LoftController implements iRoomController {
     await this.lightManager.circadianLight(PANEL_LIGHTS, brightness);
   }
 
+  @Cron('0 0 16 * * *')
+  @Debug('Turn off hallway light')
+  protected async hallwayOff(): Promise<void> {
+    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
+      return;
+    }
+    await this.switchService.turnOff('switch.loft_hallway_light');
+  }
+
+  @Cron('0 0 22 * * *')
+  @Debug('Turn off back desk light')
+  protected async lightOff(): Promise<void> {
+    await this.switchService.turnOff('switch.back_desk_light');
+  }
+
+  @Cron('0 0 7 * * *')
+  @Debug('Turn on back desk light')
+  protected async lightOn(): Promise<void> {
+    await this.switchService.turnOn('switch.back_desk_light');
+  }
+
   @Cron('0 0 18 * * *')
+  @Debug('Turn off stair lights')
   protected async stairsOff(): Promise<void> {
     if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
       return;
@@ -201,6 +211,7 @@ export class LoftController implements iRoomController {
   }
 
   @Cron('0 45 22 * * *')
+  @Debug('Turn off desk light')
   protected async windDown(): Promise<void> {
     if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
       return;

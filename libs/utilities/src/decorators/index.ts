@@ -2,6 +2,7 @@ export * from './application-module.decorator';
 export * from './consumes-configuration.decorator';
 export * from './emit-after.decorator';
 export * from './events.decorator';
+export * from './fill-defaults.decorator';
 export * from './injectors';
 export * from './library-module.decorator';
 export * from './logger.decorator';

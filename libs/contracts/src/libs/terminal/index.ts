@@ -4,4 +4,5 @@ export * from './constants';
 export * from './dto';
 export * from './figlet';
 export * from './interfaces';
+export * from './widgets';
 export * from './workspace-settings.dto';

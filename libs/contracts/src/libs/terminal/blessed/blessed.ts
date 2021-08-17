@@ -70,6 +70,10 @@ export type TreeOptions = contrib.Widgets.TreeOptions;
 export type MarkdownElement = contrib.Widgets.MarkdownElement;
 export type MarkdownOptions = contrib.Widgets.MarkdownOptions;
 export type LineElement = contrib.Widgets.LineElement;
+export type ListElement = blessed.Widgets.ListElement;
+export type ListElementStyle = blessed.Widgets.ListElementStyle;
+export type ListOptions<T extends ListElementStyle = ListElementStyle> =
+  blessed.Widgets.ListOptions<T>;
 export type LineOptions = contrib.Widgets.LineOptions;
 
 //

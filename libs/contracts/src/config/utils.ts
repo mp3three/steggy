@@ -86,6 +86,12 @@ export class UtilsConfig {
   })
   public LOG_LEVEL?: 'info' | 'warn' | 'debug' | 'trace';
   @UsesConfig({
+    applications: 'hidden',
+    default: true,
+    type: 'boolean',
+  })
+  public LOG_OMIT_CTX_PREFIX: boolean;
+  @UsesConfig({
     applications: {
       [APP_HOME_CONTROLLER.description]: 'available',
       [APP_DASHBOARD.description]: 'available',
@@ -197,7 +203,6 @@ export class UtilsConfig {
   // #endregion Object Properties
 }
 
-export const MAX_STASH_DEPTH = 'libs.utils.MAX_STASH_DEPTH';
 export const EMAIL_CUSTOM_CONFIG = `libs.${LIB_UTILS.description}.email.custom`;
 export const EMAIL_GMAIL_CONFIG = `libs.${LIB_UTILS.description}.email.gmail`;
 export const EMAIL_MAILGUN_CONFIG = `libs.${LIB_UTILS.description}.email.mailgun`;
@@ -215,3 +220,5 @@ export const LOG_LEVEL = `libs.${LIB_UTILS.description}.LOG_LEVEL`;
 export const REDIS_HOST = `libs.${LIB_UTILS.description}.REDIS_HOST`;
 export const CACHE_PROVIDER = `libs.${LIB_UTILS.description}.CACHE_PROVIDER`;
 export const REDIS_PORT = `libs.${LIB_UTILS.description}.REDIS_PORT`;
+export const LOG_OMIT_CTX_PREFIX = `libs.${LIB_UTILS.description}.LOG_OMIT_CTX_PREFIX`;
+export const MAX_STASH_DEPTH = `libs.${LIB_UTILS.description}.MAX_STASH_DEPTH`;
