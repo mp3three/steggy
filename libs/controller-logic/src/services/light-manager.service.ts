@@ -19,6 +19,7 @@ import {
   CacheManagerService,
   ConsumesConfig,
   InjectCache,
+  InjectLogger,
   Trace,
 } from '@automagical/utilities';
 import { Scope } from '@nestjs/common';
@@ -50,6 +51,7 @@ export class LightManagerService implements iLightManager {
     @InjectCache() private readonly cache: CacheManagerService,
     private readonly hassCoreService: HomeAssistantCoreService,
     private readonly lightService: LightDomainService,
+    @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly circadianService: CircadianService,
     private readonly eventEmitter: EventEmitter2,
