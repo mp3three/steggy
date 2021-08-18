@@ -12,7 +12,7 @@
     "@angular-devkit/architect": "^0.1102.6",
     "@blessed/themes": "^1.0.0",
     "@nestjs/common": "^8.0.4",
-    "@nestjs/core": "^8.0.4",
+    "@nestjs/core": "8.0.4",
     "@nestjs/jwt": "^8.0.0",
     "@nestjs/mongoose": "^8.0.0",
     "@nestjs/platform-express": "^8.0.4",

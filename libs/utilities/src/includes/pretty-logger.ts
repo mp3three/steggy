@@ -136,7 +136,11 @@ export const PrettyNestLogger: Record<
       context = `@nestjs:ErrorMessage`;
       message = prettyErrorMessage(message);
     }
-    logger.error(`${highlightContext(context, 'bgRed')} ${message}`);
+    logger.error(
+      `${highlightContext(context, 'bgRed')} ${
+        message ?? 'ERROR MESSAGE NOT PROVIDED'
+      }`,
+    );
   },
   log: (message, context) => {
     context = `${NEST}:${context}`;
