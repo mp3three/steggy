@@ -5,6 +5,8 @@
   },
   "defaultProject": "home-controller",
   "projects": {
+    "auto-dash": "apps/auto-dash",
+    "auto-dash-e2e": "apps/auto-dash-e2e",
     "contracts": "libs/contracts",
     "controller-logic": "libs/controller-logic",
     "dashboard": "apps/dashboard",

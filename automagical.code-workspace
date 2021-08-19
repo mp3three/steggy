@@ -98,7 +98,7 @@
       "**/*.secret": true,
       "SECURITY.md": true,
       ".gitsecret": true,
-      "node_modules": true,
+      "**/node_modules": true,
       "**/yarn.lock": true,
       "*tar": true,
       "**/yarn-error.log": true,
@@ -110,6 +110,8 @@
       "**/.babelrc": true,
       "**/.prettierignore": true,
       ".editorconfig": true,
+      "apps/*/ios": true,
+      "apps/*/android": true,
     },
     "prettier.arrowParens": "avoid",
 
