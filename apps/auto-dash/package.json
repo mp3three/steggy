@@ -10,6 +10,8 @@
     "@eva-design/eva": "*",
     "@ui-kitten/components": "*",
     "@ui-kitten/eva-icons": "*",
-    "react-native-svg": "*"
+    "react-native-svg": "*",
+    "@react-navigation/native": "*",
+    "@react-navigation/stack": "*"
   }
 }

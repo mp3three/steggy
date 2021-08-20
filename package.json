@@ -18,6 +18,8 @@
     "@nestjs/mongoose": "^8.0.0",
     "@nestjs/platform-express": "^8.0.4",
     "@nestjs/swagger": "^5.0.9",
+    "@react-navigation/native": "^6.0.2",
+    "@react-navigation/stack": "^6.0.7",
     "@ui-kitten/components": "^5.1.1",
     "@ui-kitten/eva-icons": "^5.1.1",
     "@ui-kitten/metro-config": "^5.1.1",

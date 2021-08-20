@@ -7,7 +7,8 @@
       "rules": {
         "unicorn/filename-case": "off",
         "react-native/no-raw-text":"warn",
-        "react-native/no-color-literals":"warn"
+        "react-native/no-color-literals":"warn",
+        "jsx-a11y/accessible-emoji": "off"
       }
     },
     {

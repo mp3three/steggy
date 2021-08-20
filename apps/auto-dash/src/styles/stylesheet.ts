@@ -87,11 +87,13 @@ export const STYLES = StyleSheet.create({
   likeButton: {
     marginVertical: 16,
   },
+  safeArea: {
+    flex: 1,
+  },
   text: {
     textAlign: 'center',
   },
   topNavigation: {
     backgroundColor: THEME['color-primary-900'],
-    marginTop: 50,
   },
 });
