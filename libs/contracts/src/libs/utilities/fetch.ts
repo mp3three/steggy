@@ -38,14 +38,6 @@ export type FetchArguments = FetchAuth & {
    */
   body?: unknown;
   /**
-   * Equivelent to #/body/data
-   *
-   * Shorthand since a lot of requests look for data attribute
-   *
-   * If both body and data exists, attempt to merge. Don't expect miracles, use body if you want to be 100% sure
-   */
-  data?: Record<string, unknown>;
-  /**
    * Formatted filters to send with request. Gets translated to query params
    */
   control?: ResultControlDTO;
@@ -56,7 +48,7 @@ export type FetchArguments = FetchAuth & {
   /**
    * Which HTTP method?
    */
-  method?: HTTP_METHODS;
+  method?: HTTP_METHODS | STRING_HTTP;
   /**
    * Query params to send
    */
@@ -147,5 +139,7 @@ export enum HTTP_METHODS {
   index = 'index',
   post = 'post',
 }
+type STRING_HTTP = `${HTTP_METHODS}`;
+
 export type FetchWith<T extends Record<never, string> = Record<never, string>> =
   Partial<FetchArguments> & T;

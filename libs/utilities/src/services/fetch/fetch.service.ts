@@ -26,29 +26,33 @@ export class FetchService extends BaseFetch {
   // #region Public Methods
 
   @Trace()
-  public async fetch<T>(fetchWtih: Partial<FetchArguments>): Promise<T> {
-    const url: string = await this.fetchCreateUrl(fetchWtih);
-    const requestInit = await this.fetchCreateMeta(fetchWtih);
+  public async fetch<T>({
+    process,
+    ...fetchWith
+  }: Partial<FetchArguments>): Promise<T> {
+    const url: string = await this.fetchCreateUrl(fetchWith);
+    const requestInit = await this.fetchCreateMeta(fetchWith);
     try {
       const response = await fetch(url, requestInit);
-      if (fetchWtih.process === false) {
+      if (process === false) {
         return response as unknown as T;
       }
-      return await this.fetchHandleResponse(fetchWtih, response);
+      return await this.fetchHandleResponse(fetchWith, response);
     } catch (error) {
       this.logger.error(error);
       return undefined;
     }
   }
 
-  public async download(
-    fetchWith: Partial<FetchArguments> & { destination: string },
-  ): Promise<void> {
+  public async download({
+    destination,
+    ...fetchWith
+  }: Partial<FetchArguments> & { destination: string }): Promise<void> {
     const url: string = await this.fetchCreateUrl(fetchWith);
     const requestInit = await this.fetchCreateMeta(fetchWith);
     const response = await fetch(url, requestInit);
     await new Promise<void>((resolve, reject) => {
-      const fileStream = createWriteStream(fetchWith.destination);
+      const fileStream = createWriteStream(destination);
       response.body.pipe(fileStream);
       response.body.on('error', (error) => {
         reject(error);

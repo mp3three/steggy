@@ -1,0 +1,33 @@
+{
+  "root": "libs/portainer",
+  "sourceRoot": "libs/portainer/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/portainer",
+        "tsConfig": "libs/portainer/tsconfig.lib.json",
+        "packageJson": "libs/portainer/package.json",
+        "main": "libs/portainer/src/index.ts",
+        "assets": ["libs/portainer/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["libs/portainer/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/portainer"],
+      "options": {
+        "jestConfig": "libs/portainer/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

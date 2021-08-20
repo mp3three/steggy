@@ -12,6 +12,7 @@
     "@ui-kitten/eva-icons": "*",
     "react-native-svg": "*",
     "@react-navigation/native": "*",
-    "@react-navigation/stack": "*"
+    "@react-navigation/stack": "*",
+    "react-native-safe-area-context": "*"
   }
 }

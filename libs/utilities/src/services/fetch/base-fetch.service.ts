@@ -28,14 +28,14 @@ export class BaseFetch {
    */
   @Trace()
   protected async fetchHandleResponse<T extends unknown = unknown>(
-    fetchWith: FetchWith,
+    { process }: FetchWith,
     response: Response,
   ): Promise<T> {
-    if (fetchWith.process === false) {
+    if (process === false) {
       return response as T;
     }
     const text = await response.text();
-    if (fetchWith.process === 'text') {
+    if (process === 'text') {
       return text as unknown as T;
     }
     if (!['{', '['].includes(text.charAt(0))) {
@@ -74,40 +74,35 @@ export class BaseFetch {
    *
    * Should return: headers, body, method
    */
-  protected async fetchCreateMeta(fetchWitch: FetchWith): Promise<RequestInit> {
-    const body =
-      typeof fetchWitch.body === 'object' || typeof fetchWitch.data === 'object'
-        ? JSON.stringify({
-            data: fetchWitch.data ? { ...fetchWitch.data } : undefined,
-            ...(fetchWitch.data
-              ? {}
-              : (fetchWitch.body as Record<string, unknown>)),
-          })
-        : fetchWitch.body;
+  protected async fetchCreateMeta({
+    body,
+    jwtToken,
+    apiKey,
+    adminKey,
+    bearer,
+    ...fetchWitch
+  }: FetchWith): Promise<RequestInit> {
     const headers = {
       ...(fetchWitch.headers || {}),
     } as Record<string, string>;
-    let method = fetchWitch.method || 'GET';
+    let method = fetchWitch.method ?? 'get';
     if (body) {
       // Override
-      method =
-        fetchWitch.method === HTTP_METHODS.get
-          ? HTTP_METHODS.post
-          : fetchWitch.method;
+      method = fetchWitch.method === 'get' ? 'post' : fetchWitch.method;
       headers['Content-Type'] = 'application/json';
     }
 
-    if (fetchWitch.jwtToken) {
-      headers['x-jwt-token'] = fetchWitch.jwtToken;
+    if (jwtToken) {
+      headers['x-jwt-token'] = jwtToken;
     }
-    if (fetchWitch.apiKey) {
-      headers['x-token'] = fetchWitch.apiKey;
+    if (apiKey) {
+      headers['x-token'] = apiKey;
     }
-    if (fetchWitch.adminKey) {
-      headers['x-admin-key'] = fetchWitch.adminKey;
+    if (adminKey) {
+      headers['x-admin-key'] = adminKey;
     }
-    if (fetchWitch.bearer) {
-      headers['Authorization'] = `Bearer ${fetchWitch.bearer}`;
+    if (bearer) {
+      headers['Authorization'] = `Bearer ${bearer}`;
     }
     return {
       body: body as BodyInit,
@@ -119,17 +114,20 @@ export class BaseFetch {
   /**
    * Resolve url provided in args into a full path w/ domain
    */
-  protected fetchCreateUrl(fetchWith: FetchWith): string {
-    let url = fetchWith.rawUrl
-      ? fetchWith.url
-      : `${fetchWith.baseUrl ?? this.BASE_URL}${fetchWith.url}`;
-    if (fetchWith.tempAuthToken) {
+  protected fetchCreateUrl({
+    rawUrl,
+    url,
+    tempAuthToken,
+    ...fetchWith
+  }: FetchWith): string {
+    let out = rawUrl ? url : `${fetchWith.baseUrl ?? this.BASE_URL}${url}`;
+    if (tempAuthToken) {
       fetchWith.params ??= {};
     }
     if (fetchWith.control || fetchWith.params) {
-      url = `${url}?${this.buildFilterString(fetchWith)}`;
+      out = `${out}?${this.buildFilterString(fetchWith)}`;
     }
-    return url;
+    return out;
   }
 
   // #endregion Protected Methods
