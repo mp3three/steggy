@@ -28,6 +28,8 @@
     "formio.js": "javascript",
     "fetch-proxy": "public",
     "lutron": "other",
+    "auto-dash": "mobile",
+    "auto-dash-e2e": "test",
     "roku": "other",
     "devices": "project",
     "domains": "mappings",
