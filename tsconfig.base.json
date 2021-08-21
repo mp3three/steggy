@@ -18,6 +18,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@automagical/1password": ["libs/1password/src/index.ts"],
       "@automagical/contracts": ["libs/contracts/src/index.ts"],
       "@automagical/contracts/authentication": [
         "libs/contracts/src/libs/authentication/index.ts"
@@ -34,6 +35,9 @@
       ],
       "@automagical/contracts/portainer": [
         "libs/contracts/src/libs/portainer/index.ts"
+      ],
+      "@automagical/contracts/1password": [
+        "libs/contracts/src/libs/1password/index.ts"
       ],
       "@automagical/contracts/server": [
         "libs/contracts/src/libs/server/index.ts"

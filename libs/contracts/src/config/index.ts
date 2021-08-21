@@ -8,7 +8,7 @@ import {
   LIB_SERVER,
   LIB_UTILS,
 } from '..';
-import { LIB_TERMINAL } from '../library-names';
+import { LIB_PORTAINER, LIB_TERMINAL } from '../library-names';
 import {
   DashboardApplicationSettingsDTO,
   DevtoolsApplicationSettingsDTO,
@@ -17,6 +17,7 @@ import {
 import { AuthenticationConfig } from './authentication';
 import { CustomLogicConfig } from './controller-logic';
 import { HomeAssistantConfig } from './home-assistant';
+import { PortainerConfig } from './portainer';
 import { ServerConfig } from './server';
 import { TerminalConfig } from './terminal';
 import { UtilsConfig } from './utils';
@@ -28,6 +29,7 @@ export * from './controller-logic';
 export * from './external';
 export * from './home-assistant';
 export * from './libs-config';
+export * from './portainer';
 export * from './server';
 export * from './terminal';
 export * from './utils';
@@ -55,5 +57,6 @@ export const CONFIGURABLE_LIBS = new Map(
     [LIB_UTILS.description]: UtilsConfig,
     [LIB_TERMINAL.description]: TerminalConfig,
     [LIB_HOME_ASSISTANT.description]: HomeAssistantConfig,
+    [LIB_PORTAINER.description]: PortainerConfig,
   }),
 );

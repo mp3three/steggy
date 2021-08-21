@@ -5,6 +5,7 @@
   },
   "defaultProject": "home-controller",
   "projects": {
+    "1password": "libs/1password",
     "auto-dash": "apps/auto-dash",
     "auto-dash-e2e": "apps/auto-dash-e2e",
     "contracts": "libs/contracts",
