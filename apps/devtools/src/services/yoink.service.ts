@@ -1,6 +1,6 @@
 import { YOINK_DEFAULT_PATH } from '@automagical/contracts/config';
 import { CLIService } from '@automagical/contracts/terminal';
-import { MainCLIREPL } from '@automagical/terminal';
+import { MainCLIREPL } from '@automagical/tty';
 import { AutoConfigService, FetchService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import execa from 'execa';

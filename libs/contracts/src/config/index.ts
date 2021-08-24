@@ -26,7 +26,6 @@ export * from './apps';
 export * from './authentication';
 export * from './automagical';
 export * from './controller-logic';
-export * from './external';
 export * from './home-assistant';
 export * from './libs-config';
 export * from './portainer';

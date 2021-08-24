@@ -1,5 +1,5 @@
 import { APP_DEVTOOLS } from '@automagical/contracts';
-import { MainCLIModule } from '@automagical/terminal';
+import { MainCLIModule } from '@automagical/tty';
 import { ApplicationModule, UtilitiesModule } from '@automagical/utilities';
 
 import { YoinkService } from '../services';

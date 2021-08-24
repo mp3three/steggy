@@ -8,7 +8,7 @@ import { ModuleMetadata, Provider } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 
 import { RegisterCache } from '../includes/';
-import { MQTTModule, UtilitiesModule } from '../modules';
+import { UtilitiesModule } from '../modules';
 
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
   // #region Object Properties
@@ -68,7 +68,6 @@ export function ApplicationModule(
   ];
   metadata.imports = [
     UtilitiesModule.forRoot(),
-    MQTTModule,
     {
       exports: GLOBAL_SYMBOLS,
       global: true,

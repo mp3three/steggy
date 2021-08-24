@@ -3,7 +3,6 @@ import {
   GetItemPayloadDTO,
   ListItemItemDTO,
   ListItemPayloadDTO,
-  ListVaultItem,
   VaultDTO,
 } from '@automagical/contracts/1password';
 import { Trace } from '@automagical/utilities';
