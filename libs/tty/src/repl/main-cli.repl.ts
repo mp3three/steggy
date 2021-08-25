@@ -1,48 +1,33 @@
 import { DEFAULT_HEADER_FONT } from '@automagical/contracts/config';
-import { CLIService } from '@automagical/contracts/terminal';
-import { AutoConfigService, ConsumesConfig } from '@automagical/utilities';
+import { iRepl } from '@automagical/contracts/tty';
+import { AutoConfigService } from '@automagical/utilities';
 import chalk from 'chalk';
 import clear from 'clear';
 import figlet from 'figlet';
 import inquirer from 'inquirer';
 
-@ConsumesConfig([DEFAULT_HEADER_FONT])
-export class MainCLIREPL {
-  // #region Object Properties
+import { Repl } from '../decorators';
+import { ReplExplorerService } from '../services';
 
-  public readonly scripts = new Map<string, CLIService>();
-
-  // #endregion Object Properties
-
+@Repl({
+  consumesConfig: [DEFAULT_HEADER_FONT],
+  name: 'Main',
+})
+export class MainCLIService implements iRepl {
   // #region Constructors
 
-  constructor(private readonly configService: AutoConfigService) {}
+  constructor(
+    private readonly configService: AutoConfigService,
+    private readonly explorer: ReplExplorerService,
+  ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
-  public addScript(service: CLIService): void {
-    this.scripts.set(this.scriptName(service.name), service);
-  }
-
-  public async confirm(prompt: string, defaultValue = false): Promise<boolean> {
-    const { result } = await inquirer.prompt([
-      {
-        default: defaultValue,
-        message: prompt,
-        name: 'result',
-        prefix: chalk.yellow('warning'),
-        type: 'confirm',
-      },
-    ]);
-    return result;
-  }
-
-  public async main(headerText: string): Promise<void> {
-    // Print list of available commands
+  public async exec(): Promise<void> {
     clear();
-    let header = figlet.textSync(headerText, {
+    const header = figlet.textSync('Script List', {
       font: this.configService.get<figlet.Fonts>(DEFAULT_HEADER_FONT),
     });
     console.log(chalk.cyan(header), '\n');
@@ -50,7 +35,9 @@ export class MainCLIREPL {
     if (!scriptName) {
       const { script } = await inquirer.prompt([
         {
-          choices: [...this.scripts.values()].map((item) => item.name),
+          choices: [...this.explorer.REGISTERED_APPS.keys()]
+            .filter((item) => item.name !== 'Main')
+            .map((item) => item.name),
           message: 'Command',
           name: 'script',
           type: 'list',
@@ -59,25 +46,34 @@ export class MainCLIREPL {
       scriptName = this.scriptName(script);
     }
 
-    // Print header for script, then execute
-    const script = this.scripts.get(scriptName);
-    header = figlet.textSync(script.name, {
-      font: this.configService.get<figlet.Fonts>(DEFAULT_HEADER_FONT),
-    });
-    clear();
-    console.log(chalk.cyan(header), '\n');
-    console.log(
-      chalk.yellow(
-        script.description.map((line) => `      ${line}`).join(`\n`),
-      ),
-      `\n\n`,
-    );
+    this.printHeader(scriptName);
+    const script = this.explorer.findServiceByName(scriptName);
     await script.exec();
   }
 
   // #endregion Public Methods
 
   // #region Private Methods
+
+  private printHeader(scriptName: string): void {
+    const settings = this.explorer.findSettingsByName(scriptName);
+    const header = figlet.textSync(settings.name, {
+      font: this.configService.get<figlet.Fonts>(DEFAULT_HEADER_FONT),
+    });
+    clear();
+    console.log(chalk.cyan(header), '\n');
+    settings.description ??= [];
+    settings.description =
+      typeof settings.description === 'string'
+        ? [settings.description]
+        : settings.description;
+    console.log(
+      chalk.yellow(
+        settings.description.map((line) => `      ${line}`).join(`\n`),
+      ),
+      `\n\n`,
+    );
+  }
 
   private scriptName(name: string): string {
     return name.toLowerCase().replace(new RegExp(' ', 'g'), '-');

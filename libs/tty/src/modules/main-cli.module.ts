@@ -1,12 +1,23 @@
 import { LIB_TERMINAL } from '@automagical/contracts';
 import { LibraryModule } from '@automagical/utilities';
+import { DiscoveryModule } from '@nestjs/core';
 
-import { ConfigBuilderREPL, MainCLIREPL } from '../repl';
-import { SystemService, TypePromptService } from '../services';
+import { MainCLIService } from '../repl';
+import {
+  ReplExplorerService,
+  SystemService,
+  TypePromptService,
+} from '../services';
 
 @LibraryModule({
-  exports: [SystemService, MainCLIREPL, TypePromptService],
+  exports: [SystemService, TypePromptService],
+  imports: [DiscoveryModule],
   library: LIB_TERMINAL,
-  providers: [SystemService, MainCLIREPL, TypePromptService, ConfigBuilderREPL],
+  providers: [
+    SystemService,
+    TypePromptService,
+    ReplExplorerService,
+    MainCLIService,
+  ],
 })
 export class MainCLIModule {}

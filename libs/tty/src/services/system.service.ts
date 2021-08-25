@@ -14,7 +14,7 @@ import { join } from 'path';
 import { cwd } from 'process';
 import { inc } from 'semver';
 
-import { MainCLIREPL } from '../repl/main-cli.repl';
+import { TypePromptService } from './type-prompt.service';
 
 /**
  * Class for working with the host operating system,
@@ -36,7 +36,7 @@ export class SystemService {
 
   // #region Constructors
 
-  constructor(private readonly cli: MainCLIREPL) {}
+  constructor(private readonly prompt: TypePromptService) {}
 
   // #endregion Constructors
 
@@ -208,7 +208,7 @@ export class SystemService {
     console.log(chalk.green('path'), file);
     if (
       existsSync(file) &&
-      (await this.cli.confirm('Overwrite existing config file?')) === false
+      (await this.prompt.confirm('Overwrite existing config file?')) === false
     ) {
       return;
     }

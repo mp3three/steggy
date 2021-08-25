@@ -1,6 +1,4 @@
 import {
-  APPLICATION_LIST,
-  COMPLEX_CONFIG_PROVIDERS,
   ConfigLibraryVisibility,
   ConfigType,
   DefaultConfigOptions,
@@ -12,8 +10,8 @@ import {
   CONFIGURABLE_LIBS,
   OUTPUT_HEADER_FONT,
 } from '@automagical/contracts/config';
-import { CLIService } from '@automagical/contracts/terminal';
-import { AutoConfigService, ConsumesConfig } from '@automagical/utilities';
+import { iRepl } from '@automagical/contracts/tty';
+import { AutoConfigService } from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
@@ -26,9 +24,9 @@ import inquirer from 'inquirer';
 import { set } from 'object-path';
 import rc from 'rc';
 
+import { Repl } from '../decorators';
 import { SystemService } from '../services/system.service';
 import { TypePromptService } from '../services/type-prompt.service';
-import { MainCLIREPL } from './main-cli.repl';
 
 const LEVEL_MAP = {
   Common: 'available',
@@ -43,11 +41,9 @@ type KeyedConfig<T extends ConfigType = ConfigType> =
     key: string;
   };
 
-@ConsumesConfig([OUTPUT_HEADER_FONT])
-export class ConfigBuilderREPL implements CLIService {
-  // #region Object Properties
-
-  public description = [
+@Repl({
+  consumesConfig: [OUTPUT_HEADER_FONT],
+  description: [
     `Generate application customized configurations using the latest config definitions.`,
     `Ability to filter between:`,
     `  - Required`,
@@ -58,25 +54,17 @@ export class ConfigBuilderREPL implements CLIService {
     `  - Print to screen`,
     `  - Save to file`,
     `  - Generate AWS multicontainer.zip`,
-  ];
-  public name = 'Config Builder';
-  public provider = new Map<
-    COMPLEX_CONFIG_PROVIDERS,
-    (defaultValue: unknown) => Promise<unknown>
-  >();
-
-  // #endregion Object Properties
-
+  ],
+  name: 'Config Builder',
+})
+export class ConfigBuilderService implements iRepl {
   // #region Constructors
 
   constructor(
-    private readonly cli: MainCLIREPL,
     private readonly systemService: SystemService,
     private readonly typePrompt: TypePromptService,
     private readonly configService: AutoConfigService,
-  ) {
-    this.cli.addScript(this);
-  }
+  ) {}
 
   // #endregion Constructors
 
@@ -242,17 +230,17 @@ export class ConfigBuilderREPL implements CLIService {
   // #region Protected Methods
 
   protected async onModuleInit(): Promise<void> {
-    this.provider.set('application', async () => {
-      const { application } = await inquirer.prompt([
-        {
-          choices: APPLICATION_LIST,
-          message: 'Select an application',
-          name: 'application',
-          type: 'list',
-        },
-      ]);
-      return application;
-    });
+    // this.provider.set('application', async () => {
+    //   const { application } = await inquirer.prompt([
+    //     {
+    //       choices: APPLICATION_LIST,
+    //       message: 'Select an application',
+    //       name: 'application',
+    //       type: 'list',
+    //     },
+    //   ]);
+    //   return application;
+    // });
   }
 
   // #endregion Protected Methods

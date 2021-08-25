@@ -50,6 +50,19 @@ export class TypePromptService {
     ]);
   }
 
+  public async confirm(prompt: string, defaultValue = false): Promise<boolean> {
+    const { result } = await inquirer.prompt([
+      {
+        default: defaultValue,
+        message: prompt,
+        name: 'result',
+        prefix: chalk.yellow('warning'),
+        type: 'confirm',
+      },
+    ]);
+    return result;
+  }
+
   public async enum(
     config: KeyedConfig<string[]>,
     prefix: string,

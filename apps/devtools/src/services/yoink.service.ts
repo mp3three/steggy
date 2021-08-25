@@ -1,8 +1,7 @@
 import { YOINK_DEFAULT_PATH } from '@automagical/contracts/config';
-import { CLIService } from '@automagical/contracts/terminal';
-import { MainCLIREPL } from '@automagical/tty';
+import { iRepl } from '@automagical/contracts/tty';
+import { Repl } from '@automagical/tty';
 import { AutoConfigService, FetchService } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
 import execa from 'execa';
 import { lstatSync, mkdirSync, readdirSync, renameSync } from 'fs';
 import inquirer from 'inquirer';
@@ -11,29 +10,22 @@ import { join } from 'path';
 /* eslint-disable security/detect-non-literal-regexp */
 
 const SEPARATOR = ' - ';
-@Injectable()
-export class YoinkService implements CLIService {
-  // #region Object Properties
-
-  public description = [
+@Repl({
+  description: [
     `Download url zip from url to new folder`,
     `Extract`,
     `Update file name prefixes to be a consistent 4 digits`,
     `Update file ownership`,
-  ];
-  public name = 'Yoink';
-
-  // #endregion Object Properties
-
+  ],
+  name: 'Yoink',
+})
+export class YoinkService implements iRepl {
   // #region Constructors
 
   constructor(
-    private readonly cli: MainCLIREPL,
     private readonly configService: AutoConfigService,
     private readonly fetchService: FetchService,
-  ) {
-    this.cli.addScript(this);
-  }
+  ) {}
 
   // #endregion Constructors
 

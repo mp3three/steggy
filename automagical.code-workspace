@@ -5,20 +5,6 @@
   "launch": {
     "version": "0.2.0",
     "configurations": [
-      // FIXME: Doesn't seem to work as expected
-      // {
-      //   "name": "Inspect api-server",
-      //   "request": "launch",
-      //   "runtimeArgs": [
-      //     "run",
-      //     "api-server:serve"
-      //   ],
-      //   "runtimeExecutable": "nx",
-      //   "skipFiles": [
-      //     "<node_internals>/**"
-      //   ],
-      //   "type": "pwa-node"
-      // },
       {
         "name": "Debug Node App",
         "type": "node",
@@ -34,17 +20,12 @@
         "port": 33335
       },
       {
-        "name": "Run AST Class Organizer",
-        "type": "extensionHost",
-        "request": "launch",
-        "runtimeExecutable": "${execPath}",
-        "args": [
-            "--extensionDevelopmentPath=${workspaceFolder}/apps/tsco"
-        ],
-        "outFiles": [
-            "${workspaceFolder}/dist/apps/tsco/**/*.js"
-        ],
-      }
+        "name": "Debug Devtools",
+        "type": "node",
+        "request": "attach",
+        // Match this to the workspace.json
+        "port": 33336
+      },
     ]
   },
   "extensions": {
