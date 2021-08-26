@@ -13,7 +13,7 @@ export class UtilsConfig {
   })
   public LOG_LEVEL?: 'info' | 'warn' | 'debug' | 'trace';
   @UsesConfig({
-    applications: 'hidden',
+    applications: 'available',
     default: true,
     type: 'boolean',
   })
@@ -75,7 +75,7 @@ export class UtilsConfig {
   public REDIS_PORT?: number;
   @UsesConfig({
     applications: {
-      [APP_HOME_CONTROLLER.description]: 'default',
+      [APP_HOME_CONTROLLER.description]: 'required',
       [APP_DASHBOARD.description]: 'available',
     },
     // Doesn't seem to cast negative numbers properly when set to number
@@ -84,7 +84,7 @@ export class UtilsConfig {
   public LATITUDE?: number;
   @UsesConfig({
     applications: {
-      [APP_HOME_CONTROLLER.description]: 'default',
+      [APP_HOME_CONTROLLER.description]: 'required',
       [APP_DASHBOARD.description]: 'available',
     },
     // Doesn't seem to cast negative numbers properly when set to number

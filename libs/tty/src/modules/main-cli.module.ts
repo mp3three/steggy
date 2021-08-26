@@ -4,18 +4,20 @@ import { DiscoveryModule } from '@nestjs/core';
 
 import { MainCLIService } from '../repl';
 import {
+  ConfigScannerService,
   ReplExplorerService,
   SystemService,
   TypePromptService,
 } from '../services';
 
 @LibraryModule({
-  exports: [SystemService, TypePromptService],
+  exports: [SystemService, TypePromptService, ConfigScannerService],
   imports: [DiscoveryModule],
   library: LIB_TERMINAL,
   providers: [
     SystemService,
     TypePromptService,
+    ConfigScannerService,
     ReplExplorerService,
     MainCLIService,
   ],

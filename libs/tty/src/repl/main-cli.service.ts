@@ -43,7 +43,7 @@ export class MainCLIService implements iRepl {
           type: 'list',
         },
       ]);
-      scriptName = this.scriptName(script);
+      scriptName = script;
     }
 
     this.printHeader(scriptName);
@@ -73,10 +73,6 @@ export class MainCLIService implements iRepl {
       ),
       `\n\n`,
     );
-  }
-
-  private scriptName(name: string): string {
-    return name.toLowerCase().replace(new RegExp(' ', 'g'), '-');
   }
 
   // #endregion Private Methods

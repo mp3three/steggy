@@ -113,7 +113,6 @@ export class TypePromptService {
     config: KeyedConfig,
     prefix?: string,
   ): Promise<PromptResult<T>> {
-    prefix ??= `libs.${config.library}`;
     switch (config.type) {
       case 'string':
         return (await this.string(

@@ -39,7 +39,7 @@ export class ConfigLibs {
   public server?: ServerConfig;
   @ConfigurableProperty({
     applications: {
-      [APP_HOME_CONTROLLER.description]: 'default',
+      [APP_HOME_CONTROLLER.description]: 'required',
       [APP_DASHBOARD.description]: 'available',
     },
     type: {
@@ -49,7 +49,7 @@ export class ConfigLibs {
   public homeassistant?: HomeAssistantConfig;
   @ConfigurableProperty({
     applications: {
-      [APP_HOME_CONTROLLER.description]: 'default',
+      [APP_HOME_CONTROLLER.description]: 'required',
       [APP_DASHBOARD.description]: 'available',
     },
     type: {

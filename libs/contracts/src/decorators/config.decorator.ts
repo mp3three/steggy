@@ -10,9 +10,8 @@ export type SIMPLE_CONFIG_PROVIDERS =
   | 'password';
 
 export enum ConfigLibraryVisibility {
-  default = 'default',
+  required = 'required',
   available = 'available',
-  hidden = 'hidden',
 }
 export type ConfigRecordType = Record<
   'key' | 'value',

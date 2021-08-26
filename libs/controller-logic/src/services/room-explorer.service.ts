@@ -62,8 +62,9 @@ export class RoomExplorerService {
 
   @Trace()
   protected onModuleInit(): void {
-    const providers: InstanceWrapper<iRoomController>[] =
-      this.discoveryService.getProviders();
+    const providers: InstanceWrapper<iRoomController>[] = this.discoveryService
+      .getProviders()
+      .filter((wrapper) => !wrapper.isNotMetatype);
     providers.forEach(async (wrapper) => {
       const settings = this.getSettings(wrapper);
       if (!settings) {

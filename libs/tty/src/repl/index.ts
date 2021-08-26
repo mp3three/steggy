@@ -1,2 +1,2 @@
-export * from './config-builder.repl';
-export * from './main-cli.repl';
+export * from './config-builder.service';
+export * from './main-cli.service';

@@ -6,12 +6,11 @@ import {
 } from '@automagical/contracts';
 import {
   AutomagicalConfig,
-  CONFIGURABLE_APPS,
   CONFIGURABLE_LIBS,
   OUTPUT_HEADER_FONT,
 } from '@automagical/contracts/config';
 import { iRepl } from '@automagical/contracts/tty';
-import { AutoConfigService } from '@automagical/utilities';
+import { AutoConfigService, Trace } from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
@@ -19,19 +18,19 @@ import { ClassConstructor } from 'class-transformer';
 import clear from 'clear';
 import Table from 'cli-table';
 import figlet from 'figlet';
-import ini, { encode } from 'ini';
+import ini from 'ini';
 import inquirer from 'inquirer';
 import { set } from 'object-path';
 import rc from 'rc';
 
 import { Repl } from '../decorators';
+import { ConfigScannerService } from '../services';
 import { SystemService } from '../services/system.service';
 import { TypePromptService } from '../services/type-prompt.service';
 
 const LEVEL_MAP = {
-  Common: 'available',
-  Required: 'default',
-  Secret: 'hidden',
+  Available: 'available',
+  Required: 'required',
 } as Record<string, ConfigLibraryVisibility>;
 const LEVEL_PRIORITIES: ConfigLibraryVisibility[] = Object.values(
   ConfigLibraryVisibility,
@@ -45,31 +44,34 @@ type KeyedConfig<T extends ConfigType = ConfigType> =
   consumesConfig: [OUTPUT_HEADER_FONT],
   description: [
     `Generate application customized configurations using the latest config definitions.`,
-    `Ability to filter between:`,
-    `  - Required`,
-    `  - Common to set`,
-    `  - Hidden (most helpful for debugging)`,
     ``,
     `When complete, you will have the ability to:`,
     `  - Print to screen`,
     `  - Save to file`,
-    `  - Generate AWS multicontainer.zip`,
   ],
   name: 'Config Builder',
 })
 export class ConfigBuilderService implements iRepl {
+  // #region Static Properties
+
+  public static AVAILABLE_APPLICATIONS: Map<string, ClassConstructor<unknown>>;
+
+  // #endregion Static Properties
+
   // #region Constructors
 
   constructor(
     private readonly systemService: SystemService,
     private readonly typePrompt: TypePromptService,
     private readonly configService: AutoConfigService,
+    private readonly configScanner: ConfigScannerService,
   ) {}
 
   // #endregion Constructors
 
   // #region Public Methods
 
+  @Trace()
   public async assembleConfig(
     application: string,
     level: keyof typeof LEVEL_MAP,
@@ -80,11 +82,11 @@ export class ConfigBuilderService implements iRepl {
       application: appConfig,
     };
     if (configOptions.length > 0) {
-      console.log(chalk`{bgBlue.whiteBright Libraries Config}`);
+      console.log(chalk.bold.blue(`Libraries Config`));
       this.configTable(application, configOptions);
     }
     await eachSeries(configOptions, async (item, callback) => {
-      const results = await this.typePrompt.prompt(item, application);
+      const results = await this.typePrompt.prompt(item);
       const path = item.library === '-' ? item.key : `${item.key}`;
       if (results.value === this.configService.getDefault(item.key)) {
         return callback();
@@ -98,15 +100,16 @@ export class ConfigBuilderService implements iRepl {
   /**
    * Build the data for the application portion of the config
    */
+  @Trace()
   public async buildApplicationConfig(
     application: string,
   ): Promise<Record<string, unknown>> {
     const out = {};
-    if (!CONFIGURABLE_APPS.has(application)) {
+    if (!ConfigBuilderService.AVAILABLE_APPLICATIONS.has(application)) {
       return out;
     }
     const nested = this.loadConfig(
-      CONFIGURABLE_APPS.get(application),
+      ConfigBuilderService.AVAILABLE_APPLICATIONS.get(application),
       `application.`,
     );
     if (nested.length > 0) {
@@ -135,10 +138,11 @@ export class ConfigBuilderService implements iRepl {
    * - Assembles a config
    * - Passes off to handler
    */
+  @Trace()
   public async exec(): Promise<void> {
     const { application, level } = (await inquirer.prompt([
       {
-        choices: [...CONFIGURABLE_APPS.keys()],
+        choices: [...ConfigBuilderService.AVAILABLE_APPLICATIONS.keys()],
         message: 'Config Type',
         name: 'application',
         type: 'list',
@@ -160,7 +164,23 @@ export class ConfigBuilderService implements iRepl {
     ])) as { application: string; level: keyof typeof LEVEL_MAP };
     clear();
     this.typePrompt.config = rc(application);
-    console.log(encode(this.typePrompt.config));
+
+    // const message = encode(this.typePrompt.config).split(`\n`);
+    // message.unshift(``);
+    // let maxLength = 0;
+    // message.forEach(
+    //   (line) => (maxLength = line.length > maxLength ? line.length : maxLength),
+    // );
+    // console.log(
+    //   message
+    //     .map((line) =>
+    //       chalk.bgBlue.white.bold(
+    //         line.padEnd(maxLength + 2).padStart(maxLength + 4),
+    //       ),
+    //     )
+    //     .join(`\n`),
+    // );
+
     const config = await this.assembleConfig(application, level);
     await this.handleConfig(config, application);
   }
@@ -168,6 +188,7 @@ export class ConfigBuilderService implements iRepl {
   /**
    * Prompt the user for what to do
    */
+  @Trace()
   public async handleConfig(
     config: AutomagicalConfig,
     application: string,
@@ -227,24 +248,6 @@ export class ConfigBuilderService implements iRepl {
 
   // #endregion Public Methods
 
-  // #region Protected Methods
-
-  protected async onModuleInit(): Promise<void> {
-    // this.provider.set('application', async () => {
-    //   const { application } = await inquirer.prompt([
-    //     {
-    //       choices: APPLICATION_LIST,
-    //       message: 'Select an application',
-    //       name: 'application',
-    //       type: 'list',
-    //     },
-    //   ]);
-    //   return application;
-    // });
-  }
-
-  // #endregion Protected Methods
-
   // #region Private Methods
 
   /**
@@ -253,6 +256,7 @@ export class ConfigBuilderService implements iRepl {
    *
    * Output list is sorted by `priority` > `library` > `key`
    */
+  @Trace()
   private buildConfig(
     application: string,
     level: ConfigLibraryVisibility,
@@ -276,6 +280,7 @@ export class ConfigBuilderService implements iRepl {
     );
   }
 
+  @Trace()
   private configFilterSort(
     config: KeyedConfig[],
     application: string,
@@ -370,14 +375,11 @@ export class ConfigBuilderService implements iRepl {
   }
 
   private typeTag(type: keyof typeof ConfigLibraryVisibility) {
-    const formatted = type[0].toUpperCase() + type.slice(1);
     switch (type) {
       case 'available':
-        return chalk.bgWhite(chalk.black(formatted));
-      case 'default':
-        return chalk.inverse(chalk.green(formatted));
-      case 'hidden':
-        return chalk.inverse(chalk.magenta(formatted));
+        return chalk.bgWhite(chalk.black('available'));
+      case 'required':
+        return chalk.inverse(chalk.red('required'));
     }
   }
 

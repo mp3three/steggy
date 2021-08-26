@@ -7,16 +7,16 @@ export class HomeAssistantConfig {
 
   @UsesConfig({
     applications: {
-      [APP_HOME_CONTROLLER.description]: 'default',
-      [APP_DASHBOARD.description]: 'default',
+      [APP_HOME_CONTROLLER.description]: 'required',
+      [APP_DASHBOARD.description]: 'required',
     },
     type: 'password',
   })
   public TOKEN?: string;
   @UsesConfig({
     applications: {
-      [APP_HOME_CONTROLLER.description]: 'default',
-      [APP_DASHBOARD.description]: 'default',
+      [APP_HOME_CONTROLLER.description]: 'required',
+      [APP_DASHBOARD.description]: 'required',
     },
     type: 'url',
   })

@@ -163,11 +163,11 @@ export class GamesRoomController implements iRoomController {
       return brightness > 100 ? 100 : brightness;
     }
     // Stay on all day until 8PM
-    if (hour < 16) {
+    if (hour < 12 + 4) {
       return 100;
     }
     // Stay on all day until 8PM
-    if (hour === 16) {
+    if (hour === 12 + 4) {
       const brightness = 100 - this.ticksThisHour(minute, second);
       const MINIMUM = EVENING_BRIGHTNESS * 2;
       return brightness < MINIMUM ? MINIMUM : brightness;

@@ -17,7 +17,7 @@ export class AutomagicalConfig {
    * Custom variables for implementations
    */
   @ConfigurableProperty({
-    applications: 'default',
+    applications: 'required',
     type: undefined,
   })
   public application?: ApplicationConfigs;
@@ -25,7 +25,7 @@ export class AutomagicalConfig {
    * Libraries
    */
   @ConfigurableProperty({
-    applications: 'default',
+    applications: 'required',
     type: {
       reference: ConfigLibs,
     },
