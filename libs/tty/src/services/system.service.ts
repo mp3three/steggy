@@ -1,10 +1,16 @@
-import { APPLICATION_LIST, LIBRARY_LIST } from '@automagical/contracts';
+import {
+  APPLICATION_LIST,
+  AutomagicalMetadataDTO,
+  LIBRARY_LIST,
+} from '@automagical/contracts';
 import { AutomagicalConfig } from '@automagical/contracts/config';
 import { NXAffected, NXWorkspaceDTO } from '@automagical/contracts/terminal';
 import { filterUnique } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { eachSeries } from 'async';
+import { each, eachSeries } from 'async';
 import chalk from 'chalk';
+import { ClassConstructor } from 'class-transformer';
+import JSON from 'comment-json';
 import execa from 'execa';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { decode, encode } from 'ini';
@@ -144,6 +150,27 @@ export class SystemService {
       branch.trim(),
     ]);
     return filterUnique(stdout.split(`\n`).filter((item) => item.length > 0));
+  }
+
+  public async getNestApplications(): Promise<ClassConstructor<unknown>[]> {
+    const metadata: AutomagicalMetadataDTO[] = [];
+    Object.values(this.workspace.projects)
+      .filter((item) => item.projectType === 'application')
+      .filter((application) => {
+        const path = join(application.sourceRoot, 'automagical.json');
+        if (!existsSync(path)) {
+          return;
+        }
+        metadata.push(JSON.parse(readFileSync(path, 'utf-8')));
+      });
+    const modules: ClassConstructor<unknown>[] = [];
+    await each(metadata, async ({ applicationModule }, callback) => {
+      if (applicationModule) {
+        modules.push(await import(applicationModule));
+      }
+      callback();
+    });
+    return modules;
   }
 
   public isLibrary(project: string): boolean {

@@ -1,0 +1,15 @@
+// TS defintions at libs/contracts/src/meta/automagical.schema.ts
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "automagical.json",
+  "title": "Automagical",
+  "description": "Additional metadata for applications",
+  "type": "object",
+  "properties": {
+    "applicationModule": {
+      "type": "string",
+      "description": "File name for primary application module (src/root/{name})"
+    }
+  },
+  "additionalProperties": false
+}

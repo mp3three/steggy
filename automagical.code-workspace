@@ -4,8 +4,7 @@
   }],
   "launch": {
     "version": "0.2.0",
-    "configurations": [
-      {
+    "configurations": [{
         "name": "Debug Node App",
         "type": "node",
         "request": "attach",
@@ -62,6 +61,13 @@
     "unwantedRecommendations": []
   },
   "settings": {
+    "json.schemas": [
+      //
+      {
+        "fileMatch": ["/apps/**/automagical.json"],
+        "url": "/schemas/json/automagical.schema.json"
+      },
+    ],
     "files.associations": {
       ".pino-prettyrc": "json",
       "home": "ini",
@@ -73,7 +79,7 @@
       "**/.git": true,
       "**/.svn": true,
       "**/.hg": true,
-      "**/*vsix" : true,
+      "**/*vsix": true,
       "**/CVS": true,
       "**/.DS_Store": true,
       "**/*.secret": true,
@@ -149,6 +155,7 @@
     "tsco.accessorsBeforeCtor": true,
     "tsco.addRegionCaptionToRegionEnd": true,
     "tsco.groupPropertiesWithDecorators": true,
+    "tsco.addPublicModifierIfMissing": false,
     "tsco.addRowNumberInRegionName": false,
     "tsco.addRegionIndentation": true,
     "tsco.organizeOnSave": true,
@@ -353,7 +360,8 @@
           "privateMethods"
         ]
       }
-    ]
+    ],
+    "typescript.tsdk": "node_modules/typescript/lib"
     // * </Typescript Class Organizer>
   }
 }
