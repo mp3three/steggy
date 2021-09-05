@@ -1,4 +1,5 @@
 {
   "name": "@automagical/portainer",
+  "displayName": "Portainer",
   "version": "0.0.1"
 }

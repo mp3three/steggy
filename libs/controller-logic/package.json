@@ -1,1 +1,5 @@
-{"name":"@automagical/controller-logic","version":"0.0.1"}
+{
+  "name": "@automagical/controller-logic",
+  "displayName": "Controller Logic",
+  "version": "0.0.1"
+}

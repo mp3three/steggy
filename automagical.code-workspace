@@ -62,9 +62,12 @@
   },
   "settings": {
     "json.schemas": [
-      //
       {
         "fileMatch": ["/apps/**/automagical.json"],
+        "url": "/schemas/json/automagical.schema.json"
+      },
+      {
+        "fileMatch": ["/libs/**/automagical.json"],
         "url": "/schemas/json/automagical.schema.json"
       },
     ],

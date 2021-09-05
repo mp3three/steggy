@@ -1,0 +1,45 @@
+{
+  "type": "library",
+  "configuration": {
+    "LOG_LEVEL": {
+      "type": "string",
+      "enum": ["info", "warn", "debug", "trace"],
+      "default": "info",
+      "description": "Minimum log level to process. NOTE: Trace logging is not advised in most circumstances. It is extremely verbose, and will have an impact on performance"
+    },
+    "LOG_OMIT_CTX_PREFIX": {
+      "type": "boolean",
+      "default": false
+    },
+    "MQTT_HOST": {
+      "type": "string",
+      "description": "localhost"
+    },
+    "CACHE_PROVIDER": {
+      "type": "string",
+      "description": "memory",
+      "enum": ["redis", "memory"]
+    },
+    "REDIS_HOST": {
+      "type": "string",
+      "description": "localhost"
+    },
+    "MQTT_PORT": {
+      "type": "number",
+      "default": 1883
+    },
+    "REDIS_PORT": {
+      "type": "number",
+      "default": 6379
+    },
+    "LATITUDE": {
+      "type": "string"
+    },
+    "LONGITUDE": {
+      "type": "string"
+    },
+    "MAX_STASH_DEPTH": {
+      "type": "number"
+    }
+  }
+}

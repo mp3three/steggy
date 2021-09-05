@@ -1,0 +1,20 @@
+{
+  "type": "library",
+  "configuration": {
+    "PORT": {
+      "type": "number",
+      "default": 3000
+    },
+    "COMPRESSION": {
+      "type": "boolean",
+      "default": false
+    },
+    "GLOBAL_PREFIX": {
+      "type": "string"
+    },
+    "CORS": {
+      "type": "string",
+      "default": "*"
+    }
+  }
+}

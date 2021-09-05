@@ -1,3 +1,4 @@
 {
+  "type": "application",
   "applicationModule": "application.module.ts"
 }
