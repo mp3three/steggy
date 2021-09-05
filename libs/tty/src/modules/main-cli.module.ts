@@ -8,6 +8,7 @@ import {
   ReplExplorerService,
   SystemService,
   TypePromptService,
+  WorkspaceService,
 } from '../services';
 
 @LibraryModule({
@@ -20,6 +21,7 @@ import {
     ConfigScannerService,
     ReplExplorerService,
     MainCLIService,
+    WorkspaceService,
   ],
 })
 export class MainCLIModule {}

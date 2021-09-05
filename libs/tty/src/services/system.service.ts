@@ -1,19 +1,15 @@
-import {
-  APPLICATION_LIST,
-  AutomagicalMetadataDTO,
-  LIBRARY_LIST,
-} from '@automagical/contracts';
+import { PACKAGE_FILE } from '@automagical/contracts';
 import { AutomagicalConfig } from '@automagical/contracts/config';
-import { NXAffected, NXWorkspaceDTO } from '@automagical/contracts/terminal';
+import { NXAffected } from '@automagical/contracts/terminal';
 import { filterUnique } from '@automagical/utilities';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { each, eachSeries } from 'async';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
 import JSON from 'comment-json';
 import execa from 'execa';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { decode, encode } from 'ini';
+import { encode } from 'ini';
 import inquirer from 'inquirer';
 import { homedir } from 'os';
 import { join } from 'path';
@@ -21,6 +17,7 @@ import { cwd } from 'process';
 import { inc } from 'semver';
 
 import { TypePromptService } from './type-prompt.service';
+import { WorkspaceService } from './workspace.service';
 
 /**
  * Class for working with the host operating system,
@@ -30,21 +27,26 @@ import { TypePromptService } from './type-prompt.service';
 export class SystemService {
   // #region Object Properties
 
-  public workspace: NXWorkspaceDTO = JSON.parse(
-    readFileSync('workspace.json', 'utf-8'),
-  );
-
   private nameMap = new Map<string, string>();
-  private packages = new Map<string, Record<'version', string>>();
-  private systemConfigs = new Map<string, AutomagicalConfig>();
 
   // #endregion Object Properties
 
   // #region Constructors
 
-  constructor(private readonly prompt: TypePromptService) {}
+  constructor(
+    private readonly prompt: TypePromptService,
+    private readonly workspace: WorkspaceService,
+  ) {}
 
   // #endregion Constructors
+
+  // #region Private Accessors
+
+  private get projects() {
+    return this.workspace.workspace.projects;
+  }
+
+  // #endregion Private Accessors
 
   // #region Public Methods
 
@@ -54,11 +56,9 @@ export class SystemService {
 
   public async bumpApplications(list: string[]): Promise<void> {
     await eachSeries(
-      list.filter(
-        (item) => this.workspace.projects[item].projectType === 'application',
-      ),
+      list.filter((item) => this.projects[item].projectType === 'application'),
       async (application: string, callback) => {
-        const { version } = this.packageGet(application);
+        const { version } = this.workspace.PACKAGES.get(application);
         const { action } = await inquirer.prompt([
           {
             choices: [
@@ -102,9 +102,9 @@ export class SystemService {
 
   public bumpLibraries(list: string[]): void {
     list
-      .filter((item) => this.workspace.projects[item].projectType === 'library')
+      .filter((item) => this.projects[item].projectType === 'library')
       .forEach((value) => {
-        const data = this.packageGet(value);
+        const data = this.workspace.PACKAGES.get(value);
         const currentVersion = data.version;
         data.version = inc(data.version, 'patch');
         this.packageWriteVersion(value, data.version);
@@ -115,10 +115,10 @@ export class SystemService {
   }
 
   public bumpRootPackageVersion(): string {
-    const rootPackage = JSON.parse(readFileSync('package.json', 'utf-8'));
+    const rootPackage = JSON.parse(readFileSync(PACKAGE_FILE, 'utf-8'));
     const current = rootPackage.version;
     rootPackage.version = inc(rootPackage.version, 'patch');
-    writeFileSync('package.json', JSON.stringify(rootPackage, undefined, '  '));
+    writeFileSync(PACKAGE_FILE, JSON.stringify(rootPackage, undefined, '  '));
     console.log(
       chalk.magenta('root'),
       current,
@@ -153,23 +153,16 @@ export class SystemService {
   }
 
   public async getNestApplications(): Promise<ClassConstructor<unknown>[]> {
-    const metadata: AutomagicalMetadataDTO[] = [];
-    Object.values(this.workspace.projects)
-      .filter((item) => item.projectType === 'application')
-      .filter((application) => {
-        const path = join(application.sourceRoot, 'automagical.json');
-        if (!existsSync(path)) {
-          return;
-        }
-        metadata.push(JSON.parse(readFileSync(path, 'utf-8')));
-      });
     const modules: ClassConstructor<unknown>[] = [];
-    await each(metadata, async ({ applicationModule }, callback) => {
-      if (applicationModule) {
-        modules.push(await import(applicationModule));
-      }
-      callback();
-    });
+    await each(
+      this.workspace.METADATA.entries(),
+      async ([, { applicationModule }], callback) => {
+        if (applicationModule) {
+          modules.push(await import(applicationModule));
+        }
+        callback();
+      },
+    );
     return modules;
   }
 
@@ -177,54 +170,7 @@ export class SystemService {
     if (this.nameMap.has(project)) {
       project = this.nameMap.get(project);
     }
-    return this.workspace.projects[project].projectType === 'library';
-  }
-
-  public loadConfig(application: string): AutomagicalConfig {
-    return this.systemConfigs.get(application) ?? {};
-  }
-
-  /**
-   * Retrieve package.json using workspace name or app symbol description
-   */
-  public packageGet(project: string): Record<'version', string> {
-    // Map the name to the workspace name
-    if (this.nameMap.has(project)) {
-      project = this.nameMap.get(project);
-    } else {
-      if (this.packages.has(project)) {
-        return this.packages.get(project);
-      }
-      const { projects } = this.workspace;
-      if (typeof projects[project] === 'undefined') {
-        const updated = Object.keys(projects).some((key) => {
-          // Match based off of the first 3 characters
-          if (key.slice(0, 3) === project.slice(0, 3)) {
-            project = key;
-            this.nameMap.set(project, key);
-            return true;
-          }
-          return false;
-        });
-        if (!updated) {
-          throw new InternalServerErrorException(`Unknown project: ${project}`);
-        }
-      }
-    }
-    const packageFile = join(
-      cwd(),
-      this.workspace.projects[project].root,
-      `package.json`,
-    );
-    const exists = existsSync(packageFile);
-    if (!exists) {
-      throw new InternalServerErrorException(
-        `Missing package file: ${packageFile}`,
-      );
-    }
-    const data = JSON.parse(readFileSync(packageFile, 'utf-8'));
-    this.packages.set(project, data);
-    return data;
+    return this.projects[project].projectType === 'library';
   }
 
   public async writeConfig(
@@ -245,47 +191,13 @@ export class SystemService {
 
   // #endregion Public Methods
 
-  // #region Protected Methods
-
-  protected onModuleInit(): void {
-    Object.keys(this.workspace.projects).forEach((key) => {
-      this.workspace.projects[key] = JSON.parse(
-        readFileSync(
-          join(
-            // After initial loading, this type is correct
-            this.workspace.projects[key] as unknown as string,
-            'project.json',
-          ),
-          'utf-8',
-        ),
-      );
-    });
-    APPLICATION_LIST.forEach((application) => {
-      const file = this.applicationConfigPath(application);
-      if (existsSync(file)) {
-        this.systemConfigs.set(
-          application,
-          decode(readFileSync(file, 'utf-8')),
-        );
-      }
-      this.packageGet(application);
-    });
-    LIBRARY_LIST.forEach((library) => this.packageGet(library));
-  }
-
-  // #endregion Protected Methods
-
   // #region Private Methods
 
   private packageWriteVersion(project: string, version: string): void {
-    const packageFile = join(
-      cwd(),
-      this.workspace.projects[project].root,
-      `package.json`,
-    );
-    const data = this.packages.get(project);
+    const packageFile = join(cwd(), this.projects[project].root, PACKAGE_FILE);
+    const data = this.workspace.PACKAGES.get(project);
     data.version = version;
-    this.packages.set(project, data);
+    this.workspace.PACKAGES.set(project, data);
     writeFileSync(packageFile, JSON.stringify(data, undefined, '  '));
   }
 

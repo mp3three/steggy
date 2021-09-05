@@ -15,3 +15,4 @@ export class NXWorkspaceDTO {
 
   // #endregion Object Properties
 }
+export const NX_WORKSPACE_FILE = 'workspace.json';

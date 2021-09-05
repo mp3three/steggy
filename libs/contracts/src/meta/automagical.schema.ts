@@ -9,3 +9,4 @@ export class AutomagicalMetadataDTO {
 
   // #endregion Object Properties
 }
+export const METADATA_FILE = 'automagical.json';

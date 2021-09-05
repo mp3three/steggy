@@ -8,7 +8,6 @@
     "1password": "libs/1password",
     "auto-dash": "apps/auto-dash",
     "devtools": "apps/devtools",
-    "auto-dash-e2e": "apps/auto-dash-e2e",
     "contracts": "libs/contracts",
     "controller-logic": "libs/controller-logic",
     "dashboard": "apps/dashboard",

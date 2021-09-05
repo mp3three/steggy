@@ -58,6 +58,12 @@ export class ConfigBuilderService implements iRepl {
 
   // #endregion Static Properties
 
+  // #region Object Properties
+
+  private systemConfigs = new Map<string, AutomagicalConfig>();
+
+  // #endregion Object Properties
+
   // #region Constructors
 
   constructor(
