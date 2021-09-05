@@ -2,6 +2,7 @@
   "name": "auto-dash",
   "version": "0.0.1",
   "private": true,
+  "displayName": "Auto Dash",
   "dependencies": {
     "react-native": "*",
     "react": "*",

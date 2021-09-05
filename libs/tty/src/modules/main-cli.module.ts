@@ -12,7 +12,12 @@ import {
 } from '../services';
 
 @LibraryModule({
-  exports: [SystemService, TypePromptService, ConfigScannerService],
+  exports: [
+    SystemService,
+    TypePromptService,
+    ConfigScannerService,
+    WorkspaceService,
+  ],
   imports: [DiscoveryModule],
   library: LIB_TERMINAL,
   providers: [

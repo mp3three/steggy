@@ -1,7 +1,8 @@
+export type NXProjectTypes = 'library' | 'application';
 export class NXProjectDTO {
   // #region Object Properties
 
-  public projectType: 'library' | 'application';
+  public projectType: NXProjectTypes;
   public root: string;
   public sourceRoot: string;
   public targets: Record<string, unknown>;

@@ -6,10 +6,12 @@ import {
 } from '@automagical/contracts';
 import {
   NX_WORKSPACE_FILE,
+  NXProjectTypes,
   NXWorkspaceDTO,
 } from '@automagical/contracts/terminal';
 import { Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ClassConstructor } from 'class-transformer';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { cwd } from 'process';
@@ -34,6 +36,28 @@ export class WorkspaceService {
   // #endregion Object Properties
 
   // #region Public Methods
+
+  @Trace()
+  public list(type: NXProjectTypes): string[] {
+    const { projects } = this.workspace;
+    return Object.keys(projects).filter(
+      (item) => projects[item].projectType === type,
+    );
+  }
+
+  @Trace()
+  public async loadApplicationModule(
+    application: string,
+  ): Promise<ClassConstructor<unknown>> {
+    const path = join(
+      cwd(),
+      this.workspace.projects[application].root,
+      'src',
+      'modules',
+      this.METADATA.get(application).applicationModule,
+    );
+    return await import(path);
+  }
 
   public path(project: string, type: 'package' | 'metadata'): string {
     return join(

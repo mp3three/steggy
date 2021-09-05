@@ -50,10 +50,6 @@ export class SystemService {
 
   // #region Public Methods
 
-  public applicationConfigPath(application: string): string {
-    return join(homedir(), '.config', application);
-  }
-
   public async bumpApplications(list: string[]): Promise<void> {
     await eachSeries(
       list.filter((item) => this.projects[item].projectType === 'application'),
@@ -128,6 +124,10 @@ export class SystemService {
     return rootPackage.version;
   }
 
+  public configPath(application: string): string {
+    return join(homedir(), '.config', application);
+  }
+
   public async getAffected(): Promise<NXAffected> {
     const { stdout } = await execa('npx', ['nx', 'print-affected']);
     return JSON.parse(stdout);
@@ -177,7 +177,7 @@ export class SystemService {
     application: string,
     config: AutomagicalConfig,
   ): Promise<void> {
-    const file = this.applicationConfigPath(application);
+    const file = this.configPath(application);
     console.log(chalk.green('path'), file);
     if (
       existsSync(file) &&

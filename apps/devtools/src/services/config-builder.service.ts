@@ -10,6 +10,13 @@ import {
   OUTPUT_HEADER_FONT,
 } from '@automagical/contracts/config';
 import { iRepl } from '@automagical/contracts/tty';
+import {
+  ConfigScannerService,
+  Repl,
+  SystemService,
+  TypePromptService,
+  WorkspaceService,
+} from '@automagical/tty';
 import { AutoConfigService, Trace } from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
@@ -22,11 +29,6 @@ import ini from 'ini';
 import inquirer from 'inquirer';
 import { set } from 'object-path';
 import rc from 'rc';
-
-import { Repl } from '../decorators';
-import { ConfigScannerService } from '../services';
-import { SystemService } from '../services/system.service';
-import { TypePromptService } from '../services/type-prompt.service';
 
 const LEVEL_MAP = {
   Available: 'available',
@@ -52,12 +54,6 @@ type KeyedConfig<T extends ConfigType = ConfigType> =
   name: 'Config Builder',
 })
 export class ConfigBuilderService implements iRepl {
-  // #region Static Properties
-
-  public static AVAILABLE_APPLICATIONS: Map<string, ClassConstructor<unknown>>;
-
-  // #endregion Static Properties
-
   // #region Object Properties
 
   private systemConfigs = new Map<string, AutomagicalConfig>();
@@ -71,6 +67,7 @@ export class ConfigBuilderService implements iRepl {
     private readonly typePrompt: TypePromptService,
     private readonly configService: AutoConfigService,
     private readonly configScanner: ConfigScannerService,
+    private readonly workspace: WorkspaceService,
   ) {}
 
   // #endregion Constructors
@@ -110,14 +107,8 @@ export class ConfigBuilderService implements iRepl {
   public async buildApplicationConfig(
     application: string,
   ): Promise<Record<string, unknown>> {
-    const out = {};
-    if (!ConfigBuilderService.AVAILABLE_APPLICATIONS.has(application)) {
-      return out;
-    }
-    const nested = this.loadConfig(
-      ConfigBuilderService.AVAILABLE_APPLICATIONS.get(application),
-      `application.`,
-    );
+    const module = await this.workspace.loadApplicationModule(application);
+    const nested = this.loadConfig(module, `application.`);
     if (nested.length > 0) {
       console.log(chalk`{bgBlue.whiteBright Application Config}`);
       this.configTable(application, nested);
@@ -148,7 +139,7 @@ export class ConfigBuilderService implements iRepl {
   public async exec(): Promise<void> {
     const { application, level } = (await inquirer.prompt([
       {
-        choices: [...ConfigBuilderService.AVAILABLE_APPLICATIONS.keys()],
+        choices: this.applicationChoices(),
         message: 'Config Type',
         name: 'application',
         type: 'list',
@@ -332,6 +323,15 @@ export class ConfigBuilderService implements iRepl {
         }
         return -1;
       });
+  }
+
+  private applicationChoices() {
+    return this.workspace.list('application').map((item) => {
+      return {
+        name: this.workspace.PACKAGES.get(item).displayName,
+        value: item,
+      };
+    });
   }
 
   /**
