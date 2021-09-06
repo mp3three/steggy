@@ -5,7 +5,7 @@
   "launch": {
     "version": "0.2.0",
     "configurations": [{
-        "name": "Debug Node App",
+        "name": "Debug Home Controller",
         "type": "node",
         "request": "attach",
         // Match this to the workspace.json

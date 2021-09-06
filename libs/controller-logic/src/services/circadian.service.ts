@@ -1,25 +1,23 @@
-import {
-  CIRCADIAN_MAX_TEMP,
-  CIRCADIAN_MIN_TEMP,
-} from '@automagical/contracts/config';
 import { CIRCADIAN_UPDATE } from '@automagical/contracts/controller-logic';
 import { CronExpression } from '@automagical/contracts/utilities';
 import {
-  AutoConfigService,
-  ConsumesConfig,
   Cron,
+  InjectConfig,
   SolarCalcService,
   Trace,
 } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
+
+import { CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP } from '../config';
 
 /**
  * This service is responsible for managing the current temperature for circadian lightining
  *
  * The temperature can be looked up on demand, and subscribed to via an observable
  */
-@ConsumesConfig([CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP])
+@Injectable()
 export class CircadianService {
   // #region Object Properties
 
@@ -31,7 +29,10 @@ export class CircadianService {
 
   constructor(
     private readonly solarCalcService: SolarCalcService,
-    private readonly configService: AutoConfigService,
+    @InjectConfig(CIRCADIAN_MAX_TEMP)
+    private readonly maxTemperature: number,
+    @InjectConfig(CIRCADIAN_MIN_TEMP)
+    private readonly minTemperature: number,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -87,10 +88,11 @@ export class CircadianService {
 
   @Trace()
   private getCurrentTemperature() {
-    const MIN_COLOR = this.configService.get<number>(CIRCADIAN_MIN_TEMP);
-    const MAX_COLOR = this.configService.get<number>(CIRCADIAN_MAX_TEMP);
     const offset = this.getColorOffset();
-    return Math.floor((MAX_COLOR - MIN_COLOR) * offset + MIN_COLOR);
+    return Math.floor(
+      (this.maxTemperature - this.minTemperature) * offset +
+        this.minTemperature,
+    );
   }
 
   // #endregion Private Methods

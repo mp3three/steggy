@@ -13,6 +13,7 @@ import pinoHttp from 'pino-http';
 
 import { CONFIG } from '../config';
 import { injectedLoggers } from '../decorators/injectors';
+import { CONFIG_PROVIDERS } from '../decorators/injectors/inject-config.decorator';
 import { LibraryModule } from '../decorators/library-module.decorator';
 import { expressContextMiddleware, expressContextSetValue } from '../includes';
 import {
@@ -52,12 +53,14 @@ export class UtilitiesModule {
   // #region Public Static Methods
 
   public static forRoot(): DynamicModule {
+    const config = [...CONFIG_PROVIDERS.values()];
     const decorated = [...injectedLoggers.values()];
     return {
       exports: [
         AutoConfigService,
         AutoLogService,
         FetchService,
+        ...config,
         LocalsService,
         SolarCalcService,
         ...decorated,
@@ -69,6 +72,7 @@ export class UtilitiesModule {
         LogExplorerService,
         ScheduleExplorerService,
         EventsExplorerService,
+        ...config,
         AutoConfigService,
         AutoLogService,
         FetchService,

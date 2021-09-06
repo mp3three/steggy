@@ -1,4 +1,3 @@
-import { DIM_PERCENT } from '@automagical/contracts/config';
 import type {
   iLightManager,
   iRoomController,
@@ -14,18 +13,18 @@ import {
   LightDomainService,
 } from '@automagical/home-assistant';
 import {
-  AutoConfigService,
   AutoLogService,
   CacheManagerService,
-  ConsumesConfig,
   InjectCache,
+  InjectConfig,
   InjectLogger,
   Trace,
 } from '@automagical/utilities';
-import { Scope } from '@nestjs/common';
+import { Injectable, Scope } from '@nestjs/common';
 import { each } from 'async';
 import { EventEmitter2 } from 'eventemitter2';
 
+import { DIM_PERCENT } from '../config';
 import { RoomSettings } from '../includes';
 import { CircadianService } from './circadian.service';
 
@@ -37,7 +36,7 @@ const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
  * - Forwards commands to light domain service
  * - Management of the light temperature for lights flagged as circadian mode
  */
-@ConsumesConfig([DIM_PERCENT], { scope: Scope.TRANSIENT })
+@Injectable({ scope: Scope.TRANSIENT })
 export class LightManagerService implements iLightManager {
   // #region Object Properties
 
@@ -55,7 +54,7 @@ export class LightManagerService implements iLightManager {
     private readonly logger: AutoLogService,
     private readonly circadianService: CircadianService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly configService: AutoConfigService,
+    @InjectConfig(DIM_PERCENT) private readonly dimPercent: number,
   ) {}
 
   // #endregion Constructors
@@ -133,10 +132,7 @@ export class LightManagerService implements iLightManager {
     const { count } = data;
     const lights = await this.findDimmableLights();
     await each(lights, async (entity_id: string, callback) => {
-      await this.lightDim(
-        entity_id,
-        this.configService.get<number>(DIM_PERCENT) * count * -1,
-      );
+      await this.lightDim(entity_id, this.dimPercent * count * -1);
       callback();
     });
   }
@@ -149,10 +145,7 @@ export class LightManagerService implements iLightManager {
     const { count } = data;
     const lights = await this.findDimmableLights();
     await each(lights, async (entity_id: string, callback) => {
-      await this.lightDim(
-        entity_id,
-        this.configService.get<number>(DIM_PERCENT) * count,
-      );
+      await this.lightDim(entity_id, this.dimPercent * count);
       callback();
     });
   }

@@ -1,15 +1,12 @@
 import { FetchWith } from '@automagical/contracts/utilities';
-import { AutoConfigService, FetchService } from '@automagical/utilities';
+import { FetchService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class PortainerFetchService {
   // #region Constructors
 
-  constructor(
-    private readonly fetchService: FetchService,
-    private readonly configService: AutoConfigService,
-  ) {}
+  constructor(private readonly fetchService: FetchService) {}
 
   // #endregion Constructors
 

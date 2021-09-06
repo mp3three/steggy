@@ -1,25 +1,26 @@
-import {
-  HOME_ASSISTANT_BASE_URL,
-  HOME_ASSISTANT_TOKEN,
-} from '@automagical/contracts/config';
 import { HassStateDTO } from '@automagical/contracts/home-assistant';
 import type { FetchWith } from '@automagical/contracts/utilities';
 import {
-  AutoConfigService,
   AutoLogService,
-  ConsumesConfig,
   FetchService,
+  InjectConfig,
   Trace,
 } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 
-@ConsumesConfig([HOME_ASSISTANT_BASE_URL, HOME_ASSISTANT_TOKEN])
+import { BASE_URL, TOKEN } from '../config';
+
+@Injectable()
 export class HomeAssistantFetchAPIService {
   // #region Constructors
 
   constructor(
-    private readonly configService: AutoConfigService,
     private readonly logger: AutoLogService,
+    @InjectConfig(BASE_URL)
+    private readonly baseUrl: string,
+    @InjectConfig(TOKEN)
+    private readonly bearer: string,
     private readonly fetchService: FetchService,
   ) {}
 
@@ -33,8 +34,8 @@ export class HomeAssistantFetchAPIService {
   @Trace()
   public fetch<T>(fetchWitch: FetchWith): Promise<T> {
     return this.fetchService.fetch<T>({
-      baseUrl: this.configService.get(HOME_ASSISTANT_BASE_URL),
-      bearer: this.configService.get(HOME_ASSISTANT_TOKEN),
+      baseUrl: this.baseUrl,
+      bearer: this.bearer,
       ...fetchWitch,
     });
   }

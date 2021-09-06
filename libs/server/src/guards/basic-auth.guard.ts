@@ -1,32 +1,22 @@
 import {
-  AUTHENTICATION_CONFIG,
-  AuthenticationConfig,
-  DEFAULT_BASIC_PASSWORD,
-  DEFAULT_BASIC_USERNAME,
-} from '@automagical/contracts/config';
-import {
   APIResponse,
   AUTHENTICATION_HEADER,
 } from '@automagical/contracts/server';
-import {
-  AutoConfigService,
-  AutoLogService,
-  ConsumesConfig,
-  Trace,
-} from '@automagical/utilities';
-import { CanActivate, ExecutionContext } from '@nestjs/common';
+import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
-@ConsumesConfig([
-  AUTHENTICATION_CONFIG,
-  DEFAULT_BASIC_PASSWORD,
-  DEFAULT_BASIC_USERNAME,
-])
+import { BASIC_PASSWORD, BASIC_USERNAME } from '../config';
+
+@Injectable()
 export class BasicAuthGuard implements CanActivate {
   // #region Constructors
 
   constructor(
     private readonly logger: AutoLogService,
-    private readonly configService: AutoConfigService,
+    @InjectConfig(BASIC_USERNAME)
+    private readonly username: string,
+    @InjectConfig(BASIC_PASSWORD)
+    private readonly password: string,
   ) {}
 
   // #endregion Constructors
@@ -35,10 +25,7 @@ export class BasicAuthGuard implements CanActivate {
 
   @Trace()
   public async canActivate(context: ExecutionContext): Promise<boolean> {
-    const { BASIC_PASSWORD, BASIC_USERNAME } =
-      this.configService.get<AuthenticationConfig>(AUTHENTICATION_CONFIG);
-
-    if (!this.sanityCheck(BASIC_USERNAME, BASIC_PASSWORD)) {
+    if (!this.sanityCheck()) {
       return false;
     }
 
@@ -53,23 +40,23 @@ export class BasicAuthGuard implements CanActivate {
     const [username, password] = Buffer.from(authString, 'base64')
       .toString()
       .split(':');
-    return username === BASIC_USERNAME && password === BASIC_PASSWORD;
+    return username === this.username && password === this.password;
   }
 
   // #endregion Public Methods
 
   // #region Private Methods
 
-  private sanityCheck(BASIC_USERNAME: string, BASIC_PASSWORD: string) {
-    if (!BASIC_USERNAME || BASIC_USERNAME === DEFAULT_BASIC_USERNAME) {
-      this.logger.error(`BASIC_USERNAME not defined`);
-      return false;
-    }
-    if (!BASIC_PASSWORD || BASIC_PASSWORD === DEFAULT_BASIC_PASSWORD) {
-      this.logger.error(`BASIC_PASSWORD not defined`);
-      return false;
-    }
-    return false;
+  private sanityCheck() {
+    // if (!BASIC_USERNAME || BASIC_USERNAME === DEFAULT_BASIC_USERNAME) {
+    //   this.logger.error(`BASIC_USERNAME not defined`);
+    //   return false;
+    // }
+    // if (!BASIC_PASSWORD || BASIC_PASSWORD === DEFAULT_BASIC_PASSWORD) {
+    //   this.logger.error(`BASIC_PASSWORD not defined`);
+    //   return false;
+    // }
+    return true;
   }
 
   // #endregion Private Methods

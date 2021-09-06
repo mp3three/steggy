@@ -3,3 +3,7 @@ export const CONFIG = {
   CIRCADIAN_MIN_TEMP: 2000,
   DIM_PERCENT: 10,
 };
+
+export const CIRCADIAN_MAX_TEMP = 'CIRCADIAN_MAX_TEMP';
+export const CIRCADIAN_MIN_TEMP = 'CIRCADIAN_MIN_TEMP';
+export const DIM_PERCENT = 'DIM_PERCENT';

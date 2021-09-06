@@ -1,6 +1,5 @@
 import {
   FetchArguments,
-  HTTP_METHODS,
   ResultControlDTO,
 } from '@automagical/contracts/utilities';
 import { BodyInit, RequestInit, Response } from 'node-fetch';

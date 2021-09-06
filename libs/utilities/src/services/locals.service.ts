@@ -4,11 +4,15 @@ import {
   LocalStashDTO,
   ResponseLocals,
 } from '@automagical/contracts/server';
-import { Inject, InternalServerErrorException, Scope } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Scope,
+} from '@nestjs/common';
 
-import { ConsumesConfig } from '../decorators/consumes-configuration.decorator';
+import { InjectConfig } from '../decorators/injectors/inject-config.decorator';
 import { Trace } from '../decorators/logger.decorator';
-import { AutoConfigService } from './auto-config.service';
 import { AutoLogService } from './logger';
 
 const STASH_PROP_LIST = [] as (keyof ResponseLocals)[];
@@ -16,14 +20,14 @@ const STASH_PROP_LIST = [] as (keyof ResponseLocals)[];
 // Working from a hard coded list of properties, does not apply
 /* eslint-disable security/detect-object-injection, unicorn/no-process-exit */
 
-@ConsumesConfig([MAX_STASH_DEPTH], { scope: Scope.REQUEST })
+@Injectable({ scope: Scope.REQUEST })
 export class LocalsService {
   // #region Constructors
 
   constructor(
     private readonly logger: AutoLogService,
     @Inject(APIRequest) private readonly request: APIRequest,
-    private readonly configService: AutoConfigService,
+    @InjectConfig(MAX_STASH_DEPTH) private readonly maxSize: number,
   ) {}
 
   // #endregion Constructors
@@ -49,10 +53,9 @@ export class LocalsService {
   public stash(): void {
     const { locals } = this.request.res;
     locals.stash ??= [];
-    const maxSize = this.configService.get<number>(MAX_STASH_DEPTH);
-    if (locals.stash.length >= maxSize) {
+    if (locals.stash.length >= this.maxSize) {
       throw new InternalServerErrorException(
-        `MAX_STASH_DEPTH exceeded (${maxSize})`,
+        `MAX_STASH_DEPTH exceeded (${this.maxSize})`,
       );
     }
     const stash: LocalStashDTO = {

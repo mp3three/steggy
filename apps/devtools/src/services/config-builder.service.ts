@@ -2,16 +2,17 @@ import {
   ConfigLibraryVisibility,
   ConfigType,
   DefaultConfigOptions,
+  LIB_TERMINAL,
   LoadConfigDefinition,
 } from '@automagical/contracts';
 import {
   AutomagicalConfig,
   CONFIGURABLE_LIBS,
-  OUTPUT_HEADER_FONT,
 } from '@automagical/contracts/config';
 import { iRepl } from '@automagical/contracts/tty';
 import {
   ConfigScannerService,
+  OUTPUT_HEADER_FONT,
   Repl,
   SystemService,
   TypePromptService,
@@ -228,7 +229,10 @@ export class ConfigBuilderService implements iRepl {
         console.log(
           chalk.yellow(
             figlet.textSync('Completed Config', {
-              font: this.configService.get<figlet.Fonts>(OUTPUT_HEADER_FONT),
+              font: this.configService.get<figlet.Fonts>([
+                LIB_TERMINAL,
+                OUTPUT_HEADER_FONT,
+              ]),
             }),
           ),
         );

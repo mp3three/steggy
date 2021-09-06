@@ -90,7 +90,7 @@ const prettyErrorMessage = (message: string): string => {
       .slice(1, -1)
       .split(',')
       .map((item) => item.trim());
-    const match = module.match(new RegExp('in the ([^ ]+) context'));
+    let match = module.match(new RegExp('in the ([^ ]+) context'));
     if (match) {
       message = message.replace(
         new RegExp(provider, 'g'),
@@ -106,7 +106,15 @@ const prettyErrorMessage = (message: string): string => {
         chalk.bold(match[1]),
       );
     }
+    match = module.match(new RegExp('the argument ([^ ]+) at'));
+    if (match) {
+      message = message.replace(
+        new RegExp(match[1], 'g'),
+        chalk.bold(match[1]),
+      );
+    }
   }
+
   return message;
 };
 

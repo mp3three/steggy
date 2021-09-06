@@ -1,8 +1,4 @@
 import {
-  HOME_ASSISTANT_BASE_URL,
-  HOME_ASSISTANT_TOKEN,
-} from '@automagical/contracts/config';
-import {
   ALL_ENTITIES_UPDATED,
   AreaDTO,
   CONNECTION_RESET,
@@ -19,19 +15,21 @@ import {
 } from '@automagical/contracts/home-assistant';
 import { CronExpression } from '@automagical/contracts/utilities';
 import {
-  AutoConfigService,
   AutoLogService,
-  ConsumesConfig,
   Cron,
   Debug,
   EmitAfter,
+  InjectConfig,
   InjectLogger,
   Trace,
 } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 import WS from 'ws';
 
-@ConsumesConfig([HOME_ASSISTANT_BASE_URL, HOME_ASSISTANT_TOKEN])
+import { BASE_URL, TOKEN } from '../config';
+
+@Injectable()
 export class HASocketAPIService {
   // #region Object Properties
 
@@ -46,8 +44,11 @@ export class HASocketAPIService {
   constructor(
     @InjectLogger()
     private readonly logger: AutoLogService,
-    private readonly configService: AutoConfigService,
     private readonly eventEmitter: EventEmitter2,
+    @InjectConfig(BASE_URL)
+    private readonly baseUrl: string,
+    @InjectConfig(TOKEN)
+    private readonly token: string,
   ) {}
 
   // #endregion Constructors
@@ -164,7 +165,7 @@ export class HASocketAPIService {
     if (this.connection) {
       return;
     }
-    const url = new URL(this.configService.get(HOME_ASSISTANT_BASE_URL));
+    const url = new URL(this.baseUrl);
     try {
       this.logger.debug('Creating new socket connection');
       this.connection = new WS(`wss://${url.hostname}/api/websocket`);
@@ -199,7 +200,7 @@ export class HASocketAPIService {
       case HassSocketMessageTypes.auth_required:
         this.logger.debug(`Sending auth`);
         return await this.sendMsg({
-          access_token: this.configService.get(HOME_ASSISTANT_TOKEN),
+          access_token: this.token,
           type: HASSIO_WS_COMMAND.auth,
         });
 

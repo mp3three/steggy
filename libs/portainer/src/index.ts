@@ -1,1 +1,3 @@
-export * from './lib/portainer.module';
+export * from './config';
+export * from './modules';
+export * from './services';

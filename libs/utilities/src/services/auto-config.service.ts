@@ -6,7 +6,8 @@ import {
   CONFIGURABLE_LIBS,
   LOG_LEVEL,
 } from '@automagical/contracts/config';
-import { Inject, Injectable } from '@nestjs/common';
+import { USE_THIS_CONFIG } from '@automagical/contracts/utilities';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { get, set } from 'object-path';
 import rc from 'rc';
@@ -26,17 +27,21 @@ export class AutoConfigService {
 
   constructor(
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
+    @Optional()
+    @Inject(USE_THIS_CONFIG)
+    private readonly overrideConfig: AutomagicalConfig,
   ) {
-    // Don't move logic out of constructor
-    this.config = rc(APPLICATION.description);
-    AutoLogService.logger.level = this.get(LOG_LEVEL);
+    this.earlyInit();
   }
 
   // #endregion Constructors
 
   // #region Public Methods
 
-  public get<T extends unknown = string>(path: string): T {
+  public get<T extends unknown = string>(path: string | [symbol, string]): T {
+    if (Array.isArray(path)) {
+      path = ['libs', path[0].description, path[1]].join('.');
+    }
     const value = get(this.config, path, this.getDefault(path));
     return value as T;
   }
@@ -60,6 +65,11 @@ export class AutoConfigService {
   // #endregion Public Methods
 
   // #region Private Methods
+
+  private earlyInit(): void {
+    this.config = this.overrideConfig || rc(this.APPLICATION.description);
+    AutoLogService.logger.level = this.get(LOG_LEVEL);
+  }
 
   private getBaseObject(path: string): ClassConstructor<unknown> {
     const [group, name] = path.split('.');

@@ -1,4 +1,3 @@
-import { DEFAULT_HEADER_FONT } from '@automagical/contracts/config';
 import { iRoomControllerMethods } from '@automagical/contracts/controller-logic';
 import {
   BLESSED_GRID,
@@ -18,6 +17,7 @@ import {
   AutoLogService,
   ConsumesConfig,
   Info,
+  InjectConfig,
   MqttService,
   Trace,
 } from '@automagical/utilities';
@@ -27,6 +27,7 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import chalk from 'chalk';
 import figlet from 'figlet';
 
+import { DEFAULT_HEADER_FONT } from '../config';
 import { FontAwesomeIcons, MDIIcons } from '../icons';
 
 type WorkspaceElements = Map<string, WorkspaceElementSettingsDTO>;
@@ -50,8 +51,7 @@ export class WorkspaceExplorerService {
   // private readonly elements
   constructor(
     @Inject(BLESSED_GRID) private readonly grid: GridElement,
-    private readonly logger: AutoLogService,
-    private readonly configService: AutoConfigService,
+    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: figlet.Fonts,
     private readonly discoveryService: DiscoveryService,
     private readonly mqtt: MqttService,
   ) {}
@@ -97,7 +97,7 @@ export class WorkspaceExplorerService {
       content: chalk.yellowBright(
         figlet.textSync(settings.friendlyName, {
           // TODO: Make into config variable
-          font: this.configService.get<figlet.Fonts>(DEFAULT_HEADER_FONT),
+          font: this.font,
         }),
       ),
       hidden: true,

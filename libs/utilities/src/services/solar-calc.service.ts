@@ -1,12 +1,12 @@
-import { LATITUDE, LONGITUDE } from '@automagical/contracts/config';
+import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
 
-import { ConsumesConfig } from '../decorators/consumes-configuration.decorator';
-import { AutoConfigService } from './auto-config.service';
+import { LATITUDE, LONGITUDE } from '../config';
+import { InjectConfig } from '../decorators/injectors/inject-config.decorator';
 
-@ConsumesConfig([LONGITUDE, LATITUDE])
+@Injectable()
 export class SolarCalcService {
   // #region Object Properties
 
@@ -16,7 +16,10 @@ export class SolarCalcService {
 
   // #region Constructors
 
-  constructor(private readonly configService: AutoConfigService) {}
+  constructor(
+    @InjectConfig(LONGITUDE) private readonly longitude: string,
+    @InjectConfig(LATITUDE) private readonly latitude: string,
+  ) {}
 
   // #endregion Constructors
 
@@ -43,8 +46,8 @@ export class SolarCalcService {
     return new SolarCalc(
       new Date(),
       // TODO: Populated via home assistant
-      Number(this.configService.get(LATITUDE)),
-      Number(this.configService.get(LONGITUDE)),
+      Number(this.latitude),
+      Number(this.longitude),
     );
   }
 

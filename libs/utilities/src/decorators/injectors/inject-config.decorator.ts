@@ -4,18 +4,18 @@ import { v4 as uuid } from 'uuid';
 
 import { AutoConfigService } from '../../services';
 
-const providerMap = new Set<Provider>();
+export const CONFIG_PROVIDERS = new Set<Provider>();
 
 export function InjectConfig(path: string): ParameterDecorator {
   return function (target, key, index) {
     const id = uuid();
-    providerMap.add({
+    CONFIG_PROVIDERS.add({
       inject: [AutoConfigService],
       provide: id,
       useFactory(config: AutoConfigService) {
         const configPath: string[] = [];
         if (target[LOGGER_LIBRARY]) {
-          configPath.push('lib', target[LOGGER_LIBRARY]);
+          configPath.push('libs', target[LOGGER_LIBRARY]);
         } else {
           configPath.push('application');
         }

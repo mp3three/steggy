@@ -1,9 +1,5 @@
 import { LIB_UTILS } from '@automagical/contracts';
-import {
-  ACTIVE_APPLICATION,
-  MQTT_HOST,
-  MQTT_PORT,
-} from '@automagical/contracts/config';
+import { ACTIVE_APPLICATION } from '@automagical/contracts/config';
 import {
   MQTT_CLIENT_INSTANCE,
   MQTT_HEALTH_CHECK,
@@ -11,7 +7,7 @@ import {
 import { DiscoveryModule } from '@nestjs/core';
 import { connect } from 'mqtt';
 
-import { CONFIG } from '../config';
+import { CONFIG, MQTT_HOST, MQTT_PORT } from '../config';
 import { LibraryModule } from '../decorators/library-module.decorator';
 import {
   AutoConfigService,
@@ -30,8 +26,8 @@ import {
       provide: MQTT_CLIENT_INSTANCE,
       useFactory: (configService: AutoConfigService, application: symbol) => {
         const client = connect({
-          host: configService.get(MQTT_HOST),
-          port: Number(configService.get(MQTT_PORT)),
+          host: configService.get([LIB_UTILS, MQTT_HOST]),
+          port: Number(configService.get([LIB_UTILS, MQTT_PORT])),
         });
         setInterval(() => {
           if (!client.connected) {
