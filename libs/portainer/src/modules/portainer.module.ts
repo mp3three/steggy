@@ -1,9 +1,13 @@
-import { Module, Global } from '@nestjs/common';
+import { LIB_PORTAINER } from '@automagical/contracts';
+import { LibraryModule } from '@automagical/utilities';
 
-@Global()
-@Module({
+import { CONFIG } from '../config';
+
+@LibraryModule({
+  config: CONFIG,
   controllers: [],
-  providers: [],
   exports: [],
+  library: LIB_PORTAINER,
+  providers: [],
 })
 export class PortainerModule {}

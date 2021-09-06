@@ -11,17 +11,16 @@ import { AutoConfigService, LibraryModule } from '@automagical/utilities';
 import { DynamicModule, Provider } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
+import { CONFIG } from '../config';
 import { RefreshAfter } from '../decorators';
 import { WorkspaceExplorerService } from '../services';
 
-@LibraryModule(
-  {
-    exports: [BlessedModule],
-    library: LIB_TERMINAL,
-    providers: [BlessedModule],
-  },
-  [SCREEN_TITLE],
-)
+@LibraryModule({
+  config: CONFIG,
+  exports: [BlessedModule],
+  library: LIB_TERMINAL,
+  providers: [BlessedModule],
+})
 export class BlessedModule {
   // #region Public Static Methods
 

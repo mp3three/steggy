@@ -5,11 +5,11 @@
       "type": "number",
       "default": 5500
     },
-    "DEFAULT_CIRCADIAN_MIN_TEMP": {
+    "CIRCADIAN_MIN_TEMP": {
       "type": "number",
       "default": 2000
     },
-    "DEFAULT_DIM_PERCENT": {
+    "DIM_PERCENT": {
       "type": "number",
       "default": 10
     }

@@ -11,6 +11,7 @@ export const LIB_CONTRACTS = Symbol('contracts');
 export const LIB_CONTROLLER_LOGIC = Symbol('controller');
 export const LIB_HOME_ASSISTANT = Symbol('homeassistant');
 export const LIB_PORTAINER = Symbol('portainer');
+export const LIB_1PASSWORD = Symbol('1password');
 export const LIB_TERMINAL = Symbol('terminal');
 export const LIB_SERVER = Symbol('server');
 export const LIB_TESTING = Symbol('testing');

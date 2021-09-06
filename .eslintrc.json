@@ -131,6 +131,13 @@
         "security/detect-object-injection": "off",
         "radar/no-unused-collection": "off"
       }
+    },
+    {
+      "files": ["config.ts"],
+      "rules": {
+        // Still want them to be defined
+        "unicorn/no-null": "off"
+      }
     }
   ]
 }

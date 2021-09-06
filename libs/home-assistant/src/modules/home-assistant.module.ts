@@ -2,6 +2,7 @@ import { LIB_HOME_ASSISTANT } from '@automagical/contracts';
 import { LibraryModule } from '@automagical/utilities';
 import { Provider } from '@nestjs/common';
 
+import { CONFIG } from '../config';
 import {
   CameraDomainService,
   ClimateDomainService,
@@ -48,6 +49,7 @@ const services: Provider[] = [
 ];
 
 @LibraryModule({
+  config: CONFIG,
   exports: services,
   library: LIB_HOME_ASSISTANT,
   providers: services,

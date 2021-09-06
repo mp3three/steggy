@@ -1,10 +1,5 @@
 import { LIB_UTILS } from '@automagical/contracts';
-import {
-  CACHE_PROVIDER,
-  LOG_LEVEL,
-  REDIS_HOST,
-  REDIS_PORT,
-} from '@automagical/contracts/config';
+import { LOG_LEVEL } from '@automagical/contracts/config';
 import { APIRequest, APIResponse } from '@automagical/contracts/server';
 import {
   CacheModule,
@@ -16,6 +11,7 @@ import { DiscoveryModule } from '@nestjs/core';
 import { NextFunction } from 'express';
 import pinoHttp from 'pino-http';
 
+import { CONFIG } from '../config';
 import { injectedLoggers } from '../decorators/injectors';
 import { LibraryModule } from '../decorators/library-module.decorator';
 import { expressContextMiddleware, expressContextSetValue } from '../includes';
@@ -30,30 +26,28 @@ import {
   SolarCalcService,
 } from '../services';
 
-@LibraryModule(
-  {
-    exports: [
-      AutoConfigService,
-      LocalsService,
-      FetchService,
-      AutoLogService,
-      SolarCalcService,
-    ],
-    imports: [CacheModule.register(), DiscoveryModule],
-    library: LIB_UTILS,
-    providers: [
-      LogExplorerService,
-      AutoLogService,
-      LocalsService,
-      AutoConfigService,
-      EventsExplorerService,
-      FetchService,
-      SolarCalcService,
-      ScheduleExplorerService,
-    ],
-  },
-  [LOG_LEVEL, CACHE_PROVIDER, REDIS_HOST, REDIS_PORT],
-)
+@LibraryModule({
+  config: CONFIG,
+  exports: [
+    AutoConfigService,
+    LocalsService,
+    FetchService,
+    AutoLogService,
+    SolarCalcService,
+  ],
+  imports: [CacheModule.register(), DiscoveryModule],
+  library: LIB_UTILS,
+  providers: [
+    LogExplorerService,
+    AutoLogService,
+    LocalsService,
+    AutoConfigService,
+    EventsExplorerService,
+    FetchService,
+    SolarCalcService,
+    ScheduleExplorerService,
+  ],
+})
 export class UtilitiesModule {
   // #region Public Static Methods
 
