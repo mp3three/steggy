@@ -19,7 +19,10 @@ import {
   WorkspaceService,
 } from '@automagical/tty';
 import { AutoConfigService, Trace } from '@automagical/utilities';
-import { NotImplementedException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  NotImplementedException,
+} from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
@@ -30,6 +33,8 @@ import ini from 'ini';
 import inquirer from 'inquirer';
 import { set } from 'object-path';
 import rc from 'rc';
+
+import { CONFIGURABLE_MODULES } from '../includes/config-loader';
 
 const LEVEL_MAP = {
   Available: 'available',
@@ -108,7 +113,7 @@ export class ConfigBuilderService implements iRepl {
   public async buildApplicationConfig(
     application: string,
   ): Promise<Record<string, unknown>> {
-    const module = await this.workspace.loadApplicationModule(application);
+    const module = CONFIGURABLE_MODULES.get(application);
     const nested = this.loadConfig(module, `application.`);
     if (nested.length > 0) {
       console.log(chalk`{bgBlue.whiteBright Application Config}`);

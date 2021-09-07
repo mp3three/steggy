@@ -1,4 +1,7 @@
-import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
+import {
+  CONSUMES_CONFIG,
+  LOGGER_LIBRARY,
+} from '@automagical/contracts/utilities';
 import { Inject, Provider } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 
@@ -8,6 +11,8 @@ export const CONFIG_PROVIDERS = new Set<Provider>();
 
 export function InjectConfig(path: string): ParameterDecorator {
   return function (target, key, index) {
+    target[CONSUMES_CONFIG] ??= [];
+    target[CONSUMES_CONFIG].push(path);
     const id = uuid();
     CONFIG_PROVIDERS.add({
       inject: [AutoConfigService],

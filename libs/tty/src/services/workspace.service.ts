@@ -45,20 +45,6 @@ export class WorkspaceService {
     );
   }
 
-  @Trace()
-  public async loadApplicationModule(
-    application: string,
-  ): Promise<ClassConstructor<unknown>> {
-    const path = join(
-      cwd(),
-      this.workspace.projects[application].root,
-      'src',
-      'modules',
-      this.METADATA.get(application).applicationModule,
-    );
-    return await import(path);
-  }
-
   public path(project: string, type: 'package' | 'metadata'): string {
     return join(
       cwd(),

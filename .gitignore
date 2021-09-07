@@ -107,3 +107,4 @@ buck-out/
 /
 
 apps/auto-dash-e2e/artifacts
+.config

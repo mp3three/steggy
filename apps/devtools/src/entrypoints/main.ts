@@ -1,3 +1,5 @@
+import '../includes/config-loader';
+
 import { MainCLIService } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
 import { NestFactory } from '@nestjs/core';
@@ -13,5 +15,4 @@ async function bootstrap() {
   await mainCLIService.exec();
   await app.close();
 }
-
 bootstrap();
