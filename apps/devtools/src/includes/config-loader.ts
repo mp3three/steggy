@@ -1,3 +1,4 @@
+/* eslint-disable @nrwl/nx/enforce-module-boundaries */
 import {
   APP_DASHBOARD,
   APP_DEVTOOLS,

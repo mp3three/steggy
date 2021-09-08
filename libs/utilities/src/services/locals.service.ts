@@ -1,4 +1,3 @@
-import { MAX_STASH_DEPTH } from '@automagical/contracts/config';
 import {
   APIRequest,
   LocalStashDTO,
@@ -11,6 +10,7 @@ import {
   Scope,
 } from '@nestjs/common';
 
+import { MAX_STASH_DEPTH } from '../config';
 import { InjectConfig } from '../decorators/injectors/inject-config.decorator';
 import { Trace } from '../decorators/logger.decorator';
 import { AutoLogService } from './logger';

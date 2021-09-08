@@ -8,11 +8,6 @@ import {
   iWorkspace,
 } from '@automagical/contracts/terminal';
 import {
-  WeatherIcons,
-  Workspace,
-  WorkspaceElement,
-} from '@automagical/terminal';
-import {
   AutoConfigService,
   FetchService,
   SliceLines,
@@ -20,14 +15,15 @@ import {
 import { Inject } from '@nestjs/common';
 import chalk from 'chalk';
 
-@Workspace(
-  {
-    friendlyName: 'Weather',
-    menu: [chalk` ${WeatherIcons.day_cloudy_high}  {bold Weather}`],
-    name: 'weather',
-  },
-  [LATITUDE, LONGITUDE],
-)
+import { Workspace } from '../decorators/workspace.decorator';
+import { WorkspaceElement } from '../decorators/workspace-element.decorator';
+import { WeatherIcons } from '../icons/weather-icons';
+
+@Workspace({
+  friendlyName: 'Weather',
+  menu: [chalk` ${WeatherIcons.day_cloudy_high}  {bold Weather}`],
+  name: 'weather',
+})
 export class WeatherWorkspace implements iWorkspace {
   // #region Object Properties
 

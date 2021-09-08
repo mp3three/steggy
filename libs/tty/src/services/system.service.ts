@@ -3,9 +3,8 @@ import { AutomagicalConfig } from '@automagical/contracts/config';
 import { NXAffected } from '@automagical/contracts/terminal';
 import { filterUnique } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { each, eachSeries } from 'async';
+import { eachSeries } from 'async';
 import chalk from 'chalk';
-import { ClassConstructor } from 'class-transformer';
 import JSON from 'comment-json';
 import execa from 'execa';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
@@ -25,12 +24,6 @@ import { WorkspaceService } from './workspace.service';
  */
 @Injectable()
 export class SystemService {
-  // #region Object Properties
-
-  private nameMap = new Map<string, string>();
-
-  // #endregion Object Properties
-
   // #region Constructors
 
   constructor(
@@ -152,24 +145,7 @@ export class SystemService {
     return filterUnique(stdout.split(`\n`).filter((item) => item.length > 0));
   }
 
-  public async getNestApplications(): Promise<ClassConstructor<unknown>[]> {
-    const modules: ClassConstructor<unknown>[] = [];
-    await each(
-      this.workspace.METADATA.entries(),
-      async ([, { applicationModule }], callback) => {
-        if (applicationModule) {
-          modules.push(await import(applicationModule));
-        }
-        callback();
-      },
-    );
-    return modules;
-  }
-
   public isLibrary(project: string): boolean {
-    if (this.nameMap.has(project)) {
-      project = this.nameMap.get(project);
-    }
     return this.projects[project].projectType === 'library';
   }
 

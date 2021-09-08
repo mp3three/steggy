@@ -1,5 +1,4 @@
 {
-  "type": "library",
   "configuration": {
     "LOG_LEVEL": {
       "type": "string",

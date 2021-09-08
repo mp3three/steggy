@@ -15,7 +15,7 @@ export const LIB_1PASSWORD = Symbol('1password');
 export const LIB_TERMINAL = Symbol('terminal');
 export const LIB_SERVER = Symbol('server');
 export const LIB_TESTING = Symbol('testing');
-export const LIB_UTILS = Symbol('utils');
+export const LIB_UTILS = Symbol('utilities');
 
 export const APPLICATION_LIST = [
   APP_HOME_CONTROLLER.description,

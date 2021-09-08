@@ -1,5 +1,4 @@
 export * from './application-module.decorator';
-export * from './consumes-configuration.decorator';
 export * from './emit-after.decorator';
 export * from './events.decorator';
 export * from './fill-defaults.decorator';

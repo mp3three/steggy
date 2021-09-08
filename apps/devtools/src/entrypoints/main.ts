@@ -1,9 +1,10 @@
 import '../includes/config-loader';
 
-import { MainCLIService } from '@automagical/tty';
+import { ConfigScannerService } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
 import { NestFactory } from '@nestjs/core';
 
+import { CONFIGURABLE_MODULES } from '../includes/config-loader';
 import { DevtoolsModule } from '../modules';
 
 async function bootstrap() {
@@ -11,8 +12,8 @@ async function bootstrap() {
     logger: AutoLogService.nestLogger,
   });
   await app.init();
-  const mainCLIService = app.get(MainCLIService);
-  await mainCLIService.exec();
+  const scanner = app.get(ConfigScannerService);
+  await scanner.scan(CONFIGURABLE_MODULES.get('home'));
   await app.close();
 }
 bootstrap();

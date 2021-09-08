@@ -6,12 +6,11 @@ import {
   LogLevels,
   MISSING_CONTEXT,
 } from '@automagical/contracts/utilities';
-import { Inject, Scope } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import { ClassConstructor } from 'class-transformer';
 import pino from 'pino';
 
-import { ConsumesConfig } from '../../decorators/consumes-configuration.decorator';
 import { mappedContexts } from '../../decorators/injectors';
 
 /* eslint-disable security/detect-non-literal-regexp */
@@ -29,7 +28,7 @@ const NEST = '@nestjs';
 /**
  * Use `@InjectLogger()` if context is not automatically found
  */
-@ConsumesConfig([LOG_LEVEL], { scope: Scope.TRANSIENT })
+@Injectable({ scope: Scope.TRANSIENT })
 export class AutoLogService implements iLogger {
   // #region Static Properties
 

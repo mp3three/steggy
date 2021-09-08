@@ -1,0 +1,182 @@
+{
+  "type": "object",
+  "description": "Describe the configuration used by this application / library. This information can be used for non-runtime processes such as config file building. Runtime defaults must be defined in `src/config.ts`",
+  "patternProperties": {
+    "[A-Z_]*": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "string",
+            "boolean",
+            "number",
+            "password",
+            "string[]",
+            "url",
+            "record"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional extended description to describe what is going on"
+        },
+        "default": {
+          "description": "Declared default value. Does not affect runtime build code, but is used with devtools and similar"
+        }
+      },
+      "required": ["type"],
+      "anyOf": [{
+          "description": "String config",
+          "$ref": "#/definitions/string-config"
+        },
+        {
+          "description": "Boolean config",
+          "$ref": "#/definitions/boolean-config"
+        },
+        {
+          "description": "Number config",
+          "$ref": "#/definitions/number-config"
+        },
+        {
+          "description": "Password config",
+          "$ref": "#/definitions/password-config"
+        },
+        {
+          "description": "URL config",
+          "$ref": "#/definitions/url-config"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "configuration": {
+      "description": "Supplemental information to 0",
+      "patternProperties": {
+        "[A-Z_]*": {
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "string",
+                "boolean",
+                "number",
+                "password",
+                "string[]",
+                "url",
+                "record"
+              ]
+            },
+            "description": {
+              "type": "string",
+              "description": "Optional extended description to describe what is going on"
+            },
+            "default": {
+              "description": "Declared default value. Does not affect runtime build code, but is used with devtools and similar"
+            }
+          },
+          "required": ["type"],
+          "anyOf": [{
+              "description": "String config",
+              "$ref": "#/definitions/string-config"
+            },
+            {
+              "description": "Boolean config",
+              "$ref": "#/definitions/boolean-config"
+            },
+            {
+              "description": "Number config",
+              "$ref": "#/definitions/number-config"
+            },
+            {
+              "description": "Password config",
+              "$ref": "#/definitions/password-config"
+            },
+            {
+              "description": "URL config",
+              "$ref": "#/definitions/url-config"
+            }
+          ]
+        }
+      }
+    },
+    "string-config": {
+      // AutomagicalStringConfig
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": true,
+        "type": {
+          "type": "string",
+          "pattern": "string"
+        },
+        "enum": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "default": {
+          "type": "string"
+        }
+      },
+      "required": ["type"]
+    },
+    "boolean-config": {
+      // AutomagicalBooleanConfig
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": true,
+        "type": {
+          "pattern": "boolean"
+        },
+        "default": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type"]
+    },
+    "number-config": {
+      // AutomagicalNumberConfig
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": true,
+        "type": {
+          "pattern": "number"
+        },
+        "default": {
+          "type": "number"
+        }
+      },
+      "required": ["type"]
+    },
+    "password-config": {
+      // AutomagicalPasswordConfig
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": true,
+        "type": {
+          "pattern": "password"
+        }
+      },
+      "required": ["type"]
+    },
+    "url-config": {
+      // AutomagicalUrlConfig
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": true,
+        "type": {
+          "pattern": "url"
+        },
+        "default": {
+          "type": "string"
+        }
+      },
+      "required": ["type"]
+    }
+  }
+}

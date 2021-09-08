@@ -12,16 +12,8 @@ import {
   WorkspaceSettingsDTO,
 } from '@automagical/contracts/terminal';
 import { SEND_ROOM_STATE } from '@automagical/contracts/utilities';
-import {
-  AutoConfigService,
-  AutoLogService,
-  ConsumesConfig,
-  Info,
-  InjectConfig,
-  MqttService,
-  Trace,
-} from '@automagical/utilities';
-import { Inject } from '@nestjs/common';
+import { Info, InjectConfig, MqttService, Trace } from '@automagical/utilities';
+import { Inject, Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import chalk from 'chalk';
@@ -31,7 +23,8 @@ import { DEFAULT_HEADER_FONT } from '../config';
 import { FontAwesomeIcons, MDIIcons } from '../icons';
 
 type WorkspaceElements = Map<string, WorkspaceElementSettingsDTO>;
-@ConsumesConfig([DEFAULT_HEADER_FONT])
+
+@Injectable()
 export class WorkspaceExplorerService {
   // #region Object Properties
 

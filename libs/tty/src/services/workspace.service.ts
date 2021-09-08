@@ -11,7 +11,6 @@ import {
 } from '@automagical/contracts/terminal';
 import { Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ClassConstructor } from 'class-transformer';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { cwd } from 'process';
@@ -70,16 +69,14 @@ export class WorkspaceService {
 
   private loadMetadata(): void {
     const { projects } = this.workspace;
-    Object.keys(projects)
-      .filter((key) => projects[key].projectType === 'application')
-      .forEach((key) => {
-        const path = this.path(key, 'metadata');
-        if (!existsSync(path)) {
-          return;
-        }
-        const data = JSON.parse(readFileSync(path, 'utf-8'));
-        this.METADATA.set(key, data);
-      });
+    Object.keys(projects).forEach((key) => {
+      const path = this.path(key, 'metadata');
+      if (!existsSync(path)) {
+        return;
+      }
+      const data = JSON.parse(readFileSync(path, 'utf-8'));
+      this.METADATA.set(key, data);
+    });
   }
 
   private loadNX(): void {
