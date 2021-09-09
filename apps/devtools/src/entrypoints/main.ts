@@ -1,19 +1,22 @@
 import '../includes/config-loader';
 
-import { ConfigScannerService } from '@automagical/tty';
-import { AutoLogService } from '@automagical/utilities';
+import { AutoLogService, UsePrettyLogger } from '@automagical/utilities';
 import { NestFactory } from '@nestjs/core';
+import chalk from 'chalk';
 
-import { CONFIGURABLE_MODULES } from '../includes/config-loader';
 import { DevtoolsModule } from '../modules';
+import { ConfigBuilderService } from '../services';
 
 async function bootstrap() {
+  if (chalk.supportsColor) {
+    UsePrettyLogger();
+  }
   const app = await NestFactory.create(DevtoolsModule, {
     logger: AutoLogService.nestLogger,
   });
   await app.init();
-  const scanner = app.get(ConfigScannerService);
-  await scanner.scan(CONFIGURABLE_MODULES.get('home'));
+  const scanner = app.get(ConfigBuilderService);
+  await scanner.exec();
   await app.close();
 }
 bootstrap();

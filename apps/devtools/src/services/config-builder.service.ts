@@ -107,11 +107,15 @@ export class ConfigBuilderService implements iRepl {
         type: 'list',
       },
     ])) as { application: string; level: ConfigLibraryVisibility };
-    clear();
+    // clear();
     this.typePrompt.config = rc(application.split('-')[0]);
 
     const module = CONFIGURABLE_MODULES.get(application.split('-')[0]);
-    const { required, optional } = await this.loadDefinitions(module, level);
+    const { required } = await this.loadDefinitions(module, level);
+
+    await eachSeries([...required.values()], async (item, callback) => {
+      callback();
+    });
   }
 
   /**
@@ -290,6 +294,7 @@ export class ConfigBuilderService implements iRepl {
     const optional = new Set<ConfigTypeDTO>();
     const required = new Set<ConfigTypeDTO>();
     const showOptional = level === 'all';
+
     out.forEach((item) => {
       if (item.default === null) {
         required.add(item);
