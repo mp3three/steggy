@@ -1,5 +1,4 @@
 {
-  "type": "library",
   "configuration": {
     "CIRCADIAN_MAX_TEMP": {
       "type": "number",

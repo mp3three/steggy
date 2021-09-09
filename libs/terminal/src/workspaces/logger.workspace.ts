@@ -1,4 +1,4 @@
-import { LOG_LEVEL } from '@automagical/contracts/config';
+import { LIB_UTILS } from '@automagical/contracts';
 import {
   BLESSED_GRID,
   GridElement,
@@ -12,23 +12,21 @@ import {
   MISSING_CONTEXT,
 } from '@automagical/contracts/utilities';
 import {
-  FontAwesomeIcons,
-  OnLoggerActivate,
-  Workspace,
-} from '@automagical/terminal';
-import {
   AutoConfigService,
   AutoLogService,
   CONTEXT_COLORS,
   Debug,
   highlightContext,
+  LOG_LEVEL,
   prettyFormatMessage,
 } from '@automagical/utilities';
 import { Inject } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 
-import { WorkspaceElement } from '../decorators';
+import { Workspace, WorkspaceElement } from '../decorators';
+import { FontAwesomeIcons } from '../icons';
+import { OnLoggerActivate } from '../includes';
 
 type LOG_DATA = Record<string, unknown> & { context?: string };
 
@@ -125,7 +123,7 @@ export class LoggerWorkspace implements iLoggerCore {
 
   @Debug({ after: 'Logger workspace attached' })
   protected onModuleInit(): void {
-    this.level = this.configService.get(LOG_LEVEL);
+    this.level = this.configService.get([LIB_UTILS, LOG_LEVEL]);
     this.WIDGET = this.GRID.set(0, 2, 12, 10, Log, {
       fg: 'cyan',
       hidden: true,

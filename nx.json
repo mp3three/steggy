@@ -1,14 +1,16 @@
 {
   "implicitDependencies": {
-    "workspace.json": "*",
+    ".eslintrc.json": "*",
+    "automagical.json": {
+      "configuration": "*"
+    },
+    "nx.json": "*",
     "package.json": {
       "dependencies": "*",
       "devDependencies": "*"
     },
     "tsconfig.base.json": "*",
-    "tslint.json": "*",
-    ".eslintrc.json": "*",
-    "nx.json": "*"
+    "workspace.json": "*"
   },
   "affected": {
     "defaultBase": "develop"

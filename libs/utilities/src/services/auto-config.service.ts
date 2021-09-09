@@ -1,25 +1,22 @@
-import { LoadConfigDefinition } from '@automagical/contracts';
+import { LIB_UTILS } from '@automagical/contracts';
 import {
   ACTIVE_APPLICATION,
   AutomagicalConfig,
-  CONFIGURABLE_APPS,
-  CONFIGURABLE_LIBS,
-  LOG_LEVEL,
 } from '@automagical/contracts/config';
 import { USE_THIS_CONFIG } from '@automagical/contracts/utilities';
 import { Inject, Injectable, Optional } from '@nestjs/common';
-import { ClassConstructor } from 'class-transformer';
 import { get, set } from 'object-path';
 import rc from 'rc';
 
+import { LOG_LEVEL } from '../config';
 import { AutoLogService } from './logger';
 
 @Injectable()
 export class AutoConfigService {
+  public static DEFAULTS = new Map<string, Record<string, unknown>>();
   // #region Object Properties
 
   private config: AutomagicalConfig = {};
-  private defaults = new Map<string, unknown>();
 
   // #endregion Object Properties
 
@@ -47,15 +44,13 @@ export class AutoConfigService {
   }
 
   public getDefault<T extends unknown = unknown>(path: string): T {
-    if (this.defaults.has(path)) {
-      return this.defaults.get(path) as T;
+    const parts = path.split('.');
+    if (parts.length === 2) {
+      const [, property] = parts;
+      return '' as T;
     }
-    const baseObject = this.getBaseObject(path);
-    const result = LoadConfigDefinition(baseObject.name);
-    const suffix = path.split('.').slice(2);
-    const item = result?.get(suffix.join('.'));
-    this.defaults.set(path, item?.default);
-    return item?.default as T;
+    const [, library, property] = parts;
+    return AutoConfigService.DEFAULTS.get(library)[property] as T;
   }
 
   public set(path: string, value: unknown): void {
@@ -68,17 +63,7 @@ export class AutoConfigService {
 
   private earlyInit(): void {
     this.config = this.overrideConfig || rc(this.APPLICATION.description);
-    AutoLogService.logger.level = this.get(LOG_LEVEL);
-  }
-
-  private getBaseObject(path: string): ClassConstructor<unknown> {
-    const [group, name] = path.split('.');
-    switch (group) {
-      case 'libs':
-        return CONFIGURABLE_LIBS.get(name);
-      case 'application':
-        return CONFIGURABLE_APPS.get(this.APPLICATION.description);
-    }
+    AutoLogService.logger.level = this.get([LIB_UTILS, LOG_LEVEL]);
   }
 
   // #endregion Private Methods

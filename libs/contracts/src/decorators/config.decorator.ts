@@ -11,7 +11,7 @@ export type SIMPLE_CONFIG_PROVIDERS =
 
 export enum ConfigLibraryVisibility {
   required = 'required',
-  available = 'available',
+  all = 'all',
 }
 export type ConfigRecordType = Record<
   'key' | 'value',

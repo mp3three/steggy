@@ -3,3 +3,4 @@ export const CONFIG = {
   DEFAULT_HEADER_FONT: 'DOS Rebel',
   OUTPUT_HEADER_FONT: 'DOS Rebel',
 };
+export const SCREEN_TITLE = 'SCREEN_TITLE';

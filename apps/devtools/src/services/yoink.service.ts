@@ -1,4 +1,3 @@
-import { YOINK_DEFAULT_PATH } from '@automagical/contracts/config';
 import { iRepl } from '@automagical/contracts/tty';
 import { Repl } from '@automagical/tty';
 import { AutoConfigService, FetchService } from '@automagical/utilities';
@@ -34,7 +33,7 @@ export class YoinkService implements iRepl {
   public async exec(): Promise<void> {
     const { dirname, url, path } = await inquirer.prompt([
       {
-        default: this.configService.get(YOINK_DEFAULT_PATH),
+        // default: this.configService.get(YOINK_DEFAULT_PATH),
         message: 'Path',
         name: 'path',
         type: 'input',

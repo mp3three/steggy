@@ -1,4 +1,3 @@
-import { LATITUDE, LONGITUDE } from '@automagical/contracts/config';
 import {
   BLESSED_GRID,
   Box,
@@ -10,6 +9,8 @@ import {
 import {
   AutoConfigService,
   FetchService,
+  LATITUDE,
+  LONGITUDE,
   SliceLines,
 } from '@automagical/utilities';
 import { Inject } from '@nestjs/common';
@@ -61,10 +62,6 @@ export class WeatherWorkspace implements iWorkspace {
   // #endregion Public Methods
 
   // #region Protected Methods
-
-  protected async onApplicationBootstrap(): Promise<void> {
-    process.nextTick(async () => await this.render());
-  }
 
   // #endregion Protected Methods
 

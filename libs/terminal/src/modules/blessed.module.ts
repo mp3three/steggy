@@ -1,5 +1,4 @@
 import { LIB_TERMINAL } from '@automagical/contracts';
-import { SCREEN_TITLE } from '@automagical/contracts/config';
 import {
   BLESSED_GRID,
   BLESSED_SCREEN,
@@ -11,7 +10,7 @@ import { AutoConfigService, LibraryModule } from '@automagical/utilities';
 import { DynamicModule, Provider } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { CONFIG } from '../config';
+import { CONFIG, SCREEN_TITLE } from '../config';
 import { RefreshAfter } from '../decorators';
 import { WorkspaceExplorerService } from '../services';
 
@@ -34,7 +33,7 @@ export class BlessedModule {
           const out = Screen({
             autoPadding: true,
             smartCSR: true,
-            title: config.get(SCREEN_TITLE),
+            title: config.get([LIB_TERMINAL, SCREEN_TITLE]),
           });
           // eventEmitter.on
           RefreshAfter.setEmitter(() => {

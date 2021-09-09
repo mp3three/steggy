@@ -18,3 +18,4 @@ export const MQTT_PORT = 'MQTT_PORT';
 export const REDIS_HOST = 'REDIS_HOST';
 export const REDIS_PORT = 'REDIS_PORT';
 export const CACHE_PROVIDER = 'CACHE_PROVIDER';
+export const LOG_LEVEL = 'LOG_LEVEL';

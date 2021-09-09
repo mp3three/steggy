@@ -3,13 +3,10 @@ import {
   ConfigType,
   DefaultConfigOptions,
   LIB_TERMINAL,
-  LoadConfigDefinition,
 } from '@automagical/contracts';
-import {
-  AutomagicalConfig,
-  CONFIGURABLE_LIBS,
-} from '@automagical/contracts/config';
+import { AutomagicalConfig } from '@automagical/contracts/config';
 import { iRepl } from '@automagical/contracts/tty';
+import { ConfigTypeDTO } from '@automagical/contracts/utilities';
 import {
   ConfigScannerService,
   OUTPUT_HEADER_FONT,
@@ -29,7 +26,6 @@ import figlet from 'figlet';
 import { existsSync } from 'fs';
 import ini from 'ini';
 import inquirer from 'inquirer';
-import { set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
 import rc from 'rc';
@@ -37,7 +33,7 @@ import rc from 'rc';
 import { CONFIGURABLE_MODULES } from '../includes/config-loader';
 
 const LEVEL_MAP = {
-  Available: 'available',
+  All: 'all',
   Required: 'required',
 } as Record<string, ConfigLibraryVisibility>;
 const LEVEL_PRIORITIES: ConfigLibraryVisibility[] = Object.values(
@@ -80,61 +76,6 @@ export class ConfigBuilderService implements iRepl {
 
   // #region Public Methods
 
-  @Trace()
-  public async assembleConfig(
-    application: string,
-    level: keyof typeof LEVEL_MAP,
-  ): Promise<AutomagicalConfig> {
-    const appConfig = await this.buildApplicationConfig(application);
-    const configOptions = this.buildConfig(application, LEVEL_MAP[level]);
-    const config: AutomagicalConfig = {
-      application: appConfig,
-    };
-    if (configOptions.length > 0) {
-      console.log(chalk.bold.blue(`Libraries Config`));
-      this.configTable(application, configOptions);
-    }
-    await eachSeries(configOptions, async (item, callback) => {
-      const results = await this.typePrompt.prompt(item);
-      const path = item.library === '-' ? item.key : `${item.key}`;
-      if (results.value === this.configService.getDefault(item.key)) {
-        return callback();
-      }
-      set(config, path, results.value);
-      callback();
-    });
-    return config;
-  }
-
-  /**
-   * Build the data for the application portion of the config
-   */
-  @Trace()
-  public async buildApplicationConfig(
-    application: string,
-  ): Promise<Record<string, unknown>> {
-    const module = CONFIGURABLE_MODULES.get(application.split('-')[0]);
-    const out = await this.configScanner.scan(module);
-    const nested = this.loadConfig(module, `application.`);
-    if (nested.length > 0) {
-      console.log(chalk`{bgBlue.whiteBright Application Config}`);
-      this.configTable(application, nested);
-    }
-    const output = {};
-    await eachSeries(nested, async (item, callback) => {
-      const results = await this.typePrompt.prompt(
-        {
-          ...item,
-          key: `application.${item.key}`,
-        },
-        application,
-      );
-      set(output, item.key, results.value);
-      callback();
-    });
-    return output;
-  }
-
   /**
    * Generic entrypoint for interface
    *
@@ -165,28 +106,12 @@ export class ConfigBuilderService implements iRepl {
         name: 'level',
         type: 'list',
       },
-    ])) as { application: string; level: keyof typeof LEVEL_MAP };
+    ])) as { application: string; level: ConfigLibraryVisibility };
     clear();
     this.typePrompt.config = rc(application.split('-')[0]);
 
-    // const message = encode(this.typePrompt.config).split(`\n`);
-    // message.unshift(``);
-    // let maxLength = 0;
-    // message.forEach(
-    //   (line) => (maxLength = line.length > maxLength ? line.length : maxLength),
-    // );
-    // console.log(
-    //   message
-    //     .map((line) =>
-    //       chalk.bgBlue.white.bold(
-    //         line.padEnd(maxLength + 2).padStart(maxLength + 4),
-    //       ),
-    //     )
-    //     .join(`\n`),
-    // );
-
-    const config = await this.assembleConfig(application, level);
-    await this.handleConfig(config, application);
+    const module = CONFIGURABLE_MODULES.get(application.split('-')[0]);
+    const { required, optional } = await this.loadDefinitions(module, level);
   }
 
   /**
@@ -256,36 +181,6 @@ export class ConfigBuilderService implements iRepl {
   // #endregion Public Methods
 
   // #region Private Methods
-
-  /**
-   * Go through CommonConfig & all library configs to generate list of
-   * advertised options for a given application.
-   *
-   * Output list is sorted by `priority` > `library` > `key`
-   */
-  @Trace()
-  private buildConfig(
-    application: string,
-    level: ConfigLibraryVisibility,
-  ): KeyedConfig[] {
-    const out: KeyedConfig[] = [];
-
-    CONFIGURABLE_LIBS.forEach(
-      (value: ClassConstructor<unknown>, key: string) => {
-        const config = this.loadConfig(value, `libs.`).map((item) => {
-          item.library = key;
-          return item;
-        });
-        out.push(...config);
-      },
-    );
-
-    return this.configFilterSort(
-      out,
-      application,
-      LEVEL_PRIORITIES.indexOf(level),
-    );
-  }
 
   @Trace()
   private configFilterSort(
@@ -378,33 +273,37 @@ export class ConfigBuilderService implements iRepl {
     console.log(table.toString());
   }
 
-  private loadConfig(
-    reference: ClassConstructor<unknown>,
-    prefix: string,
-  ): KeyedConfig[] {
-    const out = [];
-    const prompts = LoadConfigDefinition(reference.name);
-    if (!prompts) {
-      return out;
-    }
-    const keys = [...prompts.keys()];
-    keys.forEach((key) => {
-      const library = prompts.get(key).library;
-      out.push({
-        ...prompts.get(key),
-        key: `${prefix}${library ? `${library}.` : ''}${key}`,
-      });
-    });
-    return out;
-  }
-
   private typeTag(type: keyof typeof ConfigLibraryVisibility) {
     switch (type) {
-      case 'available':
-        return chalk.bgWhite(chalk.black('available'));
+      case 'all':
+        return chalk.bgWhite(chalk.black('all'));
       case 'required':
         return chalk.inverse(chalk.red('required'));
     }
+  }
+
+  private async loadDefinitions(
+    module: ClassConstructor<unknown>,
+    level: ConfigLibraryVisibility,
+  ): Promise<Record<'required' | 'optional', Set<ConfigTypeDTO>>> {
+    const out = await this.configScanner.scan(module);
+    const optional = new Set<ConfigTypeDTO>();
+    const required = new Set<ConfigTypeDTO>();
+    const showOptional = level === 'all';
+    out.forEach((item) => {
+      if (item.default === null) {
+        required.add(item);
+        return;
+      }
+      if (showOptional) {
+        optional.add(item);
+      }
+    });
+
+    return {
+      optional,
+      required,
+    };
   }
 
   // #endregion Private Methods

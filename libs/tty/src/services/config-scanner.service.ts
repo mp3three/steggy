@@ -32,7 +32,7 @@ export class ConfigScannerService {
   @Trace()
   public async scan(
     module: ClassConstructor<unknown>,
-  ): Promise<ConfigTypeDTO[]> {
+  ): Promise<Set<ConfigTypeDTO>> {
     this.application = await NestFactory.create(module, {
       logger: AutoLogService.nestLogger,
     });
@@ -56,8 +56,10 @@ export class ConfigScannerService {
 
   private async scanProviders(
     providers: InstanceWrapper[],
-  ): Promise<ConfigTypeDTO[]> {
+  ): Promise<Set<ConfigTypeDTO>> {
     const out: ConfigTypeDTO[] = [];
+    const unique = new Set<string>();
+
     providers.forEach((wrapper) => {
       const { instance } = wrapper;
       const ctor = instance.constructor;
@@ -66,6 +68,10 @@ export class ConfigScannerService {
       const library: string = ctor[LOGGER_LIBRARY];
 
       config.forEach((property: string) => {
+        const key = `${library}.${property}`;
+        if (unique.has(key)) {
+          return;
+        }
         if (typeof runtimeDetaults[property] === 'undefined') {
           // eslint-disable-next-line unicorn/no-null
           runtimeDetaults[property] = null;
@@ -75,16 +81,47 @@ export class ConfigScannerService {
           );
         }
         const metadata = this.workspace.METADATA.get(library);
-        const metadataConfig = metadata.configuration[property];
+        const metadataConfig = metadata?.configuration[property];
         out.push({
           default: runtimeDetaults[property],
           library,
           metadata: metadataConfig,
           property,
         });
+        unique.add(key);
       });
     });
 
-    return out;
+    return this.sortConfigs(out);
+  }
+
+  /**
+   * - required first
+   * - app > libs in alphabetical order
+   * - properties in alphabetical order
+   */
+  private sortConfigs(configs: ConfigTypeDTO[]): Set<ConfigTypeDTO> {
+    return new Set(
+      configs.sort((a, b) => {
+        const aRequired = a.default === null;
+        const bRequired = b.default === null;
+        if (aRequired && !bRequired) {
+          return 1;
+        }
+        if (bRequired && !aRequired) {
+          return -1;
+        }
+        if (a.library && !b.library) {
+          return 1;
+        }
+        if (b.library && !a.library) {
+          return -1;
+        }
+        if (a.library && a.library !== b.library) {
+          return a.library > b.library ? 1 : -1;
+        }
+        return a.property > b.property ? 1 : -1;
+      }),
+    );
   }
 }

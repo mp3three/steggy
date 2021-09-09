@@ -1,4 +1,3 @@
-import { LOG_LEVEL } from '@automagical/contracts/config';
 import {
   iLogger,
   iLoggerCore,

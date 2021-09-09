@@ -1,5 +1,4 @@
 import { LIB_UTILS } from '@automagical/contracts';
-import { LOG_LEVEL } from '@automagical/contracts/config';
 import { APIRequest, APIResponse } from '@automagical/contracts/server';
 import {
   CacheModule,
@@ -11,6 +10,7 @@ import { DiscoveryModule } from '@nestjs/core';
 import { NextFunction } from 'express';
 import pinoHttp from 'pino-http';
 
+import { LOG_LEVEL } from '..';
 import { CONFIG } from '../config';
 import { injectedLoggers } from '../decorators/injectors';
 import { CONFIG_PROVIDERS } from '../decorators/injectors/inject-config.decorator';
@@ -98,7 +98,7 @@ export class UtilitiesModule {
       .apply(
         expressContextMiddleware,
         pinoHttp({
-          level: this.configService.get(LOG_LEVEL),
+          level: this.configService.get([LIB_UTILS, LOG_LEVEL]),
         }),
         bindLoggerMiddleware,
       )
