@@ -9,15 +9,9 @@ import { HACallService } from '../services';
  */
 @Injectable()
 export class RemoteDomainService {
-  // #region Constructors
-
   constructor(private readonly callService: HACallService) {
     callService.domain = HASS_DOMAINS.remote;
   }
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async sendCommand(entityId: string | string[]): Promise<void> {
@@ -46,6 +40,4 @@ export class RemoteDomainService {
       entity_id: entityId,
     });
   }
-
-  // #endregion Public Methods
 }

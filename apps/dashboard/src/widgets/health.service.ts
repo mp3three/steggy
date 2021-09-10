@@ -17,23 +17,23 @@ import dayjs from 'dayjs';
 
 @Injectable()
 export class HealthService {
-  // #region Object Properties
+  
 
   private SERVICES = new Map<string, dayjs.Dayjs>();
   private WIDGET: MarkdownElement;
 
-  // #endregion Object Properties
+  
 
-  // #region Constructors
+  
 
   constructor(
     @Inject(BLESSED_GRID)
     private readonly GRID: GridElement,
   ) {}
 
-  // #endregion Constructors
+  
 
-  // #region Protected Methods
+  
 
   @Cron(CronExpression.EVERY_SECOND)
   @RefreshAfter()
@@ -83,5 +83,5 @@ export class HealthService {
     );
   }
 
-  // #endregion Protected Methods
+  
 }

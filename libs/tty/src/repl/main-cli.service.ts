@@ -13,16 +13,16 @@ import { ReplExplorerService } from '../services';
   name: 'Main',
 })
 export class MainCLIService implements iRepl {
-  // #region Constructors
+  
 
   constructor(
     @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: figlet.Fonts,
     private readonly explorer: ReplExplorerService,
   ) {}
 
-  // #endregion Constructors
+  
 
-  // #region Public Methods
+  
 
   public async exec(): Promise<void> {
     clear();
@@ -50,9 +50,9 @@ export class MainCLIService implements iRepl {
     await script.exec();
   }
 
-  // #endregion Public Methods
+  
 
-  // #region Private Methods
+  
 
   private printHeader(scriptName: string): void {
     const settings = this.explorer.findSettingsByName(scriptName);
@@ -74,5 +74,5 @@ export class MainCLIService implements iRepl {
     );
   }
 
-  // #endregion Private Methods
+  
 }

@@ -15,13 +15,7 @@ type LoggerFunction =
     ) => void);
 
 export interface iLogger extends iLoggerCore {
-  // #region Object Properties
-
   level: LogLevels | string;
-
-  // #endregion Object Properties
-
-  // #region Public Methods
 
   debug(message: string, ...arguments_: unknown[]): void;
   debug(...arguments_: Parameters<LoggerFunction>): void;
@@ -35,18 +29,10 @@ export interface iLogger extends iLoggerCore {
   trace(...arguments_: Parameters<LoggerFunction>): void;
   warn(message: string, ...arguments_: unknown[]): void;
   warn(...arguments_: Parameters<LoggerFunction>): void;
-
-  // #endregion Public Methods
 }
 
 export interface iLoggerCore {
-  // #region Object Properties
-
   level: LogLevels | string;
-
-  // #endregion Object Properties
-
-  // #region Public Methods
 
   debug(
     object: Record<string, unknown>,
@@ -78,6 +64,4 @@ export interface iLoggerCore {
     message?: string,
     ...arguments_: unknown[]
   ): void;
-
-  // #endregion Public Methods
 }

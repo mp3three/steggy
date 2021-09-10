@@ -26,8 +26,6 @@ type WorkspaceElements = Map<string, WorkspaceElementSettingsDTO>;
 
 @Injectable()
 export class WorkspaceExplorerService {
-  // #region Object Properties
-
   public readonly elements = new Map<
     iWorkspace,
     Map<string, WorkspaceElementSettingsDTO>
@@ -37,21 +35,12 @@ export class WorkspaceExplorerService {
 
   private readonly workspaceByName = new Map<string, iWorkspace>();
 
-  // #endregion Object Properties
-
-  // #region Constructors
-
-  // private readonly elements
   constructor(
     @Inject(BLESSED_GRID) private readonly grid: GridElement,
     @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: figlet.Fonts,
     private readonly discoveryService: DiscoveryService,
     private readonly mqtt: MqttService,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Protected Methods
 
   @Info({ after: 'Workspaces initialized' })
   protected onApplicationBootstrap(): void {
@@ -75,10 +64,6 @@ export class WorkspaceExplorerService {
         this.elements.set(instance, elements);
       });
   }
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
 
   @Trace()
   private header(settings: WorkspaceSettingsDTO, instance: iWorkspace): void {
@@ -166,6 +151,4 @@ export class WorkspaceExplorerService {
     });
     this.internalElements.set(instance, elements);
   }
-
-  // #endregion Private Methods
 }

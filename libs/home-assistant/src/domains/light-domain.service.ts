@@ -9,13 +9,7 @@ import { EntityService, HACallService } from '../services';
  */
 @Injectable()
 export class LightDomainService extends EntityService {
-  // #region Object Properties
-
   private CIRCADIAN_LIGHTING = new Set<string>();
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor(
     protected readonly logger: AutoLogService,
@@ -24,10 +18,6 @@ export class LightDomainService extends EntityService {
     super();
     callService.domain = HASS_DOMAINS.light;
   }
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async toggle(entityId: string | string[]): Promise<void> {
@@ -64,6 +54,4 @@ export class LightDomainService extends EntityService {
       ...settings,
     });
   }
-
-  // #endregion Public Methods
 }

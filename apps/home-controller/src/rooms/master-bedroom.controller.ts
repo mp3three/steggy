@@ -32,7 +32,7 @@ import { GLOBAL_TRANSITION } from '../typings';
   switches: ['switch.womp'],
 })
 export class MasterBedroomController implements iRoomController {
-  // #region Constructors
+  
 
   constructor(
     public readonly lightManager: LightManagerService,
@@ -43,9 +43,9 @@ export class MasterBedroomController implements iRoomController {
     private readonly solarCalc: SolarCalcService,
   ) {}
 
-  // #endregion Constructors
+  
 
-  // #region Public Methods
+  
 
   @Trace()
   public areaOff({ count }: RoomControllerParametersDTO): void {
@@ -97,9 +97,9 @@ export class MasterBedroomController implements iRoomController {
     }
   }
 
-  // #endregion Public Methods
+  
 
-  // #region Protected Methods
+  
 
   @Trace()
   protected onModuleInit(): void {
@@ -137,5 +137,5 @@ export class MasterBedroomController implements iRoomController {
     });
   }
 
-  // #endregion Protected Methods
+  
 }

@@ -13,25 +13,25 @@ const widgetSpacing = 0;
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class GridLayout {
-  // #region Object Properties
+  
 
   private cellHeight: number;
   private cellWidth: number;
   private dashboardMargin: number;
   private settings: GridLayoutOptions;
 
-  // #endregion Object Properties
+  
 
-  // #region Constructors
+  
 
   constructor(
     @Inject(BLESSED_SCREEN) private readonly SCREEN: Screen,
     @Inject(BLESSED_THEME) private readonly theme: BlessedThemeDTO,
   ) {}
 
-  // #endregion Constructors
+  
 
-  // #region Public Methods
+  
 
   public add(
     position: GridPosition,
@@ -61,5 +61,5 @@ export class GridLayout {
     this.cellHeight = (100 - dashboardMargin * 2) / rows;
   }
 
-  // #endregion Public Methods
+  
 }

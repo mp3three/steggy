@@ -6,15 +6,9 @@ import { HACallService } from '../services';
 
 @Injectable()
 export class HomeAssistantCoreService {
-  // #region Constructors
-
   constructor(private readonly callService: HACallService) {
     this.callService.domain = HASS_DOMAINS.homeassistant;
   }
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async checkConfig(): Promise<void> {
@@ -73,6 +67,4 @@ export class HomeAssistantCoreService {
       entity_id: entityIds,
     });
   }
-
-  // #endregion Public Methods
 }

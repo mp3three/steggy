@@ -13,22 +13,22 @@ const widgetSpacing = 0;
 
 @Injectable()
 export class ApplicationLayout {
-  // #region Object Properties
+  
 
   private cellHeight: number;
   private cellWidth: number;
   private dashboardMargin: number;
   private settings: GridLayoutOptions;
 
-  // #endregion Object Properties
+  
 
-  // #region Constructors
+  
 
   constructor(@Inject(BLESSED_SCREEN) private readonly SCREEN: Screen) {}
 
-  // #endregion Constructors
+  
 
-  // #region Public Methods
+  
 
   public add(
     position: GridPosition,
@@ -58,7 +58,7 @@ export class ApplicationLayout {
     this.cellHeight = (100 - dashboardMargin * 2) / rows;
   }
 
-  // #endregion Public Methods
+  
 }
 
 // +--------------------+---------------------------------------------------------------+

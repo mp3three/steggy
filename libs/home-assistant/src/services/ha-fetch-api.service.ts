@@ -13,8 +13,6 @@ import { BASE_URL, TOKEN } from '../config';
 
 @Injectable()
 export class HomeAssistantFetchAPIService {
-  // #region Constructors
-
   constructor(
     private readonly logger: AutoLogService,
     @InjectConfig(BASE_URL)
@@ -23,10 +21,6 @@ export class HomeAssistantFetchAPIService {
     private readonly bearer: string,
     private readonly fetchService: FetchService,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   /**
    * Wrapper to set baseUrl
@@ -76,6 +70,4 @@ export class HomeAssistantFetchAPIService {
     });
     return history;
   }
-
-  // #endregion Public Methods
 }

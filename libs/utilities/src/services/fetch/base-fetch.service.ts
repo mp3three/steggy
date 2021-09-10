@@ -11,16 +11,10 @@ import { AutoLogService } from '../logger/auto-log.service';
 type FetchWith<T extends Record<never, string> = Record<never, string>> =
   Partial<FetchArguments> & T;
 export class BaseFetch {
-  // #region Object Properties
-
   public BASE_URL: string;
   public TRUNCATE_LENGTH = 200;
 
   protected readonly logger: AutoLogService;
-
-  // #endregion Object Properties
-
-  // #region Protected Methods
 
   /**
    * Post processing function for fetch()
@@ -128,6 +122,4 @@ export class BaseFetch {
     }
     return out;
   }
-
-  // #endregion Protected Methods
 }

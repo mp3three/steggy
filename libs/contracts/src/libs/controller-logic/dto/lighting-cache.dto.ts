@@ -12,11 +12,7 @@ export enum LightingCacheMode {
 }
 
 export class LightingCacheDTO {
-  // #region Object Properties
-
   public brightness: number;
   public kelvin?: number;
   public mode: LightingCacheMode | keyof typeof LightingCacheMode;
-
-  // #endregion Object Properties
 }

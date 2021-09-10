@@ -3,8 +3,6 @@ import { TemplateEnvironmentDTO } from './template-environment.dto';
 import { TemplateVolumeDTO } from './template-valume.dto';
 
 export class TemplateDTO {
-  // #region Object Properties
-
   public Id: number;
   public administrators_only: boolean;
   public categories: string[];
@@ -28,6 +26,4 @@ export class TemplateDTO {
   public title: string;
   public type: StackType;
   public volumes: TemplateVolumeDTO;
-
-  // #endregion Object Properties
 }

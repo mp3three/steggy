@@ -10,7 +10,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class GarageService {
-  // #region Constructors
+  
 
   constructor(
     private readonly climateService: ClimateDomainService,
@@ -19,9 +19,9 @@ export class GarageService {
     private readonly notifyService: NotifyDomainService,
   ) {}
 
-  // #endregion Constructors
+  
 
-  // #region Public Methods
+  
 
   @OnMQTT('mobile/car_ac')
   @Debug('Turning on car AC')
@@ -44,5 +44,5 @@ export class GarageService {
     await this.lockService.unlock('lock.mystique_frunk_lock');
   }
 
-  // #endregion Public Methods
+  
 }

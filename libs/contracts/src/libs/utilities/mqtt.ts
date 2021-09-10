@@ -9,27 +9,17 @@ export type MqttMessageTransformer = (payload: Buffer) => unknown;
 export type LoggerConstructor = new (...parameters) => LoggerService;
 
 export interface MqttSubscribeOptions extends Partial<IClientSubscribeOptions> {
-  // #region Object Properties
-
   omitIncoming?: boolean;
   topic?: string | string[];
-
-  // #endregion Object Properties
 }
 
 export interface MqttSubscriberParameter {
-  // #region Object Properties
-
   index: number;
   transform?: 'json' | 'text' | MqttMessageTransformer;
   type: 'payload' | 'topic' | 'packet' | 'params';
-
-  // #endregion Object Properties
 }
 
 export interface MqttSubscriber {
-  // #region Object Properties
-
   handle: (...parameters) => void;
   options: MqttSubscribeOptions;
   parameters: MqttSubscriberParameter[];
@@ -37,22 +27,14 @@ export interface MqttSubscriber {
   regexp: RegExp;
   route: string;
   topic: string;
-
-  // #endregion Object Properties
 }
 
 export interface MqttLoggerOptions {
-  // #region Object Properties
-
   useClass?: Type<LoggerService>;
   useValue?: LoggerService;
-
-  // #endregion Object Properties
 }
 
 export interface MqttModuleOptions extends IClientOptions {
-  // #region Object Properties
-
   /**
    * Global queue subscribe.
    * All topic will be prepend '$queue/' prefix automatically.
@@ -67,30 +49,20 @@ export interface MqttModuleOptions extends IClientOptions {
    * https://docs.emqx.io/broker/latest/cn/advanced/shared-subscriptions.html
    */
   share?: string;
-
-  // #endregion Object Properties
 }
 
 export interface MqttOptionsFactory {
-  // #region Public Methods
-
   createMqttConnectOptions(): Promise<MqttModuleOptions> | MqttModuleOptions;
-
-  // #endregion Public Methods
 }
 
 export interface MqttModuleAsyncOptions
   extends Pick<ModuleMetadata, 'imports'> {
-  // #region Object Properties
-
   inject?: unknown[];
   useClass?: Type<MqttOptionsFactory>;
   useExisting?: Type<MqttOptionsFactory>;
   useFactory?: (
     ...factoryParameters: unknown[]
   ) => Promise<MqttModuleOptions> | MqttModuleOptions;
-
-  // #endregion Object Properties
 }
 
 // export const MQTT_SUBSCRIBER_PARAMS = '__mqtt_subscriber_params';

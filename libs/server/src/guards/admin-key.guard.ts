@@ -17,16 +17,16 @@ import {
  */
 @ConsumesConfig([ADMIN_KEY])
 export class AdminKeyGuard implements CanActivate {
-  // #region Constructors
+  
 
   constructor(
     private readonly logger: AutoLogService,
     private readonly configService: AutoConfigService,
   ) {}
 
-  // #endregion Constructors
+  
 
-  // #region Public Methods
+  
 
   @Trace()
   public async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -48,5 +48,5 @@ export class AdminKeyGuard implements CanActivate {
     return true;
   }
 
-  // #endregion Public Methods
+  
 }

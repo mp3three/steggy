@@ -29,8 +29,6 @@ const NEST = '@nestjs';
  */
 @Injectable({ scope: Scope.TRANSIENT })
 export class AutoLogService implements iLogger {
-  // #region Static Properties
-
   public static logger: iLoggerCore = pino() as iLogger;
   public static nestLogger: Record<
     'log' | 'warn' | 'error' | 'debug' | 'verbose',
@@ -47,10 +45,6 @@ export class AutoLogService implements iLogger {
     warn: (message, context) =>
       AutoLogService.logger.warn({ context: `${NEST}:${context}` }, message),
   };
-
-  // #endregion Static Properties
-
-  // #region Public Static Methods
 
   /**
    * Decide which method of formatting log messages is correct
@@ -83,31 +77,15 @@ export class AutoLogService implements iLogger {
     );
   }
 
-  // #endregion Public Static Methods
-
-  // #region Object Properties
-
   private contextId: string;
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor(
     @Inject(INQUIRER) private readonly inquirerer: ClassConstructor<unknown>,
   ) {}
 
-  // #endregion Constructors
-
-  // #region Public Accessors
-
   public get level(): LogLevels {
     return AutoLogService.logger.level as LogLevels;
   }
-
-  // #endregion Public Accessors
-
-  // #region Private Accessors
 
   private get context(): string {
     if (this.contextId) {
@@ -115,10 +93,6 @@ export class AutoLogService implements iLogger {
     }
     return this.inquirerer?.constructor[LOG_CONTEXT] ?? MISSING_CONTEXT;
   }
-
-  // #endregion Private Accessors
-
-  // #region Public Methods
 
   public debug(message: string, ...arguments_: unknown[]): void;
   public debug(
@@ -179,6 +153,4 @@ export class AutoLogService implements iLogger {
   public warn(...arguments_: Parameters<LoggerFunction>): void {
     AutoLogService.call('warn', this.context, ...arguments_);
   }
-
-  // #endregion Public Methods
 }

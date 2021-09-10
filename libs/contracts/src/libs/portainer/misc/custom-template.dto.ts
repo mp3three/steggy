@@ -3,8 +3,6 @@ import { ResourceControlDTO } from './resource-control.dto';
 
 // }
 export class CustomTemplateDTO {
-  // #region Object Properties
-
   /**
    * User identifier who created this template
    */
@@ -46,6 +44,4 @@ export class CustomTemplateDTO {
    * Type of created stack
    */
   public Type: TemplateTypes;
-
-  // #endregion Object Properties
 }

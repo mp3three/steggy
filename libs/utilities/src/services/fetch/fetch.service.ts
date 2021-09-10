@@ -9,21 +9,11 @@ import { BaseFetch } from './base-fetch.service';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class FetchService extends BaseFetch {
-  // #region Object Properties
-
   public TRUNCATE_LENGTH = 200;
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor(protected readonly logger: AutoLogService) {
     super();
   }
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async fetch<T>({
@@ -62,6 +52,4 @@ export class FetchService extends BaseFetch {
       });
     });
   }
-
-  // #endregion Public Methods
 }

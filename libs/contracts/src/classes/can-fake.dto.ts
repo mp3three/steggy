@@ -1,8 +1,6 @@
 import { validate, ValidationError } from 'class-validator';
 
 export class CanFake {
-  // #region Public Static Methods
-
   public static clone<T extends CanFake = CanFake>(target: T): T {
     return JSON.parse(JSON.stringify(target));
   }
@@ -16,6 +14,4 @@ export class CanFake {
   ): Promise<ValidationError[]> {
     return validate(target);
   }
-
-  // #endregion Public Static Methods
 }

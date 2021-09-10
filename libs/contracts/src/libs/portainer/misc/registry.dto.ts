@@ -5,8 +5,6 @@ import { QuayRegistryDataDTO } from './quay-registry-data.dto';
 import { RegistryManagementConfigurationDTO } from './registry-management-configuration.dto';
 
 export class RegistryDTO {
-  // #region Object Properties
-
   public Authentication: boolean;
   public AuthorizedTeams: number[];
   public AuthorizedUsers: number[];
@@ -21,6 +19,4 @@ export class RegistryDTO {
   public Url: string;
   public UserAccessPolicies: Record<string, AccessPolicyDTO>;
   public Username: string;
-
-  // #endregion Object Properties
 }

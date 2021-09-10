@@ -1,6 +1,4 @@
 export class RoomControllerSettingsDTO {
-  // #region Object Properties
-
   /**
    *  Secondary lights for room
    */
@@ -17,7 +15,5 @@ export class RoomControllerSettingsDTO {
    *  Primary lights for the room
    */
   public switches?: string[];
-
-  // #endregion Object Properties
 }
 export const ROOM_CONTROLLER_SETTINGS = Symbol('ROOM_CONTROLLER_SETTINGS');

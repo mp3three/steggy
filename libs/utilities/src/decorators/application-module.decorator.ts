@@ -11,7 +11,7 @@ import { RegisterCache } from '../includes/';
 import { UtilitiesModule } from '../modules';
 
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
-  // #region Object Properties
+  
 
   application: symbol;
   /**
@@ -22,7 +22,7 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
   globals?: Provider[];
   rooms?: Provider<iRoomController>[];
 
-  // #endregion Object Properties
+  
 }
 
 /**

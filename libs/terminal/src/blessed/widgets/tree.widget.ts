@@ -12,22 +12,22 @@ import { plainToClass } from 'class-transformer';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class TreeWidget {
-  // #region Object Properties
+  
 
   private height: number;
   private list: ListElement;
   private options: TreeWidgetSettingsDTO;
   private width: number;
 
-  // #endregion Object Properties
+  
 
-  // #region Constructors
+  
 
   constructor(@Inject(BLESSED_SCREEN) private readonly SCREEN: Screen) {}
 
-  // #endregion Constructors
+  
 
-  // #region Public Methods
+  
 
   @Trace()
   @FillDefaults(TreeWidgetSettingsDTO)
@@ -58,5 +58,5 @@ export class TreeWidget {
     // Box.prototype.render.call(this);
   }
 
-  // #endregion Public Methods
+  
 }

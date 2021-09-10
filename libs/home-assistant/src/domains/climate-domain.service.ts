@@ -12,15 +12,9 @@ import { HACallService } from '../services';
  */
 @Injectable()
 export class ClimateDomainService {
-  // #region Constructors
-
   constructor(private readonly callService: HACallService) {
     callService.domain = HASS_DOMAINS.climate;
   }
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async setAuxHeat<T extends HassStateDTO = HassStateDTO>(
@@ -94,6 +88,4 @@ export class ClimateDomainService {
       entity_id: entityId,
     });
   }
-
-  // #endregion Public Methods
 }

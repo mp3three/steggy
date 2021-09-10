@@ -1,8 +1,6 @@
 import { PlatformTypes, TemplateTypes } from '../enums';
 
 export class CustomFromGitRepositoryPayloadDTO {
-  // #region Object Properties
-
   /**
    * Path to the Stack file inside the Git repository
    */
@@ -53,6 +51,4 @@ export class CustomFromGitRepositoryPayloadDTO {
    * Type of created stack
    */
   public type: TemplateTypes;
-
-  // #endregion Object Properties
 }

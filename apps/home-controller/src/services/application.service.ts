@@ -36,13 +36,13 @@ import {
 
 @Injectable()
 export class ApplicationService {
-  // #region Object Properties
+  
 
   private connectionReady = false;
 
-  // #endregion Object Properties
+  
 
-  // #region Constructors
+  
 
   constructor(
     protected readonly logger: AutoLogService,
@@ -55,9 +55,9 @@ export class ApplicationService {
     private readonly mqtt: MqttService,
   ) {}
 
-  // #endregion Constructors
+  
 
-  // #region Public Accessors
+  
 
   public get locks(): string[] {
     return this.entityManager.listEntities().filter((id) => {
@@ -65,9 +65,9 @@ export class ApplicationService {
     });
   }
 
-  // #endregion Public Accessors
+  
 
-  // #region Public Methods
+  
 
   @OnMQTT(HOMEASSISTANT_MOBILE_LOCK)
   @OnEvent(GLOBAL_TRANSITION)
@@ -91,9 +91,9 @@ export class ApplicationService {
     // }, 1000);
   }
 
-  // #endregion Public Methods
+  
 
-  // #region Protected Methods
+  
 
   /**
    * Hey! Parts of the house need batteries swapped out
@@ -169,5 +169,5 @@ export class ApplicationService {
     );
   }
 
-  // #endregion Protected Methods
+  
 }

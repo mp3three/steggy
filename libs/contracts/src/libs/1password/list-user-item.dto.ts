@@ -1,6 +1,4 @@
 export class ListUserItemDTO {
-  // #region Object Properties
-
   public avatar: string;
   public email: string;
   public firstName: string;
@@ -9,6 +7,4 @@ export class ListUserItemDTO {
   public state: string;
   public type: string;
   public uuid: string;
-
-  // #endregion Object Properties
 }

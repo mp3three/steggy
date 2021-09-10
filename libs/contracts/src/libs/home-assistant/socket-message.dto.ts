@@ -6,17 +6,11 @@ import {
 import { HassEventDTO } from './hass-event.dto';
 
 export class AreaDTO {
-  // #region Object Properties
-
   public area_id: string;
   public name: string;
-
-  // #endregion Object Properties
 }
 
 export class EntityListItemDTO {
-  // #region Object Properties
-
   public area_id: string;
   public config_entry_id: string;
   public device_id: string;
@@ -25,13 +19,9 @@ export class EntityListItemDTO {
   public icon: string;
   public name: string;
   public platform: string;
-
-  // #endregion Object Properties
 }
 
 export class DeviceListItemDTO {
-  // #region Object Properties
-
   public area_id: string;
   public config_entries: string[];
   public connections: string[][];
@@ -45,31 +35,21 @@ export class DeviceListItemDTO {
   public name_by_user: null;
   public sw_version: string;
   public via_device_id: null;
-
-  // #endregion Object Properties
 }
 
 export class SocketMessageDTO {
-  // #region Object Properties
-
   public event?: HassEventDTO;
   public id: string;
   public message?: string;
   public result?: Record<string, unknown>;
   public type: HassSocketMessageTypes;
-
-  // #endregion Object Properties
 }
 
 export class SendSocketMessageDTO {
-  // #region Object Properties
-
   public access_token?: string;
   public domain?: HASS_DOMAINS;
   public id?: number;
   public service?: string;
   public service_data?: unknown;
   public type: HASSIO_WS_COMMAND;
-
-  // #endregion Object Properties
 }

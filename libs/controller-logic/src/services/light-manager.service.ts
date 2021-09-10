@@ -38,13 +38,7 @@ const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
  */
 @Injectable({ scope: Scope.TRANSIENT })
 export class LightManagerService implements iLightManager {
-  // #region Object Properties
-
   private room: iRoomController;
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor(
     @InjectCache() private readonly cache: CacheManagerService,
@@ -57,17 +51,9 @@ export class LightManagerService implements iLightManager {
     @InjectConfig(DIM_PERCENT) private readonly dimPercent: number,
   ) {}
 
-  // #endregion Constructors
-
-  // #region Private Accessors
-
   private get settings(): RoomControllerSettingsDTO {
     return RoomSettings(this.room);
   }
-
-  // #endregion Private Accessors
-
-  // #region Public Methods
 
   @Trace()
   public async areaOff(
@@ -233,10 +219,6 @@ export class LightManagerService implements iLightManager {
     });
   }
 
-  // #endregion Public Methods
-
-  // #region Protected Methods
-
   @Trace()
   protected async circadianLightingUpdate(kelvin: number): Promise<void> {
     const lights = await this.getActiveLights();
@@ -256,6 +238,4 @@ export class LightManagerService implements iLightManager {
       this.circadianLightingUpdate(kelvin),
     );
   }
-
-  // #endregion Protected Methods
 }

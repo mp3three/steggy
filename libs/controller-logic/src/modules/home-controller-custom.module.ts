@@ -31,8 +31,6 @@ const providers = [
   providers,
 })
 export class HomeControllerCustomModule {
-  // #region Public Static Methods
-
   public static forRoot(): DynamicModule {
     const decorated = [...DynamicRoomProviders.values()];
     return {
@@ -43,6 +41,4 @@ export class HomeControllerCustomModule {
       providers: [...providers, ...decorated],
     };
   }
-
-  // #endregion Public Static Methods
 }

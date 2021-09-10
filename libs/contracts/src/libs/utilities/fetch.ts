@@ -90,8 +90,6 @@ export type FilterValueType =
   | Record<string, string>;
 
 export class FilterDTO {
-  // #region Object Properties
-
   public exists?: boolean;
   /**
    * Dot notation object path, from object root
@@ -99,20 +97,14 @@ export class FilterDTO {
   public field?: string;
   public operation?: FILTER_OPERATIONS;
   public value?: FilterValueType | FilterValueType[];
-
-  // #endregion Object Properties
 }
 
 export class ResultControlDTO {
-  // #region Object Properties
-
   public filters?: Set<FilterDTO>;
   public limit?: number;
   public select?: string[];
   public skip?: number;
   public sort?: string[];
-
-  // #endregion Object Properties
 }
 
 export enum FILTER_OPERATIONS {

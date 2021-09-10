@@ -3,8 +3,6 @@ import { GitlabRegistryDataDTO } from '../misc/gitlab-registry-data.dto';
 import { QuayRegistryDataDTO } from '../misc/quay-registry-data.dto';
 
 export class RegistryCreatePayloadDTO {
-  // #region Object Properties
-
   public authentication: boolean;
   public gitlab: GitlabRegistryDataDTO;
   public name: string;
@@ -13,6 +11,4 @@ export class RegistryCreatePayloadDTO {
   public type: RegistryType[];
   public url: string;
   public username: string;
-
-  // #endregion Object Properties
 }

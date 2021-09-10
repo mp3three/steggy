@@ -1,8 +1,6 @@
 import { PlatformTypes, TemplateTypes } from '../enums';
 
 export class UpdatePayloadDTO {
-  // #region Object Properties
-
   /**
    * Description of the template
    */
@@ -31,6 +29,4 @@ export class UpdatePayloadDTO {
    * Type of created stack
    */
   public type: TemplateTypes;
-
-  // #endregion Object Properties
 }

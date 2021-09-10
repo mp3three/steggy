@@ -5,8 +5,6 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class IsAuthorizedGuard implements CanActivate {
-  // #region Public Methods
-
   @Trace()
   public canActivate(
     context: ExecutionContext,
@@ -14,6 +12,4 @@ export class IsAuthorizedGuard implements CanActivate {
     const { locals } = context.switchToHttp().getResponse<APIResponse>();
     return locals.authenticated;
   }
-
-  // #endregion Public Methods
 }

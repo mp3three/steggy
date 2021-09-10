@@ -1,6 +1,4 @@
 export class SwarmStackGitRepositoryPayloadDTO {
-  // #region Object Properties
-
   /**
    * Path to the Stack file inside the Git repository
    */
@@ -35,6 +33,4 @@ export class SwarmStackGitRepositoryPayloadDTO {
    * Username used in basic authentication. Required when RepositoryAuthentication is true.
    */
   public repositoryUsername?: string;
-
-  // #endregion Object Properties
 }

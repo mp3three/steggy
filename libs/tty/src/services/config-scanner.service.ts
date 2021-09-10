@@ -16,18 +16,12 @@ type defaults = Record<string, unknown>;
 
 @Injectable()
 export class ConfigScannerService {
-  // #region Object Properties
-
   private application: INestApplication;
-
-  // #endregion Object Properties
 
   constructor(
     private readonly logger: AutoLogService,
     private readonly workspace: WorkspaceService,
   ) {}
-
-  // #region Public Methods
 
   @Trace()
   public async scan(
@@ -51,8 +45,6 @@ export class ConfigScannerService {
 
     return await this.scanProviders(providers);
   }
-
-  // #endregion Public Methods
 
   private async scanProviders(
     providers: InstanceWrapper[],

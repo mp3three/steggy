@@ -14,16 +14,10 @@ import { tap } from 'rxjs/operators';
 
 @Injectable()
 export class EmitAfterInterceptor implements NestInterceptor {
-  // #region Constructors
-
   constructor(
     private readonly reflector: Reflector,
     private readonly eventEmitter: EventEmitter2,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async intercept(
@@ -50,6 +44,4 @@ export class EmitAfterInterceptor implements NestInterceptor {
       }),
     );
   }
-
-  // #endregion Public Methods
 }

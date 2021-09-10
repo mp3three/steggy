@@ -21,8 +21,6 @@ const availableSpeeds = [
  */
 @Injectable()
 export class FanDomainService {
-  // #region Constructors
-
   constructor(
     private readonly logger: AutoLogService,
     private readonly callService: HACallService,
@@ -30,10 +28,6 @@ export class FanDomainService {
   ) {
     callService.domain = HASS_DOMAINS.fan;
   }
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async decreaseSpeed(entityId?: string): Promise<void> {
@@ -158,6 +152,4 @@ export class FanDomainService {
       entity_id: entityId,
     });
   }
-
-  // #endregion Public Methods
 }

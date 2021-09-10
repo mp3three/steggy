@@ -6,22 +6,12 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
 @Injectable()
 export class ReplExplorerService {
-  // #region Object Properties
-
   public readonly REGISTERED_APPS = new Map<ReplOptions, iRepl>();
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor(
     private readonly discoveryService: DiscoveryService,
     private readonly logger: AutoLogService,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public findServiceByName(name: string): iRepl {
@@ -45,10 +35,6 @@ export class ReplExplorerService {
     return out;
   }
 
-  // #endregion Public Methods
-
-  // #region Protected Methods
-
   @Info({ after: '[Repl] Initialized' })
   protected onModuleInit(): void {
     const providers: InstanceWrapper<iRepl>[] = this.discoveryService
@@ -65,6 +51,4 @@ export class ReplExplorerService {
       this.REGISTERED_APPS.set(proto[REPL_CONFIG], instance);
     });
   }
-
-  // #endregion Protected Methods
 }

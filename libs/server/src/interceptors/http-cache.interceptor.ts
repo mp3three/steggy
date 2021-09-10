@@ -1,10 +1,11 @@
-import { APIRequest, REQUEST_CACHE_PREFIX } from '@automagical/contracts/server';
+import {
+  APIRequest,
+  REQUEST_CACHE_PREFIX,
+} from '@automagical/contracts/server';
 import { CacheInterceptor, ExecutionContext, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class HttpCacheInterceptor extends CacheInterceptor {
-  // #region Public Methods
-
   public trackBy(context: ExecutionContext): string | undefined {
     const request = context.switchToHttp().getRequest<APIRequest>();
     const { locals } = request.res;
@@ -14,6 +15,4 @@ export class HttpCacheInterceptor extends CacheInterceptor {
     });
     return key;
   }
-
-  // #endregion Public Methods
 }

@@ -6,15 +6,9 @@ import { HACallService } from '../services';
 
 @Injectable()
 export class HumidifierDomain {
-  // #region Constructors
-
   constructor(private readonly callService: HACallService) {
     callService.domain = HASS_DOMAINS.humidifier;
   }
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async setHumidity(entityId: string, humidity: number): Promise<void> {
@@ -52,6 +46,4 @@ export class HumidifierDomain {
       entity_id: entityId,
     });
   }
-
-  // #endregion Public Methods
 }

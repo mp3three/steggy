@@ -16,8 +16,6 @@ import { NextFunction } from 'express';
  */
 @Injectable()
 export class InitMiddleware implements NestMiddleware {
-  // #region Public Methods
-
   public async use(
     request: APIRequest,
     { locals }: APIResponse,
@@ -42,10 +40,6 @@ export class InitMiddleware implements NestMiddleware {
     next();
   }
 
-  // #endregion Public Methods
-
-  // #region Private Methods
-
   /**
    * Cut off automated health checks.
    *
@@ -64,6 +58,4 @@ export class InitMiddleware implements NestMiddleware {
     }
     return false;
   }
-
-  // #endregion Private Methods
 }

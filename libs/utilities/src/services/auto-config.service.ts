@@ -14,13 +14,8 @@ import { AutoLogService } from './logger';
 @Injectable()
 export class AutoConfigService {
   public static DEFAULTS = new Map<string, Record<string, unknown>>();
-  // #region Object Properties
 
   private config: AutomagicalConfig = {};
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor(
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
@@ -30,10 +25,6 @@ export class AutoConfigService {
   ) {
     this.earlyInit();
   }
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   public get<T extends unknown = string>(path: string | [symbol, string]): T {
     if (Array.isArray(path)) {
@@ -57,14 +48,8 @@ export class AutoConfigService {
     set(this.config, path, value);
   }
 
-  // #endregion Public Methods
-
-  // #region Private Methods
-
   private earlyInit(): void {
     this.config = this.overrideConfig || rc(this.APPLICATION.description);
     AutoLogService.logger.level = this.get([LIB_UTILS, LOG_LEVEL]);
   }
-
-  // #endregion Private Methods
 }

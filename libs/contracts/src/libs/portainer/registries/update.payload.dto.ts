@@ -2,8 +2,6 @@ import { AccessPolicyDTO } from '../auth';
 import { QuayRegistryDataDTO } from '../misc/quay-registry-data.dto';
 
 export class RegistryUpdatePayloadDTO {
-  // #region Object Properties
-
   public authentication: boolean;
   public name: string;
   public password: string;
@@ -12,6 +10,4 @@ export class RegistryUpdatePayloadDTO {
   public url: string;
   public userAccessPolicies: Record<string, AccessPolicyDTO>;
   public username: string;
-
-  // #endregion Object Properties
 }

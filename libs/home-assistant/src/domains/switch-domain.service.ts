@@ -6,15 +6,9 @@ import { HACallService } from '../services';
 
 @Injectable()
 export class SwitchDomainService {
-  // #region Constructors
-
   constructor(private readonly callService: HACallService) {
     this.callService.domain = HASS_DOMAINS.switch;
   }
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async toggle(entity_id: string | string[]): Promise<void> {
@@ -36,6 +30,4 @@ export class SwitchDomainService {
       entity_id,
     });
   }
-
-  // #endregion Public Methods
 }

@@ -47,16 +47,10 @@ const LEVELS = new Map<LogLevels, number>([
   name: 'logger',
 })
 export class LoggerWorkspace implements iLoggerCore {
-  // #region Object Properties
-
   public level: LogLevels;
 
   @WorkspaceElement()
   private WIDGET: LogElement;
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor(
     @Inject(BLESSED_GRID)
@@ -64,10 +58,6 @@ export class LoggerWorkspace implements iLoggerCore {
     private readonly configService: AutoConfigService,
     private readonly logger: AutoLogService,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   public debug(data: LOG_DATA, message: string): void {
     if (LEVELS.get(this.level) > LEVELS.get('debug')) {
@@ -117,10 +107,6 @@ export class LoggerWorkspace implements iLoggerCore {
     this.logMessage(data, message, 'bgYellow');
   }
 
-  // #endregion Public Methods
-
-  // #region Protected Methods
-
   @Debug({ after: 'Logger workspace attached' })
   protected onModuleInit(): void {
     this.level = this.configService.get([LIB_UTILS, LOG_LEVEL]);
@@ -135,10 +121,6 @@ export class LoggerWorkspace implements iLoggerCore {
       this.logger.info({ context }, message);
     });
   }
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
 
   private logMessage(
     { context, ...data }: LOG_DATA,
@@ -165,6 +147,4 @@ export class LoggerWorkspace implements iLoggerCore {
       .map((line) => line.padEnd(max + 1, ' ').padStart(max + 2, ' '))
       .join(`\n`);
   }
-
-  // #endregion Private Methods
 }

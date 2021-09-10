@@ -1,6 +1,4 @@
 export class EndpointSecuritySettingsDTO {
-  // #region Object Properties
-
   public allowBindMountsForRegularUsers: boolean;
   public allowContainerCapabilitiesForRegularUsers: boolean;
   public allowDeviceMappingForRegularUsers: boolean;
@@ -10,6 +8,4 @@ export class EndpointSecuritySettingsDTO {
   public allowSysctlSettingForRegularUsers: boolean;
   public allowVolumeBrowserForRegularUsers: boolean;
   public enableHostManagementFeatures: boolean;
-
-  // #endregion Object Properties
 }

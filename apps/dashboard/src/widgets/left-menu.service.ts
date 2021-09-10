@@ -19,16 +19,16 @@ const CACHE_KEY = 'LEFTMENU:activeWorkspace';
 
 @Injectable()
 export class LeftMenuService {
-  // #region Object Properties
+  
 
   public activeWorkspace: iWorkspace;
 
   private TREE: TreeElement;
   private treeData: Pick<TreeOptions, 'children'> = {};
 
-  // #endregion Object Properties
+  
 
-  // #region Constructors
+  
 
   constructor(
     @Inject(BLESSED_GRID) private readonly grid: GridElement,
@@ -38,9 +38,9 @@ export class LeftMenuService {
     private readonly logger: AutoLogService,
   ) {}
 
-  // #endregion Constructors
+  
 
-  // #region Protected Methods
+  
 
   @Trace()
   protected async onApplicationBootstrap(): Promise<void> {
@@ -74,9 +74,9 @@ export class LeftMenuService {
     this.TREE.setData({ ...this.treeData, extended: true });
   }
 
-  // #endregion Protected Methods
+  
 
-  // #region Private Methods
+  
 
   @RefreshAfter()
   @Trace()
@@ -168,5 +168,5 @@ export class LeftMenuService {
     });
   }
 
-  // #endregion Private Methods
+  
 }

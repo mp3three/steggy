@@ -13,8 +13,6 @@ type GenericOptions = Record<string, boolean | string | string[]>;
 
 @Injectable()
 export class ItemService {
-  // #region Public Methods
-
   @Trace()
   public async edit({
     item,
@@ -76,10 +74,6 @@ export class ItemService {
     return JSON.parse(stdout);
   }
 
-  // #endregion Public Methods
-
-  // #region Private Methods
-
   private mergeOptions(
     parameters: string[],
     options: GenericOptions,
@@ -98,6 +92,4 @@ export class ItemService {
     });
     return parameters;
   }
-
-  // #endregion Private Methods
 }

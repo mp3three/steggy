@@ -63,8 +63,6 @@ const remote = 'sensor.loft_pico';
   switches: ['switch.desk_light', 'sensor.loft_pico'],
 })
 export class LoftController implements iRoomController {
-  // #region Constructors
-
   constructor(
     public readonly lightManager: LightManagerService,
     public readonly kunamiService: KunamiCodeService,
@@ -75,10 +73,6 @@ export class LoftController implements iRoomController {
     private readonly eventEmitter: EventEmitter2,
     private readonly switchService: SwitchDomainService,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async areaOff({
@@ -137,10 +131,6 @@ export class LoftController implements iRoomController {
     }
     return false;
   }
-
-  // #endregion Public Methods
-
-  // #region Protected Methods
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   protected async fanLightSchedule(): Promise<void> {
@@ -235,10 +225,6 @@ export class LoftController implements iRoomController {
     );
   }
 
-  // #endregion Protected Methods
-
-  // #region Private Methods
-
   /**
    * Return what the brightness should be for the fan lights in auto mode
    */
@@ -327,6 +313,4 @@ export class LoftController implements iRoomController {
   private ticksThisHour(minute: number, second: number): number {
     return minute * 2 + (second >= 30 ? 1 : 0);
   }
-
-  // #endregion Private Methods
 }

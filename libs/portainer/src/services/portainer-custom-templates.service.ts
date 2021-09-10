@@ -5,13 +5,7 @@ import { PortainerFetchService } from './portainer-fetch.service';
 
 @Injectable()
 export class PortainerCustomTemplatesService {
-  // #region Constructors
-
   constructor(private readonly fetchService: PortainerFetchService) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async getFile(id: string): Promise<unknown> {
@@ -41,6 +35,4 @@ export class PortainerCustomTemplatesService {
       url: `/custom_templates/${id}`,
     });
   }
-
-  // #endregion Public Methods
 }

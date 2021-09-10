@@ -11,19 +11,9 @@ import { PortainerFetchService } from './portainer-fetch.service';
 
 @Injectable()
 export class PortainerAuthService {
-  // #region Object Properties
-
   public jwt: string;
 
-  // #endregion Object Properties
-
-  // #region Constructors
-
   constructor(private readonly fetchService: PortainerFetchService) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Debug('Login')
   public async login({
@@ -66,6 +56,4 @@ export class PortainerAuthService {
     });
     this.jwt = response.jwt;
   }
-
-  // #endregion Public Methods
 }

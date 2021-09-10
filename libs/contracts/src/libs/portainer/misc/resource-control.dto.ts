@@ -1,8 +1,6 @@
 import { ResourceControlTypes } from '../enums';
 
 export class ResourceControlDTO {
-  // #region Object Properties
-
   public AccessLevel: number;
   public AdministratorsOnly: boolean;
   public Id: number;
@@ -11,6 +9,4 @@ export class ResourceControlDTO {
   public ResourceId: string;
   public System: boolean;
   public Type: ResourceControlTypes;
-
-  // #endregion Object Properties
 }

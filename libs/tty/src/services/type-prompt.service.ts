@@ -18,8 +18,6 @@ type KeyedConfig<T extends ConfigType = ConfigType> =
 
 @Injectable()
 export class TypePromptService {
-  // #region Object Properties
-
   /**
    * Reference configuration for prompts
    *
@@ -30,10 +28,6 @@ export class TypePromptService {
     COMPLEX_CONFIG_PROVIDERS,
     (defaultValue: unknown) => Promise<unknown>
   >();
-
-  // #endregion Object Properties
-
-  // #region Public Methods
 
   public async boolean(
     config: KeyedConfig<'boolean'>,
@@ -218,10 +212,6 @@ export class TypePromptService {
     );
   }
 
-  // #endregion Public Methods
-
-  // #region Private Methods
-
   /**
    * Assemble an object using key / value pairs
    *
@@ -268,6 +258,4 @@ export class TypePromptService {
     console.log(chalk.inverse(`</${name}>\n`));
     return out;
   }
-
-  // #endregion Private Methods
 }

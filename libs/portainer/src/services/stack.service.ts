@@ -5,13 +5,7 @@ import { Trace } from '@automagical/utilities';
 import { PortainerFetchService } from './portainer-fetch.service';
 
 export class StackService {
-  // #region Constructors
-
   constructor(private readonly fetchService: PortainerFetchService) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async create(): Promise<CustomTemplateDTO> {
@@ -34,6 +28,4 @@ export class StackService {
       ...fetchWith,
     });
   }
-
-  // #endregion Public Methods
 }

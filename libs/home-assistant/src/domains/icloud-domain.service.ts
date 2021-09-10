@@ -6,15 +6,9 @@ import { HACallService } from '../services';
 
 @Injectable()
 export class iCloudDomainService {
-  // #region Constructors
-
   constructor(private readonly callService: HACallService) {
     callService.domain = HASS_DOMAINS.icloud;
   }
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async displayMessage(): Promise<void> {
@@ -38,6 +32,4 @@ export class iCloudDomainService {
   public async update(): Promise<void> {
     await this.callService.call('update');
   }
-
-  // #endregion Public Methods
 }

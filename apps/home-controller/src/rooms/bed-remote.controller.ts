@@ -24,7 +24,7 @@ const remote = 'sensor.bed_pico';
   remote,
 })
 export class BedRemoteController implements iRoomController {
-  // #region Constructors
+  
 
   constructor(
     public readonly lightManager: LightManagerService,
@@ -35,9 +35,9 @@ export class BedRemoteController implements iRoomController {
     private readonly solarCalc: SolarCalcService,
   ) {}
 
-  // #endregion Constructors
+  
 
-  // #region Protected Methods
+  
 
   protected onModuleInit(): void {
     this.eventEmitter.on(
@@ -71,5 +71,5 @@ export class BedRemoteController implements iRoomController {
     );
   }
 
-  // #endregion Protected Methods
+  
 }

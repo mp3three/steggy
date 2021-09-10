@@ -50,8 +50,6 @@ import {
   ],
 })
 export class UtilitiesModule {
-  // #region Public Static Methods
-
   public static forRoot(): DynamicModule {
     const config = [...CONFIG_PROVIDERS.values()];
     const decorated = [...injectedLoggers.values()];
@@ -83,15 +81,7 @@ export class UtilitiesModule {
     };
   }
 
-  // #endregion Public Static Methods
-
-  // #region Constructors
-
   constructor(private readonly configService: AutoConfigService) {}
-
-  // #endregion Constructors
-
-  // #region Protected Methods
 
   protected configure(consumer: MiddlewareConsumer): void {
     consumer
@@ -104,8 +94,6 @@ export class UtilitiesModule {
       )
       .forRoutes({ method: RequestMethod.ALL, path: '*' });
   }
-
-  // #endregion Protected Methods
 }
 
 function bindLoggerMiddleware(

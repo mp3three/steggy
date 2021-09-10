@@ -20,24 +20,14 @@ import { HASocketAPIService } from './ha-socket-api.service';
  */
 @Injectable()
 export class EntityManagerService {
-  // #region Object Properties
-
   private readonly ENTITIES = new Map<string, HassStateDTO>();
   private readonly OBSERVABLES = new Map<string, Observable<HassStateDTO>>();
   private readonly SUBSCRIBERS = new Map<string, Subscriber<HassStateDTO>>();
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor(
     private readonly socketService: HASocketAPIService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   /**
    * Retrieve an entity's state
@@ -75,10 +65,6 @@ export class EntityManagerService {
       });
     });
   }
-
-  // #endregion Public Methods
-
-  // #region Protected Methods
 
   @OnEvent(HA_SOCKET_READY)
   protected async socketReady(): Promise<void> {
@@ -126,10 +112,6 @@ export class EntityManagerService {
     this.eventEmitter.emit(`${entity_id}/update`, event);
   }
 
-  // #endregion Protected Methods
-
-  // #region Private Methods
-
   private createObservable(entityId: string): void {
     if (this.OBSERVABLES.has(entityId)) {
       return;
@@ -139,6 +121,4 @@ export class EntityManagerService {
     });
     this.OBSERVABLES.set(entityId, observable);
   }
-
-  // #endregion Private Methods
 }

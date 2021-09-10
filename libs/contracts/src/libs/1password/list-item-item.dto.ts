@@ -1,6 +1,4 @@
 export class ListItemItemDTO {
-  // #region Object Properties
-
   public changerUuid: string;
   public createdAt: Date;
   public itemVersion: number;
@@ -10,14 +8,8 @@ export class ListItemItemDTO {
   public updatedAt: Date;
   public uuid: string;
   public vaultUuid: string;
-
-  // #endregion Object Properties
 }
 
 export class ListItemOverviewDTO {
-  // #region Object Properties
-
   public urls: Record<'l' | 'u', string>[];
-
-  // #endregion Object Properties
 }

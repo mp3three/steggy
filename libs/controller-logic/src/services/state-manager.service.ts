@@ -21,8 +21,6 @@ const CACHE_KEY = (room, flag) => `FLAGS:${room}/${flag}`;
  */
 @Injectable({ scope: Scope.TRANSIENT })
 export class StateManagerService {
-  // #region Constructors
-
   constructor(
     @Inject(INQUIRER)
     private readonly controller: Partial<iRoomController>,
@@ -30,17 +28,9 @@ export class StateManagerService {
     @InjectLogger() private readonly logger: AutoLogService,
   ) {}
 
-  // #endregion Constructors
-
-  // #region Private Accessors
-
   private get settings(): RoomControllerSettingsDTO {
     return this.controller.constructor[ROOM_CONTROLLER_SETTINGS];
   }
-
-  // #endregion Private Accessors
-
-  // #region Public Methods
 
   @Trace()
   public async addFlag(flagName: string): Promise<void> {
@@ -73,10 +63,6 @@ export class StateManagerService {
     this.cacheService.del(CACHE_KEY(this.settings.name, flagName));
   }
 
-  // #endregion Public Methods
-
-  // #region Protected Methods
-
   /**
    * For confirmation / debugging sake only
    *
@@ -99,6 +85,4 @@ export class StateManagerService {
       `[${this.settings.friendlyName}] loaded state`,
     );
   }
-
-  // #endregion Protected Methods
 }

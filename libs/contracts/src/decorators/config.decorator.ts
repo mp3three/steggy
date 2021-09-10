@@ -32,17 +32,11 @@ export type ConfigType =
   | string[];
 
 export interface DefaultConfigOptions<T extends ConfigType = ConfigType> {
-  // #region Object Properties
-
   /**
    * Which applications are interested in this item
    */
   applications:
-    | Record<
-        string,
-        // #endregion Object Properties
-        `${ConfigLibraryVisibility}`
-      >
+    | Record<string, `${ConfigLibraryVisibility}`>
     | `${ConfigLibraryVisibility}`;
   array?: boolean;
   default?: unknown;

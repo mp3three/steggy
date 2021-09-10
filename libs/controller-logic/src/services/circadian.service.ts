@@ -19,13 +19,7 @@ import { CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP } from '../config';
  */
 @Injectable()
 export class CircadianService {
-  // #region Object Properties
-
   public CURRENT_LIGHT_TEMPERATURE: number;
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor(
     private readonly solarCalcService: SolarCalcService,
@@ -36,10 +30,6 @@ export class CircadianService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  // #endregion Constructors
-
-  // #region Protected Methods
-
   @Cron(CronExpression.EVERY_MINUTE)
   protected async updateKelvin(): Promise<void> {
     const kelvin = this.getCurrentTemperature();
@@ -49,10 +39,6 @@ export class CircadianService {
     this.CURRENT_LIGHT_TEMPERATURE = kelvin;
     this.eventEmitter.emit(CIRCADIAN_UPDATE, kelvin);
   }
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
 
   /**
    * Returns 0 when it's dark out, increasing to 1 at solar noon
@@ -94,6 +80,4 @@ export class CircadianService {
         this.minTemperature,
     );
   }
-
-  // #endregion Private Methods
 }

@@ -24,24 +24,14 @@ import { WorkspaceService } from './workspace.service';
  */
 @Injectable()
 export class SystemService {
-  // #region Constructors
-
   constructor(
     private readonly prompt: TypePromptService,
     private readonly workspace: WorkspaceService,
   ) {}
 
-  // #endregion Constructors
-
-  // #region Private Accessors
-
   private get projects() {
     return this.workspace.workspace.projects;
   }
-
-  // #endregion Private Accessors
-
-  // #region Public Methods
 
   public async bumpApplications(list: string[]): Promise<void> {
     await eachSeries(
@@ -165,10 +155,6 @@ export class SystemService {
     console.log(chalk.inverse(chalk.green(`${file} written`)));
   }
 
-  // #endregion Public Methods
-
-  // #region Private Methods
-
   private packageWriteVersion(project: string, version: string): void {
     const packageFile = join(cwd(), this.projects[project].root, PACKAGE_FILE);
     const data = this.workspace.PACKAGES.get(project);
@@ -176,6 +162,4 @@ export class SystemService {
     this.workspace.PACKAGES.set(project, data);
     writeFileSync(packageFile, JSON.stringify(data, undefined, '  '));
   }
-
-  // #endregion Private Methods
 }

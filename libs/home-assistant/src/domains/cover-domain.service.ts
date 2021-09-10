@@ -9,15 +9,9 @@ import { HACallService } from '../services';
  */
 @Injectable()
 export class CoverDomainService {
-  // #region Constructors
-
   constructor(private readonly callService: HACallService) {
     callService.domain = HASS_DOMAINS.cover;
   }
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async close(entityId: string | string[]): Promise<void> {
@@ -74,6 +68,4 @@ export class CoverDomainService {
       entity_id: entityId,
     });
   }
-
-  // #endregion Public Methods
 }

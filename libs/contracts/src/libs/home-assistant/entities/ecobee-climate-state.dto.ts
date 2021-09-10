@@ -12,8 +12,6 @@ export enum EcoveeFanModes {
 }
 
 export class EcobeeClimateAttributesDTO {
-  // #region Object Properties
-
   public aux_heat: 'off';
   public climaate_mode: 'Sleep';
   public current_humidity: number;
@@ -33,8 +31,6 @@ export class EcobeeClimateAttributesDTO {
   public target_temp_high: number;
   public target_temp_low: number;
   public temperature: null;
-
-  // #endregion Object Properties
 }
 export class EcobeeClimateStateDTO extends HassStateDTO<
   keyof typeof EcobeeHVACModes | 'unavailable',

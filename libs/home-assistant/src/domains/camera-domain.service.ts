@@ -6,15 +6,9 @@ import { HACallService } from '../services';
 
 @Injectable()
 export class CameraDomainService {
-  // #region Constructors
-
   constructor(private readonly callService: HACallService) {
     callService.domain = HASS_DOMAINS.camera;
   }
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async disableMotionDetection(
@@ -68,6 +62,4 @@ export class CameraDomainService {
       entity_id: entityId,
     });
   }
-
-  // #endregion Public Methods
 }

@@ -10,18 +10,12 @@ import { AutoLogService } from './logger';
 
 @Injectable()
 export class ScheduleExplorerService {
-  // #region Constructors
-
   constructor(
     private readonly logger: AutoLogService,
     private readonly discoveryService: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Protected Methods
 
   @Info({ after: `[Scheduler] initialized` })
   protected onApplicationBootstrap(): void {
@@ -54,6 +48,4 @@ export class ScheduleExplorerService {
       );
     });
   }
-
-  // #endregion Protected Methods
 }

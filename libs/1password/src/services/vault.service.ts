@@ -5,8 +5,6 @@ import execa from 'execa';
 
 @Injectable()
 export class VaultService {
-  // #region Public Methods
-
   @Trace()
   public async edit(vault: string, name: string): Promise<void> {
     const { stdout } = await execa('op', [
@@ -36,6 +34,4 @@ export class VaultService {
     const { stdout } = await execa('op', parameters);
     return JSON.parse(stdout);
   }
-
-  // #endregion Public Methods
 }

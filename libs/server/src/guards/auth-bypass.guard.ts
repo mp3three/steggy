@@ -8,8 +8,6 @@ import { Observable } from 'rxjs';
  */
 @Injectable()
 export class AuthBypassGuard implements CanActivate {
-  // #region Public Methods
-
   @Trace()
   public canActivate(
     context: ExecutionContext,
@@ -18,6 +16,4 @@ export class AuthBypassGuard implements CanActivate {
     locals.authenticated = true;
     return true;
   }
-
-  // #endregion Public Methods
 }

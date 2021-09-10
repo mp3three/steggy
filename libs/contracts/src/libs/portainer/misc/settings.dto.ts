@@ -2,8 +2,6 @@ import { OAuthPayloadDTO } from '../auth';
 import { LDAPSettingsDTO } from './ldap-settings.dto';
 
 export class SettingsDTO {
-  // #region Object Properties
-
   public AllowBindMountsForRegularUsers: boolean;
   public AllowContainerCapabilitiesForRegularUsers: boolean;
   public AllowDeviceMappingForRegularUsers: boolean;
@@ -25,6 +23,4 @@ export class SettingsDTO {
   public UserSessionTimeout: string;
   public displayDonationHeader: boolean;
   public displayExternalContributors: boolean;
-
-  // #endregion Object Properties
 }

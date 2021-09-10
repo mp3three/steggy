@@ -1,6 +1,4 @@
 export class OAuthSettingsDTO {
-  // #region Object Properties
-
   public AccessTokenURI: string;
   public AuthorizationUri: string;
   public ClientID: string;
@@ -13,6 +11,4 @@ export class OAuthSettingsDTO {
   public SSO: boolean;
   public Scopes: string;
   public UserIdentifier: string;
-
-  // #endregion Object Properties
 }

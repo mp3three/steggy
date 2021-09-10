@@ -16,23 +16,13 @@ import { EventEmitter2 } from 'eventemitter2';
  */
 @Injectable()
 export class RemoteAdapterService {
-  // #region Object Properties
-
   private readonly lookup = new Set<string>();
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor(
     @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public watch(entity_id: string): void {
@@ -80,6 +70,4 @@ export class RemoteAdapterService {
     });
     this.lookup.add(entity_id);
   }
-
-  // #endregion Public Methods
 }

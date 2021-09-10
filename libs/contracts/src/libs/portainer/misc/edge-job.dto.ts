@@ -1,8 +1,6 @@
 import { EdgeJobEndpointMetaDTO } from './job-endpoint-meta.dto';
 
 export class EdgeJobDTO {
-  // #region Object Properties
-
   public Created: number;
   public CronExpression: string;
   public Endpoints: Record<string, EdgeJobEndpointMetaDTO>;
@@ -11,6 +9,4 @@ export class EdgeJobDTO {
   public Recurring: boolean;
   public ScriptPath: string;
   public Version: number;
-
-  // #endregion Object Properties
 }

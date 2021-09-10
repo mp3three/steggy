@@ -4,12 +4,12 @@ import pino from 'pino';
 import { AutoLogService } from '../services';
 
 interface AnnotationLoggerDTO {
-  // #region Object Properties
+  
 
   after?: string;
   before?: string;
 
-  // #endregion Object Properties
+  
 }
 
 /**

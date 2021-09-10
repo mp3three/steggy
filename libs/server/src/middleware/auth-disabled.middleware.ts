@@ -4,8 +4,6 @@ import { NextFunction } from 'express';
 
 @Injectable()
 export class AuthDisabledMiddleware implements NestMiddleware {
-  // #region Public Methods
-
   public async use(
     request: APIRequest,
     { locals }: APIResponse,
@@ -14,6 +12,4 @@ export class AuthDisabledMiddleware implements NestMiddleware {
     locals.authenticated = true;
     next();
   }
-
-  // #endregion Public Methods
 }

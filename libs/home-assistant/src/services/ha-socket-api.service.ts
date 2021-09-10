@@ -31,15 +31,9 @@ import { BASE_URL, TOKEN } from '../config';
 
 @Injectable()
 export class HASocketAPIService {
-  // #region Object Properties
-
   private connection: WS;
   private messageCount = 1;
   private waitingCallback = new Map<number, (result) => void>();
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor(
     @InjectLogger()
@@ -50,10 +44,6 @@ export class HASocketAPIService {
     @InjectConfig(TOKEN)
     private readonly token: string,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Debug('List all areas')
   public async getAreas(): Promise<AreaDTO[]> {
@@ -117,10 +107,6 @@ export class HASocketAPIService {
     return new Promise((done) => this.waitingCallback.set(counter, done));
   }
 
-  // #endregion Public Methods
-
-  // #region Protected Methods
-
   @Cron(CronExpression.EVERY_10_SECONDS)
   protected async ping(): Promise<void> {
     try {
@@ -148,10 +134,6 @@ export class HASocketAPIService {
     // The current flow forces the auth frames to get sent after app is started
     await this.initConnection();
   }
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
 
   /**
    * Set up a new websocket connection to home assistant
@@ -244,6 +226,4 @@ export class HASocketAPIService {
         this.logger.error(`Unknown websocket message type: ${message.type}`);
     }
   }
-
-  // #endregion Private Methods
 }

@@ -2,8 +2,6 @@ import { AccessPolicyDTO } from '../auth';
 import { KubernetesDataDTO } from '../misc';
 
 export class EndpointUpdatePayloadDTO {
-  // #region Object Properties
-
   public azureApplicationID: string;
   public azureAuthenticationKey: string;
   public azureTenantID: string;
@@ -20,6 +18,4 @@ export class EndpointUpdatePayloadDTO {
   public tlsskipVerify: boolean;
   public url: string;
   public userAccessPolicies: Record<string, AccessPolicyDTO>;
-
-  // #endregion Object Properties
 }

@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
 
 export class TreeWidgetSettingsDTO {
-  // #region Object Properties
+  
 
   @Transform(({ value }) => value ?? ' [+]')
   public extend?: string;
@@ -10,5 +10,5 @@ export class TreeWidgetSettingsDTO {
   @Transform(({ value }) => value ?? ' [-]')
   public retract?: string;
 
-  // #endregion Object Properties
+  
 }

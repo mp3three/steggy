@@ -30,13 +30,7 @@ import { RemoteAdapterService } from './remote-adapter.service';
  */
 @Injectable()
 export class RoomExplorerService {
-  // #region Object Properties
-
   public readonly rooms = new Set<InstanceWrapper<iRoomController>>();
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor(
     @InjectLogger()
@@ -47,18 +41,10 @@ export class RoomExplorerService {
     private readonly mqtt: MqttService,
   ) {}
 
-  // #endregion Constructors
-
-  // #region Public Methods
-
   public getSettings({ instance }: InstanceWrapper): RoomControllerSettingsDTO {
     const constructor = instance?.constructor ?? {};
     return constructor[ROOM_CONTROLLER_SETTINGS];
   }
-
-  // #endregion Public Methods
-
-  // #region Protected Methods
 
   @Trace()
   protected onModuleInit(): void {
@@ -83,10 +69,6 @@ export class RoomExplorerService {
       this.logger.info(`[${settings.friendlyName}] initialized`);
     });
   }
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
 
   private controllerDefaults(instance: iRoomController): void {
     const list = [
@@ -150,6 +132,4 @@ export class RoomExplorerService {
       this.eventEmitter.on(ROOM_COMMAND(name, event), callback);
     });
   }
-
-  // #endregion Private Methods
 }

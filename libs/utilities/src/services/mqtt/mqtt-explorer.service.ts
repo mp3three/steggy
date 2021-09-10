@@ -25,8 +25,6 @@ import { MqttService } from './mqtt.service';
 
 @Injectable()
 export class MQTTExplorerService {
-  // #region Private Static Methods
-
   private static matchGroups(string: string, regex: RegExp) {
     regex.lastIndex = 0;
     let m = regex.exec(string);
@@ -64,15 +62,7 @@ export class MQTTExplorerService {
     );
   }
 
-  // #endregion Private Static Methods
-
-  // #region Object Properties
-
   public subscribers: MqttSubscriber[] = [];
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor(
     private readonly logger: AutoLogService,
@@ -83,10 +73,6 @@ export class MQTTExplorerService {
     private readonly mqttService: MqttService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Protected Methods
 
   @Info('[MQTT] initialized')
   protected onApplicationBootstrap(): void {
@@ -160,6 +146,4 @@ export class MQTTExplorerService {
       this.eventEmitter.emit(MQTT_OFFLINE);
     });
   }
-
-  // #endregion Protected Methods
 }

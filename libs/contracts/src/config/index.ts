@@ -5,13 +5,9 @@
  * Also provides dedicated sections for libraries to store their own configuration options
  */
 export class AutomagicalConfig {
-  // #region Object Properties
-
   public application?: Record<string, unknown>;
   public libs?: Record<string, Record<string, unknown>>;
   public PRINT_CONFIG_AT_STARTUP?: boolean;
-
-  // #endregion Object Properties
 }
 
 export const ACTIVE_APPLICATION = Symbol('ACTIVE_APPLICATION');

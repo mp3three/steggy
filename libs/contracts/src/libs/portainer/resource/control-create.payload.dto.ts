@@ -1,8 +1,6 @@
 import { ResourceTypes } from '../enums';
 
 export class ResourceControlCreatePayloadDTO {
-  // #region Object Properties
-
   public administratorsOnly: boolean;
   public public: boolean;
   public resourceID: string;
@@ -10,6 +8,4 @@ export class ResourceControlCreatePayloadDTO {
   public teams: number[];
   public type: ResourceTypes;
   public users: number[];
-
-  // #endregion Object Properties
 }

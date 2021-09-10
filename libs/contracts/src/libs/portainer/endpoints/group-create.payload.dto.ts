@@ -1,6 +1,4 @@
 export class EndpointGroupCreatePayloadDTO {
-  // #region Object Properties
-
   /**
    * List of endpoint identifiers that will be part of this group
    */
@@ -11,6 +9,4 @@ export class EndpointGroupCreatePayloadDTO {
    */
   public name: string;
   public tagIds?: number[];
-
-  // #endregion Object Properties
 }

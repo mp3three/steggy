@@ -25,34 +25,34 @@ import { HOME_MENU } from '../typings';
   roomRemote: true,
 })
 export class StonksWorkspace implements iWorkspace {
-  // #region Object Properties
+  
 
   @WorkspaceElement()
   private BOX: BoxElement;
   @WorkspaceElement()
   private HEADER: BoxElement;
 
-  // #endregion Object Properties
+  
 
-  // #region Constructors
+  
 
   constructor(
     @Inject(BLESSED_GRID) private readonly grid: GridElement,
     private readonly fetchService: FetchService,
   ) {}
 
-  // #endregion Constructors
+  
 
-  // #region Public Methods
+  
 
   public async onShow(): Promise<void> {
     this.BOX.setContent(chalk`{magenta Loading...}`);
     this.BOX.setContent(await this.getStonks());
   }
 
-  // #endregion Public Methods
+  
 
-  // #region Protected Methods
+  
 
   protected async onApplicationBootstrap(): Promise<void> {
     try {
@@ -82,9 +82,9 @@ export class StonksWorkspace implements iWorkspace {
     }
   }
 
-  // #endregion Protected Methods
+  
 
-  // #region Private Methods
+  
 
   @SliceLines(0, -4)
   private async getStonks(): Promise<string> {
@@ -98,5 +98,5 @@ export class StonksWorkspace implements iWorkspace {
     });
   }
 
-  // #endregion Private Methods
+  
 }

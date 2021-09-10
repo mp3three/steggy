@@ -1,6 +1,4 @@
 export class EBEnvironmentDTO {
-  // #region Object Properties
-
   public AbortableOperationInProgress: boolean;
   public ApplicationName: string;
   public CNAME: string;
@@ -17,6 +15,4 @@ export class EBEnvironmentDTO {
   public Status: string;
   public Tier: Record<'Name' | 'Type' | 'Version', string>;
   public VersionLabel: 'living-docs:latest';
-
-  // #endregion Object Properties
 }

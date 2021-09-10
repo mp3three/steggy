@@ -17,7 +17,8 @@
     "no-unsanitized",
     "simple-import-sort",
     "jest-formatting",
-    "jest"
+    "jest",
+    "sort-class-members"
   ],
   "overrides": [{
       "files": ["*.tsx"],
@@ -30,7 +31,7 @@
       ]
     },
     {
-      "files": ["*.ts", "*.tsx", "*.mjs"],
+      "files": ["*.ts", "*.tsx"],
       "extends": [
         "plugin:@nrwl/nx/typescript",
         "plugin:you-dont-need-lodash-underscore/compatible",
@@ -41,6 +42,21 @@
         "plugin:jsonc/recommended-with-jsonc"
       ],
       "rules": {
+        "sort-class-members/sort-class-members": [
+          2,
+          {
+            "order": [
+              "[static-properties]",
+              "[static-methods]",
+              "[properties]",
+              "[conventional-private-properties]",
+              "constructor",
+              "[methods]",
+              "[conventional-private-methods]"
+            ],
+            "accessorPairPositioning": "getThenSet"
+          }
+        ],
         "radar/prefer-immediate-return": "off",
         "@nrwl/nx/enforce-module-boundaries": [
           "error",

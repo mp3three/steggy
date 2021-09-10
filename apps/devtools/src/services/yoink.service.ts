@@ -19,16 +19,16 @@ const SEPARATOR = ' - ';
   name: 'Yoink',
 })
 export class YoinkService implements iRepl {
-  // #region Constructors
+  
 
   constructor(
     private readonly configService: AutoConfigService,
     private readonly fetchService: FetchService,
   ) {}
 
-  // #endregion Constructors
+  
 
-  // #region Public Methods
+  
 
   public async exec(): Promise<void> {
     const { dirname, url, path } = await inquirer.prompt([
@@ -62,9 +62,9 @@ export class YoinkService implements iRepl {
     this.processDir(destination);
   }
 
-  // #endregion Public Methods
+  
 
-  // #region Private Methods
+  
 
   private processDir(DIR: string) {
     const files = readdirSync(DIR);
@@ -106,5 +106,5 @@ export class YoinkService implements iRepl {
     );
   }
 
-  // #endregion Private Methods
+  
 }

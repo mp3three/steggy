@@ -10,22 +10,16 @@ type EmptyObject = Record<never, unknown>;
  * Properties that make workflow changes
  */
 class GenericBody {
-  // #region Object Properties
-
   /**
    * Identifies this as a "WIP" submission
    */
   draft?: boolean;
-
-  // #endregion Object Properties
 }
 
 /**
  * Known query params that aren't control related
  */
 class GenericQuery {
-  // #region Object Properties
-
   /**
    * License server
    */
@@ -35,8 +29,6 @@ class GenericQuery {
    * Super secret "bypass validation" flag
    */
   noValidate?: boolean;
-
-  // #endregion Object Properties
 }
 /**
  * Wrapper around express' request type info

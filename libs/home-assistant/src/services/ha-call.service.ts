@@ -10,19 +10,9 @@ import { HASocketAPIService } from './ha-socket-api.service';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class HACallService {
-  // #region Object Properties
-
   public domain: HASS_DOMAINS;
 
-  // #endregion Object Properties
-
-  // #region Constructors
-
   constructor(private readonly socketService: HASocketAPIService) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   /**
    * Convenience wrapper around sendMsg
@@ -108,6 +98,4 @@ export class HACallService {
       type: HASSIO_WS_COMMAND.call_service,
     });
   }
-
-  // #endregion Public Methods
 }

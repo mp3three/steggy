@@ -10,8 +10,6 @@ import { AutoLogService } from './logger';
 
 @Injectable()
 export class EventsExplorerService {
-  // #region Constructors
-
   constructor(
     private readonly logger: AutoLogService,
     private readonly discoveryService: DiscoveryService,
@@ -19,10 +17,6 @@ export class EventsExplorerService {
     private readonly reflector: Reflector,
     private readonly metadataScanner: MetadataScanner,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public getEventHandlerMetadata(
@@ -51,10 +45,6 @@ export class EventsExplorerService {
       });
   }
 
-  // #endregion Public Methods
-
-  // #region Protected Methods
-
   @Info({ after: `[Events] initialized` })
   protected onApplicationBootstrap(): void {
     this.loadEventListeners();
@@ -64,10 +54,6 @@ export class EventsExplorerService {
   protected onApplicationShutdown(): void {
     this.eventEmitter.removeAllListeners();
   }
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
 
   @Trace()
   private subscribe<T extends Record<string, Type>>(instance: T, key: keyof T) {
@@ -86,6 +72,4 @@ export class EventsExplorerService {
       options,
     );
   }
-
-  // #endregion Private Methods
 }

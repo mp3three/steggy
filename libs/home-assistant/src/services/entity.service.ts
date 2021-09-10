@@ -9,22 +9,12 @@ import { AutoLogService, OnEvent } from '@automagical/utilities';
 const DEFAULT_STATE: HassStateDTO = undefined;
 
 export abstract class EntityService {
-  // #region Object Properties
-
   protected readonly ENTITIES: Map<string, HassStateDTO>;
   protected readonly logger: AutoLogService;
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor() {
     this.ENTITIES = new Map<string, HassStateDTO>();
   }
-
-  // #endregion Constructors
-
-  // #region Protected Methods
 
   @OnEvent(ALL_ENTITIES_UPDATED)
   protected async onAllEntitiesUpdated(
@@ -54,6 +44,4 @@ export abstract class EntityService {
       }
     });
   }
-
-  // #endregion Protected Methods
 }

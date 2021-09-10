@@ -6,8 +6,6 @@ import { KubernetesDataDTO } from './kubernetes-data.dto';
 import { TLSConfigurationDTO } from './tls-config.dto';
 
 export class EndpointDTO {
-  // #region Object Properties
-
   public AuthorizedTeams: number[];
   /**
    * @deprecated
@@ -42,6 +40,4 @@ export class EndpointDTO {
   public UserAcesssPolicies: Record<string, AccessPolicyDTO>;
   public lastCheckInDate: number;
   public securitySettings: EndpointSecuritySettingsDTO;
-
-  // #endregion Object Properties
 }

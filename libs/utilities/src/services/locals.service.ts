@@ -22,17 +22,11 @@ const STASH_PROP_LIST = [] as (keyof ResponseLocals)[];
 
 @Injectable({ scope: Scope.REQUEST })
 export class LocalsService {
-  // #region Constructors
-
   constructor(
     private readonly logger: AutoLogService,
     @Inject(APIRequest) private readonly request: APIRequest,
     @InjectConfig(MAX_STASH_DEPTH) private readonly maxSize: number,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public pop(): void {
@@ -68,6 +62,4 @@ export class LocalsService {
     this.request.body = undefined;
     locals.stash.push(stash);
   }
-
-  // #endregion Public Methods
 }

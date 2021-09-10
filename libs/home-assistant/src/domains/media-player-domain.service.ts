@@ -9,15 +9,9 @@ import { HACallService } from '../services';
  */
 @Injectable()
 export class MediaPlayerDomainService {
-  // #region Constructors
-
   constructor(private readonly callService: HACallService) {
     callService.domain = HASS_DOMAINS.media_player;
   }
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async sendCommand(entityId: string | string[]): Promise<void> {
@@ -46,6 +40,4 @@ export class MediaPlayerDomainService {
       entity_id: entityId,
     });
   }
-
-  // #endregion Public Methods
 }

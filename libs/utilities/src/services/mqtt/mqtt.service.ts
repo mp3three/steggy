@@ -24,26 +24,16 @@ export type MqttCallback<T = Record<string, unknown>> = (
  */
 @Injectable()
 export class MqttService {
-  // #region Object Properties
-
   private readonly callbacks = new Map<
     string,
     [MqttCallback[], MqttSubscribeOptions]
   >();
   private readonly subscriptions = new Set<string>();
 
-  // #endregion Object Properties
-
-  // #region Constructors
-
   constructor(
     @InjectMQTT() private readonly client: Client,
     private readonly logger: AutoLogService,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public listen(
@@ -119,10 +109,6 @@ export class MqttService {
     });
   }
 
-  // #endregion Public Methods
-
-  // #region Protected Methods
-
   @Trace()
   protected onModuleInit(): void {
     this.client.on(
@@ -143,10 +129,6 @@ export class MqttService {
     );
   }
 
-  // #endregion Protected Methods
-
-  // #region Private Methods
-
   @Trace()
   private handlePayload<T>(payload: Buffer): T {
     const text = payload.toString('utf-8');
@@ -155,6 +137,4 @@ export class MqttService {
     }
     return JSON.parse(text);
   }
-
-  // #endregion Private Methods
 }

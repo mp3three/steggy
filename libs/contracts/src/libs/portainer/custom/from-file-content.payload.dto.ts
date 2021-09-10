@@ -1,8 +1,6 @@
 import { PlatformTypes, TemplateTypes } from '../enums';
 
 export class CustomFromFileContentPayloadDTO {
-  // #region Object Properties
-
   /**
    * Description of the template
    */
@@ -31,6 +29,4 @@ export class CustomFromFileContentPayloadDTO {
    * Type of created stack
    */
   public type: TemplateTypes;
-
-  // #endregion Object Properties
 }

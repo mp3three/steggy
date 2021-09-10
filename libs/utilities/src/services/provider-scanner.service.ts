@@ -5,13 +5,7 @@ import { Trace } from '../decorators/logger.decorator';
 
 @Injectable()
 export class ProviderScannerService {
-  // #region Constructors
-
   constructor(private readonly disoveryService: DiscoveryService) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public scan<T>(target: symbol): Map<T, Provider> {
@@ -28,6 +22,4 @@ export class ProviderScannerService {
     });
     return out;
   }
-
-  // #endregion Public Methods
 }

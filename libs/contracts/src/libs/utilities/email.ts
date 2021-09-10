@@ -1,6 +1,4 @@
 export class NunjucksRenderDTO {
-  // #region Object Properties
-
   public bcc: string;
   public cc: string;
   public from: string;
@@ -9,6 +7,4 @@ export class NunjucksRenderDTO {
   public subject: string;
   public to: string;
   public transport: string;
-
-  // #endregion Object Properties
 }

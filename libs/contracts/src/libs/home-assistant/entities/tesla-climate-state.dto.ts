@@ -6,8 +6,6 @@ export enum TeslaHVACModes {
 }
 
 export class TeslaClimateAttributesDTO {
-  // #region Object Properties
-
   public friendly_name: string;
   public hvac_modes: (keyof typeof TeslaHVACModes)[];
   public max_temp: number;
@@ -15,8 +13,6 @@ export class TeslaClimateAttributesDTO {
   public preset_modes: ['normal', 'defrost'];
   public restored: boolean;
   public supported_features: number;
-
-  // #endregion Object Properties
 }
 export class TeslaClimateStateDTO extends HassStateDTO<
   keyof typeof TeslaHVACModes | 'unavailable',

@@ -6,15 +6,9 @@ import { HACallService } from '../services';
 
 @Injectable()
 export class LockDomainService {
-  // #region Constructors
-
   constructor(private readonly callService: HACallService) {
     callService.domain = HASS_DOMAINS.lock;
   }
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async lock(entityId: string | string[]): Promise<void> {
@@ -36,6 +30,4 @@ export class LockDomainService {
       entity_id: entityId,
     });
   }
-
-  // #endregion Public Methods
 }

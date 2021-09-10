@@ -8,22 +8,12 @@ import { InjectConfig } from '../decorators/injectors/inject-config.decorator';
 
 @Injectable()
 export class SolarCalcService {
-  // #region Object Properties
-
   private CALCULATOR;
-
-  // #endregion Object Properties
-
-  // #region Constructors
 
   constructor(
     @InjectConfig(LONGITUDE) private readonly longitude: string,
     @InjectConfig(LATITUDE) private readonly latitude: string,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Accessors
 
   public get IS_EVENING(): boolean {
     // Considered evening if the sun has set, or it's past 6PM
@@ -50,6 +40,4 @@ export class SolarCalcService {
       Number(this.longitude),
     );
   }
-
-  // #endregion Public Accessors
 }

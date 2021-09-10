@@ -26,8 +26,6 @@ import { WeatherIcons } from '../icons/weather-icons';
   name: 'weather',
 })
 export class WeatherWorkspace implements iWorkspace {
-  // #region Object Properties
-
   public readonly menuPosition = ['Weather'];
 
   public defaultActive = true;
@@ -37,19 +35,11 @@ export class WeatherWorkspace implements iWorkspace {
   @WorkspaceElement()
   private MOON: BoxElement;
 
-  // #endregion Object Properties
-
-  // #region Constructors
-
   constructor(
     @Inject(BLESSED_GRID) private readonly grid: GridElement,
     private readonly fetchService: FetchService,
     private readonly configService: AutoConfigService,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   public async onShow(): Promise<void> {
     const LOADING = chalk.magenta(`Loading`);
@@ -58,14 +48,6 @@ export class WeatherWorkspace implements iWorkspace {
     this.MOON.setContent(await this.getMoon());
     this.FORECAST.setContent(await this.getWeatherReport());
   }
-
-  // #endregion Public Methods
-
-  // #region Protected Methods
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
 
   @SliceLines(0, -3)
   private async getMoon(): Promise<string> {
@@ -103,6 +85,4 @@ export class WeatherWorkspace implements iWorkspace {
       this.FORECAST.border = {};
     });
   }
-
-  // #endregion Private Methods
 }

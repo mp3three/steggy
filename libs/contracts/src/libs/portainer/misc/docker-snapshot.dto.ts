@@ -1,6 +1,4 @@
 export class DockerSnapshotDTO {
-  // #region Object Properties
-
   public DockerSnapshotRaw: DockerSnapshotDTO;
   public DockerVersion: string;
   public HealthyContainerCount: number;
@@ -16,6 +14,4 @@ export class DockerSnapshotDTO {
   public TotalMemory: number;
   public UnhealthyContainerCount: number;
   public VoumeCount: number;
-
-  // #endregion Object Properties
 }

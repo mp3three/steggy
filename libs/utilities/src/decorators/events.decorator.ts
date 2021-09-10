@@ -17,7 +17,7 @@ export function OnEvent(
 }
 
 export class OnEventMetadata {
-  // #region Object Properties
+  
 
   /**
    * Event (name or pattern) to subscribe to.
@@ -28,5 +28,5 @@ export class OnEventMetadata {
    */
   options?: OnOptions;
 
-  // #endregion Object Properties
+  
 }

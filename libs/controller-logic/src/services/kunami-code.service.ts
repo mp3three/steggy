@@ -18,27 +18,17 @@ import { RoomSettings } from '../includes/room-settings';
  */
 @Injectable({ scope: Scope.TRANSIENT })
 export class KunamiCodeService implements iKunamiService {
-  // #region Object Properties
-
   private readonly room: iRoomController;
 
   private callbacks = new Set<KunamiCommandDTO>();
   private codes: ControllerStates[];
   private timeout: ReturnType<typeof setTimeout>;
 
-  // #endregion Object Properties
-
-  // #region Constructors
-
   constructor(
     private readonly eventEmitter: EventEmitter2,
     @InjectLogger()
     private readonly logger: AutoLogService,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   public addCommand(command: KunamiCommandDTO): void {
     this.logger.debug(
@@ -48,10 +38,6 @@ export class KunamiCodeService implements iKunamiService {
     );
     this.callbacks.add(command);
   }
-
-  // #endregion Public Methods
-
-  // #region Protected Methods
 
   protected onApplicationBootstrap(): void {
     this.codes = [];
@@ -70,10 +56,6 @@ export class KunamiCodeService implements iKunamiService {
       },
     );
   }
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
 
   private compare(a: ControllerStates[], b: ControllerStates[]): boolean {
     if (a.length !== b.length) {
@@ -104,6 +86,4 @@ export class KunamiCodeService implements iKunamiService {
       callback({ events: fullCodes });
     });
   }
-
-  // #endregion Private Methods
 }

@@ -9,8 +9,6 @@ import { BASIC_PASSWORD, BASIC_USERNAME } from '../config';
 
 @Injectable()
 export class BasicAuthGuard implements CanActivate {
-  // #region Constructors
-
   constructor(
     private readonly logger: AutoLogService,
     @InjectConfig(BASIC_USERNAME)
@@ -18,10 +16,6 @@ export class BasicAuthGuard implements CanActivate {
     @InjectConfig(BASIC_PASSWORD)
     private readonly password: string,
   ) {}
-
-  // #endregion Constructors
-
-  // #region Public Methods
 
   @Trace()
   public async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -43,10 +37,6 @@ export class BasicAuthGuard implements CanActivate {
     return username === this.username && password === this.password;
   }
 
-  // #endregion Public Methods
-
-  // #region Private Methods
-
   private sanityCheck() {
     // if (!BASIC_USERNAME || BASIC_USERNAME === DEFAULT_BASIC_USERNAME) {
     //   this.logger.error(`BASIC_USERNAME not defined`);
@@ -58,6 +48,4 @@ export class BasicAuthGuard implements CanActivate {
     // }
     return true;
   }
-
-  // #endregion Private Methods
 }

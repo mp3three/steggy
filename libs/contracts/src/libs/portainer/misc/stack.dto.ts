@@ -3,8 +3,6 @@ import { GitRepoConfigDTO } from './repo-config.dto';
 import { ResourceControlDTO } from './resource-control.dto';
 
 export class StackDTO {
-  // #region Object Properties
-
   public EndpointId: number;
   public EntryPoint: string;
   public Env: Record<'name' | 'value', string>[];
@@ -20,6 +18,4 @@ export class StackDTO {
   public projectPath: string;
   public updateDate: number;
   public updatedBy: string;
-
-  // #endregion Object Properties
 }

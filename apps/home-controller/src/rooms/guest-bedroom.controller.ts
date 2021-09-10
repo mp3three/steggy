@@ -12,12 +12,12 @@ import {
   remote: 'sensor.guest_pico',
 })
 export class GuestBedroomController implements iRoomController {
-  // #region Constructors
+  
 
   constructor(
     public readonly lightManager: LightManagerService,
     public readonly kunamiService: KunamiCodeService,
   ) {}
 
-  // #endregion Constructors
+  
 }

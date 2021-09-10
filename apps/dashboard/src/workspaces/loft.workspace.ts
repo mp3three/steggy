@@ -26,33 +26,33 @@ import { HOME_MENU } from '../typings';
   roomRemote: true,
 })
 export class LoftWorkspace implements iWorkspace {
-  // #region Object Properties
+  
 
   @WorkspaceElement()
   private HUMIDITY: LineElement;
   @WorkspaceElement()
   private TEMPERATURE: LineElement;
 
-  // #endregion Object Properties
+  
 
-  // #region Constructors
+  
 
   constructor(
     @Inject(BLESSED_GRID) private readonly grid: GridElement,
     private readonly fetchService: HomeAssistantFetchAPIService,
   ) {}
 
-  // #endregion Constructors
+  
 
-  // #region Public Methods
+  
 
   public onShow(): void {
     this.getHistory();
   }
 
-  // #endregion Public Methods
+  
 
-  // #region Protected Methods
+  
 
   @RefreshAfter()
   protected async getHistory(): Promise<void> {
@@ -107,5 +107,5 @@ export class LoftWorkspace implements iWorkspace {
     });
   }
 
-  // #endregion Protected Methods
+  
 }

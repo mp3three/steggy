@@ -21,8 +21,6 @@ import { WorkspaceExplorerService } from '../services';
   providers: [BlessedModule],
 })
 export class BlessedModule {
-  // #region Public Static Methods
-
   public static forRoot(BLESSED_COLORS: unknown): DynamicModule {
     const providers = [
       WorkspaceExplorerService,
@@ -70,6 +68,4 @@ export class BlessedModule {
       providers,
     };
   }
-
-  // #endregion Public Static Methods
 }

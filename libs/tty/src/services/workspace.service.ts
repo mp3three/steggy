@@ -17,8 +17,6 @@ import { cwd } from 'process';
 
 @Injectable()
 export class WorkspaceService {
-  // #region Object Properties
-
   /**
    * automagical.json
    */
@@ -31,10 +29,6 @@ export class WorkspaceService {
    * NX workspaces
    */
   public workspace: NXWorkspaceDTO;
-
-  // #endregion Object Properties
-
-  // #region Public Methods
 
   @Trace()
   public list(type: NXProjectTypes): string[] {
@@ -52,20 +46,12 @@ export class WorkspaceService {
     );
   }
 
-  // #endregion Public Methods
-
-  // #region Protected Methods
-
   @Trace()
   protected onModuleInit(): void {
     this.loadNX();
     this.loadPackages();
     this.loadMetadata();
   }
-
-  // #endregion Protected Methods
-
-  // #region Private Methods
 
   private loadMetadata(): void {
     const { projects } = this.workspace;
@@ -108,6 +94,4 @@ export class WorkspaceService {
       this.PACKAGES.set(project, data);
     });
   }
-
-  // #endregion Private Methods
 }

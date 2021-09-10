@@ -13,13 +13,7 @@ const SKIP_PROVIDERS = new Set(['ModuleRef', '', 'useFactory']);
  */
 @Injectable()
 export class LogExplorerService {
-  // #region Constructors
-
   constructor(private readonly discoveryService: DiscoveryService) {}
-
-  // #endregion Constructors
-
-  // #region Protected Methods
 
   @Info({ after: '[Logger] Initialized' })
   protected onModuleInit(): void {
@@ -51,6 +45,4 @@ export class LogExplorerService {
       });
     });
   }
-
-  // #endregion Protected Methods
 }

@@ -1,6 +1,4 @@
 export class EditItemPayloadDTO {
-  // #region Object Properties
-
   /**
    * [section,field,value] |  [field,value]
    */
@@ -8,8 +6,6 @@ export class EditItemPayloadDTO {
   public item: string;
   public vault: string;
   public ['generate-password']: GeneratePasswordDTO;
-
-  // #endregion Object Properties
 }
 
 export class EditItemPayloadAssignmentDTO {
