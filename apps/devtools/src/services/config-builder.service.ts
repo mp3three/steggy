@@ -56,13 +56,7 @@ type KeyedConfig<T extends ConfigType = ConfigType> =
   name: 'Config Builder',
 })
 export class ConfigBuilderService implements iRepl {
-  
-
   private systemConfigs = new Map<string, AutomagicalConfig>();
-
-  
-
-  
 
   constructor(
     private readonly systemService: SystemService,
@@ -71,10 +65,6 @@ export class ConfigBuilderService implements iRepl {
     private readonly configScanner: ConfigScannerService,
     private readonly workspace: WorkspaceService,
   ) {}
-
-  
-
-  
 
   /**
    * Generic entrypoint for interface
@@ -181,10 +171,6 @@ export class ConfigBuilderService implements iRepl {
         throw new NotImplementedException();
     }
   }
-
-  
-
-  
 
   @Trace()
   private configFilterSort(
@@ -310,6 +296,4 @@ export class ConfigBuilderService implements iRepl {
       required,
     };
   }
-
-  
 }

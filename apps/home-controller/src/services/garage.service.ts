@@ -10,18 +10,12 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class GarageService {
-  
-
   constructor(
     private readonly climateService: ClimateDomainService,
     private readonly lockService: LockDomainService,
     private readonly entityManagerService: EntityManagerService,
     private readonly notifyService: NotifyDomainService,
   ) {}
-
-  
-
-  
 
   @OnMQTT('mobile/car_ac')
   @Debug('Turning on car AC')
@@ -43,6 +37,4 @@ export class GarageService {
   public async carFrunk(): Promise<void> {
     await this.lockService.unlock('lock.mystique_frunk_lock');
   }
-
-  
 }

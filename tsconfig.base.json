@@ -20,11 +20,11 @@
     "paths": {
       "@automagical/1password": ["libs/1password/src/index.ts"],
       "@automagical/contracts": ["libs/contracts/src/index.ts"],
+      "@automagical/contracts/1password": [
+        "libs/contracts/src/libs/1password/index.ts"
+      ],
       "@automagical/contracts/authentication": [
         "libs/contracts/src/libs/authentication/index.ts"
-      ],
-      "@automagical/contracts/tty": [
-        "libs/contracts/src/libs/tty/index.ts"
       ],
       "@automagical/contracts/config": ["libs/contracts/src/config/index.ts"],
       "@automagical/contracts/controller-logic": [
@@ -39,15 +39,13 @@
       "@automagical/contracts/portainer": [
         "libs/contracts/src/libs/portainer/index.ts"
       ],
-      "@automagical/contracts/1password": [
-        "libs/contracts/src/libs/1password/index.ts"
-      ],
       "@automagical/contracts/server": [
         "libs/contracts/src/libs/server/index.ts"
       ],
       "@automagical/contracts/terminal": [
         "libs/contracts/src/libs/terminal/index.ts"
       ],
+      "@automagical/contracts/tty": ["libs/contracts/src/libs/tty/index.ts"],
       "@automagical/contracts/utilities": [
         "libs/contracts/src/libs/utilities/index.ts"
       ],

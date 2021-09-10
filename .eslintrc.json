@@ -54,7 +54,26 @@
               "[methods]",
               "[conventional-private-methods]"
             ],
-            "accessorPairPositioning": "getThenSet"
+            "accessorPairPositioning": "together",
+            "groups": {
+              "static_methods": {
+                "sort": "alphabetical",
+                "type": "method",
+                "static": true
+              },
+              "get": {
+                "sort": "alphabetical",
+                "kind": "get"
+              },
+              "set": {
+                "sort": "alphabetical",
+                "kind": "set"
+              },
+              "get_set": {
+                "sort": "alphabetical",
+                "accessorPair": true
+              }
+            }
           }
         ],
         "radar/prefer-immediate-return": "off",

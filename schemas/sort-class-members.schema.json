@@ -1,0 +1,64 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "accessorPairPositioning": {
+      "enum": ["getThenSet", "setThenGet", "together", "any"]
+    },
+    "groups": {
+      "additionalProperties": false,
+      "patternProperties": {
+        "^.+$": {
+          "additionalProperties": false,
+          "properties": {
+            "accessorPair": {
+              "type": "boolean"
+            },
+            "async": {
+              "type": "boolean"
+            },
+            "kind": {
+              "enum": ["get", "set"]
+            },
+            "readonly": {
+              "type": "boolean"
+            },
+            "modifier": {
+              "enum": ["private", "protected", "public"]
+            },
+            "name": {
+              "type": "string"
+            },
+            "requireAccessibility": {
+              "type": "boolean"
+            },
+            "sort": {
+              "enum": ["alphabetical", "none"]
+            },
+            "static": {
+              "type": "boolean"
+            },
+            "abstract": {
+              "type": "boolean"
+            },
+            "type": {
+              "enum": ["method", "property"]
+            }
+          },
+          "type": "object"
+        }
+      }
+    },
+    "locale": {
+      "type": "string"
+    },
+    "order": {
+      "items": {
+        "type": "string"
+      }
+    },
+    "stopAfterFirstProblem": {
+      "type": "boolean"
+    }
+  },
+  "type": "object"
+}

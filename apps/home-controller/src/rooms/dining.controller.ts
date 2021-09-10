@@ -16,12 +16,8 @@ import {
   switches: ['switch.dining_room_light', 'switch.bar_light'],
 })
 export class DiningController implements iRoomController {
-  
-
   constructor(
     public readonly kunamiService: KunamiCodeService,
     public readonly lightManager: LightManagerService,
   ) {}
-
-  
 }

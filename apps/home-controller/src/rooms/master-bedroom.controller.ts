@@ -32,8 +32,6 @@ import { GLOBAL_TRANSITION } from '../typings';
   switches: ['switch.womp'],
 })
 export class MasterBedroomController implements iRoomController {
-  
-
   constructor(
     public readonly lightManager: LightManagerService,
     public readonly kunamiService: KunamiCodeService,
@@ -42,10 +40,6 @@ export class MasterBedroomController implements iRoomController {
     private readonly eventEmitter: EventEmitter2,
     private readonly solarCalc: SolarCalcService,
   ) {}
-
-  
-
-  
 
   @Trace()
   public areaOff({ count }: RoomControllerParametersDTO): void {
@@ -97,10 +91,6 @@ export class MasterBedroomController implements iRoomController {
     }
   }
 
-  
-
-  
-
   @Trace()
   protected onModuleInit(): void {
     PEAT(2).forEach((count) => {
@@ -136,6 +126,4 @@ export class MasterBedroomController implements iRoomController {
       name: `areaOn (3)`,
     });
   }
-
-  
 }

@@ -16,7 +16,6 @@ import {
   Cron,
   Debug,
   InjectCache,
-  MqttService,
   OnEvent,
   OnMQTT,
   SolarCalcService,
@@ -36,13 +35,7 @@ import {
 
 @Injectable()
 export class ApplicationService {
-  
-
   private connectionReady = false;
-
-  
-
-  
 
   constructor(
     protected readonly logger: AutoLogService,
@@ -52,22 +45,13 @@ export class ApplicationService {
     private readonly entityManager: EntityManagerService,
     private readonly lockService: LockDomainService,
     private readonly eventEmitterService: EventEmitter2,
-    private readonly mqtt: MqttService,
   ) {}
-
-  
-
-  
 
   public get locks(): string[] {
     return this.entityManager.listEntities().filter((id) => {
       return domain(id) === HASS_DOMAINS.lock && id.includes('door');
     });
   }
-
-  
-
-  
 
   @OnMQTT(HOMEASSISTANT_MOBILE_LOCK)
   @OnEvent(GLOBAL_TRANSITION)
@@ -90,10 +74,6 @@ export class ApplicationService {
     //   );
     // }, 1000);
   }
-
-  
-
-  
 
   /**
    * Hey! Parts of the house need batteries swapped out
@@ -168,6 +148,4 @@ export class ApplicationService {
       this.eventEmitterService.emit(ROOM_COMMAND(room, 'areaOff')),
     );
   }
-
-  
 }

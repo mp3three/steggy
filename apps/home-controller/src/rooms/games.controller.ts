@@ -33,8 +33,6 @@ const remote = 'sensor.games_pico';
   remote,
 })
 export class GamesRoomController implements iRoomController {
-  
-
   constructor(
     public readonly lightManager: LightManagerService,
     public readonly kunamiService: KunamiCodeService,
@@ -43,17 +41,13 @@ export class GamesRoomController implements iRoomController {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  
-
-  
-
   @Trace()
-  public async areaOff(): Promise<void> {
+  public async areaOn(): Promise<void> {
     await this.stateManager.removeFlag(AUTO_STATE);
   }
 
   @Trace()
-  public async areaOn(): Promise<void> {
+  public async areaOff(): Promise<void> {
     await this.stateManager.removeFlag(AUTO_STATE);
   }
 
@@ -80,10 +74,6 @@ export class GamesRoomController implements iRoomController {
     }
     return false;
   }
-
-  
-
-  
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   protected async fanLightSchedule(): Promise<void> {
@@ -134,10 +124,6 @@ export class GamesRoomController implements iRoomController {
       name: `Relay off`,
     });
   }
-
-  
-
-  
 
   /**
    * Return what the brightness should be for the fan lights in auto mode
@@ -204,6 +190,4 @@ export class GamesRoomController implements iRoomController {
   private ticksThisHour(minute: number, second: number): number {
     return minute * 2 + (second >= 30 ? 1 : 0);
   }
-
-  
 }

@@ -7,10 +7,11 @@
   "projects": {
     "1password": "libs/1password",
     "auto-dash": "apps/auto-dash",
-    "devtools": "apps/devtools",
+    "class-sort": "apps/class-sort",
     "contracts": "libs/contracts",
     "controller-logic": "libs/controller-logic",
     "dashboard": "apps/dashboard",
+    "devtools": "apps/devtools",
     "home-assistant": "libs/home-assistant",
     "home-controller": "apps/home-controller",
     "living-docs": "apps/living-docs",
