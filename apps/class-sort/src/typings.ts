@@ -44,3 +44,9 @@ export interface ReportData {
   more?: number;
   problem?: string;
 }
+
+export interface Comparer {
+  property: string;
+  test(a, b): boolean;
+  value: number;
+}
