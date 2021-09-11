@@ -8,8 +8,10 @@ import {
   KunamiCodeService,
   LightManagerService,
   RoomController,
+  StateManagerService,
 } from '@automagical/controller-logic';
 import {
+  LightDomainService,
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
@@ -51,6 +53,7 @@ const tower2 = [
   `light.tower_2_5`,
   `light.tower_2_6`,
 ];
+const AUTO_STATE = 'AUTO_STATE';
 
 const accessories = ['switch.bar_light', 'switch.entryway_light'];
 @RoomController({
@@ -65,18 +68,22 @@ export class DownstairsController implements iRoomController {
   constructor(
     public readonly kunamiService: KunamiCodeService,
     public readonly lightManager: LightManagerService,
+    private readonly stateManager: StateManagerService,
+    private readonly lightDomain: LightDomainService,
     private readonly remoteService: MediaPlayerDomainService,
     private readonly solarCalc: SolarCalcService,
     private readonly eventEmitter: EventEmitter2,
     private readonly logger: AutoLogService,
     private readonly switchService: SwitchDomainService,
   ) {}
+
   @Trace()
   private async eveningFavorite({
     count,
   }: RoomControllerParametersDTO): Promise<void> {
     if (count === 1) {
       await this.switchService.turnOn(switches);
+      await this.lightDomain.turnOn([...tower1, ...tower2]);
       await this.lightManager.turnOffEntities([...lights, ...accessories]);
       return;
     }
@@ -90,9 +97,21 @@ export class DownstairsController implements iRoomController {
 
   @Trace()
   public async areaOff({ count }: RoomControllerParametersDTO): Promise<void> {
+    await this.stateManager.removeFlag(AUTO_STATE);
+    if (count === 1) {
+      await this.lightDomain.turnOff([...tower1, ...tower2]);
+    }
     if (count === 2) {
       this.logger.debug(`Turn off {${TV}}`);
       await this.remoteService.turnOff(TV);
+    }
+  }
+
+  @Trace()
+  public async areaOn({ count }: RoomControllerParametersDTO): Promise<void> {
+    await this.stateManager.removeFlag(AUTO_STATE);
+    if (count === 3) {
+      this.eventEmitter.emit(ROOM_COMMAND('dining', 'areaOn'), { count });
     }
   }
 

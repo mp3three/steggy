@@ -48,7 +48,7 @@ export class BedRemoteController implements iRoomController {
             return;
           case ControllerStates.off:
             this.eventEmitter.emit(ROOM_COMMAND('master', 'areaOff'), {
-              count: 2,
+              count: 3,
             });
             return;
           case ControllerStates.up:

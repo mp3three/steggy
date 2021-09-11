@@ -191,15 +191,6 @@ export class LoftController implements iRoomController {
     await this.switchService.turnOn('switch.back_desk_light');
   }
 
-  @Cron('0 0 18 * * *')
-  @Debug('Turn off stair lights')
-  protected async stairsOff(): Promise<void> {
-    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
-      return;
-    }
-    await this.switchService.turnOff('switch.stair_lights');
-  }
-
   @Cron('0 45 22 * * *')
   @Debug('Turn off desk light')
   protected async windDown(): Promise<void> {
