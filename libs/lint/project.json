@@ -31,8 +31,12 @@
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "commands": [
-          { "command": "npx nx build lint" },
-          { "command": "npx yarn install -D ./dist/libs/lint" }
+          {
+            "command": "npx nx build lint"
+          },
+          {
+            "command": "npx yarn install -D ./dist/libs/lint"
+          }
         ]
       }
     }

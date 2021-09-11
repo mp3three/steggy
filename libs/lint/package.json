@@ -1,5 +1,5 @@
 {
-  "name": "@automagical/lint",
+  "name": "eslint-plugin-automagical",
   "version": "0.0.1",
   "description": "Advanced class & interface sorting",
   "repository": {

@@ -12,10 +12,10 @@
         "inspect": true,
         "tsConfig": "apps/dashboard/tsconfig.app.json",
         "fileReplacements": [
-         {
-           "replace": "apps/dashboard/src/environments/environment.ts",
-           "with": "apps/dashboard/src/environments/develop.environment.ts"
-         }
+          {
+            "replace": "apps/dashboard/src/environments/environment.ts",
+            "with": "apps/dashboard/src/environments/develop.environment.ts"
+          }
         ]
       },
       "configurations": {

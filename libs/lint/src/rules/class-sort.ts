@@ -1,4 +1,4 @@
-import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+import { ESLintUtils, TSESTree } from '@typescript-eslint/experimental-utils';
 import { RuleContext } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
 
 import { CLASS_SORT_SCHEMA } from '../schemas';
@@ -9,7 +9,7 @@ export const CLASS_SORT_RULE = createESLintRule({
   create(context: Readonly<RuleContext<never, unknown[]>>) {
     context;
     return {
-      ClassDeclaration(node) {
+      ClassDeclaration(node: TSESTree.ClassDeclaration) {
         node;
         //
       },

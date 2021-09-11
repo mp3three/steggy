@@ -1,1 +1,1 @@
-export * from '../schemas/class-sort.schema';
+export * from './class-sort.schema';
