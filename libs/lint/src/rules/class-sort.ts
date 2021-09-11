@@ -1,21 +1,16 @@
 import { ESLintUtils } from '@typescript-eslint/experimental-utils';
-import {
-  RuleContext,
-  SourceCode,
-} from '@typescript-eslint/experimental-utils/dist/ts-eslint';
-import JSON from 'comment-json';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { RuleContext } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
 
-import { PluginOptions, Slot } from '../typings';
-import { SCHEMA } from '../typings/schema';
+import { CLASS_SORT_SCHEMA } from '../schemas';
 
 const createESLintRule = ESLintUtils.RuleCreator(() => ``);
 
-export default createESLintRule({
-  create(context, options: PluginOptions[]) {
+export const CLASS_SORT_RULE = createESLintRule({
+  create(context: Readonly<RuleContext<never, unknown[]>>) {
+    context;
     return {
       ClassDeclaration(node) {
+        node;
         //
       },
     };
@@ -41,7 +36,7 @@ export default createESLintRule({
       // projectWithoutTagsCannotHaveDependencies: `A project without tags cannot depend on any libraries`,
       // tagConstraintViolation: `A project tagged with "{{sourceTag}}" can only depend on libs tagged with {{allowedTags}}`,
     },
-    schema: SCHEMA,
+    schema: CLASS_SORT_SCHEMA,
     type: 'suggestion',
   },
   name: 'class-sort',

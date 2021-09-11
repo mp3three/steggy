@@ -1,0 +1,16 @@
+{
+  "name": "@automagical/lint",
+  "version": "0.0.1",
+  "description": "Advanced class & interface sorting",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ccontour/automagical"
+  },
+  "files": [
+    "src",
+    "package.json"
+  ],
+  "peerDependencies": {
+    "@typescript-eslint/parser": "~4.28.3"
+  }
+}

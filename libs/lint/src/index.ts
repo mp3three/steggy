@@ -1,6 +1,6 @@
-import rule from './rules/class-sort';
-// use commonjs default export so ESLint can find the rule
-export default {
+import { CLASS_SORT_RULE } from './rules/class-sort';
+
+const LINT_RULES = {
   configs: {
     recommended: {
       plugins: ['sort-class-members'],
@@ -24,6 +24,8 @@ export default {
     },
   },
   rules: {
-    'sort-class-members': rule,
+    'sort-class-members': CLASS_SORT_RULE,
   },
 };
+
+export default LINT_RULES;

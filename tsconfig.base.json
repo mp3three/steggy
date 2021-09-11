@@ -51,6 +51,7 @@
       ],
       "@automagical/controller-logic": ["libs/controller-logic/src/index.ts"],
       "@automagical/home-assistant": ["libs/home-assistant/src/index.ts"],
+      "@automagical/lint": ["libs/lint/src/index.ts"],
       "@automagical/persistence/mongo": ["libs/persistence/src/mongo/index.ts"],
       "@automagical/portainer": ["libs/portainer/src/index.ts"],
       "@automagical/server": ["libs/server/src/index.ts"],
