@@ -13,7 +13,6 @@
     "devtools": "apps/devtools",
     "home-assistant": "libs/home-assistant",
     "home-controller": "apps/home-controller",
-    "lint": "libs/lint",
     "living-docs": "apps/living-docs",
     "portainer": "libs/portainer",
     "server": "libs/server",

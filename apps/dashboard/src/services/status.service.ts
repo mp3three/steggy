@@ -19,21 +19,11 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class StatusService {
-  
-
   private WIDGET: BoxElement;
-
-  
-
-  
 
   constructor(
     @InjectCache() private readonly cacheManager: CacheManagerService,
   ) {}
-
-  
-
-  
 
   @RefreshAfter()
   public async attachInstance(grid: GridElement): Promise<void> {
@@ -46,14 +36,8 @@ export class StatusService {
     });
   }
 
-  
-
-  
-
   private buildLine(event: HassEventDTO): string {
     return event.data.entity_id;
   }
-
-  
 }
 const CACHE_KEY = StatusService.name;
