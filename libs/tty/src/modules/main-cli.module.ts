@@ -2,7 +2,6 @@ import { LIB_TERMINAL } from '@automagical/contracts';
 import { LibraryModule } from '@automagical/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { CONFIG } from '../config';
 import { MainCLIService } from '../repl';
 import {
   ConfigScannerService,
@@ -13,7 +12,6 @@ import {
 } from '../services';
 
 @LibraryModule({
-  config: CONFIG,
   exports: [
     SystemService,
     TypePromptService,

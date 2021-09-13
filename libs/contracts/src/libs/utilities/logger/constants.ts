@@ -5,4 +5,3 @@ export const DEBUG_LOG = Symbol('DEBUG_LOG');
 export const WARNING_LOG = Symbol('WARNING_LOG');
 export const MISSING_CONTEXT = 'MISSING CONTEXT';
 export const DESCRIPTOR = Symbol('DESCRIPTOR');
-export const LIBRARY_CONFIG = Symbol('LIBRARY_CONFIG');

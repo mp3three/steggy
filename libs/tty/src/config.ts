@@ -1,6 +1,2 @@
-export const CONFIG = {
-  DEFAULT_HEADER_FONT: 'DOS Rebel',
-  OUTPUT_HEADER_FONT: 'DOS Rebel',
-};
 export const DEFAULT_HEADER_FONT = 'DEFAULT_HEADER_FONT';
 export const OUTPUT_HEADER_FONT = 'OUTPUT_HEADER_FONT';

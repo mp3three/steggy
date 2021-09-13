@@ -3,8 +3,8 @@
 
 export const APP_DASHBOARD = Symbol('dashboard');
 export const APP_DEVTOOLS = Symbol('devtools');
-export const APP_LIVING_DOCS = Symbol('livingdocs');
-export const APP_HOME_CONTROLLER = Symbol('home');
+export const APP_LIVING_DOCS = Symbol('living-docs');
+export const APP_HOME_CONTROLLER = Symbol('home-controller');
 
 export const LIB_AUTHENTICATION = Symbol('authentication');
 export const LIB_CONTRACTS = Symbol('contracts');

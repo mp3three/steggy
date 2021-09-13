@@ -1,11 +1,18 @@
-import { LIB_UTILS } from '@automagical/contracts';
+import {
+  AutomagicalMetadataDTO,
+  LIB_UTILS,
+  METADATA_FILE,
+} from '@automagical/contracts';
 import {
   ACTIVE_APPLICATION,
   AutomagicalConfig,
 } from '@automagical/contracts/config';
 import { USE_THIS_CONFIG } from '@automagical/contracts/utilities';
 import { Inject, Injectable, Optional } from '@nestjs/common';
+import { existsSync, readdirSync, readFileSync } from 'fs';
 import { get, set } from 'object-path';
+import { join } from 'path';
+import { cwd } from 'process';
 import rc from 'rc';
 
 import { LOG_LEVEL } from '../config';
@@ -16,6 +23,7 @@ export class AutoConfigService {
   public static DEFAULTS = new Map<string, Record<string, unknown>>();
 
   private config: AutomagicalConfig = {};
+  private metadata = new Map<string, AutomagicalMetadataDTO>();
 
   constructor(
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
@@ -41,7 +49,7 @@ export class AutoConfigService {
       return '' as T;
     }
     const [, library, property] = parts;
-    return AutoConfigService.DEFAULTS.get(library)[property] as T;
+    return this.metadata.get(library).configuration[property].default as T;
   }
 
   public set(path: string, value: unknown): void {
@@ -49,7 +57,30 @@ export class AutoConfigService {
   }
 
   private earlyInit(): void {
-    this.config = this.overrideConfig || rc(this.APPLICATION.description);
+    this.loadMetadata();
+    const [file] = this.APPLICATION.description.split('-');
+    this.config = this.overrideConfig || rc(file);
     AutoLogService.logger.level = this.get([LIB_UTILS, LOG_LEVEL]);
+  }
+
+  private loadMetadata() {
+    const isDeployed = existsSync(join(cwd(), 'assets'));
+    if (isDeployed) {
+      return;
+    }
+    const path = join(
+      cwd(),
+      'dist',
+      'apps',
+      this.APPLICATION.description,
+      'assets',
+    );
+    const contents = readdirSync(path);
+    contents.forEach((folder) => {
+      this.metadata.set(
+        folder,
+        JSON.parse(readFileSync(join(path, folder, METADATA_FILE), 'utf-8')),
+      );
+    });
   }
 }

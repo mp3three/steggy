@@ -3,7 +3,6 @@ import { LibraryModule, RegisterCache } from '@automagical/utilities';
 import { DynamicModule } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { CONFIG } from '../config';
 import { DynamicRoomProviders } from '../decorators';
 import {
   CircadianService,
@@ -24,7 +23,6 @@ const providers = [
 ];
 
 @LibraryModule({
-  config: CONFIG,
   exports: providers,
   imports: [RegisterCache(), DiscoveryModule],
   library: LIB_CONTROLLER_LOGIC,

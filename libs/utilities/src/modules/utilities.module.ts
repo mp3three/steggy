@@ -11,7 +11,6 @@ import { NextFunction } from 'express';
 import pinoHttp from 'pino-http';
 
 import { LOG_LEVEL } from '..';
-import { CONFIG } from '../config';
 import { injectedLoggers } from '../decorators/injectors';
 import { CONFIG_PROVIDERS } from '../decorators/injectors/inject-config.decorator';
 import { LibraryModule } from '../decorators/library-module.decorator';
@@ -28,7 +27,6 @@ import {
 } from '../services';
 
 @LibraryModule({
-  config: CONFIG,
   exports: [
     AutoConfigService,
     CacheProviderService,

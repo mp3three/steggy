@@ -1,7 +1,6 @@
 import {
   ConfigTypeDTO,
   CONSUMES_CONFIG,
-  LIBRARY_CONFIG,
   LOGGER_LIBRARY,
 } from '@automagical/contracts/utilities';
 import { AutoLogService, Trace } from '@automagical/utilities';
@@ -65,7 +64,6 @@ export class ConfigScannerService {
     providers.forEach((wrapper) => {
       const { instance } = wrapper;
       const ctor = instance.constructor;
-      const runtimeDetaults: defaults = ctor[LIBRARY_CONFIG];
       const config: (keyof defaults)[] = ctor[CONSUMES_CONFIG];
       const library: string = ctor[LOGGER_LIBRARY];
 
@@ -74,18 +72,10 @@ export class ConfigScannerService {
         if (unique.has(key)) {
           return;
         }
-        if (typeof runtimeDetaults[property] === 'undefined') {
-          // eslint-disable-next-line unicorn/no-null
-          runtimeDetaults[property] = null;
-          this.logger.warn(
-            { library, property },
-            `config property lacks runtime default`,
-          );
-        }
         const metadata = this.workspace.METADATA.get(library);
         const metadataConfig = metadata?.configuration[property];
         out.push({
-          default: runtimeDetaults[property],
+          default: metadataConfig.default,
           library,
           metadata: metadataConfig,
           property,

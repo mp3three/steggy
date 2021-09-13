@@ -1,3 +1,9 @@
 {
-  "configuration": {}
+  "configuration": {
+    "foo": {
+      "type":"string",
+      "default": "foo",
+      "description": ""
+    }
+  }
 }
