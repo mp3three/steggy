@@ -117,7 +117,7 @@ export class ApplicationService {
       `🌄 Golen Hour: ${start} - ${end}`,
       `🌃 Dusk: ${dusk}`,
     ].join(`\n`);
-    await this.notifyService.notify(`${message}\n${message}`);
+    await this.notifyService.notify(`${message}`);
   }
 
   @OnEvent(HA_SOCKET_READY)
