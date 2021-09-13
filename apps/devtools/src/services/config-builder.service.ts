@@ -1,9 +1,4 @@
-import {
-  ConfigLibraryVisibility,
-  ConfigType,
-  DefaultConfigOptions,
-  LIB_TERMINAL,
-} from '@automagical/contracts';
+import { ConfigLibraryVisibility, LIB_TERMINAL } from '@automagical/contracts';
 import { AutomagicalConfig } from '@automagical/contracts/config';
 import { iRepl } from '@automagical/contracts/tty';
 import { ConfigTypeDTO } from '@automagical/contracts/utilities';
@@ -21,28 +16,16 @@ import { eachSeries } from 'async';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
 import clear from 'clear';
-import Table from 'cli-table';
 import figlet from 'figlet';
 import { existsSync } from 'fs';
 import ini from 'ini';
 import inquirer from 'inquirer';
+import { set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
 import rc from 'rc';
 
 import { CONFIGURABLE_MODULES } from '../includes/config-loader';
-
-const LEVEL_MAP = {
-  All: 'all',
-  Required: 'required',
-} as Record<string, ConfigLibraryVisibility>;
-const LEVEL_PRIORITIES: ConfigLibraryVisibility[] = Object.values(
-  ConfigLibraryVisibility,
-);
-type KeyedConfig<T extends ConfigType = ConfigType> =
-  DefaultConfigOptions<T> & {
-    key: string;
-  };
 
 @Repl({
   consumesConfig: [OUTPUT_HEADER_FONT],
@@ -56,8 +39,6 @@ type KeyedConfig<T extends ConfigType = ConfigType> =
   name: 'Config Builder',
 })
 export class ConfigBuilderService implements iRepl {
-  private systemConfigs = new Map<string, AutomagicalConfig>();
-
   constructor(
     private readonly systemService: SystemService,
     private readonly typePrompt: TypePromptService,
@@ -75,37 +56,34 @@ export class ConfigBuilderService implements iRepl {
    */
   @Trace()
   public async exec(): Promise<void> {
-    const { application, level } = (await inquirer.prompt([
+    const { application } = (await inquirer.prompt([
       {
         choices: this.applicationChoices(),
         message: 'Config Type',
         name: 'application',
         type: 'list',
       },
-      {
-        choices: Object.keys(LEVEL_MAP).sort((a, b) => {
-          if (
-            LEVEL_PRIORITIES.indexOf(LEVEL_MAP[a]) >
-            LEVEL_PRIORITIES.indexOf(LEVEL_MAP[b])
-          ) {
-            return 1;
-          }
-          return -1;
-        }),
-        message: 'Show options',
-        name: 'level',
-        type: 'list',
-      },
     ])) as { application: string; level: ConfigLibraryVisibility };
-    // clear();
     this.typePrompt.config = rc(application.split('-')[0]);
+    const config: AutomagicalConfig = JSON.parse(
+      JSON.stringify(this.typePrompt.config),
+    );
 
     const module = CONFIGURABLE_MODULES.get(application.split('-')[0]);
-    const { required } = await this.loadDefinitions(module, level);
+    const { required, optional } = await this.loadDefinitions(module);
 
-    await eachSeries([...required.values()], async (item, callback) => {
+    const configuration = [...required.values(), ...optional.values()];
+    await eachSeries(configuration, async (item, callback) => {
+      const result = await this.typePrompt.prompt(item);
+      if (result === item.metadata.default) {
+        callback();
+        return;
+      }
+      set(config, this.path(item), result.value);
       callback();
     });
+
+    await this.handleConfig(config, application);
   }
 
   /**
@@ -124,11 +102,11 @@ export class ConfigBuilderService implements iRepl {
             name: 'Print',
             value: 'print',
           },
-          {
-            key: 'd',
-            name: 'Create Deployment',
-            value: 'deploy',
-          },
+          // {
+          //   key: 'd',
+          //   name: 'Create Deployment',
+          //   value: 'deploy',
+          // },
           {
             key: 's',
             name: 'Save',
@@ -172,54 +150,6 @@ export class ConfigBuilderService implements iRepl {
     }
   }
 
-  @Trace()
-  private configFilterSort(
-    config: KeyedConfig[],
-    application: string,
-    lte: number,
-  ): KeyedConfig[] {
-    return config
-      .filter((item) => {
-        if (!item.applications) {
-          return false;
-        }
-        if (Object.keys(item.applications).length === 0) {
-          return false;
-        }
-        const priority = LEVEL_PRIORITIES.indexOf(
-          item.applications[application] ?? item.applications,
-        );
-        if (priority === -1) {
-          return false;
-        }
-        return lte >= priority;
-      })
-      .sort((a, b) => {
-        const priorityA = LEVEL_PRIORITIES.indexOf(
-          a.applications[application] ?? a.applications,
-        );
-        const priorityB = LEVEL_PRIORITIES.indexOf(
-          b.applications[application] ?? b.applications,
-        );
-        if (priorityA === priorityB) {
-          if (a.library === b.library) {
-            if (a.key > b.key) {
-              return 1;
-            }
-            return -1;
-          }
-          if (a.library > b.library) {
-            return 1;
-          }
-          return -1;
-        }
-        if (priorityA > priorityB) {
-          return 1;
-        }
-        return -1;
-      });
-  }
-
   private applicationChoices() {
     return this.workspace
       .list('application')
@@ -237,32 +167,6 @@ export class ConfigBuilderService implements iRepl {
       .filter(({ value }) => CONFIGURABLE_MODULES.has(value.split('-')[0]));
   }
 
-  /**
-   * Render a table showing all the advertised configuration options for an application.
-   * Filter visiblity by level.
-   *
-   * Priority column is colored
-   */
-  private configTable(application: string, config: KeyedConfig[]): void {
-    const table = new Table({
-      head: ['Type', 'Library', 'Name', 'Type', 'Default'],
-    });
-    config.forEach((configOptions) => {
-      table.push([
-        this.typeTag(
-          typeof configOptions.applications === 'string'
-            ? configOptions.applications
-            : configOptions.applications[application],
-        ),
-        configOptions.library ?? '',
-        chalk.bold(configOptions.key),
-        configOptions.type,
-        (configOptions.default ?? '').toString(),
-      ]);
-    });
-    console.log(table.toString());
-  }
-
   private typeTag(type: keyof typeof ConfigLibraryVisibility) {
     switch (type) {
       case 'all':
@@ -272,23 +176,26 @@ export class ConfigBuilderService implements iRepl {
     }
   }
 
+  private path(config: ConfigTypeDTO): string {
+    if (config.library) {
+      return `libs.${config.library}.${config.property}`;
+    }
+    return `application.${config.property}`;
+  }
+
   private async loadDefinitions(
     module: ClassConstructor<unknown>,
-    level: ConfigLibraryVisibility,
   ): Promise<Record<'required' | 'optional', Set<ConfigTypeDTO>>> {
     const out = await this.configScanner.scan(module);
     const optional = new Set<ConfigTypeDTO>();
     const required = new Set<ConfigTypeDTO>();
-    const showOptional = level === 'all';
 
     out.forEach((item) => {
       if (item.default === null) {
         required.add(item);
         return;
       }
-      if (showOptional) {
-        optional.add(item);
-      }
+      optional.add(item);
     });
 
     return {

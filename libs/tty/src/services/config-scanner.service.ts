@@ -28,7 +28,17 @@ export class ConfigScannerService {
     module: ClassConstructor<unknown>,
   ): Promise<Set<ConfigTypeDTO>> {
     this.application = await NestFactory.create(module, {
-      logger: AutoLogService.nestLogger,
+      logger: {
+        error: () => {
+          //
+        },
+        log: () => {
+          //
+        },
+        warn: () => {
+          //
+        },
+      },
     });
     const discoveryService = this.application.get(DiscoveryService);
     const providers = discoveryService.getProviders().filter((wrapper) => {

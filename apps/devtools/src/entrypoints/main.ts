@@ -1,6 +1,6 @@
 import '../includes/config-loader';
 
-import { AutoLogService, UsePrettyLogger } from '@automagical/utilities';
+import { NEST_NOOP_LOGGER, UsePrettyLogger } from '@automagical/utilities';
 import { NestFactory } from '@nestjs/core';
 import chalk from 'chalk';
 
@@ -12,7 +12,7 @@ async function bootstrap() {
     UsePrettyLogger();
   }
   const app = await NestFactory.create(DevtoolsModule, {
-    logger: AutoLogService.nestLogger,
+    logger: NEST_NOOP_LOGGER,
   });
   await app.init();
   const scanner = app.get(ConfigBuilderService);

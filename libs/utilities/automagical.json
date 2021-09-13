@@ -38,7 +38,8 @@
       "type": "string"
     },
     "MAX_STASH_DEPTH": {
-      "type": "number"
+      "type": "number",
+      "default": 10
     }
   }
 }

@@ -7,7 +7,7 @@ import {
 import { ClassConstructor } from 'class-transformer';
 
 import { DashboardModule } from '../../../dashboard/src/modules/dashboard.module';
-import { HomeControllerModule } from '../../../home-controller/src/modules/application.module';
+import { HomeControllerModule } from '../../../home-controller/src/modules/home-controller.module';
 import { DevtoolsModule } from '../modules';
 
 /**

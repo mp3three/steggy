@@ -32,12 +32,6 @@ export type ConfigType =
   | string[];
 
 export interface DefaultConfigOptions<T extends ConfigType = ConfigType> {
-  /**
-   * Which applications are interested in this item
-   */
-  applications:
-    | Record<string, `${ConfigLibraryVisibility}`>
-    | `${ConfigLibraryVisibility}`;
   array?: boolean;
   default?: unknown;
   /**

@@ -7,12 +7,8 @@ import { Global, ModuleMetadata } from '@nestjs/common';
 import { AutoConfigService } from '../services/auto-config.service';
 
 export interface LibraryModuleMetadata extends Partial<ModuleMetadata> {
-  
-
   config?: Record<string, unknown>;
   library: symbol;
-
-  
 }
 
 export function LibraryModule(metadata: LibraryModuleMetadata): ClassDecorator {

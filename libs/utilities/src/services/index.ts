@@ -1,5 +1,6 @@
 export * from './auto-config.service';
 export * from './cache-manager.service';
+export * from './cache-provider.service';
 export * from './events-explorer.service';
 export * from './fetch';
 export * from './locals.service';

@@ -23,6 +23,17 @@ export type LoggerFunction =
     ) => void);
 
 const NEST = '@nestjs';
+export const NEST_NOOP_LOGGER = {
+  error: (): void => {
+    //
+  },
+  log: (): void => {
+    //
+  },
+  warn: (): void => {
+    //
+  },
+};
 
 /**
  * Use `@InjectLogger()` if context is not automatically found

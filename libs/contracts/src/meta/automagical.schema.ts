@@ -3,11 +3,15 @@ export class AutomagicalMetadataDTO {
   configuration?: Record<string, ConfigItem>;
 }
 export const METADATA_FILE = 'automagical.json';
-export type ConfigItem = { description?: string } & AnyConfig;
+export type ConfigItem = {
+  description?: string;
+  default?: unknown;
+} & AnyConfig;
 type AnyConfig =
   | AutomagicalStringConfig
   | AutomagicalBooleanConfig
   | AutomagicalNumberConfig
+  | AutomagicalRecordConfig
   | AutomagicalPasswordConfig
   | AutomagicalUrlConfig;
 
@@ -30,4 +34,10 @@ export class AutomagicalPasswordConfig {
 export class AutomagicalUrlConfig {
   type: 'url';
   default?: string;
+}
+export class AutomagicalRecordConfig {
+  type: 'record';
+}
+export class AutomagicalStringArrayConfig {
+  type: 'string[]';
 }
