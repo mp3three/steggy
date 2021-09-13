@@ -69,7 +69,7 @@ export class ConfigBuilderService implements iRepl {
       JSON.stringify(this.typePrompt.config),
     );
 
-    const module = CONFIGURABLE_MODULES.get(application.split('-')[0]);
+    const module = CONFIGURABLE_MODULES.get(application);
     const { required, optional } = await this.loadDefinitions(module);
 
     const configuration = [...required.values(), ...optional.values()];
@@ -154,8 +154,7 @@ export class ConfigBuilderService implements iRepl {
     return this.workspace
       .list('application')
       .map((item) => {
-        const key = item.split('-')[0];
-        const tag = existsSync(join(homedir(), '.config', key))
+        const tag = existsSync(join(homedir(), '.config', item.split('-')[0]))
           ? chalk.green('*')
           : chalk.yellow('*');
         const name = this.workspace.PACKAGES.get(item).displayName;
@@ -164,16 +163,7 @@ export class ConfigBuilderService implements iRepl {
           value: item,
         };
       })
-      .filter(({ value }) => CONFIGURABLE_MODULES.has(value.split('-')[0]));
-  }
-
-  private typeTag(type: keyof typeof ConfigLibraryVisibility) {
-    switch (type) {
-      case 'all':
-        return chalk.bgWhite(chalk.black('all'));
-      case 'required':
-        return chalk.inverse(chalk.red('required'));
-    }
+      .filter(({ value }) => CONFIGURABLE_MODULES.has(value));
   }
 
   private path(config: ConfigTypeDTO): string {

@@ -1,4 +1,3 @@
-/* eslint-disable @nrwl/nx/enforce-module-boundaries */
 import { APP_DEVTOOLS } from '@automagical/contracts';
 import { MainCLIModule } from '@automagical/tty';
 import { ApplicationModule, UtilitiesModule } from '@automagical/utilities';

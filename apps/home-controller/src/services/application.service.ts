@@ -12,10 +12,8 @@ import {
 } from '@automagical/home-assistant';
 import {
   AutoLogService,
-  CacheManagerService,
   Cron,
   Debug,
-  InjectCache,
   OnEvent,
   OnMQTT,
   SolarCalcService,
@@ -39,7 +37,6 @@ export class ApplicationService {
 
   constructor(
     protected readonly logger: AutoLogService,
-    @InjectCache() private readonly cache: CacheManagerService,
     private readonly solarCalc: SolarCalcService,
     private readonly notifyService: NotifyDomainService,
     private readonly entityManager: EntityManagerService,

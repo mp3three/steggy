@@ -10,12 +10,11 @@ import { AutoConfigService, LibraryModule } from '@automagical/utilities';
 import { DynamicModule, Provider } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { CONFIG, SCREEN_TITLE } from '../config';
+import { SCREEN_TITLE } from '../config';
 import { RefreshAfter } from '../decorators';
 import { WorkspaceExplorerService } from '../services';
 
 @LibraryModule({
-  config: CONFIG,
   exports: [BlessedModule],
   library: LIB_TERMINAL,
   providers: [BlessedModule],

@@ -15,6 +15,63 @@
       "executor": "@nrwl/node:build",
       "outputs": ["{options.outputPath}"],
       "options": {
+        "assets": [
+          {
+            "input": "libs/utilities",
+            "glob": "automagical.json",
+            "output": "./assets/utilities"
+          },
+          {
+            "input": "libs/tty",
+            "glob": "automagical.json",
+            "output": "./assets/tty"
+          },
+          {
+            "input": "libs/terminal",
+            "glob": "automagical.json",
+            "output": "./assets/terminal"
+          },
+          {
+            "input": "libs/server",
+            "glob": "automagical.json",
+            "output": "./assets/server"
+          },
+          {
+            "input": "libs/portainer",
+            "glob": "automagical.json",
+            "output": "./assets/portainer"
+          },
+          {
+            "input": "libs/1password",
+            "glob": "automagical.json",
+            "output": "./assets/1password"
+          },
+          {
+            "input": "apps/devtools",
+            "glob": "automagical.json",
+            "output": "./assets/devtools"
+          },
+          {
+            "input": "apps/dashboard",
+            "glob": "automagical.json",
+            "output": "./assets/dashboard"
+          },
+          {
+            "input": "libs/home-assistant",
+            "glob": "automagical.json",
+            "output": "./assets/home-assistant"
+          },
+          {
+            "input": "libs/controller-logic",
+            "glob": "automagical.json",
+            "output": "./assets/controller-logic"
+          },
+          {
+            "input": "apps/home-controller",
+            "glob": "automagical.json",
+            "output": "./assets/home-controller"
+          }
+        ],
         "outputPath": "dist/apps/devtools",
         "generatePackageJson": true,
         "main": "apps/devtools/src/entrypoints/main.ts",
