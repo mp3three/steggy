@@ -9,6 +9,12 @@
         "buildTarget": "devtools:build",
         "inspect": "inspect",
         "port": 33336
+      },
+      "configurations": {
+        "config-scanner": {
+          "buildTarget": "devtools:build:config-scanner",
+          "port": 33337
+        }
       }
     },
     "prepare": {
@@ -93,6 +99,8 @@
           "fileReplacements": []
         },
         "config-scanner": {
+          "generatePackageJson": false,
+          "assets": [],
           "outputPath": "dist/apps/config-scanner",
           "main": "apps/devtools/src/entrypoints/scanner.ts"
         }

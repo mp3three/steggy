@@ -1,5 +1,4 @@
 import {
-  ConfigTypeDTO,
   CONSUMES_CONFIG,
   LOGGER_LIBRARY,
 } from '@automagical/contracts/utilities';
@@ -7,7 +6,6 @@ import { NEST_NOOP_LOGGER } from '@automagical/utilities';
 import { DiscoveryService, NestFactory } from '@nestjs/core';
 
 import { CONFIGURABLE_MODULES } from '../includes/config-loader';
-type defaults = Record<string, unknown>;
 
 /**
  * Config scanner exists to provide an isolated environment to analyze an application in.
@@ -16,12 +14,14 @@ type defaults = Record<string, unknown>;
  * This entrypoint will load a requested module, identify which configuration variables are in use, and output as json
  */
 async function bootstrap() {
-  const module = CONFIGURABLE_MODULES.get('');
+  const application = process.argv[2];
+  const module = CONFIGURABLE_MODULES.get(application);
   const app = await NestFactory.create(module, {
     logger: NEST_NOOP_LOGGER,
   });
   const discoveryService = app.get(DiscoveryService);
-  const providers = discoveryService.getProviders().filter((wrapper) => {
+  const config: Record<string, Record<string, boolean>> = {};
+  discoveryService.getProviders().forEach((wrapper) => {
     if (!wrapper || !wrapper.instance) {
       return false;
     }
@@ -30,65 +30,21 @@ async function bootstrap() {
     }
     const { instance } = wrapper;
     const ctor = instance.constructor;
-    return typeof ctor[CONSUMES_CONFIG] !== 'undefined';
+    if (typeof ctor[CONSUMES_CONFIG] === 'undefined') {
+      return;
+    }
+    const library = ctor[LOGGER_LIBRARY] || 'application';
+    config[library] ??= {};
+    ctor[CONSUMES_CONFIG].forEach((item) => (config[library][item] = true));
   });
 
-  const out: ConfigTypeDTO[] = [];
-  const unique = new Set<string>();
-
-  providers.forEach((wrapper) => {
-    const { instance } = wrapper;
-    const ctor = instance.constructor;
-    const config: (keyof defaults)[] = ctor[CONSUMES_CONFIG];
-    const library: string =
-      ctor[LOGGER_LIBRARY] || this.activeApplication.description;
-
-    config.forEach((property: string) => {
-      const key = `${library}.${property}`;
-      if (unique.has(key)) {
-        return;
-      }
-      const metadata = this.workspace.METADATA.get(library);
-      const metadataConfig = metadata?.configuration[property];
-      if (!metadataConfig) {
-        console.log(key);
-      }
-      out.push({
-        default: metadataConfig?.default,
-        library,
-        metadata: metadataConfig,
-        property,
-      });
-      unique.add(key);
-    });
+  const out: Record<string, string[]> = {};
+  Object.keys(config).forEach((key) => {
+    out[key] = Object.keys(config[key]);
   });
-  console.log(
-    JSON.stringify(
-      out.sort((a, b) => {
-        const aRequired = a.default === null;
-        const bRequired = b.default === null;
-        if (aRequired && !bRequired) {
-          return 1;
-        }
-        if (bRequired && !aRequired) {
-          return -1;
-        }
-        if (a.library && !b.library) {
-          return 1;
-        }
-        if (b.library && !a.library) {
-          return -1;
-        }
-        if (a.library && a.library !== b.library) {
-          return a.library > b.library ? 1 : -1;
-        }
-        return a.property > b.property ? 1 : -1;
-      }),
-      undefined,
-      '  ',
-    ),
-  );
-  //
-  await app.close();
+
+  console.log(JSON.stringify(out, undefined, '  '));
+  // eslint-disable-next-line unicorn/no-process-exit
+  process.exit();
 }
 bootstrap();
