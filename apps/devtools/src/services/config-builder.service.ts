@@ -102,11 +102,6 @@ export class ConfigBuilderService implements iRepl {
             name: 'Print',
             value: 'print',
           },
-          // {
-          //   key: 'd',
-          //   name: 'Create Deployment',
-          //   value: 'deploy',
-          // },
           {
             key: 's',
             name: 'Save',

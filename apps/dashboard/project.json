@@ -7,6 +7,38 @@
       "executor": "@nrwl/node:build",
       "outputs": ["{options.outputPath}"],
       "options": {
+        "assets": [
+          {
+            "input": "libs/utilities",
+            "glob": "automagical.json",
+            "output": "./assets/utilities"
+          },
+          {
+            "input": "libs/tty",
+            "glob": "automagical.json",
+            "output": "./assets/tty"
+          },
+          {
+            "input": "libs/terminal",
+            "glob": "automagical.json",
+            "output": "./assets/terminal"
+          },
+          {
+            "input": "apps/dashboard",
+            "glob": "automagical.json",
+            "output": "./assets/dashboard"
+          },
+          {
+            "input": "libs/home-assistant",
+            "glob": "automagical.json",
+            "output": "./assets/home-assistant"
+          },
+          {
+            "input": "libs/controller-logic",
+            "glob": "automagical.json",
+            "output": "./assets/controller-logic"
+          }
+        ],
         "outputPath": "dist/apps/dashboard",
         "main": "apps/dashboard/src/entrypoints/main.ts",
         "inspect": true,
