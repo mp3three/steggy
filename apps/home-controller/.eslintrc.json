@@ -1,11 +1,9 @@
 {
   "extends": "../../.eslintrc.json",
   "ignorePatterns": ["!**/*"],
-  "overrides": [{
+  "overrides": [
+    {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "parserOptions": {
-        "project": ["apps/home-controller/tsconfig.*?.json"]
-      },
       "rules": {
         "woke/all": "off",
         "radar/no-duplicate-string": "off"

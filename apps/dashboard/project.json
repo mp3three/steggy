@@ -77,7 +77,8 @@
       "executor": "@nrwl/linter:eslint",
       "options": {
         "lintFilePatterns": ["apps/dashboard/**/*.ts"]
-      }
+      },
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
       "executor": "@nrwl/jest:jest",

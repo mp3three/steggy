@@ -20,9 +20,11 @@
     "prepare": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
-        "commands": [{
-          "command": "npx nx build devtools --configuration=config-scanner"
-        }]
+        "commands": [
+          {
+            "command": "npx nx build devtools --configuration=config-scanner"
+          }
+        ]
       }
     },
     "build": {
@@ -110,7 +112,8 @@
       "executor": "@nrwl/linter:eslint",
       "options": {
         "lintFilePatterns": ["apps/devtools/**/*.ts"]
-      }
+      },
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
       "executor": "@nrwl/jest:jest",

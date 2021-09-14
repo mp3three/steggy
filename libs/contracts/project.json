@@ -17,7 +17,8 @@
       "executor": "@nrwl/linter:eslint",
       "options": {
         "lintFilePatterns": ["libs/contracts/**/*.ts"]
-      }
+      },
+      "outputs": ["{options.outputFile}"]
     }
   },
   "tags": []
