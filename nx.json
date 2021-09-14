@@ -9,6 +9,11 @@
       "dependencies": "*",
       "devDependencies": "*"
     },
+    "project.json": {
+      "targets": {
+        "build": "*"
+      }
+    },
     "tsconfig.base.json": "*",
     "workspace.json": "*"
   },

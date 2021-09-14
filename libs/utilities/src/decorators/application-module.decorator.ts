@@ -1,7 +1,5 @@
-import {
-  ACTIVE_APPLICATION,
-  AutomagicalConfig,
-} from '@automagical/contracts/config';
+import { LIB_UTILS } from '@automagical/contracts';
+import { ACTIVE_APPLICATION } from '@automagical/contracts/config';
 import type { iRoomController } from '@automagical/contracts/controller-logic';
 import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
 import { ModuleMetadata, Provider } from '@nestjs/common';
@@ -11,18 +9,17 @@ import { RegisterCache } from '../includes/';
 import { UtilitiesModule } from '../modules';
 
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
-  
-
   application: symbol;
   /**
    * If omitted, will default to all
    */
   dashboards?: Provider[];
-  default_config?: Partial<AutomagicalConfig>;
   globals?: Provider[];
   rooms?: Provider<iRoomController>[];
-
-  
+  /**
+   * Additional services from utils lib to load
+   */
+  utils?: Provider[];
 }
 
 /**
@@ -42,6 +39,7 @@ export function ApplicationModule(
   metadata.imports ??= [];
   metadata.providers ??= [];
   metadata.globals ??= [];
+  metadata.utils ??= [];
   metadata.rooms ??= [];
   metadata.dashboards ??= [];
   metadata.providers = [
@@ -49,6 +47,9 @@ export function ApplicationModule(
     ...metadata.rooms,
     ...metadata.dashboards,
   ];
+  metadata.utils.forEach((provider) => {
+    provider[LOGGER_LIBRARY] = LIB_UTILS.description;
+  });
   const GLOBAL_SYMBOLS: Provider[] = [
     {
       provide: ACTIVE_APPLICATION,
@@ -67,7 +68,7 @@ export function ApplicationModule(
     ...metadata.globals,
   ];
   metadata.imports = [
-    UtilitiesModule.forRoot(),
+    UtilitiesModule.forRoot(metadata.utils),
     {
       exports: GLOBAL_SYMBOLS,
       global: true,

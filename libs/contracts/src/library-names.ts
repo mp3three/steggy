@@ -13,6 +13,7 @@ export const LIB_HOME_ASSISTANT = Symbol('home-assistant');
 export const LIB_PORTAINER = Symbol('portainer');
 export const LIB_1PASSWORD = Symbol('1password');
 export const LIB_TERMINAL = Symbol('terminal');
+export const LIB_TTY = Symbol('tty');
 export const LIB_SERVER = Symbol('server');
 export const LIB_TESTING = Symbol('testing');
 export const LIB_UTILS = Symbol('utilities');
@@ -39,6 +40,7 @@ export const LIBRARY_LIST = [
   LIB_CONTROLLER_LOGIC.description,
   LIB_HOME_ASSISTANT.description,
   LIB_TERMINAL.description,
+  LIB_TTY.description,
   LIB_PORTAINER.description,
   LIB_SERVER.description,
   LIB_TESTING.description,

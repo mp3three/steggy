@@ -11,6 +11,14 @@
         "port": 33336
       }
     },
+    "prepare": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": [{
+          "command": "npx nx build devtools --configuration=config-scanner"
+        }]
+      }
+    },
     "build": {
       "executor": "@nrwl/node:build",
       "outputs": ["{options.outputPath}"],
@@ -83,6 +91,10 @@
           "extractLicenses": true,
           "inspect": false,
           "fileReplacements": []
+        },
+        "config-scanner": {
+          "outputPath": "dist/apps/config-scanner",
+          "main": "apps/devtools/src/entrypoints/scanner.ts"
         }
       }
     },

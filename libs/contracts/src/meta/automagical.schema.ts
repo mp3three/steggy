@@ -1,6 +1,6 @@
 // JSON schema at schemas/json/automagical.schema.json
 export class AutomagicalMetadataDTO {
-  configuration?: Record<string, ConfigItem>;
+  configuration: Record<string, ConfigItem>;
 }
 export const METADATA_FILE = 'automagical.json';
 export type ConfigItem = {

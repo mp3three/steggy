@@ -1,7 +1,11 @@
 import { APP_HOME_CONTROLLER } from '@automagical/contracts';
 import { HomeControllerCustomModule } from '@automagical/controller-logic';
 import { HomeAssistantModule } from '@automagical/home-assistant';
-import { ApplicationModule, MQTTModule } from '@automagical/utilities';
+import {
+  ApplicationModule,
+  MQTTModule,
+  SolarCalcService,
+} from '@automagical/utilities';
 
 import {
   DiningController,
@@ -27,6 +31,7 @@ import { ApplicationService, GarageService } from '../services';
     LoftController,
     MasterBedroomController,
   ],
+  utils: [SolarCalcService],
 })
 export class HomeControllerModule {}
 

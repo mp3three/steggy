@@ -1,12 +1,11 @@
 import { iRepl } from '@automagical/contracts/tty';
 import { Repl } from '@automagical/tty';
 import { FetchService, InjectConfig } from '@automagical/utilities';
-import { InternalServerErrorException } from '@nestjs/common';
 import chalk from 'chalk';
 import execa from 'execa';
 import { lstatSync, mkdirSync, readdirSync, renameSync } from 'fs';
 import inquirer from 'inquirer';
-import { join } from 'path';
+import { join, resolve } from 'path';
 
 import { ALBUM_DOWNLOAD_TARGET, ALBUM_PAD_SIZE } from '../config';
 
@@ -27,7 +26,9 @@ export class ImgurAlbumDownloadService implements iRepl {
     private readonly fetchService: FetchService,
     @InjectConfig(ALBUM_DOWNLOAD_TARGET) private readonly root: string,
     @InjectConfig(ALBUM_PAD_SIZE) private readonly padSize: number,
-  ) {}
+  ) {
+    this.root = resolve(this.root);
+  }
 
   public async exec(): Promise<void> {
     if (!this.root) {

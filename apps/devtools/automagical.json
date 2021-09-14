@@ -2,7 +2,8 @@
   "configuration": {
     "ALBUM_DOWNLOAD_TARGET": {
       "type": "string",
-      "description": "Base folder for downloading imgur albums to"
+      "description": "Base folder for downloading",
+      "default": "~/Downloads"
     },
     "ALBUM_PAD_SIZE": {
       "type": "number",

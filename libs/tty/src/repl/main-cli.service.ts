@@ -13,21 +13,15 @@ import { ReplExplorerService } from '../services';
   name: 'Main',
 })
 export class MainCLIService implements iRepl {
-  
-
   constructor(
     @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: figlet.Fonts,
     private readonly explorer: ReplExplorerService,
   ) {}
 
-  
-
-  
-
   public async exec(): Promise<void> {
     clear();
     const header = figlet.textSync('Script List', {
-      font: this.font,
+      // font: this.font,
     });
     console.log(chalk.cyan(header), '\n');
     let scriptName = process.argv[2];
@@ -50,14 +44,10 @@ export class MainCLIService implements iRepl {
     await script.exec();
   }
 
-  
-
-  
-
   private printHeader(scriptName: string): void {
     const settings = this.explorer.findSettingsByName(scriptName);
     const header = figlet.textSync(settings.name, {
-      font: this.font,
+      // font: this.font,
     });
     clear();
     console.log(chalk.cyan(header), '\n');
@@ -73,6 +63,4 @@ export class MainCLIService implements iRepl {
       `\n\n`,
     );
   }
-
-  
 }

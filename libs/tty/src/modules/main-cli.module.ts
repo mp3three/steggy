@@ -1,4 +1,4 @@
-import { LIB_TERMINAL } from '@automagical/contracts';
+import { LIB_TTY } from '@automagical/contracts';
 import { LibraryModule } from '@automagical/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
@@ -19,7 +19,7 @@ import {
     WorkspaceService,
   ],
   imports: [DiscoveryModule],
-  library: LIB_TERMINAL,
+  library: LIB_TTY,
   providers: [
     SystemService,
     TypePromptService,

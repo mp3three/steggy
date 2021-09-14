@@ -10,7 +10,7 @@ async function bootstrap() {
     UsePrettyLogger();
   }
   const app = await NestFactory.create(DevtoolsModule, {
-    // logger: NEST_NOOP_LOGGER,
+    logger: NEST_NOOP_LOGGER,
   });
   await app.init();
 

@@ -37,7 +37,7 @@ export class ConfigScannerService {
     let discoveryService: DiscoveryService;
     if (module) {
       this.application = await NestFactory.create(module, {
-        // logger: NEST_NOOP_LOGGER,
+        logger: AutoLogService.nestLogger,
       });
       discoveryService = this.application.get(DiscoveryService);
     } else {
@@ -78,8 +78,11 @@ export class ConfigScannerService {
         }
         const metadata = this.workspace.METADATA.get(library);
         const metadataConfig = metadata?.configuration[property];
+        if (!metadataConfig) {
+          console.log(key);
+        }
         out.push({
-          default: metadataConfig.default,
+          default: metadataConfig?.default,
           library,
           metadata: metadataConfig,
           property,
