@@ -1,10 +1,15 @@
+import { ACTIVE_APPLICATION } from '@automagical/contracts/config';
 import {
   ConfigTypeDTO,
   CONSUMES_CONFIG,
   LOGGER_LIBRARY,
 } from '@automagical/contracts/utilities';
-import { AutoLogService, Trace } from '@automagical/utilities';
-import { INestApplication, Injectable } from '@nestjs/common';
+import {
+  AutoLogService,
+  NEST_NOOP_LOGGER,
+  Trace,
+} from '@automagical/utilities';
+import { INestApplication, Inject, Injectable } from '@nestjs/common';
 import { DiscoveryService, NestFactory } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { ClassConstructor } from 'class-transformer';
@@ -18,28 +23,26 @@ export class ConfigScannerService {
   private application: INestApplication;
 
   constructor(
+    @Inject(ACTIVE_APPLICATION)
+    private readonly activeApplication: symbol,
     private readonly logger: AutoLogService,
     private readonly workspace: WorkspaceService,
+    private readonly discoveryService: DiscoveryService,
   ) {}
 
   @Trace()
   public async scan(
     module: ClassConstructor<unknown>,
   ): Promise<Set<ConfigTypeDTO>> {
-    this.application = await NestFactory.create(module, {
-      logger: {
-        error: () => {
-          //
-        },
-        log: () => {
-          //
-        },
-        warn: () => {
-          //
-        },
-      },
-    });
-    const discoveryService = this.application.get(DiscoveryService);
+    let discoveryService: DiscoveryService;
+    if (module) {
+      this.application = await NestFactory.create(module, {
+        // logger: NEST_NOOP_LOGGER,
+      });
+      discoveryService = this.application.get(DiscoveryService);
+    } else {
+      discoveryService = this.discoveryService;
+    }
     const providers = discoveryService.getProviders().filter((wrapper) => {
       if (!wrapper || !wrapper.instance) {
         return false;
@@ -65,7 +68,8 @@ export class ConfigScannerService {
       const { instance } = wrapper;
       const ctor = instance.constructor;
       const config: (keyof defaults)[] = ctor[CONSUMES_CONFIG];
-      const library: string = ctor[LOGGER_LIBRARY];
+      const library: string =
+        ctor[LOGGER_LIBRARY] || this.activeApplication.description;
 
       config.forEach((property: string) => {
         const key = `${library}.${property}`;

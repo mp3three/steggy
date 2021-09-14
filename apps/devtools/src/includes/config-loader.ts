@@ -1,12 +1,12 @@
 /* eslint-disable @nrwl/nx/enforce-module-boundaries */
 import {
-  APP_DASHBOARD,
+  // APP_DASHBOARD,
   APP_DEVTOOLS,
   APP_HOME_CONTROLLER,
 } from '@automagical/contracts';
 import { ClassConstructor } from 'class-transformer';
 
-import { DashboardModule } from '../../../dashboard/src/modules/dashboard.module';
+// import { DashboardModule } from '../../../dashboard/src/modules/dashboard.module';
 import { HomeControllerModule } from '../../../home-controller/src/modules/home-controller.module';
 import { DevtoolsModule } from '../modules';
 
@@ -17,6 +17,6 @@ import { DevtoolsModule } from '../modules';
  */
 export const CONFIGURABLE_MODULES = new Map<string, ClassConstructor<unknown>>([
   [APP_HOME_CONTROLLER.description, HomeControllerModule],
-  [APP_DASHBOARD.description, DashboardModule],
+  // [APP_DASHBOARD.description, DashboardModule],
   [APP_DEVTOOLS.description, DevtoolsModule],
 ]);

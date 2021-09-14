@@ -29,3 +29,7 @@ import { ApplicationService, GarageService } from '../services';
   ],
 })
 export class HomeControllerModule {}
+
+/**
+ * This module also referenced in devtools for the config loader
+ */

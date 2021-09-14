@@ -1,4 +1,8 @@
-import { ConfigLibraryVisibility, LIB_TERMINAL } from '@automagical/contracts';
+import {
+  APP_DEVTOOLS,
+  ConfigLibraryVisibility,
+  LIB_TERMINAL,
+} from '@automagical/contracts';
 import { AutomagicalConfig } from '@automagical/contracts/config';
 import { iRepl } from '@automagical/contracts/tty';
 import { ConfigTypeDTO } from '@automagical/contracts/utilities';
@@ -69,7 +73,12 @@ export class ConfigBuilderService implements iRepl {
       JSON.stringify(this.typePrompt.config),
     );
 
-    const module = CONFIGURABLE_MODULES.get(application);
+    // Causes some circular reference issues double-loading the app
+    // Config scanner will default to a self scan if provided falsy value
+    const module =
+      application !== APP_DEVTOOLS.description
+        ? CONFIGURABLE_MODULES.get(application)
+        : undefined;
     const { required, optional } = await this.loadDefinitions(module);
 
     const configuration = [...required.values(), ...optional.values()];

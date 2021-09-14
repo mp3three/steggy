@@ -1,10 +1,14 @@
 import { iRepl } from '@automagical/contracts/tty';
 import { Repl } from '@automagical/tty';
-import { AutoConfigService, FetchService } from '@automagical/utilities';
+import { FetchService, InjectConfig } from '@automagical/utilities';
+import { InternalServerErrorException } from '@nestjs/common';
+import chalk from 'chalk';
 import execa from 'execa';
 import { lstatSync, mkdirSync, readdirSync, renameSync } from 'fs';
 import inquirer from 'inquirer';
 import { join } from 'path';
+
+import { ALBUM_DOWNLOAD_TARGET, ALBUM_PAD_SIZE } from '../config';
 
 /* eslint-disable security/detect-non-literal-regexp */
 
@@ -18,19 +22,18 @@ const SEPARATOR = ' - ';
   ],
   name: 'Yoink',
 })
-export class YoinkService implements iRepl {
-  
-
+export class ImgurAlbumDownloadService implements iRepl {
   constructor(
-    private readonly configService: AutoConfigService,
     private readonly fetchService: FetchService,
+    @InjectConfig(ALBUM_DOWNLOAD_TARGET) private readonly root: string,
+    @InjectConfig(ALBUM_PAD_SIZE) private readonly padSize: number,
   ) {}
 
-  
-
-  
-
   public async exec(): Promise<void> {
+    if (!this.root) {
+      console.log(chalk.bold.red('ALBUM_DOWNLOAD_TARGET config not set'));
+      return;
+    }
     const { dirname, url, path } = await inquirer.prompt([
       {
         // default: this.configService.get(YOINK_DEFAULT_PATH),
@@ -62,10 +65,6 @@ export class YoinkService implements iRepl {
     this.processDir(destination);
   }
 
-  
-
-  
-
   private processDir(DIR: string) {
     const files = readdirSync(DIR);
     files.forEach((file) => {
@@ -86,7 +85,7 @@ export class YoinkService implements iRepl {
   private processImgur(DIR: string, file: string) {
     let number = file.split(SEPARATOR, 1)[0].toString();
     const orig = number;
-    number = number.padStart(4, '0');
+    number = number.padStart(this.padSize, '0');
     renameSync(
       join(DIR, file),
       join(
@@ -99,12 +98,10 @@ export class YoinkService implements iRepl {
   private processRaw(DIR: string, file: string) {
     let number = file.split('.')[0].toString();
     const orig = number;
-    number = number.padStart(4, '0');
+    number = number.padStart(this.padSize, '0');
     renameSync(
       join(DIR, file),
       join(DIR, file.replace(new RegExp(`^${orig}`, 'g'), `${number}`)),
     );
   }
-
-  
 }

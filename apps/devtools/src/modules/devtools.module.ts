@@ -2,10 +2,15 @@ import { APP_DEVTOOLS } from '@automagical/contracts';
 import { MainCLIModule } from '@automagical/tty';
 import { ApplicationModule, UtilitiesModule } from '@automagical/utilities';
 
-import { ConfigBuilderService } from '../services';
+import { ConfigBuilderService, ImgurAlbumDownloadService } from '../services';
 
 @ApplicationModule({
   application: APP_DEVTOOLS,
-  imports: [UtilitiesModule, MainCLIModule, ConfigBuilderService],
+  imports: [
+    UtilitiesModule,
+    MainCLIModule,
+    ConfigBuilderService,
+    ImgurAlbumDownloadService,
+  ],
 })
 export class DevtoolsModule {}

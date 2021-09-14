@@ -1,3 +1,13 @@
 {
-  "configuration": {}
+  "configuration": {
+    "ALBUM_DOWNLOAD_TARGET": {
+      "type": "string",
+      "description": "Base folder for downloading imgur albums to"
+    },
+    "ALBUM_PAD_SIZE": {
+      "type": "number",
+      "description": "Pad numbers in file names to a consistent size so they can be sorted more easily",
+      "default": 4
+    }
+  }
 }

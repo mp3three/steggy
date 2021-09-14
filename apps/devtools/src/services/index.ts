@@ -1,2 +1,2 @@
 export * from './config-builder.service';
-export * from './yoink.service';
+export * from './imgur-album-download.service';
