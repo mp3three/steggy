@@ -1,4 +1,4 @@
-import { LIB_CONTROLLER_LOGIC } from '@automagical/contracts';
+import { LIB_CONTROLLER_LOGIC } from '@automagical/utilities';
 import { LibraryModule, RegisterCache } from '@automagical/utilities';
 import { DynamicModule } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';

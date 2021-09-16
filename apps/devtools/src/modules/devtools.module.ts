@@ -1,4 +1,4 @@
-import { APP_DEVTOOLS } from '@automagical/contracts';
+import { APP_DEVTOOLS } from '@automagical/utilities';
 import { MainCLIModule } from '@automagical/tty';
 import { ApplicationModule, UtilitiesModule } from '@automagical/utilities';
 

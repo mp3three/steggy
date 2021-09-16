@@ -1,4 +1,3 @@
-import { LIB_TERMINAL } from '@automagical/contracts';
 import {
   BLESSED_GRID,
   BLESSED_SCREEN,
@@ -6,6 +5,7 @@ import {
   Grid,
   Screen,
 } from '@automagical/terminal';
+import { LIB_TERMINAL } from '@automagical/utilities';
 import { AutoConfigService, LibraryModule } from '@automagical/utilities';
 import { DynamicModule, Provider } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';

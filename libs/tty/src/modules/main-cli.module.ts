@@ -1,4 +1,4 @@
-import { LIB_TTY } from '@automagical/contracts';
+import { LIB_TTY } from '@automagical/utilities';
 import { LibraryModule } from '@automagical/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 

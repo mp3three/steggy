@@ -1,4 +1,4 @@
-import { LIB_UTILS } from '@automagical/contracts';
+import { LIB_UTILS } from '@automagical/utilities';
 import { MQTT_CLIENT_INSTANCE } from '@automagical/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 

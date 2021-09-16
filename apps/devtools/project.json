@@ -48,11 +48,6 @@
             "output": "./assets/terminal"
           },
           {
-            "input": "libs/server",
-            "glob": "automagical.json",
-            "output": "./assets/server"
-          },
-          {
             "input": "libs/portainer",
             "glob": "automagical.json",
             "output": "./assets/portainer"

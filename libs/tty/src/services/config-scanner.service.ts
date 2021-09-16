@@ -1,5 +1,5 @@
-import { ACTIVE_APPLICATION } from '@automagical/contracts/config';
 import {
+  ACTIVE_APPLICATION,
   ConfigTypeDTO,
   CONSUMES_CONFIG,
   LOGGER_LIBRARY,

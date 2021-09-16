@@ -10,6 +10,16 @@
       },
       "outputs": ["{options.outputFile}"]
     },
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/terminal",
+        "tsConfig": "libs/terminal/tsconfig.lib.json",
+        "packageJson": "libs/terminal/package.json",
+        "main": "libs/terminal/src/index.ts"
+      }
+    },
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/libs/terminal"],

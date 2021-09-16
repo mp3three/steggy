@@ -1,6 +1,6 @@
-import { APP_HOME_CONTROLLER } from '@automagical/contracts';
 import { HomeControllerCustomModule } from '@automagical/controller-logic';
 import { HomeAssistantModule } from '@automagical/home-assistant';
+import { APP_HOME_CONTROLLER } from '@automagical/utilities';
 import {
   ApplicationModule,
   MQTTModule,

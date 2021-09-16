@@ -1,4 +1,3 @@
-import { iRoomControllerMethods } from '@automagical/controller-logic';
 import { LoggerService, Type } from '@nestjs/common';
 import { ModuleMetadata } from '@nestjs/common/interfaces';
 import { IClientOptions, IClientSubscribeOptions } from 'mqtt';
@@ -73,10 +72,8 @@ export const MQTT_CLIENT_INSTANCE = 'MQTT_CLIENT_INSTANCE';
  */
 export const MQTT_HEALTH_CHECK = 'MQTT_HEALTH_CHECK';
 
-export const SEND_ROOM_STATE = (
-  room: string,
-  action: keyof iRoomControllerMethods,
-): string => ['internal', 'set_room_state', room, action].join('/');
+export const SEND_ROOM_STATE = (room: string, action: string): string =>
+  ['internal', 'set_room_state', room, action].join('/');
 
 export const MQTT_CONNECT = Symbol('MQTT_CONNECT');
 export const MQTT_DISCONNECT = Symbol('MQTT_DISCONNECT');

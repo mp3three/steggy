@@ -1,14 +1,13 @@
 import {
   AutomagicalBooleanConfig,
+  AutomagicalConfig,
   AutomagicalNumberConfig,
   AutomagicalPasswordConfig,
   AutomagicalRecordConfig,
   AutomagicalStringArrayConfig,
   AutomagicalStringConfig,
   AutomagicalUrlConfig,
-  COMPLEX_CONFIG_PROVIDERS,
-} from '@automagical/contracts';
-import { AutomagicalConfig } from '@automagical/contracts/config';
+} from '@automagical/utilities';
 import { ConfigTypeDTO } from '@automagical/utilities';
 import {
   Injectable,
@@ -30,7 +29,7 @@ export class TypePromptService {
    */
   public config: AutomagicalConfig = {};
   public provider = new Map<
-    COMPLEX_CONFIG_PROVIDERS,
+    string,
     (defaultValue: unknown) => Promise<unknown>
   >();
 

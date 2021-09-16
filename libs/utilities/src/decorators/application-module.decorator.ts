@@ -1,10 +1,9 @@
-import { LIB_UTILS } from '@automagical/contracts';
-import { ACTIVE_APPLICATION } from '@automagical/contracts/config';
-import type { iRoomController } from '@automagical/controller-logic';
-import { LOGGER_LIBRARY } from '@automagical/utilities';
 import { ModuleMetadata, Provider } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 
+import { LOGGER_LIBRARY } from '../contracts/logger/constants';
+import { ACTIVE_APPLICATION } from '../contracts/meta/config';
+import { LIB_UTILS } from '../contracts/meta/library-names';
 import { RegisterCache } from '../includes/';
 import { UtilitiesModule } from '../modules';
 
@@ -15,7 +14,7 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
    */
   dashboards?: Provider[];
   globals?: Provider[];
-  rooms?: Provider<iRoomController>[];
+  rooms?: Provider[];
   /**
    * Additional services from utils lib to load
    */

@@ -3,7 +3,7 @@ import {
   // APP_DASHBOARD,
   APP_DEVTOOLS,
   APP_HOME_CONTROLLER,
-} from '@automagical/contracts';
+} from '@automagical/utilities';
 import { ClassConstructor } from 'class-transformer';
 
 // import { DashboardModule } from '../../../dashboard/src/modules/dashboard.module';

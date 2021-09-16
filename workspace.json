@@ -7,7 +7,6 @@
   "projects": {
     "1password": "libs/1password",
     "auto-dash": "apps/auto-dash",
-    "contracts": "libs/contracts",
     "controller-logic": "libs/controller-logic",
     "dashboard": "apps/dashboard",
     "devtools": "apps/devtools",

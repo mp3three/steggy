@@ -1,4 +1,4 @@
-import { LIB_HOME_ASSISTANT } from '@automagical/contracts';
+import { LIB_HOME_ASSISTANT } from '@automagical/utilities';
 import { LibraryModule } from '@automagical/utilities';
 import { Provider } from '@nestjs/common';
 

@@ -4,7 +4,7 @@ import {
   DEFAULT_DB_SECRET,
   DEFAULT_EXPIRES_IN,
   DEFAULT_VERIFY_JWT,
-} from '@automagical/contracts/config';
+} from '@automagical/utilities/config';
 
 export const DEFAULT_TEST_SETTINGS: AutomagicalConfig = {
   BODY_SIZE: '50mb',

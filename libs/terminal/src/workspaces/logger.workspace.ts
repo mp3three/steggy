@@ -1,4 +1,3 @@
-import { LIB_UTILS } from '@automagical/contracts';
 import {
   BLESSED_GRID,
   GridElement,
@@ -6,6 +5,7 @@ import {
   LogElement,
   LogOptions,
 } from '@automagical/terminal';
+import { LIB_UTILS } from '@automagical/utilities';
 import {
   iLoggerCore,
   LogLevels,

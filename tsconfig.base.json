@@ -19,8 +19,6 @@
     "baseUrl": ".",
     "paths": {
       "@automagical/1password": ["libs/1password/src/index.ts"],
-      "@automagical/contracts": ["libs/contracts/src/index.ts"],
-      "@automagical/contracts/config": ["libs/contracts/src/config/index.ts"],
       "@automagical/controller-logic": ["libs/controller-logic/src/index.ts"],
       "@automagical/home-assistant": ["libs/home-assistant/src/index.ts"],
       "@automagical/persistence/mongo": ["libs/persistence/src/mongo/index.ts"],

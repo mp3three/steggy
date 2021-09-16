@@ -1,4 +1,4 @@
-import { LIB_1PASSWORD } from '@automagical/contracts';
+import { LIB_1PASSWORD } from '@automagical/utilities';
 import { LibraryModule } from '@automagical/utilities';
 
 @LibraryModule({

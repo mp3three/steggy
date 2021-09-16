@@ -5,4 +5,5 @@ export * from './email';
 export * from './fetch';
 export * from './interfaces';
 export * from './logger';
+export * from './meta';
 export * from './mqtt';

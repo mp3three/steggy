@@ -1,14 +1,14 @@
 import {
-  AutomagicalMetadataDTO,
-  METADATA_FILE,
-  PACKAGE_FILE,
-  PackageJsonDTO,
-} from '@automagical/contracts';
-import {
   NX_WORKSPACE_FILE,
   NXProjectTypes,
   NXWorkspaceDTO,
 } from '@automagical/terminal';
+import {
+  AutomagicalMetadataDTO,
+  METADATA_FILE,
+  PACKAGE_FILE,
+  PackageJsonDTO,
+} from '@automagical/utilities';
 import { Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { existsSync, readFileSync } from 'fs';

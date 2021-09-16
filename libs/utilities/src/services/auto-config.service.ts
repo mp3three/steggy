@@ -1,13 +1,3 @@
-import {
-  AutomagicalMetadataDTO,
-  LIB_UTILS,
-  METADATA_FILE,
-} from '@automagical/contracts';
-import {
-  ACTIVE_APPLICATION,
-  AutomagicalConfig,
-} from '@automagical/contracts/config';
-import { USE_THIS_CONFIG } from '@automagical/utilities';
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { existsSync, readdirSync, readFileSync } from 'fs';
 import { get, set } from 'object-path';
@@ -15,7 +5,17 @@ import { join } from 'path';
 import { cwd } from 'process';
 import rc from 'rc';
 
+import {
+  AutomagicalMetadataDTO,
+  LIB_UTILS,
+  METADATA_FILE,
+  USE_THIS_CONFIG,
+} from '..';
 import { LOG_LEVEL } from '../config';
+import {
+  ACTIVE_APPLICATION,
+  AutomagicalConfig,
+} from '../contracts/meta/config';
 import { AutoLogService } from './logger';
 
 @Injectable()
@@ -50,9 +50,9 @@ export class AutoConfigService {
     }
     const [, library, property] = parts;
     const metadata = this.metadata.get(library);
-    if (!metadata) {
-      console.log(path);
-    }
+    // if (!metadata) {
+    //   console.log(path);
+    // }
     return metadata.configuration[property].default as T;
   }
 

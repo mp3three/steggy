@@ -1,6 +1,4 @@
-import { PACKAGE_FILE } from '@automagical/contracts';
-import { AutomagicalConfig } from '@automagical/contracts/config';
-import { NXAffected } from '@automagical/terminal';
+import { AutomagicalConfig, PACKAGE_FILE } from '@automagical/utilities';
 import { filterUnique } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
@@ -15,6 +13,7 @@ import { join } from 'path';
 import { cwd } from 'process';
 import { inc } from 'semver';
 
+import { NXAffected } from '../contracts';
 import { TypePromptService } from './type-prompt.service';
 import { WorkspaceService } from './workspace.service';
 

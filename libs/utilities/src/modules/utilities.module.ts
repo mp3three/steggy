@@ -1,4 +1,4 @@
-import { LIB_UTILS } from '@automagical/contracts';
+import { LIB_UTILS } from '@automagical/utilities';
 import { CacheModule, DynamicModule, Provider } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 

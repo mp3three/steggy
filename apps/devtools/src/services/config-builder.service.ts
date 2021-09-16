@@ -1,11 +1,4 @@
-import {
-  APP_DEVTOOLS,
-  ConfigLibraryVisibility,
-  LIB_TERMINAL,
-} from '@automagical/contracts';
-import { AutomagicalConfig } from '@automagical/contracts/config';
 import { iRepl } from '@automagical/tty';
-import { ConfigTypeDTO } from '@automagical/utilities';
 import {
   ConfigScannerService,
   OUTPUT_HEADER_FONT,
@@ -14,7 +7,13 @@ import {
   TypePromptService,
   WorkspaceService,
 } from '@automagical/tty';
-import { AutoConfigService, Trace } from '@automagical/utilities';
+import { APP_DEVTOOLS, LIB_TERMINAL } from '@automagical/utilities';
+import { ConfigTypeDTO } from '@automagical/utilities';
+import {
+  AutoConfigService,
+  AutomagicalConfig,
+  Trace,
+} from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
@@ -67,7 +66,7 @@ export class ConfigBuilderService implements iRepl {
         name: 'application',
         type: 'list',
       },
-    ])) as { application: string; level: ConfigLibraryVisibility };
+    ])) as { application: string };
     this.typePrompt.config = rc(application.split('-')[0]);
     const config: AutomagicalConfig = JSON.parse(
       JSON.stringify(this.typePrompt.config),
