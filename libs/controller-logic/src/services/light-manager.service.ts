@@ -2,12 +2,12 @@ import type {
   iLightManager,
   iRoomController,
   RoomControllerParametersDTO,
-} from '@automagical/contracts/controller-logic';
+} from '@automagical/controller-logic';
 import {
   CIRCADIAN_UPDATE,
   LightingCacheDTO,
   RoomControllerSettingsDTO,
-} from '@automagical/contracts/controller-logic';
+} from '@automagical/controller-logic';
 import {
   HomeAssistantCoreService,
   LightDomainService,

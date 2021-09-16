@@ -1,15 +1,15 @@
 import {
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
-} from '@automagical/contracts/home-assistant';
+} from '@automagical/home-assistant';
 import {
   BLESSED_GRID,
   GridElement,
   Log,
   LogElement,
   LogOptions,
-} from '@automagical/contracts/terminal';
-import { LogLevels } from '@automagical/contracts/utilities';
+} from '@automagical/terminal';
+import { LogLevels } from '@automagical/utilities';
 import { OnEvent } from '@automagical/utilities';
 import { Inject } from '@nestjs/common';
 import chalk from 'chalk';

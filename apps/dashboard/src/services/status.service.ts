@@ -1,6 +1,10 @@
-import { HassEventDTO } from '@automagical/contracts/home-assistant';
-import { Box, BoxElement, GridElement } from '@automagical/contracts/terminal';
-import { RefreshAfter } from '@automagical/terminal';
+import { HassEventDTO } from '@automagical/home-assistant';
+import {
+  Box,
+  BoxElement,
+  GridElement,
+  RefreshAfter,
+} from '@automagical/terminal';
 import { CacheManagerService, InjectCache } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 

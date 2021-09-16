@@ -1,4 +1,4 @@
-import { iRepl } from '@automagical/contracts/tty';
+import { iRepl } from '@automagical/tty';
 import { InjectConfig } from '@automagical/utilities';
 import chalk from 'chalk';
 import clear from 'clear';

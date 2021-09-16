@@ -1,4 +1,4 @@
-import { iLoggerCore } from '@automagical/contracts/utilities';
+import { iLoggerCore } from '@automagical/utilities';
 import { AutoLogService, prettyFormatMessage } from '@automagical/utilities';
 import chalk from 'chalk';
 

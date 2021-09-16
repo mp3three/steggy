@@ -1,7 +1,7 @@
 import {
   CRON_SCHEDULE,
   CronExpression,
-} from '@automagical/contracts/utilities';
+} from '@automagical/utilities';
 import { SetMetadata } from '@nestjs/common';
 
 export enum CronObject {

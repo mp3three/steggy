@@ -1,11 +1,11 @@
-import { EcobeeClimateStateDTO } from '@automagical/contracts/home-assistant';
+import { EcobeeClimateStateDTO } from '@automagical/home-assistant';
 import {
   BLESSED_GRID,
   GridElement,
   iWorkspace,
   LineChart,
   LineElement,
-} from '@automagical/contracts/terminal';
+} from '@automagical/terminal';
 import { HomeAssistantFetchAPIService } from '@automagical/home-assistant';
 import {
   MDIIcons,

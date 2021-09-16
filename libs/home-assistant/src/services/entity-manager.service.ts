@@ -4,7 +4,7 @@ import {
   HA_SOCKET_READY,
   HassEventDTO,
   HassStateDTO,
-} from '@automagical/contracts/home-assistant';
+} from '@automagical/home-assistant';
 import { OnEvent, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';

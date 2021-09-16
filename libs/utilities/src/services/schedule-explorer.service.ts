@@ -1,4 +1,4 @@
-import { CRON_SCHEDULE, LOG_CONTEXT } from '@automagical/contracts/utilities';
+import { CRON_SCHEDULE, LOG_CONTEXT } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';

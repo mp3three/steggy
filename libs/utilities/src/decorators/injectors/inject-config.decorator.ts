@@ -1,7 +1,7 @@
 import {
   CONSUMES_CONFIG,
   LOGGER_LIBRARY,
-} from '@automagical/contracts/utilities';
+} from '@automagical/utilities';
 import { Inject, Provider } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 

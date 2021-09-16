@@ -2,7 +2,7 @@ import {
   iRoomController,
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
-} from '@automagical/contracts/controller-logic';
+} from '@automagical/controller-logic';
 import {
   AutoLogService,
   CacheManagerService,

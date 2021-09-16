@@ -1,21 +1,10 @@
 import { LIB_UTILS } from '@automagical/contracts';
-import { APIRequest, APIResponse } from '@automagical/contracts/server';
-import {
-  CacheModule,
-  DynamicModule,
-  MiddlewareConsumer,
-  Provider,
-  RequestMethod,
-} from '@nestjs/common';
+import { CacheModule, DynamicModule, Provider } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
-import { NextFunction } from 'express';
-import pinoHttp from 'pino-http';
 
-import { LOG_LEVEL } from '..';
 import { injectedLoggers } from '../decorators/injectors';
 import { CONFIG_PROVIDERS } from '../decorators/injectors/inject-config.decorator';
 import { LibraryModule } from '../decorators/library-module.decorator';
-import { expressContextMiddleware, expressContextSetValue } from '../includes';
 import {
   AutoConfigService,
   AutoLogService,
@@ -76,27 +65,4 @@ export class UtilitiesModule {
       ],
     };
   }
-
-  constructor(private readonly configService: AutoConfigService) {}
-
-  protected configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(
-        expressContextMiddleware,
-        pinoHttp({
-          level: this.configService.get([LIB_UTILS, LOG_LEVEL]),
-        }),
-        bindLoggerMiddleware,
-      )
-      .forRoutes({ method: RequestMethod.ALL, path: '*' });
-  }
-}
-
-function bindLoggerMiddleware(
-  request: APIRequest,
-  response: APIResponse,
-  next: NextFunction,
-) {
-  expressContextSetValue('logger', request.log);
-  next();
 }

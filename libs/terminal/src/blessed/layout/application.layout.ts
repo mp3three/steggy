@@ -6,7 +6,7 @@ import {
   GridLayoutOptions,
   GridPosition,
   Screen,
-} from '@automagical/contracts/terminal';
+} from '@automagical/terminal';
 import { Inject, Injectable } from '@nestjs/common';
 
 const widgetSpacing = 0;

@@ -1,10 +1,10 @@
-import { ROOM_COMMAND } from '@automagical/contracts/controller-logic';
+import { ROOM_COMMAND } from '@automagical/controller-logic';
 import {
   BatteryStateDTO,
   domain,
   HA_SOCKET_READY,
   HASS_DOMAINS,
-} from '@automagical/contracts/home-assistant';
+} from '@automagical/home-assistant';
 import {
   EntityManagerService,
   LockDomainService,

@@ -8,7 +8,7 @@ import {
   MQTT_RECONNECT,
   MqttSubscribeOptions,
   MqttSubscriber,
-} from '@automagical/contracts/utilities';
+} from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';

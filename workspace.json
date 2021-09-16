@@ -15,7 +15,6 @@
     "home-controller": "apps/home-controller",
     "living-docs": "apps/living-docs",
     "portainer": "libs/portainer",
-    "server": "libs/server",
     "terminal": "libs/terminal",
     "testing": "libs/testing",
     "tty": "libs/tty",

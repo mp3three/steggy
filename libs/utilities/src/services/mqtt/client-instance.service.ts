@@ -1,9 +1,9 @@
 import { ACTIVE_APPLICATION } from '@automagical/contracts/config';
-import { MQTT_HEALTH_CHECK } from '@automagical/contracts/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { connect, MqttClient } from 'mqtt';
 
 import { MQTT_HOST, MQTT_PORT } from '../../config';
+import { MQTT_HEALTH_CHECK } from '../../contracts/mqtt';
 import { InjectConfig } from '../../decorators/injectors/inject-config.decorator';
 
 @Injectable()

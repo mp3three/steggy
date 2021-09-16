@@ -1,7 +1,7 @@
 import { LIB_UTILS } from '@automagical/contracts';
 import { ACTIVE_APPLICATION } from '@automagical/contracts/config';
-import type { iRoomController } from '@automagical/contracts/controller-logic';
-import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
+import type { iRoomController } from '@automagical/controller-logic';
+import { LOGGER_LIBRARY } from '@automagical/utilities';
 import { ModuleMetadata, Provider } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 

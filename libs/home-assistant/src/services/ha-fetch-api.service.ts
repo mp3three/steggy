@@ -1,5 +1,5 @@
-import { HassStateDTO } from '@automagical/contracts/home-assistant';
-import type { FetchWith } from '@automagical/contracts/utilities';
+import { HassStateDTO } from '@automagical/home-assistant';
+import type { FetchWith } from '@automagical/utilities';
 import {
   AutoLogService,
   FetchService,

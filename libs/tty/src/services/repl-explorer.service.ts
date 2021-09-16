@@ -1,4 +1,4 @@
-import { iRepl, REPL_CONFIG, ReplOptions } from '@automagical/contracts/tty';
+import { iRepl, REPL_CONFIG, ReplOptions } from '@automagical/tty';
 import { AutoLogService, Info, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';

@@ -6,8 +6,8 @@ import {
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerParametersDTO,
   RoomControllerSettingsDTO,
-} from '@automagical/contracts/controller-logic';
-import { SEND_ROOM_STATE } from '@automagical/contracts/utilities';
+} from '@automagical/controller-logic';
+import { SEND_ROOM_STATE } from '@automagical/utilities';
 import {
   AutoLogService,
   InjectLogger,

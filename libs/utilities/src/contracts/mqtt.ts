@@ -1,8 +1,7 @@
+import { iRoomControllerMethods } from '@automagical/controller-logic';
 import { LoggerService, Type } from '@nestjs/common';
 import { ModuleMetadata } from '@nestjs/common/interfaces';
 import { IClientOptions, IClientSubscribeOptions } from 'mqtt';
-
-import { iRoomControllerMethods } from '../controller-logic';
 
 export type MqttMessageTransformer = (payload: Buffer) => unknown;
 

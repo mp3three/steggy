@@ -3,7 +3,7 @@ import {
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
   HassStateDTO,
-} from '@automagical/contracts/home-assistant';
+} from '@automagical/home-assistant';
 import { AutoLogService, OnEvent } from '@automagical/utilities';
 
 const DEFAULT_STATE: HassStateDTO = undefined;

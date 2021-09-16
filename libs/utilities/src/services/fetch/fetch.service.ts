@@ -1,14 +1,14 @@
-import { FetchArguments } from '@automagical/contracts/utilities';
+import { FetchArguments } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
 import { createWriteStream } from 'fs';
 import fetch from 'node-fetch';
 
 import { Trace } from '../../decorators/logger.decorator';
 import { AutoLogService } from '../logger/auto-log.service';
-import { BaseFetch } from './base-fetch.service';
+import { BaseFetchService } from './base-fetch.service';
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class FetchService extends BaseFetch {
+export class FetchService extends BaseFetchService {
   public TRUNCATE_LENGTH = 200;
 
   constructor(protected readonly logger: AutoLogService) {

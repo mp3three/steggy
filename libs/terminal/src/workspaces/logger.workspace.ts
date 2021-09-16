@@ -5,12 +5,12 @@ import {
   Log,
   LogElement,
   LogOptions,
-} from '@automagical/contracts/terminal';
+} from '@automagical/terminal';
 import {
   iLoggerCore,
   LogLevels,
   MISSING_CONTEXT,
-} from '@automagical/contracts/utilities';
+} from '@automagical/utilities';
 import {
   AutoConfigService,
   AutoLogService,

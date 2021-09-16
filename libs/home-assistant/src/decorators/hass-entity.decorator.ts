@@ -1,7 +1,7 @@
 import {
   HASS_ENTITY,
   HASS_ENTITY_GROUP,
-} from '@automagical/contracts/home-assistant';
+} from '@automagical/home-assistant';
 import { SetMetadata } from '@nestjs/common';
 
 export function HassEntity(entity_id: string): PropertyDecorator {

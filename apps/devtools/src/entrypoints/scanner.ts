@@ -1,7 +1,7 @@
 import {
   CONSUMES_CONFIG,
   LOGGER_LIBRARY,
-} from '@automagical/contracts/utilities';
+} from '@automagical/utilities';
 import { NEST_NOOP_LOGGER } from '@automagical/utilities';
 import { DiscoveryService, NestFactory } from '@nestjs/core';
 

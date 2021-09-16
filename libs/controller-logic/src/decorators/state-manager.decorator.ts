@@ -1,4 +1,4 @@
-import { STATE_MANAGER } from '@automagical/contracts/controller-logic';
+import { STATE_MANAGER } from '@automagical/controller-logic';
 import { Inject } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 

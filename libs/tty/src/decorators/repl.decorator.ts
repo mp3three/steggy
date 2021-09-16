@@ -1,4 +1,4 @@
-import { REPL_CONFIG, ReplOptions } from '@automagical/contracts/tty';
+import { REPL_CONFIG, ReplOptions } from '@automagical/tty';
 import { Injectable } from '@nestjs/common';
 
 export function Repl({

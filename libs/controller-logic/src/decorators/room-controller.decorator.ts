@@ -1,7 +1,7 @@
 import {
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
-} from '@automagical/contracts/controller-logic';
+} from '@automagical/controller-logic';
 import { Injectable, Provider } from '@nestjs/common';
 
 export const DynamicRoomProviders = new Set<Provider>();

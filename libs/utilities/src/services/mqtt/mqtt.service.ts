@@ -1,4 +1,4 @@
-import type { MqttSubscribeOptions } from '@automagical/contracts/utilities';
+import type { MqttSubscribeOptions } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import {
   Client,

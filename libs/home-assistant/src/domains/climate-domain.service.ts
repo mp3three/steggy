@@ -1,7 +1,7 @@
 import {
   HASS_DOMAINS,
   HassStateDTO,
-} from '@automagical/contracts/home-assistant';
+} from '@automagical/home-assistant';
 import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 

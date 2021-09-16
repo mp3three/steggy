@@ -3,8 +3,8 @@ import {
   iRoomController,
   ROOM_COMMAND,
   RoomControllerParametersDTO,
-} from '@automagical/contracts/controller-logic';
-import { CronExpression } from '@automagical/contracts/utilities';
+} from '@automagical/controller-logic';
+import { CronExpression } from '@automagical/utilities';
 import {
   KunamiCodeService,
   LightManagerService,

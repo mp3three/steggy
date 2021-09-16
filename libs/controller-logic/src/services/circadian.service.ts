@@ -1,5 +1,5 @@
-import { CIRCADIAN_UPDATE } from '@automagical/contracts/controller-logic';
-import { CronExpression } from '@automagical/contracts/utilities';
+import { CIRCADIAN_UPDATE } from '@automagical/controller-logic';
+import { CronExpression } from '@automagical/utilities';
 import {
   Cron,
   InjectConfig,

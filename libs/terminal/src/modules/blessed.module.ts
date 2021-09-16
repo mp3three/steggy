@@ -5,7 +5,7 @@ import {
   BLESSED_THEME,
   Grid,
   Screen,
-} from '@automagical/contracts/terminal';
+} from '@automagical/terminal';
 import { AutoConfigService, LibraryModule } from '@automagical/utilities';
 import { DynamicModule, Provider } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';

@@ -1,4 +1,4 @@
-import { FetchWith } from '@automagical/contracts/utilities';
+import { FetchWith } from '@automagical/utilities';
 import { FetchService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 

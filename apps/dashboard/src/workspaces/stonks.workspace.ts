@@ -4,7 +4,7 @@ import {
   BoxElement,
   GridElement,
   iWorkspace,
-} from '@automagical/contracts/terminal';
+} from '@automagical/terminal';
 import {
   FontAwesomeIcons,
   Workspace,

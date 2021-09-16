@@ -1,4 +1,4 @@
-import { TeslaClimateStateDTO } from '@automagical/contracts/home-assistant';
+import { TeslaClimateStateDTO } from '@automagical/home-assistant';
 import {
   ClimateDomainService,
   EntityManagerService,

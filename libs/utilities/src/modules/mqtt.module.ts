@@ -1,5 +1,5 @@
 import { LIB_UTILS } from '@automagical/contracts';
-import { MQTT_CLIENT_INSTANCE } from '@automagical/contracts/utilities';
+import { MQTT_CLIENT_INSTANCE } from '@automagical/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { LibraryModule } from '../decorators/library-module.decorator';

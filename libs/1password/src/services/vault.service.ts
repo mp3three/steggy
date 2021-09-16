@@ -1,4 +1,4 @@
-import { ListVaultItem, VaultDTO } from '@automagical/contracts/1password';
+import { ListVaultItem, VaultDTO } from '@automagical/1password';
 import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import execa from 'execa';

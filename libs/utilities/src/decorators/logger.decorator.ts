@@ -1,4 +1,4 @@
-import { LOG_CONTEXT } from '@automagical/contracts/utilities';
+import { LOG_CONTEXT } from '@automagical/utilities';
 import pino from 'pino';
 
 import { AutoLogService } from '../services';

@@ -1,5 +1,5 @@
-import { CustomTemplateDTO, StackDTO } from '@automagical/contracts/portainer';
-import { FetchWith } from '@automagical/contracts/utilities';
+import { CustomTemplateDTO, StackDTO } from '@automagical/portainer';
+import { FetchWith } from '@automagical/utilities';
 import { Trace } from '@automagical/utilities';
 
 import { PortainerFetchService } from './portainer-fetch.service';

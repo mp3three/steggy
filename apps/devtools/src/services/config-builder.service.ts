@@ -4,8 +4,8 @@ import {
   LIB_TERMINAL,
 } from '@automagical/contracts';
 import { AutomagicalConfig } from '@automagical/contracts/config';
-import { iRepl } from '@automagical/contracts/tty';
-import { ConfigTypeDTO } from '@automagical/contracts/utilities';
+import { iRepl } from '@automagical/tty';
+import { ConfigTypeDTO } from '@automagical/utilities';
 import {
   ConfigScannerService,
   OUTPUT_HEADER_FONT,

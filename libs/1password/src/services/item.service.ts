@@ -4,7 +4,7 @@ import {
   ListItemItemDTO,
   ListItemPayloadDTO,
   VaultDTO,
-} from '@automagical/contracts/1password';
+} from '@automagical/1password';
 import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import execa from 'execa';

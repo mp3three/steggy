@@ -3,7 +3,7 @@ import {
   ConfigTypeDTO,
   CONSUMES_CONFIG,
   LOGGER_LIBRARY,
-} from '@automagical/contracts/utilities';
+} from '@automagical/utilities';
 import {
   AutoLogService,
   NEST_NOOP_LOGGER,

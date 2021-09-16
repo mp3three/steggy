@@ -1,4 +1,4 @@
-import { HASS_ENTITY_ID } from '@automagical/contracts/controller-logic';
+import { HASS_ENTITY_ID } from '@automagical/controller-logic';
 
 export function HassEntity(entity_id: string): PropertyDecorator {
   return function (target, key: string) {

@@ -12,8 +12,8 @@ import {
   HassStateDTO,
   SendSocketMessageDTO,
   SocketMessageDTO,
-} from '@automagical/contracts/home-assistant';
-import { CronExpression } from '@automagical/contracts/utilities';
+} from '@automagical/home-assistant';
+import { CronExpression } from '@automagical/utilities';
 import {
   AutoLogService,
   Cron,

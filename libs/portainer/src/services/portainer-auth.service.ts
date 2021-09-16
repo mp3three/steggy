@@ -2,8 +2,8 @@ import {
   AuthenticatePayloadDTO,
   AuthenticateResponseDTO,
   OAuthPayloadDTO,
-} from '@automagical/contracts/portainer';
-import { FetchWith } from '@automagical/contracts/utilities';
+} from '@automagical/portainer';
+import { FetchWith } from '@automagical/utilities';
 import { Debug } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 

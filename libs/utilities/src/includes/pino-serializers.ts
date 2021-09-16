@@ -1,4 +1,4 @@
-import { APIRequest, APIResponse } from '@automagical/contracts/server';
+// import { APIRequest, APIResponse } from '@automagical/server';
 
 export const PINO_SERIALIZERS = {
   parameters(parameters: unknown[]): unknown[] {
@@ -14,14 +14,14 @@ export const PINO_SERIALIZERS = {
       return item;
     });
   },
-  req(request: APIRequest): unknown {
+  req(request: Record<string, unknown>): unknown {
     return {
       id: request.id,
       method: request.method,
       url: request.url,
     };
   },
-  res(response: APIResponse): unknown {
+  res(response: Record<string, unknown>): unknown {
     return {
       statusCode: response.statusCode,
     };

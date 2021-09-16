@@ -2,7 +2,7 @@ import {
   FanSpeeds,
   FanStateDTO,
   HASS_DOMAINS,
-} from '@automagical/contracts/home-assistant';
+} from '@automagical/home-assistant';
 import { AutoLogService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 

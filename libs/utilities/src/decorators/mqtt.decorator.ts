@@ -1,4 +1,4 @@
-import { MqttSubscribeOptions } from '@automagical/contracts/utilities';
+import { MqttSubscribeOptions } from '@automagical/utilities';
 import { SetMetadata } from '@nestjs/common';
 
 export function OnMQTT(

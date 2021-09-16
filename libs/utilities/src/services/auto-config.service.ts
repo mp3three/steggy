@@ -7,7 +7,7 @@ import {
   ACTIVE_APPLICATION,
   AutomagicalConfig,
 } from '@automagical/contracts/config';
-import { USE_THIS_CONFIG } from '@automagical/contracts/utilities';
+import { USE_THIS_CONFIG } from '@automagical/utilities';
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { existsSync, readdirSync, readFileSync } from 'fs';
 import { get, set } from 'object-path';

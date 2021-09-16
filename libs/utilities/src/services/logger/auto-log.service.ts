@@ -4,7 +4,7 @@ import {
   LOG_CONTEXT,
   LogLevels,
   MISSING_CONTEXT,
-} from '@automagical/contracts/utilities';
+} from '@automagical/utilities';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import { ClassConstructor } from 'class-transformer';

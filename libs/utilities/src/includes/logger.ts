@@ -1,4 +1,4 @@
-import { LOGGER_LIBRARY } from '@automagical/contracts/utilities';
+import { LOGGER_LIBRARY } from '@automagical/utilities';
 import { ClassConstructor } from 'class-transformer';
 
 export function getLogContext(instance: ClassConstructor<unknown>): string {

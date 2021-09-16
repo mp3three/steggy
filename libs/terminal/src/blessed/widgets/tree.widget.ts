@@ -5,7 +5,7 @@ import {
   ListOptions,
   Screen,
   TreeWidgetSettingsDTO,
-} from '@automagical/contracts/terminal';
+} from '@automagical/terminal';
 import { FillDefaults, Trace } from '@automagical/utilities';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';

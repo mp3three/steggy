@@ -1,4 +1,4 @@
-import { HASS_DOMAINS } from '@automagical/contracts/home-assistant';
+import { HASS_DOMAINS } from '@automagical/home-assistant';
 import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 

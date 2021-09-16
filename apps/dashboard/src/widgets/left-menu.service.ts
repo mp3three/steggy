@@ -5,7 +5,7 @@ import {
   Tree,
   TreeElement,
   TreeOptions,
-} from '@automagical/contracts/terminal';
+} from '@automagical/terminal';
 import { RefreshAfter, WorkspaceExplorerService } from '@automagical/terminal';
 import {
   AutoLogService,

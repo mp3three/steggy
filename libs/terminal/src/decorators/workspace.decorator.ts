@@ -1,7 +1,7 @@
 import {
   WORKSPACE_SETTINGS,
   WorkspaceSettingsDTO,
-} from '@automagical/contracts/terminal';
+} from '@automagical/terminal';
 import { Injectable, ScopeOptions } from '@nestjs/common';
 
 export function Workspace(

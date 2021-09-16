@@ -1,4 +1,4 @@
-import { iRoomController } from '@automagical/contracts/controller-logic';
+import { iRoomController } from '@automagical/controller-logic';
 import {
   KunamiCodeService,
   LightManagerService,

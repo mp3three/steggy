@@ -4,12 +4,9 @@ import {
   Markdown,
   MarkdownElement,
   MarkdownOptions,
-} from '@automagical/contracts/terminal';
-import {
-  CronExpression,
-  MQTT_HEALTH_CHECK,
-} from '@automagical/contracts/utilities';
+} from '@automagical/terminal';
 import { RefreshAfter } from '@automagical/terminal';
+import { CronExpression, MQTT_HEALTH_CHECK } from '@automagical/utilities';
 import { Cron, OnMQTT } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import chalk from 'chalk';
@@ -17,23 +14,13 @@ import dayjs from 'dayjs';
 
 @Injectable()
 export class HealthService {
-  
-
   private SERVICES = new Map<string, dayjs.Dayjs>();
   private WIDGET: MarkdownElement;
-
-  
-
-  
 
   constructor(
     @Inject(BLESSED_GRID)
     private readonly GRID: GridElement,
   ) {}
-
-  
-
-  
 
   @Cron(CronExpression.EVERY_SECOND)
   @RefreshAfter()
@@ -82,6 +69,4 @@ export class HealthService {
       } as MarkdownOptions,
     );
   }
-
-  
 }

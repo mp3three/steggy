@@ -8,7 +8,7 @@ import {
   NX_WORKSPACE_FILE,
   NXProjectTypes,
   NXWorkspaceDTO,
-} from '@automagical/contracts/terminal';
+} from '@automagical/terminal';
 import { Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { existsSync, readFileSync } from 'fs';

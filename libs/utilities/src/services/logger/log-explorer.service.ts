@@ -1,4 +1,4 @@
-import { LOG_CONTEXT, LOGGER_LIBRARY } from '@automagical/contracts/utilities';
+import { LOG_CONTEXT, LOGGER_LIBRARY } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 

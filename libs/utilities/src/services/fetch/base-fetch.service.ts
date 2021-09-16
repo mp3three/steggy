@@ -1,7 +1,7 @@
 import {
   FetchArguments,
   ResultControlDTO,
-} from '@automagical/contracts/utilities';
+} from '@automagical/utilities';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
 import { Trace } from '../../decorators/logger.decorator';
@@ -10,7 +10,7 @@ import { AutoLogService } from '../logger/auto-log.service';
 
 type FetchWith<T extends Record<never, string> = Record<never, string>> =
   Partial<FetchArguments> & T;
-export class BaseFetch {
+export class BaseFetchService {
   public BASE_URL: string;
   public TRUNCATE_LENGTH = 200;
 

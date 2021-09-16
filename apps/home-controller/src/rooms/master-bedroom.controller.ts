@@ -3,7 +3,7 @@ import {
   iRoomController,
   ROOM_COMMAND,
   RoomControllerParametersDTO,
-} from '@automagical/contracts/controller-logic';
+} from '@automagical/controller-logic';
 import {
   KunamiCodeService,
   LightManagerService,

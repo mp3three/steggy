@@ -1,7 +1,7 @@
 import {
   FILTER_OPERATIONS,
   ResultControlDTO,
-} from '@automagical/contracts/utilities';
+} from '@automagical/utilities';
 
 export function controlToQuery(
   value: Readonly<ResultControlDTO>,

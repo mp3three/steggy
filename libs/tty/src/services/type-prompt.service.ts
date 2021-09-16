@@ -9,7 +9,7 @@ import {
   COMPLEX_CONFIG_PROVIDERS,
 } from '@automagical/contracts';
 import { AutomagicalConfig } from '@automagical/contracts/config';
-import { ConfigTypeDTO } from '@automagical/contracts/utilities';
+import { ConfigTypeDTO } from '@automagical/utilities';
 import {
   Injectable,
   InternalServerErrorException,

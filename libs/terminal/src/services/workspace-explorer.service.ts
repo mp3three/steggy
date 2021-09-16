@@ -1,4 +1,4 @@
-import { iRoomControllerMethods } from '@automagical/contracts/controller-logic';
+import { iRoomControllerMethods } from '@automagical/controller-logic';
 import {
   BLESSED_GRID,
   Box,
@@ -10,8 +10,8 @@ import {
   WORKSPACE_SETTINGS,
   WorkspaceElementSettingsDTO,
   WorkspaceSettingsDTO,
-} from '@automagical/contracts/terminal';
-import { SEND_ROOM_STATE } from '@automagical/contracts/utilities';
+} from '@automagical/terminal';
+import { SEND_ROOM_STATE } from '@automagical/utilities';
 import { Info, InjectConfig, MqttService, Trace } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';

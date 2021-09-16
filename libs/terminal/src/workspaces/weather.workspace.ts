@@ -5,7 +5,7 @@ import {
   BoxOptions,
   GridElement,
   iWorkspace,
-} from '@automagical/contracts/terminal';
+} from '@automagical/terminal';
 import {
   AutoConfigService,
   FetchService,

@@ -1,7 +1,7 @@
 import {
   WORKSPACE_ELEMENT,
   WorkspaceElementSettingsDTO,
-} from '@automagical/contracts/terminal';
+} from '@automagical/terminal';
 
 export function WorkspaceElement(
   options: WorkspaceElementSettingsDTO = {},

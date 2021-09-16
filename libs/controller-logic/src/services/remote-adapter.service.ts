@@ -1,11 +1,11 @@
 import {
   CONTROLLER_STATE_EVENT,
   ControllerStates,
-} from '@automagical/contracts/controller-logic';
+} from '@automagical/controller-logic';
 import {
   HassEventDTO,
   PicoStates,
-} from '@automagical/contracts/home-assistant';
+} from '@automagical/home-assistant';
 import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';

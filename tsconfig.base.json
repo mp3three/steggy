@@ -20,40 +20,11 @@
     "paths": {
       "@automagical/1password": ["libs/1password/src/index.ts"],
       "@automagical/contracts": ["libs/contracts/src/index.ts"],
-      "@automagical/contracts/1password": [
-        "libs/contracts/src/libs/1password/index.ts"
-      ],
-      "@automagical/contracts/authentication": [
-        "libs/contracts/src/libs/authentication/index.ts"
-      ],
       "@automagical/contracts/config": ["libs/contracts/src/config/index.ts"],
-      "@automagical/contracts/controller-logic": [
-        "libs/contracts/src/libs/controller-logic/index.ts"
-      ],
-      "@automagical/contracts/home-assistant": [
-        "libs/contracts/src/libs/home-assistant/index.ts"
-      ],
-      "@automagical/contracts/persistence": [
-        "libs/contracts/src/libs/persistence/index.ts"
-      ],
-      "@automagical/contracts/portainer": [
-        "libs/contracts/src/libs/portainer/index.ts"
-      ],
-      "@automagical/contracts/server": [
-        "libs/contracts/src/libs/server/index.ts"
-      ],
-      "@automagical/contracts/terminal": [
-        "libs/contracts/src/libs/terminal/index.ts"
-      ],
-      "@automagical/contracts/tty": ["libs/contracts/src/libs/tty/index.ts"],
-      "@automagical/contracts/utilities": [
-        "libs/contracts/src/libs/utilities/index.ts"
-      ],
       "@automagical/controller-logic": ["libs/controller-logic/src/index.ts"],
       "@automagical/home-assistant": ["libs/home-assistant/src/index.ts"],
       "@automagical/persistence/mongo": ["libs/persistence/src/mongo/index.ts"],
       "@automagical/portainer": ["libs/portainer/src/index.ts"],
-      "@automagical/server": ["libs/server/src/index.ts"],
       "@automagical/terminal": ["libs/terminal/src/index.ts"],
       "@automagical/testing": ["libs/testing/src/index.ts"],
       "@automagical/tty": ["libs/tty/src/index.ts"],
