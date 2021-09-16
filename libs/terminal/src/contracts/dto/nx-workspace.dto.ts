@@ -3,7 +3,15 @@ export class NXProjectDTO {
   public projectType: NXProjectTypes;
   public root: string;
   public sourceRoot: string;
-  public targets: Record<string, unknown>;
+  public targets: Record<string, NXProjectTarget>;
+}
+export class NXProjectTarget {
+  executor: string;
+  options?: NXApplicationOptions;
+  configurations?: Record<string, NXApplicationOptions>;
+}
+export class NXApplicationOptions {
+  //
 }
 export class NXWorkspaceDTO {
   public projects: Record<string, NXProjectDTO>;

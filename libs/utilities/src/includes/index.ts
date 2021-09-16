@@ -1,5 +1,6 @@
 export * from './bootstrap';
 export * from './cache';
+export * from './config-scanner';
 export * from './pino-serializers';
 export * from './pretty-logger';
 export * from './query';

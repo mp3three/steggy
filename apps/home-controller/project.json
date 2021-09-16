@@ -54,6 +54,16 @@
           "extractLicenses": true,
           "inspect": false,
           "fileReplacements": []
+        },
+        "scan-config": {
+          "outputPath": "dist/config-scanner/home-controller",
+          "assets": [],
+          "fileReplacements": [
+            {
+              "replace": "apps/home-controller/src/environments/environment.ts",
+              "with": "apps/home-controller/src/environments/scanner.environment.ts"
+            }
+          ]
         }
       }
     },

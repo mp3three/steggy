@@ -1,24 +1,12 @@
 import { MainCLIService } from '@automagical/tty';
-import { NEST_NOOP_LOGGER, UsePrettyLogger } from '@automagical/utilities';
-import { NestFactory } from '@nestjs/core';
-import chalk from 'chalk';
+import { Bootstrap } from '@automagical/utilities';
 
+import { BOOTSTRAP_OPTIONS } from '../environments/environment';
 import { DevtoolsModule } from '../modules';
 
-async function bootstrap() {
-  if (chalk.supportsColor) {
-    UsePrettyLogger();
-  }
-  const app = await NestFactory.create(DevtoolsModule, {
-    logger: NEST_NOOP_LOGGER,
-  });
-  await app.init();
-
-  // const scanner = app.get(ConfigBuilderService);
-  // await scanner.exec();
+BOOTSTRAP_OPTIONS.preInit ??= [];
+BOOTSTRAP_OPTIONS.preInit.push(async (app) => {
   const main = app.get(MainCLIService);
   await main.exec();
-  //
-  await app.close();
-}
-bootstrap();
+});
+Bootstrap(DevtoolsModule, BOOTSTRAP_OPTIONS);

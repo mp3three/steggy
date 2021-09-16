@@ -1,24 +1,10 @@
-import {
-  CONSUMES_CONFIG,
-  LOGGER_LIBRARY,
-} from '@automagical/utilities';
-import { NEST_NOOP_LOGGER } from '@automagical/utilities';
-import { DiscoveryService, NestFactory } from '@nestjs/core';
+import { INestApplication } from '@nestjs/common';
+import { DiscoveryService } from '@nestjs/core';
 
-import { CONFIGURABLE_MODULES } from '../includes/config-loader';
+import { CONSUMES_CONFIG } from '../contracts/config';
+import { LOGGER_LIBRARY } from '../contracts/logger/constants';
 
-/**
- * Config scanner exists to provide an isolated environment to analyze an application in.
- * Attempting to scan a nest application from inside of another can introduce a lot of weird side effects from pollution.
- *
- * This entrypoint will load a requested module, identify which configuration variables are in use, and output as json
- */
-async function bootstrap() {
-  const application = process.argv[2];
-  const module = CONFIGURABLE_MODULES.get(application);
-  const app = await NestFactory.create(module, {
-    logger: NEST_NOOP_LOGGER,
-  });
+export async function ScanConfig(app: INestApplication): Promise<void> {
   const discoveryService = app.get(DiscoveryService);
   const config: Record<string, Record<string, boolean>> = {};
   discoveryService.getProviders().forEach((wrapper) => {
@@ -43,8 +29,8 @@ async function bootstrap() {
     out[key] = Object.keys(config[key]);
   });
 
+  // eslint-disable-next-line no-console
   console.log(JSON.stringify(out, undefined, '  '));
   // eslint-disable-next-line unicorn/no-process-exit
   process.exit();
 }
-bootstrap();

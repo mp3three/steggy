@@ -1,4 +1,8 @@
-import { AutoLogService, UsePrettyLogger } from '@automagical/utilities';
+import {
+  AutoLogService,
+  NEST_NOOP_LOGGER,
+  UsePrettyLogger,
+} from '@automagical/utilities';
 import { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { eachSeries } from 'async';
@@ -8,7 +12,7 @@ import { ClassConstructor } from 'class-transformer';
 export interface BootstrapOptions {
   prettyLog?: boolean;
   preInit?: ((app: INestApplication) => Promise<void>)[];
-  skipInit?: boolean;
+  nestNoopLogger?: boolean;
 }
 
 /**
@@ -16,20 +20,18 @@ export interface BootstrapOptions {
  */
 export async function Bootstrap(
   module: ClassConstructor<unknown>,
-  { prettyLog, skipInit, preInit }: BootstrapOptions,
+  { prettyLog, preInit, nestNoopLogger }: BootstrapOptions,
 ): Promise<void> {
   if (prettyLog && chalk.supportsColor) {
     UsePrettyLogger();
   }
   const app = await NestFactory.create(module, {
-    logger: AutoLogService.nestLogger,
+    logger: nestNoopLogger ? NEST_NOOP_LOGGER : AutoLogService.nestLogger,
   });
   preInit ??= [];
   await eachSeries(preInit, async (item, callback) => {
     await item(app);
     callback();
   });
-  if (!skipInit) {
-    await app.init();
-  }
+  await app.init();
 }

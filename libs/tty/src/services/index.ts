@@ -1,4 +1,3 @@
-export * from './config-scanner.service';
 export * from './formatting.service';
 export * from './repl-explorer.service';
 export * from './system.service';

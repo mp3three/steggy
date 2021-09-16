@@ -85,6 +85,12 @@
         ],
         "outputPath": "dist/apps/devtools",
         "generatePackageJson": true,
+        "fileReplacements": [
+          {
+            "replace": "apps/devtools/src/environments/environment.ts",
+            "with": "apps/devtools/src/environments/develop.environment.ts"
+          }
+        ],
         "main": "apps/devtools/src/entrypoints/main.ts",
         "tsConfig": "apps/devtools/tsconfig.app.json"
       },
@@ -95,11 +101,15 @@
           "inspect": false,
           "fileReplacements": []
         },
-        "config-scanner": {
-          "generatePackageJson": false,
+        "scan-config": {
+          "outputPath": "dist/config-scanner/devtools",
           "assets": [],
-          "outputPath": "dist/apps/config-scanner",
-          "main": "apps/devtools/src/entrypoints/scanner.ts"
+          "fileReplacements": [
+            {
+              "replace": "apps/devtools/src/environments/environment.ts",
+              "with": "apps/devtools/src/environments/scanner.environment.ts"
+            }
+          ]
         }
       }
     },

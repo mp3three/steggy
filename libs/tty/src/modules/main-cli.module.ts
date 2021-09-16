@@ -4,7 +4,6 @@ import { DiscoveryModule } from '@nestjs/core';
 
 import { MainCLIService } from '../repl';
 import {
-  ConfigScannerService,
   ReplExplorerService,
   SystemService,
   TypePromptService,
@@ -12,18 +11,12 @@ import {
 } from '../services';
 
 @LibraryModule({
-  exports: [
-    SystemService,
-    TypePromptService,
-    ConfigScannerService,
-    WorkspaceService,
-  ],
+  exports: [SystemService, TypePromptService, WorkspaceService],
   imports: [DiscoveryModule],
   library: LIB_TTY,
   providers: [
     SystemService,
     TypePromptService,
-    ConfigScannerService,
     ReplExplorerService,
     MainCLIService,
     WorkspaceService,

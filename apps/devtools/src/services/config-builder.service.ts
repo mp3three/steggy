@@ -1,24 +1,24 @@
-import { iRepl } from '@automagical/tty';
 import {
-  ConfigScannerService,
+  iRepl,
   OUTPUT_HEADER_FONT,
   Repl,
   SystemService,
   TypePromptService,
   WorkspaceService,
 } from '@automagical/tty';
-import { APP_DEVTOOLS, LIB_TERMINAL } from '@automagical/utilities';
-import { ConfigTypeDTO } from '@automagical/utilities';
 import {
   AutoConfigService,
+  AutoLogService,
   AutomagicalConfig,
+  ConfigTypeDTO,
+  LIB_TERMINAL,
   Trace,
 } from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
-import { ClassConstructor } from 'class-transformer';
 import clear from 'clear';
+import execa from 'execa';
 import figlet from 'figlet';
 import { existsSync } from 'fs';
 import ini from 'ini';
@@ -27,8 +27,6 @@ import { set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
 import rc from 'rc';
-
-import { CONFIGURABLE_MODULES } from '../includes/config-loader';
 
 @Repl({
   consumesConfig: [OUTPUT_HEADER_FONT],
@@ -43,10 +41,10 @@ import { CONFIGURABLE_MODULES } from '../includes/config-loader';
 })
 export class ConfigBuilderService implements iRepl {
   constructor(
+    private readonly logger: AutoLogService,
     private readonly systemService: SystemService,
     private readonly typePrompt: TypePromptService,
     private readonly configService: AutoConfigService,
-    private readonly configScanner: ConfigScannerService,
     private readonly workspace: WorkspaceService,
   ) {}
 
@@ -74,11 +72,8 @@ export class ConfigBuilderService implements iRepl {
 
     // Causes some circular reference issues double-loading the app
     // Config scanner will default to a self scan if provided falsy value
-    const module =
-      application !== APP_DEVTOOLS.description
-        ? CONFIGURABLE_MODULES.get(application)
-        : undefined;
-    const { required, optional } = await this.loadDefinitions(module);
+
+    const { required, optional } = await this.loadDefinitions(application);
 
     const configuration = [...required.values(), ...optional.values()];
     await eachSeries(configuration, async (item, callback) => {
@@ -156,6 +151,12 @@ export class ConfigBuilderService implements iRepl {
   private applicationChoices() {
     return this.workspace
       .list('application')
+      .filter((item) => {
+        const { projects } = this.workspace.workspace;
+        const { targets } = projects[item];
+        const scanner = targets?.build?.configurations['scan-config'];
+        return typeof scanner !== 'undefined';
+      })
       .map((item) => {
         const tag = existsSync(join(homedir(), '.config', item.split('-')[0]))
           ? chalk.green('*')
@@ -165,8 +166,35 @@ export class ConfigBuilderService implements iRepl {
           name: `${tag} ${name}`,
           value: item,
         };
-      })
-      .filter(({ value }) => CONFIGURABLE_MODULES.has(value));
+      });
+  }
+
+  @Trace()
+  private async scan(application: string): Promise<Set<ConfigTypeDTO>> {
+    this.logger.debug(`Preparing scanner`);
+    await execa(`nx`, [`build`, application, `--configuration=scan-config`]);
+
+    this.logger.debug(`Scanning`);
+    const { stdout } = await execa(`node`, [
+      join('dist', 'config-scanner', application, 'main.js'),
+    ]);
+    const config: Record<string, string[]> = JSON.parse(stdout);
+
+    const out = new Set<ConfigTypeDTO>();
+    Object.keys(config).forEach((library) => {
+      config[library].forEach((property) => {
+        const metadata = this.workspace.METADATA.get(library);
+        const metadataConfig = metadata?.configuration[property];
+        out.add({
+          default: metadataConfig?.default,
+          library,
+          metadata: metadataConfig,
+          property,
+        });
+      });
+    });
+
+    return out;
   }
 
   private path(config: ConfigTypeDTO): string {
@@ -177,9 +205,9 @@ export class ConfigBuilderService implements iRepl {
   }
 
   private async loadDefinitions(
-    module: ClassConstructor<unknown>,
+    module: string,
   ): Promise<Record<'required' | 'optional', Set<ConfigTypeDTO>>> {
-    const out = await this.configScanner.scan(module);
+    const out = await this.scan(module);
     const optional = new Set<ConfigTypeDTO>();
     const required = new Set<ConfigTypeDTO>();
 
