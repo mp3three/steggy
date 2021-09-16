@@ -45,7 +45,7 @@ export class AutoConfigService {
   public getDefault<T extends unknown = unknown>(path: string): T {
     const parts = path.split('.');
     if (parts.length === 2) {
-      const [, property] = parts;
+      // const [, property] = parts;
       return '' as T;
     }
     const [, library, property] = parts;

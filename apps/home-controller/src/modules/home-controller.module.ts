@@ -34,7 +34,3 @@ import { ApplicationService, GarageService } from '../services';
   utils: [SolarCalcService],
 })
 export class HomeControllerModule {}
-
-/**
- * This module also referenced in devtools for the config loader
- */

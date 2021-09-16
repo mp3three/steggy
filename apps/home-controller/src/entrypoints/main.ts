@@ -1,4 +1,6 @@
-import { Bootstrap } from '../environments/environment';
+import { Bootstrap } from '@automagical/utilities';
+
+import { BOOTSTRAP_OPTIONS } from '../environments/environment';
 import { HomeControllerModule } from '../modules';
 
-Bootstrap(HomeControllerModule);
+Bootstrap(HomeControllerModule, BOOTSTRAP_OPTIONS);

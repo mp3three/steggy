@@ -1,8 +1,15 @@
-import { AutoLogService, UsePrettyLogger } from '@automagical/utilities';
+import {
+  AutoLogService,
+  BootstrapOptions,
+  UsePrettyLogger,
+} from '@automagical/utilities';
 import { NestFactory } from '@nestjs/core';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
 
+export const BOOTSTRAP_OPTIONS: BootstrapOptions = {
+  prettyLog: true,
+};
 export async function Bootstrap(
   module: ClassConstructor<unknown>,
 ): Promise<void> {
