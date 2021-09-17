@@ -9,14 +9,16 @@ import {
   TypePromptService,
   WorkspaceService,
 } from '../services';
+import { GitService } from '../services/git.service';
 
 @LibraryModule({
-  exports: [SystemService, TypePromptService, WorkspaceService],
+  exports: [SystemService, TypePromptService, WorkspaceService, GitService],
   imports: [DiscoveryModule],
   library: LIB_TTY,
   providers: [
     SystemService,
     TypePromptService,
+    GitService,
     ReplExplorerService,
     MainCLIService,
     WorkspaceService,

@@ -1,15 +1,19 @@
-import { AutomagicalConfig, PACKAGE_FILE } from '@automagical/utilities';
+import {
+  AutoLogService,
+  AutomagicalConfig,
+  PACKAGE_FILE,
+} from '@automagical/utilities';
 import { filterUnique } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import JSON from 'comment-json';
 import execa from 'execa';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'fs';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 import { homedir } from 'os';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { cwd } from 'process';
 import { inc } from 'semver';
 
@@ -24,6 +28,7 @@ import { WorkspaceService } from './workspace.service';
 @Injectable()
 export class SystemService {
   constructor(
+    private readonly logger: AutoLogService,
     private readonly prompt: TypePromptService,
     private readonly workspace: WorkspaceService,
   ) {}
@@ -160,5 +165,45 @@ export class SystemService {
     data.version = version;
     this.workspace.PACKAGES.set(project, data);
     writeFileSync(packageFile, JSON.stringify(data, undefined, '  '));
+  }
+
+  /**
+   * inquirer will default to vim when displaying an editor
+   *
+   * Ask the user if they wish to change the default if one is not set
+   */
+  public async verifyEditor(): Promise<void> {
+    if (process.env.EDITOR || process.env.VISUAL) {
+      // Something is already set!
+      return;
+    }
+    this.logger.warn('No default editor set');
+    const { editor } = await inquirer.prompt([
+      {
+        choices: ['default', 'vim', 'vi', 'nano'],
+        message: ``,
+        name: 'editor',
+        type: 'list',
+      },
+    ]);
+    if (editor === 'default') {
+      return;
+    }
+    // const { stdout } = await execa(`which`, [editor]);
+    process.env.EDITOR = editor;
+
+    const { exportDestination } = await inquirer.prompt([
+      {
+        choices: ['~/.bashrc', '~/.zshrc', 'none'],
+        message: `Export default editor to`,
+        name: 'exportDestination',
+        type: 'list',
+      },
+    ]);
+
+    if (exportDestination === 'none') {
+      return;
+    }
+    appendFileSync(resolve(exportDestination), `\nexport EDITOR=${editor}\n`);
   }
 }

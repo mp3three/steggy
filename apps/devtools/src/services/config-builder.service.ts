@@ -2,6 +2,7 @@ import {
   iRepl,
   OUTPUT_HEADER_FONT,
   Repl,
+  SCAN_CONFIG_CONFIGURATION,
   SystemService,
   TypePromptService,
   WorkspaceService,
@@ -154,7 +155,8 @@ export class ConfigBuilderService implements iRepl {
       .filter((item) => {
         const { projects } = this.workspace.workspace;
         const { targets } = projects[item];
-        const scanner = targets?.build?.configurations['scan-config'];
+        const scanner =
+          targets?.build?.configurations[SCAN_CONFIG_CONFIGURATION];
         return typeof scanner !== 'undefined';
       })
       .map((item) => {
@@ -172,12 +174,22 @@ export class ConfigBuilderService implements iRepl {
   @Trace()
   private async scan(application: string): Promise<Set<ConfigTypeDTO>> {
     this.logger.debug(`Preparing scanner`);
-    await execa(`nx`, [`build`, application, `--configuration=scan-config`]);
+    const build = execa(`nx`, [
+      `build`,
+      application,
+      `--configuration=${SCAN_CONFIG_CONFIGURATION}`,
+    ]);
+    // Sometimes the build can take a min
+    // Getting some sort of info on the screen is helpful to verify it's not dead
+    build.stdout.pipe(process.stdout);
+    await build;
 
     this.logger.debug(`Scanning`);
-    const { stdout } = await execa(`node`, [
-      join('dist', 'config-scanner', application, 'main.js'),
-    ]);
+
+    const { outputPath } =
+      this.workspace.workspace.projects[application].targets.build
+        .configurations[SCAN_CONFIG_CONFIGURATION];
+    const { stdout } = await execa(`node`, [join(outputPath, 'main.js')]);
     const config: ConfigTypeDTO[] = JSON.parse(stdout);
     return new Set<ConfigTypeDTO>(config);
   }

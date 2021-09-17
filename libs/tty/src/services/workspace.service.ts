@@ -4,15 +4,17 @@ import {
   METADATA_FILE,
   PACKAGE_FILE,
   PackageJsonDTO,
+  Trace,
 } from '@automagical/utilities';
-import { Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { cwd } from 'process';
 
 import {
+  NX_METADATA_FILE,
   NX_WORKSPACE_FILE,
+  NXMetadata,
   NXProjectTypes,
   NXWorkspaceDTO,
 } from '../contracts/dto';
@@ -31,6 +33,10 @@ export class WorkspaceService {
    * NX workspaces
    */
   public workspace: NXWorkspaceDTO;
+
+  public NX_METADATA: NXMetadata = JSON.parse(
+    readFileSync(NX_METADATA_FILE, 'utf-8'),
+  );
 
   public constructor(private readonly logger: AutoLogService) {}
 
@@ -54,7 +60,7 @@ export class WorkspaceService {
     );
   }
 
-  public setVersion(project: string, version: string): string {
+  public setPackageVersion(project: string, version: string): string {
     const packageJson = this.PACKAGES.get(project);
     this.logger.debug(
       {
@@ -76,6 +82,7 @@ export class WorkspaceService {
     this.loadMetadata();
   }
 
+  @Trace()
   private loadMetadata(): void {
     const { projects } = this.workspace;
     Object.keys(projects).forEach((key) => {
@@ -88,22 +95,20 @@ export class WorkspaceService {
     });
   }
 
+  @Trace()
   private loadNX(): void {
     this.workspace = JSON.parse(readFileSync(NX_WORKSPACE_FILE, 'utf-8'));
-    Object.keys(this.workspace.projects).forEach((key) => {
-      this.workspace.projects[key] = JSON.parse(
-        readFileSync(
-          join(
-            // After initial loading, this type is correct
-            this.workspace.projects[key] as unknown as string,
-            'project.json',
-          ),
-          'utf-8',
-        ),
+    const { projects } = this.workspace;
+    Object.keys(projects).forEach((key) => {
+      // Shh... this is actually a string before this point
+      const basePath = String(projects[key]);
+      projects[key] = JSON.parse(
+        readFileSync(join(basePath, 'project.json'), 'utf-8'),
       );
     });
   }
 
+  @Trace()
   private loadPackages(): void {
     Object.keys(this.workspace.projects).forEach((project) => {
       const packageFile = this.path(project, 'package');
