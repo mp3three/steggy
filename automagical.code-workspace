@@ -65,6 +65,10 @@
       {
         "fileMatch": ["**/automagical.json"],
         "url": "/schemas/json/automagical.schema.json"
+      },
+      {
+        "fileMatch": ["apps/living-docs/changelog/**/*json"],
+        "url": "/schemas/json/changelog.schema.json"
       }
     ],
     "files.associations": {
