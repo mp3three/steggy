@@ -30,7 +30,13 @@ export class MainCLIService implements iRepl {
         {
           choices: [...this.explorer.REGISTERED_APPS.keys()]
             .filter((item) => item.name !== 'Main')
-            .map((item) => item.name),
+            .map((item) => item.name)
+            .sort((a, b) => {
+              if (a > b) {
+                return 1;
+              }
+              return -1;
+            }),
           default: defaultSelection,
           message: 'Command',
           name: 'script',

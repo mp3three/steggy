@@ -1,4 +1,5 @@
 import {
+  AutoLogService,
   AutomagicalMetadataDTO,
   METADATA_FILE,
   PACKAGE_FILE,
@@ -6,7 +7,7 @@ import {
 } from '@automagical/utilities';
 import { Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { cwd } from 'process';
 
@@ -31,6 +32,8 @@ export class WorkspaceService {
    */
   public workspace: NXWorkspaceDTO;
 
+  public constructor(private readonly logger: AutoLogService) {}
+
   @Trace()
   public list(type: NXProjectTypes): string[] {
     const { projects } = this.workspace;
@@ -39,12 +42,30 @@ export class WorkspaceService {
     );
   }
 
+  public isApplication(project: string): boolean {
+    return this.workspace.projects[project].projectType === 'application';
+  }
+
   public path(project: string, type: 'package' | 'metadata'): string {
     return join(
       cwd(),
       this.workspace.projects[project].root,
       type === 'package' ? PACKAGE_FILE : METADATA_FILE,
     );
+  }
+
+  public setVersion(project: string, version: string): void {
+    const packageJson = this.PACKAGES.get(project);
+    this.logger.debug(
+      {
+        new: version,
+        old: packageJson.version,
+      },
+      `Updated package version for {${packageJson.displayName}}`,
+    );
+    packageJson.version = version;
+    const packageFile = this.path(project, 'package');
+    writeFileSync(packageFile, JSON.stringify(packageJson));
   }
 
   @Trace()

@@ -98,6 +98,7 @@
       ".editorconfig": true,
       "apps/*/ios": true,
       "apps/*/android": true,
+      "tmp": true
     },
     "prettier.arrowParens": "avoid",
 
