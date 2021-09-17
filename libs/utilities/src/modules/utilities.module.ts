@@ -1,7 +1,7 @@
-import { LIB_UTILS } from '@automagical/utilities';
 import { CacheModule, DynamicModule, Provider } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
+import { LIB_UTILS } from '../contracts';
 import { injectedLoggers } from '../decorators/injectors';
 import { CONFIG_PROVIDERS } from '../decorators/injectors/inject-config.decorator';
 import { LibraryModule } from '../decorators/library-module.decorator';

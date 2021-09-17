@@ -1,6 +1,10 @@
 import { iRepl } from '@automagical/tty';
 import { Repl } from '@automagical/tty';
-import { FetchService, InjectConfig } from '@automagical/utilities';
+import {
+  AutoLogService,
+  FetchService,
+  InjectConfig,
+} from '@automagical/utilities';
 import chalk from 'chalk';
 import execa from 'execa';
 import { lstatSync, mkdirSync, readdirSync, renameSync } from 'fs';
@@ -23,6 +27,7 @@ const SEPARATOR = ' - ';
 })
 export class ImgurAlbumDownloadService implements iRepl {
   constructor(
+    private readonly logger: AutoLogService,
     private readonly fetchService: FetchService,
     @InjectConfig(ALBUM_DOWNLOAD_TARGET) private readonly root: string,
     @InjectConfig(ALBUM_PAD_SIZE) private readonly padSize: number,
@@ -37,8 +42,8 @@ export class ImgurAlbumDownloadService implements iRepl {
     }
     const { dirname, url, path } = await inquirer.prompt([
       {
-        // default: this.configService.get(YOINK_DEFAULT_PATH),
-        message: 'Path',
+        default: this.root,
+        message: 'Base Path',
         name: 'path',
         type: 'input',
       },
@@ -49,20 +54,24 @@ export class ImgurAlbumDownloadService implements iRepl {
       },
       {
         input: 'input',
-        message: 'Download URL',
+        message: 'Album URL',
         name: 'url',
       },
     ]);
     const destination = join(path, dirname);
-    mkdirSync(join(destination, dirname), { recursive: true });
+    mkdirSync(destination, { recursive: true });
     const zip = join(destination, 'output.zip');
+
+    this.logger.info(`Fetching zip`);
     await this.fetchService.download({
       destination: zip,
       rawUrl: true,
-      url,
+      url: `${url}/zip`,
     });
+    this.logger.info(`Extracting`);
     await execa('unzip', [zip], { cwd: destination });
     await execa('rm', [zip], { cwd: destination });
+    this.logger.info(`Processing files`);
     this.processDir(destination);
   }
 
@@ -81,6 +90,7 @@ export class ImgurAlbumDownloadService implements iRepl {
       }
       this.processImgur(DIR, file);
     });
+    this.logger.info(`Completed processing ${files.length} files`);
   }
 
   private processImgur(DIR: string, file: string) {

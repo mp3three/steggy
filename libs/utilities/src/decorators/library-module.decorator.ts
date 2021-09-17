@@ -1,5 +1,6 @@
-import { LOGGER_LIBRARY } from '@automagical/utilities';
 import { Global, ModuleMetadata } from '@nestjs/common';
+
+import { LOGGER_LIBRARY } from '../contracts';
 
 export interface LibraryModuleMetadata extends Partial<ModuleMetadata> {
   library: symbol;

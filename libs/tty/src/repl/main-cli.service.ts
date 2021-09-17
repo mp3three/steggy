@@ -18,19 +18,20 @@ export class MainCLIService implements iRepl {
     private readonly explorer: ReplExplorerService,
   ) {}
 
-  public async exec(): Promise<void> {
+  public async exec(defaultSelection?: string): Promise<void> {
     clear();
     const header = figlet.textSync('Script List', {
-      // font: this.font,
+      font: this.font,
     });
     console.log(chalk.cyan(header), '\n');
     let scriptName = process.argv[2];
-    if (!scriptName) {
+    if (!scriptName || typeof defaultSelection !== 'undefined') {
       const { script } = await inquirer.prompt([
         {
           choices: [...this.explorer.REGISTERED_APPS.keys()]
             .filter((item) => item.name !== 'Main')
             .map((item) => item.name),
+          default: defaultSelection,
           message: 'Command',
           name: 'script',
           type: 'list',
@@ -42,12 +43,13 @@ export class MainCLIService implements iRepl {
     this.printHeader(scriptName);
     const script = this.explorer.findServiceByName(scriptName);
     await script.exec();
+    this.exec(scriptName);
   }
 
   private printHeader(scriptName: string): void {
     const settings = this.explorer.findSettingsByName(scriptName);
     const header = figlet.textSync(settings.name, {
-      // font: this.font,
+      font: this.font,
     });
     clear();
     console.log(chalk.cyan(header), '\n');

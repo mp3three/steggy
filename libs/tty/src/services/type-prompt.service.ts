@@ -54,7 +54,6 @@ export class TypePromptService {
         default: defaultValue,
         message: prompt,
         name: 'result',
-        prefix: chalk.yellow('warning'),
         type: 'confirm',
       },
     ]);
@@ -154,6 +153,7 @@ export class TypePromptService {
     throw new NotImplementedException();
     current;
     // return await this.section(
+
     //   '',
     //   // `Object Builder: ${prefix}${config.key}`,
     //   async () => {
