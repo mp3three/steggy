@@ -4,12 +4,12 @@ import {
   TypePromptService,
   WorkspaceService,
 } from '@automagical/tty';
-import { AutoLogService, Trace } from '@automagical/utilities';
+import { AutoLogService, sleep, Trace } from '@automagical/utilities';
 import { eachSeries } from 'async';
 import Table from 'cli-table';
 import execa from 'execa';
 import inquirer from 'inquirer';
-import semver, { inc } from 'semver';
+import { inc } from 'semver';
 
 @Repl({
   name: 'Changelog',
@@ -23,10 +23,20 @@ export class ChangelogService implements iRepl {
 
   public async exec(): Promise<void> {
     const affected = await this.listAffected();
+    if (affected.length === 0) {
+      await sleep(5000);
+      this.logger.warn(`NX reports 0 affected projects`);
+      return;
+    }
     const t = new Table({
-      head: ['Project'],
+      head: ['Affected Project', 'Current Version'],
     });
-    t.push(...affected.map((item) => [item]));
+    t.push(
+      ...affected.map((item) => {
+        return [item, this.workspace.PACKAGES.get(item).version];
+      }),
+    );
+    console.log(t.toString(), `\n`);
     await eachSeries(affected, async (project, callback) => {
       const add = await this.typePromptService.confirm(
         `Add changelog item for ${project}?`,
@@ -38,6 +48,9 @@ export class ChangelogService implements iRepl {
       await this.versionBump(project);
       callback();
     });
+
+    //
+    await sleep(5000);
   }
 
   @Trace()
@@ -48,7 +61,7 @@ export class ChangelogService implements iRepl {
   }
 
   @Trace()
-  private async versionBump(project: string): Promise<void> {
+  private async versionBump(project: string): Promise<string> {
     const current = this.workspace.PACKAGES.get(project).version;
     const { bump } = await inquirer.prompt([
       {
@@ -64,6 +77,6 @@ export class ChangelogService implements iRepl {
       bump === 'rc' ? 'prerelease' : bump,
       bump === 'rc' ? bump : '',
     );
-    this.workspace.setVersion(project, updated);
+    return this.workspace.setVersion(project, updated);
   }
 }

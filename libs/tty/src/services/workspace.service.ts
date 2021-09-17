@@ -54,7 +54,7 @@ export class WorkspaceService {
     );
   }
 
-  public setVersion(project: string, version: string): void {
+  public setVersion(project: string, version: string): string {
     const packageJson = this.PACKAGES.get(project);
     this.logger.debug(
       {
@@ -66,6 +66,7 @@ export class WorkspaceService {
     packageJson.version = version;
     const packageFile = this.path(project, 'package');
     writeFileSync(packageFile, JSON.stringify(packageJson));
+    return version;
   }
 
   @Trace()
