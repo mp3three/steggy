@@ -19,7 +19,7 @@ import inquirer from 'inquirer';
 import { get } from 'object-path';
 
 type PromptResult<T extends unknown = unknown> = Record<'value', T>;
-
+/* eslint-disable unicorn/no-null */
 @Injectable()
 export class TypePromptService {
   /**
@@ -108,31 +108,31 @@ export class TypePromptService {
         return (await this.string(
           message,
           config.metadata,
-          String(current),
+          typeof current === 'undefined' ? null : String(current),
         )) as PromptResult<T>;
       case 'url':
         return (await this.url(
           message,
           config.metadata,
-          String(current),
+          typeof current === 'undefined' ? null : String(current),
         )) as PromptResult<T>;
       case 'password':
         return (await this.password(
           message,
           config.metadata,
-          String(current),
+          typeof current === 'undefined' ? null : String(current),
         )) as PromptResult<T>;
       case 'number':
         return (await this.number(
           message,
           config.metadata,
-          Number(current),
+          typeof current === 'undefined' ? null : Number(current),
         )) as PromptResult<T>;
       case 'boolean':
         return (await this.boolean(
           message,
           config.metadata,
-          Boolean(current),
+          typeof current === 'undefined' ? null : Boolean(current),
         )) as PromptResult<T>;
     }
     throw new InternalServerErrorException(
@@ -238,7 +238,6 @@ export class TypePromptService {
   }
 
   private getDefault(current: unknown, defaultValue: unknown): unknown {
-    // eslint-disable-next-line unicorn/no-null
     if (current === null || Number.isNaN(current)) {
       return defaultValue;
     }

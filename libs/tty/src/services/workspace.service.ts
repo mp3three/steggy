@@ -1,9 +1,4 @@
 import {
-  NX_WORKSPACE_FILE,
-  NXProjectTypes,
-  NXWorkspaceDTO,
-} from '@automagical/terminal';
-import {
   AutomagicalMetadataDTO,
   METADATA_FILE,
   PACKAGE_FILE,
@@ -14,6 +9,12 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { cwd } from 'process';
+
+import {
+  NX_WORKSPACE_FILE,
+  NXProjectTypes,
+  NXWorkspaceDTO,
+} from '../contracts/dto';
 
 @Injectable()
 export class WorkspaceService {

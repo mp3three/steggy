@@ -1,4 +1,3 @@
-import { iRepl } from '@automagical/tty';
 import { InjectConfig } from '@automagical/utilities';
 import chalk from 'chalk';
 import clear from 'clear';
@@ -6,6 +5,7 @@ import figlet from 'figlet';
 import inquirer from 'inquirer';
 
 import { DEFAULT_HEADER_FONT } from '../config';
+import { iRepl } from '../contracts/i-repl.interface';
 import { Repl } from '../decorators';
 import { ReplExplorerService } from '../services';
 

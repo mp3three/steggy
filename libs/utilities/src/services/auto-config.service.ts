@@ -63,7 +63,7 @@ export class AutoConfigService {
   private earlyInit(): void {
     this.loadMetadata();
     const [file] = this.APPLICATION.description.split('-');
-    this.config = this.overrideConfig || rc(file);
+    this.config = this.overrideConfig || rc<AutoConfigService>(file);
     AutoLogService.logger.level = this.get([LIB_UTILS, LOG_LEVEL]);
   }
 

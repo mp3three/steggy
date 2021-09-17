@@ -1,8 +1,9 @@
-import { iRepl, REPL_CONFIG, ReplOptions } from '@automagical/tty';
 import { AutoLogService, Info, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+
+import { iRepl, REPL_CONFIG, ReplOptions } from '..';
 
 @Injectable()
 export class ReplExplorerService {

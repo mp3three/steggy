@@ -57,7 +57,6 @@
         },
         "scan-config": {
           "outputPath": "dist/config-scanner/home-controller",
-          "assets": [],
           "fileReplacements": [
             {
               "replace": "apps/home-controller/src/environments/environment.ts",

@@ -1,3 +1,5 @@
+/* Something about bootstrapping completely breaks things with a normal reference */
+/* eslint-disable @nrwl/nx/enforce-module-boundaries */
 import {
   AutoLogService,
   NEST_NOOP_LOGGER,
@@ -12,6 +14,7 @@ import { ClassConstructor } from 'class-transformer';
 export interface BootstrapOptions {
   prettyLog?: boolean;
   preInit?: ((app: INestApplication) => Promise<void>)[];
+  postInit?: ((app: INestApplication) => Promise<void>)[];
   nestNoopLogger?: boolean;
 }
 
@@ -20,7 +23,7 @@ export interface BootstrapOptions {
  */
 export async function Bootstrap(
   module: ClassConstructor<unknown>,
-  { prettyLog, preInit, nestNoopLogger }: BootstrapOptions,
+  { prettyLog, preInit, nestNoopLogger, postInit }: BootstrapOptions,
 ): Promise<void> {
   if (prettyLog && chalk.supportsColor) {
     UsePrettyLogger();
@@ -34,4 +37,9 @@ export async function Bootstrap(
     callback();
   });
   await app.init();
+  postInit ??= [];
+  await eachSeries(postInit, async (item, callback) => {
+    await item(app);
+    callback();
+  });
 }

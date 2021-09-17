@@ -8,6 +8,8 @@ export class AutomagicalConfig {
   public application?: Record<string, unknown>;
   public libs?: Record<string, Record<string, unknown>>;
   public PRINT_CONFIG_AT_STARTUP?: boolean;
+  private config?: string;
+  private configs?: string[];
 }
 
 export const ACTIVE_APPLICATION = Symbol('ACTIVE_APPLICATION');

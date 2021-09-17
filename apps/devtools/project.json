@@ -103,7 +103,6 @@
         },
         "scan-config": {
           "outputPath": "dist/config-scanner/devtools",
-          "assets": [],
           "fileReplacements": [
             {
               "replace": "apps/devtools/src/environments/environment.ts",

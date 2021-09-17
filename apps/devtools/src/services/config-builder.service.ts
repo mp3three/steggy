@@ -65,18 +65,15 @@ export class ConfigBuilderService implements iRepl {
         type: 'list',
       },
     ])) as { application: string };
-    this.typePrompt.config = rc(application.split('-')[0]);
+    this.typePrompt.config = rc<AutomagicalConfig>(application.split('-')[0]);
+    delete this.typePrompt.config['configs'];
+    delete this.typePrompt.config['config'];
     const config: AutomagicalConfig = JSON.parse(
       JSON.stringify(this.typePrompt.config),
     );
 
-    // Causes some circular reference issues double-loading the app
-    // Config scanner will default to a self scan if provided falsy value
-
-    const { required, optional } = await this.loadDefinitions(application);
-
-    const configuration = [...required.values(), ...optional.values()];
-    await eachSeries(configuration, async (item, callback) => {
+    const out = await this.scan(application);
+    await eachSeries(out.values(), async (item, callback) => {
       const result = await this.typePrompt.prompt(item);
       if (result === item.metadata.default) {
         callback();
@@ -148,6 +145,9 @@ export class ConfigBuilderService implements iRepl {
     }
   }
 
+  /**
+   * An item can identify as "configurable" as
+   */
   private applicationChoices() {
     return this.workspace
       .list('application')
@@ -178,23 +178,8 @@ export class ConfigBuilderService implements iRepl {
     const { stdout } = await execa(`node`, [
       join('dist', 'config-scanner', application, 'main.js'),
     ]);
-    const config: Record<string, string[]> = JSON.parse(stdout);
-
-    const out = new Set<ConfigTypeDTO>();
-    Object.keys(config).forEach((library) => {
-      config[library].forEach((property) => {
-        const metadata = this.workspace.METADATA.get(library);
-        const metadataConfig = metadata?.configuration[property];
-        out.add({
-          default: metadataConfig?.default,
-          library,
-          metadata: metadataConfig,
-          property,
-        });
-      });
-    });
-
-    return out;
+    const config: ConfigTypeDTO[] = JSON.parse(stdout);
+    return new Set<ConfigTypeDTO>(config);
   }
 
   private path(config: ConfigTypeDTO): string {
@@ -202,26 +187,5 @@ export class ConfigBuilderService implements iRepl {
       return `libs.${config.library}.${config.property}`;
     }
     return `application.${config.property}`;
-  }
-
-  private async loadDefinitions(
-    module: string,
-  ): Promise<Record<'required' | 'optional', Set<ConfigTypeDTO>>> {
-    const out = await this.scan(module);
-    const optional = new Set<ConfigTypeDTO>();
-    const required = new Set<ConfigTypeDTO>();
-
-    out.forEach((item) => {
-      if (item.default === null) {
-        required.add(item);
-        return;
-      }
-      optional.add(item);
-    });
-
-    return {
-      optional,
-      required,
-    };
   }
 }
