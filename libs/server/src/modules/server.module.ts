@@ -1,8 +1,8 @@
-import { BootstrapService } from '@automagical';
 import { LIB_SERVER, LibraryModule } from '@automagical/utilities';
 import { MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 
 import { InitMiddleware } from '../middleware';
+import { BootstrapService } from '../services';
 
 @LibraryModule({
   library: LIB_SERVER,

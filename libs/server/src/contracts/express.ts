@@ -29,7 +29,7 @@ export class CrudOptions {
   control?: ResultControlDTO;
 }
 
-export interface ResponseLocals extends CrudOptions {
+export class ResponseLocals extends CrudOptions {
   /**
    * Did one of the auth guards say no?
    */

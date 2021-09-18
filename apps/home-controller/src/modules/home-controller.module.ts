@@ -1,5 +1,6 @@
 import { HomeControllerCustomModule } from '@automagical/controller-logic';
 import { HomeAssistantModule } from '@automagical/home-assistant';
+import { ServerModule } from '@automagical/server';
 import { APP_HOME_CONTROLLER } from '@automagical/utilities';
 import {
   ApplicationModule,
@@ -22,7 +23,12 @@ import { ApplicationService, GarageService } from '../services';
 @ApplicationModule({
   application: APP_HOME_CONTROLLER,
   controllers: [ApplicationController],
-  imports: [HomeAssistantModule, HomeControllerCustomModule, MQTTModule],
+  imports: [
+    HomeAssistantModule,
+    HomeControllerCustomModule,
+    MQTTModule,
+    ServerModule,
+  ],
   providers: [ApplicationService, GarageService],
   rooms: [
     BedRemoteController,

@@ -4,6 +4,7 @@ export * from './cron';
 export * from './email';
 export * from './fetch';
 export * from './interfaces';
+export * from './lifecycle';
 export * from './logger';
 export * from './meta';
 export * from './mqtt';

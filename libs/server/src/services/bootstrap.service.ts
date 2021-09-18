@@ -1,4 +1,9 @@
-import { AutoLogService, InjectConfig } from '@automagical/utilities';
+import {
+  AutoLogService,
+  Debug,
+  Info,
+  InjectConfig,
+} from '@automagical/utilities';
 import { INestApplication, Injectable } from '@nestjs/common';
 import compression from 'compression';
 import { Express, json } from 'express';
@@ -19,8 +24,6 @@ import {
 
 @Injectable()
 export class BootstrapService {
-  public server: Express;
-
   constructor(
     private readonly logger: AutoLogService,
     @InjectConfig(GLOBAL_PREFIX)
@@ -39,7 +42,10 @@ export class BootstrapService {
     private readonly sslCert: string,
   ) {}
 
-  public async postInit(app: INestApplication): Promise<void> {
+  public async onPostInit(
+    app: INestApplication,
+    server: Express,
+  ): Promise<void> {
     app.use(helmet());
     if (this.prefix) {
       this.logger.debug(`Using global http prefix {${this.prefix}}`);
@@ -49,9 +55,9 @@ export class BootstrapService {
     if (this.compression) {
       app.use(compression());
     }
-    const listening = this.listenHttp();
+    const listening = this.listenHttp(server);
     if (this.sslPort) {
-      this.listenSsl();
+      this.listenSsl(server);
       return;
     }
     if (!listening) {
@@ -59,7 +65,7 @@ export class BootstrapService {
     }
   }
 
-  private listenSsl(): void {
+  private listenSsl(server: Express): void {
     const key = readFileSync(this.sslKey, 'utf-8');
     const cert = readFileSync(this.sslCert, 'utf-8');
     if (!key) {
@@ -73,15 +79,15 @@ export class BootstrapService {
         cert,
         key,
       },
-      this.server,
+      server,
     ).listen(this.sslPort, () =>
       this.logger.info(`Listening on ${this.sslPort} (https)`),
     );
   }
 
-  private listenHttp(): boolean {
+  private listenHttp(server: Express): boolean {
     if (this.port) {
-      createServer(this.server).listen(this.port, () =>
+      createServer(server).listen(this.port, () =>
         this.logger.info(`Listening on ${this.port} (http)`),
       );
       return true;

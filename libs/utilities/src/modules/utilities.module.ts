@@ -11,6 +11,7 @@ import {
   CacheProviderService,
   EventsExplorerService,
   FetchService,
+  LifecycleService,
   LogExplorerService,
   ScheduleExplorerService,
 } from '../services';
@@ -28,6 +29,7 @@ import {
     LogExplorerService,
     AutoLogService,
     AutoConfigService,
+    LifecycleService,
     EventsExplorerService,
     FetchService,
     CacheProviderService,
@@ -57,6 +59,7 @@ export class UtilitiesModule {
         ScheduleExplorerService,
         CacheProviderService,
         EventsExplorerService,
+        LifecycleService,
         ...config,
         AutoConfigService,
         AutoLogService,

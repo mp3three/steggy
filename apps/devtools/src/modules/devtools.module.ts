@@ -4,6 +4,7 @@ import {
   ApplicationModule,
   UtilitiesModule,
 } from '@automagical/utilities';
+import { DiscoveryModule } from '@nestjs/core';
 
 import {
   ChangelogService,
@@ -15,7 +16,12 @@ import {
 
 @ApplicationModule({
   application: APP_DEVTOOLS,
-  imports: [UtilitiesModule, MainCLIModule, ConfigBuilderService],
+  imports: [
+    UtilitiesModule,
+    MainCLIModule,
+    ConfigBuilderService,
+    DiscoveryModule,
+  ],
   providers: [
     ConfigBuilderService,
     ImgurAlbumDownloadService,

@@ -2,6 +2,7 @@
 /* eslint-disable @nrwl/nx/enforce-module-boundaries */
 import {
   AutoLogService,
+  LifecycleService,
   NEST_NOOP_LOGGER,
   UsePrettyLogger,
 } from '@automagical/utilities';
@@ -49,15 +50,23 @@ export async function Bootstrap(
   } else {
     app = await NestFactory.create(module, options);
   }
+  const lifecycle = app.get(LifecycleService);
+  // onPreInit
   preInit ??= [];
   await eachSeries(preInit, async (item, callback) => {
     await item(app, server);
     callback();
   });
+  await lifecycle.preInit(app, server);
+  // ...init
+  // onModuleCreate
+  // onApplicationBootstrap
   await app.init();
+  // onPostInit
   postInit ??= [];
   await eachSeries(postInit, async (item, callback) => {
     await item(app, server);
     callback();
   });
+  await lifecycle.postInit(app, server);
 }
