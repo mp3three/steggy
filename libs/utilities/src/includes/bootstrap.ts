@@ -7,15 +7,25 @@ import {
 } from '@automagical/utilities';
 import { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { ExpressAdapter } from '@nestjs/platform-express';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
+import { Express } from 'express';
+import express from 'express';
 
 export interface BootstrapOptions {
   prettyLog?: boolean;
-  preInit?: ((app: INestApplication) => Promise<void>)[];
-  postInit?: ((app: INestApplication) => Promise<void>)[];
+  preInit?: ((
+    app: INestApplication,
+    expressServer: Express,
+  ) => Promise<void>)[];
+  postInit?: ((
+    app: INestApplication,
+    expressServer: Express,
+  ) => Promise<void>)[];
   nestNoopLogger?: boolean;
+  http?: boolean;
 }
 
 /**
@@ -23,23 +33,31 @@ export interface BootstrapOptions {
  */
 export async function Bootstrap(
   module: ClassConstructor<unknown>,
-  { prettyLog, preInit, nestNoopLogger, postInit }: BootstrapOptions,
+  { prettyLog, preInit, nestNoopLogger, postInit, http }: BootstrapOptions,
 ): Promise<void> {
   if (prettyLog && chalk.supportsColor) {
     UsePrettyLogger();
   }
-  const app = await NestFactory.create(module, {
+  let server: Express;
+  const options = {
     logger: nestNoopLogger ? NEST_NOOP_LOGGER : AutoLogService.nestLogger,
-  });
+  };
+  let app: INestApplication;
+  if (http) {
+    server = express();
+    app = await NestFactory.create(module, new ExpressAdapter(server), options);
+  } else {
+    app = await NestFactory.create(module, options);
+  }
   preInit ??= [];
   await eachSeries(preInit, async (item, callback) => {
-    await item(app);
+    await item(app, server);
     callback();
   });
   await app.init();
   postInit ??= [];
   await eachSeries(postInit, async (item, callback) => {
-    await item(app);
+    await item(app, server);
     callback();
   });
 }

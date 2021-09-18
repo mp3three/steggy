@@ -16,7 +16,7 @@
     "@nestjs/core": "^8.0.6",
     "@nestjs/jwt": "^8.0.0",
     "@nestjs/mongoose": "^8.0.0",
-    "@nestjs/platform-express": "^8.0.4",
+    "@nestjs/platform-express": "^8.0.6",
     "@nestjs/swagger": "^5.0.9",
     "@react-navigation/native": "^6.0.2",
     "@react-navigation/stack": "^6.0.7",
