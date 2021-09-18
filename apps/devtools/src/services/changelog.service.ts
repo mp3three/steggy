@@ -1,4 +1,6 @@
 import {
+  ChangeItemDTO,
+  ChangelogDTO,
   GitService,
   iRepl,
   Repl,
@@ -6,14 +8,25 @@ import {
   TypePromptService,
   WorkspaceService,
 } from '@automagical/tty';
-import { AutoLogService, sleep, Trace } from '@automagical/utilities';
+import {
+  APP_LIVING_DOCS,
+  AutoLogService,
+  sleep,
+  Trace,
+} from '@automagical/utilities';
 import { eachSeries } from 'async';
 import Table from 'cli-table';
 import execa from 'execa';
 import inquirer from 'inquirer';
+import { join } from 'path';
 import { inc } from 'semver';
 
 @Repl({
+  description: [
+    `- Root level change description`,
+    `- Project level change description`,
+    `- Version bumping`,
+  ],
   name: 'Changelog',
 })
 export class ChangelogService implements iRepl {
@@ -25,18 +38,9 @@ export class ChangelogService implements iRepl {
     private readonly systemService: SystemService,
   ) {}
 
-  /**
-   * - Verify there are no uncommitted changes
-   * - Make sure the user is fine with their editor selection
-   * - Find all libs / apps that have been affected by changes
-   * - Print table with name / version
-   * - Run through each, prompting for a specific changelog message, and bumping the version
-   *   - Default changelog message will be a listing of all the recent commit messages
-   * - Bump the base package version
-   * - Write metadata to living docs
-   */
   @Trace()
   public async exec(): Promise<void> {
+    // Sanity check
     const abort = await this.checkDirty();
     if (abort) {
       return;
@@ -47,6 +51,7 @@ export class ChangelogService implements iRepl {
       this.logger.warn(`NX reports 0 affected projects`);
       return;
     }
+    // header table
     const table = new Table({
       head: ['Affected Project', 'Current Version'],
     });
@@ -57,42 +62,140 @@ export class ChangelogService implements iRepl {
     );
     console.log(table.toString(), `\n`);
 
+    // Gather project specific messages
     const messages = (
       await this.gitService.listCommitMessages(
         this.workspace.NX_METADATA.affected.defaultBase,
       )
     ).map((i) => `* ${i}`);
+    // Determine the master list of projects that are being affected
+    const changes = await this.processAffected(affected);
+    // Fill in any messages
+    await this.projectMessages(changes, messages);
 
-    await eachSeries(affected, async (project, callback) => {
-      await this.processAffected(project, messages);
-      callback();
-    });
+    const rootVersion = await this.bumpRoot();
+    const { user } = await this.gitService.getConfig();
+
+    const { text } = (await inquirer.prompt([
+      {
+        default: messages.join(`\n\n`),
+        message: `Base changelog message`,
+        name: 'text',
+        type: 'editor',
+      },
+    ])) as { text: string };
+    const changelog: ChangelogDTO = {
+      author: user,
+      changes,
+      date: new Date().toISOString(),
+      root: {
+        message: {
+          text,
+        },
+        version: rootVersion,
+      },
+      version: 1,
+    };
+
+    // Write changelog info to living docs
+    const { root } =
+      this.workspace.workspace.projects[APP_LIVING_DOCS.description];
+
+    this.workspace.writeJson(
+      join(root, `changelog`, rootVersion, `changelog.json`),
+      changelog,
+    );
+
+    // Bump living docs version (if not already manually done)
+    const docsModified = changes.some(
+      (i) => i.project === APP_LIVING_DOCS.description,
+    );
+    if (!docsModified) {
+      const { version } = this.workspace.PACKAGES.get(
+        APP_LIVING_DOCS.description,
+      );
+      const updated = inc(version, 'patch');
+      this.workspace.setPackageVersion(APP_LIVING_DOCS.description, updated);
+      this.logger.debug(
+        {
+          from: version,
+          to: updated,
+        },
+        `Bumping docs version`,
+      );
+    }
 
     await sleep(5000);
   }
 
   @Trace()
-  private async processAffected(
-    project: string,
-    commitMessages: string[],
+  private async projectMessages(
+    affected: ChangeItemDTO[],
+    messages: string[],
   ): Promise<void> {
-    const add = await this.typePromptService.confirm(
-      `Add changelog item for ${project}?`,
-      true,
-    );
-    if (!add) {
-      return;
-    }
-    const { changelogMessage } = await inquirer.prompt([
+    const { values } = await inquirer.prompt([
       {
-        default: commitMessages.join(`\n\n`),
-        message: `Changelog message`,
-        name: 'changelogMessage',
-        type: 'editor',
+        choices: affected.map((i) => i.project),
+        message: 'Create project specific messages',
+        name: 'values',
+        type: 'checkbox',
       },
     ]);
-    const versions = await this.versionBump(project);
-    console.log(changelogMessage, versions);
+    await eachSeries(values as string[], async (project, callback) => {
+      const { text } = (await inquirer.prompt([
+        {
+          default: messages.join(`\n\n`),
+          message: `Changelog message for ${project}`,
+          name: 'text',
+          type: 'editor',
+        },
+      ])) as { text: string };
+
+      const item = affected.find((i) => i.project === project);
+      item.message.text = text;
+      callback();
+    });
+  }
+
+  @Trace()
+  private async bumpRoot(): Promise<string> {
+    const current = this.workspace.ROOT_PACKAGE.version;
+    const updated = await this.versionBump(current, `Set root version`);
+    this.workspace.ROOT_PACKAGE.version = updated;
+    this.workspace.updateRootPackage();
+    return updated;
+  }
+
+  /**
+   * - Prompt to even add an item
+   */
+  @Trace()
+  private async processAffected(affected: string[]): Promise<ChangeItemDTO[]> {
+    const { values } = await inquirer.prompt([
+      {
+        choices: affected,
+        message: 'Projects to version bump',
+        name: 'values',
+        type: 'checkbox',
+      },
+    ]);
+    const out: ChangeItemDTO[] = [];
+    await eachSeries(values as string[], async (project, callback) => {
+      const current = this.workspace.PACKAGES.get(project).version;
+      const updated = await this.versionBump(
+        current,
+        `Bump version ${project}`,
+      );
+      this.workspace.setPackageVersion(project, updated);
+      out.push({
+        from: current,
+        message: {},
+        project,
+        to: updated,
+      });
+      callback();
+    });
+    return out;
   }
 
   @Trace()
@@ -115,23 +218,27 @@ export class ChangelogService implements iRepl {
   }
 
   @Trace()
-  private async versionBump(project: string): Promise<[string, string]> {
-    const current = this.workspace.PACKAGES.get(project).version;
+  private async versionBump(current: string, message: string): Promise<string> {
+    const doInc = (bump) =>
+      inc(
+        current,
+        bump === 'rc' ? 'prerelease' : bump,
+        bump === 'rc' ? bump : '',
+      );
     const { bump } = await inquirer.prompt([
       {
-        choices: ['major', 'minor', 'patch', 'rc'],
+        choices: ['major', 'minor', 'patch', 'rc'].map((value) => {
+          return {
+            name: `${value} (${doInc(value)})`,
+            value,
+          };
+        }),
         default: current.includes('-') ? 'rc' : 'patch',
-        message: 'Bump version',
+        message: `${message} (${current})`,
         name: 'bump',
         type: 'list',
       },
     ]);
-    const updated = inc(
-      current,
-      bump === 'rc' ? 'prerelease' : bump,
-      bump === 'rc' ? bump : '',
-    );
-    this.workspace.setPackageVersion(project, updated);
-    return [current, updated];
+    return doInc(bump);
   }
 }

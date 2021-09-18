@@ -1,5 +1,4 @@
 import {
-  AutoLogService,
   AutomagicalMetadataDTO,
   METADATA_FILE,
   PACKAGE_FILE,
@@ -7,8 +6,9 @@ import {
   Trace,
 } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import JSON from 'comment-json';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { dirname, join } from 'path';
 import { cwd } from 'process';
 
 import {
@@ -38,7 +38,9 @@ export class WorkspaceService {
     readFileSync(NX_METADATA_FILE, 'utf-8'),
   );
 
-  public constructor(private readonly logger: AutoLogService) {}
+  public ROOT_PACKAGE: PackageJsonDTO = JSON.parse(
+    readFileSync(PACKAGE_FILE, 'utf-8'),
+  );
 
   @Trace()
   public list(type: NXProjectTypes): string[] {
@@ -46,6 +48,10 @@ export class WorkspaceService {
     return Object.keys(projects).filter(
       (item) => projects[item].projectType === type,
     );
+  }
+
+  public updateRootPackage(): void {
+    this.writeJson(PACKAGE_FILE, this.ROOT_PACKAGE);
   }
 
   public isApplication(project: string): boolean {
@@ -60,19 +66,19 @@ export class WorkspaceService {
     );
   }
 
+  @Trace()
   public setPackageVersion(project: string, version: string): string {
     const packageJson = this.PACKAGES.get(project);
-    this.logger.debug(
-      {
-        new: version,
-        old: packageJson.version,
-      },
-      `Updated package version for {${packageJson.displayName}}`,
-    );
     packageJson.version = version;
     const packageFile = this.path(project, 'package');
-    writeFileSync(packageFile, JSON.stringify(packageJson));
+    this.writeJson(packageFile, packageJson);
     return version;
+  }
+
+  @Trace()
+  public writeJson(path: string, data: unknown): void {
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, JSON.stringify(data, undefined, '  ') + `\n`);
   }
 
   @Trace()

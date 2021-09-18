@@ -1,6 +1,9 @@
 import { AutoLogService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import execa from 'execa';
+import { decode } from 'ini';
+
+import { GitConfigDTO } from '..';
 
 @Injectable()
 export class GitService {
@@ -47,5 +50,11 @@ export class GitService {
   public async isDirty(): Promise<boolean> {
     const { stdout } = await execa(`git`, [`status`, `--porcelain`]);
     return stdout.length > 0;
+  }
+
+  @Trace()
+  public async getConfig(): Promise<GitConfigDTO> {
+    const { stdout } = await execa(`git`, [`config`, `--list`]);
+    return decode(stdout) as GitConfigDTO;
   }
 }

@@ -2,42 +2,56 @@
   "$comment": "Typescript definition at libs/tty/src/contracts/changelog.dto.ts",
   "additionalProperties": false,
   "type": "object",
-  "oneOf": [
-    {
+  "properties": {
+    "version": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 1,
+      "default": 1,
+      "description": "Changelog schema version"
+    },
+    "author": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string"
+    },
+    "root": {
+      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "version": {
-          "type": "number",
-          "minimum": 1,
-          "maximum": 1,
-          "default": 1,
-          "description": "Changelog schema version"
-        },
-        "author": {
           "type": "string"
         },
-        "date": {
-          "type": "string"
-        },
-        "root": {
-          "type": "string"
-        },
-        "changes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/change-item"
-          }
+        "message": {
+          "$ref": "#/definitions/message"
         }
-      },
-      "required": [
-        "version",
-        "author",
-        "date",
-        "root",
-        "changes"
-      ]
+      }
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/change-item"
+      }
     }
+  },
+  "required": [
+    "version",
+    "author",
+    "date",
+    "root",
+    "changes"
   ],
   "definitions": {
+    "message": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        }
+      }
+    },
     "change-item": {
       "type": "object",
       "additionalProperties": false,
@@ -58,7 +72,7 @@
           "type": "string"
         },
         "message": {
-          "type": "string"
+          "$ref": "#/definitions/message"
         }
       }
     }
