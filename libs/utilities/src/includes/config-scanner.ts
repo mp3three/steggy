@@ -1,31 +1,25 @@
 import { INestApplication } from '@nestjs/common';
-import { DiscoveryService } from '@nestjs/core';
 
-import { ACTIVE_APPLICATION, AutoConfigService } from '..';
+import {
+  ACTIVE_APPLICATION,
+  AutoConfigService,
+  ModuleScannerService,
+} from '..';
 import { ConfigTypeDTO, CONSUMES_CONFIG } from '../contracts/config';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
 
 export async function ScanConfig(app: INestApplication): Promise<void> {
-  const discoveryService = app.get(DiscoveryService);
   const configService = app.get(AutoConfigService);
+  const scanner = app.get(ModuleScannerService);
   const application = app.get<symbol>(ACTIVE_APPLICATION);
   const used = new Set<string>();
 
+  const map = scanner.findWithSymbol<string[]>(CONSUMES_CONFIG);
   const out: ConfigTypeDTO[] = [];
-  discoveryService.getProviders().forEach((wrapper) => {
-    if (!wrapper || !wrapper.instance) {
-      return false;
-    }
-    if (wrapper.isNotMetatype) {
-      return false;
-    }
-    const { instance } = wrapper;
+  map.forEach((config, instance) => {
     const ctor = instance.constructor;
-    if (typeof ctor[CONSUMES_CONFIG] === 'undefined') {
-      return;
-    }
     const library = ctor[LOGGER_LIBRARY] || 'application';
-    ctor[CONSUMES_CONFIG].forEach((property) => {
+    config.forEach((property) => {
       const joined = [library, property].join('.');
       if (used.has(joined)) {
         return;

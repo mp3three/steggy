@@ -1,7 +1,5 @@
-import { AutoLogService, Info, Trace } from '@automagical/utilities';
+import { Info, ModuleScannerService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { DiscoveryService } from '@nestjs/core';
-import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
 import { iRepl, REPL_CONFIG, ReplOptions } from '..';
 
@@ -9,10 +7,7 @@ import { iRepl, REPL_CONFIG, ReplOptions } from '..';
 export class ReplExplorerService {
   public readonly REGISTERED_APPS = new Map<ReplOptions, iRepl>();
 
-  constructor(
-    private readonly discoveryService: DiscoveryService,
-    private readonly logger: AutoLogService,
-  ) {}
+  constructor(private readonly scanner: ModuleScannerService) {}
 
   @Trace()
   public findServiceByName(name: string): iRepl {
@@ -38,18 +33,11 @@ export class ReplExplorerService {
 
   @Info({ after: '[Repl] Initialized' })
   protected onModuleInit(): void {
-    const providers: InstanceWrapper<iRepl>[] = this.discoveryService
-      .getProviders()
-      .filter(({ instance }) => !!instance);
-    providers.forEach((wrapper) => {
-      const { instance } = wrapper;
-      const proto = instance.constructor;
-      if (!proto || !proto[REPL_CONFIG]) {
-        return;
-      }
-      const settings: ReplOptions = proto[REPL_CONFIG];
-      this.logger.debug(`Found repl [${settings.name}]`);
-      this.REGISTERED_APPS.set(proto[REPL_CONFIG], instance);
+    const providers = this.scanner.findWithSymbol<ReplOptions, iRepl>(
+      REPL_CONFIG,
+    );
+    providers.forEach((key, value) => {
+      this.REGISTERED_APPS.set(key, value);
     });
   }
 }

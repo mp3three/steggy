@@ -1,3 +1,9 @@
+import { Injectable } from '@nestjs/common';
+import { DiscoveryService, MetadataScanner } from '@nestjs/core';
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+import { EventEmitter2 } from 'eventemitter2';
+import { Client } from 'mqtt';
+
 import {
   LOG_CONTEXT,
   MQTT_CLOSE,
@@ -8,13 +14,7 @@ import {
   MQTT_RECONNECT,
   MqttSubscribeOptions,
   MqttSubscriber,
-} from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
-import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
-import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
-import { EventEmitter2 } from 'eventemitter2';
-import { Client } from 'mqtt';
-
+} from '../../contracts';
 import { MQTT_SUBSCRIBE_OPTIONS } from '../../decorators';
 import { InjectMQTT } from '../../decorators/injectors/inject-mqtt.decorator';
 import { Info, Trace } from '../../decorators/logger.decorator';
@@ -69,7 +69,6 @@ export class MQTTExplorerService {
     @InjectMQTT() private readonly client: Client,
     private readonly discoveryService: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
-    private readonly reflector: Reflector,
     private readonly mqttService: MqttService,
     private readonly eventEmitter: EventEmitter2,
   ) {}

@@ -1,7 +1,7 @@
-import { LOG_CONTEXT, LOGGER_LIBRARY } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 
+import { LOG_CONTEXT, LOGGER_LIBRARY } from '../../contracts/logger';
 import { mappedContexts } from '../../decorators/injectors';
 import { Info } from '../../decorators/logger.decorator';
 
@@ -17,9 +17,10 @@ export class LogExplorerService {
 
   @Info({ after: '[Logger] Initialized' })
   protected onModuleInit(): void {
-    const providers = this.discoveryService
-      .getProviders()
-      .filter(({ instance }) => !!instance);
+    const providers = [
+      ...this.discoveryService.getControllers(),
+      ...this.discoveryService.getProviders(),
+    ].filter(({ instance }) => !!instance);
     providers.forEach((wrapper) => {
       const { instance, host } = wrapper;
       const proto = instance.constructor;

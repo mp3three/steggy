@@ -1,13 +1,13 @@
-import { SEND_ROOM_STATE } from '@automagical/utilities';
 import {
   AutoLogService,
   InjectLogger,
+  ModuleScannerService,
   MqttService,
   PEAT,
+  SEND_ROOM_STATE,
   Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { EventEmitter2 } from 'eventemitter2';
 
@@ -30,35 +30,22 @@ import { RemoteAdapterService } from './remote-adapter.service';
  */
 @Injectable()
 export class RoomExplorerService {
-  public readonly rooms = new Set<InstanceWrapper<iRoomController>>();
-
   constructor(
     @InjectLogger()
     private readonly logger: AutoLogService,
-    private readonly discoveryService: DiscoveryService,
     private readonly remoteAdapter: RemoteAdapterService,
     private readonly eventEmitter: EventEmitter2,
     private readonly mqtt: MqttService,
+    private readonly scanner: ModuleScannerService,
   ) {}
-
-  public getSettings({ instance }: InstanceWrapper): RoomControllerSettingsDTO {
-    const constructor = instance?.constructor ?? {};
-    return constructor[ROOM_CONTROLLER_SETTINGS];
-  }
 
   @Trace()
   protected onModuleInit(): void {
-    const providers: InstanceWrapper<iRoomController>[] = this.discoveryService
-      .getProviders()
-      .filter((wrapper) => !wrapper.isNotMetatype);
-    providers.forEach(async (wrapper) => {
-      const settings = this.getSettings(wrapper);
-      if (!settings) {
-        return;
-      }
-      this.rooms.add(wrapper);
-      const { instance } = wrapper;
-      // TODO: hacktacular!
+    const settings = this.scanner.findWithSymbol<
+      RoomControllerSettingsDTO,
+      iRoomController
+    >(ROOM_CONTROLLER_SETTINGS);
+    settings.forEach((settings, instance) => {
       instance.lightManager['room'] = instance;
       instance.kunamiService['room'] = instance;
       this.remoteAdapter.watch(settings.remote);

@@ -1,15 +1,11 @@
-import { LOG_CONTEXT } from '@automagical/utilities';
 import pino from 'pino';
 
+import { LOG_CONTEXT } from '../contracts/logger';
 import { AutoLogService } from '../services';
 
 interface AnnotationLoggerDTO {
-  
-
   after?: string;
   before?: string;
-
-  
 }
 
 /**

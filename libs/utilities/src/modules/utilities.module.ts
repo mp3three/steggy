@@ -13,6 +13,7 @@ import {
   FetchService,
   LifecycleService,
   LogExplorerService,
+  ModuleScannerService,
   ScheduleExplorerService,
 } from '../services';
 
@@ -30,6 +31,7 @@ import {
     AutoLogService,
     AutoConfigService,
     LifecycleService,
+    ModuleScannerService,
     EventsExplorerService,
     FetchService,
     CacheProviderService,
@@ -45,6 +47,7 @@ export class UtilitiesModule {
         ...extra,
         AutoConfigService,
         AutoLogService,
+        ModuleScannerService,
         CacheProviderService,
         FetchService,
         ...config,
@@ -56,6 +59,7 @@ export class UtilitiesModule {
       providers: [
         ...extra,
         LogExplorerService,
+        ModuleScannerService,
         ScheduleExplorerService,
         CacheProviderService,
         EventsExplorerService,

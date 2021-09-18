@@ -46,6 +46,9 @@ export function ApplicationModule(
     ...metadata.rooms,
     ...metadata.dashboards,
   ];
+  metadata.providers.forEach((provider) => {
+    provider[LOGGER_LIBRARY] = metadata.application.description;
+  });
   metadata.utils.forEach((provider) => {
     provider[LOGGER_LIBRARY] = LIB_UTILS.description;
   });

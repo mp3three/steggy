@@ -6,6 +6,7 @@ export * from './injectors';
 export * from './library-module.decorator';
 export * from './logger.decorator';
 export * from './mqtt.decorator';
+export * from './once-is-enough.decorator';
 export * from './schedule.decorator';
 export * from './single-call.decorator';
 export * from './string.decorator';
