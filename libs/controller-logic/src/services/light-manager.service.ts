@@ -1,13 +1,3 @@
-import type {
-  iLightManager,
-  iRoomController,
-  RoomControllerParametersDTO,
-} from '@automagical/controller-logic';
-import {
-  CIRCADIAN_UPDATE,
-  LightingCacheDTO,
-  RoomControllerSettingsDTO,
-} from '@automagical/controller-logic';
 import {
   HomeAssistantCoreService,
   LightDomainService,
@@ -25,6 +15,14 @@ import { each } from 'async';
 import { EventEmitter2 } from 'eventemitter2';
 
 import { DIM_PERCENT } from '../config';
+import {
+  CIRCADIAN_UPDATE,
+  iLightManager,
+  iRoomController,
+  LightingCacheDTO,
+  RoomControllerParametersDTO,
+  RoomControllerSettingsDTO,
+} from '../contracts';
 import { RoomSettings } from '../includes';
 import { CircadianService } from './circadian.service';
 

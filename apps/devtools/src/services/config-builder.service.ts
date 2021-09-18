@@ -30,7 +30,6 @@ import { join } from 'path';
 import rc from 'rc';
 
 @Repl({
-  consumesConfig: [OUTPUT_HEADER_FONT],
   description: [
     `Generate application customized configurations using the latest config definitions.`,
     ``,

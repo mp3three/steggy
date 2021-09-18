@@ -1,12 +1,3 @@
-import {
-  ControllerStates,
-  iRoomController,
-  iRoomControllerMethods,
-  ROOM_COMMAND,
-  ROOM_CONTROLLER_SETTINGS,
-  RoomControllerParametersDTO,
-  RoomControllerSettingsDTO,
-} from '@automagical/controller-logic';
 import { SEND_ROOM_STATE } from '@automagical/utilities';
 import {
   AutoLogService,
@@ -20,6 +11,15 @@ import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { EventEmitter2 } from 'eventemitter2';
 
+import {
+  ControllerStates,
+  iRoomController,
+  iRoomControllerMethods,
+  ROOM_COMMAND,
+  ROOM_CONTROLLER_SETTINGS,
+  RoomControllerParametersDTO,
+  RoomControllerSettingsDTO,
+} from '../contracts';
 import { LightManagerService } from './light-manager.service';
 import { RemoteAdapterService } from './remote-adapter.service';
 
@@ -128,6 +128,10 @@ export class RoomExplorerService {
       ],
     ]);
     mappings.forEach((callback, event) => {
+      this.logger.debug({
+        event: ROOM_COMMAND(name, event),
+        mqtt: SEND_ROOM_STATE(name, event),
+      });
       this.mqtt.subscribe(SEND_ROOM_STATE(name, event), callback);
       this.eventEmitter.on(ROOM_COMMAND(name, event), callback);
     });

@@ -7,6 +7,7 @@ import {
   SolarCalcService,
 } from '@automagical/utilities';
 
+import { ApplicationController } from '../controllers';
 import {
   DiningController,
   DownstairsController,
@@ -20,6 +21,7 @@ import { ApplicationService, GarageService } from '../services';
 
 @ApplicationModule({
   application: APP_HOME_CONTROLLER,
+  controllers: [ApplicationController],
   imports: [HomeAssistantModule, HomeControllerCustomModule, MQTTModule],
   providers: [ApplicationService, GarageService],
   rooms: [

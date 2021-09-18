@@ -9,6 +9,7 @@ import {
   ChangelogService,
   ConfigBuilderService,
   DeployService,
+  HomeCommandService,
   ImgurAlbumDownloadService,
 } from '../services';
 
@@ -19,6 +20,7 @@ import {
     ConfigBuilderService,
     ImgurAlbumDownloadService,
     DeployService,
+    HomeCommandService,
     ChangelogService,
   ],
 })
