@@ -1,7 +1,9 @@
 import {
   FILTER_OPERATIONS,
+  FilterDTO,
+  FilterValueType,
   ResultControlDTO,
-} from '@automagical/utilities';
+} from '../contracts';
 
 export function controlToQuery(
   value: Readonly<ResultControlDTO>,
@@ -34,6 +36,37 @@ export function controlToQuery(
     out.set(field, value.toString());
   });
   return Object.fromEntries(out.entries());
+}
+
+export function buildFilter(
+  key: string,
+  value: FilterValueType | FilterValueType[],
+): FilterDTO {
+  const [name, operation] = key.split('__') as [string, FILTER_OPERATIONS];
+  switch (operation) {
+    case 'in':
+    case 'nin':
+      if (!Array.isArray(value)) {
+        value = typeof value === 'string' ? value.split(',') : [value];
+      }
+      return {
+        field: name,
+        operation,
+        value: value,
+      };
+    case 'elem':
+      return {
+        field: name,
+        operation,
+        value: typeof value === 'string' ? JSON.parse(value) : value,
+      };
+    default:
+      return {
+        field: name,
+        operation,
+        value,
+      };
+  }
 }
 
 export function queryToControl(

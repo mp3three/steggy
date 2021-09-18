@@ -1,0 +1,36 @@
+{
+  "configuration": {
+    "GLOBAL_PREFIX": {
+      "type": "string"
+    },
+    "BODY_SIZE": {
+      "type": "string",
+      "default": "100kb"
+    },
+    "COMPRESSION": {
+      "type": "boolean",
+      "default": false
+    },
+    "PORT": {
+      "type": "number",
+      "default": 7000,
+      "description": "Set to value > 0 to enable"
+    },
+    "SSL_PORT": {
+      "type": "number",
+      "description": "Set to value > 0 to enable"
+    },
+    "SSL_KEY": {
+      "type": "string",
+      "description": "File path, required if SSL_PORT is active"
+    },
+    "SSL_CERT": {
+      "type": "string",
+      "description": "File path, required if SSL_PORT is active"
+    },
+    "SWAGGER_PATH": {
+      "type": "string",
+      "default": "/api"
+    }
+  }
+}
