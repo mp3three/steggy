@@ -1,18 +1,3 @@
-import {
-  ALL_ENTITIES_UPDATED,
-  AreaDTO,
-  CONNECTION_RESET,
-  DeviceListItemDTO,
-  EntityListItemDTO,
-  HA_EVENT_STATE_CHANGE,
-  HA_SOCKET_READY,
-  HassEvents,
-  HASSIO_WS_COMMAND,
-  HassSocketMessageTypes,
-  HassStateDTO,
-  SendSocketMessageDTO,
-  SocketMessageDTO,
-} from '@automagical/home-assistant';
 import { CronExpression } from '@automagical/utilities';
 import {
   AutoLogService,
@@ -27,7 +12,24 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 import WS from 'ws';
 
+import {
+  ALL_ENTITIES_UPDATED,
+  AreaDTO,
+  CONNECTION_RESET,
+  DeviceListItemDTO,
+  EntityListItemDTO,
+  HA_EVENT_STATE_CHANGE,
+  HA_SOCKET_READY,
+  HassStateDTO,
+  SendSocketMessageDTO,
+  SocketMessageDTO,
+} from '..';
 import { BASE_URL, TOKEN } from '../config';
+import {
+  HassEvents,
+  HASSIO_WS_COMMAND,
+  HassSocketMessageTypes,
+} from '../contracts/enums';
 
 @Injectable()
 export class HASocketAPIService {
@@ -126,7 +128,7 @@ export class HASocketAPIService {
   }
 
   @Trace()
-  protected async onModuleInit(): Promise<void> {
+  protected async onPostInit(): Promise<void> {
     // Kick off the connection process
     // Do not wait for it to actually complete through auth though
     //

@@ -7,6 +7,8 @@ import { DevtoolsModule } from '../modules';
 BOOTSTRAP_OPTIONS.postInit ??= [];
 BOOTSTRAP_OPTIONS.postInit.push(async (app) => {
   const main = app.get(MainCLIService);
-  await main.exec();
+  setTimeout(() => {
+    main.exec();
+  }, 10);
 });
 Bootstrap(DevtoolsModule, BOOTSTRAP_OPTIONS);

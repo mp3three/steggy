@@ -9,6 +9,11 @@
       "type": "number",
       "description": "Pad numbers in file names to a consistent size so they can be sorted more easily",
       "default": 4
+    },
+    "CONTROLLER_API": {
+      "type": "string",
+      "description": "HTTP API target for the home controller",
+      "default": "http://localhost:7000"
     }
   }
 }

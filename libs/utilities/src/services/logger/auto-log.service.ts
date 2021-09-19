@@ -1,15 +1,9 @@
-import {
-  iLogger,
-  iLoggerCore,
-  LOG_CONTEXT,
-  LogLevels,
-  MISSING_CONTEXT,
-} from '@automagical/utilities';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
-import { ClassConstructor } from 'class-transformer';
 import pino from 'pino';
 
+import { iLogger, iLoggerCore, LogLevels } from '../../contracts/interfaces';
+import { LOG_CONTEXT, MISSING_CONTEXT } from '../../contracts/logger/constants';
 import { mappedContexts } from '../../decorators/injectors';
 
 /* eslint-disable security/detect-non-literal-regexp */
@@ -89,20 +83,35 @@ export class AutoLogService implements iLogger {
   }
 
   private contextId: string;
+  #context: string;
 
-  constructor(
-    @Inject(INQUIRER) private readonly inquirerer: ClassConstructor<unknown>,
-  ) {}
+  constructor(@Inject(INQUIRER) private inquirerer: unknown) {}
 
   public get level(): LogLevels {
     return AutoLogService.logger.level as LogLevels;
   }
 
-  private get context(): string {
+  protected get context(): string {
+    if (this.#context) {
+      return this.#context;
+    }
     if (this.contextId) {
       return mappedContexts.get(this.contextId);
     }
     return this.inquirerer?.constructor[LOG_CONTEXT] ?? MISSING_CONTEXT;
+  }
+
+  /**
+   * Available for if automated context setting doesn't work / isn't avaiable.
+   * Those are the vast minority of use cases in the repo, so this definition is currently hidden (protected).
+   * Set like this if actually needed
+   *
+   * ```typescript
+   * logger['context'] = `${LIB_ALIENS.description}:SomethingIdentifying`;
+   * ```
+   */
+  protected set context(value: string) {
+    this.#context = value;
   }
 
   public debug(message: string, ...arguments_: unknown[]): void;

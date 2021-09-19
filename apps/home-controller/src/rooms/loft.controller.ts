@@ -1,4 +1,5 @@
 import {
+  ApiCommand,
   ControllerStates,
   iRoomController,
   ROOM_COMMAND,
@@ -74,6 +75,7 @@ export class LoftController implements iRoomController {
     private readonly switchService: SwitchDomainService,
   ) {}
 
+  @ApiCommand()
   @Trace()
   public async areaOff({
     count,

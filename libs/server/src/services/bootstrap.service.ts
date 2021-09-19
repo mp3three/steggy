@@ -81,14 +81,14 @@ export class BootstrapService {
       },
       server,
     ).listen(this.sslPort, () =>
-      this.logger.info(`Listening on ${this.sslPort} (https)`),
+      this.logger.info(`Listening on [${this.sslPort}] {(https)}`),
     );
   }
 
   private listenHttp(server: Express): boolean {
     if (this.port) {
       createServer(server).listen(this.port, () =>
-        this.logger.info(`Listening on ${this.port} (http)`),
+        this.logger.info(`Listening on [${this.port}] {(http)}`),
       );
       return true;
     }

@@ -1,6 +1,7 @@
-import { STATE_MANAGER } from '@automagical/controller-logic';
 import { Inject } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
+
+import { STATE_MANAGER } from '../contracts';
 
 export function StateManager(): PropertyDecorator {
   return function (target, key: string) {

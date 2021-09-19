@@ -1,8 +1,9 @@
+import { Controller, Provider } from '@nestjs/common';
+
 import {
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
-} from '@automagical/controller-logic';
-import { Injectable, Provider } from '@nestjs/common';
+} from '../contracts';
 
 export const DynamicRoomProviders = new Set<Provider>();
 
@@ -11,6 +12,6 @@ export function RoomController(
 ): ClassDecorator {
   return function (target) {
     target[ROOM_CONTROLLER_SETTINGS] = settings;
-    return Injectable()(target);
+    return Controller(`/room/${settings.name}`)(target);
   };
 }

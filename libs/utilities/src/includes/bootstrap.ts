@@ -2,6 +2,7 @@
 /* eslint-disable @nrwl/nx/enforce-module-boundaries */
 import {
   AutoLogService,
+  LIB_UTILS,
   LifecycleService,
   NEST_NOOP_LOGGER,
   UsePrettyLogger,
@@ -51,12 +52,15 @@ export async function Bootstrap(
     app = await NestFactory.create(module, options);
   }
   const lifecycle = app.get(LifecycleService);
+  const logger = await app.resolve(AutoLogService);
+  logger['context'] = `${LIB_UTILS.description}:Bootstrap`;
   // onPreInit
   preInit ??= [];
-  await eachSeries(preInit, async (item, callback) => {
+  const call = async (item, callback) => {
     await item(app, server);
     callback();
-  });
+  };
+  await eachSeries(preInit, call);
   await lifecycle.preInit(app, server);
   // ...init
   // onModuleCreate
@@ -64,9 +68,7 @@ export async function Bootstrap(
   await app.init();
   // onPostInit
   postInit ??= [];
-  await eachSeries(postInit, async (item, callback) => {
-    await item(app, server);
-    callback();
-  });
+  await eachSeries(postInit, call);
   await lifecycle.postInit(app, server);
+  logger.info(`🎓 Bootstrap control released!`);
 }

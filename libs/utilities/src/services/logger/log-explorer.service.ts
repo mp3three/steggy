@@ -28,7 +28,8 @@ export class LogExplorerService {
         return;
       }
       const loggerContext: string = proto[LOGGER_LIBRARY];
-      host.providers.forEach(({ metatype }) => {
+      const items = [...host.providers.values(), ...host.controllers.values()];
+      items.forEach(({ metatype }) => {
         if (
           SKIP_PROVIDERS.has(metatype?.name ?? '') ||
           typeof metatype[LOG_CONTEXT] !== 'undefined'
@@ -36,6 +37,7 @@ export class LogExplorerService {
           return;
         }
         const context = `${loggerContext}:${metatype.name}`;
+        // Update the annotation injected context if one exists
         mappedContexts.forEach((value, key) => {
           if (value === metatype.name) {
             mappedContexts.set(key, context);

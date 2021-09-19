@@ -160,6 +160,27 @@ export const PrettyNestLogger: Record<
           .join(' '),
       );
     }
+    if (context === `${NEST}:RoutesResolver`) {
+      const parts = message.split(' ');
+      message = prettyFormatMessage(
+        [`[${parts[0]}]`, parts[1]].join(' ').slice(0, -1),
+      );
+    }
+    if (context === `${NEST}:RouterExplorer`) {
+      const [parts] = message.match(new RegExp('(\\{[^\\]]+\\})'));
+      const [path, method] = parts.slice(1, -1).split(', ');
+      message = prettyFormatMessage(` - [${method}] {${path}}`);
+      // if (matches) {
+      //   message = message.replace(
+      //     matches[0],
+      //     chalk`{bold.gray ${matches[0].slice(1, -1)}}`,
+      //   );
+      // }
+      // const parts = message.split(' ');
+      // message = prettyFormatMessage(
+      //   [`[${parts[0]}]`, parts[1]].join(' ').slice(0, -1),
+      // );
+    }
     logger.info(`${highlightContext(context, 'bgGreen')} ${message}`);
   },
 

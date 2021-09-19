@@ -1,5 +1,6 @@
 /**
  * Why execute the method again if the result isn't gonna change?
+ * Not a replacement for caching
  *
  * Capture the result from the first call, and return on all followup calls.
  * Not intended for use with functions that have parameters.

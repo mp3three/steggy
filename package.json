@@ -51,6 +51,7 @@
     "ink": "^3.0.9",
     "inquirer": "^8.1.1",
     "inquirer-date-prompt": "^2.0.1",
+    "iterare": "^1.2.1",
     "js-yaml": "^4.0.0",
     "moment": "^2.29.1",
     "mongodb": "^3.6.6",
