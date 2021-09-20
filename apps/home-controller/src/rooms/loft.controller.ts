@@ -1,9 +1,12 @@
 import {
   ApiCommand,
+  COMMAND_SCOPE,
   ControllerStates,
   iRoomController,
   ROOM_COMMAND,
-  RoomControllerParametersDTO,
+  RoomCommandDTO,
+  RoomCommandScope,
+  Steps,
 } from '@automagical/controller-logic';
 import {
   KunamiCodeService,
@@ -57,6 +60,7 @@ const remote = 'sensor.loft_pico';
  */
 @RoomController({
   accessories: ['switch.loft_hallway_light'],
+  fan: 'fan.loft_ceiling_fan',
   friendlyName: 'Loft',
   lights: [...PANEL_LIGHTS, ...FAN_LIGHTS],
   name: 'loft',
@@ -77,14 +81,13 @@ export class LoftController implements iRoomController {
 
   @ApiCommand()
   @Trace()
-  public async areaOff({
-    count,
-  }: RoomControllerParametersDTO): Promise<boolean> {
+  public async areaOff(parameters: RoomCommandDTO): Promise<boolean> {
+    const scope = COMMAND_SCOPE(parameters);
     if (!this.stateManager) {
       return;
     }
     await this.stateManager.removeFlag(AUTO_STATE);
-    if (count === 2) {
+    if (scope.has(RoomCommandScope.ACCESSORIES)) {
       await this.remoteService.turnOff(MONITOR);
       this.eventEmitter.emit(GLOBAL_TRANSITION);
     }
@@ -97,12 +100,11 @@ export class LoftController implements iRoomController {
   }
 
   @Trace()
-  public async favorite({
-    count,
-  }: RoomControllerParametersDTO): Promise<boolean> {
+  public async favorite(parameters: RoomCommandDTO): Promise<boolean> {
+    const scope = COMMAND_SCOPE(parameters);
     await this.stateManager.addFlag(AUTO_STATE);
     const hour = dayjs().hour();
-    if (count === 1) {
+    if (scope.has(RoomCommandScope.LOCAL)) {
       // Set fan
       await this.lightManager.circadianLight(
         FAN_LIGHTS,
@@ -125,10 +127,10 @@ export class LoftController implements iRoomController {
         : this.switchService.turnOff(['switch.loft_hallway_light']));
       return false;
     }
-    if (count === 2) {
+    if (scope.has(RoomCommandScope.ACCESSORIES)) {
       await this.remoteService.turnOn(MONITOR);
       ['games', 'master', 'downstairs'].forEach((room) =>
-        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), { count }),
+        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), parameters),
       );
     }
     return false;
@@ -204,14 +206,14 @@ export class LoftController implements iRoomController {
 
   @Trace()
   protected async onModuleInit(): Promise<void> {
-    PEAT(2).forEach((count) =>
+    Steps(2).forEach((scope, count) =>
       this.kunamiService.addCommand({
         activate: {
           ignoreRelease: true,
-          states: PEAT(count, ControllerStates.favorite),
+          states: PEAT(count + 1, ControllerStates.favorite),
         },
         callback: async () => {
-          await this.favorite({ count });
+          await this.favorite({ scope });
         },
         name: `Favorite (${count})`,
       }),

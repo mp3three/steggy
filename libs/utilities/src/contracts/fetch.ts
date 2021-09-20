@@ -126,6 +126,7 @@ export enum HTTP_METHODS {
   get = 'get',
   delete = 'delete',
   put = 'put',
+  head = 'head',
   options = 'options',
   patch = 'patch',
   index = 'index',

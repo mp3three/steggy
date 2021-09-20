@@ -10,6 +10,7 @@ export const DynamicRoomProviders = new Set<Provider>();
 export function RoomController(
   settings: RoomControllerSettingsDTO,
 ): ClassDecorator {
+  settings.flags ??= new Set();
   return function (target) {
     target[ROOM_CONTROLLER_SETTINGS] = settings;
     return Controller(`/room/${settings.name}`)(target);

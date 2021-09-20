@@ -1,14 +1,17 @@
 import {
+  COMMAND_SCOPE,
   ControllerStates,
+  InjectControllerSettings,
   iRoomController,
-  ROOM_COMMAND,
-  RoomControllerParametersDTO,
-} from '@automagical/controller-logic';
-import {
   KunamiCodeService,
   LightManagerService,
+  ROOM_COMMAND,
+  RoomCommandDTO,
+  RoomCommandScope,
   RoomController,
+  RoomControllerSettingsDTO,
   StateManagerService,
+  Steps,
 } from '@automagical/controller-logic';
 import {
   LightDomainService,
@@ -24,6 +27,7 @@ import {
 import { EventEmitter2 } from 'eventemitter2';
 
 import { GLOBAL_TRANSITION } from '../typings';
+import { DiningController } from '.';
 
 const TV = 'media_player.living_room';
 const switches = [
@@ -58,6 +62,7 @@ const AUTO_STATE = 'AUTO_STATE';
 const accessories = ['switch.bar_light', 'switch.entryway_light'];
 @RoomController({
   accessories,
+  fan: 'fan.living_room_ceiling_fan',
   friendlyName: 'Downstairs',
   lights,
   name: 'downstairs',
@@ -75,51 +80,53 @@ export class DownstairsController implements iRoomController {
     private readonly eventEmitter: EventEmitter2,
     private readonly logger: AutoLogService,
     private readonly switchService: SwitchDomainService,
+    @InjectControllerSettings(DiningController)
+    private readonly dining: RoomControllerSettingsDTO,
   ) {}
 
   @Trace()
-  private async eveningFavorite({
-    count,
-  }: RoomControllerParametersDTO): Promise<void> {
-    if (count === 1) {
+  private async eveningFavorite(command: RoomCommandDTO): Promise<void> {
+    const scope = COMMAND_SCOPE(command);
+    if (scope.has(RoomCommandScope.LOCAL)) {
       await this.switchService.turnOn(switches);
       await this.lightDomain.turnOn([...tower1, ...tower2]);
       await this.lightManager.turnOffEntities([...lights, ...accessories]);
       return;
     }
-    if (count === 2) {
+    if (scope.has(RoomCommandScope.ACCESSORIES)) {
       ['loft', 'games', 'master'].forEach((room) =>
-        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), count),
+        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), command),
       );
-      this.eventEmitter.emit(ROOM_COMMAND('dining', 'areaOff'), count);
+      this.eventEmitter.emit(ROOM_COMMAND('dining', 'areaOff'), command);
     }
   }
 
   @Trace()
-  public async areaOff({ count }: RoomControllerParametersDTO): Promise<void> {
+  public async areaOff(command: RoomCommandDTO): Promise<void> {
+    const scope = COMMAND_SCOPE(command);
     await this.stateManager.removeFlag(AUTO_STATE);
-    if (count === 1) {
+    if (scope.has(RoomCommandScope.LOCAL)) {
       await this.lightDomain.turnOff([...tower1, ...tower2]);
     }
-    if (count === 2) {
+    if (scope.has(RoomCommandScope.ACCESSORIES)) {
       this.logger.debug(`Turn off {${TV}}`);
       await this.remoteService.turnOff(TV);
     }
   }
 
   @Trace()
-  public async areaOn({ count }: RoomControllerParametersDTO): Promise<void> {
+  public async areaOn(command: RoomCommandDTO): Promise<void> {
+    const scope = COMMAND_SCOPE(command);
     await this.stateManager.removeFlag(AUTO_STATE);
-    if (count === 3) {
-      this.eventEmitter.emit(ROOM_COMMAND('dining', 'areaOn'), { count });
+    if (scope.has(RoomCommandScope.BROADCAST)) {
+      this.eventEmitter.emit(ROOM_COMMAND('dining', 'areaOn'), command);
     }
   }
 
   @Trace()
-  public async favorite(
-    parameters: RoomControllerParametersDTO,
-  ): Promise<void> {
-    if (parameters.count === 2) {
+  public async favorite(parameters: RoomCommandDTO): Promise<void> {
+    const scope = COMMAND_SCOPE(parameters);
+    if (scope.has(RoomCommandScope.ACCESSORIES)) {
       // Give a bit of a pause before emitting
       await this.remoteService.turnOn(TV);
       this.logger.debug(`Turn on {${TV}}`);
@@ -133,34 +140,33 @@ export class DownstairsController implements iRoomController {
 
   @Trace()
   protected onModuleInit(): void {
-    PEAT(2).forEach((count) =>
+    Steps(2).forEach((scope, count) =>
       this.kunamiService.addCommand({
         activate: {
           ignoreRelease: true,
-          states: PEAT(count, ControllerStates.favorite),
+          states: PEAT(count + 1, ControllerStates.favorite),
         },
         callback: async () => {
-          await this.favorite({ count });
+          await this.favorite({ scope });
         },
-        name: `Favorite (${count})`,
+        name: `Favorite (${count + 1})`,
       }),
     );
   }
 
   @Trace()
-  private async dayFavorite({
-    count,
-  }: RoomControllerParametersDTO): Promise<void> {
-    if (count === 1) {
+  private async dayFavorite(command: RoomCommandDTO): Promise<void> {
+    const scope = COMMAND_SCOPE(command);
+    if (scope.has(RoomCommandScope.LOCAL)) {
       await this.switchService.turnOn([...switches, ...accessories]);
       await this.lightManager.circadianLight(lights, 100);
       return;
     }
-    if (count === 2) {
+    if (scope.has(RoomCommandScope.ACCESSORIES)) {
       ['loft', 'games', 'master'].forEach((room) =>
-        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), count),
+        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), command),
       );
-      this.eventEmitter.emit(ROOM_COMMAND('dining', 'areaOn'), count);
+      this.eventEmitter.emit(ROOM_COMMAND(this.dining.name, 'areaOn'), command);
     }
   }
 }

@@ -1,8 +1,5 @@
 import { ControllerStates } from './constants';
-
-export class RoomControllerParametersDTO {
-  count?: number;
-}
+import { RoomCommandDTO } from './room-command.dto';
 
 export type RoomControllerMethodReturn =
   | Promise<void>
@@ -14,18 +11,18 @@ export interface iRoomControllerMethods extends iLightManager {
   /**
    * Provide some logic for the favorite button in the middle
    */
-  favorite(data: RoomControllerParametersDTO): RoomControllerMethodReturn;
+  favorite(data: RoomCommandDTO): RoomControllerMethodReturn;
 }
 
 export interface iLightManager {
-  areaOff(data: RoomControllerParametersDTO): RoomControllerMethodReturn;
-  areaOn(data: RoomControllerParametersDTO): RoomControllerMethodReturn;
+  areaOff(data: RoomCommandDTO): RoomControllerMethodReturn;
+  areaOn(data: RoomCommandDTO): RoomControllerMethodReturn;
   circadianLight(
     entity_id: string | string[],
     brightness?: number,
   ): Promise<void>;
-  dimDown(data: RoomControllerParametersDTO): RoomControllerMethodReturn;
-  dimUp(data: RoomControllerParametersDTO): RoomControllerMethodReturn;
+  dimDown(data: RoomCommandDTO): RoomControllerMethodReturn;
+  dimUp(data: RoomCommandDTO): RoomControllerMethodReturn;
 }
 
 export class KunamiCallbackParametersDTO {

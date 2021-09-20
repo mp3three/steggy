@@ -1,16 +1,14 @@
-import type {
-  iKunamiService,
-  iRoomController,
-} from '@automagical/controller-logic';
-import {
-  CONTROLLER_STATE_EVENT,
-  ControllerStates,
-  KunamiCommandDTO,
-} from '@automagical/controller-logic';
 import { AutoLogService, InjectLogger } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 
+import {
+  CONTROLLER_STATE_EVENT,
+  ControllerStates,
+  iKunamiService,
+  iRoomController,
+  KunamiCommandDTO,
+} from '../contracts';
 import { RoomSettings } from '../includes/room-settings';
 
 /**

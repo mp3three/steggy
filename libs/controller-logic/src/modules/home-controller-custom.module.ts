@@ -3,7 +3,7 @@ import { LibraryModule, RegisterCache } from '@automagical/utilities';
 import { DynamicModule } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { DynamicRoomProviders } from '../decorators';
+import { DynamicRoomProviders, InjectedSettings } from '../decorators';
 import {
   CircadianService,
   KunamiCodeService,
@@ -30,7 +30,10 @@ const providers = [
 })
 export class HomeControllerCustomModule {
   public static forRoot(): DynamicModule {
-    const decorated = [...DynamicRoomProviders.values()];
+    const decorated = [
+      ...DynamicRoomProviders.values(),
+      ...InjectedSettings.values(),
+    ];
     return {
       exports: [...providers, ...decorated],
       global: true,

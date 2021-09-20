@@ -57,7 +57,7 @@ function AnnotationLogger(
         AutoLogService.call(level, target.constructor[LOG_CONTEXT], before);
       }
       // Pass through function call w/ params
-      const result = original.apply(this, parameters);
+      const result = Reflect.apply(original, this, parameters);
       if (after) {
         if (typeof result?.then !== 'undefined') {
           process.nextTick(async () => {

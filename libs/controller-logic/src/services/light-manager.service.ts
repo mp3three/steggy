@@ -20,10 +20,13 @@ import {
   iLightManager,
   iRoomController,
   LightingCacheDTO,
-  RoomControllerParametersDTO,
   RoomControllerSettingsDTO,
 } from '../contracts';
-import { RoomSettings } from '../includes';
+import {
+  RoomCommandDTO,
+  RoomCommandScope,
+} from '../contracts/room-command.dto';
+import { COMMAND_SCOPE, RoomSettings } from '../includes';
 import { CircadianService } from './circadian.service';
 
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
@@ -54,37 +57,32 @@ export class LightManagerService implements iLightManager {
   }
 
   @Trace()
-  public async areaOff(
-    parameters: RoomControllerParametersDTO = {},
-  ): Promise<void> {
-    const { count } = parameters;
+  public async areaOff(parameters: RoomCommandDTO = {}): Promise<void> {
+    const scope = COMMAND_SCOPE(parameters);
     if (this.room.areaOff) {
       const result = await this.room.areaOff(parameters);
       if (result === false) {
         return;
       }
     }
-    await this.turnOffEntities(this.settings.lights ?? []);
-    await this.hassCoreService.turnOff(this.settings.switches ?? []);
-    if (count > 1) {
-      await this.hassCoreService.turnOff(this.settings.accessories ?? []);
+    if (!scope.has(RoomCommandScope.ABORT)) {
+      await this.turnOffEntities(this.settings.lights ?? []);
+      await this.hassCoreService.turnOff(this.settings.switches ?? []);
+      if (scope.has(RoomCommandScope.ACCESSORIES)) {
+        await this.hassCoreService.turnOff(this.settings.accessories ?? []);
+      }
     }
   }
 
   @Trace()
-  public async areaOn(
-    parameters: RoomControllerParametersDTO = {},
-  ): Promise<void> {
-    const { count } = parameters;
+  public async areaOn(parameters: RoomCommandDTO = {}): Promise<void> {
+    const scope = COMMAND_SCOPE(parameters);
     if (this.room.areaOn) {
-      const result = await this.room.areaOn(parameters);
-      if (result === false) {
-        return;
-      }
+      await this.room.areaOn(parameters);
     }
     await this.circadianLight(this.settings.lights ?? [], 100);
     await this.hassCoreService.turnOn(this.settings.switches ?? []);
-    if (count > 1) {
+    if (scope.has(RoomCommandScope.ACCESSORIES)) {
       await this.hassCoreService.turnOn(this.settings.accessories ?? []);
     }
   }
@@ -109,27 +107,27 @@ export class LightManagerService implements iLightManager {
   }
 
   @Trace()
-  public async dimDown(data: RoomControllerParametersDTO = {}): Promise<void> {
+  public async dimDown(data: RoomCommandDTO = {}): Promise<void> {
     if (this.room.dimDown && !(await this.room.dimDown(data))) {
       return;
     }
-    const { count } = data;
+    const { increment } = data;
     const lights = await this.findDimmableLights();
     await each(lights, async (entity_id: string, callback) => {
-      await this.lightDim(entity_id, this.dimPercent * count * -1);
+      await this.lightDim(entity_id, this.dimPercent * (increment ?? 1) * -1);
       callback();
     });
   }
 
   @Trace()
-  public async dimUp(data: RoomControllerParametersDTO = {}): Promise<void> {
-    if (this.room.dimUp && !(await this.room.dimUp(data))) {
+  public async dimUp(data: RoomCommandDTO = {}): Promise<void> {
+    if (this.room.dimDown && !(await this.room.dimUp(data))) {
       return;
     }
-    const { count } = data;
+    const { increment } = data;
     const lights = await this.findDimmableLights();
     await each(lights, async (entity_id: string, callback) => {
-      await this.lightDim(entity_id, this.dimPercent * count);
+      await this.lightDim(entity_id, this.dimPercent * (increment ?? 1));
       callback();
     });
   }

@@ -1,18 +1,18 @@
 import {
+  COMMAND_SCOPE,
   ControllerStates,
   iRoomController,
-  ROOM_COMMAND,
-  RoomControllerParametersDTO,
-} from '@automagical/controller-logic';
-import { CronExpression } from '@automagical/utilities';
-import {
   KunamiCodeService,
   LightManagerService,
+  ROOM_COMMAND,
+  RoomCommandDTO,
+  RoomCommandScope,
   RoomController,
   StateManagerService,
+  Steps,
 } from '@automagical/controller-logic';
 import { MediaPlayerDomainService } from '@automagical/home-assistant';
-import { Cron, PEAT, Trace } from '@automagical/utilities';
+import { Cron, CronExpression, PEAT, Trace } from '@automagical/utilities';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
 
@@ -52,27 +52,23 @@ export class GamesRoomController implements iRoomController {
   }
 
   @Trace()
-  public async favorite({
-    count,
-  }: RoomControllerParametersDTO): Promise<boolean> {
+  public async favorite(parameters?: RoomCommandDTO): Promise<void> {
+    const scope = COMMAND_SCOPE(parameters);
     await this.stateManager.addFlag(AUTO_STATE);
-    if (count === 1) {
+    if (scope.has(RoomCommandScope.LOCAL)) {
       await this.lightManager.circadianLight(
         ['light.games_1', 'light.games_2', 'light.games_3', 'light.games_lamp'],
         this.fanAutoBrightness(),
       );
-      return false;
     }
-    if (count === 2) {
+    if (scope.has(RoomCommandScope.ACCESSORIES)) {
+      await this.remoteService.turnOff(MONITOR);
+    }
+    if (scope.has(RoomCommandScope.BROADCAST)) {
       ['loft', 'downstairs', 'master'].forEach((room) => {
         this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'));
       });
-      return false;
     }
-    if (count === 3) {
-      await this.remoteService.turnOff(MONITOR);
-    }
-    return false;
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS)
@@ -97,16 +93,16 @@ export class GamesRoomController implements iRoomController {
   }
 
   protected async onApplicationBootstrap(): Promise<void> {
-    PEAT(3).forEach((index) => {
+    Steps().forEach((scope, index) => {
       this.kunamiService.addCommand({
         activate: {
           ignoreRelease: true,
-          states: PEAT(index, ControllerStates.favorite),
+          states: PEAT(index + 1, ControllerStates.favorite),
         },
         callback: () => {
-          this.favorite({ count: index });
+          this.favorite({ scope });
         },
-        name: `Favorite (${index})`,
+        name: `Favorite (${index + 1})`,
       });
     });
     this.kunamiService.addCommand({
@@ -117,8 +113,8 @@ export class GamesRoomController implements iRoomController {
       callback: () => {
         ['loft', 'downstairs', 'master'].forEach((room) =>
           this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), {
-            count: 2,
-          } as RoomControllerParametersDTO),
+            scope: [RoomCommandScope.BROADCAST],
+          } as RoomCommandDTO),
         );
       },
       name: `Relay off`,

@@ -1,3 +1,4 @@
+import { RouteInjector } from '@automagical/server';
 import {
   AutoLogService,
   InjectLogger,
@@ -7,20 +8,22 @@ import {
   SEND_ROOM_STATE,
   Trace,
 } from '@automagical/utilities';
-import { Injectable, RequestMethod } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 
 import {
   ControllerStates,
   iRoomController,
   iRoomControllerMethods,
-  ROOM_API_COMMAND,
   ROOM_COMMAND,
   ROOM_CONTROLLER_SETTINGS,
-  RoomControllerParametersDTO,
+  RoomControllerFlags,
   RoomControllerSettingsDTO,
 } from '../contracts';
-import { CommandOptions } from '../decorators';
+import {
+  RoomCommandDTO,
+  RoomCommandScope,
+} from '../contracts/room-command.dto';
 import { LightManagerService } from './light-manager.service';
 import { RemoteAdapterService } from './remote-adapter.service';
 
@@ -40,6 +43,7 @@ export class RoomExplorerService {
     private readonly eventEmitter: EventEmitter2,
     private readonly mqtt: MqttService,
     private readonly scanner: ModuleScannerService,
+    private readonly routeInjector: RouteInjector,
   ) {}
 
   @Trace()
@@ -75,20 +79,47 @@ export class RoomExplorerService {
   }
 
   private attachRoutes(instance: iRoomController): void {
-    const proto = instance.constructor.prototype;
-    proto.areaOn ??= () => {
-      instance.lightManager.areaOn({ count: 2 });
-    };
-    proto.areaOff ??= () => {
-      instance.lightManager.areaOff({ count: 2 });
-    };
-    const descriptors = Object.getOwnPropertyDescriptors(proto);
-    Reflect.defineMetadata('path', '/areaOn', descriptors.areaOn.value);
-    Reflect.defineMetadata(
-      'method',
-      RequestMethod.GET,
-      descriptors.areaOn.value,
-    );
+    this.routeInjector.inject<iRoomController>({
+      callback() {
+        instance.lightManager.areaOn({
+          scope: [RoomCommandScope.LOCAL, RoomCommandScope.ACCESSORIES],
+        });
+      },
+      instance,
+      method: 'put',
+      name: 'areaOn',
+    });
+    this.routeInjector.inject<iRoomController>({
+      callback() {
+        instance.lightManager.areaOff({
+          scope: [RoomCommandScope.LOCAL, RoomCommandScope.ACCESSORIES],
+        });
+      },
+      instance,
+      method: 'put',
+      name: 'areaOff',
+    });
+    this.routeInjector.inject<iRoomController>({
+      instance,
+      method: 'put',
+      name: 'favorite',
+    });
+    this.routeInjector.inject<iRoomController>({
+      callback() {
+        instance.lightManager.dimUp({});
+      },
+      instance,
+      method: 'put',
+      name: 'dimUp',
+    });
+    this.routeInjector.inject<iRoomController>({
+      callback() {
+        instance.lightManager.dimDown({});
+      },
+      instance,
+      method: 'put',
+      name: 'dimDown',
+    });
   }
 
   @Trace()
@@ -102,7 +133,7 @@ export class RoomExplorerService {
       instance.lightManager['room'] = instance;
       instance.kunamiService['room'] = instance;
       this.remoteAdapter.watch(settings.remote);
-      if (!settings.omitRoomEvents) {
+      if (!settings.flags.has(RoomControllerFlags.SECONDARY)) {
         this.controllerDefaults(instance);
         this.roomToRoomEvents(settings, instance);
       }
@@ -139,31 +170,30 @@ export class RoomExplorerService {
   ): void {
     const mappings = new Map<
       keyof iRoomControllerMethods,
-      (parameters: RoomControllerParametersDTO) => void
+      (parameters: RoomCommandDTO) => void
     >([
       [
         'areaOn',
-        (parameters: RoomControllerParametersDTO) =>
+        (parameters: RoomCommandDTO) =>
           instance.lightManager.areaOn(parameters),
       ],
       [
         'areaOff',
-        (parameters: RoomControllerParametersDTO) =>
+        (parameters: RoomCommandDTO) =>
           instance.lightManager.areaOff(parameters),
       ],
       [
         'dimUp',
-        (parameters: RoomControllerParametersDTO) =>
-          instance.lightManager.dimUp(parameters),
+        (parameters: RoomCommandDTO) => instance.lightManager.dimUp(parameters),
       ],
       [
         'dimDown',
-        (parameters: RoomControllerParametersDTO) =>
+        (parameters: RoomCommandDTO) =>
           instance.lightManager.dimDown(parameters),
       ],
       [
         'favorite',
-        (parameters: RoomControllerParametersDTO) =>
+        (parameters: RoomCommandDTO) =>
           instance.favorite ? instance.favorite(parameters) : undefined,
       ],
     ]);

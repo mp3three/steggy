@@ -25,7 +25,7 @@ import { ApplicationService, GarageService } from '../services';
   controllers: [ApplicationController],
   imports: [
     HomeAssistantModule,
-    HomeControllerCustomModule,
+    HomeControllerCustomModule.forRoot(),
     MQTTModule,
     ServerModule,
   ],
