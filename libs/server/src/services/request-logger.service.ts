@@ -1,5 +1,5 @@
 import { AutoLogService, storage, Store } from '@automagical/utilities';
-import { Injectable, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import express from 'express';
 import pino from 'pino';
 

@@ -23,6 +23,7 @@ const logger = pino({
     translateTime: 'SYS:ddd hh:MM:ss.l',
   },
 });
+AutoLogService.logger = logger;
 export type CONTEXT_COLORS =
   | 'bgBlue'
   | 'bgYellow'
@@ -206,8 +207,9 @@ export function UsePrettyLogger(): void {
       // early shortcut for an over used call
       return;
     }
+    const logger = AutoLogService.getLogger() as pino.Logger;
     if (typeof parameters[0] === 'object') {
-      AutoLogService.logger[method](
+      logger[method](
         parameters.shift() as Record<string, unknown>,
         `${highlightContext(
           context,

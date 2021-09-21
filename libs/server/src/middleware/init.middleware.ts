@@ -6,11 +6,11 @@ import {
   HTTP_METHODS,
   queryToControl,
   storage,
-  Store,
   Trace,
 } from '@automagical/utilities';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction } from 'express';
+import pino from 'pino';
 
 import {
   APIRequest,
@@ -27,12 +27,13 @@ import {
  */
 @Injectable()
 export class InitMiddleware implements NestMiddleware {
+  private nextReqId = 0;
   constructor(private readonly logger: AutoLogService) {}
 
   @Trace()
   public async use(
     request: APIRequest,
-    { locals, on }: APIResponse,
+    { locals }: APIResponse,
     next: NextFunction,
   ): Promise<void> {
     locals.headers ??= new Map(
@@ -41,7 +42,10 @@ export class InitMiddleware implements NestMiddleware {
     if (this.isHealthCheck(locals, request.res)) {
       return;
     }
-    storage.run(new Store(request.logger), () => next());
+    const id = this.generateId();
+    const logger = (AutoLogService.logger as pino.Logger).child({
+      id,
+    });
 
     locals.flags = new Set();
     locals.auth ??= {};
@@ -53,7 +57,9 @@ export class InitMiddleware implements NestMiddleware {
     locals.query = new Map(Object.entries(request.query));
 
     this.mergeQueryHeader(locals);
-    next();
+    storage.run(logger, () => {
+      next();
+    });
   }
 
   /**
@@ -74,6 +80,10 @@ export class InitMiddleware implements NestMiddleware {
       return true;
     }
     return false;
+  }
+
+  private generateId() {
+    return (this.nextReqId = (this.nextReqId + 1) & 2147483647);
   }
 
   @Trace()

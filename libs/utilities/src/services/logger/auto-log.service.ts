@@ -58,6 +58,11 @@ export class AutoLogService implements iLogger {
       AutoLogService.logger.warn({ context: `${NEST}:${context}` }, message),
   };
 
+  public static getLogger(): iLoggerCore {
+    const store = storage.getStore();
+    return store || AutoLogService.logger;
+  }
+
   /**
    * Decide which method of formatting log messages is correct
    *
@@ -73,7 +78,7 @@ export class AutoLogService implements iLogger {
       // early shortcut for an over used call
       return;
     }
-    const logger = storage.getStore()?.logger || AutoLogService.logger;
+    const logger = this.getLogger();
     const data =
       typeof parameters[0] === 'object'
         ? (parameters.shift() as Record<string, unknown>)

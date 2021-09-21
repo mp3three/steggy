@@ -1,8 +1,4 @@
-import { AutoLogService } from '@automagical/utilities';
 import { AsyncLocalStorage } from 'async_hooks';
+import pino from 'pino';
 
-export class Store {
-  constructor(public logger: AutoLogService) {}
-}
-
-export const storage = new AsyncLocalStorage<Store>();
+export const storage = new AsyncLocalStorage<pino.Logger>();
