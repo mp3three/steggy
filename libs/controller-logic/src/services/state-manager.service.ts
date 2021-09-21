@@ -1,9 +1,4 @@
 import {
-  iRoomController,
-  ROOM_CONTROLLER_SETTINGS,
-  RoomControllerSettingsDTO,
-} from '@automagical/controller-logic';
-import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
@@ -13,6 +8,12 @@ import {
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import { each } from 'async';
+
+import {
+  iRoomController,
+  ROOM_CONTROLLER_SETTINGS,
+  RoomControllerSettingsDTO,
+} from '../contracts';
 
 const CACHE_KEY = (room, flag) => `FLAGS:${room}/${flag}`;
 /**

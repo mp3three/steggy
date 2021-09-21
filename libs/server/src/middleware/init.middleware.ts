@@ -5,6 +5,8 @@ import {
   FilterValueType,
   HTTP_METHODS,
   queryToControl,
+  storage,
+  Store,
   Trace,
 } from '@automagical/utilities';
 import { Injectable, NestMiddleware } from '@nestjs/common';
@@ -30,7 +32,7 @@ export class InitMiddleware implements NestMiddleware {
   @Trace()
   public async use(
     request: APIRequest,
-    { locals }: APIResponse,
+    { locals, on }: APIResponse,
     next: NextFunction,
   ): Promise<void> {
     locals.headers ??= new Map(
@@ -39,6 +41,8 @@ export class InitMiddleware implements NestMiddleware {
     if (this.isHealthCheck(locals, request.res)) {
       return;
     }
+    storage.run(new Store(request.logger), () => next());
+
     locals.flags = new Set();
     locals.auth ??= {};
     locals.control = queryToControl(request.query as Record<string, string>);

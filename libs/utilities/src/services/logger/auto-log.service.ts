@@ -1,13 +1,14 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import pino from 'pino';
+import pinoHttp from 'pino-http';
 
 import { iLogger, iLoggerCore, LogLevels } from '../../contracts/interfaces';
 import { LOG_CONTEXT, MISSING_CONTEXT } from '../../contracts/logger/constants';
 import { mappedContexts } from '../../decorators/injectors';
+import { storage } from '../../includes';
 
 /* eslint-disable security/detect-non-literal-regexp */
-
 export type LoggerFunction =
   | ((message: string, ...arguments_: unknown[]) => void)
   | ((
@@ -29,12 +30,18 @@ export const NEST_NOOP_LOGGER = {
   },
 };
 
+const logger = pino() as iLogger;
+const http = pinoHttp({
+  autoLogging: true,
+  useLevel: 'info',
+});
+
 /**
  * Use `@InjectLogger()` if context is not automatically found
  */
 @Injectable({ scope: Scope.TRANSIENT })
 export class AutoLogService implements iLogger {
-  public static logger: iLoggerCore = pino() as iLogger;
+  public static logger: iLoggerCore = http.logger;
   public static nestLogger: Record<
     'log' | 'warn' | 'error' | 'debug' | 'verbose',
     (a: string, b: string) => void
@@ -66,13 +73,14 @@ export class AutoLogService implements iLogger {
       // early shortcut for an over used call
       return;
     }
+    const logger = storage.getStore()?.logger || AutoLogService.logger;
     const data =
       typeof parameters[0] === 'object'
         ? (parameters.shift() as Record<string, unknown>)
         : {};
     const message =
       typeof parameters[0] === 'string' ? (parameters.shift() as string) : ``;
-    AutoLogService.logger[method](
+    logger[method](
       {
         context,
         ...data,

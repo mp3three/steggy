@@ -8,8 +8,5 @@ export * from './services';
 import inquirer from 'inquirer';
 import datePrompt from 'inquirer-date-prompt';
 
-// This seems to be the correct way to load the plugin
-//
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// @ts-expect-error This seems to be the correct way to load the plugin
 inquirer.registerPrompt('date', datePrompt);

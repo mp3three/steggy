@@ -15,18 +15,8 @@ import { each } from 'async';
 import { EventEmitter2 } from 'eventemitter2';
 
 import { DIM_PERCENT } from '../config';
-import {
-  CIRCADIAN_UPDATE,
-  iLightManager,
-  iRoomController,
-  LightingCacheDTO,
-  RoomControllerSettingsDTO,
-} from '../contracts';
-import {
-  RoomCommandDTO,
-  RoomCommandScope,
-} from '../contracts/room-command.dto';
-import { COMMAND_SCOPE, RoomSettings } from '../includes';
+import { CIRCADIAN_UPDATE, LightingCacheDTO } from '../contracts';
+import { RoomCommandDTO } from '../contracts/room-command.dto';
 import { CircadianService } from './circadian.service';
 
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
@@ -38,9 +28,7 @@ const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
  * - Management of the light temperature for lights flagged as circadian mode
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class LightManagerService implements iLightManager {
-  private room: iRoomController;
-
+export class LightManagerService {
   constructor(
     @InjectCache() private readonly cache: CacheManagerService,
     private readonly hassCoreService: HomeAssistantCoreService,
@@ -51,41 +39,6 @@ export class LightManagerService implements iLightManager {
     private readonly eventEmitter: EventEmitter2,
     @InjectConfig(DIM_PERCENT) private readonly dimPercent: number,
   ) {}
-
-  private get settings(): RoomControllerSettingsDTO {
-    return RoomSettings(this.room);
-  }
-
-  @Trace()
-  public async areaOff(parameters: RoomCommandDTO = {}): Promise<void> {
-    const scope = COMMAND_SCOPE(parameters);
-    if (this.room.areaOff) {
-      const result = await this.room.areaOff(parameters);
-      if (result === false) {
-        return;
-      }
-    }
-    if (!scope.has(RoomCommandScope.ABORT)) {
-      await this.turnOffEntities(this.settings.lights ?? []);
-      await this.hassCoreService.turnOff(this.settings.switches ?? []);
-      if (scope.has(RoomCommandScope.ACCESSORIES)) {
-        await this.hassCoreService.turnOff(this.settings.accessories ?? []);
-      }
-    }
-  }
-
-  @Trace()
-  public async areaOn(parameters: RoomCommandDTO = {}): Promise<void> {
-    const scope = COMMAND_SCOPE(parameters);
-    if (this.room.areaOn) {
-      await this.room.areaOn(parameters);
-    }
-    await this.circadianLight(this.settings.lights ?? [], 100);
-    await this.hassCoreService.turnOn(this.settings.switches ?? []);
-    if (scope.has(RoomCommandScope.ACCESSORIES)) {
-      await this.hassCoreService.turnOn(this.settings.accessories ?? []);
-    }
-  }
 
   @Trace()
   public async circadianLight(
@@ -107,12 +60,12 @@ export class LightManagerService implements iLightManager {
   }
 
   @Trace()
-  public async dimDown(data: RoomCommandDTO = {}): Promise<void> {
-    if (this.room.dimDown && !(await this.room.dimDown(data))) {
-      return;
-    }
+  public async dimDown(
+    data: RoomCommandDTO = {},
+    change: string[],
+  ): Promise<void> {
     const { increment } = data;
-    const lights = await this.findDimmableLights();
+    const lights = await this.findDimmableLights(change);
     await each(lights, async (entity_id: string, callback) => {
       await this.lightDim(entity_id, this.dimPercent * (increment ?? 1) * -1);
       callback();
@@ -120,12 +73,12 @@ export class LightManagerService implements iLightManager {
   }
 
   @Trace()
-  public async dimUp(data: RoomCommandDTO = {}): Promise<void> {
-    if (this.room.dimDown && !(await this.room.dimUp(data))) {
-      return;
-    }
+  public async dimUp(
+    data: RoomCommandDTO = {},
+    change: string[],
+  ): Promise<void> {
     const { increment } = data;
-    const lights = await this.findDimmableLights();
+    const lights = await this.findDimmableLights(change);
     await each(lights, async (entity_id: string, callback) => {
       await this.lightDim(entity_id, this.dimPercent * (increment ?? 1));
       callback();
@@ -133,9 +86,9 @@ export class LightManagerService implements iLightManager {
   }
 
   @Trace()
-  public async findDimmableLights(): Promise<string[]> {
+  public async findDimmableLights(change: string[]): Promise<string[]> {
     const lights = await this.getActiveLights();
-    return this.settings.lights.filter((light) => lights.includes(light));
+    return change.filter((light) => lights.includes(light));
   }
 
   /**

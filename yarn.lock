@@ -14135,7 +14135,7 @@ pinkie@^2.0.0:
   resolved "https://registry.yarnpkg.com/pinkie/-/pinkie-2.0.4.tgz#72556b80cfa0d48a974e80e77248e80ed4f7f870"
   integrity sha1-clVrgM+g1IqXToDnckjoDtT3+HA=
 
-pino-http@^5.6.0:
+pino-http@^5.7.0:
   version "5.7.0"
   resolved "https://registry.yarnpkg.com/pino-http/-/pino-http-5.7.0.tgz#5d30e8e67c8bdf7105e896ee94201b804f8efcbd"
   integrity sha512-BMpj8CKP48XALGGcEzf+rvaz+gVhVRAkxk08gvGPfyoOB4zAix6WKO7k2BHiw7UAwma1eoG1z2NzkAU/+fkyhA==

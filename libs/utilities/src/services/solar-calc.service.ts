@@ -30,9 +30,7 @@ export class SolarCalcService {
       return this.CALCULATOR;
     }
     setTimeout(() => (this.CALCULATOR = undefined), 1000 * 30);
-    // typescript is wrong this time, it works as expected for me
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error Typescript is wrong this time, it works as expected for me
     return new SolarCalc(
       new Date(),
       // TODO: Populated via home assistant

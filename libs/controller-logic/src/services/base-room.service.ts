@@ -1,53 +1,154 @@
+import {
+  FanDomainService,
+  HomeAssistantCoreService,
+} from '@automagical/home-assistant';
 import { RouteInjector } from '@automagical/server';
-import { Body, INestApplication } from '@nestjs/common';
+import { AutoLogService, PEAT, Trace } from '@automagical/utilities';
+import { INestApplication, Injectable } from '@nestjs/common';
+import { eachSeries } from 'async';
 
 import {
-  ROOM_CONTROLLER_SETTINGS,
   RoomCommandDTO,
+  RoomCommandScope,
   RoomControllerSettingsDTO,
 } from '..';
+import { KunamiCodeService, LightManagerService, StateManagerService } from '.';
 
+const AUTO_STATE = 'AUTO_STATE';
+
+@Injectable()
 export class BaseRoomService {
-  protected settings: RoomControllerSettingsDTO;
+  constructor(
+    protected logger: AutoLogService,
+    protected lightManager: LightManagerService,
+    protected fanDomain: FanDomainService,
+    protected kunamiService: KunamiCodeService,
+    protected stateManager: StateManagerService,
+    protected hassCore: HomeAssistantCoreService,
+  ) {}
 
-  protected async onPreInit(app: INestApplication): Promise<void> {
-    this.settings = this.constructor[ROOM_CONTROLLER_SETTINGS];
-    const methods = [];
-    this.settings.accessories ??= [];
-    this.settings.lights ??= [];
-    if (this.settings.lights.length === 0) {
-      if (this.settings.switches.length > 0) {
-        methods.push('areaOn', 'areaOff');
+  @Trace()
+  public async areaOn(
+    settings: RoomControllerSettingsDTO,
+    command?: RoomCommandDTO,
+  ): Promise<void> {
+    await this.stateManager.removeFlag(AUTO_STATE);
+
+    const scope = this.commandScope(command);
+    if (scope.has(RoomCommandScope.ABORT)) {
+      return;
+    }
+    await this.lightManager.circadianLight(settings.lights ?? [], 100);
+    await this.hassCore.turnOn(settings.switches ?? []);
+    if (scope.has(RoomCommandScope.ACCESSORIES)) {
+      await this.hassCore.turnOn(settings.accessories ?? []);
+    }
+  }
+
+  @Trace()
+  public async areaOff(
+    settings: RoomControllerSettingsDTO,
+    command?: RoomCommandDTO,
+  ): Promise<void> {
+    await this.stateManager.removeFlag(AUTO_STATE);
+
+    const scope = this.commandScope(command);
+    if (scope.has(RoomCommandScope.ABORT)) {
+      return;
+    }
+
+    if (!scope.has(RoomCommandScope.ABORT)) {
+      await this.lightManager.turnOffEntities(settings.lights ?? []);
+      await this.hassCore.turnOff(settings.switches ?? []);
+      if (scope.has(RoomCommandScope.ACCESSORIES)) {
+        await this.hassCore.turnOff(settings.accessories ?? []);
       }
-    } else {
-      methods.push('areaOn', 'areaOff', 'favorite', 'dimUp', 'dimDown');
     }
-    if (this.settings.fan) {
-      methods.push('fanUp', 'fanDown');
-    }
-    this.injectHttp(app, methods);
   }
 
-  public async areaOn(@Body() command?: RoomCommandDTO): Promise<void> {
-    //
+  @Trace()
+  public async dimUp(
+    settings: RoomControllerSettingsDTO,
+    command?: RoomCommandDTO,
+  ): Promise<void> {
+    await this.stateManager.removeFlag(AUTO_STATE);
+
+    if (!settings.lights) {
+      this.logger.warn(
+        `No registered lights for room ${settings.friendlyName}`,
+      );
+      return;
+    }
+    this.lightManager.dimUp(command, settings.lights);
   }
-  public async areaOff(@Body() command?: RoomCommandDTO): Promise<void> {
-    //
+
+  @Trace()
+  public async dimDown(
+    settings: RoomControllerSettingsDTO,
+    command?: RoomCommandDTO,
+  ): Promise<void> {
+    await this.stateManager.removeFlag(AUTO_STATE);
+
+    if (!settings.lights) {
+      this.logger.warn(
+        `No registered lights for room ${settings.friendlyName}`,
+      );
+      return;
+    }
+    this.lightManager.dimDown(command, settings.lights);
   }
-  public async dimUp(@Body() command?: RoomCommandDTO): Promise<void> {
-    //
+
+  @Trace()
+  public async favorite(
+    settings: RoomControllerSettingsDTO,
+    command?: RoomCommandDTO,
+  ): Promise<void> {
+    const scope = this.commandScope(command);
+    if (scope.has(RoomCommandScope.ABORT)) {
+      return;
+    }
+    await this.stateManager.addFlag(AUTO_STATE);
   }
-  public async dimDown(@Body() command?: RoomCommandDTO): Promise<void> {
-    //
+
+  @Trace()
+  public async fanUp(
+    settings: RoomControllerSettingsDTO,
+    command?: RoomCommandDTO,
+  ): Promise<void> {
+    if (!settings.fan) {
+      this.logger.warn(`No registered fan for room ${settings.friendlyName}`);
+      return;
+    }
+    const increment = command.increment || 1;
+    await eachSeries(PEAT(increment), async (count, callback) => {
+      this.fanDomain.fanSpeedUp(settings.fan);
+      callback();
+    });
   }
-  public async favorite(@Body() command?: RoomCommandDTO): Promise<void> {
-    //
+
+  @Trace()
+  public async fanDown(
+    settings: RoomControllerSettingsDTO,
+    command?: RoomCommandDTO,
+  ): Promise<void> {
+    if (!settings.fan) {
+      this.logger.warn(`No registered fan for room ${settings.friendlyName}`);
+      return;
+    }
+    const increment = command.increment || 1;
+    await eachSeries(PEAT(increment), async (count, callback) => {
+      this.fanDomain.fanSpeedDown(settings.fan);
+      callback();
+    });
   }
-  public async fanUp(@Body() command?: RoomCommandDTO): Promise<void> {
-    //
-  }
-  public async fanDown(@Body() command?: RoomCommandDTO): Promise<void> {
-    //
+
+  protected commandScope(command?: RoomCommandDTO): Set<RoomCommandScope> {
+    command ??= {};
+    command.scope ??= [];
+    command.scope = Array.isArray(command.scope)
+      ? command.scope
+      : [command.scope];
+    return new Set(command.scope);
   }
 
   private injectHttp(app: INestApplication, methods: string[]): void {
@@ -56,7 +157,7 @@ export class BaseRoomService {
       routeInjector.inject({
         instance: this,
         method: 'put',
-        name: `${method}`,
+        name: method,
         path: `/${method}`,
       });
     });

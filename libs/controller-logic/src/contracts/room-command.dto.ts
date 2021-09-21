@@ -5,19 +5,19 @@ export enum RoomCommandScope {
   /**
    * Run against local devices
    */
-  LOCAL,
+  LOCAL = 'LOCAL',
   /**
    * Affect secondary devices
    */
-  ACCESSORIES,
+  ACCESSORIES = 'ACCESSORIES',
   /**
    * Attempt to broadcast to other rooms
    */
-  BROADCAST,
+  BROADCAST = 'BROADCAST',
   /**
    * An overridee method requested the standard call not process
    */
-  ABORT,
+  ABORT = 'ABORT',
 }
 
 /**

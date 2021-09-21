@@ -17,9 +17,7 @@ export function ApiCommand(options?: CommandOptions): MethodDecorator {
   ) {
     // Attach a route to method
     options.path ??= `/${key}`;
-    // Nest definitions are incorrect here
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error Nest definitions are incorrect here
     RequestMapping(options)(target, key, descriptor);
 
     // Register the options for scanning
