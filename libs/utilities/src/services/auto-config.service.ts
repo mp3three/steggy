@@ -50,9 +50,6 @@ export class AutoConfigService {
     }
     const [, library, property] = parts;
     const metadata = this.metadata.get(library);
-    // if (!metadata) {
-    //   console.log(path);
-    // }
     return metadata.configuration[property].default as T;
   }
 

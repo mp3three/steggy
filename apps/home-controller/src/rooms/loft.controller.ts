@@ -1,5 +1,4 @@
 import {
-  ApiCommand,
   BaseRoomService,
   ControllerStates,
   KunamiCodeService,
@@ -78,7 +77,6 @@ export class LoftController extends BaseRoomService {
     super();
   }
 
-  @ApiCommand()
   @Trace()
   public async areaOff(parameters: RoomCommandDTO): Promise<boolean> {
     const scope = this.commandScope(parameters);

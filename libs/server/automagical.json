@@ -5,7 +5,7 @@
     },
     "MAX_REQUEST_ID": {
       "type": "number",
-      "default": 2147483647
+      "default": 1000000000
     },
     "BODY_SIZE": {
       "type": "string",

@@ -6,7 +6,6 @@ import {
 import { DynamicModule } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { RoomAPIController } from '../controllers';
 import { DynamicRoomProviders, InjectedSettings } from '../decorators';
 import {
   CircadianService,
@@ -41,7 +40,6 @@ export class HomeControllerCustomModule {
       ...InjectedSettings.values(),
     ];
     return {
-      controllers: [RoomAPIController],
       exports: [...providers, ...decorated],
       global: true,
       imports: [RegisterCache(), DiscoveryModule],

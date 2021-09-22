@@ -12,7 +12,12 @@ import { BootstrapService, RouteInjector } from '../services';
 @LibraryModule({
   exports: [RouteInjector],
   library: LIB_SERVER,
-  providers: [BootstrapService, RouteInjector, LoggingInterceptor],
+  providers: [
+    BootstrapService,
+    RouteInjector,
+    LoggingInterceptor,
+    InitMiddleware,
+  ],
 })
 export class ServerModule {
   protected onPreInit(app: INestApplication): void {

@@ -1,4 +1,4 @@
-import { AutoLogService, storage } from '@automagical/utilities';
+import { AutoLogService } from '@automagical/utilities';
 import {
   CallHandler,
   ExecutionContext,
@@ -7,9 +7,10 @@ import {
 } from '@nestjs/common';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 
+import { APIRequest } from '..';
+
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
-  private nextReqId = 0;
   constructor(private readonly logger: AutoLogService) {}
 
   public intercept<T>(
@@ -17,16 +18,20 @@ export class LoggingInterceptor implements NestInterceptor {
     next: CallHandler<T>,
   ): Observable<unknown> {
     const start = Date.now();
+    const request = context.switchToHttp().getRequest<APIRequest>();
+    const extra = {
+      route: [request.method, request.path],
+    };
 
     return next.handle().pipe(
       tap((response) => {
         const responseTime = Date.now() - start;
-        this.logger.info({ responseTime }, 'Request completed');
+        this.logger.info({ responseTime, ...extra }, 'Request completed');
         return response;
       }),
       catchError((error) => {
         const responseTime = Date.now() - start;
-        this.logger.error({ error, responseTime }, 'Request errored');
+        this.logger.error({ error, responseTime, ...extra }, 'Request errored');
         return throwError(() => error);
       }),
     );

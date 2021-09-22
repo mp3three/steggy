@@ -1,15 +1,16 @@
 import { HomeControllerCustomModule } from '@automagical/controller-logic';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import { ServerModule } from '@automagical/server';
-import { APP_HOME_CONTROLLER } from '@automagical/utilities';
 import {
+  APP_HOME_CONTROLLER,
   ApplicationModule,
   MQTTModule,
   SolarCalcService,
 } from '@automagical/utilities';
 
-import { ApplicationController } from '../controllers';
+import { RoomAPIController } from '../controllers';
 import {
+  BedRemoteController,
   DiningController,
   DownstairsController,
   GamesRoomController,
@@ -17,20 +18,12 @@ import {
   LoftController,
   MasterBedroomController,
 } from '../rooms';
-import { BedRemoteController } from '../rooms/bed-remote.controller';
 import { ApplicationService, GarageService } from '../services';
 
 @ApplicationModule({
   application: APP_HOME_CONTROLLER,
-  controllers: [ApplicationController],
-  imports: [
-    HomeAssistantModule,
-    HomeControllerCustomModule.forRoot(),
-    MQTTModule,
-    ServerModule,
-  ],
-  providers: [ApplicationService, GarageService],
-  rooms: [
+  controllers: [
+    RoomAPIController,
     BedRemoteController,
     DiningController,
     DownstairsController,
@@ -39,6 +32,13 @@ import { ApplicationService, GarageService } from '../services';
     LoftController,
     MasterBedroomController,
   ],
+  imports: [
+    HomeAssistantModule,
+    HomeControllerCustomModule.forRoot(),
+    MQTTModule,
+    ServerModule,
+  ],
+  providers: [ApplicationService, GarageService],
   utils: [SolarCalcService],
 })
 export class HomeControllerModule {}

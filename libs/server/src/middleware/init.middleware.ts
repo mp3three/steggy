@@ -21,6 +21,7 @@ import {
   ResponseLocals,
   USERAGENT_HEADER,
 } from '../contracts';
+let currentRequestId = 0;
 
 /**
  * - Set up defaults on request locals
@@ -28,7 +29,6 @@ import {
  */
 @Injectable()
 export class InitMiddleware implements NestMiddleware {
-  private currentRequestId = 0;
   constructor(
     private readonly logger: AutoLogService,
     @InjectConfig(MAX_REQUEST_ID) private readonly maxId: number,
@@ -46,9 +46,9 @@ export class InitMiddleware implements NestMiddleware {
     if (this.isHealthCheck(locals, request.res)) {
       return;
     }
-    this.currentRequestId = (this.currentRequestId + 1) & this.maxId;
+    currentRequestId = (currentRequestId + 1) % this.maxId;
     const logger = (AutoLogService.logger as pino.Logger).child({
-      id: this.currentRequestId,
+      id: currentRequestId,
     });
 
     storage.run(logger, () => {

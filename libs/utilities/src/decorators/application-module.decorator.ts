@@ -1,5 +1,4 @@
-import { ModuleMetadata, Provider, Type } from '@nestjs/common';
-import { MetadataScanner } from '@nestjs/core';
+import { ModuleMetadata, Provider } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
@@ -15,7 +14,6 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
    */
   dashboards?: Provider[];
   globals?: Provider[];
-  rooms?: Type[];
   /**
    * Additional services from utils lib to load
    */
@@ -41,10 +39,8 @@ export function ApplicationModule(
   metadata.globals ??= [];
   metadata.utils ??= [];
   metadata.controllers ??= [];
-  metadata.rooms ??= [];
   metadata.dashboards ??= [];
   metadata.providers = [...metadata.providers, ...metadata.dashboards];
-  metadata.controllers = [...metadata.controllers, ...metadata.rooms];
   [...metadata.providers, ...metadata.controllers].forEach((provider) => {
     provider[LOGGER_LIBRARY] = metadata.application.description;
   });

@@ -1,10 +1,7 @@
-import {
-  CONSUMES_CONFIG,
-  LOGGER_LIBRARY,
-} from '@automagical/utilities';
 import { Inject, Provider } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 
+import { CONSUMES_CONFIG, LOGGER_LIBRARY } from '../../contracts';
 import { AutoConfigService } from '../../services';
 
 export const CONFIG_PROVIDERS = new Set<Provider>();

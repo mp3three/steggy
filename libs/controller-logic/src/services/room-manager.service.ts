@@ -1,8 +1,14 @@
 import { HomeAssistantCoreService } from '@automagical/home-assistant';
-import { AutoLogService, Trace } from '@automagical/utilities';
+import {
+  AutoLogService,
+  ModuleScannerService,
+  Trace,
+} from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import {
+  iRoomController,
+  ROOM_CONTROLLER_SETTINGS,
   RoomCommandDTO,
   RoomCommandScope,
   RoomControllerSettingsDTO,
@@ -13,10 +19,14 @@ import { StateManagerService } from './state-manager.service';
 const AUTO_STATE = 'AUTO_STATE';
 @Injectable()
 export class RoomManagerService {
+  public controllers = new Map<string, iRoomController>();
+  public settings = new Map<string, RoomControllerSettingsDTO>();
+
   constructor(
     private readonly logger: AutoLogService,
     private readonly lightManager: LightManagerService,
     private readonly stateManager: StateManagerService,
+    private readonly scanner: ModuleScannerService,
     private readonly hassCore: HomeAssistantCoreService,
   ) {}
 
@@ -59,6 +69,17 @@ export class RoomManagerService {
         await this.hassCore.turnOff(accessories ?? []);
       }
     }
+  }
+
+  protected onModuleInit(): void {
+    const settings = this.scanner.findWithSymbol<
+      RoomControllerSettingsDTO,
+      iRoomController
+    >(ROOM_CONTROLLER_SETTINGS);
+    settings.forEach((settings, instance) => {
+      this.controllers.set(settings.name, instance);
+      this.settings.set(settings.name, settings);
+    });
   }
 
   protected commandScope(command?: RoomCommandDTO): Set<RoomCommandScope> {
