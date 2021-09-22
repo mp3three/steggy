@@ -18,7 +18,7 @@
     "workspace.json": "*"
   },
   "affected": {
-    "defaultBase": "origin/develop"
+    "defaultBase": "origin/master"
   },
   "npmScope": "automagical",
   "tasksRunnerOptions": {
