@@ -192,7 +192,7 @@ export class HASocketAPIService {
         await this.sendMsg({
           type: HASSIO_WS_COMMAND.subscribe_events,
         });
-        this.logger.info('Socket ready');
+        this.logger.info('🏡 HA Socket ready 🏡');
         this.eventEmitter.emit(HA_SOCKET_READY);
         return;
 

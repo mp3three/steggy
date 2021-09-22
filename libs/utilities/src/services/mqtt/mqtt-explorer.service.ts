@@ -116,7 +116,7 @@ export class MQTTExplorerService {
     const client = this.client;
 
     client.on('connect', () => {
-      this.logger.info('MQTT connected');
+      this.logger.info('🔊 MQTT connected 🔊');
       this.eventEmitter.emit(MQTT_CONNECT);
     });
 

@@ -167,6 +167,10 @@ export const PrettyNestLogger: Record<
         [`[${parts[0]}]`, parts[1]].join(' ').slice(0, -1),
       );
     }
+    if (context === `${NEST}:NestApplication` && message.includes('started')) {
+      // Don't judge me for rewriting messages to add emoji
+      message = `🐣 ${message} 🐣`;
+    }
     if (context === `${NEST}:RouterExplorer`) {
       const [parts] = message.match(new RegExp('(\\{[^\\]]+\\})'));
       const [path, method] = parts.slice(1, -1).split(', ');

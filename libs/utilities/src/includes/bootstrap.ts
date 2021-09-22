@@ -70,5 +70,5 @@ export async function Bootstrap(
   postInit ??= [];
   await eachSeries(postInit, call);
   await lifecycle.postInit(app, server);
-  logger.info(`🎓 Bootstrap control released!`);
+  logger.info(`🎓 Bootstrap control released! 🎓`);
 }

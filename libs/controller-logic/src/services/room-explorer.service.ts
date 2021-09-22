@@ -1,5 +1,6 @@
 import {
   AutoLogService,
+  Info,
   InjectLogger,
   ModuleScannerService,
   MqttService,
@@ -20,7 +21,10 @@ import {
   RoomControllerFlags,
   RoomControllerSettingsDTO,
 } from '../contracts';
-import { RoomCommandDTO } from '../contracts/room-command.dto';
+import {
+  RoomCommandDTO,
+  RoomCommandScope,
+} from '../contracts/room-command.dto';
 import { KunamiCodeService } from './kunami-code.service';
 import { LightManagerService } from './light-manager.service';
 import { RemoteAdapterService } from './remote-adapter.service';
@@ -47,7 +51,7 @@ export class RoomExplorerService {
     private readonly roomManager: RoomManagerService,
   ) {}
 
-  @Trace()
+  @Info({ after: `[Controller Logic] initialized` })
   protected onModuleInit(): void {
     const settings = this.scanner.findWithSymbol<
       RoomControllerSettingsDTO,
@@ -55,33 +59,61 @@ export class RoomExplorerService {
     >(ROOM_CONTROLLER_SETTINGS);
     this.rooms = settings;
     settings.forEach((settings, instance) => {
-      this.logger.info(`[${settings.friendlyName}] initializing`);
-      this.remoteAdapter.watch(settings.remote);
-      if (!settings.flags.has(RoomControllerFlags.SECONDARY)) {
-        this.controllerDefaults(instance);
-        this.roomToRoomEvents(settings, instance);
-      }
+      this.initRoom(settings, instance);
     });
-    this.logger.info(`Done`);
+  }
+
+  private initRoom(settings: RoomControllerSettingsDTO, instance): void {
+    this.remoteAdapter.watch(settings.remote);
+    if (!settings.flags.has(RoomControllerFlags.SECONDARY)) {
+      this.controllerDefaults(instance);
+      this.roomToRoomEvents(settings, instance);
+    }
+    this.logger.info(`[${settings.friendlyName}] initialized`);
   }
 
   private controllerDefaults(instance: iRoomController): void {
+    const settings = RoomSettings(instance);
     const list = [
       [ControllerStates.off, 'areaOff'],
       [ControllerStates.on, 'areaOn'],
       [ControllerStates.down, 'dimDown'],
       [ControllerStates.up, 'dimUp'],
-    ] as [ControllerStates, keyof LightManagerService][];
-    Steps(2).forEach((step, count) => {
+    ];
+    Steps(2).forEach((scope, count) => {
       count++;
       list.forEach(([state, method]) => {
         this.kunamiService.addCommand(instance, {
           activate: {
             ignoreRelease: true,
-            states: PEAT(count).map(() => state),
+            states: PEAT(count).map(() => state as ControllerStates),
           },
-          callback: () => {
-            // this.lightManager.on
+          callback: async () => {
+            this.logger.info(`Activate ${method} (${count})`);
+            switch (method) {
+              case 'areaOn':
+                await this.roomManager.areaOn(settings, {
+                  scope,
+                });
+                break;
+              case 'areaOff':
+                await this.roomManager.areaOff(settings, {
+                  scope,
+                });
+                break;
+              case 'dimDown':
+                await this.lightManager.dimDown(
+                  { scope: RoomCommandScope.LOCAL },
+                  settings.lights,
+                );
+                break;
+              case 'dimUp':
+                await this.lightManager.dimUp(
+                  { scope: RoomCommandScope.LOCAL },
+                  settings.lights,
+                );
+                break;
+            }
           },
           name: `Quick ${method} (${count})`,
         });

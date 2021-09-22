@@ -28,27 +28,33 @@ export class KunamiCodeService {
 
   public addCommand(room: iRoomController, command: KunamiCommandDTO): void {
     const { name, friendlyName, remote } = RoomSettings(room);
-    this.logger.debug(`[${friendlyName}] Added command {${command.name}}`);
+    const activate: unknown[] = [command.activate.states];
+    if (command.activate.ignoreRelease) {
+      activate.push(`ignoreRelease`);
+    }
+    this.logger.debug(
+      { activate },
+      `[${friendlyName}] Added command {${command.name}}`,
+    );
     if (!this.callbacks.has(name)) {
       this.callbacks.set(name, new Set());
       this.codes.set(name, []);
+      this.eventEmitter.on(
+        CONTROLLER_STATE_EVENT(remote, '*'),
+        (state: ControllerStates) => {
+          if (this.timeout) {
+            clearTimeout(this.timeout);
+          }
+          this.codes.get(name).push(state);
+          this.timeout = setTimeout(() => {
+            this.timeout = undefined;
+            this.codes.set(name, []);
+          }, 1500);
+          this.findMatches(name);
+        },
+      );
     }
     this.callbacks.get(name).add(command);
-
-    this.eventEmitter.on(
-      CONTROLLER_STATE_EVENT(remote, '*'),
-      (state: ControllerStates) => {
-        if (this.timeout) {
-          clearTimeout(this.timeout);
-        }
-        this.codes.get(name).push(state);
-        this.timeout = setTimeout(() => {
-          this.timeout = undefined;
-          this.codes.set(name, []);
-        }, 1500);
-        this.findMatches(name);
-      },
-    );
   }
 
   private compare(a: ControllerStates[], b: ControllerStates[]): boolean {
@@ -59,27 +65,30 @@ export class KunamiCodeService {
   }
 
   private findMatches(name: string): void {
-    const fullCodes = this.codes.get(name);
-    const partialCodes = this.codes
+    const codeListFull = this.codes.get(name);
+    const codeListPartial = this.codes
       .get(name)
       .filter((code) => code !== ControllerStates.none);
-    this.callbacks.get(name).forEach((kunamiCode) => {
+    const callbacks = this.callbacks.get(name);
+    callbacks.forEach((kunamiCode) => {
       const { callback, activate } = kunamiCode;
-      if (activate.ignoreRelease) {
-        if (
-          this.codes[this.codes.get(name).length - 1] !== ControllerStates.none
-        ) {
+      activate.states ??= [];
+      const { states, ignoreRelease } = activate;
+      if (ignoreRelease) {
+        // Ignore event if the last event is a 'none'
+        // This would otherwise cause a duplicate fire of the callback
+        if (codeListFull[codeListFull.length - 1] === ControllerStates.none) {
           return;
         }
-        if (!this.compare(partialCodes, activate?.states || [])) {
+        if (!this.compare(codeListPartial, states)) {
           return;
         }
-        return callback({ events: partialCodes });
+        return callback({ events: codeListPartial });
       }
-      if (!this.compare(fullCodes, activate?.states || [])) {
+      if (!this.compare(codeListFull, states)) {
         return;
       }
-      callback({ events: fullCodes });
+      callback({ events: codeListFull });
     });
   }
 }
