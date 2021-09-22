@@ -1,4 +1,3 @@
-import type { MqttSubscribeOptions } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import {
   Client,
@@ -8,6 +7,7 @@ import {
   Packet,
 } from 'mqtt';
 
+import type { MqttSubscribeOptions } from '../../contracts';
 import { InjectMQTT } from '../../decorators/injectors/inject-mqtt.decorator';
 import { Trace } from '../../decorators/logger.decorator';
 import { AutoLogService } from '../logger';

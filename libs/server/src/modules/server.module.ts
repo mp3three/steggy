@@ -8,17 +8,11 @@ import {
 import { LoggingInterceptor } from '../interceptors';
 import { InitMiddleware } from '../middleware';
 import { BootstrapService, RouteInjector } from '../services';
-import { RequestLoggerService } from '../services/request-logger.service';
 
 @LibraryModule({
   exports: [RouteInjector],
   library: LIB_SERVER,
-  providers: [
-    BootstrapService,
-    RouteInjector,
-    RequestLoggerService,
-    LoggingInterceptor,
-  ],
+  providers: [BootstrapService, RouteInjector, LoggingInterceptor],
 })
 export class ServerModule {
   protected onPreInit(app: INestApplication): void {

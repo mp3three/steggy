@@ -5,7 +5,6 @@ import { EventEmitter2 } from 'eventemitter2';
 import {
   CONTROLLER_STATE_EVENT,
   ControllerStates,
-  iKunamiService,
   iRoomController,
   KunamiCommandDTO,
 } from '../contracts';
@@ -14,13 +13,12 @@ import { RoomSettings } from '../includes/room-settings';
 /**
  * For the tracking of multiple button press sequences on remotes
  */
-@Injectable({ scope: Scope.TRANSIENT })
-export class KunamiCodeService implements iKunamiService {
-  private readonly room: iRoomController;
-
-  private callbacks = new Set<KunamiCommandDTO>();
-  private codes: ControllerStates[];
+@Injectable()
+export class KunamiCodeService {
+  private callbacks = new Map<string, Set<KunamiCommandDTO>>();
+  private codes = new Map<string, ControllerStates[]>();
   private timeout: ReturnType<typeof setTimeout>;
+  private boundControllers = new Set<string>();
 
   constructor(
     private readonly eventEmitter: EventEmitter2,
@@ -28,29 +26,27 @@ export class KunamiCodeService implements iKunamiService {
     private readonly logger: AutoLogService,
   ) {}
 
-  public addCommand(command: KunamiCommandDTO): void {
-    this.logger.debug(
-      `[${RoomSettings(this.room).friendlyName}] Added command {${
-        command.name
-      }}`,
-    );
-    this.callbacks.add(command);
-  }
+  public addCommand(room: iRoomController, command: KunamiCommandDTO): void {
+    const { name, friendlyName, remote } = RoomSettings(room);
+    this.logger.debug(`[${friendlyName}] Added command {${command.name}}`);
+    if (!this.callbacks.has(name)) {
+      this.callbacks.set(name, new Set());
+      this.codes.set(name, []);
+    }
+    this.callbacks.get(name).add(command);
 
-  protected onApplicationBootstrap(): void {
-    this.codes = [];
     this.eventEmitter.on(
-      CONTROLLER_STATE_EVENT(RoomSettings(this.room).remote, '*'),
+      CONTROLLER_STATE_EVENT(remote, '*'),
       (state: ControllerStates) => {
         if (this.timeout) {
           clearTimeout(this.timeout);
         }
-        this.codes.push(state);
+        this.codes.get(name).push(state);
         this.timeout = setTimeout(() => {
           this.timeout = undefined;
-          this.codes = [];
+          this.codes.set(name, []);
         }, 1500);
-        this.findMatches();
+        this.findMatches(name);
       },
     );
   }
@@ -62,15 +58,17 @@ export class KunamiCodeService implements iKunamiService {
     return a.every((code, index) => b[index] === code);
   }
 
-  private findMatches(): void {
-    const fullCodes = this.codes;
-    const partialCodes = this.codes.filter(
-      (code) => code !== ControllerStates.none,
-    );
-    this.callbacks.forEach((kunamiCode) => {
+  private findMatches(name: string): void {
+    const fullCodes = this.codes.get(name);
+    const partialCodes = this.codes
+      .get(name)
+      .filter((code) => code !== ControllerStates.none);
+    this.callbacks.get(name).forEach((kunamiCode) => {
       const { callback, activate } = kunamiCode;
       if (activate.ignoreRelease) {
-        if (this.codes[this.codes.length - 1] !== ControllerStates.none) {
+        if (
+          this.codes[this.codes.get(name).length - 1] !== ControllerStates.none
+        ) {
           return;
         }
         if (!this.compare(partialCodes, activate?.states || [])) {

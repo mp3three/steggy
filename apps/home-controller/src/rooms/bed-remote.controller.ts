@@ -2,9 +2,6 @@ import {
   CONTROLLER_STATE_EVENT,
   ControllerStates,
   InjectControllerSettings,
-  iRoomController,
-  KunamiCodeService,
-  LightManagerService,
   ROOM_COMMAND,
   RoomController,
   RoomControllerFlags,
@@ -28,10 +25,8 @@ const remote = 'sensor.bed_pico';
   name: 'bed',
   remote,
 })
-export class BedRemoteController implements iRoomController {
+export class BedRemoteController {
   constructor(
-    public readonly lightManager: LightManagerService,
-    public readonly kunamiService: KunamiCodeService,
     private readonly switchService: SwitchDomainService,
     private readonly fanService: FanDomainService,
     private readonly eventEmitter: EventEmitter2,

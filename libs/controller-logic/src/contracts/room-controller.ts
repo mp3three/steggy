@@ -53,7 +53,4 @@ export interface iKunamiService {
   addCommand(command: KunamiCommandDTO): void;
 }
 
-export interface iRoomController extends Partial<iRoomControllerMethods> {
-  kunamiService: iKunamiService;
-  lightManager: iLightManager;
-}
+export type iRoomController = Partial<iRoomControllerMethods>;

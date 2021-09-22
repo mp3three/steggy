@@ -1,29 +1,26 @@
 import {
   ApiCommand,
-  COMMAND_SCOPE,
+  BaseRoomService,
   ControllerStates,
-  iRoomController,
+  KunamiCodeService,
+  LightManagerService,
   ROOM_COMMAND,
   RoomCommandDTO,
   RoomCommandScope,
+  RoomController,
+  StateManagerService,
   Steps,
 } from '@automagical/controller-logic';
 import {
-  KunamiCodeService,
-  LightManagerService,
-  RoomController,
-  StateManagerService,
-} from '@automagical/controller-logic';
-import { LightStateDTO } from '@automagical/home-assistant';
-import {
   EntityManagerService,
+  LightStateDTO,
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { CronExpression } from '@automagical/utilities';
 import {
   AutoLogService,
   Cron,
+  CronExpression,
   Debug,
   PEAT,
   Trace,
@@ -67,7 +64,7 @@ const remote = 'sensor.loft_pico';
   remote,
   switches: ['switch.desk_light', 'sensor.loft_pico'],
 })
-export class LoftController implements iRoomController {
+export class LoftController extends BaseRoomService {
   constructor(
     public readonly lightManager: LightManagerService,
     public readonly kunamiService: KunamiCodeService,
@@ -77,16 +74,18 @@ export class LoftController implements iRoomController {
     private readonly remoteService: MediaPlayerDomainService,
     private readonly eventEmitter: EventEmitter2,
     private readonly switchService: SwitchDomainService,
-  ) {}
+  ) {
+    super();
+  }
 
   @ApiCommand()
   @Trace()
   public async areaOff(parameters: RoomCommandDTO): Promise<boolean> {
-    const scope = COMMAND_SCOPE(parameters);
+    const scope = this.commandScope(parameters);
     if (!this.stateManager) {
       return;
     }
-    await this.stateManager.removeFlag(AUTO_STATE);
+    await this.stateManager.removeFlag(this.settings, AUTO_STATE);
     if (scope.has(RoomCommandScope.ACCESSORIES)) {
       await this.remoteService.turnOff(MONITOR);
       this.eventEmitter.emit(GLOBAL_TRANSITION);
@@ -96,13 +95,13 @@ export class LoftController implements iRoomController {
 
   @Trace()
   public async areaOn(): Promise<void> {
-    await this.stateManager.removeFlag(AUTO_STATE);
+    await this.stateManager.removeFlag(this.settings, AUTO_STATE);
   }
 
   @Trace()
   public async favorite(parameters: RoomCommandDTO): Promise<boolean> {
-    const scope = COMMAND_SCOPE(parameters);
-    await this.stateManager.addFlag(AUTO_STATE);
+    const scope = this.commandScope(parameters);
+    await this.stateManager.addFlag(this.settings, AUTO_STATE);
     const hour = dayjs().hour();
     if (scope.has(RoomCommandScope.LOCAL)) {
       // Set fan
@@ -138,7 +137,7 @@ export class LoftController implements iRoomController {
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   protected async fanLightSchedule(): Promise<void> {
-    const exists = await this.stateManager.hasFlag(AUTO_STATE);
+    const exists = await this.stateManager.hasFlag(this.settings, AUTO_STATE);
     if (!exists) {
       return;
     }
@@ -152,7 +151,7 @@ export class LoftController implements iRoomController {
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   protected async panelSchedule(): Promise<void> {
-    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
+    if (!(await this.stateManager.hasFlag(this.settings, AUTO_STATE))) {
       return;
     }
     const brightness = this.panelAutoBrightness();
@@ -177,7 +176,7 @@ export class LoftController implements iRoomController {
   @Cron('0 0 16 * * *')
   @Debug('Turn off hallway light')
   protected async hallwayOff(): Promise<void> {
-    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
+    if (!(await this.stateManager.hasFlag(this.settings, AUTO_STATE))) {
       return;
     }
     await this.switchService.turnOff('switch.loft_hallway_light');
@@ -198,7 +197,7 @@ export class LoftController implements iRoomController {
   @Cron('0 45 22 * * *')
   @Debug('Turn off desk light')
   protected async windDown(): Promise<void> {
-    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
+    if (!(await this.stateManager.hasFlag(this.settings, AUTO_STATE))) {
       return;
     }
     this.switchService.turnOff(['switch.desk_light']);
@@ -207,7 +206,7 @@ export class LoftController implements iRoomController {
   @Trace()
   protected async onModuleInit(): Promise<void> {
     Steps(2).forEach((scope, count) =>
-      this.kunamiService.addCommand({
+      this.kunamiService.addCommand(this, {
         activate: {
           ignoreRelease: true,
           states: PEAT(count + 1, ControllerStates.favorite),

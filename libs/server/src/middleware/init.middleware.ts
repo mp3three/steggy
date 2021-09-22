@@ -4,6 +4,7 @@ import {
   FilterDTO,
   FilterValueType,
   HTTP_METHODS,
+  InjectConfig,
   queryToControl,
   storage,
   Trace,
@@ -12,6 +13,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction } from 'express';
 import pino from 'pino';
 
+import { MAX_REQUEST_ID } from '../config';
 import {
   APIRequest,
   APIResponse,
@@ -21,14 +23,16 @@ import {
 } from '../contracts';
 
 /**
- * Retreive current user data through a provided JWT_TOKEN header
- *
- * Useful for situations where you need userdata, but cannot decrypt the JWT. Build at POC code, but may be useful later
+ * - Set up defaults on request locals
+ * - Generate request id
  */
 @Injectable()
 export class InitMiddleware implements NestMiddleware {
-  private nextReqId = 0;
-  constructor(private readonly logger: AutoLogService) {}
+  private currentRequestId = 0;
+  constructor(
+    private readonly logger: AutoLogService,
+    @InjectConfig(MAX_REQUEST_ID) private readonly maxId: number,
+  ) {}
 
   @Trace()
   public async use(
@@ -42,22 +46,21 @@ export class InitMiddleware implements NestMiddleware {
     if (this.isHealthCheck(locals, request.res)) {
       return;
     }
-    const id = this.generateId();
+    this.currentRequestId = (this.currentRequestId + 1) & this.maxId;
     const logger = (AutoLogService.logger as pino.Logger).child({
-      id,
+      id: this.currentRequestId,
     });
 
-    locals.flags = new Set();
-    locals.auth ??= {};
-    locals.control = queryToControl(request.query as Record<string, string>);
-    locals.method = request.method.toLowerCase() as HTTP_METHODS;
-    locals.parameters = new Map(Object.entries(request.params));
-    locals.roles = new Set();
-    locals.authenticated = false;
-    locals.query = new Map(Object.entries(request.query));
-
-    this.mergeQueryHeader(locals);
     storage.run(logger, () => {
+      locals.flags = new Set();
+      locals.auth ??= {};
+      locals.control = queryToControl(request.query as Record<string, string>);
+      locals.method = request.method.toLowerCase() as HTTP_METHODS;
+      locals.parameters = new Map(Object.entries(request.params));
+      locals.roles = new Set();
+      locals.authenticated = false;
+      locals.query = new Map(Object.entries(request.query));
+      this.mergeQueryHeader(locals);
       next();
     });
   }
@@ -69,10 +72,10 @@ export class InitMiddleware implements NestMiddleware {
    */
   @Trace()
   private isHealthCheck(
-    locals: ResponseLocals,
+    { headers }: ResponseLocals,
     response: APIResponse,
   ): boolean {
-    const header = locals.headers.get(USERAGENT_HEADER) ?? '';
+    const header = headers.get(USERAGENT_HEADER) ?? '';
     if (header.includes('ELB-HealthChecker')) {
       response.status(200).send({
         status: 'Ok',
@@ -82,22 +85,18 @@ export class InitMiddleware implements NestMiddleware {
     return false;
   }
 
-  private generateId() {
-    return (this.nextReqId = (this.nextReqId + 1) & 2147483647);
-  }
-
   @Trace()
-  private mergeQueryHeader(locals: ResponseLocals): void {
-    if (!locals.headers.has(QUERY_HEADER)) {
+  private mergeQueryHeader({ headers, control }: ResponseLocals): void {
+    if (!headers.has(QUERY_HEADER)) {
       return;
     }
-    const filters = locals.control.filters;
+    const filters = control.filters;
     if (filters.size > 0) {
       this.logger.debug(`Merging ${QUERY_HEADER} into query params`);
     }
     try {
       const query: Record<string, FilterValueType | FilterValueType[]> =
-        JSON.parse(locals.headers.get(QUERY_HEADER));
+        JSON.parse(headers.get(QUERY_HEADER));
       Object.entries(query).forEach(([key, value]) => {
         let found: FilterDTO;
         filters.forEach((filter) => {
@@ -121,7 +120,7 @@ export class InitMiddleware implements NestMiddleware {
       this.logger.error(
         {
           error,
-          value: locals.headers.get(QUERY_HEADER),
+          value: headers.get(QUERY_HEADER),
         },
         `Bad json passed to ${QUERY_HEADER}`,
       );

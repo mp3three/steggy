@@ -3,6 +3,10 @@
     "GLOBAL_PREFIX": {
       "type": "string"
     },
+    "MAX_REQUEST_ID": {
+      "type": "number",
+      "default": 2147483647
+    },
     "BODY_SIZE": {
       "type": "string",
       "default": "100kb"

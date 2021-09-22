@@ -1,4 +1,5 @@
 import {
+  BaseRoomService,
   COMMAND_SCOPE,
   ControllerStates,
   iRoomController,
@@ -32,29 +33,31 @@ const remote = 'sensor.games_pico';
   name: 'games',
   remote,
 })
-export class GamesRoomController implements iRoomController {
+export class GamesRoomController extends BaseRoomService {
   constructor(
-    public readonly lightManager: LightManagerService,
-    public readonly kunamiService: KunamiCodeService,
+    private readonly lightManager: LightManagerService,
+    private readonly kunamiService: KunamiCodeService,
     private readonly remoteService: MediaPlayerDomainService,
     private readonly stateManager: StateManagerService,
     private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) {
+    super();
+  }
 
   @Trace()
   public async areaOn(): Promise<void> {
-    await this.stateManager.removeFlag(AUTO_STATE);
+    await this.stateManager.removeFlag(this.settings, AUTO_STATE);
   }
 
   @Trace()
   public async areaOff(): Promise<void> {
-    await this.stateManager.removeFlag(AUTO_STATE);
+    await this.stateManager.removeFlag(this.settings, AUTO_STATE);
   }
 
   @Trace()
   public async favorite(parameters?: RoomCommandDTO): Promise<void> {
     const scope = COMMAND_SCOPE(parameters);
-    await this.stateManager.addFlag(AUTO_STATE);
+    await this.stateManager.addFlag(this.settings, AUTO_STATE);
     if (scope.has(RoomCommandScope.LOCAL)) {
       await this.lightManager.circadianLight(
         ['light.games_1', 'light.games_2', 'light.games_3', 'light.games_lamp'],
@@ -73,7 +76,7 @@ export class GamesRoomController implements iRoomController {
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   protected async fanLightSchedule(): Promise<void> {
-    if (!(await this.stateManager.hasFlag(AUTO_STATE))) {
+    if (!(await this.stateManager.hasFlag(this.settings, AUTO_STATE))) {
       return;
     }
     const target = this.fanAutoBrightness();
@@ -94,7 +97,7 @@ export class GamesRoomController implements iRoomController {
 
   protected async onApplicationBootstrap(): Promise<void> {
     Steps().forEach((scope, index) => {
-      this.kunamiService.addCommand({
+      this.kunamiService.addCommand(this, {
         activate: {
           ignoreRelease: true,
           states: PEAT(index + 1, ControllerStates.favorite),
@@ -105,7 +108,7 @@ export class GamesRoomController implements iRoomController {
         name: `Favorite (${index + 1})`,
       });
     });
-    this.kunamiService.addCommand({
+    this.kunamiService.addCommand(this, {
       activate: {
         ignoreRelease: true,
         states: PEAT(3, ControllerStates.off),

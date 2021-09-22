@@ -10,7 +10,7 @@ import {
   InjectLogger,
   Trace,
 } from '@automagical/utilities';
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 import { EventEmitter2 } from 'eventemitter2';
 
@@ -27,7 +27,7 @@ const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
  * - Forwards commands to light domain service
  * - Management of the light temperature for lights flagged as circadian mode
  */
-@Injectable({ scope: Scope.TRANSIENT })
+@Injectable()
 export class LightManagerService {
   constructor(
     @InjectCache() private readonly cache: CacheManagerService,

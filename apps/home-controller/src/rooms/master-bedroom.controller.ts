@@ -37,8 +37,8 @@ import { GLOBAL_TRANSITION } from '../typings';
 })
 export class MasterBedroomController implements iRoomController {
   constructor(
-    public readonly lightManager: LightManagerService,
-    public readonly kunamiService: KunamiCodeService,
+    private readonly lightManager: LightManagerService,
+    private readonly kunamiService: KunamiCodeService,
     private readonly switchService: SwitchDomainService,
     private readonly lightService: LightDomainService,
     private readonly eventEmitter: EventEmitter2,
@@ -101,7 +101,7 @@ export class MasterBedroomController implements iRoomController {
   @Trace()
   protected onModuleInit(): void {
     Steps(2).forEach((scope, count) => {
-      this.kunamiService.addCommand({
+      this.kunamiService.addCommand(this, {
         activate: {
           ignoreRelease: true,
           states: PEAT(count + 1, ControllerStates.favorite),
@@ -112,7 +112,7 @@ export class MasterBedroomController implements iRoomController {
         name: `Favorite (${count + 1})`,
       });
     });
-    this.kunamiService.addCommand({
+    this.kunamiService.addCommand(this, {
       activate: {
         ignoreRelease: true,
         states: PEAT(3, ControllerStates.off),
@@ -122,7 +122,7 @@ export class MasterBedroomController implements iRoomController {
       },
       name: `areaOff (3)`,
     });
-    this.kunamiService.addCommand({
+    this.kunamiService.addCommand(this, {
       activate: {
         ignoreRelease: true,
         states: PEAT(3, ControllerStates.on),

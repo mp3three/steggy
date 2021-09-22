@@ -1,5 +1,8 @@
-import { LIB_CONTROLLER_LOGIC } from '@automagical/utilities';
-import { LibraryModule, RegisterCache } from '@automagical/utilities';
+import {
+  LIB_CONTROLLER_LOGIC,
+  LibraryModule,
+  RegisterCache,
+} from '@automagical/utilities';
 import { DynamicModule } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
@@ -11,6 +14,7 @@ import {
   LightManagerService,
   RemoteAdapterService,
   RoomExplorerService,
+  RoomManagerService,
   StateManagerService,
 } from '../services';
 
@@ -21,6 +25,7 @@ const providers = [
   RoomExplorerService,
   StateManagerService,
   KunamiCodeService,
+  RoomManagerService,
 ];
 
 @LibraryModule({

@@ -1,4 +1,3 @@
-import { RouteInjector } from '@automagical/server';
 import {
   AutoLogService,
   InjectLogger,
@@ -11,6 +10,7 @@ import {
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 
+import { RoomSettings, Steps } from '..';
 import {
   ControllerStates,
   iRoomController,
@@ -20,12 +20,11 @@ import {
   RoomControllerFlags,
   RoomControllerSettingsDTO,
 } from '../contracts';
-import {
-  RoomCommandDTO,
-  RoomCommandScope,
-} from '../contracts/room-command.dto';
+import { RoomCommandDTO } from '../contracts/room-command.dto';
+import { KunamiCodeService } from './kunami-code.service';
 import { LightManagerService } from './light-manager.service';
 import { RemoteAdapterService } from './remote-adapter.service';
+import { RoomManagerService } from './room-manager.service';
 
 /**
  * This service searches through all the declared providers looking for rooms.
@@ -43,84 +42,10 @@ export class RoomExplorerService {
     private readonly eventEmitter: EventEmitter2,
     private readonly mqtt: MqttService,
     private readonly scanner: ModuleScannerService,
-    private readonly routeInjector: RouteInjector,
+    private readonly kunamiService: KunamiCodeService,
+    private readonly lightManager: LightManagerService,
+    private readonly roomManager: RoomManagerService,
   ) {}
-
-  @Trace()
-  protected onPreInit(): void {
-    // const map = this.scanner.findWithSymbol<CommandOptions, iRoomController>(
-    //   ROOM_API_COMMAND,
-    // );
-    // map.forEach((options, instance) => {
-    //   const proto = instance.constructor.prototype;
-    //   proto.areaOn ??= () => {
-    //     instance.lightManager.areaOn({ count: 2 });
-    //   };
-    //   proto.areaOff ??= () => {
-    //     instance.lightManager.areaOff({ count: 2 });
-    //   };
-    //   const descriptors = Object.getOwnPropertyDescriptors(proto);
-    //   Reflect.defineMetadata('path', '/areaOn', descriptors.areaOn.value);
-    //   Reflect.defineMetadata(
-    //     'method',
-    //     RequestMethod.GET,
-    //     descriptors.areaOn.value,
-    //   );
-    //   this.logger.info({ options });
-    // });
-
-    const settings = this.scanner.findWithSymbol<
-      RoomControllerSettingsDTO,
-      iRoomController
-    >(ROOM_CONTROLLER_SETTINGS);
-    settings.forEach((settings, instance) => {
-      this.attachRoutes(instance);
-    });
-  }
-
-  private attachRoutes(instance: iRoomController): void {
-    this.routeInjector.inject<iRoomController>({
-      callback() {
-        instance.lightManager.areaOn({
-          scope: [RoomCommandScope.LOCAL, RoomCommandScope.ACCESSORIES],
-        });
-      },
-      instance,
-      method: 'put',
-      name: 'areaOn',
-    });
-    this.routeInjector.inject<iRoomController>({
-      callback() {
-        instance.lightManager.areaOff({
-          scope: [RoomCommandScope.LOCAL, RoomCommandScope.ACCESSORIES],
-        });
-      },
-      instance,
-      method: 'put',
-      name: 'areaOff',
-    });
-    this.routeInjector.inject<iRoomController>({
-      instance,
-      method: 'put',
-      name: 'favorite',
-    });
-    this.routeInjector.inject<iRoomController>({
-      callback() {
-        instance.lightManager.dimUp({});
-      },
-      instance,
-      method: 'put',
-      name: 'dimUp',
-    });
-    this.routeInjector.inject<iRoomController>({
-      callback() {
-        instance.lightManager.dimDown({});
-      },
-      instance,
-      method: 'put',
-      name: 'dimDown',
-    });
-  }
 
   @Trace()
   protected onModuleInit(): void {
@@ -130,15 +55,14 @@ export class RoomExplorerService {
     >(ROOM_CONTROLLER_SETTINGS);
     this.rooms = settings;
     settings.forEach((settings, instance) => {
-      instance.lightManager['room'] = instance;
-      instance.kunamiService['room'] = instance;
+      this.logger.info(`[${settings.friendlyName}] initializing`);
       this.remoteAdapter.watch(settings.remote);
       if (!settings.flags.has(RoomControllerFlags.SECONDARY)) {
         this.controllerDefaults(instance);
         this.roomToRoomEvents(settings, instance);
       }
-      this.logger.info(`[${settings.friendlyName}] initialized`);
     });
+    this.logger.info(`Done`);
   }
 
   private controllerDefaults(instance: iRoomController): void {
@@ -148,15 +72,16 @@ export class RoomExplorerService {
       [ControllerStates.down, 'dimDown'],
       [ControllerStates.up, 'dimUp'],
     ] as [ControllerStates, keyof LightManagerService][];
-    PEAT(2).forEach((count) => {
+    Steps(2).forEach((step, count) => {
+      count++;
       list.forEach(([state, method]) => {
-        instance.kunamiService.addCommand({
+        this.kunamiService.addCommand(instance, {
           activate: {
             ignoreRelease: true,
             states: PEAT(count).map(() => state),
           },
           callback: () => {
-            instance.lightManager[method]({ count });
+            // this.lightManager.on
           },
           name: `Quick ${method} (${count})`,
         });
@@ -165,9 +90,10 @@ export class RoomExplorerService {
   }
 
   private roomToRoomEvents(
-    { name }: RoomControllerSettingsDTO,
+    settings: RoomControllerSettingsDTO,
     instance: iRoomController,
   ): void {
+    const { lights } = RoomSettings(instance);
     const mappings = new Map<
       keyof iRoomControllerMethods,
       (parameters: RoomCommandDTO) => void
@@ -175,21 +101,22 @@ export class RoomExplorerService {
       [
         'areaOn',
         (parameters: RoomCommandDTO) =>
-          instance.lightManager.areaOn(parameters),
+          this.roomManager.areaOn(settings, parameters),
       ],
       [
         'areaOff',
         (parameters: RoomCommandDTO) =>
-          instance.lightManager.areaOff(parameters),
+          this.roomManager.areaOff(settings, parameters),
       ],
       [
         'dimUp',
-        (parameters: RoomCommandDTO) => instance.lightManager.dimUp(parameters),
+        (parameters: RoomCommandDTO) =>
+          this.lightManager.dimUp(parameters, lights),
       ],
       [
         'dimDown',
         (parameters: RoomCommandDTO) =>
-          instance.lightManager.dimDown(parameters),
+          this.lightManager.dimDown(parameters, lights),
       ],
       [
         'favorite',
@@ -198,12 +125,8 @@ export class RoomExplorerService {
       ],
     ]);
     mappings.forEach((callback, event) => {
-      this.logger.debug({
-        event: ROOM_COMMAND(name, event),
-        mqtt: SEND_ROOM_STATE(name, event),
-      });
-      this.mqtt.subscribe(SEND_ROOM_STATE(name, event), callback);
-      this.eventEmitter.on(ROOM_COMMAND(name, event), callback);
+      this.mqtt.subscribe(SEND_ROOM_STATE(settings.name, event), callback);
+      this.eventEmitter.on(ROOM_COMMAND(settings.name, event), callback);
     });
   }
 }

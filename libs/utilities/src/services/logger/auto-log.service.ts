@@ -1,7 +1,6 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import pino from 'pino';
-import pinoHttp from 'pino-http';
 
 import { iLogger, iLoggerCore, LogLevels } from '../../contracts/interfaces';
 import { LOG_CONTEXT, MISSING_CONTEXT } from '../../contracts/logger/constants';
@@ -31,17 +30,13 @@ export const NEST_NOOP_LOGGER = {
 };
 
 const logger = pino() as iLogger;
-const http = pinoHttp({
-  autoLogging: true,
-  useLevel: 'info',
-});
 
 /**
  * Use `@InjectLogger()` if context is not automatically found
  */
 @Injectable({ scope: Scope.TRANSIENT })
 export class AutoLogService implements iLogger {
-  public static logger: iLoggerCore = http.logger;
+  public static logger: iLoggerCore = logger;
   public static nestLogger: Record<
     'log' | 'warn' | 'error' | 'debug' | 'verbose',
     (a: string, b: string) => void

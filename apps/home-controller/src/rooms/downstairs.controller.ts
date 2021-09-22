@@ -1,8 +1,8 @@
 import {
+  BaseRoomService,
   COMMAND_SCOPE,
   ControllerStates,
   InjectControllerSettings,
-  iRoomController,
   KunamiCodeService,
   LightManagerService,
   ROOM_COMMAND,
@@ -69,10 +69,10 @@ const accessories = ['switch.bar_light', 'switch.entryway_light'];
   remote: 'sensor.living_pico',
   switches,
 })
-export class DownstairsController implements iRoomController {
+export class DownstairsController extends BaseRoomService {
   constructor(
-    public readonly kunamiService: KunamiCodeService,
-    public readonly lightManager: LightManagerService,
+    private readonly kunamiService: KunamiCodeService,
+    private readonly lightManager: LightManagerService,
     private readonly stateManager: StateManagerService,
     private readonly lightDomain: LightDomainService,
     private readonly remoteService: MediaPlayerDomainService,
@@ -82,7 +82,9 @@ export class DownstairsController implements iRoomController {
     private readonly switchService: SwitchDomainService,
     @InjectControllerSettings(DiningController)
     private readonly dining: RoomControllerSettingsDTO,
-  ) {}
+  ) {
+    super();
+  }
 
   @Trace()
   private async eveningFavorite(command: RoomCommandDTO): Promise<void> {
@@ -104,7 +106,7 @@ export class DownstairsController implements iRoomController {
   @Trace()
   public async areaOff(command: RoomCommandDTO): Promise<void> {
     const scope = COMMAND_SCOPE(command);
-    await this.stateManager.removeFlag(AUTO_STATE);
+    await this.stateManager.removeFlag(this.settings, AUTO_STATE);
     if (scope.has(RoomCommandScope.LOCAL)) {
       await this.lightDomain.turnOff([...tower1, ...tower2]);
     }
@@ -117,7 +119,7 @@ export class DownstairsController implements iRoomController {
   @Trace()
   public async areaOn(command: RoomCommandDTO): Promise<void> {
     const scope = COMMAND_SCOPE(command);
-    await this.stateManager.removeFlag(AUTO_STATE);
+    await this.stateManager.removeFlag(this.settings, AUTO_STATE);
     if (scope.has(RoomCommandScope.BROADCAST)) {
       this.eventEmitter.emit(ROOM_COMMAND('dining', 'areaOn'), command);
     }
@@ -141,7 +143,7 @@ export class DownstairsController implements iRoomController {
   @Trace()
   protected onModuleInit(): void {
     Steps(2).forEach((scope, count) =>
-      this.kunamiService.addCommand({
+      this.kunamiService.addCommand(this, {
         activate: {
           ignoreRelease: true,
           states: PEAT(count + 1, ControllerStates.favorite),

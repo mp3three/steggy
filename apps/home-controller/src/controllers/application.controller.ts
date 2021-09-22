@@ -5,14 +5,7 @@ import {
   RoomExplorerService,
 } from '@automagical/controller-logic';
 import { AutoLogService, OnceIsEnough } from '@automagical/utilities';
-import {
-  Body,
-  Controller,
-  Get,
-  InternalServerErrorException,
-  Param,
-  Put,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Put } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 
 @Controller()

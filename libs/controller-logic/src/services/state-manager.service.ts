@@ -5,85 +5,63 @@ import {
   InjectLogger,
   Trace,
 } from '@automagical/utilities';
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import { INQUIRER } from '@nestjs/core';
-import { each } from 'async';
+import { Injectable } from '@nestjs/common';
 
-import {
-  iRoomController,
-  ROOM_CONTROLLER_SETTINGS,
-  RoomControllerSettingsDTO,
-} from '../contracts';
+import { RoomControllerSettingsDTO } from '../contracts';
 
 const CACHE_KEY = (room, flag) => `FLAGS:${room}/${flag}`;
 /**
  * This service exists to manage room flags.
  * Future expansion as specific room functionality demands it's own state management
  */
-@Injectable({ scope: Scope.TRANSIENT })
+@Injectable()
 export class StateManagerService {
   constructor(
-    @Inject(INQUIRER)
-    private readonly controller: Partial<iRoomController>,
     @InjectCache() private readonly cacheService: CacheManagerService,
     @InjectLogger() private readonly logger: AutoLogService,
   ) {}
 
-  private get settings(): RoomControllerSettingsDTO {
-    return this.controller.constructor[ROOM_CONTROLLER_SETTINGS];
-  }
-
   @Trace()
-  public async addFlag(flagName: string): Promise<void> {
-    if (await this.hasFlag(flagName)) {
+  public async addFlag(
+    {
+      friendlyName,
+      name,
+    }: Pick<RoomControllerSettingsDTO, 'name' | 'friendlyName'>,
+    flagName: string,
+  ): Promise<void> {
+    if (await this.hasFlag({ name }, flagName)) {
       return;
     }
-    this.logger.debug(`[${this.settings.friendlyName}] Add flag {${flagName}}`);
-    const name = CACHE_KEY(this.settings.name, flagName);
-    await this.cacheService.set(name, true, {
+    this.logger.debug(`[${friendlyName}] Add flag {${flagName}}`);
+    const key = CACHE_KEY(name, flagName);
+    await this.cacheService.set(key, true, {
       ttl: 24 * 60 * 60,
     });
   }
 
   @Trace()
-  public async hasFlag(flagName: string): Promise<boolean> {
+  public async hasFlag(
+    { name }: Pick<RoomControllerSettingsDTO, 'name'>,
+    flagName: string,
+  ): Promise<boolean> {
     return await this.cacheService.wrap<boolean>(
-      CACHE_KEY(this.settings.name, flagName),
+      CACHE_KEY(name, flagName),
       () => false,
     );
   }
 
   @Trace()
-  public async removeFlag(flagName: string): Promise<void> {
-    if (!(await this.hasFlag(flagName))) {
+  public async removeFlag(
+    {
+      friendlyName,
+      name,
+    }: Pick<RoomControllerSettingsDTO, 'name' | 'friendlyName'>,
+    flagName: string,
+  ): Promise<void> {
+    if (!(await this.hasFlag({ name }, flagName))) {
       return;
     }
-    this.logger.debug(
-      `[${this.settings.friendlyName}] Remove flag {${flagName}}`,
-    );
-    this.cacheService.del(CACHE_KEY(this.settings.name, flagName));
-  }
-
-  /**
-   * For confirmation / debugging sake only
-   *
-   * Each request should always hit cache
-   */
-  @Trace()
-  protected async onModuleInit(): Promise<void> {
-    const list: string[] = await this.cacheService.store.keys();
-    const prefix = CACHE_KEY(this.settings.name, '');
-    const loadedCache = {};
-    await each(list, async (key, callback) => {
-      if (key.slice(0, prefix.length) !== prefix) {
-        return callback();
-      }
-      loadedCache[key.slice(prefix.length)] = await this.cacheService.get(key);
-      callback();
-    });
-    this.logger.debug(
-      loadedCache,
-      `[${this.settings.friendlyName}] loaded state`,
-    );
+    this.logger.debug(`[${friendlyName}] Remove flag {${flagName}}`);
+    this.cacheService.del(CACHE_KEY(name, flagName));
   }
 }
