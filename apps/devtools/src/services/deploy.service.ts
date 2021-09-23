@@ -3,7 +3,7 @@ import { AutoLogService } from '@automagical/utilities';
 import { DiscoveryService } from '@nestjs/core';
 
 @Repl({
-  name: 'Deployments',
+  name: '💻 Deployments',
 })
 export class DeployService implements iRepl {
   constructor(

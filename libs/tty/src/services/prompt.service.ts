@@ -1,6 +1,7 @@
 import { AutoLogService, InjectConfig } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import inquirer from 'inquirer';
+import Separator from 'inquirer/lib/objects/separator';
 
 import { PAGE_SIZE } from '../config';
 
@@ -71,7 +72,7 @@ export class PromptService {
 
   public async pickMany<T extends unknown = string>(
     message: string,
-    options: (string | { name: string; value: T })[],
+    options: (string | { name: string; value: T } | Separator)[],
     {
       min,
       max,

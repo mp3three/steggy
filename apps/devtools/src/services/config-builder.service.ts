@@ -37,7 +37,7 @@ import rc from 'rc';
     `  - Print to screen`,
     `  - Save to file`,
   ],
-  name: 'Config Builder',
+  name: '🔧 Config Builder',
 })
 export class ConfigBuilderService implements iRepl {
   constructor(

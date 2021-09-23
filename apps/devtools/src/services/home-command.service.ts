@@ -1,8 +1,10 @@
 import {
   RoomCommandDTO,
   RoomCommandScope,
+  RoomControllerFlags,
   RoomControllerSettingsDTO,
 } from '@automagical/controller-logic';
+import { FanSpeeds } from '@automagical/home-assistant';
 import { iRepl, PromptService, Repl } from '@automagical/tty';
 import {
   AutoLogService,
@@ -15,9 +17,10 @@ import { each } from 'async';
 import inquirer from 'inquirer';
 
 import { CONTROLLER_API } from '../config';
+type extra = { scope: RoomCommandScope[]; path?: string };
 
 @Repl({
-  name: 'Home Command',
+  name: '🏡 Home Command',
 })
 export class HomeCommandService implements iRepl {
   constructor(
@@ -38,26 +41,57 @@ export class HomeCommandService implements iRepl {
       await sleep(5000);
       return;
     }
-    // this.logger.info({ rooms });
+    const actions = [
+      { name: 'Area On', value: 'areaOn' },
+      { name: 'Area Off', value: 'areaOff' },
+      { name: 'Auto', value: 'favorite' },
+    ];
+    if (this.fanAvailable(rooms)) {
+      actions.push({ name: 'Set Fan', value: 'fan' });
+    }
 
-    const action = await this.promptService.pickOne('Action', [
-      'favorite',
-      'areaOff',
-      'areaOn',
-    ]);
+    const action = await this.promptService.pickOne('Action', actions);
+    const { scope, path } = await this.getExtra(action);
 
     this.logger.debug({ action, rooms: rooms.map((i) => i.name) });
     await each(rooms, async (item, callback) => {
+      let url = `/room/${item.name}/${action}${path ?? ''}`;
+      if (Date.now() < 0) {
+        url = `${url}/asdf`;
+      }
       const response = await this.fetchService.fetch({
         body: JSON.stringify({
-          scope: [RoomCommandScope.LOCAL, RoomCommandScope.ACCESSORIES],
+          scope,
         } as RoomCommandDTO),
         method: 'put',
-        url: `/room/${item.name}/${action}`,
+        url,
       });
       this.logger.debug({ response });
       callback();
     });
+  }
+
+  private async getExtra(action: string): Promise<extra> {
+    const out: extra = {
+      scope: [RoomCommandScope.LOCAL, RoomCommandScope.ACCESSORIES],
+    };
+    if (action === 'fan') {
+      const speed = await this.promptService.pickOne(
+        'Fan speed',
+        Object.keys(FanSpeeds).map((key) => {
+          return {
+            name: key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' '),
+            value: key,
+          };
+        }),
+      );
+      out.path = `/${speed}`;
+    }
+    return out;
+  }
+
+  private fanAvailable(rooms: RoomControllerSettingsDTO[]): boolean {
+    return rooms.some((i) => typeof i.fan !== 'undefined');
   }
 
   private async pickRoom(): Promise<RoomControllerSettingsDTO[]> {
@@ -67,17 +101,41 @@ export class HomeCommandService implements iRepl {
     if (rooms.length === 0) {
       return undefined;
     }
+    const primary: Record<'name' | 'value', string>[] = [];
+    const secondary: Record<'name' | 'value', string>[] = [];
+    rooms.forEach((room) => {
+      const entry = {
+        name: room.friendlyName,
+        value: room.name,
+      };
+      if (room.flags.includes(RoomControllerFlags.SECONDARY)) {
+        secondary.push(entry);
+        return;
+      }
+      primary.push(entry);
+    });
+
     const selection = await this.promptService.pickMany(
-      'Which rooms?',
-      rooms.map((room) => {
-        return {
-          name: room.friendlyName,
-          value: room.name,
-        };
-      }),
+      'Which room(s)?',
+      [
+        ...this.sort(primary),
+        new inquirer.Separator(),
+        ...this.sort(secondary),
+      ],
       { min: 1 },
     );
 
     return rooms.filter((i) => selection.includes(i.name));
+  }
+
+  private sort(
+    items: Record<'name' | 'value', string>[],
+  ): Record<'name' | 'value', string>[] {
+    return items.sort((a, b) => {
+      if (a.name > b.name) {
+        return 1;
+      }
+      return -1;
+    });
   }
 }

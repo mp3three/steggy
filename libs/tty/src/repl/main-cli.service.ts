@@ -9,6 +9,9 @@ import { iRepl } from '../contracts/i-repl.interface';
 import { Repl } from '../decorators';
 import { ReplExplorerService } from '../services';
 
+// Filter out non-sortable characters (like emoji)
+const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
+
 @Repl({
   name: 'Main',
 })
@@ -32,6 +35,8 @@ export class MainCLIService implements iRepl {
             .filter((item) => item.name !== 'Main')
             .map((item) => item.name)
             .sort((a, b) => {
+              a = a.replace(unsortable, '');
+              b = b.replace(unsortable, '');
               if (a > b) {
                 return 1;
               }

@@ -27,7 +27,7 @@ import { inc } from 'semver';
     `- Project level change description`,
     `- Version bumping`,
   ],
-  name: 'Changelog',
+  name: '📑 Changelog',
 })
 export class ChangelogService implements iRepl {
   constructor(
