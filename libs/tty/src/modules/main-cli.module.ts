@@ -4,6 +4,7 @@ import { DiscoveryModule } from '@nestjs/core';
 
 import { MainCLIService } from '../repl';
 import {
+  PromptService,
   ReplExplorerService,
   SystemService,
   TypePromptService,
@@ -12,12 +13,19 @@ import {
 import { GitService } from '../services/git.service';
 
 @LibraryModule({
-  exports: [SystemService, TypePromptService, WorkspaceService, GitService],
+  exports: [
+    SystemService,
+    TypePromptService,
+    PromptService,
+    WorkspaceService,
+    GitService,
+  ],
   imports: [DiscoveryModule],
   library: LIB_TTY,
   providers: [
     SystemService,
     TypePromptService,
+    PromptService,
     GitService,
     ReplExplorerService,
     MainCLIService,

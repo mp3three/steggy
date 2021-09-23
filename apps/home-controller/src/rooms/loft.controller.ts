@@ -65,8 +65,8 @@ const remote = 'sensor.loft_pico';
 })
 export class LoftController extends BaseRoomService {
   constructor(
-    public readonly lightManager: LightManagerService,
-    public readonly kunamiService: KunamiCodeService,
+    private readonly lightManager: LightManagerService,
+    private readonly kunamiService: KunamiCodeService,
     private readonly logger: AutoLogService,
     private readonly entityManager: EntityManagerService,
     private readonly stateManager: StateManagerService,

@@ -33,6 +33,7 @@ export class RoomAPIController {
   ): Promise<typeof GENERIC_RESPONSE> {
     const settings = this.getRoom(name);
     await this.roomManager.areaOn(settings, body);
+    this.logger.info({ body, name }, 'areaOn');
     return GENERIC_RESPONSE;
   }
 
@@ -43,6 +44,7 @@ export class RoomAPIController {
   ): Promise<typeof GENERIC_RESPONSE> {
     const settings = this.getRoom(name);
     await this.roomManager.areaOff(settings, body);
+    this.logger.info({ body, name }, 'areaOff');
     return GENERIC_RESPONSE;
   }
 
@@ -56,6 +58,7 @@ export class RoomAPIController {
       throw new BadRequestException(`Room does not support command`);
     }
     await instance.favorite(body);
+    this.logger.info({ body, name }, 'favorite');
     return GENERIC_RESPONSE;
   }
 

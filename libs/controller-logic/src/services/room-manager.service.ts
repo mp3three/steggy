@@ -35,7 +35,7 @@ export class RoomManagerService {
     settings: RoomControllerSettingsDTO,
     command?: RoomCommandDTO,
   ): Promise<void> {
-    const { lights, switches, accessories } = settings;
+    const { lights, switches, accessories, name } = settings;
     await this.stateManager.removeFlag(settings, AUTO_STATE);
 
     const scope = this.commandScope(command);
@@ -44,6 +44,10 @@ export class RoomManagerService {
     if (scope.has(RoomCommandScope.ACCESSORIES)) {
       await this.hassCore.turnOn(accessories ?? []);
     }
+    const instance = this.controllers.get(name);
+    if (instance?.areaOn) {
+      await instance.areaOn(command);
+    }
   }
 
   @Trace()
@@ -51,7 +55,7 @@ export class RoomManagerService {
     settings: RoomControllerSettingsDTO,
     command?: RoomCommandDTO,
   ): Promise<void> {
-    const { lights, switches, accessories } = settings;
+    const { lights, switches, accessories, name } = settings;
     await this.stateManager.removeFlag(settings, AUTO_STATE);
 
     const scope = this.commandScope(command);
@@ -59,6 +63,10 @@ export class RoomManagerService {
     await this.hassCore.turnOff(switches ?? []);
     if (scope.has(RoomCommandScope.ACCESSORIES)) {
       await this.hassCore.turnOff(accessories ?? []);
+    }
+    const instance = this.controllers.get(name);
+    if (instance?.areaOff) {
+      await instance.areaOff(command);
     }
   }
 

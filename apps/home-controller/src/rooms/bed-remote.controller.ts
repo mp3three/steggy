@@ -43,25 +43,26 @@ export class BedRemoteController {
   }
 
   private async process(state: ControllerStates): Promise<void> {
+    const { name, fan } = this.settings;
     switch (state) {
       case ControllerStates.favorite:
         await this.switchService.toggle('switch.womp');
         return;
       case ControllerStates.on:
-        this.eventEmitter.emit(ROOM_COMMAND(this.settings.name, 'areaOn'), {
+        this.eventEmitter.emit(ROOM_COMMAND(name, 'areaOn'), {
           scope: [RoomCommandScope.ACCESSORIES, RoomCommandScope.LOCAL],
         } as RoomCommandDTO);
         return;
       case ControllerStates.off:
-        this.eventEmitter.emit(ROOM_COMMAND(this.settings.name, 'areaOff'), {
+        this.eventEmitter.emit(ROOM_COMMAND(name, 'areaOff'), {
           scope: [RoomCommandScope.ACCESSORIES, RoomCommandScope.LOCAL],
         } as RoomCommandDTO);
         return;
       case ControllerStates.up:
-        await this.fanService.fanSpeedUp(this.settings.fan);
+        await this.fanService.fanSpeedUp(fan);
         return;
       case ControllerStates.down:
-        await this.fanService.fanSpeedDown(this.settings.fan);
+        await this.fanService.fanSpeedDown(fan);
         return;
     }
   }

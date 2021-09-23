@@ -3,7 +3,7 @@ import {
   RoomCommandScope,
   RoomControllerSettingsDTO,
 } from '@automagical/controller-logic';
-import { iRepl, Repl } from '@automagical/tty';
+import { iRepl, PromptService, Repl } from '@automagical/tty';
 import {
   AutoLogService,
   FetchService,
@@ -23,6 +23,7 @@ export class HomeCommandService implements iRepl {
   constructor(
     private readonly logger: AutoLogService,
     private readonly fetchService: FetchService,
+    private readonly promptService: PromptService,
     @InjectConfig(CONTROLLER_API) readonly homeController: string,
   ) {
     fetchService.BASE_URL = homeController;
@@ -37,9 +38,13 @@ export class HomeCommandService implements iRepl {
       await sleep(5000);
       return;
     }
-    this.logger.info({ rooms });
+    // this.logger.info({ rooms });
 
-    const action = await this.pickAction();
+    const action = await this.promptService.pickOne('Action', [
+      'favorite',
+      'areaOff',
+      'areaOn',
+    ]);
 
     this.logger.debug({ action, rooms: rooms.map((i) => i.name) });
     await each(rooms, async (item, callback) => {
@@ -53,10 +58,8 @@ export class HomeCommandService implements iRepl {
       this.logger.debug({ response });
       callback();
     });
-    //
   }
 
-  @Trace()
   private async pickRoom(): Promise<RoomControllerSettingsDTO[]> {
     const rooms = await this.fetchService.fetch<RoomControllerSettingsDTO[]>({
       url: `/room/list`,
@@ -64,33 +67,17 @@ export class HomeCommandService implements iRepl {
     if (rooms.length === 0) {
       return undefined;
     }
-    const { selection } = (await inquirer.prompt([
-      {
-        choices: rooms.map((room) => {
-          return {
-            name: room.friendlyName,
-            value: room.name,
-          };
-        }),
-        message: 'Which room?',
-        name: 'selection',
-        type: 'checkbox',
-      },
-    ])) as { selection: string[] };
+    const selection = await this.promptService.pickMany(
+      'Which rooms?',
+      rooms.map((room) => {
+        return {
+          name: room.friendlyName,
+          value: room.name,
+        };
+      }),
+      { min: 1 },
+    );
 
     return rooms.filter((i) => selection.includes(i.name));
-  }
-
-  @Trace()
-  private async pickAction(): Promise<string> {
-    const { action } = await inquirer.prompt([
-      {
-        choices: ['favorite', 'areaOff', 'areaOn'],
-        message: 'Action',
-        name: 'action',
-        type: 'list',
-      },
-    ]);
-    return action;
   }
 }

@@ -1,10 +1,14 @@
 {
-  "type": "library",
   "configuration": {
     "DEFAULT_HEADER_FONT": {
       "type": "string",
       "default": "DOS Rebel",
       "description": "Figlet font"
+    },
+    "PAGE_SIZE": {
+      "type": "number",
+      "description": "Maxmimum number of items displayed in checkbox / similar types of prompts",
+      "default": 25
     },
     "OUTPUT_HEADER_FONT": {
       "type": "string",
