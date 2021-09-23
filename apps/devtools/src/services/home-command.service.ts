@@ -1,4 +1,8 @@
-import { RoomControllerSettingsDTO } from '@automagical/controller-logic';
+import {
+  RoomCommandDTO,
+  RoomCommandScope,
+  RoomControllerSettingsDTO,
+} from '@automagical/controller-logic';
 import { iRepl, Repl } from '@automagical/tty';
 import {
   AutoLogService,
@@ -25,33 +29,30 @@ export class HomeCommandService implements iRepl {
   }
 
   @Trace()
+  // @Timeout
   public async exec(): Promise<void> {
-    // const response = await this.fetchService.fetch({
-    //   body: JSON.stringify({
-    //     count: 2,
-    //   }),
-    //   method: 'put',
-    //   url: `/command/loft/favorite`,
-    // });
-
-    // console.log(JSON.stringify(response, undefined, '  '));
-
     const rooms = await this.pickRoom();
+    if (!rooms) {
+      this.logger.error(`Received empty room list`);
+      await sleep(5000);
+      return;
+    }
+    this.logger.info({ rooms });
+
     const action = await this.pickAction();
 
     this.logger.debug({ action, rooms: rooms.map((i) => i.name) });
     await each(rooms, async (item, callback) => {
       const response = await this.fetchService.fetch({
         body: JSON.stringify({
-          count: 2,
-        }),
+          scope: [RoomCommandScope.LOCAL],
+        } as RoomCommandDTO),
         method: 'put',
-        url: `/command/${item.name}/${action}`,
+        url: `/room/${item.name}/${action}`,
       });
       this.logger.debug({ response });
       callback();
     });
-    await sleep(5000);
     //
   }
 
@@ -60,7 +61,9 @@ export class HomeCommandService implements iRepl {
     const rooms = await this.fetchService.fetch<RoomControllerSettingsDTO[]>({
       url: `/room/list`,
     });
-
+    if (rooms.length === 0) {
+      return undefined;
+    }
     const { selection } = (await inquirer.prompt([
       {
         choices: rooms.map((room) => {

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 
-import { APIRequest } from '..';
+import { APIRequest, APIResponse } from '..';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -17,20 +17,19 @@ export class LoggingInterceptor implements NestInterceptor {
     context: ExecutionContext,
     next: CallHandler<T>,
   ): Observable<unknown> {
-    const start = Date.now();
     const request = context.switchToHttp().getRequest<APIRequest>();
     const extra = {
       route: [request.method, request.path],
     };
-
+    const { locals } = context.switchToHttp().getResponse<APIResponse>();
     return next.handle().pipe(
       tap((response) => {
-        const responseTime = Date.now() - start;
+        const responseTime = Date.now() - locals.start.getTime();
         this.logger.info({ responseTime, ...extra }, 'Request completed');
         return response;
       }),
       catchError((error) => {
-        const responseTime = Date.now() - start;
+        const responseTime = Date.now() - locals.start.getTime();
         this.logger.error({ error, responseTime, ...extra }, 'Request errored');
         return throwError(() => error);
       }),

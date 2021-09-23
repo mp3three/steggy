@@ -10,6 +10,7 @@ import {
   Trace,
 } from '@automagical/utilities';
 import { Injectable, NestMiddleware } from '@nestjs/common';
+import dayjs from 'dayjs';
 import { NextFunction } from 'express';
 import pino from 'pino';
 
@@ -54,6 +55,7 @@ export class InitMiddleware implements NestMiddleware {
     storage.run(logger, () => {
       locals.flags = new Set();
       locals.auth ??= {};
+      locals.start = new Date();
       locals.control = queryToControl(request.query as Record<string, string>);
       locals.method = request.method.toLowerCase() as HTTP_METHODS;
       locals.parameters = new Map(Object.entries(request.params));

@@ -3,10 +3,7 @@ import {
   Info,
   InjectLogger,
   ModuleScannerService,
-  MqttService,
   PEAT,
-  SEND_ROOM_STATE,
-  Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
@@ -44,7 +41,6 @@ export class RoomExplorerService {
     private readonly logger: AutoLogService,
     private readonly remoteAdapter: RemoteAdapterService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly mqtt: MqttService,
     private readonly scanner: ModuleScannerService,
     private readonly kunamiService: KunamiCodeService,
     private readonly lightManager: LightManagerService,
@@ -65,7 +61,7 @@ export class RoomExplorerService {
 
   private initRoom(settings: RoomControllerSettingsDTO, instance): void {
     this.remoteAdapter.watch(settings.remote);
-    if (!settings.flags.has(RoomControllerFlags.SECONDARY)) {
+    if (!settings.flags.includes(RoomControllerFlags.SECONDARY)) {
       this.controllerDefaults(instance);
       this.roomToRoomEvents(settings, instance);
     }
@@ -89,7 +85,7 @@ export class RoomExplorerService {
             states: PEAT(count).map(() => state as ControllerStates),
           },
           callback: async () => {
-            this.logger.info(`Activate ${method} (${count})`);
+            this.logger.info(`${settings.friendlyName} ${method} (${count})`);
             switch (method) {
               case 'areaOn':
                 await this.roomManager.areaOn(settings, {
@@ -157,7 +153,6 @@ export class RoomExplorerService {
       ],
     ]);
     mappings.forEach((callback, event) => {
-      this.mqtt.subscribe(SEND_ROOM_STATE(settings.name, event), callback);
       this.eventEmitter.on(ROOM_COMMAND(settings.name, event), callback);
     });
   }

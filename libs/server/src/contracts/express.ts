@@ -49,5 +49,5 @@ export class ResponseLocals extends CrudOptions {
   query?: Map<string, string>;
   roles?: Set<string>;
   logger?: pino.Logger;
-  start?: dayjs.Dayjs;
+  start?: Date;
 }

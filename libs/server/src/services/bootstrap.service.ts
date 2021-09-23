@@ -1,9 +1,4 @@
-import {
-  AutoLogService,
-  Debug,
-  Info,
-  InjectConfig,
-} from '@automagical/utilities';
+import { AutoLogService, InjectConfig } from '@automagical/utilities';
 import { INestApplication, Injectable } from '@nestjs/common';
 import compression from 'compression';
 import { Express, json } from 'express';

@@ -17,10 +17,7 @@ import { MasterBedroomController } from './master-bedroom.controller';
 
 const remote = 'sensor.bed_pico';
 @RoomController({
-  flags: new Set([
-    RoomControllerFlags.SECONDARY,
-    RoomControllerFlags.RELAY_EMIT,
-  ]),
+  flags: [RoomControllerFlags.SECONDARY, RoomControllerFlags.RELAY_EMIT],
   friendlyName: 'Bed Remote',
   name: 'bed',
   remote,

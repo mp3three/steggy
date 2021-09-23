@@ -10,10 +10,7 @@ import {
     'switch.back_yard_light',
     'switch.stair_lights',
   ],
-  flags: new Set([
-    RoomControllerFlags.SECONDARY,
-    RoomControllerFlags.RELAY_RECEIVE,
-  ]),
+  flags: [RoomControllerFlags.SECONDARY, RoomControllerFlags.RELAY_RECEIVE],
   friendlyName: 'Dining Room',
   name: 'dining',
   switches: ['switch.dining_room_light', 'switch.bar_light'],

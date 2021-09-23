@@ -20,25 +20,26 @@ import {
 } from '../rooms';
 import { ApplicationService, GarageService } from '../services';
 
+const rooms = [
+  BedRemoteController,
+  DiningController,
+  DownstairsController,
+  GamesRoomController,
+  GuestBedroomController,
+  LoftController,
+  MasterBedroomController,
+];
+
 @ApplicationModule({
   application: APP_HOME_CONTROLLER,
-  controllers: [
-    RoomAPIController,
-    BedRemoteController,
-    DiningController,
-    DownstairsController,
-    GamesRoomController,
-    GuestBedroomController,
-    LoftController,
-    MasterBedroomController,
-  ],
+  controllers: [RoomAPIController],
   imports: [
     HomeAssistantModule,
     HomeControllerCustomModule.forRoot(),
     MQTTModule,
     ServerModule,
   ],
-  providers: [ApplicationService, GarageService],
+  providers: [ApplicationService, GarageService, ...rooms],
   utils: [SolarCalcService],
 })
 export class HomeControllerModule {}
