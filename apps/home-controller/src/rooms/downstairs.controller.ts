@@ -26,6 +26,7 @@ import {
 } from '@automagical/utilities';
 import { EventEmitter2 } from 'eventemitter2';
 
+import { RelayCommand } from '../decorators';
 import { GLOBAL_TRANSITION } from '../typings';
 import { DiningController } from '.';
 
@@ -104,7 +105,8 @@ export class DownstairsController extends BaseRoomService {
   }
 
   @Trace()
-  public async areaOff(command: RoomCommandDTO): Promise<void> {
+  @RelayCommand(['dining'], 'areaOff')
+  public async areaOff(command: RoomCommandDTO): Promise<boolean> {
     const scope = COMMAND_SCOPE(command);
     await this.stateManager.removeFlag(this.settings, AUTO_STATE);
     if (scope.has(RoomCommandScope.LOCAL)) {
@@ -113,16 +115,14 @@ export class DownstairsController extends BaseRoomService {
     if (scope.has(RoomCommandScope.ACCESSORIES)) {
       this.logger.debug(`Turn off {${TV}}`);
       await this.remoteService.turnOff(TV);
+      return true;
     }
+    return false;
   }
 
   @Trace()
-  public async areaOn(command: RoomCommandDTO): Promise<void> {
-    const scope = COMMAND_SCOPE(command);
+  public async areaOn(): Promise<void> {
     await this.stateManager.removeFlag(this.settings, AUTO_STATE);
-    if (scope.has(RoomCommandScope.BROADCAST)) {
-      this.eventEmitter.emit(ROOM_COMMAND('dining', 'areaOn'), command);
-    }
   }
 
   @Trace()
@@ -157,7 +157,8 @@ export class DownstairsController extends BaseRoomService {
   }
 
   @Trace()
-  private async dayFavorite(command: RoomCommandDTO): Promise<void> {
+  @RelayCommand(['loft', 'games', 'master'], 'areaOff')
+  private async dayFavorite(command: RoomCommandDTO): Promise<boolean> {
     const scope = COMMAND_SCOPE(command);
     if (scope.has(RoomCommandScope.LOCAL)) {
       await this.switchService.turnOn([...switches, ...accessories]);
@@ -165,10 +166,9 @@ export class DownstairsController extends BaseRoomService {
       return;
     }
     if (scope.has(RoomCommandScope.ACCESSORIES)) {
-      ['loft', 'games', 'master'].forEach((room) =>
-        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), command),
-      );
       this.eventEmitter.emit(ROOM_COMMAND(this.dining.name, 'areaOn'), command);
+      return true;
     }
+    return false;
   }
 }

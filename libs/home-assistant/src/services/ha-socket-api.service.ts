@@ -73,7 +73,7 @@ export class HASocketAPIService {
    *
    * This can be a pretty big list
    */
-  @EmitAfter(ALL_ENTITIES_UPDATED)
+  @EmitAfter(ALL_ENTITIES_UPDATED, { emitData: 'result' })
   @Debug('Update all entities')
   public async getAllEntitities(): Promise<HassStateDTO[]> {
     return await this.sendMsg<HassStateDTO[]>({

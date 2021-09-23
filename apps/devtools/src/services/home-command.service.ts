@@ -45,7 +45,7 @@ export class HomeCommandService implements iRepl {
     await each(rooms, async (item, callback) => {
       const response = await this.fetchService.fetch({
         body: JSON.stringify({
-          scope: [RoomCommandScope.LOCAL],
+          scope: [RoomCommandScope.LOCAL, RoomCommandScope.ACCESSORIES],
         } as RoomCommandDTO),
         method: 'put',
         url: `/room/${item.name}/${action}`,

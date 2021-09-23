@@ -3,7 +3,6 @@ import {
   ControllerStates,
   KunamiCodeService,
   LightManagerService,
-  ROOM_COMMAND,
   RoomCommandDTO,
   RoomCommandScope,
   RoomController,
@@ -27,6 +26,7 @@ import {
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
 
+import { RelayCommand } from '../decorators';
 import { GLOBAL_TRANSITION } from '../typings';
 
 const MONITOR = 'media_player.monitor';
@@ -80,9 +80,6 @@ export class LoftController extends BaseRoomService {
   @Trace()
   public async areaOff(parameters: RoomCommandDTO): Promise<boolean> {
     const scope = this.commandScope(parameters);
-    if (!this.stateManager) {
-      return;
-    }
     await this.stateManager.removeFlag(this.settings, AUTO_STATE);
     if (scope.has(RoomCommandScope.ACCESSORIES)) {
       await this.remoteService.turnOff(MONITOR);
@@ -97,6 +94,7 @@ export class LoftController extends BaseRoomService {
   }
 
   @Trace()
+  @RelayCommand(['games', 'master', 'downstairs'], 'areaOff')
   public async favorite(parameters: RoomCommandDTO): Promise<boolean> {
     const scope = this.commandScope(parameters);
     await this.stateManager.addFlag(this.settings, AUTO_STATE);
@@ -126,9 +124,7 @@ export class LoftController extends BaseRoomService {
     }
     if (scope.has(RoomCommandScope.ACCESSORIES)) {
       await this.remoteService.turnOn(MONITOR);
-      ['games', 'master', 'downstairs'].forEach((room) =>
-        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), parameters),
-      );
+      return true;
     }
     return false;
   }
@@ -156,11 +152,7 @@ export class LoftController extends BaseRoomService {
     const result = await this.entityManager.getEntity<LightStateDTO>(
       PANEL_LIGHTS,
     );
-    // this.logger.warn({ result: typeo });
     const [{ attributes }] = result;
-    // const [{ attributes }] = await this.entityManager.getEntity<LightStateDTO>(
-    //   PANEL_LIGHTS,
-    // );
     if (brightness === 0) {
       await this.lightManager.turnOffEntities(PANEL_LIGHTS);
       return;

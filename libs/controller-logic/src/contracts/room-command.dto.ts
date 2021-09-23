@@ -10,14 +10,6 @@ export enum RoomCommandScope {
    * Affect secondary devices
    */
   ACCESSORIES = 'ACCESSORIES',
-  /**
-   * Attempt to broadcast to other rooms
-   */
-  BROADCAST = 'BROADCAST',
-  /**
-   * An overridee method requested the standard call not process
-   */
-  ABORT = 'ABORT',
 }
 
 /**

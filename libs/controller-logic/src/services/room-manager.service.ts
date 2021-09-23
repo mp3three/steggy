@@ -39,9 +39,6 @@ export class RoomManagerService {
     await this.stateManager.removeFlag(settings, AUTO_STATE);
 
     const scope = this.commandScope(command);
-    if (scope.has(RoomCommandScope.ABORT)) {
-      return;
-    }
     await this.lightManager.circadianLight(lights ?? [], 100);
     await this.hassCore.turnOn(switches ?? []);
     if (scope.has(RoomCommandScope.ACCESSORIES)) {
@@ -58,16 +55,10 @@ export class RoomManagerService {
     await this.stateManager.removeFlag(settings, AUTO_STATE);
 
     const scope = this.commandScope(command);
-    if (scope.has(RoomCommandScope.ABORT)) {
-      return;
-    }
-
-    if (!scope.has(RoomCommandScope.ABORT)) {
-      await this.lightManager.turnOffEntities(lights ?? []);
-      await this.hassCore.turnOff(switches ?? []);
-      if (scope.has(RoomCommandScope.ACCESSORIES)) {
-        await this.hassCore.turnOff(accessories ?? []);
-      }
+    await this.lightManager.turnOffEntities(lights ?? []);
+    await this.hassCore.turnOff(switches ?? []);
+    if (scope.has(RoomCommandScope.ACCESSORIES)) {
+      await this.hassCore.turnOff(accessories ?? []);
     }
   }
 

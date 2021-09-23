@@ -2,24 +2,20 @@ import {
   COMMAND_SCOPE,
   ControllerStates,
   iRoomController,
-  ROOM_COMMAND,
-  RoomCommandDTO,
-  RoomCommandScope,
-  Steps,
-} from '@automagical/controller-logic';
-import {
   KunamiCodeService,
   LightManagerService,
+  RoomCommandDTO,
+  RoomCommandScope,
   RoomController,
+  Steps,
 } from '@automagical/controller-logic';
 import {
   LightDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
 import { PEAT, SolarCalcService, Trace } from '@automagical/utilities';
-import { EventEmitter2 } from 'eventemitter2';
 
-import { GLOBAL_TRANSITION } from '../typings';
+import { RelayCommand } from '../decorators';
 
 @RoomController({
   fan: 'fan.master_bedroom_ceiling_fan',
@@ -41,34 +37,12 @@ export class MasterBedroomController implements iRoomController {
     private readonly kunamiService: KunamiCodeService,
     private readonly switchService: SwitchDomainService,
     private readonly lightService: LightDomainService,
-    private readonly eventEmitter: EventEmitter2,
     private readonly solarCalc: SolarCalcService,
   ) {}
 
   @Trace()
-  public areaOff(parameters: RoomCommandDTO): void {
-    const scope = COMMAND_SCOPE(parameters);
-    if (scope.has(RoomCommandScope.BROADCAST)) {
-      ['games', 'loft', 'downstairs'].forEach((room) =>
-        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), parameters),
-      );
-      this.eventEmitter.emit(GLOBAL_TRANSITION);
-    }
-  }
-
-  @Trace()
-  public areaOn(parameters: RoomCommandDTO): void {
-    const scope = COMMAND_SCOPE(parameters);
-    if (scope.has(RoomCommandScope.BROADCAST)) {
-      ['games', 'loft', 'downstairs'].forEach((room) =>
-        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOn'), parameters),
-      );
-      this.eventEmitter.emit(GLOBAL_TRANSITION);
-    }
-  }
-
-  @Trace()
-  public async favorite(parameters: RoomCommandDTO): Promise<void> {
+  @RelayCommand(['games', 'loft', 'downstairs'], 'areaOff')
+  public async favorite(parameters: RoomCommandDTO): Promise<boolean> {
     const scope = COMMAND_SCOPE(parameters);
     if (scope.has(RoomCommandScope.LOCAL)) {
       let brightness = 100;
@@ -90,12 +64,7 @@ export class MasterBedroomController implements iRoomController {
       );
       return;
     }
-    if (scope.has(RoomCommandScope.ACCESSORIES)) {
-      ['games', 'loft', 'downstairs'].forEach((room) =>
-        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), parameters),
-      );
-      this.eventEmitter.emit(GLOBAL_TRANSITION);
-    }
+    return scope.has(RoomCommandScope.ACCESSORIES);
   }
 
   @Trace()
@@ -111,26 +80,6 @@ export class MasterBedroomController implements iRoomController {
         },
         name: `Favorite (${count + 1})`,
       });
-    });
-    this.kunamiService.addCommand(this, {
-      activate: {
-        ignoreRelease: true,
-        states: PEAT(3, ControllerStates.off),
-      },
-      callback: async () => {
-        await this.areaOff({ scope: RoomCommandScope.BROADCAST });
-      },
-      name: `areaOff (3)`,
-    });
-    this.kunamiService.addCommand(this, {
-      activate: {
-        ignoreRelease: true,
-        states: PEAT(3, ControllerStates.on),
-      },
-      callback: async () => {
-        await this.areaOn({ scope: RoomCommandScope.BROADCAST });
-      },
-      name: `areaOn (3)`,
     });
   }
 }

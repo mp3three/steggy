@@ -2,22 +2,17 @@ import {
   BaseRoomService,
   COMMAND_SCOPE,
   ControllerStates,
-  iRoomController,
   KunamiCodeService,
   LightManagerService,
-  ROOM_COMMAND,
   RoomCommandDTO,
   RoomCommandScope,
   RoomController,
   StateManagerService,
   Steps,
 } from '@automagical/controller-logic';
-import { MediaPlayerDomainService } from '@automagical/home-assistant';
 import { Cron, CronExpression, PEAT, Trace } from '@automagical/utilities';
 import dayjs from 'dayjs';
-import { EventEmitter2 } from 'eventemitter2';
 
-const MONITOR = 'media_player.monitor';
 const EVENING_BRIGHTNESS = 40;
 const AUTO_STATE = 'AUTO_STATE';
 
@@ -37,9 +32,7 @@ export class GamesRoomController extends BaseRoomService {
   constructor(
     private readonly lightManager: LightManagerService,
     private readonly kunamiService: KunamiCodeService,
-    private readonly remoteService: MediaPlayerDomainService,
     private readonly stateManager: StateManagerService,
-    private readonly eventEmitter: EventEmitter2,
   ) {
     super();
   }
@@ -63,14 +56,6 @@ export class GamesRoomController extends BaseRoomService {
         ['light.games_1', 'light.games_2', 'light.games_3', 'light.games_lamp'],
         this.fanAutoBrightness(),
       );
-    }
-    if (scope.has(RoomCommandScope.ACCESSORIES)) {
-      await this.remoteService.turnOff(MONITOR);
-    }
-    if (scope.has(RoomCommandScope.BROADCAST)) {
-      ['loft', 'downstairs', 'master'].forEach((room) => {
-        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'));
-      });
     }
   }
 
@@ -107,20 +92,6 @@ export class GamesRoomController extends BaseRoomService {
         },
         name: `Favorite (${index + 1})`,
       });
-    });
-    this.kunamiService.addCommand(this, {
-      activate: {
-        ignoreRelease: true,
-        states: PEAT(3, ControllerStates.off),
-      },
-      callback: () => {
-        ['loft', 'downstairs', 'master'].forEach((room) =>
-          this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), {
-            scope: [RoomCommandScope.BROADCAST],
-          } as RoomCommandDTO),
-        );
-      },
-      name: `Relay off`,
     });
   }
 
