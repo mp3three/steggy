@@ -1,4 +1,4 @@
-import { Expose, Transform, Type } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import { IsString } from 'class-validator';
 
 export enum RoomControllerFlags {
@@ -65,11 +65,16 @@ export class RoomControllerSettingsDTO {
    */
   @Expose()
   public flags?: RoomControllerFlags[];
-
   /**
    * Items such as televisions to automatically turn off
    */
   @Expose()
   public media?: string;
+  /**
+   * name : entity_id[]
+   */
+  @Expose()
+  public groups?: Record<string, string[]>;
 }
+
 export const ROOM_CONTROLLER_SETTINGS = Symbol('ROOM_CONTROLLER_SETTINGS');

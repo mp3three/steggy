@@ -1,6 +1,5 @@
 import type { iRoomController } from '@automagical/controller-logic';
 import {
-  LightManagerService,
   RoomCommandDTO,
   RoomControllerSettingsDTO,
   RoomInstancePipe,
@@ -24,12 +23,10 @@ import {
   Put,
   ValidationPipe,
 } from '@nestjs/common';
-import { each } from 'async';
 
 @Controller(`/room`)
 export class RoomAPIController {
   constructor(
-    private readonly lightManager: LightManagerService,
     private readonly logger: AutoLogService,
     private readonly roomManager: RoomManagerService,
     private readonly fanDomain: FanDomainService,
@@ -124,14 +121,21 @@ export class RoomAPIController {
     @Param('name', RoomSettingsPipe) settings: RoomControllerSettingsDTO,
   ): Promise<unknown> {
     const entities = [
-      ...settings.lights,
-      ...settings.switches,
-      ...settings.accessories,
+      ...(settings.lights || []),
+      ...(settings.switches || []),
+      ...(settings.accessories || []),
+      // ...,
       settings.media,
       settings.fan,
     ].filter((item) => typeof item === 'string');
-
-    return await this.entityService.getEntity(entities);
+    Object.keys(settings.groups ?? {}).map((group) => {
+      return entities.push(...settings.groups[group]);
+    });
+    return await this.entityService.getEntity(
+      entities.filter((item, index) => {
+        return entities.indexOf(item) === index;
+      }),
+    );
   }
 
   @Put('/:name/media/:state')

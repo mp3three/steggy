@@ -53,3 +53,13 @@ export class SendSocketMessageDTO {
   public service_data?: unknown;
   public type: HASSIO_WS_COMMAND;
 }
+
+export class UpdateEntityMessageDTO {
+  type: HASSIO_WS_COMMAND.entity_update;
+  name: string;
+  new_entity_id: string;
+  entity_id: string;
+  icon?: string;
+  area_id?: number;
+  id?: number;
+}

@@ -23,6 +23,7 @@ import {
   HassStateDTO,
   SendSocketMessageDTO,
   SocketMessageDTO,
+  UpdateEntityMessageDTO,
 } from '..';
 import { BASE_URL, TOKEN } from '../config';
 import {
@@ -30,6 +31,8 @@ import {
   HASSIO_WS_COMMAND,
   HassSocketMessageTypes,
 } from '../contracts/enums';
+
+/* eslint-disable unicorn/no-null */
 
 @Injectable()
 export class HASocketAPIService {
@@ -51,6 +54,20 @@ export class HASocketAPIService {
   public async getAreas(): Promise<AreaDTO[]> {
     return await this.sendMsg({
       type: HASSIO_WS_COMMAND.area_list,
+    });
+  }
+
+  public async updateEntity(
+    entity: string,
+    data: { name?: string; new_entity_id?: string },
+  ): Promise<unknown> {
+    return await this.sendMsg({
+      area_id: null,
+      entity_id: entity,
+      icon: null,
+      name: data.name,
+      new_entity_id: data.new_entity_id || entity,
+      type: HASSIO_WS_COMMAND.entity_update,
     });
   }
 
@@ -86,7 +103,7 @@ export class HASocketAPIService {
    */
   @Trace()
   public async sendMsg<T extends unknown = unknown>(
-    data: SendSocketMessageDTO,
+    data: SendSocketMessageDTO | UpdateEntityMessageDTO,
     waitForResponse = true,
   ): Promise<T> {
     this.messageCount++;
@@ -102,7 +119,8 @@ export class HASocketAPIService {
       );
       return;
     }
-    this.connection.send(JSON.stringify(data));
+    const json = JSON.stringify(data);
+    this.connection.send(json);
     if (!waitForResponse) {
       return;
     }

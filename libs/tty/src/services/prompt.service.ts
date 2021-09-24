@@ -83,6 +83,24 @@ export class PromptService {
     return value;
   }
 
+  public async expand<T extends unknown = string>(
+    message: string,
+    options: { name: string; value: T; key: string }[],
+    defaultValue?: string,
+  ): Promise<T> {
+    const { value } = await inquirer.prompt([
+      {
+        choices: options,
+        default: defaultValue,
+        message,
+        name: 'value',
+        pageSize: this.pageSize,
+        type: 'expand',
+      },
+    ]);
+    return value;
+  }
+
   public async pickMany<T extends unknown = string>(
     message: string,
     options: (string | { name: string; value: T } | Separator)[],

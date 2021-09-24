@@ -2,14 +2,11 @@ import {
   BaseRoomService,
   COMMAND_SCOPE,
   ControllerStates,
-  InjectControllerSettings,
   KunamiCodeService,
   LightManagerService,
-  ROOM_COMMAND,
   RoomCommandDTO,
   RoomCommandScope,
   RoomController,
-  RoomControllerSettingsDTO,
   SolarCalcService,
   StateManagerService,
   Steps,
@@ -24,7 +21,6 @@ import { EventEmitter2 } from 'eventemitter2';
 
 import { RelayCommand } from '../decorators';
 import { GLOBAL_TRANSITION } from '../typings';
-import { DiningController } from '.';
 
 const TV = 'media_player.living_room';
 const switches = [
@@ -61,6 +57,7 @@ const accessories = ['switch.bar_light', 'switch.entryway_light'];
   accessories,
   fan: 'fan.living_room_ceiling_fan',
   friendlyName: 'Downstairs',
+  groups: { tower1, tower2 },
   lights,
   media: TV,
   name: 'downstairs',
@@ -78,8 +75,6 @@ export class DownstairsController extends BaseRoomService {
     private readonly eventEmitter: EventEmitter2,
     private readonly logger: AutoLogService,
     private readonly switchService: SwitchDomainService,
-    @InjectControllerSettings(DiningController)
-    private readonly dining: RoomControllerSettingsDTO,
   ) {
     super();
   }
@@ -92,7 +87,7 @@ export class DownstairsController extends BaseRoomService {
       await this.switchService.turnOn(switches);
       await this.lightDomain.turnOn([...tower1, ...tower2]);
       await this.lightManager.turnOffEntities([...lights, ...accessories]);
-      return;
+      return false;
     }
     return scope.has(RoomCommandScope.ACCESSORIES);
   }
@@ -109,8 +104,10 @@ export class DownstairsController extends BaseRoomService {
   }
 
   @Trace()
-  public async areaOn(): Promise<void> {
+  @RelayCommand(['dining'], 'areaOn')
+  public async areaOn(): Promise<boolean> {
     await this.stateManager.removeFlag(this.settings, AUTO_STATE);
+    return !this.solarCalc.IS_EVENING;
   }
 
   @Trace()

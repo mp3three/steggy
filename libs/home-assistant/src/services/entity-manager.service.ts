@@ -31,6 +31,33 @@ export class EntityManagerService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
+  @Trace()
+  public async updateFriendlyName(
+    entityId: string,
+    friendly_name: string,
+  ): Promise<unknown> {
+    return await this.socketService.updateEntity(entityId, {
+      name: friendly_name,
+      new_entity_id: entityId,
+    });
+  }
+
+  @Trace()
+  public async updateId(
+    entityId: string,
+    newEntityId: string,
+  ): Promise<unknown> {
+    this.ENTITIES.set(newEntityId, this.ENTITIES.get(entityId));
+    this.ENTITIES.delete(entityId);
+    return await this.socketService.updateEntity(entityId, {
+      new_entity_id: newEntityId,
+    });
+  }
+
+  public isValidId(entityId: string): boolean {
+    return this.ENTITIES.has(entityId);
+  }
+
   /**
    * Retrieve an entity's state
    */

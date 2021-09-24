@@ -1,9 +1,6 @@
-import {
-  FetchArguments,
-  ResultControlDTO,
-} from '@automagical/utilities';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
+import { FetchArguments, ResultControlDTO } from '../../contracts';
 import { Trace } from '../../decorators/logger.decorator';
 import { controlToQuery } from '../../includes';
 import { AutoLogService } from '../logger/auto-log.service';
@@ -96,6 +93,9 @@ export class BaseFetchService {
     }
     if (bearer) {
       headers['Authorization'] = `Bearer ${bearer}`;
+    }
+    if (typeof body === 'object') {
+      body = JSON.stringify(body);
     }
     return {
       body: body as BodyInit,

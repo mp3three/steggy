@@ -43,9 +43,43 @@ export class InspectService implements iRepl {
       }),
     );
 
-    console.log(JSON.stringify(entity, undefined, '  '));
+    await this.process(entity);
+  }
 
-    await this.promptService.confirm('Done', true);
+  private async process(entity: HassStateDTO): Promise<void> {
+    const action = await this.promptService.expand(`Action`, [
+      {
+        key: 'p',
+        name: 'Print',
+        value: 'print',
+      },
+      {
+        key: 'n',
+        name: 'Update Name',
+        value: 'name',
+      },
+      {
+        key: 'x',
+        name: 'Exit',
+        value: 'exit',
+      },
+    ]);
+
+    switch (action) {
+      case 'exit':
+        return;
+      case 'print':
+        console.log(JSON.stringify(entity, undefined, '  '));
+        return await this.process(entity);
+      case 'name':
+        const name = await this.promptService.string(`New name`);
+        await this.fetchService.fetch({
+          body: { name },
+          method: 'put',
+          url: `/entity/rename/${entity.entity_id}`,
+        });
+        return await this.process(entity);
+    }
   }
 
   private async pickRoom(): Promise<RoomControllerSettingsDTO> {

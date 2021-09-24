@@ -60,6 +60,7 @@ export enum HASSIO_WS_COMMAND {
   network = 'network',
   analytics = 'analytics',
   core_update = 'config/core/update',
+  entity_update = 'config/entity_registry/update',
   setup_info = 'integration/setup_info',
   system_health = 'system_health/info',
   unsubscribe_events = 'unsubscribe_events',
