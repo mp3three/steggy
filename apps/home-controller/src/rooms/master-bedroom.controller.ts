@@ -7,13 +7,14 @@ import {
   RoomCommandDTO,
   RoomCommandScope,
   RoomController,
+  SolarCalcService,
   Steps,
 } from '@automagical/controller-logic';
 import {
   LightDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { PEAT, SolarCalcService, Trace } from '@automagical/utilities';
+import { PEAT, Trace } from '@automagical/utilities';
 
 import { RelayCommand } from '../decorators';
 

@@ -8,4 +8,3 @@ export * from './logger';
 export * from './module-scanner.service';
 export * from './mqtt';
 export * from './schedule-explorer.service';
-export * from './solar-calc.service';

@@ -1,4 +1,4 @@
-import { ROOM_COMMAND } from '@automagical/controller-logic';
+import { ROOM_COMMAND, SolarCalcService } from '@automagical/controller-logic';
 import {
   BatteryStateDTO,
   domain,
@@ -16,7 +16,6 @@ import {
   Debug,
   OnEvent,
   OnMQTT,
-  SolarCalcService,
   Trace,
   Warn,
 } from '@automagical/utilities';

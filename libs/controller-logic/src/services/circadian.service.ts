@@ -1,16 +1,12 @@
-import { CIRCADIAN_UPDATE } from '@automagical/controller-logic';
 import { CronExpression } from '@automagical/utilities';
-import {
-  Cron,
-  InjectConfig,
-  SolarCalcService,
-  Trace,
-} from '@automagical/utilities';
+import { Cron, InjectConfig, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
 
 import { CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP } from '../config';
+import { CIRCADIAN_UPDATE } from '../contracts';
+import { SolarCalcService } from './solar-calc.service';
 
 /**
  * This service is responsible for managing the current temperature for circadian lightining

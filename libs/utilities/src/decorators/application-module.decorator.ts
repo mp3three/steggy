@@ -3,7 +3,6 @@ import { EventEmitter2 } from 'eventemitter2';
 
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
 import { ACTIVE_APPLICATION } from '../contracts/meta/config';
-import { LIB_UTILS } from '../contracts/meta/library-names';
 import { RegisterCache } from '../includes/';
 import { UtilitiesModule } from '../modules';
 
@@ -14,10 +13,6 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
    */
   dashboards?: Provider[];
   globals?: Provider[];
-  /**
-   * Additional services from utils lib to load
-   */
-  utils?: Provider[];
 }
 
 /**
@@ -37,15 +32,11 @@ export function ApplicationModule(
   metadata.imports ??= [];
   metadata.providers ??= [];
   metadata.globals ??= [];
-  metadata.utils ??= [];
   metadata.controllers ??= [];
   metadata.dashboards ??= [];
   metadata.providers = [...metadata.providers, ...metadata.dashboards];
   [...metadata.providers, ...metadata.controllers].forEach((provider) => {
     provider[LOGGER_LIBRARY] = metadata.application.description;
-  });
-  metadata.utils.forEach((provider) => {
-    provider[LOGGER_LIBRARY] = LIB_UTILS.description;
   });
   const GLOBAL_SYMBOLS: Provider[] = [
     {
@@ -65,7 +56,7 @@ export function ApplicationModule(
     ...metadata.globals,
   ];
   metadata.imports = [
-    UtilitiesModule.forRoot(metadata.utils),
+    UtilitiesModule.forRoot(),
     {
       exports: GLOBAL_SYMBOLS,
       global: true,

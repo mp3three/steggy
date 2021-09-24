@@ -1,10 +1,10 @@
+import { InjectConfig } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
 
 import { LATITUDE, LONGITUDE } from '../config';
-import { InjectConfig } from '../decorators/injectors/inject-config.decorator';
 
 @Injectable()
 export class SolarCalcService {

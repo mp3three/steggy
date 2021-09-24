@@ -45,12 +45,14 @@ export class AutoConfigService {
   public getDefault<T extends unknown = unknown>(path: string): T {
     const parts = path.split('.');
     if (parts.length === 2) {
-      // const [, property] = parts;
-      return '' as T;
+      const metadata = this.metadata.get(this.APPLICATION.description);
+      const configuration = metadata.configuration[parts[1]];
+      return configuration.default as T;
     }
     const [, library, property] = parts;
     const metadata = this.metadata.get(library);
-    return metadata.configuration[property].default as T;
+    const configuration = metadata.configuration[property];
+    return configuration.default as T;
   }
 
   public set(path: string, value: unknown): void {

@@ -1,3 +1,5 @@
 export const CIRCADIAN_MAX_TEMP = 'CIRCADIAN_MAX_TEMP';
 export const CIRCADIAN_MIN_TEMP = 'CIRCADIAN_MIN_TEMP';
 export const DIM_PERCENT = 'DIM_PERCENT';
+export const LONGITUDE = 'LONGITUDE';
+export const LATITUDE = 'LATITUDE';

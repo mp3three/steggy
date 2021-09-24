@@ -1,7 +1,7 @@
-import { HASS_DOMAINS } from '@automagical/home-assistant';
 import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
+import { HASS_DOMAINS } from '../contracts';
 import { HACallService } from '../services';
 
 /**
@@ -11,6 +11,34 @@ import { HACallService } from '../services';
 export class MediaPlayerDomainService {
   constructor(private readonly callService: HACallService) {
     callService.domain = HASS_DOMAINS.media_player;
+  }
+
+  @Trace()
+  public async volumeUp(entityId: string | string[]): Promise<void> {
+    return await this.callService.call('volume_up', {
+      entity_id: entityId,
+    });
+  }
+
+  @Trace()
+  public async volumeDown(entityId: string | string[]): Promise<void> {
+    return await this.callService.call('volume_down', {
+      entity_id: entityId,
+    });
+  }
+
+  @Trace()
+  public async mute(entityId: string | string[]): Promise<void> {
+    return await this.callService.call('volume_mute', {
+      entity_id: entityId,
+    });
+  }
+
+  @Trace()
+  public async playPause(entityId: string | string[]): Promise<void> {
+    return await this.callService.call('media_play', {
+      entity_id: entityId,
+    });
   }
 
   @Trace()

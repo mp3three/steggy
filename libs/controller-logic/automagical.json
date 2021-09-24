@@ -8,6 +8,12 @@
       "type": "number",
       "default": 2000
     },
+    "LATITUDE": {
+      "type": "string"
+    },
+    "LONGITUDE": {
+      "type": "string"
+    },
     "DIM_PERCENT": {
       "type": "number",
       "default": 10

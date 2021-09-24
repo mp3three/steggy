@@ -7,7 +7,11 @@ import {
   RoomManagerService,
   RoomSettingsPipe,
 } from '@automagical/controller-logic';
-import { FanDomainService, FanSpeeds } from '@automagical/home-assistant';
+import {
+  FanDomainService,
+  FanSpeeds,
+  MediaPlayerDomainService,
+} from '@automagical/home-assistant';
 import { EnumContainsPipe, GENERIC_RESPONSE } from '@automagical/server';
 import { AutoLogService } from '@automagical/utilities';
 import {
@@ -27,6 +31,7 @@ export class RoomAPIController {
     private readonly logger: AutoLogService,
     private readonly roomManager: RoomManagerService,
     private readonly fanDomain: FanDomainService,
+    private readonly mediaPlayerService: MediaPlayerDomainService,
   ) {}
 
   /**
@@ -38,7 +43,7 @@ export class RoomAPIController {
     @Body(ValidationPipe) body: RoomCommandDTO,
   ): Promise<typeof GENERIC_RESPONSE> {
     await this.roomManager.areaOn(settings, body);
-    this.logger.info({ body, name }, 'areaOn');
+    this.logger.info({ body }, `[${settings.friendlyName}] areaOn`);
     return GENERIC_RESPONSE;
   }
 
@@ -48,11 +53,10 @@ export class RoomAPIController {
   @Put('/:name/areaOff')
   public async areaOff(
     @Param('name', RoomSettingsPipe) settings: RoomControllerSettingsDTO,
-    @Param('name') name: string,
     @Body(ValidationPipe) body: RoomCommandDTO,
   ): Promise<typeof GENERIC_RESPONSE> {
     await this.roomManager.areaOff(settings, body);
-    this.logger.info({ body, name }, 'areaOff');
+    this.logger.info({ body }, `[${settings.friendlyName}] areaOff`);
     return GENERIC_RESPONSE;
   }
 
@@ -62,13 +66,15 @@ export class RoomAPIController {
   @Put('/:name/favorite')
   public async favorite(
     @Param('name', RoomInstancePipe) instance: iRoomController,
+    @Param('name', RoomSettingsPipe)
+    { friendlyName }: RoomControllerSettingsDTO,
     @Body(ValidationPipe) body: RoomCommandDTO,
   ): Promise<typeof GENERIC_RESPONSE> {
     if (!instance.favorite) {
       throw new BadRequestException(`Room does not support command`);
     }
     await instance.favorite(body);
-    this.logger.info({ body, name }, 'favorite');
+    this.logger.info({ body }, `[${friendlyName}] favorite`);
     return GENERIC_RESPONSE;
   }
 
@@ -84,8 +90,9 @@ export class RoomAPIController {
       throw new BadRequestException(`Room does not have a registered fan`);
     }
     if (!Object.values(FanSpeeds).includes(speed)) {
-      throw new BadRequestException(`Room does not have a registered fan`);
+      throw new BadRequestException(`Bad fan speed ${speed}`);
     }
+    this.logger.info({ speed }, `[${settings.friendlyName}] set fan`);
     await this.fanDomain.setFan(settings.fan, speed);
     return GENERIC_RESPONSE;
   }
@@ -106,6 +113,30 @@ export class RoomAPIController {
     @Param('name', RoomSettingsPipe) settings: RoomControllerSettingsDTO,
   ): Promise<typeof GENERIC_RESPONSE> {
     settings;
+    return GENERIC_RESPONSE;
+  }
+
+  @Put('/:name/media/:state')
+  public async setMediaState(
+    @Param('name', RoomSettingsPipe) { media }: RoomControllerSettingsDTO,
+    @Param('state') state: string,
+  ): Promise<typeof GENERIC_RESPONSE> {
+    if (!media) {
+      throw new BadRequestException(
+        `Room does not have a registered meda device`,
+      );
+    }
+    switch (state) {
+      case 'turnOn':
+        await this.mediaPlayerService.turnOn(media);
+        break;
+      case 'turnOff':
+        await this.mediaPlayerService.turnOff(media);
+        break;
+      case 'playPause':
+        await this.mediaPlayerService.playPause(media);
+        break;
+    }
     return GENERIC_RESPONSE;
   }
 }

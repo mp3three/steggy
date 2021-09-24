@@ -31,12 +31,6 @@
       "type": "number",
       "default": 6379
     },
-    "LATITUDE": {
-      "type": "string"
-    },
-    "LONGITUDE": {
-      "type": "string"
-    },
     "MAX_STASH_DEPTH": {
       "type": "number",
       "default": 10

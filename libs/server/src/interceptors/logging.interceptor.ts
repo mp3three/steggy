@@ -30,9 +30,7 @@ export class LoggingInterceptor implements NestInterceptor {
       }),
       catchError((error) => {
         const responseTime = Date.now() - locals.start.getTime();
-        if (error.response) {
-          error = error.response;
-        }
+
         this.logger.error({ error, responseTime, ...extra }, 'Request errored');
         // This results in double errors
         // One coming from here, one from nestsjs (with undefined context?)

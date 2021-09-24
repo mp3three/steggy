@@ -30,6 +30,7 @@ export class HomeCommandService implements iRepl {
     @InjectConfig(CONTROLLER_API) readonly homeController: string,
   ) {
     fetchService.BASE_URL = homeController;
+    console.log(homeController);
   }
 
   @Trace()
@@ -49,6 +50,9 @@ export class HomeCommandService implements iRepl {
     if (this.fanAvailable(rooms)) {
       actions.push({ name: 'Set Fan', value: 'fan' });
     }
+    if (this.mediaAvailable(rooms)) {
+      actions.push({ name: 'Media', value: 'media' });
+    }
 
     const action = await this.promptService.pickOne('Action', actions);
     const { scope, path } = await this.getExtra(action);
@@ -59,6 +63,7 @@ export class HomeCommandService implements iRepl {
       if (Date.now() < 0) {
         url = `${url}/asdf`;
       }
+      this.logger.debug(`PUT ${url}`);
       const response = await this.fetchService.fetch({
         body: JSON.stringify({
           scope,
@@ -75,23 +80,42 @@ export class HomeCommandService implements iRepl {
     const out: extra = {
       scope: [RoomCommandScope.LOCAL, RoomCommandScope.ACCESSORIES],
     };
-    if (action === 'fan') {
-      const speed = await this.promptService.pickOne(
-        'Fan speed',
-        Object.keys(FanSpeeds).map((key) => {
-          return {
-            name: key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' '),
-            value: key,
-          };
-        }),
-      );
-      out.path = `/${speed}`;
+    switch (action) {
+      case 'fan':
+        const speed = await this.promptService.pickOne(
+          'Fan speed',
+          Object.keys(FanSpeeds).map((key) => {
+            return {
+              name:
+                key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' '),
+              value: key,
+            };
+          }),
+        );
+        out.path = `/${speed}`;
+        return out;
+      case 'media':
+        const target = await this.promptService.pickOne('Action', [
+          { name: 'Turn On', value: 'turnOn' },
+          { name: 'Turn Off', value: 'turnOff' },
+          { name: 'Play / Pause', value: 'playPause' },
+          { name: 'Mute', value: 'mute' },
+        ]);
+        out.path = `/${target}`;
+        return out;
     }
     return out;
   }
 
   private fanAvailable(rooms: RoomControllerSettingsDTO[]): boolean {
     return rooms.some((i) => typeof i.fan !== 'undefined');
+  }
+
+  private mediaAvailable(rooms: RoomControllerSettingsDTO[]): boolean {
+    if (rooms.length !== 1) {
+      return false;
+    }
+    return typeof rooms[0].media !== 'undefined';
   }
 
   private async pickRoom(): Promise<RoomControllerSettingsDTO[]> {

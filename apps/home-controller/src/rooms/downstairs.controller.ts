@@ -10,6 +10,7 @@ import {
   RoomCommandScope,
   RoomController,
   RoomControllerSettingsDTO,
+  SolarCalcService,
   StateManagerService,
   Steps,
 } from '@automagical/controller-logic';
@@ -18,12 +19,7 @@ import {
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import {
-  AutoLogService,
-  PEAT,
-  SolarCalcService,
-  Trace,
-} from '@automagical/utilities';
+import { AutoLogService, PEAT, Trace } from '@automagical/utilities';
 import { EventEmitter2 } from 'eventemitter2';
 
 import { RelayCommand } from '../decorators';
@@ -66,6 +62,7 @@ const accessories = ['switch.bar_light', 'switch.entryway_light'];
   fan: 'fan.living_room_ceiling_fan',
   friendlyName: 'Downstairs',
   lights,
+  media: TV,
   name: 'downstairs',
   remote: 'sensor.living_pico',
   switches,
@@ -88,7 +85,8 @@ export class DownstairsController extends BaseRoomService {
   }
 
   @Trace()
-  private async eveningFavorite(command: RoomCommandDTO): Promise<void> {
+  @RelayCommand(['loft', 'games', 'master', 'dining'], 'areaOff')
+  private async eveningFavorite(command: RoomCommandDTO): Promise<boolean> {
     const scope = COMMAND_SCOPE(command);
     if (scope.has(RoomCommandScope.LOCAL)) {
       await this.switchService.turnOn(switches);
@@ -96,12 +94,7 @@ export class DownstairsController extends BaseRoomService {
       await this.lightManager.turnOffEntities([...lights, ...accessories]);
       return;
     }
-    if (scope.has(RoomCommandScope.ACCESSORIES)) {
-      ['loft', 'games', 'master'].forEach((room) =>
-        this.eventEmitter.emit(ROOM_COMMAND(room, 'areaOff'), command),
-      );
-      this.eventEmitter.emit(ROOM_COMMAND('dining', 'areaOff'), command);
-    }
+    return scope.has(RoomCommandScope.ACCESSORIES);
   }
 
   @Trace()
@@ -112,12 +105,7 @@ export class DownstairsController extends BaseRoomService {
     if (scope.has(RoomCommandScope.LOCAL)) {
       await this.lightDomain.turnOff([...tower1, ...tower2]);
     }
-    if (scope.has(RoomCommandScope.ACCESSORIES)) {
-      this.logger.debug(`Turn off {${TV}}`);
-      await this.remoteService.turnOff(TV);
-      return true;
-    }
-    return false;
+    return scope.has(RoomCommandScope.ACCESSORIES);
   }
 
   @Trace()
@@ -135,7 +123,8 @@ export class DownstairsController extends BaseRoomService {
       setTimeout(() => this.eventEmitter.emit(GLOBAL_TRANSITION), 30 * 1000);
     }
     if (this.solarCalc.IS_EVENING) {
-      return await this.eveningFavorite(parameters);
+      await this.eveningFavorite(parameters);
+      return;
     }
     await this.dayFavorite(parameters);
   }
@@ -157,7 +146,7 @@ export class DownstairsController extends BaseRoomService {
   }
 
   @Trace()
-  @RelayCommand(['loft', 'games', 'master'], 'areaOff')
+  @RelayCommand(['loft', 'games', 'master', 'dining'], 'areaOff')
   private async dayFavorite(command: RoomCommandDTO): Promise<boolean> {
     const scope = COMMAND_SCOPE(command);
     if (scope.has(RoomCommandScope.LOCAL)) {
@@ -165,10 +154,6 @@ export class DownstairsController extends BaseRoomService {
       await this.lightManager.circadianLight(lights, 100);
       return;
     }
-    if (scope.has(RoomCommandScope.ACCESSORIES)) {
-      this.eventEmitter.emit(ROOM_COMMAND(this.dining.name, 'areaOn'), command);
-      return true;
-    }
-    return false;
+    return scope.has(RoomCommandScope.ACCESSORIES);
   }
 }

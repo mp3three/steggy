@@ -65,5 +65,11 @@ export class RoomControllerSettingsDTO {
    */
   @Expose()
   public flags?: RoomControllerFlags[];
+
+  /**
+   * Items such as televisions to automatically turn off
+   */
+  @Expose()
+  public media?: string;
 }
 export const ROOM_CONTROLLER_SETTINGS = Symbol('ROOM_CONTROLLER_SETTINGS');

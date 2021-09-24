@@ -1,7 +1,11 @@
 import { Inject, Provider } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 
-import { CONSUMES_CONFIG, LOGGER_LIBRARY } from '../../contracts';
+import {
+  ACTIVE_APPLICATION,
+  CONSUMES_CONFIG,
+  LOGGER_LIBRARY,
+} from '../../contracts';
 import { AutoConfigService } from '../../services';
 
 export const CONFIG_PROVIDERS = new Set<Provider>();
@@ -12,16 +16,18 @@ export function InjectConfig(path: string): ParameterDecorator {
     target[CONSUMES_CONFIG].push(path);
     const id = uuid();
     CONFIG_PROVIDERS.add({
-      inject: [AutoConfigService],
+      inject: [AutoConfigService, ACTIVE_APPLICATION],
       provide: id,
-      useFactory(config: AutoConfigService) {
+      useFactory(config: AutoConfigService, application: symbol) {
         const configPath: string[] = [];
-        if (target[LOGGER_LIBRARY]) {
+        const library: string = target[LOGGER_LIBRARY];
+        if (library && library !== application.description) {
           configPath.push('libs', target[LOGGER_LIBRARY]);
         } else {
           configPath.push('application');
         }
-        return config.get([...configPath, path].join('.'));
+        configPath.push(path);
+        return config.get(configPath.join('.'));
       },
     });
     return Inject(id)(target, key, index);

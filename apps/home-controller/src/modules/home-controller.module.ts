@@ -5,7 +5,6 @@ import {
   APP_HOME_CONTROLLER,
   ApplicationModule,
   MQTTModule,
-  SolarCalcService,
 } from '@automagical/utilities';
 
 import { RoomAPIController } from '../controllers';
@@ -40,6 +39,5 @@ const rooms = [
     ServerModule,
   ],
   providers: [ApplicationService, GarageService, ...rooms],
-  utils: [SolarCalcService],
 })
 export class HomeControllerModule {}

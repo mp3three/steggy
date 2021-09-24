@@ -1,4 +1,7 @@
-import { HomeAssistantCoreService } from '@automagical/home-assistant';
+import {
+  HomeAssistantCoreService,
+  RemoteDomainService,
+} from '@automagical/home-assistant';
 import {
   AutoLogService,
   ModuleScannerService,
@@ -28,6 +31,7 @@ export class RoomManagerService {
     private readonly stateManager: StateManagerService,
     private readonly scanner: ModuleScannerService,
     private readonly hassCore: HomeAssistantCoreService,
+    private readonly remoteService: RemoteDomainService,
   ) {}
 
   @Trace()
@@ -55,7 +59,7 @@ export class RoomManagerService {
     settings: RoomControllerSettingsDTO,
     command?: RoomCommandDTO,
   ): Promise<void> {
-    const { lights, switches, accessories, name } = settings;
+    const { lights, switches, accessories, name, media } = settings;
     await this.stateManager.removeFlag(settings, AUTO_STATE);
 
     const scope = this.commandScope(command);
@@ -63,6 +67,9 @@ export class RoomManagerService {
     await this.hassCore.turnOff(switches ?? []);
     if (scope.has(RoomCommandScope.ACCESSORIES)) {
       await this.hassCore.turnOff(accessories ?? []);
+      if (media) {
+        await this.remoteService.turnOff(media);
+      }
     }
     const instance = this.controllers.get(name);
     if (instance?.areaOff) {
