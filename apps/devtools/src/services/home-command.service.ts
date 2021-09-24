@@ -34,26 +34,23 @@ export class HomeCommandService implements iRepl {
       return;
     }
     const actions = [
-      { name: 'Area On', value: 'areaOn' },
-      { name: 'Area Off', value: 'areaOff' },
-      { name: 'Auto', value: 'favorite' },
+      { key: 'o', name: 'Area On', value: 'areaOn' },
+      { key: 'x', name: 'Area Off', value: 'areaOff' },
+      { key: 'a', name: 'Auto', value: 'favorite' },
     ];
     if (this.fanAvailable(rooms)) {
-      actions.push({ name: 'Set Fan', value: 'fan' });
+      actions.push({ key: 'f', name: 'Set Fan', value: 'fan' });
     }
     if (this.mediaAvailable(rooms)) {
-      actions.push({ name: 'Media', value: 'media' });
+      actions.push({ key: 'm', name: 'Media', value: 'media' });
     }
 
-    const action = await this.promptService.pickOne('Action', actions);
+    const action = await this.promptService.expand('Action', actions);
     const { scope, path } = await this.getExtra(action);
 
     this.logger.debug({ action, rooms: rooms.map((i) => i.name) });
     await each(rooms, async (item, callback) => {
-      let url = `/room/${item.name}/${action}${path ?? ''}`;
-      if (Date.now() < 0) {
-        url = `${url}/asdf`;
-      }
+      const url = `/room/${item.name}/${action}${path ?? ''}`;
       this.logger.debug(`PUT ${url}`);
       const response = await this.fetchService.fetch({
         body: JSON.stringify({
@@ -75,13 +72,15 @@ export class HomeCommandService implements iRepl {
       case 'fan':
         const speed = await this.promptService.pickOne(
           'Fan speed',
-          Object.keys(FanSpeeds).map((key) => {
-            return {
-              name:
-                key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' '),
-              value: key,
-            };
-          }),
+          Object.keys(FanSpeeds)
+            .reverse()
+            .map((key) => {
+              return {
+                name:
+                  key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' '),
+                value: key,
+              };
+            }),
         );
         out.path = `/${speed}`;
         return out;

@@ -3,6 +3,9 @@ import { Injectable, NotFoundException, PipeTransform } from '@nestjs/common';
 import { RoomControllerSettingsDTO } from '..';
 import { RoomManagerService } from '../services';
 
+/**
+ * Transforms string to `RoomControllerSettingsDTO`
+ */
 @Injectable()
 export class RoomSettingsPipe implements PipeTransform {
   constructor(private readonly roomManager: RoomManagerService) {}

@@ -1,4 +1,7 @@
-import type { iRoomController } from '@automagical/controller-logic';
+import type {
+  iRoomController,
+  RoomInspectResponseDTO,
+} from '@automagical/controller-logic';
 import {
   RoomCommandDTO,
   RoomControllerSettingsDTO,
@@ -119,23 +122,26 @@ export class RoomAPIController {
   @Get('/:name/inspect')
   public async inspectRoom(
     @Param('name', RoomSettingsPipe) settings: RoomControllerSettingsDTO,
-  ): Promise<unknown> {
+  ): Promise<RoomInspectResponseDTO> {
     const entities = [
       ...(settings.lights || []),
       ...(settings.switches || []),
       ...(settings.accessories || []),
-      // ...,
       settings.media,
       settings.fan,
     ].filter((item) => typeof item === 'string');
-    Object.keys(settings.groups ?? {}).map((group) => {
+    const groups = settings.groups ?? {};
+    Object.keys(groups).map((group) => {
       return entities.push(...settings.groups[group]);
     });
-    return await this.entityService.getEntity(
-      entities.filter((item, index) => {
-        return entities.indexOf(item) === index;
-      }),
-    );
+    return {
+      groups,
+      states: await this.entityService.getEntity(
+        entities.filter((item, index) => {
+          return entities.indexOf(item) === index;
+        }),
+      ),
+    };
   }
 
   @Put('/:name/media/:state')

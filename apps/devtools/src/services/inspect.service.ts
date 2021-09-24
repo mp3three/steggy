@@ -1,6 +1,7 @@
 import {
   RoomControllerFlags,
   RoomControllerSettingsDTO,
+  RoomInspectResponseDTO,
 } from '@automagical/controller-logic';
 import { domain, HassStateDTO } from '@automagical/home-assistant';
 import { iRepl, PromptService, Repl } from '@automagical/tty';
@@ -25,17 +26,23 @@ export class InspectService implements iRepl {
   public async exec(): Promise<void> {
     const metadata = await this.pickRoom();
 
-    const inspectData = await this.fetchService.fetch<HassStateDTO[]>({
-      url: `/room/${metadata.name}/inspect`,
-    });
+    const { states, groups } =
+      await this.fetchService.fetch<RoomInspectResponseDTO>({
+        url: `/room/${metadata.name}/inspect`,
+      });
 
     const entity = await this.promptService.pickOne(
       'Entity',
-      inspectData.map((entity) => {
+      states.map((entity) => {
         let name = entity.attributes.friendly_name;
         if (name) {
           name = chalk`{bold ${domain(entity.entity_id)}} ${name}`;
         }
+        Object.keys(groups).forEach((groupName) => {
+          if (groups[groupName].includes(entity.entity_id)) {
+            name = chalk`{bold.cyan ${groupName}} ${name}`;
+          }
+        });
         return {
           name: name || entity.entity_id,
           value: entity,

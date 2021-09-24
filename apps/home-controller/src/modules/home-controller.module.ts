@@ -7,7 +7,11 @@ import {
   MQTTModule,
 } from '@automagical/utilities';
 
-import { EntityController, RoomAPIController } from '../controllers';
+import {
+  EntityController,
+  GroupController,
+  RoomAPIController,
+} from '../controllers';
 import {
   BedRemoteController,
   DiningController,
@@ -31,7 +35,7 @@ const rooms = [
 
 @ApplicationModule({
   application: APP_HOME_CONTROLLER,
-  controllers: [RoomAPIController, EntityController],
+  controllers: [RoomAPIController, EntityController, GroupController],
   imports: [
     HomeAssistantModule,
     HomeControllerCustomModule.forRoot(),
