@@ -6,17 +6,12 @@ import {
 } from '@automagical/controller-logic';
 import { FanSpeeds } from '@automagical/home-assistant';
 import { iRepl, PromptService, Repl } from '@automagical/tty';
-import {
-  AutoLogService,
-  FetchService,
-  InjectConfig,
-  sleep,
-  Trace,
-} from '@automagical/utilities';
+import { AutoLogService, sleep, Trace } from '@automagical/utilities';
 import { each } from 'async';
 import inquirer from 'inquirer';
 
-import { CONTROLLER_API } from '../config';
+import { HomeFetchService } from './home-fetch.service';
+
 type extra = { scope: RoomCommandScope[]; path?: string };
 
 @Repl({
@@ -25,13 +20,9 @@ type extra = { scope: RoomCommandScope[]; path?: string };
 export class HomeCommandService implements iRepl {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly fetchService: FetchService,
+    private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
-    @InjectConfig(CONTROLLER_API) readonly homeController: string,
-  ) {
-    fetchService.BASE_URL = homeController;
-    console.log(homeController);
-  }
+  ) {}
 
   @Trace()
   // @Timeout

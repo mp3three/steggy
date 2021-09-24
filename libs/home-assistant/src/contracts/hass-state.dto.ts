@@ -4,7 +4,7 @@ import { ContextDTO } from './hass-event.dto';
 
 export class HassStateDTO<
   STATE extends unknown = unknown,
-  ATTRIBUTES extends Record<never, unknown> = Record<never, unknown>,
+  ATTRIBUTES extends Record<never, unknown> = { friendly_name?: string },
 > {
   public attributes: ATTRIBUTES;
   public context: ContextDTO;

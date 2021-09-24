@@ -1,15 +1,17 @@
-import {
-  ALL_ENTITIES_UPDATED,
-  HA_EVENT_STATE_CHANGE,
-  HA_SOCKET_READY,
-  HassEventDTO,
-  HassStateDTO,
-} from '@automagical/home-assistant';
 import { OnEvent, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 import { Observable, Subscriber } from 'rxjs';
 
+import {
+  ALL_ENTITIES_UPDATED,
+  domain,
+  HA_EVENT_STATE_CHANGE,
+  HA_SOCKET_READY,
+  HASS_DOMAINS,
+  HassEventDTO,
+  HassStateDTO,
+} from '../contracts';
 import { HASocketAPIService } from './ha-socket-api.service';
 
 /**
@@ -48,6 +50,18 @@ export class EntityManagerService {
   ): Observable<T> {
     this.createObservable(entityId);
     return this.OBSERVABLES.get(entityId) as Observable<T>;
+  }
+
+  public findByDomain<T extends HassStateDTO = HassStateDTO>(
+    target: HASS_DOMAINS,
+  ): T[] {
+    const out: T[] = [];
+    this.ENTITIES.forEach((state, key) => {
+      if (domain(key) === target) {
+        out.push(state as T);
+      }
+    });
+    return out;
   }
 
   @Trace()

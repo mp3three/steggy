@@ -23,6 +23,19 @@ export class PromptService {
     ]);
     return value;
   }
+
+  public async confirm(prompt: string, defaultValue = false): Promise<boolean> {
+    const { result } = await inquirer.prompt([
+      {
+        default: defaultValue,
+        message: prompt,
+        name: 'result',
+        type: 'confirm',
+      },
+    ]);
+    return result;
+  }
+
   public async boolean(
     message: string,
     defaultValue?: boolean,
@@ -52,11 +65,11 @@ export class PromptService {
     ]);
   }
 
-  public async pickOne(
+  public async pickOne<T extends unknown = string>(
     message: string,
-    options: (string | Record<'name' | 'value', string>)[],
+    options: (string | { name: string; value: T })[],
     defaultValue?: string,
-  ): Promise<string> {
+  ): Promise<T> {
     const { value } = await inquirer.prompt([
       {
         choices: options,

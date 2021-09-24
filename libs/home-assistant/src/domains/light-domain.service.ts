@@ -1,7 +1,7 @@
-import { HASS_DOMAINS } from '@automagical/home-assistant';
 import { AutoLogService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
+import { HASS_DOMAINS } from '../contracts';
 import { EntityService, HACallService } from '../services';
 
 /**
@@ -17,6 +17,10 @@ export class LightDomainService extends EntityService {
   ) {
     super();
     callService.domain = HASS_DOMAINS.light;
+  }
+
+  public supportsColor(): boolean {
+    return false;
   }
 
   @Trace()

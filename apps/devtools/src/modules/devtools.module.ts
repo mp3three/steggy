@@ -11,7 +11,9 @@ import {
   ConfigBuilderService,
   DeployService,
   HomeCommandService,
+  HomeFetchService,
   ImgurAlbumDownloadService,
+  InspectService,
 } from '../services';
 
 @ApplicationModule({
@@ -27,6 +29,8 @@ import {
     ImgurAlbumDownloadService,
     DeployService,
     HomeCommandService,
+    InspectService,
+    HomeFetchService,
     ChangelogService,
   ],
 })

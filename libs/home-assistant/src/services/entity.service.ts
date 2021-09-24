@@ -1,10 +1,11 @@
+import { AutoLogService, OnEvent } from '@automagical/utilities';
+
 import {
   ALL_ENTITIES_UPDATED,
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
   HassStateDTO,
-} from '@automagical/home-assistant';
-import { AutoLogService, OnEvent } from '@automagical/utilities';
+} from '../contracts';
 
 const DEFAULT_STATE: HassStateDTO = undefined;
 

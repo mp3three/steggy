@@ -8,6 +8,7 @@ import {
   RoomSettingsPipe,
 } from '@automagical/controller-logic';
 import {
+  EntityManagerService,
   FanDomainService,
   FanSpeeds,
   MediaPlayerDomainService,
@@ -23,6 +24,7 @@ import {
   Put,
   ValidationPipe,
 } from '@nestjs/common';
+import { each } from 'async';
 
 @Controller(`/room`)
 export class RoomAPIController {
@@ -32,6 +34,7 @@ export class RoomAPIController {
     private readonly roomManager: RoomManagerService,
     private readonly fanDomain: FanDomainService,
     private readonly mediaPlayerService: MediaPlayerDomainService,
+    private readonly entityService: EntityManagerService,
   ) {}
 
   /**
@@ -114,6 +117,21 @@ export class RoomAPIController {
   ): Promise<typeof GENERIC_RESPONSE> {
     settings;
     return GENERIC_RESPONSE;
+  }
+
+  @Get('/:name/inspect')
+  public async inspectRoom(
+    @Param('name', RoomSettingsPipe) settings: RoomControllerSettingsDTO,
+  ): Promise<unknown> {
+    const entities = [
+      ...settings.lights,
+      ...settings.switches,
+      ...settings.accessories,
+      settings.media,
+      settings.fan,
+    ].filter((item) => typeof item === 'string');
+
+    return await this.entityService.getEntity(entities);
   }
 
   @Put('/:name/media/:state')
