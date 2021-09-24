@@ -5,7 +5,8 @@ import {
   RoomManagerService,
   RoomSettingsPipe,
 } from '@automagical/controller-logic';
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
+import { GENERIC_SUCCESS_RESPONSE } from '@automagical/server';
+import { Controller, Get, NotFoundException, Param, Put } from '@nestjs/common';
 
 @Controller('/room/:name/group')
 export class GroupController {
@@ -26,5 +27,25 @@ export class GroupController {
       );
     }
     return this.groupService.describeGroup(name, group);
+  }
+
+  @Put('/:group/command/:command')
+  public async groupCommand(
+    @Param('name', RoomSettingsPipe) settings: RoomControllerSettingsDTO,
+    @Param('group') group: string,
+    @Param('command') command: string,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    switch (command) {
+      case 'turnOn':
+        this.groupService.turnOn(settings.name, group);
+        break;
+      case 'turnOff':
+        this.groupService.turnOff(settings.name, group);
+        break;
+      case 'turnOnCircadian':
+        this.groupService.turnOnCircadian(settings.name, group);
+        break;
+    }
+    return GENERIC_SUCCESS_RESPONSE;
   }
 }

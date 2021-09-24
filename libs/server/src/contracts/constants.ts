@@ -1,4 +1,4 @@
 /**
  * Got nothing better to respond with?
  */
-export const GENERIC_RESPONSE = { success: true };
+export const GENERIC_SUCCESS_RESPONSE = { success: true };

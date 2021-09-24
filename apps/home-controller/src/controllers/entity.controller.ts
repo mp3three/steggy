@@ -1,5 +1,5 @@
 import { EntityManagerService } from '@automagical/home-assistant';
-import { GENERIC_RESPONSE } from '@automagical/server';
+import { GENERIC_SUCCESS_RESPONSE } from '@automagical/server';
 import { AutoLogService } from '@automagical/utilities';
 import {
   BadRequestException,
@@ -24,7 +24,7 @@ export class EntityController {
   public async updateEntity(
     @Param('entityId') entityId: string,
     @Body() body: Record<'name', string>,
-  ): Promise<typeof GENERIC_RESPONSE> {
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     if (!body?.name) {
       throw new BadRequestException(`No name provided`);
     }
@@ -36,6 +36,6 @@ export class EntityController {
       body.name,
     );
     this.logger.info({ result });
-    return GENERIC_RESPONSE;
+    return GENERIC_SUCCESS_RESPONSE;
   }
 }

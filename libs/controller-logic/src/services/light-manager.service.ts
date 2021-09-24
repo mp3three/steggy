@@ -145,7 +145,7 @@ export class LightManagerService {
   @Trace()
   public async turnOnEntities(
     entity_id: string | string[],
-    settings: Partial<LightingCacheDTO>,
+    settings: Partial<LightingCacheDTO> = {},
   ): Promise<void> {
     if (Array.isArray(entity_id)) {
       await each(entity_id, async (id, callback) => {
@@ -160,7 +160,7 @@ export class LightManagerService {
     const current = await this.cache.get<LightingCacheDTO>(
       CACHE_KEY(entity_id),
     );
-    settings.brightness ??= current?.brightness ?? 100;
+    settings.brightness ??= current?.brightness;
     await this.cache.set(CACHE_KEY(entity_id), settings);
     await this.lightService.turnOn(entity_id, {
       brightness_pct: settings.brightness,

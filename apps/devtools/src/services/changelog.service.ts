@@ -3,6 +3,7 @@ import {
   ChangelogDTO,
   GitService,
   iRepl,
+  PromptService,
   Repl,
   SystemService,
   TypePromptService,
@@ -36,6 +37,7 @@ export class ChangelogService implements iRepl {
     private readonly typePromptService: TypePromptService,
     private readonly gitService: GitService,
     private readonly systemService: SystemService,
+    private readonly promptService: PromptService,
   ) {}
 
   @Trace()
@@ -171,14 +173,19 @@ export class ChangelogService implements iRepl {
    */
   @Trace()
   private async processAffected(affected: string[]): Promise<ChangeItemDTO[]> {
-    const { values } = await inquirer.prompt([
-      {
-        choices: affected,
-        message: 'Projects to version bump',
-        name: 'values',
-        type: 'checkbox',
-      },
-    ]);
+    const values = await this.promptService.pickMany(
+      'Projects to version bump',
+      affected,
+    );
+    if (values.length === 0) {
+      const proceed = await this.promptService.confirm(
+        `Nothing selected, continue?`,
+      );
+      if (!proceed) {
+        return await this.processAffected(affected);
+      }
+    }
+
     const out: ChangeItemDTO[] = [];
     await eachSeries(values as string[], async (project, callback) => {
       const current = this.workspace.PACKAGES.get(project).version;
