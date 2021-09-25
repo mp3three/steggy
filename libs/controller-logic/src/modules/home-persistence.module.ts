@@ -6,13 +6,16 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { DatabaseConnectService } from '../services/database-connect.service';
 
 @LibraryModule({
+  exports: [DatabaseConnectService],
+  imports: [MongoPersistenceModule],
   library: LIB_CONTROLLER_LOGIC,
+  notGlobal: true,
   providers: [DatabaseConnectService],
 })
 export class HomePersistenceModule {
-  public static connectDB(): DynamicModule {
+  public static forRoot(): DynamicModule {
     return MongooseModule.forRootAsync({
-      imports: [MongoPersistenceModule],
+      imports: [MongoPersistenceModule, HomePersistenceModule],
       inject: [DatabaseConnectService],
       async useFactory(connect: DatabaseConnectService) {
         return await connect.build();

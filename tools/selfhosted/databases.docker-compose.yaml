@@ -1,0 +1,24 @@
+# docker compose -f ./databases.docker-compose.yaml up -d
+# docker-compose -f ./databases.docker-compose.yaml up -d
+---
+version: '2.2'
+
+volumes:
+  automagical_mongo:
+
+services:
+  automagical_redis:
+    container_name: automagical_redis
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - 6379:6379
+
+  automagical_mongo:
+    container_name: automagical_mongo
+    image: mongo:latest
+    restart: unless-stopped
+    volumes:
+      - automagical_mongo:/data/db
+    ports:
+      - 27017:27017

@@ -1,10 +1,11 @@
 import {
-  LibraryModule,
   LIB_CONTROLLER_LOGIC,
+  LibraryModule,
   RegisterCache,
 } from '@automagical/utilities';
 import { DynamicModule } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
+
 import { DynamicRoomProviders, InjectedSettings } from '../decorators';
 import {
   CircadianService,
