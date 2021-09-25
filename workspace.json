@@ -13,6 +13,7 @@
     "home-assistant": "libs/home-assistant",
     "home-controller": "apps/home-controller",
     "living-docs": "apps/living-docs",
+    "persistence": "libs/persistence",
     "portainer": "libs/portainer",
     "server": "libs/server",
     "terminal": "libs/terminal",

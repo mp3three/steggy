@@ -1,0 +1,34 @@
+{
+  "root": "libs/persistence",
+  "sourceRoot": "libs/persistence/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/persistence",
+        "tsConfig": "libs/persistence/tsconfig.lib.json",
+        "packageJson": "libs/persistence/package.json",
+        "main": "libs/persistence/src/index.ts",
+        "assets": ["libs/persistence/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/persistence/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/persistence"],
+      "options": {
+        "jestConfig": "libs/persistence/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
