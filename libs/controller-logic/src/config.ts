@@ -8,3 +8,4 @@ export const MONGO_CERT = 'MONGO_CERT';
 export const MONGO_KEY = 'MONGO_KEY';
 export const MONGO_CA = 'MONGO_CA';
 export const MONGO_CRL = 'MONGO_CRL';
+export const CACHE_TTL = 'CACHE_TTL';

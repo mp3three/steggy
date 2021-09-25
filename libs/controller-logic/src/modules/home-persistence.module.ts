@@ -3,14 +3,20 @@ import { LIB_CONTROLLER_LOGIC, LibraryModule } from '@automagical/utilities';
 import { DynamicModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { DatabaseConnectService } from '../services/database-connect.service';
+import { RoomStateDTO, RoomStateSchema } from '../contracts';
+import { DatabaseConnectService, StatePersistenceService } from '../services';
 
 @LibraryModule({
-  exports: [DatabaseConnectService],
-  imports: [MongoPersistenceModule],
+  exports: [DatabaseConnectService, StatePersistenceService],
+  imports: [
+    MongoPersistenceModule,
+    MongooseModule.forFeature([
+      { name: RoomStateDTO.name, schema: RoomStateSchema },
+    ]),
+  ],
   library: LIB_CONTROLLER_LOGIC,
   notGlobal: true,
-  providers: [DatabaseConnectService],
+  providers: [DatabaseConnectService, StatePersistenceService],
 })
 export class HomePersistenceModule {
   public static forRoot(): DynamicModule {

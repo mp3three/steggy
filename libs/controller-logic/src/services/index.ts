@@ -1,5 +1,6 @@
 export * from './base-room.service';
 export * from './circadian.service';
+export * from './database-connect.service';
 export * from './group.service';
 export * from './kunami-code.service';
 export * from './light-manager.service';
@@ -8,3 +9,4 @@ export * from './room-explorer.service';
 export * from './room-manager.service';
 export * from './solar-calc.service';
 export * from './state-manager.service';
+export * from './state-persistence.service';

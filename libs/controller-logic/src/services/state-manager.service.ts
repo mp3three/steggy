@@ -2,14 +2,16 @@ import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
-  InjectLogger,
+  InjectConfig,
   Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
+import { CACHE_TTL } from '..';
 import { RoomControllerSettingsDTO } from '../contracts';
 
 const CACHE_KEY = (room, flag) => `FLAGS:${room}/${flag}`;
+
 /**
  * This service exists to manage room flags.
  * Future expansion as specific room functionality demands it's own state management
@@ -18,7 +20,8 @@ const CACHE_KEY = (room, flag) => `FLAGS:${room}/${flag}`;
 export class StateManagerService {
   constructor(
     @InjectCache() private readonly cacheService: CacheManagerService,
-    @InjectLogger() private readonly logger: AutoLogService,
+    private readonly logger: AutoLogService,
+    @InjectConfig(CACHE_TTL) private readonly cacheTtl: number,
   ) {}
 
   @Trace()
@@ -35,7 +38,7 @@ export class StateManagerService {
     this.logger.debug(`[${friendlyName}] Add flag {${flagName}}`);
     const key = CACHE_KEY(name, flagName);
     await this.cacheService.set(key, true, {
-      ttl: 24 * 60 * 60,
+      ttl: this.cacheTtl,
     });
   }
 

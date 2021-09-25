@@ -38,6 +38,11 @@
     "MONGO_CRL": {
       "type": "string[]",
       "description": "Optional configuration item, used with mongo ssl connections"
+    },
+    "CACHE_TTL": {
+      "type": "number",
+      "description": "How long to store short term cache information for",
+      "default": 86400
     }
   }
 }
