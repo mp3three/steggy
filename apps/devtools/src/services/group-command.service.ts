@@ -1,6 +1,8 @@
-import { RoomControllerSettingsDTO } from '@automagical/controller-logic';
+import {
+  RoomControllerSettingsDTO,
+  RoomStateDTO,
+} from '@automagical/controller-logic';
 import { iRepl, PromptService, Repl } from '@automagical/tty';
-import { sleep } from '@automagical/utilities';
 
 import { HomeFetchService } from './home-fetch.service';
 
@@ -52,7 +54,7 @@ export class GroupCommandService implements iRepl {
       },
       {
         key: 'c',
-        name: 'Turn On',
+        name: 'Circadian On',
         value: 'turnOnCircadian',
       },
       {
@@ -66,6 +68,16 @@ export class GroupCommandService implements iRepl {
         value: 'state',
       },
       {
+        key: 't',
+        name: 'Capture Current State',
+        value: 'capture',
+      },
+      {
+        key: 'l',
+        name: 'List States',
+        value: 'list',
+      },
+      {
         key: 'x',
         name: 'Done',
         value: 'done',
@@ -73,14 +85,35 @@ export class GroupCommandService implements iRepl {
     ]);
 
     switch (action) {
+      // Describe
       case 'state':
         const data = await this.fetchService.fetch({
           url: `/room/${group.room}/group/${group.name}/describe`,
         });
         console.log(JSON.stringify(data, undefined, '  '));
         break;
+      // List all states
+      case 'list':
+        const stateList = await this.fetchService.fetch<RoomStateDTO[]>({
+          url: `/room/${group.room}/group/${group.name}/list-states`,
+        });
+        console.log(stateList);
+        break;
+      // Capture state
+      case 'capture':
+        const state = await this.fetchService.fetch({
+          body: {
+            name: await this.promptService.string(`Name for save state`),
+          },
+          method: 'post',
+          url: `/room/${group.room}/group/${group.name}/snapshot`,
+        });
+        console.log(state);
+        break;
+      // Done
       case 'done':
         return;
+      // Everything else
       default:
         await this.fetchService.fetch({
           method: 'put',

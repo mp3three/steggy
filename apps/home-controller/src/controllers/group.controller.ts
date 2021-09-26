@@ -1,12 +1,22 @@
 import {
   DescribeGroupResponseDTO,
   GroupService,
+  GroupSnapshotDetailsDTO,
   RoomControllerSettingsDTO,
   RoomManagerService,
   RoomSettingsPipe,
+  RoomStateDTO,
 } from '@automagical/controller-logic';
-import { GENERIC_SUCCESS_RESPONSE } from '@automagical/server';
-import { Controller, Get, NotFoundException, Param, Put } from '@nestjs/common';
+import { GENERIC_SUCCESS_RESPONSE, ValidationPipe } from '@automagical/server';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 
 @Controller('/room/:name/group')
 export class GroupController {
@@ -14,6 +24,23 @@ export class GroupController {
     private readonly roomManager: RoomManagerService,
     private readonly groupService: GroupService,
   ) {}
+
+  @Get('/:group/list-states')
+  public async listGroupStates(
+    @Param('name') room: string,
+    @Param('group') group: string,
+  ): Promise<RoomStateDTO[]> {
+    return await this.groupService.listStatesByGroup(room, group);
+  }
+
+  @Post(`/:group/snapshot`)
+  public async createSnapshot(
+    @Param('name') room: string,
+    @Param('group') group: string,
+    @Body(ValidationPipe) body: GroupSnapshotDetailsDTO,
+  ): Promise<RoomStateDTO> {
+    return await this.groupService.captureState(room, group, body.name);
+  }
 
   @Get('/:group/describe')
   public async describeGroup(

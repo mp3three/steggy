@@ -18,6 +18,7 @@ import {
   SolarCalcService,
   StateManagerService,
 } from '../services';
+import { HomePersistenceModule } from './home-persistence.module';
 
 const providers = [
   LightManagerService,
@@ -33,7 +34,7 @@ const providers = [
 
 @LibraryModule({
   exports: providers,
-  imports: [RegisterCache(), DiscoveryModule],
+  imports: [RegisterCache(), DiscoveryModule, HomePersistenceModule],
   library: LIB_CONTROLLER_LOGIC,
   providers,
 })
@@ -46,7 +47,7 @@ export class HomeControllerCustomModule {
     return {
       exports: [...providers, ...decorated],
       global: true,
-      imports: [RegisterCache(), DiscoveryModule],
+      imports: [RegisterCache(), DiscoveryModule, HomePersistenceModule],
       module: HomeControllerCustomModule,
       providers: [...providers, ...decorated],
     };

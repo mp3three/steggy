@@ -63,19 +63,23 @@ export function filtersToMongoQuery(
       case 'lt':
       case 'eq':
       case 'ne':
-        return out.set(filter.field, cast(filter.field, filter.value));
+        return out.set(filter.field, {
+          [`$${filter.operation}`]: cast(filter.field, filter.value),
+        });
       default:
         throw new BadRequestException(`Unknown operator: ${filter.operation}`);
     }
   });
   return out;
 }
+
 function cast(field: string, value) {
   switch (field) {
     case 'created':
     case 'updated':
       return dayjs(value).toDate();
   }
+  return value;
 }
 /**
  * - default the operation to equals

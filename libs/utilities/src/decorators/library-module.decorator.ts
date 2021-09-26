@@ -4,7 +4,7 @@ import { LOGGER_LIBRARY } from '../contracts';
 
 export interface LibraryModuleMetadata extends Partial<ModuleMetadata> {
   library: symbol;
-  notGlobal?: boolean;
+  local?: boolean;
 }
 
 export function LibraryModule(metadata: LibraryModuleMetadata): ClassDecorator {
@@ -16,10 +16,10 @@ export function LibraryModule(metadata: LibraryModuleMetadata): ClassDecorator {
     metadata.providers.forEach((provider) => {
       provider[LOGGER_LIBRARY] = library;
     });
-    if (!metadata.notGlobal) {
+    if (!metadata.local) {
       Global()(target);
     }
-    delete metadata.notGlobal;
+    delete metadata.local;
     propertiesKeys.forEach((property) => {
       Reflect.defineMetadata(property, metadata[property], target);
     });

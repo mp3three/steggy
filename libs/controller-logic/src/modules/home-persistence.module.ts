@@ -15,7 +15,7 @@ import { DatabaseConnectService, StatePersistenceService } from '../services';
     ]),
   ],
   library: LIB_CONTROLLER_LOGIC,
-  notGlobal: true,
+  local: true,
   providers: [DatabaseConnectService, StatePersistenceService],
 })
 export class HomePersistenceModule {

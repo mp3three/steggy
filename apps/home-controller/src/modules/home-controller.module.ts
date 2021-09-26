@@ -14,6 +14,7 @@ import {
   EntityController,
   GroupController,
   RoomAPIController,
+  StateController,
 } from '../controllers';
 import {
   BedRemoteController,
@@ -38,7 +39,12 @@ const rooms = [
 
 @ApplicationModule({
   application: APP_HOME_CONTROLLER,
-  controllers: [RoomAPIController, EntityController, GroupController],
+  controllers: [
+    EntityController,
+    GroupController,
+    RoomAPIController,
+    StateController,
+  ],
   imports: [
     MQTTModule,
     ServerModule,

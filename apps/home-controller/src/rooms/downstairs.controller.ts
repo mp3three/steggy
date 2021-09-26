@@ -28,7 +28,7 @@ const switches = [
   'switch.media_center_light',
   'switch.couch_light',
 ];
-const lights = [
+const fanLights = [
   'light.living_room_back',
   'light.living_room_front',
   'light.living_room_left',
@@ -57,8 +57,8 @@ const accessories = ['switch.bar_light', 'switch.entryway_light'];
   accessories,
   fan: 'fan.living_room_ceiling_fan',
   friendlyName: 'Downstairs',
-  groups: { tower1, tower2 },
-  lights,
+  groups: { fanLights, tower1, tower2 },
+  lights: fanLights,
   media: TV,
   name: 'downstairs',
   remote: 'sensor.living_pico',
@@ -86,7 +86,7 @@ export class DownstairsController extends BaseRoomService {
     if (scope.has(RoomCommandScope.LOCAL)) {
       await this.switchService.turnOn(switches);
       await this.lightDomain.turnOn([...tower1, ...tower2]);
-      await this.lightManager.turnOffEntities([...lights, ...accessories]);
+      await this.lightManager.turnOffEntities([...fanLights, ...accessories]);
       return false;
     }
     return scope.has(RoomCommandScope.ACCESSORIES);
@@ -148,7 +148,7 @@ export class DownstairsController extends BaseRoomService {
     const scope = COMMAND_SCOPE(command);
     if (scope.has(RoomCommandScope.LOCAL)) {
       await this.switchService.turnOn([...switches, ...accessories]);
-      await this.lightManager.circadianLight(lights, 100);
+      await this.lightManager.circadianLight(fanLights, 100);
       return;
     }
     return scope.has(RoomCommandScope.ACCESSORIES);

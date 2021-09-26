@@ -129,17 +129,13 @@ export class HomeCommandService implements iRepl {
       primary.push(entry);
     });
 
-    const selection = await this.promptService.pickMany(
-      'Which room(s)?',
-      [
-        ...this.sort(primary),
-        new inquirer.Separator(),
-        ...this.sort(secondary),
-      ],
-      { min: 1 },
-    );
+    const selection = await this.promptService.pickOne('Which room(s)?', [
+      ...this.sort(primary),
+      new inquirer.Separator(),
+      ...this.sort(secondary),
+    ]);
 
-    return rooms.filter((i) => selection.includes(i.name));
+    return rooms.filter((i) => selection === i.name);
   }
 
   private sort(

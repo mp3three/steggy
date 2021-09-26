@@ -1,4 +1,4 @@
-import { ResultControlDTO } from '@automagical/utilities';
+import { FILTER_OPERATIONS, ResultControlDTO } from '@automagical/utilities';
 import { Document, Query, Types } from 'mongoose';
 
 import { filtersToMongoQuery } from '../includes';
@@ -22,7 +22,8 @@ export class BaseMongoService {
 
     query.filters.add({
       field: 'deleted',
-      value: null,
+      operation: FILTER_OPERATIONS.ne,
+      value: 0,
     });
     return Object.fromEntries(filtersToMongoQuery(query).entries());
   }

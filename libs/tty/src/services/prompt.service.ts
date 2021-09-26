@@ -67,7 +67,7 @@ export class PromptService {
 
   public async pickOne<T extends unknown = string>(
     message: string,
-    options: (string | { name: string; value: T })[],
+    options: (string | { name: string; value: T } | Separator)[],
     defaultValue?: string,
   ): Promise<T> {
     const { value } = await inquirer.prompt([
