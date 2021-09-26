@@ -1,4 +1,5 @@
-import { Controller, Provider } from '@nestjs/common';
+import { AuthStack } from '@automagical/server';
+import { applyDecorators, Controller, Provider } from '@nestjs/common';
 
 import {
   ROOM_CONTROLLER_SETTINGS,
@@ -11,8 +12,11 @@ export function RoomController(
   settings: RoomControllerSettingsDTO,
 ): ClassDecorator {
   settings.flags ??= [];
-  return function (target) {
-    target[ROOM_CONTROLLER_SETTINGS] = settings;
-    return Controller(`/room/${settings.name}`)(target);
-  };
+  return applyDecorators(
+    AuthStack(),
+    Controller(`/room/${settings.name}`),
+    function (target) {
+      target[ROOM_CONTROLLER_SETTINGS] = settings;
+    },
+  );
 }

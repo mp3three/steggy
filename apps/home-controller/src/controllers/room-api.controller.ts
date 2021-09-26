@@ -16,6 +16,7 @@ import {
   MediaPlayerDomainService,
 } from '@automagical/home-assistant';
 import {
+  AuthStack,
   EnumContainsPipe,
   GENERIC_SUCCESS_RESPONSE,
 } from '@automagical/server';
@@ -31,6 +32,7 @@ import {
 } from '@nestjs/common';
 
 @Controller(`/room`)
+@AuthStack()
 export class RoomAPIController {
   constructor(
     private readonly logger: AutoLogService,

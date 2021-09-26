@@ -7,7 +7,11 @@ import {
   RoomSettingsPipe,
   RoomStateDTO,
 } from '@automagical/controller-logic';
-import { GENERIC_SUCCESS_RESPONSE, ValidationPipe } from '@automagical/server';
+import {
+  AuthStack,
+  GENERIC_SUCCESS_RESPONSE,
+  ValidationPipe,
+} from '@automagical/server';
 import {
   Body,
   Controller,
@@ -19,6 +23,7 @@ import {
 } from '@nestjs/common';
 
 @Controller('/room/:name/group')
+@AuthStack()
 export class GroupController {
   constructor(
     private readonly roomManager: RoomManagerService,

@@ -4,19 +4,19 @@ import {
   RoomStateDTO,
   StateManagerService,
 } from '@automagical/controller-logic';
-import { GENERIC_SUCCESS_RESPONSE } from '@automagical/server';
+import { AuthStack, GENERIC_SUCCESS_RESPONSE } from '@automagical/server';
 import {
   BadRequestException,
   Body,
   Controller,
   Delete,
-  NotFoundException,
   Param,
   Post,
   Put,
 } from '@nestjs/common';
 
 @Controller(`/state`)
+@AuthStack()
 export class StateController {
   constructor(
     private readonly groupService: GroupService,

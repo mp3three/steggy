@@ -11,7 +11,7 @@ import { lstatSync, mkdirSync, readdirSync, renameSync } from 'fs';
 import inquirer from 'inquirer';
 import { join, resolve } from 'path';
 
-import { ALBUM_DOWNLOAD_TARGET, ALBUM_PAD_SIZE } from '../config';
+import { ALBUM_DOWNLOAD_TARGET, ALBUM_PAD_SIZE } from '../../config';
 
 /* eslint-disable security/detect-non-literal-regexp */
 

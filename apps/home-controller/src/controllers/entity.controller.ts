@@ -1,5 +1,5 @@
 import { EntityManagerService } from '@automagical/home-assistant';
-import { GENERIC_SUCCESS_RESPONSE } from '@automagical/server';
+import { AuthStack, GENERIC_SUCCESS_RESPONSE } from '@automagical/server';
 import { AutoLogService } from '@automagical/utilities';
 import {
   BadRequestException,
@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 
 @Controller('/entity')
+@AuthStack()
 export class EntityController {
   constructor(
     private readonly logger: AutoLogService,

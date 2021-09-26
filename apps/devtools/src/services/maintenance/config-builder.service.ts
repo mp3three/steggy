@@ -68,7 +68,7 @@ export class ConfigBuilderService implements iRepl {
         type: 'list',
       },
     ])) as { application: string };
-    this.typePrompt.config = rc<AutomagicalConfig>(application.split('-')[0]);
+    this.typePrompt.config = rc<AutomagicalConfig>(application);
     delete this.typePrompt.config['configs'];
     delete this.typePrompt.config['config'];
     const config: AutomagicalConfig = JSON.parse(

@@ -73,7 +73,7 @@
     ],
     "files.associations": {
       ".pino-prettyrc": "json",
-      "home": "ini",
+      "home-controller": "ini",
       "devtools": "ini",
       "dashboard": "ini",
       "jest-test": "ini"

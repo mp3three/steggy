@@ -13,7 +13,8 @@ import {
   HomeCommandService,
   HomeFetchService,
   ImgurAlbumDownloadService,
-  InspectService,
+  EntityService,
+  RoomCommandService,
 } from '../services';
 
 @ApplicationModule({
@@ -28,7 +29,8 @@ import {
     ConfigBuilderService,
     ImgurAlbumDownloadService,
     HomeCommandService,
-    InspectService,
+    RoomCommandService,
+    EntityService,
     GroupCommandService,
     HomeFetchService,
     ChangelogService,

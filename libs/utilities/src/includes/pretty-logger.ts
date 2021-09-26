@@ -142,8 +142,8 @@ export const PrettyNestLogger: Record<
     if (context.length > 20) {
       // Context contains the stack trace of the nest injector
       // Nothing actually useful for debugging
+      message = prettyErrorMessage(context);
       context = `@nestjs:ErrorMessage`;
-      message = prettyErrorMessage(message);
     }
     logger.error(
       `${highlightContext(context, 'bgRed')} ${

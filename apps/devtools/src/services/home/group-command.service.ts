@@ -11,7 +11,8 @@ import { HomeFetchService } from './home-fetch.service';
 type GroupItem = { room: string; entities: string[]; name: string };
 
 @Repl({
-  name: '🎳 Group Command',
+  description: [`Manipulate established groups of entities`],
+  name: '🎳 Groups',
   type: REPL_TYPE.home,
 })
 export class GroupCommandService implements iRepl {
@@ -229,14 +230,13 @@ export class GroupCommandService implements iRepl {
     from: RoomStateDTO,
     list: GroupItem[],
   ): Promise<void> {
-    const targetGroup = await this.promptService.pickOne(
+    // const targetGroup =
+    await this.promptService.pickOne(
       `Target group`,
       list.map((value) => ({
         name: value.name,
         value,
       })),
     );
-
-    //
   }
 }

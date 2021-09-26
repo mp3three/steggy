@@ -5,18 +5,18 @@ import { join } from 'path';
 import { cwd } from 'process';
 import rc from 'rc';
 
+import { LOG_LEVEL } from '../config';
 import {
   AutomagicalMetadataDTO,
   LIB_UTILS,
   METADATA_FILE,
   USE_THIS_CONFIG,
-} from '..';
-import { LOG_LEVEL } from '../config';
+} from '../contracts';
 import {
   ACTIVE_APPLICATION,
   AutomagicalConfig,
 } from '../contracts/meta/config';
-import { AutoLogService } from './logger';
+import { AutoLogService } from './logger/auto-log.service';
 
 @Injectable()
 export class AutoConfigService {
@@ -26,6 +26,7 @@ export class AutoConfigService {
   private metadata = new Map<string, AutomagicalMetadataDTO>();
 
   constructor(
+    private readonly logger: AutoLogService,
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
     @Optional()
     @Inject(USE_THIS_CONFIG)
@@ -52,6 +53,18 @@ export class AutoConfigService {
     const [, library, property] = parts;
     const metadata = this.metadata.get(library);
     const configuration = metadata.configuration[property];
+    if (!configuration) {
+      // Should appear during development time, during application bootstrap
+      // Only appears if the propery is not present in the automagical.json configuration
+      // Or - If the automagical.json containing the desired property is not included in build assets
+
+      this.logger.fatal(
+        { library, property },
+        `Unknown configuration. Double check project.json assets + make sure property is included in metadata`,
+      );
+      // eslint-disable-next-line unicorn/no-process-exit
+      process.exit();
+    }
     return configuration.default as T;
   }
 
@@ -61,8 +74,9 @@ export class AutoConfigService {
 
   private earlyInit(): void {
     this.loadMetadata();
-    const [file] = this.APPLICATION.description.split('-');
-    this.config = this.overrideConfig || rc<AutoConfigService>(file);
+    this.config =
+      this.overrideConfig ||
+      rc<AutoConfigService>(this.APPLICATION.description);
     AutoLogService.logger.level = this.get([LIB_UTILS, LOG_LEVEL]);
   }
 

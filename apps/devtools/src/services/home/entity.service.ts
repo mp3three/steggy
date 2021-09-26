@@ -11,10 +11,11 @@ import chalk from 'chalk';
 import { HomeFetchService } from './home-fetch.service';
 
 @Repl({
-  name: '🔍 Inspect',
+  description: [`Commands scoped to a single/manually built list of entities`],
+  name: '🔍 Entities',
   type: REPL_TYPE.home,
 })
-export class InspectService implements iRepl {
+export class EntityService implements iRepl {
   constructor(
     private readonly logger: AutoLogService,
     private readonly fetchService: HomeFetchService,
