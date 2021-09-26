@@ -5,7 +5,7 @@ import {
   RoomControllerSettingsDTO,
 } from '@automagical/controller-logic';
 import { FanSpeeds } from '@automagical/home-assistant';
-import { iRepl, PromptService, Repl } from '@automagical/tty';
+import { iRepl, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
 import { AutoLogService, sleep, Trace } from '@automagical/utilities';
 import { each } from 'async';
 import inquirer from 'inquirer';
@@ -16,6 +16,7 @@ type extra = { scope: RoomCommandScope[]; path?: string };
 
 @Repl({
   name: '🏡 Home Command',
+  type: REPL_TYPE.home,
 })
 export class HomeCommandService implements iRepl {
   constructor(

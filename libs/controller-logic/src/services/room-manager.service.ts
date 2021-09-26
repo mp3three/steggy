@@ -4,11 +4,13 @@ import {
 } from '@automagical/home-assistant';
 import {
   AutoLogService,
+  InjectConfig,
   ModuleScannerService,
   Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
+import { MAX_BRIGHTNESS } from '../config';
 import {
   iRoomController,
   ROOM_CONTROLLER_SETTINGS,
@@ -32,6 +34,7 @@ export class RoomManagerService {
     private readonly scanner: ModuleScannerService,
     private readonly hassCore: HomeAssistantCoreService,
     private readonly remoteService: RemoteDomainService,
+    @InjectConfig(MAX_BRIGHTNESS) private readonly maxBrightness: number,
   ) {}
 
   @Trace()
@@ -43,7 +46,7 @@ export class RoomManagerService {
     await this.stateManager.removeFlag(settings, AUTO_STATE);
 
     const scope = this.commandScope(command);
-    await this.lightManager.circadianLight(lights ?? [], 100);
+    await this.lightManager.circadianLight(lights ?? [], this.maxBrightness);
     await this.hassCore.turnOn(switches ?? []);
     if (scope.has(RoomCommandScope.ACCESSORIES)) {
       await this.hassCore.turnOn(accessories ?? []);

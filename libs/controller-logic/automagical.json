@@ -18,6 +18,11 @@
       "type": "number",
       "default": 10
     },
+    "MAX_BRIGHTNESS": {
+      "type": "number",
+      "default": 255,
+      "description": "Highest brightness number to use for light brightness"
+    },
     "MONGO_URI": {
       "type": "string",
       "default": "mongodb://localhost:27017/automagical",

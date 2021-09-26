@@ -65,6 +65,11 @@ export class PromptService {
     ]);
   }
 
+  public clear(): void {
+    process.stdout.write('\u001B[2J');
+    process.stdout.write('\u001B[0f');
+  }
+
   public async pickOne<T extends unknown = string>(
     message: string,
     options: (string | { name: string; value: T } | Separator)[],
@@ -81,7 +86,7 @@ export class PromptService {
         message,
         name: 'value',
         pageSize: this.pageSize,
-        type: 'list',
+        type: 'rawlist',
       },
     ]);
     return value;

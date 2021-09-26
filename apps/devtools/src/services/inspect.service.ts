@@ -4,17 +4,15 @@ import {
   RoomInspectResponseDTO,
 } from '@automagical/controller-logic';
 import { domain, HassStateDTO } from '@automagical/home-assistant';
-import { iRepl, PromptService, Repl } from '@automagical/tty';
+import { iRepl, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
 import chalk from 'chalk';
 
 import { HomeFetchService } from './home-fetch.service';
 
-// TODO: Find an inspector gadget joke for this file
-// There's gotta be one
-
 @Repl({
   name: '🔍 Inspect',
+  type: REPL_TYPE.home,
 })
 export class InspectService implements iRepl {
   constructor(

@@ -62,6 +62,11 @@ export class ApplicationService {
     await this.lockService.unlock(this.locks);
   }
 
+  @OnEvent(`switch.test/update`)
+  public logState(state: unknown): void {
+    this.logger.info({ state });
+  }
+
   public onModuleInit(): void {
     // setInterval(() => {
     //   this.mqtt.publish(

@@ -1,7 +1,9 @@
 import {
   iRepl,
   OUTPUT_HEADER_FONT,
+  PromptService,
   Repl,
+  REPL_TYPE,
   SCAN_CONFIG_CONFIGURATION,
   SystemService,
   TypePromptService,
@@ -18,7 +20,6 @@ import {
 import { NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
-import clear from 'clear';
 import execa from 'execa';
 import figlet from 'figlet';
 import { existsSync } from 'fs';
@@ -38,6 +39,7 @@ import rc from 'rc';
     `  - Save to file`,
   ],
   name: '🔧 Config Builder',
+  type: REPL_TYPE.maintenance,
 })
 export class ConfigBuilderService implements iRepl {
   constructor(
@@ -46,6 +48,7 @@ export class ConfigBuilderService implements iRepl {
     private readonly typePrompt: TypePromptService,
     private readonly configService: AutoConfigService,
     private readonly workspace: WorkspaceService,
+    private readonly promptService: PromptService,
   ) {}
 
   /**
@@ -122,7 +125,7 @@ export class ConfigBuilderService implements iRepl {
 
     switch (result.next) {
       case 'print':
-        clear();
+        this.promptService.clear();
         console.log(`\n`);
         console.log(
           chalk.yellow(

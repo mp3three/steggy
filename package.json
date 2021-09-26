@@ -33,7 +33,6 @@
     "chalk": "^4.1.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
-    "clear": "^0.1.0",
     "cli-table": "^0.3.6",
     "cls-hooked": "^4.2.2",
     "comment-json": "^4.1.0",

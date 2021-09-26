@@ -163,11 +163,9 @@ export class LightManagerService {
     } else {
       delete settings.kelvin;
     }
-    // const current = await this.cache.get<LightingCacheDTO>(
-    //   CACHE_KEY(entity_id),
-    // );
-    // settings.brightness ??= current?.brightness;
     await this.cache.set(CACHE_KEY(entity_id), settings);
+    // Trying to use brightness_pct here makes for lovely headaches
+    // Brightness here is 1-255
     const data = {
       brightness: settings.brightness,
       hs_color: settings.hs,
@@ -178,7 +176,6 @@ export class LightManagerService {
         delete data[key];
       }
     });
-    this.logger.debug({ data, entity_id });
     await this.lightService.turnOn(entity_id, data);
   }
 

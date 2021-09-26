@@ -10,13 +10,18 @@ import {
   InjectConfig,
   Trace,
 } from '@automagical/utilities';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { each } from 'async';
 
 import { CACHE_TTL } from '../config';
 import {
   PersistenceLightStateDTO,
   RoomControllerSettingsDTO,
+  RoomStateDTO,
 } from '../contracts';
 import { LightManagerService } from './light-manager.service';
 import { StatePersistenceService } from './state-persistence.service';
@@ -69,6 +74,36 @@ export class StateManagerService {
         callback();
       },
     );
+  }
+
+  @Trace()
+  public async duplicateState(
+    id: string,
+    target: {
+      room: string;
+      group: string;
+      entities: string[];
+    },
+  ): Promise<RoomStateDTO> {
+    const state = await this.statePersistence.findById(id, {});
+    if (!state) {
+      throw new NotFoundException(`State not found ${id}`);
+    }
+    if (state.entities.length !== target.entities.length) {
+      throw new BadRequestException(`Group size mismatch`);
+    }
+    // Clean up auto generated attributes
+    delete state.created;
+    delete state.modified;
+    delete state._id;
+    // Update references to match the new group
+    state.room = target.room;
+    state.group = target.group;
+    state.entities = target.entities;
+    state.states.forEach((state, index) => {
+      state.entity_id = target.entities[index];
+    });
+    return await this.statePersistence.create(state);
   }
 
   @Trace()

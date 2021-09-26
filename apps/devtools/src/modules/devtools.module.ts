@@ -9,7 +9,6 @@ import { DiscoveryModule } from '@nestjs/core';
 import {
   ChangelogService,
   ConfigBuilderService,
-  DeployService,
   GroupCommandService,
   HomeCommandService,
   HomeFetchService,
@@ -28,7 +27,6 @@ import {
   providers: [
     ConfigBuilderService,
     ImgurAlbumDownloadService,
-    DeployService,
     HomeCommandService,
     InspectService,
     GroupCommandService,

@@ -5,6 +5,7 @@ import {
   iRepl,
   PromptService,
   Repl,
+  REPL_TYPE,
   SystemService,
   TypePromptService,
   WorkspaceService,
@@ -29,6 +30,7 @@ import { inc } from 'semver';
     `- Version bumping`,
   ],
   name: '📑 Changelog',
+  type: REPL_TYPE.maintenance,
 })
 export class ChangelogService implements iRepl {
   constructor(

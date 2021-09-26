@@ -1,15 +1,27 @@
 import {
   GroupService,
+  RoomManagerService,
+  RoomStateDTO,
   StateManagerService,
 } from '@automagical/controller-logic';
 import { GENERIC_SUCCESS_RESPONSE } from '@automagical/server';
-import { Controller, Delete, Param, Put } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 
 @Controller(`/state`)
 export class StateController {
   constructor(
     private readonly groupService: GroupService,
     private readonly statePersistence: StateManagerService,
+    private readonly roomManager: RoomManagerService,
   ) {}
 
   @Put('/:id/activate')
@@ -26,5 +38,23 @@ export class StateController {
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     await this.statePersistence.deleteState(id);
     return GENERIC_SUCCESS_RESPONSE;
+  }
+
+  @Post(`/:id/copy`)
+  public async copyState(
+    @Param('id') id: string,
+    @Body() body: Record<'room' | 'group', string>,
+  ): Promise<RoomStateDTO> {
+    const settings = this.roomManager.settings.get(body.room);
+    if (!settings) {
+      throw new BadRequestException(`Room not found ${body.room}`);
+    }
+    if (!settings.groups[body.group]) {
+      throw new BadRequestException(`Group not found ${body.group}`);
+    }
+    return await this.statePersistence.duplicateState(id, {
+      ...body,
+      entities: settings.groups[body.group],
+    });
   }
 }

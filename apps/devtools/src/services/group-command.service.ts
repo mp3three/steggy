@@ -2,7 +2,7 @@ import {
   RoomControllerSettingsDTO,
   RoomStateDTO,
 } from '@automagical/controller-logic';
-import { iRepl, PromptService, Repl } from '@automagical/tty';
+import { iRepl, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
 import inquirer from 'inquirer';
 
@@ -12,6 +12,7 @@ type GroupItem = { room: string; entities: string[]; name: string };
 
 @Repl({
   name: '🎳 Group Command',
+  type: REPL_TYPE.home,
 })
 export class GroupCommandService implements iRepl {
   constructor(
@@ -38,14 +39,12 @@ export class GroupCommandService implements iRepl {
 
     const group = await this.promptService.pickOne(
       'Groups',
-      groups.map((item) => {
-        return {
-          name: `${item.room} - ${item.name}`,
-          value: item,
-        };
-      }),
+      groups.map((value) => ({
+        name: value.name,
+        value,
+      })),
     );
-    await this.process(group);
+    await this.process(group, groups);
   }
 
   private async pickAction(): Promise<string> {
@@ -82,12 +81,12 @@ export class GroupCommandService implements iRepl {
     return action;
   }
 
-  private async process(group: GroupItem): Promise<void> {
+  private async process(group: GroupItem, list: GroupItem[]): Promise<void> {
     const action = await this.pickAction();
 
     switch (action) {
       case 'state':
-        await this.processState(group);
+        await this.processState(group, list);
         break;
       case 'done':
         return;
@@ -119,10 +118,13 @@ export class GroupCommandService implements iRepl {
         });
         break;
     }
-    await this.process(group);
+    await this.process(group, list);
   }
 
-  private async processState(group: GroupItem): Promise<void> {
+  private async processState(
+    group: GroupItem,
+    list: GroupItem[],
+  ): Promise<void> {
     const action = await this.promptService.pickOne('Specific', [
       {
         name: 'List Available',
@@ -192,12 +194,19 @@ export class GroupCommandService implements iRepl {
       },
       new inquirer.Separator(),
       {
+        name: 'Copy to another group',
+        value: 'copy',
+      },
+      {
         name: 'Delete',
         value: 'delete',
       },
     ]);
 
     switch (stateAction) {
+      case 'copy':
+        await this.copyState(state, list);
+        return;
       case 'activate':
         await this.fetchService.fetch({
           method: 'put',
@@ -214,5 +223,20 @@ export class GroupCommandService implements iRepl {
         });
         return;
     }
+  }
+
+  private async copyState(
+    from: RoomStateDTO,
+    list: GroupItem[],
+  ): Promise<void> {
+    const targetGroup = await this.promptService.pickOne(
+      `Target group`,
+      list.map((value) => ({
+        name: value.name,
+        value,
+      })),
+    );
+
+    //
   }
 }

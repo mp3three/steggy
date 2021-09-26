@@ -1,4 +1,4 @@
-import { iRepl } from '@automagical/tty';
+import { iRepl, REPL_TYPE } from '@automagical/tty';
 import { Repl } from '@automagical/tty';
 import {
   AutoLogService,
@@ -24,6 +24,7 @@ const SEPARATOR = ' - ';
     `Update file ownership`,
   ],
   name: '🌆 Yoink',
+  type: REPL_TYPE.misc,
 })
 export class ImgurAlbumDownloadService implements iRepl {
   constructor(
