@@ -50,7 +50,11 @@ export class LightDomainService extends EntityService {
   @Trace()
   public async turnOn(
     entity_id: string | string[],
-    settings: { brightness_pct?: number; kelvin?: number } = {},
+    settings: {
+      brightness_pct?: number;
+      kelvin?: number;
+      hs_color?: [number, number] | number[];
+    } = {},
   ): Promise<void> {
     this.trackEntity(entity_id);
     return await this.callService.call('turn_on', {

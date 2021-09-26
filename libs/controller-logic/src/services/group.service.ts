@@ -61,7 +61,7 @@ export class GroupService {
         ) {
           return out;
         }
-        out.rgb = state.attributes.rgb_color;
+        out.hs = state.attributes.hs_color;
         out.brightness = state.attributes.brightness;
         return out;
       });

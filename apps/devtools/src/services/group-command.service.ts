@@ -3,6 +3,8 @@ import {
   RoomStateDTO,
 } from '@automagical/controller-logic';
 import { iRepl, PromptService, Repl } from '@automagical/tty';
+import { AutoLogService } from '@automagical/utilities';
+import inquirer from 'inquirer';
 
 import { HomeFetchService } from './home-fetch.service';
 
@@ -13,6 +15,7 @@ type GroupItem = { room: string; entities: string[]; name: string };
 })
 export class GroupCommandService implements iRepl {
   constructor(
+    private readonly logger: AutoLogService,
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
   ) {}
@@ -45,59 +48,56 @@ export class GroupCommandService implements iRepl {
     await this.process(group);
   }
 
-  private async process(group: GroupItem): Promise<void> {
-    const action = await this.promptService.expand('Action', [
+  private async pickAction(): Promise<string> {
+    const action = await this.promptService.pickOne('Action', [
       {
-        key: 'o',
-        name: 'Turn On',
-        value: 'turnOn',
+        name: 'Direct Change',
+        value: 'direct',
       },
       {
-        key: 'c',
-        name: 'Circadian On',
-        value: 'turnOnCircadian',
-      },
-      {
-        key: 'f',
-        name: 'Turn Off',
-        value: 'turnOff',
-      },
-      {
-        key: 's',
-        name: 'Current State',
+        name: 'State Manager',
         value: 'state',
       },
       {
-        key: 't',
-        name: 'Capture Current State',
-        value: 'capture',
-      },
-      {
-        key: 'l',
-        name: 'List States',
-        value: 'list',
-      },
-      {
-        key: 'x',
         name: 'Done',
         value: 'done',
       },
     ]);
+    if (action === 'direct') {
+      return await this.promptService.pickOne('Specific', [
+        {
+          name: 'Turn On',
+          value: 'turnOn',
+        },
+        {
+          name: 'Turn Off',
+          value: 'turnOff',
+        },
+        {
+          name: 'Circadian On',
+          value: 'turnOnCircadian',
+        },
+      ]);
+    }
+    return action;
+  }
+
+  private async process(group: GroupItem): Promise<void> {
+    const action = await this.pickAction();
 
     switch (action) {
-      // Describe
       case 'state':
-        const data = await this.fetchService.fetch({
-          url: `/room/${group.room}/group/${group.name}/describe`,
-        });
-        console.log(JSON.stringify(data, undefined, '  '));
+        await this.processState(group);
         break;
+      case 'done':
+        return;
+      // Describe
       // List all states
       case 'list':
         const stateList = await this.fetchService.fetch<RoomStateDTO[]>({
           url: `/room/${group.room}/group/${group.name}/list-states`,
         });
-        console.log(stateList);
+        console.log(JSON.stringify(stateList, undefined, '  '));
         break;
       // Capture state
       case 'capture':
@@ -111,8 +111,6 @@ export class GroupCommandService implements iRepl {
         console.log(state);
         break;
       // Done
-      case 'done':
-        return;
       // Everything else
       default:
         await this.fetchService.fetch({
@@ -122,5 +120,99 @@ export class GroupCommandService implements iRepl {
         break;
     }
     await this.process(group);
+  }
+
+  private async processState(group: GroupItem): Promise<void> {
+    const action = await this.promptService.pickOne('Specific', [
+      {
+        name: 'List Available',
+        value: 'list',
+      },
+      {
+        name: 'Describe current',
+        value: 'describe',
+      },
+      {
+        name: 'Capture Current',
+        value: 'capture',
+      },
+      {
+        name: 'Cancel',
+        value: 'cancel',
+      },
+    ]);
+    if (action === 'cancel') {
+      return;
+    }
+    if (action === 'capture') {
+      await this.fetchService.fetch({
+        body: {
+          name: await this.promptService.string(`Name for save state`),
+        },
+        method: 'post',
+        url: `/room/${group.room}/group/${group.name}/snapshot`,
+      });
+      return;
+    }
+    if (action === 'describe') {
+      const describe = await this.fetchService.fetch<RoomStateDTO[]>({
+        url: `/room/${group.room}/group/${group.name}/describe`,
+      });
+      console.log(JSON.stringify(describe, undefined, '  '));
+      return;
+    }
+
+    const data = await this.fetchService.fetch<RoomStateDTO[]>({
+      url: `/room/${group.room}/group/${group.name}/list-states`,
+    });
+
+    if (data.length === 0) {
+      this.logger.warn(`No states currently associated with group`);
+      return;
+    }
+
+    const state = await this.promptService.pickOne(
+      'Pick state',
+      data.map((item) => {
+        return {
+          name: item.name,
+          value: item,
+        };
+      }),
+    );
+
+    const stateAction = await this.promptService.pickOne('What to do?', [
+      {
+        name: 'Activate',
+        value: 'activate',
+      },
+      {
+        name: 'Describe',
+        value: 'describe',
+      },
+      new inquirer.Separator(),
+      {
+        name: 'Delete',
+        value: 'delete',
+      },
+    ]);
+
+    switch (stateAction) {
+      case 'activate':
+        await this.fetchService.fetch({
+          method: 'put',
+          url: `/state/${state._id}/activate`,
+        });
+        return;
+      case 'describe':
+        console.log(JSON.stringify(state, undefined, '  '));
+        return;
+      case 'delete':
+        await this.fetchService.fetch({
+          method: 'delete',
+          url: `/state/${state._id}`,
+        });
+        return;
+    }
   }
 }

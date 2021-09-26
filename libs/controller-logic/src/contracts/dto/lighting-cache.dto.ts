@@ -1,3 +1,5 @@
+import { LIGHTING_MODE } from './room-state.dto';
+
 export enum LightingCacheMode {
   /**
    * Circadian lighting controller owns the logic for this device currently
@@ -12,7 +14,8 @@ export enum LightingCacheMode {
 }
 
 export class LightingCacheDTO {
-  public brightness: number;
+  public brightness?: number;
   public kelvin?: number;
-  public mode: LightingCacheMode | keyof typeof LightingCacheMode;
+  public hs?: [number, number] | number[];
+  public mode: LIGHTING_MODE;
 }

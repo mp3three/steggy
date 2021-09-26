@@ -30,10 +30,8 @@ export class StatePersistenceService extends BaseMongoService {
   }
 
   @Trace()
-  public async delete(project: RoomStateDTO | string): Promise<boolean> {
-    const query = this.merge(
-      typeof project === 'string' ? project : project._id,
-    );
+  public async delete(state: RoomStateDTO | string): Promise<boolean> {
+    const query = this.merge(typeof state === 'string' ? state : state._id);
     this.logger.debug({ query }, `delete query`);
     const result = await this.roomStateModel
       .updateOne(query, {
@@ -46,7 +44,7 @@ export class StatePersistenceService extends BaseMongoService {
   @ToClass(RoomStateDTO)
   public async findById(
     state: string,
-    { control }: { control: ResultControlDTO },
+    { control }: { control?: ResultControlDTO } = {},
   ): Promise<RoomStateDTO> {
     const query = this.merge(state, control);
     return await this.modifyQuery(control, this.roomStateModel.findOne(query))
@@ -57,7 +55,7 @@ export class StatePersistenceService extends BaseMongoService {
   @Trace()
   @ToClass(RoomStateDTO)
   public async findByName(
-    project: string,
+    state: string,
     { control }: { control: ResultControlDTO },
   ): Promise<RoomStateDTO> {
     const query = this.merge(
@@ -65,7 +63,7 @@ export class StatePersistenceService extends BaseMongoService {
         filters: new Set([
           {
             field: 'name',
-            value: project,
+            value: state,
           },
         ]),
       },

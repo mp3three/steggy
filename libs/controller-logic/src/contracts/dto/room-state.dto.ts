@@ -5,7 +5,7 @@ import { Document } from 'mongoose';
 
 export enum LIGHTING_MODE {
   circadian = 'circadian',
-  none = 'none',
+  on = 'on',
 }
 export class PersistenceSwitchStateDTO {
   @Prop({ required: true, type: String })
@@ -16,13 +16,13 @@ export class PersistenceSwitchStateDTO {
 
 export class PersistenceLightStateDTO extends PersistenceSwitchStateDTO {
   @Prop(Number)
-  temperature?: number;
+  kelvin?: number;
   @Prop([Number])
-  rgb?: [number, number, number];
+  hs?: [number, number] | number[];
   @Prop(Number)
   brightness?: number;
   @Prop({
-    default: LIGHTING_MODE.none,
+    default: LIGHTING_MODE.on,
     enum: Object.values(LIGHTING_MODE),
     required: true,
   })
@@ -37,15 +37,17 @@ export class PersistenceLightStateDTO extends PersistenceSwitchStateDTO {
     updatedAt: 'modified',
   },
 })
-export class RoomStateDTO {
+export class RoomStateDTO<
+  STATES extends PersistenceSwitchStateDTO = PersistenceLightStateDTO,
+> {
   @Prop({ default: [], required: true })
-  public states: PersistenceSwitchStateDTO[];
+  public states: STATES[];
   @IsString()
   @Prop({ required: true, type: String })
   public name: string;
   @IsNumber()
   @IsOptional()
-  @Prop({ default: 0 })
+  @Prop({ default: null, type: 'number' })
   public deleted?: number;
   @IsString({ each: true })
   @Prop()
@@ -82,16 +84,12 @@ export class RoomStateDTO {
   @TransformObjectId()
   public _id?: string;
 }
+
 export type RoomStateDocument = RoomStateDTO & Document;
 export const RoomStateSchema = SchemaFactory.createForClass(RoomStateDTO);
 RoomStateSchema.index({
   deleted: 1,
+  group: 1,
   name: 1,
-}).index(
-  {
-    deleted: 1,
-  },
-  {
-    partialFilterExpression: { deleted: { $eq: null } },
-  },
-);
+  room: 1,
+});

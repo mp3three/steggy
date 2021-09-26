@@ -15,7 +15,11 @@ import { each } from 'async';
 import { EventEmitter2 } from 'eventemitter2';
 
 import { DIM_PERCENT } from '../config';
-import { CIRCADIAN_UPDATE, LightingCacheDTO } from '../contracts';
+import {
+  CIRCADIAN_UPDATE,
+  LIGHTING_MODE,
+  LightingCacheDTO,
+} from '../contracts';
 import { RoomCommandDTO } from '../contracts/room-command.dto';
 import { CircadianService } from './circadian.service';
 
@@ -55,7 +59,7 @@ export class LightManagerService {
     }
     await this.turnOnEntities(entity_id, {
       brightness,
-      mode: 'circadian',
+      mode: LIGHTING_MODE.circadian,
     });
   }
 
@@ -156,16 +160,26 @@ export class LightManagerService {
     }
     if (settings.mode === 'circadian') {
       settings.kelvin = await this.circadianService.CURRENT_LIGHT_TEMPERATURE;
+    } else {
+      delete settings.kelvin;
     }
-    const current = await this.cache.get<LightingCacheDTO>(
-      CACHE_KEY(entity_id),
-    );
-    settings.brightness ??= current?.brightness;
+    // const current = await this.cache.get<LightingCacheDTO>(
+    //   CACHE_KEY(entity_id),
+    // );
+    // settings.brightness ??= current?.brightness;
     await this.cache.set(CACHE_KEY(entity_id), settings);
-    await this.lightService.turnOn(entity_id, {
-      brightness_pct: settings.brightness,
+    const data = {
+      brightness: settings.brightness,
+      hs_color: settings.hs,
       kelvin: settings.kelvin,
+    };
+    Object.keys(data).forEach((key) => {
+      if (typeof data[key] === 'undefined') {
+        delete data[key];
+      }
     });
+    this.logger.debug({ data, entity_id });
+    await this.lightService.turnOn(entity_id, data);
   }
 
   @Trace()

@@ -70,6 +70,10 @@ export class PromptService {
     options: (string | { name: string; value: T } | Separator)[],
     defaultValue?: string,
   ): Promise<T> {
+    if (options.length === 0) {
+      this.logger.warn(`No choices to pick from`);
+      return undefined;
+    }
     const { value } = await inquirer.prompt([
       {
         choices: options,
@@ -88,6 +92,10 @@ export class PromptService {
     options: { name: string; value: T; key: string }[],
     defaultValue?: string,
   ): Promise<T> {
+    if (options.length === 0) {
+      this.logger.warn(`No choices to pick from`);
+      return undefined;
+    }
     const { value } = await inquirer.prompt([
       {
         choices: options,
@@ -110,6 +118,10 @@ export class PromptService {
       ...extra
     }: { default?: string[]; min?: number; max?: number } = {},
   ): Promise<T[]> {
+    if (options.length === 0) {
+      this.logger.warn(`No choices to pick from`);
+      return [];
+    }
     const { value } = (await inquirer.prompt([
       {
         choices: options,
