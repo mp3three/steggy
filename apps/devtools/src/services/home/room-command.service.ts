@@ -27,8 +27,9 @@ export class RoomCommandService {
     const { primary, secondary } = await this.fetchService.listRooms();
 
     const room = await this.promptService.pickOne('Which room(s)?', [
+      new inquirer.Separator('Primary'),
       ...primary,
-      new inquirer.Separator(),
+      new inquirer.Separator('Secondary'),
       ...secondary,
     ]);
 

@@ -39,7 +39,7 @@ export class BaseFetchService {
       return text as T;
     }
     const parsed = JSON.parse(text);
-    return parsed;
+    return this.checkForHttpErrors<T>(parsed);
   }
 
   /**
@@ -121,5 +121,22 @@ export class BaseFetchService {
       out = `${out}?${this.buildFilterString(fetchWith)}`;
     }
     return out;
+  }
+
+  private checkForHttpErrors<T extends unknown = unknown>(maybeError: {
+    statusCode: number;
+    error: string;
+    message: string;
+  }): T {
+    if (typeof maybeError !== 'object' || maybeError === null) {
+      return maybeError as T;
+    }
+    if (
+      typeof maybeError.statusCode === 'number' &&
+      typeof maybeError.error === 'string'
+    ) {
+      this.logger.error({ error: maybeError }, maybeError.message);
+    }
+    return maybeError as T;
   }
 }

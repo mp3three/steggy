@@ -5,9 +5,13 @@ import {
   ResultControlDTO,
 } from '@automagical/utilities';
 import { REQUEST } from '@nestjs/core';
-import dayjs from 'dayjs';
 import { Request, Response } from 'express';
 import pino from 'pino';
+
+export enum ResponseFlags {
+  ADMIN_KEY,
+  ADMIN,
+}
 
 type EmptyObject = Record<never, unknown>;
 /**
@@ -39,7 +43,7 @@ export class ResponseLocals extends CrudOptions {
    * Did one of the auth guards say no?
    */
   authenticated?: boolean;
-  flags?: Set<string>;
+  flags?: Set<ResponseFlags>;
   /**
    * Form loaded via path params
    */

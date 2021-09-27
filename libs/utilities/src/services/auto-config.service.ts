@@ -48,6 +48,18 @@ export class AutoConfigService {
     if (parts.length === 2) {
       const metadata = this.metadata.get(this.APPLICATION.description);
       const configuration = metadata.configuration[parts[1]];
+      if (!configuration) {
+        // Should appear during development time, during application bootstrap
+        // Only appears if the propery is not present in the automagical.json configuration
+        // Or - If the automagical.json containing the desired property is not included in build assets
+
+        this.logger.fatal(
+          { parts },
+          `Unknown configuration. Double check project.json assets + make sure property is included in metadata`,
+        );
+        // eslint-disable-next-line unicorn/no-process-exit
+        process.exit();
+      }
       return configuration.default as T;
     }
     const [, library, property] = parts;

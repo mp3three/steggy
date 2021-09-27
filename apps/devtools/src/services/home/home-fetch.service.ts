@@ -5,37 +5,41 @@ import {
 import { FetchService, FetchWith, InjectConfig } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
-import { CONTROLLER_API } from '../../config';
+import { ADMIN_KEY, CONTROLLER_API } from '../../config';
 
-type T = { name: string; value: RoomControllerSettingsDTO };
+type MenuItem = { name: string; value: RoomControllerSettingsDTO };
 
 @Injectable()
 export class HomeFetchService {
   constructor(
     private readonly fetchService: FetchService,
+    @InjectConfig(ADMIN_KEY) private readonly adminKey: string,
     @InjectConfig(CONTROLLER_API) readonly url: string,
   ) {
     fetchService.BASE_URL = url;
   }
 
   public fetch<T>(fetch: FetchWith): Promise<T> {
+    fetch.adminKey = this.adminKey;
     return this.fetchService.fetch<T>(fetch);
   }
 
-  public async listRooms(): Promise<Record<'primary' | 'secondary', T[]>> {
-    const rooms = await this.fetchService.fetch<RoomControllerSettingsDTO[]>({
+  public async listRooms(): Promise<
+    Record<'primary' | 'secondary', MenuItem[]>
+  > {
+    const rooms = await this.fetch<RoomControllerSettingsDTO[]>({
       url: `/room/list`,
     });
     if (rooms.length === 0) {
       return undefined;
     }
-    const primary: T[] = [];
-    const secondary: T[] = [];
+    const primary: MenuItem[] = [];
+    const secondary: MenuItem[] = [];
     rooms.forEach((room) => {
-      const entry: T = {
+      const entry: MenuItem = {
         name: room.friendlyName,
         value: room,
-      } as T;
+      } as MenuItem;
       if (room.flags.includes(RoomControllerFlags.SECONDARY)) {
         secondary.push(entry);
         return;

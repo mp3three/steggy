@@ -14,6 +14,10 @@
       "type": "string",
       "description": "HTTP API target for the home controller",
       "default": "http://localhost:7000"
+    },
+    "ADMIN_KEY": {
+      "type": "password",
+      "description": "Admin key for the home controller"
     }
   }
 }

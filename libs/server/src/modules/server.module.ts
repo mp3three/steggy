@@ -5,6 +5,7 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 
+import { AdminKeyGuard } from '..';
 import { LoggingInterceptor } from '../interceptors';
 import { InitMiddleware } from '../middleware';
 import { BootstrapService, RouteInjector } from '../services';
@@ -14,6 +15,7 @@ import { BootstrapService, RouteInjector } from '../services';
   library: LIB_SERVER,
   providers: [
     BootstrapService,
+    AdminKeyGuard,
     RouteInjector,
     LoggingInterceptor,
     InitMiddleware,

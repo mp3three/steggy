@@ -85,11 +85,11 @@ export class MainCLIService implements iRepl {
       },
     );
     const out: ([string, iRepl] | Separator)[] = [];
-    Object.keys(REPL_TYPE).forEach((type, index) => {
-      if (index > 0) {
-        out.push(new inquirer.Separator());
-      }
+    Object.keys(REPL_TYPE).forEach((type) => {
       out.push(
+        new inquirer.Separator(
+          `${type.charAt(0).toUpperCase()}${type.slice(1)}`,
+        ),
         ...types[type].sort(([a], [b]) => {
           a = a.replace(unsortable, '');
           b = b.replace(unsortable, '');

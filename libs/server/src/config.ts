@@ -6,4 +6,5 @@ export const SSL_PORT = 'SSL_PORT';
 export const SSL_KEY = 'SSL_KEY';
 export const SSL_CERT = 'SSL_CERT';
 export const SWAGGER_PATH = 'SWAGGER_PATH';
+export const ADMIN_KEY = 'ADMIN_KEY';
 export const MAX_REQUEST_ID = 'MAX_REQUEST_ID';
