@@ -4,6 +4,7 @@ import {
   ControllerStates,
   KunamiCodeService,
   LightManagerService,
+  PercentConverter,
   RoomCommandDTO,
   RoomCommandScope,
   RoomController,
@@ -98,6 +99,7 @@ export class GamesRoomController extends BaseRoomService {
   /**
    * Return what the brightness should be for the fan lights in auto mode
    */
+  @PercentConverter()
   // eslint-disable-next-line radar/cognitive-complexity
   private fanAutoBrightness(): number {
     const now = dayjs();

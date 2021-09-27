@@ -7,6 +7,7 @@ import { PromptService, Repl, REPL_TYPE } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
 import inquirer from 'inquirer';
 
+import { GroupCommandService } from './group-command.service';
 import { HomeFetchService } from './home-fetch.service';
 
 type extra = { scope: RoomCommandScope[]; path?: string };
@@ -21,6 +22,7 @@ export class RoomCommandService {
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
+    private readonly groupCommand: GroupCommandService,
   ) {}
 
   public async exec(): Promise<void> {
@@ -34,6 +36,7 @@ export class RoomCommandService {
     ]);
 
     const actions = [
+      new inquirer.Separator('Commands'),
       { name: 'Area On', value: 'areaOn' },
       { name: 'Area Off', value: 'areaOff' },
       { name: 'Auto', value: 'favorite' },
@@ -45,7 +48,20 @@ export class RoomCommandService {
       actions.push({ name: 'Media', value: 'media' });
     }
 
-    const action = await this.promptService.pickOne('Action', actions);
+    const action = await this.promptService.pickOne('Action', [
+      ...actions,
+      new inquirer.Separator('Information'),
+      { name: 'Group Info', value: 'groups' },
+      new inquirer.Separator(),
+      { name: 'Cancel', value: 'cancel' },
+    ]);
+    switch (action) {
+      case 'cancel':
+        return;
+      case 'groups':
+        await this.groupCommand.exec(room.name);
+        return;
+    }
     const { scope, path } = await this.getExtra(action);
 
     const url = `/room/${room.name}/${action}${path ?? ''}`;

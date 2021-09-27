@@ -3,6 +3,7 @@ import {
   ControllerStates,
   KunamiCodeService,
   LightManagerService,
+  PercentConverter,
   RoomCommandDTO,
   RoomCommandScope,
   RoomController,
@@ -122,11 +123,7 @@ export class LoftController extends BaseRoomService {
         : this.switchService.turnOff(['switch.loft_hallway_light']));
       return false;
     }
-    if (scope.has(RoomCommandScope.ACCESSORIES)) {
-      await this.remoteService.turnOn(MONITOR);
-      return true;
-    }
-    return false;
+    return scope.has(RoomCommandScope.ACCESSORIES);
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS)
@@ -208,10 +205,10 @@ export class LoftController extends BaseRoomService {
       }),
     );
   }
-
   /**
    * Return what the brightness should be for the fan lights in auto mode
    */
+  @PercentConverter()
   private fanAutoBrightness(): number {
     const now = dayjs();
     const hour = now.hour();
@@ -250,6 +247,7 @@ export class LoftController extends BaseRoomService {
   /**
    * Return what the brightness should be for the panel in auto mode
    */
+  @PercentConverter()
   private panelAutoBrightness(): number {
     const now = dayjs();
     const hour = now.hour();

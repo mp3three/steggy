@@ -1,12 +1,12 @@
 import { LIB_PERSISTENCE, LibraryModule } from '@automagical/utilities';
 
-import { ConnectService } from '../services';
+import { ConnectService, EncryptionService } from '../services';
 
 const providers = [ConnectService];
 
 @LibraryModule({
   exports: providers,
   library: LIB_PERSISTENCE,
-  providers: [...providers],
+  providers: [...providers, EncryptionService],
 })
 export class MongoPersistenceModule {}

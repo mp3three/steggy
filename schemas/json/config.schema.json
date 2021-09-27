@@ -117,6 +117,9 @@
         },
         "default": {
           "type": "string"
+        },
+        "warnDefault": {
+          "$ref": "#/definitions/warnDefault"
         }
       },
       "required": ["type"]
@@ -132,6 +135,9 @@
         },
         "default": {
           "type": "boolean"
+        },
+        "warnDefault": {
+          "$ref": "#/definitions/warnDefault"
         }
       },
       "required": ["type"]
@@ -147,6 +153,9 @@
         },
         "default": {
           "type": "number"
+        },
+        "warnDefault": {
+          "$ref": "#/definitions/warnDefault"
         }
       },
       "required": ["type"]
@@ -159,6 +168,9 @@
         "description": true,
         "type": {
           "pattern": "password"
+        },
+        "warnDefault": {
+          "$ref": "#/definitions/warnDefault"
         }
       },
       "required": ["type"]
@@ -174,9 +186,17 @@
         },
         "default": {
           "type": "string"
+        },
+        "warnDefault": {
+          "$ref": "#/definitions/warnDefault"
         }
       },
       "required": ["type"]
+    },
+    "warnDefault": {
+      "type": "boolean",
+      "description": "Emit a warning at boot if the default value for this property hasn't been overridden",
+      "default": false
     }
   }
 }

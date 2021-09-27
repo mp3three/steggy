@@ -15,29 +15,33 @@ type AnyConfig =
   | AutomagicalPasswordConfig
   | AutomagicalUrlConfig;
 
-export class AutomagicalStringConfig {
+class WarnDefault {
+  'warnDefault'?: boolean;
+}
+
+export class AutomagicalStringConfig extends WarnDefault {
   type: 'string';
   enum?: string[];
   default?: string;
 }
-export class AutomagicalBooleanConfig {
+export class AutomagicalBooleanConfig extends WarnDefault {
   type: 'boolean';
   default?: boolean;
 }
-export class AutomagicalNumberConfig {
+export class AutomagicalNumberConfig extends WarnDefault {
   type: 'number';
   default?: number;
 }
-export class AutomagicalPasswordConfig {
+export class AutomagicalPasswordConfig extends WarnDefault {
   type: 'password';
 }
-export class AutomagicalUrlConfig {
+export class AutomagicalUrlConfig extends WarnDefault {
   type: 'url';
   default?: string;
 }
-export class AutomagicalRecordConfig {
+export class AutomagicalRecordConfig extends WarnDefault {
   type: 'record';
 }
-export class AutomagicalStringArrayConfig {
+export class AutomagicalStringArrayConfig extends WarnDefault {
   type: 'string[]';
 }

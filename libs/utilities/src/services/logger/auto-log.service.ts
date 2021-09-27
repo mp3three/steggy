@@ -122,6 +122,18 @@ export class AutoLogService implements iLogger {
     this.#context = value;
   }
 
+  /**
+   * For edge case situations like:
+   *
+   *  - extreme early init
+   *  - code locations where DI isn't available
+   *
+   * `@InjectLogger()` annotation is available for providers
+   */
+  public setContext(library: symbol, service: { name: string }): void {
+    this.#context = `${library.description}:${service.name}`;
+  }
+
   public debug(message: string, ...arguments_: unknown[]): void;
   public debug(
     object: Record<string, unknown>,

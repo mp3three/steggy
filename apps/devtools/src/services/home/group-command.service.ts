@@ -22,8 +22,9 @@ export class GroupCommandService implements iRepl {
     private readonly promptService: PromptService,
   ) {}
 
-  public async exec(): Promise<void> {
+  public async exec(room?: string): Promise<void> {
     const rooms = await this.fetchService.fetch<RoomControllerSettingsDTO[]>({
+      params: room ? { room } : {},
       url: `/room/list`,
     });
     const groups: GroupItem[] = [];

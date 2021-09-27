@@ -83,6 +83,11 @@
             "output": "./assets/server"
           },
           {
+            "input": "libs/persistence",
+            "glob": "automagical.json",
+            "output": "./assets/persistence"
+          },
+          {
             "input": "apps/home-controller",
             "glob": "automagical.json",
             "output": "./assets/home-controller"

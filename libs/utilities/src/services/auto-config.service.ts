@@ -8,6 +8,7 @@ import rc from 'rc';
 import { LOG_LEVEL } from '../config';
 import {
   AutomagicalMetadataDTO,
+  ConfigItem,
   LIB_UTILS,
   METADATA_FILE,
   USE_THIS_CONFIG,
@@ -40,44 +41,37 @@ export class AutoConfigService {
       path = ['libs', path[0].description, path[1]].join('.');
     }
     const value = get(this.config, path, this.getDefault(path));
+    const config = this.getConfiguration(path);
+    if (config.warnDefault && value === config.default) {
+      this.logger.warn(
+        `Configuration property {${path}} is using default value`,
+      );
+    }
     return value as T;
   }
 
   public getDefault<T extends unknown = unknown>(path: string): T {
-    const parts = path.split('.');
-    if (parts.length === 2) {
-      const metadata = this.metadata.get(this.APPLICATION.description);
-      const configuration = metadata.configuration[parts[1]];
-      if (!configuration) {
-        // Should appear during development time, during application bootstrap
-        // Only appears if the propery is not present in the automagical.json configuration
-        // Or - If the automagical.json containing the desired property is not included in build assets
-
-        this.logger.fatal(
-          { parts },
-          `Unknown configuration. Double check project.json assets + make sure property is included in metadata`,
-        );
-        // eslint-disable-next-line unicorn/no-process-exit
-        process.exit();
-      }
-      return configuration.default as T;
-    }
-    const [, library, property] = parts;
-    const metadata = this.metadata.get(library);
-    const configuration = metadata.configuration[property];
+    const configuration = this.getConfiguration(path);
     if (!configuration) {
-      // Should appear during development time, during application bootstrap
-      // Only appears if the propery is not present in the automagical.json configuration
-      // Or - If the automagical.json containing the desired property is not included in build assets
-
       this.logger.fatal(
-        { library, property },
+        { path },
         `Unknown configuration. Double check project.json assets + make sure property is included in metadata`,
       );
       // eslint-disable-next-line unicorn/no-process-exit
       process.exit();
     }
     return configuration.default as T;
+  }
+
+  private getConfiguration(path: string): ConfigItem {
+    const parts = path.split('.');
+    if (parts.length === 2) {
+      const metadata = this.metadata.get(this.APPLICATION.description);
+      return metadata.configuration[parts[1]];
+    }
+    const [, library, property] = parts;
+    const metadata = this.metadata.get(library);
+    return metadata.configuration[property];
   }
 
   public set(path: string, value: unknown): void {
@@ -89,6 +83,10 @@ export class AutoConfigService {
     this.config =
       this.overrideConfig ||
       rc<AutoConfigService>(this.APPLICATION.description);
+    this.logger.setContext(LIB_UTILS, AutoConfigService);
+    this.logger[
+      'context'
+    ] = `${LIB_UTILS.description}:${AutoConfigService.name}`;
     AutoLogService.logger.level = this.get([LIB_UTILS, LOG_LEVEL]);
   }
 

@@ -53,7 +53,7 @@ export async function Bootstrap(
   }
   const lifecycle = app.get(LifecycleService);
   const logger = await app.resolve(AutoLogService);
-  logger['context'] = `${LIB_UTILS.description}:Bootstrap`;
+  logger.setContext(LIB_UTILS, { name: 'Bootstrap' });
   // onPreInit
   preInit ??= [];
   const call = async (item, callback) => {
