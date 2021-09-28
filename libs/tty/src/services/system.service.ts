@@ -21,6 +21,8 @@ import { NXAffected } from '../contracts';
 import { TypePromptService } from './type-prompt.service';
 import { WorkspaceService } from './workspace.service';
 
+const EMPTY = 0;
+
 /**
  * Class for working with the host operating system,
  * and performing operations against the workspace
@@ -136,35 +138,13 @@ export class SystemService {
       '--format=%B',
       branch.trim(),
     ]);
-    return filterUnique(stdout.split(`\n`).filter((item) => item.length > 0));
+    return filterUnique(
+      stdout.split(`\n`).filter((item) => item.length > EMPTY),
+    );
   }
 
   public isLibrary(project: string): boolean {
     return this.projects[project].projectType === 'library';
-  }
-
-  public async writeConfig(
-    application: string,
-    config: AutomagicalConfig,
-  ): Promise<void> {
-    const file = this.configPath(application);
-    console.log(chalk.green('path'), file);
-    if (
-      existsSync(file) &&
-      (await this.prompt.confirm('Overwrite existing config file?')) === false
-    ) {
-      return;
-    }
-    writeFileSync(file, encode(config));
-    console.log(chalk.inverse(chalk.green(`${file} written`)));
-  }
-
-  private packageWriteVersion(project: string, version: string): void {
-    const packageFile = join(cwd(), this.projects[project].root, PACKAGE_FILE);
-    const data = this.workspace.PACKAGES.get(project);
-    data.version = version;
-    this.workspace.PACKAGES.set(project, data);
-    writeFileSync(packageFile, JSON.stringify(data, undefined, '  '));
   }
 
   /**
@@ -205,5 +185,29 @@ export class SystemService {
       return;
     }
     appendFileSync(resolve(exportDestination), `\nexport EDITOR=${editor}\n`);
+  }
+
+  public async writeConfig(
+    application: string,
+    config: AutomagicalConfig,
+  ): Promise<void> {
+    const file = this.configPath(application);
+    console.log(chalk.green('path'), file);
+    if (
+      existsSync(file) &&
+      (await this.prompt.confirm('Overwrite existing config file?')) === false
+    ) {
+      return;
+    }
+    writeFileSync(file, encode(config));
+    console.log(chalk.inverse(chalk.green(`${file} written`)));
+  }
+
+  private packageWriteVersion(project: string, version: string): void {
+    const packageFile = join(cwd(), this.projects[project].root, PACKAGE_FILE);
+    const data = this.workspace.PACKAGES.get(project);
+    data.version = version;
+    this.workspace.PACKAGES.set(project, data);
+    writeFileSync(packageFile, JSON.stringify(data, undefined, '  '));
   }
 }

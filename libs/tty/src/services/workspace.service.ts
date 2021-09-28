@@ -25,22 +25,22 @@ export class WorkspaceService {
    * automagical.json
    */
   public METADATA = new Map<string, AutomagicalMetadataDTO>();
+  public NX_METADATA: NXMetadata = JSON.parse(
+    readFileSync(NX_METADATA_FILE, 'utf-8'),
+  );
   /**
    * package.json
    */
   public PACKAGES = new Map<string, PackageJsonDTO>();
-  /**
-   * NX workspaces
-   */
-  public workspace: NXWorkspaceDTO;
-
-  public NX_METADATA: NXMetadata = JSON.parse(
-    readFileSync(NX_METADATA_FILE, 'utf-8'),
-  );
 
   public ROOT_PACKAGE: PackageJsonDTO = JSON.parse(
     readFileSync(PACKAGE_FILE, 'utf-8'),
   );
+
+  /**
+   * NX workspaces
+   */
+  public workspace: NXWorkspaceDTO;
 
   @Trace()
   public list(type: NXProjectTypes): string[] {
@@ -49,23 +49,6 @@ export class WorkspaceService {
       (item) => projects[item].projectType === type,
     );
   }
-
-  public updateRootPackage(): void {
-    this.writeJson(PACKAGE_FILE, this.ROOT_PACKAGE);
-  }
-
-  public isApplication(project: string): boolean {
-    return this.workspace.projects[project].projectType === 'application';
-  }
-
-  public path(project: string, type: 'package' | 'metadata'): string {
-    return join(
-      cwd(),
-      this.workspace.projects[project].root,
-      type === 'package' ? PACKAGE_FILE : METADATA_FILE,
-    );
-  }
-
   @Trace()
   public setPackageVersion(project: string, version: string): string {
     const packageJson = this.PACKAGES.get(project);
@@ -81,6 +64,21 @@ export class WorkspaceService {
     writeFileSync(path, JSON.stringify(data, undefined, '  ') + `\n`);
   }
 
+  public isApplication(project: string): boolean {
+    return this.workspace.projects[project].projectType === 'application';
+  }
+
+  public path(project: string, type: 'package' | 'metadata'): string {
+    return join(
+      cwd(),
+      this.workspace.projects[project].root,
+      type === 'package' ? PACKAGE_FILE : METADATA_FILE,
+    );
+  }
+
+  public updateRootPackage(): void {
+    this.writeJson(PACKAGE_FILE, this.ROOT_PACKAGE);
+  }
   @Trace()
   protected onModuleInit(): void {
     this.loadNX();

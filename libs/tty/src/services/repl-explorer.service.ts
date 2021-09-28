@@ -5,9 +5,9 @@ import { iRepl, REPL_CONFIG, ReplOptions } from '..';
 
 @Injectable()
 export class ReplExplorerService {
-  public readonly REGISTERED_APPS = new Map<ReplOptions, iRepl>();
-
   constructor(private readonly scanner: ModuleScannerService) {}
+
+  public readonly REGISTERED_APPS = new Map<ReplOptions, iRepl>();
 
   @Trace()
   public findServiceByName(name: string): iRepl {

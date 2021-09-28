@@ -24,6 +24,7 @@ type PromptResult<T extends unknown = unknown> = Record<'value', T>;
 /* eslint-disable unicorn/no-null */
 @Injectable()
 export class TypePromptService {
+  constructor(private readonly promptService: PromptService) {}
   /**
    * Reference configuration for prompts
    *
@@ -34,8 +35,6 @@ export class TypePromptService {
     string,
     (defaultValue: unknown) => Promise<unknown>
   >();
-
-  constructor(private readonly promptService: PromptService) {}
 
   public async boolean(
     key: string,
@@ -155,7 +154,7 @@ export class TypePromptService {
     current: Record<string, unknown>,
   ): Promise<PromptResult> {
     throw new NotImplementedException();
-    current;
+    await current;
     // return await this.section(
 
     //   '',
@@ -198,7 +197,7 @@ export class TypePromptService {
     current: string[],
   ): Promise<PromptResult<string[]>> {
     throw new NotImplementedException();
-    current;
+    await current;
     // console.log(chalk.blueBright('?'), 'Use blank value when done');
     // const value = [];
     // let lastValue: PromptResult<string> = { value: '' };
@@ -229,6 +228,13 @@ export class TypePromptService {
     );
   }
 
+  private getDefault(current: unknown, defaultValue: unknown): unknown {
+    if (current === null || Number.isNaN(current)) {
+      return defaultValue;
+    }
+    return current;
+  }
+
   private async section<T extends unknown = unknown>(
     name: string,
     callback: () => Promise<PromptResult<T>>,
@@ -239,12 +245,5 @@ export class TypePromptService {
     // console.log(ini.encode(out.value));
     console.log(chalk.inverse(`</${name}>\n`));
     return out;
-  }
-
-  private getDefault(current: unknown, defaultValue: unknown): unknown {
-    if (current === null || Number.isNaN(current)) {
-      return defaultValue;
-    }
-    return current;
   }
 }

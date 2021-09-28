@@ -1,6 +1,6 @@
 import { IsDateString, IsSemVer } from 'class-validator';
 
-import { GitConfigUser } from '.';
+import { GitConfigUser } from './git.dto';
 
 //
 // Don't forget to update the `changelog.schema.json` file!
@@ -11,21 +11,22 @@ export class ChangeItemMessage {
 }
 
 export class RootChange {
-  version: string;
   message: ChangeItemMessage;
+  version: string;
 }
 
 export class ChangelogDTO {
-  /**
-   * Data is being versioned to facilitate potential upgrades in the future
-   */
-  version: 1;
-  author: GitConfigUser;
   @IsDateString()
   date: string;
   @IsSemVer()
   root: RootChange;
+  author: GitConfigUser;
   changes: ChangeItemDTO[];
+  /**
+   * Data is being versioned to facilitate potential upgrades in the future
+   */
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  version: 1;
 }
 
 export class ChangeItemDTO {
@@ -33,6 +34,6 @@ export class ChangeItemDTO {
   from: string;
   @IsSemVer()
   to: string;
-  project: string;
   message: ChangeItemMessage;
+  project: string;
 }

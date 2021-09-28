@@ -1,4 +1,8 @@
-import { AutoLogService, InjectConfig } from '@automagical/utilities';
+import {
+  AutoLogService,
+  InjectConfig,
+  TitleCase,
+} from '@automagical/utilities';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import inquirer from 'inquirer';
@@ -12,6 +16,9 @@ import { PromptService, ReplExplorerService } from '../services';
 
 // Filter out non-sortable characters (like emoji)
 const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
+const SCRIPT_ARG = 2;
+const UP = 1;
+const DOWN = 2;
 
 @Repl({
   name: 'Main',
@@ -45,13 +52,14 @@ export class MainCLIService implements iRepl {
    * If a script name was passed as a command line arg, directly run it
    */
   private async getScript(script?: string): Promise<[string, iRepl]> {
-    const scriptName = process.argv[2];
+    const scriptName = process.argv[SCRIPT_ARG];
     if (!scriptName || typeof script !== 'undefined') {
       return await this.promptService.pickOne(
         'Command',
         this.scriptList()
           .filter((item) => {
             if (Array.isArray(item)) {
+              // eslint-disable-next-line @typescript-eslint/no-magic-numbers
               return item[0] !== 'Main';
             }
             return true;
@@ -61,6 +69,7 @@ export class MainCLIService implements iRepl {
               return item;
             }
             return {
+              // eslint-disable-next-line @typescript-eslint/no-magic-numbers
               name: item[0],
               value: item,
             };
@@ -74,33 +83,6 @@ export class MainCLIService implements iRepl {
       return await this.getScript('');
     }
     return [scriptName, this.explorer.findServiceByName(scriptName)];
-  }
-
-  private scriptList(): ([string, iRepl] | Separator)[] {
-    const types: Partial<Record<REPL_TYPE, [string, iRepl][]>> = {};
-    this.explorer.REGISTERED_APPS.forEach(
-      (instance: iRepl, { type, name }: ReplOptions) => {
-        types[type] ??= [];
-        types[type].push([name, instance]);
-      },
-    );
-    const out: ([string, iRepl] | Separator)[] = [];
-    Object.keys(REPL_TYPE).forEach((type) => {
-      out.push(
-        new inquirer.Separator(
-          `${type.charAt(0).toUpperCase()}${type.slice(1)}`,
-        ),
-        ...types[type].sort(([a], [b]) => {
-          a = a.replace(unsortable, '');
-          b = b.replace(unsortable, '');
-          if (a > b) {
-            return 1;
-          }
-          return -1;
-        }),
-      );
-    });
-    return out;
   }
 
   private printHeader(scriptName: string): void {
@@ -121,5 +103,30 @@ export class MainCLIService implements iRepl {
       ),
       `\n\n`,
     );
+  }
+
+  private scriptList(): ([string, iRepl] | Separator)[] {
+    const types: Partial<Record<REPL_TYPE, [string, iRepl][]>> = {};
+    this.explorer.REGISTERED_APPS.forEach(
+      (instance: iRepl, { type, name }: ReplOptions) => {
+        types[type] ??= [];
+        types[type].push([name, instance]);
+      },
+    );
+    const out: ([string, iRepl] | Separator)[] = [];
+    Object.keys(REPL_TYPE).forEach((type) => {
+      out.push(
+        new inquirer.Separator(TitleCase(type)),
+        ...types[type].sort(([a], [b]) => {
+          a = a.replace(unsortable, '');
+          b = b.replace(unsortable, '');
+          if (a > b) {
+            return UP;
+          }
+          return DOWN;
+        }),
+      );
+    });
+    return out;
   }
 }

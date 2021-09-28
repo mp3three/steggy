@@ -1,14 +1,14 @@
-import { AutoLogService, Trace } from '@automagical/utilities';
+import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import execa from 'execa';
 import { decode } from 'ini';
 
-import { GitConfigDTO } from '..';
+import { GitConfigDTO } from '../contracts';
+
+const EMPTY = 0;
 
 @Injectable()
 export class GitService {
-  constructor(private readonly logger: AutoLogService) {}
-
   @Trace()
   public async getBranchName(): Promise<string> {
     const { stdout } = await execa(`git`, [
@@ -17,6 +17,21 @@ export class GitService {
       `HEAD`,
     ]);
     return stdout;
+  }
+
+  @Trace()
+  public async getConfig(): Promise<GitConfigDTO> {
+    const { stdout } = await execa(`git`, [`config`, `--list`]);
+    return decode(stdout) as GitConfigDTO;
+  }
+
+  /**
+   * Is there any uncommitted changes?
+   */
+  @Trace()
+  public async isDirty(): Promise<boolean> {
+    const { stdout } = await execa(`git`, [`status`, `--porcelain`]);
+    return stdout.length > EMPTY;
   }
 
   /**
@@ -41,20 +56,5 @@ export class GitService {
       return message.join(' ');
     });
     return messages;
-  }
-
-  /**
-   * Is there any uncommitted changes?
-   */
-  @Trace()
-  public async isDirty(): Promise<boolean> {
-    const { stdout } = await execa(`git`, [`status`, `--porcelain`]);
-    return stdout.length > 0;
-  }
-
-  @Trace()
-  public async getConfig(): Promise<GitConfigDTO> {
-    const { stdout } = await execa(`git`, [`config`, `--list`]);
-    return decode(stdout) as GitConfigDTO;
   }
 }
