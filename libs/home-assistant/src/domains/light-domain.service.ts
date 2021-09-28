@@ -57,8 +57,4 @@ export class LightDomainService extends EntityService {
       ...settings,
     });
   }
-
-  public supportsColor(): boolean {
-    return false;
-  }
 }

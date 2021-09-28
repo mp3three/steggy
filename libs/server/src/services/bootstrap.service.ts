@@ -37,7 +37,7 @@ export class BootstrapService {
     private readonly sslCert: string,
   ) {}
 
-  public onPostInit(server: Express, app: INestApplication): void {
+  public onPostInit(app: INestApplication, server: Express): void {
     app.use(helmet());
     if (this.prefix) {
       this.logger.debug(`Using global http prefix {${this.prefix}}`);

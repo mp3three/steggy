@@ -9,12 +9,6 @@
         "buildTarget": "devtools:build",
         "inspect": "inspect",
         "port": 33336
-      },
-      "configurations": {
-        "config-scanner": {
-          "buildTarget": "devtools:build:config-scanner",
-          "port": 33337
-        }
       }
     },
     "prepare": {

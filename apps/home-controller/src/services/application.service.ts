@@ -70,15 +70,6 @@ export class ApplicationService {
     await this.lockService.unlock(this.locks);
   }
 
-  public onModuleInit(): void {
-    // setInterval(() => {
-    //   this.mqtt.publish(
-    //     SEND_ROOM_STATE('loft', 'areaOn'),
-    //     JSON.stringify({ count: 2 } as RoomControllerParametersDTO),
-    //   );
-    // }, 1000);
-  }
-
   /**
    * Hey! Parts of the house need batteries swapped out
    *

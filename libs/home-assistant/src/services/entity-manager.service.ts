@@ -30,6 +30,17 @@ export class EntityManagerService {
   private readonly OBSERVABLES = new Map<string, Observable<HassStateDTO>>();
   private readonly SUBSCRIBERS = new Map<string, Subscriber<HassStateDTO>>();
 
+  public findByDomain<T extends HassStateDTO = HassStateDTO>(
+    target: HASS_DOMAINS,
+  ): T[] {
+    const out: T[] = [];
+    this.ENTITIES.forEach((state, key) => {
+      if (domain(key) === target) {
+        out.push(state as T);
+      }
+    });
+    return out;
+  }
   /**
    * Retrieve an entity's state
    */
@@ -49,6 +60,10 @@ export class EntityManagerService {
   ): Observable<T> {
     this.createObservable(entityId);
     return this.OBSERVABLES.get(entityId) as Observable<T>;
+  }
+
+  public isValidId(entityId: string): boolean {
+    return this.ENTITIES.has(entityId);
   }
 
   @Trace()
@@ -87,22 +102,6 @@ export class EntityManagerService {
     return await this.socketService.updateEntity(entityId, {
       new_entity_id: newEntityId,
     });
-  }
-
-  public findByDomain<T extends HassStateDTO = HassStateDTO>(
-    target: HASS_DOMAINS,
-  ): T[] {
-    const out: T[] = [];
-    this.ENTITIES.forEach((state, key) => {
-      if (domain(key) === target) {
-        out.push(state as T);
-      }
-    });
-    return out;
-  }
-
-  public isValidId(entityId: string): boolean {
-    return this.ENTITIES.has(entityId);
   }
 
   /**

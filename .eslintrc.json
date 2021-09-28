@@ -44,13 +44,16 @@
         "project": ["./tsconfig.base.json"]
       },
       "rules": {
-        "@typescript-eslint/prefer-includes": "warn",
-        "@typescript-eslint/require-await": "error",
+        // Undecided on if this is worth keeping
+        "@typescript-eslint/require-await": "warn",
+
+        "@typescript-eslint/no-magic-numbers": "warn",
+         "@typescript-eslint/prefer-includes": "warn",
         "@typescript-eslint/no-throw-literal": "error",
         "require-await": "off",
         "@typescript-eslint/require-array-sort-compare": "error",
         "@typescript-eslint/unbound-method": "error",
-        "@typescript-eslint/no-magic-numbers": "warn",
+
         "@typescript-eslint/member-ordering": [
           2, {
             "default": {
@@ -59,8 +62,6 @@
                 // General rule:
                 // static > constructor > instance
                 // public > "public" > protected > private
-                // abstract > annotated > other
-                // --- TODO: Don't want annotations to affect ordering, find secret sauce
 
                 // static fields
                 "public-static-field",
@@ -83,49 +84,41 @@
 
                 // public field
                 "public-abstract-field",
-                "public-decorated-field",
                 "public-instance-field",
                 "public-field",
 
                 // "public" field
                 "abstract-field",
-                "decorated-field",
                 "instance-field",
                 "field",
 
                 // protected field
                 "protected-abstract-field",
-                "protected-decorated-field",
                 "protected-instance-field",
                 "protected-field",
 
                 // private field
                 "private-abstract-field",
-                "private-decorated-field",
                 "private-instance-field",
                 "private-field",
 
                 // public method
                 "public-abstract-method",
-                "public-decorated-method",
                 "public-instance-method",
                 "public-method",
 
                 // "public" method
                 "abstract-method",
-                "decorated-method",
                 "instance-method",
                 "method",
 
                 // protected method
                 "protected-abstract-method",
-                "protected-decorated-method",
                 "protected-instance-method",
                 "protected-method",
 
                 // private method
                 "private-abstract-method",
-                "private-decorated-method",
                 "private-instance-method",
                 "private-method"
               ]
@@ -213,6 +206,7 @@
     {
       "files": ["*.decorator.ts"],
       "rules": {
+        // Incorrectly firing for exported maps and stuff
         "radar/no-unused-collection": "off"
       }
     }

@@ -16,6 +16,20 @@ export class ModuleScannerService {
     });
   }
 
+  public findWithSymbol<
+    VALUE extends unknown = unknown,
+    PROVIDER_TYPE extends unknown = unknown,
+  >(find: symbol): Map<PROVIDER_TYPE, VALUE> {
+    const out = new Map();
+    this.applicationProviders<PROVIDER_TYPE>().forEach((instance) => {
+      const ctor = instance.constructor;
+      if (typeof ctor[find] !== 'undefined') {
+        out.set(instance, ctor[find]);
+      }
+    });
+    return out;
+  }
+
   @OnceIsEnough()
   public getProviders<T extends unknown = unknown>(): T[] {
     return [
@@ -29,19 +43,5 @@ export class ModuleScannerService {
         return true;
       })
       .map((wrapper) => wrapper.instance);
-  }
-
-  public findWithSymbol<
-    VALUE extends unknown = unknown,
-    PROVIDER_TYPE extends unknown = unknown,
-  >(find: symbol): Map<PROVIDER_TYPE, VALUE> {
-    const out = new Map();
-    this.applicationProviders<PROVIDER_TYPE>().forEach((instance) => {
-      const ctor = instance.constructor;
-      if (typeof ctor[find] !== 'undefined') {
-        out.set(instance, ctor[find]);
-      }
-    });
-    return out;
   }
 }

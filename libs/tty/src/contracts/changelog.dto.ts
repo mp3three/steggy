@@ -16,12 +16,12 @@ export class RootChange {
 }
 
 export class ChangelogDTO {
+  author: GitConfigUser;
+  changes: ChangeItemDTO[];
   @IsDateString()
   date: string;
   @IsSemVer()
   root: RootChange;
-  author: GitConfigUser;
-  changes: ChangeItemDTO[];
   /**
    * Data is being versioned to facilitate potential upgrades in the future
    */
@@ -32,8 +32,8 @@ export class ChangelogDTO {
 export class ChangeItemDTO {
   @IsSemVer()
   from: string;
-  @IsSemVer()
-  to: string;
   message: ChangeItemMessage;
   project: string;
+  @IsSemVer()
+  to: string;
 }

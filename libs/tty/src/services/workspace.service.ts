@@ -42,6 +42,10 @@ export class WorkspaceService {
    */
   public workspace: NXWorkspaceDTO;
 
+  public isApplication(project: string): boolean {
+    return this.workspace.projects[project].projectType === 'application';
+  }
+
   @Trace()
   public list(type: NXProjectTypes): string[] {
     const { projects } = this.workspace;
@@ -49,6 +53,14 @@ export class WorkspaceService {
       (item) => projects[item].projectType === type,
     );
   }
+  public path(project: string, type: 'package' | 'metadata'): string {
+    return join(
+      cwd(),
+      this.workspace.projects[project].root,
+      type === 'package' ? PACKAGE_FILE : METADATA_FILE,
+    );
+  }
+
   @Trace()
   public setPackageVersion(project: string, version: string): string {
     const packageJson = this.PACKAGES.get(project);
@@ -58,27 +70,16 @@ export class WorkspaceService {
     return version;
   }
 
+  public updateRootPackage(): void {
+    this.writeJson(PACKAGE_FILE, this.ROOT_PACKAGE);
+  }
+
   @Trace()
   public writeJson(path: string, data: unknown): void {
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, JSON.stringify(data, undefined, '  ') + `\n`);
   }
 
-  public isApplication(project: string): boolean {
-    return this.workspace.projects[project].projectType === 'application';
-  }
-
-  public path(project: string, type: 'package' | 'metadata'): string {
-    return join(
-      cwd(),
-      this.workspace.projects[project].root,
-      type === 'package' ? PACKAGE_FILE : METADATA_FILE,
-    );
-  }
-
-  public updateRootPackage(): void {
-    this.writeJson(PACKAGE_FILE, this.ROOT_PACKAGE);
-  }
   @Trace()
   protected onModuleInit(): void {
     this.loadNX();

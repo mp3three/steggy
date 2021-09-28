@@ -16,25 +16,6 @@ export class FetchService extends BaseFetchService {
 
   public TRUNCATE_LENGTH = DEFAULT_TRUNCATE_LENGTH;
 
-  @Trace()
-  public async fetch<T>({
-    process,
-    ...fetchWith
-  }: Partial<FetchArguments>): Promise<T> {
-    const url: string = await this.fetchCreateUrl(fetchWith);
-    const requestInit = await this.fetchCreateMeta(fetchWith);
-    try {
-      const response = await fetch(url, requestInit);
-      if (process === false) {
-        return response as unknown as T;
-      }
-      return await this.fetchHandleResponse(fetchWith, response);
-    } catch (error) {
-      this.logger.error(error);
-      return undefined;
-    }
-  }
-
   public async download({
     destination,
     ...fetchWith
@@ -52,5 +33,24 @@ export class FetchService extends BaseFetchService {
         resolve();
       });
     });
+  }
+
+  @Trace()
+  public async fetch<T>({
+    process,
+    ...fetchWith
+  }: Partial<FetchArguments>): Promise<T> {
+    const url: string = await this.fetchCreateUrl(fetchWith);
+    const requestInit = await this.fetchCreateMeta(fetchWith);
+    try {
+      const response = await fetch(url, requestInit);
+      if (process === false) {
+        return response as unknown as T;
+      }
+      return await this.fetchHandleResponse(fetchWith, response);
+    } catch (error) {
+      this.logger.error(error);
+      return undefined;
+    }
   }
 }

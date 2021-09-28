@@ -5,18 +5,13 @@
   },
   "defaultProject": "home-controller",
   "projects": {
-    "1password": "libs/1password",
-    "auto-dash": "apps/auto-dash",
     "controller-logic": "libs/controller-logic",
-    "dashboard": "apps/dashboard",
     "devtools": "apps/devtools",
     "home-assistant": "libs/home-assistant",
     "home-controller": "apps/home-controller",
     "living-docs": "apps/living-docs",
     "persistence": "libs/persistence",
-    "portainer": "libs/portainer",
     "server": "libs/server",
-    "terminal": "libs/terminal",
     "tty": "libs/tty",
     "utilities": "libs/utilities"
   },

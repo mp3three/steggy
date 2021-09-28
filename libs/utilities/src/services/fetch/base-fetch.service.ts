@@ -17,35 +17,6 @@ export class BaseFetchService {
   protected readonly logger: AutoLogService;
 
   /**
-   * Post processing function for fetch()
-   */
-  @Trace()
-  protected async fetchHandleResponse<T extends unknown = unknown>(
-    { process }: FetchWith,
-    response: Response,
-  ): Promise<T> {
-    if (process === false) {
-      return response as T;
-    }
-    const text = await response.text();
-    if (process === 'text') {
-      return text as unknown as T;
-    }
-    if (!['{', '['].includes(text.charAt(FIRST))) {
-      if (!['OK'].includes(text)) {
-        // It's probably a coding error error, and not something a user did.
-        // Will try to keep the array up to date if any other edge cases pop up
-        this.logger.warn({ text }, `Unexpected API Response`);
-      } else {
-        this.logger.debug({ text }, 'Full response text');
-      }
-      return text as T;
-    }
-    const parsed = JSON.parse(text);
-    return this.checkForHttpErrors<T>(parsed);
-  }
-
-  /**
    * Resolve Filters and query params object into a query string.
    *
    * In case of collision, provided params take priority.
@@ -124,6 +95,35 @@ export class BaseFetchService {
       out = `${out}?${this.buildFilterString(fetchWith)}`;
     }
     return out;
+  }
+
+  /**
+   * Post processing function for fetch()
+   */
+  @Trace()
+  protected async fetchHandleResponse<T extends unknown = unknown>(
+    { process }: FetchWith,
+    response: Response,
+  ): Promise<T> {
+    if (process === false) {
+      return response as T;
+    }
+    const text = await response.text();
+    if (process === 'text') {
+      return text as unknown as T;
+    }
+    if (!['{', '['].includes(text.charAt(FIRST))) {
+      if (!['OK'].includes(text)) {
+        // It's probably a coding error error, and not something a user did.
+        // Will try to keep the array up to date if any other edge cases pop up
+        this.logger.warn({ text }, `Unexpected API Response`);
+      } else {
+        this.logger.debug({ text }, 'Full response text');
+      }
+      return text as T;
+    }
+    const parsed = JSON.parse(text);
+    return this.checkForHttpErrors<T>(parsed);
   }
 
   private checkForHttpErrors<T extends unknown = unknown>(maybeError: {
