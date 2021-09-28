@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 export enum TemplateTypes {
   swarm = 1,
   compose = 2,

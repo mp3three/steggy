@@ -1,19 +1,18 @@
-import {
-  AuthenticatePayloadDTO,
-  AuthenticateResponseDTO,
-  OAuthPayloadDTO,
-} from '@automagical/portainer';
 import { FetchWith } from '@automagical/utilities';
 import { Debug } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
+import {
+  AuthenticatePayloadDTO,
+  AuthenticateResponseDTO,
+  OAuthPayloadDTO,
+} from '../contracts';
 import { PortainerFetchService } from './portainer-fetch.service';
 
 @Injectable()
 export class PortainerAuthService {
-  public jwt: string;
-
   constructor(private readonly fetchService: PortainerFetchService) {}
+  public jwt: string;
 
   @Debug('Login')
   public async login({
