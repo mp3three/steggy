@@ -15,9 +15,9 @@ export enum NotificationGroup {
 }
 
 export type HueEvent = {
-  event: number;
   buttonEvent: string;
   buttonNumber: '1' | '2' | '3' | '4';
+  event: number;
 };
 
 export enum RoomsCode {

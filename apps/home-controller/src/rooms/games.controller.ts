@@ -39,12 +39,12 @@ export class GamesRoomController extends BaseRoomService {
   }
 
   @Trace()
-  public async areaOn(): Promise<void> {
+  public async areaOff(): Promise<void> {
     await this.stateManager.removeFlag(this.settings, AUTO_STATE);
   }
 
   @Trace()
-  public async areaOff(): Promise<void> {
+  public async areaOn(): Promise<void> {
     await this.stateManager.removeFlag(this.settings, AUTO_STATE);
   }
 
@@ -81,7 +81,7 @@ export class GamesRoomController extends BaseRoomService {
     );
   }
 
-  protected async onApplicationBootstrap(): Promise<void> {
+  protected onApplicationBootstrap(): void {
     Steps().forEach((scope, index) => {
       this.kunamiService.addCommand(this, {
         activate: {

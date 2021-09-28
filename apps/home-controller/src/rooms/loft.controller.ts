@@ -140,26 +140,6 @@ export class LoftController extends BaseRoomService {
     await this.lightManager.circadianLight(FAN_LIGHTS, target);
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
-  protected async panelSchedule(): Promise<void> {
-    if (!(await this.stateManager.hasFlag(this.settings, AUTO_STATE))) {
-      return;
-    }
-    const brightness = this.panelAutoBrightness();
-    const result = await this.entityManager.getEntity<LightStateDTO>(
-      PANEL_LIGHTS,
-    );
-    const [{ attributes }] = result;
-    if (brightness === 0) {
-      await this.lightManager.turnOffEntities(PANEL_LIGHTS);
-      return;
-    }
-    if (attributes.brightness === brightness) {
-      return;
-    }
-    await this.lightManager.circadianLight(PANEL_LIGHTS, brightness);
-  }
-
   @Cron('0 0 16 * * *')
   @Debug('Turn off hallway light')
   protected async hallwayOff(): Promise<void> {
@@ -181,17 +161,8 @@ export class LoftController extends BaseRoomService {
     await this.switchService.turnOn('switch.back_desk_light');
   }
 
-  @Cron('0 45 22 * * *')
-  @Debug('Turn off desk light')
-  protected async windDown(): Promise<void> {
-    if (!(await this.stateManager.hasFlag(this.settings, AUTO_STATE))) {
-      return;
-    }
-    this.switchService.turnOff(['switch.desk_light']);
-  }
-
   @Trace()
-  protected async onModuleInit(): Promise<void> {
+  protected onModuleInit(): void {
     Steps(2).forEach((scope, count) =>
       this.kunamiService.addCommand(this, {
         activate: {
@@ -205,6 +176,36 @@ export class LoftController extends BaseRoomService {
       }),
     );
   }
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  protected async panelSchedule(): Promise<void> {
+    if (!(await this.stateManager.hasFlag(this.settings, AUTO_STATE))) {
+      return;
+    }
+    const brightness = this.panelAutoBrightness();
+    const result = await this.entityManager.getEntity<LightStateDTO>(
+      PANEL_LIGHTS,
+    );
+    const [{ attributes }] = result;
+    if (brightness === 0) {
+      await this.lightManager.turnOffEntities(PANEL_LIGHTS);
+      return;
+    }
+    if (attributes.brightness === brightness) {
+      return;
+    }
+    await this.lightManager.circadianLight(PANEL_LIGHTS, brightness);
+  }
+
+  @Cron('0 45 22 * * *')
+  @Debug('Turn off desk light')
+  protected async windDown(): Promise<void> {
+    if (!(await this.stateManager.hasFlag(this.settings, AUTO_STATE))) {
+      return;
+    }
+    this.switchService.turnOff(['switch.desk_light']);
+  }
+
   /**
    * Return what the brightness should be for the fan lights in auto mode
    */

@@ -26,7 +26,12 @@ export class EntityController {
   public async getEntityState(
     @Param('entityId') entityId: string,
   ): Promise<HassStateDTO> {
-    return this.entityManager.getEntity([entityId])[0];
+    return await this.entityManager.getEntity([entityId]).shift();
+  }
+
+  @Get('/list')
+  public listEntities(): string[] {
+    return this.entityManager.listEntities();
   }
 
   /**
@@ -49,10 +54,5 @@ export class EntityController {
     );
     this.logger.info({ result });
     return GENERIC_SUCCESS_RESPONSE;
-  }
-
-  @Get('/list')
-  public listEntities(): string[] {
-    return this.entityManager.listEntities();
   }
 }

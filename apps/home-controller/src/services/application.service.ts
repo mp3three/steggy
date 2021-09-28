@@ -14,6 +14,7 @@ import {
   AutoLogService,
   Cron,
   Debug,
+  InjectConfig,
   OnEvent,
   OnMQTT,
   Trace,
@@ -23,6 +24,7 @@ import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
 
+import { BATTERY_NOTIFY_PERCENT } from '../config';
 import {
   GLOBAL_TRANSITION,
   HOMEASSISTANT_LEAVE_HOME,
@@ -32,8 +34,6 @@ import {
 
 @Injectable()
 export class ApplicationService {
-  private connectionReady = false;
-
   constructor(
     protected readonly logger: AutoLogService,
     private readonly solarCalc: SolarCalcService,
@@ -41,7 +41,10 @@ export class ApplicationService {
     private readonly entityManager: EntityManagerService,
     private readonly lockService: LockDomainService,
     private readonly eventEmitterService: EventEmitter2,
+    @InjectConfig(BATTERY_NOTIFY_PERCENT)
+    private readonly notifyPercent: number,
   ) {}
+  private connectionReady = false;
 
   public get locks(): string[] {
     return this.entityManager.listEntities().filter((id) => {
@@ -56,15 +59,15 @@ export class ApplicationService {
     await this.lockService.lock(this.locks);
   }
 
+  @OnEvent(`switch.test/update`)
+  public logState(state: unknown): void {
+    this.logger.info({ state });
+  }
+
   @OnMQTT(HOMEASSISTANT_MOBILE_UNLOCK)
   @Warn('Unlock Doors')
   public async unlockDoors(): Promise<void> {
     await this.lockService.unlock(this.locks);
-  }
-
-  @OnEvent(`switch.test/update`)
-  public logState(state: unknown): void {
-    this.logger.info({ state });
   }
 
   public onModuleInit(): void {
@@ -83,7 +86,7 @@ export class ApplicationService {
    */
   @Cron('0 0 11 * * Sat')
   @Debug('Battery monitor')
-  protected async batteryMonitor(): Promise<void> {
+  protected batteryMonitor(): void {
     const entities = this.entityManager.listEntities().filter((id) => {
       return (
         domain(id) === HASS_DOMAINS.sensor &&
@@ -95,7 +98,7 @@ export class ApplicationService {
       .getEntity<BatteryStateDTO>(entities)
       .forEach((entity) => {
         const pct = Number(entity.state);
-        if (pct < 10) {
+        if (pct < this.notifyPercent) {
           this.notifyService.notify(
             `${entity.attributes.friendly_name} is at ${entity.state}%`,
           );
@@ -121,6 +124,20 @@ export class ApplicationService {
     await this.notifyService.notify(`${message}`);
   }
 
+  /**
+   * Home Assistant relayed this request via a mobile app action
+   *
+   * Intended to lock up, turn off the lights, and send back verification
+   */
+  @OnMQTT(HOMEASSISTANT_LEAVE_HOME)
+  @Debug('Home Assistant => Leave Home')
+  protected async leaveHome(): Promise<void> {
+    await this.lockDoors();
+    ['master', 'loft', 'downstairs', 'guest'].forEach((room) =>
+      this.eventEmitterService.emit(ROOM_COMMAND(room, 'areaOff')),
+    );
+  }
+
   @OnEvent(HA_SOCKET_READY)
   @Trace()
   protected async onSocketReset(): Promise<void> {
@@ -133,20 +150,6 @@ export class ApplicationService {
       {
         title: `Temporarily lost connection with Home Assistant`,
       },
-    );
-  }
-
-  /**
-   * Home Assistant relayed this request via a mobile app action
-   *
-   * Intended to lock up, turn off the lights, and send back verification
-   */
-  @OnMQTT(HOMEASSISTANT_LEAVE_HOME)
-  @Debug('Home Assistant => Leave Home')
-  protected async leaveHome(): Promise<void> {
-    await this.lockDoors();
-    ['master', 'loft', 'downstairs', 'guest'].forEach((room) =>
-      this.eventEmitterService.emit(ROOM_COMMAND(room, 'areaOff')),
     );
   }
 }

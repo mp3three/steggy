@@ -25,22 +25,6 @@ export class StateController {
     private readonly roomManager: RoomManagerService,
   ) {}
 
-  @Put('/:id/activate')
-  public async setState(
-    @Param('id') id: string,
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.statePersistence.loadState(id);
-    return GENERIC_SUCCESS_RESPONSE;
-  }
-
-  @Delete(`/:id`)
-  public async deleteState(
-    @Param('id') id: string,
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.statePersistence.deleteState(id);
-    return GENERIC_SUCCESS_RESPONSE;
-  }
-
   @Post(`/:id/copy`)
   public async copyState(
     @Param('id') id: string,
@@ -57,5 +41,21 @@ export class StateController {
       ...body,
       entities: settings.groups[body.group],
     });
+  }
+
+  @Delete(`/:id`)
+  public async deleteState(
+    @Param('id') id: string,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.statePersistence.deleteState(id);
+    return GENERIC_SUCCESS_RESPONSE;
+  }
+
+  @Put('/:id/activate')
+  public async setState(
+    @Param('id') id: string,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.statePersistence.loadState(id);
+    return GENERIC_SUCCESS_RESPONSE;
   }
 }

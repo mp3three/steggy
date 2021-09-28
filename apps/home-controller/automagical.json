@@ -1,4 +1,8 @@
 {
   "configuration": {
+    "BATTERY_NOTIFY_PERCENT": {
+      "type": "number",
+      "default": 10
+    }
   }
 }

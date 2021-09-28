@@ -30,14 +30,6 @@ export class GroupController {
     private readonly groupService: GroupService,
   ) {}
 
-  @Get('/:group/list-states')
-  public async listGroupStates(
-    @Param('name') room: string,
-    @Param('group') group: string,
-  ): Promise<RoomStateDTO[]> {
-    return await this.groupService.listStatesByGroup(room, group);
-  }
-
   @Post(`/:group/snapshot`)
   public async createSnapshot(
     @Param('name') room: string,
@@ -58,7 +50,7 @@ export class GroupController {
         `${friendlyName} does not contain group ${group}`,
       );
     }
-    return this.groupService.describeGroup(name, group);
+    return await this.groupService.describeGroup(name, group);
   }
 
   @Put('/:group/command/:command')
@@ -69,15 +61,23 @@ export class GroupController {
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     switch (command) {
       case 'turnOn':
-        this.groupService.turnOn(settings.name, group);
+        await this.groupService.turnOn(settings.name, group);
         break;
       case 'turnOff':
-        this.groupService.turnOff(settings.name, group);
+        await this.groupService.turnOff(settings.name, group);
         break;
       case 'turnOnCircadian':
-        this.groupService.turnOnCircadian(settings.name, group);
+        await this.groupService.turnOnCircadian(settings.name, group);
         break;
     }
     return GENERIC_SUCCESS_RESPONSE;
+  }
+
+  @Get('/:group/list-states')
+  public async listGroupStates(
+    @Param('name') room: string,
+    @Param('group') group: string,
+  ): Promise<RoomStateDTO[]> {
+    return await this.groupService.listStatesByGroup(room, group);
   }
 }

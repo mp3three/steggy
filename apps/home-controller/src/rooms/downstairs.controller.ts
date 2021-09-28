@@ -80,19 +80,6 @@ export class DownstairsController extends BaseRoomService {
   }
 
   @Trace()
-  @RelayCommand(['loft', 'games', 'master', 'dining'], 'areaOff')
-  private async eveningFavorite(command: RoomCommandDTO): Promise<boolean> {
-    const scope = COMMAND_SCOPE(command);
-    if (scope.has(RoomCommandScope.LOCAL)) {
-      await this.switchService.turnOn(switches);
-      await this.lightDomain.turnOn([...tvRight, ...tvLeft]);
-      await this.lightManager.turnOffEntities([...fanLights, ...accessories]);
-      return false;
-    }
-    return scope.has(RoomCommandScope.ACCESSORIES);
-  }
-
-  @Trace()
   @RelayCommand(['dining'], 'areaOff')
   public async areaOff(command: RoomCommandDTO): Promise<boolean> {
     const scope = COMMAND_SCOPE(command);
@@ -150,6 +137,19 @@ export class DownstairsController extends BaseRoomService {
       await this.switchService.turnOn([...switches, ...accessories]);
       await this.lightManager.circadianLight(fanLights, 255);
       return;
+    }
+    return scope.has(RoomCommandScope.ACCESSORIES);
+  }
+
+  @Trace()
+  @RelayCommand(['loft', 'games', 'master', 'dining'], 'areaOff')
+  private async eveningFavorite(command: RoomCommandDTO): Promise<boolean> {
+    const scope = COMMAND_SCOPE(command);
+    if (scope.has(RoomCommandScope.LOCAL)) {
+      await this.switchService.turnOn(switches);
+      await this.lightDomain.turnOn([...tvRight, ...tvLeft]);
+      await this.lightManager.turnOffEntities([...fanLights, ...accessories]);
+      return false;
     }
     return scope.has(RoomCommandScope.ACCESSORIES);
   }
