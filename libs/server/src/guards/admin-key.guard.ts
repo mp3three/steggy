@@ -11,14 +11,8 @@ export class AdminKeyGuard implements CanActivate {
     @InjectConfig(ADMIN_KEY) private readonly adminKey: string,
   ) {}
 
-  protected onPostInit(): void {
-    if (this.adminKey) {
-      this.logger.warn(`{${ADMIN_KEY_HEADER}} header available`);
-    }
-  }
-
   @Trace()
-  public async canActivate(context: ExecutionContext): Promise<boolean> {
+  public canActivate(context: ExecutionContext): boolean {
     if (!this.adminKey) {
       return true;
     }
@@ -37,5 +31,11 @@ export class AdminKeyGuard implements CanActivate {
     locals.flags.add(ResponseFlags.ADMIN);
     locals.authenticated = true;
     return true;
+  }
+
+  protected onPostInit(): void {
+    if (this.adminKey) {
+      this.logger.warn(`{${ADMIN_KEY_HEADER}} header available`);
+    }
   }
 }

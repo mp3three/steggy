@@ -10,7 +10,6 @@ import {
   Trace,
 } from '@automagical/utilities';
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import dayjs from 'dayjs';
 import { NextFunction } from 'express';
 import pino from 'pino';
 
@@ -22,8 +21,11 @@ import {
   ResponseLocals,
   USERAGENT_HEADER,
 } from '../contracts';
-let currentRequestId = 0;
 
+let currentRequestId = 0;
+const OK = 200;
+const EMPTY = 0;
+const INCREMENT = 1;
 /**
  * - Set up defaults on request locals
  * - Generate request id
@@ -36,18 +38,18 @@ export class InitMiddleware implements NestMiddleware {
   ) {}
 
   @Trace()
-  public async use(
+  public use(
     request: APIRequest,
     { locals }: APIResponse,
     next: NextFunction,
-  ): Promise<void> {
+  ): void {
     locals.headers ??= new Map(
       Object.entries(request.headers as Record<string, string>),
     );
     if (this.isHealthCheck(locals, request.res)) {
       return;
     }
-    currentRequestId = (currentRequestId + 1) % this.maxId;
+    currentRequestId = (currentRequestId + INCREMENT) % this.maxId;
     const logger = (AutoLogService.logger as pino.Logger).child({
       id: currentRequestId,
     });
@@ -79,7 +81,7 @@ export class InitMiddleware implements NestMiddleware {
   ): boolean {
     const header = headers.get(USERAGENT_HEADER) ?? '';
     if (header.includes('ELB-HealthChecker')) {
-      response.status(200).send({
+      response.status(OK).send({
         status: 'Ok',
       });
       return true;
@@ -93,7 +95,7 @@ export class InitMiddleware implements NestMiddleware {
       return;
     }
     const filters = control.filters;
-    if (filters.size > 0) {
+    if (filters.size > EMPTY) {
       this.logger.debug(`Merging ${QUERY_HEADER} into query params`);
     }
     try {

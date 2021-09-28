@@ -5,10 +5,6 @@ import { Injectable, RequestMapping, RequestMethod } from '@nestjs/common';
 /* eslint-disable @typescript-eslint/ban-types */
 
 interface MethodInjectOptions<T> {
-  name: string & keyof T;
-  instance: object;
-  path?: string;
-  method?: HTTP_METHODS | `${HTTP_METHODS}`;
   /**
    * Force a method into existence if it doesn't exist already.
    * Probably a bad idea to use
@@ -16,6 +12,10 @@ interface MethodInjectOptions<T> {
    * Use at your own risk. Conceivably useful for standardizing objects to interfaces
    */
   callback?: (...data: unknown[]) => unknown | void | Promise<unknown | void>;
+  instance: object;
+  method?: HTTP_METHODS | `${HTTP_METHODS}`;
+  name: string & keyof T;
+  path?: string;
 }
 
 @Injectable()

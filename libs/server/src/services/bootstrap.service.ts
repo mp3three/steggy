@@ -37,10 +37,7 @@ export class BootstrapService {
     private readonly sslCert: string,
   ) {}
 
-  public async onPostInit(
-    app: INestApplication,
-    server: Express,
-  ): Promise<void> {
+  public onPostInit(server: Express, app: INestApplication): void {
     app.use(helmet());
     if (this.prefix) {
       this.logger.debug(`Using global http prefix {${this.prefix}}`);
@@ -58,6 +55,16 @@ export class BootstrapService {
     if (!listening) {
       this.logger.error(`No port to listen on`);
     }
+  }
+
+  private listenHttp(server: Express): boolean {
+    if (this.port) {
+      createServer(server).listen(this.port, () =>
+        this.logger.info(`📡 Listening on [${this.port}] {(http)} 📡`),
+      );
+      return true;
+    }
+    return false;
   }
 
   private listenSsl(server: Express): void {
@@ -78,15 +85,5 @@ export class BootstrapService {
     ).listen(this.sslPort, () =>
       this.logger.info(`📡 Listening on [${this.sslPort}] {(https)} 📡`),
     );
-  }
-
-  private listenHttp(server: Express): boolean {
-    if (this.port) {
-      createServer(server).listen(this.port, () =>
-        this.logger.info(`📡 Listening on [${this.port}] {(http)} 📡`),
-      );
-      return true;
-    }
-    return false;
   }
 }

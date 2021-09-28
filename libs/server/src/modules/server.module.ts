@@ -22,13 +22,14 @@ import { BootstrapService, RouteInjector } from '../services';
   ],
 })
 export class ServerModule {
-  protected onPreInit(app: INestApplication): void {
-    const interceptor = app.get(LoggingInterceptor);
-    app.useGlobalInterceptors(interceptor);
-  }
   public configure(consumer: MiddlewareConsumer): void {
     consumer
       .apply(InitMiddleware)
       .forRoutes({ method: RequestMethod.ALL, path: '*' });
+  }
+
+  protected onPreInit(app: INestApplication): void {
+    const interceptor = app.get(LoggingInterceptor);
+    app.useGlobalInterceptors(interceptor);
   }
 }

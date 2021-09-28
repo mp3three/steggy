@@ -48,10 +48,10 @@ export class ResponseLocals extends CrudOptions {
    * Form loaded via path params
    */
   headers?: Map<string, string>;
+  logger?: pino.Logger;
   method?: HTTP_METHODS;
   parameters?: Map<string, string>;
   query?: Map<string, string>;
   roles?: Set<string>;
-  logger?: pino.Logger;
   start?: Date;
 }
