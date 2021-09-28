@@ -1,11 +1,10 @@
+const OFFSET = 1;
 /**
  * @example await sleep(5000);
  */
 export const sleep = (ms: number): Promise<void> =>
   new Promise((done) => setTimeout(() => done(), ms));
-export const caseCorrect = (input: string): string => {
-  return input.charAt(0).toUpperCase() + input.slice(1);
-};
+
 export const filterUnique = (array: string[]): string[] => {
   return array.filter((item, index, self) => self.indexOf(item) === index);
 };
@@ -14,7 +13,7 @@ export function PEAT<T extends unknown = number>(
   fill?: T,
 ): T[] {
   return Array.from({ length }).map(
-    (item, index) => fill ?? ((index + 1) as T),
+    (item, index) => fill ?? ((index + OFFSET) as T),
   );
 }
 /**

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { existsSync, readdirSync, readFileSync } from 'fs';
 import { get, set } from 'object-path';
@@ -23,9 +24,6 @@ import { AutoLogService } from './logger/auto-log.service';
 export class AutoConfigService {
   public static DEFAULTS = new Map<string, Record<string, unknown>>();
 
-  private config: AutomagicalConfig = {};
-  private metadata = new Map<string, AutomagicalMetadataDTO>();
-
   constructor(
     private readonly logger: AutoLogService,
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
@@ -35,6 +33,9 @@ export class AutoConfigService {
   ) {
     this.earlyInit();
   }
+
+  private config: AutomagicalConfig = {};
+  private metadata = new Map<string, AutomagicalMetadataDTO>();
 
   public get<T extends unknown = string>(path: string | [symbol, string]): T {
     if (Array.isArray(path)) {
@@ -63,17 +64,6 @@ export class AutoConfigService {
     return configuration.default as T;
   }
 
-  private getConfiguration(path: string): ConfigItem {
-    const parts = path.split('.');
-    if (parts.length === 2) {
-      const metadata = this.metadata.get(this.APPLICATION.description);
-      return metadata.configuration[parts[1]];
-    }
-    const [, library, property] = parts;
-    const metadata = this.metadata.get(library);
-    return metadata.configuration[property];
-  }
-
   public set(path: string, value: unknown): void {
     set(this.config, path, value);
   }
@@ -88,6 +78,17 @@ export class AutoConfigService {
       'context'
     ] = `${LIB_UTILS.description}:${AutoConfigService.name}`;
     AutoLogService.logger.level = this.get([LIB_UTILS, LOG_LEVEL]);
+  }
+
+  private getConfiguration(path: string): ConfigItem {
+    const parts = path.split('.');
+    if (parts.length === 2) {
+      const metadata = this.metadata.get(this.APPLICATION.description);
+      return metadata.configuration[parts[1]];
+    }
+    const [, library, property] = parts;
+    const metadata = this.metadata.get(library);
+    return metadata.configuration[property];
   }
 
   private loadMetadata() {

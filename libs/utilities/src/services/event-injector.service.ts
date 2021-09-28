@@ -4,13 +4,13 @@ import { applyDecorators, Injectable } from '@nestjs/common';
 /* eslint-disable @typescript-eslint/ban-types */
 
 interface MethodInjectOptions<T> {
-  name: string & keyof T;
   instance: object;
+  name: string & keyof T;
   path?: string;
 }
 @Injectable()
 export class EventInjectorService {
-  public inject<T>({ name, instance, path }: MethodInjectOptions<T>): void {
+  public inject<T>({ name, instance }: MethodInjectOptions<T>): void {
     const proto = instance.constructor.prototype;
     const descriptors = Object.getOwnPropertyDescriptors(proto);
 

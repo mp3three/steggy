@@ -7,13 +7,14 @@ import { Trace } from '../../decorators/logger.decorator';
 import { AutoLogService } from '../logger/auto-log.service';
 import { BaseFetchService } from './base-fetch.service';
 
+const DEFAULT_TRUNCATE_LENGTH = 200;
 @Injectable({ scope: Scope.TRANSIENT })
 export class FetchService extends BaseFetchService {
-  public TRUNCATE_LENGTH = 200;
-
   constructor(protected readonly logger: AutoLogService) {
     super();
   }
+
+  public TRUNCATE_LENGTH = DEFAULT_TRUNCATE_LENGTH;
 
   @Trace()
   public async fetch<T>({

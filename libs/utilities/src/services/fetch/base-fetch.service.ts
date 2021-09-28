@@ -5,11 +5,14 @@ import { Trace } from '../../decorators/logger.decorator';
 import { controlToQuery } from '../../includes';
 import { AutoLogService } from '../logger/auto-log.service';
 
+const DEFAULT_TRUNCATE_LENGTH = 200;
+const FIRST = 0;
+
 type FetchWith<T extends Record<never, string> = Record<never, string>> =
   Partial<FetchArguments> & T;
 export class BaseFetchService {
   public BASE_URL: string;
-  public TRUNCATE_LENGTH = 200;
+  public TRUNCATE_LENGTH = DEFAULT_TRUNCATE_LENGTH;
 
   protected readonly logger: AutoLogService;
 
@@ -28,7 +31,7 @@ export class BaseFetchService {
     if (process === 'text') {
       return text as unknown as T;
     }
-    if (!['{', '['].includes(text.charAt(0))) {
+    if (!['{', '['].includes(text.charAt(FIRST))) {
       if (!['OK'].includes(text)) {
         // It's probably a coding error error, and not something a user did.
         // Will try to keep the array up to date if any other edge cases pop up
@@ -64,14 +67,14 @@ export class BaseFetchService {
    *
    * Should return: headers, body, method
    */
-  protected async fetchCreateMeta({
+  protected fetchCreateMeta({
     body,
     jwtToken,
     apiKey,
     adminKey,
     bearer,
     ...fetchWitch
-  }: FetchWith): Promise<RequestInit> {
+  }: FetchWith): RequestInit {
     const headers = {
       ...(fetchWitch.headers || {}),
     } as Record<string, string>;
@@ -124,9 +127,9 @@ export class BaseFetchService {
   }
 
   private checkForHttpErrors<T extends unknown = unknown>(maybeError: {
-    statusCode: number;
     error: string;
     message: string;
+    statusCode: number;
   }): T {
     if (typeof maybeError !== 'object' || maybeError === null) {
       return maybeError as T;

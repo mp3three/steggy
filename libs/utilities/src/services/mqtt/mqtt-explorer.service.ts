@@ -22,6 +22,7 @@ import { AutoLogService } from '../logger';
 import { MqttService } from './mqtt.service';
 
 /* eslint-disable no-loops/no-loops, security/detect-object-injection, security/detect-non-literal-regexp */
+const FIRST = 0;
 
 @Injectable()
 export class MQTTExplorerService {
@@ -38,7 +39,7 @@ export class MQTTExplorerService {
 
       // The result can be accessed through the `m`-variable.
       m.forEach((match, groupIndex) => {
-        if (groupIndex !== 0) {
+        if (groupIndex !== FIRST) {
           matches.push(match);
         }
       });
@@ -62,8 +63,6 @@ export class MQTTExplorerService {
     );
   }
 
-  public subscribers: MqttSubscriber[] = [];
-
   constructor(
     private readonly logger: AutoLogService,
     @InjectMQTT() private readonly client: Client,
@@ -72,6 +71,8 @@ export class MQTTExplorerService {
     private readonly mqttService: MqttService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
+
+  public subscribers: MqttSubscriber[] = [];
 
   @Info('[MQTT] initialized')
   protected onApplicationBootstrap(): void {

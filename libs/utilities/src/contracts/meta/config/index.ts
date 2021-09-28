@@ -5,9 +5,9 @@
  * Also provides dedicated sections for libraries to store their own configuration options
  */
 export class AutomagicalConfig {
+  public PRINT_CONFIG_AT_STARTUP?: boolean;
   public application?: Record<string, unknown>;
   public libs?: Record<string, Record<string, unknown>>;
-  public PRINT_CONFIG_AT_STARTUP?: boolean;
   private config?: string;
   private configs?: string[];
 }

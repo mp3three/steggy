@@ -7,7 +7,7 @@ import { LOG_CONTEXT, MISSING_CONTEXT } from '../../contracts/logger/constants';
 import { mappedContexts } from '../../decorators/injectors';
 import { storage } from '../../includes';
 
-/* eslint-disable security/detect-non-literal-regexp */
+/* eslint-disable security/detect-non-literal-regexp, @typescript-eslint/no-magic-numbers */
 export type LoggerFunction =
   | ((message: string, ...arguments_: unknown[]) => void)
   | ((
@@ -53,11 +53,6 @@ export class AutoLogService implements iLogger {
       AutoLogService.logger.warn({ context: `${NEST}:${context}` }, message),
   };
 
-  public static getLogger(): iLoggerCore {
-    const store = storage.getStore();
-    return store || AutoLogService.logger;
-  }
-
   /**
    * Decide which method of formatting log messages is correct
    *
@@ -90,10 +85,15 @@ export class AutoLogService implements iLogger {
     );
   }
 
-  private contextId: string;
-  #context: string;
+  public static getLogger(): iLoggerCore {
+    const store = storage.getStore();
+    return store || AutoLogService.logger;
+  }
 
   constructor(@Inject(INQUIRER) private inquirerer: unknown) {}
+
+  #context: string;
+  private contextId: string;
 
   public get level(): LogLevels {
     return AutoLogService.logger.level as LogLevels;
@@ -120,18 +120,6 @@ export class AutoLogService implements iLogger {
    */
   protected set context(value: string) {
     this.#context = value;
-  }
-
-  /**
-   * For edge case situations like:
-   *
-   *  - extreme early init
-   *  - code locations where DI isn't available
-   *
-   * `@InjectLogger()` annotation is available for providers
-   */
-  public setContext(library: symbol, service: { name: string }): void {
-    this.#context = `${library.description}:${service.name}`;
   }
 
   public debug(message: string, ...arguments_: unknown[]): void;
@@ -172,6 +160,18 @@ export class AutoLogService implements iLogger {
   ): void;
   public info(...arguments_: Parameters<LoggerFunction>): void {
     AutoLogService.call('info', this.context, ...arguments_);
+  }
+
+  /**
+   * For edge case situations like:
+   *
+   *  - extreme early init
+   *  - code locations where DI isn't available
+   *
+   * `@InjectLogger()` annotation is available for providers
+   */
+  public setContext(library: symbol, service: { name: string }): void {
+    this.#context = `${library.description}:${service.name}`;
   }
 
   public trace(message: string, ...arguments_: unknown[]): void;

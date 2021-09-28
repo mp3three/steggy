@@ -1,19 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { connect, MqttClient } from 'mqtt';
 
-import { MQTT_HOST, MQTT_PORT } from '../../config';
+import { MQTT_HEALTH_CHECK_INTERVAL, MQTT_HOST, MQTT_PORT } from '../../config';
 import { ACTIVE_APPLICATION } from '../../contracts/meta/config';
 import { MQTT_HEALTH_CHECK } from '../../contracts/mqtt';
 import { InjectConfig } from '../../decorators/injectors/inject-config.decorator';
 
 @Injectable()
 export class MQTTClientInstanceService {
-  private client: MqttClient;
   constructor(
     @Inject(ACTIVE_APPLICATION) private readonly application: symbol,
     @InjectConfig(MQTT_HOST) private readonly host: string,
     @InjectConfig(MQTT_PORT) private readonly port: number,
+    @InjectConfig(MQTT_HEALTH_CHECK_INTERVAL) private readonly interval: number,
   ) {}
+  private client: MqttClient;
 
   public createConnection(): MqttClient {
     if (this.client) {
@@ -28,7 +29,7 @@ export class MQTTClientInstanceService {
         return;
       }
       this.client.publish(MQTT_HEALTH_CHECK, this.application.description);
-    }, 1000);
+    }, this.interval);
     return this.client;
   }
 }

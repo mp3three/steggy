@@ -9,6 +9,14 @@ export class ModuleScannerService {
   constructor(private readonly discoveryService: DiscoveryService) {}
 
   @OnceIsEnough()
+  public applicationProviders<T extends unknown = unknown>(): T[] {
+    return this.getProviders<T>().filter((instance) => {
+      const ctor = instance.constructor;
+      return typeof ctor[LOGGER_LIBRARY] !== 'undefined';
+    });
+  }
+
+  @OnceIsEnough()
   public getProviders<T extends unknown = unknown>(): T[] {
     return [
       ...this.discoveryService.getControllers(),
@@ -21,14 +29,6 @@ export class ModuleScannerService {
         return true;
       })
       .map((wrapper) => wrapper.instance);
-  }
-
-  @OnceIsEnough()
-  public applicationProviders<T extends unknown = unknown>(): T[] {
-    return this.getProviders<T>().filter((instance) => {
-      const ctor = instance.constructor;
-      return typeof ctor[LOGGER_LIBRARY] !== 'undefined';
-    });
   }
 
   public findWithSymbol<

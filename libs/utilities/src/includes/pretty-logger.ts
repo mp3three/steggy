@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 import chalk from 'chalk';
 import pino from 'pino';
 

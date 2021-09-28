@@ -7,9 +7,17 @@ export type Timestamp = string;
 
 export type FetchAuth = {
   /**
+   * Server admin key
+   */
+  adminKey?: string;
+  /**
    * Project API Key
    */
   apiKey?: string;
+  /**
+   * Bearer token
+   */
+  bearer?: string;
   /**
    * Temp Auth Token
    */
@@ -18,14 +26,6 @@ export type FetchAuth = {
    * Temporary auth token
    */
   tempAuthToken?: TemporaryAuthToken;
-  /**
-   * Server admin key
-   */
-  adminKey?: string;
-  /**
-   * Bearer token
-   */
-  bearer?: string;
 };
 
 export type FetchArguments = FetchAuth & {
@@ -75,8 +75,8 @@ export type FetchArguments = FetchAuth & {
 export type BaseFetch = Partial<FetchArguments>;
 
 export type TemporaryAuthToken = {
-  token?: string;
   key: string;
+  token?: string;
 };
 
 export type FilterValueType =

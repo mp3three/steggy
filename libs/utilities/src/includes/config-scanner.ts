@@ -8,7 +8,7 @@ import {
 import { ConfigTypeDTO, CONSUMES_CONFIG } from '../contracts/config';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
 
-export async function ScanConfig(app: INestApplication): Promise<void> {
+export function ScanConfig(app: INestApplication): void {
   const configService = app.get(AutoConfigService);
   const scanner = app.get(ModuleScannerService);
   const application = app.get<symbol>(ACTIVE_APPLICATION);

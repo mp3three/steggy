@@ -1,14 +1,16 @@
+import { Trace } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
+import execa from 'execa';
+
 import {
   EditItemPayloadDTO,
   GetItemPayloadDTO,
   ListItemItemDTO,
   ListItemPayloadDTO,
   VaultDTO,
-} from '@automagical/1password';
-import { Trace } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
-import execa from 'execa';
+} from '../contracts';
 
+const EMPTY = 0;
 type GenericOptions = Record<string, boolean | string | string[]>;
 
 @Injectable()
@@ -32,7 +34,7 @@ export class ItemService {
       if (generate.letters) {
         parameters.push('letters');
       }
-      if (generate.length > 0) {
+      if (generate.length > EMPTY) {
         parameters.push(generate.length.toString());
       }
       parameters.push(`--generate-password=${parts.join(',')}`);

@@ -31,9 +31,18 @@
       "type": "number",
       "default": 6379
     },
+    "REDIS_DEFAULT_TTL": {
+      "type": "number",
+      "default": 86400
+    },
     "MAX_STASH_DEPTH": {
       "type": "number",
       "default": 10
+    },
+    "MQTT_HEALTH_CHECK_INTERVAL": {
+      "type": "number",
+      "default": 5000,
+      "description": "Announce via MQTT that this process is still alive on an interval"
     }
   }
 }

@@ -4,8 +4,8 @@ export class AutomagicalMetadataDTO {
 }
 export const METADATA_FILE = 'automagical.json';
 export type ConfigItem = {
-  description?: string;
   default?: unknown;
+  description?: string;
 } & AnyConfig;
 type AnyConfig =
   | AutomagicalStringConfig
@@ -20,24 +20,24 @@ class WarnDefault {
 }
 
 export class AutomagicalStringConfig extends WarnDefault {
-  type: 'string';
-  enum?: string[];
   default?: string;
+  enum?: string[];
+  type: 'string';
 }
 export class AutomagicalBooleanConfig extends WarnDefault {
-  type: 'boolean';
   default?: boolean;
+  type: 'boolean';
 }
 export class AutomagicalNumberConfig extends WarnDefault {
-  type: 'number';
   default?: number;
+  type: 'number';
 }
 export class AutomagicalPasswordConfig extends WarnDefault {
   type: 'password';
 }
 export class AutomagicalUrlConfig extends WarnDefault {
-  type: 'url';
   default?: string;
+  type: 'url';
 }
 export class AutomagicalRecordConfig extends WarnDefault {
   type: 'record';

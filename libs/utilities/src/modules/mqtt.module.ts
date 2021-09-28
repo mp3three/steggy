@@ -1,7 +1,6 @@
-import { LIB_UTILS } from '@automagical/utilities';
-import { MQTT_CLIENT_INSTANCE } from '@automagical/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
+import { LIB_UTILS, MQTT_CLIENT_INSTANCE } from '../contracts';
 import { LibraryModule } from '../decorators/library-module.decorator';
 import {
   MQTTClientInstanceService,
