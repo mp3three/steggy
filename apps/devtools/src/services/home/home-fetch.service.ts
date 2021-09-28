@@ -8,6 +8,9 @@ import { Injectable } from '@nestjs/common';
 import { ADMIN_KEY, CONTROLLER_API } from '../../config';
 
 type MenuItem = { name: string; value: RoomControllerSettingsDTO };
+const EMPTY = 0;
+const UP = 1;
+const DOWN = 2;
 
 @Injectable()
 export class HomeFetchService {
@@ -30,7 +33,7 @@ export class HomeFetchService {
     const rooms = await this.fetch<RoomControllerSettingsDTO[]>({
       url: `/room/list`,
     });
-    if (rooms.length === 0) {
+    if (rooms.length === EMPTY) {
       return undefined;
     }
     const primary: MenuItem[] = [];
@@ -54,9 +57,9 @@ export class HomeFetchService {
   ): T[] {
     return items.sort((a, b) => {
       if (a.name > b.name) {
-        return 1;
+        return UP;
       }
-      return -1;
+      return DOWN;
     });
   }
 }

@@ -4,13 +4,13 @@ import {
 } from '@automagical/controller-logic';
 import { FanSpeeds } from '@automagical/home-assistant';
 import { PromptService, Repl, REPL_TYPE } from '@automagical/tty';
-import { AutoLogService } from '@automagical/utilities';
+import { AutoLogService, TitleCase } from '@automagical/utilities';
 import inquirer from 'inquirer';
 
 import { GroupCommandService } from './group-command.service';
 import { HomeFetchService } from './home-fetch.service';
 
-type extra = { scope: RoomCommandScope[]; path?: string };
+type extra = { path?: string; scope: RoomCommandScope[] };
 
 @Repl({
   description: [`Commands scoped to a single room`],
@@ -91,8 +91,7 @@ export class RoomCommandService {
             .reverse()
             .map((key) => {
               return {
-                name:
-                  key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' '),
+                name: TitleCase(key),
                 value: key,
               };
             }),

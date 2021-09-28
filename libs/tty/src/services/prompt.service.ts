@@ -5,6 +5,8 @@ import Separator from 'inquirer/lib/objects/separator';
 
 import { PAGE_SIZE } from '../config';
 
+const EMPTY = 0;
+
 @Injectable()
 export class PromptService {
   constructor(
@@ -12,16 +14,38 @@ export class PromptService {
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
   ) {}
 
-  public async string(message: string, defaultValue?: string): Promise<string> {
+  /**
+   * Force a user interaction before continuing
+   *
+   * Good for giving the user time to read a message before a screen clear happens
+   */
+  public async acknowledge(prompt = ''): Promise<void> {
+    await this.confirm(prompt, true);
+  }
+
+  public async boolean(
+    message: string,
+    defaultValue?: boolean,
+  ): Promise<boolean> {
     const { value } = await inquirer.prompt([
       {
         default: defaultValue,
         message,
         name: 'value',
-        type: 'input',
+        type: confirm,
       },
     ]);
     return value;
+  }
+
+  /**
+   * Remove all content from the screen
+   *
+   * Does not clear history, so previous content is accessible by scrolling up
+   */
+  public clear(): void {
+    process.stdout.write('\u001B[2J');
+    process.stdout.write('\u001B[0f');
   }
 
   public async confirm(prompt: string, defaultValue = false): Promise<boolean> {
@@ -36,16 +60,23 @@ export class PromptService {
     return result;
   }
 
-  public async boolean(
+  public async expand<T extends unknown = string>(
     message: string,
-    defaultValue?: boolean,
-  ): Promise<boolean> {
+    options: { key: string; name: string; value: T }[],
+    defaultValue?: string,
+  ): Promise<T> {
+    if (options.length === EMPTY) {
+      this.logger.warn(`No choices to pick from`);
+      return undefined;
+    }
     const { value } = await inquirer.prompt([
       {
+        choices: options,
         default: defaultValue,
         message,
         name: 'value',
-        type: confirm,
+        pageSize: this.pageSize,
+        type: 'expand',
       },
     ]);
     return value;
@@ -65,55 +96,6 @@ export class PromptService {
     ]);
   }
 
-  public clear(): void {
-    process.stdout.write('\u001B[2J');
-    process.stdout.write('\u001B[0f');
-  }
-
-  public async pickOne<T extends unknown = string>(
-    message: string,
-    options: (string | { name: string; value: T } | Separator)[],
-    defaultValue?: string,
-  ): Promise<T> {
-    if (options.length === 0) {
-      this.logger.warn(`No choices to pick from`);
-      return undefined;
-    }
-    const { value } = await inquirer.prompt([
-      {
-        choices: options,
-        default: defaultValue,
-        message,
-        name: 'value',
-        pageSize: this.pageSize,
-        type: 'rawlist',
-      },
-    ]);
-    return value;
-  }
-
-  public async expand<T extends unknown = string>(
-    message: string,
-    options: { name: string; value: T; key: string }[],
-    defaultValue?: string,
-  ): Promise<T> {
-    if (options.length === 0) {
-      this.logger.warn(`No choices to pick from`);
-      return undefined;
-    }
-    const { value } = await inquirer.prompt([
-      {
-        choices: options,
-        default: defaultValue,
-        message,
-        name: 'value',
-        pageSize: this.pageSize,
-        type: 'expand',
-      },
-    ]);
-    return value;
-  }
-
   public async pickMany<T extends unknown = string>(
     message: string,
     options: (string | { name: string; value: T } | Separator)[],
@@ -121,9 +103,9 @@ export class PromptService {
       min,
       max,
       ...extra
-    }: { default?: string[]; min?: number; max?: number } = {},
+    }: { default?: string[]; max?: number; min?: number } = {},
   ): Promise<T[]> {
-    if (options.length === 0) {
+    if (options.length === EMPTY) {
       this.logger.warn(`No choices to pick from`);
       return [];
     }
@@ -145,6 +127,40 @@ export class PromptService {
       this.logger.error(`limit ${max} items, ${value.length} provided`);
       return await this.pickMany(message, options, { max, min, ...extra });
     }
+    return value;
+  }
+
+  public async pickOne<T extends unknown = string>(
+    message: string,
+    options: (string | { name: string; value: T } | Separator)[],
+    defaultValue?: string,
+  ): Promise<T> {
+    if (options.length === EMPTY) {
+      this.logger.warn(`No choices to pick from`);
+      return undefined;
+    }
+    const { value } = await inquirer.prompt([
+      {
+        choices: options,
+        default: defaultValue,
+        message,
+        name: 'value',
+        pageSize: this.pageSize,
+        type: 'rawlist',
+      },
+    ]);
+    return value;
+  }
+
+  public async string(message: string, defaultValue?: string): Promise<string> {
+    const { value } = await inquirer.prompt([
+      {
+        default: defaultValue,
+        message,
+        name: 'value',
+        type: 'input',
+      },
+    ]);
     return value;
   }
 }

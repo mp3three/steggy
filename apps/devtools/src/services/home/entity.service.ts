@@ -4,7 +4,7 @@ import {
   HassStateDTO,
 } from '@automagical/home-assistant';
 import { iRepl, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
-import { AutoLogService } from '@automagical/utilities';
+import { AutoLogService, TitleCase } from '@automagical/utilities';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 
@@ -53,44 +53,6 @@ export class EntityService implements iRepl {
     }
   }
 
-  private async processDomain(
-    domains: Map<HASS_DOMAINS, string[]>,
-  ): Promise<void> {
-    const list: { name: string; value: HASS_DOMAINS }[] = [];
-    domains.forEach((entities, domain) => {
-      list.push({
-        name: domain
-          .split('_')
-          .map((i) => `${i.charAt(0).toUpperCase()}${i.slice(1)}`)
-          .join(' '),
-        value: domain,
-      });
-    });
-    const entities = await this.promptService.pickOne(``, list);
-    return await this.processEntities(domains.get(entities));
-  }
-
-  private async processEntities(entities: string[]): Promise<void> {
-    const action = await this.promptService.pickOne(``, [
-      {
-        name: 'Pick One',
-        value: 'pickOne',
-      },
-      new inquirer.Separator(),
-      {
-        name: 'Cancel',
-        value: 'cancel',
-      },
-    ]);
-    switch (action) {
-      case 'cancel':
-        return await this.exec();
-      case 'pickOne':
-        const entity = await this.promptService.pickOne(``, entities);
-        return await this.pickOne(entity);
-    }
-  }
-
   private async pickOne(entity: string): Promise<void> {
     const action = await this.promptService.pickOne(``, [
       {
@@ -127,6 +89,41 @@ export class EntityService implements iRepl {
           method: 'put',
           url: `/entity/rename/${entity}`,
         });
+        return await this.pickOne(entity);
+    }
+  }
+
+  private async processDomain(
+    domains: Map<HASS_DOMAINS, string[]>,
+  ): Promise<void> {
+    const list: { name: string; value: HASS_DOMAINS }[] = [];
+    domains.forEach((entities, domain) => {
+      list.push({
+        name: TitleCase(domain),
+        value: domain,
+      });
+    });
+    const entities = await this.promptService.pickOne(``, list);
+    return await this.processEntities(domains.get(entities));
+  }
+
+  private async processEntities(entities: string[]): Promise<void> {
+    const action = await this.promptService.pickOne(``, [
+      {
+        name: 'Pick One',
+        value: 'pickOne',
+      },
+      new inquirer.Separator(),
+      {
+        name: 'Cancel',
+        value: 'cancel',
+      },
+    ]);
+    switch (action) {
+      case 'cancel':
+        return await this.exec();
+      case 'pickOne':
+        const entity = await this.promptService.pickOne(``, entities);
         return await this.pickOne(entity);
     }
   }

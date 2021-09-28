@@ -15,9 +15,9 @@ export class DeployService implements iRepl {
   ) {}
 
   public async exec(): Promise<void> {
-    this.discoveryService.getProviders().forEach((wrapper) => {
+    await this.discoveryService.getProviders().forEach((wrapper) => {
       wrapper;
     });
-    //
+    // await
   }
 }

@@ -148,31 +148,6 @@ export class ConfigBuilderService implements iRepl {
     }
   }
 
-  /**
-   * An item can identify as "configurable" as
-   */
-  private applicationChoices() {
-    return this.workspace
-      .list('application')
-      .filter((item) => {
-        const { projects } = this.workspace.workspace;
-        const { targets } = projects[item];
-        const scanner =
-          targets?.build?.configurations[SCAN_CONFIG_CONFIGURATION];
-        return typeof scanner !== 'undefined';
-      })
-      .map((item) => {
-        const tag = existsSync(join(homedir(), '.config', item.split('-')[0]))
-          ? chalk.green('*')
-          : chalk.yellow('*');
-        const name = this.workspace.PACKAGES.get(item).displayName;
-        return {
-          name: `${tag} ${name}`,
-          value: item,
-        };
-      });
-  }
-
   @Trace()
   private async scan(application: string): Promise<Set<ConfigTypeDTO>> {
     this.logger.debug(`Preparing scanner`);
@@ -194,6 +169,31 @@ export class ConfigBuilderService implements iRepl {
     const { stdout } = await execa(`node`, [join(outputPath, 'main.js')]);
     const config: ConfigTypeDTO[] = JSON.parse(stdout);
     return new Set<ConfigTypeDTO>(config);
+  }
+
+  /**
+   * An item can identify as "configurable" as
+   */
+  private applicationChoices() {
+    return this.workspace
+      .list('application')
+      .filter((item) => {
+        const { projects } = this.workspace.workspace;
+        const { targets } = projects[item];
+        const scanner =
+          targets?.build?.configurations[SCAN_CONFIG_CONFIGURATION];
+        return typeof scanner !== 'undefined';
+      })
+      .map((item) => {
+        const tag = existsSync(join(homedir(), '.config', item))
+          ? chalk.green('*')
+          : chalk.yellow('*');
+        const name = this.workspace.PACKAGES.get(item).displayName;
+        return {
+          name: `${tag} ${name}`,
+          value: item,
+        };
+      });
   }
 
   private path(config: ConfigTypeDTO): string {

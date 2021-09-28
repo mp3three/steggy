@@ -6,4 +6,5 @@ export * from './pino-serializers';
 export * from './pretty-logger';
 export * from './query';
 export * from './storage';
+export * from './title-case';
 export * from './utilities';

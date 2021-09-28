@@ -17,17 +17,17 @@ import { Express } from 'express';
 import express from 'express';
 
 export interface BootstrapOptions {
-  prettyLog?: boolean;
-  preInit?: ((
-    app: INestApplication,
-    expressServer: Express,
-  ) => Promise<void>)[];
+  http?: boolean;
+  nestNoopLogger?: boolean;
   postInit?: ((
     app: INestApplication,
     expressServer: Express,
-  ) => Promise<void>)[];
-  nestNoopLogger?: boolean;
-  http?: boolean;
+  ) => Promise<void> | void)[];
+  preInit?: ((
+    app: INestApplication,
+    expressServer: Express,
+  ) => Promise<void> | void)[];
+  prettyLog?: boolean;
 }
 
 /**

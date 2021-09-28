@@ -9,11 +9,11 @@ import { DiscoveryModule } from '@nestjs/core';
 import {
   ChangelogService,
   ConfigBuilderService,
+  EntityService,
   GroupCommandService,
   HomeCommandService,
   HomeFetchService,
   ImgurAlbumDownloadService,
-  EntityService,
   RoomCommandService,
 } from '../services';
 

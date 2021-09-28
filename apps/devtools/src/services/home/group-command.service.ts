@@ -10,7 +10,8 @@ import inquirer from 'inquirer';
 
 import { HomeFetchService } from './home-fetch.service';
 
-type GroupItem = { room: string; entities: string[]; name: string };
+type GroupItem = { entities: string[]; name: string; room: string };
+const EMPTY = 0;
 
 @Repl({
   description: [`Manipulate established groups of entities`],
@@ -55,6 +56,30 @@ export class GroupCommandService implements iRepl {
       })),
     );
     await this.process(group, groups);
+  }
+
+  private async copyState(
+    from: RoomStateDTO,
+    list: GroupItem[],
+  ): Promise<void> {
+    const targetGroup = await this.promptService.pickOne(
+      `Target group`,
+      list.map((value) => ({
+        name: value.name,
+        value,
+      })),
+    );
+    const name = await this.promptService.string(`Save as`, from.name);
+    await this.fetchService.fetch({
+      body: {
+        entities: targetGroup.entities,
+        group: targetGroup.name,
+        name,
+        room: targetGroup.room,
+      } as DuplicateStateDTO,
+      method: 'post',
+      url: `/state/${from._id}/copy`,
+    });
   }
 
   private async pickAction(): Promise<string> {
@@ -187,7 +212,7 @@ export class GroupCommandService implements iRepl {
       url: `/room/${group.room}/group/${group.name}/list-states`,
     });
 
-    if (data.length === 0) {
+    if (data.length === EMPTY) {
       this.logger.warn(`No states currently associated with group`);
       return;
     }
@@ -258,29 +283,5 @@ export class GroupCommandService implements iRepl {
         });
         return;
     }
-  }
-
-  private async copyState(
-    from: RoomStateDTO,
-    list: GroupItem[],
-  ): Promise<void> {
-    const targetGroup = await this.promptService.pickOne(
-      `Target group`,
-      list.map((value) => ({
-        name: value.name,
-        value,
-      })),
-    );
-    const name = await this.promptService.string(`Save as`, from.name);
-    await this.fetchService.fetch({
-      body: {
-        entities: targetGroup.entities,
-        group: targetGroup.name,
-        name,
-        room: targetGroup.room,
-      } as DuplicateStateDTO,
-      method: 'post',
-      url: `/state/${from._id}/copy`,
-    });
   }
 }

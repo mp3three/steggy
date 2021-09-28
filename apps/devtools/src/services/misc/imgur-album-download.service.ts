@@ -13,7 +13,7 @@ import { join, resolve } from 'path';
 
 import { ALBUM_DOWNLOAD_TARGET, ALBUM_PAD_SIZE } from '../../config';
 
-/* eslint-disable security/detect-non-literal-regexp */
+/* eslint-disable security/detect-non-literal-regexp, @typescript-eslint/no-magic-numbers */
 
 const SEPARATOR = ' - ';
 @Repl({

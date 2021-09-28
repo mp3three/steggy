@@ -10,18 +10,15 @@ import {
   TypePromptService,
   WorkspaceService,
 } from '@automagical/tty';
-import {
-  APP_LIVING_DOCS,
-  AutoLogService,
-  sleep,
-  Trace,
-} from '@automagical/utilities';
+import { APP_LIVING_DOCS, AutoLogService, Trace } from '@automagical/utilities';
 import { eachSeries } from 'async';
 import Table from 'cli-table';
 import execa from 'execa';
 import inquirer from 'inquirer';
 import { join } from 'path';
 import { inc } from 'semver';
+
+const EMPTY = 0;
 
 @Repl({
   description: [
@@ -51,7 +48,7 @@ export class ChangelogService implements iRepl {
     }
     await this.systemService.verifyEditor();
     const affected = await this.listAffected();
-    if (affected.length === 0) {
+    if (affected.length === EMPTY) {
       this.logger.warn(`NX reports 0 affected projects`);
       return;
     }
@@ -129,7 +126,72 @@ export class ChangelogService implements iRepl {
       );
     }
 
-    await sleep(5000);
+    await this.promptService.acknowledge('Done');
+  }
+
+  @Trace()
+  private async bumpRoot(): Promise<string> {
+    const current = this.workspace.ROOT_PACKAGE.version;
+    const updated = await this.versionBump(current, `Set root version`);
+    this.workspace.ROOT_PACKAGE.version = updated;
+    this.workspace.updateRootPackage();
+    return updated;
+  }
+
+  @Trace()
+  private async checkDirty(): Promise<boolean> {
+    const isDirty = await this.gitService.isDirty();
+    if (!isDirty) {
+      return false;
+    }
+    return await this.typePromptService.confirm(
+      `There are uncommitted changes, abort?`,
+      true,
+    );
+  }
+
+  @Trace()
+  private async listAffected(): Promise<string[]> {
+    const { stdout } = await execa(`nx`, ['print-affected']);
+    const { projects } = JSON.parse(stdout) as { projects: string[] };
+    return projects;
+  }
+
+  /**
+   * - Prompt to even add an item
+   */
+  @Trace()
+  private async processAffected(affected: string[]): Promise<ChangeItemDTO[]> {
+    const values = await this.promptService.pickMany(
+      'Projects to version bump',
+      affected,
+    );
+    if (values.length === EMPTY) {
+      const proceed = await this.promptService.confirm(
+        `Nothing selected, continue?`,
+      );
+      if (!proceed) {
+        return await this.processAffected(affected);
+      }
+    }
+
+    const out: ChangeItemDTO[] = [];
+    await eachSeries(values as string[], async (project, callback) => {
+      const current = this.workspace.PACKAGES.get(project).version;
+      const updated = await this.versionBump(
+        current,
+        `Bump version ${project}`,
+      );
+      this.workspace.setPackageVersion(project, updated);
+      out.push({
+        from: current,
+        message: {},
+        project,
+        to: updated,
+      });
+      callback();
+    });
+    return out;
   }
 
   @Trace()
@@ -159,71 +221,6 @@ export class ChangelogService implements iRepl {
       item.message.text = text;
       callback();
     });
-  }
-
-  @Trace()
-  private async bumpRoot(): Promise<string> {
-    const current = this.workspace.ROOT_PACKAGE.version;
-    const updated = await this.versionBump(current, `Set root version`);
-    this.workspace.ROOT_PACKAGE.version = updated;
-    this.workspace.updateRootPackage();
-    return updated;
-  }
-
-  /**
-   * - Prompt to even add an item
-   */
-  @Trace()
-  private async processAffected(affected: string[]): Promise<ChangeItemDTO[]> {
-    const values = await this.promptService.pickMany(
-      'Projects to version bump',
-      affected,
-    );
-    if (values.length === 0) {
-      const proceed = await this.promptService.confirm(
-        `Nothing selected, continue?`,
-      );
-      if (!proceed) {
-        return await this.processAffected(affected);
-      }
-    }
-
-    const out: ChangeItemDTO[] = [];
-    await eachSeries(values as string[], async (project, callback) => {
-      const current = this.workspace.PACKAGES.get(project).version;
-      const updated = await this.versionBump(
-        current,
-        `Bump version ${project}`,
-      );
-      this.workspace.setPackageVersion(project, updated);
-      out.push({
-        from: current,
-        message: {},
-        project,
-        to: updated,
-      });
-      callback();
-    });
-    return out;
-  }
-
-  @Trace()
-  private async checkDirty(): Promise<boolean> {
-    const isDirty = await this.gitService.isDirty();
-    if (!isDirty) {
-      return false;
-    }
-    return await this.typePromptService.confirm(
-      `There are uncommitted changes, abort?`,
-      true,
-    );
-  }
-
-  @Trace()
-  private async listAffected(): Promise<string[]> {
-    const { stdout } = await execa(`nx`, ['print-affected']);
-    const { projects } = JSON.parse(stdout) as { projects: string[] };
-    return projects;
   }
 
   @Trace()

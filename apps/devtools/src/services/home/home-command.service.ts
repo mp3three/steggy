@@ -5,13 +5,13 @@ import {
 } from '@automagical/controller-logic';
 import { FanSpeeds } from '@automagical/home-assistant';
 import { iRepl, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
-import { AutoLogService, sleep, Trace } from '@automagical/utilities';
+import { AutoLogService, TitleCase, Trace } from '@automagical/utilities';
 import { each } from 'async';
 import inquirer from 'inquirer';
 
 import { HomeFetchService } from './home-fetch.service';
 
-type extra = { scope: RoomCommandScope[]; path?: string };
+type extra = { path?: string; scope: RoomCommandScope[] };
 
 @Repl({
   description: [`Multi-room interactions`, `Misc commands`],
@@ -36,7 +36,8 @@ export class HomeCommandService implements iRepl {
     );
     if (!rooms) {
       this.logger.error(`Received empty room list`);
-      await sleep(5000);
+      // Acknowledge the message, since the next step clears the screen
+      await this.promptService.confirm('');
       return;
     }
     const actions = [
@@ -67,6 +68,10 @@ export class HomeCommandService implements iRepl {
     });
   }
 
+  private fanAvailable(rooms: RoomControllerSettingsDTO[]): boolean {
+    return rooms.some((i) => typeof i.fan !== 'undefined');
+  }
+
   private async getExtra(action: string): Promise<extra> {
     const out: extra = {
       scope: [RoomCommandScope.LOCAL, RoomCommandScope.ACCESSORIES],
@@ -80,8 +85,7 @@ export class HomeCommandService implements iRepl {
           .reverse()
           .map((key) => {
             return {
-              name:
-                key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' '),
+              name: TitleCase(key),
               value: key,
             };
           }),
@@ -91,9 +95,5 @@ export class HomeCommandService implements iRepl {
       // }
     }
     return out;
-  }
-
-  private fanAvailable(rooms: RoomControllerSettingsDTO[]): boolean {
-    return rooms.some((i) => typeof i.fan !== 'undefined');
   }
 }
