@@ -1,9 +1,11 @@
 import {
+  DuplicateStateDTO,
   RoomControllerSettingsDTO,
   RoomStateDTO,
 } from '@automagical/controller-logic';
 import { iRepl, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
+import { encode } from 'ini';
 import inquirer from 'inquirer';
 
 import { HomeFetchService } from './home-fetch.service';
@@ -22,22 +24,28 @@ export class GroupCommandService implements iRepl {
     private readonly promptService: PromptService,
   ) {}
 
-  public async exec(room?: string): Promise<void> {
+  public async exec(name?: string): Promise<void> {
     const rooms = await this.fetchService.fetch<RoomControllerSettingsDTO[]>({
-      params: room ? { room } : {},
       url: `/room/list`,
     });
     const groups: GroupItem[] = [];
-    rooms.forEach((room) => {
-      room.groups ??= {};
-      Object.keys(room.groups).forEach((group) => {
-        groups.push({
-          entities: [],
-          name: group,
-          room: room.name,
+    rooms
+      .filter((room) => {
+        if (!name) {
+          return true;
+        }
+        return room.name === name;
+      })
+      .forEach((room) => {
+        room.groups ??= {};
+        Object.keys(room.groups).forEach((group) => {
+          groups.push({
+            entities: [],
+            name: group,
+            room: room.name,
+          });
         });
       });
-    });
 
     const group = await this.promptService.pickOne(
       'Groups',
@@ -50,7 +58,7 @@ export class GroupCommandService implements iRepl {
   }
 
   private async pickAction(): Promise<string> {
-    const action = await this.promptService.pickOne('Action', [
+    let action = await this.promptService.pickOne('Action', [
       {
         name: 'Direct Change',
         value: 'direct',
@@ -59,13 +67,14 @@ export class GroupCommandService implements iRepl {
         name: 'State Manager',
         value: 'state',
       },
+      new inquirer.Separator(),
       {
         name: 'Done',
         value: 'done',
       },
     ]);
     if (action === 'direct') {
-      return await this.promptService.pickOne('Specific', [
+      action = await this.promptService.pickOne('Specific', [
         {
           name: 'Turn On',
           value: 'turnOn',
@@ -78,7 +87,15 @@ export class GroupCommandService implements iRepl {
           name: 'Circadian On',
           value: 'turnOnCircadian',
         },
+        new inquirer.Separator(),
+        {
+          name: 'Cancel',
+          value: 'done',
+        },
       ]);
+      if (action === 'done') {
+        return await this.pickAction();
+      }
     }
     return action;
   }
@@ -185,6 +202,13 @@ export class GroupCommandService implements iRepl {
       }),
     );
 
+    await this.stateAction(state, list);
+  }
+
+  private async stateAction(
+    state: RoomStateDTO,
+    list: GroupItem[],
+  ): Promise<void> {
     const stateAction = await this.promptService.pickOne('What to do?', [
       {
         name: 'Activate',
@@ -203,9 +227,17 @@ export class GroupCommandService implements iRepl {
         name: 'Delete',
         value: 'delete',
       },
+      new inquirer.Separator(),
+      {
+        name: 'Done',
+        value: 'done',
+      },
     ]);
 
     switch (stateAction) {
+      case 'done':
+        this.logger.info(`Groups > ${state.group}`);
+        return;
       case 'copy':
         await this.copyState(state, list);
         return;
@@ -216,8 +248,9 @@ export class GroupCommandService implements iRepl {
         });
         return;
       case 'describe':
-        console.log(JSON.stringify(state, undefined, '  '));
-        return;
+        console.log(encode(state));
+        // console.log(JSON.stringify(state, undefined, '  '));
+        return await this.stateAction(state, list);
       case 'delete':
         await this.fetchService.fetch({
           method: 'delete',
@@ -231,13 +264,23 @@ export class GroupCommandService implements iRepl {
     from: RoomStateDTO,
     list: GroupItem[],
   ): Promise<void> {
-    // const targetGroup =
-    await this.promptService.pickOne(
+    const targetGroup = await this.promptService.pickOne(
       `Target group`,
       list.map((value) => ({
         name: value.name,
         value,
       })),
     );
+    const name = await this.promptService.string(`Save as`, from.name);
+    await this.fetchService.fetch({
+      body: {
+        entities: targetGroup.entities,
+        group: targetGroup.name,
+        name,
+        room: targetGroup.room,
+      } as DuplicateStateDTO,
+      method: 'post',
+      url: `/state/${from._id}/copy`,
+    });
   }
 }

@@ -6,7 +6,7 @@ export function PercentConverter(): MethodDecorator {
   ) {
     const original = descriptor.value;
     descriptor.value = function (...parameters) {
-      const result = original.apply(...parameters);
+      const result = original.apply(this, ...parameters);
       if (typeof result === 'number') {
         return Math.ceil(result * 2.55);
       }

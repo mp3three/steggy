@@ -1,4 +1,5 @@
 import {
+  DuplicateStateDTO,
   GroupService,
   RoomManagerService,
   RoomStateDTO,
@@ -43,7 +44,7 @@ export class StateController {
   @Post(`/:id/copy`)
   public async copyState(
     @Param('id') id: string,
-    @Body() body: Record<'room' | 'group', string>,
+    @Body() body: DuplicateStateDTO,
   ): Promise<RoomStateDTO> {
     const settings = this.roomManager.settings.get(body.room);
     if (!settings) {

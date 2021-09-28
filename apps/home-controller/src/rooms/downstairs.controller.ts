@@ -148,7 +148,7 @@ export class DownstairsController extends BaseRoomService {
     const scope = COMMAND_SCOPE(command);
     if (scope.has(RoomCommandScope.LOCAL)) {
       await this.switchService.turnOn([...switches, ...accessories]);
-      await this.lightManager.circadianLight(fanLights, 100);
+      await this.lightManager.circadianLight(fanLights, 255);
       return;
     }
     return scope.has(RoomCommandScope.ACCESSORIES);

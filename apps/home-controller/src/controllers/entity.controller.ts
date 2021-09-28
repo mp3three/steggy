@@ -1,10 +1,14 @@
-import { EntityManagerService } from '@automagical/home-assistant';
+import {
+  EntityManagerService,
+  HassStateDTO,
+} from '@automagical/home-assistant';
 import { AuthStack, GENERIC_SUCCESS_RESPONSE } from '@automagical/server';
 import { AutoLogService } from '@automagical/utilities';
 import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   NotFoundException,
   Param,
   Put,
@@ -17,6 +21,13 @@ export class EntityController {
     private readonly logger: AutoLogService,
     private readonly entityManager: EntityManagerService,
   ) {}
+
+  @Get('/id/:entityId')
+  public async getEntityState(
+    @Param('entityId') entityId: string,
+  ): Promise<HassStateDTO> {
+    return this.entityManager.getEntity([entityId])[0];
+  }
 
   /**
    * Change friendly name for an entity
@@ -38,5 +49,10 @@ export class EntityController {
     );
     this.logger.info({ result });
     return GENERIC_SUCCESS_RESPONSE;
+  }
+
+  @Get('/list')
+  public listEntities(): string[] {
+    return this.entityManager.listEntities();
   }
 }

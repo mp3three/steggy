@@ -62,10 +62,13 @@ export class RoomCommandService {
         await this.groupCommand.exec(room.name);
         return;
     }
-    const { scope, path } = await this.getExtra(action);
+    const extra = await this.getExtra(action);
+    if (extra === false) {
+      return;
+    }
+    const { scope, path } = extra;
 
     const url = `/room/${room.name}/${action}${path ?? ''}`;
-    this.logger.debug(`PUT ${url}`);
     const response = await this.fetchService.fetch({
       body: JSON.stringify({
         scope,
@@ -76,7 +79,7 @@ export class RoomCommandService {
     this.logger.debug({ response });
   }
 
-  private async getExtra(action: string): Promise<extra> {
+  private async getExtra(action: string): Promise<extra | false> {
     const out: extra = {
       scope: [RoomCommandScope.LOCAL, RoomCommandScope.ACCESSORIES],
     };
@@ -102,7 +105,12 @@ export class RoomCommandService {
           { name: 'Turn Off', value: 'turnOff' },
           { name: 'Play / Pause', value: 'playPause' },
           { name: 'Mute', value: 'mute' },
+          new inquirer.Separator(),
+          { name: 'Cancel', value: 'cancel' },
         ]);
+        if (target === 'cancel') {
+          return false;
+        }
         out.path = `/${target}`;
         return out;
     }

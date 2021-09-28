@@ -19,6 +19,7 @@ import { each } from 'async';
 
 import { CACHE_TTL } from '../config';
 import {
+  DuplicateStateDTO,
   PersistenceLightStateDTO,
   RoomControllerSettingsDTO,
   RoomStateDTO,
@@ -79,11 +80,7 @@ export class StateManagerService {
   @Trace()
   public async duplicateState(
     id: string,
-    target: {
-      room: string;
-      group: string;
-      entities: string[];
-    },
+    target: DuplicateStateDTO,
   ): Promise<RoomStateDTO> {
     const state = await this.statePersistence.findById(id, {});
     if (!state) {

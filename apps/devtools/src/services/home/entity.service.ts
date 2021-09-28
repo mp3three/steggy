@@ -1,12 +1,12 @@
 import {
-  RoomControllerFlags,
-  RoomControllerSettingsDTO,
-  RoomInspectResponseDTO,
-} from '@automagical/controller-logic';
-import { domain, HassStateDTO } from '@automagical/home-assistant';
+  domain,
+  HASS_DOMAINS,
+  HassStateDTO,
+} from '@automagical/home-assistant';
 import { iRepl, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
-import chalk from 'chalk';
+import { encode } from 'ini';
+import inquirer from 'inquirer';
 
 import { HomeFetchService } from './home-fetch.service';
 
@@ -23,105 +23,111 @@ export class EntityService implements iRepl {
   ) {}
 
   public async exec(): Promise<void> {
-    const metadata = await this.pickRoom();
-
-    const { states, groups } =
-      await this.fetchService.fetch<RoomInspectResponseDTO>({
-        url: `/room/${metadata.name}/inspect`,
-      });
-
-    const entity = await this.promptService.pickOne(
-      'Entity',
-      states.map((entity) => {
-        let name = entity.attributes.friendly_name;
-        if (name) {
-          name = chalk`{bold ${domain(entity.entity_id)}} ${name}`;
-        }
-        Object.keys(groups).forEach((groupName) => {
-          if (groups[groupName].includes(entity.entity_id)) {
-            name = chalk`{bold.cyan ${groupName}} ${name}`;
-          }
-        });
-        return {
-          name: name || entity.entity_id,
-          value: entity,
-        };
-      }),
-    );
-
-    await this.process(entity);
-  }
-
-  private async process(entity: HassStateDTO): Promise<void> {
-    const action = await this.promptService.expand(`Action`, [
+    const entities = await this.fetchService.fetch<string[]>({
+      url: '/entity/list',
+    });
+    const domains = new Map<HASS_DOMAINS, string[]>();
+    entities.forEach((entity) => {
+      const entityDomain = domain(entity);
+      const current = domains.get(entityDomain) ?? [];
+      current.push(entity);
+      domains.set(entityDomain, current);
+    });
+    const action = await this.promptService.pickOne(`Action`, [
       {
-        key: 'p',
-        name: 'Print',
-        value: 'print',
+        name: 'Filter by domain',
+        value: 'domain',
       },
+      new inquirer.Separator(),
       {
-        key: 'n',
-        name: 'Update Name',
-        value: 'name',
-      },
-      {
-        key: 'x',
-        name: 'Exit',
-        value: 'exit',
+        name: 'Done',
+        value: 'done',
       },
     ]);
 
     switch (action) {
-      case 'exit':
+      case 'done':
         return;
-      case 'print':
-        console.log(JSON.stringify(entity, undefined, '  '));
-        return await this.process(entity);
-      case 'name':
-        const name = await this.promptService.string(`New name`);
+      case 'domain':
+        return await this.processDomain(domains);
+    }
+  }
+
+  private async processDomain(
+    domains: Map<HASS_DOMAINS, string[]>,
+  ): Promise<void> {
+    const list: { name: string; value: HASS_DOMAINS }[] = [];
+    domains.forEach((entities, domain) => {
+      list.push({
+        name: domain
+          .split('_')
+          .map((i) => `${i.charAt(0).toUpperCase()}${i.slice(1)}`)
+          .join(' '),
+        value: domain,
+      });
+    });
+    const entities = await this.promptService.pickOne(``, list);
+    return await this.processEntities(domains.get(entities));
+  }
+
+  private async processEntities(entities: string[]): Promise<void> {
+    const action = await this.promptService.pickOne(``, [
+      {
+        name: 'Pick One',
+        value: 'pickOne',
+      },
+      new inquirer.Separator(),
+      {
+        name: 'Cancel',
+        value: 'cancel',
+      },
+    ]);
+    switch (action) {
+      case 'cancel':
+        return await this.exec();
+      case 'pickOne':
+        const entity = await this.promptService.pickOne(``, entities);
+        return await this.pickOne(entity);
+    }
+  }
+
+  private async pickOne(entity: string): Promise<void> {
+    const action = await this.promptService.pickOne(``, [
+      {
+        name: 'View state',
+        value: 'state',
+      },
+      {
+        name: 'Change friendly name',
+        value: 'friendlyName',
+      },
+      new inquirer.Separator(),
+      {
+        name: 'Cancel',
+        value: 'cancel',
+      },
+    ]);
+
+    const state = await this.fetchService.fetch<HassStateDTO>({
+      url: `/entity/id/${entity}`,
+    });
+    switch (action) {
+      case 'cancel':
+        return await this.exec();
+      case 'state':
+        console.log(encode(state));
+        return await this.pickOne(entity);
+      case 'friendlyName':
+        const name = await this.promptService.string(
+          `New name`,
+          state.attributes.friendly_name,
+        );
         await this.fetchService.fetch({
           body: { name },
           method: 'put',
-          url: `/entity/rename/${entity.entity_id}`,
+          url: `/entity/rename/${entity}`,
         });
-        return await this.process(entity);
+        return await this.pickOne(entity);
     }
-  }
-
-  private async pickRoom(): Promise<RoomControllerSettingsDTO> {
-    const rooms = await this.fetchService.fetch<RoomControllerSettingsDTO[]>({
-      url: `/room/list`,
-    });
-    if (rooms.length === 0) {
-      return undefined;
-    }
-    const primary: Record<'name' | 'value', string>[] = [];
-    rooms.forEach((room) => {
-      const entry = {
-        name: room.friendlyName,
-        value: room.name,
-      };
-      if (!room.flags.includes(RoomControllerFlags.SECONDARY)) {
-        primary.push(entry);
-      }
-    });
-
-    const selection = await this.promptService.pickOne(
-      'Which room(s)?',
-      this.sort(primary),
-    );
-
-    return rooms.find((i) => selection === i.name);
-  }
-
-  private sort(
-    items: Record<'name' | 'value', string>[],
-  ): Record<'name' | 'value', string>[] {
-    return items.sort((a, b) => {
-      if (a.name > b.name) {
-        return 1;
-      }
-      return -1;
-    });
   }
 }
