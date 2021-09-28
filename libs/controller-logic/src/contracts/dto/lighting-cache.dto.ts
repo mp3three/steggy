@@ -15,7 +15,7 @@ export enum LightingCacheMode {
 
 export class LightingCacheDTO {
   public brightness?: number;
-  public kelvin?: number;
   public hs?: [number, number] | number[];
+  public kelvin?: number;
   public mode: LIGHTING_MODE;
 }

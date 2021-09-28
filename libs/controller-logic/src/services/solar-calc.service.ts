@@ -4,23 +4,25 @@ import dayjs from 'dayjs';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
 
-import { LATITUDE, LONGITUDE } from '../config';
+import { FORCE_EVENING_HOUR, LATITUDE, LONGITUDE } from '../config';
+
+const CALC_EXPIRE = 30000;
 
 @Injectable()
 export class SolarCalcService {
-  private CALCULATOR;
-
   constructor(
     @InjectConfig(LONGITUDE) private readonly longitude: string,
     @InjectConfig(LATITUDE) private readonly latitude: string,
+    @InjectConfig(FORCE_EVENING_HOUR) private readonly eveningHour: number,
   ) {}
+  private CALCULATOR;
 
   public get IS_EVENING(): boolean {
     // Considered evening if the sun has set, or it's past 6PM
     const now = dayjs();
     return (
       now.isAfter(this.SOLAR_CALC.goldenHourStart) ||
-      now.isAfter(now.startOf('day').add(12 + 6, 'hour')) ||
+      now.isAfter(now.startOf('day').add(this.eveningHour, 'hour')) ||
       now.isBefore(this.SOLAR_CALC.sunrise)
     );
   }
@@ -29,11 +31,11 @@ export class SolarCalcService {
     if (this.CALCULATOR) {
       return this.CALCULATOR;
     }
-    setTimeout(() => (this.CALCULATOR = undefined), 1000 * 30);
-    // @ts-expect-error Typescript is wrong this time, it works as expected for me
+    setTimeout(() => (this.CALCULATOR = undefined), CALC_EXPIRE);
+    // @ts-expect-error Typescript is wrong this time, this works as expected
     return new SolarCalc(
       new Date(),
-      // TODO: Populated via home assistant
+      // TODO: Populated via home assistant?
       Number(this.latitude),
       Number(this.longitude),
     );

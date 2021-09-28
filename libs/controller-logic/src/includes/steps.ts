@@ -1,8 +1,11 @@
 import { RoomCommandScope } from '../contracts';
 
-export function Steps(length = 3): RoomCommandScope[][] {
+const MAX = 3;
+const START = 0;
+
+export function Steps(length = MAX): RoomCommandScope[][] {
   return [
     [RoomCommandScope.LOCAL],
     [RoomCommandScope.LOCAL, RoomCommandScope.ACCESSORIES],
-  ].slice(0, length);
+  ].slice(START, length);
 }

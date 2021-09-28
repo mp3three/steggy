@@ -1,4 +1,4 @@
-import { LIGHTING_CONTROLLER } from '@automagical/controller-logic';
+import { LIGHTING_CONTROLLER } from '../contracts';
 
 export function LightingController(): PropertyDecorator {
   return function (target, key: string) {

@@ -14,6 +14,7 @@ import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 import { EventEmitter2 } from 'eventemitter2';
 
+import { MAX_BRIGHTNESS, MIN_BRIGHTNESS } from '..';
 import { DIM_PERCENT } from '../config';
 import {
   CIRCADIAN_UPDATE,
@@ -25,6 +26,9 @@ import { CircadianService } from './circadian.service';
 
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
 const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
+const INVERT_VALUE = -1;
+const DEFAULT_INCREMENT = 1;
+const START = 0;
 
 /**
  * - State management for lights
@@ -42,6 +46,8 @@ export class LightManagerService {
     private readonly circadianService: CircadianService,
     private readonly eventEmitter: EventEmitter2,
     @InjectConfig(DIM_PERCENT) private readonly dimPercent: number,
+    @InjectConfig(MAX_BRIGHTNESS) private readonly maxBrightness: number,
+    @InjectConfig(MIN_BRIGHTNESS) private readonly minBrightness: number,
   ) {}
 
   @Trace()
@@ -71,7 +77,10 @@ export class LightManagerService {
     const { increment } = data;
     const lights = await this.findDimmableLights(change);
     await each(lights, async (entity_id: string, callback) => {
-      await this.lightDim(entity_id, this.dimPercent * (increment ?? 1) * -1);
+      await this.lightDim(
+        entity_id,
+        this.dimPercent * (increment ?? DEFAULT_INCREMENT) * INVERT_VALUE,
+      );
       callback();
     });
   }
@@ -84,7 +93,10 @@ export class LightManagerService {
     const { increment } = data;
     const lights = await this.findDimmableLights(change);
     await each(lights, async (entity_id: string, callback) => {
-      await this.lightDim(entity_id, this.dimPercent * (increment ?? 1));
+      await this.lightDim(
+        entity_id,
+        this.dimPercent * (increment ?? DEFAULT_INCREMENT),
+      );
       callback();
     });
   }
@@ -100,11 +112,12 @@ export class LightManagerService {
    */
   @Trace()
   public async getActiveLights(): Promise<string[]> {
-    const list = await this.cache.store.keys();
+    const list: string[] = await this.cache.store.keys();
     return list
       .filter(
         (item) =>
-          item.slice(0, LIGHTING_CACHE_PREFIX.length) === LIGHTING_CACHE_PREFIX,
+          item.slice(START, LIGHTING_CACHE_PREFIX.length) ===
+          LIGHTING_CACHE_PREFIX,
       )
       .map((item) => item.slice(LIGHTING_CACHE_PREFIX.length));
   }
@@ -123,11 +136,11 @@ export class LightManagerService {
   public async lightDim(entityId: string, amount: number): Promise<void> {
     let { brightness } = await this.getState(entityId);
     brightness += amount;
-    if (brightness > 100) {
-      brightness = 100;
+    if (brightness > this.maxBrightness) {
+      brightness = this.maxBrightness;
     }
-    if (brightness < 5) {
-      brightness = 5;
+    if (brightness < this.minBrightness) {
+      brightness = this.minBrightness;
     }
     this.logger.debug({ amount }, `${entityId} set brightness: ${brightness}%`);
     return await this.circadianLight(entityId, brightness);

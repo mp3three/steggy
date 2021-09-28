@@ -3,8 +3,8 @@ import { RequestMapping, RequestMethod } from '@nestjs/common';
 import { ROOM_API_COMMAND } from '..';
 
 export class CommandOptions {
-  path?: string | RegExp | Array<string | RegExp>;
   method?: RequestMethod;
+  path?: string | RegExp | Array<string | RegExp>;
 }
 export type CommandData = Map<string, CommandOptions>;
 

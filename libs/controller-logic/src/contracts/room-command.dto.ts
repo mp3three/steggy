@@ -16,6 +16,6 @@ export enum RoomCommandScope {
  * Affect the way a command is processeded by the system
  */
 export class RoomCommandDTO {
-  scope?: RoomCommandScope | RoomCommandScope[];
   increment?: number;
+  scope?: RoomCommandScope | RoomCommandScope[];
 }

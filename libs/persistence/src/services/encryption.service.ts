@@ -76,6 +76,10 @@ export class EncryptionService {
     return Buffer.concat([cipher.update(saveValue), cipher.final()]);
   }
 
+  private coerceBuffer(cipherbuffer: Buffer | Binary): Buffer {
+    return Buffer.isBuffer(cipherbuffer) ? cipherbuffer : cipherbuffer.buffer;
+  }
+
   private isBuffer(cipherbuffer: Buffer | Binary): boolean {
     return (
       !cipherbuffer ||
@@ -84,9 +88,5 @@ export class EncryptionService {
         typeof cipherbuffer.buffer !== undefined
       )
     );
-  }
-
-  private coerceBuffer(cipherbuffer: Buffer | Binary): Buffer {
-    return Buffer.isBuffer(cipherbuffer) ? cipherbuffer : cipherbuffer.buffer;
   }
 }

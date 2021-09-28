@@ -1,14 +1,9 @@
-import {
-  CONTROLLER_STATE_EVENT,
-  ControllerStates,
-} from '@automagical/controller-logic';
-import {
-  HassEventDTO,
-  PicoStates,
-} from '@automagical/home-assistant';
+import { HassEventDTO, PicoStates } from '@automagical/home-assistant';
 import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
+
+import { CONTROLLER_STATE_EVENT, ControllerStates } from '../contracts';
 
 /**
  * This service adapts from device specific 5 button remote events to a standardized ControllerStates enum.
@@ -16,13 +11,12 @@ import { EventEmitter2 } from 'eventemitter2';
  */
 @Injectable()
 export class RemoteAdapterService {
-  private readonly lookup = new Set<string>();
-
   constructor(
     @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
+  private readonly lookup = new Set<string>();
 
   @Trace()
   public watch(entity_id: string): void {

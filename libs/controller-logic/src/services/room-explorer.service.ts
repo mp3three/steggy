@@ -27,6 +27,7 @@ import { LightManagerService } from './light-manager.service';
 import { RemoteAdapterService } from './remote-adapter.service';
 import { RoomManagerService } from './room-manager.service';
 
+const ADD_STEPS = 2;
 /**
  * This service searches through all the declared providers looking for rooms.
  * When one is found, secondary classes such as state management and lighting controllers are added.
@@ -34,8 +35,6 @@ import { RoomManagerService } from './room-manager.service';
  */
 @Injectable()
 export class RoomExplorerService {
-  public rooms: Map<iRoomController, RoomControllerSettingsDTO>;
-
   constructor(
     @InjectLogger()
     private readonly logger: AutoLogService,
@@ -46,6 +45,8 @@ export class RoomExplorerService {
     private readonly lightManager: LightManagerService,
     private readonly roomManager: RoomManagerService,
   ) {}
+
+  public rooms: Map<iRoomController, RoomControllerSettingsDTO>;
 
   @Info({ after: `[Controller Logic] initialized` })
   protected onModuleInit(): void {
@@ -59,15 +60,6 @@ export class RoomExplorerService {
     });
   }
 
-  private initRoom(settings: RoomControllerSettingsDTO, instance): void {
-    this.remoteAdapter.watch(settings.remote);
-    if (!settings.flags.includes(RoomControllerFlags.SECONDARY)) {
-      this.controllerDefaults(instance);
-      this.roomToRoomEvents(settings, instance);
-    }
-    this.logger.info(`[${settings.friendlyName}] initialized`);
-  }
-
   private controllerDefaults(instance: iRoomController): void {
     const settings = RoomSettings(instance);
     const list = [
@@ -76,7 +68,7 @@ export class RoomExplorerService {
       [ControllerStates.down, 'dimDown'],
       [ControllerStates.up, 'dimUp'],
     ];
-    Steps(2).forEach((scope, count) => {
+    Steps(ADD_STEPS).forEach((scope, count) => {
       count++;
       list.forEach(([state, method]) => {
         this.kunamiService.addCommand(instance, {
@@ -115,6 +107,15 @@ export class RoomExplorerService {
         });
       });
     });
+  }
+
+  private initRoom(settings: RoomControllerSettingsDTO, instance): void {
+    this.remoteAdapter.watch(settings.remote);
+    if (!settings.flags.includes(RoomControllerFlags.SECONDARY)) {
+      this.controllerDefaults(instance);
+      this.roomToRoomEvents(settings, instance);
+    }
+    this.logger.info(`[${settings.friendlyName}] initialized`);
   }
 
   private roomToRoomEvents(

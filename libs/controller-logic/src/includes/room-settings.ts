@@ -2,7 +2,7 @@ import {
   iRoomController,
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
-} from '@automagical/controller-logic';
+} from '../contracts';
 
 export function RoomSettings(
   instance: iRoomController,

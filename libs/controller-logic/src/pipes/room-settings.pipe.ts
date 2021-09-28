@@ -9,7 +9,7 @@ import { RoomManagerService } from '../services';
 @Injectable()
 export class RoomSettingsPipe implements PipeTransform {
   constructor(private readonly roomManager: RoomManagerService) {}
-  public async transform(value: string): Promise<RoomControllerSettingsDTO> {
+  public transform(value: string): RoomControllerSettingsDTO {
     const settings = this.roomManager.settings.get(value);
     if (!settings) {
       throw new NotFoundException(`Room not found: ${value}`);

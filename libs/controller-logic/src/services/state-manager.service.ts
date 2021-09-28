@@ -45,36 +45,26 @@ export class StateManagerService {
   ) {}
 
   @Trace()
-  public async deleteState(id: string): Promise<void> {
-    await this.statePersistence.delete(id);
+  public async addFlag(
+    {
+      friendlyName,
+      name,
+    }: Pick<RoomControllerSettingsDTO, 'name' | 'friendlyName'>,
+    flagName: string,
+  ): Promise<void> {
+    if (await this.hasFlag({ name }, flagName)) {
+      return;
+    }
+    this.logger.debug(`[${friendlyName}] Add flag {${flagName}}`);
+    const key = CACHE_KEY(name, flagName);
+    await this.cacheService.set(key, true, {
+      ttl: this.cacheTtl,
+    });
   }
 
   @Trace()
-  public async loadState(id: string): Promise<void> {
-    const state = await this.statePersistence.findById(id, {});
-    if (!state) {
-      throw new NotFoundException(`State not found ${id}`);
-    }
-    await each(
-      state.states,
-      async (state: PersistenceLightStateDTO, callback) => {
-        if (
-          domain(state.entity_id) === HASS_DOMAINS.switch ||
-          state.state === 'off'
-        ) {
-          await (state.state === 'on'
-            ? this.switchService.turnOn(state.entity_id)
-            : this.switchService.turnOff(state.entity_id));
-          return callback();
-        }
-        await this.lightManager.turnOnEntities(state.entity_id, {
-          brightness: state.brightness,
-          hs: state.hs,
-          kelvin: state.kelvin,
-        });
-        callback();
-      },
-    );
+  public async deleteState(id: string): Promise<void> {
+    await this.statePersistence.delete(id);
   }
 
   @Trace()
@@ -104,24 +94,6 @@ export class StateManagerService {
   }
 
   @Trace()
-  public async addFlag(
-    {
-      friendlyName,
-      name,
-    }: Pick<RoomControllerSettingsDTO, 'name' | 'friendlyName'>,
-    flagName: string,
-  ): Promise<void> {
-    if (await this.hasFlag({ name }, flagName)) {
-      return;
-    }
-    this.logger.debug(`[${friendlyName}] Add flag {${flagName}}`);
-    const key = CACHE_KEY(name, flagName);
-    await this.cacheService.set(key, true, {
-      ttl: this.cacheTtl,
-    });
-  }
-
-  @Trace()
   public async hasFlag(
     { name }: Pick<RoomControllerSettingsDTO, 'name'>,
     flagName: string,
@@ -129,6 +101,34 @@ export class StateManagerService {
     return await this.cacheService.wrap<boolean>(
       CACHE_KEY(name, flagName),
       () => false,
+    );
+  }
+
+  @Trace()
+  public async loadState(id: string): Promise<void> {
+    const state = await this.statePersistence.findById(id, {});
+    if (!state) {
+      throw new NotFoundException(`State not found ${id}`);
+    }
+    await each(
+      state.states,
+      async (state: PersistenceLightStateDTO, callback) => {
+        if (
+          domain(state.entity_id) === HASS_DOMAINS.switch ||
+          state.state === 'off'
+        ) {
+          await (state.state === 'on'
+            ? this.switchService.turnOn(state.entity_id)
+            : this.switchService.turnOff(state.entity_id));
+          return callback();
+        }
+        await this.lightManager.turnOnEntities(state.entity_id, {
+          brightness: state.brightness,
+          hs: state.hs,
+          kelvin: state.kelvin,
+        });
+        callback();
+      },
     );
   }
 

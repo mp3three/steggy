@@ -13,6 +13,8 @@ import { Model } from 'mongoose';
 
 import { RoomStateDocument, RoomStateDTO } from '../contracts';
 
+const OK_RESPONSE = 1;
+
 @Injectable()
 export class StatePersistenceService extends BaseMongoService {
   constructor(
@@ -38,7 +40,7 @@ export class StatePersistenceService extends BaseMongoService {
         deleted: Date.now(),
       })
       .exec();
-    return result.ok === 1;
+    return result.ok === OK_RESPONSE;
   }
   @Trace()
   @ToClass(RoomStateDTO)
@@ -92,7 +94,7 @@ export class StatePersistenceService extends BaseMongoService {
   ): Promise<RoomStateDTO> {
     const query = this.merge(control);
     const result = await this.roomStateModel.updateOne(query, state).exec();
-    if (result.ok === 1) {
+    if (result.ok === OK_RESPONSE) {
       return await this.findById(state._id, { control });
     }
   }

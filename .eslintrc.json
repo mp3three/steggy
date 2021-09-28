@@ -17,8 +17,7 @@
     "no-unsanitized",
     "simple-import-sort",
     "jest-formatting",
-    "jest",
-    "sort-class-members"
+    "jest"
   ],
   "overrides": [{
       "files": ["*.tsx"],
@@ -41,38 +40,83 @@
         "plugin:unicorn/recommended",
         "plugin:jsonc/recommended-with-jsonc"
       ],
+      "parserOptions": {
+        "project": ["./tsconfig.base.json"]
+      },
       "rules": {
-        "sort-class-members/sort-class-members": [
-          2,
-          {
-            "order": [
-              "[static-properties]",
-              "[static-methods]",
-              "[properties]",
-              "[conventional-private-properties]",
-              "constructor",
-              "[methods]",
-              "[conventional-private-methods]"
-            ],
-            "accessorPairPositioning": "together",
-            "groups": {
-              "static_methods": {
-                "sort": "alphabetical",
-                "type": "method",
-                "static": true
-              },
-              "get": {
-                "sort": "alphabetical",
-                "kind": "get"
-              },
-              "set": {
-                "sort": "alphabetical",
-                "kind": "set"
-              },
-              "get_set": {
-                "sort": "alphabetical",
-                "accessorPair": true
-              }
+        "@typescript-eslint/prefer-includes": "warn",
+        "@typescript-eslint/require-await": "error",
+        "@typescript-eslint/no-throw-literal": "error",
+        "require-await": "off",
+        "@typescript-eslint/require-array-sort-compare": "error",
+        "@typescript-eslint/unbound-method": "error",
+        "@typescript-eslint/no-magic-numbers": "warn",
+        "@typescript-eslint/member-ordering": [
+          2, {
+            "default": {
+              "order": "alphabetically",
+              "memberTypes": [
+                "signature",
+
+                "static-field",
+                "public-static-field",
+                "protected-static-field",
+                "private-static-field",
+
+                "static-method",
+                "public-static-method",
+                "protected-static-method",
+                "private-static-method",
+
+                "public-constructor",
+                "protected-constructor",
+                "private-constructor",
+                "constructor",
+
+                "abstract-field",
+                "public-abstract-field",
+                "protected-abstract-field",
+                "private-abstract-field",
+
+
+                "public-decorated-field",
+                "protected-decorated-field",
+                "private-decorated-field",
+
+                "field",
+                "instance-field",
+                "decorated-field",
+                "public-instance-field",
+                "public-field",
+                "protected-instance-field",
+                "protected-field",
+                "private-instance-field",
+                "private-field",
+
+
+                "instance-method",
+                "decorated-method",
+
+
+                "public-decorated-method",
+                "protected-decorated-method",
+                "private-decorated-method",
+
+                "public-instance-method",
+                "protected-instance-method",
+                "private-instance-method",
+
+                "abstract-method",
+                "public-abstract-method",
+                "protected-abstract-method",
+                "private-abstract-method",
+
+                "public-method",
+                "protected-method",
+                "private-method",
+
+                "method"
+              ]
             }
           }
         ],
@@ -135,12 +179,6 @@
       }
     },
     {
-      "files": ["*.graphql"],
-      "parser": "@graphql-eslint/eslint-plugin",
-      "plugins": ["@graphql-eslint"],
-      "rules": {}
-    },
-    {
       "files": ["*.spec.ts"],
       "extends": [
         "plugin:jest/all",
@@ -163,15 +201,7 @@
     {
       "files": ["*.decorator.ts"],
       "rules": {
-        "security/detect-object-injection": "off",
         "radar/no-unused-collection": "off"
-      }
-    },
-    {
-      "files": ["config.ts"],
-      "rules": {
-        // Still want them to be defined
-        "unicorn/no-null": "off"
       }
     }
   ]

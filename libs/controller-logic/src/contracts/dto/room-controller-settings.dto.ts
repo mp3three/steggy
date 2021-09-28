@@ -25,11 +25,27 @@ export class RoomControllerSettingsDTO {
   @IsString({ each: true })
   public accessories?: string[];
   /**
+   * Speed adjustable fan for the room
+   */
+  @IsString()
+  @Expose()
+  public fan?: string;
+  /**
+   * Feature flags for the room
+   */
+  @Expose()
+  public flags?: RoomControllerFlags[];
+  /**
    * Longer form name to display to humans
    */
   @IsString()
   @Expose()
   public friendlyName: string;
+  /**
+   * name : entity_id[]
+   */
+  @Expose()
+  public groups?: Record<string, string[]>;
   /**
    * Entities that can be controlled with the circadian lighting controller
    */
@@ -37,17 +53,16 @@ export class RoomControllerSettingsDTO {
   @Expose()
   public lights?: string[];
   /**
+   * Items such as televisions to automatically turn off
+   */
+  @Expose()
+  public media?: string;
+  /**
    * Short identifier for the room
    */
   @IsString()
   @Expose()
   public name: string;
-  /**
-   * Speed adjustable fan for the room
-   */
-  @IsString()
-  @Expose()
-  public fan?: string;
   /**
    * 5 button remote to control the room
    */
@@ -60,21 +75,6 @@ export class RoomControllerSettingsDTO {
   @IsString({ each: true })
   @Expose()
   public switches?: string[];
-  /**
-   * Feature flags for the room
-   */
-  @Expose()
-  public flags?: RoomControllerFlags[];
-  /**
-   * Items such as televisions to automatically turn off
-   */
-  @Expose()
-  public media?: string;
-  /**
-   * name : entity_id[]
-   */
-  @Expose()
-  public groups?: Record<string, string[]>;
 }
 
 export const ROOM_CONTROLLER_SETTINGS = Symbol('ROOM_CONTROLLER_SETTINGS');

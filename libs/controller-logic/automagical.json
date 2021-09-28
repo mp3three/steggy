@@ -1,5 +1,10 @@
 {
   "configuration": {
+    "KUNAMI_TIMEOUT": {
+      "type": "number",
+      "description": "When pressing a button from a 5 button remote, this is the max ms between events for them to be considered part of the same action",
+      "default": 1500
+    },
     "CIRCADIAN_MAX_TEMP": {
       "type": "number",
       "default": 5500
@@ -22,6 +27,11 @@
       "type": "number",
       "default": 255,
       "description": "Highest brightness number to use for light brightness"
+    },
+    "MIN_BRIGHTNESS": {
+      "type": "number",
+      "default": 5,
+      "description": "Enforce a number higher than 1 for min brightness. Only applies to lights that identify as 'on'"
     },
     "MONGO_URI": {
       "type": "string",
@@ -48,6 +58,11 @@
       "type": "number",
       "description": "How long to store short term cache information for",
       "default": 86400
+    },
+    "FORCE_EVENING_HOUR": {
+      "type": "number",
+      "description": "After this hour, the solar calculator will forcibly consider it 'evening'. Useful for logic that can be thrown off by longer days",
+      "default": 18
     }
   }
 }

@@ -1,7 +1,12 @@
-import { AutoLogService, InjectLogger } from '@automagical/utilities';
-import { Injectable, Scope } from '@nestjs/common';
+import {
+  AutoLogService,
+  InjectConfig,
+  InjectLogger,
+} from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 
+import { KUNAMI_TIMEOUT } from '../config';
 import {
   CONTROLLER_STATE_EVENT,
   ControllerStates,
@@ -10,21 +15,23 @@ import {
 } from '../contracts';
 import { RoomSettings } from '../includes/room-settings';
 
+const ARRAY_OFFSET = 1;
+
 /**
  * For the tracking of multiple button press sequences on remotes
  */
 @Injectable()
 export class KunamiCodeService {
-  private callbacks = new Map<string, Set<KunamiCommandDTO>>();
-  private codes = new Map<string, ControllerStates[]>();
-  private timeout: ReturnType<typeof setTimeout>;
-  private boundControllers = new Set<string>();
-
   constructor(
     private readonly eventEmitter: EventEmitter2,
     @InjectLogger()
     private readonly logger: AutoLogService,
+    @InjectConfig(KUNAMI_TIMEOUT) private readonly kunamiTimeout: number,
   ) {}
+
+  private callbacks = new Map<string, Set<KunamiCommandDTO>>();
+  private codes = new Map<string, ControllerStates[]>();
+  private timeout: ReturnType<typeof setTimeout>;
 
   public addCommand(room: iRoomController, command: KunamiCommandDTO): void {
     const { name, friendlyName, remote } = RoomSettings(room);
@@ -49,7 +56,7 @@ export class KunamiCodeService {
           this.timeout = setTimeout(() => {
             this.timeout = undefined;
             this.codes.set(name, []);
-          }, 1500);
+          }, this.kunamiTimeout);
           this.findMatches(name);
         },
       );
@@ -77,7 +84,10 @@ export class KunamiCodeService {
       if (ignoreRelease) {
         // Ignore event if the last event is a 'none'
         // This would otherwise cause a duplicate fire of the callback
-        if (codeListFull[codeListFull.length - 1] === ControllerStates.none) {
+        if (
+          codeListFull[codeListFull.length - ARRAY_OFFSET] ===
+          ControllerStates.none
+        ) {
           return;
         }
         if (!this.compare(codeListPartial, states)) {

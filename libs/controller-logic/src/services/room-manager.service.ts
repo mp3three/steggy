@@ -24,9 +24,6 @@ import { StateManagerService } from './state-manager.service';
 const AUTO_STATE = 'AUTO_STATE';
 @Injectable()
 export class RoomManagerService {
-  public controllers = new Map<string, iRoomController>();
-  public settings = new Map<string, RoomControllerSettingsDTO>();
-
   constructor(
     private readonly logger: AutoLogService,
     private readonly lightManager: LightManagerService,
@@ -37,25 +34,8 @@ export class RoomManagerService {
     @InjectConfig(MAX_BRIGHTNESS) private readonly maxBrightness: number,
   ) {}
 
-  @Trace()
-  public async areaOn(
-    settings: RoomControllerSettingsDTO,
-    command?: RoomCommandDTO,
-  ): Promise<void> {
-    const { lights, switches, accessories, name } = settings;
-    await this.stateManager.removeFlag(settings, AUTO_STATE);
-
-    const scope = this.commandScope(command);
-    await this.lightManager.circadianLight(lights ?? [], this.maxBrightness);
-    await this.hassCore.turnOn(switches ?? []);
-    if (scope.has(RoomCommandScope.ACCESSORIES)) {
-      await this.hassCore.turnOn(accessories ?? []);
-    }
-    const instance = this.controllers.get(name);
-    if (instance?.areaOn) {
-      await instance.areaOn(command);
-    }
-  }
+  public controllers = new Map<string, iRoomController>();
+  public settings = new Map<string, RoomControllerSettingsDTO>();
 
   @Trace()
   public async areaOff(
@@ -80,15 +60,24 @@ export class RoomManagerService {
     }
   }
 
-  protected onModuleInit(): void {
-    const settings = this.scanner.findWithSymbol<
-      RoomControllerSettingsDTO,
-      iRoomController
-    >(ROOM_CONTROLLER_SETTINGS);
-    settings.forEach((settings, instance) => {
-      this.controllers.set(settings.name, instance);
-      this.settings.set(settings.name, settings);
-    });
+  @Trace()
+  public async areaOn(
+    settings: RoomControllerSettingsDTO,
+    command?: RoomCommandDTO,
+  ): Promise<void> {
+    const { lights, switches, accessories, name } = settings;
+    await this.stateManager.removeFlag(settings, AUTO_STATE);
+
+    const scope = this.commandScope(command);
+    await this.lightManager.circadianLight(lights ?? [], this.maxBrightness);
+    await this.hassCore.turnOn(switches ?? []);
+    if (scope.has(RoomCommandScope.ACCESSORIES)) {
+      await this.hassCore.turnOn(accessories ?? []);
+    }
+    const instance = this.controllers.get(name);
+    if (instance?.areaOn) {
+      await instance.areaOn(command);
+    }
   }
 
   protected commandScope(command?: RoomCommandDTO): Set<RoomCommandScope> {
@@ -98,5 +87,16 @@ export class RoomManagerService {
       ? command.scope
       : [command.scope];
     return new Set(command.scope);
+  }
+
+  protected onModuleInit(): void {
+    const settings = this.scanner.findWithSymbol<
+      RoomControllerSettingsDTO,
+      iRoomController
+    >(ROOM_CONTROLLER_SETTINGS);
+    settings.forEach((settings, instance) => {
+      this.controllers.set(settings.name, instance);
+      this.settings.set(settings.name, settings);
+    });
   }
 }

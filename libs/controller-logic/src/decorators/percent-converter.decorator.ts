@@ -1,3 +1,5 @@
+const MULTIPLIER = 2.55;
+
 export function PercentConverter(): MethodDecorator {
   return function (
     target: unknown,
@@ -8,14 +10,14 @@ export function PercentConverter(): MethodDecorator {
     descriptor.value = function (...parameters) {
       const result = original.apply(this, ...parameters);
       if (typeof result === 'number') {
-        return Math.ceil(result * 2.55);
+        return Math.ceil(result * MULTIPLIER);
       }
       return new Promise(async (done) => {
         const out = await result;
         if (typeof out !== 'number') {
           return done(out);
         }
-        return done(Math.ceil(out * 2.55));
+        return done(Math.ceil(out * MULTIPLIER));
       });
     };
   };

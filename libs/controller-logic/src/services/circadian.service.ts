@@ -8,6 +8,8 @@ import { CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP } from '../config';
 import { CIRCADIAN_UPDATE } from '../contracts';
 import { SolarCalcService } from './solar-calc.service';
 
+const MIN = 0;
+const MAX = 1;
 /**
  * This service is responsible for managing the current temperature for circadian lightining
  *
@@ -15,8 +17,6 @@ import { SolarCalcService } from './solar-calc.service';
  */
 @Injectable()
 export class CircadianService {
-  public CURRENT_LIGHT_TEMPERATURE: number;
-
   constructor(
     private readonly solarCalcService: SolarCalcService,
     @InjectConfig(CIRCADIAN_MAX_TEMP)
@@ -25,9 +25,10 @@ export class CircadianService {
     private readonly minTemperature: number,
     private readonly eventEmitter: EventEmitter2,
   ) {}
+  public CURRENT_LIGHT_TEMPERATURE: number;
 
   @Cron(CronExpression.EVERY_MINUTE)
-  protected async updateKelvin(): Promise<void> {
+  protected updateKelvin(): void {
     const kelvin = this.getCurrentTemperature();
     if (kelvin === this.CURRENT_LIGHT_TEMPERATURE) {
       return;
@@ -54,18 +55,18 @@ export class CircadianService {
 
     if (now.isBefore(dawn)) {
       // After midnight, but before dawn
-      return 0;
+      return MIN;
     }
     if (now.isBefore(noon)) {
       // After dawn, but before solar noon
-      return Math.abs(noon.diff(now, 's') / noon.diff(dawn, 's') - 1);
+      return Math.abs(noon.diff(now, 's') / noon.diff(dawn, 's') - MAX);
     }
     if (now.isBefore(dusk)) {
       // Afternoon, but before dusk
-      return Math.abs(noon.diff(now, 's') / noon.diff(dusk, 's') - 1);
+      return Math.abs(noon.diff(now, 's') / noon.diff(dusk, 's') - MAX);
     }
     // Until midnight
-    return 0;
+    return MIN;
   }
 
   @Trace()

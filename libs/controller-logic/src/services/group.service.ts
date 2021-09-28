@@ -23,6 +23,8 @@ import { LightManagerService } from './light-manager.service';
 import { RoomManagerService } from './room-manager.service';
 import { StatePersistenceService } from './state-persistence.service';
 
+const EMPTY = 0;
+
 @Injectable()
 export class GroupService {
   constructor(
@@ -34,6 +36,28 @@ export class GroupService {
     private readonly persistence: StatePersistenceService,
   ) {}
 
+  /**
+   * List all declared groups
+   *
+   * **Map**<[`roomName`,`groupName`],`entityState[]`>
+   */
+  @Trace()
+  public allGroups(): Map<[string, string], HassStateDTO[]> {
+    const out = new Map<[string, string], HassStateDTO[]>();
+    this.roomManager.settings.forEach((settings) => {
+      const groups = Object.keys(settings.groups ?? {});
+      if (groups.length === EMPTY) {
+        return;
+      }
+      groups.forEach((group) => {
+        out.set(
+          [settings.name, group],
+          this.entityManager.getEntity(settings.groups[group]),
+        );
+      });
+    });
+    return out;
+  }
   /**
    * Capture the current state of all entities (switch + light only) inside a group, and save it to persistence
    */
@@ -75,15 +99,15 @@ export class GroupService {
     return await this.persistence.create(roomState);
   }
 
-  /**
-   * Search for all the saved states declared against this group
-   */
   @Trace()
-  public async listStatesByGroup(
-    room: string,
-    group: string,
-  ): Promise<RoomStateDTO[]> {
-    return await this.persistence.findMany(queryToControl({ group, room }));
+  public describeGroup(room: string, group: string): DescribeGroupResponseDTO {
+    const settings = this.roomManager.settings.get(room);
+    if (!settings?.groups) {
+      throw new BadRequestException(`Room does not contain groups`);
+    }
+    return {
+      states: this.entityManager.getEntity(settings.groups[group] ?? []),
+    };
   }
 
   /**
@@ -103,37 +127,25 @@ export class GroupService {
   }
 
   /**
-   * List all declared groups
-   *
-   * **Map**<[`roomName`,`groupName`],`entityState[]`>
+   * Search for all the saved states declared against this group
    */
   @Trace()
-  public allGroups(): Map<[string, string], HassStateDTO[]> {
-    const out = new Map<[string, string], HassStateDTO[]>();
-    this.roomManager.settings.forEach((settings) => {
-      const groups = Object.keys(settings.groups ?? {});
-      if (groups.length === 0) {
-        return;
-      }
-      groups.forEach((group) => {
-        out.set(
-          [settings.name, group],
-          this.entityManager.getEntity(settings.groups[group]),
-        );
-      });
-    });
-    return out;
+  public async listStatesByGroup(
+    room: string,
+    group: string,
+  ): Promise<RoomStateDTO[]> {
+    return await this.persistence.findMany(queryToControl({ group, room }));
   }
 
   @Trace()
-  public describeGroup(room: string, group: string): DescribeGroupResponseDTO {
-    const settings = this.roomManager.settings.get(room);
-    if (!settings?.groups) {
-      throw new BadRequestException(`Room does not contain groups`);
-    }
-    return {
-      states: this.entityManager.getEntity(settings.groups[group] ?? []),
-    };
+  public async turnOff(room: string, group: string): Promise<void> {
+    const entities = this.getGroups(room, group);
+    const lights = entities.filter((id) => domain(id) === HASS_DOMAINS.light);
+    const switches = entities.filter(
+      (id) => domain(id) === HASS_DOMAINS.switch,
+    );
+    await this.lightManager.turnOffEntities(lights);
+    await this.switchService.turnOff(switches);
   }
 
   @Trace()
@@ -156,17 +168,6 @@ export class GroupService {
     );
     await this.lightManager.circadianLight(lights);
     await this.switchService.turnOn(switches);
-  }
-
-  @Trace()
-  public async turnOff(room: string, group: string): Promise<void> {
-    const entities = this.getGroups(room, group);
-    const lights = entities.filter((id) => domain(id) === HASS_DOMAINS.light);
-    const switches = entities.filter(
-      (id) => domain(id) === HASS_DOMAINS.switch,
-    );
-    await this.lightManager.turnOffEntities(lights);
-    await this.switchService.turnOff(switches);
   }
 
   private getGroups(room: string, group: string): string[] {
