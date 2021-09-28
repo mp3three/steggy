@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 import { ResultControlDTO } from '@automagical/utilities';
 import { Document, Query, Types } from 'mongoose';
 

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 import { FetchService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { MongooseModuleOptions } from '@nestjs/mongoose';

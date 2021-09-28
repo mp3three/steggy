@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 import { InjectConfig, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import {

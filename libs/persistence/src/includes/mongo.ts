@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 import {
   FILTER_OPERATIONS,
   FilterDTO,

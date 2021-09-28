@@ -1,7 +1,7 @@
 export class MongoConnectDTO {
-  uri: string;
   ca?: string[];
+  cert?: string;
   crl?: string[];
   key?: string;
-  cert?: string;
+  uri: string;
 }
