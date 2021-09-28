@@ -1,11 +1,7 @@
-import {
-  FanSpeeds,
-  FanStateDTO,
-  HASS_DOMAINS,
-} from '@automagical/home-assistant';
 import { AutoLogService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
+import { FanSpeeds, FanStateDTO, HASS_DOMAINS } from '../contracts';
 import { EntityManagerService, HACallService } from '../services';
 
 const availableSpeeds = [
@@ -15,6 +11,8 @@ const availableSpeeds = [
   FanSpeeds.medium_high,
   FanSpeeds.high,
 ];
+const ARRAY_OFFSET = 1;
+const EMPTY = 0;
 
 /**
  * https://www.home-assistant.io/integrations/fan/
@@ -51,15 +49,17 @@ export class FanDomainService {
     const currentSpeed = attributes.speed;
     const index = availableSpeeds.indexOf(currentSpeed);
     this.logger.info(
-      `[${entityId}] ${currentSpeed} => ${availableSpeeds[index - 1]}`,
+      `[${entityId}] ${currentSpeed} => ${
+        availableSpeeds[index - ARRAY_OFFSET]
+      }`,
     );
-    if (index === 0) {
+    if (index === EMPTY) {
       this.logger.warn(`Cannot speed down`);
       return;
     }
     return await this.callService.call('turn_on', {
       entity_id: entityId,
-      speed: availableSpeeds[index - 1],
+      speed: availableSpeeds[index - ARRAY_OFFSET],
     });
   }
 
@@ -71,15 +71,17 @@ export class FanDomainService {
     const currentSpeed = attributes.speed;
     const index = availableSpeeds.indexOf(currentSpeed);
     this.logger.info(
-      `[${entityId}] ${currentSpeed} => ${availableSpeeds[index + 1]}`,
+      `[${entityId}] ${currentSpeed} => ${
+        availableSpeeds[index + ARRAY_OFFSET]
+      }`,
     );
-    if (index === availableSpeeds.length - 1) {
+    if (index === availableSpeeds.length - ARRAY_OFFSET) {
       this.logger.warn(`Cannot speed up`);
       return;
     }
     return await this.callService.call('turn_on', {
       entity_id: entityId,
-      speed: availableSpeeds[index + 1],
+      speed: availableSpeeds[index + ARRAY_OFFSET],
     });
   }
 

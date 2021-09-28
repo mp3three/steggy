@@ -9,8 +9,6 @@ import { EntityService, HACallService } from '../services';
  */
 @Injectable()
 export class LightDomainService extends EntityService {
-  private CIRCADIAN_LIGHTING = new Set<string>();
-
   constructor(
     protected readonly logger: AutoLogService,
     private readonly callService: HACallService,
@@ -18,10 +16,7 @@ export class LightDomainService extends EntityService {
     super();
     callService.domain = HASS_DOMAINS.light;
   }
-
-  public supportsColor(): boolean {
-    return false;
-  }
+  private CIRCADIAN_LIGHTING = new Set<string>();
 
   @Trace()
   public async toggle(entityId: string | string[]): Promise<void> {
@@ -52,8 +47,8 @@ export class LightDomainService extends EntityService {
     entity_id: string | string[],
     settings: {
       brightness_pct?: number;
-      kelvin?: number;
       hs_color?: [number, number] | number[];
+      kelvin?: number;
     } = {},
   ): Promise<void> {
     this.trackEntity(entity_id);
@@ -61,5 +56,9 @@ export class LightDomainService extends EntityService {
       entity_id: entity_id,
       ...settings,
     });
+  }
+
+  public supportsColor(): boolean {
+    return false;
   }
 }

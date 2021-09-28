@@ -55,11 +55,11 @@ export class SendSocketMessageDTO {
 }
 
 export class UpdateEntityMessageDTO {
-  type: HASSIO_WS_COMMAND.entity_update;
-  name: string;
-  new_entity_id: string;
+  area_id?: number;
   entity_id: string;
   icon?: string;
-  area_id?: number;
   id?: number;
+  name: string;
+  new_entity_id: string;
+  type: HASSIO_WS_COMMAND.entity_update;
 }

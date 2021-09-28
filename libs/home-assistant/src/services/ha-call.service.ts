@@ -4,11 +4,12 @@ import { Injectable, Scope } from '@nestjs/common';
 import { HASS_DOMAINS, HASSIO_WS_COMMAND, HassStateDTO } from '../contracts';
 import { HASocketAPIService } from './ha-socket-api.service';
 
+const EMPTY = 0;
+
 @Injectable({ scope: Scope.TRANSIENT })
 export class HACallService {
-  public domain: HASS_DOMAINS;
-
   constructor(private readonly socketService: HASocketAPIService) {}
+  public domain: HASS_DOMAINS;
 
   /**
    * Convenience wrapper around sendMsg
@@ -25,7 +26,7 @@ export class HACallService {
     // Simplify logic in higher level classes
     if (
       Array.isArray(service_data.entity_id) &&
-      service_data.entity_id.length === 0
+      service_data.entity_id.length === EMPTY
     ) {
       return;
     }

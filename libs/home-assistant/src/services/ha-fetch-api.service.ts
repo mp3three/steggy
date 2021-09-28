@@ -1,4 +1,3 @@
-import { HassStateDTO } from '@automagical/home-assistant';
 import type { FetchWith } from '@automagical/utilities';
 import {
   AutoLogService,
@@ -10,6 +9,7 @@ import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 
 import { BASE_URL, TOKEN } from '../config';
+import { HassStateDTO } from '../contracts';
 
 @Injectable()
 export class HomeAssistantFetchAPIService {

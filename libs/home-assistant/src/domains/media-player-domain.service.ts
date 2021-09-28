@@ -14,20 +14,6 @@ export class MediaPlayerDomainService {
   }
 
   @Trace()
-  public async volumeUp(entityId: string | string[]): Promise<void> {
-    return await this.callService.call('volume_up', {
-      entity_id: entityId,
-    });
-  }
-
-  @Trace()
-  public async volumeDown(entityId: string | string[]): Promise<void> {
-    return await this.callService.call('volume_down', {
-      entity_id: entityId,
-    });
-  }
-
-  @Trace()
   public async mute(entityId: string | string[]): Promise<void> {
     return await this.callService.call('volume_mute', {
       entity_id: entityId,
@@ -65,6 +51,19 @@ export class MediaPlayerDomainService {
   @Trace()
   public async turnOn(entityId: string | string[]): Promise<void> {
     return await this.callService.call('turn_on', {
+      entity_id: entityId,
+    });
+  }
+  @Trace()
+  public async volumeDown(entityId: string | string[]): Promise<void> {
+    return await this.callService.call('volume_down', {
+      entity_id: entityId,
+    });
+  }
+
+  @Trace()
+  public async volumeUp(entityId: string | string[]): Promise<void> {
+    return await this.callService.call('volume_up', {
       entity_id: entityId,
     });
   }

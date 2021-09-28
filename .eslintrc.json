@@ -56,66 +56,78 @@
             "default": {
               "order": "alphabetically",
               "memberTypes": [
-                "signature",
+                // General rule:
+                // static > constructor > instance
+                // public > "public" > protected > private
+                // abstract > annotated > other
+                // --- TODO: Don't want annotations to affect ordering, find secret sauce
 
-                "static-field",
+                // static fields
                 "public-static-field",
+                "static-field",
                 "protected-static-field",
                 "private-static-field",
 
-                "static-method",
+                // static methods
                 "public-static-method",
+                "static-method",
                 "protected-static-method",
                 "private-static-method",
 
+                // constructors
                 "public-constructor",
+                "constructor",
                 "protected-constructor",
                 "private-constructor",
-                "constructor",
+                "signature",
 
-                "abstract-field",
+                // public field
                 "public-abstract-field",
-                "protected-abstract-field",
-                "private-abstract-field",
-
-
                 "public-decorated-field",
-                "protected-decorated-field",
-                "private-decorated-field",
-
-                "field",
-                "instance-field",
-                "decorated-field",
                 "public-instance-field",
                 "public-field",
+
+                // "public" field
+                "abstract-field",
+                "decorated-field",
+                "instance-field",
+                "field",
+
+                // protected field
+                "protected-abstract-field",
+                "protected-decorated-field",
                 "protected-instance-field",
                 "protected-field",
+
+                // private field
+                "private-abstract-field",
+                "private-decorated-field",
                 "private-instance-field",
                 "private-field",
 
-
-                "instance-method",
-                "decorated-method",
-
-
-                "public-decorated-method",
-                "protected-decorated-method",
-                "private-decorated-method",
-
-                "public-instance-method",
-                "protected-instance-method",
-                "private-instance-method",
-
-                "abstract-method",
+                // public method
                 "public-abstract-method",
-                "protected-abstract-method",
-                "private-abstract-method",
-
+                "public-decorated-method",
+                "public-instance-method",
                 "public-method",
-                "protected-method",
-                "private-method",
 
-                "method"
+                // "public" method
+                "abstract-method",
+                "decorated-method",
+                "instance-method",
+                "method",
+
+                // protected method
+                "protected-abstract-method",
+                "protected-decorated-method",
+                "protected-instance-method",
+                "protected-method",
+
+                // private method
+                "private-abstract-method",
+                "private-decorated-method",
+                "private-instance-method",
+                "private-method"
               ]
             }
           }

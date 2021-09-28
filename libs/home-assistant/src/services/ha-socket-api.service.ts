@@ -33,13 +33,10 @@ import {
 } from '../contracts/enums';
 
 /* eslint-disable unicorn/no-null */
+const STARTING_COUNTER_ID = 0;
 
 @Injectable()
 export class HASocketAPIService {
-  private connection: WS;
-  private messageCount = 1;
-  private waitingCallback = new Map<number, (result) => void>();
-
   constructor(
     @InjectLogger()
     private readonly logger: AutoLogService,
@@ -50,24 +47,27 @@ export class HASocketAPIService {
     private readonly token: string,
   ) {}
 
+  private connection: WS;
+  private messageCount = STARTING_COUNTER_ID;
+  private waitingCallback = new Map<number, (result) => void>();
+
+  /**
+   * Request a current listing of all entities + their states
+   *
+   * This can be a pretty big list
+   */
+  @EmitAfter(ALL_ENTITIES_UPDATED, { emitData: 'result' })
+  @Debug('Update all entities')
+  public async getAllEntitities(): Promise<HassStateDTO[]> {
+    return await this.sendMsg<HassStateDTO[]>({
+      type: HASSIO_WS_COMMAND.get_states,
+    });
+  }
+
   @Debug('List all areas')
   public async getAreas(): Promise<AreaDTO[]> {
     return await this.sendMsg({
       type: HASSIO_WS_COMMAND.area_list,
-    });
-  }
-
-  public async updateEntity(
-    entity: string,
-    data: { name?: string; new_entity_id?: string },
-  ): Promise<unknown> {
-    return await this.sendMsg({
-      area_id: null,
-      entity_id: entity,
-      icon: null,
-      name: data.name,
-      new_entity_id: data.new_entity_id || entity,
-      type: HASSIO_WS_COMMAND.entity_update,
     });
   }
 
@@ -82,19 +82,6 @@ export class HASocketAPIService {
   public async listEntities(): Promise<EntityListItemDTO[]> {
     return await this.sendMsg({
       type: HASSIO_WS_COMMAND.entity_list,
-    });
-  }
-
-  /**
-   * Request a current listing of all entities + their states
-   *
-   * This can be a pretty big list
-   */
-  @EmitAfter(ALL_ENTITIES_UPDATED, { emitData: 'result' })
-  @Debug('Update all entities')
-  public async getAllEntitities(): Promise<HassStateDTO[]> {
-    return await this.sendMsg<HassStateDTO[]>({
-      type: HASSIO_WS_COMMAND.get_states,
     });
   }
 
@@ -127,6 +114,30 @@ export class HASocketAPIService {
     return new Promise((done) => this.waitingCallback.set(counter, done));
   }
 
+  public async updateEntity(
+    entity: string,
+    data: { name?: string; new_entity_id?: string },
+  ): Promise<unknown> {
+    return await this.sendMsg({
+      area_id: null,
+      entity_id: entity,
+      icon: null,
+      name: data.name,
+      new_entity_id: data.new_entity_id || entity,
+      type: HASSIO_WS_COMMAND.entity_update,
+    });
+  }
+
+  @Trace()
+  protected async onPostInit(): Promise<void> {
+    // Kick off the connection process
+    // Do not wait for it to actually complete through auth though
+    //
+    // That causes some race conditions that screw with the state managers
+    // The current flow forces the auth frames to get sent after app is started
+    await this.initConnection();
+  }
+
   @Cron(CronExpression.EVERY_10_SECONDS)
   protected async ping(): Promise<void> {
     try {
@@ -143,16 +154,6 @@ export class HASocketAPIService {
       this.logger.error({ error }, `ping error`);
     }
     this.initConnection(true);
-  }
-
-  @Trace()
-  protected async onPostInit(): Promise<void> {
-    // Kick off the connection process
-    // Do not wait for it to actually complete through auth though
-    //
-    // That causes some race conditions that screw with the state managers
-    // The current flow forces the auth frames to get sent after app is started
-    await this.initConnection();
   }
 
   /**

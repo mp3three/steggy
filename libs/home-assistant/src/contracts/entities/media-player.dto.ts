@@ -1,11 +1,11 @@
 import { HassStateDTO } from '../hass-state.dto';
 
 export class MediaPlayerAttributesDTO {
-  source_list?: string[];
-  is_volume_muted?: boolean;
-  friendly_name?: string;
-  supported_features?: number;
   device_class?: 'tv';
+  friendly_name?: string;
+  is_volume_muted?: boolean;
+  source_list?: string[];
+  supported_features?: number;
 }
 
 export class MediaPlayerStateDTO extends HassStateDTO<

@@ -22,41 +22,13 @@ import { HASocketAPIService } from './ha-socket-api.service';
  */
 @Injectable()
 export class EntityManagerService {
-  private readonly ENTITIES = new Map<string, HassStateDTO>();
-  private readonly OBSERVABLES = new Map<string, Observable<HassStateDTO>>();
-  private readonly SUBSCRIBERS = new Map<string, Subscriber<HassStateDTO>>();
-
   constructor(
     private readonly socketService: HASocketAPIService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
-
-  @Trace()
-  public async updateFriendlyName(
-    entityId: string,
-    friendly_name: string,
-  ): Promise<unknown> {
-    return await this.socketService.updateEntity(entityId, {
-      name: friendly_name,
-      new_entity_id: entityId,
-    });
-  }
-
-  @Trace()
-  public async updateId(
-    entityId: string,
-    newEntityId: string,
-  ): Promise<unknown> {
-    this.ENTITIES.set(newEntityId, this.ENTITIES.get(entityId));
-    this.ENTITIES.delete(entityId);
-    return await this.socketService.updateEntity(entityId, {
-      new_entity_id: newEntityId,
-    });
-  }
-
-  public isValidId(entityId: string): boolean {
-    return this.ENTITIES.has(entityId);
-  }
+  private readonly ENTITIES = new Map<string, HassStateDTO>();
+  private readonly OBSERVABLES = new Map<string, Observable<HassStateDTO>>();
+  private readonly SUBSCRIBERS = new Map<string, Subscriber<HassStateDTO>>();
 
   /**
    * Retrieve an entity's state
@@ -79,18 +51,6 @@ export class EntityManagerService {
     return this.OBSERVABLES.get(entityId) as Observable<T>;
   }
 
-  public findByDomain<T extends HassStateDTO = HassStateDTO>(
-    target: HASS_DOMAINS,
-  ): T[] {
-    const out: T[] = [];
-    this.ENTITIES.forEach((state, key) => {
-      if (domain(key) === target) {
-        out.push(state as T);
-      }
-    });
-    return out;
-  }
-
   @Trace()
   public listEntities(): string[] {
     return [...this.ENTITIES.keys()];
@@ -107,9 +67,42 @@ export class EntityManagerService {
     });
   }
 
-  @OnEvent(HA_SOCKET_READY)
-  protected async socketReady(): Promise<void> {
-    await this.socketService.getAllEntitities();
+  @Trace()
+  public async updateFriendlyName(
+    entityId: string,
+    friendly_name: string,
+  ): Promise<unknown> {
+    return await this.socketService.updateEntity(entityId, {
+      name: friendly_name,
+      new_entity_id: entityId,
+    });
+  }
+  @Trace()
+  public async updateId(
+    entityId: string,
+    newEntityId: string,
+  ): Promise<unknown> {
+    this.ENTITIES.set(newEntityId, this.ENTITIES.get(entityId));
+    this.ENTITIES.delete(entityId);
+    return await this.socketService.updateEntity(entityId, {
+      new_entity_id: newEntityId,
+    });
+  }
+
+  public findByDomain<T extends HassStateDTO = HassStateDTO>(
+    target: HASS_DOMAINS,
+  ): T[] {
+    const out: T[] = [];
+    this.ENTITIES.forEach((state, key) => {
+      if (domain(key) === target) {
+        out.push(state as T);
+      }
+    });
+    return out;
+  }
+
+  public isValidId(entityId: string): boolean {
+    return this.ENTITIES.has(entityId);
   }
 
   /**
@@ -120,9 +113,7 @@ export class EntityManagerService {
    */
   @OnEvent(ALL_ENTITIES_UPDATED)
   @Trace()
-  protected async onAllEntitiesUpdated(
-    allEntities: HassStateDTO[],
-  ): Promise<void> {
+  protected onAllEntitiesUpdated(allEntities: HassStateDTO[]): void {
     allEntities.forEach((entity) => {
       this.createObservable(entity.entity_id);
       const state = this.ENTITIES.get(entity.entity_id);
@@ -143,7 +134,7 @@ export class EntityManagerService {
    */
   @OnEvent(HA_EVENT_STATE_CHANGE)
   @Trace()
-  protected async onUpdate(event: HassEventDTO): Promise<void> {
+  protected onUpdate(event: HassEventDTO): void {
     const { entity_id, new_state } = event.data;
     this.createObservable(entity_id);
     this.ENTITIES.set(entity_id, new_state);
@@ -151,6 +142,11 @@ export class EntityManagerService {
     subscriber?.next(new_state);
     // this.log
     this.eventEmitter.emit(`${entity_id}/update`, event);
+  }
+
+  @OnEvent(HA_SOCKET_READY)
+  protected async socketReady(): Promise<void> {
+    await this.socketService.getAllEntitities();
   }
 
   private createObservable(entityId: string): void {

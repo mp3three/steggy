@@ -13,5 +13,5 @@ export function domain(entity: { entity_id: string } | string): HASS_DOMAINS {
   if (typeof entity === 'object') {
     entity = entity.entity_id;
   }
-  return split(entity)[0];
+  return split(entity).shift() as HASS_DOMAINS;
 }

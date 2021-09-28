@@ -1,7 +1,7 @@
-import { HASS_DOMAINS } from '@automagical/home-assistant';
 import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
+import { HASS_DOMAINS } from '../contracts';
 import { HACallService } from '../services';
 
 @Injectable()
@@ -14,9 +14,9 @@ export class NotifyDomainService {
   public async notify(
     message: string,
     optional: {
-      title?: string;
-      target?: string;
       data?: Record<string, unknown>;
+      target?: string;
+      title?: string;
     } = {},
   ): Promise<void> {
     await this.callService.call('notify', {
