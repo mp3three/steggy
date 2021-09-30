@@ -17,6 +17,7 @@ import {
   HomeFetchService,
   ImgurAlbumDownloadService,
   LightService,
+  MediaService,
   RoomCommandService,
   SwitchService,
 } from '../services';
@@ -35,6 +36,7 @@ import {
     FanService,
     HomeCommandService,
     RoomCommandService,
+    MediaService,
     EntityService,
     BaseDomainService,
     LightService,

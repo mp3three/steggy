@@ -1,12 +1,12 @@
 import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import { iRepl, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
-import { TitleCase } from '@automagical/utilities';
 import inquirer from 'inquirer';
 
 import {
   BaseDomainService,
   FanService,
   LightService,
+  MediaService,
   SwitchService,
 } from './domains';
 import { HomeFetchService } from './home-fetch.service';
@@ -24,6 +24,7 @@ export class EntityService implements iRepl {
     private readonly lightService: LightService,
     private readonly switchService: SwitchService,
     private readonly fanService: FanService,
+    private readonly mediaService: MediaService,
   ) {}
 
   public async exec(): Promise<void> {
@@ -68,29 +69,11 @@ export class EntityService implements iRepl {
       case HASS_DOMAINS.fan:
         await this.fanService.processId(id);
         return;
+      case HASS_DOMAINS.media_player:
+        await this.mediaService.processId(id);
+        return;
     }
     await this.baseService.processId(id);
-  }
-
-  private async processEntities(entities: string[]): Promise<void> {
-    const action = await this.promptService.pickOne(``, [
-      {
-        name: 'Pick One',
-        value: 'pickOne',
-      },
-      new inquirer.Separator(),
-      {
-        name: 'Cancel',
-        value: 'cancel',
-      },
-    ]);
-    switch (action) {
-      case 'cancel':
-        return await this.exec();
-      case 'pickOne':
-        const entity = await this.promptService.pickOne(``, entities);
-        return await this.pickOne(entity);
-    }
   }
 
   private async processId(ids: string[]): Promise<void> {

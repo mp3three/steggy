@@ -1,5 +1,6 @@
 import { AutoLogService, InjectConfig } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import fuzzy from 'fuzzysort';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
@@ -24,6 +25,9 @@ export class PromptService {
     await this.confirm(prompt, true);
   }
 
+  /**
+   * Now featuring: FUZZYSORT!
+   */
   public async autocomplete<T extends unknown = string>(
     prompt: string,
     options: ({ name: string; value: T } | string)[],
@@ -33,16 +37,27 @@ export class PromptService {
         message: prompt,
         name: 'result',
         pageSize: this.pageSize,
-        source: (answers, input) =>
-          options.filter((value) => {
-            if (typeof input === 'undefined') {
-              return true;
-            }
-            if (typeof value === 'object') {
-              value = value.name;
-            }
-            return value.includes(input);
-          }),
+        source: (answers, input) => {
+          if (!input) {
+            return options;
+          }
+          const fuzzyResult = fuzzy.go(
+            input,
+            options.map((item) => {
+              if (typeof item === 'string') {
+                return item;
+              }
+              return item.name;
+            }),
+          );
+          return fuzzyResult.map(({ target }) => {
+            return options.find((option) => {
+              return typeof option === 'string'
+                ? option === target
+                : option.name === target;
+            });
+          });
+        },
         type: 'autocomplete',
       },
     ]);
