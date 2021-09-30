@@ -5,25 +5,19 @@ import { LOGGER_LIBRARY } from '../contracts/logger/constants';
 import { ACTIVE_APPLICATION } from '../contracts/meta/config';
 import { RegisterCache } from '../includes/';
 import { UtilitiesModule } from '../modules';
+import { EventEmitterService } from '../services/event-emitter.service';
 
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
   application: symbol;
   /**
    * If omitted, will default to all
    */
-  dashboards?: Provider[];
   globals?: Provider[];
 }
 
 /**
  * Intended to extend on the logic of nest's `@Controller` annotation.
  * This annotation will replace that one, and is intended for modules living in the apps folder.
- *
- * It takes in this additional information:
- *
- *  - `rooms`: Rooms allow for loading of home assistant entity observables, and custom logic binding (`custom-logic`, `home-assistant`)
- *  - `application`: The symbol that represents the application. Used for config loading, logging, and related
- *  - `dashboard`: Dashboards interact with the terminal using `blessed` components. (`terminal`)
  */
 export function ApplicationModule(
   metadata: ApplicationModuleMetadata,
@@ -33,8 +27,6 @@ export function ApplicationModule(
   metadata.providers ??= [];
   metadata.globals ??= [];
   metadata.controllers ??= [];
-  metadata.dashboards ??= [];
-  metadata.providers = [...metadata.providers, ...metadata.dashboards];
   [...metadata.providers, ...metadata.controllers].forEach((provider) => {
     provider[LOGGER_LIBRARY] = metadata.application.description;
   });
@@ -44,14 +36,17 @@ export function ApplicationModule(
       useValue: metadata.application,
     },
     {
+      inject: [EventEmitterService],
       provide: EventEmitter2,
-      useValue: new EventEmitter2({
-        delimiter: '/',
-        maxListeners: 20,
-        newListener: false,
-        removeListener: false,
-        wildcard: true,
-      }),
+      useFactory(service: EventEmitterService) {
+        return new EventEmitter2({
+          delimiter: '/',
+          maxListeners: service.maxListeners,
+          newListener: false,
+          removeListener: false,
+          wildcard: true,
+        });
+      },
     },
     ...metadata.globals,
   ];
@@ -69,7 +64,6 @@ export function ApplicationModule(
 
   return (target) => {
     target[LOGGER_LIBRARY] = metadata.application.description;
-
     propertiesKeys.forEach((property) => {
       Reflect.defineMetadata(property, metadata[property], target);
     });

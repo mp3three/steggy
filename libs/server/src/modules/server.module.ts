@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 
 import { AdminKeyGuard } from '..';
+import { BasicExceptionFilter } from '../filters';
 import { LoggingInterceptor } from '../interceptors';
 import { InitMiddleware } from '../middleware';
 import { BootstrapService, RouteInjector } from '../services';
@@ -17,6 +18,7 @@ import { BootstrapService, RouteInjector } from '../services';
     BootstrapService,
     AdminKeyGuard,
     RouteInjector,
+    BasicExceptionFilter,
     LoggingInterceptor,
     InitMiddleware,
   ],
@@ -30,6 +32,8 @@ export class ServerModule {
 
   protected onPreInit(app: INestApplication): void {
     const interceptor = app.get(LoggingInterceptor);
+    const filter = app.get(BasicExceptionFilter);
+    app.useGlobalFilters(filter);
     app.useGlobalInterceptors(interceptor);
   }
 }

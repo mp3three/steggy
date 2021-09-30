@@ -82,11 +82,11 @@ const prettyErrorMessage = (message: string): string => {
     return ``;
   }
   const lines = message.split(`\n`);
-  const prefix = "Nest can't resolve dependencies of the ";
+  const prefix = 'dependencies of the ';
   if (lines[0].includes(prefix)) {
     // eslint-disable-next-line prefer-const
     let [service, module] = lines[0].split('.');
-    service = service.slice(prefix.length);
+    service = service.slice(service.indexOf(prefix) + prefix.length);
     const provider = service.slice(0, service.indexOf(' '));
     service = service.slice(service.indexOf(' ') + 1);
     const ctorArguments = service
@@ -113,7 +113,7 @@ const prettyErrorMessage = (message: string): string => {
     if (match) {
       message = message.replace(
         new RegExp(match[1], 'g'),
-        chalk.bold(match[1]),
+        chalk.bold.magenta(match[1]),
       );
     }
   }

@@ -147,6 +147,10 @@ export class LightManagerService {
   }
 
   @Trace()
+  public async turnOff(entity_id: string | string[]): Promise<void> {
+    return this.turnOffEntities(entity_id);
+  }
+
   public async turnOffEntities(entity_id: string | string[]): Promise<void> {
     if (Array.isArray(entity_id)) {
       each(entity_id, async (entity, callback) => {
@@ -157,6 +161,11 @@ export class LightManagerService {
     }
     await this.cache.del(CACHE_KEY(entity_id));
     await this.hassCoreService.turnOff(entity_id);
+  }
+
+  @Trace()
+  public async turnOn(entity_id: string | string[]): Promise<void> {
+    return this.turnOnEntities(entity_id);
   }
 
   @Trace()

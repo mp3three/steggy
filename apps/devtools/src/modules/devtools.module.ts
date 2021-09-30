@@ -7,14 +7,18 @@ import {
 import { DiscoveryModule } from '@nestjs/core';
 
 import {
+  BaseDomainService,
   ChangelogService,
   ConfigBuilderService,
   EntityService,
+  FanService,
   GroupCommandService,
   HomeCommandService,
   HomeFetchService,
   ImgurAlbumDownloadService,
+  LightService,
   RoomCommandService,
+  SwitchService,
 } from '../services';
 
 @ApplicationModule({
@@ -28,9 +32,13 @@ import {
   providers: [
     ConfigBuilderService,
     ImgurAlbumDownloadService,
+    FanService,
     HomeCommandService,
     RoomCommandService,
     EntityService,
+    BaseDomainService,
+    LightService,
+    SwitchService,
     GroupCommandService,
     HomeFetchService,
     ChangelogService,

@@ -20,6 +20,7 @@ function AnnotationLogger(
   level: pino.Level,
   message: AnnotationLoggerDTO | string,
 ): MethodDecorator {
+  // eslint-disable-next-line radar/cognitive-complexity
   return function (
     target: unknown,
     key: string,
@@ -61,8 +62,17 @@ function AnnotationLogger(
       if (after) {
         if (typeof result?.then !== 'undefined') {
           process.nextTick(async () => {
-            await result;
-            AutoLogService.call(level, target.constructor[LOG_CONTEXT], after);
+            try {
+              await result;
+            } catch {
+              // Not my problem
+            } finally {
+              AutoLogService.call(
+                level,
+                target.constructor[LOG_CONTEXT],
+                after,
+              );
+            }
           });
           return result;
         }

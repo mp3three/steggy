@@ -1,13 +1,14 @@
-import {
-  domain,
-  HASS_DOMAINS,
-  HassStateDTO,
-} from '@automagical/home-assistant';
+import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import { iRepl, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
-import { AutoLogService, TitleCase } from '@automagical/utilities';
-import { encode } from 'ini';
+import { TitleCase } from '@automagical/utilities';
 import inquirer from 'inquirer';
 
+import {
+  BaseDomainService,
+  FanService,
+  LightService,
+  SwitchService,
+} from './domains';
 import { HomeFetchService } from './home-fetch.service';
 
 @Repl({
@@ -17,9 +18,12 @@ import { HomeFetchService } from './home-fetch.service';
 })
 export class EntityService implements iRepl {
   constructor(
-    private readonly logger: AutoLogService,
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
+    private readonly baseService: BaseDomainService,
+    private readonly lightService: LightService,
+    private readonly switchService: SwitchService,
+    private readonly fanService: FanService,
   ) {}
 
   public async exec(): Promise<void> {
@@ -35,8 +39,8 @@ export class EntityService implements iRepl {
     });
     const action = await this.promptService.pickOne(`Action`, [
       {
-        name: 'Filter by domain',
-        value: 'domain',
+        name: 'Filter by id',
+        value: 'id',
       },
       new inquirer.Separator(),
       {
@@ -48,63 +52,24 @@ export class EntityService implements iRepl {
     switch (action) {
       case 'done':
         return;
-      case 'domain':
-        return await this.processDomain(domains);
+      case 'id':
+        return await this.processId(entities);
     }
   }
 
-  private async pickOne(entity: string): Promise<void> {
-    const action = await this.promptService.pickOne(``, [
-      {
-        name: 'View state',
-        value: 'state',
-      },
-      {
-        name: 'Change friendly name',
-        value: 'friendlyName',
-      },
-      new inquirer.Separator(),
-      {
-        name: 'Cancel',
-        value: 'cancel',
-      },
-    ]);
-
-    const state = await this.fetchService.fetch<HassStateDTO>({
-      url: `/entity/id/${entity}`,
-    });
-    switch (action) {
-      case 'cancel':
-        return await this.exec();
-      case 'state':
-        console.log(encode(state));
-        return await this.pickOne(entity);
-      case 'friendlyName':
-        const name = await this.promptService.string(
-          `New name`,
-          state.attributes.friendly_name,
-        );
-        await this.fetchService.fetch({
-          body: { name },
-          method: 'put',
-          url: `/entity/rename/${entity}`,
-        });
-        return await this.pickOne(entity);
+  private async pickOne(id: string): Promise<void> {
+    switch (domain(id)) {
+      case HASS_DOMAINS.light:
+        await this.lightService.processId(id);
+        return;
+      case HASS_DOMAINS.switch:
+        await this.switchService.processId(id);
+        return;
+      case HASS_DOMAINS.fan:
+        await this.fanService.processId(id);
+        return;
     }
-  }
-
-  private async processDomain(
-    domains: Map<HASS_DOMAINS, string[]>,
-  ): Promise<void> {
-    const list: { name: string; value: HASS_DOMAINS }[] = [];
-    domains.forEach((entities, domain) => {
-      list.push({
-        name: TitleCase(domain),
-        value: domain,
-      });
-    });
-    const entities = await this.promptService.pickOne(``, list);
-    return await this.processEntities(domains.get(entities));
+    await this.baseService.processId(id);
   }
 
   private async processEntities(entities: string[]): Promise<void> {
@@ -126,5 +91,10 @@ export class EntityService implements iRepl {
         const entity = await this.promptService.pickOne(``, entities);
         return await this.pickOne(entity);
     }
+  }
+
+  private async processId(ids: string[]): Promise<void> {
+    const entity = await this.promptService.autocomplete('Pick an entity', ids);
+    await this.pickOne(entity);
   }
 }

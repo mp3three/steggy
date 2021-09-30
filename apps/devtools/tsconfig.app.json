@@ -6,5 +6,5 @@
     "types": ["node"]
   },
   "exclude": ["**/*.spec.ts"],
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts", "../home-controller/src/services/command-router.service.ts"]
 }

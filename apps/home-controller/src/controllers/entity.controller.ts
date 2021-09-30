@@ -14,12 +14,15 @@ import {
   Put,
 } from '@nestjs/common';
 
+import { CommandRouter } from '../services';
+
 @Controller('/entity')
 @AuthStack()
 export class EntityController {
   constructor(
     private readonly logger: AutoLogService,
     private readonly entityManager: EntityManagerService,
+    private readonly commandRouter: CommandRouter,
   ) {}
 
   @Get('/id/:entityId')
@@ -32,6 +35,16 @@ export class EntityController {
   @Get('/list')
   public listEntities(): string[] {
     return this.entityManager.listEntities();
+  }
+
+  @Put('/:id/:command')
+  public async routeCommand(
+    @Param('id') id: string,
+    @Param('command') command: string,
+    @Body() body: Record<string, unknown>,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.commandRouter.process(id, command, body);
+    return GENERIC_SUCCESS_RESPONSE;
   }
 
   /**

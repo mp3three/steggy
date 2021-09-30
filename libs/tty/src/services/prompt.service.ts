@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
+import { CANCEL, PromptMenuItems } from '..';
 import { PAGE_SIZE } from '../config';
 
 const EMPTY = 0;
@@ -21,6 +22,31 @@ export class PromptService {
    */
   public async acknowledge(prompt = ''): Promise<void> {
     await this.confirm(prompt, true);
+  }
+
+  public async autocomplete<T extends unknown = string>(
+    prompt: string,
+    options: ({ name: string; value: T } | string)[],
+  ): Promise<T> {
+    const { result } = await inquirer.prompt([
+      {
+        message: prompt,
+        name: 'result',
+        pageSize: this.pageSize,
+        source: (answers, input) =>
+          options.filter((value) => {
+            if (typeof input === 'undefined') {
+              return true;
+            }
+            if (typeof value === 'object') {
+              value = value.name;
+            }
+            return value.includes(input);
+          }),
+        type: 'autocomplete',
+      },
+    ]);
+    return result;
   }
 
   public async boolean(
@@ -80,6 +106,20 @@ export class PromptService {
       },
     ]);
     return value;
+  }
+
+  public async menuSelect(
+    menu: PromptMenuItems,
+    message = '',
+  ): Promise<string> {
+    return await this.pickOne(message, [
+      ...menu,
+      new inquirer.Separator(),
+      {
+        name: 'Cancel',
+        value: CANCEL,
+      },
+    ]);
   }
 
   public async password(

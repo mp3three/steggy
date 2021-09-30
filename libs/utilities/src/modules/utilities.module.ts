@@ -9,6 +9,7 @@ import {
   AutoConfigService,
   AutoLogService,
   CacheProviderService,
+  EventEmitterService,
   EventsExplorerService,
   FetchService,
   LifecycleService,
@@ -34,6 +35,7 @@ import {
     ModuleScannerService,
     EventsExplorerService,
     FetchService,
+    EventEmitterService,
     CacheProviderService,
     ScheduleExplorerService,
   ],
@@ -45,6 +47,7 @@ export class UtilitiesModule {
     return {
       exports: [
         ...extra,
+        EventEmitterService,
         AutoConfigService,
         AutoLogService,
         ModuleScannerService,
@@ -61,6 +64,7 @@ export class UtilitiesModule {
         LogExplorerService,
         ModuleScannerService,
         ScheduleExplorerService,
+        EventEmitterService,
         CacheProviderService,
         EventsExplorerService,
         LifecycleService,

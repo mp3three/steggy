@@ -18,7 +18,7 @@ import { PromptService, ReplExplorerService } from '../services';
 const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
 const SCRIPT_ARG = 2;
 const UP = 1;
-const DOWN = 2;
+const DOWN = -1;
 
 @Repl({
   name: 'Main',

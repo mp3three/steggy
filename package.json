@@ -49,6 +49,7 @@
     "ini": "^2.0.0",
     "ink": "^3.0.9",
     "inquirer": "^8.1.1",
+    "inquirer-autocomplete-prompt": "^1.4.0",
     "inquirer-date-prompt": "^2.0.1",
     "iterare": "^1.2.1",
     "js-yaml": "^4.0.0",
