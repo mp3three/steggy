@@ -3,6 +3,7 @@ import { iRepl, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
 
 import {
   BaseDomainService,
+  ClimateService,
   FanService,
   LightService,
   LockService,
@@ -26,6 +27,7 @@ export class EntityService implements iRepl {
     private readonly fanService: FanService,
     private readonly mediaService: MediaService,
     private readonly lockService: LockService,
+    private readonly climateService: ClimateService,
   ) {}
 
   public async exec(): Promise<void> {
@@ -51,6 +53,9 @@ export class EntityService implements iRepl {
         return;
       case HASS_DOMAINS.lock:
         await this.lockService.processId(id);
+        return;
+      case HASS_DOMAINS.climate:
+        await this.climateService.processId(id);
         return;
     }
     await this.baseService.processId(id);

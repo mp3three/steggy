@@ -138,11 +138,23 @@ export class PromptService {
     ]);
   }
 
+  public async number(message: string, defaultValue?: number): Promise<number> {
+    const { value } = await inquirer.prompt([
+      {
+        default: defaultValue,
+        message,
+        name: 'value',
+        type: 'number',
+      },
+    ]);
+    return value;
+  }
+
   public async password(
     message: string,
     defaultValue?: string,
   ): Promise<string> {
-    return await inquirer.prompt([
+    const { value } = await inquirer.prompt([
       {
         default: defaultValue,
         message,
@@ -150,6 +162,7 @@ export class PromptService {
         type: 'password',
       },
     ]);
+    return value;
   }
 
   public async pickMany<T extends unknown = string>(

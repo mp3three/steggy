@@ -82,11 +82,13 @@ export class ClimateDomainService {
   @Trace()
   public async setTemperature(
     entityId: string | string[],
-    temperature: number,
+    temperature: Partial<
+      Record<'temperature' | 'target_temp_high' | 'target_temp_low', number>
+    >,
   ): Promise<void> {
     return await this.callService.call('set_temperature', {
       entity_id: entityId,
-      temperature,
+      ...temperature,
     });
   }
 

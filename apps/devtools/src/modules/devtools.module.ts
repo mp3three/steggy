@@ -9,6 +9,7 @@ import { DiscoveryModule } from '@nestjs/core';
 import {
   BaseDomainService,
   ChangelogService,
+  ClimateService,
   ConfigBuilderService,
   EntityService,
   FanService,
@@ -40,6 +41,7 @@ import {
     MediaService,
     LockService,
     EntityService,
+    ClimateService,
     BaseDomainService,
     LightService,
     SwitchService,

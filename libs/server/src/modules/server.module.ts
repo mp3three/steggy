@@ -77,11 +77,6 @@ export class ServerModule {
       this.logger.error(`http disabled`);
       return;
     }
-    const interceptor = app.get(LoggingInterceptor);
-    const filter = app.get(BasicExceptionFilter);
-    app.useGlobalFilters(filter);
-    app.useGlobalInterceptors(interceptor);
-
     app.use(helmet());
     if (this.prefix) {
       this.logger.debug(`Using global http prefix {${this.prefix}}`);
@@ -99,6 +94,13 @@ export class ServerModule {
     if (!listening) {
       this.logger.error(`No port to listen on`);
     }
+  }
+
+  protected onPreInit(app: INestApplication): void {
+    const interceptor = app.get(LoggingInterceptor);
+    const filter = app.get(BasicExceptionFilter);
+    app.useGlobalFilters(filter);
+    app.useGlobalInterceptors(interceptor);
   }
 
   private listenHttp(server: Express): boolean {

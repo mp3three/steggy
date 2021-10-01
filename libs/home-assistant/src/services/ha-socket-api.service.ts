@@ -175,6 +175,9 @@ export class HASocketAPIService {
       this.connection.addEventListener('message', (message) => {
         this.onMessage(JSON.parse(message.data));
       });
+      this.connection.on('error', (error) => {
+        this.logger.error({ error }, 'Socket error');
+      });
     } catch (error) {
       this.logger.error({ error }, `initConnection error`);
     }

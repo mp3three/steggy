@@ -19,6 +19,9 @@ import {
 type FanBody = { speed: FanSpeeds };
 type ClimateBody = {
   mode?: string;
+  target_temp_high?: number;
+  target_temp_low?: number;
+  temperature?: number;
   value?: number;
 };
 
@@ -87,7 +90,7 @@ export class CommandRouter {
         await this.climateService.setPresetMode(id, body.mode);
         return;
       case 'setTemperature':
-        await this.climateService.setTemperature(id, body.value);
+        await this.climateService.setTemperature(id, body);
         return;
       case 'setHumidity':
         await this.climateService.setHumidity(id, body.value);

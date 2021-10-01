@@ -1,13 +1,17 @@
 import { HassStateDTO } from '@automagical/home-assistant';
 import { PromptMenuItems, PromptService } from '@automagical/tty';
+import { AutoLogService, sleep } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import chalk from 'chalk';
 import { encode } from 'ini';
 
 import { HomeFetchService } from '../home-fetch.service';
 
+const DELAY = 100;
 @Injectable()
 export class BaseDomainService {
   constructor(
+    protected readonly logger: AutoLogService,
     protected readonly fetchService: HomeFetchService,
     protected readonly promptService: PromptService,
   ) {}
@@ -26,6 +30,21 @@ export class BaseDomainService {
         return await this.processId(id);
     }
     return action;
+  }
+
+  protected async baseHeader<T extends HassStateDTO = HassStateDTO>(
+    id: string,
+  ): Promise<T> {
+    await sleep(DELAY);
+    const content = await this.getState<T>(id);
+    const header = `  ${content.attributes.friendly_name}  `;
+    const padding = ' '.repeat(header.length);
+    console.log(
+      [chalk.bgCyan.black([padding, header, padding].join(`\n`)), ``].join(
+        `\n`,
+      ),
+    );
+    return content;
   }
 
   protected async changeFriendlyName(id: string): Promise<void> {
