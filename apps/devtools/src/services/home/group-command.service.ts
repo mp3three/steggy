@@ -3,11 +3,19 @@ import {
   RoomControllerSettingsDTO,
   RoomStateDTO,
 } from '@automagical/controller-logic';
-import { iRepl, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
+import { HassStateDTO, SwitchStateDTO } from '@automagical/home-assistant';
+import {
+  CANCEL,
+  iRepl,
+  PromptService,
+  Repl,
+  REPL_TYPE,
+} from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 
+import { EntityService } from './entity.service';
 import { HomeFetchService } from './home-fetch.service';
 
 type GroupItem = { entities: string[]; name: string; room: string };
@@ -23,6 +31,7 @@ export class GroupCommandService implements iRepl {
     private readonly logger: AutoLogService,
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
+    private readonly entityService: EntityService,
   ) {}
 
   public async exec(name?: string): Promise<void> {
@@ -82,8 +91,62 @@ export class GroupCommandService implements iRepl {
     });
   }
 
-  private async pickAction(): Promise<string> {
-    let action = await this.promptService.pickOne('Action', [
+  private async handleDescribe(group: GroupItem): Promise<string> {
+    const stateList = await this.fetchService.fetch<{
+      states: SwitchStateDTO[];
+    }>({
+      url: `/room/${group.room}/group/${group.name}/describe`,
+    });
+    const entity = await this.promptService.menuSelect(
+      stateList.states.map((item) => {
+        let name = `${item.attributes.friendly_name}`;
+        if (item.state === 'on') {
+          name = `🟢  ${name}`;
+        }
+        if (item.state === 'off') {
+          name = `🔴 ${name}`;
+        }
+        return {
+          name,
+          value: item.entity_id,
+        };
+      }),
+    );
+    if (entity === CANCEL) {
+      return entity;
+    }
+    await this.entityService.pickOne(entity);
+    return await this.handleDescribe(group);
+  }
+
+  private async handleDirect(group: GroupItem): Promise<string> {
+    const action = await this.promptService.pickOne('Specific', [
+      {
+        name: 'Turn On',
+        value: 'turnOn',
+      },
+      {
+        name: 'Turn Off',
+        value: 'turnOff',
+      },
+      {
+        name: 'Circadian On',
+        value: 'turnOnCircadian',
+      },
+      new inquirer.Separator(),
+      {
+        name: 'Cancel',
+        value: 'done',
+      },
+    ]);
+    if (action === 'done') {
+      return await this.pickAction(group);
+    }
+    return action;
+  }
+
+  private async pickAction(group: GroupItem): Promise<string> {
+    const action = await this.promptService.pickOne('Action', [
       {
         name: 'Direct Change',
         value: 'direct',
@@ -92,41 +155,27 @@ export class GroupCommandService implements iRepl {
         name: 'State Manager',
         value: 'state',
       },
+      {
+        name: 'Describe',
+        value: 'describe',
+      },
       new inquirer.Separator(),
       {
         name: 'Done',
         value: 'done',
       },
     ]);
-    if (action === 'direct') {
-      action = await this.promptService.pickOne('Specific', [
-        {
-          name: 'Turn On',
-          value: 'turnOn',
-        },
-        {
-          name: 'Turn Off',
-          value: 'turnOff',
-        },
-        {
-          name: 'Circadian On',
-          value: 'turnOnCircadian',
-        },
-        new inquirer.Separator(),
-        {
-          name: 'Cancel',
-          value: 'done',
-        },
-      ]);
-      if (action === 'done') {
-        return await this.pickAction();
-      }
+    switch (action) {
+      case 'direct':
+        return await this.handleDirect(group);
+      case 'describe':
+        return await this.handleDescribe(group);
     }
     return action;
   }
 
   private async process(group: GroupItem, list: GroupItem[]): Promise<void> {
-    const action = await this.pickAction();
+    const action = await this.pickAction(group);
 
     switch (action) {
       case 'state':
@@ -201,7 +250,7 @@ export class GroupCommandService implements iRepl {
       return;
     }
     if (action === 'describe') {
-      const describe = await this.fetchService.fetch<RoomStateDTO[]>({
+      const describe = await this.fetchService.fetch<HassStateDTO[]>({
         url: `/room/${group.room}/group/${group.name}/describe`,
       });
       console.log(JSON.stringify(describe, undefined, '  '));

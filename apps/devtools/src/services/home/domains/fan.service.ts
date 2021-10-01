@@ -1,41 +1,39 @@
 import { FanSpeeds, FanStateDTO } from '@automagical/home-assistant';
 import { CANCEL, PromptMenuItems } from '@automagical/tty';
-import { sleep, TitleCase } from '@automagical/utilities';
+import { TitleCase } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import chalk from 'chalk';
 
 import { SwitchService } from './switch.service';
 
-const DELAY = 100;
 @Injectable()
 export class FanService extends SwitchService {
   public async fanSpeedDown(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',
-      url: `/entity/${id}/fanSpeedDown`,
+      url: `/entity/command/${id}/fanSpeedDown`,
     });
   }
 
   public async fanSpeedUp(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',
-      url: `/entity/${id}/fanSpeedUp`,
+      url: `/entity/command/${id}/fanSpeedUp`,
     });
   }
 
-  public async processId(id: string): Promise<string> {
-    await this.baseHeader(id);
-    const action = await super.processId(id);
+  public async processId(id: string, command?: string): Promise<string> {
+    await this.header(id);
+    const action = await super.processId(id, command);
     switch (action) {
       case 'fanSpeedDown':
         await this.fanSpeedDown(id);
-        return await this.processId(id);
+        return await this.processId(id, action);
       case 'fanSpeedUp':
         await this.fanSpeedUp(id);
-        return await this.processId(id);
+        return await this.processId(id, action);
       case 'setSpeed':
         await this.setSpeed(id);
-        return await this.processId(id);
+        return await this.processId(id, action);
     }
     return action;
   }
@@ -58,7 +56,7 @@ export class FanService extends SwitchService {
     await this.fetchService.fetch({
       body: { speed },
       method: 'put',
-      url: `/entity/${id}/setFan`,
+      url: `/entity/command/${id}/setFan`,
     });
   }
 

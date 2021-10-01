@@ -37,7 +37,7 @@ export class EntityController {
     return this.entityManager.listEntities();
   }
 
-  @Put('/:id/:command')
+  @Put('/command/:id/:command')
   public async routeCommand(
     @Param('id') id: string,
     @Param('command') command: string,

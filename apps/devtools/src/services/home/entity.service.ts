@@ -37,7 +37,7 @@ export class EntityService implements iRepl {
     return await this.processId(entities);
   }
 
-  private async pickOne(id: string): Promise<void> {
+  public async pickOne(id: string): Promise<void> {
     switch (domain(id)) {
       case HASS_DOMAINS.light:
         await this.lightService.processId(id);

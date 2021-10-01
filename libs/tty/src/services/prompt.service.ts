@@ -127,15 +127,20 @@ export class PromptService {
   public async menuSelect(
     menu: PromptMenuItems,
     message = '',
+    defaultValue?: string,
   ): Promise<string> {
-    return await this.pickOne(message, [
-      ...menu,
-      new inquirer.Separator(),
-      {
-        name: 'Cancel',
-        value: CANCEL,
-      },
-    ]);
+    return await this.pickOne(
+      message,
+      [
+        ...menu,
+        new inquirer.Separator(),
+        {
+          name: 'Cancel',
+          value: CANCEL,
+        },
+      ],
+      defaultValue,
+    );
   }
 
   public async number(message: string, defaultValue?: number): Promise<number> {

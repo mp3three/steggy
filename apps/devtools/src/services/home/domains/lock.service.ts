@@ -9,19 +9,19 @@ export class LockService extends BaseDomainService {
   public async lock(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',
-      url: `/entity/${id}/lock`,
+      url: `/entity/command/${id}/lock`,
     });
   }
 
-  public async processId(id: string): Promise<string> {
-    const action = await super.processId(id);
+  public async processId(id: string, command?: string): Promise<string> {
+    const action = await super.processId(id, command);
     switch (action) {
       case 'unlock':
         await this.unlock(id);
-        return await this.processId(id);
+        return await this.processId(id, action);
       case 'lock':
         await this.lock(id);
-        return await this.processId(id);
+        return await this.processId(id, action);
     }
     return action;
   }
@@ -29,7 +29,7 @@ export class LockService extends BaseDomainService {
   public async unlock(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',
-      url: `/entity/${id}/unlock`,
+      url: `/entity/command/${id}/unlock`,
     });
   }
 

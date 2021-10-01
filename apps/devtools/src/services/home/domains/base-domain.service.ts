@@ -16,18 +16,19 @@ export class BaseDomainService {
     protected readonly promptService: PromptService,
   ) {}
 
-  public async processId(id: string): Promise<string> {
+  public async processId(id: string, command?: string): Promise<string> {
     const action = await this.promptService.menuSelect(
       this.getMenuOptions(),
       `Action`,
+      command,
     );
     switch (action) {
       case 'describe':
         await this.describe(id);
-        return await this.processId(id);
+        return await this.processId(id, action);
       case 'changeFriendlyName':
         await this.changeFriendlyName(id);
-        return await this.processId(id);
+        return await this.processId(id, action);
     }
     return action;
   }

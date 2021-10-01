@@ -92,6 +92,7 @@ export class EntityManagerService {
       new_entity_id: entityId,
     });
   }
+
   @Trace()
   public async updateId(
     entityId: string,

@@ -8,35 +8,35 @@ export class MediaService extends SwitchService {
   public async mute(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',
-      url: `/entity/${id}/mute`,
+      url: `/entity/command/${id}/mute`,
     });
   }
 
   public async playPause(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',
-      url: `/entity/${id}/playPause`,
+      url: `/entity/command/${id}/playPause`,
     });
   }
 
-  public async processId(id: string): Promise<string> {
-    const action = await super.processId(id);
+  public async processId(id: string, command?: string): Promise<string> {
+    const action = await super.processId(id, command);
     switch (action) {
       case 'mute':
         await this.mute(id);
-        return await this.processId(id);
+        return await this.processId(id, action);
       case 'playPause':
         await this.playPause(id);
-        return await this.processId(id);
+        return await this.processId(id, action);
       case 'toggle':
         await this.toggle(id);
-        return await this.processId(id);
+        return await this.processId(id, action);
       case 'volumeDown':
         await this.volumeDown(id);
-        return await this.processId(id);
+        return await this.processId(id, action);
       case 'volumeUp':
         await this.volumeUp(id);
-        return await this.processId(id);
+        return await this.processId(id, action);
     }
     return action;
   }
@@ -44,21 +44,21 @@ export class MediaService extends SwitchService {
   public async toggle(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',
-      url: `/entity/${id}/toggle`,
+      url: `/entity/command/${id}/toggle`,
     });
   }
 
   public async volumeDown(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',
-      url: `/entity/${id}/volumeDown`,
+      url: `/entity/command/${id}/volumeDown`,
     });
   }
 
   public async volumeUp(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',
-      url: `/entity/${id}/volumeUp`,
+      url: `/entity/command/${id}/volumeUp`,
     });
   }
 

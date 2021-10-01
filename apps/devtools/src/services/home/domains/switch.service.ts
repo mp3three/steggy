@@ -6,15 +6,15 @@ import { BaseDomainService } from './base-domain.service';
 
 @Injectable()
 export class SwitchService extends BaseDomainService {
-  public async processId(id: string): Promise<string> {
-    const action = await super.processId(id);
+  public async processId(id: string, command?: string): Promise<string> {
+    const action = await super.processId(id, command);
     switch (action) {
       case 'turnOn':
         await this.turnOn(id);
-        return await this.processId(id);
+        return await this.processId(id, action);
       case 'turnOff':
         await this.turnOff(id);
-        return await this.processId(id);
+        return await this.processId(id, action);
     }
     return action;
   }
@@ -22,14 +22,14 @@ export class SwitchService extends BaseDomainService {
   public async turnOff(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',
-      url: `/entity/${id}/turnOff`,
+      url: `/entity/command/${id}/turnOff`,
     });
   }
 
   public async turnOn(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',
-      url: `/entity/${id}/turnOn`,
+      url: `/entity/command/${id}/turnOn`,
     });
   }
 

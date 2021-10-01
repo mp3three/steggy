@@ -7,28 +7,28 @@ import { SwitchService } from './switch.service';
 
 @Injectable()
 export class ClimateService extends SwitchService {
-  public async processId(id: string): Promise<string> {
+  public async processId(id: string, command?: string): Promise<string> {
     const state = await this.header(id);
-    const action = await super.processId(id);
+    const action = await super.processId(id, command);
     switch (action) {
       case 'setFanMode':
         await this.setFanMode(id, state);
-        return await this.processId(id);
+        return await this.processId(id, action);
       case 'setHumidity':
         await this.setHumidity(id, state);
-        return await this.processId(id);
+        return await this.processId(id, action);
       case 'setHvacMode':
         await this.setHvacMode(id, state);
-        return await this.processId(id);
+        return await this.processId(id, action);
       case 'setPresetMode':
         await this.setPresetMode(id, state);
-        return await this.processId(id);
+        return await this.processId(id, action);
       case 'setSwingMode':
         await this.setSwingMode(id, state);
-        return await this.processId(id);
+        return await this.processId(id, action);
       case 'setTemperature':
         await this.setTemperature(id, state);
-        return await this.processId(id);
+        return await this.processId(id, action);
     }
     return action;
   }
@@ -49,7 +49,7 @@ export class ClimateService extends SwitchService {
     await this.fetchService.fetch({
       body: { mode },
       method: 'put',
-      url: `/entity/${id}/setFanMode`,
+      url: `/entity/command/${id}/setFanMode`,
     });
   }
 
@@ -76,7 +76,7 @@ export class ClimateService extends SwitchService {
     await this.fetchService.fetch({
       body: { mode },
       method: 'put',
-      url: `/entity/${id}/setHvacMode`,
+      url: `/entity/command/${id}/setHvacMode`,
     });
   }
 
@@ -96,7 +96,7 @@ export class ClimateService extends SwitchService {
     await this.fetchService.fetch({
       body: { mode },
       method: 'put',
-      url: `/entity/${id}/setPresetMode`,
+      url: `/entity/command/${id}/setPresetMode`,
     });
   }
 
@@ -116,7 +116,7 @@ export class ClimateService extends SwitchService {
     await this.fetchService.fetch({
       body: { mode },
       method: 'put',
-      url: `/entity/${id}/setSwingMode`,
+      url: `/entity/command/${id}/setSwingMode`,
     });
   }
 
@@ -148,7 +148,7 @@ export class ClimateService extends SwitchService {
     const result = await this.fetchService.fetch({
       body: data,
       method: 'put',
-      url: `/entity/${id}/setTemperature`,
+      url: `/entity/command/${id}/setTemperature`,
     });
     this.logger.debug({ result });
   }
