@@ -2,6 +2,7 @@ import { INestApplication, Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
 import { Express } from 'express';
 
+import { BootstrapOptions } from '..';
 import { iLifecycle } from '../contracts/lifecycle';
 import { ModuleScannerService } from './module-scanner.service';
 
@@ -9,9 +10,16 @@ import { ModuleScannerService } from './module-scanner.service';
 export class LifecycleService {
   constructor(private readonly scanner: ModuleScannerService) {}
 
-  public async postInit(app: INestApplication, server: Express): Promise<void> {
+  public async postInit(
+    app: INestApplication,
+    { server, options }: { options: BootstrapOptions; server?: Express },
+  ): Promise<void> {
     const instances: Partial<{
-      onPostInit(app: INestApplication, server: Express): Promise<void>;
+      onPostInit(
+        app: INestApplication,
+        server: Express,
+        options: BootstrapOptions,
+      ): Promise<void>;
     }>[] = [];
     this.scanner.applicationProviders<iLifecycle>().forEach((instance) => {
       if (instance.onPostInit) {
@@ -19,14 +27,21 @@ export class LifecycleService {
       }
     });
     await eachSeries(instances, async (instance, callback) => {
-      await instance.onPostInit(app, server);
+      await instance.onPostInit(app, server, options);
       callback();
     });
   }
 
-  public async preInit(app: INestApplication, server: Express): Promise<void> {
+  public async preInit(
+    app: INestApplication,
+    { server, options }: { options: BootstrapOptions; server?: Express },
+  ): Promise<void> {
     const instances: Partial<{
-      onPreInit(app: INestApplication, server: Express): Promise<void>;
+      onPreInit(
+        app: INestApplication,
+        server: Express,
+        options: BootstrapOptions,
+      ): Promise<void>;
     }>[] = [];
     this.scanner.applicationProviders<iLifecycle>().forEach((instance) => {
       if (instance.onPreInit) {
@@ -34,7 +49,7 @@ export class LifecycleService {
       }
     });
     await eachSeries(instances, async (instance, callback) => {
-      await instance.onPreInit(app, server);
+      await instance.onPreInit(app, server, options);
       callback();
     });
   }

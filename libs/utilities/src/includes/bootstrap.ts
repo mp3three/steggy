@@ -35,8 +35,11 @@ export interface BootstrapOptions {
  */
 export async function Bootstrap(
   module: ClassConstructor<unknown>,
-  { prettyLog, preInit, nestNoopLogger, postInit, http }: BootstrapOptions,
+  bootOptions: BootstrapOptions,
 ): Promise<void> {
+  let { preInit, postInit } = bootOptions;
+  const { prettyLog, nestNoopLogger, http } = bootOptions;
+
   if (prettyLog && chalk.supportsColor) {
     UsePrettyLogger();
   }
@@ -61,7 +64,7 @@ export async function Bootstrap(
     callback();
   };
   await eachSeries(preInit, call);
-  await lifecycle.preInit(app, server);
+  await lifecycle.preInit(app, { options: bootOptions, server });
   // ...init
   // onModuleCreate
   // onApplicationBootstrap
@@ -69,6 +72,6 @@ export async function Bootstrap(
   // onPostInit
   postInit ??= [];
   await eachSeries(postInit, call);
-  await lifecycle.postInit(app, server);
+  await lifecycle.postInit(app, { options: bootOptions, server });
   logger.info(`🎓 Bootstrap control released! 🎓`);
 }

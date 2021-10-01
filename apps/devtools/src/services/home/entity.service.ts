@@ -1,6 +1,5 @@
 import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import { iRepl, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
-import inquirer from 'inquirer';
 
 import {
   BaseDomainService,

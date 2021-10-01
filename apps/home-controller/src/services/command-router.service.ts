@@ -1,5 +1,6 @@
 import { LightManagerService } from '@automagical/controller-logic';
 import {
+  ClimateDomainService,
   domain,
   FanDomainService,
   FanSpeeds,
@@ -15,6 +16,12 @@ import {
   NotImplementedException,
 } from '@nestjs/common';
 
+type FanBody = { speed: FanSpeeds };
+type ClimateBody = {
+  mode?: string;
+  value?: number;
+};
+
 @Injectable()
 export class CommandRouter {
   constructor(
@@ -24,6 +31,7 @@ export class CommandRouter {
     private readonly mediaService: MediaPlayerDomainService,
     private readonly fanService: FanDomainService,
     private readonly lockService: LockDomainService,
+    private readonly climateService: ClimateDomainService,
   ) {}
 
   @Trace()
@@ -43,24 +51,58 @@ export class CommandRouter {
         await this.media(id, command as keyof MediaPlayerDomainService);
         return;
       case HASS_DOMAINS.fan:
-        await this.fan(
-          id,
-          command as keyof FanDomainService,
-          body as { speed: FanSpeeds },
-        );
+        await this.fan(id, command as keyof FanDomainService, body as FanBody);
         return;
       case HASS_DOMAINS.lock:
         await this.lock(id, command as keyof LockDomainService);
         return;
+      case HASS_DOMAINS.climate:
+        await this.climate(
+          id,
+          command as keyof ClimateDomainService,
+          body as ClimateBody,
+        );
+        return;
     }
     throw new NotImplementedException();
+  }
+
+  private async climate(
+    id: string,
+    command: keyof ClimateDomainService,
+    body: ClimateBody = {},
+  ): Promise<void> {
+    switch (command) {
+      case 'turnOff':
+        return await this.climateService.turnOff(id);
+      case 'turnOn':
+        return await this.climateService.turnOn(id);
+      case 'setFanMode':
+        await this.climateService.setFanMode(id, body.mode);
+        return;
+      case 'setHvacMode':
+        await this.climateService.setHvacMode(id, body.mode);
+        return;
+      case 'setPresetMode':
+        await this.climateService.setPresetMode(id, body.mode);
+        return;
+      case 'setTemperature':
+        await this.climateService.setTemperature(id, body.value);
+        return;
+      case 'setHumidity':
+        await this.climateService.setHumidity(id, body.value);
+        return;
+      case 'setSwingMode':
+        await this.climateService.setSwingMode(id, body.mode);
+        return;
+    }
   }
 
   @Trace()
   private async fan(
     id: string,
     command: keyof FanDomainService,
-    { speed }: { speed: FanSpeeds },
+    { speed }: FanBody,
   ): Promise<void> {
     switch (command) {
       case 'turnOff':
