@@ -13,7 +13,10 @@ export class BaseDomainService {
   ) {}
 
   public async processId(id: string): Promise<string> {
-    const action = await this.promptService.menuSelect(this.getMenuOptions());
+    const action = await this.promptService.menuSelect(
+      this.getMenuOptions(),
+      `Action`,
+    );
     switch (action) {
       case 'describe':
         await this.describe(id);
@@ -56,8 +59,10 @@ export class BaseDomainService {
     ];
   }
 
-  protected async getState(id: string): Promise<HassStateDTO> {
-    return await this.fetchService.fetch({
+  protected async getState<T extends HassStateDTO = HassStateDTO>(
+    id: string,
+  ): Promise<T> {
+    return await this.fetchService.fetch<T>({
       url: `/entity/id/${id}`,
     });
   }

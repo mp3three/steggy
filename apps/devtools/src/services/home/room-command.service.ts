@@ -3,11 +3,11 @@ import {
   RoomCommandScope,
   RoomControllerSettingsDTO,
 } from '@automagical/controller-logic';
-import { FanSpeeds } from '@automagical/home-assistant';
 import { CANCEL, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
-import { AutoLogService, TitleCase } from '@automagical/utilities';
+import { AutoLogService } from '@automagical/utilities';
 import inquirer from 'inquirer';
 
+import { FanService, MediaService } from './domains';
 import { GroupCommandService } from './group-command.service';
 import { HomeFetchService } from './home-fetch.service';
 
@@ -22,6 +22,8 @@ export class RoomCommandService {
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
     private readonly groupCommand: GroupCommandService,
+    private readonly fanService: FanService,
+    private readonly mediaService: MediaService,
   ) {}
 
   public async exec(): Promise<void> {
@@ -65,10 +67,10 @@ export class RoomCommandService {
         await this.groupCommand.exec(room.name);
         return;
       case 'fan':
-        await this.fanCommand(room);
+        await this.fanService.processId(room.fan);
         return;
       case 'media':
-        await this.mediaCommand(room);
+        await this.mediaService.processId(room.media);
         return;
     }
 
@@ -81,48 +83,5 @@ export class RoomCommandService {
     });
     this.logger.debug({ response });
     await this.executeRoomCommand(room);
-  }
-
-  private async fanCommand(room: RoomControllerSettingsDTO): Promise<void> {
-    const speed = await this.promptService.menuSelect(
-      Object.keys(FanSpeeds)
-        .reverse()
-        .map((key) => {
-          return {
-            name: TitleCase(key),
-            value: key,
-          };
-        }),
-      'Fan speed',
-    );
-    if (speed === 'cancel') {
-      return await this.executeRoomCommand(room);
-    }
-    await this.fetchService.fetch({
-      body: { scope: [RoomCommandScope.LOCAL] } as RoomCommandDTO,
-      method: 'put',
-      url: `/room/${room.name}/fan/${speed}`,
-    });
-    await this.fanCommand(room);
-  }
-
-  private async mediaCommand(room: RoomControllerSettingsDTO): Promise<void> {
-    const target = await this.promptService.menuSelect([
-      { name: 'Turn On', value: 'turnOn' },
-      { name: 'Turn Off', value: 'turnOff' },
-      { name: 'Play / Pause', value: 'playPause' },
-      { name: 'Mute', value: 'mute' },
-    ]);
-    if (target === CANCEL) {
-      return await this.executeRoomCommand(room);
-    }
-    await this.fetchService.fetch({
-      body: JSON.stringify({
-        scope: [RoomCommandScope.LOCAL, RoomCommandScope.ACCESSORIES],
-      } as RoomCommandDTO),
-      method: 'put',
-      url: `/room/${room.name}/media/${target}`,
-    });
-    await this.mediaCommand(room);
   }
 }

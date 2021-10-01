@@ -4,6 +4,7 @@ import {
   FanDomainService,
   FanSpeeds,
   HASS_DOMAINS,
+  LockDomainService,
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
@@ -22,6 +23,7 @@ export class CommandRouter {
     private readonly switchService: SwitchDomainService,
     private readonly mediaService: MediaPlayerDomainService,
     private readonly fanService: FanDomainService,
+    private readonly lockService: LockDomainService,
   ) {}
 
   @Trace()
@@ -46,6 +48,9 @@ export class CommandRouter {
           command as keyof FanDomainService,
           body as { speed: FanSpeeds },
         );
+        return;
+      case HASS_DOMAINS.lock:
+        await this.lock(id, command as keyof LockDomainService);
         return;
     }
     throw new NotImplementedException();
@@ -88,6 +93,17 @@ export class CommandRouter {
         return await this.lightService.turnOff(id);
       case 'turnOn':
         return await this.lightService.turnOn(id);
+    }
+    throw new BadRequestException();
+  }
+
+  @Trace()
+  private async lock(id: string, command: keyof LockDomainService) {
+    switch (command) {
+      case 'lock':
+        return await this.lockService.lock(id);
+      case 'unlock':
+        return await this.lockService.unlock(id);
     }
     throw new BadRequestException();
   }

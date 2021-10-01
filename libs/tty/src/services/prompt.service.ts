@@ -49,6 +49,7 @@ export class PromptService {
               }
               return item.name;
             }),
+            { limit: this.pageSize },
           );
           return fuzzyResult.map(({ target }) => {
             return options.find((option) => {

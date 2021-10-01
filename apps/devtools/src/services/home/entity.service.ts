@@ -6,6 +6,7 @@ import {
   BaseDomainService,
   FanService,
   LightService,
+  LockService,
   MediaService,
   SwitchService,
 } from './domains';
@@ -25,37 +26,14 @@ export class EntityService implements iRepl {
     private readonly switchService: SwitchService,
     private readonly fanService: FanService,
     private readonly mediaService: MediaService,
+    private readonly lockService: LockService,
   ) {}
 
   public async exec(): Promise<void> {
     const entities = await this.fetchService.fetch<string[]>({
       url: '/entity/list',
     });
-    const domains = new Map<HASS_DOMAINS, string[]>();
-    entities.forEach((entity) => {
-      const entityDomain = domain(entity);
-      const current = domains.get(entityDomain) ?? [];
-      current.push(entity);
-      domains.set(entityDomain, current);
-    });
-    const action = await this.promptService.pickOne(`Action`, [
-      {
-        name: 'Filter by id',
-        value: 'id',
-      },
-      new inquirer.Separator(),
-      {
-        name: 'Done',
-        value: 'done',
-      },
-    ]);
-
-    switch (action) {
-      case 'done':
-        return;
-      case 'id':
-        return await this.processId(entities);
-    }
+    return await this.processId(entities);
   }
 
   private async pickOne(id: string): Promise<void> {
@@ -71,6 +49,9 @@ export class EntityService implements iRepl {
         return;
       case HASS_DOMAINS.media_player:
         await this.mediaService.processId(id);
+        return;
+      case HASS_DOMAINS.lock:
+        await this.lockService.processId(id);
         return;
     }
     await this.baseService.processId(id);
