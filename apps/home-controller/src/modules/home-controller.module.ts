@@ -13,6 +13,7 @@ import {
 import {
   EntityController,
   GroupController,
+  HAHooksController,
   RoomAPIController,
   StateController,
 } from '../controllers';
@@ -43,6 +44,7 @@ const rooms = [
     EntityController,
     GroupController,
     RoomAPIController,
+    HAHooksController,
     StateController,
   ],
   imports: [

@@ -52,6 +52,7 @@ export class AutoLogService implements iLogger {
     warn: (message, context) =>
       AutoLogService.logger.warn({ context: `${NEST}:${context}` }, message),
   };
+  public static prettyLogger = false;
 
   /**
    * Decide which method of formatting log messages is correct

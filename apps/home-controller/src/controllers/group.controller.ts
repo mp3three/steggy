@@ -1,12 +1,14 @@
 import {
   DescribeGroupResponseDTO,
+  GroupRoom,
+  GroupRoomInterceptor,
+  GroupRoomSettings,
   GroupService,
   GroupSnapshotDetailsDTO,
   RoomControllerSettingsDTO,
-  RoomManagerService,
-  RoomSettingsPipe,
   RoomStateDTO,
 } from '@automagical/controller-logic';
+import { EntityManagerService } from '@automagical/home-assistant';
 import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
@@ -20,42 +22,49 @@ import {
   Param,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
 
-@Controller('/room/:name/group')
+@Controller('/group')
 @AuthStack()
 export class GroupController {
   constructor(
-    private readonly roomManager: RoomManagerService,
     private readonly groupService: GroupService,
+    private readonly entityManager: EntityManagerService,
   ) {}
 
   @Post(`/:group/snapshot`)
+  @UseInterceptors(GroupRoomInterceptor)
   public async createSnapshot(
-    @Param('name') room: string,
-    @Param('group') group: string,
+    @Param('group') name: string,
     @Body(ValidationPipe) body: GroupSnapshotDetailsDTO,
   ): Promise<RoomStateDTO> {
-    return await this.groupService.captureState(room, group, body.name);
+    return await this.groupService.captureState(name, body.name);
   }
 
   @Get('/:group/describe')
-  public async describeGroup(
-    @Param('name', RoomSettingsPipe) settings: RoomControllerSettingsDTO,
+  @UseInterceptors(GroupRoomInterceptor)
+  public describeGroup(
     @Param('group') group: string,
-  ): Promise<DescribeGroupResponseDTO> {
-    const { friendlyName, groups, name } = settings;
+    @GroupRoom() room: string,
+    @GroupRoomSettings() settings: RoomControllerSettingsDTO,
+  ): DescribeGroupResponseDTO {
+    const { friendlyName, groups } = settings;
     if (!groups || !Array.isArray(groups[group])) {
       throw new NotFoundException(
         `${friendlyName} does not contain group ${group}`,
       );
     }
-    return await this.groupService.describeGroup(name, group);
+    return {
+      room,
+      states: this.entityManager.getEntity(groups[group]),
+    };
   }
 
   @Put('/:group/command/:command')
+  @UseInterceptors(GroupRoomInterceptor)
   public async groupCommand(
-    @Param('name', RoomSettingsPipe) settings: RoomControllerSettingsDTO,
+    @GroupRoomSettings() settings: RoomControllerSettingsDTO,
     @Param('group') group: string,
     @Param('command') command: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
@@ -73,9 +82,10 @@ export class GroupController {
     return GENERIC_SUCCESS_RESPONSE;
   }
 
+  @UseInterceptors(GroupRoomInterceptor)
   @Get('/:group/list-states')
   public async listGroupStates(
-    @Param('name') room: string,
+    @GroupRoom() room: string,
     @Param('group') group: string,
   ): Promise<RoomStateDTO[]> {
     return await this.groupService.listStatesByGroup(room, group);

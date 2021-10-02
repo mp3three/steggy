@@ -70,7 +70,7 @@ export class ClimateService extends SwitchService {
         value: mode,
       })),
     );
-    if (mode === CANCEL) {
+    if (mode !== CANCEL) {
       return;
     }
     await this.fetchService.fetch({
@@ -154,9 +154,7 @@ export class ClimateService extends SwitchService {
   }
 
   protected getMenuOptions(): PromptMenuItems {
-    const list: PromptMenuItems = [];
     return [
-      ...list,
       { name: 'Set Fan Mode', value: 'setFanMode' },
       // { name: 'Set Humidity', value: 'setHumidity' },
       { name: 'Set Hvac Mode', value: 'setHvacMode' },
@@ -175,13 +173,19 @@ export class ClimateService extends SwitchService {
     ];
     const { attributes } = content;
     if (attributes.temperature) {
-      messages.push(`Temperature: ${attributes.temperature}`);
+      messages.push(`Target temp: ${attributes.temperature}`);
     }
     if (attributes.target_temp_high) {
       messages.push(`Target temp high: ${attributes.target_temp_high}`);
     }
     if (attributes.target_temp_low) {
       messages.push(`Target temp low: ${attributes.target_temp_low}`);
+    }
+    if (attributes.current_temperature) {
+      messages.push(`Current temp: ${attributes.current_temperature}°`);
+    }
+    if (attributes.current_humidity) {
+      messages.push(`Current humidity: ${attributes.current_humidity}%`);
     }
     console.log([...messages, ``].join(`\n`));
     return content;

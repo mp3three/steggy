@@ -29,8 +29,10 @@ export const APIRequest = REQUEST;
 /**
  * Alias that contains the standard set of response locals.
  */
-export type APIResponse<ResponseBody extends EmptyObject = EmptyObject> =
-  Response<ResponseBody, ResponseLocals>;
+export type APIResponse<
+  BODY extends EmptyObject = EmptyObject,
+  LOCALS = ResponseLocals,
+> = Response<BODY, LOCALS>;
 export const APIResponse = REQUEST;
 
 export class CrudOptions {

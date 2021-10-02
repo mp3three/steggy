@@ -1,4 +1,8 @@
-import { HassStateDTO } from '@automagical/home-assistant';
+import {
+  domain,
+  HASS_DOMAINS,
+  HassStateDTO,
+} from '@automagical/home-assistant';
 import { PromptMenuItems, PromptService } from '@automagical/tty';
 import { AutoLogService, sleep } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -7,6 +11,7 @@ import { encode } from 'ini';
 
 import { HomeFetchService } from '../home-fetch.service';
 
+const EMPTY = 0;
 const DELAY = 100;
 @Injectable()
 export class BaseDomainService {
@@ -15,6 +20,33 @@ export class BaseDomainService {
     protected readonly fetchService: HomeFetchService,
     protected readonly promptService: PromptService,
   ) {}
+
+  public async getState<T extends HassStateDTO = HassStateDTO>(
+    id: string,
+  ): Promise<T> {
+    return await this.fetchService.fetch<T>({
+      url: `/entity/id/${id}`,
+    });
+  }
+
+  public async pickFromDomain<T extends HassStateDTO = HassStateDTO>(
+    search: HASS_DOMAINS,
+    insideList: string[] = [],
+  ): Promise<T> {
+    const entities = await this.fetchService.fetch<string[]>({
+      url: '/entity/list',
+    });
+    const filtered = entities.filter(
+      (entity) =>
+        domain(entity) === search &&
+        (insideList.length === EMPTY || insideList.includes(entity)),
+    );
+    const entityId = await this.promptService.autocomplete(
+      'Pick an entity',
+      filtered,
+    );
+    return await this.getState(entityId);
+  }
 
   public async processId(id: string, command?: string): Promise<string> {
     const action = await this.promptService.menuSelect(
@@ -28,6 +60,9 @@ export class BaseDomainService {
         return await this.processId(id, action);
       case 'changeFriendlyName':
         await this.changeFriendlyName(id);
+        return await this.processId(id, action);
+      case 'changeEntityId':
+        await this.changeEntityId(id);
         return await this.processId(id, action);
     }
     return action;
@@ -46,6 +81,16 @@ export class BaseDomainService {
       ),
     );
     return content;
+  }
+
+  protected async changeEntityId(id: string): Promise<void> {
+    const updateId = await this.promptService.string(`New id`, id);
+
+    await this.fetchService.fetch({
+      body: { updateId },
+      method: 'put',
+      url: `/entity/update-id/${id}`,
+    });
   }
 
   protected async changeFriendlyName(id: string): Promise<void> {
@@ -73,17 +118,13 @@ export class BaseDomainService {
         value: 'changeFriendlyName',
       },
       {
+        name: 'Change Entity ID',
+        value: 'changeEntityId',
+      },
+      {
         name: 'Describe',
         value: 'describe',
       },
     ];
-  }
-
-  protected async getState<T extends HassStateDTO = HassStateDTO>(
-    id: string,
-  ): Promise<T> {
-    return await this.fetchService.fetch<T>({
-      url: `/entity/id/${id}`,
-    });
   }
 }

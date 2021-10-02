@@ -35,20 +35,20 @@ const fanLights = [
   'light.living_room_right',
 ];
 const tvRight = [
-  `light.tower_1_1`,
-  `light.tower_1_2`,
-  `light.tower_1_3`,
-  `light.tower_1_4`,
-  `light.tower_1_5`,
-  `light.tower_1_6`,
+  `light.tower_right_1`,
+  `light.tower_right_2`,
+  `light.tower_right_3`,
+  `light.tower_right_4`,
+  `light.tower_right_5`,
+  `light.tower_right_6`,
 ];
 const tvLeft = [
-  `light.tower_2_1`,
-  `light.tower_2_2`,
-  `light.tower_2_3`,
-  `light.tower_2_4`,
-  `light.tower_2_5`,
-  `light.tower_2_6`,
+  `light.tower_left_1`,
+  `light.tower_left_2`,
+  `light.tower_left_3`,
+  `light.tower_left_4`,
+  `light.tower_left_5`,
+  `light.tower_left_6`,
 ];
 const AUTO_STATE = 'AUTO_STATE';
 

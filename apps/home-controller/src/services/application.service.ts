@@ -2,11 +2,9 @@ import { ROOM_COMMAND, SolarCalcService } from '@automagical/controller-logic';
 import {
   BatteryStateDTO,
   domain,
+  EntityManagerService,
   HA_SOCKET_READY,
   HASS_DOMAINS,
-} from '@automagical/home-assistant';
-import {
-  EntityManagerService,
   LockDomainService,
   NotifyDomainService,
 } from '@automagical/home-assistant';
@@ -25,12 +23,7 @@ import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
 
 import { BATTERY_NOTIFY_PERCENT } from '../config';
-import {
-  GLOBAL_TRANSITION,
-  HOMEASSISTANT_LEAVE_HOME,
-  HOMEASSISTANT_MOBILE_LOCK,
-  HOMEASSISTANT_MOBILE_UNLOCK,
-} from '../typings';
+import { GLOBAL_TRANSITION, HOMEASSISTANT_LEAVE_HOME } from '../typings';
 
 @Injectable()
 export class ApplicationService {
@@ -52,19 +45,12 @@ export class ApplicationService {
     });
   }
 
-  @OnMQTT(HOMEASSISTANT_MOBILE_LOCK)
   @OnEvent(GLOBAL_TRANSITION)
   @Warn('Lock Doors')
   public async lockDoors(): Promise<void> {
     await this.lockService.lock(this.locks);
   }
 
-  @OnEvent(`switch.test/update`)
-  public logState(state: unknown): void {
-    this.logger.info({ state });
-  }
-
-  @OnMQTT(HOMEASSISTANT_MOBILE_UNLOCK)
   @Warn('Unlock Doors')
   public async unlockDoors(): Promise<void> {
     await this.lockService.unlock(this.locks);

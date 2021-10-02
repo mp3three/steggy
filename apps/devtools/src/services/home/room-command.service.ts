@@ -64,7 +64,7 @@ export class RoomCommandService {
       case CANCEL:
         return;
       case 'groups':
-        await this.groupCommand.exec(room.name);
+        await this.groupCommand.list(room.name);
         return;
       case 'fan':
         await this.fanService.processId(room.fan);

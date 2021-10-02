@@ -155,6 +155,7 @@ export class RoomExplorerService {
     ]);
     mappings.forEach((callback, event) => {
       this.eventEmitter.on(ROOM_COMMAND(settings.name, event), callback);
+      this.eventEmitter.on(ROOM_COMMAND('*', event), callback);
     });
   }
 }

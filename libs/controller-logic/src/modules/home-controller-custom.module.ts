@@ -7,6 +7,7 @@ import { DynamicModule } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { DynamicRoomProviders, InjectedSettings } from '../decorators';
+import { GroupRoomInterceptor } from '../interceptors';
 import {
   CircadianService,
   GroupService,
@@ -21,15 +22,16 @@ import {
 import { HomePersistenceModule } from './home-persistence.module';
 
 const providers = [
-  LightManagerService,
   CircadianService,
-  RemoteAdapterService,
-  RoomExplorerService,
-  StateManagerService,
-  SolarCalcService,
+  GroupRoomInterceptor,
   GroupService,
   KunamiCodeService,
+  LightManagerService,
+  RemoteAdapterService,
+  RoomExplorerService,
   RoomManagerService,
+  SolarCalcService,
+  StateManagerService,
 ];
 
 @LibraryModule({

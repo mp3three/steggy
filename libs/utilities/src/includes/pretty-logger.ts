@@ -202,6 +202,7 @@ export const PrettyNestLogger: Record<
 };
 
 export function UsePrettyLogger(): void {
+  AutoLogService.prettyLogger = true;
   AutoLogService.nestLogger = PrettyNestLogger;
   AutoLogService.logger = logger;
   AutoLogService.call = function (

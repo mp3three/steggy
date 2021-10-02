@@ -63,11 +63,10 @@ export class GroupService {
    */
   @Trace()
   public async captureState(
-    room: string,
     group: string,
     captureName: string,
   ): Promise<RoomStateDTO> {
-    const { states } = this.describeGroup(room, group);
+    const { states, room } = this.loadGroupByName(group);
     const captured = states
       .filter((state) =>
         [HASS_DOMAINS.light, HASS_DOMAINS.switch].includes(
@@ -106,6 +105,7 @@ export class GroupService {
       throw new BadRequestException(`Room does not contain groups`);
     }
     return {
+      room,
       states: this.entityManager.getEntity(settings.groups[group] ?? []),
     };
   }
@@ -176,5 +176,23 @@ export class GroupService {
       throw new BadRequestException(`Room does not contain groups`);
     }
     return settings.groups[group] ?? [];
+  }
+
+  private loadGroupByName(name: string): DescribeGroupResponseDTO {
+    const [, room] = [...this.roomManager.settings.entries()].find(
+      ([, settings]) => {
+        if (settings.groups[name]) {
+          return true;
+        }
+        return false;
+      },
+    );
+    if (!room) {
+      throw new BadRequestException(`Bad group name: ${name}`);
+    }
+    return {
+      room: room.name,
+      states: this.entityManager.getEntity(room.groups[name]),
+    };
   }
 }

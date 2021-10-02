@@ -124,19 +124,19 @@ export class PromptService {
     return value;
   }
 
-  public async menuSelect(
-    menu: PromptMenuItems,
+  public async menuSelect<T extends unknown = string>(
+    menu: PromptMenuItems<T>,
     message = '',
     defaultValue?: string,
-  ): Promise<string> {
-    return await this.pickOne(
+  ): Promise<T | string> {
+    return await this.pickOne<T>(
       message,
       [
         ...menu,
         new inquirer.Separator(),
         {
           name: 'Cancel',
-          value: CANCEL,
+          value: CANCEL as T,
         },
       ],
       defaultValue,

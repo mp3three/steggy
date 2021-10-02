@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, PipeTransform } from '@nestjs/common';
 
-import { RoomControllerSettingsDTO } from '..';
+import { RoomControllerSettingsDTO } from '../contracts';
 import { RoomManagerService } from '../services';
 
 /**
