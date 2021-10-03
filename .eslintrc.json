@@ -209,6 +209,12 @@
         // Incorrectly firing for exported maps and stuff
         "radar/no-unused-collection": "off"
       }
+    },
+    {
+      "files": ["*persistence.service.ts"],
+      "rules": {
+        "unicorn/no-array-callback-reference": "off"
+      }
     }
   ]
 }

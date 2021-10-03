@@ -1,13 +1,7 @@
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Expose, Type } from 'class-transformer';
-import {
-  IsEnum,
-  IsObject,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
-import { Schema as MongooseSchema } from 'mongoose';
+import { IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
 import { BaseRoomDTO } from './base-room.dto';
 import { RoomDTO } from './room.dto';
@@ -21,6 +15,10 @@ export enum GROUP_TYPES {
 
 @Schema({
   collection: `group`,
+  timestamps: {
+    createdAt: 'created',
+    updatedAt: 'modified',
+  },
 })
 export class GroupDTO<T extends unknown = unknown> extends BaseRoomDTO {
   /**
@@ -101,3 +99,6 @@ export class GroupSaveState<T extends unknown = unknown> {
   @Expose()
   states: T[];
 }
+
+export type GroupDocument = GroupDTO & Document;
+export const GroupSchema = SchemaFactory.createForClass(GroupDTO);

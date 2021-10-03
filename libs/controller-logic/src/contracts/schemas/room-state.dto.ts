@@ -1,6 +1,6 @@
-import { BaseSchemaDTO, TransformObjectId } from '@automagical/persistence';
+import { BaseSchemaDTO } from '@automagical/persistence';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 import { Document } from 'mongoose';
 
 export enum LIGHTING_MODE {
@@ -31,7 +31,6 @@ export class PersistenceLightStateDTO extends PersistenceSwitchStateDTO {
 
 @Schema({
   collection: 'room_state',
-  minimize: false,
   timestamps: {
     createdAt: 'created',
     updatedAt: 'modified',

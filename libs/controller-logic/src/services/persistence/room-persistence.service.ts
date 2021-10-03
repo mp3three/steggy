@@ -9,31 +9,30 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { RoomStateDocument, RoomStateDTO } from '../contracts';
-
+import { RoomDocument, RoomDTO } from '../../contracts';
 const OK_RESPONSE = 1;
 
 @Injectable()
-export class StatePersistenceService extends BaseMongoService {
+export class RoomPersistenceService extends BaseMongoService {
   constructor(
     private readonly logger: AutoLogService,
-    @InjectModel(RoomStateDTO.name)
-    private readonly roomStateModel: Model<RoomStateDocument>,
+    @InjectModel(RoomDTO.name)
+    private readonly roomModel: Model<RoomDocument>,
   ) {
     super();
   }
 
   @Trace()
-  @ToClass(RoomStateDTO)
-  public async create(state: RoomStateDTO): Promise<RoomStateDTO> {
-    return (await this.roomStateModel.create(state)).toObject();
+  @ToClass(RoomDTO)
+  public async create(state: RoomDTO): Promise<RoomDTO> {
+    return (await this.roomModel.create(state)).toObject();
   }
 
   @Trace()
-  public async delete(state: RoomStateDTO | string): Promise<boolean> {
+  public async delete(state: RoomDTO | string): Promise<boolean> {
     const query = this.merge(typeof state === 'string' ? state : state._id);
     this.logger.debug({ query }, `delete query`);
-    const result = await this.roomStateModel
+    const result = await this.roomModel
       .updateOne(query, {
         deleted: Date.now(),
       })
@@ -41,23 +40,23 @@ export class StatePersistenceService extends BaseMongoService {
     return result.ok === OK_RESPONSE;
   }
   @Trace()
-  @ToClass(RoomStateDTO)
+  @ToClass(RoomDTO)
   public async findById(
     state: string,
     { control }: { control?: ResultControlDTO } = {},
-  ): Promise<RoomStateDTO> {
+  ): Promise<RoomDTO> {
     const query = this.merge(state, control);
-    return await this.modifyQuery(control, this.roomStateModel.findOne(query))
+    return await this.modifyQuery(control, this.roomModel.findOne(query))
       .lean()
       .exec();
   }
 
   @Trace()
-  @ToClass(RoomStateDTO)
+  @ToClass(RoomDTO)
   public async findByName(
     state: string,
     { control }: { control: ResultControlDTO },
-  ): Promise<RoomStateDTO> {
+  ): Promise<RoomDTO> {
     const query = this.merge(
       {
         filters: new Set([
@@ -69,29 +68,27 @@ export class StatePersistenceService extends BaseMongoService {
       },
       control,
     );
-    return await this.modifyQuery(control, this.roomStateModel.findOne(query))
+    return await this.modifyQuery(control, this.roomModel.findOne(query))
       .lean()
       .exec();
   }
 
   @Trace()
-  @ToClass(RoomStateDTO)
-  public async findMany(
-    control: ResultControlDTO = {},
-  ): Promise<RoomStateDTO[]> {
+  @ToClass(RoomDTO)
+  public async findMany(control: ResultControlDTO = {}): Promise<RoomDTO[]> {
     const query = this.merge(control);
-    return await this.modifyQuery(control, this.roomStateModel.find(query))
+    return await this.modifyQuery(control, this.roomModel.find(query))
       .lean()
       .exec();
   }
 
   @Trace()
   public async update(
-    state: RoomStateDTO,
+    state: RoomDTO,
     control: ResultControlDTO,
-  ): Promise<RoomStateDTO> {
+  ): Promise<RoomDTO> {
     const query = this.merge(control);
-    const result = await this.roomStateModel.updateOne(query, state).exec();
+    const result = await this.roomModel.updateOne(query, state).exec();
     if (result.ok === OK_RESPONSE) {
       return await this.findById(state._id, { control });
     }

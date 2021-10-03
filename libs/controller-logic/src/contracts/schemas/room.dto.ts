@@ -1,13 +1,16 @@
-import { BaseSchemaDTO } from '@automagical/persistence';
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Expose } from 'class-transformer';
 import { IsString } from 'class-validator';
-import { Schema as MongooseSchema } from 'mongoose';
+import { Document } from 'mongoose';
 
 import { BaseRoomDTO } from './base-room.dto';
 
 @Schema({
   collection: `room`,
+  timestamps: {
+    createdAt: 'created',
+    updatedAt: 'modified',
+  },
 })
 export class RoomDTO extends BaseRoomDTO {
   @IsString({ each: true })
@@ -29,3 +32,6 @@ export class RoomDTO extends BaseRoomDTO {
   @Prop({ type: [String] })
   public switches?: string[];
 }
+
+export type RoomDocument = RoomDTO & Document;
+export const RoomSchema = SchemaFactory.createForClass(RoomDTO);
