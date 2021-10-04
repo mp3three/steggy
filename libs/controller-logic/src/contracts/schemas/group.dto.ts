@@ -1,7 +1,15 @@
 import { LockStateDTO } from '@automagical/home-assistant';
+import { Optional } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Expose, Type } from 'class-transformer';
-import { IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
 import { PersistenceSwitchStateDTO } from '../dto';
@@ -106,10 +114,16 @@ export class GroupDTO<T extends BASIC_STATE = BASIC_STATE> extends BaseRoomDTO {
   public type: GROUP_TYPES;
 }
 
-export class GroupSaveState<T extends unknown = unknown> {
-  id: string;
+export class GroupSaveState<T extends BASIC_STATE = BASIC_STATE> {
   @Expose()
+  @IsString()
+  @Optional()
+  id?: string;
+  @IsString()
+  @Expose()
+  @MinLength(2)
   name: string;
+  @IsArray()
   @Expose()
   states: T[];
 }

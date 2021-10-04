@@ -2,7 +2,12 @@ import { BaseSchemaDTO } from '@automagical/persistence';
 import { ResultControlDTO, Trace } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
-import { BASIC_STATE, GROUP_TYPES, GroupDTO } from '../contracts';
+import {
+  BASIC_STATE,
+  GROUP_TYPES,
+  GroupDTO,
+  GroupSaveState,
+} from '../contracts';
 import {
   FanGroupService,
   LightGroupService,
@@ -28,7 +33,7 @@ export class GroupService {
     state: string,
   ): Promise<void> {
     group = await this.load(group);
-    const base = this.getBaseGroup(group);
+    const base = this.getBaseGroup(group.type);
     return await base.activateState(group, state);
   }
 
@@ -43,7 +48,17 @@ export class GroupService {
       ...group.entities.filter((id) => !entity.includes(id)),
       ...entity,
     ];
-    return this.update(group);
+    return this.update(group._id, group);
+  }
+
+  @Trace()
+  public async addState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    group: GroupDTO<GROUP_TYPE> | string,
+    state: GroupSaveState<GROUP_TYPE>,
+  ): Promise<GroupDTO<GROUP_TYPE>> {
+    group = await this.load(group);
+    const base = this.getBaseGroup(group.type);
+    return await base.addState(group, state);
   }
 
   @Trace()
@@ -52,15 +67,15 @@ export class GroupService {
     name: string,
   ): Promise<string> {
     group = await this.load(group);
-    const base = this.getBaseGroup(group);
+    const base = this.getBaseGroup(group.type);
     return await base.captureState(group, name);
   }
 
   @Trace()
-  public async create(
-    group: Omit<GroupDTO, keyof BaseSchemaDTO>,
-  ): Promise<GroupDTO> {
-    return await this.groupPersistence.create(group);
+  public async create<T extends BASIC_STATE = BASIC_STATE>(
+    group: Omit<GroupDTO<T>, keyof BaseSchemaDTO>,
+  ): Promise<GroupDTO<T>> {
+    return await this.groupPersistence.create<T>(group);
   }
 
   @Trace()
@@ -70,9 +85,19 @@ export class GroupService {
   }
 
   @Trace()
+  public async deleteState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    group: GroupDTO<GROUP_TYPE> | string,
+    state: string,
+  ): Promise<GroupDTO<GROUP_TYPE>> {
+    group = await this.load<GROUP_TYPE>(group);
+    const base = this.getBaseGroup(group.type);
+    return await base.deleteState(group, state);
+  }
+
+  @Trace()
   public async get(group: GroupDTO | string): Promise<GroupDTO> {
     group = await this.load(group);
-    const base = this.getBaseGroup(group);
+    const base = this.getBaseGroup(group.type);
     group.state = await base.getState(group);
     return group;
   }
@@ -92,19 +117,20 @@ export class GroupService {
     entity = typeof entity === 'string' ? [entity] : entity;
     group = await this.load(group);
     group.entities = group.entities.filter((id) => !entity.includes(id));
-    return this.update(group);
+    return this.update(group._id, group);
   }
 
   @Trace()
   public async update<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
-    group: GroupDTO,
+    id: string,
+    data: Omit<Partial<GroupDTO>, keyof BaseSchemaDTO>,
   ): Promise<GroupDTO<GROUP_TYPE>> {
-    return await this.groupPersistence.update(group);
+    return await this.groupPersistence.update(data, id);
   }
 
   @Trace()
-  private getBaseGroup(group: GroupDTO): BaseGroupService {
-    switch (group.type) {
+  private getBaseGroup(type: GROUP_TYPES): BaseGroupService {
+    switch (type) {
       case GROUP_TYPES.switch:
         return this.switchGroup;
       case GROUP_TYPES.fan:
@@ -118,7 +144,9 @@ export class GroupService {
   }
 
   @Trace()
-  private async load(group: GroupDTO | string): Promise<GroupDTO> {
+  private async load<T extends BASIC_STATE = BASIC_STATE>(
+    group: GroupDTO<T> | string,
+  ): Promise<GroupDTO<T>> {
     if (typeof group === 'object') {
       return group;
     }

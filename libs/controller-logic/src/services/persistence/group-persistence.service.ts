@@ -1,4 +1,4 @@
-import { BaseMongoService } from '@automagical/persistence';
+import { BaseMongoService, BaseSchemaDTO } from '@automagical/persistence';
 import {
   AutoLogService,
   ResultControlDTO,
@@ -24,8 +24,12 @@ export class GroupPersistenceService extends BaseMongoService {
 
   @Trace()
   @ToClass(GroupDTO)
-  public async create(state: GroupDTO): Promise<GroupDTO> {
-    return (await this.groupModel.create(state)).toObject();
+  public async create<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    state: GroupDTO<GROUP_TYPE>,
+  ): Promise<GroupDTO<GROUP_TYPE>> {
+    return (
+      await this.groupModel.create(state)
+    ).toObject() as GroupDTO<GROUP_TYPE>;
   }
 
   @Trace()
@@ -41,22 +45,22 @@ export class GroupPersistenceService extends BaseMongoService {
   }
   @Trace()
   @ToClass(GroupDTO)
-  public async findById<T extends BASIC_STATE = BASIC_STATE>(
+  public async findById<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
     state: string,
     { control }: { control?: ResultControlDTO } = {},
-  ): Promise<GroupDTO<T>> {
+  ): Promise<GroupDTO<GROUP_TYPE>> {
     const query = this.merge(state, control);
     return (await this.modifyQuery(control, this.groupModel.findOne(query))
       .lean()
-      .exec()) as GroupDTO<T>;
+      .exec()) as GroupDTO<GROUP_TYPE>;
   }
 
   @Trace()
   @ToClass(GroupDTO)
-  public async findByName<T extends BASIC_STATE = BASIC_STATE>(
+  public async findByName<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
     state: string,
     { control }: { control?: ResultControlDTO } = {},
-  ): Promise<GroupDTO<T>> {
+  ): Promise<GroupDTO<GROUP_TYPE>> {
     const query = this.merge(
       {
         filters: new Set([
@@ -70,29 +74,29 @@ export class GroupPersistenceService extends BaseMongoService {
     );
     return (await this.modifyQuery(control, this.groupModel.findOne(query))
       .lean()
-      .exec()) as GroupDTO<T>;
+      .exec()) as GroupDTO<GROUP_TYPE>;
   }
 
   @Trace()
   @ToClass(GroupDTO)
-  public async findMany<T extends BASIC_STATE = BASIC_STATE>(
+  public async findMany<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
     control: ResultControlDTO = {},
-  ): Promise<GroupDTO<T>[]> {
+  ): Promise<GroupDTO<GROUP_TYPE>[]> {
     const query = this.merge(control);
     return (await this.modifyQuery(control, this.groupModel.find(query))
       .lean()
-      .exec()) as GroupDTO<T>[];
+      .exec()) as GroupDTO<GROUP_TYPE>[];
   }
 
   @Trace()
-  public async update<T extends BASIC_STATE = BASIC_STATE>(
-    state: GroupDTO,
-    control: ResultControlDTO = {},
-  ): Promise<GroupDTO<T>> {
-    const query = this.merge(control);
+  public async update<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    state: Omit<Partial<GroupDTO>, keyof BaseSchemaDTO>,
+    id: string,
+  ): Promise<GroupDTO<GROUP_TYPE>> {
+    const query = this.merge(id);
     const result = await this.groupModel.updateOne(query, state).exec();
     if (result.ok === OK_RESPONSE) {
-      return await this.findById(state._id, { control });
+      return await this.findById(id);
     }
   }
 }

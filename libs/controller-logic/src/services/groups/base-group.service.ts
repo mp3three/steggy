@@ -3,11 +3,14 @@ import {
   GROUP_TYPES,
   GroupDTO,
   GroupPersistenceService,
+  GroupSaveState,
 } from '@automagical/controller-logic';
-import { domain } from '@automagical/home-assistant';
 import { AutoLogService, Trace } from '@automagical/utilities';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { plainToClass } from 'class-transformer';
 import { v4 as uuid } from 'uuid';
+
+const EXPECTED_REMOVE_AMOUNT = 1;
 
 export abstract class BaseGroupService {
   public abstract readonly GROUP_TYPE: GROUP_TYPES;
@@ -32,6 +35,16 @@ export abstract class BaseGroupService {
     await this.setState(group.entities, state.states);
   }
 
+  @Trace()
+  public async addState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    group: GroupDTO<GROUP_TYPE> | string,
+    state: GroupSaveState<GROUP_TYPE>,
+  ): Promise<GroupDTO<GROUP_TYPE>> {
+    group = await this.loadGroup(group);
+    group.states.push(state);
+    return await this.groupPersistence.update(group, group._id);
+  }
+
   /**
    * Take the current state of the group and add it as a saved state
    */
@@ -49,8 +62,30 @@ export abstract class BaseGroupService {
       name,
       states,
     });
-    await this.groupPersistence.update(group);
+    await this.groupPersistence.update(group, group._id);
     return id;
+  }
+
+  @Trace()
+  public async deleteState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    group: GroupDTO<GROUP_TYPE> | string,
+    remove: string,
+  ): Promise<GroupDTO<GROUP_TYPE>> {
+    group = await this.loadGroup<GROUP_TYPE>(group);
+    group.states ??= [];
+    const length = group.states.length;
+    group.states = group.states.filter(({ id }) => id !== remove);
+    if (group.states.length !== length - EXPECTED_REMOVE_AMOUNT) {
+      this.logger.warn(
+        {
+          actual: length - group.states.length,
+          expected: EXPECTED_REMOVE_AMOUNT,
+        },
+        `Unexpected removal amount`,
+      );
+    }
+    await this.groupPersistence.update(group, group._id);
+    return group;
   }
 
   @Trace()
@@ -76,9 +111,10 @@ export abstract class BaseGroupService {
     state: BASIC_STATE[],
   ): Promise<void>;
 
-  protected async loadGroup<T extends BASIC_STATE = BASIC_STATE>(
-    group: GroupDTO<T> | string,
-  ): Promise<GroupDTO<T>> {
+  @Trace()
+  protected async loadGroup<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    group: GroupDTO<GROUP_TYPE> | string,
+  ): Promise<GroupDTO<GROUP_TYPE>> {
     if (typeof group === 'string') {
       group = await this.groupPersistence.findById(group);
     }
@@ -86,5 +122,12 @@ export abstract class BaseGroupService {
       throw new BadRequestException(`Could not load group`);
     }
     return group;
+  }
+
+  @Trace()
+  protected validateState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    state: GroupSaveState<GROUP_TYPE>,
+  ): GroupSaveState<GROUP_TYPE> {
+    return plainToClass(GroupSaveState, state);
   }
 }

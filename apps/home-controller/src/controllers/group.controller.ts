@@ -1,93 +1,94 @@
 import {
-  DescribeGroupResponseDTO,
-  GroupRoom,
-  GroupRoomInterceptor,
-  GroupRoomSettings,
+  GroupDTO,
+  GroupSaveState,
   GroupService,
-  GroupSnapshotDetailsDTO,
-  RoomControllerSettingsDTO,
-  RoomStateDTO,
+  HomeControllerResponseLocals,
 } from '@automagical/controller-logic';
-import { EntityManagerService } from '@automagical/home-assistant';
+import { BaseSchemaDTO } from '@automagical/persistence';
 import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
-  ValidationPipe,
+  Locals,
 } from '@automagical/server';
 import {
   Body,
   Controller,
+  Delete,
   Get,
-  NotFoundException,
   Param,
   Post,
   Put,
-  UseInterceptors,
 } from '@nestjs/common';
 
 @Controller('/group')
 @AuthStack()
 export class GroupController {
-  constructor(
-    private readonly groupService: GroupService,
-    private readonly entityManager: EntityManagerService,
-  ) {}
+  constructor(private readonly groupService: GroupService) {}
 
-  @Post(`/:group/snapshot`)
-  @UseInterceptors(GroupRoomInterceptor)
-  public async createSnapshot(
-    @Param('group') name: string,
-    @Body(ValidationPipe) body: GroupSnapshotDetailsDTO,
-  ): Promise<RoomStateDTO> {
-    return await this.groupService.captureState(name, body.name);
-  }
-
-  @Get('/:group/describe')
-  @UseInterceptors(GroupRoomInterceptor)
-  public describeGroup(
+  @Put(`/:group/:state`)
+  public async activateState(
     @Param('group') group: string,
-    @GroupRoom() room: string,
-    @GroupRoomSettings() settings: RoomControllerSettingsDTO,
-  ): DescribeGroupResponseDTO {
-    const { friendlyName, groups } = settings;
-    if (!groups || !Array.isArray(groups[group])) {
-      throw new NotFoundException(
-        `${friendlyName} does not contain group ${group}`,
-      );
-    }
-    return {
-      room,
-      states: this.entityManager.getEntity(groups[group]),
-    };
-  }
-
-  @Put('/:group/command/:command')
-  @UseInterceptors(GroupRoomInterceptor)
-  public async groupCommand(
-    @GroupRoomSettings() settings: RoomControllerSettingsDTO,
-    @Param('group') group: string,
-    @Param('command') command: string,
+    @Param('state') state: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    switch (command) {
-      case 'turnOn':
-        await this.groupService.turnOn(settings.name, group);
-        break;
-      case 'turnOff':
-        await this.groupService.turnOff(settings.name, group);
-        break;
-      case 'turnOnCircadian':
-        await this.groupService.turnOnCircadian(settings.name, group);
-        break;
-    }
+    await this.groupService.activateState(group, state);
     return GENERIC_SUCCESS_RESPONSE;
   }
 
-  @UseInterceptors(GroupRoomInterceptor)
-  @Get('/:group/list-states')
-  public async listGroupStates(
-    @GroupRoom() room: string,
+  @Post(`/:id`)
+  public async addState(
     @Param('group') group: string,
-  ): Promise<RoomStateDTO[]> {
-    return await this.groupService.listStatesByGroup(room, group);
+    @Body() state: GroupSaveState,
+  ): Promise<GroupDTO> {
+    return await this.groupService.addState(group, state);
+  }
+
+  @Post('/:group/capture')
+  public async captureCurrent(
+    @Param('group') group: string,
+    @Body() { name }: { name: string },
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.groupService.captureState(group, name);
+    return GENERIC_SUCCESS_RESPONSE;
+  }
+
+  @Post('/')
+  public async createGroup(@Body() group: GroupDTO): Promise<GroupDTO> {
+    return await this.groupService.create(BaseSchemaDTO.cleanup(group));
+  }
+
+  @Delete(`/:group`)
+  public async deleteGroup(
+    @Param('group') group: string,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.groupService.delete(group);
+    return GENERIC_SUCCESS_RESPONSE;
+  }
+
+  @Delete(`/:group/:state`)
+  public async deleteSaveSate(
+    @Param('group') group: string,
+    @Param('state') state: string,
+  ): Promise<GroupDTO> {
+    return await this.groupService.deleteState(group, state);
+  }
+
+  @Get('/:group')
+  public async describe(@Param('group') group: string): Promise<GroupDTO> {
+    return await this.groupService.get(group);
+  }
+
+  @Get(`/`)
+  public async listGroups(
+    @Locals() { control }: HomeControllerResponseLocals,
+  ): Promise<GroupDTO[]> {
+    return await this.groupService.list(control);
+  }
+
+  @Put('/:group')
+  public async updateGroup(
+    @Param('group') id: string,
+    @Body() body: Partial<GroupDTO>,
+  ): Promise<GroupDTO> {
+    return await this.groupService.update(id, BaseSchemaDTO.cleanup(body));
   }
 }

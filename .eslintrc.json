@@ -215,6 +215,13 @@
       "rules": {
         "unicorn/no-array-callback-reference": "off"
       }
+    },
+    {
+      "files": ["*dto.ts"],
+      "rules": {
+        // Don't see a benefit from this rule making annotations more complicated
+        "@typescript-eslint/no-magic-numbers": "off"
+      }
     }
   ]
 }

@@ -34,7 +34,7 @@ const INCREMENT = 1;
 export class InitMiddleware implements NestMiddleware {
   constructor(
     private readonly logger: AutoLogService,
-    @InjectConfig(MAX_REQUEST_ID) private readonly maxId: number,
+    @InjectConfig(MAX_REQUEST_ID) private readonly rollover: number,
   ) {}
 
   @Trace()
@@ -49,7 +49,7 @@ export class InitMiddleware implements NestMiddleware {
     if (this.isHealthCheck(locals, request.res)) {
       return;
     }
-    currentRequestId = (currentRequestId + INCREMENT) % this.maxId;
+    currentRequestId = (currentRequestId + INCREMENT) % this.rollover;
     const logger = (AutoLogService.logger as pino.Logger).child({
       id: currentRequestId,
     });
