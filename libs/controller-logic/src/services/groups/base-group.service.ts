@@ -1,17 +1,22 @@
 import {
   BASIC_STATE,
+  GROUP_TYPES,
   GroupDTO,
   GroupPersistenceService,
 } from '@automagical/controller-logic';
+import { domain } from '@automagical/home-assistant';
 import { AutoLogService, Trace } from '@automagical/utilities';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 
 export abstract class BaseGroupService {
+  public abstract readonly GROUP_TYPE: GROUP_TYPES;
+
   protected readonly groupPersistence: GroupPersistenceService;
   protected readonly logger: AutoLogService;
 
   public abstract getState(group: GroupDTO): BASIC_STATE[];
+  public abstract isValidEntity(id: string): boolean;
 
   @Trace()
   public async activateState(

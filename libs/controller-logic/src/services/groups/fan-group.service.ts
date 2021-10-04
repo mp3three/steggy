@@ -3,15 +3,14 @@ import {
   GROUP_TYPES,
   GroupDTO,
   GroupPersistenceService,
-  PersistenceLightStateDTO,
-  PersistenceSwitchStateDTO,
+  PersistenceFanStateDTO,
 } from '@automagical/controller-logic';
 import {
   domain,
   EntityManagerService,
+  FanDomainService,
+  FanStateDTO,
   HASS_DOMAINS,
-  HomeAssistantCoreService,
-  SwitchStateDTO,
 } from '@automagical/home-assistant';
 import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -21,58 +20,41 @@ import { BaseGroupService } from './base-group.service';
 
 const START = 0;
 @Injectable()
-export class SwitchGroupService extends BaseGroupService {
+export class FanGroupService extends BaseGroupService {
   constructor(
     protected readonly logger: AutoLogService,
-    private readonly entityManager: EntityManagerService,
-    private readonly hassCore: HomeAssistantCoreService,
     protected readonly groupPersistence: GroupPersistenceService,
+    private readonly entityManager: EntityManagerService,
+    private readonly fanDomain: FanDomainService,
     @InjectConfig(CONCURRENT_CHANGES)
     private readonly eachLimit: number,
   ) {
     super();
   }
-
-  public readonly GROUP_TYPE = GROUP_TYPES.switch;
+  public readonly GROUP_TYPE: GROUP_TYPES.fan;
 
   @Trace()
   public getState(
-    group: GroupDTO<PersistenceSwitchStateDTO>,
-  ): PersistenceSwitchStateDTO[] {
+    group: GroupDTO<PersistenceFanStateDTO>,
+  ): PersistenceFanStateDTO[] {
     return group.entities.map((id) => {
-      const [light] = this.entityManager.getEntity<SwitchStateDTO>([id]);
+      const [fan] = this.entityManager.getEntity<FanStateDTO>([id]);
       return {
-        state: light.state,
-      } as PersistenceSwitchStateDTO;
+        speed: fan.attributes.speed,
+        state: fan.state,
+      } as PersistenceFanStateDTO;
     });
   }
 
   @Trace()
   public isValidEntity(id: string): boolean {
-    return [
-      HASS_DOMAINS.switch,
-      HASS_DOMAINS.fan,
-      HASS_DOMAINS.light,
-      HASS_DOMAINS.media_player,
-    ].includes(domain(id));
-  }
-
-  @Trace()
-  public async turnOff(group: GroupDTO | string): Promise<void> {
-    group = await this.loadGroup(group);
-    await this.hassCore.turnOff(group.entities);
-  }
-
-  @Trace()
-  public async turnOn(group: GroupDTO | string): Promise<void> {
-    group = await this.loadGroup(group);
-    await this.hassCore.turnOn(group.entities);
+    return domain(id) === HASS_DOMAINS.fan;
   }
 
   @Trace()
   protected async setState(
     entites: string[],
-    state: PersistenceLightStateDTO[],
+    state: PersistenceFanStateDTO[],
   ): Promise<void> {
     if (entites.length !== state.length) {
       this.logger.warn(`State and entity length mismatch`);
@@ -81,14 +63,14 @@ export class SwitchGroupService extends BaseGroupService {
     await eachLimit(
       state.map((state, index) => {
         return [entites[index], state];
-      }) as [string, PersistenceLightStateDTO][],
+      }) as [string, PersistenceFanStateDTO][],
       this.eachLimit,
       async ([id, state], callback) => {
         if (state.state === 'off') {
-          await this.hassCore.turnOff(id);
+          await this.fanDomain.turnOff(id);
           return callback();
         }
-        await this.hassCore.turnOn(id);
+        await this.fanDomain.setFan(id, state.speed);
         callback();
       },
     );

@@ -1,5 +1,6 @@
 import {
   CONCURRENT_CHANGES,
+  GROUP_TYPES,
   GroupDTO,
   GroupPersistenceService,
   PersistenceLockStateDTO,
@@ -33,6 +34,8 @@ export class LockGroupService extends BaseGroupService {
     super();
   }
 
+  public readonly GROUP_TYPE = GROUP_TYPES.lock;
+
   @Trace()
   public getState(group: GroupDTO<LockStateDTO>): PersistenceLockStateDTO[] {
     return group.entities.map((id) => {
@@ -41,6 +44,11 @@ export class LockGroupService extends BaseGroupService {
         state: light.state,
       } as PersistenceLockStateDTO;
     });
+  }
+
+  @Trace()
+  public isValidEntity(id: string): boolean {
+    return domain(id) === HASS_DOMAINS.fan;
   }
 
   @Trace()

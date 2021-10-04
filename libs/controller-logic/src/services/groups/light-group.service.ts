@@ -1,6 +1,8 @@
 import { CONCURRENT_CHANGES } from '@automagical/controller-logic';
 import {
+  domain,
   EntityManagerService,
+  HASS_DOMAINS,
   LightStateDTO,
 } from '@automagical/home-assistant';
 import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
@@ -8,6 +10,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { eachLimit } from 'async';
 
 import {
+  GROUP_TYPES,
   GroupDTO,
   LIGHTING_MODE,
   PersistenceLightStateDTO,
@@ -34,6 +37,8 @@ export class LightGroupService extends BaseGroupService {
     super();
   }
 
+  public readonly GROUP_TYPE = GROUP_TYPES.light;
+
   @Trace()
   public getState(
     group: GroupDTO<PersistenceLightStateDTO>,
@@ -46,6 +51,11 @@ export class LightGroupService extends BaseGroupService {
         state: light.state,
       } as PersistenceLightStateDTO;
     });
+  }
+
+  @Trace()
+  public isValidEntity(id: string): boolean {
+    return domain(id) === HASS_DOMAINS.light;
   }
 
   @Trace()

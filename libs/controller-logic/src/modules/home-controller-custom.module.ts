@@ -10,21 +10,33 @@ import { DynamicRoomProviders, InjectedSettings } from '../decorators';
 import { GroupRoomInterceptor } from '../interceptors';
 import {
   CircadianService,
+  FanGroupService,
   GroupService,
   KunamiCodeService,
+  LightGroupService,
   LightManagerService,
+  LockGroupService,
+  MetaGroupService,
   RemoteAdapterService,
   RoomExplorerService,
   RoomManagerService,
   SolarCalcService,
   StateManagerService,
+  SwitchGroupService,
 } from '../services';
 import { HomePersistenceModule } from './home-persistence.module';
 
 const providers = [
+  ...[
+    FanGroupService,
+    GroupService,
+    LightGroupService,
+    LockGroupService,
+    MetaGroupService,
+    SwitchGroupService,
+  ],
   CircadianService,
   GroupRoomInterceptor,
-  GroupService,
   KunamiCodeService,
   LightManagerService,
   RemoteAdapterService,

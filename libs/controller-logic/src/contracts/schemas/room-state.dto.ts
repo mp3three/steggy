@@ -1,4 +1,4 @@
-import { LOCK_STATES } from '@automagical/home-assistant';
+import { FanSpeeds, LOCK_STATES } from '@automagical/home-assistant';
 import { BaseSchemaDTO } from '@automagical/persistence';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsEnum, IsString } from 'class-validator';
@@ -12,6 +12,12 @@ export class PersistenceSwitchStateDTO {
   @IsString()
   @Prop({ enum: ['on', 'off'], required: true, type: String })
   state: 'on' | 'off';
+}
+
+export class PersistenceFanStateDTO extends PersistenceSwitchStateDTO {
+  @IsEnum(FanSpeeds)
+  @Prop({ enum: Object.values(FanSpeeds) })
+  speed: FanSpeeds;
 }
 
 export class PersistenceLockStateDTO {

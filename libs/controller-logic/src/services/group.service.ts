@@ -1,20 +1,15 @@
-import { LockStateDTO } from '@automagical/home-assistant';
 import { BaseSchemaDTO } from '@automagical/persistence';
 import { ResultControlDTO, Trace } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
+import { BASIC_STATE, GROUP_TYPES, GroupDTO } from '../contracts';
 import {
-  BASIC_STATE,
-  GROUP_TYPES,
-  GroupDTO,
-  PersistenceLightStateDTO,
-  PersistenceSwitchStateDTO,
-} from '../contracts';
-import {
+  FanGroupService,
   LightGroupService,
   LockGroupService,
   SwitchGroupService,
 } from './groups';
+import { BaseGroupService } from './groups/base-group.service';
 import { GroupPersistenceService } from './persistence';
 
 @Injectable()
@@ -23,6 +18,7 @@ export class GroupService {
     private readonly groupPersistence: GroupPersistenceService,
     private readonly lightGroup: LightGroupService,
     private readonly lockGroup: LockGroupService,
+    private readonly fanGroup: FanGroupService,
     private readonly switchGroup: SwitchGroupService,
   ) {}
 
@@ -32,24 +28,8 @@ export class GroupService {
     state: string,
   ): Promise<void> {
     group = await this.load(group);
-    switch (group.type) {
-      case GROUP_TYPES.switch:
-        return await this.switchGroup.activateState(
-          group as GroupDTO<PersistenceSwitchStateDTO>,
-          state,
-        );
-      case GROUP_TYPES.light:
-        return await this.lightGroup.activateState(
-          group as GroupDTO<PersistenceLightStateDTO>,
-          state,
-        );
-      case GROUP_TYPES.lock:
-        return await this.lockGroup.activateState(
-          group as GroupDTO<LockStateDTO>,
-          state,
-        );
-    }
-    throw new NotImplementedException();
+    const base = this.getBaseGroup(group);
+    return await base.activateState(group, state);
   }
 
   @Trace()
@@ -72,24 +52,8 @@ export class GroupService {
     name: string,
   ): Promise<string> {
     group = await this.load(group);
-    switch (group.type) {
-      case GROUP_TYPES.switch:
-        return await this.switchGroup.captureState(
-          group as GroupDTO<PersistenceSwitchStateDTO>,
-          name,
-        );
-      case GROUP_TYPES.light:
-        return await this.lightGroup.captureState(
-          group as GroupDTO<PersistenceLightStateDTO>,
-          name,
-        );
-      case GROUP_TYPES.lock:
-        return await this.lockGroup.captureState(
-          group as GroupDTO<LockStateDTO>,
-          name,
-        );
-    }
-    throw new NotImplementedException();
+    const base = this.getBaseGroup(group);
+    return await base.captureState(group, name);
   }
 
   @Trace()
@@ -108,23 +72,8 @@ export class GroupService {
   @Trace()
   public async get(group: GroupDTO | string): Promise<GroupDTO> {
     group = await this.load(group);
-    switch (group.type) {
-      case GROUP_TYPES.switch:
-        group.state = await this.switchGroup.getState(
-          group as GroupDTO<PersistenceSwitchStateDTO>,
-        );
-        break;
-      case GROUP_TYPES.light:
-        group.state = await this.lightGroup.getState(
-          group as GroupDTO<PersistenceLightStateDTO>,
-        );
-        break;
-      case GROUP_TYPES.lock:
-        group.state = await this.lockGroup.getState(
-          group as GroupDTO<LockStateDTO>,
-        );
-        break;
-    }
+    const base = this.getBaseGroup(group);
+    group.state = await base.getState(group);
     return group;
   }
 
@@ -151,6 +100,21 @@ export class GroupService {
     group: GroupDTO,
   ): Promise<GroupDTO<GROUP_TYPE>> {
     return await this.groupPersistence.update(group);
+  }
+
+  @Trace()
+  private getBaseGroup(group: GroupDTO): BaseGroupService {
+    switch (group.type) {
+      case GROUP_TYPES.switch:
+        return this.switchGroup;
+      case GROUP_TYPES.fan:
+        return this.fanGroup;
+      case GROUP_TYPES.light:
+        return this.lightGroup;
+      case GROUP_TYPES.lock:
+        return this.lockGroup;
+    }
+    throw new NotImplementedException();
   }
 
   @Trace()
