@@ -6,8 +6,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   GroupDTO,
   GroupSchema,
-  ItemNoteDTO,
-  ItemNoteSchema,
   RoomDTO,
   RoomSchema,
   RoomStateDTO,
@@ -16,7 +14,6 @@ import {
 import { DatabaseConnectService, StatePersistenceService } from '../services';
 import {
   GroupPersistenceService,
-  ItemNoteService,
   RoomPersistenceService,
 } from '../services/persistence';
 
@@ -24,7 +21,6 @@ import {
   exports: [
     DatabaseConnectService,
     GroupPersistenceService,
-    ItemNoteService,
     RoomPersistenceService,
     StatePersistenceService,
   ],
@@ -32,7 +28,6 @@ import {
     MongoPersistenceModule,
     MongooseModule.forFeature([
       { name: GroupDTO.name, schema: GroupSchema },
-      { name: ItemNoteDTO.name, schema: ItemNoteSchema },
       { name: RoomDTO.name, schema: RoomSchema },
       { name: RoomStateDTO.name, schema: RoomStateSchema },
     ]),
@@ -43,7 +38,6 @@ import {
     DatabaseConnectService,
     StatePersistenceService,
     GroupPersistenceService,
-    ItemNoteService,
     RoomPersistenceService,
   ],
 })

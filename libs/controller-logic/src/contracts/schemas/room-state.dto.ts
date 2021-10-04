@@ -19,8 +19,6 @@ export class PersistenceLightStateDTO extends PersistenceSwitchStateDTO {
   brightness?: number;
   @Prop([Number])
   hs?: [number, number] | number[];
-  @Prop(Number)
-  kelvin?: number;
   @Prop({
     default: LIGHTING_MODE.on,
     enum: Object.values(LIGHTING_MODE),

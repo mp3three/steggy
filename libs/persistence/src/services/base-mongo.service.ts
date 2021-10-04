@@ -8,10 +8,9 @@ import { filtersToMongoQuery } from '../includes';
 export class BaseMongoService {
   protected merge(
     query: ResultControlDTO | string,
-    merge?: ResultControlDTO,
+    merge: ResultControlDTO = {},
   ): Record<string, unknown> {
     if (typeof query === 'string') {
-      merge ??= {};
       merge.filters ??= new Set();
       merge.filters.add({
         field: '_id',

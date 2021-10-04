@@ -3,6 +3,7 @@ import { Expose, Type } from 'class-transformer';
 import { IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
+import { PersistenceSwitchStateDTO } from '../dto';
 import { BaseRoomDTO } from './base-room.dto';
 import { RoomDTO } from './room.dto';
 
@@ -12,6 +13,7 @@ export enum GROUP_TYPES {
   switch = 'switch',
   lock = 'lock',
 }
+export type BASIC_STATE = Omit<PersistenceSwitchStateDTO, 'entity_id'>;
 
 @Schema({
   collection: `group`,
@@ -20,7 +22,7 @@ export enum GROUP_TYPES {
     updatedAt: 'modified',
   },
 })
-export class GroupDTO<T extends unknown = unknown> extends BaseRoomDTO {
+export class GroupDTO<T extends BASIC_STATE = BASIC_STATE> extends BaseRoomDTO {
   /**
    * A list of entity ids that can be looked up in home assistant
    */
@@ -94,6 +96,7 @@ export class GroupDTO<T extends unknown = unknown> extends BaseRoomDTO {
 }
 
 export class GroupSaveState<T extends unknown = unknown> {
+  id: string;
   @Expose()
   name: string;
   @Expose()

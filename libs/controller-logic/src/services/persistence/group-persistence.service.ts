@@ -9,7 +9,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { GroupDocument, GroupDTO } from '../../contracts';
+import { BASIC_STATE, GroupDocument, GroupDTO } from '../../contracts';
 const OK_RESPONSE = 1;
 
 @Injectable()
@@ -41,22 +41,22 @@ export class GroupPersistenceService extends BaseMongoService {
   }
   @Trace()
   @ToClass(GroupDTO)
-  public async findById(
+  public async findById<T extends BASIC_STATE = BASIC_STATE>(
     state: string,
     { control }: { control?: ResultControlDTO } = {},
-  ): Promise<GroupDTO> {
+  ): Promise<GroupDTO<T>> {
     const query = this.merge(state, control);
-    return await this.modifyQuery(control, this.groupModel.findOne(query))
+    return (await this.modifyQuery(control, this.groupModel.findOne(query))
       .lean()
-      .exec();
+      .exec()) as GroupDTO<T>;
   }
 
   @Trace()
   @ToClass(GroupDTO)
-  public async findByName(
+  public async findByName<T extends BASIC_STATE = BASIC_STATE>(
     state: string,
-    { control }: { control: ResultControlDTO },
-  ): Promise<GroupDTO> {
+    { control }: { control?: ResultControlDTO } = {},
+  ): Promise<GroupDTO<T>> {
     const query = this.merge(
       {
         filters: new Set([
@@ -68,9 +68,9 @@ export class GroupPersistenceService extends BaseMongoService {
       },
       control,
     );
-    return await this.modifyQuery(control, this.groupModel.findOne(query))
+    return (await this.modifyQuery(control, this.groupModel.findOne(query))
       .lean()
-      .exec();
+      .exec()) as GroupDTO<T>;
   }
 
   @Trace()
@@ -83,10 +83,10 @@ export class GroupPersistenceService extends BaseMongoService {
   }
 
   @Trace()
-  public async update(
+  public async update<T extends BASIC_STATE = BASIC_STATE>(
     state: GroupDTO,
-    control: ResultControlDTO,
-  ): Promise<GroupDTO> {
+    control: ResultControlDTO = {},
+  ): Promise<GroupDTO<T>> {
     const query = this.merge(control);
     const result = await this.groupModel.updateOne(query, state).exec();
     if (result.ok === OK_RESPONSE) {

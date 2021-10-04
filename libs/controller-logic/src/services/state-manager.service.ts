@@ -25,7 +25,7 @@ import {
   RoomStateDTO,
 } from '../contracts';
 import { LightManagerService } from './light-manager.service';
-import { StatePersistenceService } from './state-persistence.service';
+import { StatePersistenceService } from './persistence/state-persistence.service';
 
 const CACHE_KEY = (room, flag) => `FLAGS:${room}/${flag}`;
 

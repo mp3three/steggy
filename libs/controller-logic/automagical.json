@@ -23,6 +23,11 @@
       "type": "number",
       "default": 10
     },
+    "CONCURRENT_CHANGES": {
+      "type": "number",
+      "description": "When working through lists of unknown size, limit to x entities at a time to reduce load",
+      "default": 10
+    },
     "MAX_BRIGHTNESS": {
       "type": "number",
       "default": 255,

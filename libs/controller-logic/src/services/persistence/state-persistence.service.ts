@@ -9,7 +9,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { RoomStateDocument, RoomStateDTO } from '../contracts';
+import { RoomStateDocument, RoomStateDTO } from '../../contracts';
 
 const OK_RESPONSE = 1;
 
