@@ -1,198 +1,163 @@
-import {
-  domain,
-  EntityManagerService,
-  HASS_DOMAINS,
-  HassStateDTO,
-  LightStateDTO,
-  SwitchDomainService,
-} from '@automagical/home-assistant';
-import {
-  AutoLogService,
-  FILTER_OPERATIONS,
-  queryToControl,
-  Trace,
-} from '@automagical/utilities';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { LockStateDTO } from '@automagical/home-assistant';
+import { BaseSchemaDTO } from '@automagical/persistence';
+import { ResultControlDTO, Trace } from '@automagical/utilities';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import {
-  DescribeGroupResponseDTO,
+  BASIC_STATE,
+  GROUP_TYPES,
+  GroupDTO,
   PersistenceLightStateDTO,
-  RoomStateDTO,
+  PersistenceSwitchStateDTO,
 } from '../contracts';
-import { LightManagerService } from './light-manager.service';
-import { StatePersistenceService } from './persistence/state-persistence.service';
-import { RoomManagerService } from './room-manager.service';
-
-const EMPTY = 0;
+import {
+  LightGroupService,
+  LockGroupService,
+  SwitchGroupService,
+} from './groups';
+import { GroupPersistenceService } from './persistence';
 
 @Injectable()
 export class GroupService {
   constructor(
-    private readonly logger: AutoLogService,
-    private readonly entityManager: EntityManagerService,
-    private readonly roomManager: RoomManagerService,
-    private readonly switchService: SwitchDomainService,
-    private readonly lightManager: LightManagerService,
-    private readonly persistence: StatePersistenceService,
+    private readonly groupPersistence: GroupPersistenceService,
+    private readonly lightGroup: LightGroupService,
+    private readonly lockGroup: LockGroupService,
+    private readonly switchGroup: SwitchGroupService,
   ) {}
 
-  /**
-   * List all declared groups
-   *
-   * **Map**<[`roomName`,`groupName`],`entityState[]`>
-   */
   @Trace()
-  public allGroups(): Map<[string, string], HassStateDTO[]> {
-    const out = new Map<[string, string], HassStateDTO[]>();
-    this.roomManager.settings.forEach((settings) => {
-      const groups = Object.keys(settings.groups ?? {});
-      if (groups.length === EMPTY) {
-        return;
-      }
-      groups.forEach((group) => {
-        out.set(
-          [settings.name, group],
-          this.entityManager.getEntity(settings.groups[group]),
+  public async activateState(
+    group: GroupDTO | string,
+    state: string,
+  ): Promise<void> {
+    group = await this.load(group);
+    switch (group.type) {
+      case GROUP_TYPES.switch:
+        return await this.switchGroup.activateState(
+          group as GroupDTO<PersistenceSwitchStateDTO>,
+          state,
         );
-      });
-    });
-    return out;
+      case GROUP_TYPES.light:
+        return await this.lightGroup.activateState(
+          group as GroupDTO<PersistenceLightStateDTO>,
+          state,
+        );
+      case GROUP_TYPES.lock:
+        return await this.lockGroup.activateState(
+          group as GroupDTO<LockStateDTO>,
+          state,
+        );
+    }
+    throw new NotImplementedException();
   }
-  /**
-   * Capture the current state of all entities (switch + light only) inside a group, and save it to persistence
-   */
+
+  @Trace()
+  public async addEntity<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    group: GroupDTO | string,
+    entity: string | string[],
+  ): Promise<GroupDTO<GROUP_TYPE>> {
+    entity = typeof entity === 'string' ? [entity] : entity;
+    group = await this.load(group);
+    group.entities = [
+      ...group.entities.filter((id) => !entity.includes(id)),
+      ...entity,
+    ];
+    return this.update(group);
+  }
+
   @Trace()
   public async captureState(
-    group: string,
-    captureName: string,
-  ): Promise<RoomStateDTO> {
-    const { states, room } = this.loadGroupByName(group);
-    const captured = states
-      .filter((state) =>
-        [HASS_DOMAINS.light, HASS_DOMAINS.switch].includes(
-          domain(state.entity_id),
-        ),
-      )
-      .map((state: LightStateDTO) => {
-        const out = {
-          entity_id: state.entity_id,
-          state: state.state,
-        } as PersistenceLightStateDTO;
-        if (
-          domain(state.entity_id) === HASS_DOMAINS.switch ||
-          state.state === 'off'
-        ) {
-          return out;
-        }
-        out.hs = state.attributes.hs_color;
-        out.brightness = state.attributes.brightness;
-        return out;
-      });
-    const roomState: RoomStateDTO = {
-      entities: captured.map((item) => item.entity_id),
-      group,
-      name: captureName,
-      room,
-      states: captured,
-    };
-    return await this.persistence.create(roomState);
-  }
-
-  @Trace()
-  public describeGroup(room: string, group: string): DescribeGroupResponseDTO {
-    const settings = this.roomManager.settings.get(room);
-    if (!settings?.groups) {
-      throw new BadRequestException(`Room does not contain groups`);
+    group: GroupDTO | string,
+    name: string,
+  ): Promise<string> {
+    group = await this.load(group);
+    switch (group.type) {
+      case GROUP_TYPES.switch:
+        return await this.switchGroup.captureState(
+          group as GroupDTO<PersistenceSwitchStateDTO>,
+          name,
+        );
+      case GROUP_TYPES.light:
+        return await this.lightGroup.captureState(
+          group as GroupDTO<PersistenceLightStateDTO>,
+          name,
+        );
+      case GROUP_TYPES.lock:
+        return await this.lockGroup.captureState(
+          group as GroupDTO<LockStateDTO>,
+          name,
+        );
     }
-    return {
-      room,
-      states: this.entityManager.getEntity(settings.groups[group] ?? []),
-    };
-  }
-
-  /**
-   * Search for saved states that involve this entity
-   */
-  @Trace()
-  public async listStatesByEntity(entity: string): Promise<RoomStateDTO[]> {
-    return await this.persistence.findMany({
-      filters: new Set([
-        {
-          field: 'entity',
-          operation: FILTER_OPERATIONS.elem,
-          value: entity,
-        },
-      ]),
-    });
-  }
-
-  /**
-   * Search for all the saved states declared against this group
-   */
-  @Trace()
-  public async listStatesByGroup(
-    room: string,
-    group: string,
-  ): Promise<RoomStateDTO[]> {
-    return await this.persistence.findMany(queryToControl({ group, room }));
+    throw new NotImplementedException();
   }
 
   @Trace()
-  public async turnOff(room: string, group: string): Promise<void> {
-    const entities = this.getGroups(room, group);
-    const lights = entities.filter((id) => domain(id) === HASS_DOMAINS.light);
-    const switches = entities.filter(
-      (id) => domain(id) === HASS_DOMAINS.switch,
-    );
-    await this.lightManager.turnOffEntities(lights);
-    await this.switchService.turnOff(switches);
+  public async create(
+    group: Omit<GroupDTO, keyof BaseSchemaDTO>,
+  ): Promise<GroupDTO> {
+    return await this.groupPersistence.create(group);
   }
 
   @Trace()
-  public async turnOn(room: string, group: string): Promise<void> {
-    const entities = this.getGroups(room, group);
-    const lights = entities.filter((id) => domain(id) === HASS_DOMAINS.light);
-    const switches = entities.filter(
-      (id) => domain(id) === HASS_DOMAINS.switch,
-    );
-    await this.lightManager.turnOnEntities(lights);
-    await this.switchService.turnOn(switches);
+  public async delete(group: GroupDTO | string): Promise<boolean> {
+    group = typeof group === 'string' ? group : group._id;
+    return await this.groupPersistence.delete(group);
   }
 
   @Trace()
-  public async turnOnCircadian(room: string, group: string): Promise<void> {
-    const entities = this.getGroups(room, group);
-    const lights = entities.filter((id) => domain(id) === HASS_DOMAINS.light);
-    const switches = entities.filter(
-      (id) => domain(id) === HASS_DOMAINS.switch,
-    );
-    await this.lightManager.circadianLight(lights);
-    await this.switchService.turnOn(switches);
-  }
-
-  private getGroups(room: string, group: string): string[] {
-    const settings = this.roomManager.settings.get(room);
-    if (!settings?.groups) {
-      throw new BadRequestException(`Room does not contain groups`);
+  public async get(group: GroupDTO | string): Promise<GroupDTO> {
+    group = await this.load(group);
+    switch (group.type) {
+      case GROUP_TYPES.switch:
+        group.state = await this.switchGroup.getState(
+          group as GroupDTO<PersistenceSwitchStateDTO>,
+        );
+        break;
+      case GROUP_TYPES.light:
+        group.state = await this.lightGroup.getState(
+          group as GroupDTO<PersistenceLightStateDTO>,
+        );
+        break;
+      case GROUP_TYPES.lock:
+        group.state = await this.lockGroup.getState(
+          group as GroupDTO<LockStateDTO>,
+        );
+        break;
     }
-    return settings.groups[group] ?? [];
+    return group;
   }
 
-  private loadGroupByName(name: string): DescribeGroupResponseDTO {
-    const [, room] = [...this.roomManager.settings.entries()].find(
-      ([, settings]) => {
-        if (settings.groups[name]) {
-          return true;
-        }
-        return false;
-      },
-    );
-    if (!room) {
-      throw new BadRequestException(`Bad group name: ${name}`);
+  @Trace()
+  public async list<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    control: ResultControlDTO = {},
+  ): Promise<GroupDTO<GROUP_TYPE>[]> {
+    return await this.groupPersistence.findMany(control);
+  }
+
+  @Trace()
+  public async removeEntity<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    group: GroupDTO | string,
+    entity: string | string[],
+  ): Promise<GroupDTO<GROUP_TYPE>> {
+    entity = typeof entity === 'string' ? [entity] : entity;
+    group = await this.load(group);
+    group.entities = group.entities.filter((id) => !entity.includes(id));
+    return this.update(group);
+  }
+
+  @Trace()
+  public async update<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    group: GroupDTO,
+  ): Promise<GroupDTO<GROUP_TYPE>> {
+    return await this.groupPersistence.update(group);
+  }
+
+  @Trace()
+  private async load(group: GroupDTO | string): Promise<GroupDTO> {
+    if (typeof group === 'object') {
+      return group;
     }
-    return {
-      room: room.name,
-      states: this.entityManager.getEntity(room.groups[name]),
-    };
+    return await this.groupPersistence.findById(group);
   }
 }

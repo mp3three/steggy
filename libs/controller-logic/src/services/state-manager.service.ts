@@ -124,7 +124,7 @@ export class StateManagerService {
         }
         await this.lightManager.turnOnEntities(state.entity_id, {
           brightness: state.brightness,
-          hs: state.hs,
+          hs_color: state.hs_color,
           kelvin: state.kelvin,
         });
         callback();

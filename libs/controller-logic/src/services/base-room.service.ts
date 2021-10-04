@@ -5,7 +5,7 @@ import {
   RoomCommandDTO,
   RoomCommandScope,
   RoomControllerSettingsDTO,
-} from '..';
+} from '../contracts';
 
 @Injectable()
 export class BaseRoomService {

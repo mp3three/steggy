@@ -1,3 +1,4 @@
+import { LockStateDTO } from '@automagical/home-assistant';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Expose, Type } from 'class-transformer';
 import { IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
@@ -13,7 +14,9 @@ export enum GROUP_TYPES {
   switch = 'switch',
   lock = 'lock',
 }
-export type BASIC_STATE = Omit<PersistenceSwitchStateDTO, 'entity_id'>;
+export type BASIC_STATE =
+  | Pick<PersistenceSwitchStateDTO, 'state'>
+  | Pick<LockStateDTO, 'state'>;
 
 @Schema({
   collection: `group`,
@@ -76,6 +79,14 @@ export class GroupDTO<T extends BASIC_STATE = BASIC_STATE> extends BaseRoomDTO {
   @ValidateNested()
   @Expose()
   public rooms?: RoomDTO[];
+
+  /**
+   * The current state of the group
+   *
+   * Generated at runtime / not persisted
+   */
+  @Expose()
+  public state?: T[];
 
   /**
    * Captured save states

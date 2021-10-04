@@ -9,7 +9,7 @@ import {
   MONGO_CRL,
   MONGO_KEY,
   MONGO_URI,
-} from '../config';
+} from '../../config';
 
 @Injectable()
 export class DatabaseConnectService {

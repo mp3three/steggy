@@ -1,6 +1,7 @@
+import { LOCK_STATES } from '@automagical/home-assistant';
 import { BaseSchemaDTO } from '@automagical/persistence';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { IsString } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
 import { Document } from 'mongoose';
 
 export enum LIGHTING_MODE {
@@ -8,17 +9,22 @@ export enum LIGHTING_MODE {
   on = 'on',
 }
 export class PersistenceSwitchStateDTO {
-  @Prop({ required: true, type: String })
-  entity_id: string;
+  @IsString()
   @Prop({ enum: ['on', 'off'], required: true, type: String })
   state: 'on' | 'off';
+}
+
+export class PersistenceLockStateDTO {
+  @IsEnum(LOCK_STATES)
+  @Prop({ enum: Object.values(LOCK_STATES), required: true, type: String })
+  state: LOCK_STATES;
 }
 
 export class PersistenceLightStateDTO extends PersistenceSwitchStateDTO {
   @Prop(Number)
   brightness?: number;
   @Prop([Number])
-  hs?: [number, number] | number[];
+  hs_color?: [number, number] | number[];
   @Prop({
     default: LIGHTING_MODE.on,
     enum: Object.values(LIGHTING_MODE),
@@ -26,6 +32,8 @@ export class PersistenceLightStateDTO extends PersistenceSwitchStateDTO {
   })
   mode: LIGHTING_MODE;
 }
+
+type BASE_STATES = PersistenceSwitchStateDTO | PersistenceLockStateDTO;
 
 @Schema({
   collection: 'room_state',
@@ -35,7 +43,7 @@ export class PersistenceLightStateDTO extends PersistenceSwitchStateDTO {
   },
 })
 export class RoomStateDTO<
-  STATES extends PersistenceSwitchStateDTO = PersistenceLightStateDTO,
+  STATES extends BASE_STATES = PersistenceLightStateDTO,
 > extends BaseSchemaDTO {
   @IsString({ each: true })
   @Prop()

@@ -75,11 +75,13 @@ export class GroupPersistenceService extends BaseMongoService {
 
   @Trace()
   @ToClass(GroupDTO)
-  public async findMany(control: ResultControlDTO = {}): Promise<GroupDTO[]> {
+  public async findMany<T extends BASIC_STATE = BASIC_STATE>(
+    control: ResultControlDTO = {},
+  ): Promise<GroupDTO<T>[]> {
     const query = this.merge(control);
-    return await this.modifyQuery(control, this.groupModel.find(query))
+    return (await this.modifyQuery(control, this.groupModel.find(query))
       .lean()
-      .exec();
+      .exec()) as GroupDTO<T>[];
   }
 
   @Trace()

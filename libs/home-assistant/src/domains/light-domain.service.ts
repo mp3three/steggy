@@ -46,7 +46,7 @@ export class LightDomainService extends EntityService {
   public async turnOn(
     entity_id: string | string[],
     settings: {
-      brightness_pct?: number;
+      brightness?: number;
       hs_color?: [number, number] | number[];
       kelvin?: number;
     } = {},

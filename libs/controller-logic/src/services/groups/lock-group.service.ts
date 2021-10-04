@@ -1,32 +1,52 @@
 import {
+  CONCURRENT_CHANGES,
   GroupDTO,
   GroupPersistenceService,
+  PersistenceLockStateDTO,
 } from '@automagical/controller-logic';
 import {
   domain,
+  EntityManagerService,
   HASS_DOMAINS,
+  LOCK_STATES,
   LockDomainService,
+  LockStateDTO,
 } from '@automagical/home-assistant';
-import { Trace } from '@automagical/utilities';
+import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { each } from 'async';
+import { each, eachLimit } from 'async';
 
-/**
- * At this time, lock groups do not support state persistence
- *
- * It's basically a glorified wrapper around lock domain
- */
+import { BaseGroupService } from './base-group.service';
+
+const START = 0;
+
 @Injectable()
-export class LockGroupService {
+export class LockGroupService extends BaseGroupService {
   constructor(
+    protected readonly logger: AutoLogService,
     private readonly lockSerivice: LockDomainService,
-    private readonly persistence: GroupPersistenceService,
-  ) {}
+    private readonly entityManager: EntityManagerService,
+    protected readonly groupPersistence: GroupPersistenceService,
+    @InjectConfig(CONCURRENT_CHANGES)
+    private readonly eachLimit: number,
+  ) {
+    super();
+  }
+
+  @Trace()
+  public getState(group: GroupDTO<LockStateDTO>): PersistenceLockStateDTO[] {
+    return group.entities.map((id) => {
+      const [light] = this.entityManager.getEntity<LockStateDTO>([id]);
+      return {
+        state: light.state,
+      } as PersistenceLockStateDTO;
+    });
+  }
 
   @Trace()
   public async lock(group: GroupDTO | string): Promise<void> {
     if (typeof group === 'string') {
-      group = await this.persistence.findById(group);
+      group = await this.groupPersistence.findById(group);
     }
     await each(group.entities, async (lock, callback) => {
       if (!this.isValid(lock)) {
@@ -58,7 +78,7 @@ export class LockGroupService {
   @Trace()
   public async unlock(group: GroupDTO | string): Promise<void> {
     if (typeof group === 'string') {
-      group = await this.persistence.findById(group);
+      group = await this.groupPersistence.findById(group);
     }
     await each(group.entities, async (lock, callback) => {
       if (!this.isValid(lock)) {
@@ -69,6 +89,31 @@ export class LockGroupService {
       await this.lockSerivice.unlock(lock);
       callback();
     });
+  }
+
+  @Trace()
+  protected async setState(
+    entites: string[],
+    state: PersistenceLockStateDTO[],
+  ): Promise<void> {
+    if (entites.length !== state.length) {
+      this.logger.warn(`State and entity length mismatch`);
+      state = state.slice(START, entites.length);
+    }
+    await eachLimit(
+      state.map((state, index) => {
+        return [entites[index], state];
+      }) as [string, PersistenceLockStateDTO][],
+      this.eachLimit,
+      async ([id, state], callback) => {
+        if (state.state === LOCK_STATES.locked) {
+          await this.lockSerivice.lock(id);
+          return callback();
+        }
+        await this.lockSerivice.unlock(id);
+        callback();
+      },
+    );
   }
 
   private isValid(id: string | string[]): boolean {

@@ -1,6 +1,5 @@
 export * from './base-room.service';
 export * from './circadian.service';
-export * from './database-connect.service';
 export * from './group.service';
 export * from './groups';
 export * from './kunami-code.service';

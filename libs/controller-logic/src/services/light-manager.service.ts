@@ -186,11 +186,10 @@ export class LightManagerService {
       delete settings.kelvin;
     }
     await this.cache.set(CACHE_KEY(entity_id), settings);
-    // Trying to use brightness_pct here makes for lovely headaches
     // Brightness here is 1-255
     const data = {
       brightness: settings.brightness,
-      hs_color: settings.hs,
+      hs_color: settings.hs_color,
       kelvin: settings.kelvin,
     };
     Object.keys(data).forEach((key) => {
