@@ -17,15 +17,15 @@ import {
 } from '@nestjs/common';
 import { each } from 'async';
 
-import { CACHE_TTL } from '../config';
+import { CACHE_TTL } from '../../config';
 import {
   DuplicateStateDTO,
   PersistenceLightStateDTO,
   RoomControllerSettingsDTO,
   RoomStateDTO,
-} from '../contracts';
-import { LightManagerService } from './light-manager.service';
-import { StatePersistenceService } from './persistence/state-persistence.service';
+} from '../../contracts';
+import { LightManagerService } from '../light-manager.service';
+import { StatePersistenceService } from '../persistence/state-persistence.service';
 
 const CACHE_KEY = (room, flag) => `FLAGS:${room}/${flag}`;
 

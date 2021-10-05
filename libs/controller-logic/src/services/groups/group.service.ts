@@ -7,15 +7,13 @@ import {
   GROUP_TYPES,
   GroupDTO,
   GroupSaveState,
-} from '../contracts';
-import {
-  FanGroupService,
-  LightGroupService,
-  LockGroupService,
-  SwitchGroupService,
-} from './groups';
-import { BaseGroupService } from './groups/base-group.service';
-import { GroupPersistenceService } from './persistence';
+} from '../../contracts';
+import { GroupPersistenceService } from '../persistence';
+import { BaseGroupService } from './base-group.service';
+import { FanGroupService } from './fan-group.service';
+import { LightGroupService } from './light-group.service';
+import { LockGroupService } from './lock-group.service';
+import { SwitchGroupService } from './switch-group.service';
 
 @Injectable()
 export class GroupService {

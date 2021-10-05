@@ -1,4 +1,4 @@
-import { BaseMongoService } from '@automagical/persistence';
+import { BaseMongoService, BaseSchemaDTO } from '@automagical/persistence';
 import {
   AutoLogService,
   ResultControlDTO,
@@ -24,7 +24,9 @@ export class RoomPersistenceService extends BaseMongoService {
 
   @Trace()
   @ToClass(RoomDTO)
-  public async create(state: RoomDTO): Promise<RoomDTO> {
+  public async create(
+    state: Omit<RoomDTO, keyof BaseSchemaDTO>,
+  ): Promise<RoomDTO> {
     return (await this.roomModel.create(state)).toObject();
   }
 
@@ -84,13 +86,13 @@ export class RoomPersistenceService extends BaseMongoService {
 
   @Trace()
   public async update(
-    state: RoomDTO,
-    control: ResultControlDTO,
+    state: Omit<Partial<RoomDTO>, keyof BaseSchemaDTO>,
+    id: string,
   ): Promise<RoomDTO> {
-    const query = this.merge(control);
+    const query = this.merge(id);
     const result = await this.roomModel.updateOne(query, state).exec();
     if (result.ok === OK_RESPONSE) {
-      return await this.findById(state._id, { control });
+      return await this.findById(id);
     }
   }
 }

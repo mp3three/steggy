@@ -29,10 +29,6 @@
   },
   "extensions": {
     "recommendations": [
-      // Bracket pair colorizer
-      "coenraads.bracket-pair-colorizer-2",
-      // .env support
-      "irongeek.vscode-env",
       // eslint
       "dbaeumer.vscode-eslint",
       // Markdown tools
@@ -75,8 +71,7 @@
       ".pino-prettyrc": "json",
       "home-controller": "ini",
       "devtools": "ini",
-      "dashboard": "ini",
-      "jest-test": "ini"
+      "dashboard": "ini"
     },
     "files.exclude": {
       "**/.git": true,

@@ -36,14 +36,14 @@ export class SwitchGroupService extends BaseGroupService {
   public readonly GROUP_TYPE = GROUP_TYPES.switch;
 
   @Trace()
-  public getState(
-    group: GroupDTO<PersistenceSwitchStateDTO>,
-  ): PersistenceSwitchStateDTO[] {
+  public getState<
+    T extends PersistenceSwitchStateDTO = PersistenceSwitchStateDTO,
+  >(group: GroupDTO<T>): T[] {
     return group.entities.map((id) => {
       const [light] = this.entityManager.getEntity<SwitchStateDTO>([id]);
       return {
         state: light.state,
-      } as PersistenceSwitchStateDTO;
+      } as T;
     });
   }
 

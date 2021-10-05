@@ -8,7 +8,7 @@ import {
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 
-import { RoomSettings, Steps } from '..';
+import { RoomSettings, Steps } from '../..';
 import {
   ControllerStates,
   iRoomController,
@@ -17,14 +17,14 @@ import {
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerFlags,
   RoomControllerSettingsDTO,
-} from '../contracts';
+} from '../../contracts';
 import {
   RoomCommandDTO,
   RoomCommandScope,
-} from '../contracts/room-command.dto';
-import { KunamiCodeService } from './kunami-code.service';
-import { LightManagerService } from './light-manager.service';
-import { RemoteAdapterService } from './remote-adapter.service';
+} from '../../contracts/room-command.dto';
+import { KunamiCodeService } from '../kunami-code.service';
+import { LightManagerService } from '../light-manager.service';
+import { RemoteAdapterService } from '../sensors/remote-adapter.service';
 import { RoomManagerService } from './room-manager.service';
 
 const ADD_STEPS = 2;

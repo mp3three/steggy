@@ -3,7 +3,7 @@ import { AutoLogService, InjectLogger, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 
-import { CONTROLLER_STATE_EVENT, ControllerStates } from '../contracts';
+import { CONTROLLER_STATE_EVENT, ControllerStates } from '../../contracts';
 
 /**
  * This service adapts from device specific 5 button remote events to a standardized ControllerStates enum.
