@@ -5,7 +5,7 @@ import { Document } from 'mongoose';
 
 import { LightingCacheDTO } from '../dto';
 import { BaseRoomDTO } from './base-room.dto';
-import { BASIC_STATE, GroupDTO } from './group.dto';
+import { BASIC_STATE } from './group.dto';
 
 export class RoomEntitySaveStateDTO {
   extra?: LightingCacheDTO | Record<string, unknown>;
@@ -78,13 +78,20 @@ export class RoomDTO extends BaseRoomDTO {
   @Expose()
   public groups?: string[];
 
+  @Prop()
+  @Expose()
+  @IsOptional()
+  @Type(() => RoomSaveStateDTO)
+  @ValidateNested({ each: true })
+  public save_states?: RoomSaveStateDTO[];
+
   /**
    * Not persisted
    */
   @Expose()
   @IsOptional()
   @Type(() => RoomSaveStateDTO)
-  public state?: Partial<RoomSaveStateDTO>;
+  public state?: Omit<RoomSaveStateDTO, 'name' | 'id'>;
 }
 
 export type RoomDocument = RoomDTO & Document;

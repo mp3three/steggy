@@ -10,6 +10,7 @@ import { DynamicRoomProviders, InjectedSettings } from '../decorators';
 import { GroupRoomInterceptor } from '../interceptors';
 import {
   CircadianService,
+  CommandRouterService,
   FanGroupService,
   GroupService,
   KunamiCodeService,
@@ -36,6 +37,7 @@ const providers = [
     SwitchGroupService,
   ],
   CircadianService,
+  CommandRouterService,
   GroupRoomInterceptor,
   KunamiCodeService,
   LightManagerService,

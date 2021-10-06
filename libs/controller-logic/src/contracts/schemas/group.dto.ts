@@ -31,6 +31,12 @@ export type BASIC_STATE = { state: string };
 export class GroupDTO<
   GROUP_STATE extends BASIC_STATE = BASIC_STATE,
 > extends BaseRoomDTO {
+  @Prop({ type: String })
+  @IsString()
+  @Expose()
+  @IsOptional()
+  public defaultOnState?: string;
+
   /**
    * A list of entity ids that can be looked up in home assistant
    */

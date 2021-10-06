@@ -1,4 +1,5 @@
 import {
+  ROOM_ENTITY_TYPES,
   RoomDTO,
   RoomEntityDTO,
   RoomService,
@@ -78,6 +79,22 @@ export class RoomController {
   @Get('/')
   public async list(@Locals() { control }: ResponseLocals): Promise<RoomDTO[]> {
     return await this.roomService.list(control);
+  }
+
+  @Put(`/:room/turnOff`)
+  public async turnOff(
+    @Param('room') room: string,
+    @Body() { scope }: Record<'scope', ROOM_ENTITY_TYPES | ROOM_ENTITY_TYPES[]>,
+  ): Promise<void> {
+    await this.roomService.turnOff(room, scope);
+  }
+
+  @Put(`/:room/turnOn`)
+  public async turnOn(
+    @Param('room') room: string,
+    @Body() { scope }: Record<'scope', ROOM_ENTITY_TYPES | ROOM_ENTITY_TYPES[]>,
+  ): Promise<void> {
+    await this.roomService.turnOn(room, scope);
   }
 
   @Put(`/:room`)

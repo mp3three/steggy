@@ -1,6 +1,16 @@
+import {
+  CommandRouterService,
+  LightManagerService,
+} from '@automagical/controller-logic';
+import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import { BaseSchemaDTO } from '@automagical/persistence';
-import { ResultControlDTO, Trace } from '@automagical/utilities';
+import {
+  AutoLogService,
+  ResultControlDTO,
+  Trace,
+} from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
+import { each } from 'async';
 
 import {
   BASIC_STATE,
@@ -15,14 +25,19 @@ import { LightGroupService } from './light-group.service';
 import { LockGroupService } from './lock-group.service';
 import { SwitchGroupService } from './switch-group.service';
 
+const EMPTY = 0;
+
 @Injectable()
 export class GroupService {
   constructor(
+    private readonly logger: AutoLogService,
     private readonly groupPersistence: GroupPersistenceService,
     private readonly lightGroup: LightGroupService,
     private readonly lockGroup: LockGroupService,
     private readonly fanGroup: FanGroupService,
     private readonly switchGroup: SwitchGroupService,
+    private readonly lightManager: LightManagerService,
+    private readonly commandRouter: CommandRouterService,
   ) {}
 
   @Trace()
@@ -116,6 +131,43 @@ export class GroupService {
     group = await this.load(group);
     group.entities = group.entities.filter((id) => !entity.includes(id));
     return this.update(group._id, group);
+  }
+
+  @Trace()
+  public async turnOff(group: GroupDTO | string): Promise<void> {
+    group = await this.load(group);
+    await each(group.entities, async (entity, callback) => {
+      await this.commandRouter.process(entity, 'turnOff');
+      callback();
+    });
+  }
+
+  @Trace()
+  public async turnOn(group: GroupDTO | string): Promise<void> {
+    group = await this.load(group);
+    await each(group.entities, async (entity, callback) => {
+      if ((group as GroupDTO).type === GROUP_TYPES.light) {
+        if (domain(entity) !== HASS_DOMAINS.light) {
+          await this.commandRouter.process(entity, 'turnOn');
+          this.logger.warn({ entity }, `Invalid entity in light group`);
+          return callback();
+        }
+        let { defaultOnState } = group as GroupDTO;
+        defaultOnState ??= '';
+        if (defaultOnState === 'circadian') {
+          await this.lightManager.circadianLight(entity);
+          return callback();
+        }
+        if (defaultOnState.length > EMPTY) {
+          await this.activateState(group, defaultOnState);
+          return callback();
+        }
+        await this.lightManager.turnOn(entity);
+        return callback();
+      }
+      await this.commandRouter.process(entity, 'turnOn');
+      callback();
+    });
   }
 
   @Trace()

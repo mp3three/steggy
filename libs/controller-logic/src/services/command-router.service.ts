@@ -1,4 +1,3 @@
-import { LightManagerService } from '@automagical/controller-logic';
 import {
   ClimateDomainService,
   domain,
@@ -16,6 +15,8 @@ import {
   NotImplementedException,
 } from '@nestjs/common';
 
+import { LightManagerService } from './light-manager.service';
+
 type FanBody = { speed: FanSpeeds };
 type ClimateBody = {
   mode?: string;
@@ -26,7 +27,7 @@ type ClimateBody = {
 };
 
 @Injectable()
-export class CommandRouter {
+export class CommandRouterService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly lightService: LightManagerService,

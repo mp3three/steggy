@@ -26,7 +26,7 @@ import {
   LoftController,
   MasterBedroomController,
 } from '../rooms';
-import { ApplicationService, CommandRouter, GarageService } from '../services';
+import { ApplicationService, GarageService } from '../services';
 
 const rooms = [
   BedRemoteController,
@@ -54,6 +54,6 @@ const rooms = [
     HomeControllerCustomModule.forRoot(),
     HomePersistenceModule.forRoot(),
   ],
-  providers: [ApplicationService, CommandRouter, GarageService, ...rooms],
+  providers: [ApplicationService, GarageService, ...rooms],
 })
 export class HomeControllerModule {}

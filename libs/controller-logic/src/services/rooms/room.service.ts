@@ -1,4 +1,7 @@
-import { LightManagerService } from '@automagical/controller-logic';
+import {
+  CommandRouterService,
+  LightManagerService,
+} from '@automagical/controller-logic';
 import {
   domain,
   EntityManagerService,
@@ -16,6 +19,7 @@ import {
 } from '@automagical/utilities';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { each } from 'async';
+import { v4 as uuid } from 'uuid';
 
 import {
   BASIC_STATE,
@@ -36,6 +40,7 @@ export class RoomService {
     private readonly groupService: GroupService,
     private readonly entityManager: EntityManagerService,
     private readonly lightManager: LightManagerService,
+    private readonly commandRouter: CommandRouterService,
   ) {}
 
   @Trace()
@@ -60,11 +65,17 @@ export class RoomService {
   }
 
   @Trace()
-  public async captureState(room: RoomDTO | string): Promise<RoomDTO> {
-    room = await this.load(room);
-    room.state = {
-      entities: await this.entityStates(room),
-    };
+  public async captureState(
+    room: RoomDTO | string,
+    name: string,
+  ): Promise<RoomDTO> {
+    room = await this.get(room);
+    room.save_states.push({
+      ...room.state,
+      id: uuid(),
+      name,
+    });
+    await this.roomPersistence.update(room, room._id);
     return room;
   }
 
@@ -108,12 +119,62 @@ export class RoomService {
   @Trace()
   public async get(room: RoomDTO | string): Promise<RoomDTO> {
     room = await this.load(room);
+    room.state = {
+      entities: await this.entityStates(room),
+      groups: await this.groupStates(room),
+    };
     return room;
   }
 
   @Trace()
   public async list(control: ResultControlDTO = {}): Promise<RoomDTO[]> {
     return await this.roomPersistence.findMany(control);
+  }
+
+  @Trace()
+  public async turnOff(
+    room: RoomDTO | string,
+    scope: ROOM_ENTITY_TYPES | ROOM_ENTITY_TYPES[] = ROOM_ENTITY_TYPES.normal,
+  ): Promise<void> {
+    room = await this.load(room);
+    scope = Array.isArray(scope) ? scope : [scope];
+    await Promise.all([
+      await each(room.entities ?? [], async (entity, callback) => {
+        if (scope.includes(entity.type)) {
+          await this.commandRouter.process(entity.entity_id, 'turnOff');
+        }
+        callback();
+      }),
+      await each(room.groups ?? [], async (group, callback) => {
+        await this.groupService.turnOff(group);
+        callback();
+      }),
+    ]);
+  }
+
+  @Trace()
+  public async turnOn(
+    room: RoomDTO | string,
+    scope: ROOM_ENTITY_TYPES | ROOM_ENTITY_TYPES[] = ROOM_ENTITY_TYPES.normal,
+  ): Promise<void> {
+    room = await this.load(room);
+    scope = Array.isArray(scope) ? scope : [scope];
+    await Promise.all([
+      await each(room.entities ?? [], async (entity, callback) => {
+        if (scope.includes(entity.type)) {
+          if (domain(entity.type) === HASS_DOMAINS.light) {
+            await this.lightManager.circadianLight(entity.entity_id);
+            return callback();
+          }
+          await this.commandRouter.process(entity.entity_id, 'turnOn');
+        }
+        callback();
+      }),
+      await each(room.groups ?? [], async (group, callback) => {
+        await this.groupService.turnOn(group);
+        callback();
+      }),
+    ]);
   }
 
   @Trace()
@@ -186,6 +247,10 @@ export class RoomService {
     const states: Record<string, BASIC_STATE[]> = {};
     await each(room.groups, async (id, callback) => {
       const group = await this.groupService.get(id);
+      if (!group) {
+        this.logger.warn({ id }, `Invalid group, omitting from state`);
+        return callback();
+      }
       states[id] = group.state;
       callback();
     });

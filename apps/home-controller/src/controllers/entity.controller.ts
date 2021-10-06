@@ -1,4 +1,5 @@
 import {
+  CommandRouterService,
   LightingCacheDTO,
   LightManagerService,
 } from '@automagical/controller-logic';
@@ -20,15 +21,13 @@ import {
   Put,
 } from '@nestjs/common';
 
-import { CommandRouter } from '../services';
-
 @Controller('/entity')
 @AuthStack()
 export class EntityController {
   constructor(
     private readonly logger: AutoLogService,
     private readonly entityManager: EntityManagerService,
-    private readonly commandRouter: CommandRouter,
+    private readonly commandRouter: CommandRouterService,
     private readonly lightManager: LightManagerService,
   ) {}
 
