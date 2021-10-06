@@ -6,7 +6,7 @@ import {
   BASIC_STATE,
   GROUP_TYPES,
   GroupDTO,
-  GroupSaveState,
+  GroupSaveStateDTO,
 } from '../../contracts';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
@@ -52,7 +52,7 @@ export class GroupService {
   @Trace()
   public async addState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
     group: GroupDTO<GROUP_TYPE> | string,
-    state: GroupSaveState<GROUP_TYPE>,
+    state: GroupSaveStateDTO<GROUP_TYPE>,
   ): Promise<GroupDTO<GROUP_TYPE>> {
     group = await this.load(group);
     const base = this.getBaseGroup(group.type);

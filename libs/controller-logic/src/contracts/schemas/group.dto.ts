@@ -28,7 +28,9 @@ export type BASIC_STATE = { state: string };
     updatedAt: 'modified',
   },
 })
-export class GroupDTO<T extends BASIC_STATE = BASIC_STATE> extends BaseRoomDTO {
+export class GroupDTO<
+  GROUP_STATE extends BASIC_STATE = BASIC_STATE,
+> extends BaseRoomDTO {
   /**
    * A list of entity ids that can be looked up in home assistant
    */
@@ -89,16 +91,16 @@ export class GroupDTO<T extends BASIC_STATE = BASIC_STATE> extends BaseRoomDTO {
    * Generated at runtime / not persisted
    */
   @Expose()
-  public state?: T[];
+  public state?: GROUP_STATE[];
 
   /**
    * Captured save states
    */
-  @Type(() => GroupSaveState)
+  @Type(() => GroupSaveStateDTO)
   @ValidateNested({ each: true })
   @Prop()
   @Expose()
-  public states: GroupSaveState<T>[];
+  public states: GroupSaveStateDTO<GROUP_STATE>[];
 
   /**
    * What type of group
@@ -109,7 +111,7 @@ export class GroupDTO<T extends BASIC_STATE = BASIC_STATE> extends BaseRoomDTO {
   public type: GROUP_TYPES;
 }
 
-export class GroupSaveState<T extends BASIC_STATE = BASIC_STATE> {
+export class GroupSaveStateDTO<SAVE_STATE extends BASIC_STATE = BASIC_STATE> {
   /**
    * Generated id
    */
@@ -131,7 +133,7 @@ export class GroupSaveState<T extends BASIC_STATE = BASIC_STATE> {
    */
   @IsArray()
   @Expose()
-  states: T[];
+  states: SAVE_STATE[];
 }
 
 export type GroupDocument = GroupDTO & Document;

@@ -1,6 +1,6 @@
 import {
   GroupDTO,
-  GroupSaveState,
+  GroupSaveStateDTO,
   GroupService,
   HomeControllerResponseLocals,
 } from '@automagical/controller-logic';
@@ -37,7 +37,7 @@ export class GroupController {
   @Post(`/:id`)
   public async addState(
     @Param('group') group: string,
-    @Body() state: GroupSaveState,
+    @Body() state: GroupSaveStateDTO,
   ): Promise<GroupDTO> {
     return await this.groupService.addState(group, state);
   }

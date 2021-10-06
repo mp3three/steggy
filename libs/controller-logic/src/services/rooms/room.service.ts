@@ -1,16 +1,41 @@
+import { LightManagerService } from '@automagical/controller-logic';
+import {
+  domain,
+  EntityManagerService,
+  FanStateDTO,
+  HASS_DOMAINS,
+  LightStateDTO,
+  MediaPlayerStateDTO,
+  SwitchStateDTO,
+} from '@automagical/home-assistant';
 import { BaseSchemaDTO } from '@automagical/persistence';
-import { ResultControlDTO, Trace } from '@automagical/utilities';
+import {
+  AutoLogService,
+  ResultControlDTO,
+  Trace,
+} from '@automagical/utilities';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { each } from 'async';
 
-import { GroupDTO, RoomDTO, RoomEntityDTO } from '../../contracts';
+import {
+  BASIC_STATE,
+  GroupDTO,
+  ROOM_ENTITY_TYPES,
+  RoomDTO,
+  RoomEntityDTO,
+  RoomEntitySaveStateDTO,
+} from '../../contracts';
 import { GroupService } from '../groups';
 import { RoomPersistenceService } from '../persistence';
 
 @Injectable()
 export class RoomService {
   constructor(
+    private readonly logger: AutoLogService,
     private readonly roomPersistence: RoomPersistenceService,
     private readonly groupService: GroupService,
+    private readonly entityManager: EntityManagerService,
+    private readonly lightManager: LightManagerService,
   ) {}
 
   @Trace()
@@ -32,6 +57,15 @@ export class RoomService {
     group = await this.groupService.get(group);
     room.groups.push(group.name);
     return await this.roomPersistence.update(room, room._id);
+  }
+
+  @Trace()
+  public async captureState(room: RoomDTO | string): Promise<RoomDTO> {
+    room = await this.load(room);
+    room.state = {
+      entities: await this.entityStates(room),
+    };
+    return room;
   }
 
   @Trace()
@@ -88,6 +122,74 @@ export class RoomService {
     id: string,
   ): Promise<RoomDTO> {
     return await this.roomPersistence.update(room, id);
+  }
+
+  @Trace()
+  private async entityStates(room: RoomDTO): Promise<RoomEntitySaveStateDTO[]> {
+    room.entities ??= [];
+    const states: RoomEntitySaveStateDTO[] = [];
+    await each(room.entities, async ({ entity_id }, callback) => {
+      const [entity] = this.entityManager.getEntity([entity_id]);
+      if (!entity) {
+        this.logger.warn(
+          `Cannot find entity {${entity_id}}. Omitting from state`,
+        );
+        return callback();
+      }
+      switch (domain(entity_id)) {
+        case HASS_DOMAINS.switch:
+          states.push({
+            id: entity_id,
+            state: (entity as SwitchStateDTO).state,
+          });
+          return callback();
+
+        case HASS_DOMAINS.light:
+          states.push({
+            extra: await this.lightManager.getState(entity_id),
+            id: entity_id,
+            state: (entity as LightStateDTO).state,
+          });
+          return callback();
+
+        case HASS_DOMAINS.fan:
+          states.push({
+            extra: {
+              speed: (entity as FanStateDTO).attributes.speed,
+            },
+            id: entity_id,
+            state: (entity as FanStateDTO).state,
+          });
+          return callback();
+
+        case HASS_DOMAINS.media_player:
+          states.push({
+            id: entity_id,
+            state: (entity as MediaPlayerStateDTO).state,
+          });
+          return callback();
+      }
+      this.logger.error(
+        { entity_id },
+        `Domain {${domain(entity_id)}} not implemented`,
+      );
+      callback();
+    });
+    return states;
+  }
+
+  @Trace()
+  private async groupStates(
+    room: RoomDTO,
+  ): Promise<Record<string, BASIC_STATE[]>> {
+    room.groups ??= [];
+    const states: Record<string, BASIC_STATE[]> = {};
+    await each(room.groups, async (id, callback) => {
+      const group = await this.groupService.get(id);
+      states[id] = group.state;
+      callback();
+    });
+    return states;
   }
 
   @Trace()

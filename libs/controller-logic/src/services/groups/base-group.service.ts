@@ -3,7 +3,7 @@ import {
   GROUP_TYPES,
   GroupDTO,
   GroupPersistenceService,
-  GroupSaveState,
+  GroupSaveStateDTO,
 } from '@automagical/controller-logic';
 import { AutoLogService, Trace } from '@automagical/utilities';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
@@ -38,7 +38,7 @@ export abstract class BaseGroupService {
   @Trace()
   public async addState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
     group: GroupDTO<GROUP_TYPE> | string,
-    state: GroupSaveState<GROUP_TYPE>,
+    state: GroupSaveStateDTO<GROUP_TYPE>,
   ): Promise<GroupDTO<GROUP_TYPE>> {
     group = await this.loadGroup(group);
     group.states.push(state);
@@ -126,8 +126,8 @@ export abstract class BaseGroupService {
 
   @Trace()
   protected validateState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
-    state: GroupSaveState<GROUP_TYPE>,
-  ): GroupSaveState<GROUP_TYPE> {
-    return plainToClass(GroupSaveState, state);
+    state: GroupSaveStateDTO<GROUP_TYPE>,
+  ): GroupSaveStateDTO<GROUP_TYPE> {
+    return plainToClass(GroupSaveStateDTO, state);
   }
 }
