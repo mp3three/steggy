@@ -1,8 +1,4 @@
-import {
-  domain,
-  HASS_DOMAINS,
-  SwitchDomainService,
-} from '@automagical/home-assistant';
+import { SwitchDomainService } from '@automagical/home-assistant';
 import {
   AutoLogService,
   CacheManagerService,
@@ -10,20 +6,10 @@ import {
   InjectConfig,
   Trace,
 } from '@automagical/utilities';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { each } from 'async';
+import { Injectable } from '@nestjs/common';
 
 import { CACHE_TTL } from '../../config';
-import {
-  DuplicateStateDTO,
-  PersistenceLightStateDTO,
-  RoomControllerSettingsDTO,
-  RoomStateDTO,
-} from '../../contracts';
+import { RoomControllerSettingsDTO } from '../../contracts';
 import { LightManagerService } from '../light-manager.service';
 import { StatePersistenceService } from '../persistence/state-persistence.service';
 
@@ -68,32 +54,6 @@ export class StateManagerService {
   }
 
   @Trace()
-  public async duplicateState(
-    id: string,
-    target: DuplicateStateDTO,
-  ): Promise<RoomStateDTO> {
-    const state = await this.statePersistence.findById(id, {});
-    if (!state) {
-      throw new NotFoundException(`State not found ${id}`);
-    }
-    if (state.entities.length !== target.entities.length) {
-      throw new BadRequestException(`Group size mismatch`);
-    }
-    // Clean up auto generated attributes
-    delete state.created;
-    delete state.modified;
-    delete state._id;
-    // Update references to match the new group
-    state.room = target.room;
-    state.group = target.group;
-    state.entities = target.entities;
-    state.states.forEach((state, index) => {
-      state.entity_id = target.entities[index];
-    });
-    return await this.statePersistence.create(state);
-  }
-
-  @Trace()
   public async hasFlag(
     { name }: Pick<RoomControllerSettingsDTO, 'name'>,
     flagName: string,
@@ -101,34 +61,6 @@ export class StateManagerService {
     return await this.cacheService.wrap<boolean>(
       CACHE_KEY(name, flagName),
       () => false,
-    );
-  }
-
-  @Trace()
-  public async loadState(id: string): Promise<void> {
-    const state = await this.statePersistence.findById(id, {});
-    if (!state) {
-      throw new NotFoundException(`State not found ${id}`);
-    }
-    await each(
-      state.states,
-      async (state: PersistenceLightStateDTO, callback) => {
-        if (
-          domain(state.entity_id) === HASS_DOMAINS.switch ||
-          state.state === 'off'
-        ) {
-          await (state.state === 'on'
-            ? this.switchService.turnOn(state.entity_id)
-            : this.switchService.turnOff(state.entity_id));
-          return callback();
-        }
-        await this.lightManager.turnOnEntities(state.entity_id, {
-          brightness: state.brightness,
-          hs_color: state.hs_color,
-          kelvin: state.kelvin,
-        });
-        callback();
-      },
     );
   }
 

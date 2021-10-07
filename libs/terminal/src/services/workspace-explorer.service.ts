@@ -20,7 +20,7 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 
 import { DEFAULT_HEADER_FONT } from '../config';
-import { FontAwesomeIcons, MDIIcons } from '../icons';
+import { FontAwesomeIcons, MDIIcons } from '../../../tty/src/icons';
 
 type WorkspaceElements = Map<string, WorkspaceElementSettingsDTO>;
 

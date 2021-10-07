@@ -16,7 +16,7 @@ export class PersistenceSwitchStateDTO {
 
 export class PersistenceFanStateDTO extends PersistenceSwitchStateDTO {
   @IsEnum(FanSpeeds)
-  @Prop({ enum: Object.values(FanSpeeds) })
+  @Prop({ enum: Object.values(FanSpeeds), type: String })
   speed: FanSpeeds;
 }
 

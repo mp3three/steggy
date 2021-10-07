@@ -14,8 +14,6 @@ import {
   EntityController,
   GroupController,
   HAHooksController,
-  RoomAPIController,
-  StateController,
 } from '../controllers';
 import {
   BedRemoteController,
@@ -40,13 +38,7 @@ const rooms = [
 
 @ApplicationModule({
   application: APP_HOME_CONTROLLER,
-  controllers: [
-    EntityController,
-    GroupController,
-    RoomAPIController,
-    HAHooksController,
-    StateController,
-  ],
+  controllers: [EntityController, GroupController, HAHooksController],
   imports: [
     MQTTModule,
     ServerModule,

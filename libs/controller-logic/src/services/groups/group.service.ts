@@ -1,7 +1,3 @@
-import {
-  CommandRouterService,
-  LightManagerService,
-} from '@automagical/controller-logic';
 import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import { BaseSchemaDTO } from '@automagical/persistence';
 import {
@@ -18,6 +14,8 @@ import {
   GroupDTO,
   GroupSaveStateDTO,
 } from '../../contracts';
+import { CommandRouterService } from '../command-router.service';
+import { LightManagerService } from '../light-manager.service';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
 import { FanGroupService } from './fan-group.service';

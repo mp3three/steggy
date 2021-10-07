@@ -25,7 +25,7 @@ import chalk from 'chalk';
 import dayjs from 'dayjs';
 
 import { Workspace, WorkspaceElement } from '../decorators';
-import { FontAwesomeIcons } from '../icons';
+import { FontAwesomeIcons } from '../../../tty/src/icons';
 import { OnLoggerActivate } from '../includes';
 
 type LOG_DATA = Record<string, unknown> & { context?: string };

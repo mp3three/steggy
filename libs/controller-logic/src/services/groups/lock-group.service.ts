@@ -1,11 +1,4 @@
 import {
-  CONCURRENT_CHANGES,
-  GROUP_TYPES,
-  GroupDTO,
-  GroupPersistenceService,
-  PersistenceLockStateDTO,
-} from '@automagical/controller-logic';
-import {
   domain,
   EntityManagerService,
   HASS_DOMAINS,
@@ -17,6 +10,13 @@ import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { each, eachLimit } from 'async';
 
+import { CONCURRENT_CHANGES } from '../../config';
+import {
+  GROUP_TYPES,
+  GroupDTO,
+  PersistenceLockStateDTO,
+} from '../../contracts';
+import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
 
 const START = 0;

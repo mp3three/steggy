@@ -87,36 +87,57 @@ const prettyErrorMessage = (message: string): string => {
     // eslint-disable-next-line prefer-const
     let [service, module] = lines[0].split('.');
     service = service.slice(service.indexOf(prefix) + prefix.length);
-    const provider = service.slice(0, service.indexOf(' '));
+    const PROVIDER = service.slice(0, service.indexOf(' '));
     service = service.slice(service.indexOf(' ') + 1);
     const ctorArguments = service
       .slice(1, -1)
       .split(',')
       .map((item) => item.trim());
-    let match = module.match(new RegExp('in the ([^ ]+) context'));
-    if (match) {
-      message = message.replace(
-        new RegExp(provider, 'g'),
-        chalk.bold.yellow(provider),
-      );
-      ctorArguments.forEach((parameter) => {
-        let out = parameter;
-        out = parameter === '?' ? chalk.bold.red('?') : chalk.bold.green(out);
-        message = message.replace(parameter, out);
-      });
-      message = message.replace(
-        new RegExp(match[1], 'g'),
-        chalk.bold(match[1]),
-      );
-    }
-    match = module.match(new RegExp('the argument ([^ ]+) at'));
-    if (match) {
-      message = message.replace(
-        new RegExp(match[1], 'g'),
-        chalk.bold.magenta(match[1]),
-      );
-    }
+    const match = module.match(new RegExp('in the ([^ ]+) context'));
+    const [, name] = module.match(new RegExp('the argument ([^ ]+) at'));
+
+    let found = false;
+    const stack = message.split(`\n\n`)[2];
+    message = [
+      ``,
+      chalk.white.bold`Nest cannot resolve the dependencies of`,
+      chalk`{cyanBright ${PROVIDER}} {blueBright (}`,
+      ...ctorArguments
+        .map((parameter) => {
+          if (found === false) {
+            if (parameter === '?') {
+              found = true;
+              return chalk.bold.red(name);
+            }
+            return chalk.greenBright(parameter);
+          }
+          return chalk.bold.yellow(parameter);
+        })
+        .map((line) => `  ${line},`),
+      chalk.blueBright`)`,
+      ``,
+      ``,
+      chalk.white.bold`Potential solutions`,
+      chalk.whiteBright` - If {bold ${name}} is a provider, is it part of the current {bold ${match[1]}}?`,
+      chalk.whiteBright` - If {bold ${name}} is imported from the same directory, ensure the import is from the exporting file and not {bold index.ts}`,
+      chalk.red(`import { ${name} } from '.';`),
+      chalk.green(`import { ${name} } from './file';`),
+      chalk.whiteBright` - If {bold ${name}} is exported from a separate {bold @Module}, is that module imported within {bold ${match[1]}}?`,
+      chalk.whiteBright(
+        `@Module({ imports: [  /* the Module containing Object */ ] })`,
+      ),
+      ``,
+      ``,
+      chalk.white.bold`Stack Trace`,
+      stack,
+    ].join(`\n`);
   }
+  // Potential solutions:
+  // - If Object is a provider, is it part of the current HomeControllerCustomModule?
+  // - If Object is exported from a separate @Module, is that module imported within HomeControllerCustomModule?
+  //   @Module({
+  //     imports: [ /* the Module containing Object */ ]
+  //   })
 
   return message;
 };

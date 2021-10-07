@@ -5,6 +5,7 @@ import {
 import { SwitchStateDTO } from '@automagical/home-assistant';
 import {
   CANCEL,
+  FontAwesomeIcons,
   iRepl,
   PromptService,
   Repl,
@@ -21,7 +22,7 @@ export type GroupItem = { entities: string[]; name: string; room: string };
 
 @Repl({
   description: [`Manipulate established groups of entities`],
-  name: '🎳 Groups',
+  name: `${FontAwesomeIcons.group} Groups`,
   type: REPL_TYPE.home,
 })
 export class GroupCommandService implements iRepl {

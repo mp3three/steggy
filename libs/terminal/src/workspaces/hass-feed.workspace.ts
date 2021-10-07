@@ -15,7 +15,7 @@ import { Inject } from '@nestjs/common';
 import chalk from 'chalk';
 
 import { Workspace, WorkspaceElement } from '../decorators';
-import { MDIIcons } from '../icons';
+import { MDIIcons } from '../../../tty/src/icons';
 
 @Workspace({
   friendlyName: 'Home Assistant',

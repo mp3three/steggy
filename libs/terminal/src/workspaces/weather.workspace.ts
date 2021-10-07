@@ -18,7 +18,7 @@ import chalk from 'chalk';
 
 import { Workspace } from '../decorators/workspace.decorator';
 import { WorkspaceElement } from '../decorators/workspace-element.decorator';
-import { WeatherIcons } from '../icons/weather-icons';
+import { WeatherIcons } from '../../../tty/src/icons/weather-icons';
 
 @Workspace({
   friendlyName: 'Weather',

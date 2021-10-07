@@ -10,15 +10,15 @@ import {
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
-import { MAX_BRIGHTNESS } from '../config';
+import { MAX_BRIGHTNESS } from '../../config';
 import {
   iRoomController,
   ROOM_CONTROLLER_SETTINGS,
   RoomCommandDTO,
   RoomCommandScope,
   RoomControllerSettingsDTO,
-} from '../contracts';
-import { LightManagerService } from './light-manager.service';
+} from '../../contracts';
+import { LightManagerService } from '../light-manager.service';
 import { StateManagerService } from './state-manager.service';
 
 const AUTO_STATE = 'AUTO_STATE';
