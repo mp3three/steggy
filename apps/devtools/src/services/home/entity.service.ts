@@ -22,7 +22,8 @@ const EMPTY = 0;
 
 @Repl({
   description: [`Commands scoped to a single/manually built list of entities`],
-  name: `${FontAwesomeExtendedIcons.checklist_o} Entities`,
+  icon: FontAwesomeExtendedIcons.checklist_o,
+  name: `Entities`,
   type: REPL_TYPE.home,
 })
 export class EntityService implements iRepl {
@@ -38,13 +39,18 @@ export class EntityService implements iRepl {
     private readonly climateService: ClimateService,
   ) {}
 
-  public async buildList(inList: HASS_DOMAINS[] = []): Promise<string[]> {
+  public async buildList(
+    inList: HASS_DOMAINS[] = [],
+    omit: string[] = [],
+  ): Promise<string[]> {
     let entities = await this.fetchService.fetch<string[]>({
       url: '/entity/list',
     });
-    entities = entities.filter(
-      (entity) => inList.length === EMPTY || inList.includes(domain(entity)),
-    );
+    entities = entities
+      .filter(
+        (entity) => inList.length === EMPTY || inList.includes(domain(entity)),
+      )
+      .filter((item) => !omit.includes(item));
     const out: string[] = [];
     let exec = true;
     // eslint-disable-next-line no-loops/no-loops
@@ -86,7 +92,7 @@ export class EntityService implements iRepl {
     await this.baseService.processId(id);
   }
 
-  private async processId(ids: string[]): Promise<void> {
+  public async processId(ids: string[]): Promise<void> {
     const entity = await this.promptService.autocomplete('Pick an entity', ids);
     await this.pickOne(entity);
   }

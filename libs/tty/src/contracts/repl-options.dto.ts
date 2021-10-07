@@ -6,6 +6,7 @@ export enum REPL_TYPE {
 
 export class ReplOptions {
   public description?: string | string[];
+  public icon?: string;
   public name: string;
   public type: REPL_TYPE;
 }
