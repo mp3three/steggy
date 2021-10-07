@@ -1,4 +1,8 @@
-import { DuplicateStateDTO, RoomStateDTO } from '@automagical/controller-logic';
+import {
+  DuplicateStateDTO,
+  GroupDTO,
+  RoomStateDTO,
+} from '@automagical/controller-logic';
 import { HassStateDTO } from '@automagical/home-assistant';
 import { CANCEL, PromptService } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
@@ -6,8 +10,8 @@ import { Injectable } from '@nestjs/common';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 
+import { HomeFetchService } from '../home-fetch.service';
 import type { GroupItem } from './group-command.service';
-import { HomeFetchService } from './home-fetch.service';
 const EMPTY = 0;
 
 @Injectable()
@@ -18,10 +22,7 @@ export class GroupStateService {
     private readonly fetchService: HomeFetchService,
   ) {}
 
-  public async processState(
-    group: GroupItem,
-    list: GroupItem[],
-  ): Promise<void> {
+  public async processState(group: GroupDTO, list: GroupDTO[]): Promise<void> {
     const action = await this.promptService.menuSelect([
       {
         name: 'List Available',
@@ -45,20 +46,20 @@ export class GroupStateService {
           name: await this.promptService.string(`Name for save state`),
         },
         method: 'post',
-        url: `/room/${group.room}/group/${group.name}/snapshot`,
+        url: `/group/${group._id}/snapshot`,
       });
       return;
     }
     if (action === 'describe') {
       const describe = await this.fetchService.fetch<HassStateDTO[]>({
-        url: `/room/${group.room}/group/${group.name}/describe`,
+        url: `/group/${group._id}/describe`,
       });
       console.log(JSON.stringify(describe, undefined, '  '));
       return;
     }
 
     const data = await this.fetchService.fetch<RoomStateDTO[]>({
-      url: `/room/${group.room}/group/${group.name}/list-states`,
+      url: `/group/${group._id}/list-states`,
     });
 
     if (data.length === EMPTY) {
@@ -70,7 +71,7 @@ export class GroupStateService {
       'Pick state',
       data.map((item) => {
         return {
-          name: item.name,
+          name: `item`,
           value: item,
         };
       }),
@@ -81,31 +82,31 @@ export class GroupStateService {
 
   private async sendSaveState(
     from: RoomStateDTO,
-    list: GroupItem[],
+    list: GroupDTO[],
   ): Promise<void> {
     const targetGroup = await this.promptService.pickOne(
       `Target group`,
       list.map((value) => ({
-        name: value.name,
+        name: value.friendlyName,
         value,
       })),
     );
-    const name = await this.promptService.string(`Save as`, from.name);
-    await this.fetchService.fetch({
-      body: {
-        entities: targetGroup.entities,
-        group: targetGroup.name,
-        name,
-        room: targetGroup.room,
-      } as DuplicateStateDTO,
-      method: 'post',
-      url: `/state/${from._id}/copy`,
-    });
+    const name = await this.promptService.string(`Save as`);
+    // await this.fetchService.fetch({
+    //   body: {
+    //     entities: targetGroup.entities,
+    //     group: targetGroup.name,
+    //     name,
+    //     room: targetGroup.room,
+    //   } as DuplicateStateDTO,
+    //   method: 'post',
+    //   url: `/state/${from._id}/copy`,
+    // });
   }
 
   private async stateAction(
     state: RoomStateDTO,
-    list: GroupItem[],
+    list: GroupDTO[],
   ): Promise<void> {
     const stateAction = await this.promptService.menuSelect([
       {

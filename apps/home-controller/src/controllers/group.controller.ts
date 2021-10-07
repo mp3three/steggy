@@ -34,7 +34,7 @@ export class GroupController {
     return GENERIC_SUCCESS_RESPONSE;
   }
 
-  @Post(`/:id`)
+  @Post(`/:group`)
   public async addState(
     @Param('group') group: string,
     @Body() state: GroupSaveStateDTO,

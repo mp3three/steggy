@@ -1,5 +1,11 @@
 import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
-import { iRepl, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
+import {
+  FontAwesomeExtendedIcons,
+  iRepl,
+  PromptService,
+  Repl,
+  REPL_TYPE,
+} from '@automagical/tty';
 
 import {
   BaseDomainService,
@@ -12,9 +18,11 @@ import {
 } from './domains';
 import { HomeFetchService } from './home-fetch.service';
 
+const EMPTY = 0;
+
 @Repl({
   description: [`Commands scoped to a single/manually built list of entities`],
-  name: '🔍 Entities',
+  name: `${FontAwesomeExtendedIcons.checklist_o} Entities`,
   type: REPL_TYPE.home,
 })
 export class EntityService implements iRepl {
@@ -29,6 +37,23 @@ export class EntityService implements iRepl {
     private readonly lockService: LockService,
     private readonly climateService: ClimateService,
   ) {}
+
+  public async buildList(inList: HASS_DOMAINS[] = []): Promise<string[]> {
+    let entities = await this.fetchService.fetch<string[]>({
+      url: '/entity/list',
+    });
+    entities = entities.filter(
+      (entity) => inList.length === EMPTY || inList.includes(domain(entity)),
+    );
+    const out: string[] = [];
+    let exec = true;
+    // eslint-disable-next-line no-loops/no-loops
+    do {
+      out.push(await this.promptService.autocomplete(`Pick one`, entities));
+      exec = await this.promptService.confirm(`Add another?`, true);
+    } while (exec === true);
+    return out;
+  }
 
   public async exec(): Promise<void> {
     const entities = await this.fetchService.fetch<string[]>({

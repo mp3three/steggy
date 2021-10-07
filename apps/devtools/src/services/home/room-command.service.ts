@@ -1,19 +1,25 @@
+import { ROOM_ENTITY_TYPES, RoomDTO } from '@automagical/controller-logic';
+import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import {
-  RoomCommandDTO,
-  RoomCommandScope,
-  RoomControllerSettingsDTO,
-} from '@automagical/controller-logic';
-import { CANCEL, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
+  CANCEL,
+  MDIIcons,
+  PromptService,
+  Repl,
+  REPL_TYPE,
+} from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
-import inquirer from 'inquirer';
+import { NotImplementedException } from '@nestjs/common';
 
 import { FanService, MediaService } from './domains';
-import { GroupCommandService } from './group-command.service';
+import { EntityService } from './entity.service';
+import { GroupCommandService } from './groups/group-command.service';
 import { HomeFetchService } from './home-fetch.service';
+
+const EMPTY = 0;
 
 @Repl({
   description: [`Commands scoped to a single room`],
-  name: '🛌 Rooms',
+  name: `${MDIIcons.television_guide}Rooms`,
   type: REPL_TYPE.home,
 })
 export class RoomCommandService {
@@ -23,65 +29,85 @@ export class RoomCommandService {
     private readonly fetchService: HomeFetchService,
     private readonly groupCommand: GroupCommandService,
     private readonly fanService: FanService,
+    private readonly entityService: EntityService,
     private readonly mediaService: MediaService,
   ) {}
 
-  public async exec(): Promise<void> {
-    const { primary, secondary } = await this.fetchService.listRooms();
-
-    const room = await this.promptService.pickOne('Which room?', [
-      new inquirer.Separator('Primary'),
-      ...primary,
-      new inquirer.Separator('Secondary'),
-      ...secondary,
+  public async create(): Promise<void> {
+    const friendlyName = await this.promptService.string(`Friendly Name`);
+    const description = await this.promptService.string(`Description`);
+    const ids = await this.entityService.buildList([
+      HASS_DOMAINS.light,
+      HASS_DOMAINS.switch,
+      HASS_DOMAINS.media_player,
+      HASS_DOMAINS.fan,
     ]);
-
-    await this.executeRoomCommand(room);
+    const primary = await this.promptService.pickMany(
+      `Primary devices`,
+      ids.filter((id) =>
+        [HASS_DOMAINS.light, HASS_DOMAINS.switch].includes(domain(id)),
+      ),
+    );
+    if (await this.promptService.confirm(`Add existing groups?`)) {
+      const groups = await this.groupCommand.list();
+      const selection = await this.promptService.pickMany(
+        `Attach groups to new room`,
+        groups.map((group) => ({
+          name: group.friendlyName,
+          value: group,
+        })),
+      );
+      if (selection.length === EMPTY) {
+        this.logger.warn(`No groups selected`);
+      }
+    }
+    await this.fetchService.fetch({
+      body: {
+        description,
+        entities: ids.map((item) => ({
+          entity_id: item,
+          type: primary.includes(item)
+            ? ROOM_ENTITY_TYPES.normal
+            : ROOM_ENTITY_TYPES.accessory,
+        })),
+        friendlyName,
+      } as RoomDTO,
+      method: 'post',
+      url: `/room`,
+    });
   }
 
-  public async executeRoomCommand(
-    room: RoomControllerSettingsDTO,
-  ): Promise<void> {
-    const actions = [
-      new inquirer.Separator('Commands'),
-      { name: 'Area On', value: 'areaOn' },
-      { name: 'Area Off', value: 'areaOff' },
-      { name: 'Auto', value: 'favorite' },
-    ];
-    if (room.fan) {
-      actions.push({ name: 'Set Fan', value: 'fan' });
-    }
-    if (room.media) {
-      actions.push({ name: 'Media', value: 'media' });
-    }
-
-    const action = await this.promptService.menuSelect([
-      ...actions,
-      new inquirer.Separator('Information'),
-      { name: 'Group Info', value: 'groups' },
-    ]);
-    switch (action) {
-      case CANCEL:
-        return;
-      case 'groups':
-        await this.groupCommand.list(room.name);
-        return;
-      case 'fan':
-        await this.fanService.processId(room.fan);
-        return;
-      case 'media':
-        await this.mediaService.processId(room.media);
-        return;
-    }
-
-    const response = await this.fetchService.fetch({
-      body: JSON.stringify({
-        scope: [RoomCommandScope.LOCAL, RoomCommandScope.ACCESSORIES],
-      } as RoomCommandDTO),
-      method: 'put',
-      url: `/room/${room.name}/${action}`,
+  public async exec(): Promise<void> {
+    const rooms = await this.fetchService.fetch<RoomDTO[]>({
+      url: `/room`,
     });
-    this.logger.debug({ response });
-    await this.executeRoomCommand(room);
+
+    const room = await this.promptService.pickOne<RoomDTO | string>(
+      'Which room?',
+      [
+        {
+          name: 'Create',
+          value: 'create',
+        },
+        ...rooms.map((room) => {
+          return {
+            name: '',
+            value: room,
+          };
+        }),
+      ],
+    );
+
+    if (room === CANCEL) {
+      return;
+    }
+    if (room === 'create') {
+      return await this.create();
+    }
+    if (typeof room === 'string') {
+      this.logger.error({ room }, `Not implemented condition`);
+      return;
+    }
+    throw new NotImplementedException();
   }
 }

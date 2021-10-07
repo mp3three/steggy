@@ -1,8 +1,4 @@
 import {
-  CommandRouterService,
-  LightManagerService,
-} from '@automagical/controller-logic';
-import {
   domain,
   EntityManagerService,
   FanStateDTO,
@@ -29,7 +25,9 @@ import {
   RoomEntityDTO,
   RoomEntitySaveStateDTO,
 } from '../../contracts';
+import { CommandRouterService } from '../command-router.service';
 import { GroupService } from '../groups';
+import { LightManagerService } from '../light-manager.service';
 import { RoomPersistenceService } from '../persistence';
 
 @Injectable()
@@ -60,7 +58,7 @@ export class RoomService {
   ): Promise<RoomDTO> {
     room = await this.load(room);
     group = await this.groupService.get(group);
-    room.groups.push(group.name);
+    room.groups.push(group._id);
     return await this.roomPersistence.update(room, room._id);
   }
 

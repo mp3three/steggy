@@ -60,11 +60,11 @@ export class LightService extends SwitchService {
     );
     await this.setState(swapWith.entity_id, {
       brightness: state.attributes.brightness,
-      hs: state.attributes.hs_color,
+      hs_color: state.attributes.hs_color,
     });
     await this.setState(state.entity_id, {
       brightness: swapWith.attributes.brightness,
-      hs: swapWith.attributes.hs_color,
+      hs_color: swapWith.attributes.hs_color,
     });
   }
 

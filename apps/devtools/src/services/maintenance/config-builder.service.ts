@@ -5,6 +5,7 @@ import {
   Repl,
   REPL_TYPE,
   SCAN_CONFIG_CONFIGURATION,
+  SetiIcons,
   SystemService,
   TypePromptService,
   WorkspaceService,
@@ -38,7 +39,7 @@ import rc from 'rc';
     `  - Print to screen`,
     `  - Save to file`,
   ],
-  name: '🔧 Config Builder',
+  name: `${SetiIcons.config} Config Builder`,
   type: REPL_TYPE.maintenance,
 })
 export class ConfigBuilderService implements iRepl {

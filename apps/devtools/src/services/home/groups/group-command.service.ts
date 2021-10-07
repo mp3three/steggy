@@ -1,8 +1,4 @@
-import {
-  RoomControllerSettingsDTO,
-  RoomStateDTO,
-} from '@automagical/controller-logic';
-import { SwitchStateDTO } from '@automagical/home-assistant';
+import { GROUP_TYPES, GroupDTO } from '@automagical/controller-logic';
 import {
   CANCEL,
   FontAwesomeIcons,
@@ -11,12 +7,13 @@ import {
   Repl,
   REPL_TYPE,
 } from '@automagical/tty';
-import { AutoLogService } from '@automagical/utilities';
+import { AutoLogService, TitleCase } from '@automagical/utilities';
+import chalk from 'chalk';
 import inquirer, { Separator } from 'inquirer';
 
-import { EntityService } from './entity.service';
+import { EntityService } from '../entity.service';
+import { HomeFetchService } from '../home-fetch.service';
 import { GroupStateService } from './group-state.service';
-import { HomeFetchService } from './home-fetch.service';
 
 export type GroupItem = { entities: string[]; name: string; room: string };
 
@@ -34,6 +31,27 @@ export class GroupCommandService implements iRepl {
     private readonly groupState: GroupStateService,
   ) {}
 
+  public async create(): Promise<GroupDTO> {
+    const type = await this.promptService.pickOne(
+      `What type of group?`,
+      Object.values(GROUP_TYPES).map((type) => ({
+        name: TitleCase(type),
+        value: type,
+      })),
+    );
+    const friendlyName = await this.promptService.string(`Friendly Name`);
+    const entities = await this.entityService.buildList();
+    return await this.fetchService.fetch<GroupDTO>({
+      body: {
+        entities,
+        friendlyName,
+        type,
+      } as GroupDTO,
+      method: 'post',
+      url: `/group`,
+    });
+  }
+
   public async exec(): Promise<void> {
     const action = await this.promptService.menuSelect<
       keyof GroupCommandService
@@ -42,66 +60,54 @@ export class GroupCommandService implements iRepl {
         name: 'List Groups',
         value: 'list',
       },
+      {
+        name: 'Create Group',
+        value: 'create',
+      },
     ]);
-    if (action === 'list') {
-      await this.list();
+    switch (action) {
+      case 'create':
+        await this.create();
+        return await this.exec();
+      case 'list':
+        const groups = await this.list();
+        await this.process(
+          await this.promptService.pickOne(
+            'Groups',
+            groups.map((value) => ({
+              name: value.friendlyName,
+              value,
+            })),
+          ),
+          groups,
+        );
+        return await this.exec();
     }
   }
 
-  public async list(name?: string): Promise<void> {
-    const rooms = await this.fetchService.fetch<RoomControllerSettingsDTO[]>({
-      url: `/room/list`,
+  public async list(): Promise<GroupDTO[]> {
+    return await this.fetchService.fetch<GroupDTO[]>({
+      url: `/group`,
     });
-    const groups: GroupItem[] = [];
-    rooms
-      .filter((room) => {
-        if (!name) {
-          return true;
-        }
-        return room.name === name;
-      })
-      .forEach((room) => {
-        room.groups ??= {};
-        Object.keys(room.groups).forEach((group) => {
-          groups.push({
-            entities: [],
-            name: group,
-            room: room.name,
-          });
-        });
-      });
-
-    const group = await this.promptService.pickOne(
-      'Groups',
-      groups.map((value) => ({
-        name: value.name,
-        value,
-      })),
-    );
-    await this.process(group, groups);
   }
-  private async describeGroup(group: GroupItem): Promise<string> {
-    const stateList = await this.fetchService.fetch<{
-      states: SwitchStateDTO[];
-    }>({
-      url: `/group/${group.name}/describe`,
-    });
+
+  private async describeGroup(group: GroupDTO): Promise<string> {
     const entity = await this.promptService.menuSelect(
-      stateList.states.map((item) => {
-        if (!item) {
+      group.state.map((item, index) => {
+        const value = group.entities[index];
+        if (!value) {
           return new Separator(`MISSING ENTITY`);
         }
-        let name = `${item.attributes.friendly_name}`;
+        let name = `${value}`;
         if (item.state === 'on') {
-          // TODO: Why is the green icon a different size?
-          name = `🟢  ${name}`;
+          name = chalk.green(name);
         }
         if (item.state === 'off') {
-          name = `🔴 ${name}`;
+          name = chalk.red(name);
         }
         return {
           name,
-          value: item.entity_id,
+          value,
         };
       }),
     );
@@ -112,7 +118,7 @@ export class GroupCommandService implements iRepl {
     return await this.describeGroup(group);
   }
 
-  private async process(group: GroupItem, list: GroupItem[]): Promise<void> {
+  private async process(group: GroupDTO, list: GroupDTO[]): Promise<void> {
     const action = await this.promptService.menuSelect([
       {
         name: 'Turn On',
@@ -150,16 +156,8 @@ export class GroupCommandService implements iRepl {
       case 'state':
         await this.groupState.processState(group, list);
         break;
-      case 'done':
+      case CANCEL:
         return;
-      // Describe
-      // List all states
-      case 'list':
-        const stateList = await this.fetchService.fetch<RoomStateDTO[]>({
-          url: `/group/${group.name}/list-states`,
-        });
-        console.log(JSON.stringify(stateList, undefined, '  '));
-        break;
       // Capture state
       case 'capture':
         const state = await this.fetchService.fetch({
@@ -167,17 +165,9 @@ export class GroupCommandService implements iRepl {
             name: await this.promptService.string(`Name for save state`),
           },
           method: 'post',
-          url: `/group/${group.name}/snapshot`,
+          url: `/group/${group._id}/capture`,
         });
         console.log(state);
-        break;
-      // Done
-      // Everything else
-      default:
-        await this.fetchService.fetch({
-          method: 'put',
-          url: `/group/${group.name}/command/${action}`,
-        });
         break;
     }
     await this.process(group, list);

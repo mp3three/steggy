@@ -26,40 +26,4 @@ export class HomeFetchService {
     fetch.adminKey = this.adminKey;
     return this.fetchService.fetch<T>(fetch);
   }
-
-  public async listRooms(): Promise<
-    Record<'primary' | 'secondary', MenuItem[]>
-  > {
-    const rooms = await this.fetch<RoomControllerSettingsDTO[]>({
-      url: `/room/list`,
-    });
-    if (rooms.length === EMPTY) {
-      return undefined;
-    }
-    const primary: MenuItem[] = [];
-    const secondary: MenuItem[] = [];
-    rooms.forEach((room) => {
-      const entry: MenuItem = {
-        name: room.friendlyName,
-        value: room,
-      } as MenuItem;
-      if (room.flags.includes(RoomControllerFlags.SECONDARY)) {
-        secondary.push(entry);
-        return;
-      }
-      primary.push(entry);
-    });
-    return { primary: this.sort(primary), secondary: this.sort(secondary) };
-  }
-
-  private sort<T extends Record<'name', string> = Record<'name', string>>(
-    items: T[],
-  ): T[] {
-    return items.sort((a, b) => {
-      if (a.name > b.name) {
-        return UP;
-      }
-      return DOWN;
-    });
-  }
 }

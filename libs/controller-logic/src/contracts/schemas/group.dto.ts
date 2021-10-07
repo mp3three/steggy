@@ -106,7 +106,7 @@ export class GroupDTO<
   @ValidateNested({ each: true })
   @Prop()
   @Expose()
-  public states: GroupSaveStateDTO<GROUP_STATE>[];
+  public states?: GroupSaveStateDTO<GROUP_STATE>[];
 
   /**
    * What type of group

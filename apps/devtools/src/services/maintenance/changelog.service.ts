@@ -3,6 +3,7 @@ import {
   ChangelogDTO,
   GitService,
   iRepl,
+  OctIcons,
   PromptService,
   Repl,
   REPL_TYPE,
@@ -26,7 +27,7 @@ const EMPTY = 0;
     `- Project level change description`,
     `- Version bumping`,
   ],
-  name: '📑 Changelog',
+  name: `${OctIcons.checklist} Changelog`,
   type: REPL_TYPE.maintenance,
 })
 export class ChangelogService implements iRepl {

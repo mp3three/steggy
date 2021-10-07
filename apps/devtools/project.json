@@ -47,11 +47,6 @@
             "output": "./assets/portainer"
           },
           {
-            "input": "libs/1password",
-            "glob": "automagical.json",
-            "output": "./assets/1password"
-          },
-          {
             "input": "apps/devtools",
             "glob": "automagical.json",
             "output": "./assets/devtools"

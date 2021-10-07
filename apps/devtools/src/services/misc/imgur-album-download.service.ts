@@ -1,4 +1,4 @@
-import { iRepl, REPL_TYPE } from '@automagical/tty';
+import { iRepl, OctIcons, REPL_TYPE } from '@automagical/tty';
 import { Repl } from '@automagical/tty';
 import {
   AutoLogService,
@@ -23,7 +23,7 @@ const SEPARATOR = ' - ';
     `Update file name prefixes to be a consistent 4 digits`,
     `Update file ownership`,
   ],
-  name: '🌆 Yoink',
+  name: `${OctIcons.desktop_download} Yoink`,
   type: REPL_TYPE.misc,
 })
 export class ImgurAlbumDownloadService implements iRepl {

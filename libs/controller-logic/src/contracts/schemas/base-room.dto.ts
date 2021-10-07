@@ -7,7 +7,7 @@ const MIN_LENGTH = 2;
 
 export class BaseRoomDTO extends BaseSchemaDTO {
   @IsString()
-  @Prop({ required: true, type: String })
+  @Prop({ type: String })
   @IsOptional()
   @Expose()
   public description?: string;
@@ -17,10 +17,4 @@ export class BaseRoomDTO extends BaseSchemaDTO {
   @MinLength(MIN_LENGTH)
   @Expose()
   public friendlyName: string;
-
-  @IsString()
-  @Prop({ required: true, type: String })
-  @MinLength(MIN_LENGTH)
-  @Expose()
-  public name: string;
 }
