@@ -25,7 +25,7 @@ import {
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
-  @Put(`/:group/:state`)
+  @Put(`/:group/activate/:state`)
   public async activateState(
     @Param('group') group: string,
     @Param('state') state: string,
@@ -64,7 +64,7 @@ export class GroupController {
     return GENERIC_SUCCESS_RESPONSE;
   }
 
-  @Delete(`/:group/:state`)
+  @Delete(`/:group/state/:state`)
   public async deleteSaveSate(
     @Param('group') group: string,
     @Param('state') state: string,
@@ -82,6 +82,14 @@ export class GroupController {
     @Locals() { control }: HomeControllerResponseLocals,
   ): Promise<GroupDTO[]> {
     return await this.groupService.list(control);
+  }
+
+  @Delete(`/:group/truncate`)
+  public async truncateStates(
+    @Param('group') group: string,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.groupService.truncate(group);
+    return GENERIC_SUCCESS_RESPONSE;
   }
 
   @Put('/:group')

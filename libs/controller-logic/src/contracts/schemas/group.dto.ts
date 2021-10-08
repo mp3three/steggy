@@ -63,7 +63,7 @@ export class GroupDTO<GROUP_STATE extends BASIC_STATE = BASIC_STATE> {
   /**
    * A list of entity ids that can be looked up in home assistant
    */
-  @Prop({ type: 'string' })
+  @Prop()
   @IsString({ each: true })
   @Expose()
   public entities: string[];

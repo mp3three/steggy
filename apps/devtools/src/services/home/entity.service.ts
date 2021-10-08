@@ -55,7 +55,12 @@ export class EntityService implements iRepl {
     let exec = true;
     // eslint-disable-next-line no-loops/no-loops
     do {
-      out.push(await this.promptService.autocomplete(`Pick one`, entities));
+      out.push(
+        await this.promptService.autocomplete(
+          `Pick one`,
+          entities.filter((item) => !out.includes(item)),
+        ),
+      );
       exec = await this.promptService.confirm(`Add another?`, true);
     } while (exec === true);
     return out;

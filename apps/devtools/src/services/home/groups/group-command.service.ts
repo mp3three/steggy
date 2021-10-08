@@ -1,4 +1,5 @@
 import { GROUP_TYPES, GroupDTO } from '@automagical/controller-logic';
+import { HASS_DOMAINS } from '@automagical/home-assistant';
 import {
   CANCEL,
   FontAwesomeIcons,
@@ -16,9 +17,8 @@ import { HomeFetchService } from '../home-fetch.service';
 import { GroupStateService } from './group-state.service';
 
 export type GroupItem = { entities: string[]; name: string; room: string };
-
+const EMPTY = 0;
 @Repl({
-  description: [`Manipulate established groups of entities`],
   icon: FontAwesomeIcons.group,
   name: `Groups`,
   type: REPL_TYPE.home,
@@ -41,49 +41,65 @@ export class GroupCommandService implements iRepl {
       })),
     );
     const friendlyName = await this.promptService.string(`Friendly Name`);
-    const entities = await this.entityService.buildList();
+    const types = new Map([
+      [GROUP_TYPES.light, [HASS_DOMAINS.light]],
+      [
+        GROUP_TYPES.switch,
+        [
+          HASS_DOMAINS.light,
+          HASS_DOMAINS.fan,
+          HASS_DOMAINS.media_player,
+          HASS_DOMAINS.switch,
+        ],
+      ],
+      [GROUP_TYPES.lock, [HASS_DOMAINS.lock]],
+      [GROUP_TYPES.fan, [HASS_DOMAINS.fan]],
+    ]);
+    const entities = await this.entityService.buildList(types.get(type));
+    const body: GroupDTO = {
+      entities,
+      friendlyName,
+      type,
+    };
     return await this.fetchService.fetch<GroupDTO>({
-      body: {
-        entities,
-        friendlyName,
-        type,
-      } as GroupDTO,
+      body,
       method: 'post',
       url: `/group`,
     });
   }
 
   public async exec(): Promise<void> {
+    const groups = await this.list();
     const action = await this.promptService.menuSelect<
-      keyof GroupCommandService
+      GroupDTO | keyof GroupCommandService
     >([
-      {
-        name: 'List Groups',
-        value: 'list',
-      },
+      ...(groups.length !== EMPTY
+        ? [
+            ...groups.map((group) => ({
+              name: group.friendlyName,
+              value: group,
+            })),
+            new inquirer.Separator(),
+          ]
+        : []),
       {
         name: 'Create Group',
         value: 'create',
       },
     ]);
-    switch (action) {
-      case 'create':
-        await this.create();
-        return await this.exec();
-      case 'list':
-        const groups = await this.list();
-        await this.process(
-          await this.promptService.pickOne(
-            'Groups',
-            groups.map((value) => ({
-              name: value.friendlyName,
-              value,
-            })),
-          ),
-          groups,
-        );
-        return await this.exec();
+    if (action === 'create') {
+      await this.create();
+      return await this.exec();
     }
+    if (action === CANCEL) {
+      return;
+    }
+    if (typeof action === 'string') {
+      this.logger.error({ action }, `Command not implemented`);
+      return;
+    }
+    await this.process(action, groups);
+    return await this.exec();
   }
 
   public async list(): Promise<GroupDTO[]> {
@@ -93,6 +109,7 @@ export class GroupCommandService implements iRepl {
   }
 
   private async describeGroup(group: GroupDTO): Promise<string> {
+    group.state ??= [];
     const entity = await this.promptService.menuSelect(
       group.state.map((item, index) => {
         const value = group.entities[index];
@@ -119,41 +136,71 @@ export class GroupCommandService implements iRepl {
     return await this.describeGroup(group);
   }
 
-  private async process(group: GroupDTO, list: GroupDTO[]): Promise<void> {
-    const action = await this.promptService.menuSelect([
-      {
-        name: 'Turn On',
-        value: 'turnOn',
-      },
-      {
-        name: 'Turn Off',
-        value: 'turnOff',
-      },
-      {
-        name: 'Circadian On',
-        value: 'turnOnCircadian',
-      },
-      new inquirer.Separator(),
-      {
-        name: 'State Manager',
-        value: 'state',
-      },
-      {
-        name: 'Describe',
-        value: 'describe',
-      },
-      {
-        name: 'Send state',
-        value: 'sendState',
-      },
-    ]);
+  private async process(
+    group: GroupDTO,
+    list: GroupDTO[],
+    defaultValue?: string,
+  ): Promise<void> {
+    const action = await this.promptService.menuSelect(
+      [
+        {
+          name: 'Turn On',
+          value: 'turnOn',
+        },
+        {
+          name: 'Turn Off',
+          value: 'turnOff',
+        },
+        {
+          name: 'Circadian On',
+          value: 'circadian',
+        },
+        {
+          name: 'Dim Up',
+          value: 'dimUp',
+        },
+        {
+          name: 'Dim Down',
+          value: 'dimDown',
+        },
+        new inquirer.Separator(),
+        {
+          name: 'State Manager',
+          value: 'state',
+        },
+        {
+          name: 'Describe',
+          value: 'describe',
+        },
+        {
+          name: 'Send state',
+          value: 'sendState',
+        },
+        {
+          name: 'Rename',
+          value: 'rename',
+        },
+        {
+          name: 'Delete',
+          value: 'delete',
+        },
+      ],
+      `Action`,
+      defaultValue,
+    );
     if (action === 'describe') {
       await this.describeGroup(group);
-      return this.process(group, list);
+      return this.process(group, list, action);
     }
-
+    const passThrough = ['turnOn', 'turnOff', 'circadian', 'dimUp', 'dimDown'];
+    if (passThrough.includes(action)) {
+      await this.fetchService.fetch({
+        method: 'put',
+        url: `/group/${group._id}/activate/${action}`,
+      });
+      return await this.process(group, list, action);
+    }
     switch (action) {
-      // case
       case 'state':
         await this.groupState.processState(group, list);
         break;
@@ -170,18 +217,24 @@ export class GroupCommandService implements iRepl {
         });
         console.log(state);
         break;
+      case 'rename':
+        group.friendlyName = await this.promptService.string(
+          `New name`,
+          group.friendlyName,
+        );
+        group = await this.fetchService.fetch({
+          body: group,
+          method: 'put',
+          url: `/group/${group._id}`,
+        });
+        break;
+      case 'delete':
+        await this.fetchService.fetch({
+          method: 'delete',
+          url: `/group/${group._id}`,
+        });
+        return;
     }
-    await this.process(group, list);
-  }
-
-  private async sendState(group: GroupItem, list: GroupItem[]): Promise<void> {
-    const target = await this.promptService.pickOne(
-      `Target group`,
-      list.map((group) => ({ name: group.name, value: group })),
-    );
-    await this.fetchService.fetch({
-      method: 'post',
-      url: ``,
-    });
+    await this.process(group, list, action);
   }
 }

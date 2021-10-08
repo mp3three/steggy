@@ -1,14 +1,15 @@
-import {
-  BASIC_STATE,
-  GROUP_TYPES,
-  GroupDTO,
-  GroupPersistenceService,
-  GroupSaveStateDTO,
-} from '@automagical/controller-logic';
 import { AutoLogService, Trace } from '@automagical/utilities';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { v4 as uuid } from 'uuid';
+
+import {
+  BASIC_STATE,
+  GROUP_TYPES,
+  GroupDTO,
+  GroupSaveStateDTO,
+} from '../../contracts';
+import { GroupPersistenceService } from '../persistence';
 
 const EXPECTED_REMOVE_AMOUNT = 1;
 
@@ -41,6 +42,7 @@ export abstract class BaseGroupService {
     state: GroupSaveStateDTO<GROUP_TYPE>,
   ): Promise<GroupDTO<GROUP_TYPE>> {
     group = await this.loadGroup(group);
+    state.id = uuid();
     group.states.push(state);
     return await this.groupPersistence.update(group, group._id);
   }

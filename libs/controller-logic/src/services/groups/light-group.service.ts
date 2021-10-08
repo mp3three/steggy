@@ -1,4 +1,3 @@
-import { CONCURRENT_CHANGES } from '@automagical/controller-logic';
 import {
   domain,
   EntityManagerService,
@@ -9,6 +8,7 @@ import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { eachLimit } from 'async';
 
+import { CONCURRENT_CHANGES, DIM_PERCENT } from '../../config';
 import {
   GROUP_TYPES,
   GroupDTO,
@@ -30,6 +30,8 @@ export class LightGroupService extends BaseGroupService {
     protected readonly logger: AutoLogService,
     protected readonly groupPersistence: GroupPersistenceService,
     private readonly entityManager: EntityManagerService,
+    @InjectConfig(DIM_PERCENT)
+    private readonly dimAmount: number,
     private readonly lightManager: LightManagerService,
     @InjectConfig(CONCURRENT_CHANGES)
     private readonly eachLimit: number,
@@ -38,6 +40,46 @@ export class LightGroupService extends BaseGroupService {
   }
 
   public readonly GROUP_TYPE = GROUP_TYPES.light;
+
+  @Trace()
+  public async activateState(
+    group: GroupParameter,
+    stateId: string,
+  ): Promise<void> {
+    if (stateId === 'turnOn') {
+      await this.turnOn(group);
+      return;
+    }
+    if (stateId === 'turnOff') {
+      await this.turnOff(group);
+      return;
+    }
+    if (stateId === 'circadian') {
+      await this.turnOn(group, true);
+      return;
+    }
+    if (stateId === 'dimUp') {
+      await this.dimUp(group);
+      return;
+    }
+    if (stateId === 'dimDown') {
+      await this.dimDown(group);
+      return;
+    }
+    await super.activateState(group, stateId);
+  }
+
+  @Trace()
+  public async dimDown(group: GroupParameter): Promise<void> {
+    group = await this.loadGroup(group);
+    await this.lightManager.dimDown({}, group.entities);
+  }
+
+  @Trace()
+  public async dimUp(group: GroupParameter): Promise<void> {
+    group = await this.loadGroup(group);
+    await this.lightManager.dimUp({}, group.entities);
+  }
 
   @Trace()
   public getState(
@@ -139,15 +181,12 @@ export class LightGroupService extends BaseGroupService {
             await this.lightManager.circadianLight(id, state.brightness);
             break;
           case LIGHTING_MODE.on:
+          default:
             await this.lightManager.turnOnEntities(id, {
               brightness: state.brightness,
               hs_color: state.hs_color,
             });
             break;
-          default:
-            throw new InternalServerErrorException(
-              `Unknown lighting mode: ${state.mode}`,
-            );
         }
         callback();
       },

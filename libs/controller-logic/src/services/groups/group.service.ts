@@ -132,6 +132,15 @@ export class GroupService {
   }
 
   @Trace()
+  public async truncate<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    group: GroupDTO<GROUP_TYPE> | string,
+  ): Promise<GroupDTO<GROUP_TYPE>> {
+    group = await this.load(group);
+    group.states = [];
+    return await this.update(group._id, group);
+  }
+
+  @Trace()
   public async turnOff(group: GroupDTO | string): Promise<void> {
     group = await this.load(group);
     await each(group.entities, async (entity, callback) => {
