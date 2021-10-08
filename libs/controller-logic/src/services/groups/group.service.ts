@@ -9,6 +9,7 @@ import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 
 import {
+  BASE_STATES,
   BASIC_STATE,
   GROUP_TYPES,
   GroupDTO,
@@ -103,6 +104,16 @@ export class GroupService {
     group = await this.load<GROUP_TYPE>(group);
     const base = this.getBaseGroup(group.type);
     return await base.deleteState(group, state);
+  }
+
+  @Trace()
+  public async expandState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    group: GroupDTO<GROUP_TYPE> | string,
+    state: BASE_STATES,
+  ): Promise<void> {
+    group = await this.load(group);
+    const base = this.getBaseGroup(group.type);
+    base.expandState(group, state as BASE_STATES);
   }
 
   @Trace()

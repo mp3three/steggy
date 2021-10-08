@@ -1,11 +1,26 @@
 {
-  "type": "library",
   "configuration": {
     "TOKEN": {
-      "type": "password"
+      "type": "password",
+      "required": true
     },
     "BASE_URL": {
-      "type": "url"
+      "type": "url",
+      "required": true
+    },
+    "WEBSOCKET_URL": {
+      "type": "string",
+      "description": "Must use `wss://` protocol. Optional override for value calculated using BASE_URL"
+    },
+    "WARN_REQUESTS_PER_SEC": {
+      "type": "number",
+      "default": 100,
+      "description": "Emit warnings if the home controller attempts to send more than X messages to home assistant inside of a second"
+    },
+    "CRASH_REQUESTS_PER_SEC": {
+      "type": "number",
+      "default": 300,
+      "description": "Socket service will self-terminate the process if this limit is exceeded. This can happen if an accidential infinite recursion is triggered due to bad setup"
     }
   }
 }

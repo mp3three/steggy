@@ -4,6 +4,7 @@ import { plainToClass } from 'class-transformer';
 import { v4 as uuid } from 'uuid';
 
 import {
+  BASE_STATES,
   BASIC_STATE,
   GROUP_TYPES,
   GroupDTO,
@@ -87,6 +88,16 @@ export abstract class BaseGroupService {
       );
     }
     await this.groupPersistence.update(group, group._id);
+    return group;
+  }
+
+  @Trace()
+  public async expandState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    group: GroupDTO<GROUP_TYPE> | string,
+    state: BASE_STATES,
+  ): Promise<GroupDTO<GROUP_TYPE>> {
+    group = await this.loadGroup(group);
+    this.logger.warn({ state }, `Group does not implement expandState`);
     return group;
   }
 

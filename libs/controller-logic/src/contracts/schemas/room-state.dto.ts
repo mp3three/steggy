@@ -39,7 +39,7 @@ export class PersistenceLightStateDTO extends PersistenceSwitchStateDTO {
   mode: LIGHTING_MODE;
 }
 
-type BASE_STATES = PersistenceSwitchStateDTO | PersistenceLockStateDTO;
+export type BASE_STATES = PersistenceSwitchStateDTO | PersistenceLockStateDTO;
 
 @Schema({
   collection: 'room_state',

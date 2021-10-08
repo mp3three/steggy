@@ -1,4 +1,6 @@
 import {
+  BASE_STATES,
+  BASIC_STATE,
   GroupDTO,
   GroupSaveStateDTO,
   GroupService,
@@ -75,6 +77,15 @@ export class GroupController {
   @Get('/:group')
   public async describe(@Param('group') group: string): Promise<GroupDTO> {
     return await this.groupService.get(group);
+  }
+
+  @Put(`/:group/expand`)
+  public async expandState(
+    @Param('group') group: string,
+    @Body() state: BASE_STATES,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.groupService.expandState(group, state);
+    return GENERIC_SUCCESS_RESPONSE;
   }
 
   @Get(`/`)

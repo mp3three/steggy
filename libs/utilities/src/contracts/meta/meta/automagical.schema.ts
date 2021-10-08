@@ -16,7 +16,8 @@ type AnyConfig =
   | AutomagicalUrlConfig;
 
 class WarnDefault {
-  'warnDefault'?: boolean;
+  required?: boolean;
+  warnDefault?: boolean;
 }
 
 export class AutomagicalStringConfig extends WarnDefault {

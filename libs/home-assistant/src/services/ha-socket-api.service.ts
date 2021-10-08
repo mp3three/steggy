@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-null */
 import { CronExpression } from '@automagical/utilities';
 import {
   AutoLogService,
@@ -13,6 +14,13 @@ import { EventEmitter2 } from 'eventemitter2';
 import WS from 'ws';
 
 import {
+  BASE_URL,
+  CRASH_REQUESTS_PER_SEC,
+  TOKEN,
+  WARN_REQUESTS_PER_SEC,
+  WEBSOCKET_URL,
+} from '../config';
+import {
   ALL_ENTITIES_UPDATED,
   AreaDTO,
   CONNECTION_RESET,
@@ -24,16 +32,16 @@ import {
   SendSocketMessageDTO,
   SocketMessageDTO,
   UpdateEntityMessageDTO,
-} from '..';
-import { BASE_URL, TOKEN } from '../config';
+} from '../contracts';
 import {
   HassEvents,
   HASSIO_WS_COMMAND,
   HassSocketMessageTypes,
 } from '../contracts/enums';
 
-/* eslint-disable unicorn/no-null */
 const STARTING_COUNTER_ID = 0;
+const SECOND = 1000;
+let MESSAGE_TIMESTAMPS: number[] = [];
 
 @Injectable()
 export class HASocketAPIService {
@@ -45,6 +53,10 @@ export class HASocketAPIService {
     private readonly baseUrl: string,
     @InjectConfig(TOKEN)
     private readonly token: string,
+    @InjectConfig(WARN_REQUESTS_PER_SEC) private readonly WARN_REQUESTS: number,
+    @InjectConfig(CRASH_REQUESTS_PER_SEC)
+    private readonly CRASH_REQUESTS: number,
+    @InjectConfig(WEBSOCKET_URL) private readonly websocketUrl: string,
   ) {}
 
   private connection: WS;
@@ -93,7 +105,7 @@ export class HASocketAPIService {
     data: SendSocketMessageDTO | UpdateEntityMessageDTO,
     waitForResponse = true,
   ): Promise<T> {
-    this.messageCount++;
+    this.countMessage();
     const counter = this.messageCount;
     if (data.type !== HASSIO_WS_COMMAND.auth) {
       // You want know how annoying this one was to debug?!
@@ -140,6 +152,11 @@ export class HASocketAPIService {
 
   @Cron(CronExpression.EVERY_10_SECONDS)
   protected async ping(): Promise<void> {
+    const now = Date.now();
+    // Prune old data
+    MESSAGE_TIMESTAMPS = MESSAGE_TIMESTAMPS.filter(
+      (time) => time > now - SECOND,
+    );
     try {
       const pong = await this.sendMsg({
         type: HASSIO_WS_COMMAND.ping,
@@ -156,6 +173,27 @@ export class HASocketAPIService {
     this.initConnection(true);
   }
 
+  private countMessage(): void | never {
+    this.messageCount++;
+    const now = Date.now();
+    MESSAGE_TIMESTAMPS.push(now);
+    const count = MESSAGE_TIMESTAMPS.filter(
+      (time) => time > now - SECOND,
+    ).length;
+    if (count > this.CRASH_REQUESTS) {
+      // TODO: Attempt to emit a notification via home assistant prior to dying
+      // "HALP!"
+      this.logger.fatal(
+        `FATAL ERROR: Exceeded {CRASH_REQUESTS_PER_MIN} threshold.`,
+      );
+      // eslint-disable-next-line unicorn/no-process-exit
+      process.exit();
+    }
+    if (count > this.WARN_REQUESTS) {
+      this.logger.warn({}, `Message traffic`);
+    }
+  }
+
   /**
    * Set up a new websocket connection to home assistant
    */
@@ -170,8 +208,11 @@ export class HASocketAPIService {
     }
     const url = new URL(this.baseUrl);
     try {
+      this.messageCount = STARTING_COUNTER_ID;
       this.logger.debug('Creating new socket connection');
-      this.connection = new WS(`wss://${url.hostname}/api/websocket`);
+      this.connection = new WS(
+        this.websocketUrl || `wss://${url.hostname}/api/websocket`,
+      );
       this.connection.addEventListener('message', (message) => {
         this.onMessage(JSON.parse(message.data));
       });

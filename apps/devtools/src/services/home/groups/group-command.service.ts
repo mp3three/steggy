@@ -1,9 +1,14 @@
-import { GROUP_TYPES, GroupDTO } from '@automagical/controller-logic';
+import {
+  GROUP_TYPES,
+  GroupDTO,
+  PersistenceLightStateDTO,
+} from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
 import {
   CANCEL,
   FontAwesomeIcons,
   iRepl,
+  PromptMenuItems,
   PromptService,
   Repl,
   REPL_TYPE,
@@ -15,9 +20,11 @@ import inquirer, { Separator } from 'inquirer';
 import { EntityService } from '../entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { GroupStateService } from './group-state.service';
+import { LightGroupCommandService } from './light-group-command.service';
 
 export type GroupItem = { entities: string[]; name: string; room: string };
 const EMPTY = 0;
+
 @Repl({
   icon: FontAwesomeIcons.group,
   name: `Groups`,
@@ -30,6 +37,7 @@ export class GroupCommandService implements iRepl {
     private readonly promptService: PromptService,
     private readonly entityService: EntityService,
     private readonly groupState: GroupStateService,
+    private readonly lightGroup: LightGroupCommandService,
   ) {}
 
   public async create(): Promise<GroupDTO> {
@@ -141,29 +149,13 @@ export class GroupCommandService implements iRepl {
     list: GroupDTO[],
     defaultValue?: string,
   ): Promise<void> {
+    const actions: PromptMenuItems = [];
+    if (group.type === GROUP_TYPES.light) {
+      actions.push(...(await this.lightGroup.groupActions()));
+    }
     const action = await this.promptService.menuSelect(
       [
-        {
-          name: 'Turn On',
-          value: 'turnOn',
-        },
-        {
-          name: 'Turn Off',
-          value: 'turnOff',
-        },
-        {
-          name: 'Circadian On',
-          value: 'circadian',
-        },
-        {
-          name: 'Dim Up',
-          value: 'dimUp',
-        },
-        {
-          name: 'Dim Down',
-          value: 'dimDown',
-        },
-        new inquirer.Separator(),
+        ...actions,
         {
           name: 'State Manager',
           value: 'state',
@@ -191,14 +183,6 @@ export class GroupCommandService implements iRepl {
     if (action === 'describe') {
       await this.describeGroup(group);
       return this.process(group, list, action);
-    }
-    const passThrough = ['turnOn', 'turnOff', 'circadian', 'dimUp', 'dimDown'];
-    if (passThrough.includes(action)) {
-      await this.fetchService.fetch({
-        method: 'put',
-        url: `/group/${group._id}/activate/${action}`,
-      });
-      return await this.process(group, list, action);
     }
     switch (action) {
       case 'state':
@@ -234,6 +218,12 @@ export class GroupCommandService implements iRepl {
           url: `/group/${group._id}`,
         });
         return;
+      default:
+        if (group.type === GROUP_TYPES.light) {
+          await this.lightGroup.processAction(group, action);
+          break;
+        }
+        this.logger.error({ action, type: group.type }, `Bad action`);
     }
     await this.process(group, list, action);
   }

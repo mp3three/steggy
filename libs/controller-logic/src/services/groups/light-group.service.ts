@@ -5,11 +5,12 @@ import {
   LightStateDTO,
 } from '@automagical/home-assistant';
 import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { eachLimit } from 'async';
+import { Injectable } from '@nestjs/common';
+import { each, eachLimit } from 'async';
 
 import { CONCURRENT_CHANGES, DIM_PERCENT } from '../../config';
 import {
+  BASIC_STATE,
   GROUP_TYPES,
   GroupDTO,
   LIGHTING_MODE,
@@ -79,6 +80,22 @@ export class LightGroupService extends BaseGroupService {
   public async dimUp(group: GroupParameter): Promise<void> {
     group = await this.loadGroup(group);
     await this.lightManager.dimUp({}, group.entities);
+  }
+
+  @Trace()
+  public async expandState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+    group: GroupDTO<GROUP_TYPE> | string,
+    { brightness, hs_color }: PersistenceLightStateDTO,
+  ): Promise<GroupDTO<GROUP_TYPE>> {
+    group = await this.loadGroup(group);
+    await each(group.entities, async (entity, callback) => {
+      await this.lightManager.turnOnEntities(entity, {
+        brightness,
+        hs_color,
+      });
+      callback();
+    });
+    return group;
   }
 
   @Trace()

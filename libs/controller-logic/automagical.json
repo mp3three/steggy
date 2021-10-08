@@ -14,10 +14,12 @@
       "default": 2000
     },
     "LATITUDE": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "LONGITUDE": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "DIM_PERCENT": {
       "type": "number",

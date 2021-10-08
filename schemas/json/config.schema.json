@@ -118,6 +118,9 @@
         "default": {
           "type": "string"
         },
+        "required": {
+          "$ref": "#/definitions/required"
+        },
         "warnDefault": {
           "$ref": "#/definitions/warnDefault"
         }
@@ -135,6 +138,9 @@
         },
         "default": {
           "type": "boolean"
+        },
+        "required": {
+          "$ref": "#/definitions/required"
         },
         "warnDefault": {
           "$ref": "#/definitions/warnDefault"
@@ -154,6 +160,9 @@
         "default": {
           "type": "number"
         },
+        "required": {
+          "$ref": "#/definitions/required"
+        },
         "warnDefault": {
           "$ref": "#/definitions/warnDefault"
         }
@@ -168,6 +177,9 @@
         "description": true,
         "type": {
           "pattern": "password"
+        },
+        "required": {
+          "$ref": "#/definitions/required"
         },
         "warnDefault": {
           "$ref": "#/definitions/warnDefault"
@@ -187,6 +199,9 @@
         "default": {
           "type": "string"
         },
+        "required": {
+          "$ref": "#/definitions/required"
+        },
         "warnDefault": {
           "$ref": "#/definitions/warnDefault"
         }
@@ -196,6 +211,11 @@
     "warnDefault": {
       "type": "boolean",
       "description": "Emit a warning at boot if the default value for this property hasn't been overridden",
+      "default": false
+    },
+    "required": {
+      "type": "boolean",
+      "description": "Process will refuse to start if value is not provided",
       "default": false
     }
   }
