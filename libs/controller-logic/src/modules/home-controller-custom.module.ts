@@ -21,6 +21,7 @@ import {
   RemoteAdapterService,
   RoomExplorerService,
   RoomManagerService,
+  RoomService,
   SolarCalcService,
   StateManagerService,
   SwitchGroupService,
@@ -44,6 +45,7 @@ const providers = [
   RemoteAdapterService,
   RoomExplorerService,
   RoomManagerService,
+  RoomService,
   SolarCalcService,
   StateManagerService,
 ];

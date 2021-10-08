@@ -85,16 +85,18 @@ export class RoomController {
   public async turnOff(
     @Param('room') room: string,
     @Body() { scope }: Record<'scope', ROOM_ENTITY_TYPES | ROOM_ENTITY_TYPES[]>,
-  ): Promise<void> {
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     await this.roomService.turnOff(room, scope);
+    return GENERIC_SUCCESS_RESPONSE;
   }
 
   @Put(`/:room/turnOn`)
   public async turnOn(
     @Param('room') room: string,
     @Body() { scope }: Record<'scope', ROOM_ENTITY_TYPES | ROOM_ENTITY_TYPES[]>,
-  ): Promise<void> {
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     await this.roomService.turnOn(room, scope);
+    return GENERIC_SUCCESS_RESPONSE;
   }
 
   @Put(`/:room`)

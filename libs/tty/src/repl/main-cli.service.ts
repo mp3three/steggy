@@ -108,7 +108,7 @@ export class MainCLIService implements iRepl {
   private scriptList(): ([string, iRepl] | Separator)[] {
     const types: Partial<Record<REPL_TYPE, [string, iRepl][]>> = {};
     this.explorer.REGISTERED_APPS.forEach(
-      (instance: iRepl, { type, name }: ReplOptions) => {
+      (instance: iRepl, { type, name, icon }: ReplOptions) => {
         types[type] ??= [];
         types[type].push([name, instance]);
       },

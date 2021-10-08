@@ -13,6 +13,7 @@ import {
 } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
 import { encode } from 'ini';
+import inquirer from 'inquirer';
 
 import { EntityService } from './entity.service';
 import { GroupCommandService } from './groups/group-command.service';
@@ -22,7 +23,7 @@ const EMPTY = 0;
 
 @Repl({
   description: [`Commands scoped to a single room`],
-  icon: MDIIcons.television_guide,
+  icon: MDIIcons.television_box,
   name: `Rooms`,
   type: REPL_TYPE.home,
 })
@@ -37,7 +38,6 @@ export class RoomCommandService {
 
   public async create(): Promise<RoomDTO> {
     const friendlyName = await this.promptService.string(`Friendly Name`);
-    const description = await this.promptService.string(`Description`);
     const entities = await this.buildEntityList();
     let selectedGroups: string[] = [];
 
@@ -57,13 +57,14 @@ export class RoomCommandService {
       }
     }
 
+    const room: RoomDTO = {
+      entities,
+      friendlyName,
+      groups: selectedGroups,
+    };
+
     return await this.fetchService.fetch({
-      body: {
-        description,
-        entities,
-        friendlyName,
-        selectedGroups,
-      } as RoomDTO,
+      body: room,
       method: 'post',
       url: `/room`,
     });
@@ -73,27 +74,22 @@ export class RoomCommandService {
     const rooms = await this.fetchService.fetch<RoomDTO[]>({
       url: `/room`,
     });
-    const room = await this.promptService.pickOne<RoomDTO | string>(
-      'Which room?',
-      [
-        {
-          name: 'Create',
-          value: 'create',
-        },
-        ...rooms.map((room) => {
-          return {
-            name: room.friendlyName,
-            value: room,
-          };
-        }),
-      ],
-    );
+    let room = await this.promptService.menuSelect<RoomDTO | string>([
+      ...rooms.map((room) => ({
+        name: room.friendlyName,
+        value: room,
+      })),
+      new inquirer.Separator(),
+      {
+        name: 'Create',
+        value: 'create',
+      },
+    ]);
     if (room === CANCEL) {
       return;
     }
     if (room === 'create') {
-      await this.create();
-      return;
+      room = await this.create();
     }
     if (typeof room === 'string') {
       this.logger.error({ room }, `Not implemented condition`);
@@ -130,13 +126,14 @@ export class RoomCommandService {
   private async processRoom(room: RoomDTO): Promise<void> {
     const action = await this.promptService.menuSelect([
       {
-        name: 'Delete',
-        value: 'delete',
+        name: 'Turn On',
+        value: 'turnOn',
       },
       {
-        name: 'Describe',
-        value: 'describe',
+        name: 'Turn Off',
+        value: 'turnOff',
       },
+      new inquirer.Separator(),
       {
         name: 'Entities',
         value: 'entities',
@@ -145,8 +142,46 @@ export class RoomCommandService {
         name: 'Groups',
         value: 'groups',
       },
+      {
+        name: 'Rename',
+        value: 'rename',
+      },
+
+      {
+        name: 'Delete',
+        value: 'delete',
+      },
+      {
+        name: 'Describe',
+        value: 'describe',
+      },
     ]);
     switch (action) {
+      case 'rename':
+        room.friendlyName = await this.promptService.string(
+          `New name`,
+          room.friendlyName,
+        );
+        room = await this.update(room);
+        return await this.processRoom(room);
+      case 'turnOn':
+        await this.fetchService.fetch({
+          method: 'put',
+          url: `/room/${room._id}/turnOn`,
+        });
+        return await this.processRoom(room);
+      case 'turnOff':
+        await this.fetchService.fetch({
+          method: 'put',
+          url: `/room/${room._id}/turnOff`,
+        });
+        return await this.processRoom(room);
+      case 'delete':
+        await this.fetchService.fetch({
+          method: 'delete',
+          url: `/room/${room._id}`,
+        });
+        return;
       case CANCEL:
         return;
       case 'describe':

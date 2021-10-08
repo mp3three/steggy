@@ -23,7 +23,8 @@ const SEPARATOR = ' - ';
     `Update file name prefixes to be a consistent 4 digits`,
     `Update file ownership`,
   ],
-  name: `${OctIcons.desktop_download} Yoink`,
+  icon: OctIcons.desktop_download,
+  name: `Yoink`,
   type: REPL_TYPE.misc,
 })
 export class ImgurAlbumDownloadService implements iRepl {

@@ -39,7 +39,8 @@ import rc from 'rc';
     `  - Print to screen`,
     `  - Save to file`,
   ],
-  name: `${SetiIcons.config} Config Builder`,
+  icon: SetiIcons.config,
+  name: `Config Builder`,
   type: REPL_TYPE.maintenance,
 })
 export class ConfigBuilderService implements iRepl {

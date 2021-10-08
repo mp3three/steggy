@@ -27,13 +27,19 @@ export class RoomPersistenceService extends BaseMongoService {
   public async create(
     state: Omit<RoomDTO, keyof BaseSchemaDTO>,
   ): Promise<RoomDTO> {
-    return (await this.roomModel.create(state)).toObject();
+    const room = (await this.roomModel.create(state)).toObject();
+    this.logger.warn({
+      input: state,
+      output: room,
+    });
+    return room;
   }
 
   @Trace()
   public async delete(state: RoomDTO | string): Promise<boolean> {
     const query = this.merge(typeof state === 'string' ? state : state._id);
     this.logger.debug({ query }, `delete query`);
+    delete query.deleted;
     const result = await this.roomModel
       .updateOne(query, {
         deleted: Date.now(),

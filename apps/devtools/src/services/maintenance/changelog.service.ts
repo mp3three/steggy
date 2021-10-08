@@ -27,7 +27,8 @@ const EMPTY = 0;
     `- Project level change description`,
     `- Version bumping`,
   ],
-  name: `${OctIcons.checklist} Changelog`,
+  icon: OctIcons.checklist,
+  name: `Changelog`,
   type: REPL_TYPE.maintenance,
 })
 export class ChangelogService implements iRepl {

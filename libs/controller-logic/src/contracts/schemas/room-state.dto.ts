@@ -10,19 +10,19 @@ export enum LIGHTING_MODE {
 }
 export class PersistenceSwitchStateDTO {
   @IsString()
-  @Prop({ enum: ['on', 'off'], required: true, type: String })
+  @Prop({ enum: ['on', 'off'], required: true, type: 'string' })
   state: 'on' | 'off';
 }
 
 export class PersistenceFanStateDTO extends PersistenceSwitchStateDTO {
   @IsEnum(FanSpeeds)
-  @Prop({ enum: Object.values(FanSpeeds), type: String })
+  @Prop({ enum: Object.values(FanSpeeds), type: 'string' })
   speed: FanSpeeds;
 }
 
 export class PersistenceLockStateDTO {
   @IsEnum(LOCK_STATES)
-  @Prop({ enum: Object.values(LOCK_STATES), required: true, type: String })
+  @Prop({ enum: Object.values(LOCK_STATES), required: true, type: 'string' })
   state: LOCK_STATES;
 }
 

@@ -19,7 +19,8 @@ export type GroupItem = { entities: string[]; name: string; room: string };
 
 @Repl({
   description: [`Manipulate established groups of entities`],
-  name: `${FontAwesomeIcons.group} Groups`,
+  icon: FontAwesomeIcons.group,
+  name: `Groups`,
   type: REPL_TYPE.home,
 })
 export class GroupCommandService implements iRepl {

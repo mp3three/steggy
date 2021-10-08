@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { ResultControlDTO } from '@automagical/utilities';
+import { FILTER_OPERATIONS, ResultControlDTO } from '@automagical/utilities';
 import { Document, Query, Types } from 'mongoose';
 
 import { filtersToMongoQuery } from '../includes';
@@ -14,7 +14,8 @@ export class BaseMongoService {
       merge.filters ??= new Set();
       merge.filters.add({
         field: '_id',
-        value: Types.ObjectId(query),
+        operation: FILTER_OPERATIONS.in,
+        value: [Types.ObjectId(query), query],
       });
       query = merge;
     }
