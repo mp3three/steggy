@@ -1,8 +1,4 @@
-import {
-  GROUP_TYPES,
-  GroupDTO,
-  PersistenceLightStateDTO,
-} from '@automagical/controller-logic';
+import { GROUP_TYPES, GroupDTO } from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
 import {
   CANCEL,
@@ -118,6 +114,9 @@ export class GroupCommandService implements iRepl {
 
   private async describeGroup(group: GroupDTO): Promise<string> {
     group.state ??= [];
+    group = await this.fetchService.fetch({
+      url: `/group/${group._id}`,
+    });
     const entity = await this.promptService.menuSelect(
       group.state.map((item, index) => {
         const value = group.entities[index];

@@ -14,7 +14,7 @@ export class LightService extends SwitchService {
   public async circadianLight(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',
-      url: `/entity/command/${id}/circadian`,
+      url: `/entity/command/${id}/circadianLight`,
     });
   }
 
@@ -87,9 +87,13 @@ export class LightService extends SwitchService {
       [
         `Entity id: ${content.entity_id}`,
         `State: ${content.state}`,
-        `Brightness: ${content.attributes.brightness}`,
-        `RGB: [${content.attributes.rgb_color.join(', ')}]`,
-        `HS: [${content.attributes.hs_color.join(', ')}]`,
+        ...(content.state === 'on'
+          ? [
+              `Brightness: ${content.attributes.brightness}`,
+              `RGB: [${content.attributes.rgb_color?.join(', ')}]`,
+              `HS: [${content.attributes.hs_color?.join(', ')}]`,
+            ]
+          : []),
         ``,
       ].join(`\n`),
     );
