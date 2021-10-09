@@ -1,3 +1,5 @@
+import { ROOM_ENTITY_TYPES } from '../schemas';
+
 export enum ROOM_SENSOR_TYPE {
   kunami = 'kunami',
 }
@@ -8,6 +10,9 @@ export class RoomSensorDTO {
   public type: ROOM_SENSOR_TYPE;
 }
 
+/**
+ * See dedicated sensor command markdown file for notes
+ */
 export class KunamiSensorCommand {
   /**
    * Run a preset command. Definition intentially left loose
@@ -30,16 +35,17 @@ export class KunamiSensorCommand {
    */
   public saveStateId?: string;
   /**
+   * For generic room commands (turn on / turn off)
+   */
+  public scope?: ROOM_ENTITY_TYPES[];
+  /**
    * Where to emit the event at (id)
    */
   public target?: string;
-  /**
-   * What type of item it is
-   */
-  public targetType?: 'group' | 'room';
 }
 
 export class KunamiSensor extends RoomSensorDTO {
   public command: KunamiSensorCommand;
+  public id: string;
   public type: ROOM_SENSOR_TYPE.kunami;
 }
