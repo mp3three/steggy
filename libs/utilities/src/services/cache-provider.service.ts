@@ -19,16 +19,22 @@ export class CacheProviderService {
   ) {}
 
   public getConfig(): CacheModuleOptions {
+    const max = Number.POSITIVE_INFINITY;
+    const ttl = this.defaultTtl;
     if (this.cacheProvider === 'memory') {
-      return {};
+      return {
+        isGlobal: true,
+        max,
+        ttl,
+      };
     }
     return {
-      global: true,
       host: this.host,
-      max: Number.POSITIVE_INFINITY,
+      isGlobal: true,
+      max,
       port: this.port,
       store: RedisStore,
-      ttl: this.defaultTtl,
+      ttl,
     };
   }
 }

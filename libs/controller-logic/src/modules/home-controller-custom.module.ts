@@ -7,7 +7,6 @@ import { DynamicModule } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { DynamicRoomProviders, InjectedSettings } from '../decorators';
-import { GroupRoomInterceptor } from '../interceptors';
 import {
   CircadianService,
   CommandRouterService,
@@ -39,7 +38,6 @@ const providers = [
   ],
   CircadianService,
   CommandRouterService,
-  GroupRoomInterceptor,
   KunamiCodeService,
   LightManagerService,
   RemoteAdapterService,

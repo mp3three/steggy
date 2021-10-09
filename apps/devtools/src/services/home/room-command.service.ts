@@ -281,6 +281,23 @@ export class RoomCommandService {
     if (action === CANCEL) {
       return;
     }
+    switch (action) {
+      case 'add':
+        let addMore = true;
+        room.groups ??= [];
+        do {
+          const group = await this.groupCommand.pickOne(room.groups);
+          room.groups.push(group._id);
+          addMore = await this.promptService.confirm(`Add another?`);
+        } while (addMore === true);
+        if (!(await this.promptService.confirm('Send changes?'))) {
+          return;
+        }
+        await this.update(room);
+        return;
+      case 'remove':
+        return;
+    }
   }
 
   private async update(body: RoomDTO): Promise<RoomDTO> {

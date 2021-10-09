@@ -112,6 +112,16 @@ export class GroupCommandService implements iRepl {
     });
   }
 
+  public async pickOne(omit: string[] = []): Promise<GroupDTO> {
+    const groups = await this.list();
+    return await this.promptService.pickOne(
+      `Pick a group`,
+      groups
+        .filter((group) => !omit.includes(group._id))
+        .map((group) => ({ name: group.friendlyName, value: group })),
+    );
+  }
+
   private async describeGroup(group: GroupDTO): Promise<string> {
     group.state ??= [];
     group = await this.fetchService.fetch({
