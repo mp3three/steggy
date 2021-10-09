@@ -4,6 +4,7 @@ export enum ROOM_SENSOR_TYPE {
 
 export class RoomSensorDTO {
   public entity_id: string;
+  public id: string;
   public type: ROOM_SENSOR_TYPE;
 }
 
