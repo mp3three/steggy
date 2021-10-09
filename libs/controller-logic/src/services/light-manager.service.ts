@@ -14,14 +14,14 @@ import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 import { EventEmitter2 } from 'eventemitter2';
 
-import { MAX_BRIGHTNESS, MIN_BRIGHTNESS } from '..';
+import { MAX_BRIGHTNESS, MIN_BRIGHTNESS } from '../config';
 import { DIM_PERCENT } from '../config';
 import {
   CIRCADIAN_UPDATE,
   LIGHTING_MODE,
   LightingCacheDTO,
 } from '../contracts';
-import { RoomCommandDTO } from '../contracts/room-command.dto';
+import { RoomCommandDTO } from '../contracts/rooms/room-command.dto';
 import { CircadianService } from './circadian.service';
 
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
@@ -185,7 +185,12 @@ export class LightManagerService {
     } else {
       delete settings.kelvin;
     }
-    await this.cache.set(CACHE_KEY(entity_id), settings);
+    const key = CACHE_KEY(entity_id);
+    const current = await this.getState(key);
+    await this.cache.set(key, {
+      ...current,
+      ...settings,
+    });
     // Brightness here is 1-255
     const data = {
       brightness: settings.brightness,
@@ -205,10 +210,11 @@ export class LightManagerService {
     const lights = await this.getActiveLights();
     await each(lights, async (id, callback) => {
       const state = await this.getState(id);
-      if (state?.mode !== 'circadian' || state.kelvin === kelvin) {
+      if (state?.mode !== 'circadian') {
+        // if (state?.mode !== 'circadian' || state.kelvin === kelvin) {
         return;
       }
-      await this.turnOnEntities(id, state);
+      await this.turnOnEntities(id, { kelvin });
       callback();
     });
   }

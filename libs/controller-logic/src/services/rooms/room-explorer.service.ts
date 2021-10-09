@@ -21,7 +21,7 @@ import {
 import {
   RoomCommandDTO,
   RoomCommandScope,
-} from '../../contracts/room-command.dto';
+} from '../../contracts/rooms/room-command.dto';
 import { KunamiCodeService } from '../kunami-code.service';
 import { LightManagerService } from '../light-manager.service';
 import { RemoteAdapterService } from '../sensors/remote-adapter.service';

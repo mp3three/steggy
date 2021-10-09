@@ -1,5 +1,5 @@
 import { ControllerStates } from './constants';
-import { RoomCommandDTO } from './room-command.dto';
+import { RoomCommandDTO } from './rooms/room-command.dto';
 
 export type RoomControllerMethodReturn =
   | Promise<void>

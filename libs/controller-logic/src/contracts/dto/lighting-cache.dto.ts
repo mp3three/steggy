@@ -1,4 +1,4 @@
-import { LIGHTING_MODE } from '../schemas/room-state.dto';
+import { LIGHTING_MODE } from '../rooms/room-state.dto';
 
 export enum LightingCacheMode {
   /**

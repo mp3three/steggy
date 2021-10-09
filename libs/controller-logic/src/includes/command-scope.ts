@@ -1,7 +1,7 @@
 import {
   RoomCommandDTO,
   RoomCommandScope,
-} from '../contracts/room-command.dto';
+} from '../contracts/rooms/room-command.dto';
 
 export function COMMAND_SCOPE(
   parameters: RoomCommandDTO,

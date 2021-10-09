@@ -1,4 +1,4 @@
-export * from '../schemas/room-state.dto';
+export * from '../rooms/room-state.dto';
 export * from './controller-state.dto';
 export * from './describe-group.response.dto';
 export * from './duplicate-state.request.dto';
