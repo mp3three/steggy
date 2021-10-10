@@ -28,7 +28,6 @@ type Watcher = KunamiSensor & {
   callback: () => Promise<void>;
   watcherType: 'room' | 'group';
 };
-
 @Injectable()
 export class SensorEventsService {
   constructor(
@@ -38,11 +37,9 @@ export class SensorEventsService {
     private readonly groupService: GroupService,
   ) {}
 
-  private ACTIVE_MATCHERS = new Map<string, ActiveMatcher[]>();
-  /**
-   * entity id to list of matchers interested in it
-   */
-  private WATCHED_SENSORS = new Map<string, Watcher[]>();
+  private readonly ACTIVE_MATCHERS = new Map<string, ActiveMatcher[]>();
+  private readonly TIMERS = new Map<string, ReturnType<typeof setTimeout>>();
+  private readonly WATCHED_SENSORS = new Map<string, Watcher[]>();
 
   @Debug({ after: `Mounted groups` })
   public async mountGroups(): Promise<void> {
@@ -94,7 +91,7 @@ export class SensorEventsService {
 
   @Trace()
   @OnEvent(HA_EVENT_STATE_CHANGE)
-  protected async onUpdate({ data }: HassEventDTO): Promise<void> {
+  protected async onEntityUpdate({ data }: HassEventDTO): Promise<void> {
     if (!this.WATCHED_SENSORS.has(data.entity_id)) {
       return;
     }
@@ -150,6 +147,7 @@ export class SensorEventsService {
 
   @Trace()
   private async executeGroupCommand({ command }: KunamiSensor): Promise<void> {
+    this.logger.info({ command }, `Execute group command`);
     switch (command.command) {
       case 'turnOn':
         await this.groupService.turnOn(command.target);
@@ -164,6 +162,7 @@ export class SensorEventsService {
 
   @Trace()
   private async executeRoomCommand({ command }: KunamiSensor): Promise<void> {
+    this.logger.info({ command }, `Execute room command`);
     switch (command.command) {
       case 'turnOn':
         await this.roomService.turnOn(command.target, command.scope);
@@ -178,6 +177,20 @@ export class SensorEventsService {
 
   @Trace()
   private initWatchers(entity_id: string): void {
+    // Clear out old timer
+    if (this.TIMERS.has(entity_id)) {
+      clearTimeout(this.TIMERS.get(entity_id));
+    }
+
+    // Set up new timer
+    const timer = setTimeout(() => {
+      this.TIMERS.delete(entity_id);
+      this.ACTIVE_MATCHERS.delete(entity_id);
+      this.logger.debug({ entity_id }, `Timeout`);
+    }, this.kunamiTimeout);
+    this.TIMERS.set(entity_id, timer);
+
+    // Set up active macher if does not exist
     if (!this.ACTIVE_MATCHERS.has(entity_id)) {
       const initialEvents: ActiveMatcher[] = [];
       this.WATCHED_SENSORS.forEach((sensors) => {

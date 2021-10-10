@@ -1,6 +1,7 @@
 import { BaseMongoService, BaseSchemaDTO } from '@automagical/persistence';
 import {
   AutoLogService,
+  EmitAfter,
   ResultControlDTO,
   ToClass,
   Trace,
@@ -9,7 +10,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { RoomDocument, RoomDTO } from '../../contracts';
+import { ROOM_UPDATE, RoomDocument, RoomDTO } from '../../contracts';
 const OK_RESPONSE = 1;
 
 @Injectable()
@@ -23,6 +24,7 @@ export class RoomPersistenceService extends BaseMongoService {
   }
 
   @Trace()
+  @EmitAfter(ROOM_UPDATE, { emitData: 'result' })
   @ToClass(RoomDTO)
   public async create(
     state: Omit<RoomDTO, keyof BaseSchemaDTO>,
@@ -36,6 +38,7 @@ export class RoomPersistenceService extends BaseMongoService {
   }
 
   @Trace()
+  @EmitAfter(ROOM_UPDATE, { emitData: 'result' })
   public async delete(state: RoomDTO | string): Promise<boolean> {
     const query = this.merge(typeof state === 'string' ? state : state._id);
     this.logger.debug({ query }, `delete query`);
@@ -47,6 +50,7 @@ export class RoomPersistenceService extends BaseMongoService {
       .exec();
     return result.ok === OK_RESPONSE;
   }
+
   @Trace()
   @ToClass(RoomDTO)
   public async findById(
@@ -91,6 +95,7 @@ export class RoomPersistenceService extends BaseMongoService {
   }
 
   @Trace()
+  @EmitAfter(ROOM_UPDATE, { emitData: 'result' })
   public async update(
     state: Omit<Partial<RoomDTO>, keyof BaseSchemaDTO>,
     id: string,

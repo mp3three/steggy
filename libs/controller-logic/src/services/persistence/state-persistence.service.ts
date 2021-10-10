@@ -1,6 +1,7 @@
 import { BaseMongoService } from '@automagical/persistence';
 import {
   AutoLogService,
+  EmitAfter,
   ResultControlDTO,
   ToClass,
   Trace,
@@ -9,7 +10,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { RoomStateDocument, RoomStateDTO } from '../../contracts';
+import { GROUP_UPDATE, RoomStateDocument, RoomStateDTO } from '../../contracts';
 
 const OK_RESPONSE = 1;
 
@@ -24,12 +25,14 @@ export class StatePersistenceService extends BaseMongoService {
   }
 
   @Trace()
+  @EmitAfter(GROUP_UPDATE, { emitData: 'result' })
   @ToClass(RoomStateDTO)
   public async create(state: RoomStateDTO): Promise<RoomStateDTO> {
     return (await this.roomStateModel.create(state)).toObject();
   }
 
   @Trace()
+  @EmitAfter(GROUP_UPDATE, { emitData: 'result' })
   public async delete(state: RoomStateDTO | string): Promise<boolean> {
     const query = this.merge(typeof state === 'string' ? state : state._id);
     this.logger.debug({ query }, `delete query`);
@@ -86,6 +89,7 @@ export class StatePersistenceService extends BaseMongoService {
   }
 
   @Trace()
+  @EmitAfter(GROUP_UPDATE, { emitData: 'result' })
   public async update(
     state: RoomStateDTO,
     control: ResultControlDTO,
