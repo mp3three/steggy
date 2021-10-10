@@ -42,9 +42,7 @@ export class EntityService implements iRepl {
     inList: HASS_DOMAINS[] = [],
     omit: string[] = [],
   ): Promise<string[]> {
-    let entities = await this.fetchService.fetch<string[]>({
-      url: '/entity/list',
-    });
+    let entities = await this.list();
     entities = entities
       .filter((entity) => IsEmpty(inList) || inList.includes(domain(entity)))
       .filter((item) => !omit.includes(item));
@@ -64,13 +62,36 @@ export class EntityService implements iRepl {
   }
 
   public async exec(): Promise<void> {
-    const entities = await this.fetchService.fetch<string[]>({
-      url: '/entity/list',
-    });
+    const entities = await this.list();
     return await this.processId(entities);
   }
 
-  public async pickOne(id: string): Promise<void> {
+  public async list(): Promise<string[]> {
+    return await this.fetchService.fetch<string[]>({
+      url: '/entity/list',
+    });
+  }
+
+  public async pickOne(
+    inList: HASS_DOMAINS[] = [],
+    omit: string[] = [],
+  ): Promise<string> {
+    const entities = await this.list();
+    return await this.promptService.autocomplete(
+      `Pick an entity`,
+      entities.filter((entity) => {
+        if (!IsEmpty(inList) && !inList.includes(domain(entity))) {
+          return false;
+        }
+        if (omit.includes(entity)) {
+          return false;
+        }
+        return true;
+      }),
+    );
+  }
+
+  public async process(id: string): Promise<void> {
     switch (domain(id)) {
       case HASS_DOMAINS.light:
         await this.lightService.processId(id);
@@ -96,6 +117,6 @@ export class EntityService implements iRepl {
 
   public async processId(ids: string[]): Promise<void> {
     const entity = await this.promptService.autocomplete('Pick an entity', ids);
-    await this.pickOne(entity);
+    await this.process(entity);
   }
 }

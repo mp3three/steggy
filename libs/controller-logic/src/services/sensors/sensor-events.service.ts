@@ -16,9 +16,11 @@ import { each } from 'async';
 
 import { KUNAMI_TIMEOUT } from '../../config';
 import {
+  GroupDTO,
   KunamiSensor,
   KunamiSensorEvent,
   ROOM_SENSOR_TYPE,
+  RoomDTO,
 } from '../../contracts';
 import { GroupService } from '../groups';
 import { RoomService } from '../rooms';
@@ -53,7 +55,7 @@ export class SensorEventsService {
             this.WATCHED_SENSORS.get(sensor.entity_id) || [];
           list.push({
             ...sensor,
-            callback: async () => await this.executeGroupCommand(sensor),
+            callback: async () => await this.executeGroupCommand(sensor, group),
             watcherType: 'group',
           });
           this.WATCHED_SENSORS.set(sensor.entity_id, list);
@@ -74,7 +76,7 @@ export class SensorEventsService {
             this.WATCHED_SENSORS.get(sensor.entity_id) || [];
           list.push({
             ...sensor,
-            callback: async () => await this.executeRoomCommand(sensor),
+            callback: async () => await this.executeRoomCommand(sensor, room),
             watcherType: 'room',
           });
           this.WATCHED_SENSORS.set(sensor.entity_id, list);
@@ -146,14 +148,17 @@ export class SensorEventsService {
   }
 
   @Trace()
-  private async executeGroupCommand({ command }: KunamiSensor): Promise<void> {
+  private async executeGroupCommand(
+    { command }: KunamiSensor,
+    group: GroupDTO,
+  ): Promise<void> {
     this.logger.info({ command }, `Execute group command`);
     switch (command.command) {
       case 'turnOn':
-        await this.groupService.turnOn(command.target);
+        await this.groupService.turnOn(group);
         return;
       case 'turnOff':
-        await this.groupService.turnOff(command.target);
+        await this.groupService.turnOff(group);
         return;
       default:
         throw new NotImplementedException();
@@ -161,14 +166,17 @@ export class SensorEventsService {
   }
 
   @Trace()
-  private async executeRoomCommand({ command }: KunamiSensor): Promise<void> {
+  private async executeRoomCommand(
+    { command }: KunamiSensor,
+    room: RoomDTO,
+  ): Promise<void> {
     this.logger.info({ command }, `Execute room command`);
     switch (command.command) {
       case 'turnOn':
-        await this.roomService.turnOn(command.target, command.scope);
+        await this.roomService.turnOn(room, command.scope);
         return;
       case 'turnOff':
-        await this.roomService.turnOff(command.target, command.scope);
+        await this.roomService.turnOff(room, command.scope);
         return;
       default:
         throw new NotImplementedException();

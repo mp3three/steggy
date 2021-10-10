@@ -129,6 +129,15 @@ export class GroupDTO<GROUP_STATE extends BASIC_STATE = BASIC_STATE> {
   @Expose()
   public rooms?: RoomDTO[];
 
+  /**
+   * Captured save states
+   */
+  @Type(() => GroupSaveStateDTO)
+  @ValidateNested({ each: true })
+  @Prop()
+  @Expose()
+  public save_states?: GroupSaveStateDTO<GROUP_STATE>[];
+
   @Prop()
   @Expose()
   @IsOptional()
@@ -143,15 +152,6 @@ export class GroupDTO<GROUP_STATE extends BASIC_STATE = BASIC_STATE> {
    */
   @Expose()
   public state?: GROUP_STATE[];
-
-  /**
-   * Captured save states
-   */
-  @Type(() => GroupSaveStateDTO)
-  @ValidateNested({ each: true })
-  @Prop()
-  @Expose()
-  public states?: GroupSaveStateDTO<GROUP_STATE>[];
 
   /**
    * What type of group

@@ -16,26 +16,10 @@ import {
   HAHooksController,
   RoomController,
 } from '../controllers';
-import {
-  BedRemoteController,
-  DiningController,
-  DownstairsController,
-  GamesRoomController,
-  GuestBedroomController,
-  LoftController,
-  MasterBedroomController,
-} from '../rooms';
+import { LoftController } from '../rooms';
 import { ApplicationService, GarageService } from '../services';
 
-const rooms = [
-  BedRemoteController,
-  DiningController,
-  DownstairsController,
-  GamesRoomController,
-  GuestBedroomController,
-  LoftController,
-  MasterBedroomController,
-];
+const rooms = [LoftController];
 
 @ApplicationModule({
   application: APP_HOME_CONTROLLER,

@@ -29,7 +29,7 @@ export abstract class BaseGroupService {
     stateId: string,
   ): Promise<void> {
     group = await this.loadGroup(group);
-    const state = group.states.find(({ id }) => id === stateId);
+    const state = group.save_states.find(({ id }) => id === stateId);
     if (!state) {
       throw new NotFoundException(`Cannot find state ${stateId}`);
     }
@@ -44,7 +44,7 @@ export abstract class BaseGroupService {
   ): Promise<GroupDTO<GROUP_TYPE>> {
     group = await this.loadGroup(group);
     state.id = uuid();
-    group.states.push(state);
+    group.save_states.push(state);
     return await this.groupPersistence.update(group, group._id);
   }
 
@@ -59,8 +59,8 @@ export abstract class BaseGroupService {
     const id = uuid();
     group = await this.loadGroup(group);
     const states = this.getState(group);
-    group.states ??= [];
-    group.states.push({
+    group.save_states ??= [];
+    group.save_states.push({
       id,
       name,
       states,
@@ -75,13 +75,13 @@ export abstract class BaseGroupService {
     remove: string,
   ): Promise<GroupDTO<GROUP_TYPE>> {
     group = await this.loadGroup<GROUP_TYPE>(group);
-    group.states ??= [];
-    const length = group.states.length;
-    group.states = group.states.filter(({ id }) => id !== remove);
-    if (group.states.length !== length - EXPECTED_REMOVE_AMOUNT) {
+    group.save_states ??= [];
+    const length = group.save_states.length;
+    group.save_states = group.save_states.filter(({ id }) => id !== remove);
+    if (group.save_states.length !== length - EXPECTED_REMOVE_AMOUNT) {
       this.logger.warn(
         {
-          actual: length - group.states.length,
+          actual: length - group.save_states.length,
           expected: EXPECTED_REMOVE_AMOUNT,
         },
         `Unexpected removal amount`,
@@ -107,7 +107,7 @@ export abstract class BaseGroupService {
     load: string,
   ): Promise<void> {
     group = await this.loadGroup(group);
-    const state = group.states?.find(({ id }) => id === load);
+    const state = group.save_states?.find(({ id }) => id === load);
     if (!state) {
       throw new NotFoundException(`Bad state id ${load}`);
     }

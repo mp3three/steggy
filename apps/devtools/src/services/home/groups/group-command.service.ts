@@ -148,7 +148,7 @@ export class GroupCommandService implements iRepl {
     if (entity === CANCEL) {
       return entity;
     }
-    await this.entityService.pickOne(entity);
+    await this.entityService.process(entity);
     return await this.describeGroup(group);
   }
 

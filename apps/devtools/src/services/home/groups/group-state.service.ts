@@ -34,9 +34,9 @@ export class GroupStateService {
     const action = await this.promptService.menuSelect<
       GroupSaveStateDTO | string
     >([
-      ...(!IsEmpty(group.states)
+      ...(!IsEmpty(group.save_states)
         ? [
-            ...group.states.map((state) => ({
+            ...group.save_states.map((state) => ({
               name: state.name,
               value: state,
             })),

@@ -146,7 +146,7 @@ export class GroupService {
     group: GroupDTO<GROUP_TYPE> | string,
   ): Promise<GroupDTO<GROUP_TYPE>> {
     group = await this.load(group);
-    group.states = [];
+    group.save_states = [];
     return await this.update(group._id, group);
   }
 

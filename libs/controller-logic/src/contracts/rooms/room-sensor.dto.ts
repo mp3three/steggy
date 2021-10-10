@@ -38,10 +38,6 @@ export class KunamiSensorCommand {
    * For generic room commands (turn on / turn off)
    */
   public scope?: ROOM_ENTITY_TYPES[];
-  /**
-   * Where to emit the event at (id)
-   */
-  public target?: string;
 }
 
 export class KunamiSensor extends RoomSensorDTO {
