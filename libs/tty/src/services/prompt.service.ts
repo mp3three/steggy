@@ -122,6 +122,15 @@ export class PromptService {
     return value;
   }
 
+  public itemsFromObject<T extends unknown = string>(
+    items: Record<string, T>,
+  ): PromptMenuItems<T> {
+    return Object.keys(items).map((name) => ({
+      name,
+      value: items[name],
+    }));
+  }
+
   public async menuSelect<T extends unknown = string>(
     menu: PromptMenuItems<T>,
     message = '',

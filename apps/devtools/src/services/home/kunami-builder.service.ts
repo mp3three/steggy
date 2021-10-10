@@ -41,14 +41,10 @@ export class KunamiBuilderService {
     const actions: PromptMenuItems = [];
     if (group.type === GROUP_TYPES.lock) {
       actions.push(
-        {
-          name: 'Lock',
-          value: 'lock',
-        },
-        {
-          name: 'Unlock',
-          value: 'unlock',
-        },
+        ...this.promptService.itemsFromObject({
+          Lock: 'lock',
+          Unlock: 'unlock',
+        }),
       );
     }
     if (
@@ -106,8 +102,9 @@ export class KunamiBuilderService {
       `Sequence action`,
       actions,
     );
-    const out: Partial<KunamiSensorCommand> = {};
-    out.command = command;
+    const out: Partial<KunamiSensorCommand> = {
+      command,
+    };
     if (command === 'setState') {
       out.saveStateId = await this.promptService.pickOne(
         `Which state`,
@@ -140,9 +137,9 @@ export class KunamiBuilderService {
       `Sequence action`,
       actions,
     );
-    const out: Partial<KunamiSensorCommand> = {};
-
-    out.command = command;
+    const out: Partial<KunamiSensorCommand> = {
+      command,
+    };
     if (command === 'setState') {
       out.saveStateId = await this.promptService.pickOne(
         `Which state`,
