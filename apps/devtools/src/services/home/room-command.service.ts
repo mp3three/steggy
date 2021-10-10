@@ -11,15 +11,13 @@ import {
   Repl,
   REPL_TYPE,
 } from '@automagical/tty';
-import { AutoLogService } from '@automagical/utilities';
+import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 
 import { EntityService } from './entity.service';
 import { GroupCommandService } from './groups/group-command.service';
 import { HomeFetchService } from './home-fetch.service';
-
-const EMPTY = 0;
 
 @Repl({
   description: [`Commands scoped to a single room`],
@@ -50,7 +48,7 @@ export class RoomCommandService {
           value: group,
         })),
       );
-      if (selection.length === EMPTY) {
+      if (IsEmpty(selection)) {
         this.logger.warn(`No groups selected`);
       } else {
         selectedGroups = selection.map((item) => item._id);
@@ -204,7 +202,7 @@ export class RoomCommandService {
         value: 'add',
       },
     ];
-    if (room.entities.length === EMPTY) {
+    if (IsEmpty(room.entities)) {
       this.logger.warn(`No current entities in room`);
     } else {
       actions.unshift({
@@ -226,7 +224,7 @@ export class RoomCommandService {
         const entityAppend = await this.buildEntityList(
           room.entities.map((item) => item.entity_id),
         );
-        if (entityAppend.length === EMPTY) {
+        if (IsEmpty(entityAppend)) {
           this.logger.debug(`Nothing to add`);
           return;
         }
@@ -265,7 +263,7 @@ export class RoomCommandService {
         value: 'add',
       },
     ];
-    if (room.groups.length === EMPTY) {
+    if (IsEmpty(room.groups)) {
       this.logger.warn(`No current entities in room`);
     } else {
       actions.unshift({

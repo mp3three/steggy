@@ -12,7 +12,7 @@ const availableSpeeds = [
   FanSpeeds.high,
 ];
 const ARRAY_OFFSET = 1;
-const EMPTY = 0;
+const START = 0;
 
 /**
  * https://www.home-assistant.io/integrations/fan/
@@ -53,7 +53,7 @@ export class FanDomainService {
         availableSpeeds[index - ARRAY_OFFSET]
       }`,
     );
-    if (index === EMPTY) {
+    if (index === START) {
       this.logger.warn(`Cannot speed down`);
       return;
     }

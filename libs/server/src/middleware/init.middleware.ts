@@ -5,6 +5,7 @@ import {
   FilterValueType,
   HTTP_METHODS,
   InjectConfig,
+  IsEmpty,
   queryToControl,
   storage,
   Trace,
@@ -24,7 +25,6 @@ import {
 
 let currentRequestId = 0;
 const OK = 200;
-const EMPTY = 0;
 const INCREMENT = 1;
 /**
  * - Set up defaults on request locals
@@ -95,7 +95,7 @@ export class InitMiddleware implements NestMiddleware {
       return;
     }
     const filters = control.filters;
-    if (filters.size > EMPTY) {
+    if (!IsEmpty(filters)) {
       this.logger.debug(`Merging ${QUERY_HEADER} into query params`);
     }
     try {

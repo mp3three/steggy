@@ -9,7 +9,7 @@ import {
   Repl,
   REPL_TYPE,
 } from '@automagical/tty';
-import { AutoLogService, TitleCase } from '@automagical/utilities';
+import { AutoLogService, IsEmpty, TitleCase } from '@automagical/utilities';
 import chalk from 'chalk';
 import inquirer, { Separator } from 'inquirer';
 
@@ -19,7 +19,6 @@ import { GroupStateService } from './group-state.service';
 import { LightGroupCommandService } from './light-group-command.service';
 
 export type GroupItem = { entities: string[]; name: string; room: string };
-const EMPTY = 0;
 
 @Repl({
   icon: FontAwesomeIcons.group,
@@ -77,7 +76,7 @@ export class GroupCommandService implements iRepl {
     const action = await this.promptService.menuSelect<
       GroupDTO | keyof GroupCommandService
     >([
-      ...(groups.length !== EMPTY
+      ...(!IsEmpty(groups)
         ? [
             ...groups.map((group) => ({
               name: group.friendlyName,

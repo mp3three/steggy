@@ -2,6 +2,7 @@ import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import { BaseSchemaDTO } from '@automagical/persistence';
 import {
   AutoLogService,
+  IsEmpty,
   ResultControlDTO,
   Trace,
 } from '@automagical/utilities';
@@ -23,8 +24,6 @@ import { FanGroupService } from './fan-group.service';
 import { LightGroupService } from './light-group.service';
 import { LockGroupService } from './lock-group.service';
 import { SwitchGroupService } from './switch-group.service';
-
-const EMPTY = 0;
 
 @Injectable()
 export class GroupService {
@@ -176,7 +175,7 @@ export class GroupService {
           await this.lightManager.circadianLight(entity);
           return callback();
         }
-        if (defaultOnState.length > EMPTY) {
+        if (!IsEmpty(defaultOnState)) {
           await this.activateState(group, defaultOnState);
           return callback();
         }

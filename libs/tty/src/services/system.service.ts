@@ -1,6 +1,7 @@
 import {
   AutoLogService,
   AutomagicalConfig,
+  IsEmpty,
   PACKAGE_FILE,
 } from '@automagical/utilities';
 import { filterUnique } from '@automagical/utilities';
@@ -20,8 +21,6 @@ import { inc } from 'semver';
 import { NXAffected } from '../contracts';
 import { TypePromptService } from './type-prompt.service';
 import { WorkspaceService } from './workspace.service';
-
-const EMPTY = 0;
 
 /**
  * Class for working with the host operating system,
@@ -138,9 +137,7 @@ export class SystemService {
       '--format=%B',
       branch.trim(),
     ]);
-    return filterUnique(
-      stdout.split(`\n`).filter((item) => item.length > EMPTY),
-    );
+    return filterUnique(stdout.split(`\n`).filter((item) => !IsEmpty(item)));
   }
 
   public isLibrary(project: string): boolean {

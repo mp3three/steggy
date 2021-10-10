@@ -14,6 +14,7 @@ import {
 } from 'class-validator';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
+import { RoomSensorDTO } from '../rooms';
 import { RoomDTO } from './room.dto';
 
 export enum GROUP_TYPES {
@@ -127,6 +128,13 @@ export class GroupDTO<GROUP_STATE extends BASIC_STATE = BASIC_STATE> {
   @ValidateNested()
   @Expose()
   public rooms?: RoomDTO[];
+
+  @Prop()
+  @Expose()
+  @IsOptional()
+  @Type(() => RoomSensorDTO)
+  @ValidateNested({ each: true })
+  public sensors?: RoomSensorDTO[];
 
   /**
    * The current state of the group

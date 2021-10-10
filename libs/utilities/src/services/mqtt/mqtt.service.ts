@@ -7,7 +7,7 @@ import {
   Packet,
 } from 'mqtt';
 
-import type { MqttSubscribeOptions } from '../../contracts';
+import { IsEmpty, MqttSubscribeOptions } from '../../contracts';
 import { InjectMQTT } from '../../decorators/injectors/inject-mqtt.decorator';
 import { Trace } from '../../decorators/logger.decorator';
 import { AutoLogService } from '../logger';
@@ -19,7 +19,6 @@ export type MqttCallback<T = Record<string, unknown>> = (
   packet?: Packet,
 ) => void;
 
-const EMPTY = 0;
 const FIRST = 0;
 
 /**
@@ -46,7 +45,7 @@ export class MqttService {
     return new Promise((resolve, reject) => {
       topics = typeof topics === 'string' ? [topics] : topics;
       topics = topics.filter((topic) => !this.subscriptions.has(topic));
-      if (topics.length === EMPTY) {
+      if (IsEmpty(topics)) {
         return;
       }
       (topics as string[]).forEach((topic) => {
@@ -118,7 +117,7 @@ export class MqttService {
       'message',
       (topic: string, payload: Buffer, packet: Packet) => {
         const [callbacks, options] = this.callbacks.get(topic) ?? [];
-        if (callbacks.length === EMPTY) {
+        if (IsEmpty(callbacks)) {
           this.logger.warn(`Incoming MQTT {${topic}} with no callbacks`);
           return;
         }

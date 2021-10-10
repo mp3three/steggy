@@ -4,14 +4,13 @@ import {
   HassStateDTO,
 } from '@automagical/home-assistant';
 import { PromptMenuItems, PromptService } from '@automagical/tty';
-import { AutoLogService, sleep } from '@automagical/utilities';
+import { AutoLogService, IsEmpty, sleep } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import { encode } from 'ini';
 
 import { HomeFetchService } from '../home-fetch.service';
 
-const EMPTY = 0;
 const DELAY = 100;
 @Injectable()
 export class BaseDomainService {
@@ -39,7 +38,7 @@ export class BaseDomainService {
     const filtered = entities.filter(
       (entity) =>
         domain(entity) === search &&
-        (insideList.length === EMPTY || insideList.includes(entity)),
+        (IsEmpty(insideList) || insideList.includes(entity)),
     );
     const entityId = await this.promptService.autocomplete(
       'Pick an entity',

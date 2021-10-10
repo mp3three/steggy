@@ -1,11 +1,9 @@
-import { Trace } from '@automagical/utilities';
+import { EMPTY, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import execa from 'execa';
 import { decode } from 'ini';
 
 import { GitConfigDTO } from '../contracts';
-
-const EMPTY = 0;
 
 @Injectable()
 export class GitService {

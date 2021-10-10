@@ -6,6 +6,7 @@ import {
   Repl,
   REPL_TYPE,
 } from '@automagical/tty';
+import { IsEmpty } from '@automagical/utilities';
 
 import {
   BaseDomainService,
@@ -17,8 +18,6 @@ import {
   SwitchService,
 } from './domains';
 import { HomeFetchService } from './home-fetch.service';
-
-const EMPTY = 0;
 
 @Repl({
   description: [`Commands scoped to a single/manually built list of entities`],
@@ -47,9 +46,7 @@ export class EntityService implements iRepl {
       url: '/entity/list',
     });
     entities = entities
-      .filter(
-        (entity) => inList.length === EMPTY || inList.includes(domain(entity)),
-      )
+      .filter((entity) => IsEmpty(inList) || inList.includes(domain(entity)))
       .filter((item) => !omit.includes(item));
     const out: string[] = [];
     let exec = true;

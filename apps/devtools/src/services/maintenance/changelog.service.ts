@@ -11,15 +11,18 @@ import {
   TypePromptService,
   WorkspaceService,
 } from '@automagical/tty';
-import { APP_LIVING_DOCS, AutoLogService, Trace } from '@automagical/utilities';
+import {
+  APP_LIVING_DOCS,
+  AutoLogService,
+  IsEmpty,
+  Trace,
+} from '@automagical/utilities';
 import { eachSeries } from 'async';
 import Table from 'cli-table';
 import execa from 'execa';
 import inquirer from 'inquirer';
 import { join } from 'path';
 import { inc } from 'semver';
-
-const EMPTY = 0;
 
 @Repl({
   description: [
@@ -50,7 +53,7 @@ export class ChangelogService implements iRepl {
     }
     await this.systemService.verifyEditor();
     const affected = await this.listAffected();
-    if (affected.length === EMPTY) {
+    if (IsEmpty(affected)) {
       this.logger.warn(`NX reports 0 affected projects`);
       return;
     }
@@ -168,7 +171,7 @@ export class ChangelogService implements iRepl {
       'Projects to version bump',
       affected,
     );
-    if (values.length === EMPTY) {
+    if (IsEmpty(values)) {
       const proceed = await this.promptService.confirm(
         `Nothing selected, continue?`,
       );

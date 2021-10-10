@@ -1,13 +1,11 @@
 import { GroupDTO, GroupSaveStateDTO } from '@automagical/controller-logic';
 import { CANCEL, PromptService } from '@automagical/tty';
-import { AutoLogService } from '@automagical/utilities';
+import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 
 import { HomeFetchService } from '../home-fetch.service';
-
-const EMPTY = 0;
 
 @Injectable()
 export class GroupStateService {
@@ -36,7 +34,7 @@ export class GroupStateService {
     const action = await this.promptService.menuSelect<
       GroupSaveStateDTO | string
     >([
-      ...(group.states.length !== EMPTY
+      ...(!IsEmpty(group.states)
         ? [
             ...group.states.map((state) => ({
               name: state.name,

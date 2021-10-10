@@ -1,4 +1,3 @@
-export * from './base-room.service';
 export * from './circadian.service';
 export * from './command-router.service';
 export * from './groups';

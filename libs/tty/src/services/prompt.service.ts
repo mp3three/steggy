@@ -1,13 +1,11 @@
-import { AutoLogService, InjectConfig } from '@automagical/utilities';
+import { AutoLogService, InjectConfig, IsEmpty } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import fuzzy from 'fuzzysort';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
-import { CANCEL, PromptMenuItems } from '..';
 import { PAGE_SIZE } from '../config';
-
-const EMPTY = 0;
+import { CANCEL, PromptMenuItems } from '../contracts';
 
 @Injectable()
 export class PromptService {
@@ -107,7 +105,7 @@ export class PromptService {
     options: { key: string; name: string; value: T }[],
     defaultValue?: string,
   ): Promise<T> {
-    if (options.length === EMPTY) {
+    if (IsEmpty(options)) {
       this.logger.warn(`No choices to pick from`);
       return undefined;
     }
@@ -179,7 +177,7 @@ export class PromptService {
       ...extra
     }: { default?: string[]; max?: number; min?: number } = {},
   ): Promise<T[]> {
-    if (options.length === EMPTY) {
+    if (IsEmpty(options)) {
       this.logger.warn(`No choices to pick from`);
       return [];
     }
@@ -209,7 +207,7 @@ export class PromptService {
     options: (string | { name: string; value: T } | Separator)[],
     defaultValue?: string,
   ): Promise<T> {
-    if (options.length === EMPTY) {
+    if (IsEmpty(options)) {
       this.logger.warn(`No choices to pick from`);
       return undefined;
     }

@@ -4,11 +4,14 @@ import {
 } from '@automagical/home-assistant';
 import {
   AutoLogService,
+  Debug,
+  Info,
   InjectConfig,
+  IsEmpty,
   OnEvent,
   Trace,
 } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 
 import { KUNAMI_TIMEOUT } from '../../config';
@@ -21,7 +24,10 @@ import { GroupService } from '../groups';
 import { RoomService } from '../rooms';
 
 type ActiveMatcher = KunamiSensorEvent & { callback: () => Promise<void> };
-type Watcher = KunamiSensor & { callback: () => Promise<void> };
+type Watcher = KunamiSensor & {
+  callback: () => Promise<void>;
+  watcherType: 'room' | 'group';
+};
 
 @Injectable()
 export class SensorEventsService {
@@ -38,26 +44,52 @@ export class SensorEventsService {
    */
   private WATCHED_SENSORS = new Map<string, Watcher[]>();
 
-  @Trace()
-  public async refresh(): Promise<void> {
-    const rooms = await this.roomService.list();
-    this.WATCHED_SENSORS = new Map();
-    rooms.forEach((room) => {
-      room.sensors ??= [];
-      room.sensors.forEach((sensor) => {
+  @Debug({ after: `Mounted groups` })
+  public async mountGroups(): Promise<void> {
+    this.clearSensors('group');
+    const groups = await this.groupService.list();
+    groups.forEach((group) => {
+      group.sensors ??= [];
+      group.sensors.forEach((sensor: KunamiSensor) => {
         if (sensor.type === ROOM_SENSOR_TYPE.kunami) {
           const list: Watcher[] =
             this.WATCHED_SENSORS.get(sensor.entity_id) || [];
           list.push({
-            command: sensor,
-            async callback() {
-              //
-            },
+            ...sensor,
+            callback: async () => await this.executeGroupCommand(sensor),
+            watcherType: 'group',
           });
           this.WATCHED_SENSORS.set(sensor.entity_id, list);
         }
       });
     });
+  }
+
+  @Debug({ after: `Mounted rooms` })
+  public async mountRooms(): Promise<void> {
+    this.clearSensors('room');
+    const rooms = await this.roomService.list();
+    rooms.forEach((room) => {
+      room.sensors ??= [];
+      room.sensors.forEach((sensor: KunamiSensor) => {
+        if (sensor.type === ROOM_SENSOR_TYPE.kunami) {
+          const list: Watcher[] =
+            this.WATCHED_SENSORS.get(sensor.entity_id) || [];
+          list.push({
+            ...sensor,
+            callback: async () => await this.executeRoomCommand(sensor),
+            watcherType: 'room',
+          });
+          this.WATCHED_SENSORS.set(sensor.entity_id, list);
+        }
+      });
+    });
+  }
+
+  @Info({ after: '[Sensor Events] initialized' })
+  protected async onApplicationBootstrap(): Promise<void> {
+    await this.mountGroups();
+    await this.mountRooms();
   }
 
   @Trace()
@@ -98,9 +130,50 @@ export class SensorEventsService {
       if (!item.completed) {
         return callback();
       }
+      // Run callback
       await item.callback();
       callback();
     });
+  }
+
+  @Trace()
+  private clearSensors(type: 'room' | 'group'): void {
+    this.WATCHED_SENSORS.forEach((sensors, key) => {
+      const list = sensors.filter((sensor) => sensor.watcherType === type);
+      if (IsEmpty(list)) {
+        this.WATCHED_SENSORS.delete(key);
+        return;
+      }
+      this.WATCHED_SENSORS.set(key, list);
+    });
+  }
+
+  @Trace()
+  private async executeGroupCommand({ command }: KunamiSensor): Promise<void> {
+    switch (command.command) {
+      case 'turnOn':
+        await this.groupService.turnOn(command.target);
+        return;
+      case 'turnOff':
+        await this.groupService.turnOff(command.target);
+        return;
+      default:
+        throw new NotImplementedException();
+    }
+  }
+
+  @Trace()
+  private async executeRoomCommand({ command }: KunamiSensor): Promise<void> {
+    switch (command.command) {
+      case 'turnOn':
+        await this.roomService.turnOn(command.target, command.scope);
+        return;
+      case 'turnOff':
+        await this.roomService.turnOff(command.target, command.scope);
+        return;
+      default:
+        throw new NotImplementedException();
+    }
   }
 
   @Trace()
@@ -108,9 +181,9 @@ export class SensorEventsService {
     if (!this.ACTIVE_MATCHERS.has(entity_id)) {
       const initialEvents: ActiveMatcher[] = [];
       this.WATCHED_SENSORS.forEach((sensors) => {
-        sensors.list.forEach((sensor) => {
+        sensors.forEach((sensor) => {
           initialEvents.push({
-            callback: sensors.callback,
+            callback: sensor.callback,
             progress: [],
             rejected: false,
             sensor,
