@@ -38,6 +38,7 @@ export class DeviceListItemDTO {
 }
 
 export class SocketMessageDTO {
+  public error?: Record<string, unknown>;
   public event?: HassEventDTO;
   public id: string;
   public message?: string;
@@ -63,3 +64,22 @@ export class UpdateEntityMessageDTO {
   new_entity_id: string;
   type: HASSIO_WS_COMMAND.entity_update;
 }
+
+export class FindRelatedDTO {
+  id?: number;
+  item_id: string;
+  item_type: string;
+  type: HASSIO_WS_COMMAND.search_related;
+}
+
+export class RegistryGetDTO {
+  entity_id: string;
+  id?: number;
+  type: HASSIO_WS_COMMAND.registry_get;
+}
+
+export type SOCKET_MESSAGES =
+  | SendSocketMessageDTO
+  | UpdateEntityMessageDTO
+  | FindRelatedDTO
+  | RegistryGetDTO;

@@ -6,6 +6,7 @@ import {
 import {
   domain,
   EntityManagerService,
+  EntityRegistryItemDTO,
   HASS_DOMAINS,
   HassStateDTO,
 } from '@automagical/home-assistant';
@@ -41,11 +42,18 @@ export class EntityController {
     return GENERIC_SUCCESS_RESPONSE;
   }
 
+  @Get(`/registry/:id`)
+  public async fromRegistry(
+    @Param('id') id: string,
+  ): Promise<EntityRegistryItemDTO> {
+    return await this.entityManager.fromRegistry(id);
+  }
+
   @Get('/id/:entityId')
   public async getEntityState(
     @Param('entityId') entityId: string,
   ): Promise<HassStateDTO> {
-    return await this.entityManager.getEntity([entityId]).shift();
+    return await this.entityManager.getEntity(entityId);
   }
 
   @Get('/list')

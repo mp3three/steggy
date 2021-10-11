@@ -103,7 +103,7 @@ export class LightGroupService extends BaseGroupService {
     group: GroupDTO<PersistenceLightStateDTO>,
   ): PersistenceLightStateDTO[] {
     return group.entities.map((id) => {
-      const [light] = this.entityManager.getEntity<LightStateDTO>([id]);
+      const light = this.entityManager.getEntity<LightStateDTO>(id);
       return {
         brightness: light.attributes.brightness,
         hs_color: light.attributes.hs_color,

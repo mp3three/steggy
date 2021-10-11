@@ -72,7 +72,7 @@ export class ApplicationService {
       );
     });
     this.entityManager
-      .getEntity<BatteryStateDTO>(entities)
+      .getEntities<BatteryStateDTO>(entities)
       .forEach((entity) => {
         const pct = Number(entity.state);
         if (pct < this.notifyPercent) {

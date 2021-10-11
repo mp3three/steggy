@@ -34,7 +34,7 @@ export class FanGroupService extends BaseGroupService {
     group: GroupDTO<PersistenceFanStateDTO>,
   ): PersistenceFanStateDTO[] {
     return group.entities.map((id) => {
-      const [fan] = this.entityManager.getEntity<FanStateDTO>([id]);
+      const fan = this.entityManager.getEntity<FanStateDTO>(id);
       return {
         speed: fan.attributes.speed,
         state: fan.state,

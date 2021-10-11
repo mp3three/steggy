@@ -11,19 +11,18 @@ import {
 } from '@automagical/utilities';
 
 import {
+  DeviceController,
   EntityController,
   GroupController,
   HAHooksController,
   RoomController,
 } from '../controllers';
-import { LoftController } from '../rooms';
 import { ApplicationService, GarageService } from '../services';
-
-const rooms = [LoftController];
 
 @ApplicationModule({
   application: APP_HOME_CONTROLLER,
   controllers: [
+    DeviceController,
     EntityController,
     GroupController,
     HAHooksController,
@@ -36,6 +35,6 @@ const rooms = [LoftController];
     HomeControllerCustomModule.forRoot(),
     HomePersistenceModule.forRoot(),
   ],
-  providers: [ApplicationService, GarageService, ...rooms],
+  providers: [ApplicationService, GarageService],
 })
 export class HomeControllerModule {}

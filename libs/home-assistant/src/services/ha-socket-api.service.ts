@@ -1,8 +1,8 @@
 /* eslint-disable unicorn/no-null */
-import { CronExpression } from '@automagical/utilities';
 import {
   AutoLogService,
   Cron,
+  CronExpression,
   Debug,
   EmitAfter,
   InjectConfig,
@@ -29,9 +29,8 @@ import {
   HA_EVENT_STATE_CHANGE,
   HA_SOCKET_READY,
   HassStateDTO,
-  SendSocketMessageDTO,
+  SOCKET_MESSAGES,
   SocketMessageDTO,
-  UpdateEntityMessageDTO,
 } from '../contracts';
 import {
   HassEvents,
@@ -102,7 +101,7 @@ export class HASocketAPIService {
    */
   @Trace()
   public async sendMsg<T extends unknown = unknown>(
-    data: SendSocketMessageDTO | UpdateEntityMessageDTO,
+    data: SOCKET_MESSAGES,
     waitForResponse = true,
   ): Promise<T> {
     this.countMessage();
@@ -276,6 +275,9 @@ export class HASocketAPIService {
 
       case HassSocketMessageTypes.result:
         if (this.waitingCallback.has(id)) {
+          if (message.error) {
+            this.logger.error({ message });
+          }
           const f = this.waitingCallback.get(id);
           this.waitingCallback.delete(id);
           f(message.result);

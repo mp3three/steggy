@@ -2,13 +2,15 @@ import {
   domain,
   HASS_DOMAINS,
   HassStateDTO,
+  RelatedDescriptionDTO,
 } from '@automagical/home-assistant';
-import { PromptMenuItems, PromptService } from '@automagical/tty';
+import { CANCEL, PromptMenuItems, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty, sleep } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import { encode } from 'ini';
 
+import { DeviceService } from '../device.service';
 import { HomeFetchService } from '../home-fetch.service';
 
 const DELAY = 100;
@@ -18,6 +20,8 @@ export class BaseDomainService {
     protected readonly logger: AutoLogService,
     protected readonly fetchService: HomeFetchService,
     protected readonly promptService: PromptService,
+    @Inject(forwardRef(() => DeviceService))
+    protected readonly deviceService: DeviceService,
   ) {}
 
   public async getState<T extends HassStateDTO = HassStateDTO>(
@@ -62,6 +66,9 @@ export class BaseDomainService {
         return await this.processId(id, action);
       case 'changeEntityId':
         await this.changeEntityId(id);
+        return await this.processId(id, action);
+      case 'registry':
+        await this.fromRegistry(id);
         return await this.processId(id, action);
     }
     return action;
@@ -110,20 +117,39 @@ export class BaseDomainService {
     console.log(encode(state));
   }
 
+  protected async fromRegistry(id: string): Promise<void> {
+    const item: RelatedDescriptionDTO = await this.fetchService.fetch({
+      url: `/entity/registry/${id}`,
+    });
+    const action = await this.promptService.menuSelect(
+      this.promptService.itemsFromObject({
+        Describe: 'describe',
+        'View Device': 'device',
+      }),
+    );
+    switch (action) {
+      case CANCEL:
+        return;
+      case 'describe':
+        console.log(encode(item));
+        return;
+      case 'device':
+        if (IsEmpty(item.device ?? [])) {
+          this.logger.error({ item }, `No devices listed`);
+          return;
+        }
+        const device = await this.deviceService.pickOne(item.device);
+        // await this.deviceService.process(device);
+        return;
+    }
+  }
+
   protected getMenuOptions(): PromptMenuItems {
-    return [
-      {
-        name: 'Change Friendly Name',
-        value: 'changeFriendlyName',
-      },
-      {
-        name: 'Change Entity ID',
-        value: 'changeEntityId',
-      },
-      {
-        name: 'Describe',
-        value: 'describe',
-      },
-    ];
+    return this.promptService.itemsFromObject({
+      'Change Entity ID': 'changeEntityId',
+      'Change Friendly Name': 'changeFriendlyName',
+      Describe: 'describe',
+      Registry: 'registry',
+    });
   }
 }

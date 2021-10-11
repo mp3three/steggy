@@ -39,7 +39,7 @@ export class LockGroupService extends BaseGroupService {
   @Trace()
   public getState(group: GroupDTO<LockStateDTO>): PersistenceLockStateDTO[] {
     return group.entities.map((id) => {
-      const [light] = this.entityManager.getEntity<LockStateDTO>([id]);
+      const light = this.entityManager.getEntity<LockStateDTO>(id);
       return {
         state: light.state,
       } as PersistenceLockStateDTO;

@@ -40,7 +40,7 @@ export class SwitchGroupService extends BaseGroupService {
     T extends PersistenceSwitchStateDTO = PersistenceSwitchStateDTO,
   >(group: GroupDTO<T>): T[] {
     return group.entities.map((id) => {
-      const [light] = this.entityManager.getEntity<SwitchStateDTO>([id]);
+      const light = this.entityManager.getEntity<SwitchStateDTO>(id);
       return {
         state: light.state,
       } as T;

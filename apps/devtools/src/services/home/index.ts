@@ -1,3 +1,4 @@
+export * from './device.service';
 export * from './domains';
 export * from './entity.service';
 export * from './groups';

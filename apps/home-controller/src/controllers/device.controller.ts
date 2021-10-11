@@ -1,14 +1,26 @@
 import {
   DeviceListItemDTO,
+  DeviceService,
   HASocketAPIService,
+  RelatedDescriptionDTO,
 } from '@automagical/home-assistant';
 import { AuthStack } from '@automagical/server';
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 
 @Controller(`/device`)
 @AuthStack()
 export class DeviceController {
-  constructor(private readonly socketService: HASocketAPIService) {}
+  constructor(
+    private readonly socketService: HASocketAPIService,
+    private readonly deviceService: DeviceService,
+  ) {}
+
+  @Get(`/inspect/:device`)
+  public async findRelated(
+    @Param('device') id: string,
+  ): Promise<RelatedDescriptionDTO> {
+    return await this.deviceService.findRelated(id);
+  }
 
   @Get(`/list`)
   public async listDevices(): Promise<DeviceListItemDTO[]> {

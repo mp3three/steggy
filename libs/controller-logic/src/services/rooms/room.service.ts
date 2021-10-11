@@ -188,7 +188,7 @@ export class RoomService {
     room.entities ??= [];
     const states: RoomEntitySaveStateDTO[] = [];
     await each(room.entities, async ({ entity_id }, callback) => {
-      const [entity] = this.entityManager.getEntity([entity_id]);
+      const entity = this.entityManager.getEntity(entity_id);
       if (!entity) {
         this.logger.warn(
           `Cannot find entity {${entity_id}}. Omitting from state`,

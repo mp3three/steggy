@@ -5,11 +5,14 @@ import { Observable, Subscriber } from 'rxjs';
 
 import {
   ALL_ENTITIES_UPDATED,
+  CapbilityList,
   domain,
+  EntityRegistryItemDTO,
   HA_EVENT_STATE_CHANGE,
   HA_SOCKET_READY,
   HASS_DOMAINS,
   HassEventDTO,
+  HASSIO_WS_COMMAND,
   HassStateDTO,
 } from '../contracts';
 import { HASocketAPIService } from './ha-socket-api.service';
@@ -41,14 +44,36 @@ export class EntityManagerService {
     });
     return out;
   }
+
+  @Trace()
+  public async fromRegistry<
+    CAPABILITIES extends CapbilityList = Record<string, unknown>,
+  >(entity_id: string): Promise<EntityRegistryItemDTO<CAPABILITIES>> {
+    const out = await this.socketService.sendMsg<
+      EntityRegistryItemDTO<CAPABILITIES>
+    >({
+      entity_id,
+      type: HASSIO_WS_COMMAND.registry_get,
+    });
+    return out;
+  }
+
   /**
    * Retrieve an entity's state
    */
   @Trace()
-  public getEntity<T extends HassStateDTO = HassStateDTO>(
+  public getEntities<T extends HassStateDTO = HassStateDTO>(
     entityId: string[],
   ): T[] {
     return entityId.map((id) => this.ENTITIES.get(id) as T);
+  }
+
+  /**
+   * Retrieve an entity's state
+   */
+  @Trace()
+  public getEntity<T extends HassStateDTO = HassStateDTO>(id: string): T {
+    return this.ENTITIES.get(id) as T;
   }
 
   /**

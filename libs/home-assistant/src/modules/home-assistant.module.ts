@@ -18,6 +18,7 @@ import {
   SwitchDomainService,
 } from '../domains';
 import {
+  DeviceService,
   EntityManagerService,
   HACallService,
   HASocketAPIService,
@@ -25,26 +26,29 @@ import {
 } from '../services';
 
 const services: Provider[] = [
-  // Domains
-  CameraDomainService,
-  ClimateDomainService,
-  CoverDomainService,
-  FanDomainService,
-  HomeAssistantCoreService,
-  HumidifierDomain,
-  iCloudDomainService,
-  LightDomainService,
-  LockDomainService,
-  MediaPlayerDomainService,
-  NotifyDomainService,
-  RemoteDomainService,
-  RemoteDomainService,
-  SwitchDomainService,
-  // Service
-  HACallService,
-  HomeAssistantFetchAPIService,
-  HASocketAPIService,
-  EntityManagerService,
+  ...[
+    CameraDomainService,
+    ClimateDomainService,
+    CoverDomainService,
+    FanDomainService,
+    HomeAssistantCoreService,
+    HumidifierDomain,
+    iCloudDomainService,
+    LightDomainService,
+    LockDomainService,
+    MediaPlayerDomainService,
+    NotifyDomainService,
+    RemoteDomainService,
+    RemoteDomainService,
+    SwitchDomainService,
+  ],
+  ...[
+    DeviceService,
+    HACallService,
+    HomeAssistantFetchAPIService,
+    HASocketAPIService,
+    EntityManagerService,
+  ],
 ];
 
 @LibraryModule({
