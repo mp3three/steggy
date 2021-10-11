@@ -1,3 +1,4 @@
+export * from './debug.service';
 export * from './device.service';
 export * from './domains';
 export * from './entity.service';

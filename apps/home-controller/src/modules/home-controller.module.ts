@@ -11,6 +11,7 @@ import {
 } from '@automagical/utilities';
 
 import {
+  DebugController,
   DeviceController,
   EntityController,
   GroupController,
@@ -22,6 +23,7 @@ import { ApplicationService, GarageService } from '../services';
 @ApplicationModule({
   application: APP_HOME_CONTROLLER,
   controllers: [
+    DebugController,
     DeviceController,
     EntityController,
     GroupController,
