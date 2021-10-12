@@ -1,4 +1,5 @@
 import {
+  GroupDTO,
   ROOM_ENTITY_TYPES,
   RoomDTO,
   RoomEntityDTO,
@@ -12,6 +13,7 @@ import {
   REPL_TYPE,
 } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
+import { NotImplementedException } from '@nestjs/common';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 
@@ -122,6 +124,7 @@ export class RoomCommandService {
   }
 
   private async processRoom(room: RoomDTO): Promise<void> {
+    this.promptService.header(room.friendlyName);
     const action = await this.promptService.menuSelect([
       {
         name: 'Turn On',
@@ -257,29 +260,31 @@ export class RoomCommandService {
 
   private async roomGroups(room: RoomDTO): Promise<void> {
     room.groups ??= [];
-    const actions = [
+    if (IsEmpty(room.groups)) {
+      this.logger.warn(`No current groups in room`);
+    }
+    const allGroups = await this.groupCommand.list();
+    const action = await this.promptService.menuSelect<GroupDTO | string>([
       {
         name: 'Add',
         value: 'add',
       },
-    ];
-    if (IsEmpty(room.groups)) {
-      this.logger.warn(`No current entities in room`);
-    } else {
-      actions.unshift({
-        name: 'Manipulate',
-        value: 'manipulate',
-      });
-      actions.push({
-        name: 'Remove',
-        value: 'remove',
-      });
-    }
-    const action = await this.promptService.menuSelect(actions);
-    if (action === CANCEL) {
-      return;
-    }
+      ...(IsEmpty(room.groups)
+        ? []
+        : [
+            {
+              name: 'Remove',
+              value: 'remove',
+            },
+            new inquirer.Separator(),
+            ...allGroups
+              .filter(({ _id }) => room.groups.includes(_id))
+              .map((group) => ({ name: group.friendlyName, value: group })),
+          ]),
+    ]);
     switch (action) {
+      case CANCEL:
+        return;
       case 'add':
         let addMore = true;
         room.groups ??= [];
@@ -288,14 +293,14 @@ export class RoomCommandService {
           room.groups.push(group._id);
           addMore = await this.promptService.confirm(`Add another?`);
         } while (addMore === true);
-        if (!(await this.promptService.confirm('Send changes?'))) {
-          return;
-        }
         await this.update(room);
         return;
-      case 'remove':
-        return;
     }
+    if (typeof action === 'string') {
+      this.logger.error({ action }, `Not implemented`);
+      return;
+    }
+    await this.groupCommand.process(action, allGroups);
   }
 
   private async update(body: RoomDTO): Promise<RoomDTO> {

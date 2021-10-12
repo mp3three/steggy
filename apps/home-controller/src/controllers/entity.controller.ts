@@ -83,7 +83,7 @@ export class EntityController {
       throw new BadRequestException();
     }
 
-    await this.lightManager.turnOnEntities(id, data);
+    await this.lightManager.turnOn(id, data);
     return GENERIC_SUCCESS_RESPONSE;
   }
 

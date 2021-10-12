@@ -89,7 +89,7 @@ export class LightGroupService extends BaseGroupService {
   ): Promise<GroupDTO<GROUP_TYPE>> {
     group = await this.loadGroup(group);
     await each(group.entities, async (entity, callback) => {
-      await this.lightManager.turnOnEntities(entity, {
+      await this.lightManager.turnOn(entity, {
         brightness,
         hs_color,
       });
@@ -152,7 +152,7 @@ export class LightGroupService extends BaseGroupService {
         if (state?.state !== 'on' && turnOn === false) {
           return callback();
         }
-        await this.lightManager.turnOnEntities(id, { brightness });
+        await this.lightManager.setAttributes(id, { brightness });
         callback();
       },
     );
@@ -199,7 +199,7 @@ export class LightGroupService extends BaseGroupService {
             break;
           case LIGHTING_MODE.on:
           default:
-            await this.lightManager.turnOnEntities(id, {
+            await this.lightManager.turnOn(id, {
               brightness: state.brightness,
               hs_color: state.hs_color,
             });

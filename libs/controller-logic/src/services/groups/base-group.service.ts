@@ -44,6 +44,7 @@ export abstract class BaseGroupService {
   ): Promise<GroupDTO<GROUP_TYPE>> {
     group = await this.loadGroup(group);
     state.id = uuid();
+    group.save_states ??= [];
     group.save_states.push(state);
     return await this.groupPersistence.update(group, group._id);
   }

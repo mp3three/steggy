@@ -64,7 +64,7 @@ export class LightManagerService {
       });
       return;
     }
-    await this.turnOnEntities(entity_id, {
+    await this.setAttributes(entity_id, {
       brightness,
       mode: LIGHTING_MODE.circadian,
     });
@@ -148,6 +148,47 @@ export class LightManagerService {
   }
 
   @Trace()
+  public async setAttributes(
+    entity_id: string | string[],
+    settings: Partial<LightingCacheDTO> = {},
+  ): Promise<void> {
+    if (Array.isArray(entity_id)) {
+      await each(entity_id, async (id, callback) => {
+        await this.setAttributes(id, settings);
+        callback();
+      });
+      return;
+    }
+    const current = await this.getState(entity_id);
+    // if the incoming mode is circadian
+    // or there is no mode defined, and the current one is circadian
+    if (
+      settings.mode === LIGHTING_MODE.circadian ||
+      (IsEmpty(settings.mode) && current?.mode === LIGHTING_MODE.circadian)
+    ) {
+      settings.kelvin = await this.circadianService.CURRENT_LIGHT_TEMPERATURE;
+    } else {
+      delete settings.kelvin;
+      delete current.kelvin;
+    }
+    const key = CACHE_KEY(entity_id);
+
+    await this.cache.set(key, settings);
+    // Brightness here is 1-255
+    const data = {
+      brightness: settings.brightness,
+      hs_color: settings.hs_color,
+      kelvin: settings.kelvin,
+    };
+    Object.keys(data).forEach((key) => {
+      if (typeof data[key] === 'undefined') {
+        delete data[key];
+      }
+    });
+    await this.lightService.turnOn(entity_id, data);
+  }
+
+  @Trace()
   public async turnOff(entity_id: string | string[]): Promise<void> {
     return this.turnOffEntities(entity_id);
   }
@@ -165,52 +206,14 @@ export class LightManagerService {
   }
 
   @Trace()
-  public async turnOn(entity_id: string | string[]): Promise<void> {
-    return this.turnOnEntities(entity_id);
-  }
-
-  @Trace()
-  public async turnOnEntities(
+  public async turnOn(
     entity_id: string | string[],
     settings: Partial<LightingCacheDTO> = {},
   ): Promise<void> {
-    if (Array.isArray(entity_id)) {
-      await each(entity_id, async (id, callback) => {
-        await this.turnOnEntities(id, settings);
-        callback();
-      });
-      return;
-    }
-    const current = await this.getState(entity_id);
-    if (
-      settings.mode === LIGHTING_MODE.circadian ||
-      (IsEmpty(settings.mode) && current.mode === LIGHTING_MODE.circadian)
-    ) {
-      // Only allowing kelvin updates when light is in circadian mode
-      // Otherwise HS is the way to go
-      settings.kelvin = await this.circadianService.CURRENT_LIGHT_TEMPERATURE;
-    } else {
-      delete settings.kelvin;
-      delete current.kelvin;
-    }
-    const key = CACHE_KEY(entity_id);
-
-    await this.cache.set(key, {
-      ...current,
+    return this.setAttributes(entity_id, {
       ...settings,
+      mode: LIGHTING_MODE.on,
     });
-    // Brightness here is 1-255
-    const data = {
-      brightness: settings.brightness,
-      hs_color: settings.hs_color,
-      kelvin: settings.kelvin,
-    };
-    Object.keys(data).forEach((key) => {
-      if (typeof data[key] === 'undefined') {
-        delete data[key];
-      }
-    });
-    await this.lightService.turnOn(entity_id, data);
   }
 
   @Trace()
@@ -222,7 +225,7 @@ export class LightManagerService {
         // if (state?.mode !== 'circadian' || state.kelvin === kelvin) {
         return;
       }
-      await this.turnOnEntities(id, { kelvin });
+      await this.setAttributes(id, { kelvin });
       callback();
     });
   }

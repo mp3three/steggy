@@ -1,5 +1,6 @@
 import { AutoLogService, InjectConfig, IsEmpty } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import chalk from 'chalk';
 import fuzzy from 'fuzzysort';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
@@ -120,6 +121,16 @@ export class PromptService {
       },
     ]);
     return value;
+  }
+
+  public header(text: string): void {
+    const header = `  ${text}  `;
+    const padding = ' '.repeat(header.length);
+    console.log(
+      [chalk.bgCyan.black([padding, header, padding].join(`\n`)), ``].join(
+        `\n`,
+      ),
+    );
   }
 
   public itemsFromObject<T extends unknown = string>(

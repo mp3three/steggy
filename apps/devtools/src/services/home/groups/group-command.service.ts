@@ -120,43 +120,12 @@ export class GroupCommandService implements iRepl {
         .map((group) => ({ name: group.friendlyName, value: group })),
     );
   }
-
-  private async describeGroup(group: GroupDTO): Promise<string> {
-    group.state ??= [];
-    group = await this.fetchService.fetch({
-      url: `/group/${group._id}`,
-    });
-    const entity = await this.promptService.menuSelect(
-      group.state.map((item, index) => {
-        const value = group.entities[index];
-        if (!value) {
-          return new Separator(`MISSING ENTITY`);
-        }
-        let name = `${value}`;
-        if (item.state === 'on') {
-          name = chalk.green(name);
-        }
-        if (item.state === 'off') {
-          name = chalk.red(name);
-        }
-        return {
-          name,
-          value,
-        };
-      }),
-    );
-    if (entity === CANCEL) {
-      return entity;
-    }
-    await this.entityService.process(entity);
-    return await this.describeGroup(group);
-  }
-
-  private async process(
+  public async process(
     group: GroupDTO,
     list: GroupDTO[],
     defaultValue?: string,
   ): Promise<void> {
+    this.promptService.header(group.friendlyName);
     const actions: PromptMenuItems = [];
     if (group.type === GROUP_TYPES.light) {
       actions.push(...(await this.lightGroup.groupActions()));
@@ -234,5 +203,36 @@ export class GroupCommandService implements iRepl {
         this.logger.error({ action, type: group.type }, `Bad action`);
     }
     await this.process(group, list, action);
+  }
+
+  private async describeGroup(group: GroupDTO): Promise<string> {
+    group.state ??= [];
+    group = await this.fetchService.fetch({
+      url: `/group/${group._id}`,
+    });
+    const entity = await this.promptService.menuSelect(
+      group.state.map((item, index) => {
+        const value = group.entities[index];
+        if (!value) {
+          return new Separator(`MISSING ENTITY`);
+        }
+        let name = `${value}`;
+        if (item.state === 'on') {
+          name = chalk.green(name);
+        }
+        if (item.state === 'off') {
+          name = chalk.red(name);
+        }
+        return {
+          name,
+          value,
+        };
+      }),
+    );
+    if (entity === CANCEL) {
+      return entity;
+    }
+    await this.entityService.process(entity);
+    return await this.describeGroup(group);
   }
 }

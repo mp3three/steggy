@@ -77,15 +77,11 @@ export class BaseDomainService {
   protected async baseHeader<T extends HassStateDTO = HassStateDTO>(
     id: string,
   ): Promise<T> {
+    // sleep needed to ensure correct-ness of header information
+    // Somtimes the previous request impacts the state, and race conditions
     await sleep(DELAY);
     const content = await this.getState<T>(id);
-    const header = `  ${content.attributes.friendly_name}  `;
-    const padding = ' '.repeat(header.length);
-    console.log(
-      [chalk.bgCyan.black([padding, header, padding].join(`\n`)), ``].join(
-        `\n`,
-      ),
-    );
+    this.promptService.header(content.attributes.friendly_name);
     return content;
   }
 
