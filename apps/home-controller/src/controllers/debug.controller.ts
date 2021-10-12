@@ -11,10 +11,12 @@ export class DebugController {
   constructor(private readonly lightManger: LightManagerService) {}
 
   @Get(`/active-lights`)
-  public async activeLights(): Promise<LightingCacheDTO[]> {
+  public async activeLights(): Promise<Record<string, LightingCacheDTO>> {
     const lights = await this.lightManger.getActiveLights();
-    return await Promise.all(
-      lights.map(async (id) => await this.lightManger.getState(id)),
+    const out: Record<string, LightingCacheDTO> = {};
+    await Promise.all(
+      lights.map(async (id) => (out[id] = await this.lightManger.getState(id))),
     );
+    return out;
   }
 }

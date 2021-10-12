@@ -5,5 +5,8 @@ export function IsEmpty(
   if (typeof type === 'string' || Array.isArray(type)) {
     return type.length === EMPTY;
   }
-  return type.size === EMPTY;
+  if (type instanceof Map || type instanceof Set) {
+    return type.size === EMPTY;
+  }
+  return true;
 }

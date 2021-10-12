@@ -8,6 +8,7 @@ import {
   InjectCache,
   InjectConfig,
   InjectLogger,
+  IsEmpty,
   Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -180,13 +181,20 @@ export class LightManagerService {
       });
       return;
     }
-    if (settings.mode === 'circadian') {
+    const current = await this.getState(entity_id);
+    if (
+      settings.mode === LIGHTING_MODE.circadian ||
+      (IsEmpty(settings.mode) && current.mode === LIGHTING_MODE.circadian)
+    ) {
+      // Only allowing kelvin updates when light is in circadian mode
+      // Otherwise HS is the way to go
       settings.kelvin = await this.circadianService.CURRENT_LIGHT_TEMPERATURE;
     } else {
       delete settings.kelvin;
+      delete current.kelvin;
     }
     const key = CACHE_KEY(entity_id);
-    const current = await this.getState(key);
+
     await this.cache.set(key, {
       ...current,
       ...settings,
