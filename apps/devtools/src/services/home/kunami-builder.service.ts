@@ -107,11 +107,9 @@ export class KunamiBuilderService {
       `Sequence action`,
       actions,
     );
-    const out: Partial<KunamiSensorCommand> = {
-      command,
-    };
+    let saveStateId: string;
     if (command === 'setState') {
-      out.saveStateId = await this.promptService.pickOne(
+      saveStateId = await this.promptService.pickOne(
         `Which state`,
         room.save_states.map((save) => ({
           name: save.name,
@@ -119,20 +117,13 @@ export class KunamiBuilderService {
         })),
       );
     }
-    out.sensor = await this.entityService.pickOne([HASS_DOMAINS.sensor]);
-    // const entity = await this.entityService.get(entity_id);
-    const duration = await this.promptService.number(
-      `Record changes for x seconds`,
-      DEFAULT_RECORD_DURATION,
-    );
-    console.log(chalk.green(`Recording`));
-    out.match = await this.fetchService.fetch({
-      body: { duration },
-      method: 'post',
-      url: `/entity/record/${out.sensor}`,
-    });
-    console.log(chalk.red(`Done`));
-    return out as KunamiSensorCommand;
+
+    const events = await this.recordEvents();
+    return {
+      command,
+      saveStateId,
+      ...events,
+    } as KunamiSensorCommand;
   }
 
   public async create(
@@ -147,6 +138,27 @@ export class KunamiBuilderService {
       command,
       entity_id,
       type: ROOM_SENSOR_TYPE.kunami,
+    };
+  }
+
+  private async recordEvents(): Promise<{ match: string[]; sensor: string }> {
+    const sensor = await this.entityService.pickOne([HASS_DOMAINS.sensor]);
+    // const entity = await this.entityService.get(entity_id);
+    const duration = await this.promptService.number(
+      `Record changes for x seconds`,
+      DEFAULT_RECORD_DURATION,
+    );
+    console.log(chalk.green(`Recording`));
+    const match = await this.fetchService.fetch<string[]>({
+      body: { duration },
+      method: 'post',
+      url: `/entity/record/${sensor}`,
+    });
+    console.log(match);
+    console.log(chalk.red(`Done`));
+    return {
+      match,
+      sensor,
     };
   }
 }

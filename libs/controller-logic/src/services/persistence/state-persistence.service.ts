@@ -8,6 +8,7 @@ import {
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { EventEmitter2 } from 'eventemitter2';
 import { Model } from 'mongoose';
 
 import { GROUP_UPDATE, RoomStateDocument, RoomStateDTO } from '../../contracts';
@@ -17,6 +18,7 @@ const OK_RESPONSE = 1;
 @Injectable()
 export class StatePersistenceService extends BaseMongoService {
   constructor(
+    private readonly eventEmitter: EventEmitter2,
     private readonly logger: AutoLogService,
     @InjectModel(RoomStateDTO.name)
     private readonly roomStateModel: Model<RoomStateDocument>,

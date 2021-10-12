@@ -17,6 +17,7 @@ import {
 } from '../contracts';
 import { HASocketAPIService } from './ha-socket-api.service';
 
+const ONE_SECOND = 1000;
 /**
  * Global entity tracking, the source of truth for anything needing to retrieve the current state of anything
  *
@@ -116,7 +117,7 @@ export class EntityManagerService {
     }
     const state = this.getEntity(entityId);
     this.WATCHERS.set(entityId, [state.state]);
-    await sleep(duration); // kick back and relax
+    await sleep(duration * ONE_SECOND); // kick back and relax
     const observed = this.WATCHERS.get(entityId);
     this.WATCHERS.delete(entityId);
     return observed;

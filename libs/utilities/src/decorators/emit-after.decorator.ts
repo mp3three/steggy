@@ -26,6 +26,10 @@ export function EmitAfter(
         if (emitData === 'parameters') {
           data = parameters;
         }
+        if (!this.eventEmitter) {
+          console.log('WAT', this.constructor.name);
+          return;
+        }
         this.eventEmitter.emit(eventName, data);
       });
       return out;

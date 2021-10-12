@@ -110,10 +110,6 @@ export class SensorEventsService {
     // Append new state to each matcher, test, then run callback
     await each(process, async (item, callback) => {
       const { command } = item.sensor;
-      // Ignore if default state
-      if (state === command.defaultState && !command.includeDefaultState) {
-        return callback();
-      }
       // Append to list of observed states
       item.progress.push(state);
       // Has appending this event invalidated the command?
