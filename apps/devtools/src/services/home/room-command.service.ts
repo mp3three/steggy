@@ -13,13 +13,13 @@ import {
   REPL_TYPE,
 } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
-import { NotImplementedException } from '@nestjs/common';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 
 import { EntityService } from './entity.service';
 import { GroupCommandService } from './groups/group-command.service';
 import { HomeFetchService } from './home-fetch.service';
+import { KunamiBuilderService } from './kunami-builder.service';
 
 @Repl({
   description: [`Commands scoped to a single room`],
@@ -34,6 +34,7 @@ export class RoomCommandService {
     private readonly fetchService: HomeFetchService,
     private readonly groupCommand: GroupCommandService,
     private readonly entityService: EntityService,
+    private readonly kunamiBuilder: KunamiBuilderService,
   ) {}
 
   public async create(): Promise<RoomDTO> {
@@ -57,14 +58,14 @@ export class RoomCommandService {
       }
     }
 
-    const room: RoomDTO = {
+    const body: RoomDTO = {
       entities,
       friendlyName,
       groups: selectedGroups,
     };
 
     return await this.fetchService.fetch({
-      body: room,
+      body,
       method: 'post',
       url: `/room`,
     });
@@ -126,38 +127,24 @@ export class RoomCommandService {
   private async processRoom(room: RoomDTO): Promise<void> {
     this.promptService.header(room.friendlyName);
     const action = await this.promptService.menuSelect([
-      {
-        name: 'Turn On',
-        value: 'turnOn',
-      },
-      {
-        name: 'Turn Off',
-        value: 'turnOff',
-      },
+      ...this.promptService.itemsFromObject({
+        'Turn Off': 'turnOff',
+        'Turn On': 'turnOn',
+      }),
       new inquirer.Separator(),
-      {
-        name: 'Entities',
-        value: 'entities',
-      },
-      {
-        name: 'Groups',
-        value: 'groups',
-      },
-      {
-        name: 'Rename',
-        value: 'rename',
-      },
-
-      {
-        name: 'Delete',
-        value: 'delete',
-      },
-      {
-        name: 'Describe',
-        value: 'describe',
-      },
+      ...this.promptService.itemsFromObject({
+        Delete: 'delete',
+        Describe: 'describe',
+        Entities: 'entities',
+        Groups: 'groups',
+        Rename: 'rename',
+        'Sensor Commands': 'sensorCommands',
+      }),
     ]);
     switch (action) {
+      case 'sensorCommands':
+        await this.kunamiBuilder.buildRoomCommand(room);
+        return await this.processRoom(room);
       case 'rename':
         room.friendlyName = await this.promptService.string(
           `New name`,

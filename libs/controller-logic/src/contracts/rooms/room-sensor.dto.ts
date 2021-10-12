@@ -19,14 +19,6 @@ export class KunamiSensorCommand {
    */
   public command?: 'turnOff' | 'turnOn' | 'setState' | string;
   /**
-   * The at-rest / nothing happening state for the sensor
-   */
-  public defaultState?: string;
-  /**
-   * When emitting events, should the default / nothing happening state be included in the chain?
-   */
-  public includeDefaultState?: boolean;
-  /**
    * States from controller to match
    */
   public match: string[];
@@ -38,6 +30,8 @@ export class KunamiSensorCommand {
    * For generic room commands (turn on / turn off)
    */
   public scope?: ROOM_ENTITY_TYPES[];
+
+  public sensor: string;
 }
 
 export class KunamiSensor extends RoomSensorDTO {

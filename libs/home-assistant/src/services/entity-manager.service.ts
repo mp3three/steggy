@@ -1,5 +1,5 @@
-import { OnEvent, Trace } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { OnEvent, sleep, Trace } from '@automagical/utilities';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 import { Observable, Subscriber } from 'rxjs';
 
@@ -32,6 +32,7 @@ export class EntityManagerService {
   private readonly ENTITIES = new Map<string, HassStateDTO>();
   private readonly OBSERVABLES = new Map<string, Observable<HassStateDTO>>();
   private readonly SUBSCRIBERS = new Map<string, Subscriber<HassStateDTO>>();
+  private readonly WATCHERS = new Map<string, unknown[]>();
 
   public findByDomain<T extends HassStateDTO = HassStateDTO>(
     target: HASS_DOMAINS,
@@ -108,6 +109,20 @@ export class EntityManagerService {
   }
 
   @Trace()
+  public async record(entityId: string, duration: number): Promise<unknown[]> {
+    if (this.WATCHERS.has(entityId)) {
+      // Let's keep life simple
+      throw new BadRequestException(`Watcher already exists for ${entityId}`);
+    }
+    const state = this.getEntity(entityId);
+    this.WATCHERS.set(entityId, [state.state]);
+    await sleep(duration); // kick back and relax
+    const observed = this.WATCHERS.get(entityId);
+    this.WATCHERS.delete(entityId);
+    return observed;
+  }
+
+  @Trace()
   public async updateFriendlyName(
     entityId: string,
     friendly_name: string,
@@ -165,8 +180,10 @@ export class EntityManagerService {
     this.ENTITIES.set(entity_id, new_state);
     const subscriber = this.SUBSCRIBERS.get(entity_id);
     subscriber?.next(new_state);
-    // this.log
     this.eventEmitter.emit(`${entity_id}/update`, event);
+    if (this.WATCHERS.has(entity_id)) {
+      this.WATCHERS.get(entity_id).push(new_state.state);
+    }
   }
 
   @OnEvent(HA_SOCKET_READY)

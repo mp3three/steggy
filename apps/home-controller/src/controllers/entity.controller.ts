@@ -19,6 +19,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  Post,
   Put,
 } from '@nestjs/common';
 
@@ -59,6 +60,14 @@ export class EntityController {
   @Get('/list')
   public listEntities(): string[] {
     return this.entityManager.listEntities();
+  }
+
+  @Post(`/record/:entityId`)
+  public async record(
+    @Param('entityId') id: string,
+    @Body() { duration }: Record<'duration', number>,
+  ): Promise<unknown> {
+    return await this.entityManager.record(id, duration);
   }
 
   @Put('/command/:id/:command')

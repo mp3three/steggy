@@ -7,7 +7,6 @@ import {
 import { CANCEL, PromptMenuItems, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty, sleep } from '@automagical/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import chalk from 'chalk';
 import { encode } from 'ini';
 
 import { DeviceService } from '../device.service';
@@ -135,7 +134,7 @@ export class BaseDomainService {
           return;
         }
         const device = await this.deviceService.pickOne(item.device);
-        // await this.deviceService.process(device);
+        await this.deviceService.process(device);
         return;
     }
   }

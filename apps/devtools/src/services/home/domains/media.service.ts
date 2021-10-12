@@ -64,11 +64,13 @@ export class MediaService extends SwitchService {
 
   protected getMenuOptions(): PromptMenuItems {
     return [
-      { name: 'Play / Pause', value: 'playPause' },
-      { name: 'Toggle', value: 'toggle' },
-      { name: 'Volume Up', value: 'volumeUp' },
-      { name: 'Volume Down', value: 'volumeDown' },
-      { name: 'Mute', value: 'mute' },
+      ...this.promptService.itemsFromObject({
+        Mute: 'mute',
+        'Play / Pause': 'playPause',
+        Toggle: 'toggle',
+        'Volume Down': 'volumeDown',
+        'Volume Up': 'volumeUp',
+      }),
       ...super.getMenuOptions(),
     ];
   }

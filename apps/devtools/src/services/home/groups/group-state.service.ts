@@ -43,18 +43,11 @@ export class GroupStateService {
             new inquirer.Separator(),
           ]
         : []),
-      {
-        name: 'Describe current',
-        value: 'describe',
-      },
-      {
-        name: 'Capture Current',
-        value: 'capture',
-      },
-      {
-        name: 'Remove all save states',
-        value: 'truncate',
-      },
+      ...this.promptService.itemsFromObject({
+        'Capture Current': 'capture',
+        'Describe current': 'describe',
+        'Remove all save states': 'truncate',
+      }),
     ]);
     if (action === CANCEL) {
       return;
@@ -118,23 +111,15 @@ export class GroupStateService {
     group: GroupDTO,
   ): Promise<void> {
     const stateAction = await this.promptService.menuSelect([
-      {
-        name: 'Activate',
-        value: 'activate',
-      },
-      {
-        name: 'Describe',
-        value: 'describe',
-      },
+      ...this.promptService.itemsFromObject({
+        Activate: 'activate',
+        Describe: 'describe',
+      }),
       new inquirer.Separator(),
-      {
-        name: 'Copy to another group',
-        value: 'copyTo',
-      },
-      {
-        name: 'Delete',
-        value: 'delete',
-      },
+      ...this.promptService.itemsFromObject({
+        'Copy to another group': 'copyTo',
+        Delete: 'delete',
+      }),
     ]);
     switch (stateAction) {
       case 'copyTo':

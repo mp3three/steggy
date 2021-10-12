@@ -9,7 +9,7 @@ import inquirer from 'inquirer';
 
 import { HomeFetchService } from '../home-fetch.service';
 
-const MIN_BRIGHTNESS = 1;
+const MIN_BRIGHTNESS = 5;
 const MAX_BRIGHTNESS = 255;
 
 @Injectable()
@@ -22,30 +22,14 @@ export class LightGroupCommandService {
 
   public async groupActions(): Promise<PromptMenuItems> {
     return await [
-      {
-        name: 'Turn On',
-        value: 'turnOn',
-      },
-      {
-        name: 'Turn Off',
-        value: 'turnOff',
-      },
-      {
-        name: 'Circadian On',
-        value: 'circadian',
-      },
-      {
-        name: 'Dim Up',
-        value: 'dimUp',
-      },
-      {
-        name: 'Dim Down',
-        value: 'dimDown',
-      },
-      {
-        name: 'Set Brightness',
-        value: 'brightness',
-      },
+      ...this.promptService.itemsFromObject({
+        'Circadian On': 'circadian',
+        'Dim Down': 'dimDown',
+        'Dim Up': 'dimUp',
+        'Set Brightness': 'brightness',
+        'Turn Off': 'turnOff',
+        'Turn On': 'turnOn',
+      }),
       new inquirer.Separator(),
     ];
   }

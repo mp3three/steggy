@@ -133,26 +133,13 @@ export class GroupCommandService implements iRepl {
     const action = await this.promptService.menuSelect(
       [
         ...actions,
-        {
-          name: 'State Manager',
-          value: 'state',
-        },
-        {
-          name: 'Describe',
-          value: 'describe',
-        },
-        {
-          name: 'Send state',
-          value: 'sendState',
-        },
-        {
-          name: 'Rename',
-          value: 'rename',
-        },
-        {
-          name: 'Delete',
-          value: 'delete',
-        },
+        ...this.promptService.itemsFromObject({
+          Delete: 'delete',
+          Describe: 'describe',
+          Rename: 'rename',
+          'Send state': 'sendState',
+          'State Manager': 'state',
+        }),
       ],
       `Action`,
       defaultValue,

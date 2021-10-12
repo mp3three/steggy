@@ -35,8 +35,10 @@ export class SwitchService extends BaseDomainService {
 
   protected getMenuOptions(): PromptMenuItems {
     return [
-      { name: 'Turn on', value: 'turnOn' },
-      { name: 'Turn off', value: 'turnOff' },
+      ...this.promptService.itemsFromObject({
+        'Turn Off': 'turnOff',
+        'Turn On': 'turnOn',
+      }),
       new inquirer.Separator(),
       ...super.getMenuOptions(),
     ];

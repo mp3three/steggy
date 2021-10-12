@@ -1,4 +1,8 @@
-import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
+import {
+  domain,
+  HASS_DOMAINS,
+  HassStateDTO,
+} from '@automagical/home-assistant';
 import {
   FontAwesomeExtendedIcons,
   iRepl,
@@ -64,6 +68,12 @@ export class EntityService implements iRepl {
   public async exec(): Promise<void> {
     const entities = await this.list();
     return await this.processId(entities);
+  }
+
+  public async get(id: string): Promise<HassStateDTO> {
+    return await this.fetchService.fetch({
+      url: `/entity/id/${id}`,
+    });
   }
 
   public async list(): Promise<string[]> {
