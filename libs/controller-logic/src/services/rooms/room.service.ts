@@ -208,7 +208,7 @@ export class RoomService {
       switch (domain(entity_id)) {
         case HASS_DOMAINS.switch:
           states.push({
-            id: entity_id,
+            entity_id: entity_id,
             state: (entity as SwitchStateDTO).state,
           });
           return callback();
@@ -216,7 +216,7 @@ export class RoomService {
         case HASS_DOMAINS.light:
           states.push({
             extra: await this.lightManager.getState(entity_id),
-            id: entity_id,
+            entity_id: entity_id,
             state: (entity as LightStateDTO).state,
           });
           return callback();
@@ -226,14 +226,14 @@ export class RoomService {
             extra: {
               speed: (entity as FanStateDTO).attributes.speed,
             },
-            id: entity_id,
+            entity_id: entity_id,
             state: (entity as FanStateDTO).state,
           });
           return callback();
 
         case HASS_DOMAINS.media_player:
           states.push({
-            id: entity_id,
+            entity_id: entity_id,
             state: (entity as MediaPlayerStateDTO).state,
           });
           return callback();

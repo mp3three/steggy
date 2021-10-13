@@ -1,3 +1,4 @@
+import { RoomEntitySaveStateDTO } from '@automagical/controller-logic';
 import {
   domain,
   HASS_DOMAINS,
@@ -6,7 +7,12 @@ import {
 } from '@automagical/home-assistant';
 import { CANCEL, PromptMenuItems, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty, sleep } from '@automagical/utilities';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 import { encode } from 'ini';
 
 import { DeviceService } from '../device.service';
@@ -22,6 +28,13 @@ export class BaseDomainService {
     @Inject(forwardRef(() => DeviceService))
     protected readonly deviceService: DeviceService,
   ) {}
+
+  public async createSaveState(
+    entity_id: string,
+  ): Promise<RoomEntitySaveStateDTO> {
+    throw new NotImplementedException();
+    await entity_id;
+  }
 
   public async getState<T extends HassStateDTO = HassStateDTO>(
     id: string,

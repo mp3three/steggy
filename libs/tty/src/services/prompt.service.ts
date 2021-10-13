@@ -142,6 +142,15 @@ export class PromptService {
     }));
   }
 
+  public itemsFromTuple<T extends unknown = string>(
+    items: [string, T][],
+  ): PromptMenuItems<T> {
+    return items.map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }
+
   public async menuSelect<T extends unknown = string>(
     menu: PromptMenuItems<T>,
     message = '',

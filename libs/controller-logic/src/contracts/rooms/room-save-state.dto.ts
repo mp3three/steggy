@@ -1,8 +1,8 @@
 import { LightingCacheDTO } from '../dto';
 
 export class RoomEntitySaveStateDTO {
+  entity_id: string;
   extra?: LightingCacheDTO | Record<string, unknown>;
-  id: string;
   state: string;
 }
 
@@ -15,7 +15,7 @@ export class RoomSaveStateDTO {
    * How the groups should react
    */
   groups?: Record<string, 'turnOn' | 'turnOff' | string>;
-  id: string;
+  id?: string;
   /**
    * Name of save state
    */

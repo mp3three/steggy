@@ -1,3 +1,4 @@
+import { RoomEntitySaveStateDTO } from '@automagical/controller-logic';
 import {
   domain,
   HASS_DOMAINS,
@@ -63,6 +64,26 @@ export class EntityService implements iRepl {
       exec = await this.promptService.confirm(`Add another?`, true);
     } while (exec === true);
     return out;
+  }
+
+  public async createSaveState(
+    entity_id: string,
+  ): Promise<RoomEntitySaveStateDTO> {
+    switch (domain(entity_id)) {
+      case HASS_DOMAINS.light:
+        return await this.lightService.createSaveState(entity_id);
+      case HASS_DOMAINS.switch:
+        return await this.switchService.createSaveState(entity_id);
+      case HASS_DOMAINS.fan:
+        return await this.fanService.createSaveState(entity_id);
+      case HASS_DOMAINS.media_player:
+        return await this.mediaService.createSaveState(entity_id);
+      case HASS_DOMAINS.lock:
+        return await this.lockService.createSaveState(entity_id);
+      case HASS_DOMAINS.climate:
+        return await this.climateService.createSaveState(entity_id);
+    }
+    return await this.baseService.createSaveState(entity_id);
   }
 
   public async exec(): Promise<void> {

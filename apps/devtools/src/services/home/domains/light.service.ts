@@ -1,4 +1,7 @@
-import { LightingCacheDTO } from '@automagical/controller-logic';
+import {
+  LightingCacheDTO,
+  RoomEntitySaveStateDTO,
+} from '@automagical/controller-logic';
 import { HASS_DOMAINS, LightStateDTO } from '@automagical/home-assistant';
 import { PromptMenuItems } from '@automagical/tty';
 import { Injectable } from '@nestjs/common';
@@ -16,6 +19,20 @@ export class LightService extends SwitchService {
       method: 'put',
       url: `/entity/command/${id}/circadianLight`,
     });
+  }
+
+  public async createSaveState(
+    entity_id: string,
+  ): Promise<RoomEntitySaveStateDTO> {
+    const state = await this.promptService.pickOne(`Set state / lock`, [
+      'turnOn',
+      'turnOff',
+      'circadianLight',
+    ]);
+    return {
+      entity_id,
+      state,
+    };
   }
 
   public async dimDown(id: string): Promise<void> {

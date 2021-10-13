@@ -22,6 +22,7 @@ import { EntityService } from '../entity.service';
 import { GroupCommandService } from '../groups/group-command.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { KunamiBuilderService } from './kunami-builder.service';
+import { RoomStateService } from './room-state.service';
 
 @Repl({
   description: [`Commands scoped to a single room`],
@@ -37,6 +38,7 @@ export class RoomCommandService {
     private readonly groupCommand: GroupCommandService,
     private readonly entityService: EntityService,
     private readonly kunamiBuilder: KunamiBuilderService,
+    private readonly stateManager: RoomStateService,
   ) {}
 
   public async create(): Promise<RoomDTO> {
