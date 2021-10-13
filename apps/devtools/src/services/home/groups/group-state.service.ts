@@ -27,10 +27,6 @@ export class GroupStateService {
     );
   }
 
-  public async pickMany(): Promise<void> {
-    //
-  }
-
   public async processState(group: GroupDTO, list: GroupDTO[]): Promise<void> {
     group = await this.fetchService.fetch({
       url: `/group/${group._id}`,

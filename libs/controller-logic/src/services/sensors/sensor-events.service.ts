@@ -4,7 +4,6 @@ import {
 } from '@automagical/home-assistant';
 import {
   AutoLogService,
-  Debug,
   Info,
   InjectConfig,
   IsEmpty,
@@ -120,25 +119,6 @@ export class SensorEventsService {
       this.WATCHED_SENSORS.set(key, list);
     });
   }
-
-  @Trace()
-  private async executeGroupCommand(
-    { command }: KunamiSensor,
-    group: GroupDTO,
-  ): Promise<void> {
-    this.logger.info({ command }, `Execute group command`);
-    switch (command.command) {
-      case 'turnOn':
-        await this.groupService.turnOn(group);
-        return;
-      case 'turnOff':
-        await this.groupService.turnOff(group);
-        return;
-      default:
-        throw new NotImplementedException();
-    }
-  }
-
   @Trace()
   private async executeRoomCommand(
     { command }: KunamiSensor,
@@ -153,6 +133,7 @@ export class SensorEventsService {
         await this.roomService.turnOff(room, command.scope);
         return;
       default:
+        await this.roomService.activateState(room, command.saveStateId);
         throw new NotImplementedException();
     }
   }

@@ -27,6 +27,14 @@ import {
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
+  @Post(`/:room/state/:state`)
+  public async activateState(
+    @Param('room') room: string,
+    @Param('state') state: string,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    return GENERIC_SUCCESS_RESPONSE;
+  }
+
   @Post(`/:room/entity`)
   public async addEntity(
     @Param('room') room: string,
@@ -75,9 +83,17 @@ export class RoomController {
   @Delete(`/:room/group/:group`)
   public async deleteGroup(
     @Param('room') room: string,
-    @Param('entity') group: string,
+    @Param('group') group: string,
   ): Promise<RoomDTO> {
     return await this.roomService.deleteGroup(room, group);
+  }
+
+  @Delete(`/:room/state/:state`)
+  public async deleteSaveState(
+    @Param('room') room: string,
+    @Param('state') state: string,
+  ): Promise<RoomDTO> {
+    return await this.roomService.deleteSaveState(room, state);
   }
 
   @Get('/:room')

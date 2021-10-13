@@ -1,7 +1,6 @@
 export * from './circadian.service';
 export * from './command-router.service';
 export * from './groups';
-export * from './kunami-code.service';
 export * from './light-manager.service';
 export * from './persistence';
 export * from './rooms';

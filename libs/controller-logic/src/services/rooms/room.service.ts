@@ -1,35 +1,33 @@
 import {
   domain,
   EntityManagerService,
-  FanStateDTO,
   HASS_DOMAINS,
-  LightStateDTO,
-  MediaPlayerStateDTO,
-  SwitchStateDTO,
 } from '@automagical/home-assistant';
 import { BaseSchemaDTO } from '@automagical/persistence';
 import {
   AutoLogService,
+  InjectConfig,
   ResultControlDTO,
   Trace,
 } from '@automagical/utilities';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { each } from 'async';
+import { each, eachLimit, eachSeries } from 'async';
 import { v4 as uuid } from 'uuid';
 
+import { CONCURRENT_CHANGES } from '../../config';
 import {
-  BASIC_STATE,
   GroupDTO,
   KunamiSensor,
   ROOM_ENTITY_TYPES,
   RoomDTO,
   RoomEntityDTO,
-  RoomEntitySaveStateDTO,
 } from '../../contracts';
 import { CommandRouterService } from '../command-router.service';
 import { GroupService } from '../groups';
 import { LightManagerService } from '../light-manager.service';
 import { RoomPersistenceService } from '../persistence';
+
+const EXPECTED_REMOVE_AMOUNT = 1;
 
 @Injectable()
 export class RoomService {
@@ -40,7 +38,54 @@ export class RoomService {
     private readonly entityManager: EntityManagerService,
     private readonly lightManager: LightManagerService,
     private readonly commandRouter: CommandRouterService,
+    @InjectConfig(CONCURRENT_CHANGES)
+    private readonly concurrentChanges: number,
   ) {}
+
+  @Trace()
+  public async activateState(
+    room: RoomDTO | string,
+    state: string,
+  ): Promise<void> {
+    room = await this.load(room);
+    const saveState = room.save_states.find(({ id }) => id === state);
+    if (!saveState) {
+      throw new NotFoundException(`Invalid room state`);
+    }
+    // Set all the entities
+    // Use larger chunk sizes, since we're sure it's single entities and not groups
+    await eachLimit(
+      saveState.entities ?? [],
+      this.concurrentChanges,
+      async (entity, callback) => {
+        await this.commandRouter.process(
+          entity.entity_id,
+          entity.state,
+          entity.extra as Record<string, unknown>,
+        );
+        callback();
+      },
+    );
+    // Now do groups, but 1 at a time
+    await eachSeries(
+      Object.keys(saveState.groups ?? {}),
+      async (groupId, callback) => {
+        const action = saveState.groups[groupId];
+        switch (action) {
+          case 'turnOn':
+            await this.groupService.turnOn(groupId);
+            break;
+          case 'turnOff':
+            await this.groupService.turnOff(groupId);
+            break;
+          default:
+            await this.groupService.activateState(groupId, action);
+            break;
+        }
+        callback();
+      },
+    );
+  }
 
   @Trace()
   public async addEntity(
@@ -129,9 +174,30 @@ export class RoomService {
   }
 
   @Trace()
-  public async get(room: RoomDTO | string): Promise<RoomDTO> {
+  public async deleteSaveState(
+    room: RoomDTO | string,
+    stateId: string,
+  ): Promise<RoomDTO> {
     room = await this.load(room);
-    return room;
+    room.save_states ??= [];
+    const startSize = room.save_states.length;
+    room.save_states = room.save_states.filter((item) => item.id !== stateId);
+    const endSize = startSize - EXPECTED_REMOVE_AMOUNT;
+    if (room.save_states.length !== endSize) {
+      // Gonna save anyways though
+      // Ths probably means it was a bad match or something....
+      // Not sure if there is a good way to delete more than 1 without things being already super wrong
+      this.logger.warn(
+        { actual: room.save_states.length, expected: endSize },
+        `Unexpected removal amount`,
+      );
+    }
+    return await this.roomPersistence.update(room, room._id);
+  }
+
+  @Trace()
+  public async get(room: RoomDTO | string): Promise<RoomDTO> {
+    return await this.load(room);
   }
 
   @Trace()
@@ -191,78 +257,6 @@ export class RoomService {
     id: string,
   ): Promise<RoomDTO> {
     return await this.roomPersistence.update(room, id);
-  }
-
-  @Trace()
-  private async entityStates(room: RoomDTO): Promise<RoomEntitySaveStateDTO[]> {
-    room.entities ??= [];
-    const states: RoomEntitySaveStateDTO[] = [];
-    await each(room.entities, async ({ entity_id }, callback) => {
-      const entity = this.entityManager.getEntity(entity_id);
-      if (!entity) {
-        this.logger.warn(
-          `Cannot find entity {${entity_id}}. Omitting from state`,
-        );
-        return callback();
-      }
-      switch (domain(entity_id)) {
-        case HASS_DOMAINS.switch:
-          states.push({
-            entity_id: entity_id,
-            state: (entity as SwitchStateDTO).state,
-          });
-          return callback();
-
-        case HASS_DOMAINS.light:
-          states.push({
-            extra: await this.lightManager.getState(entity_id),
-            entity_id: entity_id,
-            state: (entity as LightStateDTO).state,
-          });
-          return callback();
-
-        case HASS_DOMAINS.fan:
-          states.push({
-            extra: {
-              speed: (entity as FanStateDTO).attributes.speed,
-            },
-            entity_id: entity_id,
-            state: (entity as FanStateDTO).state,
-          });
-          return callback();
-
-        case HASS_DOMAINS.media_player:
-          states.push({
-            entity_id: entity_id,
-            state: (entity as MediaPlayerStateDTO).state,
-          });
-          return callback();
-      }
-      this.logger.error(
-        { entity_id },
-        `Domain {${domain(entity_id)}} not implemented`,
-      );
-      callback();
-    });
-    return states;
-  }
-
-  @Trace()
-  private async groupStates(
-    room: RoomDTO,
-  ): Promise<Record<string, BASIC_STATE[]>> {
-    room.groups ??= [];
-    const states: Record<string, BASIC_STATE[]> = {};
-    await each(room.groups, async (id, callback) => {
-      const group = await this.groupService.get(id);
-      if (!group) {
-        this.logger.warn({ id }, `Invalid group, omitting from state`);
-        return callback();
-      }
-      states[id] = group.state;
-      callback();
-    });
-    return states;
   }
 
   @Trace()
