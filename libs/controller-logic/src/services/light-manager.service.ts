@@ -152,6 +152,12 @@ export class LightManagerService {
     entity_id: string | string[],
     settings: Partial<LightingCacheDTO> = {},
   ): Promise<void> {
+    if (settings.kelvin && settings.hs_color) {
+      this.logger.warn(
+        { entity_id, settings },
+        `Both kelvin and hs color provided`,
+      );
+    }
     if (Array.isArray(entity_id)) {
       await each(entity_id, async (id, callback) => {
         await this.setAttributes(id, settings);
@@ -159,7 +165,8 @@ export class LightManagerService {
       });
       return;
     }
-    const current = await this.getState(entity_id);
+    const current =
+      (await this.getState(entity_id)) ?? ({} as LightingCacheDTO);
     // if the incoming mode is circadian
     // or there is no mode defined, and the current one is circadian
     if (
@@ -167,6 +174,8 @@ export class LightManagerService {
       (IsEmpty(settings.mode) && current?.mode === LIGHTING_MODE.circadian)
     ) {
       settings.kelvin = await this.circadianService.CURRENT_LIGHT_TEMPERATURE;
+      settings.mode = LIGHTING_MODE.circadian;
+      settings.brightness ??= current.brightness;
     } else {
       delete settings.kelvin;
       delete current.kelvin;
@@ -185,6 +194,7 @@ export class LightManagerService {
         delete data[key];
       }
     });
+    // this.logger.debug({ data, settings }, entity_id);
     await this.lightService.turnOn(entity_id, data);
   }
 

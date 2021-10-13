@@ -1,9 +1,8 @@
 import {
   GROUP_TYPES,
   GroupDTO,
-  KunamiSensor,
   KunamiSensorCommand,
-  ROOM_SENSOR_TYPE,
+  ROOM_ENTITY_TYPES,
   RoomDTO,
 } from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
@@ -12,8 +11,8 @@ import { IsEmpty } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 
-import { EntityService } from './entity.service';
-import { HomeFetchService } from './home-fetch.service';
+import { EntityService } from '../entity.service';
+import { HomeFetchService } from '../home-fetch.service';
 
 const DEFAULT_RECORD_DURATION = 5;
 
@@ -108,6 +107,7 @@ export class KunamiBuilderService {
       actions,
     );
     let saveStateId: string;
+    let scope: ROOM_ENTITY_TYPES[];
     if (command === 'setState') {
       saveStateId = await this.promptService.pickOne(
         `Which state`,
@@ -116,29 +116,22 @@ export class KunamiBuilderService {
           value: save.id,
         })),
       );
+    } else {
+      scope = await this.promptService.pickMany(
+        `Which entity scopes?`,
+        Object.keys(ROOM_ENTITY_TYPES).map((key) => {
+          return { name: key, value: ROOM_ENTITY_TYPES[key] };
+        }),
+      );
     }
 
     const events = await this.recordEvents();
     return {
       command,
       saveStateId,
+      scope,
       ...events,
     } as KunamiSensorCommand;
-  }
-
-  public async create(
-    type: 'room' | 'group',
-  ): Promise<Omit<KunamiSensor, 'id'>> {
-    const entity_id = await this.entityService.pickOne([HASS_DOMAINS.sensor]);
-    const command =
-      type === 'room'
-        ? await this.buildRoomCommand()
-        : await this.buildGroupCommand();
-    return {
-      command,
-      entity_id,
-      type: ROOM_SENSOR_TYPE.kunami,
-    };
   }
 
   private async recordEvents(): Promise<{ match: string[]; sensor: string }> {

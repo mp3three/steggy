@@ -118,14 +118,6 @@ export class RoomDTO {
   @Type(() => RoomSensorDTO)
   @ValidateNested({ each: true })
   public sensors?: RoomSensorDTO[];
-
-  /**
-   * Not persisted
-   */
-  @Expose()
-  @IsOptional()
-  @Type(() => RoomSaveStateDTO)
-  public state?: Omit<RoomSaveStateDTO, 'name' | 'id'>;
 }
 
 export type RoomDocument = RoomDTO & Document;

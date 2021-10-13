@@ -1,6 +1,8 @@
 import {
   GroupDTO,
+  KunamiSensor,
   ROOM_ENTITY_TYPES,
+  ROOM_SENSOR_TYPE,
   RoomDTO,
   RoomEntityDTO,
 } from '@automagical/controller-logic';
@@ -16,9 +18,9 @@ import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 
-import { EntityService } from './entity.service';
-import { GroupCommandService } from './groups/group-command.service';
-import { HomeFetchService } from './home-fetch.service';
+import { EntityService } from '../entity.service';
+import { GroupCommandService } from '../groups/group-command.service';
+import { HomeFetchService } from '../home-fetch.service';
 import { KunamiBuilderService } from './kunami-builder.service';
 
 @Repl({
@@ -143,7 +145,16 @@ export class RoomCommandService {
     ]);
     switch (action) {
       case 'sensorCommands':
-        await this.kunamiBuilder.buildRoomCommand(room);
+        const command = await this.kunamiBuilder.buildRoomCommand(room);
+        room.sensors ??= [];
+        room = await this.fetchService.fetch({
+          body: {
+            command,
+            type: ROOM_SENSOR_TYPE.kunami,
+          } as KunamiSensor,
+          method: 'post',
+          url: `/room/${room._id}/sensor`,
+        });
         return await this.processRoom(room);
       case 'rename':
         room.friendlyName = await this.promptService.string(

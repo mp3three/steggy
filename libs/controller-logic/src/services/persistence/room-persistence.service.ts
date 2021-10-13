@@ -1,7 +1,6 @@
 import { BaseMongoService, BaseSchemaDTO } from '@automagical/persistence';
 import {
   AutoLogService,
-  EmitAfter,
   ResultControlDTO,
   ToClass,
   Trace,
@@ -26,7 +25,6 @@ export class RoomPersistenceService extends BaseMongoService {
   }
 
   @Trace()
-  @EmitAfter(ROOM_UPDATE, { emitData: 'result' })
   @ToClass(RoomDTO)
   public async create(
     state: Omit<RoomDTO, keyof BaseSchemaDTO>,
@@ -36,11 +34,11 @@ export class RoomPersistenceService extends BaseMongoService {
       input: state,
       output: room,
     });
+    this.eventEmitter.emit(ROOM_UPDATE);
     return room;
   }
 
   @Trace()
-  @EmitAfter(ROOM_UPDATE, { emitData: 'result' })
   public async delete(state: RoomDTO | string): Promise<boolean> {
     const query = this.merge(typeof state === 'string' ? state : state._id);
     this.logger.debug({ query }, `delete query`);
@@ -50,6 +48,7 @@ export class RoomPersistenceService extends BaseMongoService {
         deleted: Date.now(),
       })
       .exec();
+    this.eventEmitter.emit(ROOM_UPDATE);
     return result.ok === OK_RESPONSE;
   }
 
@@ -97,7 +96,6 @@ export class RoomPersistenceService extends BaseMongoService {
   }
 
   @Trace()
-  @EmitAfter(ROOM_UPDATE, { emitData: 'result' })
   public async update(
     state: Omit<Partial<RoomDTO>, keyof BaseSchemaDTO>,
     id: string,
@@ -105,6 +103,7 @@ export class RoomPersistenceService extends BaseMongoService {
     const query = this.merge(id);
     const result = await this.roomModel.updateOne(query, state).exec();
     if (result.ok === OK_RESPONSE) {
+      this.eventEmitter.emit(ROOM_UPDATE);
       return await this.findById(id);
     }
   }

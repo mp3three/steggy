@@ -89,6 +89,12 @@ export class LightGroupService extends BaseGroupService {
   ): Promise<GroupDTO<GROUP_TYPE>> {
     group = await this.loadGroup(group);
     await each(group.entities, async (entity, callback) => {
+      if (!hs_color) {
+        await this.lightManager.setAttributes(entity, {
+          brightness,
+        });
+        return callback();
+      }
       await this.lightManager.turnOn(entity, {
         brightness,
         hs_color,

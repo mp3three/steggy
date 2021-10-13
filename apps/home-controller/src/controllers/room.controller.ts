@@ -1,4 +1,5 @@
 import {
+  KunamiSensor,
   ROOM_ENTITY_TYPES,
   RoomDTO,
   RoomEntityDTO,
@@ -32,6 +33,14 @@ export class RoomController {
     @Body() entity: RoomEntityDTO,
   ): Promise<RoomDTO> {
     return await this.roomService.addEntity(room, entity);
+  }
+
+  @Post(`/:room/sensor`)
+  public async addSensor(
+    @Param('room') room: string,
+    @Body() sensor: KunamiSensor,
+  ): Promise<RoomDTO> {
+    return await this.roomService.addSensor(room, sensor);
   }
 
   @Post(`/:room/group`)

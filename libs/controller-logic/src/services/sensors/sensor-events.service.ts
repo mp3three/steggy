@@ -20,6 +20,7 @@ import {
   KunamiSensor,
   KunamiSensorEvent,
   ROOM_SENSOR_TYPE,
+  ROOM_UPDATE,
   RoomDTO,
 } from '../../contracts';
 import { GroupService } from '../groups';
@@ -43,28 +44,7 @@ export class SensorEventsService {
   private readonly TIMERS = new Map<string, ReturnType<typeof setTimeout>>();
   private readonly WATCHED_SENSORS = new Map<string, Watcher[]>();
 
-  @Debug({ after: `Mounted groups` })
-  public async mountGroups(): Promise<void> {
-    this.clearSensors('group');
-    const groups = await this.groupService.list();
-    groups.forEach((group) => {
-      group.sensors ??= [];
-      group.sensors.forEach((sensor: KunamiSensor) => {
-        if (sensor.type === ROOM_SENSOR_TYPE.kunami) {
-          const list: Watcher[] =
-            this.WATCHED_SENSORS.get(sensor.entity_id) || [];
-          list.push({
-            ...sensor,
-            callback: async () => await this.executeGroupCommand(sensor, group),
-            watcherType: 'group',
-          });
-          this.WATCHED_SENSORS.set(sensor.entity_id, list);
-        }
-      });
-    });
-  }
-
-  @Debug({ after: `Mounted rooms` })
+  @OnEvent(ROOM_UPDATE)
   public async mountRooms(): Promise<void> {
     this.clearSensors('room');
     const rooms = await this.roomService.list();
@@ -73,13 +53,13 @@ export class SensorEventsService {
       room.sensors.forEach((sensor: KunamiSensor) => {
         if (sensor.type === ROOM_SENSOR_TYPE.kunami) {
           const list: Watcher[] =
-            this.WATCHED_SENSORS.get(sensor.entity_id) || [];
+            this.WATCHED_SENSORS.get(sensor.command.sensor) || [];
           list.push({
             ...sensor,
             callback: async () => await this.executeRoomCommand(sensor, room),
             watcherType: 'room',
           });
-          this.WATCHED_SENSORS.set(sensor.entity_id, list);
+          this.WATCHED_SENSORS.set(sensor.command.sensor, list);
         }
       });
     });
@@ -87,11 +67,9 @@ export class SensorEventsService {
 
   @Info({ after: '[Sensor Events] initialized' })
   protected async onApplicationBootstrap(): Promise<void> {
-    await this.mountGroups();
     await this.mountRooms();
   }
 
-  @Trace()
   @OnEvent(HA_EVENT_STATE_CHANGE)
   protected async onEntityUpdate({ data }: HassEventDTO): Promise<void> {
     if (!this.WATCHED_SENSORS.has(data.entity_id)) {

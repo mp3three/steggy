@@ -5,7 +5,6 @@ export enum ROOM_SENSOR_TYPE {
 }
 
 export class RoomSensorDTO {
-  public entity_id: string;
   public id: string;
   public type: ROOM_SENSOR_TYPE;
 }
@@ -17,7 +16,13 @@ export class KunamiSensorCommand {
   /**
    * Run a preset command. Definition intentially left loose
    */
-  public command?: 'turnOff' | 'turnOn' | 'setState' | string;
+  public command?:
+    | 'turnOff'
+    | 'turnOn'
+    | 'setState'
+    | 'dimUp'
+    | 'dimDown'
+    | string;
   /**
    * States from controller to match
    */

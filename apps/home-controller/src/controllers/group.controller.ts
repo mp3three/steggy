@@ -1,6 +1,5 @@
 import {
   BASE_STATES,
-  BASIC_STATE,
   GroupDTO,
   GroupSaveStateDTO,
   GroupService,

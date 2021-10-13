@@ -115,8 +115,7 @@ export class EntityManagerService {
       // Let's keep life simple
       throw new BadRequestException(`Watcher already exists for ${entityId}`);
     }
-    const state = this.getEntity(entityId);
-    this.WATCHERS.set(entityId, [state.state]);
+    this.WATCHERS.set(entityId, []);
     await sleep(duration * ONE_SECOND); // kick back and relax
     const observed = this.WATCHERS.get(entityId);
     this.WATCHERS.delete(entityId);

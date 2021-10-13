@@ -20,6 +20,7 @@ import { v4 as uuid } from 'uuid';
 import {
   BASIC_STATE,
   GroupDTO,
+  KunamiSensor,
   ROOM_ENTITY_TYPES,
   RoomDTO,
   RoomEntityDTO,
@@ -52,6 +53,18 @@ export class RoomService {
   }
 
   @Trace()
+  public async addSensor(
+    room: RoomDTO | string,
+    sensor: KunamiSensor,
+  ): Promise<RoomDTO> {
+    room = await this.load(room);
+    sensor.id = uuid();
+    room.sensors ??= [];
+    room.sensors.push(sensor);
+    return await this.roomPersistence.update(room, room._id);
+  }
+
+  @Trace()
   public async attachGroup(
     room: RoomDTO | string,
     group: GroupDTO | string,
@@ -69,7 +82,8 @@ export class RoomService {
   ): Promise<RoomDTO> {
     room = await this.get(room);
     room.save_states.push({
-      ...room.state,
+      entities: [],
+      groups: {},
       id: uuid(),
       name,
     });
@@ -117,10 +131,6 @@ export class RoomService {
   @Trace()
   public async get(room: RoomDTO | string): Promise<RoomDTO> {
     room = await this.load(room);
-    room.state = {
-      entities: await this.entityStates(room),
-      groups: await this.groupStates(room),
-    };
     return room;
   }
 

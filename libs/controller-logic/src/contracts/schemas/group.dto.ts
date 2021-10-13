@@ -138,13 +138,6 @@ export class GroupDTO<GROUP_STATE extends BASIC_STATE = BASIC_STATE> {
   @Expose()
   public save_states?: GroupSaveStateDTO<GROUP_STATE>[];
 
-  @Prop()
-  @Expose()
-  @IsOptional()
-  @Type(() => RoomSensorDTO)
-  @ValidateNested({ each: true })
-  public sensors?: RoomSensorDTO[];
-
   /**
    * The current state of the group
    *
