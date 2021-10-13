@@ -30,10 +30,10 @@ export class KunamiBuilderService {
     const actions: PromptMenuItems = [];
     if (group.type === GROUP_TYPES.lock) {
       actions.push(
-        ...this.promptService.itemsFromObject({
-          Lock: 'lock',
-          Unlock: 'unlock',
-        }),
+        ...this.promptService.itemsFromEntries([
+          ['Lock', 'lock'],
+          ['Unlock', 'unlock'],
+        ]),
       );
     }
     if (
@@ -42,27 +42,27 @@ export class KunamiBuilderService {
       )
     ) {
       actions.push(
-        ...this.promptService.itemsFromObject({
-          'Turn Off': 'turnOff',
-          'Turn On': 'turnOn',
-        }),
+        ...this.promptService.itemsFromEntries([
+          ['Turn On', 'turnOn'],
+          ['Turn Off', 'turnOff'],
+        ]),
       );
     }
     if (group.type === GROUP_TYPES.light) {
       actions.push(
-        ...this.promptService.itemsFromObject({
-          'Circadian Light': 'circadianLight',
-          'Dim Down': 'dimDown',
-          'Dim Up': 'dimUp',
-        }),
+        ...this.promptService.itemsFromEntries([
+          ['Circadian Light', 'circadianLight'],
+          ['Dim Down', 'dimDown'],
+          ['Dim Up', 'dimUp'],
+        ]),
       );
     }
     if (group.type === GROUP_TYPES.fan) {
       actions.push(
-        ...this.promptService.itemsFromObject({
-          'Fan Seed Up': 'fanSpeedUp',
-          'Fan Speed Down': 'fanSpeedDown',
-        }),
+        ...this.promptService.itemsFromEntries([
+          ['Fan Seed Up', 'fanSpeedUp'],
+          ['Fan Speed Down', 'fanSpeedDown'],
+        ]),
       );
     }
     if (!IsEmpty(group.save_states)) {
@@ -92,10 +92,10 @@ export class KunamiBuilderService {
   }
 
   public async buildRoomCommand(room?: RoomDTO): Promise<KunamiSensorCommand> {
-    const actions: PromptMenuItems = this.promptService.itemsFromObject({
-      'Turn Off': 'turnOff',
-      'Turn On': 'turnOn',
-    });
+    const actions: PromptMenuItems = this.promptService.itemsFromEntries([
+      ['Turn Off', 'turnOff'],
+      ['Turn On', 'turnOn'],
+    ]);
     if (!IsEmpty(room.save_states)) {
       actions.push({
         name: 'Set State',

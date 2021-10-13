@@ -131,21 +131,25 @@ export class RoomCommandService {
   private async processRoom(room: RoomDTO): Promise<void> {
     this.promptService.header(room.friendlyName);
     const action = await this.promptService.menuSelect([
-      ...this.promptService.itemsFromObject({
-        'Turn Off': 'turnOff',
-        'Turn On': 'turnOn',
-      }),
+      ...this.promptService.itemsFromEntries([
+        ['Turn On', 'turnOn'],
+        ['Turn Off', 'turnOff'],
+      ]),
       new inquirer.Separator(),
-      ...this.promptService.itemsFromObject({
-        Delete: 'delete',
-        Describe: 'describe',
-        Entities: 'entities',
-        Groups: 'groups',
-        Rename: 'rename',
-        'Sensor Commands': 'sensorCommands',
-      }),
+      ...this.promptService.itemsFromEntries([
+        ['Describe', 'describe'],
+        ['Entities', 'entities'],
+        ['Groups', 'groups'],
+        ['State Manager', 'state'],
+        ['Sensor Commands', 'sensorCommands'],
+        ['Rename', 'rename'],
+        ['Delete', 'delete'],
+      ]),
     ]);
     switch (action) {
+      case 'state':
+        await this.stateManager.exec(room);
+        return await this.processRoom(room);
       case 'sensorCommands':
         const command = await this.kunamiBuilder.buildRoomCommand(room);
         room.sensors ??= [];

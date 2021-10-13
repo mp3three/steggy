@@ -59,10 +59,10 @@ export class DeviceService {
     defaultValue?: string,
   ): Promise<void> {
     const action = await this.promptService.menuSelect(
-      this.promptService.itemsFromObject({
-        Describe: 'describe',
-        Entities: 'entities',
-      }),
+      this.promptService.itemsFromEntries([
+        ['Describe', 'describe'],
+        ['Entities', 'entities'],
+      ]),
       undefined,
       defaultValue,
     );

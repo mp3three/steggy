@@ -22,9 +22,10 @@ export class RoomStateService {
     private readonly groupCommand: GroupCommandService,
   ) {}
 
-  public async create(room: RoomDTO): Promise<RoomSaveStateDTO> {
+  public async create(room: RoomDTO): Promise<RoomDTO> {
     const name = await this.promptService.string(`Name for save state`);
     const entities: RoomEntitySaveStateDTO[] = [];
+    const groups: Record<string, string> = {};
     if (!IsEmpty(room.entities)) {
       const selected = await this.promptService.pickMany(
         `Which entities to include in save state`,
@@ -36,26 +37,33 @@ export class RoomStateService {
       });
     }
     if (!IsEmpty(room.groups)) {
-      // const selected = await this.promptService.pickMany(
-      //   `Which groups to include in save state`,
-      //   room.groups.map((i) => i.entity_id),
-      // );
+      const selectedGroups = await this.groupCommand.pickMany(room.groups);
+      await eachSeries(selectedGroups, async (group, callback) => {
+        groups[group._id] = await this.groupCommand.roomSaveAction(group);
+        callback();
+      });
     }
-    return {
+    const saveState: RoomSaveStateDTO = {
       entities,
+      groups,
       name,
     };
+    return await this.fetchService.fetch<RoomDTO>({
+      body: saveState,
+      method: 'post',
+      url: `/`,
+    });
   }
 
   public async exec(room: RoomDTO): Promise<RoomDTO> {
     const action = await this.promptService.menuSelect([
-      ...this.promptService.itemsFromTuple([['Create', 'create']]),
+      ...this.promptService.itemsFromEntries([['Create', 'create']]),
     ]);
     switch (action) {
       case CANCEL:
         return room;
       case 'create':
-        break;
+        return await this.exec(await this.create(room));
     }
     return room;
   }

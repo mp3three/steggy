@@ -133,16 +133,7 @@ export class PromptService {
     );
   }
 
-  public itemsFromObject<T extends unknown = string>(
-    items: Record<string, T>,
-  ): PromptMenuItems<T> {
-    return Object.keys(items).map((name) => ({
-      name,
-      value: items[name],
-    }));
-  }
-
-  public itemsFromTuple<T extends unknown = string>(
+  public itemsFromEntries<T extends unknown = string>(
     items: [string, T][],
   ): PromptMenuItems<T> {
     return items.map(([name, value]) => ({
@@ -154,7 +145,7 @@ export class PromptService {
   public async menuSelect<T extends unknown = string>(
     menu: PromptMenuItems<T>,
     message = '',
-    defaultValue?: string,
+    defaultValue?: string | T,
   ): Promise<T | string> {
     return await this.pickOne<T>(
       message,
@@ -204,7 +195,7 @@ export class PromptService {
       min,
       max,
       ...extra
-    }: { default?: string[]; max?: number; min?: number } = {},
+    }: { default?: (string | T)[]; max?: number; min?: number } = {},
   ): Promise<T[]> {
     if (IsEmpty(options)) {
       this.logger.warn(`No choices to pick from`);
@@ -234,7 +225,7 @@ export class PromptService {
   public async pickOne<T extends unknown = string>(
     message: string,
     options: (string | { name: string; value: T } | Separator)[],
-    defaultValue?: string,
+    defaultValue?: string | T,
   ): Promise<T> {
     if (IsEmpty(options)) {
       this.logger.warn(`No choices to pick from`);

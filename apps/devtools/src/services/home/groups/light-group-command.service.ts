@@ -22,14 +22,14 @@ export class LightGroupCommandService {
 
   public async groupActions(): Promise<PromptMenuItems> {
     return await [
-      ...this.promptService.itemsFromObject({
-        'Circadian On': 'circadian',
-        'Dim Down': 'dimDown',
-        'Dim Up': 'dimUp',
-        'Set Brightness': 'brightness',
-        'Turn Off': 'turnOff',
-        'Turn On': 'turnOn',
-      }),
+      ...this.promptService.itemsFromEntries([
+        ['Turn On', 'turnOn'],
+        ['Turn Off', 'turnOff'],
+        ['Circadian On', 'circadian'],
+        ['Dim Up', 'dimUp'],
+        ['Dim Down', 'dimDown'],
+        ['Set Brightness', 'brightness'],
+      ]),
       new inquirer.Separator(),
     ];
   }

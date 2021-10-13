@@ -15,9 +15,9 @@ export class DebugService {
 
   public async exec(defaultAction?: string): Promise<void> {
     const action = await this.promptService.menuSelect(
-      this.promptService.itemsFromObject({
-        [chalk`{bold.magenta Light Manager}: Cache`]: 'lightManagerCache',
-      }),
+      this.promptService.itemsFromEntries([
+        [chalk`{bold.magenta Light Manager}: Cache`, 'lightManagerCache'],
+      ]),
       undefined,
       defaultAction,
     );

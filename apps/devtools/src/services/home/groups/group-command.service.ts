@@ -1,4 +1,8 @@
-import { GROUP_TYPES, GroupDTO } from '@automagical/controller-logic';
+import {
+  GROUP_TYPES,
+  GroupDTO,
+  GroupSaveStateDTO,
+} from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
 import {
   CANCEL,
@@ -111,6 +115,16 @@ export class GroupCommandService implements iRepl {
     });
   }
 
+  public async pickMany(inList: string[] = []): Promise<GroupDTO[]> {
+    const groups = await this.list();
+    return await this.promptService.pickMany(
+      `Which groups?`,
+      groups
+        .filter((group) => IsEmpty(inList) || inList.includes(group._id))
+        .map((group) => ({ name: group.friendlyName, value: group })),
+    );
+  }
+
   public async pickOne(omit: string[] = []): Promise<GroupDTO> {
     const groups = await this.list();
     return await this.promptService.pickOne(
@@ -120,6 +134,7 @@ export class GroupCommandService implements iRepl {
         .map((group) => ({ name: group.friendlyName, value: group })),
     );
   }
+
   public async process(
     group: GroupDTO,
     list: GroupDTO[],
@@ -133,13 +148,13 @@ export class GroupCommandService implements iRepl {
     const action = await this.promptService.menuSelect(
       [
         ...actions,
-        ...this.promptService.itemsFromObject({
-          Delete: 'delete',
-          Describe: 'describe',
-          Rename: 'rename',
-          'Send state': 'sendState',
-          'State Manager': 'state',
-        }),
+        ...this.promptService.itemsFromEntries([
+          ['Delete', 'delete'],
+          ['Describe', 'describe'],
+          ['Rename', 'rename'],
+          ['Send state', 'sendState'],
+          ['State Manager', 'state'],
+        ]),
       ],
       `Action`,
       defaultValue,
@@ -192,6 +207,28 @@ export class GroupCommandService implements iRepl {
     await this.process(group, list, action);
   }
 
+  public async roomSaveAction(
+    group: GroupDTO,
+    defaultValue?: GroupSaveStateDTO | string,
+  ): Promise<string> {
+    console.log(chalk`{magenta ${group.friendlyName}} state action`);
+
+    const action = await this.promptService.pickOne<GroupSaveStateDTO | string>(
+      `What should this group do?`,
+      [
+        new inquirer.Separator(`Activate general command`),
+        ...this.groupActions(group.type).map((i) => ({ name: i, value: i })),
+        new inquirer.Separator(`Load save state`),
+        ...group.save_states.map((save) => ({ name: save.name, value: save })),
+      ],
+      defaultValue,
+    );
+    if (typeof action === 'string') {
+      return action;
+    }
+    return action.id;
+  }
+
   private async describeGroup(group: GroupDTO): Promise<string> {
     group.state ??= [];
     group = await this.fetchService.fetch({
@@ -221,5 +258,19 @@ export class GroupCommandService implements iRepl {
     }
     await this.entityService.process(entity);
     return await this.describeGroup(group);
+  }
+
+  private groupActions(type: GROUP_TYPES): string[] {
+    switch (type) {
+      case GROUP_TYPES.light:
+        return ['turnOn', 'turnOff', 'circadianLight'];
+      case GROUP_TYPES.switch:
+      case GROUP_TYPES.fan:
+        return ['turnOn', 'turnOff'];
+      case GROUP_TYPES.lock:
+        return ['lock', 'unlock'];
+    }
+    this.logger.error({ type }, `Not implemented group type`);
+    return [];
   }
 }

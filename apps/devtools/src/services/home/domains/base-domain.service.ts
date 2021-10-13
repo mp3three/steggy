@@ -130,10 +130,10 @@ export class BaseDomainService {
       url: `/entity/registry/${id}`,
     });
     const action = await this.promptService.menuSelect(
-      this.promptService.itemsFromObject({
-        Describe: 'describe',
-        'View Device': 'device',
-      }),
+      this.promptService.itemsFromEntries([
+        ['Describe', 'describe'],
+        ['View Device', 'device'],
+      ]),
     );
     switch (action) {
       case CANCEL:
@@ -153,11 +153,11 @@ export class BaseDomainService {
   }
 
   protected getMenuOptions(): PromptMenuItems {
-    return this.promptService.itemsFromObject({
-      'Change Entity ID': 'changeEntityId',
-      'Change Friendly Name': 'changeFriendlyName',
-      Describe: 'describe',
-      Registry: 'registry',
-    });
+    return this.promptService.itemsFromEntries([
+      ['Change Entity ID', 'changeEntityId'],
+      ['Change Friendly Name', 'changeFriendlyName'],
+      ['Describe', 'describe'],
+      ['Registry', 'registry'],
+    ]);
   }
 }

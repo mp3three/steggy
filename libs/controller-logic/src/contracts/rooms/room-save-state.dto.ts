@@ -12,7 +12,8 @@ export class RoomSaveStateDTO {
    */
   entities?: RoomEntitySaveStateDTO[];
   /**
-   * How the groups should react
+   * How the groups should react.
+   * Must be a valid action for the group, or a valid state id for the group
    */
   groups?: Record<string, 'turnOn' | 'turnOff' | string>;
   id?: string;
