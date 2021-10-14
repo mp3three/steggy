@@ -24,13 +24,28 @@ export class LightService extends SwitchService {
   public async createSaveState(
     entity_id: string,
   ): Promise<RoomEntitySaveStateDTO> {
-    const state = await this.promptService.pickOne(`Set state / lock`, [
+    const state = await this.promptService.pickOne(entity_id, [
       'turnOn',
       'turnOff',
       'circadianLight',
     ]);
+    if (state === 'turnOff') {
+      return {
+        entity_id,
+        state,
+      };
+    }
+    let brightness: number;
+    if (
+      await this.promptService.confirm(
+        `Set brightness? (default is previous value)`,
+      )
+    ) {
+      brightness = await this.promptService.number(`Set brightness (1-255)`);
+    }
     return {
       entity_id,
+      extra: { brightness },
       state,
     };
   }

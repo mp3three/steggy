@@ -66,7 +66,7 @@ export class FanGroupService extends BaseGroupService {
           await this.fanDomain.turnOff(id);
           return callback();
         }
-        await this.fanDomain.setFan(id, state.speed);
+        await this.fanDomain.setSpeed(id, state.speed);
         callback();
       },
     );

@@ -96,24 +96,6 @@ export class FanDomainService {
       entity_id: entityId,
     });
   }
-
-  @Trace()
-  public async setFan(
-    entityId: string,
-    speed: FanSpeeds | 'up' | 'down',
-  ): Promise<void> {
-    if (speed === 'up') {
-      return await this.fanSpeedUp(entityId);
-    }
-    if (speed === 'down') {
-      return await this.fanSpeedDown(entityId);
-    }
-    await this.callService.call('turn_on', {
-      entity_id: entityId,
-      speed: speed,
-    });
-  }
-
   @Trace()
   public async setPercentage(
     entityId: string,
@@ -129,6 +111,23 @@ export class FanDomainService {
   public async setPresetMode(entityId?: string): Promise<void> {
     return await this.callService.call('set_preset_mode', {
       entity_id: entityId,
+    });
+  }
+
+  @Trace()
+  public async setSpeed(
+    entityId: string,
+    speed: FanSpeeds | 'up' | 'down',
+  ): Promise<void> {
+    if (speed === 'up') {
+      return await this.fanSpeedUp(entityId);
+    }
+    if (speed === 'down') {
+      return await this.fanSpeedDown(entityId);
+    }
+    await this.callService.call('turn_on', {
+      entity_id: entityId,
+      speed: speed,
     });
   }
 

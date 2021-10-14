@@ -30,10 +30,6 @@ export class RoomPersistenceService extends BaseMongoService {
     state: Omit<RoomDTO, keyof BaseSchemaDTO>,
   ): Promise<RoomDTO> {
     const room = (await this.roomModel.create(state)).toObject();
-    this.logger.warn({
-      input: state,
-      output: room,
-    });
     this.eventEmitter.emit(ROOM_UPDATE);
     return room;
   }

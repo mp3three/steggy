@@ -15,7 +15,6 @@ import { each } from 'async';
 
 import { KUNAMI_TIMEOUT } from '../../config';
 import {
-  GroupDTO,
   KunamiSensor,
   KunamiSensorEvent,
   ROOM_SENSOR_TYPE,

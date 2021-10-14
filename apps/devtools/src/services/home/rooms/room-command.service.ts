@@ -1,4 +1,6 @@
 import {
+  CONCURRENT_CHANGES,
+  GROUP_TYPES,
   GroupDTO,
   KunamiSensor,
   ROOM_ENTITY_TYPES,
@@ -14,16 +16,26 @@ import {
   Repl,
   REPL_TYPE,
 } from '@automagical/tty';
-import { AutoLogService, IsEmpty } from '@automagical/utilities';
+import {
+  AutoLogService,
+  InjectConfig,
+  IsEmpty,
+  LIB_CONTROLLER_LOGIC,
+} from '@automagical/utilities';
+import { eachLimit } from 'async';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 
+import { LightService } from '../domains';
 import { EntityService } from '../entity.service';
+import { LightGroupCommandService } from '../groups';
 import { GroupCommandService } from '../groups/group-command.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { KunamiBuilderService } from './kunami-builder.service';
 import { RoomStateService } from './room-state.service';
 
+const UP = 1;
+const DOWN = -1;
 @Repl({
   description: [`Commands scoped to a single room`],
   icon: MDIIcons.television_box,
@@ -37,35 +49,23 @@ export class RoomCommandService {
     private readonly fetchService: HomeFetchService,
     private readonly groupCommand: GroupCommandService,
     private readonly entityService: EntityService,
+    private readonly lightDomain: LightService,
+    private readonly lightService: LightGroupCommandService,
     private readonly kunamiBuilder: KunamiBuilderService,
     private readonly stateManager: RoomStateService,
+    @InjectConfig(CONCURRENT_CHANGES, LIB_CONTROLLER_LOGIC)
+    private readonly concurrentChanges: number,
   ) {}
 
   public async create(): Promise<RoomDTO> {
     const friendlyName = await this.promptService.string(`Friendly Name`);
     const entities = await this.buildEntityList();
-    let selectedGroups: string[] = [];
-
-    if (await this.promptService.confirm(`Add existing groups?`)) {
-      const groups = await this.groupCommand.list();
-      const selection = await this.promptService.pickMany(
-        `Attach groups to new room`,
-        groups.map((group) => ({
-          name: group.friendlyName,
-          value: group,
-        })),
-      );
-      if (IsEmpty(selection)) {
-        this.logger.warn(`No groups selected`);
-      } else {
-        selectedGroups = selection.map((item) => item._id);
-      }
-    }
+    const groups = await this.groupBuilder();
 
     const body: RoomDTO = {
       entities,
       friendlyName,
-      groups: selectedGroups,
+      groups,
     };
 
     return await this.fetchService.fetch({
@@ -80,10 +80,12 @@ export class RoomCommandService {
       url: `/room`,
     });
     let room = await this.promptService.menuSelect<RoomDTO | string>([
-      ...rooms.map((room) => ({
-        name: room.friendlyName,
-        value: room,
-      })),
+      ...rooms
+        .map((room) => ({
+          name: room.friendlyName,
+          value: room,
+        }))
+        .sort((a, b) => (a.name > b.name ? UP : DOWN)),
       new inquirer.Separator(),
       {
         name: 'Create',
@@ -101,6 +103,94 @@ export class RoomCommandService {
       return;
     }
     return await this.processRoom(room);
+  }
+
+  public async processRoom(
+    room: RoomDTO,
+    defaultAction?: string,
+  ): Promise<void> {
+    this.promptService.header(room.friendlyName);
+    const action = await this.promptService.menuSelect(
+      [
+        ...this.promptService.itemsFromEntries([
+          ['Turn On', 'turnOn'],
+          ['Turn Off', 'turnOff'],
+          ['Dim Up', 'dimUp'],
+          ['Dim Down', 'dimDown'],
+        ]),
+        new inquirer.Separator(),
+        ...this.promptService.itemsFromEntries([
+          ['Delete', 'delete'],
+          ['Describe', 'describe'],
+          ['Entities', 'entities'],
+          ['Groups', 'groups'],
+          ['Rename', 'rename'],
+          ['Sensor Commands', 'sensorCommands'],
+          ['State Manager', 'state'],
+        ]),
+      ],
+      undefined,
+      defaultAction,
+    );
+    switch (action) {
+      case 'dimDown':
+        await this.dimDown(room);
+        return await this.processRoom(room, action);
+      case 'dimUp':
+        await this.dimUp(room);
+        return await this.processRoom(room, action);
+      case 'state':
+        await this.stateManager.exec(room);
+        return await this.processRoom(room, action);
+      case 'sensorCommands':
+        const command = await this.kunamiBuilder.buildRoomCommand(room);
+        room.sensors ??= [];
+        room = await this.fetchService.fetch({
+          body: {
+            command,
+            type: ROOM_SENSOR_TYPE.kunami,
+          } as KunamiSensor,
+          method: 'post',
+          url: `/room/${room._id}/sensor`,
+        });
+        return await this.processRoom(room, action);
+      case 'rename':
+        room.friendlyName = await this.promptService.string(
+          `New name`,
+          room.friendlyName,
+        );
+        room = await this.update(room);
+        return await this.processRoom(room, action);
+      case 'turnOn':
+        await this.fetchService.fetch({
+          method: 'put',
+          url: `/room/${room._id}/turnOn`,
+        });
+        return await this.processRoom(room, action);
+      case 'turnOff':
+        await this.fetchService.fetch({
+          method: 'put',
+          url: `/room/${room._id}/turnOff`,
+        });
+        return await this.processRoom(room, action);
+      case 'delete':
+        await this.fetchService.fetch({
+          method: 'delete',
+          url: `/room/${room._id}`,
+        });
+        return;
+      case CANCEL:
+        return;
+      case 'describe':
+        console.log(encode(room));
+        return await this.processRoom(room, action);
+      case 'entities':
+        await this.roomEntities(room);
+        return await this.processRoom(room, action);
+      case 'groups':
+        await this.roomGroups(room);
+        return await this.processRoom(room, action);
+    }
   }
 
   private async buildEntityList(omit: string[] = []): Promise<RoomEntityDTO[]> {
@@ -128,77 +218,90 @@ export class RoomCommandService {
     }));
   }
 
-  private async processRoom(room: RoomDTO): Promise<void> {
-    this.promptService.header(room.friendlyName);
-    const action = await this.promptService.menuSelect([
-      ...this.promptService.itemsFromEntries([
-        ['Turn On', 'turnOn'],
-        ['Turn Off', 'turnOff'],
+  private async dimDown(room: RoomDTO): Promise<void> {
+    await eachLimit(
+      room.entities.filter((i) => domain(i.entity_id) === HASS_DOMAINS.light),
+      this.concurrentChanges,
+      async ({ entity_id }, callback) => {
+        await this.lightDomain.dimDown(entity_id);
+        callback();
+      },
+    );
+    const groups = await this.groupCommand.getMap();
+    await eachLimit(
+      room.groups.filter(
+        (group) => groups.get(group)?.type === GROUP_TYPES.light,
+      ),
+      this.concurrentChanges,
+      async (group, callback) => {
+        await this.lightService.dimDown(group);
+        callback();
+      },
+    );
+  }
+
+  private async dimUp(room: RoomDTO): Promise<void> {
+    await eachLimit(
+      room.entities.filter((i) => domain(i.entity_id) === HASS_DOMAINS.light),
+      this.concurrentChanges,
+      async ({ entity_id }, callback) => {
+        await this.lightDomain.dimUp(entity_id);
+        callback();
+      },
+    );
+    const groups = await this.groupCommand.getMap();
+    await eachLimit(
+      room.groups.filter(
+        (group) => groups.get(group)?.type === GROUP_TYPES.light,
+      ),
+      this.concurrentChanges,
+      async (group, callback) => {
+        await this.lightService.dimDown(group);
+        callback();
+      },
+    );
+  }
+
+  private async groupBuilder(current: string[] = []): Promise<string[]> {
+    const action = await this.promptService.pickOne(
+      `Group actions`,
+      this.promptService.itemsFromEntries([
+        ['Create new', 'create'],
+        ['Use existing', 'existing'],
+        ['Done', 'done'],
       ]),
-      new inquirer.Separator(),
-      ...this.promptService.itemsFromEntries([
-        ['Describe', 'describe'],
-        ['Entities', 'entities'],
-        ['Groups', 'groups'],
-        ['State Manager', 'state'],
-        ['Sensor Commands', 'sensorCommands'],
-        ['Rename', 'rename'],
-        ['Delete', 'delete'],
-      ]),
-    ]);
+    );
     switch (action) {
-      case 'state':
-        await this.stateManager.exec(room);
-        return await this.processRoom(room);
-      case 'sensorCommands':
-        const command = await this.kunamiBuilder.buildRoomCommand(room);
-        room.sensors ??= [];
-        room = await this.fetchService.fetch({
-          body: {
-            command,
-            type: ROOM_SENSOR_TYPE.kunami,
-          } as KunamiSensor,
-          method: 'post',
-          url: `/room/${room._id}/sensor`,
-        });
-        return await this.processRoom(room);
-      case 'rename':
-        room.friendlyName = await this.promptService.string(
-          `New name`,
-          room.friendlyName,
+      //
+      case 'create':
+        // pointless destructuring ftw
+        const { _id } = await this.groupCommand.create();
+        current.push(_id);
+        return await this.groupBuilder(current);
+      // Eject!
+      case 'done':
+        return current;
+      //
+      case 'existing':
+        const groups = await this.groupCommand.list();
+        const selection = await this.promptService.pickMany(
+          `Groups to attach`,
+          groups
+            .filter(({ _id }) => !current.includes(_id))
+            .map((group) => ({
+              name: group.friendlyName,
+              value: group,
+            })),
         );
-        room = await this.update(room);
-        return await this.processRoom(room);
-      case 'turnOn':
-        await this.fetchService.fetch({
-          method: 'put',
-          url: `/room/${room._id}/turnOn`,
-        });
-        return await this.processRoom(room);
-      case 'turnOff':
-        await this.fetchService.fetch({
-          method: 'put',
-          url: `/room/${room._id}/turnOff`,
-        });
-        return await this.processRoom(room);
-      case 'delete':
-        await this.fetchService.fetch({
-          method: 'delete',
-          url: `/room/${room._id}`,
-        });
-        return;
-      case CANCEL:
-        return;
-      case 'describe':
-        console.log(encode(room));
-        return await this.processRoom(room);
-      case 'entities':
-        await this.roomEntities(room);
-        return await this.processRoom(room);
-      case 'groups':
-        await this.roomGroups(room);
-        return await this.processRoom(room);
+        if (IsEmpty(selection)) {
+          this.logger.warn(`No groups selected`);
+        } else {
+          current.push(...selection.map((item) => item._id));
+        }
+        return await this.groupBuilder(current);
     }
+    this.logger.error({ action }, `Not implemented`);
+    return current;
   }
 
   private async roomEntities(room: RoomDTO): Promise<void> {

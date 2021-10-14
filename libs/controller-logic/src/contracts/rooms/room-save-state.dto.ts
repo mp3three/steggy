@@ -5,6 +5,11 @@ export class RoomEntitySaveStateDTO {
   extra?: LightingCacheDTO | Record<string, unknown>;
   state: string;
 }
+export class RoomGroupSaveStateDTO {
+  action: string;
+  extra?: Record<string, unknown>;
+  group: string;
+}
 
 export class RoomSaveStateDTO {
   /**
@@ -15,7 +20,7 @@ export class RoomSaveStateDTO {
    * How the groups should react.
    * Must be a valid action for the group, or a valid state id for the group
    */
-  groups?: Record<string, 'turnOn' | 'turnOff' | string>;
+  groups?: RoomGroupSaveStateDTO[];
   id?: string;
   /**
    * Name of save state

@@ -89,6 +89,22 @@ export class PromptService {
     process.stdout.write('\u001B[0f');
   }
 
+  /**
+   * For solving ternary spread casting madness more easily
+   *
+   * More for helping code read top to bottom more easily than solving a problem
+   */
+  public conditionalEntries<T extends unknown = string>(
+    test: boolean,
+    trueValue: ([string, T] | Separator)[] = [],
+    falseValue: ([string, T] | Separator)[] = [],
+  ): ([string, T] | Separator)[] {
+    if (test) {
+      return trueValue;
+    }
+    return falseValue;
+  }
+
   public async confirm(prompt: string, defaultValue = false): Promise<boolean> {
     const { result } = await inquirer.prompt([
       {
@@ -134,12 +150,16 @@ export class PromptService {
   }
 
   public itemsFromEntries<T extends unknown = string>(
-    items: [string, T][],
+    items: ([string, T] | Separator)[],
   ): PromptMenuItems<T> {
-    return items.map(([name, value]) => ({
-      name,
-      value,
-    }));
+    return items.map((item) =>
+      Array.isArray(item)
+        ? {
+            name: item.shift() as string,
+            value: item.shift() as T,
+          }
+        : item,
+    );
   }
 
   public async menuSelect<T extends unknown = string>(

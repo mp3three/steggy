@@ -2,6 +2,7 @@ import {
   GROUP_TYPES,
   GroupDTO,
   GroupSaveStateDTO,
+  RoomGroupSaveStateDTO,
 } from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
 import {
@@ -109,6 +110,11 @@ export class GroupCommandService implements iRepl {
     return await this.exec();
   }
 
+  public async getMap(): Promise<Map<string, GroupDTO>> {
+    const groups = await this.list();
+    return new Map(groups.map((i) => [i._id, i]));
+  }
+
   public async list(): Promise<GroupDTO[]> {
     return await this.fetchService.fetch<GroupDTO[]>({
       url: `/group`,
@@ -210,9 +216,9 @@ export class GroupCommandService implements iRepl {
   public async roomSaveAction(
     group: GroupDTO,
     defaultValue?: GroupSaveStateDTO | string,
-  ): Promise<string> {
+  ): Promise<RoomGroupSaveStateDTO> {
     console.log(chalk`{magenta ${group.friendlyName}} state action`);
-
+    group.save_states ??= [];
     const action = await this.promptService.pickOne<GroupSaveStateDTO | string>(
       `What should this group do?`,
       [
@@ -224,9 +230,33 @@ export class GroupCommandService implements iRepl {
       defaultValue,
     );
     if (typeof action === 'string') {
-      return action;
+      if (
+        group.type === GROUP_TYPES.light &&
+        ['turnOn', 'circadianLight'].includes(action)
+      ) {
+        let brightness: number;
+        if (await this.promptService.confirm(`Set brightness`)) {
+          brightness = await this.promptService.number(
+            `Brightness value (1-255)`,
+          );
+        }
+        return {
+          action,
+          extra: {
+            brightness,
+          },
+          group: group._id,
+        };
+      }
+      return {
+        action,
+        group: group._id,
+      };
     }
-    return action.id;
+    return {
+      action: action.id,
+      group: group._id,
+    };
   }
 
   private async describeGroup(group: GroupDTO): Promise<string> {

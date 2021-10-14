@@ -10,7 +10,7 @@ import { AutoConfigService } from '../../services';
 
 export const CONFIG_PROVIDERS = new Set<Provider>();
 
-export function InjectConfig(path: string): ParameterDecorator {
+export function InjectConfig(path: string, from?: symbol): ParameterDecorator {
   return function (target, key, index) {
     target[CONSUMES_CONFIG] ??= [];
     target[CONSUMES_CONFIG].push(path);
@@ -20,9 +20,11 @@ export function InjectConfig(path: string): ParameterDecorator {
       provide: id,
       useFactory(config: AutoConfigService, application: symbol) {
         const configPath: string[] = [];
-        const library: string = target[LOGGER_LIBRARY];
+        const library: string = from
+          ? from.description
+          : target[LOGGER_LIBRARY];
         if (library && library !== application.description) {
-          configPath.push('libs', target[LOGGER_LIBRARY]);
+          configPath.push('libs', library);
         } else {
           configPath.push('application');
         }

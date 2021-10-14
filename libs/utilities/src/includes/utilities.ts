@@ -1,8 +1,14 @@
 const OFFSET = 1;
 /**
+ * Want to be really lazy? Just make a short term sleep happen
+ */
+const DEFAULT_SLEEP_TIME = 1000;
+/**
+ * Defaults to 1000 (1 second)
+ *
  * @example await sleep(5000);
  */
-export const sleep = (ms: number): Promise<void> =>
+export const sleep = (ms: number = DEFAULT_SLEEP_TIME): Promise<void> =>
   new Promise((done) => setTimeout(() => done(), ms));
 
 export const filterUnique = (array: string[]): string[] => {

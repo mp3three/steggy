@@ -1,3 +1,4 @@
+import { RoomEntitySaveStateDTO } from '@automagical/controller-logic';
 import { FanSpeeds, FanStateDTO } from '@automagical/home-assistant';
 import { CANCEL, PromptMenuItems } from '@automagical/tty';
 import { TitleCase } from '@automagical/utilities';
@@ -7,6 +8,25 @@ import { SwitchService } from './switch.service';
 
 @Injectable()
 export class FanService extends SwitchService {
+  public async createSaveState(
+    entity_id: string,
+  ): Promise<RoomEntitySaveStateDTO> {
+    const entity = await this.fetchService.fetch<FanStateDTO>({
+      url: `/entity/id/${entity_id}`,
+    });
+    entity.attributes.speed_list ??= [];
+    const speed = await this.promptService.pickOne(entity_id, [
+      ...entity.attributes.speed_list,
+    ]);
+    return {
+      entity_id,
+      extra: {
+        speed,
+      },
+      state: 'setSpeed',
+    };
+  }
+
   public async fanSpeedDown(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',

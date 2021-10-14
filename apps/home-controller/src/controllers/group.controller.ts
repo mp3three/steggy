@@ -1,5 +1,5 @@
+import type { BASE_STATES } from '@automagical/controller-logic';
 import {
-  BASE_STATES,
   GroupDTO,
   GroupSaveStateDTO,
   GroupService,

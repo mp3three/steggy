@@ -117,11 +117,11 @@ export class CommandRouterService {
         return await this.fanService.fanSpeedUp(id);
       case 'fanSpeedDown':
         return await this.fanService.fanSpeedDown(id);
-      case 'setFan':
+      case 'setSpeed':
         if (!speed || !FanSpeeds[speed]) {
           throw new BadRequestException(`Provide a valid fan speed`);
         }
-        return await this.fanService.setFan(id, speed);
+        return await this.fanService.setSpeed(id, speed);
     }
     throw new BadRequestException();
   }

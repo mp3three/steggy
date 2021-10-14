@@ -1,12 +1,15 @@
 import {
   RoomDTO,
   RoomEntitySaveStateDTO,
+  RoomGroupSaveStateDTO,
   RoomSaveStateDTO,
 } from '@automagical/controller-logic';
 import { CANCEL, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
+import chalk from 'chalk';
+import figlet from 'figlet';
 import inquirer from 'inquirer';
 
 import { EntityService } from '../entity.service';
@@ -19,16 +22,26 @@ export class RoomStateService {
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
     private readonly entityService: EntityService,
-    private readonly fetchService: HomeFetchService,
     private readonly groupState: GroupStateService,
+    private readonly fetchService: HomeFetchService,
     private readonly groupCommand: GroupCommandService,
   ) {}
 
-  public async create(room: RoomDTO): Promise<RoomDTO> {
+  /**
+   * Indecisive return value, pick the one you need
+   */
+  public async create(room: RoomDTO): Promise<[RoomSaveStateDTO, RoomDTO]> {
     const name = await this.promptService.string(`Name for save state`);
+    if (room.save_states.some((state) => state.name === name)) {
+      this.logger.error(`Choose a unique name`);
+      return await this.create(room);
+    }
     const entities: RoomEntitySaveStateDTO[] = [];
-    const groups: Record<string, string> = {};
+    const groups: RoomGroupSaveStateDTO[] = [];
     if (!IsEmpty(room.entities)) {
+      console.log(
+        chalk.magenta(figlet.textSync('Entities', { font: 'ANSI Regular' })),
+      );
       const selected = await this.promptService.pickMany(
         `Which entities to include in save state`,
         room.entities.map((i) => i.entity_id),
@@ -41,7 +54,7 @@ export class RoomStateService {
     if (!IsEmpty(room.groups)) {
       const selectedGroups = await this.groupCommand.pickMany(room.groups);
       await eachSeries(selectedGroups, async (group, callback) => {
-        groups[group._id] = await this.groupCommand.roomSaveAction(group);
+        groups.push(await this.groupCommand.roomSaveAction(group));
         callback();
       });
     }
@@ -50,11 +63,15 @@ export class RoomStateService {
       groups,
       name,
     };
-    return await this.fetchService.fetch<RoomDTO>({
+    const newRoom = await this.fetchService.fetch<RoomDTO>({
       body: saveState,
       method: 'post',
-      url: `/`,
+      url: `/room/${room._id}/state`,
     });
+    return [
+      newRoom.save_states.find(({ name }) => name === saveState.name),
+      newRoom,
+    ];
   }
 
   public async exec(room: RoomDTO): Promise<RoomDTO> {
@@ -73,14 +90,15 @@ export class RoomStateService {
       case CANCEL:
         return room;
       case 'create':
-        return await this.exec(await this.create(room));
+        const [, updatedRoom] = await this.create(room);
+        return await this.exec(updatedRoom);
     }
     if (typeof action === 'string') {
       this.logger.error({ action }, `Action not implemented`);
       return room;
     }
-
-    return room;
+    room = await this.processState(room, action);
+    return await this.exec(room);
   }
 
   public async processState(

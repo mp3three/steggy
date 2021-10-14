@@ -21,6 +21,7 @@ import {
   ROOM_ENTITY_TYPES,
   RoomDTO,
   RoomEntityDTO,
+  RoomSaveStateDTO,
 } from '../../contracts';
 import { CommandRouterService } from '../command-router.service';
 import { GroupService } from '../groups';
@@ -110,6 +111,18 @@ export class RoomService {
   }
 
   @Trace()
+  public async addState(
+    room: RoomDTO | string,
+    state: RoomSaveStateDTO,
+  ): Promise<RoomDTO> {
+    room = await this.load(room);
+    state.id = uuid();
+    room.save_states ??= [];
+    room.save_states.push(state);
+    return await this.roomPersistence.update(room, room._id);
+  }
+
+  @Trace()
   public async attachGroup(
     room: RoomDTO | string,
     group: GroupDTO | string,
@@ -128,7 +141,7 @@ export class RoomService {
     room = await this.get(room);
     room.save_states.push({
       entities: [],
-      groups: {},
+      groups: [],
       id: uuid(),
       name,
     });

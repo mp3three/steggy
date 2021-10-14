@@ -7,7 +7,8 @@ import {
   Packet,
 } from 'mqtt';
 
-import { IsEmpty, MqttSubscribeOptions } from '../../contracts';
+import type { MqttSubscribeOptions } from '../../contracts';
+import { IsEmpty } from '../../contracts';
 import { InjectMQTT } from '../../decorators/injectors/inject-mqtt.decorator';
 import { Trace } from '../../decorators/logger.decorator';
 import { AutoLogService } from '../logger';

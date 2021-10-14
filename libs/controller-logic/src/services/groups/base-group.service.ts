@@ -3,8 +3,8 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { v4 as uuid } from 'uuid';
 
+import type { BASE_STATES } from '../../contracts';
 import {
-  BASE_STATES,
   BASIC_STATE,
   GROUP_TYPES,
   GroupDTO,

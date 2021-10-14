@@ -10,7 +10,7 @@ export class SwitchService extends BaseDomainService {
   public async createSaveState(
     entity_id: string,
   ): Promise<RoomEntitySaveStateDTO> {
-    const state = await this.promptService.pickOne(`Set state`, [
+    const state = await this.promptService.pickOne(entity_id, [
       'turnOn',
       'turnOff',
     ]);

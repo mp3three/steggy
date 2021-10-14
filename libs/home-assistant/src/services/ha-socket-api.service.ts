@@ -20,6 +20,7 @@ import {
   WARN_REQUESTS_PER_SEC,
   WEBSOCKET_URL,
 } from '../config';
+import type { SOCKET_MESSAGES } from '../contracts';
 import {
   ALL_ENTITIES_UPDATED,
   AreaDTO,
@@ -29,7 +30,6 @@ import {
   HA_EVENT_STATE_CHANGE,
   HA_SOCKET_READY,
   HassStateDTO,
-  SOCKET_MESSAGES,
   SocketMessageDTO,
 } from '../contracts';
 import {

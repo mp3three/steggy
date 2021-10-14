@@ -3,6 +3,7 @@ import {
   ROOM_ENTITY_TYPES,
   RoomDTO,
   RoomEntityDTO,
+  RoomSaveStateDTO,
   RoomService,
 } from '@automagical/controller-logic';
 import { BaseSchemaDTO } from '@automagical/persistence';
@@ -32,6 +33,7 @@ export class RoomController {
     @Param('room') room: string,
     @Param('state') state: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.roomService.activateState(room, state);
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -49,6 +51,14 @@ export class RoomController {
     @Body() sensor: KunamiSensor,
   ): Promise<RoomDTO> {
     return await this.roomService.addSensor(room, sensor);
+  }
+
+  @Post(`/:room/state`)
+  public async addState(
+    @Param('room') room: string,
+    @Body() sensor: RoomSaveStateDTO,
+  ): Promise<RoomDTO> {
+    return await this.roomService.addState(room, sensor);
   }
 
   @Post(`/:room/group`)

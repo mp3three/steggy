@@ -28,6 +28,7 @@ import { CircadianService } from './circadian.service';
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
 const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
 const INVERT_VALUE = -1;
+const PERCENT = 100;
 const DEFAULT_INCREMENT = 1;
 const START = 0;
 
@@ -143,7 +144,12 @@ export class LightManagerService {
     if (brightness < this.minBrightness) {
       brightness = this.minBrightness;
     }
-    this.logger.debug({ amount }, `${entityId} set brightness: ${brightness}%`);
+    this.logger.debug(
+      { amount },
+      `${entityId} set brightness: ${brightness}/${
+        this.maxBrightness
+      } (${Math.floor((brightness * PERCENT) / this.maxBrightness)}%)`,
+    );
     return await this.circadianLight(entityId, brightness);
   }
 
