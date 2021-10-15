@@ -141,4 +141,14 @@ export class RoomController {
   ): Promise<RoomDTO> {
     return await this.roomService.update(BaseSchemaDTO.cleanup(data), room);
   }
+
+  @Put(`/:room/state/:stateId`)
+  public async updateState(
+    @Param('room') room: string,
+    @Param('stateId') stateId: string,
+    @Body() state: RoomSaveStateDTO,
+  ): Promise<RoomDTO> {
+    state.id = stateId;
+    return await this.roomService.updateState(room, state);
+  }
 }

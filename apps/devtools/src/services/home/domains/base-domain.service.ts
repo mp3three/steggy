@@ -31,6 +31,7 @@ export class BaseDomainService {
 
   public async createSaveState(
     entity_id: string,
+    current?: RoomEntitySaveStateDTO,
   ): Promise<RoomEntitySaveStateDTO> {
     throw new NotImplementedException();
     await entity_id;

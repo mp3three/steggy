@@ -121,13 +121,17 @@ export class GroupCommandService implements iRepl {
     });
   }
 
-  public async pickMany(inList: string[] = []): Promise<GroupDTO[]> {
+  public async pickMany(
+    inList: string[] = [],
+    current: string[] = [],
+  ): Promise<GroupDTO[]> {
     const groups = await this.list();
     return await this.promptService.pickMany(
       `Which groups?`,
       groups
         .filter((group) => IsEmpty(inList) || inList.includes(group._id))
         .map((group) => ({ name: group.friendlyName, value: group })),
+      { default: current.filter((group) => current.includes(group)) },
     );
   }
 
@@ -215,10 +219,16 @@ export class GroupCommandService implements iRepl {
 
   public async roomSaveAction(
     group: GroupDTO,
-    defaultValue?: GroupSaveStateDTO | string,
+    defaultValue?: RoomGroupSaveStateDTO,
   ): Promise<RoomGroupSaveStateDTO> {
     console.log(chalk`{magenta ${group.friendlyName}} state action`);
     group.save_states ??= [];
+    let defaultAction: GroupSaveStateDTO | string;
+    if (defaultValue) {
+      defaultAction = group.save_states.find(
+        ({ id }) => id === defaultValue.action,
+      );
+    }
     const action = await this.promptService.pickOne<GroupSaveStateDTO | string>(
       `What should this group do?`,
       [
@@ -227,7 +237,7 @@ export class GroupCommandService implements iRepl {
         new inquirer.Separator(`Load save state`),
         ...group.save_states.map((save) => ({ name: save.name, value: save })),
       ],
-      defaultValue,
+      defaultAction,
     );
     if (typeof action === 'string') {
       if (
@@ -238,6 +248,7 @@ export class GroupCommandService implements iRepl {
         if (await this.promptService.confirm(`Set brightness`)) {
           brightness = await this.promptService.number(
             `Brightness value (1-255)`,
+            defaultValue?.extra?.brightness as number,
           );
         }
         return {

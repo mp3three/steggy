@@ -10,14 +10,17 @@ import { SwitchService } from './switch.service';
 export class FanService extends SwitchService {
   public async createSaveState(
     entity_id: string,
+    current?: RoomEntitySaveStateDTO,
   ): Promise<RoomEntitySaveStateDTO> {
     const entity = await this.fetchService.fetch<FanStateDTO>({
       url: `/entity/id/${entity_id}`,
     });
     entity.attributes.speed_list ??= [];
-    const speed = await this.promptService.pickOne(entity_id, [
-      ...entity.attributes.speed_list,
-    ]);
+    const speed = await this.promptService.pickOne(
+      entity_id,
+      [...entity.attributes.speed_list],
+      current?.extra?.speed,
+    );
     return {
       entity_id,
       extra: {

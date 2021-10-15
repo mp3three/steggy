@@ -273,6 +273,17 @@ export class RoomService {
   }
 
   @Trace()
+  public async updateState(
+    room: RoomDTO | string,
+    state: RoomSaveStateDTO,
+  ): Promise<RoomDTO> {
+    room = await this.load(room);
+    room.save_states ??= [];
+    room.save_states.map((saved) => (saved.id === state.id ? state : saved));
+    return await this.roomPersistence.update(room, room._id);
+  }
+
+  @Trace()
   private async load(room: RoomDTO | string): Promise<RoomDTO> {
     if (typeof room === 'string') {
       room = await this.roomPersistence.findById(room);

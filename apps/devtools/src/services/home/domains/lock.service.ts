@@ -9,11 +9,13 @@ import { BaseDomainService } from './base-domain.service';
 export class LockService extends BaseDomainService {
   public async createSaveState(
     entity_id: string,
+    current?: RoomEntitySaveStateDTO,
   ): Promise<RoomEntitySaveStateDTO> {
-    const state = await this.promptService.pickOne(`Set lock`, [
-      'lock',
-      'unlock',
-    ]);
+    const state = await this.promptService.pickOne(
+      `Set lock`,
+      ['lock', 'unlock'],
+      current?.state,
+    );
     return {
       entity_id,
       state,

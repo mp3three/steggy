@@ -1,10 +1,11 @@
-import { LightingCacheDTO } from '../dto';
-
-export class RoomEntitySaveStateDTO {
+export class RoomEntitySaveStateDTO<
+  T extends unknown = Record<string, unknown>,
+> {
   entity_id: string;
-  extra?: LightingCacheDTO | Record<string, unknown>;
+  extra?: T;
   state: string;
 }
+
 export class RoomGroupSaveStateDTO {
   action: string;
   extra?: Record<string, unknown>;

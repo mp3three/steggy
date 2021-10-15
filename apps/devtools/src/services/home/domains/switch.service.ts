@@ -9,11 +9,13 @@ import { BaseDomainService } from './base-domain.service';
 export class SwitchService extends BaseDomainService {
   public async createSaveState(
     entity_id: string,
+    current?: RoomEntitySaveStateDTO,
   ): Promise<RoomEntitySaveStateDTO> {
-    const state = await this.promptService.pickOne(entity_id, [
-      'turnOn',
-      'turnOff',
-    ]);
+    const state = await this.promptService.pickOne(
+      entity_id,
+      ['turnOn', 'turnOff'],
+      current?.state,
+    );
     return {
       entity_id,
       state,

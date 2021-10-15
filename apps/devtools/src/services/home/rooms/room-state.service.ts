@@ -8,12 +8,10 @@ import { CANCEL, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
-import chalk from 'chalk';
-import figlet from 'figlet';
 import inquirer from 'inquirer';
 
 import { EntityService } from '../entity.service';
-import { GroupCommandService, GroupStateService } from '../groups';
+import { GroupCommandService } from '../groups';
 import { HomeFetchService } from '../home-fetch.service';
 
 @Injectable()
@@ -22,54 +20,29 @@ export class RoomStateService {
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
     private readonly entityService: EntityService,
-    private readonly groupState: GroupStateService,
     private readonly fetchService: HomeFetchService,
     private readonly groupCommand: GroupCommandService,
   ) {}
 
-  /**
-   * Indecisive return value, pick the one you need
-   */
   public async create(room: RoomDTO): Promise<[RoomSaveStateDTO, RoomDTO]> {
-    const name = await this.promptService.string(`Name for save state`);
-    if (room.save_states.some((state) => state.name === name)) {
+    const friendlyName = await this.promptService.string(`Name for save state`);
+    if (room.save_states.some((state) => state.name === friendlyName)) {
       this.logger.error(`Choose a unique name`);
       return await this.create(room);
     }
-    const entities: RoomEntitySaveStateDTO[] = [];
-    const groups: RoomGroupSaveStateDTO[] = [];
-    if (!IsEmpty(room.entities)) {
-      console.log(
-        chalk.magenta(figlet.textSync('Entities', { font: 'ANSI Regular' })),
-      );
-      const selected = await this.promptService.pickMany(
-        `Which entities to include in save state`,
-        room.entities.map((i) => i.entity_id),
-      );
-      await eachSeries(selected, async (entity, callback) => {
-        entities.push(await this.entityService.createSaveState(entity));
-        callback();
-      });
-    }
-    if (!IsEmpty(room.groups)) {
-      const selectedGroups = await this.groupCommand.pickMany(room.groups);
-      await eachSeries(selectedGroups, async (group, callback) => {
-        groups.push(await this.groupCommand.roomSaveAction(group));
-        callback();
-      });
-    }
-    const saveState: RoomSaveStateDTO = {
-      entities,
-      groups,
-      name,
-    };
+    const entities: RoomEntitySaveStateDTO[] = await this.buildEntityList(room);
+    const groups: RoomGroupSaveStateDTO[] = await this.buildGroupList(room);
     const newRoom = await this.fetchService.fetch<RoomDTO>({
-      body: saveState,
+      body: {
+        entities,
+        groups,
+        name: friendlyName,
+      } as RoomSaveStateDTO,
       method: 'post',
       url: `/room/${room._id}/state`,
     });
     return [
-      newRoom.save_states.find(({ name }) => name === saveState.name),
+      newRoom.save_states.find(({ name }) => name === friendlyName),
       newRoom,
     ];
   }
@@ -101,6 +74,27 @@ export class RoomStateService {
     return await this.exec(room);
   }
 
+  public async modify(
+    room: RoomDTO,
+    state: RoomSaveStateDTO,
+  ): Promise<[RoomDTO, RoomSaveStateDTO]> {
+    state.name = await this.promptService.string(`Friendly name`, state.name);
+    state.entities ??= [];
+    state.groups ??= [];
+    if (await this.promptService.confirm(`Update entities?`)) {
+      state.entities = await this.buildEntityList(room, state);
+    }
+    if (await this.promptService.confirm(`Update groups?`)) {
+      state.groups = await this.buildGroupList(room, state);
+    }
+    room = await this.fetchService.fetch({
+      body: state,
+      method: 'put',
+      url: `/room/${room._id}/state/${state.id}`,
+    });
+    return [room, state];
+  }
+
   public async processState(
     room: RoomDTO,
     state: RoomSaveStateDTO,
@@ -126,7 +120,70 @@ export class RoomStateService {
           url: `/room/${room._id}/state/${state.id}`,
         });
         return room;
+      case 'modify':
+        await this.modify(room, state);
+        return room;
     }
     return room;
+  }
+
+  private async buildEntityList(
+    room: RoomDTO,
+    { entities }: Pick<RoomSaveStateDTO, 'entities'> = {},
+  ): Promise<RoomEntitySaveStateDTO[]> {
+    entities ??= [];
+    room.entities ??= [];
+    if (IsEmpty(room.entities)) {
+      if (!IsEmpty(entities)) {
+        this.logger.error(`State contains entities, but room does not`);
+      }
+      return [];
+    }
+    const updated = await this.promptService.pickMany(
+      `Entity list`,
+      room.entities.map((i) => i.entity_id),
+      { default: entities.map((i) => i.entity_id) },
+    );
+    const original = entities ?? [];
+    const out = [];
+    await eachSeries(updated, async (entity_id, callback) => {
+      out.push(
+        await this.entityService.createSaveState(
+          entity_id,
+          original.find((i) => i.entity_id === entity_id),
+        ),
+      );
+      callback();
+    });
+    return out;
+  }
+
+  private async buildGroupList(
+    room: RoomDTO,
+    { groups }: Pick<RoomSaveStateDTO, 'groups'> = {},
+  ): Promise<RoomGroupSaveStateDTO[]> {
+    room.groups ??= [];
+    groups ??= [];
+    if (IsEmpty(room.groups)) {
+      if (!IsEmpty(groups)) {
+        this.logger.error(`State contains groups, but room does not`);
+      }
+      return [];
+    }
+    const updated = await this.groupCommand.pickMany(
+      room.groups,
+      groups.map((i) => i.group),
+    );
+    const out = [];
+    await eachSeries(updated, async (item, callback) => {
+      out.push(
+        await this.groupCommand.roomSaveAction(
+          item,
+          groups.find(({ group }) => group == item._id),
+        ),
+      );
+      callback();
+    });
+    return out;
   }
 }

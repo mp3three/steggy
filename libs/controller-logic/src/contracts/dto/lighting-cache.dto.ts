@@ -17,5 +17,5 @@ export class LightingCacheDTO {
   public brightness?: number;
   public hs_color?: [number, number] | number[];
   public kelvin?: number;
-  public mode: LIGHTING_MODE;
+  public mode?: LIGHTING_MODE;
 }
