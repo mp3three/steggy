@@ -8,6 +8,7 @@ import { CANCEL, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
+import { encode } from 'ini';
 import inquirer from 'inquirer';
 
 import { EntityService } from '../entity.service';
@@ -25,7 +26,7 @@ export class RoomStateService {
   ) {}
 
   public async create(room: RoomDTO): Promise<[RoomSaveStateDTO, RoomDTO]> {
-    const friendlyName = await this.promptService.string(`Name for save state`);
+    const friendlyName = await this.promptService.string(`Friendly name`);
     if (room.save_states.some((state) => state.name === friendlyName)) {
       this.logger.error(`Choose a unique name`);
       return await this.create(room);
@@ -92,23 +93,31 @@ export class RoomStateService {
       method: 'put',
       url: `/room/${room._id}/state/${state.id}`,
     });
+    state = room.save_states.find((saved) => saved.id === state.id);
     return [room, state];
   }
 
   public async processState(
     room: RoomDTO,
     state: RoomSaveStateDTO,
+    defaultAction?: string,
   ): Promise<RoomDTO> {
     const action = await this.promptService.menuSelect(
       this.promptService.itemsFromEntries([
         ['Activate', 'activate'],
-        ['Delete', 'delete'],
+        ['Describe', 'describe'],
         ['Modify', 'modify'],
+        ['Delete', 'delete'],
       ]),
+      undefined,
+      defaultAction,
     );
     switch (action) {
       case CANCEL:
         return room;
+      case 'describe':
+        console.log(encode(state));
+        return await this.processState(room, state, action);
       case 'delete':
         return await this.fetchService.fetch({
           method: 'delete',
@@ -121,8 +130,8 @@ export class RoomStateService {
         });
         return room;
       case 'modify':
-        await this.modify(room, state);
-        return room;
+        [room, state] = await this.modify(room, state);
+        return await this.processState(room, state, action);
     }
     return room;
   }

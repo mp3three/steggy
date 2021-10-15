@@ -1,20 +1,14 @@
-import {
-  domain,
-  EntityManagerService,
-  HASS_DOMAINS,
-} from '@automagical/home-assistant';
+import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import { BaseSchemaDTO } from '@automagical/persistence';
 import {
   AutoLogService,
-  InjectConfig,
   ResultControlDTO,
   Trace,
 } from '@automagical/utilities';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { each, eachLimit, eachSeries } from 'async';
+import { each } from 'async';
 import { v4 as uuid } from 'uuid';
 
-import { CONCURRENT_CHANGES } from '../../config';
 import {
   GroupDTO,
   KunamiSensor,
@@ -36,11 +30,8 @@ export class RoomService {
     private readonly logger: AutoLogService,
     private readonly roomPersistence: RoomPersistenceService,
     private readonly groupService: GroupService,
-    private readonly entityManager: EntityManagerService,
     private readonly lightManager: LightManagerService,
     private readonly commandRouter: CommandRouterService,
-    @InjectConfig(CONCURRENT_CHANGES)
-    private readonly concurrentChanges: number,
   ) {}
 
   @Trace()
@@ -53,22 +44,15 @@ export class RoomService {
     if (!saveState) {
       throw new NotFoundException(`Invalid room state`);
     }
-    // Set all the entities
-    // Use larger chunk sizes, since we're sure it's single entities and not groups
-    await eachLimit(
-      saveState.entities ?? [],
-      this.concurrentChanges,
-      async (entity, callback) => {
-        await this.commandRouter.process(
-          entity.entity_id,
-          entity.state,
-          entity.extra as Record<string, unknown>,
-        );
-        callback();
-      },
-    );
-    // Now do groups, but 1 at a time
-    await eachSeries(
+    await each(saveState.entities ?? [], async (entity, callback) => {
+      await this.commandRouter.process(
+        entity.entity_id,
+        entity.state,
+        entity.extra as Record<string, unknown>,
+      );
+      callback();
+    });
+    await each(
       Object.keys(saveState.groups ?? {}),
       async (groupId, callback) => {
         const action = saveState.groups[groupId];
@@ -279,7 +263,12 @@ export class RoomService {
   ): Promise<RoomDTO> {
     room = await this.load(room);
     room.save_states ??= [];
-    room.save_states.map((saved) => (saved.id === state.id ? state : saved));
+    room.save_states = room.save_states.map((saved) => {
+      if (saved.id === state.id) {
+        return state;
+      }
+      return saved;
+    });
     return await this.roomPersistence.update(room, room._id);
   }
 
