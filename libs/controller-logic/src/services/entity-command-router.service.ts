@@ -15,6 +15,7 @@ import {
   NotImplementedException,
 } from '@nestjs/common';
 
+import { GroupDTO, ROOM_ENTITY_TYPES } from '../contracts';
 import { LightManagerService } from './light-manager.service';
 
 type FanBody = { speed: FanSpeeds };
@@ -27,7 +28,7 @@ type ClimateBody = {
 };
 
 @Injectable()
-export class CommandRouterService {
+export class EntityCommandRouterService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly lightService: LightManagerService,
@@ -46,22 +47,26 @@ export class CommandRouterService {
   ): Promise<void> {
     switch (domain(id)) {
       case HASS_DOMAINS.light:
-        await this.light(id, command as keyof LightManagerService);
+        await this.lightEntity(id, command as keyof LightManagerService);
         return;
       case HASS_DOMAINS.switch:
-        await this.switch(id, command as keyof SwitchDomainService);
+        await this.switchEntity(id, command as keyof SwitchDomainService);
         return;
       case HASS_DOMAINS.media_player:
-        await this.media(id, command as keyof MediaPlayerDomainService);
+        await this.mediaEntity(id, command as keyof MediaPlayerDomainService);
         return;
       case HASS_DOMAINS.fan:
-        await this.fan(id, command as keyof FanDomainService, body as FanBody);
+        await this.fanEntity(
+          id,
+          command as keyof FanDomainService,
+          body as FanBody,
+        );
         return;
       case HASS_DOMAINS.lock:
-        await this.lock(id, command as keyof LockDomainService);
+        await this.lockEntity(id, command as keyof LockDomainService);
         return;
       case HASS_DOMAINS.climate:
-        await this.climate(
+        await this.climateEntity(
           id,
           command as keyof ClimateDomainService,
           body as ClimateBody,
@@ -71,7 +76,20 @@ export class CommandRouterService {
     throw new NotImplementedException();
   }
 
-  private async climate(
+  public async processGroup(
+    group: GroupDTO | string,
+    command: string,
+    scope: ROOM_ENTITY_TYPES[],
+  ): Promise<void> {
+    // group = await this.groupService.get(group);
+    // switch (group.type) {
+    //   case GROUP_TYPES.light:
+    //   //
+    // }
+    //
+  }
+
+  private async climateEntity(
     id: string,
     command: keyof ClimateDomainService,
     body: ClimateBody = {},
@@ -103,7 +121,7 @@ export class CommandRouterService {
   }
 
   @Trace()
-  private async fan(
+  private async fanEntity(
     id: string,
     command: keyof FanDomainService,
     { speed }: FanBody,
@@ -127,7 +145,7 @@ export class CommandRouterService {
   }
 
   @Trace()
-  private async light(id: string, command: keyof LightManagerService) {
+  private async lightEntity(id: string, command: keyof LightManagerService) {
     switch (command) {
       case 'circadianLight':
         return await this.lightService.circadianLight(id);
@@ -144,7 +162,7 @@ export class CommandRouterService {
   }
 
   @Trace()
-  private async lock(id: string, command: keyof LockDomainService) {
+  private async lockEntity(id: string, command: keyof LockDomainService) {
     switch (command) {
       case 'lock':
         return await this.lockService.lock(id);
@@ -155,7 +173,7 @@ export class CommandRouterService {
   }
 
   @Trace()
-  private async media(
+  private async mediaEntity(
     id: string,
     command: keyof MediaPlayerDomainService,
   ): Promise<void> {
@@ -179,7 +197,7 @@ export class CommandRouterService {
   }
 
   @Trace()
-  private async switch(
+  private async switchEntity(
     id: string,
     command: keyof SwitchDomainService,
   ): Promise<void> {

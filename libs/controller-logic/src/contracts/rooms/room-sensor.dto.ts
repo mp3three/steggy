@@ -11,7 +11,16 @@ export class RoomSensorDTO {
 }
 
 /**
- * See dedicated sensor command markdown file for notes
+ * Sensor commands are intended to operate under 2 basic modes -
+ *
+ * 1) Activate a pre-saved room save state
+ *
+ * Most of the time, loading a pre-saved state is the easiest way to define the desired result for the sensor.
+ * The exact list of entities to change, and how to change them are already pre-saved and associated with the room
+ *
+ * 2) Generic commands
+ *
+ * turnOff / turnOn
  */
 export class KunamiSensorCommand {
   /**
@@ -23,6 +32,7 @@ export class KunamiSensorCommand {
     | 'setState'
     | 'dimUp'
     | 'dimDown'
+    | 'circadianOn'
     | string;
 
   /**

@@ -18,7 +18,7 @@ import {
   RoomSaveStateDTO,
   RoomSensorDTO,
 } from '../../contracts';
-import { CommandRouterService } from '../command-router.service';
+import { EntityCommandRouterService } from '../entity-command-router.service';
 import { GroupService } from '../groups';
 import { LightManagerService } from '../light-manager.service';
 import { RoomPersistenceService } from '../persistence';
@@ -32,7 +32,7 @@ export class RoomService {
     private readonly roomPersistence: RoomPersistenceService,
     private readonly groupService: GroupService,
     private readonly lightManager: LightManagerService,
-    private readonly commandRouter: CommandRouterService,
+    private readonly commandRouter: EntityCommandRouterService,
   ) {}
 
   @Trace()
@@ -203,6 +203,48 @@ export class RoomService {
   }
 
   @Trace()
+  public async dimDown(
+    room: RoomDTO | string,
+    scope: ROOM_ENTITY_TYPES | ROOM_ENTITY_TYPES[] = ROOM_ENTITY_TYPES.normal,
+  ): Promise<void> {
+    room = await this.load(room);
+    scope = Array.isArray(scope) ? scope : [scope];
+    await Promise.all([
+      await each(room.entities ?? [], async (entity, callback) => {
+        if (scope.includes(entity.type)) {
+          await this.commandRouter.process(entity.entity_id, 'dimDown');
+        }
+        callback();
+      }),
+      await each(room.groups ?? [], async (group, callback) => {
+        await this.groupService.activateState(group, 'dimDown');
+        callback();
+      }),
+    ]);
+  }
+
+  @Trace()
+  public async dimUp(
+    room: RoomDTO | string,
+    scope: ROOM_ENTITY_TYPES | ROOM_ENTITY_TYPES[] = ROOM_ENTITY_TYPES.normal,
+  ): Promise<void> {
+    room = await this.load(room);
+    scope = Array.isArray(scope) ? scope : [scope];
+    await Promise.all([
+      await each(room.entities ?? [], async (entity, callback) => {
+        if (scope.includes(entity.type)) {
+          await this.commandRouter.process(entity.entity_id, 'dimUp');
+        }
+        callback();
+      }),
+      await each(room.groups ?? [], async (group, callback) => {
+        await this.groupService.activateState(group, 'dimUp');
+        callback();
+      }),
+    ]);
+  }
+
+  @Trace()
   public async get(room: RoomDTO | string): Promise<RoomDTO> {
     return await this.load(room);
   }
@@ -237,13 +279,14 @@ export class RoomService {
   public async turnOn(
     room: RoomDTO | string,
     scope: ROOM_ENTITY_TYPES | ROOM_ENTITY_TYPES[] = ROOM_ENTITY_TYPES.normal,
+    circadian = false,
   ): Promise<void> {
     room = await this.load(room);
     scope = Array.isArray(scope) ? scope : [scope];
     await Promise.all([
       await each(room.entities ?? [], async (entity, callback) => {
         if (scope.includes(entity.type)) {
-          if (domain(entity.type) === HASS_DOMAINS.light) {
+          if (domain(entity.type) === HASS_DOMAINS.light && circadian) {
             await this.lightManager.circadianLight(entity.entity_id);
             return callback();
           }

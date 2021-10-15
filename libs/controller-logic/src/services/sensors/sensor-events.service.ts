@@ -153,10 +153,13 @@ export class SensorEventsService {
     this.logger.info({ command }, `Execute room command`);
     switch (command.command) {
       case 'turnOn':
-        await this.roomService.turnOn(room, command.scope);
+        await this.roomService.turnOn(room, command.scope, false);
         return;
       case 'turnOff':
         await this.roomService.turnOff(room, command.scope);
+        return;
+      case 'circadianOn':
+        await this.roomService.turnOn(room, command.scope, true);
         return;
       default:
         await this.roomService.activateState(room, command.saveStateId);

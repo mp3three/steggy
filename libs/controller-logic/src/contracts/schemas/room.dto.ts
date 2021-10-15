@@ -38,6 +38,10 @@ export enum ROOM_ENTITY_TYPES {
    * Turn off as normal with an turn off command
    */
   accessory = 'accessory',
+  /**
+   * Forward the same command to groups (if possible)
+   */
+  groups = 'groups',
 }
 
 export class RoomEntityDTO {

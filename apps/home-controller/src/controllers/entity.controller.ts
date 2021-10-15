@@ -1,5 +1,5 @@
 import {
-  CommandRouterService,
+  EntityCommandRouterService,
   LightingCacheDTO,
   LightManagerService,
 } from '@automagical/controller-logic';
@@ -29,7 +29,7 @@ export class EntityController {
   constructor(
     private readonly logger: AutoLogService,
     private readonly entityManager: EntityManagerService,
-    private readonly commandRouter: CommandRouterService,
+    private readonly commandRouter: EntityCommandRouterService,
     private readonly lightManager: LightManagerService,
   ) {}
 

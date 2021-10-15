@@ -49,12 +49,6 @@ export class GroupDTO<GROUP_STATE extends BASIC_STATE = BASIC_STATE> {
   })
   public created?: Date;
 
-  @Prop({ type: 'string' })
-  @IsString()
-  @Expose()
-  @IsOptional()
-  public defaultOnState?: string;
-
   @IsNumber()
   @IsOptional()
   @Prop({ default: null, type: 'number' })

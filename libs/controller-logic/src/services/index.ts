@@ -1,5 +1,5 @@
 export * from './circadian.service';
-export * from './command-router.service';
+export * from './entity-command-router.service';
 export * from './groups';
 export * from './light-manager.service';
 export * from './persistence';

@@ -35,7 +35,11 @@ export abstract class BaseGroupService {
     group = await this.loadGroup(group);
     const state = group.save_states.find(({ id }) => id === stateId);
     if (!state) {
-      throw new NotFoundException(`Cannot find state ${stateId}`);
+      this.logger.warn(
+        { group: group.friendlyName, stateId },
+        `Invalid state for group`,
+      );
+      return;
     }
     this.logger.debug(`Activate state {${state.name}}`);
     await this.setState(group.entities, state.states);

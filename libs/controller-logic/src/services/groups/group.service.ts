@@ -2,21 +2,27 @@ import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import { BaseSchemaDTO } from '@automagical/persistence';
 import {
   AutoLogService,
-  IsEmpty,
   ResultControlDTO,
   Trace,
 } from '@automagical/utilities';
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 import { each } from 'async';
 
-import type { BASE_STATES, RoomGroupSaveStateDTO } from '../../contracts';
 import {
+  BASE_STATES,
   BASIC_STATE,
   GROUP_TYPES,
   GroupDTO,
   GroupSaveStateDTO,
+  LIGHTING_MODE,
+  RoomGroupSaveStateDTO,
 } from '../../contracts';
-import { CommandRouterService } from '../command-router.service';
+import { EntityCommandRouterService } from '../entity-command-router.service';
 import { LightManagerService } from '../light-manager.service';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
@@ -35,7 +41,7 @@ export class GroupService {
     private readonly fanGroup: FanGroupService,
     private readonly switchGroup: SwitchGroupService,
     private readonly lightManager: LightManagerService,
-    private readonly commandRouter: CommandRouterService,
+    private readonly commandRouter: EntityCommandRouterService,
   ) {}
 
   @Trace()
@@ -141,15 +147,6 @@ export class GroupService {
   }
 
   @Trace()
-  public async loadRoomSaveState(
-    group: string | GroupDTO,
-    state: RoomGroupSaveStateDTO,
-  ): Promise<void> {
-    group = await this.load(group);
-    //
-  }
-
-  @Trace()
   public async removeEntity<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
     group: GroupDTO | string,
     entity: string | string[],
@@ -179,7 +176,10 @@ export class GroupService {
   }
 
   @Trace()
-  public async turnOn(group: GroupDTO | string): Promise<void> {
+  public async turnOn(
+    group: GroupDTO | string,
+    circadian = false,
+  ): Promise<void> {
     group = await this.load(group);
     await each(group.entities, async (entity, callback) => {
       if ((group as GroupDTO).type === GROUP_TYPES.light) {
@@ -188,14 +188,10 @@ export class GroupService {
           this.logger.warn({ entity }, `Invalid entity in light group`);
           return callback();
         }
-        let { defaultOnState } = group as GroupDTO;
-        defaultOnState ??= '';
-        if (defaultOnState === 'circadian') {
-          await this.lightManager.circadianLight(entity);
-          return callback();
-        }
-        if (!IsEmpty(defaultOnState)) {
-          await this.activateState(group, defaultOnState);
+        if (circadian) {
+          await this.lightManager.turnOn(entity, {
+            mode: LIGHTING_MODE.circadian,
+          });
           return callback();
         }
         await this.lightManager.turnOn(entity);
