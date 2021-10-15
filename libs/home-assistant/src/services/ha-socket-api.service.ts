@@ -189,7 +189,9 @@ export class HASocketAPIService {
       process.exit();
     }
     if (count > this.WARN_REQUESTS) {
-      this.logger.warn({}, `Message traffic`);
+      this.logger.warn(
+        `Message traffic ${this.CRASH_REQUESTS}>${count}>${this.WARN_REQUESTS}`,
+      );
     }
   }
 

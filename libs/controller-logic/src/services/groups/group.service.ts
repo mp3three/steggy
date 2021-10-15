@@ -5,16 +5,11 @@ import {
   ResultControlDTO,
   Trace,
 } from '@automagical/utilities';
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 
+import type { BASE_STATES } from '../../contracts';
 import {
-  BASE_STATES,
   BASIC_STATE,
   GROUP_TYPES,
   GroupDTO,

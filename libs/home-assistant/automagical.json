@@ -14,12 +14,12 @@
     },
     "WARN_REQUESTS_PER_SEC": {
       "type": "number",
-      "default": 100,
+      "default": 300,
       "description": "Emit warnings if the home controller attempts to send more than X messages to home assistant inside of a second"
     },
     "CRASH_REQUESTS_PER_SEC": {
       "type": "number",
-      "default": 300,
+      "default": 500,
       "description": "Socket service will self-terminate the process if this limit is exceeded. This can happen if an accidential infinite recursion is triggered due to bad setup"
     }
   }

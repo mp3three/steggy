@@ -2,14 +2,14 @@ import {
   GROUP_TYPES,
   GroupDTO,
   KunamiSensorCommand,
-  ROOM_ENTITY_TYPES,
+  KunamiSensorGroupCommand,
   RoomDTO,
   RoomSaveStateDTO,
 } from '@automagical/controller-logic';
-import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
+import { HASS_DOMAINS } from '@automagical/home-assistant';
 import { CANCEL, PromptMenuItems, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty, sleep } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
@@ -21,6 +21,7 @@ import { RoomStateService } from './room-state.service';
 type SensorEvents = { match: string[]; sensor: string };
 
 const DEFAULT_RECORD_DURATION = 5;
+type GroupCommand = Pick<KunamiSensorGroupCommand, 'command' | 'saveStateId'>;
 
 @Injectable()
 export class KunamiBuilderService {
@@ -33,9 +34,7 @@ export class KunamiBuilderService {
     private readonly groupService: GroupCommandService,
   ) {}
 
-  public async buildGroupCommand(
-    group?: GroupDTO,
-  ): Promise<KunamiSensorCommand> {
+  public async buildGroupCommand(group?: GroupDTO): Promise<GroupCommand> {
     const actions: PromptMenuItems = [];
     if (group.type === GROUP_TYPES.lock) {
       actions.push(
@@ -85,7 +84,7 @@ export class KunamiBuilderService {
       `Sequence action`,
       actions,
     );
-    const out: Partial<KunamiSensorCommand> = {
+    const out: GroupCommand = {
       command,
     };
     if (command === 'setState') {
@@ -97,34 +96,17 @@ export class KunamiBuilderService {
         })),
       );
     }
-    return out as KunamiSensorCommand;
+    return out;
   }
 
   public async buildRoomCommand(
     room: RoomDTO,
     current?: KunamiSensorCommand,
   ): Promise<KunamiSensorCommand> {
-    const allGroups = await this.groupService.list();
-    room.groups ??= [];
-    const groups = allGroups.filter(({ _id }) => room.groups.includes(_id));
+    room.save_states ??= [];
 
     // THE COMMAND KRAKEN!
     const actions = this.promptService.itemsFromEntries([
-      // Gimme options
-      ['Turn On', 'turnOn'],
-      ['Turn Off', 'turnOff'],
-      // If this has light entities / groups, then add dim options
-      ...this.promptService.conditionalEntries(
-        !IsEmpty(
-          room.entities.filter(
-            ({ entity_id }) => domain(entity_id) === HASS_DOMAINS.light,
-          ),
-        ) || !IsEmpty(groups.filter(({ type }) => type === GROUP_TYPES.light)),
-        [
-          ['Dim up', 'dimup'],
-          ['Dim down', 'dimDown'],
-        ],
-      ),
       // Create a new state, then use it as the target action
       ['Set State (create new)', 'createState'],
       // Select from an existing option
@@ -144,7 +126,7 @@ export class KunamiBuilderService {
     let command = await this.promptService.menuSelect(
       actions,
       `What to do on activate?`,
-      current?.command,
+      room.save_states.find((state) => state.id === current?.saveStateId),
     );
 
     // Create new state, then treat it as if it were selected from the menu
@@ -157,21 +139,11 @@ export class KunamiBuilderService {
         break;
     }
 
-    let saveStateId: string;
-    let scope: ROOM_ENTITY_TYPES[];
     if (typeof command === 'string') {
-      scope = await this.promptService.pickMany<ROOM_ENTITY_TYPES>(
-        `Which entity scopes?`,
-        Object.keys(ROOM_ENTITY_TYPES).map((key) => ({
-          name: key,
-          value: ROOM_ENTITY_TYPES[key],
-        })),
-        { default: current?.scope },
-      );
-    } else {
-      saveStateId = command.id;
-      command = 'setState';
+      throw new NotImplementedException();
     }
+    const saveStateId = command.id;
+    command = 'setState';
     let events: SensorEvents;
     if (current) {
       if (await this.promptService.confirm(`Replace saved events?`)) {
@@ -189,7 +161,6 @@ export class KunamiBuilderService {
     return {
       command,
       saveStateId,
-      scope,
       ...events,
     } as KunamiSensorCommand;
   }
