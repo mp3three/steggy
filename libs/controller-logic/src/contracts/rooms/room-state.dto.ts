@@ -36,7 +36,7 @@ export class PersistenceLightStateDTO extends PersistenceSwitchStateDTO {
     enum: Object.values(LIGHTING_MODE),
     required: true,
   })
-  mode: LIGHTING_MODE;
+  mode?: LIGHTING_MODE;
 }
 
 export type BASE_STATES = PersistenceSwitchStateDTO | PersistenceLockStateDTO;

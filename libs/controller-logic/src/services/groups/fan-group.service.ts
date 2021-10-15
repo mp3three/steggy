@@ -4,13 +4,19 @@ import {
   FanDomainService,
   FanStateDTO,
   HASS_DOMAINS,
+  HomeAssistantCoreService,
 } from '@automagical/home-assistant';
 import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachLimit } from 'async';
 
 import { CONCURRENT_CHANGES } from '../../config';
-import { GROUP_TYPES, GroupDTO, PersistenceFanStateDTO } from '../../contracts';
+import {
+  GROUP_TYPES,
+  GroupDTO,
+  PersistenceFanStateDTO,
+  RoomGroupSaveStateDTO,
+} from '../../contracts';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
 
@@ -20,6 +26,7 @@ export class FanGroupService extends BaseGroupService {
   constructor(
     protected readonly logger: AutoLogService,
     protected readonly groupPersistence: GroupPersistenceService,
+    private readonly hassCore: HomeAssistantCoreService,
     private readonly entityManager: EntityManagerService,
     private readonly fanDomain: FanDomainService,
     @InjectConfig(CONCURRENT_CHANGES)
@@ -28,6 +35,23 @@ export class FanGroupService extends BaseGroupService {
     super();
   }
   public readonly GROUP_TYPE: GROUP_TYPES.fan;
+
+  @Trace()
+  public async activateCommand(
+    group: GroupDTO | string,
+    state: RoomGroupSaveStateDTO,
+  ): Promise<void> {
+    switch (state.action) {
+      case 'turnOff':
+        await this.turnOff(group);
+        return;
+      case 'turnOn':
+        await this.turnOn(group);
+        return;
+      default:
+        await this.activateState(group, state.action);
+    }
+  }
 
   @Trace()
   public getState(
@@ -45,6 +69,18 @@ export class FanGroupService extends BaseGroupService {
   @Trace()
   public isValidEntity(id: string): boolean {
     return domain(id) === HASS_DOMAINS.fan;
+  }
+
+  @Trace()
+  public async turnOff(group: GroupDTO | string): Promise<void> {
+    group = await this.loadGroup(group);
+    await this.hassCore.turnOff(group.entities);
+  }
+
+  @Trace()
+  public async turnOn(group: GroupDTO | string): Promise<void> {
+    group = await this.loadGroup(group);
+    await this.hassCore.turnOn(group.entities);
   }
 
   @Trace()

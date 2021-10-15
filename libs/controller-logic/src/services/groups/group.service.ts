@@ -9,7 +9,7 @@ import {
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 
-import type { BASE_STATES } from '../../contracts';
+import type { BASE_STATES, RoomGroupSaveStateDTO } from '../../contracts';
 import {
   BASIC_STATE,
   GROUP_TYPES,
@@ -37,6 +37,16 @@ export class GroupService {
     private readonly lightManager: LightManagerService,
     private readonly commandRouter: CommandRouterService,
   ) {}
+
+  @Trace()
+  public async activateCommand(
+    group: GroupDTO | string,
+    state: RoomGroupSaveStateDTO,
+  ): Promise<void> {
+    group = await this.load(group);
+    const base = this.getBaseGroup(group.type);
+    return await base.activateCommand(group, state);
+  }
 
   @Trace()
   public async activateState(
@@ -128,6 +138,15 @@ export class GroupService {
     control: ResultControlDTO = {},
   ): Promise<GroupDTO<GROUP_TYPE>[]> {
     return await this.groupPersistence.findMany(control);
+  }
+
+  @Trace()
+  public async loadRoomSaveState(
+    group: string | GroupDTO,
+    state: RoomGroupSaveStateDTO,
+  ): Promise<void> {
+    group = await this.load(group);
+    //
   }
 
   @Trace()

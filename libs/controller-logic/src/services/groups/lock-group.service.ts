@@ -15,6 +15,7 @@ import {
   GROUP_TYPES,
   GroupDTO,
   PersistenceLockStateDTO,
+  RoomGroupSaveStateDTO,
 } from '../../contracts';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
@@ -35,6 +36,23 @@ export class LockGroupService extends BaseGroupService {
   }
 
   public readonly GROUP_TYPE = GROUP_TYPES.lock;
+
+  @Trace()
+  public async activateCommand(
+    group: GroupDTO | string,
+    state: RoomGroupSaveStateDTO,
+  ): Promise<void> {
+    switch (state.action) {
+      case 'lock':
+        await this.lock(group);
+        return;
+      case 'unlock':
+        await this.unlock(group);
+        return;
+      default:
+        await this.activateState(group, state.action);
+    }
+  }
 
   @Trace()
   public getState(group: GroupDTO<LockStateDTO>): PersistenceLockStateDTO[] {

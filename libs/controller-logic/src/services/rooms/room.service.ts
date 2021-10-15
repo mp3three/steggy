@@ -40,6 +40,7 @@ export class RoomService {
     state: string,
   ): Promise<void> {
     room = await this.load(room);
+    room.save_states ??= [];
     const saveState = room.save_states.find(({ id }) => id === state);
     if (!saveState) {
       throw new NotFoundException(`Invalid room state`);
@@ -52,24 +53,10 @@ export class RoomService {
       );
       callback();
     });
-    await each(
-      Object.keys(saveState.groups ?? {}),
-      async (groupId, callback) => {
-        const action = saveState.groups[groupId];
-        switch (action) {
-          case 'turnOn':
-            await this.groupService.turnOn(groupId);
-            break;
-          case 'turnOff':
-            await this.groupService.turnOff(groupId);
-            break;
-          default:
-            await this.groupService.activateState(groupId, action);
-            break;
-        }
-        callback();
-      },
-    );
+    await each(saveState.groups ?? [], async (group, callback) => {
+      await this.groupService.activateCommand(group.group, group);
+      callback();
+    });
   }
 
   @Trace()

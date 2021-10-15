@@ -15,6 +15,7 @@ import {
   GroupDTO,
   LIGHTING_MODE,
   PersistenceLightStateDTO,
+  RoomGroupSaveStateDTO,
 } from '../../contracts';
 import { LightManagerService } from '../light-manager.service';
 import { GroupPersistenceService } from '../persistence';
@@ -41,6 +42,26 @@ export class LightGroupService extends BaseGroupService {
   }
 
   public readonly GROUP_TYPE = GROUP_TYPES.light;
+
+  @Trace()
+  public async activateCommand(
+    group: GroupParameter,
+    state: RoomGroupSaveStateDTO,
+  ): Promise<void> {
+    switch (state.action) {
+      case 'turnOff':
+        await this.turnOff(group);
+        return;
+      case 'turnOn':
+        await this.turnOn(group, false, state.extra?.brightness as number);
+        return;
+      case 'circadianLight':
+        await this.turnOn(group, true, state.extra?.brightness as number);
+        return;
+      default:
+        await this.activateState(group, state.action);
+    }
+  }
 
   @Trace()
   public async activateState(
@@ -171,13 +192,19 @@ export class LightGroupService extends BaseGroupService {
   }
 
   @Trace()
-  public async turnOn(group: GroupParameter, circadian = false): Promise<void> {
+  public async turnOn(
+    group: GroupParameter,
+    circadian = false,
+    brightness?: number,
+  ): Promise<void> {
     group = await this.loadGroup(group);
     if (circadian) {
-      await this.lightManager.circadianLight(group.entities);
+      await this.lightManager.circadianLight(group.entities, brightness);
       return;
     }
-    await this.lightManager.turnOn(group.entities);
+    await this.lightManager.turnOn(group.entities, {
+      brightness,
+    });
   }
 
   @Trace()

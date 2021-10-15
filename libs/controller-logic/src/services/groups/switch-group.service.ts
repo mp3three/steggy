@@ -15,6 +15,7 @@ import {
   GroupDTO,
   PersistenceLightStateDTO,
   PersistenceSwitchStateDTO,
+  RoomGroupSaveStateDTO,
 } from '../../contracts';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
@@ -34,6 +35,23 @@ export class SwitchGroupService extends BaseGroupService {
   }
 
   public readonly GROUP_TYPE = GROUP_TYPES.switch;
+
+  @Trace()
+  public async activateCommand(
+    group: GroupDTO | string,
+    state: RoomGroupSaveStateDTO,
+  ): Promise<void> {
+    switch (state.action) {
+      case 'turnOff':
+        await this.turnOff(group);
+        return;
+      case 'turnOn':
+        await this.turnOn(group);
+        return;
+      default:
+        await this.activateState(group, state.action);
+    }
+  }
 
   @Trace()
   public getState<

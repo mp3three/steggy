@@ -3,7 +3,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { v4 as uuid } from 'uuid';
 
-import type { BASE_STATES } from '../../contracts';
+import type { BASE_STATES, RoomGroupSaveStateDTO } from '../../contracts';
 import {
   BASIC_STATE,
   GROUP_TYPES,
@@ -20,6 +20,10 @@ export abstract class BaseGroupService {
   protected readonly groupPersistence: GroupPersistenceService;
   protected readonly logger: AutoLogService;
 
+  public abstract activateCommand(
+    group: GroupDTO | string,
+    state: RoomGroupSaveStateDTO,
+  ): Promise<void>;
   public abstract getState(group: GroupDTO): BASIC_STATE[];
   public abstract isValidEntity(id: string): boolean;
 
