@@ -4,7 +4,9 @@ import {
   RoomDTO,
   RoomEntityDTO,
   RoomSaveStateDTO,
+  RoomSensorDTO,
   RoomService,
+  SensorEventsService,
 } from '@automagical/controller-logic';
 import { BaseSchemaDTO } from '@automagical/persistence';
 import {
@@ -26,7 +28,10 @@ import {
 @Controller('/room')
 @AuthStack()
 export class RoomController {
-  constructor(private readonly roomService: RoomService) {}
+  constructor(
+    private readonly roomService: RoomService,
+    private readonly sensorEvents: SensorEventsService,
+  ) {}
 
   @Post(`/:room/state/:state`)
   public async activateState(
@@ -106,6 +111,14 @@ export class RoomController {
     return await this.roomService.deleteSaveState(room, state);
   }
 
+  @Delete(`/:room/sensor/:sensor`)
+  public async deleteSensor(
+    @Param('room') room: string,
+    @Param('sensor') sensor: string,
+  ): Promise<RoomDTO> {
+    return await this.roomService.deleteSensor(room, sensor);
+  }
+
   @Get('/:room')
   public async describe(@Param('room') room: string): Promise<RoomDTO> {
     return await this.roomService.get(room);
@@ -114,6 +127,15 @@ export class RoomController {
   @Get('/')
   public async list(@Locals() { control }: ResponseLocals): Promise<RoomDTO[]> {
     return await this.roomService.list(control);
+  }
+
+  @Post(`/:room/sensor/:sensor`)
+  public async triggerSensor(
+    @Param('room') room: string,
+    @Param('sensor') sensor: string,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.sensorEvents.trigger(room, sensor);
+    return GENERIC_SUCCESS_RESPONSE;
   }
 
   @Put(`/:room/turnOff`)
@@ -140,6 +162,16 @@ export class RoomController {
     @Body() data: Partial<RoomDTO>,
   ): Promise<RoomDTO> {
     return await this.roomService.update(BaseSchemaDTO.cleanup(data), room);
+  }
+
+  @Put(`/:room/sensor/:sensor`)
+  public async updateSensor(
+    @Param('room') room: string,
+    @Param('sensor') id: string,
+    @Body() sensor: RoomSensorDTO,
+  ): Promise<RoomDTO> {
+    sensor.id = id;
+    return await this.roomService.updateSensor(room, sensor);
   }
 
   @Put(`/:room/state/:stateId`)

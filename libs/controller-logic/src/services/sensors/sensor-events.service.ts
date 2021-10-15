@@ -10,7 +10,11 @@ import {
   OnEvent,
   Trace,
 } from '@automagical/utilities';
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  NotImplementedException,
+} from '@nestjs/common';
 import { each } from 'async';
 
 import { KUNAMI_TIMEOUT } from '../../config';
@@ -61,6 +65,21 @@ export class SensorEventsService {
         }
       });
     });
+  }
+
+  @Trace()
+  public async trigger(
+    room: RoomDTO | string,
+    sensorId: string,
+  ): Promise<void> {
+    room = await this.roomService.get(room);
+    const sensor = room.sensors.find(
+      ({ id }) => id === sensorId,
+    ) as KunamiSensor;
+    if (!sensor) {
+      throw new NotFoundException();
+    }
+    await this.executeRoomCommand(sensor, room);
   }
 
   @Info({ after: '[Sensor Events] initialized' })
@@ -118,6 +137,7 @@ export class SensorEventsService {
       this.WATCHED_SENSORS.set(key, list);
     });
   }
+
   @Trace()
   private async executeRoomCommand(
     { command }: KunamiSensor,

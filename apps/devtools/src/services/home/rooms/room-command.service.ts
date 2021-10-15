@@ -32,6 +32,7 @@ import { LightGroupCommandService } from '../groups';
 import { GroupCommandService } from '../groups/group-command.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { KunamiBuilderService } from './kunami-builder.service';
+import { RoomSensorsService } from './room-sensors.service';
 import { RoomStateService } from './room-state.service';
 
 const UP = 1;
@@ -52,6 +53,7 @@ export class RoomCommandService {
     private readonly lightDomain: LightService,
     private readonly lightService: LightGroupCommandService,
     private readonly kunamiBuilder: KunamiBuilderService,
+    private readonly roomSensorsService: RoomSensorsService,
     private readonly stateManager: RoomStateService,
     @InjectConfig(CONCURRENT_CHANGES, LIB_CONTROLLER_LOGIC)
     private readonly concurrentChanges: number,
@@ -143,16 +145,7 @@ export class RoomCommandService {
         await this.stateManager.exec(room);
         return await this.processRoom(room, action);
       case 'sensorCommands':
-        const command = await this.kunamiBuilder.buildRoomCommand(room);
-        room.sensors ??= [];
-        room = await this.fetchService.fetch({
-          body: {
-            command,
-            type: ROOM_SENSOR_TYPE.kunami,
-          } as KunamiSensor,
-          method: 'post',
-          url: `/room/${room._id}/sensor`,
-        });
+        room = await this.roomSensorsService.exec(room);
         return await this.processRoom(room, action);
       case 'rename':
         room.friendlyName = await this.promptService.string(

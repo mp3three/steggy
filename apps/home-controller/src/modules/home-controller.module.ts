@@ -15,10 +15,9 @@ import {
   DeviceController,
   EntityController,
   GroupController,
-  HAHooksController,
   RoomController,
 } from '../controllers';
-import { ApplicationService, GarageService } from '../services';
+import { ApplicationService } from '../services';
 
 @ApplicationModule({
   application: APP_HOME_CONTROLLER,
@@ -27,7 +26,6 @@ import { ApplicationService, GarageService } from '../services';
     DeviceController,
     EntityController,
     GroupController,
-    HAHooksController,
     RoomController,
   ],
   imports: [
@@ -37,6 +35,6 @@ import { ApplicationService, GarageService } from '../services';
     HomeControllerCustomModule.forRoot(),
     HomePersistenceModule.forRoot(),
   ],
-  providers: [ApplicationService, GarageService],
+  providers: [ApplicationService],
 })
 export class HomeControllerModule {}

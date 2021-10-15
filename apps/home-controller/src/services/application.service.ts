@@ -1,11 +1,10 @@
-import { ROOM_COMMAND, SolarCalcService } from '@automagical/controller-logic';
+import { SolarCalcService } from '@automagical/controller-logic';
 import {
   BatteryStateDTO,
   domain,
   EntityManagerService,
   HA_SOCKET_READY,
   HASS_DOMAINS,
-  LockDomainService,
   NotifyDomainService,
 } from '@automagical/home-assistant';
 import {
@@ -14,16 +13,12 @@ import {
   Debug,
   InjectConfig,
   OnEvent,
-  OnMQTT,
   Trace,
-  Warn,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
-import { EventEmitter2 } from 'eventemitter2';
 
 import { BATTERY_NOTIFY_PERCENT } from '../config';
-import { GLOBAL_TRANSITION, HOMEASSISTANT_LEAVE_HOME } from '../typings';
 
 @Injectable()
 export class ApplicationService {
@@ -32,29 +27,10 @@ export class ApplicationService {
     private readonly solarCalc: SolarCalcService,
     private readonly notifyService: NotifyDomainService,
     private readonly entityManager: EntityManagerService,
-    private readonly lockService: LockDomainService,
-    private readonly eventEmitterService: EventEmitter2,
     @InjectConfig(BATTERY_NOTIFY_PERCENT)
     private readonly notifyPercent: number,
   ) {}
   private connectionReady = false;
-
-  public get locks(): string[] {
-    return this.entityManager.listEntities().filter((id) => {
-      return domain(id) === HASS_DOMAINS.lock && id.includes('door');
-    });
-  }
-
-  @OnEvent(GLOBAL_TRANSITION)
-  @Warn('Lock Doors')
-  public async lockDoors(): Promise<void> {
-    await this.lockService.lock(this.locks);
-  }
-
-  @Warn('Unlock Doors')
-  public async unlockDoors(): Promise<void> {
-    await this.lockService.unlock(this.locks);
-  }
 
   /**
    * Hey! Parts of the house need batteries swapped out
@@ -99,20 +75,6 @@ export class ApplicationService {
       `🌃 Dusk: ${dusk}`,
     ].join(`\n`);
     await this.notifyService.notify(`${message}`);
-  }
-
-  /**
-   * Home Assistant relayed this request via a mobile app action
-   *
-   * Intended to lock up, turn off the lights, and send back verification
-   */
-  @OnMQTT(HOMEASSISTANT_LEAVE_HOME)
-  @Debug('Home Assistant => Leave Home')
-  protected async leaveHome(): Promise<void> {
-    await this.lockDoors();
-    ['master', 'loft', 'downstairs', 'guest'].forEach((room) =>
-      this.eventEmitterService.emit(ROOM_COMMAND(room, 'areaOff')),
-    );
   }
 
   @OnEvent(HA_SOCKET_READY)

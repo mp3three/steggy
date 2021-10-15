@@ -18,6 +18,8 @@ import { GroupCommandService } from '../groups';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomStateService } from './room-state.service';
 
+type SensorEvents = { match: string[]; sensor: string };
+
 const DEFAULT_RECORD_DURATION = 5;
 
 @Injectable()
@@ -98,7 +100,10 @@ export class KunamiBuilderService {
     return out as KunamiSensorCommand;
   }
 
-  public async buildRoomCommand(room: RoomDTO): Promise<KunamiSensorCommand> {
+  public async buildRoomCommand(
+    room: RoomDTO,
+    current?: KunamiSensorCommand,
+  ): Promise<KunamiSensorCommand> {
     const allGroups = await this.groupService.list();
     room.groups ??= [];
     const groups = allGroups.filter(({ _id }) => room.groups.includes(_id));
@@ -139,12 +144,13 @@ export class KunamiBuilderService {
     let command = await this.promptService.menuSelect(
       actions,
       `What to do on activate?`,
+      current?.command,
     );
 
     // Create new state, then treat it as if it were selected from the menu
     switch (command) {
       case CANCEL:
-        return;
+        return current;
       case 'createState':
         const [newState] = await this.roomState.create(room);
         command = newState;
@@ -154,19 +160,32 @@ export class KunamiBuilderService {
     let saveStateId: string;
     let scope: ROOM_ENTITY_TYPES[];
     if (typeof command === 'string') {
-      scope = await this.promptService.pickMany(
+      scope = await this.promptService.pickMany<ROOM_ENTITY_TYPES>(
         `Which entity scopes?`,
         Object.keys(ROOM_ENTITY_TYPES).map((key) => ({
           name: key,
           value: ROOM_ENTITY_TYPES[key],
         })),
+        { default: current?.scope },
       );
     } else {
       saveStateId = command.id;
       command = 'setState';
     }
-
-    const events = await this.recordEvents();
+    let events: SensorEvents;
+    if (current) {
+      if (await this.promptService.confirm(`Replace saved events?`)) {
+        events = await this.recordEvents();
+      } else {
+        const { match, sensor } = current;
+        events = {
+          match,
+          sensor,
+        };
+      }
+    } else {
+      events = await this.recordEvents();
+    }
     return {
       command,
       saveStateId,
@@ -175,7 +194,7 @@ export class KunamiBuilderService {
     } as KunamiSensorCommand;
   }
 
-  private async recordEvents(): Promise<{ match: string[]; sensor: string }> {
+  private async recordEvents(): Promise<SensorEvents> {
     console.log(
       [
         ``,

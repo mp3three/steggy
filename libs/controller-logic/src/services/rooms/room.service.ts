@@ -16,6 +16,7 @@ import {
   RoomDTO,
   RoomEntityDTO,
   RoomSaveStateDTO,
+  RoomSensorDTO,
 } from '../../contracts';
 import { CommandRouterService } from '../command-router.service';
 import { GroupService } from '../groups';
@@ -180,6 +181,28 @@ export class RoomService {
   }
 
   @Trace()
+  public async deleteSensor(
+    room: RoomDTO | string,
+    sensorId: string,
+  ): Promise<RoomDTO> {
+    room = await this.load(room);
+    room.sensors ??= [];
+    const startSize = room.sensors.length;
+    room.sensors = room.sensors.filter((item) => item.id !== sensorId);
+    const endSize = startSize - EXPECTED_REMOVE_AMOUNT;
+    if (room.sensors.length !== endSize) {
+      // Gonna save anyways though
+      // Ths probably means it was a bad match or something....
+      // Not sure if there is a good way to delete more than 1 without things being already super wrong
+      this.logger.warn(
+        { actual: room.sensors.length, expected: endSize },
+        `Unexpected removal amount`,
+      );
+    }
+    return await this.roomPersistence.update(room, room._id);
+  }
+
+  @Trace()
   public async get(room: RoomDTO | string): Promise<RoomDTO> {
     return await this.load(room);
   }
@@ -244,18 +267,28 @@ export class RoomService {
   }
 
   @Trace()
+  public async updateSensor(
+    room: RoomDTO | string,
+    state: RoomSensorDTO,
+  ): Promise<RoomDTO> {
+    room = await this.load(room);
+    room.sensors ??= [];
+    room.sensors = room.sensors.map((saved) =>
+      saved.id === state.id ? state : saved,
+    );
+    return await this.roomPersistence.update(room, room._id);
+  }
+
+  @Trace()
   public async updateState(
     room: RoomDTO | string,
     state: RoomSaveStateDTO,
   ): Promise<RoomDTO> {
     room = await this.load(room);
     room.save_states ??= [];
-    room.save_states = room.save_states.map((saved) => {
-      if (saved.id === state.id) {
-        return state;
-      }
-      return saved;
-    });
+    room.save_states = room.save_states.map((saved) =>
+      saved.id === state.id ? state : saved,
+    );
     return await this.roomPersistence.update(room, room._id);
   }
 

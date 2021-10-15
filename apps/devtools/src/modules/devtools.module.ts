@@ -25,6 +25,7 @@ import {
   LockService,
   MediaService,
   RoomCommandService,
+  RoomSensorsService,
   RoomStateService,
   SwitchService,
 } from '../services';
@@ -53,7 +54,12 @@ import {
       DeviceService,
       EntityService,
       HomeFetchService,
-      ...[KunamiBuilderService, RoomStateService, RoomCommandService],
+      ...[
+        KunamiBuilderService,
+        RoomCommandService,
+        RoomSensorsService,
+        RoomStateService,
+      ],
     ],
     ...[ChangelogService, ConfigBuilderService],
     ...[ImgurAlbumDownloadService],

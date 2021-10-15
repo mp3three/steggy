@@ -6,6 +6,7 @@ export enum ROOM_SENSOR_TYPE {
 
 export class RoomSensorDTO {
   public id: string;
+  public name: string;
   public type: ROOM_SENSOR_TYPE;
 }
 
