@@ -24,6 +24,7 @@ export class KunamiSensorCommand {
     | 'dimUp'
     | 'dimDown'
     | string;
+
   /**
    * States from controller to match
    */

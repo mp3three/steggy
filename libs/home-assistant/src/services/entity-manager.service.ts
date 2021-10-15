@@ -30,10 +30,10 @@ export class EntityManagerService {
     private readonly socketService: HASocketAPIService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
+  public readonly WATCHERS = new Map<string, unknown[]>();
   private readonly ENTITIES = new Map<string, HassStateDTO>();
   private readonly OBSERVABLES = new Map<string, Observable<HassStateDTO>>();
   private readonly SUBSCRIBERS = new Map<string, Subscriber<HassStateDTO>>();
-  private readonly WATCHERS = new Map<string, unknown[]>();
 
   public findByDomain<T extends HassStateDTO = HassStateDTO>(
     target: HASS_DOMAINS,

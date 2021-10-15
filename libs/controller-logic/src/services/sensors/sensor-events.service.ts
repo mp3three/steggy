@@ -1,4 +1,5 @@
 import {
+  EntityManagerService,
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
 } from '@automagical/home-assistant';
@@ -25,7 +26,6 @@ import {
   ROOM_UPDATE,
   RoomDTO,
 } from '../../contracts';
-import { GroupService } from '../groups';
 import { RoomService } from '../rooms';
 
 type ActiveMatcher = KunamiSensorEvent & { callback: () => Promise<void> };
@@ -39,7 +39,7 @@ export class SensorEventsService {
     private readonly logger: AutoLogService,
     @InjectConfig(KUNAMI_TIMEOUT) private readonly kunamiTimeout: number,
     private readonly roomService: RoomService,
-    private readonly groupService: GroupService,
+    private readonly entityManager: EntityManagerService,
   ) {}
 
   private readonly ACTIVE_MATCHERS = new Map<string, ActiveMatcher[]>();
@@ -90,6 +90,13 @@ export class SensorEventsService {
   @OnEvent(HA_EVENT_STATE_CHANGE)
   protected async onEntityUpdate({ data }: HassEventDTO): Promise<void> {
     if (!this.WATCHED_SENSORS.has(data.entity_id)) {
+      return;
+    }
+    if (this.entityManager.WATCHERS.has(data.entity_id)) {
+      this.logger.debug(
+        { entity_id: data.entity_id },
+        `Blocked event from sensor being recorded`,
+      );
       return;
     }
     this.initWatchers(data.entity_id);

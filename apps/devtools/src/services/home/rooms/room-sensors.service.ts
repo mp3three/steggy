@@ -2,12 +2,11 @@ import {
   KunamiSensor,
   ROOM_SENSOR_TYPE,
   RoomDTO,
-  RoomSaveStateDTO,
   RoomSensorDTO,
 } from '@automagical/controller-logic';
 import { CANCEL, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 
@@ -23,19 +22,45 @@ export class RoomSensorsService {
     private readonly logger: AutoLogService,
   ) {}
 
-  public async addSensor(room: RoomDTO): Promise<RoomDTO> {
-    const command = await this.kunamiBuilder.buildRoomCommand(room);
-    return await this.fetchService.fetch({
+  public async build(
+    room: RoomDTO,
+    current?: KunamiSensor,
+  ): Promise<[RoomDTO, KunamiSensor]> {
+    const friendlyName = await this.promptService.string(
+      `Friendly name`,
+      current?.name,
+    );
+    if (
+      room.sensors.some(
+        ({ name, id }) => name === friendlyName && id !== current?.id,
+      )
+    ) {
+      this.logger.error(`Duplicate name`);
+      return await this.build(room, current);
+    }
+    const command = await this.kunamiBuilder.buildRoomCommand(
+      room,
+      current?.command,
+    );
+    room = await this.fetchService.fetch({
       body: {
         command,
+        name: friendlyName,
         type: ROOM_SENSOR_TYPE.kunami,
       } as KunamiSensor,
-      method: 'post',
-      url: `/room/${room._id}/sensor`,
+      method: current ? 'put' : 'post',
+      url: `/room/${room._id}/sensor${current ? `/${current.id}` : ``}`,
     });
+    const sensor = room.sensors.find(
+      ({ name }) => name === friendlyName,
+    ) as KunamiSensor;
+    return [room, sensor];
   }
 
-  public async exec(room: RoomDTO, defaultAction?: string): Promise<RoomDTO> {
+  public async exec(
+    room: RoomDTO,
+    defaultAction?: RoomSensorDTO | string,
+  ): Promise<RoomDTO> {
     const action = await this.promptService.menuSelect(
       this.promptService.itemsFromEntries<RoomSensorDTO | string>([
         ['Add', 'add'],
@@ -53,23 +78,24 @@ export class RoomSensorsService {
       undefined,
       defaultAction,
     );
-
     switch (action) {
       case CANCEL:
         return room;
       case 'add':
-        room = await this.addSensor(room);
+        [room] = await this.build(room);
         return await this.exec(room, action);
     }
     if (typeof action === 'string') {
       this.logger.error({ action }, `Action not implemented`);
       return room;
     }
+    [room] = await this.process(room, action as KunamiSensor);
+    return await this.exec(room, action);
   }
 
   public async process(
     room: RoomDTO,
-    sensor: RoomSensorDTO,
+    sensor: KunamiSensor,
   ): Promise<[RoomDTO, RoomSensorDTO]> {
     const action = await this.promptService.menuSelect(
       this.promptService.itemsFromEntries([
@@ -81,24 +107,25 @@ export class RoomSensorsService {
     );
     switch (action) {
       case CANCEL:
-        return;
+        return [room, sensor];
       case 'describe':
         console.log(encode(sensor));
         return await this.process(room, sensor);
       case 'delete':
-        await this.fetchService.fetch({
+        room = await this.fetchService.fetch({
           method: 'delete',
           url: `/room/${room._id}/sensor/${sensor.id}`,
         });
         return [room, undefined];
       case 'modify':
-        throw new NotImplementedException();
+        [room, sensor] = await this.build(room, sensor);
+        return await this.process(room, sensor);
       case 'activate':
         await this.fetchService.fetch({
           method: 'post',
           url: `/room/${room._id}/sensor/${sensor.id}`,
         });
-        throw new NotImplementedException();
+        return await this.process(room, sensor);
     }
     return [room, sensor];
   }

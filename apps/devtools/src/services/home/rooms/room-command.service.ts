@@ -145,7 +145,7 @@ export class RoomCommandService {
         await this.stateManager.exec(room);
         return await this.processRoom(room, action);
       case 'sensorCommands':
-        room = await this.roomSensorsService.exec(room);
+        room = (await this.roomSensorsService.exec(room)) || room;
         return await this.processRoom(room, action);
       case 'rename':
         room.friendlyName = await this.promptService.string(
