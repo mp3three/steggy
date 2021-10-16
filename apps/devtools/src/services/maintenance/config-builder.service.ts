@@ -189,13 +189,9 @@ export class ConfigBuilderService implements iRepl {
       application,
       `--configuration=${SCAN_CONFIG_CONFIGURATION}`,
     ]);
-    // Sometimes the build can take a min
-    // Getting some sort of info on the screen is helpful to verify it's not dead
     build.stdout.pipe(process.stdout);
     await build;
-
     this.logger.debug(`Scanning`);
-
     const { outputPath } =
       this.workspace.workspace.projects[application].targets.build
         .configurations[SCAN_CONFIG_CONFIGURATION];
