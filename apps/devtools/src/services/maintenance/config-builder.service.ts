@@ -1,4 +1,5 @@
 import {
+  CANCEL,
   iRepl,
   OUTPUT_HEADER_FONT,
   PromptService,
@@ -18,27 +19,19 @@ import {
   LIB_TERMINAL,
   Trace,
 } from '@automagical/utilities';
-import { NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
+import Table from 'cli-table';
 import execa from 'execa';
 import figlet from 'figlet';
 import { existsSync } from 'fs';
 import ini from 'ini';
-import inquirer from 'inquirer';
 import { set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
 import rc from 'rc';
 
 @Repl({
-  description: [
-    `Generate application customized configurations using the latest config definitions.`,
-    ``,
-    `When complete, you will have the ability to:`,
-    `  - Print to screen`,
-    `  - Save to file`,
-  ],
   icon: SetiIcons.config,
   name: `Config Builder`,
   type: REPL_TYPE.maintenance,
@@ -62,14 +55,11 @@ export class ConfigBuilderService implements iRepl {
    */
   @Trace()
   public async exec(): Promise<void> {
-    const { application } = (await inquirer.prompt([
-      {
-        choices: this.applicationChoices(),
-        message: 'Config Type',
-        name: 'application',
-        type: 'list',
-      },
-    ])) as { application: string };
+    const application = await this.promptService.menuSelect(
+      this.promptService.itemsFromEntries(
+        this.applicationChoices() as [string, string][],
+      ),
+    );
     this.typePrompt.config = rc<AutomagicalConfig>(application);
     delete this.typePrompt.config['configs'];
     delete this.typePrompt.config['config'];
@@ -78,6 +68,35 @@ export class ConfigBuilderService implements iRepl {
     );
 
     const out = await this.scan(application);
+    const table = new Table({
+      head: [
+        'Flags',
+        'Library',
+        'Property',
+        `Type`,
+        // 'Description',
+        'Default Value',
+      ],
+    });
+    out.forEach((row) => {
+      const flags: string[] = [];
+      if (row.metadata.required) {
+        flags.push(chalk.red(`REQUIRED`));
+      }
+      if (row.metadata.warnDefault) {
+        flags.push(chalk.yellow(`RECOMMENDED`));
+      }
+      table.push([
+        flags.join(`\n`),
+        row.library || '',
+        row.property || '',
+        row.metadata?.type || '',
+        // row.metadata?.description || '',
+        // '',
+        row.metadata?.default || '',
+      ]);
+    });
+    console.log(table.toString());
     await eachSeries(out.values(), async (item, callback) => {
       const result = await this.typePrompt.prompt(item);
       if (result === item.metadata.default) {
@@ -99,34 +118,18 @@ export class ConfigBuilderService implements iRepl {
     config: AutomagicalConfig,
     application: string,
   ): Promise<void> {
-    const result = (await inquirer.prompt([
-      {
-        choices: [
-          {
-            key: 'p',
-            name: 'Print',
-            value: 'print',
-          },
-          {
-            key: 's',
-            name: 'Save',
-            value: 'save',
-          },
-          new inquirer.Separator(),
-          {
-            key: 'x',
-            name: 'Done',
-            value: '',
-          },
-        ],
-        message: 'What to do with config?',
-        name: 'next',
-        type: 'expand',
-      },
-    ])) as { next: '' | 'deploy' | 'print' | 'save' };
+    const action = await this.promptService.menuSelect(
+      this.promptService.itemsFromEntries([
+        ['Describe', 'describe'],
+        ['Save', 'save'],
+      ]),
+    );
 
-    switch (result.next) {
-      case 'print':
+    switch (action) {
+      case CANCEL:
+        return;
+
+      case 'describe':
         this.promptService.clear();
         console.log(`\n`);
         console.log(
@@ -141,12 +144,10 @@ export class ConfigBuilderService implements iRepl {
         );
         console.log(ini.encode(config));
         return await this.handleConfig(config, application);
+
       case 'save':
         await this.systemService.writeConfig(application, config);
         return await this.handleConfig(config, application);
-
-      case 'deploy':
-        throw new NotImplementedException();
     }
   }
 
@@ -168,10 +169,7 @@ export class ConfigBuilderService implements iRepl {
           ? chalk.green('*')
           : chalk.yellow('*');
         const name = this.workspace.PACKAGES.get(item).displayName;
-        return {
-          name: `${tag} ${name}`,
-          value: item,
-        };
+        return [`${tag} ${name}`, item];
       });
   }
 
@@ -185,7 +183,8 @@ export class ConfigBuilderService implements iRepl {
   @Trace()
   private async scan(application: string): Promise<Set<ConfigTypeDTO>> {
     this.logger.debug(`Preparing scanner`);
-    const build = execa(`nx`, [
+    const build = execa(`npx`, [
+      `nx`,
       `build`,
       application,
       `--configuration=${SCAN_CONFIG_CONFIGURATION}`,

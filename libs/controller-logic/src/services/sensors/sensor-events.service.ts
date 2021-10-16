@@ -40,12 +40,12 @@ export class SensorEventsService {
 
   private readonly ACTIVE_MATCHERS = new Map<string, ActiveMatcher[]>();
   private readonly TIMERS = new Map<string, ReturnType<typeof setTimeout>>();
-  private readonly WATCHED_SENSORS = new Map<string, Watcher[]>();
+  private WATCHED_SENSORS = new Map<string, Watcher[]>();
 
   @OnEvent(ROOM_UPDATE)
   public async mountRooms(): Promise<void> {
     this.logger.info(`Mount room sensor events`);
-    this.clearSensors('room');
+    this.WATCHED_SENSORS = new Map();
     const rooms = await this.roomService.list();
     rooms.forEach((room) => {
       room.sensors ??= [];
@@ -183,7 +183,22 @@ export class SensorEventsService {
           });
         });
       });
-      this.ACTIVE_MATCHERS.set(entity_id, initialEvents);
+      const reduced = initialEvents.filter(
+        (item, index, array) =>
+          array.findIndex((a) => a.sensor.id === item.sensor.id) === index,
+      );
+      if (reduced.length !== initialEvents.length) {
+        this.logger.warn(
+          { dupCount: initialEvents.length - reduced.length },
+          `Duplicate sensor events found`,
+        );
+      }
+
+      this.logger.debug(
+        { count: reduced.length, entity_id },
+        `Init waterchers`,
+      );
+      this.ACTIVE_MATCHERS.set(entity_id, reduced);
     }
   }
 }
