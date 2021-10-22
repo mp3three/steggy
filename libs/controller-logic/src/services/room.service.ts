@@ -15,13 +15,16 @@ import {
   ROOM_ENTITY_TYPES,
   RoomDTO,
   RoomEntityDTO,
-  RoomSaveStateDTO,
   RoomSensorDTO,
-} from '../../contracts';
-import { EntityCommandRouterService } from '../entity-command-router.service';
-import { GroupService } from '../groups';
-import { LightManagerService } from '../light-manager.service';
-import { RoomPersistenceService } from '../persistence';
+  SaveStateDTO,
+} from '../contracts';
+import { EntityCommandRouterService } from './entity-command-router.service';
+import { GroupService } from './groups';
+import { LightManagerService } from './light-manager.service';
+import {
+  RoomPersistenceService,
+  SaveStatePersistenceService,
+} from './persistence';
 
 const EXPECTED_REMOVE_AMOUNT = 1;
 
@@ -33,32 +36,8 @@ export class RoomService {
     private readonly groupService: GroupService,
     private readonly lightManager: LightManagerService,
     private readonly commandRouter: EntityCommandRouterService,
+    private readonly statePersistence: SaveStatePersistenceService,
   ) {}
-
-  @Trace()
-  public async activateState(
-    room: RoomDTO | string,
-    state: string,
-  ): Promise<void> {
-    room = await this.load(room);
-    room.save_states ??= [];
-    const saveState = room.save_states.find(({ id }) => id === state);
-    if (!saveState) {
-      throw new NotFoundException(`Invalid room state`);
-    }
-    await each(saveState.entities ?? [], async (entity, callback) => {
-      await this.commandRouter.process(
-        entity.entity_id,
-        entity.state,
-        entity.extra as Record<string, unknown>,
-      );
-      callback();
-    });
-    await each(saveState.groups ?? [], async (group, callback) => {
-      await this.groupService.activateCommand(group.group, group);
-      callback();
-    });
-  }
 
   @Trace()
   public async addEntity(
@@ -85,12 +64,13 @@ export class RoomService {
   @Trace()
   public async addState(
     room: RoomDTO | string,
-    state: RoomSaveStateDTO,
+    state: SaveStateDTO,
   ): Promise<RoomDTO> {
     room = await this.load(room);
-    state.id = uuid();
+    state = BaseSchemaDTO.cleanup(state);
+    state = await this.statePersistence.create(state);
     room.save_states ??= [];
-    room.save_states.push(state);
+    room.save_states.push(state._id);
     return await this.roomPersistence.update(room, room._id);
   }
 

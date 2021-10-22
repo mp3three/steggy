@@ -17,11 +17,9 @@ import {
   LockGroupService,
   MetaGroupService,
   RemoteAdapterService,
-  RoomManagerService,
   RoomService,
   SensorEventsService,
   SolarCalcService,
-  StateManagerService,
   SwitchGroupService,
 } from '../services';
 import { HomePersistenceModule } from './home-persistence.module';
@@ -39,10 +37,8 @@ const providers = [
   CircadianService,
   EntityCommandRouterService,
   LightManagerService,
-  RoomManagerService,
   RoomService,
   SolarCalcService,
-  StateManagerService,
 ];
 
 @LibraryModule({

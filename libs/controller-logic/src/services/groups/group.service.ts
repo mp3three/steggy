@@ -8,14 +8,13 @@ import {
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 
-import type { BASE_STATES } from '../../contracts';
+import type { BASE_STATES, SaveStateDTO } from '../../contracts';
 import {
   BASIC_STATE,
   GROUP_TYPES,
   GroupDTO,
   GroupSaveStateDTO,
   LIGHTING_MODE,
-  RoomGroupSaveStateDTO,
 } from '../../contracts';
 import { EntityCommandRouterService } from '../entity-command-router.service';
 import { LightManagerService } from '../light-manager.service';
@@ -42,7 +41,7 @@ export class GroupService {
   @Trace()
   public async activateCommand(
     group: GroupDTO | string,
-    state: RoomGroupSaveStateDTO,
+    state: SaveStateDTO,
   ): Promise<void> {
     group = await this.load(group);
     const base = this.getBaseGroup(group.type);
@@ -142,6 +141,16 @@ export class GroupService {
   }
 
   @Trace()
+  public async load<T extends BASIC_STATE = BASIC_STATE>(
+    group: GroupDTO<T> | string,
+  ): Promise<GroupDTO<T>> {
+    if (typeof group === 'object') {
+      return group;
+    }
+    return await this.groupPersistence.findById(group);
+  }
+
+  @Trace()
   public async removeEntity<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
     group: GroupDTO | string,
     entity: string | string[],
@@ -218,15 +227,5 @@ export class GroupService {
         return this.lockGroup;
     }
     throw new NotImplementedException();
-  }
-
-  @Trace()
-  private async load<T extends BASIC_STATE = BASIC_STATE>(
-    group: GroupDTO<T> | string,
-  ): Promise<GroupDTO<T>> {
-    if (typeof group === 'object') {
-      return group;
-    }
-    return await this.groupPersistence.findById(group);
   }
 }

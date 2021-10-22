@@ -8,38 +8,36 @@ import {
   GroupSchema,
   RoomDTO,
   RoomSchema,
-  RoomStateDTO,
-  RoomStateSchema,
+  SaveStateDTO,
+  SaveStateSchema,
 } from '../contracts';
-import { DatabaseConnectService, StatePersistenceService } from '../services';
+import { DatabaseConnectService } from '../services';
 import {
   GroupPersistenceService,
   RoomPersistenceService,
+  SaveStatePersistenceService,
 } from '../services/persistence';
 
+const services = [
+  DatabaseConnectService,
+  GroupPersistenceService,
+  SaveStatePersistenceService,
+  RoomPersistenceService,
+];
+
 @LibraryModule({
-  exports: [
-    DatabaseConnectService,
-    GroupPersistenceService,
-    RoomPersistenceService,
-    StatePersistenceService,
-  ],
+  exports: services,
   imports: [
     MongoPersistenceModule,
     MongooseModule.forFeature([
       { name: GroupDTO.name, schema: GroupSchema },
       { name: RoomDTO.name, schema: RoomSchema },
-      { name: RoomStateDTO.name, schema: RoomStateSchema },
+      { name: SaveStateDTO.name, schema: SaveStateSchema },
     ]),
   ],
   library: LIB_CONTROLLER_LOGIC,
   local: true,
-  providers: [
-    DatabaseConnectService,
-    StatePersistenceService,
-    GroupPersistenceService,
-    RoomPersistenceService,
-  ],
+  providers: services,
 })
 export class HomePersistenceModule {
   public static forRoot(): DynamicModule {

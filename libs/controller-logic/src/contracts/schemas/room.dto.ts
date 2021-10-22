@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { Document } from 'mongoose';
 
-import { RoomSaveStateDTO, RoomSensorDTO } from '../rooms';
+import { RoomSensorDTO } from '../rooms';
 
 /**
  * Entity types describe the capability / expectations of the entity as it relates to the controller logic
@@ -73,6 +73,7 @@ export class RoomDTO {
     index: true,
   })
   public created?: Date;
+
   @IsNumber()
   @IsOptional()
   @Prop({ default: null, type: 'number' })
@@ -109,12 +110,13 @@ export class RoomDTO {
   })
   public modified?: Date;
 
-  @Prop()
+  @Prop({
+    type: [String],
+  })
   @Expose()
   @IsOptional()
-  @Type(() => RoomSaveStateDTO)
-  @ValidateNested({ each: true })
-  public save_states?: RoomSaveStateDTO[];
+  @IsString({ each: true })
+  public save_states?: string[];
 
   @Prop()
   @Expose()

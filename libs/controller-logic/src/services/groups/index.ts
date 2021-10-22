@@ -1,3 +1,4 @@
+export * from './base-group.service';
 export * from './fan-group.service';
 export * from './group.service';
 export * from './light-group.service';

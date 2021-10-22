@@ -3,6 +3,7 @@ import {
   RoomEntitySaveStateDTO,
   RoomGroupSaveStateDTO,
   RoomSaveStateDTO,
+  SaveStateDTO,
 } from '@automagical/controller-logic';
 import { CANCEL, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
@@ -25,7 +26,7 @@ export class RoomStateService {
     private readonly groupCommand: GroupCommandService,
   ) {}
 
-  public async create(room: RoomDTO): Promise<[RoomSaveStateDTO, RoomDTO]> {
+  public async create(room: RoomDTO): Promise<[SaveStateDTO, RoomDTO]> {
     const friendlyName = await this.promptService.string(`Friendly name`);
     if (room.save_states.some((state) => state.name === friendlyName)) {
       this.logger.error(`Choose a unique name`);

@@ -14,7 +14,6 @@ import {
 } from 'class-validator';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
-import { RoomSensorDTO } from '../rooms';
 import { RoomDTO } from './room.dto';
 
 export enum GROUP_TYPES {
