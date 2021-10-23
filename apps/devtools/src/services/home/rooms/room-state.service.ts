@@ -1,9 +1,7 @@
 import {
   RoomDTO,
   RoomEntitySaveStateDTO,
-  RoomGroupSaveStateDTO,
-  RoomSaveStateDTO,
-  SaveStateDTO,
+  RoutineDTO,
 } from '@automagical/controller-logic';
 import { CANCEL, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
@@ -16,6 +14,8 @@ import { EntityService } from '../entity.service';
 import { GroupCommandService } from '../groups';
 import { HomeFetchService } from '../home-fetch.service';
 
+const OFFSET = 1;
+
 @Injectable()
 export class RoomStateService {
   constructor(
@@ -26,23 +26,22 @@ export class RoomStateService {
     private readonly groupCommand: GroupCommandService,
   ) {}
 
-  public async create(room: RoomDTO): Promise<[SaveStateDTO, RoomDTO]> {
+  public async create(room: RoomDTO): Promise<[RoutineDTO, RoomDTO]> {
     const friendlyName = await this.promptService.string(`Friendly name`);
     if (room.save_states.some((state) => state.name === friendlyName)) {
       this.logger.error(`Choose a unique name`);
       return await this.create(room);
     }
     const entities: RoomEntitySaveStateDTO[] = await this.buildEntityList(room);
-    const groups: RoomGroupSaveStateDTO[] = await this.buildGroupList(room);
+    // const groups: RoomGroupSaveStateDTO[] = await this.buildGroupList(room);
     const newRoom = await this.fetchService.fetch<RoomDTO>({
       body: {
-        entities,
-        groups,
-        name: friendlyName,
-      } as RoomSaveStateDTO,
+        friendlyName,
+      } as RoutineDTO,
       method: 'post',
       url: `/room/${room._id}/state`,
     });
+    // const
     return [
       newRoom.save_states.find(({ name }) => name === friendlyName),
       newRoom,

@@ -14,8 +14,8 @@ import { CONCURRENT_CHANGES } from '../../config';
 import {
   GROUP_TYPES,
   GroupDTO,
+  GroupSetStateDTO,
   PersistenceLockStateDTO,
-  RoomGroupSaveStateDTO,
 } from '../../contracts';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
@@ -40,9 +40,9 @@ export class LockGroupService extends BaseGroupService {
   @Trace()
   public async activateCommand(
     group: GroupDTO | string,
-    state: RoomGroupSaveStateDTO,
+    state: GroupSetStateDTO,
   ): Promise<void> {
-    switch (state.action) {
+    switch (state.state) {
       case 'lock':
         await this.lock(group);
         return;
@@ -50,7 +50,7 @@ export class LockGroupService extends BaseGroupService {
         await this.unlock(group);
         return;
       default:
-        await this.activateState(group, state.action);
+        await this.activateState(group, state.state);
     }
   }
 

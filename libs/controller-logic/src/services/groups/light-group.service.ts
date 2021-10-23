@@ -13,9 +13,9 @@ import {
   BASIC_STATE,
   GROUP_TYPES,
   GroupDTO,
+  GroupSetStateDTO,
   LIGHTING_MODE,
   PersistenceLightStateDTO,
-  RoomGroupSaveStateDTO,
 } from '../../contracts';
 import { LightManagerService } from '../light-manager.service';
 import { GroupPersistenceService } from '../persistence';
@@ -23,6 +23,7 @@ import { BaseGroupService } from './base-group.service';
 
 type GroupParameter = GroupDTO<PersistenceLightStateDTO> | string;
 const START = 0;
+
 /**
  * Light groups are intended to work with just light domain devices
  */
@@ -46,9 +47,9 @@ export class LightGroupService extends BaseGroupService {
   @Trace()
   public async activateCommand(
     group: GroupParameter,
-    state: RoomGroupSaveStateDTO,
+    state: GroupSetStateDTO,
   ): Promise<void> {
-    switch (state.action) {
+    switch (state.state) {
       case 'turnOff':
         await this.turnOff(group);
         return;
@@ -59,7 +60,7 @@ export class LightGroupService extends BaseGroupService {
         await this.turnOn(group, true, state.extra?.brightness as number);
         return;
       default:
-        await this.activateState(group, state.action);
+        await this.activateState(group, state.state);
     }
   }
 

@@ -14,8 +14,8 @@ import { CONCURRENT_CHANGES } from '../../config';
 import {
   GROUP_TYPES,
   GroupDTO,
+  GroupSetStateDTO,
   PersistenceFanStateDTO,
-  RoomGroupSaveStateDTO,
 } from '../../contracts';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
@@ -39,9 +39,9 @@ export class FanGroupService extends BaseGroupService {
   @Trace()
   public async activateCommand(
     group: GroupDTO | string,
-    state: RoomGroupSaveStateDTO,
+    state: GroupSetStateDTO,
   ): Promise<void> {
-    switch (state.action) {
+    switch (state.state) {
       case 'turnOff':
         await this.turnOff(group);
         return;
@@ -49,7 +49,7 @@ export class FanGroupService extends BaseGroupService {
         await this.turnOn(group);
         return;
       default:
-        await this.activateState(group, state.action);
+        await this.activateState(group, state.state);
     }
   }
 

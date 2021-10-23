@@ -8,12 +8,15 @@ import {
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 
-import type { BASE_STATES, SaveStateDTO } from '../../contracts';
+import type {
+  BASE_STATES,
+  GroupSaveStateDTO,
+  GroupSetStateDTO,
+} from '../../contracts';
 import {
   BASIC_STATE,
   GROUP_TYPES,
   GroupDTO,
-  GroupSaveStateDTO,
   LIGHTING_MODE,
 } from '../../contracts';
 import { EntityCommandRouterService } from '../entity-command-router.service';
@@ -41,7 +44,7 @@ export class GroupService {
   @Trace()
   public async activateCommand(
     group: GroupDTO | string,
-    state: SaveStateDTO,
+    state: GroupSetStateDTO,
   ): Promise<void> {
     group = await this.load(group);
     const base = this.getBaseGroup(group.type);

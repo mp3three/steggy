@@ -15,7 +15,6 @@ import {
   NotImplementedException,
 } from '@nestjs/common';
 
-import { GroupDTO, ROOM_ENTITY_TYPES } from '../contracts';
 import { LightManagerService } from './light-manager.service';
 
 type FanBody = { speed: FanSpeeds };
@@ -74,19 +73,6 @@ export class EntityCommandRouterService {
         return;
     }
     throw new NotImplementedException();
-  }
-
-  public async processGroup(
-    group: GroupDTO | string,
-    command: string,
-    scope: ROOM_ENTITY_TYPES[],
-  ): Promise<void> {
-    // group = await this.groupService.get(group);
-    // switch (group.type) {
-    //   case GROUP_TYPES.light:
-    //   //
-    // }
-    //
   }
 
   private async climateEntity(

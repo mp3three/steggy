@@ -8,20 +8,20 @@ import {
   GroupSchema,
   RoomDTO,
   RoomSchema,
-  SaveStateDTO,
-  SaveStateSchema,
+  RoutineDTO,
+  RoutineSchema,
 } from '../contracts';
 import { DatabaseConnectService } from '../services';
 import {
   GroupPersistenceService,
   RoomPersistenceService,
-  SaveStatePersistenceService,
+  RoutinePersistenceService,
 } from '../services/persistence';
 
 const services = [
   DatabaseConnectService,
   GroupPersistenceService,
-  SaveStatePersistenceService,
+  RoutinePersistenceService,
   RoomPersistenceService,
 ];
 
@@ -32,7 +32,7 @@ const services = [
     MongooseModule.forFeature([
       { name: GroupDTO.name, schema: GroupSchema },
       { name: RoomDTO.name, schema: RoomSchema },
-      { name: SaveStateDTO.name, schema: SaveStateSchema },
+      { name: RoutineDTO.name, schema: RoutineSchema },
     ]),
   ],
   library: LIB_CONTROLLER_LOGIC,

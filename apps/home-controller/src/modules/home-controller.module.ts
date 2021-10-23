@@ -16,6 +16,7 @@ import {
   EntityController,
   GroupController,
   RoomController,
+  RoutineController,
 } from '../controllers';
 import { ApplicationService } from '../services';
 
@@ -27,6 +28,7 @@ import { ApplicationService } from '../services';
     EntityController,
     GroupController,
     RoomController,
+    RoutineController,
   ],
   imports: [
     MQTTModule,

@@ -2,7 +2,6 @@ import {
   GROUP_TYPES,
   GroupDTO,
   GroupSaveStateDTO,
-  RoomGroupSaveStateDTO,
 } from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
 import {
@@ -26,6 +25,14 @@ import { LightGroupCommandService } from './light-group-command.service';
 export type GroupItem = { entities: string[]; name: string; room: string };
 
 @Repl({
+  description: [
+    `Groups are collections of like entities that all act in a coordinated way.`,
+    ``,
+    ` - Light Group`,
+    ` - Switch Group`,
+    ` - Lock Group`,
+    ` - Fan Group`
+  ],
   icon: FontAwesomeIcons.group,
   name: `Groups`,
   type: REPL_TYPE.home,

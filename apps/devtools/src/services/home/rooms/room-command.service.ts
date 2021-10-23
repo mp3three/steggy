@@ -38,7 +38,10 @@ import { RoomStateService } from './room-state.service';
 const UP = 1;
 const DOWN = -1;
 @Repl({
-  description: [`Commands scoped to a single room`],
+  description: [
+    `Rooms can contain groups and entitites, and are intended to manage the state of all items inside of it as a whole.`,
+    `Rooms can observe entities for state changes, and trigger routines to make changes to the state.`,
+  ],
   icon: MDIIcons.television_box,
   name: `Rooms`,
   type: REPL_TYPE.home,

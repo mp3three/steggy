@@ -1,4 +1,8 @@
-import { BaseMongoService, BaseSchemaDTO } from '@automagical/persistence';
+import {
+  BaseMongoService,
+  BaseSchemaDTO,
+  EncryptionService,
+} from '@automagical/persistence';
 import {
   AutoLogService,
   ResultControlDTO,
@@ -20,6 +24,7 @@ export class RoomPersistenceService extends BaseMongoService {
     private readonly logger: AutoLogService,
     @InjectModel(RoomDTO.name)
     private readonly roomModel: Model<RoomDocument>,
+    private readonly encryptService: EncryptionService,
   ) {
     super();
   }
@@ -27,9 +32,10 @@ export class RoomPersistenceService extends BaseMongoService {
   @Trace()
   @ToClass(RoomDTO)
   public async create(
-    state: Omit<RoomDTO, keyof BaseSchemaDTO>,
+    room: Omit<RoomDTO, keyof BaseSchemaDTO>,
   ): Promise<RoomDTO> {
-    const room = (await this.roomModel.create(state)).toObject();
+    room = this.encrypt(room);
+    room = (await this.roomModel.create(room)).toObject();
     this.eventEmitter.emit(ROOM_UPDATE);
     return room;
   }
@@ -55,40 +61,20 @@ export class RoomPersistenceService extends BaseMongoService {
     { control }: { control?: ResultControlDTO } = {},
   ): Promise<RoomDTO> {
     const query = this.merge(state, control);
-    return await this.modifyQuery(control, this.roomModel.findOne(query))
+    const out = await this.modifyQuery(control, this.roomModel.findOne(query))
       .lean()
       .exec();
-  }
-
-  @Trace()
-  @ToClass(RoomDTO)
-  public async findByName(
-    state: string,
-    { control }: { control: ResultControlDTO },
-  ): Promise<RoomDTO> {
-    const query = this.merge(
-      {
-        filters: new Set([
-          {
-            field: 'name',
-            value: state,
-          },
-        ]),
-      },
-      control,
-    );
-    return await this.modifyQuery(control, this.roomModel.findOne(query))
-      .lean()
-      .exec();
+    return this.decrypt(out);
   }
 
   @Trace()
   @ToClass(RoomDTO)
   public async findMany(control: ResultControlDTO = {}): Promise<RoomDTO[]> {
     const query = this.merge(control);
-    return await this.modifyQuery(control, this.roomModel.find(query))
+    const out = await this.modifyQuery(control, this.roomModel.find(query))
       .lean()
       .exec();
+    return this.decrypt(out);
   }
 
   @Trace()
@@ -102,5 +88,19 @@ export class RoomPersistenceService extends BaseMongoService {
       this.eventEmitter.emit(ROOM_UPDATE);
       return await this.findById(id);
     }
+  }
+
+  @Trace()
+  private decrypt<T extends RoomDTO | RoomDTO[]>(room: T): T {
+    if (Array.isArray(room)) {
+      return room.map((x) => this.decrypt(x)) as T;
+    }
+    return room;
+  }
+
+  @Trace()
+  private encrypt({ settings, ...room }: RoomDTO): RoomDTO {
+    room['settings_encrypted'] = this.encryptService.encrypt(settings ?? {});
+    return room;
   }
 }

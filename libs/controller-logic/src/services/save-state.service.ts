@@ -2,7 +2,7 @@ import { AutoLogService, Trace } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 
-import { GROUP_TYPES, SaveStateDTO } from '../contracts';
+import { GROUP_TYPES, RoutineDTO } from '../contracts';
 import { EntityCommandRouterService } from './entity-command-router.service';
 import {
   BaseGroupService,
@@ -12,13 +12,13 @@ import {
   LockGroupService,
   SwitchGroupService,
 } from './groups';
-import { SaveStatePersistenceService } from './persistence';
+import { RoutinePersistenceService } from './persistence';
 
 @Injectable()
 export class SaveStateService {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly persistence: SaveStatePersistenceService,
+    private readonly persistence: RoutinePersistenceService,
     private readonly commandRouter: EntityCommandRouterService,
     private readonly lightGroup: LightGroupService,
     private readonly lockGroup: LockGroupService,
@@ -28,7 +28,7 @@ export class SaveStateService {
   ) {}
 
   @Trace()
-  public async activate(state: SaveStateDTO | string): Promise<void> {
+  public async activate(state: RoutineDTO | string): Promise<void> {
     state = await this.load(state);
     await Promise.all([
       await this.activateEntities(state),
@@ -37,7 +37,7 @@ export class SaveStateService {
   }
 
   @Trace()
-  private async activateEntities(state: SaveStateDTO): Promise<void> {
+  private async activateEntities(state: RoutineDTO): Promise<void> {
     await each(state.entities, async (entity, callback) => {
       await this.commandRouter.process(
         entity.entity_id,
@@ -49,7 +49,7 @@ export class SaveStateService {
   }
 
   @Trace()
-  private async activateGroup(state: SaveStateDTO): Promise<void> {
+  private async activateGroup(state: RoutineDTO): Promise<void> {
     await each(Object.entries(state.groups), async ([id, state], callback) => {
       const group = await this.groupService.load(id);
       const base = this.getBaseGroup(group.type);
@@ -74,7 +74,7 @@ export class SaveStateService {
   }
 
   @Trace()
-  private async load(state: SaveStateDTO | string): Promise<SaveStateDTO> {
+  private async load(state: RoutineDTO | string): Promise<RoutineDTO> {
     state = typeof state === 'string' ? state : state._id;
     return await this.persistence.findById(state);
   }

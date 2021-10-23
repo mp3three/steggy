@@ -55,10 +55,7 @@ export class EncryptionService {
   }
 
   @Trace()
-  public encrypt(
-    data: Record<string, unknown>,
-    secret: string = this.secret,
-  ): Buffer {
+  public encrypt(data: unknown, secret: string = this.secret): Buffer {
     if (!data) {
       return;
     }
