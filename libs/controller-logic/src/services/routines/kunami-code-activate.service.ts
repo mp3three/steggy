@@ -30,7 +30,7 @@ type Watcher = KunamiSensor & {
   watcherType: 'room' | 'group';
 };
 @Injectable()
-export class RoutineService {
+export class KunamiCodeActivateService {
   constructor(
     private readonly logger: AutoLogService,
     @InjectConfig(KUNAMI_TIMEOUT) private readonly kunamiTimeout: number,

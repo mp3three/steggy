@@ -33,6 +33,7 @@ export class RoutinePersistenceService extends BaseMongoService {
     const out = (
       await this.model.create(state)
     ).toObject() as RoutineDTO<GROUP_TYPE>;
+    this.eventEmitter.emit(ROUTINE_UPDATE);
     return out;
   }
 
@@ -81,6 +82,7 @@ export class RoutinePersistenceService extends BaseMongoService {
     const query = this.merge(id);
     const result = await this.model.updateOne(query, state).exec();
     if (result.ok === OK_RESPONSE) {
+      this.eventEmitter.emit(ROUTINE_UPDATE);
       return await this.findById(id);
     }
   }
