@@ -103,27 +103,27 @@ export class GroupDTO<GROUP_STATE extends BASIC_STATE = BASIC_STATE> {
 
 export class GroupSaveStateDTO<SAVE_STATE extends BASIC_STATE = BASIC_STATE> {
   /**
-   * Generated id
-   */
-  @Expose()
-  @IsString()
-  @Optional()
-  id?: string;
-
-  /**
    * Human readable name for the save state
    */
   @IsString()
   @Expose()
   @MinLength(2)
-  name: string;
+  public friendlyName: string;
+
+  /**
+   * Generated id
+   */
+  @Expose()
+  @IsString()
+  @Optional()
+  public id?: string;
 
   /**
    * Saved states
    */
   @IsArray()
   @Expose()
-  states: SAVE_STATE[];
+  public states: SAVE_STATE[];
 }
 
 export type GroupDocument = GroupDTO & Document;

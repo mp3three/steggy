@@ -91,7 +91,7 @@ export class KunamiBuilderService {
       out.saveStateId = await this.promptService.pickOne(
         `Which state`,
         group.save_states.map((save) => ({
-          name: save.name,
+          name: save.friendlyName,
           value: save.id,
         })),
       );

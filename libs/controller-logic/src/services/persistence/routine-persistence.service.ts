@@ -11,7 +11,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { EventEmitter2 } from 'eventemitter2';
 import { Model } from 'mongoose';
 
-import { BASIC_STATE, ROUTINE_UPDATE } from '../../contracts';
+import { ROUTINE_UPDATE } from '../../contracts';
+
 const OK_RESPONSE = 1;
 
 @Injectable()
@@ -27,12 +28,8 @@ export class RoutinePersistenceService extends BaseMongoService {
 
   @Trace()
   @ToClass(RoutineDTO)
-  public async create<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
-    state: RoutineDTO<GROUP_TYPE>,
-  ): Promise<RoutineDTO<GROUP_TYPE>> {
-    const out = (
-      await this.model.create(state)
-    ).toObject() as RoutineDTO<GROUP_TYPE>;
+  public async create(state: RoutineDTO): Promise<RoutineDTO> {
+    const out = (await this.model.create(state)).toObject() as RoutineDTO;
     this.eventEmitter.emit(ROUTINE_UPDATE);
     return out;
   }
@@ -52,33 +49,31 @@ export class RoutinePersistenceService extends BaseMongoService {
 
   @Trace()
   @ToClass(RoutineDTO)
-  public async findById<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+  public async findById(
     state: string,
     { control }: { control?: ResultControlDTO } = {},
-  ): Promise<RoutineDTO<GROUP_TYPE>> {
+  ): Promise<RoutineDTO> {
     const query = this.merge(state, control);
     return (await this.modifyQuery(control, this.model.findOne(query))
       .lean()
-      .exec()) as RoutineDTO<GROUP_TYPE>;
+      .exec()) as RoutineDTO;
   }
 
   @Trace()
   @ToClass(RoutineDTO)
-  public async findMany<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
-    control: ResultControlDTO = {},
-  ): Promise<RoutineDTO<GROUP_TYPE>[]> {
+  public async findMany(control: ResultControlDTO = {}): Promise<RoutineDTO[]> {
     const query = this.merge(control);
     const out = (await this.modifyQuery(control, this.model.find(query))
       .lean()
-      .exec()) as RoutineDTO<GROUP_TYPE>[];
+      .exec()) as RoutineDTO[];
     return out;
   }
 
   @Trace()
-  public async update<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+  public async update(
     state: Omit<Partial<RoutineDTO>, keyof BaseSchemaDTO>,
     id: string,
-  ): Promise<RoutineDTO<GROUP_TYPE>> {
+  ): Promise<RoutineDTO> {
     const query = this.merge(id);
     const result = await this.model.updateOne(query, state).exec();
     if (result.ok === OK_RESPONSE) {

@@ -19,16 +19,14 @@ import {
   GroupStateService,
   HomeFetchService,
   ImgurAlbumDownloadService,
-  KunamiBuilderService,
   LightGroupCommandService,
   LightService,
   LockService,
   MediaService,
   RoomCommandService,
-  RoomSensorsService,
-  RoomStateService,
   SwitchService,
 } from '../services';
+import { RoutineCommandService } from '../services/home/routines';
 
 @ApplicationModule({
   application: APP_DEVTOOLS,
@@ -54,12 +52,8 @@ import {
       DeviceService,
       EntityService,
       HomeFetchService,
-      ...[
-        KunamiBuilderService,
-        RoomCommandService,
-        RoomSensorsService,
-        RoomStateService,
-      ],
+      ...[RoomCommandService],
+      ...[RoutineCommandService],
     ],
     ...[ChangelogService, ConfigBuilderService],
     ...[ImgurAlbumDownloadService],

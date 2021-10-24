@@ -2,9 +2,6 @@ import {
   CONCURRENT_CHANGES,
   GROUP_TYPES,
   GroupDTO,
-  KunamiSensor,
-  ROOM_ENTITY_TYPES,
-  ROOM_SENSOR_TYPE,
   RoomDTO,
   RoomEntityDTO,
 } from '@automagical/controller-logic';
@@ -26,14 +23,11 @@ import { eachLimit } from 'async';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 
-import { LightService } from '../domains';
-import { EntityService } from '../entity.service';
-import { LightGroupCommandService } from '../groups';
-import { GroupCommandService } from '../groups/group-command.service';
-import { HomeFetchService } from '../home-fetch.service';
-import { KunamiBuilderService } from './kunami-builder.service';
-import { RoomSensorsService } from './room-sensors.service';
-import { RoomStateService } from './room-state.service';
+import { LightService } from './domains';
+import { EntityService } from './entity.service';
+import { LightGroupCommandService } from './groups';
+import { GroupCommandService } from './groups/group-command.service';
+import { HomeFetchService } from './home-fetch.service';
 
 const UP = 1;
 const DOWN = -1;
@@ -55,9 +49,6 @@ export class RoomCommandService {
     private readonly entityService: EntityService,
     private readonly lightDomain: LightService,
     private readonly lightService: LightGroupCommandService,
-    private readonly kunamiBuilder: KunamiBuilderService,
-    private readonly roomSensorsService: RoomSensorsService,
-    private readonly stateManager: RoomStateService,
     @InjectConfig(CONCURRENT_CHANGES, LIB_CONTROLLER_LOGIC)
     private readonly concurrentChanges: number,
   ) {}
@@ -130,8 +121,6 @@ export class RoomCommandService {
           ['Entities', 'entities'],
           ['Groups', 'groups'],
           ['Rename', 'rename'],
-          ['Sensor Commands', 'sensorCommands'],
-          ['State Manager', 'state'],
         ]),
       ],
       undefined,
@@ -143,12 +132,6 @@ export class RoomCommandService {
         return await this.processRoom(room, action);
       case 'dimUp':
         await this.dimUp(room);
-        return await this.processRoom(room, action);
-      case 'state':
-        await this.stateManager.exec(room);
-        return await this.processRoom(room, action);
-      case 'sensorCommands':
-        room = (await this.roomSensorsService.exec(room)) || room;
         return await this.processRoom(room, action);
       case 'rename':
         room.friendlyName = await this.promptService.string(
@@ -199,18 +182,10 @@ export class RoomCommandService {
       ],
       omit,
     );
-    const primary = await this.promptService.pickMany(
-      `Primary devices`,
-      ids.filter((id) =>
-        [HASS_DOMAINS.light, HASS_DOMAINS.switch].includes(domain(id)),
-      ),
-    );
 
     return ids.map((entity_id) => ({
       entity_id,
-      type: primary.includes(entity_id)
-        ? ROOM_ENTITY_TYPES.normal
-        : ROOM_ENTITY_TYPES.accessory,
+      tags: [],
     }));
   }
 
@@ -341,9 +316,9 @@ export class RoomCommandService {
       case 'remove':
         const removeList = await this.promptService.pickMany(
           `Which entities should be removed?`,
-          room.entities.map((item) => ({
-            name: `${item.entity_id} ${item.type}`,
-            value: item.entity_id,
+          room.entities.map(({ entity_id, tags = [] }) => ({
+            name: `${entity_id} {${tags.join(', ')}}`,
+            value: entity_id,
           })),
         );
         await this.update({

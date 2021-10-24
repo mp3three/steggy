@@ -42,11 +42,6 @@
             "output": "./assets/terminal"
           },
           {
-            "input": "libs/portainer",
-            "glob": "automagical.json",
-            "output": "./assets/portainer"
-          },
-          {
             "input": "apps/devtools",
             "glob": "automagical.json",
             "output": "./assets/devtools"

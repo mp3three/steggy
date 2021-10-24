@@ -31,7 +31,7 @@ export type GroupItem = { entities: string[]; name: string; room: string };
     ` - Light Group`,
     ` - Switch Group`,
     ` - Lock Group`,
-    ` - Fan Group`
+    ` - Fan Group`,
   ],
   icon: FontAwesomeIcons.group,
   name: `Groups`,
@@ -222,59 +222,6 @@ export class GroupCommandService implements iRepl {
         this.logger.error({ action, type: group.type }, `Bad action`);
     }
     await this.process(group, list, action);
-  }
-
-  public async roomSaveAction(
-    group: GroupDTO,
-    defaultValue?: RoomGroupSaveStateDTO,
-  ): Promise<RoomGroupSaveStateDTO> {
-    console.log(chalk`{magenta ${group.friendlyName}} state action`);
-    group.save_states ??= [];
-    let defaultAction: GroupSaveStateDTO | string;
-    if (defaultValue) {
-      defaultAction = group.save_states.find(
-        ({ id }) => id === defaultValue.action,
-      );
-    }
-    const action = await this.promptService.pickOne<GroupSaveStateDTO | string>(
-      `What should this group do?`,
-      [
-        new inquirer.Separator(`Activate general command`),
-        ...this.groupActions(group.type).map((i) => ({ name: i, value: i })),
-        new inquirer.Separator(`Load save state`),
-        ...group.save_states.map((save) => ({ name: save.name, value: save })),
-      ],
-      defaultAction,
-    );
-    if (typeof action === 'string') {
-      if (
-        group.type === GROUP_TYPES.light &&
-        ['turnOn', 'circadianLight'].includes(action)
-      ) {
-        let brightness: number;
-        if (await this.promptService.confirm(`Set brightness`)) {
-          brightness = await this.promptService.number(
-            `Brightness value (1-255)`,
-            defaultValue?.extra?.brightness as number,
-          );
-        }
-        return {
-          action,
-          extra: {
-            brightness,
-          },
-          group: group._id,
-        };
-      }
-      return {
-        action,
-        group: group._id,
-      };
-    }
-    return {
-      action: action.id,
-      group: group._id,
-    };
   }
 
   private async describeGroup(group: GroupDTO): Promise<string> {

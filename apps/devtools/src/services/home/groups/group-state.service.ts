@@ -37,7 +37,7 @@ export class GroupStateService {
       ...(!IsEmpty(group.save_states)
         ? [
             ...group.save_states.map((state) => ({
-              name: state.name,
+              name: state.friendlyName,
               value: state,
             })),
             new inquirer.Separator(),
@@ -95,7 +95,10 @@ export class GroupStateService {
       await this.sendSaveState(state, group);
       return;
     }
-    const name = await this.promptService.string(`New state name`, state.name);
+    const name = await this.promptService.string(
+      `New state name`,
+      state.friendlyName,
+    );
     await this.fetchService.fetch({
       body: {
         name,

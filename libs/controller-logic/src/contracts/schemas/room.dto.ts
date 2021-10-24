@@ -61,7 +61,7 @@ export class RoomDTO {
   public friendlyName: string;
 
   /**
-   * Reference to group entries. References the `name` attribute of the group
+   * Reference to group entries
    */
   @IsOptional()
   @Prop({ type: [String] })
@@ -90,7 +90,7 @@ export class RoomDTO {
   @Exclude()
   @Prop()
   /**
-   * Encrpyted json from project settings
+   * Encrypted json from project settings
    */
   protected settings_encrypted?: string;
 }

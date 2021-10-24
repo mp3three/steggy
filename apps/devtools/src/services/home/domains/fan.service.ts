@@ -1,4 +1,7 @@
-import { RoomEntitySaveStateDTO } from '@automagical/controller-logic';
+import {
+  FanCacheDTO,
+  RoomEntitySaveStateDTO,
+} from '@automagical/controller-logic';
 import { FanSpeeds, FanStateDTO } from '@automagical/home-assistant';
 import { CANCEL, PromptMenuItems } from '@automagical/tty';
 import { TitleCase } from '@automagical/utilities';
@@ -10,7 +13,7 @@ import { SwitchService } from './switch.service';
 export class FanService extends SwitchService {
   public async createSaveState(
     entity_id: string,
-    current?: RoomEntitySaveStateDTO,
+    current?: RoomEntitySaveStateDTO<FanCacheDTO>,
   ): Promise<RoomEntitySaveStateDTO> {
     const entity = await this.fetchService.fetch<FanStateDTO>({
       url: `/entity/id/${entity_id}`,

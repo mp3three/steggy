@@ -45,7 +45,7 @@ export abstract class BaseGroupService {
       );
       return;
     }
-    this.logger.debug(`Activate state {${state.name}}`);
+    this.logger.debug(`Activate state {${state.friendlyName}}`);
     await this.setState(group.entities, state.states);
   }
 
@@ -75,7 +75,7 @@ export abstract class BaseGroupService {
     group.save_states ??= [];
     group.save_states.push({
       id,
-      name,
+      friendlyName: name,
       states,
     });
     await this.groupPersistence.update(group, group._id);
@@ -126,7 +126,7 @@ export abstract class BaseGroupService {
     }
     this.logger.info(
       { id: state.id },
-      `Loading state [${group.friendlyName}] {${state.name}}`,
+      `Loading state [${group.friendlyName}] {${state.friendlyName}}`,
     );
     await this.setState(group.entities, state.states);
     this.logger.debug({ id: state.id }, `Done`);

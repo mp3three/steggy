@@ -1,4 +1,8 @@
-import { RoomEntitySaveStateDTO } from '@automagical/controller-logic';
+import {
+  FanCacheDTO,
+  LightingCacheDTO,
+  RoomEntitySaveStateDTO,
+} from '@automagical/controller-logic';
 import {
   domain,
   HASS_DOMAINS,
@@ -72,11 +76,17 @@ export class EntityService implements iRepl {
   ): Promise<RoomEntitySaveStateDTO> {
     switch (domain(entity_id)) {
       case HASS_DOMAINS.light:
-        return await this.lightService.createSaveState(entity_id, current);
+        return await this.lightService.createSaveState(
+          entity_id,
+          current as RoomEntitySaveStateDTO<LightingCacheDTO>,
+        );
       case HASS_DOMAINS.switch:
         return await this.switchService.createSaveState(entity_id, current);
       case HASS_DOMAINS.fan:
-        return await this.fanService.createSaveState(entity_id, current);
+        return await this.fanService.createSaveState(
+          entity_id,
+          current as RoomEntitySaveStateDTO<FanCacheDTO>,
+        );
       case HASS_DOMAINS.media_player:
         return await this.mediaService.createSaveState(entity_id, current);
       case HASS_DOMAINS.lock:
