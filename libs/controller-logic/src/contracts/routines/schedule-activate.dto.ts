@@ -1,4 +1,4 @@
-export class ScheduleActivate {
+export class ScheduleActivateDTO {
   /**
    * Cron schedule
    */

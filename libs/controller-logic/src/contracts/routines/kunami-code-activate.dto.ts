@@ -1,5 +1,13 @@
 export class KunamiCodeActivateDTO {
   /**
+   * Normally a watcher must wait 1500 as a "cooling off" / "waiting for more states to match with to come in"
+   *
+   * - self: after activating, reset the progress of this particular activate event so it can re-activate immediately
+   *
+   * - sensor: reset ALL kunami activate watchers attached to this sensor as if that 1500 seconds happened immediately
+   */
+  public immediateReset?: 'self' | 'sensor';
+  /**
    * States from controller to match
    */
   public match: string[];

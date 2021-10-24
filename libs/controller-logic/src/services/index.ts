@@ -5,5 +5,4 @@ export * from './light-manager.service';
 export * from './persistence';
 export * from './room.service';
 export * from './save-state.service';
-export * from './sensors';
 export * from './solar-calc.service';

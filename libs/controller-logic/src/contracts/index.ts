@@ -6,4 +6,5 @@ export * from './express';
 export * from './group-set-state.dto';
 export * from './room-controller';
 export * from './rooms';
+export * from './routines';
 export * from './schemas';

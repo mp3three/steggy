@@ -4,6 +4,7 @@ export * from './cache-provider.service';
 export * from './event-emitter.service';
 export * from './events-explorer.service';
 export * from './fetch';
+export * from './json-filter.service';
 export * from './lifecycle.service';
 export * from './logger';
 export * from './module-scanner.service';

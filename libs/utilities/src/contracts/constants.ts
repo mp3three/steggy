@@ -1,4 +1,8 @@
 export const EMPTY = 0;
+
+/**
+ * The general purpose sanity checker that keeps the linter happiest
+ */
 export function IsEmpty(
   type: string | Array<unknown> | Set<unknown> | Map<unknown, unknown>,
 ): boolean {

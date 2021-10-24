@@ -107,6 +107,9 @@ export class ResultControlDTO {
   public sort?: string[];
 }
 
+// Related logic:
+//  - JSONFilterService
+//  - mongo persistence
 export enum FILTER_OPERATIONS {
   regex = 'regex',
   in = 'in',

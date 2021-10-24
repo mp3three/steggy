@@ -3,7 +3,6 @@ import {
   RoomDTO,
   RoomEntityDTO,
   RoomService,
-  SensorEventsService,
 } from '@automagical/controller-logic';
 import { BaseSchemaDTO } from '@automagical/persistence';
 import {
@@ -25,10 +24,7 @@ import {
 @Controller('/room')
 @AuthStack()
 export class RoomController {
-  constructor(
-    private readonly roomService: RoomService,
-    private readonly sensorEvents: SensorEventsService,
-  ) {}
+  constructor(private readonly roomService: RoomService) {}
 
   @Post(`/:room/entity`)
   public async addEntity(
@@ -83,15 +79,6 @@ export class RoomController {
   @Get('/')
   public async list(@Locals() { control }: ResponseLocals): Promise<RoomDTO[]> {
     return await this.roomService.list(control);
-  }
-
-  @Post(`/:room/sensor/:sensor`)
-  public async triggerSensor(
-    @Param('room') room: string,
-    @Param('sensor') sensor: string,
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.sensorEvents.trigger(room, sensor);
-    return GENERIC_SUCCESS_RESPONSE;
   }
 
   @Put(`/:room/turnOff`)
