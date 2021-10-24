@@ -6,3 +6,4 @@ export * from './groups';
 export * from './home-command.service';
 export * from './home-fetch.service';
 export * from './room-command.service';
+export * from './routines';

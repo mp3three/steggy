@@ -7,7 +7,12 @@ import {
   RoomSaveStateDTO,
 } from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
-import { CANCEL, PromptMenuItems, PromptService } from '@automagical/tty';
+import {
+  CANCEL,
+  PromptEntry,
+  PromptMenuItems,
+  PromptService,
+} from '@automagical/tty';
 import { AutoLogService, IsEmpty, sleep } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
@@ -34,69 +39,8 @@ export class KunamiBuilderService {
     private readonly groupService: GroupCommandService,
   ) {}
 
-  public async buildGroupCommand(group?: GroupDTO): Promise<GroupCommand> {
-    const actions: PromptMenuItems = [];
-    if (group.type === GROUP_TYPES.lock) {
-      actions.push(
-        ...this.promptService.itemsFromEntries([
-          ['Lock', 'lock'],
-          ['Unlock', 'unlock'],
-        ]),
-      );
-    }
-    if (
-      [GROUP_TYPES.fan, GROUP_TYPES.light, GROUP_TYPES.switch].includes(
-        group.type,
-      )
-    ) {
-      actions.push(
-        ...this.promptService.itemsFromEntries([
-          ['Turn On', 'turnOn'],
-          ['Turn Off', 'turnOff'],
-        ]),
-      );
-    }
-    if (group.type === GROUP_TYPES.light) {
-      actions.push(
-        ...this.promptService.itemsFromEntries([
-          ['Circadian Light', 'circadianLight'],
-          ['Dim Down', 'dimDown'],
-          ['Dim Up', 'dimUp'],
-        ]),
-      );
-    }
-    if (group.type === GROUP_TYPES.fan) {
-      actions.push(
-        ...this.promptService.itemsFromEntries([
-          ['Fan Seed Up', 'fanSpeedUp'],
-          ['Fan Speed Down', 'fanSpeedDown'],
-        ]),
-      );
-    }
-    if (!IsEmpty(group.save_states)) {
-      actions.push({
-        name: 'Set State',
-        value: 'setState',
-      });
-    }
-
-    const command = await this.promptService.pickOne(
-      `Sequence action`,
-      actions,
-    );
-    const out: GroupCommand = {
-      command,
-    };
-    if (command === 'setState') {
-      out.saveStateId = await this.promptService.pickOne(
-        `Which state`,
-        group.save_states.map((save) => ({
-          name: save.friendlyName,
-          value: save.id,
-        })),
-      );
-    }
-    return out;
+  public async build(): Promise<void> {
+    //
   }
 
   public async buildRoomCommand(
@@ -106,25 +50,24 @@ export class KunamiBuilderService {
     room.save_states ??= [];
 
     // THE COMMAND KRAKEN!
-    const actions = this.promptService.itemsFromEntries([
-      // Create a new state, then use it as the target action
-      ['Set State (create new)', 'createState'],
-      // Select from an existing option
-      ...this.promptService.conditionalEntries<RoomSaveStateDTO | string>(
-        !IsEmpty(room.save_states),
-        [
-          new inquirer.Separator(`Activate existing state`),
-          ...(room.save_states.map((state) => [state.name, state]) as [
-            string,
-            RoomSaveStateDTO,
-          ][]),
-        ],
-      ),
-    ]);
 
     // Ask what to do
     let command = await this.promptService.menuSelect(
-      actions,
+      [
+        // Create a new state, then use it as the target action
+        ['Set State (create new)', 'createState'],
+        // Select from an existing option
+        ...this.promptService.conditionalEntries<RoomSaveStateDTO | string>(
+          !IsEmpty(room.save_states),
+          [
+            new inquirer.Separator(`Activate existing state`),
+            ...(room.save_states.map((state) => [state.name, state]) as [
+              string,
+              RoomSaveStateDTO,
+            ][]),
+          ],
+        ),
+      ],
       `What to do on activate?`,
       room.save_states.find((state) => state.id === current?.saveStateId),
     );

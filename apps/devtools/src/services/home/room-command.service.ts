@@ -9,6 +9,7 @@ import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import {
   CANCEL,
   MDIIcons,
+  PromptEntry,
   PromptService,
   Repl,
   REPL_TYPE,
@@ -31,6 +32,7 @@ import { HomeFetchService } from './home-fetch.service';
 
 const UP = 1;
 const DOWN = -1;
+const NAME = 0;
 @Repl({
   description: [
     `Rooms can contain groups and entitites, and are intended to manage the state of all items inside of it as a whole.`,
@@ -76,17 +78,14 @@ export class RoomCommandService {
       url: `/room`,
     });
     let room = await this.promptService.menuSelect<RoomDTO | string>([
-      ...rooms
-        .map((room) => ({
-          name: room.friendlyName,
-          value: room,
-        }))
-        .sort((a, b) => (a.name > b.name ? UP : DOWN)),
+      ...(rooms
+        .map((room) => [room.friendlyName, room])
+        .sort((a, b) => (a[NAME] > b[NAME] ? UP : DOWN)) as [
+        string,
+        RoomDTO,
+      ][]),
       new inquirer.Separator(),
-      {
-        name: 'Create',
-        value: 'create',
-      },
+      [`Create`, 'create'],
     ]);
     if (room === CANCEL) {
       return;
@@ -108,20 +107,16 @@ export class RoomCommandService {
     this.promptService.header(room.friendlyName);
     const action = await this.promptService.menuSelect(
       [
-        ...this.promptService.itemsFromEntries([
-          ['Turn On', 'turnOn'],
-          ['Turn Off', 'turnOff'],
-          ['Dim Up', 'dimUp'],
-          ['Dim Down', 'dimDown'],
-        ]),
+        ['Turn On', 'turnOn'],
+        ['Turn Off', 'turnOff'],
+        ['Dim Up', 'dimUp'],
+        ['Dim Down', 'dimDown'],
         new inquirer.Separator(),
-        ...this.promptService.itemsFromEntries([
-          ['Delete', 'delete'],
-          ['Describe', 'describe'],
-          ['Entities', 'entities'],
-          ['Groups', 'groups'],
-          ['Rename', 'rename'],
-        ]),
+        ['Delete', 'delete'],
+        ['Describe', 'describe'],
+        ['Entities', 'entities'],
+        ['Groups', 'groups'],
+        ['Rename', 'rename'],
       ],
       undefined,
       defaultAction,
@@ -234,14 +229,11 @@ export class RoomCommandService {
   }
 
   private async groupBuilder(current: string[] = []): Promise<string[]> {
-    const action = await this.promptService.pickOne(
-      `Group actions`,
-      this.promptService.itemsFromEntries([
-        ['Create new', 'create'],
-        ['Use existing', 'existing'],
-        ['Done', 'done'],
-      ]),
-    );
+    const action = await this.promptService.pickOne(`Group actions`, [
+      ['Create new', 'create'],
+      ['Use existing', 'existing'],
+      ['Done', 'done'],
+    ]);
     switch (action) {
       //
       case 'create':
@@ -259,10 +251,7 @@ export class RoomCommandService {
           `Groups to attach`,
           groups
             .filter(({ _id }) => !current.includes(_id))
-            .map((group) => ({
-              name: group.friendlyName,
-              value: group,
-            })),
+            .map((group) => [group.friendlyName, group]),
         );
         if (IsEmpty(selection)) {
           this.logger.warn(`No groups selected`);
@@ -277,23 +266,12 @@ export class RoomCommandService {
 
   private async roomEntities(room: RoomDTO): Promise<void> {
     room.entities ??= [];
-    const actions = [
-      {
-        name: 'Add',
-        value: 'add',
-      },
-    ];
+    const actions: PromptEntry<string>[] = [['Add', 'add']];
     if (IsEmpty(room.entities)) {
       this.logger.warn(`No current entities in room`);
     } else {
-      actions.unshift({
-        name: 'Manipulate',
-        value: 'manipulate',
-      });
-      actions.push({
-        name: 'Remove',
-        value: 'remove',
-      });
+      actions.unshift(['Manipulate', 'manipulate']);
+      actions.push(['Remove', 'remove']);
     }
     const action = await this.promptService.menuSelect(actions);
     if (action === CANCEL) {
@@ -316,10 +294,10 @@ export class RoomCommandService {
       case 'remove':
         const removeList = await this.promptService.pickMany(
           `Which entities should be removed?`,
-          room.entities.map(({ entity_id, tags = [] }) => ({
-            name: `${entity_id} {${tags.join(', ')}}`,
-            value: entity_id,
-          })),
+          room.entities.map(({ entity_id, tags = [] }) => [
+            `${entity_id} {${tags.join(', ')}}`,
+            entity_id,
+          ]),
         );
         await this.update({
           ...room,
@@ -342,23 +320,18 @@ export class RoomCommandService {
       this.logger.warn(`No current groups in room`);
     }
     const allGroups = await this.groupCommand.list();
-    const action = await this.promptService.menuSelect<GroupDTO | string>([
-      {
-        name: 'Add',
-        value: 'add',
-      },
-      ...(IsEmpty(room.groups)
-        ? []
-        : [
-            {
-              name: 'Remove',
-              value: 'remove',
-            },
-            new inquirer.Separator(),
-            ...allGroups
-              .filter(({ _id }) => room.groups.includes(_id))
-              .map((group) => ({ name: group.friendlyName, value: group })),
-          ]),
+    const action = await this.promptService.menuSelect<GroupDTO>([
+      ['Add', 'add'],
+      ...this.promptService.conditionalEntries(!IsEmpty(room.groups), [
+        ['Remove', 'remove'],
+        new inquirer.Separator(),
+        ...(allGroups
+          .filter(({ _id }) => room.groups.includes(_id))
+          .map((group) => [
+            group.friendlyName,
+            group,
+          ]) as PromptEntry<GroupDTO>[]),
+      ]),
     ]);
     switch (action) {
       case CANCEL:

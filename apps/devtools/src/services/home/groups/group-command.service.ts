@@ -1,14 +1,10 @@
-import {
-  GROUP_TYPES,
-  GroupDTO,
-  GroupSaveStateDTO,
-} from '@automagical/controller-logic';
+import { GROUP_TYPES, GroupDTO } from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
 import {
   CANCEL,
   FontAwesomeIcons,
   iRepl,
-  PromptMenuItems,
+  PromptEntry,
   PromptService,
   Repl,
   REPL_TYPE,
@@ -50,10 +46,7 @@ export class GroupCommandService implements iRepl {
   public async create(): Promise<GroupDTO> {
     const type = await this.promptService.pickOne(
       `What type of group?`,
-      Object.values(GROUP_TYPES).map((type) => ({
-        name: TitleCase(type),
-        value: type,
-      })),
+      Object.values(GROUP_TYPES).map((type) => [TitleCase(type), type]),
     );
     const friendlyName = await this.promptService.string(`Friendly Name`);
     const types = new Map([
@@ -85,22 +78,12 @@ export class GroupCommandService implements iRepl {
 
   public async exec(): Promise<void> {
     const groups = await this.list();
-    const action = await this.promptService.menuSelect<
-      GroupDTO | keyof GroupCommandService
-    >([
-      ...(!IsEmpty(groups)
-        ? [
-            ...groups.map((group) => ({
-              name: group.friendlyName,
-              value: group,
-            })),
-            new inquirer.Separator(),
-          ]
-        : []),
-      {
-        name: 'Create Group',
-        value: 'create',
-      },
+    const action = await this.promptService.menuSelect<GroupDTO>([
+      ...this.promptService.conditionalEntries(!IsEmpty(groups), [
+        ...groups.map((group) => [group.friendlyName, group]),
+        new inquirer.Separator(),
+      ] as PromptEntry<GroupDTO>[]),
+      ['Create Group', 'create'],
     ]);
     if (action === 'create') {
       await this.create();
@@ -137,7 +120,7 @@ export class GroupCommandService implements iRepl {
       `Which groups?`,
       groups
         .filter((group) => IsEmpty(inList) || inList.includes(group._id))
-        .map((group) => ({ name: group.friendlyName, value: group })),
+        .map((group) => [group.friendlyName, group]),
       { default: current.filter((group) => current.includes(group)) },
     );
   }
@@ -148,7 +131,7 @@ export class GroupCommandService implements iRepl {
       `Pick a group`,
       groups
         .filter((group) => !omit.includes(group._id))
-        .map((group) => ({ name: group.friendlyName, value: group })),
+        .map((group) => [group.friendlyName, group]),
     );
   }
 
@@ -158,20 +141,18 @@ export class GroupCommandService implements iRepl {
     defaultValue?: string,
   ): Promise<void> {
     this.promptService.header(group.friendlyName);
-    const actions: PromptMenuItems = [];
+    const actions: PromptEntry[] = [];
     if (group.type === GROUP_TYPES.light) {
       actions.push(...(await this.lightGroup.groupActions()));
     }
     const action = await this.promptService.menuSelect(
       [
         ...actions,
-        ...this.promptService.itemsFromEntries([
-          ['Delete', 'delete'],
-          ['Describe', 'describe'],
-          ['Rename', 'rename'],
-          ['Send state', 'sendState'],
-          ['State Manager', 'state'],
-        ]),
+        ['Delete', 'delete'],
+        ['Describe', 'describe'],
+        ['Rename', 'rename'],
+        ['Send state', 'sendState'],
+        ['State Manager', 'state'],
       ],
       `Action`,
       defaultValue,
@@ -242,10 +223,7 @@ export class GroupCommandService implements iRepl {
         if (item.state === 'off') {
           name = chalk.red(name);
         }
-        return {
-          name,
-          value,
-        };
+        return [name, value];
       }),
     );
     if (entity === CANCEL) {

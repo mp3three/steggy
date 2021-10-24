@@ -8,6 +8,9 @@ import Separator from 'inquirer/lib/objects/separator';
 import { PAGE_SIZE } from '../config';
 import { CANCEL, PromptMenuItems } from '../contracts';
 
+const name = `result`;
+export type PromptEntry<T = string> = [string, string | T] | Separator;
+
 @Injectable()
 export class PromptService {
   constructor(
@@ -28,13 +31,15 @@ export class PromptService {
    * Now featuring: FUZZYSORT!
    */
   public async autocomplete<T extends unknown = string>(
-    prompt: string,
+    prompt = `Pick one`,
     options: ({ name: string; value: T } | string)[],
+    defaultValue?: T,
   ): Promise<T> {
     const { result } = await inquirer.prompt([
       {
+        default: defaultValue,
         message: prompt,
-        name: 'result',
+        name,
         pageSize: this.pageSize,
         source: (answers, input) => {
           if (!input) {
@@ -68,15 +73,15 @@ export class PromptService {
     message: string,
     defaultValue?: boolean,
   ): Promise<boolean> {
-    const { value } = await inquirer.prompt([
+    const { result } = await inquirer.prompt([
       {
         default: defaultValue,
         message,
-        name: 'value',
+        name,
         type: confirm,
       },
     ]);
-    return value;
+    return result;
   }
 
   /**
@@ -96,24 +101,60 @@ export class PromptService {
    */
   public conditionalEntries<T extends unknown = string>(
     test: boolean,
-    trueValue: ([string, T] | Separator)[] = [],
-    falseValue: ([string, T] | Separator)[] = [],
-  ): ([string, T] | Separator)[] {
+    trueValue: PromptEntry<T>[] = [],
+    falseValue: PromptEntry<T>[] = [],
+  ): PromptEntry<T>[] {
     if (test) {
       return trueValue;
     }
     return falseValue;
   }
 
-  public async confirm(prompt: string, defaultValue = false): Promise<boolean> {
+  public async confirm(
+    prompt = `Are you sure?`,
+    defaultValue = false,
+  ): Promise<boolean> {
     const { result } = await inquirer.prompt([
       {
         default: defaultValue,
         message: prompt,
-        name: 'result',
+        name,
         type: 'confirm',
       },
     ]);
+    return result;
+  }
+
+  public async date(
+    prompt = `Date value`,
+    defaultValue = new Date(),
+  ): Promise<Date> {
+    const { result } = await inquirer.prompt([
+      {
+        default: defaultValue,
+        format: {
+          hour: undefined,
+          minute: undefined,
+          month: 'short',
+        },
+        message: prompt,
+        name,
+        type: 'date',
+      },
+    ]);
+    return result;
+  }
+
+  public async editor(message: string, defaultValue?: string): Promise<string> {
+    const { result } = await inquirer.prompt([
+      {
+        default: defaultValue,
+        message,
+        name,
+        type: 'editor',
+      },
+    ]);
+
     return result;
   }
 
@@ -126,17 +167,17 @@ export class PromptService {
       this.logger.warn(`No choices to pick from`);
       return undefined;
     }
-    const { value } = await inquirer.prompt([
+    const { result } = await inquirer.prompt([
       {
         choices: options,
         default: defaultValue,
         message,
-        name: 'value',
+        name,
         pageSize: this.pageSize,
         type: 'expand',
       },
     ]);
-    return value;
+    return result;
   }
 
   public header(text: string): void {
@@ -150,7 +191,7 @@ export class PromptService {
   }
 
   public itemsFromEntries<T extends unknown = string>(
-    items: ([string, T] | Separator)[],
+    items: PromptEntry<T>[],
   ): PromptMenuItems<T> {
     return items.map((item) =>
       Array.isArray(item)
@@ -163,54 +204,50 @@ export class PromptService {
   }
 
   public async menuSelect<T extends unknown = string>(
-    menu: PromptMenuItems<T>,
+    options: PromptEntry<T>[],
     message = '',
     defaultValue?: string | T,
   ): Promise<T | string> {
     return await this.pickOne<T>(
       message,
-      [
-        ...menu,
-        new inquirer.Separator(),
-        {
-          name: 'Cancel',
-          value: CANCEL as T,
-        },
-      ],
+      [...options, new inquirer.Separator(), ['Cancel', CANCEL as T]],
       defaultValue,
     );
   }
 
-  public async number(message: string, defaultValue?: number): Promise<number> {
-    const { value } = await inquirer.prompt([
+  public async number(
+    message = `Number value`,
+    defaultValue?: number,
+  ): Promise<number> {
+    const { result } = await inquirer.prompt([
       {
         default: defaultValue,
         message,
-        name: 'value',
+        name,
         type: 'number',
       },
     ]);
-    return value;
+    return result;
   }
 
   public async password(
-    message: string,
+    message = `Password value`,
     defaultValue?: string,
   ): Promise<string> {
-    const { value } = await inquirer.prompt([
+    const { result } = await inquirer.prompt([
       {
         default: defaultValue,
         message,
-        name: 'value',
+        name,
         type: 'password',
       },
     ]);
-    return value;
+    return result;
   }
 
   public async pickMany<T extends unknown = string>(
-    message: string,
-    options: (string | { name: string; value: T } | Separator)[],
+    message = `Pick many`,
+    options: PromptEntry<T>[],
     {
       min,
       max,
@@ -221,58 +258,99 @@ export class PromptService {
       this.logger.warn(`No choices to pick from`);
       return [];
     }
-    const { value } = (await inquirer.prompt([
+    const { result } = (await inquirer.prompt([
       {
-        choices: options,
+        choices: this.itemsFromEntries(options),
         ...extra,
         message,
-        name: 'value',
+        name,
         pageSize: this.pageSize,
         type: 'checkbox',
       },
-    ])) as { value: T[] };
-    if (min && value.length < min) {
-      this.logger.error(`${min} items are required, ${value.length} provided`);
+    ])) as { result: T[] };
+    if (min && result.length < min) {
+      this.logger.error(`${min} items are required, ${result.length} provided`);
       return await this.pickMany(message, options, { max, min, ...extra });
     }
-    if (max && value.length > max) {
-      this.logger.error(`limit ${max} items, ${value.length} provided`);
+    if (max && result.length > max) {
+      this.logger.error(`limit ${max} items, ${result.length} provided`);
       return await this.pickMany(message, options, { max, min, ...extra });
     }
-    return value;
+    return result;
   }
 
   public async pickOne<T extends unknown = string>(
-    message: string,
-    options: (string | { name: string; value: T } | Separator)[],
+    message = `Pick one`,
+    options: PromptEntry<T>[],
     defaultValue?: string | T,
   ): Promise<T> {
     if (IsEmpty(options)) {
       this.logger.warn(`No choices to pick from`);
       return undefined;
     }
-    const { value } = await inquirer.prompt([
+    const { result } = await inquirer.prompt([
       {
-        choices: options,
+        choices: this.itemsFromEntries(options),
         default: defaultValue,
         message,
-        name: 'value',
+        name,
         pageSize: this.pageSize,
         type: 'rawlist',
       },
     ]);
-    return value;
+    return result;
   }
 
-  public async string(message: string, defaultValue?: string): Promise<string> {
-    const { value } = await inquirer.prompt([
+  public async string(
+    message = `String value`,
+    defaultValue?: string,
+    { prefix, suffix }: { prefix?: string; suffix?: string } = {},
+  ): Promise<string> {
+    const { result } = await inquirer.prompt([
       {
         default: defaultValue,
         message,
-        name: 'value',
+        name,
+        prefix,
+        suffix,
         type: 'input',
       },
     ]);
-    return value;
+    return result;
+  }
+
+  public async time(
+    prompt = `Time value`,
+    defaultValue = new Date(),
+  ): Promise<Date> {
+    const { result } = await inquirer.prompt([
+      {
+        default: defaultValue,
+        format: {
+          day: undefined,
+          month: undefined,
+          year: undefined,
+        },
+        message: prompt,
+        name,
+        type: 'date',
+      },
+    ]);
+    return result;
+  }
+
+  public async timestamp(
+    prompt = `Timestamp`,
+    defaultValue = new Date(),
+  ): Promise<Date> {
+    const { result } = await inquirer.prompt([
+      {
+        default: defaultValue,
+        message: prompt,
+        name,
+        type: 'date',
+      },
+    ]);
+    return result;
   }
 }

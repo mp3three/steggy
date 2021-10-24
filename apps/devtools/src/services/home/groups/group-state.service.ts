@@ -1,5 +1,9 @@
-import { GroupDTO, GroupSaveStateDTO } from '@automagical/controller-logic';
-import { CANCEL, PromptService } from '@automagical/tty';
+import {
+  GroupDTO,
+  GroupSaveStateDTO,
+  GroupSetStateDTO,
+} from '@automagical/controller-logic';
+import { CANCEL, PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { encode } from 'ini';
@@ -23,7 +27,7 @@ export class GroupStateService {
       `Pick a group`,
       groups
         .filter((group) => !exclude.includes(group._id))
-        .map((group) => ({ name: group.friendlyName, value: group })),
+        .map((group) => [group.friendlyName, group]),
     );
   }
 
@@ -31,23 +35,17 @@ export class GroupStateService {
     group = await this.fetchService.fetch({
       url: `/group/${group._id}`,
     });
-    const action = await this.promptService.menuSelect<
-      GroupSaveStateDTO | string
-    >([
-      ...(!IsEmpty(group.save_states)
-        ? [
-            ...group.save_states.map((state) => ({
-              name: state.friendlyName,
-              value: state,
-            })),
-            new inquirer.Separator(),
-          ]
-        : []),
-      ...this.promptService.itemsFromEntries([
-        ['Capture Current', 'capture'],
-        ['Describe current', 'describe'],
-        ['Remove all save states', 'truncate'],
-      ]),
+    const action = await this.promptService.menuSelect<GroupSaveStateDTO>([
+      ...(this.promptService.conditionalEntries(!IsEmpty(group.save_states), [
+        ...(group.save_states.map((state) => [state.friendlyName, state]) as [
+          string,
+          GroupSaveStateDTO,
+        ][]),
+        new inquirer.Separator(),
+      ]) as PromptEntry<GroupSaveStateDTO>[]),
+      ['Capture Current', 'capture'],
+      ['Describe current', 'describe'],
+      ['Remove all save states', 'truncate'],
     ]);
     if (action === CANCEL) {
       return;
@@ -114,15 +112,11 @@ export class GroupStateService {
     group: GroupDTO,
   ): Promise<void> {
     const stateAction = await this.promptService.menuSelect([
-      ...this.promptService.itemsFromEntries([
-        ['Activate', 'activate'],
-        ['Describe', 'describe'],
-      ]),
+      ['Activate', 'activate'],
+      ['Describe', 'describe'],
       new inquirer.Separator(),
-      ...this.promptService.itemsFromEntries([
-        ['Copy to another group', 'copyTo'],
-        ['Delete', 'delete'],
-      ]),
+      ['Copy to another group', 'copyTo'],
+      ['Delete', 'delete'],
     ]);
     switch (stateAction) {
       case 'copyTo':

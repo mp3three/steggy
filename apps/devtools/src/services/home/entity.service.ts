@@ -117,6 +117,7 @@ export class EntityService implements iRepl {
   public async pickOne(
     inList: HASS_DOMAINS[] = [],
     omit: string[] = [],
+    defaultValue?: string,
   ): Promise<string> {
     const entities = await this.list();
     return await this.promptService.autocomplete(
@@ -130,6 +131,7 @@ export class EntityService implements iRepl {
         }
         return true;
       }),
+      defaultValue,
     );
   }
 

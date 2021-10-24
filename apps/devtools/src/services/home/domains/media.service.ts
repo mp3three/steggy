@@ -1,4 +1,4 @@
-import { PromptMenuItems } from '@automagical/tty';
+import { PromptEntry, PromptMenuItems } from '@automagical/tty';
 import { Injectable } from '@nestjs/common';
 
 import { SwitchService } from './switch.service';
@@ -62,15 +62,13 @@ export class MediaService extends SwitchService {
     });
   }
 
-  protected getMenuOptions(): PromptMenuItems {
+  protected getMenuOptions(): PromptEntry[] {
     return [
-      ...this.promptService.itemsFromEntries([
-        ['Mute', 'mute'],
-        ['Play / Pause', 'playPause'],
-        ['Toggle', 'toggle'],
-        ['Volume Down', 'volumeDown'],
-        ['Volume Up', 'volumeUp'],
-      ]),
+      ['Mute', 'mute'],
+      ['Play / Pause', 'playPause'],
+      ['Toggle', 'toggle'],
+      ['Volume Down', 'volumeDown'],
+      ['Volume Up', 'volumeUp'],
       ...super.getMenuOptions(),
     ];
   }

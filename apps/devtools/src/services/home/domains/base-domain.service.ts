@@ -5,7 +5,12 @@ import {
   HassStateDTO,
   RelatedDescriptionDTO,
 } from '@automagical/home-assistant';
-import { CANCEL, PromptMenuItems, PromptService } from '@automagical/tty';
+import {
+  CANCEL,
+  PromptEntry,
+  PromptMenuItems,
+  PromptService,
+} from '@automagical/tty';
 import { AutoLogService, IsEmpty, sleep } from '@automagical/utilities';
 import {
   forwardRef,
@@ -130,12 +135,10 @@ export class BaseDomainService {
     const item: RelatedDescriptionDTO = await this.fetchService.fetch({
       url: `/entity/registry/${id}`,
     });
-    const action = await this.promptService.menuSelect(
-      this.promptService.itemsFromEntries([
-        ['Describe', 'describe'],
-        ['View Device', 'device'],
-      ]),
-    );
+    const action = await this.promptService.menuSelect([
+      ['Describe', 'describe'],
+      ['View Device', 'device'],
+    ]);
     switch (action) {
       case CANCEL:
         return;
@@ -153,12 +156,12 @@ export class BaseDomainService {
     }
   }
 
-  protected getMenuOptions(): PromptMenuItems {
-    return this.promptService.itemsFromEntries([
+  protected getMenuOptions(): PromptEntry[] {
+    return [
       ['Change Entity ID', 'changeEntityId'],
       ['Change Friendly Name', 'changeFriendlyName'],
       ['Describe', 'describe'],
       ['Registry', 'registry'],
-    ]);
+    ];
   }
 }

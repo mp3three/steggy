@@ -111,6 +111,9 @@ export class ResultControlDTO {
 //  - JSONFilterService
 //  - mongo persistence
 export enum FILTER_OPERATIONS {
+  // "elemMatch" functionality in mongo
+  // eslint-disable-next-line unicorn/prevent-abbreviations
+  elem = 'elem',
   regex = 'regex',
   in = 'in',
   nin = 'nin',
@@ -120,9 +123,6 @@ export enum FILTER_OPERATIONS {
   gte = 'gte',
   ne = 'ne',
   eq = 'eq',
-  // "elemMatch" functionality in mongo
-  // eslint-disable-next-line unicorn/prevent-abbreviations
-  elem = 'elem',
 }
 
 export enum HTTP_METHODS {

@@ -2,7 +2,7 @@ import {
   GroupDTO,
   PersistenceLightStateDTO,
 } from '@automagical/controller-logic';
-import { PromptMenuItems, PromptService } from '@automagical/tty';
+import { PromptEntry, PromptMenuItems, PromptService } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import inquirer from 'inquirer';
@@ -35,16 +35,14 @@ export class LightGroupCommandService {
     });
   }
 
-  public async groupActions(): Promise<PromptMenuItems> {
+  public async groupActions(): Promise<PromptEntry[]> {
     return await [
-      ...this.promptService.itemsFromEntries([
-        ['Turn On', 'turnOn'],
-        ['Turn Off', 'turnOff'],
-        ['Circadian On', 'circadian'],
-        ['Dim Up', 'dimUp'],
-        ['Dim Down', 'dimDown'],
-        ['Set Brightness', 'brightness'],
-      ]),
+      ['Turn On', 'turnOn'],
+      ['Turn Off', 'turnOff'],
+      ['Circadian On', 'circadian'],
+      ['Dim Up', 'dimUp'],
+      ['Dim Down', 'dimDown'],
+      ['Set Brightness', 'brightness'],
       new inquirer.Separator(),
     ];
   }

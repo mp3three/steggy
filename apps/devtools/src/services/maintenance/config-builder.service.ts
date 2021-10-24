@@ -2,6 +2,7 @@ import {
   CANCEL,
   iRepl,
   OUTPUT_HEADER_FONT,
+  PromptEntry,
   PromptService,
   Repl,
   REPL_TYPE,
@@ -56,9 +57,7 @@ export class ConfigBuilderService implements iRepl {
   @Trace()
   public async exec(): Promise<void> {
     const application = await this.promptService.menuSelect(
-      this.promptService.itemsFromEntries(
-        this.applicationChoices() as [string, string][],
-      ),
+      this.applicationChoices(),
     );
     this.typePrompt.config = rc<AutomagicalConfig>(application);
     delete this.typePrompt.config['configs'];
@@ -118,12 +117,10 @@ export class ConfigBuilderService implements iRepl {
     config: AutomagicalConfig,
     application: string,
   ): Promise<void> {
-    const action = await this.promptService.menuSelect(
-      this.promptService.itemsFromEntries([
-        ['Describe', 'describe'],
-        ['Save', 'save'],
-      ]),
-    );
+    const action = await this.promptService.menuSelect([
+      ['Describe', 'describe'],
+      ['Save', 'save'],
+    ]);
 
     switch (action) {
       case CANCEL:
@@ -154,7 +151,7 @@ export class ConfigBuilderService implements iRepl {
   /**
    * An item can identify as "configurable" as
    */
-  private applicationChoices() {
+  private applicationChoices(): PromptEntry[] {
     return this.workspace
       .list('application')
       .filter((item) => {
