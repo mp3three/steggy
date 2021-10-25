@@ -1,14 +1,14 @@
+import { AutoLogService, IsEmpty, Trace } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
+
 import {
   KunamiCodeActivateDTO,
   ROUTINE_ACTIVATE_TYPE,
   RoutineDTO,
-  RoutinePersistenceService,
   ScheduleActivateDTO,
   StateChangeActivateDTO,
-} from '@automagical/controller-logic';
-import { AutoLogService, IsEmpty, Trace } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
-
+} from '../../contracts';
+import { RoutinePersistenceService } from '../persistence';
 import { KunamiCodeActivateService } from './kunami-code-activate.service';
 import { ScheduleActivateService } from './schedule-activate.service';
 import { StateChangeActivateService } from './state-change-activate.service';

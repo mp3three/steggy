@@ -4,6 +4,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsEnum, IsString } from 'class-validator';
 import { Document } from 'mongoose';
 
+import { FanCacheDTO, LightingCacheDTO } from '../dto';
+
 export enum LIGHTING_MODE {
   circadian = 'circadian',
   on = 'on',
@@ -72,3 +74,8 @@ RoomStateSchema.index({
   name: 1,
   room: 1,
 });
+export class RoomEntitySaveStateDTO<EXTRA = LightingCacheDTO | FanCacheDTO> {
+  public entity_id: string;
+  public extra?: EXTRA;
+  public state: string;
+}
