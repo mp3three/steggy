@@ -215,7 +215,7 @@ export class HASocketAPIService {
         this.websocketUrl || `wss://${url.hostname}/api/websocket`,
       );
       this.connection.addEventListener('message', (message) => {
-        this.onMessage(JSON.parse(message.data));
+        this.onMessage(JSON.parse(message.data.toString()));
       });
       this.connection.on('error', (error) => {
         this.logger.error({ error }, 'Socket error');

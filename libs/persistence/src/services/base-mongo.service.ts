@@ -15,7 +15,7 @@ export class BaseMongoService {
       merge.filters.add({
         field: '_id',
         operation: FILTER_OPERATIONS.in,
-        value: [Types.ObjectId(query), query],
+        value: [new Types.ObjectId(query), query],
       });
       query = merge;
     }

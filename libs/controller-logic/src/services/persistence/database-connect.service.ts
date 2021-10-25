@@ -16,9 +16,9 @@ export class DatabaseConnectService {
   constructor(
     @InjectConfig(MONGO_URI) private readonly URI: string,
     @InjectConfig(MONGO_CERT) private readonly CERT: string,
-    @InjectConfig(MONGO_CA) private readonly CA: string[],
+    @InjectConfig(MONGO_CA) private readonly CA: string,
     @InjectConfig(MONGO_KEY) private readonly KEY: string,
-    @InjectConfig(MONGO_CRL) private readonly CRL: string[],
+    @InjectConfig(MONGO_CRL) private readonly CRL: string,
     private readonly connectService: ConnectService,
   ) {}
 

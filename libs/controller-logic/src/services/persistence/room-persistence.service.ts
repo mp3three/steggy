@@ -15,7 +15,6 @@ import { EventEmitter2 } from 'eventemitter2';
 import { Model } from 'mongoose';
 
 import { ROOM_UPDATE, RoomDocument, RoomDTO } from '../../contracts';
-const OK_RESPONSE = 1;
 
 @Injectable()
 export class RoomPersistenceService extends BaseMongoService {
@@ -51,7 +50,7 @@ export class RoomPersistenceService extends BaseMongoService {
       })
       .exec();
     this.eventEmitter.emit(ROOM_UPDATE);
-    return result.ok === OK_RESPONSE;
+    return result.acknowledged;
   }
 
   @Trace()
@@ -84,7 +83,7 @@ export class RoomPersistenceService extends BaseMongoService {
   ): Promise<RoomDTO> {
     const query = this.merge(id);
     const result = await this.roomModel.updateOne(query, state).exec();
-    if (result.ok === OK_RESPONSE) {
+    if (result.acknowledged) {
       this.eventEmitter.emit(ROOM_UPDATE);
       return await this.findById(id);
     }

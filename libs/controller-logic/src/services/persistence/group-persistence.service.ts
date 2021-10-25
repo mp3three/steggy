@@ -10,7 +10,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { BASIC_STATE, GroupDocument, GroupDTO } from '../../contracts';
-const OK_RESPONSE = 1;
 
 @Injectable()
 export class GroupPersistenceService extends BaseMongoService {
@@ -39,7 +38,7 @@ export class GroupPersistenceService extends BaseMongoService {
         deleted: Date.now(),
       })
       .exec();
-    return result.ok === OK_RESPONSE;
+    return result.acknowledged;
   }
   @Trace()
   @ToClass(GroupDTO)
@@ -93,7 +92,7 @@ export class GroupPersistenceService extends BaseMongoService {
   ): Promise<GroupDTO<GROUP_TYPE>> {
     const query = this.merge(id);
     const result = await this.model.updateOne(query, state).exec();
-    if (result.ok === OK_RESPONSE) {
+    if (result.acknowledged) {
       return await this.findById(id);
     }
   }

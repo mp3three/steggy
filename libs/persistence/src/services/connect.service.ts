@@ -17,8 +17,8 @@ export class ConnectService {
     let sslCert: string;
     let sslKey: string;
     let sslValidate: boolean;
-    let sslCRL: string[];
-    let sslCA: string[];
+    let sslCRL: string;
+    let sslCA: string;
 
     if (options.cert) {
       sslCert = await this.resolveUrl(options.cert);
@@ -28,18 +28,10 @@ export class ConnectService {
     }
     if (options.ca) {
       sslValidate = true;
-      sslCA = await Promise.all(
-        options.ca.map(async (item) => {
-          return await this.resolveUrl(item);
-        }),
-      );
+      sslCA = await this.resolveUrl(options.ca);
     }
     if (options.crl) {
-      sslCRL = await Promise.all(
-        options.crl.map(async (url) => {
-          return await this.resolveUrl(url);
-        }),
-      );
+      sslCRL = await this.resolveUrl(options.crl);
     }
 
     return {
@@ -51,7 +43,6 @@ export class ConnectService {
       sslKey,
       sslValidate,
       uri: options.uri,
-      useCreateIndex: true,
       useNewUrlParser: true,
     };
   }

@@ -1,4 +1,3 @@
-import { RountineDocument, RoutineDTO } from '@automagical/controller-logic';
 import { BaseMongoService, BaseSchemaDTO } from '@automagical/persistence';
 import {
   AutoLogService,
@@ -11,9 +10,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { EventEmitter2 } from 'eventemitter2';
 import { Model } from 'mongoose';
 
-import { ROUTINE_UPDATE } from '../../contracts';
-
-const OK_RESPONSE = 1;
+import { RountineDocument, ROUTINE_UPDATE, RoutineDTO } from '../../contracts';
 
 @Injectable()
 export class RoutinePersistenceService extends BaseMongoService {
@@ -44,7 +41,7 @@ export class RoutinePersistenceService extends BaseMongoService {
       })
       .exec();
     this.eventEmitter.emit(ROUTINE_UPDATE);
-    return result.ok === OK_RESPONSE;
+    return result.acknowledged;
   }
 
   @Trace()
@@ -76,7 +73,7 @@ export class RoutinePersistenceService extends BaseMongoService {
   ): Promise<RoutineDTO> {
     const query = this.merge(id);
     const result = await this.model.updateOne(query, state).exec();
-    if (result.ok === OK_RESPONSE) {
+    if (result.acknowledged) {
       this.eventEmitter.emit(ROUTINE_UPDATE);
       return await this.findById(id);
     }
