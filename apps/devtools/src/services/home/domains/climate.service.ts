@@ -1,5 +1,5 @@
 import { EcobeeClimateStateDTO } from '@automagical/home-assistant';
-import { CANCEL, PromptMenuItems } from '@automagical/tty';
+import { DONE, PromptEntry, PromptMenuItems } from '@automagical/tty';
 import { TitleCase } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
@@ -38,12 +38,9 @@ export class ClimateService extends SwitchService {
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
     const mode = await this.promptService.menuSelect(
-      state.attributes.fan_modes.map((mode) => ({
-        name: TitleCase(mode),
-        value: mode,
-      })),
+      state.attributes.fan_modes.map((mode) => [TitleCase(mode), mode]),
     );
-    if (mode === CANCEL) {
+    if (mode === DONE) {
       return;
     }
     await this.fetchService.fetch({
@@ -65,12 +62,9 @@ export class ClimateService extends SwitchService {
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
     const mode = await this.promptService.menuSelect(
-      state.attributes.hvac_modes.map((mode) => ({
-        name: TitleCase(mode),
-        value: mode,
-      })),
+      state.attributes.hvac_modes.map((mode) => [TitleCase(mode), mode]),
     );
-    if (mode !== CANCEL) {
+    if (mode !== DONE) {
       return;
     }
     await this.fetchService.fetch({
@@ -85,12 +79,9 @@ export class ClimateService extends SwitchService {
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
     const mode = await this.promptService.menuSelect(
-      state.attributes.preset_modes.map((mode) => ({
-        name: TitleCase(mode),
-        value: mode,
-      })),
+      state.attributes.preset_modes.map((mode) => [TitleCase(mode), mode]),
     );
-    if (mode === CANCEL) {
+    if (mode === DONE) {
       return;
     }
     await this.fetchService.fetch({
@@ -105,12 +96,9 @@ export class ClimateService extends SwitchService {
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
     const mode = await this.promptService.menuSelect(
-      state.attributes.swing_modes.map((mode) => ({
-        name: TitleCase(mode),
-        value: mode,
-      })),
+      state.attributes.swing_modes.map((mode) => [TitleCase(mode), mode]),
     );
-    if (mode === CANCEL) {
+    if (mode === DONE) {
       return;
     }
     await this.fetchService.fetch({
@@ -153,14 +141,14 @@ export class ClimateService extends SwitchService {
     this.logger.debug({ result });
   }
 
-  protected getMenuOptions(): PromptMenuItems {
+  protected getMenuOptions(): PromptEntry[] {
     return [
-      { name: 'Set Fan Mode', value: 'setFanMode' },
-      // { name: 'Set Humidity', value: 'setHumidity' },
-      { name: 'Set Hvac Mode', value: 'setHvacMode' },
-      { name: 'Set Preset Mode', value: 'setPresetMode' },
-      { name: 'Set Swing Mode', value: 'setSwingMode' },
-      { name: 'Set Temperature', value: 'setTemperature' },
+      ['Set Fan Mode', 'setFanMode'],
+      ['Set Humidity', 'setHumidity'],
+      ['Set Hvac Mode', 'setHvacMode'],
+      ['Set Preset Mode', 'setPresetMode'],
+      ['Set Swing Mode', 'setSwingMode'],
+      ['Set Temperature', 'setTemperature'],
       ...super.getMenuOptions(),
     ];
   }

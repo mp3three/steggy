@@ -6,7 +6,7 @@ import {
   RelatedDescriptionDTO,
 } from '@automagical/home-assistant';
 import {
-  CANCEL,
+  DONE,
   PromptEntry,
   PromptMenuItems,
   PromptService,
@@ -140,7 +140,7 @@ export class BaseDomainService {
       ['View Device', 'device'],
     ]);
     switch (action) {
-      case CANCEL:
+      case DONE:
         return;
       case 'describe':
         console.log(encode(item));

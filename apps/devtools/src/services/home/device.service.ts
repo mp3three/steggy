@@ -2,7 +2,7 @@ import {
   DeviceListItemDTO,
   RelatedDescriptionDTO,
 } from '@automagical/home-assistant';
-import { CANCEL, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
+import { DONE, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { encode } from 'ini';
 
@@ -66,11 +66,11 @@ export class DeviceService {
       undefined,
       defaultValue,
     );
-    if (action === CANCEL) {
+    if (action === DONE) {
       return;
     }
     switch (action) {
-      case CANCEL:
+      case DONE:
         return;
       case 'describe':
         console.log(encode(device));

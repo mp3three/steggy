@@ -1,4 +1,4 @@
-import { CANCEL, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
+import { DONE, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
 import chalk from 'chalk';
 
 import { HomeFetchService } from './home-fetch.service';
@@ -21,7 +21,7 @@ export class DebugService {
     );
 
     switch (action) {
-      case CANCEL:
+      case DONE:
         return;
       case 'lightManagerCache':
         await this.lightManagerCache();

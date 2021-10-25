@@ -3,7 +3,7 @@ import {
   RoomEntitySaveStateDTO,
 } from '@automagical/controller-logic';
 import { FanSpeeds, FanStateDTO } from '@automagical/home-assistant';
-import { CANCEL, PromptMenuItems } from '@automagical/tty';
+import { DONE, PromptEntry } from '@automagical/tty';
 import { TitleCase } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
@@ -21,7 +21,7 @@ export class FanService extends SwitchService {
     entity.attributes.speed_list ??= [];
     const speed = await this.promptService.pickOne(
       entity_id,
-      [...entity.attributes.speed_list],
+      entity.attributes.speed_list.map((speed) => [TitleCase(speed), speed]),
       current?.extra?.speed,
     );
     return {
@@ -68,15 +68,10 @@ export class FanService extends SwitchService {
     const speed = await this.promptService.menuSelect(
       Object.keys(FanSpeeds)
         .reverse()
-        .map((key) => {
-          return {
-            name: TitleCase(key),
-            value: key,
-          };
-        }),
+        .map((key) => [TitleCase(key), key]),
       'Fan speed',
     );
-    if (speed === CANCEL) {
+    if (speed === DONE) {
       return;
     }
     await this.fetchService.fetch({
@@ -86,11 +81,11 @@ export class FanService extends SwitchService {
     });
   }
 
-  protected getMenuOptions(): PromptMenuItems {
+  protected getMenuOptions(): PromptEntry[] {
     return [
-      { name: 'Fan speed up', value: 'fanSpeedUp' },
-      { name: 'Fan speed down', value: 'fanSpeedDown' },
-      { name: 'Set speed', value: 'setSpeed' },
+      ['Fan speed up', 'fanSpeedUp'],
+      ['Fan speed down', 'fanSpeedDown'],
+      ['Set speed', 'setSpeed'],
       ...super.getMenuOptions(),
     ];
   }

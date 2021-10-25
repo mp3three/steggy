@@ -1,9 +1,5 @@
-import {
-  GroupDTO,
-  GroupSaveStateDTO,
-  GroupSetStateDTO,
-} from '@automagical/controller-logic';
-import { CANCEL, PromptEntry, PromptService } from '@automagical/tty';
+import { GroupDTO, GroupSaveStateDTO } from '@automagical/controller-logic';
+import { DONE, PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { encode } from 'ini';
@@ -47,7 +43,7 @@ export class GroupStateService {
       ['Describe current', 'describe'],
       ['Remove all save states', 'truncate'],
     ]);
-    if (action === CANCEL) {
+    if (action === DONE) {
       return;
     }
     if (action === 'truncate') {

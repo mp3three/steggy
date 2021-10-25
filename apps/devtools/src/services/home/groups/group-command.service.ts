@@ -1,7 +1,7 @@
 import { GROUP_TYPES, GroupDTO } from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
 import {
-  CANCEL,
+  DONE,
   FontAwesomeIcons,
   iRepl,
   PromptEntry,
@@ -89,7 +89,7 @@ export class GroupCommandService implements iRepl {
       await this.create();
       return await this.exec();
     }
-    if (action === CANCEL) {
+    if (action === DONE) {
       return;
     }
     if (typeof action === 'string') {
@@ -165,7 +165,7 @@ export class GroupCommandService implements iRepl {
       case 'state':
         await this.groupState.processState(group, list);
         break;
-      case CANCEL:
+      case DONE:
         return;
       // Capture state
       case 'capture':
@@ -226,7 +226,7 @@ export class GroupCommandService implements iRepl {
         return [name, value];
       }),
     );
-    if (entity === CANCEL) {
+    if (entity === DONE) {
       return entity;
     }
     await this.entityService.process(entity);

@@ -6,7 +6,7 @@ import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
 import { PAGE_SIZE } from '../config';
-import { CANCEL, PromptMenuItems } from '../contracts';
+import { DONE, PromptMenuItems } from '../contracts';
 
 const name = `result`;
 export type PromptEntry<T = string> = [string, string | T] | Separator;
@@ -210,7 +210,7 @@ export class PromptService {
   ): Promise<T | string> {
     return await this.pickOne<T>(
       message,
-      [...options, new inquirer.Separator(), ['Cancel', CANCEL as T]],
+      [...options, new inquirer.Separator(), ['Done', DONE as T]],
       defaultValue,
     );
   }
@@ -218,12 +218,15 @@ export class PromptService {
   public async number(
     message = `Number value`,
     defaultValue?: number,
+    { prefix, suffix }: { prefix?: string; suffix?: string } = {},
   ): Promise<number> {
     const { result } = await inquirer.prompt([
       {
         default: defaultValue,
         message,
         name,
+        prefix,
+        suffix,
         type: 'number',
       },
     ]);

@@ -80,7 +80,7 @@ export class KunamiCodeActivateService {
     const state = String(data.new_state.state);
     // Append new state to each matcher, test, then run callback
     await each(process, async (item, callback) => {
-      const { match, immediateReset } = item.watcher;
+      const { match, reset: immediateReset } = item.watcher;
       // Append to list of observed states
       item.progress.push(state);
       // Has appending this event invalidated the command?

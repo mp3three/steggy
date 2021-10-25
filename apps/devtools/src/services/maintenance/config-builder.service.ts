@@ -1,5 +1,5 @@
 import {
-  CANCEL,
+  DONE,
   iRepl,
   OUTPUT_HEADER_FONT,
   PromptEntry,
@@ -123,7 +123,7 @@ export class ConfigBuilderService implements iRepl {
     ]);
 
     switch (action) {
-      case CANCEL:
+      case DONE:
         return;
 
       case 'describe':

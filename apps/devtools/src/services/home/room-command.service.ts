@@ -7,7 +7,7 @@ import {
 } from '@automagical/controller-logic';
 import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import {
-  CANCEL,
+  DONE,
   MDIIcons,
   PromptEntry,
   PromptService,
@@ -87,7 +87,7 @@ export class RoomCommandService {
       new inquirer.Separator(),
       [`Create`, 'create'],
     ]);
-    if (room === CANCEL) {
+    if (room === DONE) {
       return;
     }
     if (room === 'create') {
@@ -153,7 +153,7 @@ export class RoomCommandService {
           url: `/room/${room._id}`,
         });
         return;
-      case CANCEL:
+      case DONE:
         return;
       case 'describe':
         console.log(encode(room));
@@ -274,7 +274,7 @@ export class RoomCommandService {
       actions.push(['Remove', 'remove']);
     }
     const action = await this.promptService.menuSelect(actions);
-    if (action === CANCEL) {
+    if (action === DONE) {
       return;
     }
     switch (action) {
@@ -334,7 +334,7 @@ export class RoomCommandService {
       ]),
     ]);
     switch (action) {
-      case CANCEL:
+      case DONE:
         return;
       case 'add':
         let addMore = true;
