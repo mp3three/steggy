@@ -31,6 +31,7 @@ const INVERT_VALUE = -1;
 const PERCENT = 100;
 const DEFAULT_INCREMENT = 1;
 const START = 0;
+const NO_BRIGHTNESS = 0;
 
 /**
  * - State management for lights
@@ -54,10 +55,9 @@ export class LightManagerService {
 
   @Trace()
   public async circadianLight(
-    entity_id: string | string[],
+    entity_id: string | string[] = [],
     brightness?: number,
   ): Promise<void> {
-    entity_id ??= [];
     if (Array.isArray(entity_id)) {
       await each(entity_id, async (id, callback) => {
         await this.circadianLight(id, brightness);
@@ -76,12 +76,12 @@ export class LightManagerService {
     data: RoomCommandDTO = {},
     change: string[],
   ): Promise<void> {
-    const { increment } = data;
+    const { increment = DEFAULT_INCREMENT } = data;
     const lights = await this.findDimmableLights(change);
     await each(lights, async (entity_id: string, callback) => {
       await this.lightDim(
         entity_id,
-        this.dimPercent * (increment ?? DEFAULT_INCREMENT) * INVERT_VALUE,
+        this.dimPercent * increment * INVERT_VALUE,
       );
       callback();
     });
@@ -92,13 +92,10 @@ export class LightManagerService {
     data: RoomCommandDTO = {},
     change: string[],
   ): Promise<void> {
-    const { increment } = data;
+    const { increment = DEFAULT_INCREMENT } = data;
     const lights = await this.findDimmableLights(change);
     await each(lights, async (entity_id: string, callback) => {
-      await this.lightDim(
-        entity_id,
-        this.dimPercent * (increment ?? DEFAULT_INCREMENT),
-      );
+      await this.lightDim(entity_id, this.dimPercent * increment);
       callback();
     });
   }
@@ -136,7 +133,7 @@ export class LightManagerService {
    */
   @Trace()
   public async lightDim(entityId: string, amount: number): Promise<void> {
-    let { brightness } = await this.getState(entityId);
+    let { brightness = NO_BRIGHTNESS } = await this.getState(entityId);
     brightness += amount;
     if (brightness > this.maxBrightness) {
       brightness = this.maxBrightness;

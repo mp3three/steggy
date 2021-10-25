@@ -5,15 +5,17 @@ import {
   LightStateDTO,
 } from '@automagical/home-assistant';
 import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each, eachLimit } from 'async';
 
 import { CONCURRENT_CHANGES, DIM_PERCENT } from '../../config';
 import {
   BASIC_STATE,
+  GROUP_LIGHT_COMMANDS,
   GROUP_TYPES,
+  GroupCommandDTO,
   GroupDTO,
-  GroupSetStateDTO,
+  GroupLightCommandExtra,
   LIGHTING_MODE,
   PersistenceLightStateDTO,
 } from '../../contracts';
@@ -47,61 +49,34 @@ export class LightGroupService extends BaseGroupService {
   @Trace()
   public async activateCommand(
     group: GroupParameter,
-    state: GroupSetStateDTO,
+    command: GroupCommandDTO<GroupLightCommandExtra, GROUP_LIGHT_COMMANDS>,
   ): Promise<void> {
-    switch (state.state) {
+    switch (command.command) {
       case 'turnOff':
-        await this.turnOff(group);
-        return;
+        return await this.turnOff(group);
       case 'turnOn':
-        await this.turnOn(group, false, state.extra?.brightness as number);
-        return;
+        return await this.turnOn(group, false, command.extra?.brightness);
       case 'circadianLight':
-        await this.turnOn(group, true, state.extra?.brightness as number);
-        return;
+        return await this.turnOn(group, true, command.extra?.brightness);
+      case 'dimDown':
+        return await this.dimDown(group, command.extra?.brightness);
+      case 'dimUp':
+        return await this.dimUp(group, command.extra?.brightness);
       default:
-        await this.activateState(group, state.state);
+        throw new NotImplementedException();
     }
   }
 
   @Trace()
-  public async activateState(
-    group: GroupParameter,
-    stateId: string,
-  ): Promise<void> {
-    if (stateId === 'turnOn') {
-      await this.turnOn(group);
-      return;
-    }
-    if (stateId === 'turnOff') {
-      await this.turnOff(group);
-      return;
-    }
-    if (stateId === 'circadian') {
-      await this.turnOn(group, true);
-      return;
-    }
-    if (stateId === 'dimUp') {
-      await this.dimUp(group);
-      return;
-    }
-    if (stateId === 'dimDown') {
-      await this.dimDown(group);
-      return;
-    }
-    await super.activateState(group, stateId);
-  }
-
-  @Trace()
-  public async dimDown(group: GroupParameter): Promise<void> {
+  public async dimDown(group: GroupParameter, amount?: number): Promise<void> {
     group = await this.loadGroup(group);
-    await this.lightManager.dimDown({}, group.entities);
+    await this.lightManager.dimDown({ increment: amount }, group.entities);
   }
 
   @Trace()
-  public async dimUp(group: GroupParameter): Promise<void> {
+  public async dimUp(group: GroupParameter, amount?: number): Promise<void> {
     group = await this.loadGroup(group);
-    await this.lightManager.dimUp({}, group.entities);
+    await this.lightManager.dimUp({ increment: amount }, group.entities);
   }
 
   @Trace()

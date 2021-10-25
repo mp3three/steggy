@@ -36,7 +36,6 @@
     "appsDir": "apps",
     "libsDir": "libs"
   },
-  "projects": {},
   "targetDependencies": {
     "build": [
       {
@@ -44,5 +43,25 @@
         "projects": "dependencies"
       }
     ]
-  }
+  },
+  "cli": {
+    "defaultCollection": "@nrwl/nest"
+  },
+  "generators": {
+    "@nrwl/react": {
+      "application": {
+        "style": "css",
+        "linter": "eslint",
+        "babel": true
+      },
+      "component": {
+        "style": "css"
+      },
+      "library": {
+        "style": "css",
+        "linter": "eslint"
+      }
+    }
+  },
+  "defaultProject": "home-controller"
 }

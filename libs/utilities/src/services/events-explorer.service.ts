@@ -4,7 +4,10 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { EventEmitter2 } from 'eventemitter2';
 
 import { LOG_CONTEXT } from '../contracts/logger';
-import { EVENT_LISTENER_METADATA, OnEventMetadata } from '../decorators';
+import {
+  EVENT_LISTENER_METADATA,
+  OnEventMetadata,
+} from '../decorators/events.decorator';
 import { Info, Trace } from '../decorators/logger.decorator';
 import { AutoLogService } from './logger';
 

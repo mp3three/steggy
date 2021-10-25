@@ -13,8 +13,8 @@ import { eachLimit } from 'async';
 import { CONCURRENT_CHANGES } from '../../config';
 import {
   GROUP_TYPES,
+  GroupCommandDTO,
   GroupDTO,
-  GroupSetStateDTO,
   PersistenceFanStateDTO,
 } from '../../contracts';
 import { GroupPersistenceService } from '../persistence';
@@ -39,9 +39,9 @@ export class FanGroupService extends BaseGroupService {
   @Trace()
   public async activateCommand(
     group: GroupDTO | string,
-    state: GroupSetStateDTO,
+    state: GroupCommandDTO,
   ): Promise<void> {
-    switch (state.state) {
+    switch (state.command) {
       case 'turnOff':
         await this.turnOff(group);
         return;
@@ -49,7 +49,7 @@ export class FanGroupService extends BaseGroupService {
         await this.turnOn(group);
         return;
       default:
-        await this.activateState(group, state.state);
+        await this.activateState(group, state.command);
     }
   }
 

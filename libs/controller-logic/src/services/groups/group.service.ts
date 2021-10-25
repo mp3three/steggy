@@ -10,8 +10,10 @@ import { each } from 'async';
 
 import type {
   BASE_STATES,
+  GroupCommandDTO,
   GroupSaveStateDTO,
-  GroupSetStateDTO,
+  RoutineCommandGroupActionDTO,
+  RoutineCommandGroupStateDTO,
 } from '../../contracts';
 import {
   BASIC_STATE,
@@ -43,22 +45,20 @@ export class GroupService {
 
   @Trace()
   public async activateCommand(
-    group: GroupDTO | string,
-    state: GroupSetStateDTO,
+    command: RoutineCommandGroupActionDTO,
   ): Promise<void> {
-    group = await this.load(group);
+    const group = await this.load(command.group);
     const base = this.getBaseGroup(group.type);
-    return await base.activateCommand(group, state);
+    return await base.activateCommand(group, command);
   }
 
   @Trace()
   public async activateState(
-    group: GroupDTO | string,
-    state: string,
+    command: RoutineCommandGroupStateDTO,
   ): Promise<void> {
-    group = await this.load(group);
+    const group = await this.load(command.group);
     const base = this.getBaseGroup(group.type);
-    return await base.activateState(group, state);
+    return await base.activateState(group, command.state);
   }
 
   @Trace()

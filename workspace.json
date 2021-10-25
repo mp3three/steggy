@@ -1,9 +1,5 @@
 {
   "version": 2,
-  "cli": {
-    "defaultCollection": "@nrwl/nest"
-  },
-  "defaultProject": "home-controller",
   "projects": {
     "controller-logic": "libs/controller-logic",
     "devtools": "apps/devtools",
@@ -14,21 +10,5 @@
     "server": "libs/server",
     "tty": "libs/tty",
     "utilities": "libs/utilities"
-  },
-  "generators": {
-    "@nrwl/react": {
-      "application": {
-        "style": "css",
-        "linter": "eslint",
-        "babel": true
-      },
-      "component": {
-        "style": "css"
-      },
-      "library": {
-        "style": "css",
-        "linter": "eslint"
-      }
-    }
   }
 }

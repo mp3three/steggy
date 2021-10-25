@@ -13,8 +13,8 @@ import { each, eachLimit } from 'async';
 import { CONCURRENT_CHANGES } from '../../config';
 import {
   GROUP_TYPES,
+  GroupCommandDTO,
   GroupDTO,
-  GroupSetStateDTO,
   PersistenceLockStateDTO,
 } from '../../contracts';
 import { GroupPersistenceService } from '../persistence';
@@ -40,9 +40,9 @@ export class LockGroupService extends BaseGroupService {
   @Trace()
   public async activateCommand(
     group: GroupDTO | string,
-    state: GroupSetStateDTO,
+    state: GroupCommandDTO,
   ): Promise<void> {
-    switch (state.state) {
+    switch (state.command) {
       case 'lock':
         await this.lock(group);
         return;
@@ -50,7 +50,7 @@ export class LockGroupService extends BaseGroupService {
         await this.unlock(group);
         return;
       default:
-        await this.activateState(group, state.state);
+        await this.activateState(group, state.command);
     }
   }
 

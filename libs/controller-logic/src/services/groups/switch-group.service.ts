@@ -13,7 +13,7 @@ import { CONCURRENT_CHANGES } from '../../config';
 import {
   GROUP_TYPES,
   GroupDTO,
-  GroupSetStateDTO,
+  GroupCommandDTO,
   PersistenceLightStateDTO,
   PersistenceSwitchStateDTO,
 } from '../../contracts';
@@ -39,9 +39,9 @@ export class SwitchGroupService extends BaseGroupService {
   @Trace()
   public async activateCommand(
     group: GroupDTO | string,
-    state: GroupSetStateDTO,
+    state: GroupCommandDTO,
   ): Promise<void> {
-    switch (state.state) {
+    switch (state.command) {
       case 'turnOff':
         await this.turnOff(group);
         return;
@@ -49,7 +49,7 @@ export class SwitchGroupService extends BaseGroupService {
         await this.turnOn(group);
         return;
       default:
-        await this.activateState(group, state.state);
+        await this.activateState(group, state.command);
     }
   }
 
