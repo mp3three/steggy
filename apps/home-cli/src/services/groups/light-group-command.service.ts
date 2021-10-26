@@ -1,8 +1,9 @@
 import {
   GroupDTO,
-  PersistenceLightStateDTO,
+  LightingCacheDTO,
+  RoomEntitySaveStateDTO,
 } from '@automagical/controller-logic';
-import { PromptEntry, PromptMenuItems, PromptService } from '@automagical/tty';
+import { PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import inquirer from 'inquirer';
@@ -72,11 +73,11 @@ export class LightGroupCommandService {
 
   public async promptChangeBrightness(group: GroupDTO): Promise<void> {
     let current = 0;
-    const onList = (group as GroupDTO<PersistenceLightStateDTO>).state.filter(
+    const onList = group.state.states.filter(
       (item) => item.state === 'on',
-    );
+    ) as RoomEntitySaveStateDTO<LightingCacheDTO>[];
     onList.forEach((item) => {
-      current += item.brightness;
+      current += item.extra.brightness;
     });
     current = Math.floor(current / onList.length);
     const brightness = await this.promptService.number(

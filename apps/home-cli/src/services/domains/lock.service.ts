@@ -1,5 +1,5 @@
 import { RoomEntitySaveStateDTO } from '@automagical/controller-logic';
-import { PromptMenuItems } from '@automagical/tty';
+import { PromptEntry } from '@automagical/tty';
 import { Injectable } from '@nestjs/common';
 import inquirer from 'inquirer';
 
@@ -13,7 +13,10 @@ export class LockService extends BaseDomainService {
   ): Promise<RoomEntitySaveStateDTO> {
     const state = await this.promptService.pickOne(
       `Set lock`,
-      ['lock', 'unlock'],
+      [
+        ['Lock', 'lock'],
+        ['Unlock', 'unlock'],
+      ],
       current?.state,
     );
     return {
@@ -49,10 +52,10 @@ export class LockService extends BaseDomainService {
     });
   }
 
-  protected getMenuOptions(): PromptMenuItems {
+  protected getMenuOptions(): PromptEntry[] {
     return [
-      { name: 'Lock', value: 'lock' },
-      { name: 'Unlock', value: 'unlock' },
+      ['Lock', 'lock'],
+      ['Unlock', 'unlock'],
       new inquirer.Separator(),
       ...super.getMenuOptions(),
     ];

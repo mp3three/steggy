@@ -206,12 +206,12 @@ export class GroupCommandService implements iRepl {
   }
 
   private async describeGroup(group: GroupDTO): Promise<string> {
-    group.state ??= [];
+    group.state.states ??= [];
     group = await this.fetchService.fetch({
       url: `/group/${group._id}`,
     });
     const entity = await this.promptService.menuSelect(
-      group.state.map((item, index) => {
+      group.state.states.map((item, index) => {
         const value = group.entities[index];
         if (!value) {
           return new Separator(`MISSING ENTITY`);

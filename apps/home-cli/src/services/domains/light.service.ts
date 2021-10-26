@@ -3,7 +3,7 @@ import {
   RoomEntitySaveStateDTO,
 } from '@automagical/controller-logic';
 import { HASS_DOMAINS, LightStateDTO } from '@automagical/home-assistant';
-import { PromptMenuItems } from '@automagical/tty';
+import { PromptEntry } from '@automagical/tty';
 import { Injectable } from '@nestjs/common';
 import inquirer from 'inquirer';
 
@@ -27,7 +27,11 @@ export class LightService extends SwitchService {
   ): Promise<RoomEntitySaveStateDTO> {
     const state = await this.promptService.pickOne(
       entity_id,
-      ['turnOn', 'turnOff', 'circadianLight'],
+      [
+        ['Turn On', 'turnOn'],
+        ['Turn Off', 'turnOff'],
+        ['Circadian Light', 'circadianLight'],
+      ],
       current?.state,
     );
     if (state === 'turnOff') {
@@ -104,15 +108,15 @@ export class LightService extends SwitchService {
     });
   }
 
-  protected getMenuOptions(): PromptMenuItems {
+  protected getMenuOptions(): PromptEntry[] {
     const parent = super.getMenuOptions();
     return [
       ...parent.slice(START, SHIFT_AMOUNT),
-      { name: 'Circadian light', value: 'circadianLight' },
-      { name: 'Dim Up', value: 'dimUp' },
-      { name: 'Dim Down', value: 'dimDown' },
+      ['Circadian light', 'circadianLight'],
+      ['Dim Up', 'dimUp'],
+      ['Dim Down', 'dimDown'],
       new inquirer.Separator(),
-      { name: 'Swap state with another light', value: 'swapState' },
+      ['Swap state with another light', 'swapState'],
       ...parent.slice(SHIFT_AMOUNT),
     ];
   }
