@@ -19,6 +19,7 @@ const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
 const SCRIPT_ARG = 2;
 const UP = 1;
 const DOWN = -1;
+const NAME = 0;
 
 @Repl({
   name: 'Main',
@@ -59,8 +60,7 @@ export class MainCLIService implements iRepl {
         this.scriptList()
           .filter((item) => {
             if (Array.isArray(item)) {
-              // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-              return item[0] !== 'Main';
+              return item[NAME] !== 'Main';
             }
             return true;
           })
@@ -68,11 +68,7 @@ export class MainCLIService implements iRepl {
             if (!Array.isArray(item)) {
               return item;
             }
-            return {
-              // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-              name: item[0],
-              value: item,
-            };
+            return [item[NAME], item];
           }),
         script,
       );

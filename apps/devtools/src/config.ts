@@ -1,4 +1,2 @@
 export const ALBUM_DOWNLOAD_TARGET = 'ALBUM_DOWNLOAD_TARGET';
 export const ALBUM_PAD_SIZE = 'ALBUM_PAD_SIZE';
-export const CONTROLLER_API = 'CONTROLLER_API';
-export const ADMIN_KEY = 'ADMIN_KEY';

@@ -1,7 +1,7 @@
 import { FetchService, FetchWith, InjectConfig } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
-import { ADMIN_KEY, CONTROLLER_API } from '../../config';
+import { ADMIN_KEY, CONTROLLER_API } from '../config';
 
 @Injectable()
 export class HomeFetchService {

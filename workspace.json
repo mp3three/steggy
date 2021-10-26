@@ -4,6 +4,7 @@
     "controller-logic": "libs/controller-logic",
     "devtools": "apps/devtools",
     "home-assistant": "libs/home-assistant",
+    "home-cli": "apps/home-cli",
     "home-controller": "apps/home-controller",
     "living-docs": "apps/living-docs",
     "persistence": "libs/persistence",

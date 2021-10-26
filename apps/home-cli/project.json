@@ -1,0 +1,111 @@
+{
+  "root": "apps/home-cli",
+  "sourceRoot": "apps/home-cli/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:execute",
+      "options": {
+        "buildTarget": "home-cli:build",
+        "inspect": "inspect",
+        "port": 33336
+      }
+    },
+    "prepare": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "npx nx build home-cli --configuration=config-scanner"
+          }
+        ]
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "assets": [
+          {
+            "input": "libs/utilities",
+            "glob": "automagical.json",
+            "output": "./assets/utilities"
+          },
+          {
+            "input": "libs/tty",
+            "glob": "automagical.json",
+            "output": "./assets/tty"
+          },
+          {
+            "input": "apps/home-cli",
+            "glob": "automagical.json",
+            "output": "./assets/home-cli"
+          },
+          {
+            "input": "libs/home-assistant",
+            "glob": "automagical.json",
+            "output": "./assets/home-assistant"
+          },
+          {
+            "input": "libs/controller-logic",
+            "glob": "automagical.json",
+            "output": "./assets/controller-logic"
+          },
+          {
+            "input": "libs/server",
+            "glob": "automagical.json",
+            "output": "./assets/server"
+          },
+          {
+            "input": "libs/persistence",
+            "glob": "automagical.json",
+            "output": "./assets/persistence"
+          }
+        ],
+        "outputPath": "dist/apps/home-cli",
+        "generatePackageJson": true,
+        "fileReplacements": [
+          {
+            "replace": "apps/home-cli/src/environments/environment.ts",
+            "with": "apps/home-cli/src/environments/develop.environment.ts"
+          }
+        ],
+        "main": "apps/home-cli/src/entrypoints/main.ts",
+        "tsConfig": "apps/home-cli/tsconfig.app.json"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": []
+        },
+        "scan-config": {
+          "outputPath": "dist/config-scanner/home-cli",
+          "fileReplacements": [
+            {
+              "replace": "apps/home-cli/src/environments/environment.ts",
+              "with": "apps/home-cli/src/environments/scanner.environment.ts"
+            }
+          ]
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/home-cli/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/home-cli"],
+      "options": {
+        "jestConfig": "apps/home-cli/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
