@@ -59,11 +59,10 @@ export async function Bootstrap(
   logger.setContext(LIB_UTILS, { name: 'Bootstrap' });
   // onPreInit
   preInit ??= [];
-  const call = async (item, callback) => {
+  await eachSeries(preInit, async (item, callback) => {
     await item(app, server);
     callback();
-  };
-  await eachSeries(preInit, call);
+  });
   await lifecycle.preInit(app, { options: bootOptions, server });
   // ...init
   // onModuleCreate
@@ -71,7 +70,14 @@ export async function Bootstrap(
   await app.init();
   // onPostInit
   postInit ??= [];
-  await eachSeries(postInit, call);
+  await eachSeries(postInit, async (item, callback) => {
+    await item(app, server);
+    // ??? Why is it sometimes not passing a callback?
+    // Not calling the not-existing callback doesn't seem to break it though
+    if (callback) {
+      callback();
+    }
+  });
   await lifecycle.postInit(app, { options: bootOptions, server });
   logger.info(`🎓 Bootstrap control released! 🎓`);
 }

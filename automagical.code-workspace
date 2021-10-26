@@ -25,6 +25,13 @@
         // Match this to the workspace.json
         "port": 33336
       },
+      {
+        "name": "Debug Home CLI",
+        "type": "node",
+        "request": "attach",
+        // Match this to the workspace.json
+        "port": 33337
+      },
     ]
   },
   "extensions": {

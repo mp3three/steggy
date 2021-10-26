@@ -1,6 +1,7 @@
 import {
   AutoLogService,
   InjectConfig,
+  IsEmpty,
   TitleCase,
 } from '@automagical/utilities';
 import chalk from 'chalk';
@@ -8,9 +9,9 @@ import figlet from 'figlet';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
-import { REPL_TYPE, ReplOptions } from '..';
 import { DEFAULT_HEADER_FONT } from '../config';
 import { iRepl } from '../contracts/i-repl.interface';
+import { ReplOptions } from '../contracts/repl-options.dto';
 import { Repl } from '../decorators';
 import { PromptService, ReplExplorerService } from '../services';
 
@@ -23,7 +24,7 @@ const NAME = 0;
 
 @Repl({
   name: 'Main',
-  type: REPL_TYPE.misc,
+  category: 'main',
 })
 export class MainCLIService implements iRepl {
   constructor(
@@ -57,19 +58,12 @@ export class MainCLIService implements iRepl {
     if (!scriptName || typeof script !== 'undefined') {
       return await this.promptService.pickOne(
         'Command',
-        this.scriptList()
-          .filter((item) => {
-            if (Array.isArray(item)) {
-              return item[NAME] !== 'Main';
-            }
-            return true;
-          })
-          .map((item) => {
-            if (!Array.isArray(item)) {
-              return item;
-            }
-            return [item[NAME], item];
-          }),
+        this.scriptList().map((item) => {
+          if (!Array.isArray(item)) {
+            return item;
+          }
+          return [item[NAME], item];
+        }),
         script,
       );
     }
@@ -102,27 +96,31 @@ export class MainCLIService implements iRepl {
   }
 
   private scriptList(): ([string, iRepl] | Separator)[] {
-    const types: Partial<Record<REPL_TYPE, [string, iRepl][]>> = {};
+    const types: Partial<Record<string, [string, iRepl][]>> = {};
     this.explorer.REGISTERED_APPS.forEach(
-      (instance: iRepl, { type, name }: ReplOptions) => {
-        types[type] ??= [];
-        types[type].push([name, instance]);
+      (instance: iRepl, { category: type, name }: ReplOptions) => {
+        if (name !== 'Main') {
+          types[type] ??= [];
+          types[type].push([name, instance]);
+        }
       },
     );
     const out: ([string, iRepl] | Separator)[] = [];
-    Object.keys(REPL_TYPE).forEach((type) => {
-      out.push(
-        new inquirer.Separator(TitleCase(type)),
-        ...types[type].sort(([a], [b]) => {
-          a = a.replace(unsortable, '');
-          b = b.replace(unsortable, '');
-          if (a > b) {
-            return UP;
-          }
-          return DOWN;
-        }),
-      );
-    });
+    Object.keys(types)
+      .sort()
+      .forEach((type) => {
+        out.push(
+          new inquirer.Separator(TitleCase(type)),
+          ...types[type].sort(([a], [b]) => {
+            a = a.replace(unsortable, '');
+            b = b.replace(unsortable, '');
+            if (a > b) {
+              return UP;
+            }
+            return DOWN;
+          }),
+        );
+      });
     return out;
   }
 }

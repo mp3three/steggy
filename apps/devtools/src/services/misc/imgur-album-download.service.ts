@@ -1,5 +1,4 @@
-import { iRepl, OctIcons, REPL_TYPE } from '@automagical/tty';
-import { Repl } from '@automagical/tty';
+import { iRepl, OctIcons, Repl } from '@automagical/tty';
 import {
   AutoLogService,
   FetchService,
@@ -10,7 +9,6 @@ import execa from 'execa';
 import { lstatSync, mkdirSync, readdirSync, renameSync } from 'fs';
 import inquirer from 'inquirer';
 import { join, resolve } from 'path';
-
 import { ALBUM_DOWNLOAD_TARGET, ALBUM_PAD_SIZE } from '../../config';
 
 /* eslint-disable security/detect-non-literal-regexp, @typescript-eslint/no-magic-numbers */
@@ -25,7 +23,7 @@ const SEPARATOR = ' - ';
   ],
   icon: OctIcons.desktop_download,
   name: `Yoink`,
-  type: REPL_TYPE.misc,
+  category: `Misc`,
 })
 export class ImgurAlbumDownloadService implements iRepl {
   constructor(

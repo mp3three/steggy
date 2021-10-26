@@ -1,13 +1,14 @@
 {
   "configuration": {
-    "CONTROLLER_API": {
+    "ALBUM_DOWNLOAD_TARGET": {
       "type": "string",
-      "description": "HTTP API target for the home controller",
-      "default": "http://localhost:7000"
+      "description": "Base folder for downloading",
+      "default": "~/Downloads"
     },
-    "ADMIN_KEY": {
-      "type": "password",
-      "description": "Admin key for the home controller"
+    "ALBUM_PAD_SIZE": {
+      "type": "number",
+      "description": "Pad numbers in file names to a consistent size so they can be sorted more easily",
+      "default": 4
     }
   }
 }

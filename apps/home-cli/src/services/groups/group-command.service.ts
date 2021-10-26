@@ -1,4 +1,4 @@
-import { GROUP_TYPES, GroupDTO } from '@automagical/controller-logic';
+import { GroupDTO, GROUP_TYPES } from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
 import {
   DONE,
@@ -7,12 +7,10 @@ import {
   PromptEntry,
   PromptService,
   Repl,
-  REPL_TYPE,
 } from '@automagical/tty';
 import { AutoLogService, IsEmpty, TitleCase } from '@automagical/utilities';
 import chalk from 'chalk';
 import inquirer, { Separator } from 'inquirer';
-
 import { EntityService } from '../entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { GroupStateService } from './group-state.service';
@@ -31,7 +29,7 @@ export type GroupItem = { entities: string[]; name: string; room: string };
   ],
   icon: FontAwesomeIcons.group,
   name: `Groups`,
-  type: REPL_TYPE.home,
+  category: `Logic`,
 })
 export class GroupCommandService implements iRepl {
   constructor(

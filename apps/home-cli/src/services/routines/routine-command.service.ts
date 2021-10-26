@@ -1,27 +1,20 @@
 import {
   KunamiCodeActivateDTO,
-  ROUTINE_ACTIVATE_TYPE,
   RoutineActivateDTO,
   RoutineDTO,
+  ROUTINE_ACTIVATE_TYPE,
   StateChangeActivateDTO,
 } from '@automagical/controller-logic';
-import {
-  DONE,
-  PromptEntry,
-  PromptService,
-  Repl,
-  REPL_TYPE,
-} from '@automagical/tty';
+import { DONE, PromptEntry, PromptService, Repl } from '@automagical/tty';
 import { IsEmpty, TitleCase } from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import inquirer from 'inquirer';
-
 import { KunamiBuilderService } from './kunami-builder.service';
 import { StateChangeBuilderService } from './state-change-builder.service';
 
 @Repl({
   name: 'Routines',
-  type: REPL_TYPE.home,
+  category: 'Logic',
 })
 export class RoutineCommandService {
   constructor(

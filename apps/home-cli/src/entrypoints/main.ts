@@ -2,7 +2,7 @@ import { MainCLIService } from '@automagical/tty';
 import { Bootstrap } from '@automagical/utilities';
 
 import { BOOTSTRAP_OPTIONS } from '../environments/environment';
-import { DevtoolsModule } from '../modules';
+import { HomeCLIModule } from '../modules';
 
 const FINISH_BOOTSTRAPPING = 10;
 
@@ -13,4 +13,4 @@ BOOTSTRAP_OPTIONS.postInit.push((app) => {
     main.exec();
   }, FINISH_BOOTSTRAPPING);
 });
-Bootstrap(DevtoolsModule, BOOTSTRAP_OPTIONS);
+Bootstrap(HomeCLIModule, BOOTSTRAP_OPTIONS);

@@ -1,7 +1,7 @@
 import {
   CONCURRENT_CHANGES,
-  GROUP_TYPES,
   GroupDTO,
+  GROUP_TYPES,
   RoomDTO,
   RoomEntityDTO,
 } from '@automagical/controller-logic';
@@ -12,7 +12,6 @@ import {
   PromptEntry,
   PromptService,
   Repl,
-  REPL_TYPE,
 } from '@automagical/tty';
 import {
   AutoLogService,
@@ -23,7 +22,6 @@ import {
 import { eachLimit } from 'async';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
-
 import { LightService } from './domains';
 import { EntityService } from './entity.service';
 import { LightGroupCommandService } from './groups';
@@ -40,7 +38,7 @@ const NAME = 0;
   ],
   icon: MDIIcons.television_box,
   name: `Rooms`,
-  type: REPL_TYPE.home,
+  category: `Logic`,
 })
 export class RoomCommandService {
   constructor(

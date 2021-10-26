@@ -6,7 +6,6 @@ import {
   OctIcons,
   PromptService,
   Repl,
-  REPL_TYPE,
   SystemService,
   TypePromptService,
   WorkspaceService,
@@ -15,6 +14,7 @@ import {
   APP_LIVING_DOCS,
   AutoLogService,
   IsEmpty,
+  TitleCase,
   Trace,
 } from '@automagical/utilities';
 import { eachSeries } from 'async';
@@ -32,7 +32,7 @@ import { inc } from 'semver';
   ],
   icon: OctIcons.checklist,
   name: `Changelog`,
-  type: REPL_TYPE.maintenance,
+  category: `Maintenance`,
 })
 export class ChangelogService implements iRepl {
   constructor(
@@ -169,7 +169,7 @@ export class ChangelogService implements iRepl {
   private async processAffected(affected: string[]): Promise<ChangeItemDTO[]> {
     const values = await this.promptService.pickMany(
       'Projects to version bump',
-      affected,
+      affected.map((i) => [TitleCase(i), i]),
     );
     if (IsEmpty(values)) {
       const proceed = await this.promptService.confirm(

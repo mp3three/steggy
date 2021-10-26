@@ -5,18 +5,16 @@ import {
 } from '@automagical/controller-logic';
 import {
   domain,
-  HASS_DOMAINS,
   HassStateDTO,
+  HASS_DOMAINS,
 } from '@automagical/home-assistant';
 import {
   FontAwesomeExtendedIcons,
   iRepl,
   PromptService,
   Repl,
-  REPL_TYPE,
 } from '@automagical/tty';
 import { IsEmpty } from '@automagical/utilities';
-
 import {
   BaseDomainService,
   ClimateService,
@@ -32,7 +30,7 @@ import { HomeFetchService } from './home-fetch.service';
   description: [`Commands scoped to a single/manually built list of entities`],
   icon: FontAwesomeExtendedIcons.checklist_o,
   name: `Entities`,
-  type: REPL_TYPE.home,
+  category: `Home Assistant`,
 })
 export class EntityService implements iRepl {
   constructor(

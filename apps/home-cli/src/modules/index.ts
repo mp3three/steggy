@@ -1,1 +1,1 @@
-export * from './devtools.module';
+export * from './home-cli.module';

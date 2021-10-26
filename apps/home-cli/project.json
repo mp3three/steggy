@@ -8,7 +8,7 @@
       "options": {
         "buildTarget": "home-cli:build",
         "inspect": "inspect",
-        "port": 33336
+        "port": 33337
       }
     },
     "prepare": {

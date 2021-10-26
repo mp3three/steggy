@@ -52,6 +52,11 @@
             "output": "./assets/dashboard"
           },
           {
+            "input": "apps/home-cli",
+            "glob": "automagical.json",
+            "output": "./assets/home-cli"
+          },
+          {
             "input": "libs/home-assistant",
             "glob": "automagical.json",
             "output": "./assets/home-assistant"

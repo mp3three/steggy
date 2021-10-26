@@ -5,7 +5,6 @@ import {
   PromptEntry,
   PromptService,
   Repl,
-  REPL_TYPE,
   SCAN_CONFIG_CONFIGURATION,
   SetiIcons,
   SystemService,
@@ -33,9 +32,9 @@ import { join } from 'path';
 import rc from 'rc';
 
 @Repl({
+  category: `Maintenance`,
   icon: SetiIcons.config,
   name: `Config Builder`,
-  type: REPL_TYPE.maintenance,
 })
 export class ConfigBuilderService implements iRepl {
   constructor(

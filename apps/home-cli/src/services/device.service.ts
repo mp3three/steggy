@@ -2,17 +2,16 @@ import {
   DeviceListItemDTO,
   RelatedDescriptionDTO,
 } from '@automagical/home-assistant';
-import { DONE, PromptService, Repl, REPL_TYPE } from '@automagical/tty';
+import { DONE, PromptService, Repl } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { encode } from 'ini';
-
 import { EntityService } from './entity.service';
 import { HomeFetchService } from './home-fetch.service';
 
 const SINGLE_ITEM = 1;
 @Repl({
   name: 'Devices',
-  type: REPL_TYPE.home,
+  category: `Home Assistant`,
 })
 export class DeviceService {
   constructor(
