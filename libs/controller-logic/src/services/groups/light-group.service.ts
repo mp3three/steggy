@@ -10,20 +10,20 @@ import { each, eachLimit } from 'async';
 
 import { CONCURRENT_CHANGES, DIM_PERCENT } from '../../config';
 import {
-  BASIC_STATE,
   GROUP_LIGHT_COMMANDS,
   GROUP_TYPES,
   GroupCommandDTO,
   GroupDTO,
   GroupLightCommandExtra,
   LIGHTING_MODE,
-  PersistenceLightStateDTO,
+  LightingCacheDTO,
+  RoomEntitySaveStateDTO,
 } from '../../contracts';
 import { LightManagerService } from '../light-manager.service';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
 
-type GroupParameter = GroupDTO<PersistenceLightStateDTO> | string;
+type GroupParameter = GroupDTO<LightingCacheDTO> | string;
 const START = 0;
 
 /**
@@ -80,10 +80,10 @@ export class LightGroupService extends BaseGroupService {
   }
 
   @Trace()
-  public async expandState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
-    group: GroupDTO<GROUP_TYPE> | string,
-    { brightness, hs_color }: PersistenceLightStateDTO,
-  ): Promise<GroupDTO<GROUP_TYPE>> {
+  public async expandState(
+    group: GroupDTO | string,
+    { brightness, hs_color }: LightingCacheDTO,
+  ): Promise<void> {
     group = await this.loadGroup(group);
     await each(group.entities, async (entity, callback) => {
       if (!hs_color) {
@@ -98,20 +98,22 @@ export class LightGroupService extends BaseGroupService {
       });
       callback();
     });
-    return group;
   }
 
   @Trace()
   public getState(
-    group: GroupDTO<PersistenceLightStateDTO>,
-  ): PersistenceLightStateDTO[] {
+    group: GroupDTO<LightingCacheDTO>,
+  ): RoomEntitySaveStateDTO<LightingCacheDTO>[] {
     return group.entities.map((id) => {
       const light = this.entityManager.getEntity<LightStateDTO>(id);
       return {
-        brightness: light.attributes.brightness,
-        hs_color: light.attributes.hs_color,
+        entity_id: light.entity_id,
+        extra: {
+          brightness: light.attributes.brightness,
+          hs_color: light.attributes.hs_color,
+        },
         state: light.state,
-      } as PersistenceLightStateDTO;
+      };
     });
   }
 
@@ -149,7 +151,7 @@ export class LightGroupService extends BaseGroupService {
     await eachLimit(
       group.entities.map((entity, index) => {
         return [entity, states[index]];
-      }) as [string, PersistenceLightStateDTO][],
+      }) as [string, RoomEntitySaveStateDTO<LightingCacheDTO>][],
       this.eachLimit,
       async ([id, state], callback) => {
         if (state?.state !== 'on' && turnOn === false) {
@@ -186,7 +188,7 @@ export class LightGroupService extends BaseGroupService {
   @Trace()
   protected async setState(
     entites: string[],
-    state: PersistenceLightStateDTO[],
+    state: RoomEntitySaveStateDTO[],
   ): Promise<void> {
     if (entites.length !== state.length) {
       this.logger.warn(`State and entity length mismatch`);
@@ -195,22 +197,22 @@ export class LightGroupService extends BaseGroupService {
     await eachLimit(
       state.map((state, index) => {
         return [entites[index], state];
-      }) as [string, PersistenceLightStateDTO][],
+      }) as [string, RoomEntitySaveStateDTO<LightingCacheDTO>][],
       this.eachLimit,
       async ([id, state], callback) => {
         if (state.state === 'off') {
           await this.lightManager.turnOff(id);
           return callback();
         }
-        switch (state.mode) {
+        switch (state.extra.mode) {
           case LIGHTING_MODE.circadian:
-            await this.lightManager.circadianLight(id, state.brightness);
+            await this.lightManager.circadianLight(id, state.extra.brightness);
             break;
           case LIGHTING_MODE.on:
           default:
             await this.lightManager.turnOn(id, {
-              brightness: state.brightness,
-              hs_color: state.hs_color,
+              brightness: state.extra.brightness,
+              hs_color: state.extra.hs_color,
             });
             break;
         }

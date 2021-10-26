@@ -8,12 +8,15 @@ import {
   ROUTINE_ACTIVATE_TYPE,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
+  RoutineCommandRoomActionDTO,
+  RoutineCommandRoomStateDTO,
   RoutineDTO,
   ScheduleActivateDTO,
   StateChangeActivateDTO,
 } from '../../contracts';
 import { GroupService } from '../groups';
 import { RoutinePersistenceService } from '../persistence';
+import { RoomService } from '../room.service';
 import { KunamiCodeActivateService } from './kunami-code-activate.service';
 import { ScheduleActivateService } from './schedule-activate.service';
 import { StateChangeActivateService } from './state-change-activate.service';
@@ -25,6 +28,7 @@ export class RoutineService {
     private readonly kunamiCode: KunamiCodeActivateService,
     private readonly logger: AutoLogService,
     private readonly routinePersistence: RoutinePersistenceService,
+    private readonly roomService: RoomService,
     private readonly scheduleActivate: ScheduleActivateService,
     private readonly stateChangeActivate: StateChangeActivateService,
   ) {}
@@ -37,13 +41,25 @@ export class RoutineService {
       this.logger.debug(` - {${command.friendlyName}}`);
       switch (command.type) {
         case ROUTINE_ACTIVATE_COMMAND.group_action:
-          return await this.groupService.activateCommand(
+          await this.groupService.activateCommand(
             command.command as RoutineCommandGroupActionDTO,
           );
+          break;
         case ROUTINE_ACTIVATE_COMMAND.group_state:
-          return await this.groupService.activateState(
+          await this.groupService.activateState(
             command.command as RoutineCommandGroupStateDTO,
           );
+          break;
+        case ROUTINE_ACTIVATE_COMMAND.room_action:
+          await this.roomService.activateCommand(
+            command.command as RoutineCommandRoomActionDTO,
+          );
+          break;
+        case ROUTINE_ACTIVATE_COMMAND.room_state:
+          await this.roomService.activateState(
+            command.command as RoutineCommandRoomStateDTO,
+          );
+          break;
       }
       callback();
     });
@@ -73,6 +89,7 @@ export class RoutineService {
   @Trace()
   private async mount(): Promise<void> {
     const allRoutines = await this.routinePersistence.findMany();
+    this.logger.info(`Mounting {${allRoutines.length}} routines`);
     allRoutines.forEach((routine) => {
       if (IsEmpty(routine.activate)) {
         this.logger.warn(`[${routine.friendlyName}] no activation events`);

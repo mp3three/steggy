@@ -3,13 +3,12 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { v4 as uuid } from 'uuid';
 
-import type { BASE_STATES, GroupCommandDTO, RoutineDTO } from '../../contracts';
-import {
-  BASIC_STATE,
-  GROUP_TYPES,
-  GroupDTO,
-  GroupSaveStateDTO,
+import type {
+  GroupCommandDTO,
+  ROOM_ENTITY_EXTRAS,
+  RoomEntitySaveStateDTO,
 } from '../../contracts';
+import { GROUP_TYPES, GroupDTO, GroupSaveStateDTO } from '../../contracts';
 import { GroupPersistenceService } from '../persistence';
 
 const EXPECTED_REMOVE_AMOUNT = 1;
@@ -24,7 +23,7 @@ export abstract class BaseGroupService {
     group: GroupDTO | string,
     state: GroupCommandDTO,
   ): Promise<void>;
-  public abstract getState(group: GroupDTO): BASIC_STATE[];
+  public abstract getState(group: GroupDTO): RoomEntitySaveStateDTO[];
   public abstract isValidEntity(id: string): boolean;
 
   @Trace()
@@ -46,7 +45,9 @@ export abstract class BaseGroupService {
   }
 
   @Trace()
-  public async addState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+  public async addState<
+    GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(
     group: GroupDTO<GROUP_TYPE> | string,
     state: GroupSaveStateDTO<GROUP_TYPE>,
   ): Promise<GroupDTO<GROUP_TYPE>> {
@@ -70,8 +71,8 @@ export abstract class BaseGroupService {
     const states = this.getState(group);
     group.save_states ??= [];
     group.save_states.push({
-      id,
       friendlyName: name,
+      id,
       states,
     });
     await this.groupPersistence.update(group, group._id);
@@ -79,7 +80,9 @@ export abstract class BaseGroupService {
   }
 
   @Trace()
-  public async deleteState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+  public async deleteState<
+    GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(
     group: GroupDTO<GROUP_TYPE> | string,
     remove: string,
   ): Promise<GroupDTO<GROUP_TYPE>> {
@@ -101,13 +104,12 @@ export abstract class BaseGroupService {
   }
 
   @Trace()
-  public async expandState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
-    group: GroupDTO<GROUP_TYPE> | string,
-    state: BASE_STATES,
-  ): Promise<GroupDTO<GROUP_TYPE>> {
+  public async expandState(
+    group: GroupDTO | string,
+    state: ROOM_ENTITY_EXTRAS,
+  ): Promise<void> {
     group = await this.loadGroup(group);
     this.logger.warn({ state }, `Group does not implement expandState`);
-    return group;
   }
 
   @Trace()
@@ -128,15 +130,14 @@ export abstract class BaseGroupService {
     this.logger.debug({ id: state.id }, `Done`);
   }
 
-  protected abstract setState(
-    entites: string[],
-    state: BASIC_STATE[],
-  ): Promise<void>;
+  protected abstract setState<
+    EXTRA extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(entites: string[], state: RoomEntitySaveStateDTO<EXTRA>[]): Promise<void>;
 
   @Trace()
-  protected async loadGroup<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
-    group: GroupDTO<GROUP_TYPE> | string,
-  ): Promise<GroupDTO<GROUP_TYPE>> {
+  protected async loadGroup<
+    GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(group: GroupDTO<GROUP_TYPE> | string): Promise<GroupDTO<GROUP_TYPE>> {
     if (typeof group === 'string') {
       group = await this.groupPersistence.findById(group);
     }
@@ -147,9 +148,9 @@ export abstract class BaseGroupService {
   }
 
   @Trace()
-  protected validateState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
-    state: GroupSaveStateDTO<GROUP_TYPE>,
-  ): GroupSaveStateDTO<GROUP_TYPE> {
+  protected validateState<
+    GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(state: GroupSaveStateDTO<GROUP_TYPE>): GroupSaveStateDTO<GROUP_TYPE> {
     return plainToClass(GroupSaveStateDTO, state);
   }
 }

@@ -10,6 +10,8 @@ import {
 } from 'class-validator';
 import { Document } from 'mongoose';
 
+import { RoomStateDTO } from '../rooms';
+
 export class RoomSettingDTO {
   /**
    * Future use: api key access for commands to be issued against this room
@@ -76,6 +78,11 @@ export class RoomDTO {
   @IsDateString()
   @Prop({ index: true })
   public modified?: Date;
+
+  @IsOptional()
+  @ValidateNested()
+  @Prop()
+  public save_states?: RoomStateDTO[];
 
   /**
    * Encrypted json

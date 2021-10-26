@@ -9,18 +9,12 @@ import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 
 import type {
-  BASE_STATES,
-  GroupCommandDTO,
   GroupSaveStateDTO,
+  ROOM_ENTITY_EXTRAS,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
 } from '../../contracts';
-import {
-  BASIC_STATE,
-  GROUP_TYPES,
-  GroupDTO,
-  LIGHTING_MODE,
-} from '../../contracts';
+import { GROUP_TYPES, GroupDTO, LIGHTING_MODE } from '../../contracts';
 import { EntityCommandRouterService } from '../entity-command-router.service';
 import { LightManagerService } from '../light-manager.service';
 import { GroupPersistenceService } from '../persistence';
@@ -62,7 +56,9 @@ export class GroupService {
   }
 
   @Trace()
-  public async addEntity<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+  public async addEntity<
+    GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(
     group: GroupDTO | string,
     entity: string | string[],
   ): Promise<GroupDTO<GROUP_TYPE>> {
@@ -76,7 +72,9 @@ export class GroupService {
   }
 
   @Trace()
-  public async addState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+  public async addState<
+    GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(
     group: GroupDTO<GROUP_TYPE> | string,
     state: GroupSaveStateDTO<GROUP_TYPE>,
   ): Promise<GroupDTO<GROUP_TYPE>> {
@@ -96,7 +94,7 @@ export class GroupService {
   }
 
   @Trace()
-  public async create<T extends BASIC_STATE = BASIC_STATE>(
+  public async create<T extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
     group: Omit<GroupDTO<T>, keyof BaseSchemaDTO>,
   ): Promise<GroupDTO<T>> {
     return await this.groupPersistence.create<T>(group);
@@ -109,7 +107,9 @@ export class GroupService {
   }
 
   @Trace()
-  public async deleteState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+  public async deleteState<
+    GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(
     group: GroupDTO<GROUP_TYPE> | string,
     state: string,
   ): Promise<GroupDTO<GROUP_TYPE>> {
@@ -119,32 +119,38 @@ export class GroupService {
   }
 
   @Trace()
-  public async expandState<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+  public async expandState<
+    GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(
     group: GroupDTO<GROUP_TYPE> | string,
-    state: BASE_STATES,
+    state: ROOM_ENTITY_EXTRAS,
   ): Promise<void> {
     group = await this.load(group);
     const base = this.getBaseGroup(group.type);
-    base.expandState(group, state as BASE_STATES);
+    base.expandState(group, state);
   }
 
   @Trace()
-  public async get(group: GroupDTO | string): Promise<GroupDTO> {
+  public async get<GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
+    group: GroupDTO<GROUP_TYPE> | string,
+  ): Promise<GroupDTO<GROUP_TYPE>> {
     group = await this.load(group);
     const base = this.getBaseGroup(group.type);
-    group.state = await base.getState(group);
+    group.state = {
+      states: await base.getState(group),
+    };
     return group;
   }
 
   @Trace()
-  public async list<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+  public async list<GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
     control: ResultControlDTO = {},
   ): Promise<GroupDTO<GROUP_TYPE>[]> {
     return await this.groupPersistence.findMany(control);
   }
 
   @Trace()
-  public async load<T extends BASIC_STATE = BASIC_STATE>(
+  public async load<T extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
     group: GroupDTO<T> | string,
   ): Promise<GroupDTO<T>> {
     if (typeof group === 'object') {
@@ -154,7 +160,9 @@ export class GroupService {
   }
 
   @Trace()
-  public async removeEntity<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+  public async removeEntity<
+    GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(
     group: GroupDTO | string,
     entity: string | string[],
   ): Promise<GroupDTO<GROUP_TYPE>> {
@@ -165,9 +173,9 @@ export class GroupService {
   }
 
   @Trace()
-  public async truncate<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
-    group: GroupDTO<GROUP_TYPE> | string,
-  ): Promise<GroupDTO<GROUP_TYPE>> {
+  public async truncate<
+    GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(group: GroupDTO<GROUP_TYPE> | string): Promise<GroupDTO<GROUP_TYPE>> {
     group = await this.load(group);
     group.save_states = [];
     return await this.update(group._id, group);
@@ -210,7 +218,9 @@ export class GroupService {
   }
 
   @Trace()
-  public async update<GROUP_TYPE extends BASIC_STATE = BASIC_STATE>(
+  public async update<
+    GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(
     id: string,
     data: Omit<Partial<GroupDTO>, keyof BaseSchemaDTO>,
   ): Promise<GroupDTO<GROUP_TYPE>> {

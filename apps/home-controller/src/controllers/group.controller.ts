@@ -1,4 +1,7 @@
-import type { BASE_STATES } from '@automagical/controller-logic';
+import type {
+  GENERIC_COMMANDS,
+  ROOM_ENTITY_EXTRAS,
+} from '@automagical/controller-logic';
 import {
   GroupDTO,
   GroupSaveStateDTO,
@@ -26,12 +29,26 @@ import {
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
-  @Put(`/:group/activate/:state`)
+  @Put(`/:group/command/:state`)
+  public async activateCommand(
+    @Param('group') group: string,
+    @Param('command') command: GENERIC_COMMANDS,
+    @Body() extra: Record<string, unknown>,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.groupService.activateCommand({
+      command,
+      extra,
+      group,
+    });
+    return GENERIC_SUCCESS_RESPONSE;
+  }
+
+  @Put(`/:group/state/:state`)
   public async activateState(
     @Param('group') group: string,
     @Param('state') state: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.groupService.activateState(group, state);
+    await this.groupService.activateState({ group, state });
     return GENERIC_SUCCESS_RESPONSE;
   }
 
@@ -81,7 +98,7 @@ export class GroupController {
   @Put(`/:group/expand`)
   public async expandState(
     @Param('group') group: string,
-    @Body() state: BASE_STATES,
+    @Body() state: ROOM_ENTITY_EXTRAS,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     await this.groupService.expandState(group, state);
     return GENERIC_SUCCESS_RESPONSE;

@@ -1,4 +1,4 @@
-import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
+import { domain } from '@automagical/home-assistant';
 import { BaseSchemaDTO } from '@automagical/persistence';
 import {
   AutoLogService,
@@ -9,14 +9,18 @@ import {
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { each } from 'async';
 
-import { EntityFilters, GroupDTO, RoomDTO, RoomEntityDTO } from '../contracts';
+import {
+  EntityFilters,
+  GroupDTO,
+  RoomDTO,
+  RoomEntityDTO,
+  RoutineCommandRoomActionDTO,
+  RoutineCommandRoomStateDTO,
+} from '../contracts';
 import { EntityCommandRouterService } from './entity-command-router.service';
 import { GroupService } from './groups';
 import { LightManagerService } from './light-manager.service';
-import {
-  RoomPersistenceService,
-  RoutinePersistenceService,
-} from './persistence';
+import { RoomPersistenceService } from './persistence';
 
 @Injectable()
 export class RoomService {
@@ -26,8 +30,45 @@ export class RoomService {
     private readonly groupService: GroupService,
     private readonly lightManager: LightManagerService,
     private readonly commandRouter: EntityCommandRouterService,
-    private readonly statePersistence: RoutinePersistenceService,
   ) {}
+
+  @Trace()
+  public async activateCommand(
+    command: RoutineCommandRoomActionDTO,
+  ): Promise<void> {
+    const room = await this.load(command.room);
+    switch (command.command) {
+      case 'turnOn':
+        return await this.turnOn(room);
+      case 'turnOff':
+        return await this.turnOff(room);
+      case 'circadianOn':
+        return await this.turnOn(room, { circadian: true });
+      case 'dimUp':
+        return await this.dimUp(room);
+      case 'dimDown':
+        return await this.dimDown(room);
+    }
+  }
+
+  @Trace()
+  public async activateState(
+    command: RoutineCommandRoomStateDTO,
+  ): Promise<void> {
+    const room = await this.load(command.room);
+    const state = room.save_states.find(({ id }) => id === command.state);
+    if (!state) {
+      throw new NotFoundException(`Cannot find save state ${command.state}`);
+    }
+    await each(state.states, async (state, callback) => {
+      await this.commandRouter.process(
+        state.entity_id,
+        state.state,
+        state.extra as Record<string, unknown>,
+      );
+      callback();
+    });
+  }
 
   @Trace()
   public async addEntity(
@@ -90,7 +131,7 @@ export class RoomService {
   @Trace()
   public async dimDown(
     room: RoomDTO | string,
-    filters: EntityFilters,
+    filters: EntityFilters = {},
   ): Promise<void> {
     room = await this.load(room);
     const entities = this.filterEntities(room, filters);
@@ -100,7 +141,10 @@ export class RoomService {
         callback();
       }),
       await each(room.groups ?? [], async (group, callback) => {
-        await this.groupService.activateState(group, 'dimDown');
+        await this.groupService.activateCommand({
+          command: 'dimDown',
+          group,
+        });
         callback();
       }),
     ]);
@@ -109,7 +153,7 @@ export class RoomService {
   @Trace()
   public async dimUp(
     room: RoomDTO | string,
-    filters: EntityFilters,
+    filters: EntityFilters = {},
   ): Promise<void> {
     room = await this.load(room);
     const entities = this.filterEntities(room, filters);
@@ -119,7 +163,10 @@ export class RoomService {
         callback();
       }),
       await each(room.groups ?? [], async (group, callback) => {
-        await this.groupService.activateState(group, 'dimUp');
+        await this.groupService.activateCommand({
+          command: 'dimUp',
+          group,
+        });
         callback();
       }),
     ]);
@@ -138,7 +185,7 @@ export class RoomService {
   @Trace()
   public async turnOff(
     room: RoomDTO | string,
-    filters: EntityFilters,
+    filters: EntityFilters = {},
   ): Promise<void> {
     room = await this.load(room);
     const entities = this.filterEntities(room, filters);
@@ -157,7 +204,7 @@ export class RoomService {
   @Trace()
   public async turnOn(
     room: RoomDTO | string,
-    { circadian, ...filters }: EntityFilters & { circadian?: boolean },
+    { circadian, ...filters }: EntityFilters & { circadian?: boolean } = {},
   ): Promise<void> {
     room = await this.load(room);
     const entities = this.filterEntities(room, filters);

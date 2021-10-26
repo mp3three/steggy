@@ -15,16 +15,9 @@ import {
   NotImplementedException,
 } from '@nestjs/common';
 
+import type { ROOM_ENTITY_EXTRAS } from '../contracts';
+import { ClimateCacheDTO, FanCacheDTO } from '../contracts';
 import { LightManagerService } from './light-manager.service';
-
-type FanBody = { speed: FanSpeeds };
-type ClimateBody = {
-  mode?: string;
-  target_temp_high?: number;
-  target_temp_low?: number;
-  temperature?: number;
-  value?: number;
-};
 
 @Injectable()
 export class EntityCommandRouterService {
@@ -42,7 +35,7 @@ export class EntityCommandRouterService {
   public async process(
     id: string,
     command: string,
-    body: Record<string, unknown> = {},
+    body: ROOM_ENTITY_EXTRAS = {},
   ): Promise<void> {
     switch (domain(id)) {
       case HASS_DOMAINS.light:
@@ -58,7 +51,7 @@ export class EntityCommandRouterService {
         await this.fanEntity(
           id,
           command as keyof FanDomainService,
-          body as FanBody,
+          body as FanCacheDTO,
         );
         return;
       case HASS_DOMAINS.lock:
@@ -68,7 +61,7 @@ export class EntityCommandRouterService {
         await this.climateEntity(
           id,
           command as keyof ClimateDomainService,
-          body as ClimateBody,
+          body as ClimateCacheDTO,
         );
         return;
     }
@@ -78,7 +71,7 @@ export class EntityCommandRouterService {
   private async climateEntity(
     id: string,
     command: keyof ClimateDomainService,
-    body: ClimateBody = {},
+    body: ClimateCacheDTO = {},
   ): Promise<void> {
     switch (command) {
       case 'turnOff':
@@ -110,7 +103,7 @@ export class EntityCommandRouterService {
   private async fanEntity(
     id: string,
     command: keyof FanDomainService,
-    { speed }: FanBody,
+    { speed }: FanCacheDTO,
   ): Promise<void> {
     switch (command) {
       case 'turnOff':
@@ -125,7 +118,7 @@ export class EntityCommandRouterService {
         if (!speed || !FanSpeeds[speed]) {
           throw new BadRequestException(`Provide a valid fan speed`);
         }
-        return await this.fanService.setSpeed(id, speed);
+        return await this.fanService.setSpeed(id, speed as FanSpeeds);
     }
     throw new BadRequestException();
   }

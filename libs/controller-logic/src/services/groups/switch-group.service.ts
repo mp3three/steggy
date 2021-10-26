@@ -12,10 +12,9 @@ import { eachLimit } from 'async';
 import { CONCURRENT_CHANGES } from '../../config';
 import {
   GROUP_TYPES,
-  GroupDTO,
   GroupCommandDTO,
-  PersistenceLightStateDTO,
-  PersistenceSwitchStateDTO,
+  GroupDTO,
+  RoomEntitySaveStateDTO,
 } from '../../contracts';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
@@ -54,14 +53,13 @@ export class SwitchGroupService extends BaseGroupService {
   }
 
   @Trace()
-  public getState<
-    T extends PersistenceSwitchStateDTO = PersistenceSwitchStateDTO,
-  >(group: GroupDTO<T>): T[] {
+  public getState(group: GroupDTO): RoomEntitySaveStateDTO[] {
     return group.entities.map((id) => {
       const light = this.entityManager.getEntity<SwitchStateDTO>(id);
       return {
+        entity_id: light.entity_id,
         state: light.state,
-      } as T;
+      };
     });
   }
 
@@ -90,7 +88,7 @@ export class SwitchGroupService extends BaseGroupService {
   @Trace()
   protected async setState(
     entites: string[],
-    state: PersistenceLightStateDTO[],
+    state: RoomEntitySaveStateDTO[],
   ): Promise<void> {
     if (entites.length !== state.length) {
       this.logger.warn(`State and entity length mismatch`);
@@ -99,7 +97,7 @@ export class SwitchGroupService extends BaseGroupService {
     await eachLimit(
       state.map((state, index) => {
         return [entites[index], state];
-      }) as [string, PersistenceLightStateDTO][],
+      }) as [string, RoomEntitySaveStateDTO][],
       this.eachLimit,
       async ([id, state], callback) => {
         if (state.state === 'off') {

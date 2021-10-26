@@ -10,7 +10,7 @@
     "esModuleInterop": true,
     "jsx": "react",
     "importHelpers": true,
-    "target": "es2015",
+    "target": "ESNext",
     "allowJs": true,
     "module": "esnext",
     "lib": ["es2019", "dom"],

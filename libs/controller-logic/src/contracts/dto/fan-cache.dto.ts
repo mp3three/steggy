@@ -1,3 +1,5 @@
+import { FanSpeeds } from '@automagical/home-assistant';
+
 export class FanCacheDTO {
-  speed: string;
+  public speed: FanSpeeds;
 }
