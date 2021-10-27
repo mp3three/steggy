@@ -1,17 +1,28 @@
 import {
+  GENERIC_COMMANDS,
   GroupDTO,
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
+  RoutineCommandGroupActionDTO,
 } from '@automagical/controller-logic';
 import { PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import inquirer from 'inquirer';
 
 import { HomeFetchService } from '../home-fetch.service';
 
 const MIN_BRIGHTNESS = 5;
 const MAX_BRIGHTNESS = 255;
+
+const GENERIC_COMMANDS: PromptEntry<GENERIC_COMMANDS>[] = [
+  ['Turn On', 'turnOn'],
+  ['Turn Off', 'turnOff'],
+  ['Circadian On', 'circadian'],
+  ['Dim Up', 'dimUp'],
+  ['Dim Down', 'dimDown'],
+  ['Set Brightness', 'brightness'],
+];
 
 @Injectable()
 export class LightGroupCommandService {
@@ -20,6 +31,48 @@ export class LightGroupCommandService {
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
   ) {}
+
+  public async commandBuilder(
+    current?: string,
+    extra?: LightingCacheDTO,
+  ): Promise<Omit<RoutineCommandGroupActionDTO, 'group'>> {
+    const command = await this.promptService.pickOne(
+      `Light group action`,
+      GENERIC_COMMANDS,
+      current,
+    );
+    switch (command) {
+      case 'turnOn':
+      case 'circadianOn':
+        if (!(await this.promptService.confirm(`Set brightness?`))) {
+          return { command };
+        }
+      case 'setBrightness':
+        return {
+          command,
+          extra: {
+            brightness: await this.promptService.number(
+              `Set brightness (1-255)`,
+              extra?.brightness,
+            ),
+          },
+        };
+      case 'dimDown':
+      case 'dimUp':
+        return {
+          command,
+          extra: {
+            brightness: await this.promptService.number(
+              `Change amount (1-255)`,
+              extra?.brightness,
+            ),
+          },
+        };
+    }
+
+    throw new NotImplementedException();
+  }
+
   public async dimDown(group: GroupDTO | string): Promise<void> {
     group = typeof group === 'string' ? group : group._id;
     await this.fetchService.fetch({
@@ -37,15 +90,7 @@ export class LightGroupCommandService {
   }
 
   public async groupActions(): Promise<PromptEntry[]> {
-    return await [
-      ['Turn On', 'turnOn'],
-      ['Turn Off', 'turnOff'],
-      ['Circadian On', 'circadian'],
-      ['Dim Up', 'dimUp'],
-      ['Dim Down', 'dimDown'],
-      ['Set Brightness', 'brightness'],
-      new inquirer.Separator(),
-    ];
+    return await [...GENERIC_COMMANDS, new inquirer.Separator()];
   }
 
   public async processAction(group: GroupDTO, action: string): Promise<void> {

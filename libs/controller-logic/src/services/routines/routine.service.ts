@@ -1,4 +1,9 @@
-import { AutoLogService, IsEmpty, Trace } from '@automagical/utilities';
+import {
+  AutoLogService,
+  IsEmpty,
+  ResultControlDTO,
+  Trace,
+} from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 
@@ -63,6 +68,16 @@ export class RoutineService {
       }
       callback();
     });
+  }
+
+  @Trace()
+  public async create(routine: RoutineDTO): Promise<RoutineDTO> {
+    return await this.routinePersistence.create(routine);
+  }
+
+  @Trace()
+  public async list(control?: ResultControlDTO): Promise<RoutineDTO[]> {
+    return await this.routinePersistence.findMany(control);
   }
 
   @Trace()

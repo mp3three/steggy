@@ -1,4 +1,8 @@
-import { GroupDTO, GroupSaveStateDTO } from '@automagical/controller-logic';
+import {
+  GroupDTO,
+  GroupSaveStateDTO,
+  RoutineCommandGroupActionDTO,
+} from '@automagical/controller-logic';
 import { DONE, PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
@@ -6,6 +10,7 @@ import { encode } from 'ini';
 import inquirer from 'inquirer';
 
 import { HomeFetchService } from '../home-fetch.service';
+import { GroupCommandService } from './group-command.service';
 
 @Injectable()
 export class GroupStateService {
@@ -13,6 +18,7 @@ export class GroupStateService {
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
+    private readonly groupService: GroupCommandService,
   ) {}
 
   public async findGroup(exclude: string[] = []): Promise<GroupDTO> {
@@ -25,6 +31,13 @@ export class GroupStateService {
         .filter((group) => !exclude.includes(group._id))
         .map((group) => [group.friendlyName, group]),
     );
+  }
+
+  public async pickOne(group?: GroupDTO, current?: string): Promise<void> {
+    group = group ?? (await this.groupService.pickOne());
+    if (IsEmpty(group.save_states)) {
+      this.logger.error(``);
+    }
   }
 
   public async processState(group: GroupDTO, list: GroupDTO[]): Promise<void> {

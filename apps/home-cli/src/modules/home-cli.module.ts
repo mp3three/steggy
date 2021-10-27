@@ -13,6 +13,7 @@ import {
   DeviceService,
   EntityService,
   FanService,
+  GroupActionService,
   GroupCommandService,
   GroupStateService,
   HomeFetchService,
@@ -49,6 +50,7 @@ import {
       HomeFetchService,
       ...[RoomCommandService],
       ...[
+        GroupActionService,
         RoutineCommandService,
         ScheduleBuilderService,
         StateChangeBuilderService,

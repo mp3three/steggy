@@ -38,7 +38,7 @@ const NAME = 0;
   ],
   icon: MDIIcons.television_box,
   name: `Rooms`,
-  category: `Logic`,
+  category: `Control`,
 })
 export class RoomCommandService {
   constructor(

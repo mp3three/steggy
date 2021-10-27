@@ -29,7 +29,7 @@ export type GroupItem = { entities: string[]; name: string; room: string };
   ],
   icon: FontAwesomeIcons.group,
   name: `Groups`,
-  category: `Logic`,
+  category: `Control`,
 })
 export class GroupCommandService implements iRepl {
   constructor(

@@ -1,26 +1,37 @@
 import {
   KunamiCodeActivateDTO,
   RoutineActivateDTO,
+  RoutineCommandDTO,
+  RoutineCommandGroupActionDTO,
   RoutineDTO,
+  ROUTINE_ACTIVATE_COMMAND,
   ROUTINE_ACTIVATE_TYPE,
+  ScheduleActivateDTO,
   StateChangeActivateDTO,
 } from '@automagical/controller-logic';
 import { DONE, PromptEntry, PromptService, Repl } from '@automagical/tty';
 import { IsEmpty, TitleCase } from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import inquirer from 'inquirer';
+import { HomeFetchService } from '../home-fetch.service';
+import { GroupActionService } from './group-action.service';
 import { KunamiBuilderService } from './kunami-builder.service';
+import { ScheduleBuilderService } from './schedule-builder.service';
 import { StateChangeBuilderService } from './state-change-builder.service';
 
 @Repl({
+  description: [`Control rooms and groups based on state changes and schdules`],
   name: 'Routines',
-  category: 'Logic',
+  category: 'Control',
 })
 export class RoutineCommandService {
   constructor(
     private readonly promptService: PromptService,
     private readonly kunamiActivate: KunamiBuilderService,
     private readonly stateActivate: StateChangeBuilderService,
+    private readonly fetchService: HomeFetchService,
+    private readonly schduleActivate: ScheduleBuilderService,
+    private readonly groupAction: GroupActionService,
   ) {}
 
   public async build(current: Partial<RoutineDTO> = {}): Promise<RoutineDTO> {
@@ -45,7 +56,10 @@ export class RoutineCommandService {
     );
     const type = await this.promptService.pickOne<ROUTINE_ACTIVATE_TYPE>(
       `Activation type`,
-      Object.keys(ROUTINE_ACTIVATE_TYPE).map((key) => [TitleCase(key), key]),
+      Object.values(ROUTINE_ACTIVATE_TYPE).map((value) => [
+        TitleCase(value),
+        value,
+      ]),
       current.type,
     );
     switch (type) {
@@ -57,7 +71,7 @@ export class RoutineCommandService {
           friendlyName,
           type,
         };
-      case ROUTINE_ACTIVATE_TYPE.schedule:
+      case ROUTINE_ACTIVATE_TYPE.state_change:
         return {
           activate: await this.stateActivate.build(
             current.activate as StateChangeActivateDTO,
@@ -65,40 +79,139 @@ export class RoutineCommandService {
           friendlyName,
           type,
         };
+      case ROUTINE_ACTIVATE_TYPE.schedule:
+        return {
+          type,
+          friendlyName,
+          activate: await this.schduleActivate.build(
+            current.activate as ScheduleActivateDTO,
+          ),
+        };
+    }
+    throw new NotImplementedException();
+  }
+
+  public async buildCommandEntry(
+    current: Partial<RoutineCommandDTO> = {},
+  ): Promise<RoutineCommandDTO> {
+    const friendlyName = await this.promptService.string(
+      `Friendly name`,
+      current.friendlyName,
+    );
+    const type = await this.promptService.pickOne<ROUTINE_ACTIVATE_COMMAND>(
+      `Activation type`,
+      Object.values(ROUTINE_ACTIVATE_COMMAND).map((value) => [
+        TitleCase(value),
+        value,
+      ]),
+      current.type,
+    );
+    switch (type) {
+      case ROUTINE_ACTIVATE_COMMAND.group_action:
+        return {
+          friendlyName,
+          type,
+          command: await this.groupAction.build(
+            current.command as RoutineCommandGroupActionDTO,
+          ),
+        };
+      case ROUTINE_ACTIVATE_COMMAND.group_state:
+        return undefined;
     }
     throw new NotImplementedException();
   }
 
   public async buildActivations(
-    activate: RoutineActivateDTO[] = [],
+    current: RoutineActivateDTO[] = [],
   ): Promise<RoutineActivateDTO[]> {
     const action = await this.promptService.menuSelect([
       ['Add new activation event', 'add'],
-      ...this.promptService.conditionalEntries(!IsEmpty(activate), [
+      ...this.promptService.conditionalEntries(!IsEmpty(current), [
         new inquirer.Separator(),
-        ...(activate.map((item) => [
+        ...(current.map((item) => [
           item.friendlyName,
           item,
         ]) as PromptEntry<RoutineActivateDTO>[]),
       ]),
     ]);
     if (action === DONE) {
-      return activate;
+      return current;
     }
     if (action === 'add') {
       return await this.buildActivations([
-        ...activate,
+        ...current,
         await this.buildActivateEntry(),
       ]);
     }
-    return activate;
+    return current;
   }
 
-  public async exec(defaultValue?: string): Promise<void> {
+  public async buildCommands(
+    current: RoutineCommandDTO[] = [],
+  ): Promise<RoutineCommandDTO[]> {
+    const action = await this.promptService.menuSelect([
+      ['Add new activation event', 'add'],
+      ...this.promptService.conditionalEntries(!IsEmpty(current), [
+        new inquirer.Separator(),
+        ...(current.map((item) => [
+          item.friendlyName,
+          item,
+        ]) as PromptEntry<RoutineCommandDTO>[]),
+      ]),
+    ]);
+    if (action === DONE) {
+      return current;
+    }
+    if (action === 'add') {
+      return await this.buildCommands([
+        ...current,
+        await this.buildCommandEntry(),
+      ]);
+    }
+    return current;
+  }
+
+  public async exec(): Promise<void> {
+    const current = await this.list();
     const action = await this.promptService.menuSelect(
-      [['Create', 'create'], new inquirer.Separator()],
+      [
+        ['Create', 'create'],
+        ...this.promptService.conditionalEntries(!IsEmpty(current), [
+          new inquirer.Separator(),
+          ...(current.map((item) => [
+            item.friendlyName,
+            item,
+          ]) as PromptEntry<RoutineDTO>[]),
+        ]),
+      ],
       undefined,
-      defaultValue,
     );
+    if (action === DONE) {
+      return;
+    }
+    if (action === 'create') {
+      const routine = await this.build();
+      await this.fetchService.fetch({
+        url: `/routine`,
+        method: `post`,
+      });
+      await this.exec();
+      return;
+    }
+    if (typeof action === 'string') {
+      throw new NotImplementedException();
+    }
+    await this.processRoutine(action);
+    await this.exec();
+  }
+
+  public async list(): Promise<RoutineDTO[]> {
+    return await this.fetchService.fetch({
+      url: `/routine`,
+    });
+  }
+
+  public async processRoutine(routine: RoutineDTO): Promise<void> {
+    //
   }
 }
