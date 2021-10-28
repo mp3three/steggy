@@ -2,6 +2,7 @@ import {
   GroupDTO,
   GroupSaveStateDTO,
   RoutineCommandGroupActionDTO,
+  RoutineCommandGroupStateDTO,
 } from '@automagical/controller-logic';
 import { DONE, PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
@@ -33,11 +34,20 @@ export class GroupStateService {
     );
   }
 
-  public async pickOne(group?: GroupDTO, current?: string): Promise<void> {
-    group = group ?? (await this.groupService.pickOne());
+  public async pickOne(
+    group?: string | GroupDTO,
+    current?: string,
+  ): Promise<RoutineCommandGroupStateDTO> {
+    group =
+      (await this.groupService.get(group)) ??
+      (await this.groupService.pickOne());
     if (IsEmpty(group.save_states)) {
       this.logger.error(``);
     }
+    return {
+      group: group._id,
+      state: ``,
+    };
   }
 
   public async processState(group: GroupDTO, list: GroupDTO[]): Promise<void> {

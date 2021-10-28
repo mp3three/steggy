@@ -19,6 +19,7 @@ import {
   IsEmpty,
   LIB_CONTROLLER_LOGIC,
 } from '@automagical/utilities';
+import { NotImplementedException } from '@nestjs/common';
 import { eachLimit } from 'async';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
@@ -57,7 +58,6 @@ export class RoomCommandService {
     const friendlyName = await this.promptService.string(`Friendly Name`);
     const entities = await this.buildEntityList();
     const groups = await this.groupBuilder();
-
     const body: RoomDTO = {
       entities,
       friendlyName,
@@ -72,9 +72,7 @@ export class RoomCommandService {
   }
 
   public async exec(): Promise<void> {
-    const rooms = await this.fetchService.fetch<RoomDTO[]>({
-      url: `/room`,
-    });
+    const rooms = await this.list();
     let room = await this.promptService.menuSelect<RoomDTO | string>([
       ...(rooms
         .map((room) => [room.friendlyName, room])
@@ -96,6 +94,38 @@ export class RoomCommandService {
       return;
     }
     return await this.processRoom(room);
+  }
+
+  public async list(): Promise<RoomDTO[]> {
+    return await this.fetchService.fetch({
+      url: `/room`,
+    });
+  }
+
+  public async pickOne(current?: RoomDTO | string): Promise<RoomDTO> {
+    const rooms = await this.list();
+    current =
+      typeof current === 'string'
+        ? rooms.find(({ _id }) => _id === current)
+        : current;
+    const room = await this.promptService.pickOne<RoomDTO | string>(
+      `Pick a room`,
+      [
+        [`Create new`, `create`],
+        ...this.promptService.conditionalEntries(
+          !IsEmpty(rooms),
+          rooms.map((room) => [room.friendlyName, room]),
+        ),
+      ],
+      current,
+    );
+    if (room === `create`) {
+      return await this.create();
+    }
+    if (typeof room === `string`) {
+      throw new NotImplementedException();
+    }
+    return room;
   }
 
   public async processRoom(

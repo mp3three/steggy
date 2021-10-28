@@ -31,7 +31,7 @@ export class RoutineCommandRoomActionDTO {
   public command: GENERIC_COMMANDS;
   public extra?: Record<string, unknown>;
   public room: string | RoomDTO;
-  public tags: string[];
+  public tags?: string[];
 }
 
 export class RoutineCommandRoomStateDTO {

@@ -3,6 +3,7 @@ import {
   RoutineActivateDTO,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
+  RoutineCommandGroupStateDTO,
   RoutineDTO,
   ROUTINE_ACTIVATE_COMMAND,
   ROUTINE_ACTIVATE_TYPE,
@@ -13,6 +14,7 @@ import { DONE, PromptEntry, PromptService, Repl } from '@automagical/tty';
 import { IsEmpty, TitleCase } from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import inquirer from 'inquirer';
+import { GroupStateService } from '../groups';
 import { HomeFetchService } from '../home-fetch.service';
 import { GroupActionService } from './group-action.service';
 import { KunamiBuilderService } from './kunami-builder.service';
@@ -32,6 +34,7 @@ export class RoutineCommandService {
     private readonly fetchService: HomeFetchService,
     private readonly schduleActivate: ScheduleBuilderService,
     private readonly groupAction: GroupActionService,
+    private readonly groupState: GroupStateService,
   ) {}
 
   public async build(current: Partial<RoutineDTO> = {}): Promise<RoutineDTO> {
@@ -116,7 +119,13 @@ export class RoutineCommandService {
           ),
         };
       case ROUTINE_ACTIVATE_COMMAND.group_state:
-        return undefined;
+        const { group, state } =
+          current?.command as RoutineCommandGroupStateDTO;
+        return {
+          friendlyName,
+          type,
+          command: await this.groupState.pickOne(group, state),
+        };
     }
     throw new NotImplementedException();
   }

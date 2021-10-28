@@ -109,6 +109,12 @@ export class GroupCommandService implements iRepl {
     });
   }
 
+  public async get(group: GroupDTO | string): Promise<GroupDTO> {
+    return await this.fetchService.fetch({
+      url: `/group/${typeof group === 'string' ? group : group._id}`,
+    });
+  }
+
   public async pickMany(
     inList: string[] = [],
     current: string[] = [],
