@@ -5,31 +5,27 @@
   "launch": {
     "version": "0.2.0",
     "configurations": [{
-        "name": "Debug Home Controller",
+        "name": "Home Controller",
         "type": "node",
         "request": "attach",
-        // Match this to the workspace.json
         "port": 33334
       },
       {
-        "name": "Debug Dashboard",
+        "name": "Dashboard",
         "type": "node",
         "request": "attach",
-        // Match this to the workspace.json
         "port": 33335
       },
       {
-        "name": "Debug Devtools",
+        "name": "Devtools",
         "type": "node",
         "request": "attach",
-        // Match this to the workspace.json
         "port": 33336
       },
       {
-        "name": "Debug Home CLI",
+        "name": "Home CLI",
         "type": "node",
         "request": "attach",
-        // Match this to the workspace.json
         "port": 33337
       },
     ]
@@ -55,11 +51,7 @@
       // Highlighter for specific comment strings
       "wayou.vscode-todo-highlight",
       // Import sorting
-      "nsoult.typescript-imports-sort",
-      // jest related
-      "orta.vscode-jest",
-      "kavod-io.vscode-jest-test-adapter",
-      "firsttris.vscode-jest-runner"
+      "nsoult.typescript-imports-sort"
     ],
     "unwantedRecommendations": []
   },
@@ -77,6 +69,7 @@
     "files.associations": {
       ".pino-prettyrc": "json",
       "home-controller": "ini",
+      "home-cli": "ini",
       "devtools": "ini",
       "dashboard": "ini"
     },

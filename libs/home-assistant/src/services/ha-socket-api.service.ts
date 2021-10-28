@@ -59,6 +59,7 @@ export class HASocketAPIService {
   ) {}
 
   private connection: WS;
+  private CONNECTION_ACTIVE = false;
   private messageCount = STARTING_COUNTER_ID;
   private waitingCallback = new Map<number, (result) => void>();
 
@@ -151,6 +152,11 @@ export class HASocketAPIService {
 
   @Cron(CronExpression.EVERY_10_SECONDS)
   protected async ping(): Promise<void> {
+    // Race conditions where ping fires before socket finishes it's init is freakily common
+    // Doesn't actually hurt anything, but it leaves an annoying boot error message
+    if (!this.CONNECTION_ACTIVE) {
+      return;
+    }
     const now = Date.now();
     // Prune old data
     MESSAGE_TIMESTAMPS = MESSAGE_TIMESTAMPS.filter(
@@ -207,6 +213,7 @@ export class HASocketAPIService {
     if (this.connection) {
       return;
     }
+    this.CONNECTION_ACTIVE = false;
     const url = new URL(this.baseUrl);
     try {
       this.messageCount = STARTING_COUNTER_ID;
@@ -253,6 +260,7 @@ export class HASocketAPIService {
         });
 
       case HassSocketMessageTypes.auth_ok:
+        this.CONNECTION_ACTIVE = true;
         await this.sendMsg({
           type: HASSIO_WS_COMMAND.subscribe_events,
         });
@@ -287,6 +295,7 @@ export class HASocketAPIService {
         return;
 
       case HassSocketMessageTypes.auth_invalid:
+        this.CONNECTION_ACTIVE = false;
         this.logger.error(message.message);
         return;
 

@@ -6,7 +6,7 @@ import {
 } from '@automagical/controller-logic';
 import { DONE, PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 
@@ -19,6 +19,7 @@ export class GroupStateService {
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
+    @Inject(forwardRef(() => GroupCommandService))
     private readonly groupService: GroupCommandService,
   ) {}
 

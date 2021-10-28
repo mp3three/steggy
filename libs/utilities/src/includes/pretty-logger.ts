@@ -2,6 +2,7 @@
 
 import chalk from 'chalk';
 import pino from 'pino';
+import { cwd } from 'process';
 
 import {
   AutoLogService,
@@ -71,11 +72,7 @@ export const prettyFormatMessage = (message: string): string => {
 };
 
 /**
- * Draw attention to:
- *
- * - Broken module name
- * - Broken service name
- * - Working vs broken injection args
+ * Re-written error message, with syntax highlighting! Don't judge my boredom
  */
 const prettyErrorMessage = (message: string): string => {
   if (!message) {
@@ -96,40 +93,87 @@ const prettyErrorMessage = (message: string): string => {
     const match = module.match(new RegExp('in the ([^ ]+) context'));
     const [, name] = module.match(new RegExp('the argument ([^ ]+) at'));
 
+    const coloredName = chalk.red.bold(name);
+    const importWord = chalk.yellow('import');
+    const fromWord = chalk.yellow(`from`);
+    const left = chalk.blueBright(`{`);
+    const right = chalk.blueBright(`}`);
     let found = false;
     const stack = message.split(`\n\n`)[2];
+
+    const coloredArgs = ctorArguments.map((parameter) => {
+      if (found === false) {
+        if (parameter === '?') {
+          found = true;
+          return coloredName;
+        }
+        return chalk.greenBright.bold(parameter);
+      }
+      return chalk.bold.yellow(parameter);
+    });
+
     message = [
       ``,
-      chalk.white.bold`Nest cannot resolve the dependencies of`,
-      chalk`{cyanBright ${PROVIDER}} {blueBright (}`,
-      ...ctorArguments
-        .map((parameter) => {
-          if (found === false) {
-            if (parameter === '?') {
-              found = true;
-              return chalk.bold.red(name);
-            }
-            return chalk.greenBright(parameter);
+      chalk.white
+        .bold`Nest cannot resolve the dependencies of {bold.underline.magenta ${match[1]}}:{cyanBright.underline ${PROVIDER}}`,
+      ``,
+      chalk.magenta`@Injectable()`,
+      `${chalk.yellow('export class')} ${PROVIDER} ${left}`,
+      chalk.gray`  ...`,
+      `  ${chalk.yellow('constructor')} ${chalk.blueBright(`(`)}`,
+      ...coloredArgs.map((line) => `    ${line},`),
+      chalk.blueBright(` ) {}`),
+      chalk.gray` ...`,
+      right,
+      ``,
+      chalk.white.bold`Potential solutions:`,
+      chalk.whiteBright` - If ${coloredName} is a provider, is it part of the current {bold.magenta ${match[1]}}?`,
+      chalk.whiteBright` - If ${coloredName} is exported from a separate {bold.magenta @Module}, is that module imported within {bold.magenta ${match[1]}}?`,
+      `${chalk.magenta('@Module')} ${chalk.blueBright('({')} `,
+      `  ${chalk.white('imports')}: [ `,
+      chalk.gray`    /* the {magenta.bold Module} containing ${coloredName} */`,
+      `  ] `,
+      chalk.blueBright(`})`),
+      chalk.whiteBright` - Circular references`,
+      chalk.gray` ...`,
+      `  ${chalk.yellow('constructor')} ${chalk.blueBright(`(`)}`,
+      ...coloredArgs
+        .map((item) => {
+          if (item === coloredName) {
+            return `${chalk.magenta(`@Inject`)}${chalk.blueBright(
+              '(',
+            )}${chalk.yellow('forwardRef')}${chalk.blueBright(
+              '(()',
+            )} => ${coloredName}${chalk.blueBright('))')} ${item}`;
           }
-          return chalk.bold.yellow(parameter);
+          return item;
         })
-        .map((line) => `  ${line},`),
-      chalk.blueBright`)`,
-      ``,
-      ``,
-      chalk.white.bold`Potential solutions`,
-      chalk.whiteBright` - If {bold ${name}} is a provider, is it part of the current {bold ${match[1]}}?`,
-      chalk.whiteBright` - If {bold ${name}} is imported from the same directory, ensure the import is from the exporting file and not {bold index.ts}`,
-      chalk.red(`import { ${name} } from '.';`),
-      chalk.green(`import { ${name} } from './file';`),
-      chalk.whiteBright` - If {bold ${name}} is exported from a separate {bold @Module}, is that module imported within {bold ${match[1]}}?`,
-      chalk.whiteBright(
-        `@Module({ imports: [  /* the Module containing Object */ ] })`,
+        .map((line) => `    ${line},`),
+      chalk.blueBright(` ) {}`),
+      chalk.gray` ...`,
+      chalk.whiteBright` - Verify import statement follows these standards`,
+      chalk.gray`// Good imports 👍`,
+      ...['"@another/library"', '"./file"', '"../directory"'].map(
+        (statement) =>
+          `${importWord} ${left} ${coloredName} ${right} ${fromWord} ${chalk.green(
+            statement,
+          )};`,
       ),
+      chalk.gray`// Breaking imports 👎`,
+      ...['"."', '".."', '"../.."'].map(
+        (statement) =>
+          `${importWord} ${left} ${coloredName} ${right} ${fromWord} ${chalk.red(
+            statement,
+          )};`,
+      ),
+      chalk.gray`// Oops import 🤔`,
+      `${chalk.yellow(
+        `import type`,
+      )} ${left} ${coloredName} ${right} ${chalk.yellow(`from`)} ....`,
       ``,
       ``,
       chalk.white.bold`Stack Trace`,
-      stack,
+      stack.replace(new RegExp(cwd(), `g`), chalk.underline`workspace`),
     ].join(`\n`);
   }
   // Potential solutions:
@@ -166,7 +210,7 @@ export const PrettyNestLogger: Record<
       // Context contains the stack trace of the nest injector
       // Nothing actually useful for debugging
       message = prettyErrorMessage(context);
-      context = `@nestjs:ErrorMessage`;
+      context = `@automagical:BootErrorMessage`;
     }
     logger.error(
       `${highlightContext(context, 'bgRed')} ${
