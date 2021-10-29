@@ -16,8 +16,12 @@ export function ToClass(dto: ClassConstructor<unknown>): MethodDecorator {
     descriptor.value = async function (...parameters) {
       const result = await originalMethod.apply(this, parameters);
       if (Array.isArray(result)) {
-        return result.map((item) => plainToClass(dto, item));
+        return result.map((item) => {
+          item._id = item._id.toString();
+          return plainToClass(dto, item);
+        });
       }
+      result._id = result._id.toString();
       return plainToClass(dto, result);
     };
     return descriptor;

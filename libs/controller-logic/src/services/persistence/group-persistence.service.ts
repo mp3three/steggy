@@ -7,7 +7,7 @@ import {
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import type { ROOM_ENTITY_EXTRAS } from '../../contracts';
 import { GroupDocument, GroupDTO } from '../../contracts';
@@ -50,9 +50,10 @@ export class GroupPersistenceService extends BaseMongoService {
     { control }: { control?: ResultControlDTO } = {},
   ): Promise<GroupDTO<GROUP_TYPE>> {
     const query = this.merge(state, control);
-    return (await this.modifyQuery(control, this.model.findOne(query))
+    const out = (await this.modifyQuery(control, this.model.findOne(query))
       .lean()
       .exec()) as GroupDTO<GROUP_TYPE>;
+    return out;
   }
 
   @Trace()
@@ -85,9 +86,10 @@ export class GroupPersistenceService extends BaseMongoService {
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(control: ResultControlDTO = {}): Promise<GroupDTO<GROUP_TYPE>[]> {
     const query = this.merge(control);
-    return (await this.modifyQuery(control, this.model.find(query))
+    const out = (await this.modifyQuery(control, this.model.find(query))
       .lean()
       .exec()) as GroupDTO<GROUP_TYPE>[];
+    return out;
   }
 
   @Trace()
@@ -99,8 +101,14 @@ export class GroupPersistenceService extends BaseMongoService {
   ): Promise<GroupDTO<GROUP_TYPE>> {
     const query = this.merge(id);
     const result = await this.model.updateOne(query, state).exec();
-    if (result.acknowledged) {
-      return await this.findById(id);
-    }
+    this.logger.debug(
+      {
+        matched: result.matchedCount,
+        upserted: result.upsertedCount,
+        modified: result.modifiedCount,
+      },
+      `Update group {${id}}`,
+    );
+    return await this.findById(id);
   }
 }

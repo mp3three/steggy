@@ -18,7 +18,7 @@ const MAX_BRIGHTNESS = 255;
 const GENERIC_COMMANDS: PromptEntry<GENERIC_COMMANDS>[] = [
   ['Turn On', 'turnOn'],
   ['Turn Off', 'turnOff'],
-  ['Circadian On', 'circadian'],
+  ['Circadian On', 'circadianOn'],
   ['Dim Up', 'dimUp'],
   ['Dim Down', 'dimDown'],
   ['Set Brightness', 'brightness'],
@@ -77,7 +77,7 @@ export class LightGroupCommandService {
     group = typeof group === 'string' ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
-      url: `/group/${group}/activate/dimDown`,
+      url: `/group/${group}/command/dimDown`,
     });
   }
 
@@ -85,20 +85,20 @@ export class LightGroupCommandService {
     group = typeof group === 'string' ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
-      url: `/group/${group}/activate/dimUp`,
+      url: `/group/${group}/command/dimUp`,
     });
   }
 
   public async groupActions(): Promise<PromptEntry[]> {
-    return await [...GENERIC_COMMANDS, new inquirer.Separator()];
+    return [...GENERIC_COMMANDS, new inquirer.Separator()];
   }
 
   public async processAction(group: GroupDTO, action: string): Promise<void> {
-    const passThrough = ['turnOn', 'turnOff', 'circadian'];
+    const passThrough = ['turnOn', 'turnOff', 'circadianOn'];
     if (passThrough.includes(action)) {
       await this.fetchService.fetch({
         method: 'put',
-        url: `/group/${group._id}/activate/${action}`,
+        url: `/group/${group._id}/command/${action}`,
       });
       return;
     }

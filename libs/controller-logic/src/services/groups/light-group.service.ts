@@ -56,7 +56,7 @@ export class LightGroupService extends BaseGroupService {
         return await this.turnOff(group);
       case 'turnOn':
         return await this.turnOn(group, false, command.extra?.brightness);
-      case 'circadianLight':
+      case 'circadianOn':
         return await this.turnOn(group, true, command.extra?.brightness);
       case 'dimDown':
         return await this.dimDown(group, command.extra?.brightness);

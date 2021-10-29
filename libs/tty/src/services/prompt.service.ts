@@ -10,6 +10,8 @@ import { DONE, PromptMenuItems } from '../contracts';
 
 const name = `result`;
 export type PromptEntry<T = string> = [string, string | T] | Separator;
+const LABEL = 0;
+const VALUE = 1;
 
 @Injectable()
 export class PromptService {
@@ -193,14 +195,15 @@ export class PromptService {
   public itemsFromEntries<T extends unknown = string>(
     items: PromptEntry<T>[],
   ): PromptMenuItems<T> {
-    return items.map((item) =>
-      Array.isArray(item)
-        ? {
-            name: item.shift() as string,
-            value: item.shift() as T,
-          }
-        : item,
-    );
+    return items.map((item) => {
+      if (Array.isArray(item)) {
+        return {
+          name: item[LABEL] as string,
+          value: item[VALUE] as T,
+        };
+      }
+      return item;
+    });
   }
 
   public async menuSelect<T extends unknown = string>(

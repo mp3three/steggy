@@ -4,7 +4,7 @@ export class GroupLightCommandExtra {
 export type GROUP_LIGHT_COMMANDS =
   | 'turnOn'
   | 'turnOff'
-  | 'circadianLight'
+  | 'circadianOn'
   | 'dimUp'
   | 'dimDown';
 

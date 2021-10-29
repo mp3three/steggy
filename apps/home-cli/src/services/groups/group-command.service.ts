@@ -8,7 +8,12 @@ import {
   PromptService,
   Repl,
 } from '@automagical/tty';
-import { AutoLogService, IsEmpty, TitleCase } from '@automagical/utilities';
+import {
+  AutoLogService,
+  IsEmpty,
+  ResultControlDTO,
+  TitleCase,
+} from '@automagical/utilities';
 import chalk from 'chalk';
 import inquirer, { Separator } from 'inquirer';
 import { EntityService } from '../entity.service';
@@ -103,9 +108,14 @@ export class GroupCommandService implements iRepl {
     return new Map(groups.map((i) => [i._id, i]));
   }
 
-  public async list(): Promise<GroupDTO[]> {
+  public async list(
+    control: ResultControlDTO = {
+      sort: [`friendlyName`],
+    },
+  ): Promise<GroupDTO[]> {
     return await this.fetchService.fetch<GroupDTO[]>({
       url: `/group`,
+      control,
     });
   }
 
@@ -210,7 +220,6 @@ export class GroupCommandService implements iRepl {
   }
 
   private async describeGroup(group: GroupDTO): Promise<string> {
-    group.state.states ??= [];
     group = await this.fetchService.fetch({
       url: `/group/${group._id}`,
     });

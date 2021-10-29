@@ -29,7 +29,7 @@ import {
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
-  @Put(`/:group/command/:state`)
+  @Put(`/:group/command/:command`)
   public async activateCommand(
     @Param('group') group: string,
     @Param('command') command: GENERIC_COMMANDS,

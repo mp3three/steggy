@@ -11,10 +11,10 @@
         "port": 33334
       },
       {
-        "name": "Dashboard",
+        "name": "Home CLI",
         "type": "node",
         "request": "attach",
-        "port": 33335
+        "port": 33337
       },
       {
         "name": "Devtools",
@@ -23,10 +23,10 @@
         "port": 33336
       },
       {
-        "name": "Home CLI",
+        "name": "Dashboard",
         "type": "node",
         "request": "attach",
-        "port": 33337
+        "port": 33335
       },
     ]
   },

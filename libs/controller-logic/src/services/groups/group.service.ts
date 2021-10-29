@@ -146,7 +146,8 @@ export class GroupService {
   public async list<GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
     control: ResultControlDTO = {},
   ): Promise<GroupDTO<GROUP_TYPE>[]> {
-    return await this.groupPersistence.findMany(control);
+    const out = await this.groupPersistence.findMany(control);
+    return out as GroupDTO<GROUP_TYPE>[];
   }
 
   @Trace()
