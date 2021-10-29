@@ -131,11 +131,11 @@ export class GroupCommandService implements iRepl {
   ): Promise<GroupDTO[]> {
     const groups = await this.list();
     return await this.promptService.pickMany(
-      `Which groups?`,
+      `Update list of groups`,
       groups
         .filter((group) => IsEmpty(inList) || inList.includes(group._id))
         .map((group) => [group.friendlyName, group]),
-      { default: current.filter((group) => current.includes(group)) },
+      { default: groups.filter(({ _id }) => current.includes(_id)) },
     );
   }
 

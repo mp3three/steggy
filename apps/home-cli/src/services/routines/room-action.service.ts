@@ -4,7 +4,7 @@ import {
 } from '@automagical/controller-logic';
 import { PromptEntry, PromptService } from '@automagical/tty';
 import { Injectable } from '@nestjs/common';
-import { RoomCommandService } from '../room-command.service';
+import { RoomCommandService } from '../rooms/room-command.service';
 
 const GenericCommands = [
   ['turnOn', 'turnOn'],

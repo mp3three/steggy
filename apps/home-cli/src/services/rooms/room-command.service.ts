@@ -20,14 +20,15 @@ import {
   LIB_CONTROLLER_LOGIC,
 } from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
-import { eachLimit } from 'async';
+import { each, eachLimit } from 'async';
+import chalk from 'chalk';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
-import { LightService } from './domains';
-import { EntityService } from './entity.service';
-import { LightGroupCommandService } from './groups';
-import { GroupCommandService } from './groups/group-command.service';
-import { HomeFetchService } from './home-fetch.service';
+import { LightService } from '../domains';
+import { EntityService } from '../entity.service';
+import { LightGroupCommandService } from '../groups';
+import { GroupCommandService } from '../groups/group-command.service';
+import { HomeFetchService } from '../home-fetch.service';
 
 const UP = 1;
 const DOWN = -1;
@@ -54,10 +55,40 @@ export class RoomCommandService {
     private readonly concurrentChanges: number,
   ) {}
 
+  private async circadianOn(room: RoomDTO): Promise<void> {
+    const groups = await this.groupCommand.getMap();
+    await Promise.all([
+      await each(
+        room.entities.filter((i) => domain(i.entity_id) === HASS_DOMAINS.light),
+        async ({ entity_id }, callback) => {
+          await this.lightDomain.circadianLight(entity_id);
+          if (callback) {
+            callback();
+          }
+        },
+      ),
+      await each(
+        room.groups.filter(
+          (group) => groups.get(group)?.type === GROUP_TYPES.light,
+        ),
+        async (group, callback) => {
+          await this.lightService.circadianOn(group);
+          if (callback) {
+            callback();
+          }
+        },
+      ),
+    ]);
+  }
+
   public async create(): Promise<RoomDTO> {
     const friendlyName = await this.promptService.string(`Friendly Name`);
-    const entities = await this.buildEntityList();
-    const groups = await this.groupBuilder();
+    const entities = (await this.promptService.confirm(`Add entities?`, true))
+      ? await this.buildEntityList()
+      : [];
+    const groups = (await this.promptService.confirm(`Add groups?`, true))
+      ? await this.groupBuilder()
+      : [];
     const body: RoomDTO = {
       entities,
       friendlyName,
@@ -137,9 +168,19 @@ export class RoomCommandService {
       [
         ['Turn On', 'turnOn'],
         ['Turn Off', 'turnOff'],
-        ['Dim Up', 'dimUp'],
-        ['Dim Down', 'dimDown'],
-        new inquirer.Separator(),
+        ...this.promptService.conditionalEntries(
+          IsEmpty(
+            room.entities.filter(
+              (i) => domain(i.entity_id) === HASS_DOMAINS.light,
+            ),
+          ),
+          [
+            ['Circadian On', 'circadianOn'],
+            ['Dim Up', 'dimUp'],
+            ['Dim Down', 'dimDown'],
+          ],
+        ),
+        new inquirer.Separator(chalk.white`Maintenance`),
         ['Delete', 'delete'],
         ['Describe', 'describe'],
         ['Entities', 'entities'],
@@ -155,6 +196,9 @@ export class RoomCommandService {
         return await this.processRoom(room, action);
       case 'dimUp':
         await this.dimUp(room);
+        return await this.processRoom(room, action);
+      case 'circadianOn':
+        await this.circadianOn(room);
         return await this.processRoom(room, action);
       case 'rename':
         room.friendlyName = await this.promptService.string(
@@ -187,7 +231,7 @@ export class RoomCommandService {
         console.log(encode(room));
         return await this.processRoom(room, action);
       case 'entities':
-        await this.roomEntities(room);
+        room = await this.roomEntities(room);
         return await this.processRoom(room, action);
       case 'groups':
         await this.roomGroups(room);
@@ -205,7 +249,6 @@ export class RoomCommandService {
       ],
       omit,
     );
-
     return ids.map((entity_id) => ({
       entity_id,
       tags: [],
@@ -213,53 +256,41 @@ export class RoomCommandService {
   }
 
   private async dimDown(room: RoomDTO): Promise<void> {
-    await eachLimit(
-      room.entities.filter((i) => domain(i.entity_id) === HASS_DOMAINS.light),
-      this.concurrentChanges,
-      async ({ entity_id }, callback) => {
-        await this.lightDomain.dimDown(entity_id);
-        callback();
-      },
-    );
     const groups = await this.groupCommand.getMap();
-    await eachLimit(
-      room.groups.filter(
-        (group) => groups.get(group)?.type === GROUP_TYPES.light,
+    await Promise.all([
+      await each(
+        room.entities.filter((i) => domain(i.entity_id) === HASS_DOMAINS.light),
+        async ({ entity_id }) => await this.lightDomain.dimDown(entity_id),
       ),
-      this.concurrentChanges,
-      async (group, callback) => {
-        await this.lightService.dimDown(group);
-        callback();
-      },
-    );
+      await each(
+        room.groups.filter(
+          (group) => groups.get(group)?.type === GROUP_TYPES.light,
+        ),
+        async (group) => await this.lightService.dimDown(group),
+      ),
+    ]);
   }
 
   private async dimUp(room: RoomDTO): Promise<void> {
-    await eachLimit(
-      room.entities.filter((i) => domain(i.entity_id) === HASS_DOMAINS.light),
-      this.concurrentChanges,
-      async ({ entity_id }, callback) => {
-        await this.lightDomain.dimUp(entity_id);
-        callback();
-      },
-    );
     const groups = await this.groupCommand.getMap();
-    await eachLimit(
-      room.groups.filter(
-        (group) => groups.get(group)?.type === GROUP_TYPES.light,
+    await Promise.all([
+      await each(
+        room.entities.filter((i) => domain(i.entity_id) === HASS_DOMAINS.light),
+        async ({ entity_id }) => await this.lightDomain.dimUp(entity_id),
       ),
-      this.concurrentChanges,
-      async (group, callback) => {
-        await this.lightService.dimDown(group);
-        callback();
-      },
-    );
+      await each(
+        room.groups.filter(
+          (group) => groups.get(group)?.type === GROUP_TYPES.light,
+        ),
+        async (group) => await this.lightService.dimUp(group),
+      ),
+    ]);
   }
 
   private async groupBuilder(current: string[] = []): Promise<string[]> {
     const action = await this.promptService.pickOne(`Group actions`, [
-      ['Create new', 'create'],
       ['Use existing', 'existing'],
+      ['Create new', 'create'],
       ['Done', 'done'],
     ]);
     switch (action) {
@@ -286,60 +317,71 @@ export class RoomCommandService {
         } else {
           current.push(...selection.map((item) => item._id));
         }
-        return await this.groupBuilder(current);
+        return current;
     }
     this.logger.error({ action }, `Not implemented`);
     return current;
   }
 
-  private async roomEntities(room: RoomDTO): Promise<void> {
+  private async roomEntities(room: RoomDTO): Promise<RoomDTO> {
     room.entities ??= [];
     const actions: PromptEntry<string>[] = [['Add', 'add']];
     if (IsEmpty(room.entities)) {
       this.logger.warn(`No current entities in room`);
     } else {
-      actions.unshift(['Manipulate', 'manipulate']);
-      actions.push(['Remove', 'remove']);
+      actions.push(
+        ['Remove', 'remove'],
+        new inquirer.Separator(),
+        ...(room.entities.map(({ entity_id }) => [
+          entity_id,
+          entity_id,
+        ]) as PromptEntry[]),
+      );
     }
-    const action = await this.promptService.menuSelect(actions);
+    const action = await this.promptService.menuSelect([
+      ['Add', 'add'],
+      ...this.promptService.conditionalEntries(!IsEmpty(room.entities), [
+        ['Remove', 'remove'],
+        new inquirer.Separator(chalk.white`Manipulate`),
+        ...(room.entities.map(({ entity_id }) => [
+          entity_id,
+          entity_id,
+        ]) as PromptEntry[]),
+      ]),
+    ]);
     if (action === DONE) {
-      return;
+      return room;
     }
-    switch (action) {
-      // Add entities to room
-      case 'add':
-        const entityAppend = await this.buildEntityList(
-          room.entities.map((item) => item.entity_id),
-        );
-        if (IsEmpty(entityAppend)) {
-          this.logger.debug(`Nothing to add`);
-          return;
-        }
-        room.entities.push(...entityAppend);
-        await this.update(room);
+    if (action === 'add') {
+      const entityAppend = await this.buildEntityList(
+        room.entities.map((item) => item.entity_id),
+      );
+      if (IsEmpty(entityAppend)) {
+        this.logger.debug(`Nothing to add`);
         return;
-      // Remove entities from room
-      case 'remove':
-        const removeList = await this.promptService.pickMany(
-          `Which entities should be removed?`,
-          room.entities.map(({ entity_id, tags = [] }) => [
-            `${entity_id} {${tags.join(', ')}}`,
-            entity_id,
-          ]),
-        );
-        await this.update({
-          ...room,
-          entities: room.entities.filter(
-            (item) => !removeList.includes(item.entity_id),
-          ),
-        });
-        return;
-      case 'manipulate':
-        await this.entityService.processId(
-          room.entities.map(({ entity_id }) => entity_id),
-        );
-        return;
+      }
+      room.entities.push(...entityAppend);
+      room = await this.update(room);
+      return await this.roomEntities(room);
     }
+    if (action === 'remove') {
+      const entities = await this.promptService.pickMany(
+        `Keep selected`,
+        room.entities
+          .map(({ entity_id }) => [entity_id, entity_id])
+          .sort(([a], [b]) => (a > b ? 1 : -1)) as PromptEntry[],
+        { default: room.entities.map(({ entity_id }) => entity_id) },
+      );
+      room = await this.update({
+        ...room,
+        entities: room.entities.filter((item) =>
+          entities.includes(item.entity_id),
+        ),
+      });
+      return await this.roomEntities(room);
+    }
+    await this.entityService.process(action);
+    return await this.roomEntities(room);
   }
 
   private async roomGroups(room: RoomDTO): Promise<void> {
@@ -365,15 +407,19 @@ export class RoomCommandService {
       case DONE:
         return;
       case 'add':
-        let addMore = true;
         room.groups ??= [];
-        do {
-          const group = await this.groupCommand.pickOne(room.groups);
-          room.groups.push(group._id);
-          addMore = await this.promptService.confirm(`Add another?`);
-        } while (addMore === true);
-        await this.update(room);
-        return;
+        const group = await this.groupCommand.pickOne(room.groups);
+        room.groups.push(group._id);
+        room = await this.update(room);
+        return await this.roomGroups(room);
+      case 'remove':
+        const groups = await this.groupCommand.pickMany(
+          room.groups,
+          room.groups,
+        );
+        room.groups = groups.map(({ _id }) => _id);
+        room = await this.update(room);
+        return await this.roomGroups(room);
     }
     if (typeof action === 'string') {
       this.logger.error({ action }, `Not implemented`);

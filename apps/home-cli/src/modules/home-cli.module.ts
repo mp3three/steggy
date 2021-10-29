@@ -35,6 +35,7 @@ import {
   imports: [DiscoveryModule, MainCLIModule, UtilitiesModule],
   providers: [
     ...[
+      // domains/*
       ...[
         BaseDomainService,
         ClimateService,
@@ -44,12 +45,11 @@ import {
         MediaService,
         SwitchService,
       ],
+      // groups/*
       ...[GroupCommandService, GroupStateService, LightGroupCommandService],
-      DebugService,
-      DeviceService,
-      EntityService,
-      HomeFetchService,
-      RoomCommandService,
+      // rooms/*
+      ...[RoomCommandService],
+      // routines/*
       ...[
         GroupActionService,
         KunamiBuilderService,
@@ -58,6 +58,11 @@ import {
         ScheduleBuilderService,
         StateChangeBuilderService,
       ],
+      // /*
+      DebugService,
+      DeviceService,
+      EntityService,
+      HomeFetchService,
     ],
   ],
 })

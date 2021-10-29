@@ -32,6 +32,14 @@ export class LightGroupCommandService {
     private readonly fetchService: HomeFetchService,
   ) {}
 
+  public async circadianOn(group: GroupDTO | string): Promise<void> {
+    group = typeof group === 'string' ? group : group._id;
+    await this.fetchService.fetch({
+      method: 'put',
+      url: `/group/${group}/command/circadianOn`,
+    });
+  }
+
   public async commandBuilder(
     current?: string,
     extra?: LightingCacheDTO,
@@ -94,19 +102,17 @@ export class LightGroupCommandService {
   }
 
   public async processAction(group: GroupDTO, action: string): Promise<void> {
-    const passThrough = ['turnOn', 'turnOff', 'circadianOn'];
-    if (passThrough.includes(action)) {
-      await this.fetchService.fetch({
-        method: 'put',
-        url: `/group/${group._id}/command/${action}`,
-      });
-      return;
-    }
     switch (action) {
       case 'dimUp':
         return await this.dimUp(group);
       case 'dimDown':
         return await this.dimDown(group);
+      case 'turnOn':
+        return await this.turnOn(group);
+      case 'turnOff':
+        return await this.turnOff(group);
+      case 'circadianOn':
+        return await this.circadianOn(group);
     }
     if (action === 'brightness') {
       group = await this.refresh(group);
@@ -162,6 +168,22 @@ export class LightGroupCommandService {
       },
       method: 'put',
       url: `/group/${group._id}/expand`,
+    });
+  }
+
+  public async turnOn(group: GroupDTO | string): Promise<void> {
+    group = typeof group === 'string' ? group : group._id;
+    await this.fetchService.fetch({
+      method: 'put',
+      url: `/group/${group}/command/turnOn`,
+    });
+  }
+
+  public async turnOff(group: GroupDTO | string): Promise<void> {
+    group = typeof group === 'string' ? group : group._id;
+    await this.fetchService.fetch({
+      method: 'put',
+      url: `/group/${group}/command/turnOff`,
     });
   }
 }
