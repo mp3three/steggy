@@ -22,7 +22,7 @@ export class KunamiBuilderService {
   public async build(
     current?: KunamiCodeActivateDTO,
   ): Promise<KunamiCodeActivateDTO> {
-    const sensor = await this.entityService.pickOne([HASS_DOMAINS.sensor]);
+    const sensor = await this.entityService.pickInDomain([HASS_DOMAINS.sensor]);
     const type = await this.promptService.pickOne(`How to enter values?`, [
       ['Record', 'record'],
       ['Manual', 'manual'],

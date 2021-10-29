@@ -60,7 +60,7 @@ export class LockGroupService extends BaseGroupService {
     return group.entities.map((id) => {
       const lock = this.entityManager.getEntity<LockStateDTO>(id);
       return {
-        entity_id: lock.entity_id,
+        ref: lock.entity_id,
         state: lock.state,
       };
     });

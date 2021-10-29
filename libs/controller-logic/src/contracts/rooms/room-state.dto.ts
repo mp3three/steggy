@@ -18,7 +18,8 @@ export type ROOM_ENTITY_EXTRAS =
   | ClimateCacheDTO;
 
 export class RoomEntitySaveStateDTO<EXTRA = ROOM_ENTITY_EXTRAS> {
-  public entity_id: string;
+  public ref: string;
   public extra?: EXTRA;
   public state: string;
+  public type?: 'group' | 'room';
 }

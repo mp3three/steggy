@@ -20,7 +20,7 @@ export class SwitchService extends BaseDomainService {
       current?.state,
     );
     return {
-      entity_id,
+      ref: entity_id,
       state,
     };
   }

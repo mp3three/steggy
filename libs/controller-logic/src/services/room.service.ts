@@ -62,7 +62,7 @@ export class RoomService {
     }
     await each(state.states, async (state, callback) => {
       await this.commandRouter.process(
-        state.entity_id,
+        state.ref,
         state.state,
         state.extra as Record<string, unknown>,
       );

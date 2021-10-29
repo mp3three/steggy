@@ -17,7 +17,7 @@ export class StateChangeBuilderService {
   public async build(
     current: Partial<StateChangeActivateDTO> = {},
   ): Promise<StateChangeActivateDTO> {
-    const entity = await this.entityService.pickOne(
+    const entity = await this.entityService.pickInDomain(
       undefined,
       undefined,
       current.entity,

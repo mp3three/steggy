@@ -4,6 +4,7 @@ import {
   GROUP_TYPES,
   RoomDTO,
   RoomEntityDTO,
+  RoomStateDTO,
 } from '@automagical/controller-logic';
 import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import {
@@ -29,6 +30,7 @@ import { EntityService } from '../entity.service';
 import { LightGroupCommandService } from '../groups';
 import { GroupCommandService } from '../groups/group-command.service';
 import { HomeFetchService } from '../home-fetch.service';
+import { RoomStateService } from './room-state.service';
 
 const UP = 1;
 const DOWN = -1;
@@ -51,8 +53,7 @@ export class RoomCommandService {
     private readonly entityService: EntityService,
     private readonly lightDomain: LightService,
     private readonly lightService: LightGroupCommandService,
-    @InjectConfig(CONCURRENT_CHANGES, LIB_CONTROLLER_LOGIC)
-    private readonly concurrentChanges: number,
+    private readonly roomState: RoomStateService,
   ) {}
 
   private async circadianOn(room: RoomDTO): Promise<void> {
@@ -104,16 +105,19 @@ export class RoomCommandService {
 
   public async exec(): Promise<void> {
     const rooms = await this.list();
-    let room = await this.promptService.menuSelect<RoomDTO | string>([
-      ...(rooms
-        .map((room) => [room.friendlyName, room])
-        .sort((a, b) => (a[NAME] > b[NAME] ? UP : DOWN)) as [
-        string,
-        RoomDTO,
-      ][]),
-      new inquirer.Separator(),
-      [`Create`, 'create'],
-    ]);
+    let room = await this.promptService.menuSelect<RoomDTO | string>(
+      [
+        ...(rooms
+          .map((room) => [room.friendlyName, room])
+          .sort((a, b) => (a[NAME] > b[NAME] ? UP : DOWN)) as [
+          string,
+          RoomDTO,
+        ][]),
+        new inquirer.Separator(),
+        [`Create`, 'create'],
+      ],
+      `Pick room`,
+    );
     if (room === DONE) {
       return;
     }
@@ -164,8 +168,10 @@ export class RoomCommandService {
     defaultAction?: string,
   ): Promise<void> {
     this.promptService.header(room.friendlyName);
+    room.save_states ??= [];
     const action = await this.promptService.menuSelect(
       [
+        new inquirer.Separator(chalk.white`Commands`),
         ['Turn On', 'turnOn'],
         ['Turn Off', 'turnOff'],
         ...this.promptService.conditionalEntries(
@@ -180,6 +186,12 @@ export class RoomCommandService {
             ['Dim Down', 'dimDown'],
           ],
         ),
+        new inquirer.Separator(chalk.white`States`),
+        ['Crreate State', 'createState'],
+        ...(room.save_states.map((state) => [
+          state.friendlyName,
+          state,
+        ]) as PromptEntry<RoomStateDTO>[]),
         new inquirer.Separator(chalk.white`Maintenance`),
         ['Delete', 'delete'],
         ['Describe', 'describe'],
@@ -187,10 +199,13 @@ export class RoomCommandService {
         ['Groups', 'groups'],
         ['Rename', 'rename'],
       ],
-      undefined,
+      `Action`,
       defaultAction,
     );
     switch (action) {
+      case 'createState':
+        // room = await this.roomState.addState(room);
+        return await this.processRoom(room, action);
       case 'dimDown':
         await this.dimDown(room);
         return await this.processRoom(room, action);
@@ -237,6 +252,14 @@ export class RoomCommandService {
         await this.roomGroups(room);
         return await this.processRoom(room, action);
     }
+  }
+
+  public async update(body: RoomDTO): Promise<RoomDTO> {
+    return await this.fetchService.fetch({
+      body,
+      method: 'put',
+      url: `/room/${body._id}`,
+    });
   }
 
   private async buildEntityList(omit: string[] = []): Promise<RoomEntityDTO[]> {
@@ -426,13 +449,5 @@ export class RoomCommandService {
       return;
     }
     await this.groupCommand.process(action, allGroups);
-  }
-
-  private async update(body: RoomDTO): Promise<RoomDTO> {
-    return await this.fetchService.fetch({
-      body,
-      method: 'put',
-      url: `/room/${body._id}`,
-    });
   }
 }

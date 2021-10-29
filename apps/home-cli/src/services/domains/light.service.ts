@@ -36,7 +36,7 @@ export class LightService extends SwitchService {
     );
     if (state === 'turnOff') {
       return {
-        entity_id,
+        ref: entity_id,
         state,
       };
     }
@@ -52,7 +52,7 @@ export class LightService extends SwitchService {
       );
     }
     return {
-      entity_id,
+      ref: entity_id,
       extra: { brightness },
       state,
     };

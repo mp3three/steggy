@@ -25,7 +25,7 @@ export class FanService extends SwitchService {
       current?.extra?.speed,
     );
     return {
-      entity_id,
+      ref: entity_id,
       extra: {
         speed,
       },

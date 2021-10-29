@@ -61,7 +61,7 @@ export class FanGroupService extends BaseGroupService {
     return group.entities.map((id) => {
       const fan = this.entityManager.getEntity<FanStateDTO>(id);
       return {
-        entity_id: fan.entity_id,
+        ref: fan.entity_id,
         extra: {
           speed: fan.attributes.speed,
         },

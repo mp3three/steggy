@@ -57,7 +57,7 @@ export class SwitchGroupService extends BaseGroupService {
     return group.entities.map((id) => {
       const light = this.entityManager.getEntity<SwitchStateDTO>(id);
       return {
-        entity_id: light.entity_id,
+        ref: light.entity_id,
         state: light.state,
       };
     });

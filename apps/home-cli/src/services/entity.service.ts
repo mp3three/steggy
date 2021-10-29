@@ -112,7 +112,7 @@ export class EntityService implements iRepl {
     });
   }
 
-  public async pickOne(
+  public async pickInDomain(
     inList: HASS_DOMAINS[] = [],
     omit: string[] = [],
     defaultValue?: string,
@@ -129,6 +129,32 @@ export class EntityService implements iRepl {
         }
         return true;
       }),
+      defaultValue,
+    );
+  }
+
+  public async pickMany(
+    inList: string[] = [],
+    defaultValue?: string[],
+  ): Promise<string[]> {
+    const entities = await this.list();
+    return await this.promptService.pickMany(
+      `Pick an entity`,
+      entities
+        .filter((entity) => IsEmpty(inList) || inList.includes(entity))
+        .map((id) => [id, id]),
+      { default: defaultValue },
+    );
+  }
+
+  public async pickOne(
+    inList: string[] = [],
+    defaultValue?: string,
+  ): Promise<string> {
+    const entities = await this.list();
+    return await this.promptService.autocomplete(
+      `Pick an entity`,
+      entities.filter((entity) => IsEmpty(inList) || inList.includes(entity)),
       defaultValue,
     );
   }

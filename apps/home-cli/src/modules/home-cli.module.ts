@@ -24,6 +24,7 @@ import {
   MediaService,
   RoomActionService,
   RoomCommandService,
+  RoomStateService,
   RoutineCommandService,
   ScheduleBuilderService,
   StateChangeBuilderService,
@@ -48,7 +49,7 @@ import {
       // groups/*
       ...[GroupCommandService, GroupStateService, LightGroupCommandService],
       // rooms/*
-      ...[RoomCommandService],
+      ...[RoomCommandService, RoomStateService],
       // routines/*
       ...[
         GroupActionService,
