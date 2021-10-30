@@ -39,6 +39,11 @@
     "ADMIN_KEY": {
       "type": "string",
       "description": "Leave blank to disable. If this value is provided via x-admin-key header, the request will be authorized as an admin"
+    },
+    "AUTH_BYPASS": {
+      "type": "boolean",
+      "default": false,
+      "description": "Ignore all authentication, and just let requests through"
     }
   }
 }

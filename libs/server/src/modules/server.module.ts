@@ -17,7 +17,6 @@ import helmet from 'helmet';
 import { createServer } from 'http';
 import { createServer as createHttpsServer } from 'https';
 
-import { AdminKeyGuard } from '..';
 import {
   BODY_SIZE,
   COMPRESSION,
@@ -28,6 +27,7 @@ import {
   SSL_PORT,
 } from '../config';
 import { BasicExceptionFilter } from '../filters';
+import { AdminKeyGuard, IsAuthorizedGuard } from '../guards';
 import { LoggingInterceptor } from '../interceptors';
 import { InitMiddleware } from '../middleware';
 import { RouteInjector } from '../services';
@@ -39,6 +39,7 @@ import { RouteInjector } from '../services';
     AdminKeyGuard,
     RouteInjector,
     BasicExceptionFilter,
+    IsAuthorizedGuard,
     LoggingInterceptor,
     InitMiddleware,
   ],

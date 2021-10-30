@@ -1,16 +1,23 @@
 import {
   GroupDTO,
   GroupSaveStateDTO,
-  RoutineCommandGroupActionDTO,
+  RoomEntitySaveStateDTO,
   RoutineCommandGroupStateDTO,
 } from '@automagical/controller-logic';
 import { DONE, PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
+import { eachSeries } from 'async';
 import chalk from 'chalk';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
-
+import { dump, load } from 'js-yaml';
+import { EntityService } from '../entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { GroupCommandService } from './group-command.service';
 
@@ -22,7 +29,61 @@ export class GroupStateService {
     private readonly fetchService: HomeFetchService,
     @Inject(forwardRef(() => GroupCommandService))
     private readonly groupService: GroupCommandService,
+    private readonly entityService: EntityService,
   ) {}
+
+  public async build(
+    group: GroupDTO,
+    current?: GroupSaveStateDTO,
+  ): Promise<GroupDTO> {
+    const friendlyName = await this.promptService.string(
+      `Friendly name`,
+      current?.friendlyName,
+    );
+    const states = [];
+    const action = await this.promptService.pickOne(`Edit style`, [
+      [`Guided`, `guided`],
+      ['Manual', `manual`],
+    ]);
+    if (action === `manual`) {
+      const result = await this.promptService.editor(
+        `Enter save state data in yaml format`,
+        dump(current?.states),
+      );
+      states.push(...(load(result) as RoomEntitySaveStateDTO[]));
+    } else {
+      await eachSeries(
+        group.entities.map((item, index) => [item, index]),
+        async ([entity, index]: [string, number]) =>
+          states.push(
+            await this.entityService.createSaveCommand(
+              entity,
+              current?.states[index],
+            ),
+          ),
+      );
+    }
+    if (current.id) {
+      const out = await this.fetchService.fetch<GroupDTO>({
+        url: `/group/${group._id}/state/${current.id}`,
+        method: 'put',
+        body: {
+          friendlyName,
+          states,
+        },
+      });
+      return out;
+    }
+    const out = await this.fetchService.fetch<GroupDTO>({
+      url: `/group/${group._id}/state`,
+      method: 'post',
+      body: {
+        friendlyName,
+        states,
+      },
+    });
+    return out;
+  }
 
   public async findGroup(exclude: string[] = []): Promise<GroupDTO> {
     const groups = await this.fetchService.fetch<GroupDTO[]>({
@@ -56,21 +117,28 @@ export class GroupStateService {
     group = await this.fetchService.fetch({
       url: `/group/${group._id}`,
     });
-    const action = await this.promptService.menuSelect<GroupSaveStateDTO>([
-      ...(this.promptService.conditionalEntries(!IsEmpty(group.save_states), [
-        new inquirer.Separator(chalk.white`Current save states`),
-        ...(group.save_states.map((state) => [state.friendlyName, state]) as [
-          string,
-          GroupSaveStateDTO,
-        ][]),
-      ]) as PromptEntry<GroupSaveStateDTO>[]),
-      new inquirer.Separator(chalk.white`Manipulate`),
-      ['📷 Capture current', 'capture'],
-      ['📃 Describe current', 'describe'],
-      [`🚨 Remove all save states`, 'truncate'],
-    ]);
+    const action = await this.promptService.menuSelect<GroupSaveStateDTO>(
+      [
+        ...(this.promptService.conditionalEntries(!IsEmpty(group.save_states), [
+          new inquirer.Separator(chalk.white`Current save states`),
+          ...(group.save_states.map((state) => [state.friendlyName, state]) as [
+            string,
+            GroupSaveStateDTO,
+          ][]),
+        ]) as PromptEntry<GroupSaveStateDTO>[]),
+        new inquirer.Separator(chalk.white`Manipulate`),
+        ['➕ Manual create', 'create'],
+        ['📷 Capture current', 'capture'],
+        ['📃 Describe current', 'describe'],
+        [`🚨 Remove all save states`, 'truncate'],
+      ],
+      `State management`,
+    );
     if (action === DONE) {
       return;
+    }
+    if (action === 'create') {
+      return await this.processState(group, list);
     }
     if (action === 'truncate') {
       if (
@@ -83,7 +151,7 @@ export class GroupStateService {
       }
       await this.fetchService.fetch({
         method: 'delete',
-        url: `/group/${group._id}/truncate`,
+        url: `/group/${group._id}/state/truncate`,
       });
       return await this.processState(group, list);
     }
@@ -93,19 +161,19 @@ export class GroupStateService {
           name: await this.promptService.string(`Name for save state`),
         },
         method: 'post',
-        url: `/group/${group._id}/capture`,
+        url: `/group/${group._id}/state/capture`,
       });
       return await this.processState(group, list);
     }
     if (action === 'describe') {
-      console.log(encode(group.state));
+      this.promptService.print(dump(group.state));
       return await this.processState(group, list);
     }
     if (typeof action === 'string') {
       this.logger.error({ action }, `Unknown action`);
       return;
     }
-    await this.stateAction(action, group);
+    group = await this.stateAction(action, group);
     return await this.processState(group, list);
   }
 
@@ -140,33 +208,49 @@ export class GroupStateService {
   private async stateAction(
     state: GroupSaveStateDTO,
     group: GroupDTO,
-  ): Promise<void> {
-    const stateAction = await this.promptService.menuSelect([
-      ['Activate', 'activate'],
-      ['Describe', 'describe'],
-      new inquirer.Separator(),
-      ['Copy to another group', 'copyTo'],
-      ['Delete', 'delete'],
-    ]);
-    switch (stateAction) {
+  ): Promise<GroupDTO> {
+    const action = await this.promptService.menuSelect(
+      [
+        ['🏁 Activate', 'activate'],
+        ['🔬 Describe', 'describe'],
+        ['✏ Edit', 'edit'],
+        ['📋 Copy to another group', 'copyTo'],
+        ['🚫 Delete', 'delete'],
+      ],
+      `Group state action`,
+    );
+    switch (action) {
+      case DONE:
+        return group;
       case 'copyTo':
         await this.sendSaveState(state, group);
-        return;
+        return group;
+      case 'edit':
+        group = await this.build(group, state);
+        return await this.stateAction(state, group);
       case 'activate':
         await this.fetchService.fetch({
-          method: 'put',
+          method: 'post',
           url: `/group/${group._id}/state/${state.id}`,
         });
-        return;
+        return group;
       case 'describe':
-        console.log(encode(state));
+        console.log(`💭 Name:`, chalk.yellow.bold(state.friendlyName));
+        console.log(
+          chalk`🔗 {bold.magenta POST} ${this.fetchService.getUrl(
+            `/group/${group._id}/state/${state.id}`,
+          )}`,
+        );
+        this.promptService.print(dump(state.states));
         return await this.stateAction(state, group);
       case 'delete':
         await this.fetchService.fetch({
           method: 'delete',
           url: `/group/${group._id}/state/${state.id}`,
         });
-        return;
+        return group;
     }
+    throw new NotImplementedException();
+    return group;
   }
 }

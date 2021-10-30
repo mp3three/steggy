@@ -43,7 +43,7 @@ export class GroupController {
     return GENERIC_SUCCESS_RESPONSE;
   }
 
-  @Put(`/:group/state/:state`)
+  @Post(`/:group/state/:state`)
   public async activateState(
     @Param('group') group: string,
     @Param('state') state: string,
@@ -52,7 +52,7 @@ export class GroupController {
     return GENERIC_SUCCESS_RESPONSE;
   }
 
-  @Post(`/:group`)
+  @Post(`/:group/state`)
   public async addState(
     @Param('group') group: string,
     @Body() state: GroupSaveStateDTO,
@@ -60,7 +60,7 @@ export class GroupController {
     return await this.groupService.addState(group, state);
   }
 
-  @Post('/:group/capture')
+  @Post('/:group/state/capture')
   public async captureCurrent(
     @Param('group') group: string,
     @Body() { name }: { name: string },
@@ -111,7 +111,7 @@ export class GroupController {
     return await this.groupService.list(control);
   }
 
-  @Delete(`/:group/truncate`)
+  @Delete(`/:group/state/truncate`)
   public async truncateStates(
     @Param('group') group: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
@@ -120,10 +120,19 @@ export class GroupController {
   }
 
   @Put('/:group')
-  public async updateGroup(
+  public async update(
     @Param('group') id: string,
     @Body() body: Partial<GroupDTO>,
   ): Promise<GroupDTO> {
     return await this.groupService.update(id, BaseSchemaDTO.cleanup(body));
+  }
+
+  @Put(`/:group/state/:state`)
+  public async updateState(
+    @Param('group') group: string,
+    @Param('state') state: string,
+    @Body() body: GroupSaveStateDTO,
+  ): Promise<GroupDTO> {
+    return await this.groupService.updateState(group, state, body);
   }
 }

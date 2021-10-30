@@ -21,7 +21,7 @@ export class LightService extends SwitchService {
     });
   }
 
-  public async createSaveState(
+  public async createSaveCommand(
     entity_id: string,
     current?: RoomEntitySaveStateDTO<LightingCacheDTO>,
   ): Promise<RoomEntitySaveStateDTO> {

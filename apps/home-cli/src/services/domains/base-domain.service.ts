@@ -43,7 +43,7 @@ export class BaseDomainService {
     protected readonly deviceService: DeviceService,
   ) {}
 
-  public async createSaveState(
+  public async createSaveCommand(
     entity_id: string,
     current?: RoomEntitySaveStateDTO,
   ): Promise<RoomEntitySaveStateDTO> {

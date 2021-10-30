@@ -29,7 +29,7 @@ import { HomeFetchService } from './home-fetch.service';
 @Repl({
   description: [`Commands scoped to a single/manually built list of entities`],
   icon: FontAwesomeExtendedIcons.checklist_o,
-  name: `🗃️ Entities`,
+  name: `🗃 Entities`,
   category: `Home Assistant`,
 })
 export class EntityService implements iRepl {
@@ -68,31 +68,31 @@ export class EntityService implements iRepl {
     return out;
   }
 
-  public async createSaveState(
+  public async createSaveCommand(
     entity_id: string,
     current?: RoomEntitySaveStateDTO,
   ): Promise<RoomEntitySaveStateDTO> {
     switch (domain(entity_id)) {
       case HASS_DOMAINS.light:
-        return await this.lightService.createSaveState(
+        return await this.lightService.createSaveCommand(
           entity_id,
           current as RoomEntitySaveStateDTO<LightingCacheDTO>,
         );
       case HASS_DOMAINS.switch:
-        return await this.switchService.createSaveState(entity_id, current);
+        return await this.switchService.createSaveCommand(entity_id, current);
       case HASS_DOMAINS.fan:
-        return await this.fanService.createSaveState(
+        return await this.fanService.createSaveCommand(
           entity_id,
           current as RoomEntitySaveStateDTO<FanCacheDTO>,
         );
       case HASS_DOMAINS.media_player:
-        return await this.mediaService.createSaveState(entity_id, current);
+        return await this.mediaService.createSaveCommand(entity_id, current);
       case HASS_DOMAINS.lock:
-        return await this.lockService.createSaveState(entity_id, current);
+        return await this.lockService.createSaveCommand(entity_id, current);
       case HASS_DOMAINS.climate:
-        return await this.climateService.createSaveState(entity_id, current);
+        return await this.climateService.createSaveCommand(entity_id, current);
     }
-    return await this.baseService.createSaveState(entity_id, current);
+    return await this.baseService.createSaveCommand(entity_id, current);
   }
 
   public async exec(): Promise<void> {

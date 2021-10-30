@@ -7,7 +7,7 @@ import { BaseDomainService } from './base-domain.service';
 
 @Injectable()
 export class SwitchService extends BaseDomainService {
-  public async createSaveState(
+  public async createSaveCommand(
     entity_id: string,
     current?: RoomEntitySaveStateDTO,
   ): Promise<RoomEntitySaveStateDTO> {

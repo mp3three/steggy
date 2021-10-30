@@ -34,7 +34,7 @@ export class RoomStateService {
         room.entities.map(({ entity_id }) => entity_id),
       );
       await eachSeries(list, async (entity_id) =>
-        states.push(await this.entityService.createSaveState(entity_id)),
+        states.push(await this.entityService.createSaveCommand(entity_id)),
       );
     }
     if (IsEmpty(room.groups)) {

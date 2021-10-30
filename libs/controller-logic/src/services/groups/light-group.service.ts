@@ -35,8 +35,6 @@ export class LightGroupService extends BaseGroupService {
     protected readonly logger: AutoLogService,
     protected readonly groupPersistence: GroupPersistenceService,
     private readonly entityManager: EntityManagerService,
-    @InjectConfig(DIM_PERCENT)
-    private readonly dimAmount: number,
     private readonly lightManager: LightManagerService,
     @InjectConfig(CONCURRENT_CHANGES)
     private readonly eachLimit: number,
@@ -101,20 +99,27 @@ export class LightGroupService extends BaseGroupService {
   }
 
   @Trace()
-  public getState(
+  public async getState(
     group: GroupDTO<LightingCacheDTO>,
-  ): RoomEntitySaveStateDTO<LightingCacheDTO>[] {
-    return group.entities.map((id) => {
+  ): Promise<RoomEntitySaveStateDTO<LightingCacheDTO>[]> {
+    const out: RoomEntitySaveStateDTO<LightingCacheDTO>[] = [];
+    await each(group.entities, async (id, callback) => {
       const light = this.entityManager.getEntity<LightStateDTO>(id);
-      return {
+      const state = await this.lightManager.getState(id);
+      out.push({
         ref: light.entity_id,
-        extra: {
-          brightness: light.attributes.brightness,
-          hs_color: light.attributes.hs_color,
-        },
+        extra:
+          state?.mode === LIGHTING_MODE.circadian
+            ? {
+                brightness: light.attributes.brightness,
+                mode: LIGHTING_MODE.circadian,
+              }
+            : state,
         state: light.state,
-      };
+      });
+      callback();
     });
+    return out;
   }
 
   @Trace()
@@ -128,7 +133,7 @@ export class LightGroupService extends BaseGroupService {
     direction: 'forward' | 'reverse' = 'forward',
   ): Promise<void> {
     group = await this.loadGroup(group);
-    const states = this.getState(group);
+    const states = await this.getState(group);
     if (direction === 'forward') {
       states.unshift(states.pop());
     } else {

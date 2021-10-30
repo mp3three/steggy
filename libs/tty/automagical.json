@@ -14,6 +14,14 @@
       "type": "string",
       "description": "Figlet font",
       "default": "DOS Rebel"
+    },
+    "BLOCK_PRINT_BG": {
+      "type": "string",
+      "default": "#422011"
+    },
+    "BLOCK_PRINT_FG": {
+      "type": "string",
+      "default": "#d6c2ba"
     }
   }
 }

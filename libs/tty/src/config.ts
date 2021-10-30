@@ -1,3 +1,5 @@
 export const DEFAULT_HEADER_FONT = 'DEFAULT_HEADER_FONT';
 export const OUTPUT_HEADER_FONT = 'OUTPUT_HEADER_FONT';
 export const PAGE_SIZE = 'PAGE_SIZE';
+export const BLOCK_PRINT_BG = 'BLOCK_PRINT_BG';
+export const BLOCK_PRINT_FG = 'BLOCK_PRINT_FG';

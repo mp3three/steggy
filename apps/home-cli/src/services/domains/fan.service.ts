@@ -11,7 +11,7 @@ import { SwitchService } from './switch.service';
 
 @Injectable()
 export class FanService extends SwitchService {
-  public async createSaveState(
+  public async createSaveCommand(
     entity_id: string,
     current?: RoomEntitySaveStateDTO<FanCacheDTO>,
   ): Promise<RoomEntitySaveStateDTO> {

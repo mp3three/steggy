@@ -57,7 +57,7 @@ export class FanGroupService extends BaseGroupService {
   }
 
   @Trace()
-  public getState(group: GroupDTO<FanCacheDTO>): SaveState[] {
+  public async getState(group: GroupDTO<FanCacheDTO>): Promise<SaveState[]> {
     return group.entities.map((id) => {
       const fan = this.entityManager.getEntity<FanStateDTO>(id);
       return {

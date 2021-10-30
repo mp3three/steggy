@@ -17,6 +17,25 @@ export class BaseFetchService {
   protected readonly logger: AutoLogService;
 
   /**
+   * Resolve url provided in args into a full path w/ domain
+   */
+  public fetchCreateUrl({
+    rawUrl,
+    url,
+    tempAuthToken,
+    ...fetchWith
+  }: FetchWith): string {
+    let out = rawUrl ? url : `${fetchWith.baseUrl ?? this.BASE_URL}${url}`;
+    if (tempAuthToken) {
+      fetchWith.params ??= {};
+    }
+    if (fetchWith.control || fetchWith.params) {
+      out = `${out}?${this.buildFilterString(fetchWith)}`;
+    }
+    return out;
+  }
+
+  /**
    * Resolve Filters and query params object into a query string.
    *
    * In case of collision, provided params take priority.
@@ -76,25 +95,6 @@ export class BaseFetchService {
       headers,
       method,
     };
-  }
-
-  /**
-   * Resolve url provided in args into a full path w/ domain
-   */
-  protected fetchCreateUrl({
-    rawUrl,
-    url,
-    tempAuthToken,
-    ...fetchWith
-  }: FetchWith): string {
-    let out = rawUrl ? url : `${fetchWith.baseUrl ?? this.BASE_URL}${url}`;
-    if (tempAuthToken) {
-      fetchWith.params ??= {};
-    }
-    if (fetchWith.control || fetchWith.params) {
-      out = `${out}?${this.buildFilterString(fetchWith)}`;
-    }
-    return out;
   }
 
   /**

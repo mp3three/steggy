@@ -56,7 +56,9 @@ export class LockGroupService extends BaseGroupService {
   }
 
   @Trace()
-  public getState(group: GroupDTO<LightingCacheDTO>): RoomEntitySaveStateDTO[] {
+  public async getState(
+    group: GroupDTO<LightingCacheDTO>,
+  ): Promise<RoomEntitySaveStateDTO[]> {
     return group.entities.map((id) => {
       const lock = this.entityManager.getEntity<LockStateDTO>(id);
       return {

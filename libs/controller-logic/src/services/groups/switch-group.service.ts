@@ -53,7 +53,7 @@ export class SwitchGroupService extends BaseGroupService {
   }
 
   @Trace()
-  public getState(group: GroupDTO): RoomEntitySaveStateDTO[] {
+  public async getState(group: GroupDTO): Promise<RoomEntitySaveStateDTO[]> {
     return group.entities.map((id) => {
       const light = this.entityManager.getEntity<SwitchStateDTO>(id);
       return {

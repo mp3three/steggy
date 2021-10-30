@@ -17,4 +17,8 @@ export class HomeFetchService {
     fetch.adminKey = this.adminKey;
     return this.fetchService.fetch<T>(fetch);
   }
+
+  public getUrl(url: string): string {
+    return this.fetchService.fetchCreateUrl({ url });
+  }
 }

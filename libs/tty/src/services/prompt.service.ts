@@ -1,18 +1,28 @@
-import { AutoLogService, InjectConfig, IsEmpty } from '@automagical/utilities';
+import {
+  AutoLogService,
+  InjectConfig,
+  IsEmpty,
+  PEAT,
+} from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import figlet from 'figlet';
 import chalk from 'chalk';
+import figlet from 'figlet';
 import fuzzy from 'fuzzysort';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
-
-import { DEFAULT_HEADER_FONT, PAGE_SIZE } from '../config';
+import {
+  BLOCK_PRINT_BG,
+  BLOCK_PRINT_FG,
+  DEFAULT_HEADER_FONT,
+  PAGE_SIZE,
+} from '../config';
 import { DONE, PromptMenuItems } from '../contracts';
 
 const name = `result`;
 export type PromptEntry<T = string> = [string, string | T] | Separator;
 const LABEL = 0;
 const VALUE = 1;
+const BLOCK_OFFSET = '   ';
 
 @Injectable()
 export class PromptService {
@@ -20,6 +30,8 @@ export class PromptService {
     @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: figlet.Fonts,
     private readonly logger: AutoLogService,
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
+    @InjectConfig(BLOCK_PRINT_BG) private readonly blockPrintBg: string,
+    @InjectConfig(BLOCK_PRINT_FG) private readonly blockPrintFg: string,
   ) {}
 
   /**
@@ -307,6 +319,26 @@ export class PromptService {
       },
     ]);
     return result;
+  }
+
+  public print(data: string): void {
+    const lines = data.trim().split(`\n`);
+    let max = 0;
+    lines.forEach((line) => (max = line.length > max ? line.length : max));
+    lines.push(``);
+    lines.unshift(``);
+    data = lines
+      .map((i) => `  ${i}${PEAT(max - i.length, ' ').join('')}  `)
+      .join(`\n`);
+    console.log();
+    console.log(
+      BLOCK_OFFSET +
+        chalk
+          .bgHex(this.blockPrintBg)
+          .hex(this.blockPrintFg)(data)
+          .replace(new RegExp(`\n`, 'g'), `\n${BLOCK_OFFSET}`),
+    );
+    console.log();
   }
 
   public scriptHeader(header: string): void {

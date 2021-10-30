@@ -229,6 +229,21 @@ export class GroupService {
   }
 
   @Trace()
+  public async updateState<
+    GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(
+    group: string | GroupDTO,
+    stateId: string,
+    data: GroupSaveStateDTO,
+  ): Promise<GroupDTO<GROUP_TYPE>> {
+    group = await this.load(group);
+    const state = group.save_states.find(({ id }) => id === stateId);
+    state.states = data.states;
+    state.friendlyName = data.friendlyName;
+    return await this.groupPersistence.update(group, group._id);
+  }
+
+  @Trace()
   private getBaseGroup(type: GROUP_TYPES): BaseGroupService {
     switch (type) {
       case GROUP_TYPES.switch:

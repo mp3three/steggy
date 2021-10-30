@@ -23,7 +23,7 @@ export abstract class BaseGroupService {
     group: GroupDTO | string,
     state: GroupCommandDTO,
   ): Promise<void>;
-  public abstract getState(group: GroupDTO): RoomEntitySaveStateDTO[];
+  public abstract getState(group: GroupDTO): Promise<RoomEntitySaveStateDTO[]>;
   public abstract isValidEntity(id: string): boolean;
 
   @Trace()
@@ -68,7 +68,7 @@ export abstract class BaseGroupService {
   ): Promise<string> {
     const id = uuid();
     group = await this.loadGroup(group);
-    const states = this.getState(group);
+    const states = await this.getState(group);
     group.save_states ??= [];
     group.save_states.push({
       friendlyName: name,

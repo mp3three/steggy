@@ -177,7 +177,7 @@ export class GroupCommandService implements iRepl {
         ['✏ Rename', 'rename'],
         ['🎼 State Manager', 'state'],
       ],
-      `Action`,
+      `Group action / management`,
       defaultValue,
     );
     if (action === 'describe') {
