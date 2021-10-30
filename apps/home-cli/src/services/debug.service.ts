@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import { HomeFetchService } from './home-fetch.service';
 
 @Repl({
-  name: `Debugger`,
+  name: `🐜 Debugger`,
   category: `Misc`,
 })
 export class DebugService {

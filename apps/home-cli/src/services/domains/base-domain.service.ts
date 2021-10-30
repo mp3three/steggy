@@ -11,18 +11,27 @@ import {
   PromptMenuItems,
   PromptService,
 } from '@automagical/tty';
-import { AutoLogService, IsEmpty, sleep } from '@automagical/utilities';
+import {
+  AutoLogService,
+  IsEmpty,
+  sleep,
+  TitleCase,
+} from '@automagical/utilities';
 import {
   forwardRef,
   Inject,
   Injectable,
   NotImplementedException,
 } from '@nestjs/common';
+import chalk from 'chalk';
 import { encode } from 'ini';
+import inquirer from 'inquirer';
+import Separator from 'inquirer/lib/objects/separator';
 
 import { DeviceService } from '../device.service';
 import { HomeFetchService } from '../home-fetch.service';
 
+const HEADER_SEPARATOR = 0;
 const DELAY = 100;
 @Injectable()
 export class BaseDomainService {
@@ -70,8 +79,16 @@ export class BaseDomainService {
   }
 
   public async processId(id: string, command?: string): Promise<string> {
+    const options = this.getMenuOptions();
+    if (!(options[HEADER_SEPARATOR] as Separator).line) {
+      options.unshift(
+        new inquirer.Separator(
+          chalk.white(`${TitleCase(domain(id))} commands`),
+        ),
+      );
+    }
     const action = await this.promptService.menuSelect(
-      this.getMenuOptions(),
+      options,
       `Action`,
       command,
     );
@@ -158,10 +175,11 @@ export class BaseDomainService {
 
   protected getMenuOptions(): PromptEntry[] {
     return [
-      ['Change Entity ID', 'changeEntityId'],
-      ['Change Friendly Name', 'changeFriendlyName'],
-      ['Describe', 'describe'],
-      ['Registry', 'registry'],
+      new inquirer.Separator(chalk.white`Base options`),
+      ['📑 Change Entity ID', 'changeEntityId'],
+      ['🔖 Change Friendly Name', 'changeFriendlyName'],
+      ['🔬 Describe', 'describe'],
+      ['📃 Registry', 'registry'],
     ];
   }
 }

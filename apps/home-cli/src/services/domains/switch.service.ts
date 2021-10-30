@@ -56,7 +56,6 @@ export class SwitchService extends BaseDomainService {
     return [
       ['Turn On', 'turnOn'],
       ['Turn Off', 'turnOff'],
-      new inquirer.Separator(),
       ...super.getMenuOptions(),
     ];
   }

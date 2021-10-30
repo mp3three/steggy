@@ -115,7 +115,6 @@ export class LightService extends SwitchService {
       ['Circadian light', 'circadianLight'],
       ['Dim Up', 'dimUp'],
       ['Dim Down', 'dimDown'],
-      new inquirer.Separator(),
       ['Swap state with another light', 'swapState'],
       ...parent.slice(SHIFT_AMOUNT),
     ];

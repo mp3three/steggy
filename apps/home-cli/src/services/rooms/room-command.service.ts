@@ -41,7 +41,7 @@ const NAME = 0;
     `Rooms can observe entities for state changes, and trigger routines to make changes to the state.`,
   ],
   icon: MDIIcons.television_box,
-  name: `Rooms`,
+  name: `🏡 Rooms`,
   category: `Control`,
 })
 export class RoomCommandService {
@@ -107,14 +107,17 @@ export class RoomCommandService {
     const rooms = await this.list();
     let room = await this.promptService.menuSelect<RoomDTO | string>(
       [
-        ...(rooms
-          .map((room) => [room.friendlyName, room])
-          .sort((a, b) => (a[NAME] > b[NAME] ? UP : DOWN)) as [
-          string,
-          RoomDTO,
-        ][]),
-        new inquirer.Separator(),
-        [`Create`, 'create'],
+        ...this.promptService.conditionalEntries(!IsEmpty(rooms), [
+          new inquirer.Separator(chalk.white`Existing rooms`),
+          ...(rooms
+            .map((room) => [room.friendlyName, room])
+            .sort((a, b) => (a[NAME] > b[NAME] ? UP : DOWN)) as [
+            string,
+            RoomDTO,
+          ][]),
+        ]),
+        new inquirer.Separator(chalk.white`Actions`),
+        [`➕ Create`, 'create'],
       ],
       `Pick room`,
     );
@@ -146,7 +149,7 @@ export class RoomCommandService {
     const room = await this.promptService.pickOne<RoomDTO | string>(
       `Pick a room`,
       [
-        [`Create new`, `create`],
+        [`➕ Create new`, `create`],
         ...this.promptService.conditionalEntries(
           !IsEmpty(rooms),
           rooms.map((room) => [room.friendlyName, room]),

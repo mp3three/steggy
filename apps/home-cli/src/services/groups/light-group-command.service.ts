@@ -98,7 +98,7 @@ export class LightGroupCommandService {
   }
 
   public async groupActions(): Promise<PromptEntry[]> {
-    return [...GENERIC_COMMANDS, new inquirer.Separator()];
+    return [...GENERIC_COMMANDS];
   }
 
   public async processAction(group: GroupDTO, action: string): Promise<void> {

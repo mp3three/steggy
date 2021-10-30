@@ -1,11 +1,12 @@
 import { AutoLogService, InjectConfig, IsEmpty } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import figlet from 'figlet';
 import chalk from 'chalk';
 import fuzzy from 'fuzzysort';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
-import { PAGE_SIZE } from '../config';
+import { DEFAULT_HEADER_FONT, PAGE_SIZE } from '../config';
 import { DONE, PromptMenuItems } from '../contracts';
 
 const name = `result`;
@@ -16,6 +17,7 @@ const VALUE = 1;
 @Injectable()
 export class PromptService {
   constructor(
+    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: figlet.Fonts,
     private readonly logger: AutoLogService,
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
   ) {}
@@ -305,6 +307,14 @@ export class PromptService {
       },
     ]);
     return result;
+  }
+
+  public scriptHeader(header: string): void {
+    header = figlet.textSync(header, {
+      font: this.font,
+    });
+    this.clear();
+    console.log(chalk.cyan(header), '\n');
   }
 
   public async string(

@@ -13,7 +13,7 @@ import { DEFAULT_HEADER_FONT } from '../config';
 import { iRepl } from '../contracts/i-repl.interface';
 import { ReplOptions } from '../contracts/repl-options.dto';
 import { Repl } from '../decorators';
-import { PromptService, ReplExplorerService } from '../services';
+import { PromptService, ReplExplorerService } from '.';
 
 // Filter out non-sortable characters (like emoji)
 const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
@@ -77,11 +77,7 @@ export class MainCLIService implements iRepl {
 
   private printHeader(scriptName: string): void {
     const settings = this.explorer.findSettingsByName(scriptName);
-    const header = figlet.textSync(settings.name, {
-      font: this.font,
-    });
-    this.promptService.clear();
-    console.log(chalk.cyan(header), '\n');
+    this.promptService.scriptHeader(settings.name);
     settings.description ??= [];
     settings.description =
       typeof settings.description === 'string'
@@ -110,7 +106,7 @@ export class MainCLIService implements iRepl {
       .sort()
       .forEach((type) => {
         out.push(
-          new inquirer.Separator(TitleCase(type)),
+          new inquirer.Separator(chalk.white(TitleCase(type))),
           ...types[type].sort(([a], [b]) => {
             a = a.replace(unsortable, '');
             b = b.replace(unsortable, '');

@@ -2,8 +2,8 @@ import { LIB_TTY } from '@automagical/utilities';
 import { LibraryModule } from '@automagical/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { MainCLIService } from '../repl';
 import {
+  MainCLIService,
   PromptService,
   ReplExplorerService,
   SystemService,

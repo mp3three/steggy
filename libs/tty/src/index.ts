@@ -3,7 +3,6 @@ export * from './contracts';
 export * from './decorators';
 export * from './icons';
 export * from './modules';
-export * from './repl';
 export * from './services';
 
 import inquirer from 'inquirer';

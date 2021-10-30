@@ -29,7 +29,7 @@ import { HomeFetchService } from './home-fetch.service';
 @Repl({
   description: [`Commands scoped to a single/manually built list of entities`],
   icon: FontAwesomeExtendedIcons.checklist_o,
-  name: `Entities`,
+  name: `🗃️ Entities`,
   category: `Home Assistant`,
 })
 export class EntityService implements iRepl {

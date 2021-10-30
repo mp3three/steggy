@@ -10,7 +10,7 @@ import { HomeFetchService } from './home-fetch.service';
 
 const SINGLE_ITEM = 1;
 @Repl({
-  name: 'Devices',
+  name: '📟 Devices',
   category: `Home Assistant`,
 })
 export class DeviceService {

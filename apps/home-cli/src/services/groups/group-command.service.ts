@@ -16,10 +16,12 @@ import {
 } from '@automagical/utilities';
 import chalk from 'chalk';
 import inquirer, { Separator } from 'inquirer';
+import Table from 'cli-table';
 import { EntityService } from '../entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { GroupStateService } from './group-state.service';
 import { LightGroupCommandService } from './light-group-command.service';
+import { encode } from 'ini';
 
 export type GroupItem = { entities: string[]; name: string; room: string };
 
@@ -33,7 +35,7 @@ export type GroupItem = { entities: string[]; name: string; room: string };
     ` - Fan Group`,
   ],
   icon: FontAwesomeIcons.group,
-  name: `Groups`,
+  name: `🎳 Groups`,
   category: `Control`,
 })
 export class GroupCommandService implements iRepl {
@@ -81,13 +83,17 @@ export class GroupCommandService implements iRepl {
 
   public async exec(): Promise<void> {
     const groups = await this.list();
-    const action = await this.promptService.menuSelect<GroupDTO>([
-      ...this.promptService.conditionalEntries(!IsEmpty(groups), [
-        ...groups.map((group) => [group.friendlyName, group]),
-        new inquirer.Separator(),
-      ] as PromptEntry<GroupDTO>[]),
-      ['Create Group', 'create'],
-    ]);
+    const action = await this.promptService.menuSelect<GroupDTO>(
+      [
+        ...this.promptService.conditionalEntries(!IsEmpty(groups), [
+          new inquirer.Separator(chalk.white`Existing groups`),
+          ...groups.map((group) => [group.friendlyName, group]),
+        ] as PromptEntry<GroupDTO>[]),
+        new inquirer.Separator(chalk.white`Actions`),
+        ['➕ Create Group', 'create'],
+      ],
+      'Pick a group',
+    );
     if (action === 'create') {
       await this.create();
       return await this.exec();
@@ -154,19 +160,22 @@ export class GroupCommandService implements iRepl {
     list: GroupDTO[],
     defaultValue?: string,
   ): Promise<void> {
-    this.promptService.header(group.friendlyName);
+    this.header(group);
     const actions: PromptEntry[] = [];
     if (group.type === GROUP_TYPES.light) {
-      actions.push(...(await this.lightGroup.groupActions()));
+      actions.push(
+        new inquirer.Separator(chalk.white('Light commands')),
+        ...(await this.lightGroup.groupActions()),
+      );
     }
     const action = await this.promptService.menuSelect(
       [
         ...actions,
-        ['Delete', 'delete'],
-        ['Describe', 'describe'],
-        ['Rename', 'rename'],
-        ['Send state', 'sendState'],
-        ['State Manager', 'state'],
+        new inquirer.Separator(chalk.white`Management`),
+        ['🚫 Delete', 'delete'],
+        ['🔬 Describe', 'describe'],
+        ['✏ Rename', 'rename'],
+        ['🎼 State Manager', 'state'],
       ],
       `Action`,
       defaultValue,
@@ -258,5 +267,21 @@ export class GroupCommandService implements iRepl {
     }
     this.logger.error({ type }, `Not implemented group type`);
     return [];
+  }
+
+  private header(group: GroupDTO): void {
+    this.promptService.scriptHeader(`Group`);
+
+    console.log(
+      [
+        [
+          chalk.magenta.bold`${group.friendlyName}`,
+          chalk.yellow.bold`${TitleCase(group.type)} Group`,
+        ].join(chalk.cyan(' - ')),
+        ...group.entities.map((id) => chalk`  {cyan -} ${id}`),
+        ``,
+        ``,
+      ].join(`\n`),
+    );
   }
 }

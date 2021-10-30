@@ -7,6 +7,7 @@ import {
 import { DONE, PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import chalk from 'chalk';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 
@@ -57,20 +58,29 @@ export class GroupStateService {
     });
     const action = await this.promptService.menuSelect<GroupSaveStateDTO>([
       ...(this.promptService.conditionalEntries(!IsEmpty(group.save_states), [
+        new inquirer.Separator(chalk.white`Current save states`),
         ...(group.save_states.map((state) => [state.friendlyName, state]) as [
           string,
           GroupSaveStateDTO,
         ][]),
-        new inquirer.Separator(),
       ]) as PromptEntry<GroupSaveStateDTO>[]),
-      ['Capture Current', 'capture'],
-      ['Describe current', 'describe'],
-      ['Remove all save states', 'truncate'],
+      new inquirer.Separator(chalk.white`Manipulate`),
+      ['📷 Capture current', 'capture'],
+      ['📃 Describe current', 'describe'],
+      [`🚨 Remove all save states`, 'truncate'],
     ]);
     if (action === DONE) {
       return;
     }
     if (action === 'truncate') {
+      if (
+        await this.promptService.confirm(
+          `Are you sure? This is a distructive operation`,
+          false,
+        )
+      ) {
+        return await this.processState(group, list);
+      }
       await this.fetchService.fetch({
         method: 'delete',
         url: `/group/${group._id}/truncate`,
@@ -145,7 +155,7 @@ export class GroupStateService {
       case 'activate':
         await this.fetchService.fetch({
           method: 'put',
-          url: `/group/${group._id}/activate/${state.id}`,
+          url: `/group/${group._id}/state/${state.id}`,
         });
         return;
       case 'describe':
