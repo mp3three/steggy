@@ -16,12 +16,11 @@ import {
 } from '@automagical/utilities';
 import chalk from 'chalk';
 import inquirer, { Separator } from 'inquirer';
-import Table from 'cli-table';
+import { ICONS } from '../../typings';
 import { EntityService } from '../entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { GroupStateService } from './group-state.service';
 import { LightGroupCommandService } from './light-group-command.service';
-import { encode } from 'ini';
 
 export type GroupItem = { entities: string[]; name: string; room: string };
 
@@ -35,7 +34,7 @@ export type GroupItem = { entities: string[]; name: string; room: string };
     ` - Fan Group`,
   ],
   icon: FontAwesomeIcons.group,
-  name: `🎳 Groups`,
+  name: `${ICONS.GROUPS}Groups`,
   category: `Control`,
 })
 export class GroupCommandService implements iRepl {
@@ -172,10 +171,10 @@ export class GroupCommandService implements iRepl {
       [
         ...actions,
         new inquirer.Separator(chalk.white`Management`),
-        ['🚫 Delete', 'delete'],
-        ['🔬 Describe', 'describe'],
-        ['✏ Rename', 'rename'],
-        ['🎼 State Manager', 'state'],
+        [`${ICONS.DELETE}Delete`, 'delete'],
+        [`${ICONS.DESCRIBE}Describe`, 'describe'],
+        [`${ICONS.RENAME}Rename`, 'rename'],
+        [`${ICONS.STATE_MANAGER}State Manager`, 'state'],
       ],
       `Group action / management`,
       defaultValue,

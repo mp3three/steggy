@@ -25,6 +25,7 @@ import { each, eachLimit } from 'async';
 import chalk from 'chalk';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
+import { ICONS } from '../../typings';
 import { LightService } from '../domains';
 import { EntityService } from '../entity.service';
 import { LightGroupCommandService } from '../groups';
@@ -41,7 +42,7 @@ const NAME = 0;
     `Rooms can observe entities for state changes, and trigger routines to make changes to the state.`,
   ],
   icon: MDIIcons.television_box,
-  name: `🏡 Rooms`,
+  name: `${ICONS.ROOMS}Rooms`,
   category: `Control`,
 })
 export class RoomCommandService {
@@ -149,7 +150,7 @@ export class RoomCommandService {
     const room = await this.promptService.pickOne<RoomDTO | string>(
       `Pick a room`,
       [
-        [`➕ Create new`, `create`],
+        [`${ICONS.CREATE}Create new`, `create`],
         ...this.promptService.conditionalEntries(
           !IsEmpty(rooms),
           rooms.map((room) => [room.friendlyName, room]),
@@ -174,7 +175,7 @@ export class RoomCommandService {
     room.save_states ??= [];
     const action = await this.promptService.menuSelect(
       [
-        new inquirer.Separator(chalk.white`Commands`),
+        new inquirer.Separator(chalk.white`Room Commands`),
         ['Turn On', 'turnOn'],
         ['Turn Off', 'turnOff'],
         ...this.promptService.conditionalEntries(
@@ -189,18 +190,13 @@ export class RoomCommandService {
             ['Dim Down', 'dimDown'],
           ],
         ),
-        new inquirer.Separator(chalk.white`States`),
-        ['Crreate State', 'createState'],
-        ...(room.save_states.map((state) => [
-          state.friendlyName,
-          state,
-        ]) as PromptEntry<RoomStateDTO>[]),
         new inquirer.Separator(chalk.white`Maintenance`),
-        ['Delete', 'delete'],
-        ['Describe', 'describe'],
-        ['Entities', 'entities'],
-        ['Groups', 'groups'],
-        ['Rename', 'rename'],
+        [`${ICONS.DELETE}Delete`, 'delete'],
+        [`${ICONS.DESCRIBE}Describe`, 'describe'],
+        [`${ICONS.ENTITIES}Entities`, 'entities'],
+        [`${ICONS.GROUPS}Groups`, 'groups'],
+        [`${ICONS.RENAME}Rename`, 'rename'],
+        [`${ICONS.STATE_MANAGER}State Manager`, 'states'],
       ],
       `Action`,
       defaultAction,

@@ -14,6 +14,7 @@ import { DONE, PromptEntry, PromptService, Repl } from '@automagical/tty';
 import { IsEmpty, TitleCase } from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import inquirer from 'inquirer';
+import { ICONS } from '../../typings';
 import { GroupStateService } from '../groups';
 import { HomeFetchService } from '../home-fetch.service';
 import { GroupActionService } from './group-action.service';
@@ -23,7 +24,7 @@ import { StateChangeBuilderService } from './state-change-builder.service';
 
 @Repl({
   description: [`Control rooms and groups based on state changes and schdules`],
-  name: '🤖 Routines',
+  name: `${ICONS.ROUTINE}Routines`,
   category: 'Control',
 })
 export class RoutineCommandService {

@@ -17,6 +17,7 @@ import chalk from 'chalk';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 import { dump, load } from 'js-yaml';
+import { ICONS } from '../../typings';
 import { EntityService } from '../entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { GroupCommandService } from './group-command.service';
@@ -127,10 +128,10 @@ export class GroupStateService {
           ][]),
         ]) as PromptEntry<GroupSaveStateDTO>[]),
         new inquirer.Separator(chalk.white`Manipulate`),
-        ['➕ Manual create', 'create'],
-        ['📷 Capture current', 'capture'],
-        ['📃 Describe current', 'describe'],
-        [`🚨 Remove all save states`, 'truncate'],
+        [`${ICONS.CREATE}Manual create`, 'create'],
+        [`${ICONS.CAPTURE}Capture current`, 'capture'],
+        [`${ICONS.DESCRIBE}Describe current`, 'describe'],
+        [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
       ],
       `State management`,
     );
@@ -211,11 +212,11 @@ export class GroupStateService {
   ): Promise<GroupDTO> {
     const action = await this.promptService.menuSelect(
       [
-        ['🏁 Activate', 'activate'],
-        ['🔬 Describe', 'describe'],
-        ['✏ Edit', 'edit'],
-        ['📋 Copy to another group', 'copyTo'],
-        ['🚫 Delete', 'delete'],
+        [`${ICONS.ACTIVATE}Activate`, 'activate'],
+        [`${ICONS.DESCRIBE}Describe`, 'describe'],
+        [`${ICONS.EDIT}Edit`, 'edit'],
+        [`${ICONS.COPY}Copy to another group`, 'copyTo'],
+        [`${ICONS.DELETE}Delete`, 'delete'],
       ],
       `Group state action`,
     );
@@ -235,9 +236,12 @@ export class GroupStateService {
         });
         return group;
       case 'describe':
-        console.log(`💭 Name:`, chalk.yellow.bold(state.friendlyName));
         console.log(
-          chalk`🔗 {bold.magenta POST} ${this.fetchService.getUrl(
+          `${ICONS.NAME}Name:`,
+          chalk.yellow.bold(state.friendlyName),
+        );
+        console.log(
+          chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
             `/group/${group._id}/state/${state.id}`,
           )}`,
         );
