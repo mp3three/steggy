@@ -41,8 +41,8 @@ const NAME = 0;
     `Rooms can contain groups and entitites, and are intended to manage the state of all items inside of it as a whole.`,
     `Rooms can observe entities for state changes, and trigger routines to make changes to the state.`,
   ],
-  icon: MDIIcons.television_box,
-  name: `${ICONS.ROOMS}Rooms`,
+  icon: ICONS.ROOMS,
+  name: `Rooms`,
   category: `Control`,
 })
 export class RoomCommandService {
@@ -118,7 +118,7 @@ export class RoomCommandService {
           ][]),
         ]),
         new inquirer.Separator(chalk.white`Actions`),
-        [`➕ Create`, 'create'],
+        [`${ICONS.CREATE}Create`, 'create'],
       ],
       `Pick room`,
     );
@@ -269,7 +269,7 @@ export class RoomCommandService {
         HASS_DOMAINS.media_player,
         HASS_DOMAINS.fan,
       ],
-      omit,
+      { omit },
     );
     return ids.map((entity_id) => ({
       entity_id,
@@ -311,9 +311,9 @@ export class RoomCommandService {
 
   private async groupBuilder(current: string[] = []): Promise<string[]> {
     const action = await this.promptService.pickOne(`Group actions`, [
-      ['Use existing', 'existing'],
-      ['Create new', 'create'],
-      ['Done', 'done'],
+      [`${ICONS.GROUPS}Use existing`, 'existing'],
+      [`${ICONS.CREATE}Create new`, 'create'],
+      [`Done`, 'done'],
     ]);
     switch (action) {
       //

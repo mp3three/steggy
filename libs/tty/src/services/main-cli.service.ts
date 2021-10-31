@@ -13,14 +13,19 @@ import { DEFAULT_HEADER_FONT } from '../config';
 import { iRepl } from '../contracts/i-repl.interface';
 import { ReplOptions } from '../contracts/repl-options.dto';
 import { Repl } from '../decorators';
-import { PromptService, ReplExplorerService } from '.';
+import { PromptEntry, PromptService, ReplExplorerService } from '.';
 
 // Filter out non-sortable characters (like emoji)
 const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
 const SCRIPT_ARG = 2;
 const UP = 1;
+const NAME = 1;
 const DOWN = -1;
-const NAME = 0;
+type ScriptItem = {
+  title: string;
+  name: string;
+  instance: iRepl;
+};
 
 @Repl({
   name: 'Main',
@@ -41,8 +46,14 @@ export class MainCLIService implements iRepl {
     });
     console.log(chalk.cyan(header), '\n');
 
-    const [scriptName, instance] = await this.getScript(defaultSelection);
+    const [scriptName, name] = await this.getScript(defaultSelection);
     this.printHeader(scriptName);
+    let instance: iRepl;
+    this.explorer.REGISTERED_APPS.forEach((i, opts) => {
+      if (opts.name === name) {
+        instance = i;
+      }
+    });
 
     await instance.exec();
     await this.exec(scriptName);
@@ -53,26 +64,21 @@ export class MainCLIService implements iRepl {
    *
    * If a script name was passed as a command line arg, directly run it
    */
-  private async getScript(script?: string): Promise<[string, iRepl]> {
+  private async getScript(script?: string): Promise<[string, string]> {
     const scriptName = process.argv[SCRIPT_ARG];
     if (!scriptName || typeof script !== 'undefined') {
-      return await this.promptService.pickOne(
+      return (await this.promptService.pickOne(
         'Command',
-        this.scriptList().map((item) => {
-          if (!Array.isArray(item)) {
-            return item;
-          }
-          return [item[NAME], item];
-        }),
+        this.scriptList().map((i) => (i instanceof Separator ? i : [i[0], i])),
         script,
-      );
+      )) as [string, string];
     }
     const instance = this.explorer.findServiceByName(scriptName);
     if (!instance) {
       this.logger.error(`Invalid script name ${script}`);
       return await this.getScript('');
     }
-    return [scriptName, this.explorer.findServiceByName(scriptName)];
+    return [scriptName, scriptName];
   }
 
   private printHeader(scriptName: string): void {
@@ -91,26 +97,29 @@ export class MainCLIService implements iRepl {
     );
   }
 
-  private scriptList(): ([string, iRepl] | Separator)[] {
-    const types: Partial<Record<string, [string, iRepl][]>> = {};
+  private scriptList(): PromptEntry[] {
+    const types: Record<string, PromptEntry[]> = {};
     this.explorer.REGISTERED_APPS.forEach(
-      (instance: iRepl, { category: type, name }: ReplOptions) => {
+      (instance: iRepl, { category: type, name, icon }: ReplOptions) => {
         if (name !== 'Main') {
           types[type] ??= [];
-          types[type].push([name, instance]);
+          types[type].push([`${icon}${name}`, name]);
         }
       },
     );
-    const out: ([string, iRepl] | Separator)[] = [];
+    const out: PromptEntry[] = [];
     Object.keys(types)
       .sort()
       .forEach((type) => {
         out.push(
           new inquirer.Separator(chalk.white(TitleCase(type))),
-          ...types[type].sort(([a], [b]) => {
-            a = a.replace(unsortable, '');
-            b = b.replace(unsortable, '');
-            if (a > b) {
+          ...types[type].sort((a, b) => {
+            if (a instanceof Separator || b instanceof Separator) {
+              return DOWN;
+            }
+            const a1 = a[NAME].replace(unsortable, '');
+            const b1 = b[NAME].replace(unsortable, '');
+            if (a1 > b1) {
               return UP;
             }
             return DOWN;

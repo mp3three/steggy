@@ -11,7 +11,8 @@ import { HomeFetchService } from './home-fetch.service';
 
 const SINGLE_ITEM = 1;
 @Repl({
-  name: `${ICONS.DEVICE}Devices`,
+  icon: ICONS.DEVICE,
+  name: `Devices`,
   category: `Home Assistant`,
 })
 export class DeviceService {

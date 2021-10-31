@@ -8,6 +8,7 @@ export const ICONS = {
   DESCRIBE: '🔬 ',
   DESTRUCTIVE: '🚨 ',
   DEVICE: '📟 ',
+  DONE: '🗿 ',
   EDIT: '✏ ',
   ENTITIES: '🗃 ',
   GROUPS: '🎳 ',

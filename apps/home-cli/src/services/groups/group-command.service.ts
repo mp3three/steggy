@@ -23,6 +23,20 @@ import { GroupStateService } from './group-state.service';
 import { LightGroupCommandService } from './light-group-command.service';
 
 export type GroupItem = { entities: string[]; name: string; room: string };
+const GROUP_DOMAINS = new Map([
+  [GROUP_TYPES.light, [HASS_DOMAINS.light]],
+  [
+    GROUP_TYPES.switch,
+    [
+      HASS_DOMAINS.light,
+      HASS_DOMAINS.fan,
+      HASS_DOMAINS.media_player,
+      HASS_DOMAINS.switch,
+    ],
+  ],
+  [GROUP_TYPES.lock, [HASS_DOMAINS.lock]],
+  [GROUP_TYPES.fan, [HASS_DOMAINS.fan]],
+]);
 
 @Repl({
   description: [
@@ -33,8 +47,8 @@ export type GroupItem = { entities: string[]; name: string; room: string };
     ` - Lock Group`,
     ` - Fan Group`,
   ],
-  icon: FontAwesomeIcons.group,
-  name: `${ICONS.GROUPS}Groups`,
+  icon: ICONS.GROUPS,
+  name: `Groups`,
   category: `Control`,
 })
 export class GroupCommandService implements iRepl {
@@ -53,21 +67,10 @@ export class GroupCommandService implements iRepl {
       Object.values(GROUP_TYPES).map((type) => [TitleCase(type), type]),
     );
     const friendlyName = await this.promptService.string(`Friendly Name`);
-    const types = new Map([
-      [GROUP_TYPES.light, [HASS_DOMAINS.light]],
-      [
-        GROUP_TYPES.switch,
-        [
-          HASS_DOMAINS.light,
-          HASS_DOMAINS.fan,
-          HASS_DOMAINS.media_player,
-          HASS_DOMAINS.switch,
-        ],
-      ],
-      [GROUP_TYPES.lock, [HASS_DOMAINS.lock]],
-      [GROUP_TYPES.fan, [HASS_DOMAINS.fan]],
-    ]);
-    const entities = await this.entityService.buildList(types.get(type));
+
+    const entities = await this.entityService.buildList(
+      GROUP_DOMAINS.get(type),
+    );
     const body: GroupDTO = {
       entities,
       friendlyName,
@@ -89,7 +92,7 @@ export class GroupCommandService implements iRepl {
           ...groups.map((group) => [group.friendlyName, group]),
         ] as PromptEntry<GroupDTO>[]),
         new inquirer.Separator(chalk.white`Actions`),
-        ['➕ Create Group', 'create'],
+        [`${ICONS.CREATE}Create Group`, 'create'],
       ],
       'Pick a group',
     );
@@ -173,17 +176,17 @@ export class GroupCommandService implements iRepl {
         new inquirer.Separator(chalk.white`Management`),
         [`${ICONS.DELETE}Delete`, 'delete'],
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
+        [`${ICONS.ENTITIES}Entities`, 'entities'],
         [`${ICONS.RENAME}Rename`, 'rename'],
         [`${ICONS.STATE_MANAGER}State Manager`, 'state'],
       ],
       `Group action / management`,
       defaultValue,
     );
-    if (action === 'describe') {
-      await this.describeGroup(group);
-      return this.process(group, list, action);
-    }
     switch (action) {
+      case 'entities':
+        group = await this.updateEntities(group);
+        return this.process(group, list, action);
       case 'state':
         await this.groupState.processState(group, list);
         break;
@@ -205,11 +208,7 @@ export class GroupCommandService implements iRepl {
           `New name`,
           group.friendlyName,
         );
-        group = await this.fetchService.fetch({
-          body: group,
-          method: 'put',
-          url: `/group/${group._id}`,
-        });
+        group = await this.update(group);
         break;
       case 'delete':
         await this.fetchService.fetch({
@@ -227,31 +226,51 @@ export class GroupCommandService implements iRepl {
     await this.process(group, list, action);
   }
 
-  private async describeGroup(group: GroupDTO): Promise<string> {
-    group = await this.fetchService.fetch({
+  public async update(group: GroupDTO): Promise<GroupDTO> {
+    return await this.fetchService.fetch({
       url: `/group/${group._id}`,
+      method: `put`,
+      body: group,
     });
-    const entity = await this.promptService.menuSelect(
-      group.state.states.map((item, index) => {
-        const value = group.entities[index];
-        if (!value) {
-          return new Separator(`MISSING ENTITY`);
-        }
-        let name = `${value}`;
-        if (item.state === 'on') {
-          name = chalk.green(name);
-        }
-        if (item.state === 'off') {
-          name = chalk.red(name);
-        }
-        return [name, value];
-      }),
+  }
+
+  private async updateEntities(group: GroupDTO): Promise<GroupDTO> {
+    const action = await this.promptService.menuSelect(
+      [
+        new inquirer.Separator(chalk.white`Maintenance`),
+        [`${ICONS.CREATE}Add`, 'add'],
+        [`${ICONS.DELETE}Remove`, 'remove'],
+        ...this.promptService.conditionalEntries(!IsEmpty(group.entities), [
+          new inquirer.Separator(chalk.white`Current entities`),
+          ...(group.entities.map((i) => [i, i]) as PromptEntry[]),
+        ]),
+      ],
+      `Entity actions`,
     );
-    if (entity === DONE) {
-      return entity;
+    switch (action) {
+      case DONE:
+        return group;
+      case 'add':
+        group.entities = [
+          ...group.entities,
+          ...(await this.entityService.buildList(
+            GROUP_DOMAINS.get(group.type),
+            { omit: group.entities },
+          )),
+        ];
+        group = await this.update(group);
+        return await this.updateEntities(group);
+      case 'remove':
+        group.entities = await this.promptService.pickMany(
+          `Select entities to keep`,
+          group.entities.map((i) => [i, i]),
+          { default: group.entities },
+        );
+        group = await this.update(group);
+        return await this.updateEntities(group);
     }
-    await this.entityService.process(entity);
-    return await this.describeGroup(group);
+    await this.entityService.process(action);
+    return group;
   }
 
   private groupActions(type: GROUP_TYPES): string[] {

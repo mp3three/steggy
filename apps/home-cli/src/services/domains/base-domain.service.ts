@@ -27,6 +27,7 @@ import chalk from 'chalk';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
+import { dump } from 'js-yaml';
 
 import { DeviceService } from '../device.service';
 import { HomeFetchService } from '../home-fetch.service';
@@ -116,7 +117,14 @@ export class BaseDomainService {
     // Somtimes the previous request impacts the state, and race conditions
     await sleep(DELAY);
     const content = await this.getState<T>(id);
-    this.promptService.header(content.attributes.friendly_name);
+    console.log(
+      chalk`{magenta.bold ${
+        content.attributes.friendly_name
+      }} - {yellow.bold ${TitleCase(domain(content.entity_id))}}`,
+    );
+    console.log();
+    this.promptService.print(dump(content));
+    console.log();
     return content;
   }
 

@@ -14,6 +14,7 @@ import {
   BLOCK_PRINT_BG,
   BLOCK_PRINT_FG,
   DEFAULT_HEADER_FONT,
+  DISABLE_CLEAR,
   PAGE_SIZE,
 } from '../config';
 import { DONE, PromptMenuItems } from '../contracts';
@@ -32,6 +33,7 @@ export class PromptService {
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
     @InjectConfig(BLOCK_PRINT_BG) private readonly blockPrintBg: string,
     @InjectConfig(BLOCK_PRINT_FG) private readonly blockPrintFg: string,
+    @InjectConfig(DISABLE_CLEAR) private readonly disableClear: boolean,
   ) {}
 
   /**
@@ -101,13 +103,18 @@ export class PromptService {
   }
 
   /**
-   * Remove all content from the screen
-   *
-   * Does not clear history, so previous content is accessible by scrolling up
+   * - tmux: this shoves text to top then clears (history is preserved)
+   * - konsole: this just moves draw to T/L, and clears screen (on-screen history/content is lost)
    */
   public clear(): void {
-    process.stdout.write('\u001B[2J');
+    if (this.disableClear) {
+      console.log(chalk.bgBlue.whiteBright`clear();`);
+      return;
+    }
+    // Reset draw to top
     process.stdout.write('\u001B[0f');
+    // Clear screen
+    process.stdout.write('\u001B[2J');
   }
 
   /**
@@ -212,7 +219,9 @@ export class PromptService {
     return items.map((item) => {
       if (Array.isArray(item)) {
         return {
-          name: item[LABEL] as string,
+          // Adding emojies can sometimes cause the final character to have rendering issues
+          // Insert sacraficial empty space to the end
+          name: `${item[LABEL]} `,
           value: item[VALUE] as T,
         };
       }

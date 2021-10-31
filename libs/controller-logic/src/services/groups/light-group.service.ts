@@ -114,7 +114,10 @@ export class LightGroupService extends BaseGroupService {
                 brightness: light.attributes.brightness,
                 mode: LIGHTING_MODE.circadian,
               }
-            : state,
+            : {
+                brightness: light.attributes.brightness,
+                ...state,
+              },
         state: light.state,
       });
       callback();

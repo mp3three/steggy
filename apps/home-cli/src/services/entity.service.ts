@@ -15,6 +15,7 @@ import {
   Repl,
 } from '@automagical/tty';
 import { IsEmpty } from '@automagical/utilities';
+import { dump } from 'js-yaml';
 import { ICONS } from '../typings';
 import {
   BaseDomainService,
@@ -29,8 +30,8 @@ import { HomeFetchService } from './home-fetch.service';
 
 @Repl({
   description: [`Commands scoped to a single/manually built list of entities`],
-  icon: FontAwesomeExtendedIcons.checklist_o,
-  name: `${ICONS.ENTITIES}Entities`,
+  icon: ICONS.ENTITIES,
+  name: `Entities`,
   category: `Home Assistant`,
 })
 export class EntityService implements iRepl {
@@ -48,7 +49,7 @@ export class EntityService implements iRepl {
 
   public async buildList(
     inList: HASS_DOMAINS[] = [],
-    omit: string[] = [],
+    { omit = [] }: { omit?: string[] } = {},
   ): Promise<string[]> {
     let entities = await this.list();
     entities = entities
@@ -161,6 +162,8 @@ export class EntityService implements iRepl {
   }
 
   public async process(id: string): Promise<void> {
+    this.promptService.clear();
+    this.promptService.scriptHeader(`Entity`);
     switch (domain(id)) {
       case HASS_DOMAINS.light:
         await this.lightService.processId(id);

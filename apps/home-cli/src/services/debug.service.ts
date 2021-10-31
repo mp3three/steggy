@@ -4,7 +4,8 @@ import { ICONS } from '../typings';
 import { HomeFetchService } from './home-fetch.service';
 
 @Repl({
-  name: `${ICONS.DEBUG}Debugger`,
+  icon: ICONS.DEBUG,
+  name: `Debugger`,
   category: `Misc`,
 })
 export class DebugService {

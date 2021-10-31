@@ -22,6 +22,10 @@
     "BLOCK_PRINT_FG": {
       "type": "string",
       "default": "#d6c2ba"
+    },
+    "DISABLE_CLEAR": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

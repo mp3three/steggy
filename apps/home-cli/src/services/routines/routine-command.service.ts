@@ -24,7 +24,8 @@ import { StateChangeBuilderService } from './state-change-builder.service';
 
 @Repl({
   description: [`Control rooms and groups based on state changes and schdules`],
-  name: `${ICONS.ROUTINE}Routines`,
+  icon: ICONS.ROUTINE,
+  name: `Routines`,
   category: 'Control',
 })
 export class RoutineCommandService {

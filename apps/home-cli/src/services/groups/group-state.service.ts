@@ -144,7 +144,7 @@ export class GroupStateService {
     if (action === 'truncate') {
       if (
         await this.promptService.confirm(
-          `Are you sure? This is a distructive operation`,
+          `Are you sure? This is a destructive operation`,
           false,
         )
       ) {
