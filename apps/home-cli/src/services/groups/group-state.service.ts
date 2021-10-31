@@ -17,6 +17,7 @@ import chalk from 'chalk';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 import { dump, load } from 'js-yaml';
+
 import { ICONS } from '../../typings';
 import { EntityService } from '../entity.service';
 import { HomeFetchService } from '../home-fetch.service';
@@ -66,22 +67,22 @@ export class GroupStateService {
     }
     if (current.id) {
       const out = await this.fetchService.fetch<GroupDTO>({
-        url: `/group/${group._id}/state/${current.id}`,
-        method: 'put',
         body: {
           friendlyName,
           states,
         },
+        method: 'put',
+        url: `/group/${group._id}/state/${current.id}`,
       });
       return out;
     }
     const out = await this.fetchService.fetch<GroupDTO>({
-      url: `/group/${group._id}/state`,
-      method: 'post',
       body: {
         friendlyName,
         states,
       },
+      method: 'post',
+      url: `/group/${group._id}/state`,
     });
     return out;
   }

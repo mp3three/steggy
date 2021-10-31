@@ -35,8 +35,8 @@ export class ConnectService {
     }
 
     return {
-      connectTimeoutMS: 300000,
-      socketTimeoutMS: 300000,
+      connectTimeoutMS: 300_000,
+      socketTimeoutMS: 300_000,
       sslCA,
       sslCRL,
       sslCert,

@@ -7,7 +7,7 @@ import {
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 
 import type { ROOM_ENTITY_EXTRAS } from '../../contracts';
 import { GroupDocument, GroupDTO } from '../../contracts';
@@ -104,8 +104,8 @@ export class GroupPersistenceService extends BaseMongoService {
     this.logger.debug(
       {
         matched: result.matchedCount,
-        upserted: result.upsertedCount,
         modified: result.modifiedCount,
+        upserted: result.upsertedCount,
       },
       `Update group {${id}}`,
     );

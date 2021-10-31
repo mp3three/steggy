@@ -1,7 +1,6 @@
 import {
   AutoLogService,
   InjectConfig,
-  IsEmpty,
   TitleCase,
 } from '@automagical/utilities';
 import chalk from 'chalk';
@@ -20,16 +19,12 @@ const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
 const SCRIPT_ARG = 2;
 const UP = 1;
 const NAME = 1;
+const LABEL = 0;
 const DOWN = -1;
-type ScriptItem = {
-  title: string;
-  name: string;
-  instance: iRepl;
-};
 
 @Repl({
-  name: 'Main',
   category: 'main',
+  name: 'Main',
 })
 export class MainCLIService implements iRepl {
   constructor(
@@ -49,8 +44,8 @@ export class MainCLIService implements iRepl {
     const [scriptName, name] = await this.getScript(defaultSelection);
     this.printHeader(scriptName);
     let instance: iRepl;
-    this.explorer.REGISTERED_APPS.forEach((i, opts) => {
-      if (opts.name === name) {
+    this.explorer.REGISTERED_APPS.forEach((i, options) => {
+      if (options.name === name) {
         instance = i;
       }
     });
@@ -69,7 +64,9 @@ export class MainCLIService implements iRepl {
     if (!scriptName || typeof script !== 'undefined') {
       return (await this.promptService.pickOne(
         'Command',
-        this.scriptList().map((i) => (i instanceof Separator ? i : [i[0], i])),
+        this.scriptList().map((i) =>
+          i instanceof Separator ? i : [i[LABEL], i],
+        ),
         script,
       )) as [string, string];
     }
@@ -109,7 +106,7 @@ export class MainCLIService implements iRepl {
     );
     const out: PromptEntry[] = [];
     Object.keys(types)
-      .sort()
+      .sort((a, b) => (a > b ? UP : DOWN))
       .forEach((type) => {
         out.push(
           new inquirer.Separator(chalk.white(TitleCase(type))),

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-magic-numbers, woke/all */
 
 import chalk from 'chalk';
 import pino from 'pino';
@@ -101,7 +101,7 @@ const prettyErrorMessage = (message: string): string => {
     let found = false;
     const stack = message.split(`\n\n`)[2];
 
-    const coloredArgs = ctorArguments.map((parameter) => {
+    const coloredArguments = ctorArguments.map((parameter) => {
       if (found === false) {
         if (parameter === '?') {
           found = true;
@@ -121,7 +121,7 @@ const prettyErrorMessage = (message: string): string => {
       `${chalk.yellow('export class')} ${PROVIDER} ${left}`,
       chalk.gray`  ...`,
       `  ${chalk.yellow('constructor')} ${chalk.blueBright(`(`)}`,
-      ...coloredArgs.map((line) => `    ${line},`),
+      ...coloredArguments.map((line) => `    ${line},`),
       chalk.blueBright(` ) {}`),
       chalk.gray` ...`,
       right,
@@ -137,7 +137,7 @@ const prettyErrorMessage = (message: string): string => {
       chalk.whiteBright` - Circular references`,
       chalk.gray` ...`,
       `  ${chalk.yellow('constructor')} ${chalk.blueBright(`(`)}`,
-      ...coloredArgs
+      ...coloredArguments
         .map((item) => {
           if (item === coloredName) {
             return `${chalk.magenta(`@Inject`)}${chalk.blueBright(

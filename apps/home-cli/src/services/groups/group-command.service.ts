@@ -1,4 +1,4 @@
-import { GroupDTO, GROUP_TYPES } from '@automagical/controller-logic';
+import { GROUP_TYPES,GroupDTO } from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
 import {
   DONE,
@@ -16,6 +16,7 @@ import {
 } from '@automagical/utilities';
 import chalk from 'chalk';
 import inquirer, { Separator } from 'inquirer';
+
 import { ICONS } from '../../typings';
 import { EntityService } from '../entity.service';
 import { HomeFetchService } from '../home-fetch.service';
@@ -39,6 +40,7 @@ const GROUP_DOMAINS = new Map([
 ]);
 
 @Repl({
+  category: `Control`,
   description: [
     `Groups are collections of like entities that all act in a coordinated way.`,
     ``,
@@ -49,7 +51,6 @@ const GROUP_DOMAINS = new Map([
   ],
   icon: ICONS.GROUPS,
   name: `Groups`,
-  category: `Control`,
 })
 export class GroupCommandService implements iRepl {
   constructor(
@@ -122,8 +123,8 @@ export class GroupCommandService implements iRepl {
     },
   ): Promise<GroupDTO[]> {
     return await this.fetchService.fetch<GroupDTO[]>({
-      url: `/group`,
       control,
+      url: `/group`,
     });
   }
 
@@ -228,9 +229,9 @@ export class GroupCommandService implements iRepl {
 
   public async update(group: GroupDTO): Promise<GroupDTO> {
     return await this.fetchService.fetch({
-      url: `/group/${group._id}`,
-      method: `put`,
       body: group,
+      method: `put`,
+      url: `/group/${group._id}`,
     });
   }
 

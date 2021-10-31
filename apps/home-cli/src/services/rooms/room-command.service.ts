@@ -1,7 +1,7 @@
 import {
   CONCURRENT_CHANGES,
-  GroupDTO,
   GROUP_TYPES,
+  GroupDTO,
   RoomDTO,
   RoomEntityDTO,
   RoomStateDTO,
@@ -25,6 +25,7 @@ import { each, eachLimit } from 'async';
 import chalk from 'chalk';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
+
 import { ICONS } from '../../typings';
 import { LightService } from '../domains';
 import { EntityService } from '../entity.service';
@@ -37,13 +38,13 @@ const UP = 1;
 const DOWN = -1;
 const NAME = 0;
 @Repl({
+  category: `Control`,
   description: [
     `Rooms can contain groups and entitites, and are intended to manage the state of all items inside of it as a whole.`,
     `Rooms can observe entities for state changes, and trigger routines to make changes to the state.`,
   ],
   icon: ICONS.ROOMS,
   name: `Rooms`,
-  category: `Control`,
 })
 export class RoomCommandService {
   constructor(

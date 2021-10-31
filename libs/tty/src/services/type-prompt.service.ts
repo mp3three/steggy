@@ -18,7 +18,7 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { get } from 'object-path';
 
-import { PromptService } from '.';
+import { PromptService } from './prompt.service';
 
 type PromptResult<T extends unknown = unknown> = Record<'value', T>;
 /* eslint-disable unicorn/no-null */

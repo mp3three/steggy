@@ -10,6 +10,7 @@ import figlet from 'figlet';
 import fuzzy from 'fuzzysort';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
+
 import {
   BLOCK_PRINT_BG,
   BLOCK_PRINT_FG,

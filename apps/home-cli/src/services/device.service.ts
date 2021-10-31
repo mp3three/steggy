@@ -5,15 +5,16 @@ import {
 import { DONE, PromptService, Repl } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { encode } from 'ini';
+
 import { ICONS } from '../typings';
 import { EntityService } from './entity.service';
 import { HomeFetchService } from './home-fetch.service';
 
 const SINGLE_ITEM = 1;
 @Repl({
+  category: `Home Assistant`,
   icon: ICONS.DEVICE,
   name: `Devices`,
-  category: `Home Assistant`,
 })
 export class DeviceService {
   constructor(

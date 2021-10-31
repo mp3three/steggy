@@ -8,7 +8,7 @@ import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each, eachLimit } from 'async';
 
-import { CONCURRENT_CHANGES, DIM_PERCENT } from '../../config';
+import { CONCURRENT_CHANGES } from '../../config';
 import {
   GROUP_LIGHT_COMMANDS,
   GROUP_TYPES,
@@ -107,7 +107,6 @@ export class LightGroupService extends BaseGroupService {
       const light = this.entityManager.getEntity<LightStateDTO>(id);
       const state = await this.lightManager.getState(id);
       out.push({
-        ref: light.entity_id,
         extra:
           state?.mode === LIGHTING_MODE.circadian
             ? {
@@ -118,6 +117,7 @@ export class LightGroupService extends BaseGroupService {
                 brightness: light.attributes.brightness,
                 ...state,
               },
+        ref: light.entity_id,
         state: light.state,
       });
       callback();

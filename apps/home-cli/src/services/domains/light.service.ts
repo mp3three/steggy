@@ -52,8 +52,8 @@ export class LightService extends SwitchService {
       );
     }
     return {
-      ref: entity_id,
       extra: { brightness },
+      ref: entity_id,
       state,
     };
   }

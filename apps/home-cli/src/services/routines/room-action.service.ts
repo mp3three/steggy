@@ -4,6 +4,7 @@ import {
 } from '@automagical/controller-logic';
 import { PromptEntry, PromptService } from '@automagical/tty';
 import { Injectable } from '@nestjs/common';
+
 import { RoomCommandService } from '../rooms/room-command.service';
 
 const GenericCommands = [
@@ -37,7 +38,7 @@ export class RoomActionService {
     room.entities ??= [];
     room.entities.forEach(({ tags }) => list.push(...tags));
     const uniqueTags = list.filter(
-      (item, index, arr) => arr.indexOf(item) === index,
+      (item, index, array) => array.indexOf(item) === index,
     );
     const action = await this.promptService.pickOne(``, [
       ['All entities', 'all'],

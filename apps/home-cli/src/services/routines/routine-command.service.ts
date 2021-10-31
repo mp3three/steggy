@@ -1,12 +1,16 @@
+// There really needs to be a minimum function complexity on this...
+// Really don't care if a simple map function is duplicated
+/* eslint-disable radar/no-identical-functions */
+
 import {
   KunamiCodeActivateDTO,
+  ROUTINE_ACTIVATE_COMMAND,
+  ROUTINE_ACTIVATE_TYPE,
   RoutineActivateDTO,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
   RoutineDTO,
-  ROUTINE_ACTIVATE_COMMAND,
-  ROUTINE_ACTIVATE_TYPE,
   ScheduleActivateDTO,
   StateChangeActivateDTO,
 } from '@automagical/controller-logic';
@@ -14,6 +18,7 @@ import { DONE, PromptEntry, PromptService, Repl } from '@automagical/tty';
 import { IsEmpty, TitleCase } from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import inquirer from 'inquirer';
+
 import { ICONS } from '../../typings';
 import { GroupStateService } from '../groups';
 import { HomeFetchService } from '../home-fetch.service';
@@ -23,10 +28,10 @@ import { ScheduleBuilderService } from './schedule-builder.service';
 import { StateChangeBuilderService } from './state-change-builder.service';
 
 @Repl({
+  category: 'Control',
   description: [`Control rooms and groups based on state changes and schdules`],
   icon: ICONS.ROUTINE,
   name: `Routines`,
-  category: 'Control',
 })
 export class RoutineCommandService {
   constructor(
@@ -86,47 +91,11 @@ export class RoutineCommandService {
         };
       case ROUTINE_ACTIVATE_TYPE.schedule:
         return {
-          type,
-          friendlyName,
           activate: await this.schduleActivate.build(
             current.activate as ScheduleActivateDTO,
           ),
-        };
-    }
-    throw new NotImplementedException();
-  }
-
-  public async buildCommandEntry(
-    current: Partial<RoutineCommandDTO> = {},
-  ): Promise<RoutineCommandDTO> {
-    const friendlyName = await this.promptService.string(
-      `Friendly name`,
-      current.friendlyName,
-    );
-    const type = await this.promptService.pickOne<ROUTINE_ACTIVATE_COMMAND>(
-      `Activation type`,
-      Object.values(ROUTINE_ACTIVATE_COMMAND).map((value) => [
-        TitleCase(value),
-        value,
-      ]),
-      current.type,
-    );
-    switch (type) {
-      case ROUTINE_ACTIVATE_COMMAND.group_action:
-        return {
           friendlyName,
           type,
-          command: await this.groupAction.build(
-            current.command as RoutineCommandGroupActionDTO,
-          ),
-        };
-      case ROUTINE_ACTIVATE_COMMAND.group_state:
-        const { group, state } =
-          current?.command as RoutineCommandGroupStateDTO;
-        return {
-          friendlyName,
-          type,
-          command: await this.groupState.pickOne(group, state),
         };
     }
     throw new NotImplementedException();
@@ -157,6 +126,42 @@ export class RoutineCommandService {
     return current;
   }
 
+  public async buildCommandEntry(
+    current: Partial<RoutineCommandDTO> = {},
+  ): Promise<RoutineCommandDTO> {
+    const friendlyName = await this.promptService.string(
+      `Friendly name`,
+      current.friendlyName,
+    );
+    const type = await this.promptService.pickOne<ROUTINE_ACTIVATE_COMMAND>(
+      `Activation type`,
+      Object.values(ROUTINE_ACTIVATE_COMMAND).map((value) => [
+        TitleCase(value),
+        value,
+      ]),
+      current.type,
+    );
+    switch (type) {
+      case ROUTINE_ACTIVATE_COMMAND.group_action:
+        return {
+          command: await this.groupAction.build(
+            current.command as RoutineCommandGroupActionDTO,
+          ),
+          friendlyName,
+          type,
+        };
+      case ROUTINE_ACTIVATE_COMMAND.group_state:
+        const { group, state } =
+          current?.command as RoutineCommandGroupStateDTO;
+        return {
+          command: await this.groupState.pickOne(group, state),
+          friendlyName,
+          type,
+        };
+    }
+    throw new NotImplementedException();
+  }
+
   public async buildCommands(
     current: RoutineCommandDTO[] = [],
   ): Promise<RoutineCommandDTO[]> {
@@ -184,27 +189,24 @@ export class RoutineCommandService {
 
   public async exec(): Promise<void> {
     const current = await this.list();
-    const action = await this.promptService.menuSelect(
-      [
-        ['Create', 'create'],
-        ...this.promptService.conditionalEntries(!IsEmpty(current), [
-          new inquirer.Separator(),
-          ...(current.map((item) => [
-            item.friendlyName,
-            item,
-          ]) as PromptEntry<RoutineDTO>[]),
-        ]),
-      ],
-      undefined,
-    );
+    const action = await this.promptService.menuSelect([
+      ['Create', 'create'],
+      ...this.promptService.conditionalEntries(!IsEmpty(current), [
+        new inquirer.Separator(),
+        ...(current.map((item) => [
+          item.friendlyName,
+          item,
+        ]) as PromptEntry<RoutineDTO>[]),
+      ]),
+    ]);
     if (action === DONE) {
       return;
     }
     if (action === 'create') {
       const routine = await this.build();
       await this.fetchService.fetch({
-        url: `/routine`,
         method: `post`,
+        url: `/routine`,
       });
       await this.exec();
       return;

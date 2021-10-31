@@ -6,7 +6,7 @@ import SolarCalcType from 'solar-calc/types/solarCalc';
 
 import { FORCE_EVENING_HOUR, LATITUDE, LONGITUDE } from '../config';
 
-const CALC_EXPIRE = 30000;
+const CALC_EXPIRE = 30_000;
 
 @Injectable()
 export class SolarCalcService {

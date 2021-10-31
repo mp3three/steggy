@@ -48,7 +48,7 @@ export class BaseFetchService {
   ): string {
     return new URLSearchParams({
       ...controlToQuery(fetchWith.control ?? {}),
-      ...(fetchWith.params || {}),
+      ...fetchWith.params,
     }).toString();
   }
 
@@ -66,7 +66,7 @@ export class BaseFetchService {
     ...fetchWitch
   }: FetchWith): RequestInit {
     const headers = {
-      ...(fetchWitch.headers || {}),
+      ...fetchWitch.headers,
     } as Record<string, string>;
     let method = fetchWitch.method ?? 'get';
     if (body) {

@@ -4,6 +4,7 @@ import {
 } from '@automagical/controller-logic';
 import { PromptService } from '@automagical/tty';
 import { Injectable, NotImplementedException } from '@nestjs/common';
+
 import { GroupCommandService, LightGroupCommandService } from '../groups';
 
 @Injectable()

@@ -5,8 +5,8 @@ import {
 } from '@automagical/controller-logic';
 import {
   domain,
-  HassStateDTO,
   HASS_DOMAINS,
+  HassStateDTO,
 } from '@automagical/home-assistant';
 import {
   FontAwesomeExtendedIcons,
@@ -16,6 +16,7 @@ import {
 } from '@automagical/tty';
 import { IsEmpty } from '@automagical/utilities';
 import { dump } from 'js-yaml';
+
 import { ICONS } from '../typings';
 import {
   BaseDomainService,
@@ -29,10 +30,10 @@ import {
 import { HomeFetchService } from './home-fetch.service';
 
 @Repl({
+  category: `Home Assistant`,
   description: [`Commands scoped to a single/manually built list of entities`],
   icon: ICONS.ENTITIES,
   name: `Entities`,
-  category: `Home Assistant`,
 })
 export class EntityService implements iRepl {
   constructor(

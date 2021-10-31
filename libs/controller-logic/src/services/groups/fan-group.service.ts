@@ -58,13 +58,13 @@ export class FanGroupService extends BaseGroupService {
 
   @Trace()
   public async getState(group: GroupDTO<FanCacheDTO>): Promise<SaveState[]> {
-    return group.entities.map((id) => {
+    return await group.entities.map((id) => {
       const fan = this.entityManager.getEntity<FanStateDTO>(id);
       return {
-        ref: fan.entity_id,
         extra: {
           speed: fan.attributes.speed,
         },
+        ref: fan.entity_id,
         state: fan.state,
       } as SaveState;
     });

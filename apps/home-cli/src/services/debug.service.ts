@@ -1,12 +1,13 @@
 import { DONE, PromptService, Repl } from '@automagical/tty';
 import chalk from 'chalk';
+
 import { ICONS } from '../typings';
 import { HomeFetchService } from './home-fetch.service';
 
 @Repl({
+  category: `Misc`,
   icon: ICONS.DEBUG,
   name: `Debugger`,
-  category: `Misc`,
 })
 export class DebugService {
   constructor(

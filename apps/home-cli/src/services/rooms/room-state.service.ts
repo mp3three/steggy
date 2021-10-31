@@ -9,6 +9,7 @@ import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
+
 import { EntityService } from '../entity.service';
 import { GroupCommandService } from '../groups';
 

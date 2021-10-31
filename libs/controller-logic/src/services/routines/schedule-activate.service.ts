@@ -1,10 +1,8 @@
-import {
-  ScheduleActivateDTO,
-  ScheduleWatcher,
-} from '@automagical/controller-logic';
 import { AutoLogService, Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { CronJob } from 'cron';
+
+import { ScheduleActivateDTO, ScheduleWatcher } from '../../contracts';
 
 @Injectable()
 export class ScheduleActivateService {

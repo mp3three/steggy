@@ -58,8 +58,8 @@ export class HASocketAPIService {
     @InjectConfig(WEBSOCKET_URL) private readonly websocketUrl: string,
   ) {}
 
-  private connection: WS;
   private CONNECTION_ACTIVE = false;
+  private connection: WS;
   private messageCount = STARTING_COUNTER_ID;
   private waitingCallback = new Map<number, (result) => void>();
 
