@@ -204,16 +204,6 @@ export class PromptService {
     return result;
   }
 
-  public header(text: string): void {
-    const header = `  ${text}  `;
-    const padding = ' '.repeat(header.length);
-    console.log(
-      [chalk.bgCyan.black([padding, header, padding].join(`\n`)), ``].join(
-        `\n`,
-      ),
-    );
-  }
-
   public itemsFromEntries<T extends unknown = string>(
     items: PromptEntry<T>[],
   ): PromptMenuItems<T> {

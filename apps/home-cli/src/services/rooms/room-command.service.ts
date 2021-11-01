@@ -1,30 +1,18 @@
 import {
-  CONCURRENT_CHANGES,
   GROUP_TYPES,
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
-  RoomStateDTO,
 } from '@automagical/controller-logic';
 import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
-import {
-  DONE,
-  MDIIcons,
-  PromptEntry,
-  PromptService,
-  Repl,
-} from '@automagical/tty';
-import {
-  AutoLogService,
-  InjectConfig,
-  IsEmpty,
-  LIB_CONTROLLER_LOGIC,
-} from '@automagical/utilities';
+import { DONE, PromptEntry, PromptService, Repl } from '@automagical/tty';
+import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
-import { each, eachLimit } from 'async';
+import { each } from 'async';
 import chalk from 'chalk';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
+import { dump } from 'js-yaml';
 
 import { ICONS } from '../../typings';
 import { LightService } from '../domains';
@@ -58,7 +46,7 @@ export class RoomCommandService {
     private readonly roomState: RoomStateService,
   ) {}
 
-  private async circadianOn(room: RoomDTO): Promise<void> {
+  public async circadianOn(room: RoomDTO): Promise<void> {
     const groups = await this.groupCommand.getMap();
     await Promise.all([
       await each(
@@ -172,7 +160,18 @@ export class RoomCommandService {
     room: RoomDTO,
     defaultAction?: string,
   ): Promise<void> {
-    this.promptService.header(room.friendlyName);
+    this.promptService.clear();
+    this.promptService.scriptHeader(`Room`);
+    console.log();
+    console.log(chalk.magenta.bold(room.friendlyName));
+    this.promptService.print(
+      dump({
+        entities: room.entities,
+        groups: room.groups,
+      }),
+    );
+    console.log();
+
     room.save_states ??= [];
     const action = await this.promptService.menuSelect(
       [
@@ -203,8 +202,8 @@ export class RoomCommandService {
       defaultAction,
     );
     switch (action) {
-      case 'createState':
-        // room = await this.roomState.addState(room);
+      case 'states':
+        room = await this.roomState.process(room);
         return await this.processRoom(room, action);
       case 'dimDown':
         await this.dimDown(room);
@@ -274,7 +273,6 @@ export class RoomCommandService {
     );
     return ids.map((entity_id) => ({
       entity_id,
-      tags: [],
     }));
   }
 
@@ -311,11 +309,15 @@ export class RoomCommandService {
   }
 
   private async groupBuilder(current: string[] = []): Promise<string[]> {
-    const action = await this.promptService.pickOne(`Group actions`, [
-      [`${ICONS.GROUPS}Use existing`, 'existing'],
-      [`${ICONS.CREATE}Create new`, 'create'],
-      [`Done`, 'done'],
-    ]);
+    const action = await this.promptService.pickOne(
+      `Group actions`,
+      [
+        [`${ICONS.GROUPS}Use existing`, 'existing'],
+        [`${ICONS.CREATE}Create new`, 'create'],
+        [`Done`, 'done'],
+      ],
+      `Room groups`,
+    );
     switch (action) {
       //
       case 'create':
@@ -347,24 +349,10 @@ export class RoomCommandService {
   }
 
   private async roomEntities(room: RoomDTO): Promise<RoomDTO> {
-    room.entities ??= [];
-    const actions: PromptEntry<string>[] = [['Add', 'add']];
-    if (IsEmpty(room.entities)) {
-      this.logger.warn(`No current entities in room`);
-    } else {
-      actions.push(
-        ['Remove', 'remove'],
-        new inquirer.Separator(),
-        ...(room.entities.map(({ entity_id }) => [
-          entity_id,
-          entity_id,
-        ]) as PromptEntry[]),
-      );
-    }
     const action = await this.promptService.menuSelect([
-      ['Add', 'add'],
+      [`${ICONS.CREATE}Add`, 'add'],
       ...this.promptService.conditionalEntries(!IsEmpty(room.entities), [
-        ['Remove', 'remove'],
+        [`${ICONS.DELETE}Remove`, 'remove'],
         new inquirer.Separator(chalk.white`Manipulate`),
         ...(room.entities.map(({ entity_id }) => [
           entity_id,
@@ -392,7 +380,7 @@ export class RoomCommandService {
         `Keep selected`,
         room.entities
           .map(({ entity_id }) => [entity_id, entity_id])
-          .sort(([a], [b]) => (a > b ? 1 : -1)) as PromptEntry[],
+          .sort(([a], [b]) => (a > b ? UP : DOWN)) as PromptEntry[],
         { default: room.entities.map(({ entity_id }) => entity_id) },
       );
       room = await this.update({
@@ -413,34 +401,27 @@ export class RoomCommandService {
       this.logger.warn(`No current groups in room`);
     }
     const allGroups = await this.groupCommand.list();
-    const action = await this.promptService.menuSelect<GroupDTO>([
-      ['Add', 'add'],
-      ...this.promptService.conditionalEntries(!IsEmpty(room.groups), [
-        ['Remove', 'remove'],
-        new inquirer.Separator(),
-        ...(allGroups
-          .filter(({ _id }) => room.groups.includes(_id))
-          .map((group) => [
-            group.friendlyName,
-            group,
-          ]) as PromptEntry<GroupDTO>[]),
-      ]),
-    ]);
+    const action = await this.promptService.menuSelect<GroupDTO>(
+      [
+        [`${ICONS.RENAME}Update`, 'update'],
+        ...this.promptService.conditionalEntries(!IsEmpty(room.groups), [
+          new inquirer.Separator(chalk.white(`Current groups`)),
+          ...(allGroups
+            .filter(({ _id }) => room.groups.includes(_id))
+            .map((group) => [
+              group.friendlyName,
+              group,
+            ]) as PromptEntry<GroupDTO>[]),
+        ]),
+      ],
+      `Room groups`,
+    );
     switch (action) {
       case DONE:
         return;
-      case 'add':
-        room.groups ??= [];
-        const group = await this.groupCommand.pickOne(room.groups);
-        room.groups.push(group._id);
-        room = await this.update(room);
-        return await this.roomGroups(room);
-      case 'remove':
-        const groups = await this.groupCommand.pickMany(
-          room.groups,
-          room.groups,
-        );
-        room.groups = groups.map(({ _id }) => _id);
+      case 'update':
+        const added = await this.groupCommand.pickMany([], room.groups);
+        room.groups = added.map(({ _id }) => _id);
         room = await this.update(room);
         return await this.roomGroups(room);
     }

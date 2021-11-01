@@ -1,4 +1,4 @@
-import { PromptEntry, PromptMenuItems } from '@automagical/tty';
+import { PromptEntry } from '@automagical/tty';
 import { Injectable } from '@nestjs/common';
 
 import { SwitchService } from './switch.service';

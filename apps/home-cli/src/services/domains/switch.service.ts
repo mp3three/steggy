@@ -1,7 +1,6 @@
 import { RoomEntitySaveStateDTO } from '@automagical/controller-logic';
 import { PromptEntry } from '@automagical/tty';
 import { Injectable } from '@nestjs/common';
-import inquirer from 'inquirer';
 
 import { BaseDomainService } from './base-domain.service';
 

@@ -1,5 +1,5 @@
 import { EcobeeClimateStateDTO } from '@automagical/home-assistant';
-import { DONE, PromptEntry, PromptMenuItems } from '@automagical/tty';
+import { DONE, PromptEntry } from '@automagical/tty';
 import { TitleCase } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
@@ -8,7 +8,7 @@ import { SwitchService } from './switch.service';
 @Injectable()
 export class ClimateService extends SwitchService {
   public async processId(id: string, command?: string): Promise<string> {
-    const state = await this.header(id);
+    const state = await this.baseHeader<EcobeeClimateStateDTO>(id);
     const action = await super.processId(id, command);
     switch (action) {
       case 'setFanMode':
@@ -151,31 +151,5 @@ export class ClimateService extends SwitchService {
       ['Set Temperature', 'setTemperature'],
       ...super.getMenuOptions(),
     ];
-  }
-
-  private async header(id: string): Promise<EcobeeClimateStateDTO> {
-    const content = await this.baseHeader<EcobeeClimateStateDTO>(id);
-    const messages = [
-      `Entity id: ${content.entity_id}`,
-      `State: ${content.state}`,
-    ];
-    const { attributes } = content;
-    if (attributes.temperature) {
-      messages.push(`Target temp: ${attributes.temperature}`);
-    }
-    if (attributes.target_temp_high) {
-      messages.push(`Target temp high: ${attributes.target_temp_high}`);
-    }
-    if (attributes.target_temp_low) {
-      messages.push(`Target temp low: ${attributes.target_temp_low}`);
-    }
-    if (attributes.current_temperature) {
-      messages.push(`Current temp: ${attributes.current_temperature}°`);
-    }
-    if (attributes.current_humidity) {
-      messages.push(`Current humidity: ${attributes.current_humidity}%`);
-    }
-    console.log([...messages, ``].join(`\n`));
-    return content;
   }
 }

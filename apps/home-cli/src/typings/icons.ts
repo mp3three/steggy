@@ -1,3 +1,6 @@
+/**
+ * Includes emoji and a spacing spacer space... space
+ */
 export const ICONS = {
   ACTIVATE: '🏁 ',
   CAPTURE: '📷 ',
@@ -12,7 +15,9 @@ export const ICONS = {
   EDIT: '✏ ',
   ENTITIES: '🗃 ',
   GROUPS: '🎳 ',
+  GUIDED: '🚌 ',
   LINK: '🔗 ',
+  MANUAL: '🔨 ',
   NAME: '💭 ',
   RENAME: '✏ ',
   ROOMS: '🏡 ',

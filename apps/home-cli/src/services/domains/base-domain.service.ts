@@ -5,12 +5,7 @@ import {
   HassStateDTO,
   RelatedDescriptionDTO,
 } from '@automagical/home-assistant';
-import {
-  DONE,
-  PromptEntry,
-  PromptMenuItems,
-  PromptService,
-} from '@automagical/tty';
+import { DONE, PromptEntry, PromptService } from '@automagical/tty';
 import {
   AutoLogService,
   IsEmpty,
@@ -50,6 +45,7 @@ export class BaseDomainService {
   ): Promise<RoomEntitySaveStateDTO> {
     throw new NotImplementedException();
     await entity_id;
+    current;
   }
 
   public async getState<T extends HassStateDTO = HassStateDTO>(
@@ -94,9 +90,6 @@ export class BaseDomainService {
       command,
     );
     switch (action) {
-      case 'describe':
-        await this.describe(id);
-        return await this.processId(id, action);
       case 'changeFriendlyName':
         await this.changeFriendlyName(id);
         return await this.processId(id, action);
@@ -151,11 +144,6 @@ export class BaseDomainService {
     });
   }
 
-  protected async describe(id: string): Promise<void> {
-    const state = await this.getState(id);
-    console.log(encode(state));
-  }
-
   protected async fromRegistry(id: string): Promise<void> {
     const item: RelatedDescriptionDTO = await this.fetchService.fetch({
       url: `/entity/registry/${id}`,
@@ -186,7 +174,6 @@ export class BaseDomainService {
       new inquirer.Separator(chalk.white`Base options`),
       ['📑 Change Entity ID', 'changeEntityId'],
       ['🔖 Change Friendly Name', 'changeFriendlyName'],
-      ['🔬 Describe', 'describe'],
       ['📃 Registry', 'registry'],
     ];
   }

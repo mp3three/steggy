@@ -3,13 +3,14 @@ import {
   RoomEntitySaveStateDTO,
   RoomStateDTO,
 } from '@automagical/controller-logic';
-import { PromptEntry, PromptService } from '@automagical/tty';
+import { DONE, PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
+import { ICONS } from '../../typings';
 import { EntityService } from '../entity.service';
 import { GroupCommandService } from '../groups';
 
@@ -22,8 +23,14 @@ export class RoomStateService {
     private readonly groupService: GroupCommandService,
   ) {}
 
-  public async build(room: RoomDTO): Promise<Omit<RoomStateDTO, 'id'>> {
-    const friendlyName = await this.promptService.string(`Friendly name`);
+  public async build(
+    room: RoomDTO,
+    current?: RoomStateDTO,
+  ): Promise<Omit<RoomStateDTO, 'id'>> {
+    const friendlyName = await this.promptService.string(
+      `Friendly name`,
+      current.friendlyName,
+    );
     const states: RoomEntitySaveStateDTO[] = [];
 
     if (IsEmpty(room.entities)) {
@@ -50,6 +57,39 @@ export class RoomStateService {
     };
   }
 
+  public async process(room: RoomDTO): Promise<RoomDTO> {
+    const action = await this.promptService.menuSelect(
+      [
+        ...this.promptService.conditionalEntries(!IsEmpty(room.save_states), [
+          new inquirer.Separator(chalk.white(`Current states`)),
+          ...(room.save_states.map((state) => [
+            state.friendlyName,
+            state,
+          ]) as PromptEntry<RoomStateDTO>[]),
+        ]),
+        new inquirer.Separator(chalk.white(`Manipulate`)),
+        [`${ICONS.CREATE}Manual create`, 'create'],
+        [`${ICONS.CAPTURE}Capture current`, 'capture'],
+        [`${ICONS.DESCRIBE}Describe current`, 'describe'],
+        [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
+      ],
+      `Room state`,
+    );
+    switch (action) {
+      case DONE:
+        return room;
+      case 'create':
+        throw new NotImplementedException();
+      case 'capture':
+        throw new NotImplementedException();
+      case 'describe':
+        throw new NotImplementedException();
+      case 'truncate':
+        throw new NotImplementedException();
+    }
+    throw new NotImplementedException();
+  }
+
   public async processStates(
     room: RoomDTO,
     current: RoomStateDTO[] = [],
@@ -63,6 +103,8 @@ export class RoomStateService {
       ]) as PromptEntry<RoomStateDTO>[]),
     ]);
     switch (action) {
+      case DONE:
+        return current;
       case 'add':
         return await this.processStates(room, [
           ...current,
@@ -75,6 +117,6 @@ export class RoomStateService {
     //   states: [],
     // });
 
-    return current;
+    throw new NotImplementedException();
   }
 }

@@ -12,7 +12,8 @@ import { DEFAULT_HEADER_FONT } from '../config';
 import { iRepl } from '../contracts/i-repl.interface';
 import { ReplOptions } from '../contracts/repl-options.dto';
 import { Repl } from '../decorators';
-import { PromptEntry, PromptService, ReplExplorerService } from '.';
+import { PromptEntry, PromptService } from './prompt.service';
+import { ReplExplorerService } from './repl-explorer.service';
 
 // Filter out non-sortable characters (like emoji)
 const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
@@ -42,7 +43,7 @@ export class MainCLIService implements iRepl {
     console.log(chalk.cyan(header), '\n');
 
     const [scriptName, name] = await this.getScript(defaultSelection);
-    this.printHeader(scriptName);
+    this.printHeader(name);
     let instance: iRepl;
     this.explorer.REGISTERED_APPS.forEach((i, options) => {
       if (options.name === name) {

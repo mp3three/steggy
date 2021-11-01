@@ -48,7 +48,7 @@ export class FanService extends SwitchService {
   }
 
   public async processId(id: string, command?: string): Promise<string> {
-    await this.header(id);
+    await this.baseHeader(id);
     const action = await super.processId(id, command);
     switch (action) {
       case 'fanSpeedDown':
@@ -88,17 +88,5 @@ export class FanService extends SwitchService {
       ['Set speed', 'setSpeed'],
       ...super.getMenuOptions(),
     ];
-  }
-
-  protected async header(id: string): Promise<void> {
-    const content = await this.baseHeader<FanStateDTO>(id);
-    console.log(
-      [
-        `Entity id: ${content.entity_id}`,
-        `State: ${content.state}`,
-        `Speed: ${content.attributes.speed}`,
-        ``,
-      ].join(`\n`),
-    );
   }
 }

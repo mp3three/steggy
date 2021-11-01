@@ -1,3 +1,4 @@
+export * from './colors.service';
 export * from './git.service';
 export * from './main-cli.service';
 export * from './prompt.service';

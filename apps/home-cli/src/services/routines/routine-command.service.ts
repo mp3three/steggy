@@ -154,7 +154,7 @@ export class RoutineCommandService {
         const { group, state } =
           current?.command as RoutineCommandGroupStateDTO;
         return {
-          command: await this.groupState.pickOne(group, state),
+          command: undefined,
           friendlyName,
           type,
         };

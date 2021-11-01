@@ -1,8 +1,7 @@
-import { GROUP_TYPES,GroupDTO } from '@automagical/controller-logic';
+import { GROUP_TYPES, GroupDTO } from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
 import {
   DONE,
-  FontAwesomeIcons,
   iRepl,
   PromptEntry,
   PromptService,
@@ -15,7 +14,7 @@ import {
   TitleCase,
 } from '@automagical/utilities';
 import chalk from 'chalk';
-import inquirer, { Separator } from 'inquirer';
+import inquirer from 'inquirer';
 
 import { ICONS } from '../../typings';
 import { EntityService } from '../entity.service';
@@ -112,6 +111,12 @@ export class GroupCommandService implements iRepl {
     return await this.exec();
   }
 
+  public async get(group: GroupDTO | string): Promise<GroupDTO> {
+    return await this.fetchService.fetch({
+      url: `/group/${typeof group === 'string' ? group : group._id}`,
+    });
+  }
+
   public async getMap(): Promise<Map<string, GroupDTO>> {
     const groups = await this.list();
     return new Map(groups.map((i) => [i._id, i]));
@@ -127,13 +132,6 @@ export class GroupCommandService implements iRepl {
       url: `/group`,
     });
   }
-
-  public async get(group: GroupDTO | string): Promise<GroupDTO> {
-    return await this.fetchService.fetch({
-      url: `/group/${typeof group === 'string' ? group : group._id}`,
-    });
-  }
-
   public async pickMany(
     inList: string[] = [],
     current: string[] = [],
@@ -176,7 +174,6 @@ export class GroupCommandService implements iRepl {
         ...actions,
         new inquirer.Separator(chalk.white`Management`),
         [`${ICONS.DELETE}Delete`, 'delete'],
-        [`${ICONS.DESCRIBE}Describe`, 'describe'],
         [`${ICONS.ENTITIES}Entities`, 'entities'],
         [`${ICONS.RENAME}Rename`, 'rename'],
         [`${ICONS.STATE_MANAGER}State Manager`, 'state'],
@@ -234,6 +231,35 @@ export class GroupCommandService implements iRepl {
       url: `/group/${group._id}`,
     });
   }
+  private groupActions(type: GROUP_TYPES): string[] {
+    switch (type) {
+      case GROUP_TYPES.light:
+        return ['turnOn', 'turnOff', 'circadianLight'];
+      case GROUP_TYPES.switch:
+      case GROUP_TYPES.fan:
+        return ['turnOn', 'turnOff'];
+      case GROUP_TYPES.lock:
+        return ['lock', 'unlock'];
+    }
+    this.logger.error({ type }, `Not implemented group type`);
+    return [];
+  }
+
+  private header(group: GroupDTO): void {
+    this.promptService.scriptHeader(`Group`);
+
+    console.log(
+      [
+        [
+          chalk.magenta.bold`${group.friendlyName}`,
+          chalk.yellow.bold`${TitleCase(group.type)} Group`,
+        ].join(chalk.cyan(' - ')),
+        ...group.entities.map((id) => chalk`  {cyan -} ${id}`),
+        ``,
+        ``,
+      ].join(`\n`),
+    );
+  }
 
   private async updateEntities(group: GroupDTO): Promise<GroupDTO> {
     const action = await this.promptService.menuSelect(
@@ -272,35 +298,5 @@ export class GroupCommandService implements iRepl {
     }
     await this.entityService.process(action);
     return group;
-  }
-
-  private groupActions(type: GROUP_TYPES): string[] {
-    switch (type) {
-      case GROUP_TYPES.light:
-        return ['turnOn', 'turnOff', 'circadianLight'];
-      case GROUP_TYPES.switch:
-      case GROUP_TYPES.fan:
-        return ['turnOn', 'turnOff'];
-      case GROUP_TYPES.lock:
-        return ['lock', 'unlock'];
-    }
-    this.logger.error({ type }, `Not implemented group type`);
-    return [];
-  }
-
-  private header(group: GroupDTO): void {
-    this.promptService.scriptHeader(`Group`);
-
-    console.log(
-      [
-        [
-          chalk.magenta.bold`${group.friendlyName}`,
-          chalk.yellow.bold`${TitleCase(group.type)} Group`,
-        ].join(chalk.cyan(' - ')),
-        ...group.entities.map((id) => chalk`  {cyan -} ${id}`),
-        ``,
-        ``,
-      ].join(`\n`),
-    );
   }
 }

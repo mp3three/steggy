@@ -3,6 +3,8 @@ import { LibraryModule } from '@automagical/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
 import {
+  ColorsService,
+  GitService,
   MainCLIService,
   PromptService,
   ReplExplorerService,
@@ -10,13 +12,13 @@ import {
   TypePromptService,
   WorkspaceService,
 } from '../services';
-import { GitService } from '../services/git.service';
 
 @LibraryModule({
   exports: [
     SystemService,
     TypePromptService,
     PromptService,
+    ColorsService,
     WorkspaceService,
     GitService,
   ],
@@ -27,6 +29,7 @@ import { GitService } from '../services/git.service';
     TypePromptService,
     PromptService,
     GitService,
+    ColorsService,
     ReplExplorerService,
     MainCLIService,
     WorkspaceService,

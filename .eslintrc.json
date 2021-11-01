@@ -50,6 +50,7 @@
         "@typescript-eslint/no-magic-numbers": "warn",
         "@typescript-eslint/prefer-includes": "warn",
         "@typescript-eslint/no-throw-literal": "error",
+        "unicorn/no-object-as-default-parameter": "off",
         "require-await": "off",
         "@typescript-eslint/require-array-sort-compare": "error",
         "@typescript-eslint/unbound-method": "error",

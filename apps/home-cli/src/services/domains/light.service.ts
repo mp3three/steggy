@@ -1,16 +1,27 @@
 import {
+  LIGHTING_MODE,
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
 } from '@automagical/controller-logic';
-import { HASS_DOMAINS, LightStateDTO } from '@automagical/home-assistant';
+import {
+  domain,
+  HASS_DOMAINS,
+  LightStateDTO,
+} from '@automagical/home-assistant';
 import { PromptEntry } from '@automagical/tty';
+import { TitleCase } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import inquirer from 'inquirer';
+import chalk from 'chalk';
+import { dump } from 'js-yaml';
 
 import { SwitchService } from './switch.service';
 
 const START = 0;
 const SHIFT_AMOUNT = 2;
+const R_MULTIPLIER = 0.299;
+const G_MULTIPLIER = 0.587;
+const B_MULTIPLIER = 0.114;
+const THRESHOLD = 127.5;
 
 @Injectable()
 export class LightService extends SwitchService {
@@ -25,36 +36,44 @@ export class LightService extends SwitchService {
     entity_id: string,
     current?: RoomEntitySaveStateDTO<LightingCacheDTO>,
   ): Promise<RoomEntitySaveStateDTO> {
+    let defaultValue: string;
+    if (current) {
+      if (current.state === 'off') {
+        defaultValue = 'off';
+      } else if (current.extra.mode === LIGHTING_MODE.circadian) {
+        defaultValue = 'circadian';
+      } else {
+        defaultValue = 'on';
+      }
+    }
     const state = await this.promptService.pickOne(
       entity_id,
       [
-        ['Turn On', 'turnOn'],
-        ['Turn Off', 'turnOff'],
-        ['Circadian Light', 'circadianLight'],
+        ['Turn On', 'on'],
+        ['Turn Off', 'off'],
+        ['Circadian Light', 'circadian'],
       ],
-      current?.state,
+      defaultValue,
     );
-    if (state === 'turnOff') {
+    if (state === 'off') {
       return {
         ref: entity_id,
         state,
       };
     }
+    const mode =
+      state === 'circadianLight' ? LIGHTING_MODE.circadian : LIGHTING_MODE.on;
     let brightness: number;
-    if (
-      await this.promptService.confirm(
-        `Set brightness? (default is previous value)`,
-      )
-    ) {
+    if (await this.promptService.confirm(`Set brightness?`)) {
       brightness = await this.promptService.number(
         `Set brightness (1-255)`,
         current?.extra?.brightness,
       );
     }
     return {
-      extra: { brightness },
+      extra: { brightness, mode },
       ref: entity_id,
-      state,
+      state: 'on',
     };
   }
 
@@ -73,7 +92,32 @@ export class LightService extends SwitchService {
   }
 
   public async processId(id: string, command?: string): Promise<string> {
-    await this.header(id);
+    await this.baseHeader(id);
+    // const content = await this.getState<LightStateDTO>(id);
+    // const baseMessage = chalk`{magenta.bold ${
+    //   content.attributes.friendly_name
+    // }} - {yellow.bold ${TitleCase(domain(content.entity_id))}}   `;
+    // if (content.state === 'on') {
+    //   const [r, g, b] = content.attributes.rgb_color;
+    //   const message = `     ${TitleCase(content.state)}     `;
+    //   const isBright =
+    //     Math.sqrt(
+    //       R_MULTIPLIER * (r * r) +
+    //         G_MULTIPLIER * (g * g) +
+    //         B_MULTIPLIER * (b * b),
+    //     ) > THRESHOLD;
+    //   console.log(
+    //     baseMessage +
+    //       chalk[isBright ? 'black' : 'whiteBright'].bgRgb(r, g, b)(message),
+    //   );
+    // } else {
+    //   console.log(baseMessage);
+    // }
+
+    // console.log();
+    // this.promptService.print(dump(content));
+    // console.log();
+
     const action = await super.processId(id, command);
     switch (action) {
       case 'dimDown':
@@ -118,24 +162,6 @@ export class LightService extends SwitchService {
       ['Swap state with another light', 'swapState'],
       ...parent.slice(SHIFT_AMOUNT),
     ];
-  }
-
-  protected async header(id: string): Promise<void> {
-    const content = await this.baseHeader<LightStateDTO>(id);
-    console.log(
-      [
-        `Entity id: ${content.entity_id}`,
-        `State: ${content.state}`,
-        ...(content.state === 'on'
-          ? [
-              `Brightness: ${content.attributes.brightness}`,
-              `RGB: [${content.attributes.rgb_color?.join(', ')}]`,
-              `HS: [${content.attributes.hs_color?.join(', ')}]`,
-            ]
-          : []),
-        ``,
-      ].join(`\n`),
-    );
   }
 
   private async setState(
