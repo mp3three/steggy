@@ -21,7 +21,7 @@ import { Info, Trace } from '../../decorators/logger.decorator';
 import { AutoLogService } from '../logger';
 import { MqttService } from './mqtt.service';
 
-/* eslint-disable no-loops/no-loops, security/detect-object-injection, security/detect-non-literal-regexp */
+/* eslint-disable no-loops/no-loops */
 const FIRST = 0;
 
 @Injectable()

@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-non-literal-regexp
- */
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { get } from 'object-path';

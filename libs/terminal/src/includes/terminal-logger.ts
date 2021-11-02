@@ -2,8 +2,6 @@ import { iLoggerCore } from '@automagical/utilities';
 import { AutoLogService, prettyFormatMessage } from '@automagical/utilities';
 import chalk from 'chalk';
 
-/* eslint-disable security/detect-non-literal-regexp */
-
 const NEST = '@nestjs';
 
 /**

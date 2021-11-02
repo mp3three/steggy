@@ -7,7 +7,7 @@ import { LOG_CONTEXT, MISSING_CONTEXT } from '../../contracts/logger/constants';
 import { mappedContexts } from '../../decorators/injectors';
 import { storage } from '../../includes';
 
-/* eslint-disable security/detect-non-literal-regexp, @typescript-eslint/no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 export type LoggerFunction =
   | ((message: string, ...arguments_: unknown[]) => void)
   | ((

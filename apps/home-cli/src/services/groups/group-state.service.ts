@@ -2,6 +2,7 @@ import {
   GroupDTO,
   GroupSaveStateDTO,
   RoomEntitySaveStateDTO,
+  RoutineCommandGroupStateDTO,
 } from '@automagical/controller-logic';
 import { DONE, PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
@@ -34,11 +35,11 @@ export class GroupStateService {
 
   public async build(
     group: GroupDTO,
-    current?: GroupSaveStateDTO,
+    current: Partial<GroupSaveStateDTO> = {},
   ): Promise<GroupDTO> {
     const friendlyName = await this.promptService.string(
       `Friendly name`,
-      current?.friendlyName,
+      current.friendlyName,
     );
     const states = [];
     const action = await this.promptService.pickOne(`Edit style`, [
@@ -49,7 +50,7 @@ export class GroupStateService {
     if (action === `manual`) {
       const result = await this.promptService.editor(
         `Enter save state data in yaml format`,
-        dump(current?.states),
+        dump(current.states),
       );
       states.push(...(load(result) as RoomEntitySaveStateDTO[]));
     } else if (action === 'guided') {
@@ -59,13 +60,12 @@ export class GroupStateService {
           states.push(
             await this.entityService.createSaveCommand(
               entity,
-              current?.states[index],
+              current.states[index],
             ),
           ),
       );
     }
-
-    if (current?.id) {
+    if (current.id) {
       const out = await this.fetchService.fetch<GroupDTO>({
         body: {
           friendlyName,
@@ -87,6 +87,21 @@ export class GroupStateService {
     return out;
   }
 
+  public async buildState(
+    current: Partial<RoutineCommandGroupStateDTO> = {},
+  ): Promise<RoutineCommandGroupStateDTO> {
+    const allGroups = await this.groupService.list();
+    const group = await this.promptService.pickOne(
+      `Which group?`,
+      allGroups.map((group) => [group.friendlyName, group]),
+      current.group,
+    );
+    return {
+      group: group._id,
+      state: await this.pickOne(group),
+    };
+  }
+
   public async findGroup(exclude: string[] = []): Promise<GroupDTO> {
     const groups = await this.fetchService.fetch<GroupDTO[]>({
       url: `/group`,
@@ -97,6 +112,33 @@ export class GroupStateService {
         .filter((group) => !exclude.includes(group._id))
         .map((group) => [group.friendlyName, group]),
     );
+  }
+
+  public async pickOne(group: GroupDTO): Promise<string> {
+    const action = await this.promptService.pickOne<GroupSaveStateDTO | string>(
+      `Which state?`,
+      [
+        [`${ICONS.CREATE}Manual create`, 'create'],
+        ...this.promptService.conditionalEntries(!IsEmpty(group.save_states), [
+          new inquirer.Separator(chalk.white(`Current states`)),
+          ...(group.save_states.map((state) => [
+            state.friendlyName,
+            state,
+          ]) as PromptEntry<GroupSaveStateDTO>[]),
+        ]),
+      ],
+    );
+    if (action === 'create') {
+      group = await this.build(group);
+      // Things that are gonna come back and bite me someday ...this
+      // I don't know how/when, but I know it will
+      const state = group.save_states.pop();
+      return state.id;
+    }
+    if (typeof action === 'string') {
+      throw new NotImplementedException();
+    }
+    return action.id;
   }
 
   public async processState(

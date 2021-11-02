@@ -28,10 +28,11 @@ export class RoutineCommandDTO<
 }
 
 export class RoutineCommandRoomActionDTO {
-  public command: GENERIC_COMMANDS;
-  public extra?: Record<string, unknown>;
+  public brightness: number;
+  public command: Omit<GENERIC_COMMANDS, 'turnOn'>;
+  public entities: string[];
+  public groups: string[];
   public room: string | RoomDTO;
-  public tags?: string[];
 }
 
 export class RoutineCommandRoomStateDTO {

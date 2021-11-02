@@ -9,12 +9,14 @@ import execa from 'execa';
 import { lstatSync, mkdirSync, readdirSync, renameSync } from 'fs';
 import inquirer from 'inquirer';
 import { join, resolve } from 'path';
+
 import { ALBUM_DOWNLOAD_TARGET, ALBUM_PAD_SIZE } from '../../config';
 
-/* eslint-disable security/detect-non-literal-regexp, @typescript-eslint/no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 
 const SEPARATOR = ' - ';
 @Repl({
+  category: `Misc`,
   description: [
     `Download url zip from url to new folder`,
     `Extract`,
@@ -23,7 +25,6 @@ const SEPARATOR = ' - ';
   ],
   icon: OctIcons.desktop_download,
   name: `Yoink`,
-  category: `Misc`,
 })
 export class ImgurAlbumDownloadService implements iRepl {
   constructor(

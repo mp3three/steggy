@@ -1,4 +1,8 @@
-import { GROUP_TYPES, GroupDTO } from '@automagical/controller-logic';
+import {
+  GROUP_TYPES,
+  GroupDTO,
+  RoomEntitySaveStateDTO,
+} from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
 import {
   DONE,
@@ -81,6 +85,17 @@ export class GroupCommandService implements iRepl {
       method: 'post',
       url: `/group`,
     });
+  }
+
+  public async createSaveCommand(
+    group: GroupDTO,
+    current: Partial<RoomEntitySaveStateDTO> = {},
+  ): Promise<RoomEntitySaveStateDTO> {
+    return {
+      ref: ``,
+      state: '',
+      type: 'group',
+    };
   }
 
   public async exec(): Promise<void> {

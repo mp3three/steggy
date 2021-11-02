@@ -37,7 +37,6 @@ export function filtersToMongoQuery(
         try {
           return out.set(filter.field, {
             $options: regexParts[2] || 'i',
-            // eslint-disable-next-line security/detect-non-literal-regexp
             $regex: new RegExp(regexParts[1]),
           });
         } catch {

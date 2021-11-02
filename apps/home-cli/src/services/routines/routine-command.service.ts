@@ -10,6 +10,8 @@ import {
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
+  RoutineCommandRoomActionDTO,
+  RoutineCommandRoomStateDTO,
   RoutineDTO,
   ScheduleActivateDTO,
   StateChangeActivateDTO,
@@ -20,10 +22,12 @@ import { NotImplementedException } from '@nestjs/common';
 import inquirer from 'inquirer';
 
 import { ICONS } from '../../typings';
-import { GroupStateService } from '../groups';
+import { GroupCommandService, GroupStateService } from '../groups';
 import { HomeFetchService } from '../home-fetch.service';
+import { RoomStateService } from '../rooms';
 import { GroupActionService } from './group-action.service';
 import { KunamiBuilderService } from './kunami-builder.service';
+import { RoomActionService } from './room-action.service';
 import { ScheduleBuilderService } from './schedule-builder.service';
 import { StateChangeBuilderService } from './state-change-builder.service';
 
@@ -35,13 +39,16 @@ import { StateChangeBuilderService } from './state-change-builder.service';
 })
 export class RoutineCommandService {
   constructor(
-    private readonly promptService: PromptService,
-    private readonly kunamiActivate: KunamiBuilderService,
-    private readonly stateActivate: StateChangeBuilderService,
     private readonly fetchService: HomeFetchService,
-    private readonly schduleActivate: ScheduleBuilderService,
     private readonly groupAction: GroupActionService,
+    private readonly groupCommand: GroupCommandService,
     private readonly groupState: GroupStateService,
+    private readonly kunamiActivate: KunamiBuilderService,
+    private readonly promptService: PromptService,
+    private readonly schduleActivate: ScheduleBuilderService,
+    private readonly stateActivate: StateChangeBuilderService,
+    private readonly roomAction: RoomActionService,
+    private readonly roomState: RoomStateService,
   ) {}
 
   public async build(current: Partial<RoutineDTO> = {}): Promise<RoutineDTO> {
@@ -151,10 +158,26 @@ export class RoutineCommandService {
           type,
         };
       case ROUTINE_ACTIVATE_COMMAND.group_state:
-        const { group, state } =
-          current?.command as RoutineCommandGroupStateDTO;
         return {
-          command: undefined,
+          command: await this.groupState.buildState(
+            current?.command as RoutineCommandGroupStateDTO,
+          ),
+          friendlyName,
+          type,
+        };
+      case ROUTINE_ACTIVATE_COMMAND.room_action:
+        return {
+          command: await this.roomAction.build(
+            current?.command as RoutineCommandRoomActionDTO,
+          ),
+          friendlyName,
+          type,
+        };
+      case ROUTINE_ACTIVATE_COMMAND.room_state:
+        return {
+          command: await this.roomState.buildSaveState(
+            current?.command as RoutineCommandRoomStateDTO,
+          ),
           friendlyName,
           type,
         };
@@ -203,13 +226,13 @@ export class RoutineCommandService {
       return;
     }
     if (action === 'create') {
-      const routine = await this.build();
-      await this.fetchService.fetch({
+      const body = await this.build();
+      const routine = await this.fetchService.fetch<RoutineDTO>({
+        body,
         method: `post`,
         url: `/routine`,
       });
-      await this.exec();
-      return;
+      return await this.processRoutine(routine);
     }
     if (typeof action === 'string') {
       throw new NotImplementedException();

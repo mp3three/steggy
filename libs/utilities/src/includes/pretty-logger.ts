@@ -8,7 +8,6 @@ import {
   AutoLogService,
   LoggerFunction,
 } from '../services/logger/auto-log.service';
-/* eslint-disable security/detect-non-literal-regexp */
 const logger = pino({
   level: AutoLogService.logger.level,
   prettyPrint: {
@@ -176,12 +175,6 @@ const prettyErrorMessage = (message: string): string => {
       stack.replace(new RegExp(cwd(), `g`), chalk.underline`workspace`),
     ].join(`\n`);
   }
-  // Potential solutions:
-  // - If Object is a provider, is it part of the current HomeControllerCustomModule?
-  // - If Object is exported from a separate @Module, is that module imported within HomeControllerCustomModule?
-  //   @Module({
-  //     imports: [ /* the Module containing Object */ ]
-  //   })
 
   return message;
 };
@@ -210,6 +203,7 @@ export const PrettyNestLogger: Record<
       // Context contains the stack trace of the nest injector
       // Nothing actually useful for debugging
       message = prettyErrorMessage(context);
+      // 🚩 I hereby stake my claim on this error message 🚩
       context = `@automagical:BootErrorMessage`;
     }
     logger.error(
