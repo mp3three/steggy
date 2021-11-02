@@ -29,7 +29,7 @@ export class FanService extends SwitchService {
         speed,
       },
       ref: entity_id,
-      state: 'setSpeed',
+      state: 'on',
     };
   }
 

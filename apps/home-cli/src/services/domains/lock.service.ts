@@ -14,8 +14,8 @@ export class LockService extends BaseDomainService {
     const state = await this.promptService.pickOne(
       `Set lock`,
       [
-        ['Lock', 'lock'],
-        ['Unlock', 'unlock'],
+        ['Lock', 'locked'],
+        ['Unlock', 'unlocked'],
       ],
       current?.state,
     );
@@ -33,6 +33,7 @@ export class LockService extends BaseDomainService {
   }
 
   public async processId(id: string, command?: string): Promise<string> {
+    await this.baseHeader(id);
     const action = await super.processId(id, command);
     switch (action) {
       case 'unlock':

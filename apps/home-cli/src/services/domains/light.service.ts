@@ -3,25 +3,14 @@ import {
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
 } from '@automagical/controller-logic';
-import {
-  domain,
-  HASS_DOMAINS,
-  LightStateDTO,
-} from '@automagical/home-assistant';
+import { HASS_DOMAINS, LightStateDTO } from '@automagical/home-assistant';
 import { PromptEntry } from '@automagical/tty';
-import { TitleCase } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import chalk from 'chalk';
-import { dump } from 'js-yaml';
 
 import { SwitchService } from './switch.service';
 
 const START = 0;
 const SHIFT_AMOUNT = 2;
-const R_MULTIPLIER = 0.299;
-const G_MULTIPLIER = 0.587;
-const B_MULTIPLIER = 0.114;
-const THRESHOLD = 127.5;
 
 @Injectable()
 export class LightService extends SwitchService {

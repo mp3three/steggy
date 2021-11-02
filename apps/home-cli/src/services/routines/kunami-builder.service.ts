@@ -1,7 +1,7 @@
 import { KunamiCodeActivateDTO } from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
 import { PromptService } from '@automagical/tty';
-import { AutoLogService, sleep } from '@automagical/utilities';
+import { AutoLogService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 
@@ -20,29 +20,62 @@ export class KunamiBuilderService {
   ) {}
 
   public async build(
-    current?: KunamiCodeActivateDTO,
+    current: Partial<KunamiCodeActivateDTO> = {},
   ): Promise<KunamiCodeActivateDTO> {
-    const sensor = await this.entityService.pickInDomain([HASS_DOMAINS.sensor]);
+    current.sensor = await this.entityService.pickInDomain(
+      [HASS_DOMAINS.sensor],
+      [],
+      current.sensor,
+    );
     const type = await this.promptService.pickOne(`How to enter values?`, [
-      ['Record', 'record'],
-      ['Manual', 'manual'],
+      ['Record state changes', 'record'],
+      ['Manual entry', 'manual'],
     ]);
-    const reset = await this.promptService.pickOne<'self' | 'none' | 'sensor'>(
+
+    const reset = await this.getReset(current.reset);
+    if (reset !== 'none') {
+      current.reset = reset;
+    }
+    current.match =
+      type === 'record'
+        ? await this.recordEvents(current.sensor)
+        : await this.manualEntry(current.match);
+    return current as KunamiCodeActivateDTO;
+  }
+
+  private async getReset(
+    reset: 'self' | 'none' | 'sensor',
+  ): Promise<'self' | 'none' | 'sensor'> {
+    const out = await this.promptService.pickOne<
+      'self' | 'none' | 'sensor' | 'help'
+    >(
       `Sequence reset`,
       [
         ['None', 'none'],
         ['Self', 'self'],
         ['Sensor', 'sensor'],
+        ['Help', 'help'],
       ],
+      reset,
     );
-    return {
-      match:
-        type === 'record'
-          ? await this.recordEvents(sensor)
-          : await this.manualEntry(current.match),
-      reset: reset === 'none' ? undefined : reset,
-      sensor,
-    };
+    if (out === 'help') {
+      console.log(
+        [
+          chalk`{magenta.bold Sequence resets modify the way the kunami matcher logic works.}`,
+          chalk`{cyan By default, if an entity state changes twice within} {yellow.bold 1500ms} {yellow (configurable)}{cyan , the matcher will add the state to the in-progress code and reset the timer.}`,
+          ``,
+          chalk`{cyan Sequence resets provide the ability to short-circut that} {yellow.bold 1500ms} {cyan timeout. Uses include:}`,
+          chalk`{cyan -} Rapid repeat triggering`,
+          chalk`    {cyan -} {bold Self reset}: {cyan reset the timer for only this matcher}`,
+          chalk`{cyan -} Complex input patterns`,
+          chalk`    {cyan -} {bold Sensor reset}: {cyan reset the timer for all matchers on the same sensor} {gray (crosses routines)}`,
+          chalk`{blue > }{bold.blue None} {blue should be used most of the time}`,
+          ``,
+        ].join(`\n`),
+      );
+      return await this.getReset(reset);
+    }
+    return out;
   }
 
   private async manualEntry(current: string[]): Promise<string[]> {
@@ -54,11 +87,9 @@ export class KunamiBuilderService {
   }
 
   private async recordEvents(sensor: string): Promise<string[]> {
-    await sleep();
     const duration = await this.promptService.number(
-      `Record state changes from ${sensor}`,
+      `Seconds to record`,
       DEFAULT_RECORD_DURATION,
-      { suffix: `seconds` },
     );
     console.log(chalk.green(`Recording`));
     const match = await this.fetchService.fetch<string[]>({

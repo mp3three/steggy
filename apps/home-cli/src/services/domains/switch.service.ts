@@ -13,8 +13,8 @@ export class SwitchService extends BaseDomainService {
     const state = await this.promptService.pickOne(
       entity_id,
       [
-        ['Turn On', 'turnOn'],
-        ['Turn Off', 'turnOff'],
+        ['Turn On', 'on'],
+        ['Turn Off', 'off'],
       ],
       current?.state,
     );
