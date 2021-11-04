@@ -27,12 +27,20 @@ export class RoutineService {
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
     private readonly activateService: RoutineActivateEventsService,
+    @Inject(forwardRef(() => RoomCommandService))
     private readonly roomCommand: RoomCommandService,
     @Inject(forwardRef(() => RoutineCommandService))
     private readonly activateCommand: RoutineCommandService,
   ) {}
 
-  public async exec(room?: RoomDTO | string): Promise<void> {
+  public async list(control?: ResultControlDTO): Promise<RoutineDTO[]> {
+    return await this.fetchService.fetch({
+      control,
+      url: `/routine`,
+    });
+  }
+
+  public async processRoom(room?: RoomDTO | string): Promise<void> {
     const control: ResultControlDTO = {};
     if (room) {
       control.filters ??= new Set();
@@ -75,14 +83,6 @@ export class RoutineService {
     }
     await this.processRoutine(action);
   }
-
-  public async list(control?: ResultControlDTO): Promise<RoutineDTO[]> {
-    return await this.fetchService.fetch({
-      control,
-      url: `/routine`,
-    });
-  }
-
   public async processRoutine(routine: RoutineDTO): Promise<void> {
     this.promptService.clear();
     this.promptService.scriptHeader(`Routine`);

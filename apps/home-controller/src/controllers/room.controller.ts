@@ -2,6 +2,7 @@ import {
   RoomDTO,
   RoomEntityDTO,
   RoomService,
+  RoomStateDTO,
 } from '@automagical/controller-logic';
 import { BaseSchemaDTO } from '@automagical/persistence';
 import {
@@ -25,12 +26,29 @@ import {
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
+  @Post(`/:room/state/:state`)
+  public async activateState(
+    @Param('room') room: string,
+    @Param('state') state: string,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.roomService.activateState({ room, state });
+    return GENERIC_SUCCESS_RESPONSE;
+  }
+
   @Post(`/:room/entity`)
   public async addEntity(
     @Param('room') room: string,
     @Body() entity: RoomEntityDTO,
   ): Promise<RoomDTO> {
     return await this.roomService.addEntity(room, entity);
+  }
+
+  @Post(`/:room/state`)
+  public async addState(
+    @Param('room') room: string,
+    @Body() state: RoomStateDTO,
+  ): Promise<RoomDTO> {
+    return await this.roomService.addState(room, state);
   }
 
   @Post(`/:room/group`)
@@ -86,5 +104,14 @@ export class RoomController {
     @Body() data: Partial<RoomDTO>,
   ): Promise<RoomDTO> {
     return await this.roomService.update(BaseSchemaDTO.cleanup(data), room);
+  }
+
+  @Put(`/:room/state/:state`)
+  public async updateState(
+    @Param('room') room: string,
+    @Param('room') state: string,
+    @Body() data: Partial<RoomStateDTO>,
+  ): Promise<RoomDTO> {
+    return await this.roomService.update(data, room);
   }
 }

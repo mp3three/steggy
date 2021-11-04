@@ -8,12 +8,14 @@ import {
 } from '@automagical/utilities';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { each } from 'async';
+import { v4 as uuid } from 'uuid';
 
 import {
   EntityFilters,
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
+  RoomStateDTO,
   RoutineCommandRoomStateDTO,
 } from '../contracts';
 import { EntityCommandRouterService } from './entity-command-router.service';
@@ -61,6 +63,18 @@ export class RoomService {
   }
 
   @Trace()
+  public async addState(
+    room: RoomDTO | string,
+    state: RoomStateDTO,
+  ): Promise<RoomDTO> {
+    room = await this.load(room);
+    state.id = uuid();
+    room.save_states ??= [];
+    room.save_states.push(state);
+    return await this.roomPersistence.update(room, room._id);
+  }
+
+  @Trace()
   public async attachGroup(
     room: RoomDTO | string,
     group: GroupDTO | string,
@@ -70,7 +84,6 @@ export class RoomService {
     room.groups.push(group._id);
     return await this.roomPersistence.update(room, room._id);
   }
-
   @Trace()
   public async create(
     room: Omit<RoomDTO, keyof BaseSchemaDTO>,
@@ -168,6 +181,20 @@ export class RoomService {
     id: string,
   ): Promise<RoomDTO> {
     return await this.roomPersistence.update(room, id);
+  }
+
+  @Trace()
+  public async updateState(
+    room: string | RoomDTO,
+    id: string,
+    update: RoomStateDTO,
+  ): Promise<RoomDTO> {
+    room = await this.load(room);
+    room.save_states ??= [];
+    room.save_states = room.save_states.map((i) =>
+      i.id === id ? { ...update, id } : i,
+    );
+    return await this.update(room, room._id);
   }
 
   @Trace()

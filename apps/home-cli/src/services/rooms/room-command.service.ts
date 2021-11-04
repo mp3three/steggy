@@ -1,25 +1,22 @@
 import {
-  GROUP_TYPES,
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
 } from '@automagical/controller-logic';
-import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
+import { HASS_DOMAINS } from '@automagical/home-assistant';
 import { DONE, PromptEntry, PromptService, Repl } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
-import { each } from 'async';
 import chalk from 'chalk';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
 
 import { ICONS } from '../../typings';
-import { LightService } from '../domains';
 import { EntityService } from '../entity.service';
-import { LightGroupCommandService } from '../groups';
 import { GroupCommandService } from '../groups/group-command.service';
 import { HomeFetchService } from '../home-fetch.service';
+import { RoutineService } from '../routines';
 import { RoomStateService } from './room-state.service';
 
 const UP = 1;
@@ -41,9 +38,8 @@ export class RoomCommandService {
     private readonly fetchService: HomeFetchService,
     private readonly groupCommand: GroupCommandService,
     private readonly entityService: EntityService,
-    private readonly lightDomain: LightService,
-    private readonly lightService: LightGroupCommandService,
     private readonly roomState: RoomStateService,
+    private readonly routineService: RoutineService,
   ) {}
 
   public async create(): Promise<RoomDTO> {
@@ -150,17 +146,21 @@ export class RoomCommandService {
     const action = await this.promptService.menuSelect(
       [
         new inquirer.Separator(chalk.white`Maintenance`),
-        [`${ICONS.DELETE}Delete`, 'delete'],
+        [`${ICONS.ROUTINE}Routines`, 'routines'],
+        [`${ICONS.STATE_MANAGER}State Manager`, 'states'],
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
         [`${ICONS.ENTITIES}Entities`, 'entities'],
         [`${ICONS.GROUPS}Groups`, 'groups'],
         [`${ICONS.RENAME}Rename`, 'rename'],
-        [`${ICONS.STATE_MANAGER}State Manager`, 'states'],
+        [`${ICONS.DELETE}Delete`, 'delete'],
       ],
       `Action`,
       defaultAction,
     );
     switch (action) {
+      case 'routines':
+        await this.routineService.processRoom(room);
+        return await this.processRoom(room, action);
       case 'states':
         room = await this.roomState.process(room);
         return await this.processRoom(room, action);

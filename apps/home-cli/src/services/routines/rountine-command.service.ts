@@ -30,6 +30,7 @@ export class RoutineCommandService {
     private readonly groupAction: GroupActionService,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineCommand: RoutineService,
+    @Inject(forwardRef(() => RoomStateService))
     private readonly roomState: RoomStateService,
     private readonly groupState: GroupStateService,
   ) {}

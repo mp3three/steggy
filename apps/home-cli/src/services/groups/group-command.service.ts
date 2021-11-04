@@ -19,6 +19,8 @@ import {
   TitleCase,
 } from '@automagical/utilities';
 import {
+  forwardRef,
+  Inject,
   InternalServerErrorException,
   NotImplementedException,
 } from '@nestjs/common';
@@ -68,6 +70,7 @@ export class GroupCommandService implements iRepl {
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
     private readonly entityService: EntityService,
+    @Inject(forwardRef(() => GroupStateService))
     private readonly groupState: GroupStateService,
     private readonly lightGroup: LightGroupCommandService,
   ) {}
@@ -99,7 +102,7 @@ export class GroupCommandService implements iRepl {
     current: Partial<RoomEntitySaveStateDTO> = {},
   ): Promise<RoomEntitySaveStateDTO> {
     let state = await this.promptService.pickOne<GroupSaveStateDTO | string>(
-      `Group save state`,
+      `${chalk.magenta.bold(group.friendlyName)} save state`,
       [
         [`${ICONS.CREATE}Create new state`, `create`],
         ...this.promptService.conditionalEntries(IsEmpty(group.save_states), [

@@ -5,7 +5,7 @@ import {
 } from '@automagical/controller-logic';
 import { PromptEntry, PromptService } from '@automagical/tty';
 import { IsEmpty } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 
 import { GroupCommandService } from '../groups';
@@ -30,6 +30,7 @@ export class RoomActionService {
   constructor(
     private readonly promptService: PromptService,
     private readonly groupCommand: GroupCommandService,
+    @Inject(forwardRef(() => RoomCommandService))
     private readonly roomService: RoomCommandService,
   ) {}
 

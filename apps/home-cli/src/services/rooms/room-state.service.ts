@@ -13,13 +13,15 @@ import {
   Injectable,
   NotImplementedException,
 } from '@nestjs/common';
-import { eachSeries } from 'async';
+import { eachSeries, retry } from 'async';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
+import { dump } from 'js-yaml';
 
 import { ICONS } from '../../typings';
 import { EntityService } from '../entity.service';
 import { GroupCommandService } from '../groups';
+import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from './room-command.service';
 
 @Injectable()
@@ -31,21 +33,20 @@ export class RoomStateService {
     private readonly roomService: RoomCommandService,
     private readonly entityService: EntityService,
     private readonly groupService: GroupCommandService,
+    private readonly fetchService: HomeFetchService,
   ) {}
 
   public async build(
     room: RoomDTO,
     current: Partial<RoomStateDTO> = {},
   ): Promise<Omit<RoomStateDTO, 'id'>> {
-    current.friendlyName = await this.promptService.friendlyName(
-      current.friendlyName,
-    );
     current.states ??= [];
     const states: RoomEntitySaveStateDTO[] = [];
     if (IsEmpty(room.entities)) {
       this.logger.warn(`No entities in room`);
     } else if (
-      !IsEmpty(current.states.filter(({ type }) => type === 'room')) ||
+      (!IsEmpty(current.states.filter(({ type }) => type === 'room')) &&
+        (await this.promptService.confirm(`Update entities?`))) ||
       (await this.promptService.confirm(`Add entities to save state?`))
     ) {
       const list = await this.entityService.pickMany(
@@ -66,7 +67,8 @@ export class RoomStateService {
     if (IsEmpty(room.groups)) {
       this.logger.warn(`No groups`);
     } else if (
-      !IsEmpty(current.states.filter(({ type }) => type === 'group')) ||
+      (!IsEmpty(current.states.filter(({ type }) => type === 'group')) &&
+        (await this.promptService.confirm('Update groups?'))) ||
       (await this.promptService.confirm(`Add groups to save state?`))
     ) {
       const list = await this.groupService.pickMany(room.groups);
@@ -79,16 +81,16 @@ export class RoomStateService {
         ),
       );
     }
-
     return current as RoomStateDTO;
   }
 
-  public async buildSaveState(
-    current: Partial<RoutineCommandRoomStateDTO> = {},
-  ): Promise<RoutineCommandRoomStateDTO> {
-    current.room = await this.roomService.pickOne(current.room);
-    current.state = await this.pickOne(current.room);
-    return current as RoutineCommandRoomStateDTO;
+  public async createFor(room: RoomDTO): Promise<RoomDTO> {
+    const state = await this.build(room);
+    return await this.fetchService.fetch({
+      body: state,
+      method: 'post',
+      url: `/room/${room._id}/state`,
+    });
   }
 
   public async pickOne(room: RoomDTO): Promise<string> {
@@ -107,9 +109,7 @@ export class RoomStateService {
     );
     if (action === 'create') {
       room = await this.build(room);
-      // Things that are gonna come back and bite me someday ...this
-      // I don't know how/when, but I know it will
-      // ... the copypasta
+      await this.roomService.update(room);
       const state = room.save_states.pop();
       return state.id;
     }
@@ -130,9 +130,7 @@ export class RoomStateService {
           ]) as PromptEntry<RoomStateDTO>[]),
         ]),
         new inquirer.Separator(chalk.white(`Manipulate`)),
-        [`${ICONS.CREATE}Manual create`, 'create'],
-        [`${ICONS.CAPTURE}Capture current`, 'capture'],
-        [`${ICONS.DESCRIBE}Describe current`, 'describe'],
+        [`${ICONS.CREATE}Create`, 'create'],
         [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
       ],
       `Room state`,
@@ -141,43 +139,66 @@ export class RoomStateService {
       case DONE:
         return room;
       case 'create':
-        throw new NotImplementedException();
-      case 'capture':
-        throw new NotImplementedException();
-      case 'describe':
-        throw new NotImplementedException();
+        room = await this.createFor(room);
+        return await this.process(room);
       case 'truncate':
-        throw new NotImplementedException();
+        if (
+          !(await this.promptService.confirm(
+            `This is a desctructive operation, are you sure?`,
+          ))
+        ) {
+          return await this.process(room);
+        }
+        room.save_states = [];
+        room = await this.roomService.update(room);
+        return await this.process(room);
     }
-    throw new NotImplementedException();
+    if (typeof action === 'string') {
+      throw new NotImplementedException();
+    }
+    room = await this.processState(room, action);
+    return await this.process(room);
   }
-  public async processStates(
+
+  public async processState(
     room: RoomDTO,
-    current: RoomStateDTO[] = [],
-  ): Promise<RoomStateDTO[]> {
+    state: RoomStateDTO,
+  ): Promise<RoomDTO> {
     const action = await this.promptService.menuSelect([
-      [`Add new`, `add`],
-      new inquirer.Separator(chalk.white`Current states`),
-      ...(current.map((item) => [
-        item.friendlyName,
-        item,
-      ]) as PromptEntry<RoomStateDTO>[]),
+      [`${ICONS.ACTIVATE}Activate`, 'activate'],
+      [`${ICONS.EDIT}Edit`, 'edit'],
+      [`${ICONS.DESCRIBE}Describe`, 'describe'],
+      [`${ICONS.DELETE}Delete`, 'remove'],
     ]);
     switch (action) {
       case DONE:
-        return current;
-      case 'add':
-        return await this.processStates(room, [
-          ...current,
-          (await this.build(room)) as RoomStateDTO,
-        ]);
+        return room;
+      case 'activate':
+        await this.fetchService.fetch({
+          method: `post`,
+          url: `/room/${room._id}/state/${state.id}`,
+        });
+        return room;
+      case 'describe':
+        this.promptService.print(dump(state));
+        return await this.processState(room, state);
+      case 'edit':
+        const update = await this.build(room, state);
+        room = await this.fetchService.fetch({
+          body: update,
+          method: 'put',
+          url: `/room/${room._id}/state/${state.id}`,
+        });
+        return await this.processState(
+          room,
+          room.save_states.find(({ id }) => id === state.id),
+        );
+      case 'remove':
+        return await this.fetchService.fetch({
+          method: 'delete',
+          url: `/room/${room._id}/state/${state.id}`,
+        });
     }
-    // const friendlyName = await this.
-    // room.save_states.push({
-    //   friendlyName: '',
-    //   states: [],
-    // });
-
     throw new NotImplementedException();
   }
 }
