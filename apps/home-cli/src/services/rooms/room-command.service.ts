@@ -73,7 +73,7 @@ export class RoomCommandService {
   }
 
   public async create(): Promise<RoomDTO> {
-    const friendlyName = await this.promptService.string(`Friendly Name`);
+    const friendlyName = await this.promptService.friendlyName();
     const entities = (await this.promptService.confirm(`Add entities?`, true))
       ? await this.buildEntityList()
       : [];

@@ -25,14 +25,14 @@ import { join } from 'path';
 import { inc } from 'semver';
 
 @Repl({
+  category: `Maintenance`,
   description: [
     `- Root level change description`,
     `- Project level change description`,
     `- Version bumping`,
   ],
-  icon: OctIcons.checklist,
+  icon: `✒ `,
   name: `Changelog`,
-  category: `Maintenance`,
 })
 export class ChangelogService implements iRepl {
   constructor(

@@ -204,6 +204,13 @@ export class PromptService {
     return result;
   }
 
+  /**
+   * Canned question, gets asked so often
+   */
+  public async friendlyName(current?: string): Promise<string> {
+    return await this.string(`Friendly name`, current);
+  }
+
   public itemsFromEntries<T extends unknown = string>(
     items: PromptEntry<T>[],
   ): PromptMenuItems<T> {

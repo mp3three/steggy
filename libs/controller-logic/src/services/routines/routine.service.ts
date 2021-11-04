@@ -13,7 +13,6 @@ import {
   ROUTINE_ACTIVATE_TYPE,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
-  RoutineCommandRoomActionDTO,
   RoutineCommandRoomStateDTO,
   RoutineDTO,
   ScheduleActivateDTO,
@@ -40,7 +39,7 @@ export class RoutineService {
 
   @Trace()
   public async activateRoutine(routine: RoutineDTO | string): Promise<void> {
-    routine = await this.load(routine);
+    routine = await this.get(routine);
     this.logger.info(`[${routine.friendlyName}] activate`);
     await each(routine.command ?? [], async (command, callback) => {
       this.logger.debug(` - {${command.friendlyName}}`);
@@ -53,11 +52,6 @@ export class RoutineService {
         case ROUTINE_ACTIVATE_COMMAND.group_state:
           await this.groupService.activateState(
             command.command as RoutineCommandGroupStateDTO,
-          );
-          break;
-        case ROUTINE_ACTIVATE_COMMAND.room_action:
-          await this.roomService.activateCommand(
-            command.command as RoutineCommandRoomActionDTO,
           );
           break;
         case ROUTINE_ACTIVATE_COMMAND.room_state:
@@ -76,8 +70,26 @@ export class RoutineService {
   }
 
   @Trace()
+  public async delete(routine: string | RoutineDTO): Promise<boolean> {
+    return await this.routinePersistence.delete(routine);
+  }
+
+  @Trace()
+  public async get(routine: RoutineDTO | string): Promise<RoutineDTO> {
+    if (typeof routine === 'object') {
+      return routine;
+    }
+    return await this.routinePersistence.findById(routine);
+  }
+
+  @Trace()
   public async list(control?: ResultControlDTO): Promise<RoutineDTO[]> {
     return await this.routinePersistence.findMany(control);
+  }
+
+  @Trace()
+  public async update(id: string, routine: RoutineDTO): Promise<RoutineDTO> {
+    return await this.routinePersistence.update(routine, id);
   }
 
   @Trace()
@@ -91,14 +103,6 @@ export class RoutineService {
     this.scheduleActivate.reset();
     this.stateChangeActivate.reset();
     await this.mount();
-  }
-
-  @Trace()
-  private async load(routine: RoutineDTO | string): Promise<RoutineDTO> {
-    if (typeof routine === 'object') {
-      return routine;
-    }
-    return await this.routinePersistence.findById(routine);
   }
 
   @Trace()

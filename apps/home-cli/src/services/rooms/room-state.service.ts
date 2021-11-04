@@ -37,8 +37,7 @@ export class RoomStateService {
     room: RoomDTO,
     current: Partial<RoomStateDTO> = {},
   ): Promise<Omit<RoomStateDTO, 'id'>> {
-    current.friendlyName = await this.promptService.string(
-      `Friendly name`,
+    current.friendlyName = await this.promptService.friendlyName(
       current.friendlyName,
     );
     current.states ??= [];

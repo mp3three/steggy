@@ -37,8 +37,8 @@ export class GroupStateService {
     group: GroupDTO,
     current: Partial<GroupSaveStateDTO> = {},
   ): Promise<GroupDTO> {
-    const friendlyName = await this.promptService.string(
-      `Friendly name`,
+    current.states ??= [];
+    const friendlyName = await this.promptService.friendlyName(
       current.friendlyName,
     );
     const states = [];

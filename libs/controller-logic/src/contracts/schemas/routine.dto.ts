@@ -2,6 +2,7 @@ import { TransformObjectId } from '@automagical/persistence';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Expose } from 'class-transformer';
 import {
+  IsBoolean,
   IsDateString,
   IsNumber,
   IsOptional,
@@ -12,6 +13,11 @@ import { Document } from 'mongoose';
 
 import { RoutineActivateDTO } from '../routines';
 import { RoutineCommandDTO } from '../routines/routine-command.dto';
+
+export enum ROUTINE_SCOPE {
+  public,
+  http,
+}
 
 export enum ROUTINE_TYPE {
   state_change = 'state_change',
@@ -73,6 +79,16 @@ export class RoutineDTO {
     index: true,
   })
   public modified?: Date;
+
+  /**
+   * Room that owns this routine
+   */
+  @Prop({
+    index: true,
+  })
+  @IsString()
+  @TransformObjectId()
+  public room: string;
 }
 
 export type RountineDocument = RoutineDTO & Document;

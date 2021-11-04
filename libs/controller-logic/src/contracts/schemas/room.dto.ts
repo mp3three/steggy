@@ -16,7 +16,8 @@ export class RoomSettingDTO {
   /**
    * Future use: api key access for commands to be issued against this room
    */
-  public keys?: unknown[];
+  @IsString({ each: true })
+  public keys?: string[];
 }
 
 export class RoomEntityDTO {

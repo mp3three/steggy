@@ -24,6 +24,7 @@ import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 import { dump } from 'js-yaml';
 
+import { ICONS } from '../../typings';
 import { DeviceService } from '../device.service';
 import { HomeFetchService } from '../home-fetch.service';
 
@@ -133,8 +134,7 @@ export class BaseDomainService {
 
   protected async changeFriendlyName(id: string): Promise<void> {
     const state = await this.getState(id);
-    const name = await this.promptService.string(
-      `New name`,
+    const name = await this.promptService.friendlyName(
       state.attributes.friendly_name,
     );
     await this.fetchService.fetch({
@@ -149,8 +149,8 @@ export class BaseDomainService {
       url: `/entity/registry/${id}`,
     });
     const action = await this.promptService.menuSelect([
-      ['Describe', 'describe'],
-      ['View Device', 'device'],
+      [`${ICONS.DESCRIBE}Describe`, 'describe'],
+      [`${ICONS.DEVICE}Device`, 'device'],
     ]);
     switch (action) {
       case DONE:
@@ -172,9 +172,9 @@ export class BaseDomainService {
   protected getMenuOptions(): PromptEntry[] {
     return [
       new inquirer.Separator(chalk.white`Base options`),
-      ['📑 Change Entity ID', 'changeEntityId'],
-      ['🔖 Change Friendly Name', 'changeFriendlyName'],
-      ['📃 Registry', 'registry'],
+      [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
+      [`${ICONS.RENAME}Change Friendly Name`, 'changeFriendlyName'],
+      [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
     ];
   }
 }

@@ -8,10 +8,13 @@ export enum ROUTINE_ACTIVATE_TYPE {
   state_change = 'state_change',
 }
 
-export class RoutineActivateDTO<
-  EVENTS = KunamiCodeActivateDTO | ScheduleActivateDTO | StateChangeActivateDTO,
-> {
+export type ROUTINE_ACTIVATE_TYPES =
+  | KunamiCodeActivateDTO
+  | ScheduleActivateDTO
+  | StateChangeActivateDTO;
+export class RoutineActivateDTO<EVENTS = ROUTINE_ACTIVATE_TYPES> {
   public activate: EVENTS;
   public friendlyName: string;
+  public id?: string;
   public type: ROUTINE_ACTIVATE_TYPE;
 }

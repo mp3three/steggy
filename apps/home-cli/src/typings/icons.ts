@@ -4,6 +4,7 @@
 export const ICONS = {
   ACTIVATE: '🏁 ',
   CAPTURE: '📷 ',
+  COMMAND: '🎼 ',
   COPY: '📋 ',
   CREATE: '➕ ',
   DEBUG: '🐜 ',
@@ -14,6 +15,7 @@ export const ICONS = {
   DONE: '🗿 ',
   EDIT: '✏ ',
   ENTITIES: '🗃 ',
+  EVENT: '🎆 ',
   GROUPS: '🎳 ',
   GUIDED: '🚌 ',
   LINK: '🔗 ',
@@ -22,5 +24,5 @@ export const ICONS = {
   RENAME: '✏ ',
   ROOMS: '🏡 ',
   ROUTINE: '🤖 ',
-  STATE_MANAGER: '🎼 ',
+  STATE_MANAGER: '🖼 ',
 };

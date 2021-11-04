@@ -28,7 +28,7 @@ export type FetchAuth = {
   tempAuthToken?: TemporaryAuthToken;
 };
 
-export type FetchArguments = FetchAuth & {
+export type FetchArguments<BODY extends unknown = unknown> = FetchAuth & {
   /**
    * Frequently filled in by wrapper services
    */
@@ -36,7 +36,7 @@ export type FetchArguments = FetchAuth & {
   /**
    * POSTDATA
    */
-  body?: unknown;
+  body?: BODY;
   /**
    * Formatted filters to send with request. Gets translated to query params
    */
@@ -137,5 +137,7 @@ export enum HTTP_METHODS {
 }
 type STRING_HTTP = `${HTTP_METHODS}`;
 
-export type FetchWith<T extends Record<never, string> = Record<never, string>> =
-  Partial<FetchArguments> & T;
+export type FetchWith<
+  T extends Record<never, string> = Record<never, string>,
+  BODY extends unknown = unknown,
+> = Partial<FetchArguments<BODY>> & T;

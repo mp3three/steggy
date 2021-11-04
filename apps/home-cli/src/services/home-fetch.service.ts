@@ -13,9 +13,11 @@ export class HomeFetchService {
     fetchService.BASE_URL = url;
   }
 
-  public fetch<T>(fetch: FetchWith): Promise<T> {
+  public fetch<OUTPUT, BODY extends unknown = unknown>(
+    fetch: FetchWith<Record<never, string>, BODY>,
+  ): Promise<OUTPUT> {
     fetch.adminKey = this.adminKey;
-    return this.fetchService.fetch<T>(fetch);
+    return this.fetchService.fetch<OUTPUT>(fetch);
   }
 
   public getUrl(url: string): string {

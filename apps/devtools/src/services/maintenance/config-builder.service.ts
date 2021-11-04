@@ -33,7 +33,7 @@ import rc from 'rc';
 
 @Repl({
   category: `Maintenance`,
-  icon: SetiIcons.config,
+  icon: `⚙ `,
   name: `Config Builder`,
 })
 export class ConfigBuilderService implements iRepl {

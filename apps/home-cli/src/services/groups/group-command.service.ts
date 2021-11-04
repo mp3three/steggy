@@ -1,6 +1,7 @@
 import {
   GROUP_TYPES,
   GroupDTO,
+  GroupSaveStateDTO,
   RoomEntitySaveStateDTO,
 } from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
@@ -17,6 +18,10 @@ import {
   ResultControlDTO,
   TitleCase,
 } from '@automagical/utilities';
+import {
+  InternalServerErrorException,
+  NotImplementedException,
+} from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
@@ -41,6 +46,8 @@ const GROUP_DOMAINS = new Map([
   [GROUP_TYPES.lock, [HASS_DOMAINS.lock]],
   [GROUP_TYPES.fan, [HASS_DOMAINS.fan]],
 ]);
+
+const ARRAY_OFFSET = 1;
 
 @Repl({
   category: `Control`,
@@ -70,7 +77,7 @@ export class GroupCommandService implements iRepl {
       `What type of group?`,
       Object.values(GROUP_TYPES).map((type) => [TitleCase(type), type]),
     );
-    const friendlyName = await this.promptService.string(`Friendly Name`);
+    const friendlyName = await this.promptService.friendlyName();
 
     const entities = await this.entityService.buildList(
       GROUP_DOMAINS.get(type),
@@ -91,9 +98,33 @@ export class GroupCommandService implements iRepl {
     group: GroupDTO,
     current: Partial<RoomEntitySaveStateDTO> = {},
   ): Promise<RoomEntitySaveStateDTO> {
+    let state = await this.promptService.pickOne<GroupSaveStateDTO | string>(
+      `Group save state`,
+      [
+        [`${ICONS.CREATE}Create new state`, `create`],
+        ...this.promptService.conditionalEntries(IsEmpty(group.save_states), [
+          new inquirer.Separator(chalk.white`Existing states`),
+          ...(group.save_states.map((i) => [
+            i.id,
+            i,
+          ]) as PromptEntry<GroupSaveStateDTO>[]),
+        ]),
+      ],
+      group.save_states.find(({ id }) => id === current.state),
+    );
+    if (state === 'create') {
+      group = await this.groupState.build(group);
+      state = group.save_states[group.save_states.length - ARRAY_OFFSET];
+      if (!state) {
+        throw new InternalServerErrorException(`wat`);
+      }
+    }
+    if (typeof state === 'string') {
+      throw new NotImplementedException();
+    }
     return {
-      ref: ``,
-      state: '',
+      ref: group._id,
+      state: state.id,
       type: 'group',
     };
   }
@@ -109,7 +140,7 @@ export class GroupCommandService implements iRepl {
         new inquirer.Separator(chalk.white`Actions`),
         [`${ICONS.CREATE}Create Group`, 'create'],
       ],
-      'Pick a group',
+      'Pick group',
     );
     if (action === 'create') {
       await this.create();

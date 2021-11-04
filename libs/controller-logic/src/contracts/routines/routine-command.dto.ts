@@ -3,7 +3,6 @@ import { GroupDTO, RoomDTO } from '../schemas';
 export enum ROUTINE_ACTIVATE_COMMAND {
   room_state = 'room_state',
   group_state = 'group_state',
-  room_action = 'room_action',
   group_action = 'group_action',
 }
 
@@ -17,13 +16,13 @@ export type GENERIC_COMMANDS =
 
 export class RoutineCommandDTO<
   COMMAND =
-    | RoutineCommandRoomActionDTO
     | RoutineCommandGroupActionDTO
     | RoutineCommandRoomStateDTO
     | RoutineCommandGroupStateDTO,
 > {
   public command: COMMAND;
   public friendlyName: string;
+  public id?: string;
   public type: ROUTINE_ACTIVATE_COMMAND;
 }
 
