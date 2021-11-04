@@ -3,9 +3,14 @@
 /* eslint-disable radar/no-identical-functions */
 
 import { RoomDTO, RoutineDTO } from '@automagical/controller-logic';
-import { DONE, PromptEntry, PromptService, Repl } from '@automagical/tty';
+import { DONE, PromptEntry, PromptService } from '@automagical/tty';
 import { IsEmpty, ResultControlDTO } from '@automagical/utilities';
-import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
@@ -13,23 +18,18 @@ import { dump } from 'js-yaml';
 import { ICONS } from '../../typings';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';
-import { RoutineCommandBuilderService } from './rountine-command-builder.service';
+import { RoutineCommandService } from './rountine-command.service';
 import { RoutineActivateEventsService } from './routine-activate-events.service';
 
-@Repl({
-  category: 'Control',
-  description: [`Control rooms and groups based on state changes and schdules`],
-  icon: ICONS.ROUTINE,
-  name: `Routines`,
-})
-export class RoutineCommandService {
+@Injectable()
+export class RoutineService {
   constructor(
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
     private readonly activateService: RoutineActivateEventsService,
     private readonly roomCommand: RoomCommandService,
-    @Inject(forwardRef(() => RoutineCommandBuilderService))
-    private readonly activateCommand: RoutineCommandBuilderService,
+    @Inject(forwardRef(() => RoutineCommandService))
+    private readonly activateCommand: RoutineCommandService,
   ) {}
 
   public async exec(room?: RoomDTO | string): Promise<void> {

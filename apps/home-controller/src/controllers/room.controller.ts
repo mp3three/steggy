@@ -1,5 +1,4 @@
 import {
-  EntityFilters,
   RoomDTO,
   RoomEntityDTO,
   RoomService,
@@ -79,24 +78,6 @@ export class RoomController {
   @Get('/')
   public async list(@Locals() { control }: ResponseLocals): Promise<RoomDTO[]> {
     return await this.roomService.list(control);
-  }
-
-  @Put(`/:room/turnOff`)
-  public async turnOff(
-    @Param('room') room: string,
-    @Body() filters: EntityFilters,
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.roomService.turnOff(room, filters);
-    return GENERIC_SUCCESS_RESPONSE;
-  }
-
-  @Put(`/:room/turnOn`)
-  public async turnOn(
-    @Param('room') room: string,
-    @Body() filters: EntityFilters,
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.roomService.turnOn(room, filters);
-    return GENERIC_SUCCESS_RESPONSE;
   }
 
   @Put(`/:room`)

@@ -46,32 +46,6 @@ export class RoomCommandService {
     private readonly roomState: RoomStateService,
   ) {}
 
-  public async circadianOn(room: RoomDTO): Promise<void> {
-    const groups = await this.groupCommand.getMap();
-    await Promise.all([
-      await each(
-        room.entities.filter((i) => domain(i.entity_id) === HASS_DOMAINS.light),
-        async ({ entity_id }, callback) => {
-          await this.lightDomain.circadianLight(entity_id);
-          if (callback) {
-            callback();
-          }
-        },
-      ),
-      await each(
-        room.groups.filter(
-          (group) => groups.get(group)?.type === GROUP_TYPES.light,
-        ),
-        async (group, callback) => {
-          await this.lightService.circadianOn(group);
-          if (callback) {
-            callback();
-          }
-        },
-      ),
-    ]);
-  }
-
   public async create(): Promise<RoomDTO> {
     const friendlyName = await this.promptService.friendlyName();
     const entities = (await this.promptService.confirm(`Add entities?`, true))
@@ -175,21 +149,6 @@ export class RoomCommandService {
     room.save_states ??= [];
     const action = await this.promptService.menuSelect(
       [
-        new inquirer.Separator(chalk.white`Room Commands`),
-        ['Turn On', 'turnOn'],
-        ['Turn Off', 'turnOff'],
-        ...this.promptService.conditionalEntries(
-          IsEmpty(
-            room.entities.filter(
-              (i) => domain(i.entity_id) === HASS_DOMAINS.light,
-            ),
-          ),
-          [
-            ['Circadian On', 'circadianOn'],
-            ['Dim Up', 'dimUp'],
-            ['Dim Down', 'dimDown'],
-          ],
-        ),
         new inquirer.Separator(chalk.white`Maintenance`),
         [`${ICONS.DELETE}Delete`, 'delete'],
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
@@ -205,33 +164,12 @@ export class RoomCommandService {
       case 'states':
         room = await this.roomState.process(room);
         return await this.processRoom(room, action);
-      case 'dimDown':
-        await this.dimDown(room);
-        return await this.processRoom(room, action);
-      case 'dimUp':
-        await this.dimUp(room);
-        return await this.processRoom(room, action);
-      case 'circadianOn':
-        await this.circadianOn(room);
-        return await this.processRoom(room, action);
       case 'rename':
         room.friendlyName = await this.promptService.string(
           `New name`,
           room.friendlyName,
         );
         room = await this.update(room);
-        return await this.processRoom(room, action);
-      case 'turnOn':
-        await this.fetchService.fetch({
-          method: 'put',
-          url: `/room/${room._id}/turnOn`,
-        });
-        return await this.processRoom(room, action);
-      case 'turnOff':
-        await this.fetchService.fetch({
-          method: 'put',
-          url: `/room/${room._id}/turnOff`,
-        });
         return await this.processRoom(room, action);
       case 'delete':
         await this.fetchService.fetch({
@@ -274,38 +212,6 @@ export class RoomCommandService {
     return ids.map((entity_id) => ({
       entity_id,
     }));
-  }
-
-  private async dimDown(room: RoomDTO): Promise<void> {
-    const groups = await this.groupCommand.getMap();
-    await Promise.all([
-      await each(
-        room.entities.filter((i) => domain(i.entity_id) === HASS_DOMAINS.light),
-        async ({ entity_id }) => await this.lightDomain.dimDown(entity_id),
-      ),
-      await each(
-        room.groups.filter(
-          (group) => groups.get(group)?.type === GROUP_TYPES.light,
-        ),
-        async (group) => await this.lightService.dimDown(group),
-      ),
-    ]);
-  }
-
-  private async dimUp(room: RoomDTO): Promise<void> {
-    const groups = await this.groupCommand.getMap();
-    await Promise.all([
-      await each(
-        room.entities.filter((i) => domain(i.entity_id) === HASS_DOMAINS.light),
-        async ({ entity_id }) => await this.lightDomain.dimUp(entity_id),
-      ),
-      await each(
-        room.groups.filter(
-          (group) => groups.get(group)?.type === GROUP_TYPES.light,
-        ),
-        async (group) => await this.lightService.dimUp(group),
-      ),
-    ]);
   }
 
   private async groupBuilder(current: string[] = []): Promise<string[]> {

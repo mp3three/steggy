@@ -21,15 +21,15 @@ import { ICONS } from '../../typings';
 import { GroupStateService } from '../groups';
 import { RoomStateService } from '../rooms';
 import { GroupActionService } from './group-action.service';
-import { RoutineCommandService } from './routine-command.service';
+import { RoutineService } from './routine.service';
 
 @Injectable()
-export class RoutineCommandBuilderService {
+export class RoutineCommandService {
   constructor(
     private readonly promptService: PromptService,
     private readonly groupAction: GroupActionService,
-    @Inject(forwardRef(() => RoutineCommandService))
-    private readonly routineCommand: RoutineCommandService,
+    @Inject(forwardRef(() => RoutineService))
+    private readonly routineCommand: RoutineService,
     private readonly roomState: RoomStateService,
     private readonly groupState: GroupStateService,
   ) {}

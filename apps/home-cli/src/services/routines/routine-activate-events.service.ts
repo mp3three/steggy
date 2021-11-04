@@ -19,7 +19,7 @@ import { v4 as uuid } from 'uuid';
 
 import { ICONS } from '../../typings';
 import { KunamiBuilderService } from './kunami-builder.service';
-import { RoutineCommandService } from './routine-command.service';
+import { RoutineService } from './routine.service';
 import { ScheduleBuilderService } from './schedule-builder.service';
 import { StateChangeBuilderService } from './state-change-builder.service';
 
@@ -30,8 +30,8 @@ export class RoutineActivateEventsService {
     private readonly stateActivate: StateChangeBuilderService,
     private readonly schduleActivate: ScheduleBuilderService,
     private readonly promptService: PromptService,
-    @Inject(forwardRef(() => RoutineCommandService))
-    private readonly routineCommand: RoutineCommandService,
+    @Inject(forwardRef(() => RoutineService))
+    private readonly routineCommand: RoutineService,
   ) {}
 
   public async build(

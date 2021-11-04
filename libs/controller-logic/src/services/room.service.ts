@@ -14,7 +14,6 @@ import {
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
-  RoutineCommandRoomActionDTO,
   RoutineCommandRoomStateDTO,
 } from '../contracts';
 import { EntityCommandRouterService } from './entity-command-router.service';
@@ -31,25 +30,6 @@ export class RoomService {
     private readonly lightManager: LightManagerService,
     private readonly commandRouter: EntityCommandRouterService,
   ) {}
-
-  @Trace()
-  public async activateCommand(
-    command: RoutineCommandRoomActionDTO,
-  ): Promise<void> {
-    const room = await this.load(command.room);
-    switch (command.command) {
-      case 'turnOn':
-        return await this.turnOn(room);
-      case 'turnOff':
-        return await this.turnOff(room);
-      case 'circadianOn':
-        return await this.turnOn(room, { circadian: true });
-      case 'dimUp':
-        return await this.dimUp(room);
-      case 'dimDown':
-        return await this.dimDown(room);
-    }
-  }
 
   @Trace()
   public async activateState(
@@ -180,48 +160,6 @@ export class RoomService {
   @Trace()
   public async list(control: ResultControlDTO = {}): Promise<RoomDTO[]> {
     return await this.roomPersistence.findMany(control);
-  }
-
-  @Trace()
-  public async turnOff(
-    room: RoomDTO | string,
-    filters: EntityFilters = {},
-  ): Promise<void> {
-    room = await this.load(room);
-    const entities = this.filterEntities(room, filters);
-    await Promise.all([
-      await each(entities, async (entity, callback) => {
-        await this.commandRouter.process(entity.entity_id, 'turnOff');
-        callback();
-      }),
-      await each(room.groups ?? [], async (group, callback) => {
-        await this.groupService.turnOff(group);
-        callback();
-      }),
-    ]);
-  }
-
-  @Trace()
-  public async turnOn(
-    room: RoomDTO | string,
-    { circadian, ...filters }: EntityFilters & { circadian?: boolean } = {},
-  ): Promise<void> {
-    room = await this.load(room);
-    const entities = this.filterEntities(room, filters);
-    await Promise.all([
-      await each(entities, async (entity, callback) => {
-        if (circadian) {
-          await this.lightManager.circadianLight(entity.entity_id);
-          return callback();
-        }
-        await this.commandRouter.process(entity.entity_id, 'turnOn');
-        callback();
-      }),
-      await each(room.groups ?? [], async (group, callback) => {
-        await this.groupService.turnOn(group);
-        callback();
-      }),
-    ]);
   }
 
   @Trace()
