@@ -69,7 +69,7 @@ export class RoutineCommandService {
         };
       case ROUTINE_ACTIVATE_COMMAND.room_state:
         return {
-          command: await this.roomState.buildSaveState(
+          command: await this.roomState.loadBuild(
             current?.command as RoutineCommandRoomStateDTO,
           ),
           friendlyName,

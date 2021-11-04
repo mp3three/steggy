@@ -8,7 +8,7 @@ export function PercentConverter(): MethodDecorator {
   ) {
     const original = descriptor.value;
     descriptor.value = function (...parameters) {
-      const result = original.apply(this, ...parameters);
+      const result = Reflect.apply(original, this, parameters);
       if (typeof result === 'number') {
         return Math.ceil(result * MULTIPLIER);
       }

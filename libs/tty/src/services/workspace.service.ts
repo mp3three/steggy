@@ -46,6 +46,10 @@ export class WorkspaceService {
     return this.workspace.projects[project].projectType === 'application';
   }
 
+  public isProject(project: string): boolean {
+    return typeof this.workspace.projects[project] !== 'undefined';
+  }
+
   @Trace()
   public list(type: NXProjectTypes): string[] {
     const { projects } = this.workspace;
@@ -53,6 +57,7 @@ export class WorkspaceService {
       (item) => projects[item].projectType === type,
     );
   }
+
   public path(project: string, type: 'package' | 'metadata'): string {
     return join(
       cwd(),

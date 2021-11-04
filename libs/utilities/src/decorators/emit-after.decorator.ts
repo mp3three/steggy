@@ -11,9 +11,9 @@ export function EmitAfter(
     propertyKey: string,
     descriptor: PropertyDescriptor,
   ): unknown {
-    const originalMethod = descriptor.value;
+    const original = descriptor.value;
     descriptor.value = function (...parameters) {
-      const out = originalMethod.apply(this, parameters);
+      const out = Reflect.apply(original, this, parameters);
       process.nextTick(async () => {
         const result = await out;
         let data: unknown;

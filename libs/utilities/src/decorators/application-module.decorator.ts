@@ -1,8 +1,12 @@
 import { ModuleMetadata, Provider } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 
+import { USE_THIS_CONFIG } from '..';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
-import { ACTIVE_APPLICATION } from '../contracts/meta/config';
+import {
+  ACTIVE_APPLICATION,
+  AutomagicalConfig,
+} from '../contracts/meta/config';
 import { RegisterCache } from '../includes/';
 import { UtilitiesModule } from '../modules';
 import { EventEmitterService } from '../services/event-emitter.service';
@@ -14,6 +18,7 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
    */
   globals?: Provider[];
 }
+let useThisConfig: AutomagicalConfig;
 
 /**
  * Intended to extend on the logic of nest's `@Controller` annotation.
@@ -50,6 +55,12 @@ export function ApplicationModule(
     },
     ...metadata.globals,
   ];
+  if (useThisConfig) {
+    GLOBAL_SYMBOLS.push({
+      provide: USE_THIS_CONFIG,
+      useValue: useThisConfig,
+    });
+  }
   metadata.imports = [
     UtilitiesModule.forRoot(),
     {
@@ -69,3 +80,6 @@ export function ApplicationModule(
     });
   };
 }
+ApplicationModule.useThisConfig = function (config: AutomagicalConfig) {
+  useThisConfig = config;
+};

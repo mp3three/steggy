@@ -6,10 +6,10 @@ export function TryCatch(): MethodDecorator {
     propertyKey: string,
     descriptor: PropertyDescriptor,
   ): unknown {
-    const originalMethod = descriptor.value;
+    const original = descriptor.value;
     descriptor.value = function (...parameters) {
       try {
-        return originalMethod.apply(this, parameters);
+        return Reflect.apply(original, this, parameters);
       } catch (error) {
         AutoLogService.call(
           'error',

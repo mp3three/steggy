@@ -13,8 +13,7 @@ import { ExpressAdapter } from '@nestjs/platform-express';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
-import { Express } from 'express';
-import express from 'express';
+import express, { Express } from 'express';
 
 export interface BootstrapOptions {
   http?: boolean;

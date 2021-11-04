@@ -13,7 +13,7 @@ import {
   Injectable,
   NotImplementedException,
 } from '@nestjs/common';
-import { eachSeries, retry } from 'async';
+import { eachSeries } from 'async';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
@@ -91,6 +91,17 @@ export class RoomStateService {
       method: 'post',
       url: `/room/${room._id}/state`,
     });
+  }
+
+  public async loadBuild(
+    current?: RoutineCommandRoomStateDTO,
+  ): Promise<RoutineCommandRoomStateDTO> {
+    const room = await this.roomService.pickOne(current.room);
+    const state = await this.pickOne(room);
+    return {
+      room: room._id,
+      state,
+    };
   }
 
   public async pickOne(room: RoomDTO): Promise<string> {

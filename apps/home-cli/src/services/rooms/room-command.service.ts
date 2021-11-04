@@ -94,6 +94,12 @@ export class RoomCommandService {
     return await this.processRoom(room);
   }
 
+  public async get(id: string): Promise<RoomDTO> {
+    return await this.fetchService.fetch({
+      url: `/room/${id}`,
+    });
+  }
+
   public async list(): Promise<RoomDTO[]> {
     return await this.fetchService.fetch({
       url: `/room`,

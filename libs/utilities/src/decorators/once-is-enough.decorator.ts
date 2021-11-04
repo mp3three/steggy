@@ -18,7 +18,7 @@ export function OnceIsEnough(): MethodDecorator {
       if (run === true) {
         return value;
       }
-      value = original.apply(this, parameters);
+      value = Reflect.apply(original, this, parameters);
       run = true;
       return value;
     };

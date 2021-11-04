@@ -8,6 +8,16 @@
     "name": "Cameron Contour",
     "url": "https://github.com/ccontour/automagical"
   },
+  "scripts": {
+    "dev:home-controller": "npx nx serve home-controller",
+    "dev:home-cli": "npx nx serve home-cli",
+    "dev:devtools": "npx nx serve devtools",
+    "configure:home-controller": "npx nx build devtools; node dist/apps/devtools/main.js \"Config Builder\" home-controller",
+    "configure:home-cli": "npx nx build devtools; node dist/apps/devtools/main.js \"Config Builder\" home-cli",
+    "configure:devtools": "npx nx build devtools; node dist/apps/devtools/main.js \"Config Builder\" devtools",
+    "lint": "npx nx run-many --all --target=lint",
+    "gource": "./tools/scripts/gource.sh"
+  },
   "dependencies": {
     "@angular-devkit/architect": "^0.1202.12",
     "@blessed/themes": "^1.0.0",

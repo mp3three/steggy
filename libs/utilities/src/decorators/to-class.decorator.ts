@@ -12,9 +12,9 @@ export function ToClass(dto: ClassConstructor<unknown>): MethodDecorator {
     propertyKey: string,
     descriptor: PropertyDescriptor,
   ): unknown {
-    const originalMethod = descriptor.value;
+    const original = descriptor.value;
     descriptor.value = async function (...parameters) {
-      const result = await originalMethod.apply(this, parameters);
+      const result = await Reflect.apply(original, this, parameters);
       if (Array.isArray(result)) {
         return result.map((item) => {
           item._id = item._id.toString();

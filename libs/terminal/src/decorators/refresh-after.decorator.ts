@@ -4,7 +4,7 @@ export function RefreshAfter(): MethodDecorator {
   return function (target, key, descriptor: PropertyDescriptor) {
     const original = descriptor.value;
     descriptor.value = async function (...parameters) {
-      const value = await original.apply(this, parameters);
+      const value = await Reflect.apply(original, this, parameters);
       refreshCallback();
       return value;
     };

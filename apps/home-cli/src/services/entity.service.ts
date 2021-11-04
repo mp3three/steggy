@@ -8,14 +8,8 @@ import {
   HASS_DOMAINS,
   HassStateDTO,
 } from '@automagical/home-assistant';
-import {
-  FontAwesomeExtendedIcons,
-  iRepl,
-  PromptService,
-  Repl,
-} from '@automagical/tty';
+import { iRepl, PromptService, Repl } from '@automagical/tty';
 import { IsEmpty } from '@automagical/utilities';
-import { dump } from 'js-yaml';
 
 import { ICONS } from '../typings';
 import {

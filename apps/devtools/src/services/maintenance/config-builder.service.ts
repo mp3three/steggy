@@ -19,6 +19,7 @@ import {
   LIB_TERMINAL,
   Trace,
 } from '@automagical/utilities';
+import { InternalServerErrorException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';
@@ -30,6 +31,8 @@ import { set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
 import rc from 'rc';
+
+const ARGV_APP = 3;
 
 @Repl({
   category: `Maintenance`,
@@ -55,9 +58,13 @@ export class ConfigBuilderService implements iRepl {
    */
   @Trace()
   public async exec(): Promise<void> {
-    const application = await this.promptService.menuSelect(
-      this.applicationChoices(),
-    );
+    const application =
+      process.argv[ARGV_APP] ||
+      (await this.promptService.menuSelect(this.applicationChoices()));
+    if (!this.workspace.isProject(application)) {
+      this.logger.error({ application }, `Invalid application`);
+      throw new InternalServerErrorException();
+    }
     this.typePrompt.config = rc<AutomagicalConfig>(application);
     delete this.typePrompt.config['configs'];
     delete this.typePrompt.config['config'];
