@@ -29,7 +29,7 @@ export class LightService extends SwitchService {
     if (current) {
       if (current.state === 'off') {
         defaultValue = 'off';
-      } else if (current.extra.mode === LIGHTING_MODE.circadian) {
+      } else if (current?.extra?.mode === LIGHTING_MODE.circadian) {
         defaultValue = 'circadian';
       } else {
         defaultValue = 'on';
@@ -51,9 +51,12 @@ export class LightService extends SwitchService {
       };
     }
     const mode =
-      state === 'circadianLight' ? LIGHTING_MODE.circadian : LIGHTING_MODE.on;
+      state === 'circadian' ? LIGHTING_MODE.circadian : LIGHTING_MODE.on;
     let brightness: number;
-    if (await this.promptService.confirm(`Set brightness?`)) {
+    if (
+      current?.extra?.brightness ||
+      (await this.promptService.confirm(`Set brightness?`))
+    ) {
       brightness = await this.promptService.number(
         `Set brightness (1-255)`,
         current?.extra?.brightness,

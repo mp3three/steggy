@@ -42,6 +42,8 @@ export class RoomCommandService {
     private readonly routineService: RoutineService,
   ) {}
 
+  private lastRoom: string;
+
   public async create(): Promise<RoomDTO> {
     const friendlyName = await this.promptService.friendlyName();
     const entities = (await this.promptService.confirm(`Add entities?`, true))
@@ -80,6 +82,9 @@ export class RoomCommandService {
         [`${ICONS.CREATE}Create`, 'create'],
       ],
       `Pick room`,
+      this.lastRoom
+        ? rooms.find(({ _id }) => _id === this.lastRoom)
+        : undefined,
     );
     if (room === DONE) {
       return;
@@ -91,6 +96,7 @@ export class RoomCommandService {
       this.logger.error({ room }, `Not implemented condition`);
       return;
     }
+    this.lastRoom = room._id;
     return await this.processRoom(room);
   }
 
@@ -208,10 +214,13 @@ export class RoomCommandService {
   private async buildEntityList(omit: string[] = []): Promise<RoomEntityDTO[]> {
     const ids = await this.entityService.buildList(
       [
-        HASS_DOMAINS.light,
-        HASS_DOMAINS.switch,
-        HASS_DOMAINS.media_player,
+        HASS_DOMAINS.climate,
         HASS_DOMAINS.fan,
+        HASS_DOMAINS.light,
+        HASS_DOMAINS.lock,
+        HASS_DOMAINS.media_player,
+        HASS_DOMAINS.sensor,
+        HASS_DOMAINS.switch,
       ],
       { omit },
     );

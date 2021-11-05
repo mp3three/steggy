@@ -47,7 +47,7 @@ export class RoomController {
   public async addState(
     @Param('room') room: string,
     @Body() state: RoomStateDTO,
-  ): Promise<RoomDTO> {
+  ): Promise<RoomStateDTO> {
     return await this.roomService.addState(room, state);
   }
 
@@ -88,6 +88,14 @@ export class RoomController {
     return await this.roomService.deleteGroup(room, group);
   }
 
+  @Delete(`/:room/state/:state`)
+  public async deleteState(
+    @Param('room') room: string,
+    @Param('state') state: string,
+  ): Promise<RoomDTO> {
+    return await this.roomService.deleteState(room, state);
+  }
+
   @Get('/:room')
   public async describe(@Param('room') room: string): Promise<RoomDTO> {
     return await this.roomService.get(room);
@@ -109,9 +117,9 @@ export class RoomController {
   @Put(`/:room/state/:state`)
   public async updateState(
     @Param('room') room: string,
-    @Param('room') state: string,
-    @Body() data: Partial<RoomStateDTO>,
-  ): Promise<RoomDTO> {
-    return await this.roomService.update(data, room);
+    @Param('state') state: string,
+    @Body() data: RoomStateDTO,
+  ): Promise<RoomStateDTO> {
+    return await this.roomService.updateState(room, state, data);
   }
 }

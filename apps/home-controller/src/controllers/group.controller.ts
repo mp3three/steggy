@@ -111,12 +111,11 @@ export class GroupController {
     return await this.groupService.list(control);
   }
 
-  @Delete(`/:group/state/truncate`)
+  @Delete(`/:group/truncate`)
   public async truncateStates(
     @Param('group') group: string,
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.groupService.truncate(group);
-    return GENERIC_SUCCESS_RESPONSE;
+  ): Promise<GroupDTO> {
+    return await this.groupService.truncate(group);
   }
 
   @Put('/:group')

@@ -21,5 +21,5 @@ export class RoomEntitySaveStateDTO<EXTRA = ROOM_ENTITY_EXTRAS> {
   public extra?: EXTRA;
   public ref: string;
   public state: string;
-  public type?: 'group' | 'room';
+  public type?: 'group' | 'entity';
 }

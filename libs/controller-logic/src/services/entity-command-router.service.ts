@@ -65,6 +65,7 @@ export class EntityCommandRouterService {
         );
         return;
     }
+    this.logger.error({ id }, `Not implemented domain`);
     throw new NotImplementedException();
   }
 
@@ -176,16 +177,15 @@ export class EntityCommandRouterService {
   }
 
   @Trace()
-  private async switchEntity(
-    id: string,
-    command: keyof SwitchDomainService,
-  ): Promise<void> {
+  private async switchEntity(id: string, command: string): Promise<void> {
     switch (command) {
       case 'toggle':
         return await this.switchService.toggle(id);
       case 'turnOn':
+      case 'on':
         return await this.switchService.turnOn(id);
       case 'turnOff':
+      case 'off':
         return await this.switchService.turnOff(id);
     }
     throw new BadRequestException();

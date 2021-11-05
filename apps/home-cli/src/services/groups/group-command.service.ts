@@ -74,6 +74,7 @@ export class GroupCommandService implements iRepl {
     private readonly groupState: GroupStateService,
     private readonly lightGroup: LightGroupCommandService,
   ) {}
+  private lastGroup: string;
 
   public async create(): Promise<GroupDTO> {
     const type = await this.promptService.pickOne(
@@ -105,10 +106,10 @@ export class GroupCommandService implements iRepl {
       `${chalk.magenta.bold(group.friendlyName)} save state`,
       [
         [`${ICONS.CREATE}Create new state`, `create`],
-        ...this.promptService.conditionalEntries(IsEmpty(group.save_states), [
+        ...this.promptService.conditionalEntries(!IsEmpty(group.save_states), [
           new inquirer.Separator(chalk.white`Existing states`),
           ...(group.save_states.map((i) => [
-            i.id,
+            i.friendlyName,
             i,
           ]) as PromptEntry<GroupSaveStateDTO>[]),
         ]),
@@ -144,6 +145,9 @@ export class GroupCommandService implements iRepl {
         [`${ICONS.CREATE}Create Group`, 'create'],
       ],
       'Pick group',
+      this.lastGroup
+        ? groups.find(({ _id }) => _id === this.lastGroup)
+        : undefined,
     );
     if (action === 'create') {
       await this.create();
@@ -156,8 +160,8 @@ export class GroupCommandService implements iRepl {
       this.logger.error({ action }, `Command not implemented`);
       return;
     }
+    this.lastGroup = action._id;
     await this.process(action, groups);
-    return await this.exec();
   }
 
   public async get(group: GroupDTO | string): Promise<GroupDTO> {

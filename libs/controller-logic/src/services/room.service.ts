@@ -20,7 +20,6 @@ import {
 } from '../contracts';
 import { EntityCommandRouterService } from './entity-command-router.service';
 import { GroupService } from './groups';
-import { LightManagerService } from './light-manager.service';
 import { RoomPersistenceService } from './persistence';
 
 @Injectable()
@@ -29,7 +28,6 @@ export class RoomService {
     private readonly logger: AutoLogService,
     private readonly roomPersistence: RoomPersistenceService,
     private readonly groupService: GroupService,
-    private readonly lightManager: LightManagerService,
     private readonly commandRouter: EntityCommandRouterService,
   ) {}
 
@@ -42,14 +40,32 @@ export class RoomService {
     if (!state) {
       throw new NotFoundException(`Cannot find save state ${command.state}`);
     }
-    await each(state.states, async (state, callback) => {
-      await this.commandRouter.process(
-        state.ref,
-        state.state,
-        state.extra as Record<string, unknown>,
-      );
-      callback();
-    });
+    this.logger.info(`[${state.friendlyName}] activate`);
+    await Promise.all([
+      await each(state.states, async (state, callback) => {
+        if (state.type !== 'entity') {
+          callback();
+          return;
+        }
+        await this.commandRouter.process(
+          state.ref,
+          state.state,
+          state.extra as Record<string, unknown>,
+        );
+        callback();
+      }),
+      await each(state.states, async (state, callback) => {
+        if (state.type !== 'group') {
+          callback();
+          return;
+        }
+        await this.groupService.activateState({
+          group: state.ref,
+          state: state.state,
+        });
+        callback();
+      }),
+    ]);
   }
 
   @Trace()
@@ -66,12 +82,13 @@ export class RoomService {
   public async addState(
     room: RoomDTO | string,
     state: RoomStateDTO,
-  ): Promise<RoomDTO> {
+  ): Promise<RoomStateDTO> {
     room = await this.load(room);
     state.id = uuid();
     room.save_states ??= [];
     room.save_states.push(state);
-    return await this.roomPersistence.update(room, room._id);
+    await this.roomPersistence.update(room, room._id);
+    return state;
   }
 
   @Trace()
@@ -122,47 +139,14 @@ export class RoomService {
   }
 
   @Trace()
-  public async dimDown(
+  public async deleteState(
     room: RoomDTO | string,
-    filters: EntityFilters = {},
-  ): Promise<void> {
+    state: string,
+  ): Promise<RoomDTO> {
     room = await this.load(room);
-    const entities = this.filterEntities(room, filters);
-    await Promise.all([
-      await each(entities, async (entity, callback) => {
-        await this.commandRouter.process(entity.entity_id, 'dimDown');
-        callback();
-      }),
-      await each(room.groups ?? [], async (group, callback) => {
-        await this.groupService.activateCommand({
-          command: 'dimDown',
-          group,
-        });
-        callback();
-      }),
-    ]);
-  }
-
-  @Trace()
-  public async dimUp(
-    room: RoomDTO | string,
-    filters: EntityFilters = {},
-  ): Promise<void> {
-    room = await this.load(room);
-    const entities = this.filterEntities(room, filters);
-    await Promise.all([
-      await each(entities, async (entity, callback) => {
-        await this.commandRouter.process(entity.entity_id, 'dimUp');
-        callback();
-      }),
-      await each(room.groups ?? [], async (group, callback) => {
-        await this.groupService.activateCommand({
-          command: 'dimUp',
-          group,
-        });
-        callback();
-      }),
-    ]);
+    room.save_states ??= [];
+    room.save_states = room.save_states.filter((save) => save.id !== state);
+    return await this.roomPersistence.update(room, room._id);
   }
 
   @Trace()
@@ -188,13 +172,14 @@ export class RoomService {
     room: string | RoomDTO,
     id: string,
     update: RoomStateDTO,
-  ): Promise<RoomDTO> {
+  ): Promise<RoomStateDTO> {
     room = await this.load(room);
     room.save_states ??= [];
     room.save_states = room.save_states.map((i) =>
       i.id === id ? { ...update, id } : i,
     );
-    return await this.update(room, room._id);
+    await this.update(room, room._id);
+    return room.save_states.find((state) => state.id === id);
   }
 
   @Trace()

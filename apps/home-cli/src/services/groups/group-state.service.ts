@@ -54,19 +54,25 @@ export class GroupStateService {
       );
       states.push(...(load(result) as RoomEntitySaveStateDTO[]));
     } else if (action === 'guided') {
+      let lastState: RoomEntitySaveStateDTO;
       await eachSeries(
         group.entities.map((item, index) => [item, index]),
-        async ([entity, index]: [string, number]) =>
-          states.push(
-            await this.entityService.createSaveCommand(
-              entity,
-              current.states[index],
-            ),
-          ),
+        async ([entity, index]: [string, number]) => {
+          const found = current.states[index] || {
+            ...lastState,
+            ref: entity,
+          };
+          const state = await this.entityService.createSaveCommand(
+            entity,
+            found,
+          );
+          lastState = state;
+          states.push(state);
+        },
       );
     }
     if (current.id) {
-      const out = await this.fetchService.fetch<GroupDTO>({
+      return await this.fetchService.fetch<GroupDTO>({
         body: {
           friendlyName,
           states,
@@ -74,9 +80,8 @@ export class GroupStateService {
         method: 'put',
         url: `/group/${group._id}/state/${current.id}`,
       });
-      return out;
     }
-    const out = await this.fetchService.fetch<GroupDTO>({
+    return await this.fetchService.fetch<GroupDTO>({
       body: {
         friendlyName,
         states,
@@ -84,7 +89,6 @@ export class GroupStateService {
       method: 'post',
       url: `/group/${group._id}/state`,
     });
-    return out;
   }
 
   public async buildState(
@@ -130,8 +134,6 @@ export class GroupStateService {
     );
     if (action === 'create') {
       group = await this.build(group);
-      // Things that are gonna come back and bite me someday ...this
-      // I don't know how/when, but I know it will
       const state = group.save_states.pop();
       return state.id;
     }
@@ -176,16 +178,16 @@ export class GroupStateService {
     }
     if (action === 'truncate') {
       if (
-        await this.promptService.confirm(
+        !(await this.promptService.confirm(
           `Are you sure? This is a destructive operation`,
           false,
-        )
+        ))
       ) {
         return await this.processState(group, list, action);
       }
-      await this.fetchService.fetch({
+      group = await this.fetchService.fetch({
         method: 'delete',
-        url: `/group/${group._id}/state/truncate`,
+        url: `/group/${group._id}/truncate`,
       });
       return await this.processState(group, list, action);
     }
