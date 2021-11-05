@@ -67,18 +67,7 @@ export class RoomStateService {
     });
   }
 
-  public async loadBuild(
-    current?: RoutineCommandRoomStateDTO,
-  ): Promise<RoutineCommandRoomStateDTO> {
-    const room = await this.roomService.pickOne(current.room);
-    const state = await this.pickOne(room);
-    return {
-      room: room._id,
-      state,
-    };
-  }
-
-  public async pickOne(room: RoomDTO): Promise<string> {
+  public async pickOne(room: RoomDTO, current?: RoomStateDTO): Promise<string> {
     const action = await this.promptService.pickOne<RoomStateDTO | string>(
       `Which state?`,
       [
@@ -91,6 +80,7 @@ export class RoomStateService {
           ]) as PromptEntry<RoomStateDTO>[]),
         ]),
       ],
+      current,
     );
     if (action === 'create') {
       room = await this.build(room);
@@ -256,7 +246,12 @@ export class RoomStateService {
       return [];
     }
     const states: RoomEntitySaveStateDTO[] = [];
-    const list = await this.groupService.pickMany(room.groups);
+    const list = await this.groupService.pickMany(
+      room.groups,
+      current.states
+        .filter(({ type }) => type === 'group')
+        .map(({ ref }) => ref),
+    );
     await eachSeries(list, async (group) => {
       // console.log(
       //   chalk.bgCyanBright.black(`${group.friendlyName} save state`),

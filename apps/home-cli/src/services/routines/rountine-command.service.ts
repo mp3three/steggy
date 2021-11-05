@@ -14,12 +14,14 @@ import {
   Injectable,
   NotImplementedException,
 } from '@nestjs/common';
+import chalk from 'chalk';
 import inquirer from 'inquirer';
+import { dump } from 'js-yaml';
 import { v4 as uuid } from 'uuid';
 
 import { ICONS } from '../../typings';
 import { GroupStateService } from '../groups';
-import { RoomStateService } from '../rooms';
+import { RoomCommandService, RoomStateService } from '../rooms';
 import { GroupActionService } from './group-action.service';
 import { RoutineService } from './routine.service';
 
@@ -33,9 +35,12 @@ export class RoutineCommandService {
     @Inject(forwardRef(() => RoomStateService))
     private readonly roomState: RoomStateService,
     private readonly groupState: GroupStateService,
+    @Inject(forwardRef(() => RoomCommandService))
+    private readonly roomCommand: RoomCommandService,
   ) {}
 
   public async build(
+    routine: RoutineDTO,
     current: Partial<RoutineCommandDTO> = {},
   ): Promise<RoutineCommandDTO> {
     const friendlyName = await this.promptService.string(
@@ -68,10 +73,20 @@ export class RoutineCommandService {
           type,
         };
       case ROUTINE_ACTIVATE_COMMAND.room_state:
-        return {
-          command: await this.roomState.loadBuild(
-            current?.command as RoutineCommandRoomStateDTO,
+        const room = await this.roomCommand.get(routine.room);
+        room.save_states ??= [];
+        const state = await this.roomState.pickOne(
+          room,
+          room.save_states.find(
+            ({ id }) =>
+              id === (current.command as RoutineCommandRoomStateDTO).state,
           ),
+        );
+        return {
+          command: {
+            room: room._id,
+            state: state,
+          } as RoutineCommandRoomStateDTO,
           friendlyName,
           type,
         };
@@ -83,15 +98,25 @@ export class RoutineCommandService {
     routine: RoutineDTO,
     command: RoutineCommandDTO,
   ): Promise<RoutineDTO> {
-    const action = await this.promptService.menuSelect([
-      [`${ICONS.DELETE}Remove`, 'remove'],
-      [`${ICONS.EDIT}Edit`, 'edit'],
-    ]);
+    const action = await this.promptService.menuSelect(
+      [
+        [`${ICONS.DESCRIBE}Describe`, 'describe'],
+        [`${ICONS.EDIT}Edit`, 'edit'],
+        [`${ICONS.DELETE}Remove`, 'remove'],
+      ],
+      `Routine command actions`,
+    );
     switch (action) {
       case DONE:
         return routine;
+      case 'describe':
+        this.promptService.print(dump(command));
+        return await this.process(
+          routine,
+          routine.command.find(({ id }) => id === command.id),
+        );
       case 'edit':
-        const updated = await this.build(command);
+        const updated = await this.build(routine, command);
         routine.command = routine.command.map((i) =>
           i.id === command.id ? { ...updated, id: i.id } : i,
         );
@@ -114,21 +139,24 @@ export class RoutineCommandService {
 
   public async processRoutine(routine: RoutineDTO): Promise<RoutineDTO> {
     routine.command ??= [];
-    const action = await this.promptService.menuSelect([
-      [`${ICONS.CREATE}Add`, 'add'],
-      ...this.promptService.conditionalEntries(!IsEmpty(routine.activate), [
-        new inquirer.Separator(),
-        ...(routine.command.map((activate) => [
-          activate.friendlyName,
-          activate,
-        ]) as PromptEntry<RoutineCommandDTO>[]),
-      ]),
-    ]);
+    const action = await this.promptService.menuSelect(
+      [
+        [`${ICONS.CREATE}Add`, 'add'],
+        ...this.promptService.conditionalEntries(!IsEmpty(routine.command), [
+          new inquirer.Separator(chalk.white`Current commands`),
+          ...(routine.command.map((activate) => [
+            activate.friendlyName,
+            activate,
+          ]) as PromptEntry<RoutineCommandDTO>[]),
+        ]),
+      ],
+      `Routine commands`,
+    );
     switch (action) {
       case DONE:
         return routine;
       case 'add':
-        const command = await this.build();
+        const command = await this.build(routine);
         command.id = uuid();
         routine.command.push(command);
         routine = await this.routineCommand.update(routine);

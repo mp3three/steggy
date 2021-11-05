@@ -24,6 +24,7 @@ const name = `result`;
 export type PromptEntry<T = string> = [string, string | T] | Separator;
 const LABEL = 0;
 const VALUE = 1;
+const CHECK_ICON = 0;
 const BLOCK_OFFSET = '   ';
 
 @Injectable()
@@ -219,7 +220,11 @@ export class PromptService {
         return {
           // Adding emojies can sometimes cause the final character to have rendering issues
           // Insert sacraficial empty space to the end
-          name: `${item[LABEL]} `,
+          //
+          // Don't do it to everything though, since pickMany looks weird when that happens
+          name: new RegExp(`[^a-zA-Z0-9]`).test(item[LABEL][CHECK_ICON])
+            ? `${item[LABEL]} `
+            : item[LABEL],
           value: item[VALUE] as T,
         };
       }

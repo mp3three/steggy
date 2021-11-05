@@ -52,7 +52,6 @@ export class RoutineService {
     const current = await this.list(control);
     let action = await this.promptService.menuSelect(
       [
-        [`${ICONS.CREATE}Create`, 'create'],
         ...this.promptService.conditionalEntries(!IsEmpty(current), [
           new inquirer.Separator(chalk.white`Existing routines`),
           ...(current.map((item) => [
@@ -60,6 +59,8 @@ export class RoutineService {
             item,
           ]) as PromptEntry<RoutineDTO>[]),
         ]),
+        new inquirer.Separator(chalk.white`Maintenance`),
+        [`${ICONS.CREATE}Create`, 'create'],
       ],
       `Pick routine`,
     );
@@ -83,6 +84,7 @@ export class RoutineService {
     }
     await this.processRoutine(action);
   }
+
   public async processRoutine(routine: RoutineDTO): Promise<void> {
     this.promptService.clear();
     this.promptService.scriptHeader(`Routine`);
@@ -133,6 +135,7 @@ export class RoutineService {
         return await this.processRoutine(routine);
     }
   }
+
   public async update(routine: RoutineDTO): Promise<RoutineDTO> {
     return await this.fetchService.fetch({
       body: routine,
