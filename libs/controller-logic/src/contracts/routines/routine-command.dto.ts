@@ -1,9 +1,11 @@
+import { RoomEntitySaveStateDTO } from '../rooms';
 import { GroupDTO, RoomDTO } from '../schemas';
 
 export enum ROUTINE_ACTIVATE_COMMAND {
   room_state = 'room_state',
   group_state = 'group_state',
   group_action = 'group_action',
+  entity_state = 'entity_state',
 }
 
 export type GENERIC_COMMANDS =
@@ -18,6 +20,7 @@ export class RoutineCommandDTO<
   COMMAND =
     | RoutineCommandGroupActionDTO
     | RoutineCommandRoomStateDTO
+    | RoomEntitySaveStateDTO
     | RoutineCommandGroupStateDTO,
 > {
   public command: COMMAND;

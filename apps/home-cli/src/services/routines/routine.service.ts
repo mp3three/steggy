@@ -84,6 +84,7 @@ export class RoutineService {
       throw new NotImplementedException();
     }
     await this.processRoutine(action);
+    return await this.processRoom(room);
   }
 
   public async processRoutine(routine: RoutineDTO): Promise<void> {

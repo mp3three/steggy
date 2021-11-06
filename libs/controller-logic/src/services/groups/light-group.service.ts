@@ -115,7 +115,7 @@ export class LightGroupService extends BaseGroupService {
               }
             : {
                 brightness: light.attributes.brightness,
-                ...state,
+                hs_color: light.attributes.hs_color,
               },
         ref: light.entity_id,
         state: light.state,

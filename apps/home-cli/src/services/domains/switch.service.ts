@@ -2,6 +2,7 @@ import { RoomEntitySaveStateDTO } from '@automagical/controller-logic';
 import { PromptEntry } from '@automagical/tty';
 import { Injectable } from '@nestjs/common';
 
+import { ICONS } from '../../typings';
 import { BaseDomainService } from './base-domain.service';
 
 @Injectable()
@@ -13,8 +14,9 @@ export class SwitchService extends BaseDomainService {
     const state = await this.promptService.pickOne(
       entity_id,
       [
-        ['Turn On', 'on'],
-        ['Turn Off', 'off'],
+        [`${ICONS.TURN_ON}Turn On`, 'on'],
+        [`${ICONS.TURN_OFF}Turn Off`, 'off'],
+        [`${ICONS.TOGGLE_ON}Toggle`, 'toggle'],
       ],
       current?.state,
     );

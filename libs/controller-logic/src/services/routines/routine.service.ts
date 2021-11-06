@@ -10,6 +10,7 @@ import { each } from 'async';
 
 import {
   KunamiCodeActivateDTO,
+  RoomEntitySaveStateDTO,
   ROUTINE_ACTIVATE_COMMAND,
   ROUTINE_ACTIVATE_TYPE,
   ROUTINE_UPDATE,
@@ -20,6 +21,7 @@ import {
   ScheduleActivateDTO,
   StateChangeActivateDTO,
 } from '../../contracts';
+import { EntityCommandRouterService } from '../entity-command-router.service';
 import { GroupService } from '../groups';
 import { RoutinePersistenceService } from '../persistence';
 import { RoomService } from '../room.service';
@@ -33,8 +35,9 @@ export class RoutineService {
     private readonly groupService: GroupService,
     private readonly kunamiCode: KunamiCodeActivateService,
     private readonly logger: AutoLogService,
-    private readonly routinePersistence: RoutinePersistenceService,
     private readonly roomService: RoomService,
+    private readonly entityRouter: EntityCommandRouterService,
+    private readonly routinePersistence: RoutinePersistenceService,
     private readonly scheduleActivate: ScheduleActivateService,
     private readonly stateChangeActivate: StateChangeActivateService,
   ) {}
@@ -59,6 +62,11 @@ export class RoutineService {
         case ROUTINE_ACTIVATE_COMMAND.room_state:
           await this.roomService.activateState(
             command.command as RoutineCommandRoomStateDTO,
+          );
+          break;
+        case ROUTINE_ACTIVATE_COMMAND.entity_state:
+          await this.entityRouter.fromState(
+            command.command as RoomEntitySaveStateDTO,
           );
           break;
       }

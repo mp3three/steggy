@@ -60,7 +60,7 @@ export class GroupController {
     return await this.groupService.addState(group, state);
   }
 
-  @Post('/:group/state/capture')
+  @Post('/:group/capture')
   public async captureCurrent(
     @Param('group') group: string,
     @Body() { name }: { name: string },

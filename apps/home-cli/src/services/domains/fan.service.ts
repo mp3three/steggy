@@ -1,12 +1,16 @@
 import {
   FanCacheDTO,
+  FanCacheSpeeds,
   RoomEntitySaveStateDTO,
 } from '@automagical/controller-logic';
 import { FanSpeeds, FanStateDTO } from '@automagical/home-assistant';
 import { DONE, PromptEntry } from '@automagical/tty';
 import { TitleCase } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import chalk from 'chalk';
+import inquirer from 'inquirer';
 
+import { ICONS } from '../../typings';
 import { SwitchService } from './switch.service';
 
 @Injectable()
@@ -21,7 +25,16 @@ export class FanService extends SwitchService {
     entity.attributes.speed_list ??= [];
     const speed = await this.promptService.pickOne(
       entity_id,
-      entity.attributes.speed_list.map((speed) => [TitleCase(speed), speed]),
+      [
+        new inquirer.Separator(chalk.white`Relative change`),
+        [`${ICONS.ACTIVATE}Speed Up`, 'fanSpeedUp'],
+        [`${ICONS.ACTIVATE}Speed Down`, 'fanSpeedDown'],
+        new inquirer.Separator(chalk.white`Absolute speeds`),
+        ...entity.attributes.speed_list.map((speed) => [
+          TitleCase(speed),
+          speed,
+        ]),
+      ] as PromptEntry<FanCacheSpeeds>[],
       current?.extra?.speed,
     );
     return {

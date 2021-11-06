@@ -148,7 +148,9 @@ export class RoomCommandService {
     console.log(chalk.magenta.bold(room.friendlyName));
     this.promptService.print(
       dump({
-        entities: room.entities,
+        entities: room.entities.sort((a, b) =>
+          a.entity_id > b.entity_id ? UP : DOWN,
+        ),
         groups: room.groups,
       }),
     );
@@ -270,18 +272,21 @@ export class RoomCommandService {
   }
 
   private async roomEntities(room: RoomDTO): Promise<RoomDTO> {
-    const action = await this.promptService.menuSelect([
-      ...this.promptService.conditionalEntries(!IsEmpty(room.entities), [
-        new inquirer.Separator(chalk.white`Manipulate`),
-        ...(room.entities.map(({ entity_id }) => [
-          entity_id,
-          entity_id,
-        ]) as PromptEntry[]),
-        new inquirer.Separator(chalk.white`Maintenance`),
-        [`${ICONS.DELETE}Remove`, 'remove'],
-      ]),
-      [`${ICONS.CREATE}Add`, 'add'],
-    ]);
+    const action = await this.promptService.menuSelect(
+      [
+        ...this.promptService.conditionalEntries(!IsEmpty(room.entities), [
+          new inquirer.Separator(chalk.white`Manipulate`),
+          ...(room.entities.map(({ entity_id }) => [
+            entity_id,
+            entity_id,
+          ]) as PromptEntry[]),
+          new inquirer.Separator(chalk.white`Maintenance`),
+          [`${ICONS.DELETE}Remove`, 'remove'],
+        ]),
+        [`${ICONS.CREATE}Add`, 'add'],
+      ],
+      `Room entities`,
+    );
     if (action === DONE) {
       return room;
     }

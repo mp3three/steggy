@@ -50,6 +50,8 @@ const GROUP_DOMAINS = new Map([
 ]);
 
 const ARRAY_OFFSET = 1;
+const UP = 1;
+const DOWN = -1;
 
 @Repl({
   category: `Control`,
@@ -294,30 +296,18 @@ export class GroupCommandService implements iRepl {
       url: `/group/${group._id}`,
     });
   }
-  private groupActions(type: GROUP_TYPES): string[] {
-    switch (type) {
-      case GROUP_TYPES.light:
-        return ['turnOn', 'turnOff', 'circadianLight'];
-      case GROUP_TYPES.switch:
-      case GROUP_TYPES.fan:
-        return ['turnOn', 'turnOff'];
-      case GROUP_TYPES.lock:
-        return ['lock', 'unlock'];
-    }
-    this.logger.error({ type }, `Not implemented group type`);
-    return [];
-  }
 
   private header(group: GroupDTO): void {
     this.promptService.scriptHeader(`Group`);
-
     console.log(
       [
         [
           chalk.magenta.bold`${group.friendlyName}`,
           chalk.yellow.bold`${TitleCase(group.type)} Group`,
         ].join(chalk.cyan(' - ')),
-        ...group.entities.map((id) => chalk`  {cyan -} ${id}`),
+        ...group.entities
+          .map((id) => chalk`  {cyan -} ${id}`)
+          .sort((a, b) => (a > b ? UP : DOWN)),
         ``,
         ``,
       ].join(`\n`),

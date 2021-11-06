@@ -3,7 +3,6 @@ import {
   RoomDTO,
   RoomEntitySaveStateDTO,
   RoomStateDTO,
-  RoutineCommandRoomStateDTO,
 } from '@automagical/controller-logic';
 import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import { DONE, PromptEntry, PromptService } from '@automagical/tty';
@@ -24,6 +23,9 @@ import { EntityService } from '../entity.service';
 import { GroupCommandService } from '../groups';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from './room-command.service';
+
+const UP = 1;
+const DOWN = -1;
 
 @Injectable()
 export class RoomStateService {
@@ -74,18 +76,17 @@ export class RoomStateService {
         [`${ICONS.CREATE}Manual create`, 'create'],
         ...this.promptService.conditionalEntries(!IsEmpty(room.save_states), [
           new inquirer.Separator(chalk.white(`Current states`)),
-          ...(room.save_states.map((state) => [
-            state.friendlyName,
-            state,
-          ]) as PromptEntry<RoomStateDTO>[]),
+          ...(room.save_states
+            .map((state) => [state.friendlyName, state])
+            .sort(([a], [b]) =>
+              a > b ? UP : DOWN,
+            ) as PromptEntry<RoomStateDTO>[]),
         ]),
       ],
       current,
     );
     if (action === 'create') {
-      room = await this.build(room);
-      await this.roomService.update(room);
-      const state = room.save_states.pop();
+      const state = await this.build(room);
       return state.id;
     }
     if (typeof action === 'string') {
@@ -99,10 +100,11 @@ export class RoomStateService {
       [
         ...this.promptService.conditionalEntries(!IsEmpty(room.save_states), [
           new inquirer.Separator(chalk.white(`Current states`)),
-          ...(room.save_states.map((state) => [
-            state.friendlyName,
-            state,
-          ]) as PromptEntry<RoomStateDTO>[]),
+          ...(room.save_states
+            .map((state) => [state.friendlyName, state])
+            .sort(([a], [b]) =>
+              a > b ? UP : DOWN,
+            ) as PromptEntry<RoomStateDTO>[]),
         ]),
         new inquirer.Separator(chalk.white(`Manipulate`)),
         [`${ICONS.CREATE}Create`, 'create'],

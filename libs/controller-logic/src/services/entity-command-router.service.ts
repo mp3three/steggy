@@ -15,7 +15,7 @@ import {
   NotImplementedException,
 } from '@nestjs/common';
 
-import type { ROOM_ENTITY_EXTRAS } from '../contracts';
+import type { ROOM_ENTITY_EXTRAS, RoomEntitySaveStateDTO } from '../contracts';
 import { ClimateCacheDTO, FanCacheDTO } from '../contracts';
 import { LightManagerService } from './light-manager.service';
 
@@ -30,6 +30,15 @@ export class EntityCommandRouterService {
     private readonly lockService: LockDomainService,
     private readonly climateService: ClimateDomainService,
   ) {}
+
+  @Trace()
+  public async fromState({
+    ref,
+    state,
+    extra,
+  }: RoomEntitySaveStateDTO): Promise<void> {
+    await this.process(ref, state, extra);
+  }
 
   @Trace()
   public async process(
@@ -117,7 +126,12 @@ export class EntityCommandRouterService {
         }
       // fall through
       case 'setSpeed':
-        if (!speed || !FanSpeeds[speed]) {
+        if (
+          !speed ||
+          ![...Object.values(FanSpeeds), 'fanSpeedUp', 'fanSpeedDown'].includes(
+            speed,
+          )
+        ) {
           throw new BadRequestException(`Provide a valid fan speed`);
         }
         return await this.fanService.setSpeed(id, speed as FanSpeeds);
@@ -160,14 +174,13 @@ export class EntityCommandRouterService {
   }
 
   @Trace()
-  private async mediaEntity(
-    id: string,
-    command: keyof MediaPlayerDomainService,
-  ): Promise<void> {
+  private async mediaEntity(id: string, command: string): Promise<void> {
     switch (command) {
       case 'turnOff':
+      case 'off':
         return await this.mediaService.turnOff(id);
       case 'turnOn':
+      case 'on':
         return await this.mediaService.turnOn(id);
       case 'playPause':
         return await this.mediaService.playPause(id);

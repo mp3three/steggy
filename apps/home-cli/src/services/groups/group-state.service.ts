@@ -1,6 +1,7 @@
 import {
   GroupDTO,
   GroupSaveStateDTO,
+  RoomDTO,
   RoomEntitySaveStateDTO,
   RoutineCommandGroupStateDTO,
 } from '@automagical/controller-logic';
@@ -21,6 +22,9 @@ import { ICONS } from '../../typings';
 import { EntityService } from '../entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { GroupCommandService } from './group-command.service';
+
+const UP = 1;
+const DOWN = -1;
 
 @Injectable()
 export class GroupStateService {
@@ -92,12 +96,16 @@ export class GroupStateService {
   }
 
   public async buildState(
+    room: RoomDTO,
     current: Partial<RoutineCommandGroupStateDTO> = {},
   ): Promise<RoutineCommandGroupStateDTO> {
     const allGroups = await this.groupService.list();
     const group = await this.promptService.pickOne(
       `Which group?`,
-      allGroups.map((group) => [group.friendlyName, group]),
+      room.groups.map((id) => {
+        const group = allGroups.find(({ _id }) => _id === id);
+        return [group?.friendlyName, group];
+      }),
       current.group,
     );
     return {
@@ -155,10 +163,12 @@ export class GroupStateService {
       [
         ...(this.promptService.conditionalEntries(!IsEmpty(group.save_states), [
           new inquirer.Separator(chalk.white`Current save states`),
-          ...(group.save_states.map((state) => [state.friendlyName, state]) as [
-            string,
-            GroupSaveStateDTO,
-          ][]),
+          ...(
+            group.save_states.map((state) => [state.friendlyName, state]) as [
+              string,
+              GroupSaveStateDTO,
+            ][]
+          ).sort(([a], [b]) => (a > b ? UP : DOWN)),
         ]) as PromptEntry<GroupSaveStateDTO>[]),
         new inquirer.Separator(chalk.white`Manipulate`),
         [`${ICONS.CREATE}Manual create`, 'create'],
@@ -197,7 +207,7 @@ export class GroupStateService {
           name: await this.promptService.string(`Name for save state`),
         },
         method: 'post',
-        url: `/group/${group._id}/state/capture`,
+        url: `/group/${group._id}/capture`,
       });
       return await this.processState(group, list, action);
     }
@@ -227,17 +237,16 @@ export class GroupStateService {
       await this.sendSaveState(state, group);
       return;
     }
-    const name = await this.promptService.string(
-      `New state name`,
+    const friendlyName = await this.promptService.friendlyName(
       state.friendlyName,
     );
     await this.fetchService.fetch({
       body: {
-        name,
+        friendlyName,
         states: state.states,
-      },
+      } as GroupSaveStateDTO,
       method: 'post',
-      url: `/group/${target._id}`,
+      url: `/group/${target._id}/state`,
     });
   }
 

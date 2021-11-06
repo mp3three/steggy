@@ -1,4 +1,5 @@
 import {
+  RoomEntitySaveStateDTO,
   ROUTINE_ACTIVATE_COMMAND,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
@@ -20,6 +21,7 @@ import { dump } from 'js-yaml';
 import { v4 as uuid } from 'uuid';
 
 import { ICONS } from '../../typings';
+import { EntityService } from '../entity.service';
 import { GroupStateService } from '../groups';
 import { RoomCommandService, RoomStateService } from '../rooms';
 import { GroupActionService } from './group-action.service';
@@ -37,6 +39,7 @@ export class RoutineCommandService {
     private readonly groupState: GroupStateService,
     @Inject(forwardRef(() => RoomCommandService))
     private readonly roomCommand: RoomCommandService,
+    private readonly entityCommand: EntityService,
   ) {}
 
   public async build(
@@ -58,6 +61,17 @@ export class RoutineCommandService {
     const room = await this.roomCommand.get(routine.room);
     room.save_states ??= [];
     switch (type) {
+      case ROUTINE_ACTIVATE_COMMAND.entity_state:
+        return {
+          command: await this.entityCommand.createSaveCommand(
+            await this.entityCommand.pickOne(
+              room.entities.map(({ entity_id }) => entity_id),
+            ),
+            current.command as RoomEntitySaveStateDTO,
+          ),
+          friendlyName,
+          type,
+        };
       case ROUTINE_ACTIVATE_COMMAND.group_action:
         return {
           command: await this.groupAction.build(
@@ -70,6 +84,7 @@ export class RoutineCommandService {
       case ROUTINE_ACTIVATE_COMMAND.group_state:
         return {
           command: await this.groupState.buildState(
+            room,
             current?.command as RoutineCommandGroupStateDTO,
           ),
           friendlyName,
@@ -127,14 +142,9 @@ export class RoutineCommandService {
           routine.command.find(({ id }) => id === command.id),
         );
       case 'remove':
-        routine.activate = routine.activate.filter(
-          ({ id }) => id !== command.id,
-        );
+        routine.command = routine.command.filter(({ id }) => id !== command.id);
         routine = await this.routineCommand.update(routine);
-        return await this.process(
-          routine,
-          routine.command.find(({ id }) => id === command.id),
-        );
+        return routine;
     }
   }
 

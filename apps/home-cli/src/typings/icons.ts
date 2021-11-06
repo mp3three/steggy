@@ -13,6 +13,7 @@ export const ICONS = {
   DESTRUCTIVE: '🚨 ',
   DEVICE: '📟 ',
   DONE: '🗿 ',
+  DOWN: '⏬ ',
   EDIT: '✏ ',
   ENTITIES: '🗃 ',
   EVENT: '🎆 ',
@@ -25,4 +26,9 @@ export const ICONS = {
   ROOMS: '🏡 ',
   ROUTINE: '🛰 ',
   STATE_MANAGER: '🖼 ',
+  TOGGLE_OFF: '📪 ',
+  TOGGLE_ON: '📫 ',
+  TURN_OFF: '🌝 ',
+  TURN_ON: '🌞 ',
+  UP: '⏫ ',
 };

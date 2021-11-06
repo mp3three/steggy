@@ -117,12 +117,12 @@ export class FanDomainService {
   @Trace()
   public async setSpeed(
     entityId: string,
-    speed: FanSpeeds | 'up' | 'down',
+    speed: FanSpeeds | 'fanSpeedUp' | 'fanSpeedDown',
   ): Promise<void> {
-    if (speed === 'up') {
+    if (speed === 'fanSpeedUp') {
       return await this.fanSpeedUp(entityId);
     }
-    if (speed === 'down') {
+    if (speed === 'fanSpeedDown') {
       return await this.fanSpeedDown(entityId);
     }
     await this.callService.call('turn_on', {
