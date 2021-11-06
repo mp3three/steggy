@@ -1,7 +1,7 @@
 import { KunamiCodeActivateDTO } from '@automagical/controller-logic';
 import { HASS_DOMAINS } from '@automagical/home-assistant';
 import { PromptService } from '@automagical/tty';
-import { AutoLogService } from '@automagical/utilities';
+import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 
@@ -21,13 +21,19 @@ export class KunamiBuilderService {
 
   public async build(
     current: Partial<KunamiCodeActivateDTO> = {},
+    sensorList: string[] = [],
   ): Promise<KunamiCodeActivateDTO> {
-    current.sensor = await this.entityService.pickInDomain(
-      [HASS_DOMAINS.sensor],
-      [],
-      current.sensor,
-    );
+    current.sensor = !IsEmpty(sensorList)
+      ? await this.entityService.pickOne(sensorList, current.sensor)
+      : await this.entityService.pickInDomain(
+          [HASS_DOMAINS.sensor],
+          [],
+          current.sensor,
+        );
     const type = await this.promptService.pickOne(`How to enter values?`, [
+      ...this.promptService.conditionalEntries(!IsEmpty(current.match), [
+        ['Keep current states', 'keep'],
+      ]),
       ['Record state changes', 'record'],
       ['Manual entry', 'manual'],
     ]);
@@ -36,10 +42,12 @@ export class KunamiBuilderService {
     if (reset !== 'none') {
       current.reset = reset;
     }
-    current.match =
-      type === 'record'
-        ? await this.recordEvents(current.sensor)
-        : await this.manualEntry(current.match);
+    if (type !== 'keep') {
+      current.match =
+        type === 'record'
+          ? await this.recordEvents(current.sensor)
+          : await this.manualEntry(current.match);
+    }
     return current as KunamiCodeActivateDTO;
   }
 

@@ -271,15 +271,16 @@ export class RoomCommandService {
 
   private async roomEntities(room: RoomDTO): Promise<RoomDTO> {
     const action = await this.promptService.menuSelect([
-      [`${ICONS.CREATE}Add`, 'add'],
       ...this.promptService.conditionalEntries(!IsEmpty(room.entities), [
-        [`${ICONS.DELETE}Remove`, 'remove'],
         new inquirer.Separator(chalk.white`Manipulate`),
         ...(room.entities.map(({ entity_id }) => [
           entity_id,
           entity_id,
         ]) as PromptEntry[]),
+        new inquirer.Separator(chalk.white`Maintenance`),
+        [`${ICONS.DELETE}Remove`, 'remove'],
       ]),
+      [`${ICONS.CREATE}Add`, 'add'],
     ]);
     if (action === DONE) {
       return room;

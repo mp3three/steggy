@@ -16,7 +16,6 @@ import { each } from 'async';
 import { EventEmitter2 } from 'eventemitter2';
 
 import { MAX_BRIGHTNESS, MIN_BRIGHTNESS } from '../config';
-import { DIM_PERCENT } from '../config';
 import {
   CIRCADIAN_UPDATE,
   LIGHTING_MODE,
@@ -48,7 +47,6 @@ export class LightManagerService {
     private readonly logger: AutoLogService,
     private readonly circadianService: CircadianService,
     private readonly eventEmitter: EventEmitter2,
-    @InjectConfig(DIM_PERCENT) private readonly dimPercent: number,
     @InjectConfig(MAX_BRIGHTNESS) private readonly maxBrightness: number,
     @InjectConfig(MIN_BRIGHTNESS) private readonly minBrightness: number,
   ) {}
@@ -79,10 +77,7 @@ export class LightManagerService {
     const { increment = DEFAULT_INCREMENT } = data;
     const lights = await this.findDimmableLights(change);
     await each(lights, async (entity_id: string, callback) => {
-      await this.lightDim(
-        entity_id,
-        this.dimPercent * increment * INVERT_VALUE,
-      );
+      await this.lightDim(entity_id, increment * INVERT_VALUE);
       callback();
     });
   }
@@ -95,7 +90,7 @@ export class LightManagerService {
     const { increment = DEFAULT_INCREMENT } = data;
     const lights = await this.findDimmableLights(change);
     await each(lights, async (entity_id: string, callback) => {
-      await this.lightDim(entity_id, this.dimPercent * increment);
+      await this.lightDim(entity_id, increment);
       callback();
     });
   }
@@ -143,9 +138,9 @@ export class LightManagerService {
     }
     this.logger.debug(
       { amount },
-      `${entityId} set brightness: ${brightness}/${
+      `[${entityId}] set brightness: {${brightness}/${
         this.maxBrightness
-      } (${Math.floor((brightness * PERCENT) / this.maxBrightness)}%)`,
+      } (${Math.floor((brightness * PERCENT) / this.maxBrightness)}%)}`,
     );
     return await this.circadianLight(entityId, brightness);
   }

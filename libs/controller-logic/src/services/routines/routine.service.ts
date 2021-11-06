@@ -1,6 +1,7 @@
 import {
   AutoLogService,
   IsEmpty,
+  OnEvent,
   ResultControlDTO,
   Trace,
 } from '@automagical/utilities';
@@ -11,6 +12,7 @@ import {
   KunamiCodeActivateDTO,
   ROUTINE_ACTIVATE_COMMAND,
   ROUTINE_ACTIVATE_TYPE,
+  ROUTINE_UPDATE,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
   RoutineCommandRoomStateDTO,
@@ -97,6 +99,7 @@ export class RoutineService {
     await this.mount();
   }
 
+  @OnEvent(ROUTINE_UPDATE)
   @Trace()
   protected async remount(): Promise<void> {
     this.kunamiCode.reset();

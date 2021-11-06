@@ -40,7 +40,7 @@ export class RoomService {
     if (!state) {
       throw new NotFoundException(`Cannot find save state ${command.state}`);
     }
-    this.logger.info(`[${state.friendlyName}] activate`);
+    this.logger.info(`[${room.friendlyName}] activate {${state.friendlyName}}`);
     await Promise.all([
       await each(state.states, async (state, callback) => {
         if (state.type !== 'entity') {

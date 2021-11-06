@@ -42,6 +42,7 @@ export class RoutineService {
 
   public async processRoom(room?: RoomDTO | string): Promise<void> {
     const control: ResultControlDTO = {};
+    control.sort = ['friendlyName'];
     if (room) {
       control.filters ??= new Set();
       control.filters.add({
@@ -88,7 +89,18 @@ export class RoutineService {
   public async processRoutine(routine: RoutineDTO): Promise<void> {
     this.promptService.clear();
     this.promptService.scriptHeader(`Routine`);
-    this.promptService.print(dump(routine));
+    console.log(chalk.bold.yellow`${routine.friendlyName}`);
+    console.log(
+      chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
+        `/routine/${routine._id}`,
+      )}`,
+    );
+    this.promptService.print(
+      dump({
+        activate: routine.activate,
+        command: routine.command,
+      }),
+    );
     const action = await this.promptService.menuSelect(
       [
         [`${ICONS.ACTIVATE}Manual activate`, 'activate'],

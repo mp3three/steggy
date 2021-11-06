@@ -103,29 +103,34 @@ export class EntityCommandRouterService {
   @Trace()
   private async fanEntity(
     id: string,
-    command: keyof FanDomainService,
+    command: string,
     { speed }: FanCacheDTO,
   ): Promise<void> {
     switch (command) {
       case 'turnOff':
+      case 'off':
         return await this.fanService.turnOff(id);
       case 'turnOn':
-        return await this.fanService.turnOn(id);
-      case 'fanSpeedUp':
-        return await this.fanService.fanSpeedUp(id);
-      case 'fanSpeedDown':
-        return await this.fanService.fanSpeedDown(id);
+      case 'on':
+        if (!speed) {
+          return await this.fanService.turnOn(id);
+        }
+      // fall through
       case 'setSpeed':
         if (!speed || !FanSpeeds[speed]) {
           throw new BadRequestException(`Provide a valid fan speed`);
         }
         return await this.fanService.setSpeed(id, speed as FanSpeeds);
+      case 'fanSpeedUp':
+        return await this.fanService.fanSpeedUp(id);
+      case 'fanSpeedDown':
+        return await this.fanService.fanSpeedDown(id);
     }
-    throw new BadRequestException();
+    throw new BadRequestException(command);
   }
 
   @Trace()
-  private async lightEntity(id: string, command: keyof LightManagerService) {
+  private async lightEntity(id: string, command: string) {
     switch (command) {
       case 'circadianLight':
         return await this.lightService.circadianLight(id);
@@ -134,11 +139,13 @@ export class EntityCommandRouterService {
       case 'dimUp':
         return await this.lightService.dimUp({}, [id]);
       case 'turnOff':
+      case 'off':
         return await this.lightService.turnOff(id);
       case 'turnOn':
+      case 'on':
         return await this.lightService.turnOn(id);
     }
-    throw new BadRequestException();
+    throw new BadRequestException(command);
   }
 
   @Trace()
@@ -149,7 +156,7 @@ export class EntityCommandRouterService {
       case 'unlock':
         return await this.lockService.unlock(id);
     }
-    throw new BadRequestException();
+    throw new BadRequestException(command);
   }
 
   @Trace()
@@ -173,7 +180,7 @@ export class EntityCommandRouterService {
       case 'toggle':
         return await this.mediaService.toggle(id);
     }
-    throw new BadRequestException();
+    throw new BadRequestException(command);
   }
 
   @Trace()
@@ -188,6 +195,6 @@ export class EntityCommandRouterService {
       case 'off':
         return await this.switchService.turnOff(id);
     }
-    throw new BadRequestException();
+    throw new BadRequestException(command);
   }
 }

@@ -21,10 +21,6 @@
       "type": "string",
       "required": true
     },
-    "DIM_PERCENT": {
-      "type": "number",
-      "default": 10
-    },
     "CONCURRENT_CHANGES": {
       "type": "number",
       "description": "When working through lists of unknown size, limit to x entities at a time to reduce load",

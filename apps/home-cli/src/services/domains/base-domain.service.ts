@@ -148,10 +148,13 @@ export class BaseDomainService {
     const item: RelatedDescriptionDTO = await this.fetchService.fetch({
       url: `/entity/registry/${id}`,
     });
-    const action = await this.promptService.menuSelect([
-      [`${ICONS.DESCRIBE}Describe`, 'describe'],
-      [`${ICONS.DEVICE}Device`, 'device'],
-    ]);
+    const action = await this.promptService.menuSelect(
+      [
+        [`${ICONS.DESCRIBE}Describe`, 'describe'],
+        [`${ICONS.DEVICE}Device`, 'device'],
+      ],
+      `Entity basics`,
+    );
     switch (action) {
       case DONE:
         return;

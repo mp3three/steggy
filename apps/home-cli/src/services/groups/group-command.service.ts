@@ -199,12 +199,22 @@ export class GroupCommandService implements iRepl {
     );
   }
 
-  public async pickOne(omit: string[] = []): Promise<GroupDTO> {
+  public async pickOne(
+    inList: string[] = [],
+    defaultValue?: GroupDTO | string,
+  ): Promise<GroupDTO> {
     const groups = await this.list();
+    if (defaultValue) {
+      defaultValue = groups.find(
+        ({ _id }) =>
+          _id ===
+          (typeof defaultValue === 'string' ? defaultValue : defaultValue._id),
+      );
+    }
     return await this.promptService.pickOne(
       `Pick a group`,
       groups
-        .filter((group) => !omit.includes(group._id))
+        .filter((group) => inList.includes(group._id))
         .map((group) => [group.friendlyName, group]),
     );
   }

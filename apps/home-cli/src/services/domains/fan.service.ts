@@ -29,7 +29,7 @@ export class FanService extends SwitchService {
         speed,
       },
       ref: entity_id,
-      state: 'on',
+      state: speed === FanSpeeds.off ? 'off' : 'on',
     };
   }
 
@@ -77,7 +77,7 @@ export class FanService extends SwitchService {
     await this.fetchService.fetch({
       body: { speed },
       method: 'put',
-      url: `/entity/command/${id}/setFan`,
+      url: `/entity/command/${id}/setSpeed`,
     });
   }
 

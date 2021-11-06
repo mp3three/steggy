@@ -19,13 +19,8 @@ export enum ROUTINE_SCOPE {
   http,
 }
 
-export enum ROUTINE_TYPE {
-  state_change = 'state_change',
-  // schedule = 'schedule',
-}
-
 @Schema({
-  collection: `save_state`,
+  collection: `routines`,
   timestamps: {
     createdAt: 'created',
     updatedAt: 'updated',

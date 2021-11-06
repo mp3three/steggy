@@ -55,11 +55,14 @@ export class RoutineCommandService {
       ]),
       current.type,
     );
+    const room = await this.roomCommand.get(routine.room);
+    room.save_states ??= [];
     switch (type) {
       case ROUTINE_ACTIVATE_COMMAND.group_action:
         return {
           command: await this.groupAction.build(
             current.command as RoutineCommandGroupActionDTO,
+            room.groups,
           ),
           friendlyName,
           type,
@@ -73,13 +76,11 @@ export class RoutineCommandService {
           type,
         };
       case ROUTINE_ACTIVATE_COMMAND.room_state:
-        const room = await this.roomCommand.get(routine.room);
-        room.save_states ??= [];
         const state = await this.roomState.pickOne(
           room,
           room.save_states.find(
             ({ id }) =>
-              id === (current.command as RoutineCommandRoomStateDTO).state,
+              id === (current?.command as RoutineCommandRoomStateDTO)?.state,
           ),
         );
         return {

@@ -23,6 +23,6 @@ export const ICONS = {
   NAME: '💭 ',
   RENAME: '✏ ',
   ROOMS: '🏡 ',
-  ROUTINE: '🤖 ',
+  ROUTINE: '🛰 ',
   STATE_MANAGER: '🖼 ',
 };

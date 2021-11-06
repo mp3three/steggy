@@ -39,6 +39,7 @@ export class ClimateService extends SwitchService {
   ): Promise<void> {
     const mode = await this.promptService.menuSelect(
       state.attributes.fan_modes.map((mode) => [TitleCase(mode), mode]),
+      `Set fan mode`,
     );
     if (mode === DONE) {
       return;
@@ -63,6 +64,7 @@ export class ClimateService extends SwitchService {
   ): Promise<void> {
     const mode = await this.promptService.menuSelect(
       state.attributes.hvac_modes.map((mode) => [TitleCase(mode), mode]),
+      `Set HVAC mode`,
     );
     if (mode !== DONE) {
       return;
@@ -80,6 +82,7 @@ export class ClimateService extends SwitchService {
   ): Promise<void> {
     const mode = await this.promptService.menuSelect(
       state.attributes.preset_modes.map((mode) => [TitleCase(mode), mode]),
+      `Set preset mode`,
     );
     if (mode === DONE) {
       return;
@@ -97,6 +100,7 @@ export class ClimateService extends SwitchService {
   ): Promise<void> {
     const mode = await this.promptService.menuSelect(
       state.attributes.swing_modes.map((mode) => [TitleCase(mode), mode]),
+      `Set swing mode`,
     );
     if (mode === DONE) {
       return;

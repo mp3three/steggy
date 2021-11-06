@@ -16,15 +16,18 @@ export class GroupActionService {
   ) {}
 
   public async build(
-    current?: RoutineCommandGroupActionDTO,
+    current: RoutineCommandGroupActionDTO,
+    groups: string[],
   ): Promise<RoutineCommandGroupActionDTO> {
-    const group = await this.groupService.pickOne();
+    const group = await this.groupService.pickOne(groups);
     switch (group.type) {
       case GROUP_TYPES.light:
         return {
-          ...(await this.lightGroup.commandBuilder(current.command)),
-          group,
+          ...(await this.lightGroup.commandBuilder(current?.command)),
+          group: group._id,
         };
+      case GROUP_TYPES.switch:
+        throw new NotImplementedException();
     }
     throw new NotImplementedException();
   }

@@ -234,7 +234,7 @@ export class PromptService {
 
   public async menuSelect<T extends unknown = string>(
     options: PromptEntry<T>[],
-    message = '',
+    message: string,
     defaultValue?: string | T,
   ): Promise<T | string> {
     return await this.pickOne<T>(

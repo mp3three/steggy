@@ -40,7 +40,9 @@ export abstract class BaseGroupService {
       );
       return;
     }
-    this.logger.debug(`Activate state {${state.friendlyName}}`);
+    this.logger.debug(
+      `[${group.friendlyName}] set state {${state.friendlyName}}`,
+    );
     await this.setState(group.entities, state.states);
   }
 

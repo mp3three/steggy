@@ -6,6 +6,7 @@ import {
   ScheduleActivateDTO,
   StateChangeActivateDTO,
 } from '@automagical/controller-logic';
+import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import { DONE, PromptEntry, PromptService } from '@automagical/tty';
 import { IsEmpty, TitleCase } from '@automagical/utilities';
 import {
@@ -14,10 +15,12 @@ import {
   Injectable,
   NotImplementedException,
 } from '@nestjs/common';
+import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { v4 as uuid } from 'uuid';
 
 import { ICONS } from '../../typings';
+import { RoomCommandService } from '../rooms';
 import { KunamiBuilderService } from './kunami-builder.service';
 import { RoutineService } from './routine.service';
 import { ScheduleBuilderService } from './schedule-builder.service';
@@ -32,9 +35,12 @@ export class RoutineActivateEventsService {
     private readonly promptService: PromptService,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineCommand: RoutineService,
+    @Inject(forwardRef(() => RoomCommandService))
+    private readonly roomCommand: RoomCommandService,
   ) {}
 
   public async build(
+    routine: RoutineDTO,
     current: Partial<RoutineActivateDTO> = {},
   ): Promise<RoutineActivateDTO> {
     const friendlyName = await this.promptService.friendlyName(
@@ -48,11 +54,15 @@ export class RoutineActivateEventsService {
       ]),
       current.type,
     );
+    const room = await this.roomCommand.get(routine.room);
     switch (type) {
       case ROUTINE_ACTIVATE_TYPE.kunami:
         return {
           activate: await this.kunamiActivate.build(
             current.activate as KunamiCodeActivateDTO,
+            room.entities
+              .map(({ entity_id }) => entity_id)
+              .filter((i) => HASS_DOMAINS.sensor === domain(i)),
           ),
           friendlyName,
           type,
@@ -80,15 +90,18 @@ export class RoutineActivateEventsService {
     routine: RoutineDTO,
     activate: RoutineActivateDTO,
   ): Promise<RoutineDTO> {
-    const action = await this.promptService.menuSelect([
-      [`${ICONS.DELETE}Remove`, 'remove'],
-      [`${ICONS.EDIT}Edit`, 'edit'],
-    ]);
+    const action = await this.promptService.menuSelect(
+      [
+        [`${ICONS.EDIT}Edit`, 'edit'],
+        [`${ICONS.DELETE}Remove`, 'remove'],
+      ],
+      `Routine activation`,
+    );
     switch (action) {
       case DONE:
         return routine;
       case 'edit':
-        const updated = await this.build(activate);
+        const updated = await this.build(routine, activate);
         routine.activate = routine.activate.map((i) =>
           i.id === activate.id ? { ...updated, id: i.id } : i,
         );
@@ -111,21 +124,24 @@ export class RoutineActivateEventsService {
 
   public async processRoutine(routine: RoutineDTO): Promise<RoutineDTO> {
     routine.activate ??= [];
-    const action = await this.promptService.menuSelect([
-      [`${ICONS.CREATE}Add`, 'add'],
-      ...this.promptService.conditionalEntries(!IsEmpty(routine.activate), [
-        new inquirer.Separator(),
-        ...(routine.activate.map((activate) => [
-          activate.friendlyName,
-          activate,
-        ]) as PromptEntry<RoutineActivateDTO>[]),
-      ]),
-    ]);
+    const action = await this.promptService.menuSelect(
+      [
+        [`${ICONS.CREATE}Add`, 'add'],
+        ...this.promptService.conditionalEntries(!IsEmpty(routine.activate), [
+          new inquirer.Separator(chalk.white`Current activations`),
+          ...(routine.activate.map((activate) => [
+            activate.friendlyName,
+            activate,
+          ]) as PromptEntry<RoutineActivateDTO>[]),
+        ]),
+      ],
+      `Routine activations`,
+    );
     switch (action) {
       case DONE:
         return routine;
       case 'add':
-        const activate = await this.build();
+        const activate = await this.build(routine);
         activate.id = uuid();
         routine.activate.push(activate);
         routine = await this.routineCommand.update(routine);
