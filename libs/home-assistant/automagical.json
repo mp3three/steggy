@@ -21,6 +21,10 @@
       "type": "number",
       "default": 500,
       "description": "Socket service will self-terminate the process if this limit is exceeded. This can happen if an accidential infinite recursion is triggered due to bad setup"
+    },
+    "RENDER_TIMEOUT": {
+      "type": "number",
+      "default": 3
     }
   }
 }

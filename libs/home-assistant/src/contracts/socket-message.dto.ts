@@ -56,30 +56,38 @@ export class SendSocketMessageDTO {
 }
 
 export class UpdateEntityMessageDTO {
-  area_id?: number;
-  entity_id: string;
-  icon?: string;
-  id?: number;
-  name: string;
-  new_entity_id: string;
-  type: HASSIO_WS_COMMAND.entity_update;
+  public area_id?: number;
+  public entity_id: string;
+  public icon?: string;
+  public id?: number;
+  public name: string;
+  public new_entity_id: string;
+  public type: HASSIO_WS_COMMAND.entity_update;
 }
 
 export class FindRelatedDTO {
-  id?: number;
-  item_id: string;
-  item_type: string;
-  type: HASSIO_WS_COMMAND.search_related;
+  public id?: number;
+  public item_id: string;
+  public item_type: string;
+  public type: HASSIO_WS_COMMAND.search_related;
 }
 
 export class RegistryGetDTO {
-  entity_id: string;
-  id?: number;
-  type: HASSIO_WS_COMMAND.registry_get;
+  public entity_id: string;
+  public id?: number;
+  public type: HASSIO_WS_COMMAND.registry_get;
+}
+
+export class RenderTemplateDTO {
+  public id?: number;
+  public template: string;
+  public timeout: number;
+  public type: HASSIO_WS_COMMAND.render_template;
 }
 
 export type SOCKET_MESSAGES =
   | SendSocketMessageDTO
+  | RenderTemplateDTO
   | UpdateEntityMessageDTO
   | FindRelatedDTO
   | RegistryGetDTO;

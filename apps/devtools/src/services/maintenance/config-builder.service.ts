@@ -17,6 +17,7 @@ import {
   AutomagicalConfig,
   ConfigTypeDTO,
   LIB_TERMINAL,
+  TitleCase,
   Trace,
 } from '@automagical/utilities';
 import { InternalServerErrorException } from '@nestjs/common';
@@ -30,6 +31,7 @@ import ini from 'ini';
 import { set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
+import { listenerCount } from 'process';
 import rc from 'rc';
 
 const ARGV_APP = 3;
@@ -60,7 +62,10 @@ export class ConfigBuilderService implements iRepl {
   public async exec(): Promise<void> {
     const application =
       process.argv[ARGV_APP] ||
-      (await this.promptService.menuSelect(this.applicationChoices()));
+      (await this.promptService.menuSelect(
+        this.applicationChoices(),
+        `Select an application`,
+      ));
     if (!this.workspace.isProject(application)) {
       this.logger.error({ application }, `Invalid application`);
       throw new InternalServerErrorException();
@@ -73,45 +78,14 @@ export class ConfigBuilderService implements iRepl {
     );
 
     const out = await this.scan(application);
-    const table = new Table({
-      head: [
-        'Flags',
-        'Library',
-        'Property',
-        `Type`,
-        // 'Description',
-        'Default Value',
-      ],
-    });
-    out.forEach((row) => {
-      const flags: string[] = [];
-      if (row.metadata.required) {
-        flags.push(chalk.red(`REQUIRED`));
-      }
-      if (row.metadata.warnDefault) {
-        flags.push(chalk.yellow(`RECOMMENDED`));
-      }
-      table.push([
-        flags.join(`\n`),
-        row.library || '',
-        row.property || '',
-        row.metadata?.type || '',
-        // row.metadata?.description || '',
-        // '',
-        row.metadata?.default || '',
-      ]);
-    });
-    console.log(table.toString());
-    await eachSeries(out.values(), async (item, callback) => {
-      const result = await this.typePrompt.prompt(item);
-      if (result === item.metadata.default) {
-        callback();
-        return;
-      }
-      set(config, this.path(item), result.value);
-      callback();
-    });
 
+    this.promptService.clear();
+    this.promptService.scriptHeader(`Available Configs`);
+    console.log(chalk`Configuring {yellow.bold ${TitleCase(application)}}`);
+    console.log();
+    console.log();
+    const entries = await this.buildEntries(out);
+    await this.promptService.pickMany(`Test`, entries);
     await this.handleConfig(config, application);
   }
 
@@ -123,10 +97,13 @@ export class ConfigBuilderService implements iRepl {
     config: AutomagicalConfig,
     application: string,
   ): Promise<void> {
-    const action = await this.promptService.menuSelect([
-      ['Describe', 'describe'],
-      ['Save', 'save'],
-    ]);
+    const action = await this.promptService.menuSelect(
+      [
+        ['Describe', 'describe'],
+        ['Save', 'save'],
+      ],
+      `What to do with completed configuration?`,
+    );
 
     switch (action) {
       case DONE:
@@ -176,6 +153,50 @@ export class ConfigBuilderService implements iRepl {
       });
   }
 
+  private buildEntries(
+    config: Set<ConfigTypeDTO>,
+  ): PromptEntry<ConfigTypeDTO>[] {
+    let maxLibrary = 0;
+    let maxDefault = 0;
+    let maxProperty = 0;
+    config.forEach((entry) => {
+      entry.default ??= '';
+      maxLibrary = Math.max(maxLibrary, entry.library.length);
+      maxDefault = Math.max(maxDefault, entry.default.toString().length);
+      maxProperty = Math.max(maxProperty, entry.property.toString().length);
+    });
+    const out: PromptEntry<ConfigTypeDTO>[] = [];
+    config.forEach((entry) => {
+      let property = entry.property.padEnd(maxProperty, ' ');
+      if (entry.metadata.required) {
+        property = chalk.redBright(property);
+      } else if (entry.metadata.warnDefault) {
+        property = chalk.yellowBright(property);
+      }
+      out.push([
+        chalk`{bold ${property}} {cyan |} ${entry.library.padEnd(
+          maxLibrary,
+          ' ',
+        )} {cyan |} ${entry.default
+          .toString()
+          .padEnd(maxDefault, ' ')} {cyan |} {gray ${
+          entry.metadata.description
+        }}`,
+        entry,
+      ]);
+    });
+    console.log(
+      chalk.bold.white.bgBlue`   ${'Property'.padEnd(
+        maxProperty,
+        ' ',
+      )}   ${'Project'.padEnd(maxLibrary, ' ')}   ${'Default Value'.padEnd(
+        maxDefault,
+        ' ',
+      )}   Description   `,
+    );
+    return out;
+  }
+
   private path(config: ConfigTypeDTO): string {
     if (config.library) {
       return `libs.${config.library}.${config.property}`;
@@ -183,7 +204,6 @@ export class ConfigBuilderService implements iRepl {
     return `application.${config.property}`;
   }
 
-  @Trace()
   private async scan(application: string): Promise<Set<ConfigTypeDTO>> {
     this.logger.debug(`Preparing scanner`);
     const build = execa(`npx`, [
@@ -200,6 +220,6 @@ export class ConfigBuilderService implements iRepl {
         .configurations[SCAN_CONFIG_CONFIGURATION];
     const { stdout } = await execa(`node`, [join(outputPath, 'main.js')]);
     const config: ConfigTypeDTO[] = JSON.parse(stdout);
-    return new Set<ConfigTypeDTO>(config);
+    return new Set(config);
   }
 }

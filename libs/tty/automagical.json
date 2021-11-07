@@ -8,7 +8,7 @@
     "PAGE_SIZE": {
       "type": "number",
       "description": "Maxmimum number of items displayed in checkbox / similar types of prompts",
-      "default": 25
+      "default": 50
     },
     "OUTPUT_HEADER_FONT": {
       "type": "string",

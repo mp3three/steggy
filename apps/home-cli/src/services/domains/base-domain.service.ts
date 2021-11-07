@@ -91,6 +91,10 @@ export class BaseDomainService {
       command,
     );
     switch (action) {
+      case 'describe':
+        const state = await this.getState(id);
+        this.promptService.print(dump(state));
+        return await this.processId(id, action);
       case 'changeFriendlyName':
         await this.changeFriendlyName(id);
         return await this.processId(id, action);
@@ -175,6 +179,7 @@ export class BaseDomainService {
   protected getMenuOptions(): PromptEntry[] {
     return [
       new inquirer.Separator(chalk.white`Base options`),
+      [`${ICONS.DESCRIBE}Describe`, 'describe'],
       [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
       [`${ICONS.RENAME}Change Friendly Name`, 'changeFriendlyName'],
       [`${ICONS.STATE_MANAGER}Registry`, 'registry'],

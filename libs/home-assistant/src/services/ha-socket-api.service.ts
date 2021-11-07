@@ -7,20 +7,23 @@ import {
   EmitAfter,
   InjectConfig,
   InjectLogger,
+  sleep,
   Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
+import { application } from 'express';
 import WS from 'ws';
 
 import {
   BASE_URL,
   CRASH_REQUESTS_PER_SEC,
+  RENDER_TIMEOUT,
   TOKEN,
   WARN_REQUESTS_PER_SEC,
   WEBSOCKET_URL,
 } from '../config';
-import type { SOCKET_MESSAGES } from '../contracts';
+import type { HassConfig, SOCKET_MESSAGES } from '../contracts';
 import {
   ALL_ENTITIES_UPDATED,
   AreaDTO,
@@ -56,6 +59,7 @@ export class HASocketAPIService {
     @InjectConfig(CRASH_REQUESTS_PER_SEC)
     private readonly CRASH_REQUESTS: number,
     @InjectConfig(WEBSOCKET_URL) private readonly websocketUrl: string,
+    @InjectConfig(RENDER_TIMEOUT) private readonly renderTimeout: number,
   ) {}
 
   private CONNECTION_ACTIVE = false;
@@ -83,6 +87,12 @@ export class HASocketAPIService {
     });
   }
 
+  public async getConfig(): Promise<HassConfig> {
+    return await this.sendMsg({
+      type: HASSIO_WS_COMMAND.get_config,
+    });
+  }
+
   @Debug('List all devices')
   public async listDevices(): Promise<DeviceListItemDTO[]> {
     return await this.sendMsg({
@@ -94,6 +104,15 @@ export class HASocketAPIService {
   public async listEntities(): Promise<EntityListItemDTO[]> {
     return await this.sendMsg({
       type: HASSIO_WS_COMMAND.entity_list,
+    });
+  }
+
+  @Trace()
+  public async renderTemplate(template: string): Promise<string> {
+    return await this.sendMsg({
+      template,
+      timeout: this.renderTimeout,
+      type: HASSIO_WS_COMMAND.render_template,
     });
   }
 
@@ -126,6 +145,7 @@ export class HASocketAPIService {
     return new Promise((done) => this.waitingCallback.set(counter, done));
   }
 
+  @Trace()
   public async updateEntity(
     entity: string,
     data: { name?: string; new_entity_id?: string },
@@ -272,6 +292,12 @@ export class HASocketAPIService {
         if (message.event.event_type === HassEvents.state_changed) {
           this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
         }
+        if (this.waitingCallback.has(id)) {
+          // Template rendering
+          const f = this.waitingCallback.get(id);
+          this.waitingCallback.delete(id);
+          f(message.result);
+        }
         return;
 
       case HassSocketMessageTypes.pong:
@@ -287,6 +313,12 @@ export class HASocketAPIService {
         if (this.waitingCallback.has(id)) {
           if (message.error) {
             this.logger.error({ message });
+          }
+          if (message.result === null) {
+            await sleep(5000);
+            if (!this.waitingCallback.has(id)) {
+              return;
+            }
           }
           const f = this.waitingCallback.get(id);
           this.waitingCallback.delete(id);

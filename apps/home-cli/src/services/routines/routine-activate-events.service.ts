@@ -6,7 +6,6 @@ import {
   ScheduleActivateDTO,
   StateChangeActivateDTO,
 } from '@automagical/controller-logic';
-import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import { DONE, PromptEntry, PromptService } from '@automagical/tty';
 import { IsEmpty, TitleCase } from '@automagical/utilities';
 import {
@@ -20,7 +19,6 @@ import inquirer from 'inquirer';
 import { v4 as uuid } from 'uuid';
 
 import { ICONS } from '../../typings';
-import { RoomCommandService } from '../rooms';
 import { KunamiBuilderService } from './kunami-builder.service';
 import { RoutineService } from './routine.service';
 import { ScheduleBuilderService } from './schedule-builder.service';
@@ -35,8 +33,6 @@ export class RoutineActivateEventsService {
     private readonly promptService: PromptService,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineCommand: RoutineService,
-    @Inject(forwardRef(() => RoomCommandService))
-    private readonly roomCommand: RoomCommandService,
   ) {}
 
   public async build(
@@ -54,7 +50,6 @@ export class RoutineActivateEventsService {
       ]),
       current.type,
     );
-    // const room = await this.roomCommand.get(routine.room);
     switch (type) {
       case ROUTINE_ACTIVATE_TYPE.kunami:
         return {
