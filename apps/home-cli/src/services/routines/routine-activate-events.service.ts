@@ -54,15 +54,12 @@ export class RoutineActivateEventsService {
       ]),
       current.type,
     );
-    const room = await this.roomCommand.get(routine.room);
+    // const room = await this.roomCommand.get(routine.room);
     switch (type) {
       case ROUTINE_ACTIVATE_TYPE.kunami:
         return {
           activate: await this.kunamiActivate.build(
             current.activate as KunamiCodeActivateDTO,
-            room.entities
-              .map(({ entity_id }) => entity_id)
-              .filter((i) => HASS_DOMAINS.sensor === domain(i)),
           ),
           friendlyName,
           type,
@@ -93,7 +90,7 @@ export class RoutineActivateEventsService {
     const action = await this.promptService.menuSelect(
       [
         [`${ICONS.EDIT}Edit`, 'edit'],
-        [`${ICONS.DELETE}Remove`, 'remove'],
+        [`${ICONS.DELETE}Delete`, 'delete'],
       ],
       `Routine activation`,
     );
@@ -110,7 +107,16 @@ export class RoutineActivateEventsService {
           routine,
           routine.activate.find(({ id }) => id === activate.id),
         );
-      case 'remove':
+      case 'delete':
+        if (
+          !(await this.promptService.confirm(
+            `Are you sure you want to delete ${chalk.bold.magenta(
+              activate.friendlyName,
+            )}? This cannot be undone`,
+          ))
+        ) {
+          return await this.process(routine, activate);
+        }
         routine.activate = routine.activate.filter(
           ({ id }) => id !== activate.id,
         );

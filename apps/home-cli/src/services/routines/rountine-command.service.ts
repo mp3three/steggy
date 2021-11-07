@@ -51,7 +51,7 @@ export class RoutineCommandService {
       current.friendlyName,
     );
     const type = await this.promptService.pickOne<ROUTINE_ACTIVATE_COMMAND>(
-      `Activation type`,
+      `Command type`,
       Object.values(ROUTINE_ACTIVATE_COMMAND).map((value) => [
         TitleCase(value),
         value,
@@ -65,7 +65,8 @@ export class RoutineCommandService {
         return {
           command: await this.entityCommand.createSaveCommand(
             await this.entityCommand.pickOne(
-              room.entities.map(({ entity_id }) => entity_id),
+              undefined,
+              (current.command as RoomEntitySaveStateDTO).ref,
             ),
             current.command as RoomEntitySaveStateDTO,
           ),
@@ -118,7 +119,7 @@ export class RoutineCommandService {
       [
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
         [`${ICONS.EDIT}Edit`, 'edit'],
-        [`${ICONS.DELETE}Remove`, 'remove'],
+        [`${ICONS.DELETE}Delete`, 'delete'],
       ],
       `Routine command actions`,
     );
@@ -141,7 +142,14 @@ export class RoutineCommandService {
           routine,
           routine.command.find(({ id }) => id === command.id),
         );
-      case 'remove':
+      case 'delete':
+        if (
+          !(await this.promptService.confirm(
+            `Are you sure you want to delete ${command.friendlyName}? This cannot be undone`,
+          ))
+        ) {
+          return await this.process(routine, command);
+        }
         routine.command = routine.command.filter(({ id }) => id !== command.id);
         routine = await this.routineCommand.update(routine);
         return routine;

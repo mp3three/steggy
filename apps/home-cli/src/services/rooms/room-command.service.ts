@@ -186,6 +186,15 @@ export class RoomCommandService {
         room = await this.update(room);
         return await this.processRoom(room, action);
       case 'delete':
+        if (
+          !(await this.promptService.confirm(
+            `Are you sure you want to delete ${chalk.magenta.bold(
+              room.friendlyName,
+            )}`,
+          ))
+        ) {
+          return await this.processRoom(room, action);
+        }
         await this.fetchService.fetch({
           method: 'delete',
           url: `/room/${room._id}`,

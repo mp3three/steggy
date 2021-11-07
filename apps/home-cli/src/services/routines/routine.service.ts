@@ -105,7 +105,7 @@ export class RoutineService {
     const action = await this.promptService.menuSelect(
       [
         [`${ICONS.ACTIVATE}Manual activate`, 'activate'],
-        [`${ICONS.DELETE}Remove`, 'remove'],
+        [`${ICONS.DELETE}Delete`, 'delete'],
         [`${ICONS.RENAME}Rename`, 'rename'],
         [`${ICONS.EVENT}Activation Events`, 'events'],
         [`${ICONS.COMMAND}Commands`, 'command'],
@@ -121,7 +121,16 @@ export class RoutineService {
           url: `/routine/${routine._id}`,
         });
         return await this.processRoutine(routine);
-      case 'remove':
+      case 'delete':
+        if (
+          !(await this.promptService.confirm(
+            `Are you sure you want to delete ${chalk.bold.magenta(
+              routine.friendlyName,
+            )}?`,
+          ))
+        ) {
+          return await this.processRoutine(routine);
+        }
         await this.fetchService.fetch({
           method: 'delete',
           url: `/routine/${routine._id}`,

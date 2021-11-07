@@ -294,6 +294,13 @@ export class GroupStateService {
         this.promptService.print(dump(state.states));
         return await this.stateAction(state, group, action);
       case 'delete':
+        if (
+          !(await this.promptService.confirm(
+            `Are you sure you want to delete ${state.friendlyName}? This cannot be undone`,
+          ))
+        ) {
+          return await this.stateAction(state, group);
+        }
         await this.fetchService.fetch({
           method: 'delete',
           url: `/group/${group._id}/state/${state.id}`,

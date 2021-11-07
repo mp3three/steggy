@@ -274,6 +274,15 @@ export class GroupCommandService implements iRepl {
         group = await this.update(group);
         break;
       case 'delete':
+        if (
+          !(await this.promptService.confirm(
+            `Are you sure you want to delete ${chalk.magenta.bold(
+              group.friendlyName,
+            )}`,
+          ))
+        ) {
+          return await this.process(group, list, action);
+        }
         await this.fetchService.fetch({
           method: 'delete',
           url: `/group/${group._id}`,
@@ -319,7 +328,7 @@ export class GroupCommandService implements iRepl {
       [
         new inquirer.Separator(chalk.white`Maintenance`),
         [`${ICONS.CREATE}Add`, 'add'],
-        [`${ICONS.DELETE}Remove`, 'remove'],
+        [`${ICONS.DELETE}Remove`, 'delete'],
         ...this.promptService.conditionalEntries(!IsEmpty(group.entities), [
           new inquirer.Separator(chalk.white`Current entities`),
           ...(group.entities.map((i) => [i, i]) as PromptEntry[]),
@@ -340,7 +349,7 @@ export class GroupCommandService implements iRepl {
         ];
         group = await this.update(group);
         return await this.updateEntities(group);
-      case 'remove':
+      case 'delete':
         group.entities = await this.promptService.pickMany(
           `Select entities to keep`,
           group.entities.map((i) => [i, i]),

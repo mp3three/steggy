@@ -147,7 +147,7 @@ export class RoomStateService {
         [`${ICONS.ACTIVATE}Activate`, 'activate'],
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
-        [`${ICONS.DELETE}Delete`, 'remove'],
+        [`${ICONS.DELETE}Delete`, 'delete'],
       ],
       `Room state`,
     );
@@ -167,7 +167,16 @@ export class RoomStateService {
         const update = await this.build(room, state);
         room = await this.roomService.get(room._id);
         return await this.processState(room, update);
-      case 'remove':
+      case 'delete':
+        if (
+          !(await this.promptService.confirm(
+            `Are you sure you want to delete ${chalk.magenta.bold(
+              state.friendlyName,
+            )}? This cannot be undone`,
+          ))
+        ) {
+          return await this.processState(room, state);
+        }
         return await this.fetchService.fetch({
           method: 'delete',
           url: `/room/${room._id}/state/${state.id}`,
