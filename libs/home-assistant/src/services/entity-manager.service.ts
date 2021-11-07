@@ -1,4 +1,4 @@
-import { OnEvent, sleep, Trace } from '@automagical/utilities';
+import { OnEvent, sleep } from '@automagical/utilities';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 import { Observable, Subscriber } from 'rxjs';
@@ -47,7 +47,6 @@ export class EntityManagerService {
     return out;
   }
 
-  @Trace()
   public async fromRegistry<
     CAPABILITIES extends CapbilityList = Record<string, unknown>,
   >(entity_id: string): Promise<EntityRegistryItemDTO<CAPABILITIES>> {
@@ -63,7 +62,7 @@ export class EntityManagerService {
   /**
    * Retrieve an entity's state
    */
-  @Trace()
+
   public getEntities<T extends HassStateDTO = HassStateDTO>(
     entityId: string[],
   ): T[] {
@@ -73,7 +72,7 @@ export class EntityManagerService {
   /**
    * Retrieve an entity's state
    */
-  @Trace()
+
   public getEntity<T extends HassStateDTO = HassStateDTO>(id: string): T {
     return this.ENTITIES.get(id) as T;
   }
@@ -81,7 +80,7 @@ export class EntityManagerService {
   /**
    * Retrieve an onbservable that contains an entity's state
    */
-  @Trace()
+
   public getObservable<T extends HassStateDTO = HassStateDTO>(
     entityId: string,
   ): Observable<T> {
@@ -93,12 +92,10 @@ export class EntityManagerService {
     return this.ENTITIES.has(entityId);
   }
 
-  @Trace()
   public listEntities(): string[] {
     return [...this.ENTITIES.keys()];
   }
 
-  @Trace()
   public async nextState<T extends HassStateDTO = HassStateDTO>(
     entityId: string,
   ): Promise<T> {
@@ -109,7 +106,6 @@ export class EntityManagerService {
     });
   }
 
-  @Trace()
   public async record(entityId: string, duration: number): Promise<unknown[]> {
     if (this.WATCHERS.has(entityId)) {
       // Let's keep life simple
@@ -122,7 +118,6 @@ export class EntityManagerService {
     return observed;
   }
 
-  @Trace()
   public async updateFriendlyName(
     entityId: string,
     friendly_name: string,
@@ -133,7 +128,6 @@ export class EntityManagerService {
     });
   }
 
-  @Trace()
   public async updateId(
     entityId: string,
     newEntityId: string,
@@ -152,7 +146,6 @@ export class EntityManagerService {
    * Aldo does a great job of initial population of the data
    */
   @OnEvent(ALL_ENTITIES_UPDATED)
-  @Trace()
   protected onAllEntitiesUpdated(allEntities: HassStateDTO[]): void {
     allEntities.forEach((entity) => {
       this.createObservable(entity.entity_id);
@@ -173,7 +166,6 @@ export class EntityManagerService {
    * Global collection of updates
    */
   @OnEvent(HA_EVENT_STATE_CHANGE)
-  @Trace()
   protected onUpdate(event: HassEventDTO): void {
     const { entity_id, new_state } = event.data;
     this.createObservable(entity_id);

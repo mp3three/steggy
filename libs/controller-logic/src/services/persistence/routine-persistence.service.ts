@@ -3,7 +3,6 @@ import {
   AutoLogService,
   ResultControlDTO,
   ToClass,
-  Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -23,7 +22,6 @@ export class RoutinePersistenceService extends BaseMongoService {
     super();
   }
 
-  @Trace()
   @ToClass(RoutineDTO)
   public async create(state: RoutineDTO): Promise<RoutineDTO> {
     const out = (await this.model.create(state)).toObject() as RoutineDTO;
@@ -31,7 +29,6 @@ export class RoutinePersistenceService extends BaseMongoService {
     return out;
   }
 
-  @Trace()
   public async delete(state: RoutineDTO | string): Promise<boolean> {
     const query = this.merge(typeof state === 'string' ? state : state._id);
     this.logger.debug({ query }, `delete query`);
@@ -44,7 +41,6 @@ export class RoutinePersistenceService extends BaseMongoService {
     return result.acknowledged;
   }
 
-  @Trace()
   @ToClass(RoutineDTO)
   public async findById(
     state: string,
@@ -56,7 +52,6 @@ export class RoutinePersistenceService extends BaseMongoService {
       .exec()) as RoutineDTO;
   }
 
-  @Trace()
   @ToClass(RoutineDTO)
   public async findMany(control: ResultControlDTO = {}): Promise<RoutineDTO[]> {
     const query = this.merge(control);
@@ -66,7 +61,6 @@ export class RoutinePersistenceService extends BaseMongoService {
     return out;
   }
 
-  @Trace()
   public async update(
     state: Omit<Partial<RoutineDTO>, keyof BaseSchemaDTO>,
     id: string,

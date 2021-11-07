@@ -5,7 +5,7 @@ import {
   HomeAssistantCoreService,
   SwitchStateDTO,
 } from '@automagical/home-assistant';
-import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
+import { AutoLogService, InjectConfig } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachLimit } from 'async';
 
@@ -35,7 +35,6 @@ export class SwitchGroupService extends BaseGroupService {
 
   public readonly GROUP_TYPE = GROUP_TYPES.switch;
 
-  @Trace()
   public async activateCommand(
     group: GroupDTO | string,
     state: GroupCommandDTO,
@@ -52,7 +51,6 @@ export class SwitchGroupService extends BaseGroupService {
     }
   }
 
-  @Trace()
   public async getState(group: GroupDTO): Promise<RoomEntitySaveStateDTO[]> {
     return await group.entities.map((id) => {
       const light = this.entityManager.getEntity<SwitchStateDTO>(id);
@@ -63,7 +61,6 @@ export class SwitchGroupService extends BaseGroupService {
     });
   }
 
-  @Trace()
   public isValidEntity(id: string): boolean {
     return [
       HASS_DOMAINS.switch,
@@ -73,19 +70,16 @@ export class SwitchGroupService extends BaseGroupService {
     ].includes(domain(id));
   }
 
-  @Trace()
   public async turnOff(group: GroupDTO | string): Promise<void> {
     group = await this.loadGroup(group);
     await this.hassCore.turnOff(group.entities);
   }
 
-  @Trace()
   public async turnOn(group: GroupDTO | string): Promise<void> {
     group = await this.loadGroup(group);
     await this.hassCore.turnOn(group.entities);
   }
 
-  @Trace()
   protected async setState(
     entites: string[],
     state: RoomEntitySaveStateDTO[],

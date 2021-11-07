@@ -3,7 +3,6 @@ import {
   METADATA_FILE,
   PACKAGE_FILE,
   PackageJsonDTO,
-  Trace,
 } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import JSON from 'comment-json';
@@ -50,7 +49,6 @@ export class WorkspaceService {
     return typeof this.workspace.projects[project] !== 'undefined';
   }
 
-  @Trace()
   public list(type: NXProjectTypes): string[] {
     const { projects } = this.workspace;
     return Object.keys(projects).filter(
@@ -66,7 +64,6 @@ export class WorkspaceService {
     );
   }
 
-  @Trace()
   public setPackageVersion(project: string, version: string): string {
     const packageJson = this.PACKAGES.get(project);
     packageJson.version = version;
@@ -79,20 +76,17 @@ export class WorkspaceService {
     this.writeJson(PACKAGE_FILE, this.ROOT_PACKAGE);
   }
 
-  @Trace()
   public writeJson(path: string, data: unknown): void {
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, JSON.stringify(data, undefined, '  ') + `\n`);
   }
 
-  @Trace()
   protected onModuleInit(): void {
     this.loadNX();
     this.loadPackages();
     this.loadMetadata();
   }
 
-  @Trace()
   private loadMetadata(): void {
     const { projects } = this.workspace;
     Object.keys(projects).forEach((key) => {
@@ -105,7 +99,6 @@ export class WorkspaceService {
     });
   }
 
-  @Trace()
   private loadNX(): void {
     this.workspace = JSON.parse(readFileSync(NX_WORKSPACE_FILE, 'utf-8'));
     const { projects } = this.workspace;
@@ -118,7 +111,6 @@ export class WorkspaceService {
     });
   }
 
-  @Trace()
   private loadPackages(): void {
     Object.keys(this.workspace.projects).forEach((project) => {
       const packageFile = this.path(project, 'package');

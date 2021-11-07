@@ -7,14 +7,12 @@ import {
   AutoLogService,
   ResultControlDTO,
   ToClass,
-  Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { EventEmitter2 } from 'eventemitter2';
 import { Model } from 'mongoose';
-
-import { ROOM_UPDATE, RoomDocument, RoomDTO } from '../../contracts';
+import { RoomDocument, RoomDTO, ROOM_UPDATE } from '../../contracts';
 
 @Injectable()
 export class RoomPersistenceService extends BaseMongoService {
@@ -28,7 +26,6 @@ export class RoomPersistenceService extends BaseMongoService {
     super();
   }
 
-  @Trace()
   @ToClass(RoomDTO)
   public async create(
     room: Omit<RoomDTO, keyof BaseSchemaDTO>,
@@ -39,7 +36,6 @@ export class RoomPersistenceService extends BaseMongoService {
     return room;
   }
 
-  @Trace()
   public async delete(state: RoomDTO | string): Promise<boolean> {
     const query = this.merge(typeof state === 'string' ? state : state._id);
     this.logger.debug({ query }, `delete query`);
@@ -53,7 +49,6 @@ export class RoomPersistenceService extends BaseMongoService {
     return result.acknowledged;
   }
 
-  @Trace()
   @ToClass(RoomDTO)
   public async findById(
     state: string,
@@ -66,7 +61,6 @@ export class RoomPersistenceService extends BaseMongoService {
     return this.decrypt(out);
   }
 
-  @Trace()
   @ToClass(RoomDTO)
   public async findMany(control: ResultControlDTO = {}): Promise<RoomDTO[]> {
     const query = this.merge(control);
@@ -76,7 +70,6 @@ export class RoomPersistenceService extends BaseMongoService {
     return this.decrypt(out);
   }
 
-  @Trace()
   public async update(
     state: Omit<Partial<RoomDTO>, keyof BaseSchemaDTO>,
     id: string,
@@ -89,7 +82,6 @@ export class RoomPersistenceService extends BaseMongoService {
     }
   }
 
-  @Trace()
   private decrypt<T extends RoomDTO | RoomDTO[]>(room: T): T {
     if (Array.isArray(room)) {
       return room.map((x) => this.decrypt(x)) as T;
@@ -97,7 +89,6 @@ export class RoomPersistenceService extends BaseMongoService {
     return room;
   }
 
-  @Trace()
   private encrypt({ settings, ...room }: RoomDTO): RoomDTO {
     room['settings_encrypted'] = this.encryptService.encrypt(settings ?? {});
     return room;

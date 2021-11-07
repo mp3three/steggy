@@ -6,7 +6,6 @@ import { CronJob } from 'cron';
 
 import { CRON_SCHEDULE } from '../contracts/cron';
 import { LOG_CONTEXT } from '../contracts/logger/constants';
-import { Info } from '../decorators/logger.decorator';
 import { AutoLogService } from './logger';
 
 @Injectable()
@@ -18,7 +17,6 @@ export class ScheduleExplorerService {
     private readonly reflector: Reflector,
   ) {}
 
-  @Info({ after: `[Scheduler] initialized` })
   protected onApplicationBootstrap(): void {
     const instanceWrappers: InstanceWrapper[] = [
       ...this.discoveryService.getControllers(),
@@ -48,5 +46,6 @@ export class ScheduleExplorerService {
         },
       );
     });
+    this.logger.info(`[Scheduler] initialized`);
   }
 }

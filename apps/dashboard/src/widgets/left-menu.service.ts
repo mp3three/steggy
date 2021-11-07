@@ -2,16 +2,16 @@ import {
   BLESSED_GRID,
   GridElement,
   iWorkspace,
+  RefreshAfter,
   Tree,
   TreeElement,
   TreeOptions,
+  WorkspaceExplorerService,
 } from '@automagical/terminal';
-import { RefreshAfter, WorkspaceExplorerService } from '@automagical/terminal';
 import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
-  Trace,
 } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 
@@ -19,16 +19,10 @@ const CACHE_KEY = 'LEFTMENU:activeWorkspace';
 
 @Injectable()
 export class LeftMenuService {
-  
-
   public activeWorkspace: iWorkspace;
 
   private TREE: TreeElement;
   private treeData: Pick<TreeOptions, 'children'> = {};
-
-  
-
-  
 
   constructor(
     @Inject(BLESSED_GRID) private readonly grid: GridElement,
@@ -38,11 +32,6 @@ export class LeftMenuService {
     private readonly logger: AutoLogService,
   ) {}
 
-  
-
-  
-
-  @Trace()
   protected async onApplicationBootstrap(): Promise<void> {
     const activeName = await this.cacheService.get(CACHE_KEY);
     this.workspaceExplorer.workspaces.forEach(({ name, menu }, workspace) => {
@@ -74,12 +63,8 @@ export class LeftMenuService {
     this.TREE.setData({ ...this.treeData, extended: true });
   }
 
-  
-
-  
-
   @RefreshAfter()
-  @Trace()
+
   // TODO: fixme
   // eslint-disable-next-line radar/cognitive-complexity
   private async onTreeSelect(workspace: iWorkspace): Promise<void> {
@@ -140,7 +125,6 @@ export class LeftMenuService {
     }
   }
 
-  @Trace()
   private renderTree(): void {
     this.TREE = this.grid.set(0, 0, 12, 2, Tree, {
       label: 'Application Menu',
@@ -167,6 +151,4 @@ export class LeftMenuService {
       }
     });
   }
-
-  
 }

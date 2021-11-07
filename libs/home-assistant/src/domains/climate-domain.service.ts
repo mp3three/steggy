@@ -1,4 +1,3 @@
-import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { HASS_DOMAINS, HassStateDTO } from '../contracts';
@@ -13,7 +12,6 @@ export class ClimateDomainService {
     callService.domain = HASS_DOMAINS.climate;
   }
 
-  @Trace()
   public async setAuxHeat<T extends HassStateDTO = HassStateDTO>(
     entityId: string | string[],
     aux_heat: string,
@@ -24,7 +22,6 @@ export class ClimateDomainService {
     });
   }
 
-  @Trace()
   public async setFanMode<T extends HassStateDTO = HassStateDTO>(
     entityId: string | string[],
     fan_mode: 'auto' | 'on' | string,
@@ -35,7 +32,6 @@ export class ClimateDomainService {
     });
   }
 
-  @Trace()
   public async setHumidity<T extends HassStateDTO = HassStateDTO>(
     entityId: string | string[],
     humidity: number,
@@ -46,7 +42,6 @@ export class ClimateDomainService {
     });
   }
 
-  @Trace()
   public async setHvacMode<T extends HassStateDTO = HassStateDTO>(
     entityId: string | string[],
     hvac_mode: 'heat_cool' | 'heat' | 'cool' | 'off' | string,
@@ -57,7 +52,6 @@ export class ClimateDomainService {
     });
   }
 
-  @Trace()
   public async setPresetMode(
     entityId: string | string[],
     preset_mode: string,
@@ -68,7 +62,6 @@ export class ClimateDomainService {
     });
   }
 
-  @Trace()
   public async setSwingMode(
     entityId: string | string[],
     swing_mode: string,
@@ -79,7 +72,6 @@ export class ClimateDomainService {
     });
   }
 
-  @Trace()
   public async setTemperature(
     entityId: string | string[],
     temperature: Partial<
@@ -92,14 +84,12 @@ export class ClimateDomainService {
     });
   }
 
-  @Trace()
   public async turnOff(entityId: string | string[]): Promise<void> {
     return await this.callService.call('turn_off', {
       entity_id: entityId,
     });
   }
 
-  @Trace()
   public async turnOn(entityId: string | string[]): Promise<void> {
     return await this.callService.call('turn_on', {
       entity_id: entityId,

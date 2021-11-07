@@ -1,4 +1,4 @@
-import { AutoLogService, Trace } from '@automagical/utilities';
+import { AutoLogService } from '@automagical/utilities';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { v4 as uuid } from 'uuid';
@@ -26,7 +26,6 @@ export abstract class BaseGroupService {
   public abstract getState(group: GroupDTO): Promise<RoomEntitySaveStateDTO[]>;
   public abstract isValidEntity(id: string): boolean;
 
-  @Trace()
   public async activateState(
     group: GroupDTO | string,
     stateId: string,
@@ -46,7 +45,6 @@ export abstract class BaseGroupService {
     await this.setState(group.entities, state.states);
   }
 
-  @Trace()
   public async addState<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(
@@ -63,7 +61,7 @@ export abstract class BaseGroupService {
   /**
    * Take the current state of the group and add it as a saved state
    */
-  @Trace()
+
   public async captureState(
     group: GroupDTO | string,
     name: string,
@@ -81,7 +79,6 @@ export abstract class BaseGroupService {
     return id;
   }
 
-  @Trace()
   public async deleteState<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(
@@ -105,7 +102,6 @@ export abstract class BaseGroupService {
     return group;
   }
 
-  @Trace()
   public async expandState(
     group: GroupDTO | string,
     state: ROOM_ENTITY_EXTRAS,
@@ -114,7 +110,6 @@ export abstract class BaseGroupService {
     this.logger.warn({ state }, `Group does not implement expandState`);
   }
 
-  @Trace()
   public async loadFromState(
     group: GroupDTO | string,
     load: string,
@@ -136,7 +131,6 @@ export abstract class BaseGroupService {
     EXTRA extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(entites: string[], state: RoomEntitySaveStateDTO<EXTRA>[]): Promise<void>;
 
-  @Trace()
   protected async loadGroup<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(group: GroupDTO<GROUP_TYPE> | string): Promise<GroupDTO<GROUP_TYPE>> {
@@ -149,7 +143,6 @@ export abstract class BaseGroupService {
     return group;
   }
 
-  @Trace()
   protected validateState<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(state: GroupSaveStateDTO<GROUP_TYPE>): GroupSaveStateDTO<GROUP_TYPE> {

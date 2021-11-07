@@ -3,7 +3,6 @@ import {
   IsEmpty,
   OnEvent,
   ResultControlDTO,
-  Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
@@ -42,7 +41,6 @@ export class RoutineService {
     private readonly stateChangeActivate: StateChangeActivateService,
   ) {}
 
-  @Trace()
   public async activateRoutine(routine: RoutineDTO | string): Promise<void> {
     routine = await this.get(routine);
     this.logger.info(`[${routine.friendlyName}] activate`);
@@ -74,17 +72,14 @@ export class RoutineService {
     });
   }
 
-  @Trace()
   public async create(routine: RoutineDTO): Promise<RoutineDTO> {
     return await this.routinePersistence.create(routine);
   }
 
-  @Trace()
   public async delete(routine: string | RoutineDTO): Promise<boolean> {
     return await this.routinePersistence.delete(routine);
   }
 
-  @Trace()
   public async get(routine: RoutineDTO | string): Promise<RoutineDTO> {
     if (typeof routine === 'object') {
       return routine;
@@ -92,23 +87,19 @@ export class RoutineService {
     return await this.routinePersistence.findById(routine);
   }
 
-  @Trace()
   public async list(control?: ResultControlDTO): Promise<RoutineDTO[]> {
     return await this.routinePersistence.findMany(control);
   }
 
-  @Trace()
   public async update(id: string, routine: RoutineDTO): Promise<RoutineDTO> {
     return await this.routinePersistence.update(routine, id);
   }
 
-  @Trace()
   protected async onApplicationBootstrap(): Promise<void> {
     await this.mount();
   }
 
   @OnEvent(ROUTINE_UPDATE)
-  @Trace()
   protected async remount(): Promise<void> {
     this.kunamiCode.reset();
     this.scheduleActivate.reset();
@@ -116,7 +107,6 @@ export class RoutineService {
     await this.mount();
   }
 
-  @Trace()
   private async mount(): Promise<void> {
     const allRoutines = await this.routinePersistence.findMany();
     this.logger.info(`Mounting {${allRoutines.length}} routines`);

@@ -1,4 +1,4 @@
-import { AutoLogService, Trace } from '@automagical/utilities';
+import { AutoLogService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { FanSpeeds, FanStateDTO, HASS_DOMAINS } from '../contracts';
@@ -27,21 +27,18 @@ export class FanDomainService {
     callService.domain = HASS_DOMAINS.fan;
   }
 
-  @Trace()
   public async decreaseSpeed(entityId?: string): Promise<void> {
     return await this.callService.call('descrease_speed', {
       entity_id: entityId,
     });
   }
 
-  @Trace()
   public async fanDirection(entityId?: string): Promise<void> {
     return await this.callService.call('set_direction', {
       entity_id: entityId,
     });
   }
 
-  @Trace()
   public async fanSpeedDown(entityId: string): Promise<void> {
     const { attributes } = this.entityManager.getEntity<FanStateDTO>(entityId);
     const currentSpeed = attributes.speed;
@@ -61,7 +58,6 @@ export class FanDomainService {
     });
   }
 
-  @Trace()
   public async fanSpeedUp(entityId: string): Promise<void> {
     const [{ attributes }] = this.entityManager.getEntities<FanStateDTO>([
       entityId,
@@ -83,20 +79,18 @@ export class FanDomainService {
     });
   }
 
-  @Trace()
   public async increaseSpeed(entityId?: string): Promise<void> {
     return await this.callService.call('increase_speed', {
       entity_id: entityId,
     });
   }
 
-  @Trace()
   public async oscillate(entityId?: string): Promise<void> {
     return await this.callService.call('oscillate', {
       entity_id: entityId,
     });
   }
-  @Trace()
+
   public async setPercentage(
     entityId: string,
     percentage: number,
@@ -107,14 +101,12 @@ export class FanDomainService {
     });
   }
 
-  @Trace()
   public async setPresetMode(entityId?: string): Promise<void> {
     return await this.callService.call('set_preset_mode', {
       entity_id: entityId,
     });
   }
 
-  @Trace()
   public async setSpeed(
     entityId: string,
     speed: FanSpeeds | 'fanSpeedUp' | 'fanSpeedDown',
@@ -131,21 +123,18 @@ export class FanDomainService {
     });
   }
 
-  @Trace()
   public async toggle(entityId?: string): Promise<void> {
     return await this.callService.call('toggle', {
       entity_id: entityId,
     });
   }
 
-  @Trace()
   public async turnOff(entityId?: string): Promise<void> {
     return await this.callService.call('turn_off', {
       entity_id: entityId,
     });
   }
 
-  @Trace()
   public async turnOn(entityId?: string): Promise<void> {
     return await this.callService.call('turn_on', {
       entity_id: entityId,

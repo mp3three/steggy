@@ -7,7 +7,6 @@ import {
   AutoLogService,
   JSONFilterService,
   OnEvent,
-  Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
@@ -24,7 +23,6 @@ export class StateChangeActivateService {
 
   private WATCHED_ENTITIES = new Map<string, StateChangeWatcher[]>();
 
-  @Trace()
   public reset(): void {
     this.logger.debug(
       `Removing ${this.WATCHED_ENTITIES.size} watched entities`,
@@ -32,7 +30,6 @@ export class StateChangeActivateService {
     this.WATCHED_ENTITIES = new Map();
   }
 
-  @Trace()
   public watch(
     activate: StateChangeActivateDTO,
     callback: () => Promise<void>,

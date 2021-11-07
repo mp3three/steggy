@@ -1,15 +1,17 @@
-import { Info, ModuleScannerService, Trace } from '@automagical/utilities';
+import { AutoLogService, ModuleScannerService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
-import { iRepl, REPL_CONFIG, ReplOptions } from '..';
+import { iRepl, REPL_CONFIG, ReplOptions } from '../contracts';
 
 @Injectable()
 export class ReplExplorerService {
-  constructor(private readonly scanner: ModuleScannerService) {}
+  constructor(
+    private readonly scanner: ModuleScannerService,
+    private readonly logger: AutoLogService,
+  ) {}
 
   public readonly REGISTERED_APPS = new Map<ReplOptions, iRepl>();
 
-  @Trace()
   public findServiceByName(name: string): iRepl {
     let out: iRepl;
     this.REGISTERED_APPS.forEach((service, settings) => {
@@ -20,7 +22,6 @@ export class ReplExplorerService {
     return out;
   }
 
-  @Trace()
   public findSettingsByName(name: string): ReplOptions {
     let out: ReplOptions;
     this.REGISTERED_APPS.forEach((service, settings) => {
@@ -31,7 +32,6 @@ export class ReplExplorerService {
     return out;
   }
 
-  @Info({ after: '[Repl] Initialized' })
   protected onModuleInit(): void {
     const providers = this.scanner.findWithSymbol<ReplOptions, iRepl>(
       REPL_CONFIG,
@@ -39,5 +39,6 @@ export class ReplExplorerService {
     providers.forEach((key, value) => {
       this.REGISTERED_APPS.set(key, value);
     });
+    this.logger.info(`[Repl] Initialized`);
   }
 }

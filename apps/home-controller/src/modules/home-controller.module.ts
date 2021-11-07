@@ -4,11 +4,7 @@ import {
 } from '@automagical/controller-logic';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import { ServerModule } from '@automagical/server';
-import {
-  APP_HOME_CONTROLLER,
-  ApplicationModule,
-  MQTTModule,
-} from '@automagical/utilities';
+import { APP_HOME_CONTROLLER, ApplicationModule } from '@automagical/utilities';
 
 import {
   DebugController,
@@ -31,7 +27,6 @@ import { ApplicationService } from '../services';
     RoutineController,
   ],
   imports: [
-    MQTTModule,
     ServerModule,
     HomeAssistantModule,
     HomeControllerCustomModule.forRoot(),

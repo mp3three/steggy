@@ -8,7 +8,7 @@ import {
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@automagical/home-assistant';
-import { AutoLogService, Trace } from '@automagical/utilities';
+import { AutoLogService } from '@automagical/utilities';
 import {
   BadRequestException,
   Injectable,
@@ -31,7 +31,6 @@ export class EntityCommandRouterService {
     private readonly climateService: ClimateDomainService,
   ) {}
 
-  @Trace()
   public async fromState({
     ref,
     state,
@@ -40,7 +39,6 @@ export class EntityCommandRouterService {
     await this.process(ref, state, extra);
   }
 
-  @Trace()
   public async process(
     id: string,
     command: string,
@@ -109,7 +107,6 @@ export class EntityCommandRouterService {
     }
   }
 
-  @Trace()
   private async fanEntity(
     id: string,
     command: string,
@@ -143,7 +140,6 @@ export class EntityCommandRouterService {
     throw new BadRequestException(command);
   }
 
-  @Trace()
   private async lightEntity(id: string, command: string) {
     switch (command) {
       case 'circadianLight':
@@ -162,7 +158,6 @@ export class EntityCommandRouterService {
     throw new BadRequestException(command);
   }
 
-  @Trace()
   private async lockEntity(id: string, command: keyof LockDomainService) {
     switch (command) {
       case 'lock':
@@ -173,7 +168,6 @@ export class EntityCommandRouterService {
     throw new BadRequestException(command);
   }
 
-  @Trace()
   private async mediaEntity(id: string, command: string): Promise<void> {
     switch (command) {
       case 'turnOff':
@@ -196,7 +190,6 @@ export class EntityCommandRouterService {
     throw new BadRequestException(command);
   }
 
-  @Trace()
   private async switchEntity(id: string, command: string): Promise<void> {
     switch (command) {
       case 'toggle':

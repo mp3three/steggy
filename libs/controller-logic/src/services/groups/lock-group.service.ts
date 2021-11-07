@@ -6,7 +6,7 @@ import {
   LockDomainService,
   LockStateDTO,
 } from '@automagical/home-assistant';
-import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
+import { AutoLogService, InjectConfig } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { each, eachLimit } from 'async';
 
@@ -38,7 +38,6 @@ export class LockGroupService extends BaseGroupService {
 
   public readonly GROUP_TYPE = GROUP_TYPES.lock;
 
-  @Trace()
   public async activateCommand(
     group: GroupDTO | string,
     state: GroupCommandDTO,
@@ -55,7 +54,6 @@ export class LockGroupService extends BaseGroupService {
     }
   }
 
-  @Trace()
   public async getState(
     group: GroupDTO<LightingCacheDTO>,
   ): Promise<RoomEntitySaveStateDTO[]> {
@@ -68,12 +66,10 @@ export class LockGroupService extends BaseGroupService {
     });
   }
 
-  @Trace()
   public isValidEntity(id: string): boolean {
     return domain(id) === HASS_DOMAINS.fan;
   }
 
-  @Trace()
   public async lock(group: GroupDTO | string): Promise<void> {
     if (typeof group === 'string') {
       group = await this.groupPersistence.findById(group);
@@ -92,7 +88,7 @@ export class LockGroupService extends BaseGroupService {
   /**
    * Alias for unlock
    */
-  @Trace()
+
   public async turnOff(group: GroupDTO | string): Promise<void> {
     return this.unlock(group);
   }
@@ -100,12 +96,11 @@ export class LockGroupService extends BaseGroupService {
   /**
    * Alias for lock
    */
-  @Trace()
+
   public async turnOn(group: GroupDTO | string): Promise<void> {
     return this.lock(group);
   }
 
-  @Trace()
   public async unlock(group: GroupDTO | string): Promise<void> {
     if (typeof group === 'string') {
       group = await this.groupPersistence.findById(group);
@@ -121,7 +116,6 @@ export class LockGroupService extends BaseGroupService {
     });
   }
 
-  @Trace()
   protected async setState(
     entites: string[],
     state: RoomEntitySaveStateDTO[],

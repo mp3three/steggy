@@ -4,7 +4,6 @@ import {
   AutoLogService,
   IsEmpty,
   ResultControlDTO,
-  Trace,
 } from '@automagical/utilities';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { each } from 'async';
@@ -31,7 +30,6 @@ export class RoomService {
     private readonly commandRouter: EntityCommandRouterService,
   ) {}
 
-  @Trace()
   public async activateState(
     command: RoutineCommandRoomStateDTO,
   ): Promise<void> {
@@ -68,7 +66,6 @@ export class RoomService {
     ]);
   }
 
-  @Trace()
   public async addEntity(
     room: RoomDTO | string,
     entity: RoomEntityDTO,
@@ -78,7 +75,6 @@ export class RoomService {
     return await this.roomPersistence.update(room, room._id);
   }
 
-  @Trace()
   public async addState(
     room: RoomDTO | string,
     state: RoomStateDTO,
@@ -91,7 +87,6 @@ export class RoomService {
     return state;
   }
 
-  @Trace()
   public async attachGroup(
     room: RoomDTO | string,
     group: GroupDTO | string,
@@ -101,20 +96,18 @@ export class RoomService {
     room.groups.push(group._id);
     return await this.roomPersistence.update(room, room._id);
   }
-  @Trace()
+
   public async create(
     room: Omit<RoomDTO, keyof BaseSchemaDTO>,
   ): Promise<RoomDTO> {
     return await this.roomPersistence.create(room);
   }
 
-  @Trace()
   public async delete(room: RoomDTO | string): Promise<boolean> {
     room = typeof room === 'string' ? room : room._id;
     return await this.roomPersistence.delete(room);
   }
 
-  @Trace()
   public async deleteEntity(
     room: RoomDTO | string,
     entity: string,
@@ -127,7 +120,6 @@ export class RoomService {
     return await this.roomPersistence.update(room, room._id);
   }
 
-  @Trace()
   public async deleteGroup(
     room: RoomDTO | string,
     groupId: string,
@@ -138,7 +130,6 @@ export class RoomService {
     return await this.roomPersistence.update(room, room._id);
   }
 
-  @Trace()
   public async deleteState(
     room: RoomDTO | string,
     state: string,
@@ -149,17 +140,14 @@ export class RoomService {
     return await this.roomPersistence.update(room, room._id);
   }
 
-  @Trace()
   public async get(room: RoomDTO | string): Promise<RoomDTO> {
     return await this.load(room);
   }
 
-  @Trace()
   public async list(control: ResultControlDTO = {}): Promise<RoomDTO[]> {
     return await this.roomPersistence.findMany(control);
   }
 
-  @Trace()
   public async update(
     room: Omit<Partial<RoomDTO>, keyof BaseSchemaDTO>,
     id: string,
@@ -167,7 +155,6 @@ export class RoomService {
     return await this.roomPersistence.update(room, id);
   }
 
-  @Trace()
   public async updateState(
     room: string | RoomDTO,
     id: string,
@@ -182,7 +169,6 @@ export class RoomService {
     return room.save_states.find((state) => state.id === id);
   }
 
-  @Trace()
   private filterEntities(
     { entities }: RoomDTO,
     filters: EntityFilters,
@@ -202,7 +188,6 @@ export class RoomService {
     return entities;
   }
 
-  @Trace()
   private async load(room: RoomDTO | string): Promise<RoomDTO> {
     if (typeof room === 'string') {
       room = await this.roomPersistence.findById(room);

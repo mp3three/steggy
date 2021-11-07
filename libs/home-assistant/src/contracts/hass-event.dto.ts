@@ -26,5 +26,6 @@ export class HassEventDTO<
   public data: EventDataDTO<STATE, ATTRIBUTES>;
   public event_type: HassEvents;
   public origin: 'local';
+  public result?: string;
   public time_fired: Date;
 }

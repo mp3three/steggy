@@ -8,7 +8,6 @@ import {
   EVENT_LISTENER_METADATA,
   OnEventMetadata,
 } from '../decorators/events.decorator';
-import { Info, Trace } from '../decorators/logger.decorator';
 import { AutoLogService } from './logger';
 
 @Injectable()
@@ -21,14 +20,12 @@ export class EventsExplorerService {
     private readonly metadataScanner: MetadataScanner,
   ) {}
 
-  @Trace()
   public getEventHandlerMetadata(
     target: Type<unknown>,
   ): OnEventMetadata | undefined {
     return this.reflector.get(EVENT_LISTENER_METADATA, target);
   }
 
-  @Trace()
   public loadEventListeners(): void {
     const providers = this.discoveryService.getProviders();
     const controllers = this.discoveryService.getControllers();
@@ -48,17 +45,15 @@ export class EventsExplorerService {
       });
   }
 
-  @Info({ after: `[Events] initialized` })
   protected onApplicationBootstrap(): void {
     this.loadEventListeners();
+    this.logger.info(`[Events] initialized`);
   }
 
-  @Trace()
   protected onApplicationShutdown(): void {
     this.eventEmitter.removeAllListeners();
   }
 
-  @Trace()
   private subscribe<T extends Record<string, Type>>(instance: T, key: keyof T) {
     const eventListenerMetadata = this.getEventHandlerMetadata(instance[key]);
     if (!eventListenerMetadata) {

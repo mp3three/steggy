@@ -1,4 +1,3 @@
-import { Trace } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { HASS_DOMAINS } from '../contracts';
@@ -10,7 +9,6 @@ export class NotifyDomainService {
     callService.domain = HASS_DOMAINS.notify;
   }
 
-  @Trace()
   public async notify(
     message: string,
     optional: {

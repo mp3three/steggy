@@ -1,5 +1,4 @@
-import { CronExpression } from '@automagical/utilities';
-import { Cron, InjectConfig, Trace } from '@automagical/utilities';
+import { Cron, CronExpression, InjectConfig } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
@@ -40,12 +39,19 @@ export class CircadianService {
   /**
    * Returns 0 when it's dark out, increasing to 1 at solar noon
    *
-   * ### Future improvements
+   * ## Future improvements
+   *
+   * ### Temperature math
    *
    * The math needs work, this seems more thought out because math reasons:
    * https://github.com/claytonjn/hass-circadian_lighting/blob/master/custom_components/circadian_lighting/__init__.py#L206
+   *
+   * ### Drop solar calc
+   *
+   * Retrive this same information from home assistant.
+   * The templating service seems to be capable of doing this same work
    */
-  @Trace()
+
   private getColorOffset(): number {
     const calc = this.solarCalcService.SOLAR_CALC;
     const noon = dayjs(calc.solarNoon);
@@ -69,7 +75,6 @@ export class CircadianService {
     return MIN;
   }
 
-  @Trace()
   private getCurrentTemperature() {
     const offset = this.getColorOffset();
     return Math.floor(

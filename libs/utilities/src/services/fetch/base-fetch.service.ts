@@ -1,7 +1,6 @@
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
 import { FetchArguments, ResultControlDTO } from '../../contracts';
-import { Trace } from '../../decorators/logger.decorator';
 import { controlToQuery } from '../../includes';
 import { AutoLogService } from '../logger/auto-log.service';
 
@@ -100,7 +99,7 @@ export class BaseFetchService {
   /**
    * Post processing function for fetch()
    */
-  @Trace()
+
   protected async fetchHandleResponse<T extends unknown = unknown>(
     { process }: FetchWith,
     response: Response,

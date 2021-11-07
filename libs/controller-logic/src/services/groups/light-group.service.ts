@@ -4,7 +4,7 @@ import {
   HASS_DOMAINS,
   LightStateDTO,
 } from '@automagical/home-assistant';
-import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
+import { AutoLogService, InjectConfig } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each, eachLimit } from 'async';
 
@@ -44,7 +44,6 @@ export class LightGroupService extends BaseGroupService {
 
   public readonly GROUP_TYPE = GROUP_TYPES.light;
 
-  @Trace()
   public async activateCommand(
     group: GroupParameter,
     command: GroupCommandDTO<GroupLightCommandExtra, GROUP_LIGHT_COMMANDS>,
@@ -65,19 +64,16 @@ export class LightGroupService extends BaseGroupService {
     }
   }
 
-  @Trace()
   public async dimDown(group: GroupParameter, amount?: number): Promise<void> {
     group = await this.loadGroup(group);
     await this.lightManager.dimDown({ increment: amount }, group.entities);
   }
 
-  @Trace()
   public async dimUp(group: GroupParameter, amount?: number): Promise<void> {
     group = await this.loadGroup(group);
     await this.lightManager.dimUp({ increment: amount }, group.entities);
   }
 
-  @Trace()
   public async expandState(
     group: GroupDTO | string,
     { brightness, hs_color }: LightingCacheDTO,
@@ -98,7 +94,6 @@ export class LightGroupService extends BaseGroupService {
     });
   }
 
-  @Trace()
   public async getState(
     group: GroupDTO<LightingCacheDTO>,
   ): Promise<RoomEntitySaveStateDTO<LightingCacheDTO>[]> {
@@ -125,12 +120,10 @@ export class LightGroupService extends BaseGroupService {
     return out;
   }
 
-  @Trace()
   public isValidEntity(id: string): boolean {
     return domain(id) === HASS_DOMAINS.light;
   }
 
-  @Trace()
   public async rotateColors(
     group: GroupParameter,
     direction: 'forward' | 'reverse' = 'forward',
@@ -148,7 +141,7 @@ export class LightGroupService extends BaseGroupService {
   /**
    * Set brightness for turned on entities of the group
    */
-  @Trace()
+
   public async setBrightness(
     group: GroupParameter,
     brightness: number,
@@ -171,13 +164,11 @@ export class LightGroupService extends BaseGroupService {
     );
   }
 
-  @Trace()
   public async turnOff(group: GroupParameter): Promise<void> {
     group = await this.loadGroup(group);
     await this.lightManager.turnOff(group.entities);
   }
 
-  @Trace()
   public async turnOn(
     group: GroupParameter,
     circadian = false,
@@ -193,7 +184,6 @@ export class LightGroupService extends BaseGroupService {
     });
   }
 
-  @Trace()
   protected async setState(
     entites: string[],
     state: RoomEntitySaveStateDTO[],

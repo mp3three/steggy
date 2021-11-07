@@ -4,7 +4,6 @@ export * from './events.decorator';
 export * from './fill-defaults.decorator';
 export * from './injectors';
 export * from './library-module.decorator';
-export * from './logger.decorator';
 export * from './mqtt.decorator';
 export * from './once-is-enough.decorator';
 export * from './schedule.decorator';

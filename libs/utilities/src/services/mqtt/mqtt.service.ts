@@ -10,7 +10,6 @@ import {
 import type { MqttSubscribeOptions } from '../../contracts';
 import { IsEmpty } from '../../contracts';
 import { InjectMQTT } from '../../decorators/injectors/inject-mqtt.decorator';
-import { Trace } from '../../decorators/logger.decorator';
 import { AutoLogService } from '../logger';
 
 /* eslint-disable radar/no-identical-functions */
@@ -38,7 +37,6 @@ export class MqttService {
   >();
   private readonly subscriptions = new Set<string>();
 
-  @Trace()
   public listen(
     topics: string | string[],
     options?: IClientSubscribeOptions,
@@ -62,7 +60,6 @@ export class MqttService {
     });
   }
 
-  @Trace()
   public publish(
     topic: string,
     message: string | Buffer | Record<string, unknown>,
@@ -82,7 +79,6 @@ export class MqttService {
     });
   }
 
-  @Trace()
   public subscribe(
     topic: string,
     callback: MqttCallback,
@@ -97,7 +93,6 @@ export class MqttService {
     this.callbacks.set(topic, [callbacks, options_]);
   }
 
-  @Trace()
   public unlisten(
     topic: string,
     options?: Record<string, unknown>,
@@ -112,7 +107,6 @@ export class MqttService {
     });
   }
 
-  @Trace()
   protected onModuleInit(): void {
     this.client.on(
       'message',
@@ -132,7 +126,6 @@ export class MqttService {
     );
   }
 
-  @Trace()
   private handlePayload<T>(payload: Buffer): T {
     const text = payload.toString('utf-8');
     if (!['{', '['].includes(text.charAt(FIRST))) {

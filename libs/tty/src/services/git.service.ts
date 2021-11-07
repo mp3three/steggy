@@ -1,4 +1,4 @@
-import { EMPTY, Trace } from '@automagical/utilities';
+import { EMPTY } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import execa from 'execa';
 import { decode } from 'ini';
@@ -7,7 +7,6 @@ import { GitConfigDTO } from '../contracts';
 
 @Injectable()
 export class GitService {
-  @Trace()
   public async getBranchName(): Promise<string> {
     const { stdout } = await execa(`git`, [
       `rev-parse`,
@@ -17,7 +16,6 @@ export class GitService {
     return stdout;
   }
 
-  @Trace()
   public async getConfig(): Promise<GitConfigDTO> {
     const { stdout } = await execa(`git`, [`config`, `--list`]);
     return decode(stdout) as GitConfigDTO;
@@ -26,7 +24,7 @@ export class GitService {
   /**
    * Is there any uncommitted changes?
    */
-  @Trace()
+
   public async isDirty(): Promise<boolean> {
     const { stdout } = await execa(`git`, [`status`, `--porcelain`]);
     return stdout.length > EMPTY;
@@ -37,7 +35,7 @@ export class GitService {
    *
    * This should also
    */
-  @Trace()
+
   public async listCommitMessages(
     base = `origin/develop`,
     reference?: string,

@@ -68,7 +68,8 @@ export class DebugService {
       process: false,
       url: `/debug/render-template`,
     })) as Response;
+    const text = await rendered.text();
 
-    console.log(await rendered.text());
+    console.log(text);
   }
 }

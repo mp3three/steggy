@@ -39,6 +39,7 @@ export const highlightContext = (
 ): string => chalk`{bold.${level.slice(2).toLowerCase()} [${context}]}`;
 const NEST = '@nestjs';
 export const methodColors = new Map<pino.Level, CONTEXT_COLORS>([
+  ['trace', 'bgGrey'],
   ['debug', 'bgBlue'],
   ['warn', 'bgYellow'],
   ['error', 'bgRed'],
@@ -66,6 +67,10 @@ export const prettyFormatMessage = (message: string): string => {
       matches[0],
       chalk`{bold.gray ${matches[0].slice(1, -1)}}`,
     );
+  }
+  const frontDash = ' - ';
+  if (message.slice(0, frontDash.length) === frontDash) {
+    message = `${chalk.yellowBright` - `}${message.slice(frontDash.length)}`;
   }
   return message;
 };

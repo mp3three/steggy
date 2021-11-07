@@ -1,4 +1,4 @@
-import { AutoLogService, Trace } from '@automagical/utilities';
+import { AutoLogService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import {
@@ -17,7 +17,6 @@ export class DeviceService {
     private readonly entityManager: EntityManagerService,
   ) {}
 
-  @Trace()
   public async findRelated(
     device: DeviceListItemDTO | string,
   ): Promise<RelatedDescriptionDTO> {
@@ -29,7 +28,6 @@ export class DeviceService {
     });
   }
 
-  @Trace()
   public async list(): Promise<DeviceListItemDTO[]> {
     return await this.socketService.sendMsg({
       type: HASSIO_WS_COMMAND.device_list,

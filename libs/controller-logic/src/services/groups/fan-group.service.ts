@@ -6,7 +6,7 @@ import {
   HASS_DOMAINS,
   HomeAssistantCoreService,
 } from '@automagical/home-assistant';
-import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
+import { AutoLogService, InjectConfig } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachLimit } from 'async';
 
@@ -39,7 +39,6 @@ export class FanGroupService extends BaseGroupService {
   }
   public readonly GROUP_TYPE: GROUP_TYPES.fan;
 
-  @Trace()
   public async activateCommand(
     group: GroupDTO<FanCacheDTO> | string,
     state: GroupCommandDTO,
@@ -56,7 +55,6 @@ export class FanGroupService extends BaseGroupService {
     }
   }
 
-  @Trace()
   public async getState(group: GroupDTO<FanCacheDTO>): Promise<SaveState[]> {
     return await group.entities.map((id) => {
       const fan = this.entityManager.getEntity<FanStateDTO>(id);
@@ -70,24 +68,20 @@ export class FanGroupService extends BaseGroupService {
     });
   }
 
-  @Trace()
   public isValidEntity(id: string): boolean {
     return domain(id) === HASS_DOMAINS.fan;
   }
 
-  @Trace()
   public async turnOff(group: GroupDTO<FanCacheDTO> | string): Promise<void> {
     group = await this.loadGroup(group);
     await this.hassCore.turnOff(group.entities);
   }
 
-  @Trace()
   public async turnOn(group: GroupDTO | string): Promise<void> {
     group = await this.loadGroup(group);
     await this.hassCore.turnOn(group.entities);
   }
 
-  @Trace()
   protected async setState(
     entites: string[],
     state: RoomEntitySaveStateDTO[],

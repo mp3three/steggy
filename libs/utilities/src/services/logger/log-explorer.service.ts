@@ -3,19 +3,12 @@ import { DiscoveryService } from '@nestjs/core';
 
 import { LOG_CONTEXT, LOGGER_LIBRARY } from '../../contracts/logger';
 import { mappedContexts } from '../../decorators/injectors';
-import { Info } from '../../decorators/logger.decorator';
 
 const SKIP_PROVIDERS = new Set(['ModuleRef', '', 'useFactory']);
-/**
- * TODO: Find a way to entirely disable trace / debug logging if the config log level is too low
- *
- * Currently, nodejs crashes if I attempt to inject the config service here
- */
 @Injectable()
 export class LogExplorerService {
   constructor(private readonly discoveryService: DiscoveryService) {}
 
-  @Info({ after: '[Logger] Initialized' })
   protected onModuleInit(): void {
     const providers = [
       ...this.discoveryService.getControllers(),

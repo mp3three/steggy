@@ -8,7 +8,6 @@ import {
   IsEmpty,
   queryToControl,
   storage,
-  Trace,
 } from '@automagical/utilities';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction } from 'express';
@@ -37,7 +36,6 @@ export class InitMiddleware implements NestMiddleware {
     @InjectConfig(MAX_REQUEST_ID) private readonly rollover: number,
   ) {}
 
-  @Trace()
   public use(
     request: APIRequest,
     { locals }: APIResponse,
@@ -74,7 +72,7 @@ export class InitMiddleware implements NestMiddleware {
    *
    * Server identifies as fine, no reason to expend extra resources
    */
-  @Trace()
+
   private isHealthCheck(
     { headers }: ResponseLocals,
     response: APIResponse,
@@ -89,7 +87,6 @@ export class InitMiddleware implements NestMiddleware {
     return false;
   }
 
-  @Trace()
   private mergeQueryHeader({ headers, control }: ResponseLocals): void {
     if (!headers.has(QUERY_HEADER)) {
       return;

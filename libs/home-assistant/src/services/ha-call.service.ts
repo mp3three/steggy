@@ -1,4 +1,4 @@
-import { IsEmpty, Trace } from '@automagical/utilities';
+import { IsEmpty } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
 
 import { HASS_DOMAINS, HASSIO_WS_COMMAND, HassStateDTO } from '../contracts';
@@ -14,7 +14,7 @@ export class HACallService {
    *
    * Does not wait for a response, meant for issuing commands
    */
-  @Trace()
+
   public async call<T extends unknown = HassStateDTO>(
     service: string,
     service_data: Record<string, unknown> = {},
@@ -42,7 +42,7 @@ export class HACallService {
   /**
    * Ask Home Assistant to send a MQTT message
    */
-  @Trace()
+
   public async sendMqtt<T = unknown>(
     topic: string,
     payload: Record<string, unknown>,
@@ -58,7 +58,6 @@ export class HACallService {
     });
   }
 
-  @Trace()
   public async sendNotification<Group extends string = string>(
     device: string,
     title: string,
@@ -80,7 +79,6 @@ export class HACallService {
     );
   }
 
-  @Trace()
   public async updateEntity(
     entityId: string | string[],
   ): Promise<HASS_DOMAINS> {

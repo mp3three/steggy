@@ -3,7 +3,6 @@ import {
   AutoLogService,
   ResultControlDTO,
   ToClass,
-  Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -22,7 +21,6 @@ export class GroupPersistenceService extends BaseMongoService {
     super();
   }
 
-  @Trace()
   @ToClass(GroupDTO)
   public async create<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
@@ -30,7 +28,6 @@ export class GroupPersistenceService extends BaseMongoService {
     return (await this.model.create(state)).toObject() as GroupDTO<GROUP_TYPE>;
   }
 
-  @Trace()
   public async delete(state: GroupDTO | string): Promise<boolean> {
     const query = this.merge(typeof state === 'string' ? state : state._id);
     this.logger.debug({ query }, `delete query`);
@@ -41,7 +38,7 @@ export class GroupPersistenceService extends BaseMongoService {
       .exec();
     return result.acknowledged;
   }
-  @Trace()
+
   @ToClass(GroupDTO)
   public async findById<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
@@ -56,7 +53,6 @@ export class GroupPersistenceService extends BaseMongoService {
     return out;
   }
 
-  @Trace()
   @ToClass(GroupDTO)
   public async findByName<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
@@ -80,7 +76,6 @@ export class GroupPersistenceService extends BaseMongoService {
       .exec()) as GroupDTO<GROUP_TYPE>;
   }
 
-  @Trace()
   @ToClass(GroupDTO)
   public async findMany<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
@@ -92,7 +87,6 @@ export class GroupPersistenceService extends BaseMongoService {
     return out;
   }
 
-  @Trace()
   public async update<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(

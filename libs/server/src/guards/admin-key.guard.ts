@@ -1,4 +1,4 @@
-import { AutoLogService, InjectConfig, Trace } from '@automagical/utilities';
+import { AutoLogService, InjectConfig } from '@automagical/utilities';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
 import { ADMIN_KEY } from '../config';
@@ -11,7 +11,6 @@ export class AdminKeyGuard implements CanActivate {
     @InjectConfig(ADMIN_KEY) private readonly adminKey: string,
   ) {}
 
-  @Trace()
   public canActivate(context: ExecutionContext): boolean {
     if (!this.adminKey) {
       return true;

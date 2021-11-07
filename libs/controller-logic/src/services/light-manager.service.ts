@@ -9,7 +9,6 @@ import {
   InjectConfig,
   InjectLogger,
   IsEmpty,
-  Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
@@ -51,7 +50,6 @@ export class LightManagerService {
     @InjectConfig(MIN_BRIGHTNESS) private readonly minBrightness: number,
   ) {}
 
-  @Trace()
   public async circadianLight(
     entity_id: string | string[] = [],
     brightness?: number,
@@ -69,7 +67,6 @@ export class LightManagerService {
     });
   }
 
-  @Trace()
   public async dimDown(
     data: RoomCommandDTO = {},
     change: string[],
@@ -82,7 +79,6 @@ export class LightManagerService {
     });
   }
 
-  @Trace()
   public async dimUp(
     data: RoomCommandDTO = {},
     change: string[],
@@ -95,7 +91,6 @@ export class LightManagerService {
     });
   }
 
-  @Trace()
   public async findDimmableLights(change: string[]): Promise<string[]> {
     const lights = await this.getActiveLights();
     return change.filter((light) => lights.includes(light));
@@ -104,7 +99,7 @@ export class LightManagerService {
   /**
    * Retrieve a list of lights that are supposed to be turned on right now
    */
-  @Trace()
+
   public async getActiveLights(): Promise<string[]> {
     const list: string[] = await this.cache.store.keys();
     return list
@@ -116,7 +111,6 @@ export class LightManagerService {
       .map((item) => item.slice(LIGHTING_CACHE_PREFIX.length));
   }
 
-  @Trace()
   public async getState(entity_id: string): Promise<LightingCacheDTO> {
     return await this.cache.get(CACHE_KEY(entity_id));
   }
@@ -126,7 +120,7 @@ export class LightManagerService {
    *
    * To go under 5, turn off the light instead
    */
-  @Trace()
+
   public async lightDim(entityId: string, amount: number): Promise<void> {
     let { brightness = NO_BRIGHTNESS } = await this.getState(entityId);
     brightness += amount;
@@ -145,7 +139,6 @@ export class LightManagerService {
     return await this.circadianLight(entityId, brightness);
   }
 
-  @Trace()
   public async setAttributes(
     entity_id: string | string[],
     settings: Partial<LightingCacheDTO> = {},
@@ -196,7 +189,6 @@ export class LightManagerService {
     await this.lightService.turnOn(entity_id, data);
   }
 
-  @Trace()
   public async turnOff(entity_id: string | string[]): Promise<void> {
     return this.turnOffEntities(entity_id);
   }
@@ -213,7 +205,6 @@ export class LightManagerService {
     await this.hassCoreService.turnOff(entity_id);
   }
 
-  @Trace()
   public async turnOn(
     entity_id: string | string[],
     settings: Partial<LightingCacheDTO> = {},
@@ -224,7 +215,6 @@ export class LightManagerService {
     });
   }
 
-  @Trace()
   protected async circadianLightingUpdate(kelvin: number): Promise<void> {
     const lights = await this.getActiveLights();
     await each(lights, async (id, callback) => {
@@ -238,7 +228,6 @@ export class LightManagerService {
     });
   }
 
-  @Trace()
   protected onModuleInit(): void {
     this.eventEmitter.on(CIRCADIAN_UPDATE, (kelvin) =>
       this.circadianLightingUpdate(kelvin),

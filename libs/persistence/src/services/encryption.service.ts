@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { InjectConfig, Trace } from '@automagical/utilities';
+import { InjectConfig } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import {
   createCipheriv,
@@ -31,7 +31,6 @@ export class EncryptionService {
     @InjectConfig(SALT_END_SIZE) private readonly saltEndSize: number,
   ) {}
 
-  @Trace()
   public decrypt<T extends Record<never, unknown> = Record<string, unknown>>(
     cipherbuffer: Buffer | Binary,
     secret: string = this.secret,
@@ -54,7 +53,6 @@ export class EncryptionService {
     );
   }
 
-  @Trace()
   public encrypt(data: unknown, secret: string = this.secret): Buffer {
     if (!data) {
       return;

@@ -24,8 +24,8 @@ import { Inject } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 
-import { Workspace, WorkspaceElement } from '../decorators';
 import { FontAwesomeIcons } from '../../../tty/src/icons';
+import { Workspace, WorkspaceElement } from '../decorators';
 import { OnLoggerActivate } from '../includes';
 
 type LOG_DATA = Record<string, unknown> & { context?: string };
@@ -107,7 +107,6 @@ export class LoggerWorkspace implements iLoggerCore {
     this.logMessage(data, message, 'bgYellow');
   }
 
-  @Debug({ after: 'Logger workspace attached' })
   protected onModuleInit(): void {
     this.level = this.configService.get([LIB_UTILS, LOG_LEVEL]);
     this.WIDGET = this.GRID.set(0, 2, 12, 10, Log, {

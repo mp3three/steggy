@@ -29,7 +29,7 @@ export class TreeWidget {
 
   
 
-  @Trace()
+  
   @FillDefaults(TreeWidgetSettingsDTO)
   public init(options: TreeWidgetSettingsDTO, listOptions: ListOptions): void {
     this.options = plainToClass(TreeWidgetSettingsDTO, options, {

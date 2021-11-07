@@ -6,7 +6,6 @@ import {
   PromptService,
   Repl,
   SCAN_CONFIG_CONFIGURATION,
-  SetiIcons,
   SystemService,
   TypePromptService,
   WorkspaceService,
@@ -18,20 +17,15 @@ import {
   ConfigTypeDTO,
   LIB_TERMINAL,
   TitleCase,
-  Trace,
 } from '@automagical/utilities';
 import { InternalServerErrorException } from '@nestjs/common';
-import { eachSeries } from 'async';
 import chalk from 'chalk';
-import Table from 'cli-table';
 import execa from 'execa';
 import figlet from 'figlet';
 import { existsSync } from 'fs';
 import ini from 'ini';
-import { set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
-import { listenerCount } from 'process';
 import rc from 'rc';
 
 const ARGV_APP = 3;
@@ -58,7 +52,7 @@ export class ConfigBuilderService implements iRepl {
    * - Assembles a config
    * - Passes off to handler
    */
-  @Trace()
+
   public async exec(): Promise<void> {
     const application =
       process.argv[ARGV_APP] ||
@@ -92,7 +86,7 @@ export class ConfigBuilderService implements iRepl {
   /**
    * Prompt the user for what to do
    */
-  @Trace()
+
   public async handleConfig(
     config: AutomagicalConfig,
     application: string,

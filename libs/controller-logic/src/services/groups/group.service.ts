@@ -1,10 +1,6 @@
 import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
 import { BaseSchemaDTO } from '@automagical/persistence';
-import {
-  AutoLogService,
-  ResultControlDTO,
-  Trace,
-} from '@automagical/utilities';
+import { AutoLogService, ResultControlDTO } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 
@@ -37,7 +33,6 @@ export class GroupService {
     private readonly commandRouter: EntityCommandRouterService,
   ) {}
 
-  @Trace()
   public async activateCommand(
     command: RoutineCommandGroupActionDTO,
   ): Promise<void> {
@@ -46,7 +41,6 @@ export class GroupService {
     return await base.activateCommand(group, command);
   }
 
-  @Trace()
   public async activateState(
     command: RoutineCommandGroupStateDTO,
   ): Promise<void> {
@@ -55,7 +49,6 @@ export class GroupService {
     return await base.activateState(group, command.state);
   }
 
-  @Trace()
   public async addEntity<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(
@@ -71,7 +64,6 @@ export class GroupService {
     return this.update(group._id, group);
   }
 
-  @Trace()
   public async addState<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(
@@ -83,7 +75,6 @@ export class GroupService {
     return await base.addState(group, state);
   }
 
-  @Trace()
   public async captureState(
     group: GroupDTO | string,
     name: string,
@@ -93,20 +84,17 @@ export class GroupService {
     return await base.captureState(group, name);
   }
 
-  @Trace()
   public async create<T extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
     group: Omit<GroupDTO<T>, keyof BaseSchemaDTO>,
   ): Promise<GroupDTO<T>> {
     return await this.groupPersistence.create<T>(group);
   }
 
-  @Trace()
   public async delete(group: GroupDTO | string): Promise<boolean> {
     group = typeof group === 'string' ? group : group._id;
     return await this.groupPersistence.delete(group);
   }
 
-  @Trace()
   public async deleteState<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(
@@ -118,7 +106,6 @@ export class GroupService {
     return await base.deleteState(group, state);
   }
 
-  @Trace()
   public async expandState<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(
@@ -130,7 +117,6 @@ export class GroupService {
     base.expandState(group, state);
   }
 
-  @Trace()
   public async get<GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
     group: GroupDTO<GROUP_TYPE> | string,
   ): Promise<GroupDTO<GROUP_TYPE>> {
@@ -142,7 +128,6 @@ export class GroupService {
     return group;
   }
 
-  @Trace()
   public async list<GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
     control: ResultControlDTO = {},
   ): Promise<GroupDTO<GROUP_TYPE>[]> {
@@ -150,7 +135,6 @@ export class GroupService {
     return out as GroupDTO<GROUP_TYPE>[];
   }
 
-  @Trace()
   public async load<T extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
     group: GroupDTO<T> | string,
   ): Promise<GroupDTO<T>> {
@@ -160,7 +144,6 @@ export class GroupService {
     return await this.groupPersistence.findById(group);
   }
 
-  @Trace()
   public async removeEntity<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(
@@ -173,7 +156,6 @@ export class GroupService {
     return this.update(group._id, group);
   }
 
-  @Trace()
   public async truncate<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(group: GroupDTO<GROUP_TYPE> | string): Promise<GroupDTO<GROUP_TYPE>> {
@@ -182,7 +164,6 @@ export class GroupService {
     return await this.update(group._id, group);
   }
 
-  @Trace()
   public async turnOff(group: GroupDTO | string): Promise<void> {
     group = await this.load(group);
     await each(group.entities, async (entity, callback) => {
@@ -191,7 +172,6 @@ export class GroupService {
     });
   }
 
-  @Trace()
   public async turnOn(
     group: GroupDTO | string,
     circadian = false,
@@ -218,7 +198,6 @@ export class GroupService {
     });
   }
 
-  @Trace()
   public async update<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(
@@ -228,7 +207,6 @@ export class GroupService {
     return await this.groupPersistence.update(data, id);
   }
 
-  @Trace()
   public async updateState<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(
@@ -243,7 +221,6 @@ export class GroupService {
     return await this.groupPersistence.update(group, group._id);
   }
 
-  @Trace()
   private getBaseGroup(type: GROUP_TYPES): BaseGroupService {
     switch (type) {
       case GROUP_TYPES.switch:

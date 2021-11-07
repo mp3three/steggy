@@ -11,16 +11,19 @@ import {
   WorkspaceElementSettingsDTO,
   WorkspaceSettingsDTO,
 } from '@automagical/terminal';
-import { SEND_ROOM_STATE } from '@automagical/utilities';
-import { Info, InjectConfig, MqttService, Trace } from '@automagical/utilities';
+import {
+  InjectConfig,
+  MqttService,
+  SEND_ROOM_STATE,
+} from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import chalk from 'chalk';
 import figlet from 'figlet';
 
-import { DEFAULT_HEADER_FONT } from '../config';
 import { FontAwesomeIcons, MDIIcons } from '../../../tty/src/icons';
+import { DEFAULT_HEADER_FONT } from '../config';
 
 type WorkspaceElements = Map<string, WorkspaceElementSettingsDTO>;
 
@@ -42,7 +45,6 @@ export class WorkspaceExplorerService {
     private readonly mqtt: MqttService,
   ) {}
 
-  @Info({ after: 'Workspaces initialized' })
   protected onApplicationBootstrap(): void {
     this.discoveryService
       .getProviders()
@@ -65,7 +67,6 @@ export class WorkspaceExplorerService {
       });
   }
 
-  @Trace()
   private header(settings: WorkspaceSettingsDTO, instance: iWorkspace): void {
     if (settings.customHeader) {
       return;
@@ -85,7 +86,6 @@ export class WorkspaceExplorerService {
     this.internalElements.set(instance, elements);
   }
 
-  @Trace()
   private remote(settings: WorkspaceSettingsDTO, instance: iWorkspace) {
     if (!settings.roomRemote) {
       return;

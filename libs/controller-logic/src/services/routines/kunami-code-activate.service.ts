@@ -3,12 +3,7 @@ import {
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
 } from '@automagical/home-assistant';
-import {
-  AutoLogService,
-  InjectConfig,
-  OnEvent,
-  Trace,
-} from '@automagical/utilities';
+import { AutoLogService, InjectConfig, OnEvent } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 
@@ -33,7 +28,6 @@ export class KunamiCodeActivateService {
   private TIMERS = new Map<string, ReturnType<typeof setTimeout>>();
   private WATCHED_SENSORS = new Map<string, KunamiWatcher[]>();
 
-  @Trace()
   public reset(): void {
     this.logger.debug(`Removing ${this.WATCHED_SENSORS.size} watched entities`);
     this.WATCHED_SENSORS = new Map();
@@ -42,7 +36,6 @@ export class KunamiCodeActivateService {
     this.TIMERS = new Map();
   }
 
-  @Trace()
   public watch(
     activate: KunamiCodeActivateDTO,
     callback: () => Promise<void>,
@@ -118,7 +111,7 @@ export class KunamiCodeActivateService {
    *
    * If this entity is not part of active matchers, insert the entries to get it started
    */
-  @Trace()
+
   private initWatchers(entity_id: string): void {
     // Clear out old timer
     if (this.TIMERS.has(entity_id)) {

@@ -3,7 +3,6 @@ import {
   ChangelogDTO,
   GitService,
   iRepl,
-  OctIcons,
   PromptService,
   Repl,
   SystemService,
@@ -15,7 +14,6 @@ import {
   AutoLogService,
   IsEmpty,
   TitleCase,
-  Trace,
 } from '@automagical/utilities';
 import { eachSeries } from 'async';
 import Table from 'cli-table';
@@ -44,7 +42,6 @@ export class ChangelogService implements iRepl {
     private readonly promptService: PromptService,
   ) {}
 
-  @Trace()
   public async exec(): Promise<void> {
     // Sanity check
     const abort = await this.checkDirty();
@@ -134,7 +131,6 @@ export class ChangelogService implements iRepl {
     await this.promptService.acknowledge('Done');
   }
 
-  @Trace()
   private async bumpRoot(): Promise<string> {
     const current = this.workspace.ROOT_PACKAGE.version;
     const updated = await this.versionBump(current, `Set root version`);
@@ -143,7 +139,6 @@ export class ChangelogService implements iRepl {
     return updated;
   }
 
-  @Trace()
   private async checkDirty(): Promise<boolean> {
     const isDirty = await this.gitService.isDirty();
     if (!isDirty) {
@@ -155,7 +150,6 @@ export class ChangelogService implements iRepl {
     );
   }
 
-  @Trace()
   private async listAffected(): Promise<string[]> {
     const { stdout } = await execa(`nx`, ['print-affected']);
     const { projects } = JSON.parse(stdout) as { projects: string[] };
@@ -165,7 +159,7 @@ export class ChangelogService implements iRepl {
   /**
    * - Prompt to even add an item
    */
-  @Trace()
+
   private async processAffected(affected: string[]): Promise<ChangeItemDTO[]> {
     const values = await this.promptService.pickMany(
       'Projects to version bump',
@@ -199,7 +193,6 @@ export class ChangelogService implements iRepl {
     return out;
   }
 
-  @Trace()
   private async projectMessages(
     affected: ChangeItemDTO[],
     messages: string[],
@@ -228,7 +221,6 @@ export class ChangelogService implements iRepl {
     });
   }
 
-  @Trace()
   private async versionBump(current: string, message: string): Promise<string> {
     const doInc = (bump) =>
       inc(

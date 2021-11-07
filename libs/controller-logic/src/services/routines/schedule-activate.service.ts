@@ -1,4 +1,4 @@
-import { AutoLogService, Trace } from '@automagical/utilities';
+import { AutoLogService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { CronJob } from 'cron';
 
@@ -10,13 +10,11 @@ export class ScheduleActivateService {
 
   private SCHEDULES = new Set<ScheduleWatcher>();
 
-  @Trace()
   public reset(): void {
     this.SCHEDULES.forEach(({ cron }) => cron.stop());
     this.SCHEDULES = new Set();
   }
 
-  @Trace()
   public watch(
     activate: ScheduleActivateDTO,
     callback: () => Promise<void>,

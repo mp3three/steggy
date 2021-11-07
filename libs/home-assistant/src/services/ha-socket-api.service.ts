@@ -3,16 +3,13 @@ import {
   AutoLogService,
   Cron,
   CronExpression,
-  Debug,
   EmitAfter,
   InjectConfig,
   InjectLogger,
   sleep,
-  Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
-import { application } from 'express';
 import WS from 'ws';
 
 import {
@@ -73,14 +70,13 @@ export class HASocketAPIService {
    * This can be a pretty big list
    */
   @EmitAfter(ALL_ENTITIES_UPDATED, { emitData: 'result' })
-  @Debug('Update all entities')
   public async getAllEntitities(): Promise<HassStateDTO[]> {
+    this.logger.debug('Update all entities');
     return await this.sendMsg<HassStateDTO[]>({
       type: HASSIO_WS_COMMAND.get_states,
     });
   }
 
-  @Debug('List all areas')
   public async getAreas(): Promise<AreaDTO[]> {
     return await this.sendMsg({
       type: HASSIO_WS_COMMAND.area_list,
@@ -93,33 +89,31 @@ export class HASocketAPIService {
     });
   }
 
-  @Debug('List all devices')
   public async listDevices(): Promise<DeviceListItemDTO[]> {
     return await this.sendMsg({
       type: HASSIO_WS_COMMAND.device_list,
     });
   }
 
-  @Debug('List all entities')
   public async listEntities(): Promise<EntityListItemDTO[]> {
     return await this.sendMsg({
       type: HASSIO_WS_COMMAND.entity_list,
     });
   }
 
-  @Trace()
   public async renderTemplate(template: string): Promise<string> {
-    return await this.sendMsg({
+    const out: string = await this.sendMsg({
       template,
       timeout: this.renderTimeout,
       type: HASSIO_WS_COMMAND.render_template,
     });
+    return out;
   }
 
   /**
    * Send a message to HomeAssistant. Optionally, wait for a reply to come back & return
    */
-  @Trace()
+
   public async sendMsg<T extends unknown = unknown>(
     data: SOCKET_MESSAGES,
     waitForResponse = true,
@@ -145,7 +139,6 @@ export class HASocketAPIService {
     return new Promise((done) => this.waitingCallback.set(counter, done));
   }
 
-  @Trace()
   public async updateEntity(
     entity: string,
     data: { name?: string; new_entity_id?: string },
@@ -160,7 +153,6 @@ export class HASocketAPIService {
     });
   }
 
-  @Trace()
   protected async onPostInit(): Promise<void> {
     // Kick off the connection process
     // Do not wait for it to actually complete through auth though
@@ -224,7 +216,7 @@ export class HASocketAPIService {
   /**
    * Set up a new websocket connection to home assistant
    */
-  @Trace()
+
   private initConnection(reset = false): void {
     if (reset) {
       this.eventEmitter.emit(CONNECTION_RESET);
@@ -268,7 +260,7 @@ export class HASocketAPIService {
    * ## result
    * Response to an outgoing emit
    */
-  @Trace()
+
   private async onMessage(message: SocketMessageDTO) {
     const id = Number(message.id);
     switch (message.type as HassSocketMessageTypes) {
@@ -289,16 +281,7 @@ export class HASocketAPIService {
         return;
 
       case HassSocketMessageTypes.event:
-        if (message.event.event_type === HassEvents.state_changed) {
-          this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
-        }
-        if (this.waitingCallback.has(id)) {
-          // Template rendering
-          const f = this.waitingCallback.get(id);
-          this.waitingCallback.delete(id);
-          f(message.result);
-        }
-        return;
+        return await this.onMessageEvent(id, message);
 
       case HassSocketMessageTypes.pong:
         // 🏓
@@ -310,30 +293,50 @@ export class HASocketAPIService {
         return;
 
       case HassSocketMessageTypes.result:
-        if (this.waitingCallback.has(id)) {
-          if (message.error) {
-            this.logger.error({ message });
-          }
-          if (message.result === null) {
-            await sleep(5000);
-            if (!this.waitingCallback.has(id)) {
-              return;
-            }
-          }
-          const f = this.waitingCallback.get(id);
-          this.waitingCallback.delete(id);
-          f(message.result);
-        }
-        return;
+        return await this.onMessageResult(id, message);
 
       case HassSocketMessageTypes.auth_invalid:
         this.CONNECTION_ACTIVE = false;
-        this.logger.error(message.message);
+        this.logger.fatal(message.message);
         return;
 
       default:
         // Code error probably
         this.logger.error(`Unknown websocket message type: ${message.type}`);
+    }
+  }
+
+  private onMessageEvent(id: number, message: SocketMessageDTO) {
+    if (message.event.event_type === HassEvents.state_changed) {
+      this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
+    }
+    if (this.waitingCallback.has(id)) {
+      // Template rendering
+      const f = this.waitingCallback.get(id);
+      this.waitingCallback.delete(id);
+      f(message.event.result);
+    }
+  }
+
+  private async onMessageResult(id: number, message: SocketMessageDTO) {
+    if (this.waitingCallback.has(id)) {
+      if (message.error) {
+        this.logger.error({ message });
+      }
+      if (message.result === null || typeof message.result === 'undefined') {
+        // This happens with template rendering requests
+        // Home Assistant initially replies back with an invalid result
+        // Then follows up with an event using the same id, which contains the real result
+        //
+        // See if the event will claim this callback first.
+        await sleep(this.renderTimeout + SECOND);
+        if (!this.waitingCallback.has(id)) {
+          return;
+        }
+      }
+      const f = this.waitingCallback.get(id);
+      this.waitingCallback.delete(id);
+      f(message.result);
     }
   }
 }

@@ -3,7 +3,6 @@ import dayjs from 'dayjs';
 import { get } from 'object-path';
 
 import { FILTER_OPERATIONS, FilterDTO, ResultControlDTO } from '../contracts';
-import { Trace } from '../decorators/logger.decorator';
 import { AutoLogService } from './logger';
 
 type RelativeCompare = number | Date | dayjs.Dayjs;
@@ -15,7 +14,6 @@ type RelativeCompare = number | Date | dayjs.Dayjs;
 export class JSONFilterService {
   constructor(private readonly logger: AutoLogService) {}
 
-  @Trace()
   public match(item: Record<string, unknown>, filter: FilterDTO): boolean {
     const value = get(item, filter.field);
     if (typeof filter.exists === 'boolean') {
@@ -62,7 +60,6 @@ export class JSONFilterService {
     }
   }
 
-  @Trace()
   public query<T = Record<string, unknown>>(
     control: Pick<ResultControlDTO, 'filters' | 'limit' | 'skip'>,
     data: T[],
@@ -76,35 +73,30 @@ export class JSONFilterService {
     return data.slice(control.skip, control.limit);
   }
 
-  @Trace()
   private gt(value: RelativeCompare, cmp: RelativeCompare): boolean {
     value = this.toNumber(value);
     cmp = this.toNumber(cmp);
     return value > cmp;
   }
 
-  @Trace()
   private gte(value: RelativeCompare, cmp: RelativeCompare): boolean {
     value = this.toNumber(value);
     cmp = this.toNumber(cmp);
     return value >= cmp;
   }
 
-  @Trace()
   private lt(value: RelativeCompare, cmp: RelativeCompare): boolean {
     value = this.toNumber(value);
     cmp = this.toNumber(cmp);
     return value < cmp;
   }
 
-  @Trace()
   private lte(value: RelativeCompare, cmp: RelativeCompare): boolean {
     value = this.toNumber(value);
     cmp = this.toNumber(cmp);
     return value <= cmp;
   }
 
-  @Trace()
   private regex(value: string, cmp: string | RegExp): boolean {
     const regex = typeof cmp === 'string' ? new RegExp(cmp, 'gi') : cmp;
     if (!(regex instanceof RegExp)) {
@@ -114,7 +106,6 @@ export class JSONFilterService {
     return regex.test(value);
   }
 
-  @Trace()
   private toNumber(value: RelativeCompare): number {
     if (value instanceof Date) {
       return value.getTime();

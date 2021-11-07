@@ -3,7 +3,6 @@ import {
   AutoLogService,
   FetchService,
   InjectConfig,
-  Trace,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
@@ -25,7 +24,7 @@ export class HomeAssistantFetchAPIService {
   /**
    * Wrapper to set baseUrl
    */
-  @Trace()
+
   public fetch<T>(fetchWitch: FetchWith): Promise<T> {
     return this.fetchService.fetch<T>({
       baseUrl: this.baseUrl,
@@ -34,7 +33,6 @@ export class HomeAssistantFetchAPIService {
     });
   }
 
-  @Trace()
   public async fetchEntityCustomizations<
     T extends Record<never, unknown> = Record<
       'global' | 'local',
@@ -49,7 +47,7 @@ export class HomeAssistantFetchAPIService {
   /**
    * Request historical information about an entity
    */
-  @Trace()
+
   public async fetchEntityHistory<T extends HassStateDTO = HassStateDTO>(
     entity_id: string,
     from: dayjs.Dayjs,

@@ -1,4 +1,4 @@
-import { AutoLogService, Trace } from '@automagical/utilities';
+import { AutoLogService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { HASS_DOMAINS } from '../contracts';
@@ -18,7 +18,6 @@ export class LightDomainService extends EntityService {
   }
   private CIRCADIAN_LIGHTING = new Set<string>();
 
-  @Trace()
   public async toggle(entityId: string | string[]): Promise<void> {
     this.trackEntity(entityId);
     return await this.callService.call('toggle', {
@@ -26,7 +25,6 @@ export class LightDomainService extends EntityService {
     });
   }
 
-  @Trace()
   public async turnOff(entity_id: string | string[]): Promise<void> {
     if (typeof entity_id === 'string') {
       entity_id = [entity_id];
@@ -42,7 +40,6 @@ export class LightDomainService extends EntityService {
     });
   }
 
-  @Trace()
   public async turnOn(
     entity_id: string | string[],
     settings: {

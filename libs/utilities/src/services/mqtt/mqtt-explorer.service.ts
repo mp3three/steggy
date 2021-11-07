@@ -17,7 +17,6 @@ import {
 } from '../../contracts';
 import { MQTT_SUBSCRIBE_OPTIONS } from '../../decorators';
 import { InjectMQTT } from '../../decorators/injectors/inject-mqtt.decorator';
-import { Info, Trace } from '../../decorators/logger.decorator';
 import { AutoLogService } from '../logger';
 import { MqttService } from './mqtt.service';
 
@@ -74,7 +73,6 @@ export class MQTTExplorerService {
 
   public subscribers: MqttSubscriber[] = [];
 
-  @Info('[MQTT] initialized')
   protected onApplicationBootstrap(): void {
     const providers: InstanceWrapper[] = this.discoveryService.getProviders();
     providers.forEach((wrapper: InstanceWrapper) => {
@@ -110,9 +108,9 @@ export class MQTTExplorerService {
         },
       );
     });
+    this.logger.info(`[MQTT] initialized`);
   }
 
-  @Trace()
   protected onModuleInit(): void {
     const client = this.client;
 
