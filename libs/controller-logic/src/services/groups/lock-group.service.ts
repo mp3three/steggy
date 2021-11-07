@@ -10,7 +10,6 @@ import { AutoLogService, InjectConfig } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { each, eachLimit } from 'async';
 
-import { CONCURRENT_CHANGES } from '../../config';
 import {
   GROUP_TYPES,
   GroupCommandDTO,
@@ -30,8 +29,6 @@ export class LockGroupService extends BaseGroupService {
     private readonly lockSerivice: LockDomainService,
     private readonly entityManager: EntityManagerService,
     protected readonly groupPersistence: GroupPersistenceService,
-    @InjectConfig(CONCURRENT_CHANGES)
-    private readonly eachLimit: number,
   ) {
     super();
   }
@@ -124,11 +121,10 @@ export class LockGroupService extends BaseGroupService {
       this.logger.warn(`State and entity length mismatch`);
       state = state.slice(START, entites.length);
     }
-    await eachLimit(
+    await each(
       state.map((state, index) => {
         return [entites[index], state];
       }) as [string, RoomEntitySaveStateDTO][],
-      this.eachLimit,
       async ([id, state], callback) => {
         if (state.state === LOCK_STATES.locked) {
           await this.lockSerivice.lock(id);

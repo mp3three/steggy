@@ -6,11 +6,10 @@ import {
   HASS_DOMAINS,
   HomeAssistantCoreService,
 } from '@automagical/home-assistant';
-import { AutoLogService, InjectConfig } from '@automagical/utilities';
+import { AutoLogService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { eachLimit } from 'async';
+import { each } from 'async';
 
-import { CONCURRENT_CHANGES } from '../../config';
 import {
   FanCacheDTO,
   GROUP_TYPES,
@@ -32,8 +31,6 @@ export class FanGroupService extends BaseGroupService {
     private readonly hassCore: HomeAssistantCoreService,
     private readonly entityManager: EntityManagerService,
     private readonly fanDomain: FanDomainService,
-    @InjectConfig(CONCURRENT_CHANGES)
-    private readonly eachLimit: number,
   ) {
     super();
   }
@@ -90,11 +87,10 @@ export class FanGroupService extends BaseGroupService {
       this.logger.warn(`State and entity length mismatch`);
       state = state.slice(START, entites.length);
     }
-    await eachLimit(
+    await each(
       state.map((state, index) => {
         return [entites[index], state];
       }) as [string, RoomEntitySaveStateDTO<FanCacheDTO>][],
-      this.eachLimit,
       async ([id, state], callback) => {
         if (state.state === 'off') {
           await this.fanDomain.turnOff(id);

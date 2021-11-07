@@ -14,7 +14,7 @@ import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 import { EventEmitter2 } from 'eventemitter2';
 
-import { MAX_BRIGHTNESS, MIN_BRIGHTNESS } from '../config';
+import { MIN_BRIGHTNESS } from '../config';
 import {
   CIRCADIAN_UPDATE,
   LIGHTING_MODE,
@@ -30,6 +30,7 @@ const PERCENT = 100;
 const DEFAULT_INCREMENT = 1;
 const START = 0;
 const NO_BRIGHTNESS = 0;
+const MAX_BRIGHTNESS = 255;
 
 /**
  * - State management for lights
@@ -46,7 +47,6 @@ export class LightManagerService {
     private readonly logger: AutoLogService,
     private readonly circadianService: CircadianService,
     private readonly eventEmitter: EventEmitter2,
-    @InjectConfig(MAX_BRIGHTNESS) private readonly maxBrightness: number,
     @InjectConfig(MIN_BRIGHTNESS) private readonly minBrightness: number,
   ) {}
 
@@ -124,17 +124,17 @@ export class LightManagerService {
   public async lightDim(entityId: string, amount: number): Promise<void> {
     let { brightness = NO_BRIGHTNESS } = await this.getState(entityId);
     brightness += amount;
-    if (brightness > this.maxBrightness) {
-      brightness = this.maxBrightness;
+    if (brightness > MAX_BRIGHTNESS) {
+      brightness = MAX_BRIGHTNESS;
     }
     if (brightness < this.minBrightness) {
       brightness = this.minBrightness;
     }
     this.logger.debug(
       { amount },
-      `[${entityId}] set brightness: {${brightness}/${
-        this.maxBrightness
-      } (${Math.floor((brightness * PERCENT) / this.maxBrightness)}%)}`,
+      `[${entityId}] set brightness: {${brightness}/${MAX_BRIGHTNESS} (${Math.floor(
+        (brightness * PERCENT) / MAX_BRIGHTNESS,
+      )}%)}`,
     );
     return await this.circadianLight(entityId, brightness);
   }

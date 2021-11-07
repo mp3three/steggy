@@ -4,11 +4,10 @@ import {
   HASS_DOMAINS,
   LightStateDTO,
 } from '@automagical/home-assistant';
-import { AutoLogService, InjectConfig } from '@automagical/utilities';
+import { AutoLogService } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
-import { each, eachLimit } from 'async';
+import { each } from 'async';
 
-import { CONCURRENT_CHANGES } from '../../config';
 import {
   GROUP_LIGHT_COMMANDS,
   GROUP_TYPES,
@@ -36,8 +35,6 @@ export class LightGroupService extends BaseGroupService {
     protected readonly groupPersistence: GroupPersistenceService,
     private readonly entityManager: EntityManagerService,
     private readonly lightManager: LightManagerService,
-    @InjectConfig(CONCURRENT_CHANGES)
-    private readonly eachLimit: number,
   ) {
     super();
   }
@@ -149,11 +146,10 @@ export class LightGroupService extends BaseGroupService {
   ): Promise<void> {
     group = await this.loadGroup(group);
     const states = this.getState(group);
-    await eachLimit(
+    await each(
       group.entities.map((entity, index) => {
         return [entity, states[index]];
       }) as [string, RoomEntitySaveStateDTO<LightingCacheDTO>][],
-      this.eachLimit,
       async ([id, state], callback) => {
         if (state?.state !== 'on' && turnOn === false) {
           return callback();
@@ -192,11 +188,10 @@ export class LightGroupService extends BaseGroupService {
       this.logger.warn(`State and entity length mismatch`);
       state = state.slice(START, entites.length);
     }
-    await eachLimit(
+    await each(
       state.map((state, index) => {
         return [entites[index], state];
       }) as [string, RoomEntitySaveStateDTO<LightingCacheDTO>][],
-      this.eachLimit,
       async ([id, state], callback) => {
         if (state.state === 'off') {
           await this.lightManager.turnOff(id);

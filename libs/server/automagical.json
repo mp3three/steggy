@@ -1,19 +1,23 @@
 {
   "configuration": {
     "GLOBAL_PREFIX": {
-      "type": "string"
+      "type": "string",
+      "description": "Ex: 'api' http://localhost:7000/normal/route/path => http://localhost:7000/api/normal/route/path"
     },
     "MAX_REQUEST_ID": {
       "type": "number",
-      "default": 1000000000
+      "default": 1000000000,
+      "description": "Rollover point for request ids"
     },
     "BODY_SIZE": {
       "type": "string",
-      "default": "100kb"
+      "default": "100kb",
+      "description": "Max JSON body size"
     },
     "COMPRESSION": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "description": "Compress responses before sending"
     },
     "PORT": {
       "type": "number",

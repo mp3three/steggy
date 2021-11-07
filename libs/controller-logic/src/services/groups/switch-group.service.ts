@@ -5,11 +5,10 @@ import {
   HomeAssistantCoreService,
   SwitchStateDTO,
 } from '@automagical/home-assistant';
-import { AutoLogService, InjectConfig } from '@automagical/utilities';
+import { AutoLogService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { eachLimit } from 'async';
+import { each } from 'async';
 
-import { CONCURRENT_CHANGES } from '../../config';
 import {
   GROUP_TYPES,
   GroupCommandDTO,
@@ -27,8 +26,6 @@ export class SwitchGroupService extends BaseGroupService {
     private readonly entityManager: EntityManagerService,
     private readonly hassCore: HomeAssistantCoreService,
     protected readonly groupPersistence: GroupPersistenceService,
-    @InjectConfig(CONCURRENT_CHANGES)
-    private readonly eachLimit: number,
   ) {
     super();
   }
@@ -88,11 +85,10 @@ export class SwitchGroupService extends BaseGroupService {
       this.logger.warn(`State and entity length mismatch`);
       state = state.slice(START, entites.length);
     }
-    await eachLimit(
+    await each(
       state.map((state, index) => {
         return [entites[index], state];
       }) as [string, RoomEntitySaveStateDTO][],
-      this.eachLimit,
       async ([id, state], callback) => {
         if (state.state === 'off') {
           await this.hassCore.turnOff(id);

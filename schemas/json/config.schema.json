@@ -125,7 +125,7 @@
           "$ref": "#/definitions/warnDefault"
         }
       },
-      "required": ["type"]
+      "required": ["type", "description"]
     },
     "boolean-config": {
       // AutomagicalBooleanConfig
@@ -146,7 +146,7 @@
           "$ref": "#/definitions/warnDefault"
         }
       },
-      "required": ["type"]
+      "required": ["type", "description"]
     },
     "number-config": {
       // AutomagicalNumberConfig
@@ -167,7 +167,7 @@
           "$ref": "#/definitions/warnDefault"
         }
       },
-      "required": ["type"]
+      "required": ["type", "description"]
     },
     "password-config": {
       // AutomagicalPasswordConfig
@@ -185,7 +185,7 @@
           "$ref": "#/definitions/warnDefault"
         }
       },
-      "required": ["type"]
+      "required": ["type", "description"]
     },
     "url-config": {
       // AutomagicalUrlConfig
@@ -206,7 +206,7 @@
           "$ref": "#/definitions/warnDefault"
         }
       },
-      "required": ["type"]
+      "required": ["type", "description"]
     },
     "warnDefault": {
       "type": "boolean",

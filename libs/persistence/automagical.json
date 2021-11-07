@@ -13,8 +13,7 @@
     "CIPHER_SECRET":{
       "type": "string",
       "description": "Used with database encryption",
-      "default": "changeme",
-      "warnDefault": true
+      "default": "changeme"
     },
     "SALT_START_SIZE": {
       "type": "number",

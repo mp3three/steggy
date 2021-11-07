@@ -2,44 +2,28 @@
   "configuration": {
     "KUNAMI_TIMEOUT": {
       "type": "number",
-      "description": "When pressing a button from a 5 button remote, this is the max ms between events for them to be considered part of the same action",
+      "description": "When tracking state changes for a kunami event, another change must happen inside this time window",
       "default": 1500
     },
     "CIRCADIAN_MAX_TEMP": {
       "type": "number",
-      "default": 5500
+      "default": 5500,
+      "description": "Maximum color temperature for circadian lighting. Used at solar noon"
     },
     "CIRCADIAN_MIN_TEMP": {
       "type": "number",
-      "default": 2000
-    },
-    "LATITUDE": {
-      "type": "string",
-      "required": true
-    },
-    "LONGITUDE": {
-      "type": "string",
-      "required": true
-    },
-    "CONCURRENT_CHANGES": {
-      "type": "number",
-      "description": "When working through lists of unknown size, limit to x entities at a time to reduce load",
-      "default": 10
-    },
-    "MAX_BRIGHTNESS": {
-      "type": "number",
-      "default": 255,
-      "description": "Highest brightness number to use for light brightness"
+      "default": 2000,
+      "description": "Minimum color temperature for circadian lighting. Used while it's dark out"
     },
     "MIN_BRIGHTNESS": {
       "type": "number",
       "default": 5,
-      "description": "Enforce a number higher than 1 for min brightness. Only applies to lights that identify as 'on'"
+      "description": "Enforce a number higher than 1 for min brightness in dimmers. Some lights do weird stuff at low numbers"
     },
     "MONGO_URI": {
       "type": "string",
       "default": "mongodb://localhost:27017/automagical",
-      "description": "Mongo URI string. Include database in url"
+      "description": "Mongo connection string"
     },
     "MONGO_CERT": {
       "type": "string",
@@ -50,22 +34,17 @@
       "description": "Optional configuration item, used with mongo ssl connections"
     },
     "MONGO_CA": {
-      "type": "string[]",
+      "type": "string",
       "description": "Optional configuration item, used with mongo ssl connections"
     },
     "MONGO_CRL": {
-      "type": "string[]",
+      "type": "string",
       "description": "Optional configuration item, used with mongo ssl connections"
     },
     "CACHE_TTL": {
       "type": "number",
       "description": "How long to store short term cache information for",
       "default": 86400
-    },
-    "FORCE_EVENING_HOUR": {
-      "type": "number",
-      "description": "After this hour, the solar calculator will forcibly consider it 'evening'. Useful for logic that can be thrown off by longer days",
-      "default": 18
     }
   }
 }

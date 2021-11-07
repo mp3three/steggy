@@ -2,20 +2,22 @@
   "configuration": {
     "TOKEN": {
       "type": "password",
-      "required": true
+      "required": true,
+      "description": "Auth token to access Home Assistant"
     },
     "BASE_URL": {
       "type": "url",
-      "required": true
+      "default": "http://localhost:8123",
+      "description": "Url to reach Home Assistant at"
     },
     "WEBSOCKET_URL": {
       "type": "string",
-      "description": "Must use `wss://` protocol. Optional override for value calculated using BASE_URL"
+      "description": "Override calculated value if it's breaking or you want something custom. Make sure to use wss://"
     },
     "WARN_REQUESTS_PER_SEC": {
       "type": "number",
       "default": 300,
-      "description": "Emit warnings if the home controller attempts to send more than X messages to home assistant inside of a second"
+      "description": "Emit warnings if the home controller attempts to send more than X messages to Home Assistant inside of a second"
     },
     "CRASH_REQUESTS_PER_SEC": {
       "type": "number",
@@ -24,7 +26,8 @@
     },
     "RENDER_TIMEOUT": {
       "type": "number",
-      "default": 3
+      "default": 3,
+      "description": "TODO: add description"
     }
   }
 }

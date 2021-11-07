@@ -47,11 +47,6 @@
             "output": "./assets/devtools"
           },
           {
-            "input": "apps/dashboard",
-            "glob": "automagical.json",
-            "output": "./assets/dashboard"
-          },
-          {
             "input": "apps/home-cli",
             "glob": "automagical.json",
             "output": "./assets/home-cli"
