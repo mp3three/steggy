@@ -3,11 +3,11 @@ export class AutomagicalMetadataDTO {
   configuration: Record<string, ConfigItem>;
 }
 export const METADATA_FILE = 'automagical.json';
-export type ConfigItem = {
+export type ConfigItem<T extends AnyConfig = AnyConfig> = {
   default?: unknown;
   description?: string;
-} & AnyConfig;
-type AnyConfig =
+} & T;
+export type AnyConfig =
   | AutomagicalStringConfig
   | AutomagicalBooleanConfig
   | AutomagicalNumberConfig

@@ -11,6 +11,7 @@ import {
 import {
   AutoLogService,
   AutomagicalConfig,
+  AutomagicalStringConfig,
   ConfigTypeDTO,
   TitleCase,
 } from '@automagical/utilities';
@@ -48,7 +49,6 @@ export class ConfigBuilderService implements iRepl {
   ) {}
   private config: AutomagicalConfig;
   private loadedApplication = '';
-  private dirty = false;
 
   /**
    * Generic entrypoint for interface
@@ -77,9 +77,6 @@ export class ConfigBuilderService implements iRepl {
    */
 
   public async handleConfig(application: string): Promise<void> {
-    if (this.dirty) {
-      console.log(chalk`${ICONS.WARNING} There are unsaved changes`);
-    }
     const action = await this.promptService.menuSelect(
       [
         [`${ICONS.EDIT}Edit`, 'edit'],
@@ -89,17 +86,13 @@ export class ConfigBuilderService implements iRepl {
       `What to do?`,
     );
     switch (action) {
-      case DONE:
-        return;
       case 'edit':
         await this.buildApplication(application);
-        this.dirty = true;
         return await this.handleConfig(application);
       case 'describe':
         this.promptService.print(encode(this.config));
         return await this.handleConfig(application);
       case 'save':
-        this.dirty = false;
         return await this.handleConfig(application);
     }
   }
@@ -141,7 +134,6 @@ export class ConfigBuilderService implements iRepl {
       entries,
     );
     await eachSeries(list, async (item) => await this.prompt(item));
-    await this.handleConfig(application);
   }
 
   private buildEntries(
@@ -180,7 +172,7 @@ export class ConfigBuilderService implements iRepl {
         chalk` {cyan -} {white.bold Defaults}    {cyanBright :} {white System is using default value}`,
         chalk` {cyan -} {magenta.bold Careful}     {cyanBright :} {white Don't set these unless you know what you're doing}`,
         chalk` {cyan -} {yellow.bold Recommended} {cyanBright :} {white Setting the value of this property is recommended}`,
-        chalk` {cyan -} {red.bold Required}    {cyanBright :} {white Property is required, and not provided}`,
+        chalk` {cyan -} {red.bold Required}    {cyanBright :} {white Property is required, and not currently set}`,
         chalk` {cyan -} {greenBright.bold Overridden}  {cyanBright :} {white You have provided a value for this property}`,
         ``,
         chalk.bold.white.bgBlue`   ${'     Property'.padEnd(
@@ -271,37 +263,34 @@ export class ConfigBuilderService implements iRepl {
     const path = this.path(config);
     const label = this.colorProperty(config, NONE);
     const current = get(this.config, path, config.default);
+    let result: unknown;
     switch (config.metadata.type) {
       case 'boolean':
-        set(
-          this.config,
-          path,
-          await this.promptService.boolean(label, current as boolean),
-        );
-        return;
+        result = await this.promptService.boolean(label, current as boolean);
+        break;
       case 'number':
-        set(
-          this.config,
-          path,
-          await this.promptService.number(label, current as number),
-        );
-        return;
+        result = await this.promptService.number(label, current as number);
+        break;
       case 'password':
-        set(
-          this.config,
-          path,
-          await this.promptService.password(label, current as string),
-        );
-        return;
+        result = await this.promptService.password(label, current as string);
+        break;
       case 'url':
       case 'string':
-        set(
-          this.config,
-          path,
-          await this.promptService.string(label, current as string),
-        );
-        return;
+        const { metadata } = config as ConfigTypeDTO<AutomagicalStringConfig>;
+        result = Array.isArray(metadata.enum)
+          ? await this.promptService.pickOne(
+              label,
+              metadata.enum.map((i) => [i, i]),
+              current,
+            )
+          : await this.promptService.string(label, current as string);
+        break;
     }
+    if (result === config.default || result === current) {
+      // Don't set defaults
+      return;
+    }
+    set(this.config, path, result);
   }
 
   private async scan(application: string): Promise<Set<ConfigTypeDTO>> {
