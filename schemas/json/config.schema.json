@@ -123,6 +123,9 @@
         },
         "warnDefault": {
           "$ref": "#/definitions/warnDefault"
+        },
+        "careful": {
+          "$ref": "#/definitions/careful"
         }
       },
       "required": ["type", "description"]
@@ -144,6 +147,9 @@
         },
         "warnDefault": {
           "$ref": "#/definitions/warnDefault"
+        },
+        "careful": {
+          "$ref": "#/definitions/careful"
         }
       },
       "required": ["type", "description"]
@@ -165,6 +171,9 @@
         },
         "warnDefault": {
           "$ref": "#/definitions/warnDefault"
+        },
+        "careful": {
+          "$ref": "#/definitions/careful"
         }
       },
       "required": ["type", "description"]
@@ -183,6 +192,9 @@
         },
         "warnDefault": {
           "$ref": "#/definitions/warnDefault"
+        },
+        "careful": {
+          "$ref": "#/definitions/careful"
         }
       },
       "required": ["type", "description"]
@@ -204,6 +216,9 @@
         },
         "warnDefault": {
           "$ref": "#/definitions/warnDefault"
+        },
+        "careful": {
+          "$ref": "#/definitions/careful"
         }
       },
       "required": ["type", "description"]
@@ -216,6 +231,11 @@
     "required": {
       "type": "boolean",
       "description": "Process will refuse to start if value is not provided",
+      "default": false
+    },
+    "careful": {
+      "type": "boolean",
+      "description": "This property is technical / security in nature, not general app settings",
       "default": false
     }
   }

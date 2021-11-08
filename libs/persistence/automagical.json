@@ -3,27 +3,32 @@
     "CIPER_ALGORITHM":{
       "type": "string",
       "description": "Used with database encryption",
-      "default": "aes-256-cbc"
+      "default": "aes-256-cbc",
+      "careful": true
     },
     "CIPER_KEY_SIZE":{
       "type": "number",
       "description": "Used with database encryption",
-      "default": 32
+      "default": 32,
+      "careful": true
     },
     "CIPHER_SECRET":{
       "type": "string",
       "description": "Used with database encryption",
-      "default": "changeme"
+      "default": "changeme",
+      "careful": true
     },
     "SALT_START_SIZE": {
       "type": "number",
       "default": 20,
-      "description": "Random bytes to add to front of encrypted values"
+      "description": "Random bytes to add to front of encrypted values",
+      "careful": true
     },
     "SALT_END_SIZE": {
       "type": "number",
       "default": 20,
-      "description": "Random bytes to add to end of encrypted values"
+      "description": "Random bytes to add to end of encrypted values",
+      "careful": true
     }
   }
 }

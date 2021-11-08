@@ -21,7 +21,10 @@ import {
 import { DONE, PromptMenuItems } from '../contracts';
 
 const name = `result`;
-export type PromptEntry<T = string> = [string, string | T] | Separator;
+export type PROMPT_WITH_SHORT = { short: string; name: string };
+export type PromptEntry<T = string> =
+  | [string | PROMPT_WITH_SHORT, string | T]
+  | Separator;
 const LABEL = 0;
 const VALUE = 1;
 const CHECK_ICON = 0;
@@ -217,16 +220,21 @@ export class PromptService {
   ): PromptMenuItems<T> {
     return items.map((item) => {
       if (Array.isArray(item)) {
-        return {
-          // Adding emojies can sometimes cause the final character to have rendering issues
-          // Insert sacraficial empty space to the end
-          //
-          // Don't do it to everything though, since pickMany looks weird when that happens
-          name: new RegExp(`[^a-zA-Z0-9]`).test(item[LABEL][CHECK_ICON])
-            ? `${item[LABEL]} `
-            : item[LABEL],
-          value: item[VALUE] as T,
-        };
+        let label = item[LABEL] as string | PROMPT_WITH_SHORT;
+        if (typeof label === 'string') {
+          return {
+            // Adding emojies can sometimes cause the final character to have rendering issues
+            // Insert sacraficial empty space to the end
+            name: `${label} `,
+            short: label,
+            value: item[VALUE] as T,
+          };
+        } else {
+          return {
+            ...label,
+            value: item[VALUE] as T,
+          };
+        }
       }
       return item;
     });

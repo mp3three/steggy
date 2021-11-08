@@ -2,9 +2,9 @@
   "configuration": {
     "LOG_LEVEL": {
       "type": "string",
-      "enum": ["info", "warn", "debug", "trace"],
+      "enum": ["info", "warn", "debug"],
       "default": "info",
-      "description": "Minimum log level to process. NOTE: Trace logging is not advised in most circumstances. It is extremely verbose, and will have an impact on performance"
+      "description": "Minimum log level to process"
     },
     "MQTT_HOST": {
       "type": "string",
@@ -35,7 +35,8 @@
     "REDIS_DEFAULT_TTL": {
       "type": "number",
       "default": 86400,
-      "description": "Configuration property for redis connection"
+      "description": "Configuration property for redis connection",
+      "careful": true
     },
     "MQTT_HEALTH_CHECK_INTERVAL": {
       "type": "number",
@@ -45,7 +46,8 @@
     "EVENT_EMITTER_MAX_LISTENENERS": {
       "type": "number",
       "default": 20,
-      "description": "Internal use"
+      "description": "Internal use",
+      "careful": true
     }
   }
 }

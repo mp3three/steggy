@@ -28,7 +28,8 @@
     "DISABLE_CLEAR": {
       "type": "boolean",
       "default": false,
-      "description": "For debugging"
+      "description": "For debugging",
+      "careful": true
     }
   }
 }

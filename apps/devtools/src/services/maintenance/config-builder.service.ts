@@ -6,11 +6,9 @@ import {
   PromptService,
   Repl,
   SCAN_CONFIG_CONFIGURATION,
-  SystemService,
   WorkspaceService,
 } from '@automagical/tty';
 import {
-  AutoConfigService,
   AutoLogService,
   AutomagicalConfig,
   ConfigTypeDTO,
@@ -34,6 +32,7 @@ const DATA = 1;
 const DOWN = -1;
 const COMMAIFY = 10_000;
 const HEADER_END_PADDING = 20;
+const NONE = 0;
 const NO_VALUE = { no: 'value' };
 
 @Repl({
@@ -44,11 +43,11 @@ const NO_VALUE = { no: 'value' };
 export class ConfigBuilderService implements iRepl {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly systemService: SystemService,
     private readonly workspace: WorkspaceService,
     private readonly promptService: PromptService,
   ) {}
   private config: AutomagicalConfig;
+  private loadedApplication = '';
   private dirty = false;
 
   /**
@@ -128,6 +127,7 @@ export class ConfigBuilderService implements iRepl {
     this.config = rc<AutomagicalConfig>(application);
     delete this.config['configs'];
     delete this.config['config'];
+    this.loadedApplication = application;
 
     const configEntries = await this.scan(application);
     this.promptService.clear();
@@ -140,9 +140,6 @@ export class ConfigBuilderService implements iRepl {
       `Select properties to change\n`,
       entries,
     );
-    this.promptService.clear();
-    this.promptService.scriptHeader(TitleCase(application));
-
     await eachSeries(list, async (item) => await this.prompt(item));
     await this.handleConfig(application);
   }
@@ -162,24 +159,29 @@ export class ConfigBuilderService implements iRepl {
     const build: PromptEntry<ConfigTypeDTO>[] = [];
     config.forEach((entry) => {
       build.push([
-        chalk`{bold ${this.colorProperty(
-          entry,
-          maxProperty,
-        )}} {cyan |} ${entry.library.padEnd(
-          maxLibrary,
-          ' ',
-        )} {cyan |} ${this.colorDefault(entry, maxDefault)} {cyan |} {gray ${
-          entry.metadata.description
-        }}`,
+        {
+          name: chalk`{bold ${this.colorProperty(
+            entry,
+            maxProperty,
+          )}} {cyan |} ${entry.library.padEnd(
+            maxLibrary,
+            ' ',
+          )} {cyan |} ${this.colorDefault(entry, maxDefault)} {cyan |} {gray ${
+            entry.metadata.description
+          }}`,
+          short: this.colorProperty(entry, NONE),
+        },
         entry,
       ]);
     });
     console.log(
       [
-        chalk.bold.yellow(`Property colors`),
-        chalk.bold` {cyan -} {white Using default}`,
-        chalk.bold` {cyan -} {red Required}`,
-        chalk.bold` {cyan -} {greenBright Overridden}`,
+        chalk`{bold.yellow Property colors} - {gray Lower colors take precedence}`,
+        chalk` {cyan -} {white.bold Defaults}    {cyanBright :} {white System is using default value}`,
+        chalk` {cyan -} {magenta.bold Careful}     {cyanBright :} {white Don't set these unless you know what you're doing}`,
+        chalk` {cyan -} {yellow.bold Recommended} {cyanBright :} {white Setting the value of this property is recommended}`,
+        chalk` {cyan -} {red.bold Required}    {cyanBright :} {white Property is required, and not provided}`,
+        chalk` {cyan -} {greenBright.bold Overridden}  {cyanBright :} {white You have provided a value for this property}`,
         ``,
         chalk.bold.white.bgBlue`   ${'     Property'.padEnd(
           maxProperty,
@@ -252,11 +254,14 @@ export class ConfigBuilderService implements iRepl {
     if (entry.metadata.warnDefault) {
       return chalk.yellowBright(property);
     }
+    if (entry.metadata.careful) {
+      return chalk.magentaBright(property);
+    }
     return chalk.whiteBright(property);
   }
 
   private path(config: ConfigTypeDTO): string {
-    if (config.library) {
+    if (config.library && config.library !== this.loadedApplication) {
       return `libs.${config.library}.${config.property}`;
     }
     return `application.${config.property}`;
@@ -264,27 +269,28 @@ export class ConfigBuilderService implements iRepl {
 
   private async prompt(config: ConfigTypeDTO): Promise<void> {
     const path = this.path(config);
+    const label = this.colorProperty(config, NONE);
     const current = get(this.config, path, config.default);
     switch (config.metadata.type) {
       case 'boolean':
         set(
           this.config,
           path,
-          await this.promptService.boolean(path, current as boolean),
+          await this.promptService.boolean(label, current as boolean),
         );
         return;
       case 'number':
         set(
           this.config,
           path,
-          await this.promptService.number(path, current as number),
+          await this.promptService.number(label, current as number),
         );
         return;
       case 'password':
         set(
           this.config,
           path,
-          await this.promptService.password(path, current as string),
+          await this.promptService.password(label, current as string),
         );
         return;
       case 'url':
@@ -292,7 +298,7 @@ export class ConfigBuilderService implements iRepl {
         set(
           this.config,
           path,
-          await this.promptService.string(path, current as string),
+          await this.promptService.string(label, current as string),
         );
         return;
     }

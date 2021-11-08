@@ -15,7 +15,7 @@ export class AdminKeyGuard implements CanActivate {
     if (!this.adminKey) {
       return true;
     }
-    const locals = context.switchToHttp().getResponse<APIResponse>().locals;
+    const { locals } = context.switchToHttp().getResponse<APIResponse>();
     const token: string =
       locals.headers.get(ADMIN_KEY_HEADER) ||
       locals.query.get(ADMIN_KEY_HEADER);
@@ -29,12 +29,16 @@ export class AdminKeyGuard implements CanActivate {
     locals.flags.add(ResponseFlags.ADMIN_KEY);
     locals.flags.add(ResponseFlags.ADMIN);
     locals.authenticated = true;
+    this.logger.debug(`Authenticated using ADMIN_KEY`);
     return true;
   }
 
+  /**
+   * Add to the startup logs if an admin key is provided
+   */
   protected onPostInit(): void {
     if (this.adminKey) {
-      this.logger.warn(`{${ADMIN_KEY_HEADER}} header available`);
+      this.logger.warn(`{${ADMIN_KEY_HEADER}} usable`);
     }
   }
 }

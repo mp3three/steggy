@@ -27,19 +27,23 @@
     },
     "MONGO_CERT": {
       "type": "string",
-      "description": "Optional configuration item, used with mongo ssl connections"
+      "description": "Optional configuration item, used with mongo ssl connections",
+      "careful": true
     },
     "MONGO_KEY": {
       "type": "string",
-      "description": "Optional configuration item, used with mongo ssl connections"
+      "description": "Optional configuration item, used with mongo ssl connections",
+      "careful": true
     },
     "MONGO_CA": {
       "type": "string",
-      "description": "Optional configuration item, used with mongo ssl connections"
+      "description": "Optional configuration item, used with mongo ssl connections",
+      "careful": true
     },
     "MONGO_CRL": {
       "type": "string",
-      "description": "Optional configuration item, used with mongo ssl connections"
+      "description": "Optional configuration item, used with mongo ssl connections",
+      "careful": true
     },
     "CACHE_TTL": {
       "type": "number",

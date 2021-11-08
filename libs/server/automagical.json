@@ -2,7 +2,8 @@
   "configuration": {
     "GLOBAL_PREFIX": {
       "type": "string",
-      "description": "Ex: 'api' http://localhost:7000/normal/route/path => http://localhost:7000/api/normal/route/path"
+      "description": "Ex: 'api' http://localhost:7000/normal/route/path => http://localhost:7000/api/normal/route/path",
+      "careful": true
     },
     "MAX_REQUEST_ID": {
       "type": "number",
@@ -38,16 +39,19 @@
     },
     "SWAGGER_PATH": {
       "type": "string",
-      "default": "/api"
+      "default": "/api",
+      "description": "Where to access the swagger pages at?"
     },
     "ADMIN_KEY": {
       "type": "string",
-      "description": "Leave blank to disable. If this value is provided via x-admin-key header, the request will be authorized as an admin"
+      "description": "Leave blank to disable. If this value is provided via x-admin-key header, the request will be authorized as an admin",
+      "careful": true
     },
     "AUTH_BYPASS": {
       "type": "boolean",
       "default": false,
-      "description": "Ignore all authentication, and just let requests through"
+      "description": "Ignore all authentication, and just let requests through",
+      "careful": true
     }
   }
 }

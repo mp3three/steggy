@@ -15,7 +15,29 @@ export class DebugService {
     private readonly promptService: PromptService,
   ) {}
 
-  private LAST_TEMPLATE = '';
+  /**
+   * Copy/paste from Home Assistant
+   */
+  private LAST_TEMPLATE = `{## Imitate available variables: ##}
+{% set my_test_json = {
+  "temperature": 77,
+  "unit": "°F"
+} %}
+
+The temperature is {{ my_test_json.temperature }} {{ my_test_json.unit }}.
+
+{% if is_state("sun.sun", "above_horizon") -%}
+  The sun rose {{ relative_time(states.sun.sun.last_changed) }} ago.
+{%- else -%}
+  The sun will rise at {{ as_timestamp(state_attr("sun.sun", "next_rising")) | timestamp_local }}.
+{%- endif %}
+
+For loop example getting entity values in the weather domain:
+
+{% for state in states.weather -%}
+  {%- if loop.first %}The {% elif loop.last %} and the {% else %}, the {% endif -%}
+  {{ state.name | lower }} is {{state.state_with_unit}}
+{%- endfor %}.`;
 
   public async exec(defaultAction?: string): Promise<void> {
     const action = await this.promptService.menuSelect(
@@ -68,7 +90,6 @@ export class DebugService {
       url: `/debug/render-template`,
     })) as Response;
     const text = await rendered.text();
-
-    console.log(text);
+    this.promptService.print(text);
   }
 }

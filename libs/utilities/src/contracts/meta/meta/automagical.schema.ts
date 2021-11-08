@@ -18,6 +18,7 @@ type AnyConfig =
 class WarnDefault {
   required?: boolean;
   warnDefault?: boolean;
+  careful?: boolean;
 }
 
 export class AutomagicalStringConfig extends WarnDefault {

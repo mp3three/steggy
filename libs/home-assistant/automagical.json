@@ -12,7 +12,8 @@
     },
     "WEBSOCKET_URL": {
       "type": "string",
-      "description": "Override calculated value if it's breaking or you want something custom. Make sure to use wss://"
+      "description": "Override calculated value if it's breaking or you want something custom. Make sure to use wss://",
+      "careful": true
     },
     "WARN_REQUESTS_PER_SEC": {
       "type": "number",

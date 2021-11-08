@@ -1,13 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
+import { LOG_LEVEL } from '../../config';
 
 import { LOG_CONTEXT, LOGGER_LIBRARY } from '../../contracts/logger';
-import { mappedContexts } from '../../decorators/injectors';
+import { InjectConfig, mappedContexts } from '../../decorators/injectors';
+
+// Don't remove LOG_LEVEL injection
+// Including it here forces it to appear in config builder
+// Including it in AutoLogService makes things explode
 
 const SKIP_PROVIDERS = new Set(['ModuleRef', '', 'useFactory']);
 @Injectable()
 export class LogExplorerService {
-  constructor(private readonly discoveryService: DiscoveryService) {}
+  constructor(
+    private readonly discoveryService: DiscoveryService,
+    @InjectConfig(LOG_LEVEL) private readonly logLevel: string,
+  ) {}
 
   protected onModuleInit(): void {
     const providers = [
