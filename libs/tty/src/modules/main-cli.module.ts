@@ -9,14 +9,12 @@ import {
   PromptService,
   ReplExplorerService,
   SystemService,
-  TypePromptService,
   WorkspaceService,
 } from '../services';
 
 @LibraryModule({
   exports: [
     SystemService,
-    TypePromptService,
     PromptService,
     ColorsService,
     WorkspaceService,
@@ -26,7 +24,6 @@ import {
   library: LIB_TTY,
   providers: [
     SystemService,
-    TypePromptService,
     PromptService,
     GitService,
     ColorsService,

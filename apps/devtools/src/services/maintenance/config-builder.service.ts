@@ -1,13 +1,11 @@
 import {
   DONE,
   iRepl,
-  OUTPUT_HEADER_FONT,
   PromptEntry,
   PromptService,
   Repl,
   SCAN_CONFIG_CONFIGURATION,
   SystemService,
-  TypePromptService,
   WorkspaceService,
 } from '@automagical/tty';
 import {
@@ -15,20 +13,27 @@ import {
   AutoLogService,
   AutomagicalConfig,
   ConfigTypeDTO,
-  LIB_TERMINAL,
   TitleCase,
 } from '@automagical/utilities';
 import { InternalServerErrorException } from '@nestjs/common';
+import { eachSeries } from 'async';
 import chalk from 'chalk';
 import execa from 'execa';
-import figlet from 'figlet';
 import { existsSync } from 'fs';
-import ini from 'ini';
+import inquirer from 'inquirer';
+import { dump } from 'js-yaml';
+import { get, set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
 import rc from 'rc';
 
 const ARGV_APP = 3;
+const UP = 1;
+const DATA = 1;
+const DOWN = -1;
+const COMMAIFY = 10_000;
+const HEADER_END_PADDING = 20;
+const NO_VALUE = { no: 'value' };
 
 @Repl({
   category: `Maintenance`,
@@ -39,11 +44,11 @@ export class ConfigBuilderService implements iRepl {
   constructor(
     private readonly logger: AutoLogService,
     private readonly systemService: SystemService,
-    private readonly typePrompt: TypePromptService,
     private readonly configService: AutoConfigService,
     private readonly workspace: WorkspaceService,
     private readonly promptService: PromptService,
   ) {}
+  private config: AutomagicalConfig;
 
   /**
    * Generic entrypoint for interface
@@ -64,33 +69,14 @@ export class ConfigBuilderService implements iRepl {
       this.logger.error({ application }, `Invalid application`);
       throw new InternalServerErrorException();
     }
-    this.typePrompt.config = rc<AutomagicalConfig>(application);
-    delete this.typePrompt.config['configs'];
-    delete this.typePrompt.config['config'];
-    const config: AutomagicalConfig = JSON.parse(
-      JSON.stringify(this.typePrompt.config),
-    );
-
-    const out = await this.scan(application);
-
-    this.promptService.clear();
-    this.promptService.scriptHeader(`Available Configs`);
-    console.log(chalk`Configuring {yellow.bold ${TitleCase(application)}}`);
-    console.log();
-    console.log();
-    const entries = await this.buildEntries(out);
-    await this.promptService.pickMany(`Test`, entries);
-    await this.handleConfig(config, application);
+    await this.processApplication(application);
   }
 
   /**
    * Prompt the user for what to do
    */
 
-  public async handleConfig(
-    config: AutomagicalConfig,
-    application: string,
-  ): Promise<void> {
+  public async handleConfig(application: string): Promise<void> {
     const action = await this.promptService.menuSelect(
       [
         ['Describe', 'describe'],
@@ -98,36 +84,18 @@ export class ConfigBuilderService implements iRepl {
       ],
       `What to do with completed configuration?`,
     );
-
     switch (action) {
       case DONE:
         return;
-
       case 'describe':
-        this.promptService.clear();
-        console.log(`\n`);
-        console.log(
-          chalk.yellow(
-            figlet.textSync('Completed Config', {
-              font: this.configService.get<figlet.Fonts>([
-                LIB_TERMINAL,
-                OUTPUT_HEADER_FONT,
-              ]),
-            }),
-          ),
-        );
-        console.log(ini.encode(config));
-        return await this.handleConfig(config, application);
-
+        this.promptService.print(dump(this.config));
+        return await this.handleConfig(application);
       case 'save':
-        await this.systemService.writeConfig(application, config);
-        return await this.handleConfig(config, application);
+        await this.systemService.writeConfig(application, this.config);
+        return await this.handleConfig(application);
     }
   }
 
-  /**
-   * An item can identify as "configurable" as
-   */
   private applicationChoices(): PromptEntry[] {
     return this.workspace
       .list('application')
@@ -159,36 +127,100 @@ export class ConfigBuilderService implements iRepl {
       maxDefault = Math.max(maxDefault, entry.default.toString().length);
       maxProperty = Math.max(maxProperty, entry.property.toString().length);
     });
-    const out: PromptEntry<ConfigTypeDTO>[] = [];
+    const build: PromptEntry<ConfigTypeDTO>[] = [];
     config.forEach((entry) => {
-      let property = entry.property.padEnd(maxProperty, ' ');
-      if (entry.metadata.required) {
-        property = chalk.redBright(property);
-      } else if (entry.metadata.warnDefault) {
-        property = chalk.yellowBright(property);
-      }
-      out.push([
-        chalk`{bold ${property}} {cyan |} ${entry.library.padEnd(
+      build.push([
+        chalk`{bold ${this.colorProperty(
+          entry,
+          maxProperty,
+        )}} {cyan |} ${entry.library.padEnd(
           maxLibrary,
           ' ',
-        )} {cyan |} ${entry.default
-          .toString()
-          .padEnd(maxDefault, ' ')} {cyan |} {gray ${
+        )} {cyan |} ${this.colorDefault(entry, maxDefault)} {cyan |} {gray ${
           entry.metadata.description
         }}`,
         entry,
       ]);
     });
     console.log(
-      chalk.bold.white.bgBlue`   ${'Property'.padEnd(
-        maxProperty,
-        ' ',
-      )}   ${'Project'.padEnd(maxLibrary, ' ')}   ${'Default Value'.padEnd(
-        maxDefault,
-        ' ',
-      )}   Description   `,
+      [
+        chalk.bold.yellow(`Property colors`),
+        chalk.bold` {cyan -} {white Using default}`,
+        chalk.bold` {cyan -} {red Required}`,
+        chalk.bold` {cyan -} {greenBright Overridden}`,
+        ``,
+        chalk.bold.white.bgBlue`   ${'     Property'.padEnd(
+          maxProperty,
+          ' ',
+        )}   ${'  Project'.padEnd(
+          maxLibrary,
+          ' ',
+        )}   ${'    Default Value'.padEnd(
+          maxDefault,
+          ' ',
+        )}           Description   ${''.padEnd(HEADER_END_PADDING, ' ')}`,
+      ].join(`\n`),
     );
+    const out: PromptEntry<ConfigTypeDTO>[] = [];
+    let lastLibrary = ``;
+    build
+      .sort((aa, bb) => {
+        const a = aa[DATA] as ConfigTypeDTO;
+        const b = bb[DATA] as ConfigTypeDTO;
+        if (a.library !== b.library) {
+          return a.library > b.library ? UP : DOWN;
+        }
+        return a.property > b.property ? UP : DOWN;
+      })
+      .forEach((entry) => {
+        const data = entry[DATA] as ConfigTypeDTO;
+        if (data.library !== lastLibrary) {
+          lastLibrary = data.library;
+          out.push(
+            new inquirer.Separator(chalk.white(TitleCase(data.library))),
+          );
+        }
+        out.push(entry);
+      });
     return out;
+  }
+
+  private colorDefault(entry: ConfigTypeDTO, max: number): string {
+    const defaultValue = entry.default;
+    if (typeof defaultValue === 'undefined' || defaultValue === '') {
+      return chalk.gray(`none`.padEnd(max, ' '));
+    }
+    if (typeof defaultValue === 'number') {
+      return chalk.yellowBright(
+        (defaultValue > COMMAIFY
+          ? defaultValue.toLocaleString()
+          : defaultValue.toString()
+        ).padEnd(max, ' '),
+      );
+    }
+    if (typeof defaultValue === 'boolean') {
+      return chalk.blueBright(defaultValue.toString().padEnd(max, ' '));
+    }
+    if (typeof defaultValue !== 'string') {
+      return chalk.magentaBright(defaultValue.toString().padEnd(max, ' '));
+    }
+    return chalk.whiteBright(defaultValue.toString().padEnd(max, ' '));
+  }
+
+  private colorProperty(entry: ConfigTypeDTO, maxProperty: number): string {
+    const property = entry.property.padEnd(maxProperty, ' ');
+    const path = this.path(entry);
+    const value = get(this.config, path, NO_VALUE);
+    if (value !== NO_VALUE) {
+      return chalk.greenBright(property);
+    }
+    if (entry.metadata.required) {
+      return chalk.redBright(property);
+    }
+    if (entry.metadata.warnDefault) {
+      return chalk.yellowBright(property);
+    }
+    return chalk.whiteBright(property);
   }
 
   private path(config: ConfigTypeDTO): string {
@@ -196,6 +228,65 @@ export class ConfigBuilderService implements iRepl {
       return `libs.${config.library}.${config.property}`;
     }
     return `application.${config.property}`;
+  }
+
+  private async processApplication(application: string): Promise<void> {
+    this.config = rc<AutomagicalConfig>(application);
+    delete this.config['configs'];
+    delete this.config['config'];
+
+    const configEntries = await this.scan(application);
+    this.promptService.clear();
+    this.promptService.scriptHeader(`Available Configs`);
+    console.log(chalk`Configuring {yellow.bold ${TitleCase(application)}}`);
+    console.log();
+    console.log();
+    const entries = await this.buildEntries(configEntries);
+    const list = await this.promptService.pickMany(
+      `Select properties to change\n`,
+      entries,
+    );
+    this.promptService.clear();
+    this.promptService.scriptHeader(TitleCase(application));
+
+    await eachSeries(list, async (item) => await this.prompt(item));
+    await this.handleConfig(application);
+  }
+
+  private async prompt(config: ConfigTypeDTO): Promise<void> {
+    const path = this.path(config);
+    const current = get(this.config, path, config.default);
+    switch (config.metadata.type) {
+      case 'boolean':
+        set(
+          this.config,
+          path,
+          await this.promptService.boolean(path, current as boolean),
+        );
+        return;
+      case 'number':
+        set(
+          this.config,
+          path,
+          await this.promptService.number(path, current as number),
+        );
+        return;
+      case 'password':
+        set(
+          this.config,
+          path,
+          await this.promptService.password(path, current as string),
+        );
+        return;
+      case 'url':
+      case 'string':
+        set(
+          this.config,
+          path,
+          await this.promptService.string(path, current as string),
+        );
+        return;
+    }
   }
 
   private async scan(application: string): Promise<Set<ConfigTypeDTO>> {

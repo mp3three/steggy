@@ -7,7 +7,7 @@
     },
     "PAGE_SIZE": {
       "type": "number",
-      "description": "Maxmimum number of items displayed in pickMany / similar types of prompts",
+      "description": "Maxmimum number of items displayed in pickMany prompts",
       "default": 50
     },
     "OUTPUT_HEADER_FONT": {
@@ -17,15 +17,18 @@
     },
     "BLOCK_PRINT_BG": {
       "type": "string",
-      "default": "#422011"
+      "default": "#422011",
+      "description": "Color for yaml data printing"
     },
     "BLOCK_PRINT_FG": {
       "type": "string",
-      "default": "#d6c2ba"
+      "default": "#d6c2ba",
+      "description": "Color for yaml data printing"
     },
     "DISABLE_CLEAR": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "description": "For debugging"
     }
   }
 }

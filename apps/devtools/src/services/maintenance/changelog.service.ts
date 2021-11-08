@@ -6,7 +6,6 @@ import {
   PromptService,
   Repl,
   SystemService,
-  TypePromptService,
   WorkspaceService,
 } from '@automagical/tty';
 import {
@@ -36,7 +35,6 @@ export class ChangelogService implements iRepl {
   constructor(
     private readonly logger: AutoLogService,
     private readonly workspace: WorkspaceService,
-    private readonly typePromptService: TypePromptService,
     private readonly gitService: GitService,
     private readonly systemService: SystemService,
     private readonly promptService: PromptService,
@@ -144,7 +142,7 @@ export class ChangelogService implements iRepl {
     if (!isDirty) {
       return false;
     }
-    return await this.typePromptService.confirm(
+    return await this.promptService.confirm(
       `There are uncommitted changes, abort?`,
       true,
     );

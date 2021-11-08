@@ -1,10 +1,10 @@
 import {
   AutoLogService,
   AutomagicalConfig,
+  filterUnique,
   IsEmpty,
   PACKAGE_FILE,
 } from '@automagical/utilities';
-import { filterUnique } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
@@ -19,7 +19,7 @@ import { cwd } from 'process';
 import { inc } from 'semver';
 
 import { NXAffected } from '../contracts';
-import { TypePromptService } from './type-prompt.service';
+import { PromptService } from './prompt.service';
 import { WorkspaceService } from './workspace.service';
 
 /**
@@ -30,7 +30,7 @@ import { WorkspaceService } from './workspace.service';
 export class SystemService {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly prompt: TypePromptService,
+    private readonly promptService: PromptService,
     private readonly workspace: WorkspaceService,
   ) {}
 
@@ -192,7 +192,8 @@ export class SystemService {
     console.log(chalk.green('path'), file);
     if (
       existsSync(file) &&
-      (await this.prompt.confirm('Overwrite existing config file?')) === false
+      (await this.promptService.confirm('Overwrite existing config file?')) ===
+        false
     ) {
       return;
     }

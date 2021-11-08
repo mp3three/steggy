@@ -45,7 +45,7 @@
     "EVENT_EMITTER_MAX_LISTENENERS": {
       "type": "number",
       "default": 20,
-      "description": "Increase if struggling with errors. Double check to verify there isn't a memory leak first"
+      "description": "Internal use"
     }
   }
 }

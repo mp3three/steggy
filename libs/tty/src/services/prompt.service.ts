@@ -98,7 +98,7 @@ export class PromptService {
         default: defaultValue,
         message,
         name,
-        type: confirm,
+        type: 'confirm',
       },
     ]);
     return result;
@@ -353,12 +353,13 @@ export class PromptService {
     console.log();
   }
 
-  public scriptHeader(header: string): void {
+  public scriptHeader(header: string): number {
     header = figlet.textSync(header, {
       font: this.font,
     });
     this.clear();
     console.log(chalk.cyan(header), '\n');
+    return header.split(`\n`).pop().length;
   }
 
   public async string(
