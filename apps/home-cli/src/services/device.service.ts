@@ -2,11 +2,10 @@ import {
   DeviceListItemDTO,
   RelatedDescriptionDTO,
 } from '@automagical/home-assistant';
-import { DONE, PromptService, Repl } from '@automagical/tty';
+import { DONE, ICONS, PromptService, Repl } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import { encode } from 'ini';
 
-import { ICONS } from '../typings';
 import { EntityService } from './entity.service';
 import { HomeFetchService } from './home-fetch.service';
 

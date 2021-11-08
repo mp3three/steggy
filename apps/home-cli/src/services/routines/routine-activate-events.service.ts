@@ -6,7 +6,7 @@ import {
   ScheduleActivateDTO,
   StateChangeActivateDTO,
 } from '@automagical/controller-logic';
-import { DONE, PromptEntry, PromptService } from '@automagical/tty';
+import { DONE, ICONS, PromptEntry, PromptService } from '@automagical/tty';
 import { IsEmpty, TitleCase } from '@automagical/utilities';
 import {
   forwardRef,
@@ -18,7 +18,6 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { v4 as uuid } from 'uuid';
 
-import { ICONS } from '../../typings';
 import { KunamiBuilderService } from './kunami-builder.service';
 import { RoutineService } from './routine.service';
 import { ScheduleBuilderService } from './schedule-builder.service';

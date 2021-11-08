@@ -8,10 +8,9 @@ import {
   HASS_DOMAINS,
   HassStateDTO,
 } from '@automagical/home-assistant';
-import { iRepl, PromptService, Repl } from '@automagical/tty';
+import { ICONS, iRepl, PromptService, Repl } from '@automagical/tty';
 import { IsEmpty } from '@automagical/utilities';
 
-import { ICONS } from '../typings';
 import {
   BaseDomainService,
   ClimateService,

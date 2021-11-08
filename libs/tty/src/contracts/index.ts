@@ -3,5 +3,6 @@ export * from './constants';
 export * from './dto';
 export * from './git.dto';
 export * from './i-repl.interface';
+export * from './icons';
 export * from './prompt';
 export * from './repl-options.dto';

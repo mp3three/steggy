@@ -7,6 +7,7 @@ import {
 import { HASS_DOMAINS } from '@automagical/home-assistant';
 import {
   DONE,
+  ICONS,
   iRepl,
   PromptEntry,
   PromptService,
@@ -27,7 +28,6 @@ import {
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
-import { ICONS } from '../../typings';
 import { EntityService } from '../entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { GroupStateService } from './group-state.service';

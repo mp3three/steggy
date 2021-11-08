@@ -8,7 +8,6 @@ import {
 import { PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
-import inquirer from 'inquirer';
 
 import { HomeFetchService } from '../home-fetch.service';
 
@@ -55,6 +54,7 @@ export class LightGroupCommandService {
         if (!(await this.promptService.confirm(`Set brightness?`))) {
           return { command };
         }
+      // fall through
       case 'setBrightness':
         return {
           command,
@@ -98,7 +98,7 @@ export class LightGroupCommandService {
   }
 
   public async groupActions(): Promise<PromptEntry[]> {
-    return [...GENERIC_COMMANDS];
+    return await [...GENERIC_COMMANDS];
   }
 
   public async processAction(group: GroupDTO, action: string): Promise<void> {
@@ -171,19 +171,19 @@ export class LightGroupCommandService {
     });
   }
 
-  public async turnOn(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
-    await this.fetchService.fetch({
-      method: 'put',
-      url: `/group/${group}/command/turnOn`,
-    });
-  }
-
   public async turnOff(group: GroupDTO | string): Promise<void> {
     group = typeof group === 'string' ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/turnOff`,
+    });
+  }
+
+  public async turnOn(group: GroupDTO | string): Promise<void> {
+    group = typeof group === 'string' ? group : group._id;
+    await this.fetchService.fetch({
+      method: 'put',
+      url: `/group/${group}/command/turnOn`,
     });
   }
 }

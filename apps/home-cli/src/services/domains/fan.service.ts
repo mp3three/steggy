@@ -4,13 +4,12 @@ import {
   RoomEntitySaveStateDTO,
 } from '@automagical/controller-logic';
 import { FanSpeeds, FanStateDTO } from '@automagical/home-assistant';
-import { DONE, PromptEntry } from '@automagical/tty';
+import { DONE, ICONS, PromptEntry } from '@automagical/tty';
 import { TitleCase } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
-import { ICONS } from '../../typings';
 import { SwitchService } from './switch.service';
 
 @Injectable()

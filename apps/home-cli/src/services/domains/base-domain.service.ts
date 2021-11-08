@@ -5,7 +5,7 @@ import {
   HassStateDTO,
   RelatedDescriptionDTO,
 } from '@automagical/home-assistant';
-import { DONE, PromptEntry, PromptService } from '@automagical/tty';
+import { DONE, ICONS, PromptEntry, PromptService } from '@automagical/tty';
 import {
   AutoLogService,
   IsEmpty,
@@ -24,7 +24,6 @@ import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 import { dump } from 'js-yaml';
 
-import { ICONS } from '../../typings';
 import { DeviceService } from '../device.service';
 import { HomeFetchService } from '../home-fetch.service';
 

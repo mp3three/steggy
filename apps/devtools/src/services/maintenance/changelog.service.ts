@@ -2,6 +2,7 @@ import {
   ChangeItemDTO,
   ChangelogDTO,
   GitService,
+  ICONS,
   iRepl,
   PromptService,
   Repl,
@@ -28,7 +29,7 @@ import { inc } from 'semver';
     `- Project level change description`,
     `- Version bumping`,
   ],
-  icon: `✒ `,
+  icon: ICONS.CAPTURE,
   name: `Changelog`,
 })
 export class ChangelogService implements iRepl {

@@ -7,7 +7,7 @@ import {
   RoutineCommandRoomStateDTO,
   RoutineDTO,
 } from '@automagical/controller-logic';
-import { DONE, PromptEntry, PromptService } from '@automagical/tty';
+import { DONE, ICONS, PromptEntry, PromptService } from '@automagical/tty';
 import { IsEmpty, TitleCase } from '@automagical/utilities';
 import {
   forwardRef,
@@ -20,7 +20,6 @@ import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
 import { v4 as uuid } from 'uuid';
 
-import { ICONS } from '../../typings';
 import { EntityService } from '../entity.service';
 import { GroupStateService } from '../groups';
 import { RoomCommandService, RoomStateService } from '../rooms';

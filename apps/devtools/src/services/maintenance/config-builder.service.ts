@@ -1,5 +1,6 @@
 import {
   DONE,
+  ICONS,
   iRepl,
   PromptEntry,
   PromptService,
@@ -20,8 +21,8 @@ import { eachSeries } from 'async';
 import chalk from 'chalk';
 import execa from 'execa';
 import { existsSync } from 'fs';
+import { encode } from 'ini';
 import inquirer from 'inquirer';
-import { dump } from 'js-yaml';
 import { get, set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
@@ -37,18 +38,18 @@ const NO_VALUE = { no: 'value' };
 
 @Repl({
   category: `Maintenance`,
-  icon: `⚙ `,
+  icon: ICONS.CONFIGURE,
   name: `Config Builder`,
 })
 export class ConfigBuilderService implements iRepl {
   constructor(
     private readonly logger: AutoLogService,
     private readonly systemService: SystemService,
-    private readonly configService: AutoConfigService,
     private readonly workspace: WorkspaceService,
     private readonly promptService: PromptService,
   ) {}
   private config: AutomagicalConfig;
+  private dirty = false;
 
   /**
    * Generic entrypoint for interface
@@ -69,7 +70,7 @@ export class ConfigBuilderService implements iRepl {
       this.logger.error({ application }, `Invalid application`);
       throw new InternalServerErrorException();
     }
-    await this.processApplication(application);
+    await this.handleConfig(application);
   }
 
   /**
@@ -77,21 +78,29 @@ export class ConfigBuilderService implements iRepl {
    */
 
   public async handleConfig(application: string): Promise<void> {
+    if (this.dirty) {
+      console.log(chalk`${ICONS.WARNING} There are unsaved changes`);
+    }
     const action = await this.promptService.menuSelect(
       [
-        ['Describe', 'describe'],
-        ['Save', 'save'],
+        [`${ICONS.EDIT}Edit`, 'edit'],
+        [`${ICONS.DESCRIBE}Show`, 'describe'],
+        [`${ICONS.SAVE}Save`, 'save'],
       ],
-      `What to do with completed configuration?`,
+      `What to do?`,
     );
     switch (action) {
       case DONE:
         return;
+      case 'edit':
+        await this.buildApplication(application);
+        this.dirty = true;
+        return await this.handleConfig(application);
       case 'describe':
-        this.promptService.print(dump(this.config));
+        this.promptService.print(encode(this.config));
         return await this.handleConfig(application);
       case 'save':
-        await this.systemService.writeConfig(application, this.config);
+        this.dirty = false;
         return await this.handleConfig(application);
     }
   }
@@ -113,6 +122,29 @@ export class ConfigBuilderService implements iRepl {
         const name = this.workspace.PACKAGES.get(item).displayName;
         return [`${tag} ${name}`, item];
       });
+  }
+
+  private async buildApplication(application: string): Promise<void> {
+    this.config = rc<AutomagicalConfig>(application);
+    delete this.config['configs'];
+    delete this.config['config'];
+
+    const configEntries = await this.scan(application);
+    this.promptService.clear();
+    this.promptService.scriptHeader(`Available Configs`);
+    console.log(chalk`Configuring {yellow.bold ${TitleCase(application)}}`);
+    console.log();
+    console.log();
+    const entries = await this.buildEntries(configEntries);
+    const list = await this.promptService.pickMany(
+      `Select properties to change\n`,
+      entries,
+    );
+    this.promptService.clear();
+    this.promptService.scriptHeader(TitleCase(application));
+
+    await eachSeries(list, async (item) => await this.prompt(item));
+    await this.handleConfig(application);
   }
 
   private buildEntries(
@@ -228,29 +260,6 @@ export class ConfigBuilderService implements iRepl {
       return `libs.${config.library}.${config.property}`;
     }
     return `application.${config.property}`;
-  }
-
-  private async processApplication(application: string): Promise<void> {
-    this.config = rc<AutomagicalConfig>(application);
-    delete this.config['configs'];
-    delete this.config['config'];
-
-    const configEntries = await this.scan(application);
-    this.promptService.clear();
-    this.promptService.scriptHeader(`Available Configs`);
-    console.log(chalk`Configuring {yellow.bold ${TitleCase(application)}}`);
-    console.log();
-    console.log();
-    const entries = await this.buildEntries(configEntries);
-    const list = await this.promptService.pickMany(
-      `Select properties to change\n`,
-      entries,
-    );
-    this.promptService.clear();
-    this.promptService.scriptHeader(TitleCase(application));
-
-    await eachSeries(list, async (item) => await this.prompt(item));
-    await this.handleConfig(application);
   }
 
   private async prompt(config: ConfigTypeDTO): Promise<void> {

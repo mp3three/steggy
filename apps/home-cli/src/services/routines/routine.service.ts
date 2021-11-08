@@ -3,7 +3,7 @@
 /* eslint-disable radar/no-identical-functions */
 
 import { RoomDTO, RoutineDTO } from '@automagical/controller-logic';
-import { DONE, PromptEntry, PromptService } from '@automagical/tty';
+import { DONE, ICONS, PromptEntry, PromptService } from '@automagical/tty';
 import { IsEmpty, ResultControlDTO } from '@automagical/utilities';
 import {
   forwardRef,
@@ -15,7 +15,6 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
 
-import { ICONS } from '../../typings';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';
 import { RoutineCommandService } from './rountine-command.service';

@@ -5,7 +5,7 @@ import {
   RoomStateDTO,
 } from '@automagical/controller-logic';
 import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
-import { DONE, PromptEntry, PromptService } from '@automagical/tty';
+import { DONE, ICONS, PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import {
   forwardRef,
@@ -18,7 +18,6 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
 
-import { ICONS } from '../../typings';
 import { EntityService } from '../entity.service';
 import { GroupCommandService } from '../groups';
 import { HomeFetchService } from '../home-fetch.service';

@@ -3,8 +3,9 @@
  */
 export const ICONS = {
   ACTIVATE: '🏁 ',
-  CAPTURE: '📷 ',
+  CAPTURE: '📸 ',
   COMMAND: '🎼 ',
+  CONFIGURE: '⚙ ',
   COPY: '📋 ',
   CREATE: '➕ ',
   DEBUG: '🐜 ',
@@ -25,10 +26,12 @@ export const ICONS = {
   RENAME: '✏ ',
   ROOMS: '🏡 ',
   ROUTINE: '🛰 ',
+  SAVE: '💾 ',
   STATE_MANAGER: '🖼 ',
   TOGGLE_OFF: '📪 ',
   TOGGLE_ON: '📫 ',
   TURN_OFF: '🌝 ',
   TURN_ON: '🌞 ',
   UP: '⏫ ',
+  WARNING: '🚧 ',
 };
