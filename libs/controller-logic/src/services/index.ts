@@ -6,3 +6,4 @@ export * from './persistence';
 export * from './room.service';
 export * from './routines';
 export * from './solar-calc.service';
+export * from './commands';

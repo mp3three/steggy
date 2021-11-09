@@ -19,7 +19,9 @@ import {
   RoutineDTO,
   ScheduleActivateDTO,
   StateChangeActivateDTO,
+  RoutineCommandSendNotificationDTO,
 } from '../../contracts';
+import { SendNotificationService } from '../commands';
 import { EntityCommandRouterService } from '../entity-command-router.service';
 import { GroupService } from '../groups';
 import { RoutinePersistenceService } from '../persistence';
@@ -39,6 +41,7 @@ export class RoutineService {
     private readonly routinePersistence: RoutinePersistenceService,
     private readonly scheduleActivate: ScheduleActivateService,
     private readonly stateChangeActivate: StateChangeActivateService,
+    private readonly sendNotification: SendNotificationService,
   ) {}
 
   public async activateRoutine(routine: RoutineDTO | string): Promise<void> {
@@ -65,6 +68,11 @@ export class RoutineService {
         case ROUTINE_ACTIVATE_COMMAND.entity_state:
           await this.entityRouter.fromState(
             command.command as RoomEntitySaveStateDTO,
+          );
+          break;
+        case ROUTINE_ACTIVATE_COMMAND.send_notification:
+          await this.sendNotification.activate(
+            command.command as RoutineCommandSendNotificationDTO,
           );
           break;
       }

@@ -4,7 +4,7 @@ import {
   RoomEntitySaveStateDTO,
 } from '@automagical/controller-logic';
 import { HASS_DOMAINS, LightStateDTO } from '@automagical/home-assistant';
-import { PromptEntry } from '@automagical/tty';
+import { ICONS, PromptEntry } from '@automagical/tty';
 import { Injectable } from '@nestjs/common';
 
 import { SwitchService } from './switch.service';
@@ -38,9 +38,9 @@ export class LightService extends SwitchService {
     const state = await this.promptService.pickOne(
       entity_id,
       [
-        ['Turn On', 'on'],
-        ['Turn Off', 'off'],
-        ['Circadian Light', 'circadian'],
+        [`${ICONS.TURN_ON}Turn On`, 'on'],
+        [`${ICONS.TURN_OFF}Turn Off`, 'off'],
+        [`${ICONS.CIRCADIAN}Circadian Light`, 'circadian'],
       ],
       defaultValue,
     );

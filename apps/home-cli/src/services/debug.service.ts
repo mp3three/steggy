@@ -45,6 +45,7 @@ For loop example getting entity values in the weather domain:
         [`Light Manager Cache`, 'lightManagerCache'],
         [`Home Assistant Config`, 'hassConfig'],
         [`Render template`, 'renderTemplate'],
+        [`Send template notification`, 'sendNotification'],
       ],
       undefined,
       defaultAction,
@@ -65,6 +66,9 @@ For loop example getting entity values in the weather domain:
         return await this.exec(action);
       case 'lightManagerCache':
         await this.lightManagerCache();
+        return await this.exec(action);
+      case 'sendNotification':
+        await this.sendNotification();
         return await this.exec(action);
     }
   }
@@ -91,5 +95,14 @@ For loop example getting entity values in the weather domain:
     })) as Response;
     const text = await rendered.text();
     this.promptService.print(text);
+  }
+
+  public async sendNotification(): Promise<void> {
+    const template = await this.promptService.editor(`Enter template string`);
+    await this.fetchService.fetch({
+      url: `/debug/send-notification`,
+      method: 'post',
+      body: { template },
+    });
   }
 }

@@ -54,8 +54,8 @@ export class SwitchService extends BaseDomainService {
 
   protected getMenuOptions(): PromptEntry[] {
     return [
-      ['Turn On', 'turnOn'],
-      ['Turn Off', 'turnOff'],
+      [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
+      [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
       ...super.getMenuOptions(),
     ];
   }

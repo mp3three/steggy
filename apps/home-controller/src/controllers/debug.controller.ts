@@ -2,7 +2,11 @@ import {
   LightingCacheDTO,
   LightManagerService,
 } from '@automagical/controller-logic';
-import { HASocketAPIService, HassConfig } from '@automagical/home-assistant';
+import {
+  HASocketAPIService,
+  HassConfig,
+  NotifyDomainService,
+} from '@automagical/home-assistant';
 import { AuthStack } from '@automagical/server';
 import { Body, Controller, Get, Post } from '@nestjs/common';
 
@@ -11,6 +15,7 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 export class DebugController {
   constructor(
     private readonly lightManger: LightManagerService,
+    private readonly notification: NotifyDomainService,
     private readonly socketService: HASocketAPIService,
   ) {}
 
@@ -34,5 +39,14 @@ export class DebugController {
     @Body() { template }: { template: string },
   ): Promise<string> {
     return await this.socketService.renderTemplate(template);
+  }
+
+  @Post(`/send-notification`)
+  public async sendNotification(
+    @Body() { template }: { template: string },
+  ): Promise<string> {
+    template = await this.socketService.renderTemplate(template);
+    await this.notification.notify(template);
+    return template;
   }
 }

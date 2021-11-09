@@ -6,6 +6,7 @@ import {
   RoutineCommandGroupStateDTO,
   RoutineCommandRoomStateDTO,
   RoutineDTO,
+  RoutineCommandSendNotificationDTO,
 } from '@automagical/controller-logic';
 import { DONE, ICONS, PromptEntry, PromptService } from '@automagical/tty';
 import { IsEmpty, TitleCase } from '@automagical/utilities';
@@ -25,6 +26,7 @@ import { GroupStateService } from '../groups';
 import { RoomCommandService, RoomStateService } from '../rooms';
 import { GroupActionService } from './group-action.service';
 import { RoutineService } from './routine.service';
+import { SendNotificationService } from './send-notification.service';
 
 @Injectable()
 export class RoutineCommandService {
@@ -39,6 +41,7 @@ export class RoutineCommandService {
     @Inject(forwardRef(() => RoomCommandService))
     private readonly roomCommand: RoomCommandService,
     private readonly entityCommand: EntityService,
+    private readonly sendNotification: SendNotificationService,
   ) {}
 
   public async build(
@@ -103,6 +106,14 @@ export class RoutineCommandService {
             room: room._id,
             state: state,
           } as RoutineCommandRoomStateDTO,
+          friendlyName,
+          type,
+        };
+      case ROUTINE_ACTIVATE_COMMAND.send_notification:
+        return {
+          command: await this.sendNotification.build(
+            current.command as RoutineCommandSendNotificationDTO,
+          ),
           friendlyName,
           type,
         };

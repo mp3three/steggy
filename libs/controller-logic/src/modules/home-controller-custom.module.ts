@@ -19,6 +19,7 @@ import {
   RoomService,
   RoutineService,
   ScheduleActivateService,
+  SendNotificationService,
   SolarCalcService,
   StateChangeActivateService,
   SwitchGroupService,
@@ -26,6 +27,7 @@ import {
 import { HomePersistenceModule } from './home-persistence.module';
 
 const providers = [
+  ...[SendNotificationService],
   ...[
     FanGroupService,
     GroupService,

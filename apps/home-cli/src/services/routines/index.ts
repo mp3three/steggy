@@ -6,3 +6,4 @@ export * from './routine.service';
 export * from './routine-activate-events.service';
 export * from './schedule-builder.service';
 export * from './state-change-builder.service';
+export * from './send-notification.service';

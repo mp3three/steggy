@@ -6,6 +6,7 @@ export enum ROUTINE_ACTIVATE_COMMAND {
   group_state = 'group_state',
   group_action = 'group_action',
   entity_state = 'entity_state',
+  send_notification = 'send_notification',
 }
 
 export type GENERIC_COMMANDS =
@@ -20,6 +21,7 @@ export class RoutineCommandDTO<
   COMMAND =
     | RoutineCommandGroupActionDTO
     | RoutineCommandRoomStateDTO
+    | RoutineCommandSendNotificationDTO
     | RoomEntitySaveStateDTO
     | RoutineCommandGroupStateDTO,
 > {
@@ -51,4 +53,8 @@ export class RoutineCommandGroupActionDTO {
   public command: GENERIC_COMMANDS;
   public extra?: Record<string, unknown>;
   public group: string | GroupDTO;
+}
+
+export class RoutineCommandSendNotificationDTO {
+  public template: string;
 }

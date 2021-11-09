@@ -80,7 +80,7 @@ export class BaseDomainService {
     if (!(options[HEADER_SEPARATOR] as Separator).line) {
       options.unshift(
         new inquirer.Separator(
-          chalk.white(`${TitleCase(domain(id))} commands`),
+          chalk.white(`${TitleCase(domain(id), false)} commands`),
         ),
       );
     }
@@ -117,7 +117,7 @@ export class BaseDomainService {
     console.log(
       chalk`{magenta.bold ${
         content.attributes.friendly_name
-      }} - {yellow.bold ${TitleCase(domain(content.entity_id))}}`,
+      }} - {yellow.bold ${TitleCase(domain(content.entity_id), false)}}`,
     );
     console.log();
     this.promptService.print(dump(content));

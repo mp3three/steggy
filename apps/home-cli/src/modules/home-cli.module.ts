@@ -31,6 +31,7 @@ import {
   RoutineCommandService,
   RoutineService,
   ScheduleBuilderService,
+  SendNotificationService,
   StateChangeBuilderService,
   SwitchGroupCommandService,
   SwitchService,
@@ -71,6 +72,7 @@ import {
         RoutineCommandService,
         RoutineService,
         ScheduleBuilderService,
+        SendNotificationService,
         StateChangeBuilderService,
       ],
       // /*

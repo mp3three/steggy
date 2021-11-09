@@ -15,12 +15,12 @@ const MIN_BRIGHTNESS = 5;
 const MAX_BRIGHTNESS = 255;
 
 const GENERIC_COMMANDS: PromptEntry<GENERIC_COMMANDS>[] = [
-  ['Turn On', 'turnOn'],
-  ['Turn Off', 'turnOff'],
-  ['Circadian On', 'circadianOn'],
-  ['Dim Up', 'dimUp'],
-  ['Dim Down', 'dimDown'],
-  ['Set Brightness', 'brightness'],
+  [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
+  [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
+  [`${ICONS.CIRCADIAN}Circadian On`, 'circadianOn'],
+  [`${ICONS.UP}Dim Up`, 'dimUp'],
+  [`${ICONS.DOWN}Dim Down`, 'dimDown'],
+  [`${ICONS.BRIGHTNESS}Set Brightness`, 'brightness'],
 ];
 
 @Injectable()
