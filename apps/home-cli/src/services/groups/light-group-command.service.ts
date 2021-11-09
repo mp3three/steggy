@@ -5,7 +5,7 @@ import {
   RoomEntitySaveStateDTO,
   RoutineCommandGroupActionDTO,
 } from '@automagical/controller-logic';
-import { PromptEntry, PromptService } from '@automagical/tty';
+import { ICONS, PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
@@ -45,7 +45,14 @@ export class LightGroupCommandService {
   ): Promise<Omit<RoutineCommandGroupActionDTO, 'group'>> {
     const command = await this.promptService.pickOne(
       `Light group action`,
-      GENERIC_COMMANDS,
+      [
+        [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
+        [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
+        [`${ICONS.UP}Dim Up`, `dimUp`],
+        [`${ICONS.DOWN}Dim Down`, `dimDown`],
+        [`${ICONS.BRIGHTNESS}Set Brightness`, `setBrightness`],
+        [`${ICONS.CIRCADIAN}Circadian`, `circadianOn`],
+      ],
       current,
     );
     switch (command) {
@@ -98,7 +105,13 @@ export class LightGroupCommandService {
   }
 
   public async groupActions(): Promise<PromptEntry[]> {
-    return await [...GENERIC_COMMANDS];
+    return await [
+      [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
+      [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
+      [`${ICONS.UP}Dim Up`, `dimUp`],
+      [`${ICONS.DOWN}Dim Down`, `dimDown`],
+      [`${ICONS.CIRCADIAN}Circadian`, `circadianOn`],
+    ];
   }
 
   public async processAction(group: GroupDTO, action: string): Promise<void> {
@@ -144,9 +157,6 @@ export class LightGroupCommandService {
     return await this.setBrightness(group, brightness);
   }
 
-  /**
-   * Get all the information for the the group
-   */
   public async refresh(group: GroupDTO | string): Promise<GroupDTO> {
     if (typeof group === 'string') {
       return await this.fetchService.fetch({

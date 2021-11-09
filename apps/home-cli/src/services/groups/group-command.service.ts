@@ -30,8 +30,11 @@ import inquirer from 'inquirer';
 
 import { EntityService } from '../entity.service';
 import { HomeFetchService } from '../home-fetch.service';
+import { FanGroupCommandService } from './fan-group-command.service';
 import { GroupStateService } from './group-state.service';
 import { LightGroupCommandService } from './light-group-command.service';
+import { LockGroupCommandService } from './lock-group-command.service';
+import { SwitchGroupCommandService } from './switch-group-command.service';
 
 export type GroupItem = { entities: string[]; name: string; room: string };
 const GROUP_DOMAINS = new Map([
@@ -55,14 +58,6 @@ const DOWN = -1;
 
 @Repl({
   category: `Control`,
-  description: [
-    `Groups are collections of like entities that all act in a coordinated way.`,
-    ``,
-    ` - Light Group`,
-    ` - Switch Group`,
-    ` - Lock Group`,
-    ` - Fan Group`,
-  ],
   icon: ICONS.GROUPS,
   name: `Groups`,
 })
@@ -75,16 +70,19 @@ export class GroupCommandService implements iRepl {
     @Inject(forwardRef(() => GroupStateService))
     private readonly groupState: GroupStateService,
     private readonly lightGroup: LightGroupCommandService,
+    private readonly fanGroup: FanGroupCommandService,
+    private readonly lockGroup: LockGroupCommandService,
+    private readonly switchGroup: SwitchGroupCommandService,
   ) {}
+
   private lastGroup: string;
 
   public async create(): Promise<GroupDTO> {
     const type = await this.promptService.pickOne(
       `What type of group?`,
-      Object.values(GROUP_TYPES).map((type) => [TitleCase(type), type]),
+      Object.values(GROUP_TYPES).map((type) => [TitleCase(type, false), type]),
     );
     const friendlyName = await this.promptService.friendlyName();
-
     const entities = await this.entityService.buildList(
       GROUP_DOMAINS.get(type),
     );
@@ -139,10 +137,10 @@ export class GroupCommandService implements iRepl {
     const groups = await this.list();
     const action = await this.promptService.menuSelect<GroupDTO>(
       [
-        ...this.promptService.conditionalEntries(!IsEmpty(groups), [
-          new inquirer.Separator(chalk.white`Existing groups`),
-          ...groups.map((group) => [group.friendlyName, group]),
-        ] as PromptEntry<GroupDTO>[]),
+        ...this.promptService.conditionalEntries(
+          !IsEmpty(groups),
+          this.groupEntries(groups),
+        ),
         new inquirer.Separator(chalk.white`Actions`),
         [`${ICONS.CREATE}Create Group`, 'create'],
       ],
@@ -228,11 +226,31 @@ export class GroupCommandService implements iRepl {
   ): Promise<void> {
     this.header(group);
     const actions: PromptEntry[] = [];
-    if (group.type === GROUP_TYPES.light) {
-      actions.push(
-        new inquirer.Separator(chalk.white('Light commands')),
-        ...(await this.lightGroup.groupActions()),
-      );
+    switch (group.type) {
+      case GROUP_TYPES.light:
+        actions.push(
+          new inquirer.Separator(chalk.white('Light commands')),
+          ...(await this.lightGroup.groupActions()),
+        );
+        break;
+      case GROUP_TYPES.switch:
+        actions.push(
+          new inquirer.Separator(chalk.white('Light commands')),
+          ...(await this.switchGroup.groupActions()),
+        );
+        break;
+      case GROUP_TYPES.fan:
+        actions.push(
+          new inquirer.Separator(chalk.white('Light commands')),
+          ...(await this.fanGroup.groupActions()),
+        );
+        break;
+      case GROUP_TYPES.lock:
+        actions.push(
+          new inquirer.Separator(chalk.white('Light commands')),
+          ...(await this.lockGroup.groupActions()),
+        );
+        break;
     }
     const action = await this.promptService.menuSelect(
       [
@@ -289,9 +307,19 @@ export class GroupCommandService implements iRepl {
         });
         return;
       default:
-        if (group.type === GROUP_TYPES.light) {
-          await this.lightGroup.processAction(group, action);
-          break;
+        switch (group.type) {
+          case GROUP_TYPES.light:
+            await this.lightGroup.processAction(group, action);
+            break;
+          case GROUP_TYPES.switch:
+            await this.switchGroup.processAction(group, action);
+            break;
+          case GROUP_TYPES.fan:
+            await this.fanGroup.processAction(group, action);
+            break;
+          case GROUP_TYPES.lock:
+            await this.lockGroup.processAction(group, action);
+            break;
         }
         this.logger.error({ action, type: group.type }, `Bad action`);
     }
@@ -304,6 +332,30 @@ export class GroupCommandService implements iRepl {
       method: `put`,
       url: `/group/${group._id}`,
     });
+  }
+
+  private groupEntries(groups: GroupDTO[]): PromptEntry<GroupDTO>[] {
+    const map = new Map<GROUP_TYPES, GroupDTO[]>();
+    const out: PromptEntry<GroupDTO>[] = [];
+    groups.forEach((group) => {
+      const list = map.get(group.type) || [];
+      list.push(group);
+      map.set(group.type, list);
+    });
+    [...map.keys()]
+      .sort((a, b) => (a > b ? UP : DOWN))
+      .forEach((key) => {
+        out.push(
+          new inquirer.Separator(
+            chalk.white(`${TitleCase(key, false)} Groups`),
+          ),
+        );
+        map
+          .get(key)
+          .sort((a, b) => (a.friendlyName > b.friendlyName ? UP : DOWN))
+          .forEach((group) => out.push([group.friendlyName, group]));
+      });
+    return out;
   }
 
   private header(group: GroupDTO): void {

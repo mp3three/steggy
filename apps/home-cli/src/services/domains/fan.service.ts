@@ -26,11 +26,11 @@ export class FanService extends SwitchService {
       entity_id,
       [
         new inquirer.Separator(chalk.white`Relative change`),
-        [`${ICONS.ACTIVATE}Speed Up`, 'fanSpeedUp'],
-        [`${ICONS.ACTIVATE}Speed Down`, 'fanSpeedDown'],
+        [`${ICONS.UP}Speed Up`, 'fanSpeedUp'],
+        [`${ICONS.DOWN}Speed Down`, 'fanSpeedDown'],
         new inquirer.Separator(chalk.white`Absolute speeds`),
         ...entity.attributes.speed_list.map((speed) => [
-          TitleCase(speed),
+          TitleCase(speed, false),
           speed,
         ]),
       ] as PromptEntry<FanCacheSpeeds>[],
@@ -95,9 +95,9 @@ export class FanService extends SwitchService {
 
   protected getMenuOptions(): PromptEntry[] {
     return [
-      ['Fan speed up', 'fanSpeedUp'],
-      ['Fan speed down', 'fanSpeedDown'],
-      ['Set speed', 'setSpeed'],
+      [`${ICONS.UP}Speed Up`, 'fanSpeedUp'],
+      [`${ICONS.DOWN}Speed Down`, 'fanSpeedDown'],
+      [`${ICONS.COMMAND}Set speed`, 'setSpeed'],
       ...super.getMenuOptions(),
     ];
   }

@@ -85,7 +85,6 @@ export class LockGroupService extends BaseGroupService {
   /**
    * Alias for unlock
    */
-
   public async turnOff(group: GroupDTO | string): Promise<void> {
     return this.unlock(group);
   }
@@ -93,7 +92,6 @@ export class LockGroupService extends BaseGroupService {
   /**
    * Alias for lock
    */
-
   public async turnOn(group: GroupDTO | string): Promise<void> {
     return this.lock(group);
   }

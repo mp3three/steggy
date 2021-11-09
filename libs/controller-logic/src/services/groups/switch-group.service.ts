@@ -43,6 +43,9 @@ export class SwitchGroupService extends BaseGroupService {
       case 'turnOn':
         await this.turnOn(group);
         return;
+      case 'toggle':
+        await this.toggle(group);
+        return;
       default:
         await this.activateState(group, state.command);
     }
@@ -65,6 +68,11 @@ export class SwitchGroupService extends BaseGroupService {
       HASS_DOMAINS.light,
       HASS_DOMAINS.media_player,
     ].includes(domain(id));
+  }
+
+  public async toggle(group: GroupDTO | string): Promise<void> {
+    group = await this.loadGroup(group);
+    await this.hassCore.toggle(group.entities);
   }
 
   public async turnOff(group: GroupDTO | string): Promise<void> {

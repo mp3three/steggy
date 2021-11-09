@@ -47,9 +47,31 @@ export class FanGroupService extends BaseGroupService {
       case 'turnOn':
         await this.turnOn(group);
         return;
+      case 'fanSpeedUp':
+        await this.fanSpeedUp(group);
+        return;
+      case 'fanSpeedDown':
+        await this.fanSpeedDown(group);
+        return;
       default:
         await this.activateState(group, state.command);
     }
+  }
+
+  public async fanSpeedUp(group: GroupDTO | string): Promise<void> {
+    group = await this.loadGroup(group);
+    await each(group.entities, async (entity_id, callback) => {
+      this.fanDomain.fanSpeedUp(entity_id);
+      callback();
+    });
+  }
+
+  public async fanSpeedDown(group: GroupDTO | string): Promise<void> {
+    group = await this.loadGroup(group);
+    await each(group.entities, async (entity_id, callback) => {
+      this.fanDomain.fanSpeedDown(entity_id);
+      callback();
+    });
   }
 
   public async getState(group: GroupDTO<FanCacheDTO>): Promise<SaveState[]> {

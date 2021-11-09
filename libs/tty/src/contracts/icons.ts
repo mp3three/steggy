@@ -3,7 +3,9 @@
  */
 export const ICONS = {
   ACTIVATE: '🏁 ',
+  BRIGHTNESS: '💡 ',
   CAPTURE: '📸 ',
+  CIRCADIAN: '🕯 ',
   COMMAND: '🎼 ',
   CONFIGURE: '⚙ ',
   COPY: '📋 ',
@@ -14,7 +16,7 @@ export const ICONS = {
   DESTRUCTIVE: '🚨 ',
   DEVICE: '📟 ',
   DONE: '🗿 ',
-  DOWN: '⏬ ',
+  DOWN: '📉 ',
   EDIT: '✏ ',
   ENTITIES: '🗃 ',
   EVENT: '🎆 ',
@@ -30,8 +32,8 @@ export const ICONS = {
   STATE_MANAGER: '🖼 ',
   TOGGLE_OFF: '📪 ',
   TOGGLE_ON: '📫 ',
-  TURN_OFF: '🌝 ',
+  TURN_OFF: '🌑 ',
   TURN_ON: '🌞 ',
-  UP: '⏫ ',
+  UP: '📈 ',
   WARNING: '🚧 ',
 };

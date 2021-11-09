@@ -12,6 +12,7 @@ import {
   DebugService,
   DeviceService,
   EntityService,
+  FanGroupCommandService,
   FanService,
   GroupActionService,
   GroupCommandService,
@@ -20,6 +21,7 @@ import {
   KunamiBuilderService,
   LightGroupCommandService,
   LightService,
+  LockGroupCommandService,
   LockService,
   MediaService,
   RoomActionService,
@@ -30,6 +32,7 @@ import {
   RoutineService,
   ScheduleBuilderService,
   StateChangeBuilderService,
+  SwitchGroupCommandService,
   SwitchService,
 } from '../services';
 
@@ -49,7 +52,14 @@ import {
         SwitchService,
       ],
       // groups/*
-      ...[GroupCommandService, GroupStateService, LightGroupCommandService],
+      ...[
+        FanGroupCommandService,
+        GroupCommandService,
+        GroupStateService,
+        LightGroupCommandService,
+        LockGroupCommandService,
+        SwitchGroupCommandService,
+      ],
       // rooms/*
       ...[RoomCommandService, RoomStateService],
       // routines/*

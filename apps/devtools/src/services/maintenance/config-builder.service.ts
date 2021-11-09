@@ -87,9 +87,11 @@ export class ConfigBuilderService implements iRepl {
     );
     switch (action) {
       case 'edit':
+        this.loadConfig(application);
         await this.buildApplication(application);
         return await this.handleConfig(application);
       case 'describe':
+        this.loadConfig(application);
         this.promptService.print(encode(this.config));
         return await this.handleConfig(application);
       case 'save':
@@ -117,11 +119,6 @@ export class ConfigBuilderService implements iRepl {
   }
 
   private async buildApplication(application: string): Promise<void> {
-    this.config = rc<AutomagicalConfig>(application);
-    delete this.config['configs'];
-    delete this.config['config'];
-    this.loadedApplication = application;
-
     const configEntries = await this.scan(application);
     this.promptService.clear();
     this.promptService.scriptHeader(`Available Configs`);
@@ -250,6 +247,14 @@ export class ConfigBuilderService implements iRepl {
       return chalk.magentaBright(property);
     }
     return chalk.whiteBright(property);
+  }
+
+  private loadConfig(application: string) {
+    this.config = rc<AutomagicalConfig>(application);
+    delete this.config['configs'];
+    delete this.config['config'];
+    delete this.config['_'];
+    this.loadedApplication = application;
   }
 
   private path(config: ConfigTypeDTO): string {
