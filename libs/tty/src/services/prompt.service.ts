@@ -27,7 +27,6 @@ export type PromptEntry<T = string> =
   | Separator;
 const LABEL = 0;
 const VALUE = 1;
-const CHECK_ICON = 0;
 const BLOCK_OFFSET = '   ';
 
 @Injectable()

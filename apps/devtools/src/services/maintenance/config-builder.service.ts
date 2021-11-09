@@ -130,7 +130,9 @@ export class ConfigBuilderService implements iRepl {
       `Select properties to change\n`,
       entries,
     );
-    await eachSeries(list, async (item) => await this.prompt(item));
+    await eachSeries(list, async (item) => {
+      await this.prompt(item);
+    });
   }
 
   private buildEntries(
@@ -312,8 +314,15 @@ export class ConfigBuilderService implements iRepl {
     const { outputPath } =
       this.workspace.workspace.projects[application].targets.build
         .configurations[SCAN_CONFIG_CONFIGURATION];
-    const { stdout } = await execa(`node`, [join(outputPath, 'main.js')]);
-    const config: ConfigTypeDTO[] = JSON.parse(stdout);
+    const config: ConfigTypeDTO[] = [];
+    try {
+      const out = await execa(`node`, [join(outputPath, 'main.js')], {});
+      config.push(...(JSON.parse(out.stdout) as ConfigTypeDTO[]));
+    } catch (error) {
+      // FIXME: Kill signal error that sometimes shows up
+      // Just ignoring the error here
+      config.push(...(JSON.parse(error.stdout) as ConfigTypeDTO[]));
+    }
     return new Set(config);
   }
 }

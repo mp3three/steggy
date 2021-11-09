@@ -141,11 +141,19 @@ export class RoomStateService {
     room: RoomDTO,
     state: RoomStateDTO,
   ): Promise<RoomDTO> {
+    this.promptService.clear();
+    this.promptService.scriptHeader(`Room State`);
+    console.log(
+      chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
+        `/room/${room._id}/state/${state.id}`,
+      )}`,
+    );
+    this.promptService.print(dump(state));
+    console.log();
     const action = await this.promptService.menuSelect(
       [
         [`${ICONS.ACTIVATE}Activate`, 'activate'],
         [`${ICONS.EDIT}Edit`, 'edit'],
-        [`${ICONS.DESCRIBE}Describe`, 'describe'],
         [`${ICONS.DELETE}Delete`, 'delete'],
       ],
       `Room state`,
@@ -159,9 +167,6 @@ export class RoomStateService {
           url: `/room/${room._id}/state/${state.id}`,
         });
         return room;
-      case 'describe':
-        this.promptService.print(dump(state));
-        return await this.processState(room, state);
       case 'edit':
         const update = await this.build(room, state);
         room = await this.roomService.get(room._id);
