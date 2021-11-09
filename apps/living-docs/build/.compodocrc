@@ -1,9 +1,0 @@
-# For production
----
-includesName: Markdown Docs
-hideGenerator: true
-disableSourceCode: true
-disablePrivate: true
-disableProtected: true
-disableCoverage: true
-theme: stripe

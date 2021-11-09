@@ -6,7 +6,6 @@
     "home-assistant": "libs/home-assistant",
     "home-cli": "apps/home-cli",
     "home-controller": "apps/home-controller",
-    "living-docs": "apps/living-docs",
     "persistence": "libs/persistence",
     "server": "libs/server",
     "tty": "libs/tty",
