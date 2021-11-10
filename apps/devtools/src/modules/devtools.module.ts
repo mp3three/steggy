@@ -10,6 +10,6 @@ import { ConfigBuilderService, ImgurAlbumDownloadService } from '../services';
 @ApplicationModule({
   application: APP_DEVTOOLS,
   imports: [DiscoveryModule, MainCLIModule, UtilitiesModule],
-  providers: [...[ConfigBuilderService], ...[ImgurAlbumDownloadService]],
+  providers: [ConfigBuilderService],
 })
 export class DevtoolsModule {}
