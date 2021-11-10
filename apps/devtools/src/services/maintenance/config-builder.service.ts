@@ -19,7 +19,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import execa from 'execa';
-import { existsSync } from 'fs';
+import { existsSync, writeFileSync } from 'fs';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 import { get, set } from 'object-path';
@@ -96,6 +96,10 @@ export class ConfigBuilderService implements iRepl {
         this.promptService.print(encode(this.config));
         return await this.handleConfig(application);
       case 'save':
+        writeFileSync(
+          join(homedir(), '.config', application),
+          encode(this.config),
+        );
         return await this.handleConfig(application);
     }
   }
