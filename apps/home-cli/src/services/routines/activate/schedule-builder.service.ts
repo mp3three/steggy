@@ -1,9 +1,8 @@
 import { ScheduleActivateDTO } from '@automagical/controller-logic';
-import { PromptEntry, PromptService } from '@automagical/tty';
-import { CronExpression, TitleCase } from '@automagical/utilities';
+import { ICONS, PromptEntry, PromptService } from '@automagical/tty';
+import { CronExpression } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
-import cron from 'cron';
 import inquirer from 'inquirer';
 
 @Injectable()
@@ -16,10 +15,10 @@ export class ScheduleBuilderService {
     const schedule = await this.promptService.pickOne(
       `Activation schedule`,
       [
-        [`Create`, 'custom'],
+        [`${ICONS.CREATE}Create`, 'custom'],
         new inquirer.Separator(chalk.white`pre-built`),
         ...(Object.keys(CronExpression).map((key) => [
-          TitleCase(key),
+          key,
           CronExpression[key],
         ]) as PromptEntry[]),
       ],
