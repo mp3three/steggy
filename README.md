@@ -9,6 +9,7 @@ Development is done against node 16. [Node Version Manager](https://github.com/n
 ```bash
 nvm install 16 --lts
 nvm use 16
+nvm alias default 16 # optional
 ```
 
 If you don't already have `yarn` installed (or are doing a first install of nodejs), this step is also needed
@@ -36,6 +37,11 @@ docker-compose -f ./tools/selfhosted/databases.docker-compose.yaml up -d
 ```
 
 ### Configuration
+
+For a full list of all applicable configuration variables, and a more guided configuration experience:
+
+- `yarn configure:home-controller`
+- `yarn configure:home-cli`
 
 Configuration is best done via ini files placed at these locations (no file extension).
 
@@ -68,11 +74,6 @@ ADMIN_KEY=super secret key
 ```
 
 The `ADMIN_KEY` must be matched on each side to allow access. The controller can also be set up to allow unauthenticated requests, with additional authentication mechanisms on the drawing board.
-
-For a full list of all applicable configuration variables, and a more guided configuration experience:
-
-- `yarn configure:home-controller`
-- `yarn configure:home-cli`
 
 ## Launching
 

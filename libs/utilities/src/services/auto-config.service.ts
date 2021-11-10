@@ -22,6 +22,7 @@ import { AutoLogService } from './logger/auto-log.service';
 
 @Injectable()
 export class AutoConfigService {
+  protected static USE_SCANNER_ASSETS = false;
   public static DEFAULTS = new Map<string, Record<string, unknown>>();
 
   constructor(
@@ -99,7 +100,7 @@ export class AutoConfigService {
     const path = join(
       cwd(),
       'dist',
-      'apps',
+      AutoConfigService.USE_SCANNER_ASSETS ? 'config-scanner' : 'apps',
       this.APPLICATION.description,
       'assets',
     );

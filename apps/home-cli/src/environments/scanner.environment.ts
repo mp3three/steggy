@@ -1,9 +1,11 @@
 import {
   ApplicationModule,
+  AutoConfigService,
   BootstrapOptions,
   ScanConfig,
 } from '@automagical/utilities';
 
+AutoConfigService['USE_SCANNER_ASSETS'] = true;
 ApplicationModule.useThisConfig({
   libs: {
     utilities: {
