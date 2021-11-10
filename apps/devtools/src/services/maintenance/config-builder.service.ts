@@ -35,6 +35,7 @@ const COMMAIFY = 10_000;
 const HEADER_END_PADDING = 20;
 const NONE = 0;
 const NO_VALUE = { no: 'value' };
+let initialApp = process.argv[ARGV_APP];
 
 @Repl({
   category: `Maintenance`,
@@ -60,15 +61,17 @@ export class ConfigBuilderService implements iRepl {
 
   public async exec(): Promise<void> {
     const application =
-      process.argv[ARGV_APP] ||
+      initialApp ||
       (await this.promptService.menuSelect(
         this.applicationChoices(),
         `Select an application`,
       ));
+    initialApp = undefined;
     if (!this.workspace.isProject(application)) {
       this.logger.error({ application }, `Invalid application`);
       throw new InternalServerErrorException();
     }
+    this.loadConfig(application);
     await this.handleConfig(application);
   }
 
@@ -87,11 +90,9 @@ export class ConfigBuilderService implements iRepl {
     );
     switch (action) {
       case 'edit':
-        this.loadConfig(application);
         await this.buildApplication(application);
         return await this.handleConfig(application);
       case 'describe':
-        this.loadConfig(application);
         this.promptService.print(encode(this.config));
         return await this.handleConfig(application);
       case 'save':
