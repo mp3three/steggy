@@ -12,7 +12,7 @@
     },
     "WEBSOCKET_URL": {
       "type": "string",
-      "description": "Override calculated value if it's breaking or you want something custom. Make sure to use wss://",
+      "description": "Override calculated value if it's breaking or you want something custom. Make sure to use ws[s]://",
       "careful": true
     },
     "WARN_REQUESTS_PER_SEC": {
@@ -23,7 +23,7 @@
     "CRASH_REQUESTS_PER_SEC": {
       "type": "number",
       "default": 500,
-      "description": "Socket service will self-terminate the process if this limit is exceeded. This can happen if an accidential infinite recursion is triggered due to bad setup"
+      "description": "Socket service will self-terminate the process if this limit is exceeded"
     },
     "RENDER_TIMEOUT": {
       "type": "number",

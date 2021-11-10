@@ -231,13 +231,16 @@ export class HASocketAPIService {
       this.messageCount = STARTING_COUNTER_ID;
       this.logger.debug('Creating new socket connection');
       this.connection = new WS(
-        this.websocketUrl || `wss://${url.hostname}/api/websocket`,
+        this.websocketUrl ||
+          `${url.protocol === `http:` ? `ws:` : `wss:`}//${url.hostname}${
+            url.port ? `:${url.port}` : ``
+          }/api/websocket`,
       );
       this.connection.addEventListener('message', (message) => {
         this.onMessage(JSON.parse(message.data.toString()));
       });
       this.connection.on('error', (error) => {
-        this.logger.error({ error }, 'Socket error');
+        this.logger.error({ error: error.message || error }, 'Socket error');
       });
     } catch (error) {
       this.logger.error({ error }, `initConnection error`);
