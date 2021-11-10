@@ -17,14 +17,16 @@ import {
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { v4 as uuid } from 'uuid';
+import {
+  KunamiBuilderService,
+  ScheduleBuilderService,
+  StateChangeBuilderService,
+} from './activate';
 
-import { KunamiBuilderService } from './kunami-builder.service';
 import { RoutineService } from './routine.service';
-import { ScheduleBuilderService } from './schedule-builder.service';
-import { StateChangeBuilderService } from './state-change-builder.service';
 
 @Injectable()
-export class RoutineActivateEventsService {
+export class RoutineActivateService {
   constructor(
     private readonly kunamiActivate: KunamiBuilderService,
     private readonly stateActivate: StateChangeBuilderService,

@@ -17,15 +17,15 @@ import { dump } from 'js-yaml';
 
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';
-import { RoutineCommandService } from './rountine-command.service';
-import { RoutineActivateEventsService } from './routine-activate-events.service';
+import { RoutineCommandService } from './routine-command.service';
+import { RoutineActivateService } from './routine-activate.service';
 
 @Injectable()
 export class RoutineService {
   constructor(
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
-    private readonly activateService: RoutineActivateEventsService,
+    private readonly activateService: RoutineActivateService,
     @Inject(forwardRef(() => RoomCommandService))
     private readonly roomCommand: RoomCommandService,
     @Inject(forwardRef(() => RoutineCommandService))

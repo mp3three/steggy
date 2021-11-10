@@ -3,7 +3,7 @@ import { PromptEntry, PromptService } from '@automagical/tty';
 import { FILTER_OPERATIONS, FilterValueType } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
-import { EntityService } from '../entity.service';
+import { EntityService } from '../../entity.service';
 
 const CMP = `Comparison value`;
 

@@ -26,7 +26,7 @@ import { GroupStateService } from '../groups';
 import { RoomCommandService, RoomStateService } from '../rooms';
 import { GroupActionService } from './group-action.service';
 import { RoutineService } from './routine.service';
-import { SendNotificationService } from './send-notification.service';
+import { SendNotificationService } from './command';
 
 @Injectable()
 export class RoutineCommandService {
@@ -68,7 +68,7 @@ export class RoutineCommandService {
           command: await this.entityCommand.createSaveCommand(
             await this.entityCommand.pickOne(
               undefined,
-              (current.command as RoomEntitySaveStateDTO).ref,
+              (current.command as RoomEntitySaveStateDTO)?.ref,
             ),
             current.command as RoomEntitySaveStateDTO,
           ),
