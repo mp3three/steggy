@@ -108,6 +108,7 @@ export class LightGroupCommandService {
     return await [
       [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
       [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
+      [`${ICONS.BRIGHTNESS}Set Brightness`, `setBrightness`],
       [`${ICONS.UP}Dim Up`, `dimUp`],
       [`${ICONS.DOWN}Dim Down`, `dimDown`],
       [`${ICONS.CIRCADIAN}Circadian`, `circadianOn`],
@@ -126,11 +127,9 @@ export class LightGroupCommandService {
         return await this.turnOff(group);
       case 'circadianOn':
         return await this.circadianOn(group);
-    }
-    if (action === 'brightness') {
-      group = await this.refresh(group);
-      await this.promptChangeBrightness(group);
-      return;
+      case 'setBrightness':
+        group = await this.refresh(group);
+        return await this.promptChangeBrightness(group);
     }
     this.logger.error({ action }, `Unknown action`);
   }
