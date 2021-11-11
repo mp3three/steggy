@@ -1,6 +1,7 @@
-import { OnEvent, sleep } from '@automagical/utilities';
+import { AutoLogService, OnEvent, sleep } from '@automagical/utilities';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
+import { encode } from 'querystring';
 import { Observable, Subscriber } from 'rxjs';
 
 import {
@@ -27,6 +28,7 @@ const ONE_SECOND = 1000;
 @Injectable()
 export class EntityManagerService {
   constructor(
+    private readonly logger: AutoLogService,
     private readonly socketService: HASocketAPIService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
@@ -111,6 +113,7 @@ export class EntityManagerService {
       // Let's keep life simple
       throw new BadRequestException(`Watcher already exists for ${entityId}`);
     }
+    this.logger.warn(`Recording {${entityId}}`);
     this.WATCHERS.set(entityId, []);
     await sleep(duration * ONE_SECOND); // kick back and relax
     const observed = this.WATCHERS.get(entityId);
@@ -168,14 +171,16 @@ export class EntityManagerService {
   @OnEvent(HA_EVENT_STATE_CHANGE)
   protected onUpdate(event: HassEventDTO): void {
     const { entity_id, new_state } = event.data;
+    if (this.WATCHERS.has(entity_id)) {
+      this.logger.debug(`[${entity_id}] state change {${new_state.state}}`);
+      this.WATCHERS.get(entity_id).push(new_state.state);
+      return;
+    }
     this.createObservable(entity_id);
     this.ENTITIES.set(entity_id, new_state);
     const subscriber = this.SUBSCRIBERS.get(entity_id);
     subscriber?.next(new_state);
     this.eventEmitter.emit(`${entity_id}/update`, event);
-    if (this.WATCHERS.has(entity_id)) {
-      this.WATCHERS.get(entity_id).push(new_state.state);
-    }
   }
 
   @OnEvent(HA_SOCKET_READY)
