@@ -57,8 +57,7 @@ export class LightService extends SwitchService {
       current?.extra?.brightness ||
       (await this.promptService.confirm(`Set brightness?`))
     ) {
-      brightness = await this.promptService.number(
-        `Set brightness (1-255)`,
+      brightness = await this.promptService.brightness(
         current?.extra?.brightness,
       );
     }

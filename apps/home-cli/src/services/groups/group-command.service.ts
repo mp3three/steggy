@@ -224,7 +224,7 @@ export class GroupCommandService implements iRepl {
     list: GroupDTO[],
     defaultValue?: string,
   ): Promise<void> {
-    this.header(group);
+    await this.header(group);
     const actions: PromptEntry[] = [];
     switch (group.type) {
       case GROUP_TYPES.light:
@@ -358,7 +358,10 @@ export class GroupCommandService implements iRepl {
     return out;
   }
 
-  private header(group: GroupDTO): void {
+  private async header(group: GroupDTO): Promise<void> {
+    if (group.type === GROUP_TYPES.light) {
+      return await this.lightGroup.header(group);
+    }
     this.promptService.scriptHeader(`Group`);
     console.log(
       [

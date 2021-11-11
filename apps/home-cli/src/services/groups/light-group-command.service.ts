@@ -5,14 +5,31 @@ import {
   RoomEntitySaveStateDTO,
   RoutineCommandGroupActionDTO,
 } from '@automagical/controller-logic';
-import { ICONS, PromptEntry, PromptService } from '@automagical/tty';
-import { AutoLogService } from '@automagical/utilities';
+import { domain, LightStateDTO } from '@automagical/home-assistant';
+import {
+  ColorsService,
+  ICONS,
+  PromptEntry,
+  PromptService,
+} from '@automagical/tty';
+import { AutoLogService, TitleCase } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
+import { each } from 'async';
+import chalk from 'chalk';
+import { LightService } from '../domains';
+import { EntityService } from '../entity.service';
 
 import { HomeFetchService } from '../home-fetch.service';
 
 const MIN_BRIGHTNESS = 5;
 const MAX_BRIGHTNESS = 255;
+
+const UP = 1;
+const DOWN = -1;
+const R_MULTIPLIER = 0.299;
+const G_MULTIPLIER = 0.587;
+const B_MULTIPLIER = 0.114;
+const THRESHOLD = 127.5;
 
 const GENERIC_COMMANDS: PromptEntry<GENERIC_COMMANDS>[] = [
   [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
@@ -28,7 +45,10 @@ export class LightGroupCommandService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
+    private readonly entityCommand: EntityService,
     private readonly fetchService: HomeFetchService,
+    private readonly lightDomain: LightService,
+    private readonly colorService: ColorsService,
   ) {}
 
   public async circadianOn(group: GroupDTO | string): Promise<void> {
@@ -66,9 +86,9 @@ export class LightGroupCommandService {
         return {
           command,
           extra: {
-            brightness: await this.promptService.number(
-              `Set brightness (1-255)`,
+            brightness: await this.promptService.brightness(
               extra?.brightness,
+              `Set brightness`,
             ),
           },
         };
@@ -77,9 +97,9 @@ export class LightGroupCommandService {
         return {
           command,
           extra: {
-            brightness: await this.promptService.number(
-              `Change amount (1-255)`,
+            brightness: await this.promptService.brightness(
               extra?.brightness,
+              `Change amount`,
             ),
           },
         };
@@ -113,6 +133,56 @@ export class LightGroupCommandService {
       [`${ICONS.DOWN}Dim Down`, `dimDown`],
       [`${ICONS.CIRCADIAN}Circadian`, `circadianOn`],
     ];
+  }
+
+  public async header(group: GroupDTO): Promise<void> {
+    this.promptService.scriptHeader(`Group`);
+    console.log(
+      [
+        chalk.magenta.bold`${group.friendlyName}`,
+        chalk.yellow.bold`${TitleCase(group.type)} Group`,
+      ].join(chalk.cyan(' - ')),
+      `\n\n`,
+    );
+    let maxId = 0;
+    let maxName = 0;
+    const lines: string[][] = [];
+    // TODO: Refactor into 1 request, instead of n
+    await each(group.entities, async (id) => {
+      const content = await this.lightDomain.getState<LightStateDTO>(id);
+      const parts: string[] = [content.attributes.friendly_name, id];
+      maxId = Math.max(maxId, id.length);
+      maxName = Math.max(maxName, content.attributes.friendly_name.length);
+      if (content.state === 'on') {
+        const [r, g, b] = content.attributes.rgb_color;
+        const message = `     ${TitleCase(content.state)}     `;
+        const isBright =
+          Math.sqrt(
+            R_MULTIPLIER * (r * r) +
+              G_MULTIPLIER * (g * g) +
+              B_MULTIPLIER * (b * b),
+          ) > THRESHOLD;
+        parts.push(
+          chalk[isBright ? 'black' : 'whiteBright'].bgRgb(r, g, b)(message),
+        );
+      } else {
+        parts.push(chalk.bgGray.whiteBright`     Off     `);
+      }
+      lines.push(parts);
+    });
+    lines
+      // , , , ,
+      .sort(([, a], [, b]) => (a > b ? UP : DOWN))
+      .forEach((line) =>
+        console.log(
+          chalk` {cyan -} ${line
+            .shift()
+            .padEnd(maxName, ' ')} {yellow.bold ${line
+            .shift()
+            .padEnd(maxId, ' ')}} ${line.shift()}`,
+        ),
+      );
+    console.log();
   }
 
   public async processAction(group: GroupDTO, action: string): Promise<void> {
@@ -194,5 +264,10 @@ export class LightGroupCommandService {
       method: 'put',
       url: `/group/${group}/command/turnOn`,
     });
+  }
+
+  private async headerColors(group: GroupDTO): Promise<string[]> {
+    // const entities = await
+    return [];
   }
 }

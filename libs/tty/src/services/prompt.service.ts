@@ -91,6 +91,24 @@ export class PromptService {
     return result;
   }
 
+  public async brightness(
+    current = 255,
+    message = 'Brightness',
+  ): Promise<number> {
+    const { result } = await inquirer.prompt([
+      {
+        default: current,
+        message: `${message} (1-255)`,
+        name,
+        type: 'number',
+        validate(input: number = 0) {
+          return input >= 1 && input <= 255;
+        },
+      },
+    ]);
+    return result;
+  }
+
   public async boolean(
     message: string,
     defaultValue?: boolean,

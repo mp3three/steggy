@@ -113,6 +113,8 @@ export class BaseDomainService {
     // sleep needed to ensure correct-ness of header information
     // Somtimes the previous request impacts the state, and race conditions
     await sleep(DELAY);
+    this.promptService.clear();
+    this.promptService.scriptHeader(`Entity`);
     const content = await this.getState<T>(id);
     console.log(
       chalk`{magenta.bold ${
@@ -178,7 +180,6 @@ export class BaseDomainService {
   protected getMenuOptions(): PromptEntry[] {
     return [
       new inquirer.Separator(chalk.white`Base options`),
-      [`${ICONS.DESCRIBE}Describe`, 'describe'],
       [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
       [`${ICONS.RENAME}Change Friendly Name`, 'changeFriendlyName'],
       [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
