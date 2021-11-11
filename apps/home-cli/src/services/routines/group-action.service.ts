@@ -23,7 +23,10 @@ export class GroupActionService {
     switch (group.type) {
       case GROUP_TYPES.light:
         return {
-          ...(await this.lightGroup.commandBuilder(current?.command)),
+          ...(await this.lightGroup.commandBuilder(
+            current?.command,
+            current.extra,
+          )),
           group: group._id,
         };
       case GROUP_TYPES.switch:
