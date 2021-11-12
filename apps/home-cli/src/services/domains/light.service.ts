@@ -84,31 +84,6 @@ export class LightService extends SwitchService {
 
   public async processId(id: string, command?: string): Promise<string> {
     await this.baseHeader(id);
-    // const content = await this.getState<LightStateDTO>(id);
-    // const baseMessage = chalk`{magenta.bold ${
-    //   content.attributes.friendly_name
-    // }} - {yellow.bold ${TitleCase(domain(content.entity_id))}}   `;
-    // if (content.state === 'on') {
-    //   const [r, g, b] = content.attributes.rgb_color;
-    //   const message = `     ${TitleCase(content.state)}     `;
-    //   const isBright =
-    //     Math.sqrt(
-    //       R_MULTIPLIER * (r * r) +
-    //         G_MULTIPLIER * (g * g) +
-    //         B_MULTIPLIER * (b * b),
-    //     ) > THRESHOLD;
-    //   console.log(
-    //     baseMessage +
-    //       chalk[isBright ? 'black' : 'whiteBright'].bgRgb(r, g, b)(message),
-    //   );
-    // } else {
-    //   console.log(baseMessage);
-    // }
-
-    // console.log();
-    // this.promptService.print(dump(content));
-    // console.log();
-
     const action = await super.processId(id, command);
     switch (action) {
       case 'dimDown':

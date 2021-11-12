@@ -1,5 +1,5 @@
 import { RoomEntitySaveStateDTO } from '@automagical/controller-logic';
-import { PromptEntry } from '@automagical/tty';
+import { ICONS, PromptEntry } from '@automagical/tty';
 import { Injectable } from '@nestjs/common';
 import inquirer from 'inquirer';
 
@@ -55,8 +55,8 @@ export class LockService extends BaseDomainService {
 
   protected getMenuOptions(): PromptEntry[] {
     return [
-      ['Lock', 'lock'],
-      ['Unlock', 'unlock'],
+      [`${ICONS.TURN_ON}Lock`, 'lock'],
+      [`${ICONS.TURN_OFF}Unlock`, 'unlock'],
       new inquirer.Separator(),
       ...super.getMenuOptions(),
     ];
