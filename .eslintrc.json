@@ -6,10 +6,6 @@
     "security",
     "radar",
     "unicorn",
-    "jsx-a11y",
-    "react",
-    "react-hooks",
-    "react-native",
     "jsonc",
     "woke",
     "sort-keys-fix",
@@ -19,16 +15,7 @@
     "jest-formatting",
     "jest"
   ],
-  "overrides": [{
-      "files": ["*.tsx"],
-      "extends": [
-        "plugin:jsx-a11y/recommended",
-        "plugin:react/recommended",
-        "plugin:react-hooks/recommended",
-        "plugin:react-native/all",
-        "plugin:no-unsanitized/DOM"
-      ]
-    },
+  "overrides": [
     {
       "files": ["*.ts", "*.tsx"],
       "extends": [
@@ -172,11 +159,6 @@
           }
         ],
         "@typescript-eslint/no-explicit-any": "error"
-      },
-      "settings": {
-        "react": {
-          "version": "detect"
-        }
       }
     },
     {
