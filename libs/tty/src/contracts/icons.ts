@@ -3,6 +3,7 @@
  */
 export const ICONS = {
   ACTIVATE: '🏁 ',
+  BACK: '🔙 ',
   BRIGHTNESS: '💡 ',
   CAPTURE: '📸 ',
   CIRCADIAN: '🕯 ',
@@ -30,6 +31,7 @@ export const ICONS = {
   ROUTINE: '🛰 ',
   SAVE: '💾 ',
   STATE_MANAGER: '🖼 ',
+  SWAP: '🔁 ',
   TOGGLE_OFF: '📪 ',
   TOGGLE_ON: '📫 ',
   TURN_OFF: '🌑 ',

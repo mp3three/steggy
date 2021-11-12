@@ -147,10 +147,10 @@ export class LightService extends SwitchService {
     const parent = super.getMenuOptions();
     return [
       ...parent.slice(START, SHIFT_AMOUNT),
-      ['Circadian light', 'circadianLight'],
-      ['Dim Up', 'dimUp'],
-      ['Dim Down', 'dimDown'],
-      ['Swap state with another light', 'swapState'],
+      [`${ICONS.CIRCADIAN}Circadian light`, 'circadianLight'],
+      [`${ICONS.UP}Dim Up`, 'dimUp'],
+      [`${ICONS.DOWN}Dim Down`, 'dimDown'],
+      [`${ICONS.SWAP}Swap state with another light`, 'swapState'],
       ...parent.slice(SHIFT_AMOUNT),
     ];
   }

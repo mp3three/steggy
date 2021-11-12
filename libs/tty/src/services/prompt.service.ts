@@ -18,7 +18,7 @@ import {
   DISABLE_CLEAR,
   PAGE_SIZE,
 } from '../config';
-import { DONE, PromptMenuItems } from '../contracts';
+import { DONE, ICONS, PromptMenuItems } from '../contracts';
 
 const name = `result`;
 export type PROMPT_WITH_SHORT = { short: string; name: string };
@@ -264,7 +264,7 @@ export class PromptService {
   ): Promise<T | string> {
     return await this.pickOne<T>(
       message,
-      [...options, new inquirer.Separator(), ['Done', DONE as T]],
+      [...options, new inquirer.Separator(), [`${ICONS.BACK}Done`, DONE as T]],
       defaultValue,
     );
   }
