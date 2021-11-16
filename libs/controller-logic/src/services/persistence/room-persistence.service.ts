@@ -12,7 +12,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { EventEmitter2 } from 'eventemitter2';
 import { Model } from 'mongoose';
-import { RoomDocument, RoomDTO, ROOM_UPDATE } from '../../contracts';
+
+import { ROOM_UPDATE,RoomDocument, RoomDTO } from '../../contracts';
 
 @Injectable()
 export class RoomPersistenceService extends BaseMongoService {

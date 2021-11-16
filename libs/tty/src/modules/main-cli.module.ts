@@ -6,6 +6,7 @@ import {
   ColorsService,
   GitService,
   MainCLIService,
+  PinnedItemService,
   PromptService,
   ReplExplorerService,
   SystemService,
@@ -14,21 +15,23 @@ import {
 
 @LibraryModule({
   exports: [
-    SystemService,
-    PromptService,
     ColorsService,
-    WorkspaceService,
     GitService,
+    PinnedItemService,
+    PromptService,
+    SystemService,
+    WorkspaceService,
   ],
   imports: [DiscoveryModule],
   library: LIB_TTY,
   providers: [
-    SystemService,
-    PromptService,
-    GitService,
     ColorsService,
-    ReplExplorerService,
+    GitService,
     MainCLIService,
+    PinnedItemService,
+    PromptService,
+    ReplExplorerService,
+    SystemService,
     WorkspaceService,
   ],
 })

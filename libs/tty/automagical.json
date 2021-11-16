@@ -30,6 +30,12 @@
       "default": false,
       "description": "For debugging",
       "careful": true
+    },
+    "PINNED_ITEMS": {
+      "type": "internal",
+      "description": "Stick some callbacks at the top of main cli. Managed from application",
+      "configurable": false,
+      "default": []
     }
   }
 }

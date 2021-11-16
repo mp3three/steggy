@@ -12,6 +12,7 @@
             "number",
             "password",
             "string[]",
+            "internal",
             "url",
             "record"
           ]
@@ -25,7 +26,8 @@
         }
       },
       "required": ["type"],
-      "anyOf": [{
+      "anyOf": [
+        {
           "description": "String config",
           "$ref": "#/definitions/string-config"
         },
@@ -44,6 +46,10 @@
         {
           "description": "URL config",
           "$ref": "#/definitions/url-config"
+        },
+        {
+          "description": "Internal config",
+          "$ref": "#/definitions/internal-config"
         }
       ]
     }
@@ -63,8 +69,13 @@
                 "password",
                 "string[]",
                 "url",
-                "record"
+                "record",
+                "internal"
               ]
+            },
+            "configurable": {
+              "type": "boolean",
+              "description": "User configurable (false for managed by code)"
             },
             "description": {
               "type": "string",
@@ -75,7 +86,8 @@
             }
           },
           "required": ["type"],
-          "anyOf": [{
+          "anyOf": [
+            {
               "description": "String config",
               "$ref": "#/definitions/string-config"
             },
@@ -94,6 +106,10 @@
             {
               "description": "URL config",
               "$ref": "#/definitions/url-config"
+            },
+            {
+              "description": "Internal config",
+              "$ref": "#/definitions/internal-config"
             }
           ]
         }
@@ -104,6 +120,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "configurable": true,
         "description": true,
         "type": {
           "type": "string",
@@ -135,6 +152,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "configurable": true,
         "description": true,
         "type": {
           "pattern": "boolean"
@@ -159,6 +177,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "configurable": true,
         "description": true,
         "type": {
           "pattern": "number"
@@ -178,11 +197,27 @@
       },
       "required": ["type", "description"]
     },
+    "internal-config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": true,
+        "type": {
+          "pattern": "internal"
+        },
+        "configurable": {
+          "type": "boolean"
+        },
+        "default": true
+      },
+      "required": ["type", "description", "configurable"]
+    },
     "password-config": {
       // AutomagicalPasswordConfig
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "configurable": true,
         "description": true,
         "type": {
           "pattern": "password"
@@ -204,6 +239,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "configurable": true,
         "description": true,
         "type": {
           "pattern": "url"

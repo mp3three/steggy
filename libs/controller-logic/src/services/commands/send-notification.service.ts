@@ -4,6 +4,7 @@ import {
 } from '@automagical/home-assistant';
 import { AutoLogService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+
 import { RoutineCommandSendNotificationDTO } from '../../contracts';
 
 @Injectable()

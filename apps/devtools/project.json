@@ -37,11 +37,6 @@
             "output": "./assets/tty"
           },
           {
-            "input": "libs/terminal",
-            "glob": "automagical.json",
-            "output": "./assets/terminal"
-          },
-          {
             "input": "apps/devtools",
             "glob": "automagical.json",
             "output": "./assets/devtools"

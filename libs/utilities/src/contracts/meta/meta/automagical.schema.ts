@@ -6,6 +6,7 @@ export const METADATA_FILE = 'automagical.json';
 export type ConfigItem<T extends AnyConfig = AnyConfig> = {
   default?: unknown;
   description?: string;
+  configurable?: boolean;
 } & T;
 export type AnyConfig =
   | AutomagicalStringConfig

@@ -16,10 +16,10 @@ import {
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
   RoutineCommandRoomStateDTO,
+  RoutineCommandSendNotificationDTO,
   RoutineDTO,
   ScheduleActivateDTO,
   StateChangeActivateDTO,
-  RoutineCommandSendNotificationDTO,
 } from '../../contracts';
 import { SendNotificationService } from '../commands';
 import { EntityCommandRouterService } from '../entity-command-router.service';

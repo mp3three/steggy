@@ -8,7 +8,13 @@ import {
   HASS_DOMAINS,
   HassStateDTO,
 } from '@automagical/home-assistant';
-import { ICONS, iRepl, PromptService, Repl } from '@automagical/tty';
+import {
+  ICONS,
+  iRepl,
+  PinnedItemService,
+  PromptService,
+  Repl,
+} from '@automagical/tty';
 import { IsEmpty } from '@automagical/utilities';
 
 import {
@@ -38,6 +44,7 @@ export class EntityService implements iRepl {
     private readonly fanService: FanService,
     private readonly mediaService: MediaService,
     private readonly lockService: LockService,
+    private readonly pinnedItems: PinnedItemService,
     private readonly climateService: ClimateService,
   ) {}
 
@@ -184,5 +191,13 @@ export class EntityService implements iRepl {
   public async processId(ids: string[]): Promise<void> {
     const entity = await this.promptService.autocomplete('Pick an entity', ids);
     await this.process(entity);
+  }
+
+  protected onModuleInit(): void {
+    this.pinnedItems.loaders.set(
+      'entity',
+      async ({ entity_id }: { entity_id: string }) =>
+        await this.process(entity_id),
+    );
   }
 }

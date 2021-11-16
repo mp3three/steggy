@@ -1,6 +1,7 @@
 import {
   AutoLogService,
   InjectConfig,
+  IsEmpty,
   TitleCase,
 } from '@automagical/utilities';
 import chalk from 'chalk';
@@ -9,9 +10,9 @@ import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
 import { DEFAULT_HEADER_FONT } from '../config';
-import { iRepl } from '../contracts/i-repl.interface';
-import { ReplOptions } from '../contracts/repl-options.dto';
+import { iRepl, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
+import { PinnedItemService } from './pinned-item.service';
 import { PromptEntry, PromptService } from './prompt.service';
 import { ReplExplorerService } from './repl-explorer.service';
 
@@ -33,6 +34,7 @@ export class MainCLIService implements iRepl {
     @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: figlet.Fonts,
     private readonly explorer: ReplExplorerService,
     private readonly promptService: PromptService,
+    private readonly pinnedItem: PinnedItemService,
   ) {}
 
   public async exec(defaultSelection?: string): Promise<void> {
@@ -43,6 +45,10 @@ export class MainCLIService implements iRepl {
     console.log(chalk.cyan(header), '\n');
 
     const [scriptName, name] = await this.getScript(defaultSelection);
+    if (typeof name !== 'string') {
+      await this.exec(name);
+      return;
+    }
     this.printHeader(name);
     let instance: iRepl;
     this.explorer.REGISTERED_APPS.forEach((i, options) => {
@@ -62,14 +68,21 @@ export class MainCLIService implements iRepl {
    */
   private async getScript(script?: string): Promise<[string, string]> {
     const scriptName = process.argv[SCRIPT_ARG];
+    const entries = this.pinnedItem.getEntries();
     if (!scriptName || typeof script !== 'undefined') {
-      return (await this.promptService.pickOne(
+      return await this.promptService.pickOne(
         'Command',
-        this.scriptList().map((i) =>
-          i instanceof Separator ? i : [i[LABEL], i],
-        ),
+        [
+          ...this.promptService.conditionalEntries(!IsEmpty(entries), [
+            new inquirer.Separator(chalk.gray`Pinned`),
+            ...entries,
+          ]),
+          ...(this.scriptList().map((i) =>
+            i instanceof Separator ? i : [i[LABEL], i],
+          ) as PromptEntry<[string, string]>[]),
+        ],
         script,
-      )) as [string, string];
+      );
     }
     const instance = this.explorer.findServiceByName(scriptName);
     if (!instance) {

@@ -26,6 +26,7 @@ export const ICONS = {
   LINK: '🔗 ',
   MANUAL: '🔨 ',
   NAME: '💭 ',
+  PIN: '📌 ',
   RENAME: '✏ ',
   ROOMS: '🏡 ',
   ROUTINE: '🛰 ',

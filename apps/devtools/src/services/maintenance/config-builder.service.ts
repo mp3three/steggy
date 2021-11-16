@@ -78,7 +78,6 @@ export class ConfigBuilderService implements iRepl {
   /**
    * Prompt the user for what to do
    */
-
   public async handleConfig(application: string): Promise<void> {
     const action = await this.promptService.menuSelect(
       [
@@ -154,6 +153,13 @@ export class ConfigBuilderService implements iRepl {
     });
     const build: PromptEntry<ConfigTypeDTO>[] = [];
     config.forEach((entry) => {
+      entry.metadata.configurable =
+        typeof entry.metadata.configurable === 'undefined'
+          ? true
+          : entry.metadata.configurable;
+      if (entry.metadata.configurable === false) {
+        return;
+      }
       build.push([
         {
           name: chalk`{bold ${this.colorProperty(

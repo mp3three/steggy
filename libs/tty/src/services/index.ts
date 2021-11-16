@@ -5,3 +5,4 @@ export * from './prompt.service';
 export * from './repl-explorer.service';
 export * from './system.service';
 export * from './workspace.service';
+export * from './pinned-item.service';

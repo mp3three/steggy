@@ -5,7 +5,13 @@ import {
   HassStateDTO,
   RelatedDescriptionDTO,
 } from '@automagical/home-assistant';
-import { DONE, ICONS, PromptEntry, PromptService } from '@automagical/tty';
+import {
+  DONE,
+  ICONS,
+  PinnedItemService,
+  PromptEntry,
+  PromptService,
+} from '@automagical/tty';
 import {
   AutoLogService,
   IsEmpty,
@@ -28,6 +34,7 @@ import { DeviceService } from '../device.service';
 import { HomeFetchService } from '../home-fetch.service';
 
 const HEADER_SEPARATOR = 0;
+const DATA = 1;
 const DELAY = 100;
 @Injectable()
 export class BaseDomainService {
@@ -37,6 +44,7 @@ export class BaseDomainService {
     protected readonly promptService: PromptService,
     @Inject(forwardRef(() => DeviceService))
     protected readonly deviceService: DeviceService,
+    private readonly pinnedItem: PinnedItemService,
   ) {}
 
   public async createSaveCommand(
@@ -163,6 +171,9 @@ export class BaseDomainService {
     switch (action) {
       case DONE:
         return;
+      case 'pin':
+        await this.togglePin(id);
+        return;
       case 'describe':
         console.log(encode(item));
         return;
@@ -183,6 +194,20 @@ export class BaseDomainService {
       [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
       [`${ICONS.RENAME}Change Friendly Name`, 'changeFriendlyName'],
       [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
+      [`${ICONS.PIN}Pin`, 'pin'],
     ];
+  }
+
+  protected async togglePin(entity_id: string): Promise<void> {
+    const list = await this.pinnedItem.getEntries('entity');
+    const item = list.find((entry) => {
+      const data: { entity_id: string } = entry[DATA];
+      return data.entity_id !== entity_id;
+    });
+    if (!item) {
+      this.pinnedItem.addPinned('entity', { entity_id });
+      return;
+    }
+    this.pinnedItem.removePinned('entity', item);
   }
 }
