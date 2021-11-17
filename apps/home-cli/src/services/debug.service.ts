@@ -97,12 +97,12 @@ For loop example getting entity values in the weather domain:
     this.promptService.print(text);
   }
 
-  public async sendNotification(): Promise<void> {
+  private async sendNotification(): Promise<void> {
     const template = await this.promptService.editor(`Enter template string`);
     await this.fetchService.fetch({
-      url: `/debug/send-notification`,
-      method: 'post',
       body: { template },
+      method: 'post',
+      url: `/debug/send-notification`,
     });
   }
 }

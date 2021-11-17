@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Inject, Injectable, Optional } from '@nestjs/common';
-import { existsSync, readdirSync, readFileSync } from 'fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
+import { encode } from 'ini';
 import { get, set } from 'object-path';
 import { join } from 'path';
 import { cwd } from 'process';
@@ -22,8 +23,8 @@ import { AutoLogService } from './logger/auto-log.service';
 
 @Injectable()
 export class AutoConfigService {
-  protected static USE_SCANNER_ASSETS = false;
   public static DEFAULTS = new Map<string, Record<string, unknown>>();
+  protected static USE_SCANNER_ASSETS = false;
 
   constructor(
     private readonly logger: AutoLogService,
@@ -36,6 +37,7 @@ export class AutoConfigService {
   }
 
   private config: AutomagicalConfig = {};
+  private loadedConfigPath: string;
   private metadata = new Map<string, AutomagicalMetadataDTO>();
 
   public get<T extends unknown = string>(path: string | [symbol, string]): T {
@@ -65,8 +67,11 @@ export class AutoConfigService {
     return configuration.default as T;
   }
 
-  public set(path: string, value: unknown): void {
+  public set(path: string, value: unknown, write = false): void {
     set(this.config, path, value);
+    if (write) {
+      writeFileSync(this.loadedConfigPath, encode(this.config));
+    }
   }
 
   private earlyInit(): void {
@@ -74,6 +79,7 @@ export class AutoConfigService {
     this.config =
       this.overrideConfig ||
       rc<AutoConfigService>(this.APPLICATION.description);
+    this.loadedConfigPath = this.config['config'];
     this.logger.setContext(LIB_UTILS, AutoConfigService);
     this.logger[
       'context'

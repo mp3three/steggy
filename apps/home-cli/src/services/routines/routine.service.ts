@@ -17,8 +17,8 @@ import { dump } from 'js-yaml';
 
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';
-import { RoutineCommandService } from './routine-command.service';
 import { RoutineActivateService } from './routine-activate.service';
+import { RoutineCommandService } from './routine-command.service';
 
 @Injectable()
 export class RoutineService {

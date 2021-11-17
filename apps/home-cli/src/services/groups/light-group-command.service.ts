@@ -5,7 +5,7 @@ import {
   RoomEntitySaveStateDTO,
   RoutineCommandGroupActionDTO,
 } from '@automagical/controller-logic';
-import { domain, LightStateDTO } from '@automagical/home-assistant';
+import { LightStateDTO } from '@automagical/home-assistant';
 import {
   ColorsService,
   ICONS,
@@ -16,9 +16,9 @@ import { AutoLogService, TitleCase } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 import chalk from 'chalk';
+
 import { LightService } from '../domains';
 import { EntityService } from '../entity.service';
-
 import { HomeFetchService } from '../home-fetch.service';
 
 const MIN_BRIGHTNESS = 5;
@@ -264,10 +264,5 @@ export class LightGroupCommandService {
       method: 'put',
       url: `/group/${group}/command/turnOn`,
     });
-  }
-
-  private async headerColors(group: GroupDTO): Promise<string[]> {
-    // const entities = await
-    return [];
   }
 }

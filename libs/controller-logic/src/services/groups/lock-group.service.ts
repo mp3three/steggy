@@ -6,9 +6,9 @@ import {
   LockDomainService,
   LockStateDTO,
 } from '@automagical/home-assistant';
-import { AutoLogService, InjectConfig } from '@automagical/utilities';
+import { AutoLogService } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { each, eachLimit } from 'async';
+import { each } from 'async';
 
 import {
   GROUP_TYPES,

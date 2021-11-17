@@ -1,13 +1,19 @@
-import { InjectConfig } from '@automagical/utilities';
+import { AutoConfigService, InjectConfig } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { PINNED_ITEMS } from '../config';
 import { PromptEntry } from './prompt.service';
 import { SystemService } from './system.service';
 
+export class PinnedItemDTO<T> {
+  public data: T;
+  public source: string;
+}
+
 @Injectable()
 export class PinnedItemService {
   constructor(
+    private readonly configService: AutoConfigService,
     private readonly systemService: SystemService,
     @InjectConfig(PINNED_ITEMS) private readonly pinned: unknown[],
   ) {}

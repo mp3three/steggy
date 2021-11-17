@@ -58,18 +58,18 @@ export class FanGroupService extends BaseGroupService {
     }
   }
 
-  public async fanSpeedUp(group: GroupDTO | string): Promise<void> {
+  public async fanSpeedDown(group: GroupDTO | string): Promise<void> {
     group = await this.loadGroup(group);
     await each(group.entities, async (entity_id, callback) => {
-      this.fanDomain.fanSpeedUp(entity_id);
+      await this.fanDomain.fanSpeedDown(entity_id);
       callback();
     });
   }
 
-  public async fanSpeedDown(group: GroupDTO | string): Promise<void> {
+  public async fanSpeedUp(group: GroupDTO | string): Promise<void> {
     group = await this.loadGroup(group);
     await each(group.entities, async (entity_id, callback) => {
-      this.fanDomain.fanSpeedDown(entity_id);
+      await this.fanDomain.fanSpeedUp(entity_id);
       callback();
     });
   }

@@ -2,7 +2,6 @@ import { TransformObjectId } from '@automagical/persistence';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Expose } from 'class-transformer';
 import {
-  IsBoolean,
   IsDateString,
   IsNumber,
   IsOptional,

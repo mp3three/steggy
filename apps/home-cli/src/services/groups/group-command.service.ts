@@ -37,6 +37,9 @@ import { LockGroupCommandService } from './lock-group-command.service';
 import { SwitchGroupCommandService } from './switch-group-command.service';
 
 export type GroupItem = { entities: string[]; name: string; room: string };
+const LIGHT_COMMAND_SEPARATOR = new inquirer.Separator(
+  chalk.white('Light commands'),
+);
 const GROUP_DOMAINS = new Map([
   [GROUP_TYPES.light, [HASS_DOMAINS.light]],
   [
@@ -229,25 +232,25 @@ export class GroupCommandService implements iRepl {
     switch (group.type) {
       case GROUP_TYPES.light:
         actions.push(
-          new inquirer.Separator(chalk.white('Light commands')),
+          LIGHT_COMMAND_SEPARATOR,
           ...(await this.lightGroup.groupActions()),
         );
         break;
       case GROUP_TYPES.switch:
         actions.push(
-          new inquirer.Separator(chalk.white('Light commands')),
+          LIGHT_COMMAND_SEPARATOR,
           ...(await this.switchGroup.groupActions()),
         );
         break;
       case GROUP_TYPES.fan:
         actions.push(
-          new inquirer.Separator(chalk.white('Light commands')),
+          LIGHT_COMMAND_SEPARATOR,
           ...(await this.fanGroup.groupActions()),
         );
         break;
       case GROUP_TYPES.lock:
         actions.push(
-          new inquirer.Separator(chalk.white('Light commands')),
+          LIGHT_COMMAND_SEPARATOR,
           ...(await this.lockGroup.groupActions()),
         );
         break;

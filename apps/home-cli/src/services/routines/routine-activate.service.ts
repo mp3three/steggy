@@ -17,12 +17,12 @@ import {
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { v4 as uuid } from 'uuid';
+
 import {
   KunamiBuilderService,
   ScheduleBuilderService,
   StateChangeBuilderService,
 } from './activate';
-
 import { RoutineService } from './routine.service';
 
 @Injectable()

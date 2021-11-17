@@ -1,10 +1,11 @@
 import { MainCLIModule } from '@automagical/tty';
 import {
-  ApplicationModule,
   APP_DEVTOOLS,
+  ApplicationModule,
   UtilitiesModule,
 } from '@automagical/utilities';
 import { DiscoveryModule } from '@nestjs/core';
+
 import { ConfigBuilderService, ImgurAlbumDownloadService } from '../services';
 
 @ApplicationModule({

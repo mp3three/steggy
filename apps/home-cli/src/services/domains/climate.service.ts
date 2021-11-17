@@ -1,7 +1,7 @@
 import { EcobeeClimateStateDTO } from '@automagical/home-assistant';
 import { DONE, PromptEntry } from '@automagical/tty';
 import { TitleCase } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import { SwitchService } from './switch.service';
 
@@ -55,7 +55,9 @@ export class ClimateService extends SwitchService {
     id: string,
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
-    //
+    throw new NotImplementedException();
+    id;
+    await state;
   }
 
   public async setHvacMode(

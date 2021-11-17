@@ -5,8 +5,8 @@ import {
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
   RoutineCommandRoomStateDTO,
-  RoutineDTO,
   RoutineCommandSendNotificationDTO,
+  RoutineDTO,
 } from '@automagical/controller-logic';
 import { DONE, ICONS, PromptEntry, PromptService } from '@automagical/tty';
 import { IsEmpty, TitleCase } from '@automagical/utilities';
@@ -24,9 +24,9 @@ import { v4 as uuid } from 'uuid';
 import { EntityService } from '../entity.service';
 import { GroupStateService } from '../groups';
 import { RoomCommandService, RoomStateService } from '../rooms';
+import { SendNotificationService } from './command';
 import { GroupActionService } from './group-action.service';
 import { RoutineService } from './routine.service';
-import { SendNotificationService } from './command';
 
 @Injectable()
 export class RoutineCommandService {

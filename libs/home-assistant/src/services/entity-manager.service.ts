@@ -1,7 +1,6 @@
 import { AutoLogService, OnEvent, sleep } from '@automagical/utilities';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
-import { encode } from 'querystring';
 import { Observable, Subscriber } from 'rxjs';
 
 import {

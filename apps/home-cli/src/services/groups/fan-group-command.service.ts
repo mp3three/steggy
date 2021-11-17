@@ -1,11 +1,12 @@
 import {
-  RoutineCommandGroupActionDTO,
   GENERIC_COMMANDS,
   GroupDTO,
+  RoutineCommandGroupActionDTO,
 } from '@automagical/controller-logic';
 import { ICONS, PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+
 import { HomeFetchService } from '../home-fetch.service';
 
 @Injectable()
@@ -32,14 +33,6 @@ export class FanGroupCommandService {
     return { command };
   }
 
-  public async fanSpeedUp(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
-    await this.fetchService.fetch({
-      method: 'put',
-      url: `/group/${group}/command/fanSpeedUp`,
-    });
-  }
-
   public async fanSpeedDown(group: GroupDTO | string): Promise<void> {
     group = typeof group === 'string' ? group : group._id;
     await this.fetchService.fetch({
@@ -48,6 +41,13 @@ export class FanGroupCommandService {
     });
   }
 
+  public async fanSpeedUp(group: GroupDTO | string): Promise<void> {
+    group = typeof group === 'string' ? group : group._id;
+    await this.fetchService.fetch({
+      method: 'put',
+      url: `/group/${group}/command/fanSpeedUp`,
+    });
+  }
   public async groupActions(): Promise<PromptEntry[]> {
     return await [
       [`${ICONS.TURN_ON}Turn On`, 'turnOn'],

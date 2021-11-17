@@ -4,9 +4,9 @@ export class AutomagicalMetadataDTO {
 }
 export const METADATA_FILE = 'automagical.json';
 export type ConfigItem<T extends AnyConfig = AnyConfig> = {
+  configurable?: boolean;
   default?: unknown;
   description?: string;
-  configurable?: boolean;
 } & T;
 export type AnyConfig =
   | AutomagicalStringConfig
@@ -17,9 +17,9 @@ export type AnyConfig =
   | AutomagicalUrlConfig;
 
 class WarnDefault {
+  careful?: boolean;
   required?: boolean;
   warnDefault?: boolean;
-  careful?: boolean;
 }
 
 export class AutomagicalStringConfig extends WarnDefault {

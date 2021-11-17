@@ -6,6 +6,7 @@ import {
 import { ICONS, PromptEntry, PromptService } from '@automagical/tty';
 import { AutoLogService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+
 import { HomeFetchService } from '../home-fetch.service';
 
 @Injectable()

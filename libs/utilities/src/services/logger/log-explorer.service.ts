@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
-import { LOG_LEVEL } from '../../config';
 
+import { LOG_LEVEL } from '../../config';
 import { LOG_CONTEXT, LOGGER_LIBRARY } from '../../contracts/logger';
 import { InjectConfig, mappedContexts } from '../../decorators/injectors';
 

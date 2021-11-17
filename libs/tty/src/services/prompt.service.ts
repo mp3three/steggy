@@ -21,13 +21,16 @@ import {
 import { DONE, ICONS, PromptMenuItems } from '../contracts';
 
 const name = `result`;
-export type PROMPT_WITH_SHORT = { short: string; name: string };
+export type PROMPT_WITH_SHORT = { name: string; short: string };
 export type PromptEntry<T = string> =
   | [string | PROMPT_WITH_SHORT, string | T]
   | Separator;
 const LABEL = 0;
 const VALUE = 1;
+const OFF_BRIGHTNESS = 0;
+const MIN_BRIGHTNESS = 1;
 const BLOCK_OFFSET = '   ';
+const MAX_BRIGHTNESS = 255;
 
 @Injectable()
 export class PromptService {
@@ -91,24 +94,6 @@ export class PromptService {
     return result;
   }
 
-  public async brightness(
-    current = 255,
-    message = 'Brightness',
-  ): Promise<number> {
-    const { result } = await inquirer.prompt([
-      {
-        default: current,
-        message: `${message} (1-255)`,
-        name,
-        type: 'number',
-        validate(input: number = 0) {
-          return input >= 1 && input <= 255;
-        },
-      },
-    ]);
-    return result;
-  }
-
   public async boolean(
     message: string,
     defaultValue?: boolean,
@@ -119,6 +104,24 @@ export class PromptService {
         message,
         name,
         type: 'confirm',
+      },
+    ]);
+    return result;
+  }
+
+  public async brightness(
+    current = MAX_BRIGHTNESS,
+    message = 'Brightness',
+  ): Promise<number> {
+    const { result } = await inquirer.prompt([
+      {
+        default: current,
+        message: `${message} (1-255)`,
+        name,
+        type: 'number',
+        validate(input = OFF_BRIGHTNESS) {
+          return input >= MIN_BRIGHTNESS && input <= MAX_BRIGHTNESS;
+        },
       },
     ]);
     return result;
@@ -237,21 +240,19 @@ export class PromptService {
   ): PromptMenuItems<T> {
     return items.map((item) => {
       if (Array.isArray(item)) {
-        let label = item[LABEL] as string | PROMPT_WITH_SHORT;
-        if (typeof label === 'string') {
-          return {
-            // Adding emojies can sometimes cause the final character to have rendering issues
-            // Insert sacraficial empty space to the end
-            name: `${label} `,
-            short: label,
-            value: item[VALUE] as T,
-          };
-        } else {
-          return {
-            ...label,
-            value: item[VALUE] as T,
-          };
-        }
+        const label = item[LABEL] as string | PROMPT_WITH_SHORT;
+        return typeof label === 'string'
+          ? {
+              // Adding emojies can sometimes cause the final character to have rendering issues
+              // Insert sacraficial empty space to the end
+              name: `${label} `,
+              short: label,
+              value: item[VALUE] as T,
+            }
+          : {
+              ...label,
+              value: item[VALUE] as T,
+            };
       }
       return item;
     });

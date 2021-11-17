@@ -1,5 +1,4 @@
 import {
-  DONE,
   ICONS,
   iRepl,
   PromptEntry,
