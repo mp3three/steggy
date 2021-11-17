@@ -67,7 +67,14 @@ export class AutoConfigService {
     return configuration.default as T;
   }
 
-  public set(path: string, value: unknown, write = false): void {
+  public set(
+    path: string | [symbol, string],
+    value: unknown,
+    write = false,
+  ): void {
+    if (Array.isArray(path)) {
+      path = ['libs', path[0].description, path[1]].join('.');
+    }
     set(this.config, path, value);
     if (write) {
       writeFileSync(this.loadedConfigPath, encode(this.config));
