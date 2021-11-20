@@ -47,7 +47,7 @@ For loop example getting entity values in the weather domain:
         [`Render template`, 'renderTemplate'],
         [`Send template notification`, 'sendNotification'],
       ],
-      undefined,
+      'Debug action',
       defaultAction,
     );
 
@@ -77,7 +77,7 @@ For loop example getting entity values in the weather domain:
     const lights = await this.fetchService.fetch<string[]>({
       url: `/debug/active-lights`,
     });
-    console.log(lights);
+    this.promptService.print(dump(lights));
   }
 
   private async renderTemplate(): Promise<void> {

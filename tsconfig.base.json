@@ -12,7 +12,7 @@
     "importHelpers": true,
     "target": "ESNext",
     "allowJs": true,
-    "module": "nodenext",
+    "module": "esnext",
     "lib": ["es2019", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,

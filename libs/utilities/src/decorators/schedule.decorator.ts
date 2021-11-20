@@ -11,6 +11,9 @@ export enum CronObject {
   dayOfWeek,
 }
 
+/**
+ * CronExpression | string
+ */
 export function Cron(
   schedule: string | CronExpression | Record<keyof CronObject, string>,
 ): MethodDecorator {

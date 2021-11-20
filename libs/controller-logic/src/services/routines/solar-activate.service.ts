@@ -1,8 +1,13 @@
-import { SolarCalcService } from '@automagical/controller-logic';
-import { AutoLogService } from '@automagical/utilities';
+import {
+  AutoLogService,
+  Cron,
+  CronExpression,
+  TitleCase,
+} from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-
-import { ScheduleWatcher, SolarActivateDTO } from '../../contracts';
+import { CronJob } from 'cron';
+import { SolarActivateDTO, SolarWatcher } from '../../contracts';
+import { SolarCalcService } from '../solar-calc.service';
 
 @Injectable()
 export class SolarActivateService {
@@ -11,10 +16,10 @@ export class SolarActivateService {
     private readonly solarCalc: SolarCalcService,
   ) {}
 
-  private SCHEDULES = new Set<ScheduleWatcher>();
+  private SCHEDULES = new Set<SolarWatcher>();
 
   public reset(): void {
-    this.SCHEDULES.forEach(({ cron }) => cron.stop());
+    this.SCHEDULES.forEach(({ cron }) => cron?.stop());
     this.SCHEDULES = new Set();
   }
 
@@ -22,11 +27,35 @@ export class SolarActivateService {
     activate: SolarActivateDTO,
     callback: () => Promise<void>,
   ): void {
-    // const cron = new CronJob(activate.schedule, async () => await callback());
-    // this.SCHEDULES.add({
-    //   ...activate,
-    //   cron,
-    // });
-    // cron.start();
+    /**
+     * Pile of race conditions happening here.
+     *
+     * Solar calc requires coords from home assistant, which are not presetnt at boot
+     * This function cannot block until coords arrive
+     */
+    process.nextTick(async () => {
+      const c = await this.solarCalc.getCalc();
+      const calc = c[activate.event] as Date;
+      const cron = new CronJob(calc, async () => await callback());
+      this.SCHEDULES.add({
+        ...activate,
+        callback,
+        cron,
+      });
+      if (calc.getTime() < Date.now()) {
+        this.logger.debug(
+          `{${TitleCase(activate.event)}} already fired for today`,
+        );
+        return;
+      }
+      cron.start();
+    });
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  protected dailyReset(): void {
+    const current = this.SCHEDULES;
+    this.reset();
+    current.forEach((i) => this.watch(i, i.callback));
   }
 }

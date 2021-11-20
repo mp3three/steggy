@@ -2,7 +2,7 @@ import {
   HA_SOCKET_READY,
   HASocketAPIService,
 } from '@automagical/home-assistant';
-import { AutoLogService, OnEvent } from '@automagical/utilities';
+import { AutoLogService, OnEvent, sleep } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
@@ -27,6 +27,15 @@ export class SolarCalcService {
     setTimeout(() => (this.CALCULATOR = undefined), CALC_EXPIRE);
     // @ts-expect-error Typescript is wrong this time, this works as expected
     return new SolarCalc(new Date(), this.latitude, this.longitude);
+  }
+
+  public async getCalc(): Promise<SolarCalcType> {
+    if (typeof this.latitude !== 'number') {
+      this.logger.debug(`Waiting for lat/long`);
+      await sleep();
+      return await this.getCalc();
+    }
+    return this.SOLAR_CALC;
   }
 
   @OnEvent(HA_SOCKET_READY)

@@ -21,6 +21,7 @@ import {
   RoutineDTO,
   ScheduleActivateDTO,
   StateChangeActivateDTO,
+  SolarActivateDTO,
 } from '../../contracts';
 import { SendNotificationService, WebhookService } from '../commands';
 import { EntityCommandRouterService } from '../entity-command-router.service';
@@ -29,6 +30,7 @@ import { RoutinePersistenceService } from '../persistence';
 import { RoomService } from '../room.service';
 import { KunamiCodeActivateService } from './kunami-code-activate.service';
 import { ScheduleActivateService } from './schedule-activate.service';
+import { SolarActivateService } from './solar-activate.service';
 import { StateChangeActivateService } from './state-change-activate.service';
 
 @Injectable()
@@ -44,6 +46,7 @@ export class RoutineService {
     private readonly sendNotification: SendNotificationService,
     private readonly stateChangeActivate: StateChangeActivateService,
     private readonly webhookService: WebhookService,
+    private readonly solarService: SolarActivateService,
   ) {}
 
   public async activateRoutine(routine: RoutineDTO | string): Promise<void> {
@@ -134,6 +137,12 @@ export class RoutineService {
       routine.activate.forEach((activate) => {
         this.logger.debug(` - ${activate.friendlyName}`);
         switch (activate.type) {
+          case ROUTINE_ACTIVATE_TYPE.solar:
+            this.solarService.watch(
+              activate.activate as SolarActivateDTO,
+              async () => await this.activateRoutine(routine),
+            );
+            return;
           case ROUTINE_ACTIVATE_TYPE.kunami:
             this.kunamiCode.watch(
               activate.activate as KunamiCodeActivateDTO,

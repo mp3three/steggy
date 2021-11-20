@@ -1,8 +1,7 @@
 {
   "name": "automagical",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "license": "MIT",
-  "type": "module",
   "publisher": "automagicl",
   "author": {
     "email": "cameron@automagicl.dev",

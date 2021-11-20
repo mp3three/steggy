@@ -3,6 +3,7 @@ import { CronJob } from 'cron';
 import {
   KunamiCodeActivateDTO,
   ScheduleActivateDTO,
+  SolarActivateDTO,
   StateChangeActivateDTO,
 } from './routines';
 
@@ -24,4 +25,8 @@ export type StateChangeWatcher = StateChangeActivateDTO & {
 };
 export type ScheduleWatcher = ScheduleActivateDTO & {
   cron: CronJob;
+};
+export type SolarWatcher = SolarActivateDTO & {
+  callback: () => Promise<void>;
+  cron?: CronJob;
 };
