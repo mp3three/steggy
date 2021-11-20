@@ -53,12 +53,12 @@ export class LockService extends BaseDomainService {
     });
   }
 
-  protected getMenuOptions(): PromptEntry[] {
+  protected getMenuOptions(id: string): PromptEntry[] {
     return [
       [`${ICONS.TURN_ON}Lock`, 'lock'],
       [`${ICONS.TURN_OFF}Unlock`, 'unlock'],
       new inquirer.Separator(),
-      ...super.getMenuOptions(),
+      ...super.getMenuOptions(id),
     ];
   }
 }

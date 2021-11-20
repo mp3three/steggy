@@ -147,7 +147,7 @@ export class ClimateService extends SwitchService {
     this.logger.debug({ result });
   }
 
-  protected getMenuOptions(): PromptEntry[] {
+  protected getMenuOptions(id: string): PromptEntry[] {
     return [
       ['Set Fan Mode', 'setFanMode'],
       ['Set Humidity', 'setHumidity'],
@@ -155,7 +155,7 @@ export class ClimateService extends SwitchService {
       ['Set Preset Mode', 'setPresetMode'],
       ['Set Swing Mode', 'setSwingMode'],
       ['Set Temperature', 'setTemperature'],
-      ...super.getMenuOptions(),
+      ...super.getMenuOptions(id),
     ];
   }
 }

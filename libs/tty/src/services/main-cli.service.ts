@@ -4,14 +4,16 @@ import {
   IsEmpty,
   TitleCase,
 } from '@automagical/utilities';
+import { InternalServerErrorException } from '@nestjs/common';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
 import { DEFAULT_HEADER_FONT } from '../config';
-import { iRepl, ReplOptions } from '../contracts';
+import { ICONS, iRepl, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
+import { PinnedItemDTO } from '.';
 import { PinnedItemService } from './pinned-item.service';
 import { PromptEntry, PromptService } from './prompt.service';
 import { ReplExplorerService } from './repl-explorer.service';
@@ -44,10 +46,15 @@ export class MainCLIService implements iRepl {
     });
     console.log(chalk.cyan(header), '\n');
 
-    const [scriptName, name] = await this.getScript(defaultSelection);
+    const out = await this.getScript(defaultSelection);
+    if (!Array.isArray(out)) {
+      throw new InternalServerErrorException();
+    }
+    const scriptName = out.shift() as string;
+    const name = out.shift();
     if (typeof name !== 'string') {
-      await this.exec(name);
-      return;
+      await this.pinnedItem.exec(name as PinnedItemDTO);
+      return this.exec();
     }
     this.printHeader(name);
     let instance: iRepl;
@@ -66,7 +73,9 @@ export class MainCLIService implements iRepl {
    *
    * If a script name was passed as a command line arg, directly run it
    */
-  private async getScript(script?: string): Promise<[string, string]> {
+  private async getScript(
+    script?: string,
+  ): Promise<PromptEntry<PinnedItemDTO>> {
     const scriptName = process.argv[SCRIPT_ARG];
     const entries = this.pinnedItem.getEntries();
     if (!scriptName || typeof script !== 'undefined') {
@@ -74,7 +83,7 @@ export class MainCLIService implements iRepl {
         'Command',
         [
           ...this.promptService.conditionalEntries(!IsEmpty(entries), [
-            new inquirer.Separator(chalk.gray`Pinned`),
+            new inquirer.Separator(chalk.white`${ICONS.PIN}Pinned`),
             ...entries,
           ]),
           ...(this.scriptList().map((i) =>

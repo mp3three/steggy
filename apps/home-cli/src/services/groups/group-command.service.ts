@@ -9,6 +9,7 @@ import {
   DONE,
   ICONS,
   iRepl,
+  PinnedItemService,
   PromptEntry,
   PromptService,
   Repl,
@@ -75,6 +76,7 @@ export class GroupCommandService implements iRepl {
     private readonly lightGroup: LightGroupCommandService,
     private readonly fanGroup: FanGroupCommandService,
     private readonly lockGroup: LockGroupCommandService,
+    private readonly pinnedItems: PinnedItemService,
     private readonly switchGroup: SwitchGroupCommandService,
   ) {}
 
@@ -263,11 +265,24 @@ export class GroupCommandService implements iRepl {
         [`${ICONS.ENTITIES}Entities`, 'entities'],
         [`${ICONS.RENAME}Rename`, 'rename'],
         [`${ICONS.STATE_MANAGER}State Manager`, 'state'],
+        [
+          chalk[
+            this.pinnedItems.isPinned('group', group._id) ? 'red' : 'green'
+          ]`${ICONS.PIN}Pin`,
+          `pin`,
+        ],
       ],
       `Group action / management`,
       defaultValue,
     );
     switch (action) {
+      case 'pin':
+        this.pinnedItems.toggle({
+          friendlyName: group.friendlyName,
+          id: group._id,
+          script: 'group',
+        });
+        return this.process(group, list, action);
       case 'entities':
         group = await this.updateEntities(group);
         return this.process(group, list, action);
@@ -334,6 +349,17 @@ export class GroupCommandService implements iRepl {
       body: group,
       method: `put`,
       url: `/group/${group._id}`,
+    });
+  }
+
+  protected onModuleInit(): void {
+    this.pinnedItems.loaders.set('group', async ({ id }) => {
+      const list = await this.list();
+      const group = list.find(({ _id }) => _id === id);
+      if (!group) {
+        throw new InternalServerErrorException();
+      }
+      await this.process(group, list);
     });
   }
 

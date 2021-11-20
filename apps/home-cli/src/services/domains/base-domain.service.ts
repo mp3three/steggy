@@ -44,7 +44,7 @@ export class BaseDomainService {
     protected readonly promptService: PromptService,
     @Inject(forwardRef(() => DeviceService))
     protected readonly deviceService: DeviceService,
-    private readonly pinnedItem: PinnedItemService,
+    private readonly pinnedItem: PinnedItemService<never>,
   ) {}
 
   public async createSaveCommand(
@@ -84,7 +84,7 @@ export class BaseDomainService {
   }
 
   public async processId(id: string, command?: string): Promise<string> {
-    const options = this.getMenuOptions();
+    const options = this.getMenuOptions(id);
     if (!(options[HEADER_SEPARATOR] as Separator).line) {
       options.unshift(
         new inquirer.Separator(
@@ -111,8 +111,19 @@ export class BaseDomainService {
       case 'registry':
         await this.fromRegistry(id);
         return await this.processId(id, action);
+      case 'pin':
+        await this.togglePin(id);
+        return await this.processId(id, action);
     }
     return action;
+  }
+
+  public togglePin(id: string): void {
+    this.pinnedItem.toggle({
+      friendlyName: id,
+      id,
+      script: 'entity',
+    });
   }
 
   protected async baseHeader<T extends HassStateDTO = HassStateDTO>(
@@ -137,7 +148,6 @@ export class BaseDomainService {
 
   protected async changeEntityId(id: string): Promise<void> {
     const updateId = await this.promptService.string(`New id`, id);
-
     await this.fetchService.fetch({
       body: { updateId },
       method: 'put',
@@ -171,9 +181,6 @@ export class BaseDomainService {
     switch (action) {
       case DONE:
         return;
-      case 'pin':
-        await this.togglePin(id);
-        return;
       case 'describe':
         console.log(encode(item));
         return;
@@ -188,26 +195,18 @@ export class BaseDomainService {
     }
   }
 
-  protected getMenuOptions(): PromptEntry[] {
+  protected getMenuOptions(id: string): PromptEntry[] {
     return [
       new inquirer.Separator(chalk.white`Base options`),
       [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
       [`${ICONS.RENAME}Change Friendly Name`, 'changeFriendlyName'],
       [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
-      [`${ICONS.PIN}Pin`, 'pin'],
+      [
+        chalk[
+          this.pinnedItem.isPinned('entity', id) ? 'red' : 'green'
+        ]`${ICONS.PIN}Pin`,
+        'pin',
+      ],
     ];
-  }
-
-  protected async togglePin(entity_id: string): Promise<void> {
-    const list = await this.pinnedItem.getEntries('entity');
-    const item = list.find((entry) => {
-      const data: { entity_id: string } = entry[DATA];
-      return data.entity_id !== entity_id;
-    });
-    if (!item) {
-      this.pinnedItem.addPinned('entity', { entity_id });
-      return;
-    }
-    this.pinnedItem.removePinned('entity', item);
   }
 }

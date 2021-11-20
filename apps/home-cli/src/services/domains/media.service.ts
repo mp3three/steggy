@@ -62,14 +62,14 @@ export class MediaService extends SwitchService {
     });
   }
 
-  protected getMenuOptions(): PromptEntry[] {
+  protected getMenuOptions(id: string): PromptEntry[] {
     return [
       ['Mute', 'mute'],
       ['Play / Pause', 'playPause'],
       ['Toggle', 'toggle'],
       ['Volume Down', 'volumeDown'],
       ['Volume Up', 'volumeUp'],
-      ...super.getMenuOptions(),
+      ...super.getMenuOptions(id),
     ];
   }
 }

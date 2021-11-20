@@ -196,8 +196,7 @@ export class EntityService implements iRepl {
   protected onModuleInit(): void {
     this.pinnedItems.loaders.set(
       'entity',
-      async ({ entity_id }: { entity_id: string }) =>
-        await this.process(entity_id),
+      async ({ id }) => await this.process(id),
     );
   }
 }

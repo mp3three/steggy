@@ -3,7 +3,13 @@
 /* eslint-disable radar/no-identical-functions */
 
 import { RoomDTO, RoutineDTO } from '@automagical/controller-logic';
-import { DONE, ICONS, PromptEntry, PromptService } from '@automagical/tty';
+import {
+  DONE,
+  ICONS,
+  PinnedItemService,
+  PromptEntry,
+  PromptService,
+} from '@automagical/tty';
 import { IsEmpty, ResultControlDTO } from '@automagical/utilities';
 import {
   forwardRef,
@@ -30,7 +36,14 @@ export class RoutineService {
     private readonly roomCommand: RoomCommandService,
     @Inject(forwardRef(() => RoutineCommandService))
     private readonly activateCommand: RoutineCommandService,
+    private readonly pinnedItems: PinnedItemService,
   ) {}
+
+  public async get(id: string): Promise<RoutineDTO> {
+    return await this.fetchService.fetch({
+      url: `/routine/${id}`,
+    });
+  }
 
   public async list(control?: ResultControlDTO): Promise<RoutineDTO[]> {
     return await this.fetchService.fetch({
@@ -86,7 +99,10 @@ export class RoutineService {
     return await this.processRoom(room);
   }
 
-  public async processRoutine(routine: RoutineDTO): Promise<void> {
+  public async processRoutine(
+    routine: RoutineDTO,
+    defaultAction?: string,
+  ): Promise<void> {
     this.promptService.clear();
     this.promptService.scriptHeader(`Routine`);
     console.log(chalk.bold.yellow`${routine.friendlyName}`);
@@ -108,10 +124,24 @@ export class RoutineService {
         [`${ICONS.RENAME}Rename`, 'rename'],
         [`${ICONS.EVENT}Activation Events`, 'events'],
         [`${ICONS.COMMAND}Commands`, 'command'],
+        [
+          chalk[
+            this.pinnedItems.isPinned('routine', routine._id) ? 'red' : 'green'
+          ]`${ICONS.PIN}Pin`,
+          'pin',
+        ],
       ],
       `Manage routine`,
+      defaultAction,
     );
     switch (action) {
+      case 'pin':
+        this.pinnedItems.toggle({
+          friendlyName: routine.friendlyName,
+          id: routine._id,
+          script: 'routine',
+        });
+        return await this.processRoutine(routine, action);
       case DONE:
         return;
       case 'activate':
@@ -119,7 +149,7 @@ export class RoutineService {
           method: 'post',
           url: `/routine/${routine._id}`,
         });
-        return await this.processRoutine(routine);
+        return await this.processRoutine(routine, action);
       case 'delete':
         if (
           !(await this.promptService.confirm(
@@ -128,7 +158,7 @@ export class RoutineService {
             )}?`,
           ))
         ) {
-          return await this.processRoutine(routine);
+          return await this.processRoutine(routine, action);
         }
         await this.fetchService.fetch({
           method: 'delete',
@@ -147,13 +177,13 @@ export class RoutineService {
           method: `put`,
           url: `/routine/${routine._id}`,
         });
-        return await this.processRoutine(routine);
+        return await this.processRoutine(routine, action);
       case 'events':
         routine = await this.activateService.processRoutine(routine);
-        return await this.processRoutine(routine);
+        return await this.processRoutine(routine, action);
       case 'command':
         routine = await this.activateCommand.processRoutine(routine);
-        return await this.processRoutine(routine);
+        return await this.processRoutine(routine, action);
     }
   }
 
@@ -162,6 +192,13 @@ export class RoutineService {
       body: routine,
       method: 'put',
       url: `/routine/${routine._id}`,
+    });
+  }
+
+  protected onModuleInit(): void {
+    this.pinnedItems.loaders.set('routine', async ({ id }) => {
+      const routine = await this.get(id);
+      await this.processRoutine(routine);
     });
   }
 }

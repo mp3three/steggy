@@ -7,6 +7,7 @@ import { HASS_DOMAINS } from '@automagical/home-assistant';
 import {
   DONE,
   ICONS,
+  PinnedItemService,
   PromptEntry,
   PromptService,
   Repl,
@@ -44,6 +45,7 @@ export class RoomCommandService {
     private readonly groupCommand: GroupCommandService,
     private readonly entityService: EntityService,
     private readonly roomState: RoomStateService,
+    private readonly pinnedItems: PinnedItemService,
     private readonly routineService: RoutineService,
   ) {}
 
@@ -172,11 +174,24 @@ export class RoomCommandService {
         [`${ICONS.GROUPS}Groups`, 'groups'],
         [`${ICONS.RENAME}Rename`, 'rename'],
         [`${ICONS.DELETE}Delete`, 'delete'],
+        [
+          chalk[
+            this.pinnedItems.isPinned('room', room._id) ? 'red' : 'green'
+          ]`${ICONS.PIN}Pin`,
+          'pin',
+        ],
       ],
       `Action`,
       defaultAction,
     );
     switch (action) {
+      case 'pin':
+        this.pinnedItems.toggle({
+          friendlyName: room.friendlyName,
+          id: room._id,
+          script: 'room',
+        });
+        return await this.processRoom(room, action);
       case 'routines':
         await this.routineService.processRoom(room);
         return await this.processRoom(room, action);
@@ -224,6 +239,13 @@ export class RoomCommandService {
       body,
       method: 'put',
       url: `/room/${body._id}`,
+    });
+  }
+
+  protected onModuleInit(): void {
+    this.pinnedItems.loaders.set('room', async ({ id }) => {
+      const room = await this.get(id);
+      await this.processRoom(room);
     });
   }
 

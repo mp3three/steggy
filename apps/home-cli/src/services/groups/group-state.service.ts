@@ -5,12 +5,19 @@ import {
   RoomEntitySaveStateDTO,
   RoutineCommandGroupStateDTO,
 } from '@automagical/controller-logic';
-import { DONE, ICONS, PromptEntry, PromptService } from '@automagical/tty';
+import {
+  DONE,
+  ICONS,
+  PinnedItemService,
+  PromptEntry,
+  PromptService,
+} from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import {
   forwardRef,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotImplementedException,
 } from '@nestjs/common';
 import { eachSeries } from 'async';
@@ -34,6 +41,7 @@ export class GroupStateService {
     @Inject(forwardRef(() => GroupCommandService))
     private readonly groupService: GroupCommandService,
     private readonly entityService: EntityService,
+    private readonly pinnedItems: PinnedItemService<{ group: string }>,
   ) {}
 
   public async build(
@@ -222,6 +230,17 @@ export class GroupStateService {
     return await this.processState(group, list);
   }
 
+  protected onModuleInit(): void {
+    this.pinnedItems.loaders.set('group_state', async ({ id, data }) => {
+      const group = await this.groupService.get(data.group);
+      const state = group.save_states.find((i) => i.id === id);
+      if (!state) {
+        throw new InternalServerErrorException();
+      }
+      await this.stateAction(state, group);
+    });
+  }
+
   private async sendSaveState(
     state: GroupSaveStateDTO,
     group: GroupDTO,
@@ -261,11 +280,25 @@ export class GroupStateService {
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.COPY}Copy to another group`, 'copyTo'],
         [`${ICONS.DELETE}Delete`, 'delete'],
+        [
+          chalk[
+            this.pinnedItems.isPinned('group_state', state.id) ? 'red' : 'green'
+          ]`${ICONS.PIN}Pin`,
+          'pin',
+        ],
       ],
       `Group state action`,
       defaultAction,
     );
     switch (action) {
+      case 'pin':
+        this.pinnedItems.toggle({
+          data: { group: group._id },
+          friendlyName: state.friendlyName,
+          id: state.id,
+          script: 'group_state',
+        });
+        return await this.stateAction(state, group, action);
       case DONE:
         return group;
       case 'copyTo':

@@ -118,8 +118,8 @@ export class LightService extends SwitchService {
     });
   }
 
-  protected getMenuOptions(): PromptEntry[] {
-    const parent = super.getMenuOptions();
+  protected getMenuOptions(id: string): PromptEntry[] {
+    const parent = super.getMenuOptions(id);
     return [
       ...parent.slice(START, SHIFT_AMOUNT),
       [`${ICONS.CIRCADIAN}Circadian light`, 'circadianLight'],

@@ -52,11 +52,11 @@ export class SwitchService extends BaseDomainService {
     });
   }
 
-  protected getMenuOptions(): PromptEntry[] {
+  protected getMenuOptions(id: string): PromptEntry[] {
     return [
       [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
       [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
-      ...super.getMenuOptions(),
+      ...super.getMenuOptions(id),
     ];
   }
 }

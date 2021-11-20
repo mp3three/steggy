@@ -5,12 +5,19 @@ import {
   RoomStateDTO,
 } from '@automagical/controller-logic';
 import { domain, HASS_DOMAINS } from '@automagical/home-assistant';
-import { DONE, ICONS, PromptEntry, PromptService } from '@automagical/tty';
+import {
+  DONE,
+  ICONS,
+  PinnedItemService,
+  PromptEntry,
+  PromptService,
+} from '@automagical/tty';
 import { AutoLogService, IsEmpty } from '@automagical/utilities';
 import {
   forwardRef,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotImplementedException,
 } from '@nestjs/common';
 import { eachSeries } from 'async';
@@ -36,6 +43,7 @@ export class RoomStateService {
     private readonly entityService: EntityService,
     private readonly groupService: GroupCommandService,
     private readonly fetchService: HomeFetchService,
+    private readonly pinnedItems: PinnedItemService<{ room: string }>,
   ) {}
 
   public async build(
@@ -140,6 +148,7 @@ export class RoomStateService {
   public async processState(
     room: RoomDTO,
     state: RoomStateDTO,
+    defaultAction?: string,
   ): Promise<RoomDTO> {
     this.promptService.clear();
     this.promptService.scriptHeader(`Room State`);
@@ -155,10 +164,25 @@ export class RoomStateService {
         [`${ICONS.ACTIVATE}Activate`, 'activate'],
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.DELETE}Delete`, 'delete'],
+        [
+          chalk[
+            this.pinnedItems.isPinned('room_state', state.id) ? 'red' : 'green'
+          ]`${ICONS.PIN}Pin`,
+          'pin',
+        ],
       ],
       `Room state`,
+      defaultAction,
     );
     switch (action) {
+      case 'pin':
+        this.pinnedItems.toggle({
+          data: { room: room._id },
+          friendlyName: state.friendlyName,
+          id: state.id,
+          script: 'room_state',
+        });
+        return await this.processState(room, state, action);
       case DONE:
         return room;
       case 'activate':
@@ -187,6 +211,17 @@ export class RoomStateService {
         });
     }
     throw new NotImplementedException();
+  }
+
+  protected onModuleInit(): void {
+    this.pinnedItems.loaders.set('room_state', async ({ id, data }) => {
+      const room = await this.roomService.get(data.room);
+      const state = room.save_states.find((state) => state.id === id);
+      if (!state) {
+        throw new InternalServerErrorException();
+      }
+      await this.processState(room, state);
+    });
   }
 
   private async buildEntities(
