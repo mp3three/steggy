@@ -1,4 +1,4 @@
-import { ClassConstructor, plainToClass } from 'class-transformer';
+import { ClassConstructor, plainToInstance } from 'class-transformer';
 
 export function FillDefaults<T>(
   constructor: ClassConstructor<T>,
@@ -10,7 +10,7 @@ export function FillDefaults<T>(
   ): unknown {
     const original = descriptor.value;
     descriptor.value = function (data: T) {
-      data = plainToClass(constructor, data, {
+      data = plainToInstance(constructor, data, {
         exposeDefaultValues: true,
       });
       return original.apply(this, data);

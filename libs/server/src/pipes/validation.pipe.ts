@@ -6,7 +6,7 @@ import {
   Injectable,
   PipeTransform,
 } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class ValidationPipe implements PipeTransform {
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
-    const object = plainToClass(metatype, value);
+    const object = plainToInstance(metatype, value);
     const errors = await validate(object);
     if (!IsEmpty(errors)) {
       throw new BadRequestException('Validation failed');

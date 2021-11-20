@@ -1,6 +1,6 @@
 import { AutoLogService } from '@automagical/utilities';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { v4 as uuid } from 'uuid';
 
 import type {
@@ -146,6 +146,6 @@ export abstract class BaseGroupService {
   protected validateState<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(state: GroupSaveStateDTO<GROUP_TYPE>): GroupSaveStateDTO<GROUP_TYPE> {
-    return plainToClass(GroupSaveStateDTO, state);
+    return plainToInstance(GroupSaveStateDTO, state);
   }
 }

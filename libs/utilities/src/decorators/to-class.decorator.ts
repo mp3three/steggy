@@ -1,4 +1,4 @@
-import { ClassConstructor, plainToClass } from 'class-transformer';
+import { ClassConstructor, plainToInstance } from 'class-transformer';
 
 /**
  * Force the return result of the annotated function into the indicated type
@@ -18,11 +18,11 @@ export function ToClass(dto: ClassConstructor<unknown>): MethodDecorator {
       if (Array.isArray(result)) {
         return result.map((item) => {
           item._id = item._id.toString();
-          return plainToClass(dto, item);
+          return plainToInstance(dto, item);
         });
       }
       result._id = result._id.toString();
-      return plainToClass(dto, result);
+      return plainToInstance(dto, result);
     };
     return descriptor;
   };
