@@ -23,11 +23,12 @@ import {
   SolarCalcService,
   StateChangeActivateService,
   SwitchGroupService,
+  WebhookService,
 } from '../services';
 import { HomePersistenceModule } from './home-persistence.module';
 
 const providers = [
-  ...[SendNotificationService],
+  ...[SendNotificationService, WebhookService],
   ...[
     FanGroupService,
     GroupService,

@@ -6,6 +6,7 @@ import {
   RoutineCommandGroupStateDTO,
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
+  RoutineCommandWebhookDTO,
   RoutineDTO,
 } from '@automagical/controller-logic';
 import { DONE, ICONS, PromptEntry, PromptService } from '@automagical/tty';
@@ -24,7 +25,7 @@ import { v4 as uuid } from 'uuid';
 import { EntityService } from '../entity.service';
 import { GroupStateService } from '../groups';
 import { RoomCommandService, RoomStateService } from '../rooms';
-import { SendNotificationService } from './command';
+import { SendNotificationService, WebhookService } from './command';
 import { GroupActionService } from './group-action.service';
 import { RoutineService } from './routine.service';
 
@@ -42,6 +43,7 @@ export class RoutineCommandService {
     private readonly roomCommand: RoomCommandService,
     private readonly entityCommand: EntityService,
     private readonly sendNotification: SendNotificationService,
+    private readonly webhookService: WebhookService,
   ) {}
 
   public async build(
@@ -63,6 +65,14 @@ export class RoutineCommandService {
     const room = await this.roomCommand.get(routine.room);
     room.save_states ??= [];
     switch (type) {
+      case ROUTINE_ACTIVATE_COMMAND.webhook:
+        return {
+          command: await this.webhookService.build(
+            current.command as RoutineCommandWebhookDTO,
+          ),
+          friendlyName,
+          type,
+        };
       case ROUTINE_ACTIVATE_COMMAND.entity_state:
         return {
           command: await this.entityCommand.createSaveCommand(

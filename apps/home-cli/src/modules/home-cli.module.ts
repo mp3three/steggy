@@ -34,6 +34,7 @@ import {
   StateChangeBuilderService,
   SwitchGroupCommandService,
   SwitchService,
+  WebhookService,
 } from '../services';
 
 @ApplicationModule({
@@ -72,6 +73,7 @@ import {
         ScheduleBuilderService,
         SendNotificationService,
         StateChangeBuilderService,
+        WebhookService,
       ],
       // /*
       DebugService,

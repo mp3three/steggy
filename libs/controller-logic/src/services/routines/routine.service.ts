@@ -17,11 +17,12 @@ import {
   RoutineCommandGroupStateDTO,
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
+  RoutineCommandWebhookDTO,
   RoutineDTO,
   ScheduleActivateDTO,
   StateChangeActivateDTO,
 } from '../../contracts';
-import { SendNotificationService } from '../commands';
+import { SendNotificationService, WebhookService } from '../commands';
 import { EntityCommandRouterService } from '../entity-command-router.service';
 import { GroupService } from '../groups';
 import { RoutinePersistenceService } from '../persistence';
@@ -33,15 +34,16 @@ import { StateChangeActivateService } from './state-change-activate.service';
 @Injectable()
 export class RoutineService {
   constructor(
+    private readonly entityRouter: EntityCommandRouterService,
     private readonly groupService: GroupService,
     private readonly kunamiCode: KunamiCodeActivateService,
     private readonly logger: AutoLogService,
     private readonly roomService: RoomService,
-    private readonly entityRouter: EntityCommandRouterService,
     private readonly routinePersistence: RoutinePersistenceService,
     private readonly scheduleActivate: ScheduleActivateService,
-    private readonly stateChangeActivate: StateChangeActivateService,
     private readonly sendNotification: SendNotificationService,
+    private readonly stateChangeActivate: StateChangeActivateService,
+    private readonly webhookService: WebhookService,
   ) {}
 
   public async activateRoutine(routine: RoutineDTO | string): Promise<void> {
@@ -53,6 +55,11 @@ export class RoutineService {
         case ROUTINE_ACTIVATE_COMMAND.group_action:
           await this.groupService.activateCommand(
             command.command as RoutineCommandGroupActionDTO,
+          );
+          break;
+        case ROUTINE_ACTIVATE_COMMAND.webhook:
+          await this.webhookService.activate(
+            command.command as RoutineCommandWebhookDTO,
           );
           break;
         case ROUTINE_ACTIVATE_COMMAND.group_state:

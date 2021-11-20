@@ -1,3 +1,5 @@
+import { HTTP_METHODS } from '@automagical/utilities';
+
 import { RoomEntitySaveStateDTO } from '../rooms';
 import { GroupDTO, RoomDTO } from '../schemas';
 
@@ -7,6 +9,7 @@ export enum ROUTINE_ACTIVATE_COMMAND {
   group_action = 'group_action',
   entity_state = 'entity_state',
   send_notification = 'send_notification',
+  webhook = 'webhook',
 }
 
 export type GENERIC_COMMANDS =
@@ -23,6 +26,7 @@ export class RoutineCommandDTO<
     | RoutineCommandRoomStateDTO
     | RoutineCommandSendNotificationDTO
     | RoomEntitySaveStateDTO
+    | RoutineCommandWebhookDTO
     | RoutineCommandGroupStateDTO,
 > {
   public command: COMMAND;
@@ -57,4 +61,9 @@ export class RoutineCommandGroupActionDTO {
 
 export class RoutineCommandSendNotificationDTO {
   public template: string;
+}
+
+export class RoutineCommandWebhookDTO {
+  public method: HTTP_METHODS;
+  public url: string;
 }
