@@ -1,6 +1,7 @@
 import {
   LightingCacheDTO,
   LightManagerService,
+  SolarCalcService,
 } from '@automagical/controller-logic';
 import {
   HASocketAPIService,
@@ -17,6 +18,7 @@ export class DebugController {
     private readonly lightManger: LightManagerService,
     private readonly notification: NotifyDomainService,
     private readonly socketService: HASocketAPIService,
+    private readonly solarCalc: SolarCalcService,
   ) {}
 
   @Get(`/active-lights`)
@@ -27,6 +29,14 @@ export class DebugController {
       lights.map(async (id) => (out[id] = await this.lightManger.getState(id))),
     );
     return out;
+  }
+
+  @Get('/location')
+  public getLocation(): Record<'latitude' | 'longitude', number> {
+    return {
+      latitude: this.solarCalc.latitude,
+      longitude: this.solarCalc.longitude,
+    };
   }
 
   @Get(`/hass-config`)

@@ -4,6 +4,7 @@ import {
   RoutineActivateDTO,
   RoutineDTO,
   ScheduleActivateDTO,
+  SolarActivateDTO,
   StateChangeActivateDTO,
 } from '@automagical/controller-logic';
 import { DONE, ICONS, PromptEntry, PromptService } from '@automagical/tty';
@@ -21,6 +22,7 @@ import { v4 as uuid } from 'uuid';
 import {
   KunamiBuilderService,
   ScheduleBuilderService,
+  SolarBuilderService,
   StateChangeBuilderService,
 } from './activate';
 import { RoutineService } from './routine.service';
@@ -31,6 +33,7 @@ export class RoutineActivateService {
     private readonly kunamiActivate: KunamiBuilderService,
     private readonly stateActivate: StateChangeBuilderService,
     private readonly schduleActivate: ScheduleBuilderService,
+    private readonly solarActivate: SolarBuilderService,
     private readonly promptService: PromptService,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineCommand: RoutineService,
@@ -60,6 +63,14 @@ export class RoutineActivateService {
           friendlyName,
           type,
         };
+      case ROUTINE_ACTIVATE_TYPE.solar:
+        return {
+          activate: await this.solarActivate.build(
+            current.activate as SolarActivateDTO,
+          ),
+          friendlyName,
+          type,
+        };
       case ROUTINE_ACTIVATE_TYPE.state_change:
         return {
           activate: await this.stateActivate.build(
@@ -77,6 +88,7 @@ export class RoutineActivateService {
           type,
         };
     }
+    throw new NotImplementedException();
   }
 
   public async process(

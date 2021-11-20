@@ -16,9 +16,9 @@ export class SolarCalcService {
     private readonly logger: AutoLogService,
   ) {}
 
+  public latitude: number;
+  public longitude: number;
   private CALCULATOR;
-  private latitude: number;
-  private longitude: number;
 
   public get SOLAR_CALC(): SolarCalcType {
     if (this.CALCULATOR) {

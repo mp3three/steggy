@@ -158,11 +158,13 @@ export class EntityCommandRouterService {
     throw new BadRequestException(command);
   }
 
-  private async lockEntity(id: string, command: keyof LockDomainService) {
+  private async lockEntity(id: string, command: string) {
     switch (command) {
       case 'lock':
+      case 'locked':
         return await this.lockService.lock(id);
       case 'unlock':
+      case 'unlocked':
         return await this.lockService.unlock(id);
     }
     throw new BadRequestException(command);

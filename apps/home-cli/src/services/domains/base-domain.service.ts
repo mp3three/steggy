@@ -34,7 +34,6 @@ import { DeviceService } from '../device.service';
 import { HomeFetchService } from '../home-fetch.service';
 
 const HEADER_SEPARATOR = 0;
-const DATA = 1;
 const DELAY = 100;
 @Injectable()
 export class BaseDomainService {
