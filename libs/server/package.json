@@ -1,4 +1,7 @@
 {
+  "publishConfig": {
+    "registry":"https://npm.pkg.github.com"
+  },
   "name": "@automagical/server",
   "license": "MIT",
   "displayName": "Server",

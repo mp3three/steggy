@@ -92,7 +92,24 @@
       }
     },
     "build-docker": {
-      //
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build home-controller --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "terser dist/apps/home-controller/main.js -c -m --keep-classnames --module > dist/apps/home-controller/minified.js",
+            "description": "Minify it"
+          },
+          {
+            "command": "./tools/scripts/docker-build-publish.sh home-controller",
+            "description": "Assemble docker image"
+          }
+        ]
+      }
     }
   },
   "tags": []

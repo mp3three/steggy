@@ -1,4 +1,7 @@
 {
+  "publishConfig": {
+    "registry":"https://npm.pkg.github.com"
+  },
   "name": "home-cli",
   "license": "MIT",
   "displayName": "Home CLI",

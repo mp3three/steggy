@@ -1,4 +1,7 @@
 {
+  "publishConfig": {
+    "registry":"https://npm.pkg.github.com"
+  },
   "name": "devtools",
   "license": "MIT",
   "displayName": "Devtools",

@@ -4,22 +4,19 @@ if [ -z $DIR ]
 then
   DIR=$IMAGE
 fi
-
 # BUILD
 tools/scripts/docker-build.sh $IMAGE $DIR
+PUBLISHER=$(cat package.json | jq .publisher | xargs)
 
-NAME=$(cat package.json | jq .name)
-VERSION=$(cat "apps/$DIR/package.json" | jq .version)
-SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $NAME/$IMAGE:latest)
+VERSION=$(cat "apps/$DIR/package.json" | jq .version | xargs)
 GIT_ID=$(git log -1 --pretty=%h)
-IMAGE=$(echo "$NAME/$IMAGE")
+TAGS=$(npx ts-node tools/scripts/create-tags.js $VERSION $GIT_ID)
+IMAGE=$(echo "$PUBLISHER/$IMAGE")
+LATEST=$(echo "latest")
 
-# build up list of tags
-TAGS=$(npx ts-node tools/scripts/create-tags.ts $VERSION $GIT_ID)
-# add tags to image and push
 for TAG in $TAGS
 do
-  if [ "$TAG" != "latest" ]; then
+  if [ "$TAG" != "$LATEST" ]; then
     COMMAND="docker tag $IMAGE:latest $IMAGE:$TAG"
     echo $COMMAND
     echo $COMMAND | sh

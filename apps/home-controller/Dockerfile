@@ -1,12 +1,11 @@
 # Generate node_modules
 FROM node:16-alpine AS build
-ARG CONFIGURATION=api-server
+ARG CONFIGURATION
 
-USER node
 WORKDIR /app
 ARG path="dist/apps/${CONFIGURATION}"
 COPY --chown=node:node $path .
-RUN yarn install --production --frozen-lockfile
+RUN yarn install --production
 
 # Final build: alpine latest + latest node
 ## Mental note: linter is upset about latest.

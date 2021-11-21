@@ -106,17 +106,16 @@ export class AutoConfigService {
   }
 
   private loadMetadata() {
-    const isDeployed = existsSync(join(cwd(), 'assets'));
-    if (isDeployed) {
-      return;
-    }
-    const path = join(
-      cwd(),
-      'dist',
-      AutoConfigService.USE_SCANNER_ASSETS ? 'config-scanner' : 'apps',
-      this.APPLICATION.description,
-      'assets',
-    );
+    const isDevelopment = !existsSync(join(cwd(), 'assets'));
+    const path = isDevelopment
+      ? join(
+          cwd(),
+          'dist',
+          AutoConfigService.USE_SCANNER_ASSETS ? 'config-scanner' : 'apps',
+          this.APPLICATION.description,
+          'assets',
+        )
+      : join(join(cwd(), 'assets'));
     const contents = readdirSync(path);
     contents.forEach((folder) => {
       this.metadata.set(
