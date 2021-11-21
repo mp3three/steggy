@@ -1,9 +1,23 @@
 {
-  "publishConfig": {
-    "registry":"https://npm.pkg.github.com"
+  "author": {
+    "email": "cameron@automagicl.dev",
+    "name": "Cameron Contour",
+    "url": "https://github.com/ccontour/automagical"
   },
-  "name": "home-cli",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "bin": {
+    "home-cli": "./main.js"
+  },
+  "name": "@ccontour/home-cli",
   "license": "MIT",
+  "main": "main.js",
   "displayName": "Home CLI",
-  "version": "0.1.0"
+  "version": "0.1.1",
+  "homepage": "https://github.com/ccontour/automagical",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ccontour/automagical.git"
+  }
 }

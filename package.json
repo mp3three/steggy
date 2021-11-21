@@ -9,6 +9,7 @@
     "url": "https://github.com/ccontour/automagical"
   },
   "scripts": {
+    "pipeline": "./tools/scripts/publish-pipeline.sh",
     "dev:home-controller": "npx nx serve home-controller",
     "dev:home-cli": "npx nx serve home-cli",
     "dev:devtools": "npx nx serve devtools",
@@ -133,6 +134,7 @@
     "eslint-plugin-woke": "^1.0.0",
     "eslint-plugin-you-dont-need-lodash-underscore": "^6.11.0",
     "express": "^4.17.1",
+    "figlet-cli": "^0.1.1",
     "husky": "^7.0.4",
     "jest": "27.3.1",
     "jest-circus": "27.3.1",

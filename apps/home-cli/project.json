@@ -76,7 +76,7 @@
       "configurations": {
         "production": {
           "optimization": true,
-          "extractLicenses": true,
+          "extractLicenses": false,
           "inspect": false,
           "fileReplacements": []
         },
@@ -97,6 +97,26 @@
         "lintFilePatterns": ["apps/home-cli/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build home-cli --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "terser dist/apps/home-cli/main.js -c -m --keep-classnames --module > dist/apps/home-cli/main.js",
+            "description": "Minify it (in place)"
+          },
+          {
+            "command": "yarn publish --cwd dist/apps/home-cli --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
