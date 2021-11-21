@@ -1,6 +1,6 @@
 {
   "name": "automagical",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "license": "MIT",
   "publisher": "ghcr.io/ccontour",
   "author": {
@@ -17,7 +17,6 @@
     "configure:home-cli": "npx nx build devtools; node dist/apps/devtools/main.js \"Config Builder\" home-cli",
     "configure:devtools": "npx nx build devtools; node dist/apps/devtools/main.js \"Config Builder\" devtools",
     "lint": "npx nx run-many --all --target=lint",
-    "gource": "./tools/scripts/gource.sh",
     "workspace:nx-update": "npx nx migrate --latest",
     "workspace:yarn-update": "yarn upgrade-interactive --latest"
   },

@@ -108,11 +108,15 @@
             "description": "Create production optimized build"
           },
           {
-            "command": "terser dist/apps/home-cli/main.js -c -m --keep-classnames --module > dist/apps/home-cli/main.js",
-            "description": "Minify it (in place)"
+            "command": "npx terser dist/apps/home-cli/main.js -c -m --keep-classnames --module > dist/apps/home-cli/minified.js",
+            "description": "Minify it"
           },
           {
-            "command": "yarn publish --cwd dist/apps/home-cli --non-interactive",
+            "command": "mv dist/apps/home-cli/minified.js dist/apps/home-cli/main.js",
+            "description": "Replace output (can't be done in one step)"
+          },
+          {
+            "command": "npx yarn publish --cwd dist/apps/home-cli --non-interactive",
             "description": "Publish it"
           }
         ]

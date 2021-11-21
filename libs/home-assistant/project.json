@@ -28,11 +28,7 @@
             "description": "Create production optimized build"
           },
           {
-            "command": "terser dist/apps/home-assistant/main.js -c -m --keep-classnames --module > dist/apps/home-assistant/main.js",
-            "description": "Minify it (in place)"
-          },
-          {
-            "command": "yarn publish --cwd dist/apps/home-assistant --non-interactive",
+            "command": "yarn publish --cwd dist/libs/home-assistant --non-interactive",
             "description": "Publish it"
           }
         ]
@@ -50,6 +46,13 @@
           "libs/home-assistant/*.md",
           "libs/home-assistant/metadata.json"
         ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "fileReplacements": []
+        }
       }
     }
   },

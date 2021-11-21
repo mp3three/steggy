@@ -12,6 +12,13 @@
         "packageJson": "libs/tty/package.json",
         "main": "libs/tty/src/index.ts",
         "assets": ["libs/tty/*.md"]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "fileReplacements": []
+        }
       }
     },
     "lint": {
@@ -31,11 +38,7 @@
             "description": "Create production optimized build"
           },
           {
-            "command": "terser dist/apps/tty/main.js -c -m --keep-classnames --module > dist/apps/tty/main.js",
-            "description": "Minify it (in place)"
-          },
-          {
-            "command": "yarn publish --cwd dist/apps/tty --non-interactive",
+            "command": "yarn publish --cwd dist/libs/tty --non-interactive",
             "description": "Publish it"
           }
         ]

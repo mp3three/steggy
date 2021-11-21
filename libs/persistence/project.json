@@ -12,6 +12,13 @@
         "packageJson": "libs/persistence/package.json",
         "main": "libs/persistence/src/index.ts",
         "assets": ["libs/persistence/*.md"]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "fileReplacements": []
+        }
       }
     },
     "lint": {
@@ -31,11 +38,7 @@
             "description": "Create production optimized build"
           },
           {
-            "command": "terser dist/apps/persistence/main.js -c -m --keep-classnames --module > dist/apps/persistence/main.js",
-            "description": "Minify it (in place)"
-          },
-          {
-            "command": "yarn publish --cwd dist/apps/persistence --non-interactive",
+            "command": "yarn publish --cwd dist/libs/persistence --non-interactive",
             "description": "Publish it"
           }
         ]

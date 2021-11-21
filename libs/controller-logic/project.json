@@ -12,6 +12,13 @@
         "packageJson": "libs/controller-logic/package.json",
         "main": "libs/controller-logic/src/index.ts",
         "assets": ["libs/controller-logic/*.md"]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "fileReplacements": []
+        }
       }
     },
     "lint": {
@@ -39,11 +46,7 @@
             "description": "Create production optimized build"
           },
           {
-            "command": "terser dist/apps/controller-logic/main.js -c -m --keep-classnames --module > dist/apps/controller-logic/main.js",
-            "description": "Minify it (in place)"
-          },
-          {
-            "command": "yarn publish --cwd dist/apps/controller-logic --non-interactive",
+            "command": "yarn publish --cwd dist/libs/controller-logic --non-interactive",
             "description": "Publish it"
           }
         ]

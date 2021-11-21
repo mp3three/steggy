@@ -2,7 +2,7 @@
   "name": "home-controller",
   "license": "MIT",
   "displayName": "Home Controller",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "dependencies": {
     "pino-pretty": "^5.1.1"
   }

@@ -16,6 +16,13 @@
           "glob": "metadata.json",
           "output": "./assets"
         }]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "fileReplacements": []
+        }
       }
     },
     "lint": {
@@ -35,11 +42,7 @@
             "description": "Create production optimized build"
           },
           {
-            "command": "terser dist/apps/utilities/main.js -c -m --keep-classnames --module > dist/apps/utilities/main.js",
-            "description": "Minify it (in place)"
-          },
-          {
-            "command": "yarn publish --cwd dist/apps/utilities --non-interactive",
+            "command": "yarn publish --cwd dist/libs/utilities --non-interactive",
             "description": "Publish it"
           }
         ]
