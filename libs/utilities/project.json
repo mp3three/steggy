@@ -25,6 +25,26 @@
       },
       "outputs": ["{options.outputFile}"]
     },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build utilities --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "terser dist/apps/utilities/main.js -c -m --keep-classnames --module > dist/apps/utilities/main.js",
+            "description": "Minify it (in place)"
+          },
+          {
+            "command": "yarn publish --cwd dist/apps/utilities --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    },
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/libs/utilities"],

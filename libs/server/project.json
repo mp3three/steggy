@@ -21,6 +21,26 @@
         "lintFilePatterns": ["libs/server/**/*.ts"]
       }
     },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build server --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "terser dist/apps/server/main.js -c -m --keep-classnames --module > dist/apps/server/main.js",
+            "description": "Minify it (in place)"
+          },
+          {
+            "command": "yarn publish --cwd dist/apps/server --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    },
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/libs/server"],

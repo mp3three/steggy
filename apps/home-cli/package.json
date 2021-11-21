@@ -4,9 +4,6 @@
     "name": "Cameron Contour",
     "url": "https://github.com/ccontour/automagical"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  },
   "bin": {
     "home-cli": "./main.js"
   },

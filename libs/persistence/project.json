@@ -21,6 +21,26 @@
         "lintFilePatterns": ["libs/persistence/**/*.ts"]
       }
     },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build persistence --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "terser dist/apps/persistence/main.js -c -m --keep-classnames --module > dist/apps/persistence/main.js",
+            "description": "Minify it (in place)"
+          },
+          {
+            "command": "yarn publish --cwd dist/apps/persistence --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    },
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/libs/persistence"],

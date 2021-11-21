@@ -18,6 +18,26 @@
         "passWithNoTests": true
       }
     },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build home-assistant --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "terser dist/apps/home-assistant/main.js -c -m --keep-classnames --module > dist/apps/home-assistant/main.js",
+            "description": "Minify it (in place)"
+          },
+          {
+            "command": "yarn publish --cwd dist/apps/home-assistant --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    },
     "build": {
       "executor": "@nrwl/node:package",
       "outputs": ["{options.outputPath}"],

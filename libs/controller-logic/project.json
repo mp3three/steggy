@@ -35,15 +35,15 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx nx build home-cli --configuration=production",
+            "command": "npx nx build controller-logic --configuration=production",
             "description": "Create production optimized build"
           },
           {
-            "command": "terser dist/apps/home-cli/main.js -c -m --keep-classnames --module > dist/apps/home-cli/main.js",
+            "command": "terser dist/apps/controller-logic/main.js -c -m --keep-classnames --module > dist/apps/controller-logic/main.js",
             "description": "Minify it (in place)"
           },
           {
-            "command": "yarn publish --cwd dist/apps/home-cli --non-interactive",
+            "command": "yarn publish --cwd dist/apps/controller-logic --non-interactive",
             "description": "Publish it"
           }
         ]
