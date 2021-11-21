@@ -15,10 +15,13 @@ import {
   Repl,
 } from '@automagical/tty';
 import {
+  ARRAY_OFFSET,
   AutoLogService,
+  DOWN,
   IsEmpty,
   ResultControlDTO,
   TitleCase,
+  UP,
 } from '@automagical/utilities';
 import {
   forwardRef,
@@ -55,10 +58,6 @@ const GROUP_DOMAINS = new Map([
   [GROUP_TYPES.lock, [HASS_DOMAINS.lock]],
   [GROUP_TYPES.fan, [HASS_DOMAINS.fan]],
 ]);
-
-const ARRAY_OFFSET = 1;
-const UP = 1;
-const DOWN = -1;
 
 @Repl({
   category: `Control`,

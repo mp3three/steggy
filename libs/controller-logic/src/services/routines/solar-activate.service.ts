@@ -6,8 +6,9 @@ import {
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { CronJob } from 'cron';
+
 import { SolarActivateDTO, SolarWatcher } from '../../contracts';
-import { SolarCalcService } from '../solar-calc.service';
+import { SolarCalcService } from '../lighting';
 
 @Injectable()
 export class SolarActivateService {
@@ -31,12 +32,16 @@ export class SolarActivateService {
      * Pile of race conditions happening here.
      *
      * Solar calc requires coords from home assistant, which are not presetnt at boot
-     * This function cannot block until coords arrive
+     * This function cannot block until coords arrive.
+     * Gets called during the init process, but is one of the last items to complete in the startup logs
      */
     process.nextTick(async () => {
       const c = await this.solarCalc.getCalc();
       const calc = c[activate.event] as Date;
-      const cron = new CronJob(calc, async () => await callback());
+      const cron = new CronJob(calc, async () => {
+        this.logger.debug(`Solar event {${TitleCase(activate.event)}}`);
+        await callback();
+      });
       this.SCHEDULES.add({
         ...activate,
         callback,

@@ -2,8 +2,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers, unicorn/no-nested-ternary */
 import { Injectable } from '@nestjs/common';
 
-import { PromptService } from './prompt.service';
-
 type RGB = Record<'r' | 'g' | 'b', number>;
 type HSV = Record<'h' | 's' | 'v', number>;
 const clamp = (input: number, min: number, max: number) => {
@@ -15,8 +13,6 @@ const clamp = (input: number, min: number, max: number) => {
 
 @Injectable()
 export class ColorsService {
-  constructor(private readonly promptService: PromptService) {}
-
   public hexToRGB(hex: string): RGB {
     const split = hex.match(new RegExp('.{1,2}', 'g'));
     return {

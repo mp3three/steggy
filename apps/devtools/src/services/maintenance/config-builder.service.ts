@@ -5,14 +5,16 @@ import {
   PromptService,
   Repl,
   SCAN_CONFIG_CONFIGURATION,
-  WorkspaceService,
+  WorkspaceService
 } from '@automagical/tty';
 import {
   AutoLogService,
   AutomagicalConfig,
   AutomagicalStringConfig,
   ConfigTypeDTO,
+  DOWN,
   TitleCase,
+  UP
 } from '@automagical/utilities';
 import { InternalServerErrorException } from '@nestjs/common';
 import { eachSeries } from 'async';
@@ -27,9 +29,7 @@ import { join } from 'path';
 import rc from 'rc';
 
 const ARGV_APP = 3;
-const UP = 1;
 const DATA = 1;
-const DOWN = -1;
 const COMMAIFY = 10_000;
 const HEADER_END_PADDING = 20;
 const NONE = 0;

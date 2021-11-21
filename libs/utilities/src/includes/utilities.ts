@@ -1,3 +1,9 @@
+// Constanly reused numbers
+export const UP = 1;
+export const DOWN = -1;
+export const ARRAY_OFFSET = 1;
+//
+
 const OFFSET = 1;
 /**
  * Want to be really lazy? Just make a short term sleep happen

@@ -29,6 +29,7 @@
     "dto": "database",
     "edge": "cluster",
     "endpoints": "mappings",
+    "explorers": "context",
     "entities": "components",
     "entrypoints": "home",
     "enums": "constant",

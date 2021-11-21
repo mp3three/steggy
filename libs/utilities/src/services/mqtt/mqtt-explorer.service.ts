@@ -17,7 +17,7 @@ import {
 } from '../../contracts';
 import { MQTT_SUBSCRIBE_OPTIONS } from '../../decorators';
 import { InjectMQTT } from '../../decorators/injectors/inject-mqtt.decorator';
-import { AutoLogService } from '../logger';
+import { AutoLogService } from '../auto-log.service';
 import { MqttService } from './mqtt.service';
 
 /* eslint-disable no-loops/no-loops */

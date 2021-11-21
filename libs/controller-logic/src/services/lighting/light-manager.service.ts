@@ -14,13 +14,13 @@ import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 import { EventEmitter2 } from 'eventemitter2';
 
-import { MIN_BRIGHTNESS } from '../config';
+import { MIN_BRIGHTNESS } from '../../config';
 import {
   CIRCADIAN_UPDATE,
   LIGHTING_MODE,
   LightingCacheDTO,
-} from '../contracts';
-import { RoomCommandDTO } from '../contracts/rooms/room-command.dto';
+  RoomCommandDTO,
+} from '../../contracts';
 import { CircadianService } from './circadian.service';
 
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';

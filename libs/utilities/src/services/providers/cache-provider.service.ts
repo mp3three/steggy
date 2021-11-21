@@ -6,8 +6,8 @@ import {
   REDIS_DEFAULT_TTL,
   REDIS_HOST,
   REDIS_PORT,
-} from '../config';
-import { InjectConfig } from '../decorators/injectors/inject-config.decorator';
+} from '../../config';
+import { InjectConfig } from '../../decorators/injectors/inject-config.decorator';
 
 @Injectable()
 export class CacheProviderService {

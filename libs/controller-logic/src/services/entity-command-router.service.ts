@@ -17,7 +17,7 @@ import {
 
 import type { ROOM_ENTITY_EXTRAS, RoomEntitySaveStateDTO } from '../contracts';
 import { ClimateCacheDTO, FanCacheDTO } from '../contracts';
-import { LightManagerService } from './light-manager.service';
+import { LightManagerService } from './lighting';
 
 @Injectable()
 export class EntityCommandRouterService {

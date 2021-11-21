@@ -1,8 +1,10 @@
 import {
   AutoLogService,
+  DOWN,
   InjectConfig,
   IsEmpty,
   TitleCase,
+  UP,
 } from '@automagical/utilities';
 import { InternalServerErrorException } from '@nestjs/common';
 import chalk from 'chalk';
@@ -21,10 +23,8 @@ import { ReplExplorerService } from './repl-explorer.service';
 // Filter out non-sortable characters (like emoji)
 const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
 const SCRIPT_ARG = 2;
-const UP = 1;
 const NAME = 1;
 const LABEL = 0;
-const DOWN = -1;
 
 @Repl({
   category: 'main',

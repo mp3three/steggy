@@ -44,11 +44,9 @@ const providers = [
     SolarActivateService,
     RoutineService,
   ],
-  CircadianService,
+  ...[CircadianService, LightManagerService, SolarCalcService],
   EntityCommandRouterService,
-  LightManagerService,
   RoomService,
-  SolarCalcService,
 ];
 
 @LibraryModule({

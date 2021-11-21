@@ -10,7 +10,7 @@ import {
 import type { MqttSubscribeOptions } from '../../contracts';
 import { IsEmpty } from '../../contracts';
 import { InjectMQTT } from '../../decorators/injectors/inject-mqtt.decorator';
-import { AutoLogService } from '../logger';
+import { AutoLogService } from '../auto-log.service';
 
 /* eslint-disable radar/no-identical-functions */
 

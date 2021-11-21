@@ -12,7 +12,7 @@ import {
   PromptEntry,
   PromptService,
 } from '@automagical/tty';
-import { AutoLogService, IsEmpty } from '@automagical/utilities';
+import { AutoLogService, DOWN, IsEmpty, UP } from '@automagical/utilities';
 import {
   forwardRef,
   Inject,
@@ -30,8 +30,6 @@ import { GroupCommandService } from '../groups';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from './room-command.service';
 
-const UP = 1;
-const DOWN = -1;
 
 @Injectable()
 export class RoomStateService {

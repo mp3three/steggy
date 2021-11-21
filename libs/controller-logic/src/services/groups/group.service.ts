@@ -12,7 +12,7 @@ import type {
 } from '../../contracts';
 import { GROUP_TYPES, GroupDTO, LIGHTING_MODE } from '../../contracts';
 import { EntityCommandRouterService } from '../entity-command-router.service';
-import { LightManagerService } from '../light-manager.service';
+import { LightManagerService } from '../lighting';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
 import { FanGroupService } from './fan-group.service';

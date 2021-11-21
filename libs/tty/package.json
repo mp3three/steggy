@@ -1,5 +1,6 @@
 {
   "name": "@automagical/tty",
+  "license": "MIT",
   "displayName": "TTY",
   "version": "0.1.1"
 }

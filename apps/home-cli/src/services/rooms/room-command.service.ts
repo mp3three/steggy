@@ -12,7 +12,7 @@ import {
   PromptService,
   Repl,
 } from '@automagical/tty';
-import { AutoLogService, IsEmpty } from '@automagical/utilities';
+import { AutoLogService, DOWN, IsEmpty, UP } from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import { encode } from 'ini';
@@ -25,9 +25,8 @@ import { HomeFetchService } from '../home-fetch.service';
 import { RoutineService } from '../routines';
 import { RoomStateService } from './room-state.service';
 
-const UP = 1;
-const DOWN = -1;
 const NAME = 0;
+
 @Repl({
   category: `Control`,
   description: [

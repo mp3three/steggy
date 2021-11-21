@@ -1,7 +1,7 @@
 import { ModuleMetadata, Provider } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 
-import { USE_THIS_CONFIG } from '..';
+import { USE_THIS_CONFIG } from '../contracts';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
 import {
   ACTIVE_APPLICATION,
@@ -9,7 +9,7 @@ import {
 } from '../contracts/meta/config';
 import { RegisterCache } from '../includes/';
 import { UtilitiesModule } from '../modules';
-import { EventEmitterService } from '../services/event-emitter.service';
+import { EventEmitterService } from '../services';
 
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
   application: symbol;

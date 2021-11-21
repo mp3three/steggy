@@ -1,5 +1,6 @@
 {
   "name": "devtools",
+  "license": "MIT",
   "displayName": "Devtools",
   "version": "0.1.3"
 }

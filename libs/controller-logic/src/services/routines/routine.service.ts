@@ -20,8 +20,8 @@ import {
   RoutineCommandWebhookDTO,
   RoutineDTO,
   ScheduleActivateDTO,
-  StateChangeActivateDTO,
   SolarActivateDTO,
+  StateChangeActivateDTO,
 } from '../../contracts';
 import { SendNotificationService, WebhookService } from '../commands';
 import { EntityCommandRouterService } from '../entity-command-router.service';

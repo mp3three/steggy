@@ -1,6 +1,6 @@
 import { SolarActivateDTO } from '@automagical/controller-logic';
 import { ICONS, PromptEntry, PromptService } from '@automagical/tty';
-import { TitleCase } from '@automagical/utilities';
+import { DOWN, TitleCase, UP } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
@@ -28,9 +28,6 @@ const KEYS = [
   'goldenHourStart',
   'goldenHourEnd',
 ] as (keyof SolarCalcType)[];
-
-const UP = 1;
-const DOWN = -1;
 
 @Injectable()
 export class SolarBuilderService {

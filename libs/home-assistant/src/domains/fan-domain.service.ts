@@ -1,4 +1,4 @@
-import { AutoLogService } from '@automagical/utilities';
+import { ARRAY_OFFSET, AutoLogService } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { FanSpeeds, FanStateDTO, HASS_DOMAINS } from '../contracts';
@@ -11,7 +11,6 @@ const availableSpeeds = [
   FanSpeeds.medium_high,
   FanSpeeds.high,
 ];
-const ARRAY_OFFSET = 1;
 const START = 0;
 
 /**

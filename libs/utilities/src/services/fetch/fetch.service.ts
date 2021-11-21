@@ -3,7 +3,7 @@ import { createWriteStream } from 'fs';
 import fetch from 'node-fetch';
 
 import { FetchArguments } from '../../contracts';
-import { AutoLogService } from '../logger/auto-log.service';
+import { AutoLogService } from '../auto-log.service';
 import { BaseFetchService } from './base-fetch.service';
 
 const DEFAULT_TRUNCATE_LENGTH = 200;

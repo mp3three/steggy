@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';
 
-import { CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP } from '../config';
-import { CIRCADIAN_UPDATE } from '../contracts';
+import { CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP } from '../../config';
+import { CIRCADIAN_UPDATE } from '../../contracts';
 import { SolarCalcService } from './solar-calc.service';
 
 const MIN = 0;

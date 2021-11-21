@@ -19,7 +19,7 @@ import {
   ACTIVE_APPLICATION,
   AutomagicalConfig,
 } from '../contracts/meta/config';
-import { AutoLogService } from './logger/auto-log.service';
+import { AutoLogService } from './auto-log.service';
 
 @Injectable()
 export class AutoConfigService {

@@ -61,7 +61,7 @@
       "configurations": {
         "production": {
           "optimization": true,
-          "extractLicenses": true,
+          "extractLicenses": false,
           "inspect": false,
           "fileReplacements": []
         },
@@ -90,6 +90,9 @@
         "jestConfig": "apps/home-controller/jest.config.js",
         "passWithNoTests": true
       }
+    },
+    "build-docker": {
+      //
     }
   },
   "tags": []

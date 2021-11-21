@@ -1,5 +1,6 @@
 {
   "name": "home-controller",
+  "license": "MIT",
   "displayName": "Home Controller",
   "version": "0.1.3"
 }

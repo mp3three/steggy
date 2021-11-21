@@ -2,9 +2,9 @@ import { INestApplication, Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
 import { Express } from 'express';
 
-import { BootstrapOptions } from '..';
 import { iLifecycle } from '../contracts/lifecycle';
-import { ModuleScannerService } from './module-scanner.service';
+import { BootstrapOptions } from '../includes';
+import { ModuleScannerService } from './explorers/module-scanner.service';
 
 @Injectable()
 export class LifecycleService {

@@ -3,12 +3,12 @@ import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { EventEmitter2 } from 'eventemitter2';
 
-import { LOG_CONTEXT } from '../contracts/logger';
+import { LOG_CONTEXT } from '../../contracts/logger';
 import {
   EVENT_LISTENER_METADATA,
   OnEventMetadata,
-} from '../decorators/events.decorator';
-import { AutoLogService } from './logger';
+} from '../../decorators/events.decorator';
+import { AutoLogService } from '../auto-log.service';
 
 @Injectable()
 export class EventsExplorerService {

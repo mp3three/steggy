@@ -18,7 +18,7 @@ import {
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
 } from '../../contracts';
-import { LightManagerService } from '../light-manager.service';
+import { LightManagerService } from '../lighting';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
 

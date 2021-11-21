@@ -12,7 +12,7 @@ import {
   PromptEntry,
   PromptService,
 } from '@automagical/tty';
-import { AutoLogService, TitleCase } from '@automagical/utilities';
+import { AutoLogService, DOWN, TitleCase, UP } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 import chalk from 'chalk';
@@ -24,8 +24,6 @@ import { HomeFetchService } from '../home-fetch.service';
 const MIN_BRIGHTNESS = 5;
 const MAX_BRIGHTNESS = 255;
 
-const UP = 1;
-const DOWN = -1;
 const R_MULTIPLIER = 0.299;
 const G_MULTIPLIER = 0.587;
 const B_MULTIPLIER = 0.114;

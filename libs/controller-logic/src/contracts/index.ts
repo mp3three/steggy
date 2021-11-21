@@ -1,3 +1,4 @@
+export * from './animation.dto';
 export * from './constants';
 export * from './dto';
 export * from './entity-filters.dto';

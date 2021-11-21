@@ -2,7 +2,7 @@ import { BodyInit, RequestInit, Response } from 'node-fetch';
 
 import { FetchArguments, ResultControlDTO } from '../../contracts';
 import { controlToQuery } from '../../includes';
-import { AutoLogService } from '../logger/auto-log.service';
+import { AutoLogService } from '../auto-log.service';
 
 const DEFAULT_TRUNCATE_LENGTH = 200;
 const FIRST = 0;
