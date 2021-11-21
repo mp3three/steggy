@@ -1,6 +1,6 @@
-import { StateChangeActivateDTO } from '@automagical/controller-logic';
-import { PromptEntry, PromptService } from '@automagical/tty';
-import { FILTER_OPERATIONS, FilterValueType } from '@automagical/utilities';
+import { StateChangeActivateDTO } from '@ccontour/controller-logic';
+import { PromptEntry, PromptService } from '@ccontour/tty';
+import { FILTER_OPERATIONS, FilterValueType } from '@ccontour/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import { EntityService } from '../../entity.service';

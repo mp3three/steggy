@@ -4,15 +4,15 @@ import {
   RoomDTO,
   RoomEntitySaveStateDTO,
   RoutineCommandGroupStateDTO,
-} from '@automagical/controller-logic';
+} from '@ccontour/controller-logic';
 import {
   DONE,
   ICONS,
   PinnedItemService,
   PromptEntry,
   PromptService,
-} from '@automagical/tty';
-import { AutoLogService, DOWN, IsEmpty, UP } from '@automagical/utilities';
+} from '@ccontour/tty';
+import { AutoLogService, DOWN, IsEmpty, UP } from '@ccontour/utilities';
 import {
   forwardRef,
   Inject,

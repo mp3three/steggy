@@ -2,15 +2,15 @@
 // Really don't care if a simple map function is duplicated
 /* eslint-disable radar/no-identical-functions */
 
-import { RoomDTO, RoutineDTO } from '@automagical/controller-logic';
+import { RoomDTO, RoutineDTO } from '@ccontour/controller-logic';
 import {
   DONE,
   ICONS,
   PinnedItemService,
   PromptEntry,
   PromptService,
-} from '@automagical/tty';
-import { IsEmpty, ResultControlDTO } from '@automagical/utilities';
+} from '@ccontour/tty';
+import { IsEmpty, ResultControlDTO } from '@ccontour/utilities';
 import {
   forwardRef,
   Inject,

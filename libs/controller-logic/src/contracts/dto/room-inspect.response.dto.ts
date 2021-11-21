@@ -1,4 +1,4 @@
-import { HassStateDTO } from '@automagical/home-assistant';
+import { HassStateDTO } from '@ccontour/home-assistant';
 
 export class RoomInspectResponseDTO {
   /**

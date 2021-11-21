@@ -1,8 +1,8 @@
 import {
   HA_SOCKET_READY,
   HASocketAPIService,
-} from '@automagical/home-assistant';
-import { AutoLogService, OnEvent, sleep } from '@automagical/utilities';
+} from '@ccontour/home-assistant';
+import { AutoLogService, OnEvent, sleep } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';

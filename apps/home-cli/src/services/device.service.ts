@@ -1,9 +1,9 @@
 import {
   DeviceListItemDTO,
   RelatedDescriptionDTO,
-} from '@automagical/home-assistant';
-import { DONE, ICONS, PromptService, Repl } from '@automagical/tty';
-import { AutoLogService, IsEmpty } from '@automagical/utilities';
+} from '@ccontour/home-assistant';
+import { DONE, ICONS, PromptService, Repl } from '@ccontour/tty';
+import { AutoLogService, IsEmpty } from '@ccontour/utilities';
 import { encode } from 'ini';
 
 import { EntityService } from './entity.service';

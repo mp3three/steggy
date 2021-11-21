@@ -1,10 +1,10 @@
 import {
   HomeControllerCustomModule,
   HomePersistenceModule,
-} from '@automagical/controller-logic';
-import { HomeAssistantModule } from '@automagical/home-assistant';
-import { ServerModule } from '@automagical/server';
-import { APP_HOME_CONTROLLER, ApplicationModule } from '@automagical/utilities';
+} from '@ccontour/controller-logic';
+import { HomeAssistantModule } from '@ccontour/home-assistant';
+import { ServerModule } from '@ccontour/server';
+import { APP_HOME_CONTROLLER, ApplicationModule } from '@ccontour/utilities';
 
 import {
   DebugController,

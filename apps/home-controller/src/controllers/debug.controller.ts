@@ -2,13 +2,13 @@ import {
   LightingCacheDTO,
   LightManagerService,
   SolarCalcService,
-} from '@automagical/controller-logic';
+} from '@ccontour/controller-logic';
 import {
   HASocketAPIService,
   HassConfig,
   NotifyDomainService,
-} from '@automagical/home-assistant';
-import { AuthStack } from '@automagical/server';
+} from '@ccontour/home-assistant';
+import { AuthStack } from '@ccontour/server';
 import { Body, Controller, Get, Post } from '@nestjs/common';
 
 @Controller(`/debug`)

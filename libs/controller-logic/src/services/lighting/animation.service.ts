@@ -1,4 +1,4 @@
-import { AutoLogService, PEAT } from '@automagical/utilities';
+import { AutoLogService, PEAT } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { FlashAnimationDTO, LightingCacheDTO } from '../../contracts';

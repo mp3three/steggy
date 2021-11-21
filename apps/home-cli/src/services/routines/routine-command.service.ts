@@ -8,9 +8,9 @@ import {
   RoutineCommandSendNotificationDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
-} from '@automagical/controller-logic';
-import { DONE, ICONS, PromptEntry, PromptService } from '@automagical/tty';
-import { IsEmpty, TitleCase } from '@automagical/utilities';
+} from '@ccontour/controller-logic';
+import { DONE, ICONS, PromptEntry, PromptService } from '@ccontour/tty';
+import { IsEmpty, TitleCase } from '@ccontour/utilities';
 import {
   forwardRef,
   Inject,

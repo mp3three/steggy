@@ -1,5 +1,5 @@
-import { RoomEntitySaveStateDTO } from '@automagical/controller-logic';
-import { ICONS, PromptEntry } from '@automagical/tty';
+import { RoomEntitySaveStateDTO } from '@ccontour/controller-logic';
+import { ICONS, PromptEntry } from '@ccontour/tty';
 import { Injectable } from '@nestjs/common';
 
 import { BaseDomainService } from './base-domain.service';

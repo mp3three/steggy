@@ -3,7 +3,7 @@ import {
   FetchAuth,
   HTTP_METHODS,
   ResultControlDTO,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { REQUEST } from '@nestjs/core';
 import { Request, Response } from 'express';
 import pino from 'pino';

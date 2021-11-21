@@ -1,7 +1,7 @@
 import {
   HomeAssistantCoreService,
   LightDomainService,
-} from '@automagical/home-assistant';
+} from '@ccontour/home-assistant';
 import {
   AutoLogService,
   CacheManagerService,
@@ -9,7 +9,7 @@ import {
   InjectConfig,
   InjectLogger,
   IsEmpty,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 import { EventEmitter2 } from 'eventemitter2';

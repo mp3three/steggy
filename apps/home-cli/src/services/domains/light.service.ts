@@ -2,9 +2,9 @@ import {
   LIGHTING_MODE,
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
-} from '@automagical/controller-logic';
-import { HASS_DOMAINS, LightStateDTO } from '@automagical/home-assistant';
-import { ICONS, PromptEntry } from '@automagical/tty';
+} from '@ccontour/controller-logic';
+import { HASS_DOMAINS, LightStateDTO } from '@ccontour/home-assistant';
+import { ICONS, PromptEntry } from '@ccontour/tty';
 import { Injectable } from '@nestjs/common';
 
 import { SwitchService } from './switch.service';

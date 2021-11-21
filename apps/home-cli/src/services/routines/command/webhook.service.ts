@@ -1,6 +1,6 @@
-import { RoutineCommandWebhookDTO } from '@automagical/controller-logic';
-import { PromptService } from '@automagical/tty';
-import { HTTP_METHODS, TitleCase } from '@automagical/utilities';
+import { RoutineCommandWebhookDTO } from '@ccontour/controller-logic';
+import { PromptService } from '@ccontour/tty';
+import { HTTP_METHODS, TitleCase } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

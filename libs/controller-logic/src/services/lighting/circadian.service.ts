@@ -1,4 +1,4 @@
-import { Cron, CronExpression, InjectConfig } from '@automagical/utilities';
+import { Cron, CronExpression, InjectConfig } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { EventEmitter2 } from 'eventemitter2';

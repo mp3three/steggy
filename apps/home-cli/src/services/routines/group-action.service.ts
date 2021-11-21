@@ -1,8 +1,8 @@
 import {
   GROUP_TYPES,
   RoutineCommandGroupActionDTO,
-} from '@automagical/controller-logic';
-import { PromptService } from '@automagical/tty';
+} from '@ccontour/controller-logic';
+import { PromptService } from '@ccontour/tty';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import { GroupCommandService, LightGroupCommandService } from '../groups';

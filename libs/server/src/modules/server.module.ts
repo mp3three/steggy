@@ -4,7 +4,7 @@ import {
   InjectConfig,
   LIB_SERVER,
   LibraryModule,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import {
   INestApplication,
   MiddlewareConsumer,

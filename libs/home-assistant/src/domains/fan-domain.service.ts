@@ -1,4 +1,4 @@
-import { ARRAY_OFFSET, AutoLogService } from '@automagical/utilities';
+import { ARRAY_OFFSET, AutoLogService } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { FanSpeeds, FanStateDTO, HASS_DOMAINS } from '../contracts';

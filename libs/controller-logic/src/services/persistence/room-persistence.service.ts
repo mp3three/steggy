@@ -2,12 +2,12 @@ import {
   BaseMongoService,
   BaseSchemaDTO,
   EncryptionService,
-} from '@automagical/persistence';
+} from '@ccontour/persistence';
 import {
   AutoLogService,
   ResultControlDTO,
   ToClass,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { EventEmitter2 } from 'eventemitter2';

@@ -2,7 +2,7 @@
   "publishConfig": {
     "registry":"https://npm.pkg.github.com"
   },
-  "name": "@automagical/server",
+  "name": "@ccontour/server",
   "license": "MIT",
   "displayName": "Server",
   "version": "0.0.2"

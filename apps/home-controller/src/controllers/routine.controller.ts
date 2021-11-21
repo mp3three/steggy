@@ -1,10 +1,10 @@
-import { RoutineDTO, RoutineService } from '@automagical/controller-logic';
+import { RoutineDTO, RoutineService } from '@ccontour/controller-logic';
 import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
   Locals,
   ResponseLocals,
-} from '@automagical/server';
+} from '@ccontour/server';
 import {
   Body,
   Controller,

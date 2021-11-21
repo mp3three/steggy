@@ -7,7 +7,7 @@ import {
   InjectConfig,
   InjectLogger,
   sleep,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 import WS from 'ws';

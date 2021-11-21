@@ -1,5 +1,5 @@
-import { MongoPersistenceModule } from '@automagical/persistence';
-import { LIB_CONTROLLER_LOGIC, LibraryModule } from '@automagical/utilities';
+import { MongoPersistenceModule } from '@ccontour/persistence';
+import { LIB_CONTROLLER_LOGIC, LibraryModule } from '@ccontour/utilities';
 import { DynamicModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 

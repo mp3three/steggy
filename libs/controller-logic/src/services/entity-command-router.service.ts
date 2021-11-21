@@ -7,8 +7,8 @@ import {
   LockDomainService,
   MediaPlayerDomainService,
   SwitchDomainService,
-} from '@automagical/home-assistant';
-import { AutoLogService } from '@automagical/utilities';
+} from '@ccontour/home-assistant';
+import { AutoLogService } from '@ccontour/utilities';
 import {
   BadRequestException,
   Injectable,

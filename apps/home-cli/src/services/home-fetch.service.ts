@@ -1,4 +1,4 @@
-import { FetchService, FetchWith, InjectConfig } from '@automagical/utilities';
+import { FetchService, FetchWith, InjectConfig } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { ADMIN_KEY, CONTROLLER_API } from '../config';

@@ -2,20 +2,20 @@ import {
   FanCacheDTO,
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
-} from '@automagical/controller-logic';
+} from '@ccontour/controller-logic';
 import {
   domain,
   HASS_DOMAINS,
   HassStateDTO,
-} from '@automagical/home-assistant';
+} from '@ccontour/home-assistant';
 import {
   ICONS,
   iRepl,
   PinnedItemService,
   PromptService,
   Repl,
-} from '@automagical/tty';
-import { IsEmpty } from '@automagical/utilities';
+} from '@ccontour/tty';
+import { IsEmpty } from '@ccontour/utilities';
 
 import {
   BaseDomainService,

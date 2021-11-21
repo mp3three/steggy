@@ -2,9 +2,9 @@ import {
   GENERIC_COMMANDS,
   GroupDTO,
   RoutineCommandGroupActionDTO,
-} from '@automagical/controller-logic';
-import { ICONS, PromptEntry, PromptService } from '@automagical/tty';
-import { AutoLogService } from '@automagical/utilities';
+} from '@ccontour/controller-logic';
+import { ICONS, PromptEntry, PromptService } from '@ccontour/tty';
+import { AutoLogService } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { HomeFetchService } from '../home-fetch.service';

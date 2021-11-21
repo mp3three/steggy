@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { FILTER_OPERATIONS, ResultControlDTO } from '@automagical/utilities';
+import { FILTER_OPERATIONS, ResultControlDTO } from '@ccontour/utilities';
 import { Document, Query, Types } from 'mongoose';
 
 import { filtersToMongoQuery } from '../includes';

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { IsEmpty } from '@automagical/utilities';
+import { IsEmpty } from '@ccontour/utilities';
 import {
   ArgumentMetadata,
   BadRequestException,

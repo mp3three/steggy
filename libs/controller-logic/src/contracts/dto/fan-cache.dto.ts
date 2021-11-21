@@ -1,4 +1,4 @@
-import { FanSpeeds } from '@automagical/home-assistant';
+import { FanSpeeds } from '@ccontour/home-assistant';
 
 export type FanCacheSpeeds = FanSpeeds | 'fanSpeedUp' | 'fanSpeedDown';
 export class FanCacheDTO {

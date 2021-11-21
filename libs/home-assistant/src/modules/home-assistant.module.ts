@@ -1,5 +1,5 @@
-import { LIB_HOME_ASSISTANT } from '@automagical/utilities';
-import { LibraryModule } from '@automagical/utilities';
+import { LIB_HOME_ASSISTANT } from '@ccontour/utilities';
+import { LibraryModule } from '@ccontour/utilities';
 import { Provider } from '@nestjs/common';
 
 import {

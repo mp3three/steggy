@@ -3,7 +3,7 @@ import {
   InjectConfig,
   LIB_TTY,
   TitleCase,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import chalk from 'chalk';
 

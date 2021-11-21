@@ -3,8 +3,8 @@ import {
   DeviceService,
   HASocketAPIService,
   RelatedDescriptionDTO,
-} from '@automagical/home-assistant';
-import { AuthStack } from '@automagical/server';
+} from '@ccontour/home-assistant';
+import { AuthStack } from '@ccontour/server';
 import { Controller, Get, Param } from '@nestjs/common';
 
 @Controller(`/device`)

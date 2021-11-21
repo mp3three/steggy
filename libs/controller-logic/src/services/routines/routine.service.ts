@@ -3,7 +3,7 @@ import {
   IsEmpty,
   OnEvent,
   ResultControlDTO,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 

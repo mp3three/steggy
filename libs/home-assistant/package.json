@@ -2,7 +2,7 @@
   "publishConfig": {
     "registry":"https://npm.pkg.github.com"
   },
-  "name": "@automagical/home-assistant",
+  "name": "@ccontour/home-assistant",
   "displayName": "Home Assistant",
   "license": "MIT",
   "version": "0.1.0"

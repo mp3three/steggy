@@ -2,10 +2,10 @@ import {
   FanCacheDTO,
   FanCacheSpeeds,
   RoomEntitySaveStateDTO,
-} from '@automagical/controller-logic';
-import { FanSpeeds, FanStateDTO } from '@automagical/home-assistant';
-import { DONE, ICONS, PromptEntry } from '@automagical/tty';
-import { TitleCase } from '@automagical/utilities';
+} from '@ccontour/controller-logic';
+import { FanSpeeds, FanStateDTO } from '@ccontour/home-assistant';
+import { DONE, ICONS, PromptEntry } from '@ccontour/tty';
+import { TitleCase } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';

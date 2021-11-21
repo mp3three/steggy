@@ -3,8 +3,8 @@ import {
   EntityManagerService,
   HASS_DOMAINS,
   LightStateDTO,
-} from '@automagical/home-assistant';
-import { AutoLogService } from '@automagical/utilities';
+} from '@ccontour/home-assistant';
+import { AutoLogService } from '@ccontour/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 

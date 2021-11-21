@@ -6,7 +6,7 @@ import {
   LifecycleService,
   NEST_NOOP_LOGGER,
   UsePrettyLogger,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';

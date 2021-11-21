@@ -18,14 +18,14 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@automagical/controller-logic": ["libs/controller-logic/src/index.ts"],
-      "@automagical/home-assistant": ["libs/home-assistant/src/index.ts"],
-      "@automagical/persistence": ["libs/persistence/src/index.ts"],
-      "@automagical/portainer": ["libs/portainer/src/index.ts"],
-      "@automagical/server": ["libs/server/src/index.ts"],
-      "@automagical/terminal": ["libs/terminal/src/index.ts"],
-      "@automagical/tty": ["libs/tty/src/index.ts"],
-      "@automagical/utilities": ["libs/utilities/src/index.ts"]
+      "@ccontour/controller-logic": ["libs/controller-logic/src/index.ts"],
+      "@ccontour/home-assistant": ["libs/home-assistant/src/index.ts"],
+      "@ccontour/persistence": ["libs/persistence/src/index.ts"],
+      "@ccontour/portainer": ["libs/portainer/src/index.ts"],
+      "@ccontour/server": ["libs/server/src/index.ts"],
+      "@ccontour/terminal": ["libs/terminal/src/index.ts"],
+      "@ccontour/tty": ["libs/tty/src/index.ts"],
+      "@ccontour/utilities": ["libs/utilities/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

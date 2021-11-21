@@ -1,9 +1,9 @@
-import { ICONS, iRepl, Repl } from '@automagical/tty';
+import { ICONS, iRepl, Repl } from '@ccontour/tty';
 import {
   AutoLogService,
   FetchService,
   InjectConfig,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import chalk from 'chalk';
 import execa from 'execa';
 import { lstatSync, mkdirSync, readdirSync, renameSync } from 'fs';

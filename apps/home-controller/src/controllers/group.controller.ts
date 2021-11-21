@@ -1,19 +1,19 @@
 import type {
   GENERIC_COMMANDS,
   ROOM_ENTITY_EXTRAS,
-} from '@automagical/controller-logic';
+} from '@ccontour/controller-logic';
 import {
   GroupDTO,
   GroupSaveStateDTO,
   GroupService,
   HomeControllerResponseLocals,
-} from '@automagical/controller-logic';
-import { BaseSchemaDTO } from '@automagical/persistence';
+} from '@ccontour/controller-logic';
+import { BaseSchemaDTO } from '@ccontour/persistence';
 import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
   Locals,
-} from '@automagical/server';
+} from '@ccontour/server';
 import {
   Body,
   Controller,

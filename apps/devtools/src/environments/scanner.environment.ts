@@ -3,7 +3,7 @@ import {
   AutoConfigService,
   BootstrapOptions,
   ScanConfig,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 
 AutoConfigService['USE_SCANNER_ASSETS'] = true;
 ApplicationModule.useThisConfig({

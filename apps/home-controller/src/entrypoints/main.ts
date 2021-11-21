@@ -1,4 +1,4 @@
-import { Bootstrap } from '@automagical/utilities';
+import { Bootstrap } from '@ccontour/utilities';
 
 import { BOOTSTRAP_OPTIONS } from '../environments/environment';
 import { HomeControllerModule } from '../modules';

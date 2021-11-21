@@ -2,7 +2,7 @@ import {
   LIB_CONTROLLER_LOGIC,
   LibraryModule,
   RegisterCache,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { DynamicModule } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 

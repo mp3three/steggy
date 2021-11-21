@@ -2,7 +2,7 @@
   "publishConfig": {
     "registry":"https://npm.pkg.github.com"
   },
-  "name": "@automagical/controller-logic",
+  "name": "@ccontour/controller-logic",
   "displayName": "Controller Logic",
   "license": "MIT",
   "version": "0.1.3"

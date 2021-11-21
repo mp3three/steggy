@@ -4,7 +4,7 @@ import {
   filterUnique,
   IsEmpty,
   PACKAGE_FILE,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';

@@ -1,4 +1,4 @@
-import { ResponseLocals } from '@automagical/server';
+import { ResponseLocals } from '@ccontour/server';
 import { Response } from 'express';
 
 import { RoomControllerSettingsDTO } from './dto';

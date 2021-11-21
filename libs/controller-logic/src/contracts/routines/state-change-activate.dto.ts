@@ -1,4 +1,4 @@
-import { FILTER_OPERATIONS, FilterValueType } from '@automagical/utilities';
+import { FILTER_OPERATIONS, FilterValueType } from '@ccontour/utilities';
 
 export class StateChangeActivateDTO {
   public entity: string;

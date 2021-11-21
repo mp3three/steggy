@@ -2,12 +2,12 @@ import {
   EntityManagerService,
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
-} from '@automagical/home-assistant';
+} from '@ccontour/home-assistant';
 import {
   AutoLogService,
   JSONFilterService,
   OnEvent,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 

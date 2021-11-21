@@ -1,4 +1,4 @@
-import { HTTP_METHODS } from '@automagical/utilities';
+import { HTTP_METHODS } from '@ccontour/utilities';
 
 import { RoomEntitySaveStateDTO } from '../rooms';
 import { GroupDTO, RoomDTO } from '../schemas';

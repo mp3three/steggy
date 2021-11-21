@@ -2,16 +2,16 @@ import {
   EntityCommandRouterService,
   LightingCacheDTO,
   LightManagerService,
-} from '@automagical/controller-logic';
+} from '@ccontour/controller-logic';
 import {
   domain,
   EntityManagerService,
   EntityRegistryItemDTO,
   HASS_DOMAINS,
   HassStateDTO,
-} from '@automagical/home-assistant';
-import { AuthStack, GENERIC_SUCCESS_RESPONSE } from '@automagical/server';
-import { AutoLogService } from '@automagical/utilities';
+} from '@ccontour/home-assistant';
+import { AuthStack, GENERIC_SUCCESS_RESPONSE } from '@ccontour/server';
+import { AutoLogService } from '@ccontour/utilities';
 import {
   BadRequestException,
   Body,

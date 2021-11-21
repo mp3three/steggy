@@ -5,7 +5,7 @@ import {
   FilterDTO,
   FilterValueType,
   ResultControlDTO,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { BadRequestException } from '@nestjs/common';
 import { isNumberString } from 'class-validator';
 import dayjs from 'dayjs';

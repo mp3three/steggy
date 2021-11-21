@@ -1,4 +1,4 @@
-import { TransformObjectId } from '@automagical/persistence';
+import { TransformObjectId } from '@ccontour/persistence';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Expose, Type } from 'class-transformer';
 import {

@@ -1,4 +1,4 @@
-import { AutoLogService } from '@automagical/utilities';
+import { AutoLogService } from '@ccontour/utilities';
 import {
   CallHandler,
   ExecutionContext,

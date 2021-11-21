@@ -1,4 +1,4 @@
-import { LIB_PERSISTENCE, LibraryModule } from '@automagical/utilities';
+import { LIB_PERSISTENCE, LibraryModule } from '@ccontour/utilities';
 
 import { ConnectService, EncryptionService } from '../services';
 

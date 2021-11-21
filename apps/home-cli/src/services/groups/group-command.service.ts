@@ -3,8 +3,8 @@ import {
   GroupDTO,
   GroupSaveStateDTO,
   RoomEntitySaveStateDTO,
-} from '@automagical/controller-logic';
-import { HASS_DOMAINS } from '@automagical/home-assistant';
+} from '@ccontour/controller-logic';
+import { HASS_DOMAINS } from '@ccontour/home-assistant';
 import {
   DONE,
   ICONS,
@@ -13,7 +13,7 @@ import {
   PromptEntry,
   PromptService,
   Repl,
-} from '@automagical/tty';
+} from '@ccontour/tty';
 import {
   ARRAY_OFFSET,
   AutoLogService,
@@ -22,7 +22,7 @@ import {
   ResultControlDTO,
   TitleCase,
   UP,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import {
   forwardRef,
   Inject,

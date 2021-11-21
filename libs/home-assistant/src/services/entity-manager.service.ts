@@ -1,4 +1,4 @@
-import { AutoLogService, OnEvent, sleep } from '@automagical/utilities';
+import { AutoLogService, OnEvent, sleep } from '@ccontour/utilities';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from 'eventemitter2';
 import { Observable, Subscriber } from 'rxjs';

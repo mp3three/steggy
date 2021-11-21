@@ -1,9 +1,9 @@
-import type { FetchWith } from '@automagical/utilities';
+import type { FetchWith } from '@ccontour/utilities';
 import {
   AutoLogService,
   FetchService,
   InjectConfig,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 

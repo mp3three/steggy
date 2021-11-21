@@ -1,6 +1,6 @@
-import { ScheduleActivateDTO } from '@automagical/controller-logic';
-import { ICONS, PromptEntry, PromptService } from '@automagical/tty';
-import { CronExpression } from '@automagical/utilities';
+import { ScheduleActivateDTO } from '@ccontour/controller-logic';
+import { ICONS, PromptEntry, PromptService } from '@ccontour/tty';
+import { CronExpression } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';

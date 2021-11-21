@@ -1,4 +1,4 @@
-import { AutoLogService, ModuleScannerService } from '@automagical/utilities';
+import { AutoLogService, ModuleScannerService } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { iRepl, REPL_CONFIG, ReplOptions } from '../contracts';

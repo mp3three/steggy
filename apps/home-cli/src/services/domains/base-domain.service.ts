@@ -1,23 +1,23 @@
-import { RoomEntitySaveStateDTO } from '@automagical/controller-logic';
+import { RoomEntitySaveStateDTO } from '@ccontour/controller-logic';
 import {
   domain,
   HASS_DOMAINS,
   HassStateDTO,
   RelatedDescriptionDTO,
-} from '@automagical/home-assistant';
+} from '@ccontour/home-assistant';
 import {
   DONE,
   ICONS,
   PinnedItemService,
   PromptEntry,
   PromptService,
-} from '@automagical/tty';
+} from '@ccontour/tty';
 import {
   AutoLogService,
   IsEmpty,
   sleep,
   TitleCase,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import {
   forwardRef,
   Inject,

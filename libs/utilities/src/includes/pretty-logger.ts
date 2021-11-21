@@ -206,7 +206,7 @@ export const PrettyNestLogger: Record<
       // Nothing actually useful for debugging
       message = prettyErrorMessage(context);
       // 🚩 I hereby stake my claim on this error message 🚩
-      context = `@automagical:BootErrorMessage`;
+      context = `@ccontour:BootErrorMessage`;
     }
     logger.error(
       `${highlightContext(context, 'bgRed')} ${

@@ -2,8 +2,8 @@ import {
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
-} from '@automagical/controller-logic';
-import { HASS_DOMAINS } from '@automagical/home-assistant';
+} from '@ccontour/controller-logic';
+import { HASS_DOMAINS } from '@ccontour/home-assistant';
 import {
   DONE,
   ICONS,
@@ -11,8 +11,8 @@ import {
   PromptEntry,
   PromptService,
   Repl,
-} from '@automagical/tty';
-import { AutoLogService, DOWN, IsEmpty, UP } from '@automagical/utilities';
+} from '@ccontour/tty';
+import { AutoLogService, DOWN, IsEmpty, UP } from '@ccontour/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import { encode } from 'ini';

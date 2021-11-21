@@ -1,4 +1,4 @@
-import { AuthStack } from '@automagical/server';
+import { AuthStack } from '@ccontour/server';
 import { applyDecorators, Controller, Provider } from '@nestjs/common';
 
 import {

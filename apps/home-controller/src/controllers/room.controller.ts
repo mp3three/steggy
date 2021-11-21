@@ -3,14 +3,14 @@ import {
   RoomEntityDTO,
   RoomService,
   RoomStateDTO,
-} from '@automagical/controller-logic';
-import { BaseSchemaDTO } from '@automagical/persistence';
+} from '@ccontour/controller-logic';
+import { BaseSchemaDTO } from '@ccontour/persistence';
 import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
   Locals,
   ResponseLocals,
-} from '@automagical/server';
+} from '@ccontour/server';
 import {
   Body,
   Controller,

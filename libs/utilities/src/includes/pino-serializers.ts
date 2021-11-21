@@ -1,4 +1,4 @@
-// import { APIRequest, APIResponse } from '@automagical/server';
+// import { APIRequest, APIResponse } from '@ccontour/server';
 
 export const PINO_SERIALIZERS = {
   parameters(parameters: unknown[]): unknown[] {

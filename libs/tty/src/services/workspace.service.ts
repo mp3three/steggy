@@ -3,7 +3,7 @@ import {
   METADATA_FILE,
   PACKAGE_FILE,
   PackageJsonDTO,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import JSON from 'comment-json';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';

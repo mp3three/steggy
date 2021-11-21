@@ -6,7 +6,7 @@ import {
   Repl,
   SCAN_CONFIG_CONFIGURATION,
   WorkspaceService
-} from '@automagical/tty';
+} from '@ccontour/tty';
 import {
   AutoLogService,
   AutomagicalConfig,
@@ -15,7 +15,7 @@ import {
   DOWN,
   TitleCase,
   UP
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { InternalServerErrorException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';

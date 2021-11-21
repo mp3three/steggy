@@ -1,5 +1,5 @@
-import { MainCLIService } from '@automagical/tty';
-import { Bootstrap } from '@automagical/utilities';
+import { MainCLIService } from '@ccontour/tty';
+import { Bootstrap } from '@ccontour/utilities';
 
 import { BOOTSTRAP_OPTIONS } from '../environments/environment';
 import { DevtoolsModule } from '../modules';

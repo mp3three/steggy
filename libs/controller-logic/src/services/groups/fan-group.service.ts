@@ -5,8 +5,8 @@ import {
   FanStateDTO,
   HASS_DOMAINS,
   HomeAssistantCoreService,
-} from '@automagical/home-assistant';
-import { AutoLogService } from '@automagical/utilities';
+} from '@ccontour/home-assistant';
+import { AutoLogService } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 

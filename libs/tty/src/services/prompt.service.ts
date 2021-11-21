@@ -3,7 +3,7 @@ import {
   InjectConfig,
   IsEmpty,
   PEAT,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import figlet from 'figlet';

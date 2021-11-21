@@ -1,9 +1,9 @@
-import { MainCLIModule } from '@automagical/tty';
+import { MainCLIModule } from '@ccontour/tty';
 import {
   APP_DEVTOOLS,
   ApplicationModule,
   UtilitiesModule,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { ConfigBuilderService, ImgurAlbumDownloadService } from '../services';

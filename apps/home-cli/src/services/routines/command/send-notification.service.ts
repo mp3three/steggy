@@ -1,5 +1,5 @@
-import { RoutineCommandSendNotificationDTO } from '@automagical/controller-logic';
-import { PromptService } from '@automagical/tty';
+import { RoutineCommandSendNotificationDTO } from '@ccontour/controller-logic';
+import { PromptService } from '@ccontour/tty';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

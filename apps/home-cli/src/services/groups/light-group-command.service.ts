@@ -4,15 +4,15 @@ import {
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
   RoutineCommandGroupActionDTO,
-} from '@automagical/controller-logic';
-import { LightStateDTO } from '@automagical/home-assistant';
+} from '@ccontour/controller-logic';
+import { LightStateDTO } from '@ccontour/home-assistant';
 import {
   ColorsService,
   ICONS,
   PromptEntry,
   PromptService,
-} from '@automagical/tty';
-import { AutoLogService, DOWN, TitleCase, UP } from '@automagical/utilities';
+} from '@ccontour/tty';
+import { AutoLogService, DOWN, TitleCase, UP } from '@ccontour/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 import chalk from 'chalk';

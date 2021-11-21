@@ -5,7 +5,7 @@ import {
   IsEmpty,
   TitleCase,
   UP,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { InternalServerErrorException } from '@nestjs/common';
 import chalk from 'chalk';
 import figlet from 'figlet';

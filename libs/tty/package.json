@@ -2,7 +2,7 @@
   "publishConfig": {
     "registry":"https://npm.pkg.github.com"
   },
-  "name": "@automagical/tty",
+  "name": "@ccontour/tty",
   "license": "MIT",
   "displayName": "TTY",
   "version": "0.1.1"

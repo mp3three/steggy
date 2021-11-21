@@ -8,7 +8,7 @@ import {
   IsEmpty,
   queryToControl,
   storage,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction } from 'express';
 import pino from 'pino';

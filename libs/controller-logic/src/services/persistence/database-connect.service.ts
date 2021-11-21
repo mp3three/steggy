@@ -1,5 +1,5 @@
-import { ConnectService } from '@automagical/persistence';
-import { InjectConfig } from '@automagical/utilities';
+import { ConnectService } from '@ccontour/persistence';
+import { InjectConfig } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { MongooseModuleOptions } from '@nestjs/mongoose';
 

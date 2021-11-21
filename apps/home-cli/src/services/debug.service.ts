@@ -1,4 +1,4 @@
-import { DONE, ICONS, PromptService, Repl } from '@automagical/tty';
+import { DONE, ICONS, PromptService, Repl } from '@ccontour/tty';
 import { dump } from 'js-yaml';
 import { Response } from 'node-fetch';
 

@@ -1,5 +1,5 @@
-import { LIB_TTY } from '@automagical/utilities';
-import { LibraryModule } from '@automagical/utilities';
+import { LIB_TTY } from '@ccontour/utilities';
+import { LibraryModule } from '@ccontour/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
 import {

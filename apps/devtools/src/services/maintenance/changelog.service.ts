@@ -8,13 +8,13 @@ import {
   Repl,
   SystemService,
   WorkspaceService,
-} from '@automagical/tty';
+} from '@ccontour/tty';
 import {
   APP_LIVING_DOCS,
   AutoLogService,
   IsEmpty,
   TitleCase,
-} from '@automagical/utilities';
+} from '@ccontour/utilities';
 import { eachSeries } from 'async';
 import Table from 'cli-table';
 import execa from 'execa';
