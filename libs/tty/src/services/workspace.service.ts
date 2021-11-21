@@ -21,7 +21,7 @@ import {
 @Injectable()
 export class WorkspaceService {
   /**
-   * automagical.json
+   * metadata.json
    */
   public METADATA = new Map<string, AutomagicalMetadataDTO>();
   public NX_METADATA: NXMetadata = JSON.parse(

@@ -28,7 +28,7 @@
         "main": "libs/home-assistant/src/index.ts",
         "assets": [
           "libs/home-assistant/*.md",
-          "libs/home-assistant/automagical.json"
+          "libs/home-assistant/metadata.json"
         ]
       }
     }

@@ -1,7 +1,7 @@
 {
   "implicitDependencies": {
     ".eslintrc.json": "*",
-    "automagical.json": {
+    "metadata.json": {
       "configuration": "*"
     },
     "nx.json": "*",

@@ -22,32 +22,32 @@
         "assets": [
           {
             "input": "libs/utilities",
-            "glob": "automagical.json",
+            "glob": "metadata.json",
             "output": "./assets/utilities"
           },
           {
             "input": "libs/home-assistant",
-            "glob": "automagical.json",
+            "glob": "metadata.json",
             "output": "./assets/home-assistant"
           },
           {
             "input": "libs/controller-logic",
-            "glob": "automagical.json",
+            "glob": "metadata.json",
             "output": "./assets/controller-logic"
           },
           {
             "input": "libs/server",
-            "glob": "automagical.json",
+            "glob": "metadata.json",
             "output": "./assets/server"
           },
           {
             "input": "libs/persistence",
-            "glob": "automagical.json",
+            "glob": "metadata.json",
             "output": "./assets/persistence"
           },
           {
             "input": "apps/home-controller",
-            "glob": "automagical.json",
+            "glob": "metadata.json",
             "output": "./assets/home-controller"
           }
         ],

@@ -58,8 +58,8 @@
   "settings": {
     "json.schemas": [
       {
-        "fileMatch": ["**/automagical.json"],
-        "url": "/schemas/json/automagical.schema.json"
+        "fileMatch": ["**/metadata.json"],
+        "url": "/schemas/json/metadata.schema.json"
       },
       {
         "fileMatch": ["apps/living-docs/changelog/**/*json"],

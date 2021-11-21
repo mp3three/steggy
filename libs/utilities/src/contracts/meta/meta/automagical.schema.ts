@@ -2,7 +2,7 @@
 export class AutomagicalMetadataDTO {
   configuration: Record<string, ConfigItem>;
 }
-export const METADATA_FILE = 'automagical.json';
+export const METADATA_FILE = 'metadata.json';
 export type ConfigItem<T extends AnyConfig = AnyConfig> = {
   configurable?: boolean;
   default?: unknown;

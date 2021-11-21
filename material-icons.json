@@ -104,7 +104,7 @@
     "*.strategy.ts": "nest-resolver",
     "*.workspace.ts": "crystal",
     "api": "prolog",
-    "automagical.json": "dinophp",
+    "metadata.json": "dinophp",
     "config.ts": "makefile",
     "deep": "perl",
     "devtools": "verilog",
