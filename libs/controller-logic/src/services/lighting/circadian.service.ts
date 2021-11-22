@@ -1,7 +1,7 @@
 import { Cron, CronExpression, InjectConfig } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
-import { EventEmitter2 } from 'eventemitter2';
+import EventEmitter2 from 'eventemitter3';
 
 import { CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP } from '../../config';
 import { CIRCADIAN_UPDATE } from '../../contracts';

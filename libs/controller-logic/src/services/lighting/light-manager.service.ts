@@ -12,7 +12,7 @@ import {
 } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
-import { EventEmitter2 } from 'eventemitter2';
+import EventEmitter2 from 'eventemitter3';
 
 import { MIN_BRIGHTNESS } from '../../config';
 import {
