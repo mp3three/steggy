@@ -17,7 +17,7 @@ The controller (currently) specializes in lighting and scene control, with some 
 2) Event triggered by cron schedule
 3) Event triggered by solar event
 
-### Installation
+### Docker Install
 
 > See wiki for development / bare metal install information
 
@@ -85,4 +85,56 @@ services:
 ## Home CLI
 
 Home CLI is the main application interface for the Home Controller.
-It is capable of manipulating single entitites, grouping th
+It is capable of manipulating single entitites, grouping together and working with multiple related entities, and creating routines for automatic changes.
+All routines and save states can be run directly through a `POST` command.
+These commands can be easily tied into existing Node Red / Home Assistant automations.
+
+![Group example setup](docs/group_example_setup.gif)
+
+### Installation
+
+Home CLI is distributed through NPM
+
+```bash
+# via yarn
+yarn global add @ccontour/home-cli
+# via npm
+npm install -g @ccontour/home-cli
+```
+
+This will create the `home-cli` command.
+
+### Configuration
+
+**Minimum configuration file**: `~/.config/home-cli`
+
+```ini
+[application]
+  ; Match to the key provided to the server
+  ADMIN_KEY=super secret password
+  ; Controller running on a different machine?
+  ; CONTROLLER_API=http://10.0.0.1:7000
+
+[libs.utilities]
+  LOG_LEVEL=debug
+```
+
+### Updating
+
+```bash
+# via yarn
+yarn global upgrade @ccontour/home-cli --latest
+# via npm
+# TODO: fill in
+```
+
+### Removing
+
+```bash
+# via yarn
+yarn global remove @ccontour/home-cli
+# via npm
+npm remove -g @ccontour/home-cli
+```
+
+This will **NOT** remove your configuration file.
