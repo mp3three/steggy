@@ -12,7 +12,7 @@ import {
 } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
-import EventEmitter2 from 'eventemitter3';
+import EventEmitter from 'eventemitter3';
 
 import { MIN_BRIGHTNESS } from '../../config';
 import {
@@ -46,7 +46,7 @@ export class LightManagerService {
     @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly circadianService: CircadianService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter,
     @InjectConfig(MIN_BRIGHTNESS) private readonly minBrightness: number,
   ) {}
 

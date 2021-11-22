@@ -1,7 +1,7 @@
 import { Injectable, Type } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
-import EventEmitter2 from 'eventemitter3';
+import EventEmitter from 'eventemitter3';
 
 import { LOG_CONTEXT } from '../../contracts/logger';
 import {
@@ -15,7 +15,7 @@ export class EventsExplorerService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly discoveryService: DiscoveryService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter,
     private readonly reflector: Reflector,
     private readonly metadataScanner: MetadataScanner,
   ) {}

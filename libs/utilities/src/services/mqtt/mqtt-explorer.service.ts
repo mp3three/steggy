@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
-import EventEmitter2 from 'eventemitter3';
+import EventEmitter from 'eventemitter3';
 import { Client } from 'mqtt';
 
 import {
@@ -68,7 +68,7 @@ export class MQTTExplorerService {
     private readonly discoveryService: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
     private readonly mqttService: MqttService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter,
   ) {}
 
   public subscribers: MqttSubscriber[] = [];
