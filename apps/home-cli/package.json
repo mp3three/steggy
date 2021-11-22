@@ -5,13 +5,16 @@
     "url": "https://github.com/ccontour/automagical"
   },
   "bin": {
-    "home-cli": "main.sh"
+    "home-cli": "main.js"
+  },
+  "dependencies": {
+    "eventemitter3": "^4.0.7"
   },
   "name": "@ccontour/home-cli",
   "license": "MIT",
   "main": "main.js",
   "displayName": "Home CLI",
-  "version": "0.5.21",
+  "version": "0.5.1",
   "homepage": "https://github.com/ccontour/automagical",
   "repository": {
     "type": "git",

@@ -106,7 +106,7 @@ export class AutoConfigService {
   }
 
   private loadMetadata() {
-    const isDevelopment = !existsSync(join(cwd(), 'assets'));
+    const isDevelopment = !existsSync(join(__dirname, 'assets'));
     const path = isDevelopment
       ? join(
           cwd(),
@@ -115,7 +115,7 @@ export class AutoConfigService {
           this.APPLICATION.description,
           'assets',
         )
-      : join(join(cwd(), 'assets'));
+      : join(join(__dirname, 'assets'));
     const contents = readdirSync(path);
     contents.forEach((folder) => {
       this.metadata.set(

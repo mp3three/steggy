@@ -9,7 +9,6 @@ import JSON from 'comment-json';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { cwd } from 'process';
-import { fileURLToPath } from 'url';
 
 import {
   NX_METADATA_FILE,
@@ -19,10 +18,7 @@ import {
   NXWorkspaceDTO,
 } from '../contracts/dto';
 
-const isDevelopment = !(
-  existsSync(join(cwd(), 'assets')) ||
-  existsSync(join(dirname(fileURLToPath(import.meta.url)), 'assets'))
-);
+const isDevelopment = !existsSync(join(__dirname, 'assets'));
 
 @Injectable()
 export class WorkspaceService {
@@ -37,7 +33,10 @@ export class WorkspaceService {
   public PACKAGES = new Map<string, PackageJsonDTO>();
 
   public ROOT_PACKAGE: PackageJsonDTO = JSON.parse(
-    readFileSync(PACKAGE_FILE, 'utf-8'),
+    readFileSync(
+      join(isDevelopment ? cwd() : __dirname, PACKAGE_FILE),
+      'utf-8',
+    ),
   );
 
   /**
@@ -62,7 +61,7 @@ export class WorkspaceService {
 
   public path(project: string, type: 'package' | 'metadata'): string {
     return join(
-      cwd(),
+      isDevelopment ? cwd() : __dirname,
       isDevelopment
         ? String(this.workspace.projects[project].root)
         : String(this.workspace.projects[project].root)
@@ -111,7 +110,12 @@ export class WorkspaceService {
   }
 
   private loadNX(): void {
-    this.workspace = JSON.parse(readFileSync(NX_WORKSPACE_FILE, 'utf-8'));
+    this.workspace = JSON.parse(
+      readFileSync(
+        join(isDevelopment ? cwd() : __dirname, NX_WORKSPACE_FILE),
+        'utf-8',
+      ),
+    );
     const { projects } = this.workspace;
     Object.keys(projects).forEach((key) => {
       // Shh... this is actually a string before this point
