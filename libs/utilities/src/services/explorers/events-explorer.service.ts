@@ -1,7 +1,7 @@
 import { Injectable, Type } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
-import { EventEmitter2 } from 'eventemitter2';
+import EventEmitter2 from 'eventemitter3';
 
 import { LOG_CONTEXT } from '../../contracts/logger';
 import {
@@ -59,15 +59,13 @@ export class EventsExplorerService {
     if (!eventListenerMetadata) {
       return;
     }
-    const { event, options } = eventListenerMetadata;
+    const { event } = eventListenerMetadata;
     const context = instance.constructor[LOG_CONTEXT];
     this.logger.debug(
       `${context}#${key} event subscribe {${JSON.stringify(event)}}`,
     );
-    this.eventEmitter.on(
-      event,
-      (...parameters: unknown[]) => instance[key].call(instance, ...parameters),
-      options,
+    this.eventEmitter.on(event, (...parameters: unknown[]) =>
+      instance[key].call(instance, ...parameters),
     );
   }
 }

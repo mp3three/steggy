@@ -5,13 +5,17 @@
     "url": "https://github.com/ccontour/automagical"
   },
   "bin": {
-    "home-cli": "./main.js"
+    "home-cli": "main.js"
+  },
+  "dependencies": {
+    "eventemitter3": "^4.0.7",
+    "pino-pretty": "^5.1.1"
   },
   "name": "@ccontour/home-cli",
   "license": "MIT",
   "main": "main.js",
   "displayName": "Home CLI",
-  "version": "0.5.1",
+  "version": "0.5.31",
   "homepage": "https://github.com/ccontour/automagical",
   "repository": {
     "type": "git",

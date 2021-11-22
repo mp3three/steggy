@@ -1,6 +1,6 @@
 {
   "name": "automagical",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "license": "MIT",
   "publisher": "ghcr.io/ccontour",
   "author": {
@@ -40,7 +40,7 @@
     "core-js": "^3.19.1",
     "cron": "^1.8.2",
     "dayjs": "^1.10.4",
-    "eventemitter2": "^6.4.4",
+    "eventemitter3": "^4.0.7",
     "execa": "^5.1.1",
     "faker": "^5.4.0",
     "figlet": "^1.5.0",

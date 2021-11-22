@@ -27,6 +27,7 @@ import {
 } from './activate';
 import { RoutineService } from './routine.service';
 
+type RService = RoutineService;
 @Injectable()
 export class RoutineActivateService {
   constructor(
@@ -36,7 +37,7 @@ export class RoutineActivateService {
     private readonly solarActivate: SolarBuilderService,
     private readonly promptService: PromptService,
     @Inject(forwardRef(() => RoutineService))
-    private readonly routineCommand: RoutineService,
+    private readonly routineCommand: RService,
   ) {}
 
   public async build(

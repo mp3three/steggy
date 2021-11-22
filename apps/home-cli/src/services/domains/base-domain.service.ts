@@ -12,12 +12,7 @@ import {
   PromptEntry,
   PromptService,
 } from '@ccontour/tty';
-import {
-  AutoLogService,
-  IsEmpty,
-  sleep,
-  TitleCase,
-} from '@ccontour/utilities';
+import { AutoLogService, IsEmpty, sleep, TitleCase } from '@ccontour/utilities';
 import {
   forwardRef,
   Inject,
@@ -33,6 +28,7 @@ import { dump } from 'js-yaml';
 import { DeviceService } from '../device.service';
 import { HomeFetchService } from '../home-fetch.service';
 
+type DService = DeviceService;
 const HEADER_SEPARATOR = 0;
 const DELAY = 100;
 @Injectable()
@@ -42,7 +38,7 @@ export class BaseDomainService {
     protected readonly fetchService: HomeFetchService,
     protected readonly promptService: PromptService,
     @Inject(forwardRef(() => DeviceService))
-    protected readonly deviceService: DeviceService,
+    protected readonly deviceService: DService,
     private readonly pinnedItem: PinnedItemService<never>,
   ) {}
 

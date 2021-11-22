@@ -394,7 +394,7 @@ export class GroupCommandService implements iRepl {
     console.log(
       [
         [
-          chalk.magenta.bold`${group.friendlyName}`,
+          chalk.blue.bold`${group.friendlyName}`,
           chalk.yellow.bold`${TitleCase(group.type)} Group`,
         ].join(chalk.cyan(' - ')),
         ...group.entities

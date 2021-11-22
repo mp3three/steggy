@@ -27,38 +27,43 @@
       "options": {
         "assets": [
           {
+            "input": "./",
+            "glob": "workspace.json",
+            "output": "./"
+          },
+          {
             "input": "libs/utilities",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/utilities"
           },
           {
             "input": "libs/tty",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/tty"
           },
           {
             "input": "apps/home-cli",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/home-cli"
           },
           {
             "input": "libs/home-assistant",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/home-assistant"
           },
           {
             "input": "libs/controller-logic",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/controller-logic"
           },
           {
             "input": "libs/server",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/server"
           },
           {
             "input": "libs/persistence",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/persistence"
           }
         ],
@@ -112,7 +117,7 @@
             "description": "Minify it"
           },
           {
-            "command": "mv dist/apps/home-cli/minified.js dist/apps/home-cli/main.js",
+            "command": "echo '#!/usr/bin/env node' > dist/apps/home-cli/main.js; cat dist/apps/home-cli/minified.js >> dist/apps/home-cli/main.js",
             "description": "Replace output (can't be done in one step)"
           },
           {

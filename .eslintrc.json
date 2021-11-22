@@ -34,6 +34,7 @@
         // Undecided on if this is worth keeping
         "@typescript-eslint/require-await": "warn",
         "security/detect-non-literal-regexp": "off",
+        "unicorn/prefer-module": "off",
         "@typescript-eslint/no-magic-numbers": "warn",
         "@typescript-eslint/prefer-includes": "warn",
         "@typescript-eslint/no-throw-literal": "error",

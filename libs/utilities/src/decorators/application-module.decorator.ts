@@ -1,5 +1,5 @@
 import { ModuleMetadata, Provider } from '@nestjs/common';
-import { EventEmitter2 } from 'eventemitter2';
+import EventEmitter2 from 'eventemitter3';
 
 import { USE_THIS_CONFIG } from '../contracts';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
@@ -44,13 +44,7 @@ export function ApplicationModule(
       inject: [EventEmitterService],
       provide: EventEmitter2,
       useFactory(service: EventEmitterService) {
-        return new EventEmitter2({
-          delimiter: '/',
-          maxListeners: service.maxListeners,
-          newListener: false,
-          removeListener: false,
-          wildcard: true,
-        });
+        return new EventEmitter2();
       },
     },
     ...metadata.globals,
