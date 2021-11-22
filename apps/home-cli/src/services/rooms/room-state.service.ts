@@ -30,14 +30,14 @@ import { GroupCommandService } from '../groups';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from './room-command.service';
 
-
+type RCService = RoomCommandService;
 @Injectable()
 export class RoomStateService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
     @Inject(forwardRef(() => RoomCommandService))
-    private readonly roomService: RoomCommandService,
+    private readonly roomService: RCService,
     private readonly entityService: EntityService,
     private readonly groupService: GroupCommandService,
     private readonly fetchService: HomeFetchService,

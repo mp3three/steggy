@@ -29,6 +29,7 @@ import { EntityService } from '../entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { GroupCommandService } from './group-command.service';
 
+type GService = GroupCommandService;
 
 @Injectable()
 export class GroupStateService {
@@ -37,7 +38,7 @@ export class GroupStateService {
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
     @Inject(forwardRef(() => GroupCommandService))
-    private readonly groupService: GroupCommandService,
+    private readonly groupService: GService,
     private readonly entityService: EntityService,
     private readonly pinnedItems: PinnedItemService<{ group: string }>,
   ) {}

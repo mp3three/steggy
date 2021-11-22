@@ -26,6 +26,8 @@ import { RoomCommandService } from '../rooms';
 import { RoutineActivateService } from './routine-activate.service';
 import { RoutineCommandService } from './routine-command.service';
 
+type RCService = RoomCommandService;
+type RService = RoutineCommandService;
 @Injectable()
 export class RoutineService {
   constructor(
@@ -33,9 +35,9 @@ export class RoutineService {
     private readonly promptService: PromptService,
     private readonly activateService: RoutineActivateService,
     @Inject(forwardRef(() => RoomCommandService))
-    private readonly roomCommand: RoomCommandService,
+    private readonly roomCommand: RCService,
     @Inject(forwardRef(() => RoutineCommandService))
-    private readonly activateCommand: RoutineCommandService,
+    private readonly activateCommand: RService,
     private readonly pinnedItems: PinnedItemService,
   ) {}
 
