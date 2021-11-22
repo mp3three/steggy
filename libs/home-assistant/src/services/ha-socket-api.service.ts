@@ -9,7 +9,7 @@ import {
   sleep,
 } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
-import { EventEmitter2 } from 'eventemitter2';
+import EventEmitter2 from 'eventemitter3';
 import WS from 'ws';
 
 import {

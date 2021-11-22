@@ -3,17 +3,13 @@ import {
   BaseSchemaDTO,
   EncryptionService,
 } from '@ccontour/persistence';
-import {
-  AutoLogService,
-  ResultControlDTO,
-  ToClass,
-} from '@ccontour/utilities';
+import { AutoLogService, ResultControlDTO, ToClass } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { EventEmitter2 } from 'eventemitter2';
+import EventEmitter2 from 'eventemitter3';
 import { Model } from 'mongoose';
 
-import { ROOM_UPDATE,RoomDocument, RoomDTO } from '../../contracts';
+import { ROOM_UPDATE, RoomDocument, RoomDTO } from '../../contracts';
 
 @Injectable()
 export class RoomPersistenceService extends BaseMongoService {

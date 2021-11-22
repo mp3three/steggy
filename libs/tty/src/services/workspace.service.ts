@@ -4,11 +4,12 @@ import {
   PACKAGE_FILE,
   PackageJsonDTO,
 } from '@ccontour/utilities';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import JSON from 'comment-json';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { cwd } from 'process';
+import { fileURLToPath } from 'url';
 
 import {
   NX_METADATA_FILE,
@@ -18,15 +19,18 @@ import {
   NXWorkspaceDTO,
 } from '../contracts/dto';
 
+const isDevelopment = !(
+  existsSync(join(cwd(), 'assets')) ||
+  existsSync(join(dirname(fileURLToPath(import.meta.url)), 'assets'))
+);
+
 @Injectable()
 export class WorkspaceService {
   /**
    * metadata.json
    */
   public METADATA = new Map<string, AutomagicalMetadataDTO>();
-  public NX_METADATA: NXMetadata = JSON.parse(
-    readFileSync(NX_METADATA_FILE, 'utf-8'),
-  );
+  public NX_METADATA: NXMetadata;
   /**
    * package.json
    */
@@ -59,7 +63,11 @@ export class WorkspaceService {
   public path(project: string, type: 'package' | 'metadata'): string {
     return join(
       cwd(),
-      this.workspace.projects[project].root,
+      isDevelopment
+        ? String(this.workspace.projects[project].root)
+        : String(this.workspace.projects[project].root)
+            .replace('libs/', 'assets/')
+            .replace('apps/', 'assets/'),
       type === 'package' ? PACKAGE_FILE : METADATA_FILE,
     );
   }
@@ -82,6 +90,9 @@ export class WorkspaceService {
   }
 
   protected onModuleInit(): void {
+    if (existsSync(NX_METADATA_FILE)) {
+      this.NX_METADATA = JSON.parse(readFileSync(NX_METADATA_FILE, 'utf-8'));
+    }
     this.loadNX();
     this.loadPackages();
     this.loadMetadata();
@@ -104,10 +115,16 @@ export class WorkspaceService {
     const { projects } = this.workspace;
     Object.keys(projects).forEach((key) => {
       // Shh... this is actually a string before this point
-      const basePath = String(projects[key]);
-      projects[key] = JSON.parse(
-        readFileSync(join(basePath, 'project.json'), 'utf-8'),
-      );
+      const basePath = isDevelopment
+        ? String(projects[key])
+        : String(projects[key])
+            .replace('libs/', 'assets/')
+            .replace('apps/', 'assets/');
+      const path = join(basePath, 'project.json');
+      if (!existsSync(path)) {
+        return;
+      }
+      projects[key] = JSON.parse(readFileSync(path, 'utf-8'));
     });
   }
 
@@ -116,9 +133,7 @@ export class WorkspaceService {
       const packageFile = this.path(project, 'package');
       const exists = existsSync(packageFile);
       if (!exists) {
-        throw new InternalServerErrorException(
-          `Missing package file: ${packageFile}`,
-        );
+        return;
       }
       const data = JSON.parse(readFileSync(packageFile, 'utf-8'));
       this.PACKAGES.set(project, data);

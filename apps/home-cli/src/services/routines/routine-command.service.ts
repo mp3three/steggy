@@ -29,18 +29,22 @@ import { SendNotificationService, WebhookService } from './command';
 import { GroupActionService } from './group-action.service';
 import { RoutineService } from './routine.service';
 
+type RService = RoutineService;
+type RSService = RoomStateService;
+type RCService = RoomCommandService;
+
 @Injectable()
 export class RoutineCommandService {
   constructor(
     private readonly promptService: PromptService,
     private readonly groupAction: GroupActionService,
     @Inject(forwardRef(() => RoutineService))
-    private readonly routineCommand: RoutineService,
+    private readonly routineCommand: RService,
     @Inject(forwardRef(() => RoomStateService))
-    private readonly roomState: RoomStateService,
+    private readonly roomState: RSService,
     private readonly groupState: GroupStateService,
     @Inject(forwardRef(() => RoomCommandService))
-    private readonly roomCommand: RoomCommandService,
+    private readonly roomCommand: RCService,
     private readonly entityCommand: EntityService,
     private readonly sendNotification: SendNotificationService,
     private readonly webhookService: WebhookService,
