@@ -32,11 +32,6 @@
             "output": "./"
           },
           {
-            "input": "apps/home-cli",
-            "glob": "cli.sh",
-            "output": "./"
-          },
-          {
             "input": "libs/utilities",
             "glob": "*.json",
             "output": "./assets/utilities"
