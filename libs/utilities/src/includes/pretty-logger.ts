@@ -22,7 +22,6 @@ const logger = pino({
     translateTime: 'SYS:ddd hh:MM:ss.l',
   },
 });
-AutoLogService.logger = logger;
 export type CONTEXT_COLORS =
   | 'bgBlue'
   | 'bgYellow'
@@ -263,6 +262,7 @@ export const PrettyNestLogger: Record<
 };
 
 export function UsePrettyLogger(): void {
+  AutoLogService.logger = logger;
   AutoLogService.prettyLogger = true;
   AutoLogService.nestLogger = PrettyNestLogger;
   AutoLogService.logger = logger;
