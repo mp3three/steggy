@@ -2,7 +2,7 @@ import { BaseMongoService, BaseSchemaDTO } from '@ccontour/persistence';
 import { AutoLogService, ResultControlDTO, ToClass } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import EventEmitter2 from 'eventemitter3';
+import EventEmitter from 'eventemitter3';
 import { Model } from 'mongoose';
 
 import { RountineDocument, ROUTINE_UPDATE, RoutineDTO } from '../../contracts';
@@ -10,7 +10,7 @@ import { RountineDocument, ROUTINE_UPDATE, RoutineDTO } from '../../contracts';
 @Injectable()
 export class RoutinePersistenceService extends BaseMongoService {
   constructor(
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter,
     private readonly logger: AutoLogService,
     @InjectModel(RoutineDTO.name)
     private readonly model: Model<RountineDocument>,

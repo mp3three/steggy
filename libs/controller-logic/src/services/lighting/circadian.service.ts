@@ -1,7 +1,7 @@
 import { Cron, CronExpression, InjectConfig } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
-import EventEmitter2 from 'eventemitter3';
+import EventEmitter from 'eventemitter3';
 
 import { CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP } from '../../config';
 import { CIRCADIAN_UPDATE } from '../../contracts';
@@ -22,7 +22,7 @@ export class CircadianService {
     private readonly maxTemperature: number,
     @InjectConfig(CIRCADIAN_MIN_TEMP)
     private readonly minTemperature: number,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter,
   ) {}
   public CURRENT_LIGHT_TEMPERATURE: number;
 

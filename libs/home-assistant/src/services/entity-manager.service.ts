@@ -1,6 +1,6 @@
 import { AutoLogService, OnEvent, sleep } from '@ccontour/utilities';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import EventEmitter2 from 'eventemitter3';
+import EventEmitter from 'eventemitter3';
 import { Observable, Subscriber } from 'rxjs';
 
 import {
@@ -29,7 +29,7 @@ export class EntityManagerService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly socketService: HASocketAPIService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter,
   ) {}
   public readonly WATCHERS = new Map<string, unknown[]>();
   private readonly ENTITIES = new Map<string, HassStateDTO>();

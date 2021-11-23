@@ -9,7 +9,7 @@ import {
   sleep,
 } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
-import EventEmitter2 from 'eventemitter3';
+import EventEmitter from 'eventemitter3';
 import WS from 'ws';
 
 import {
@@ -47,7 +47,7 @@ export class HASocketAPIService {
   constructor(
     @InjectLogger()
     private readonly logger: AutoLogService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter,
     @InjectConfig(BASE_URL)
     private readonly baseUrl: string,
     @InjectConfig(TOKEN)

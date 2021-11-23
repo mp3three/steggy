@@ -1,5 +1,5 @@
 import { ModuleMetadata, Provider } from '@nestjs/common';
-import EventEmitter2 from 'eventemitter3';
+import EventEmitter from 'eventemitter3';
 
 import { USE_THIS_CONFIG } from '../contracts';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
@@ -7,9 +7,8 @@ import {
   ACTIVE_APPLICATION,
   AutomagicalConfig,
 } from '../contracts/meta/config';
-import { RegisterCache } from '../includes/';
+import { RegisterCache } from '../includes';
 import { UtilitiesModule } from '../modules';
-import { EventEmitterService } from '../services';
 
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
   application: symbol;
@@ -41,10 +40,9 @@ export function ApplicationModule(
       useValue: metadata.application,
     },
     {
-      inject: [EventEmitterService],
-      provide: EventEmitter2,
-      useFactory(service: EventEmitterService) {
-        return new EventEmitter2();
+      provide: EventEmitter,
+      useFactory() {
+        return new EventEmitter();
       },
     },
     ...metadata.globals,
@@ -66,7 +64,6 @@ export function ApplicationModule(
     RegisterCache(),
     ...metadata.imports,
   ];
-
   return (target) => {
     target[LOGGER_LIBRARY] = metadata.application.description;
     propertiesKeys.forEach((property) => {
