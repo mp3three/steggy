@@ -1,12 +1,6 @@
 import { HTTP_METHODS } from '@ccontour/utilities';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEnum,
-  IsNumber,
-  IsObject,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
 
 import { RoomEntitySaveStateDTO } from '../rooms';
 import { GroupDTO, RoomDTO } from '../schemas';

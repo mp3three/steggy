@@ -1,9 +1,3 @@
-import {
-  AutomagicalMetadataDTO,
-  METADATA_FILE,
-  PACKAGE_FILE,
-  PackageJsonDTO,
-} from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import JSON from 'comment-json';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
@@ -11,11 +5,15 @@ import { dirname, join } from 'path';
 import { cwd } from 'process';
 
 import {
+  AutomagicalMetadataDTO,
+  METADATA_FILE,
   NX_METADATA_FILE,
   NX_WORKSPACE_FILE,
   NXMetadata,
   NXProjectTypes,
   NXWorkspaceDTO,
+  PACKAGE_FILE,
+  PackageJsonDTO,
 } from '../contracts';
 
 /**
