@@ -10,8 +10,10 @@ import {
 } from '@ccontour/home-assistant';
 import { AuthStack } from '@ccontour/server';
 import { Body, Controller, Get, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller(`/debug`)
+@ApiTags('debug')
 @AuthStack()
 export class DebugController {
   constructor(

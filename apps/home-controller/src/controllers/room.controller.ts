@@ -20,9 +20,11 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('/room')
 @AuthStack()
+@ApiTags('room')
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
@@ -36,6 +38,8 @@ export class RoomController {
   }
 
   @Post(`/:room/entity`)
+  @ApiBody({ type: [RoomEntityDTO] })
+  @ApiResponse({ type: RoomDTO })
   public async addEntity(
     @Param('room') room: string,
     @Body() entity: RoomEntityDTO,
@@ -44,6 +48,8 @@ export class RoomController {
   }
 
   @Post(`/:room/state`)
+  @ApiBody({ type: [RoomStateDTO] })
+  @ApiResponse({ type: RoomStateDTO })
   public async addState(
     @Param('room') room: string,
     @Body() state: RoomStateDTO,
@@ -52,6 +58,7 @@ export class RoomController {
   }
 
   @Post(`/:room/group`)
+  @ApiResponse({ type: RoomDTO })
   public async attachGroup(
     @Param('room') room: string,
     @Body() group: { id: string },
@@ -60,6 +67,8 @@ export class RoomController {
   }
 
   @Post(`/`)
+  @ApiBody({ type: [RoomDTO] })
+  @ApiResponse({ type: RoomDTO })
   public async create(@Body() data: RoomDTO): Promise<RoomDTO> {
     return await this.roomService.create(BaseSchemaDTO.cleanup(data));
   }
@@ -73,6 +82,7 @@ export class RoomController {
   }
 
   @Delete(`/:room/entity/:entity`)
+  @ApiResponse({ type: RoomDTO })
   public async deleteEntity(
     @Param('room') room: string,
     @Param('entity') entity: string,
@@ -81,6 +91,7 @@ export class RoomController {
   }
 
   @Delete(`/:room/group/:group`)
+  @ApiResponse({ type: RoomDTO })
   public async deleteGroup(
     @Param('room') room: string,
     @Param('group') group: string,
@@ -89,6 +100,7 @@ export class RoomController {
   }
 
   @Delete(`/:room/state/:state`)
+  @ApiResponse({ type: RoomDTO })
   public async deleteState(
     @Param('room') room: string,
     @Param('state') state: string,
@@ -97,16 +109,20 @@ export class RoomController {
   }
 
   @Get('/:room')
+  @ApiResponse({ type: RoomDTO })
   public async describe(@Param('room') room: string): Promise<RoomDTO> {
     return await this.roomService.get(room);
   }
 
   @Get('/')
+  @ApiResponse({ type: [RoomDTO] })
   public async list(@Locals() { control }: ResponseLocals): Promise<RoomDTO[]> {
     return await this.roomService.list(control);
   }
 
   @Put(`/:room`)
+  @ApiBody({ type: [RoomDTO] })
+  @ApiResponse({ type: RoomDTO })
   public async update(
     @Param('room') room: string,
     @Body() data: Partial<RoomDTO>,
@@ -115,6 +131,8 @@ export class RoomController {
   }
 
   @Put(`/:room/state/:state`)
+  @ApiBody({ type: [RoomStateDTO] })
+  @ApiResponse({ type: RoomStateDTO })
   public async updateState(
     @Param('room') room: string,
     @Param('state') state: string,

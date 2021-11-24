@@ -30,14 +30,15 @@ import { BasicExceptionFilter } from '../filters';
 import { AdminKeyGuard, IsAuthorizedGuard } from '../guards';
 import { LoggingInterceptor } from '../interceptors';
 import { InitMiddleware } from '../middleware';
-import { RouteInjector } from '../services';
+import { RouteInjector, SwaggerService } from '../services';
 
 @LibraryModule({
-  exports: [RouteInjector],
+  exports: [RouteInjector, SwaggerService],
   library: LIB_SERVER,
   providers: [
     AdminKeyGuard,
     RouteInjector,
+    SwaggerService,
     BasicExceptionFilter,
     IsAuthorizedGuard,
     LoggingInterceptor,

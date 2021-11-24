@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 import { ClimateCacheDTO, FanCacheDTO, LightingCacheDTO } from '../dto';
 
 export enum LIGHTING_MODE {
@@ -6,9 +8,13 @@ export enum LIGHTING_MODE {
 }
 
 export class RoomStateDTO {
+  @ApiProperty()
   public friendlyName: string;
+  @ApiProperty()
   public id: string;
+  @ApiProperty()
   public states: RoomEntitySaveStateDTO[];
+  @ApiProperty({ required: false })
   public tags?: string[];
 }
 

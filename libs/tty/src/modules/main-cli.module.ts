@@ -10,7 +10,6 @@ import {
   PromptService,
   ReplExplorerService,
   SystemService,
-  WorkspaceService,
 } from '../services';
 
 @LibraryModule({
@@ -20,7 +19,6 @@ import {
     PinnedItemService,
     PromptService,
     SystemService,
-    WorkspaceService,
   ],
   imports: [DiscoveryModule],
   library: LIB_TTY,
@@ -32,7 +30,6 @@ import {
     PromptService,
     ReplExplorerService,
     SystemService,
-    WorkspaceService,
   ],
 })
 export class MainCLIModule {}

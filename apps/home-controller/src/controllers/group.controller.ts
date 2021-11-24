@@ -9,11 +9,7 @@ import {
   HomeControllerResponseLocals,
 } from '@ccontour/controller-logic';
 import { BaseSchemaDTO } from '@ccontour/persistence';
-import {
-  AuthStack,
-  GENERIC_SUCCESS_RESPONSE,
-  Locals,
-} from '@ccontour/server';
+import { AuthStack, GENERIC_SUCCESS_RESPONSE, Locals } from '@ccontour/server';
 import {
   Body,
   Controller,
@@ -23,8 +19,10 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('/group')
+@ApiTags('group')
 @AuthStack()
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}

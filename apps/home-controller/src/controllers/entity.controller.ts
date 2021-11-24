@@ -22,7 +22,9 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('entity')
 @Controller('/entity')
 @AuthStack()
 export class EntityController {

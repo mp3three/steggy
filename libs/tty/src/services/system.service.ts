@@ -4,6 +4,7 @@ import {
   filterUnique,
   IsEmpty,
   PACKAGE_FILE,
+  WorkspaceService,
 } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
@@ -20,7 +21,6 @@ import { inc } from 'semver';
 
 import { NXAffected } from '../contracts';
 import { PromptService } from './prompt.service';
-import { WorkspaceService } from './workspace.service';
 
 /**
  * Class for working with the host operating system,

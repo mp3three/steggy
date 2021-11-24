@@ -40,7 +40,7 @@
     "SWAGGER_PATH": {
       "type": "string",
       "default": "/api",
-      "description": "Where to access the swagger pages at?"
+      "description": "Where to access the swagger pages at? Blank to disable"
     },
     "ADMIN_KEY": {
       "type": "string",

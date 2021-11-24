@@ -7,13 +7,13 @@ import {
   PromptService,
   Repl,
   SystemService,
-  WorkspaceService,
 } from '@ccontour/tty';
 import {
   APP_LIVING_DOCS,
   AutoLogService,
   IsEmpty,
   TitleCase,
+  WorkspaceService,
 } from '@ccontour/utilities';
 import { eachSeries } from 'async';
 import Table from 'cli-table';

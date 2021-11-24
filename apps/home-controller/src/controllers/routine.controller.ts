@@ -14,9 +14,11 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller(`/routine`)
 @AuthStack()
+@ApiTags('routine')
 export class RoutineController {
   constructor(private readonly routineService: RoutineService) {}
 

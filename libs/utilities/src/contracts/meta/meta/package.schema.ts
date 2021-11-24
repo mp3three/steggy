@@ -1,4 +1,5 @@
 export class PackageJsonDTO {
+  description: string;
   displayName: string;
   name: string;
   version: string;
