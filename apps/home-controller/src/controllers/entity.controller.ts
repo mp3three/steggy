@@ -26,7 +26,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('entity')
 @Controller('/entity')
@@ -47,6 +47,9 @@ export class EntityController {
       type: 'object',
     },
   })
+  @ApiOperation({
+    description: `Update an entity id in the home assistant registry`,
+  })
   public async changeId(
     @Body() { updateId }: Record<'updateId', string>,
     @Param('id') entityId: string,
@@ -58,6 +61,9 @@ export class EntityController {
 
   @Get(`/registry/:id`)
   @ApiResponse({ type: EntityRegistryItemDTO })
+  @ApiOperation({
+    description: `Retreive entity regristry data`,
+  })
   public async fromRegistry(
     @Param('id') id: string,
   ): Promise<EntityRegistryItemDTO> {
@@ -66,6 +72,9 @@ export class EntityController {
 
   @Get('/id/:entityId')
   @ApiResponse({ type: HassStateDTO })
+  @ApiOperation({
+    description: `Retrieve current entity state by id`,
+  })
   public async getEntityState(
     @Param('entityId') entityId: string,
   ): Promise<HassStateDTO> {
@@ -76,28 +85,37 @@ export class EntityController {
   @ApiResponse({
     schema: { items: { type: 'string' } },
   })
+  @ApiOperation({
+    description: `List all known entity ids`,
+  })
   public listEntities(): string[] {
     return this.entityManager.listEntities();
   }
 
   @Post(`/record/:entityId`)
-  @ApiResponse({ schema: { type: 'object' } })
+  @ApiResponse({ schema: { items: { type: 'object' } } })
   @ApiBody({
     schema: {
       properties: { duration: { type: 'string' } },
       type: 'object',
     },
   })
+  @ApiOperation({
+    description: `Watch an entity for state changes, return all observed results`,
+  })
   public async record(
     @Param('entityId') id: string,
     @Body() { duration }: Record<'duration', number>,
-  ): Promise<unknown> {
+  ): Promise<unknown[]> {
     return await this.entityManager.record(id, duration);
   }
 
   @Put('/command/:id/:command')
   @ApiGenericResponse()
   @ApiBody({ schema: { type: 'object' } })
+  @ApiOperation({
+    description: `Process a generic entity command through the command router`,
+  })
   public async routeCommand(
     @Param('id') id: string,
     @Param('command') command: string,
@@ -110,6 +128,9 @@ export class EntityController {
   @Put(`/light-state/:id`)
   @ApiGenericResponse()
   @ApiBody({ type: LightingCacheDTO })
+  @ApiOperation({
+    description: `Modify a light state using the light manager`,
+  })
   public async setLightState(
     @Param('id') id: string,
     @Body() data: Partial<LightingCacheDTO> = {},
@@ -135,6 +156,9 @@ export class EntityController {
       properties: { name: { type: 'string' } },
       type: 'object',
     },
+  })
+  @ApiOperation({
+    description: `Change the friendly name of an entity (affects home assistant registry)`,
   })
   public async updateEntity(
     @Param('entityId') entityId: string,

@@ -9,8 +9,8 @@ export function AuthStack(): ReturnType<typeof applyDecorators> {
     UseGuards(AdminKeyGuard, IsAuthorizedGuard),
     ApiHeader({
       description: 'Admin auth password',
+      example: 'super secret password',
       name: ADMIN_KEY_HEADER,
-      // required: true,
     }),
   );
 }

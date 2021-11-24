@@ -11,7 +11,7 @@ import {
 } from '@ccontour/home-assistant';
 import { AuthStack } from '@ccontour/server';
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller(`/debug`)
 @ApiTags('debug')
@@ -32,6 +32,9 @@ export class DebugController {
       },
     },
   })
+  @ApiOperation({
+    description: `Retrieve current state cache for all lights with a state of 'on'`,
+  })
   public async activeLights(): Promise<Record<string, LightingCacheDTO>> {
     const lights = await this.lightManger.getActiveLights();
     const out: Record<string, LightingCacheDTO> = {};
@@ -51,6 +54,9 @@ export class DebugController {
       type: 'object',
     },
   })
+  @ApiOperation({
+    description: `Retrieve lat/long as defined in home assistant`,
+  })
   public getLocation(): Record<'latitude' | 'longitude', number> {
     return {
       latitude: this.solarCalc.latitude,
@@ -60,6 +66,9 @@ export class DebugController {
 
   @Get(`/hass-config`)
   @ApiResponse({ type: HassConfig })
+  @ApiOperation({
+    description: `Retrieve home assistant config`,
+  })
   public async hassConfig(): Promise<HassConfig> {
     return await this.socketService.getConfig();
   }
@@ -71,6 +80,9 @@ export class DebugController {
       properties: { template: { type: 'string' } },
       type: 'object',
     },
+  })
+  @ApiOperation({
+    description: `Take in a template string, and return back the rendered version`,
   })
   public async renderTemplate(
     @Body() { template }: { template: string },
@@ -85,6 +97,9 @@ export class DebugController {
       properties: { template: { type: 'string' } },
       type: 'object',
     },
+  })
+  @ApiOperation({
+    description: `Take in a template string, render it, then send it as a home assistant notification`,
   })
   public async sendNotification(
     @Body() { template }: { template: string },

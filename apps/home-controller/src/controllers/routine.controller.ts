@@ -28,7 +28,13 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiBody, ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiExtraModels,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @Controller(`/routine`)
 @AuthStack()
@@ -50,6 +56,9 @@ export class RoutineController {
 
   @Post('/:routine')
   @ApiGenericResponse()
+  @ApiOperation({
+    description: `Activate a routine`,
+  })
   public async activate(
     @Param('routine') routine: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
@@ -60,12 +69,18 @@ export class RoutineController {
   @Post(`/`)
   @ApiBody({ type: RoutineDTO })
   @ApiResponse({ type: RoutineDTO })
+  @ApiOperation({
+    description: `Create new routine`,
+  })
   public async create(@Body() body: RoutineDTO): Promise<RoutineDTO> {
     return await this.routineService.create(body);
   }
 
   @Delete(`/:routine`)
   @ApiGenericResponse()
+  @ApiOperation({
+    description: `Soft delete routine`,
+  })
   public async delete(
     @Param('routine') routine: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
@@ -75,6 +90,9 @@ export class RoutineController {
 
   @Get(`/:routine`)
   @ApiResponse({ type: RoutineDTO })
+  @ApiOperation({
+    description: `Load routine by id`,
+  })
   public async findById(
     @Param('routine') routine: string,
   ): Promise<RoutineDTO> {
@@ -83,6 +101,9 @@ export class RoutineController {
 
   @Get(`/`)
   @ApiResponse({ type: [RoutineDTO] })
+  @ApiOperation({
+    description: `List all routines`,
+  })
   public async list(
     @Locals() { control }: ResponseLocals,
   ): Promise<RoutineDTO[]> {
@@ -92,6 +113,9 @@ export class RoutineController {
   @Put(`/:routine`)
   @ApiBody({ type: RoutineDTO })
   @ApiResponse({ type: RoutineDTO })
+  @ApiOperation({
+    description: `Modify a routine`,
+  })
   public async update(
     @Param('routine') routine: string,
     @Body() body: RoutineDTO,
