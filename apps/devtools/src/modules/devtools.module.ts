@@ -6,11 +6,19 @@ import {
 } from '@ccontour/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { ConfigBuilderService, ImgurAlbumDownloadService } from '../services';
+import {
+  ChangelogService,
+  ConfigBuilderService,
+  ImgurAlbumDownloadService,
+} from '../services';
 
 @ApplicationModule({
   application: APP_DEVTOOLS,
   imports: [DiscoveryModule, MainCLIModule, UtilitiesModule],
-  providers: [ConfigBuilderService, ImgurAlbumDownloadService],
+  providers: [
+    ConfigBuilderService,
+    ImgurAlbumDownloadService,
+    ChangelogService,
+  ],
 })
 export class DevtoolsModule {}

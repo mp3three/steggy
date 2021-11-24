@@ -1,20 +1,14 @@
-import {
-  ICONS,
-  iRepl,
-  PromptEntry,
-  PromptService,
-  Repl,
-  SCAN_CONFIG_CONFIGURATION,
-  WorkspaceService
-} from '@ccontour/tty';
+import { ICONS, iRepl, PromptEntry, PromptService, Repl } from '@ccontour/tty';
 import {
   AutoLogService,
   AutomagicalConfig,
   AutomagicalStringConfig,
   ConfigTypeDTO,
   DOWN,
+  SCAN_CONFIG_CONFIGURATION,
   TitleCase,
-  UP
+  UP,
+  WorkspaceService,
 } from '@ccontour/utilities';
 import { InternalServerErrorException } from '@nestjs/common';
 import { eachSeries } from 'async';
