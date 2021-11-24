@@ -34,12 +34,6 @@ export class SwaggerService {
       this.activeApplication.description,
     );
     const { displayName, description, version } = data;
-
-    this.logger.error({
-      description,
-      displayName,
-      version,
-    });
     const config = new DocumentBuilder()
       .setTitle(displayName)
       .setDescription(description)

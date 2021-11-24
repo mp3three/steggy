@@ -25,6 +25,7 @@ const isDevelopment = existsSync(join(cwd(), 'automagical.code-workspace'));
 
 @Injectable()
 export class WorkspaceService {
+  public IS_DEVELOPMENT = isDevelopment;
   /**
    * metadata.json
    */
