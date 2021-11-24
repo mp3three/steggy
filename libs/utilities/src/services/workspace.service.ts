@@ -1,9 +1,3 @@
-import {
-  AutomagicalMetadataDTO,
-  METADATA_FILE,
-  PACKAGE_FILE,
-  PackageJsonDTO,
-} from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import JSON from 'comment-json';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
@@ -11,17 +5,25 @@ import { dirname, join } from 'path';
 import { cwd } from 'process';
 
 import {
+  AutomagicalMetadataDTO,
+  METADATA_FILE,
   NX_METADATA_FILE,
   NX_WORKSPACE_FILE,
   NXMetadata,
   NXProjectTypes,
   NXWorkspaceDTO,
-} from '../contracts/dto';
+  PACKAGE_FILE,
+  PackageJsonDTO,
+} from '../contracts';
 
-const isDevelopment = !existsSync(join(__dirname, 'assets'));
+/**
+ * The workspace file is def not getting out into any builds, seems like a reasonably unique name
+ */
+const isDevelopment = existsSync(join(cwd(), 'automagical.code-workspace'));
 
 @Injectable()
 export class WorkspaceService {
+  public IS_DEVELOPMENT = isDevelopment;
   /**
    * metadata.json
    */
@@ -43,6 +45,21 @@ export class WorkspaceService {
    * NX workspaces
    */
   public workspace: NXWorkspaceDTO;
+
+  private loaded = false;
+
+  public initMetadata(): void {
+    if (this.loaded) {
+      return;
+    }
+    this.loaded = true;
+    if (existsSync(NX_METADATA_FILE)) {
+      this.NX_METADATA = JSON.parse(readFileSync(NX_METADATA_FILE, 'utf-8'));
+    }
+    this.loadNX();
+    this.loadPackages();
+    this.loadMetadata();
+  }
 
   public isApplication(project: string): boolean {
     return this.workspace.projects[project].projectType === 'application';
@@ -89,12 +106,7 @@ export class WorkspaceService {
   }
 
   protected onModuleInit(): void {
-    if (existsSync(NX_METADATA_FILE)) {
-      this.NX_METADATA = JSON.parse(readFileSync(NX_METADATA_FILE, 'utf-8'));
-    }
-    this.loadNX();
-    this.loadPackages();
-    this.loadMetadata();
+    this.initMetadata();
   }
 
   private loadMetadata(): void {

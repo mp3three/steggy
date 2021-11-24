@@ -40,7 +40,7 @@
     "SWAGGER_PATH": {
       "type": "string",
       "default": "/api",
-      "description": "Where to access the swagger pages at?"
+      "description": "Where to access the swagger pages at? Blank to disable"
     },
     "ADMIN_KEY": {
       "type": "string",
@@ -52,6 +52,11 @@
       "default": false,
       "description": "Ignore all authentication, and just let requests through",
       "careful": true
+    },
+    "HIDE_VERSION": {
+      "type": "boolean",
+      "default": false,
+      "description": "Disable the /version endpoint"
     }
   }
 }

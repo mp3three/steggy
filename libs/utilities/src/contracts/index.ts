@@ -9,3 +9,4 @@ export * from './lifecycle';
 export * from './logger';
 export * from './meta';
 export * from './mqtt';
+export * from './nx-workspace.dto';

@@ -14,7 +14,6 @@ fi
 # Extract metadata from local files
 JSON=$(cat "apps/$DIR/package.json")
 VERSION=$(cat package.json | jq .version | xargs)
-DESCRIPTION=$(echo $JSON | jq .description | xargs)
 HOMEPAGE=$(cat package.json | jq .author.url | xargs)
 EMAIL=$(cat package.json | jq .author.email | xargs)
 PUBLISHER=$(cat package.json | jq .publisher | xargs)
@@ -32,7 +31,6 @@ BUILD_ARGS="$BUILD_ARGS --build-arg URL=$HOMEPAGE"
 BUILD_ARGS="$BUILD_ARGS --build-arg VCS_URL=$VCS_URL"
 BUILD_ARGS="$BUILD_ARGS --build-arg NAME=$NAME"
 BUILD_ARGS="$BUILD_ARGS --build-arg VCS_REF=$VCS_REF"
-BUILD_ARGS="$BUILD_ARGS --build-arg DESCRIPTION=$DESCRIPTION"
 
 COMMAND="docker build -t $PUBLISHER/$1:latest -f apps/$DIR/Dockerfile $BUILD_ARGS ."
 echo $COMMAND

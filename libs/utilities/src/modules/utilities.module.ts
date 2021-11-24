@@ -17,12 +17,14 @@ import {
   LogExplorerService,
   ModuleScannerService,
   ScheduleExplorerService,
+  WorkspaceService,
 } from '../services';
 
 @LibraryModule({
   exports: [
     AutoConfigService,
     CacheProviderService,
+    WorkspaceService,
     JSONFilterService,
     FetchService,
     AutoLogService,
@@ -34,6 +36,7 @@ import {
     AutoLogService,
     AutoConfigService,
     LifecycleService,
+    WorkspaceService,
     ModuleScannerService,
     JSONFilterService,
     EventsExplorerService,
@@ -52,6 +55,7 @@ export class UtilitiesModule {
         ...extra,
         EventEmitterService,
         AutoConfigService,
+        WorkspaceService,
         AutoLogService,
         JSONFilterService,
         ModuleScannerService,
@@ -69,6 +73,7 @@ export class UtilitiesModule {
         ModuleScannerService,
         ScheduleExplorerService,
         JSONFilterService,
+        WorkspaceService,
         EventEmitterService,
         CacheProviderService,
         EventsExplorerService,

@@ -1,7 +1,12 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsString } from 'class-validator';
+
 export class KunamiCodeActivateDTO {
   /**
    * States from controller to match
    */
+  @ApiProperty()
+  @IsString({ each: true })
   public match: string[];
 
   /**
@@ -11,10 +16,15 @@ export class KunamiCodeActivateDTO {
    *
    * - sensor: reset ALL kunami activate watchers attached to this sensor as if that 1500 seconds happened immediately
    */
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
   public reset?: 'self' | 'sensor';
 
   /**
    * entity_id
    */
+  @ApiProperty()
+  @IsString()
   public sensor: string;
 }

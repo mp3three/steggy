@@ -1,5 +1,6 @@
 import { TransformObjectId } from '@ccontour/persistence';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import {
   IsDateString,
@@ -31,16 +32,19 @@ export class RoutineDTO {
    */
   @IsOptional()
   @IsString()
+  @ApiProperty({ required: false })
   @TransformObjectId()
   public _id?: string;
 
   @IsOptional()
   @ValidateNested({ each: true })
+  @ApiProperty({ required: false, type: [RoutineActivateDTO] })
   @Prop()
   public activate?: RoutineActivateDTO[];
 
   @IsOptional()
   @ValidateNested({ each: true })
+  @ApiProperty({ required: false, type: [RoutineCommandDTO] })
   @Prop()
   public command?: RoutineCommandDTO[];
 
@@ -49,6 +53,7 @@ export class RoutineDTO {
    */
   @IsOptional()
   @IsDateString()
+  @ApiProperty({ required: false })
   @Prop({
     index: true,
   })
@@ -57,10 +62,12 @@ export class RoutineDTO {
   @IsNumber()
   @IsOptional()
   @Prop({ default: null, type: 'number' })
+  @ApiProperty({ required: false })
   public deleted?: number;
 
   @IsString()
   @Prop({ required: true, type: 'string' })
+  @ApiProperty()
   @Expose()
   public friendlyName: string;
 
@@ -69,6 +76,7 @@ export class RoutineDTO {
    */
   @IsOptional()
   @IsDateString()
+  @ApiProperty({ required: false })
   @Prop({
     index: true,
   })
@@ -81,6 +89,7 @@ export class RoutineDTO {
     index: true,
   })
   @IsString()
+  @ApiProperty()
   @TransformObjectId()
   public room: string;
 }
