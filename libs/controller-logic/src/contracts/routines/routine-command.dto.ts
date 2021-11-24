@@ -1,4 +1,12 @@
 import { HTTP_METHODS } from '@ccontour/utilities';
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsEnum,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 import { RoomEntitySaveStateDTO } from '../rooms';
 import { GroupDTO, RoomDTO } from '../schemas';
@@ -20,6 +28,51 @@ export type GENERIC_COMMANDS =
   | 'setBrightness'
   | 'circadianOn';
 
+export class RoutineCommandRoomStateDTO {
+  @IsString()
+  @ApiProperty({ type: 'string' })
+  public room: string | RoomDTO;
+  @IsString()
+  @ApiProperty()
+  public state: string;
+}
+
+export class RoutineCommandGroupStateDTO {
+  @IsString()
+  @ApiProperty({ type: 'string' })
+  public group: string | GroupDTO;
+  @IsString()
+  @ApiProperty()
+  public state: string;
+}
+
+export class RoutineCommandGroupActionDTO {
+  @IsString()
+  @ApiProperty()
+  public command: GENERIC_COMMANDS;
+  @IsObject()
+  @IsOptional()
+  @ApiProperty()
+  public extra?: Record<string, unknown>;
+  @IsString()
+  @ApiProperty()
+  public group: string | GroupDTO;
+}
+
+export class RoutineCommandSendNotificationDTO {
+  @IsString()
+  public template: string;
+}
+
+export class RoutineCommandWebhookDTO {
+  @IsEnum(HTTP_METHODS)
+  @ApiProperty({ enum: Object.values(HTTP_METHODS) })
+  public method: HTTP_METHODS;
+  @ApiProperty()
+  @IsString()
+  public url: string;
+}
+
 export class RoutineCommandDTO<
   COMMAND =
     | RoutineCommandGroupActionDTO
@@ -29,41 +82,24 @@ export class RoutineCommandDTO<
     | RoutineCommandWebhookDTO
     | RoutineCommandGroupStateDTO,
 > {
+  @ApiProperty({
+    oneOf: [
+      { $ref: `#/components/schemas/${RoutineCommandGroupActionDTO.name}` },
+      { $ref: `#/components/schemas/${RoutineCommandRoomStateDTO.name}` },
+      {
+        $ref: `#/components/schemas/${RoutineCommandSendNotificationDTO.name}`,
+      },
+      { $ref: `#/components/schemas/${RoomEntitySaveStateDTO.name}` },
+      { $ref: `#/components/schemas/${RoutineCommandWebhookDTO.name}` },
+      { $ref: `#/components/schemas/${RoutineCommandGroupStateDTO.name}` },
+    ],
+  })
   public command: COMMAND;
+  @IsString()
   public friendlyName: string;
+  @IsString()
+  @IsOptional()
   public id?: string;
+  @IsEnum(ROUTINE_ACTIVATE_COMMAND)
   public type: ROUTINE_ACTIVATE_COMMAND;
-}
-
-export class RoutineCommandRoomActionDTO {
-  public brightness: number;
-  public command: Omit<GENERIC_COMMANDS, 'turnOn'>;
-  public entities: string[];
-  public groups: string[];
-  public room: string | RoomDTO;
-}
-
-export class RoutineCommandRoomStateDTO {
-  public room: string | RoomDTO;
-  public state: string;
-}
-
-export class RoutineCommandGroupStateDTO {
-  public group: string | GroupDTO;
-  public state: string;
-}
-
-export class RoutineCommandGroupActionDTO {
-  public command: GENERIC_COMMANDS;
-  public extra?: Record<string, unknown>;
-  public group: string | GroupDTO;
-}
-
-export class RoutineCommandSendNotificationDTO {
-  public template: string;
-}
-
-export class RoutineCommandWebhookDTO {
-  public method: HTTP_METHODS;
-  public url: string;
 }

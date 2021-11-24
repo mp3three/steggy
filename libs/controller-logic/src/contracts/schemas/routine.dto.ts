@@ -38,13 +38,13 @@ export class RoutineDTO {
 
   @IsOptional()
   @ValidateNested({ each: true })
-  @ApiProperty()
+  @ApiProperty({ required: false, type: [RoutineActivateDTO] })
   @Prop()
   public activate?: RoutineActivateDTO[];
 
   @IsOptional()
   @ValidateNested({ each: true })
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, type: [RoutineCommandDTO] })
   @Prop()
   public command?: RoutineCommandDTO[];
 

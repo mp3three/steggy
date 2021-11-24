@@ -1,5 +1,19 @@
-import { RoutineDTO, RoutineService } from '@ccontour/controller-logic';
 import {
+  KunamiCodeActivateDTO,
+  RoomEntitySaveStateDTO,
+  RoutineCommandGroupActionDTO,
+  RoutineCommandGroupStateDTO,
+  RoutineCommandRoomStateDTO,
+  RoutineCommandSendNotificationDTO,
+  RoutineCommandWebhookDTO,
+  RoutineDTO,
+  RoutineService,
+  ScheduleActivateDTO,
+  SolarActivateDTO,
+  StateChangeActivateDTO,
+} from '@ccontour/controller-logic';
+import {
+  ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
   Locals,
@@ -14,15 +28,28 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller(`/routine`)
 @AuthStack()
 @ApiTags('routine')
+@ApiExtraModels(
+  KunamiCodeActivateDTO,
+  SolarActivateDTO,
+  ScheduleActivateDTO,
+  StateChangeActivateDTO,
+  RoutineCommandGroupActionDTO,
+  RoutineCommandRoomStateDTO,
+  RoutineCommandSendNotificationDTO,
+  RoomEntitySaveStateDTO,
+  RoutineCommandWebhookDTO,
+  RoutineCommandGroupStateDTO,
+)
 export class RoutineController {
   constructor(private readonly routineService: RoutineService) {}
 
   @Post('/:routine')
+  @ApiGenericResponse()
   public async activate(
     @Param('routine') routine: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
@@ -31,11 +58,14 @@ export class RoutineController {
   }
 
   @Post(`/`)
+  @ApiBody({ type: RoutineDTO })
+  @ApiResponse({ type: RoutineDTO })
   public async create(@Body() body: RoutineDTO): Promise<RoutineDTO> {
     return await this.routineService.create(body);
   }
 
   @Delete(`/:routine`)
+  @ApiGenericResponse()
   public async delete(
     @Param('routine') routine: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
@@ -44,6 +74,7 @@ export class RoutineController {
   }
 
   @Get(`/:routine`)
+  @ApiResponse({ type: RoutineDTO })
   public async findById(
     @Param('routine') routine: string,
   ): Promise<RoutineDTO> {
@@ -51,6 +82,7 @@ export class RoutineController {
   }
 
   @Get(`/`)
+  @ApiResponse({ type: [RoutineDTO] })
   public async list(
     @Locals() { control }: ResponseLocals,
   ): Promise<RoutineDTO[]> {
@@ -58,6 +90,8 @@ export class RoutineController {
   }
 
   @Put(`/:routine`)
+  @ApiBody({ type: RoutineDTO })
+  @ApiResponse({ type: RoutineDTO })
   public async update(
     @Param('routine') routine: string,
     @Body() body: RoutineDTO,

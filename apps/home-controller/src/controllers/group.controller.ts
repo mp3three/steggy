@@ -1,4 +1,5 @@
-import type {
+import {
+  ENTITY_EXTRAS_SCHEMA,
   GENERIC_COMMANDS,
   ROOM_ENTITY_EXTRAS,
 } from '@ccontour/controller-logic';
@@ -9,7 +10,12 @@ import {
   HomeControllerResponseLocals,
 } from '@ccontour/controller-logic';
 import { BaseSchemaDTO } from '@ccontour/persistence';
-import { AuthStack, GENERIC_SUCCESS_RESPONSE, Locals } from '@ccontour/server';
+import {
+  ApiGenericResponse,
+  AuthStack,
+  GENERIC_SUCCESS_RESPONSE,
+  Locals,
+} from '@ccontour/server';
 import {
   Body,
   Controller,
@@ -19,7 +25,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('/group')
 @ApiTags('group')
@@ -28,6 +34,7 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Put(`/:group/command/:command`)
+  @ApiGenericResponse()
   public async activateCommand(
     @Param('group') group: string,
     @Param('command') command: GENERIC_COMMANDS,
@@ -42,6 +49,7 @@ export class GroupController {
   }
 
   @Post(`/:group/state/:state`)
+  @ApiGenericResponse()
   public async activateState(
     @Param('group') group: string,
     @Param('state') state: string,
@@ -51,6 +59,7 @@ export class GroupController {
   }
 
   @Post(`/:group/state`)
+  @ApiBody({ type: GroupSaveStateDTO })
   public async addState(
     @Param('group') group: string,
     @Body() state: GroupSaveStateDTO,
@@ -59,6 +68,7 @@ export class GroupController {
   }
 
   @Post('/:group/capture')
+  @ApiGenericResponse()
   public async captureCurrent(
     @Param('group') group: string,
     @Body() { name }: { name: string },
@@ -68,11 +78,14 @@ export class GroupController {
   }
 
   @Post('/')
+  @ApiBody({ type: GroupDTO })
+  @ApiResponse({ type: GroupDTO })
   public async createGroup(@Body() group: GroupDTO): Promise<GroupDTO> {
     return await this.groupService.create(BaseSchemaDTO.cleanup(group));
   }
 
   @Delete(`/:group`)
+  @ApiGenericResponse()
   public async deleteGroup(
     @Param('group') group: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
@@ -81,6 +94,7 @@ export class GroupController {
   }
 
   @Delete(`/:group/state/:state`)
+  @ApiResponse({ type: GroupDTO })
   public async deleteSaveSate(
     @Param('group') group: string,
     @Param('state') state: string,
@@ -89,11 +103,15 @@ export class GroupController {
   }
 
   @Get('/:group')
+  @ApiResponse({ type: GroupDTO })
+  @ApiBody({ type: GroupDTO })
   public async describe(@Param('group') group: string): Promise<GroupDTO> {
     return await this.groupService.get(group);
   }
 
   @Put(`/:group/expand`)
+  @ApiBody({ schema: ENTITY_EXTRAS_SCHEMA })
+  @ApiGenericResponse()
   public async expandState(
     @Param('group') group: string,
     @Body() state: ROOM_ENTITY_EXTRAS,
@@ -103,6 +121,7 @@ export class GroupController {
   }
 
   @Get(`/`)
+  @ApiResponse({ type: [GroupDTO] })
   public async listGroups(
     @Locals() { control }: HomeControllerResponseLocals,
   ): Promise<GroupDTO[]> {
@@ -110,6 +129,7 @@ export class GroupController {
   }
 
   @Delete(`/:group/truncate`)
+  @ApiResponse({ type: GroupDTO })
   public async truncateStates(
     @Param('group') group: string,
   ): Promise<GroupDTO> {
@@ -117,6 +137,8 @@ export class GroupController {
   }
 
   @Put('/:group')
+  @ApiResponse({ type: GroupDTO })
+  @ApiBody({ type: GroupDTO })
   public async update(
     @Param('group') id: string,
     @Body() body: Partial<GroupDTO>,
@@ -125,6 +147,8 @@ export class GroupController {
   }
 
   @Put(`/:group/state/:state`)
+  @ApiResponse({ type: GroupDTO })
+  @ApiBody({ type: GroupSaveStateDTO })
   public async updateState(
     @Param('group') group: string,
     @Param('state') state: string,

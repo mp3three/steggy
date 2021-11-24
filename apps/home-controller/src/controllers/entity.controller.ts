@@ -10,7 +10,11 @@ import {
   HASS_DOMAINS,
   HassStateDTO,
 } from '@ccontour/home-assistant';
-import { AuthStack, GENERIC_SUCCESS_RESPONSE } from '@ccontour/server';
+import {
+  ApiGenericResponse,
+  AuthStack,
+  GENERIC_SUCCESS_RESPONSE,
+} from '@ccontour/server';
 import { AutoLogService } from '@ccontour/utilities';
 import {
   BadRequestException,
@@ -22,7 +26,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('entity')
 @Controller('/entity')
@@ -36,6 +40,13 @@ export class EntityController {
   ) {}
 
   @Put('/update-id/:id')
+  @ApiGenericResponse()
+  @ApiBody({
+    schema: {
+      properties: { updateId: { type: 'string' } },
+      type: 'object',
+    },
+  })
   public async changeId(
     @Body() { updateId }: Record<'updateId', string>,
     @Param('id') entityId: string,
@@ -46,6 +57,7 @@ export class EntityController {
   }
 
   @Get(`/registry/:id`)
+  @ApiResponse({ type: EntityRegistryItemDTO })
   public async fromRegistry(
     @Param('id') id: string,
   ): Promise<EntityRegistryItemDTO> {
@@ -53,6 +65,7 @@ export class EntityController {
   }
 
   @Get('/id/:entityId')
+  @ApiResponse({ type: HassStateDTO })
   public async getEntityState(
     @Param('entityId') entityId: string,
   ): Promise<HassStateDTO> {
@@ -60,11 +73,21 @@ export class EntityController {
   }
 
   @Get('/list')
+  @ApiResponse({
+    schema: { items: { type: 'string' } },
+  })
   public listEntities(): string[] {
     return this.entityManager.listEntities();
   }
 
   @Post(`/record/:entityId`)
+  @ApiResponse({ schema: { type: 'object' } })
+  @ApiBody({
+    schema: {
+      properties: { duration: { type: 'string' } },
+      type: 'object',
+    },
+  })
   public async record(
     @Param('entityId') id: string,
     @Body() { duration }: Record<'duration', number>,
@@ -73,6 +96,8 @@ export class EntityController {
   }
 
   @Put('/command/:id/:command')
+  @ApiGenericResponse()
+  @ApiBody({ schema: { type: 'object' } })
   public async routeCommand(
     @Param('id') id: string,
     @Param('command') command: string,
@@ -83,6 +108,8 @@ export class EntityController {
   }
 
   @Put(`/light-state/:id`)
+  @ApiGenericResponse()
+  @ApiBody({ type: LightingCacheDTO })
   public async setLightState(
     @Param('id') id: string,
     @Body() data: Partial<LightingCacheDTO> = {},
@@ -102,6 +129,13 @@ export class EntityController {
    * Change friendly name for an entity
    */
   @Put('/rename/:entityId')
+  @ApiGenericResponse()
+  @ApiBody({
+    schema: {
+      properties: { name: { type: 'string' } },
+      type: 'object',
+    },
+  })
   public async updateEntity(
     @Param('entityId') entityId: string,
     @Body() body: Record<'name', string>,

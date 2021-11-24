@@ -6,7 +6,7 @@ import {
 } from '@ccontour/home-assistant';
 import { AuthStack } from '@ccontour/server';
 import { Controller, Get, Param } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller(`/device`)
 @ApiTags('device')
@@ -18,6 +18,7 @@ export class DeviceController {
   ) {}
 
   @Get(`/inspect/:device`)
+  @ApiResponse({ type: RelatedDescriptionDTO })
   public async findRelated(
     @Param('device') id: string,
   ): Promise<RelatedDescriptionDTO> {
@@ -25,6 +26,7 @@ export class DeviceController {
   }
 
   @Get(`/list`)
+  @ApiResponse({ type: [DeviceListItemDTO] })
   public async listDevices(): Promise<DeviceListItemDTO[]> {
     return await this.socketService.listDevices();
   }

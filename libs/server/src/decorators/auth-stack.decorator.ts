@@ -1,7 +1,16 @@
 import { applyDecorators, UseGuards } from '@nestjs/common';
+import { ApiHeader } from '@nestjs/swagger';
 
+import { ADMIN_KEY_HEADER } from '../contracts';
 import { AdminKeyGuard, IsAuthorizedGuard } from '../guards';
 
 export function AuthStack(): ReturnType<typeof applyDecorators> {
-  return UseGuards(AdminKeyGuard, IsAuthorizedGuard);
+  return applyDecorators(
+    UseGuards(AdminKeyGuard, IsAuthorizedGuard),
+    ApiHeader({
+      description: 'Admin auth password',
+      name: ADMIN_KEY_HEADER,
+      // required: true,
+    }),
+  );
 }

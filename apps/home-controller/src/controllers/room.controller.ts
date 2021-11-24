@@ -38,7 +38,7 @@ export class RoomController {
   }
 
   @Post(`/:room/entity`)
-  @ApiBody({ type: [RoomEntityDTO] })
+  @ApiBody({ type: RoomEntityDTO })
   @ApiResponse({ type: RoomDTO })
   public async addEntity(
     @Param('room') room: string,
@@ -48,7 +48,7 @@ export class RoomController {
   }
 
   @Post(`/:room/state`)
-  @ApiBody({ type: [RoomStateDTO] })
+  @ApiBody({ type: RoomStateDTO })
   @ApiResponse({ type: RoomStateDTO })
   public async addState(
     @Param('room') room: string,
@@ -67,7 +67,7 @@ export class RoomController {
   }
 
   @Post(`/`)
-  @ApiBody({ type: [RoomDTO] })
+  @ApiBody({ type: RoomDTO })
   @ApiResponse({ type: RoomDTO })
   public async create(@Body() data: RoomDTO): Promise<RoomDTO> {
     return await this.roomService.create(BaseSchemaDTO.cleanup(data));
@@ -121,7 +121,7 @@ export class RoomController {
   }
 
   @Put(`/:room`)
-  @ApiBody({ type: [RoomDTO] })
+  @ApiBody({ type: RoomDTO })
   @ApiResponse({ type: RoomDTO })
   public async update(
     @Param('room') room: string,
@@ -131,7 +131,7 @@ export class RoomController {
   }
 
   @Put(`/:room/state/:state`)
-  @ApiBody({ type: [RoomStateDTO] })
+  @ApiBody({ type: RoomStateDTO })
   @ApiResponse({ type: RoomStateDTO })
   public async updateState(
     @Param('room') room: string,
