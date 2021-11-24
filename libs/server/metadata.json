@@ -52,6 +52,11 @@
       "default": false,
       "description": "Ignore all authentication, and just let requests through",
       "careful": true
+    },
+    "HIDE_VERSION": {
+      "type": "boolean",
+      "default": false,
+      "description": "Disable the /version endpoint"
     }
   }
 }

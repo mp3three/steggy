@@ -26,6 +26,7 @@ import {
   SSL_KEY,
   SSL_PORT,
 } from '../config';
+import { GenericController } from '../controllers';
 import { BasicExceptionFilter } from '../filters';
 import { AdminKeyGuard, IsAuthorizedGuard } from '../guards';
 import { LoggingInterceptor } from '../interceptors';
@@ -33,11 +34,13 @@ import { InitMiddleware } from '../middleware';
 import { RouteInjector, SwaggerService } from '../services';
 
 @LibraryModule({
+  controllers: [GenericController],
   exports: [RouteInjector, SwaggerService],
   library: LIB_SERVER,
   providers: [
     AdminKeyGuard,
     RouteInjector,
+    GenericController,
     SwaggerService,
     BasicExceptionFilter,
     IsAuthorizedGuard,
