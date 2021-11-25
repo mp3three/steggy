@@ -89,9 +89,10 @@ export class RoutineDTO {
     index: true,
   })
   @IsString()
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @TransformObjectId()
-  public room: string;
+  public room?: string;
 }
 
 export type RountineDocument = RoutineDTO & Document;

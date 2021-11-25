@@ -7,6 +7,7 @@ import { ServerModule } from '@ccontour/server';
 import { APP_HOME_CONTROLLER, ApplicationModule } from '@ccontour/utilities';
 
 import {
+  AnimationController,
   DebugController,
   DeviceController,
   EntityController,
@@ -19,6 +20,7 @@ import { ApplicationService } from '../services';
 @ApplicationModule({
   application: APP_HOME_CONTROLLER,
   controllers: [
+    AnimationController,
     DebugController,
     DeviceController,
     EntityController,

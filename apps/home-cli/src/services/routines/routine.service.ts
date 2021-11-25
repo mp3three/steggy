@@ -9,14 +9,10 @@ import {
   PinnedItemService,
   PromptEntry,
   PromptService,
+  Repl,
 } from '@ccontour/tty';
 import { IsEmpty, ResultControlDTO } from '@ccontour/utilities';
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
+import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
@@ -28,7 +24,11 @@ import { RoutineCommandService } from './routine-command.service';
 
 type RCService = RoomCommandService;
 type RService = RoutineCommandService;
-@Injectable()
+@Repl({
+  category: 'Control',
+  icon: ICONS.ROUTINE,
+  name: 'Routine',
+})
 export class RoutineService {
   constructor(
     private readonly fetchService: HomeFetchService,
@@ -40,6 +40,43 @@ export class RoutineService {
     private readonly activateCommand: RService,
     private readonly pinnedItems: PinnedItemService,
   ) {}
+
+  public async create(room?: RoomDTO | string): Promise<RoutineDTO> {
+    const friendlyName = await this.promptService.friendlyName();
+    return await this.fetchService.fetch<RoutineDTO, RoutineDTO>({
+      body: {
+        friendlyName,
+        room: typeof room === 'string' ? room : room?._id,
+      },
+      method: `post`,
+      url: `/routine`,
+    });
+  }
+
+  public async exec(): Promise<void> {
+    const list = await this.list();
+    let action = await this.promptService.pickOne<RoutineDTO | string>(
+      `Pick routine`,
+      [
+        ...this.promptService.conditionalEntries(!IsEmpty(list), [
+          new inquirer.Separator(chalk.white`Current routines`),
+          ...(list.map((i) => [
+            i.friendlyName,
+            i,
+          ]) as PromptEntry<RoutineDTO>[]),
+        ]),
+        new inquirer.Separator(chalk.white`Actions`),
+        [`${ICONS.CREATE}Create new`, 'create'],
+      ],
+    );
+    if (action === 'create') {
+      action = await this.create();
+    }
+    if (typeof action === 'string') {
+      throw new NotImplementedException();
+    }
+    await this.processRoutine(action);
+  }
 
   public async get(id: string): Promise<RoutineDTO> {
     return await this.fetchService.fetch({
@@ -84,15 +121,7 @@ export class RoutineService {
     }
     if (action === 'create') {
       room = room || (await this.roomCommand.pickOne());
-      const friendlyName = await this.promptService.friendlyName();
-      action = await this.fetchService.fetch<RoutineDTO, RoutineDTO>({
-        body: {
-          friendlyName,
-          room: typeof room === 'string' ? room : room._id,
-        },
-        method: `post`,
-        url: `/routine`,
-      });
+      action = await this.create(room);
     }
     if (typeof action === 'string') {
       throw new NotImplementedException();

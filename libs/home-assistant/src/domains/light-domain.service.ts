@@ -46,6 +46,7 @@ export class LightDomainService extends EntityService {
       brightness?: number;
       hs_color?: [number, number] | number[];
       kelvin?: number;
+      rgb_color?: [number, number, number] | number[];
     } = {},
   ): Promise<void> {
     this.trackEntity(entity_id);

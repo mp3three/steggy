@@ -28,6 +28,8 @@ export class LightingCacheDTO {
   public kelvin?: number;
   @ApiProperty({ enum: Object.keys(LIGHTING_MODE) })
   public mode?: LIGHTING_MODE;
+  @ApiProperty({ enum: Object.keys(LIGHTING_MODE) })
+  public rgb_color?: [number, number, number] | number[];
 }
 /**
  * Exists to satisfy swagger. Not sure how to do Record<string, LightingCacheDTO> otherwise

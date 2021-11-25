@@ -143,7 +143,7 @@ export class LightManagerService {
     entity_id: string | string[],
     settings: Partial<LightingCacheDTO> = {},
   ): Promise<void> {
-    if (settings.kelvin && settings.hs_color) {
+    if (settings.kelvin && (settings.hs_color || settings.rgb_color)) {
       this.logger.warn(
         { entity_id, settings },
         `Both kelvin and hs color provided`,
@@ -179,6 +179,7 @@ export class LightManagerService {
       brightness: settings.brightness,
       hs_color: settings.hs_color,
       kelvin: settings.kelvin,
+      rgb_color: settings.rgb_color,
     };
     Object.keys(data).forEach((key) => {
       if (typeof data[key] === 'undefined') {

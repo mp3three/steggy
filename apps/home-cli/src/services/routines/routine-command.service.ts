@@ -1,5 +1,7 @@
 import {
+  RoomDTO,
   RoomEntitySaveStateDTO,
+  RountineCommandLightFlashDTO,
   ROUTINE_ACTIVATE_COMMAND,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
@@ -25,7 +27,11 @@ import { v4 as uuid } from 'uuid';
 import { EntityService } from '../entity.service';
 import { GroupStateService } from '../groups';
 import { RoomCommandService, RoomStateService } from '../rooms';
-import { SendNotificationService, WebhookService } from './command';
+import {
+  LightFlashService,
+  SendNotificationService,
+  WebhookService,
+} from './command';
 import { GroupActionService } from './group-action.service';
 import { RoutineService } from './routine.service';
 
@@ -47,6 +53,7 @@ export class RoutineCommandService {
     private readonly roomCommand: RCService,
     private readonly entityCommand: EntityService,
     private readonly sendNotification: SendNotificationService,
+    private readonly flashAnimation: LightFlashService,
     private readonly webhookService: WebhookService,
   ) {}
 
@@ -58,17 +65,28 @@ export class RoutineCommandService {
       `Friendly name`,
       current.friendlyName,
     );
+    let room: RoomDTO;
+    if (routine.room) {
+      room = await this.roomCommand.get(routine.room);
+      room.save_states ??= [];
+    }
+
     const type = await this.promptService.pickOne<ROUTINE_ACTIVATE_COMMAND>(
       `Command type`,
-      Object.values(ROUTINE_ACTIVATE_COMMAND).map((value) => [
-        TitleCase(value),
-        value,
-      ]),
+      Object.values(ROUTINE_ACTIVATE_COMMAND)
+        .filter((i) => (room ? true : !i.includes('room')))
+        .map((value) => [TitleCase(value), value]),
       current.type,
     );
-    const room = await this.roomCommand.get(routine.room);
-    room.save_states ??= [];
     switch (type) {
+      case ROUTINE_ACTIVATE_COMMAND.light_flash:
+        return {
+          command: await this.flashAnimation.build(
+            current.command as RountineCommandLightFlashDTO,
+          ),
+          friendlyName,
+          type,
+        };
       case ROUTINE_ACTIVATE_COMMAND.webhook:
         return {
           command: await this.webhookService.build(
@@ -101,8 +119,8 @@ export class RoutineCommandService {
       case ROUTINE_ACTIVATE_COMMAND.group_state:
         return {
           command: await this.groupState.buildState(
-            room,
             current?.command as RoutineCommandGroupStateDTO,
+            room,
           ),
           friendlyName,
           type,

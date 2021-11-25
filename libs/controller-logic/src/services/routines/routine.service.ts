@@ -10,6 +10,7 @@ import { each } from 'async';
 import {
   KunamiCodeActivateDTO,
   RoomEntitySaveStateDTO,
+  RountineCommandLightFlashDTO,
   ROUTINE_ACTIVATE_COMMAND,
   ROUTINE_ACTIVATE_TYPE,
   ROUTINE_UPDATE,
@@ -29,6 +30,7 @@ import { GroupService } from '../groups';
 import { RoutinePersistenceService } from '../persistence';
 import { RoomService } from '../room.service';
 import { KunamiCodeActivateService } from './kunami-code-activate.service';
+import { LightFlashCommandService } from './light-flash-command.service';
 import { ScheduleActivateService } from './schedule-activate.service';
 import { SolarActivateService } from './solar-activate.service';
 import { StateChangeActivateService } from './state-change-activate.service';
@@ -47,6 +49,7 @@ export class RoutineService {
     private readonly stateChangeActivate: StateChangeActivateService,
     private readonly webhookService: WebhookService,
     private readonly solarService: SolarActivateService,
+    private readonly flashAnimation: LightFlashCommandService,
   ) {}
 
   public async activateRoutine(routine: RoutineDTO | string): Promise<void> {
@@ -83,6 +86,11 @@ export class RoutineService {
         case ROUTINE_ACTIVATE_COMMAND.send_notification:
           await this.sendNotification.activate(
             command.command as RoutineCommandSendNotificationDTO,
+          );
+          break;
+        case ROUTINE_ACTIVATE_COMMAND.light_flash:
+          await this.flashAnimation.activate(
+            command.command as RountineCommandLightFlashDTO,
           );
           break;
       }

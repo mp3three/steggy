@@ -7,6 +7,7 @@ import {
 import { DiscoveryModule } from '@nestjs/core';
 
 import {
+  AnimationService,
   BaseDomainService,
   ClimateService,
   DebugService,
@@ -19,6 +20,7 @@ import {
   GroupStateService,
   HomeFetchService,
   KunamiBuilderService,
+  LightFlashService,
   LightGroupCommandService,
   LightService,
   LockGroupCommandService,
@@ -68,6 +70,7 @@ import {
       ...[
         GroupActionService,
         KunamiBuilderService,
+        LightFlashService,
         RoutineActivateService,
         RoutineCommandService,
         RoutineService,
@@ -78,6 +81,7 @@ import {
         WebhookService,
       ],
       // /*
+      AnimationService,
       DebugService,
       DeviceService,
       EntityService,
