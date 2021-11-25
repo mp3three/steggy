@@ -1,41 +1,52 @@
-import { AutoLogService, PEAT } from '@ccontour/utilities';
+import { EntityManagerService, LightStateDTO } from '@ccontour/home-assistant';
+import { AutoLogService, PEAT, sleep } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
+import { eachSeries } from 'async';
 
 import { FlashAnimationDTO, LightingCacheDTO } from '../../contracts';
 import { CircadianService } from './circadian.service';
 import { LightManagerService } from './light-manager.service';
 
-const MAX_AUTO = 500;
 const HALF = 2;
 const OFF = 0;
+const START = 0;
 
 @Injectable()
 export class AnimationService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly lightManager: LightManagerService,
+    private readonly entityManager: EntityManagerService,
     private readonly circadianService: CircadianService,
   ) {}
 
-  public async flash(
-    animation: FlashAnimationDTO,
-    current: LightingCacheDTO,
-  ): Promise<void> {
-    const interval = Math.floor(
-      (animation.interval ?? animation.duration > MAX_AUTO
-        ? MAX_AUTO
-        : animation.duration) / HALF,
-    );
-    current.brightness ??= OFF;
-    animation.brightness ??= current.brightness;
-    const brightnessDelta =
-      (current.brightness - animation.brightness) / interval;
-    let currentBrightness = current.brightness;
-    const startLeg = PEAT(interval).map(() => {
-      currentBrightness += brightnessDelta;
-      return {
-        brightness: Math.floor(currentBrightness),
-      } as LightingCacheDTO;
+  public async flash(animation: FlashAnimationDTO): Promise<void> {
+    const steps = Math.floor(animation.duration / animation.interval);
+    const frames = PEAT(steps).map(() => ({})) as LightingCacheDTO[];
+    const reverse = frames.length / HALF;
+
+    if (typeof animation.brightness !== 'undefined') {
+      const entity = this.entityManager.getEntity<LightStateDTO>(
+        animation.entity_id,
+      );
+      let current = entity?.attributes?.brightness ?? OFF;
+      const distance = animation.brightness - current;
+      const delta = reverse / distance;
+      frames
+        .slice(START, distance)
+        .forEach((i) => (i.brightness = current = current + delta));
+      current = animation.brightness;
+      frames
+        .slice(distance)
+        .forEach((i) => (i.brightness = current = current - delta));
+    }
+
+    await eachSeries(frames, async (state, callback) => {
+      await this.lightManager.turnOn(animation.entity_id, state);
+      await sleep(animation.interval);
+      if (callback) {
+        callback();
+      }
     });
   }
 }

@@ -8,6 +8,7 @@ import { DiscoveryModule } from '@nestjs/core';
 
 import { DynamicRoomProviders, InjectedSettings } from '../decorators';
 import {
+  AnimationService,
   CircadianService,
   EntityCommandRouterService,
   FanGroupService,
@@ -44,7 +45,12 @@ const providers = [
     SolarActivateService,
     RoutineService,
   ],
-  ...[CircadianService, LightManagerService, SolarCalcService],
+  ...[
+    AnimationService,
+    CircadianService,
+    LightManagerService,
+    SolarCalcService,
+  ],
   EntityCommandRouterService,
   RoomService,
 ];

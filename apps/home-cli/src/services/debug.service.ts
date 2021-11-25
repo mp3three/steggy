@@ -50,6 +50,7 @@ For loop example getting entity values in the weather domain:
     const action = await this.promptService.menuSelect(
       [
         [`Manage configuration`, 'configure'],
+        [`Controller version`, 'version'],
         [`Light Manager Cache`, 'lightManagerCache'],
         [`Home Assistant Config`, 'hassConfig'],
         [`Render template`, 'renderTemplate'],
@@ -62,13 +63,16 @@ For loop example getting entity values in the weather domain:
     switch (action) {
       case DONE:
         return;
+      case 'version':
+        const version = await this.fetchService.fetch({ url: `/version` });
+        this.promptService.print(dump(version));
+        return await this.exec(action);
       case 'configure':
         await this.configBuilder.handleConfig();
         return await this.exec(action);
       case 'renderTemplate':
         await this.renderTemplate();
         return await this.exec(action);
-
       case 'hassConfig':
         const result = await this.fetchService.fetch({
           url: `/debug/hass-config`,
