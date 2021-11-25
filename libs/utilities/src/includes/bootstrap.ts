@@ -2,12 +2,13 @@
 /* eslint-disable @nrwl/nx/enforce-module-boundaries */
 import {
   AutoLogService,
+  IsEmpty,
   LIB_UTILS,
   LifecycleService,
   NEST_NOOP_LOGGER,
   UsePrettyLogger,
 } from '@ccontour/utilities';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ModuleMetadata } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { eachSeries } from 'async';
@@ -15,7 +16,7 @@ import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
 import express, { Express } from 'express';
 
-export interface BootstrapOptions {
+export interface BootstrapOptions extends Pick<ModuleMetadata, 'imports'> {
   http?: boolean;
   nestNoopLogger?: boolean;
   postInit?: ((
@@ -36,6 +37,12 @@ export async function Bootstrap(
   module: ClassConstructor<unknown>,
   bootOptions: BootstrapOptions,
 ): Promise<void> {
+  // Environment files can append extra modules
+  if (!IsEmpty(bootOptions.imports)) {
+    const current = Reflect.getMetadata('imports', module) ?? [];
+    current.push(...bootOptions.imports);
+    Reflect.defineMetadata('imports', current, module);
+  }
   let { preInit, postInit } = bootOptions;
   const { prettyLog, nestNoopLogger, http } = bootOptions;
 

@@ -52,6 +52,11 @@
             "output": "./assets/persistence"
           },
           {
+            "input": "libs/tty",
+            "glob": "metadata.json",
+            "output": "./assets/tty"
+          },
+          {
             "input": "apps/home-controller",
             "glob": "metadata.json",
             "output": "./assets/home-controller"
@@ -82,9 +87,12 @@
         "config-builder": {
           "optimization": true,
           "inspect": false,
-          "outputPath": "dist/configure/home-controller",
-          "main": "apps/home-controller/src/entrypoints/configure.main.ts",
-          "fileReplacements": []
+          "outputPath": "dist/apps/home-controller-configuration",
+          "fileReplacements": [
+            {
+              "replace": "apps/home-controller/src/environments/environment.ts",
+              "with": "apps/home-controller/src/environments/config-builder.environment.ts"
+            }]
         }
       }
     },

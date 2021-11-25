@@ -5,6 +5,7 @@ import {
   AutomagicalStringConfig,
   ConfigTypeDTO,
   DOWN,
+  InjectLogger,
   SCAN_CONFIG_CONFIGURATION,
   TitleCase,
   UP,
@@ -41,6 +42,7 @@ let initialApp = process.argv[ARGV_APP];
 export class ConfigBuilderService {
   constructor(
     @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
+    @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly workspace: WorkspaceService,
     private readonly promptService: PromptService,
@@ -330,6 +332,7 @@ export class ConfigBuilderService {
     build.stdout.pipe(process.stdout);
     await build;
     this.logger.debug(`Scanning`);
+    this.workspace.initMetadata();
     const { outputPath } =
       this.workspace.workspace.projects[application].targets.build
         .configurations[SCAN_CONFIG_CONFIGURATION];
