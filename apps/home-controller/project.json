@@ -125,8 +125,16 @@
             "description": "Prep the config scanner"
           },
           {
+            "command": "npx nx build home-controller --configuration=config-builder",
+            "description": "Prep the config builder script"
+          },
+          {
             "command": "terser dist/apps/home-controller/main.js -c -m --keep-classnames --module > dist/apps/home-controller/minified.js",
             "description": "Minify production build"
+          },
+          {
+            "command": "terser dist/apps/home-controller-configuration/main.js -c -m --keep-classnames --module > dist/apps/home-controller-configuration/minified.js",
+            "description": "Minify config scanner"
           },
           {
             "command": "node dist/config-scanner/home-controller/main.js > dist/apps/home-controller/assets/config.json",
