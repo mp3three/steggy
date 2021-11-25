@@ -208,6 +208,7 @@ export class GroupCommandService implements iRepl {
     defaultValue?: GroupDTO | string,
   ): Promise<GroupDTO> {
     const groups = await this.list();
+    inList = IsEmpty(inList) ? groups.map(({ _id }) => _id) : inList;
     if (defaultValue) {
       defaultValue = groups.find(
         ({ _id }) =>
@@ -220,6 +221,7 @@ export class GroupCommandService implements iRepl {
       groups
         .filter((group) => inList.includes(group._id))
         .map((group) => [group.friendlyName, group]),
+      defaultValue,
     );
   }
 

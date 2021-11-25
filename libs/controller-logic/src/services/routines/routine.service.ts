@@ -8,8 +8,10 @@ import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 
 import {
+  FlashAnimationDTO,
   KunamiCodeActivateDTO,
   RoomEntitySaveStateDTO,
+  RountineCommandLightFlashDTO,
   ROUTINE_ACTIVATE_COMMAND,
   ROUTINE_ACTIVATE_TYPE,
   ROUTINE_UPDATE,
@@ -26,9 +28,11 @@ import {
 import { SendNotificationService, WebhookService } from '../commands';
 import { EntityCommandRouterService } from '../entity-command-router.service';
 import { GroupService } from '../groups';
+import { FlashAnimationService } from '../lighting';
 import { RoutinePersistenceService } from '../persistence';
 import { RoomService } from '../room.service';
 import { KunamiCodeActivateService } from './kunami-code-activate.service';
+import { LightFlashCommandService } from './light-flash-command.service';
 import { ScheduleActivateService } from './schedule-activate.service';
 import { SolarActivateService } from './solar-activate.service';
 import { StateChangeActivateService } from './state-change-activate.service';
@@ -47,6 +51,7 @@ export class RoutineService {
     private readonly stateChangeActivate: StateChangeActivateService,
     private readonly webhookService: WebhookService,
     private readonly solarService: SolarActivateService,
+    private readonly flashAnimation: LightFlashCommandService,
   ) {}
 
   public async activateRoutine(routine: RoutineDTO | string): Promise<void> {
@@ -83,6 +88,11 @@ export class RoutineService {
         case ROUTINE_ACTIVATE_COMMAND.send_notification:
           await this.sendNotification.activate(
             command.command as RoutineCommandSendNotificationDTO,
+          );
+          break;
+        case ROUTINE_ACTIVATE_COMMAND.light_flash:
+          await this.flashAnimation.activate(
+            command.command as RountineCommandLightFlashDTO,
           );
           break;
       }

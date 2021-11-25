@@ -92,7 +92,7 @@ For loop example getting entity values in the weather domain:
     const lights = await this.fetchService.fetch<string[]>({
       url: `/debug/active-lights`,
     });
-    this.promptService.print(dump(lights));
+    console.log(lights);
   }
 
   private async renderTemplate(): Promise<void> {

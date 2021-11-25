@@ -8,12 +8,13 @@ import { DiscoveryModule } from '@nestjs/core';
 
 import { DynamicRoomProviders, InjectedSettings } from '../decorators';
 import {
-  AnimationService,
   CircadianService,
   EntityCommandRouterService,
   FanGroupService,
+  FlashAnimationService,
   GroupService,
   KunamiCodeActivateService,
+  LightFlashCommandService,
   LightGroupService,
   LightManagerService,
   LockGroupService,
@@ -46,7 +47,8 @@ const providers = [
     RoutineService,
   ],
   ...[
-    AnimationService,
+    FlashAnimationService,
+    LightFlashCommandService,
     CircadianService,
     LightManagerService,
     SolarCalcService,

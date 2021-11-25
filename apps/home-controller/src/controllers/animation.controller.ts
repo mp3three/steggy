@@ -1,6 +1,6 @@
 import {
-  AnimationService,
   FlashAnimationDTO,
+  FlashAnimationService,
 } from '@ccontour/controller-logic';
 import {
   ApiGenericResponse,
@@ -14,7 +14,7 @@ import { ApiTags } from '@nestjs/swagger';
 @AuthStack()
 @ApiTags('animation')
 export class AnimationController {
-  constructor(private readonly animationService: AnimationService) {}
+  constructor(private readonly animationService: FlashAnimationService) {}
 
   @Post('/flash')
   @ApiGenericResponse()

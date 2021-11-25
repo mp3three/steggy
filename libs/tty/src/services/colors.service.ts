@@ -2,6 +2,8 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers, unicorn/no-nested-ternary */
 import { Injectable } from '@nestjs/common';
 
+import { PromptService } from './prompt.service';
+
 type RGB = Record<'r' | 'g' | 'b', number>;
 type HSV = Record<'h' | 's' | 'v', number>;
 const clamp = (input: number, min: number, max: number) => {
@@ -10,10 +12,14 @@ const clamp = (input: number, min: number, max: number) => {
   }
   return input > max ? max : input;
 };
+const OFF = 0;
+const HEX_SIZE = 2;
 
 @Injectable()
 export class ColorsService {
-  public hexToRGB(hex: string): RGB {
+  constructor(private readonly promptService: PromptService) {}
+
+  public hexToRGB(hex = '000000'): RGB {
     const split = hex.match(new RegExp('.{1,2}', 'g'));
     return {
       b: Number.parseInt(split[2], 16),
@@ -108,8 +114,12 @@ export class ColorsService {
     return { b, g, r };
   }
 
-  public rgbToHEX({ r, b, g }: RGB): string {
-    return r.toString(16) + b.toString(16) + g.toString(16);
+  public rgbToHEX({ r = OFF, b = OFF, g = OFF }: Partial<RGB> = {}): string {
+    return (
+      r.toString(16).padStart(HEX_SIZE, '0') +
+      b.toString(16).padStart(HEX_SIZE, '0') +
+      g.toString(16).padStart(HEX_SIZE, '0')
+    );
   }
 
   /**

@@ -111,16 +111,18 @@ export class GroupStateService {
   }
 
   public async buildState(
-    room: RoomDTO,
     current: Partial<RoutineCommandGroupStateDTO> = {},
+    room?: RoomDTO,
   ): Promise<RoutineCommandGroupStateDTO> {
     const allGroups = await this.groupService.list();
     const group = await this.promptService.pickOne(
       `Which group?`,
-      room.groups.map((id) => {
-        const group = allGroups.find(({ _id }) => _id === id);
-        return [group?.friendlyName, group];
-      }),
+      room
+        ? room.groups.map((id) => {
+            const group = allGroups.find(({ _id }) => _id === id);
+            return [group?.friendlyName, group];
+          })
+        : allGroups.map((i) => [i.friendlyName, i]),
       current.group,
     );
     return {

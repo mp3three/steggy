@@ -1,11 +1,11 @@
 import { FlashAnimationDTO } from '@ccontour/controller-logic';
 import { HASS_DOMAINS } from '@ccontour/home-assistant';
-import { ICONS, PromptService, Repl } from '@ccontour/tty';
+import { ColorsService, ICONS, PromptService, Repl } from '@ccontour/tty';
 
 import { EntityService } from '../entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 
-const DEFAULT_DURATION = 30;
+const DEFAULT_DURATION = 10;
 const SECOND = 1000;
 const DEFAULT_INTERVAL = 250;
 
@@ -19,6 +19,7 @@ export class AnimationService {
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
     private readonly entityService: EntityService,
+    private readonly colorService: ColorsService,
   ) {}
 
   public async exec(defaultAction?: string): Promise<void> {
@@ -47,15 +48,16 @@ export class AnimationService {
       `Interval (ms)`,
       DEFAULT_INTERVAL,
     );
-    const brightness = await this.promptService.number(
-      `Brightness (0-255)`,
-      255,
-    );
+    // const brightness = await this.promptService.number(`Brightness (0-255)`);
     const animation: FlashAnimationDTO = {
-      brightness,
       duration,
       entity_id,
       interval,
+      rgb_color: {
+        b: 0,
+        g: 0,
+        r: 255,
+      },
     };
     await this.fetchService.fetch({
       body: animation,

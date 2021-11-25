@@ -13,10 +13,11 @@ export class FlashAnimationDTO {
   @IsString()
   public entity_id: string;
   @ApiProperty({ required: false })
-  @IsOptional()
-  @IsArray()
-  public hs_color?: [number, number];
   @ApiProperty()
   @IsNumber()
   public interval: number;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsArray()
+  public rgb_color?: Record<'r' | 'g' | 'b', number>;
 }

@@ -20,6 +20,7 @@ import {
   GroupStateService,
   HomeFetchService,
   KunamiBuilderService,
+  LightFlashService,
   LightGroupCommandService,
   LightService,
   LockGroupCommandService,
@@ -69,6 +70,7 @@ import {
       ...[
         GroupActionService,
         KunamiBuilderService,
+        LightFlashService,
         RoutineActivateService,
         RoutineCommandService,
         RoutineService,

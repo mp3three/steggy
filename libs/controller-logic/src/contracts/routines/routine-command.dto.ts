@@ -1,26 +1,34 @@
 import { HTTP_METHODS } from '@ccontour/utilities';
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
-import { IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 import { RoomEntitySaveStateDTO } from '../rooms';
 import { GroupDTO, RoomDTO } from '../schemas';
 
 export enum ROUTINE_ACTIVATE_COMMAND {
-  room_state = 'room_state',
-  group_state = 'group_state',
-  group_action = 'group_action',
   entity_state = 'entity_state',
+  group_action = 'group_action',
+  group_state = 'group_state',
+  light_flash = 'light_flash',
+  room_state = 'room_state',
   send_notification = 'send_notification',
   webhook = 'webhook',
 }
 
 export type GENERIC_COMMANDS =
-  | 'turnOn'
-  | 'turnOff'
-  | 'dimUp'
+  | 'circadianOn'
   | 'dimDown'
+  | 'dimUp'
   | 'setBrightness'
-  | 'circadianOn';
+  | 'turnOff'
+  | 'turnOn';
 
 export class RoutineCommandRoomStateDTO {
   @IsString()
@@ -54,8 +62,35 @@ export class RoutineCommandGroupActionDTO {
 }
 
 export class RoutineCommandSendNotificationDTO {
+  @ApiProperty()
   @IsString()
   public template: string;
+}
+
+enum LightFlashType {
+  group = 'group',
+  entity = 'entity',
+}
+
+export class RountineCommandLightFlashDTO {
+  @ApiProperty({ required: false })
+  @IsNumber()
+  public brightness?: number;
+  @ApiProperty()
+  @IsNumber()
+  public duration: number;
+  @ApiProperty()
+  @IsNumber()
+  public interval: number;
+  @ApiProperty()
+  @IsString()
+  public ref: string;
+  @ValidateNested()
+  @ApiProperty({ required: false })
+  public rgb?: Record<'r' | 'g' | 'b', number>;
+  @ApiProperty({ enum: ['group', 'entity'] })
+  @IsEnum(LightFlashType)
+  public type: 'group' | 'entity';
 }
 
 export class RoutineCommandWebhookDTO {
@@ -69,23 +104,23 @@ export class RoutineCommandWebhookDTO {
 
 export class RoutineCommandDTO<
   COMMAND =
+    | RoomEntitySaveStateDTO
+    | RountineCommandLightFlashDTO
     | RoutineCommandGroupActionDTO
+    | RoutineCommandGroupStateDTO
     | RoutineCommandRoomStateDTO
     | RoutineCommandSendNotificationDTO
-    | RoomEntitySaveStateDTO
-    | RoutineCommandWebhookDTO
-    | RoutineCommandGroupStateDTO,
+    | RoutineCommandWebhookDTO,
 > {
   @ApiProperty({
     oneOf: [
-      { $ref: getSchemaPath(RoutineCommandGroupActionDTO) },
-      { $ref: getSchemaPath(RoutineCommandRoomStateDTO) },
-      {
-        $ref: getSchemaPath(RoutineCommandSendNotificationDTO),
-      },
       { $ref: getSchemaPath(RoomEntitySaveStateDTO) },
-      { $ref: getSchemaPath(RoutineCommandWebhookDTO) },
+      { $ref: getSchemaPath(RountineCommandLightFlashDTO) },
+      { $ref: getSchemaPath(RoutineCommandGroupActionDTO) },
       { $ref: getSchemaPath(RoutineCommandGroupStateDTO) },
+      { $ref: getSchemaPath(RoutineCommandRoomStateDTO) },
+      { $ref: getSchemaPath(RoutineCommandSendNotificationDTO) },
+      { $ref: getSchemaPath(RoutineCommandWebhookDTO) },
     ],
   })
   public command: COMMAND;
