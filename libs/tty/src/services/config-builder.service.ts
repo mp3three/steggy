@@ -1,26 +1,34 @@
-import { ICONS, iRepl, PromptEntry, PromptService, Repl } from '@ccontour/tty';
 import {
+  ACTIVE_APPLICATION,
   AutoLogService,
   AutomagicalConfig,
   AutomagicalStringConfig,
   ConfigTypeDTO,
   DOWN,
+  InjectLogger,
   SCAN_CONFIG_CONFIGURATION,
   TitleCase,
   UP,
   WorkspaceService,
 } from '@ccontour/utilities';
-import { InternalServerErrorException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import execa from 'execa';
-import { existsSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 import { get, set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
 import rc from 'rc';
+
+import { ICONS } from '../contracts';
+import { PromptEntry, PromptService } from './prompt.service';
 
 const ARGV_APP = 3;
 const DATA = 1;
@@ -30,13 +38,11 @@ const NONE = 0;
 const NO_VALUE = { no: 'value' };
 let initialApp = process.argv[ARGV_APP];
 
-@Repl({
-  category: `Maintenance`,
-  icon: ICONS.CONFIGURE,
-  name: `Config Builder`,
-})
-export class ConfigBuilderService implements iRepl {
+@Injectable()
+export class ConfigBuilderService {
   constructor(
+    @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
+    @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly workspace: WorkspaceService,
     private readonly promptService: PromptService,
@@ -51,7 +57,6 @@ export class ConfigBuilderService implements iRepl {
    * - Assembles a config
    * - Passes off to handler
    */
-
   public async exec(): Promise<void> {
     const application =
       initialApp ||
@@ -64,14 +69,18 @@ export class ConfigBuilderService implements iRepl {
       this.logger.error({ application }, `Invalid application`);
       throw new InternalServerErrorException();
     }
-    this.loadConfig(application);
     await this.handleConfig(application);
   }
 
   /**
    * Prompt the user for what to do
    */
-  public async handleConfig(application: string): Promise<void> {
+  public async handleConfig(
+    application: string | symbol = this.activeApplication,
+  ): Promise<void> {
+    application =
+      typeof application === 'string' ? application : application.description;
+    this.loadConfig(application);
     const action = await this.promptService.menuSelect(
       [
         [`${ICONS.EDIT}Edit`, 'edit'],
@@ -127,8 +136,11 @@ export class ConfigBuilderService implements iRepl {
       `Select properties to change\n`,
       entries,
     );
-    await eachSeries(list, async (item) => {
+    await eachSeries(list, async (item, callback) => {
       await this.prompt(item);
+      if (callback) {
+        callback();
+      }
     });
   }
 
@@ -305,6 +317,14 @@ export class ConfigBuilderService implements iRepl {
   }
 
   private async scan(application: string): Promise<Set<ConfigTypeDTO>> {
+    if (!this.workspace.IS_DEVELOPMENT) {
+      // Production builds ship with assembled config
+      // Running in dev environment will do live scan
+      const config: ConfigTypeDTO[] = JSON.parse(
+        readFileSync(join(__dirname, 'assets', 'config.json'), 'utf-8'),
+      );
+      return new Set(config);
+    }
     this.logger.debug(`Preparing scanner`);
     const build = execa(`npx`, [
       `nx`,
@@ -315,6 +335,7 @@ export class ConfigBuilderService implements iRepl {
     build.stdout.pipe(process.stdout);
     await build;
     this.logger.debug(`Scanning`);
+    this.workspace.initMetadata();
     const { outputPath } =
       this.workspace.workspace.projects[application].targets.build
         .configurations[SCAN_CONFIG_CONFIGURATION];

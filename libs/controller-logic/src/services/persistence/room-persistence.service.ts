@@ -28,6 +28,7 @@ export class RoomPersistenceService extends BaseMongoService {
     room: Omit<RoomDTO, keyof BaseSchemaDTO>,
   ): Promise<RoomDTO> {
     room = this.encrypt(room);
+    // eslint-disable-next-line unicorn/no-await-expression-member
     room = (await this.roomModel.create(room)).toObject();
     this.eventEmitter.emit(ROOM_UPDATE);
     return room;

@@ -1,5 +1,5 @@
 import { HTTP_METHODS } from '@ccontour/utilities';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
 
 import { RoomEntitySaveStateDTO } from '../rooms';
@@ -78,14 +78,14 @@ export class RoutineCommandDTO<
 > {
   @ApiProperty({
     oneOf: [
-      { $ref: `#/components/schemas/${RoutineCommandGroupActionDTO.name}` },
-      { $ref: `#/components/schemas/${RoutineCommandRoomStateDTO.name}` },
+      { $ref: getSchemaPath(RoutineCommandGroupActionDTO) },
+      { $ref: getSchemaPath(RoutineCommandRoomStateDTO) },
       {
-        $ref: `#/components/schemas/${RoutineCommandSendNotificationDTO.name}`,
+        $ref: getSchemaPath(RoutineCommandSendNotificationDTO),
       },
-      { $ref: `#/components/schemas/${RoomEntitySaveStateDTO.name}` },
-      { $ref: `#/components/schemas/${RoutineCommandWebhookDTO.name}` },
-      { $ref: `#/components/schemas/${RoutineCommandGroupStateDTO.name}` },
+      { $ref: getSchemaPath(RoomEntitySaveStateDTO) },
+      { $ref: getSchemaPath(RoutineCommandWebhookDTO) },
+      { $ref: getSchemaPath(RoutineCommandGroupStateDTO) },
     ],
   })
   public command: COMMAND;

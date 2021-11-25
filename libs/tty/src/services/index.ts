@@ -1,4 +1,5 @@
 export * from './colors.service';
+export * from './config-builder.service';
 export * from './git.service';
 export * from './main-cli.service';
 export * from './pinned-item.service';

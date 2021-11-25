@@ -209,6 +209,12 @@
       }
     },
     {
+      "files": ["*environment.ts"],
+      "rules": {
+        "unicorn/no-process-exit": "off"
+      }
+    },
+    {
       "files": ["*dto.ts"],
       "rules": {
         // Don't see a benefit from this rule making annotations more complicated

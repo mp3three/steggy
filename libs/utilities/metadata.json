@@ -42,12 +42,6 @@
       "type": "number",
       "default": 5000,
       "description": "Announce via MQTT that this process is still alive on an interval"
-    },
-    "EVENT_EMITTER_MAX_LISTENENERS": {
-      "type": "number",
-      "default": 20,
-      "description": "Internal use",
-      "careful": true
     }
   }
 }
