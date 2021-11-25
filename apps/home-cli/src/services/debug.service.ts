@@ -1,4 +1,10 @@
-import { DONE, ICONS, PromptService, Repl } from '@ccontour/tty';
+import {
+  ConfigBuilderService,
+  DONE,
+  ICONS,
+  PromptService,
+  Repl,
+} from '@ccontour/tty';
 import { dump } from 'js-yaml';
 import { Response } from 'node-fetch';
 
@@ -13,6 +19,7 @@ export class DebugService {
   constructor(
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
+    private readonly configBuilder: ConfigBuilderService,
   ) {}
 
   /**
@@ -42,6 +49,7 @@ For loop example getting entity values in the weather domain:
   public async exec(defaultAction?: string): Promise<void> {
     const action = await this.promptService.menuSelect(
       [
+        [`Manage configuration`, 'configure'],
         [`Light Manager Cache`, 'lightManagerCache'],
         [`Home Assistant Config`, 'hassConfig'],
         [`Render template`, 'renderTemplate'],
@@ -54,6 +62,9 @@ For loop example getting entity values in the weather domain:
     switch (action) {
       case DONE:
         return;
+      case 'configure':
+        await this.configBuilder.handleConfig();
+        return await this.exec(action);
       case 'renderTemplate':
         await this.renderTemplate();
         return await this.exec(action);

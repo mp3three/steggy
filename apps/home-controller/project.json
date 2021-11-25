@@ -9,6 +9,11 @@
         "buildTarget": "home-controller:build",
         "inspect": "inspect",
         "port": 33334
+      },
+      "configurations": {
+        "config-builder": {
+          "buildTarget": "home-controller:build:config-builder"
+        }
       }
     },
     "build": {
@@ -17,6 +22,7 @@
       "options": {
         "outputPath": "dist/apps/home-controller",
         "generatePackageJson": true,
+        "extractLicenses": false,
         "main": "apps/home-controller/src/entrypoints/main.ts",
         "tsConfig": "apps/home-controller/tsconfig.app.json",
         "assets": [
@@ -61,7 +67,6 @@
       "configurations": {
         "production": {
           "optimization": true,
-          "extractLicenses": false,
           "inspect": false,
           "fileReplacements": []
         },
@@ -73,6 +78,13 @@
               "with": "apps/home-controller/src/environments/scanner.environment.ts"
             }
           ]
+        },
+        "config-builder": {
+          "optimization": true,
+          "inspect": false,
+          "outputPath": "dist/configure/home-controller",
+          "main": "apps/home-controller/src/entrypoints/configure.main.ts",
+          "fileReplacements": []
         }
       }
     },
@@ -101,8 +113,16 @@
             "description": "Create production optimized build"
           },
           {
+            "command": "npx nx build home-controller --configuration=scan-config",
+            "description": "Prep the config scanner"
+          },
+          {
             "command": "terser dist/apps/home-controller/main.js -c -m --keep-classnames --module > dist/apps/home-controller/minified.js",
-            "description": "Minify it"
+            "description": "Minify production build"
+          },
+          {
+            "command": "node dist/config-scanner/home-controller/main.js > dist/apps/home-controller/assets/config.json",
+            "description": "Cache the completed config"
           },
           {
             "command": "./tools/scripts/docker-build-publish.sh home-controller",

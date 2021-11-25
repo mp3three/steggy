@@ -9,7 +9,6 @@ import {
   AutoConfigService,
   AutoLogService,
   CacheProviderService,
-  EventEmitterService,
   EventsExplorerService,
   FetchService,
   JSONFilterService,
@@ -41,7 +40,6 @@ import {
     JSONFilterService,
     EventsExplorerService,
     FetchService,
-    EventEmitterService,
     CacheProviderService,
     ScheduleExplorerService,
   ],
@@ -53,7 +51,6 @@ export class UtilitiesModule {
     return {
       exports: [
         ...extra,
-        EventEmitterService,
         AutoConfigService,
         WorkspaceService,
         AutoLogService,
@@ -74,7 +71,6 @@ export class UtilitiesModule {
         ScheduleExplorerService,
         JSONFilterService,
         WorkspaceService,
-        EventEmitterService,
         CacheProviderService,
         EventsExplorerService,
         LifecycleService,

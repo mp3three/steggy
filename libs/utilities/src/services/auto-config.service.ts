@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Inject, Injectable, Optional } from '@nestjs/common';
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
+import { lstatSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import { encode } from 'ini';
 import { get, set } from 'object-path';
 import { join } from 'path';
@@ -20,6 +20,7 @@ import {
   AutomagicalConfig,
 } from '../contracts/meta/config';
 import { AutoLogService } from './auto-log.service';
+import { WorkspaceService } from './workspace.service';
 
 @Injectable()
 export class AutoConfigService {
@@ -32,6 +33,7 @@ export class AutoConfigService {
     @Optional()
     @Inject(USE_THIS_CONFIG)
     private readonly overrideConfig: AutomagicalConfig,
+    private readonly workspace: WorkspaceService,
   ) {
     this.earlyInit();
   }
@@ -87,6 +89,8 @@ export class AutoConfigService {
       this.overrideConfig ||
       rc<AutoConfigService>(this.APPLICATION.description);
     this.loadedConfigPath = this.config['config'];
+    delete this.config['config'];
+    delete this.config['configs'];
     this.logger.setContext(LIB_UTILS, AutoConfigService);
     this.logger[
       'context'
@@ -106,8 +110,7 @@ export class AutoConfigService {
   }
 
   private loadMetadata() {
-    const isDevelopment = !existsSync(join(__dirname, 'assets'));
-    const path = isDevelopment
+    const path = this.workspace.IS_DEVELOPMENT
       ? join(
           cwd(),
           'dist',
@@ -118,10 +121,12 @@ export class AutoConfigService {
       : join(join(__dirname, 'assets'));
     const contents = readdirSync(path);
     contents.forEach((folder) => {
-      this.metadata.set(
-        folder,
-        JSON.parse(readFileSync(join(path, folder, METADATA_FILE), 'utf-8')),
-      );
+      const maybeFolder = join(path, folder);
+      if (!lstatSync(maybeFolder).isDirectory()) {
+        return;
+      }
+      const json = readFileSync(join(maybeFolder, METADATA_FILE), 'utf-8');
+      this.metadata.set(folder, JSON.parse(json));
     });
   }
 }

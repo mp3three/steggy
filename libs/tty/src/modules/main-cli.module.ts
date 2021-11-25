@@ -4,6 +4,7 @@ import { DiscoveryModule } from '@nestjs/core';
 
 import {
   ColorsService,
+  ConfigBuilderService,
   GitService,
   MainCLIService,
   PinnedItemService,
@@ -18,6 +19,7 @@ import {
     GitService,
     PinnedItemService,
     PromptService,
+    ConfigBuilderService,
     SystemService,
   ],
   imports: [DiscoveryModule],
@@ -27,6 +29,7 @@ import {
     GitService,
     MainCLIService,
     PinnedItemService,
+    ConfigBuilderService,
     PromptService,
     ReplExplorerService,
     SystemService,
