@@ -136,8 +136,11 @@ export class ConfigBuilderService {
       `Select properties to change\n`,
       entries,
     );
-    await eachSeries(list, async (item) => {
+    await eachSeries(list, async (item, callback) => {
       await this.prompt(item);
+      if (callback) {
+        callback();
+      }
     });
   }
 

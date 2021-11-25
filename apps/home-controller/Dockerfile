@@ -7,12 +7,12 @@ COPY --chown=node:node $path .
 RUN yarn install --production
 
 
-FROM node:16-alpine AS build-configure
-ARG CONFIGURATION
-WORKDIR /app
-ARG path="dist/apps/${CONFIGURATION}-configuration"
-COPY --chown=node:node $path .
-RUN yarn install --production
+# FROM node:16-alpine AS build-configure
+# ARG CONFIGURATION
+# WORKDIR /app
+# ARG path="dist/apps/${CONFIGURATION}-configuration"
+# COPY --chown=node:node $path .
+# RUN yarn install --production
 
 
 # Final build: alpine latest + latest node
@@ -57,8 +57,8 @@ RUN sed -i -e 's/v[[:digit:]]\..*\//edge\//g' /etc/apk/repositories &&\
     apk add --upgrade \
     nodejs npm
 
-COPY --chown=node:node libs/tty/scripts/configure-app.sh /bin/configure-app
-RUN chmod +x /bin/configure-app
+# COPY --chown=node:node libs/tty/scripts/configure-app.sh /bin/configure-app
+# RUN chmod +x /bin/configure-app
 
 # Finalize
 USER node
@@ -68,9 +68,9 @@ COPY --from=build-app /app/minified.js server/main.js
 COPY --from=build-app /app/package.json server/package.json
 COPY --from=build-app /app/assets server/assets
 
-COPY --from=build-configure /app/node_modules configure/node_modules
-COPY --from=build-configure /app/minified.js configure/main.js
-COPY --from=build-configure /app/package.json configure/package.json
-COPY --from=build-app /app/assets configure/assets
+# COPY --from=build-configure /app/node_modules configure/node_modules
+# COPY --from=build-configure /app/minified.js configure/main.js
+# COPY --from=build-configure /app/package.json configure/package.json
+# COPY --from=build-app /app/assets configure/assets
 
 CMD ["node", "./server/main.js"]
