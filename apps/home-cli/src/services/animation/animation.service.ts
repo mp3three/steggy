@@ -47,7 +47,10 @@ export class AnimationService {
       `Interval (ms)`,
       DEFAULT_INTERVAL,
     );
-    const brightness = await this.promptService.number(`Brightness (0-255)`);
+    const brightness = await this.promptService.number(
+      `Brightness (0-255)`,
+      255,
+    );
     const animation: FlashAnimationDTO = {
       brightness,
       duration,
