@@ -21,6 +21,7 @@ export class AnimationService {
   ) {}
 
   public async flash(animation: FlashAnimationDTO): Promise<void> {
+    this.logger.info({ animation }, `Flash animation`);
     const steps = Math.floor(animation.duration / animation.interval);
     const frames = PEAT(steps).map(() => ({})) as LightingCacheDTO[];
     const reverse = frames.length / HALF;
@@ -31,7 +32,7 @@ export class AnimationService {
       );
       let current = entity?.attributes?.brightness ?? OFF;
       const distance = animation.brightness - current;
-      const delta = reverse / distance;
+      const delta = distance / reverse;
       frames
         .slice(START, distance)
         .forEach((i) => (i.brightness = current = current + delta));
@@ -40,8 +41,9 @@ export class AnimationService {
         .slice(distance)
         .forEach((i) => (i.brightness = current = current - delta));
     }
-
+    this.logger.info({ frames });
     await eachSeries(frames, async (state, callback) => {
+      this.logger.debug({ state }, animation.entity_id);
       await this.lightManager.turnOn(animation.entity_id, state);
       await sleep(animation.interval);
       if (callback) {

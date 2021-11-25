@@ -237,6 +237,7 @@ export class PromptService {
 
   public itemsFromEntries<T extends unknown = string>(
     items: PromptEntry<T>[],
+    extendedShort = false,
   ): PromptMenuItems<T> {
     return items.map((item) => {
       if (Array.isArray(item)) {
@@ -246,7 +247,7 @@ export class PromptService {
               // Adding emojies can sometimes cause the final character to have rendering issues
               // Insert sacraficial empty space to the end
               name: `${label} `,
-              short: label,
+              short: `${label}${extendedShort ? ' ' : ''}`,
               value: item[VALUE] as T,
             }
           : {
@@ -348,7 +349,7 @@ export class PromptService {
     }
     const { result } = await inquirer.prompt([
       {
-        choices: this.itemsFromEntries(options),
+        choices: this.itemsFromEntries(options, true),
         default: defaultValue,
         message,
         name,

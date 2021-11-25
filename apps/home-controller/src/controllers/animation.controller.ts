@@ -18,10 +18,12 @@ export class AnimationController {
 
   @Post('/flash')
   @ApiGenericResponse()
-  public async flash(
+  public flash(
     @Body() animation: FlashAnimationDTO,
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.animationService.flash(animation);
+  ): typeof GENERIC_SUCCESS_RESPONSE {
+    process.nextTick(async () => {
+      await this.animationService.flash(animation);
+    });
     return GENERIC_SUCCESS_RESPONSE;
   }
 }
