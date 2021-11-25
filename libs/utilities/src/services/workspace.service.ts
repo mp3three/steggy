@@ -100,6 +100,15 @@ export class WorkspaceService {
     this.writeJson(PACKAGE_FILE, this.ROOT_PACKAGE);
   }
 
+  public version(): { rootVersion: string; versions: Record<string, string> } {
+    const versions: Record<string, string> = {};
+    this.PACKAGES.forEach(({ version }, name) => (versions[name] = version));
+    return {
+      rootVersion: this.ROOT_PACKAGE.version,
+      versions,
+    };
+  }
+
   public writeJson(path: string, data: unknown): void {
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, JSON.stringify(data, undefined, '  ') + `\n`);

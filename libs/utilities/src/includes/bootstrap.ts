@@ -1,5 +1,5 @@
 /* Something about bootstrapping completely breaks things with a normal reference */
-/* eslint-disable @nrwl/nx/enforce-module-boundaries */
+/* eslint-disable @nrwl/nx/enforce-module-boundaries, radar/no-identical-functions */
 import {
   AutoLogService,
   IsEmpty,
@@ -67,7 +67,9 @@ export async function Bootstrap(
   preInit ??= [];
   await eachSeries(preInit, async (item, callback) => {
     await item(app, server);
-    callback();
+    if (callback) {
+      callback();
+    }
   });
   await lifecycle.preInit(app, { options: bootOptions, server });
   // ...init

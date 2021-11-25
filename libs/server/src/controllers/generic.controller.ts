@@ -32,14 +32,9 @@ export class GenericController {
       // Nothing to see here
       throw new NotFoundException();
     }
-    const versions: Record<string, string> = {};
-    this.workspace.PACKAGES.forEach(
-      ({ version }, name) => (versions[name] = version),
-    );
     return {
       application: this.activeApplication.description,
-      rootVersion: this.workspace.ROOT_PACKAGE.version,
-      versions,
+      ...this.workspace.version(),
     };
   }
 }
