@@ -1,3 +1,4 @@
+export * from './animation';
 export * from './debug.service';
 export * from './device.service';
 export * from './domains';
@@ -6,4 +7,3 @@ export * from './groups';
 export * from './home-fetch.service';
 export * from './rooms';
 export * from './routines';
-export * from './animation';

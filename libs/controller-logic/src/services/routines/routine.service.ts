@@ -8,7 +8,6 @@ import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 
 import {
-  FlashAnimationDTO,
   KunamiCodeActivateDTO,
   RoomEntitySaveStateDTO,
   RountineCommandLightFlashDTO,
@@ -28,7 +27,6 @@ import {
 import { SendNotificationService, WebhookService } from '../commands';
 import { EntityCommandRouterService } from '../entity-command-router.service';
 import { GroupService } from '../groups';
-import { FlashAnimationService } from '../lighting';
 import { RoutinePersistenceService } from '../persistence';
 import { RoomService } from '../room.service';
 import { KunamiCodeActivateService } from './kunami-code-activate.service';

@@ -1,9 +1,5 @@
 import { BaseMongoService, BaseSchemaDTO } from '@ccontour/persistence';
-import {
-  AutoLogService,
-  ResultControlDTO,
-  ToClass,
-} from '@ccontour/utilities';
+import { AutoLogService, ResultControlDTO, ToClass } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
