@@ -4,7 +4,6 @@ name: Lint & Test
 on:
   pull_request:
     branches:
-      - develop
       - master
 env:
   NX_BRANCH: ${{ github.event.number }}
@@ -26,8 +25,8 @@ jobs:
       - name: node_modules cache
         uses: actions/cache@v2
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.json') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
@@ -40,14 +39,3 @@ jobs:
         env:
           NX_BRANCH: ${{ github.event.number }}
           NX_RUN_GROUP: ${{ github.run_id }}
-
-      - name: Affected Test
-        shell: bash
-        run: npx nx affected --target=test
-        env:
-          NX_BRANCH: ${{ github.event.number }}
-          NX_RUN_GROUP: ${{ github.run_id }}
-
-      - uses: brpaz/hadolint-action@v1.2.1
-        with:
-          dockerfile: apps/home-controller/Dockerfile

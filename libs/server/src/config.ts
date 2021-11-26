@@ -10,3 +10,4 @@ export const ADMIN_KEY = 'ADMIN_KEY';
 export const MAX_REQUEST_ID = 'MAX_REQUEST_ID';
 export const AUTH_BYPASS = 'AUTH_BYPASS';
 export const HIDE_VERSION = 'HIDE_VERSION';
+export const CORS = 'CORS';

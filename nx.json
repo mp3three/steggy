@@ -20,7 +20,7 @@
   "affected": {
     "defaultBase": "origin/master"
   },
-  "npmScope": "automagical",
+  "npmScope": "ccontour",
   "tasksRunnerOptions": {
     "default": {
       "runner": "@nrwl/nx-cloud",
@@ -29,7 +29,7 @@
         "accessToken": "ZWQ1ZWQyMTEtNjQwMi00MmEzLTgwZjMtYjQ4NTYyNzMxZGI4fHJlYWQtd3JpdGU=",
         "canTrackAnalytics": false,
         "showUsageWarnings": true,
-        "parallel": 1
+        "parallel": 5
       }
     }
   },
@@ -48,21 +48,6 @@
   "cli": {
     "defaultCollection": "@nrwl/nest"
   },
-  "generators": {
-    "@nrwl/react": {
-      "application": {
-        "style": "css",
-        "linter": "eslint",
-        "babel": true
-      },
-      "component": {
-        "style": "css"
-      },
-      "library": {
-        "style": "css",
-        "linter": "eslint"
-      }
-    }
-  },
+  "generators": {},
   "defaultProject": "home-controller"
 }
