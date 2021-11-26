@@ -1,6 +1,6 @@
 {
   "name": "automagical",
-  "version": "0.5.10",
+  "version": "0.5.11",
   "license": "MIT",
   "publisher": "ghcr.io/ccontour",
   "author": {
@@ -12,7 +12,7 @@
     "pipeline": "./tools/scripts/publish-pipeline.sh",
     "dev:home-controller": "npx nx serve home-controller",
     "dev:home-cli": "npx nx serve home-cli",
-    "dev:devtools": "npx nx serve devtools",
+    "serve:devtools": "npx nx build devtools; node dist/apps/devtools/main.js",
     "configure:home-controller": "npx nx build devtools; node dist/apps/devtools/main.js \"Config Builder\" home-controller",
     "configure:home-cli": "npx nx build devtools; node dist/apps/devtools/main.js \"Config Builder\" home-cli",
     "configure:devtools": "npx nx build devtools; node dist/apps/devtools/main.js \"Config Builder\" devtools",

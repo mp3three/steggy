@@ -28,48 +28,48 @@
         "assets": [
           {
             "input": "libs/utilities",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/utilities"
           },
           {
             "input": "libs/tty",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/tty"
           },
           {
             "input": "apps/devtools",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/devtools"
           },
           {
+            "input": "apps/home-controller",
+            "glob": "*.json",
+            "output": "./assets/home-controller"
+          },
+          {
             "input": "apps/home-cli",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/home-cli"
           },
           {
             "input": "libs/home-assistant",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/home-assistant"
           },
           {
             "input": "libs/controller-logic",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/controller-logic"
           },
           {
             "input": "libs/server",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/server"
           },
           {
             "input": "libs/persistence",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/persistence"
-          },
-          {
-            "input": "apps/home-controller",
-            "glob": "metadata.json",
-            "output": "./assets/home-controller"
           }
         ],
         "outputPath": "dist/apps/devtools",
