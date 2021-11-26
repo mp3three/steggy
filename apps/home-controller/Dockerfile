@@ -4,7 +4,8 @@ ARG CONFIGURATION
 WORKDIR /app
 ARG path="dist/apps/${CONFIGURATION}"
 COPY --chown=node:node $path .
-RUN yarn install --production
+COPY --chown=node:node yarn.lock .
+RUN yarn install --production --pure-lockfile
 
 
 # FROM node:16-alpine AS build-configure
@@ -12,7 +13,8 @@ RUN yarn install --production
 # WORKDIR /app
 # ARG path="dist/apps/${CONFIGURATION}-configuration"
 # COPY --chown=node:node $path .
-# RUN yarn install --production
+# COPY --chown=node:node yarn.lock .
+# RUN yarn install --production --pure-lockfile
 
 
 # Final build: alpine latest + latest node

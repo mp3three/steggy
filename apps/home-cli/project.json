@@ -27,11 +27,6 @@
       "options": {
         "assets": [
           {
-            "input": "./",
-            "glob": "workspace.json",
-            "output": "./"
-          },
-          {
             "input": "libs/utilities",
             "glob": "*.json",
             "output": "./assets/utilities"
@@ -65,6 +60,16 @@
             "input": "libs/persistence",
             "glob": "*.json",
             "output": "./assets/persistence"
+          },
+          {
+            "input": "./",
+            "glob": "workspace.json",
+            "output": "./assets/"
+          },
+          {
+            "input": "./",
+            "glob": "nx.json",
+            "output": "./assets/"
           }
         ],
         "outputPath": "dist/apps/home-cli",

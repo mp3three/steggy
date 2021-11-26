@@ -53,9 +53,6 @@ export class WorkspaceService {
       return;
     }
     this.loaded = true;
-    if (existsSync(NX_METADATA_FILE)) {
-      this.NX_METADATA = JSON.parse(readFileSync(NX_METADATA_FILE, 'utf-8'));
-    }
     this.loadNX();
     this.loadPackages();
     this.loadMetadata();
@@ -77,15 +74,18 @@ export class WorkspaceService {
   }
 
   public path(project: string, type: 'package' | 'metadata'): string {
-    return join(
-      isDevelopment ? cwd() : __dirname,
-      isDevelopment
-        ? String(this.workspace.projects[project].root)
-        : String(this.workspace.projects[project].root)
-            .replace('libs/', 'assets/')
-            .replace('apps/', 'assets/'),
-      type === 'package' ? PACKAGE_FILE : METADATA_FILE,
-    );
+    return isDevelopment
+      ? join(
+          cwd(),
+          String(this.workspace.projects[project].root),
+          type === 'package' ? PACKAGE_FILE : METADATA_FILE,
+        )
+      : join(
+          __dirname,
+          'assets',
+          project,
+          type === 'package' ? PACKAGE_FILE : METADATA_FILE,
+        );
   }
 
   public setPackageVersion(project: string, version: string): string {
@@ -131,9 +131,19 @@ export class WorkspaceService {
   }
 
   private loadNX(): void {
+    this.NX_METADATA = JSON.parse(
+      readFileSync(
+        isDevelopment
+          ? join(cwd(), NX_METADATA_FILE)
+          : join(__dirname, 'assets', NX_METADATA_FILE),
+        'utf-8',
+      ),
+    );
     this.workspace = JSON.parse(
       readFileSync(
-        join(isDevelopment ? cwd() : __dirname, NX_WORKSPACE_FILE),
+        isDevelopment
+          ? join(cwd(), NX_WORKSPACE_FILE)
+          : join(__dirname, 'assets', NX_WORKSPACE_FILE),
         'utf-8',
       ),
     );
@@ -142,9 +152,7 @@ export class WorkspaceService {
       // Shh... this is actually a string before this point
       const basePath = isDevelopment
         ? String(projects[key])
-        : String(projects[key])
-            .replace('libs/', 'assets/')
-            .replace('apps/', 'assets/');
+        : join(`assets`, key);
       const path = join(basePath, 'project.json');
       if (!existsSync(path)) {
         return;

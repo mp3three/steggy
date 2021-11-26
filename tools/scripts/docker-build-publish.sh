@@ -18,9 +18,9 @@ do
   if [ "$TAG" != "$LATEST" ]; then
     COMMAND="docker tag $IMAGE:latest $IMAGE:$TAG"
     echo $COMMAND
-    # echo $COMMAND | sh
+    echo $COMMAND | sh
   fi
   COMMAND="docker push $IMAGE:$TAG"
   echo $COMMAND
-  # echo $COMMAND | sh
+  echo $COMMAND | sh
 done
