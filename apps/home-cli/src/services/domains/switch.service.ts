@@ -8,7 +8,7 @@ import { BaseDomainService } from './base-domain.service';
 export class SwitchService extends BaseDomainService {
   public async createSaveCommand(
     entity_id: string,
-    current?: RoomEntitySaveStateDTO,
+    current: Partial<RoomEntitySaveStateDTO> = {},
   ): Promise<RoomEntitySaveStateDTO> {
     const state = await this.promptService.pickOne(
       entity_id,
