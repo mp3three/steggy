@@ -5,7 +5,11 @@ import {
 import { PromptService } from '@ccontour/tty';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
-import { GroupCommandService, LightGroupCommandService } from '../groups';
+import {
+  GroupCommandService,
+  LightGroupCommandService,
+  SwitchGroupCommandService,
+} from '../groups';
 
 @Injectable()
 export class GroupActionService {
@@ -13,6 +17,7 @@ export class GroupActionService {
     private readonly promptService: PromptService,
     private readonly groupService: GroupCommandService,
     private readonly lightGroup: LightGroupCommandService,
+    private readonly switchGroup: SwitchGroupCommandService,
   ) {}
 
   public async build(
@@ -30,7 +35,10 @@ export class GroupActionService {
           group: group._id,
         };
       case GROUP_TYPES.switch:
-        throw new NotImplementedException();
+        return {
+          ...(await this.switchGroup.commandBuilder(current?.command)),
+          group: group._id,
+        };
     }
     throw new NotImplementedException();
   }

@@ -111,7 +111,7 @@ export class RoutineCommandService {
         return {
           command: await this.groupAction.build(
             current.command as RoutineCommandGroupActionDTO,
-            room.groups,
+            room?.groups,
           ),
           friendlyName,
           type,

@@ -2,6 +2,7 @@
 /* eslint-disable @nrwl/nx/enforce-module-boundaries, radar/no-identical-functions */
 import {
   AutoLogService,
+  GlobalErrorInit,
   IsEmpty,
   LIB_UTILS,
   LifecycleService,
@@ -19,13 +20,16 @@ import express, { Express } from 'express';
 export interface BootstrapOptions extends Pick<ModuleMetadata, 'imports'> {
   http?: boolean;
   nestNoopLogger?: boolean;
+  noGlobalError?: boolean;
   postInit?: ((
     app: INestApplication,
     expressServer: Express,
+    bootOptions: BootstrapOptions,
   ) => Promise<void> | void)[];
   preInit?: ((
     app: INestApplication,
     expressServer: Express,
+    bootOptions: BootstrapOptions,
   ) => Promise<void> | void)[];
   prettyLog?: boolean;
 }
@@ -44,7 +48,7 @@ export async function Bootstrap(
     Reflect.defineMetadata('imports', current, module);
   }
   let { preInit, postInit } = bootOptions;
-  const { prettyLog, nestNoopLogger, http } = bootOptions;
+  const { prettyLog, nestNoopLogger, http, noGlobalError } = bootOptions;
 
   if (prettyLog && chalk.supportsColor) {
     UsePrettyLogger();
@@ -65,8 +69,11 @@ export async function Bootstrap(
   logger.setContext(LIB_UTILS, { name: 'Bootstrap' });
   // onPreInit
   preInit ??= [];
+  if (noGlobalError !== true) {
+    preInit.push(GlobalErrorInit);
+  }
   await eachSeries(preInit, async (item, callback) => {
-    await item(app, server);
+    await item(app, server, bootOptions);
     if (callback) {
       callback();
     }
@@ -79,7 +86,7 @@ export async function Bootstrap(
   // onPostInit
   postInit ??= [];
   await eachSeries(postInit, async (item, callback) => {
-    await item(app, server);
+    await item(app, server, bootOptions);
     // ??? Why is it sometimes not passing a callback?
     // Not calling the not-existing callback doesn't seem to break it though
     if (callback) {

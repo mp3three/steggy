@@ -102,7 +102,6 @@ export class LightGroupCommandService {
           },
         };
     }
-
     throw new NotImplementedException();
   }
 
