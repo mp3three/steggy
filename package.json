@@ -141,8 +141,6 @@
     "yarn": "^1.22.10"
   },
   "resolutions": {
-    "send": ">=0.17.1",
-    "object-assign": ">=4.1.1",
-    "colors": "1.0.3 || >=1.4.0"
+    "minimist": ">=0.2.1"
   }
 }
