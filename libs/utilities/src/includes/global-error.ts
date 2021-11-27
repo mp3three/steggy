@@ -24,14 +24,14 @@ process.on('uncaughtException', function (error) {
       stack.forEach((line) => {
         line = line.trim();
         line = line.slice(line.indexOf(' ')).trim();
-        const method = line.slice(START, line.indexOf(' '));
-        const parts = line
-          .slice(line.indexOf(' '))
-          .trim()
-          .replace('(', '')
-          .replace(')', '')
-          .split(':');
+        const hasMethod = line.indexOf(' ') > line.indexOf('/');
+        const method = !hasMethod ? '' : line.slice(START, line.indexOf(' '));
+        if (hasMethod) {
+          line = line.slice(hasMethod ? line.indexOf(' ') : START);
+        }
+        const parts = line.trim().replace('(', '').replace(')', '').split(':');
         parts.shift();
+
         maxMethod = Math.max(maxMethod, method.length);
         maxPath = Math.max(maxPath, parts[START].length);
         maxLine = Math.max(maxLine, parts[FIRST].length);

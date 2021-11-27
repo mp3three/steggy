@@ -51,7 +51,7 @@ export class RoutineCommandGroupStateDTO {
 export class RoutineCommandGroupActionDTO {
   @IsString()
   @ApiProperty()
-  public command: GENERIC_COMMANDS;
+  public command: GENERIC_COMMANDS | string;
   @IsObject()
   @IsOptional()
   @ApiProperty()

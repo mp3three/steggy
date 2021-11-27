@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 
 import { PromptService } from './prompt.service';
 
-type RGB = Record<'r' | 'g' | 'b', number>;
+export type RGB = Record<'r' | 'g' | 'b', number>;
 type HSV = Record<'h' | 's' | 'v', number>;
 const clamp = (input: number, min: number, max: number) => {
   if (input < min) {

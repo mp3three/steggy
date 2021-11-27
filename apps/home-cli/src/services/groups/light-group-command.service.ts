@@ -11,6 +11,7 @@ import {
   ICONS,
   PromptEntry,
   PromptService,
+  RGB,
 } from '@ccontour/tty';
 import { AutoLogService, DOWN, TitleCase, UP } from '@ccontour/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
@@ -23,6 +24,10 @@ import { HomeFetchService } from '../home-fetch.service';
 
 const MIN_BRIGHTNESS = 5;
 const MAX_BRIGHTNESS = 255;
+const OFF = 0;
+const R = 0;
+const G = 1;
+const B = 2;
 
 const R_MULTIPLIER = 0.299;
 const G_MULTIPLIER = 0.587;
@@ -70,10 +75,19 @@ export class LightGroupCommandService {
         [`${ICONS.DOWN}Dim Down`, `dimDown`],
         [`${ICONS.BRIGHTNESS}Set Brightness`, `setBrightness`],
         [`${ICONS.CIRCADIAN}Circadian`, `circadianOn`],
+        [`${ICONS.COLOR}Set Color`, 'color'],
       ],
       current,
     );
     switch (command) {
+      case 'color':
+        const { r, g, b } = await this.colorService.buildRGB();
+        return {
+          command,
+          extra: {
+            rgb_color: [r, g, b],
+          },
+        };
       case 'turnOn':
       case 'circadianOn':
         if (!(await this.promptService.confirm(`Set brightness?`))) {
@@ -128,6 +142,7 @@ export class LightGroupCommandService {
       [`${ICONS.BRIGHTNESS}Set Brightness`, `setBrightness`],
       [`${ICONS.UP}Dim Up`, `dimUp`],
       [`${ICONS.DOWN}Dim Down`, `dimDown`],
+      [`${ICONS.COLOR}Set Color`, 'color'],
       [`${ICONS.CIRCADIAN}Circadian`, `circadianOn`],
     ];
   }
@@ -184,6 +199,9 @@ export class LightGroupCommandService {
 
   public async processAction(group: GroupDTO, action: string): Promise<void> {
     switch (action) {
+      case 'color':
+        group = await this.refresh(group);
+        return await this.promptChangeColor(group);
       case 'dimUp':
         return await this.dimUp(group);
       case 'dimDown':
@@ -223,6 +241,24 @@ export class LightGroupCommandService {
     return await this.setBrightness(group, brightness);
   }
 
+  public async promptChangeColor(group: GroupDTO): Promise<void> {
+    let [r, g, b, divisor] = [OFF, OFF, OFF, OFF];
+    const onList = group.state.states.filter(
+      (item) => item.state === 'on',
+    ) as RoomEntitySaveStateDTO<LightingCacheDTO>[];
+    onList.forEach((item) => {
+      r += item.extra.rgb_color[R];
+      g += item.extra.rgb_color[G];
+      b += item.extra.rgb_color[B];
+      divisor++;
+    });
+    r = Math.floor(r / divisor);
+    g = Math.floor(g / divisor);
+    b = Math.floor(b / divisor);
+    const rgb = await this.colorService.buildRGB({ b, g, r });
+    return await this.setColor(group, rgb);
+  }
+
   public async refresh(group: GroupDTO | string): Promise<GroupDTO> {
     if (typeof group === 'string') {
       return await this.fetchService.fetch({
@@ -244,6 +280,16 @@ export class LightGroupCommandService {
       },
       method: 'put',
       url: `/group/${group._id}/expand`,
+    });
+  }
+
+  public async setColor({ _id }: GroupDTO, { r, g, b }: RGB): Promise<void> {
+    await this.fetchService.fetch({
+      body: {
+        rgb_color: [r, g, b],
+      },
+      method: 'put',
+      url: `/group/${_id}/expand`,
     });
   }
 
