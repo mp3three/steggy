@@ -7,6 +7,7 @@ import { HASocketAPIService } from './ha-socket-api.service';
 @Injectable({ scope: Scope.TRANSIENT })
 export class HACallService {
   constructor(private readonly socketService: HASocketAPIService) {}
+
   public domain: HASS_DOMAINS;
 
   /**

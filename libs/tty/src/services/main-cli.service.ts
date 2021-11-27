@@ -84,7 +84,7 @@ export class MainCLIService implements iRepl {
         [
           ...this.promptService.conditionalEntries(!IsEmpty(entries), [
             new inquirer.Separator(chalk.white`${ICONS.PIN}Pinned`),
-            ...entries,
+            ...this.promptService.sort(entries),
           ]),
           ...(this.scriptList().map((i) =>
             i instanceof Separator ? i : [i[LABEL], i],
