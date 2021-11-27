@@ -26,6 +26,7 @@ import Separator from 'inquirer/lib/objects/separator';
 import { dump } from 'js-yaml';
 
 import { DeviceService } from '../device.service';
+import { EntityHistoryService } from '../entity-history.service';
 import { HomeFetchService } from '../home-fetch.service';
 
 type tDeviceService = DeviceService;
@@ -40,6 +41,7 @@ export class BaseDomainService {
     protected readonly promptService: PromptService,
     @Inject(forwardRef(() => DeviceService))
     protected readonly deviceService: tDeviceService,
+    private readonly history: EntityHistoryService,
     private readonly pinnedItem: PinnedItemService<never>,
   ) {}
 
@@ -106,6 +108,9 @@ export class BaseDomainService {
         return await this.processId(id, action);
       case 'registry':
         await this.fromRegistry(id);
+        return await this.processId(id, action);
+      case 'history':
+        await this.history.promptEntityHistory(id);
         return await this.processId(id, action);
       case 'pin':
         await this.togglePin(id);
@@ -197,6 +202,7 @@ export class BaseDomainService {
       [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
       [`${ICONS.RENAME}Change Friendly Name`, 'changeFriendlyName'],
       [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
+      [`${ICONS.HISTORY}History`, 'history'],
       [`${ICONS.DESCRIBE}Describe`, 'describe'],
       [
         chalk[

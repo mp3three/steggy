@@ -2,6 +2,7 @@ export * from './animation.dto';
 export * from './constants';
 export * from './dto';
 export * from './entity-filters.dto';
+export * from './entity-history.dto';
 export * from './events';
 export * from './express';
 export * from './group-command.dto';

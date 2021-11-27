@@ -25,6 +25,7 @@ export const ICONS = {
   EVENT: '🎆 ',
   GROUPS: '🎳 ',
   GUIDED: '🚌 ',
+  HISTORY: '🕵 ',
   LINK: '🔗 ',
   MANUAL: '🔨 ',
   NAME: '💭 ',
