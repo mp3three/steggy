@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 
 import { PromptService } from './prompt.service';
 
-type RGB = Record<'r' | 'g' | 'b', number>;
+export type RGB = Record<'r' | 'g' | 'b', number>;
 type HSV = Record<'h' | 's' | 'v', number>;
 const clamp = (input: number, min: number, max: number) => {
   if (input < min) {
@@ -18,6 +18,18 @@ const HEX_SIZE = 2;
 @Injectable()
 export class ColorsService {
   constructor(private readonly promptService: PromptService) {}
+
+  public async buildHex(current: string): Promise<string> {
+    return await this.promptService.string(`Hex Color`, current);
+  }
+  public async buildRGB(
+    { r, g, b }: RGB = { b: OFF, g: OFF, r: OFF },
+  ): Promise<RGB> {
+    r = await this.promptService.number('Red', r);
+    g = await this.promptService.number('Green', g);
+    b = await this.promptService.number('Blue', b);
+    return { b, g, r };
+  }
 
   public hexToRGB(hex = '000000'): RGB {
     const split = hex.match(new RegExp('.{1,2}', 'g'));

@@ -24,13 +24,16 @@ import {
   SolarActivateDTO,
   StateChangeActivateDTO,
 } from '../../contracts';
-import { SendNotificationService, WebhookService } from '../commands';
+import {
+  LightFlashCommandService,
+  SendNotificationService,
+  WebhookService,
+} from '../commands';
 import { EntityCommandRouterService } from '../entity-command-router.service';
 import { GroupService } from '../groups';
 import { RoutinePersistenceService } from '../persistence';
 import { RoomService } from '../room.service';
 import { KunamiCodeActivateService } from './kunami-code-activate.service';
-import { LightFlashCommandService } from './light-flash-command.service';
 import { ScheduleActivateService } from './schedule-activate.service';
 import { SolarActivateService } from './solar-activate.service';
 import { StateChangeActivateService } from './state-change-activate.service';

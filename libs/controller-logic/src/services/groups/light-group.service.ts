@@ -73,11 +73,11 @@ export class LightGroupService extends BaseGroupService {
 
   public async expandState(
     group: GroupDTO | string,
-    { brightness, hs_color }: LightingCacheDTO,
+    { brightness, hs_color, rgb_color }: LightingCacheDTO,
   ): Promise<void> {
     group = await this.loadGroup(group);
     await each(group.entities, async (entity, callback) => {
-      if (!hs_color) {
+      if (!hs_color && !rgb_color) {
         await this.lightManager.setAttributes(entity, {
           brightness,
         });
@@ -86,6 +86,7 @@ export class LightGroupService extends BaseGroupService {
       await this.lightManager.turnOn(entity, {
         brightness,
         hs_color,
+        rgb_color,
       });
       callback();
     });
@@ -108,6 +109,7 @@ export class LightGroupService extends BaseGroupService {
             : {
                 brightness: light.attributes.brightness,
                 hs_color: light.attributes.hs_color,
+                rgb_color: light.attributes.rgb_color,
               },
         ref: light.entity_id,
         state: light.state,

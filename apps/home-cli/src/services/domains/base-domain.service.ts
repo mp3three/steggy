@@ -28,9 +28,10 @@ import { dump } from 'js-yaml';
 import { DeviceService } from '../device.service';
 import { HomeFetchService } from '../home-fetch.service';
 
-type DService = DeviceService;
+type tDeviceService = DeviceService;
 const HEADER_SEPARATOR = 0;
 const DELAY = 100;
+
 @Injectable()
 export class BaseDomainService {
   constructor(
@@ -38,7 +39,7 @@ export class BaseDomainService {
     protected readonly fetchService: HomeFetchService,
     protected readonly promptService: PromptService,
     @Inject(forwardRef(() => DeviceService))
-    protected readonly deviceService: DService,
+    protected readonly deviceService: tDeviceService,
     private readonly pinnedItem: PinnedItemService<never>,
   ) {}
 
@@ -196,6 +197,7 @@ export class BaseDomainService {
       [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
       [`${ICONS.RENAME}Change Friendly Name`, 'changeFriendlyName'],
       [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
+      [`${ICONS.DESCRIBE}Describe`, 'describe'],
       [
         chalk[
           this.pinnedItem.isPinned('entity', id) ? 'red' : 'green'

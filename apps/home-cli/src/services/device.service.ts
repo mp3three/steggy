@@ -4,6 +4,7 @@ import {
 } from '@ccontour/home-assistant';
 import { DONE, ICONS, PromptService, Repl } from '@ccontour/tty';
 import { AutoLogService, IsEmpty } from '@ccontour/utilities';
+import { forwardRef, Inject } from '@nestjs/common';
 import { encode } from 'ini';
 
 import { EntityService } from './entity.service';
@@ -20,6 +21,7 @@ export class DeviceService {
     private readonly logger: AutoLogService,
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
+    @Inject(forwardRef(() => EntityService))
     private readonly entityService: EntityService,
   ) {}
 

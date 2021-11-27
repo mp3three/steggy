@@ -8,6 +8,7 @@ export const ICONS = {
   BRIGHTNESS: '💡 ',
   CAPTURE: '📸 ',
   CIRCADIAN: '🕯 ',
+  COLOR: '🏮 ',
   COMMAND: '🎼 ',
   CONFIGURE: '⚙ ',
   COPY: '📋 ',

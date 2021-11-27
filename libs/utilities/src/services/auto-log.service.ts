@@ -18,8 +18,9 @@ export type LoggerFunction =
 
 const NEST = '@nestjs';
 export const NEST_NOOP_LOGGER = {
-  error: (): void => {
-    //
+  error: (...items): void => {
+    // console.error(...items);
+    items;
   },
   log: (): void => {
     //

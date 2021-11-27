@@ -51,7 +51,7 @@ export class RoutineCommandGroupStateDTO {
 export class RoutineCommandGroupActionDTO {
   @IsString()
   @ApiProperty()
-  public command: GENERIC_COMMANDS;
+  public command: GENERIC_COMMANDS | string;
   @IsObject()
   @IsOptional()
   @ApiProperty()
@@ -70,6 +70,35 @@ export class RoutineCommandSendNotificationDTO {
 enum LightFlashType {
   group = 'group',
   entity = 'entity',
+}
+
+export class RoutineCommandLatchDTO {
+  /**
+   * - Routine ID
+   */
+  @ApiProperty()
+  @IsString()
+  public onActivate: string;
+  /**
+   * - Routine ID
+   */
+  @ApiProperty()
+  @IsString()
+  public onEnd: string;
+  /**
+   * Activate, then activate again before expiration
+   */
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  public onExtend?: string;
+  /**
+   * How long after activation to end
+   * - Routine ID
+   */
+  @ApiProperty()
+  @IsNumber()
+  public wait: number;
 }
 
 export class RountineCommandLightFlashDTO {
@@ -108,6 +137,7 @@ export class RoutineCommandDTO<
     | RountineCommandLightFlashDTO
     | RoutineCommandGroupActionDTO
     | RoutineCommandGroupStateDTO
+    | RoutineCommandLatchDTO
     | RoutineCommandRoomStateDTO
     | RoutineCommandSendNotificationDTO
     | RoutineCommandWebhookDTO,
@@ -119,6 +149,7 @@ export class RoutineCommandDTO<
       { $ref: getSchemaPath(RoutineCommandGroupActionDTO) },
       { $ref: getSchemaPath(RoutineCommandGroupStateDTO) },
       { $ref: getSchemaPath(RoutineCommandRoomStateDTO) },
+      { $ref: getSchemaPath(RoutineCommandLatchDTO) },
       { $ref: getSchemaPath(RoutineCommandSendNotificationDTO) },
       { $ref: getSchemaPath(RoutineCommandWebhookDTO) },
     ],

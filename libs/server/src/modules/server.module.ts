@@ -2,6 +2,7 @@ import {
   AutoLogService,
   BootstrapOptions,
   InjectConfig,
+  IsEmpty,
   LIB_SERVER,
   LibraryModule,
 } from '@ccontour/utilities';
@@ -11,6 +12,7 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import compression from 'compression';
+import cors from 'cors';
 import { Express, json } from 'express';
 import { readFileSync } from 'fs';
 import helmet from 'helmet';
@@ -20,6 +22,7 @@ import { createServer as createHttpsServer } from 'https';
 import {
   BODY_SIZE,
   COMPRESSION,
+  CORS,
   GLOBAL_PREFIX,
   PORT,
   SSL_CERT,
@@ -65,6 +68,7 @@ export class ServerModule {
     private readonly sslKey: string,
     @InjectConfig(SSL_CERT)
     private readonly sslCert: string,
+    @InjectConfig(CORS) private readonly cors: string,
   ) {}
 
   public configure(consumer: MiddlewareConsumer): void {
@@ -89,7 +93,12 @@ export class ServerModule {
     }
     app.use(json({ limit: this.limit }));
     if (this.compression) {
+      this.logger.debug(`Using compression middleware`);
       app.use(compression());
+    }
+    if (!IsEmpty(this.cors)) {
+      this.logger.debug(`CORS origin {${this.cors}}`);
+      app.use(cors({ origin: this.cors }));
     }
     const listening = this.listenHttp(server);
     if (this.sslPort) {
@@ -127,13 +136,7 @@ export class ServerModule {
     if (!cert) {
       throw new Error(`Bad ssl cert`);
     }
-    createHttpsServer(
-      {
-        cert,
-        key,
-      },
-      server,
-    ).listen(this.sslPort, () =>
+    createHttpsServer({ cert, key }, server).listen(this.sslPort, () =>
       this.logger.info(`📡 Listening on [${this.sslPort}] {(https)} 📡`),
     );
   }

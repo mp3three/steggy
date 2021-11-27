@@ -3,17 +3,33 @@ import {
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
 } from '@ccontour/controller-logic';
-import { HASS_DOMAINS, LightStateDTO } from '@ccontour/home-assistant';
-import { ICONS, PromptEntry } from '@ccontour/tty';
-import { Injectable } from '@nestjs/common';
+import {
+  domain,
+  HASS_DOMAINS,
+  HassStateDTO,
+  LightStateDTO,
+} from '@ccontour/home-assistant';
+import { ColorsService, ICONS, PromptEntry } from '@ccontour/tty';
+import { sleep, TitleCase } from '@ccontour/utilities';
+import { Inject, Injectable } from '@nestjs/common';
+import chalk from 'chalk';
+import { dump } from 'js-yaml';
 
 import { SwitchService } from './switch.service';
 
 const START = 0;
+const OFF = 0;
+const R = 0;
+const G = 1;
+const B = 1;
 const SHIFT_AMOUNT = 2;
+const DELAY = 100;
 
 @Injectable()
 export class LightService extends SwitchService {
+  @Inject()
+  private readonly colorService: ColorsService;
+
   public async circadianLight(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',
@@ -23,10 +39,10 @@ export class LightService extends SwitchService {
 
   public async createSaveCommand(
     entity_id: string,
-    current?: RoomEntitySaveStateDTO<LightingCacheDTO>,
+    current: Partial<RoomEntitySaveStateDTO<LightingCacheDTO>> = {},
   ): Promise<RoomEntitySaveStateDTO> {
     let defaultValue: string;
-    if (current) {
+    if (typeof current.state !== 'undefined') {
       if (current.state === 'off') {
         defaultValue = 'off';
       } else if (current?.extra?.mode === LIGHTING_MODE.circadian) {
@@ -50,22 +66,27 @@ export class LightService extends SwitchService {
         state,
       };
     }
-    const mode =
+    current.extra ??= {};
+    current.extra.mode =
       state === 'circadian' ? LIGHTING_MODE.circadian : LIGHTING_MODE.on;
-    let brightness: number;
     if (
-      current?.extra?.brightness ||
+      typeof current?.extra?.brightness !== 'undefined' ||
       (await this.promptService.confirm(`Set brightness?`))
     ) {
-      brightness = await this.promptService.brightness(
+      current.extra.brightness = await this.promptService.brightness(
         current?.extra?.brightness,
       );
     }
-    return {
-      extra: { brightness, mode },
-      ref: entity_id,
-      state: 'on',
-    };
+    if (
+      state !== 'circadian' &&
+      (Array.isArray(current?.extra?.rgb_color) ||
+        (await this.promptService.confirm(`Set brightness?`)))
+    ) {
+      const [r, g, b] = current?.extra?.rgb_color ?? [];
+      const rgb = await this.colorService.buildRGB({ b, g, r });
+      current.extra.rgb_color = [rgb.r, rgb.g, rgb.b];
+    }
+    return current as RoomEntitySaveStateDTO;
   }
 
   public async dimDown(id: string): Promise<void> {
@@ -83,7 +104,7 @@ export class LightService extends SwitchService {
   }
 
   public async processId(id: string, command?: string): Promise<string> {
-    await this.baseHeader(id);
+    const light = await this.baseHeader<LightStateDTO>(id);
     const action = await super.processId(id, command);
     switch (action) {
       case 'dimDown':
@@ -94,6 +115,26 @@ export class LightService extends SwitchService {
         return await this.processId(id, action);
       case 'circadianLight':
         await this.circadianLight(id);
+        return await this.processId(id, action);
+      case 'brightness':
+        await this.setState(id, {
+          brightness: await this.promptService.number(
+            `Brightness (0-255)`,
+            light.attributes.brightness,
+          ),
+        });
+        return await this.processId(id, action);
+      case 'color':
+        light.attributes ??= {};
+        light.attributes.rgb_color ??= [OFF, OFF, OFF];
+        const { r, g, b } = await this.colorService.buildRGB({
+          b: light.attributes.rgb_color[B],
+          g: light.attributes.rgb_color[G],
+          r: light.attributes.rgb_color[R],
+        });
+        await this.setState(id, {
+          rgb_color: [r, g, b],
+        });
         return await this.processId(id, action);
       case 'swapState':
         await this.swapState(id);
@@ -117,14 +158,35 @@ export class LightService extends SwitchService {
       hs_color: swapWith.attributes.hs_color,
     });
   }
+  protected async baseHeader<T extends HassStateDTO = HassStateDTO>(
+    id: string,
+  ): Promise<T> {
+    // sleep needed to ensure correct-ness of header information
+    // Somtimes the previous request impacts the state, and race conditions
+    await sleep(DELAY);
+    this.promptService.clear();
+    this.promptService.scriptHeader(`Entity`);
+    const content = await this.getState<T>(id);
+    console.log(
+      chalk`{magenta.bold ${
+        content.attributes.friendly_name
+      }} - {yellow.bold ${TitleCase(domain(content.entity_id), false)}}`,
+    );
+    console.log();
+    this.promptService.print(dump(content));
+    console.log();
+    return content;
+  }
 
   protected getMenuOptions(id: string): PromptEntry[] {
     const parent = super.getMenuOptions(id);
     return [
       ...parent.slice(START, SHIFT_AMOUNT),
-      [`${ICONS.CIRCADIAN}Circadian light`, 'circadianLight'],
+      [`${ICONS.CIRCADIAN}Circadian Light`, 'circadianLight'],
       [`${ICONS.UP}Dim Up`, 'dimUp'],
       [`${ICONS.DOWN}Dim Down`, 'dimDown'],
+      [`${ICONS.COLOR}Set Color`, 'color'],
+      [`${ICONS.BRIGHTNESS}Set Brightness`, 'brightness'],
       [`${ICONS.SWAP}Swap state with another light`, 'swapState'],
       ...parent.slice(SHIFT_AMOUNT),
     ];

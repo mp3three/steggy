@@ -21,45 +21,56 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/home-controller",
-        "generatePackageJson": true,
+        "generatePackageJson": false,
+        "optimization": true,
         "extractLicenses": false,
         "main": "apps/home-controller/src/entrypoints/main.ts",
         "tsConfig": "apps/home-controller/tsconfig.app.json",
         "assets": [
           {
             "input": "libs/utilities",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/utilities"
           },
           {
             "input": "libs/home-assistant",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/home-assistant"
           },
           {
             "input": "libs/controller-logic",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/controller-logic"
           },
           {
             "input": "libs/server",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/server"
           },
           {
             "input": "libs/persistence",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/persistence"
           },
           {
             "input": "libs/tty",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/tty"
           },
           {
             "input": "apps/home-controller",
-            "glob": "metadata.json",
+            "glob": "*.json",
             "output": "./assets/home-controller"
+          },
+          {
+            "input": "./",
+            "glob": "workspace.json",
+            "output": "./assets"
+          },
+          {
+            "input": "./",
+            "glob": "nx.json",
+            "output": "./assets"
           }
         ],
         "fileReplacements": [
@@ -71,7 +82,7 @@
       },
       "configurations": {
         "production": {
-          "optimization": true,
+          "generatePackageJson": true,
           "inspect": false,
           "fileReplacements": []
         },
@@ -85,7 +96,7 @@
           ]
         },
         "config-builder": {
-          "optimization": true,
+          "generatePackageJson": true,
           "inspect": false,
           "outputPath": "dist/apps/home-controller-configuration",
           "fileReplacements": [

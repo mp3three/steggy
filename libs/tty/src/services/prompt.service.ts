@@ -1,8 +1,10 @@
 import {
   AutoLogService,
+  DOWN,
   InjectConfig,
   IsEmpty,
   PEAT,
+  UP,
 } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
@@ -27,6 +29,7 @@ export type PromptEntry<T = string> =
   | Separator;
 const LABEL = 0;
 const VALUE = 1;
+const NO = 0;
 const OFF_BRIGHTNESS = 0;
 const MIN_BRIGHTNESS = 1;
 const BLOCK_OFFSET = '   ';
@@ -35,8 +38,8 @@ const MAX_BRIGHTNESS = 255;
 @Injectable()
 export class PromptService {
   constructor(
-    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: figlet.Fonts,
     private readonly logger: AutoLogService,
+    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: figlet.Fonts,
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
     @InjectConfig(BLOCK_PRINT_BG) private readonly blockPrintBg: string,
     @InjectConfig(BLOCK_PRINT_FG) private readonly blockPrintFg: string,
@@ -387,6 +390,18 @@ export class PromptService {
     this.clear();
     console.log(chalk.cyan(header), '\n');
     return header.split(`\n`).pop().length;
+  }
+
+  public sort<T>(entries: PromptEntry<T>[]): PromptEntry<T>[] {
+    return entries.sort((a, b) => {
+      if (!Array.isArray(a)) {
+        return NO;
+      }
+      if (!Array.isArray(b)) {
+        return NO;
+      }
+      return a[LABEL] > b[LABEL] ? UP : DOWN;
+    });
   }
 
   public async string(
