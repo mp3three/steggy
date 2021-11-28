@@ -55,6 +55,7 @@ For loop example getting entity values in the weather domain:
         [`Home Assistant Config`, 'hassConfig'],
         [`Render template`, 'renderTemplate'],
         [`Send template notification`, 'sendNotification'],
+        [`Restart Home Assistant`, 'reboot'],
       ],
       'Debug action',
       defaultAction,
@@ -63,6 +64,12 @@ For loop example getting entity values in the weather domain:
     switch (action) {
       case DONE:
         return;
+      case 'reboot':
+        await this.fetchService.fetch({
+          method: 'post',
+          url: `/admin/hass-reboot`,
+        });
+        return await this.exec(action);
       case 'version':
         const version = await this.fetchService.fetch({ url: `/version` });
         this.promptService.print(dump(version));
