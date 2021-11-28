@@ -21,9 +21,18 @@ export class HomeAssistantFetchAPIService {
   ) {}
 
   /**
+   * Pass through of home assistant's yaml check
+   */
+  public async checkConfig(): Promise<unknown> {
+    return await this.fetch({
+      method: `post`,
+      url: `/api/config/core/check_config`,
+    });
+  }
+
+  /**
    * Wrapper to set baseUrl
    */
-
   public fetch<T>(fetchWitch: FetchWith): Promise<T> {
     return this.fetchService.fetch<T>({
       baseUrl: this.baseUrl,
@@ -46,7 +55,6 @@ export class HomeAssistantFetchAPIService {
   /**
    * Request historical information about an entity
    */
-
   public async fetchEntityHistory<T extends HassStateDTO = HassStateDTO>(
     entity_id: string,
     from: Date,

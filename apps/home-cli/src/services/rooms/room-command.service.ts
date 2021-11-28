@@ -1,8 +1,4 @@
-import {
-  GroupDTO,
-  RoomDTO,
-  RoomEntityDTO,
-} from '@ccontour/controller-logic';
+import { GroupDTO, RoomDTO, RoomEntityDTO } from '@ccontour/controller-logic';
 import { HASS_DOMAINS } from '@ccontour/home-assistant';
 import {
   DONE,
@@ -19,8 +15,8 @@ import { encode } from 'ini';
 import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
 
-import { EntityService } from '../entity.service';
 import { GroupCommandService } from '../groups/group-command.service';
+import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoutineService } from '../routines';
 import { RoomStateService } from './room-state.service';

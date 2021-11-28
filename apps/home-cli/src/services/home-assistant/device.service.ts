@@ -7,8 +7,8 @@ import { AutoLogService, IsEmpty } from '@ccontour/utilities';
 import { forwardRef, Inject } from '@nestjs/common';
 import { encode } from 'ini';
 
+import { HomeFetchService } from '../home-fetch.service';
 import { EntityService } from './entity.service';
-import { HomeFetchService } from './home-fetch.service';
 
 const SINGLE_ITEM = 1;
 @Repl({

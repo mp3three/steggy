@@ -6,8 +6,8 @@ import { HASS_DOMAINS } from '@ccontour/home-assistant';
 import { ColorsService, ICONS, PromptService } from '@ccontour/tty';
 import { Injectable } from '@nestjs/common';
 
-import { EntityService } from '../../entity.service';
 import { GroupCommandService } from '../../groups';
+import { EntityService } from '../../home-assistant/entity.service';
 
 const DEFAULT_DURATION = 1000;
 const DEFAULT_INTERVAL = 500;

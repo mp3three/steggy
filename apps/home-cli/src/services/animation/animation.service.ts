@@ -2,7 +2,7 @@ import { FlashAnimationDTO } from '@ccontour/controller-logic';
 import { HASS_DOMAINS } from '@ccontour/home-assistant';
 import { ColorsService, ICONS, PromptService, Repl } from '@ccontour/tty';
 
-import { EntityService } from '../entity.service';
+import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 
 const DEFAULT_DURATION = 10;
