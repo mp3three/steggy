@@ -11,7 +11,11 @@
         "tsConfig": "libs/controller-logic/tsconfig.lib.json",
         "packageJson": "libs/controller-logic/package.json",
         "main": "libs/controller-logic/src/index.ts",
-        "assets": ["libs/controller-logic/*.md"]
+        "assets": [
+          "libs/controller-logic/*.md",
+          "libs/controller-logic/metadata.json",
+          "libs/controller-logic/package.json"
+        ]
       },
       "configurations": {
         "production": {
