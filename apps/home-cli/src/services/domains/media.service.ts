@@ -1,12 +1,5 @@
-import {
-  domain,
-  FanStateDTO,
-  MediaPlayerStateDTO,
-} from '@ccontour/home-assistant';
-import { ICONS, PromptEntry } from '@ccontour/tty';
-import { DOWN, sleep, TitleCase, UP } from '@ccontour/utilities';
+import { PromptEntry } from '@ccontour/tty';
 import { Injectable } from '@nestjs/common';
-import chalk from 'chalk';
 
 import { SwitchService } from './switch.service';
 

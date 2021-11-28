@@ -56,7 +56,7 @@ export class BaseDomainService {
     private readonly history: EntityHistoryService,
     private readonly pinnedItem: PinnedItemService<never>,
     @InjectConfig(REFRESH_SLEEP)
-    protected readonly REFRESH_SLEEP: number,
+    protected readonly refreshSleep: number,
   ) {}
 
   public async createSaveCommand(
@@ -148,7 +148,7 @@ export class BaseDomainService {
       head: keys.map((i) => TitleCase(i)),
     });
     // console.log(attributes);
-    attributes.forEach((i, index) =>
+    attributes.forEach((i) =>
       table.push(
         keys.map((key) => {
           if (key === 'date') {
@@ -183,7 +183,7 @@ export class BaseDomainService {
   ): Promise<T> {
     // sleep needed to ensure correct-ness of header information
     // Somtimes the previous request impacts the state, and race conditions
-    await sleep(this.REFRESH_SLEEP);
+    await sleep(this.refreshSleep);
     this.promptService.clear();
     this.promptService.scriptHeader(TitleCase(domain(id), false));
     const content = await this.getState<T>(id);

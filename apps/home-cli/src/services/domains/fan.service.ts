@@ -3,9 +3,9 @@ import {
   FanCacheSpeeds,
   RoomEntitySaveStateDTO,
 } from '@ccontour/controller-logic';
-import { domain, FanSpeeds, FanStateDTO } from '@ccontour/home-assistant';
+import { FanSpeeds, FanStateDTO } from '@ccontour/home-assistant';
 import { DONE, ICONS, PromptEntry } from '@ccontour/tty';
-import { sleep, TitleCase } from '@ccontour/utilities';
+import { TitleCase } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';

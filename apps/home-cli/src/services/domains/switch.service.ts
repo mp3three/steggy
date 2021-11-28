@@ -73,7 +73,7 @@ export class SwitchService extends BaseDomainService {
   private async printHeader(id: string): Promise<void> {
     // sleep needed to ensure correct-ness of header information
     // Somtimes the previous request impacts the state, and race conditions
-    await sleep(this.REFRESH_SLEEP);
+    await sleep(this.refreshSleep);
     this.promptService.clear();
     this.promptService.scriptHeader(TitleCase(domain(id)));
     const content = await this.getState(id);

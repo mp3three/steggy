@@ -11,7 +11,7 @@ import {
   PromptService,
   Repl,
 } from '@ccontour/tty';
-import { IsEmpty, TitleCase } from '@ccontour/utilities';
+import { IsEmpty } from '@ccontour/utilities';
 
 import {
   BaseDomainService,
