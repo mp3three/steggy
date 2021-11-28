@@ -73,7 +73,6 @@ export class BaseFetchService {
       method = fetchWitch.method === 'get' ? 'post' : fetchWitch.method;
       headers['Content-Type'] = 'application/json';
     }
-
     if (jwtToken) {
       headers['x-jwt-token'] = jwtToken;
     }

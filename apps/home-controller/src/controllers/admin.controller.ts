@@ -33,9 +33,8 @@ export class AdminController {
   }
 
   @Get('/server/logs')
-  @ApiGenericResponse()
   @ApiOperation({
-    description: `Send a restart command to home assistant`,
+    description: `Home assistant logs`,
   })
   public async getLogs(): Promise<HomeAssistantServerLogItem[]> {
     return await this.fetchService.getLogs();
@@ -61,6 +60,14 @@ export class AdminController {
     this.logger.warn(`Stopping Home Assistant`);
     await this.callService.call(`stop`, {}, HASS_DOMAINS.homeassistant);
     return GENERIC_SUCCESS_RESPONSE;
+  }
+
+  @Get('/server/raw-logs')
+  @ApiOperation({
+    description: `Raw home assistant logs`,
+  })
+  public async rawLogs(): Promise<string> {
+    return await this.fetchService.getRawLogs();
   }
 
   @Post('/reload/:domain')

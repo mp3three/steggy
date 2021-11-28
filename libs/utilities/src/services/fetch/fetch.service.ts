@@ -34,15 +34,12 @@ export class FetchService extends BaseFetchService {
     });
   }
 
-  public async fetch<T>({
-    process,
-    ...fetchWith
-  }: Partial<FetchArguments>): Promise<T> {
+  public async fetch<T>(fetchWith: Partial<FetchArguments>): Promise<T> {
     const url: string = await this.fetchCreateUrl(fetchWith);
     const requestInit = await this.fetchCreateMeta(fetchWith);
     try {
       const response = await fetch(url, requestInit);
-      if (process === false) {
+      if (fetchWith.process === false) {
         return response as unknown as T;
       }
       return await this.fetchHandleResponse(fetchWith, response);

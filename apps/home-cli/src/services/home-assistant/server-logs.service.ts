@@ -25,8 +25,13 @@ export class ServerLogsService {
   ) {}
 
   public async exec(defaultValue: string): Promise<void> {
+    this.promptService.clear();
+    this.promptService.scriptHeader(`Server Logs`);
     const action = await this.promptService.menuSelect(
-      [['Show logs', 'logs']],
+      [
+        [`${ICONS.LOGS}Show logs`, 'logs'],
+        [`${ICONS.ANIMATION}Raw`, 'raw'],
+      ],
       `Log commands`,
       defaultValue,
     );
@@ -35,6 +40,9 @@ export class ServerLogsService {
         return;
       case 'logs':
         await this.getLogs();
+        return await this.exec(action);
+      case 'raw':
+        await this.rawLogs();
         return await this.exec(action);
     }
     throw new NotImplementedException();
@@ -75,13 +83,22 @@ export class ServerLogsService {
         chalk`{bold First occurred:} ${dayjs(item.first_occurred).format(
           'YYYY-MM-DD hh:mm:ss A',
         )} (${item.count} occurrences)`,
-        chalk`{chalk Last logged} ${dayjs(item.timestamp).format(
+        chalk`{bold Last logged} ${dayjs(item.timestamp).format(
           'YYYY-MM-DD hh:mm:ss A',
         )}`,
         ``,
         ...item.message.map((i) => chalk` {cyan -} ${i}`),
       ].join(`\n`),
     );
+    await this.promptService.acknowledge();
+  }
+
+  private async rawLogs(): Promise<void> {
+    const logs = await this.fetchService.fetch<HomeAssistantServerLogItem[]>({
+      process: 'text',
+      url: `/admin/server/raw-logs`,
+    });
+    console.log(logs);
     await this.promptService.acknowledge();
   }
 }

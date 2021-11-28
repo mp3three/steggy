@@ -92,4 +92,16 @@ export class HomeAssistantFetchAPIService {
       return i;
     });
   }
+
+  /**
+   * Pass through of home assistant's get logs.
+   *
+   * Correct timestamps for javascript-ness
+   */
+  public async getRawLogs(): Promise<string> {
+    return await this.fetch<string>({
+      process: 'text',
+      url: `/api/error_log`,
+    });
+  }
 }
