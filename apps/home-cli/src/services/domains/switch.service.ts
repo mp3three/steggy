@@ -1,6 +1,9 @@
 import { RoomEntitySaveStateDTO } from '@ccontour/controller-logic';
+import { domain } from '@ccontour/home-assistant';
 import { ICONS, PromptEntry } from '@ccontour/tty';
+import { sleep, TitleCase } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
+import chalk from 'chalk';
 
 import { BaseDomainService } from './base-domain.service';
 
@@ -25,7 +28,14 @@ export class SwitchService extends BaseDomainService {
     };
   }
 
-  public async processId(id: string, command?: string): Promise<string> {
+  public async processId(
+    id: string,
+    command?: string,
+    skipHeader = false,
+  ): Promise<string> {
+    if (skipHeader === false) {
+      await this.printHeader(id);
+    }
     const action = await super.processId(id, command);
     switch (action) {
       case 'turnOn':
@@ -58,5 +68,20 @@ export class SwitchService extends BaseDomainService {
       [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
       ...super.getMenuOptions(id),
     ];
+  }
+
+  private async printHeader(id: string): Promise<void> {
+    // sleep needed to ensure correct-ness of header information
+    // Somtimes the previous request impacts the state, and race conditions
+    await sleep(this.refreshSleep);
+    this.promptService.clear();
+    this.promptService.scriptHeader(TitleCase(domain(id)));
+    const content = await this.getState(id);
+    console.log(
+      chalk` ${
+        content.state === 'on' ? ICONS.TURN_ON : ICONS.TURN_OFF
+      }{magenta.bold ${content.attributes.friendly_name}}`,
+    );
+    console.log();
   }
 }

@@ -1,3 +1,6 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum, IsNumber, IsString } from 'class-validator';
+
 import { HassStateDTO } from '../hass-state.dto';
 
 export enum LightEffectsList {
@@ -12,16 +15,38 @@ export enum ColorModes {
 }
 
 export class LightAttributesDTO {
+  @ApiProperty({ required: false })
+  @IsNumber()
   public brightness?: number;
+  @ApiProperty({ required: false })
+  @IsEnum(ColorModes)
   public color_mode?: ColorModes;
+  @ApiProperty({ required: false })
+  @IsNumber()
+  public color_temp?: number;
+  @ApiProperty({ required: false })
+  @IsString()
   public effect?: 'none';
+  @ApiProperty({ required: false })
+  @IsEnum(LightEffectsList, { each: true })
   public effect_list?: LightEffectsList[];
+  @ApiProperty({ required: false })
+  @IsString()
   public friendly_name?: string;
+  @ApiProperty({ required: false })
   public hs_color?: [number, number];
+  @ApiProperty({ required: false })
+  @IsNumber()
   public max_mireds?: number;
+  @ApiProperty({ required: false })
+  @IsNumber()
   public min_minreds?: number;
+  @ApiProperty({ required: false })
   public rgb_color?: [number, number, number];
+  @ApiProperty({ required: false })
+  @IsNumber()
   public supported_features?: number;
+  @ApiProperty({ required: false })
   public xy_color?: [number, number];
 }
 

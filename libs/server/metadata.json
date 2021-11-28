@@ -10,6 +10,11 @@
       "default": "*",
       "description": "CORS origin for the server. Set to blank to disable middleware"
     },
+    "CSURF": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable the CSURF middleware"
+    },
     "MAX_REQUEST_ID": {
       "type": "number",
       "default": 1000000000,

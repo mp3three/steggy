@@ -5,7 +5,6 @@ import {
   InjectConfig,
 } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
-import dayjs from 'dayjs';
 
 import { BASE_URL, TOKEN } from '../config';
 import { HassStateDTO } from '../contracts';
@@ -50,9 +49,9 @@ export class HomeAssistantFetchAPIService {
 
   public async fetchEntityHistory<T extends HassStateDTO = HassStateDTO>(
     entity_id: string,
-    from: dayjs.Dayjs,
-    to: dayjs.Dayjs,
-    parameters: Record<string, string> = {},
+    from: Date,
+    to: Date,
+    extra: { minimal_response?: '' } = {},
   ): Promise<T[]> {
     this.logger.info(
       { from: from.toISOString(), to: to.toISOString() },
@@ -62,7 +61,7 @@ export class HomeAssistantFetchAPIService {
       params: {
         end_time: to.toISOString(),
         filter_entity_id: entity_id,
-        ...parameters,
+        ...extra,
       },
       url: `/api/history/period/${from.toISOString()}`,
     });

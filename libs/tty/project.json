@@ -11,7 +11,11 @@
         "tsConfig": "libs/tty/tsconfig.lib.json",
         "packageJson": "libs/tty/package.json",
         "main": "libs/tty/src/index.ts",
-        "assets": ["libs/tty/*.md"]
+        "assets": [
+          "libs/tty/*.md",
+          "libs/tty/metadata.json",
+          "libs/tty/package.json"
+        ]
       },
       "configurations": {
         "production": {

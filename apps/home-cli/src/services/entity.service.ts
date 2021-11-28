@@ -3,11 +3,7 @@ import {
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
 } from '@ccontour/controller-logic';
-import {
-  domain,
-  HASS_DOMAINS,
-  HassStateDTO,
-} from '@ccontour/home-assistant';
+import { domain, HASS_DOMAINS, HassStateDTO } from '@ccontour/home-assistant';
 import {
   ICONS,
   iRepl,
@@ -163,8 +159,6 @@ export class EntityService implements iRepl {
   }
 
   public async process(id: string): Promise<void> {
-    this.promptService.clear();
-    this.promptService.scriptHeader(`Entity`);
     switch (domain(id)) {
       case HASS_DOMAINS.light:
         await this.lightService.processId(id);

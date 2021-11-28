@@ -8,6 +8,11 @@
     "ADMIN_KEY": {
       "type": "password",
       "description": "Admin key for the home controller"
+    },
+    "REFRESH_SLEEP": {
+      "type": "number",
+      "default": 100,
+      "description": "Delay before loading entity header for ensuring state is up to date"
     }
   }
 }

@@ -4,6 +4,7 @@ import {
   FanDomainService,
   FanSpeeds,
   HASS_DOMAINS,
+  HomeAssistantFetchAPIService,
   LockDomainService,
   MediaPlayerDomainService,
   SwitchDomainService,
@@ -29,6 +30,7 @@ export class EntityCommandRouterService {
     private readonly fanService: FanDomainService,
     private readonly lockService: LockDomainService,
     private readonly climateService: ClimateDomainService,
+    private readonly fetchAPI: HomeAssistantFetchAPIService,
   ) {}
 
   public async fromState({
@@ -37,6 +39,10 @@ export class EntityCommandRouterService {
     extra,
   }: RoomEntitySaveStateDTO): Promise<void> {
     await this.process(ref, state, extra);
+  }
+
+  public async history(): Promise<void> {
+    //
   }
 
   public async process(

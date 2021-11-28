@@ -20,7 +20,8 @@ export class MediaService extends SwitchService {
   }
 
   public async processId(id: string, command?: string): Promise<string> {
-    const action = await super.processId(id, command);
+    await this.baseHeader(id);
+    const action = await super.processId(id, command, true);
     switch (action) {
       case 'mute':
         await this.mute(id);

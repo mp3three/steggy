@@ -11,11 +11,10 @@
         "tsConfig": "libs/utilities/tsconfig.lib.json",
         "packageJson": "libs/utilities/package.json",
         "main": "libs/utilities/src/index.ts",
-        "assets": [{
-          "input": "libs/utilities",
-          "glob": "metadata.json",
-          "output": "./assets"
-        }]
+        "assets": [
+          "libs/utilities/metadata.json",
+          "libs/utilities/package.json"
+        ]
       },
       "configurations": {
         "production": {

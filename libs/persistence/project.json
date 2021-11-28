@@ -11,7 +11,11 @@
         "tsConfig": "libs/persistence/tsconfig.lib.json",
         "packageJson": "libs/persistence/package.json",
         "main": "libs/persistence/src/index.ts",
-        "assets": ["libs/persistence/*.md"]
+        "assets": [
+          "libs/persistence/*.md",
+          "libs/persistence/metadata.json",
+          "libs/persistence/package.json"
+        ]
       },
       "configurations": {
         "production": {

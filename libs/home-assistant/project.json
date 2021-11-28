@@ -44,7 +44,8 @@
         "main": "libs/home-assistant/src/index.ts",
         "assets": [
           "libs/home-assistant/*.md",
-          "libs/home-assistant/metadata.json"
+          "libs/home-assistant/metadata.json",
+          "libs/home-assistant/package.json"
         ]
       },
       "configurations": {

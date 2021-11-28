@@ -1,5 +1,6 @@
 import {
   EntityCommandRouterService,
+  EntityHistoryRequest,
   LightingCacheDTO,
   LightManagerService,
 } from '@ccontour/controller-logic';
@@ -9,6 +10,7 @@ import {
   EntityRegistryItemDTO,
   HASS_DOMAINS,
   HassStateDTO,
+  HomeAssistantFetchAPIService,
 } from '@ccontour/home-assistant';
 import {
   ApiGenericResponse,
@@ -37,6 +39,7 @@ export class EntityController {
     private readonly entityManager: EntityManagerService,
     private readonly commandRouter: EntityCommandRouterService,
     private readonly lightManager: LightManagerService,
+    private readonly fetchAPI: HomeAssistantFetchAPIService,
   ) {}
 
   @Put('/update-id/:id')
@@ -79,6 +82,19 @@ export class EntityController {
     @Param('entityId') entityId: string,
   ): Promise<HassStateDTO> {
     return await this.entityManager.getEntity(entityId);
+  }
+
+  @Post('/history/:entityId')
+  public async history(
+    @Param('entityId') entityId: string,
+    @Body()
+    { from, to }: EntityHistoryRequest,
+  ): Promise<unknown[]> {
+    return await this.fetchAPI.fetchEntityHistory(
+      entityId,
+      new Date(from),
+      new Date(to),
+    );
   }
 
   @Get('/list')

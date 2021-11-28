@@ -3,17 +3,9 @@ import {
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
 } from '@ccontour/controller-logic';
-import {
-  domain,
-  HASS_DOMAINS,
-  HassStateDTO,
-  LightStateDTO,
-} from '@ccontour/home-assistant';
+import { HASS_DOMAINS, LightStateDTO } from '@ccontour/home-assistant';
 import { ColorsService, ICONS, PromptEntry } from '@ccontour/tty';
-import { sleep, TitleCase } from '@ccontour/utilities';
 import { Inject, Injectable } from '@nestjs/common';
-import chalk from 'chalk';
-import { dump } from 'js-yaml';
 
 import { SwitchService } from './switch.service';
 
@@ -23,7 +15,6 @@ const R = 0;
 const G = 1;
 const B = 1;
 const SHIFT_AMOUNT = 2;
-const DELAY = 100;
 
 @Injectable()
 export class LightService extends SwitchService {
@@ -105,7 +96,7 @@ export class LightService extends SwitchService {
 
   public async processId(id: string, command?: string): Promise<string> {
     const light = await this.baseHeader<LightStateDTO>(id);
-    const action = await super.processId(id, command);
+    const action = await super.processId(id, command, true);
     switch (action) {
       case 'dimDown':
         await this.dimDown(id);
@@ -158,26 +149,6 @@ export class LightService extends SwitchService {
       hs_color: swapWith.attributes.hs_color,
     });
   }
-  protected async baseHeader<T extends HassStateDTO = HassStateDTO>(
-    id: string,
-  ): Promise<T> {
-    // sleep needed to ensure correct-ness of header information
-    // Somtimes the previous request impacts the state, and race conditions
-    await sleep(DELAY);
-    this.promptService.clear();
-    this.promptService.scriptHeader(`Entity`);
-    const content = await this.getState<T>(id);
-    console.log(
-      chalk`{magenta.bold ${
-        content.attributes.friendly_name
-      }} - {yellow.bold ${TitleCase(domain(content.entity_id), false)}}`,
-    );
-    console.log();
-    this.promptService.print(dump(content));
-    console.log();
-    return content;
-  }
-
   protected getMenuOptions(id: string): PromptEntry[] {
     const parent = super.getMenuOptions(id);
     return [
@@ -190,6 +161,15 @@ export class LightService extends SwitchService {
       [`${ICONS.SWAP}Swap state with another light`, 'swapState'],
       ...parent.slice(SHIFT_AMOUNT),
     ];
+  }
+
+  protected logAttributes(states: LightStateDTO[]): unknown[] {
+    return states.map((i) => ({
+      color_mode: i.attributes?.color_mode ?? '',
+      date: i.last_changed,
+      rgb_color: (i.attributes?.rgb_color ?? [OFF, OFF, OFF]).join(', '),
+      state: i.state,
+    }));
   }
 
   private async setState(

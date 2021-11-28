@@ -61,7 +61,7 @@ export class FanService extends SwitchService {
 
   public async processId(id: string, command?: string): Promise<string> {
     await this.baseHeader(id);
-    const action = await super.processId(id, command);
+    const action = await super.processId(id, command, true);
     switch (action) {
       case 'fanSpeedDown':
         await this.fanSpeedDown(id);
@@ -100,5 +100,16 @@ export class FanService extends SwitchService {
       [`${ICONS.COMMAND}Set speed`, 'setSpeed'],
       ...super.getMenuOptions(id),
     ];
+  }
+
+  protected logAttributes(
+    states: FanStateDTO[],
+  ): { percent: number; speed: string; state: string }[] {
+    return states.map((i) => ({
+      date: i.last_changed,
+      percent: i.attributes.percentage,
+      speed: i.attributes.speed,
+      state: i.state,
+    }));
   }
 }
