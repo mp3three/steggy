@@ -3,6 +3,7 @@
  */
 export const ICONS = {
   ACTIVATE: '🏁 ',
+  ADMIN: '🚁 ',
   ANIMATION: '📽 ',
   BACK: '🔙 ',
   BRIGHTNESS: '💡 ',

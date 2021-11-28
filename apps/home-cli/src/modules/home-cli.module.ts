@@ -7,6 +7,7 @@ import {
 import { DiscoveryModule } from '@nestjs/core';
 
 import {
+  AdminService,
   AnimationService,
   BaseDomainService,
   ClimateService,
@@ -82,6 +83,7 @@ import {
         WebhookService,
       ],
       // /*
+      AdminService,
       AnimationService,
       DebugService,
       DeviceService,

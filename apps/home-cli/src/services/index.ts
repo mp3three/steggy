@@ -1,3 +1,4 @@
+export * from './admin.service';
 export * from './animation';
 export * from './debug.service';
 export * from './device.service';
