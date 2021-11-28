@@ -21,7 +21,11 @@ import {
   WARN_REQUESTS_PER_SEC,
   WEBSOCKET_URL,
 } from '../config';
-import type { HassConfig, SOCKET_MESSAGES } from '../contracts';
+import type {
+  HassConfig,
+  HassNotificationDTO,
+  SOCKET_MESSAGES,
+} from '../contracts';
 import {
   ALL_ENTITIES_UPDATED,
   AreaDTO,
@@ -88,6 +92,12 @@ export class HASocketAPIService {
   public async getConfig(): Promise<HassConfig> {
     return await this.sendMsg({
       type: HASSIO_WS_COMMAND.get_config,
+    });
+  }
+
+  public async getNotifications(): Promise<HassNotificationDTO[]> {
+    return await this.sendMsg({
+      type: HASSIO_WS_COMMAND.persistent_notification,
     });
   }
 

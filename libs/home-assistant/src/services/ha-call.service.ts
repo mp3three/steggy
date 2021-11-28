@@ -40,10 +40,17 @@ export class HACallService {
     );
   }
 
+  public async dismissNotification(notification_id: string): Promise<void> {
+    return await this.call(
+      'dismiss',
+      { notification_id },
+      HASS_DOMAINS.persistentNotification,
+    );
+  }
+
   /**
    * Ask Home Assistant to send a MQTT message
    */
-
   public async sendMqtt<T = unknown>(
     topic: string,
     payload: Record<string, unknown>,
