@@ -87,9 +87,14 @@ export class EntityController {
   @Post('/history/:entityId')
   public async history(
     @Param('entityId') entityId: string,
-    @Body() { from, to }: EntityHistoryRequest,
+    @Body()
+    { from, to }: EntityHistoryRequest,
   ): Promise<unknown[]> {
-    return await this.fetchAPI.fetchEntityHistory(entityId, from, to);
+    return await this.fetchAPI.fetchEntityHistory(
+      entityId,
+      new Date(from),
+      new Date(to),
+    );
   }
 
   @Get('/list')

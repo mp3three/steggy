@@ -3,7 +3,7 @@ import {
   FanCacheSpeeds,
   RoomEntitySaveStateDTO,
 } from '@ccontour/controller-logic';
-import { FanSpeeds, FanStateDTO } from '@ccontour/home-assistant';
+import { FanSpeeds, FanStateDTO, HassStateDTO } from '@ccontour/home-assistant';
 import { DONE, ICONS, PromptEntry } from '@ccontour/tty';
 import { TitleCase } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
@@ -100,5 +100,16 @@ export class FanService extends SwitchService {
       [`${ICONS.COMMAND}Set speed`, 'setSpeed'],
       ...super.getMenuOptions(id),
     ];
+  }
+
+  protected logAttributes(
+    states: FanStateDTO[],
+  ): { percent: number; speed: string; state: string }[] {
+    return states.map((i) => ({
+      date: i.last_changed,
+      percent: i.attributes.percentage,
+      speed: i.attributes.speed,
+      state: i.state,
+    }));
   }
 }

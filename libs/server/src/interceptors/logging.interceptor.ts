@@ -38,9 +38,12 @@ export class LoggingInterceptor implements NestInterceptor {
         const responseTime = Date.now() - locals.start.getTime();
 
         const message = prettyLogger
-          ? `[${request.method}] {${request.path}}`
-          : 'Request errored';
-        this.logger.error({ error, responseTime, ...extra }, message);
+          ? `[${request.method}] {${request.path}} ${error.message}`
+          : `Request errored ${error.message}`;
+        this.logger.error(
+          { responseTime, stack: error.stack, ...extra },
+          message,
+        );
         // This results in double errors
         // One coming from here, one from nestsjs (with undefined context?)
         return throwError(() => error);

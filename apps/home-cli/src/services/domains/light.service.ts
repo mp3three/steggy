@@ -192,6 +192,15 @@ export class LightService extends SwitchService {
     ];
   }
 
+  protected logAttributes(states: LightStateDTO[]): unknown[] {
+    return states.map((i) => ({
+      color_mode: i.attributes?.color_mode ?? '',
+      date: i.last_changed,
+      rgb_color: (i.attributes?.rgb_color ?? [OFF, OFF, OFF]).join(', '),
+      state: i.state,
+    }));
+  }
+
   private async setState(
     id: string,
     body: Partial<LightingCacheDTO>,

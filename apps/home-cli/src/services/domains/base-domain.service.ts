@@ -20,6 +20,8 @@ import {
   NotImplementedException,
 } from '@nestjs/common';
 import chalk from 'chalk';
+import Table from 'cli-table';
+import dayjs from 'dayjs';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
@@ -31,6 +33,7 @@ import { HomeFetchService } from '../home-fetch.service';
 
 type tDeviceService = DeviceService;
 const HEADER_SEPARATOR = 0;
+const FIRST = 0;
 const DELAY = 100;
 
 @Injectable()
@@ -110,7 +113,29 @@ export class BaseDomainService {
         await this.fromRegistry(id);
         return await this.processId(id, action);
       case 'history':
-        await this.history.promptEntityHistory(id);
+        const data = await this.history.promptEntityHistory(id);
+        const attributes = this.logAttributes(data);
+        if (IsEmpty(attributes)) {
+          this.logger.warn(`No history returned`);
+        } else {
+          const keys = Object.keys(attributes[FIRST]);
+          const table = new Table({
+            head: keys.map((i) => TitleCase(i)),
+          });
+          // console.log(attributes);
+          attributes.forEach((i, index) =>
+            table.push(
+              keys.map((key) => {
+                if (key === 'date') {
+                  return dayjs(i[key]).format('YYYY-MM-DD hh:mm:ss A0');
+                }
+                return i[key];
+              }),
+            ),
+          );
+          console.log(table.toString());
+          await this.promptService.acknowledge();
+        }
         return await this.processId(id, action);
       case 'pin':
         await this.togglePin(id);
@@ -211,5 +236,9 @@ export class BaseDomainService {
         'pin',
       ],
     ];
+  }
+
+  protected logAttributes(states: HassStateDTO[]): unknown[] {
+    return states.map((i) => ({ date: i.last_changed, state: i.state }));
   }
 }

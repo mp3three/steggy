@@ -10,9 +10,12 @@ import {
   INestApplication,
   MiddlewareConsumer,
   RequestMethod,
+  ValidationPipe,
 } from '@nestjs/common';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import csurf from 'csurf';
 import { Express, json } from 'express';
 import { readFileSync } from 'fs';
 import helmet from 'helmet';
@@ -23,6 +26,7 @@ import {
   BODY_SIZE,
   COMPRESSION,
   CORS,
+  CSURF,
   GLOBAL_PREFIX,
   PORT,
   SSL_CERT,
@@ -69,6 +73,7 @@ export class ServerModule {
     @InjectConfig(SSL_CERT)
     private readonly sslCert: string,
     @InjectConfig(CORS) private readonly cors: string,
+    @InjectConfig(CSURF) private readonly csurf: boolean,
   ) {}
 
   public configure(consumer: MiddlewareConsumer): void {
@@ -91,7 +96,12 @@ export class ServerModule {
       this.logger.debug(`Using global http prefix {${this.prefix}}`);
       app.setGlobalPrefix(this.prefix);
     }
+    app.useGlobalPipes(new ValidationPipe());
     app.use(json({ limit: this.limit }));
+    if (this.csurf) {
+      this.logger.debug(`Using csurf middleware`);
+      app.use(cookieParser(), csurf());
+    }
     if (this.compression) {
       this.logger.debug(`Using compression middleware`);
       app.use(compression());
