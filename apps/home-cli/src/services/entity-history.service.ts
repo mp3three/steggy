@@ -2,8 +2,10 @@ import { EntityHistoryRequest } from '@ccontour/controller-logic';
 import { HassStateDTO } from '@ccontour/home-assistant';
 import { PromptService } from '@ccontour/tty';
 import { Injectable } from '@nestjs/common';
+import dayjs from 'dayjs';
 
 import { HomeFetchService } from './home-fetch.service';
+const FROM_OFFSET = 1;
 
 @Injectable()
 export class EntityHistoryService {
@@ -13,8 +15,11 @@ export class EntityHistoryService {
   ) {}
 
   public async promptEntityHistory(id: string): Promise<HassStateDTO[]> {
-    const from = await this.promptService.date(`From date`);
-    const to = await this.promptService.date('End date');
+    const from = await this.promptService.timestamp(
+      `From date`,
+      dayjs().subtract(FROM_OFFSET, 'day').toDate(),
+    );
+    const to = await this.promptService.timestamp('End date');
     return await this.fetchService.fetch({
       body: {
         from,

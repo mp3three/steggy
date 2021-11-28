@@ -13,7 +13,6 @@ import { ColorsService, ICONS, PromptEntry } from '@ccontour/tty';
 import { sleep, TitleCase } from '@ccontour/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import chalk from 'chalk';
-import { dump } from 'js-yaml';
 
 import { SwitchService } from './switch.service';
 
@@ -22,8 +21,9 @@ const OFF = 0;
 const R = 0;
 const G = 1;
 const B = 1;
+const MAX_BRIGHTNESS = 255;
 const SHIFT_AMOUNT = 2;
-const DELAY = 100;
+const PERCENT = 100;
 
 @Injectable()
 export class LightService extends SwitchService {
@@ -105,7 +105,7 @@ export class LightService extends SwitchService {
 
   public async processId(id: string, command?: string): Promise<string> {
     const light = await this.baseHeader<LightStateDTO>(id);
-    const action = await super.processId(id, command);
+    const action = await super.processId(id, command, true);
     switch (action) {
       case 'dimDown':
         await this.dimDown(id);
@@ -158,24 +158,55 @@ export class LightService extends SwitchService {
       hs_color: swapWith.attributes.hs_color,
     });
   }
-  protected async baseHeader<T extends HassStateDTO = HassStateDTO>(
+  protected async baseHeader2<T extends HassStateDTO = LightStateDTO>(
     id: string,
   ): Promise<T> {
     // sleep needed to ensure correct-ness of header information
     // Somtimes the previous request impacts the state, and race conditions
-    await sleep(DELAY);
+    await sleep(this.REFRESH_SLEEP);
     this.promptService.clear();
-    this.promptService.scriptHeader(`Entity`);
-    const content = await this.getState<T>(id);
+    this.promptService.scriptHeader(TitleCase(domain(id)));
+    const content = await this.getState<LightStateDTO>(id);
+    const {
+      brightness,
+      color_mode,
+      color_temp,
+      friendly_name,
+      hs_color,
+      rgb_color,
+    } = content.attributes;
     console.log(
-      chalk`{magenta.bold ${
-        content.attributes.friendly_name
-      }} - {yellow.bold ${TitleCase(domain(content.entity_id), false)}}`,
+      chalk` ${
+        content.state === 'on' ? ICONS.TURN_ON : ICONS.TURN_OFF
+      }{magenta.bold ${friendly_name}} ${
+        content.state === 'on'
+          ? chalk`{yellow.bold ${Math.floor(
+              (brightness / MAX_BRIGHTNESS) * PERCENT,
+            )}%} ({yellow ${brightness}}/{yellow ${MAX_BRIGHTNESS}})`
+          : ``
+      }`,
+    );
+    if (content.state === 'off') {
+      console.log();
+      return;
+    }
+    console.log(
+      [
+        chalk`   {cyan -} {bold Color mode}: {blue ${color_mode}}`,
+        ...(color_mode === 'hs'
+          ? [
+              chalk`   {cyan -} {bold HS Color}: ${hs_color
+                .map((i) => chalk.yellow(i.toString()))
+                .join(', ')}`,
+              chalk`   {cyan -} {bold RGB Color}: ${rgb_color
+                .map((i) => chalk.yellow(i.toString()))
+                .join(', ')}`,
+            ]
+          : [chalk`   {cyan -} {bold Kelvin}: {yellow ${color_temp}}`]),
+      ].join(`\n`),
     );
     console.log();
-    this.promptService.print(dump(content));
-    console.log();
-    return content;
+    return content as T;
   }
 
   protected getMenuOptions(id: string): PromptEntry[] {

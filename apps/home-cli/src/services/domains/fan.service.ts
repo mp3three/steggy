@@ -3,9 +3,9 @@ import {
   FanCacheSpeeds,
   RoomEntitySaveStateDTO,
 } from '@ccontour/controller-logic';
-import { FanSpeeds, FanStateDTO, HassStateDTO } from '@ccontour/home-assistant';
+import { domain, FanSpeeds, FanStateDTO } from '@ccontour/home-assistant';
 import { DONE, ICONS, PromptEntry } from '@ccontour/tty';
-import { TitleCase } from '@ccontour/utilities';
+import { sleep, TitleCase } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
@@ -61,7 +61,7 @@ export class FanService extends SwitchService {
 
   public async processId(id: string, command?: string): Promise<string> {
     await this.baseHeader(id);
-    const action = await super.processId(id, command);
+    const action = await super.processId(id, command, true);
     switch (action) {
       case 'fanSpeedDown':
         await this.fanSpeedDown(id);

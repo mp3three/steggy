@@ -1,5 +1,12 @@
-import { PromptEntry } from '@ccontour/tty';
+import {
+  domain,
+  FanStateDTO,
+  MediaPlayerStateDTO,
+} from '@ccontour/home-assistant';
+import { ICONS, PromptEntry } from '@ccontour/tty';
+import { DOWN, sleep, TitleCase, UP } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
+import chalk from 'chalk';
 
 import { SwitchService } from './switch.service';
 
@@ -20,7 +27,8 @@ export class MediaService extends SwitchService {
   }
 
   public async processId(id: string, command?: string): Promise<string> {
-    const action = await super.processId(id, command);
+    await this.baseHeader(id);
+    const action = await super.processId(id, command, true);
     switch (action) {
       case 'mute':
         await this.mute(id);
