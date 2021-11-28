@@ -166,7 +166,6 @@ export class HASocketAPIService {
 
   @Cron(CronExpression.EVERY_10_SECONDS)
   protected async ping(): Promise<void> {
-    this.logger.debug(`ping`);
     // Race conditions where ping fires before socket finishes it's init is freakily common
     // Doesn't actually hurt anything, but it leaves an annoying boot error message
     if (!this.CONNECTION_ACTIVE) {
