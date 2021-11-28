@@ -37,8 +37,8 @@ import Separator from 'inquirer/lib/objects/separator';
 import { dump } from 'js-yaml';
 
 import { REFRESH_SLEEP } from '../../config';
-import { DeviceService } from '../device.service';
-import { EntityHistoryService } from '../entity-history.service';
+import { DeviceService } from '../home-assistant/device.service';
+import { EntityHistoryService } from '../home-assistant/entity-history.service';
 import { HomeFetchService } from '../home-fetch.service';
 
 type tDeviceService = DeviceService;

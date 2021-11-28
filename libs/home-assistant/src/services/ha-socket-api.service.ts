@@ -16,6 +16,7 @@ import {
   BASE_URL,
   CRASH_REQUESTS_PER_SEC,
   RENDER_TIMEOUT,
+  RETRY_INTERVAL,
   TOKEN,
   WARN_REQUESTS_PER_SEC,
   WEBSOCKET_URL,
@@ -57,6 +58,7 @@ export class HASocketAPIService {
     private readonly CRASH_REQUESTS: number,
     @InjectConfig(WEBSOCKET_URL) private readonly websocketUrl: string,
     @InjectConfig(RENDER_TIMEOUT) private readonly renderTimeout: number,
+    @InjectConfig(RETRY_INTERVAL) private readonly retryInterval: number,
   ) {}
 
   private CONNECTION_ACTIVE = false;
@@ -225,6 +227,7 @@ export class HASocketAPIService {
     if (this.connection) {
       return;
     }
+    this.logger.debug(`CONNECTION_ACTIVE = {false}`);
     this.CONNECTION_ACTIVE = false;
     const url = new URL(this.baseUrl);
     try {
@@ -239,8 +242,12 @@ export class HASocketAPIService {
       this.connection.addEventListener('message', (message) => {
         this.onMessage(JSON.parse(message.data.toString()));
       });
-      this.connection.on('error', (error) => {
+      this.connection.on('error', async (error) => {
         this.logger.error({ error: error.message || error }, 'Socket error');
+        if (!this.CONNECTION_ACTIVE) {
+          await sleep(this.retryInterval);
+          await this.initConnection(reset);
+        }
       });
     } catch (error) {
       this.logger.error({ error }, `initConnection error`);
@@ -275,6 +282,7 @@ export class HASocketAPIService {
         });
 
       case HassSocketMessageTypes.auth_ok:
+        this.logger.debug(`CONNECTION_ACTIVE = {true}`);
         this.CONNECTION_ACTIVE = true;
         await this.sendMsg({
           type: HASSIO_WS_COMMAND.subscribe_events,
@@ -299,6 +307,7 @@ export class HASocketAPIService {
         return await this.onMessageResult(id, message);
 
       case HassSocketMessageTypes.auth_invalid:
+        this.logger.debug(`CONNECTION_ACTIVE = {false}`);
         this.CONNECTION_ACTIVE = false;
         this.logger.fatal(message.message);
         return;

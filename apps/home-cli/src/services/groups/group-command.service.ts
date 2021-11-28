@@ -32,7 +32,7 @@ import {
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
-import { EntityService } from '../entity.service';
+import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { FanGroupCommandService } from './fan-group-command.service';
 import { GroupStateService } from './group-state.service';

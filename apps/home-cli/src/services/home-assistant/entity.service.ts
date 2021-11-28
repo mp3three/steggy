@@ -21,8 +21,8 @@ import {
   LockService,
   MediaService,
   SwitchService,
-} from './domains';
-import { HomeFetchService } from './home-fetch.service';
+} from '../domains';
+import { HomeFetchService } from '../home-fetch.service';
 
 @Repl({
   category: `Home Assistant`,

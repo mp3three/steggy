@@ -1,3 +1,4 @@
+export * from './admin.controller';
 export * from './animation.controller';
 export * from './debug.controller';
 export * from './device.controller';

@@ -19,7 +19,7 @@ export class HACallService {
   public async call<T extends unknown = HassStateDTO>(
     service: string,
     service_data: Record<string, unknown> = {},
-    domain?: HASS_DOMAINS,
+    domain: HASS_DOMAINS = this.domain,
   ): Promise<T> {
     // Filter out superfluous calls here
     // Simplify logic in higher level classes
@@ -31,7 +31,7 @@ export class HACallService {
     }
     return await this.socketService.sendMsg<T>(
       {
-        domain: domain ?? this.domain,
+        domain,
         service,
         service_data,
         type: HASSIO_WS_COMMAND.call_service,

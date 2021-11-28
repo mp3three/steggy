@@ -24,8 +24,8 @@ import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
 import { v4 as uuid } from 'uuid';
 
-import { EntityService } from '../entity.service';
 import { GroupStateService } from '../groups';
+import { EntityService } from '../home-assistant/entity.service';
 import { RoomCommandService, RoomStateService } from '../rooms';
 import {
   LightFlashService,

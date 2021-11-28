@@ -19,7 +19,7 @@ import { each } from 'async';
 import chalk from 'chalk';
 
 import { LightService } from '../domains';
-import { EntityService } from '../entity.service';
+import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 
 const MIN_BRIGHTNESS = 5;

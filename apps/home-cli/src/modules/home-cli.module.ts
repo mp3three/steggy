@@ -34,6 +34,8 @@ import {
   RoutineService,
   ScheduleBuilderService,
   SendNotificationService,
+  ServerControlService,
+  ServerLogsService,
   SolarBuilderService,
   StateChangeBuilderService,
   SwitchGroupCommandService,
@@ -82,6 +84,8 @@ import {
         WebhookService,
       ],
       // /*
+      ServerControlService,
+      ServerLogsService,
       AnimationService,
       DebugService,
       DeviceService,

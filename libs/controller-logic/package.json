@@ -7,7 +7,7 @@
   "name": "@ccontour/controller-logic",
   "displayName": "Controller Logic",
   "license": "MIT",
-  "version": "0.5.8",
+  "version": "0.5.10",
   "homepage": "https://github.com/ccontour/automagical",
   "repository": {
     "type": "git",

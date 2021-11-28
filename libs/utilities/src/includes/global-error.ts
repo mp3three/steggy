@@ -10,6 +10,7 @@ let logger: AutoLogService;
 let prettyLog: boolean;
 const FIRST = 1;
 const START = 0;
+const EXTRA_PREFIX = 4;
 
 const basicError = (error: Error) => {
   console.error(error.name);
@@ -21,37 +22,52 @@ const prettyError = (error: Error) => {
   const stack = error.stack.split(`\n`).slice(FIRST);
   console.log();
   console.log(chalk.bgRedBright.white` Fatal error `);
-  const lines: [string, string[]][] = [];
+  const lines: [string, string[], boolean][] = [];
   let maxMethod = 0;
   let maxPath = 0;
   let maxLine = 0;
   stack.forEach((line) => {
     line = line.trim();
     line = line.slice(line.indexOf(' ')).trim();
-    const hasMethod = line.indexOf(' ') > line.indexOf('/');
+    const hasMethod =
+      line.indexOf(' ') > line.indexOf('/') || line.includes('(');
     const method = !hasMethod ? '' : line.slice(START, line.indexOf(' '));
     if (hasMethod) {
       line = line.slice(hasMethod ? line.indexOf(' ') : START);
     }
     const parts = line.trim().replace('(', '').replace(')', '').split(':');
-    parts.shift();
-
+    if (parts[START] === '<anonymous>') {
+      maxMethod = Math.max(parts[START].length, maxMethod);
+      lines.push([method, [parts[START], '', ''], false]);
+      return;
+    }
+    let localItem = false;
+    if (parts.length === EXTRA_PREFIX) {
+      const start = parts.shift();
+      localItem = start !== 'node';
+      if (start === 'node') {
+        parts[START] = `${start}:${parts[START]}`;
+      }
+    }
     maxMethod = Math.max(maxMethod, method.length);
     maxPath = Math.max(maxPath, parts[START].length);
     maxLine = Math.max(maxLine, parts[FIRST].length);
-    lines.push([method, parts]);
+    lines.push([method, parts, localItem]);
   });
   console.log(
     chalk.red(
       lines
         .map(
-          ([method, parts], index) =>
-            chalk`  {cyan ${index})} {bold ${method.padEnd(
-              maxMethod,
-              ' ',
-            )}} ${parts.shift().padEnd(maxPath, ' ')} {cyan.bold ${parts
+          ([method, parts, isLocal], index) =>
+            chalk`  {cyan ${index})} {bold${
+              isLocal ? '.bgGray' : ''
+            } ${method.padEnd(maxMethod, ' ')}} ${parts
               .shift()
-              .padStart(maxLine, ' ')}}{white :}{cyan ${parts.shift()}}`,
+              .padEnd(maxPath, ' ')} {cyan.bold ${parts
+              .shift()
+              .padStart(maxLine, ' ')}}${
+              parts[START] ? chalk`{white :}{cyan ${parts.shift()}}` : ``
+            }`,
         )
         .join(`\n`),
     ),

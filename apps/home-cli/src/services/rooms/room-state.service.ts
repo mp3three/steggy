@@ -25,8 +25,8 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
 
-import { EntityService } from '../entity.service';
 import { GroupCommandService } from '../groups';
+import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from './room-command.service';
 

@@ -3,6 +3,7 @@
  */
 export const ICONS = {
   ACTIVATE: '🏁 ',
+  ADMIN: '🚁 ',
   ANIMATION: '📽 ',
   BACK: '🔙 ',
   BRIGHTNESS: '💡 ',
@@ -27,6 +28,7 @@ export const ICONS = {
   GUIDED: '🚌 ',
   HISTORY: '🕵 ',
   LINK: '🔗 ',
+  LOGS: '📋 ',
   MANUAL: '🔨 ',
   NAME: '💭 ',
   PIN: '📌 ',

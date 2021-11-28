@@ -5,7 +5,7 @@ import { AutoLogService, IsEmpty } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 
-import { EntityService } from '../../entity.service';
+import { EntityService } from '../../home-assistant/entity.service';
 import { HomeFetchService } from '../../home-fetch.service';
 
 const DEFAULT_RECORD_DURATION = 5;

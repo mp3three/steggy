@@ -3,7 +3,7 @@ import { PromptEntry, PromptService } from '@ccontour/tty';
 import { FILTER_OPERATIONS, FilterValueType } from '@ccontour/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
-import { EntityService } from '../../entity.service';
+import { EntityService } from '../../home-assistant/entity.service';
 
 const CMP = `Comparison value`;
 

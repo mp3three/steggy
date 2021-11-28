@@ -4,7 +4,7 @@ import { PromptService } from '@ccontour/tty';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 
-import { HomeFetchService } from './home-fetch.service';
+import { HomeFetchService } from '../home-fetch.service';
 const FROM_OFFSET = 1;
 
 @Injectable()
