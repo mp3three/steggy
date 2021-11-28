@@ -30,6 +30,7 @@ export class ServerLogsService {
     const action = await this.promptService.menuSelect(
       [
         [`${ICONS.LOGS}Show logs`, 'logs'],
+        [`${ICONS.DELETE}Clear logs`, 'clear'],
         [`${ICONS.ANIMATION}Raw`, 'raw'],
       ],
       `Log commands`,
@@ -38,6 +39,12 @@ export class ServerLogsService {
     switch (action) {
       case DONE:
         return;
+      case 'clear':
+        await this.fetchService.fetch({
+          method: 'delete',
+          url: `/admin/logs`,
+        });
+        return await this.exec(action);
       case 'logs':
         await this.getLogs();
         return await this.exec(action);

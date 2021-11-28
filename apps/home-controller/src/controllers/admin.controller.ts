@@ -10,7 +10,7 @@ import {
   GENERIC_SUCCESS_RESPONSE,
 } from '@ccontour/server';
 import { AutoLogService } from '@ccontour/utilities';
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
 @Controller('/admin')
@@ -30,6 +30,16 @@ export class AdminController {
   })
   public async checkConfig(): Promise<unknown> {
     return await this.fetchService.checkConfig();
+  }
+
+  @Delete('/server/logs')
+  @ApiGenericResponse()
+  @ApiOperation({
+    description: `Clear recent logs`,
+  })
+  public async clearLogs(): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.callService.call('clear', {}, HASS_DOMAINS.system_log);
+    return GENERIC_SUCCESS_RESPONSE;
   }
 
   @Get('/server/logs')

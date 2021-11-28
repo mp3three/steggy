@@ -35,6 +35,7 @@ export enum HASS_DOMAINS {
   sensor = 'sensor',
   sun = 'sun',
   switch = 'switch',
+  system_log = 'system_log',
   timer = 'timer',
   weather = 'weather',
   zone = 'zone',
