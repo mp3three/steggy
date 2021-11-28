@@ -15,7 +15,7 @@
   "license": "MIT",
   "main": "main.js",
   "displayName": "Home CLI",
-  "version": "0.5.43",
+  "version": "0.5.44",
   "homepage": "https://github.com/ccontour/automagical",
   "repository": {
     "type": "git",
