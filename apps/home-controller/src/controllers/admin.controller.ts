@@ -2,6 +2,7 @@ import {
   HACallService,
   HASS_DOMAINS,
   HomeAssistantFetchAPIService,
+  HomeAssistantServerLogItem,
 } from '@ccontour/home-assistant';
 import {
   ApiGenericResponse,
@@ -9,7 +10,7 @@ import {
   GENERIC_SUCCESS_RESPONSE,
 } from '@ccontour/server';
 import { AutoLogService } from '@ccontour/utilities';
-import { Controller, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
 @Controller('/admin')
@@ -30,6 +31,16 @@ export class AdminController {
   public async checkConfig(): Promise<unknown> {
     return await this.fetchService.checkConfig();
   }
+
+  @Get('/server/logs')
+  @ApiGenericResponse()
+  @ApiOperation({
+    description: `Send a restart command to home assistant`,
+  })
+  public async getLogs(): Promise<HomeAssistantServerLogItem[]> {
+    return await this.fetchService.getLogs();
+  }
+
   @Post('/server/restart')
   @ApiGenericResponse()
   @ApiOperation({

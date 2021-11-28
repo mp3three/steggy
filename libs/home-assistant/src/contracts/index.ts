@@ -8,5 +8,6 @@ export * from './hass-event.dto';
 export * from './hass-state.dto';
 export * from './related.response.dto';
 export * from './room-config.dto';
+export * from './server-log.dto';
 export * from './socket-message.dto';
 export * from './utils';

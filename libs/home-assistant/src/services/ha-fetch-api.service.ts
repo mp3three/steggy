@@ -7,7 +7,9 @@ import {
 import { Injectable } from '@nestjs/common';
 
 import { BASE_URL, TOKEN } from '../config';
-import { HassStateDTO } from '../contracts';
+import { HassStateDTO, HomeAssistantServerLogItem } from '../contracts';
+
+const TIMESTAMP_OFFSET = 1000;
 
 @Injectable()
 export class HomeAssistantFetchAPIService {
@@ -29,7 +31,6 @@ export class HomeAssistantFetchAPIService {
       url: `/api/config/core/check_config`,
     });
   }
-
   /**
    * Wrapper to set baseUrl
    */
@@ -74,5 +75,21 @@ export class HomeAssistantFetchAPIService {
       url: `/api/history/period/${from.toISOString()}`,
     });
     return history;
+  }
+
+  /**
+   * Pass through of home assistant's get logs.
+   *
+   * Correct timestamps for javascript-ness
+   */
+  public async getLogs(): Promise<HomeAssistantServerLogItem[]> {
+    const results = await this.fetch<HomeAssistantServerLogItem[]>({
+      url: `/api/error/all`,
+    });
+    return results.map((i) => {
+      i.timestamp = Math.floor(i.timestamp * TIMESTAMP_OFFSET);
+      i.first_occurred = Math.floor(i.first_occurred * TIMESTAMP_OFFSET);
+      return i;
+    });
   }
 }

@@ -28,6 +28,7 @@ export const ICONS = {
   GUIDED: '🚌 ',
   HISTORY: '🕵 ',
   LINK: '🔗 ',
+  LOGS: '📋 ',
   MANUAL: '🔨 ',
   NAME: '💭 ',
   PIN: '📌 ',
