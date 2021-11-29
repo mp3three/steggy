@@ -8,6 +8,7 @@ import {
   RoutineCommandGroupStateDTO,
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
+  RoutineCommandSleepDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
 } from '@ccontour/controller-logic';
@@ -146,6 +147,17 @@ export class RoutineCommandService {
           command: await this.sendNotification.build(
             current.command as RoutineCommandSendNotificationDTO,
           ),
+          friendlyName,
+          type,
+        };
+      case ROUTINE_ACTIVATE_COMMAND.sleep:
+        return {
+          command: {
+            duration: await this.promptService.number(
+              `Duration (ms)`,
+              (current?.command as RoutineCommandSleepDTO)?.duration,
+            ),
+          } as RoutineCommandSleepDTO,
           friendlyName,
           type,
         };

@@ -19,6 +19,7 @@ import {
   RoutineCommandGroupStateDTO,
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
+  RoutineCommandSleepDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
   ScheduleActivateDTO,
@@ -28,6 +29,7 @@ import {
 import {
   LightFlashCommandService,
   SendNotificationService,
+  SleepCommandService,
   WebhookService,
 } from '../commands';
 import { EntityCommandRouterService } from '../entity-command-router.service';
@@ -54,6 +56,7 @@ export class RoutineService {
     private readonly webhookService: WebhookService,
     private readonly solarService: SolarActivateService,
     private readonly flashAnimation: LightFlashCommandService,
+    private readonly sleepService: SleepCommandService,
   ) {}
 
   public async activateRoutine(routine: RoutineDTO | string): Promise<void> {
@@ -141,6 +144,11 @@ export class RoutineService {
       case ROUTINE_ACTIVATE_COMMAND.light_flash:
         await this.flashAnimation.activate(
           command.command as RountineCommandLightFlashDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.sleep:
+        await this.sleepService.activate(
+          command.command as RoutineCommandSleepDTO,
         );
         break;
     }

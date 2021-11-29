@@ -3,9 +3,15 @@ import {
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
 } from '@ccontour/home-assistant';
-import { AutoLogService, InjectConfig, OnEvent } from '@ccontour/utilities';
+import {
+  AutoLogService,
+  InjectConfig,
+  IsEmpty,
+  OnEvent,
+} from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
+import { IsEmail } from 'class-validator';
 
 import { KUNAMI_TIMEOUT } from '../../config';
 import {
@@ -29,7 +35,11 @@ export class KunamiCodeActivateService {
   private WATCHED_SENSORS = new Map<string, KunamiWatcher[]>();
 
   public reset(): void {
-    this.logger.debug(`Removing ${this.WATCHED_SENSORS.size} watched entities`);
+    if (!IsEmpty(this.WATCHED_SENSORS)) {
+      this.logger.debug(
+        `[reset] Removing {${this.WATCHED_SENSORS.size}} watched entities`,
+      );
+    }
     this.WATCHED_SENSORS = new Map();
     this.ACTIVE_MATCHERS = new Map();
     this.TIMERS.forEach((timer) => clearTimeout(timer));
