@@ -33,7 +33,7 @@ import { ApplicationService } from '../services';
   imports: [
     ServerModule,
     HomeAssistantModule,
-    HomeControllerCustomModule.forRoot(),
+    HomeControllerCustomModule,
     HomePersistenceModule.forRoot(),
   ],
   providers: [ApplicationService],

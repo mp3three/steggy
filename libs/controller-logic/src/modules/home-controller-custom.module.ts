@@ -3,10 +3,8 @@ import {
   LibraryModule,
   RegisterCache,
 } from '@ccontour/utilities';
-import { DynamicModule } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { DynamicRoomProviders, InjectedSettings } from '../decorators';
 import {
   CircadianService,
   EntityCommandRouterService,
@@ -65,18 +63,4 @@ const providers = [
   library: LIB_CONTROLLER_LOGIC,
   providers,
 })
-export class HomeControllerCustomModule {
-  public static forRoot(): DynamicModule {
-    const decorated = [
-      ...DynamicRoomProviders.values(),
-      ...InjectedSettings.values(),
-    ];
-    return {
-      exports: [...providers, ...decorated],
-      global: true,
-      imports: [RegisterCache(), DiscoveryModule, HomePersistenceModule],
-      module: HomeControllerCustomModule,
-      providers: [...providers, ...decorated],
-    };
-  }
-}
+export class HomeControllerCustomModule {}
