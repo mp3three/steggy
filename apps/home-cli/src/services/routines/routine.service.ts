@@ -21,6 +21,7 @@ import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';
 import { RoutineActivateService } from './routine-activate.service';
 import { RoutineCommandService } from './routine-command.service';
+import { RoutineSettingsService } from './routine-settings.service';
 
 type RCService = RoomCommandService;
 type RService = RoutineCommandService;
@@ -39,6 +40,7 @@ export class RoutineService {
     @Inject(forwardRef(() => RoutineCommandService))
     private readonly activateCommand: RService,
     private readonly pinnedItems: PinnedItemService,
+    private readonly settings: RoutineSettingsService,
   ) {}
 
   public async create(room?: RoomDTO | string): Promise<RoutineDTO> {
@@ -155,6 +157,7 @@ export class RoutineService {
         [`${ICONS.RENAME}Rename`, 'rename'],
         [`${ICONS.EVENT}Activation Events`, 'events'],
         [`${ICONS.COMMAND}Commands`, 'command'],
+        [`${ICONS.CONFIGURE}Settings`, 'settings'],
         [
           chalk[
             this.pinnedItems.isPinned('routine', routine._id) ? 'red' : 'green'
@@ -175,6 +178,10 @@ export class RoutineService {
         return await this.processRoutine(routine, action);
       case DONE:
         return;
+      case 'settings':
+        await this.settings.process(routine);
+        return await this.processRoutine(routine, action);
+
       case 'activate':
         await this.fetchService.fetch({
           method: 'post',

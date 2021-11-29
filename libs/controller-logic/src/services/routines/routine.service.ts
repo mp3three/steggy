@@ -5,7 +5,7 @@ import {
   ResultControlDTO,
 } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
-import { each } from 'async';
+import { each, eachSeries } from 'async';
 
 import {
   KunamiCodeActivateDTO,
@@ -14,10 +14,12 @@ import {
   ROUTINE_ACTIVATE_COMMAND,
   ROUTINE_ACTIVATE_TYPE,
   ROUTINE_UPDATE,
+  RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
+  RoutineCommandSleepDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
   ScheduleActivateDTO,
@@ -27,6 +29,7 @@ import {
 import {
   LightFlashCommandService,
   SendNotificationService,
+  SleepCommandService,
   WebhookService,
 } from '../commands';
 import { EntityCommandRouterService } from '../entity-command-router.service';
@@ -53,52 +56,21 @@ export class RoutineService {
     private readonly webhookService: WebhookService,
     private readonly solarService: SolarActivateService,
     private readonly flashAnimation: LightFlashCommandService,
+    private readonly sleepService: SleepCommandService,
   ) {}
 
   public async activateRoutine(routine: RoutineDTO | string): Promise<void> {
     routine = await this.get(routine);
     this.logger.info(`[${routine.friendlyName}] activate`);
-    await each(routine.command ?? [], async (command, callback) => {
-      this.logger.debug(` - {${command.friendlyName}}`);
-      switch (command.type) {
-        case ROUTINE_ACTIVATE_COMMAND.group_action:
-          await this.groupService.activateCommand(
-            command.command as RoutineCommandGroupActionDTO,
-          );
-          break;
-        case ROUTINE_ACTIVATE_COMMAND.webhook:
-          await this.webhookService.activate(
-            command.command as RoutineCommandWebhookDTO,
-          );
-          break;
-        case ROUTINE_ACTIVATE_COMMAND.group_state:
-          await this.groupService.activateState(
-            command.command as RoutineCommandGroupStateDTO,
-          );
-          break;
-        case ROUTINE_ACTIVATE_COMMAND.room_state:
-          await this.roomService.activateState(
-            command.command as RoutineCommandRoomStateDTO,
-          );
-          break;
-        case ROUTINE_ACTIVATE_COMMAND.entity_state:
-          await this.entityRouter.fromState(
-            command.command as RoomEntitySaveStateDTO,
-          );
-          break;
-        case ROUTINE_ACTIVATE_COMMAND.send_notification:
-          await this.sendNotification.activate(
-            command.command as RoutineCommandSendNotificationDTO,
-          );
-          break;
-        case ROUTINE_ACTIVATE_COMMAND.light_flash:
-          await this.flashAnimation.activate(
-            command.command as RountineCommandLightFlashDTO,
-          );
-          break;
-      }
-      callback();
-    });
+    await (routine.sync ? eachSeries : each)(
+      routine.command ?? [],
+      async (command, callback) => {
+        await this.activateCommand(command);
+        if (callback) {
+          callback();
+        }
+      },
+    );
   }
 
   public async create(routine: RoutineDTO): Promise<RoutineDTO> {
@@ -134,6 +106,52 @@ export class RoutineService {
     this.scheduleActivate.reset();
     this.stateChangeActivate.reset();
     await this.mount();
+  }
+
+  private async activateCommand(command: RoutineCommandDTO): Promise<void> {
+    this.logger.debug(` - {${command.friendlyName}}`);
+    switch (command.type) {
+      case ROUTINE_ACTIVATE_COMMAND.group_action:
+        await this.groupService.activateCommand(
+          command.command as RoutineCommandGroupActionDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.webhook:
+        await this.webhookService.activate(
+          command.command as RoutineCommandWebhookDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.group_state:
+        await this.groupService.activateState(
+          command.command as RoutineCommandGroupStateDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.room_state:
+        await this.roomService.activateState(
+          command.command as RoutineCommandRoomStateDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.entity_state:
+        await this.entityRouter.fromState(
+          command.command as RoomEntitySaveStateDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.send_notification:
+        await this.sendNotification.activate(
+          command.command as RoutineCommandSendNotificationDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.light_flash:
+        await this.flashAnimation.activate(
+          command.command as RountineCommandLightFlashDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.sleep:
+        await this.sleepService.activate(
+          command.command as RoutineCommandSleepDTO,
+        );
+        break;
+    }
   }
 
   private async mount(): Promise<void> {

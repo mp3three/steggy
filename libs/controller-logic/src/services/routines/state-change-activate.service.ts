@@ -5,6 +5,7 @@ import {
 } from '@ccontour/home-assistant';
 import {
   AutoLogService,
+  IsEmpty,
   JSONFilterService,
   OnEvent,
 } from '@ccontour/utilities';
@@ -24,9 +25,11 @@ export class StateChangeActivateService {
   private WATCHED_ENTITIES = new Map<string, StateChangeWatcher[]>();
 
   public reset(): void {
-    this.logger.debug(
-      `Removing ${this.WATCHED_ENTITIES.size} watched entities`,
-    );
+    if (!IsEmpty(this.WATCHED_ENTITIES)) {
+      this.logger.debug(
+        `[reset] Removing {${this.WATCHED_ENTITIES.size}} watched entities`,
+      );
+    }
     this.WATCHED_ENTITIES = new Map();
   }
 

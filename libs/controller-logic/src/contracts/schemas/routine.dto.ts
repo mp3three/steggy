@@ -3,6 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import {
+  IsBoolean,
   IsDateString,
   IsNumber,
   IsOptional,
@@ -21,10 +22,7 @@ export enum ROUTINE_SCOPE {
 
 @Schema({
   collection: `routines`,
-  timestamps: {
-    createdAt: 'created',
-    updatedAt: 'updated',
-  },
+  timestamps: { createdAt: 'created', updatedAt: 'updated' },
 })
 export class RoutineDTO {
   /**
@@ -77,22 +75,24 @@ export class RoutineDTO {
   @IsOptional()
   @IsDateString()
   @ApiProperty({ required: false })
-  @Prop({
-    index: true,
-  })
+  @Prop({ index: true })
   public modified?: Date;
 
   /**
    * Room that owns this routine
    */
-  @Prop({
-    index: true,
-  })
+  @Prop({ index: true })
   @IsString()
   @ApiProperty({ required: false })
   @IsOptional()
   @TransformObjectId()
   public room?: string;
+
+  @Prop()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  @IsBoolean()
+  public sync?: boolean;
 }
 
 export type RountineDocument = RoutineDTO & Document;
