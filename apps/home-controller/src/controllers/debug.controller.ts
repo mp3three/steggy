@@ -83,7 +83,7 @@ export class DebugController {
     };
   }
 
-  @Get('/notification')
+  @Get('/notifications')
   @ApiResponse({ type: [HassNotificationDTO] })
   @ApiOperation({
     description: `Retrieve home assistant persistent notifications`,
