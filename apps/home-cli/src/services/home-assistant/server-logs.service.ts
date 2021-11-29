@@ -90,7 +90,7 @@ export class ServerLogsService {
         chalk`{bold First occurred:} ${dayjs(item.first_occurred).format(
           'YYYY-MM-DD hh:mm:ss A',
         )} (${item.count} occurrences)`,
-        chalk`{bold Last logged} ${dayjs(item.timestamp).format(
+        chalk`{bold Last logged:} ${dayjs(item.timestamp).format(
           'YYYY-MM-DD hh:mm:ss A',
         )}`,
         ``,

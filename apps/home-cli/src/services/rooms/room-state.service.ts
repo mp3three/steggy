@@ -26,7 +26,7 @@ import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
 
 import { GroupCommandService } from '../groups';
-import { EntityService } from '../home-assistant/entity.service';
+import { EntityService } from '../home-assistant';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from './room-command.service';
 

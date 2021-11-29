@@ -1,3 +1,4 @@
+import { HassNotificationDTO } from '@ccontour/home-assistant';
 import {
   ConfigBuilderService,
   DONE,
@@ -5,6 +6,8 @@ import {
   PromptService,
   Repl,
 } from '@ccontour/tty';
+import { IsEmpty } from '@ccontour/utilities';
+import { NotImplementedException } from '@nestjs/common';
 import { dump } from 'js-yaml';
 import { Response } from 'node-fetch';
 
@@ -56,6 +59,7 @@ For loop example getting entity values in the weather domain:
         [`Render template`, 'renderTemplate'],
         [`Send template notification`, 'sendNotification'],
         [`Restart Home Assistant`, 'reboot'],
+        [`Persistent notifications`, 'notifications'],
       ],
       'Debug action',
       defaultAction,
@@ -76,6 +80,9 @@ For loop example getting entity values in the weather domain:
         return await this.exec(action);
       case 'configure':
         await this.configBuilder.handleConfig();
+        return await this.exec(action);
+      case 'notifications':
+        await this.persistentNotications();
         return await this.exec(action);
       case 'renderTemplate':
         await this.renderTemplate();
@@ -102,15 +109,36 @@ For loop example getting entity values in the weather domain:
     console.log(lights);
   }
 
+  private async persistentNotications(): Promise<void> {
+    const notifications = await this.fetchService.fetch<HassNotificationDTO[]>({
+      url: `/debug/notifications`,
+    });
+    if (IsEmpty(notifications)) {
+      return;
+    }
+    const item = await this.promptService.menuSelect(
+      notifications.map((i) => [i.title, i]),
+      `Dismiss item`,
+    );
+    if (item === DONE) {
+      return;
+    }
+    if (typeof item === 'string') {
+      throw new NotImplementedException();
+    }
+    await this.fetchService.fetch({
+      method: `delete`,
+      url: `/debug/notification/${item.notification_id}`,
+    });
+  }
+
   private async renderTemplate(): Promise<void> {
     this.LAST_TEMPLATE = await this.promptService.editor(
       `Enter template string`,
       this.LAST_TEMPLATE,
     );
     const rendered: Response = (await this.fetchService.fetch({
-      body: {
-        template: this.LAST_TEMPLATE,
-      },
+      body: { template: this.LAST_TEMPLATE },
       method: 'post',
       process: false,
       url: `/debug/render-template`,

@@ -71,7 +71,7 @@ export class LightService extends SwitchService {
     if (
       state !== 'circadian' &&
       (Array.isArray(current?.extra?.rgb_color) ||
-        (await this.promptService.confirm(`Set brightness?`)))
+        (await this.promptService.confirm(`Set color?`)))
     ) {
       const [r, g, b] = current?.extra?.rgb_color ?? [];
       const rgb = await this.colorService.buildRGB({ b, g, r });

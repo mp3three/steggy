@@ -7,7 +7,6 @@ import {
   GroupDTO,
   GroupSaveStateDTO,
   GroupService,
-  HomeControllerResponseLocals,
 } from '@ccontour/controller-logic';
 import { BaseSchemaDTO } from '@ccontour/persistence';
 import {
@@ -15,6 +14,7 @@ import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
   Locals,
+  ResponseLocals,
 } from '@ccontour/server';
 import {
   Body,
@@ -157,7 +157,7 @@ export class GroupController {
     description: `List all known groups`,
   })
   public async listGroups(
-    @Locals() { control }: HomeControllerResponseLocals,
+    @Locals() { control }: ResponseLocals,
   ): Promise<GroupDTO[]> {
     return await this.groupService.list(control);
   }

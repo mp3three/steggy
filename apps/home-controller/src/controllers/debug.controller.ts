@@ -5,12 +5,18 @@ import {
   SolarCalcService,
 } from '@ccontour/controller-logic';
 import {
+  HACallService,
   HASocketAPIService,
   HassConfig,
+  HassNotificationDTO,
   NotifyDomainService,
 } from '@ccontour/home-assistant';
-import { AuthStack } from '@ccontour/server';
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  ApiGenericResponse,
+  AuthStack,
+  GENERIC_SUCCESS_RESPONSE,
+} from '@ccontour/server';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller(`/debug`)
@@ -22,6 +28,7 @@ export class DebugController {
     private readonly notification: NotifyDomainService,
     private readonly socketService: HASocketAPIService,
     private readonly solarCalc: SolarCalcService,
+    private readonly callService: HACallService,
   ) {}
 
   @Get(`/active-lights`)
@@ -44,6 +51,18 @@ export class DebugController {
     return out;
   }
 
+  @Delete(`/notification/:id`)
+  @ApiGenericResponse()
+  @ApiOperation({
+    description: `Dismiss a persistent notification from home assistant`,
+  })
+  public async dismissNotifications(
+    @Param('id') id: string,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.callService.dismissNotification(id);
+    return GENERIC_SUCCESS_RESPONSE;
+  }
+
   @Get('/location')
   @ApiResponse({
     schema: {
@@ -62,6 +81,15 @@ export class DebugController {
       latitude: this.solarCalc.latitude,
       longitude: this.solarCalc.longitude,
     };
+  }
+
+  @Get('/notifications')
+  @ApiResponse({ type: [HassNotificationDTO] })
+  @ApiOperation({
+    description: `Retrieve home assistant persistent notifications`,
+  })
+  public async getNotifications(): Promise<HassNotificationDTO[]> {
+    return await this.socketService.getNotifications();
   }
 
   @Get(`/hass-config`)

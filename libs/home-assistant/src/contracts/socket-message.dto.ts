@@ -61,6 +61,24 @@ export class DeviceListItemDTO {
   public via_device_id: null;
 }
 
+export class HassNotificationDTO {
+  public created_at: string;
+  public message: string;
+  public notification_id: string;
+  public status: 'unread';
+  public title: string;
+}
+
+// {
+// 	"0": {
+// 		"notification_id": "config_entry_reconfigure",
+// 		"message": "At least one of your integrations requires reconfiguration to continue functioning. [Check it out](/config/integrations).",
+// 		"status": "unread",
+// 		"title": "Integration requires reconfiguration",
+// 		"created_at": "2021-11-28T16:33:15.366370+00:00"
+// 	}
+// }
+
 export class SocketMessageDTO {
   public error?: Record<string, unknown>;
   public event?: HassEventDTO;
