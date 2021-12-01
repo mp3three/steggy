@@ -11,7 +11,6 @@ import {
 } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
-import { IsEmail } from 'class-validator';
 
 import { KUNAMI_TIMEOUT } from '../../config';
 import {
