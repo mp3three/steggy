@@ -1,14 +1,15 @@
 import {
   AutoLogService,
+  CacheManagerService,
   DOWN,
+  InjectCache,
   InjectConfig,
   IsEmpty,
   TitleCase,
   UP,
 } from '@ccontour/utilities';
-import { InternalServerErrorException } from '@nestjs/common';
 import chalk from 'chalk';
-import figlet from 'figlet';
+import figlet, { Fonts } from 'figlet';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
@@ -24,7 +25,10 @@ import { ReplExplorerService } from './repl-explorer.service';
 const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
 const SCRIPT_ARG = 2;
 const NAME = 1;
+const VALUE = 1;
 const LABEL = 0;
+const CACHE_KEY = 'MAIN-CLI:LAST_LABEL';
+type ENTRY_TYPE = string | PinnedItemDTO;
 
 @Repl({
   category: 'main',
@@ -33,27 +37,25 @@ const LABEL = 0;
 export class MainCLIService implements iRepl {
   constructor(
     private readonly logger: AutoLogService,
-    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: figlet.Fonts,
+    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: Fonts,
     private readonly explorer: ReplExplorerService,
     private readonly promptService: PromptService,
     private readonly pinnedItem: PinnedItemService,
+    @InjectCache()
+    private readonly cacheService: CacheManagerService,
   ) {}
+  private lastLabel: string;
 
-  public async exec(defaultSelection?: string): Promise<void> {
+  public async exec(): Promise<void> {
     this.promptService.clear();
     const header = figlet.textSync('Script List', {
       font: this.font,
     });
     console.log(chalk.cyan(header), '\n');
 
-    const out = await this.getScript(defaultSelection);
-    if (!Array.isArray(out)) {
-      throw new InternalServerErrorException();
-    }
-    const scriptName = out.shift() as string;
-    const name = out.shift();
+    const name = await this.getScript();
     if (typeof name !== 'string') {
-      await this.pinnedItem.exec(name as PinnedItemDTO);
+      await this.pinnedItem.exec(name);
       return this.exec();
     }
     this.printHeader(name);
@@ -63,9 +65,12 @@ export class MainCLIService implements iRepl {
         instance = i;
       }
     });
-
     await instance.exec();
-    await this.exec(scriptName);
+    await this.exec();
+  }
+
+  protected async onModuleInit(): Promise<void> {
+    this.lastLabel = await this.cacheService.get(CACHE_KEY);
   }
 
   /**
@@ -73,32 +78,44 @@ export class MainCLIService implements iRepl {
    *
    * If a script name was passed as a command line arg, directly run it
    */
-  private async getScript(
-    script?: string,
-  ): Promise<PromptEntry<PinnedItemDTO>> {
+  private async getScript(): Promise<ENTRY_TYPE> {
     const scriptName = process.argv[SCRIPT_ARG];
+    if (scriptName) {
+      const instance = this.explorer.findServiceByName(scriptName);
+      if (instance) {
+        return scriptName;
+      }
+    }
+
     const entries = this.pinnedItem.getEntries();
-    if (!scriptName || typeof script !== 'undefined') {
-      return await this.promptService.pickOne(
+    if (!scriptName) {
+      const values = [
+        ...this.promptService.conditionalEntries(!IsEmpty(entries), [
+          new inquirer.Separator(chalk.white`${ICONS.PIN}Pinned`),
+          ...this.promptService.sort(entries),
+        ]),
+        ...this.scriptList(),
+      ] as PromptEntry<ENTRY_TYPE>[];
+      const defaultSelection =
+        values.find((i) => Array.isArray(i) && i[LABEL] === this.lastLabel) ??
+        ([``, undefined] as PromptEntry<ENTRY_TYPE>);
+      const out = await this.promptService.pickOne<ENTRY_TYPE>(
         'Command',
-        [
-          ...this.promptService.conditionalEntries(!IsEmpty(entries), [
-            new inquirer.Separator(chalk.white`${ICONS.PIN}Pinned`),
-            ...this.promptService.sort(entries),
-          ]),
-          ...(this.scriptList().map((i) =>
-            i instanceof Separator ? i : [i[LABEL], i],
-          ) as PromptEntry<[string, string]>[]),
-        ],
-        script,
+        values,
+        defaultSelection[VALUE],
       );
+      this.lastLabel = values.find((i) => Array.isArray(i) && i[VALUE] === out)[
+        LABEL
+      ];
+      await this.cacheService.set(CACHE_KEY, this.lastLabel);
+      return out;
     }
     const instance = this.explorer.findServiceByName(scriptName);
     if (!instance) {
-      this.logger.error(`Invalid script name ${script}`);
-      return await this.getScript('');
+      // this.logger.error(`Invalid script name ${script}`);
+      return await this.getScript();
     }
-    return [scriptName, scriptName];
+    return scriptName;
   }
 
   private printHeader(scriptName: string): void {

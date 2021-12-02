@@ -1,9 +1,5 @@
 import { MainCLIModule } from '@ccontour/tty';
-import {
-  APP_DEVTOOLS,
-  ApplicationModule,
-  UtilitiesModule,
-} from '@ccontour/utilities';
+import { ApplicationModule, UtilitiesModule } from '@ccontour/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
 import {
@@ -13,7 +9,7 @@ import {
 } from '../services';
 
 @ApplicationModule({
-  application: APP_DEVTOOLS,
+  application: Symbol('devtools'),
   imports: [DiscoveryModule, MainCLIModule, UtilitiesModule],
   providers: [
     ConfigBuilderService,

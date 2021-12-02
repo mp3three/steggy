@@ -19,7 +19,6 @@ import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
-import { dump } from 'js-yaml';
 
 import { GroupCommandService } from '../groups/group-command.service';
 import { EntityService } from '../home-assistant/entity.service';
@@ -60,14 +59,12 @@ export class RoomCommandService {
     const groups = (await this.promptService.confirm(`Add groups?`, true))
       ? await this.groupBuilder()
       : [];
-    const body: RoomDTO = {
-      entities,
-      friendlyName,
-      groups,
-    };
-
     return await this.fetchService.fetch({
-      body,
+      body: {
+        entities,
+        friendlyName,
+        groups,
+      } as RoomDTO,
       method: 'post',
       url: `/room`,
     });
@@ -101,8 +98,7 @@ export class RoomCommandService {
       room = await this.create();
     }
     if (typeof room === 'string') {
-      this.logger.error({ room }, `Not implemented condition`);
-      return;
+      throw new NotImplementedException();
     }
     this.lastRoom = room._id;
     return await this.processRoom(room);

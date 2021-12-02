@@ -4,7 +4,7 @@ import {
 } from '@ccontour/controller-logic';
 import { HomeAssistantModule } from '@ccontour/home-assistant';
 import { ServerModule } from '@ccontour/server';
-import { APP_HOME_CONTROLLER, ApplicationModule } from '@ccontour/utilities';
+import { ApplicationModule } from '@ccontour/utilities';
 
 import {
   AdminController,
@@ -19,7 +19,7 @@ import {
 import { ApplicationService } from '../services';
 
 @ApplicationModule({
-  application: APP_HOME_CONTROLLER,
+  application: Symbol('home-controller'),
   controllers: [
     AdminController,
     AnimationController,
