@@ -9,11 +9,6 @@
         "buildTarget": "home-controller:build",
         "inspect": "inspect",
         "port": 33334
-      },
-      "configurations": {
-        "config-builder": {
-          "buildTarget": "home-controller:build:config-builder"
-        }
       }
     },
     "build": {
@@ -87,25 +82,6 @@
           "generatePackageJson": true,
           "inspect": false,
           "fileReplacements": []
-        },
-        "scan-config": {
-          "outputPath": "dist/config-scanner/home-controller",
-          "fileReplacements": [
-            {
-              "replace": "apps/home-controller/src/environments/environment.ts",
-              "with": "apps/home-controller/src/environments/scanner.environment.ts"
-            }
-          ]
-        },
-        "config-builder": {
-          "generatePackageJson": true,
-          "inspect": false,
-          "outputPath": "dist/apps/home-controller-configuration",
-          "fileReplacements": [
-            {
-              "replace": "apps/home-controller/src/environments/environment.ts",
-              "with": "apps/home-controller/src/environments/config-builder.environment.ts"
-            }]
         }
       }
     },
@@ -126,24 +102,8 @@
             "description": "Create production optimized build"
           },
           {
-            "command": "npx nx build home-controller --configuration=scan-config",
-            "description": "Prep the config scanner"
-          },
-          {
-            "command": "npx nx build home-controller --configuration=config-builder",
-            "description": "Prep the config builder script"
-          },
-          {
             "command": "terser dist/apps/home-controller/main.js -c -m --keep-classnames --module > dist/apps/home-controller/minified.js",
             "description": "Minify production build"
-          },
-          {
-            "command": "terser dist/apps/home-controller-configuration/main.js -c -m --keep-classnames --module > dist/apps/home-controller-configuration/minified.js",
-            "description": "Minify config scanner"
-          },
-          {
-            "command": "node dist/config-scanner/home-controller/main.js > dist/apps/home-controller/assets/config.json",
-            "description": "Cache the completed config"
           },
           {
             "command": "./tools/scripts/docker-build-publish.sh home-controller",

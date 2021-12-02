@@ -4,6 +4,9 @@ import { dump } from 'js-yaml';
 
 import { PromptService } from '../services';
 
+/**
+ * Attach to preInit
+ */
 export function VersionPrinter(app: INestApplication): void {
   if (process.argv.includes(`--version`)) {
     const workspace = app.get(WorkspaceService);

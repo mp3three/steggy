@@ -67,7 +67,6 @@ For loop example getting entity values in the weather domain:
 
     switch (action) {
       case DONE:
-        await this.promptService.acknowledge();
         return;
       case 'reboot':
         await this.fetchService.fetch({
