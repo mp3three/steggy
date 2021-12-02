@@ -2,12 +2,13 @@ import inquirer from 'inquirer';
 import autocompletePrompt from 'inquirer-autocomplete-prompt';
 import datePrompt from 'inquirer-date-prompt';
 
-// import { Prompt } from './select-line';
+import { SelectLinePrompt } from './select-line';
 // import selectLine from 'inquirer-select-line';
 
 // @ts-expect-error Probably related to missing ts defs or something
 inquirer.registerPrompt('date', datePrompt);
 inquirer.registerPrompt('autocomplete', autocompletePrompt);
+inquirer.registerPrompt('selectLine', SelectLinePrompt);
 
 // function Prompt(...args) {
 //   Base.apply(this, args);

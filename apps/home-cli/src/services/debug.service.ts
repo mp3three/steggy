@@ -67,17 +67,7 @@ For loop example getting entity values in the weather domain:
 
     switch (action) {
       case DONE:
-        const position = await this.promptService.insertPosition(
-          [
-            ['a', 'a'],
-            ['b', 'b'],
-            ['c', 'c'],
-            ['d', 'd'],
-            ['e', 'e'],
-          ],
-          'b',
-        );
-        console.log(position);
+        await this.promptService.acknowledge();
         return;
       case 'reboot':
         await this.fetchService.fetch({

@@ -8,7 +8,13 @@ import {
   PromptService,
   Repl,
 } from '@ccontour/tty';
-import { AutoLogService, DOWN, IsEmpty, UP } from '@ccontour/utilities';
+import {
+  AutoLogService,
+  DOWN,
+  FILTER_OPERATIONS,
+  IsEmpty,
+  UP,
+} from '@ccontour/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import { encode } from 'ini';
@@ -145,17 +151,37 @@ export class RoomCommandService {
     defaultAction?: string,
   ): Promise<void> {
     this.promptService.clear();
-    this.promptService.scriptHeader(`Room`);
-    console.log();
-    console.log(chalk.magenta.bold(room.friendlyName));
-    this.promptService.print(
-      dump({
-        entities: room.entities.sort((a, b) =>
-          a.entity_id > b.entity_id ? UP : DOWN,
-        ),
-        groups: room.groups,
-      }),
-    );
+    this.promptService.scriptHeader(room.friendlyName);
+    if (!IsEmpty(room.entities)) {
+      console.log(chalk.bold.blue`${ICONS.ENTITIES}Entities `);
+      console.log(
+        room.entities
+          .map(({ entity_id }) => chalk`  {cyan.bold -} ${entity_id}`)
+          .sort((a, b) => (a > b ? UP : DOWN))
+          .join(`\n`),
+      );
+    }
+    if (!IsEmpty(room.groups)) {
+      if (!IsEmpty(room.entities)) {
+        console.log();
+      }
+      console.log(chalk.bold.blue`${ICONS.GROUPS}Groups `);
+      const groups = await this.groupCommand.list({
+        filters: new Set([
+          {
+            field: '_id',
+            operation: FILTER_OPERATIONS.in,
+            value: room.groups.join(','),
+          },
+        ]),
+      });
+      console.log(
+        groups
+          .map(({ friendlyName }) => chalk`  {cyan.bold -} ${friendlyName}`)
+          .sort((a, b) => (a > b ? UP : DOWN))
+          .join(`\n`),
+      );
+    }
     console.log();
 
     room.save_states ??= [];

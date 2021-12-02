@@ -1,126 +1,130 @@
-// import { DOWN, UP } from '@ccontour/utilities';
-// import chalk from 'chalk';
-// import cliCursor from 'cli-cursor';
-// import figures from 'figures';
-// import { Question } from 'inquirer';
-// import Base from 'inquirer/lib/prompts/base';
-// import observe from 'inquirer/lib/utils/events';
-// import Paginator from 'inquirer/lib/utils/paginator';
-// const OFF = 0;
+import { DOWN, UP } from '@ccontour/utilities';
+import chalk from 'chalk';
+import cliCursor from 'cli-cursor';
+import { Question, Separator } from 'inquirer';
+import Base from 'inquirer/lib/prompts/base';
+import observe from 'inquirer/lib/utils/events';
+import Paginator from 'inquirer/lib/utils/paginator';
+import { takeUntil } from 'rxjs';
 
-// export class DatePrompt extends Base<Question & { pageSize: number }> {
-//   constructor(questions, rl, answers) {
-//     super(questions, rl, answers);
+import { PromptEntry } from '../services';
 
-//     (this.opt = {
-//       ...questions,
-//       prefix: chalk.green('?'),
-//       suffix: '',
-//     }),
-//       (this.previousAnswers = answers);
-//     this.selected = OFF;
-//     this.paginator = new Paginator(this.screen, {
-//       isInfinite: false,
-//     });
+const OFF = 0;
+const NEXT_TO = 1;
+const START = 0;
+const LABEL = 0;
+const VALUE = 0;
 
-//     const events = observe(rl);
-//     const keyDowns = events.keypress
-//       // @ts-expect-error everyone else is doing it this way
-//       .filter((e) => e.key.name === 'down')
-//       .share();
-//     // @ts-expect-error everyone else is doing it this way
-//     const keyUps = events.keypress.filter((e) => e.key.name === 'up').share();
-//     keyDowns.takeUntil(events.line).forEach(this.onDownKey.bind(this));
-//     keyUps.takeUntil(events.line).forEach(this.onUpKey.bind(this));
-//     events.line.forEach(this.onSubmit.bind(this));
-//   }
+type tCallback = (value: number) => void;
 
-//   private done: (item: number) => unknown;
-//   private firstRender = true;
-//   private paginator: Paginator;
-//   private previousAnswers: unknown;
-//   private selected = 0;
+export class SelectLinePrompt extends Base<
+  Question & { choices: PromptEntry[]; moveValue: unknown; pageSize: number }
+> {
+  constructor(questions, rl, answers) {
+    super(questions, rl, answers);
 
-//   public _run(callback) {
-//     this.done = callback;
-//     cliCursor.hide();
-//     this.render();
-//     return this;
-//   }
+    this.opt = {
+      ...questions,
+      prefix: chalk.green('?'),
+      suffix: '',
+    };
+    this.selected = this.moveIndex = this.opt.choices.findIndex(
+      (value) => Array.isArray(value) && value[VALUE] === this.opt.moveValue,
+    );
+    const events = observe(rl);
+    events.normalizedUpKey
+      .pipe(takeUntil(events.line))
+      .forEach(this.onUpKey.bind(this));
+    events.normalizedDownKey
+      .pipe(takeUntil(events.line))
+      .forEach(this.onDownKey.bind(this));
+    events.line.forEach(this.onSubmit.bind(this));
+  }
 
-//   private getChoices() {
-//     return this.opt.choices;
-//   }
+  private done: tCallback;
+  private firstRender = true;
+  private moveIndex: number;
+  private paginator: Paginator = new Paginator(this.screen, {
+    isInfinite: false,
+  });
+  private selected = OFF;
 
-//   private getPlaceholder(number): string {
-//     return 'INSERT HERE';
-//   }
+  public _run(callback: tCallback): this {
+    this.done = callback;
+    cliCursor.hide();
+    this.render();
+    return this;
+  }
 
-//   private onDownKey() {
-//     const length = this.getChoices().length;
-//     this.selected = this.selected < length ? this.selected + UP : 0;
-//     this.render();
-//   }
+  private getChoices(): PromptEntry[] {
+    return this.opt.choices;
+  }
 
-//   private onSubmit() {
-//     this.status = 'answered';
-//     // Rerender prompt
-//     this.render();
-//     this.screen.done();
-//     cliCursor.show();
-//     this.done(this.selected);
-//   }
+  private getPlaceholder(): PromptEntry {
+    return new Separator(chalk.bold`{cyan >>} {magenta move here} {cyan <<}`);
+  }
 
-//   private onUpKey() {
-//     const length = this.getChoices().length;
-//     this.selected = this.selected > OFF ? this.selected + DOWN : length;
-//     this.render();
-//   }
-//   private render() {
-//     let message = this.getQuestion();
+  private listRender(choices: PromptEntry[]): string {
+    const output: string[] = [];
+    choices.forEach((choice, index) => {
+      if (!Array.isArray(choice)) {
+        output.push('  ' + choice + '\n');
+        return;
+      }
+      let line = choice[LABEL] as string;
+      if (choice[VALUE] === this.opt.moveValue) {
+        line = chalk.cyan(line);
+        if (index === this.selected) {
+          line = chalk`${line} {magenta.bold current position}`;
+        }
+      }
+      output.push(line);
+    });
+    return output.join(`\n`);
+  }
 
-//     if (this.firstRender) {
-//       message += chalk.dim('(Use arrow keys)');
-//     }
+  private onDownKey(): void {
+    const length = this.getChoices().length;
+    this.selected = this.selected < length ? this.selected + UP : START;
+    if (this.selected === this.moveIndex + NEXT_TO) {
+      this.selected = this.selected < length ? this.selected + UP : START;
+    }
+    this.render();
+  }
 
-//     const choices = [
-//       ...this.getChoices().slice(0, this.selected),
-//       this.getPlaceholder(this.selected),
-//       ...this.getChoices().slice(this.selected),
-//     ];
+  private onSubmit(): void {
+    this.status = 'answered';
+    this.render();
+    this.screen.done();
+    cliCursor.show();
+    this.done(this.selected);
+  }
 
-//     const choicesString = listRender(choices, this.selected);
-//     message +=
-//       '\n' +
-//       this.paginator.paginate(choicesString, this.selected, this.opt.pageSize);
+  private onUpKey(): void {
+    const length = this.getChoices().length;
+    this.selected = this.selected > OFF ? this.selected + DOWN : length;
+    if (this.selected === this.moveIndex + NEXT_TO) {
+      this.selected = this.selected < length ? this.selected + DOWN : START;
+    }
+    this.render();
+  }
 
-//     this.firstRender = false;
-//     this.screen.render(message, '');
-//   }
-// }
+  private render(): void {
+    let message = this.getQuestion();
+    if (this.firstRender) {
+      message += chalk.dim('(Use arrow keys)');
+    }
+    const choices = this.getChoices().slice(START, this.selected);
+    if (this.selected !== this.moveIndex) {
+      choices.push(this.getPlaceholder());
+    }
+    choices.push(...this.getChoices().slice(this.selected));
+    const choicesString = this.listRender(choices);
+    message +=
+      '\n' +
+      this.paginator.paginate(choicesString, this.selected, this.opt.pageSize);
 
-// /**
-//  * Function for rendering list choices
-//  * @param  {Array} choices array with choices
-//  * @param  {Number} pointer Position of the pointer
-//  * @return {String}         Rendered content
-//  */
-// function listRender(choices, pointer) {
-//   let output = '';
-
-//   choices.forEach(function (choice, i) {
-//     if (choice.type === 'separator') {
-//       output += '  ' + choice + '\n';
-//       return;
-//     }
-
-//     const isSelected = i === pointer;
-//     let line = (isSelected ? figures.pointer + ' ' : '  ') + choice;
-//     if (isSelected) {
-//       line = chalk.cyan(line);
-//     }
-//     output += line + ' \n';
-//   });
-
-//   return output.replace(/\n$/, '');
-// }
+    this.firstRender = false;
+    this.screen.render(message, '');
+  }
+}

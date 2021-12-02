@@ -242,14 +242,12 @@ export class PromptService {
     choices: PromptEntry<T>[],
     moveItem: T,
   ): Promise<number> {
-    const defaultValue = choices.findIndex(
-      (i) => Array.isArray(i) && i[VALUE] === moveItem,
-    );
     const { result } = await inquirer.prompt([
       {
-        choices: ['first', 'second', 'third', 'fourth'],
+        choices,
         message: 'Where add line?',
-        name: 'line',
+        moveValue: moveItem,
+        name,
         type: 'selectLine',
       },
     ]);
