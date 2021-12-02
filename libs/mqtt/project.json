@@ -1,0 +1,55 @@
+{
+  "root": "libs/mqtt",
+  "sourceRoot": "libs/mqtt/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/mqtt",
+        "tsConfig": "libs/mqtt/tsconfig.lib.json",
+        "packageJson": "libs/mqtt/package.json",
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "main": "libs/mqtt/src/index.ts",
+        "assets": [
+          "libs/mqtt/*.md",
+          "libs/mqtt/metadata.json",
+          "libs/mqtt/package.json"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "fileReplacements": []
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/mqtt/**/*.ts"]
+      }
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx nx build mqtt --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn publish --cwd dist/libs/mqtt --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    }
+  },
+  "tags": []
+}

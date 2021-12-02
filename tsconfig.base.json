@@ -18,6 +18,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@ccontour": ["libs/mqtt/src/index.ts"],
       "@ccontour/controller-logic": ["libs/controller-logic/src/index.ts"],
       "@ccontour/home-assistant": ["libs/home-assistant/src/index.ts"],
       "@ccontour/persistence": ["libs/persistence/src/index.ts"],

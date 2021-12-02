@@ -6,11 +6,6 @@
       "default": "info",
       "description": "Minimum log level to process"
     },
-    "MQTT_HOST": {
-      "type": "string",
-      "default": "localhost",
-      "description": "Configuration property for mqtt connection"
-    },
     "CACHE_PROVIDER": {
       "type": "string",
       "default": "memory",
@@ -21,11 +16,6 @@
       "type": "string",
       "default": "localhost",
       "description": "Configuration property for redis connection"
-    },
-    "MQTT_PORT": {
-      "type": "number",
-      "default": 1883,
-      "description": "Configuration property for mqtt connection"
     },
     "REDIS_PORT": {
       "type": "number",
