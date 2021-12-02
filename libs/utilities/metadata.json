@@ -27,11 +27,6 @@
       "default": 86400,
       "description": "Configuration property for redis connection",
       "careful": true
-    },
-    "MQTT_HEALTH_CHECK_INTERVAL": {
-      "type": "number",
-      "default": 5000,
-      "description": "Announce via MQTT that this process is still alive on an interval"
     }
   }
 }

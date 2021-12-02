@@ -1,7 +1,7 @@
+import { LibraryModule } from '@ccontour/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { LIB_UTILS, MQTT_CLIENT_INSTANCE } from '../contracts';
-import { LibraryModule } from '../decorators/library-module.decorator';
+import { LIB_MQTT, MQTT_CLIENT_INSTANCE } from '../contracts';
 import {
   MQTTClientInstanceService,
   MQTTExplorerService,
@@ -11,7 +11,7 @@ import {
 @LibraryModule({
   exports: [MqttService, MQTT_CLIENT_INSTANCE],
   imports: [DiscoveryModule],
-  library: LIB_UTILS,
+  library: LIB_MQTT,
   providers: [
     MQTTClientInstanceService,
     {
