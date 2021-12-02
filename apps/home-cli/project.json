@@ -139,14 +139,6 @@
           }
         ]
       }
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/home-cli"],
-      "options": {
-        "jestConfig": "apps/home-cli/jest.config.js",
-        "passWithNoTests": true
-      }
     }
   },
   "tags": []

@@ -10,6 +10,8 @@
         "outputPath": "dist/libs/persistence",
         "tsConfig": "libs/persistence/tsconfig.lib.json",
         "packageJson": "libs/persistence/package.json",
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/persistence/src/index.ts",
         "assets": [
           "libs/persistence/*.md",
@@ -46,14 +48,6 @@
             "description": "Publish it"
           }
         ]
-      }
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/persistence"],
-      "options": {
-        "jestConfig": "libs/persistence/jest.config.js",
-        "passWithNoTests": true
       }
     }
   },

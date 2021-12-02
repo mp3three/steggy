@@ -10,14 +10,6 @@
       },
       "outputs": ["{options.outputFile}"]
     },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/home-assistant"],
-      "options": {
-        "jestConfig": "libs/home-assistant/jest.config.js",
-        "passWithNoTests": true
-      }
-    },
     "publish": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
@@ -40,6 +32,8 @@
       "options": {
         "outputPath": "dist/libs/home-assistant",
         "tsConfig": "libs/home-assistant/tsconfig.lib.json",
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
         "packageJson": "libs/home-assistant/package.json",
         "main": "libs/home-assistant/src/index.ts",
         "assets": [

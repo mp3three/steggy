@@ -12,12 +12,5 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ccontour/automagical.git"
-  },
-  "peerDependencies": {
-    "@nestjs/common":"",
-    "@nestjs/core":"",
-    "@nestjs/platform-express":"",
-    "pino": "",
-    "eventemitter3": ""
   }
 }

@@ -9,6 +9,8 @@
       "options": {
         "outputPath": "dist/libs/server",
         "tsConfig": "libs/server/tsconfig.lib.json",
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
         "packageJson": "libs/server/package.json",
         "main": "libs/server/src/index.ts",
         "assets": [
@@ -46,14 +48,6 @@
             "description": "Publish it"
           }
         ]
-      }
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/server"],
-      "options": {
-        "jestConfig": "libs/server/jest.config.js",
-        "passWithNoTests": true
       }
     }
   },

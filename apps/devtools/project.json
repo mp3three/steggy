@@ -107,14 +107,6 @@
         "lintFilePatterns": ["apps/devtools/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/devtools"],
-      "options": {
-        "jestConfig": "apps/devtools/jest.config.js",
-        "passWithNoTests": true
-      }
     }
   },
   "tags": []

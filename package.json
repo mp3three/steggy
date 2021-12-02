@@ -20,16 +20,12 @@
     "workspace:nx-update": "npx nx migrate --latest",
     "workspace:yarn-update": "yarn upgrade-interactive --latest"
   },
-  "peerDependencies": {
-    "@nestjs/common":"",
-    "@nestjs/core":"",
-    "@nestjs/platform-express":"",
-    "pino": "",
-    "eventemitter3": ""
-  },
   "dependencies": {
+    "@nestjs/common": "^8.2.3",
+    "@nestjs/core": "^8.2.3",
     "@nestjs/jwt": "^8.0.0",
     "@nestjs/mongoose": "^9.0.1",
+    "@nestjs/platform-express": "^8.2.3",
     "@nestjs/swagger": "^5.1.5",
     "async": "^3.2.2",
     "bson": "^4.6.0",

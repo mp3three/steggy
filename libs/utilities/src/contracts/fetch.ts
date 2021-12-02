@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { Types } from 'mongoose';
+// import type { Types } from 'mongoose';
 
 export type Identifier = { _id?: string; name?: string };
 export type IdentifierWithParent = Partial<{ parent: string } & Identifier>;
@@ -86,7 +86,7 @@ export type FilterValueType =
   | Date
   | dayjs.Dayjs
   | RegExp
-  | Types.ObjectId
+  | unknown
   | Record<string, string>;
 
 export class FilterDTO {
