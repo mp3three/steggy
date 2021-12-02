@@ -9,6 +9,8 @@
       "options": {
         "outputPath": "dist/libs/controller-logic",
         "tsConfig": "libs/controller-logic/tsconfig.lib.json",
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
         "packageJson": "libs/controller-logic/package.json",
         "main": "libs/controller-logic/src/index.ts",
         "assets": [
@@ -31,14 +33,6 @@
         "lintFilePatterns": ["libs/controller-logic/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/controller-logic"],
-      "options": {
-        "jestConfig": "libs/controller-logic/jest.config.js",
-        "passWithNoTests": true
-      }
     },
     "publish": {
       "executor": "@nrwl/workspace:run-commands",

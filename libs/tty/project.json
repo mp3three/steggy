@@ -8,6 +8,8 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/tty",
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
         "tsConfig": "libs/tty/tsconfig.lib.json",
         "packageJson": "libs/tty/package.json",
         "main": "libs/tty/src/index.ts",
@@ -46,14 +48,6 @@
             "description": "Publish it"
           }
         ]
-      }
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/tty"],
-      "options": {
-        "jestConfig": "libs/tty/jest.config.js",
-        "passWithNoTests": true
       }
     }
   },

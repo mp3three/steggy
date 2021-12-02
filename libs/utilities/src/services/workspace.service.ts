@@ -34,12 +34,7 @@ export class WorkspaceService {
    */
   public PACKAGES = new Map<string, PackageJsonDTO>();
 
-  public ROOT_PACKAGE: PackageJsonDTO = JSON.parse(
-    readFileSync(
-      join(isDevelopment ? cwd() : __dirname, PACKAGE_FILE),
-      'utf-8',
-    ),
-  );
+  public ROOT_PACKAGE: PackageJsonDTO;
 
   /**
    * NX workspaces
@@ -119,6 +114,20 @@ export class WorkspaceService {
   }
 
   private loadMetadata(): void {
+    const root = join(isDevelopment ? cwd() : __dirname, PACKAGE_FILE);
+    this.ROOT_PACKAGE = existsSync(root)
+      ? JSON.parse(
+          readFileSync(
+            join(isDevelopment ? cwd() : __dirname, PACKAGE_FILE),
+            'utf-8',
+          ),
+        )
+      : {
+          description: 'unknown',
+          displayName: 'unknown',
+          name: 'unknown',
+          version: '0.0.0',
+        };
     const { projects } = this.workspace;
     Object.keys(projects).forEach((key) => {
       const path = this.path(key, 'metadata');

@@ -238,6 +238,22 @@ export class PromptService {
     return await this.string(`Friendly name`, current);
   }
 
+  public async insertPosition<T extends unknown = string>(
+    choices: PromptEntry<T>[],
+    moveItem: T,
+  ): Promise<number> {
+    const { result } = await inquirer.prompt([
+      {
+        choices,
+        message: 'Where add line?',
+        moveValue: moveItem,
+        name,
+        type: 'selectLine',
+      },
+    ]);
+    return result;
+  }
+
   public itemsFromEntries<T extends unknown = string>(
     items: PromptEntry<T>[],
     extendedShort = false,

@@ -9,7 +9,6 @@ import chalk from 'chalk';
 
 import { PINNED_ITEMS } from '../config';
 import { PromptEntry } from './prompt.service';
-import { SystemService } from './system.service';
 
 export class PinnedItemDTO<T = unknown> {
   public data?: T;
@@ -22,7 +21,6 @@ export class PinnedItemDTO<T = unknown> {
 export class PinnedItemService<T = unknown> {
   constructor(
     private readonly configService: AutoConfigService,
-    private readonly systemService: SystemService,
     @InjectConfig(PINNED_ITEMS) private pinned: PinnedItemDTO<T>[],
   ) {
     this.pinned = pinned.map((item) =>
@@ -52,14 +50,12 @@ export class PinnedItemService<T = unknown> {
     return this.pinned.find((i) => i.script === script && id === i.id);
   }
 
-  public getEntries(
-    name?: string,
-  ): PromptEntry<PromptEntry<PinnedItemDTO<T>>>[] {
+  public getEntries(name?: string): PromptEntry<PinnedItemDTO<T>>[] {
     if (!name) {
       return this.pinned.map((i) => {
         return [
           chalk`{bold.magenta ${TitleCase(i.script)}} ${i.friendlyName}`,
-          [i.friendlyName, i],
+          i,
         ];
       });
     }

@@ -1,9 +1,5 @@
 import { MainCLIModule } from '@ccontour/tty';
-import {
-  APP_HOME_CLI,
-  ApplicationModule,
-  UtilitiesModule,
-} from '@ccontour/utilities';
+import { ApplicationModule, UtilitiesModule } from '@ccontour/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
 import {
@@ -45,8 +41,8 @@ import {
 } from '../services';
 
 @ApplicationModule({
-  application: APP_HOME_CLI,
-  imports: [DiscoveryModule, MainCLIModule, UtilitiesModule],
+  application: Symbol('home-cli'),
+  imports: [DiscoveryModule, MainCLIModule, UtilitiesModule.forRoot()],
   providers: [
     ...[
       // domains/*

@@ -92,14 +92,15 @@ function resolve(filter: FilterDTO) {
   filter.operation ??= FILTER_OPERATIONS.eq;
   if (isNumberString(filter.value)) {
     const value = Number(filter.value);
-    filter.value = [filter.value as string, value];
+    const values = [filter.value as string, value] as FilterValueType[];
     filter.operation = FILTER_OPERATIONS.in;
     if (value === 0) {
-      filter.value.push(false);
+      values.push(false);
     }
     if (value === 1) {
-      filter.value.push(true);
+      values.push(true);
     }
+    filter.value = values;
   } else if (
     typeof filter.value === 'string' &&
     ['y', 'true'].includes(filter.value.toLocaleLowerCase())

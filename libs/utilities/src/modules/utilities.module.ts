@@ -1,10 +1,11 @@
-import { CacheModule, DynamicModule, Provider } from '@nestjs/common';
+import { DynamicModule, Provider } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { LIB_UTILS } from '../contracts';
 import { injectedLoggers } from '../decorators/injectors';
 import { CONFIG_PROVIDERS } from '../decorators/injectors/inject-config.decorator';
 import { LibraryModule } from '../decorators/library-module.decorator';
+import { RegisterCache } from '../includes';
 import {
   AutoConfigService,
   AutoLogService,
@@ -28,7 +29,7 @@ import {
     FetchService,
     AutoLogService,
   ],
-  imports: [CacheModule.register(), DiscoveryModule],
+  imports: [RegisterCache(), DiscoveryModule],
   library: LIB_UTILS,
   providers: [
     LogExplorerService,
@@ -62,7 +63,7 @@ export class UtilitiesModule {
         ...decorated,
       ],
       global: true,
-      imports: [CacheModule.register(), DiscoveryModule],
+      imports: [RegisterCache(), DiscoveryModule],
       module: UtilitiesModule,
       providers: [
         ...extra,
