@@ -14,11 +14,7 @@ import {
   PackageJsonDTO,
   WorkspaceService,
 } from '@ccontour/utilities';
-import {
-  ConflictException,
-  Inject,
-  NotImplementedException,
-} from '@nestjs/common';
+import { Inject, NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import execa from 'execa';
 import { dump } from 'js-yaml';
