@@ -1,0 +1,14 @@
+{
+  "configuration": {
+    "MQTT_HOST": {
+      "type": "string",
+      "default": "localhost",
+      "description": "Configuration property for mqtt connection"
+    },
+    "MQTT_PORT": {
+      "type": "number",
+      "default": 1883,
+      "description": "Configuration property for mqtt connection"
+    }
+  }
+}

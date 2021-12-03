@@ -1,5 +1,6 @@
 import {
   ACTIVE_APPLICATION,
+  GenericVersionDTO,
   InjectConfig,
   WorkspaceService,
 } from '@ccontour/utilities';
@@ -25,9 +26,9 @@ export class GenericController {
 
   @Get(`/version`)
   @ApiOperation({
-    description: `Retrieve some basic information about `,
+    description: `Retrieve some basic information about the server version`,
   })
-  public version(): unknown {
+  public version(): GenericVersionDTO & { application: string } {
     if (this.hideVersion) {
       // Nothing to see here
       throw new NotFoundException();

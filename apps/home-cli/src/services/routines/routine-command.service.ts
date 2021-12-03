@@ -1,4 +1,5 @@
 import {
+  RoomCommandDTO,
   RoomDTO,
   RoomEntitySaveStateDTO,
   RountineCommandLightFlashDTO,
@@ -39,6 +40,7 @@ import { RoutineService } from './routine.service';
 type RService = RoutineService;
 type RSService = RoomStateService;
 type RCService = RoomCommandService;
+const START = 0;
 
 @Injectable()
 export class RoutineCommandService {
@@ -215,6 +217,7 @@ export class RoutineCommandService {
     const action = await this.promptService.menuSelect(
       [
         [`${ICONS.CREATE}Add`, 'add'],
+        [`${ICONS.SWAP}Sort`, 'sort'],
         ...this.promptService.conditionalEntries(!IsEmpty(routine.command), [
           new inquirer.Separator(chalk.white`Current commands`),
           ...(routine.command.map((activate) => [
@@ -228,6 +231,9 @@ export class RoutineCommandService {
     switch (action) {
       case DONE:
         return routine;
+      case 'sort':
+        routine = await this.sort(routine);
+        return await this.processRoutine(routine);
       case 'add':
         const command = await this.build(routine);
         command.id = uuid();
@@ -240,5 +246,20 @@ export class RoutineCommandService {
     }
     routine = await this.process(routine, action);
     return await this.processRoutine(routine);
+  }
+
+  private async sort(routine: RoutineDTO): Promise<RoutineDTO> {
+    const entries = routine.command.map((i) => [
+      i.friendlyName,
+      i,
+    ]) as PromptEntry<RoomCommandDTO>[];
+    const move = await this.promptService.pickOne(`Pick item to move`, entries);
+    const position = await this.promptService.insertPosition(entries, move);
+    const before = routine.command
+      .slice(START, position)
+      .filter((i) => i !== move);
+    const after = routine.command.slice(position).filter((i) => i !== move);
+    routine.command = [...before, move, ...after] as RoutineCommandDTO[];
+    return await this.routineCommand.update(routine);
   }
 }

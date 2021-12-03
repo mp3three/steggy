@@ -70,7 +70,6 @@ export const MQTT_CLIENT_INSTANCE = 'MQTT_CLIENT_INSTANCE';
 /**
  * PARAMS = appName: string
  */
-export const MQTT_HEALTH_CHECK = 'MQTT_HEALTH_CHECK';
 
 export const SEND_ROOM_STATE = (room: string, action: string): string =>
   ['internal', 'set_room_state', room, action].join('/');

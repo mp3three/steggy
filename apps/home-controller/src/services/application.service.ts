@@ -1,7 +1,4 @@
-import {
-  HA_SOCKET_READY,
-  NotifyDomainService,
-} from '@ccontour/home-assistant';
+import { HA_SOCKET_READY, NotifyDomainService } from '@ccontour/home-assistant';
 import { AutoLogService, OnEvent } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 
@@ -12,6 +9,10 @@ export class ApplicationService {
     private readonly notifyService: NotifyDomainService,
   ) {}
   private connectionReady = false;
+
+  protected onModuleInit(): void {
+    //
+  }
 
   @OnEvent(HA_SOCKET_READY)
   protected async onSocketReset(): Promise<void> {

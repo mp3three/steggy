@@ -6,11 +6,22 @@ import {
   PromptService,
   Repl,
 } from '@ccontour/tty';
-import { IsEmpty } from '@ccontour/utilities';
-import { NotImplementedException } from '@nestjs/common';
+import {
+  ACTIVE_APPLICATION,
+  GenericVersionDTO,
+  InjectConfig,
+  IsEmpty,
+  PackageJsonDTO,
+  WorkspaceService,
+} from '@ccontour/utilities';
+import { Inject, NotImplementedException } from '@nestjs/common';
+import chalk from 'chalk';
+import execa from 'execa';
 import { dump } from 'js-yaml';
 import { Response } from 'node-fetch';
+import semver from 'semver';
 
+import { CLI_PACKAGE, CONTROLLER_PACKAGE } from '../config';
 import { HomeFetchService } from './home-fetch.service';
 
 @Repl({
@@ -22,7 +33,12 @@ export class DebugService {
   constructor(
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
+    private readonly workspace: WorkspaceService,
     private readonly configBuilder: ConfigBuilderService,
+    @InjectConfig(CLI_PACKAGE) private readonly cliPackagePath: string,
+    @InjectConfig(CONTROLLER_PACKAGE)
+    private readonly controllerPackagePath: string,
+    @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
   ) {}
 
   /**
@@ -60,6 +76,7 @@ For loop example getting entity values in the weather domain:
         [`Send template notification`, 'sendNotification'],
         [`Restart Home Assistant`, 'reboot'],
         [`Persistent notifications`, 'notifications'],
+        [`Update checker`, 'update'],
       ],
       'Debug action',
       defaultAction,
@@ -67,8 +84,10 @@ For loop example getting entity values in the weather domain:
 
     switch (action) {
       case DONE:
-        await this.promptService.acknowledge();
         return;
+      case 'update':
+        await this.updateChecker();
+        return await this.exec(action);
       case 'reboot':
         await this.fetchService.fetch({
           method: 'post',
@@ -155,5 +174,89 @@ For loop example getting entity values in the weather domain:
       method: 'post',
       url: `/debug/send-notification`,
     });
+  }
+
+  private async updateCheckController(): Promise<void> {
+    const { version: controllerVersion } =
+      await this.fetchService.fetch<GenericVersionDTO>({
+        url: `/version`,
+      });
+    const { version: latestVersion } =
+      await this.fetchService.fetch<PackageJsonDTO>({
+        rawUrl: true,
+        url: this.controllerPackagePath,
+      });
+    if (latestVersion === controllerVersion) {
+      console.log(chalk.green.bold`Using latest home controller version`);
+      return;
+    }
+    if (semver.gt(controllerVersion, latestVersion)) {
+      console.log(chalk.magenta.bold(`Current version ahead of master`));
+      return;
+    }
+    console.log(
+      [
+        chalk.bold.cyan`Home Controller updates are available!`,
+        ``,
+        chalk`{bold.white Current version:} ${controllerVersion}`,
+        chalk`{bold.white Latest version:}  ${latestVersion}`,
+        ``,
+      ].join(`\n`),
+    );
+  }
+
+  private async updateChecker(): Promise<void> {
+    await this.updateCheckController();
+    const { version, name } = this.workspace.PACKAGES.get(
+      this.activeApplication.description,
+    );
+    const cliPackage = await this.fetchService.fetch<PackageJsonDTO>({
+      rawUrl: true,
+      url: this.cliPackagePath,
+    });
+    if (
+      cliPackage.version ===
+      this.workspace.PACKAGES.get(this.activeApplication.description).version
+    ) {
+      console.log(chalk.green.bold`CLI is at latest version`);
+      return;
+    }
+    if (semver.gt(cliPackage.version, version)) {
+      console.log(
+        chalk.magenta.bold(`CLI version ahead of master. What you up to?`),
+      );
+      return;
+    }
+    console.log(
+      [
+        chalk.bold.cyan`CLI updates are available!`,
+        ``,
+        chalk`{bold.white Current version:} ${version}`,
+        chalk`{bold.white Latest version:}  ${cliPackage.version}`,
+        ``,
+        ``,
+      ].join(`\n`),
+    );
+    const action = await this.promptService.menuSelect(
+      [
+        [chalk`Update using {blue yarn}`, `yarn`],
+        [chalk`Update using {red npm}`, `npm`],
+      ],
+      `Update CLI`,
+    );
+    if (action === DONE) {
+      return;
+    }
+    if (action === 'npm') {
+      throw new NotImplementedException(
+        `FIXME: Developer doesn't know the right update command.`,
+      );
+    }
+    const update = execa(`yarn`, [`global`, `upgrade`, name, `--latest`]);
+    update.stdout.pipe(process.stdout);
+    await update;
+    console.log(
+      chalk`${ICONS.WARNING}{yellow.bold Restart application to use updated version}\n`,
+    );
   }
 }

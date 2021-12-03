@@ -1,8 +1,5 @@
 export const LOG_LEVEL = 'LOG_LEVEL';
-export const MQTT_HOST = 'MQTT_HOST';
 export const CACHE_PROVIDER = 'CACHE_PROVIDER';
 export const REDIS_HOST = 'REDIS_HOST';
-export const MQTT_PORT = 'MQTT_PORT';
 export const REDIS_PORT = 'REDIS_PORT';
 export const REDIS_DEFAULT_TTL = 'REDIS_DEFAULT_TTL';
-export const MQTT_HEALTH_CHECK_INTERVAL = 'MQTT_HEALTH_CHECK_INTERVAL';

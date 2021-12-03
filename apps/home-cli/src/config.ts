@@ -1,3 +1,5 @@
 export const CONTROLLER_API = 'CONTROLLER_API';
 export const ADMIN_KEY = 'ADMIN_KEY';
 export const REFRESH_SLEEP = 'REFRESH_SLEEP';
+export const CLI_PACKAGE = 'CLI_PACKAGE';
+export const CONTROLLER_PACKAGE = 'CONTROLLER_PACKAGE';

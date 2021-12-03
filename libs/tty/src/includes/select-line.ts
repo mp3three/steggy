@@ -7,16 +7,23 @@ import observe from 'inquirer/lib/utils/events';
 import Paginator from 'inquirer/lib/utils/paginator';
 import { takeUntil } from 'rxjs';
 
+import { ICONS } from '../contracts';
 import { PromptEntry } from '../services';
 
 const OFF = 0;
 const NEXT_TO = 1;
 const START = 0;
 const LABEL = 0;
-const VALUE = 0;
+const OFFSET = 1;
+const VALUE = 1;
 
 type tCallback = (value: number) => void;
 
+/**
+ * Inquirer plugin
+ *
+ * Used for taking an item in a list, and finding a new position for it.
+ */
 export class SelectLinePrompt extends Base<
   Question & { choices: PromptEntry[]; moveValue: unknown; pageSize: number }
 > {
@@ -68,12 +75,12 @@ export class SelectLinePrompt extends Base<
     const output: string[] = [];
     choices.forEach((choice, index) => {
       if (!Array.isArray(choice)) {
-        output.push('  ' + choice + '\n');
+        output.push(`    ${choice.line}\n`);
         return;
       }
       let line = choice[LABEL] as string;
       if (choice[VALUE] === this.opt.moveValue) {
-        line = chalk.cyan(line);
+        line = chalk.cyan.bold(line);
         if (index === this.selected) {
           line = chalk`${line} {magenta.bold current position}`;
         }
@@ -111,6 +118,23 @@ export class SelectLinePrompt extends Base<
 
   private render(): void {
     let message = this.getQuestion();
+    if (this.status === 'answered') {
+      if (this.selected === this.moveIndex) {
+        message = chalk.bold.yellow`{blue.bold !} No change`;
+      } else if (this.selected > this.moveIndex) {
+        // Red go down
+        message = chalk.bold`${ICONS.DOWN}Moved {red ${
+          this.selected - this.moveIndex - OFFSET
+        }} positions down`;
+      } else {
+        // Green go up
+        message = chalk.bold`${ICONS.UP}Moved {green ${
+          this.moveIndex - this.selected
+        }} positions up`;
+      }
+      this.screen.render(message, '');
+      return;
+    }
     if (this.firstRender) {
       message += chalk.dim('(Use arrow keys)');
     }

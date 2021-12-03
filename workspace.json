@@ -6,6 +6,7 @@
     "home-assistant": "libs/home-assistant",
     "home-cli": "apps/home-cli",
     "home-controller": "apps/home-controller",
+    "mqtt": "libs/mqtt",
     "persistence": "libs/persistence",
     "server": "libs/server",
     "tty": "libs/tty",

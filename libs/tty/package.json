@@ -7,7 +7,7 @@
   "name": "@ccontour/tty",
   "license": "MIT",
   "displayName": "TTY",
-  "version": "0.5.13",
+  "version": "0.5.16",
   "homepage": "https://github.com/ccontour/automagical",
   "repository": {
     "type": "git",

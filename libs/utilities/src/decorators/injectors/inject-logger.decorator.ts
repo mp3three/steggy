@@ -4,11 +4,11 @@ import { v4 as uuid } from 'uuid';
 
 import { AutoLogService } from '../../services';
 
-export const injectedLoggers = new Set<Provider>();
+export const LOGGER_PROVIDERS = new Set<Provider>();
 export const mappedContexts = new Map<string, string>();
 export function InjectLogger(): ParameterDecorator {
   const provide = uuid();
-  injectedLoggers.add({
+  LOGGER_PROVIDERS.add({
     inject: [AutoLogService],
     provide,
     useFactory(logger: AutoLogService) {

@@ -10,7 +10,7 @@ import {
 
 @ApplicationModule({
   application: Symbol('devtools'),
-  imports: [DiscoveryModule, MainCLIModule, UtilitiesModule],
+  imports: [DiscoveryModule, MainCLIModule, UtilitiesModule.forRoot()],
   providers: [
     ConfigBuilderService,
     ImgurAlbumDownloadService,

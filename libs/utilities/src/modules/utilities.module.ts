@@ -2,7 +2,7 @@ import { DynamicModule, Provider } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { LIB_UTILS } from '../contracts';
-import { injectedLoggers } from '../decorators/injectors';
+import { LOGGER_PROVIDERS } from '../decorators/injectors';
 import { CONFIG_PROVIDERS } from '../decorators/injectors/inject-config.decorator';
 import { LibraryModule } from '../decorators/library-module.decorator';
 import { RegisterCache } from '../includes';
@@ -23,63 +23,65 @@ import {
 @LibraryModule({
   exports: [
     AutoConfigService,
-    CacheProviderService,
-    WorkspaceService,
-    JSONFilterService,
-    FetchService,
     AutoLogService,
+    CacheProviderService,
+    FetchService,
+    JSONFilterService,
+    WorkspaceService,
   ],
   imports: [RegisterCache(), DiscoveryModule],
   library: LIB_UTILS,
   providers: [
-    LogExplorerService,
-    AutoLogService,
     AutoConfigService,
-    LifecycleService,
-    WorkspaceService,
-    ModuleScannerService,
-    JSONFilterService,
+    AutoLogService,
+    CacheProviderService,
     EventsExplorerService,
     FetchService,
-    CacheProviderService,
+    JSONFilterService,
+    LifecycleService,
+    LogExplorerService,
+    ModuleScannerService,
     ScheduleExplorerService,
+    WorkspaceService,
   ],
 })
 export class UtilitiesModule {
   public static forRoot(extra: Provider[] = []): DynamicModule {
+    // @InjectConfig()
     const config = [...CONFIG_PROVIDERS.values()];
-    const decorated = [...injectedLoggers.values()];
+    // @InjectLogger()
+    const loggers = [...LOGGER_PROVIDERS.values()];
     return {
       exports: [
         ...extra,
+        ...config,
+        ...loggers,
         AutoConfigService,
-        WorkspaceService,
         AutoLogService,
-        JSONFilterService,
-        ModuleScannerService,
         CacheProviderService,
         FetchService,
-        ...config,
-        ...decorated,
+        JSONFilterService,
+        ModuleScannerService,
+        WorkspaceService,
       ],
       global: true,
       imports: [RegisterCache(), DiscoveryModule],
       module: UtilitiesModule,
       providers: [
         ...extra,
+        ...config,
+        ...loggers,
+        AutoConfigService,
+        AutoLogService,
+        CacheProviderService,
+        EventsExplorerService,
+        FetchService,
+        JSONFilterService,
+        LifecycleService,
         LogExplorerService,
         ModuleScannerService,
         ScheduleExplorerService,
-        JSONFilterService,
         WorkspaceService,
-        CacheProviderService,
-        EventsExplorerService,
-        LifecycleService,
-        ...config,
-        AutoConfigService,
-        AutoLogService,
-        FetchService,
-        ...decorated,
       ],
     };
   }
