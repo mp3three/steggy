@@ -11,11 +11,12 @@ import {
   PromptService,
   Repl,
 } from '@ccontour/tty';
-import { IsEmpty, ResultControlDTO } from '@ccontour/utilities';
+import { IsEmpty, ResultControlDTO, TitleCase } from '@ccontour/utilities';
 import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
+import { eachSeries } from 'async';
 import chalk from 'chalk';
+import Table from 'cli-table';
 import inquirer from 'inquirer';
-import { dump } from 'js-yaml';
 
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';
@@ -23,6 +24,8 @@ import { RoutineActivateService } from './routine-activate.service';
 import { RoutineCommandService } from './routine-command.service';
 import { RoutineSettingsService } from './routine-settings.service';
 
+const START = 0;
+const MAX_LENGTH = 255;
 type RCService = RoomCommandService;
 type RService = RoutineCommandService;
 @Repl({
@@ -136,20 +139,7 @@ export class RoutineService {
     routine: RoutineDTO,
     defaultAction?: string,
   ): Promise<void> {
-    this.promptService.clear();
-    this.promptService.scriptHeader(`Routine`);
-    console.log(chalk.bold.yellow`${routine.friendlyName}`);
-    console.log(
-      chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
-        `/routine/${routine._id}`,
-      )}`,
-    );
-    this.promptService.print(
-      dump({
-        activate: routine.activate,
-        command: routine.command,
-      }),
-    );
+    await this.header(routine);
     const action = await this.promptService.menuSelect(
       [
         [`${ICONS.ACTIVATE}Manual activate`, 'activate'],
@@ -238,5 +228,68 @@ export class RoutineService {
       const routine = await this.get(id);
       await this.processRoutine(routine);
     });
+  }
+
+  private async header(routine: RoutineDTO): Promise<void> {
+    await this.promptService.clear();
+    this.promptService.scriptHeader(`Routine`);
+    this.promptService.secondaryHeader(routine.friendlyName);
+    console.log(
+      chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
+        `/routine/${routine._id}`,
+      )}`,
+    );
+    console.log();
+    if (IsEmpty(routine.activate)) {
+      console.log(
+        chalk.bold`{cyan >>> }${ICONS.EVENT}{yellow No activation events}`,
+      );
+    } else {
+      console.log(chalk.bold.blue`Activation Events`);
+      const table = new Table({
+        head: ['Name', 'Type', 'Details'],
+      });
+      routine.activate.forEach((activate) => {
+        table.push([
+          activate.friendlyName,
+          TitleCase(activate.type),
+          Object.keys(activate.activate)
+            .map((i) => {
+              let value = activate.activate[i];
+              if (typeof value === 'number') {
+                value = chalk.yellow(value.toString());
+              } else if (typeof value === 'boolean') {
+                value = chalk.magenta(String(value));
+              } else if (Array.isArray(value)) {
+                value = value
+                  .map((i) =>
+                    chalk[typeof i === 'number' ? 'yellow' : 'blue'](i),
+                  )
+                  .join(', ');
+              }
+              return chalk`{bold ${i}:} ${value}`;
+            })
+            .join(`\n`),
+        ]);
+      });
+      console.log(table.toString());
+    }
+    if (IsEmpty(routine.command)) {
+      console.log(chalk.bold`{cyan >>> }${ICONS.COMMAND}{yellow No commands}`);
+      return;
+    }
+    console.log(chalk.bold.blue`Commands`);
+    const table = new Table({
+      head: ['Name', 'Type', 'Details'],
+    });
+    await eachSeries(routine.command, async (command) => {
+      table.push([
+        command.friendlyName,
+        TitleCase(command.type),
+        await this.activateCommand.commandDetails(routine, command),
+      ]);
+    });
+    console.log(table.toString());
+    console.log();
   }
 }

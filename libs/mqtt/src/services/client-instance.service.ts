@@ -1,6 +1,7 @@
 import { ACTIVE_APPLICATION, InjectConfig } from '@ccontour/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { connect, MqttClient } from 'mqtt';
+
 import { MQTT_HOST, MQTT_PORT } from '../config';
 
 @Injectable()

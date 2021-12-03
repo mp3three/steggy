@@ -8,11 +8,12 @@ import {
 } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
-import figlet from 'figlet';
+import figlet, { Fonts } from 'figlet';
 import fuzzy from 'fuzzysort';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
+import { SECONDARY_HEADER_FONT } from '..';
 import {
   BLOCK_PRINT_BG,
   BLOCK_PRINT_FG,
@@ -39,7 +40,8 @@ const MAX_BRIGHTNESS = 255;
 export class PromptService {
   constructor(
     private readonly logger: AutoLogService,
-    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: figlet.Fonts,
+    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: Fonts,
+    @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
     @InjectConfig(BLOCK_PRINT_BG) private readonly blockPrintBg: string,
     @InjectConfig(BLOCK_PRINT_FG) private readonly blockPrintFg: string,
@@ -205,8 +207,7 @@ export class PromptService {
         type: 'editor',
       },
     ]);
-
-    return result;
+    return result.trim();
   }
 
   public async expand<T extends unknown = string>(
@@ -406,6 +407,13 @@ export class PromptService {
     this.clear();
     console.log(chalk[color](header), '\n');
     return header.split(`\n`).pop().length;
+  }
+
+  public secondaryHeader(header: string, color = 'magenta'): void {
+    header = figlet.textSync(header, {
+      font: this.secondaryFont,
+    });
+    console.log(chalk[color](header), '\n');
   }
 
   public sort<T>(entries: PromptEntry<T>[]): PromptEntry<T>[] {

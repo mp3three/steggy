@@ -1,4 +1,5 @@
 import {
+  GroupDTO,
   RoomCommandDTO,
   RoomDTO,
   RoomEntitySaveStateDTO,
@@ -26,7 +27,7 @@ import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
 import { v4 as uuid } from 'uuid';
 
-import { GroupStateService } from '../groups';
+import { GroupCommandService, GroupStateService } from '../groups';
 import { EntityService } from '../home-assistant/entity.service';
 import { RoomCommandService, RoomStateService } from '../rooms';
 import {
@@ -46,6 +47,7 @@ const START = 0;
 export class RoutineCommandService {
   constructor(
     private readonly promptService: PromptService,
+    private readonly groupCommand: GroupCommandService,
     private readonly groupAction: GroupActionService,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineCommand: RService,
@@ -165,6 +167,106 @@ export class RoutineCommandService {
         };
     }
     throw new NotImplementedException();
+  }
+
+  public async commandDetails(
+    routine: RoutineDTO,
+    current: RoutineCommandDTO,
+  ): Promise<string> {
+    let room: RoomDTO | string;
+    let group: GroupDTO;
+    switch (current.type) {
+      case ROUTINE_ACTIVATE_COMMAND.sleep:
+        const { duration } = (current?.command as RoutineCommandSleepDTO) || {};
+        return chalk`{bold Duration:} {yellowBright ${duration}}ms`;
+      case ROUTINE_ACTIVATE_COMMAND.send_notification:
+        const { template } =
+          (current?.command as RoutineCommandSendNotificationDTO) || {};
+        return chalk`{bold Template:} ${(template ?? '').trim()}`;
+      case ROUTINE_ACTIVATE_COMMAND.room_state:
+        const roomStateCommand = (current?.command ??
+          {}) as RoutineCommandRoomStateDTO;
+        room = await this.roomCommand.get(
+          typeof roomStateCommand.room === 'string'
+            ? roomStateCommand.room
+            : roomStateCommand.room._id,
+        );
+        return [
+          chalk`{bold Room: } ${room.friendlyName}`,
+          chalk`{bold State:} ${
+            room.save_states.find(({ id }) => id === roomStateCommand.state)
+              ?.friendlyName
+          }`,
+        ].join(`\n`);
+      case ROUTINE_ACTIVATE_COMMAND.light_flash:
+        const lightFlashCommand =
+          current.command as RountineCommandLightFlashDTO;
+        return [
+          lightFlashCommand.type === 'entity'
+            ? chalk`{bold Entity:} ${lightFlashCommand.ref}`
+            : chalk`{bold Group:} ${
+                (await this.groupCommand.get(lightFlashCommand.ref))
+                  ?.friendlyName
+              }`,
+          Object.keys(lightFlashCommand)
+            .filter((i) => !['type', 'ref'].includes(i))
+            .map(
+              (key) =>
+                chalk`{bold ${TitleCase(key)}:} ${
+                  typeof lightFlashCommand[key] === 'object'
+                    ? ['r', 'g', 'b']
+                        .map((i) =>
+                          chalk.yellow(String(lightFlashCommand[key][i])),
+                        )
+                        .join(', ')
+                    : chalk.yellow(String(lightFlashCommand[key]))
+                }`,
+            )
+            .join(`\n`),
+        ].join(`\n`);
+      case ROUTINE_ACTIVATE_COMMAND.webhook:
+        const webhook = current.command as RoutineCommandWebhookDTO;
+        return [
+          chalk`{bold Method:} ${webhook.method}`,
+          chalk`{bold Target:} ${webhook.url}`,
+        ].join(`\n`);
+      case ROUTINE_ACTIVATE_COMMAND.entity_state:
+        const entityState = current.command as RoomEntitySaveStateDTO;
+        return [
+          chalk`{bold Entity:} ${entityState.ref}`,
+          chalk`{bold State:} ${entityState.state}`,
+          ...(entityState.extra
+            ? Object.keys(entityState.extra).map(
+                (key) =>
+                  chalk`{bold ${TitleCase(key)}:} ${entityState.extra[key]}`,
+              )
+            : []),
+        ].join(`\n`);
+      case ROUTINE_ACTIVATE_COMMAND.group_action:
+        const groupActionCommand =
+          current.command as RoutineCommandGroupActionDTO;
+        group = await this.groupCommand.get(groupActionCommand.group);
+        return [
+          chalk`{bold Group:}   ${group.friendlyName}`,
+          chalk`{bold Command:} ${groupActionCommand.command}`,
+          ...Object.keys(groupActionCommand.extra ?? {}).map(
+            (key) =>
+              chalk`{bold ${TitleCase(key)}:} ${groupActionCommand.extra[key]}`,
+          ),
+        ].join(`\n`);
+      case ROUTINE_ACTIVATE_COMMAND.group_state:
+        const groupStateCommand =
+          current.command as RoutineCommandGroupStateDTO;
+        group = await this.groupCommand.get(groupStateCommand.group);
+        return [
+          chalk`{bold Group:} ${group.friendlyName}`,
+          chalk`{bold State:} ${
+            group.save_states.find(({ id }) => id === groupStateCommand.state)
+              .friendlyName
+          }`,
+        ].join(`\n`);
+    }
+    return JSON.stringify(current);
   }
 
   public async process(

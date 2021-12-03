@@ -5,6 +5,11 @@
       "default": "DOS Rebel",
       "description": "Figlet font"
     },
+    "SECONDARY_HEADER_FONT": {
+      "type": "string",
+      "default": "Pagga",
+      "description": "Figlet font"
+    },
     "PAGE_SIZE": {
       "type": "number",
       "description": "Maxmimum number of items displayed in pickMany prompts",
@@ -13,7 +18,7 @@
     "OUTPUT_HEADER_FONT": {
       "type": "string",
       "description": "Figlet font",
-      "default": "DOS Rebel"
+      "default": "puffy"
     },
     "BLOCK_PRINT_BG": {
       "type": "string",

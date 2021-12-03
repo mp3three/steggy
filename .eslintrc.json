@@ -11,9 +11,7 @@
     "sort-keys-fix",
     "no-loops",
     "no-unsanitized",
-    "simple-import-sort",
-    "jest-formatting",
-    "jest"
+    "simple-import-sort"
   ],
   "overrides": [
     {
@@ -168,26 +166,6 @@
       "files": ["*.controller.ts"],
       "rules": {
         "radar/no-duplicate-string": "off"
-      }
-    },
-    {
-      "files": ["*.spec.ts"],
-      "extends": [
-        "plugin:jest/all",
-        "plugin:jest-formatting/recommended"
-      ],
-      "rules": {
-        "jest/no-hooks": "off",
-        "jest/no-disabled-tests": "warn",
-        "jest/no-focused-tests": "warn",
-        "jest/expect-expect": ["error", {
-          "assertFunctionNames": ["expect", "request.**.expect"]
-        }],
-        "radar/cognitive-complexity": "off",
-        "radar/no-duplicate-string": "off"
-      },
-      "env": {
-        "jest/globals": true
       }
     },
     {
