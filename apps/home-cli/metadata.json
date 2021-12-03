@@ -13,6 +13,11 @@
       "type": "number",
       "default": 100,
       "description": "Delay before loading entity header for ensuring state is up to date"
+    },
+    "LATEST_PACKAGE": {
+      "type": "string",
+      "default": "https://raw.githubusercontent.com/ccontour/automagical/master/apps/home-cli/package.json",
+      "description": "Used for determining if running code is latest"
     }
   }
 }

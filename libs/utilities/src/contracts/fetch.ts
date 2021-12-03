@@ -38,7 +38,7 @@ export type FetchArguments<BODY extends unknown = unknown> = FetchAuth & {
    */
   body?: BODY;
   /**
-   * Formatted filters to send with request. Gets translated to query params
+   * Formatted filters to send with request. Gets translated to & merged with query params
    */
   control?: ResultControlDTO;
   /**
@@ -48,17 +48,23 @@ export type FetchArguments<BODY extends unknown = unknown> = FetchAuth & {
   /**
    * Which HTTP method?
    */
-  method?: HTTP_METHODS | STRING_HTTP;
+  method?: HTTP_METHODS | `${HTTP_METHODS}`;
   /**
    * Query params to send
    */
   params?: Record<string, string>;
   /**
    * Built in post-processing
+   *
+   * - true = attempt to decode as json
+   * - false = return the node-fetch response object without processing
+   * - 'text' = return result as text, no additional processing
    */
   process?: boolean | 'text';
   /**
-   * true for "this is not a url relative to portal base"
+   * URL is the full path (includes http://...)
+   *
+   * Ignores baseUrl if set
    */
   rawUrl?: boolean;
   /**
@@ -135,7 +141,6 @@ export enum HTTP_METHODS {
   index = 'index',
   post = 'post',
 }
-type STRING_HTTP = `${HTTP_METHODS}`;
 
 export type FetchWith<
   T extends Record<never, string> = Record<never, string>,

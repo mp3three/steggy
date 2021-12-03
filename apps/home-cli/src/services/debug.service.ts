@@ -6,11 +6,20 @@ import {
   PromptService,
   Repl,
 } from '@ccontour/tty';
-import { IsEmpty } from '@ccontour/utilities';
-import { NotImplementedException } from '@nestjs/common';
+import {
+  InjectConfig,
+  IsEmpty,
+  PackageJsonDTO,
+  WorkspaceService,
+} from '@ccontour/utilities';
+import { ConflictException, NotImplementedException } from '@nestjs/common';
+import chalk from 'chalk';
+import execa from 'execa';
 import { dump } from 'js-yaml';
 import { Response } from 'node-fetch';
+import semver from 'semver';
 
+import { LATEST_PACKAGE } from '../config';
 import { HomeFetchService } from './home-fetch.service';
 
 @Repl({
@@ -22,7 +31,9 @@ export class DebugService {
   constructor(
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
+    private readonly workspace: WorkspaceService,
     private readonly configBuilder: ConfigBuilderService,
+    @InjectConfig(LATEST_PACKAGE) private readonly latestPackage: string,
   ) {}
 
   /**
@@ -60,6 +71,7 @@ For loop example getting entity values in the weather domain:
         [`Send template notification`, 'sendNotification'],
         [`Restart Home Assistant`, 'reboot'],
         [`Persistent notifications`, 'notifications'],
+        [`Update checker`, 'update'],
       ],
       'Debug action',
       defaultAction,
@@ -68,6 +80,9 @@ For loop example getting entity values in the weather domain:
     switch (action) {
       case DONE:
         return;
+      case 'update':
+        await this.updateChecker();
+        return await this.exec(action);
       case 'reboot':
         await this.fetchService.fetch({
           method: 'post',
@@ -154,5 +169,59 @@ For loop example getting entity values in the weather domain:
       method: 'post',
       url: `/debug/send-notification`,
     });
+  }
+
+  private async updateChecker(): Promise<void> {
+    if (!this.latestPackage) {
+      throw new ConflictException(`Invalid url to check`);
+    }
+    const { version, name } = this.workspace.PACKAGES.get('home-cli');
+    const gitPackage = await this.fetchService.fetch<PackageJsonDTO>({
+      rawUrl: true,
+      url: this.latestPackage,
+    });
+    if (
+      gitPackage.version === this.workspace.PACKAGES.get('home-cli').version
+    ) {
+      console.log(chalk.green.bold`Using latest version`);
+      return;
+    }
+    if (semver.gt(gitPackage.version, version)) {
+      console.log(chalk.magenta.bold(`Current version ahead of remote`));
+      return;
+    }
+    this.promptService.clear();
+    this.promptService.scriptHeader(`Updates`);
+    console.log(
+      [
+        chalk.bold.cyan`Updates are available!`,
+        ``,
+        chalk`{bold.white Current version:} ${version}`,
+        chalk`{bold.white Remote version:}  ${gitPackage.version}`,
+        ``,
+        ``,
+      ].join(`\n`),
+    );
+    const action = await this.promptService.menuSelect(
+      [
+        [chalk`Update using {blue yarn}`, `yarn`],
+        [chalk`Update using {red npm}`, `npm`],
+      ],
+      `Update`,
+    );
+    if (action === DONE) {
+      return;
+    }
+    if (action === 'npm') {
+      throw new NotImplementedException(
+        `FIXME: Developer doesn't know the right update command.`,
+      );
+    }
+    const update = execa(`yarn`, [`global`, `upgrade`, name, `--latest`]);
+    update.stdout.pipe(process.stdout);
+    await update;
+    console.log(
+      chalk`${ICONS.WARNING}{yellow.bold Restart application to use updated version}\n`,
+    );
   }
 }
