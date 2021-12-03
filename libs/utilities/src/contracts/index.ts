@@ -4,6 +4,7 @@ export * from './constants';
 export * from './cron';
 export * from './email';
 export * from './fetch';
+export * from './generic-version.dto';
 export * from './interfaces';
 export * from './lifecycle';
 export * from './logger';

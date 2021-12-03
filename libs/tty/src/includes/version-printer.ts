@@ -13,7 +13,7 @@ export function VersionPrinter(app: INestApplication): void {
     const prompt = app.get(PromptService);
     const application = app.get<symbol>(ACTIVE_APPLICATION);
     workspace.initMetadata();
-    const { rootVersion, versions } = workspace.version();
+    const { rootVersion, projects: versions } = workspace.version();
     prompt.print(
       dump({
         ['Application Version']: versions[application.description],

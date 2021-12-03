@@ -7,19 +7,25 @@ import {
   Repl,
 } from '@ccontour/tty';
 import {
+  ACTIVE_APPLICATION,
+  GenericVersionDTO,
   InjectConfig,
   IsEmpty,
   PackageJsonDTO,
   WorkspaceService,
 } from '@ccontour/utilities';
-import { ConflictException, NotImplementedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  NotImplementedException,
+} from '@nestjs/common';
 import chalk from 'chalk';
 import execa from 'execa';
 import { dump } from 'js-yaml';
 import { Response } from 'node-fetch';
 import semver from 'semver';
 
-import { LATEST_PACKAGE } from '../config';
+import { CLI_PACKAGE, CONTROLLER_PACKAGE } from '../config';
 import { HomeFetchService } from './home-fetch.service';
 
 @Repl({
@@ -33,7 +39,10 @@ export class DebugService {
     private readonly promptService: PromptService,
     private readonly workspace: WorkspaceService,
     private readonly configBuilder: ConfigBuilderService,
-    @InjectConfig(LATEST_PACKAGE) private readonly latestPackage: string,
+    @InjectConfig(CLI_PACKAGE) private readonly cliPackagePath: string,
+    @InjectConfig(CONTROLLER_PACKAGE)
+    private readonly controllerPackagePath: string,
+    @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
   ) {}
 
   /**
@@ -171,33 +180,63 @@ For loop example getting entity values in the weather domain:
     });
   }
 
-  private async updateChecker(): Promise<void> {
-    if (!this.latestPackage) {
-      throw new ConflictException(`Invalid url to check`);
-    }
-    const { version, name } = this.workspace.PACKAGES.get('home-cli');
-    const gitPackage = await this.fetchService.fetch<PackageJsonDTO>({
-      rawUrl: true,
-      url: this.latestPackage,
-    });
-    if (
-      gitPackage.version === this.workspace.PACKAGES.get('home-cli').version
-    ) {
-      console.log(chalk.green.bold`Using latest version`);
+  private async updateCheckController(): Promise<void> {
+    const { version: controllerVersion } =
+      await this.fetchService.fetch<GenericVersionDTO>({
+        url: `/version`,
+      });
+    const { version: latestVersion } =
+      await this.fetchService.fetch<PackageJsonDTO>({
+        rawUrl: true,
+        url: this.controllerPackagePath,
+      });
+    if (latestVersion === controllerVersion) {
+      console.log(chalk.green.bold`Using latest home controller version`);
       return;
     }
-    if (semver.gt(gitPackage.version, version)) {
-      console.log(chalk.magenta.bold(`Current version ahead of remote`));
+    if (semver.gt(controllerVersion, latestVersion)) {
+      console.log(chalk.magenta.bold(`Current version ahead of master`));
       return;
     }
-    this.promptService.clear();
-    this.promptService.scriptHeader(`Updates`);
     console.log(
       [
-        chalk.bold.cyan`Updates are available!`,
+        chalk.bold.cyan`Home Controller updates are available!`,
+        ``,
+        chalk`{bold.white Current version:} ${controllerVersion}`,
+        chalk`{bold.white Latest version:}  ${latestVersion}`,
+        ``,
+      ].join(`\n`),
+    );
+  }
+
+  private async updateChecker(): Promise<void> {
+    await this.updateCheckController();
+    const { version, name } = this.workspace.PACKAGES.get(
+      this.activeApplication.description,
+    );
+    const cliPackage = await this.fetchService.fetch<PackageJsonDTO>({
+      rawUrl: true,
+      url: this.cliPackagePath,
+    });
+    if (
+      cliPackage.version ===
+      this.workspace.PACKAGES.get(this.activeApplication.description).version
+    ) {
+      console.log(chalk.green.bold`CLI is at latest version`);
+      return;
+    }
+    if (semver.gt(cliPackage.version, version)) {
+      console.log(
+        chalk.magenta.bold(`CLI version ahead of master. What you up to?`),
+      );
+      return;
+    }
+    console.log(
+      [
+        chalk.bold.cyan`CLI updates are available!`,
         ``,
         chalk`{bold.white Current version:} ${version}`,
-        chalk`{bold.white Remote version:}  ${gitPackage.version}`,
+        chalk`{bold.white Latest version:}  ${cliPackage.version}`,
         ``,
         ``,
       ].join(`\n`),
@@ -207,7 +246,7 @@ For loop example getting entity values in the weather domain:
         [chalk`Update using {blue yarn}`, `yarn`],
         [chalk`Update using {red npm}`, `npm`],
       ],
-      `Update`,
+      `Update CLI`,
     );
     if (action === DONE) {
       return;

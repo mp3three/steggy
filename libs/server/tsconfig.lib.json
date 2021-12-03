@@ -8,5 +8,5 @@
     "target": "es6"
   },
   "exclude": ["**/*.spec.ts"],
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts", "../utilities/src/contracts/generic-version.dto.ts"]
 }

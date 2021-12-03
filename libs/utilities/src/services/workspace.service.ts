@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import JSON from 'comment-json';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { cwd } from 'process';
 
 import {
+  ACTIVE_APPLICATION,
   AutomagicalMetadataDTO,
+  GenericVersionDTO,
   METADATA_FILE,
   NX_METADATA_FILE,
   NX_WORKSPACE_FILE,
@@ -23,6 +25,9 @@ const isDevelopment = existsSync(join(cwd(), 'automagical.code-workspace'));
 
 @Injectable()
 export class WorkspaceService {
+  constructor(
+    @Inject(ACTIVE_APPLICATION) private readonly application: symbol,
+  ) {}
   public IS_DEVELOPMENT = isDevelopment;
   /**
    * metadata.json
@@ -95,12 +100,13 @@ export class WorkspaceService {
     this.writeJson(PACKAGE_FILE, this.ROOT_PACKAGE);
   }
 
-  public version(): { rootVersion: string; versions: Record<string, string> } {
+  public version(): GenericVersionDTO {
     const versions: Record<string, string> = {};
     this.PACKAGES.forEach(({ version }, name) => (versions[name] = version));
     return {
+      projects: versions,
       rootVersion: this.ROOT_PACKAGE.version,
-      versions,
+      version: versions[this.application.description],
     };
   }
 
