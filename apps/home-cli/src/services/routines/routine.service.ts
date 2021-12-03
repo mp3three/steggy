@@ -24,8 +24,6 @@ import { RoutineActivateService } from './routine-activate.service';
 import { RoutineCommandService } from './routine-command.service';
 import { RoutineSettingsService } from './routine-settings.service';
 
-const START = 0;
-const MAX_LENGTH = 255;
 type RCService = RoomCommandService;
 type RService = RoutineCommandService;
 @Repl({
@@ -41,7 +39,7 @@ export class RoutineService {
     @Inject(forwardRef(() => RoomCommandService))
     private readonly roomCommand: RCService,
     @Inject(forwardRef(() => RoutineCommandService))
-    private readonly activateCommand: RService,
+    private readonly routineCommand: RService,
     private readonly pinnedItems: PinnedItemService,
     private readonly settings: RoutineSettingsService,
   ) {}
@@ -210,7 +208,7 @@ export class RoutineService {
         routine = await this.activateService.processRoutine(routine);
         return await this.processRoutine(routine, action);
       case 'command':
-        routine = await this.activateCommand.processRoutine(routine);
+        routine = await this.routineCommand.processRoutine(routine);
         return await this.processRoutine(routine, action);
     }
   }
@@ -286,7 +284,7 @@ export class RoutineService {
       table.push([
         command.friendlyName,
         TitleCase(command.type),
-        await this.activateCommand.commandDetails(routine, command),
+        await this.routineCommand.commandDetails(routine, command),
       ]);
     });
     console.log(table.toString());

@@ -11,6 +11,7 @@ import {
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
   RoutineCommandSleepDTO,
+  RoutineCommandStopProcessing,
   RoutineCommandWebhookDTO,
   RoutineDTO,
 } from '@ccontour/controller-logic';
@@ -33,6 +34,7 @@ import { RoomCommandService, RoomStateService } from '../rooms';
 import {
   LightFlashService,
   SendNotificationService,
+  StopProcessingService,
   WebhookService,
 } from './command';
 import { GroupActionService } from './group-action.service';
@@ -59,6 +61,7 @@ export class RoutineCommandService {
     private readonly entityCommand: EntityService,
     private readonly sendNotification: SendNotificationService,
     private readonly flashAnimation: LightFlashService,
+    private readonly stopProcessing: StopProcessingService,
     private readonly webhookService: WebhookService,
   ) {}
 
@@ -165,6 +168,14 @@ export class RoutineCommandService {
           friendlyName,
           type,
         };
+      case ROUTINE_ACTIVATE_COMMAND.stop_processing:
+        return {
+          command: await this.stopProcessing.build(
+            current?.command as RoutineCommandStopProcessing,
+          ),
+          friendlyName,
+          type,
+        };
     }
     throw new NotImplementedException();
   }
@@ -176,6 +187,8 @@ export class RoutineCommandService {
     let room: RoomDTO | string;
     let group: GroupDTO;
     switch (current.type) {
+      case ROUTINE_ACTIVATE_COMMAND.stop_processing:
+        return await this.stopProcessing.header(current.command);
       case ROUTINE_ACTIVATE_COMMAND.sleep:
         const { duration } = (current?.command as RoutineCommandSleepDTO) || {};
         return chalk`{bold Duration:} {yellowBright ${duration}}ms`;

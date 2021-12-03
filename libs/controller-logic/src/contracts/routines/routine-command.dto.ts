@@ -19,6 +19,7 @@ export enum ROUTINE_ACTIVATE_COMMAND {
   light_flash = 'light_flash',
   room_state = 'room_state',
   send_notification = 'send_notification',
+  stop_processing = 'stop_processing',
   sleep = 'sleep',
   webhook = 'webhook',
 }
@@ -72,6 +73,10 @@ export class RoutineCommandSleepDTO {
   @ApiProperty()
   @IsNumber()
   public duration: number;
+}
+
+export class RoutineCommandStopProcessing {
+  //
 }
 
 enum LightFlashType {
@@ -142,6 +147,7 @@ export class RoutineCommandDTO<
   COMMAND =
     | RoomEntitySaveStateDTO
     | RountineCommandLightFlashDTO
+    | RoutineCommandStopProcessing
     | RoutineCommandGroupActionDTO
     | RoutineCommandGroupStateDTO
     | RoutineCommandSleepDTO
@@ -155,6 +161,7 @@ export class RoutineCommandDTO<
       { $ref: getSchemaPath(RoomEntitySaveStateDTO) },
       { $ref: getSchemaPath(RountineCommandLightFlashDTO) },
       { $ref: getSchemaPath(RoutineCommandGroupActionDTO) },
+      { $ref: getSchemaPath(RoutineCommandStopProcessing) },
       { $ref: getSchemaPath(RoutineCommandGroupStateDTO) },
       { $ref: getSchemaPath(RoutineCommandRoomStateDTO) },
       { $ref: getSchemaPath(RoutineCommandLatchDTO) },

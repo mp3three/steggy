@@ -62,10 +62,23 @@ export class RoutineService {
   public async activateRoutine(routine: RoutineDTO | string): Promise<void> {
     routine = await this.get(routine);
     this.logger.info(`[${routine.friendlyName}] activate`);
+    let aborted = false;
     await (routine.sync ? eachSeries : each)(
       routine.command ?? [],
       async (command, callback) => {
-        await this.activateCommand(command);
+        // Typescript being dumb
+        const { friendlyName, sync } = routine as RoutineDTO;
+        if (aborted) {
+          this.logger.debug(
+            `[${friendlyName}] processing stopped {${command.friendlyName}}`,
+          );
+          if (callback) {
+            callback();
+          }
+          return;
+        }
+        const result = await this.activateCommand(command);
+        aborted = result === true && sync;
         if (callback) {
           callback();
         }
@@ -108,7 +121,7 @@ export class RoutineService {
     await this.mount();
   }
 
-  private async activateCommand(command: RoutineCommandDTO): Promise<void> {
+  private async activateCommand(command: RoutineCommandDTO): Promise<boolean> {
     this.logger.debug(` - {${command.friendlyName}}`);
     switch (command.type) {
       case ROUTINE_ACTIVATE_COMMAND.group_action:
@@ -151,7 +164,11 @@ export class RoutineService {
           command.command as RoutineCommandSleepDTO,
         );
         break;
+      case ROUTINE_ACTIVATE_COMMAND.stop_processing:
+
+      //
     }
+    return true;
   }
 
   private async mount(): Promise<void> {
