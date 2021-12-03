@@ -98,6 +98,10 @@
         "parallel": false,
         "commands": [
           {
+            "command": "npx figlet-cli -f Pagga Home Controller",
+            "description": "Announce it"
+          },
+          {
             "command": "npx nx build home-controller --configuration=production",
             "description": "Create production optimized build"
           },

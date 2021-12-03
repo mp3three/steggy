@@ -41,6 +41,10 @@
         "parallel": false,
         "commands": [
           {
+            "command": "npx figlet-cli -f Pagga Utilities",
+            "description": "Announce it"
+          },
+          {
             "command": "npx nx build utilities --configuration=production",
             "description": "Create production optimized build"
           },

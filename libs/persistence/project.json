@@ -40,6 +40,10 @@
         "parallel": false,
         "commands": [
           {
+            "command": "npx figlet-cli -f Pagga Persistence",
+            "description": "Announce it"
+          },
+          {
             "command": "npx nx build persistence --configuration=production",
             "description": "Create production optimized build"
           },

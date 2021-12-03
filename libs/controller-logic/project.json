@@ -40,6 +40,10 @@
         "parallel": false,
         "commands": [
           {
+            "command": "npx figlet-cli -f Pagga Controller Logic",
+            "description": "Announce it"
+          },
+          {
             "command": "npx nx build controller-logic --configuration=production",
             "description": "Create production optimized build"
           },

@@ -16,6 +16,10 @@
         "parallel": false,
         "commands": [
           {
+            "command": "npx figlet-cli -f Pagga Home Assistant",
+            "description": "Announce it"
+          },
+          {
             "command": "npx nx build home-assistant --configuration=production",
             "description": "Create production optimized build"
           },

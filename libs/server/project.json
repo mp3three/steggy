@@ -40,6 +40,10 @@
         "parallel": false,
         "commands": [
           {
+            "command": "npx figlet-cli -f Pagga Server",
+            "description": "Announce it"
+          },
+          {
             "command": "npx nx build server --configuration=production",
             "description": "Create production optimized build"
           },
