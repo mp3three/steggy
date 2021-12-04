@@ -301,16 +301,12 @@ export class RoomStateService {
         .map(({ ref }) => ref),
     );
     await eachSeries(list, async (group) => {
-      // console.log(
-      //   chalk.bgCyanBright.black(`${group.friendlyName} save state`),
-      // );
       const state = await this.groupService.createSaveCommand(
         group,
         current.states.find((i) => i.ref === group._id),
       );
       state.type = 'group';
       states.push(state);
-      // console.log(chalk.bgMagentaBright.black(`Done`));
     });
     return states;
   }
@@ -332,11 +328,11 @@ export class RoomStateService {
       });
       entities
         .sort((a, b) => (a.ref > b.ref ? UP : DOWN))
-        .forEach((i) => {
+        .forEach((entity) => {
           table.push([
-            i.ref ?? '',
-            i.state ?? '',
-            JSON.stringify(i.extra) || '',
+            entity.ref ?? '',
+            entity.state ?? '',
+            this.promptService.objectPrinter(entity.extra),
           ]);
         });
       console.log(

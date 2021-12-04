@@ -212,12 +212,9 @@ export class RoutineCommandService {
       case ROUTINE_ACTIVATE_COMMAND.stop_processing:
         return await this.stopProcessing.header(current.command);
       case ROUTINE_ACTIVATE_COMMAND.sleep:
-        const { duration } = (current?.command as RoutineCommandSleepDTO) || {};
-        return chalk`{bold Duration:} {yellowBright ${duration}}ms`;
+        return this.promptService.objectPrinter(current.command);
       case ROUTINE_ACTIVATE_COMMAND.send_notification:
-        const { template } =
-          (current?.command as RoutineCommandSendNotificationDTO) || {};
-        return chalk`{bold Template:} ${(template ?? '').trim()}`;
+        return this.promptService.objectPrinter(current.command);
       case ROUTINE_ACTIVATE_COMMAND.room_state:
         const roomStateCommand = (current?.command ??
           {}) as RoutineCommandRoomStateDTO;
@@ -234,30 +231,15 @@ export class RoutineCommandService {
           }`,
         ].join(`\n`);
       case ROUTINE_ACTIVATE_COMMAND.light_flash:
-        const lightFlashCommand =
+        const { ref, type, ...lightFlashCommand } =
           current.command as RountineCommandLightFlashDTO;
         return [
-          lightFlashCommand.type === 'entity'
-            ? chalk`{bold Entity:} ${lightFlashCommand.ref}`
+          type === 'entity'
+            ? chalk`{bold Entity:} ${ref}`
             : chalk`{bold Group:} ${
-                (await this.groupCommand.get(lightFlashCommand.ref))
-                  ?.friendlyName
+                (await this.groupCommand.get(ref))?.friendlyName
               }`,
-          Object.keys(lightFlashCommand)
-            .filter((i) => !['type', 'ref'].includes(i))
-            .map(
-              (key) =>
-                chalk`{bold ${TitleCase(key)}:} ${
-                  typeof lightFlashCommand[key] === 'object'
-                    ? ['r', 'g', 'b']
-                        .map((i) =>
-                          chalk.yellow(String(lightFlashCommand[key][i])),
-                        )
-                        .join(', ')
-                    : chalk.yellow(String(lightFlashCommand[key]))
-                }`,
-            )
-            .join(`\n`),
+          this.promptService.objectPrinter(lightFlashCommand),
         ].join(`\n`);
       case ROUTINE_ACTIVATE_COMMAND.webhook:
         const webhook = current.command as RoutineCommandWebhookDTO;

@@ -321,23 +321,7 @@ export class RoutineService {
         table.push([
           activate.friendlyName,
           TitleCase(activate.type),
-          Object.keys(activate.activate)
-            .map((i) => {
-              let value = activate.activate[i];
-              if (typeof value === 'number') {
-                value = chalk.yellow(value.toString());
-              } else if (typeof value === 'boolean') {
-                value = chalk.magenta(String(value));
-              } else if (Array.isArray(value)) {
-                value = value
-                  .map((i) =>
-                    chalk[typeof i === 'number' ? 'yellow' : 'blue'](i),
-                  )
-                  .join(', ');
-              }
-              return chalk`{bold ${i}:} ${value}`;
-            })
-            .join(`\n`),
+          this.promptService.objectPrinter(activate.activate),
         ]);
       });
       console.log(table.toString());
