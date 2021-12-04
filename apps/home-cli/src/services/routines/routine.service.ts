@@ -2,7 +2,11 @@
 // Really don't care if a simple map function is duplicated
 /* eslint-disable radar/no-identical-functions */
 
-import { RoomDTO, RoutineDTO } from '@ccontour/controller-logic';
+import {
+  RoomDTO,
+  RoutineActivateOptionsDTO,
+  RoutineDTO,
+} from '@ccontour/controller-logic';
 import {
   DONE,
   ICONS,
@@ -26,6 +30,7 @@ import { RoutineSettingsService } from './routine-settings.service';
 
 type RCService = RoomCommandService;
 type RService = RoutineCommandService;
+const MILLISECONDS = 1000;
 @Repl({
   category: 'Control',
   icon: ICONS.ROUTINE,
@@ -189,10 +194,7 @@ export class RoutineService {
         return await this.processRoutine(routine, action);
 
       case 'activate':
-        await this.fetchService.fetch({
-          method: 'post',
-          url: `/routine/${routine._id}`,
-        });
+        await this.promptActivate(routine);
         return await this.processRoutine(routine, action);
       case 'delete':
         if (
@@ -229,6 +231,56 @@ export class RoutineService {
         routine = await this.routineCommand.processRoutine(routine);
         return await this.processRoutine(routine, action);
     }
+  }
+
+  public async promptActivate(routine: RoutineDTO): Promise<void> {
+    const action = await this.promptService.menuSelect(
+      [
+        [`Immediate`, 'immediate'],
+        [`Timeout`, 'timeout'],
+        ['At date/time', 'datetime'],
+      ],
+      `When to activate`,
+    );
+    switch (action) {
+      case DONE:
+        return;
+      case 'immediate':
+        await this.fetchService.fetch({
+          method: 'post',
+          url: `/routine/${routine._id}`,
+        });
+        return;
+      case 'timeout':
+        console.log(
+          chalk.yellow`${ICONS.WARNING}Timers not persisted across controller reboots`,
+        );
+        await this.fetchService.fetch({
+          body: {
+            timeout:
+              (await this.promptService.number(`Timeout duration (seconds)`)) *
+              MILLISECONDS,
+          } as RoutineActivateOptionsDTO,
+          method: 'post',
+          url: `/routine/${routine._id}`,
+        });
+        return;
+      case 'datetime':
+        console.log(
+          chalk.yellow`${ICONS.WARNING}Timers not persisted across controller reboots`,
+        );
+        await this.fetchService.fetch({
+          body: {
+            timestamp: await (
+              await this.promptService.timestamp(`Activation time`)
+            ).toISOString(),
+          } as RoutineActivateOptionsDTO,
+          method: 'post',
+          url: `/routine/${routine._id}`,
+        });
+        return;
+    }
+    throw new NotImplementedException();
   }
 
   public async update(routine: RoutineDTO): Promise<RoutineDTO> {

@@ -1,7 +1,4 @@
-import {
-  RoutineCommandStopProcessing,
-  RoutineCommandTriggerRoutineDTO,
-} from '@ccontour/controller-logic';
+import { RoutineCommandTriggerRoutineDTO } from '@ccontour/controller-logic';
 import { PromptService } from '@ccontour/tty';
 import { Injectable } from '@nestjs/common';
 

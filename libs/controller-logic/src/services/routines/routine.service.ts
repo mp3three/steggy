@@ -3,9 +3,17 @@ import {
   IsEmpty,
   OnEvent,
   ResultControlDTO,
+  sleep,
 } from '@ccontour/utilities';
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { each, eachSeries } from 'async';
+import dayjs from 'dayjs';
 
 import {
   KunamiCodeActivateDTO,
@@ -14,6 +22,7 @@ import {
   ROUTINE_ACTIVATE_COMMAND,
   ROUTINE_ACTIVATE_TYPE,
   ROUTINE_UPDATE,
+  RoutineActivateOptionsDTO,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
@@ -45,21 +54,28 @@ import { StateChangeActivateService } from './state-change-activate.service';
 export class RoutineService {
   constructor(
     private readonly entityRouter: EntityCommandRouterService,
+    private readonly flashAnimation: LightFlashCommandService,
     private readonly groupService: GroupService,
     private readonly kunamiCode: KunamiCodeActivateService,
     private readonly logger: AutoLogService,
     private readonly roomService: RoomService,
     private readonly routinePersistence: RoutinePersistenceService,
     private readonly scheduleActivate: ScheduleActivateService,
-    private readonly sendNotification: SendNotificationService,
-    private readonly stateChangeActivate: StateChangeActivateService,
-    private readonly webhookService: WebhookService,
     private readonly solarService: SolarActivateService,
-    private readonly flashAnimation: LightFlashCommandService,
+    private readonly stateChangeActivate: StateChangeActivateService,
+    @Inject(forwardRef(() => SendNotificationService))
+    private readonly sendNotification: SendNotificationService,
+    @Inject(forwardRef(() => SleepCommandService))
     private readonly sleepService: SleepCommandService,
+    @Inject(forwardRef(() => WebhookService))
+    private readonly webhookService: WebhookService,
   ) {}
 
-  public async activateRoutine(routine: RoutineDTO | string): Promise<void> {
+  public async activateRoutine(
+    routine: RoutineDTO | string,
+    options: RoutineActivateOptionsDTO = {},
+  ): Promise<void> {
+    await this.wait(options);
     routine = await this.get(routine);
     this.logger.info(`[${routine.friendlyName}] activate`);
     let aborted = false;
@@ -210,5 +226,28 @@ export class RoutineService {
         }
       });
     });
+  }
+
+  private async wait(options: RoutineActivateOptionsDTO = {}): Promise<void> {
+    if (options.timeout && options.timestamp) {
+      // Just send 2 requests
+      throw new ConflictException(
+        `Cannot provide timeout and timestamp at the same time`,
+      );
+    }
+    if (options.timeout) {
+      await sleep(options.timeout);
+    }
+    if (options.timestamp) {
+      const target = dayjs(options.timestamp);
+      if (!target.isValid()) {
+        throw new BadRequestException(`Invalid timestamp`);
+      }
+      if (target.isBefore(dayjs())) {
+        throw new BadRequestException(`Timestamp is in the past`);
+      }
+      this.logger.debug(``);
+      await sleep(target.diff(dayjs(), 'ms'));
+    }
   }
 }
