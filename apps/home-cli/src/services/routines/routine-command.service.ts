@@ -12,6 +12,7 @@ import {
   RoutineCommandSendNotificationDTO,
   RoutineCommandSleepDTO,
   RoutineCommandStopProcessing,
+  RoutineCommandTriggerRoutineDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
 } from '@ccontour/controller-logic';
@@ -33,6 +34,7 @@ import { EntityService } from '../home-assistant/entity.service';
 import { RoomCommandService, RoomStateService } from '../rooms';
 import {
   LightFlashService,
+  RoutineTriggerService,
   SendNotificationService,
   StopProcessingService,
   WebhookService,
@@ -48,21 +50,26 @@ const START = 0;
 @Injectable()
 export class RoutineCommandService {
   constructor(
-    private readonly promptService: PromptService,
-    private readonly groupCommand: GroupCommandService,
+    private readonly entityCommand: EntityService,
+    private readonly flashAnimation: LightFlashService,
     private readonly groupAction: GroupActionService,
+    private readonly groupCommand: GroupCommandService,
+    private readonly groupState: GroupStateService,
+    private readonly promptService: PromptService,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineCommand: RService,
     @Inject(forwardRef(() => RoomStateService))
     private readonly roomState: RSService,
-    private readonly groupState: GroupStateService,
     @Inject(forwardRef(() => RoomCommandService))
     private readonly roomCommand: RCService,
-    private readonly entityCommand: EntityService,
+    @Inject(forwardRef(() => SendNotificationService))
     private readonly sendNotification: SendNotificationService,
-    private readonly flashAnimation: LightFlashService,
+    @Inject(forwardRef(() => StopProcessingService))
     private readonly stopProcessing: StopProcessingService,
+    @Inject(forwardRef(() => WebhookService))
     private readonly webhookService: WebhookService,
+    @Inject(forwardRef(() => RoutineTriggerService))
+    private readonly routineTrigger: RoutineTriggerService,
   ) {}
 
   public async build(
@@ -87,6 +94,14 @@ export class RoutineCommandService {
       current.type,
     );
     switch (type) {
+      case ROUTINE_ACTIVATE_COMMAND.trigger_routine:
+        return {
+          command: await this.routineTrigger.build(
+            current.command as RoutineCommandTriggerRoutineDTO,
+          ),
+          friendlyName,
+          type,
+        };
       case ROUTINE_ACTIVATE_COMMAND.light_flash:
         return {
           command: await this.flashAnimation.build(
@@ -187,6 +202,13 @@ export class RoutineCommandService {
     let room: RoomDTO | string;
     let group: GroupDTO;
     switch (current.type) {
+      case ROUTINE_ACTIVATE_COMMAND.trigger_routine:
+        const triggerCommand =
+          current.command as RoutineCommandTriggerRoutineDTO;
+        const triggerRoutine = await this.routineCommand.get(
+          triggerCommand.routine,
+        );
+        return chalk`{bold Routine:} ${triggerRoutine.friendlyName}`;
       case ROUTINE_ACTIVATE_COMMAND.stop_processing:
         return await this.stopProcessing.header(current.command);
       case ROUTINE_ACTIVATE_COMMAND.sleep:

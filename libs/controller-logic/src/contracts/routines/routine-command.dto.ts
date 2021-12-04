@@ -20,6 +20,7 @@ export enum ROUTINE_ACTIVATE_COMMAND {
   room_state = 'room_state',
   send_notification = 'send_notification',
   stop_processing = 'stop_processing',
+  trigger_routine = 'trigger_routine',
   sleep = 'sleep',
   webhook = 'webhook',
 }
@@ -77,6 +78,12 @@ export class RoutineCommandSleepDTO {
 
 export class RoutineCommandStopProcessing {
   //
+}
+
+export class RoutineCommandTriggerRoutineDTO {
+  @ApiProperty()
+  @IsString()
+  public routine: string;
 }
 
 enum LightFlashType {
@@ -147,13 +154,14 @@ export class RoutineCommandDTO<
   COMMAND =
     | RoomEntitySaveStateDTO
     | RountineCommandLightFlashDTO
-    | RoutineCommandStopProcessing
     | RoutineCommandGroupActionDTO
     | RoutineCommandGroupStateDTO
-    | RoutineCommandSleepDTO
     | RoutineCommandLatchDTO
     | RoutineCommandRoomStateDTO
     | RoutineCommandSendNotificationDTO
+    | RoutineCommandSleepDTO
+    | RoutineCommandStopProcessing
+    | RoutineCommandTriggerRoutineDTO
     | RoutineCommandWebhookDTO,
 > {
   @ApiProperty({
@@ -161,12 +169,13 @@ export class RoutineCommandDTO<
       { $ref: getSchemaPath(RoomEntitySaveStateDTO) },
       { $ref: getSchemaPath(RountineCommandLightFlashDTO) },
       { $ref: getSchemaPath(RoutineCommandGroupActionDTO) },
-      { $ref: getSchemaPath(RoutineCommandStopProcessing) },
       { $ref: getSchemaPath(RoutineCommandGroupStateDTO) },
-      { $ref: getSchemaPath(RoutineCommandRoomStateDTO) },
       { $ref: getSchemaPath(RoutineCommandLatchDTO) },
-      { $ref: getSchemaPath(RoutineCommandSleepDTO) },
+      { $ref: getSchemaPath(RoutineCommandRoomStateDTO) },
       { $ref: getSchemaPath(RoutineCommandSendNotificationDTO) },
+      { $ref: getSchemaPath(RoutineCommandSleepDTO) },
+      { $ref: getSchemaPath(RoutineCommandStopProcessing) },
+      { $ref: getSchemaPath(RoutineCommandTriggerRoutineDTO) },
       { $ref: getSchemaPath(RoutineCommandWebhookDTO) },
     ],
   })

@@ -94,6 +94,24 @@ export class RoutineService {
     });
   }
 
+  public async pickOne(
+    defaultValue: string | RoutineDTO,
+    inList: RoutineDTO[] = [],
+  ): Promise<RoutineDTO> {
+    if (IsEmpty(inList)) {
+      inList = await this.list();
+    }
+    defaultValue = inList.find(
+      ({ _id }) =>
+        _id ===
+        (typeof defaultValue === 'string' ? defaultValue : defaultValue?._id),
+    );
+    return await this.promptService.pickOne(
+      `Pick a routine`,
+      inList.map((i) => [i.friendlyName, i]),
+    );
+  }
+
   public async processRoom(room?: RoomDTO | string): Promise<void> {
     const control: ResultControlDTO = {};
     control.sort = ['friendlyName'];
