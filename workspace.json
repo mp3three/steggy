@@ -8,6 +8,7 @@
     "home-controller": "apps/home-controller",
     "mqtt": "libs/mqtt",
     "persistence": "libs/persistence",
+    "rules-engine": "libs/rules-engine",
     "server": "libs/server",
     "tty": "libs/tty",
     "utilities": "libs/utilities"

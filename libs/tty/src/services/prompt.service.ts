@@ -9,7 +9,6 @@ import {
 } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
-import { MAX_LENGTH } from 'class-validator';
 import figlet, { Fonts } from 'figlet';
 import fuzzy from 'fuzzysort';
 import inquirer from 'inquirer';

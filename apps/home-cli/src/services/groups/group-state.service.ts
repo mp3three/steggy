@@ -12,13 +12,7 @@ import {
   PromptEntry,
   PromptService,
 } from '@ccontour/tty';
-import {
-  AutoLogService,
-  DOWN,
-  IsEmpty,
-  TitleCase,
-  UP,
-} from '@ccontour/utilities';
+import { AutoLogService, DOWN, IsEmpty, UP } from '@ccontour/utilities';
 import {
   forwardRef,
   Inject,
@@ -37,9 +31,6 @@ import { HomeFetchService } from '../home-fetch.service';
 import { GroupCommandService } from './group-command.service';
 
 type GService = GroupCommandService;
-
-const TRIM_START = 1;
-const TRIM_END = -1;
 
 @Injectable()
 export class GroupStateService {

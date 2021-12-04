@@ -19,8 +19,8 @@ export type LoggerFunction =
 const NEST = '@nestjs';
 export const NEST_NOOP_LOGGER = {
   error: (...items): void => {
-    // console.error(...items);
-    items;
+    // eslint-disable-next-line no-console
+    console.error(...items);
   },
   log: (): void => {
     //
