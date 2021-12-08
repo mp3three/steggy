@@ -3,7 +3,6 @@ import {
   BootstrapOptions,
   InjectConfig,
   IsEmpty,
-  LIB_SERVER,
   LibraryModule,
 } from '@ccontour/utilities';
 import {
@@ -28,6 +27,7 @@ import {
   CORS,
   CSURF,
   GLOBAL_PREFIX,
+  LIB_SERVER,
   PORT,
   SSL_CERT,
   SSL_KEY,

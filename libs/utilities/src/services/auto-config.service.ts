@@ -15,11 +15,10 @@ import { get, set } from 'object-path';
 import { join } from 'path';
 import { cwd } from 'process';
 
-import { LOG_LEVEL } from '../config';
+import { LIB_UTILS, LOG_LEVEL } from '../config';
 import {
   AutomagicalMetadataDTO,
   ConfigItem,
-  LIB_UTILS,
   METADATA_FILE,
   USE_THIS_CONFIG,
 } from '../contracts';

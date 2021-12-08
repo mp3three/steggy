@@ -1,7 +1,7 @@
-import { LIB_HOME_ASSISTANT } from '@ccontour/utilities';
 import { LibraryModule } from '@ccontour/utilities';
 import { Provider } from '@nestjs/common';
 
+import { LIB_HOME_ASSISTANT } from '../config';
 import {
   CameraDomainService,
   ClimateDomainService,

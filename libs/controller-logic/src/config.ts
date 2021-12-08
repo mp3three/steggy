@@ -8,3 +8,4 @@ export const MIN_BRIGHTNESS = 'MIN_BRIGHTNESS';
 export const MONGO_CRL = 'MONGO_CRL';
 export const CACHE_TTL = 'CACHE_TTL';
 export const KUNAMI_TIMEOUT = 'KUNAMI_TIMEOUT';
+export const LIB_CONTROLLER_LOGIC = Symbol('controller-logic');

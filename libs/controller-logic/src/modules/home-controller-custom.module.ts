@@ -1,10 +1,7 @@
-import {
-  LIB_CONTROLLER_LOGIC,
-  LibraryModule,
-  RegisterCache,
-} from '@ccontour/utilities';
+import { LibraryModule, RegisterCache } from '@ccontour/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
+import { LIB_CONTROLLER_LOGIC } from '../config';
 import {
   CircadianService,
   EntityCommandRouterService,

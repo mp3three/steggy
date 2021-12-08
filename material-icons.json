@@ -51,6 +51,7 @@
     "interfaces": "mappings",
     "jest": "test",
     "libs": "lib",
+    "rules-engine": "rules",
     "lighting": "svg",
     "logger": "log",
     "maintenance": "rules",

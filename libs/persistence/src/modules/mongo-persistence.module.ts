@@ -1,5 +1,6 @@
-import { LIB_PERSISTENCE, LibraryModule } from '@ccontour/utilities';
+import { LibraryModule } from '@ccontour/utilities';
 
+import { LIB_PERSISTENCE } from '../config';
 import { ConnectService, EncryptionService } from '../services';
 
 const providers = [ConnectService, EncryptionService];
