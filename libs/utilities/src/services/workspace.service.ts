@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import JSON from 'comment-json';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { homedir } from 'os';
 import { dirname, join } from 'path';
 import { cwd } from 'process';
 
@@ -8,6 +9,7 @@ import {
   ACTIVE_APPLICATION,
   AutomagicalMetadataDTO,
   GenericVersionDTO,
+  IsEmpty,
   METADATA_FILE,
   NX_METADATA_FILE,
   NX_WORKSPACE_FILE,
@@ -46,7 +48,57 @@ export class WorkspaceService {
    */
   public workspace: NXWorkspaceDTO;
 
+  private isWindows = process.platform === 'win32';
   private loaded = false;
+
+  /**
+   * Find files at:
+   * - /etc/{name}/config
+   * - /etc/{name}/config.json
+   * - /etc/{name}/config.ini
+   * - /etc/{name}/config.yaml
+   * - /etc/{name}rc
+   * - /etc/{name}rc.json
+   * - /etc/{name}rc.ini
+   * - /etc/{name}rc.yaml
+   * - cwd()/.{name}rc
+   * - Recursively to system root
+   * - cwd()/../.{name}rc
+   * - ~/.config/{name}
+   * - ~/.config/{name}.json
+   * - ~/.config/{name}.ini
+   * - ~/.config/{name}.yaml
+   * - ~/.config/{name}/config
+   * - ~/.config/{name}/config.json
+   * - ~/.config/{name}/config.ini
+   * - ~/.config/{name}/config.yaml
+   */
+  public get configFilePaths(): string[] {
+    const out: string[] = [];
+    const name = this.application.description;
+    if (!this.isWindows) {
+      out.push(
+        ...this.withExtensions(join(`/etc`, name, 'config')),
+        ...this.withExtensions(join(`/etc`, `${name}rc`)),
+      );
+    }
+    let current = cwd();
+    let next: string;
+    // eslint-disable-next-line no-loops/no-loops
+    while (!IsEmpty(current)) {
+      out.push(join(current, `.${name}rc`));
+      next = join(current, '..');
+      if (next === current) {
+        break;
+      }
+      current = next;
+    }
+    out.push(
+      ...this.withExtensions(join(homedir(), '.config', name)),
+      ...this.withExtensions(join(homedir(), '.config', name, 'config')),
+    );
+    return out;
+  }
 
   public initMetadata(): void {
     if (this.loaded) {
@@ -186,5 +238,9 @@ export class WorkspaceService {
       const data = JSON.parse(readFileSync(packageFile, 'utf-8'));
       this.PACKAGES.set(project, data);
     });
+  }
+
+  private withExtensions(path: string): string[] {
+    return [path, `${path}.json`, `${path}.ini`, `${path}.yaml`, `${path}.yml`];
   }
 }

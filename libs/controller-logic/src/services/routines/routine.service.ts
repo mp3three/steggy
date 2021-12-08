@@ -29,6 +29,7 @@ import {
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
   RoutineCommandSleepDTO,
+  RoutineCommandTriggerRoutineDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
   ScheduleActivateDTO,
@@ -37,6 +38,7 @@ import {
 } from '../../contracts';
 import {
   LightFlashCommandService,
+  RoutineTriggerService,
   SendNotificationService,
   SleepCommandService,
   WebhookService,
@@ -62,6 +64,8 @@ export class RoutineService {
     private readonly routinePersistence: RoutinePersistenceService,
     private readonly scheduleActivate: ScheduleActivateService,
     private readonly solarService: SolarActivateService,
+    @Inject(forwardRef(() => RoutineTriggerService))
+    private readonly triggerService: RoutineTriggerService,
     private readonly stateChangeActivate: StateChangeActivateService,
     @Inject(forwardRef(() => SendNotificationService))
     private readonly sendNotification: SendNotificationService,
@@ -94,7 +98,7 @@ export class RoutineService {
           return;
         }
         const result = await this.activateCommand(command);
-        aborted = result === true && sync;
+        aborted = result === false && sync;
         if (callback) {
           callback();
         }
@@ -175,6 +179,11 @@ export class RoutineService {
           command.command as RountineCommandLightFlashDTO,
         );
         break;
+      case ROUTINE_ACTIVATE_COMMAND.trigger_routine:
+        await this.triggerService.activate(
+          command.command as RoutineCommandTriggerRoutineDTO,
+        );
+        break;
       case ROUTINE_ACTIVATE_COMMAND.sleep:
         await this.sleepService.activate(
           command.command as RoutineCommandSleepDTO,
@@ -195,7 +204,7 @@ export class RoutineService {
         this.logger.warn(`[${routine.friendlyName}] no activation events`);
         return;
       }
-      this.logger.info(`[${routine.friendlyName}] building`);
+      this.logger.debug(`[${routine.friendlyName}] building`);
       routine.activate.forEach((activate) => {
         this.logger.debug(` - ${activate.friendlyName}`);
         switch (activate.type) {

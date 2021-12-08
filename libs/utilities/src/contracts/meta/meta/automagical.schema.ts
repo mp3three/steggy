@@ -1,6 +1,6 @@
 // JSON schema at schemas/json/automagical.schema.json
 export class AutomagicalMetadataDTO {
-  configuration: Record<string, ConfigItem>;
+  public configuration: Record<string, ConfigItem>;
 }
 export const METADATA_FILE = 'metadata.json';
 export type ConfigItem<T extends AnyConfig = AnyConfig> = {
@@ -17,34 +17,34 @@ export type AnyConfig =
   | AutomagicalUrlConfig;
 
 class WarnDefault {
-  careful?: boolean;
-  required?: boolean;
-  warnDefault?: boolean;
+  public careful?: boolean;
+  public required?: boolean;
+  public warnDefault?: boolean;
 }
 
 export class AutomagicalStringConfig extends WarnDefault {
-  default?: string;
-  enum?: string[];
-  type: 'string';
+  public default?: string;
+  public enum?: string[];
+  public type: 'string';
 }
 export class AutomagicalBooleanConfig extends WarnDefault {
-  default?: boolean;
-  type: 'boolean';
+  public default?: boolean;
+  public type: 'boolean';
 }
 export class AutomagicalNumberConfig extends WarnDefault {
-  default?: number;
-  type: 'number';
+  public default?: number;
+  public type: 'number';
 }
 export class AutomagicalPasswordConfig extends WarnDefault {
-  type: 'password';
+  public type: 'password';
 }
 export class AutomagicalUrlConfig extends WarnDefault {
-  default?: string;
-  type: 'url';
+  public default?: string;
+  public type: 'url';
 }
 export class AutomagicalRecordConfig extends WarnDefault {
-  type: 'record';
+  public type: 'record';
 }
 export class AutomagicalStringArrayConfig extends WarnDefault {
-  type: 'string[]';
+  public type: 'string[]';
 }
