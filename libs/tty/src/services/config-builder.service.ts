@@ -1,5 +1,6 @@
 import {
   ACTIVE_APPLICATION,
+  AutoConfigService,
   AutoLogService,
   AutomagicalConfig,
   AutomagicalStringConfig,
@@ -25,7 +26,6 @@ import inquirer from 'inquirer';
 import { get, set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
-import rc from 'rc';
 
 import { ICONS } from '../contracts';
 import { PromptEntry, PromptService } from './prompt.service';
@@ -46,6 +46,7 @@ export class ConfigBuilderService {
     private readonly logger: AutoLogService,
     private readonly workspace: WorkspaceService,
     private readonly promptService: PromptService,
+    private readonly configService: AutoConfigService,
   ) {}
   private config: AutomagicalConfig;
   private loadedApplication = '';
@@ -268,10 +269,7 @@ export class ConfigBuilderService {
   }
 
   private loadConfig(application: string) {
-    this.config = rc<AutomagicalConfig>(application);
-    delete this.config['configs'];
-    delete this.config['config'];
-    delete this.config['_'];
+    this.config = this.configService.config;
     this.loadedApplication = application;
   }
 

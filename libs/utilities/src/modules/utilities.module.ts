@@ -46,6 +46,7 @@ import {
   ],
 })
 export class UtilitiesModule {
+  public static RegisterCache = RegisterCache;
   public static forRoot(extra: Provider[] = []): DynamicModule {
     // @InjectConfig()
     const config = [...CONFIG_PROVIDERS.values()];
@@ -84,5 +85,15 @@ export class UtilitiesModule {
         WorkspaceService,
       ],
     };
+  }
+
+  constructor(
+    private readonly discoveryService: LogExplorerService,
+    private readonly logger: AutoLogService,
+  ) {}
+
+  protected configure(): void {
+    this.discoveryService.load();
+    this.logger.debug(`Logger contexts loaded`);
   }
 }

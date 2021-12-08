@@ -3,9 +3,17 @@ import {
   IsEmpty,
   OnEvent,
   ResultControlDTO,
+  sleep,
 } from '@ccontour/utilities';
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { each, eachSeries } from 'async';
+import dayjs from 'dayjs';
 
 import {
   KunamiCodeActivateDTO,
@@ -14,12 +22,14 @@ import {
   ROUTINE_ACTIVATE_COMMAND,
   ROUTINE_ACTIVATE_TYPE,
   ROUTINE_UPDATE,
+  RoutineActivateOptionsDTO,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
   RoutineCommandSleepDTO,
+  RoutineCommandTriggerRoutineDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
   ScheduleActivateDTO,
@@ -28,6 +38,7 @@ import {
 } from '../../contracts';
 import {
   LightFlashCommandService,
+  RoutineTriggerService,
   SendNotificationService,
   SleepCommandService,
   WebhookService,
@@ -45,27 +56,49 @@ import { StateChangeActivateService } from './state-change-activate.service';
 export class RoutineService {
   constructor(
     private readonly entityRouter: EntityCommandRouterService,
+    private readonly flashAnimation: LightFlashCommandService,
     private readonly groupService: GroupService,
     private readonly kunamiCode: KunamiCodeActivateService,
     private readonly logger: AutoLogService,
     private readonly roomService: RoomService,
     private readonly routinePersistence: RoutinePersistenceService,
     private readonly scheduleActivate: ScheduleActivateService,
-    private readonly sendNotification: SendNotificationService,
-    private readonly stateChangeActivate: StateChangeActivateService,
-    private readonly webhookService: WebhookService,
     private readonly solarService: SolarActivateService,
-    private readonly flashAnimation: LightFlashCommandService,
+    @Inject(forwardRef(() => RoutineTriggerService))
+    private readonly triggerService: RoutineTriggerService,
+    private readonly stateChangeActivate: StateChangeActivateService,
+    @Inject(forwardRef(() => SendNotificationService))
+    private readonly sendNotification: SendNotificationService,
+    @Inject(forwardRef(() => SleepCommandService))
     private readonly sleepService: SleepCommandService,
+    @Inject(forwardRef(() => WebhookService))
+    private readonly webhookService: WebhookService,
   ) {}
 
-  public async activateRoutine(routine: RoutineDTO | string): Promise<void> {
+  public async activateRoutine(
+    routine: RoutineDTO | string,
+    options: RoutineActivateOptionsDTO = {},
+  ): Promise<void> {
+    await this.wait(options);
     routine = await this.get(routine);
     this.logger.info(`[${routine.friendlyName}] activate`);
+    let aborted = false;
     await (routine.sync ? eachSeries : each)(
       routine.command ?? [],
       async (command, callback) => {
-        await this.activateCommand(command);
+        // Typescript being dumb
+        const { friendlyName, sync } = routine as RoutineDTO;
+        if (aborted) {
+          this.logger.debug(
+            `[${friendlyName}] processing stopped {${command.friendlyName}}`,
+          );
+          if (callback) {
+            callback();
+          }
+          return;
+        }
+        const result = await this.activateCommand(command);
+        aborted = result === false && sync;
         if (callback) {
           callback();
         }
@@ -108,7 +141,7 @@ export class RoutineService {
     await this.mount();
   }
 
-  private async activateCommand(command: RoutineCommandDTO): Promise<void> {
+  private async activateCommand(command: RoutineCommandDTO): Promise<boolean> {
     this.logger.debug(` - {${command.friendlyName}}`);
     switch (command.type) {
       case ROUTINE_ACTIVATE_COMMAND.group_action:
@@ -146,12 +179,21 @@ export class RoutineService {
           command.command as RountineCommandLightFlashDTO,
         );
         break;
+      case ROUTINE_ACTIVATE_COMMAND.trigger_routine:
+        await this.triggerService.activate(
+          command.command as RoutineCommandTriggerRoutineDTO,
+        );
+        break;
       case ROUTINE_ACTIVATE_COMMAND.sleep:
         await this.sleepService.activate(
           command.command as RoutineCommandSleepDTO,
         );
         break;
+      case ROUTINE_ACTIVATE_COMMAND.stop_processing:
+
+      //
     }
+    return true;
   }
 
   private async mount(): Promise<void> {
@@ -162,7 +204,7 @@ export class RoutineService {
         this.logger.warn(`[${routine.friendlyName}] no activation events`);
         return;
       }
-      this.logger.info(`[${routine.friendlyName}] building`);
+      this.logger.debug(`[${routine.friendlyName}] building`);
       routine.activate.forEach((activate) => {
         this.logger.debug(` - ${activate.friendlyName}`);
         switch (activate.type) {
@@ -193,5 +235,28 @@ export class RoutineService {
         }
       });
     });
+  }
+
+  private async wait(options: RoutineActivateOptionsDTO = {}): Promise<void> {
+    if (options.timeout && options.timestamp) {
+      // Just send 2 requests
+      throw new ConflictException(
+        `Cannot provide timeout and timestamp at the same time`,
+      );
+    }
+    if (options.timeout) {
+      await sleep(options.timeout);
+    }
+    if (options.timestamp) {
+      const target = dayjs(options.timestamp);
+      if (!target.isValid()) {
+        throw new BadRequestException(`Invalid timestamp`);
+      }
+      if (target.isBefore(dayjs())) {
+        throw new BadRequestException(`Timestamp is in the past`);
+      }
+      this.logger.debug(``);
+      await sleep(target.diff(dayjs(), 'ms'));
+    }
   }
 }

@@ -6,7 +6,7 @@
   },
   "name": "@ccontour/persistence",
   "license": "MIT",
-  "version": "0.5.13",
+  "version": "0.6.0",
   "homepage": "https://github.com/ccontour/automagical",
   "repository": {
     "type": "git",

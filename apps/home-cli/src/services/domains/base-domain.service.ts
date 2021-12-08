@@ -22,12 +22,7 @@ import {
   TitleCase,
   UP,
 } from '@ccontour/utilities';
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import Table from 'cli-table';
 import dayjs from 'dayjs';
@@ -67,7 +62,6 @@ export class BaseDomainService {
     await entity_id;
     current;
   }
-
   public async getState<T extends HassStateDTO = HassStateDTO>(
     id: string,
   ): Promise<T> {

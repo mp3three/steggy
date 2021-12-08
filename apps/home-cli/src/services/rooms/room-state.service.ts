@@ -12,7 +12,13 @@ import {
   PromptEntry,
   PromptService,
 } from '@ccontour/tty';
-import { AutoLogService, DOWN, IsEmpty, UP } from '@ccontour/utilities';
+import {
+  AutoLogService,
+  DOWN,
+  FILTER_OPERATIONS,
+  IsEmpty,
+  UP,
+} from '@ccontour/utilities';
 import {
   forwardRef,
   Inject,
@@ -22,8 +28,8 @@ import {
 } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
+import Table from 'cli-table';
 import inquirer from 'inquirer';
-import { dump } from 'js-yaml';
 
 import { GroupCommandService } from '../groups';
 import { EntityService } from '../home-assistant';
@@ -150,13 +156,7 @@ export class RoomStateService {
   ): Promise<RoomDTO> {
     this.promptService.clear();
     this.promptService.scriptHeader(`Room State`);
-    console.log(
-      chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
-        `/room/${room._id}/state/${state.id}`,
-      )}`,
-    );
-    this.promptService.print(dump(state));
-    console.log();
+    await this.header(room, state);
     const action = await this.promptService.menuSelect(
       [
         [`${ICONS.ACTIVATE}Activate`, 'activate'],
@@ -301,17 +301,82 @@ export class RoomStateService {
         .map(({ ref }) => ref),
     );
     await eachSeries(list, async (group) => {
-      // console.log(
-      //   chalk.bgCyanBright.black(`${group.friendlyName} save state`),
-      // );
       const state = await this.groupService.createSaveCommand(
         group,
         current.states.find((i) => i.ref === group._id),
       );
       state.type = 'group';
       states.push(state);
-      // console.log(chalk.bgMagentaBright.black(`Done`));
     });
     return states;
+  }
+
+  private async header(room: RoomDTO, state: RoomStateDTO): Promise<void> {
+    console.log(
+      chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
+        `/room/${room._id}/state/${state.id}`,
+      )}`,
+    );
+    const entities = state.states.filter(({ type }) => type === 'entity');
+    if (IsEmpty(entities)) {
+      console.log(
+        chalk`${ICONS.ENTITIES}{blue No entities included in save state}\n`,
+      );
+    } else {
+      const table = new Table({
+        head: ['Entity ID', 'State', 'Extra'],
+      });
+      entities
+        .sort((a, b) => (a.ref > b.ref ? UP : DOWN))
+        .forEach((entity) => {
+          table.push([
+            entity.ref ?? '',
+            entity.state ?? '',
+            this.promptService.objectPrinter(entity.extra),
+          ]);
+        });
+      console.log(
+        [
+          ``,
+          chalk`${ICONS.ENTITIES}{blue.bold Entity States}`,
+          table.toString(),
+        ].join(`\n`),
+      );
+    }
+    const groupStates = state.states.filter(({ type }) => type === 'group');
+    if (IsEmpty(groupStates)) {
+      console.log(
+        chalk`${ICONS.GROUPS}{blue No groups included in save state}\n`,
+      );
+      return;
+    }
+    const table = new Table({
+      head: ['Entity ID', 'State'],
+    });
+    const ids = groupStates
+      .map(({ ref }) => ref)
+      .filter((item, index, array) => array.indexOf(item) === index);
+    const groups = await this.groupService.list({
+      filters: new Set([
+        {
+          field: '_id',
+          operation: FILTER_OPERATIONS.in,
+          value: ids,
+        },
+      ]),
+    });
+    groupStates.forEach((state) => {
+      const group = groups.find(({ _id }) => _id === state.ref);
+      const saveState = group.save_states.find(({ id }) => id === state.state);
+      table.push([group.friendlyName, saveState?.friendlyName]);
+    });
+    console.log(
+      [
+        ``,
+        chalk`${ICONS.GROUPS}{blue.bold Group States}`,
+        table.toString(),
+        ``,
+      ].join(`\n`),
+    );
   }
 }

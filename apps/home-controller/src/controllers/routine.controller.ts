@@ -1,6 +1,7 @@
 import {
   KunamiCodeActivateDTO,
   RoomEntitySaveStateDTO,
+  RoutineActivateOptionsDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
   RoutineCommandRoomStateDTO,
@@ -61,9 +62,12 @@ export class RoutineController {
   })
   public async activate(
     @Param('routine') routine: string,
+    @Body() options: RoutineActivateOptionsDTO,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.routineService.activateRoutine(routine);
-    return GENERIC_SUCCESS_RESPONSE;
+    process.nextTick(async () => {
+      await this.routineService.activateRoutine(routine, options);
+    });
+    return await GENERIC_SUCCESS_RESPONSE;
   }
 
   @Post(`/`)

@@ -12,13 +12,7 @@ import {
   PromptEntry,
   PromptService,
 } from '@ccontour/tty';
-import {
-  AutoLogService,
-  DOWN,
-  IsEmpty,
-  TitleCase,
-  UP,
-} from '@ccontour/utilities';
+import { AutoLogService, DOWN, IsEmpty, UP } from '@ccontour/utilities';
 import {
   forwardRef,
   Inject,
@@ -28,6 +22,7 @@ import {
 } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
+import Table from 'cli-table';
 import inquirer from 'inquirer';
 import { dump, load } from 'js-yaml';
 
@@ -36,9 +31,6 @@ import { HomeFetchService } from '../home-fetch.service';
 import { GroupCommandService } from './group-command.service';
 
 type GService = GroupCommandService;
-
-const TRIM_START = 1;
-const TRIM_END = -1;
 
 @Injectable()
 export class GroupStateService {
@@ -253,44 +245,25 @@ export class GroupStateService {
 
   private header(group: GroupDTO, state: GroupSaveStateDTO): void {
     this.promptService.clear();
-    this.promptService.scriptHeader(`Group State`);
+    this.promptService.scriptHeader(state.friendlyName);
+    this.promptService.secondaryHeader(group.friendlyName);
+    const table = new Table({
+      head: ['Entity ID', 'State', 'Extra'],
+    });
+    state.states.forEach((state) => {
+      table.push([
+        state.ref,
+        state.state,
+        this.promptService.objectPrinter(state.extra),
+      ]);
+    });
     console.log(
       [
-        [
-          chalk.blue.bold` ${group.friendlyName.padEnd(
-            state.friendlyName.length,
-            ' ',
-          )}`,
-          chalk.yellow.bold`${TitleCase(group.type)} Group`,
-        ].join(chalk.cyan(' - ')),
-        [
-          chalk.blue.bold` ${state.friendlyName.padEnd(
-            group.friendlyName.length,
-            ' ',
-          )}`,
-          chalk.yellow.bold`Save State`,
-        ].join(chalk.cyan(' - ')),
         chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
           `/group/${group._id}/state/${state.id}`,
         )}`,
         ``,
-        ...group.entities
-          .map(
-            (id, index) =>
-              chalk`  {cyan -} {bold.magenta ${id}} {bold ${TitleCase(
-                state.states[index].state,
-              )}} ${
-                typeof state.states[index].extra === 'undefined'
-                  ? ''
-                  : chalk.gray(
-                      JSON.stringify(state.states[index].extra)
-                        .slice(TRIM_START, TRIM_END)
-                        .replace(',', ', '),
-                    )
-              }`,
-          )
-          .sort((a, b) => (a > b ? UP : DOWN)),
-        ``,
+        table.toString(),
         ``,
       ].join(`\n`),
     );

@@ -4,15 +4,17 @@ import {
   InjectConfig,
   IsEmpty,
   PEAT,
+  TitleCase,
   UP,
 } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
-import figlet from 'figlet';
+import figlet, { Fonts } from 'figlet';
 import fuzzy from 'fuzzysort';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
+import { SECONDARY_HEADER_FONT } from '..';
 import {
   BLOCK_PRINT_BG,
   BLOCK_PRINT_FG,
@@ -33,13 +35,16 @@ const NO = 0;
 const OFF_BRIGHTNESS = 0;
 const MIN_BRIGHTNESS = 1;
 const BLOCK_OFFSET = '   ';
+const START = 0;
 const MAX_BRIGHTNESS = 255;
+const MAX_STRING_LENGTH = 300;
 
 @Injectable()
 export class PromptService {
   constructor(
     private readonly logger: AutoLogService,
-    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: figlet.Fonts,
+    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: Fonts,
+    @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
     @InjectConfig(BLOCK_PRINT_BG) private readonly blockPrintBg: string,
     @InjectConfig(BLOCK_PRINT_FG) private readonly blockPrintFg: string,
@@ -205,8 +210,7 @@ export class PromptService {
         type: 'editor',
       },
     ]);
-
-    return result;
+    return result.trim();
   }
 
   public async expand<T extends unknown = string>(
@@ -308,6 +312,40 @@ export class PromptService {
     return result;
   }
 
+  public objectPrinter(item: unknown): string {
+    if (typeof item === 'undefined') {
+      return ``;
+    }
+    if (typeof item === 'number') {
+      return chalk.yellow(String(item));
+    }
+    if (typeof item === 'boolean') {
+      return chalk.magenta(String(item));
+    }
+    if (typeof item === 'string') {
+      return chalk.blue(
+        item.slice(START, MAX_STRING_LENGTH) +
+          (item.length > MAX_STRING_LENGTH ? chalk.blueBright`...` : ``),
+      );
+    }
+    if (Array.isArray(item)) {
+      return item.map((i) => this.objectPrinter(i)).join(`, `);
+    }
+    if (item === null) {
+      return chalk.gray(`null`);
+    }
+    if (typeof item === 'object') {
+      return Object.keys(item)
+        .sort((a, b) => (a > b ? UP : DOWN))
+        .map(
+          (key) =>
+            chalk`{bold ${TitleCase(key)}:} ${this.objectPrinter(item[key])}`,
+        )
+        .join(`\n`);
+    }
+    return chalk.gray(JSON.stringify(item));
+  }
+
   public async password(
     message = `Password value`,
     defaultValue?: string,
@@ -406,6 +444,13 @@ export class PromptService {
     this.clear();
     console.log(chalk[color](header), '\n');
     return header.split(`\n`).pop().length;
+  }
+
+  public secondaryHeader(header: string, color = 'magenta'): void {
+    header = figlet.textSync(header, {
+      font: this.secondaryFont,
+    });
+    console.log(chalk[color](header), '\n');
   }
 
   public sort<T>(entries: PromptEntry<T>[]): PromptEntry<T>[] {

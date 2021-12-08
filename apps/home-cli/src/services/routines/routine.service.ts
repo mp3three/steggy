@@ -2,7 +2,11 @@
 // Really don't care if a simple map function is duplicated
 /* eslint-disable radar/no-identical-functions */
 
-import { RoomDTO, RoutineDTO } from '@ccontour/controller-logic';
+import {
+  RoomDTO,
+  RoutineActivateOptionsDTO,
+  RoutineDTO,
+} from '@ccontour/controller-logic';
 import {
   DONE,
   ICONS,
@@ -11,11 +15,12 @@ import {
   PromptService,
   Repl,
 } from '@ccontour/tty';
-import { IsEmpty, ResultControlDTO } from '@ccontour/utilities';
+import { IsEmpty, ResultControlDTO, TitleCase } from '@ccontour/utilities';
 import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
+import { eachSeries } from 'async';
 import chalk from 'chalk';
+import Table from 'cli-table';
 import inquirer from 'inquirer';
-import { dump } from 'js-yaml';
 
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';
@@ -25,6 +30,7 @@ import { RoutineSettingsService } from './routine-settings.service';
 
 type RCService = RoomCommandService;
 type RService = RoutineCommandService;
+const MILLISECONDS = 1000;
 @Repl({
   category: 'Control',
   icon: ICONS.ROUTINE,
@@ -38,7 +44,7 @@ export class RoutineService {
     @Inject(forwardRef(() => RoomCommandService))
     private readonly roomCommand: RCService,
     @Inject(forwardRef(() => RoutineCommandService))
-    private readonly activateCommand: RService,
+    private readonly routineCommand: RService,
     private readonly pinnedItems: PinnedItemService,
     private readonly settings: RoutineSettingsService,
   ) {}
@@ -93,6 +99,24 @@ export class RoutineService {
     });
   }
 
+  public async pickOne(
+    defaultValue: string | RoutineDTO,
+    inList: RoutineDTO[] = [],
+  ): Promise<RoutineDTO> {
+    if (IsEmpty(inList)) {
+      inList = await this.list();
+    }
+    defaultValue = inList.find(
+      ({ _id }) =>
+        _id ===
+        (typeof defaultValue === 'string' ? defaultValue : defaultValue?._id),
+    );
+    return await this.promptService.pickOne(
+      `Pick a routine`,
+      inList.map((i) => [i.friendlyName, i]),
+    );
+  }
+
   public async processRoom(room?: RoomDTO | string): Promise<void> {
     const control: ResultControlDTO = {};
     control.sort = ['friendlyName'];
@@ -136,20 +160,7 @@ export class RoutineService {
     routine: RoutineDTO,
     defaultAction?: string,
   ): Promise<void> {
-    this.promptService.clear();
-    this.promptService.scriptHeader(`Routine`);
-    console.log(chalk.bold.yellow`${routine.friendlyName}`);
-    console.log(
-      chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
-        `/routine/${routine._id}`,
-      )}`,
-    );
-    this.promptService.print(
-      dump({
-        activate: routine.activate,
-        command: routine.command,
-      }),
-    );
+    await this.header(routine);
     const action = await this.promptService.menuSelect(
       [
         [`${ICONS.ACTIVATE}Manual activate`, 'activate'],
@@ -183,10 +194,7 @@ export class RoutineService {
         return await this.processRoutine(routine, action);
 
       case 'activate':
-        await this.fetchService.fetch({
-          method: 'post',
-          url: `/routine/${routine._id}`,
-        });
+        await this.promptActivate(routine);
         return await this.processRoutine(routine, action);
       case 'delete':
         if (
@@ -220,9 +228,59 @@ export class RoutineService {
         routine = await this.activateService.processRoutine(routine);
         return await this.processRoutine(routine, action);
       case 'command':
-        routine = await this.activateCommand.processRoutine(routine);
+        routine = await this.routineCommand.processRoutine(routine);
         return await this.processRoutine(routine, action);
     }
+  }
+
+  public async promptActivate(routine: RoutineDTO): Promise<void> {
+    const action = await this.promptService.menuSelect(
+      [
+        [`Immediate`, 'immediate'],
+        [`Timeout`, 'timeout'],
+        ['At date/time', 'datetime'],
+      ],
+      `When to activate`,
+    );
+    switch (action) {
+      case DONE:
+        return;
+      case 'immediate':
+        await this.fetchService.fetch({
+          method: 'post',
+          url: `/routine/${routine._id}`,
+        });
+        return;
+      case 'timeout':
+        console.log(
+          chalk.yellow`${ICONS.WARNING}Timers not persisted across controller reboots`,
+        );
+        await this.fetchService.fetch({
+          body: {
+            timeout:
+              (await this.promptService.number(`Timeout duration (seconds)`)) *
+              MILLISECONDS,
+          } as RoutineActivateOptionsDTO,
+          method: 'post',
+          url: `/routine/${routine._id}`,
+        });
+        return;
+      case 'datetime':
+        console.log(
+          chalk.yellow`${ICONS.WARNING}Timers not persisted across controller reboots`,
+        );
+        await this.fetchService.fetch({
+          body: {
+            timestamp: await (
+              await this.promptService.timestamp(`Activation time`)
+            ).toISOString(),
+          } as RoutineActivateOptionsDTO,
+          method: 'post',
+          url: `/routine/${routine._id}`,
+        });
+        return;
+    }
+    throw new NotImplementedException();
   }
 
   public async update(routine: RoutineDTO): Promise<RoutineDTO> {
@@ -238,5 +296,52 @@ export class RoutineService {
       const routine = await this.get(id);
       await this.processRoutine(routine);
     });
+  }
+
+  private async header(routine: RoutineDTO): Promise<void> {
+    await this.promptService.clear();
+    this.promptService.scriptHeader(`Routine`);
+    this.promptService.secondaryHeader(routine.friendlyName);
+    console.log(
+      chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
+        `/routine/${routine._id}`,
+      )}`,
+    );
+    console.log();
+    if (IsEmpty(routine.activate)) {
+      console.log(
+        chalk.bold`{cyan >>> }${ICONS.EVENT}{yellow No activation events}`,
+      );
+    } else {
+      console.log(chalk.bold.blue`Activation Events`);
+      const table = new Table({
+        head: ['Name', 'Type', 'Details'],
+      });
+      routine.activate.forEach((activate) => {
+        table.push([
+          activate.friendlyName,
+          TitleCase(activate.type),
+          this.promptService.objectPrinter(activate.activate),
+        ]);
+      });
+      console.log(table.toString());
+    }
+    if (IsEmpty(routine.command)) {
+      console.log(chalk.bold`{cyan >>> }${ICONS.COMMAND}{yellow No commands}`);
+      return;
+    }
+    console.log(chalk.bold.blue`Commands`);
+    const table = new Table({
+      head: ['Name', 'Type', 'Details'],
+    });
+    await eachSeries(routine.command, async (command) => {
+      table.push([
+        command.friendlyName,
+        TitleCase(command.type),
+        await this.routineCommand.commandDetails(routine, command),
+      ]);
+    });
+    console.log(table.toString());
+    console.log();
   }
 }

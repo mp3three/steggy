@@ -7,5 +7,6 @@ export * from './events';
 export * from './group-command.dto';
 export * from './room-controller';
 export * from './rooms';
+export * from './routine-activate-options.dto';
 export * from './routines';
 export * from './schemas';

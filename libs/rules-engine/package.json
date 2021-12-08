@@ -4,10 +4,10 @@
     "name": "Cameron Contour",
     "url": "https://github.com/ccontour/automagical"
   },
-  "name": "@ccontour/tty",
+  "name": "@ccontour/rules-engine",
   "license": "MIT",
-  "displayName": "TTY",
-  "version": "0.5.17",
+  "displayName": "Rules Engine",
+  "version": "0.5.14",
   "homepage": "https://github.com/ccontour/automagical",
   "repository": {
     "type": "git",

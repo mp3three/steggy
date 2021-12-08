@@ -17,7 +17,7 @@ export class LogExplorerService {
     @InjectConfig(LOG_LEVEL) private readonly logLevel: string,
   ) {}
 
-  protected onModuleInit(): void {
+  public load(): void {
     const providers = [
       ...this.discoveryService.getControllers(),
       ...this.discoveryService.getProviders(),
