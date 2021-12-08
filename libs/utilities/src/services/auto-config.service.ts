@@ -118,7 +118,6 @@ export class AutoConfigService {
     if (this.overrideConfig) {
       return this.useOverrideConfig();
     }
-    const configFiles = this.workspace.configFilePaths;
     this.config = {};
     this.setDefaults();
     const fileConfig = this.loadFromFiles();
