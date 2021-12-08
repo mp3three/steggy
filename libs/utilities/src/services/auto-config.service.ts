@@ -51,9 +51,9 @@ export class AutoConfigService {
     this.earlyInit();
   }
 
+  public config: AutomagicalConfig = {};
   public configFiles: string[];
   public loadedConfigFiles: string[];
-  private config: AutomagicalConfig = {};
   private loadedConfigPath: string;
   private metadata = new Map<string, AutomagicalMetadataDTO>();
   private switches = minimist(process.argv);
