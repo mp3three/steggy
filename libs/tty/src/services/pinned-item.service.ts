@@ -1,13 +1,12 @@
 import {
   AutoConfigService,
   InjectConfig,
-  LIB_TTY,
   TitleCase,
 } from '@ccontour/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import chalk from 'chalk';
 
-import { PINNED_ITEMS } from '../config';
+import { LIB_TTY, PINNED_ITEMS } from '../config';
 import { PromptEntry } from './prompt.service';
 
 export class PinnedItemDTO<T = unknown> {
