@@ -14,15 +14,16 @@ import fuzzy from 'fuzzysort';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
-import { SECONDARY_HEADER_FONT } from '..';
 import {
   BLOCK_PRINT_BG,
   BLOCK_PRINT_FG,
   DEFAULT_HEADER_FONT,
   DISABLE_CLEAR,
   PAGE_SIZE,
+  SECONDARY_HEADER_FONT,
 } from '../config';
 import { DONE, ICONS, PromptMenuItems } from '../contracts';
+import { TimeoutResult } from '../includes';
 
 const name = `result`;
 export type PROMPT_WITH_SHORT = { name: string; short: string };
@@ -498,6 +499,18 @@ export class PromptService {
         message: prompt,
         name,
         type: 'date',
+      },
+    ]);
+    return result;
+  }
+
+  public async timeout(prompt = 'Timeout duration'): Promise<number> {
+    const { result } = await inquirer.prompt([
+      {
+        // default: defaultValue,
+        message: prompt,
+        name,
+        type: 'timeout',
       },
     ]);
     return result;

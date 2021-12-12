@@ -257,9 +257,7 @@ export class RoutineService {
         );
         await this.fetchService.fetch({
           body: {
-            timeout:
-              (await this.promptService.number(`Timeout duration (seconds)`)) *
-              MILLISECONDS,
+            timeout: (await this.promptService.timeout()) * MILLISECONDS,
           } as RoutineActivateOptionsDTO,
           method: 'post',
           url: `/routine/${routine._id}`,

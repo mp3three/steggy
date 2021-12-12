@@ -21,7 +21,7 @@ const basicError = (error: Error) => {
 const prettyError = (error: Error) => {
   const stack = error.stack.split(`\n`).slice(FIRST);
   console.log();
-  console.log(chalk.bgRedBright.white` Fatal error `);
+  console.log(chalk.bgRedBright.white` 👻 FATAL ERROR 👻 `);
   const lines: [string, string[], boolean][] = [];
   let maxMethod = 0;
   let maxPath = 0;
@@ -36,7 +36,10 @@ const prettyError = (error: Error) => {
       line = line.slice(hasMethod ? line.indexOf(' ') : START);
     }
     const parts = line.trim().replace('(', '').replace(')', '').split(':');
-    if (parts[START] === '<anonymous>') {
+    if (
+      parts[START] === '<anonymous>' ||
+      parts[START] === 'Promise <anonymous>'
+    ) {
       maxMethod = Math.max(parts[START].length, maxMethod);
       lines.push([method, [parts[START], '', ''], false]);
       return;
@@ -49,6 +52,11 @@ const prettyError = (error: Error) => {
         parts[START] = `${start}:${parts[START]}`;
       }
     }
+    if (parts[START].includes('node_modules')) {
+      // These paths go to system root
+      // Slice them off to start as "node_modules"
+      parts[START] = parts[START].slice(parts[START].indexOf('node_modules'));
+    }
     maxMethod = Math.max(maxMethod, method.length);
     maxPath = Math.max(maxPath, parts[START].length);
     maxLine = Math.max(maxLine, parts[FIRST].length);
@@ -59,13 +67,15 @@ const prettyError = (error: Error) => {
       lines
         .map(
           ([method, parts, isLocal], index) =>
-            chalk`  {cyan ${index})} {bold${
-              isLocal ? '.bgGray' : ''
+            chalk`  {cyan ${index})} {${
+              isLocal ? 'bold' : 'dim'
             } ${method.padEnd(maxMethod, ' ')}} ${parts
               .shift()
-              .padEnd(maxPath, ' ')} {cyan.bold ${parts
-              .shift()
-              .padStart(maxLine, ' ')}}${
+              .padEnd(maxPath, ' ')
+              .replace(
+                'node_modules',
+                chalk.dim('node_modules'),
+              )} {cyan.bold ${parts.shift().padStart(maxLine, ' ')}}${
               parts[START] ? chalk`{white :}{cyan ${parts.shift()}}` : ``
             }`,
         )
