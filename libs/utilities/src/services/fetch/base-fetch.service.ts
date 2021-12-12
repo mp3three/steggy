@@ -18,16 +18,8 @@ export class BaseFetchService {
   /**
    * Resolve url provided in args into a full path w/ domain
    */
-  public fetchCreateUrl({
-    rawUrl,
-    url,
-    tempAuthToken,
-    ...fetchWith
-  }: FetchWith): string {
+  public fetchCreateUrl({ rawUrl, url, ...fetchWith }: FetchWith): string {
     let out = rawUrl ? url : `${fetchWith.baseUrl ?? this.BASE_URL}${url}`;
-    if (tempAuthToken) {
-      fetchWith.params ??= {};
-    }
     if (fetchWith.control || fetchWith.params) {
       out = `${out}?${this.buildFilterString(fetchWith)}`;
     }

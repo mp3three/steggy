@@ -1,1 +1,3 @@
-export class CustomCodeDTO {}
+export class CustomCodeDTO {
+  public code: string;
+}
