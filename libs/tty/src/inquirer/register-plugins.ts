@@ -2,6 +2,7 @@ import inquirer from 'inquirer';
 import autocompletePrompt from 'inquirer-autocomplete-prompt';
 import datePrompt from 'inquirer-date-prompt';
 
+import { MainMenuPrompt } from './main-menu';
 import { SelectLinePrompt } from './select-line';
 import { TimeoutPrompt } from './timeout';
 
@@ -10,3 +11,4 @@ inquirer.registerPrompt('date', datePrompt);
 inquirer.registerPrompt('autocomplete', autocompletePrompt);
 inquirer.registerPrompt('selectLine', SelectLinePrompt);
 inquirer.registerPrompt('timeout', TimeoutPrompt);
+inquirer.registerPrompt('mainMenu', MainMenuPrompt);

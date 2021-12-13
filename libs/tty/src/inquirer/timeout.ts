@@ -1,4 +1,4 @@
-import { IsEmpty } from '@ccontour/utilities';
+import { ARRAY_OFFSET, FIRST, IsEmpty } from '@ccontour/utilities';
 import { InternalServerErrorException } from '@nestjs/common';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
@@ -14,9 +14,7 @@ export enum TimeoutIntervals {
 }
 type KeyDescriptor = { key: Key; value?: string };
 const INCREMENT = 1;
-const FIRST = 0;
 const MINIMUM = 0;
-const ARRAY_OFFSET = 1;
 const REMOVE_AMOUNT = -1;
 const DEFAULT_AMOUNT = 60;
 const MINUTE = 60;

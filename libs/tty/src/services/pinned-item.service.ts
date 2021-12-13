@@ -52,10 +52,7 @@ export class PinnedItemService<T = unknown> {
   public getEntries(name?: string): PromptEntry<PinnedItemDTO<T>>[] {
     if (!name) {
       return this.pinned.map((i) => {
-        return [
-          chalk`{bold.magenta ${TitleCase(i.script)}} ${i.friendlyName}`,
-          i,
-        ];
+        return [i.friendlyName, i];
       });
     }
     return [];

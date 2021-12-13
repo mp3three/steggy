@@ -9,7 +9,7 @@ import { SwitchService } from './switch.service';
 export class ClimateService extends SwitchService {
   public async processId(id: string, command?: string): Promise<string> {
     const state = await this.baseHeader<EcobeeClimateStateDTO>(id);
-    const action = await super.processId(id, command);
+    const action = await super.processId(id, command, true);
     switch (action) {
       case 'setFanMode':
         await this.setFanMode(id, state);

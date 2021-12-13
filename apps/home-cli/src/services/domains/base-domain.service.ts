@@ -22,7 +22,12 @@ import {
   TitleCase,
   UP,
 } from '@ccontour/utilities';
-import { forwardRef, Inject, Injectable, NotImplementedException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 import chalk from 'chalk';
 import Table from 'cli-table';
 import dayjs from 'dayjs';
@@ -89,8 +94,14 @@ export class BaseDomainService {
     return await this.getState(entityId);
   }
 
-  public async processId(id: string, command?: string): Promise<string> {
-    await this.baseHeader(id);
+  public async processId(
+    id: string,
+    command?: string,
+    skipHeader = false,
+  ): Promise<string> {
+    if (!skipHeader) {
+      await this.baseHeader(id);
+    }
     const options = this.getMenuOptions(id);
     if (!(options[HEADER_SEPARATOR] as Separator).line) {
       options.unshift(

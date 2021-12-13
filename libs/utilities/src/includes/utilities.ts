@@ -1,10 +1,14 @@
 // Constanly reused numbers
 export const UP = 1;
 export const DOWN = -1;
-export const ARRAY_OFFSET = 1;
-//
+export const SAME = 0;
+export const LABEL = 0;
+export const START = 0;
+export const VALUE = 1;
+export const FIRST = 0;
 
-const OFFSET = 1;
+export const ARRAY_OFFSET = 1;
+
 /**
  * Want to be really lazy? Just make a short term sleep happen
  */
@@ -25,19 +29,6 @@ export function PEAT<T extends unknown = number>(
   fill?: T,
 ): T[] {
   return Array.from({ length }).map(
-    (item, index) => fill ?? ((index + OFFSET) as T),
+    (item, index) => fill ?? ((index + ARRAY_OFFSET) as T),
   );
-}
-/**
- * Returns a function reference to a class method while respecting mutations of the target method
- */
-export function SAFE_CALLBACK<
-  constructor extends Record<string, (...parameters) => unknown>,
->(
-  target: constructor,
-  key: keyof constructor,
-): (...parameters: unknown[]) => unknown {
-  return function (...parameters: unknown[]): unknown {
-    return target[key](...parameters);
-  };
 }
