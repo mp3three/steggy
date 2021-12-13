@@ -1,6 +1,7 @@
 import {
   ARRAY_OFFSET,
   DOWN,
+  IsEmpty,
   LABEL,
   START,
   TitleCase,
@@ -146,7 +147,8 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       current += stripped.padEnd(maxA).slice(stripped.length);
       stripped = item.replace(ansiRegex(), ' ');
       item += stripped.padEnd(maxB, ' ').slice(stripped.length);
-      out[index] = chalk`${current}{cyan |} ${item}`;
+      const separator = index > a.length - ARRAY_OFFSET ? '' : chalk.cyan('|');
+      out[index] = chalk`${current}${separator} ${item}`;
     });
     return out;
   }
@@ -178,6 +180,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     const mixed = key.name ?? key.sequence;
     switch (mixed) {
       case 'left':
+        if (IsEmpty(this.opt.pinned)) {
+          return;
+        }
         this.selectedType = 'pinned';
         this.sanityCheck();
         break;

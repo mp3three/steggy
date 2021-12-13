@@ -7,7 +7,7 @@
   "name": "@ccontour/rules-engine",
   "license": "MIT",
   "displayName": "Rules Engine",
-  "version": "0.5.14",
+  "version": "0.5.15",
   "homepage": "https://github.com/ccontour/automagical",
   "repository": {
     "type": "git",
