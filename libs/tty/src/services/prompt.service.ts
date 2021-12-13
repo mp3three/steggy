@@ -23,7 +23,6 @@ import {
   SECONDARY_HEADER_FONT,
 } from '../config';
 import { DONE, ICONS, PromptMenuItems } from '../contracts';
-import { TimeoutResult } from '../includes';
 
 const name = `result`;
 export type PROMPT_WITH_SHORT = { name: string; short: string };
