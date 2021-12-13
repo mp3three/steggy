@@ -1,7 +1,7 @@
 import { DynamicModule, Provider } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { LIB_UTILS } from '../contracts';
+import { LIB_UTILS } from '../config';
 import { LOGGER_PROVIDERS } from '../decorators/injectors';
 import { CONFIG_PROVIDERS } from '../decorators/injectors/inject-config.decorator';
 import { LibraryModule } from '../decorators/library-module.decorator';

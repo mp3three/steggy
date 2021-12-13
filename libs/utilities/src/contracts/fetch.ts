@@ -1,9 +1,9 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
 import dayjs from 'dayjs';
-// import type { Types } from 'mongoose';
 
-export type Identifier = { _id?: string; name?: string };
-export type IdentifierWithParent = Partial<{ parent: string } & Identifier>;
-export type Timestamp = string;
+// export type Identifier = { _id?: string; name?: string };
+// export type IdentifierWithParent = Partial<{ parent: string } & Identifier>;
 
 export type FetchAuth = {
   /**
@@ -22,10 +22,6 @@ export type FetchAuth = {
    * Temp Auth Token
    */
   jwtToken?: string;
-  /**
-   * Temporary auth token
-   */
-  tempAuthToken?: TemporaryAuthToken;
 };
 
 export type FetchArguments<BODY extends unknown = unknown> = FetchAuth & {
@@ -80,39 +76,6 @@ export type FetchArguments<BODY extends unknown = unknown> = FetchAuth & {
  */
 export type BaseFetch = Partial<FetchArguments>;
 
-export type TemporaryAuthToken = {
-  key: string;
-  token?: string;
-};
-
-export type FilterValueType =
-  | string
-  | boolean
-  | number
-  | Date
-  | dayjs.Dayjs
-  | RegExp
-  | unknown
-  | Record<string, string>;
-
-export class FilterDTO {
-  public exists?: boolean;
-  /**
-   * Dot notation object path, from object root
-   */
-  public field?: string;
-  public operation?: FILTER_OPERATIONS;
-  public value?: FilterValueType | FilterValueType[];
-}
-
-export class ResultControlDTO {
-  public filters?: Set<FilterDTO>;
-  public limit?: number;
-  public select?: string[];
-  public skip?: number;
-  public sort?: string[];
-}
-
 // Related logic:
 //  - JSONFilterService
 //  - mongo persistence
@@ -129,6 +92,46 @@ export enum FILTER_OPERATIONS {
   gte = 'gte',
   ne = 'ne',
   eq = 'eq',
+}
+
+export type FilterValueType =
+  | string
+  | boolean
+  | number
+  | Date
+  | dayjs.Dayjs
+  | RegExp
+  | unknown
+  | Record<string, string>;
+
+export class ComparisonDTO {
+  @IsOptional()
+  @IsEnum(FILTER_OPERATIONS)
+  @ApiProperty({ required: false })
+  public operation?: FILTER_OPERATIONS;
+  @IsOptional()
+  @ApiProperty({ required: false })
+  public value?: FilterValueType | FilterValueType[];
+}
+
+export class FilterDTO extends ComparisonDTO {
+  @IsBoolean()
+  @ApiProperty({ required: false })
+  public exists?: boolean;
+  /**
+   * Dot notation object path, from object root
+   */
+  @ApiProperty({ required: false })
+  @IsString()
+  public field?: string;
+}
+
+export class ResultControlDTO {
+  public filters?: Set<FilterDTO>;
+  public limit?: number;
+  public select?: string[];
+  public skip?: number;
+  public sort?: string[];
 }
 
 export enum HTTP_METHODS {

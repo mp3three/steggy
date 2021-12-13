@@ -5,11 +5,11 @@ import {
 } from '@ccontour/controller-logic';
 import { HASS_DOMAINS, LightStateDTO } from '@ccontour/home-assistant';
 import { ColorsService, ICONS, PromptEntry } from '@ccontour/tty';
+import { START } from '@ccontour/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 
 import { SwitchService } from './switch.service';
 
-const START = 0;
 const OFF = 0;
 const R = 0;
 const G = 1;

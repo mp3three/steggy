@@ -3,9 +3,12 @@ import {
   DOWN,
   InjectConfig,
   IsEmpty,
+  LABEL,
   PEAT,
+  START,
   TitleCase,
   UP,
+  VALUE,
 } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
@@ -14,13 +17,13 @@ import fuzzy from 'fuzzysort';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
-import { SECONDARY_HEADER_FONT } from '..';
 import {
   BLOCK_PRINT_BG,
   BLOCK_PRINT_FG,
   DEFAULT_HEADER_FONT,
   DISABLE_CLEAR,
   PAGE_SIZE,
+  SECONDARY_HEADER_FONT,
 } from '../config';
 import { DONE, ICONS, PromptMenuItems } from '../contracts';
 
@@ -29,13 +32,10 @@ export type PROMPT_WITH_SHORT = { name: string; short: string };
 export type PromptEntry<T = string> =
   | [string | PROMPT_WITH_SHORT, string | T]
   | Separator;
-const LABEL = 0;
-const VALUE = 1;
 const NO = 0;
 const OFF_BRIGHTNESS = 0;
 const MIN_BRIGHTNESS = 1;
 const BLOCK_OFFSET = '   ';
-const START = 0;
 const MAX_BRIGHTNESS = 255;
 const MAX_STRING_LENGTH = 300;
 
@@ -498,6 +498,18 @@ export class PromptService {
         message: prompt,
         name,
         type: 'date',
+      },
+    ]);
+    return result;
+  }
+
+  public async timeout(prompt = 'Timeout duration'): Promise<number> {
+    const { result } = await inquirer.prompt([
+      {
+        // default: defaultValue,
+        message: prompt,
+        name,
+        type: 'timeout',
       },
     ]);
     return result;

@@ -36,7 +36,7 @@ export class SwitchService extends BaseDomainService {
     if (skipHeader === false) {
       await this.printHeader(id);
     }
-    const action = await super.processId(id, command);
+    const action = await super.processId(id, command, skipHeader);
     switch (action) {
       case 'turnOn':
         await this.turnOn(id);

@@ -1,8 +1,9 @@
 import { MongoPersistenceModule } from '@ccontour/persistence';
-import { LIB_CONTROLLER_LOGIC, LibraryModule } from '@ccontour/utilities';
+import { LibraryModule } from '@ccontour/utilities';
 import { DynamicModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { LIB_CONTROLLER_LOGIC } from '../config';
 import {
   GroupDTO,
   GroupSchema,

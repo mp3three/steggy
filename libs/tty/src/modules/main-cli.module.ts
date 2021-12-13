@@ -1,6 +1,7 @@
-import { LIB_TTY, LibraryModule, RegisterCache } from '@ccontour/utilities';
+import { LibraryModule, RegisterCache } from '@ccontour/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
+import { LIB_TTY } from '../config';
 import {
   ColorsService,
   ConfigBuilderService,

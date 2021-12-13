@@ -1,13 +1,7 @@
-import {
-  AutoConfigService,
-  InjectConfig,
-  LIB_TTY,
-  TitleCase,
-} from '@ccontour/utilities';
+import { AutoConfigService, InjectConfig } from '@ccontour/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import chalk from 'chalk';
 
-import { PINNED_ITEMS } from '../config';
+import { LIB_TTY, PINNED_ITEMS } from '../config';
 import { PromptEntry } from './prompt.service';
 
 export class PinnedItemDTO<T = unknown> {
@@ -53,10 +47,7 @@ export class PinnedItemService<T = unknown> {
   public getEntries(name?: string): PromptEntry<PinnedItemDTO<T>>[] {
     if (!name) {
       return this.pinned.map((i) => {
-        return [
-          chalk`{bold.magenta ${TitleCase(i.script)}} ${i.friendlyName}`,
-          i,
-        ];
+        return [i.friendlyName, i];
       });
     }
     return [];

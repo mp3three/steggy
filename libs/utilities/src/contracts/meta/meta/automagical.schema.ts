@@ -27,24 +27,30 @@ export class AutomagicalStringConfig extends WarnDefault {
   public enum?: string[];
   public type: 'string';
 }
+
 export class AutomagicalBooleanConfig extends WarnDefault {
   public default?: boolean;
   public type: 'boolean';
 }
+
 export class AutomagicalNumberConfig extends WarnDefault {
   public default?: number;
   public type: 'number';
 }
+
 export class AutomagicalPasswordConfig extends WarnDefault {
   public type: 'password';
 }
+
 export class AutomagicalUrlConfig extends WarnDefault {
   public default?: string;
   public type: 'url';
 }
+
 export class AutomagicalRecordConfig extends WarnDefault {
   public type: 'record';
 }
+
 export class AutomagicalStringArrayConfig extends WarnDefault {
   public type: 'string[]';
 }

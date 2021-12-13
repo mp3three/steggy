@@ -12,3 +12,4 @@ export const AUTH_BYPASS = 'AUTH_BYPASS';
 export const HIDE_VERSION = 'HIDE_VERSION';
 export const CORS = 'CORS';
 export const CSURF = 'CSURF';
+export const LIB_SERVER = Symbol('server');

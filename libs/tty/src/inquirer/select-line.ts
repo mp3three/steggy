@@ -1,4 +1,4 @@
-import { DOWN, UP } from '@ccontour/utilities';
+import { ARRAY_OFFSET, DOWN, LABEL, START, UP, VALUE } from '@ccontour/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question, Separator } from 'inquirer';
@@ -12,10 +12,6 @@ import { PromptEntry } from '../services';
 
 const OFF = 0;
 const NEXT_TO = 1;
-const START = 0;
-const LABEL = 0;
-const OFFSET = 1;
-const VALUE = 1;
 
 type tCallback = (value: number) => void;
 
@@ -124,7 +120,7 @@ export class SelectLinePrompt extends Base<
       } else if (this.selected > this.moveIndex) {
         // Red go down
         message = chalk.bold`${ICONS.DOWN}Moved {red ${
-          this.selected - this.moveIndex - OFFSET
+          this.selected - this.moveIndex - ARRAY_OFFSET
         }} positions down`;
       } else {
         // Green go up
