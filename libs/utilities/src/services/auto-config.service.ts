@@ -193,6 +193,7 @@ export class AutoConfigService {
     if (!existsSync(filePath)) {
       return;
     }
+    this.loadedConfigPath = filePath;
     const fileContent = readFileSync(filePath, 'utf-8').trim();
     this.loadedConfigFiles.push(filePath);
     const hasExtension = extensions.some((extension) => {
@@ -244,7 +245,10 @@ export class AutoConfigService {
     }
     this.loadedConfigFiles = [];
     const out = new Map<string, AutomagicalConfig>();
-    this.configFiles.forEach((filePath) => this.loadFromFile(out, filePath));
+    this.configFiles.forEach((filePath) => {
+      this.loadFromFile(out, filePath);
+    });
+
     return out;
   }
 

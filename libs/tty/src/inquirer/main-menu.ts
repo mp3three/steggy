@@ -14,7 +14,7 @@ import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
 import { Key } from 'readline';
 
-import { PromptEntry } from '../services';
+import { PinnedItemDTO, PromptEntry } from '../services';
 
 function ansiRegex({ onlyFirst = false } = {}) {
   const pattern = [
@@ -98,7 +98,12 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       this.selectedType = typeof this.value === 'string' ? 'menu' : 'pinned';
       const entries = this.selectedType === 'menu' ? this.menu : this.pinned;
       const value = [...entries].find(
-        ({ entry }: PinnedItem | MainMenuEntry) => entry[VALUE] === this.value,
+        ({ entry }: PinnedItem | MainMenuEntry) => {
+          if (typeof this.value === 'object') {
+            return entry[VALUE].id === (this.value as PinnedItemDTO).id;
+          }
+          return entry[VALUE] === (this.value as PinnedItemDTO);
+        },
       );
       let foundIndex = START;
       let lastType: string;
@@ -107,13 +112,13 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
           foundIndex++;
         }
         lastType = type;
-        if (entry[VALUE] === value.entry[VALUE]) {
+        if (entry[VALUE] === value?.entry[VALUE]) {
           return true;
         }
         foundIndex++;
         return false;
       });
-      this.selectedLine = foundIndex - ARRAY_OFFSET;
+      this.selectedLine = foundIndex;
     }
     const events = observe(this.rl);
     events.keypress.forEach(this.onKeypress.bind(this));
@@ -186,28 +191,6 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       case 'down':
         this.onDownKey();
         break;
-      //   case '0':
-      //   case '.':
-      //   case '1':
-      //   case '2':
-      //   case '3':
-      //   case '4':
-      //   case '5':
-      //   case '6':
-      //   case '7':
-      //   case '8':
-      //   case '9':
-      //     this.amount = `${this.amount === '0' ? '' : this.amount}${mixed}`;
-      //     break;
-      //   case 'h':
-      //     this.interval = TimeoutIntervals.hour;
-      //     break;
-      //   case 'm':
-      //     this.interval = TimeoutIntervals.minute;
-      //     break;
-      //   case 's':
-      //     this.interval = TimeoutIntervals.second;
-      //     break;
     }
     this.render();
   }

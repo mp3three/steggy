@@ -66,7 +66,7 @@ export class MainCLIService implements iRepl {
   }
 
   protected async onModuleInit(): Promise<void> {
-    // this.lastLabel = await this.cacheService.get(CACHE_KEY);
+    this.last = await this.cacheService.get(CACHE_KEY);
   }
 
   private async pickOne(): Promise<ENTRY_TYPE> {
@@ -116,6 +116,7 @@ export class MainCLIService implements iRepl {
       },
     ]);
     this.last = result;
+    await this.cacheService.set(CACHE_KEY, result);
     return result;
   }
 

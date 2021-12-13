@@ -1,10 +1,5 @@
-import {
-  AutoConfigService,
-  InjectConfig,
-  TitleCase,
-} from '@ccontour/utilities';
+import { AutoConfigService, InjectConfig } from '@ccontour/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import chalk from 'chalk';
 
 import { LIB_TTY, PINNED_ITEMS } from '../config';
 import { PromptEntry } from './prompt.service';
