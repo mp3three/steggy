@@ -67,18 +67,15 @@ export class MainCLIService implements iRepl {
     this.last = await this.cacheService.get(CACHE_KEY);
   }
 
-  private async pickOne(): Promise<ENTRY_TYPE> {
+  private getLeft() {
     const entries = this.pinnedItem.getEntries();
+    return entries.map((i) => ({
+      entry: i,
+      type: (i[VALUE] as PinnedItemDTO).script,
+    })) as MainMenuEntry<ENTRY_TYPE>[];
+  }
 
-    const types: Record<string, PromptEntry<ENTRY_TYPE>[]> = {};
-    this.explorer.REGISTERED_APPS.forEach(
-      (instance: iRepl, { category: type, name, icon }: ReplOptions) => {
-        if (name !== 'Main') {
-          types[type] ??= [];
-          types[type].push([`${icon}${name}`, name]);
-        }
-      },
-    );
+  private getRight(types: Record<string, PromptEntry<ENTRY_TYPE>[]>) {
     const right: MainMenuEntry<ENTRY_TYPE>[] = [];
     Object.keys(types).forEach((type) => {
       types[type]
@@ -100,10 +97,31 @@ export class MainCLIService implements iRepl {
           });
         });
     });
-    const left = entries.map((i) => ({
-      entry: i,
-      type: (i[VALUE] as PinnedItemDTO).script,
-    })) as MainMenuEntry<ENTRY_TYPE>[];
+    return right;
+  }
+
+  private async pickOne(): Promise<ENTRY_TYPE> {
+    const types: Record<string, PromptEntry<ENTRY_TYPE>[]> = {};
+    const keyMap = {};
+    this.explorer.REGISTERED_APPS.forEach(
+      (
+        instance: iRepl,
+        { category: type, name, icon, keybind, keyOnly }: ReplOptions,
+      ) => {
+        if (name !== 'Main') {
+          if (keybind) {
+            keyMap[keybind] = [`${icon}${name}`, name];
+            if (keyOnly) {
+              return;
+            }
+          }
+          types[type] ??= [];
+          types[type].push([`${icon}${name}`, name]);
+        }
+      },
+    );
+    const right = this.getRight(types);
+    const left = this.getLeft();
     if (typeof this.last === 'object') {
       this.last = left.find((i) => {
         return (
@@ -113,7 +131,7 @@ export class MainCLIService implements iRepl {
       }).entry[VALUE];
     }
     const result = await this.promptService.menu<ENTRY_TYPE>({
-      keyMap: {},
+      keyMap,
       left,
       leftHeader: 'Pinned',
       right,

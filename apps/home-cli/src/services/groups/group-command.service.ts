@@ -63,6 +63,7 @@ const GROUP_DOMAINS = new Map([
 @Repl({
   category: `Control`,
   icon: ICONS.GROUPS,
+  keybind: 'g',
   name: `Groups`,
 })
 export class GroupCommandService implements iRepl {

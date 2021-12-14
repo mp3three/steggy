@@ -278,7 +278,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         HELP_TEXT,
         ...Object.keys(this.opt.keyMap).map(
           (key) =>
-            chalk.dim`  {blue -} {yellow ${key}} ${this.opt.keyMap[key][LABEL]}`,
+            chalk.dim`  {blue -} {yellow ${key}} ${this.opt.keyMap[key][LABEL]} `,
         ),
       ].join(`\n`);
       // this.showHelp = false;

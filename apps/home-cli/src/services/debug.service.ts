@@ -29,6 +29,8 @@ import { HomeFetchService } from './home-fetch.service';
 @Repl({
   category: `Misc`,
   icon: ICONS.DEBUG,
+  keyOnly: true,
+  keybind: 'f1',
   name: `Debugger`,
 })
 export class DebugService {

@@ -36,6 +36,7 @@ const NAME = 0;
     `Rooms can observe entities for state changes, and trigger routines to make changes to the state.`,
   ],
   icon: ICONS.ROOMS,
+  keybind: 'r',
   name: `Rooms`,
 })
 export class RoomCommandService {

@@ -28,6 +28,7 @@ import { HomeFetchService } from '../home-fetch.service';
   category: `Home Assistant`,
   description: [`Commands scoped to a single/manually built list of entities`],
   icon: ICONS.ENTITIES,
+  keybind: 'e',
   name: `Entities`,
 })
 export class EntityService implements iRepl {

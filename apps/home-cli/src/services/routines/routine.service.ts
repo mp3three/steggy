@@ -35,6 +35,7 @@ const MILLISECONDS = 1000;
 @Repl({
   category: 'Control',
   icon: ICONS.ROUTINE,
+  keybind: 'u',
   name: 'Routine',
 })
 export class RoutineService {
