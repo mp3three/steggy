@@ -63,6 +63,7 @@ export interface MainMenuOptions<T = unknown> {
   right: MainMenuEntry<T>[];
   rightHeader?: string;
   showHelp?: boolean;
+  titleTypes?: boolean;
   value?: unknown;
 }
 
@@ -106,9 +107,11 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   public _run(callback: tCallback): this {
     this.done = callback;
     this.value ??= this.side('right')[START].entry[VALUE];
-    if (!this.value) {
-      this.selectedType = 'right';
-    }
+    this.selectedType = this.side('left').some(
+      (i) => i.entry[VALUE] === this.value,
+    )
+      ? 'left'
+      : 'right';
 
     const events = observe(this.rl);
     events.keypress.forEach(this.onKeypress.bind(this));
@@ -273,7 +276,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
             chalk.dim`  {blue -} {yellow ${key}} ${this.opt.keyMap[key][LABEL]}`,
         ),
       ].join(`\n`);
-      this.showHelp = false;
+      // this.showHelp = false;
     }
     this.screen.render(message, '');
   }
@@ -291,7 +294,10 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     list.forEach((item) => {
       const stripped = item.type.replace(ansiRegex(), '');
       const padding = stripped.padEnd(maxType, ' ').slice(stripped.length);
-      let prefix = TitleCase(item.type + padding);
+      let prefix = item.type + padding;
+      if (this.opt.titleTypes) {
+        prefix = TitleCase(prefix);
+      }
       if (last === prefix) {
         prefix = ''.padEnd(maxType, ' ');
       } else {
@@ -330,7 +336,10 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     menu.forEach((item) => {
       const stripped = item.type.replace(ansiRegex(), '');
       const padding = stripped.padEnd(maxType, ' ').slice(stripped.length);
-      let prefix = TitleCase(item.type + padding);
+      let prefix = item.type + padding;
+      if (this.opt.titleTypes) {
+        prefix = TitleCase(prefix);
+      }
       if (last === prefix) {
         prefix = chalk(''.padEnd(maxType, ' '));
       } else {

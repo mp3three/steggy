@@ -25,7 +25,7 @@ import {
   PAGE_SIZE,
   SECONDARY_HEADER_FONT,
 } from '../config';
-import { DONE, ICONS, PromptMenuItems } from '../contracts';
+import { DONE, PromptMenuItems } from '../contracts';
 import { MainMenuOptions } from '../inquirer';
 
 const name = `result`;
@@ -44,12 +44,12 @@ const MAX_STRING_LENGTH = 300;
 export class PromptService {
   constructor(
     private readonly logger: AutoLogService,
-    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: Fonts,
-    @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
-    @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
     @InjectConfig(BLOCK_PRINT_BG) private readonly blockPrintBg: string,
     @InjectConfig(BLOCK_PRINT_FG) private readonly blockPrintFg: string,
+    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: Fonts,
     @InjectConfig(DISABLE_CLEAR) private readonly disableClear: boolean,
+    @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
+    @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
   ) {}
 
   /**
@@ -57,8 +57,8 @@ export class PromptService {
    *
    * Good for giving the user time to read a message before a screen clear happens
    */
-  public async acknowledge(prompt = 'Respond to continue'): Promise<void> {
-    await this.confirm(prompt, true);
+  public async acknowledge(): Promise<void> {
+    await inquirer.prompt([{ type: 'acknowledge' }]);
   }
 
   /**

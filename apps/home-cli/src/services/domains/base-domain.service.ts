@@ -112,10 +112,17 @@ export class BaseDomainService {
       );
     }
     const action = await this.promptService.menu({
+      keyMap: {
+        d: ['Done', DONE],
+        p: [this.pinnedItem.isPinned('entity', id) ? 'Unpin' : 'pin', 'pin'],
+        r: ['Refresh', 'refresh'],
+      },
       right: ToMenuEntry(options),
       value: command,
     });
     switch (action) {
+      case 'refresh':
+        return await this.processId(id, action);
       case 'describe':
         const state = await this.getState(id);
         this.promptService.print(dump(state));
@@ -298,12 +305,6 @@ export class BaseDomainService {
       [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
       [`${ICONS.HISTORY}History`, 'history'],
       [`${ICONS.DESCRIBE}Describe`, 'describe'],
-      [
-        chalk[
-          this.pinnedItem.isPinned('entity', id) ? 'red' : 'green'
-        ]`${ICONS.PIN}Pin`,
-        'pin',
-      ],
     ];
   }
 

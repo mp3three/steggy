@@ -104,11 +104,20 @@ export class MainCLIService implements iRepl {
       entry: i,
       type: (i[VALUE] as PinnedItemDTO).script,
     })) as MainMenuEntry<ENTRY_TYPE>[];
+    if (typeof this.last === 'object') {
+      this.last = left.find((i) => {
+        return (
+          (i.entry[VALUE] as PinnedItemDTO).id ===
+          (this.last as PinnedItemDTO).id
+        );
+      }).entry[VALUE];
+    }
     const result = await this.promptService.menu<ENTRY_TYPE>({
       keyMap: {},
       left,
       leftHeader: 'Pinned',
       right,
+      titleTypes: true,
       value: this.last,
     });
     this.last = result;
