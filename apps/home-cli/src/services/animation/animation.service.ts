@@ -1,6 +1,12 @@
 import { FlashAnimationDTO } from '@ccontour/controller-logic';
 import { HASS_DOMAINS } from '@ccontour/home-assistant';
-import { ColorsService, ICONS, PromptService, Repl } from '@ccontour/tty';
+import {
+  ColorsService,
+  ICONS,
+  PromptService,
+  Repl,
+  ToMenuEntry,
+} from '@ccontour/tty';
 
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
@@ -23,12 +29,10 @@ export class AnimationService {
   ) {}
 
   public async exec(defaultAction?: string): Promise<void> {
-    const action = await this.promptService.menuSelect(
-      [[`Flash`, 'flash']],
-      `Pick one`,
-      defaultAction,
-    );
-
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([[`Flash`, 'flash']]),
+      value: defaultAction,
+    });
     if (action === 'flash') {
       await this.flash();
       return await this.exec(action);

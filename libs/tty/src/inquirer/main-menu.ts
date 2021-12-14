@@ -32,11 +32,27 @@ const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 
 type KeyDescriptor = { key: Key; value?: string };
 type tCallback = (value: unknown) => void;
-
+export type MenuEntry<T extends unknown = string> = [string, T];
 export interface MainMenuEntry<T = unknown> {
-  entry: PromptEntry<T>;
+  entry: MenuEntry<T>;
   icon?: string;
-  type: string;
+  type?: string;
+}
+
+export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
+  const out: MainMenuEntry<T>[] = [];
+  let header = '';
+  entries.forEach((i) => {
+    if (Array.isArray(i)) {
+      out.push({
+        entry: i as MenuEntry<T>,
+        type: header.replace(ansiRegex(), ''),
+      });
+      return;
+    }
+    header = i.line;
+  });
+  return out;
 }
 
 export interface MainMenuOptions<T = unknown> {
@@ -70,6 +86,8 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.opt = questions;
     this.opt.left ??= [];
     this.opt.right ??= [];
+    this.opt.left.forEach((i) => (i.type ??= ''));
+    this.opt.right.forEach((i) => (i.type ??= ''));
     this.opt.keyMap ??= {};
     this.value = this.opt.value;
     this.headerPadding = this.opt.headerPadding ?? DEFAULT_HEADER_PADDING;
@@ -265,11 +283,15 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     if (IsEmpty(list)) {
       return [];
     }
-    const maxType = Math.max(...list.map(({ type }) => type.length));
+    const maxType = Math.max(
+      ...list.map(({ type }) => type.replace(ansiRegex(), '').length),
+    );
     const out: string[] = [''];
     let last = '';
     list.forEach((item) => {
-      let prefix = TitleCase(item.type.padEnd(maxType, ' '));
+      const stripped = item.type.replace(ansiRegex(), '');
+      const padding = stripped.padEnd(maxType, ' ').slice(stripped.length);
+      let prefix = TitleCase(item.type + padding);
       if (last === prefix) {
         prefix = ''.padEnd(maxType, ' ');
       } else {
@@ -301,23 +323,27 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   private renderRight(): string[] {
     const out: string[] = [''];
     const menu = this.side('right');
-    const maxCategory = Math.max(...menu.map(({ type }) => type.length));
+    const maxType = Math.max(
+      ...menu.map(({ type }) => type.replace(ansiRegex(), '').length),
+    );
     let last = '';
     menu.forEach((item) => {
-      let prefix = TitleCase(item.type.padEnd(maxCategory, ' '));
+      const stripped = item.type.replace(ansiRegex(), '');
+      const padding = stripped.padEnd(maxType, ' ').slice(stripped.length);
+      let prefix = TitleCase(item.type + padding);
       if (last === prefix) {
-        prefix = ''.padEnd(maxCategory, ' ');
+        prefix = chalk(''.padEnd(maxType, ' '));
       } else {
         if (last !== '') {
           out.push(EMPTY_TEXT);
         }
         last = prefix;
-        prefix = `${prefix}`;
+        prefix = chalk(prefix);
       }
       const inverse = item.entry[VALUE] === this.value;
       out.push(
         this.selectedType === 'right'
-          ? chalk`{magenta ${prefix}} {${inverse ? 'cyan.inverse' : 'white'}  ${
+          ? chalk`{magenta ${prefix}} {${inverse ? 'bgCyan.black' : 'white'}  ${
               item.entry[LABEL]
             } }`
           : chalk`{gray ${prefix}  ${item.entry[LABEL]} }`,

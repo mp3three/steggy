@@ -14,6 +14,7 @@ import {
   PromptEntry,
   PromptService,
   Repl,
+  ToMenuEntry,
 } from '@ccontour/tty';
 import { IsEmpty, ResultControlDTO, TitleCase } from '@ccontour/utilities';
 import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
@@ -128,8 +129,8 @@ export class RoutineService {
       });
     }
     const current = await this.list(control);
-    let action = await this.promptService.menuSelect(
-      [
+    let action = await this.promptService.menu({
+      right: ToMenuEntry([
         ...this.promptService.conditionalEntries(!IsEmpty(current), [
           new inquirer.Separator(chalk.white`Existing routines`),
           ...(current.map((item) => [
@@ -139,9 +140,9 @@ export class RoutineService {
         ]),
         new inquirer.Separator(chalk.white`Maintenance`),
         [`${ICONS.CREATE}Create`, 'create'],
-      ],
-      `Pick routine`,
-    );
+      ]),
+      rightHeader: `Pick routine`,
+    });
     if (action === DONE) {
       return;
     }
@@ -161,8 +162,8 @@ export class RoutineService {
     defaultAction?: string,
   ): Promise<void> {
     await this.header(routine);
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.ACTIVATE}Manual activate`, 'activate'],
         [`${ICONS.DELETE}Delete`, 'delete'],
         [`${ICONS.RENAME}Rename`, 'rename'],
@@ -175,10 +176,10 @@ export class RoutineService {
           ]`${ICONS.PIN}Pin`,
           'pin',
         ],
-      ],
-      `Manage routine`,
-      defaultAction,
-    );
+      ]),
+      rightHeader: `Manage routine`,
+      value: defaultAction,
+    });
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({
@@ -187,8 +188,6 @@ export class RoutineService {
           script: 'routine',
         });
         return await this.processRoutine(routine, action);
-      case DONE:
-        return;
       case 'settings':
         await this.settings.process(routine);
         return await this.processRoutine(routine, action);
@@ -234,14 +233,14 @@ export class RoutineService {
   }
 
   public async promptActivate(routine: RoutineDTO): Promise<void> {
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`Immediate`, 'immediate'],
         [`Timeout`, 'timeout'],
         ['At date/time', 'datetime'],
-      ],
-      `When to activate`,
-    );
+      ]),
+      rightHeader: `When to activate`,
+    });
     switch (action) {
       case DONE:
         return;

@@ -27,6 +27,7 @@ import { get, set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
 
+import { ToMenuEntry } from '..';
 import { ICONS } from '../contracts';
 import { PromptEntry, PromptService } from './prompt.service';
 
@@ -61,10 +62,10 @@ export class ConfigBuilderService {
   public async exec(): Promise<void> {
     const application =
       initialApp ||
-      (await this.promptService.menuSelect(
-        this.applicationChoices(),
-        `Select an application`,
-      ));
+      (await this.promptService.menu({
+        right: ToMenuEntry(this.applicationChoices()),
+        rightHeader: `Application choices`,
+      }));
     initialApp = undefined;
     if (!this.workspace.isProject(application)) {
       this.logger.error({ application }, `Invalid application`);
@@ -82,14 +83,13 @@ export class ConfigBuilderService {
     application =
       typeof application === 'string' ? application : application.description;
     this.loadConfig(application);
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.DESCRIBE}Show`, 'describe'],
         [`${ICONS.SAVE}Save`, 'save'],
-      ],
-      `What to do?`,
-    );
+      ]),
+    });
     switch (action) {
       case 'edit':
         await this.buildApplication(application);

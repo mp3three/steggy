@@ -4,7 +4,7 @@ import {
   RoomEntitySaveStateDTO,
 } from '@ccontour/controller-logic';
 import { FanSpeeds, FanStateDTO } from '@ccontour/home-assistant';
-import { DONE, ICONS, PromptEntry } from '@ccontour/tty';
+import { DONE, ICONS, PromptEntry, ToMenuEntry } from '@ccontour/tty';
 import { TitleCase } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
@@ -77,12 +77,14 @@ export class FanService extends SwitchService {
   }
 
   public async setSpeed(id: string): Promise<void> {
-    const speed = await this.promptService.menuSelect(
-      Object.keys(FanSpeeds)
-        .reverse()
-        .map((key) => [TitleCase(key), key]),
-      'Fan speed',
-    );
+    const speed = await this.promptService.menu({
+      right: ToMenuEntry(
+        Object.keys(FanSpeeds)
+          .reverse()
+          .map((key) => [TitleCase(key), key]),
+      ),
+      rightHeader: 'Fan speed',
+    });
     if (speed === DONE) {
       return;
     }

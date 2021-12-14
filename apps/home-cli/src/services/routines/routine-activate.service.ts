@@ -7,7 +7,13 @@ import {
   SolarActivateDTO,
   StateChangeActivateDTO,
 } from '@ccontour/controller-logic';
-import { DONE, ICONS, PromptEntry, PromptService } from '@ccontour/tty';
+import {
+  DONE,
+  ICONS,
+  PromptEntry,
+  PromptService,
+  ToMenuEntry,
+} from '@ccontour/tty';
 import { IsEmpty, TitleCase } from '@ccontour/utilities';
 import {
   forwardRef,
@@ -96,13 +102,13 @@ export class RoutineActivateService {
     routine: RoutineDTO,
     activate: RoutineActivateDTO,
   ): Promise<RoutineDTO> {
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.DELETE}Delete`, 'delete'],
-      ],
-      `Routine activation`,
-    );
+      ]),
+      rightHeader: `Routine activation`,
+    });
     switch (action) {
       case DONE:
         return routine;
@@ -139,8 +145,8 @@ export class RoutineActivateService {
 
   public async processRoutine(routine: RoutineDTO): Promise<RoutineDTO> {
     routine.activate ??= [];
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.CREATE}Add`, 'add'],
         ...this.promptService.conditionalEntries(!IsEmpty(routine.activate), [
           new inquirer.Separator(chalk.white`Current activations`),
@@ -149,9 +155,9 @@ export class RoutineActivateService {
             activate,
           ]) as PromptEntry<RoutineActivateDTO>[]),
         ]),
-      ],
-      `Routine activations`,
-    );
+      ]),
+      rightHeader: `Routine activations`,
+    });
     switch (action) {
       case DONE:
         return routine;

@@ -11,6 +11,7 @@ import {
   PinnedItemService,
   PromptEntry,
   PromptService,
+  ToMenuEntry,
 } from '@ccontour/tty';
 import {
   AutoLogService,
@@ -107,8 +108,8 @@ export class RoomStateService {
   }
 
   public async process(room: RoomDTO): Promise<RoomDTO> {
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         ...this.promptService.conditionalEntries(!IsEmpty(room.save_states), [
           new inquirer.Separator(chalk.white(`Current states`)),
           ...(room.save_states
@@ -120,9 +121,9 @@ export class RoomStateService {
         new inquirer.Separator(chalk.white(`Manipulate`)),
         [`${ICONS.CREATE}Create`, 'create'],
         [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
-      ],
-      `Pick state`,
-    );
+      ]),
+      rightHeader: `Pick state`,
+    });
     switch (action) {
       case DONE:
         return room;
@@ -157,8 +158,8 @@ export class RoomStateService {
     this.promptService.clear();
     this.promptService.scriptHeader(`Room State`);
     await this.header(room, state);
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.ACTIVATE}Activate`, 'activate'],
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.DELETE}Delete`, 'delete'],
@@ -168,10 +169,10 @@ export class RoomStateService {
           ]`${ICONS.PIN}Pin`,
           'pin',
         ],
-      ],
-      `Room state`,
-      defaultAction,
-    );
+      ]),
+      rightHeader: `Room state`,
+      value: defaultAction,
+    });
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({

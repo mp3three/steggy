@@ -3,8 +3,10 @@ import {
   ConfigBuilderService,
   DONE,
   ICONS,
+  IsDone,
   PromptService,
   Repl,
+  ToMenuEntry,
 } from '@ccontour/tty';
 import {
   ACTIVE_APPLICATION,
@@ -67,17 +69,17 @@ For loop example getting entity values in the weather domain:
 
   public async exec(defaultAction?: string): Promise<void> {
     const action = await this.promptService.menu({
-      right: [
-        { entry: [`Manage configuration`, 'configure'], type: '' },
-        { entry: [`Controller version`, 'version'], type: '' },
-        { entry: [`Light Manager Cache`, 'lightManagerCache'], type: '' },
-        { entry: [`Home Assistant Config`, 'hassConfig'], type: '' },
-        { entry: [`Render template`, 'renderTemplate'], type: '' },
-        { entry: [`Send template notification`, 'sendNotification'], type: '' },
-        { entry: [`Restart Home Assistant`, 'reboot'], type: '' },
-        { entry: [`Persistent notifications`, 'notifications'], type: '' },
-        { entry: [`Update checker`, 'update'], type: '' },
-      ],
+      right: ToMenuEntry([
+        [`Manage configuration`, 'configure'],
+        [`Controller version`, 'version'],
+        [`Light Manager Cache`, 'lightManagerCache'],
+        [`Home Assistant Config`, 'hassConfig'],
+        [`Render template`, 'renderTemplate'],
+        [`Send template notification`, 'sendNotification'],
+        [`Restart Home Assistant`, 'reboot'],
+        [`Persistent notifications`, 'notifications'],
+        [`Update checker`, 'update'],
+      ]),
       value: defaultAction,
     });
 
@@ -135,11 +137,10 @@ For loop example getting entity values in the weather domain:
     if (IsEmpty(notifications)) {
       return;
     }
-    const item = await this.promptService.menuSelect(
-      notifications.map((i) => [i.title, i]),
-      `Dismiss item`,
-    );
-    if (item === DONE) {
+    const item = await this.promptService.menu<HassNotificationDTO>({
+      right: notifications.map((i) => ({ entry: [i.title, i] })),
+    });
+    if (IsDone(item)) {
       return;
     }
     if (typeof item === 'string') {
@@ -236,13 +237,12 @@ For loop example getting entity values in the weather domain:
         ``,
       ].join(`\n`),
     );
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [chalk`Update using {blue yarn}`, `yarn`],
         [chalk`Update using {red npm}`, `npm`],
-      ],
-      `Update CLI`,
-    );
+      ]),
+    });
     if (action === DONE) {
       return;
     }

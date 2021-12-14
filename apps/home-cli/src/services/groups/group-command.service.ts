@@ -13,6 +13,7 @@ import {
   PromptEntry,
   PromptService,
   Repl,
+  ToMenuEntry,
 } from '@ccontour/tty';
 import {
   ARRAY_OFFSET,
@@ -139,20 +140,20 @@ export class GroupCommandService implements iRepl {
 
   public async exec(): Promise<void> {
     const groups = await this.list();
-    const action = await this.promptService.menuSelect<GroupDTO>(
-      [
+    const action = await this.promptService.menu<GroupDTO>({
+      right: ToMenuEntry([
         ...this.promptService.conditionalEntries(
           !IsEmpty(groups),
           this.groupEntries(groups),
         ),
         new inquirer.Separator(chalk.white`Actions`),
         [`${ICONS.CREATE}Create Group`, 'create'],
-      ],
-      'Pick group',
-      this.lastGroup
+      ]),
+      rightHeader: 'Pick group',
+      value: this.lastGroup
         ? groups.find(({ _id }) => _id === this.lastGroup)
         : undefined,
-    );
+    });
     if (action === 'create') {
       await this.create();
       return await this.exec();
@@ -258,8 +259,8 @@ export class GroupCommandService implements iRepl {
         );
         break;
     }
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         ...actions,
         new inquirer.Separator(chalk.white`Management`),
         [`${ICONS.DELETE}Delete`, 'delete'],
@@ -272,10 +273,10 @@ export class GroupCommandService implements iRepl {
           ]`${ICONS.PIN}Pin`,
           `pin`,
         ],
-      ],
-      `Group action / management`,
-      defaultValue,
-    );
+      ]),
+      rightHeader: `Group action / management`,
+      value: defaultValue,
+    });
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({
@@ -409,8 +410,8 @@ export class GroupCommandService implements iRepl {
   }
 
   private async updateEntities(group: GroupDTO): Promise<GroupDTO> {
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         new inquirer.Separator(chalk.white`Maintenance`),
         [`${ICONS.CREATE}Add`, 'add'],
         [`${ICONS.DELETE}Remove`, 'delete'],
@@ -418,9 +419,9 @@ export class GroupCommandService implements iRepl {
           new inquirer.Separator(chalk.white`Current entities`),
           ...(group.entities.map((i) => [i, i]) as PromptEntry[]),
         ]),
-      ],
-      `Entity actions`,
-    );
+      ]),
+      rightHeader: `Entity actions`,
+    });
     switch (action) {
       case DONE:
         return group;

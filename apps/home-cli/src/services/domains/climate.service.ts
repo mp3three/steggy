@@ -1,5 +1,5 @@
 import { EcobeeClimateStateDTO } from '@ccontour/home-assistant';
-import { DONE, PromptEntry } from '@ccontour/tty';
+import { DONE, PromptEntry, ToMenuEntry } from '@ccontour/tty';
 import { TitleCase } from '@ccontour/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
@@ -37,10 +37,12 @@ export class ClimateService extends SwitchService {
     id: string,
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
-    const mode = await this.promptService.menuSelect(
-      state.attributes.fan_modes.map((mode) => [TitleCase(mode), mode]),
-      `Set fan mode`,
-    );
+    const mode = await this.promptService.menu({
+      right: ToMenuEntry(
+        state.attributes.fan_modes.map((mode) => [TitleCase(mode), mode]),
+      ),
+      rightHeader: `Set fan mode`,
+    });
     if (mode === DONE) {
       return;
     }
@@ -64,10 +66,12 @@ export class ClimateService extends SwitchService {
     id: string,
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
-    const mode = await this.promptService.menuSelect(
-      state.attributes.hvac_modes.map((mode) => [TitleCase(mode), mode]),
-      `Set HVAC mode`,
-    );
+    const mode = await this.promptService.menu({
+      right: ToMenuEntry(
+        state.attributes.hvac_modes.map((mode) => [TitleCase(mode), mode]),
+      ),
+      rightHeader: `Set HVAC mode`,
+    });
     if (mode !== DONE) {
       return;
     }
@@ -82,10 +86,12 @@ export class ClimateService extends SwitchService {
     id: string,
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
-    const mode = await this.promptService.menuSelect(
-      state.attributes.preset_modes.map((mode) => [TitleCase(mode), mode]),
-      `Set preset mode`,
-    );
+    const mode = await this.promptService.menu({
+      right: ToMenuEntry(
+        state.attributes.preset_modes.map((mode) => [TitleCase(mode), mode]),
+      ),
+      rightHeader: `Set preset mode`,
+    });
     if (mode === DONE) {
       return;
     }
@@ -100,10 +106,12 @@ export class ClimateService extends SwitchService {
     id: string,
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
-    const mode = await this.promptService.menuSelect(
-      state.attributes.swing_modes.map((mode) => [TitleCase(mode), mode]),
-      `Set swing mode`,
-    );
+    const mode = await this.promptService.menu({
+      right: ToMenuEntry(
+        state.attributes.swing_modes.map((mode) => [TitleCase(mode), mode]),
+      ),
+      rightHeader: `Set swing mode`,
+    });
     if (mode === DONE) {
       return;
     }

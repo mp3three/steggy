@@ -11,6 +11,7 @@ import {
   PinnedItemService,
   PromptEntry,
   PromptService,
+  ToMenuEntry,
 } from '@ccontour/tty';
 import { AutoLogService, DOWN, IsEmpty, UP } from '@ccontour/utilities';
 import {
@@ -168,8 +169,8 @@ export class GroupStateService {
     group = await this.fetchService.fetch({
       url: `/group/${group._id}`,
     });
-    const action = await this.promptService.menuSelect<GroupSaveStateDTO>(
-      [
+    const action = await this.promptService.menu<GroupSaveStateDTO>({
+      right: ToMenuEntry([
         ...(this.promptService.conditionalEntries(!IsEmpty(group.save_states), [
           new inquirer.Separator(chalk.white`Current save states`),
           ...(
@@ -184,10 +185,10 @@ export class GroupStateService {
         [`${ICONS.CAPTURE}Capture current`, 'capture'],
         [`${ICONS.DESCRIBE}Describe current`, 'describe'],
         [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
-      ],
-      `State management`,
-      defaultAction,
-    );
+      ]),
+      rightHeader: `State management`,
+      value: defaultAction,
+    });
     if (action === DONE) {
       return;
     }
@@ -302,8 +303,8 @@ export class GroupStateService {
     defaultAction?: string,
   ): Promise<GroupDTO> {
     this.header(group, state);
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.ACTIVATE}Activate`, 'activate'],
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
         [`${ICONS.EDIT}Edit`, 'edit'],
@@ -315,10 +316,10 @@ export class GroupStateService {
           ]`${ICONS.PIN}Pin`,
           'pin',
         ],
-      ],
-      `Group state action`,
-      defaultAction,
-    );
+      ]),
+      rightHeader: `Group state action`,
+      value: defaultAction,
+    });
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({

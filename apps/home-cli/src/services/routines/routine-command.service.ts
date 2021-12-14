@@ -16,7 +16,13 @@ import {
   RoutineCommandWebhookDTO,
   RoutineDTO,
 } from '@ccontour/controller-logic';
-import { DONE, ICONS, PromptEntry, PromptService } from '@ccontour/tty';
+import {
+  DONE,
+  ICONS,
+  PromptEntry,
+  PromptService,
+  ToMenuEntry,
+} from '@ccontour/tty';
 import { IsEmpty, TitleCase } from '@ccontour/utilities';
 import {
   forwardRef,
@@ -290,14 +296,14 @@ export class RoutineCommandService {
     routine: RoutineDTO,
     command: RoutineCommandDTO,
   ): Promise<RoutineDTO> {
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.DELETE}Delete`, 'delete'],
-      ],
-      `Routine command actions`,
-    );
+      ]),
+      rightHeader: `Routine command actions`,
+    });
     switch (action) {
       case DONE:
         return routine;
@@ -333,8 +339,8 @@ export class RoutineCommandService {
 
   public async processRoutine(routine: RoutineDTO): Promise<RoutineDTO> {
     routine.command ??= [];
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.CREATE}Add`, 'add'],
         [`${ICONS.SWAP}Sort`, 'sort'],
         ...this.promptService.conditionalEntries(!IsEmpty(routine.command), [
@@ -344,9 +350,9 @@ export class RoutineCommandService {
             activate,
           ]) as PromptEntry<RoutineCommandDTO>[]),
         ]),
-      ],
-      `Routine commands`,
-    );
+      ]),
+      rightHeader: `Routine commands`,
+    });
     switch (action) {
       case DONE:
         return routine;

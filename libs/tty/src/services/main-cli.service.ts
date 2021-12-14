@@ -9,13 +9,11 @@ import {
 } from '@ccontour/utilities';
 import chalk from 'chalk';
 import figlet, { Fonts } from 'figlet';
-import inquirer from 'inquirer';
-import Separator from 'inquirer/lib/objects/separator';
 
 import { DEFAULT_HEADER_FONT } from '../config';
 import { iRepl, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
-import { MainMenuEntry, MainMenuOptions } from '../inquirer';
+import { MainMenuEntry, MenuEntry } from '../inquirer';
 import { PinnedItemDTO } from '.';
 import { PinnedItemService } from './pinned-item.service';
 import { PromptEntry, PromptService } from './prompt.service';
@@ -23,7 +21,6 @@ import { ReplExplorerService } from './repl-explorer.service';
 
 // Filter out non-sortable characters (like emoji)
 const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
-const NAME = 1;
 const CACHE_KEY = 'MAIN-CLI:LAST_LABEL';
 type ENTRY_TYPE = string | PinnedItemDTO;
 
@@ -73,7 +70,7 @@ export class MainCLIService implements iRepl {
   private async pickOne(): Promise<ENTRY_TYPE> {
     const entries = this.pinnedItem.getEntries();
 
-    const types: Record<string, PromptEntry[]> = {};
+    const types: Record<string, PromptEntry<ENTRY_TYPE>[]> = {};
     this.explorer.REGISTERED_APPS.forEach(
       (instance: iRepl, { category: type, name, icon }: ReplOptions) => {
         if (name !== 'Main') {
@@ -82,36 +79,36 @@ export class MainCLIService implements iRepl {
         }
       },
     );
-    const out: MainMenuEntry[] = [];
+    const right: MainMenuEntry<ENTRY_TYPE>[] = [];
     Object.keys(types).forEach((type) => {
       types[type]
         .sort((a, b) => {
-          if (a instanceof Separator || b instanceof Separator) {
+          if (!Array.isArray(a) || !Array.isArray(b)) {
             return DOWN;
           }
-          const a1 = a[NAME].replace(unsortable, '');
-          const b1 = b[NAME].replace(unsortable, '');
+          const a1 = String(a[VALUE]).replace(unsortable, '');
+          const b1 = String(b[VALUE]).replace(unsortable, '');
           if (a1 > b1) {
             return UP;
           }
           return DOWN;
         })
         .forEach((i) => {
-          out.push({
-            entry: i,
+          right.push({
+            entry: i as MenuEntry,
             type: type,
           });
         });
     });
-    const pinned = entries.map((i) => ({
+    const left = entries.map((i) => ({
       entry: i,
       type: (i[VALUE] as PinnedItemDTO).script,
-    })) as MainMenuEntry[];
-    const result = await this.promptService.menu({
+    })) as MainMenuEntry<ENTRY_TYPE>[];
+    const result = await this.promptService.menu<ENTRY_TYPE>({
       keyMap: {},
-      left: pinned,
+      left,
       leftHeader: 'Pinned',
-      right: out,
+      right,
       value: this.last,
     });
     this.last = result;

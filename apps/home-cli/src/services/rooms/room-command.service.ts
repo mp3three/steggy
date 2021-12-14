@@ -7,6 +7,7 @@ import {
   PromptEntry,
   PromptService,
   Repl,
+  ToMenuEntry,
 } from '@ccontour/tty';
 import {
   AutoLogService,
@@ -72,8 +73,8 @@ export class RoomCommandService {
 
   public async exec(): Promise<void> {
     const rooms = await this.list();
-    let room = await this.promptService.menuSelect<RoomDTO | string>(
-      [
+    let room = await this.promptService.menu<RoomDTO | string>({
+      right: ToMenuEntry([
         ...this.promptService.conditionalEntries(!IsEmpty(rooms), [
           new inquirer.Separator(chalk.white`Existing rooms`),
           ...(rooms
@@ -85,12 +86,12 @@ export class RoomCommandService {
         ]),
         new inquirer.Separator(chalk.white`Actions`),
         [`${ICONS.CREATE}Create`, 'create'],
-      ],
-      `Pick room`,
-      this.lastRoom
+      ]),
+      rightHeader: `Pick room`,
+      value: this.lastRoom
         ? rooms.find(({ _id }) => _id === this.lastRoom)
         : undefined,
-    );
+    });
     if (room === DONE) {
       return;
     }
@@ -181,8 +182,8 @@ export class RoomCommandService {
     console.log();
 
     room.save_states ??= [];
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         new inquirer.Separator(chalk.white`Maintenance`),
         [`${ICONS.ROUTINE}Routines`, 'routines'],
         [`${ICONS.STATE_MANAGER}State Manager`, 'states'],
@@ -197,10 +198,10 @@ export class RoomCommandService {
           ]`${ICONS.PIN}Pin`,
           'pin',
         ],
-      ],
-      `Action`,
-      defaultAction,
-    );
+      ]),
+      rightHeader: `Action`,
+      value: defaultAction,
+    });
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({
@@ -325,8 +326,8 @@ export class RoomCommandService {
   }
 
   private async roomEntities(room: RoomDTO): Promise<RoomDTO> {
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         ...this.promptService.conditionalEntries(!IsEmpty(room.entities), [
           new inquirer.Separator(chalk.white`Manipulate`),
           ...(room.entities.map(({ entity_id }) => [
@@ -337,9 +338,9 @@ export class RoomCommandService {
           [`${ICONS.DELETE}Remove`, 'remove'],
         ]),
         [`${ICONS.CREATE}Add`, 'add'],
-      ],
-      `Room entities`,
-    );
+      ]),
+      rightHeader: `Room entities`,
+    });
     if (action === DONE) {
       return room;
     }
@@ -381,8 +382,8 @@ export class RoomCommandService {
       this.logger.warn(`No current groups in room`);
     }
     const allGroups = await this.groupCommand.list();
-    const action = await this.promptService.menuSelect<GroupDTO>(
-      [
+    const action = await this.promptService.menu<GroupDTO>({
+      right: ToMenuEntry([
         [`${ICONS.RENAME}Update`, 'update'],
         ...this.promptService.conditionalEntries(!IsEmpty(room.groups), [
           new inquirer.Separator(chalk.white(`Current groups`)),
@@ -393,9 +394,9 @@ export class RoomCommandService {
               group,
             ]) as PromptEntry<GroupDTO>[]),
         ]),
-      ],
-      `Room groups`,
-    );
+      ]),
+      rightHeader: `Room groups`,
+    });
     switch (action) {
       case DONE:
         return;

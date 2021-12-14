@@ -1,4 +1,4 @@
-import { DONE, ICONS, PromptService, Repl } from '@ccontour/tty';
+import { DONE, ICONS, PromptService, Repl, ToMenuEntry } from '@ccontour/tty';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
@@ -16,8 +16,8 @@ export class ServerControlService {
   ) {}
 
   public async exec(defaultAction: string): Promise<void> {
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         new inquirer.Separator(chalk.white`Configuration validation`),
         [`Check configuration yaml`, 'check'],
         new inquirer.Separator(chalk.white`Server management`),
@@ -37,10 +37,10 @@ export class ServerControlService {
         ['Scripts', 'script'],
         ['Timer', 'timer'],
         ['Zones', 'zone'],
-      ],
-      `Command`,
-      defaultAction,
-    );
+      ]),
+      rightHeader: `Command`,
+      value: defaultAction,
+    });
     switch (action) {
       case DONE:
         return;

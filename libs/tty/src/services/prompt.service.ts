@@ -284,7 +284,7 @@ export class PromptService {
   }
 
   public async menu<T extends unknown = string>(
-    options: MainMenuOptions,
+    options: MainMenuOptions<T>,
   ): Promise<T | string> {
     options.keyMap ??= {
       d: ['Done', DONE],
@@ -294,21 +294,9 @@ export class PromptService {
         ...options,
         name,
         type: 'mainMenu',
-      } as MainMenuOptions,
+      } as MainMenuOptions<T>,
     ]);
     return result;
-  }
-
-  public async menuSelect<T extends unknown = string>(
-    options: PromptEntry<T>[],
-    message: string,
-    defaultValue?: string | T,
-  ): Promise<T | string> {
-    return await this.pickOne<T>(
-      message,
-      [...options, new inquirer.Separator(), [`${ICONS.BACK}Done`, DONE as T]],
-      defaultValue,
-    );
   }
 
   public async number(

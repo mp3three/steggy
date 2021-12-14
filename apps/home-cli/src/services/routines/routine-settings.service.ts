@@ -1,5 +1,5 @@
 import { RoutineDTO } from '@ccontour/controller-logic';
-import { DONE, ICONS, PromptService } from '@ccontour/tty';
+import { DONE, ICONS, PromptService, ToMenuEntry } from '@ccontour/tty';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 
 import { RoutineService } from './routine.service';
@@ -17,18 +17,18 @@ export class RoutineSettingsService {
     routine: RoutineDTO,
     defaultAction?: string,
   ): Promise<RoutineDTO> {
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [
           routine.sync
             ? `${ICONS.SWAP}Run commands in parallel`
             : `${ICONS.SWAP}Run commands in series`,
           `sync`,
         ],
-      ],
-      `Manage settings`,
-      defaultAction,
-    );
+      ]),
+      rightHeader: `Manage settings`,
+      value: defaultAction,
+    });
     switch (action) {
       case DONE:
         return routine;

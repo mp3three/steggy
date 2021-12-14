@@ -12,6 +12,7 @@ import {
   PinnedItemService,
   PromptEntry,
   PromptService,
+  ToMenuEntry,
 } from '@ccontour/tty';
 import {
   AutoLogService,
@@ -110,11 +111,10 @@ export class BaseDomainService {
         ),
       );
     }
-    const action = await this.promptService.menuSelect(
-      options,
-      `Action`,
-      command,
-    );
+    const action = await this.promptService.menu({
+      right: ToMenuEntry(options),
+      value: command,
+    });
     switch (action) {
       case 'describe':
         const state = await this.getState(id);
@@ -266,13 +266,13 @@ export class BaseDomainService {
     const item: RelatedDescriptionDTO = await this.fetchService.fetch({
       url: `/entity/registry/${id}`,
     });
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
         [`${ICONS.DEVICE}Device`, 'device'],
-      ],
-      `Entity basics`,
-    );
+      ]),
+      rightHeader: `Entity basics`,
+    });
     switch (action) {
       case DONE:
         return;
