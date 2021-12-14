@@ -159,16 +159,17 @@ export class RoomStateService {
     this.promptService.scriptHeader(`Room State`);
     await this.header(room, state);
     const action = await this.promptService.menu({
+      keyMap: {
+        d: ['Done', DONE],
+        p: [
+          this.pinnedItems.isPinned('room_state', state.id) ? 'Unpin' : 'Pin',
+          'pin',
+        ],
+      },
       right: ToMenuEntry([
         [`${ICONS.ACTIVATE}Activate`, 'activate'],
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.DELETE}Delete`, 'delete'],
-        [
-          chalk[
-            this.pinnedItems.isPinned('room_state', state.id) ? 'red' : 'green'
-          ]`${ICONS.PIN}Pin`,
-          'pin',
-        ],
       ]),
       rightHeader: `Room state`,
       value: defaultAction,

@@ -260,6 +260,13 @@ export class GroupCommandService implements iRepl {
         break;
     }
     const action = await this.promptService.menu({
+      keyMap: {
+        d: ['Done', DONE],
+        p: [
+          this.pinnedItems.isPinned('group', group._id) ? 'Unpin' : 'Pin',
+          'pin',
+        ],
+      },
       right: ToMenuEntry([
         ...actions,
         new inquirer.Separator(chalk.white`Management`),
@@ -267,12 +274,6 @@ export class GroupCommandService implements iRepl {
         [`${ICONS.ENTITIES}Entities`, 'entities'],
         [`${ICONS.RENAME}Rename`, 'rename'],
         [`${ICONS.STATE_MANAGER}State Manager`, 'state'],
-        [
-          chalk[
-            this.pinnedItems.isPinned('group', group._id) ? 'red' : 'green'
-          ]`${ICONS.PIN}Pin`,
-          `pin`,
-        ],
       ]),
       rightHeader: `Group action / management`,
       value: defaultValue,

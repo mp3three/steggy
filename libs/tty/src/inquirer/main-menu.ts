@@ -106,12 +106,17 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
 
   public _run(callback: tCallback): this {
     this.done = callback;
-    this.value ??= this.side('right')[START].entry[VALUE];
+    const defaultValue = this.side('right')[START].entry[VALUE];
+    this.value ??= defaultValue;
     this.selectedType = this.side('left').some(
       (i) => i.entry[VALUE] === this.value,
     )
       ? 'left'
       : 'right';
+    const contained = this.side().find((i) => i.entry[VALUE] === this.value);
+    if (!contained) {
+      this.value = defaultValue;
+    }
 
     const events = observe(this.rl);
     events.keypress.forEach(this.onKeypress.bind(this));
@@ -310,9 +315,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       const inverse = item.entry[VALUE] === this.value;
       out.push(
         this.selectedType === 'left'
-          ? chalk`{magenta ${prefix}} {${inverse ? 'cyan.inverse' : 'white'} ${
-              item.entry[LABEL]
-            }} `
+          ? chalk`{magenta.bold ${prefix}} {${
+              inverse ? 'cyan.inverse' : 'white'
+            } ${item.entry[LABEL]}} `
           : chalk`{gray ${prefix} ${item.entry[LABEL]}} `,
       );
     });
@@ -352,9 +357,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       const inverse = item.entry[VALUE] === this.value;
       out.push(
         this.selectedType === 'right'
-          ? chalk`{magenta ${prefix}} {${inverse ? 'bgCyan.black' : 'white'}  ${
-              item.entry[LABEL]
-            } }`
+          ? chalk`{magenta.bold ${prefix}} {${
+              inverse ? 'bgCyan.black' : 'white'
+            }  ${item.entry[LABEL]} }`
           : chalk`{gray ${prefix}  ${item.entry[LABEL]} }`,
       );
     });

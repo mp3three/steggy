@@ -183,6 +183,13 @@ export class RoomCommandService {
 
     room.save_states ??= [];
     const action = await this.promptService.menu({
+      keyMap: {
+        d: ['Done', DONE],
+        p: [
+          this.pinnedItems.isPinned('room', room._id) ? 'Unpin' : 'pin',
+          'pin',
+        ],
+      },
       right: ToMenuEntry([
         new inquirer.Separator(chalk.white`Maintenance`),
         [`${ICONS.ROUTINE}Routines`, 'routines'],
@@ -192,12 +199,6 @@ export class RoomCommandService {
         [`${ICONS.GROUPS}Groups`, 'groups'],
         [`${ICONS.RENAME}Rename`, 'rename'],
         [`${ICONS.DELETE}Delete`, 'delete'],
-        [
-          chalk[
-            this.pinnedItems.isPinned('room', room._id) ? 'red' : 'green'
-          ]`${ICONS.PIN}Pin`,
-          'pin',
-        ],
       ]),
       rightHeader: `Action`,
       value: defaultAction,

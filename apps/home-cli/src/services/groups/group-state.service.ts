@@ -304,18 +304,19 @@ export class GroupStateService {
   ): Promise<GroupDTO> {
     this.header(group, state);
     const action = await this.promptService.menu({
+      keyMap: {
+        d: ['Done', DONE],
+        p: [
+          this.pinnedItems.isPinned('group_state', state.id) ? 'Unpin' : 'Pin',
+          'pin',
+        ],
+      },
       right: ToMenuEntry([
         [`${ICONS.ACTIVATE}Activate`, 'activate'],
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.COPY}Copy to another group`, 'copyTo'],
         [`${ICONS.DELETE}Delete`, 'delete'],
-        [
-          chalk[
-            this.pinnedItems.isPinned('group_state', state.id) ? 'red' : 'green'
-          ]`${ICONS.PIN}Pin`,
-          'pin',
-        ],
       ]),
       rightHeader: `Group state action`,
       value: defaultAction,
@@ -354,6 +355,7 @@ export class GroupStateService {
           )}`,
         );
         this.promptService.print(dump(state.states));
+        await this.promptService.acknowledge();
         return await this.stateAction(state, group, action);
       case 'delete':
         if (

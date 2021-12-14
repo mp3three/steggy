@@ -163,6 +163,13 @@ export class RoutineService {
   ): Promise<void> {
     await this.header(routine);
     const action = await this.promptService.menu({
+      keyMap: {
+        d: ['Done', DONE],
+        p: [
+          this.pinnedItems.isPinned('routine', routine._id) ? 'Unpin' : 'Pin',
+          'pin',
+        ],
+      },
       right: ToMenuEntry([
         [`${ICONS.ACTIVATE}Manual activate`, 'activate'],
         [`${ICONS.DELETE}Delete`, 'delete'],
@@ -170,12 +177,6 @@ export class RoutineService {
         [`${ICONS.EVENT}Activation Events`, 'events'],
         [`${ICONS.COMMAND}Commands`, 'command'],
         [`${ICONS.CONFIGURE}Settings`, 'settings'],
-        [
-          chalk[
-            this.pinnedItems.isPinned('routine', routine._id) ? 'red' : 'green'
-          ]`${ICONS.PIN}Pin`,
-          'pin',
-        ],
       ]),
       rightHeader: `Manage routine`,
       value: defaultAction,

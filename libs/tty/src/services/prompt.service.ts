@@ -58,7 +58,7 @@ export class PromptService {
    * Good for giving the user time to read a message before a screen clear happens
    */
   public async acknowledge(): Promise<void> {
-    await inquirer.prompt([{ type: 'acknowledge' }]);
+    await inquirer.prompt([{ name, type: 'acknowledge' }]);
   }
 
   /**
