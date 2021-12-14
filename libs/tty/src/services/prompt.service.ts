@@ -26,6 +26,7 @@ import {
   SECONDARY_HEADER_FONT,
 } from '../config';
 import { DONE, ICONS, PromptMenuItems } from '../contracts';
+import { MainMenuOptions } from '../inquirer';
 
 const name = `result`;
 export type PROMPT_WITH_SHORT = { name: string; short: string };
@@ -280,6 +281,22 @@ export class PromptService {
       }
       return item;
     });
+  }
+
+  public async menu<T extends unknown = string>(
+    options: MainMenuOptions,
+  ): Promise<T | string> {
+    options.keyMap ??= {
+      d: ['Done', DONE],
+    };
+    const { result } = await inquirer.prompt([
+      {
+        ...options,
+        name,
+        type: 'mainMenu',
+      } as MainMenuOptions,
+    ]);
+    return result;
   }
 
   public async menuSelect<T extends unknown = string>(

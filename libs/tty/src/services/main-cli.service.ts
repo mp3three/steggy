@@ -15,6 +15,7 @@ import Separator from 'inquirer/lib/objects/separator';
 import { DEFAULT_HEADER_FONT } from '../config';
 import { iRepl, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
+import { MainMenuEntry, MainMenuOptions } from '../inquirer';
 import { PinnedItemDTO } from '.';
 import { PinnedItemService } from './pinned-item.service';
 import { PromptEntry, PromptService } from './prompt.service';
@@ -81,7 +82,7 @@ export class MainCLIService implements iRepl {
         }
       },
     );
-    const out: { entry: PromptEntry; type: string }[] = [];
+    const out: MainMenuEntry[] = [];
     Object.keys(types).forEach((type) => {
       types[type]
         .sort((a, b) => {
@@ -102,19 +103,17 @@ export class MainCLIService implements iRepl {
           });
         });
     });
-
-    const { result } = await inquirer.prompt([
-      {
-        menu: out,
-        name: 'result',
-        pinned: entries.map((i) => ({
-          entry: i,
-          type: (i[VALUE] as PinnedItemDTO).script,
-        })),
-        type: 'mainMenu',
-        value: this.last,
-      },
-    ]);
+    const pinned = entries.map((i) => ({
+      entry: i,
+      type: (i[VALUE] as PinnedItemDTO).script,
+    })) as MainMenuEntry[];
+    const result = await this.promptService.menu({
+      keyMap: {},
+      left: pinned,
+      leftHeader: 'Pinned',
+      right: out,
+      value: this.last,
+    });
     this.last = result;
     await this.cacheService.set(CACHE_KEY, result);
     return result;

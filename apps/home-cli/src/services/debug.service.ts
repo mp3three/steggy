@@ -66,21 +66,20 @@ For loop example getting entity values in the weather domain:
 {%- endfor %}.`;
 
   public async exec(defaultAction?: string): Promise<void> {
-    const action = await this.promptService.menuSelect(
-      [
-        [`Manage configuration`, 'configure'],
-        [`Controller version`, 'version'],
-        [`Light Manager Cache`, 'lightManagerCache'],
-        [`Home Assistant Config`, 'hassConfig'],
-        [`Render template`, 'renderTemplate'],
-        [`Send template notification`, 'sendNotification'],
-        [`Restart Home Assistant`, 'reboot'],
-        [`Persistent notifications`, 'notifications'],
-        [`Update checker`, 'update'],
+    const action = await this.promptService.menu({
+      right: [
+        { entry: [`Manage configuration`, 'configure'], type: '' },
+        { entry: [`Controller version`, 'version'], type: '' },
+        { entry: [`Light Manager Cache`, 'lightManagerCache'], type: '' },
+        { entry: [`Home Assistant Config`, 'hassConfig'], type: '' },
+        { entry: [`Render template`, 'renderTemplate'], type: '' },
+        { entry: [`Send template notification`, 'sendNotification'], type: '' },
+        { entry: [`Restart Home Assistant`, 'reboot'], type: '' },
+        { entry: [`Persistent notifications`, 'notifications'], type: '' },
+        { entry: [`Update checker`, 'update'], type: '' },
       ],
-      'Debug action',
-      defaultAction,
-    );
+      value: defaultAction,
+    });
 
     switch (action) {
       case DONE:
