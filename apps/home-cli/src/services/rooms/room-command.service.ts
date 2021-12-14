@@ -183,21 +183,31 @@ export class RoomCommandService {
     console.log();
 
     room.save_states ??= [];
+    const [routines, states, entities, groups] = [
+      [`${ICONS.ROUTINE}Routines`, 'routines'],
+      [`${ICONS.STATE_MANAGER}State Manager`, 'states'],
+      [`${ICONS.ENTITIES}Entities`, 'entities'],
+      [`${ICONS.GROUPS}Groups`, 'groups'],
+    ] as PromptEntry[];
     const action = await this.promptService.menu({
       keyMap: {
         d: ['Done', DONE],
+        e: entities,
+        g: groups,
         p: [
           this.pinnedItems.isPinned('room', room._id) ? 'Unpin' : 'pin',
           'pin',
         ],
+        r: routines,
+        s: states,
       },
       right: ToMenuEntry([
         new inquirer.Separator(chalk.white`Maintenance`),
-        [`${ICONS.ROUTINE}Routines`, 'routines'],
-        [`${ICONS.STATE_MANAGER}State Manager`, 'states'],
+        routines,
+        states,
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
-        [`${ICONS.ENTITIES}Entities`, 'entities'],
-        [`${ICONS.GROUPS}Groups`, 'groups'],
+        entities,
+        groups,
         [`${ICONS.RENAME}Rename`, 'rename'],
         [`${ICONS.DELETE}Delete`, 'delete'],
       ]),

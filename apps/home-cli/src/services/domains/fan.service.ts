@@ -95,12 +95,12 @@ export class FanService extends SwitchService {
     });
   }
 
-  protected getMenuOptions(id: string): PromptEntry[] {
+  protected getMenuOptions(): PromptEntry[] {
     return [
       [`${ICONS.UP}Speed Up`, 'fanSpeedUp'],
       [`${ICONS.DOWN}Speed Down`, 'fanSpeedDown'],
       [`${ICONS.COMMAND}Set speed`, 'setSpeed'],
-      ...super.getMenuOptions(id),
+      ...super.getMenuOptions(),
     ];
   }
 

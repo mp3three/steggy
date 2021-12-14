@@ -149,8 +149,8 @@ export class LightService extends SwitchService {
       hs_color: swapWith.attributes.hs_color,
     });
   }
-  protected getMenuOptions(id: string): PromptEntry[] {
-    const parent = super.getMenuOptions(id);
+  protected getMenuOptions(): PromptEntry[] {
+    const parent = super.getMenuOptions();
     return [
       ...parent.slice(START, SHIFT_AMOUNT),
       [`${ICONS.CIRCADIAN}Circadian Light`, 'circadianLight'],

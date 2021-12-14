@@ -163,21 +163,31 @@ export class RoutineService {
     defaultAction?: string,
   ): Promise<void> {
     await this.header(routine);
+    const [activate, events, command, settings] = [
+      [`${ICONS.ACTIVATE}Manual activate`, 'activate'],
+      [`${ICONS.EVENT}Activation Events`, 'events'],
+      [`${ICONS.COMMAND}Commands`, 'command'],
+      [`${ICONS.CONFIGURE}Settings`, 'settings'],
+    ] as PromptEntry[];
     const action = await this.promptService.menu({
       keyMap: {
+        a: activate,
+        c: command,
         d: ['Done', DONE],
+        e: events,
         p: [
           this.pinnedItems.isPinned('routine', routine._id) ? 'Unpin' : 'Pin',
           'pin',
         ],
+        s: settings,
       },
       right: ToMenuEntry([
-        [`${ICONS.ACTIVATE}Manual activate`, 'activate'],
+        activate,
         [`${ICONS.DELETE}Delete`, 'delete'],
         [`${ICONS.RENAME}Rename`, 'rename'],
-        [`${ICONS.EVENT}Activation Events`, 'events'],
-        [`${ICONS.COMMAND}Commands`, 'command'],
-        [`${ICONS.CONFIGURE}Settings`, 'settings'],
+        events,
+        command,
+        settings,
       ]),
       rightHeader: `Manage routine`,
       value: defaultAction,

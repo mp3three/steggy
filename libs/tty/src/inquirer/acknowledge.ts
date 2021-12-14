@@ -3,9 +3,7 @@ import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';
 import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
-import { Key } from 'readline';
 
-type KeyDescriptor = { key: Key; value?: string };
 type tCallback = (value?: unknown) => void;
 
 export class AcknowledgePrompt extends Base<Question> {
@@ -34,7 +32,7 @@ export class AcknowledgePrompt extends Base<Question> {
     this.done();
   }
 
-  private onKeypress({ key }: KeyDescriptor): void {
+  private onKeypress(): void {
     this.onEnd();
   }
 

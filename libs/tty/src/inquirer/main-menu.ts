@@ -57,7 +57,7 @@ export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
 
 export interface MainMenuOptions<T = unknown> {
   headerPadding?: number;
-  keyMap?: Record<string, [string, string]>;
+  keyMap?: Record<string, PromptEntry>;
   left?: MainMenuEntry<T>[];
   leftHeader?: string;
   right: MainMenuEntry<T>[];
@@ -182,9 +182,6 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         break;
       case 'right':
         this.onRight();
-        break;
-      case 'h':
-        this.showHelp = true;
         break;
       case 'home':
       case 'pageup':

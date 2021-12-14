@@ -158,8 +158,12 @@ export class RoomStateService {
     this.promptService.clear();
     this.promptService.scriptHeader(`Room State`);
     await this.header(room, state);
+    const [activate] = [
+      [`${ICONS.ACTIVATE}Activate`, 'activate']
+    ] as PromptEntry[]
     const action = await this.promptService.menu({
       keyMap: {
+        a: activate,
         d: ['Done', DONE],
         p: [
           this.pinnedItems.isPinned('room_state', state.id) ? 'Unpin' : 'Pin',
@@ -167,7 +171,7 @@ export class RoomStateService {
         ],
       },
       right: ToMenuEntry([
-        [`${ICONS.ACTIVATE}Activate`, 'activate'],
+        activate,
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.DELETE}Delete`, 'delete'],
       ]),

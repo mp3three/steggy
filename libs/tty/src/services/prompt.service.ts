@@ -286,6 +286,7 @@ export class PromptService {
   public async menu<T extends unknown = string>(
     options: MainMenuOptions<T>,
   ): Promise<T | string> {
+    options.keyMap ??= {};
     options.keyMap ??= {
       d: ['Done', DONE],
     };

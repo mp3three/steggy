@@ -15,6 +15,7 @@ import {
   ToMenuEntry,
 } from '@ccontour/tty';
 import {
+  ARRAY_OFFSET,
   AutoLogService,
   DOWN,
   InjectConfig,
@@ -45,6 +46,7 @@ import { HomeFetchService } from '../home-fetch.service';
 type tDeviceService = DeviceService;
 const HEADER_SEPARATOR = 0;
 const FIRST = 0;
+const HALF = 2;
 
 @Injectable()
 export class BaseDomainService {
@@ -103,7 +105,7 @@ export class BaseDomainService {
     if (!skipHeader) {
       await this.baseHeader(id);
     }
-    const options = this.getMenuOptions(id);
+    const options = this.getMenuOptions();
     if (!(options[HEADER_SEPARATOR] as Separator).line) {
       options.unshift(
         new inquirer.Separator(
@@ -114,6 +116,7 @@ export class BaseDomainService {
     const action = await this.promptService.menu({
       keyMap: {
         d: ['Done', DONE],
+        h: [`${ICONS.HISTORY}History`, 'history'],
         p: [this.pinnedItem.isPinned('entity', id) ? 'Unpin' : 'pin', 'pin'],
         r: ['Refresh', 'refresh'],
       },
@@ -159,7 +162,6 @@ export class BaseDomainService {
     const table = new Table({
       head: keys.map((i) => TitleCase(i)),
     });
-    // console.log(attributes);
     attributes.forEach((i) =>
       table.push(
         keys.map((key) => {
@@ -206,11 +208,21 @@ export class BaseDomainService {
     console.log(
       chalk`${map.get(content.state) ?? ''}{magenta.bold ${
         content.attributes.friendly_name
-      }} {magenta.underline ${id}} {cyan ${content.state}}`,
+      }} {gray ${id}} {cyan ${content.state}}`,
     );
     const keys = Object.keys(content.attributes)
       .filter((i) => !['supported_features', 'friendly_name'].includes(i))
       .sort((a, b) => (a > b ? UP : DOWN));
+    const header = 'Attributes';
+    console.log(
+      chalk` {blue +${''.padEnd(
+        Math.max(...keys.map((i) => i.length)) -
+          Math.ceil(header.length / HALF) +
+          ARRAY_OFFSET,
+        '-',
+      )}>} {bold.blueBright.inverse ${header}}`,
+    );
+
     const max = Math.max(...keys.map((i) => i.length));
     keys.forEach((key) => {
       const item = content.attributes[key];
@@ -238,7 +250,7 @@ export class BaseDomainService {
         value = chalk.green(item);
       }
       console.log(
-        chalk`    {white.bold ${TitleCase(key, false).padStart(
+        chalk` {blue.dim |}   {white.bold ${TitleCase(key, false).padStart(
           max,
           ' ',
         )}}  ${value}`,
@@ -297,7 +309,7 @@ export class BaseDomainService {
     }
   }
 
-  protected getMenuOptions(id: string): PromptEntry[] {
+  protected getMenuOptions(): PromptEntry[] {
     return [
       new inquirer.Separator(chalk.white`Base options`),
       [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
