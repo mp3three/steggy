@@ -1,13 +1,13 @@
 import {
+  AbstractConfig,
   ACTIVE_APPLICATION,
   AutoConfigService,
   AutoLogService,
-  AutomagicalConfig,
-  AutomagicalStringConfig,
   ConfigTypeDTO,
   DOWN,
   InjectLogger,
   SCAN_CONFIG_CONFIGURATION,
+  StringConfig,
   TitleCase,
   UP,
   WorkspaceService,
@@ -49,7 +49,7 @@ export class ConfigBuilderService {
     private readonly promptService: PromptService,
     private readonly configService: AutoConfigService,
   ) {}
-  private config: AutomagicalConfig;
+  private config: AbstractConfig;
   private loadedApplication = '';
 
   /**
@@ -300,7 +300,7 @@ export class ConfigBuilderService {
         break;
       case 'url':
       case 'string':
-        const { metadata } = config as ConfigTypeDTO<AutomagicalStringConfig>;
+        const { metadata } = config as ConfigTypeDTO<StringConfig>;
         result = Array.isArray(metadata.enum)
           ? await this.promptService.pickOne(
               label,

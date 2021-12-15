@@ -3,10 +3,7 @@ import EventEmitter from 'eventemitter3';
 
 import { USE_THIS_CONFIG } from '../contracts';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
-import {
-  ACTIVE_APPLICATION,
-  AutomagicalConfig,
-} from '../contracts/meta/config';
+import { ACTIVE_APPLICATION, AbstractConfig } from '../contracts/meta/config';
 import { RegisterCache } from '../includes';
 import { UtilitiesModule } from '../modules';
 
@@ -17,7 +14,7 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
    */
   globals?: Provider[];
 }
-let useThisConfig: AutomagicalConfig;
+let useThisConfig: AbstractConfig;
 
 /**
  * Intended to extend on the logic of nest's `@Controller` annotation.
@@ -71,6 +68,6 @@ export function ApplicationModule(
     });
   };
 }
-ApplicationModule.useThisConfig = function (config: AutomagicalConfig) {
+ApplicationModule.useThisConfig = function (config: AbstractConfig) {
   useThisConfig = config;
 };
