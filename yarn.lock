@@ -1537,16 +1537,16 @@
     tmp "~0.2.1"
     tslib "^2.3.0"
 
-"@nrwl/nest@13.2.4":
-  version "13.2.4"
-  resolved "https://registry.yarnpkg.com/@nrwl/nest/-/nest-13.2.4.tgz#215ac5519897bdde38ea748bcad01595bec987c0"
-  integrity sha512-xlQ02azS5KZxS8Vxi7q3xoHgoOI0nSVYCeXJnJo1IqfpQLXq5Fl8b0dMytGZJ+k0dcNAapYBrKfBmazxW9b5/w==
+"@nrwl/nest@13.3.6":
+  version "13.3.6"
+  resolved "https://registry.yarnpkg.com/@nrwl/nest/-/nest-13.3.6.tgz#8aa112c050682859f8b275abaf53a971e3ea0288"
+  integrity sha512-70p0PSLfAKmpCfx9c/2i4zfaqTc9UPYOmbTid+4rhRQyr63qoqMnIp1nPURyqPctn3pTK5nukDvT1VjKCn8l5A==
   dependencies:
     "@nestjs/schematics" "^8.0.0"
-    "@nrwl/devkit" "13.2.4"
-    "@nrwl/jest" "13.2.4"
-    "@nrwl/linter" "13.2.4"
-    "@nrwl/node" "13.2.4"
+    "@nrwl/devkit" "13.3.6"
+    "@nrwl/jest" "13.3.6"
+    "@nrwl/linter" "13.3.6"
+    "@nrwl/node" "13.3.6"
 
 "@nrwl/node@13.2.4":
   version "13.2.4"
@@ -1994,15 +1994,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.2.tgz#ee771e2ba4b3dc5b372935d549fd9617bf345b8c"
   integrity sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==
 
-"@types/node@*":
+"@types/node@*", "@types/node@16.11.13":
   version "16.11.13"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.13.tgz#6b71641b81a98c6a538d89892440c06f147edddc"
   integrity sha512-eUXZzHLHoZqj1frtUetNkUetYoJ6X55UmrVnFD4DMhVeAmwLjniZhtBmsRiemQh4uq4G3vUra/Ws/hs9vEvL3Q==
-
-"@types/node@16.11.12":
-  version "16.11.12"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.12.tgz#ac7fb693ac587ee182c3780c26eb65546a1a3c10"
-  integrity sha512-+2Iggwg7PxoO5Kyhvsq9VarmPbIelXP070HMImEpbtGCoyWNINQj4wzjbQCXzdHTRXnqufutJb5KAURZANNBAw==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.1"
