@@ -67,11 +67,12 @@ const SINGLE_ITEM = 1;
 const MAX_SEARCH_SIZE = 50;
 const EMPTY_TEXT = chalk`{magenta   }`;
 const TEMP_TEMPLATE_SIZE = 3;
+const BAR_SIZE = 50;
 
 const HELP_TEXT = [
   ``,
   ``,
-  chalk.dim`{blue ----------------------------------------------------}`,
+  chalk.blue.dim` ${'='.repeat(BAR_SIZE)}`,
   chalk.dim` {blue -} {yellow Arrow keys} to navigate`,
   chalk.dim` {blue -} {yellow Enter} to select`,
   chalk.dim` {blue -} {yellow Page up/down} to move to ends of list`,
@@ -108,16 +109,14 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.done = callback;
     const defaultValue = this.side('right')[START].entry[VALUE];
     this.value ??= defaultValue;
-    this.selectedType = this.side('left').some(
+    const isLeftSide = this.side('left').some(
       (i) => i.entry[VALUE] === this.value,
-    )
-      ? 'left'
-      : 'right';
+    );
+    this.selectedType = isLeftSide ? 'left' : 'right';
     const contained = this.side().find((i) => i.entry[VALUE] === this.value);
     if (!contained) {
       this.value = defaultValue;
     }
-
     const events = observe(this.rl);
     events.keypress.forEach(this.onKeypress.bind(this));
     events.line.forEach(this.onEnd.bind(this));
@@ -204,15 +203,45 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     b.forEach((item, index) => {
       const current = ansiPadEnd(out[index] ?? '', maxA);
       item = ansiPadEnd(item, maxB);
-      // let stripped = current.replace(ansiRegex(), '');
-      // current += stripped.padEnd(maxA).slice(stripped.length);
-      // stripped = item.replace(ansiRegex(), ' ');
-      // item += stripped.padEnd(maxB, ' ').slice(stripped.length);
       const separator =
         index > a.length - ARRAY_OFFSET ? '' : chalk.cyan.dim('|');
       out[index] = chalk`${current}${separator} ${item}`;
     });
     return out;
+  }
+
+  private navigateSearch(key: string): void {
+    const all = this.side();
+    let available = this.filterMenu(all);
+    if (IsEmpty(available)) {
+      available = all;
+    }
+    if (['pageup', 'home'].includes(key)) {
+      this.value = available[START].entry[VALUE];
+      return this.render();
+    }
+    if (['pagedown', 'end'].includes(key)) {
+      this.value = available[available.length - ARRAY_OFFSET].entry[VALUE];
+      return this.render();
+    }
+    const index = available.findIndex(
+      ({ entry }) => entry[VALUE] === this.value,
+    );
+    if (index === NOT_FOUND) {
+      this.value = available[START].entry[VALUE];
+      return this.render();
+    }
+    if (index === START && key === 'up') {
+      this.value = available[available.length - ARRAY_OFFSET].entry[VALUE];
+    } else if (index === available.length - ARRAY_OFFSET && key === 'down') {
+      this.value = available[START].entry[VALUE];
+    } else {
+      this.value =
+        available[key === 'up' ? index - INCREMENT : index + INCREMENT].entry[
+          VALUE
+        ];
+    }
+    return this.render();
   }
 
   private next(): void {
@@ -334,30 +363,18 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       );
       return this.render();
     }
-    if (['up', 'down'].includes(key)) {
-      const all = this.side();
-      let available = this.filterMenu(all);
-      if (IsEmpty(available)) {
-        available = all;
-      }
-      const index = available.findIndex(
-        ({ entry }) => entry[VALUE] === this.value,
-      );
-      if (index === NOT_FOUND) {
-        this.value = available[START].entry[VALUE];
-        return this.render();
-      }
-      this.value =
-        available[key === 'up' ? index - INCREMENT : index + INCREMENT].entry[
-          VALUE
-        ];
-      return this.render();
+    if (['up', 'down', 'home', 'pageup', 'end', 'pagedown'].includes(key)) {
+      this.navigateSearch(key);
     }
     if (key === 'space') {
       this.searchText += ' ';
       return this.render();
     }
     if (key.length > SINGLE_ITEM) {
+      if (typeof this.opt.keyMap[key] !== 'undefined') {
+        this.value = this.opt.keyMap[key][VALUE];
+        this.onEnd();
+      }
       return;
     }
     this.searchText += key;

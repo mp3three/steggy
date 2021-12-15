@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers, woke/all */
+/* eslint-disable @typescript-eslint/no-magic-numbers, woke/all, radar/no-duplicate-string */
 
 import chalk from 'chalk';
 import pino from 'pino';
@@ -23,8 +23,8 @@ const logger = pino({
   },
 });
 export type CONTEXT_COLORS =
-  | 'bgBlue'
-  | 'bgYellow'
+  | 'bgBlue.dim'
+  | 'bgYellow.dim'
   | 'bgGreen'
   | 'bgRed'
   | 'bgMagenta'
@@ -36,8 +36,8 @@ export const highlightContext = (
 const NEST = '@nestjs';
 export const methodColors = new Map<pino.Level, CONTEXT_COLORS>([
   ['trace', 'bgGrey'],
-  ['debug', 'bgBlue'],
-  ['warn', 'bgYellow'],
+  ['debug', 'bgBlue.dim'],
+  ['warn', 'bgYellow.dim'],
   ['error', 'bgRed'],
   ['info', 'bgGreen'],
   ['fatal', 'bgMagenta'],
@@ -230,7 +230,7 @@ export const PrettyNestLogger: Record<
       const [path, routeMethod] = parts.slice(1, -1).split(', ');
       message = prettyFormatMessage(` - [${routeMethod}] {${path}}`);
       method = 'debug';
-      bgColor = 'bgBlue';
+      bgColor = 'bgBlue.dim';
       // if (matches) {
       //   message = message.replace(
       //     matches[0],
@@ -252,7 +252,7 @@ export const PrettyNestLogger: Record<
   },
   warn: (message, context) => {
     logger.warn(
-      `${highlightContext(`${NEST}:${context}`, 'bgYellow')} ${message}`,
+      `${highlightContext(`${NEST}:${context}`, 'bgYellow.dim')} ${message}`,
     );
   },
 };
