@@ -69,7 +69,7 @@
     "ws": "^8.3.0"
   },
   "devDependencies": {
-    "@angular-devkit/architect": "^0.1300.4",
+    "@angular-devkit/architect": "^0.1301.1",
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "7.16.5",
     "@babel/preset-typescript": "7.16.5",
@@ -82,7 +82,7 @@
     "@nrwl/express": "13.3.6",
     "@nrwl/linter": "13.3.6",
     "@nrwl/nest": "13.3.6",
-    "@nrwl/node": "13.2.4",
+    "@nrwl/node": "13.3.6",
     "@nrwl/nx-cloud": "13.0.0",
     "@nrwl/tao": "13.3.6",
     "@nrwl/workspace": "13.3.6",
@@ -107,7 +107,7 @@
     "@types/uuid": "^8.3.3",
     "@types/ws": "^8.2.2",
     "@typescript-eslint/eslint-plugin": "^5.6.0",
-    "@typescript-eslint/parser": "5.6.0",
+    "@typescript-eslint/parser": "5.7.0",
     "babel-loader": "^8.2.3",
     "eslint": "7.32.0",
     "eslint-config-prettier": "8.3.0",
