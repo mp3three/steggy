@@ -1,6 +1,6 @@
 import {
-  AutoLogService,
   AbstractConfig,
+  AutoLogService,
   filterUnique,
   IsEmpty,
   PACKAGE_FILE,

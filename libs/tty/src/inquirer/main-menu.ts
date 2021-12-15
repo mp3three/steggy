@@ -14,6 +14,7 @@ import {
 } from '@for-science/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
+import fuzzy from 'fuzzysort';
 import { Question } from 'inquirer';
 import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
@@ -65,6 +66,7 @@ const DEFAULT_HEADER_PADDING = 4;
 const SINGLE_ITEM = 1;
 const MAX_SEARCH_SIZE = 50;
 const EMPTY_TEXT = chalk`{magenta   }`;
+const TEMP_TEMPLATE_SIZE = 3;
 
 const HELP_TEXT = [
   ``,
@@ -129,6 +131,72 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     const list = this.side();
     this.value = list[list.length - ARRAY_OFFSET].entry[VALUE];
   }
+
+  private filterMenu(data: MainMenuEntry[]): MainMenuEntry[] {
+    const entries = data.map((i) => ({
+      label: i.entry[LABEL],
+      value: i.entry[VALUE],
+    }));
+    const fuzzyResult = fuzzy.go(this.searchText, entries, { key: 'label' });
+    const highlighted = fuzzyResult.map((result) => {
+      const { target } = result;
+      const item = data.find((option) => {
+        return typeof option === 'string'
+          ? option === target
+          : option.entry[LABEL] === target;
+      });
+      return {
+        ...item,
+        entry: [this.highlight(result), item.entry[VALUE]],
+      } as MainMenuEntry;
+    });
+    const contained = highlighted.some(
+      ({ entry }) => entry[VALUE] === this.value,
+    );
+    if (!contained && !IsEmpty(highlighted)) {
+      this.value = highlighted[START].entry[VALUE];
+    }
+    return highlighted;
+  }
+
+  private highlight(result) {
+    const open = '{'.repeat(TEMP_TEMPLATE_SIZE);
+    const close = '}'.repeat(TEMP_TEMPLATE_SIZE);
+    let highlighted = '';
+    let matchesIndex = 0;
+    let opened = false;
+    const { target, indexes } = result;
+    for (let i = START; i < target.length; i++) {
+      const char = target[i];
+      if (indexes[matchesIndex] === i) {
+        matchesIndex++;
+        if (!opened) {
+          opened = true;
+          highlighted += open;
+        }
+        if (matchesIndex === indexes.length) {
+          highlighted += char + close + target.slice(i + INCREMENT);
+          break;
+        }
+        highlighted += char;
+        continue;
+      }
+      if (opened) {
+        opened = false;
+        highlighted += close;
+      }
+      highlighted += char;
+    }
+    return highlighted.replace(
+      new RegExp(`${open}(.*?)${close}`, 'g'),
+      (i) =>
+        chalk.bgBlueBright`${i.slice(
+          TEMP_TEMPLATE_SIZE,
+          TEMP_TEMPLATE_SIZE * INVERT_VALUE,
+        )}`,
+    );
+  }
+
   private mergeLines(a: string[], b: string[]): string[] {
     const out = [...a];
     const maxA = ansiMaxLength(a);
@@ -177,6 +245,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     const mixed = key.name ?? key.sequence;
     if (key.ctrl && mixed === 'f') {
       this.mode = this.mode === 'find' ? 'select' : 'find';
+      this.searchText = '';
       this.render();
       return;
     }
@@ -265,6 +334,25 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       );
       return this.render();
     }
+    if (['up', 'down'].includes(key)) {
+      const all = this.side();
+      let available = this.filterMenu(all);
+      if (IsEmpty(available)) {
+        available = all;
+      }
+      const index = available.findIndex(
+        ({ entry }) => entry[VALUE] === this.value,
+      );
+      if (index === NOT_FOUND) {
+        this.value = available[START].entry[VALUE];
+        return this.render();
+      }
+      this.value =
+        available[key === 'up' ? index - INCREMENT : index + INCREMENT].entry[
+          VALUE
+        ];
+      return this.render();
+    }
     if (key === 'space') {
       this.searchText += ' ';
       return this.render();
@@ -308,10 +396,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       : this.searchText;
     const out = [
       chalk` {green >} {cyan Search} `,
-      chalk.bgWhite.black` ${ansiPadEnd(searchText, MAX_SEARCH_SIZE).replace(
-        ' ',
-        chalk.bgGray(' '),
-      )} `,
+      chalk.bgWhite.black` ${ansiPadEnd(searchText, MAX_SEARCH_SIZE)} `,
       ` `,
       ...this.renderSide(undefined, false),
     ];
@@ -347,7 +432,10 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     header = true,
   ): string[] {
     const out: string[] = [''];
-    const menu = this.side(side);
+    let menu = this.side(side);
+    if (this.mode === 'find' && !IsEmpty(this.searchText)) {
+      menu = this.filterMenu(menu);
+    }
     const maxType = ansiMaxLength(menu.map(({ type }) => type));
     let last = '';
     menu.forEach((item) => {
@@ -371,7 +459,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       out.push(
         this.selectedType === side
           ? chalk`{magenta.bold ${prefix}} {${
-              inverse ? 'bgCyan.black' : 'white'
+              inverse ? 'bgCyanBright.black' : 'white'
             }  ${item.entry[LABEL]} }`
           : chalk`{gray ${prefix}  ${item.entry[LABEL]} }`,
       );
@@ -399,7 +487,10 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     return out;
   }
 
-  private side(side: 'left' | 'right' = this.selectedType, noRecurse = false) {
+  private side(
+    side: 'left' | 'right' = this.selectedType,
+    noRecurse = false,
+  ): MainMenuEntry[] {
     if (this.mode === 'find' && !noRecurse) {
       return [...this.side('right', true), ...this.side('left', true)];
     }

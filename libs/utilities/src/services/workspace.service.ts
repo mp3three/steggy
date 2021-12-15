@@ -5,6 +5,7 @@ import { homedir } from 'os';
 import { dirname, join } from 'path';
 import { cwd } from 'process';
 
+import { LIB_UTILS } from '..';
 import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
@@ -19,6 +20,8 @@ import {
   PackageJsonDTO,
   RepoMetadataDTO,
 } from '../contracts';
+import { InjectLogger } from '../decorators/injectors/inject-logger.decorator';
+import { AutoLogService } from './auto-log.service';
 
 /**
  * The workspace file is def not getting out into any builds, seems like a reasonably unique name
@@ -28,8 +31,11 @@ const isDevelopment = existsSync(join(cwd(), 'for-science.code-workspace'));
 @Injectable()
 export class WorkspaceService {
   constructor(
+    private readonly logger: AutoLogService,
     @Inject(ACTIVE_APPLICATION) private readonly application: symbol,
-  ) {}
+  ) {
+    logger.setContext(LIB_UTILS, WorkspaceService);
+  }
   public IS_DEVELOPMENT = isDevelopment;
   /**
    * metadata.json
@@ -187,12 +193,15 @@ export class WorkspaceService {
           version: '0.0.0',
         };
     const { projects } = this.workspace;
+    this.logger.info(`Loading project metadata`);
     Object.keys(projects).forEach((key) => {
       const path = this.path(key, 'metadata');
       if (!existsSync(path)) {
         return;
       }
+      // this.logg
       const data = JSON.parse(readFileSync(path, 'utf-8'));
+      this.logger.debug(` - {${key}}`);
       this.METADATA.set(key, data);
     });
   }
@@ -215,6 +224,7 @@ export class WorkspaceService {
       ),
     );
     const { projects } = this.workspace;
+    this.logger.info(`Loading workspace`);
     Object.keys(projects).forEach((key) => {
       // Shh... this is actually a string before this point
       const basePath = isDevelopment
@@ -224,17 +234,20 @@ export class WorkspaceService {
       if (!existsSync(path)) {
         return;
       }
+      this.logger.debug(` - {${key}}`);
       projects[key] = JSON.parse(readFileSync(path, 'utf-8'));
     });
   }
 
   private loadPackages(): void {
+    this.logger.info(`Loading package info`);
     Object.keys(this.workspace.projects).forEach((project) => {
       const packageFile = this.path(project, 'package');
       const exists = existsSync(packageFile);
       if (!exists) {
         return;
       }
+      this.logger.debug(` - {${project}}`);
       const data = JSON.parse(readFileSync(packageFile, 'utf-8'));
       this.PACKAGES.set(project, data);
     });

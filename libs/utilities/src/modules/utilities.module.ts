@@ -94,6 +94,6 @@ export class UtilitiesModule {
 
   protected configure(): void {
     this.discoveryService.load();
-    this.logger.debug(`Logger contexts loaded`);
+    this.logger.info(`Logger contexts initialized`);
   }
 }

@@ -204,6 +204,8 @@ export const PrettyNestLogger: Record<
     );
   },
   log: (message, context) => {
+    let method = 'debug';
+    let bgColor = 'bgGreen';
     context = `${NEST}:${context}`;
     if (context === `${NEST}:InstanceLoader`) {
       message = prettyFormatMessage(
@@ -225,8 +227,10 @@ export const PrettyNestLogger: Record<
     }
     if (context === `${NEST}:RouterExplorer`) {
       const [parts] = message.match(new RegExp('(\\{[^\\]]+\\})'));
-      const [path, method] = parts.slice(1, -1).split(', ');
-      message = prettyFormatMessage(` - [${method}] {${path}}`);
+      const [path, routeMethod] = parts.slice(1, -1).split(', ');
+      message = prettyFormatMessage(` - [${routeMethod}] {${path}}`);
+      method = 'debug';
+      bgColor = 'bgBlue';
       // if (matches) {
       //   message = message.replace(
       //     matches[0],
@@ -238,7 +242,9 @@ export const PrettyNestLogger: Record<
       //   [`[${parts[0]}]`, parts[1]].join(' ').slice(0, -1),
       // );
     }
-    logger.info(`${highlightContext(context, 'bgGreen')} ${message}`);
+    logger[method](
+      `${highlightContext(context, bgColor as CONTEXT_COLORS)} ${message}`,
+    );
   },
 
   verbose: (message, context) => {
