@@ -8,6 +8,7 @@ import { domain, HASS_DOMAINS } from '@ccontour/home-assistant';
 import {
   DONE,
   ICONS,
+  IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
@@ -124,9 +125,10 @@ export class RoomStateService {
       ]),
       rightHeader: `Pick state`,
     });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
-      case DONE:
-        return room;
       case 'create':
         await this.build(room);
         room = await this.roomService.get(room._id);
@@ -178,6 +180,9 @@ export class RoomStateService {
       rightHeader: `Room state`,
       value: defaultAction,
     });
+    if (IsDone(action)) {
+      return room;
+    }
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({
@@ -187,8 +192,6 @@ export class RoomStateService {
           script: 'room_state',
         });
         return await this.processState(room, state, action);
-      case DONE:
-        return room;
       case 'activate':
         await this.fetchService.fetch({
           method: `post`,

@@ -9,6 +9,7 @@ import {
   DONE,
   ICONS,
   iRepl,
+  IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
@@ -142,6 +143,9 @@ export class GroupCommandService implements iRepl {
   public async exec(): Promise<void> {
     const groups = await this.list();
     const action = await this.promptService.menu<GroupDTO>({
+      keyMap: {
+        d: ['Done', DONE],
+      },
       right: ToMenuEntry([
         ...this.promptService.conditionalEntries(
           !IsEmpty(groups),
@@ -285,6 +289,9 @@ export class GroupCommandService implements iRepl {
       rightHeader: `Group action / management`,
       value: defaultValue,
     });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({
@@ -430,9 +437,10 @@ export class GroupCommandService implements iRepl {
       ]),
       rightHeader: `Entity actions`,
     });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
-      case DONE:
-        return group;
       case 'add':
         group.entities = [
           ...group.entities,

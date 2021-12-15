@@ -3,6 +3,7 @@ import { HASS_DOMAINS } from '@ccontour/home-assistant';
 import {
   DONE,
   ICONS,
+  IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
@@ -75,6 +76,9 @@ export class RoomCommandService {
   public async exec(): Promise<void> {
     const rooms = await this.list();
     let room = await this.promptService.menu<RoomDTO | string>({
+      keyMap: {
+        d: ['Done', DONE],
+      },
       right: ToMenuEntry([
         ...this.promptService.conditionalEntries(!IsEmpty(rooms), [
           new inquirer.Separator(chalk.white`Existing rooms`),
@@ -93,7 +97,7 @@ export class RoomCommandService {
         ? rooms.find(({ _id }) => _id === this.lastRoom)
         : undefined,
     });
-    if (room === DONE) {
+    if (IsDone(room)) {
       return;
     }
     if (room === 'create') {
@@ -214,6 +218,9 @@ export class RoomCommandService {
       rightHeader: `Action`,
       value: defaultAction,
     });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({
@@ -249,8 +256,6 @@ export class RoomCommandService {
           method: 'delete',
           url: `/room/${room._id}`,
         });
-        return;
-      case DONE:
         return;
       case 'describe':
         console.log(encode(room));
@@ -353,7 +358,7 @@ export class RoomCommandService {
       ]),
       rightHeader: `Room entities`,
     });
-    if (action === DONE) {
+    if (IsDone(action)) {
       return room;
     }
     if (action === 'add') {

@@ -1,5 +1,5 @@
 import { EcobeeClimateStateDTO } from '@ccontour/home-assistant';
-import { DONE, PromptEntry, ToMenuEntry } from '@ccontour/tty';
+import { DONE, IsDone, PromptEntry, ToMenuEntry } from '@ccontour/tty';
 import { TitleCase } from '@ccontour/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
@@ -43,7 +43,7 @@ export class ClimateService extends SwitchService {
       ),
       rightHeader: `Set fan mode`,
     });
-    if (mode === DONE) {
+    if (IsDone(mode)) {
       return;
     }
     await this.fetchService.fetch({
@@ -72,7 +72,7 @@ export class ClimateService extends SwitchService {
       ),
       rightHeader: `Set HVAC mode`,
     });
-    if (mode !== DONE) {
+    if (IsDone(mode)) {
       return;
     }
     await this.fetchService.fetch({
@@ -92,7 +92,7 @@ export class ClimateService extends SwitchService {
       ),
       rightHeader: `Set preset mode`,
     });
-    if (mode === DONE) {
+    if (IsDone(mode)) {
       return;
     }
     await this.fetchService.fetch({
@@ -112,7 +112,7 @@ export class ClimateService extends SwitchService {
       ),
       rightHeader: `Set swing mode`,
     });
-    if (mode === DONE) {
+    if (IsDone(mode)) {
       return;
     }
     await this.fetchService.fetch({

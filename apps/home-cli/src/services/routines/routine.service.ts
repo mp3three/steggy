@@ -10,6 +10,7 @@ import {
 import {
   DONE,
   ICONS,
+  IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
@@ -64,7 +65,15 @@ export class RoutineService {
   }
 
   public async exec(): Promise<void> {
-    const list = await this.list();
+    const list = await this.list({
+      filters: new Set([
+        {
+          field: 'room',
+          // eslint-disable-next-line unicorn/no-null
+          value: null,
+        },
+      ]),
+    });
     let action = await this.promptService.pickOne<RoutineDTO | string>(
       `Pick routine`,
       [
@@ -144,7 +153,7 @@ export class RoutineService {
       ]),
       rightHeader: `Pick routine`,
     });
-    if (action === DONE) {
+    if (IsDone(action)) {
       return;
     }
     if (action === 'create') {
@@ -192,6 +201,9 @@ export class RoutineService {
       rightHeader: `Manage routine`,
       value: defaultAction,
     });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({
@@ -203,7 +215,6 @@ export class RoutineService {
       case 'settings':
         await this.settings.process(routine);
         return await this.processRoutine(routine, action);
-
       case 'activate':
         await this.promptActivate(routine);
         return await this.processRoutine(routine, action);
@@ -253,9 +264,10 @@ export class RoutineService {
       ]),
       rightHeader: `When to activate`,
     });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
-      case DONE:
-        return;
       case 'immediate':
         await this.fetchService.fetch({
           method: 'post',

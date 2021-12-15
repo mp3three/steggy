@@ -1,4 +1,11 @@
-import { DONE, ICONS, PromptService, Repl, ToMenuEntry } from '@ccontour/tty';
+import {
+  DONE,
+  ICONS,
+  IsDone,
+  PromptService,
+  Repl,
+  ToMenuEntry,
+} from '@ccontour/tty';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
@@ -41,9 +48,10 @@ export class ServerControlService {
       rightHeader: `Command`,
       value: defaultAction,
     });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
-      case DONE:
-        return;
       case 'check':
         await this.checkConfig();
         return await this.exec(action);

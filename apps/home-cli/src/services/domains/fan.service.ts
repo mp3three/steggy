@@ -4,7 +4,7 @@ import {
   RoomEntitySaveStateDTO,
 } from '@ccontour/controller-logic';
 import { FanSpeeds, FanStateDTO } from '@ccontour/home-assistant';
-import { DONE, ICONS, PromptEntry, ToMenuEntry } from '@ccontour/tty';
+import { DONE, ICONS, IsDone, PromptEntry, ToMenuEntry } from '@ccontour/tty';
 import { TitleCase } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
@@ -85,7 +85,7 @@ export class FanService extends SwitchService {
       ),
       rightHeader: 'Fan speed',
     });
-    if (speed === DONE) {
+    if (IsDone(speed)) {
       return;
     }
     await this.fetchService.fetch({

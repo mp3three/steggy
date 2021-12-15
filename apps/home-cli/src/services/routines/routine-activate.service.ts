@@ -10,6 +10,7 @@ import {
 import {
   DONE,
   ICONS,
+  IsDone,
   PromptEntry,
   PromptService,
   ToMenuEntry,
@@ -109,9 +110,10 @@ export class RoutineActivateService {
       ]),
       rightHeader: `Routine activation`,
     });
+    if (IsDone(action)) {
+      return routine;
+    }
     switch (action) {
-      case DONE:
-        return routine;
       case 'edit':
         const updated = await this.build(routine, activate);
         routine.activate = routine.activate.map((i) =>
@@ -158,15 +160,15 @@ export class RoutineActivateService {
       ]),
       rightHeader: `Routine activations`,
     });
-    switch (action) {
-      case DONE:
-        return routine;
-      case 'add':
-        const activate = await this.build(routine);
-        activate.id = uuid();
-        routine.activate.push(activate);
-        routine = await this.routineCommand.update(routine);
-        return await this.processRoutine(routine);
+    if (IsDone(action)) {
+      return routine;
+    }
+    if (action === 'add') {
+      const activate = await this.build(routine);
+      activate.id = uuid();
+      routine.activate.push(activate);
+      routine = await this.routineCommand.update(routine);
+      return await this.processRoutine(routine);
     }
     if (typeof action === 'string') {
       throw new NotImplementedException();

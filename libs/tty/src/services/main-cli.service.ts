@@ -3,14 +3,11 @@ import {
   CacheManagerService,
   DOWN,
   InjectCache,
-  InjectConfig,
   UP,
   VALUE,
 } from '@ccontour/utilities';
 import chalk from 'chalk';
-import figlet, { Fonts } from 'figlet';
 
-import { DEFAULT_HEADER_FONT } from '../config';
 import { iRepl, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
 import { MainMenuEntry, MenuEntry } from '../inquirer';
@@ -31,7 +28,6 @@ type ENTRY_TYPE = string | PinnedItemDTO;
 export class MainCLIService implements iRepl {
   constructor(
     private readonly logger: AutoLogService,
-    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: Fonts,
     private readonly explorer: ReplExplorerService,
     private readonly promptService: PromptService,
     private readonly pinnedItem: PinnedItemService,
@@ -42,10 +38,7 @@ export class MainCLIService implements iRepl {
 
   public async exec(): Promise<void> {
     this.promptService.clear();
-    const header = figlet.textSync('Script List', {
-      font: this.font,
-    });
-    console.log(chalk.cyan(header), '\n');
+    this.promptService.scriptHeader('Script List');
 
     const name = await this.pickOne();
     if (typeof name !== 'string') {
@@ -133,7 +126,7 @@ export class MainCLIService implements iRepl {
     const result = await this.promptService.menu<ENTRY_TYPE>({
       keyMap,
       left,
-      leftHeader: 'Pinned',
+      leftHeader: 'Pinned Items',
       right,
       titleTypes: true,
       value: this.last,

@@ -448,7 +448,14 @@ export class PromptService {
       font: this.font,
     });
     this.clear();
-    console.log(chalk[color](header), '\n');
+    console.log(
+      `\n`,
+      chalk[color](header)
+        .split(`\n`)
+        .map((i) => `  ${i}`)
+        .join(`\n`),
+      '\n',
+    );
     return header.split(`\n`).pop().length;
   }
 

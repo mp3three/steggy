@@ -3,6 +3,7 @@ import { HASS_DOMAINS } from '@ccontour/home-assistant';
 import {
   ColorsService,
   ICONS,
+  IsDone,
   PromptService,
   Repl,
   ToMenuEntry,
@@ -33,6 +34,9 @@ export class AnimationService {
       right: ToMenuEntry([[`Flash`, 'flash']]),
       value: defaultAction,
     });
+    if (IsDone(action)) {
+      return;
+    }
     if (action === 'flash') {
       await this.flash();
       return await this.exec(action);

@@ -1,5 +1,12 @@
 import { HomeAssistantServerLogItem } from '@ccontour/home-assistant';
-import { DONE, ICONS, PromptService, Repl, ToMenuEntry } from '@ccontour/tty';
+import {
+  DONE,
+  ICONS,
+  IsDone,
+  PromptService,
+  Repl,
+  ToMenuEntry,
+} from '@ccontour/tty';
 import { AutoLogService, IsEmpty, TitleCase } from '@ccontour/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
@@ -36,9 +43,10 @@ export class ServerLogsService {
       rightHeader: `Log commands`,
       value: defaultValue,
     });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
-      case DONE:
-        return;
       case 'clear':
         await this.fetchService.fetch({
           method: 'delete',
@@ -74,7 +82,7 @@ export class ServerLogsService {
       ),
       rightHeader: `More details`,
     });
-    if (item === DONE) {
+    if (IsDone(item)) {
       return;
     }
     if (typeof item === 'string') {

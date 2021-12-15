@@ -28,7 +28,7 @@ import { homedir } from 'os';
 import { join } from 'path';
 
 import { ToMenuEntry } from '..';
-import { ICONS } from '../contracts';
+import { ICONS, IsDone } from '../contracts';
 import { PromptEntry, PromptService } from './prompt.service';
 
 const ARGV_APP = 3;
@@ -90,6 +90,9 @@ export class ConfigBuilderService {
         [`${ICONS.SAVE}Save`, 'save'],
       ]),
     });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
       case 'edit':
         await this.buildApplication(application);

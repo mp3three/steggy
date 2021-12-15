@@ -113,5 +113,8 @@ function resolve(filter: FilterDTO) {
   ) {
     filter.operation = FILTER_OPERATIONS.in;
     filter.value = [filter.value as string, false];
+  } else if (filter.value === 'null') {
+    filter.operation = FILTER_OPERATIONS.in;
+    filter.value = [filter.value as string, null];
   }
 }

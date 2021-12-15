@@ -8,6 +8,7 @@ import {
 import {
   DONE,
   ICONS,
+  IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
@@ -328,6 +329,9 @@ export class GroupStateService {
       rightHeader: `Group state action`,
       value: defaultAction,
     });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({

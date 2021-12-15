@@ -8,6 +8,7 @@ import {
 import {
   DONE,
   ICONS,
+  IsDone,
   MDIIcons,
   PinnedItemService,
   PromptEntry,
@@ -123,6 +124,9 @@ export class BaseDomainService {
       right: ToMenuEntry(options),
       value: command,
     });
+    if (IsDone(action)) {
+      return action;
+    }
     switch (action) {
       case 'refresh':
         return await this.processId(id, action);
@@ -208,7 +212,10 @@ export class BaseDomainService {
     console.log(
       chalk`${map.get(content.state) ?? ''}{magenta.bold ${
         content.attributes.friendly_name
-      }} {gray ${id}} {cyan ${content.state}}`,
+      }} {gray ${id}}`,
+    );
+    console.log(
+      chalk` {blue +-> }{inverse.bold.blueBright State} {cyan ${content.state}}`,
     );
     const keys = Object.keys(content.attributes)
       .filter((i) => !['supported_features', 'friendly_name'].includes(i))
@@ -217,7 +224,8 @@ export class BaseDomainService {
     console.log(
       chalk` {blue +${''.padEnd(
         Math.max(...keys.map((i) => i.length)) -
-          Math.ceil(header.length / HALF) +
+          Math.floor(header.length / HALF) -
+          // ? It visually just looks "wrong" without the offset. Opinion
           ARRAY_OFFSET,
         '-',
       )}>} {bold.blueBright.inverse ${header}}`,
@@ -250,7 +258,7 @@ export class BaseDomainService {
         value = chalk.green(item);
       }
       console.log(
-        chalk` {blue.dim |}   {white.bold ${TitleCase(key, false).padStart(
+        chalk` {blue.dim |} {white.bold ${TitleCase(key, false).padStart(
           max,
           ' ',
         )}}  ${value}`,
@@ -292,9 +300,10 @@ export class BaseDomainService {
       ]),
       rightHeader: `Entity basics`,
     });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
-      case DONE:
-        return;
       case 'describe':
         console.log(encode(item));
         return;

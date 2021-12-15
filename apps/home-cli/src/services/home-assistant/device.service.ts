@@ -2,7 +2,14 @@ import {
   DeviceListItemDTO,
   RelatedDescriptionDTO,
 } from '@ccontour/home-assistant';
-import { DONE, ICONS, PromptService, Repl, ToMenuEntry } from '@ccontour/tty';
+import {
+  DONE,
+  ICONS,
+  IsDone,
+  PromptService,
+  Repl,
+  ToMenuEntry,
+} from '@ccontour/tty';
 import { AutoLogService, IsEmpty } from '@ccontour/utilities';
 import { forwardRef, Inject } from '@nestjs/common';
 import { encode } from 'ini';
@@ -68,7 +75,7 @@ export class DeviceService {
       ]),
       value: defaultValue,
     });
-    if (action === DONE) {
+    if (IsDone(action)) {
       return;
     }
     switch (action) {

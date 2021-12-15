@@ -19,6 +19,7 @@ import {
 import {
   DONE,
   ICONS,
+  IsDone,
   PromptEntry,
   PromptService,
   ToMenuEntry,
@@ -304,9 +305,10 @@ export class RoutineCommandService {
       ]),
       rightHeader: `Routine command actions`,
     });
+    if (IsDone(action)) {
+      return routine;
+    }
     switch (action) {
-      case DONE:
-        return routine;
       case 'describe':
         this.promptService.print(dump(command));
         return await this.process(
@@ -353,9 +355,10 @@ export class RoutineCommandService {
       ]),
       rightHeader: `Routine commands`,
     });
+    if (IsDone(action)) {
+      return routine;
+    }
     switch (action) {
-      case DONE:
-        return routine;
       case 'sort':
         routine = await this.sort(routine);
         return await this.processRoutine(routine);

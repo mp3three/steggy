@@ -84,10 +84,10 @@ For loop example getting entity values in the weather domain:
       ]),
       value: defaultAction,
     });
-
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
-      case DONE:
-        return;
       case 'update':
         await this.updateChecker();
         return await this.exec(action);
@@ -245,7 +245,7 @@ For loop example getting entity values in the weather domain:
         [chalk`Update using {red npm}`, `npm`],
       ]),
     });
-    if (action === DONE) {
+    if (IsDone(action)) {
       return;
     }
     if (action === 'npm') {
