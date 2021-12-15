@@ -348,7 +348,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   ): string[] {
     const out: string[] = [''];
     const menu = this.side(side);
-    const maxType = ansiMaxLength(menu);
+    const maxType = ansiMaxLength(menu.map(({ type }) => type));
     let last = '';
     menu.forEach((item) => {
       let prefix = ansiPadEnd(item.type, maxType);

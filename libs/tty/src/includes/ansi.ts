@@ -13,7 +13,7 @@ export function ansiRegex({ onlyFirst = false } = {}) {
   return new RegExp(pattern, onlyFirst ? undefined : 'g');
 }
 
-export function ansiStrip(text: string): string {
+export function ansiStrip(text = ''): string {
   return text.replace(ansiRegex(), '');
 }
 
