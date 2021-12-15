@@ -1,5 +1,5 @@
-// JSON schema at schemas/json/automagical.schema.json
-export class AutomagicalMetadataDTO {
+// JSON schema at schemas/json/metadata.schema.json
+export class RepoMetadataDTO {
   public configuration: Record<string, ConfigItem>;
 }
 export const METADATA_FILE = 'metadata.json';
@@ -9,12 +9,12 @@ export type ConfigItem<T extends AnyConfig = AnyConfig> = {
   description?: string;
 } & T;
 export type AnyConfig =
-  | AutomagicalStringConfig
-  | AutomagicalBooleanConfig
-  | AutomagicalNumberConfig
-  | AutomagicalRecordConfig
-  | AutomagicalPasswordConfig
-  | AutomagicalUrlConfig;
+  | StringConfig
+  | BooleanConfig
+  | NumberConfig
+  | RecordConfig
+  | PasswordConfig
+  | UrlConfig;
 
 class WarnDefault {
   public careful?: boolean;
@@ -22,35 +22,35 @@ class WarnDefault {
   public warnDefault?: boolean;
 }
 
-export class AutomagicalStringConfig extends WarnDefault {
+export class StringConfig extends WarnDefault {
   public default?: string;
   public enum?: string[];
   public type: 'string';
 }
 
-export class AutomagicalBooleanConfig extends WarnDefault {
+export class BooleanConfig extends WarnDefault {
   public default?: boolean;
   public type: 'boolean';
 }
 
-export class AutomagicalNumberConfig extends WarnDefault {
+export class NumberConfig extends WarnDefault {
   public default?: number;
   public type: 'number';
 }
 
-export class AutomagicalPasswordConfig extends WarnDefault {
+export class PasswordConfig extends WarnDefault {
   public type: 'password';
 }
 
-export class AutomagicalUrlConfig extends WarnDefault {
+export class UrlConfig extends WarnDefault {
   public default?: string;
   public type: 'url';
 }
 
-export class AutomagicalRecordConfig extends WarnDefault {
+export class RecordConfig extends WarnDefault {
   public type: 'record';
 }
 
-export class AutomagicalStringArrayConfig extends WarnDefault {
+export class StringArrayConfig extends WarnDefault {
   public type: 'string[]';
 }

@@ -1,4 +1,4 @@
-import { LibraryModule } from '@ccontour/utilities';
+import { LibraryModule } from '@for-science/utilities';
 
 import { LIB_PERSISTENCE } from '../config';
 import { ConnectService, EncryptionService } from '../services';

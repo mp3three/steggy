@@ -1,6 +1,6 @@
-import { domain, HASS_DOMAINS } from '@ccontour/home-assistant';
-import { BaseSchemaDTO } from '@ccontour/persistence';
-import { AutoLogService, ResultControlDTO } from '@ccontour/utilities';
+import { domain, HASS_DOMAINS } from '@for-science/home-assistant';
+import { BaseSchemaDTO } from '@for-science/persistence';
+import { AutoLogService, ResultControlDTO } from '@for-science/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 

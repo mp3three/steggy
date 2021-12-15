@@ -2,16 +2,16 @@ import {
   FanCacheDTO,
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
-} from '@ccontour/controller-logic';
-import { domain, HASS_DOMAINS, HassStateDTO } from '@ccontour/home-assistant';
+} from '@for-science/controller-logic';
+import { domain, HASS_DOMAINS, HassStateDTO } from '@for-science/home-assistant';
 import {
   ICONS,
   iRepl,
   PinnedItemService,
   PromptService,
   Repl,
-} from '@ccontour/tty';
-import { IsEmpty } from '@ccontour/utilities';
+} from '@for-science/tty';
+import { IsEmpty } from '@for-science/utilities';
 
 import {
   BaseDomainService,

@@ -1,4 +1,4 @@
-import { ComparisonDTO, FetchWith, FilterDTO } from '@ccontour/utilities';
+import { ComparisonDTO, FetchWith, FilterDTO } from '@for-science/utilities';
 
 export class WebhookDTO {
   public compareAs: 'text' | 'object';

@@ -3,19 +3,19 @@ import {
   LightingCacheDTO,
   LightManagerService,
   SolarCalcService,
-} from '@ccontour/controller-logic';
+} from '@for-science/controller-logic';
 import {
   HACallService,
   HASocketAPIService,
   HassConfig,
   HassNotificationDTO,
   NotifyDomainService,
-} from '@ccontour/home-assistant';
+} from '@for-science/home-assistant';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
-} from '@ccontour/server';
+} from '@for-science/server';
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 

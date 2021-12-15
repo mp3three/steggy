@@ -1,5 +1,5 @@
-import { RoomEntitySaveStateDTO } from '@ccontour/controller-logic';
-import { ICONS, PromptEntry } from '@ccontour/tty';
+import { RoomEntitySaveStateDTO } from '@for-science/controller-logic';
+import { ICONS, PromptEntry } from '@for-science/tty';
 import { Injectable } from '@nestjs/common';
 import inquirer from 'inquirer';
 

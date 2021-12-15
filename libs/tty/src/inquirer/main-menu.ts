@@ -11,7 +11,7 @@ import {
   TitleCase,
   UP,
   VALUE,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';
@@ -19,16 +19,9 @@ import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
 import { Key } from 'readline';
 
+import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
 import { PromptEntry } from '../services';
 
-function ansiRegex({ onlyFirst = false } = {}) {
-  const pattern = [
-    '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
-    '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))',
-  ].join('|');
-
-  return new RegExp(pattern, onlyFirst ? undefined : 'g');
-}
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 
 type KeyDescriptor = { key: Key; value?: string };
@@ -47,7 +40,7 @@ export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
     if (Array.isArray(i)) {
       out.push({
         entry: i as MenuEntry<T>,
-        type: header.replace(ansiRegex(), ''),
+        type: ansiStrip(header),
       });
       return;
     }
@@ -69,6 +62,7 @@ export interface MainMenuOptions<T = unknown> {
 }
 
 const DEFAULT_HEADER_PADDING = 4;
+const SINGLE_ITEM = 1;
 const MAX_SEARCH_SIZE = 50;
 const EMPTY_TEXT = chalk`{magenta   }`;
 
@@ -137,14 +131,15 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   }
   private mergeLines(a: string[], b: string[]): string[] {
     const out = [...a];
-    const maxA = Math.max(...out.map((i) => i.replace(ansiRegex(), '').length));
-    const maxB = Math.max(...b.map((i) => i.replace(ansiRegex(), '').length));
+    const maxA = ansiMaxLength(a);
+    const maxB = ansiMaxLength(b);
     b.forEach((item, index) => {
-      let current = (out[index] ?? '').padEnd(maxA, ' ');
-      let stripped = current.replace(ansiRegex(), '');
-      current += stripped.padEnd(maxA).slice(stripped.length);
-      stripped = item.replace(ansiRegex(), ' ');
-      item += stripped.padEnd(maxB, ' ').slice(stripped.length);
+      const current = ansiPadEnd(out[index] ?? '', maxA);
+      item = ansiPadEnd(item, maxB);
+      // let stripped = current.replace(ansiRegex(), '');
+      // current += stripped.padEnd(maxA).slice(stripped.length);
+      // stripped = item.replace(ansiRegex(), ' ');
+      // item += stripped.padEnd(maxB, ' ').slice(stripped.length);
       const separator =
         index > a.length - ARRAY_OFFSET ? '' : chalk.cyan.dim('|');
       out[index] = chalk`${current}${separator} ${item}`;
@@ -268,7 +263,17 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         START,
         ARRAY_OFFSET * INVERT_VALUE,
       );
+      return this.render();
     }
+    if (key === 'space') {
+      this.searchText += ' ';
+      return this.render();
+    }
+    if (key.length > SINGLE_ITEM) {
+      return;
+    }
+    this.searchText += key;
+    this.render();
   }
 
   private previous(): void {
@@ -303,9 +308,10 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       : this.searchText;
     const out = [
       chalk` {green >} {cyan Search} `,
-      chalk.bgWhite.black` ${searchText
-        .replace(ansiRegex(), '')
-        .padEnd(MAX_SEARCH_SIZE, ' ')} `,
+      chalk.bgWhite.black` ${ansiPadEnd(searchText, MAX_SEARCH_SIZE).replace(
+        ' ',
+        chalk.bgGray(' '),
+      )} `,
       ` `,
       ...this.renderSide(undefined, false),
     ];
@@ -342,14 +348,10 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   ): string[] {
     const out: string[] = [''];
     const menu = this.side(side);
-    const maxType = Math.max(
-      ...menu.map(({ type }) => type.replace(ansiRegex(), '').length),
-    );
+    const maxType = ansiMaxLength(menu);
     let last = '';
     menu.forEach((item) => {
-      const stripped = item.type.replace(ansiRegex(), '');
-      const padding = stripped.padEnd(maxType, ' ').slice(stripped.length);
-      let prefix = item.type + padding;
+      let prefix = ansiPadEnd(item.type, maxType);
       if (this.opt.titleTypes) {
         prefix = TitleCase(prefix);
       }
@@ -374,7 +376,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
           : chalk`{gray ${prefix}  ${item.entry[LABEL]} }`,
       );
     });
-    const max = Math.max(...out.map((i) => i.replace(ansiRegex(), '').length));
+    const max = ansiMaxLength(out);
     if (header) {
       if (side === 'left') {
         out[FIRST] = chalk.bold.blue.dim(

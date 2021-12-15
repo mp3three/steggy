@@ -1,4 +1,4 @@
-import { LibraryModule } from '@ccontour/utilities';
+import { LibraryModule } from '@for-science/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { LIB_MQTT } from '../config';

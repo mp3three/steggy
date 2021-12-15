@@ -1,4 +1,4 @@
-import { IsEmpty } from '@ccontour/utilities';
+import { IsEmpty } from '@for-science/utilities';
 import { Injectable, Scope } from '@nestjs/common';
 
 import { HASS_DOMAINS, HASSIO_WS_COMMAND, HassStateDTO } from '../contracts';

@@ -1,6 +1,6 @@
-import { StateChangeActivateDTO } from '@ccontour/controller-logic';
-import { PromptEntry, PromptService } from '@ccontour/tty';
-import { FILTER_OPERATIONS, FilterValueType } from '@ccontour/utilities';
+import { StateChangeActivateDTO } from '@for-science/controller-logic';
+import { PromptEntry, PromptService } from '@for-science/tty';
+import { FILTER_OPERATIONS, FilterValueType } from '@for-science/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import { EntityService } from '../../home-assistant/entity.service';

@@ -4,16 +4,16 @@ import {
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
   RoutineCommandGroupActionDTO,
-} from '@ccontour/controller-logic';
-import { LightStateDTO } from '@ccontour/home-assistant';
+} from '@for-science/controller-logic';
+import { LightStateDTO } from '@for-science/home-assistant';
 import {
   ColorsService,
   ICONS,
   PromptEntry,
   PromptService,
   RGB,
-} from '@ccontour/tty';
-import { AutoLogService, DOWN, TitleCase, UP } from '@ccontour/utilities';
+} from '@for-science/tty';
+import { AutoLogService, DOWN, TitleCase, UP } from '@for-science/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 import chalk from 'chalk';

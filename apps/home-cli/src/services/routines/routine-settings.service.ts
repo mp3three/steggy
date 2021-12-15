@@ -1,5 +1,5 @@
-import { RoutineDTO } from '@ccontour/controller-logic';
-import { DONE, ICONS, PromptService, ToMenuEntry } from '@ccontour/tty';
+import { RoutineDTO } from '@for-science/controller-logic';
+import { DONE, ICONS, PromptService, ToMenuEntry } from '@for-science/tty';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 
 import { RoutineService } from './routine.service';

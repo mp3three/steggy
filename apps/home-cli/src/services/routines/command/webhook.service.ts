@@ -1,6 +1,6 @@
-import { RoutineCommandWebhookDTO } from '@ccontour/controller-logic';
-import { PromptService } from '@ccontour/tty';
-import { HTTP_METHODS, TitleCase } from '@ccontour/utilities';
+import { RoutineCommandWebhookDTO } from '@for-science/controller-logic';
+import { PromptService } from '@for-science/tty';
+import { HTTP_METHODS, TitleCase } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

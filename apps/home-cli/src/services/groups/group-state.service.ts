@@ -4,7 +4,7 @@ import {
   RoomDTO,
   RoomEntitySaveStateDTO,
   RoutineCommandGroupStateDTO,
-} from '@ccontour/controller-logic';
+} from '@for-science/controller-logic';
 import {
   DONE,
   ICONS,
@@ -13,8 +13,8 @@ import {
   PromptEntry,
   PromptService,
   ToMenuEntry,
-} from '@ccontour/tty';
-import { AutoLogService, DOWN, IsEmpty, UP } from '@ccontour/utilities';
+} from '@for-science/tty';
+import { AutoLogService, DOWN, IsEmpty, UP } from '@for-science/utilities';
 import {
   forwardRef,
   Inject,

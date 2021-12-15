@@ -3,7 +3,7 @@ import {
   GenericVersionDTO,
   InjectConfig,
   WorkspaceService,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { Controller, Get, Inject, NotFoundException } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 

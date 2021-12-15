@@ -116,7 +116,7 @@
       }
     },
     "string-config": {
-      // AutomagicalStringConfig
+      // StringConfig
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -148,7 +148,7 @@
       "required": ["type", "description"]
     },
     "boolean-config": {
-      // AutomagicalBooleanConfig
+      // BooleanConfig
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -173,7 +173,7 @@
       "required": ["type", "description"]
     },
     "number-config": {
-      // AutomagicalNumberConfig
+      // NumberConfig
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -213,7 +213,7 @@
       "required": ["type", "description", "configurable"]
     },
     "password-config": {
-      // AutomagicalPasswordConfig
+      // PasswordConfig
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -235,7 +235,7 @@
       "required": ["type", "description"]
     },
     "url-config": {
-      // AutomagicalUrlConfig
+      // UrlConfig
       "type": "object",
       "additionalProperties": false,
       "properties": {

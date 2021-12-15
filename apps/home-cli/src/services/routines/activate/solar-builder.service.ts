@@ -1,6 +1,6 @@
-import { SolarActivateDTO } from '@ccontour/controller-logic';
-import { ICONS, PromptEntry, PromptService } from '@ccontour/tty';
-import { DOWN, TitleCase, UP } from '@ccontour/utilities';
+import { SolarActivateDTO } from '@for-science/controller-logic';
+import { ICONS, PromptEntry, PromptService } from '@for-science/tty';
+import { DOWN, TitleCase, UP } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';

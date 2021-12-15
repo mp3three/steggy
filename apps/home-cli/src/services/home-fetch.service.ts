@@ -4,7 +4,7 @@ import {
   InjectConfig,
   sleep,
   START,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 

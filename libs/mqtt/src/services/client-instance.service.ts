@@ -1,4 +1,4 @@
-import { ACTIVE_APPLICATION, InjectConfig } from '@ccontour/utilities';
+import { ACTIVE_APPLICATION, InjectConfig } from '@for-science/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { connect, MqttClient } from 'mqtt';
 

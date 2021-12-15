@@ -1,4 +1,4 @@
-import { AutoLogService, OnEvent } from '@ccontour/utilities';
+import { AutoLogService, OnEvent } from '@for-science/utilities';
 
 import {
   ALL_ENTITIES_UPDATED,

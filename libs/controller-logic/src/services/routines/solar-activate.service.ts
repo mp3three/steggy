@@ -3,7 +3,7 @@ import {
   Cron,
   CronExpression,
   TitleCase,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { CronJob } from 'cron';
 

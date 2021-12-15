@@ -1,4 +1,4 @@
-import { HassNotificationDTO } from '@ccontour/home-assistant';
+import { HassNotificationDTO } from '@for-science/home-assistant';
 import {
   ConfigBuilderService,
   DONE,
@@ -7,7 +7,7 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@ccontour/tty';
+} from '@for-science/tty';
 import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
@@ -15,7 +15,7 @@ import {
   IsEmpty,
   PackageJsonDTO,
   WorkspaceService,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { Inject, NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import execa from 'execa';
@@ -71,6 +71,9 @@ For loop example getting entity values in the weather domain:
 
   public async exec(defaultAction?: string): Promise<void> {
     const action = await this.promptService.menu({
+      keyMap: {
+        d: ['Done', DONE],
+      },
       right: ToMenuEntry([
         [`Manage configuration`, 'configure'],
         [`Controller version`, 'version'],

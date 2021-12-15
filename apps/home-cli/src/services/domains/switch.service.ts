@@ -1,7 +1,7 @@
-import { RoomEntitySaveStateDTO } from '@ccontour/controller-logic';
-import { domain } from '@ccontour/home-assistant';
-import { ICONS, PromptEntry } from '@ccontour/tty';
-import { sleep, TitleCase } from '@ccontour/utilities';
+import { RoomEntitySaveStateDTO } from '@for-science/controller-logic';
+import { domain } from '@for-science/home-assistant';
+import { ICONS, PromptEntry } from '@for-science/tty';
+import { sleep, TitleCase } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 

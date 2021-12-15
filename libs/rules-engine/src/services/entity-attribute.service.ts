@@ -1,5 +1,5 @@
-import { EntityManagerService } from '@ccontour/home-assistant';
-import { AutoLogService } from '@ccontour/utilities';
+import { EntityManagerService } from '@for-science/home-assistant';
+import { AutoLogService } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { get } from 'object-path';
 

@@ -1,17 +1,17 @@
 import {
+  AbstractConfig,
   ACTIVE_APPLICATION,
   AutoConfigService,
   AutoLogService,
-  AutomagicalConfig,
-  AutomagicalStringConfig,
   ConfigTypeDTO,
   DOWN,
   InjectLogger,
   SCAN_CONFIG_CONFIGURATION,
+  StringConfig,
   TitleCase,
   UP,
   WorkspaceService,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import {
   Inject,
   Injectable,
@@ -27,8 +27,8 @@ import { get, set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
 
-import { ToMenuEntry } from '..';
 import { ICONS, IsDone } from '../contracts';
+import { ToMenuEntry } from '../inquirer';
 import { PromptEntry, PromptService } from './prompt.service';
 
 const ARGV_APP = 3;
@@ -49,7 +49,7 @@ export class ConfigBuilderService {
     private readonly promptService: PromptService,
     private readonly configService: AutoConfigService,
   ) {}
-  private config: AutomagicalConfig;
+  private config: AbstractConfig;
   private loadedApplication = '';
 
   /**
@@ -300,7 +300,7 @@ export class ConfigBuilderService {
         break;
       case 'url':
       case 'string':
-        const { metadata } = config as ConfigTypeDTO<AutomagicalStringConfig>;
+        const { metadata } = config as ConfigTypeDTO<StringConfig>;
         result = Array.isArray(metadata.enum)
           ? await this.promptService.pickOne(
               label,

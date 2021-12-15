@@ -1,10 +1,10 @@
 import {
   HomeControllerCustomModule,
   HomePersistenceModule,
-} from '@ccontour/controller-logic';
-import { HomeAssistantModule } from '@ccontour/home-assistant';
-import { ServerModule } from '@ccontour/server';
-import { ApplicationModule } from '@ccontour/utilities';
+} from '@for-science/controller-logic';
+import { HomeAssistantModule } from '@for-science/home-assistant';
+import { ServerModule } from '@for-science/server';
+import { ApplicationModule } from '@for-science/utilities';
 
 import {
   AdminController,

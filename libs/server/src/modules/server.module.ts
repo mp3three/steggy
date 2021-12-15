@@ -4,7 +4,7 @@ import {
   InjectConfig,
   IsEmpty,
   LibraryModule,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import {
   INestApplication,
   MiddlewareConsumer,

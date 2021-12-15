@@ -1,4 +1,4 @@
-import { EMPTY } from '@ccontour/utilities';
+import { EMPTY } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import execa from 'execa';
 import { decode } from 'ini';

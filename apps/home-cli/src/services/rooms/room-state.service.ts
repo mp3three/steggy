@@ -3,8 +3,8 @@ import {
   RoomDTO,
   RoomEntitySaveStateDTO,
   RoomStateDTO,
-} from '@ccontour/controller-logic';
-import { domain, HASS_DOMAINS } from '@ccontour/home-assistant';
+} from '@for-science/controller-logic';
+import { domain, HASS_DOMAINS } from '@for-science/home-assistant';
 import {
   DONE,
   ICONS,
@@ -13,14 +13,14 @@ import {
   PromptEntry,
   PromptService,
   ToMenuEntry,
-} from '@ccontour/tty';
+} from '@for-science/tty';
 import {
   AutoLogService,
   DOWN,
   FILTER_OPERATIONS,
   IsEmpty,
   UP,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import {
   forwardRef,
   Inject,

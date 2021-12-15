@@ -17,15 +17,12 @@ import { cwd } from 'process';
 
 import { LIB_UTILS, LOG_LEVEL } from '../config';
 import {
-  AutomagicalMetadataDTO,
+  RepoMetadataDTO,
   ConfigItem,
   METADATA_FILE,
   USE_THIS_CONFIG,
 } from '../contracts';
-import {
-  ACTIVE_APPLICATION,
-  AutomagicalConfig,
-} from '../contracts/meta/config';
+import { ACTIVE_APPLICATION, AbstractConfig } from '../contracts/meta/config';
 import { deepExtend, INVERT_VALUE } from '../includes';
 import { AutoLogService } from './auto-log.service';
 import { WorkspaceService } from './workspace.service';
@@ -43,17 +40,17 @@ export class AutoConfigService {
     @Inject(ACTIVE_APPLICATION) private readonly APPLICATION: symbol,
     @Optional()
     @Inject(USE_THIS_CONFIG)
-    private readonly overrideConfig: AutomagicalConfig,
+    private readonly overrideConfig: AbstractConfig,
     private readonly workspace: WorkspaceService,
   ) {
     this.earlyInit();
   }
 
-  public config: AutomagicalConfig = {};
+  public config: AbstractConfig = {};
   public configFiles: string[];
   public loadedConfigFiles: string[];
   private loadedConfigPath: string;
-  private metadata = new Map<string, AutomagicalMetadataDTO>();
+  private metadata = new Map<string, RepoMetadataDTO>();
   private switches = minimist(process.argv);
 
   public get<T extends unknown = string>(path: string | [symbol, string]): T {
@@ -188,7 +185,7 @@ export class AutoConfigService {
     });
   }
 
-  private loadFromFile(out: Map<string, AutomagicalConfig>, filePath: string) {
+  private loadFromFile(out: Map<string, AbstractConfig>, filePath: string) {
     if (!existsSync(filePath)) {
       return;
     }
@@ -238,13 +235,13 @@ export class AutoConfigService {
     return true;
   }
 
-  private loadFromFiles(): Map<string, AutomagicalConfig> {
+  private loadFromFiles(): Map<string, AbstractConfig> {
     this.configFiles = this.workspace.configFilePaths;
     if (this.switches.config) {
       this.configFiles.push(this.switches.config);
     }
     this.loadedConfigFiles = [];
-    const out = new Map<string, AutomagicalConfig>();
+    const out = new Map<string, AbstractConfig>();
     this.configFiles.forEach((filePath) => {
       this.loadFromFile(out, filePath);
     });

@@ -15,7 +15,7 @@ import {
   RoutineCommandTriggerRoutineDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
-} from '@ccontour/controller-logic';
+} from '@for-science/controller-logic';
 import {
   DONE,
   ICONS,
@@ -23,8 +23,8 @@ import {
   PromptEntry,
   PromptService,
   ToMenuEntry,
-} from '@ccontour/tty';
-import { IsEmpty, TitleCase } from '@ccontour/utilities';
+} from '@for-science/tty';
+import { IsEmpty, TitleCase } from '@for-science/utilities';
 import {
   forwardRef,
   Inject,

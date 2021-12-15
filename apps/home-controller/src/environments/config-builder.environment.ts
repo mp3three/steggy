@@ -6,8 +6,8 @@
 //   ConfigBuilderService,
 //   MainCLIModule,
 //   PromptService,
-// } from '@ccontour/tty';
-// import { BootstrapOptions } from '@ccontour/utilities';
+// } from '@for-science/tty';
+// import { BootstrapOptions } from '@for-science/utilities';
 
 // export const BOOTSTRAP_OPTIONS: BootstrapOptions = {
 //   imports: [MainCLIModule],
