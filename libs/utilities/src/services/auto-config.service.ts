@@ -26,12 +26,11 @@ import {
   ACTIVE_APPLICATION,
   AutomagicalConfig,
 } from '../contracts/meta/config';
-import { deepExtend } from '../includes';
+import { deepExtend, INVERT_VALUE } from '../includes';
 import { AutoLogService } from './auto-log.service';
 import { WorkspaceService } from './workspace.service';
 
 const extensions = ['json', 'ini', 'yaml'];
-const INVERSE = -1;
 const START = 0;
 
 @Injectable()
@@ -198,7 +197,8 @@ export class AutoConfigService {
     this.loadedConfigFiles.push(filePath);
     const hasExtension = extensions.some((extension) => {
       if (
-        filePath.slice(extension.length * INVERSE).toLowerCase() === extension
+        filePath.slice(extension.length * INVERT_VALUE).toLowerCase() ===
+        extension
       ) {
         switch (extension) {
           case 'ini':

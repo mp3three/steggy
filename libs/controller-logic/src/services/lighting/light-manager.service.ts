@@ -8,6 +8,7 @@ import {
   InjectCache,
   InjectConfig,
   InjectLogger,
+  INVERT_VALUE,
   IsEmpty,
 } from '@ccontour/utilities';
 import { Injectable } from '@nestjs/common';
@@ -25,7 +26,6 @@ import { CircadianService } from './circadian.service';
 
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
 const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
-const INVERT_VALUE = -1;
 const PERCENT = 100;
 const DEFAULT_INCREMENT = 1;
 const START = 0;

@@ -1,5 +1,6 @@
 // Reused numbers
 
+export const INVERT_VALUE = -1;
 // Sort
 export const UP = 1;
 // [LABEL,VALUE]

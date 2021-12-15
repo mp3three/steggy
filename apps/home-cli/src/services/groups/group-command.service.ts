@@ -151,8 +151,6 @@ export class GroupCommandService implements iRepl {
           !IsEmpty(groups),
           this.groupEntries(groups),
         ),
-        new inquirer.Separator(chalk.white`Actions`),
-        [`${ICONS.CREATE}Create Group`, 'create'],
       ]),
       rightHeader: 'Pick group',
       value: this.lastGroup

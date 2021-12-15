@@ -36,7 +36,7 @@ const MILLISECONDS = 1000;
 @Repl({
   category: 'Control',
   icon: ICONS.ROUTINE,
-  keybind: 'u',
+  keybind: 't',
   name: 'Routine',
 })
 export class RoutineService {
@@ -64,15 +64,18 @@ export class RoutineService {
     });
   }
 
-  public async exec(): Promise<void> {
+  public async exec(all = false): Promise<void> {
+    // List routines that are not attached to rooms
     const list = await this.list({
-      filters: new Set([
-        {
-          field: 'room',
-          // eslint-disable-next-line unicorn/no-null
-          value: null,
-        },
-      ]),
+      filters: all
+        ? undefined
+        : new Set([
+            {
+              field: 'room',
+              // eslint-disable-next-line unicorn/no-null
+              value: null,
+            },
+          ]),
     });
     let action = await this.promptService.pickOne<RoutineDTO | string>(
       `Pick routine`,

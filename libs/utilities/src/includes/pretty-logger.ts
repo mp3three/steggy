@@ -46,24 +46,14 @@ export const prettyFormatMessage = (message: string): string => {
   if (!message) {
     return ``;
   }
-  let matches = message.match(new RegExp('([^ ]+#[^ ]+)'));
-  if (matches) {
-    message = message.replace(matches[0], chalk.bold(matches[0]));
-  }
-  matches = message.match(new RegExp('(\\[[^\\]]+\\])'));
-  if (matches) {
-    message = message.replace(
-      matches[0],
-      chalk.bold.magenta(matches[0].slice(1, -1)),
+  message = message
+    .replace(new RegExp('([^ ]+#[^ ]+)', 'g'), (i) => chalk.bold(i))
+    .replace(new RegExp('(\\[[^\\]]+\\])', 'g'), (i) =>
+      chalk.bold.magenta(i.slice(1, -1)),
+    )
+    .replace(new RegExp('(\\{[^\\]}]+\\})', 'g'), (i) =>
+      chalk.bold.gray(i.slice(1, -1)),
     );
-  }
-  matches = message.match(new RegExp('(\\{[^\\]]+\\})'));
-  if (matches) {
-    message = message.replace(
-      matches[0],
-      chalk`{bold.gray ${matches[0].slice(1, -1)}}`,
-    );
-  }
   const frontDash = ' - ';
   if (message.slice(0, frontDash.length) === frontDash) {
     message = `${chalk.yellowBright` - `}${message.slice(frontDash.length)}`;
