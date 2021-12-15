@@ -2,7 +2,7 @@
   "author": {
     "email": "cameron@automagicl.dev",
     "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/automagical"
+    "url": "https://github.com/ccontour/for-science"
   },
   "bin": {
     "home-cli": "main.js"
@@ -16,9 +16,9 @@
   "main": "main.js",
   "displayName": "Home CLI",
   "version": "0.5.52",
-  "homepage": "https://github.com/ccontour/automagical",
+  "homepage": "https://github.com/ccontour/for-science",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ccontour/automagical.git"
+    "url": "git+https://github.com/ccontour/for-science.git"
   }
 }

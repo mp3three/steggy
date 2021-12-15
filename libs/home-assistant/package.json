@@ -2,15 +2,15 @@
   "author": {
     "email": "cameron@automagicl.dev",
     "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/automagical"
+    "url": "https://github.com/ccontour/for-science"
   },
   "name": "@ccontour/home-assistant",
   "displayName": "Home Assistant",
   "license": "MIT",
   "version": "0.5.17",
-  "homepage": "https://github.com/ccontour/automagical",
+  "homepage": "https://github.com/ccontour/for-science",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ccontour/automagical.git"
+    "url": "git+https://github.com/ccontour/for-science.git"
   }
 }

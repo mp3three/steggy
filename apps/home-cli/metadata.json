@@ -16,12 +16,12 @@
     },
     "CLI_PACKAGE": {
       "type": "string",
-      "default": "https://raw.githubusercontent.com/ccontour/automagical/master/apps/home-cli/package.json",
+      "default": "https://raw.githubusercontent.com/ccontour/for-science/master/apps/home-cli/package.json",
       "description": "Used for determining if running code is latest"
     },
     "CONTROLLER_PACKAGE": {
       "type": "string",
-      "default": "https://raw.githubusercontent.com/ccontour/automagical/master/apps/home-controller/package.json",
+      "default": "https://raw.githubusercontent.com/ccontour/for-science/master/apps/home-controller/package.json",
       "description": "Used for determining if running code is latest"
     }
   }
