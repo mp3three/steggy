@@ -23,7 +23,6 @@
     "@nestjs/mongoose": "^9.0.1",
     "@nestjs/platform-express": "^8.2.3",
     "@nestjs/swagger": "^5.1.5",
-    "ansi-regex": "^6.0.1",
     "async": "^3.2.2",
     "bson": "^4.6.0",
     "cache-manager": "^3.6.0",

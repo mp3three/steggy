@@ -27,8 +27,8 @@ import { get, set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
 
-import { ToMenuEntry } from '..';
 import { ICONS, IsDone } from '../contracts';
+import { ToMenuEntry } from '../inquirer';
 import { PromptEntry, PromptService } from './prompt.service';
 
 const ARGV_APP = 3;
