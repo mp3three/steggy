@@ -1,4 +1,8 @@
-import { GroupDTO, RoomDTO, RoomEntityDTO } from '@for-science/controller-logic';
+import {
+  GroupDTO,
+  RoomDTO,
+  RoomEntityDTO,
+} from '@for-science/controller-logic';
 import { HASS_DOMAINS } from '@for-science/home-assistant';
 import {
   DONE,
@@ -315,9 +319,11 @@ export class RoomCommandService {
     switch (action) {
       //
       case 'create':
-        // pointless destructuring ftw
-        const { _id } = await this.groupCommand.create();
-        current.push(_id);
+        const group = await this.groupCommand.create();
+        if (!group) {
+          return await this.groupBuilder(current);
+        }
+        current.push(group._id);
         return await this.groupBuilder(current);
       // Eject!
       case 'done':

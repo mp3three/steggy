@@ -23,6 +23,30 @@ export enum GROUP_TYPES {
   switch = 'switch',
   lock = 'lock',
 }
+
+export const GROUP_DEFINITIONS = new Map<GROUP_TYPES, string>([
+  [
+    GROUP_TYPES.light,
+    [
+      'Light groups may only contain light entities.',
+      'Allow a set of lights to operate together performing the same function.',
+    ].join(`\n`),
+  ],
+  [GROUP_TYPES.fan, 'Fan groups may only contain fan entities'],
+  [
+    GROUP_TYPES.switch,
+    [
+      'Switch groups may contain entities from the following domains:',
+      ` - switch`,
+      ` - light`,
+      ` - climate`,
+      ` - media`,
+      ` - fan`,
+    ].join(`\n`),
+  ],
+  [GROUP_TYPES.lock, 'Lock groups may only contain locks'],
+]);
+
 @Schema({
   collection: `group`,
   timestamps: {
