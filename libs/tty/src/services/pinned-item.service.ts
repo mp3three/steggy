@@ -1,4 +1,4 @@
-import { AutoConfigService, InjectConfig } from '@ccontour/utilities';
+import { AutoConfigService, InjectConfig } from '@for-science/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 import { LIB_TTY, PINNED_ITEMS } from '../config';

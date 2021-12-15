@@ -3,7 +3,7 @@ import {
   AutoLogService,
   InjectConfig,
   WorkspaceService,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { INestApplication, Inject, Injectable } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 

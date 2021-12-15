@@ -1,9 +1,9 @@
-import type { FetchWith } from '@ccontour/utilities';
+import type { FetchWith } from '@for-science/utilities';
 import {
   AutoLogService,
   FetchService,
   InjectConfig,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { BASE_URL, TOKEN } from '../config';

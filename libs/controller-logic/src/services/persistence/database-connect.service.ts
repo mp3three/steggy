@@ -1,5 +1,5 @@
-import { ConnectService } from '@ccontour/persistence';
-import { InjectConfig } from '@ccontour/utilities';
+import { ConnectService } from '@for-science/persistence';
+import { InjectConfig } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { MongooseModuleOptions } from '@nestjs/mongoose';
 

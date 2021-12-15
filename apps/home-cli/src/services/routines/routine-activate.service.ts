@@ -6,9 +6,16 @@ import {
   ScheduleActivateDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
-} from '@ccontour/controller-logic';
-import { DONE, ICONS, PromptEntry, PromptService } from '@ccontour/tty';
-import { IsEmpty, TitleCase } from '@ccontour/utilities';
+} from '@for-science/controller-logic';
+import {
+  DONE,
+  ICONS,
+  IsDone,
+  PromptEntry,
+  PromptService,
+  ToMenuEntry,
+} from '@for-science/tty';
+import { IsEmpty, TitleCase } from '@for-science/utilities';
 import {
   forwardRef,
   Inject,
@@ -96,16 +103,17 @@ export class RoutineActivateService {
     routine: RoutineDTO,
     activate: RoutineActivateDTO,
   ): Promise<RoutineDTO> {
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.DELETE}Delete`, 'delete'],
-      ],
-      `Routine activation`,
-    );
+      ]),
+      rightHeader: `Routine activation`,
+    });
+    if (IsDone(action)) {
+      return routine;
+    }
     switch (action) {
-      case DONE:
-        return routine;
       case 'edit':
         const updated = await this.build(routine, activate);
         routine.activate = routine.activate.map((i) =>
@@ -139,8 +147,8 @@ export class RoutineActivateService {
 
   public async processRoutine(routine: RoutineDTO): Promise<RoutineDTO> {
     routine.activate ??= [];
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.CREATE}Add`, 'add'],
         ...this.promptService.conditionalEntries(!IsEmpty(routine.activate), [
           new inquirer.Separator(chalk.white`Current activations`),
@@ -149,18 +157,18 @@ export class RoutineActivateService {
             activate,
           ]) as PromptEntry<RoutineActivateDTO>[]),
         ]),
-      ],
-      `Routine activations`,
-    );
-    switch (action) {
-      case DONE:
-        return routine;
-      case 'add':
-        const activate = await this.build(routine);
-        activate.id = uuid();
-        routine.activate.push(activate);
-        routine = await this.routineCommand.update(routine);
-        return await this.processRoutine(routine);
+      ]),
+      rightHeader: `Routine activations`,
+    });
+    if (IsDone(action)) {
+      return routine;
+    }
+    if (action === 'add') {
+      const activate = await this.build(routine);
+      activate.id = uuid();
+      routine.activate.push(activate);
+      routine = await this.routineCommand.update(routine);
+      return await this.processRoutine(routine);
     }
     if (typeof action === 'string') {
       throw new NotImplementedException();

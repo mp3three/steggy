@@ -3,17 +3,19 @@ import {
   GroupDTO,
   GroupSaveStateDTO,
   RoomEntitySaveStateDTO,
-} from '@ccontour/controller-logic';
-import { HASS_DOMAINS } from '@ccontour/home-assistant';
+} from '@for-science/controller-logic';
+import { HASS_DOMAINS } from '@for-science/home-assistant';
 import {
   DONE,
   ICONS,
   iRepl,
+  IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
   Repl,
-} from '@ccontour/tty';
+  ToMenuEntry,
+} from '@for-science/tty';
 import {
   ARRAY_OFFSET,
   AutoLogService,
@@ -22,7 +24,7 @@ import {
   ResultControlDTO,
   TitleCase,
   UP,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import {
   forwardRef,
   Inject,
@@ -62,6 +64,7 @@ const GROUP_DOMAINS = new Map([
 @Repl({
   category: `Control`,
   icon: ICONS.GROUPS,
+  keybind: 'g',
   name: `Groups`,
 })
 export class GroupCommandService implements iRepl {
@@ -139,20 +142,21 @@ export class GroupCommandService implements iRepl {
 
   public async exec(): Promise<void> {
     const groups = await this.list();
-    const action = await this.promptService.menuSelect<GroupDTO>(
-      [
+    const action = await this.promptService.menu<GroupDTO>({
+      keyMap: {
+        d: ['Done', DONE],
+      },
+      right: ToMenuEntry([
         ...this.promptService.conditionalEntries(
           !IsEmpty(groups),
           this.groupEntries(groups),
         ),
-        new inquirer.Separator(chalk.white`Actions`),
-        [`${ICONS.CREATE}Create Group`, 'create'],
-      ],
-      'Pick group',
-      this.lastGroup
+      ]),
+      rightHeader: 'Pick group',
+      value: this.lastGroup
         ? groups.find(({ _id }) => _id === this.lastGroup)
         : undefined,
-    );
+    });
     if (action === 'create') {
       await this.create();
       return await this.exec();
@@ -258,24 +262,34 @@ export class GroupCommandService implements iRepl {
         );
         break;
     }
-    const action = await this.promptService.menuSelect(
-      [
+    const [entities, state] = [
+      [`${ICONS.ENTITIES}Entities`, 'entities'],
+      [`${ICONS.STATE_MANAGER}State Manager`, 'state'],
+    ] as PromptEntry[];
+    const action = await this.promptService.menu({
+      keyMap: {
+        d: ['Done', DONE],
+        e: entities,
+        p: [
+          this.pinnedItems.isPinned('group', group._id) ? 'Unpin' : 'Pin',
+          'pin',
+        ],
+        s: state,
+      },
+      right: ToMenuEntry([
         ...actions,
         new inquirer.Separator(chalk.white`Management`),
         [`${ICONS.DELETE}Delete`, 'delete'],
-        [`${ICONS.ENTITIES}Entities`, 'entities'],
+        entities,
         [`${ICONS.RENAME}Rename`, 'rename'],
-        [`${ICONS.STATE_MANAGER}State Manager`, 'state'],
-        [
-          chalk[
-            this.pinnedItems.isPinned('group', group._id) ? 'red' : 'green'
-          ]`${ICONS.PIN}Pin`,
-          `pin`,
-        ],
-      ],
-      `Group action / management`,
-      defaultValue,
-    );
+        state,
+      ]),
+      rightHeader: `Group action / management`,
+      value: defaultValue,
+    });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({
@@ -409,8 +423,8 @@ export class GroupCommandService implements iRepl {
   }
 
   private async updateEntities(group: GroupDTO): Promise<GroupDTO> {
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         new inquirer.Separator(chalk.white`Maintenance`),
         [`${ICONS.CREATE}Add`, 'add'],
         [`${ICONS.DELETE}Remove`, 'delete'],
@@ -418,12 +432,13 @@ export class GroupCommandService implements iRepl {
           new inquirer.Separator(chalk.white`Current entities`),
           ...(group.entities.map((i) => [i, i]) as PromptEntry[]),
         ]),
-      ],
-      `Entity actions`,
-    );
+      ]),
+      rightHeader: `Entity actions`,
+    });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
-      case DONE:
-        return group;
       case 'add':
         group.entities = [
           ...group.entities,

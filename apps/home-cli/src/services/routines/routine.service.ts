@@ -6,16 +6,18 @@ import {
   RoomDTO,
   RoutineActivateOptionsDTO,
   RoutineDTO,
-} from '@ccontour/controller-logic';
+} from '@for-science/controller-logic';
 import {
   DONE,
   ICONS,
+  IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
   Repl,
-} from '@ccontour/tty';
-import { IsEmpty, ResultControlDTO, TitleCase } from '@ccontour/utilities';
+  ToMenuEntry,
+} from '@for-science/tty';
+import { IsEmpty, ResultControlDTO, TitleCase } from '@for-science/utilities';
 import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
@@ -34,6 +36,7 @@ const MILLISECONDS = 1000;
 @Repl({
   category: 'Control',
   icon: ICONS.ROUTINE,
+  keybind: 't',
   name: 'Routine',
 })
 export class RoutineService {
@@ -61,8 +64,19 @@ export class RoutineService {
     });
   }
 
-  public async exec(): Promise<void> {
-    const list = await this.list();
+  public async exec(all = false): Promise<void> {
+    // List routines that are not attached to rooms
+    const list = await this.list({
+      filters: all
+        ? undefined
+        : new Set([
+            {
+              field: 'room',
+              // eslint-disable-next-line unicorn/no-null
+              value: null,
+            },
+          ]),
+    });
     let action = await this.promptService.pickOne<RoutineDTO | string>(
       `Pick routine`,
       [
@@ -128,8 +142,8 @@ export class RoutineService {
       });
     }
     const current = await this.list(control);
-    let action = await this.promptService.menuSelect(
-      [
+    let action = await this.promptService.menu({
+      right: ToMenuEntry([
         ...this.promptService.conditionalEntries(!IsEmpty(current), [
           new inquirer.Separator(chalk.white`Existing routines`),
           ...(current.map((item) => [
@@ -139,10 +153,10 @@ export class RoutineService {
         ]),
         new inquirer.Separator(chalk.white`Maintenance`),
         [`${ICONS.CREATE}Create`, 'create'],
-      ],
-      `Pick routine`,
-    );
-    if (action === DONE) {
+      ]),
+      rightHeader: `Pick routine`,
+    });
+    if (IsDone(action)) {
       return;
     }
     if (action === 'create') {
@@ -161,24 +175,38 @@ export class RoutineService {
     defaultAction?: string,
   ): Promise<void> {
     await this.header(routine);
-    const action = await this.promptService.menuSelect(
-      [
-        [`${ICONS.ACTIVATE}Manual activate`, 'activate'],
-        [`${ICONS.DELETE}Delete`, 'delete'],
-        [`${ICONS.RENAME}Rename`, 'rename'],
-        [`${ICONS.EVENT}Activation Events`, 'events'],
-        [`${ICONS.COMMAND}Commands`, 'command'],
-        [`${ICONS.CONFIGURE}Settings`, 'settings'],
-        [
-          chalk[
-            this.pinnedItems.isPinned('routine', routine._id) ? 'red' : 'green'
-          ]`${ICONS.PIN}Pin`,
+    const [activate, events, command, settings] = [
+      [`${ICONS.ACTIVATE}Manual activate`, 'activate'],
+      [`${ICONS.EVENT}Activation Events`, 'events'],
+      [`${ICONS.COMMAND}Commands`, 'command'],
+      [`${ICONS.CONFIGURE}Settings`, 'settings'],
+    ] as PromptEntry[];
+    const action = await this.promptService.menu({
+      keyMap: {
+        a: activate,
+        c: command,
+        d: ['Done', DONE],
+        e: events,
+        p: [
+          this.pinnedItems.isPinned('routine', routine._id) ? 'Unpin' : 'Pin',
           'pin',
         ],
-      ],
-      `Manage routine`,
-      defaultAction,
-    );
+        s: settings,
+      },
+      right: ToMenuEntry([
+        activate,
+        [`${ICONS.DELETE}Delete`, 'delete'],
+        [`${ICONS.RENAME}Rename`, 'rename'],
+        events,
+        command,
+        settings,
+      ]),
+      rightHeader: `Manage routine`,
+      value: defaultAction,
+    });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({
@@ -187,12 +215,9 @@ export class RoutineService {
           script: 'routine',
         });
         return await this.processRoutine(routine, action);
-      case DONE:
-        return;
       case 'settings':
         await this.settings.process(routine);
         return await this.processRoutine(routine, action);
-
       case 'activate':
         await this.promptActivate(routine);
         return await this.processRoutine(routine, action);
@@ -234,17 +259,18 @@ export class RoutineService {
   }
 
   public async promptActivate(routine: RoutineDTO): Promise<void> {
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`Immediate`, 'immediate'],
         [`Timeout`, 'timeout'],
         ['At date/time', 'datetime'],
-      ],
-      `When to activate`,
-    );
+      ]),
+      rightHeader: `When to activate`,
+    });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
-      case DONE:
-        return;
       case 'immediate':
         await this.fetchService.fetch({
           method: 'post',

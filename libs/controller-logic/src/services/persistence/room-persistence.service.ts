@@ -2,8 +2,8 @@ import {
   BaseMongoService,
   BaseSchemaDTO,
   EncryptionService,
-} from '@ccontour/persistence';
-import { AutoLogService, ResultControlDTO, ToClass } from '@ccontour/utilities';
+} from '@for-science/persistence';
+import { AutoLogService, ResultControlDTO, ToClass } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import EventEmitter from 'eventemitter3';

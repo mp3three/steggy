@@ -1,6 +1,6 @@
-import { ScheduleActivateDTO } from '@ccontour/controller-logic';
-import { ICONS, PromptEntry, PromptService } from '@ccontour/tty';
-import { CronExpression } from '@ccontour/utilities';
+import { ScheduleActivateDTO } from '@for-science/controller-logic';
+import { ICONS, PromptEntry, PromptService } from '@for-science/tty';
+import { CronExpression } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';

@@ -1,8 +1,5 @@
-import {
-  HA_SOCKET_READY,
-  HASocketAPIService,
-} from '@ccontour/home-assistant';
-import { AutoLogService, OnEvent, sleep } from '@ccontour/utilities';
+import { HA_SOCKET_READY, HASocketAPIService } from '@for-science/home-assistant';
+import { AutoLogService, OnEvent, sleep } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
@@ -31,7 +28,7 @@ export class SolarCalcService {
 
   public async getCalc(): Promise<SolarCalcType> {
     if (typeof this.latitude !== 'number') {
-      this.logger.debug(`Waiting for lat/long`);
+      this.logger.debug(`Waiting for {lat}/{long}`);
       await sleep();
       return await this.getCalc();
     }
@@ -44,10 +41,10 @@ export class SolarCalcService {
     this.latitude = config.latitude;
     this.longitude = config.longitude;
     this.logger.debug(
-      {
-        latitude: config.latitude,
-        longitude: config.longitude,
-      },
+      // {
+      //   latitude: config.latitude,
+      //   longitude: config.longitude,
+      // },
       `Updated location`,
     );
   }

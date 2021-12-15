@@ -4,13 +4,13 @@ import {
   iRepl,
   PromptService,
   Repl,
-} from '@ccontour/tty';
+} from '@for-science/tty';
 import {
   AutoLogService,
   IsEmpty,
   TitleCase,
   WorkspaceService,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { eachSeries } from 'async';
 import Table from 'cli-table';
 import execa from 'execa';

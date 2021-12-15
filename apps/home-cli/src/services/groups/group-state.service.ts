@@ -4,15 +4,17 @@ import {
   RoomDTO,
   RoomEntitySaveStateDTO,
   RoutineCommandGroupStateDTO,
-} from '@ccontour/controller-logic';
+} from '@for-science/controller-logic';
 import {
   DONE,
   ICONS,
+  IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
-} from '@ccontour/tty';
-import { AutoLogService, DOWN, IsEmpty, UP } from '@ccontour/utilities';
+  ToMenuEntry,
+} from '@for-science/tty';
+import { AutoLogService, DOWN, IsEmpty, UP } from '@for-science/utilities';
 import {
   forwardRef,
   Inject,
@@ -168,8 +170,8 @@ export class GroupStateService {
     group = await this.fetchService.fetch({
       url: `/group/${group._id}`,
     });
-    const action = await this.promptService.menuSelect<GroupSaveStateDTO>(
-      [
+    const action = await this.promptService.menu<GroupSaveStateDTO>({
+      right: ToMenuEntry([
         ...(this.promptService.conditionalEntries(!IsEmpty(group.save_states), [
           new inquirer.Separator(chalk.white`Current save states`),
           ...(
@@ -184,10 +186,10 @@ export class GroupStateService {
         [`${ICONS.CAPTURE}Capture current`, 'capture'],
         [`${ICONS.DESCRIBE}Describe current`, 'describe'],
         [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
-      ],
-      `State management`,
-      defaultAction,
-    );
+      ]),
+      rightHeader: `State management`,
+      value: defaultAction,
+    });
     if (action === DONE) {
       return;
     }
@@ -302,23 +304,34 @@ export class GroupStateService {
     defaultAction?: string,
   ): Promise<GroupDTO> {
     this.header(group, state);
-    const action = await this.promptService.menuSelect(
-      [
-        [`${ICONS.ACTIVATE}Activate`, 'activate'],
-        [`${ICONS.DESCRIBE}Describe`, 'describe'],
-        [`${ICONS.EDIT}Edit`, 'edit'],
-        [`${ICONS.COPY}Copy to another group`, 'copyTo'],
-        [`${ICONS.DELETE}Delete`, 'delete'],
-        [
-          chalk[
-            this.pinnedItems.isPinned('group_state', state.id) ? 'red' : 'green'
-          ]`${ICONS.PIN}Pin`,
+    const [edit, copy, activate] = [
+      [`${ICONS.EDIT}Edit`, 'edit'],
+      [`${ICONS.COPY}Copy to another group`, 'copyTo'],
+      [`${ICONS.ACTIVATE}Activate`, 'activate'],
+    ] as PromptEntry[];
+    const action = await this.promptService.menu({
+      keyMap: {
+        a: activate,
+        c: copy,
+        d: ['Done', DONE],
+        e: edit,
+        p: [
+          this.pinnedItems.isPinned('group_state', state.id) ? 'Unpin' : 'Pin',
           'pin',
         ],
-      ],
-      `Group state action`,
-      defaultAction,
-    );
+      },
+      right: ToMenuEntry([
+        activate,
+        edit,
+        copy,
+        [`${ICONS.DELETE}Delete`, 'delete'],
+      ]),
+      rightHeader: `Group state action`,
+      value: defaultAction,
+    });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({
@@ -342,18 +355,6 @@ export class GroupStateService {
           url: `/group/${group._id}/state/${state.id}`,
         });
         return group;
-      case 'describe':
-        console.log(
-          `${ICONS.NAME}Name:`,
-          chalk.yellow.bold(state.friendlyName),
-        );
-        console.log(
-          chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
-            `/group/${group._id}/state/${state.id}`,
-          )}`,
-        );
-        this.promptService.print(dump(state.states));
-        return await this.stateAction(state, group, action);
       case 'delete':
         if (
           !(await this.promptService.confirm(

@@ -3,8 +3,8 @@ import {
   DeviceService,
   HASocketAPIService,
   RelatedDescriptionDTO,
-} from '@ccontour/home-assistant';
-import { AuthStack } from '@ccontour/server';
+} from '@for-science/home-assistant';
+import { AuthStack } from '@for-science/server';
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 

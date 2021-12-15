@@ -2,10 +2,10 @@ import {
   LIGHTING_MODE,
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
-} from '@ccontour/controller-logic';
-import { HASS_DOMAINS, LightStateDTO } from '@ccontour/home-assistant';
-import { ColorsService, ICONS, PromptEntry } from '@ccontour/tty';
-import { START } from '@ccontour/utilities';
+} from '@for-science/controller-logic';
+import { HASS_DOMAINS, LightStateDTO } from '@for-science/home-assistant';
+import { ColorsService, ICONS, PromptEntry } from '@for-science/tty';
+import { START } from '@for-science/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 
 import { SwitchService } from './switch.service';
@@ -149,8 +149,8 @@ export class LightService extends SwitchService {
       hs_color: swapWith.attributes.hs_color,
     });
   }
-  protected getMenuOptions(id: string): PromptEntry[] {
-    const parent = super.getMenuOptions(id);
+  protected getMenuOptions(): PromptEntry[] {
+    const parent = super.getMenuOptions();
     return [
       ...parent.slice(START, SHIFT_AMOUNT),
       [`${ICONS.CIRCADIAN}Circadian Light`, 'circadianLight'],

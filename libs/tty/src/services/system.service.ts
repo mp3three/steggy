@@ -1,11 +1,11 @@
 import {
   AutoLogService,
-  AutomagicalConfig,
+  AbstractConfig,
   filterUnique,
   IsEmpty,
   PACKAGE_FILE,
   WorkspaceService,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
@@ -186,7 +186,7 @@ export class SystemService {
 
   public async writeConfig(
     application: string,
-    config: AutomagicalConfig,
+    config: AbstractConfig,
   ): Promise<void> {
     const file = this.configPath(application);
     console.log(chalk.green('path'), file);

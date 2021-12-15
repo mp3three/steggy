@@ -1,15 +1,16 @@
 import {
   HomeAssistantCoreService,
   LightDomainService,
-} from '@ccontour/home-assistant';
+} from '@for-science/home-assistant';
 import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
   InjectConfig,
   InjectLogger,
+  INVERT_VALUE,
   IsEmpty,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 import EventEmitter from 'eventemitter3';
@@ -25,7 +26,6 @@ import { CircadianService } from './circadian.service';
 
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
 const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
-const INVERT_VALUE = -1;
 const PERCENT = 100;
 const DEFAULT_INCREMENT = 1;
 const START = 0;

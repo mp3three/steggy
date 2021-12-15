@@ -3,13 +3,13 @@ import {
   HASS_DOMAINS,
   HomeAssistantFetchAPIService,
   HomeAssistantServerLogItem,
-} from '@ccontour/home-assistant';
+} from '@for-science/home-assistant';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
-} from '@ccontour/server';
-import { AutoLogService } from '@ccontour/utilities';
+} from '@for-science/server';
+import { AutoLogService } from '@for-science/utilities';
 import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 

@@ -1,6 +1,6 @@
-import { EntityHistoryRequest } from '@ccontour/controller-logic';
-import { HassStateDTO } from '@ccontour/home-assistant';
-import { PromptService } from '@ccontour/tty';
+import { EntityHistoryRequest } from '@for-science/controller-logic';
+import { HassStateDTO } from '@for-science/home-assistant';
+import { PromptService } from '@for-science/tty';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 

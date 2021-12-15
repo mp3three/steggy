@@ -1,19 +1,22 @@
-import { RoomEntitySaveStateDTO } from '@ccontour/controller-logic';
+import { RoomEntitySaveStateDTO } from '@for-science/controller-logic';
 import {
   domain,
   HASS_DOMAINS,
   HassStateDTO,
   RelatedDescriptionDTO,
-} from '@ccontour/home-assistant';
+} from '@for-science/home-assistant';
 import {
   DONE,
   ICONS,
+  IsDone,
   MDIIcons,
   PinnedItemService,
   PromptEntry,
   PromptService,
-} from '@ccontour/tty';
+  ToMenuEntry,
+} from '@for-science/tty';
 import {
+  ARRAY_OFFSET,
   AutoLogService,
   DOWN,
   InjectConfig,
@@ -21,7 +24,7 @@ import {
   sleep,
   TitleCase,
   UP,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import {
   forwardRef,
   Inject,
@@ -44,6 +47,7 @@ import { HomeFetchService } from '../home-fetch.service';
 type tDeviceService = DeviceService;
 const HEADER_SEPARATOR = 0;
 const FIRST = 0;
+const HALF = 2;
 
 @Injectable()
 export class BaseDomainService {
@@ -102,7 +106,7 @@ export class BaseDomainService {
     if (!skipHeader) {
       await this.baseHeader(id);
     }
-    const options = this.getMenuOptions(id);
+    const options = this.getMenuOptions();
     if (!(options[HEADER_SEPARATOR] as Separator).line) {
       options.unshift(
         new inquirer.Separator(
@@ -110,12 +114,22 @@ export class BaseDomainService {
         ),
       );
     }
-    const action = await this.promptService.menuSelect(
-      options,
-      `Action`,
-      command,
-    );
+    const action = await this.promptService.menu({
+      keyMap: {
+        d: ['Done', DONE],
+        h: [`${ICONS.HISTORY}History`, 'history'],
+        p: [this.pinnedItem.isPinned('entity', id) ? 'Unpin' : 'pin', 'pin'],
+        r: ['Refresh', 'refresh'],
+      },
+      right: ToMenuEntry(options),
+      value: command,
+    });
+    if (IsDone(action)) {
+      return action;
+    }
     switch (action) {
+      case 'refresh':
+        return await this.processId(id, action);
       case 'describe':
         const state = await this.getState(id);
         this.promptService.print(dump(state));
@@ -152,7 +166,6 @@ export class BaseDomainService {
     const table = new Table({
       head: keys.map((i) => TitleCase(i)),
     });
-    // console.log(attributes);
     attributes.forEach((i) =>
       table.push(
         keys.map((key) => {
@@ -199,11 +212,25 @@ export class BaseDomainService {
     console.log(
       chalk`${map.get(content.state) ?? ''}{magenta.bold ${
         content.attributes.friendly_name
-      }} {magenta.underline ${id}} {cyan ${content.state}}`,
+      }} {gray ${id}}`,
+    );
+    console.log(
+      chalk` {blue +-> }{inverse.bold.blueBright State} {cyan ${content.state}}`,
     );
     const keys = Object.keys(content.attributes)
       .filter((i) => !['supported_features', 'friendly_name'].includes(i))
       .sort((a, b) => (a > b ? UP : DOWN));
+    const header = 'Attributes';
+    console.log(
+      chalk` {blue +${''.padEnd(
+        Math.max(...keys.map((i) => i.length)) -
+          Math.floor(header.length / HALF) -
+          // ? It visually just looks "wrong" without the offset. Opinion
+          ARRAY_OFFSET,
+        '-',
+      )}>} {bold.blueBright.inverse ${header}}`,
+    );
+
     const max = Math.max(...keys.map((i) => i.length));
     keys.forEach((key) => {
       const item = content.attributes[key];
@@ -231,7 +258,7 @@ export class BaseDomainService {
         value = chalk.green(item);
       }
       console.log(
-        chalk`    {white.bold ${TitleCase(key, false).padStart(
+        chalk` {blue.dim |} {white.bold ${TitleCase(key, false).padStart(
           max,
           ' ',
         )}}  ${value}`,
@@ -266,16 +293,17 @@ export class BaseDomainService {
     const item: RelatedDescriptionDTO = await this.fetchService.fetch({
       url: `/entity/registry/${id}`,
     });
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
         [`${ICONS.DEVICE}Device`, 'device'],
-      ],
-      `Entity basics`,
-    );
+      ]),
+      rightHeader: `Entity basics`,
+    });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
-      case DONE:
-        return;
       case 'describe':
         console.log(encode(item));
         return;
@@ -290,7 +318,7 @@ export class BaseDomainService {
     }
   }
 
-  protected getMenuOptions(id: string): PromptEntry[] {
+  protected getMenuOptions(): PromptEntry[] {
     return [
       new inquirer.Separator(chalk.white`Base options`),
       [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
@@ -298,12 +326,6 @@ export class BaseDomainService {
       [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
       [`${ICONS.HISTORY}History`, 'history'],
       [`${ICONS.DESCRIBE}Describe`, 'describe'],
-      [
-        chalk[
-          this.pinnedItem.isPinned('entity', id) ? 'red' : 'green'
-        ]`${ICONS.PIN}Pin`,
-        'pin',
-      ],
     ];
   }
 

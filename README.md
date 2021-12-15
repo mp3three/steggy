@@ -1,4 +1,4 @@
-# Automagical tools
+# for-science tools
 
 ## Home Controller
 
@@ -26,7 +26,7 @@ The controller (currently) specializes in lighting and scene control, with some 
 ```ini
 [libs.controller-logic]
   ; MongoDB or compatible URI. No support for sql databases
-  MONGO_URI=mongodb://mongo:27017/automagical
+  MONGO_URI=mongodb://mongo:27017/for-science
 
 [libs.home-assistant]
   ; Base url to your Home Assistant install

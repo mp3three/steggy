@@ -1,11 +1,13 @@
-import { HassNotificationDTO } from '@ccontour/home-assistant';
+import { HassNotificationDTO } from '@for-science/home-assistant';
 import {
   ConfigBuilderService,
   DONE,
   ICONS,
+  IsDone,
   PromptService,
   Repl,
-} from '@ccontour/tty';
+  ToMenuEntry,
+} from '@for-science/tty';
 import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
@@ -13,7 +15,7 @@ import {
   IsEmpty,
   PackageJsonDTO,
   WorkspaceService,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { Inject, NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import execa from 'execa';
@@ -27,6 +29,8 @@ import { HomeFetchService } from './home-fetch.service';
 @Repl({
   category: `Misc`,
   icon: ICONS.DEBUG,
+  keyOnly: true,
+  keybind: 'f1',
   name: `Debugger`,
 })
 export class DebugService {
@@ -66,8 +70,11 @@ For loop example getting entity values in the weather domain:
 {%- endfor %}.`;
 
   public async exec(defaultAction?: string): Promise<void> {
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      keyMap: {
+        d: ['Done', DONE],
+      },
+      right: ToMenuEntry([
         [`Manage configuration`, 'configure'],
         [`Controller version`, 'version'],
         [`Light Manager Cache`, 'lightManagerCache'],
@@ -77,14 +84,13 @@ For loop example getting entity values in the weather domain:
         [`Restart Home Assistant`, 'reboot'],
         [`Persistent notifications`, 'notifications'],
         [`Update checker`, 'update'],
-      ],
-      'Debug action',
-      defaultAction,
-    );
-
+      ]),
+      value: defaultAction,
+    });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
-      case DONE:
-        return;
       case 'update':
         await this.updateChecker();
         return await this.exec(action);
@@ -136,11 +142,10 @@ For loop example getting entity values in the weather domain:
     if (IsEmpty(notifications)) {
       return;
     }
-    const item = await this.promptService.menuSelect(
-      notifications.map((i) => [i.title, i]),
-      `Dismiss item`,
-    );
-    if (item === DONE) {
+    const item = await this.promptService.menu<HassNotificationDTO>({
+      right: notifications.map((i) => ({ entry: [i.title, i] })),
+    });
+    if (IsDone(item)) {
       return;
     }
     if (typeof item === 'string') {
@@ -237,14 +242,13 @@ For loop example getting entity values in the weather domain:
         ``,
       ].join(`\n`),
     );
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [chalk`Update using {blue yarn}`, `yarn`],
         [chalk`Update using {red npm}`, `npm`],
-      ],
-      `Update CLI`,
-    );
-    if (action === DONE) {
+      ]),
+    });
+    if (IsDone(action)) {
       return;
     }
     if (action === 'npm') {

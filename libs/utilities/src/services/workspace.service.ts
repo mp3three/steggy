@@ -7,7 +7,6 @@ import { cwd } from 'process';
 
 import {
   ACTIVE_APPLICATION,
-  AutomagicalMetadataDTO,
   GenericVersionDTO,
   IsEmpty,
   METADATA_FILE,
@@ -18,12 +17,13 @@ import {
   NXWorkspaceDTO,
   PACKAGE_FILE,
   PackageJsonDTO,
+  RepoMetadataDTO,
 } from '../contracts';
 
 /**
  * The workspace file is def not getting out into any builds, seems like a reasonably unique name
  */
-const isDevelopment = existsSync(join(cwd(), 'automagical.code-workspace'));
+const isDevelopment = existsSync(join(cwd(), 'for-science.code-workspace'));
 
 @Injectable()
 export class WorkspaceService {
@@ -34,7 +34,7 @@ export class WorkspaceService {
   /**
    * metadata.json
    */
-  public METADATA = new Map<string, AutomagicalMetadataDTO>();
+  public METADATA = new Map<string, RepoMetadataDTO>();
   public NX_METADATA: NXMetadata;
   /**
    * package.json

@@ -2,13 +2,13 @@ import {
   EntityManagerService,
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
-} from '@ccontour/home-assistant';
+} from '@for-science/home-assistant';
 import {
   AutoLogService,
   InjectConfig,
   IsEmpty,
   OnEvent,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 

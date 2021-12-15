@@ -1,6 +1,13 @@
-import { HomeAssistantServerLogItem } from '@ccontour/home-assistant';
-import { DONE, ICONS, PromptService, Repl } from '@ccontour/tty';
-import { AutoLogService, IsEmpty, TitleCase } from '@ccontour/utilities';
+import { HomeAssistantServerLogItem } from '@for-science/home-assistant';
+import {
+  DONE,
+  ICONS,
+  IsDone,
+  PromptService,
+  Repl,
+  ToMenuEntry,
+} from '@for-science/tty';
+import { AutoLogService, IsEmpty, TitleCase } from '@for-science/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
@@ -27,18 +34,19 @@ export class ServerLogsService {
   public async exec(defaultValue: string): Promise<void> {
     this.promptService.clear();
     this.promptService.scriptHeader(`Server Logs`);
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.LOGS}Show logs`, 'logs'],
         [`${ICONS.DELETE}Clear logs`, 'clear'],
         [`${ICONS.ANIMATION}Raw`, 'raw'],
-      ],
-      `Log commands`,
-      defaultValue,
-    );
+      ]),
+      rightHeader: `Log commands`,
+      value: defaultValue,
+    });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
-      case DONE:
-        return;
       case 'clear':
         await this.fetchService.fetch({
           method: 'delete',
@@ -63,16 +71,18 @@ export class ServerLogsService {
       this.logger.info(`No recent logs`);
       return;
     }
-    const item = await this.promptService.menuSelect(
-      logs.map((i) => [
-        chalk.bold[LEVELS.get(i.level) ?? 'underline']`${i.message.join(
-          chalk.cyan(' || '),
-        )}`,
-        i,
-      ]),
-      `More details`,
-    );
-    if (item === DONE) {
+    const item = await this.promptService.menu({
+      right: ToMenuEntry(
+        logs.map((i) => [
+          chalk.bold[LEVELS.get(i.level) ?? 'underline']`${i.message.join(
+            chalk.cyan(' || '),
+          )}`,
+          i,
+        ]),
+      ),
+      rightHeader: `More details`,
+    });
+    if (IsDone(item)) {
       return;
     }
     if (typeof item === 'string') {

@@ -1,6 +1,6 @@
-import { EcobeeClimateStateDTO } from '@ccontour/home-assistant';
-import { DONE, PromptEntry } from '@ccontour/tty';
-import { TitleCase } from '@ccontour/utilities';
+import { EcobeeClimateStateDTO } from '@for-science/home-assistant';
+import { DONE, IsDone, PromptEntry, ToMenuEntry } from '@for-science/tty';
+import { TitleCase } from '@for-science/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import { SwitchService } from './switch.service';
@@ -37,11 +37,13 @@ export class ClimateService extends SwitchService {
     id: string,
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
-    const mode = await this.promptService.menuSelect(
-      state.attributes.fan_modes.map((mode) => [TitleCase(mode), mode]),
-      `Set fan mode`,
-    );
-    if (mode === DONE) {
+    const mode = await this.promptService.menu({
+      right: ToMenuEntry(
+        state.attributes.fan_modes.map((mode) => [TitleCase(mode), mode]),
+      ),
+      rightHeader: `Set fan mode`,
+    });
+    if (IsDone(mode)) {
       return;
     }
     await this.fetchService.fetch({
@@ -64,11 +66,13 @@ export class ClimateService extends SwitchService {
     id: string,
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
-    const mode = await this.promptService.menuSelect(
-      state.attributes.hvac_modes.map((mode) => [TitleCase(mode), mode]),
-      `Set HVAC mode`,
-    );
-    if (mode !== DONE) {
+    const mode = await this.promptService.menu({
+      right: ToMenuEntry(
+        state.attributes.hvac_modes.map((mode) => [TitleCase(mode), mode]),
+      ),
+      rightHeader: `Set HVAC mode`,
+    });
+    if (IsDone(mode)) {
       return;
     }
     await this.fetchService.fetch({
@@ -82,11 +86,13 @@ export class ClimateService extends SwitchService {
     id: string,
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
-    const mode = await this.promptService.menuSelect(
-      state.attributes.preset_modes.map((mode) => [TitleCase(mode), mode]),
-      `Set preset mode`,
-    );
-    if (mode === DONE) {
+    const mode = await this.promptService.menu({
+      right: ToMenuEntry(
+        state.attributes.preset_modes.map((mode) => [TitleCase(mode), mode]),
+      ),
+      rightHeader: `Set preset mode`,
+    });
+    if (IsDone(mode)) {
       return;
     }
     await this.fetchService.fetch({
@@ -100,11 +106,13 @@ export class ClimateService extends SwitchService {
     id: string,
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
-    const mode = await this.promptService.menuSelect(
-      state.attributes.swing_modes.map((mode) => [TitleCase(mode), mode]),
-      `Set swing mode`,
-    );
-    if (mode === DONE) {
+    const mode = await this.promptService.menu({
+      right: ToMenuEntry(
+        state.attributes.swing_modes.map((mode) => [TitleCase(mode), mode]),
+      ),
+      rightHeader: `Set swing mode`,
+    });
+    if (IsDone(mode)) {
       return;
     }
     await this.fetchService.fetch({
@@ -147,7 +155,7 @@ export class ClimateService extends SwitchService {
     this.logger.debug({ result });
   }
 
-  protected getMenuOptions(id: string): PromptEntry[] {
+  protected getMenuOptions(): PromptEntry[] {
     return [
       ['Set Fan Mode', 'setFanMode'],
       ['Set Humidity', 'setHumidity'],
@@ -155,7 +163,7 @@ export class ClimateService extends SwitchService {
       ['Set Preset Mode', 'setPresetMode'],
       ['Set Swing Mode', 'setSwingMode'],
       ['Set Temperature', 'setTemperature'],
-      ...super.getMenuOptions(id),
+      ...super.getMenuOptions(),
     ];
   }
 }

@@ -1,4 +1,4 @@
-import { FILTER_OPERATIONS, FilterValueType } from '@ccontour/utilities';
+import { FILTER_OPERATIONS, FilterValueType } from '@for-science/utilities';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class StateChangeActivateDTO {

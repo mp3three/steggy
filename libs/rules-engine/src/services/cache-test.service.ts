@@ -1,4 +1,4 @@
-import { AutoLogService } from '@ccontour/utilities';
+import { AutoLogService } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

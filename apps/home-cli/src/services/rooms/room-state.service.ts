@@ -3,22 +3,24 @@ import {
   RoomDTO,
   RoomEntitySaveStateDTO,
   RoomStateDTO,
-} from '@ccontour/controller-logic';
-import { domain, HASS_DOMAINS } from '@ccontour/home-assistant';
+} from '@for-science/controller-logic';
+import { domain, HASS_DOMAINS } from '@for-science/home-assistant';
 import {
   DONE,
   ICONS,
+  IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
-} from '@ccontour/tty';
+  ToMenuEntry,
+} from '@for-science/tty';
 import {
   AutoLogService,
   DOWN,
   FILTER_OPERATIONS,
   IsEmpty,
   UP,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import {
   forwardRef,
   Inject,
@@ -107,8 +109,8 @@ export class RoomStateService {
   }
 
   public async process(room: RoomDTO): Promise<RoomDTO> {
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         ...this.promptService.conditionalEntries(!IsEmpty(room.save_states), [
           new inquirer.Separator(chalk.white(`Current states`)),
           ...(room.save_states
@@ -120,12 +122,13 @@ export class RoomStateService {
         new inquirer.Separator(chalk.white(`Manipulate`)),
         [`${ICONS.CREATE}Create`, 'create'],
         [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
-      ],
-      `Pick state`,
-    );
+      ]),
+      rightHeader: `Pick state`,
+    });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
-      case DONE:
-        return room;
       case 'create':
         await this.build(room);
         room = await this.roomService.get(room._id);
@@ -157,21 +160,29 @@ export class RoomStateService {
     this.promptService.clear();
     this.promptService.scriptHeader(`Room State`);
     await this.header(room, state);
-    const action = await this.promptService.menuSelect(
-      [
-        [`${ICONS.ACTIVATE}Activate`, 'activate'],
-        [`${ICONS.EDIT}Edit`, 'edit'],
-        [`${ICONS.DELETE}Delete`, 'delete'],
-        [
-          chalk[
-            this.pinnedItems.isPinned('room_state', state.id) ? 'red' : 'green'
-          ]`${ICONS.PIN}Pin`,
+    const [activate] = [
+      [`${ICONS.ACTIVATE}Activate`, 'activate']
+    ] as PromptEntry[]
+    const action = await this.promptService.menu({
+      keyMap: {
+        a: activate,
+        d: ['Done', DONE],
+        p: [
+          this.pinnedItems.isPinned('room_state', state.id) ? 'Unpin' : 'Pin',
           'pin',
         ],
-      ],
-      `Room state`,
-      defaultAction,
-    );
+      },
+      right: ToMenuEntry([
+        activate,
+        [`${ICONS.EDIT}Edit`, 'edit'],
+        [`${ICONS.DELETE}Delete`, 'delete'],
+      ]),
+      rightHeader: `Room state`,
+      value: defaultAction,
+    });
+    if (IsDone(action)) {
+      return room;
+    }
     switch (action) {
       case 'pin':
         this.pinnedItems.toggle({
@@ -181,8 +192,6 @@ export class RoomStateService {
           script: 'room_state',
         });
         return await this.processState(room, state, action);
-      case DONE:
-        return room;
       case 'activate':
         await this.fetchService.fetch({
           method: `post`,

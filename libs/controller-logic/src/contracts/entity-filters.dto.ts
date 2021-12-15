@@ -1,4 +1,4 @@
-import { HASS_DOMAINS } from '@ccontour/home-assistant';
+import { HASS_DOMAINS } from '@for-science/home-assistant';
 
 export class EntityFilters {
   public domains?: HASS_DOMAINS[];

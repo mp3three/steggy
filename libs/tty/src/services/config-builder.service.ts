@@ -1,17 +1,17 @@
 import {
+  AbstractConfig,
   ACTIVE_APPLICATION,
   AutoConfigService,
   AutoLogService,
-  AutomagicalConfig,
-  AutomagicalStringConfig,
   ConfigTypeDTO,
   DOWN,
   InjectLogger,
   SCAN_CONFIG_CONFIGURATION,
+  StringConfig,
   TitleCase,
   UP,
   WorkspaceService,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import {
   Inject,
   Injectable,
@@ -27,7 +27,8 @@ import { get, set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
 
-import { ICONS } from '../contracts';
+import { ICONS, IsDone } from '../contracts';
+import { ToMenuEntry } from '../inquirer';
 import { PromptEntry, PromptService } from './prompt.service';
 
 const ARGV_APP = 3;
@@ -48,7 +49,7 @@ export class ConfigBuilderService {
     private readonly promptService: PromptService,
     private readonly configService: AutoConfigService,
   ) {}
-  private config: AutomagicalConfig;
+  private config: AbstractConfig;
   private loadedApplication = '';
 
   /**
@@ -61,10 +62,10 @@ export class ConfigBuilderService {
   public async exec(): Promise<void> {
     const application =
       initialApp ||
-      (await this.promptService.menuSelect(
-        this.applicationChoices(),
-        `Select an application`,
-      ));
+      (await this.promptService.menu({
+        right: ToMenuEntry(this.applicationChoices()),
+        rightHeader: `Application choices`,
+      }));
     initialApp = undefined;
     if (!this.workspace.isProject(application)) {
       this.logger.error({ application }, `Invalid application`);
@@ -82,14 +83,16 @@ export class ConfigBuilderService {
     application =
       typeof application === 'string' ? application : application.description;
     this.loadConfig(application);
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.DESCRIBE}Show`, 'describe'],
         [`${ICONS.SAVE}Save`, 'save'],
-      ],
-      `What to do?`,
-    );
+      ]),
+    });
+    if (IsDone(action)) {
+      return;
+    }
     switch (action) {
       case 'edit':
         await this.buildApplication(application);
@@ -297,7 +300,7 @@ export class ConfigBuilderService {
         break;
       case 'url':
       case 'string':
-        const { metadata } = config as ConfigTypeDTO<AutomagicalStringConfig>;
+        const { metadata } = config as ConfigTypeDTO<StringConfig>;
         result = Array.isArray(metadata.enum)
           ? await this.promptService.pickOne(
               label,

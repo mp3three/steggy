@@ -2,20 +2,20 @@ import {
   ENTITY_EXTRAS_SCHEMA,
   GENERIC_COMMANDS,
   ROOM_ENTITY_EXTRAS,
-} from '@ccontour/controller-logic';
+} from '@for-science/controller-logic';
 import {
   GroupDTO,
   GroupSaveStateDTO,
   GroupService,
-} from '@ccontour/controller-logic';
-import { BaseSchemaDTO } from '@ccontour/persistence';
+} from '@for-science/controller-logic';
+import { BaseSchemaDTO } from '@for-science/persistence';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
   Locals,
   ResponseLocals,
-} from '@ccontour/server';
+} from '@for-science/server';
 import {
   Body,
   Controller,

@@ -33,6 +33,9 @@ export function controlToQuery(
     if (value instanceof Date) {
       value = value.toISOString();
     }
+    if (value === null) {
+      value = 'null';
+    }
     out.set(field, value.toString());
   });
   return Object.fromEntries(out.entries());

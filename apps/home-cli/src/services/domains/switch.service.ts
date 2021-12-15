@@ -1,7 +1,7 @@
-import { RoomEntitySaveStateDTO } from '@ccontour/controller-logic';
-import { domain } from '@ccontour/home-assistant';
-import { ICONS, PromptEntry } from '@ccontour/tty';
-import { sleep, TitleCase } from '@ccontour/utilities';
+import { RoomEntitySaveStateDTO } from '@for-science/controller-logic';
+import { domain } from '@for-science/home-assistant';
+import { ICONS, PromptEntry } from '@for-science/tty';
+import { sleep, TitleCase } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 
@@ -62,11 +62,11 @@ export class SwitchService extends BaseDomainService {
     });
   }
 
-  protected getMenuOptions(id: string): PromptEntry[] {
+  protected getMenuOptions(): PromptEntry[] {
     return [
       [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
       [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
-      ...super.getMenuOptions(id),
+      ...super.getMenuOptions(),
     ];
   }
 

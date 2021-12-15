@@ -4,7 +4,7 @@ import {
   InjectConfig,
   IsEmpty,
   LibraryModule,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import {
   INestApplication,
   MiddlewareConsumer,
@@ -99,15 +99,15 @@ export class ServerModule {
     app.useGlobalPipes(new ValidationPipe());
     app.use(json({ limit: this.limit }));
     if (this.csurf) {
-      this.logger.debug(`Using csurf middleware`);
+      this.logger.debug(`Using [csurf] middleware`);
       app.use(cookieParser(), csurf());
     }
     if (this.compression) {
-      this.logger.debug(`Using compression middleware`);
+      this.logger.debug(`Using [compression] middleware`);
       app.use(compression());
     }
     if (!IsEmpty(this.cors)) {
-      this.logger.debug(`CORS origin {${this.cors}}`);
+      this.logger.debug(`[CORS] origin {${this.cors}}`);
       app.use(cors({ origin: this.cors }));
     }
     const listening = this.listenHttp(server);

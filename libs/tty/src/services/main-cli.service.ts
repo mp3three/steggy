@@ -3,18 +3,14 @@ import {
   CacheManagerService,
   DOWN,
   InjectCache,
-  InjectConfig,
   UP,
   VALUE,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import chalk from 'chalk';
-import figlet, { Fonts } from 'figlet';
-import inquirer from 'inquirer';
-import Separator from 'inquirer/lib/objects/separator';
 
-import { DEFAULT_HEADER_FONT } from '../config';
 import { iRepl, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
+import { MainMenuEntry, MenuEntry } from '../inquirer';
 import { PinnedItemDTO } from '.';
 import { PinnedItemService } from './pinned-item.service';
 import { PromptEntry, PromptService } from './prompt.service';
@@ -22,7 +18,6 @@ import { ReplExplorerService } from './repl-explorer.service';
 
 // Filter out non-sortable characters (like emoji)
 const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
-const NAME = 1;
 const CACHE_KEY = 'MAIN-CLI:LAST_LABEL';
 type ENTRY_TYPE = string | PinnedItemDTO;
 
@@ -33,7 +28,6 @@ type ENTRY_TYPE = string | PinnedItemDTO;
 export class MainCLIService implements iRepl {
   constructor(
     private readonly logger: AutoLogService,
-    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: Fonts,
     private readonly explorer: ReplExplorerService,
     private readonly promptService: PromptService,
     private readonly pinnedItem: PinnedItemService,
@@ -44,10 +38,7 @@ export class MainCLIService implements iRepl {
 
   public async exec(): Promise<void> {
     this.promptService.clear();
-    const header = figlet.textSync('Script List', {
-      font: this.font,
-    });
-    console.log(chalk.cyan(header), '\n');
+    this.promptService.scriptHeader('Script List');
 
     const name = await this.pickOne();
     if (typeof name !== 'string') {
@@ -69,52 +60,77 @@ export class MainCLIService implements iRepl {
     this.last = await this.cacheService.get(CACHE_KEY);
   }
 
-  private async pickOne(): Promise<ENTRY_TYPE> {
+  private getLeft() {
     const entries = this.pinnedItem.getEntries();
+    return entries.map((i) => ({
+      entry: i,
+      type: (i[VALUE] as PinnedItemDTO).script,
+    })) as MainMenuEntry<ENTRY_TYPE>[];
+  }
 
-    const types: Record<string, PromptEntry[]> = {};
-    this.explorer.REGISTERED_APPS.forEach(
-      (instance: iRepl, { category: type, name, icon }: ReplOptions) => {
-        if (name !== 'Main') {
-          types[type] ??= [];
-          types[type].push([`${icon}${name}`, name]);
-        }
-      },
-    );
-    const out: { entry: PromptEntry; type: string }[] = [];
+  private getRight(types: Record<string, PromptEntry<ENTRY_TYPE>[]>) {
+    const right: MainMenuEntry<ENTRY_TYPE>[] = [];
     Object.keys(types).forEach((type) => {
       types[type]
         .sort((a, b) => {
-          if (a instanceof Separator || b instanceof Separator) {
+          if (!Array.isArray(a) || !Array.isArray(b)) {
             return DOWN;
           }
-          const a1 = a[NAME].replace(unsortable, '');
-          const b1 = b[NAME].replace(unsortable, '');
+          const a1 = String(a[VALUE]).replace(unsortable, '');
+          const b1 = String(b[VALUE]).replace(unsortable, '');
           if (a1 > b1) {
             return UP;
           }
           return DOWN;
         })
         .forEach((i) => {
-          out.push({
-            entry: i,
+          right.push({
+            entry: i as MenuEntry,
             type: type,
           });
         });
     });
+    return right;
+  }
 
-    const { result } = await inquirer.prompt([
-      {
-        menu: out,
-        name: 'result',
-        pinned: entries.map((i) => ({
-          entry: i,
-          type: (i[VALUE] as PinnedItemDTO).script,
-        })),
-        type: 'mainMenu',
-        value: this.last,
+  private async pickOne(): Promise<ENTRY_TYPE> {
+    const types: Record<string, PromptEntry<ENTRY_TYPE>[]> = {};
+    const keyMap = {};
+    this.explorer.REGISTERED_APPS.forEach(
+      (
+        instance: iRepl,
+        { category: type, name, icon, keybind, keyOnly }: ReplOptions,
+      ) => {
+        if (name !== 'Main') {
+          if (keybind) {
+            keyMap[keybind] = [`${icon}${name}`, name];
+            if (keyOnly) {
+              return;
+            }
+          }
+          types[type] ??= [];
+          types[type].push([`${icon}${name}`, name]);
+        }
       },
-    ]);
+    );
+    const right = this.getRight(types);
+    const left = this.getLeft();
+    if (typeof this.last === 'object') {
+      this.last = left.find((i) => {
+        return (
+          (i.entry[VALUE] as PinnedItemDTO).id ===
+          (this.last as PinnedItemDTO).id
+        );
+      }).entry[VALUE];
+    }
+    const result = await this.promptService.menu<ENTRY_TYPE>({
+      keyMap,
+      left,
+      leftHeader: 'Pinned Items',
+      right,
+      titleTypes: true,
+      value: this.last,
+    });
     this.last = result;
     await this.cacheService.set(CACHE_KEY, result);
     return result;

@@ -1,4 +1,4 @@
-import { PromptEntry } from '@ccontour/tty';
+import { PromptEntry } from '@for-science/tty';
 import { Injectable } from '@nestjs/common';
 
 import { SwitchService } from './switch.service';
@@ -63,14 +63,14 @@ export class MediaService extends SwitchService {
     });
   }
 
-  protected getMenuOptions(id: string): PromptEntry[] {
+  protected getMenuOptions(): PromptEntry[] {
     return [
       ['Mute', 'mute'],
       ['Play / Pause', 'playPause'],
       ['Toggle', 'toggle'],
       ['Volume Down', 'volumeDown'],
       ['Volume Up', 'volumeUp'],
-      ...super.getMenuOptions(id),
+      ...super.getMenuOptions(),
     ];
   }
 }

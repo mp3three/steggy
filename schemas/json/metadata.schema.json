@@ -1,6 +1,6 @@
 {
   "$id": "metadata.json",
-  "title": "Automagical",
+  "title": "for-science",
   "description": "Additional metadata for applications and libraries. Information that is not described by `package.json` or `project.json`",
   "type": "object",
   "properties": {

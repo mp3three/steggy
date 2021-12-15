@@ -1,5 +1,5 @@
-import { EntityManagerService, LightStateDTO } from '@ccontour/home-assistant';
-import { AutoLogService, PEAT, sleep } from '@ccontour/utilities';
+import { EntityManagerService, LightStateDTO } from '@for-science/home-assistant';
+import { AutoLogService, PEAT, sleep } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
 

@@ -2,10 +2,10 @@ import {
   FanCacheDTO,
   FanCacheSpeeds,
   RoomEntitySaveStateDTO,
-} from '@ccontour/controller-logic';
-import { FanSpeeds, FanStateDTO } from '@ccontour/home-assistant';
-import { DONE, ICONS, PromptEntry } from '@ccontour/tty';
-import { TitleCase } from '@ccontour/utilities';
+} from '@for-science/controller-logic';
+import { FanSpeeds, FanStateDTO } from '@for-science/home-assistant';
+import { DONE, ICONS, IsDone, PromptEntry, ToMenuEntry } from '@for-science/tty';
+import { TitleCase } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
@@ -77,13 +77,15 @@ export class FanService extends SwitchService {
   }
 
   public async setSpeed(id: string): Promise<void> {
-    const speed = await this.promptService.menuSelect(
-      Object.keys(FanSpeeds)
-        .reverse()
-        .map((key) => [TitleCase(key), key]),
-      'Fan speed',
-    );
-    if (speed === DONE) {
+    const speed = await this.promptService.menu({
+      right: ToMenuEntry(
+        Object.keys(FanSpeeds)
+          .reverse()
+          .map((key) => [TitleCase(key), key]),
+      ),
+      rightHeader: 'Fan speed',
+    });
+    if (IsDone(speed)) {
       return;
     }
     await this.fetchService.fetch({
@@ -93,12 +95,12 @@ export class FanService extends SwitchService {
     });
   }
 
-  protected getMenuOptions(id: string): PromptEntry[] {
+  protected getMenuOptions(): PromptEntry[] {
     return [
       [`${ICONS.UP}Speed Up`, 'fanSpeedUp'],
       [`${ICONS.DOWN}Speed Down`, 'fanSpeedDown'],
       [`${ICONS.COMMAND}Set speed`, 'setSpeed'],
-      ...super.getMenuOptions(id),
+      ...super.getMenuOptions(),
     ];
   }
 

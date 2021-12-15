@@ -1,14 +1,26 @@
-// Constanly reused numbers
+// Reused numbers
+
+export const INVERT_VALUE = -1;
+// Sort
 export const UP = 1;
-export const DOWN = -1;
-export const SAME = 0;
-export const LABEL = 0;
-export const START = 0;
+// [LABEL,VALUE]
 export const VALUE = 1;
+// Standard value
+export const ARRAY_OFFSET = 1;
+// array[number +- increment]
+export const INCREMENT = 1;
+// Sorting
+export const SAME = 0;
+// [LABEL,VALUE]
+export const LABEL = 0;
+// Generic start of something
+export const START = 0;
 export const FIRST = 0;
 
-export const ARRAY_OFFSET = 1;
-
+// Testing of indexes
+export const NOT_FOUND = -1;
+// Sorting
+export const DOWN = -1;
 /**
  * Want to be really lazy? Just make a short term sleep happen
  */

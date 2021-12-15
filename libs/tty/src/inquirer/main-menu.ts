@@ -1,13 +1,17 @@
 import {
   ARRAY_OFFSET,
   DOWN,
+  FIRST,
+  INCREMENT,
+  INVERT_VALUE,
   IsEmpty,
   LABEL,
+  NOT_FOUND,
   START,
   TitleCase,
   UP,
   VALUE,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';
@@ -15,112 +19,103 @@ import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
 import { Key } from 'readline';
 
-import { PinnedItemDTO, PromptEntry } from '../services';
+import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
+import { PromptEntry } from '../services';
 
-function ansiRegex({ onlyFirst = false } = {}) {
-  const pattern = [
-    '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
-    '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))',
-  ].join('|');
-
-  return new RegExp(pattern, onlyFirst ? undefined : 'g');
-}
+const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 
 type KeyDescriptor = { key: Key; value?: string };
-
 type tCallback = (value: unknown) => void;
-
+export type MenuEntry<T extends unknown = string> = [string, T];
 export interface MainMenuEntry<T = unknown> {
-  entry: PromptEntry<T>;
-  icon: string;
-  type: string;
+  entry: MenuEntry<T>;
+  icon?: string;
+  type?: string;
 }
-export interface PinnedItem<T = unknown> {
-  entry: PromptEntry<T>;
-  type: string;
+
+export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
+  const out: MainMenuEntry<T>[] = [];
+  let header = '';
+  entries.forEach((i) => {
+    if (Array.isArray(i)) {
+      out.push({
+        entry: i as MenuEntry<T>,
+        type: ansiStrip(header),
+      });
+      return;
+    }
+    header = i.line;
+  });
+  return out;
 }
+
 export interface MainMenuOptions<T = unknown> {
-  menu?: MainMenuEntry<T>[];
-  pinned?: PinnedItem<T>[];
+  headerPadding?: number;
+  keyMap?: Record<string, PromptEntry>;
+  left?: MainMenuEntry<T>[];
+  leftHeader?: string;
+  right: MainMenuEntry<T>[];
+  rightHeader?: string;
+  showHelp?: boolean;
+  titleTypes?: boolean;
   value?: unknown;
 }
+
+const DEFAULT_HEADER_PADDING = 4;
+const SINGLE_ITEM = 1;
+const MAX_SEARCH_SIZE = 50;
 const EMPTY_TEXT = chalk`{magenta   }`;
+
+const HELP_TEXT = [
+  ``,
+  ``,
+  chalk.dim`{blue ----------------------------------------------------}`,
+  chalk.dim` {blue -} {yellow Arrow keys} to navigate`,
+  chalk.dim` {blue -} {yellow Enter} to select`,
+  chalk.dim` {blue -} {yellow Page up/down} to move to ends of list`,
+  chalk.dim` {blue -} {yellow ctrl-f} toggle find mode`,
+].join(`\n `);
 
 export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   constructor(questions, rl, answers) {
     super(questions, rl, answers);
-
+    this.showHelp = this.opt.showHelp ?? true;
     this.opt = questions;
-    this.opt.pinned ??= [];
-    this.opt.menu ??= [];
+    this.opt.left ??= [];
+    this.opt.right ??= [];
+    this.opt.left.forEach((i) => (i.type ??= ''));
+    this.opt.right.forEach((i) => (i.type ??= ''));
+    this.opt.keyMap ??= {};
     this.value = this.opt.value;
+    this.headerPadding = this.opt.headerPadding ?? DEFAULT_HEADER_PADDING;
+    this.rightHeader = this.opt.rightHeader ?? 'Menu';
+    this.leftHeader = this.opt.leftHeader ?? 'Secondary';
   }
 
   private done: tCallback;
-  private firstRender = true;
-  private selectedLine = START;
-  private selectedType: 'pinned' | 'menu' = 'menu';
+  private headerPadding: number;
+  private leftHeader: string;
+  private mode: 'find' | 'select' = 'select';
+  private rightHeader: string;
+  private searchText = '';
+  private selectedType: 'left' | 'right' = 'right';
+  private showHelp = true;
   private value: unknown;
-
-  private get entries() {
-    return this.selectedType === 'menu'
-      ? this.renderMenu()
-      : this.renderPinned();
-  }
-
-  private get menu() {
-    return this.opt.menu.sort((a, b) => {
-      if (a.type === b.type) {
-        return a.entry[LABEL] > b.entry[LABEL] ? UP : DOWN;
-      }
-      if (a.type > b.type) {
-        return UP;
-      }
-      return DOWN;
-    });
-  }
-
-  private get pinned() {
-    return this.opt.pinned.sort((a, b) => {
-      if (a.type > b.type) {
-        return UP;
-      }
-      if (b.type > a.type) {
-        return DOWN;
-      }
-      return a.entry[LABEL] > b.entry[LABEL] ? UP : DOWN;
-    });
-  }
 
   public _run(callback: tCallback): this {
     this.done = callback;
-
-    if (this.value) {
-      this.selectedType = typeof this.value === 'string' ? 'menu' : 'pinned';
-      const entries = this.selectedType === 'menu' ? this.menu : this.pinned;
-      const value = [...entries].find(
-        ({ entry }: PinnedItem | MainMenuEntry) => {
-          if (typeof this.value === 'object') {
-            return entry[VALUE].id === (this.value as PinnedItemDTO).id;
-          }
-          return entry[VALUE] === (this.value as PinnedItemDTO);
-        },
-      );
-      let foundIndex = START;
-      let lastType: string;
-      entries.some(({ entry, type }) => {
-        if (lastType && lastType !== type) {
-          foundIndex++;
-        }
-        lastType = type;
-        if (entry[VALUE] === value?.entry[VALUE]) {
-          return true;
-        }
-        foundIndex++;
-        return false;
-      });
-      this.selectedLine = foundIndex;
+    const defaultValue = this.side('right')[START].entry[VALUE];
+    this.value ??= defaultValue;
+    this.selectedType = this.side('left').some(
+      (i) => i.entry[VALUE] === this.value,
+    )
+      ? 'left'
+      : 'right';
+    const contained = this.side().find((i) => i.entry[VALUE] === this.value);
+    if (!contained) {
+      this.value = defaultValue;
     }
+
     const events = observe(this.rl);
     events.keypress.forEach(this.onKeypress.bind(this));
     events.line.forEach(this.onEnd.bind(this));
@@ -130,39 +125,41 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     return this;
   }
 
-  private getHelp(): string {
-    return [
-      chalk`  {cyan - } {bold (p)} {dim Show pinned items}`,
-      chalk`  {cyan - } {bold (m)} {dim Show regular menu (default view)}`,
-    ].join(`\n`);
+  private bottom(): void {
+    const list = this.side();
+    this.value = list[list.length - ARRAY_OFFSET].entry[VALUE];
   }
-
   private mergeLines(a: string[], b: string[]): string[] {
     const out = [...a];
-    const maxA = Math.max(...out.map((i) => i.replace(ansiRegex(), '').length));
-    const maxB = Math.max(...b.map((i) => i.replace(ansiRegex(), '').length));
+    const maxA = ansiMaxLength(a);
+    const maxB = ansiMaxLength(b);
     b.forEach((item, index) => {
-      let current = (out[index] ?? '').padEnd(maxA, ' ');
-      let stripped = current.replace(ansiRegex(), '');
-      current += stripped.padEnd(maxA).slice(stripped.length);
-      stripped = item.replace(ansiRegex(), ' ');
-      item += stripped.padEnd(maxB, ' ').slice(stripped.length);
-      const separator = index > a.length - ARRAY_OFFSET ? '' : chalk.cyan('|');
+      const current = ansiPadEnd(out[index] ?? '', maxA);
+      item = ansiPadEnd(item, maxB);
+      // let stripped = current.replace(ansiRegex(), '');
+      // current += stripped.padEnd(maxA).slice(stripped.length);
+      // stripped = item.replace(ansiRegex(), ' ');
+      // item += stripped.padEnd(maxB, ' ').slice(stripped.length);
+      const separator =
+        index > a.length - ARRAY_OFFSET ? '' : chalk.cyan.dim('|');
       out[index] = chalk`${current}${separator} ${item}`;
     });
     return out;
   }
 
-  private onDownKey(): void {
-    const list = this.entries;
-    if (this.selectedLine === list.length - ARRAY_OFFSET) {
-      this.selectedLine = START;
+  private next(): void {
+    const list = this.side();
+    const index = list.findIndex((i) => i.entry[VALUE] === this.value);
+    if (index === NOT_FOUND) {
+      this.value = list[FIRST].entry[VALUE];
       return;
     }
-    this.selectedLine++;
-    if (list[this.selectedLine] === EMPTY_TEXT) {
-      this.selectedLine++;
+    if (index === list.length - ARRAY_OFFSET) {
+      // Loop around
+      this.value = list[FIRST].entry[VALUE];
+      return;
     }
+    this.value = list[index + INCREMENT].entry[VALUE];
   }
 
   private onEnd(): void {
@@ -174,43 +171,124 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   }
 
   private onKeypress({ key }: KeyDescriptor): void {
-    if (key.ctrl || key.shift || key.meta || this.status === 'answered') {
+    if (this.status === 'answered') {
       return;
     }
     const mixed = key.name ?? key.sequence;
+    if (key.ctrl && mixed === 'f') {
+      this.mode = this.mode === 'find' ? 'select' : 'find';
+      this.render();
+      return;
+    }
+    if (key.ctrl || key.shift || key.meta) {
+      return;
+    }
+    if (this.mode === 'find') {
+      this.onSearchKeyPress(mixed);
+      return;
+    }
+    this.onMenuKeypress(mixed);
+  }
+
+  private onLeft(): void {
+    const [right, left] = [this.side('right'), this.side('left')];
+    if (IsEmpty(this.opt.left) || this.selectedType === 'left') {
+      return;
+    }
+    this.selectedType = 'left';
+    let current = right.findIndex((i) => i.entry[VALUE] === this.value);
+    if (current === NOT_FOUND) {
+      current = START;
+    }
+    if (current > left.length) {
+      current = left.length - ARRAY_OFFSET;
+    }
+    this.value =
+      left.length < current
+        ? left[left.length - ARRAY_OFFSET].entry[VALUE]
+        : left[current].entry[VALUE];
+  }
+
+  private onMenuKeypress(mixed: string): void {
     switch (mixed) {
       case 'left':
-        if (IsEmpty(this.opt.pinned)) {
-          return;
-        }
-        this.selectedType = 'pinned';
-        this.sanityCheck();
+        this.onLeft();
         break;
       case 'right':
-        this.selectedType = 'menu';
-        this.sanityCheck();
+        this.onRight();
+        break;
+      case 'home':
+      case 'pageup':
+        this.top();
+        break;
+      case 'end':
+      case 'pagedown':
+        this.bottom();
         break;
       case 'up':
-        this.onUpKey();
+        this.previous();
         break;
       case 'down':
-        this.onDownKey();
+        this.next();
         break;
+      default:
+        if (typeof this.opt.keyMap[mixed] !== 'undefined') {
+          this.value = this.opt.keyMap[mixed][VALUE];
+          this.onEnd();
+          return;
+        }
     }
     this.render();
   }
 
-  private onUpKey(): void {
-    const list = this.entries;
+  private onRight(): void {
+    const [right, left] = [this.side('right'), this.side('left')];
+    this.selectedType = 'right';
+    let current = left.findIndex((i) => i.entry[VALUE] === this.value);
+    if (current === NOT_FOUND) {
+      current = START;
+    }
+    if (current > right.length) {
+      current = right.length - ARRAY_OFFSET;
+    }
+    this.value =
+      right.length - ARRAY_OFFSET < current
+        ? right[right.length - ARRAY_OFFSET].entry[VALUE]
+        : right[current].entry[VALUE];
+  }
 
-    if (this.selectedLine === START) {
-      this.selectedLine = list.length - ARRAY_OFFSET;
+  private onSearchKeyPress(key: string): void {
+    if (key === 'backspace') {
+      this.searchText = this.searchText.slice(
+        START,
+        ARRAY_OFFSET * INVERT_VALUE,
+      );
+      return this.render();
+    }
+    if (key === 'space') {
+      this.searchText += ' ';
+      return this.render();
+    }
+    if (key.length > SINGLE_ITEM) {
       return;
     }
-    this.selectedLine--;
-    if (list[this.selectedLine] === EMPTY_TEXT) {
-      this.selectedLine--;
+    this.searchText += key;
+    this.render();
+  }
+
+  private previous(): void {
+    const list = this.side();
+    const index = list.findIndex((i) => i.entry[VALUE] === this.value);
+    if (index === NOT_FOUND) {
+      this.value = list[FIRST].entry[VALUE];
+      return;
     }
+    if (index === FIRST) {
+      // Loop around
+      this.value = list[list.length - ARRAY_OFFSET].entry[VALUE];
+      return;
+    }
+    this.value = list[index - INCREMENT].entry[VALUE];
   }
 
   private render(): void {
@@ -218,88 +296,129 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       this.screen.render(``, '');
       return;
     }
+    if (this.mode === 'select') {
+      return this.renderSelect();
+    }
+    this.renderFind();
+  }
 
+  private renderFind(): void {
+    const searchText = IsEmpty(this.searchText)
+      ? chalk.gray`Type to filter`
+      : this.searchText;
+    const out = [
+      chalk` {green >} {cyan Search} `,
+      chalk.bgWhite.black` ${ansiPadEnd(searchText, MAX_SEARCH_SIZE).replace(
+        ' ',
+        chalk.bgGray(' '),
+      )} `,
+      ` `,
+      ...this.renderSide(undefined, false),
+    ];
+    this.screen.render(out.join(`\n`), '');
+  }
+
+  private renderSelect() {
+    if (this.status === 'answered') {
+      this.screen.render(``, '');
+      return;
+    }
     let message = '';
-    const out = this.mergeLines(this.renderPinned(), this.renderMenu());
-
+    const out = !IsEmpty(this.opt.left)
+      ? this.mergeLines(this.renderSide('left'), this.renderSide('right'))
+      : this.renderSide('right');
+    out[FIRST] = `\n  ${out[FIRST]}\n `;
     message += out.map((i) => `  ${i}`).join(`\n`);
-    if (this.firstRender) {
-      // message += chalk`\n{cyan   - }{dim Use arrow / number keys}`;
-      this.firstRender = false;
+    if (this.showHelp) {
+      message += [
+        HELP_TEXT,
+        ...Object.keys(this.opt.keyMap).map(
+          (key) =>
+            chalk.dim`  {blue -} {yellow ${key}} ${this.opt.keyMap[key][LABEL]} `,
+        ),
+      ].join(`\n`);
     }
     this.screen.render(message, '');
   }
 
-  private renderMenu(): string[] {
-    const out: string[] = [];
-    const menu = this.menu;
-    const maxCategory = Math.max(...menu.map(({ type }) => type.length));
+  // eslint-disable-next-line radar/cognitive-complexity
+  private renderSide(
+    side: 'left' | 'right' = this.selectedType,
+    header = true,
+  ): string[] {
+    const out: string[] = [''];
+    const menu = this.side(side);
+    const maxType = ansiMaxLength(menu.map(({ type }) => type));
     let last = '';
     menu.forEach((item) => {
-      let prefix = TitleCase(item.type.padEnd(maxCategory, ' '));
+      let prefix = ansiPadEnd(item.type, maxType);
+      if (this.opt.titleTypes) {
+        prefix = TitleCase(prefix);
+      }
       if (last === prefix) {
-        prefix = ''.padEnd(maxCategory, ' ');
+        prefix = chalk(''.padEnd(maxType, ' '));
       } else {
-        if (last !== '') {
+        if (last !== '' && this.mode !== 'find') {
           out.push(EMPTY_TEXT);
         }
         last = prefix;
-        prefix = `${prefix}`;
+        prefix = chalk(prefix);
       }
-      const inverse = out.length === this.selectedLine;
-      if (inverse && this.selectedType === 'menu') {
-        this.value = item.entry[VALUE];
+      if (this.mode === 'find') {
+        prefix = ``;
       }
+      const inverse = item.entry[VALUE] === this.value;
       out.push(
-        this.selectedType === 'menu'
-          ? chalk`{magenta ${prefix}} {${inverse ? 'cyan.inverse' : 'white'}  ${
-              item.entry[LABEL]
-            } }`
+        this.selectedType === side
+          ? chalk`{magenta.bold ${prefix}} {${
+              inverse ? 'bgCyan.black' : 'white'
+            }  ${item.entry[LABEL]} }`
           : chalk`{gray ${prefix}  ${item.entry[LABEL]} }`,
       );
     });
-    return out;
-  }
-
-  private renderPinned(): string[] {
-    const out: string[] = [];
-    const pinned = this.pinned;
-    const maxType = Math.max(...pinned.map(({ type }) => type.length));
-    let last = '';
-    pinned.forEach((item) => {
-      let prefix = TitleCase(item.type.padEnd(maxType, ' '));
-      if (last === prefix) {
-        prefix = ''.padEnd(maxType, ' ');
+    const max = ansiMaxLength(out);
+    if (header) {
+      if (side === 'left') {
+        out[FIRST] = chalk.bold.blue.dim(
+          `${this.leftHeader}${''.padEnd(this.headerPadding, ' ')}`.padStart(
+            max,
+            ' ',
+          ),
+        );
       } else {
-        if (last !== '') {
-          out.push(EMPTY_TEXT);
-        }
-        last = prefix;
-        prefix = `${prefix}`;
+        out[FIRST] = chalk.bold.blue.dim(
+          `${''.padEnd(this.headerPadding, ' ')}${this.rightHeader}`.padEnd(
+            max,
+            ' ',
+          ),
+        );
       }
-      const inverse = out.length === this.selectedLine;
-      if (inverse && this.selectedType === 'pinned') {
-        this.value = item.entry[VALUE];
-      }
-      out.push(
-        this.selectedType === 'pinned'
-          ? chalk`{magenta ${prefix}} {${inverse ? 'cyan.inverse' : 'white'} ${
-              item.entry[LABEL]
-            }} `
-          : chalk`{gray ${prefix} ${item.entry[LABEL]}} `,
-      );
-    });
+    } else {
+      out.shift();
+    }
     return out;
   }
 
-  private sanityCheck(): void {
-    const list =
-      this.selectedType === 'menu' ? this.renderMenu() : this.renderPinned();
-    if (list.length - ARRAY_OFFSET < this.selectedLine) {
-      this.selectedLine = list.length - ARRAY_OFFSET;
+  private side(side: 'left' | 'right' = this.selectedType, noRecurse = false) {
+    if (this.mode === 'find' && !noRecurse) {
+      return [...this.side('right', true), ...this.side('left', true)];
     }
-    if (list[this.selectedLine] === EMPTY_TEXT) {
-      this.selectedLine--;
-    }
+    return this.opt[side].sort((a, b) => {
+      if (a.type === b.type) {
+        return a.entry[LABEL].replace(UNSORTABLE, '') >
+          b.entry[LABEL].replace(UNSORTABLE, '')
+          ? UP
+          : DOWN;
+      }
+      if (a.type > b.type) {
+        return UP;
+      }
+      return DOWN;
+    });
+  }
+
+  private top(): void {
+    const list = this.side();
+    this.value = list[FIRST].entry[VALUE];
   }
 }

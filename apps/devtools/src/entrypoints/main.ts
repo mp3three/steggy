@@ -1,5 +1,5 @@
-import { MainCLIService } from '@ccontour/tty';
-import { Bootstrap } from '@ccontour/utilities';
+import { MainCLIService } from '@for-science/tty';
+import { Bootstrap } from '@for-science/utilities';
 
 import { BOOTSTRAP_OPTIONS } from '../environments/environment';
 import { DevtoolsModule } from '../modules';

@@ -1,9 +1,16 @@
 import {
   DeviceListItemDTO,
   RelatedDescriptionDTO,
-} from '@ccontour/home-assistant';
-import { DONE, ICONS, PromptService, Repl } from '@ccontour/tty';
-import { AutoLogService, IsEmpty } from '@ccontour/utilities';
+} from '@for-science/home-assistant';
+import {
+  DONE,
+  ICONS,
+  IsDone,
+  PromptService,
+  Repl,
+  ToMenuEntry,
+} from '@for-science/tty';
+import { AutoLogService, IsEmpty } from '@for-science/utilities';
 import { forwardRef, Inject } from '@nestjs/common';
 import { encode } from 'ini';
 
@@ -61,15 +68,14 @@ export class DeviceService {
     device: DeviceListItemDTO,
     defaultValue?: string,
   ): Promise<void> {
-    const action = await this.promptService.menuSelect(
-      [
+    const action = await this.promptService.menu({
+      right: ToMenuEntry([
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
         [`${ICONS.ENTITIES}Entities`, 'entities'],
-      ],
-      undefined,
-      defaultValue,
-    );
-    if (action === DONE) {
+      ]),
+      value: defaultValue,
+    });
+    if (IsDone(action)) {
       return;
     }
     switch (action) {

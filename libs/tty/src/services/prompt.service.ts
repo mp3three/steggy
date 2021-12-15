@@ -9,7 +9,7 @@ import {
   TitleCase,
   UP,
   VALUE,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import figlet, { Fonts } from 'figlet';
@@ -25,7 +25,8 @@ import {
   PAGE_SIZE,
   SECONDARY_HEADER_FONT,
 } from '../config';
-import { DONE, ICONS, PromptMenuItems } from '../contracts';
+import { DONE, PromptMenuItems } from '../contracts';
+import { MainMenuOptions } from '../inquirer';
 
 const name = `result`;
 export type PROMPT_WITH_SHORT = { name: string; short: string };
@@ -43,12 +44,12 @@ const MAX_STRING_LENGTH = 300;
 export class PromptService {
   constructor(
     private readonly logger: AutoLogService,
-    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: Fonts,
-    @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
-    @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
     @InjectConfig(BLOCK_PRINT_BG) private readonly blockPrintBg: string,
     @InjectConfig(BLOCK_PRINT_FG) private readonly blockPrintFg: string,
+    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: Fonts,
     @InjectConfig(DISABLE_CLEAR) private readonly disableClear: boolean,
+    @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
+    @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
   ) {}
 
   /**
@@ -56,8 +57,8 @@ export class PromptService {
    *
    * Good for giving the user time to read a message before a screen clear happens
    */
-  public async acknowledge(prompt = 'Respond to continue'): Promise<void> {
-    await this.confirm(prompt, true);
+  public async acknowledge(): Promise<void> {
+    await inquirer.prompt([{ name, type: 'acknowledge' }]);
   }
 
   /**
@@ -282,16 +283,21 @@ export class PromptService {
     });
   }
 
-  public async menuSelect<T extends unknown = string>(
-    options: PromptEntry<T>[],
-    message: string,
-    defaultValue?: string | T,
+  public async menu<T extends unknown = string>(
+    options: MainMenuOptions<T>,
   ): Promise<T | string> {
-    return await this.pickOne<T>(
-      message,
-      [...options, new inquirer.Separator(), [`${ICONS.BACK}Done`, DONE as T]],
-      defaultValue,
-    );
+    options.keyMap ??= {};
+    options.keyMap ??= {
+      d: ['Done', DONE],
+    };
+    const { result } = await inquirer.prompt([
+      {
+        ...options,
+        name,
+        type: 'mainMenu',
+      } as MainMenuOptions<T>,
+    ]);
+    return result;
   }
 
   public async number(
@@ -442,7 +448,14 @@ export class PromptService {
       font: this.font,
     });
     this.clear();
-    console.log(chalk[color](header), '\n');
+    console.log(
+      `\n`,
+      chalk[color](header)
+        .split(`\n`)
+        .map((i) => `  ${i}`)
+        .join(`\n`),
+      '\n',
+    );
     return header.split(`\n`).pop().length;
   }
 
