@@ -1,5 +1,5 @@
-import { RoutineCommandTriggerRoutineDTO } from '@ccontour/controller-logic';
-import { PromptService } from '@ccontour/tty';
+import { RoutineCommandTriggerRoutineDTO } from '@for-science/controller-logic';
+import { PromptService } from '@for-science/tty';
 import { Injectable } from '@nestjs/common';
 
 import { RoutineService } from '../routine.service';

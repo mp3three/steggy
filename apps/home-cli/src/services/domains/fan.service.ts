@@ -2,10 +2,10 @@ import {
   FanCacheDTO,
   FanCacheSpeeds,
   RoomEntitySaveStateDTO,
-} from '@ccontour/controller-logic';
-import { FanSpeeds, FanStateDTO } from '@ccontour/home-assistant';
-import { DONE, ICONS, IsDone, PromptEntry, ToMenuEntry } from '@ccontour/tty';
-import { TitleCase } from '@ccontour/utilities';
+} from '@for-science/controller-logic';
+import { FanSpeeds, FanStateDTO } from '@for-science/home-assistant';
+import { DONE, ICONS, IsDone, PromptEntry, ToMenuEntry } from '@for-science/tty';
+import { TitleCase } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';

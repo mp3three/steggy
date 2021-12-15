@@ -9,7 +9,7 @@ import {
   TitleCase,
   UP,
   VALUE,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import figlet, { Fonts } from 'figlet';

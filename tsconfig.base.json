@@ -18,16 +18,16 @@
     "sourceMap": true,
     "target": "ESNext",
     "paths": {
-      "@ccontour": ["libs/mqtt/src/index.ts"],
-      "@ccontour/controller-logic": ["libs/controller-logic/src/index.ts"],
-      "@ccontour/home-assistant": ["libs/home-assistant/src/index.ts"],
-      "@ccontour/persistence": ["libs/persistence/src/index.ts"],
-      "@ccontour/portainer": ["libs/portainer/src/index.ts"],
-      "@ccontour/rules-engine": ["libs/rules-engine/src/index.ts"],
-      "@ccontour/server": ["libs/server/src/index.ts"],
-      "@ccontour/terminal": ["libs/terminal/src/index.ts"],
-      "@ccontour/tty": ["libs/tty/src/index.ts"],
-      "@ccontour/utilities": ["libs/utilities/src/index.ts"]
+      "@for-science": ["libs/mqtt/src/index.ts"],
+      "@for-science/controller-logic": ["libs/controller-logic/src/index.ts"],
+      "@for-science/home-assistant": ["libs/home-assistant/src/index.ts"],
+      "@for-science/persistence": ["libs/persistence/src/index.ts"],
+      "@for-science/portainer": ["libs/portainer/src/index.ts"],
+      "@for-science/rules-engine": ["libs/rules-engine/src/index.ts"],
+      "@for-science/server": ["libs/server/src/index.ts"],
+      "@for-science/terminal": ["libs/terminal/src/index.ts"],
+      "@for-science/tty": ["libs/tty/src/index.ts"],
+      "@for-science/utilities": ["libs/utilities/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,6 +1,6 @@
-import { EcobeeClimateStateDTO } from '@ccontour/home-assistant';
-import { DONE, IsDone, PromptEntry, ToMenuEntry } from '@ccontour/tty';
-import { TitleCase } from '@ccontour/utilities';
+import { EcobeeClimateStateDTO } from '@for-science/home-assistant';
+import { DONE, IsDone, PromptEntry, ToMenuEntry } from '@for-science/tty';
+import { TitleCase } from '@for-science/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import { SwitchService } from './switch.service';

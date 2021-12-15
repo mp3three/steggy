@@ -1,4 +1,4 @@
-import { HomeAssistantServerLogItem } from '@ccontour/home-assistant';
+import { HomeAssistantServerLogItem } from '@for-science/home-assistant';
 import {
   DONE,
   ICONS,
@@ -6,8 +6,8 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@ccontour/tty';
-import { AutoLogService, IsEmpty, TitleCase } from '@ccontour/utilities';
+} from '@for-science/tty';
+import { AutoLogService, IsEmpty, TitleCase } from '@for-science/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';

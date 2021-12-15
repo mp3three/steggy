@@ -6,7 +6,7 @@ import {
   RoomDTO,
   RoutineActivateOptionsDTO,
   RoutineDTO,
-} from '@ccontour/controller-logic';
+} from '@for-science/controller-logic';
 import {
   DONE,
   ICONS,
@@ -16,8 +16,8 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@ccontour/tty';
-import { IsEmpty, ResultControlDTO, TitleCase } from '@ccontour/utilities';
+} from '@for-science/tty';
+import { IsEmpty, ResultControlDTO, TitleCase } from '@for-science/utilities';
 import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';

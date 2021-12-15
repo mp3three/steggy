@@ -1,7 +1,7 @@
 import {
   DeviceListItemDTO,
   RelatedDescriptionDTO,
-} from '@ccontour/home-assistant';
+} from '@for-science/home-assistant';
 import {
   DONE,
   ICONS,
@@ -9,8 +9,8 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@ccontour/tty';
-import { AutoLogService, IsEmpty } from '@ccontour/utilities';
+} from '@for-science/tty';
+import { AutoLogService, IsEmpty } from '@for-science/utilities';
 import { forwardRef, Inject } from '@nestjs/common';
 import { encode } from 'ini';
 

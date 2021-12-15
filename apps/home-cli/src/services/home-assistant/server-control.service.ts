@@ -5,7 +5,7 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@ccontour/tty';
+} from '@for-science/tty';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 

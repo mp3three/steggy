@@ -5,7 +5,7 @@ import {
   InjectCache,
   UP,
   VALUE,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import chalk from 'chalk';
 
 import { iRepl, ReplOptions } from '../contracts';

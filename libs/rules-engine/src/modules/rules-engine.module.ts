@@ -1,4 +1,4 @@
-import { LibraryModule } from '@ccontour/utilities';
+import { LibraryModule } from '@for-science/utilities';
 
 import { LIB_RULES_ENGINE } from '../config';
 import {

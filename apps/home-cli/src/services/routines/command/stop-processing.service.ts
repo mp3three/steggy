@@ -1,5 +1,5 @@
-import { RoutineCommandStopProcessing } from '@ccontour/controller-logic';
-import { PromptService } from '@ccontour/tty';
+import { RoutineCommandStopProcessing } from '@for-science/controller-logic';
+import { PromptService } from '@for-science/tty';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

@@ -1,4 +1,4 @@
-import { HTTP_METHODS } from '@ccontour/utilities';
+import { HTTP_METHODS } from '@for-science/utilities';
 import { Injectable, RequestMapping, RequestMethod } from '@nestjs/common';
 
 // Conflict between compliler and linter

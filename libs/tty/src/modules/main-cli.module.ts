@@ -1,4 +1,4 @@
-import { LibraryModule, RegisterCache } from '@ccontour/utilities';
+import { LibraryModule, RegisterCache } from '@for-science/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { LIB_TTY } from '../config';

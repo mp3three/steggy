@@ -1,4 +1,4 @@
-import { AutoLogService, FetchService } from '@ccontour/utilities';
+import { AutoLogService, FetchService } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { RoutineCommandWebhookDTO } from '../../contracts';

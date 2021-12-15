@@ -8,7 +8,7 @@ import {
   LifecycleService,
   NEST_NOOP_LOGGER,
   UsePrettyLogger,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { INestApplication, ModuleMetadata } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';

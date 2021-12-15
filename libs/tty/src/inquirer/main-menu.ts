@@ -11,7 +11,7 @@ import {
   TitleCase,
   UP,
   VALUE,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';

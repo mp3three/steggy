@@ -1,4 +1,4 @@
-import { AutoLogService } from '@ccontour/utilities';
+import { AutoLogService } from '@for-science/utilities';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { v4 as uuid } from 'uuid';

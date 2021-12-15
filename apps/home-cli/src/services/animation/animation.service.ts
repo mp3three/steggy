@@ -1,5 +1,5 @@
-import { FlashAnimationDTO } from '@ccontour/controller-logic';
-import { HASS_DOMAINS } from '@ccontour/home-assistant';
+import { FlashAnimationDTO } from '@for-science/controller-logic';
+import { HASS_DOMAINS } from '@for-science/home-assistant';
 import {
   ColorsService,
   ICONS,
@@ -7,7 +7,7 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@ccontour/tty';
+} from '@for-science/tty';
 
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';

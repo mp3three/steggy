@@ -2,7 +2,7 @@ import {
   AutoLogService,
   FetchService,
   JSONFilterService,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import {
   ConflictException,
   Injectable,

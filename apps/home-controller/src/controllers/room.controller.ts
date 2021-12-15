@@ -3,15 +3,15 @@ import {
   RoomEntityDTO,
   RoomService,
   RoomStateDTO,
-} from '@ccontour/controller-logic';
-import { BaseSchemaDTO } from '@ccontour/persistence';
+} from '@for-science/controller-logic';
+import { BaseSchemaDTO } from '@for-science/persistence';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
   Locals,
   ResponseLocals,
-} from '@ccontour/server';
+} from '@for-science/server';
 import {
   Body,
   Controller,

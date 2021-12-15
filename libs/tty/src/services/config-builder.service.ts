@@ -11,7 +11,7 @@ import {
   TitleCase,
   UP,
   WorkspaceService,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import {
   Inject,
   Injectable,

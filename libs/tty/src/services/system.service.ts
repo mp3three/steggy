@@ -5,7 +5,7 @@ import {
   IsEmpty,
   PACKAGE_FILE,
   WorkspaceService,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';

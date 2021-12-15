@@ -1,5 +1,5 @@
-import { MainCLIModule } from '@ccontour/tty';
-import { ApplicationModule, UtilitiesModule } from '@ccontour/utilities';
+import { MainCLIModule } from '@for-science/tty';
+import { ApplicationModule, UtilitiesModule } from '@for-science/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { ChangelogService, ImgurAlbumDownloadService } from '../services';

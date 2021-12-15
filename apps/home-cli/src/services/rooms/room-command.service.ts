@@ -1,5 +1,5 @@
-import { GroupDTO, RoomDTO, RoomEntityDTO } from '@ccontour/controller-logic';
-import { HASS_DOMAINS } from '@ccontour/home-assistant';
+import { GroupDTO, RoomDTO, RoomEntityDTO } from '@for-science/controller-logic';
+import { HASS_DOMAINS } from '@for-science/home-assistant';
 import {
   DONE,
   ICONS,
@@ -9,14 +9,14 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@ccontour/tty';
+} from '@for-science/tty';
 import {
   AutoLogService,
   DOWN,
   FILTER_OPERATIONS,
   IsEmpty,
   UP,
-} from '@ccontour/utilities';
+} from '@for-science/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import { encode } from 'ini';
