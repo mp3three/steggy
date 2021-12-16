@@ -81,21 +81,14 @@ export class RoomCommandService {
     const rooms = await this.list();
     let room = await this.promptService.menu<RoomDTO | string>({
       keyMap: {
+        c: [`${ICONS.CREATE}Create`, 'create'],
         d: ['Done', DONE],
       },
-      right: ToMenuEntry([
-        ...this.promptService.conditionalEntries(!IsEmpty(rooms), [
-          new inquirer.Separator(chalk.white`Existing rooms`),
-          ...(rooms
-            .map((room) => [room.friendlyName, room])
-            .sort((a, b) => (a[NAME] > b[NAME] ? UP : DOWN)) as [
-            string,
-            RoomDTO,
-          ][]),
-        ]),
-        new inquirer.Separator(chalk.white`Actions`),
-        [`${ICONS.CREATE}Create`, 'create'],
-      ]),
+      right: ToMenuEntry(
+        rooms
+          .map((room) => [room.friendlyName, room] as PromptEntry<RoomDTO>)
+          .sort((a, b) => (a[NAME] > b[NAME] ? UP : DOWN)),
+      ),
       rightHeader: `Pick room`,
       value: this.lastRoom
         ? rooms.find(({ _id }) => _id === this.lastRoom)
@@ -158,50 +151,32 @@ export class RoomCommandService {
   ): Promise<void> {
     this.promptService.clear();
     this.promptService.scriptHeader(room.friendlyName);
-    if (!IsEmpty(room.entities)) {
-      console.log(chalk.bold.blue`${ICONS.ENTITIES}Entities `);
-      console.log(
-        room.entities
-          .map(({ entity_id }) => chalk`  {cyan.bold -} ${entity_id}`)
-          .sort((a, b) => (a > b ? UP : DOWN))
-          .join(`\n`),
-      );
-    }
-    if (!IsEmpty(room.groups)) {
-      if (!IsEmpty(room.entities)) {
-        console.log();
-      }
-      console.log(chalk.bold.blue`${ICONS.GROUPS}Groups `);
-      const groups = await this.groupCommand.list({
-        filters: new Set([
-          {
-            field: '_id',
-            operation: FILTER_OPERATIONS.in,
-            value: room.groups.join(','),
-          },
-        ]),
-      });
-      console.log(
-        groups
-          .map(({ friendlyName }) => chalk`  {cyan.bold -} ${friendlyName}`)
-          .sort((a, b) => (a > b ? UP : DOWN))
-          .join(`\n`),
-      );
-    }
-    console.log();
+
+    const groups = IsEmpty(room.groups)
+      ? []
+      : await this.groupCommand.list({
+          filters: new Set([
+            {
+              field: '_id',
+              operation: FILTER_OPERATIONS.in,
+              value: room.groups.join(','),
+            },
+          ]),
+        });
 
     room.save_states ??= [];
-    const [routines, states, entities, groups] = [
+    const [routines, states, entities] = [
       [`${ICONS.ROUTINE}Routines`, 'routines'],
       [`${ICONS.STATE_MANAGER}State Manager`, 'states'],
       [`${ICONS.ENTITIES}Entities`, 'entities'],
-      [`${ICONS.GROUPS}Groups`, 'groups'],
     ] as PromptEntry[];
-    const action = await this.promptService.menu({
+    const action = await this.promptService.menu<
+      GroupDTO | { entity_id: string }
+    >({
       keyMap: {
         d: ['Done', DONE],
         e: entities,
-        g: groups,
+        g: [`${ICONS.GROUPS}Groups`, 'groups'],
         p: [
           this.pinnedItems.isPinned('room', room._id) ? 'Unpin' : 'pin',
           'pin',
@@ -209,13 +184,27 @@ export class RoomCommandService {
         r: routines,
         s: states,
       },
+      left: ToMenuEntry([
+        ...this.promptService.conditionalEntries(!IsEmpty(room.entities), [
+          new inquirer.Separator('Entities'),
+          ...(room.entities.map(({ entity_id }) => {
+            return [entity_id, { entity_id }];
+          }) as PromptEntry<{ entity_id: string }>[]),
+        ]),
+        ...this.promptService.conditionalEntries(!IsEmpty(groups), [
+          new inquirer.Separator('Groups'),
+          ...(groups.map((group) => {
+            return [group.friendlyName, group];
+          }) as PromptEntry<GroupDTO>[]),
+        ]),
+      ] as PromptEntry[]),
       right: ToMenuEntry([
         new inquirer.Separator(chalk.white`Maintenance`),
         routines,
         states,
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
         entities,
-        groups,
+        [`${ICONS.GROUPS}Groups`, 'groups'],
         [`${ICONS.RENAME}Rename`, 'rename'],
         [`${ICONS.DELETE}Delete`, 'delete'],
       ]),
@@ -224,6 +213,12 @@ export class RoomCommandService {
     });
     if (IsDone(action)) {
       return;
+    }
+    if (typeof action === 'object') {
+      if (GroupDTO.isGroup(action)) {
+        return await this.groupCommand.process(action);
+      }
+      return await this.entityService.process(action.entity_id);
     }
     switch (action) {
       case 'pin':

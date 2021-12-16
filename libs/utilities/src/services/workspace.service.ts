@@ -247,8 +247,10 @@ export class WorkspaceService {
       if (!exists) {
         return;
       }
-      this.logger.debug(` - {${project}}`);
-      const data = JSON.parse(readFileSync(packageFile, 'utf-8'));
+      const data = JSON.parse(
+        readFileSync(packageFile, 'utf-8'),
+      ) as PackageJsonDTO;
+      this.logger.debug(` - [${project}] {${data.version}}`);
       this.PACKAGES.set(project, data);
     });
   }

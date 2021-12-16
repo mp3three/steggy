@@ -154,12 +154,20 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         entry: [this.highlight(result), item.entry[VALUE]],
       } as MainMenuEntry;
     });
-    const contained = highlighted.some(
-      ({ entry }) => entry[VALUE] === this.value,
-    );
-    if (!contained && !IsEmpty(highlighted)) {
-      this.value = highlighted[START].entry[VALUE];
-    }
+
+    // ? Sticky to first is easier to use while going fast, sticky to current is better going slow (subjective)
+    // Maybe make this a flag?
+
+    //  * Sticky value to first item
+    this.value = highlighted[START].entry[VALUE];
+
+    //  * Sticky the value the current (until it disappears)
+    // const contained = highlighted.some(
+    //   ({ entry }) => entry[VALUE] === this.value,
+    // );
+    // if (!contained && !IsEmpty(highlighted)) {
+    // this.value = highlighted[START].entry[VALUE];
+    // }
     return highlighted;
   }
 

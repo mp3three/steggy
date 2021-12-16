@@ -244,7 +244,7 @@ export class GroupCommandService implements iRepl {
 
   public async process(
     group: GroupDTO,
-    list: GroupDTO[],
+    list?: GroupDTO[],
     defaultValue?: string,
   ): Promise<void> {
     await this.header(group);
@@ -332,6 +332,7 @@ export class GroupCommandService implements iRepl {
         group = await this.update(group);
         return this.process(group, list, action);
       case 'state':
+        list = list ?? (await this.list());
         await this.groupState.processState(group, list);
         break;
       case DONE:
