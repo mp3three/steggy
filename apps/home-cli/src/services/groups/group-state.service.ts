@@ -313,7 +313,7 @@ export class GroupStateService {
       keyMap: {
         a: activate,
         c: copy,
-        d: ['Done', DONE],
+        d: [chalk.bold`Done`, DONE],
         e: edit,
         p: [
           this.pinnedItems.isPinned('group_state', state.id) ? 'Unpin' : 'Pin',

@@ -3,7 +3,7 @@ import {
   GroupDTO,
   RoutineCommandGroupActionDTO,
 } from '@for-science/controller-logic';
-import { ICONS, PromptEntry, PromptService } from '@for-science/tty';
+import { ICONS, KeyMap, PromptEntry, PromptService } from '@for-science/tty';
 import { AutoLogService } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 
@@ -16,6 +16,11 @@ export class LockGroupCommandService {
     private readonly fetchService: HomeFetchService,
     private readonly logger: AutoLogService,
   ) {}
+
+  public keyMap: KeyMap = {
+    l: [`${ICONS.TURN_ON}Lock`, 'lock'],
+    u: [`${ICONS.TURN_OFF}Unlock`, 'unlock'],
+  };
 
   public async commandBuilder(
     current?: string,

@@ -11,6 +11,7 @@ import {
   ICONS,
   iRepl,
   IsDone,
+  KeyMap,
   PinnedItemService,
   PromptEntry,
   PromptService,
@@ -88,9 +89,8 @@ export class GroupCommandService implements iRepl {
   public async create(): Promise<GroupDTO> {
     const type = (await this.promptService.menu<GROUP_TYPES>({
       keyMap: {
-        d: ['Done', DONE],
+        d: [chalk.bold`Done`, DONE],
       },
-      numericSelection: true,
       right: Object.values(GROUP_TYPES).map((type) => ({
         entry: [TitleCase(type, false), type],
         helpText: GROUP_DEFINITIONS.get(type),
@@ -156,9 +156,8 @@ export class GroupCommandService implements iRepl {
     const action = await this.promptService.menu<GroupDTO>({
       keyMap: {
         c: ['Create', 'create'],
-        d: ['Done', DONE],
+        d: [chalk.bold`Done`, DONE],
       },
-      numericSelection: true,
       right: ToMenuEntry([
         ...this.promptService.conditionalEntries(
           !IsEmpty(groups),
@@ -249,18 +248,21 @@ export class GroupCommandService implements iRepl {
   ): Promise<void> {
     await this.header(group);
     const actions: PromptEntry[] = [];
+    let map: KeyMap = {};
     switch (group.type) {
       case GROUP_TYPES.light:
         actions.push(
           LIGHT_COMMAND_SEPARATOR,
           ...(await this.lightGroup.groupActions()),
         );
+        map = this.lightGroup.keyMap;
         break;
       case GROUP_TYPES.switch:
         actions.push(
           LIGHT_COMMAND_SEPARATOR,
           ...(await this.switchGroup.groupActions()),
         );
+        map = this.switchGroup.keyMap;
         break;
       case GROUP_TYPES.fan:
         actions.push(
@@ -273,6 +275,7 @@ export class GroupCommandService implements iRepl {
           LIGHT_COMMAND_SEPARATOR,
           ...(await this.lockGroup.groupActions()),
         );
+        map = this.lockGroup.keyMap;
         break;
     }
     const [state] = [
@@ -281,7 +284,7 @@ export class GroupCommandService implements iRepl {
     const action = await this.promptService.menu<{ entity_id: string }>({
       keyMap: {
         a: [`Add entity`, 'add'],
-        d: ['Done', DONE],
+        d: [chalk.bold`Done`, DONE],
         m: [`${ICONS.ENTITIES}Manage Entities`, 'entities'],
         p: [
           this.pinnedItems.isPinned('group', group._id) ? 'Unpin' : 'Pin',
@@ -290,6 +293,7 @@ export class GroupCommandService implements iRepl {
         r: [`${ICONS.RENAME}Rename`, 'rename'],
         s: state,
         x: [`${ICONS.DELETE}Delete`, 'delete'],
+        ...map,
       },
       left: ToMenuEntry(
         group.entities.map((entity_id) => [entity_id, { entity_id }]),
@@ -447,7 +451,7 @@ export class GroupCommandService implements iRepl {
   private async updateEntities(group: GroupDTO): Promise<GroupDTO> {
     const action = await this.promptService.menu({
       keyMap: {
-        d: ['Done', DONE],
+        d: [chalk.bold`Done`, DONE],
       },
       right: ToMenuEntry([
         new inquirer.Separator(chalk.white`Maintenance`),

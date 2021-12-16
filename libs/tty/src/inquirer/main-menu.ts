@@ -20,6 +20,7 @@ import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
 import { Key } from 'readline';
 
+import { ICONS } from '..';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
 import { PromptEntry } from '../services';
 
@@ -50,13 +51,13 @@ export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
   });
   return out;
 }
+export type KeyMap = Record<string, PromptEntry>;
 
 export interface MainMenuOptions<T = unknown> {
   headerPadding?: number;
-  keyMap?: Record<string, PromptEntry>;
+  keyMap?: KeyMap;
   left?: MainMenuEntry<T | string>[];
   leftHeader?: string;
-  numericSelection?: boolean;
   right: MainMenuEntry<T | string>[];
   rightHeader?: string;
   showHeaders?: boolean;
@@ -89,7 +90,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.opt = questions;
     this.opt.left ??= [];
     this.opt.right ??= [];
-    this.opt.showHeaders ??= true;
+    this.opt.showHeaders ??= !IsEmpty(this.opt.left);
     this.opt.left.forEach((i) => (i.type ??= ''));
     this.opt.right.forEach((i) => (i.type ??= ''));
     this.opt.keyMap ??= {};
@@ -112,7 +113,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
 
   public _run(callback: tCallback): this {
     this.done = callback;
-    const defaultValue = this.side('right')[START].entry[VALUE];
+    const defaultValue = this.side('right')[START]?.entry[VALUE];
     this.value ??= defaultValue;
     const isLeftSide = this.side('left').some(
       (i) => i.entry[VALUE] === this.value,
@@ -354,28 +355,13 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       case 'down':
         this.next();
         break;
-      case 'backspace':
-        if (!this.opt.numericSelection) {
-          return;
-        }
-        this.numericSelection = this.numericSelection.slice(
-          START,
-          FIRST * INVERT_VALUE,
-        );
-        this.value =
-          this.side()[
-            Number(
-              IsEmpty(this.numericSelection ? '1' : this.numericSelection),
-            ) - ARRAY_OFFSET
-          ]?.entry[VALUE];
-        break;
       default:
         if (typeof this.opt.keyMap[mixed] !== 'undefined') {
           this.value = this.opt.keyMap[mixed][VALUE];
           this.onEnd();
           return;
         }
-        if ('0123456789'.includes(mixed) && this.opt.numericSelection) {
+        if ('0123456789'.includes(mixed)) {
           this.numericSelection = mixed;
           this.value =
             this.side()[
@@ -510,6 +496,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         chalk.blue.dim` ${'='.repeat(longestLine)}`,
         HELP_TEXT,
         ...Object.keys(this.opt.keyMap)
+          .filter((key) => Array.isArray(this.opt.keyMap[key]))
           .sort((a, b) => {
             if (a.length > b.length) {
               return UP;
@@ -544,6 +531,13 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     }
     const maxType = ansiMaxLength(menu.map(({ type }) => type));
     let last = '';
+    const maxLabel =
+      ansiMaxLength(menu.map(({ entry }) => entry[LABEL])) + ARRAY_OFFSET;
+    if (IsEmpty(menu)) {
+      out.push(
+        chalk.bold` ${ICONS.WARNING}{yellowBright.inverse  No actions to select from }`,
+      );
+    }
     menu.forEach((item, index) => {
       let prefix = ansiPadEnd(item.type, maxType);
       if (this.opt.titleTypes) {
@@ -562,19 +556,18 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         prefix = ``;
       }
       const inverse = item.entry[VALUE] === this.value;
-      const selectIndex =
-        this.mode === 'select' &&
-        this.opt.numericSelection &&
-        index < SINGLE_DIGIT
-          ? `${index + ARRAY_OFFSET}) `
-          : ``;
-      out.push(
-        this.selectedType === side
-          ? chalk`{magenta.bold ${prefix}} {${
-              inverse ? 'bgCyanBright.black' : 'white'
-            }  ${selectIndex}${item.entry[LABEL]} }`
-          : chalk`{gray ${prefix}  ${item.entry[LABEL]} }`,
-      );
+
+      const padded = ansiPadEnd(item.entry[LABEL], maxLabel);
+
+      if (this.selectedType === side) {
+        out.push(
+          chalk`{magenta.bold ${prefix}} {${
+            inverse ? 'bgCyanBright.black' : 'white'
+          }  ${padded} }`,
+        );
+        return;
+      }
+      out.push(chalk`{gray ${prefix}  {gray ${padded}} }`);
     });
     const max = ansiMaxLength(out);
     if (header) {

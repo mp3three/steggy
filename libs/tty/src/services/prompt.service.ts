@@ -288,7 +288,7 @@ export class PromptService {
   ): Promise<T | string> {
     options.keyMap ??= {};
     options.keyMap ??= {
-      d: ['Done', DONE],
+      d: [chalk.bold`Done`, DONE],
     };
     const { result } = await inquirer.prompt([
       {
@@ -454,7 +454,6 @@ export class PromptService {
         .split(`\n`)
         .map((i) => `  ${i}`)
         .join(`\n`),
-      '\n',
     );
     return header.split(`\n`).pop().length;
   }

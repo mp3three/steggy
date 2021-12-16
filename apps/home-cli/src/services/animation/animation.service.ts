@@ -2,12 +2,14 @@ import { FlashAnimationDTO } from '@for-science/controller-logic';
 import { HASS_DOMAINS } from '@for-science/home-assistant';
 import {
   ColorsService,
+  DONE,
   ICONS,
   IsDone,
   PromptService,
   Repl,
   ToMenuEntry,
 } from '@for-science/tty';
+import chalk from 'chalk';
 
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
@@ -19,7 +21,9 @@ const DEFAULT_INTERVAL = 250;
 @Repl({
   category: 'Misc',
   icon: ICONS.ANIMATION,
-  name: 'Animation',
+  keyOnly: true,
+  keybind: 'f9',
+  name: 'Misc',
 })
 export class AnimationService {
   constructor(
@@ -31,7 +35,9 @@ export class AnimationService {
 
   public async exec(defaultAction?: string): Promise<void> {
     const action = await this.promptService.menu({
+      keyMap: { d: [chalk.bold`Done`, DONE] },
       right: ToMenuEntry([[`Flash`, 'flash']]),
+      showHeaders: false,
       value: defaultAction,
     });
     if (IsDone(action)) {

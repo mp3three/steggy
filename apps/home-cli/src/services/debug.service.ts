@@ -72,7 +72,7 @@ For loop example getting entity values in the weather domain:
   public async exec(defaultAction?: string): Promise<void> {
     const action = await this.promptService.menu({
       keyMap: {
-        d: ['Done', DONE],
+        d: [chalk.bold`Done`, DONE],
       },
       right: ToMenuEntry([
         [`Manage configuration`, 'configure'],

@@ -82,7 +82,7 @@ export class RoomCommandService {
     let room = await this.promptService.menu<RoomDTO | string>({
       keyMap: {
         c: [`${ICONS.CREATE}Create`, 'create'],
-        d: ['Done', DONE],
+        d: [chalk.bold`Done`, DONE],
       },
       right: ToMenuEntry(
         rooms
@@ -174,15 +174,19 @@ export class RoomCommandService {
       GroupDTO | { entity_id: string }
     >({
       keyMap: {
-        d: ['Done', DONE],
+        a: ['Add entities', 'add-entities'],
+        d: [chalk.bold`Done`, DONE],
         e: entities,
         g: [`${ICONS.GROUPS}Groups`, 'groups'],
+        m: ['Remove entities', 'remove-entities'],
         p: [
           this.pinnedItems.isPinned('room', room._id) ? 'Unpin' : 'pin',
           'pin',
         ],
-        r: routines,
+        r: [`${ICONS.RENAME}Rename`, 'rename'],
         s: states,
+        t: routines,
+        x: [`${ICONS.DELETE}Delete`, 'delete'],
       },
       left: ToMenuEntry([
         ...this.promptService.conditionalEntries(!IsEmpty(room.entities), [
@@ -199,16 +203,12 @@ export class RoomCommandService {
         ]),
       ] as PromptEntry[]),
       right: ToMenuEntry([
-        new inquirer.Separator(chalk.white`Maintenance`),
         routines,
         states,
-        [`${ICONS.DESCRIBE}Describe`, 'describe'],
         entities,
         [`${ICONS.GROUPS}Groups`, 'groups'],
-        [`${ICONS.RENAME}Rename`, 'rename'],
-        [`${ICONS.DELETE}Delete`, 'delete'],
       ]),
-      rightHeader: `Action`,
+      showHeaders: false,
       value: defaultAction,
     });
     if (IsDone(action)) {
@@ -241,6 +241,20 @@ export class RoomCommandService {
         );
         room = await this.update(room);
         return await this.processRoom(room, action);
+      case 'add-entities':
+        const entityAppend = await this.buildEntityList(
+          room.entities.map((item) => item.entity_id),
+        );
+        if (IsEmpty(entityAppend)) {
+          this.logger.debug(`Nothing to add`);
+          return;
+        }
+        room.entities.push(...entityAppend);
+        room = await this.update(room);
+        return await this.processRoom(room, action);
+      case 'remove-entities':
+        room = await this.removeEntities(room);
+        return await this.processRoom(room, action);
       case 'delete':
         if (
           !(await this.promptService.confirm(
@@ -256,14 +270,10 @@ export class RoomCommandService {
           url: `/room/${room._id}`,
         });
         return;
-      case 'describe':
-        console.log(encode(room));
-        return await this.processRoom(room, action);
-      case 'entities':
-        room = await this.roomEntities(room);
-        return await this.processRoom(room, action);
       case 'groups':
-        await this.roomGroups(room);
+        const added = await this.groupCommand.pickMany([], room.groups);
+        room.groups = added.map(({ _id }) => _id);
+        room = await this.update(room);
         return await this.processRoom(room, action);
     }
   }
@@ -343,91 +353,19 @@ export class RoomCommandService {
     return current;
   }
 
-  private async roomEntities(room: RoomDTO): Promise<RoomDTO> {
-    const action = await this.promptService.menu({
-      right: ToMenuEntry([
-        ...this.promptService.conditionalEntries(!IsEmpty(room.entities), [
-          new inquirer.Separator(chalk.white`Manipulate`),
-          ...(room.entities.map(({ entity_id }) => [
-            entity_id,
-            entity_id,
-          ]) as PromptEntry[]),
-          new inquirer.Separator(chalk.white`Maintenance`),
-          [`${ICONS.DELETE}Remove`, 'remove'],
-        ]),
-        [`${ICONS.CREATE}Add`, 'add'],
-      ]),
-      rightHeader: `Room entities`,
+  private async removeEntities(room: RoomDTO): Promise<RoomDTO> {
+    const entities = await this.promptService.pickMany(
+      `Keep selected`,
+      room.entities
+        .map(({ entity_id }) => [entity_id, entity_id])
+        .sort(([a], [b]) => (a > b ? UP : DOWN)) as PromptEntry[],
+      { default: room.entities.map(({ entity_id }) => entity_id) },
+    );
+    return await this.update({
+      ...room,
+      entities: room.entities.filter((item) =>
+        entities.includes(item.entity_id),
+      ),
     });
-    if (IsDone(action)) {
-      return room;
-    }
-    if (action === 'add') {
-      const entityAppend = await this.buildEntityList(
-        room.entities.map((item) => item.entity_id),
-      );
-      if (IsEmpty(entityAppend)) {
-        this.logger.debug(`Nothing to add`);
-        return;
-      }
-      room.entities.push(...entityAppend);
-      room = await this.update(room);
-      return await this.roomEntities(room);
-    }
-    if (action === 'remove') {
-      const entities = await this.promptService.pickMany(
-        `Keep selected`,
-        room.entities
-          .map(({ entity_id }) => [entity_id, entity_id])
-          .sort(([a], [b]) => (a > b ? UP : DOWN)) as PromptEntry[],
-        { default: room.entities.map(({ entity_id }) => entity_id) },
-      );
-      room = await this.update({
-        ...room,
-        entities: room.entities.filter((item) =>
-          entities.includes(item.entity_id),
-        ),
-      });
-      return await this.roomEntities(room);
-    }
-    await this.entityService.process(action);
-    return await this.roomEntities(room);
-  }
-
-  private async roomGroups(room: RoomDTO): Promise<void> {
-    room.groups ??= [];
-    if (IsEmpty(room.groups)) {
-      this.logger.warn(`No current groups in room`);
-    }
-    const allGroups = await this.groupCommand.list();
-    const action = await this.promptService.menu<GroupDTO>({
-      right: ToMenuEntry([
-        [`${ICONS.RENAME}Update`, 'update'],
-        ...this.promptService.conditionalEntries(!IsEmpty(room.groups), [
-          new inquirer.Separator(chalk.white(`Current groups`)),
-          ...(allGroups
-            .filter(({ _id }) => room.groups.includes(_id))
-            .map((group) => [
-              group.friendlyName,
-              group,
-            ]) as PromptEntry<GroupDTO>[]),
-        ]),
-      ]),
-      rightHeader: `Room groups`,
-    });
-    switch (action) {
-      case DONE:
-        return;
-      case 'update':
-        const added = await this.groupCommand.pickMany([], room.groups);
-        room.groups = added.map(({ _id }) => _id);
-        room = await this.update(room);
-        return await this.roomGroups(room);
-    }
-    if (typeof action === 'string') {
-      this.logger.error({ action }, `Not implemented`);
-      return;
-    }
-    await this.groupCommand.process(action, allGroups);
   }
 }

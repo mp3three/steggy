@@ -9,6 +9,7 @@ import { LightStateDTO } from '@for-science/home-assistant';
 import {
   ColorsService,
   ICONS,
+  KeyMap,
   PromptEntry,
   PromptService,
   RGB,
@@ -53,6 +54,15 @@ export class LightGroupCommandService {
     private readonly lightDomain: LightService,
     private readonly colorService: ColorsService,
   ) {}
+
+  public keyMap: KeyMap = {
+    '[': [`${ICONS.UP}Dim Up`, 'dimUp'],
+    ']': [`${ICONS.DOWN}Dim Down`, 'dimDown'],
+    b: [`${ICONS.BRIGHTNESS}Set Brightness`, `setBrightness`],
+    c: [`${ICONS.CIRCADIAN}Circadian`, `circadianOn`],
+    e: [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
+    f: [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
+  };
 
   public async circadianOn(group: GroupDTO | string): Promise<void> {
     group = typeof group === 'string' ? group : group._id;
@@ -149,13 +159,8 @@ export class LightGroupCommandService {
 
   public async header(group: GroupDTO): Promise<void> {
     this.promptService.scriptHeader(`Group`);
-    console.log(
-      [
-        chalk.magenta.bold`${group.friendlyName}`,
-        chalk.yellow.bold`${TitleCase(group.type)} Group`,
-      ].join(chalk.cyan(' - ')),
-      `\n\n`,
-    );
+    this.promptService.secondaryHeader(group.friendlyName);
+    console.log(chalk.yellow.bold`${TitleCase(group.type)} Group\n`);
     let maxId = 0;
     let maxName = 0;
     const lines: string[][] = [];

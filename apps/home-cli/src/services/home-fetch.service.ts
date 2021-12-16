@@ -32,7 +32,7 @@ export class HomeFetchService {
     const result = await this.fetchService.fetch<OUTPUT>(fetch);
     if (typeof result === 'undefined' || result === '') {
       counter++;
-      console.log(chalk` {blue !} Could not connect to controller`);
+      console.log(chalk.bold` {blue !} Could not connect to controller`);
       await sleep();
       return await this.fetch(fetch, counter);
     }

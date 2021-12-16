@@ -18,8 +18,8 @@ export function ansiStrip(text = ''): string {
 }
 
 export function ansiPadEnd(text: string, amount: number): string {
-  const stripped = ansiStrip(text);
-  const padding = stripped.padEnd(amount, ' ').slice(stripped.length);
+  const length = ansiStrip(text).length;
+  const padding = ' '.repeat(amount - length);
   return text + padding;
 }
 

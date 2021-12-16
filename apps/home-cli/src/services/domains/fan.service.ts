@@ -4,7 +4,14 @@ import {
   RoomEntitySaveStateDTO,
 } from '@for-science/controller-logic';
 import { FanSpeeds, FanStateDTO } from '@for-science/home-assistant';
-import { DONE, ICONS, IsDone, PromptEntry, ToMenuEntry } from '@for-science/tty';
+import {
+  DONE,
+  ICONS,
+  IsDone,
+  KeyMap,
+  PromptEntry,
+  ToMenuEntry,
+} from '@for-science/tty';
 import { TitleCase } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
@@ -95,6 +102,13 @@ export class FanService extends SwitchService {
     });
   }
 
+  protected buildKeymap(id: string): KeyMap {
+    return {
+      ...super.buildKeymap(id),
+      '[': [`${ICONS.DOWN}Speed Down`, 'fanSpeedDown'],
+      ']': [`${ICONS.UP}Speed Up`, 'fanSpeedUp'],
+    };
+  }
   protected getMenuOptions(): PromptEntry[] {
     return [
       [`${ICONS.UP}Speed Up`, 'fanSpeedUp'],

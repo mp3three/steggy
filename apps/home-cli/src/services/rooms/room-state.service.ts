@@ -110,23 +110,22 @@ export class RoomStateService {
 
   public async process(room: RoomDTO): Promise<RoomDTO> {
     const action = await this.promptService.menu({
-      right: ToMenuEntry([
-        ...this.promptService.conditionalEntries(!IsEmpty(room.save_states), [
-          new inquirer.Separator(chalk.white(`Current states`)),
-          ...(room.save_states
-            .map((state) => [state.friendlyName, state])
-            .sort(([a], [b]) =>
-              a > b ? UP : DOWN,
-            ) as PromptEntry<RoomStateDTO>[]),
-        ]),
-        new inquirer.Separator(chalk.white(`Manipulate`)),
-        [`${ICONS.CREATE}Create`, 'create'],
-        [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
-      ]),
+      keyMap: {
+        c: [`${ICONS.CREATE}Create`, 'create'],
+        d: [chalk.bold`Done`, DONE],
+        f12: [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
+      },
+      right: ToMenuEntry(
+        room.save_states
+          .map((state) => [state.friendlyName, state])
+          .sort(([a], [b]) =>
+            a > b ? UP : DOWN,
+          ) as PromptEntry<RoomStateDTO>[],
+      ),
       rightHeader: `Pick state`,
     });
     if (IsDone(action)) {
-      return;
+      return room;
     }
     switch (action) {
       case 'create':
@@ -161,12 +160,12 @@ export class RoomStateService {
     this.promptService.scriptHeader(`Room State`);
     await this.header(room, state);
     const [activate] = [
-      [`${ICONS.ACTIVATE}Activate`, 'activate']
-    ] as PromptEntry[]
+      [`${ICONS.ACTIVATE}Activate`, 'activate'],
+    ] as PromptEntry[];
     const action = await this.promptService.menu({
       keyMap: {
         a: activate,
-        d: ['Done', DONE],
+        d: [chalk.bold`Done`, DONE],
         p: [
           this.pinnedItems.isPinned('room_state', state.id) ? 'Unpin' : 'Pin',
           'pin',
