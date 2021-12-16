@@ -71,7 +71,6 @@ const SINGLE_ITEM = 1;
 const MAX_SEARCH_SIZE = 50;
 const EMPTY_TEXT = chalk`{magenta   }`;
 const TEMP_TEMPLATE_SIZE = 3;
-const SINGLE_DIGIT = 9;
 const BIGGEST_KEYBIND = 6;
 
 const HELP_TEXT = [
@@ -538,7 +537,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         chalk.bold` ${ICONS.WARNING}{yellowBright.inverse  No actions to select from }`,
       );
     }
-    menu.forEach((item, index) => {
+    menu.forEach((item) => {
       let prefix = ansiPadEnd(item.type, maxType);
       if (this.opt.titleTypes) {
         prefix = TitleCase(prefix);

@@ -171,26 +171,22 @@ export class GroupStateService {
       url: `/group/${group._id}`,
     });
     const action = await this.promptService.menu<GroupSaveStateDTO>({
-      right: ToMenuEntry([
-        ...(this.promptService.conditionalEntries(!IsEmpty(group.save_states), [
-          new inquirer.Separator(chalk.white`Current save states`),
-          ...(
-            group.save_states.map((state) => [state.friendlyName, state]) as [
-              string,
-              GroupSaveStateDTO,
-            ][]
-          ).sort(([a], [b]) => (a > b ? UP : DOWN)),
-        ]) as PromptEntry<GroupSaveStateDTO>[]),
-        new inquirer.Separator(chalk.white`Manipulate`),
-        [`${ICONS.CREATE}Manual create`, 'create'],
-        [`${ICONS.CAPTURE}Capture current`, 'capture'],
-        [`${ICONS.DESCRIBE}Describe current`, 'describe'],
-        [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
-      ]),
+      keyMap: {
+        c: [`${ICONS.CAPTURE}Capture current`, 'capture'],
+        d: [chalk.bold`Done`, DONE],
+        m: [`${ICONS.CREATE}Manual create`, 'create'],
+        t: [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
+      },
+      right: ToMenuEntry(
+        group.save_states.map((state) => [state.friendlyName, state]) as [
+          string,
+          GroupSaveStateDTO,
+        ][],
+      ),
       rightHeader: `State management`,
       value: defaultAction,
     });
-    if (action === DONE) {
+    if (IsDone(action)) {
       return;
     }
     if (action === 'create') {
@@ -222,12 +218,11 @@ export class GroupStateService {
       });
       return await this.processState(group, list, action);
     }
-    if (action === 'describe') {
-      this.promptService.print(dump(group.state));
-      return await this.processState(group, list, action);
-    }
     if (typeof action === 'string') {
       this.logger.error({ action }, `Unknown action`);
+      return;
+    }
+    if (!action) {
       return;
     }
     group = await this.stateAction(action, group);

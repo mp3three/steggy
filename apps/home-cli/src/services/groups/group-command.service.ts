@@ -251,30 +251,19 @@ export class GroupCommandService implements iRepl {
     let map: KeyMap = {};
     switch (group.type) {
       case GROUP_TYPES.light:
-        actions.push(
-          LIGHT_COMMAND_SEPARATOR,
-          ...(await this.lightGroup.groupActions()),
-        );
+        actions.push(...(await this.lightGroup.groupActions()));
         map = this.lightGroup.keyMap;
         break;
       case GROUP_TYPES.switch:
-        actions.push(
-          LIGHT_COMMAND_SEPARATOR,
-          ...(await this.switchGroup.groupActions()),
-        );
+        actions.push(...(await this.switchGroup.groupActions()));
         map = this.switchGroup.keyMap;
         break;
       case GROUP_TYPES.fan:
-        actions.push(
-          LIGHT_COMMAND_SEPARATOR,
-          ...(await this.fanGroup.groupActions()),
-        );
+        actions.push(...(await this.fanGroup.groupActions()));
+        map = this.fanGroup.keyMap;
         break;
       case GROUP_TYPES.lock:
-        actions.push(
-          LIGHT_COMMAND_SEPARATOR,
-          ...(await this.lockGroup.groupActions()),
-        );
+        actions.push(...(await this.lockGroup.groupActions()));
         map = this.lockGroup.keyMap;
         break;
     }

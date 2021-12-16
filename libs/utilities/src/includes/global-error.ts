@@ -62,23 +62,28 @@ const prettyError = (error: Error) => {
     maxLine = Math.max(maxLine, parts[FIRST].length);
     lines.push([method, parts, localItem]);
   });
+  let foundMostRecent = false;
   console.log(
     chalk.red(
       lines
-        .map(
-          ([method, parts, isLocal], index) =>
-            chalk`  {cyan ${index})} {${
-              isLocal ? 'bold' : 'dim'
-            } ${method.padEnd(maxMethod, ' ')}} ${parts
-              .shift()
-              .padEnd(maxPath, ' ')
-              .replace(
-                'node_modules',
-                chalk.dim('node_modules'),
-              )} {cyan.bold ${parts.shift().padStart(maxLine, ' ')}}${
-              parts[START] ? chalk`{white :}{cyan ${parts.shift()}}` : ``
-            }`,
-        )
+        .map(([method, parts, isLocal], index) => {
+          let color = '';
+          if (isLocal && !foundMostRecent) {
+            foundMostRecent = true;
+            color += '.inverse';
+          }
+          return chalk`  {cyan${color} ${index})} {${
+            isLocal ? 'bold' : 'dim'
+          } ${method.padEnd(maxMethod, ' ')}} ${parts
+            .shift()
+            .padEnd(maxPath, ' ')
+            .replace(
+              'node_modules',
+              chalk.dim('node_modules'),
+            )} {cyan.bold${color} ${parts.shift().padStart(maxLine, ' ')}}${
+            parts[START] ? chalk`{white :}{cyan${color} ${parts.shift()}}` : ``
+          }`;
+        })
         .join(`\n`),
     ),
   );

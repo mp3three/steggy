@@ -11,7 +11,6 @@ import { AutoLogService, IsEmpty, TitleCase } from '@for-science/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
-import execa from 'execa';
 
 import { HomeFetchService } from '../home-fetch.service';
 

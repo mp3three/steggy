@@ -92,6 +92,9 @@ export class RoutineService {
         ]),
       ),
     });
+    if (IsDone(action)) {
+      return;
+    }
     if (action === 'all') {
       return await this.exec(!all);
     }
@@ -191,20 +194,16 @@ export class RoutineService {
           this.pinnedItems.isPinned('routine', routine._id) ? 'Unpin' : 'Pin',
           'pin',
         ],
+        r: [`${ICONS.RENAME}Rename`, 'rename'],
         s: [
           routine.sync
             ? `${ICONS.SWAP}Run commands in parallel`
             : `${ICONS.SWAP}Run commands in series`,
           `sync`,
         ],
+        x: [`${ICONS.DELETE}Delete`, 'delete'],
       },
-      right: ToMenuEntry([
-        activate,
-        [`${ICONS.DELETE}Delete`, 'delete'],
-        [`${ICONS.RENAME}Rename`, 'rename'],
-        events,
-        command,
-      ]),
+      right: ToMenuEntry([activate, events, command]),
       rightHeader: `Manage routine`,
       value: defaultAction,
     });
@@ -265,6 +264,9 @@ export class RoutineService {
 
   public async promptActivate(routine: RoutineDTO): Promise<void> {
     const action = await this.promptService.menu({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: ToMenuEntry([
         [`Immediate`, 'immediate'],
         [`Timeout`, 'timeout'],
