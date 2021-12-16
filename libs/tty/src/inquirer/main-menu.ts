@@ -71,7 +71,7 @@ const SINGLE_ITEM = 1;
 const MAX_SEARCH_SIZE = 50;
 const EMPTY_TEXT = chalk`{magenta   }`;
 const TEMP_TEMPLATE_SIZE = 3;
-const BIGGEST_KEYBIND = 6;
+const BIGGEST_KEYBIND = 'ctrl-f'.length;
 
 const HELP_TEXT = [
   // First line gets an extra space... because reasons?
@@ -136,7 +136,10 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.value = list[list.length - ARRAY_OFFSET].entry[VALUE];
   }
 
-  private filterMenu(data: MainMenuEntry[]): MainMenuEntry[] {
+  private filterMenu(
+    data: MainMenuEntry[],
+    updateValue = false,
+  ): MainMenuEntry[] {
     const entries = data.map((i) => ({
       label: i.entry[LABEL],
       value: i.entry[VALUE],
@@ -154,6 +157,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         entry: [this.highlight(result), item.entry[VALUE]],
       } as MainMenuEntry;
     });
+    if (IsEmpty(highlighted) || updateValue === false) {
+      return highlighted;
+    }
 
     // ? Sticky to first is easier to use while going fast, sticky to current is better going slow (subjective)
     // Maybe make this a flag?
@@ -400,14 +406,14 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         START,
         ARRAY_OFFSET * INVERT_VALUE,
       );
-      return this.render();
+      return this.render(true);
     }
     if (['up', 'down', 'home', 'pageup', 'end', 'pagedown'].includes(key)) {
       this.navigateSearch(key);
     }
     if (key === 'space') {
       this.searchText += ' ';
-      return this.render();
+      return this.render(true);
     }
     if (key.length > SINGLE_ITEM) {
       if (typeof this.opt.keyMap[key] !== 'undefined') {
@@ -417,7 +423,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       return;
     }
     this.searchText += key;
-    this.render();
+    this.render(true);
   }
 
   private previous(): void {
@@ -435,7 +441,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.value = list[index - INCREMENT].entry[VALUE];
   }
 
-  private render(): void {
+  private render(updateValue = false): void {
     if (this.status === 'answered') {
       const entry = this.getSelected();
       if (entry) {
@@ -446,10 +452,10 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     if (this.mode === 'select') {
       return this.renderSelect();
     }
-    this.renderFind();
+    this.renderFind(updateValue);
   }
 
-  private renderFind(): void {
+  private renderFind(updateValue = false): void {
     const searchText = IsEmpty(this.searchText)
       ? chalk.bgBlue`Type to filter`
       : this.searchText;
@@ -458,7 +464,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       chalk[IsEmpty(this.searchText) ? 'bgBlue' : 'bgWhite']
         .black` ${ansiPadEnd(searchText, MAX_SEARCH_SIZE)} `,
       ` `,
-      ...this.renderSide(undefined, false),
+      ...this.renderSide(undefined, false, updateValue),
     ];
     this.screen.render(out.join(`\n`), '');
   }
@@ -522,11 +528,12 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   private renderSide(
     side: 'left' | 'right' = this.selectedType,
     header = this.opt.showHeaders,
+    updateValue = false,
   ): string[] {
     const out: string[] = [''];
     let menu = this.side(side);
     if (this.mode === 'find' && !IsEmpty(this.searchText)) {
-      menu = this.filterMenu(menu);
+      menu = this.filterMenu(menu, updateValue);
     }
     const maxType = ansiMaxLength(menu.map(({ type }) => type));
     let last = '';

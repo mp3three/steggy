@@ -135,7 +135,18 @@ export class BaseDomainService {
         await this.changeEntityId(id);
         return await this.processId(id, action);
       case 'registry':
-        await this.fromRegistry(id);
+        const item: RelatedDescriptionDTO = await this.fetchService.fetch({
+          url: `/entity/registry/${id}`,
+        });
+        if (IsEmpty(item.device ?? [])) {
+          console.log(
+            chalk`\n{bold.red !! } No devices associated with entity`,
+          );
+          await this.promptService.acknowledge();
+          return;
+        }
+        const device = await this.deviceService.pickOne(item.device);
+        await this.deviceService.process(device);
         return await this.processId(id, action);
       case 'history':
         await this.showHistory(id);
@@ -280,7 +291,7 @@ export class BaseDomainService {
       i: [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
       n: [`${ICONS.RENAME}Change Friendly Name`, 'changeFriendlyName'],
       p: [this.pinnedItem.isPinned('entity', id) ? 'Unpin' : 'pin', 'pin'],
-      r: ['Refresh', 'refresh'],
+      r: [`${ICONS.REFRESH}Refresh`, 'refresh'],
     };
   }
 
@@ -303,35 +314,6 @@ export class BaseDomainService {
       method: 'put',
       url: `/entity/rename/${id}`,
     });
-  }
-
-  protected async fromRegistry(id: string): Promise<void> {
-    const item: RelatedDescriptionDTO = await this.fetchService.fetch({
-      url: `/entity/registry/${id}`,
-    });
-    const action = await this.promptService.menu({
-      right: ToMenuEntry([
-        [`${ICONS.DESCRIBE}Describe`, 'describe'],
-        [`${ICONS.DEVICE}Device`, 'device'],
-      ]),
-      rightHeader: `Entity basics`,
-    });
-    if (IsDone(action)) {
-      return;
-    }
-    switch (action) {
-      case 'describe':
-        console.log(encode(item));
-        return;
-      case 'device':
-        if (IsEmpty(item.device ?? [])) {
-          this.logger.error({ item }, `No devices listed`);
-          return;
-        }
-        const device = await this.deviceService.pickOne(item.device);
-        await this.deviceService.process(device);
-        return;
-    }
   }
 
   protected getMenuOptions(): PromptEntry[] {

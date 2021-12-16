@@ -325,7 +325,7 @@ export class GroupStateService {
       value: defaultAction,
     });
     if (IsDone(action)) {
-      return;
+      return group;
     }
     switch (action) {
       case 'pin':
