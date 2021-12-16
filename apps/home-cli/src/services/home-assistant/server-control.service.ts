@@ -24,6 +24,9 @@ export class ServerControlService {
 
   public async exec(defaultAction: string): Promise<void> {
     const action = await this.promptService.menu({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: ToMenuEntry([
         new inquirer.Separator(chalk.white`Configuration validation`),
         [`Check configuration yaml`, 'check'],
@@ -46,6 +49,7 @@ export class ServerControlService {
         ['Zones', 'zone'],
       ]),
       rightHeader: `Command`,
+      showHeaders: false,
       value: defaultAction,
     });
     if (IsDone(action)) {

@@ -14,11 +14,13 @@ import {
 } from '@for-science/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
+import fuzzy from 'fuzzysort';
 import { Question } from 'inquirer';
 import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
 import { Key } from 'readline';
 
+import { ICONS } from '..';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
 import { PromptEntry } from '../services';
 
@@ -29,6 +31,7 @@ type tCallback = (value: unknown) => void;
 export type MenuEntry<T extends unknown = string> = [string, T];
 export interface MainMenuEntry<T = unknown> {
   entry: MenuEntry<T>;
+  helpText?: string;
   icon?: string;
   type?: string;
 }
@@ -48,14 +51,16 @@ export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
   });
   return out;
 }
+export type KeyMap = Record<string, PromptEntry>;
 
 export interface MainMenuOptions<T = unknown> {
   headerPadding?: number;
-  keyMap?: Record<string, PromptEntry>;
-  left?: MainMenuEntry<T>[];
+  keyMap?: KeyMap;
+  left?: MainMenuEntry<T | string>[];
   leftHeader?: string;
-  right: MainMenuEntry<T>[];
+  right: MainMenuEntry<T | string>[];
   rightHeader?: string;
+  showHeaders?: boolean;
   showHelp?: boolean;
   titleTypes?: boolean;
   value?: unknown;
@@ -65,15 +70,16 @@ const DEFAULT_HEADER_PADDING = 4;
 const SINGLE_ITEM = 1;
 const MAX_SEARCH_SIZE = 50;
 const EMPTY_TEXT = chalk`{magenta   }`;
+const TEMP_TEMPLATE_SIZE = 3;
+const BIGGEST_KEYBIND = 6;
 
 const HELP_TEXT = [
-  ``,
-  ``,
-  chalk.dim`{blue ----------------------------------------------------}`,
-  chalk.dim` {blue -} {yellow Arrow keys} to navigate`,
-  chalk.dim` {blue -} {yellow Enter} to select`,
-  chalk.dim` {blue -} {yellow Page up/down} to move to ends of list`,
-  chalk.dim` {blue -} {yellow ctrl-f} toggle find mode`,
+  // First line gets an extra space... because reasons?
+  chalk`  {blue.dim -} {yellow.dim arrows}  {gray move cursor}`,
+  chalk` {blue.dim -} {yellow.dim enter }  {gray select entry}`,
+  chalk` {blue.dim -} {yellow.dim home  }  {gray move to top}`,
+  chalk` {blue.dim -} {yellow.dim end   }  {gray move to bottom}`,
+  chalk` {blue.dim -} {yellow.dim ctrl-f}  {gray toggle find mode}`,
 ].join(`\n `);
 
 export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
@@ -83,6 +89,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.opt = questions;
     this.opt.left ??= [];
     this.opt.right ??= [];
+    this.opt.showHeaders ??= !IsEmpty(this.opt.left);
     this.opt.left.forEach((i) => (i.type ??= ''));
     this.opt.right.forEach((i) => (i.type ??= ''));
     this.opt.keyMap ??= {};
@@ -96,6 +103,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   private headerPadding: number;
   private leftHeader: string;
   private mode: 'find' | 'select' = 'select';
+  private numericSelection = '';
   private rightHeader: string;
   private searchText = '';
   private selectedType: 'left' | 'right' = 'right';
@@ -104,18 +112,16 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
 
   public _run(callback: tCallback): this {
     this.done = callback;
-    const defaultValue = this.side('right')[START].entry[VALUE];
+    const defaultValue = this.side('right')[START]?.entry[VALUE];
     this.value ??= defaultValue;
-    this.selectedType = this.side('left').some(
+    const isLeftSide = this.side('left').some(
       (i) => i.entry[VALUE] === this.value,
-    )
-      ? 'left'
-      : 'right';
+    );
+    this.selectedType = isLeftSide ? 'left' : 'right';
     const contained = this.side().find((i) => i.entry[VALUE] === this.value);
     if (!contained) {
       this.value = defaultValue;
     }
-
     const events = observe(this.rl);
     events.keypress.forEach(this.onKeypress.bind(this));
     events.line.forEach(this.onEnd.bind(this));
@@ -129,6 +135,92 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     const list = this.side();
     this.value = list[list.length - ARRAY_OFFSET].entry[VALUE];
   }
+
+  private filterMenu(data: MainMenuEntry[]): MainMenuEntry[] {
+    const entries = data.map((i) => ({
+      label: i.entry[LABEL],
+      value: i.entry[VALUE],
+    }));
+    const fuzzyResult = fuzzy.go(this.searchText, entries, { key: 'label' });
+    const highlighted = fuzzyResult.map((result) => {
+      const { target } = result;
+      const item = data.find((option) => {
+        return typeof option === 'string'
+          ? option === target
+          : option.entry[LABEL] === target;
+      });
+      return {
+        ...item,
+        entry: [this.highlight(result), item.entry[VALUE]],
+      } as MainMenuEntry;
+    });
+
+    // ? Sticky to first is easier to use while going fast, sticky to current is better going slow (subjective)
+    // Maybe make this a flag?
+
+    //  * Sticky value to first item
+    this.value = highlighted[START].entry[VALUE];
+
+    //  * Sticky the value the current (until it disappears)
+    // const contained = highlighted.some(
+    //   ({ entry }) => entry[VALUE] === this.value,
+    // );
+    // if (!contained && !IsEmpty(highlighted)) {
+    // this.value = highlighted[START].entry[VALUE];
+    // }
+    return highlighted;
+  }
+
+  private getSelected(): MainMenuEntry {
+    const list = [
+      ...this.opt.left,
+      ...this.opt.right,
+      ...Object.values(this.opt.keyMap).map(
+        (entry) => ({ entry } as MainMenuEntry),
+      ),
+    ];
+    const out = list.find((i) => i.entry[VALUE] === this.value);
+    return out ?? list[START];
+  }
+
+  private highlight(result) {
+    const open = '{'.repeat(TEMP_TEMPLATE_SIZE);
+    const close = '}'.repeat(TEMP_TEMPLATE_SIZE);
+    let highlighted = '';
+    let matchesIndex = 0;
+    let opened = false;
+    const { target, indexes } = result;
+    for (let i = START; i < target.length; i++) {
+      const char = target[i];
+      if (indexes[matchesIndex] === i) {
+        matchesIndex++;
+        if (!opened) {
+          opened = true;
+          highlighted += open;
+        }
+        if (matchesIndex === indexes.length) {
+          highlighted += char + close + target.slice(i + INCREMENT);
+          break;
+        }
+        highlighted += char;
+        continue;
+      }
+      if (opened) {
+        opened = false;
+        highlighted += close;
+      }
+      highlighted += char;
+    }
+    return highlighted.replace(
+      new RegExp(`${open}(.*?)${close}`, 'g'),
+      (i) =>
+        chalk.bgBlueBright`${i.slice(
+          TEMP_TEMPLATE_SIZE,
+          TEMP_TEMPLATE_SIZE * INVERT_VALUE,
+        )}`,
+    );
+  }
+
   private mergeLines(a: string[], b: string[]): string[] {
     const out = [...a];
     const maxA = ansiMaxLength(a);
@@ -136,15 +228,45 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     b.forEach((item, index) => {
       const current = ansiPadEnd(out[index] ?? '', maxA);
       item = ansiPadEnd(item, maxB);
-      // let stripped = current.replace(ansiRegex(), '');
-      // current += stripped.padEnd(maxA).slice(stripped.length);
-      // stripped = item.replace(ansiRegex(), ' ');
-      // item += stripped.padEnd(maxB, ' ').slice(stripped.length);
       const separator =
-        index > a.length - ARRAY_OFFSET ? '' : chalk.cyan.dim('|');
+        index > a.length - ARRAY_OFFSET ? ' ' : chalk.cyan.dim('|');
       out[index] = chalk`${current}${separator} ${item}`;
     });
     return out;
+  }
+
+  private navigateSearch(key: string): void {
+    const all = this.side();
+    let available = this.filterMenu(all);
+    if (IsEmpty(available)) {
+      available = all;
+    }
+    if (['pageup', 'home'].includes(key)) {
+      this.value = available[START].entry[VALUE];
+      return this.render();
+    }
+    if (['pagedown', 'end'].includes(key)) {
+      this.value = available[available.length - ARRAY_OFFSET].entry[VALUE];
+      return this.render();
+    }
+    const index = available.findIndex(
+      ({ entry }) => entry[VALUE] === this.value,
+    );
+    if (index === NOT_FOUND) {
+      this.value = available[START].entry[VALUE];
+      return this.render();
+    }
+    if (index === START && key === 'up') {
+      this.value = available[available.length - ARRAY_OFFSET].entry[VALUE];
+    } else if (index === available.length - ARRAY_OFFSET && key === 'down') {
+      this.value = available[START].entry[VALUE];
+    } else {
+      this.value =
+        available[key === 'up' ? index - INCREMENT : index + INCREMENT].entry[
+          VALUE
+        ];
+    }
+    return this.render();
   }
 
   private next(): void {
@@ -177,6 +299,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     const mixed = key.name ?? key.sequence;
     if (key.ctrl && mixed === 'f') {
       this.mode = this.mode === 'find' ? 'select' : 'find';
+      this.searchText = '';
       this.render();
       return;
     }
@@ -237,11 +360,25 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
           this.onEnd();
           return;
         }
+        if ('0123456789'.includes(mixed)) {
+          this.numericSelection = mixed;
+          this.value =
+            this.side()[
+              Number(
+                IsEmpty(this.numericSelection) ? '1' : this.numericSelection,
+              ) - ARRAY_OFFSET
+            ]?.entry[VALUE] ?? this.value;
+
+          this.render();
+        }
     }
     this.render();
   }
 
   private onRight(): void {
+    if (this.selectedType === 'right') {
+      return;
+    }
     const [right, left] = [this.side('right'), this.side('left')];
     this.selectedType = 'right';
     let current = left.findIndex((i) => i.entry[VALUE] === this.value);
@@ -265,11 +402,18 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       );
       return this.render();
     }
+    if (['up', 'down', 'home', 'pageup', 'end', 'pagedown'].includes(key)) {
+      this.navigateSearch(key);
+    }
     if (key === 'space') {
       this.searchText += ' ';
       return this.render();
     }
     if (key.length > SINGLE_ITEM) {
+      if (typeof this.opt.keyMap[key] !== 'undefined') {
+        this.value = this.opt.keyMap[key][VALUE];
+        this.onEnd();
+      }
       return;
     }
     this.searchText += key;
@@ -293,7 +437,10 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
 
   private render(): void {
     if (this.status === 'answered') {
-      this.screen.render(``, '');
+      const entry = this.getSelected();
+      if (entry) {
+        this.screen.render(chalk` {magenta >} ${entry.entry[LABEL]}`, '');
+      }
       return;
     }
     if (this.mode === 'select') {
@@ -304,14 +451,12 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
 
   private renderFind(): void {
     const searchText = IsEmpty(this.searchText)
-      ? chalk.gray`Type to filter`
+      ? chalk.bgBlue`Type to filter`
       : this.searchText;
     const out = [
       chalk` {green >} {cyan Search} `,
-      chalk.bgWhite.black` ${ansiPadEnd(searchText, MAX_SEARCH_SIZE).replace(
-        ' ',
-        chalk.bgGray(' '),
-      )} `,
+      chalk[IsEmpty(this.searchText) ? 'bgBlue' : 'bgWhite']
+        .black` ${ansiPadEnd(searchText, MAX_SEARCH_SIZE)} `,
       ` `,
       ...this.renderSide(undefined, false),
     ];
@@ -327,15 +472,47 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     const out = !IsEmpty(this.opt.left)
       ? this.mergeLines(this.renderSide('left'), this.renderSide('right'))
       : this.renderSide('right');
-    out[FIRST] = `\n  ${out[FIRST]}\n `;
+    if (this.opt.showHeaders) {
+      out[FIRST] = `\n  ${out[FIRST]}\n `;
+    } else {
+      message += `\n \n`;
+    }
     message += out.map((i) => `  ${i}`).join(`\n`);
-    if (this.showHelp) {
+    const longestLine = Math.max(
+      ...message.split(`\n`).map((i) => ansiStrip(i).length),
+    );
+
+    const selectedItem = this.getSelected();
+    if (typeof selectedItem.helpText === 'string') {
+      message += chalk`\n \n {blue ?} ${selectedItem.helpText
+        .split(`\n`)
+        .map((line) => line.replace(new RegExp('^ -'), chalk.cyan('   -')))
+        .join(`\n`)}`;
+    } else if (this.showHelp) {
       message += [
+        ` `,
+        ` `,
+        chalk.blue.dim` ${'='.repeat(longestLine)}`,
         HELP_TEXT,
-        ...Object.keys(this.opt.keyMap).map(
-          (key) =>
-            chalk.dim`  {blue -} {yellow ${key}} ${this.opt.keyMap[key][LABEL]} `,
-        ),
+        ...Object.keys(this.opt.keyMap)
+          .filter((key) => Array.isArray(this.opt.keyMap[key]))
+          .sort((a, b) => {
+            if (a.length > b.length) {
+              return UP;
+            }
+            if (b.length > a.length) {
+              return DOWN;
+            }
+            return a > b ? UP : DOWN;
+          })
+          .map(
+            (key) =>
+              // Mental note: keep space at end for rendering reasons
+              chalk`  {blue.dim -} {yellow.dim ${key.padEnd(
+                BIGGEST_KEYBIND,
+                ' ',
+              )}}  {gray ${this.opt.keyMap[key][LABEL]} }`,
+          ),
       ].join(`\n`);
     }
     this.screen.render(message, '');
@@ -344,12 +521,22 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   // eslint-disable-next-line radar/cognitive-complexity
   private renderSide(
     side: 'left' | 'right' = this.selectedType,
-    header = true,
+    header = this.opt.showHeaders,
   ): string[] {
     const out: string[] = [''];
-    const menu = this.side(side);
+    let menu = this.side(side);
+    if (this.mode === 'find' && !IsEmpty(this.searchText)) {
+      menu = this.filterMenu(menu);
+    }
     const maxType = ansiMaxLength(menu.map(({ type }) => type));
     let last = '';
+    const maxLabel =
+      ansiMaxLength(menu.map(({ entry }) => entry[LABEL])) + ARRAY_OFFSET;
+    if (IsEmpty(menu)) {
+      out.push(
+        chalk.bold` ${ICONS.WARNING}{yellowBright.inverse  No actions to select from }`,
+      );
+    }
     menu.forEach((item) => {
       let prefix = ansiPadEnd(item.type, maxType);
       if (this.opt.titleTypes) {
@@ -368,13 +555,18 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         prefix = ``;
       }
       const inverse = item.entry[VALUE] === this.value;
-      out.push(
-        this.selectedType === side
-          ? chalk`{magenta.bold ${prefix}} {${
-              inverse ? 'bgCyan.black' : 'white'
-            }  ${item.entry[LABEL]} }`
-          : chalk`{gray ${prefix}  ${item.entry[LABEL]} }`,
-      );
+
+      const padded = ansiPadEnd(item.entry[LABEL], maxLabel);
+
+      if (this.selectedType === side) {
+        out.push(
+          chalk`{magenta.bold ${prefix}} {${
+            inverse ? 'bgCyanBright.black' : 'white'
+          }  ${padded} }`,
+        );
+        return;
+      }
+      out.push(chalk`{gray ${prefix}  {gray ${padded}} }`);
     });
     const max = ansiMaxLength(out);
     if (header) {
@@ -399,7 +591,10 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     return out;
   }
 
-  private side(side: 'left' | 'right' = this.selectedType, noRecurse = false) {
+  private side(
+    side: 'left' | 'right' = this.selectedType,
+    noRecurse = false,
+  ): MainMenuEntry[] {
     if (this.mode === 'find' && !noRecurse) {
       return [...this.side('right', true), ...this.side('left', true)];
     }

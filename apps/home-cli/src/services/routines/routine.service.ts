@@ -28,11 +28,12 @@ import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';
 import { RoutineActivateService } from './routine-activate.service';
 import { RoutineCommandService } from './routine-command.service';
-import { RoutineSettingsService } from './routine-settings.service';
 
 type RCService = RoomCommandService;
 type RService = RoutineCommandService;
 const MILLISECONDS = 1000;
+const SOLO = 1;
+
 @Repl({
   category: 'Control',
   icon: ICONS.ROUTINE,
@@ -49,7 +50,6 @@ export class RoutineService {
     @Inject(forwardRef(() => RoutineCommandService))
     private readonly routineCommand: RService,
     private readonly pinnedItems: PinnedItemService,
-    private readonly settings: RoutineSettingsService,
   ) {}
 
   public async create(room?: RoomDTO | string): Promise<RoutineDTO> {
@@ -77,20 +77,27 @@ export class RoutineService {
             },
           ]),
     });
-    let action = await this.promptService.pickOne<RoutineDTO | string>(
-      `Pick routine`,
-      [
-        ...this.promptService.conditionalEntries(!IsEmpty(list), [
-          new inquirer.Separator(chalk.white`Current routines`),
+    let action = await this.promptService.menu<RoutineDTO | string>({
+      keyMap: {
+        a: [all ? 'Show detached routines' : 'Show all routines', 'all'],
+        c: [`${ICONS.CREATE}Create new`, 'create'],
+        d: [chalk.bold`Done`, DONE],
+      },
+      right: ToMenuEntry(
+        this.promptService.conditionalEntries(!IsEmpty(list), [
           ...(list.map((i) => [
             i.friendlyName,
             i,
           ]) as PromptEntry<RoutineDTO>[]),
         ]),
-        new inquirer.Separator(chalk.white`Actions`),
-        [`${ICONS.CREATE}Create new`, 'create'],
-      ],
-    );
+      ),
+    });
+    if (IsDone(action)) {
+      return;
+    }
+    if (action === 'all') {
+      return await this.exec(!all);
+    }
     if (action === 'create') {
       action = await this.create();
     }
@@ -143,18 +150,16 @@ export class RoutineService {
     }
     const current = await this.list(control);
     let action = await this.promptService.menu({
-      right: ToMenuEntry([
-        ...this.promptService.conditionalEntries(!IsEmpty(current), [
-          new inquirer.Separator(chalk.white`Existing routines`),
-          ...(current.map((item) => [
-            item.friendlyName,
-            item,
-          ]) as PromptEntry<RoutineDTO>[]),
-        ]),
-        new inquirer.Separator(chalk.white`Maintenance`),
-        [`${ICONS.CREATE}Create`, 'create'],
-      ]),
-      rightHeader: `Pick routine`,
+      keyMap: {
+        c: [`${ICONS.CREATE}Create`, 'create'],
+        d: [chalk.bold`Done`, DONE],
+      },
+      right: ToMenuEntry(
+        current.map((item) => [
+          item.friendlyName,
+          item,
+        ]) as PromptEntry<RoutineDTO>[],
+      ),
     });
     if (IsDone(action)) {
       return;
@@ -167,7 +172,6 @@ export class RoutineService {
       throw new NotImplementedException();
     }
     await this.processRoutine(action);
-    return await this.processRoom(room);
   }
 
   public async processRoutine(
@@ -175,32 +179,31 @@ export class RoutineService {
     defaultAction?: string,
   ): Promise<void> {
     await this.header(routine);
-    const [activate, events, command, settings] = [
+    const [activate, events, command] = [
       [`${ICONS.ACTIVATE}Manual activate`, 'activate'],
       [`${ICONS.EVENT}Activation Events`, 'events'],
       [`${ICONS.COMMAND}Commands`, 'command'],
-      [`${ICONS.CONFIGURE}Settings`, 'settings'],
     ] as PromptEntry[];
     const action = await this.promptService.menu({
       keyMap: {
         a: activate,
         c: command,
-        d: ['Done', DONE],
+        d: [chalk.bold`Done`, DONE],
         e: events,
         p: [
           this.pinnedItems.isPinned('routine', routine._id) ? 'Unpin' : 'Pin',
           'pin',
         ],
-        s: settings,
+        r: [`${ICONS.RENAME}Rename`, 'rename'],
+        s: [
+          routine.sync
+            ? `${ICONS.SWAP}Run commands in parallel`
+            : `${ICONS.SWAP}Run commands in series`,
+          `sync`,
+        ],
+        x: [`${ICONS.DELETE}Delete`, 'delete'],
       },
-      right: ToMenuEntry([
-        activate,
-        [`${ICONS.DELETE}Delete`, 'delete'],
-        [`${ICONS.RENAME}Rename`, 'rename'],
-        events,
-        command,
-        settings,
-      ]),
+      right: ToMenuEntry([activate, events, command]),
       rightHeader: `Manage routine`,
       value: defaultAction,
     });
@@ -215,8 +218,9 @@ export class RoutineService {
           script: 'routine',
         });
         return await this.processRoutine(routine, action);
-      case 'settings':
-        await this.settings.process(routine);
+      case 'sync':
+        routine.sync = !routine.sync;
+        routine = await this.update(routine);
         return await this.processRoutine(routine, action);
       case 'activate':
         await this.promptActivate(routine);
@@ -260,6 +264,9 @@ export class RoutineService {
 
   public async promptActivate(routine: RoutineDTO): Promise<void> {
     const action = await this.promptService.menu({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: ToMenuEntry([
         [`Immediate`, 'immediate'],
         [`Timeout`, 'timeout'],
@@ -337,7 +344,7 @@ export class RoutineService {
         chalk.bold`{cyan >>> }${ICONS.EVENT}{yellow No activation events}`,
       );
     } else {
-      console.log(chalk.bold.blue`Activation Events`);
+      console.log(chalk`  {blue.bold Activation Events}`);
       const table = new Table({
         head: ['Name', 'Type', 'Details'],
       });
@@ -354,7 +361,11 @@ export class RoutineService {
       console.log(chalk.bold`{cyan >>> }${ICONS.COMMAND}{yellow No commands}`);
       return;
     }
-    console.log(chalk.bold.blue`Commands`);
+    const activation =
+      routine.command.length === SOLO
+        ? ``
+        : chalk`{yellowBright (${routine.sync ? 'Series' : 'Parallel'})}`;
+    console.log(chalk`  {bold.blue Commands} ${activation}`);
     const table = new Table({
       head: ['Name', 'Type', 'Details'],
     });

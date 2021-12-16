@@ -3,7 +3,7 @@ import EventEmitter from 'eventemitter3';
 
 import { USE_THIS_CONFIG } from '../contracts';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
-import { ACTIVE_APPLICATION, AbstractConfig } from '../contracts/meta/config';
+import { AbstractConfig,ACTIVE_APPLICATION } from '../contracts/meta/config';
 import { RegisterCache } from '../includes';
 import { UtilitiesModule } from '../modules';
 

@@ -1,4 +1,5 @@
 import {
+  GROUP_DEFINITIONS,
   GROUP_TYPES,
   GroupDTO,
   GroupSaveStateDTO,
@@ -10,6 +11,7 @@ import {
   ICONS,
   iRepl,
   IsDone,
+  KeyMap,
   PinnedItemService,
   PromptEntry,
   PromptService,
@@ -85,10 +87,19 @@ export class GroupCommandService implements iRepl {
   private lastGroup: string;
 
   public async create(): Promise<GroupDTO> {
-    const type = await this.promptService.pickOne(
-      `What type of group?`,
-      Object.values(GROUP_TYPES).map((type) => [TitleCase(type, false), type]),
-    );
+    const type = (await this.promptService.menu<GROUP_TYPES>({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
+      right: Object.values(GROUP_TYPES).map((type) => ({
+        entry: [TitleCase(type, false), type],
+        helpText: GROUP_DEFINITIONS.get(type),
+      })),
+      showHeaders: false,
+    })) as GROUP_TYPES;
+    if (IsDone(type)) {
+      return;
+    }
     const friendlyName = await this.promptService.friendlyName();
     const entities = await this.entityService.buildList(
       GROUP_DOMAINS.get(type),
@@ -144,7 +155,8 @@ export class GroupCommandService implements iRepl {
     const groups = await this.list();
     const action = await this.promptService.menu<GroupDTO>({
       keyMap: {
-        d: ['Done', DONE],
+        c: ['Create', 'create'],
+        d: [chalk.bold`Done`, DONE],
       },
       right: ToMenuEntry([
         ...this.promptService.conditionalEntries(
@@ -231,64 +243,60 @@ export class GroupCommandService implements iRepl {
 
   public async process(
     group: GroupDTO,
-    list: GroupDTO[],
+    list?: GroupDTO[],
     defaultValue?: string,
   ): Promise<void> {
     await this.header(group);
     const actions: PromptEntry[] = [];
+    let map: KeyMap = {};
     switch (group.type) {
       case GROUP_TYPES.light:
-        actions.push(
-          LIGHT_COMMAND_SEPARATOR,
-          ...(await this.lightGroup.groupActions()),
-        );
+        actions.push(...(await this.lightGroup.groupActions()));
+        map = this.lightGroup.keyMap;
         break;
       case GROUP_TYPES.switch:
-        actions.push(
-          LIGHT_COMMAND_SEPARATOR,
-          ...(await this.switchGroup.groupActions()),
-        );
+        actions.push(...(await this.switchGroup.groupActions()));
+        map = this.switchGroup.keyMap;
         break;
       case GROUP_TYPES.fan:
-        actions.push(
-          LIGHT_COMMAND_SEPARATOR,
-          ...(await this.fanGroup.groupActions()),
-        );
+        actions.push(...(await this.fanGroup.groupActions()));
+        map = this.fanGroup.keyMap;
         break;
       case GROUP_TYPES.lock:
-        actions.push(
-          LIGHT_COMMAND_SEPARATOR,
-          ...(await this.lockGroup.groupActions()),
-        );
+        actions.push(...(await this.lockGroup.groupActions()));
+        map = this.lockGroup.keyMap;
         break;
     }
-    const [entities, state] = [
-      [`${ICONS.ENTITIES}Entities`, 'entities'],
+    const [state] = [
       [`${ICONS.STATE_MANAGER}State Manager`, 'state'],
     ] as PromptEntry[];
-    const action = await this.promptService.menu({
+    const action = await this.promptService.menu<{ entity_id: string }>({
       keyMap: {
-        d: ['Done', DONE],
-        e: entities,
+        a: [`Add entity`, 'add'],
+        d: [chalk.bold`Done`, DONE],
+        m: [`${ICONS.ENTITIES}Manage Entities`, 'entities'],
         p: [
           this.pinnedItems.isPinned('group', group._id) ? 'Unpin' : 'Pin',
           'pin',
         ],
+        r: [`${ICONS.RENAME}Rename`, 'rename'],
         s: state,
+        x: [`${ICONS.DELETE}Delete`, 'delete'],
+        ...map,
       },
-      right: ToMenuEntry([
-        ...actions,
-        new inquirer.Separator(chalk.white`Management`),
-        [`${ICONS.DELETE}Delete`, 'delete'],
-        entities,
-        [`${ICONS.RENAME}Rename`, 'rename'],
-        state,
-      ]),
-      rightHeader: `Group action / management`,
+      left: ToMenuEntry(
+        group.entities.map((entity_id) => [entity_id, { entity_id }]),
+      ),
+      leftHeader: 'Group Entities',
+      right: ToMenuEntry(actions as PromptEntry[]),
+      rightHeader: `${TitleCase(group.type, false)} Commands`,
       value: defaultValue,
     });
     if (IsDone(action)) {
       return;
+    }
+    if (typeof action !== 'string') {
+      return await this.entityService.process(action.entity_id);
     }
     switch (action) {
       case 'pin':
@@ -298,10 +306,26 @@ export class GroupCommandService implements iRepl {
           script: 'group',
         });
         return this.process(group, list, action);
+      case 'add':
+        group.entities = [
+          ...group.entities,
+          ...(await this.entityService.buildList(
+            GROUP_DOMAINS.get(group.type),
+            { omit: group.entities },
+          )),
+        ];
+        group = await this.update(group);
+        return this.process(group, list, action);
       case 'entities':
-        group = await this.updateEntities(group);
+        group.entities = await this.promptService.pickMany(
+          `Select entities to keep`,
+          group.entities.map((i) => [i, i]),
+          { default: group.entities },
+        );
+        group = await this.update(group);
         return this.process(group, list, action);
       case 'state':
+        list = list ?? (await this.list());
         await this.groupState.processState(group, list);
         break;
       case DONE:
@@ -407,23 +431,17 @@ export class GroupCommandService implements iRepl {
       return await this.lightGroup.header(group);
     }
     this.promptService.scriptHeader(`Group`);
+    this.promptService.secondaryHeader(group.friendlyName);
     console.log(
-      [
-        [
-          chalk.blue.bold`${group.friendlyName}`,
-          chalk.yellow.bold`${TitleCase(group.type)} Group`,
-        ].join(chalk.cyan(' - ')),
-        ...group.entities
-          .map((id) => chalk`  {cyan -} ${id}`)
-          .sort((a, b) => (a > b ? UP : DOWN)),
-        ``,
-        ``,
-      ].join(`\n`),
+      [chalk.yellow.bold`${TitleCase(group.type)} Group`, ``].join(`\n`),
     );
   }
 
   private async updateEntities(group: GroupDTO): Promise<GroupDTO> {
     const action = await this.promptService.menu({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: ToMenuEntry([
         new inquirer.Separator(chalk.white`Maintenance`),
         [`${ICONS.CREATE}Add`, 'add'],
@@ -436,7 +454,7 @@ export class GroupCommandService implements iRepl {
       rightHeader: `Entity actions`,
     });
     if (IsDone(action)) {
-      return;
+      return group;
     }
     switch (action) {
       case 'add':

@@ -17,12 +17,12 @@ import { cwd } from 'process';
 
 import { LIB_UTILS, LOG_LEVEL } from '../config';
 import {
-  RepoMetadataDTO,
   ConfigItem,
   METADATA_FILE,
+  RepoMetadataDTO,
   USE_THIS_CONFIG,
 } from '../contracts';
-import { ACTIVE_APPLICATION, AbstractConfig } from '../contracts/meta/config';
+import { AbstractConfig, ACTIVE_APPLICATION } from '../contracts/meta/config';
 import { deepExtend, INVERT_VALUE } from '../includes';
 import { AutoLogService } from './auto-log.service';
 import { WorkspaceService } from './workspace.service';
@@ -72,7 +72,7 @@ export class AutoConfigService {
     if (!configuration) {
       this.logger.fatal(
         { path },
-        `Unknown configuration. Double check project.json assets + make sure property is included in metadata`,
+        `Unknown configuration. Double check {project.json} assets + make sure property is included in metadata`,
       );
       // eslint-disable-next-line unicorn/no-process-exit
       process.exit();
@@ -124,7 +124,7 @@ export class AutoConfigService {
     ] = `${LIB_UTILS.description}:${AutoConfigService.name}`;
     AutoLogService.logger.level = this.get([LIB_UTILS, LOG_LEVEL]);
     fileConfig.forEach((config, path) =>
-      this.logger.debug(`Loaded configuration from {${path}}`),
+      this.logger.info(`Loaded configuration from {${path}}`),
     );
   }
 

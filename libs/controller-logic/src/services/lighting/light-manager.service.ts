@@ -27,7 +27,7 @@ import { CircadianService } from './circadian.service';
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
 const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
 const PERCENT = 100;
-const DEFAULT_INCREMENT = 1;
+const DEFAULT_INCREMENT = 50;
 const START = 0;
 const NO_BRIGHTNESS = 0;
 const MAX_BRIGHTNESS = 255;

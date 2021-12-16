@@ -284,11 +284,11 @@ export class PromptService {
   }
 
   public async menu<T extends unknown = string>(
-    options: MainMenuOptions<T>,
+    options: MainMenuOptions<T | string>,
   ): Promise<T | string> {
     options.keyMap ??= {};
     options.keyMap ??= {
-      d: ['Done', DONE],
+      d: [chalk.bold`Done`, DONE],
     };
     const { result } = await inquirer.prompt([
       {
@@ -454,7 +454,6 @@ export class PromptService {
         .split(`\n`)
         .map((i) => `  ${i}`)
         .join(`\n`),
-      '\n',
     );
     return header.split(`\n`).pop().length;
   }

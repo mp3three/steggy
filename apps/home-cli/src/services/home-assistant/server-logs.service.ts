@@ -35,12 +35,16 @@ export class ServerLogsService {
     this.promptService.clear();
     this.promptService.scriptHeader(`Server Logs`);
     const action = await this.promptService.menu({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: ToMenuEntry([
         [`${ICONS.LOGS}Show logs`, 'logs'],
         [`${ICONS.DELETE}Clear logs`, 'clear'],
         [`${ICONS.ANIMATION}Raw`, 'raw'],
       ]),
       rightHeader: `Log commands`,
+      showHeaders: false,
       value: defaultValue,
     });
     if (IsDone(action)) {
@@ -111,11 +115,10 @@ export class ServerLogsService {
   }
 
   private async rawLogs(): Promise<void> {
-    const logs = await this.fetchService.fetch<HomeAssistantServerLogItem[]>({
+    const logs = await this.fetchService.fetch<string>({
       process: 'text',
       url: `/admin/server/raw-logs`,
     });
-    console.log(logs);
-    await this.promptService.acknowledge();
+    await this.promptService.editor(`(READONLY) View logs in editor`, logs);
   }
 }

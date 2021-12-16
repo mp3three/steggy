@@ -23,13 +23,13 @@ export class AdminKeyGuard implements CanActivate {
       return true;
     }
     if (token !== this.adminKey) {
-      this.logger.warn('Rejected ADMIN_KEY request');
+      this.logger.warn('Rejected {ADMIN_KEY} request');
       return false;
     }
     locals.flags.add(ResponseFlags.ADMIN_KEY);
     locals.flags.add(ResponseFlags.ADMIN);
     locals.authenticated = true;
-    this.logger.debug(`Authenticated using ADMIN_KEY`);
+    this.logger.debug(`Authenticated using {ADMIN_KEY}`);
     return true;
   }
 

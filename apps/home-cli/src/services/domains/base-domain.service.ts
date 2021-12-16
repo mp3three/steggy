@@ -9,6 +9,7 @@ import {
   DONE,
   ICONS,
   IsDone,
+  KeyMap,
   MDIIcons,
   PinnedItemService,
   PromptEntry,
@@ -22,6 +23,7 @@ import {
   InjectConfig,
   IsEmpty,
   sleep,
+  START,
   TitleCase,
   UP,
 } from '@for-science/utilities';
@@ -37,7 +39,6 @@ import dayjs from 'dayjs';
 import { encode } from 'ini';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
-import { dump } from 'js-yaml';
 
 import { REFRESH_SLEEP } from '../../config';
 import { DeviceService } from '../home-assistant/device.service';
@@ -107,7 +108,7 @@ export class BaseDomainService {
       await this.baseHeader(id);
     }
     const options = this.getMenuOptions();
-    if (!(options[HEADER_SEPARATOR] as Separator).line) {
+    if (!(options[HEADER_SEPARATOR] as Separator)?.line) {
       options.unshift(
         new inquirer.Separator(
           chalk.white(`${TitleCase(domain(id), false)} commands`),
@@ -115,13 +116,10 @@ export class BaseDomainService {
       );
     }
     const action = await this.promptService.menu({
-      keyMap: {
-        d: ['Done', DONE],
-        h: [`${ICONS.HISTORY}History`, 'history'],
-        p: [this.pinnedItem.isPinned('entity', id) ? 'Unpin' : 'pin', 'pin'],
-        r: ['Refresh', 'refresh'],
-      },
+      keyMap: this.buildKeymap(id),
+      leftHeader: 'Base options',
       right: ToMenuEntry(options),
+      showHeaders: false,
       value: command,
     });
     if (IsDone(action)) {
@@ -129,11 +127,6 @@ export class BaseDomainService {
     }
     switch (action) {
       case 'refresh':
-        return await this.processId(id, action);
-      case 'describe':
-        const state = await this.getState(id);
-        this.promptService.print(dump(state));
-        await this.promptService.acknowledge();
         return await this.processId(id, action);
       case 'changeFriendlyName':
         await this.changeFriendlyName(id);
@@ -236,11 +229,20 @@ export class BaseDomainService {
       const item = content.attributes[key];
       let value: string;
       if (Array.isArray(item)) {
-        value = item
-          .map((i) =>
-            typeof i === 'number' ? chalk.yellow(i.toString()) : chalk.blue(i),
-          )
-          .join(', ');
+        if (typeof item[START] === 'number') {
+          value = item.map((i) => chalk.yellow(i)).join(', ');
+        } else if (typeof item[START] === 'string') {
+          value = item.map((i) => chalk.blue(i)).join(', ');
+        } else if (typeof item[START] === 'object') {
+          value =
+            `\n` +
+            item
+              .map(
+                (i) =>
+                  chalk` {blue.dim |}   ${' '.repeat(max)}${JSON.stringify(i)}`,
+              )
+              .join(`\n`);
+        }
       } else if (typeof item === 'number') {
         value = chalk.yellow(item.toString());
       } else if (typeof item === 'string') {
@@ -254,6 +256,8 @@ export class BaseDomainService {
         }
       } else if (typeof item === 'boolean') {
         value = chalk.yellowBright(String(item));
+      } else if (typeof item === 'object') {
+        value = chalk.gray(JSON.stringify(item));
       } else {
         value = chalk.green(item);
       }
@@ -266,6 +270,18 @@ export class BaseDomainService {
     });
     console.log();
     return content;
+  }
+
+  protected buildKeymap(id: string): KeyMap {
+    return {
+      d: [chalk.bold`Done`, DONE],
+      g: [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
+      h: [`${ICONS.HISTORY}History`, 'history'],
+      i: [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
+      n: [`${ICONS.RENAME}Change Friendly Name`, 'changeFriendlyName'],
+      p: [this.pinnedItem.isPinned('entity', id) ? 'Unpin' : 'pin', 'pin'],
+      r: ['Refresh', 'refresh'],
+    };
   }
 
   protected async changeEntityId(id: string): Promise<void> {
@@ -319,14 +335,7 @@ export class BaseDomainService {
   }
 
   protected getMenuOptions(): PromptEntry[] {
-    return [
-      new inquirer.Separator(chalk.white`Base options`),
-      [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
-      [`${ICONS.RENAME}Change Friendly Name`, 'changeFriendlyName'],
-      [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
-      [`${ICONS.HISTORY}History`, 'history'],
-      [`${ICONS.DESCRIBE}Describe`, 'describe'],
-    ];
+    return [];
   }
 
   protected logAttributes(states: HassStateDTO[]): unknown[] {

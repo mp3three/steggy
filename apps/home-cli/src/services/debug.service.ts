@@ -30,7 +30,7 @@ import { HomeFetchService } from './home-fetch.service';
   category: `Misc`,
   icon: ICONS.DEBUG,
   keyOnly: true,
-  keybind: 'f1',
+  keybind: 'f12',
   name: `Debugger`,
 })
 export class DebugService {
@@ -72,7 +72,7 @@ For loop example getting entity values in the weather domain:
   public async exec(defaultAction?: string): Promise<void> {
     const action = await this.promptService.menu({
       keyMap: {
-        d: ['Done', DONE],
+        d: [chalk.bold`Done`, DONE],
       },
       right: ToMenuEntry([
         [`Manage configuration`, 'configure'],
@@ -81,7 +81,6 @@ For loop example getting entity values in the weather domain:
         [`Home Assistant Config`, 'hassConfig'],
         [`Render template`, 'renderTemplate'],
         [`Send template notification`, 'sendNotification'],
-        [`Restart Home Assistant`, 'reboot'],
         [`Persistent notifications`, 'notifications'],
         [`Update checker`, 'update'],
       ]),
@@ -93,12 +92,6 @@ For loop example getting entity values in the weather domain:
     switch (action) {
       case 'update':
         await this.updateChecker();
-        return await this.exec(action);
-      case 'reboot':
-        await this.fetchService.fetch({
-          method: 'post',
-          url: `/admin/hass-reboot`,
-        });
         return await this.exec(action);
       case 'version':
         const version = await this.fetchService.fetch({ url: `/version` });

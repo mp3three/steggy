@@ -3,7 +3,7 @@ import {
   GroupDTO,
   RoutineCommandGroupActionDTO,
 } from '@for-science/controller-logic';
-import { ICONS, PromptEntry, PromptService } from '@for-science/tty';
+import { ICONS, KeyMap, PromptEntry, PromptService } from '@for-science/tty';
 import { AutoLogService } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 
@@ -16,6 +16,12 @@ export class SwitchGroupCommandService {
     private readonly fetchService: HomeFetchService,
     private readonly logger: AutoLogService,
   ) {}
+
+  public keyMap: KeyMap = {
+    e: [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
+    f: [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
+    t: [`${ICONS.TOGGLE_OFF}Toggle`, 'toggle'],
+  };
 
   public async commandBuilder(
     current?: string,

@@ -121,7 +121,7 @@ export class MainCLIService implements iRepl {
           (i.entry[VALUE] as PinnedItemDTO).id ===
           (this.last as PinnedItemDTO).id
         );
-      }).entry[VALUE];
+      })?.entry[VALUE];
     }
     const result = await this.promptService.menu<ENTRY_TYPE>({
       keyMap,
@@ -139,11 +139,15 @@ export class MainCLIService implements iRepl {
   private printHeader(scriptName: string): void {
     const settings = this.explorer.findSettingsByName(scriptName);
     this.promptService.scriptHeader(settings.name);
+    if (!settings.description) {
+      return;
+    }
     settings.description ??= [];
     settings.description =
       typeof settings.description === 'string'
         ? [settings.description]
         : settings.description;
+
     console.log(
       chalk.yellow(
         settings.description.map((line) => `      ${line}`).join(`\n`),

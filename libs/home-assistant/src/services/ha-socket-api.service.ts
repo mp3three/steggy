@@ -237,12 +237,12 @@ export class HASocketAPIService {
     if (this.connection) {
       return;
     }
-    this.logger.debug(`CONNECTION_ACTIVE = {false}`);
+    this.logger.debug(`[CONNECTION_ACTIVE] = {false}`);
     this.CONNECTION_ACTIVE = false;
     const url = new URL(this.baseUrl);
     try {
       this.messageCount = STARTING_COUNTER_ID;
-      this.logger.debug('Creating new socket connection');
+      this.logger.info('Creating new socket connection');
       this.connection = new WS(
         this.websocketUrl ||
           `${url.protocol === `http:` ? `ws:` : `wss:`}//${url.hostname}${
@@ -292,7 +292,7 @@ export class HASocketAPIService {
         });
 
       case HassSocketMessageTypes.auth_ok:
-        this.logger.debug(`CONNECTION_ACTIVE = {true}`);
+        this.logger.debug(`[CONNECTION_ACTIVE] = {true}`);
         this.CONNECTION_ACTIVE = true;
         await this.sendMsg({
           type: HASSIO_WS_COMMAND.subscribe_events,
@@ -317,7 +317,7 @@ export class HASocketAPIService {
         return await this.onMessageResult(id, message);
 
       case HassSocketMessageTypes.auth_invalid:
-        this.logger.debug(`CONNECTION_ACTIVE = {false}`);
+        this.logger.debug(`[CONNECTION_ACTIVE] = {false}`);
         this.CONNECTION_ACTIVE = false;
         this.logger.fatal(message.message);
         return;

@@ -3,7 +3,7 @@ import {
   GroupDTO,
   RoutineCommandGroupActionDTO,
 } from '@for-science/controller-logic';
-import { ICONS, PromptEntry, PromptService } from '@for-science/tty';
+import { ICONS, KeyMap, PromptEntry, PromptService } from '@for-science/tty';
 import { AutoLogService } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 
@@ -17,11 +17,18 @@ export class FanGroupCommandService {
     private readonly logger: AutoLogService,
   ) {}
 
+  public keyMap: KeyMap = {
+    '[': [`${ICONS.DOWN}Speed Down`, 'fanSpeedDown'],
+    ']': [`${ICONS.UP}Speed Up`, 'fanSpeedUp'],
+    e: [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
+    f: [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
+  };
+
   public async commandBuilder(
     current?: string,
   ): Promise<Omit<RoutineCommandGroupActionDTO, 'group'>> {
     const command = await this.promptService.pickOne(
-      `Light group action`,
+      `Fan group action`,
       [
         [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
         [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],

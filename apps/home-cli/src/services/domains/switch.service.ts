@@ -1,9 +1,10 @@
 import { RoomEntitySaveStateDTO } from '@for-science/controller-logic';
 import { domain } from '@for-science/home-assistant';
-import { ICONS, PromptEntry } from '@for-science/tty';
+import { ICONS, KeyMap, PromptEntry } from '@for-science/tty';
 import { sleep, TitleCase } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
+import inquirer from 'inquirer';
 
 import { BaseDomainService } from './base-domain.service';
 
@@ -44,10 +45,19 @@ export class SwitchService extends BaseDomainService {
       case 'turnOff':
         await this.turnOff(id);
         return await this.processId(id, action);
+      case 'toggle':
+        await this.toggle(id);
+        return await this.processId(id, action);
     }
     return action;
   }
 
+  public async toggle(id: string): Promise<void> {
+    return await this.fetchService.fetch({
+      method: 'put',
+      url: `/entity/command/${id}/toggle`,
+    });
+  }
   public async turnOff(id: string): Promise<void> {
     return await this.fetchService.fetch({
       method: 'put',
@@ -62,10 +72,21 @@ export class SwitchService extends BaseDomainService {
     });
   }
 
+  protected buildKeymap(id: string): KeyMap {
+    return {
+      ...super.buildKeymap(id),
+      e: [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
+      f: [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
+      t: [`${ICONS.TOGGLE_ON}Toggle`, 'toggle'],
+    };
+  }
+
   protected getMenuOptions(): PromptEntry[] {
     return [
+      new inquirer.Separator(`Switch commands`),
       [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
       [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
+      [`${ICONS.TOGGLE_ON}Toggle`, 'toggle'],
       ...super.getMenuOptions(),
     ];
   }

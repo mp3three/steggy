@@ -4,9 +4,10 @@ import {
   RoomEntitySaveStateDTO,
 } from '@for-science/controller-logic';
 import { HASS_DOMAINS, LightStateDTO } from '@for-science/home-assistant';
-import { ColorsService, ICONS, PromptEntry } from '@for-science/tty';
+import { ColorsService, ICONS, KeyMap, PromptEntry } from '@for-science/tty';
 import { START } from '@for-science/utilities';
 import { Inject, Injectable } from '@nestjs/common';
+import inquirer from 'inquirer';
 
 import { SwitchService } from './switch.service';
 
@@ -14,7 +15,8 @@ const OFF = 0;
 const R = 0;
 const G = 1;
 const B = 1;
-const SHIFT_AMOUNT = 2;
+const SHIFT_AMOUNT = 3;
+const TOGGLE = 1;
 
 @Injectable()
 export class LightService extends SwitchService {
@@ -149,17 +151,32 @@ export class LightService extends SwitchService {
       hs_color: swapWith.attributes.hs_color,
     });
   }
+
+  protected buildKeymap(id: string): KeyMap {
+    return {
+      ...super.buildKeymap(id),
+      '[': [`${ICONS.UP}Dim Up`, 'dimUp'],
+      ']': [`${ICONS.DOWN}Dim Down`, 'dimDown'],
+      b: [`${ICONS.BRIGHTNESS}Set Brightness`, 'brightness'],
+      c: [`${ICONS.CIRCADIAN}Circadian Light`, 'circadianLight'],
+      e: [`${ICONS.TURN_ON}Turn On`, 'turnOn'],
+      f: [`${ICONS.TURN_OFF}Turn Off`, 'turnOff'],
+      s: [`${ICONS.SWAP}Swap state with another light`, 'swapState'],
+      t: undefined,
+    };
+  }
+
   protected getMenuOptions(): PromptEntry[] {
     const parent = super.getMenuOptions();
     return [
       ...parent.slice(START, SHIFT_AMOUNT),
+      new inquirer.Separator(`Light commands`),
       [`${ICONS.CIRCADIAN}Circadian Light`, 'circadianLight'],
       [`${ICONS.UP}Dim Up`, 'dimUp'],
       [`${ICONS.DOWN}Dim Down`, 'dimDown'],
       [`${ICONS.COLOR}Set Color`, 'color'],
       [`${ICONS.BRIGHTNESS}Set Brightness`, 'brightness'],
-      [`${ICONS.SWAP}Swap state with another light`, 'swapState'],
-      ...parent.slice(SHIFT_AMOUNT),
+      ...parent.slice(SHIFT_AMOUNT + TOGGLE),
     ];
   }
 
