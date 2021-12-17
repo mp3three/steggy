@@ -4,7 +4,6 @@ import {
   DOWN,
   FIRST,
   INCREMENT,
-  InjectConfig,
   INVERT_VALUE,
   IsEmpty,
   LABEL,
@@ -188,7 +187,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
     this.render();
     this.screen.done();
     cliCursor.show();
-    this.done(this.opt.current);
+    this.done(this.current.map((i) => i[VALUE]));
   }
 
   private onKeypress({ key }: KeyDescriptor): void {
@@ -213,7 +212,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
   }
 
   private onLeft(): void {
-    const [right, left] = [this.side('source'), this.side('current')];
+    const [left, right] = [this.current, this.source];
     if (IsEmpty(this.current) || this.selectedType === 'current') {
       return;
     }
@@ -396,22 +395,15 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
       this.screen.render(``, '');
       return;
     }
+    const leftHeader = 'Current Items';
+    const rightHeader = 'Available Items';
     const current = this.renderSide('current');
     const source = this.renderSide('source');
-    const message = this.textRender.mergeLines(current, source);
+    const message = this.textRender.mergeLines(current, source, [
+      leftHeader,
+      rightHeader,
+    ]);
 
-    const currentLongest = Math.max(...current.map((i) => ansiStrip(i).length));
-    const sourceLongest = Math.max(...source.map((i) => ansiStrip(i).length));
-    message.unshift(
-      chalk`{blue.bold ${'Current Items'.padStart(
-        currentLongest - ARRAY_OFFSET,
-        ' ',
-      )}} {blue.dim |} {blue.bold ${'Available Items'.padEnd(
-        sourceLongest,
-        ' ',
-      )}}`,
-      ` `,
-    );
     this.screen.render(
       this.textRender.appendHelp(message.join(`\n`), BASE_HELP),
       '',
@@ -441,7 +433,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
         );
         return;
       }
-      out.push(chalk`{gray {gray ${padded}} }`);
+      out.push(chalk`{gray {gray  ${padded}} }`);
     });
     return out;
   }

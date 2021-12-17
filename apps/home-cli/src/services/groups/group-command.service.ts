@@ -85,14 +85,6 @@ export class GroupCommandService implements iRepl {
 
   private lastGroup: string;
 
-  public async buildList(current: GroupDTO[] = []): Promise<GroupDTO[]> {
-    const list = await this.list();
-    return await this.promptService.listBuild<GroupDTO>({
-      current: current.map((group) => [group.friendlyName, group]),
-      source: list.map((g) => [g.friendlyName, g]),
-    });
-  }
-
   public async create(): Promise<GroupDTO> {
     const type = (await this.promptService.menu<GROUP_TYPES>({
       keyMap: {
@@ -162,7 +154,6 @@ export class GroupCommandService implements iRepl {
     const groups = await this.list();
     const action = await this.promptService.menu<GroupDTO>({
       keyMap: {
-        b: ['Build', 'build'],
         c: ['Create', 'create'],
         d: [chalk.bold`Done`, DONE],
       },
@@ -180,10 +171,6 @@ export class GroupCommandService implements iRepl {
     if (action === 'create') {
       await this.create();
       return await this.exec();
-    }
-    if (action === 'build') {
-      await this.buildList();
-      return;
     }
     if (IsDone(action)) {
       return;
@@ -221,14 +208,18 @@ export class GroupCommandService implements iRepl {
     inList: string[] = [],
     current: string[] = [],
   ): Promise<GroupDTO[]> {
-    const groups = await this.list();
-    return await this.promptService.pickMany(
-      `Update list of groups`,
-      groups
-        .filter((group) => IsEmpty(inList) || inList.includes(group._id))
+    let groups = await this.list();
+    if (!IsEmpty(inList)) {
+      groups = groups.filter(({ _id }) => inList.includes(_id));
+    }
+    return await this.promptService.listBuild({
+      current: groups
+        .filter(({ _id }) => current.includes(_id))
         .map((group) => [group.friendlyName, group]),
-      { default: groups.filter(({ _id }) => current.includes(_id)) },
-    );
+      source: groups
+        .filter(({ _id }) => !current.includes(_id))
+        .map((group) => [group.friendlyName, group]),
+    });
   }
 
   public async pickOne(
@@ -447,48 +438,5 @@ export class GroupCommandService implements iRepl {
     console.log(
       [chalk.yellow.bold`${TitleCase(group.type)} Group`, ``].join(`\n`),
     );
-  }
-
-  private async updateEntities(group: GroupDTO): Promise<GroupDTO> {
-    const action = await this.promptService.menu({
-      keyMap: {
-        d: [chalk.bold`Done`, DONE],
-      },
-      right: ToMenuEntry([
-        new inquirer.Separator(chalk.white`Maintenance`),
-        [`${ICONS.CREATE}Add`, 'add'],
-        [`${ICONS.DELETE}Remove`, 'delete'],
-        ...this.promptService.conditionalEntries(!IsEmpty(group.entities), [
-          new inquirer.Separator(chalk.white`Current entities`),
-          ...(group.entities.map((i) => [i, i]) as PromptEntry[]),
-        ]),
-      ]),
-      rightHeader: `Entity actions`,
-    });
-    if (IsDone(action)) {
-      return group;
-    }
-    switch (action) {
-      case 'add':
-        group.entities = [
-          ...group.entities,
-          ...(await this.entityService.buildList(
-            GROUP_DOMAINS.get(group.type),
-            { omit: group.entities },
-          )),
-        ];
-        group = await this.update(group);
-        return await this.updateEntities(group);
-      case 'delete':
-        group.entities = await this.promptService.pickMany(
-          `Select entities to keep`,
-          group.entities.map((i) => [i, i]),
-          { default: group.entities },
-        );
-        group = await this.update(group);
-        return await this.updateEntities(group);
-    }
-    await this.entityService.process(action);
-    return group;
   }
 }

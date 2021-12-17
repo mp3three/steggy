@@ -15,7 +15,6 @@ import {
 import { INestApplication } from '@nestjs/common';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
-import fuzzy from 'fuzzysort';
 import { Question } from 'inquirer';
 import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';

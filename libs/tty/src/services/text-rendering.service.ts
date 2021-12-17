@@ -1,4 +1,5 @@
 import {
+  ARRAY_OFFSET,
   DOWN,
   INCREMENT,
   INVERT_VALUE,
@@ -83,20 +84,33 @@ export class TextRenderingService {
     return highlighted;
   }
 
-  public mergeLines(a: string[], b: string[]): string[] {
+  public mergeLines(
+    a: string[],
+    b: string[],
+    [left, right]: [string, string] = ['', ''],
+  ): string[] {
     const out = [...a];
-    const maxA = ansiMaxLength(a);
-    const maxB = ansiMaxLength(b);
+    left = left ? ' ' + left : left;
+    const maxA = ansiMaxLength([...a, left]) + ARRAY_OFFSET;
+    const maxB = ansiMaxLength([...b, right]);
     b.forEach((item, index) => {
       const current = ansiPadEnd(out[index] ?? '', maxA);
       item = ansiPadEnd(item, maxB);
-      out[index] = chalk`${current}${SEPARATOR} ${item}`;
+      out[index] = chalk`${current}${SEPARATOR}${item}`;
     });
     if (a.length > b.length) {
       out.forEach(
         (line, index) =>
           (out[index] =
             index < b.length ? line : ansiPadEnd(line, maxA) + SEPARATOR),
+      );
+    }
+    if (!IsEmpty(left)) {
+      out.unshift(
+        chalk`{blue.bold ${left.padStart(
+          maxA - ARRAY_OFFSET,
+          ' ',
+        )}} {blue.dim |} {blue.bold ${right.padEnd(maxB, ' ')}}`,
       );
     }
     return out;
