@@ -22,7 +22,6 @@ import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';
-import inquirer from 'inquirer';
 
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';

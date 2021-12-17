@@ -12,6 +12,7 @@ import {
   UP,
   VALUE,
 } from '@for-science/utilities';
+import { INestApplication } from '@nestjs/common';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import fuzzy from 'fuzzysort';
@@ -22,7 +23,7 @@ import { Key } from 'readline';
 
 import { ICONS } from '..';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
-import { PromptEntry } from '../services';
+import { PromptEntry, TextRenderingService } from '../services';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 
@@ -68,21 +69,22 @@ export interface MainMenuOptions<T = unknown> {
 
 const DEFAULT_HEADER_PADDING = 4;
 const SINGLE_ITEM = 1;
-const MAX_SEARCH_SIZE = 50;
 const EMPTY_TEXT = chalk`{magenta   }`;
-const TEMP_TEMPLATE_SIZE = 3;
-const BIGGEST_KEYBIND = 'ctrl-f'.length;
 
-const HELP_TEXT = [
-  // First line gets an extra space... because reasons?
-  chalk`  {blue.dim -} {yellow.dim arrows}  {gray move cursor}`,
-  chalk` {blue.dim -} {yellow.dim enter }  {gray select entry}`,
-  chalk` {blue.dim -} {yellow.dim home  }  {gray move to top}`,
-  chalk` {blue.dim -} {yellow.dim end   }  {gray move to bottom}`,
-  chalk` {blue.dim -} {yellow.dim ctrl-f}  {gray toggle find mode}`,
-].join(`\n `);
+const BASE_HELP = [
+  ['arrows', 'move cursor'],
+  ['enter', 'select entry'],
+  ['home', 'move to top'],
+  ['end', 'move to bottom'],
+  ['ctrl-f', 'toggle find mode'],
+] as MenuEntry[];
 
 export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
+  private static textRender: TextRenderingService;
+  public static onPreInit(app: INestApplication): void {
+    this.textRender = app.get(TextRenderingService);
+  }
+
   constructor(questions, rl, answers) {
     super(questions, rl, answers);
     this.showHelp = this.opt.showHelp ?? true;
@@ -97,6 +99,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.headerPadding = this.opt.headerPadding ?? DEFAULT_HEADER_PADDING;
     this.rightHeader = this.opt.rightHeader ?? 'Menu';
     this.leftHeader = this.opt.leftHeader ?? 'Secondary';
+    this.textRender = MainMenuPrompt.textRender;
   }
 
   private done: tCallback;
@@ -108,16 +111,14 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   private searchText = '';
   private selectedType: 'left' | 'right' = 'right';
   private showHelp = true;
+  private readonly textRender: TextRenderingService;
   private value: unknown;
 
   public _run(callback: tCallback): this {
     this.done = callback;
     const defaultValue = this.side('right')[START]?.entry[VALUE];
     this.value ??= defaultValue;
-    const isLeftSide = this.side('left').some(
-      (i) => i.entry[VALUE] === this.value,
-    );
-    this.selectedType = isLeftSide ? 'left' : 'right';
+    this.detectSide();
     const contained = this.side().find((i) => i.entry[VALUE] === this.value);
     if (!contained) {
       this.value = defaultValue;
@@ -136,44 +137,29 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.value = list[list.length - ARRAY_OFFSET].entry[VALUE];
   }
 
+  private detectSide(): void {
+    const isLeftSide = this.side('left').some(
+      (i) => i.entry[VALUE] === this.value,
+    );
+    this.selectedType = isLeftSide ? 'left' : 'right';
+  }
+
   private filterMenu(
     data: MainMenuEntry[],
     updateValue = false,
   ): MainMenuEntry[] {
-    const entries = data.map((i) => ({
-      label: i.entry[LABEL],
-      value: i.entry[VALUE],
-    }));
-    const fuzzyResult = fuzzy.go(this.searchText, entries, { key: 'label' });
-    const highlighted = fuzzyResult.map((result) => {
-      const { target } = result;
-      const item = data.find((option) => {
-        return typeof option === 'string'
-          ? option === target
-          : option.entry[LABEL] === target;
+    const highlighted = this.textRender
+      .fuzzySort(this.searchText, data.map(({ entry }) => entry) as MenuEntry[])
+      .map((i) => {
+        const item = data.find(({ entry }) => entry[VALUE] === i[VALUE]);
+        return {
+          ...item,
+          entry: i,
+        };
       });
-      return {
-        ...item,
-        entry: [this.highlight(result), item.entry[VALUE]],
-      } as MainMenuEntry;
-    });
-    if (IsEmpty(highlighted) || updateValue === false) {
-      return highlighted;
+    if (updateValue) {
+      this.value = highlighted[START].entry[VALUE];
     }
-
-    // ? Sticky to first is easier to use while going fast, sticky to current is better going slow (subjective)
-    // Maybe make this a flag?
-
-    //  * Sticky value to first item
-    this.value = highlighted[START].entry[VALUE];
-
-    //  * Sticky the value the current (until it disappears)
-    // const contained = highlighted.some(
-    //   ({ entry }) => entry[VALUE] === this.value,
-    // );
-    // if (!contained && !IsEmpty(highlighted)) {
-    // this.value = highlighted[START].entry[VALUE];
-    // }
     return highlighted;
   }
 
@@ -187,58 +173,6 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     ];
     const out = list.find((i) => i.entry[VALUE] === this.value);
     return out ?? list[START];
-  }
-
-  private highlight(result) {
-    const open = '{'.repeat(TEMP_TEMPLATE_SIZE);
-    const close = '}'.repeat(TEMP_TEMPLATE_SIZE);
-    let highlighted = '';
-    let matchesIndex = 0;
-    let opened = false;
-    const { target, indexes } = result;
-    for (let i = START; i < target.length; i++) {
-      const char = target[i];
-      if (indexes[matchesIndex] === i) {
-        matchesIndex++;
-        if (!opened) {
-          opened = true;
-          highlighted += open;
-        }
-        if (matchesIndex === indexes.length) {
-          highlighted += char + close + target.slice(i + INCREMENT);
-          break;
-        }
-        highlighted += char;
-        continue;
-      }
-      if (opened) {
-        opened = false;
-        highlighted += close;
-      }
-      highlighted += char;
-    }
-    return highlighted.replace(
-      new RegExp(`${open}(.*?)${close}`, 'g'),
-      (i) =>
-        chalk.bgBlueBright`${i.slice(
-          TEMP_TEMPLATE_SIZE,
-          TEMP_TEMPLATE_SIZE * INVERT_VALUE,
-        )}`,
-    );
-  }
-
-  private mergeLines(a: string[], b: string[]): string[] {
-    const out = [...a];
-    const maxA = ansiMaxLength(a);
-    const maxB = ansiMaxLength(b);
-    b.forEach((item, index) => {
-      const current = ansiPadEnd(out[index] ?? '', maxA);
-      item = ansiPadEnd(item, maxB);
-      const separator =
-        index > a.length - ARRAY_OFFSET ? ' ' : chalk.cyan.dim('|');
-      out[index] = chalk`${current}${separator} ${item}`;
-    });
-    return out;
   }
 
   private navigateSearch(key: string): void {
@@ -305,7 +239,11 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     const mixed = key.name ?? key.sequence;
     if (key.ctrl && mixed === 'f') {
       this.mode = this.mode === 'find' ? 'select' : 'find';
-      this.searchText = '';
+      if (this.mode === 'select') {
+        this.detectSide();
+      } else {
+        this.searchText = '';
+      }
       this.render();
       return;
     }
@@ -456,17 +394,13 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   }
 
   private renderFind(updateValue = false): void {
-    const searchText = IsEmpty(this.searchText)
-      ? chalk.bgBlue`Type to filter`
-      : this.searchText;
-    const out = [
-      chalk` {green >} {cyan Search} `,
-      chalk[IsEmpty(this.searchText) ? 'bgBlue' : 'bgWhite']
-        .black` ${ansiPadEnd(searchText, MAX_SEARCH_SIZE)} `,
-      ` `,
-      ...this.renderSide(undefined, false, updateValue),
-    ];
-    this.screen.render(out.join(`\n`), '');
+    this.screen.render(
+      [
+        ...this.textRender.searchBox(this.searchText),
+        ...this.renderSide(undefined, false, updateValue),
+      ].join(`\n`),
+      '',
+    );
   }
 
   private renderSelect() {
@@ -476,7 +410,10 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     }
     let message = '';
     const out = !IsEmpty(this.opt.left)
-      ? this.mergeLines(this.renderSide('left'), this.renderSide('right'))
+      ? this.textRender.mergeLines(
+          this.renderSide('left'),
+          this.renderSide('right'),
+        )
       : this.renderSide('right');
     if (this.opt.showHeaders) {
       out[FIRST] = `\n  ${out[FIRST]}\n `;
@@ -484,10 +421,6 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       message += `\n \n`;
     }
     message += out.map((i) => `  ${i}`).join(`\n`);
-    const longestLine = Math.max(
-      ...message.split(`\n`).map((i) => ansiStrip(i).length),
-    );
-
     const selectedItem = this.getSelected();
     if (typeof selectedItem.helpText === 'string') {
       message += chalk`\n \n {blue ?} ${selectedItem.helpText
@@ -495,31 +428,11 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         .map((line) => line.replace(new RegExp('^ -'), chalk.cyan('   -')))
         .join(`\n`)}`;
     } else if (this.showHelp) {
-      message += [
-        ` `,
-        ` `,
-        chalk.blue.dim` ${'='.repeat(longestLine)}`,
-        HELP_TEXT,
-        ...Object.keys(this.opt.keyMap)
-          .filter((key) => Array.isArray(this.opt.keyMap[key]))
-          .sort((a, b) => {
-            if (a.length > b.length) {
-              return UP;
-            }
-            if (b.length > a.length) {
-              return DOWN;
-            }
-            return a > b ? UP : DOWN;
-          })
-          .map(
-            (key) =>
-              // Mental note: keep space at end for rendering reasons
-              chalk`  {blue.dim -} {yellow.dim ${key.padEnd(
-                BIGGEST_KEYBIND,
-                ' ',
-              )}}  {gray ${this.opt.keyMap[key][LABEL]} }`,
-          ),
-      ].join(`\n`);
+      message = this.textRender.appendHelp(
+        message,
+        BASE_HELP,
+        Object.keys(this.opt.keyMap).map((i) => [i, this.opt.keyMap[i][VALUE]]),
+      );
     }
     this.screen.render(message, '');
   }

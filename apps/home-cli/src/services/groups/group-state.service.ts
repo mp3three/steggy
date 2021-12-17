@@ -14,7 +14,7 @@ import {
   PromptService,
   ToMenuEntry,
 } from '@for-science/tty';
-import { AutoLogService, DOWN, IsEmpty, UP } from '@for-science/utilities';
+import { AutoLogService, IsEmpty } from '@for-science/utilities';
 import {
   forwardRef,
   Inject,

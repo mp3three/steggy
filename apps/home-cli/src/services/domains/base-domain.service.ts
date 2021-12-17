@@ -36,7 +36,6 @@ import {
 import chalk from 'chalk';
 import Table from 'cli-table';
 import dayjs from 'dayjs';
-import { encode } from 'ini';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 

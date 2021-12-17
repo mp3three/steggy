@@ -12,6 +12,7 @@ import {
   iRepl,
   IsDone,
   KeyMap,
+  MenuEntry,
   PinnedItemService,
   PromptEntry,
   PromptService,
@@ -45,9 +46,7 @@ import { LockGroupCommandService } from './lock-group-command.service';
 import { SwitchGroupCommandService } from './switch-group-command.service';
 
 export type GroupItem = { entities: string[]; name: string; room: string };
-const LIGHT_COMMAND_SEPARATOR = new inquirer.Separator(
-  chalk.white('Light commands'),
-);
+
 const GROUP_DOMAINS = new Map([
   [GROUP_TYPES.light, [HASS_DOMAINS.light]],
   [
@@ -85,6 +84,14 @@ export class GroupCommandService implements iRepl {
   ) {}
 
   private lastGroup: string;
+
+  public async buildList(current: GroupDTO[] = []): Promise<GroupDTO[]> {
+    const list = await this.list();
+    return await this.promptService.listBuild<GroupDTO>({
+      current: current.map((group) => [group.friendlyName, group]),
+      source: list.map((g) => [g.friendlyName, g]),
+    });
+  }
 
   public async create(): Promise<GroupDTO> {
     const type = (await this.promptService.menu<GROUP_TYPES>({
@@ -155,6 +162,7 @@ export class GroupCommandService implements iRepl {
     const groups = await this.list();
     const action = await this.promptService.menu<GroupDTO>({
       keyMap: {
+        b: ['Build', 'build'],
         c: ['Create', 'create'],
         d: [chalk.bold`Done`, DONE],
       },
@@ -173,7 +181,11 @@ export class GroupCommandService implements iRepl {
       await this.create();
       return await this.exec();
     }
-    if (action === DONE) {
+    if (action === 'build') {
+      await this.buildList();
+      return;
+    }
+    if (IsDone(action)) {
       return;
     }
     if (typeof action === 'string') {

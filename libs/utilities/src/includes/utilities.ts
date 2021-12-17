@@ -1,4 +1,5 @@
 // Reused numbers
+// Apparantly these can affect type checking too. Cool!
 
 export const INVERT_VALUE = -1;
 // Sort

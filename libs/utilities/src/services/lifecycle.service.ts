@@ -28,7 +28,9 @@ export class LifecycleService {
     });
     await eachSeries(instances, async (instance, callback) => {
       await instance.onPostInit(app, server, options);
-      callback();
+      if (callback) {
+        callback();
+      }
     });
   }
 
@@ -50,7 +52,9 @@ export class LifecycleService {
     });
     await eachSeries(instances, async (instance, callback) => {
       await instance.onPreInit(app, server, options);
-      callback();
+      if (callback) {
+        callback();
+      }
     });
   }
 }

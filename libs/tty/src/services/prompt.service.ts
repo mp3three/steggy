@@ -26,7 +26,7 @@ import {
   SECONDARY_HEADER_FONT,
 } from '../config';
 import { DONE, PromptMenuItems } from '../contracts';
-import { MainMenuOptions } from '../inquirer';
+import { ListBuilderOptions, MainMenuOptions } from '../inquirer';
 
 const name = `result`;
 export type PROMPT_WITH_SHORT = { name: string; short: string };
@@ -281,6 +281,19 @@ export class PromptService {
       }
       return item;
     });
+  }
+
+  public async listBuild<T>(
+    options: Partial<ListBuilderOptions<T>>,
+  ): Promise<T[]> {
+    const { result } = await inquirer.prompt([
+      {
+        ...options,
+        name,
+        type: 'listbuilder',
+      } as ListBuilderOptions<T>,
+    ]);
+    return result;
   }
 
   public async menu<T extends unknown = string>(

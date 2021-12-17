@@ -6,3 +6,4 @@ export * from './pinned-item.service';
 export * from './prompt.service';
 export * from './repl-explorer.service';
 export * from './system.service';
+export * from './text-rendering.service';
