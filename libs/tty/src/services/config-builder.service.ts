@@ -27,7 +27,7 @@ import { get, set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
 
-import { ICONS, IsDone } from '../contracts';
+import { DONE, ICONS, IsDone } from '../contracts';
 import { ToMenuEntry } from '../inquirer';
 import { PromptEntry, PromptService } from './prompt.service';
 
@@ -63,6 +63,7 @@ export class ConfigBuilderService {
     const application =
       initialApp ||
       (await this.promptService.menu({
+        keyMap: {},
         right: ToMenuEntry(this.applicationChoices()),
         rightHeader: `Application choices`,
       }));
@@ -84,6 +85,9 @@ export class ConfigBuilderService {
       typeof application === 'string' ? application : application.description;
     this.loadConfig(application);
     const action = await this.promptService.menu({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: ToMenuEntry([
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.DESCRIBE}Show`, 'describe'],

@@ -76,6 +76,9 @@ export class ServerLogsService {
       return;
     }
     const item = await this.promptService.menu({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: ToMenuEntry(
         logs.map((i) => [
           chalk.bold[LEVELS.get(i.level) ?? 'underline']`${i.message.join(

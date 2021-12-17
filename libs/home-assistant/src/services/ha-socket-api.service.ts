@@ -165,7 +165,7 @@ export class HASocketAPIService {
     });
   }
 
-  protected async onPostInit(): Promise<void> {
+  protected async onApplicationBootstrap(): Promise<void> {
     // Kick off the connection process
     // Do not wait for it to actually complete through auth though
     //

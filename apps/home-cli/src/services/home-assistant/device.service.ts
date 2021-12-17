@@ -43,8 +43,14 @@ export class DeviceService {
       return;
     }
     const entity = await this.promptService.menu({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: ToMenuEntry(inspect.entity.map((i) => [i, i])),
     });
+    if (IsDone(entity)) {
+      return;
+    }
     await this.entityService.process(entity);
   }
 
@@ -61,6 +67,7 @@ export class DeviceService {
       return devices.find(({ id }) => inList.includes(id));
     }
     return (await this.promptService.menu<DeviceListItemDTO>({
+      keyMap: {},
       right: ToMenuEntry(
         devices
           .filter((value) => IsEmpty(inList) || inList.includes(value.id))
@@ -74,6 +81,9 @@ export class DeviceService {
     defaultValue?: string,
   ): Promise<void> {
     const action = await this.promptService.menu({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: ToMenuEntry([
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
         [`${ICONS.ENTITIES}Entities`, 'entities'],

@@ -22,7 +22,7 @@ import { Key } from 'readline';
 
 import { LIB_TTY, PAGE_SIZE } from '../config';
 import { ICONS } from '../contracts';
-import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
+import { ansiMaxLength, ansiPadEnd } from '../includes';
 import { TextRenderingService } from '../services';
 import { MenuEntry } from './main-menu';
 
@@ -42,14 +42,20 @@ const BASE_HELP = [
   ['enter', 'select entry'],
   ['home', 'move to top'],
   ['end', 'move to bottom'],
-  ['ctrl-f', 'toggle find mode'],
+  ['f3', 'toggle find mode'],
+] as MenuEntry[];
+
+const MENU_HELP = [
   ['d', 'Done'],
-  ['a', `Add`],
-  ['r', `Remove`],
+  ['f4,`', 'Toggle'],
   ['i', 'Inverse'],
   ['[', `Select all`],
   [']', 'Remove all'],
+  ['f12', 'Reset'],
+  ['c', 'Cancel'],
 ] as MenuEntry[];
+
+const SEARCH_HELP = [['f4,`', 'Toggle entry']] as MenuEntry[];
 
 export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
   private static app: INestApplication;
@@ -96,12 +102,14 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
     if (this.selectedType === 'current') {
       return;
     }
-    const item = this.source.find((item) => item[VALUE] === this.value);
-    let index = this.source.indexOf(item);
+    let source = this.side('source');
+    const item = source.find((item) => item[VALUE] === this.value);
+    let index = source.indexOf(item);
     this.current.push(item);
     this.source = this.source.filter((check) => check !== item);
-    if (index > this.source.length - ARRAY_OFFSET) {
-      index = this.source.length - ARRAY_OFFSET;
+    source = this.side('source');
+    if (index > source.length - ARRAY_OFFSET) {
+      index = source.length - ARRAY_OFFSET;
     }
 
     this.value = IsEmpty(this.source)
@@ -195,7 +203,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
       return;
     }
     const mixed = key.name ?? key.sequence;
-    if (key.ctrl && mixed === 'f') {
+    if ((key.ctrl && mixed === 'f') || mixed === 'f3') {
       this.mode = this.mode === 'find' ? 'select' : 'find';
       this.searchText = '';
       this.render();
@@ -212,8 +220,8 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
   }
 
   private onLeft(): void {
-    const [left, right] = [this.current, this.source];
-    if (IsEmpty(this.current) || this.selectedType === 'current') {
+    const [left, right] = [this.side('current'), this.side('source')];
+    if (IsEmpty(left) || this.selectedType === 'current') {
       return;
     }
     this.selectedType = 'current';
@@ -248,12 +256,21 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
         this.current = [];
         this.detectSide();
         break;
-      case 'a':
-        this.add();
+      case '`':
+      case 'f4':
+        if (this.selectedType === 'current') {
+          this.remove();
+        } else {
+          this.add();
+        }
         break;
-      case 'r':
-        this.remove();
+      case 'f12':
+        this.current = [...this.opt.current];
+        this.source = [...this.opt.source];
         break;
+      case 'c':
+        this.current = [...this.opt.current];
+      // fall through
       case 'd':
         this.onEnd();
         break;
@@ -294,10 +311,10 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
   }
 
   private onRight(): void {
-    if (this.selectedType === 'source' || IsEmpty(this.source)) {
+    const [right, left] = [this.side('source'), this.side('current')];
+    if (this.selectedType === 'source' || IsEmpty(right)) {
       return;
     }
-    const [right, left] = [this.side('source'), this.side('current')];
     this.selectedType = 'source';
     let current = left.findIndex((i) => i[VALUE] === this.value);
     if (current === NOT_FOUND) {
@@ -313,24 +330,51 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
   }
 
   private onSearchKeyPress(key: string): void {
-    if (key === 'backspace') {
-      this.searchText = this.searchText.slice(
-        START,
-        ARRAY_OFFSET * INVERT_VALUE,
-      );
-      return this.render(true);
-    }
-    if (['up', 'down', 'home', 'pageup', 'end', 'pagedown'].includes(key)) {
-      this.navigateSearch(key);
-    }
-    if (key === 'space') {
-      this.searchText += ' ';
-      return this.render(true);
+    switch (key) {
+      case 'backspace':
+        this.searchText = this.searchText.slice(
+          START,
+          ARRAY_OFFSET * INVERT_VALUE,
+        );
+        return this.render(true);
+      case '`':
+      case 'f4':
+        if (this.selectedType === 'current') {
+          this.remove();
+        } else {
+          this.add();
+        }
+        return this.render();
+      case 'left':
+        this.onLeft();
+        return this.render();
+      case 'right':
+        this.onRight();
+        return this.render();
+      case 'space':
+        this.searchText += ' ';
+        if (IsEmpty(this.side())) {
+          this.selectedType =
+            this.selectedType === 'source' ? 'current' : 'source';
+        }
+        return this.render(true);
+
+      case 'up':
+      case 'down':
+      case 'home':
+      case 'pageup':
+      case 'end':
+      case 'pagedown':
+        this.navigateSearch(key);
+        return;
     }
     if (key.length > SINGLE_ITEM) {
       return;
     }
     this.searchText += key;
+    if (IsEmpty(this.side())) {
+      this.selectedType = this.selectedType === 'source' ? 'current' : 'source';
+    }
     this.render(true);
   }
 
@@ -353,16 +397,18 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
     if (this.selectedType === 'source') {
       return;
     }
-    const item = this.current.find((item) => item[VALUE] === this.value);
-    let index = this.current.indexOf(item);
+    let current = this.side('current');
+    const item = current.find((item) => item[VALUE] === this.value);
+    let index = current.indexOf(item);
     this.source.push(item);
     this.current = this.current.filter((check) => check !== item);
-    if (index > this.current.length - ARRAY_OFFSET) {
-      index = this.current.length - ARRAY_OFFSET;
+    current = this.side('current');
+    if (index > current.length - ARRAY_OFFSET) {
+      index = current.length - ARRAY_OFFSET;
     }
-    this.value = IsEmpty(this.current)
+    this.value = IsEmpty(current)
       ? this.source[START][VALUE]
-      : this.current[index][VALUE];
+      : current[index][VALUE];
     this.detectSide();
   }
 
@@ -374,38 +420,32 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
       }
       return;
     }
-    if (this.mode === 'select') {
-      return this.renderSelect();
-    }
-    this.renderFind(updateValue);
-  }
-
-  private renderFind(updateValue = false): void {
-    this.screen.render(
-      [
-        ...this.textRender.searchBox(this.searchText),
-        ...this.renderSide(undefined, updateValue),
-      ].join(`\n`),
-      '',
-    );
-  }
-
-  private renderSelect() {
     if (this.status === 'answered') {
       this.screen.render(``, '');
       return;
     }
-    const leftHeader = 'Current Items';
-    const rightHeader = 'Available Items';
-    const current = this.renderSide('current');
-    const source = this.renderSide('source');
-    const message = this.textRender.mergeLines(current, source, [
-      leftHeader,
-      rightHeader,
-    ]);
-
+    const left = 'Current Items';
+    const right = 'Available Items';
+    const current = this.renderSide(
+      'current',
+      updateValue && this.selectedType === 'current',
+    );
+    const source = this.renderSide(
+      'source',
+      updateValue && this.selectedType === 'source',
+    );
+    const search = this.mode === 'find' ? this.searchText : undefined;
+    const message = this.textRender.assemble(current, source, {
+      left,
+      right,
+      search,
+    });
     this.screen.render(
-      this.textRender.appendHelp(message.join(`\n`), BASE_HELP),
+      this.textRender.appendHelp(
+        message.join(`\n`),
+        BASE_HELP,
+        this.mode === 'find' ? SEARCH_HELP : MENU_HELP,
+      ),
       '',
     );
   }
@@ -429,24 +469,23 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
       const padded = ansiPadEnd(item[LABEL], maxLabel);
       if (this.selectedType === side) {
         out.push(
-          chalk`{bold.${inverse ? 'bgCyanBright' : 'magenta'}  ${padded} }`,
+          chalk` {${inverse ? 'cyanBright.inverse' : 'white'}  ${padded} }`,
         );
         return;
       }
-      out.push(chalk`{gray {gray  ${padded}} }`);
+      out.push(chalk` {gray  ${padded} }`);
     });
     return out;
   }
 
   private side<T extends unknown = string>(
     side: 'current' | 'source' = this.selectedType,
-    noRecurse = false,
   ): MenuEntry<T>[] {
-    if (this.mode === 'find' && !noRecurse) {
-      return [
-        ...this.side('source', true),
-        ...this.side('current', true),
-      ] as MenuEntry<T>[];
+    if (this.mode === 'find') {
+      return this.textRender.fuzzySort<T>(
+        this.searchText,
+        this[side] as MenuEntry<T>[],
+      );
     }
     return this[side].sort((a, b) => {
       return a[LABEL].replace(UNSORTABLE, '') > b[LABEL].replace(UNSORTABLE, '')

@@ -85,6 +85,9 @@ export class FanService extends SwitchService {
 
   public async setSpeed(id: string): Promise<void> {
     const speed = await this.promptService.menu({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: ToMenuEntry(
         Object.keys(FanSpeeds)
           .reverse()

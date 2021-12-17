@@ -136,6 +136,9 @@ For loop example getting entity values in the weather domain:
       return;
     }
     const item = await this.promptService.menu<HassNotificationDTO>({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: notifications.map((i) => ({ entry: [i.title, i] })),
     });
     if (IsDone(item)) {
@@ -236,6 +239,9 @@ For loop example getting entity values in the weather domain:
       ].join(`\n`),
     );
     const action = await this.promptService.menu({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: ToMenuEntry([
         [chalk`Update using {blue yarn}`, `yarn`],
         [chalk`Update using {red npm}`, `npm`],

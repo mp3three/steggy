@@ -104,6 +104,9 @@ export class RoutineActivateService {
     activate: RoutineActivateDTO,
   ): Promise<RoutineDTO> {
     const action = await this.promptService.menu({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: ToMenuEntry([
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.DELETE}Delete`, 'delete'],
@@ -148,6 +151,9 @@ export class RoutineActivateService {
   public async processRoutine(routine: RoutineDTO): Promise<RoutineDTO> {
     routine.activate ??= [];
     const action = await this.promptService.menu({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: ToMenuEntry([
         [`${ICONS.CREATE}Add`, 'add'],
         ...this.promptService.conditionalEntries(!IsEmpty(routine.activate), [

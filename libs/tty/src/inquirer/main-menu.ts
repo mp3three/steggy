@@ -55,7 +55,7 @@ export type KeyMap = Record<string, PromptEntry>;
 
 export interface MainMenuOptions<T = unknown> {
   headerPadding?: number;
-  keyMap?: KeyMap;
+  keyMap: KeyMap;
   left?: MainMenuEntry<T | string>[];
   leftHeader?: string;
   right: MainMenuEntry<T | string>[];
@@ -75,7 +75,7 @@ const BASE_HELP = [
   ['enter', 'select entry'],
   ['home', 'move to top'],
   ['end', 'move to bottom'],
-  ['ctrl-f', 'toggle find mode'],
+  ['f3', 'toggle find mode'],
 ] as MenuEntry[];
 
 export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
@@ -236,15 +236,8 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       return;
     }
     const mixed = key.name ?? key.sequence;
-    if (key.ctrl && mixed === 'f') {
-      this.mode = this.mode === 'find' ? 'select' : 'find';
-      if (this.mode === 'select') {
-        this.detectSide();
-      } else {
-        this.searchText = '';
-      }
-      this.render();
-      return;
+    if (mixed === 'f3' || (key.ctrl && mixed === 'f')) {
+      this.toggleFind();
     }
     if (key.ctrl || key.shift || key.meta) {
       return;
@@ -409,7 +402,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     }
     let message = '';
     const out = !IsEmpty(this.opt.left)
-      ? this.textRender.mergeLines(
+      ? this.textRender.assemble(
           this.renderSide('left'),
           this.renderSide('right'),
         )
@@ -479,13 +472,13 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
 
       if (this.selectedType === side) {
         out.push(
-          chalk`{magenta.bold ${prefix}} {${
+          chalk` {magenta.bold ${prefix}} {${
             inverse ? 'bgCyanBright.black' : 'white'
-          }  ${padded} }`,
+          }  ${padded}}`,
         );
         return;
       }
-      out.push(chalk`{gray ${prefix}  {gray ${padded}} }`);
+      out.push(chalk` {gray ${prefix}  {gray ${padded}}}`);
     });
     const max = ansiMaxLength(out);
     if (header) {
@@ -529,6 +522,16 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       }
       return DOWN;
     });
+  }
+
+  private toggleFind(): void {
+    this.mode = this.mode === 'find' ? 'select' : 'find';
+    if (this.mode === 'select') {
+      this.detectSide();
+    } else {
+      this.searchText = '';
+    }
+    this.render();
   }
 
   private top(): void {

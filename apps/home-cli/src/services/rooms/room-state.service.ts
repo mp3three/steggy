@@ -158,6 +158,10 @@ export class RoomStateService {
   ): Promise<RoomDTO> {
     this.promptService.clear();
     this.promptService.scriptHeader(`Room State`);
+    this.promptService.secondaryHeader(state.friendlyName);
+    console.log(
+      chalk` {blue.bold For room} {bold.magenta ${room.friendlyName}}\n`,
+    );
     await this.header(room, state);
     const [activate] = [
       [`${ICONS.ACTIVATE}Activate`, 'activate'],
@@ -328,7 +332,7 @@ export class RoomStateService {
     const entities = state.states.filter(({ type }) => type === 'entity');
     if (IsEmpty(entities)) {
       console.log(
-        chalk`${ICONS.ENTITIES}{blue No entities included in save state}\n`,
+        chalk`  ${ICONS.ENTITIES}{blue No entities included in save state}\n`,
       );
     } else {
       const table = new Table({
@@ -346,7 +350,7 @@ export class RoomStateService {
       console.log(
         [
           ``,
-          chalk`${ICONS.ENTITIES}{blue.bold Entity States}`,
+          chalk`  ${ICONS.ENTITIES}{blue.bold Entity States}`,
           table.toString(),
         ].join(`\n`),
       );
@@ -354,7 +358,7 @@ export class RoomStateService {
     const groupStates = state.states.filter(({ type }) => type === 'group');
     if (IsEmpty(groupStates)) {
       console.log(
-        chalk`${ICONS.GROUPS}{blue No groups included in save state}\n`,
+        chalk`  ${ICONS.GROUPS}{blue No groups included in save state}\n`,
       );
       return;
     }
@@ -381,7 +385,7 @@ export class RoomStateService {
     console.log(
       [
         ``,
-        chalk`${ICONS.GROUPS}{blue.bold Group States}`,
+        chalk`  ${ICONS.GROUPS}{blue.bold Group States}`,
         table.toString(),
         ``,
       ].join(`\n`),

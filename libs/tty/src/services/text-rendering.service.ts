@@ -57,16 +57,65 @@ export class TextRenderingService {
           return chalk` {blue.dim -} {yellow.dim ${i[LABEL].padEnd(
             max,
             ' ',
-          )}}  {gray ${i[VALUE]}}`;
+          ).replace(new RegExp(',', 'g'), chalk.whiteBright`,`)}}  {gray ${
+            i[VALUE]
+          }}`;
         }),
     ].join(`\n`);
+  }
+
+  public assemble(
+    leftEntries: string[],
+    rightEntries: string[],
+    {
+      left,
+      right,
+      search,
+    }: { left?: string; right?: string; search?: string } = {},
+  ): string[] {
+    const out = [...leftEntries];
+    left = left ? ' ' + left : left;
+    const maxA = ansiMaxLength([...leftEntries, left]) + ARRAY_OFFSET;
+    const maxB = ansiMaxLength([...rightEntries, right]);
+    rightEntries.forEach((item, index) => {
+      const current = ansiPadEnd(out[index] ?? '', maxA);
+      item = ansiPadEnd(item, maxB);
+      out[index] = chalk`${current}${SEPARATOR}${item}`;
+    });
+    if (leftEntries.length > rightEntries.length) {
+      out.forEach(
+        (line, index) =>
+          (out[index] =
+            index < rightEntries.length
+              ? line
+              : ansiPadEnd(line, maxA) + SEPARATOR),
+      );
+    }
+    if (!IsEmpty(left)) {
+      out.unshift(
+        chalk`{blue.bold ${left.padStart(
+          maxA - ARRAY_OFFSET,
+          ' ',
+        )}} {blue.dim |} {blue.bold ${right.padEnd(maxB, ' ')}}`,
+      );
+    }
+    if (typeof search === 'string') {
+      out.unshift(...this.searchBox(search));
+    }
+    return out;
   }
 
   public biggestLabel(entries: MenuEntry[]): number {
     return Math.max(...entries.map((i) => i[LABEL].length));
   }
 
-  public fuzzySort(searchText: string, data: MenuEntry[]): MenuEntry[] {
+  public fuzzySort<T extends unknown = string>(
+    searchText: string,
+    data: MenuEntry<T>[],
+  ): MenuEntry<T>[] {
+    if (IsEmpty(searchText)) {
+      return data;
+    }
     const entries = data.map((i) => ({
       label: i[LABEL],
       value: i[VALUE],
@@ -79,44 +128,12 @@ export class TextRenderingService {
           ? option === target
           : option[LABEL] === target;
       });
-      return [this.highlight(result), item[VALUE]] as MenuEntry;
+      return [this.highlight(result), item[VALUE]] as MenuEntry<T>;
     });
     return highlighted;
   }
 
-  public mergeLines(
-    a: string[],
-    b: string[],
-    [left, right]: [string, string] = ['', ''],
-  ): string[] {
-    const out = [...a];
-    left = left ? ' ' + left : left;
-    const maxA = ansiMaxLength([...a, left]) + ARRAY_OFFSET;
-    const maxB = ansiMaxLength([...b, right]);
-    b.forEach((item, index) => {
-      const current = ansiPadEnd(out[index] ?? '', maxA);
-      item = ansiPadEnd(item, maxB);
-      out[index] = chalk`${current}${SEPARATOR}${item}`;
-    });
-    if (a.length > b.length) {
-      out.forEach(
-        (line, index) =>
-          (out[index] =
-            index < b.length ? line : ansiPadEnd(line, maxA) + SEPARATOR),
-      );
-    }
-    if (!IsEmpty(left)) {
-      out.unshift(
-        chalk`{blue.bold ${left.padStart(
-          maxA - ARRAY_OFFSET,
-          ' ',
-        )}} {blue.dim |} {blue.bold ${right.padEnd(maxB, ' ')}}`,
-      );
-    }
-    return out;
-  }
-
-  public searchBox(searchText: string): string[] {
+  public searchBox(searchText: string, size = MAX_SEARCH_SIZE): string[] {
     const text = IsEmpty(searchText)
       ? chalk.bgBlue`Type to filter`
       : searchText;
@@ -124,7 +141,7 @@ export class TextRenderingService {
       chalk` {green >} {cyan Search} `,
       chalk[IsEmpty(searchText) ? 'bgBlue' : 'bgWhite'].black` ${ansiPadEnd(
         text,
-        MAX_SEARCH_SIZE,
+        size,
       )} `,
       ` `,
     ];
