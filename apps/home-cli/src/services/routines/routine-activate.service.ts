@@ -26,6 +26,7 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { v4 as uuid } from 'uuid';
 
+import { MENU_ITEMS } from '../../includes';
 import {
   KunamiBuilderService,
   ScheduleBuilderService,
@@ -105,12 +106,9 @@ export class RoutineActivateService {
   ): Promise<RoutineDTO> {
     const action = await this.promptService.menu({
       keyMap: {
-        d: [chalk.bold`Done`, DONE],
+        d: MENU_ITEMS.DELETE,
       },
-      right: ToMenuEntry([
-        [`${ICONS.EDIT}Edit`, 'edit'],
-        [`${ICONS.DELETE}Delete`, 'delete'],
-      ]),
+      right: ToMenuEntry([MENU_ITEMS.EDIT]),
       rightHeader: `Routine activation`,
     });
     if (IsDone(action)) {
@@ -151,11 +149,9 @@ export class RoutineActivateService {
   public async processRoutine(routine: RoutineDTO): Promise<RoutineDTO> {
     routine.activate ??= [];
     const action = await this.promptService.menu({
-      keyMap: {
-        d: [chalk.bold`Done`, DONE],
-      },
+      keyMap: { d: MENU_ITEMS.DELETE },
       right: ToMenuEntry([
-        [`${ICONS.CREATE}Add`, 'add'],
+        MENU_ITEMS.ADD,
         ...this.promptService.conditionalEntries(!IsEmpty(routine.activate), [
           new inquirer.Separator(chalk.white`Current activations`),
           ...(routine.activate.map((activate) => [

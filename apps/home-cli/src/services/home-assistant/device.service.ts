@@ -15,6 +15,7 @@ import { forwardRef, Inject } from '@nestjs/common';
 import chalk from 'chalk';
 import { encode } from 'ini';
 
+import { MENU_ITEMS } from '../../includes';
 import { HomeFetchService } from '../home-fetch.service';
 import { EntityService } from './entity.service';
 
@@ -43,9 +44,7 @@ export class DeviceService {
       return;
     }
     const entity = await this.promptService.menu({
-      keyMap: {
-        d: [chalk.bold`Done`, DONE],
-      },
+      keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry(inspect.entity.map((i) => [i, i])),
     });
     if (IsDone(entity)) {
@@ -81,12 +80,10 @@ export class DeviceService {
     defaultValue?: string,
   ): Promise<void> {
     const action = await this.promptService.menu({
-      keyMap: {
-        d: [chalk.bold`Done`, DONE],
-      },
+      keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry([
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
-        [`${ICONS.ENTITIES}Entities`, 'entities'],
+        MENU_ITEMS.ENTITIES,
       ]),
       value: defaultValue,
     });

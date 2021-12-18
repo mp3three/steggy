@@ -37,6 +37,7 @@ import {
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
+import { MENU_ITEMS } from '../../includes';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { FanGroupCommandService } from './fan-group-command.service';
@@ -87,9 +88,7 @@ export class GroupCommandService implements iRepl {
 
   public async create(): Promise<GroupDTO> {
     const type = (await this.promptService.menu<GROUP_TYPES>({
-      keyMap: {
-        d: [chalk.bold`Done`, DONE],
-      },
+      keyMap: { d: MENU_ITEMS.DONE },
       right: Object.values(GROUP_TYPES).map((type) => ({
         entry: [TitleCase(type, false), type],
         helpText: GROUP_DEFINITIONS.get(type),
@@ -153,10 +152,7 @@ export class GroupCommandService implements iRepl {
   public async exec(): Promise<void> {
     const groups = await this.list();
     const action = await this.promptService.menu<GroupDTO>({
-      keyMap: {
-        c: ['Create', 'create'],
-        d: [chalk.bold`Done`, DONE],
-      },
+      keyMap: { c: MENU_ITEMS.CREATE, d: MENU_ITEMS.DONE },
       right: ToMenuEntry([
         ...this.promptService.conditionalEntries(
           !IsEmpty(groups),
@@ -276,15 +272,15 @@ export class GroupCommandService implements iRepl {
     const action = await this.promptService.menu<{ entity_id: string }>({
       keyMap: {
         a: [`Add entity`, 'add'],
-        d: [chalk.bold`Done`, DONE],
+        d: MENU_ITEMS.DONE,
         m: [`${ICONS.ENTITIES}Manage Entities`, 'entities'],
         p: [
           this.pinnedItems.isPinned('group', group._id) ? 'Unpin' : 'Pin',
           'pin',
         ],
-        r: [`${ICONS.RENAME}Rename`, 'rename'],
+        r: MENU_ITEMS.RENAME,
         s: state,
-        x: [`${ICONS.DELETE}Delete`, 'delete'],
+        x: MENU_ITEMS.DELETE,
         ...map,
       },
       left: ToMenuEntry(

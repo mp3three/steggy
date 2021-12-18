@@ -23,9 +23,9 @@ import {
 } from '@for-science/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
-import { encode } from 'ini';
 import inquirer from 'inquirer';
 
+import { MENU_ITEMS } from '../../includes';
 import { GroupCommandService } from '../groups/group-command.service';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
@@ -77,8 +77,8 @@ export class RoomCommandService {
     const rooms = await this.list();
     let room = await this.promptService.menu<RoomDTO | string>({
       keyMap: {
-        c: [`${ICONS.CREATE}Create`, 'create'],
-        d: [chalk.bold`Done`, DONE],
+        c: MENU_ITEMS.CREATE,
+        d: MENU_ITEMS.DONE,
       },
       right: ToMenuEntry(
         rooms
@@ -161,26 +161,21 @@ export class RoomCommandService {
         });
 
     room.save_states ??= [];
-    const [routines, states, entities] = [
-      [`${ICONS.ROUTINE}Routines`, 'routines'],
-      [`${ICONS.STATE_MANAGER}State Manager`, 'states'],
-      [`${ICONS.ENTITIES}Entities`, 'entities'],
-    ] as PromptEntry[];
     const action = await this.promptService.menu<
       GroupDTO | { entity_id: string }
     >({
       keyMap: {
-        d: [chalk.bold`Done`, DONE],
-        e: entities,
-        g: [`${ICONS.GROUPS}Groups`, 'groups'],
+        d: MENU_ITEMS.DONE,
+        e: MENU_ITEMS.ENTITIES,
+        g: MENU_ITEMS.GROUPS,
         p: [
           this.pinnedItems.isPinned('room', room._id) ? 'Unpin' : 'pin',
           'pin',
         ],
-        r: [`${ICONS.RENAME}Rename`, 'rename'],
-        s: states,
-        t: routines,
-        x: [`${ICONS.DELETE}Delete`, 'delete'],
+        r: MENU_ITEMS.RENAME,
+        s: MENU_ITEMS.STATE_MANAGER,
+        t: MENU_ITEMS.ROUTINES,
+        x: MENU_ITEMS.DELETE,
       },
       left: ToMenuEntry([
         ...this.promptService.conditionalEntries(!IsEmpty(room.entities), [
@@ -197,10 +192,10 @@ export class RoomCommandService {
         ]),
       ] as PromptEntry[]),
       right: ToMenuEntry([
-        routines,
-        states,
-        entities,
-        [`${ICONS.GROUPS}Groups`, 'groups'],
+        MENU_ITEMS.ROUTINES,
+        MENU_ITEMS.STATE_MANAGER,
+        MENU_ITEMS.ENTITIES,
+        MENU_ITEMS.GROUPS,
       ]),
       showHeaders: false,
       value: defaultAction,

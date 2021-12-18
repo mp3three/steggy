@@ -23,6 +23,7 @@ import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';
 
+import { MENU_ITEMS } from '../../includes';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';
 import { RoutineActivateService } from './routine-activate.service';
@@ -79,8 +80,8 @@ export class RoutineService {
     let action = await this.promptService.menu<RoutineDTO | string>({
       keyMap: {
         a: [all ? 'Show detached routines' : 'Show all routines', 'all'],
-        c: [`${ICONS.CREATE}Create new`, 'create'],
-        d: [chalk.bold`Done`, DONE],
+        c: MENU_ITEMS.CREATE,
+        d: MENU_ITEMS.DONE,
       },
       right: ToMenuEntry(
         this.promptService.conditionalEntries(!IsEmpty(list), [
@@ -149,10 +150,7 @@ export class RoutineService {
     }
     const current = await this.list(control);
     let action = await this.promptService.menu({
-      keyMap: {
-        c: [`${ICONS.CREATE}Create`, 'create'],
-        d: [chalk.bold`Done`, DONE],
-      },
+      keyMap: { c: MENU_ITEMS.CREATE, d: MENU_ITEMS.DONE },
       right: ToMenuEntry(
         current.map((item) => [
           item.friendlyName,
@@ -178,22 +176,21 @@ export class RoutineService {
     defaultAction?: string,
   ): Promise<void> {
     await this.header(routine);
-    const [activate, events, command] = [
-      [`${ICONS.ACTIVATE}Manual activate`, 'activate'],
+    const [events, command] = [
       [`${ICONS.EVENT}Activation Events`, 'events'],
       [`${ICONS.COMMAND}Commands`, 'command'],
     ] as PromptEntry[];
     const action = await this.promptService.menu({
       keyMap: {
-        a: activate,
+        a: MENU_ITEMS.ACTIVATE,
         c: command,
-        d: [chalk.bold`Done`, DONE],
+        d: MENU_ITEMS.DONE,
         e: events,
         p: [
           this.pinnedItems.isPinned('routine', routine._id) ? 'Unpin' : 'Pin',
           'pin',
         ],
-        r: [`${ICONS.RENAME}Rename`, 'rename'],
+        r: MENU_ITEMS.RENAME,
         s: [
           routine.sync
             ? `${ICONS.SWAP}Run commands in parallel`
@@ -202,7 +199,7 @@ export class RoutineService {
         ],
         x: [`${ICONS.DELETE}Delete`, 'delete'],
       },
-      right: ToMenuEntry([activate, events, command]),
+      right: ToMenuEntry([MENU_ITEMS.ACTIVATE, events, command]),
       rightHeader: `Manage routine`,
       value: defaultAction,
     });
@@ -264,7 +261,7 @@ export class RoutineService {
   public async promptActivate(routine: RoutineDTO): Promise<void> {
     const action = await this.promptService.menu({
       keyMap: {
-        d: [chalk.bold`Done`, DONE],
+        d: MENU_ITEMS.DONE,
       },
       right: ToMenuEntry([
         [`Immediate`, 'immediate'],

@@ -1,5 +1,4 @@
 import {
-  DONE,
   ICONS,
   IsDone,
   PromptService,
@@ -9,6 +8,7 @@ import {
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
+import { MENU_ITEMS } from '../../includes';
 import { HomeFetchService } from '../home-fetch.service';
 
 @Repl({
@@ -25,7 +25,7 @@ export class ServerControlService {
   public async exec(defaultAction: string): Promise<void> {
     const action = await this.promptService.menu({
       keyMap: {
-        d: [chalk.bold`Done`, DONE],
+        d: MENU_ITEMS.DONE,
       },
       right: ToMenuEntry([
         new inquirer.Separator(chalk.white`Configuration validation`),

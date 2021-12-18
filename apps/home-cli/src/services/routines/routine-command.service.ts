@@ -36,6 +36,7 @@ import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
 import { v4 as uuid } from 'uuid';
 
+import { MENU_ITEMS } from '../../includes';
 import { GroupCommandService, GroupStateService } from '../groups';
 import { EntityService } from '../home-assistant/entity.service';
 import { RoomCommandService, RoomStateService } from '../rooms';
@@ -299,12 +300,12 @@ export class RoutineCommandService {
   ): Promise<RoutineDTO> {
     const action = await this.promptService.menu({
       keyMap: {
-        d: [chalk.bold`Done`, DONE],
+        d: MENU_ITEMS.DELETE,
+        x: MENU_ITEMS.DELETE,
       },
       right: ToMenuEntry([
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
-        [`${ICONS.EDIT}Edit`, 'edit'],
-        [`${ICONS.DELETE}Delete`, 'delete'],
+        MENU_ITEMS.EDIT,
       ]),
       rightHeader: `Routine command actions`,
     });
@@ -345,11 +346,9 @@ export class RoutineCommandService {
   public async processRoutine(routine: RoutineDTO): Promise<RoutineDTO> {
     routine.command ??= [];
     const action = await this.promptService.menu({
-      keyMap: {
-        d: [chalk.bold`Done`, DONE],
-      },
+      keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry([
-        [`${ICONS.CREATE}Add`, 'add'],
+        MENU_ITEMS.ADD,
         [`${ICONS.SWAP}Sort`, 'sort'],
         ...this.promptService.conditionalEntries(!IsEmpty(routine.command), [
           new inquirer.Separator(chalk.white`Current commands`),

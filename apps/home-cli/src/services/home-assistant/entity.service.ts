@@ -12,8 +12,10 @@ import {
   ICONS,
   iRepl,
   PinnedItemService,
+  PromptEntry,
   PromptService,
   Repl,
+  ToMenuEntry,
 } from '@for-science/tty';
 import { IsEmpty } from '@for-science/utilities';
 
@@ -93,8 +95,8 @@ export class EntityService implements iRepl {
   }
 
   public async exec(): Promise<void> {
-    const entities = await this.list();
-    return await this.processId(entities);
+    const entities = await this.pickOne();
+    return await this.process(entities);
   }
 
   public async get(id: string): Promise<HassStateDTO> {
@@ -144,16 +146,18 @@ export class EntityService implements iRepl {
     );
   }
 
-  public async pickOne(
-    inList: string[] = [],
-    defaultValue?: string,
-  ): Promise<string> {
+  public async pickOne(inList: string[] = [], value?: string): Promise<string> {
     const entities = await this.list();
-    return await this.promptService.autocomplete(
-      `Pick an entity`,
-      entities.filter((entity) => IsEmpty(inList) || inList.includes(entity)),
-      defaultValue,
-    );
+    return await this.promptService.menu({
+      keyMap: {},
+      right: ToMenuEntry(
+        (IsEmpty(inList)
+          ? entities
+          : entities.filter((i) => inList.includes(i))
+        ).map((i) => [i, i] as PromptEntry),
+      ),
+      value,
+    });
   }
 
   public async process(id: string): Promise<void> {

@@ -33,6 +33,7 @@ import chalk from 'chalk';
 import Table from 'cli-table';
 import inquirer from 'inquirer';
 
+import { MENU_ITEMS } from '../../includes';
 import { GroupCommandService } from '../groups';
 import { EntityService } from '../home-assistant';
 import { HomeFetchService } from '../home-fetch.service';
@@ -111,8 +112,8 @@ export class RoomStateService {
   public async process(room: RoomDTO): Promise<RoomDTO> {
     const action = await this.promptService.menu({
       keyMap: {
-        c: [`${ICONS.CREATE}Create`, 'create'],
-        d: [chalk.bold`Done`, DONE],
+        c: MENU_ITEMS.CREATE,
+        d: MENU_ITEMS.DONE,
         f12: [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
       },
       right: ToMenuEntry(
@@ -163,24 +164,20 @@ export class RoomStateService {
       chalk` {blue.bold For room} {bold.magenta ${room.friendlyName}}\n`,
     );
     await this.header(room, state);
-    const [activate] = [
-      [`${ICONS.ACTIVATE}Activate`, 'activate'],
-    ] as PromptEntry[];
+
     const action = await this.promptService.menu({
       keyMap: {
-        a: activate,
-        d: [chalk.bold`Done`, DONE],
+        a: MENU_ITEMS.ACTIVATE,
+        d: MENU_ITEMS.DONE,
+        n: MENU_ITEMS.RENAME,
         p: [
           this.pinnedItems.isPinned('room_state', state.id) ? 'Unpin' : 'Pin',
           'pin',
         ],
         r: [`${ICONS.ROOMS}Go to room`, `room`],
+        x: MENU_ITEMS.DELETE,
       },
-      right: ToMenuEntry([
-        activate,
-        [`${ICONS.EDIT}Edit`, 'edit'],
-        [`${ICONS.DELETE}Delete`, 'delete'],
-      ]),
+      right: ToMenuEntry([MENU_ITEMS.ACTIVATE, MENU_ITEMS.EDIT]),
       rightHeader: `Room state`,
       value: defaultAction,
     });
@@ -188,6 +185,12 @@ export class RoomStateService {
       return room;
     }
     switch (action) {
+      case 'rename':
+        state.friendlyName = await this.promptService.friendlyName(
+          state.friendlyName,
+        );
+        await this.update(state, room);
+        return await this.processState(room, state, action);
       case 'room':
         await this.roomService.processRoom(room);
         room = await this.roomService.get(room._id);
@@ -226,6 +229,14 @@ export class RoomStateService {
         });
     }
     throw new NotImplementedException();
+  }
+
+  public async update(current: RoomStateDTO, room: RoomDTO): Promise<void> {
+    return await this.fetchService.fetch({
+      body: current,
+      method: 'put',
+      url: `/room/${room._id}/state/${current.id}`,
+    });
   }
 
   protected onModuleInit(): void {

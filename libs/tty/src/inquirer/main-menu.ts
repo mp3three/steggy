@@ -20,7 +20,7 @@ import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
 import { Key } from 'readline';
 
-import { ICONS } from '..';
+import { ICONS } from '../contracts';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
 import { PromptEntry, TextRenderingService } from '../services';
 
@@ -425,7 +425,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       message = this.textRender.appendHelp(
         message,
         BASE_HELP,
-        Object.keys(this.opt.keyMap).map((i) => [i, this.opt.keyMap[i][VALUE]]),
+        Object.keys(this.opt.keyMap).map((i) => [i, this.opt.keyMap[i][LABEL]]),
       );
     }
     this.screen.render(message, '');
@@ -442,6 +442,14 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     if (this.mode === 'find' && !IsEmpty(this.searchText)) {
       menu = this.filterMenu(menu, updateValue);
     }
+    const temporary = this.textRender.selectRange(
+      menu.map(({ entry }) => entry),
+      this.value,
+    );
+    menu = temporary.map((i) =>
+      menu.find(({ entry }) => i[VALUE] === entry[VALUE]),
+    );
+
     const maxType = ansiMaxLength(menu.map(({ type }) => type));
     let last = '';
     const maxLabel =

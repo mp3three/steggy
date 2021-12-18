@@ -12,6 +12,7 @@ import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 
+import { MENU_ITEMS } from '../../includes';
 import { HomeFetchService } from '../home-fetch.service';
 
 const LEVELS = new Map([
@@ -36,7 +37,7 @@ export class ServerLogsService {
     this.promptService.scriptHeader(`Server Logs`);
     const action = await this.promptService.menu({
       keyMap: {
-        d: [chalk.bold`Done`, DONE],
+        d: MENU_ITEMS.DONE,
       },
       right: ToMenuEntry([
         [`${ICONS.LOGS}Show logs`, 'logs'],
@@ -77,7 +78,7 @@ export class ServerLogsService {
     }
     const item = await this.promptService.menu({
       keyMap: {
-        d: [chalk.bold`Done`, DONE],
+        d: MENU_ITEMS.DONE,
       },
       right: ToMenuEntry(
         logs.map((i) => [

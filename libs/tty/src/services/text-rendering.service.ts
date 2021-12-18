@@ -30,9 +30,7 @@ const BUFFER_SIZE = 3;
  */
 @Injectable()
 export class TextRenderingService {
-  constructor(@InjectConfig(PAGE_SIZE) private readonly pageSize: number) {
-    this.pageSize = 20;
-  }
+  constructor(@InjectConfig(PAGE_SIZE) private readonly pageSize: number) {}
 
   public appendHelp(
     message: string,
@@ -66,7 +64,8 @@ export class TextRenderingService {
             ' ',
           ).replace(new RegExp(',', 'g'), chalk.whiteBright`, `)}}  {gray ${
             i[VALUE]
-          }}`;
+            // Leave space at end for rendering reasons
+          } }`;
         }),
     ].join(`\n`);
   }
