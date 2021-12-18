@@ -6,7 +6,6 @@ import {
   RoutineCommandGroupStateDTO,
 } from '@for-science/controller-logic';
 import {
-  DONE,
   ICONS,
   IsDone,
   PinnedItemService,
@@ -52,9 +51,10 @@ export class GroupStateService {
     current: Partial<GroupSaveStateDTO> = {},
   ): Promise<GroupDTO> {
     current.states ??= [];
-    const friendlyName = await this.promptService.friendlyName(
-      current.friendlyName,
-    );
+    // Use the dedicated rename action
+    const friendlyName = current.id
+      ? current.friendlyName
+      : await this.promptService.friendlyName(current.friendlyName);
     const states = [];
     const action = await this.promptService.pickOne(`Edit style`, [
       [`${ICONS.GUIDED}Guided`, `guided`],
@@ -300,8 +300,7 @@ export class GroupStateService {
     defaultAction?: string,
   ): Promise<GroupDTO> {
     this.header(group, state);
-    const [edit, copy, activate] = [
-      MENU_ITEMS.EDIT,
+    const [copy, activate] = [
       [`${ICONS.COPY}Copy to another group`, 'copyTo'],
       [`${ICONS.ACTIVATE}Activate`, 'activate'],
     ] as PromptEntry[];
@@ -310,7 +309,7 @@ export class GroupStateService {
         a: activate,
         c: copy,
         d: MENU_ITEMS.DONE,
-        e: edit,
+        e: MENU_ITEMS.EDIT,
         g: [`${ICONS.GROUPS}Go to group`, `group`],
         p: [
           this.pinnedItems.isPinned('group_state', state.id) ? 'Unpin' : 'Pin',
@@ -319,7 +318,7 @@ export class GroupStateService {
         r: MENU_ITEMS.RENAME,
         x: MENU_ITEMS.DELETE,
       },
-      right: ToMenuEntry([activate, edit]),
+      right: ToMenuEntry([activate]),
       rightHeader: `Group state action`,
       value: defaultAction,
     });
@@ -338,8 +337,12 @@ export class GroupStateService {
           script: 'group_state',
         });
         return await this.stateAction(state, group, action);
-      case DONE:
-        return group;
+      case 'rename':
+        state.friendlyName = await this.promptService.friendlyName(
+          state.friendlyName,
+        );
+        group = await this.groupService.update(group);
+        return await this.stateAction(state, group, action);
       case 'copyTo':
         await this.sendSaveState(state, group);
         return await this.stateAction(state, group, action);

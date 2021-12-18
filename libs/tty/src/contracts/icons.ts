@@ -33,7 +33,7 @@ export const ICONS = {
   NAME: '💭 ',
   PIN: '📌 ',
   REFRESH: '🔁 ',
-  RENAME: '✏ ',
+  RENAME: '📑 ',
   ROOMS: '🏡 ',
   ROUTINE: '🛰 ',
   SAVE: '💾 ',

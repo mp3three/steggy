@@ -11,13 +11,14 @@ import {
 import {
   ICONS,
   iRepl,
+  MenuEntry,
   PinnedItemService,
   PromptEntry,
   PromptService,
   Repl,
   ToMenuEntry,
 } from '@for-science/tty';
-import { IsEmpty } from '@for-science/utilities';
+import { IsEmpty, VALUE } from '@for-science/utilities';
 
 import {
   BaseDomainService,
@@ -134,16 +135,16 @@ export class EntityService implements iRepl {
 
   public async pickMany(
     inList: string[] = [],
-    defaultValue?: string[],
+    current: string[] = [],
   ): Promise<string[]> {
-    const entities = await this.list();
-    return await this.promptService.pickMany(
-      `Pick an entity`,
-      entities
-        .filter((entity) => IsEmpty(inList) || inList.includes(entity))
-        .map((id) => [id, id]),
-      { default: defaultValue },
-    );
+    const entities = (await this.list())
+      .filter((i) => (IsEmpty(inList) ? true : inList.includes(i)))
+      .map((i) => [i, i] as MenuEntry);
+    return await this.promptService.listBuild({
+      current: entities.filter((i) => current.includes(i[VALUE])),
+      items: 'Entities',
+      source: entities.filter((i) => !current.includes(i[VALUE])),
+    });
   }
 
   public async pickOne(inList: string[] = [], value?: string): Promise<string> {

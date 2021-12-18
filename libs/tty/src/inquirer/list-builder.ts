@@ -442,10 +442,17 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
 
   private render(updateValue = false): void {
     if (this.status === 'answered') {
-      const entry = this.getSelected();
-      if (entry) {
-        this.screen.render(chalk` {magenta >} ${entry[LABEL]}`, '');
+      if (IsEmpty(this.current)) {
+        this.screen.render(
+          chalk` {magenta >} No ${this.opt.items} selected\n `,
+          '',
+        );
+        return;
       }
+      this.screen.render(
+        chalk` {magenta >} {yellow ${this.current.length}} ${this.opt.items} selected\n `,
+        '',
+      );
       return;
     }
     if (this.status === 'answered') {

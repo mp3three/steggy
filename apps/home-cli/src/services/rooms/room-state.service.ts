@@ -6,7 +6,6 @@ import {
 } from '@for-science/controller-logic';
 import { domain, HASS_DOMAINS } from '@for-science/home-assistant';
 import {
-  DONE,
   ICONS,
   IsDone,
   PinnedItemService,
@@ -57,9 +56,9 @@ export class RoomStateService {
     room: RoomDTO,
     current: Partial<RoomStateDTO> = {},
   ): Promise<RoomStateDTO> {
-    current.friendlyName = await this.promptService.friendlyName(
-      current.friendlyName,
-    );
+    current.friendlyName =
+      current.friendlyName ??
+      (await this.promptService.friendlyName(current.friendlyName));
     current.states ??= [];
     const states: RoomEntitySaveStateDTO[] = [
       ...(await this.buildEntities(room, current)),
@@ -169,6 +168,7 @@ export class RoomStateService {
       keyMap: {
         a: MENU_ITEMS.ACTIVATE,
         d: MENU_ITEMS.DONE,
+        e: MENU_ITEMS.EDIT,
         n: MENU_ITEMS.RENAME,
         p: [
           this.pinnedItems.isPinned('room_state', state.id) ? 'Unpin' : 'Pin',
@@ -258,18 +258,7 @@ export class RoomStateService {
       this.logger.warn(`No entities in room`);
       return [];
     }
-    const hasEntityStates = !IsEmpty(
-      current.states.filter(({ type }) => type === 'entity'),
-    );
-    if (hasEntityStates) {
-      if (!(await this.promptService.confirm(`Update entities?`))) {
-        return current.states.filter(({ type }) => type === 'entity');
-      }
-    } else if (
-      !(await this.promptService.confirm(`Add entities to save state?`))
-    ) {
-      return [];
-    }
+
     const states: RoomEntitySaveStateDTO[] = [];
     const list = await this.entityService.pickMany(
       // Filter out non-actionable domains
@@ -309,18 +298,6 @@ export class RoomStateService {
       this.logger.warn(`No groups`);
       return [];
     }
-    const hasGroups = !IsEmpty(
-      current.states.filter(({ type }) => type === 'group'),
-    );
-    if (hasGroups) {
-      if (!(await this.promptService.confirm(`Update groups?`))) {
-        return current.states.filter(({ type }) => type === 'group');
-      }
-    } else if (
-      !(await this.promptService.confirm(`Add groups to save state?`))
-    ) {
-      return [];
-    }
     const states: RoomEntitySaveStateDTO[] = [];
     const list = await this.groupService.pickMany(
       room.groups,
@@ -341,14 +318,16 @@ export class RoomStateService {
 
   private async header(room: RoomDTO, state: RoomStateDTO): Promise<void> {
     console.log(
-      chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
+      chalk`  ${
+        ICONS.LINK
+      }{bold.magenta POST} {underline ${this.fetchService.getUrl(
         `/room/${room._id}/state/${state.id}`,
-      )}`,
+      )}}`,
     );
     const entities = state.states.filter(({ type }) => type === 'entity');
     if (IsEmpty(entities)) {
       console.log(
-        chalk`  ${ICONS.ENTITIES}{blue No entities included in save state}\n`,
+        chalk`  ${ICONS.ENTITIES} {blue No entities included in save state}\n`,
       );
     } else {
       const table = new Table({
