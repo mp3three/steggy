@@ -57,12 +57,22 @@ export class AutoConfigService {
     if (Array.isArray(path)) {
       path = ['libs', path[0].description, path[1]].join('.');
     }
-    const value = get(this.config, path, this.getDefault(path));
+    let value = get(this.config, path, this.getDefault(path));
     const config = this.getConfiguration(path);
     if (config.warnDefault && value === config.default) {
       this.logger.warn(
         `Configuration property {${path}} is using default value`,
       );
+    }
+    switch (config.type) {
+      case 'number':
+        return Number(value) as T;
+      case 'boolean':
+        if (typeof value === 'string') {
+          value = ['false', 'n'].includes(value.toLowerCase());
+          return value as T;
+        }
+        return Boolean(value) as T;
     }
     return value as T;
   }

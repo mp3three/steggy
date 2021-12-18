@@ -1,6 +1,5 @@
 import {
   ARRAY_OFFSET,
-  AutoConfigService,
   DOWN,
   FIRST,
   INCREMENT,
@@ -20,7 +19,6 @@ import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
 import { Key } from 'readline';
 
-import { LIB_TTY, PAGE_SIZE } from '../config';
 import { ICONS } from '../contracts';
 import { ansiMaxLength, ansiPadEnd } from '../includes';
 import { TextRenderingService } from '../services';
@@ -33,6 +31,7 @@ type tCallback = (value: unknown[]) => void;
 
 export interface ListBuilderOptions<T = unknown> {
   current?: MenuEntry<T | string>[];
+  items?: string;
   source: MenuEntry<T | string>[];
 }
 
@@ -70,11 +69,9 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
     this.source = [...this.opt.source];
     const { app } = ListBuilderPrompt;
     this.textRender = app.get(TextRenderingService);
-    const config = app.get(AutoConfigService);
-    this.PAGE_SIZE = config.get([LIB_TTY, PAGE_SIZE]);
+    this.opt.items ??= `Items`;
   }
 
-  private readonly PAGE_SIZE: number;
   private current: MenuEntry<unknown>[];
   private done: tCallback;
   private mode: 'find' | 'select' = 'select';
@@ -102,20 +99,32 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
     if (this.selectedType === 'current') {
       return;
     }
-    let source = this.side('source');
-    const item = source.find((item) => item[VALUE] === this.value);
-    let index = source.indexOf(item);
-    this.current.push(item);
-    this.source = this.source.filter((check) => check !== item);
-    source = this.side('source');
-    if (index > source.length - ARRAY_OFFSET) {
-      index = source.length - ARRAY_OFFSET;
-    }
+    // retrieve source list (prior to removal)
+    const source = this.side('source', false);
 
-    this.value = IsEmpty(this.source)
-      ? this.current[START][VALUE]
-      : this.source[index][VALUE];
-    this.detectSide();
+    // Move item to current list
+    const item = this.source.find(
+      (item) => item[VALUE] === this.value,
+    ) as MenuEntry<string>;
+    this.current.push(item);
+    // Remove from source
+    this.source = this.source.filter((check) => check[VALUE] !== this.value);
+
+    // Find move item in original source list
+    const index = source.findIndex((i) => i[VALUE] === this.value);
+
+    // If at bottom, move up one
+    if (index === source.length - ARRAY_OFFSET) {
+      // If only item, flip sides
+      if (index === START) {
+        this.selectedType = 'current';
+        return;
+      }
+      this.value = source[index - INCREMENT][VALUE];
+      return;
+    }
+    // If not bottom, move down one
+    this.value = source[index + INCREMENT][VALUE];
   }
 
   private bottom(): void {
@@ -220,7 +229,10 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
   }
 
   private onLeft(): void {
-    const [left, right] = [this.side('current'), this.side('source')];
+    const [left, right] = [
+      this.side('current', true),
+      this.side('source', true),
+    ];
     if (IsEmpty(left) || this.selectedType === 'current') {
       return;
     }
@@ -311,7 +323,10 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
   }
 
   private onRight(): void {
-    const [right, left] = [this.side('source'), this.side('current')];
+    const [right, left] = [
+      this.side('source', true),
+      this.side('current', true),
+    ];
     if (this.selectedType === 'source' || IsEmpty(right)) {
       return;
     }
@@ -397,19 +412,32 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
     if (this.selectedType === 'source') {
       return;
     }
-    let current = this.side('current');
-    const item = current.find((item) => item[VALUE] === this.value);
-    let index = current.indexOf(item);
+    // retrieve current list (prior to removal)
+    const current = this.side('current', false);
+
+    // Move item to current list
+    const item = this.current.find(
+      (item) => item[VALUE] === this.value,
+    ) as MenuEntry<string>;
     this.source.push(item);
-    this.current = this.current.filter((check) => check !== item);
-    current = this.side('current');
-    if (index > current.length - ARRAY_OFFSET) {
-      index = current.length - ARRAY_OFFSET;
+    // Remove from source
+    this.current = this.current.filter((check) => check[VALUE] !== this.value);
+
+    // Find move item in original source list
+    const index = current.findIndex((i) => i[VALUE] === this.value);
+
+    // If at bottom, move up one
+    if (index === current.length - ARRAY_OFFSET) {
+      // If only item, flip sides
+      if (index === START) {
+        this.selectedType = 'current';
+        return;
+      }
+      this.value = current[index - INCREMENT][VALUE];
+      return;
     }
-    this.value = IsEmpty(current)
-      ? this.source[START][VALUE]
-      : current[index][VALUE];
-    this.detectSide();
+    // If not bottom, move down one
+    this.value = current[index + INCREMENT][VALUE];
   }
 
   private render(updateValue = false): void {
@@ -424,8 +452,8 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
       this.screen.render(``, '');
       return;
     }
-    const left = 'Current Items';
-    const right = 'Available Items';
+    const left = `Current ${this.opt.items}`;
+    const right = `Available ${this.opt.items}`;
     const current = this.renderSide(
       'current',
       updateValue && this.selectedType === 'current',
@@ -455,7 +483,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
     updateValue = false,
   ): string[] {
     const out: string[] = [];
-    let menu = this.side(side);
+    let menu = this.side(side, true);
     if (this.mode === 'find' && !IsEmpty(this.searchText)) {
       menu = this.filterMenu(menu, updateValue);
     }
@@ -469,7 +497,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
       const padded = ansiPadEnd(item[LABEL], maxLabel);
       if (this.selectedType === side) {
         out.push(
-          chalk` {${inverse ? 'cyanBright.inverse' : 'white'}  ${padded} }`,
+          chalk` {${inverse ? 'bgCyanBright.black' : 'white'}  ${padded} }`,
         );
         return;
       }
@@ -480,7 +508,11 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
 
   private side<T extends unknown = string>(
     side: 'current' | 'source' = this.selectedType,
+    range = false,
   ): MenuEntry<T>[] {
+    if (range) {
+      return this.textRender.selectRange(this.side(side, false), this.value);
+    }
     if (this.mode === 'find') {
       return this.textRender.fuzzySort<T>(
         this.searchText,

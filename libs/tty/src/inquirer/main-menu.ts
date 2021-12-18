@@ -157,7 +157,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         };
       });
     if (updateValue) {
-      this.value = highlighted[START].entry[VALUE];
+      this.value = IsEmpty(highlighted)
+        ? undefined
+        : highlighted[START].entry[VALUE];
     }
     return highlighted;
   }

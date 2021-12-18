@@ -174,6 +174,7 @@ export class RoomStateService {
           this.pinnedItems.isPinned('room_state', state.id) ? 'Unpin' : 'Pin',
           'pin',
         ],
+        r: [`${ICONS.ROOMS}Go to room`, `room`],
       },
       right: ToMenuEntry([
         activate,
@@ -187,6 +188,10 @@ export class RoomStateService {
       return room;
     }
     switch (action) {
+      case 'room':
+        await this.roomService.processRoom(room);
+        room = await this.roomService.get(room._id);
+        return room;
       case 'pin':
         this.pinnedItems.toggle({
           data: { room: room._id },

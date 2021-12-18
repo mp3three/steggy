@@ -2,6 +2,7 @@ import {
   ARRAY_OFFSET,
   DOWN,
   INCREMENT,
+  InjectConfig,
   INVERT_VALUE,
   IsEmpty,
   LABEL,
@@ -13,12 +14,14 @@ import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import fuzzy from 'fuzzysort';
 
+import { PAGE_SIZE } from '../config';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
 import { MenuEntry } from '../inquirer';
 
 const TEMP_TEMPLATE_SIZE = 3;
 const MAX_SEARCH_SIZE = 50;
 const SEPARATOR = chalk.blue.dim('|');
+const BUFFER_SIZE = 3;
 
 /**
  * Common utils for inqurirer prompt rendering
@@ -27,6 +30,10 @@ const SEPARATOR = chalk.blue.dim('|');
  */
 @Injectable()
 export class TextRenderingService {
+  constructor(@InjectConfig(PAGE_SIZE) private readonly pageSize: number) {
+    this.pageSize = 20;
+  }
+
   public appendHelp(
     message: string,
     base: MenuEntry[],
@@ -57,7 +64,7 @@ export class TextRenderingService {
           return chalk` {blue.dim -} {yellow.dim ${i[LABEL].padEnd(
             max,
             ' ',
-          ).replace(new RegExp(',', 'g'), chalk.whiteBright`,`)}}  {gray ${
+          ).replace(new RegExp(',', 'g'), chalk.whiteBright`, `)}}  {gray ${
             i[VALUE]
           }}`;
         }),
@@ -147,6 +154,26 @@ export class TextRenderingService {
     ];
   }
 
+  public selectRange<T>(
+    entries: MenuEntry<T>[],
+    value: unknown,
+  ): MenuEntry<T>[] {
+    if (entries.length <= this.pageSize) {
+      return entries;
+    }
+    const index = entries.findIndex((i) => i[VALUE] === value);
+    if (index <= BUFFER_SIZE) {
+      return entries.slice(START, this.pageSize);
+    }
+    if (index >= entries.length - this.pageSize + BUFFER_SIZE) {
+      return entries.slice(entries.length - this.pageSize);
+    }
+    return entries.slice(
+      index - BUFFER_SIZE,
+      this.pageSize + index - BUFFER_SIZE,
+    );
+  }
+
   private highlight(result) {
     const open = '{'.repeat(TEMP_TEMPLATE_SIZE);
     const close = '}'.repeat(TEMP_TEMPLATE_SIZE);
@@ -178,7 +205,7 @@ export class TextRenderingService {
     return highlighted.replace(
       new RegExp(`${open}(.*?)${close}`, 'g'),
       (i) =>
-        chalk.bgBlueBright`${i.slice(
+        chalk.bgBlueBright.black`${i.slice(
           TEMP_TEMPLATE_SIZE,
           TEMP_TEMPLATE_SIZE * INVERT_VALUE,
         )}`,

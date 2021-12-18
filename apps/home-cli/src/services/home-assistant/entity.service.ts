@@ -3,7 +3,11 @@ import {
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
 } from '@for-science/controller-logic';
-import { domain, HASS_DOMAINS, HassStateDTO } from '@for-science/home-assistant';
+import {
+  domain,
+  HASS_DOMAINS,
+  HassStateDTO,
+} from '@for-science/home-assistant';
 import {
   ICONS,
   iRepl,
@@ -47,25 +51,18 @@ export class EntityService implements iRepl {
 
   public async buildList(
     inList: HASS_DOMAINS[] = [],
-    { omit = [] }: { omit?: string[] } = {},
+    { omit = [], current = [] }: { current?: string[]; omit?: string[] } = {},
   ): Promise<string[]> {
     let entities = await this.list();
     entities = entities
       .filter((entity) => IsEmpty(inList) || inList.includes(domain(entity)))
       .filter((item) => !omit.includes(item));
-    const out: string[] = [];
-    let exec = true;
-    // eslint-disable-next-line no-loops/no-loops
-    do {
-      out.push(
-        await this.promptService.autocomplete(
-          `Pick one`,
-          entities.filter((item) => !out.includes(item)),
-        ),
-      );
-      exec = await this.promptService.confirm(`Add another?`, true);
-    } while (exec === true);
-    return out;
+    const source = entities.filter((i) => !current.includes(i));
+    return await this.promptService.listBuild({
+      current: current.map((i) => [i, i]),
+      items: 'Entities',
+      source: source.map((i) => [i, i]),
+    });
   }
 
   public async createSaveCommand(

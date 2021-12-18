@@ -36,10 +36,6 @@ const NAME = 0;
 
 @Repl({
   category: `Control`,
-  description: [
-    `Rooms can contain groups and entitites, and are intended to manage the state of all items inside of it as a whole.`,
-    `Rooms can observe entities for state changes, and trigger routines to make changes to the state.`,
-  ],
   icon: ICONS.ROOMS,
   keybind: 'r',
   name: `Rooms`,
@@ -174,11 +170,9 @@ export class RoomCommandService {
       GroupDTO | { entity_id: string }
     >({
       keyMap: {
-        a: ['Add entities', 'add-entities'],
         d: [chalk.bold`Done`, DONE],
         e: entities,
         g: [`${ICONS.GROUPS}Groups`, 'groups'],
-        m: ['Remove entities', 'remove-entities'],
         p: [
           this.pinnedItems.isPinned('room', room._id) ? 'Unpin' : 'pin',
           'pin',
@@ -241,19 +235,11 @@ export class RoomCommandService {
         );
         room = await this.update(room);
         return await this.processRoom(room, action);
-      case 'add-entities':
-        const entityAppend = await this.buildEntityList(
+      case 'entities':
+        room.entities = await this.buildEntityList(
           room.entities.map((item) => item.entity_id),
         );
-        if (IsEmpty(entityAppend)) {
-          this.logger.debug(`Nothing to add`);
-          return;
-        }
-        room.entities.push(...entityAppend);
         room = await this.update(room);
-        return await this.processRoom(room, action);
-      case 'remove-entities':
-        room = await this.removeEntities(room);
         return await this.processRoom(room, action);
       case 'delete':
         if (
@@ -293,7 +279,9 @@ export class RoomCommandService {
     });
   }
 
-  private async buildEntityList(omit: string[] = []): Promise<RoomEntityDTO[]> {
+  private async buildEntityList(
+    current: string[] = [],
+  ): Promise<RoomEntityDTO[]> {
     const ids = await this.entityService.buildList(
       [
         HASS_DOMAINS.climate,
@@ -304,7 +292,7 @@ export class RoomCommandService {
         HASS_DOMAINS.sensor,
         HASS_DOMAINS.switch,
       ],
-      { omit },
+      { current },
     );
     return ids.map((entity_id) => ({
       entity_id,
