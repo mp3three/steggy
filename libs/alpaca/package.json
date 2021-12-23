@@ -4,7 +4,7 @@
     "name": "Cameron Contour",
     "url": "https://github.com/ccontour/for-science"
   },
-  "name": "@for-science/controller-logic",
+  "name": "@for-science/alpaca",
   "displayName": "Controller Logic",
   "license": "MIT",
   "version": "0.5.17",

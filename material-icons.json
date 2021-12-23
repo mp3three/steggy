@@ -16,6 +16,7 @@
     "action": "azure-pipelines",
     "activate": "examples",
     "adapters": "custom",
+    "alpaca": "vm",
     "app": "vscode",
     "conf.d": "routes",
     "contracts": "contract",

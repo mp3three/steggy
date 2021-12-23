@@ -115,7 +115,7 @@ export class MainCLIService implements iRepl {
     );
     const right = this.getRight(types);
     const left = this.getLeft();
-    if (typeof this.last === 'object') {
+    if (typeof this.last === 'object' && this.last !== null) {
       this.last = left.find((i) => {
         return (
           (i.entry[VALUE] as PinnedItemDTO).id ===
