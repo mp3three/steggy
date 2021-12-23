@@ -1,4 +1,8 @@
-import { FetchService, FetchWith, InjectConfig } from '@for-science/utilities';
+import {
+  FetchArguments,
+  FetchService,
+  InjectConfig,
+} from '@for-science/utilities';
 
 import { API_KEY, API_SECRET, LIVE_TRADING } from '../config';
 
@@ -10,7 +14,7 @@ export class AlpacaFetchService {
     @InjectConfig(LIVE_TRADING) private readonly liveTrading: string,
   ) {}
 
-  public async fetch<T>(fetchWith: FetchWith): Promise<T> {
+  public async fetch<T>(fetchWith: Partial<FetchArguments>): Promise<T> {
     return this.fetchService.fetch({
       url: ``,
       ...fetchWith,

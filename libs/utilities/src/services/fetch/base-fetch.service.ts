@@ -1,6 +1,10 @@
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
-import { FetchArguments, ResultControlDTO } from '../../contracts';
+import {
+  FetchArguments,
+  FetchParameterTypes,
+  ResultControlDTO,
+} from '../../contracts';
 import { controlToQuery } from '../../includes';
 import { AutoLogService } from '../auto-log.service';
 
@@ -34,12 +38,17 @@ export class BaseFetchService {
   protected buildFilterString(
     fetchWith: FetchWith<{
       filters?: Readonly<ResultControlDTO>;
-      params?: Record<string, string>;
+      params?: Record<string, FetchParameterTypes>;
     }>,
   ): string {
     return new URLSearchParams({
       ...controlToQuery(fetchWith.control ?? {}),
-      ...fetchWith.params,
+      ...Object.fromEntries(
+        Object.entries(fetchWith.params).map(([label, value]) => [
+          label,
+          this.cast(value),
+        ]),
+      ),
     }).toString();
   }
 
@@ -114,6 +123,22 @@ export class BaseFetchService {
     }
     const parsed = JSON.parse(text);
     return this.checkForHttpErrors<T>(parsed);
+  }
+
+  private cast(item: FetchParameterTypes): string {
+    if (Array.isArray(item)) {
+      return item.map((i) => this.cast(i)).join(',');
+    }
+    if (item instanceof Date) {
+      return item.toISOString();
+    }
+    if (typeof item === 'number') {
+      return item.toString();
+    }
+    if (typeof item === 'boolean') {
+      return item ? 'true' : 'false';
+    }
+    return item;
   }
 
   private checkForHttpErrors<T extends unknown = unknown>(maybeError: {

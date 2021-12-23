@@ -1,63 +1,35 @@
-import { IsBoolean, IsNumber, IsString } from 'class-validator';
-
 import { AccountStatus } from './enums';
 // The useful comments in this file are not mine
 // https://github.com/117/alpaca
 
-export class RawAccountDTO {
-  @IsBoolean()
-  public account_blocked: boolean;
-  @IsString()
-  public account_number: string;
-  @IsString()
-  public buying_power: string;
-  @IsString()
-  public cash: string;
-  @IsString()
-  public created_at: string;
-  @IsString()
-  public currency: string;
-  @IsNumber()
-  public daytrade_count: number;
-  @IsString()
-  public daytrading_buying_power: string;
-  @IsString()
-  public equity: string;
-  @IsString()
-  public id: string;
-  @IsString()
-  public initial_margin: string;
-  @IsString()
-  public last_equity: string;
-  @IsString()
-  public last_maintenance_margin: string;
-  @IsString()
-  public long_market_value: string;
-  @IsString()
-  public maintenance_margin: string;
-  @IsString()
-  public multiplier: string;
-  @IsBoolean()
-  public pattern_day_trader: boolean;
-  @IsString()
-  public portfolio_value: string;
-  @IsString()
-  public regt_buying_power: string;
-  @IsString()
-  public short_market_value: string;
-  @IsBoolean()
-  public shorting_enabled: boolean;
-  @IsString()
-  public sma: string;
-  @IsString()
-  public status: string;
-  @IsBoolean()
-  public trade_suspended_by_user: boolean;
-  @IsBoolean()
-  public trading_blocked: boolean;
-  @IsBoolean()
-  public transfers_blocked: boolean;
-}
+// export class RawAccountDTO {
+//   public account_blocked: boolean;
+//   public account_number: string;
+//   public buying_power: string;
+//   public cash: string;
+//   public created_at: string;
+//   public currency: string;
+//   public daytrade_count: number;
+//   public daytrading_buying_power: string;
+//   public equity: string;
+//   public id: string;
+//   public initial_margin: string;
+//   public last_equity: string;
+//   public last_maintenance_margin: string;
+//   public long_market_value: string;
+//   public maintenance_margin: string;
+//   public multiplier: string;
+//   public pattern_day_trader: boolean;
+//   public portfolio_value: string;
+//   public regt_buying_power: string;
+//   public short_market_value: string;
+//   public shorting_enabled: boolean;
+//   public sma: string;
+//   public status: string;
+//   public trade_suspended_by_user: boolean;
+//   public trading_blocked: boolean;
+//   public transfers_blocked: boolean;
+// }
 
 /**
  * Information related to an Alpaca account, such as account status, funds, and various

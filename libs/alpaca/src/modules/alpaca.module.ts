@@ -1,9 +1,9 @@
 import { LibraryModule, RegisterCache } from '@for-science/utilities';
 
 import { LIB_ALPACA } from '../config';
-import { AlpacaFetchService } from '../services';
+import { AccountService, AlpacaFetchService, DataService } from '../services';
 
-const providers = [AlpacaFetchService, AlpacaFetchService];
+const providers = [AlpacaFetchService, AccountService, DataService];
 @LibraryModule({
   exports: providers,
   imports: [RegisterCache()],
