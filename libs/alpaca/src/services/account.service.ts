@@ -5,6 +5,8 @@ import {
   AccountConfigurationsDTO,
   AccountDTO,
   Activity,
+  AssetDTO,
+  AssetOptions,
   GetAccountActivities,
   GetPortfolioHistory,
   PortfolioHistoryDTO,
@@ -46,6 +48,13 @@ export class AccountService {
     });
   }
 
+  @CastResult(AssetDTO)
+  public async getAsset(id: string): Promise<AssetDTO> {
+    return await this.fetchService.fetch({
+      url: `/assets/${id}`,
+    });
+  }
+
   @CastResult(AccountConfigurationsDTO)
   public async getConfigurations(): Promise<AccountConfigurationsDTO> {
     return await this.fetchService.fetch({ url: `/account/configurations` });
@@ -58,6 +67,14 @@ export class AccountService {
     return await this.fetchService.fetch({
       params: { ...parameters },
       url: `/account/portfolio/history`,
+    });
+  }
+
+  @CastResult(AssetDTO)
+  public async listAssets(options: AssetOptions): Promise<AssetDTO[]> {
+    return await this.fetchService.fetch({
+      params: { ...options },
+      url: `/assets`,
     });
   }
 
