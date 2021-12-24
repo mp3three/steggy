@@ -24,6 +24,7 @@
     "@nestjs/platform-express": "^8.2.4",
     "@nestjs/swagger": "^5.1.5",
     "async": "^3.2.2",
+    "bottleneck": "^2.19.5",
     "bson": "^4.6.0",
     "cache-manager": "^3.6.0",
     "cache-manager-redis-store": "^2.0.0",
@@ -137,4 +138,3 @@
     "minimist": ">=1.2.5"
   }
 }
-

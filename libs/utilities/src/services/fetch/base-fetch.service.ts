@@ -44,7 +44,7 @@ export class BaseFetchService {
     return new URLSearchParams({
       ...controlToQuery(fetchWith.control ?? {}),
       ...Object.fromEntries(
-        Object.entries(fetchWith.params).map(([label, value]) => [
+        Object.entries(fetchWith.params ?? {}).map(([label, value]) => [
           label,
           this.cast(value),
         ]),

@@ -398,3 +398,9 @@ export enum OrderStatus {
    */
   calculated = 'calculated',
 }
+export enum AlpacaSocketChannel {
+  trades = 'trades',
+  quotes = 'quotes',
+  bars = 'bars',
+  trade_updates = 'trade_updates',
+}
