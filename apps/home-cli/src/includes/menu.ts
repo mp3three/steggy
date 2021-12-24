@@ -2,7 +2,7 @@ import { DONE, ICONS, MenuEntry } from '@for-science/tty';
 import chalk from 'chalk';
 
 const menu = {
-  ACTIVATE: [`${ICONS.ACTIVATE}Activate`, 'activate'],
+  ACTIVATE: [`${ICONS.ACTIVATE}Manual Activate`, 'activate'],
   ADD: [`${ICONS.CREATE}Add`, 'add'],
   CREATE: [`${ICONS.CREATE}Create`, 'create'],
   DELETE: [`${ICONS.DELETE}Delete`, 'delete'],

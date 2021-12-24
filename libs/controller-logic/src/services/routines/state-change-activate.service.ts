@@ -5,6 +5,8 @@ import {
 } from '@for-science/home-assistant';
 import {
   AutoLogService,
+  CacheManagerService,
+  InjectCache,
   IsEmpty,
   JSONFilterService,
   OnEvent,
@@ -14,9 +16,13 @@ import { each } from 'async';
 
 import { StateChangeActivateDTO, StateChangeWatcher } from '../../contracts';
 
+const CACHE_KEY = (id: string) => `STATE_LATCH:${id}`;
+
 @Injectable()
 export class StateChangeActivateService {
   constructor(
+    @InjectCache()
+    private readonly cacheService: CacheManagerService,
     private readonly logger: AutoLogService,
     private readonly entityManager: EntityManagerService,
     private readonly jsonFilter: JSONFilterService,
@@ -68,11 +74,27 @@ export class StateChangeActivateService {
             value: item.value,
           },
         );
+        if (await this.blockLatched(item, valid)) {
+          this.logger.debug(`Blocked lached call`);
+          return callback();
+        }
         if (valid) {
           await item.callback();
         }
         callback();
       },
     );
+  }
+
+  private async blockLatched(
+    { id, latch }: StateChangeWatcher,
+    currentState: boolean,
+  ): Promise<boolean> {
+    if (!latch) {
+      return false;
+    }
+    const isLatched = await this.cacheService.get<boolean>(CACHE_KEY(id));
+    await this.cacheService.set(CACHE_KEY(id), currentState);
+    return currentState && isLatched;
   }
 }

@@ -8,7 +8,6 @@ import {
   StateChangeActivateDTO,
 } from '@for-science/controller-logic';
 import {
-  DONE,
   ICONS,
   IsDone,
   PromptEntry,
@@ -23,6 +22,7 @@ import {
   NotImplementedException,
 } from '@nestjs/common';
 import chalk from 'chalk';
+import Table from 'cli-table';
 import inquirer from 'inquirer';
 import { v4 as uuid } from 'uuid';
 
@@ -106,9 +106,9 @@ export class RoutineActivateService {
   ): Promise<RoutineDTO> {
     const action = await this.promptService.menu({
       keyMap: {
-        d: MENU_ITEMS.DELETE,
+        d: MENU_ITEMS.DONE,
       },
-      right: ToMenuEntry([MENU_ITEMS.EDIT]),
+      right: ToMenuEntry([MENU_ITEMS.EDIT, MENU_ITEMS.DELETE]),
       rightHeader: `Routine activation`,
     });
     if (IsDone(action)) {
@@ -147,19 +147,13 @@ export class RoutineActivateService {
   }
 
   public async processRoutine(routine: RoutineDTO): Promise<RoutineDTO> {
+    this.header(routine);
     routine.activate ??= [];
     const action = await this.promptService.menu({
-      keyMap: { d: MENU_ITEMS.DELETE },
-      right: ToMenuEntry([
-        MENU_ITEMS.ADD,
-        ...this.promptService.conditionalEntries(!IsEmpty(routine.activate), [
-          new inquirer.Separator(chalk.white`Current activations`),
-          ...(routine.activate.map((activate) => [
-            activate.friendlyName,
-            activate,
-          ]) as PromptEntry<RoutineActivateDTO>[]),
-        ]),
-      ]),
+      keyMap: { a: MENU_ITEMS.ADD, d: MENU_ITEMS.DONE },
+      right: ToMenuEntry(
+        routine.activate.map((activate) => [activate.friendlyName, activate]),
+      ),
       rightHeader: `Routine activations`,
     });
     if (IsDone(action)) {
@@ -177,5 +171,30 @@ export class RoutineActivateService {
     }
     routine = await this.process(routine, action);
     return await this.processRoutine(routine);
+  }
+
+  private header(routine: RoutineDTO): void {
+    this.promptService.clear();
+    this.promptService.scriptHeader(`Activations`);
+    this.promptService.secondaryHeader(routine.friendlyName);
+    console.log();
+    if (IsEmpty(routine.activate)) {
+      console.log(
+        chalk.bold`{cyan >>> }${ICONS.EVENT}{yellow No activation events}`,
+      );
+    } else {
+      console.log(chalk`  {blue.bold Activation Events}`);
+      const table = new Table({
+        head: ['Name', 'Type', 'Details'],
+      });
+      routine.activate.forEach((activate) => {
+        table.push([
+          activate.friendlyName,
+          TitleCase(activate.type),
+          this.promptService.objectPrinter(activate.activate),
+        ]);
+      });
+      console.log(table.toString());
+    }
   }
 }

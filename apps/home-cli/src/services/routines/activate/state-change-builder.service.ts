@@ -2,6 +2,7 @@ import { StateChangeActivateDTO } from '@for-science/controller-logic';
 import { PromptEntry, PromptService } from '@for-science/tty';
 import { FILTER_OPERATIONS, FilterValueType } from '@for-science/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
+import { v4 as uuid } from 'uuid';
 
 import { EntityService } from '../../home-assistant/entity.service';
 
@@ -40,9 +41,12 @@ export class StateChangeBuilderService {
       ['Regular Expression Match', FILTER_OPERATIONS.regex],
     ] as PromptEntry<FILTER_OPERATIONS>[]);
     const value = await this.getValue(operation, current.value);
+    const latch = await this.promptService.boolean('Latch', current.latch);
 
     return {
       entity,
+      id: current.id ?? uuid(),
+      latch,
       operation,
       value,
     };

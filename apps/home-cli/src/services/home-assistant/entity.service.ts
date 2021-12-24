@@ -118,9 +118,8 @@ export class EntityService implements iRepl {
     defaultValue?: string,
   ): Promise<string> {
     const entities = await this.list();
-    return await this.promptService.autocomplete(
-      `Pick an entity`,
-      entities.filter((entity) => {
+    const list = entities
+      .filter((entity) => {
         if (!IsEmpty(inList) && !inList.includes(domain(entity))) {
           return false;
         }
@@ -128,9 +127,13 @@ export class EntityService implements iRepl {
           return false;
         }
         return true;
-      }),
-      defaultValue,
-    );
+      })
+      .map((i) => [i, i] as PromptEntry);
+    return await this.promptService.menu({
+      keyMap: {},
+      right: ToMenuEntry(list),
+      value: defaultValue,
+    });
   }
 
   public async pickMany(

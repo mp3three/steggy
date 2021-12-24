@@ -31,6 +31,7 @@
     "chalk": "^4.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
+    "cli-cursor": "^3.1.0",
     "cli-table": "^0.3.11",
     "comment-json": "^4.1.0",
     "compression": "^1.7.4",

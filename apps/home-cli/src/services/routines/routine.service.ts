@@ -182,10 +182,10 @@ export class RoutineService {
     ] as PromptEntry[];
     const action = await this.promptService.menu({
       keyMap: {
-        a: MENU_ITEMS.ACTIVATE,
+        a: events,
         c: command,
         d: MENU_ITEMS.DONE,
-        e: events,
+        m: MENU_ITEMS.ACTIVATE,
         p: [
           this.pinnedItems.isPinned('routine', routine._id) ? 'Unpin' : 'Pin',
           'pin',
