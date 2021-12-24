@@ -1,0 +1,59 @@
+{
+  "root": "libs/rules-engine",
+  "sourceRoot": "libs/rules-engine/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/rules-engine",
+        "tsConfig": "libs/rules-engine/tsconfig.lib.json",
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "packageJson": "libs/rules-engine/package.json",
+        "main": "libs/rules-engine/src/index.ts",
+        "assets": [
+          "libs/rules-engine/*.md",
+          "libs/rules-engine/metadata.json",
+          "libs/rules-engine/package.json"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "fileReplacements": []
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/rules-engine/**/*.ts"]
+      }
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga Rules Engine",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build rules-engine --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn publish --cwd dist/libs/rules-engine --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    }
+  },
+  "tags": []
+}

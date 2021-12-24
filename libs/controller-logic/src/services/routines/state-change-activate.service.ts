@@ -48,6 +48,9 @@ export class StateChangeActivateService {
       ...activate,
       callback,
     });
+    if (!this.WATCHED_ENTITIES.has(activate.entity)) {
+      this.logger.debug(`Start watching {${activate.entity}}`);
+    }
     this.WATCHED_ENTITIES.set(activate.entity, list);
   }
 
@@ -75,7 +78,9 @@ export class StateChangeActivateService {
           },
         );
         if (await this.blockLatched(item, valid)) {
-          this.logger.debug(`Blocked lached call`);
+          this.logger.debug(
+            `[${item.entity}]${item.operation}{${item.value}} currently latched`,
+          );
           return callback();
         }
         if (valid) {
