@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { AutoLogService, InjectConfig } from '@for-science/utilities';
 import {
   ConflictException,
@@ -11,7 +12,6 @@ import { createConnection, Socket } from 'net';
 import { HOST, PASSWORD, PORT, TIMEOUT } from '../config';
 import { PacketType } from '../contracts';
 
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 type Callback = (data: string, error?: Error) => void;
 
 @Injectable()
@@ -54,7 +54,6 @@ export class RCONConnectionService {
           this.authPacket = Number.NaN;
         }
       };
-
       const timeout = setTimeout(() => {
         cleanup();
         reject(new RequestTimeoutException('Request timed out'));
@@ -62,7 +61,7 @@ export class RCONConnectionService {
 
       const onEnded = () => {
         cleanup();
-        reject(new GoneException('Disconnected before response.'));
+        reject(new GoneException('Disconnected before response'));
       };
 
       this.socket.once('end', onEnded);
@@ -73,7 +72,7 @@ export class RCONConnectionService {
           return;
         }
         if (data == undefined) {
-          reject(new ConflictException('No data returned.'));
+          reject(new ConflictException('No data returned'));
           return;
         }
         resolve(data);
@@ -89,18 +88,17 @@ export class RCONConnectionService {
     this.socket.once('end', () => this.onEnd());
   }
 
-  private onConnect(): void {
+  private async onConnect(): Promise<void> {
     this.logger.info(`Connected`);
+    await this.sendAuth();
   }
 
   private onData(buffer: Buffer): void {
     const length = buffer.readInt32LE(0);
-
     let id = buffer.readInt32LE(4);
     const type = buffer.readInt32LE(8);
     const authId = this.authPacket;
     const callback = this.callbacks.get(authId);
-
     if (
       id === -1 &&
       !Number.isNaN(authId) &&
@@ -111,7 +109,7 @@ export class RCONConnectionService {
         this.authPacket = Number.NaN;
         callback(
           undefined,
-          new InternalServerErrorException('Authentication failed.'),
+          new InternalServerErrorException('Authentication failed'),
         );
       }
     } else if (callback) {

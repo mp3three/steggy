@@ -68,6 +68,7 @@
     "proxy": "routes",
     "requests": "content",
     "response": "dist",
+    "rcon": "connection",
     "rooms": "packages",
     "routines": "animation",
     "select": "import",
