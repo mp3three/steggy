@@ -51,7 +51,7 @@ export class ChangelogService implements iRepl {
     console.log(table.toString(), `\n`);
     await this.processAffected(affected);
     await this.bumpRoot();
-    await this.promptService.acknowledge('Done');
+    await this.promptService.acknowledge();
   }
 
   private async bumpRoot(): Promise<string> {
