@@ -7,11 +7,12 @@ import {
   Repl,
   ToMenuEntry,
 } from '@for-science/tty';
-import { AutoLogService, IsEmpty, TitleCase } from '@for-science/utilities';
+import { AutoLogService, is, IsEmpty, TitleCase } from '@for-science/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 
+import { MENU_ITEMS } from '../../includes';
 import { HomeFetchService } from '../home-fetch.service';
 
 const LEVELS = new Map([
@@ -36,7 +37,7 @@ export class ServerLogsService {
     this.promptService.scriptHeader(`Server Logs`);
     const action = await this.promptService.menu({
       keyMap: {
-        d: [chalk.bold`Done`, DONE],
+        d: MENU_ITEMS.DONE,
       },
       right: ToMenuEntry([
         [`${ICONS.LOGS}Show logs`, 'logs'],
@@ -76,6 +77,9 @@ export class ServerLogsService {
       return;
     }
     const item = await this.promptService.menu({
+      keyMap: {
+        d: MENU_ITEMS.DONE,
+      },
       right: ToMenuEntry(
         logs.map((i) => [
           chalk.bold[LEVELS.get(i.level) ?? 'underline']`${i.message.join(
@@ -89,7 +93,7 @@ export class ServerLogsService {
     if (IsDone(item)) {
       return;
     }
-    if (typeof item === 'string') {
+    if (is.string(item)) {
       throw new NotImplementedException();
     }
     this.promptService.clear();

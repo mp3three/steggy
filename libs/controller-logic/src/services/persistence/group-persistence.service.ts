@@ -1,5 +1,10 @@
 import { BaseMongoService, BaseSchemaDTO } from '@for-science/persistence';
-import { AutoLogService, ResultControlDTO, ToClass } from '@for-science/utilities';
+import {
+  AutoLogService,
+  CastResult,
+  is,
+  ResultControlDTO,
+} from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -17,7 +22,7 @@ export class GroupPersistenceService extends BaseMongoService {
     super();
   }
 
-  @ToClass(GroupDTO)
+  @CastResult(GroupDTO)
   public async create<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(state: GroupDTO<GROUP_TYPE>): Promise<GroupDTO<GROUP_TYPE>> {
@@ -25,7 +30,7 @@ export class GroupPersistenceService extends BaseMongoService {
   }
 
   public async delete(state: GroupDTO | string): Promise<boolean> {
-    const query = this.merge(typeof state === 'string' ? state : state._id);
+    const query = this.merge(is.string(state) ? state : state._id);
     this.logger.debug({ query }, `delete query`);
     const result = await this.model
       .updateOne(query, {
@@ -35,7 +40,7 @@ export class GroupPersistenceService extends BaseMongoService {
     return result.acknowledged;
   }
 
-  @ToClass(GroupDTO)
+  @CastResult(GroupDTO)
   public async findById<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(
@@ -49,7 +54,7 @@ export class GroupPersistenceService extends BaseMongoService {
     return out;
   }
 
-  @ToClass(GroupDTO)
+  @CastResult(GroupDTO)
   public async findByName<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(
@@ -72,7 +77,7 @@ export class GroupPersistenceService extends BaseMongoService {
       .exec()) as GroupDTO<GROUP_TYPE>;
   }
 
-  @ToClass(GroupDTO)
+  @CastResult(GroupDTO)
   public async findMany<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(control: ResultControlDTO = {}): Promise<GroupDTO<GROUP_TYPE>[]> {

@@ -5,7 +5,7 @@ import {
 } from '@for-science/controller-logic';
 import { HASS_DOMAINS, LightStateDTO } from '@for-science/home-assistant';
 import { ColorsService, ICONS, KeyMap, PromptEntry } from '@for-science/tty';
-import { START } from '@for-science/utilities';
+import { is, START } from '@for-science/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import inquirer from 'inquirer';
 
@@ -35,7 +35,7 @@ export class LightService extends SwitchService {
     current: Partial<RoomEntitySaveStateDTO<LightingCacheDTO>> = {},
   ): Promise<RoomEntitySaveStateDTO> {
     let defaultValue: string;
-    if (typeof current.state !== 'undefined') {
+    if (!is.undefined(current.state)) {
       if (current.state === 'off') {
         defaultValue = 'off';
       } else if (current?.extra?.mode === LIGHTING_MODE.circadian) {
@@ -63,7 +63,7 @@ export class LightService extends SwitchService {
     current.extra.mode =
       state === 'circadian' ? LIGHTING_MODE.circadian : LIGHTING_MODE.on;
     if (
-      typeof current?.extra?.brightness !== 'undefined' ||
+      !is.undefined(current?.extra?.brightness) ||
       (await this.promptService.confirm(`Set brightness?`))
     ) {
       current.extra.brightness = await this.promptService.brightness(

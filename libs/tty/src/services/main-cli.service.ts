@@ -3,6 +3,7 @@ import {
   CacheManagerService,
   DOWN,
   InjectCache,
+  is,
   UP,
   VALUE,
 } from '@for-science/utilities';
@@ -11,8 +12,7 @@ import chalk from 'chalk';
 import { iRepl, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
 import { MainMenuEntry, MenuEntry } from '../inquirer';
-import { PinnedItemDTO } from '.';
-import { PinnedItemService } from './pinned-item.service';
+import { PinnedItemDTO, PinnedItemService } from './pinned-item.service';
 import { PromptEntry, PromptService } from './prompt.service';
 import { ReplExplorerService } from './repl-explorer.service';
 
@@ -41,7 +41,7 @@ export class MainCLIService implements iRepl {
     this.promptService.scriptHeader('Script List');
 
     const name = await this.pickOne();
-    if (typeof name !== 'string') {
+    if (!is.string(name)) {
       await this.pinnedItem.exec(name);
       return this.exec();
     }
@@ -115,7 +115,7 @@ export class MainCLIService implements iRepl {
     );
     const right = this.getRight(types);
     const left = this.getLeft();
-    if (typeof this.last === 'object') {
+    if (is.object(this.last) && this.last !== null) {
       this.last = left.find((i) => {
         return (
           (i.entry[VALUE] as PinnedItemDTO).id ===
@@ -143,10 +143,9 @@ export class MainCLIService implements iRepl {
       return;
     }
     settings.description ??= [];
-    settings.description =
-      typeof settings.description === 'string'
-        ? [settings.description]
-        : settings.description;
+    settings.description = is.string(settings.description)
+      ? [settings.description]
+      : settings.description;
 
     console.log(
       chalk.yellow(

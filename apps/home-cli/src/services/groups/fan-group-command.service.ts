@@ -4,7 +4,7 @@ import {
   RoutineCommandGroupActionDTO,
 } from '@for-science/controller-logic';
 import { ICONS, KeyMap, PromptEntry, PromptService } from '@for-science/tty';
-import { AutoLogService } from '@for-science/utilities';
+import { AutoLogService, is } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { HomeFetchService } from '../home-fetch.service';
@@ -41,7 +41,7 @@ export class FanGroupCommandService {
   }
 
   public async fanSpeedDown(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/fanSpeedDown`,
@@ -49,7 +49,7 @@ export class FanGroupCommandService {
   }
 
   public async fanSpeedUp(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/fanSpeedUp`,
@@ -81,7 +81,7 @@ export class FanGroupCommandService {
   }
 
   public async toggle(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/toggle`,
@@ -89,7 +89,7 @@ export class FanGroupCommandService {
   }
 
   public async turnOff(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/turnOff`,
@@ -97,7 +97,7 @@ export class FanGroupCommandService {
   }
 
   public async turnOn(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/turnOn`,

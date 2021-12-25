@@ -13,7 +13,7 @@
     "PAGE_SIZE": {
       "type": "number",
       "description": "Maxmimum number of items displayed in pickMany prompts",
-      "default": 50
+      "default": 20
     },
     "OUTPUT_HEADER_FONT": {
       "type": "string",

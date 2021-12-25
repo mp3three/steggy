@@ -4,6 +4,7 @@ import {
 } from '@for-science/controller-logic';
 import { HASS_DOMAINS } from '@for-science/home-assistant';
 import { ColorsService, ICONS, PromptService } from '@for-science/tty';
+import { is } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { GroupCommandService } from '../../groups';
@@ -48,7 +49,7 @@ export class LightFlashService {
     );
 
     if (
-      typeof current.brightness !== 'undefined' ||
+      !is.undefined(current.brightness) ||
       (await this.promptService.confirm(`Set brightness?`))
     ) {
       current.brightness = await this.promptService.number(
@@ -57,7 +58,7 @@ export class LightFlashService {
       );
     }
     if (
-      typeof current.rgb !== 'undefined' ||
+      !is.undefined(current.rgb) ||
       (await this.promptService.confirm(`Set color?`))
     ) {
       let hex = this.colorService.rgbToHEX(current.rgb);

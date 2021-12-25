@@ -2,6 +2,7 @@ import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import pino from 'pino';
 
+import { is } from '../contracts';
 import { iLogger, iLoggerCore, LogLevels } from '../contracts/interfaces';
 import { LOG_CONTEXT, MISSING_CONTEXT } from '../contracts/logger/constants';
 import { mappedContexts } from '../decorators/injectors';
@@ -71,12 +72,12 @@ export class AutoLogService implements iLogger {
       return;
     }
     const logger = this.getLogger();
-    const data =
-      typeof parameters[0] === 'object'
-        ? (parameters.shift() as Record<string, unknown>)
-        : {};
-    const message =
-      typeof parameters[0] === 'string' ? (parameters.shift() as string) : ``;
+    const data = is.object(parameters[0])
+      ? (parameters.shift() as Record<string, unknown>)
+      : {};
+    const message = is.string(parameters[0])
+      ? (parameters.shift() as string)
+      : ``;
     logger[method](
       {
         context,

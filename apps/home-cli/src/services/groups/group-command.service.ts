@@ -21,7 +21,10 @@ import {
 import {
   ARRAY_OFFSET,
   AutoLogService,
+  CacheManagerService,
   DOWN,
+  InjectCache,
+  is,
   IsEmpty,
   ResultControlDTO,
   TitleCase,
@@ -36,6 +39,7 @@ import {
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
+import { MENU_ITEMS } from '../../includes';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { FanGroupCommandService } from './fan-group-command.service';
@@ -45,9 +49,7 @@ import { LockGroupCommandService } from './lock-group-command.service';
 import { SwitchGroupCommandService } from './switch-group-command.service';
 
 export type GroupItem = { entities: string[]; name: string; room: string };
-const LIGHT_COMMAND_SEPARATOR = new inquirer.Separator(
-  chalk.white('Light commands'),
-);
+
 const GROUP_DOMAINS = new Map([
   [GROUP_TYPES.light, [HASS_DOMAINS.light]],
   [
@@ -62,6 +64,7 @@ const GROUP_DOMAINS = new Map([
   [GROUP_TYPES.lock, [HASS_DOMAINS.lock]],
   [GROUP_TYPES.fan, [HASS_DOMAINS.fan]],
 ]);
+const CACHE_KEY = `MENU_LAST_GROUP`;
 
 @Repl({
   category: `Control`,
@@ -71,6 +74,8 @@ const GROUP_DOMAINS = new Map([
 })
 export class GroupCommandService implements iRepl {
   constructor(
+    @InjectCache()
+    private readonly cache: CacheManagerService,
     private readonly logger: AutoLogService,
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
@@ -88,9 +93,7 @@ export class GroupCommandService implements iRepl {
 
   public async create(): Promise<GroupDTO> {
     const type = (await this.promptService.menu<GROUP_TYPES>({
-      keyMap: {
-        d: [chalk.bold`Done`, DONE],
-      },
+      keyMap: { d: MENU_ITEMS.DONE },
       right: Object.values(GROUP_TYPES).map((type) => ({
         entry: [TitleCase(type, false), type],
         helpText: GROUP_DEFINITIONS.get(type),
@@ -141,7 +144,7 @@ export class GroupCommandService implements iRepl {
         throw new InternalServerErrorException(`wat`);
       }
     }
-    if (typeof state === 'string') {
+    if (is.string(state)) {
       throw new NotImplementedException();
     }
     return {
@@ -154,10 +157,7 @@ export class GroupCommandService implements iRepl {
   public async exec(): Promise<void> {
     const groups = await this.list();
     const action = await this.promptService.menu<GroupDTO>({
-      keyMap: {
-        c: ['Create', 'create'],
-        d: [chalk.bold`Done`, DONE],
-      },
+      keyMap: { c: MENU_ITEMS.CREATE, d: MENU_ITEMS.DONE },
       right: ToMenuEntry([
         ...this.promptService.conditionalEntries(
           !IsEmpty(groups),
@@ -173,20 +173,21 @@ export class GroupCommandService implements iRepl {
       await this.create();
       return await this.exec();
     }
-    if (action === DONE) {
+    if (IsDone(action)) {
       return;
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       this.logger.error({ action }, `Command not implemented`);
       return;
     }
+    await this.cache.set(CACHE_KEY, action._id);
     this.lastGroup = action._id;
     await this.process(action, groups);
   }
 
   public async get(group: GroupDTO | string): Promise<GroupDTO> {
     return await this.fetchService.fetch({
-      url: `/group/${typeof group === 'string' ? group : group._id}`,
+      url: `/group/${is.string(group) ? group : group._id}`,
     });
   }
 
@@ -209,14 +210,18 @@ export class GroupCommandService implements iRepl {
     inList: string[] = [],
     current: string[] = [],
   ): Promise<GroupDTO[]> {
-    const groups = await this.list();
-    return await this.promptService.pickMany(
-      `Update list of groups`,
-      groups
-        .filter((group) => IsEmpty(inList) || inList.includes(group._id))
+    let groups = await this.list();
+    if (!IsEmpty(inList)) {
+      groups = groups.filter(({ _id }) => inList.includes(_id));
+    }
+    return await this.promptService.listBuild({
+      current: groups
+        .filter(({ _id }) => current.includes(_id))
         .map((group) => [group.friendlyName, group]),
-      { default: groups.filter(({ _id }) => current.includes(_id)) },
-    );
+      source: groups
+        .filter(({ _id }) => !current.includes(_id))
+        .map((group) => [group.friendlyName, group]),
+    });
   }
 
   public async pickOne(
@@ -228,8 +233,7 @@ export class GroupCommandService implements iRepl {
     if (defaultValue) {
       defaultValue = groups.find(
         ({ _id }) =>
-          _id ===
-          (typeof defaultValue === 'string' ? defaultValue : defaultValue._id),
+          _id === (is.string(defaultValue) ? defaultValue : defaultValue._id),
       );
     }
     return await this.promptService.pickOne(
@@ -273,15 +277,15 @@ export class GroupCommandService implements iRepl {
     const action = await this.promptService.menu<{ entity_id: string }>({
       keyMap: {
         a: [`Add entity`, 'add'],
-        d: [chalk.bold`Done`, DONE],
+        d: MENU_ITEMS.DONE,
         m: [`${ICONS.ENTITIES}Manage Entities`, 'entities'],
         p: [
           this.pinnedItems.isPinned('group', group._id) ? 'Unpin' : 'Pin',
           'pin',
         ],
-        r: [`${ICONS.RENAME}Rename`, 'rename'],
+        r: MENU_ITEMS.RENAME,
         s: state,
-        x: [`${ICONS.DELETE}Delete`, 'delete'],
+        x: MENU_ITEMS.DELETE,
         ...map,
       },
       left: ToMenuEntry(
@@ -295,7 +299,7 @@ export class GroupCommandService implements iRepl {
     if (IsDone(action)) {
       return;
     }
-    if (typeof action !== 'string') {
+    if (!is.string(action)) {
       return await this.entityService.process(action.entity_id);
     }
     switch (action) {
@@ -391,7 +395,8 @@ export class GroupCommandService implements iRepl {
     });
   }
 
-  protected onModuleInit(): void {
+  protected async onModuleInit(): Promise<void> {
+    this.lastGroup = await this.cache.get(CACHE_KEY);
     this.pinnedItems.loaders.set('group', async ({ id }) => {
       const list = await this.list();
       const group = list.find(({ _id }) => _id === id);
@@ -430,53 +435,7 @@ export class GroupCommandService implements iRepl {
     if (group.type === GROUP_TYPES.light) {
       return await this.lightGroup.header(group);
     }
-    this.promptService.scriptHeader(`Group`);
-    this.promptService.secondaryHeader(group.friendlyName);
-    console.log(
-      [chalk.yellow.bold`${TitleCase(group.type)} Group`, ``].join(`\n`),
-    );
-  }
-
-  private async updateEntities(group: GroupDTO): Promise<GroupDTO> {
-    const action = await this.promptService.menu({
-      keyMap: {
-        d: [chalk.bold`Done`, DONE],
-      },
-      right: ToMenuEntry([
-        new inquirer.Separator(chalk.white`Maintenance`),
-        [`${ICONS.CREATE}Add`, 'add'],
-        [`${ICONS.DELETE}Remove`, 'delete'],
-        ...this.promptService.conditionalEntries(!IsEmpty(group.entities), [
-          new inquirer.Separator(chalk.white`Current entities`),
-          ...(group.entities.map((i) => [i, i]) as PromptEntry[]),
-        ]),
-      ]),
-      rightHeader: `Entity actions`,
-    });
-    if (IsDone(action)) {
-      return group;
-    }
-    switch (action) {
-      case 'add':
-        group.entities = [
-          ...group.entities,
-          ...(await this.entityService.buildList(
-            GROUP_DOMAINS.get(group.type),
-            { omit: group.entities },
-          )),
-        ];
-        group = await this.update(group);
-        return await this.updateEntities(group);
-      case 'delete':
-        group.entities = await this.promptService.pickMany(
-          `Select entities to keep`,
-          group.entities.map((i) => [i, i]),
-          { default: group.entities },
-        );
-        group = await this.update(group);
-        return await this.updateEntities(group);
-    }
-    await this.entityService.process(action);
-    return group;
+    this.promptService.scriptHeader(group.friendlyName);
+    this.promptService.secondaryHeader(`${TitleCase(group.type)} Group`);
   }
 }

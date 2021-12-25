@@ -1,5 +1,8 @@
-import { EntityManagerService, LightStateDTO } from '@for-science/home-assistant';
-import { AutoLogService, PEAT, sleep } from '@for-science/utilities';
+import {
+  EntityManagerService,
+  LightStateDTO,
+} from '@for-science/home-assistant';
+import { AutoLogService, is, PEAT, sleep } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
 
@@ -32,10 +35,10 @@ export class FlashAnimationService {
     const { mode } =
       (await this.lightManager.getState(animation.entity_id)) || {};
 
-    if (typeof animation.brightness !== 'undefined') {
+    if (!is.string(animation)) {
       this.brightnessFlash(entity, animation, frames);
     }
-    if (typeof animation.rgb_color !== 'undefined') {
+    if (!is.string(animation.rgb_color)) {
       this.colorFlash(entity, animation, frames);
     }
     await eachSeries(frames, async (state, callback) => {

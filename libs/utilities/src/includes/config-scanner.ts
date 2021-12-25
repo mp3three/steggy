@@ -1,12 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 
-import {
-  ACTIVE_APPLICATION,
-  AutoConfigService,
-  ModuleScannerService,
-} from '..';
+import { ACTIVE_APPLICATION } from '../contracts';
 import { ConfigTypeDTO, CONSUMES_CONFIG } from '../contracts/config';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
+import { AutoConfigService, ModuleScannerService } from '../services';
 
 export function ScanConfig(app: INestApplication): void {
   const configService = app.get(AutoConfigService);

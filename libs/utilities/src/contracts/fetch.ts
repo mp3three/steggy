@@ -24,6 +24,13 @@ export type FetchAuth = {
   jwtToken?: string;
 };
 
+export type FetchParameterTypes =
+  | string
+  | boolean
+  | Date
+  | number
+  | Array<string | Date | number>;
+
 export type FetchArguments<BODY extends unknown = unknown> = FetchAuth & {
   /**
    * Frequently filled in by wrapper services
@@ -48,7 +55,7 @@ export type FetchArguments<BODY extends unknown = unknown> = FetchAuth & {
   /**
    * Query params to send
    */
-  params?: Record<string, string>;
+  params?: Record<string, FetchParameterTypes>;
   /**
    * Built in post-processing
    *

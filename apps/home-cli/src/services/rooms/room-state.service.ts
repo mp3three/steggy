@@ -6,7 +6,6 @@ import {
 } from '@for-science/controller-logic';
 import { domain, HASS_DOMAINS } from '@for-science/home-assistant';
 import {
-  DONE,
   ICONS,
   IsDone,
   PinnedItemService,
@@ -18,6 +17,7 @@ import {
   AutoLogService,
   DOWN,
   FILTER_OPERATIONS,
+  is,
   IsEmpty,
   UP,
 } from '@for-science/utilities';
@@ -33,6 +33,7 @@ import chalk from 'chalk';
 import Table from 'cli-table';
 import inquirer from 'inquirer';
 
+import { MENU_ITEMS } from '../../includes';
 import { GroupCommandService } from '../groups';
 import { EntityService } from '../home-assistant';
 import { HomeFetchService } from '../home-fetch.service';
@@ -56,9 +57,9 @@ export class RoomStateService {
     room: RoomDTO,
     current: Partial<RoomStateDTO> = {},
   ): Promise<RoomStateDTO> {
-    current.friendlyName = await this.promptService.friendlyName(
-      current.friendlyName,
-    );
+    current.friendlyName =
+      current.friendlyName ??
+      (await this.promptService.friendlyName(current.friendlyName));
     current.states ??= [];
     const states: RoomEntitySaveStateDTO[] = [
       ...(await this.buildEntities(room, current)),
@@ -102,17 +103,20 @@ export class RoomStateService {
       const state = await this.build(room);
       return state.id;
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       throw new NotImplementedException();
     }
     return action.id;
   }
 
   public async process(room: RoomDTO): Promise<RoomDTO> {
+    this.promptService.clear();
+    this.promptService.scriptHeader(room.friendlyName);
+    this.promptService.secondaryHeader('Room States');
     const action = await this.promptService.menu({
       keyMap: {
-        c: [`${ICONS.CREATE}Create`, 'create'],
-        d: [chalk.bold`Done`, DONE],
+        c: MENU_ITEMS.CREATE,
+        d: MENU_ITEMS.DONE,
         f12: [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
       },
       right: ToMenuEntry(
@@ -144,7 +148,7 @@ export class RoomStateService {
         room = await this.roomService.update(room);
         return await this.process(room);
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       throw new NotImplementedException();
     }
     room = await this.processState(room, action);
@@ -157,32 +161,43 @@ export class RoomStateService {
     defaultAction?: string,
   ): Promise<RoomDTO> {
     this.promptService.clear();
-    this.promptService.scriptHeader(`Room State`);
-    await this.header(room, state);
-    const [activate] = [
-      [`${ICONS.ACTIVATE}Activate`, 'activate'],
-    ] as PromptEntry[];
+    this.promptService.scriptHeader(room.friendlyName);
+    this.promptService.secondaryHeader(state.friendlyName);
+
     const action = await this.promptService.menu({
       keyMap: {
-        a: activate,
-        d: [chalk.bold`Done`, DONE],
+        a: MENU_ITEMS.ACTIVATE,
+        d: MENU_ITEMS.DONE,
+        e: MENU_ITEMS.EDIT,
+        f1: MENU_ITEMS.DESCRIBE,
+        n: MENU_ITEMS.RENAME,
         p: [
           this.pinnedItems.isPinned('room_state', state.id) ? 'Unpin' : 'Pin',
           'pin',
         ],
+        r: [`${ICONS.ROOMS}Go to room`, `room`],
+        x: MENU_ITEMS.DELETE,
       },
-      right: ToMenuEntry([
-        activate,
-        [`${ICONS.EDIT}Edit`, 'edit'],
-        [`${ICONS.DELETE}Delete`, 'delete'],
-      ]),
-      rightHeader: `Room state`,
+      keyOnly: true,
       value: defaultAction,
     });
     if (IsDone(action)) {
       return room;
     }
     switch (action) {
+      case 'describe':
+        await this.header(room, state);
+        return await this.processState(room, state, action);
+      case 'rename':
+        state.friendlyName = await this.promptService.friendlyName(
+          state.friendlyName,
+        );
+        await this.update(state, room);
+        return await this.processState(room, state, action);
+      case 'room':
+        await this.roomService.processRoom(room);
+        room = await this.roomService.get(room._id);
+        return room;
       case 'pin':
         this.pinnedItems.toggle({
           data: { room: room._id },
@@ -196,7 +211,7 @@ export class RoomStateService {
           method: `post`,
           url: `/room/${room._id}/state/${state.id}`,
         });
-        return room;
+        return await this.processState(room, state, action);
       case 'edit':
         const update = await this.build(room, state);
         room = await this.roomService.get(room._id);
@@ -219,6 +234,14 @@ export class RoomStateService {
     throw new NotImplementedException();
   }
 
+  public async update(current: RoomStateDTO, room: RoomDTO): Promise<void> {
+    return await this.fetchService.fetch({
+      body: current,
+      method: 'put',
+      url: `/room/${room._id}/state/${current.id}`,
+    });
+  }
+
   protected onModuleInit(): void {
     this.pinnedItems.loaders.set('room_state', async ({ id, data }) => {
       const room = await this.roomService.get(data.room);
@@ -238,18 +261,7 @@ export class RoomStateService {
       this.logger.warn(`No entities in room`);
       return [];
     }
-    const hasEntityStates = !IsEmpty(
-      current.states.filter(({ type }) => type === 'entity'),
-    );
-    if (hasEntityStates) {
-      if (!(await this.promptService.confirm(`Update entities?`))) {
-        return current.states.filter(({ type }) => type === 'entity');
-      }
-    } else if (
-      !(await this.promptService.confirm(`Add entities to save state?`))
-    ) {
-      return [];
-    }
+
     const states: RoomEntitySaveStateDTO[] = [];
     const list = await this.entityService.pickMany(
       // Filter out non-actionable domains
@@ -289,18 +301,6 @@ export class RoomStateService {
       this.logger.warn(`No groups`);
       return [];
     }
-    const hasGroups = !IsEmpty(
-      current.states.filter(({ type }) => type === 'group'),
-    );
-    if (hasGroups) {
-      if (!(await this.promptService.confirm(`Update groups?`))) {
-        return current.states.filter(({ type }) => type === 'group');
-      }
-    } else if (
-      !(await this.promptService.confirm(`Add groups to save state?`))
-    ) {
-      return [];
-    }
     const states: RoomEntitySaveStateDTO[] = [];
     const list = await this.groupService.pickMany(
       room.groups,
@@ -321,14 +321,16 @@ export class RoomStateService {
 
   private async header(room: RoomDTO, state: RoomStateDTO): Promise<void> {
     console.log(
-      chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
+      chalk`  ${
+        ICONS.LINK
+      }{bold.magenta POST} {underline ${this.fetchService.getUrl(
         `/room/${room._id}/state/${state.id}`,
-      )}`,
+      )}}`,
     );
     const entities = state.states.filter(({ type }) => type === 'entity');
     if (IsEmpty(entities)) {
       console.log(
-        chalk`${ICONS.ENTITIES}{blue No entities included in save state}\n`,
+        chalk`  ${ICONS.ENTITIES} {blue No entities included in save state}\n`,
       );
     } else {
       const table = new Table({
@@ -346,7 +348,7 @@ export class RoomStateService {
       console.log(
         [
           ``,
-          chalk`${ICONS.ENTITIES}{blue.bold Entity States}`,
+          chalk`  ${ICONS.ENTITIES}{blue.bold Entity States}`,
           table.toString(),
         ].join(`\n`),
       );
@@ -354,7 +356,7 @@ export class RoomStateService {
     const groupStates = state.states.filter(({ type }) => type === 'group');
     if (IsEmpty(groupStates)) {
       console.log(
-        chalk`${ICONS.GROUPS}{blue No groups included in save state}\n`,
+        chalk`  ${ICONS.GROUPS}{blue No groups included in save state}\n`,
       );
       return;
     }
@@ -381,7 +383,7 @@ export class RoomStateService {
     console.log(
       [
         ``,
-        chalk`${ICONS.GROUPS}{blue.bold Group States}`,
+        chalk`  ${ICONS.GROUPS}{blue.bold Group States}`,
         table.toString(),
         ``,
       ].join(`\n`),

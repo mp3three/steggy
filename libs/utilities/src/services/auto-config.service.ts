@@ -18,6 +18,7 @@ import { cwd } from 'process';
 import { LIB_UTILS, LOG_LEVEL } from '../config';
 import {
   ConfigItem,
+  is,
   METADATA_FILE,
   RepoMetadataDTO,
   USE_THIS_CONFIG,
@@ -57,12 +58,22 @@ export class AutoConfigService {
     if (Array.isArray(path)) {
       path = ['libs', path[0].description, path[1]].join('.');
     }
-    const value = get(this.config, path, this.getDefault(path));
+    let value = get(this.config, path, this.getDefault(path));
     const config = this.getConfiguration(path);
     if (config.warnDefault && value === config.default) {
       this.logger.warn(
         `Configuration property {${path}} is using default value`,
       );
+    }
+    switch (config.type) {
+      case 'number':
+        return Number(value) as T;
+      case 'boolean':
+        if (is.string(value)) {
+          value = ['false', 'n'].includes(value.toLowerCase());
+          return value as T;
+        }
+        return Boolean(value) as T;
     }
     return value as T;
   }
@@ -158,7 +169,7 @@ export class AutoConfigService {
         const noApp = env[noAppPath] ?? this.switches[noAppPath];
         const lazy = env[key] ?? this.switches[key];
         const configPath = `${configPrefix}.${key}`;
-        if (typeof full !== 'undefined') {
+        if (!is.undefined(full)) {
           set(
             this.config,
             configPath,
@@ -166,7 +177,7 @@ export class AutoConfigService {
           );
           return;
         }
-        if (typeof noApp !== 'undefined') {
+        if (!is.undefined(noApp)) {
           set(
             this.config,
             configPath,
@@ -174,7 +185,7 @@ export class AutoConfigService {
           );
           return;
         }
-        if (typeof lazy !== 'undefined') {
+        if (!is.undefined(lazy)) {
           set(
             this.config,
             configPath,
@@ -223,7 +234,7 @@ export class AutoConfigService {
     // Guessing yaml
     try {
       const content = yaml.load(fileContent);
-      if (typeof content === 'object' && content !== null) {
+      if (is.object(content)) {
         out.set(filePath, content);
         return true;
       }
@@ -274,7 +285,7 @@ export class AutoConfigService {
     this.metadata.forEach(({ configuration }, project) => {
       const isApplication = this.APPLICATION.description === project;
       Object.keys(configuration).forEach((key) => {
-        if (typeof configuration[key].default !== 'undefined') {
+        if (!is.undefined(configuration[key].default)) {
           set(
             this.config,
             `${isApplication ? 'application' : `libs.${project}`}.${key}`,

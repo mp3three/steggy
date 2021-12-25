@@ -6,6 +6,7 @@ import {
   EmitAfter,
   InjectConfig,
   InjectLogger,
+  is,
   sleep,
 } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
@@ -165,7 +166,7 @@ export class HASocketAPIService {
     });
   }
 
-  protected async onPostInit(): Promise<void> {
+  protected async onApplicationBootstrap(): Promise<void> {
     // Kick off the connection process
     // Do not wait for it to actually complete through auth though
     //
@@ -345,7 +346,7 @@ export class HASocketAPIService {
       if (message.error) {
         this.logger.error({ message });
       }
-      if (message.result === null || typeof message.result === 'undefined') {
+      if (message.result === null || !is.undefined(message.result)) {
         // This happens with template rendering requests
         // Home Assistant initially replies back with an invalid result
         // Then follows up with an event using the same id, which contains the real result

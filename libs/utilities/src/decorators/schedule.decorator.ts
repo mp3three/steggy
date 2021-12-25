@@ -1,6 +1,6 @@
 import { SetMetadata } from '@nestjs/common';
 
-import { CRON_SCHEDULE, CronExpression } from '../contracts';
+import { CRON_SCHEDULE, CronExpression, is } from '../contracts';
 
 export enum CronObject {
   second,
@@ -19,7 +19,7 @@ export function Cron(
 ): MethodDecorator {
   return SetMetadata(
     CRON_SCHEDULE,
-    typeof schedule === 'string'
+    is.string(schedule)
       ? schedule
       : Object.keys(CronObject)
           .map((key) => schedule[key] ?? '*')

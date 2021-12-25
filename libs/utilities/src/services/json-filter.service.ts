@@ -2,7 +2,12 @@ import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { get } from 'object-path';
 
-import { FILTER_OPERATIONS, FilterDTO, ResultControlDTO } from '../contracts';
+import {
+  FILTER_OPERATIONS,
+  FilterDTO,
+  is,
+  ResultControlDTO,
+} from '../contracts';
 import { AutoLogService } from './auto-log.service';
 
 type RelativeCompare = number | Date | dayjs.Dayjs;
@@ -16,8 +21,8 @@ export class JSONFilterService {
 
   public match(item: Record<string, unknown>, filter: FilterDTO): boolean {
     const value = get(item, filter.field);
-    if (typeof filter.exists === 'boolean') {
-      const exists = typeof value === 'undefined';
+    if (is.boolean(filter.exists)) {
+      const exists = is.undefined(value);
       return (exists && filter.exists) || (!filter.exists && !exists);
     }
     switch (filter.operation) {
@@ -98,7 +103,7 @@ export class JSONFilterService {
   }
 
   private regex(value: string, cmp: string | RegExp): boolean {
-    const regex = typeof cmp === 'string' ? new RegExp(cmp, 'gi') : cmp;
+    const regex = is.string(cmp) ? new RegExp(cmp, 'gi') : cmp;
     if (!(regex instanceof RegExp)) {
       this.logger.warn({ cmp }, `Bad regex filter`);
       return false;

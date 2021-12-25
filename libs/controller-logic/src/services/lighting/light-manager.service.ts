@@ -9,6 +9,7 @@ import {
   InjectConfig,
   InjectLogger,
   INVERT_VALUE,
+  is,
   IsEmpty,
 } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
@@ -182,7 +183,7 @@ export class LightManagerService {
       rgb_color: settings.rgb_color,
     };
     Object.keys(data).forEach((key) => {
-      if (typeof data[key] === 'undefined') {
+      if (!is.string(data[key])) {
         delete data[key];
       }
     });

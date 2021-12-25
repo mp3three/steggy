@@ -2,6 +2,7 @@ import {
   AutoLogService,
   DOWN,
   InjectConfig,
+  is,
   IsEmpty,
   LABEL,
   PEAT,
@@ -26,7 +27,7 @@ import {
   SECONDARY_HEADER_FONT,
 } from '../config';
 import { DONE, PromptMenuItems } from '../contracts';
-import { MainMenuOptions } from '../inquirer';
+import { ListBuilderOptions, MainMenuOptions } from '../inquirer';
 
 const name = `result`;
 export type PROMPT_WITH_SHORT = { name: string; short: string };
@@ -82,7 +83,7 @@ export class PromptService {
           const fuzzyResult = fuzzy.go(
             input,
             options.map((item) => {
-              if (typeof item === 'string') {
+              if (is.string(item)) {
                 return item;
               }
               return item.name;
@@ -91,7 +92,7 @@ export class PromptService {
           );
           return fuzzyResult.map(({ target }) => {
             return options.find((option) => {
-              return typeof option === 'string'
+              return is.string(option)
                 ? option === target
                 : option.name === target;
             });
@@ -266,7 +267,7 @@ export class PromptService {
     return items.map((item) => {
       if (Array.isArray(item)) {
         const label = item[LABEL] as string | PROMPT_WITH_SHORT;
-        return typeof label === 'string'
+        return is.string(label)
           ? {
               // Adding emojies can sometimes cause the final character to have rendering issues
               // Insert sacraficial empty space to the end
@@ -281,6 +282,19 @@ export class PromptService {
       }
       return item;
     });
+  }
+
+  public async listBuild<T>(
+    options: Partial<ListBuilderOptions<T>>,
+  ): Promise<T[]> {
+    const { result } = await inquirer.prompt([
+      {
+        ...options,
+        name,
+        type: 'listbuilder',
+      } as ListBuilderOptions<T>,
+    ]);
+    return result;
   }
 
   public async menu<T extends unknown = string>(
@@ -319,16 +333,16 @@ export class PromptService {
   }
 
   public objectPrinter(item: unknown): string {
-    if (typeof item === 'undefined') {
+    if (is.undefined(item)) {
       return ``;
     }
-    if (typeof item === 'number') {
+    if (is.number(item)) {
       return chalk.yellow(String(item));
     }
-    if (typeof item === 'boolean') {
+    if (is.boolean(item)) {
       return chalk.magenta(String(item));
     }
-    if (typeof item === 'string') {
+    if (is.string(item)) {
       return chalk.blue(
         item.slice(START, MAX_STRING_LENGTH) +
           (item.length > MAX_STRING_LENGTH ? chalk.blueBright`...` : ``),
@@ -340,7 +354,7 @@ export class PromptService {
     if (item === null) {
       return chalk.gray(`null`);
     }
-    if (typeof item === 'object') {
+    if (is.object(item)) {
       return Object.keys(item)
         .sort((a, b) => (a > b ? UP : DOWN))
         .map(
@@ -462,7 +476,12 @@ export class PromptService {
     header = figlet.textSync(header, {
       font: this.secondaryFont,
     });
-    console.log(chalk[color](header), '\n');
+    console.log(
+      chalk[color](header)
+        .split(`\n`)
+        .map((i) => `  ${i}`)
+        .join(`\n`),
+    );
   }
 
   public sort<T>(entries: PromptEntry<T>[]): PromptEntry<T>[] {

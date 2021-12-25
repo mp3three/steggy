@@ -4,6 +4,7 @@ import {
   FILTER_OPERATIONS,
   FilterDTO,
   FilterValueType,
+  is,
   ResultControlDTO,
 } from '@for-science/utilities';
 import { BadRequestException } from '@nestjs/common';
@@ -16,7 +17,7 @@ export function filtersToMongoQuery(
   const out = new Map<string, unknown>();
 
   (query.filters ?? new Set()).forEach((filter) => {
-    if (typeof filter.exists !== 'undefined') {
+    if (!is.undefined(filter.exists)) {
       out.set(
         `$${filter.field}`,
         ['true', '1'].includes(filter.value.toString()),
@@ -102,13 +103,13 @@ function resolve(filter: FilterDTO) {
     }
     filter.value = values;
   } else if (
-    typeof filter.value === 'string' &&
+    is.string(filter.value) &&
     ['y', 'true'].includes(filter.value.toLocaleLowerCase())
   ) {
     filter.value = [filter.value as string, true];
     filter.operation = FILTER_OPERATIONS.in;
   } else if (
-    typeof filter.value === 'string' &&
+    is.string(filter.value) &&
     ['n', 'false'].includes(filter.value.toLowerCase())
   ) {
     filter.operation = FILTER_OPERATIONS.in;

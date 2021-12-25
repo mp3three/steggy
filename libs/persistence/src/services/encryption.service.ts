@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { InjectConfig } from '@for-science/utilities';
+import { InjectConfig, is } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import {
   createCipheriv,
@@ -80,10 +80,7 @@ export class EncryptionService {
   private isBuffer(cipherbuffer: Buffer | Binary): boolean {
     return (
       !cipherbuffer ||
-      !(
-        cipherbuffer instanceof Buffer ||
-        typeof cipherbuffer.buffer !== undefined
-      )
+      !(cipherbuffer instanceof Buffer || !is.undefined(cipherbuffer.buffer))
     );
   }
 }

@@ -1,7 +1,9 @@
 import { LibraryModule, RegisterCache } from '@for-science/utilities';
+import { INestApplication } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { LIB_TTY } from '../config';
+import { inquirerPreInit } from '../inquirer';
 import {
   ColorsService,
   ConfigBuilderService,
@@ -11,6 +13,7 @@ import {
   PromptService,
   ReplExplorerService,
   SystemService,
+  TextRenderingService,
 } from '../services';
 
 @LibraryModule({
@@ -19,6 +22,7 @@ import {
     GitService,
     PinnedItemService,
     PromptService,
+    TextRenderingService,
     ConfigBuilderService,
     SystemService,
   ],
@@ -27,6 +31,7 @@ import {
   providers: [
     ColorsService,
     GitService,
+    TextRenderingService,
     MainCLIService,
     PinnedItemService,
     ConfigBuilderService,
@@ -35,4 +40,8 @@ import {
     SystemService,
   ],
 })
-export class MainCLIModule {}
+export class MainCLIModule {
+  protected onPostInit(app: INestApplication): void {
+    inquirerPreInit(app);
+  }
+}

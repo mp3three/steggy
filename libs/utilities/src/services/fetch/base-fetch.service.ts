@@ -1,6 +1,11 @@
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
-import { FetchArguments, ResultControlDTO } from '../../contracts';
+import {
+  FetchArguments,
+  FetchParameterTypes,
+  is,
+  ResultControlDTO,
+} from '../../contracts';
 import { controlToQuery } from '../../includes';
 import { AutoLogService } from '../auto-log.service';
 
@@ -34,12 +39,17 @@ export class BaseFetchService {
   protected buildFilterString(
     fetchWith: FetchWith<{
       filters?: Readonly<ResultControlDTO>;
-      params?: Record<string, string>;
+      params?: Record<string, FetchParameterTypes>;
     }>,
   ): string {
     return new URLSearchParams({
       ...controlToQuery(fetchWith.control ?? {}),
-      ...fetchWith.params,
+      ...Object.fromEntries(
+        Object.entries(fetchWith.params ?? {}).map(([label, value]) => [
+          label,
+          this.cast(value),
+        ]),
+      ),
     }).toString();
   }
 
@@ -77,7 +87,7 @@ export class BaseFetchService {
     if (bearer) {
       headers['Authorization'] = `Bearer ${bearer}`;
     }
-    if (typeof body === 'object') {
+    if (is.object(body)) {
       body = JSON.stringify(body);
     }
     return {
@@ -116,18 +126,31 @@ export class BaseFetchService {
     return this.checkForHttpErrors<T>(parsed);
   }
 
+  private cast(item: FetchParameterTypes): string {
+    if (Array.isArray(item)) {
+      return item.map((i) => this.cast(i)).join(',');
+    }
+    if (item instanceof Date) {
+      return item.toISOString();
+    }
+    if (is.number(item)) {
+      return item.toString();
+    }
+    if (is.boolean(item)) {
+      return item ? 'true' : 'false';
+    }
+    return item;
+  }
+
   private checkForHttpErrors<T extends unknown = unknown>(maybeError: {
     error: string;
     message: string;
     statusCode: number;
   }): T {
-    if (typeof maybeError !== 'object' || maybeError === null) {
+    if (!is.object(maybeError) || maybeError === null) {
       return maybeError as T;
     }
-    if (
-      typeof maybeError.statusCode === 'number' &&
-      typeof maybeError.error === 'string'
-    ) {
+    if (is.number(maybeError.statusCode) && is.string(maybeError.error)) {
       this.logger.error({ error: maybeError }, maybeError.message);
     }
     return maybeError as T;

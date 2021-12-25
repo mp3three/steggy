@@ -6,7 +6,6 @@ import {
   RoutineCommandGroupStateDTO,
 } from '@for-science/controller-logic';
 import {
-  DONE,
   ICONS,
   IsDone,
   PinnedItemService,
@@ -14,7 +13,7 @@ import {
   PromptService,
   ToMenuEntry,
 } from '@for-science/tty';
-import { AutoLogService, DOWN, IsEmpty, UP } from '@for-science/utilities';
+import { AutoLogService, is, IsEmpty } from '@for-science/utilities';
 import {
   forwardRef,
   Inject,
@@ -28,6 +27,7 @@ import Table from 'cli-table';
 import inquirer from 'inquirer';
 import { dump, load } from 'js-yaml';
 
+import { MENU_ITEMS } from '../../includes';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { GroupCommandService } from './group-command.service';
@@ -51,9 +51,10 @@ export class GroupStateService {
     current: Partial<GroupSaveStateDTO> = {},
   ): Promise<GroupDTO> {
     current.states ??= [];
-    const friendlyName = await this.promptService.friendlyName(
-      current.friendlyName,
-    );
+    // Use the dedicated rename action
+    const friendlyName = current.id
+      ? current.friendlyName
+      : await this.promptService.friendlyName(current.friendlyName);
     const states = [];
     const action = await this.promptService.pickOne(`Edit style`, [
       [`${ICONS.GUIDED}Guided`, `guided`],
@@ -156,7 +157,7 @@ export class GroupStateService {
       const state = group.save_states.pop();
       return state.id;
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       throw new NotImplementedException();
     }
     return action.id;
@@ -173,7 +174,7 @@ export class GroupStateService {
     const action = await this.promptService.menu<GroupSaveStateDTO>({
       keyMap: {
         c: [`${ICONS.CAPTURE}Capture current`, 'capture'],
-        d: [chalk.bold`Done`, DONE],
+        d: MENU_ITEMS.DELETE,
         m: [`${ICONS.CREATE}Manual create`, 'create'],
         t: [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
       },
@@ -189,36 +190,36 @@ export class GroupStateService {
     if (IsDone(action)) {
       return;
     }
-    if (action === 'create') {
-      group = await this.build(group);
-      return await this.processState(group, list, action);
-    }
-    if (action === 'truncate') {
-      if (
-        !(await this.promptService.confirm(
-          `Are you sure? This is a destructive operation`,
-          false,
-        ))
-      ) {
+    switch (action) {
+      case 'create':
+        group = await this.build(group);
         return await this.processState(group, list, action);
-      }
-      group = await this.fetchService.fetch({
-        method: 'delete',
-        url: `/group/${group._id}/truncate`,
-      });
-      return await this.processState(group, list, action);
+      case 'truncate':
+        if (
+          !(await this.promptService.confirm(
+            `Are you sure? This is a destructive operation`,
+            false,
+          ))
+        ) {
+          return await this.processState(group, list, action);
+        }
+        group = await this.fetchService.fetch({
+          method: 'delete',
+          url: `/group/${group._id}/truncate`,
+        });
+        return await this.processState(group, list, action);
+      case 'capture':
+        await this.fetchService.fetch({
+          body: {
+            name: await this.promptService.string(`Name for save state`),
+          },
+          method: 'post',
+          url: `/group/${group._id}/capture`,
+        });
+        return await this.processState(group, list, action);
     }
-    if (action === 'capture') {
-      await this.fetchService.fetch({
-        body: {
-          name: await this.promptService.string(`Name for save state`),
-        },
-        method: 'post',
-        url: `/group/${group._id}/capture`,
-      });
-      return await this.processState(group, list, action);
-    }
-    if (typeof action === 'string') {
+
+    if (is.string(action)) {
       this.logger.error({ action }, `Unknown action`);
       return;
     }
@@ -299,8 +300,7 @@ export class GroupStateService {
     defaultAction?: string,
   ): Promise<GroupDTO> {
     this.header(group, state);
-    const [edit, copy, activate] = [
-      [`${ICONS.EDIT}Edit`, 'edit'],
+    const [copy, activate] = [
       [`${ICONS.COPY}Copy to another group`, 'copyTo'],
       [`${ICONS.ACTIVATE}Activate`, 'activate'],
     ] as PromptEntry[];
@@ -308,26 +308,27 @@ export class GroupStateService {
       keyMap: {
         a: activate,
         c: copy,
-        d: [chalk.bold`Done`, DONE],
-        e: edit,
+        d: MENU_ITEMS.DONE,
+        e: MENU_ITEMS.EDIT,
+        g: [`${ICONS.GROUPS}Go to group`, `group`],
         p: [
           this.pinnedItems.isPinned('group_state', state.id) ? 'Unpin' : 'Pin',
           'pin',
         ],
+        r: MENU_ITEMS.RENAME,
+        x: MENU_ITEMS.DELETE,
       },
-      right: ToMenuEntry([
-        activate,
-        edit,
-        copy,
-        [`${ICONS.DELETE}Delete`, 'delete'],
-      ]),
+      right: ToMenuEntry([activate]),
       rightHeader: `Group state action`,
       value: defaultAction,
     });
     if (IsDone(action)) {
-      return;
+      return group;
     }
     switch (action) {
+      case 'group':
+        await this.groupService.process(group);
+        return this.groupService.get(group);
       case 'pin':
         this.pinnedItems.toggle({
           data: { group: group._id },
@@ -336,8 +337,12 @@ export class GroupStateService {
           script: 'group_state',
         });
         return await this.stateAction(state, group, action);
-      case DONE:
-        return group;
+      case 'rename':
+        state.friendlyName = await this.promptService.friendlyName(
+          state.friendlyName,
+        );
+        group = await this.groupService.update(group);
+        return await this.stateAction(state, group, action);
       case 'copyTo':
         await this.sendSaveState(state, group);
         return await this.stateAction(state, group, action);

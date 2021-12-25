@@ -3,15 +3,22 @@ import {
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
 } from '@for-science/controller-logic';
-import { domain, HASS_DOMAINS, HassStateDTO } from '@for-science/home-assistant';
+import {
+  domain,
+  HASS_DOMAINS,
+  HassStateDTO,
+} from '@for-science/home-assistant';
 import {
   ICONS,
   iRepl,
+  MenuEntry,
   PinnedItemService,
+  PromptEntry,
   PromptService,
   Repl,
+  ToMenuEntry,
 } from '@for-science/tty';
-import { IsEmpty } from '@for-science/utilities';
+import { is, IsEmpty, VALUE } from '@for-science/utilities';
 
 import {
   BaseDomainService,
@@ -47,25 +54,18 @@ export class EntityService implements iRepl {
 
   public async buildList(
     inList: HASS_DOMAINS[] = [],
-    { omit = [] }: { omit?: string[] } = {},
+    { omit = [], current = [] }: { current?: string[]; omit?: string[] } = {},
   ): Promise<string[]> {
     let entities = await this.list();
     entities = entities
       .filter((entity) => IsEmpty(inList) || inList.includes(domain(entity)))
       .filter((item) => !omit.includes(item));
-    const out: string[] = [];
-    let exec = true;
-    // eslint-disable-next-line no-loops/no-loops
-    do {
-      out.push(
-        await this.promptService.autocomplete(
-          `Pick one`,
-          entities.filter((item) => !out.includes(item)),
-        ),
-      );
-      exec = await this.promptService.confirm(`Add another?`, true);
-    } while (exec === true);
-    return out;
+    const source = entities.filter((i) => !current.includes(i));
+    return await this.promptService.listBuild({
+      current: current.map((i) => [i, i]),
+      items: 'Entities',
+      source: source.map((i) => [i, i]),
+    });
   }
 
   public async createSaveCommand(
@@ -96,8 +96,11 @@ export class EntityService implements iRepl {
   }
 
   public async exec(): Promise<void> {
-    const entities = await this.list();
-    return await this.processId(entities);
+    const entity = await this.pickOne();
+    if (!is.string(entity)) {
+      return;
+    }
+    return await this.process(entity);
   }
 
   public async get(id: string): Promise<HassStateDTO> {
@@ -118,9 +121,8 @@ export class EntityService implements iRepl {
     defaultValue?: string,
   ): Promise<string> {
     const entities = await this.list();
-    return await this.promptService.autocomplete(
-      `Pick an entity`,
-      entities.filter((entity) => {
+    const list = entities
+      .filter((entity) => {
         if (!IsEmpty(inList) && !inList.includes(domain(entity))) {
           return false;
         }
@@ -128,35 +130,41 @@ export class EntityService implements iRepl {
           return false;
         }
         return true;
-      }),
-      defaultValue,
-    );
+      })
+      .map((i) => [i, i] as PromptEntry);
+    return await this.promptService.menu({
+      keyMap: {},
+      right: ToMenuEntry(list),
+      value: defaultValue,
+    });
   }
 
   public async pickMany(
     inList: string[] = [],
-    defaultValue?: string[],
+    current: string[] = [],
   ): Promise<string[]> {
-    const entities = await this.list();
-    return await this.promptService.pickMany(
-      `Pick an entity`,
-      entities
-        .filter((entity) => IsEmpty(inList) || inList.includes(entity))
-        .map((id) => [id, id]),
-      { default: defaultValue },
-    );
+    const entities = (await this.list())
+      .filter((i) => (IsEmpty(inList) ? true : inList.includes(i)))
+      .map((i) => [i, i] as MenuEntry);
+    return await this.promptService.listBuild({
+      current: entities.filter((i) => current.includes(i[VALUE])),
+      items: 'Entities',
+      source: entities.filter((i) => !current.includes(i[VALUE])),
+    });
   }
 
-  public async pickOne(
-    inList: string[] = [],
-    defaultValue?: string,
-  ): Promise<string> {
+  public async pickOne(inList: string[] = [], value?: string): Promise<string> {
     const entities = await this.list();
-    return await this.promptService.autocomplete(
-      `Pick an entity`,
-      entities.filter((entity) => IsEmpty(inList) || inList.includes(entity)),
-      defaultValue,
-    );
+    return await this.promptService.menu({
+      keyMap: {},
+      right: ToMenuEntry(
+        (IsEmpty(inList)
+          ? entities
+          : entities.filter((i) => inList.includes(i))
+        ).map((i) => [i, i] as PromptEntry),
+      ),
+      value,
+    });
   }
 
   public async process(id: string): Promise<void> {

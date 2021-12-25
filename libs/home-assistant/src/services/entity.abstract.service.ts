@@ -1,4 +1,4 @@
-import { AutoLogService, OnEvent } from '@for-science/utilities';
+import { AutoLogService, is, OnEvent } from '@for-science/utilities';
 
 import {
   ALL_ENTITIES_UPDATED,
@@ -36,7 +36,7 @@ export abstract class EntityService {
   }
 
   protected trackEntity(entityId: string | string[]): void {
-    if (typeof entityId === 'string') {
+    if (is.string(entityId)) {
       entityId = [entityId];
     }
     entityId.forEach((item) => {

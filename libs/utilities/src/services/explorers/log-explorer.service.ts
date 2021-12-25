@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 
 import { LOG_LEVEL } from '../../config';
+import { is } from '../../contracts';
 import { LOG_CONTEXT, LOGGER_LIBRARY } from '../../contracts/logger';
 import { InjectConfig, mappedContexts } from '../../decorators/injectors';
 
@@ -33,7 +34,7 @@ export class LogExplorerService {
       items.forEach(({ metatype }) => {
         if (
           SKIP_PROVIDERS.has(metatype?.name ?? '') ||
-          typeof metatype[LOG_CONTEXT] !== 'undefined'
+          !is.undefined(metatype[LOG_CONTEXT])
         ) {
           return;
         }

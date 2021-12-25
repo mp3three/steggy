@@ -3,7 +3,12 @@ import {
   BaseSchemaDTO,
   EncryptionService,
 } from '@for-science/persistence';
-import { AutoLogService, ResultControlDTO, ToClass } from '@for-science/utilities';
+import {
+  AutoLogService,
+  CastResult,
+  is,
+  ResultControlDTO,
+} from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import EventEmitter from 'eventemitter3';
@@ -23,7 +28,7 @@ export class RoomPersistenceService extends BaseMongoService {
     super();
   }
 
-  @ToClass(RoomDTO)
+  @CastResult(RoomDTO)
   public async create(
     room: Omit<RoomDTO, keyof BaseSchemaDTO>,
   ): Promise<RoomDTO> {
@@ -35,7 +40,7 @@ export class RoomPersistenceService extends BaseMongoService {
   }
 
   public async delete(state: RoomDTO | string): Promise<boolean> {
-    const query = this.merge(typeof state === 'string' ? state : state._id);
+    const query = this.merge(is.string(state) ? state : state._id);
     this.logger.debug({ query }, `delete query`);
     delete query.deleted;
     const result = await this.roomModel
@@ -47,7 +52,7 @@ export class RoomPersistenceService extends BaseMongoService {
     return result.acknowledged;
   }
 
-  @ToClass(RoomDTO)
+  @CastResult(RoomDTO)
   public async findById(
     state: string,
     { control }: { control?: ResultControlDTO } = {},
@@ -59,7 +64,7 @@ export class RoomPersistenceService extends BaseMongoService {
     return this.decrypt(out);
   }
 
-  @ToClass(RoomDTO)
+  @CastResult(RoomDTO)
   public async findMany(control: ResultControlDTO = {}): Promise<RoomDTO[]> {
     const query = this.merge(control);
     const out = await this.modifyQuery(control, this.roomModel.find(query))

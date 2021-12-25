@@ -5,6 +5,9 @@ import {
 } from '@for-science/home-assistant';
 import {
   AutoLogService,
+  CacheManagerService,
+  InjectCache,
+  is,
   IsEmpty,
   JSONFilterService,
   OnEvent,
@@ -14,9 +17,15 @@ import { each } from 'async';
 
 import { StateChangeActivateDTO, StateChangeWatcher } from '../../contracts';
 
+const LATCH_KEY = (id: string) => `STATE_LATCH:${id}`;
+const DEBOUNCE_KEY = (id: string) => `STATE_DEBOUNCE:${id}`;
+const NO_ACTIVATIONS = 0;
+
 @Injectable()
 export class StateChangeActivateService {
   constructor(
+    @InjectCache()
+    private readonly cacheService: CacheManagerService,
     private readonly logger: AutoLogService,
     private readonly entityManager: EntityManagerService,
     private readonly jsonFilter: JSONFilterService,
@@ -42,6 +51,9 @@ export class StateChangeActivateService {
       ...activate,
       callback,
     });
+    if (!this.WATCHED_ENTITIES.has(activate.entity)) {
+      this.logger.debug(`Start watching {${activate.entity}}`);
+    }
     this.WATCHED_ENTITIES.set(activate.entity, list);
   }
 
@@ -60,7 +72,7 @@ export class StateChangeActivateService {
     await each(
       this.WATCHED_ENTITIES.get(data.entity_id),
       async (item, callback) => {
-        const valid = this.jsonFilter.match(
+        let valid = this.jsonFilter.match(
           { value: data.new_state.state },
           {
             field: 'value',
@@ -68,11 +80,56 @@ export class StateChangeActivateService {
             value: item.value,
           },
         );
+        if (await this.blockLatched(item, valid)) {
+          this.logger.debug(`${this.description(item)} currently latched`);
+          return callback();
+        }
+        valid = await this.debounce(item, valid);
         if (valid) {
           await item.callback();
         }
         callback();
       },
     );
+  }
+
+  private async blockLatched(
+    item: StateChangeWatcher,
+    currentState: boolean,
+  ): Promise<boolean> {
+    const { latch, id } = item;
+    if (!latch) {
+      return false;
+    }
+    const isLatched = await this.cacheService.get<boolean>(LATCH_KEY(id));
+    await this.cacheService.set(LATCH_KEY(id), currentState);
+    return currentState && isLatched;
+  }
+
+  private async debounce(
+    item: StateChangeWatcher,
+    currentState: boolean,
+  ): Promise<boolean> {
+    const { debounce, id } = item;
+    if (!is.number(debounce)) {
+      return currentState;
+    }
+    if (!currentState) {
+      return false;
+    }
+    const key = DEBOUNCE_KEY(id);
+    const now = Date.now();
+    const lastActivate =
+      (await this.cacheService.get<number>(key)) || NO_ACTIVATIONS;
+    if (lastActivate + debounce > now) {
+      this.logger.debug(`${this.description(item)} debounce`);
+      return false;
+    }
+    await this.cacheService.set(key, now);
+    return true;
+  }
+
+  private description(item: StateChangeWatcher): string {
+    return `[${item.entity}]${item.operation}{${item.value}}`;
   }
 }

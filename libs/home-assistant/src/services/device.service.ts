@@ -1,4 +1,4 @@
-import { AutoLogService } from '@for-science/utilities';
+import { AutoLogService, is } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 
 import {
@@ -20,7 +20,7 @@ export class DeviceService {
   public async findRelated(
     device: DeviceListItemDTO | string,
   ): Promise<RelatedDescriptionDTO> {
-    device = typeof device === 'string' ? device : device.id;
+    device = is.string(device) ? device : device.id;
     return await this.socketService.sendMsg<RelatedDescriptionDTO>({
       item_id: device,
       item_type: 'device',

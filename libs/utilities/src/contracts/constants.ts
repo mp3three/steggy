@@ -1,3 +1,5 @@
+import { is } from './is';
+
 export const EMPTY = 0;
 
 /**
@@ -6,7 +8,7 @@ export const EMPTY = 0;
 export function IsEmpty(
   type: string | Array<unknown> | Set<unknown> | Map<unknown, unknown>,
 ): boolean {
-  if (typeof type === 'string' || Array.isArray(type)) {
+  if (is.string(type) || Array.isArray(type)) {
     return type.length === EMPTY;
   }
   if (type instanceof Map || type instanceof Set) {

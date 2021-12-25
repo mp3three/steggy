@@ -1,3 +1,4 @@
+import { is } from '@for-science/utilities';
 import { applyDecorators } from '@nestjs/common';
 import { Transform } from 'class-transformer';
 import { Types } from 'mongoose';
@@ -10,7 +11,7 @@ import { Types } from 'mongoose';
 export function TransformObjectId(): PropertyDecorator {
   return applyDecorators(
     Transform(({ value }) => {
-      if (value && typeof value === 'object') {
+      if (value && is.object(value)) {
         return (value as Types.ObjectId).toHexString();
       }
       return value;

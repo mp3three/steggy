@@ -17,6 +17,7 @@ import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
+import { MENU_ITEMS } from '../../includes';
 import { SwitchService } from './switch.service';
 
 @Injectable()
@@ -85,6 +86,7 @@ export class FanService extends SwitchService {
 
   public async setSpeed(id: string): Promise<void> {
     const speed = await this.promptService.menu({
+      keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry(
         Object.keys(FanSpeeds)
           .reverse()

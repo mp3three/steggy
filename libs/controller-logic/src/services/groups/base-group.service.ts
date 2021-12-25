@@ -1,4 +1,4 @@
-import { AutoLogService } from '@for-science/utilities';
+import { AutoLogService, is } from '@for-science/utilities';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { v4 as uuid } from 'uuid';
@@ -134,7 +134,7 @@ export abstract class BaseGroupService {
   protected async loadGroup<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(group: GroupDTO<GROUP_TYPE> | string): Promise<GroupDTO<GROUP_TYPE>> {
-    if (typeof group === 'string') {
+    if (is.string(group)) {
       group = await this.groupPersistence.findById(group);
     }
     if (!group) {

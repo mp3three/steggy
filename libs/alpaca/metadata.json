@@ -1,0 +1,19 @@
+{
+  "configuration": {
+    "API_KEY": {
+      "type": "password",
+      "description": "API Key",
+      "required": true
+    },
+    "API_SECRET": {
+      "type": "password",
+      "description": "API Secret",
+      "required": true
+    },
+    "LIVE_TRADING": {
+      "type": "boolean",
+      "default": false,
+      "description": "Turn off paper trading"
+    }
+  }
+}

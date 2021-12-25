@@ -11,7 +11,8 @@
     "sort-keys-fix",
     "no-loops",
     "no-unsanitized",
-    "simple-import-sort"
+    "simple-import-sort",
+    "import"
   ],
   "overrides": [
     {
@@ -42,9 +43,10 @@
         "unicorn/no-await-expression-member": "off",
         "@typescript-eslint/require-array-sort-compare": "error",
         "@typescript-eslint/unbound-method": "error",
-
+        "import/no-extraneous-dependencies": ["error", { "packageDir": "./" }],
         "@typescript-eslint/member-ordering": [
-          2, {
+          1,
+          {
             "default": {
               "order": "alphabetically",
               "memberTypes": [
@@ -120,10 +122,12 @@
           {
             "enforceBuildableLibDependency": true,
             "allow": [],
-            "depConstraints": [{
-              "sourceTag": "*",
-              "onlyDependOnLibsWithTags": ["*"]
-            }]
+            "depConstraints": [
+              {
+                "sourceTag": "*",
+                "onlyDependOnLibsWithTags": ["*"]
+              }
+            ]
           }
         ],
         "unicorn/prevent-abbreviations": [

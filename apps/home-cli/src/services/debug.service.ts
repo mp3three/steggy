@@ -1,7 +1,6 @@
 import { HassNotificationDTO } from '@for-science/home-assistant';
 import {
   ConfigBuilderService,
-  DONE,
   ICONS,
   IsDone,
   PromptService,
@@ -12,6 +11,7 @@ import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
   InjectConfig,
+  is,
   IsEmpty,
   PackageJsonDTO,
   WorkspaceService,
@@ -24,6 +24,7 @@ import { Response } from 'node-fetch';
 import semver from 'semver';
 
 import { CLI_PACKAGE, CONTROLLER_PACKAGE } from '../config';
+import { MENU_ITEMS } from '../includes';
 import { HomeFetchService } from './home-fetch.service';
 
 @Repl({
@@ -71,9 +72,7 @@ For loop example getting entity values in the weather domain:
 
   public async exec(defaultAction?: string): Promise<void> {
     const action = await this.promptService.menu({
-      keyMap: {
-        d: [chalk.bold`Done`, DONE],
-      },
+      keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry([
         [`Manage configuration`, 'configure'],
         [`Controller version`, 'version'],
@@ -136,12 +135,13 @@ For loop example getting entity values in the weather domain:
       return;
     }
     const item = await this.promptService.menu<HassNotificationDTO>({
+      keyMap: { d: MENU_ITEMS.DONE },
       right: notifications.map((i) => ({ entry: [i.title, i] })),
     });
     if (IsDone(item)) {
       return;
     }
-    if (typeof item === 'string') {
+    if (is.string(item)) {
       throw new NotImplementedException();
     }
     await this.fetchService.fetch({
@@ -236,6 +236,7 @@ For loop example getting entity values in the weather domain:
       ].join(`\n`),
     );
     const action = await this.promptService.menu({
+      keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry([
         [chalk`Update using {blue yarn}`, `yarn`],
         [chalk`Update using {red npm}`, `npm`],

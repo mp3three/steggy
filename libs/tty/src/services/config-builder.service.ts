@@ -6,6 +6,7 @@ import {
   ConfigTypeDTO,
   DOWN,
   InjectLogger,
+  is,
   SCAN_CONFIG_CONFIGURATION,
   StringConfig,
   TitleCase,
@@ -27,7 +28,7 @@ import { get, set } from 'object-path';
 import { homedir } from 'os';
 import { join } from 'path';
 
-import { ICONS, IsDone } from '../contracts';
+import { DONE, ICONS, IsDone } from '../contracts';
 import { ToMenuEntry } from '../inquirer';
 import { PromptEntry, PromptService } from './prompt.service';
 
@@ -63,6 +64,7 @@ export class ConfigBuilderService {
     const application =
       initialApp ||
       (await this.promptService.menu({
+        keyMap: {},
         right: ToMenuEntry(this.applicationChoices()),
         rightHeader: `Application choices`,
       }));
@@ -80,10 +82,14 @@ export class ConfigBuilderService {
   public async handleConfig(
     application: string | symbol = this.activeApplication,
   ): Promise<void> {
-    application =
-      typeof application === 'string' ? application : application.description;
+    application = is.string(application)
+      ? application
+      : application.description;
     this.loadConfig(application);
     const action = await this.promptService.menu({
+      keyMap: {
+        d: [chalk.bold`Done`, DONE],
+      },
       right: ToMenuEntry([
         [`${ICONS.EDIT}Edit`, 'edit'],
         [`${ICONS.DESCRIBE}Show`, 'describe'],
@@ -117,7 +123,7 @@ export class ConfigBuilderService {
         const { targets } = projects[item];
         const scanner =
           targets?.build?.configurations[SCAN_CONFIG_CONFIGURATION];
-        return typeof scanner !== 'undefined';
+        return !is.undefined(scanner);
       })
       .map((item) => {
         const tag = existsSync(join(homedir(), '.config', item))
@@ -162,10 +168,9 @@ export class ConfigBuilderService {
     });
     const build: PromptEntry<ConfigTypeDTO>[] = [];
     config.forEach((entry) => {
-      entry.metadata.configurable =
-        typeof entry.metadata.configurable === 'undefined'
-          ? true
-          : entry.metadata.configurable;
+      entry.metadata.configurable = is.undefined(entry.metadata.configurable)
+        ? true
+        : entry.metadata.configurable;
       if (entry.metadata.configurable === false) {
         return;
       }
@@ -232,10 +237,10 @@ export class ConfigBuilderService {
 
   private colorDefault(entry: ConfigTypeDTO, max: number): string {
     const defaultValue = entry.default;
-    if (typeof defaultValue === 'undefined' || defaultValue === '') {
+    if (is.undefined(defaultValue) || defaultValue === '') {
       return chalk.gray(`none`.padEnd(max, ' '));
     }
-    if (typeof defaultValue === 'number') {
+    if (is.number(defaultValue)) {
       return chalk.yellowBright(
         (defaultValue > COMMAIFY
           ? defaultValue.toLocaleString()
@@ -243,10 +248,10 @@ export class ConfigBuilderService {
         ).padEnd(max, ' '),
       );
     }
-    if (typeof defaultValue === 'boolean') {
+    if (is.boolean(defaultValue)) {
       return chalk.blueBright(defaultValue.toString().padEnd(max, ' '));
     }
-    if (typeof defaultValue !== 'string') {
+    if (is.string(defaultValue)) {
       return chalk.magentaBright(defaultValue.toString().padEnd(max, ' '));
     }
     return chalk.whiteBright(defaultValue.toString().padEnd(max, ' '));

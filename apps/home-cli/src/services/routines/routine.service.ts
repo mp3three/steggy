@@ -8,7 +8,6 @@ import {
   RoutineDTO,
 } from '@for-science/controller-logic';
 import {
-  DONE,
   ICONS,
   IsDone,
   PinnedItemService,
@@ -17,13 +16,20 @@ import {
   Repl,
   ToMenuEntry,
 } from '@for-science/tty';
-import { IsEmpty, ResultControlDTO, TitleCase } from '@for-science/utilities';
+import {
+  CacheManagerService,
+  InjectCache,
+  is,
+  IsEmpty,
+  ResultControlDTO,
+  TitleCase,
+} from '@for-science/utilities';
 import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';
-import inquirer from 'inquirer';
 
+import { MENU_ITEMS } from '../../includes';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';
 import { RoutineActivateService } from './routine-activate.service';
@@ -33,6 +39,7 @@ type RCService = RoomCommandService;
 type RService = RoutineCommandService;
 const MILLISECONDS = 1000;
 const SOLO = 1;
+const CACHE_KEY = `MENU_LAST_ROUTINE`;
 
 @Repl({
   category: 'Control',
@@ -42,6 +49,8 @@ const SOLO = 1;
 })
 export class RoutineService {
   constructor(
+    @InjectCache()
+    private readonly cache: CacheManagerService,
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
     private readonly activateService: RoutineActivateService,
@@ -52,12 +61,14 @@ export class RoutineService {
     private readonly pinnedItems: PinnedItemService,
   ) {}
 
+  private lastRoutine: string;
+
   public async create(room?: RoomDTO | string): Promise<RoutineDTO> {
     const friendlyName = await this.promptService.friendlyName();
     return await this.fetchService.fetch<RoutineDTO, RoutineDTO>({
       body: {
         friendlyName,
-        room: typeof room === 'string' ? room : room?._id,
+        room: is.string(room) ? room : room?._id,
       },
       method: `post`,
       url: `/routine`,
@@ -79,18 +90,17 @@ export class RoutineService {
     });
     let action = await this.promptService.menu<RoutineDTO | string>({
       keyMap: {
-        a: [all ? 'Show detached routines' : 'Show all routines', 'all'],
-        c: [`${ICONS.CREATE}Create new`, 'create'],
-        d: [chalk.bold`Done`, DONE],
+        a: [
+          all
+            ? chalk.dim.magenta('Show detached routines')
+            : chalk.dim.blue('Show all routines'),
+          'all',
+        ],
+        c: MENU_ITEMS.CREATE,
+        d: MENU_ITEMS.DONE,
       },
-      right: ToMenuEntry(
-        this.promptService.conditionalEntries(!IsEmpty(list), [
-          ...(list.map((i) => [
-            i.friendlyName,
-            i,
-          ]) as PromptEntry<RoutineDTO>[]),
-        ]),
-      ),
+      right: ToMenuEntry(list.map((i) => [i.friendlyName, i])),
+      value: this.lastRoutine,
     });
     if (IsDone(action)) {
       return;
@@ -101,9 +111,11 @@ export class RoutineService {
     if (action === 'create') {
       action = await this.create();
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       throw new NotImplementedException();
     }
+    this.lastRoutine = action._id;
+    await this.cache.set(CACHE_KEY, action._id);
     await this.processRoutine(action);
   }
 
@@ -129,8 +141,7 @@ export class RoutineService {
     }
     defaultValue = inList.find(
       ({ _id }) =>
-        _id ===
-        (typeof defaultValue === 'string' ? defaultValue : defaultValue?._id),
+        _id === (is.string(defaultValue) ? defaultValue : defaultValue?._id),
     );
     return await this.promptService.pickOne(
       `Pick a routine`,
@@ -145,15 +156,12 @@ export class RoutineService {
       control.filters ??= new Set();
       control.filters.add({
         field: 'room',
-        value: typeof room === 'string' ? room : room._id,
+        value: is.string(room) ? room : room._id,
       });
     }
     const current = await this.list(control);
     let action = await this.promptService.menu({
-      keyMap: {
-        c: [`${ICONS.CREATE}Create`, 'create'],
-        d: [chalk.bold`Done`, DONE],
-      },
+      keyMap: { c: MENU_ITEMS.CREATE, d: MENU_ITEMS.DONE },
       right: ToMenuEntry(
         current.map((item) => [
           item.friendlyName,
@@ -168,7 +176,7 @@ export class RoutineService {
       room = room || (await this.roomCommand.pickOne());
       action = await this.create(room);
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       throw new NotImplementedException();
     }
     await this.processRoutine(action);
@@ -179,22 +187,21 @@ export class RoutineService {
     defaultAction?: string,
   ): Promise<void> {
     await this.header(routine);
-    const [activate, events, command] = [
-      [`${ICONS.ACTIVATE}Manual activate`, 'activate'],
+    const [events, command] = [
       [`${ICONS.EVENT}Activation Events`, 'events'],
       [`${ICONS.COMMAND}Commands`, 'command'],
     ] as PromptEntry[];
     const action = await this.promptService.menu({
       keyMap: {
-        a: activate,
+        a: events,
         c: command,
-        d: [chalk.bold`Done`, DONE],
-        e: events,
+        d: MENU_ITEMS.DONE,
+        m: MENU_ITEMS.ACTIVATE,
         p: [
           this.pinnedItems.isPinned('routine', routine._id) ? 'Unpin' : 'Pin',
           'pin',
         ],
-        r: [`${ICONS.RENAME}Rename`, 'rename'],
+        r: MENU_ITEMS.RENAME,
         s: [
           routine.sync
             ? `${ICONS.SWAP}Run commands in parallel`
@@ -203,7 +210,7 @@ export class RoutineService {
         ],
         x: [`${ICONS.DELETE}Delete`, 'delete'],
       },
-      right: ToMenuEntry([activate, events, command]),
+      right: ToMenuEntry([MENU_ITEMS.ACTIVATE, events, command]),
       rightHeader: `Manage routine`,
       value: defaultAction,
     });
@@ -265,7 +272,7 @@ export class RoutineService {
   public async promptActivate(routine: RoutineDTO): Promise<void> {
     const action = await this.promptService.menu({
       keyMap: {
-        d: [chalk.bold`Done`, DONE],
+        d: MENU_ITEMS.DONE,
       },
       right: ToMenuEntry([
         [`Immediate`, 'immediate'],
@@ -322,7 +329,8 @@ export class RoutineService {
     });
   }
 
-  protected onModuleInit(): void {
+  protected async onModuleInit(): Promise<void> {
+    this.lastRoutine = await this.cache.get(CACHE_KEY);
     this.pinnedItems.loaders.set('routine', async ({ id }) => {
       const routine = await this.get(id);
       await this.processRoutine(routine);

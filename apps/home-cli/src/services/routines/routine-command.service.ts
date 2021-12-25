@@ -17,14 +17,13 @@ import {
   RoutineDTO,
 } from '@for-science/controller-logic';
 import {
-  DONE,
   ICONS,
   IsDone,
   PromptEntry,
   PromptService,
   ToMenuEntry,
 } from '@for-science/tty';
-import { IsEmpty, TitleCase } from '@for-science/utilities';
+import { is, IsEmpty, START, TitleCase } from '@for-science/utilities';
 import {
   forwardRef,
   Inject,
@@ -36,6 +35,7 @@ import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
 import { v4 as uuid } from 'uuid';
 
+import { MENU_ITEMS } from '../../includes';
 import { GroupCommandService, GroupStateService } from '../groups';
 import { EntityService } from '../home-assistant/entity.service';
 import { RoomCommandService, RoomStateService } from '../rooms';
@@ -52,7 +52,6 @@ import { RoutineService } from './routine.service';
 type RService = RoutineService;
 type RSService = RoomStateService;
 type RCService = RoomCommandService;
-const START = 0;
 
 @Injectable()
 export class RoutineCommandService {
@@ -226,7 +225,7 @@ export class RoutineCommandService {
         const roomStateCommand = (current?.command ??
           {}) as RoutineCommandRoomStateDTO;
         room = await this.roomCommand.get(
-          typeof roomStateCommand.room === 'string'
+          is.string(roomStateCommand.room)
             ? roomStateCommand.room
             : roomStateCommand.room._id,
         );
@@ -298,10 +297,13 @@ export class RoutineCommandService {
     command: RoutineCommandDTO,
   ): Promise<RoutineDTO> {
     const action = await this.promptService.menu({
+      keyMap: {
+        d: MENU_ITEMS.DELETE,
+        x: MENU_ITEMS.DELETE,
+      },
       right: ToMenuEntry([
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
-        [`${ICONS.EDIT}Edit`, 'edit'],
-        [`${ICONS.DELETE}Delete`, 'delete'],
+        MENU_ITEMS.EDIT,
       ]),
       rightHeader: `Routine command actions`,
     });
@@ -342,8 +344,9 @@ export class RoutineCommandService {
   public async processRoutine(routine: RoutineDTO): Promise<RoutineDTO> {
     routine.command ??= [];
     const action = await this.promptService.menu({
+      keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry([
-        [`${ICONS.CREATE}Add`, 'add'],
+        MENU_ITEMS.ADD,
         [`${ICONS.SWAP}Sort`, 'sort'],
         ...this.promptService.conditionalEntries(!IsEmpty(routine.command), [
           new inquirer.Separator(chalk.white`Current commands`),
@@ -369,7 +372,7 @@ export class RoutineCommandService {
         routine = await this.routineCommand.update(routine);
         return await this.processRoutine(routine);
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       throw new NotImplementedException();
     }
     routine = await this.process(routine, action);

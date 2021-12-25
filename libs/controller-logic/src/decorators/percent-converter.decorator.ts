@@ -1,3 +1,5 @@
+import { is } from '@for-science/utilities';
+
 const MULTIPLIER = 2.55;
 
 export function PercentConverter(): MethodDecorator {
@@ -9,12 +11,12 @@ export function PercentConverter(): MethodDecorator {
     const original = descriptor.value;
     descriptor.value = function (...parameters) {
       const result = Reflect.apply(original, this, parameters);
-      if (typeof result === 'number') {
+      if (is.number(result)) {
         return Math.ceil(result * MULTIPLIER);
       }
       return new Promise(async (done) => {
         const out = await result;
-        if (typeof out !== 'number') {
+        if (!is.number(out)) {
           return done(out);
         }
         return done(Math.ceil(out * MULTIPLIER));

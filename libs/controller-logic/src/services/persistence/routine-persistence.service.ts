@@ -1,5 +1,10 @@
 import { BaseMongoService, BaseSchemaDTO } from '@for-science/persistence';
-import { AutoLogService, ResultControlDTO, ToClass } from '@for-science/utilities';
+import {
+  AutoLogService,
+  CastResult,
+  is,
+  ResultControlDTO,
+} from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import EventEmitter from 'eventemitter3';
@@ -18,7 +23,7 @@ export class RoutinePersistenceService extends BaseMongoService {
     super();
   }
 
-  @ToClass(RoutineDTO)
+  @CastResult(RoutineDTO)
   public async create(state: RoutineDTO): Promise<RoutineDTO> {
     const out = (await this.model.create(state)).toObject() as RoutineDTO;
     this.eventEmitter.emit(ROUTINE_UPDATE);
@@ -26,7 +31,7 @@ export class RoutinePersistenceService extends BaseMongoService {
   }
 
   public async delete(state: RoutineDTO | string): Promise<boolean> {
-    const query = this.merge(typeof state === 'string' ? state : state._id);
+    const query = this.merge(is.string(state) ? state : state._id);
     this.logger.debug({ query }, `delete query`);
     const result = await this.model
       .updateOne(query, {
@@ -37,7 +42,7 @@ export class RoutinePersistenceService extends BaseMongoService {
     return result.acknowledged;
   }
 
-  @ToClass(RoutineDTO)
+  @CastResult(RoutineDTO)
   public async findById(
     state: string,
     { control }: { control?: ResultControlDTO } = {},
@@ -48,7 +53,7 @@ export class RoutinePersistenceService extends BaseMongoService {
       .exec()) as RoutineDTO;
   }
 
-  @ToClass(RoutineDTO)
+  @CastResult(RoutineDTO)
   public async findMany(control: ResultControlDTO = {}): Promise<RoutineDTO[]> {
     const query = this.merge(control);
     const out = (await this.modifyQuery(control, this.model.find(query))

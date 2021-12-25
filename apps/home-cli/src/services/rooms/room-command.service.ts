@@ -5,7 +5,6 @@ import {
 } from '@for-science/controller-logic';
 import { HASS_DOMAINS } from '@for-science/home-assistant';
 import {
-  DONE,
   ICONS,
   IsDone,
   PinnedItemService,
@@ -16,36 +15,38 @@ import {
 } from '@for-science/tty';
 import {
   AutoLogService,
+  CacheManagerService,
   DOWN,
   FILTER_OPERATIONS,
+  InjectCache,
+  is,
   IsEmpty,
+  LABEL,
   UP,
 } from '@for-science/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
-import { encode } from 'ini';
 import inquirer from 'inquirer';
 
+import { MENU_ITEMS } from '../../includes';
 import { GroupCommandService } from '../groups/group-command.service';
 import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoutineService } from '../routines';
 import { RoomStateService } from './room-state.service';
 
-const NAME = 0;
+const CACHE_KEY = 'MENU_LAST_ROOM';
 
 @Repl({
   category: `Control`,
-  description: [
-    `Rooms can contain groups and entitites, and are intended to manage the state of all items inside of it as a whole.`,
-    `Rooms can observe entities for state changes, and trigger routines to make changes to the state.`,
-  ],
   icon: ICONS.ROOMS,
   keybind: 'r',
   name: `Rooms`,
 })
 export class RoomCommandService {
   constructor(
+    @InjectCache()
+    private readonly cache: CacheManagerService,
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
@@ -81,13 +82,13 @@ export class RoomCommandService {
     const rooms = await this.list();
     let room = await this.promptService.menu<RoomDTO | string>({
       keyMap: {
-        c: [`${ICONS.CREATE}Create`, 'create'],
-        d: [chalk.bold`Done`, DONE],
+        c: MENU_ITEMS.CREATE,
+        d: MENU_ITEMS.DONE,
       },
       right: ToMenuEntry(
         rooms
           .map((room) => [room.friendlyName, room] as PromptEntry<RoomDTO>)
-          .sort((a, b) => (a[NAME] > b[NAME] ? UP : DOWN)),
+          .sort((a, b) => (a[LABEL] > b[LABEL] ? UP : DOWN)),
       ),
       rightHeader: `Pick room`,
       value: this.lastRoom
@@ -100,9 +101,10 @@ export class RoomCommandService {
     if (room === 'create') {
       room = await this.create();
     }
-    if (typeof room === 'string') {
+    if (is.string(room)) {
       throw new NotImplementedException();
     }
+    await this.cache.set(CACHE_KEY, room._id);
     this.lastRoom = room._id;
     return await this.processRoom(room);
   }
@@ -121,10 +123,9 @@ export class RoomCommandService {
 
   public async pickOne(current?: RoomDTO | string): Promise<RoomDTO> {
     const rooms = await this.list();
-    current =
-      typeof current === 'string'
-        ? rooms.find(({ _id }) => _id === current)
-        : current;
+    current = is.string(current)
+      ? rooms.find(({ _id }) => _id === current)
+      : current;
     const room = await this.promptService.pickOne<RoomDTO | string>(
       `Pick a room`,
       [
@@ -139,7 +140,7 @@ export class RoomCommandService {
     if (room === `create`) {
       return await this.create();
     }
-    if (typeof room === `string`) {
+    if (is.string(room)) {
       throw new NotImplementedException();
     }
     return room;
@@ -165,28 +166,21 @@ export class RoomCommandService {
         });
 
     room.save_states ??= [];
-    const [routines, states, entities] = [
-      [`${ICONS.ROUTINE}Routines`, 'routines'],
-      [`${ICONS.STATE_MANAGER}State Manager`, 'states'],
-      [`${ICONS.ENTITIES}Entities`, 'entities'],
-    ] as PromptEntry[];
     const action = await this.promptService.menu<
       GroupDTO | { entity_id: string }
     >({
       keyMap: {
-        a: ['Add entities', 'add-entities'],
-        d: [chalk.bold`Done`, DONE],
-        e: entities,
-        g: [`${ICONS.GROUPS}Groups`, 'groups'],
-        m: ['Remove entities', 'remove-entities'],
+        d: MENU_ITEMS.DONE,
+        e: MENU_ITEMS.ENTITIES,
+        g: MENU_ITEMS.GROUPS,
         p: [
           this.pinnedItems.isPinned('room', room._id) ? 'Unpin' : 'pin',
           'pin',
         ],
-        r: [`${ICONS.RENAME}Rename`, 'rename'],
-        s: states,
-        t: routines,
-        x: [`${ICONS.DELETE}Delete`, 'delete'],
+        r: MENU_ITEMS.RENAME,
+        s: MENU_ITEMS.STATE_MANAGER,
+        t: MENU_ITEMS.ROUTINES,
+        x: MENU_ITEMS.DELETE,
       },
       left: ToMenuEntry([
         ...this.promptService.conditionalEntries(!IsEmpty(room.entities), [
@@ -203,10 +197,10 @@ export class RoomCommandService {
         ]),
       ] as PromptEntry[]),
       right: ToMenuEntry([
-        routines,
-        states,
-        entities,
-        [`${ICONS.GROUPS}Groups`, 'groups'],
+        MENU_ITEMS.ROUTINES,
+        MENU_ITEMS.STATE_MANAGER,
+        MENU_ITEMS.ENTITIES,
+        MENU_ITEMS.GROUPS,
       ]),
       showHeaders: false,
       value: defaultAction,
@@ -214,7 +208,7 @@ export class RoomCommandService {
     if (IsDone(action)) {
       return;
     }
-    if (typeof action === 'object') {
+    if (is.object(action)) {
       if (GroupDTO.isGroup(action)) {
         return await this.groupCommand.process(action);
       }
@@ -241,19 +235,11 @@ export class RoomCommandService {
         );
         room = await this.update(room);
         return await this.processRoom(room, action);
-      case 'add-entities':
-        const entityAppend = await this.buildEntityList(
+      case 'entities':
+        room.entities = await this.buildEntityList(
           room.entities.map((item) => item.entity_id),
         );
-        if (IsEmpty(entityAppend)) {
-          this.logger.debug(`Nothing to add`);
-          return;
-        }
-        room.entities.push(...entityAppend);
         room = await this.update(room);
-        return await this.processRoom(room, action);
-      case 'remove-entities':
-        room = await this.removeEntities(room);
         return await this.processRoom(room, action);
       case 'delete':
         if (
@@ -286,14 +272,17 @@ export class RoomCommandService {
     });
   }
 
-  protected onModuleInit(): void {
+  protected async onModuleInit(): Promise<void> {
+    this.lastRoom = await this.cache.get(CACHE_KEY);
     this.pinnedItems.loaders.set('room', async ({ id }) => {
       const room = await this.get(id);
       await this.processRoom(room);
     });
   }
 
-  private async buildEntityList(omit: string[] = []): Promise<RoomEntityDTO[]> {
+  private async buildEntityList(
+    current: string[] = [],
+  ): Promise<RoomEntityDTO[]> {
     const ids = await this.entityService.buildList(
       [
         HASS_DOMAINS.climate,
@@ -304,7 +293,7 @@ export class RoomCommandService {
         HASS_DOMAINS.sensor,
         HASS_DOMAINS.switch,
       ],
-      { omit },
+      { current },
     );
     return ids.map((entity_id) => ({
       entity_id,

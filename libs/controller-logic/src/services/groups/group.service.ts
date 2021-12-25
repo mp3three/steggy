@@ -1,6 +1,6 @@
 import { domain, HASS_DOMAINS } from '@for-science/home-assistant';
 import { BaseSchemaDTO } from '@for-science/persistence';
-import { AutoLogService, ResultControlDTO } from '@for-science/utilities';
+import { AutoLogService, is, ResultControlDTO } from '@for-science/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 
@@ -55,7 +55,7 @@ export class GroupService {
     group: GroupDTO | string,
     entity: string | string[],
   ): Promise<GroupDTO<GROUP_TYPE>> {
-    entity = typeof entity === 'string' ? [entity] : entity;
+    entity = is.string(entity) ? [entity] : entity;
     group = await this.load(group);
     group.entities = [
       ...group.entities.filter((id) => !entity.includes(id)),
@@ -91,7 +91,7 @@ export class GroupService {
   }
 
   public async delete(group: GroupDTO | string): Promise<boolean> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     return await this.groupPersistence.delete(group);
   }
 
@@ -138,7 +138,7 @@ export class GroupService {
   public async load<T extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
     group: GroupDTO<T> | string,
   ): Promise<GroupDTO<T>> {
-    if (typeof group === 'object') {
+    if (is.object(group)) {
       return group;
     }
     return await this.groupPersistence.findById(group);
@@ -150,7 +150,7 @@ export class GroupService {
     group: GroupDTO | string,
     entity: string | string[],
   ): Promise<GroupDTO<GROUP_TYPE>> {
-    entity = typeof entity === 'string' ? [entity] : entity;
+    entity = is.string(entity) ? [entity] : entity;
     group = await this.load(group);
     group.entities = group.entities.filter((id) => !entity.includes(id));
     return this.update(group._id, group);

@@ -1,7 +1,8 @@
 import { StateChangeActivateDTO } from '@for-science/controller-logic';
 import { PromptEntry, PromptService } from '@for-science/tty';
-import { FILTER_OPERATIONS, FilterValueType } from '@for-science/utilities';
+import { FILTER_OPERATIONS, FilterValueType, is } from '@for-science/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
+import { v4 as uuid } from 'uuid';
 
 import { EntityService } from '../../home-assistant/entity.service';
 
@@ -40,9 +41,12 @@ export class StateChangeBuilderService {
       ['Regular Expression Match', FILTER_OPERATIONS.regex],
     ] as PromptEntry<FILTER_OPERATIONS>[]);
     const value = await this.getValue(operation, current.value);
+    const latch = await this.promptService.boolean('Latch', current.latch);
 
     return {
       entity,
+      id: current.id ?? uuid(),
+      latch,
       operation,
       value,
     };
@@ -57,7 +61,7 @@ export class StateChangeBuilderService {
       case FILTER_OPERATIONS.ne:
         return await this.promptService.string(
           CMP,
-          typeof current === 'string' ? current : ``,
+          is.string(current) ? current : ``,
         );
       case FILTER_OPERATIONS.lt:
       case FILTER_OPERATIONS.lte:
@@ -70,9 +74,7 @@ export class StateChangeBuilderService {
       case FILTER_OPERATIONS.nin:
         return await this.listValue(Array.isArray(current) ? current : []);
       case FILTER_OPERATIONS.regex:
-        return await this.regexValue(
-          typeof current === 'string' ? current : ``,
-        );
+        return await this.regexValue(is.string(current) ? current : ``);
     }
     return [];
   }
@@ -100,7 +102,7 @@ export class StateChangeBuilderService {
       case 'number':
         return await this.promptService.number(
           CMP,
-          typeof current === 'number' ? current : undefined,
+          is.number(current) ? current : undefined,
         );
       case 'date':
         return this.promptService.date(

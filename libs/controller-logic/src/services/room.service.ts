@@ -2,6 +2,7 @@ import { domain } from '@for-science/home-assistant';
 import { BaseSchemaDTO } from '@for-science/persistence';
 import {
   AutoLogService,
+  is,
   IsEmpty,
   ResultControlDTO,
 } from '@for-science/utilities';
@@ -104,7 +105,7 @@ export class RoomService {
   }
 
   public async delete(room: RoomDTO | string): Promise<boolean> {
-    room = typeof room === 'string' ? room : room._id;
+    room = is.string(room) ? room : room._id;
     return await this.roomPersistence.delete(room);
   }
 
@@ -189,7 +190,7 @@ export class RoomService {
   }
 
   private async load(room: RoomDTO | string): Promise<RoomDTO> {
-    if (typeof room === 'string') {
+    if (is.string(room)) {
       room = await this.roomPersistence.findById(room);
     }
     if (!room) {

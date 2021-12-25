@@ -12,8 +12,10 @@ import {
 } from '@for-science/tty';
 import { AutoLogService, IsEmpty } from '@for-science/utilities';
 import { forwardRef, Inject } from '@nestjs/common';
+import chalk from 'chalk';
 import { encode } from 'ini';
 
+import { MENU_ITEMS } from '../../includes';
 import { HomeFetchService } from '../home-fetch.service';
 import { EntityService } from './entity.service';
 
@@ -21,6 +23,8 @@ const SINGLE_ITEM = 1;
 @Repl({
   category: `Home Assistant`,
   icon: ICONS.DEVICE,
+  keyOnly: true,
+  keybind: 'v',
   name: `Devices`,
 })
 export class DeviceService {
@@ -34,14 +38,19 @@ export class DeviceService {
 
   public async entities(device: DeviceListItemDTO): Promise<void> {
     const inspect = await this.inspect(device);
-    const entity = await this.promptService.autocomplete(
-      'Pick an entity',
-      inspect.entity,
-    );
-    await this.entityService.process(entity);
-    if (await this.promptService.confirm('Again?')) {
-      return await this.entities(device);
+    if (IsEmpty(inspect.entity)) {
+      console.log(chalk` {yellow.bold !!!} No entities attached to device`);
+      await this.promptService.acknowledge();
+      return;
     }
+    const entity = await this.promptService.menu({
+      keyMap: { d: MENU_ITEMS.DONE },
+      right: ToMenuEntry(inspect.entity.map((i) => [i, i])),
+    });
+    if (IsDone(entity)) {
+      return;
+    }
+    await this.entityService.process(entity);
   }
 
   public async exec(): Promise<void> {
@@ -56,12 +65,14 @@ export class DeviceService {
     if (inList.length === SINGLE_ITEM) {
       return devices.find(({ id }) => inList.includes(id));
     }
-    return await this.promptService.autocomplete(
-      `Pick a device`,
-      devices
-        .map((item) => ({ name: item.name, value: item }))
-        .filter(({ value }) => IsEmpty(inList) || inList.includes(value.id)),
-    );
+    return (await this.promptService.menu<DeviceListItemDTO>({
+      keyMap: {},
+      right: ToMenuEntry(
+        devices
+          .filter((value) => IsEmpty(inList) || inList.includes(value.id))
+          .map((item) => [item.name, item]),
+      ),
+    })) as DeviceListItemDTO;
   }
 
   public async process(
@@ -69,9 +80,10 @@ export class DeviceService {
     defaultValue?: string,
   ): Promise<void> {
     const action = await this.promptService.menu({
+      keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry([
         [`${ICONS.DESCRIBE}Describe`, 'describe'],
-        [`${ICONS.ENTITIES}Entities`, 'entities'],
+        MENU_ITEMS.ENTITIES,
       ]),
       value: defaultValue,
     });

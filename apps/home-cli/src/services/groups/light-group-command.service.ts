@@ -14,7 +14,13 @@ import {
   PromptService,
   RGB,
 } from '@for-science/tty';
-import { AutoLogService, DOWN, TitleCase, UP } from '@for-science/utilities';
+import {
+  AutoLogService,
+  DOWN,
+  is,
+  TitleCase,
+  UP,
+} from '@for-science/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 import chalk from 'chalk';
@@ -65,7 +71,7 @@ export class LightGroupCommandService {
   };
 
   public async circadianOn(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/circadianOn`,
@@ -130,7 +136,7 @@ export class LightGroupCommandService {
   }
 
   public async dimDown(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/dimDown`,
@@ -138,7 +144,7 @@ export class LightGroupCommandService {
   }
 
   public async dimUp(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/dimUp`,
@@ -158,9 +164,9 @@ export class LightGroupCommandService {
   }
 
   public async header(group: GroupDTO): Promise<void> {
-    this.promptService.scriptHeader(`Group`);
-    this.promptService.secondaryHeader(group.friendlyName);
-    console.log(chalk.yellow.bold`${TitleCase(group.type)} Group\n`);
+    this.promptService.scriptHeader(group.friendlyName);
+    this.promptService.secondaryHeader(`${TitleCase(group.type)} Group`);
+    console.log();
     let maxId = 0;
     let maxName = 0;
     const lines: string[][] = [];
@@ -265,7 +271,7 @@ export class LightGroupCommandService {
   }
 
   public async refresh(group: GroupDTO | string): Promise<GroupDTO> {
-    if (typeof group === 'string') {
+    if (is.string(group)) {
       return await this.fetchService.fetch({
         url: `/group/${group}`,
       });
@@ -299,7 +305,7 @@ export class LightGroupCommandService {
   }
 
   public async turnOff(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/turnOff`,
@@ -307,7 +313,7 @@ export class LightGroupCommandService {
   }
 
   public async turnOn(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/turnOn`,

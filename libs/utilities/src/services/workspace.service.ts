@@ -5,7 +5,7 @@ import { homedir } from 'os';
 import { dirname, join } from 'path';
 import { cwd } from 'process';
 
-import { LIB_UTILS } from '..';
+import { LIB_UTILS } from '../config';
 import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
@@ -19,8 +19,8 @@ import {
   PACKAGE_FILE,
   PackageJsonDTO,
   RepoMetadataDTO,
+  is,
 } from '../contracts';
-import { InjectLogger } from '../decorators/injectors/inject-logger.decorator';
 import { AutoLogService } from './auto-log.service';
 
 /**
@@ -121,7 +121,7 @@ export class WorkspaceService {
   }
 
   public isProject(project: string): boolean {
-    return typeof this.workspace.projects[project] !== 'undefined';
+    return !is.undefined(this.workspace.projects[project]);
   }
 
   public list(type: NXProjectTypes): string[] {

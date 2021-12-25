@@ -2,7 +2,9 @@ import { EcobeeClimateStateDTO } from '@for-science/home-assistant';
 import { DONE, IsDone, PromptEntry, ToMenuEntry } from '@for-science/tty';
 import { TitleCase } from '@for-science/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
+import chalk from 'chalk';
 
+import { MENU_ITEMS } from '../../includes';
 import { SwitchService } from './switch.service';
 
 @Injectable()
@@ -38,6 +40,7 @@ export class ClimateService extends SwitchService {
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
     const mode = await this.promptService.menu({
+      keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry(
         state.attributes.fan_modes.map((mode) => [TitleCase(mode), mode]),
       ),
@@ -67,6 +70,7 @@ export class ClimateService extends SwitchService {
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
     const mode = await this.promptService.menu({
+      keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry(
         state.attributes.hvac_modes.map((mode) => [TitleCase(mode), mode]),
       ),
@@ -87,6 +91,7 @@ export class ClimateService extends SwitchService {
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
     const mode = await this.promptService.menu({
+      keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry(
         state.attributes.preset_modes.map((mode) => [TitleCase(mode), mode]),
       ),
@@ -107,6 +112,7 @@ export class ClimateService extends SwitchService {
     state: EcobeeClimateStateDTO,
   ): Promise<void> {
     const mode = await this.promptService.menu({
+      keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry(
         state.attributes.swing_modes.map((mode) => [TitleCase(mode), mode]),
       ),
