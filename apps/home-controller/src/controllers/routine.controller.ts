@@ -1,4 +1,20 @@
 import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import {
+  ApiBody,
+  ApiExtraModels,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
   KunamiCodeActivateDTO,
   RoomEntitySaveStateDTO,
   RoutineActivateOptionsDTO,
@@ -20,22 +36,6 @@ import {
   Locals,
   ResponseLocals,
 } from '@text-based/server';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-} from '@nestjs/common';
-import {
-  ApiBody,
-  ApiExtraModels,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
 
 @Controller(`/routine`)
 @AuthStack()

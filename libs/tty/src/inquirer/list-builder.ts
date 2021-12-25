@@ -1,3 +1,4 @@
+import { INestApplication } from '@nestjs/common';
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -11,7 +12,6 @@ import {
   UP,
   VALUE,
 } from '@text-based/utilities';
-import { INestApplication } from '@nestjs/common';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';

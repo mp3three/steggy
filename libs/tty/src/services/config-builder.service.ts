@@ -1,4 +1,9 @@
 import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import {
   AbstractConfig,
   ACTIVE_APPLICATION,
   AutoConfigService,
@@ -13,11 +18,6 @@ import {
   UP,
   WorkspaceService,
 } from '@text-based/utilities';
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import execa from 'execa';

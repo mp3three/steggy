@@ -1,4 +1,14 @@
 import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
   ENTITY_EXTRAS_SCHEMA,
   GENERIC_COMMANDS,
   ROOM_ENTITY_EXTRAS,
@@ -16,16 +26,6 @@ import {
   Locals,
   ResponseLocals,
 } from '@text-based/server';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-} from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('/group')
 @ApiTags('group')

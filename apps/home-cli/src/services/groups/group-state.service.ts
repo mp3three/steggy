@@ -1,4 +1,11 @@
 import {
+  forwardRef,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotImplementedException,
+} from '@nestjs/common';
+import {
   GroupDTO,
   GroupSaveStateDTO,
   RoomDTO,
@@ -14,13 +21,6 @@ import {
   ToMenuEntry,
 } from '@text-based/tty';
 import { AutoLogService, is, IsEmpty } from '@text-based/utilities';
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  NotImplementedException,
-} from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';

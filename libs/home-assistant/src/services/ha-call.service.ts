@@ -1,5 +1,5 @@
-import { IsEmpty } from '@text-based/utilities';
 import { Injectable, Scope } from '@nestjs/common';
+import { IsEmpty } from '@text-based/utilities';
 
 import { HASS_DOMAINS, HASSIO_WS_COMMAND, HassStateDTO } from '../contracts';
 import { HASocketAPIService } from './ha-socket-api.service';

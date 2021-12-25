@@ -1,6 +1,6 @@
+import { Injectable } from '@nestjs/common';
 import { RoutineCommandStopProcessing } from '@text-based/controller-logic';
 import { PromptService } from '@text-based/tty';
-import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class StopProcessingService {

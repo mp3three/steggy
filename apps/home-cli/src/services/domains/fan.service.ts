@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   FanCacheDTO,
   FanCacheSpeeds,
@@ -13,7 +14,6 @@ import {
   ToMenuEntry,
 } from '@text-based/tty';
 import { TitleCase } from '@text-based/utilities';
-import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 

@@ -1,3 +1,4 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { domain } from '@text-based/home-assistant';
 import { BaseSchemaDTO } from '@text-based/persistence';
 import {
@@ -6,7 +7,6 @@ import {
   IsEmpty,
   ResultControlDTO,
 } from '@text-based/utilities';
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { each } from 'async';
 import { v4 as uuid } from 'uuid';
 

@@ -1,3 +1,5 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { BaseMongoService, BaseSchemaDTO } from '@text-based/persistence';
 import {
   AutoLogService,
@@ -5,8 +7,6 @@ import {
   is,
   ResultControlDTO,
 } from '@text-based/utilities';
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import type { ROOM_ENTITY_EXTRAS } from '../../contracts';

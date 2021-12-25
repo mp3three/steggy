@@ -89,6 +89,7 @@
       "**/yarn.lock": true,
       "*tar": true,
       "**/yarn-error.log": true,
+      "**/.pino-prettyrc": true,
       "**/.prettierrc": true,
       "**/.yarnclean": true,
       "LICENSE": true,
@@ -99,7 +100,8 @@
       ".editorconfig": true,
       "apps/*/ios": true,
       "apps/*/android": true,
-      "tmp": true
+      "tmp": true,
+      "tsconfig.spec.json": true,
     },
     "prettier.arrowParens": "avoid",
 

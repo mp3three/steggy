@@ -1,6 +1,6 @@
-import { LibraryModule, RegisterCache } from '@text-based/utilities';
 import { INestApplication } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
+import { LibraryModule, RegisterCache } from '@text-based/utilities';
 
 import { LIB_TTY } from '../config';
 import { inquirerPreInit } from '../inquirer';

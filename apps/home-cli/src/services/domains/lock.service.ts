@@ -1,6 +1,6 @@
+import { Injectable } from '@nestjs/common';
 import { RoomEntitySaveStateDTO } from '@text-based/controller-logic';
 import { ICONS, PromptEntry } from '@text-based/tty';
-import { Injectable } from '@nestjs/common';
 import inquirer from 'inquirer';
 
 import { BaseDomainService } from './base-domain.service';

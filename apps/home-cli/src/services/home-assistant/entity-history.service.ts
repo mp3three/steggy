@@ -1,7 +1,7 @@
+import { Injectable } from '@nestjs/common';
 import { EntityHistoryRequest } from '@text-based/controller-logic';
 import { HassStateDTO } from '@text-based/home-assistant';
 import { PromptService } from '@text-based/tty';
-import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 
 import { HomeFetchService } from '../home-fetch.service';

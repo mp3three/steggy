@@ -1,7 +1,7 @@
-import { ConnectService } from '@text-based/persistence';
-import { InjectConfig } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 import { MongooseModuleOptions } from '@nestjs/mongoose';
+import { ConnectService } from '@text-based/persistence';
+import { InjectConfig } from '@text-based/utilities';
 
 import {
   MONGO_CA,

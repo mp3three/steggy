@@ -1,9 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import {
   HASocketAPIService,
   NotifyDomainService,
 } from '@text-based/home-assistant';
 import { AutoLogService } from '@text-based/utilities';
-import { Injectable } from '@nestjs/common';
 
 import { RoutineCommandSendNotificationDTO } from '../../contracts';
 

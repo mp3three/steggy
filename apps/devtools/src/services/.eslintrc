@@ -5,7 +5,6 @@
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
-        "no-loops/no-loops": "off"
       }
     },
     {

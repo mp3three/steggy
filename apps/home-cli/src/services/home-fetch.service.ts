@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   FetchService,
   FetchWith,
@@ -6,7 +7,6 @@ import {
   sleep,
   START,
 } from '@text-based/utilities';
-import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 
 import { ADMIN_KEY, CONTROLLER_API } from '../config';

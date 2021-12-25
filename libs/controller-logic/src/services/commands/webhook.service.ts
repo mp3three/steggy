@@ -1,5 +1,5 @@
-import { AutoLogService, FetchService } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
+import { AutoLogService, FetchService } from '@text-based/utilities';
 
 import { RoutineCommandWebhookDTO } from '../../contracts';
 

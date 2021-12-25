@@ -1,4 +1,10 @@
 import {
+  forwardRef,
+  Inject,
+  InternalServerErrorException,
+  NotImplementedException,
+} from '@nestjs/common';
+import {
   GROUP_DEFINITIONS,
   GROUP_TYPES,
   GroupDTO,
@@ -30,12 +36,6 @@ import {
   TitleCase,
   UP,
 } from '@text-based/utilities';
-import {
-  forwardRef,
-  Inject,
-  InternalServerErrorException,
-  NotImplementedException,
-} from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 

@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   HomeAssistantCoreService,
   LightDomainService,
@@ -12,7 +13,6 @@ import {
   is,
   IsEmpty,
 } from '@text-based/utilities';
-import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 import EventEmitter from 'eventemitter3';
 

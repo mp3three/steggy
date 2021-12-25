@@ -2,8 +2,8 @@ import {
   FILTER_OPERATIONS,
   FilterDTO,
   FilterValueType,
-  ResultControlDTO,
   is,
+  ResultControlDTO,
 } from '../contracts';
 
 export function controlToQuery(

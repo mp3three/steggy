@@ -1,10 +1,10 @@
+import { REQUEST } from '@nestjs/core';
 import {
   AutoLogService,
   FetchAuth,
   HTTP_METHODS,
   ResultControlDTO,
 } from '@text-based/utilities';
-import { REQUEST } from '@nestjs/core';
 import { Request, Response } from 'express';
 import pino from 'pino';
 

@@ -1,3 +1,4 @@
+import { Inject, Injectable } from '@nestjs/common';
 import {
   LIGHTING_MODE,
   LightingCacheDTO,
@@ -6,7 +7,6 @@ import {
 import { HASS_DOMAINS, LightStateDTO } from '@text-based/home-assistant';
 import { ColorsService, ICONS, KeyMap, PromptEntry } from '@text-based/tty';
 import { is, START } from '@text-based/utilities';
-import { Inject, Injectable } from '@nestjs/common';
 import inquirer from 'inquirer';
 
 import { SwitchService } from './switch.service';

@@ -1,3 +1,4 @@
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import {
   domain,
   EntityManagerService,
@@ -7,7 +8,6 @@ import {
   LockStateDTO,
 } from '@text-based/home-assistant';
 import { AutoLogService, is } from '@text-based/utilities';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { each } from 'async';
 
 import {

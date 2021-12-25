@@ -1,4 +1,11 @@
 import {
+  BadRequestException,
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
+import {
   AutoLogService,
   is,
   IsEmpty,
@@ -6,13 +13,6 @@ import {
   ResultControlDTO,
   sleep,
 } from '@text-based/utilities';
-import {
-  BadRequestException,
-  ConflictException,
-  forwardRef,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
 import { each, eachSeries } from 'async';
 import dayjs from 'dayjs';
 

@@ -1,5 +1,5 @@
-import { Cron, CronExpression, InjectConfig } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
+import { Cron, CronExpression, InjectConfig } from '@text-based/utilities';
 import dayjs from 'dayjs';
 import EventEmitter from 'eventemitter3';
 

@@ -1,3 +1,9 @@
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 import { RoomEntitySaveStateDTO } from '@text-based/controller-logic';
 import {
   domain,
@@ -28,12 +34,6 @@ import {
   TitleCase,
   UP,
 } from '@text-based/utilities';
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
 import chalk from 'chalk';
 import Table from 'cli-table';
 import dayjs from 'dayjs';
@@ -92,10 +92,10 @@ export class BaseDomainService {
         domain(entity) === search &&
         (IsEmpty(insideList) || insideList.includes(entity)),
     );
-    const entityId = await this.promptService.autocomplete(
-      'Pick an entity',
-      filtered,
-    );
+    const entityId = await this.promptService.menu({
+      keyMap: {},
+      right: ToMenuEntry(filtered.map((i) => [i, i])),
+    });
     return await this.getState(entityId);
   }
 

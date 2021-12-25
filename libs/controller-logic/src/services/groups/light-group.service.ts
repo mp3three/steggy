@@ -1,3 +1,4 @@
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import {
   domain,
   EntityManagerService,
@@ -5,7 +6,6 @@ import {
   LightStateDTO,
 } from '@text-based/home-assistant';
 import { AutoLogService } from '@text-based/utilities';
-import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 
 import {

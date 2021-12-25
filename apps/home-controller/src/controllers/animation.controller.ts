@@ -1,3 +1,5 @@
+import { Body, Controller, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import {
   FlashAnimationDTO,
   FlashAnimationService,
@@ -7,8 +9,6 @@ import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
 } from '@text-based/server';
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 
 @Controller(`/animation`)
 @AuthStack()

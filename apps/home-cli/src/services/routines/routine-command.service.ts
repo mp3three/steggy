@@ -1,4 +1,10 @@
 import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
+import {
   GroupDTO,
   RoomCommandDTO,
   RoomDTO,
@@ -24,12 +30,6 @@ import {
   ToMenuEntry,
 } from '@text-based/tty';
 import { is, IsEmpty, START, TitleCase } from '@text-based/utilities';
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { dump } from 'js-yaml';

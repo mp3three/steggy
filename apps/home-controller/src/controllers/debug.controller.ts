@@ -1,3 +1,5 @@
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   LIGHTING_CACHE_SCHEMA,
   LightingCacheDTO,
@@ -16,8 +18,6 @@ import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
 } from '@text-based/server';
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller(`/debug`)
 @ApiTags('debug')

@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   EntityManagerService,
   HA_EVENT_STATE_CHANGE,
@@ -12,7 +13,6 @@ import {
   JSONFilterService,
   OnEvent,
 } from '@text-based/utilities';
-import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 
 import { StateChangeActivateDTO, StateChangeWatcher } from '../../contracts';

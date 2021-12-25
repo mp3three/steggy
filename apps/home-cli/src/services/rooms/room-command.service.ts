@@ -1,3 +1,4 @@
+import { NotImplementedException } from '@nestjs/common';
 import {
   GroupDTO,
   RoomDTO,
@@ -24,7 +25,6 @@ import {
   LABEL,
   UP,
 } from '@text-based/utilities';
-import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 

@@ -1,7 +1,7 @@
+import { Injectable } from '@nestjs/common';
 import { RoutineCommandWebhookDTO } from '@text-based/controller-logic';
 import { PromptService } from '@text-based/tty';
 import { HTTP_METHODS, TitleCase } from '@text-based/utilities';
-import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class WebhookService {

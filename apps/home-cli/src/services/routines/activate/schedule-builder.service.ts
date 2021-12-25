@@ -1,7 +1,7 @@
+import { Injectable } from '@nestjs/common';
 import { ScheduleActivateDTO } from '@text-based/controller-logic';
 import { ICONS, PromptEntry, PromptService } from '@text-based/tty';
 import { CronExpression } from '@text-based/utilities';
-import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 

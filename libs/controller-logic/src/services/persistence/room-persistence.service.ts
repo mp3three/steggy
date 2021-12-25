@@ -1,3 +1,5 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import {
   BaseMongoService,
   BaseSchemaDTO,
@@ -9,8 +11,6 @@ import {
   is,
   ResultControlDTO,
 } from '@text-based/utilities';
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import EventEmitter from 'eventemitter3';
 import { Model } from 'mongoose';
 

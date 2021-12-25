@@ -1,5 +1,5 @@
-import { AutoLogService, IsEmpty } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
+import { AutoLogService, IsEmpty } from '@text-based/utilities';
 import dayjs from 'dayjs';
 
 import { TimeRangeDTO } from '../contracts';

@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   ARRAY_OFFSET,
   AutoLogService,
@@ -6,7 +7,6 @@ import {
   PEAT,
   START,
 } from '@text-based/utilities';
-import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 
 const GRAPH_SYMBOLS = {

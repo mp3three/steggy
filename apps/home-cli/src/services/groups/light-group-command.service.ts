@@ -1,3 +1,4 @@
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import {
   GENERIC_COMMANDS,
   GroupDTO,
@@ -21,7 +22,6 @@ import {
   TitleCase,
   UP,
 } from '@text-based/utilities';
-import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 import chalk from 'chalk';
 

@@ -1,3 +1,4 @@
+import { NotImplementedException } from '@nestjs/common';
 import { HomeAssistantServerLogItem } from '@text-based/home-assistant';
 import {
   DONE,
@@ -8,7 +9,6 @@ import {
   ToMenuEntry,
 } from '@text-based/tty';
 import { AutoLogService, is, IsEmpty, TitleCase } from '@text-based/utilities';
-import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 

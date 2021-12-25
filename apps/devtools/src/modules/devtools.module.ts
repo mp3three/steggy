@@ -1,6 +1,6 @@
+import { DiscoveryModule } from '@nestjs/core';
 import { MainCLIModule } from '@text-based/tty';
 import { ApplicationModule, UtilitiesModule } from '@text-based/utilities';
-import { DiscoveryModule } from '@nestjs/core';
 
 import { ChangelogService, ImgurAlbumDownloadService } from '../services';
 import { AlpacaTestSerivce } from '../services/alpaca';

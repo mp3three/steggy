@@ -1,5 +1,5 @@
-import { AutoLogService, is } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
+import { AutoLogService, is } from '@text-based/utilities';
 
 import {
   DeviceListItemDTO,

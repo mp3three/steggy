@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   EntityManagerService,
   HA_EVENT_STATE_CHANGE,
@@ -9,7 +10,6 @@ import {
   IsEmpty,
   OnEvent,
 } from '@text-based/utilities';
-import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 
 import { KUNAMI_TIMEOUT } from '../../config';

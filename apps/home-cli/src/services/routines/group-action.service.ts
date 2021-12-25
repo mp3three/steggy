@@ -1,9 +1,9 @@
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import {
   GROUP_TYPES,
   RoutineCommandGroupActionDTO,
 } from '@text-based/controller-logic';
 import { PromptService } from '@text-based/tty';
-import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import {
   GroupCommandService,

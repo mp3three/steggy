@@ -1,5 +1,5 @@
-import { AutoLogService } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
+import { AutoLogService } from '@text-based/utilities';
 import { each } from 'async';
 
 import { RountineCommandLightFlashDTO } from '../../contracts';

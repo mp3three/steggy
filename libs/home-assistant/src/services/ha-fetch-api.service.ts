@@ -1,10 +1,10 @@
+import { Injectable } from '@nestjs/common';
 import type { FetchWith } from '@text-based/utilities';
 import {
   AutoLogService,
   FetchService,
   InjectConfig,
 } from '@text-based/utilities';
-import { Injectable } from '@nestjs/common';
 
 import { BASE_URL, TOKEN } from '../config';
 import { HassStateDTO, HomeAssistantServerLogItem } from '../contracts';

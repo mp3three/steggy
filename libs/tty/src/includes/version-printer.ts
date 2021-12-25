@@ -1,5 +1,5 @@
-import { ACTIVE_APPLICATION, WorkspaceService } from '@text-based/utilities';
 import { INestApplication } from '@nestjs/common';
+import { ACTIVE_APPLICATION, WorkspaceService } from '@text-based/utilities';
 import { dump } from 'js-yaml';
 
 import { PromptService } from '../services';

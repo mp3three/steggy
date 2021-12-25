@@ -1,5 +1,5 @@
-import { AutoLogService, ModuleScannerService } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
+import { AutoLogService, ModuleScannerService } from '@text-based/utilities';
 
 import { iRepl, REPL_CONFIG, ReplOptions } from '../contracts';
 

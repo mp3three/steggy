@@ -1,5 +1,5 @@
-import { AutoLogService, is, IsEmpty } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
+import { AutoLogService, is, IsEmpty } from '@text-based/utilities';
 import {
   Client,
   IClientPublishOptions,

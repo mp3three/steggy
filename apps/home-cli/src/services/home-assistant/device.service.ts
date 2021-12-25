@@ -1,3 +1,4 @@
+import { forwardRef, Inject } from '@nestjs/common';
 import {
   DeviceListItemDTO,
   RelatedDescriptionDTO,
@@ -11,7 +12,6 @@ import {
   ToMenuEntry,
 } from '@text-based/tty';
 import { AutoLogService, IsEmpty } from '@text-based/utilities';
-import { forwardRef, Inject } from '@nestjs/common';
 import chalk from 'chalk';
 import { encode } from 'ini';
 
