@@ -90,7 +90,12 @@ export class RoutineService {
     });
     let action = await this.promptService.menu<RoutineDTO | string>({
       keyMap: {
-        a: [all ? 'Show detached routines' : 'Show all routines', 'all'],
+        a: [
+          all
+            ? chalk.dim.magenta('Show detached routines')
+            : chalk.dim.blue('Show all routines'),
+          'all',
+        ],
         c: MENU_ITEMS.CREATE,
         d: MENU_ITEMS.DONE,
       },

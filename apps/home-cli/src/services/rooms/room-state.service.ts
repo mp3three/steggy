@@ -110,6 +110,9 @@ export class RoomStateService {
   }
 
   public async process(room: RoomDTO): Promise<RoomDTO> {
+    this.promptService.clear();
+    this.promptService.scriptHeader(room.friendlyName);
+    this.promptService.secondaryHeader('Room States');
     const action = await this.promptService.menu({
       keyMap: {
         c: MENU_ITEMS.CREATE,
@@ -158,18 +161,15 @@ export class RoomStateService {
     defaultAction?: string,
   ): Promise<RoomDTO> {
     this.promptService.clear();
-    this.promptService.scriptHeader(`Room State`);
+    this.promptService.scriptHeader(room.friendlyName);
     this.promptService.secondaryHeader(state.friendlyName);
-    console.log(
-      chalk` {blue.bold For room} {bold.magenta ${room.friendlyName}}\n`,
-    );
-    await this.header(room, state);
 
     const action = await this.promptService.menu({
       keyMap: {
         a: MENU_ITEMS.ACTIVATE,
         d: MENU_ITEMS.DONE,
         e: MENU_ITEMS.EDIT,
+        f1: [`${ICONS.DESCRIBE}Describe`, 'describe'],
         n: MENU_ITEMS.RENAME,
         p: [
           this.pinnedItems.isPinned('room_state', state.id) ? 'Unpin' : 'Pin',
@@ -185,6 +185,9 @@ export class RoomStateService {
       return room;
     }
     switch (action) {
+      case 'describe':
+        await this.header(room, state);
+        return await this.processState(room, state, action);
       case 'rename':
         state.friendlyName = await this.promptService.friendlyName(
           state.friendlyName,

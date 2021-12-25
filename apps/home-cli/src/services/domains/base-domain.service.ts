@@ -206,79 +206,31 @@ export class BaseDomainService {
     // sleep needed to ensure correct-ness of header information
     // Somtimes the previous request impacts the state, and race conditions
     await sleep(this.refreshSleep);
-    this.promptService.clear();
-    this.promptService.scriptHeader(TitleCase(domain(id), false));
     const content = await this.getState<T>(id);
-    const map = new Map<unknown, string>([
-      ['on', ICONS.TURN_ON],
-      ['off', ICONS.TURN_OFF],
-    ]);
+    this.promptService.clear();
+    this.promptService.scriptHeader(content.attributes.friendly_name);
+    this.promptService.secondaryHeader(id);
     console.log(
-      chalk`${map.get(content.state) ?? ''}{magenta.bold ${
-        content.attributes.friendly_name
-      }} {gray ${id}}`,
-    );
-    console.log(
-      chalk` {blue +-> }{inverse.bold.blueBright State} {cyan ${content.state}}`,
+      chalk`\n {blue +-> }{inverse.bold.blueBright State} {cyan ${content.state}}`,
     );
     const keys = Object.keys(content.attributes)
       .filter((i) => !['supported_features', 'friendly_name'].includes(i))
       .sort((a, b) => (a > b ? UP : DOWN));
-    const header = 'Attributes';
-    console.log(
-      chalk` {blue +${''.padEnd(
-        Math.max(...keys.map((i) => i.length)) -
-          Math.floor(header.length / HALF) -
-          // ? It visually just looks "wrong" without the offset. Opinion
-          ARRAY_OFFSET,
-        '-',
-      )}>} {bold.blueBright.inverse ${header}}`,
-    );
+    if (!IsEmpty(keys)) {
+      const header = 'Attributes';
+      console.log(
+        chalk` {blue +${''.padEnd(
+          Math.max(...keys.map((i) => i.length)) -
+            Math.floor(header.length / HALF) -
+            // ? It visually just looks "wrong" without the offset. Opinion
+            ARRAY_OFFSET,
+          '-',
+        )}>} {bold.blueBright.inverse ${header}}`,
+      );
+    }
 
     const max = Math.max(...keys.map((i) => i.length));
-    keys.forEach((key) => {
-      const item = content.attributes[key];
-      let value: string;
-      if (Array.isArray(item)) {
-        if (is.number(item[START])) {
-          value = item.map((i) => chalk.yellow(i)).join(', ');
-        } else if (is.string(item[START])) {
-          value = item.map((i) => chalk.blue(i)).join(', ');
-        } else if (is.object(item[START])) {
-          value =
-            `\n` +
-            item
-              .map(
-                (i) =>
-                  chalk` {blue.dim |}   ${' '.repeat(max)}${JSON.stringify(i)}`,
-              )
-              .join(`\n`);
-        }
-      } else if (is.number(item)) {
-        value = chalk.yellow(item.toString());
-      } else if (is.string(item)) {
-        value = chalk.blue(item);
-        if (key === 'icon') {
-          value = `${
-            MDIIcons[
-              item.split(':').pop().replace(new RegExp('[-]', 'g'), '_')
-            ] ?? ''
-          } ${value}`;
-        }
-      } else if (is.boolean(item)) {
-        value = chalk.yellowBright(String(item));
-      } else if (is.object(item)) {
-        value = chalk.gray(JSON.stringify(item));
-      } else {
-        value = chalk.green(item);
-      }
-      console.log(
-        chalk` {blue.dim |} {white.bold ${TitleCase(key, false).padStart(
-          max,
-          ' ',
-        )}}  ${value}`,
-      );
-    });
+    keys.forEach((key) => this.printItem(content, key, max));
     console.log();
     return content;
   }
@@ -290,7 +242,7 @@ export class BaseDomainService {
       h: [`${ICONS.HISTORY}History`, 'history'],
       i: [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
       n: [`${ICONS.RENAME}Change Friendly Name`, 'changeFriendlyName'],
-      p: [this.pinnedItem.isPinned('entity', id) ? 'Unpin' : 'pin', 'pin'],
+      p: [this.pinnedItem.isPinned('entity', id) ? 'Unpin' : 'Pin', 'pin'],
       r: [`${ICONS.REFRESH}Refresh`, 'refresh'],
     };
   }
@@ -322,5 +274,51 @@ export class BaseDomainService {
 
   protected logAttributes(states: HassStateDTO[]): unknown[] {
     return states.map((i) => ({ date: i.last_changed, state: i.state }));
+  }
+
+  private printItem(content: HassStateDTO, key: string, max: number): void {
+    const item = content.attributes[key];
+    let value: string;
+    if (Array.isArray(item)) {
+      if (IsEmpty(item)) {
+        value = chalk.gray(`empty list`);
+      } else if (is.number(item[START])) {
+        value = item.map((i) => chalk.yellow(i)).join(', ');
+      } else if (is.string(item[START])) {
+        value = item.map((i) => chalk.blue(i)).join(', ');
+      } else if (is.object(item[START])) {
+        value =
+          `\n` +
+          item
+            .map(
+              (i) =>
+                chalk` {blue.dim |}   ${' '.repeat(max)}${JSON.stringify(i)}`,
+            )
+            .join(`\n`);
+      }
+    } else if (is.number(item)) {
+      value = chalk.yellow(item.toString());
+    } else if (is.string(item)) {
+      value = chalk.blue(item);
+      if (key === 'icon') {
+        value = `${
+          MDIIcons[
+            item.split(':').pop().replace(new RegExp('[-]', 'g'), '_')
+          ] ?? ''
+        } ${value}`;
+      }
+    } else if (is.boolean(item)) {
+      value = chalk.yellowBright(String(item));
+    } else if (is.object(item)) {
+      value = chalk.gray(JSON.stringify(item));
+    } else {
+      value = chalk.green(item);
+    }
+    console.log(
+      chalk` {blue.dim |} {white.bold ${TitleCase(key, false).padStart(
+        max,
+        ' ',
+      )}}  ${value}`,
+    );
   }
 }

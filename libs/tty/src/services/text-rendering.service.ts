@@ -144,11 +144,12 @@ export class TextRenderingService {
       ? chalk.bgBlue`Type to filter`
       : searchText;
     return [
-      chalk` {green >} {cyan Search} `,
-      chalk[IsEmpty(searchText) ? 'bgBlue' : 'bgWhite'].black` ${ansiPadEnd(
-        text,
-        size,
-      )} `,
+      chalk` `,
+      ' ' +
+        chalk[IsEmpty(searchText) ? 'bgBlue' : 'bgWhite'].black` ${ansiPadEnd(
+          text,
+          size,
+        )} `,
       ` `,
     ];
   }

@@ -164,9 +164,9 @@ export class LightGroupCommandService {
   }
 
   public async header(group: GroupDTO): Promise<void> {
-    this.promptService.scriptHeader(`Group`);
-    this.promptService.secondaryHeader(group.friendlyName);
-    console.log(chalk.yellow.bold`${TitleCase(group.type)} Group\n`);
+    this.promptService.scriptHeader(group.friendlyName);
+    this.promptService.secondaryHeader(`${TitleCase(group.type)} Group`);
+    console.log();
     let maxId = 0;
     let maxName = 0;
     const lines: string[][] = [];

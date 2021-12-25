@@ -18,7 +18,7 @@ import {
   Repl,
   ToMenuEntry,
 } from '@for-science/tty';
-import { IsEmpty, VALUE } from '@for-science/utilities';
+import { is, IsEmpty, VALUE } from '@for-science/utilities';
 
 import {
   BaseDomainService,
@@ -96,8 +96,11 @@ export class EntityService implements iRepl {
   }
 
   public async exec(): Promise<void> {
-    const entities = await this.pickOne();
-    return await this.process(entities);
+    const entity = await this.pickOne();
+    if (!is.string(entity)) {
+      return;
+    }
+    return await this.process(entity);
   }
 
   public async get(id: string): Promise<HassStateDTO> {

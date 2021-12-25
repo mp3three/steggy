@@ -41,12 +41,12 @@ const BASE_HELP = [
   ['enter', 'select entry'],
   ['home', 'move to top'],
   ['end', 'move to bottom'],
-  ['f3', 'toggle find mode'],
+  ['tab', 'toggle find mode'],
 ] as MenuEntry[];
 
 const MENU_HELP = [
   ['d', 'Done'],
-  ['f4,`', 'Toggle'],
+  ['space,f4,`', 'Toggle'],
   ['i', 'Inverse'],
   ['[', `Select all`],
   [']', 'Remove all'],
@@ -212,7 +212,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
       return;
     }
     const mixed = key.name ?? key.sequence;
-    if ((key.ctrl && mixed === 'f') || mixed === 'f3') {
+    if ((key.ctrl && mixed === 'f') || mixed === 'tab') {
       this.mode = this.mode === 'find' ? 'select' : 'find';
       this.searchText = '';
       this.render();
@@ -268,6 +268,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
         this.current = [];
         this.detectSide();
         break;
+      case 'space':
       case '`':
       case 'f4':
         if (this.selectedType === 'current') {

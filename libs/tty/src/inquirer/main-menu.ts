@@ -77,7 +77,7 @@ const BASE_HELP = [
   ['enter', 'select entry'],
   ['home', 'move to top'],
   ['end', 'move to bottom'],
-  ['f3', 'toggle find mode'],
+  ['tab', 'toggle find mode'],
 ] as MenuEntry[];
 
 export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
@@ -240,7 +240,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       return;
     }
     const mixed = key.name ?? key.sequence;
-    if (mixed === 'f3' || (key.ctrl && mixed === 'f')) {
+    if (mixed === 'tab' || (key.ctrl && mixed === 'f')) {
       this.toggleFind();
     }
     if (key.ctrl || key.shift || key.meta) {

@@ -435,10 +435,7 @@ export class GroupCommandService implements iRepl {
     if (group.type === GROUP_TYPES.light) {
       return await this.lightGroup.header(group);
     }
-    this.promptService.scriptHeader(`Group`);
-    this.promptService.secondaryHeader(group.friendlyName);
-    console.log(
-      [chalk.yellow.bold`${TitleCase(group.type)} Group`, ``].join(`\n`),
-    );
+    this.promptService.scriptHeader(group.friendlyName);
+    this.promptService.secondaryHeader(`${TitleCase(group.type)} Group`);
   }
 }

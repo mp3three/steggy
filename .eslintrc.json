@@ -45,7 +45,7 @@
         "@typescript-eslint/unbound-method": "error",
         "import/no-extraneous-dependencies": ["error", { "packageDir": "./" }],
         "@typescript-eslint/member-ordering": [
-          2,
+          1,
           {
             "default": {
               "order": "alphabetically",

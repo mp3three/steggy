@@ -476,7 +476,12 @@ export class PromptService {
     header = figlet.textSync(header, {
       font: this.secondaryFont,
     });
-    console.log(chalk[color](header), '\n');
+    console.log(
+      chalk[color](header)
+        .split(`\n`)
+        .map((i) => `  ${i}`)
+        .join(`\n`),
+    );
   }
 
   public sort<T>(entries: PromptEntry<T>[]): PromptEntry<T>[] {
