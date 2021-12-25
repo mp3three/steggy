@@ -1,3 +1,5 @@
+import { is } from '..';
+
 function isSpecificValue(value) {
   return (
     value instanceof Buffer || value instanceof Date || value instanceof RegExp
@@ -21,7 +23,7 @@ function cloneSpecificValue(value) {
 
 function deepCloneArray(array: Array<unknown>) {
   return array.map((item) => {
-    if (typeof item === 'object' && item !== null) {
+    if (is.object(item)) {
       if (Array.isArray(item)) {
         return deepCloneArray(item);
       }

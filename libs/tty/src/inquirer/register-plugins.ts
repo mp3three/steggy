@@ -1,3 +1,4 @@
+import { is } from '@for-science/utilities';
 import { INestApplication } from '@nestjs/common';
 import inquirer from 'inquirer';
 import autocompletePrompt from 'inquirer-autocomplete-prompt';
@@ -29,7 +30,7 @@ export function inquirerPreInit(app: INestApplication): void {
     ListBuilderPrompt,
   ] as { onPreInit?: (app: INestApplication) => void }[];
   list.forEach((i) => {
-    if (typeof i.onPreInit === 'function') {
+    if (!is.undefined(i.onPreInit)) {
       i.onPreInit(app);
     }
   });

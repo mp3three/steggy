@@ -3,6 +3,7 @@
 import chalk from 'chalk';
 import pino from 'pino';
 import { cwd } from 'process';
+import { is } from '..';
 
 import { AutoLogService, LoggerFunction } from '../services/auto-log.service';
 const logger = pino({
@@ -272,7 +273,7 @@ export function UsePrettyLogger(): void {
       return;
     }
     const logger = AutoLogService.getLogger() as pino.Logger;
-    if (typeof parameters[0] === 'object') {
+    if (is.object(parameters[0])) {
       logger[method](
         parameters.shift() as Record<string, unknown>,
         `${highlightContext(

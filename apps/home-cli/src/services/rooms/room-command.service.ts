@@ -5,7 +5,6 @@ import {
 } from '@for-science/controller-logic';
 import { HASS_DOMAINS } from '@for-science/home-assistant';
 import {
-  DONE,
   ICONS,
   IsDone,
   PinnedItemService,
@@ -18,6 +17,7 @@ import {
   AutoLogService,
   DOWN,
   FILTER_OPERATIONS,
+  is,
   IsEmpty,
   UP,
 } from '@for-science/utilities';
@@ -96,7 +96,7 @@ export class RoomCommandService {
     if (room === 'create') {
       room = await this.create();
     }
-    if (typeof room === 'string') {
+    if (is.string(room)) {
       throw new NotImplementedException();
     }
     this.lastRoom = room._id;
@@ -135,7 +135,7 @@ export class RoomCommandService {
     if (room === `create`) {
       return await this.create();
     }
-    if (typeof room === `string`) {
+    if (is.string(room)) {
       throw new NotImplementedException();
     }
     return room;
@@ -203,7 +203,7 @@ export class RoomCommandService {
     if (IsDone(action)) {
       return;
     }
-    if (typeof action === 'object') {
+    if (is.object(action)) {
       if (GroupDTO.isGroup(action)) {
         return await this.groupCommand.process(action);
       }

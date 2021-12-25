@@ -17,7 +17,12 @@ import {
   Repl,
   ToMenuEntry,
 } from '@for-science/tty';
-import { IsEmpty, ResultControlDTO, TitleCase } from '@for-science/utilities';
+import {
+  is,
+  IsEmpty,
+  ResultControlDTO,
+  TitleCase,
+} from '@for-science/utilities';
 import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
@@ -101,7 +106,7 @@ export class RoutineService {
     if (action === 'create') {
       action = await this.create();
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       throw new NotImplementedException();
     }
     await this.processRoutine(action);
@@ -165,7 +170,7 @@ export class RoutineService {
       room = room || (await this.roomCommand.pickOne());
       action = await this.create(room);
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       throw new NotImplementedException();
     }
     await this.processRoutine(action);

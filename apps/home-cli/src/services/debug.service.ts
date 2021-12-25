@@ -1,7 +1,6 @@
 import { HassNotificationDTO } from '@for-science/home-assistant';
 import {
   ConfigBuilderService,
-  DONE,
   ICONS,
   IsDone,
   PromptService,
@@ -12,6 +11,7 @@ import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
   InjectConfig,
+  is,
   IsEmpty,
   PackageJsonDTO,
   WorkspaceService,
@@ -141,7 +141,7 @@ For loop example getting entity values in the weather domain:
     if (IsDone(item)) {
       return;
     }
-    if (typeof item === 'string') {
+    if (is.string(item)) {
       throw new NotImplementedException();
     }
     await this.fetchService.fetch({

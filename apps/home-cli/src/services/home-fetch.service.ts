@@ -2,6 +2,7 @@ import {
   FetchService,
   FetchWith,
   InjectConfig,
+  is,
   sleep,
   START,
 } from '@for-science/utilities';
@@ -30,7 +31,7 @@ export class HomeFetchService {
     }
     fetch.adminKey = this.adminKey;
     const result = await this.fetchService.fetch<OUTPUT>(fetch);
-    if (typeof result === 'undefined' || result === '') {
+    if (is.string(result) || result === '') {
       counter++;
       console.log(chalk.bold` {blue !} Could not connect to controller`);
       await sleep();

@@ -13,7 +13,7 @@ import {
   PromptService,
   ToMenuEntry,
 } from '@for-science/tty';
-import { AutoLogService, IsEmpty } from '@for-science/utilities';
+import { AutoLogService, is, IsEmpty } from '@for-science/utilities';
 import {
   forwardRef,
   Inject,
@@ -157,7 +157,7 @@ export class GroupStateService {
       const state = group.save_states.pop();
       return state.id;
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       throw new NotImplementedException();
     }
     return action.id;
@@ -219,7 +219,7 @@ export class GroupStateService {
         return await this.processState(group, list, action);
     }
 
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       this.logger.error({ action }, `Unknown action`);
       return;
     }

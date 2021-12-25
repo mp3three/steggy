@@ -1,9 +1,11 @@
 // import { APIRequest, APIResponse } from '@for-science/server';
 
+import { is } from '../contracts';
+
 export const PINO_SERIALIZERS = {
   parameters(parameters: unknown[]): unknown[] {
     return parameters.map((item) => {
-      if (typeof item === 'object') {
+      if (is.object(item)) {
         if (
           typeof (item as Record<string, unknown>)._parsedUrl !== 'undefined'
         ) {

@@ -1,5 +1,5 @@
 import { EntityManagerService } from '@for-science/home-assistant';
-import { AutoLogService } from '@for-science/utilities';
+import { AutoLogService, is } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { get } from 'object-path';
 
@@ -18,9 +18,9 @@ export class EntityAttributeService {
       this.logger.error(`Could not look up entity {${comparison.entity_id}}`);
       return false;
     }
-    if (typeof comparison.state !== 'undefined') {
+    if (!is.undefined(comparison.state)) {
       const out = entity.state === comparison.state;
-      if (typeof comparison.attribute === 'undefined') {
+      if (is.undefined(comparison.attribute)) {
         return out;
       }
       if (out === false) {

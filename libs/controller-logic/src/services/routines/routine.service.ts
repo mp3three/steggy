@@ -1,5 +1,6 @@
 import {
   AutoLogService,
+  is,
   IsEmpty,
   OnEvent,
   ResultControlDTO,
@@ -115,7 +116,7 @@ export class RoutineService {
   }
 
   public async get(routine: RoutineDTO | string): Promise<RoutineDTO> {
-    if (typeof routine === 'object') {
+    if (is.object(routine)) {
       return routine;
     }
     return await this.routinePersistence.findById(routine);

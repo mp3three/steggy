@@ -2,6 +2,7 @@ import {
   AutoLogService,
   DOWN,
   InjectConfig,
+  is,
   IsEmpty,
   LABEL,
   PEAT,
@@ -82,7 +83,7 @@ export class PromptService {
           const fuzzyResult = fuzzy.go(
             input,
             options.map((item) => {
-              if (typeof item === 'string') {
+              if (is.string(item)) {
                 return item;
               }
               return item.name;
@@ -332,16 +333,16 @@ export class PromptService {
   }
 
   public objectPrinter(item: unknown): string {
-    if (typeof item === 'undefined') {
+    if (is.undefined(item)) {
       return ``;
     }
-    if (typeof item === 'number') {
+    if (is.number(item)) {
       return chalk.yellow(String(item));
     }
-    if (typeof item === 'boolean') {
+    if (is.boolean(item)) {
       return chalk.magenta(String(item));
     }
-    if (typeof item === 'string') {
+    if (is.string(item)) {
       return chalk.blue(
         item.slice(START, MAX_STRING_LENGTH) +
           (item.length > MAX_STRING_LENGTH ? chalk.blueBright`...` : ``),
@@ -353,7 +354,7 @@ export class PromptService {
     if (item === null) {
       return chalk.gray(`null`);
     }
-    if (typeof item === 'object') {
+    if (is.object(item)) {
       return Object.keys(item)
         .sort((a, b) => (a > b ? UP : DOWN))
         .map(

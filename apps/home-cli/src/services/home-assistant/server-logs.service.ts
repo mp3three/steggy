@@ -7,7 +7,7 @@ import {
   Repl,
   ToMenuEntry,
 } from '@for-science/tty';
-import { AutoLogService, IsEmpty, TitleCase } from '@for-science/utilities';
+import { AutoLogService, is, IsEmpty, TitleCase } from '@for-science/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
@@ -93,7 +93,7 @@ export class ServerLogsService {
     if (IsDone(item)) {
       return;
     }
-    if (typeof item === 'string') {
+    if (is.string(item)) {
       throw new NotImplementedException();
     }
     this.promptService.clear();

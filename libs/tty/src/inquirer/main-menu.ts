@@ -4,6 +4,7 @@ import {
   FIRST,
   INCREMENT,
   INVERT_VALUE,
+  is,
   IsEmpty,
   LABEL,
   NOT_FOUND,
@@ -56,9 +57,10 @@ export type KeyMap = Record<string, PromptEntry>;
 export interface MainMenuOptions<T = unknown> {
   headerPadding?: number;
   keyMap: KeyMap;
+  keyOnly?: boolean;
   left?: MainMenuEntry<T | string>[];
   leftHeader?: string;
-  right: MainMenuEntry<T | string>[];
+  right?: MainMenuEntry<T | string>[];
   rightHeader?: string;
   showHeaders?: boolean;
   showHelp?: boolean;
@@ -293,7 +295,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         this.next();
         break;
       default:
-        if (typeof this.opt.keyMap[mixed] !== 'undefined') {
+        if (!is.undefined(this.opt.keyMap[mixed])) {
           this.value = this.opt.keyMap[mixed][VALUE];
           this.onEnd();
           return;
@@ -348,7 +350,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       return this.render(true);
     }
     if (key.length > SINGLE_ITEM) {
-      if (typeof this.opt.keyMap[key] !== 'undefined') {
+      if (!is.undefined(this.opt.keyMap[key])) {
         this.value = this.opt.keyMap[key][VALUE];
         this.onEnd();
       }
@@ -416,7 +418,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     }
     message += out.map((i) => `  ${i}`).join(`\n`);
     const selectedItem = this.getSelected();
-    if (typeof selectedItem.helpText === 'string') {
+    if (is.string(selectedItem.helpText)) {
       message += chalk`\n \n {blue ?} ${selectedItem.helpText
         .split(`\n`)
         .map((line) => line.replace(new RegExp('^ -'), chalk.cyan('   -')))
@@ -454,7 +456,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     let last = '';
     const maxLabel =
       ansiMaxLength(menu.map(({ entry }) => entry[LABEL])) + ARRAY_OFFSET;
-    if (IsEmpty(menu)) {
+    if (IsEmpty(menu) && !this.opt.keyOnly) {
       out.push(
         chalk.bold` ${ICONS.WARNING}{yellowBright.inverse  No actions to select from }`,
       );

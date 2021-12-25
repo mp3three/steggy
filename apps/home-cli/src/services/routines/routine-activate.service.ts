@@ -7,14 +7,8 @@ import {
   SolarActivateDTO,
   StateChangeActivateDTO,
 } from '@for-science/controller-logic';
-import {
-  ICONS,
-  IsDone,
-  PromptEntry,
-  PromptService,
-  ToMenuEntry,
-} from '@for-science/tty';
-import { IsEmpty, TitleCase } from '@for-science/utilities';
+import { ICONS, IsDone, PromptService, ToMenuEntry } from '@for-science/tty';
+import { is, IsEmpty, TitleCase } from '@for-science/utilities';
 import {
   forwardRef,
   Inject,
@@ -23,7 +17,6 @@ import {
 } from '@nestjs/common';
 import chalk from 'chalk';
 import Table from 'cli-table';
-import inquirer from 'inquirer';
 import { v4 as uuid } from 'uuid';
 
 import { MENU_ITEMS } from '../../includes';
@@ -150,7 +143,7 @@ export class RoutineActivateService {
     this.header(routine);
     routine.activate ??= [];
     const action = await this.promptService.menu({
-      keyMap: { a: MENU_ITEMS.ADD, d: MENU_ITEMS.DONE },
+      keyMap: { c: MENU_ITEMS.ADD, d: MENU_ITEMS.DONE },
       right: ToMenuEntry(
         routine.activate.map((activate) => [activate.friendlyName, activate]),
       ),
@@ -166,7 +159,7 @@ export class RoutineActivateService {
       routine = await this.routineCommand.update(routine);
       return await this.processRoutine(routine);
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       throw new NotImplementedException();
     }
     routine = await this.process(routine, action);

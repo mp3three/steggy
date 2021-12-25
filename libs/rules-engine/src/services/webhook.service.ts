@@ -1,6 +1,7 @@
 import {
   AutoLogService,
   FetchService,
+  is,
   JSONFilterService,
 } from '@for-science/utilities';
 import {
@@ -24,7 +25,7 @@ export class WebhookService {
       Record<string, unknown> | string
     >(comparison.fetch);
     if (comparison.compareAs === 'text') {
-      if (typeof result !== 'string') {
+      if (!is.string(result)) {
         throw new ConflictException(
           `Fetch call did not return string (${typeof result}), cannot compare as string`,
         );
@@ -35,7 +36,7 @@ export class WebhookService {
       );
     }
     if (comparison.compareAs === 'object') {
-      if (typeof result !== 'object') {
+      if (!is.object(result)) {
         throw new ConflictException();
       }
       return this.jsonFilter.match(result, comparison.comparison);

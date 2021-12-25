@@ -21,6 +21,7 @@ import {
   AutoLogService,
   DOWN,
   InjectConfig,
+  is,
   IsEmpty,
   sleep,
   START,
@@ -239,11 +240,11 @@ export class BaseDomainService {
       const item = content.attributes[key];
       let value: string;
       if (Array.isArray(item)) {
-        if (typeof item[START] === 'number') {
+        if (is.number(item[START])) {
           value = item.map((i) => chalk.yellow(i)).join(', ');
-        } else if (typeof item[START] === 'string') {
+        } else if (is.string(item[START])) {
           value = item.map((i) => chalk.blue(i)).join(', ');
-        } else if (typeof item[START] === 'object') {
+        } else if (is.object(item[START])) {
           value =
             `\n` +
             item
@@ -253,9 +254,9 @@ export class BaseDomainService {
               )
               .join(`\n`);
         }
-      } else if (typeof item === 'number') {
+      } else if (is.number(item)) {
         value = chalk.yellow(item.toString());
-      } else if (typeof item === 'string') {
+      } else if (is.string(item)) {
         value = chalk.blue(item);
         if (key === 'icon') {
           value = `${
@@ -264,9 +265,9 @@ export class BaseDomainService {
             ] ?? ''
           } ${value}`;
         }
-      } else if (typeof item === 'boolean') {
+      } else if (is.boolean(item)) {
         value = chalk.yellowBright(String(item));
-      } else if (typeof item === 'object') {
+      } else if (is.object(item)) {
         value = chalk.gray(JSON.stringify(item));
       } else {
         value = chalk.green(item);

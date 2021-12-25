@@ -4,6 +4,7 @@ import {
   INCREMENT,
   InjectConfig,
   INVERT_VALUE,
+  is,
   IsEmpty,
   LABEL,
   START,
@@ -22,6 +23,7 @@ const TEMP_TEMPLATE_SIZE = 3;
 const MAX_SEARCH_SIZE = 50;
 const SEPARATOR = chalk.blue.dim('|');
 const BUFFER_SIZE = 3;
+const MIN_SIZE = 2;
 
 /**
  * Common utils for inqurirer prompt rendering
@@ -44,9 +46,9 @@ export class TextRenderingService {
     const max = this.biggestLabel(list);
     return [
       message,
-      ``,
-      ``,
-      chalk.blue.dim` ${'='.repeat(longestLine)}`,
+      ...(longestLine < MIN_SIZE
+        ? []
+        : [chalk.blue.dim` ${'='.repeat(longestLine)}`]),
       ` `,
       ...list
         .sort(([a], [b]) => {
@@ -105,7 +107,7 @@ export class TextRenderingService {
         )}} {blue.dim |} {blue.bold ${right.padEnd(maxB, ' ')}}`,
       );
     }
-    if (typeof search === 'string') {
+    if (is.string(search)) {
       out.unshift(...this.searchBox(search));
     }
     return out;

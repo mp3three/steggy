@@ -6,6 +6,7 @@ import {
   ConfigTypeDTO,
   DOWN,
   InjectLogger,
+  is,
   SCAN_CONFIG_CONFIGURATION,
   StringConfig,
   TitleCase,
@@ -236,10 +237,10 @@ export class ConfigBuilderService {
 
   private colorDefault(entry: ConfigTypeDTO, max: number): string {
     const defaultValue = entry.default;
-    if (typeof defaultValue === 'undefined' || defaultValue === '') {
+    if (is.undefined(defaultValue) || defaultValue === '') {
       return chalk.gray(`none`.padEnd(max, ' '));
     }
-    if (typeof defaultValue === 'number') {
+    if (is.number(defaultValue)) {
       return chalk.yellowBright(
         (defaultValue > COMMAIFY
           ? defaultValue.toLocaleString()
@@ -247,10 +248,10 @@ export class ConfigBuilderService {
         ).padEnd(max, ' '),
       );
     }
-    if (typeof defaultValue === 'boolean') {
+    if (is.boolean(defaultValue)) {
       return chalk.blueBright(defaultValue.toString().padEnd(max, ' '));
     }
-    if (typeof defaultValue !== 'string') {
+    if (is.string(defaultValue)) {
       return chalk.magentaBright(defaultValue.toString().padEnd(max, ' '));
     }
     return chalk.whiteBright(defaultValue.toString().padEnd(max, ' '));

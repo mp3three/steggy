@@ -17,6 +17,7 @@ import {
   AutoLogService,
   DOWN,
   FILTER_OPERATIONS,
+  is,
   IsEmpty,
   UP,
 } from '@for-science/utilities';
@@ -102,7 +103,7 @@ export class RoomStateService {
       const state = await this.build(room);
       return state.id;
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       throw new NotImplementedException();
     }
     return action.id;
@@ -144,7 +145,7 @@ export class RoomStateService {
         room = await this.roomService.update(room);
         return await this.process(room);
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       throw new NotImplementedException();
     }
     room = await this.processState(room, action);
@@ -177,8 +178,7 @@ export class RoomStateService {
         r: [`${ICONS.ROOMS}Go to room`, `room`],
         x: MENU_ITEMS.DELETE,
       },
-      right: ToMenuEntry([MENU_ITEMS.ACTIVATE, MENU_ITEMS.EDIT]),
-      rightHeader: `Room state`,
+      keyOnly: true,
       value: defaultAction,
     });
     if (IsDone(action)) {
@@ -208,7 +208,7 @@ export class RoomStateService {
           method: `post`,
           url: `/room/${room._id}/state/${state.id}`,
         });
-        return room;
+        return await this.processState(room, state, action);
       case 'edit':
         const update = await this.build(room, state);
         room = await this.roomService.get(room._id);

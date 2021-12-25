@@ -3,6 +3,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class StateChangeActivateDTO {
   @ApiProperty()
+  public debounce?: number;
+  @ApiProperty()
   public entity: string;
   @ApiProperty()
   public id: string;

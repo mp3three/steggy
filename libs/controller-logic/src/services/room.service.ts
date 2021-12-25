@@ -2,6 +2,7 @@ import { domain } from '@for-science/home-assistant';
 import { BaseSchemaDTO } from '@for-science/persistence';
 import {
   AutoLogService,
+  is,
   IsEmpty,
   ResultControlDTO,
 } from '@for-science/utilities';
@@ -189,7 +190,7 @@ export class RoomService {
   }
 
   private async load(room: RoomDTO | string): Promise<RoomDTO> {
-    if (typeof room === 'string') {
+    if (is.string(room)) {
       room = await this.roomPersistence.findById(room);
     }
     if (!room) {

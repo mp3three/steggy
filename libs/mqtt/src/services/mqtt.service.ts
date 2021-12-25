@@ -1,4 +1,4 @@
-import { AutoLogService, IsEmpty } from '@for-science/utilities';
+import { AutoLogService, is, IsEmpty } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import {
   Client,
@@ -65,7 +65,7 @@ export class MqttService {
     options?: IClientPublishOptions,
   ): Promise<Packet> {
     return new Promise<Packet>((resolve, reject) => {
-      if (typeof message === 'object') {
+      if (is.object(message)) {
         message = JSON.stringify(message);
       }
       this.logger.debug(`Publish {${topic}}`);

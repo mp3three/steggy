@@ -2,7 +2,12 @@ import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { get } from 'object-path';
 
-import { FILTER_OPERATIONS, FilterDTO, ResultControlDTO } from '../contracts';
+import {
+  FILTER_OPERATIONS,
+  FilterDTO,
+  is,
+  ResultControlDTO,
+} from '../contracts';
 import { AutoLogService } from './auto-log.service';
 
 type RelativeCompare = number | Date | dayjs.Dayjs;
@@ -16,7 +21,7 @@ export class JSONFilterService {
 
   public match(item: Record<string, unknown>, filter: FilterDTO): boolean {
     const value = get(item, filter.field);
-    if (typeof filter.exists === 'boolean') {
+    if (is.boolean(filter.exists)) {
       const exists = typeof value === 'undefined';
       return (exists && filter.exists) || (!filter.exists && !exists);
     }

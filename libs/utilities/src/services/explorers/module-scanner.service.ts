@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 
+import { is } from '../../contracts';
 import { LOGGER_LIBRARY } from '../../contracts/logger';
 import { OnceIsEnough } from '../../decorators/once-is-enough.decorator';
 
@@ -23,7 +24,7 @@ export class ModuleScannerService {
     const out = new Map();
     this.applicationProviders<PROVIDER_TYPE>().forEach((instance) => {
       const ctor = instance.constructor;
-      if (typeof ctor[find] !== 'undefined') {
+      if (!is.undefined(ctor[find])) {
         out.set(instance, ctor[find]);
       }
     });

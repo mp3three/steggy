@@ -3,6 +3,7 @@ import { BodyInit, RequestInit, Response } from 'node-fetch';
 import {
   FetchArguments,
   FetchParameterTypes,
+  is,
   ResultControlDTO,
 } from '../../contracts';
 import { controlToQuery } from '../../includes';
@@ -86,7 +87,7 @@ export class BaseFetchService {
     if (bearer) {
       headers['Authorization'] = `Bearer ${bearer}`;
     }
-    if (typeof body === 'object') {
+    if (is.object(body)) {
       body = JSON.stringify(body);
     }
     return {
@@ -132,10 +133,10 @@ export class BaseFetchService {
     if (item instanceof Date) {
       return item.toISOString();
     }
-    if (typeof item === 'number') {
+    if (is.number(item)) {
       return item.toString();
     }
-    if (typeof item === 'boolean') {
+    if (is.boolean(item)) {
       return item ? 'true' : 'false';
     }
     return item;
@@ -146,7 +147,7 @@ export class BaseFetchService {
     message: string;
     statusCode: number;
   }): T {
-    if (typeof maybeError !== 'object' || maybeError === null) {
+    if (!is.object(maybeError) || maybeError === null) {
       return maybeError as T;
     }
     if (

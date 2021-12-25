@@ -6,7 +6,7 @@ import {
   LockDomainService,
   LockStateDTO,
 } from '@for-science/home-assistant';
-import { AutoLogService } from '@for-science/utilities';
+import { AutoLogService, is } from '@for-science/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { each } from 'async';
 
@@ -68,7 +68,7 @@ export class LockGroupService extends BaseGroupService {
   }
 
   public async lock(group: GroupDTO | string): Promise<void> {
-    if (typeof group === 'string') {
+    if (is.string(group)) {
       group = await this.groupPersistence.findById(group);
     }
     await each(group.entities, async (lock, callback) => {
@@ -97,7 +97,7 @@ export class LockGroupService extends BaseGroupService {
   }
 
   public async unlock(group: GroupDTO | string): Promise<void> {
-    if (typeof group === 'string') {
+    if (is.string(group)) {
       group = await this.groupPersistence.findById(group);
     }
     await each(group.entities, async (lock, callback) => {
@@ -135,7 +135,7 @@ export class LockGroupService extends BaseGroupService {
   }
 
   private isValid(id: string | string[]): boolean {
-    if (typeof id === 'string') {
+    if (is.string(id)) {
       return domain(id) === HASS_DOMAINS.lock;
     }
     return id.every((item) => domain(item) === HASS_DOMAINS.lock);

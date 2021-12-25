@@ -1,6 +1,6 @@
 import { domain, HASS_DOMAINS } from '@for-science/home-assistant';
 import { BaseSchemaDTO } from '@for-science/persistence';
-import { AutoLogService, ResultControlDTO } from '@for-science/utilities';
+import { AutoLogService, is, ResultControlDTO } from '@for-science/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 
@@ -138,7 +138,7 @@ export class GroupService {
   public async load<T extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
     group: GroupDTO<T> | string,
   ): Promise<GroupDTO<T>> {
-    if (typeof group === 'object') {
+    if (is.object(group)) {
       return group;
     }
     return await this.groupPersistence.findById(group);

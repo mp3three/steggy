@@ -23,7 +23,7 @@ import {
   PromptService,
   ToMenuEntry,
 } from '@for-science/tty';
-import { IsEmpty, TitleCase } from '@for-science/utilities';
+import { is, IsEmpty, TitleCase } from '@for-science/utilities';
 import {
   forwardRef,
   Inject,
@@ -373,7 +373,7 @@ export class RoutineCommandService {
         routine = await this.routineCommand.update(routine);
         return await this.processRoutine(routine);
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       throw new NotImplementedException();
     }
     routine = await this.process(routine, action);

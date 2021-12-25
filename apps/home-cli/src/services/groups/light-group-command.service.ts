@@ -14,7 +14,13 @@ import {
   PromptService,
   RGB,
 } from '@for-science/tty';
-import { AutoLogService, DOWN, TitleCase, UP } from '@for-science/utilities';
+import {
+  AutoLogService,
+  DOWN,
+  is,
+  TitleCase,
+  UP,
+} from '@for-science/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 import chalk from 'chalk';
@@ -265,7 +271,7 @@ export class LightGroupCommandService {
   }
 
   public async refresh(group: GroupDTO | string): Promise<GroupDTO> {
-    if (typeof group === 'string') {
+    if (is.string(group)) {
       return await this.fetchService.fetch({
         url: `/group/${group}`,
       });

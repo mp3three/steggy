@@ -1,4 +1,4 @@
-import { AutoLogService } from '@for-science/utilities';
+import { AutoLogService, is } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { HASS_DOMAINS } from '../contracts';
@@ -26,7 +26,7 @@ export class LightDomainService extends EntityService {
   }
 
   public async turnOff(entity_id: string | string[]): Promise<void> {
-    if (typeof entity_id === 'string') {
+    if (is.string(entity_id)) {
       entity_id = [entity_id];
     }
     entity_id.forEach((id) => {

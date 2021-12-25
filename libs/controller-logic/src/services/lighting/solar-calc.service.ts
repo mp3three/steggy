@@ -1,5 +1,8 @@
-import { HA_SOCKET_READY, HASocketAPIService } from '@for-science/home-assistant';
-import { AutoLogService, OnEvent, sleep } from '@for-science/utilities';
+import {
+  HA_SOCKET_READY,
+  HASocketAPIService,
+} from '@for-science/home-assistant';
+import { AutoLogService, is, OnEvent, sleep } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
@@ -27,7 +30,7 @@ export class SolarCalcService {
   }
 
   public async getCalc(): Promise<SolarCalcType> {
-    if (typeof this.latitude !== 'number') {
+    if (!is.number(this.latitude)) {
       this.logger.debug(`Waiting for {lat}/{long}`);
       await sleep();
       return await this.getCalc();

@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { FILTER_OPERATIONS, ResultControlDTO } from '@for-science/utilities';
+import {
+  FILTER_OPERATIONS,
+  is,
+  ResultControlDTO,
+} from '@for-science/utilities';
 import { Document, Query, Types } from 'mongoose';
 
 import { filtersToMongoQuery } from '../includes';
@@ -10,7 +14,7 @@ export class BaseMongoService {
     query: ResultControlDTO | string,
     merge: ResultControlDTO = {},
   ): Record<string, unknown> {
-    if (typeof query === 'string') {
+    if (is.string(query)) {
       merge.filters ??= new Set();
       merge.filters.add({
         field: '_id',

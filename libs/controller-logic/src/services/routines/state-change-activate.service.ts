@@ -7,6 +7,7 @@ import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
+  is,
   IsEmpty,
   JSONFilterService,
   OnEvent,
@@ -16,7 +17,9 @@ import { each } from 'async';
 
 import { StateChangeActivateDTO, StateChangeWatcher } from '../../contracts';
 
-const CACHE_KEY = (id: string) => `STATE_LATCH:${id}`;
+const LATCH_KEY = (id: string) => `STATE_LATCH:${id}`;
+const DEBOUNCE_KEY = (id: string) => `STATE_DEBOUNCE:${id}`;
+const NO_ACTIVATIONS = 0;
 
 @Injectable()
 export class StateChangeActivateService {
@@ -69,7 +72,7 @@ export class StateChangeActivateService {
     await each(
       this.WATCHED_ENTITIES.get(data.entity_id),
       async (item, callback) => {
-        const valid = this.jsonFilter.match(
+        let valid = this.jsonFilter.match(
           { value: data.new_state.state },
           {
             field: 'value',
@@ -78,11 +81,10 @@ export class StateChangeActivateService {
           },
         );
         if (await this.blockLatched(item, valid)) {
-          this.logger.debug(
-            `[${item.entity}]${item.operation}{${item.value}} currently latched`,
-          );
+          this.logger.debug(`${this.description(item)} currently latched`);
           return callback();
         }
+        valid = await this.debounce(item, valid);
         if (valid) {
           await item.callback();
         }
@@ -92,14 +94,42 @@ export class StateChangeActivateService {
   }
 
   private async blockLatched(
-    { id, latch }: StateChangeWatcher,
+    item: StateChangeWatcher,
     currentState: boolean,
   ): Promise<boolean> {
+    const { latch, id } = item;
     if (!latch) {
       return false;
     }
-    const isLatched = await this.cacheService.get<boolean>(CACHE_KEY(id));
-    await this.cacheService.set(CACHE_KEY(id), currentState);
+    const isLatched = await this.cacheService.get<boolean>(LATCH_KEY(id));
+    await this.cacheService.set(LATCH_KEY(id), currentState);
     return currentState && isLatched;
+  }
+
+  private async debounce(
+    item: StateChangeWatcher,
+    currentState: boolean,
+  ): Promise<boolean> {
+    const { debounce, id } = item;
+    if (!is.number(debounce)) {
+      return currentState;
+    }
+    if (!currentState) {
+      return false;
+    }
+    const key = DEBOUNCE_KEY(id);
+    const now = Date.now();
+    const lastActivate =
+      (await this.cacheService.get<number>(key)) || NO_ACTIVATIONS;
+    if (lastActivate + debounce > now) {
+      this.logger.debug(`${this.description(item)} debounce`);
+      return false;
+    }
+    await this.cacheService.set(key, now);
+    return true;
+  }
+
+  private description(item: StateChangeWatcher): string {
+    return `[${item.entity}]${item.operation}{${item.value}}`;
   }
 }

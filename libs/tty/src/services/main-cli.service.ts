@@ -3,6 +3,7 @@ import {
   CacheManagerService,
   DOWN,
   InjectCache,
+  is,
   UP,
   VALUE,
 } from '@for-science/utilities';
@@ -41,7 +42,7 @@ export class MainCLIService implements iRepl {
     this.promptService.scriptHeader('Script List');
 
     const name = await this.pickOne();
-    if (typeof name !== 'string') {
+    if (!is.string(name)) {
       await this.pinnedItem.exec(name);
       return this.exec();
     }
@@ -115,7 +116,7 @@ export class MainCLIService implements iRepl {
     );
     const right = this.getRight(types);
     const left = this.getLeft();
-    if (typeof this.last === 'object' && this.last !== null) {
+    if (is.object(this.last) && this.last !== null) {
       this.last = left.find((i) => {
         return (
           (i.entry[VALUE] as PinnedItemDTO).id ===

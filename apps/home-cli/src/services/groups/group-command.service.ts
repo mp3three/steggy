@@ -12,7 +12,6 @@ import {
   iRepl,
   IsDone,
   KeyMap,
-  MenuEntry,
   PinnedItemService,
   PromptEntry,
   PromptService,
@@ -23,6 +22,7 @@ import {
   ARRAY_OFFSET,
   AutoLogService,
   DOWN,
+  is,
   IsEmpty,
   ResultControlDTO,
   TitleCase,
@@ -139,7 +139,7 @@ export class GroupCommandService implements iRepl {
         throw new InternalServerErrorException(`wat`);
       }
     }
-    if (typeof state === 'string') {
+    if (is.string(state)) {
       throw new NotImplementedException();
     }
     return {
@@ -171,7 +171,7 @@ export class GroupCommandService implements iRepl {
     if (IsDone(action)) {
       return;
     }
-    if (typeof action === 'string') {
+    if (is.string(action)) {
       this.logger.error({ action }, `Command not implemented`);
       return;
     }
@@ -294,7 +294,7 @@ export class GroupCommandService implements iRepl {
     if (IsDone(action)) {
       return;
     }
-    if (typeof action !== 'string') {
+    if (!is.string(action)) {
       return await this.entityService.process(action.entity_id);
     }
     switch (action) {
