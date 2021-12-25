@@ -55,7 +55,7 @@ export class GroupService {
     group: GroupDTO | string,
     entity: string | string[],
   ): Promise<GroupDTO<GROUP_TYPE>> {
-    entity = typeof entity === 'string' ? [entity] : entity;
+    entity = is.string(entity) ? [entity] : entity;
     group = await this.load(group);
     group.entities = [
       ...group.entities.filter((id) => !entity.includes(id)),
@@ -91,7 +91,7 @@ export class GroupService {
   }
 
   public async delete(group: GroupDTO | string): Promise<boolean> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     return await this.groupPersistence.delete(group);
   }
 
@@ -150,7 +150,7 @@ export class GroupService {
     group: GroupDTO | string,
     entity: string | string[],
   ): Promise<GroupDTO<GROUP_TYPE>> {
-    entity = typeof entity === 'string' ? [entity] : entity;
+    entity = is.string(entity) ? [entity] : entity;
     group = await this.load(group);
     group.entities = group.entities.filter((id) => !entity.includes(id));
     return this.update(group._id, group);

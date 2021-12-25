@@ -103,13 +103,13 @@ function resolve(filter: FilterDTO) {
     }
     filter.value = values;
   } else if (
-    typeof filter.value === 'string' &&
+    is.string(filter.value) &&
     ['y', 'true'].includes(filter.value.toLocaleLowerCase())
   ) {
     filter.value = [filter.value as string, true];
     filter.operation = FILTER_OPERATIONS.in;
   } else if (
-    typeof filter.value === 'string' &&
+    is.string(filter.value) &&
     ['n', 'false'].includes(filter.value.toLowerCase())
   ) {
     filter.operation = FILTER_OPERATIONS.in;

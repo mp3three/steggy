@@ -19,6 +19,7 @@ import {
   PACKAGE_FILE,
   PackageJsonDTO,
   RepoMetadataDTO,
+  is,
 } from '../contracts';
 import { AutoLogService } from './auto-log.service';
 
@@ -120,7 +121,7 @@ export class WorkspaceService {
   }
 
   public isProject(project: string): boolean {
-    return typeof this.workspace.projects[project] !== 'undefined';
+    return !is.undefined(this.workspace.projects[project]);
   }
 
   public list(type: NXProjectTypes): string[] {

@@ -17,6 +17,8 @@ import {
   ToMenuEntry,
 } from '@for-science/tty';
 import {
+  CacheManagerService,
+  InjectCache,
   is,
   IsEmpty,
   ResultControlDTO,
@@ -37,6 +39,7 @@ type RCService = RoomCommandService;
 type RService = RoutineCommandService;
 const MILLISECONDS = 1000;
 const SOLO = 1;
+const CACHE_KEY = `MENU_LAST_ROUTINE`;
 
 @Repl({
   category: 'Control',
@@ -46,6 +49,8 @@ const SOLO = 1;
 })
 export class RoutineService {
   constructor(
+    @InjectCache()
+    private readonly cache: CacheManagerService,
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
     private readonly activateService: RoutineActivateService,
@@ -56,12 +61,14 @@ export class RoutineService {
     private readonly pinnedItems: PinnedItemService,
   ) {}
 
+  private lastRoutine: string;
+
   public async create(room?: RoomDTO | string): Promise<RoutineDTO> {
     const friendlyName = await this.promptService.friendlyName();
     return await this.fetchService.fetch<RoutineDTO, RoutineDTO>({
       body: {
         friendlyName,
-        room: typeof room === 'string' ? room : room?._id,
+        room: is.string(room) ? room : room?._id,
       },
       method: `post`,
       url: `/routine`,
@@ -87,14 +94,8 @@ export class RoutineService {
         c: MENU_ITEMS.CREATE,
         d: MENU_ITEMS.DONE,
       },
-      right: ToMenuEntry(
-        this.promptService.conditionalEntries(!IsEmpty(list), [
-          ...(list.map((i) => [
-            i.friendlyName,
-            i,
-          ]) as PromptEntry<RoutineDTO>[]),
-        ]),
-      ),
+      right: ToMenuEntry(list.map((i) => [i.friendlyName, i])),
+      value: this.lastRoutine,
     });
     if (IsDone(action)) {
       return;
@@ -108,6 +109,8 @@ export class RoutineService {
     if (is.string(action)) {
       throw new NotImplementedException();
     }
+    this.lastRoutine = action._id;
+    await this.cache.set(CACHE_KEY, action._id);
     await this.processRoutine(action);
   }
 
@@ -133,8 +136,7 @@ export class RoutineService {
     }
     defaultValue = inList.find(
       ({ _id }) =>
-        _id ===
-        (typeof defaultValue === 'string' ? defaultValue : defaultValue?._id),
+        _id === (is.string(defaultValue) ? defaultValue : defaultValue?._id),
     );
     return await this.promptService.pickOne(
       `Pick a routine`,
@@ -149,7 +151,7 @@ export class RoutineService {
       control.filters ??= new Set();
       control.filters.add({
         field: 'room',
-        value: typeof room === 'string' ? room : room._id,
+        value: is.string(room) ? room : room._id,
       });
     }
     const current = await this.list(control);
@@ -322,7 +324,8 @@ export class RoutineService {
     });
   }
 
-  protected onModuleInit(): void {
+  protected async onModuleInit(): Promise<void> {
+    this.lastRoutine = await this.cache.get(CACHE_KEY);
     this.pinnedItems.loaders.set('routine', async ({ id }) => {
       const routine = await this.get(id);
       await this.processRoutine(routine);

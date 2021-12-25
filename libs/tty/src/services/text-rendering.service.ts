@@ -132,9 +132,7 @@ export class TextRenderingService {
     const highlighted = fuzzyResult.map((result) => {
       const { target } = result;
       const item = data.find((option) => {
-        return typeof option === 'string'
-          ? option === target
-          : option[LABEL] === target;
+        return is.string(option) ? option === target : option[LABEL] === target;
       });
       return [this.highlight(result), item[VALUE]] as MenuEntry<T>;
     });

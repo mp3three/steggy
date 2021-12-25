@@ -2,6 +2,7 @@ import { BaseMongoService, BaseSchemaDTO } from '@for-science/persistence';
 import {
   AutoLogService,
   CastResult,
+  is,
   ResultControlDTO,
 } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
@@ -29,7 +30,7 @@ export class GroupPersistenceService extends BaseMongoService {
   }
 
   public async delete(state: GroupDTO | string): Promise<boolean> {
-    const query = this.merge(typeof state === 'string' ? state : state._id);
+    const query = this.merge(is.string(state) ? state : state._id);
     this.logger.debug({ query }, `delete query`);
     const result = await this.model
       .updateOne(query, {

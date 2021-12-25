@@ -150,10 +150,7 @@ export class BaseFetchService {
     if (!is.object(maybeError) || maybeError === null) {
       return maybeError as T;
     }
-    if (
-      typeof maybeError.statusCode === 'number' &&
-      typeof maybeError.error === 'string'
-    ) {
+    if (is.number(maybeError.statusCode) && is.string(maybeError.error)) {
       this.logger.error({ error: maybeError }, maybeError.message);
     }
     return maybeError as T;

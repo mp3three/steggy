@@ -15,10 +15,13 @@ import {
 } from '@for-science/tty';
 import {
   AutoLogService,
+  CacheManagerService,
   DOWN,
   FILTER_OPERATIONS,
+  InjectCache,
   is,
   IsEmpty,
+  LABEL,
   UP,
 } from '@for-science/utilities';
 import { NotImplementedException } from '@nestjs/common';
@@ -32,7 +35,7 @@ import { HomeFetchService } from '../home-fetch.service';
 import { RoutineService } from '../routines';
 import { RoomStateService } from './room-state.service';
 
-const NAME = 0;
+const CACHE_KEY = 'MENU_LAST_ROOM';
 
 @Repl({
   category: `Control`,
@@ -42,6 +45,8 @@ const NAME = 0;
 })
 export class RoomCommandService {
   constructor(
+    @InjectCache()
+    private readonly cache: CacheManagerService,
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
@@ -83,7 +88,7 @@ export class RoomCommandService {
       right: ToMenuEntry(
         rooms
           .map((room) => [room.friendlyName, room] as PromptEntry<RoomDTO>)
-          .sort((a, b) => (a[NAME] > b[NAME] ? UP : DOWN)),
+          .sort((a, b) => (a[LABEL] > b[LABEL] ? UP : DOWN)),
       ),
       rightHeader: `Pick room`,
       value: this.lastRoom
@@ -99,6 +104,7 @@ export class RoomCommandService {
     if (is.string(room)) {
       throw new NotImplementedException();
     }
+    await this.cache.set(CACHE_KEY, room._id);
     this.lastRoom = room._id;
     return await this.processRoom(room);
   }
@@ -117,10 +123,9 @@ export class RoomCommandService {
 
   public async pickOne(current?: RoomDTO | string): Promise<RoomDTO> {
     const rooms = await this.list();
-    current =
-      typeof current === 'string'
-        ? rooms.find(({ _id }) => _id === current)
-        : current;
+    current = is.string(current)
+      ? rooms.find(({ _id }) => _id === current)
+      : current;
     const room = await this.promptService.pickOne<RoomDTO | string>(
       `Pick a room`,
       [
@@ -267,7 +272,8 @@ export class RoomCommandService {
     });
   }
 
-  protected onModuleInit(): void {
+  protected async onModuleInit(): Promise<void> {
+    this.lastRoom = await this.cache.get(CACHE_KEY);
     this.pinnedItems.loaders.set('room', async ({ id }) => {
       const room = await this.get(id);
       await this.processRoom(room);

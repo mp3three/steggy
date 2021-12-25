@@ -21,7 +21,9 @@ import {
 import {
   ARRAY_OFFSET,
   AutoLogService,
+  CacheManagerService,
   DOWN,
+  InjectCache,
   is,
   IsEmpty,
   ResultControlDTO,
@@ -62,6 +64,7 @@ const GROUP_DOMAINS = new Map([
   [GROUP_TYPES.lock, [HASS_DOMAINS.lock]],
   [GROUP_TYPES.fan, [HASS_DOMAINS.fan]],
 ]);
+const CACHE_KEY = `MENU_LAST_GROUP`;
 
 @Repl({
   category: `Control`,
@@ -71,6 +74,8 @@ const GROUP_DOMAINS = new Map([
 })
 export class GroupCommandService implements iRepl {
   constructor(
+    @InjectCache()
+    private readonly cache: CacheManagerService,
     private readonly logger: AutoLogService,
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
@@ -175,13 +180,14 @@ export class GroupCommandService implements iRepl {
       this.logger.error({ action }, `Command not implemented`);
       return;
     }
+    await this.cache.set(CACHE_KEY, action._id);
     this.lastGroup = action._id;
     await this.process(action, groups);
   }
 
   public async get(group: GroupDTO | string): Promise<GroupDTO> {
     return await this.fetchService.fetch({
-      url: `/group/${typeof group === 'string' ? group : group._id}`,
+      url: `/group/${is.string(group) ? group : group._id}`,
     });
   }
 
@@ -227,8 +233,7 @@ export class GroupCommandService implements iRepl {
     if (defaultValue) {
       defaultValue = groups.find(
         ({ _id }) =>
-          _id ===
-          (typeof defaultValue === 'string' ? defaultValue : defaultValue._id),
+          _id === (is.string(defaultValue) ? defaultValue : defaultValue._id),
       );
     }
     return await this.promptService.pickOne(
@@ -390,7 +395,8 @@ export class GroupCommandService implements iRepl {
     });
   }
 
-  protected onModuleInit(): void {
+  protected async onModuleInit(): Promise<void> {
+    this.lastGroup = await this.cache.get(CACHE_KEY);
     this.pinnedItems.loaders.set('group', async ({ id }) => {
       const list = await this.list();
       const group = list.find(({ _id }) => _id === id);

@@ -6,9 +6,7 @@ export const PINO_SERIALIZERS = {
   parameters(parameters: unknown[]): unknown[] {
     return parameters.map((item) => {
       if (is.object(item)) {
-        if (
-          typeof (item as Record<string, unknown>)._parsedUrl !== 'undefined'
-        ) {
+        if (!is.undefined((item as Record<string, unknown>)._parsedUrl)) {
           return 'APIRequest';
         }
         return item;

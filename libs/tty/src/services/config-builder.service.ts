@@ -82,8 +82,9 @@ export class ConfigBuilderService {
   public async handleConfig(
     application: string | symbol = this.activeApplication,
   ): Promise<void> {
-    application =
-      typeof application === 'string' ? application : application.description;
+    application = is.string(application)
+      ? application
+      : application.description;
     this.loadConfig(application);
     const action = await this.promptService.menu({
       keyMap: {
@@ -122,7 +123,7 @@ export class ConfigBuilderService {
         const { targets } = projects[item];
         const scanner =
           targets?.build?.configurations[SCAN_CONFIG_CONFIGURATION];
-        return typeof scanner !== 'undefined';
+        return !is.undefined(scanner);
       })
       .map((item) => {
         const tag = existsSync(join(homedir(), '.config', item))
@@ -167,10 +168,9 @@ export class ConfigBuilderService {
     });
     const build: PromptEntry<ConfigTypeDTO>[] = [];
     config.forEach((entry) => {
-      entry.metadata.configurable =
-        typeof entry.metadata.configurable === 'undefined'
-          ? true
-          : entry.metadata.configurable;
+      entry.metadata.configurable = is.undefined(entry.metadata.configurable)
+        ? true
+        : entry.metadata.configurable;
       if (entry.metadata.configurable === false) {
         return;
       }

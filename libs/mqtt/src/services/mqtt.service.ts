@@ -41,7 +41,7 @@ export class MqttService {
     options?: IClientSubscribeOptions,
   ): Promise<ISubscriptionGrant[]> {
     return new Promise((resolve, reject) => {
-      topics = typeof topics === 'string' ? [topics] : topics;
+      topics = is.string(topics) ? [topics] : topics;
       topics = topics.filter((topic) => !this.subscriptions.has(topic));
       if (IsEmpty(topics)) {
         return;

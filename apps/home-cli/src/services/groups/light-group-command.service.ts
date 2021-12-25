@@ -71,7 +71,7 @@ export class LightGroupCommandService {
   };
 
   public async circadianOn(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/circadianOn`,
@@ -136,7 +136,7 @@ export class LightGroupCommandService {
   }
 
   public async dimDown(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/dimDown`,
@@ -144,7 +144,7 @@ export class LightGroupCommandService {
   }
 
   public async dimUp(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/dimUp`,
@@ -305,7 +305,7 @@ export class LightGroupCommandService {
   }
 
   public async turnOff(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/turnOff`,
@@ -313,7 +313,7 @@ export class LightGroupCommandService {
   }
 
   public async turnOn(group: GroupDTO | string): Promise<void> {
-    group = typeof group === 'string' ? group : group._id;
+    group = is.string(group) ? group : group._id;
     await this.fetchService.fetch({
       method: 'put',
       url: `/group/${group}/command/turnOn`,

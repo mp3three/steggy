@@ -22,7 +22,7 @@ export class JSONFilterService {
   public match(item: Record<string, unknown>, filter: FilterDTO): boolean {
     const value = get(item, filter.field);
     if (is.boolean(filter.exists)) {
-      const exists = typeof value === 'undefined';
+      const exists = is.undefined(value);
       return (exists && filter.exists) || (!filter.exists && !exists);
     }
     switch (filter.operation) {
@@ -103,7 +103,7 @@ export class JSONFilterService {
   }
 
   private regex(value: string, cmp: string | RegExp): boolean {
-    const regex = typeof cmp === 'string' ? new RegExp(cmp, 'gi') : cmp;
+    const regex = is.string(cmp) ? new RegExp(cmp, 'gi') : cmp;
     if (!(regex instanceof RegExp)) {
       this.logger.warn({ cmp }, `Bad regex filter`);
       return false;

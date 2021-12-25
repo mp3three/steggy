@@ -1,4 +1,4 @@
-import { AutoLogService, LOG_CONTEXT } from '@for-science/utilities';
+import { AutoLogService, is, LOG_CONTEXT } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
@@ -86,10 +86,9 @@ export class MQTTExplorerService {
             instance.__proto__[key][MQTT_SUBSCRIBE_OPTIONS];
 
           if (subscribeOptions) {
-            const topics =
-              typeof subscribeOptions.topic === 'string'
-                ? [subscribeOptions.topic]
-                : subscribeOptions.topic;
+            const topics = is.string(subscribeOptions.topic)
+              ? [subscribeOptions.topic]
+              : subscribeOptions.topic;
             topics.forEach((topic) => {
               this.logger.debug(
                 `${instance.constructor[LOG_CONTEXT]}#${key} subscribe {${topic}}`,

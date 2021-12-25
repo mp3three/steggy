@@ -92,7 +92,7 @@ export class PromptService {
           );
           return fuzzyResult.map(({ target }) => {
             return options.find((option) => {
-              return typeof option === 'string'
+              return is.string(option)
                 ? option === target
                 : option.name === target;
             });
@@ -267,7 +267,7 @@ export class PromptService {
     return items.map((item) => {
       if (Array.isArray(item)) {
         const label = item[LABEL] as string | PROMPT_WITH_SHORT;
-        return typeof label === 'string'
+        return is.string(label)
           ? {
               // Adding emojies can sometimes cause the final character to have rendering issues
               // Insert sacraficial empty space to the end

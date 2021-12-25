@@ -143,10 +143,9 @@ export class MainCLIService implements iRepl {
       return;
     }
     settings.description ??= [];
-    settings.description =
-      typeof settings.description === 'string'
-        ? [settings.description]
-        : settings.description;
+    settings.description = is.string(settings.description)
+      ? [settings.description]
+      : settings.description;
 
     console.log(
       chalk.yellow(

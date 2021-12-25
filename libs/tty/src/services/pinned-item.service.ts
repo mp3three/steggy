@@ -1,4 +1,4 @@
-import { AutoConfigService, InjectConfig } from '@for-science/utilities';
+import { AutoConfigService, InjectConfig, is } from '@for-science/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 import { LIB_TTY, PINNED_ITEMS } from '../config';
@@ -18,7 +18,7 @@ export class PinnedItemService<T = unknown> {
     @InjectConfig(PINNED_ITEMS) private pinned: PinnedItemDTO<T>[],
   ) {
     this.pinned = pinned.map((item) =>
-      typeof item === 'string' ? JSON.parse(item) : item,
+      is.string(item) ? JSON.parse(item) : item,
     );
   }
 
@@ -54,7 +54,7 @@ export class PinnedItemService<T = unknown> {
   }
 
   public isPinned(script: string, id: string): boolean {
-    return typeof this.findPin(script, id) !== 'undefined';
+    return !is.undefined(this.findPin(script, id));
   }
 
   public removePinned(item: PinnedItemDTO<T>): void {

@@ -105,7 +105,7 @@ export class RoomService {
   }
 
   public async delete(room: RoomDTO | string): Promise<boolean> {
-    room = typeof room === 'string' ? room : room._id;
+    room = is.string(room) ? room : room._id;
     return await this.roomPersistence.delete(room);
   }
 

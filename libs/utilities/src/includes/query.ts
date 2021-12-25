@@ -3,6 +3,7 @@ import {
   FilterDTO,
   FilterValueType,
   ResultControlDTO,
+  is,
 } from '../contracts';
 
 export function controlToQuery(
@@ -50,7 +51,7 @@ export function buildFilter(
     case 'in':
     case 'nin':
       if (!Array.isArray(value)) {
-        value = typeof value === 'string' ? value.split(',') : [value];
+        value = is.string(value) ? value.split(',') : [value];
       }
       return {
         field: name,
@@ -61,7 +62,7 @@ export function buildFilter(
       return {
         field: name,
         operation,
-        value: typeof value === 'string' ? JSON.parse(value) : value,
+        value: is.string(value) ? JSON.parse(value) : value,
       };
     default:
       return {

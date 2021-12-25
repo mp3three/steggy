@@ -6,6 +6,7 @@ import {
 import {
   AutoLogService,
   CastResult,
+  is,
   ResultControlDTO,
 } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
@@ -39,7 +40,7 @@ export class RoomPersistenceService extends BaseMongoService {
   }
 
   public async delete(state: RoomDTO | string): Promise<boolean> {
-    const query = this.merge(typeof state === 'string' ? state : state._id);
+    const query = this.merge(is.string(state) ? state : state._id);
     this.logger.debug({ query }, `delete query`);
     delete query.deleted;
     const result = await this.roomModel

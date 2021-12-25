@@ -23,7 +23,7 @@ import {
   PromptService,
   ToMenuEntry,
 } from '@for-science/tty';
-import { is, IsEmpty, TitleCase } from '@for-science/utilities';
+import { is, IsEmpty, START, TitleCase } from '@for-science/utilities';
 import {
   forwardRef,
   Inject,
@@ -52,7 +52,6 @@ import { RoutineService } from './routine.service';
 type RService = RoutineService;
 type RSService = RoomStateService;
 type RCService = RoomCommandService;
-const START = 0;
 
 @Injectable()
 export class RoutineCommandService {
@@ -226,7 +225,7 @@ export class RoutineCommandService {
         const roomStateCommand = (current?.command ??
           {}) as RoutineCommandRoomStateDTO;
         room = await this.roomCommand.get(
-          typeof roomStateCommand.room === 'string'
+          is.string(roomStateCommand.room)
             ? roomStateCommand.room
             : roomStateCommand.room._id,
         );

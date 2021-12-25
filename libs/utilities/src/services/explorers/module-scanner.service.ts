@@ -13,7 +13,7 @@ export class ModuleScannerService {
   public applicationProviders<T extends unknown = unknown>(): T[] {
     return this.getProviders<T>().filter((instance) => {
       const ctor = instance.constructor;
-      return typeof ctor[LOGGER_LIBRARY] !== 'undefined';
+      return !is.undefined(ctor[LOGGER_LIBRARY]);
     });
   }
 
