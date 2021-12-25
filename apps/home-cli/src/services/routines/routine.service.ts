@@ -8,7 +8,6 @@ import {
   RoutineDTO,
 } from '@for-science/controller-logic';
 import {
-  DONE,
   ICONS,
   IsDone,
   PinnedItemService,

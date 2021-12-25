@@ -2,7 +2,7 @@ import { Inject, Provider } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { v4 } from 'uuid';
 
-import { ROOM_CONTROLLER_SETTINGS } from '..';
+import { ROOM_CONTROLLER_SETTINGS } from '../contracts';
 
 export const InjectedSettings = new Set<Provider>();
 export function InjectControllerSettings(

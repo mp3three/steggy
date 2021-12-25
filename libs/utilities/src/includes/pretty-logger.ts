@@ -3,8 +3,8 @@
 import chalk from 'chalk';
 import pino from 'pino';
 import { cwd } from 'process';
-import { is } from '..';
 
+import { is } from '../contracts';
 import { AutoLogService, LoggerFunction } from '../services/auto-log.service';
 const logger = pino({
   level: AutoLogService.logger.level,

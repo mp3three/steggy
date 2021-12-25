@@ -1,4 +1,4 @@
-import { is } from '.';
+import { is } from './is';
 
 export const EMPTY = 0;
 

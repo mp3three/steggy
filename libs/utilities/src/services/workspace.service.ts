@@ -5,7 +5,7 @@ import { homedir } from 'os';
 import { dirname, join } from 'path';
 import { cwd } from 'process';
 
-import { LIB_UTILS } from '..';
+import { LIB_UTILS } from '../config';
 import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
@@ -20,7 +20,6 @@ import {
   PackageJsonDTO,
   RepoMetadataDTO,
 } from '../contracts';
-import { InjectLogger } from '../decorators/injectors/inject-logger.decorator';
 import { AutoLogService } from './auto-log.service';
 
 /**

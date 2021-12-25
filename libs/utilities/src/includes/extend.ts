@@ -1,4 +1,4 @@
-import { is } from '..';
+import { is } from '../contracts';
 
 function isSpecificValue(value) {
   return (

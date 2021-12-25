@@ -1,6 +1,6 @@
 import { RequestMapping, RequestMethod } from '@nestjs/common';
 
-import { ROOM_API_COMMAND } from '..';
+import { ROOM_API_COMMAND } from '../contracts';
 
 export class CommandOptions {
   method?: RequestMethod;
