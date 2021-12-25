@@ -14,4 +14,4 @@ currently being supported with security updates.
 
 ## Reporting a Vulnerability
 
-Please reach out via Issues, or to cameron@ccontour.com 
+Please reach out via Issues, or to cameron@automagicl.dev

@@ -1,4 +1,4 @@
-import { LibraryModule } from '@for-science/utilities';
+import { LibraryModule } from '@text-based/utilities';
 import { Provider } from '@nestjs/common';
 
 import { LIB_HOME_ASSISTANT } from '../config';

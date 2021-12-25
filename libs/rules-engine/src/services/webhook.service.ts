@@ -3,7 +3,7 @@ import {
   FetchService,
   is,
   JSONFilterService,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import {
   ConflictException,
   Injectable,

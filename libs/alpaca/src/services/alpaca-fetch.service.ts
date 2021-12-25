@@ -2,7 +2,7 @@ import {
   FetchArguments,
   FetchService,
   InjectConfig,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 
 import { API_KEY, API_SECRET, LIVE_TRADING } from '../config';
 

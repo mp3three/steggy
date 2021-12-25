@@ -1,4 +1,4 @@
-import { HassNotificationDTO } from '@for-science/home-assistant';
+import { HassNotificationDTO } from '@text-based/home-assistant';
 import {
   ConfigBuilderService,
   ICONS,
@@ -6,7 +6,7 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@for-science/tty';
+} from '@text-based/tty';
 import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
@@ -15,7 +15,7 @@ import {
   IsEmpty,
   PackageJsonDTO,
   WorkspaceService,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import { Inject, NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import execa from 'execa';

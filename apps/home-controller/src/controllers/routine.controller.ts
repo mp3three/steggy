@@ -12,14 +12,14 @@ import {
   ScheduleActivateDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
-} from '@for-science/controller-logic';
+} from '@text-based/controller-logic';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
   Locals,
   ResponseLocals,
-} from '@for-science/server';
+} from '@text-based/server';
 import {
   Body,
   Controller,

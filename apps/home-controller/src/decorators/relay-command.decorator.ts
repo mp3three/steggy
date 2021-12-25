@@ -1,8 +1,8 @@
 import {
   iRoomControllerMethods,
   ROOM_COMMAND,
-} from '@for-science/controller-logic';
-import { EmitAfter } from '@for-science/utilities';
+} from '@text-based/controller-logic';
+import { EmitAfter } from '@text-based/utilities';
 import { applyDecorators } from '@nestjs/common';
 
 export function RelayCommand(

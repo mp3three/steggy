@@ -5,7 +5,7 @@ import {
   IsEmpty,
   PEAT,
   START,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 

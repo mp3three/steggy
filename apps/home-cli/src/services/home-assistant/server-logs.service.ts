@@ -1,4 +1,4 @@
-import { HomeAssistantServerLogItem } from '@for-science/home-assistant';
+import { HomeAssistantServerLogItem } from '@text-based/home-assistant';
 import {
   DONE,
   ICONS,
@@ -6,8 +6,8 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@for-science/tty';
-import { AutoLogService, is, IsEmpty, TitleCase } from '@for-science/utilities';
+} from '@text-based/tty';
+import { AutoLogService, is, IsEmpty, TitleCase } from '@text-based/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';

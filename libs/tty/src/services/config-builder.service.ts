@@ -12,7 +12,7 @@ import {
   TitleCase,
   UP,
   WorkspaceService,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import {
   Inject,
   Injectable,

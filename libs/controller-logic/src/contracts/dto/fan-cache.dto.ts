@@ -1,4 +1,4 @@
-import { FanSpeeds } from '@for-science/home-assistant';
+import { FanSpeeds } from '@text-based/home-assistant';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 

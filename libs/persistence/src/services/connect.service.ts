@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { FetchService } from '@for-science/utilities';
+import { FetchService } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 import { MongooseModuleOptions } from '@nestjs/mongoose';
 import { existsSync, readFileSync } from 'fs';

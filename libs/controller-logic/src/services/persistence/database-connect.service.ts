@@ -1,5 +1,5 @@
-import { ConnectService } from '@for-science/persistence';
-import { InjectConfig } from '@for-science/utilities';
+import { ConnectService } from '@text-based/persistence';
+import { InjectConfig } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 import { MongooseModuleOptions } from '@nestjs/mongoose';
 

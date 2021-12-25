@@ -2,7 +2,7 @@ import {
   EntityManagerService,
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
-} from '@for-science/home-assistant';
+} from '@text-based/home-assistant';
 import {
   AutoLogService,
   CacheManagerService,
@@ -11,7 +11,7 @@ import {
   IsEmpty,
   JSONFilterService,
   OnEvent,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 

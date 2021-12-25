@@ -1,4 +1,4 @@
-import { PromptEntry } from '@for-science/tty';
+import { PromptEntry } from '@text-based/tty';
 import { Injectable } from '@nestjs/common';
 
 import { SwitchService } from './switch.service';

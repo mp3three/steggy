@@ -1,6 +1,6 @@
-import { EcobeeClimateStateDTO } from '@for-science/home-assistant';
-import { DONE, IsDone, PromptEntry, ToMenuEntry } from '@for-science/tty';
-import { TitleCase } from '@for-science/utilities';
+import { EcobeeClimateStateDTO } from '@text-based/home-assistant';
+import { DONE, IsDone, PromptEntry, ToMenuEntry } from '@text-based/tty';
+import { TitleCase } from '@text-based/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 

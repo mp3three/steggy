@@ -1,4 +1,4 @@
-import { ACTIVE_APPLICATION, WorkspaceService } from '@for-science/utilities';
+import { ACTIVE_APPLICATION, WorkspaceService } from '@text-based/utilities';
 import { INestApplication } from '@nestjs/common';
 import { dump } from 'js-yaml';
 

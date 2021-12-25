@@ -1,4 +1,4 @@
-import { LibraryModule, RegisterCache } from '@for-science/utilities';
+import { LibraryModule, RegisterCache } from '@text-based/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { LIB_CONTROLLER_LOGIC } from '../config';

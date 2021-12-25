@@ -3,7 +3,7 @@ import {
   AutoLogService,
   InjectConfig,
   WorkspaceService,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import { INestApplication, Inject, Injectable } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 

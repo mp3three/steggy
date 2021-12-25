@@ -1,4 +1,4 @@
-import { DONE, ICONS, MenuEntry } from '@for-science/tty';
+import { DONE, ICONS, MenuEntry } from '@text-based/tty';
 import chalk from 'chalk';
 
 const menu = {

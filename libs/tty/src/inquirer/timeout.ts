@@ -1,4 +1,4 @@
-import { ARRAY_OFFSET, FIRST, IsEmpty } from '@for-science/utilities';
+import { ARRAY_OFFSET, FIRST, IsEmpty } from '@text-based/utilities';
 import { InternalServerErrorException } from '@nestjs/common';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';

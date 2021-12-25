@@ -1,4 +1,4 @@
-import { InjectConfig } from '@for-science/utilities';
+import { InjectConfig } from '@text-based/utilities';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 

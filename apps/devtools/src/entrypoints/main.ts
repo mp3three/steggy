@@ -1,5 +1,5 @@
-import { MainCLIService } from '@for-science/tty';
-import { Bootstrap } from '@for-science/utilities';
+import { MainCLIService } from '@text-based/tty';
+import { Bootstrap } from '@text-based/utilities';
 
 import { BOOTSTRAP_OPTIONS } from '../environments/environment';
 import { DevtoolsModule } from '../modules';

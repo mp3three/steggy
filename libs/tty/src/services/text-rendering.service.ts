@@ -10,7 +10,7 @@ import {
   START,
   UP,
   VALUE,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import fuzzy from 'fuzzysort';

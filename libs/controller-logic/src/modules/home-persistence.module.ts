@@ -1,5 +1,5 @@
-import { MongoPersistenceModule } from '@for-science/persistence';
-import { LibraryModule } from '@for-science/utilities';
+import { MongoPersistenceModule } from '@text-based/persistence';
+import { LibraryModule } from '@text-based/utilities';
 import { DynamicModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 

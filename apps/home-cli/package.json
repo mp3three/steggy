@@ -2,7 +2,7 @@
   "author": {
     "email": "github@ccontour.com",
     "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/for-science"
+    "url": "https://github.com/ccontour/text-based"
   },
   "bin": {
     "home-cli": "main.js"
@@ -11,14 +11,14 @@
     "eventemitter3": "^4.0.7",
     "pino-pretty": "^5.1.1"
   },
-  "name": "@ccontour/home-cli",
+  "name": "@text-based/home-cli",
   "license": "MIT",
   "main": "main.js",
   "displayName": "Home CLI",
   "version": "0.5.52",
-  "homepage": "https://github.com/ccontour/for-science",
+  "homepage": "https://github.com/ccontour/text-based",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ccontour/for-science.git"
+    "url": "git+https://github.com/ccontour/text-based.git"
   }
 }

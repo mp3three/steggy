@@ -1,12 +1,12 @@
 import {
   FlashAnimationDTO,
   FlashAnimationService,
-} from '@for-science/controller-logic';
+} from '@text-based/controller-logic';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
-} from '@for-science/server';
+} from '@text-based/server';
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 

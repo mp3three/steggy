@@ -1,5 +1,5 @@
-import { ChartingService, PromptService, Repl } from '@for-science/tty';
-import { PEAT } from '@for-science/utilities';
+import { ChartingService, PromptService, Repl } from '@text-based/tty';
+import { PEAT } from '@text-based/utilities';
 
 const LENGTH = 200;
 @Repl({

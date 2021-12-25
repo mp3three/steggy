@@ -1,4 +1,4 @@
-import { AutoLogService, IsEmpty } from '@for-science/utilities';
+import { AutoLogService, IsEmpty } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 

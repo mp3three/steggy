@@ -1,4 +1,4 @@
-import { is } from '@for-science/utilities';
+import { is } from '@text-based/utilities';
 import { applyDecorators } from '@nestjs/common';
 import { Transform } from 'class-transformer';
 import { Types } from 'mongoose';

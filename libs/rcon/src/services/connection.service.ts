@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { AutoLogService, InjectConfig } from '@for-science/utilities';
+import { AutoLogService, InjectConfig } from '@text-based/utilities';
 import {
   ConflictException,
   GoneException,

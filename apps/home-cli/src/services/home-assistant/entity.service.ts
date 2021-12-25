@@ -2,12 +2,12 @@ import {
   FanCacheDTO,
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
-} from '@for-science/controller-logic';
+} from '@text-based/controller-logic';
 import {
   domain,
   HASS_DOMAINS,
   HassStateDTO,
-} from '@for-science/home-assistant';
+} from '@text-based/home-assistant';
 import {
   ICONS,
   iRepl,
@@ -17,8 +17,8 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@for-science/tty';
-import { is, IsEmpty, VALUE } from '@for-science/utilities';
+} from '@text-based/tty';
+import { is, IsEmpty, VALUE } from '@text-based/utilities';
 
 import {
   BaseDomainService,

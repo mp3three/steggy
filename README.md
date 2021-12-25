@@ -1,5 +1,3 @@
-# for-science tools
-
 ## Home Controller
 
 The Home Controller is a NodeJS service that connects to an existing Home Assistant (HA) install through a combination of the websocket and http APIs.
@@ -26,7 +24,7 @@ The controller (currently) specializes in lighting and scene control, with some 
 ```ini
 [libs.controller-logic]
   ; MongoDB or compatible URI. No support for sql databases
-  MONGO_URI=mongodb://mongo:27017/for-science
+  MONGO_URI=mongodb://mongo:27017/text-based
 
 [libs.home-assistant]
   ; Base url to your Home Assistant install
@@ -72,7 +70,7 @@ services:
     container_name: home-controller
     volumes:
       # Mount configuration as a file named `config`
-      - /path/to/config/file:/home/node/.config/home-controller/config
+      - /path/to/config/file:/.home-controller/config
     restart: unless-stopped
     depends_on:
       - redis
@@ -97,9 +95,9 @@ Home CLI is distributed through NPM
 
 ```bash
 # via yarn
-yarn global add @ccontour/home-cli
+yarn global add @text-based/home-cli
 # via npm
-npm install -g @ccontour/home-cli
+npm install -g @text-based/home-cli
 ```
 
 This will create the `home-cli` command.
@@ -116,6 +114,8 @@ This will create the `home-cli` command.
   ; CONTROLLER_API=http://10.0.0.1:7000
 
 [libs.utilities]
+  ; debug | info | warn | error | silent
+  ; default = info
   LOG_LEVEL=debug
 ```
 
@@ -123,18 +123,18 @@ This will create the `home-cli` command.
 
 ```bash
 # via yarn
-yarn global upgrade @ccontour/home-cli --latest
+yarn global upgrade @text-based/home-cli --latest
 # via npm
-# TODO: fill in
+# TODO: fill in 🤷
 ```
 
 ### Removing
 
 ```bash
 # via yarn
-yarn global remove @ccontour/home-cli
+yarn global remove @text-based/home-cli
 # via npm
-npm remove -g @ccontour/home-cli
+npm remove -g @text-based/home-cli
 ```
 
 This will **NOT** remove your configuration file.

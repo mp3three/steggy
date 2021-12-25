@@ -1,4 +1,4 @@
-import { AutoLogService, InjectConfig } from '@for-science/utilities';
+import { AutoLogService, InjectConfig } from '@text-based/utilities';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
 import { ADMIN_KEY } from '../config';

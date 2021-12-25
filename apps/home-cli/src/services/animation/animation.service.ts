@@ -1,5 +1,5 @@
-import { FlashAnimationDTO } from '@for-science/controller-logic';
-import { HASS_DOMAINS } from '@for-science/home-assistant';
+import { FlashAnimationDTO } from '@text-based/controller-logic';
+import { HASS_DOMAINS } from '@text-based/home-assistant';
 import {
   ColorsService,
   DONE,
@@ -8,7 +8,7 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@for-science/tty';
+} from '@text-based/tty';
 import chalk from 'chalk';
 
 import { EntityService } from '../home-assistant/entity.service';

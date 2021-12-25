@@ -1,7 +1,7 @@
 import {
   HomeAssistantCoreService,
   LightDomainService,
-} from '@for-science/home-assistant';
+} from '@text-based/home-assistant';
 import {
   AutoLogService,
   CacheManagerService,
@@ -11,7 +11,7 @@ import {
   INVERT_VALUE,
   is,
   IsEmpty,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 import { each } from 'async';
 import EventEmitter from 'eventemitter3';

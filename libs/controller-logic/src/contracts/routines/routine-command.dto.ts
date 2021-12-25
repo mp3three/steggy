@@ -1,4 +1,4 @@
-import { HTTP_METHODS } from '@for-science/utilities';
+import { HTTP_METHODS } from '@text-based/utilities';
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import {
   IsEnum,

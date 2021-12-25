@@ -1,5 +1,5 @@
-import { HA_SOCKET_READY, NotifyDomainService } from '@for-science/home-assistant';
-import { AutoLogService, OnEvent } from '@for-science/utilities';
+import { HA_SOCKET_READY, NotifyDomainService } from '@text-based/home-assistant';
+import { AutoLogService, OnEvent } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

@@ -1,4 +1,4 @@
-import { is } from '@for-science/utilities';
+import { is } from '@text-based/utilities';
 import { INestApplication } from '@nestjs/common';
 import inquirer from 'inquirer';
 import autocompletePrompt from 'inquirer-autocomplete-prompt';

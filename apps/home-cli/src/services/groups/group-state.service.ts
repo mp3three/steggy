@@ -4,7 +4,7 @@ import {
   RoomDTO,
   RoomEntitySaveStateDTO,
   RoutineCommandGroupStateDTO,
-} from '@for-science/controller-logic';
+} from '@text-based/controller-logic';
 import {
   ICONS,
   IsDone,
@@ -12,8 +12,8 @@ import {
   PromptEntry,
   PromptService,
   ToMenuEntry,
-} from '@for-science/tty';
-import { AutoLogService, is, IsEmpty } from '@for-science/utilities';
+} from '@text-based/tty';
+import { AutoLogService, is, IsEmpty } from '@text-based/utilities';
 import {
   forwardRef,
   Inject,

@@ -4,7 +4,7 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@for-science/tty';
+} from '@text-based/tty';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 

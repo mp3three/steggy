@@ -1,4 +1,4 @@
-import { LibraryModule } from '@for-science/utilities';
+import { LibraryModule } from '@text-based/utilities';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { LIB_MQTT } from '../config';

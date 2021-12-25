@@ -4,7 +4,7 @@ import {
   FILTER_OPERATIONS,
   is,
   ResultControlDTO,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import { Document, Query, Types } from 'mongoose';
 
 import { filtersToMongoQuery } from '../includes';

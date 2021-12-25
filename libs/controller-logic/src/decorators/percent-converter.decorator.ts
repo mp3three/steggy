@@ -1,4 +1,4 @@
-import { is } from '@for-science/utilities';
+import { is } from '@text-based/utilities';
 
 const MULTIPLIER = 2.55;
 

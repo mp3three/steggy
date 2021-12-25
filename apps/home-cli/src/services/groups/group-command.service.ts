@@ -4,8 +4,8 @@ import {
   GroupDTO,
   GroupSaveStateDTO,
   RoomEntitySaveStateDTO,
-} from '@for-science/controller-logic';
-import { HASS_DOMAINS } from '@for-science/home-assistant';
+} from '@text-based/controller-logic';
+import { HASS_DOMAINS } from '@text-based/home-assistant';
 import {
   DONE,
   ICONS,
@@ -17,7 +17,7 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@for-science/tty';
+} from '@text-based/tty';
 import {
   ARRAY_OFFSET,
   AutoLogService,
@@ -29,7 +29,7 @@ import {
   ResultControlDTO,
   TitleCase,
   UP,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import {
   forwardRef,
   Inject,

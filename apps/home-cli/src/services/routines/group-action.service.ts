@@ -1,8 +1,8 @@
 import {
   GROUP_TYPES,
   RoutineCommandGroupActionDTO,
-} from '@for-science/controller-logic';
-import { PromptService } from '@for-science/tty';
+} from '@text-based/controller-logic';
+import { PromptService } from '@text-based/tty';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import {

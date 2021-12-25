@@ -3,7 +3,7 @@ import {
   EntityHistoryRequest,
   LightingCacheDTO,
   LightManagerService,
-} from '@for-science/controller-logic';
+} from '@text-based/controller-logic';
 import {
   domain,
   EntityManagerService,
@@ -11,13 +11,13 @@ import {
   HASS_DOMAINS,
   HassStateDTO,
   HomeAssistantFetchAPIService,
-} from '@for-science/home-assistant';
+} from '@text-based/home-assistant';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
-} from '@for-science/server';
-import { AutoLogService } from '@for-science/utilities';
+} from '@text-based/server';
+import { AutoLogService } from '@text-based/utilities';
 import {
   BadRequestException,
   Body,

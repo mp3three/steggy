@@ -1,4 +1,4 @@
-import { AutoLogService, is, sleep } from '@for-science/utilities';
+import { AutoLogService, is, sleep } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { RoutineCommandSleepDTO } from '../../contracts';

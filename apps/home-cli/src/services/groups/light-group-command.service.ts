@@ -4,8 +4,8 @@ import {
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
   RoutineCommandGroupActionDTO,
-} from '@for-science/controller-logic';
-import { LightStateDTO } from '@for-science/home-assistant';
+} from '@text-based/controller-logic';
+import { LightStateDTO } from '@text-based/home-assistant';
 import {
   ColorsService,
   ICONS,
@@ -13,14 +13,14 @@ import {
   PromptEntry,
   PromptService,
   RGB,
-} from '@for-science/tty';
+} from '@text-based/tty';
 import {
   AutoLogService,
   DOWN,
   is,
   TitleCase,
   UP,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 import chalk from 'chalk';

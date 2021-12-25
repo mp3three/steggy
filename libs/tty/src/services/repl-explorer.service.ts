@@ -1,4 +1,4 @@
-import { AutoLogService, ModuleScannerService } from '@for-science/utilities';
+import { AutoLogService, ModuleScannerService } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { iRepl, REPL_CONFIG, ReplOptions } from '../contracts';

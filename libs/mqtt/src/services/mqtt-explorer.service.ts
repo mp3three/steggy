@@ -1,4 +1,4 @@
-import { AutoLogService, is, LOG_CONTEXT } from '@for-science/utilities';
+import { AutoLogService, is, LOG_CONTEXT } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';

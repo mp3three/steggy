@@ -26,7 +26,7 @@ import { AutoLogService } from './auto-log.service';
 /**
  * The workspace file is def not getting out into any builds, seems like a reasonably unique name
  */
-const isDevelopment = existsSync(join(cwd(), 'for-science.code-workspace'));
+const isDevelopment = existsSync(join(cwd(), 'text-based.code-workspace'));
 
 @Injectable()
 export class WorkspaceService {

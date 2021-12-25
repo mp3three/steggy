@@ -15,15 +15,15 @@ import {
   RoutineCommandTriggerRoutineDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
-} from '@for-science/controller-logic';
+} from '@text-based/controller-logic';
 import {
   ICONS,
   IsDone,
   PromptEntry,
   PromptService,
   ToMenuEntry,
-} from '@for-science/tty';
-import { is, IsEmpty, START, TitleCase } from '@for-science/utilities';
+} from '@text-based/tty';
+import { is, IsEmpty, START, TitleCase } from '@text-based/utilities';
 import {
   forwardRef,
   Inject,

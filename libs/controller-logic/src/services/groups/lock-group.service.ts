@@ -5,8 +5,8 @@ import {
   LOCK_STATES,
   LockDomainService,
   LockStateDTO,
-} from '@for-science/home-assistant';
-import { AutoLogService, is } from '@for-science/utilities';
+} from '@text-based/home-assistant';
+import { AutoLogService, is } from '@text-based/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { each } from 'async';
 

@@ -1,4 +1,4 @@
-import { AutoLogService, is, IsEmpty } from '@for-science/utilities';
+import { AutoLogService, is, IsEmpty } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 import {
   Client,

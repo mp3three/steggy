@@ -1,7 +1,7 @@
 import {
   DeviceListItemDTO,
   RelatedDescriptionDTO,
-} from '@for-science/home-assistant';
+} from '@text-based/home-assistant';
 import {
   DONE,
   ICONS,
@@ -9,8 +9,8 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@for-science/tty';
-import { AutoLogService, IsEmpty } from '@for-science/utilities';
+} from '@text-based/tty';
+import { AutoLogService, IsEmpty } from '@text-based/utilities';
 import { forwardRef, Inject } from '@nestjs/common';
 import chalk from 'chalk';
 import { encode } from 'ini';

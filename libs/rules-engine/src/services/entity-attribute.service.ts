@@ -1,5 +1,5 @@
-import { EntityManagerService } from '@for-science/home-assistant';
-import { AutoLogService, is } from '@for-science/utilities';
+import { EntityManagerService } from '@text-based/home-assistant';
+import { AutoLogService, is } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 import { get } from 'object-path';
 

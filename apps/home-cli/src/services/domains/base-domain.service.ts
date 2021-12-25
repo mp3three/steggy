@@ -1,10 +1,10 @@
-import { RoomEntitySaveStateDTO } from '@for-science/controller-logic';
+import { RoomEntitySaveStateDTO } from '@text-based/controller-logic';
 import {
   domain,
   HASS_DOMAINS,
   HassStateDTO,
   RelatedDescriptionDTO,
-} from '@for-science/home-assistant';
+} from '@text-based/home-assistant';
 import {
   DONE,
   ICONS,
@@ -15,7 +15,7 @@ import {
   PromptEntry,
   PromptService,
   ToMenuEntry,
-} from '@for-science/tty';
+} from '@text-based/tty';
 import {
   ARRAY_OFFSET,
   AutoLogService,
@@ -27,7 +27,7 @@ import {
   START,
   TitleCase,
   UP,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import {
   forwardRef,
   Inject,

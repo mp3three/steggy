@@ -1,4 +1,4 @@
-import { Cron, CronExpression, InjectConfig } from '@for-science/utilities';
+import { Cron, CronExpression, InjectConfig } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import EventEmitter from 'eventemitter3';

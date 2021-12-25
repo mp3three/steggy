@@ -6,7 +6,7 @@ import {
   is,
   UP,
   VALUE,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import chalk from 'chalk';
 
 import { iRepl, ReplOptions } from '../contracts';

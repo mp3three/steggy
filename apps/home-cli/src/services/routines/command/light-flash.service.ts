@@ -1,10 +1,10 @@
 import {
   GROUP_TYPES,
   RountineCommandLightFlashDTO,
-} from '@for-science/controller-logic';
-import { HASS_DOMAINS } from '@for-science/home-assistant';
-import { ColorsService, ICONS, PromptService } from '@for-science/tty';
-import { is } from '@for-science/utilities';
+} from '@text-based/controller-logic';
+import { HASS_DOMAINS } from '@text-based/home-assistant';
+import { ColorsService, ICONS, PromptService } from '@text-based/tty';
+import { is } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { GroupCommandService } from '../../groups';

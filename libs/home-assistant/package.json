@@ -2,15 +2,15 @@
   "author": {
     "email": "github@ccontour.com",
     "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/for-science"
+    "url": "https://github.com/ccontour/text-based"
   },
-  "name": "@ccontour/home-assistant",
+  "name": "@text-based/home-assistant",
   "displayName": "Home Assistant",
   "license": "MIT",
   "version": "0.5.17",
-  "homepage": "https://github.com/ccontour/for-science",
+  "homepage": "https://github.com/ccontour/text-based",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ccontour/for-science.git"
+    "url": "git+https://github.com/ccontour/text-based.git"
   }
 }

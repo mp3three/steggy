@@ -1,4 +1,4 @@
-import { TransformObjectId } from '@for-science/persistence';
+import { TransformObjectId } from '@text-based/persistence';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';

@@ -1,8 +1,8 @@
 import {
   HASocketAPIService,
   NotifyDomainService,
-} from '@for-science/home-assistant';
-import { AutoLogService } from '@for-science/utilities';
+} from '@text-based/home-assistant';
+import { AutoLogService } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { RoutineCommandSendNotificationDTO } from '../../contracts';

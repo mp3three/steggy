@@ -1,6 +1,6 @@
-import { StateChangeActivateDTO } from '@for-science/controller-logic';
-import { PromptEntry, PromptService } from '@for-science/tty';
-import { FILTER_OPERATIONS, FilterValueType, is } from '@for-science/utilities';
+import { StateChangeActivateDTO } from '@text-based/controller-logic';
+import { PromptEntry, PromptService } from '@text-based/tty';
+import { FILTER_OPERATIONS, FilterValueType, is } from '@text-based/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 

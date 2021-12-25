@@ -1,4 +1,4 @@
-import { AutoLogService, is, OnEvent } from '@for-science/utilities';
+import { AutoLogService, is, OnEvent } from '@text-based/utilities';
 
 import {
   ALL_ENTITIES_UPDATED,
