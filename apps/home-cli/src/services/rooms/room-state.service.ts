@@ -169,7 +169,7 @@ export class RoomStateService {
         a: MENU_ITEMS.ACTIVATE,
         d: MENU_ITEMS.DONE,
         e: MENU_ITEMS.EDIT,
-        f1: [`${ICONS.DESCRIBE}Describe`, 'describe'],
+        f1: MENU_ITEMS.DESCRIBE,
         n: MENU_ITEMS.RENAME,
         p: [
           this.pinnedItems.isPinned('room_state', state.id) ? 'Unpin' : 'Pin',

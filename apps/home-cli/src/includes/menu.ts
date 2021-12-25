@@ -6,6 +6,7 @@ const menu = {
   ADD: [`${ICONS.CREATE}Add`, 'add'],
   CREATE: [`${ICONS.CREATE}Create`, 'create'],
   DELETE: [`${ICONS.DELETE}Delete`, 'delete'],
+  DESCRIBE: [`${ICONS.DESCRIBE}Describe`, 'describe'],
   DONE: [chalk.bold`Done`, DONE],
   EDIT: [`${ICONS.EDIT}Edit`, 'edit'],
   ENTITIES: [`${ICONS.ENTITIES}Entities`, 'entities'],
