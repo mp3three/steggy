@@ -183,7 +183,7 @@ export class LightManagerService {
       rgb_color: settings.rgb_color,
     };
     Object.keys(data).forEach((key) => {
-      if (!is.string(data[key])) {
+      if (is.undefined(data[key])) {
         delete data[key];
       }
     });

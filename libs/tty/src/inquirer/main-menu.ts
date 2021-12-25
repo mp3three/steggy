@@ -427,7 +427,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       message = this.textRender.appendHelp(
         message,
         BASE_HELP,
-        Object.keys(this.opt.keyMap).map((i) => [i, this.opt.keyMap[i][LABEL]]),
+        Object.keys(this.opt.keyMap)
+          .filter((key) => Array.isArray(this.opt.keyMap[key]))
+          .map((i) => [i, this.opt.keyMap[i][LABEL]]),
       );
     }
     this.screen.render(message, '');
