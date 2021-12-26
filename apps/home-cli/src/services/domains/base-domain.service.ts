@@ -276,7 +276,6 @@ export class BaseDomainService {
 
   protected async baseHeader<T extends HassStateDTO = HassStateDTO>(
     id: string,
-    withState = true,
   ): Promise<T> {
     // sleep needed to ensure correct-ness of header information
     // Somtimes the previous request impacts the state, and race conditions

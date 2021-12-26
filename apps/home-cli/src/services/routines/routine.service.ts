@@ -22,6 +22,7 @@ import {
   InjectCache,
   is,
   IsEmpty,
+  LABEL,
   ResultControlDTO,
   TitleCase,
 } from '@text-based/utilities';
@@ -63,6 +64,13 @@ export class RoutineService {
 
   private lastRoutine: string;
 
+  public async activate(routine: RoutineDTO): Promise<void> {
+    await this.fetchService.fetch({
+      method: 'post',
+      url: `/routine/${routine._id}`,
+    });
+  }
+
   public async create(room?: RoomDTO | string): Promise<RoutineDTO> {
     const friendlyName = await this.promptService.friendlyName();
     return await this.fetchService.fetch<RoutineDTO, RoutineDTO>({
@@ -90,14 +98,22 @@ export class RoutineService {
     });
     let action = await this.promptService.menu<RoutineDTO | string>({
       keyMap: {
-        a: [
+        a: MENU_ITEMS.ACTIVATE,
+        c: MENU_ITEMS.CREATE,
+        d: MENU_ITEMS.DONE,
+        t: [
           all
             ? chalk.dim.magenta('Show detached routines')
             : chalk.dim.blue('Show all routines'),
           'all',
         ],
-        c: MENU_ITEMS.CREATE,
-        d: MENU_ITEMS.DONE,
+      },
+      keyMapCallback: async (action, [label, routine]) => {
+        if (action === 'activate') {
+          await this.activate(routine as RoutineDTO);
+          return chalk.magenta.bold(MENU_ITEMS.ACTIVATE[LABEL]) + ' ' + label;
+        }
+        return true;
       },
       right: ToMenuEntry(list.map((i) => [i.friendlyName, i])),
       value: this.lastRoutine,
@@ -161,7 +177,18 @@ export class RoutineService {
     }
     const current = await this.list(control);
     let action = await this.promptService.menu({
-      keyMap: { c: MENU_ITEMS.CREATE, d: MENU_ITEMS.DONE },
+      keyMap: {
+        a: MENU_ITEMS.ACTIVATE,
+        c: MENU_ITEMS.CREATE,
+        d: MENU_ITEMS.DONE,
+      },
+      keyMapCallback: async (action, [label, routine]) => {
+        if (action === 'activate') {
+          await this.activate(routine as RoutineDTO);
+          return chalk.magenta.bold(MENU_ITEMS.ACTIVATE[LABEL]) + ' ' + label;
+        }
+        return true;
+      },
       right: ToMenuEntry(
         current.map((item) => [
           item.friendlyName,
@@ -286,10 +313,7 @@ export class RoutineService {
     }
     switch (action) {
       case 'immediate':
-        await this.fetchService.fetch({
-          method: 'post',
-          url: `/routine/${routine._id}`,
-        });
+        await this.activate(routine);
         return;
       case 'timeout':
         console.log(

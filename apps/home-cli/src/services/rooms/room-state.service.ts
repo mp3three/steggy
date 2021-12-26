@@ -26,7 +26,9 @@ import {
   FILTER_OPERATIONS,
   is,
   IsEmpty,
+  LABEL,
   UP,
+  VALUE,
 } from '@text-based/utilities';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
@@ -52,6 +54,13 @@ export class RoomStateService {
     private readonly fetchService: HomeFetchService,
     private readonly pinnedItems: PinnedItemService<{ room: string }>,
   ) {}
+
+  public async activate(room: RoomDTO, state: RoomStateDTO): Promise<void> {
+    await this.fetchService.fetch({
+      method: `post`,
+      url: `/room/${room._id}/state/${state.id}`,
+    });
+  }
 
   public async build(
     room: RoomDTO,
@@ -115,9 +124,17 @@ export class RoomStateService {
     this.promptService.secondaryHeader('Room States');
     const action = await this.promptService.menu({
       keyMap: {
+        a: MENU_ITEMS.ACTIVATE,
         c: MENU_ITEMS.CREATE,
         d: MENU_ITEMS.DONE,
         f12: [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
+      },
+      keyMapCallback: async (action: string, [name, target]) => {
+        if (is.string(target) || action !== 'activate') {
+          return true;
+        }
+        await this.activate(room, target as RoomStateDTO);
+        return chalk.magenta.bold(MENU_ITEMS.ACTIVATE[LABEL]) + ' ' + name;
       },
       right: ToMenuEntry(
         room.save_states
@@ -160,11 +177,12 @@ export class RoomStateService {
     state: RoomStateDTO,
     defaultAction?: string,
   ): Promise<RoomDTO> {
-    this.promptService.clear();
-    this.promptService.scriptHeader(room.friendlyName);
-    this.promptService.secondaryHeader(state.friendlyName);
-
-    const action = await this.promptService.menu({
+    if (defaultAction !== 'activate') {
+      this.promptService.clear();
+      this.promptService.scriptHeader(room.friendlyName);
+      this.promptService.secondaryHeader(state.friendlyName);
+    }
+    let action = await this.promptService.menu({
       keyMap: {
         a: MENU_ITEMS.ACTIVATE,
         d: MENU_ITEMS.DONE,
@@ -178,12 +196,22 @@ export class RoomStateService {
         r: [`${ICONS.ROOMS}Go to room`, `room`],
         x: MENU_ITEMS.DELETE,
       },
+      keyMapCallback: (action) => {
+        if (action !== MENU_ITEMS.ACTIVATE[VALUE]) {
+          return true;
+        }
+        process.nextTick(async () => {
+          await this.activate(room, state);
+        });
+        return chalk.magenta.bold(MENU_ITEMS.ACTIVATE[LABEL]);
+      },
       keyOnly: true,
       value: defaultAction,
     });
     if (IsDone(action)) {
       return room;
     }
+    action ??= 'activate';
     switch (action) {
       case 'describe':
         await this.header(room, state);
@@ -207,10 +235,7 @@ export class RoomStateService {
         });
         return await this.processState(room, state, action);
       case 'activate':
-        await this.fetchService.fetch({
-          method: `post`,
-          url: `/room/${room._id}/state/${state.id}`,
-        });
+        await this.activate(room, state);
         return await this.processState(room, state, action);
       case 'edit':
         const update = await this.build(room, state);

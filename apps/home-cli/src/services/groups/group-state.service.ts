@@ -20,7 +20,7 @@ import {
   PromptService,
   ToMenuEntry,
 } from '@text-based/tty';
-import { AutoLogService, is, IsEmpty } from '@text-based/utilities';
+import { AutoLogService, is, IsEmpty, LABEL } from '@text-based/utilities';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';
@@ -45,6 +45,16 @@ export class GroupStateService {
     private readonly entityService: EntityService,
     private readonly pinnedItems: PinnedItemService<{ group: string }>,
   ) {}
+
+  public async activate(
+    group: GroupDTO,
+    state: GroupSaveStateDTO,
+  ): Promise<void> {
+    await this.fetchService.fetch({
+      method: 'post',
+      url: `/group/${group._id}/state/${state.id}`,
+    });
+  }
 
   public async build(
     group: GroupDTO,
@@ -173,16 +183,21 @@ export class GroupStateService {
     });
     const action = await this.promptService.menu<GroupSaveStateDTO>({
       keyMap: {
+        a: MENU_ITEMS.ACTIVATE,
         c: [`${ICONS.CAPTURE}Capture current`, 'capture'],
         d: MENU_ITEMS.DELETE,
         m: [`${ICONS.CREATE}Manual create`, 'create'],
         t: [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
       },
+      keyMapCallback: async (action, [label, state]) => {
+        if (action !== 'activate') {
+          return true;
+        }
+        await this.activate(group, state as GroupSaveStateDTO);
+        return chalk.magenta.bold(MENU_ITEMS.ACTIVATE[LABEL]) + ' ' + label;
+      },
       right: ToMenuEntry(
-        group.save_states.map((state) => [state.friendlyName, state]) as [
-          string,
-          GroupSaveStateDTO,
-        ][],
+        group.save_states.map((state) => [state.friendlyName, state]),
       ),
       rightHeader: `State management`,
       value: defaultAction,
@@ -300,13 +315,12 @@ export class GroupStateService {
     defaultAction?: string,
   ): Promise<GroupDTO> {
     this.header(group, state);
-    const [copy, activate] = [
+    const [copy] = [
       [`${ICONS.COPY}Copy to another group`, 'copyTo'],
-      [`${ICONS.ACTIVATE}Activate`, 'activate'],
     ] as PromptEntry[];
     const action = await this.promptService.menu({
       keyMap: {
-        a: activate,
+        a: MENU_ITEMS.ACTIVATE,
         c: copy,
         d: MENU_ITEMS.DONE,
         e: MENU_ITEMS.EDIT,
@@ -318,7 +332,6 @@ export class GroupStateService {
         r: MENU_ITEMS.RENAME,
         x: MENU_ITEMS.DELETE,
       },
-      right: ToMenuEntry([activate]),
       rightHeader: `Group state action`,
       value: defaultAction,
     });
@@ -350,10 +363,7 @@ export class GroupStateService {
         group = await this.build(group, state);
         return await this.stateAction(state, group, action);
       case 'activate':
-        await this.fetchService.fetch({
-          method: 'post',
-          url: `/group/${group._id}/state/${state.id}`,
-        });
+        await this.activate(group, state);
         return group;
       case 'delete':
         if (

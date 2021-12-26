@@ -1,17 +1,18 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+
 import { Injectable } from '@nestjs/common';
 import {
   ARRAY_OFFSET,
   AutoLogService,
   EMPTY,
   INCREMENT,
-  is,
   IsEmpty,
   PEAT,
   START,
 } from '@text-based/utilities';
 import chalk from 'chalk';
 
-import { ansiMaxLength } from '..';
+import { ansiMaxLength } from '../includes';
 
 const GRAPH_SYMBOLS = {
   bar: '│',
@@ -31,6 +32,7 @@ const NEXT = 1;
 const FRACTION_DIGITS = 2;
 const LABELS = 1;
 const DEFAULT_OFFSET = 3;
+const QUARTERS = 4;
 const DEFAULT_PADDING = '           ';
 
 type formatter = (x: number, padding: string) => string;
@@ -194,17 +196,10 @@ export class ChartingService {
   private reduceHeaders(header: string[]): string[] {
     return [
       header[START],
-      header[Math.floor(header.length / 4)],
-      header[Math.floor((header.length / 4) * 2)],
-      header[Math.floor((header.length / 4) * 3)],
+      header[Math.floor(header.length / QUARTERS)],
+      header[Math.floor((header.length / QUARTERS) * 2)],
+      header[Math.floor((header.length / QUARTERS) * 3)],
       header[header.length - ARRAY_OFFSET],
     ];
-
-    if (header.length > 6) {
-      return this.reduceHeaders(
-        header.filter((item, index) => !is.even(index)),
-      );
-    }
-    return header;
   }
 }

@@ -54,7 +54,26 @@ export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
 }
 export type KeyMap = Record<string, PromptEntry>;
 
+/**
+ * - true to terminate menu
+ * - false to silently block
+ * - string to block w/ output
+ */
+export type MainMenuCB<T = unknown> = (
+  action: string,
+  /**
+   * The currently selected value
+   */
+  value: MenuEntry<T>,
+) => (string | boolean) | Promise<string | boolean>;
+
 export interface MainMenuOptions<T = unknown> {
+  /**
+   * Only run against keyMap activations
+   *
+   * Passes in currently selected value
+   */
+  keyMapCallback?: MainMenuCB;
   headerPadding?: number;
   keyMap: KeyMap;
   keyOnly?: boolean;
@@ -103,6 +122,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.textRender = MainMenuPrompt.textRender;
   }
 
+  private callbackOutput = '';
   private done: tCallback;
   private headerPadding: number;
   private leftHeader: string;
@@ -115,6 +135,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   private readonly textRender: TextRenderingService;
   private value: unknown;
 
+  /**
+   * Entrypoint for inquirer
+   */
   public _run(callback: tCallback): this {
     this.done = callback;
     const defaultValue = this.side('right')[START]?.entry[VALUE];
@@ -133,11 +156,45 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     return this;
   }
 
+  /**
+   * Run callbacks from the keyMap
+   */
+  private async activateKey(mixed: string): Promise<void> {
+    const { keyMap, keyMapCallback: callback } = this.opt;
+    if (is.undefined(keyMap[mixed])) {
+      return;
+    }
+    if (is.undefined(callback)) {
+      this.value = keyMap[mixed][VALUE];
+      this.onEnd();
+      return;
+    }
+    const result = await callback(
+      keyMap[mixed][VALUE],
+      this.getSelected()?.entry,
+    );
+    if (is.string(result)) {
+      this.callbackOutput = result;
+      this.render();
+      return;
+    }
+    if (result) {
+      this.value = keyMap[mixed][VALUE];
+      this.onEnd();
+    }
+  }
+
+  /**
+   * Move the cursor to the bottom of the list
+   */
   private bottom(): void {
     const list = this.side();
     this.value = list[list.length - ARRAY_OFFSET].entry[VALUE];
   }
 
+  /**
+   * Auto detect selectedType based on the current value
+   */
   private detectSide(): void {
     const isLeftSide = this.side('left').some(
       (i) => i.entry[VALUE] === this.value,
@@ -145,6 +202,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.selectedType = isLeftSide ? 'left' : 'right';
   }
 
+  /**
+   * Search mode - limit results based on the search text
+   */
   private filterMenu(
     data: MainMenuEntry[],
     updateValue = false,
@@ -166,6 +226,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     return highlighted;
   }
 
+  /**
+   * Retrieve the currently selected menu entry
+   */
   private getSelected(): MainMenuEntry {
     const list = [
       ...this.opt.left,
@@ -178,6 +241,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     return out ?? list[START];
   }
 
+  /**
+   * Move the cursor around
+   */
   private navigateSearch(key: string): void {
     const all = this.side();
     let available = this.filterMenu(all);
@@ -212,6 +278,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     return this.render();
   }
 
+  /**
+   * Move down 1 entry
+   */
   private next(): void {
     const list = this.side();
     const index = list.findIndex((i) => i.entry[VALUE] === this.value);
@@ -227,6 +296,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.value = list[index + INCREMENT].entry[VALUE];
   }
 
+  /**
+   * Terminate the editor
+   */
   private onEnd(): void {
     this.status = 'answered';
     this.render();
@@ -235,6 +307,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.done(this.value);
   }
 
+  /**
+   * Entrypoint for handling key presses
+   */
   private onKeypress({ key }: KeyDescriptor): void {
     if (this.status === 'answered') {
       return;
@@ -253,6 +328,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.onMenuKeypress(mixed);
   }
 
+  /**
+   * on left key press - attempt to move to left menu
+   */
   private onLeft(): void {
     const [right, left] = [this.side('right'), this.side('left')];
     if (IsEmpty(this.opt.left) || this.selectedType === 'left') {
@@ -272,6 +350,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         : left[current].entry[VALUE];
   }
 
+  /**
+   * Generic handler for keypresses while widget is in menu mode
+   */
   private onMenuKeypress(mixed: string): void {
     switch (mixed) {
       case 'left':
@@ -296,8 +377,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         break;
       default:
         if (!is.undefined(this.opt.keyMap[mixed])) {
-          this.value = this.opt.keyMap[mixed][VALUE];
-          this.onEnd();
+          this.activateKey(mixed);
           return;
         }
         if ('0123456789'.includes(mixed)) {
@@ -315,6 +395,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.render();
   }
 
+  /**
+   * On right key press - attempt to move editor to right side
+   */
   private onRight(): void {
     if (this.selectedType === 'right') {
       return;
@@ -334,6 +417,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         : right[current].entry[VALUE];
   }
 
+  /**
+   * Key handler for widget while in search mode
+   */
   private onSearchKeyPress(key: string): void {
     if (key === 'backspace') {
       this.searchText = this.searchText.slice(
@@ -360,6 +446,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.render(true);
   }
 
+  /**
+   * Attempt to move up 1 item in the active list
+   */
   private previous(): void {
     const list = this.side();
     const index = list.findIndex((i) => i.entry[VALUE] === this.value);
@@ -375,6 +464,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.value = list[index - INCREMENT].entry[VALUE];
   }
 
+  /**
+   * Entrypoint for rendering logic
+   */
   private render(updateValue = false): void {
     if (this.status === 'answered') {
       const entry = this.getSelected();
@@ -389,6 +481,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.renderFind(updateValue);
   }
 
+  /**
+   * Rendering for search mode
+   */
   private renderFind(updateValue = false): void {
     this.screen.render(
       [
@@ -399,12 +494,18 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     );
   }
 
+  /**
+   * Rendering for while not in find mode
+   */
   private renderSelect() {
     if (this.status === 'answered') {
       this.screen.render(``, '');
       return;
     }
     let message = '';
+    if (!IsEmpty(this.callbackOutput)) {
+      message = this.callbackOutput + `\n\n`;
+    }
     const out = !IsEmpty(this.opt.left)
       ? this.textRender.assemble(
           this.renderSide('left'),
@@ -435,6 +536,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.screen.render(message, '');
   }
 
+  /**
+   * Render a menu from a side
+   */
   // eslint-disable-next-line radar/cognitive-complexity
   private renderSide(
     side: 'left' | 'right' = this.selectedType,
@@ -481,9 +585,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         prefix = ``;
       }
       const inverse = item.entry[VALUE] === this.value;
-
       const padded = ansiPadEnd(item.entry[LABEL], maxLabel);
-
       if (this.selectedType === side) {
         out.push(
           chalk` {magenta.bold ${prefix}} {${
@@ -517,6 +619,11 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     return out;
   }
 
+  /**
+   * Retrieve a sorted list of entries
+   *
+   * In find mode, both lists get merged into a single one
+   */
   private side(
     side: 'left' | 'right' = this.selectedType,
     noRecurse = false,
@@ -538,6 +645,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     });
   }
 
+  /**
+   * Simple toggle function
+   */
   private toggleFind(): void {
     this.mode = this.mode === 'find' ? 'select' : 'find';
     if (this.mode === 'select') {
@@ -548,6 +658,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.render();
   }
 
+  /**
+   * Move cursor to the top of the current list
+   */
   private top(): void {
     const list = this.side();
     this.value = list[FIRST].entry[VALUE];
