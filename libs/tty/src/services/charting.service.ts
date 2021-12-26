@@ -146,7 +146,7 @@ export class ChartingService {
     const lines = graph.map((x) => x.join(''));
     if (xAxis) {
       const longest = ansiMaxLength(lines) - padding.length - 2;
-      const headers = this.reduceHeaders(xAxis, longest);
+      const headers = this.reduceHeaders(xAxis);
       const baseLength = headers.join(' ').length;
       const internalPad = ''.padEnd(
         Math.floor((longest - baseLength) / (headers.length * 2 - 2)),
@@ -191,11 +191,18 @@ export class ChartingService {
     return elements;
   }
 
-  private reduceHeaders(header: string[], maxLength: number): string[] {
+  private reduceHeaders(header: string[]): string[] {
+    return [
+      header[START],
+      header[Math.floor(header.length / 4)],
+      header[Math.floor((header.length / 4) * 2)],
+      header[Math.floor((header.length / 4) * 3)],
+      header[header.length - ARRAY_OFFSET],
+    ];
+
     if (header.length > 6) {
       return this.reduceHeaders(
         header.filter((item, index) => !is.even(index)),
-        maxLength,
       );
     }
     return header;

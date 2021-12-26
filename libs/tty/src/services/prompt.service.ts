@@ -13,6 +13,7 @@ import {
   VALUE,
 } from '@text-based/utilities';
 import chalk from 'chalk';
+import dayjs from 'dayjs';
 import figlet, { Fonts } from 'figlet';
 import fuzzy from 'fuzzysort';
 import inquirer from 'inquirer';
@@ -39,6 +40,7 @@ const OFF_BRIGHTNESS = 0;
 const MIN_BRIGHTNESS = 1;
 const BLOCK_OFFSET = '   ';
 const MAX_BRIGHTNESS = 255;
+const FROM_OFFSET = 1;
 const MAX_STRING_LENGTH = 300;
 
 @Injectable()
@@ -159,6 +161,17 @@ export class PromptService {
       },
     ]);
     return result;
+  }
+
+  public async dateRange(
+    defaultOffset = FROM_OFFSET,
+  ): Promise<{ from: Date; to: Date }> {
+    const from = await this.timestamp(
+      `From date`,
+      dayjs().subtract(defaultOffset, 'day').toDate(),
+    );
+    const to = await this.timestamp('End date');
+    return { from, to };
   }
 
   public async editor(message: string, defaultValue?: string): Promise<string> {

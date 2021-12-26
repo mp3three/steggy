@@ -94,35 +94,55 @@ export class BaseDomainService {
   }
 
   public async graph(id: string): Promise<void> {
-    const raw = await this.history.promptEntityHistory(id);
-    if (IsEmpty(raw)) {
+    const { from, to } = await this.promptService.dateRange();
+    const history = await this.history.fetchHistory(id, from, to);
+    if (IsEmpty(history)) {
       this.logger.error(`No history returned`);
       await this.promptService.acknowledge();
       return;
     }
-    const attributes = await this.limitAttributes(raw, 'numeric');
+    const attributes = await this.limitAttributes(history, 'numeric');
     const graphs = attributes.map((key) =>
-      raw.map((point) => point.attributes[key] as number),
+      history.map((point) => point.attributes[key] as number),
+    );
+    const first = dayjs(history[START].last_updated);
+    // Less than a few days range, show hour/minute as X axis
+    // More than a few days range, show month / day intead
+    const last = dayjs(history[history.length - ARRAY_OFFSET].last_updated);
+    const xAxis = !first.isBefore(last.subtract(A_FEW, 'd'))
+      ? history.map(({ last_updated }) => dayjs(last_updated).format('HH:mm'))
+      : history.map(({ last_updated }) => dayjs(last_updated).format('MM-DD'));
+    const result = this.chartingService.plot(graphs, {
+      colors: GRAPH_COLORS,
+      width: this.maxGraphWidth,
+      xAxis,
+    });
+    const content = await this.getState(id);
+    this.promptService.clear();
+    this.promptService.scriptHeader(content.attributes.friendly_name);
+    this.promptService.secondaryHeader(id);
+    console.log(`\n\n`);
+    console.log(result);
+    console.log(
+      [
+        chalk`  {blue -} {cyan.bold From:} ${dayjs(from).format(
+          `MMM D, YYYY h:mm A`,
+        )}`,
+        chalk`  {blue -}   {cyan.bold To:} ${dayjs(to).format(
+          `MMM D, YYYY h:mm A`,
+        )}`,
+        ``,
+      ].join(`\n`),
     );
     attributes.forEach((key, index) =>
       console.log(
-        chalk`{${GRAPH_COLORS[index % GRAPH_COLORS.length]} ${TitleCase(
+        chalk`    {${GRAPH_COLORS[index % GRAPH_COLORS.length]} ${TitleCase(
           key,
           false,
         )}}`,
       ),
     );
-    const first = dayjs(raw[START].last_updated);
-    const last = dayjs(raw[raw.length - ARRAY_OFFSET].last_updated);
-    const range = !first.isBefore(last.subtract(A_FEW, 'd'))
-      ? raw.map(({ last_updated }) => dayjs(last_updated).format('HH:mm'))
-      : raw.map(({ last_updated }) => dayjs(last_updated).format('MM-DD'));
-    const result = this.chartingService.plot(graphs, {
-      colors: GRAPH_COLORS,
-      width: this.maxGraphWidth,
-      xAxis: range,
-    });
-    console.log(result);
+    console.log();
     await this.promptService.acknowledge();
   }
 
@@ -256,6 +276,7 @@ export class BaseDomainService {
 
   protected async baseHeader<T extends HassStateDTO = HassStateDTO>(
     id: string,
+    withState = true,
   ): Promise<T> {
     // sleep needed to ensure correct-ness of header information
     // Somtimes the previous request impacts the state, and race conditions
