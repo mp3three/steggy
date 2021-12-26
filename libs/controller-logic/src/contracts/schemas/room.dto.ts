@@ -6,11 +6,12 @@ import { Exclude, Expose, Type } from 'class-transformer';
 import {
   IsDateString,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
 import { RoomStateDTO } from '../rooms';
 
@@ -112,6 +113,11 @@ export class RoomDTO {
   @ApiProperty({ required: false, type: RoomSettingDTO })
   @IsOptional()
   public settings?: RoomSettingDTO;
+
+  @IsObject()
+  @Prop({ type: MongooseSchema.Types.Mixed })
+  @IsOptional()
+  public storage?: Record<string, unknown>;
 
   @IsString()
   @IsOptional()

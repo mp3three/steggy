@@ -38,7 +38,7 @@ import dayjs from 'dayjs';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
-import { REFRESH_SLEEP } from '../../config';
+import { MAX_GRAPH_WIDTH, REFRESH_SLEEP } from '../../config';
 import { MENU_ITEMS } from '../../includes';
 import { DeviceService, EntityHistoryService } from '../home-assistant';
 import { HomeFetchService } from '../home-fetch.service';
@@ -47,6 +47,14 @@ const HEADER_SEPARATOR = 0;
 const FIRST = 0;
 const HALF = 2;
 const SMALL_LIST = 4;
+const GRAPH_COLORS = [
+  'blue.bold',
+  'yellow.bold',
+  'magenta.bold',
+  'cyan.bold',
+  'yellow.bold',
+  'green.bold',
+];
 
 const CACHE_KEY = (entity: string, type: string) =>
   `LAST_ATTRIBUTES:${type}:${entity}`;
@@ -65,6 +73,7 @@ export class BaseDomainService {
     private readonly pinnedItem: PinnedItemService<never>,
     @InjectConfig(REFRESH_SLEEP)
     protected readonly refreshSleep: number,
+    @InjectConfig(MAX_GRAPH_WIDTH) private readonly maxGraphWidth: number,
   ) {}
 
   public async createSaveCommand(
@@ -94,7 +103,15 @@ export class BaseDomainService {
     const graphs = attributes.map((key) =>
       raw.map((point) => point.attributes[key] as number),
     );
-    const result = this.chartingService.plot(graphs);
+    attributes.forEach((key, index) =>
+      console.log(
+        chalk`{${GRAPH_COLORS[index % GRAPH_COLORS.length]} ${TitleCase(key)}}`,
+      ),
+    );
+    const result = this.chartingService.plot(graphs, {
+      colors: GRAPH_COLORS,
+      width: this.maxGraphWidth,
+    });
     console.log(result);
     await this.promptService.acknowledge();
   }
@@ -150,8 +167,8 @@ export class BaseDomainService {
         return await this.processId(id, action);
       case 'refresh':
         return await this.processId(id, action);
-      case 'changeFriendlyName':
-        await this.changeFriendlyName(id);
+      case 'friendlyName':
+        await this.friendlyName(id);
         return await this.processId(id, action);
       case 'changeEntityId':
         await this.changeEntityId(id);
@@ -268,7 +285,7 @@ export class BaseDomainService {
       g: [`${ICONS.DOWN}Graphs`, 'graph'],
       h: MENU_ITEMS.HISTORY,
       i: [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
-      n: [`${ICONS.RENAME}Change Friendly Name`, 'changeFriendlyName'],
+      n: [`${ICONS.RENAME}Change Friendly Name`, 'friendlyName'],
       p: [this.pinnedItem.isPinned('entity', id) ? 'Unpin' : 'Pin', 'pin'],
       r: MENU_ITEMS.REFRESH,
       y: [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
@@ -284,7 +301,7 @@ export class BaseDomainService {
     });
   }
 
-  protected async changeFriendlyName(id: string): Promise<void> {
+  protected async friendlyName(id: string): Promise<void> {
     const state = await this.getState(id);
     const name = await this.promptService.friendlyName(
       state.attributes.friendly_name,
