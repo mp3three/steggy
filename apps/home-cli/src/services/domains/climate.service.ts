@@ -1,8 +1,7 @@
-import { EcobeeClimateStateDTO } from '@for-science/home-assistant';
-import { DONE, IsDone, PromptEntry, ToMenuEntry } from '@for-science/tty';
-import { TitleCase } from '@for-science/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
-import chalk from 'chalk';
+import { EcobeeClimateStateDTO } from '@text-based/home-assistant';
+import { IsDone, PromptEntry, ToMenuEntry } from '@text-based/tty';
+import { TitleCase } from '@text-based/utilities';
 
 import { MENU_ITEMS } from '../../includes';
 import { SwitchService } from './switch.service';

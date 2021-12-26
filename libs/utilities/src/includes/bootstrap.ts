@@ -1,5 +1,8 @@
 /* Something about bootstrapping completely breaks things with a normal reference */
 /* eslint-disable @nrwl/nx/enforce-module-boundaries, radar/no-identical-functions */
+import { INestApplication, ModuleMetadata } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { ExpressAdapter } from '@nestjs/platform-express';
 import {
   AutoLogService,
   GlobalErrorInit,
@@ -8,10 +11,7 @@ import {
   LifecycleService,
   NEST_NOOP_LOGGER,
   UsePrettyLogger,
-} from '@for-science/utilities';
-import { INestApplication, ModuleMetadata } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import { ExpressAdapter } from '@nestjs/platform-express';
+} from '@text-based/utilities';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';

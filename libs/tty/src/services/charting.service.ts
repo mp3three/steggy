@@ -1,24 +1,14 @@
+import { Injectable } from '@nestjs/common';
 import {
   ARRAY_OFFSET,
   AutoLogService,
   EMPTY,
+  IsEmpty,
   PEAT,
   START,
-} from '@for-science/utilities';
-import { Injectable } from '@nestjs/common';
+} from '@text-based/utilities';
+import chalk from 'chalk';
 
-// const symbols = [
-//  0 '┼',
-//  1 '┤',
-//  2 '╶',
-//  3 '╴',
-//  4 '─',
-//  5 '╰',
-//  6 '╭',
-//  7  '╮',
-//  8 '╯',
-//  9 '│'
-// ];
 const GRAPH_SYMBOLS = {
   bar: '│',
   bl: '╮',
@@ -33,111 +23,115 @@ const GRAPH_SYMBOLS = {
 };
 const RATIO_MIN = 0;
 const RATIO_MAX = 1;
+const NEXT = 1;
 const FRACTION_DIGITS = 2;
+const LABELS = 1;
+const DEFAULT_OFFSET = 3;
+const DEFAULT_PADDING = '           ';
+
+type formatter = (x: number, padding: string) => string;
+export class PlotOptions {
+  colors?: string[];
+  format?: formatter;
+  height?: number;
+  offset?: number;
+  padding?: string;
+}
+
+const DEFAULT_FORMATTER = (x: number, padding: string) => {
+  return (padding + x.toFixed(FRACTION_DIGITS)).slice(-padding.length);
+};
 
 @Injectable()
 export class ChartingService {
   constructor(private readonly logger: AutoLogService) {}
 
-  public plot(series, cfg) {
-    // this function takes both one array and array of arrays
-    // if an array of numbers is passed it is transformed to
-    // an array of exactly one array with numbers
-    if (typeof series[START] == 'number') {
-      series = [series];
+  // Too many variables to clealy refactor smaller
+  // You should see the original function though...
+  // eslint-disable-next-line radar/cognitive-complexity
+  public plot(
+    series: number[][],
+    {
+      offset = DEFAULT_OFFSET,
+      padding = DEFAULT_PADDING,
+      height,
+      colors = [],
+      format = DEFAULT_FORMATTER,
+    }: PlotOptions = {},
+  ): string {
+    if (IsEmpty(series)) {
+      return ``;
     }
+    const absMin = Math.min(...series.flat());
+    const absMax = Math.max(...series.flat());
+    const range = Math.abs(absMax - absMin);
+    height ??= range;
 
-    cfg = typeof cfg !== 'undefined' ? cfg : {};
-
-    let min = typeof cfg.min !== 'undefined' ? cfg.min : series[START][START];
-    let max = typeof cfg.max !== 'undefined' ? cfg.max : series[START][START];
-
-    for (const element of series) {
-      for (const element_ of element) {
-        min = Math.min(min, element_);
-        max = Math.max(max, element_);
-      }
-    }
-
-    const range = Math.abs(max - min);
-    const offset = typeof cfg.offset !== 'undefined' ? cfg.offset : 3;
-    const padding =
-      typeof cfg.padding !== 'undefined' ? cfg.padding : '           ';
-    const height = typeof cfg.height !== 'undefined' ? cfg.height : range;
-    const colors = typeof cfg.colors !== 'undefined' ? cfg.colors : [];
     const ratio = range !== RATIO_MIN ? height / range : RATIO_MAX;
-    const min2 = Math.round(min * ratio);
-    const max2 = Math.round(max * ratio);
-    const rows = Math.abs(max2 - min2);
-    let width = 0;
-    for (const element of series) {
-      width = Math.max(width, element.length);
-    }
-    width = width + offset;
-    const format =
-      typeof cfg.format !== 'undefined'
-        ? cfg.format
-        : function (x: number) {
-            return (padding + x.toFixed(FRACTION_DIGITS)).slice(
-              -padding.length,
-            );
-          };
+    const min = Math.round(absMin * ratio);
+    const max = Math.round(absMax * ratio);
+    const rows = Math.abs(max - min);
+    const width = offset + Math.max(...series.map((i) => i.length));
 
-    const result = PEAT(rows + ARRAY_OFFSET) as string[][]; // empty space
-    for (let i = 0; i <= rows; i++) {
-      result[i] = PEAT(width);
-      for (let index = 0; index < width; index++) {
-        result[i][index] = ' ';
-      }
-    }
-    for (let y = min2; y <= max2; ++y) {
-      // axis + labels
+    // Rows and columns, labels and axis
+    const graph = PEAT(rows + LABELS).map((i, index) => {
+      const row = PEAT(width, ' ');
       const label = format(
-        rows > EMPTY ? max - ((y - min2) * range) / rows : y,
-        y - min2,
+        rows > EMPTY ? absMax - ((index - min) * range) / rows : index,
+        padding,
       );
-      result[y - min2][Math.max(offset - label.length, EMPTY)] = label;
-      result[y - min2][offset - ARRAY_OFFSET] =
-        y === 0 ? GRAPH_SYMBOLS.cross : GRAPH_SYMBOLS.right_join;
-    }
+      const labelIndex = Math.max(offset - label.length, EMPTY);
+      row[labelIndex] = chalk.bgBlue(label);
+      row[labelIndex + NEXT] = chalk.bgBlue(row[labelIndex + NEXT]);
+      const axis = offset - ARRAY_OFFSET;
+      row[axis] = chalk.bgBlue(
+        index === START ? GRAPH_SYMBOLS.cross : GRAPH_SYMBOLS.right_join,
+      );
+      return row;
+    });
 
-    for (const [index, element] of series.entries()) {
+    // Data
+    series.forEach((line, index) => {
       const currentColor = colors[index % colors.length];
-      const y0 = Math.round(element[START] * ratio) - min2;
-      result[rows - y0][offset - 1] = colored(
-        GRAPH_SYMBOLS.cross,
-        currentColor,
-      ); // first value
-
-      for (let x = 0; x < element.length - 1; x++) {
-        // plot the line
-        const y0 = Math.round(element[x + 0] * ratio) - min2;
-        const y1 = Math.round(element[x + 1] * ratio) - min2;
+      const y0 = Math.round(line[START] * ratio) - min;
+      graph[rows - y0][offset - ARRAY_OFFSET] = chalk.bgBlue(
+        this.color(GRAPH_SYMBOLS.cross, currentColor),
+      );
+      line.forEach((value, x) => {
+        if (!line[x + NEXT]) {
+          return;
+        }
+        const y0 = Math.round(value * ratio) - min;
+        const y1 = Math.round(line[x + NEXT] * ratio) - min;
         if (y0 == y1) {
-          result[rows - y0][x + offset] = colored(
+          graph[rows - y0][x + offset] = this.color(
             GRAPH_SYMBOLS.dash,
             currentColor,
           );
-        } else {
-          result[rows - y1][x + offset] = colored(
-            y0 > y1 ? GRAPH_SYMBOLS.tr : GRAPH_SYMBOLS.br,
-            currentColor,
-          );
-          result[rows - y0][x + offset] = colored(
-            y0 > y1 ? GRAPH_SYMBOLS.bl : GRAPH_SYMBOLS.tl,
-            currentColor,
-          );
-          const from = Math.min(y0, y1);
-          const to = Math.max(y0, y1);
-          for (let y = from + 1; y < to; y++) {
-            result[rows - y][x + offset] = colored(
-              GRAPH_SYMBOLS.bar,
-              currentColor,
-            );
-          }
+          return;
         }
-      }
-    }
-    return result.map((x) => x.join('')).join('\n');
+        graph[rows - y1][x + offset] = this.color(
+          y0 > y1 ? GRAPH_SYMBOLS.tr : GRAPH_SYMBOLS.br,
+          currentColor,
+        );
+        graph[rows - y0][x + offset] = this.color(
+          y0 > y1 ? GRAPH_SYMBOLS.bl : GRAPH_SYMBOLS.tl,
+          currentColor,
+        );
+        const from = Math.min(y0, y1);
+        const to = Math.max(y0, y1);
+        for (let y = from + ARRAY_OFFSET; y < to; y++) {
+          graph[rows - y][x + offset] = this.color(
+            GRAPH_SYMBOLS.bar,
+            currentColor,
+          );
+        }
+      });
+    });
+    return graph.map((x) => x.join('')).join('\n');
+  }
+
+  private color(symbol: string, color = 'white'): string {
+    return chalk`{${color} ${symbol}}`;
   }
 }

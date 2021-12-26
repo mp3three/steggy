@@ -1,4 +1,5 @@
 /* eslint-disable unicorn/no-null */
+import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   Cron,
@@ -8,8 +9,7 @@ import {
   InjectLogger,
   is,
   sleep,
-} from '@for-science/utilities';
-import { Injectable } from '@nestjs/common';
+} from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 import WS from 'ws';
 

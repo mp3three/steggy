@@ -1,6 +1,6 @@
-import { TransformObjectId } from '@for-science/persistence';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
+import { TransformObjectId } from '@text-based/persistence';
 import { Expose } from 'class-transformer';
 import {
   IsBoolean,

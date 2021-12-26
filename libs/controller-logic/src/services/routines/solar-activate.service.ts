@@ -1,10 +1,10 @@
+import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   Cron,
   CronExpression,
   TitleCase,
-} from '@for-science/utilities';
-import { Injectable } from '@nestjs/common';
+} from '@text-based/utilities';
 import { CronJob } from 'cron';
 
 import { SolarActivateDTO, SolarWatcher } from '../../contracts';

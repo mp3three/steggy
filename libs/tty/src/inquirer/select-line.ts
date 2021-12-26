@@ -1,4 +1,4 @@
-import { ARRAY_OFFSET, DOWN, LABEL, START, UP, VALUE } from '@for-science/utilities';
+import { ARRAY_OFFSET, DOWN, LABEL, START, UP, VALUE } from '@text-based/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question, Separator } from 'inquirer';

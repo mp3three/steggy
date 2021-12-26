@@ -1,11 +1,11 @@
+import { INestApplication, Inject, Injectable } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import {
   ACTIVE_APPLICATION,
   AutoLogService,
   InjectConfig,
   WorkspaceService,
-} from '@for-science/utilities';
-import { INestApplication, Inject, Injectable } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+} from '@text-based/utilities';
 
 import { SWAGGER_PATH } from '../config';
 

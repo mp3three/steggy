@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { InjectConfig, is } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
+import { InjectConfig, is } from '@text-based/utilities';
 import {
   createCipheriv,
   createDecipheriv,

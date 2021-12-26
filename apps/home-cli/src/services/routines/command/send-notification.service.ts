@@ -1,6 +1,6 @@
-import { RoutineCommandSendNotificationDTO } from '@for-science/controller-logic';
-import { PromptService } from '@for-science/tty';
 import { Injectable } from '@nestjs/common';
+import { RoutineCommandSendNotificationDTO } from '@text-based/controller-logic';
+import { PromptService } from '@text-based/tty';
 
 @Injectable()
 export class SendNotificationService {

@@ -1,4 +1,4 @@
-import { AutoLogService, InjectConfig, OnEvent } from '@for-science/utilities';
+import { AutoLogService, InjectConfig, OnEvent } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 import WS from 'ws';
 

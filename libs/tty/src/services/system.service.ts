@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   AbstractConfig,
   AutoLogService,
@@ -5,8 +6,7 @@ import {
   IsEmpty,
   PACKAGE_FILE,
   WorkspaceService,
-} from '@for-science/utilities';
-import { Injectable } from '@nestjs/common';
+} from '@text-based/utilities';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import JSON from 'comment-json';

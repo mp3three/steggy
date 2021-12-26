@@ -1,18 +1,4 @@
 import {
-  RoomDTO,
-  RoomEntityDTO,
-  RoomService,
-  RoomStateDTO,
-} from '@for-science/controller-logic';
-import { BaseSchemaDTO } from '@for-science/persistence';
-import {
-  ApiGenericResponse,
-  AuthStack,
-  GENERIC_SUCCESS_RESPONSE,
-  Locals,
-  ResponseLocals,
-} from '@for-science/server';
-import {
   Body,
   Controller,
   Delete,
@@ -22,6 +8,20 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  RoomDTO,
+  RoomEntityDTO,
+  RoomService,
+  RoomStateDTO,
+} from '@text-based/controller-logic';
+import { BaseSchemaDTO } from '@text-based/persistence';
+import {
+  ApiGenericResponse,
+  AuthStack,
+  GENERIC_SUCCESS_RESPONSE,
+  Locals,
+  ResponseLocals,
+} from '@text-based/server';
 
 @Controller('/room')
 @AuthStack()

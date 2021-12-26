@@ -1,4 +1,4 @@
-import { LibraryModule, RegisterCache } from '@for-science/utilities';
+import { LibraryModule, RegisterCache } from '@text-based/utilities';
 
 import { LIB_ALPACA } from '../config';
 import { AccountService, AlpacaFetchService, DataService } from '../services';

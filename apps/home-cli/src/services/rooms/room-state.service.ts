@@ -1,10 +1,17 @@
 /* eslint-disable radar/no-identical-functions */
 import {
+  forwardRef,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotImplementedException,
+} from '@nestjs/common';
+import {
   RoomDTO,
   RoomEntitySaveStateDTO,
   RoomStateDTO,
-} from '@for-science/controller-logic';
-import { domain, HASS_DOMAINS } from '@for-science/home-assistant';
+} from '@text-based/controller-logic';
+import { domain, HASS_DOMAINS } from '@text-based/home-assistant';
 import {
   ICONS,
   IsDone,
@@ -12,7 +19,7 @@ import {
   PromptEntry,
   PromptService,
   ToMenuEntry,
-} from '@for-science/tty';
+} from '@text-based/tty';
 import {
   AutoLogService,
   DOWN,
@@ -20,14 +27,7 @@ import {
   is,
   IsEmpty,
   UP,
-} from '@for-science/utilities';
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  NotImplementedException,
-} from '@nestjs/common';
+} from '@text-based/utilities';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';

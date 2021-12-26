@@ -6,7 +6,7 @@ import {
   is,
   UP,
   VALUE,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import chalk from 'chalk';
 
 import { iRepl, ReplOptions } from '../contracts';
@@ -103,13 +103,13 @@ export class MainCLIService implements iRepl {
       ) => {
         if (name !== 'Main') {
           if (keybind) {
-            keyMap[keybind] = [`${icon}${name}`, name];
+            keyMap[keybind] = [`${icon ?? ''}${name}`, name];
             if (keyOnly) {
               return;
             }
           }
           types[type] ??= [];
-          types[type].push([`${icon}${name}`, name]);
+          types[type].push([`${icon ?? ''}${name}`, name]);
         }
       },
     );

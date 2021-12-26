@@ -1,9 +1,9 @@
+import { applyDecorators } from '@nestjs/common';
 import {
   iRoomControllerMethods,
   ROOM_COMMAND,
-} from '@for-science/controller-logic';
-import { EmitAfter } from '@for-science/utilities';
-import { applyDecorators } from '@nestjs/common';
+} from '@text-based/controller-logic';
+import { EmitAfter } from '@text-based/utilities';
 
 export function RelayCommand(
   rooms: string[] | '*',

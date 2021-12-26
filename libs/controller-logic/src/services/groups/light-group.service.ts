@@ -1,11 +1,11 @@
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import {
   domain,
   EntityManagerService,
   HASS_DOMAINS,
   LightStateDTO,
-} from '@for-science/home-assistant';
-import { AutoLogService } from '@for-science/utilities';
-import { Injectable, NotImplementedException } from '@nestjs/common';
+} from '@text-based/home-assistant';
+import { AutoLogService } from '@text-based/utilities';
 import { each } from 'async';
 
 import {

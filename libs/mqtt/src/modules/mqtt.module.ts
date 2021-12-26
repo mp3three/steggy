@@ -1,5 +1,5 @@
-import { LibraryModule } from '@for-science/utilities';
 import { DiscoveryModule } from '@nestjs/core';
+import { LibraryModule } from '@text-based/utilities';
 
 import { LIB_MQTT } from '../config';
 import { MQTT_CLIENT_INSTANCE } from '../contracts';

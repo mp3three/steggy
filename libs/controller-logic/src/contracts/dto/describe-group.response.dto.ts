@@ -1,4 +1,4 @@
-import { HassStateDTO } from '@for-science/home-assistant';
+import { HassStateDTO } from '@text-based/home-assistant';
 
 export class DescribeGroupResponseDTO {
   room: string;

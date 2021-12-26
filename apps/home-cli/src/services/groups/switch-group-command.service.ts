@@ -1,11 +1,11 @@
+import { Injectable } from '@nestjs/common';
 import {
   GENERIC_COMMANDS,
   GroupDTO,
   RoutineCommandGroupActionDTO,
-} from '@for-science/controller-logic';
-import { ICONS, KeyMap, PromptEntry, PromptService } from '@for-science/tty';
-import { AutoLogService, is } from '@for-science/utilities';
-import { Injectable } from '@nestjs/common';
+} from '@text-based/controller-logic';
+import { ICONS, KeyMap, PromptEntry, PromptService } from '@text-based/tty';
+import { AutoLogService, is } from '@text-based/utilities';
 
 import { HomeFetchService } from '../home-fetch.service';
 

@@ -1,24 +1,4 @@
 import {
-  EntityCommandRouterService,
-  EntityHistoryRequest,
-  LightingCacheDTO,
-  LightManagerService,
-} from '@for-science/controller-logic';
-import {
-  domain,
-  EntityManagerService,
-  EntityRegistryItemDTO,
-  HASS_DOMAINS,
-  HassStateDTO,
-  HomeAssistantFetchAPIService,
-} from '@for-science/home-assistant';
-import {
-  ApiGenericResponse,
-  AuthStack,
-  GENERIC_SUCCESS_RESPONSE,
-} from '@for-science/server';
-import { AutoLogService } from '@for-science/utilities';
-import {
   BadRequestException,
   Body,
   Controller,
@@ -29,6 +9,26 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  EntityCommandRouterService,
+  EntityHistoryRequest,
+  LightingCacheDTO,
+  LightManagerService,
+} from '@text-based/controller-logic';
+import {
+  domain,
+  EntityManagerService,
+  EntityRegistryItemDTO,
+  HASS_DOMAINS,
+  HassStateDTO,
+  HomeAssistantFetchAPIService,
+} from '@text-based/home-assistant';
+import {
+  ApiGenericResponse,
+  AuthStack,
+  GENERIC_SUCCESS_RESPONSE,
+} from '@text-based/server';
+import { AutoLogService } from '@text-based/utilities';
 
 @ApiTags('entity')
 @Controller('/entity')

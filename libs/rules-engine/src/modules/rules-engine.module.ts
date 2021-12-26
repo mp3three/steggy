@@ -1,4 +1,4 @@
-import { LibraryModule } from '@for-science/utilities';
+import { LibraryModule } from '@text-based/utilities';
 
 import { LIB_RULES_ENGINE } from '../config';
 import {

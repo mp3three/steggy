@@ -1,18 +1,18 @@
 import {
-  AutoLogService,
-  is,
-  IsEmpty,
-  OnEvent,
-  ResultControlDTO,
-  sleep,
-} from '@for-science/utilities';
-import {
   BadRequestException,
   ConflictException,
   forwardRef,
   Inject,
   Injectable,
 } from '@nestjs/common';
+import {
+  AutoLogService,
+  is,
+  IsEmpty,
+  OnEvent,
+  ResultControlDTO,
+  sleep,
+} from '@text-based/utilities';
 import { each, eachSeries } from 'async';
 import dayjs from 'dayjs';
 

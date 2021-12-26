@@ -1,3 +1,4 @@
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import {
   AutoLogService,
   buildFilter,
@@ -8,8 +9,7 @@ import {
   IsEmpty,
   queryToControl,
   storage,
-} from '@for-science/utilities';
-import { Injectable, NestMiddleware } from '@nestjs/common';
+} from '@text-based/utilities';
 import { NextFunction } from 'express';
 import pino from 'pino';
 

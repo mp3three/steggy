@@ -1,4 +1,9 @@
 import {
+  BadRequestException,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
+import {
   ClimateDomainService,
   domain,
   FanDomainService,
@@ -8,13 +13,8 @@ import {
   LockDomainService,
   MediaPlayerDomainService,
   SwitchDomainService,
-} from '@for-science/home-assistant';
-import { AutoLogService } from '@for-science/utilities';
-import {
-  BadRequestException,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
+} from '@text-based/home-assistant';
+import { AutoLogService } from '@text-based/utilities';
 
 import type { ROOM_ENTITY_EXTRAS, RoomEntitySaveStateDTO } from '../contracts';
 import { ClimateCacheDTO, FanCacheDTO } from '../contracts';

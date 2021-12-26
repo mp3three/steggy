@@ -1,5 +1,5 @@
-import { AutoLogService, OnEvent, sleep } from '@for-science/utilities';
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { AutoLogService, OnEvent, sleep } from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 import { Observable, Subscriber } from 'rxjs';
 

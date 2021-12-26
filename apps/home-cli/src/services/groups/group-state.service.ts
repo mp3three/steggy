@@ -1,10 +1,17 @@
 import {
+  forwardRef,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotImplementedException,
+} from '@nestjs/common';
+import {
   GroupDTO,
   GroupSaveStateDTO,
   RoomDTO,
   RoomEntitySaveStateDTO,
   RoutineCommandGroupStateDTO,
-} from '@for-science/controller-logic';
+} from '@text-based/controller-logic';
 import {
   ICONS,
   IsDone,
@@ -12,15 +19,8 @@ import {
   PromptEntry,
   PromptService,
   ToMenuEntry,
-} from '@for-science/tty';
-import { AutoLogService, is, IsEmpty } from '@for-science/utilities';
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  NotImplementedException,
-} from '@nestjs/common';
+} from '@text-based/tty';
+import { AutoLogService, is, IsEmpty } from '@text-based/utilities';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';

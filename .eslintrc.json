@@ -3,28 +3,27 @@
   "ignorePatterns": ["**/*"],
   "plugins": [
     "@nrwl/nx",
-    "security",
-    "radar",
-    "unicorn",
+    "import",
     "jsonc",
-    "woke",
-    "sort-keys-fix",
-    "no-loops",
     "no-unsanitized",
+    "radar",
+    "security",
     "simple-import-sort",
-    "import"
+    "sort-keys-fix",
+    "unicorn",
+    "woke"
   ],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx"],
       "extends": [
         "plugin:@nrwl/nx/typescript",
-        "plugin:you-dont-need-lodash-underscore/compatible",
-        "plugin:security/recommended",
         "plugin:@typescript-eslint/recommended",
+        "plugin:jsonc/recommended-with-jsonc",
         "plugin:radar/recommended",
+        "plugin:security/recommended",
         "plugin:unicorn/recommended",
-        "plugin:jsonc/recommended-with-jsonc"
+        "prettier"
       ],
       "parserOptions": {
         "project": ["./tsconfig.base.json"]
@@ -152,7 +151,6 @@
         "security/detect-non-literal-fs-filename": "off",
         "woke/all": "warn",
         "sort-keys-fix/sort-keys-fix": "warn",
-        "no-loops/no-loops": "error",
         "simple-import-sort/imports": "warn",
         "simple-import-sort/exports": "warn",
         "no-console": ["error"],

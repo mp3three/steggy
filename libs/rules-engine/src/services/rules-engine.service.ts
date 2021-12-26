@@ -1,5 +1,5 @@
-import { AutoLogService } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
+import { AutoLogService } from '@text-based/utilities';
 
 import { CustomCodeService } from './custom-code.service';
 import { TimeRangeService } from './time-range.service';

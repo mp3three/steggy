@@ -1,4 +1,4 @@
-import { AutoLogService, CastResult } from '@for-science/utilities';
+import { AutoLogService, CastResult } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 
 import {

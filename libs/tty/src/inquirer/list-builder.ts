@@ -1,3 +1,4 @@
+import { INestApplication } from '@nestjs/common';
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -10,8 +11,7 @@ import {
   START,
   UP,
   VALUE,
-} from '@for-science/utilities';
-import { INestApplication } from '@nestjs/common';
+} from '@text-based/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';
@@ -65,6 +65,8 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
   constructor(questions, rl, answers) {
     super(questions, rl, answers);
     this.opt = questions;
+    this.opt.source ??= [];
+    this.opt.current ??= [];
     this.current = [...this.opt.current];
     this.source = [...this.opt.source];
     const { app } = ListBuilderPrompt;
@@ -85,6 +87,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
   public _run(callback: tCallback): this {
     this.done = callback;
     const events = observe(this.rl);
+    events.line.forEach(this.onEnd.bind(this));
     events.keypress.forEach(this.onKeypress.bind(this));
     this.value ??= IsEmpty(this.source)
       ? this.current[START][VALUE]
@@ -207,7 +210,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
     this.done(this.current.map((i) => i[VALUE]));
   }
 
-  private onKeypress({ key }: KeyDescriptor): void {
+  private onKeypress({ key, ...extra }: KeyDescriptor): void {
     if (this.status === 'answered') {
       return;
     }

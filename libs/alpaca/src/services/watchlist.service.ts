@@ -1,4 +1,4 @@
-import { CastResult } from '@for-science/utilities';
+import { CastResult } from '@text-based/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import { Watchlist } from '../contracts';

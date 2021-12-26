@@ -1,6 +1,6 @@
-import { MainCLIModule } from '@for-science/tty';
-import { ApplicationModule, UtilitiesModule } from '@for-science/utilities';
 import { DiscoveryModule } from '@nestjs/core';
+import { MainCLIModule } from '@text-based/tty';
+import { ApplicationModule, UtilitiesModule } from '@text-based/utilities';
 
 import {
   AnimationService,

@@ -1,5 +1,5 @@
-import { LibraryModule, RegisterCache } from '@for-science/utilities';
 import { DiscoveryModule } from '@nestjs/core';
+import { LibraryModule, RegisterCache } from '@text-based/utilities';
 
 import { LIB_CONTROLLER_LOGIC } from '../config';
 import {

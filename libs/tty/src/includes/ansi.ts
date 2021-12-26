@@ -1,4 +1,4 @@
-import { DOWN, UP } from '@for-science/utilities';
+import { DOWN, UP } from '@text-based/utilities';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 

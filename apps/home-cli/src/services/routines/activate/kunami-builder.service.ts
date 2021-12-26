@@ -1,8 +1,8 @@
-import { KunamiCodeActivateDTO } from '@for-science/controller-logic';
-import { HASS_DOMAINS } from '@for-science/home-assistant';
-import { PromptService } from '@for-science/tty';
-import { AutoLogService, IsEmpty } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
+import { KunamiCodeActivateDTO } from '@text-based/controller-logic';
+import { HASS_DOMAINS } from '@text-based/home-assistant';
+import { PromptService } from '@text-based/tty';
+import { AutoLogService, IsEmpty } from '@text-based/utilities';
 import chalk from 'chalk';
 
 import { EntityService } from '../../home-assistant/entity.service';

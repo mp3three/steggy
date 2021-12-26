@@ -1,9 +1,9 @@
-import { ICONS, iRepl, Repl } from '@for-science/tty';
+import { ICONS, iRepl, Repl } from '@text-based/tty';
 import {
   AutoLogService,
   FetchService,
   InjectConfig,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import chalk from 'chalk';
 import execa from 'execa';
 import { lstatSync, mkdirSync, readdirSync, renameSync } from 'fs';

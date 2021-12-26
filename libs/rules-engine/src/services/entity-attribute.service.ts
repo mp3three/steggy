@@ -1,6 +1,6 @@
-import { EntityManagerService } from '@for-science/home-assistant';
-import { AutoLogService, is } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
+import { EntityManagerService } from '@text-based/home-assistant';
+import { AutoLogService, is } from '@text-based/utilities';
 import { get } from 'object-path';
 
 import { EntityAttributeDTO } from '../contracts';

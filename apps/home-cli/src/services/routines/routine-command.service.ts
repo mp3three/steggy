@@ -1,4 +1,10 @@
 import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
+import {
   GroupDTO,
   RoomCommandDTO,
   RoomDTO,
@@ -15,21 +21,15 @@ import {
   RoutineCommandTriggerRoutineDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
-} from '@for-science/controller-logic';
+} from '@text-based/controller-logic';
 import {
   ICONS,
   IsDone,
   PromptEntry,
   PromptService,
   ToMenuEntry,
-} from '@for-science/tty';
-import { is, IsEmpty, START, TitleCase } from '@for-science/utilities';
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
+} from '@text-based/tty';
+import { is, IsEmpty, START, TitleCase } from '@text-based/utilities';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { dump } from 'js-yaml';

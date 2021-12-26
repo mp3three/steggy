@@ -4,14 +4,14 @@ The controller (currently) specializes in lighting and scene control, with some 
 
 ## Docker Install
 
-> See [wiki](https://github.com/ccontour/for-science/wiki) for development / bare metal install information
+> See [wiki](https://github.com/ccontour/text-based/wiki) for development / bare metal install information
 
 **Example configuration file** *(good presets for docker install)*
 
 ```ini
 [libs.controller-logic]
   ; MongoDB or compatible URI. No support for sql databases
-  MONGO_URI=mongodb://mongo:27017/for-science
+  MONGO_URI=mongodb://mongo:27017/text-based
 
 [libs.home-assistant]
   ; Base url to your Home Assistant install

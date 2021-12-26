@@ -1,17 +1,17 @@
+import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import {
   HACallService,
   HASS_DOMAINS,
   HomeAssistantFetchAPIService,
   HomeAssistantServerLogItem,
-} from '@for-science/home-assistant';
+} from '@text-based/home-assistant';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
-} from '@for-science/server';
-import { AutoLogService } from '@for-science/utilities';
-import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+} from '@text-based/server';
+import { AutoLogService } from '@text-based/utilities';
 
 @Controller('/admin')
 @AuthStack()

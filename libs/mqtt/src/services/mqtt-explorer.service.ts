@@ -1,7 +1,7 @@
-import { AutoLogService, is, LOG_CONTEXT } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+import { AutoLogService, is, LOG_CONTEXT } from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 import { Client } from 'mqtt';
 
@@ -18,7 +18,6 @@ import {
 import { InjectMQTT, MQTT_SUBSCRIBE_OPTIONS } from '../decorators';
 import { MqttService } from './mqtt.service';
 
-/* eslint-disable no-loops/no-loops */
 const FIRST = 0;
 
 @Injectable()

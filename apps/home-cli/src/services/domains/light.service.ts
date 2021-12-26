@@ -1,12 +1,12 @@
+import { Inject, Injectable } from '@nestjs/common';
 import {
   LIGHTING_MODE,
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
-} from '@for-science/controller-logic';
-import { HASS_DOMAINS, LightStateDTO } from '@for-science/home-assistant';
-import { ColorsService, ICONS, KeyMap, PromptEntry } from '@for-science/tty';
-import { is, START } from '@for-science/utilities';
-import { Inject, Injectable } from '@nestjs/common';
+} from '@text-based/controller-logic';
+import { HASS_DOMAINS, LightStateDTO } from '@text-based/home-assistant';
+import { ColorsService, ICONS, KeyMap, PromptEntry } from '@text-based/tty';
+import { is, START } from '@text-based/utilities';
 import inquirer from 'inquirer';
 
 import { SwitchService } from './switch.service';

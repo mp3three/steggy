@@ -1,5 +1,5 @@
-import { AutoConfigService, InjectConfig, is } from '@for-science/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { AutoConfigService, InjectConfig, is } from '@text-based/utilities';
 
 import { LIB_TTY, PINNED_ITEMS } from '../config';
 import { PromptEntry } from './prompt.service';

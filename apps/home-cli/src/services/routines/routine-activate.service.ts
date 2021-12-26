@@ -1,4 +1,10 @@
 import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
+import {
   KunamiCodeActivateDTO,
   ROUTINE_ACTIVATE_TYPE,
   RoutineActivateDTO,
@@ -6,15 +12,9 @@ import {
   ScheduleActivateDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
-} from '@for-science/controller-logic';
-import { ICONS, IsDone, PromptService, ToMenuEntry } from '@for-science/tty';
-import { is, IsEmpty, TitleCase } from '@for-science/utilities';
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
+} from '@text-based/controller-logic';
+import { ICONS, IsDone, PromptService, ToMenuEntry } from '@text-based/tty';
+import { is, IsEmpty, TitleCase } from '@text-based/utilities';
 import chalk from 'chalk';
 import Table from 'cli-table';
 import { v4 as uuid } from 'uuid';

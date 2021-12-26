@@ -1,26 +1,4 @@
 import {
-  KunamiCodeActivateDTO,
-  RoomEntitySaveStateDTO,
-  RoutineActivateOptionsDTO,
-  RoutineCommandGroupActionDTO,
-  RoutineCommandGroupStateDTO,
-  RoutineCommandRoomStateDTO,
-  RoutineCommandSendNotificationDTO,
-  RoutineCommandWebhookDTO,
-  RoutineDTO,
-  RoutineService,
-  ScheduleActivateDTO,
-  SolarActivateDTO,
-  StateChangeActivateDTO,
-} from '@for-science/controller-logic';
-import {
-  ApiGenericResponse,
-  AuthStack,
-  GENERIC_SUCCESS_RESPONSE,
-  Locals,
-  ResponseLocals,
-} from '@for-science/server';
-import {
   Body,
   Controller,
   Delete,
@@ -36,6 +14,28 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import {
+  KunamiCodeActivateDTO,
+  RoomEntitySaveStateDTO,
+  RoutineActivateOptionsDTO,
+  RoutineCommandGroupActionDTO,
+  RoutineCommandGroupStateDTO,
+  RoutineCommandRoomStateDTO,
+  RoutineCommandSendNotificationDTO,
+  RoutineCommandWebhookDTO,
+  RoutineDTO,
+  RoutineService,
+  ScheduleActivateDTO,
+  SolarActivateDTO,
+  StateChangeActivateDTO,
+} from '@text-based/controller-logic';
+import {
+  ApiGenericResponse,
+  AuthStack,
+  GENERIC_SUCCESS_RESPONSE,
+  Locals,
+  ResponseLocals,
+} from '@text-based/server';
 
 @Controller(`/routine`)
 @AuthStack()

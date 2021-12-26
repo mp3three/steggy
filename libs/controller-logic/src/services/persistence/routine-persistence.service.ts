@@ -1,12 +1,12 @@
-import { BaseMongoService, BaseSchemaDTO } from '@for-science/persistence';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { BaseMongoService, BaseSchemaDTO } from '@text-based/persistence';
 import {
   AutoLogService,
   CastResult,
   is,
   ResultControlDTO,
-} from '@for-science/utilities';
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+} from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 import { Model } from 'mongoose';
 

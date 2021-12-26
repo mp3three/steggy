@@ -1,14 +1,14 @@
 import {
-  AutoLogService,
-  FetchService,
-  is,
-  JSONFilterService,
-} from '@for-science/utilities';
-import {
   ConflictException,
   Injectable,
   NotImplementedException,
 } from '@nestjs/common';
+import {
+  AutoLogService,
+  FetchService,
+  is,
+  JSONFilterService,
+} from '@text-based/utilities';
 
 import { WebhookDTO } from '../contracts';
 

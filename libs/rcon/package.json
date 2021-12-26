@@ -2,15 +2,15 @@
   "author": {
     "email": "github@ccontour.com",
     "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/for-science"
+    "url": "https://github.com/ccontour/text-based"
   },
-  "name": "@ccontour/rcon",
+  "name": "@text-based/rcon",
   "license": "MIT",
   "displayName": "RCON",
   "version": "0.1.0",
-  "homepage": "https://github.com/ccontour/for-science",
+  "homepage": "https://github.com/ccontour/text-based",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ccontour/for-science.git"
+    "url": "git+https://github.com/ccontour/text-based.git"
   }
 }

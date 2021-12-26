@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
+import { BadRequestException } from '@nestjs/common';
 import {
   FILTER_OPERATIONS,
   FilterDTO,
   FilterValueType,
   is,
   ResultControlDTO,
-} from '@for-science/utilities';
-import { BadRequestException } from '@nestjs/common';
+} from '@text-based/utilities';
 import { isNumberString } from 'class-validator';
 import dayjs from 'dayjs';
 

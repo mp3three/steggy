@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -10,8 +11,7 @@ import {
   START,
   UP,
   VALUE,
-} from '@for-science/utilities';
-import { Injectable } from '@nestjs/common';
+} from '@text-based/utilities';
 import chalk from 'chalk';
 import fuzzy from 'fuzzysort';
 

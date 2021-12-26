@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   domain,
   EntityManagerService,
@@ -5,9 +6,8 @@ import {
   FanStateDTO,
   HASS_DOMAINS,
   HomeAssistantCoreService,
-} from '@for-science/home-assistant';
-import { AutoLogService } from '@for-science/utilities';
-import { Injectable } from '@nestjs/common';
+} from '@text-based/home-assistant';
+import { AutoLogService } from '@text-based/utilities';
 import { each } from 'async';
 
 import {

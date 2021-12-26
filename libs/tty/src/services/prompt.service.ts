@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   DOWN,
@@ -10,8 +11,7 @@ import {
   TitleCase,
   UP,
   VALUE,
-} from '@for-science/utilities';
-import { Injectable } from '@nestjs/common';
+} from '@text-based/utilities';
 import chalk from 'chalk';
 import figlet, { Fonts } from 'figlet';
 import fuzzy from 'fuzzysort';
@@ -60,48 +60,6 @@ export class PromptService {
    */
   public async acknowledge(): Promise<void> {
     await inquirer.prompt([{ name, type: 'acknowledge' }]);
-  }
-
-  /**
-   * Now featuring: FUZZYSORT!
-   */
-  public async autocomplete<T extends unknown = string>(
-    prompt = `Pick one`,
-    options: ({ name: string; value: T } | string)[],
-    defaultValue?: T,
-  ): Promise<T> {
-    const { result } = await inquirer.prompt([
-      {
-        default: defaultValue,
-        message: prompt,
-        name,
-        pageSize: this.pageSize,
-        source: (answers, input) => {
-          if (!input) {
-            return options;
-          }
-          const fuzzyResult = fuzzy.go(
-            input,
-            options.map((item) => {
-              if (is.string(item)) {
-                return item;
-              }
-              return item.name;
-            }),
-            { limit: this.pageSize },
-          );
-          return fuzzyResult.map(({ target }) => {
-            return options.find((option) => {
-              return is.string(option)
-                ? option === target
-                : option.name === target;
-            });
-          });
-        },
-        type: 'autocomplete',
-      },
-    ]);
-    return result;
   }
 
   public async boolean(

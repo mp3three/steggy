@@ -1,5 +1,5 @@
-import { AutoLogService } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
+import { AutoLogService } from '@text-based/utilities';
 
 @Injectable()
 export class CacheTestService {

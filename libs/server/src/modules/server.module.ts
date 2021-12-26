@@ -1,16 +1,16 @@
 import {
-  AutoLogService,
-  BootstrapOptions,
-  InjectConfig,
-  IsEmpty,
-  LibraryModule,
-} from '@for-science/utilities';
-import {
   INestApplication,
   MiddlewareConsumer,
   RequestMethod,
   ValidationPipe,
 } from '@nestjs/common';
+import {
+  AutoLogService,
+  BootstrapOptions,
+  InjectConfig,
+  IsEmpty,
+  LibraryModule,
+} from '@text-based/utilities';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';

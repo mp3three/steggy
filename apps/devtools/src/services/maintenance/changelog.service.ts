@@ -4,13 +4,13 @@ import {
   iRepl,
   PromptService,
   Repl,
-} from '@for-science/tty';
+} from '@text-based/tty';
 import {
   AutoLogService,
   IsEmpty,
   TitleCase,
   WorkspaceService,
-} from '@for-science/utilities';
+} from '@text-based/utilities';
 import { eachSeries } from 'async';
 import Table from 'cli-table';
 import execa from 'execa';
@@ -51,7 +51,7 @@ export class ChangelogService implements iRepl {
     console.log(table.toString(), `\n`);
     await this.processAffected(affected);
     await this.bumpRoot();
-    await this.promptService.acknowledge('Done');
+    await this.promptService.acknowledge();
   }
 
   private async bumpRoot(): Promise<string> {

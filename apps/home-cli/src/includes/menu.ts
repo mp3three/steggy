@@ -1,4 +1,4 @@
-import { DONE, ICONS, MenuEntry } from '@for-science/tty';
+import { DONE, ICONS, MenuEntry } from '@text-based/tty';
 import chalk from 'chalk';
 
 const menu = {
@@ -11,6 +11,8 @@ const menu = {
   EDIT: [`${ICONS.EDIT}Edit`, 'edit'],
   ENTITIES: [`${ICONS.ENTITIES}Entities`, 'entities'],
   GROUPS: [`${ICONS.GROUPS}Groups`, 'groups'],
+  HISTORY: [`${ICONS.HISTORY}History`, 'history'],
+  REFRESH: [`${ICONS.REFRESH}Refresh`, 'refresh'],
   RENAME: [`${ICONS.RENAME}Rename`, 'rename'],
   ROUTINES: [`${ICONS.ROUTINE}Routines`, 'routines'],
   STATE_MANAGER: [`${ICONS.STATE_MANAGER}State Manager`, 'states'],

@@ -1,12 +1,12 @@
-import { domain } from '@for-science/home-assistant';
-import { BaseSchemaDTO } from '@for-science/persistence';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { domain } from '@text-based/home-assistant';
+import { BaseSchemaDTO } from '@text-based/persistence';
 import {
   AutoLogService,
   is,
   IsEmpty,
   ResultControlDTO,
-} from '@for-science/utilities';
-import { Injectable, NotFoundException } from '@nestjs/common';
+} from '@text-based/utilities';
 import { each } from 'async';
 import { v4 as uuid } from 'uuid';
 

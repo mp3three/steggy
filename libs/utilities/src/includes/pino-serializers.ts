@@ -1,4 +1,4 @@
-// import { APIRequest, APIResponse } from '@for-science/server';
+// import { APIRequest, APIResponse } from '@text-based/server';
 
 import { is } from '../contracts';
 

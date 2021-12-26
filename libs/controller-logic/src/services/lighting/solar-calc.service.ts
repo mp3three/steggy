@@ -1,9 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import {
   HA_SOCKET_READY,
   HASocketAPIService,
-} from '@for-science/home-assistant';
-import { AutoLogService, is, OnEvent, sleep } from '@for-science/utilities';
-import { Injectable } from '@nestjs/common';
+} from '@text-based/home-assistant';
+import { AutoLogService, is, OnEvent, sleep } from '@text-based/utilities';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';
 

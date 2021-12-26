@@ -1,3 +1,4 @@
+export * from './charting.service';
 export * from './colors.service';
 export * from './config-builder.service';
 export * from './git.service';

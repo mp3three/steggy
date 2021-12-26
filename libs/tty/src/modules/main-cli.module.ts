@@ -1,10 +1,11 @@
-import { LibraryModule, RegisterCache } from '@for-science/utilities';
 import { INestApplication } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
+import { LibraryModule, RegisterCache } from '@text-based/utilities';
 
 import { LIB_TTY } from '../config';
 import { inquirerPreInit } from '../inquirer';
 import {
+  ChartingService,
   ColorsService,
   ConfigBuilderService,
   GitService,
@@ -25,6 +26,7 @@ import {
     TextRenderingService,
     ConfigBuilderService,
     SystemService,
+    ChartingService,
   ],
   imports: [DiscoveryModule, RegisterCache()],
   library: LIB_TTY,
@@ -38,6 +40,7 @@ import {
     PromptService,
     ReplExplorerService,
     SystemService,
+    ChartingService,
   ],
 })
 export class MainCLIModule {

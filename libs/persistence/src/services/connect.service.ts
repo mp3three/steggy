@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { FetchService } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
 import { MongooseModuleOptions } from '@nestjs/mongoose';
+import { FetchService } from '@text-based/utilities';
 import { existsSync, readFileSync } from 'fs';
 
 import { MongoConnectDTO } from '../contracts';

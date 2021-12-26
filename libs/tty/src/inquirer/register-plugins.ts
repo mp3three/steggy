@@ -1,7 +1,6 @@
-import { is } from '@for-science/utilities';
 import { INestApplication } from '@nestjs/common';
+import { is } from '@text-based/utilities';
 import inquirer from 'inquirer';
-import autocompletePrompt from 'inquirer-autocomplete-prompt';
 import datePrompt from 'inquirer-date-prompt';
 
 import { AcknowledgePrompt } from './acknowledge';
@@ -12,7 +11,6 @@ import { TimeoutPrompt } from './timeout';
 
 // @ts-expect-error Probably related to missing ts defs or something
 inquirer.registerPrompt('date', datePrompt);
-inquirer.registerPrompt('autocomplete', autocompletePrompt);
 inquirer.registerPrompt('selectLine', SelectLinePrompt);
 inquirer.registerPrompt('timeout', TimeoutPrompt);
 inquirer.registerPrompt('mainMenu', MainMenuPrompt);

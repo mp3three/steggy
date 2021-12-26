@@ -1,9 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import {
   EntityManagerService,
   LightStateDTO,
-} from '@for-science/home-assistant';
-import { AutoLogService, is, PEAT, sleep } from '@for-science/utilities';
-import { Injectable } from '@nestjs/common';
+} from '@text-based/home-assistant';
+import { AutoLogService, is, PEAT, sleep } from '@text-based/utilities';
 import { eachSeries } from 'async';
 
 import {

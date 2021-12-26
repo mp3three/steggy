@@ -1,7 +1,7 @@
-import { SolarActivateDTO } from '@for-science/controller-logic';
-import { ICONS, PromptEntry, PromptService } from '@for-science/tty';
-import { DOWN, TitleCase, UP } from '@for-science/utilities';
 import { Injectable } from '@nestjs/common';
+import { SolarActivateDTO } from '@text-based/controller-logic';
+import { ICONS, PromptEntry, PromptService } from '@text-based/tty';
+import { DOWN, TitleCase, UP } from '@text-based/utilities';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 import SolarCalc from 'solar-calc';

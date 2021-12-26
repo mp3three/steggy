@@ -1,9 +1,10 @@
+import { Injectable } from '@nestjs/common';
 import {
   FanCacheDTO,
   FanCacheSpeeds,
   RoomEntitySaveStateDTO,
-} from '@for-science/controller-logic';
-import { FanSpeeds, FanStateDTO } from '@for-science/home-assistant';
+} from '@text-based/controller-logic';
+import { FanSpeeds, FanStateDTO } from '@text-based/home-assistant';
 import {
   DONE,
   ICONS,
@@ -11,9 +12,8 @@ import {
   KeyMap,
   PromptEntry,
   ToMenuEntry,
-} from '@for-science/tty';
-import { TitleCase } from '@for-science/utilities';
-import { Injectable } from '@nestjs/common';
+} from '@text-based/tty';
+import { TitleCase } from '@text-based/utilities';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 

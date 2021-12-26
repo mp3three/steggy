@@ -1,5 +1,5 @@
 {
-  "name": "@ccontour/devtools",
+  "name": "@text-based/devtools",
   "license": "MIT",
   "description": "",
   "main": "main.js",
@@ -8,11 +8,11 @@
   "author": {
     "email": "github@ccontour.com",
     "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/for-science"
+    "url": "https://github.com/ccontour/text-based"
   },
-  "homepage": "https://github.com/ccontour/for-science",
+  "homepage": "https://github.com/ccontour/text-based",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ccontour/for-science.git"
+    "url": "git+https://github.com/ccontour/text-based.git"
   }
 }

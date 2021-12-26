@@ -1,10 +1,10 @@
 import {
   HomeControllerCustomModule,
   HomePersistenceModule,
-} from '@for-science/controller-logic';
-import { HomeAssistantModule } from '@for-science/home-assistant';
-import { ServerModule } from '@for-science/server';
-import { ApplicationModule } from '@for-science/utilities';
+} from '@text-based/controller-logic';
+import { HomeAssistantModule } from '@text-based/home-assistant';
+import { ServerModule } from '@text-based/server';
+import { ApplicationModule } from '@text-based/utilities';
 
 import {
   AdminController,

@@ -2,24 +2,22 @@ import {
   FanCacheDTO,
   LightingCacheDTO,
   RoomEntitySaveStateDTO,
-} from '@for-science/controller-logic';
-import {
-  domain,
-  HASS_DOMAINS,
-  HassStateDTO,
-} from '@for-science/home-assistant';
+} from '@text-based/controller-logic';
+import { domain, HASS_DOMAINS, HassStateDTO } from '@text-based/home-assistant';
 import {
   ICONS,
   iRepl,
+  IsDone,
   MenuEntry,
   PinnedItemService,
   PromptEntry,
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@for-science/tty';
-import { is, IsEmpty, VALUE } from '@for-science/utilities';
+} from '@text-based/tty';
+import { is, IsEmpty, VALUE } from '@text-based/utilities';
 
+import { MENU_ITEMS } from '../../includes';
 import {
   BaseDomainService,
   ClimateService,
@@ -192,7 +190,13 @@ export class EntityService implements iRepl {
   }
 
   public async processId(ids: string[]): Promise<void> {
-    const entity = await this.promptService.autocomplete('Pick an entity', ids);
+    const entity = await this.promptService.menu({
+      keyMap: { d: MENU_ITEMS.DONE },
+      right: ToMenuEntry(ids.map((i) => [i, i])),
+    });
+    if (IsDone(entity)) {
+      return;
+    }
     await this.process(entity);
   }
 

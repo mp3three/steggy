@@ -1,7 +1,8 @@
+import { Injectable } from '@nestjs/common';
 import {
   HomeAssistantCoreService,
   LightDomainService,
-} from '@for-science/home-assistant';
+} from '@text-based/home-assistant';
 import {
   AutoLogService,
   CacheManagerService,
@@ -11,8 +12,7 @@ import {
   INVERT_VALUE,
   is,
   IsEmpty,
-} from '@for-science/utilities';
-import { Injectable } from '@nestjs/common';
+} from '@text-based/utilities';
 import { each } from 'async';
 import EventEmitter from 'eventemitter3';
 
@@ -183,7 +183,7 @@ export class LightManagerService {
       rgb_color: settings.rgb_color,
     };
     Object.keys(data).forEach((key) => {
-      if (!is.string(data[key])) {
+      if (is.undefined(data[key])) {
         delete data[key];
       }
     });

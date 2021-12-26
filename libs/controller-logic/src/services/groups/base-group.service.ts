@@ -1,5 +1,5 @@
-import { AutoLogService, is } from '@for-science/utilities';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { AutoLogService, is } from '@text-based/utilities';
 import { plainToInstance } from 'class-transformer';
 import { v4 as uuid } from 'uuid';
 

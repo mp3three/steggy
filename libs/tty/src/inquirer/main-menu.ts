@@ -1,3 +1,4 @@
+import { INestApplication } from '@nestjs/common';
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -12,8 +13,7 @@ import {
   TitleCase,
   UP,
   VALUE,
-} from '@for-science/utilities';
-import { INestApplication } from '@nestjs/common';
+} from '@text-based/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';
@@ -427,7 +427,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       message = this.textRender.appendHelp(
         message,
         BASE_HELP,
-        Object.keys(this.opt.keyMap).map((i) => [i, this.opt.keyMap[i][LABEL]]),
+        Object.keys(this.opt.keyMap)
+          .filter((key) => Array.isArray(this.opt.keyMap[key]))
+          .map((i) => [i, this.opt.keyMap[i][LABEL]]),
       );
     }
     this.screen.render(message, '');

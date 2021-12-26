@@ -1,12 +1,13 @@
-import { RoomEntitySaveStateDTO } from '@for-science/controller-logic';
+import { Injectable, NotImplementedException } from '@nestjs/common';
+import { RoomEntitySaveStateDTO } from '@text-based/controller-logic';
 import {
   domain,
   HASS_DOMAINS,
   HassStateDTO,
   RelatedDescriptionDTO,
-} from '@for-science/home-assistant';
+} from '@text-based/home-assistant';
 import {
-  DONE,
+  ChartingService,
   ICONS,
   IsDone,
   KeyMap,
@@ -15,11 +16,14 @@ import {
   PromptEntry,
   PromptService,
   ToMenuEntry,
-} from '@for-science/tty';
+} from '@text-based/tty';
 import {
   ARRAY_OFFSET,
   AutoLogService,
+  CacheManagerService,
   DOWN,
+  EMPTY,
+  InjectCache,
   InjectConfig,
   is,
   IsEmpty,
@@ -27,13 +31,7 @@ import {
   START,
   TitleCase,
   UP,
-} from '@for-science/utilities';
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
+} from '@text-based/utilities';
 import chalk from 'chalk';
 import Table from 'cli-table';
 import dayjs from 'dayjs';
@@ -41,23 +39,28 @@ import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
 import { REFRESH_SLEEP } from '../../config';
-import { DeviceService } from '../home-assistant/device.service';
-import { EntityHistoryService } from '../home-assistant/entity-history.service';
+import { MENU_ITEMS } from '../../includes';
+import { DeviceService, EntityHistoryService } from '../home-assistant';
 import { HomeFetchService } from '../home-fetch.service';
 
-type tDeviceService = DeviceService;
 const HEADER_SEPARATOR = 0;
 const FIRST = 0;
 const HALF = 2;
+const SMALL_LIST = 4;
+
+const CACHE_KEY = (entity: string, type: string) =>
+  `LAST_ATTRIBUTES:${type}:${entity}`;
 
 @Injectable()
 export class BaseDomainService {
   constructor(
+    @InjectCache()
+    private readonly cache: CacheManagerService,
+    private readonly chartingService: ChartingService,
     protected readonly logger: AutoLogService,
     protected readonly fetchService: HomeFetchService,
     protected readonly promptService: PromptService,
-    @Inject(forwardRef(() => DeviceService))
-    protected readonly deviceService: tDeviceService,
+    protected readonly deviceService: DeviceService,
     private readonly history: EntityHistoryService,
     private readonly pinnedItem: PinnedItemService<never>,
     @InjectConfig(REFRESH_SLEEP)
@@ -80,6 +83,22 @@ export class BaseDomainService {
     });
   }
 
+  public async graph(id: string): Promise<void> {
+    const raw = await this.history.promptEntityHistory(id);
+    if (IsEmpty(raw)) {
+      this.logger.error(`No history returned`);
+      await this.promptService.acknowledge();
+      return;
+    }
+    const attributes = await this.limitAttributes(raw, 'numeric', EMPTY);
+    const graphs = attributes.map((key) =>
+      raw.map((point) => point.attributes[key] as number),
+    );
+    const result = this.chartingService.plot(graphs);
+    console.log(result);
+    await this.promptService.acknowledge();
+  }
+
   public async pickFromDomain<T extends HassStateDTO = HassStateDTO>(
     search: HASS_DOMAINS,
     insideList: string[] = [],
@@ -92,10 +111,10 @@ export class BaseDomainService {
         domain(entity) === search &&
         (IsEmpty(insideList) || insideList.includes(entity)),
     );
-    const entityId = await this.promptService.autocomplete(
-      'Pick an entity',
-      filtered,
-    );
+    const entityId = await this.promptService.menu({
+      keyMap: {},
+      right: ToMenuEntry(filtered.map((i) => [i, i])),
+    });
     return await this.getState(entityId);
   }
 
@@ -126,6 +145,9 @@ export class BaseDomainService {
       return action;
     }
     switch (action) {
+      case 'graph':
+        await this.graph(id);
+        return await this.processId(id, action);
       case 'refresh':
         return await this.processId(id, action);
       case 'changeFriendlyName':
@@ -159,18 +181,23 @@ export class BaseDomainService {
   }
 
   public async showHistory(id: string): Promise<void> {
-    const data = await this.history.promptEntityHistory(id);
-    const attributes = this.logAttributes(data);
-    if (IsEmpty(attributes)) {
+    const rawHistory = await this.history.promptEntityHistory(id);
+    if (IsEmpty(rawHistory)) {
       this.logger.warn(`No history returned`);
       await this.promptService.acknowledge();
       return;
     }
-    const keys = Object.keys(attributes[FIRST]);
+    const attributeList = await this.limitAttributes(rawHistory);
+    const tableEntries = rawHistory.map((entry) => ({
+      attributes: attributeList.map((key) => entry.attributes[key]),
+      date: entry.last_changed,
+      state: entry.state,
+    }));
+    const keys = Object.keys(tableEntries[FIRST]);
     const table = new Table({
       head: keys.map((i) => TitleCase(i)),
     });
-    attributes.forEach((i) =>
+    tableEntries.forEach((i) =>
       table.push(
         keys.map((key) => {
           if (key === 'date') {
@@ -230,20 +257,21 @@ export class BaseDomainService {
     }
 
     const max = Math.max(...keys.map((i) => i.length));
-    keys.forEach((key) => this.printItem(content, key, max));
+    keys.forEach((key) => console.log(this.printItem(content, key, max)));
     console.log();
     return content;
   }
 
   protected buildKeymap(id: string): KeyMap {
     return {
-      d: [chalk.bold`Done`, DONE],
-      g: [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
-      h: [`${ICONS.HISTORY}History`, 'history'],
+      d: MENU_ITEMS.DONE,
+      g: [`${ICONS.DOWN}Graphs`, 'graph'],
+      h: MENU_ITEMS.HISTORY,
       i: [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
       n: [`${ICONS.RENAME}Change Friendly Name`, 'changeFriendlyName'],
       p: [this.pinnedItem.isPinned('entity', id) ? 'Unpin' : 'Pin', 'pin'],
-      r: [`${ICONS.REFRESH}Refresh`, 'refresh'],
+      r: MENU_ITEMS.REFRESH,
+      y: [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
     };
   }
 
@@ -272,11 +300,39 @@ export class BaseDomainService {
     return [];
   }
 
-  protected logAttributes(states: HassStateDTO[]): unknown[] {
-    return states.map((i) => ({ date: i.last_changed, state: i.state }));
+  private async limitAttributes(
+    data: HassStateDTO[],
+    type: 'all' | 'numeric' = 'all',
+    all_size = SMALL_LIST,
+  ): Promise<string[]> {
+    let attributeList = data
+      .flatMap((i) => Object.keys(i.attributes))
+      .filter((item, index, array) => array.indexOf(item) === index)
+      .filter((i) =>
+        type === 'all'
+          ? true
+          : data.some((item) => is.number(item.attributes[i])),
+      );
+    const lastUsed =
+      (await this.cache.get<string[]>(
+        CACHE_KEY(data[START].entity_id, type),
+      )) || attributeList;
+    const source = attributeList.filter((i) => !lastUsed.includes(i));
+    if (attributeList.length > all_size) {
+      console.log(
+        chalk`{yellow.inverse  Lots of attributes! } {blue Display less?}`,
+      );
+      attributeList = await this.promptService.listBuild({
+        current: lastUsed.map((i) => [i, i]),
+        items: 'Attributes',
+        source: source.map((i) => [i, i]),
+      });
+    }
+    await this.cache.set(CACHE_KEY(data[START].entity_id, type), attributeList);
+    return attributeList;
   }
 
-  private printItem(content: HassStateDTO, key: string, max: number): void {
+  private printItem(content: HassStateDTO, key: string, max: number): string {
     const item = content.attributes[key];
     let value: string;
     if (Array.isArray(item)) {
@@ -314,11 +370,9 @@ export class BaseDomainService {
     } else {
       value = chalk.green(item);
     }
-    console.log(
-      chalk` {blue.dim |} {white.bold ${TitleCase(key, false).padStart(
-        max,
-        ' ',
-      )}}  ${value}`,
-    );
+    return chalk` {blue.dim |} {white.bold ${TitleCase(key, false).padStart(
+      max,
+      ' ',
+    )}}  ${value}`;
   }
 }

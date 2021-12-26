@@ -9,6 +9,7 @@ import { LIB_UTILS } from '../config';
 import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
+  is,
   IsEmpty,
   METADATA_FILE,
   NX_METADATA_FILE,
@@ -19,14 +20,13 @@ import {
   PACKAGE_FILE,
   PackageJsonDTO,
   RepoMetadataDTO,
-  is,
 } from '../contracts';
 import { AutoLogService } from './auto-log.service';
 
 /**
  * The workspace file is def not getting out into any builds, seems like a reasonably unique name
  */
-const isDevelopment = existsSync(join(cwd(), 'for-science.code-workspace'));
+const isDevelopment = existsSync(join(cwd(), 'text-based.code-workspace'));
 
 @Injectable()
 export class WorkspaceService {
@@ -90,7 +90,6 @@ export class WorkspaceService {
     }
     let current = cwd();
     let next: string;
-    // eslint-disable-next-line no-loops/no-loops
     while (!IsEmpty(current)) {
       out.push(join(current, `.${name}rc`));
       next = join(current, '..');

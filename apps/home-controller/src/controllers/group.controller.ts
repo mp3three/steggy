@@ -1,22 +1,4 @@
 import {
-  ENTITY_EXTRAS_SCHEMA,
-  GENERIC_COMMANDS,
-  ROOM_ENTITY_EXTRAS,
-} from '@for-science/controller-logic';
-import {
-  GroupDTO,
-  GroupSaveStateDTO,
-  GroupService,
-} from '@for-science/controller-logic';
-import { BaseSchemaDTO } from '@for-science/persistence';
-import {
-  ApiGenericResponse,
-  AuthStack,
-  GENERIC_SUCCESS_RESPONSE,
-  Locals,
-  ResponseLocals,
-} from '@for-science/server';
-import {
   Body,
   Controller,
   Delete,
@@ -26,6 +8,24 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ENTITY_EXTRAS_SCHEMA,
+  GENERIC_COMMANDS,
+  ROOM_ENTITY_EXTRAS,
+} from '@text-based/controller-logic';
+import {
+  GroupDTO,
+  GroupSaveStateDTO,
+  GroupService,
+} from '@text-based/controller-logic';
+import { BaseSchemaDTO } from '@text-based/persistence';
+import {
+  ApiGenericResponse,
+  AuthStack,
+  GENERIC_SUCCESS_RESPONSE,
+  Locals,
+  ResponseLocals,
+} from '@text-based/server';
 
 @Controller('/group')
 @ApiTags('group')

@@ -1,9 +1,10 @@
+import { NotImplementedException } from '@nestjs/common';
 import {
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
-} from '@for-science/controller-logic';
-import { HASS_DOMAINS } from '@for-science/home-assistant';
+} from '@text-based/controller-logic';
+import { HASS_DOMAINS } from '@text-based/home-assistant';
 import {
   ICONS,
   IsDone,
@@ -12,7 +13,7 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@for-science/tty';
+} from '@text-based/tty';
 import {
   AutoLogService,
   CacheManagerService,
@@ -23,8 +24,7 @@ import {
   IsEmpty,
   LABEL,
   UP,
-} from '@for-science/utilities';
-import { NotImplementedException } from '@nestjs/common';
+} from '@text-based/utilities';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
