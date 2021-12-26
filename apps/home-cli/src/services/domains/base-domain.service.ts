@@ -167,8 +167,8 @@ export class BaseDomainService {
         return await this.processId(id, action);
       case 'refresh':
         return await this.processId(id, action);
-      case 'changeFriendlyName':
-        await this.changeFriendlyName(id);
+      case 'friendlyName':
+        await this.friendlyName(id);
         return await this.processId(id, action);
       case 'changeEntityId':
         await this.changeEntityId(id);
@@ -285,7 +285,7 @@ export class BaseDomainService {
       g: [`${ICONS.DOWN}Graphs`, 'graph'],
       h: MENU_ITEMS.HISTORY,
       i: [`${ICONS.ENTITIES}Change Entity ID`, 'changeEntityId'],
-      n: [`${ICONS.RENAME}Change Friendly Name`, 'changeFriendlyName'],
+      n: [`${ICONS.RENAME}Change Friendly Name`, 'friendlyName'],
       p: [this.pinnedItem.isPinned('entity', id) ? 'Unpin' : 'Pin', 'pin'],
       r: MENU_ITEMS.REFRESH,
       y: [`${ICONS.STATE_MANAGER}Registry`, 'registry'],
@@ -301,7 +301,7 @@ export class BaseDomainService {
     });
   }
 
-  protected async changeFriendlyName(id: string): Promise<void> {
+  protected async friendlyName(id: string): Promise<void> {
     const state = await this.getState(id);
     const name = await this.promptService.friendlyName(
       state.attributes.friendly_name,

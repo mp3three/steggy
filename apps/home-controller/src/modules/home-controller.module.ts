@@ -16,7 +16,7 @@ import {
   RoomController,
   RoutineController,
 } from '../controllers';
-import { ApplicationService } from '../services';
+import { ApplicationService, AvailabilityMonitorService } from '../services';
 
 @ApplicationModule({
   application: Symbol('home-controller'),
@@ -36,6 +36,6 @@ import { ApplicationService } from '../services';
     HomeControllerCustomModule,
     HomePersistenceModule.forRoot(),
   ],
-  providers: [ApplicationService],
+  providers: [ApplicationService, AvailabilityMonitorService],
 })
 export class HomeControllerModule {}

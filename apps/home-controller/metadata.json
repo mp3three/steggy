@@ -1,4 +1,15 @@
 {
   "configuration": {
+    "NOTIFY_UNAVAILABLE_DURATION": {
+      "type": "number",
+      // 4 hours = 1000 * 60 * 60 * 4
+      "default": 14400000,
+      "description": "Raise error if entity is unavailable for this long"
+    },
+    "UNAVAILABLE_MONITOR_HOUR": {
+      "type": "number",
+      "default": 11,
+      "description": "When to send notifiacations about unavailable entities"
+    }
   }
 }
