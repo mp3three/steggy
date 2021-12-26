@@ -7,6 +7,7 @@ import {
   RelatedDescriptionDTO,
 } from '@text-based/home-assistant';
 import {
+  ansiMaxLength,
   ChartingService,
   ICONS,
   IsDone,
@@ -22,7 +23,6 @@ import {
   AutoLogService,
   CacheManagerService,
   DOWN,
-  EMPTY,
   InjectCache,
   InjectConfig,
   is,
@@ -45,15 +45,16 @@ import { HomeFetchService } from '../home-fetch.service';
 
 const HEADER_SEPARATOR = 0;
 const FIRST = 0;
+const A_FEW = 3;
 const HALF = 2;
-const SMALL_LIST = 4;
 const GRAPH_COLORS = [
-  'blue.bold',
-  'yellow.bold',
   'magenta.bold',
-  'cyan.bold',
   'yellow.bold',
+  'cyan.bold',
+  'red.bold',
   'green.bold',
+  'blue.bold',
+  'white.bold',
 ];
 
 const CACHE_KEY = (entity: string, type: string) =>
@@ -99,18 +100,27 @@ export class BaseDomainService {
       await this.promptService.acknowledge();
       return;
     }
-    const attributes = await this.limitAttributes(raw, 'numeric', EMPTY);
+    const attributes = await this.limitAttributes(raw, 'numeric');
     const graphs = attributes.map((key) =>
       raw.map((point) => point.attributes[key] as number),
     );
     attributes.forEach((key, index) =>
       console.log(
-        chalk`{${GRAPH_COLORS[index % GRAPH_COLORS.length]} ${TitleCase(key)}}`,
+        chalk`{${GRAPH_COLORS[index % GRAPH_COLORS.length]} ${TitleCase(
+          key,
+          false,
+        )}}`,
       ),
     );
+    const first = dayjs(raw[START].last_updated);
+    const last = dayjs(raw[raw.length - ARRAY_OFFSET].last_updated);
+    const range = !first.isBefore(last.subtract(A_FEW, 'd'))
+      ? raw.map(({ last_updated }) => dayjs(last_updated).format('HH:mm'))
+      : raw.map(({ last_updated }) => dayjs(last_updated).format('MM-DD'));
     const result = this.chartingService.plot(graphs, {
       colors: GRAPH_COLORS,
       width: this.maxGraphWidth,
+      xAxis: range,
     });
     console.log(result);
     await this.promptService.acknowledge();
@@ -320,7 +330,6 @@ export class BaseDomainService {
   private async limitAttributes(
     data: HassStateDTO[],
     type: 'all' | 'numeric' = 'all',
-    all_size = SMALL_LIST,
   ): Promise<string[]> {
     let attributeList = data
       .flatMap((i) => Object.keys(i.attributes))
@@ -335,16 +344,12 @@ export class BaseDomainService {
         CACHE_KEY(data[START].entity_id, type),
       )) || attributeList;
     const source = attributeList.filter((i) => !lastUsed.includes(i));
-    if (attributeList.length > all_size) {
-      console.log(
-        chalk`{yellow.inverse  Lots of attributes! } {blue Display less?}`,
-      );
-      attributeList = await this.promptService.listBuild({
-        current: lastUsed.map((i) => [i, i]),
-        items: 'Attributes',
-        source: source.map((i) => [i, i]),
-      });
-    }
+    console.log(chalk` {cyan > }{blue Plot which attributes?}`);
+    attributeList = await this.promptService.listBuild({
+      current: lastUsed.map((i) => [i, i]),
+      items: 'Attributes',
+      source: source.map((i) => [i, i]),
+    });
     await this.cache.set(CACHE_KEY(data[START].entity_id, type), attributeList);
     return attributeList;
   }
@@ -375,9 +380,7 @@ export class BaseDomainService {
       value = chalk.blue(item);
       if (key === 'icon') {
         value = `${
-          MDIIcons[
-            item.split(':').pop().replace(new RegExp('[-]', 'g'), '_')
-          ] ?? ''
+          MDIIcons[item.split(':').pop().replaceAll('-', '_')] ?? ''
         } ${value}`;
       }
     } else if (is.boolean(item)) {

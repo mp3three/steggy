@@ -164,7 +164,7 @@ const prettyErrorMessage = (message: string): string => {
       ``,
       ``,
       chalk.white.bold`Stack Trace`,
-      stack.replace(new RegExp(cwd(), `g`), chalk.underline`workspace`),
+      stack.replaceAll(cwd(), chalk.underline`workspace`),
     ].join(`\n`);
   }
 

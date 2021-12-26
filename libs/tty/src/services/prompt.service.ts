@@ -410,7 +410,7 @@ export class PromptService {
         chalk
           .bgHex(this.blockPrintBg)
           .hex(this.blockPrintFg)(data)
-          .replace(new RegExp(`\n`, 'g'), `\n${BLOCK_OFFSET}`),
+          .replaceAll(`\n`, `\n${BLOCK_OFFSET}`),
     );
     console.log();
   }

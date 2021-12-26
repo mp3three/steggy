@@ -4,11 +4,14 @@ import {
   AutoLogService,
   EMPTY,
   INCREMENT,
+  is,
   IsEmpty,
   PEAT,
   START,
 } from '@text-based/utilities';
 import chalk from 'chalk';
+
+import { ansiMaxLength } from '..';
 
 const GRAPH_SYMBOLS = {
   bar: '│',
@@ -38,6 +41,7 @@ export class PlotOptions {
   offset?: number;
   padding?: string;
   width?: number;
+  xAxis?: string[];
 }
 
 const DEFAULT_FORMATTER = (x: number, padding: string) => {
@@ -48,6 +52,11 @@ const DEFAULT_FORMATTER = (x: number, padding: string) => {
 export class ChartingService {
   constructor(private readonly logger: AutoLogService) {}
 
+  /**
+   * Draw a simple line chart. Only the y axis has labels currently
+   *
+   * Original code based off the asciichart library
+   */
   // Too many variables to clealy refactor smaller
   // You should see the original function though...
   // eslint-disable-next-line radar/cognitive-complexity
@@ -60,6 +69,7 @@ export class ChartingService {
       colors = [],
       format = DEFAULT_FORMATTER,
       width,
+      xAxis,
     }: PlotOptions = {},
   ): string {
     if (IsEmpty(series)) {
@@ -86,10 +96,10 @@ export class ChartingService {
       const row = PEAT(width, ' ');
       const label = format(absMax - (index / rows) * range, padding);
       const labelIndex = Math.max(offset - label.length, EMPTY);
-      row[labelIndex] = chalk.bgBlue(label);
-      row[labelIndex + NEXT] = chalk.bgBlue(row[labelIndex + NEXT]);
+      row[labelIndex] = chalk.bgBlue.black(label);
+      row[labelIndex + NEXT] = chalk.bgBlue.black(row[labelIndex + NEXT]);
       const axis = offset - ARRAY_OFFSET;
-      row[axis] = chalk.bgBlue(
+      row[axis] = chalk.bgBlue.black(
         index === START ? GRAPH_SYMBOLS.cross : GRAPH_SYMBOLS.right_join,
       );
       return row;
@@ -99,7 +109,7 @@ export class ChartingService {
     series.forEach((line, index) => {
       const currentColor = colors[index % colors.length];
       const y0 = Math.round(line[START] * ratio) - min;
-      graph[rows - y0][offset - ARRAY_OFFSET] = chalk.bgBlue(
+      graph[rows - y0][offset - ARRAY_OFFSET] = chalk.bgBlue.black(
         this.color(GRAPH_SYMBOLS.cross, currentColor),
       );
       line.forEach((value, x) => {
@@ -133,7 +143,36 @@ export class ChartingService {
         }
       });
     });
-    return graph.map((x) => x.join('')).join('\n');
+    const lines = graph.map((x) => x.join(''));
+    if (xAxis) {
+      const longest = ansiMaxLength(lines) - padding.length - 2;
+      const headers = this.reduceHeaders(xAxis, longest);
+      const baseLength = headers.join(' ').length;
+      const internalPad = ''.padEnd(
+        Math.floor((longest - baseLength) / (headers.length * 2 - 2)),
+        ' ',
+      );
+      if (Math.floor(internalPad.length) > EMPTY) {
+        lines.push(
+          chalk.blue.bold(
+            padding +
+              '   ' +
+              headers
+                .map((header, index) => {
+                  if (index !== START) {
+                    header = internalPad + header;
+                  }
+                  if (index !== lines.length - ARRAY_OFFSET) {
+                    header += internalPad;
+                  }
+                  return header;
+                })
+                .join(' '),
+          ),
+        );
+      }
+    }
+    return lines.join(`\n`);
   }
 
   private color(symbol: string, color = 'white'): string {
@@ -150,5 +189,15 @@ export class ChartingService {
     }
     elements.push(items[items.length - ARRAY_OFFSET]);
     return elements;
+  }
+
+  private reduceHeaders(header: string[], maxLength: number): string[] {
+    if (header.length > 6) {
+      return this.reduceHeaders(
+        header.filter((item, index) => !is.even(index)),
+        maxLength,
+      );
+    }
+    return header;
   }
 }

@@ -64,7 +64,7 @@ export class TextRenderingService {
           return chalk` {blue.dim -} {yellow.dim ${i[LABEL].padEnd(
             max,
             ' ',
-          ).replace(new RegExp(',', 'g'), chalk.whiteBright`, `)}}  {gray ${
+          ).replaceAll(',', chalk.whiteBright`, `)}}  {gray ${
             i[VALUE]
             // Leave space at end for rendering reasons
           } }`;
