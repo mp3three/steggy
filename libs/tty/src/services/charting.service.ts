@@ -65,11 +65,6 @@ export class ChartingService {
     if (IsEmpty(series)) {
       return ``;
     }
-    const absMin = Math.min(...series.flat());
-    const absMax = Math.max(...series.flat());
-    const range = Math.abs(absMax - absMin);
-    height ??= range;
-
     if (width) {
       series = series.map((line) =>
         line.length < width ? line : this.evenSelection(line, width),
@@ -146,9 +141,10 @@ export class ChartingService {
   }
 
   private evenSelection<T>(items: T[], n: number): T[] {
-    const elements = [items[0]];
-    const totalItems = items.length - ARRAY_OFFSET - INCREMENT;
-    const interval = Math.floor(totalItems / (n - 2));
+    const elements = [items[START]];
+    const offset = ARRAY_OFFSET - INCREMENT;
+    const totalItems = items.length - offset;
+    const interval = Math.floor(totalItems / (n - offset));
     for (let i = 1; i < n - ARRAY_OFFSET; i++) {
       elements.push(items[i * interval]);
     }

@@ -22,6 +22,7 @@ import {
 } from '../config';
 
 const CACHE_KEY = (id: string) => `RECENTLY_UNAVAILABLE:${id}`;
+const WAIT_DAYS = 1;
 type RecentItem = {
   entity_id: string;
   since: number;
@@ -71,7 +72,7 @@ export class AvailabilityMonitorService {
     const midnight = dayjs(dayjs().format('YYYY-MM-DD'));
     const yesterday = (
       midnight.toDate().getTime() < since
-        ? midnight.subtract(1, 'day')
+        ? midnight.subtract(WAIT_DAYS, 'day')
         : midnight
     )
       .toDate()
