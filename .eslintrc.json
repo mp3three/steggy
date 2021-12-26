@@ -22,7 +22,8 @@
         "plugin:jsonc/recommended-with-jsonc",
         "plugin:radar/recommended",
         "plugin:security/recommended",
-        "plugin:unicorn/recommended"
+        "plugin:unicorn/recommended",
+        "prettier"
       ],
       "parserOptions": {
         "project": ["./tsconfig.base.json"]

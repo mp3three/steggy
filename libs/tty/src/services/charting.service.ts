@@ -81,10 +81,12 @@ export class ChartingService {
         padding,
       );
       const labelIndex = Math.max(offset - label.length, EMPTY);
-      row[labelIndex] = label;
+      row[labelIndex] = chalk.bgBlue(label);
+      row[labelIndex + NEXT] = chalk.bgBlue(row[labelIndex + NEXT]);
       const axis = offset - ARRAY_OFFSET;
-      row[axis] =
-        index === START ? GRAPH_SYMBOLS.cross : GRAPH_SYMBOLS.right_join;
+      row[axis] = chalk.bgBlue(
+        index === START ? GRAPH_SYMBOLS.cross : GRAPH_SYMBOLS.right_join,
+      );
       return row;
     });
 
@@ -92,9 +94,8 @@ export class ChartingService {
     series.forEach((line, index) => {
       const currentColor = colors[index % colors.length];
       const y0 = Math.round(line[START] * ratio) - min;
-      graph[rows - y0][offset - ARRAY_OFFSET] = this.color(
-        GRAPH_SYMBOLS.cross,
-        currentColor,
+      graph[rows - y0][offset - ARRAY_OFFSET] = chalk.bgBlue(
+        this.color(GRAPH_SYMBOLS.cross, currentColor),
       );
       line.forEach((value, x) => {
         if (!line[x + NEXT]) {

@@ -18,14 +18,18 @@ export class AlpacaTestSerivce {
         [
           PEAT(LENGTH).map(
             (row, i, array) =>
-              15 * Math.sin(i * ((Math.PI * 4) / array.length)),
+              15 * Math.cos(i * ((Math.PI * 2) / array.length)),
           ),
           PEAT(LENGTH).map(
             (row, i, array) =>
-              15 * Math.cos(i * ((Math.PI * 4) / array.length)),
+              15 * Math.cos(i * ((Math.PI * 8) / array.length)),
+          ),
+          PEAT(LENGTH).map(
+            (row, i, array) =>
+              20 * Math.cos(i * ((Math.PI * 4) / array.length)),
           ),
         ],
-        { colors: ['blue.bold', 'yellow.bold'] },
+        { colors: ['blue.bold', 'yellow.bold', 'green.bold'] },
       ),
     );
     await this.promptService.acknowledge();

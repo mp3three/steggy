@@ -119,7 +119,6 @@
     "eslint-plugin-unicorn": "^39.0.0",
     "eslint-plugin-woke": "^1.0.1",
     "figlet-cli": "^0.1.1",
-    "husky": "^7.0.4",
     "nx": "^13.3.12",
     "prettier": "2.5.1",
     "terser": "^5.10.0",
