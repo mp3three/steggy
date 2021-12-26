@@ -1,4 +1,5 @@
 import { Injectable, Scope } from '@nestjs/common';
+import Bottleneck from 'bottleneck';
 import { createWriteStream } from 'fs';
 import fetch from 'node-fetch';
 
@@ -15,6 +16,15 @@ export class FetchService extends BaseFetchService {
 
   public TRUNCATE_LENGTH = DEFAULT_TRUNCATE_LENGTH;
 
+  private limiter: Bottleneck;
+
+  public bottleneck(options: Bottleneck.ConstructorOptions): void {
+    this.limiter = new Bottleneck(options);
+    this.limiter.on('error', (error) => {
+      this.logger.error({ ...error }, `Error caught in limiter`);
+    });
+  }
+
   public async download({
     destination,
     ...fetchWith
@@ -25,16 +35,23 @@ export class FetchService extends BaseFetchService {
     await new Promise<void>((resolve, reject) => {
       const fileStream = createWriteStream(destination);
       response.body.pipe(fileStream);
-      response.body.on('error', (error) => {
-        reject(error);
-      });
-      fileStream.on('finish', () => {
-        resolve();
-      });
+      response.body.on('error', (error) => reject(error));
+      fileStream.on('finish', () => resolve());
     });
   }
 
   public async fetch<T>(fetchWith: Partial<FetchArguments>): Promise<T> {
+    if (this.limiter) {
+      return this.limiter.schedule(
+        async () => await this.immediateFetch(fetchWith),
+      );
+    }
+    return await this.immediateFetch(fetchWith);
+  }
+
+  private async immediateFetch<T>(
+    fetchWith: Partial<FetchArguments>,
+  ): Promise<T> {
     const url: string = await this.fetchCreateUrl(fetchWith);
     const requestInit = await this.fetchCreateMeta(fetchWith);
     try {

@@ -3,7 +3,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 import WS from 'ws';
 
-import { API_KEY, API_SECRET, LIVE_TRADING } from '../config';
+import { API_KEY, API_SECRET, API_TARGET } from '../config';
 import {
   AlpacaSocketChannel,
   CONNECTION_ACTIVE,
@@ -17,7 +17,7 @@ export class SocketAPIService {
     private readonly eventEmitter: EventEmitter,
     @InjectConfig(API_KEY) private readonly apiKey: string,
     @InjectConfig(API_SECRET) private readonly apiSecret: string,
-    @InjectConfig(LIVE_TRADING) private readonly liveTrading: string,
+    @InjectConfig(API_TARGET) private readonly liveTrading: string,
   ) {}
   private authenticated = false;
   private connection: WS;

@@ -1,7 +1,6 @@
+import { AccountService } from '@text-based/alpaca';
 import { ChartingService, PromptService, Repl } from '@text-based/tty';
-import { PEAT } from '@text-based/utilities';
 
-const LENGTH = 200;
 @Repl({
   category: 'Alpaca',
   keybind: 'a',
@@ -9,29 +8,14 @@ const LENGTH = 200;
 })
 export class AlpacaTestSerivce {
   constructor(
+    private readonly accountService: AccountService,
     private readonly promptService: PromptService,
     private readonly charting: ChartingService,
   ) {}
+
   public async exec(): Promise<void> {
-    console.log(
-      this.charting.plot(
-        [
-          PEAT(LENGTH).map(
-            (row, i, array) =>
-              15 * Math.cos(i * ((Math.PI * 2) / array.length)),
-          ),
-          PEAT(LENGTH).map(
-            (row, i, array) =>
-              15 * Math.cos(i * ((Math.PI * 8) / array.length)),
-          ),
-          PEAT(LENGTH).map(
-            (row, i, array) =>
-              20 * Math.cos(i * ((Math.PI * 4) / array.length)),
-          ),
-        ],
-        { colors: ['blue.bold', 'yellow.bold', 'green.bold'] },
-      ),
-    );
+    const result = await this.accountService.get();
+    console.log(result);
     await this.promptService.acknowledge();
   }
   //

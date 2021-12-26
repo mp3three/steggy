@@ -32,6 +32,11 @@
             "output": "./assets/utilities"
           },
           {
+            "input": "libs/alpaca",
+            "glob": "*.json",
+            "output": "./assets/alpaca"
+          },
+          {
             "input": "libs/tty",
             "glob": "*.json",
             "output": "./assets/tty"

@@ -19,6 +19,7 @@
     "target": "ESNext",
     "paths": {
       "@text-based": ["libs/mqtt/src/index.ts"],
+      "@text-based/alpaca": ["libs/alpaca/src/index.ts"],
       "@text-based/controller-logic": ["libs/controller-logic/src/index.ts"],
       "@text-based/home-assistant": ["libs/home-assistant/src/index.ts"],
       "@text-based/persistence": ["libs/persistence/src/index.ts"],

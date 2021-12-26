@@ -10,9 +10,9 @@
       "description": "API Secret",
       "required": true
     },
-    "LIVE_TRADING": {
-      "type": "boolean",
-      "default": false,
+    "API_TARGET": {
+      "type": "string",
+      "default": "https://api.alpaca.markets/v2",
       "description": "Turn off paper trading"
     }
   }

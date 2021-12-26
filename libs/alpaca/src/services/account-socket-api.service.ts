@@ -2,7 +2,7 @@ import { AutoLogService, InjectConfig, OnEvent } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
 import WS from 'ws';
 
-import { API_KEY, API_SECRET, LIVE_TRADING } from '../config';
+import { API_KEY, API_SECRET, API_TARGET } from '../config';
 import { AlpacaSocketChannel, CONNECTION_ACTIVE } from '../contracts';
 import { SocketAPIService } from './socket-api.service';
 
@@ -14,7 +14,7 @@ export class AccountSocketAPI {
 
     @InjectConfig(API_KEY) private readonly apiKey: string,
     @InjectConfig(API_SECRET) private readonly apiSecret: string,
-    @InjectConfig(LIVE_TRADING) private readonly liveTrading: string,
+    @InjectConfig(API_TARGET) private readonly liveTrading: string,
   ) {}
   private connection: WS;
 
