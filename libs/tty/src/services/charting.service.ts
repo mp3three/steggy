@@ -65,6 +65,10 @@ export class ChartingService {
     if (IsEmpty(series)) {
       return ``;
     }
+    const absMin = Math.min(...series.flat());
+    const absMax = Math.max(...series.flat());
+    const range = Math.abs(absMax - absMin);
+    height ??= range;
 
     if (width) {
       series = series.map((line) =>
