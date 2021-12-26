@@ -23,6 +23,11 @@
       "type": "string",
       "default": "https://raw.githubusercontent.com/ccontour/text-based/master/apps/home-controller/package.json",
       "description": "Used for determining if running code is latest"
+    },
+    "MAX_GRAPH_WIDTH": {
+      "type": "number",
+      "description": "Max width for ascii charts",
+      "default": 150
     }
   }
 }

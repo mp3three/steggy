@@ -3,6 +3,7 @@ import {
   ARRAY_OFFSET,
   AutoLogService,
   EMPTY,
+  INCREMENT,
   IsEmpty,
   PEAT,
   START,
@@ -36,6 +37,7 @@ export class PlotOptions {
   height?: number;
   offset?: number;
   padding?: string;
+  width?: number;
 }
 
 const DEFAULT_FORMATTER = (x: number, padding: string) => {
@@ -57,29 +59,33 @@ export class ChartingService {
       height,
       colors = [],
       format = DEFAULT_FORMATTER,
+      width,
     }: PlotOptions = {},
   ): string {
     if (IsEmpty(series)) {
       return ``;
     }
+
+    if (width) {
+      series = series.map((line) =>
+        line.length < width ? line : this.evenSelection(line, width),
+      );
+    }
     const absMin = Math.min(...series.flat());
     const absMax = Math.max(...series.flat());
-    const range = Math.abs(absMax - absMin);
+    const range = Math.abs(Math.round(absMax - absMin));
     height ??= range;
 
     const ratio = range !== RATIO_MIN ? height / range : RATIO_MAX;
     const min = Math.round(absMin * ratio);
     const max = Math.round(absMax * ratio);
     const rows = Math.abs(max - min);
-    const width = offset + Math.max(...series.map((i) => i.length));
+    width = offset + Math.max(...series.map((i) => i.length));
 
     // Rows and columns, labels and axis
     const graph = PEAT(rows + LABELS).map((i, index) => {
       const row = PEAT(width, ' ');
-      const label = format(
-        rows > EMPTY ? absMax - ((index - min) * range) / rows : index,
-        padding,
-      );
+      const label = format(absMax - (index / rows) * range, padding);
       const labelIndex = Math.max(offset - label.length, EMPTY);
       row[labelIndex] = chalk.bgBlue(label);
       row[labelIndex + NEXT] = chalk.bgBlue(row[labelIndex + NEXT]);
@@ -133,5 +139,16 @@ export class ChartingService {
 
   private color(symbol: string, color = 'white'): string {
     return chalk`{${color} ${symbol}}`;
+  }
+
+  private evenSelection<T>(items: T[], n: number): T[] {
+    const elements = [items[0]];
+    const totalItems = items.length - ARRAY_OFFSET - INCREMENT;
+    const interval = Math.floor(totalItems / (n - 2));
+    for (let i = 1; i < n - ARRAY_OFFSET; i++) {
+      elements.push(items[i * interval]);
+    }
+    elements.push(items[items.length - ARRAY_OFFSET]);
+    return elements;
   }
 }
