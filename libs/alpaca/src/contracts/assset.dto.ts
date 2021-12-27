@@ -56,8 +56,3 @@ export class AssetDTO {
    */
   public tradable: boolean;
 }
-
-export interface AssetOptions {
-  asset_class?: string; // i don't know where to find all asset classes
-  status?: 'active' | 'inactive';
-}

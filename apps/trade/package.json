@@ -1,0 +1,18 @@
+{
+  "name": "@text-based/devtools",
+  "license": "MIT",
+  "description": "",
+  "main": "main.js",
+  "displayName": "Devtools",
+  "version": "0.5.16",
+  "author": {
+    "email": "github@ccontour.com",
+    "name": "Cameron Contour",
+    "url": "https://github.com/ccontour/text-based"
+  },
+  "homepage": "https://github.com/ccontour/text-based",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ccontour/text-based.git"
+  }
+}

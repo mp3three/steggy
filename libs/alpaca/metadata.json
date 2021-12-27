@@ -12,7 +12,7 @@
     },
     "API_TARGET": {
       "type": "string",
-      "default": "https://api.alpaca.markets/v2",
+      "default": "https://paper-api.alpaca.markets/v2",
       "description": "Turn off paper trading"
     }
   }

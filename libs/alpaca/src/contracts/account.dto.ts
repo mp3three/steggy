@@ -1,4 +1,4 @@
-import { AccountStatus } from './enums';
+import { AccountStatus, CryptoStatus } from './enums';
 // The useful comments in this file are not mine
 // https://github.com/117/alpaca
 
@@ -63,6 +63,8 @@ export class AccountDTO {
    * Timestamp this account was created at
    */
   public created_at: Date;
+
+  public crypto_status: CryptoStatus;
 
   /**
    * "USD"

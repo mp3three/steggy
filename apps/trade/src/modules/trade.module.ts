@@ -3,21 +3,16 @@ import { AlpacaModule } from '@text-based/alpaca';
 import { MainCLIModule } from '@text-based/tty';
 import { ApplicationModule, UtilitiesModule } from '@text-based/utilities';
 
-import { ChangelogService, ImgurAlbumDownloadService } from '../services';
-import { AlpacaAccountService } from '../services/alpaca';
+import { AlpacaAccountService, AssetService, TradeService } from '../services';
 
 @ApplicationModule({
-  application: Symbol('devtools'),
+  application: Symbol('trade'),
   imports: [
     AlpacaModule,
     DiscoveryModule,
     MainCLIModule,
     UtilitiesModule.forRoot(),
   ],
-  providers: [
-    ImgurAlbumDownloadService,
-    ChangelogService,
-    AlpacaAccountService,
-  ],
+  providers: [AlpacaAccountService, TradeService, AssetService],
 })
-export class DevtoolsModule {}
+export class TradeModule {}

@@ -25,7 +25,7 @@
         "port": 33336
       },
       {
-        "name": "Dashboard",
+        "name": "Trade",
         "type": "node",
         "request": "attach",
         "port": 33335
@@ -73,7 +73,8 @@
       "home-controller": "ini",
       "home-cli": "ini",
       "devtools": "ini",
-      "dashboard": "ini"
+      "dashboard": "ini",
+      "trade": "ini"
     },
     "files.exclude": {
       "**/.git": true,

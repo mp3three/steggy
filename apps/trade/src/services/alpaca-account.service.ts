@@ -4,9 +4,9 @@ import { TitleCase } from '@text-based/utilities';
 import chalk from 'chalk';
 
 @Repl({
-  category: 'Alpaca',
+  category: 'General',
   keybind: 'a',
-  name: 'Alpaca Account',
+  name: 'Account',
 })
 export class AlpacaAccountService {
   constructor(
@@ -14,7 +14,7 @@ export class AlpacaAccountService {
     private readonly promptService: PromptService,
   ) {}
 
-  public async exec(): Promise<void> {
+  public async exec(value?: string): Promise<void> {
     await this.header();
     const action = await this.promptService.menu({
       keyMap: { d: ['Done', 'done'], n: ['Show account number', 'number'] },
@@ -32,6 +32,7 @@ export class AlpacaAccountService {
         ['History', 'history'],
         ['Assets', 'assets'],
       ]),
+      value,
     });
     if (IsDone(action)) {
       return;
@@ -51,8 +52,8 @@ export class AlpacaAccountService {
         result = await this.accountService.history({});
         break;
       case 'assets':
-        result = await this.accountService.listAssets({});
-        break;
+        await this.listAssets();
+        return await this.exec(action);
     }
     console.log(result);
     await this.promptService.acknowledge();
@@ -61,13 +62,16 @@ export class AlpacaAccountService {
   private async header(): Promise<void> {
     const account = await this.accountService.get();
     this.promptService.scriptHeader(
-      'Alpaca Account',
+      'Account',
       account.status === AccountStatus.ACTIVE ? 'green' : 'yellow',
     );
     if (account.account_blocked) {
       this.promptService.secondaryHeader('Account blocked');
       return;
     }
+    this.promptService.secondaryHeader(
+      `Buying power: $${Number(account.buying_power).toLocaleString()}`,
+    );
     if (account.transfers_blocked) {
       console.log(chalk`  {red.bold Transfers blocked}`);
     }
@@ -93,7 +97,19 @@ export class AlpacaAccountService {
         account.crypto_status.toLowerCase(),
       )}`,
     );
+
     console.log();
+  }
+
+  private async listAssets(): Promise<void> {
+    const result = await this.accountService.listAssets();
+    console.log(
+      result
+        .map((i) => i)
+        .filter((item, index, array) => array.indexOf(item) === index),
+    );
+    // console.log(result);
+    await this.promptService.acknowledge();
   }
 }
 // AccountDTO {

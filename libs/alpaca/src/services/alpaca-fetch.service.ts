@@ -1,4 +1,3 @@
-import { AUTHORIZATION_HEADER } from '@text-based/server';
 import {
   AutoLogService,
   FetchArguments,

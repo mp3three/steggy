@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService, CastResult } from '@text-based/utilities';
+import { AutoLogService, CastResult, IsEmpty } from '@text-based/utilities';
 
 import {
   AccountConfigurationsDTO,
   AccountDTO,
   Activity,
   AssetDTO,
-  AssetOptions,
   GetAccountActivities,
   GetPortfolioHistory,
   PortfolioHistoryDTO,
@@ -70,10 +69,19 @@ export class AccountService {
     });
   }
 
+  /**
+   * Only observed asset class so far is us_equity
+   *
+   * Param seems
+   */
   @CastResult(AssetDTO)
-  public async listAssets(options: AssetOptions): Promise<AssetDTO[]> {
+  public async listAssets(asset_class?: string): Promise<AssetDTO[]> {
+    const parameters: Record<string, string> = { status: 'active' };
+    if (!IsEmpty(asset_class)) {
+      parameters.asset_class = asset_class;
+    }
     return await this.fetchService.fetch({
-      params: { ...options },
+      params: parameters,
       url: `/assets`,
     });
   }
