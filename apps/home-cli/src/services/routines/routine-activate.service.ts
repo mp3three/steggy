@@ -143,7 +143,7 @@ export class RoutineActivateService {
     this.header(routine);
     routine.activate ??= [];
     const action = await this.promptService.menu({
-      keyMap: { c: MENU_ITEMS.ADD, d: MENU_ITEMS.DONE },
+      keyMap: { a: MENU_ITEMS.ADD, d: MENU_ITEMS.DONE },
       right: ToMenuEntry(
         routine.activate.map((activate) => [activate.friendlyName, activate]),
       ),

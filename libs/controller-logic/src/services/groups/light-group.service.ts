@@ -98,6 +98,11 @@ export class LightGroupService extends BaseGroupService {
     const out: RoomEntitySaveStateDTO<LightingCacheDTO>[] = [];
     await each(group.entities, async (id, callback) => {
       const light = this.entityManager.getEntity<LightStateDTO>(id);
+      if (!light) {
+        // 100% of the time this error is seen, bad times were a pre-existing condition
+        this.logger.error(`[${group.friendlyName}] missing entity {${id}}`);
+        return callback();
+      }
       const state = await this.lightManager.getState(id);
       out.push({
         extra:

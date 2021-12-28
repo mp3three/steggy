@@ -7,7 +7,6 @@ import {
   RelatedDescriptionDTO,
 } from '@text-based/home-assistant';
 import {
-  ansiMaxLength,
   ChartingService,
   ICONS,
   IsDone,
@@ -201,7 +200,7 @@ export class BaseDomainService {
         await this.friendlyName(id);
         return await this.processId(id, action);
       case 'changeEntityId':
-        await this.changeEntityId(id);
+        id = await this.changeEntityId(id);
         return await this.processId(id, action);
       case 'registry':
         const item: RelatedDescriptionDTO = await this.fetchService.fetch({
@@ -322,13 +321,14 @@ export class BaseDomainService {
     };
   }
 
-  protected async changeEntityId(id: string): Promise<void> {
+  protected async changeEntityId(id: string): Promise<string> {
     const updateId = await this.promptService.string(`New id`, id);
     await this.fetchService.fetch({
       body: { updateId },
       method: 'put',
       url: `/entity/update-id/${id}`,
     });
+    return updateId;
   }
 
   protected async friendlyName(id: string): Promise<void> {

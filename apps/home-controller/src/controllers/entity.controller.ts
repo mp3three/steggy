@@ -81,7 +81,11 @@ export class EntityController {
   public async getEntityState(
     @Param('entityId') entityId: string,
   ): Promise<HassStateDTO> {
-    return await this.entityManager.getEntity(entityId);
+    const out = await this.entityManager.getEntity(entityId);
+    if (!out) {
+      throw new NotFoundException();
+    }
+    return out;
   }
 
   @Post('/history/:entityId')

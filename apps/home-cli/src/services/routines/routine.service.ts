@@ -402,6 +402,9 @@ export class RoutineService {
       head: ['Name', 'Type', 'Details'],
     });
     await eachSeries(routine.command, async (command) => {
+      if (!command) {
+        return;
+      }
       table.push([
         command.friendlyName,
         TitleCase(command.type),

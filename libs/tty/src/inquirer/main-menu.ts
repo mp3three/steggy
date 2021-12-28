@@ -149,7 +149,9 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     }
     const events = observe(this.rl);
     events.keypress.forEach(this.onKeypress.bind(this));
-    events.line.forEach(this.onEnd.bind(this));
+    events.line.forEach(() =>
+      this.onKeypress({ key: { name: 'enter' } } as KeyDescriptor),
+    );
 
     cliCursor.hide();
     this.render();
@@ -310,11 +312,21 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   /**
    * Entrypoint for handling key presses
    */
-  private onKeypress({ key }: KeyDescriptor): void {
+  private onKeypress(desc: KeyDescriptor): void {
+    const { key } = desc;
     if (this.status === 'answered') {
       return;
     }
     const mixed = key.name ?? key.sequence;
+    if (mixed === 'enter') {
+      if (IsEmpty(this.opt.left) && IsEmpty(this.opt.right)) {
+        // There's nothing to select, request is invalid
+        // Also, frustrating as a user
+        return;
+      }
+      this.onEnd();
+      return;
+    }
     if (mixed === 'tab' || (key.ctrl && mixed === 'f')) {
       this.toggleFind();
     }
@@ -345,7 +357,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       current = left.length - ARRAY_OFFSET;
     }
     this.value =
-      left.length < current
+      left.length - ARRAY_OFFSET < current
         ? left[left.length - ARRAY_OFFSET].entry[VALUE]
         : left[current].entry[VALUE];
   }

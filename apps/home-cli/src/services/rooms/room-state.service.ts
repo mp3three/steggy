@@ -33,7 +33,6 @@ import {
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';
-import inquirer from 'inquirer';
 
 import { MENU_ITEMS } from '../../includes';
 import { GroupCommandService } from '../groups';
@@ -93,21 +92,13 @@ export class RoomStateService {
   }
 
   public async pickOne(room: RoomDTO, current?: RoomStateDTO): Promise<string> {
-    const action = await this.promptService.pickOne<RoomStateDTO | string>(
-      `Which state?`,
-      [
-        [`${ICONS.CREATE}Manual create`, 'create'],
-        ...this.promptService.conditionalEntries(!IsEmpty(room.save_states), [
-          new inquirer.Separator(chalk.white(`Current states`)),
-          ...(room.save_states
-            .map((state) => [state.friendlyName, state])
-            .sort(([a], [b]) =>
-              a > b ? UP : DOWN,
-            ) as PromptEntry<RoomStateDTO>[]),
-        ]),
-      ],
-      current,
-    );
+    const action = await this.promptService.menu({
+      keyMap: { c: MENU_ITEMS.CREATE },
+      right: ToMenuEntry(
+        room.save_states.map((state) => [state.friendlyName, state]),
+      ),
+      value: current,
+    });
     if (action === 'create') {
       const state = await this.build(room);
       return state.id;

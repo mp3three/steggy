@@ -30,7 +30,7 @@ export class GroupActionService {
         return {
           ...(await this.lightGroup.commandBuilder(
             current?.command,
-            current.extra,
+            current?.extra,
           )),
           group: group._id,
         };

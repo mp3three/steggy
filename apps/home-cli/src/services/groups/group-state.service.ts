@@ -265,9 +265,9 @@ export class GroupStateService {
     });
     state.states.forEach((state) => {
       table.push([
-        state.ref,
-        state.state,
-        this.promptService.objectPrinter(state.extra),
+        state.ref || '',
+        state.state || '',
+        this.promptService.objectPrinter(state.extra) || '',
       ]);
     });
     console.log(

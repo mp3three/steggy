@@ -45,6 +45,7 @@ export class AvailabilityMonitorService {
 
   @Cron(CronExpression.EVERY_HOUR)
   protected async checkAvailability(): Promise<void> {
+    return;
     const groups = await this.groupService.list();
     const searchList = groups
       .flatMap((i) => i.entities)

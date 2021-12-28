@@ -29,9 +29,8 @@ import {
   PromptService,
   ToMenuEntry,
 } from '@text-based/tty';
-import { is, IsEmpty, START, TitleCase } from '@text-based/utilities';
+import { is, START, TitleCase } from '@text-based/utilities';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
 import { v4 as uuid } from 'uuid';
 
@@ -91,7 +90,6 @@ export class RoutineCommandService {
       room = await this.roomCommand.get(routine.room);
       room.save_states ??= [];
     }
-
     const type = await this.promptService.pickOne<ROUTINE_ACTIVATE_COMMAND>(
       `Command type`,
       Object.values(ROUTINE_ACTIVATE_COMMAND)
@@ -298,7 +296,7 @@ export class RoutineCommandService {
   ): Promise<RoutineDTO> {
     const action = await this.promptService.menu({
       keyMap: {
-        d: MENU_ITEMS.DELETE,
+        d: MENU_ITEMS.DONE,
         x: MENU_ITEMS.DELETE,
       },
       right: ToMenuEntry([
@@ -344,18 +342,14 @@ export class RoutineCommandService {
   public async processRoutine(routine: RoutineDTO): Promise<RoutineDTO> {
     routine.command ??= [];
     const action = await this.promptService.menu({
-      keyMap: { d: MENU_ITEMS.DONE },
-      right: ToMenuEntry([
-        MENU_ITEMS.ADD,
-        [`${ICONS.SWAP}Sort`, 'sort'],
-        ...this.promptService.conditionalEntries(!IsEmpty(routine.command), [
-          new inquirer.Separator(chalk.white`Current commands`),
-          ...(routine.command.map((activate) => [
-            activate.friendlyName,
-            activate,
-          ]) as PromptEntry<RoutineCommandDTO>[]),
-        ]),
-      ]),
+      keyMap: {
+        a: MENU_ITEMS.ADD,
+        d: MENU_ITEMS.DONE,
+        s: [`${ICONS.SWAP}Sort`, 'sort'],
+      },
+      right: ToMenuEntry(
+        routine.command.map((activate) => [activate.friendlyName, activate]),
+      ),
       rightHeader: `Routine commands`,
     });
     if (IsDone(action)) {

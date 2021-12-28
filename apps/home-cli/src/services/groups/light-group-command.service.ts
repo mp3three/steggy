@@ -19,6 +19,7 @@ import {
   AutoLogService,
   DOWN,
   is,
+  START,
   TitleCase,
   UP,
 } from '@text-based/utilities';
@@ -33,6 +34,7 @@ const MIN_BRIGHTNESS = 5;
 const MAX_BRIGHTNESS = 255;
 const OFF = 0;
 const R = 0;
+const SINGLE = 1;
 const G = 1;
 const B = 2;
 
@@ -173,6 +175,10 @@ export class LightGroupCommandService {
     // TODO: Refactor into 1 request, instead of n
     await each(group.entities, async (id) => {
       const content = await this.lightDomain.getState<LightStateDTO>(id);
+      if (!content) {
+        lines.push([chalk`  {red.bold Missing entity:} {yellow ${id}}`]);
+        return;
+      }
       const parts: string[] = [content.attributes.friendly_name, id];
       maxId = Math.max(maxId, id.length);
       maxName = Math.max(maxName, content.attributes.friendly_name.length);
@@ -198,11 +204,13 @@ export class LightGroupCommandService {
       .sort(([, a], [, b]) => (a > b ? UP : DOWN))
       .forEach((line) =>
         console.log(
-          chalk` {cyan -} ${line
-            .shift()
-            .padEnd(maxName, ' ')} {yellow.bold ${line
-            .shift()
-            .padEnd(maxId, ' ')}} ${line.shift()}`,
+          line.length === SINGLE
+            ? line[START]
+            : chalk` {cyan -} ${line
+                .shift()
+                .padEnd(maxName, ' ')} {yellow.bold ${line
+                .shift()
+                .padEnd(maxId, ' ')}} ${line.shift()}`,
         ),
       );
     console.log();
