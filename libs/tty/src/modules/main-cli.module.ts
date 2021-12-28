@@ -14,33 +14,36 @@ import {
   PromptService,
   ReplExplorerService,
   SystemService,
+  TableService,
   TextRenderingService,
 } from '../services';
 
 @LibraryModule({
   exports: [
+    ChartingService,
     ColorsService,
+    ConfigBuilderService,
     GitService,
     PinnedItemService,
     PromptService,
-    TextRenderingService,
-    ConfigBuilderService,
     SystemService,
-    ChartingService,
+    TableService,
+    TextRenderingService,
   ],
   imports: [DiscoveryModule, RegisterCache()],
   library: LIB_TTY,
   providers: [
+    ChartingService,
     ColorsService,
+    ConfigBuilderService,
     GitService,
-    TextRenderingService,
     MainCLIService,
     PinnedItemService,
-    ConfigBuilderService,
     PromptService,
     ReplExplorerService,
     SystemService,
-    ChartingService,
+    TableService,
+    TextRenderingService,
   ],
 })
 export class MainCLIModule {

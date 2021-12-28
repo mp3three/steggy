@@ -32,6 +32,7 @@
     "endpoints": "mappings",
     "explorers": "context",
     "entities": "components",
+    "canvas": "interface",
     "entrypoints": "home",
     "enums": "constant",
     "event-emitter": "event",

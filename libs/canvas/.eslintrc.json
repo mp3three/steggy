@@ -1,0 +1,17 @@
+{
+  "extends": ["../../.eslintrc.json"],
+  "ignorePatterns": ["!**/*"],
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {
+      }
+    },
+    {
+      "files": ["*repl.ts"],
+      "rules": {
+        "radar/no-identical-functions": "off"
+      }
+    }
+  ]
+}
