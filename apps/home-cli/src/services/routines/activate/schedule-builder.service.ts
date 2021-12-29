@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ScheduleActivateDTO } from '@text-based/controller-logic';
-import { ICONS, PromptEntry, PromptService } from '@text-based/tty';
-import { CronExpression } from '@text-based/utilities';
-import chalk from 'chalk';
-import inquirer from 'inquirer';
+import { ICONS, PromptService, ToMenuEntry } from '@text-based/tty';
+import { CronExpression, is } from '@text-based/utilities';
 
 @Injectable()
 export class ScheduleBuilderService {
@@ -12,54 +10,30 @@ export class ScheduleBuilderService {
   public async build(
     current: Partial<ScheduleActivateDTO> = {},
   ): Promise<ScheduleActivateDTO> {
-    const schedule = await this.promptService.pickOne(
-      `Activation schedule`,
-      [
-        [`${ICONS.CREATE}Create`, 'custom'],
-        new inquirer.Separator(chalk.white`pre-built`),
-        ...(Object.keys(CronExpression).map((key) => [
-          key,
-          CronExpression[key],
-        ]) as PromptEntry[]),
-      ],
-      current.schedule,
-    );
-    if (schedule === 'custom') {
-      const PADDING = '                 ';
-      console.log(
-        [
-          ``,
-          chalk.bold.white`Comma separate multiple values`,
-          chalk`   {cyan Ex:} 1,2,3,4 * * * *`,
-          ``,
-          chalk.bold.white`Value ranges`,
-          chalk`   {cyan Ex:} 1-5 * * * *`,
-          ``,
-          chalk.bold.white`Step values`,
-          chalk`   {cyan Ex:} 1-10/2 = 2,4,6,8,10`,
-          chalk`   {cyan Ex:} */2 = every other`,
-          ``,
-          chalk`${PADDING}{cyan ┌──────────────} {white.bold second (optional)} {gray 0-59}`,
-          chalk`${PADDING}{cyan │ ┌────────────} {white.bold minute}            {gray 0-59}`,
-          chalk`${PADDING}{cyan │ │ ┌──────────} {white.bold hour}              {gray 0-23}`,
-          chalk`${PADDING}{cyan │ │ │ ┌────────} {white.bold day of month}      {gray 1-31}`,
-          chalk`${PADDING}{cyan │ │ │ │ ┌──────} {white.bold month}             {gray 1-12 or names}`,
-          chalk`${PADDING}{cyan │ │ │ │ │ ┌────} {white.bold day of week}       {gray 0-7 or names}{cyan ,} {gray 0 & 7 = Sun}`,
-          chalk`${PADDING}{cyan │ │ │ │ │ │}`,
-        ].join(`\n`),
+    const forceCustom =
+      !is.empty(current.schedule) &&
+      !Object.values(CronExpression).includes(
+        current.schedule as CronExpression,
       );
-    }
+    const schedule = forceCustom
+      ? 'custom'
+      : await this.promptService.menu({
+          keyMap: {
+            c: [`${ICONS.CREATE}Custom`, 'custom'],
+          },
+          right: ToMenuEntry(
+            Object.keys(CronExpression).map((key) => [
+              key,
+              CronExpression[key],
+            ]),
+          ),
+          value: current.schedule,
+        });
     return {
       schedule:
         schedule !== 'custom'
           ? schedule
-          : await this.createSchedule(current.schedule ?? '* * * * * *'),
+          : await this.promptService.cron(current.schedule),
     };
-  }
-
-  public async createSchedule(current: string): Promise<string> {
-    const schedule = await this.promptService.string(`Cron schedule`, current);
-    // TODO: validate schedule
-    return schedule;
   }
 }

@@ -13,6 +13,7 @@ import {
 import chalk from 'chalk';
 
 import { ansiMaxLength } from '../includes';
+import { EnvironmentService } from './environment.service';
 
 const GRAPH_SYMBOLS = {
   bar: '│',
@@ -52,7 +53,10 @@ const DEFAULT_FORMATTER = (x: number, padding: string) => {
 
 @Injectable()
 export class ChartingService {
-  constructor(private readonly logger: AutoLogService) {}
+  constructor(
+    private readonly logger: AutoLogService,
+    private readonly environment: EnvironmentService,
+  ) {}
 
   /**
    * Draw a simple line chart. Only the y axis has labels currently
@@ -62,7 +66,7 @@ export class ChartingService {
   // Too many variables to clealy refactor smaller
   // You should see the original function though...
   // eslint-disable-next-line radar/cognitive-complexity
-  public plot(
+  public async plot(
     series: number[][],
     {
       offset = DEFAULT_OFFSET,
@@ -73,15 +77,14 @@ export class ChartingService {
       width,
       xAxis,
     }: PlotOptions = {},
-  ): string {
+  ): Promise<string> {
     if (IsEmpty(series)) {
       return ``;
     }
-    if (width) {
-      series = series.map((line) =>
-        line.length < width ? line : this.evenSelection(line, width),
-      );
-    }
+    width ??= (await this.environment.getDimensions()).width;
+    series = series.map((line) =>
+      line.length < width ? line : this.evenSelection(line, width),
+    );
     const absMin = Math.min(...series.flat());
     const absMax = Math.max(...series.flat());
     const range = Math.abs(Math.round(absMax - absMin));

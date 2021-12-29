@@ -1,6 +1,7 @@
 export * from './charting.service';
 export * from './colors.service';
 export * from './config-builder.service';
+export * from './environment.service';
 export * from './git.service';
 export * from './main-cli.service';
 export * from './pinned-item.service';

@@ -111,7 +111,7 @@ export class BaseDomainService {
     const xAxis = !first.isBefore(last.subtract(A_FEW, 'd'))
       ? history.map(({ last_updated }) => dayjs(last_updated).format('HH:mm'))
       : history.map(({ last_updated }) => dayjs(last_updated).format('MM-DD'));
-    const result = this.chartingService.plot(graphs, {
+    const result = await this.chartingService.plot(graphs, {
       colors: GRAPH_COLORS,
       width: this.maxGraphWidth,
       xAxis,

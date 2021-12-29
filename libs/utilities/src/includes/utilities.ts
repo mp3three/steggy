@@ -10,6 +10,8 @@ export const VALUE = 1;
 export const ARRAY_OFFSET = 1;
 // array[number +- increment]
 export const INCREMENT = 1;
+// Generic one-ness
+export const SINGLE = 1;
 // Sorting
 export const SAME = 0;
 // [LABEL,VALUE]

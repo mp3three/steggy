@@ -15,7 +15,6 @@ import {
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 import figlet, { Fonts } from 'figlet';
-import fuzzy from 'fuzzysort';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
@@ -138,6 +137,17 @@ export class PromptService {
         message: prompt,
         name,
         type: 'confirm',
+      },
+    ]);
+    return result;
+  }
+
+  public async cron(value?: string): Promise<string> {
+    const { result } = await inquirer.prompt([
+      {
+        name,
+        type: 'cron',
+        value,
       },
     ]);
     return result;

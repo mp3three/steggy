@@ -312,8 +312,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   /**
    * Entrypoint for handling key presses
    */
-  private onKeypress(desc: KeyDescriptor): void {
-    const { key } = desc;
+  private onKeypress({ key }: KeyDescriptor): void {
     if (this.status === 'answered') {
       return;
     }

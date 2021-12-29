@@ -2,7 +2,6 @@
   "version": 2,
   "projects": {
     "alpaca": "libs/alpaca",
-    "canvas": "libs/canvas",
     "controller-logic": "libs/controller-logic",
     "devtools": "apps/devtools",
     "home-assistant": "libs/home-assistant",

@@ -1,8 +1,20 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
+export const EMPTY = 0;
 
 export const is = {
   boolean(test: unknown): test is boolean {
     return typeof test === 'boolean';
+  },
+  empty(
+    type: string | Array<unknown> | Set<unknown> | Map<unknown, unknown>,
+  ): boolean {
+    if (is.string(type) || Array.isArray(type)) {
+      return type.length === EMPTY;
+    }
+    if (type instanceof Map || type instanceof Set) {
+      return type.size === EMPTY;
+    }
+    return true;
   },
   even(test: number): boolean {
     return test % 2 === 0;
