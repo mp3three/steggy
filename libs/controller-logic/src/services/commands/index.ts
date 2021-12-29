@@ -1,4 +1,4 @@
-export * from './latch-command.service';
+export * from './capture-command.service';
 export * from './light-flash-command.service';
 export * from './routine-trigger.service';
 export * from './send-notification.service';

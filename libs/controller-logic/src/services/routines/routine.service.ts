@@ -23,6 +23,7 @@ import {
   ROUTINE_ACTIVATE_TYPE,
   ROUTINE_UPDATE,
   RoutineActivateOptionsDTO,
+  RoutineCaptureCommandDTO,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
@@ -37,6 +38,7 @@ import {
   StateChangeActivateDTO,
 } from '../../contracts';
 import {
+  CaptureCommandService,
   LightFlashCommandService,
   RoutineTriggerService,
   SendNotificationService,
@@ -66,6 +68,7 @@ export class RoutineService {
     private readonly solarService: SolarActivateService,
     @Inject(forwardRef(() => RoutineTriggerService))
     private readonly triggerService: RoutineTriggerService,
+    private readonly captureCommand: CaptureCommandService,
     private readonly stateChangeActivate: StateChangeActivateService,
     @Inject(forwardRef(() => SendNotificationService))
     private readonly sendNotification: SendNotificationService,
@@ -97,7 +100,10 @@ export class RoutineService {
           }
           return;
         }
-        const result = await this.activateCommand(command);
+        const result = await this.activateCommand(
+          command,
+          routine as RoutineDTO,
+        );
         aborted = result === false && sync;
         if (callback) {
           callback();
@@ -141,7 +147,11 @@ export class RoutineService {
     await this.mount();
   }
 
-  private async activateCommand(command: RoutineCommandDTO): Promise<boolean> {
+  private async activateCommand(
+    command: RoutineCommandDTO,
+    routine: RoutineDTO,
+  ): Promise<boolean> {
+    // TODO: Some sort of automatic registration mechanism?
     this.logger.debug(` - {${command.friendlyName}}`);
     switch (command.type) {
       case ROUTINE_ACTIVATE_COMMAND.group_action:
@@ -187,6 +197,12 @@ export class RoutineService {
       case ROUTINE_ACTIVATE_COMMAND.sleep:
         await this.sleepService.activate(
           command.command as RoutineCommandSleepDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.capture:
+        await this.captureCommand.activate(
+          command as RoutineCaptureCommandDTO,
+          routine,
         );
         break;
       case ROUTINE_ACTIVATE_COMMAND.stop_processing:
