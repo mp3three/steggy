@@ -217,6 +217,12 @@ export class RoutineService {
       [`${ICONS.EVENT}Activation Events`, 'events'],
       [`${ICONS.COMMAND}Commands`, 'command'],
     ] as PromptEntry[];
+    if (is.empty(routine.activate)) {
+      events[LABEL] = chalk.red(events[LABEL]);
+    }
+    if (is.empty(routine.command)) {
+      command[LABEL] = chalk.red(command[LABEL]);
+    }
     const action = await this.promptService.menu({
       keyMap: {
         a: events,
@@ -274,13 +280,12 @@ export class RoutineService {
         });
         break;
       case 'rename':
-        const friendlyName = await this.promptService.friendlyName(
-          routine.friendlyName,
-        );
         routine = await this.fetchService.fetch({
           body: {
             ...routine,
-            friendlyName,
+            friendlyName: await this.promptService.friendlyName(
+              routine.friendlyName,
+            ),
           },
           method: `put`,
           url: `/routine/${routine._id}`,
@@ -370,11 +375,7 @@ export class RoutineService {
       )}`,
     );
     console.log();
-    if (is.empty(routine.activate)) {
-      console.log(
-        chalk.bold`{cyan >>> }${ICONS.EVENT}{yellow No activation events}`,
-      );
-    } else {
+    if (!is.empty(routine.activate)) {
       console.log(chalk`  {blue.bold Activation Events}`);
       const table = new Table({
         head: ['Name', 'Type', 'Details'],
@@ -389,7 +390,6 @@ export class RoutineService {
       console.log(table.toString());
     }
     if (is.empty(routine.command)) {
-      console.log(chalk.bold`{cyan >>> }${ICONS.COMMAND}{yellow No commands}`);
       return;
     }
     const activation =

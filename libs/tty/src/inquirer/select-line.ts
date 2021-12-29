@@ -1,11 +1,17 @@
-import { ARRAY_OFFSET, DOWN, LABEL, START, UP, VALUE } from '@text-based/utilities';
+import {
+  ARRAY_OFFSET,
+  DOWN,
+  LABEL,
+  START,
+  UP,
+  VALUE,
+} from '@text-based/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question, Separator } from 'inquirer';
 import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
 import Paginator from 'inquirer/lib/utils/paginator';
-import { takeUntil } from 'rxjs';
 
 import { ICONS } from '../contracts';
 import { PromptEntry } from '../services';
@@ -35,12 +41,9 @@ export class SelectLinePrompt extends Base<
       (value) => Array.isArray(value) && value[VALUE] === this.opt.moveValue,
     );
     const events = observe(rl);
-    events.normalizedUpKey
-      .pipe(takeUntil(events.line))
-      .forEach(this.onUpKey.bind(this));
-    events.normalizedDownKey
-      .pipe(takeUntil(events.line))
-      .forEach(this.onDownKey.bind(this));
+
+    events.normalizedUpKey.forEach(this.onUpKey.bind(this));
+    events.normalizedDownKey.forEach(this.onDownKey.bind(this));
     events.line.forEach(this.onSubmit.bind(this));
   }
 

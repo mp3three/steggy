@@ -67,14 +67,15 @@ export type MainMenuCB<T = unknown> = (
 ) => (string | boolean) | Promise<string | boolean>;
 
 export interface MainMenuOptions<T = unknown> {
+  headerPadding?: number;
+  item?: string;
+  keyMap: KeyMap;
   /**
    * Only run against keyMap activations
    *
    * Passes in currently selected value
    */
   keyMapCallback?: MainMenuCB;
-  headerPadding?: number;
-  keyMap: KeyMap;
   keyOnly?: boolean;
   left?: MainMenuEntry<T | string>[];
   leftHeader?: string;
@@ -109,6 +110,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.showHelp = this.opt.showHelp ?? true;
     this.opt = questions;
     this.opt.left ??= [];
+    this.opt.item ??= 'actions';
     this.opt.right ??= [];
     this.opt.showHeaders ??= !is.empty(this.opt.left);
     this.opt.left.forEach((i) => (i.type ??= ''));
@@ -574,7 +576,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       ansiMaxLength(menu.map(({ entry }) => entry[LABEL])) + ARRAY_OFFSET;
     if (is.empty(menu) && !this.opt.keyOnly) {
       out.push(
-        chalk.bold` ${ICONS.WARNING}{yellowBright.inverse  No actions to select from }`,
+        chalk.bold` ${ICONS.WARNING}{yellowBright.inverse  No ${this.opt.item} to select from }`,
       );
     }
     menu.forEach((item) => {

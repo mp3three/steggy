@@ -262,6 +262,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
         this.detectSide();
         break;
       case '[':
+      case 'a':
         this.current = [...this.current, ...this.source];
         this.source = [];
         this.detectSide();

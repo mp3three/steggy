@@ -297,13 +297,9 @@ export class RoutineCommandService {
     const action = await this.promptService.menu({
       keyMap: {
         d: MENU_ITEMS.DONE,
+        e: MENU_ITEMS.EDIT,
         x: MENU_ITEMS.DELETE,
       },
-      right: ToMenuEntry([
-        [`${ICONS.DESCRIBE}Describe`, 'describe'],
-        MENU_ITEMS.EDIT,
-      ]),
-      rightHeader: `Routine command actions`,
     });
     if (IsDone(action)) {
       return routine;
@@ -342,6 +338,7 @@ export class RoutineCommandService {
   public async processRoutine(routine: RoutineDTO): Promise<RoutineDTO> {
     routine.command ??= [];
     const action = await this.promptService.menu({
+      item: 'commands',
       keyMap: {
         a: MENU_ITEMS.ADD,
         d: MENU_ITEMS.DONE,
