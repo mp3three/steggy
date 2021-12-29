@@ -25,7 +25,6 @@ import {
   DOWN,
   FILTER_OPERATIONS,
   is,
-  IsEmpty,
   LABEL,
   UP,
   VALUE,
@@ -273,7 +272,7 @@ export class RoomStateService {
     room: RoomDTO,
     current: Partial<RoomStateDTO> = {},
   ): Promise<RoomEntitySaveStateDTO[]> {
-    if (IsEmpty(room.entities)) {
+    if (is.empty(room.entities)) {
       this.logger.warn(`No entities in room`);
       return [];
     }
@@ -313,7 +312,7 @@ export class RoomStateService {
     room: RoomDTO,
     current: Partial<RoomStateDTO> = {},
   ): Promise<RoomEntitySaveStateDTO[]> {
-    if (IsEmpty(room.groups)) {
+    if (is.empty(room.groups)) {
       this.logger.warn(`No groups`);
       return [];
     }
@@ -344,7 +343,7 @@ export class RoomStateService {
       )}}`,
     );
     const entities = state.states.filter(({ type }) => type === 'entity');
-    if (IsEmpty(entities)) {
+    if (is.empty(entities)) {
       console.log(
         chalk`  ${ICONS.ENTITIES} {blue No entities included in save state}\n`,
       );
@@ -370,7 +369,7 @@ export class RoomStateService {
       );
     }
     const groupStates = state.states.filter(({ type }) => type === 'group');
-    if (IsEmpty(groupStates)) {
+    if (is.empty(groupStates)) {
       console.log(
         chalk`  ${ICONS.GROUPS}{blue No groups included in save state}\n`,
       );

@@ -20,7 +20,7 @@ import {
   PromptService,
   ToMenuEntry,
 } from '@text-based/tty';
-import { AutoLogService, is, IsEmpty, LABEL } from '@text-based/utilities';
+import { AutoLogService, is, LABEL } from '@text-based/utilities';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';
@@ -153,7 +153,7 @@ export class GroupStateService {
       `Which state?`,
       [
         [`${ICONS.CREATE}Manual create`, 'create'],
-        ...this.promptService.conditionalEntries(!IsEmpty(group.save_states), [
+        ...this.promptService.conditionalEntries(!is.empty(group.save_states), [
           new inquirer.Separator(chalk.white(`Current states`)),
           ...(group.save_states.map((state) => [
             state.friendlyName,

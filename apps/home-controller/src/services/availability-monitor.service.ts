@@ -11,7 +11,7 @@ import {
   CronExpression,
   InjectCache,
   InjectConfig,
-  IsEmpty,
+  is,
 } from '@text-based/utilities';
 import { each } from 'async';
 import dayjs from 'dayjs';
@@ -53,7 +53,7 @@ export class AvailabilityMonitorService {
     const entities = searchList.filter(
       (id) => this.entityService.getEntity(id).state === 'unavailable',
     );
-    if (IsEmpty(entities)) {
+    if (is.empty(entities)) {
       this.logger.debug(`No unavailable entities`);
       return;
     }
@@ -92,7 +92,7 @@ export class AvailabilityMonitorService {
         callback();
       }
     });
-    if (IsEmpty(sendAlerts) || !notify) {
+    if (is.empty(sendAlerts) || !notify) {
       return;
     }
     await this.notifyService.notify(

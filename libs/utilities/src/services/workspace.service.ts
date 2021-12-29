@@ -10,7 +10,6 @@ import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
   is,
-  IsEmpty,
   METADATA_FILE,
   NX_METADATA_FILE,
   NX_WORKSPACE_FILE,
@@ -90,7 +89,7 @@ export class WorkspaceService {
     }
     let current = cwd();
     let next: string;
-    while (!IsEmpty(current)) {
+    while (!is.empty(current)) {
       out.push(join(current, `.${name}rc`));
       next = join(current, '..');
       if (next === current) {

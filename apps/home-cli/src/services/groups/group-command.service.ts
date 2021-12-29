@@ -31,7 +31,6 @@ import {
   DOWN,
   InjectCache,
   is,
-  IsEmpty,
   ResultControlDTO,
   TitleCase,
   UP,
@@ -127,7 +126,7 @@ export class GroupCommandService implements iRepl {
       `${chalk.magenta.bold(group.friendlyName)} save state`,
       [
         [`${ICONS.CREATE}Create new state`, `create`],
-        ...this.promptService.conditionalEntries(!IsEmpty(group.save_states), [
+        ...this.promptService.conditionalEntries(!is.empty(group.save_states), [
           new inquirer.Separator(chalk.white`Existing states`),
           ...(group.save_states.map((i) => [
             i.friendlyName,
@@ -160,7 +159,7 @@ export class GroupCommandService implements iRepl {
       keyMap: { c: MENU_ITEMS.CREATE, d: MENU_ITEMS.DONE },
       right: ToMenuEntry([
         ...this.promptService.conditionalEntries(
-          !IsEmpty(groups),
+          !is.empty(groups),
           this.groupEntries(groups),
         ),
       ]),
@@ -211,7 +210,7 @@ export class GroupCommandService implements iRepl {
     current: string[] = [],
   ): Promise<GroupDTO[]> {
     let groups = await this.list();
-    if (!IsEmpty(inList)) {
+    if (!is.empty(inList)) {
       groups = groups.filter(({ _id }) => inList.includes(_id));
     }
     return await this.promptService.listBuild({
@@ -229,7 +228,7 @@ export class GroupCommandService implements iRepl {
     defaultValue?: GroupDTO | string,
   ): Promise<GroupDTO> {
     const groups = await this.list();
-    inList = IsEmpty(inList) ? groups.map(({ _id }) => _id) : inList;
+    inList = is.empty(inList) ? groups.map(({ _id }) => _id) : inList;
     if (defaultValue) {
       defaultValue = groups.find(
         ({ _id }) =>

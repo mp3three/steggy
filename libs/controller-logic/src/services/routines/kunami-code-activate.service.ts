@@ -7,7 +7,7 @@ import {
 import {
   AutoLogService,
   InjectConfig,
-  IsEmpty,
+  is,
   OnEvent,
 } from '@text-based/utilities';
 import { each } from 'async';
@@ -34,7 +34,7 @@ export class KunamiCodeActivateService {
   private WATCHED_SENSORS = new Map<string, KunamiWatcher[]>();
 
   public reset(): void {
-    if (!IsEmpty(this.WATCHED_SENSORS)) {
+    if (!is.empty(this.WATCHED_SENSORS)) {
       this.logger.debug(
         `[reset] Removing {${this.WATCHED_SENSORS.size}} watched entities`,
       );

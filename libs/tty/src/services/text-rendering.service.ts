@@ -6,7 +6,6 @@ import {
   InjectConfig,
   INVERT_VALUE,
   is,
-  IsEmpty,
   LABEL,
   START,
   UP,
@@ -99,7 +98,7 @@ export class TextRenderingService {
               : ansiPadEnd(line, maxA) + SEPARATOR),
       );
     }
-    if (!IsEmpty(left)) {
+    if (!is.empty(left)) {
       out.unshift(
         chalk`{blue.bold ${left.padStart(
           maxA - ARRAY_OFFSET,
@@ -121,7 +120,7 @@ export class TextRenderingService {
     searchText: string,
     data: MenuEntry<T>[],
   ): MenuEntry<T>[] {
-    if (IsEmpty(searchText)) {
+    if (is.empty(searchText)) {
       return data;
     }
     const entries = data.map((i) => ({
@@ -140,13 +139,13 @@ export class TextRenderingService {
   }
 
   public searchBox(searchText: string, size = MAX_SEARCH_SIZE): string[] {
-    const text = IsEmpty(searchText)
+    const text = is.empty(searchText)
       ? chalk.bgBlue`Type to filter`
       : searchText;
     return [
       chalk` `,
       ' ' +
-        chalk[IsEmpty(searchText) ? 'bgBlue' : 'bgWhite'].black` ${ansiPadEnd(
+        chalk[is.empty(searchText) ? 'bgBlue' : 'bgWhite'].black` ${ansiPadEnd(
           text,
           size,
         )} `,

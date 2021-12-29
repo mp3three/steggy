@@ -8,7 +8,6 @@ import {
 import {
   AutoLogService,
   is,
-  IsEmpty,
   OnEvent,
   ResultControlDTO,
   sleep,
@@ -201,7 +200,7 @@ export class RoutineService {
     const allRoutines = await this.routinePersistence.findMany();
     this.logger.info(`Mounting {${allRoutines.length}} routines`);
     allRoutines.forEach((routine) => {
-      if (IsEmpty(routine.activate)) {
+      if (is.empty(routine.activate)) {
         this.logger.warn(`[${routine.friendlyName}] no activation events`);
         return;
       }

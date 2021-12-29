@@ -11,7 +11,6 @@ import {
   InjectLogger,
   INVERT_VALUE,
   is,
-  IsEmpty,
 } from '@text-based/utilities';
 import { each } from 'async';
 import EventEmitter from 'eventemitter3';
@@ -163,7 +162,7 @@ export class LightManagerService {
     // or there is no mode defined, and the current one is circadian
     if (
       settings.mode === LIGHTING_MODE.circadian ||
-      (IsEmpty(settings.mode) && current?.mode === LIGHTING_MODE.circadian)
+      (is.empty(settings.mode) && current?.mode === LIGHTING_MODE.circadian)
     ) {
       settings.kelvin = await this.circadianService.CURRENT_LIGHT_TEMPERATURE;
       settings.mode = LIGHTING_MODE.circadian;

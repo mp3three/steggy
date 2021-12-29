@@ -6,7 +6,7 @@ import {
   FilterValueType,
   HTTP_METHODS,
   InjectConfig,
-  IsEmpty,
+  is,
   queryToControl,
   storage,
 } from '@text-based/utilities';
@@ -92,7 +92,7 @@ export class InitMiddleware implements NestMiddleware {
       return;
     }
     const filters = control.filters;
-    if (!IsEmpty(filters)) {
+    if (!is.empty(filters)) {
       this.logger.debug(`Merging ${QUERY_HEADER} into query params`);
     }
     try {

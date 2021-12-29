@@ -13,7 +13,6 @@ import {
   GenericVersionDTO,
   InjectConfig,
   is,
-  IsEmpty,
   PackageJsonDTO,
   WorkspaceService,
 } from '@text-based/utilities';
@@ -132,7 +131,7 @@ For loop example getting entity values in the weather domain:
     const notifications = await this.fetchService.fetch<HassNotificationDTO[]>({
       url: `/debug/notifications`,
     });
-    if (IsEmpty(notifications)) {
+    if (is.empty(notifications)) {
       return;
     }
     const item = await this.promptService.menu<HassNotificationDTO>({

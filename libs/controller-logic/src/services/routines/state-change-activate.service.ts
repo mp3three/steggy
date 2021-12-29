@@ -9,7 +9,6 @@ import {
   CacheManagerService,
   InjectCache,
   is,
-  IsEmpty,
   JSONFilterService,
   OnEvent,
 } from '@text-based/utilities';
@@ -34,7 +33,7 @@ export class StateChangeActivateService {
   private WATCHED_ENTITIES = new Map<string, StateChangeWatcher[]>();
 
   public reset(): void {
-    if (!IsEmpty(this.WATCHED_ENTITIES)) {
+    if (!is.empty(this.WATCHED_ENTITIES)) {
       this.logger.debug(
         `[reset] Removing {${this.WATCHED_ENTITIES.size}} watched entities`,
       );

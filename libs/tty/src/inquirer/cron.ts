@@ -2,7 +2,7 @@ import {
   ARRAY_OFFSET,
   INCREMENT,
   INVERT_VALUE,
-  IsEmpty,
+  is,
   START,
 } from '@text-based/utilities';
 import chalk from 'chalk';
@@ -98,7 +98,7 @@ export class CronPrompt extends Base<Question & CronPromptOptions> {
     cliCursor.show();
     this.done(
       [...this.values.values()]
-        .map((item) => (IsEmpty(item) ? '*' : item))
+        .map((item) => (is.empty(item) ? '*' : item))
         .join(' '),
     );
   }
@@ -157,7 +157,7 @@ export class CronPrompt extends Base<Question & CronPromptOptions> {
       ...this.renderHeader(),
       [...this.values.entries()]
         .map(([type, value]) => {
-          value = IsEmpty(value) ? chalk.gray('*') : value;
+          value = is.empty(value) ? chalk.gray('*') : value;
           return type === this.field ? chalk.cyan.inverse(value) : value;
         })
         .join(' '),

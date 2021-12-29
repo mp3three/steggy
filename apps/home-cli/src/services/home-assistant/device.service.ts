@@ -11,7 +11,7 @@ import {
   Repl,
   ToMenuEntry,
 } from '@text-based/tty';
-import { AutoLogService, IsEmpty } from '@text-based/utilities';
+import { AutoLogService, is } from '@text-based/utilities';
 import chalk from 'chalk';
 import { encode } from 'ini';
 
@@ -38,7 +38,7 @@ export class DeviceService {
 
   public async entities(device: DeviceListItemDTO): Promise<void> {
     const inspect = await this.inspect(device);
-    if (IsEmpty(inspect.entity)) {
+    if (is.empty(inspect.entity)) {
       console.log(chalk` {yellow.bold !!!} No entities attached to device`);
       await this.promptService.acknowledge();
       return;
@@ -69,7 +69,7 @@ export class DeviceService {
       keyMap: {},
       right: ToMenuEntry(
         devices
-          .filter((value) => IsEmpty(inList) || inList.includes(value.id))
+          .filter((value) => is.empty(inList) || inList.includes(value.id))
           .map((item) => [item.name, item]),
       ),
     })) as DeviceListItemDTO;

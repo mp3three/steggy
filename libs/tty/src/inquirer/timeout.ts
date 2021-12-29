@@ -1,5 +1,5 @@
 import { InternalServerErrorException } from '@nestjs/common';
-import { ARRAY_OFFSET, FIRST, IsEmpty } from '@text-based/utilities';
+import { ARRAY_OFFSET, FIRST, is } from '@text-based/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';
@@ -105,7 +105,7 @@ export class TimeoutPrompt extends Base<Question & Partial<TimeoutResult>> {
         break;
       case 'backspace':
         this.amount = this.amount.slice(FIRST, REMOVE_AMOUNT);
-        if (IsEmpty(this.amount)) {
+        if (is.empty(this.amount)) {
           this.amount = '0';
         }
         break;

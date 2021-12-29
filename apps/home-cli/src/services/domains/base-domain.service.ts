@@ -25,7 +25,6 @@ import {
   InjectCache,
   InjectConfig,
   is,
-  IsEmpty,
   sleep,
   START,
   TitleCase,
@@ -95,7 +94,7 @@ export class BaseDomainService {
   public async graph(id: string): Promise<void> {
     const { from, to } = await this.promptService.dateRange();
     const history = await this.history.fetchHistory(id, from, to);
-    if (IsEmpty(history)) {
+    if (is.empty(history)) {
       this.logger.error(`No history returned`);
       await this.promptService.acknowledge();
       return;
@@ -155,7 +154,7 @@ export class BaseDomainService {
     const filtered = entities.filter(
       (entity) =>
         domain(entity) === search &&
-        (IsEmpty(insideList) || insideList.includes(entity)),
+        (is.empty(insideList) || insideList.includes(entity)),
     );
     const entityId = await this.promptService.menu({
       keyMap: {},
@@ -206,7 +205,7 @@ export class BaseDomainService {
         const item: RelatedDescriptionDTO = await this.fetchService.fetch({
           url: `/entity/registry/${id}`,
         });
-        if (IsEmpty(item.device ?? [])) {
+        if (is.empty(item.device ?? [])) {
           console.log(
             chalk`\n{bold.red !! } No devices associated with entity`,
           );
@@ -228,7 +227,7 @@ export class BaseDomainService {
 
   public async showHistory(id: string): Promise<void> {
     const rawHistory = await this.history.promptEntityHistory(id);
-    if (IsEmpty(rawHistory)) {
+    if (is.empty(rawHistory)) {
       this.logger.warn(`No history returned`);
       await this.promptService.acknowledge();
       return;
@@ -289,7 +288,7 @@ export class BaseDomainService {
     const keys = Object.keys(content.attributes)
       .filter((i) => !['supported_features', 'friendly_name'].includes(i))
       .sort((a, b) => (a > b ? UP : DOWN));
-    if (!IsEmpty(keys)) {
+    if (!is.empty(keys)) {
       const header = 'Attributes';
       console.log(
         chalk` {blue +${''.padEnd(
@@ -378,7 +377,7 @@ export class BaseDomainService {
     const item = content.attributes[key];
     let value: string;
     if (Array.isArray(item)) {
-      if (IsEmpty(item)) {
+      if (is.empty(item)) {
         value = chalk.gray(`empty list`);
       } else if (is.number(item[START])) {
         value = item.map((i) => chalk.yellow(i)).join(', ');

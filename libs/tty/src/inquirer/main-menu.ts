@@ -6,7 +6,6 @@ import {
   INCREMENT,
   INVERT_VALUE,
   is,
-  IsEmpty,
   LABEL,
   NOT_FOUND,
   START,
@@ -111,7 +110,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.opt = questions;
     this.opt.left ??= [];
     this.opt.right ??= [];
-    this.opt.showHeaders ??= !IsEmpty(this.opt.left);
+    this.opt.showHeaders ??= !is.empty(this.opt.left);
     this.opt.left.forEach((i) => (i.type ??= ''));
     this.opt.right.forEach((i) => (i.type ??= ''));
     this.opt.keyMap ??= {};
@@ -221,7 +220,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
         };
       });
     if (updateValue) {
-      this.value = IsEmpty(highlighted)
+      this.value = is.empty(highlighted)
         ? undefined
         : highlighted[START].entry[VALUE];
     }
@@ -249,7 +248,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   private navigateSearch(key: string): void {
     const all = this.side();
     let available = this.filterMenu(all);
-    if (IsEmpty(available)) {
+    if (is.empty(available)) {
       available = all;
     }
     if (['pageup', 'home'].includes(key)) {
@@ -318,7 +317,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     }
     const mixed = key.name ?? key.sequence;
     if (mixed === 'enter') {
-      if (IsEmpty(this.opt.left) && IsEmpty(this.opt.right)) {
+      if (is.empty(this.opt.left) && is.empty(this.opt.right)) {
         // There's nothing to select, request is invalid
         // Also, frustrating as a user
         return;
@@ -344,7 +343,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
    */
   private onLeft(): void {
     const [right, left] = [this.side('right'), this.side('left')];
-    if (IsEmpty(this.opt.left) || this.selectedType === 'left') {
+    if (is.empty(this.opt.left) || this.selectedType === 'left') {
       return;
     }
     this.selectedType = 'left';
@@ -396,7 +395,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
           this.value =
             this.side()[
               Number(
-                IsEmpty(this.numericSelection) ? '1' : this.numericSelection,
+                is.empty(this.numericSelection) ? '1' : this.numericSelection,
               ) - ARRAY_OFFSET
             ]?.entry[VALUE] ?? this.value;
 
@@ -514,10 +513,10 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       return;
     }
     let message = '';
-    if (!IsEmpty(this.callbackOutput)) {
+    if (!is.empty(this.callbackOutput)) {
       message = this.callbackOutput + `\n\n`;
     }
-    const out = !IsEmpty(this.opt.left)
+    const out = !is.empty(this.opt.left)
       ? this.textRender.assemble(
           this.renderSide('left'),
           this.renderSide('right'),
@@ -558,7 +557,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
   ): string[] {
     const out: string[] = [''];
     let menu = this.side(side);
-    if (this.mode === 'find' && !IsEmpty(this.searchText)) {
+    if (this.mode === 'find' && !is.empty(this.searchText)) {
       menu = this.filterMenu(menu, updateValue);
     }
     const temporary = this.textRender.selectRange(
@@ -573,7 +572,7 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     let last = '';
     const maxLabel =
       ansiMaxLength(menu.map(({ entry }) => entry[LABEL])) + ARRAY_OFFSET;
-    if (IsEmpty(menu) && !this.opt.keyOnly) {
+    if (is.empty(menu) && !this.opt.keyOnly) {
       out.push(
         chalk.bold` ${ICONS.WARNING}{yellowBright.inverse  No actions to select from }`,
       );

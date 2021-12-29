@@ -4,7 +4,6 @@ import {
   DOWN,
   InjectConfig,
   is,
-  IsEmpty,
   LABEL,
   PEAT,
   START,
@@ -201,7 +200,7 @@ export class PromptService {
     options: { key: string; name: string; value: T }[],
     defaultValue?: string,
   ): Promise<T> {
-    if (IsEmpty(options)) {
+    if (is.empty(options)) {
       this.logger.warn(`No choices to pick from`);
       return undefined;
     }
@@ -371,7 +370,7 @@ export class PromptService {
       ...extra
     }: { default?: (string | T)[]; max?: number; min?: number } = {},
   ): Promise<T[]> {
-    if (IsEmpty(options)) {
+    if (is.empty(options)) {
       this.logger.warn(`No choices to pick from`);
       return [];
     }
@@ -401,7 +400,7 @@ export class PromptService {
     options: PromptEntry<T>[],
     defaultValue?: string | T,
   ): Promise<T> {
-    if (IsEmpty(options)) {
+    if (is.empty(options)) {
       this.logger.warn(`No choices to pick from`);
       return undefined;
     }

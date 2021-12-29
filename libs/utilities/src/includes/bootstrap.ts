@@ -6,7 +6,7 @@ import { ExpressAdapter } from '@nestjs/platform-express';
 import {
   AutoLogService,
   GlobalErrorInit,
-  IsEmpty,
+  is,
   LIB_UTILS,
   LifecycleService,
   NEST_NOOP_LOGGER,
@@ -42,7 +42,7 @@ export async function Bootstrap(
   bootOptions: BootstrapOptions,
 ): Promise<void> {
   // Environment files can append extra modules
-  if (!IsEmpty(bootOptions.imports)) {
+  if (!is.empty(bootOptions.imports)) {
     const current = Reflect.getMetadata('imports', module) ?? [];
     current.push(...bootOptions.imports);
     Reflect.defineMetadata('imports', current, module);

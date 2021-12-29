@@ -5,7 +5,7 @@ import {
   FIRST,
   INCREMENT,
   INVERT_VALUE,
-  IsEmpty,
+  is,
   LABEL,
   NOT_FOUND,
   START,
@@ -89,7 +89,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
     const events = observe(this.rl);
     events.line.forEach(this.onEnd.bind(this));
     events.keypress.forEach(this.onKeypress.bind(this));
-    this.value ??= IsEmpty(this.source)
+    this.value ??= is.empty(this.source)
       ? this.current[START][VALUE]
       : this.source[START][VALUE];
     this.detectSide();
@@ -144,7 +144,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
 
   private filterMenu(data: MenuEntry[], updateValue = false): MenuEntry[] {
     const highlighted = this.textRender.fuzzySort(this.searchText, data);
-    if (IsEmpty(highlighted) || updateValue === false) {
+    if (is.empty(highlighted) || updateValue === false) {
       return highlighted;
     }
     this.value = highlighted[START][VALUE];
@@ -160,7 +160,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
   private navigateSearch(key: string): void {
     const all = this.side();
     let available = this.filterMenu(all);
-    if (IsEmpty(available)) {
+    if (is.empty(available)) {
       available = all;
     }
     if (['pageup', 'home'].includes(key)) {
@@ -236,7 +236,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
       this.side('current', true),
       this.side('source', true),
     ];
-    if (IsEmpty(left) || this.selectedType === 'current') {
+    if (is.empty(left) || this.selectedType === 'current') {
       return;
     }
     this.selectedType = 'current';
@@ -316,7 +316,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
           this.value =
             this.side()[
               Number(
-                IsEmpty(this.numericSelection) ? '1' : this.numericSelection,
+                is.empty(this.numericSelection) ? '1' : this.numericSelection,
               ) - ARRAY_OFFSET
             ][VALUE] ?? this.value;
 
@@ -331,7 +331,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
       this.side('source', true),
       this.side('current', true),
     ];
-    if (this.selectedType === 'source' || IsEmpty(right)) {
+    if (this.selectedType === 'source' || is.empty(right)) {
       return;
     }
     this.selectedType = 'source';
@@ -372,7 +372,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
         return this.render();
       case 'space':
         this.searchText += ' ';
-        if (IsEmpty(this.side())) {
+        if (is.empty(this.side())) {
           this.selectedType =
             this.selectedType === 'source' ? 'current' : 'source';
         }
@@ -391,7 +391,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
       return;
     }
     this.searchText += key;
-    if (IsEmpty(this.side())) {
+    if (is.empty(this.side())) {
       this.selectedType = this.selectedType === 'source' ? 'current' : 'source';
     }
     this.render(true);
@@ -446,7 +446,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
 
   private render(updateValue = false): void {
     if (this.status === 'answered') {
-      if (IsEmpty(this.current)) {
+      if (is.empty(this.current)) {
         this.screen.render(
           chalk` {magenta >} No ${this.opt.items} selected\n `,
           '',
@@ -495,12 +495,12 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
   ): string[] {
     const out: string[] = [];
     let menu = this.side(side, true);
-    if (this.mode === 'find' && !IsEmpty(this.searchText)) {
+    if (this.mode === 'find' && !is.empty(this.searchText)) {
       menu = this.filterMenu(menu, updateValue);
     }
     const maxLabel =
       ansiMaxLength(menu.map((entry) => entry[LABEL])) + ARRAY_OFFSET;
-    if (IsEmpty(menu)) {
+    if (is.empty(menu)) {
       out.push(chalk.bold` ${ICONS.MANUAL}{gray.inverse  List is empty } `);
     }
     menu.forEach((item) => {

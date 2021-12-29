@@ -21,7 +21,6 @@ import {
   CacheManagerService,
   InjectCache,
   is,
-  IsEmpty,
   LABEL,
   ResultControlDTO,
   TitleCase,
@@ -152,7 +151,7 @@ export class RoutineService {
     defaultValue: string | RoutineDTO,
     inList: RoutineDTO[] = [],
   ): Promise<RoutineDTO> {
-    if (IsEmpty(inList)) {
+    if (is.empty(inList)) {
       inList = await this.list();
     }
     defaultValue = inList.find(
@@ -371,7 +370,7 @@ export class RoutineService {
       )}`,
     );
     console.log();
-    if (IsEmpty(routine.activate)) {
+    if (is.empty(routine.activate)) {
       console.log(
         chalk.bold`{cyan >>> }${ICONS.EVENT}{yellow No activation events}`,
       );
@@ -389,7 +388,7 @@ export class RoutineService {
       });
       console.log(table.toString());
     }
-    if (IsEmpty(routine.command)) {
+    if (is.empty(routine.command)) {
       console.log(chalk.bold`{cyan >>> }${ICONS.COMMAND}{yellow No commands}`);
       return;
     }

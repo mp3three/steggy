@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService, CastResult, IsEmpty } from '@text-based/utilities';
+import { AutoLogService, CastResult, is } from '@text-based/utilities';
 
 import {
   AccountConfigurationsDTO,
@@ -77,7 +77,7 @@ export class AccountService {
   @CastResult(AssetDTO)
   public async listAssets(asset_class?: string): Promise<AssetDTO[]> {
     const parameters: Record<string, string> = { status: 'active' };
-    if (!IsEmpty(asset_class)) {
+    if (!is.empty(asset_class)) {
       parameters.asset_class = asset_class;
     }
     return await this.fetchService.fetch({

@@ -8,7 +8,7 @@ import {
   Repl,
   ToMenuEntry,
 } from '@text-based/tty';
-import { AutoLogService, is, IsEmpty, TitleCase } from '@text-based/utilities';
+import { AutoLogService, is, TitleCase } from '@text-based/utilities';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 
@@ -72,7 +72,7 @@ export class ServerLogsService {
     const logs = await this.fetchService.fetch<HomeAssistantServerLogItem[]>({
       url: `/admin/server/logs`,
     });
-    if (IsEmpty(logs)) {
+    if (is.empty(logs)) {
       this.logger.info(`No recent logs`);
       return;
     }

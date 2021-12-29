@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { KunamiCodeActivateDTO } from '@text-based/controller-logic';
 import { HASS_DOMAINS } from '@text-based/home-assistant';
 import { PromptService } from '@text-based/tty';
-import { AutoLogService, IsEmpty } from '@text-based/utilities';
+import { AutoLogService, is } from '@text-based/utilities';
 import chalk from 'chalk';
 
 import { EntityService } from '../../home-assistant/entity.service';
@@ -23,7 +23,7 @@ export class KunamiBuilderService {
     current: Partial<KunamiCodeActivateDTO> = {},
     sensorList: string[] = [],
   ): Promise<KunamiCodeActivateDTO> {
-    current.sensor = !IsEmpty(sensorList)
+    current.sensor = !is.empty(sensorList)
       ? await this.entityService.pickOne(sensorList, current.sensor)
       : await this.entityService.pickInDomain(
           [HASS_DOMAINS.sensor],
@@ -31,7 +31,7 @@ export class KunamiBuilderService {
           current.sensor,
         );
     const type = await this.promptService.pickOne(`How to enter values?`, [
-      ...this.promptService.conditionalEntries(!IsEmpty(current.match), [
+      ...this.promptService.conditionalEntries(!is.empty(current.match), [
         ['Keep current states', 'keep'],
       ]),
       ['Record state changes', 'record'],

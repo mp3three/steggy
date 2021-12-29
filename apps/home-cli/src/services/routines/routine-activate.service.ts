@@ -14,7 +14,7 @@ import {
   StateChangeActivateDTO,
 } from '@text-based/controller-logic';
 import { ICONS, IsDone, PromptService, ToMenuEntry } from '@text-based/tty';
-import { is, IsEmpty, TitleCase } from '@text-based/utilities';
+import { is, TitleCase } from '@text-based/utilities';
 import chalk from 'chalk';
 import Table from 'cli-table';
 import { v4 as uuid } from 'uuid';
@@ -171,7 +171,7 @@ export class RoutineActivateService {
     this.promptService.scriptHeader(`Activations`);
     this.promptService.secondaryHeader(routine.friendlyName);
     console.log();
-    if (IsEmpty(routine.activate)) {
+    if (is.empty(routine.activate)) {
       console.log(
         chalk.bold`{cyan >>> }${ICONS.EVENT}{yellow No activation events}`,
       );

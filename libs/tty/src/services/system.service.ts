@@ -3,7 +3,7 @@ import {
   AbstractConfig,
   AutoLogService,
   filterUnique,
-  IsEmpty,
+  is,
   PACKAGE_FILE,
   WorkspaceService,
 } from '@text-based/utilities';
@@ -137,7 +137,7 @@ export class SystemService {
       '--format=%B',
       branch.trim(),
     ]);
-    return filterUnique(stdout.split(`\n`).filter((item) => !IsEmpty(item)));
+    return filterUnique(stdout.split(`\n`).filter((item) => !is.empty(item)));
   }
 
   public isLibrary(project: string): boolean {

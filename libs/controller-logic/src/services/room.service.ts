@@ -1,12 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { domain } from '@text-based/home-assistant';
 import { BaseSchemaDTO } from '@text-based/persistence';
-import {
-  AutoLogService,
-  is,
-  IsEmpty,
-  ResultControlDTO,
-} from '@text-based/utilities';
+import { AutoLogService, is, ResultControlDTO } from '@text-based/utilities';
 import { each } from 'async';
 import { v4 as uuid } from 'uuid';
 
@@ -174,14 +169,14 @@ export class RoomService {
     { entities }: RoomDTO,
     filters: EntityFilters,
   ): RoomEntityDTO[] {
-    if (!IsEmpty(filters.tags)) {
+    if (!is.empty(filters.tags)) {
       entities = entities.filter(({ tags }) =>
         tags.some((tag) => {
           return tags.includes(tag);
         }),
       );
     }
-    if (!IsEmpty(filters.domains)) {
+    if (!is.empty(filters.domains)) {
       entities = entities.filter(({ entity_id }) =>
         filters.domains.includes(domain(entity_id)),
       );

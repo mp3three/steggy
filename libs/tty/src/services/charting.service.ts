@@ -6,7 +6,7 @@ import {
   AutoLogService,
   EMPTY,
   INCREMENT,
-  IsEmpty,
+  is,
   PEAT,
   START,
 } from '@text-based/utilities';
@@ -78,7 +78,7 @@ export class ChartingService {
       xAxis,
     }: PlotOptions = {},
   ): Promise<string> {
-    if (IsEmpty(series)) {
+    if (is.empty(series)) {
       return ``;
     }
     width ??= (await this.environment.getDimensions()).width;
