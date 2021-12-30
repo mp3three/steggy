@@ -1,5 +1,6 @@
 export * from './charting.service';
 export * from './colors.service';
+export * from './comparison-tools.service';
 export * from './config-builder.service';
 export * from './environment.service';
 export * from './git.service';

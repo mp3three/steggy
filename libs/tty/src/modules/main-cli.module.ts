@@ -7,6 +7,7 @@ import { inquirerPreInit } from '../inquirer';
 import {
   ChartingService,
   ColorsService,
+  ComparisonToolsService,
   ConfigBuilderService,
   EnvironmentService,
   GitService,
@@ -27,6 +28,7 @@ import {
     EnvironmentService,
     GitService,
     PinnedItemService,
+    ComparisonToolsService,
     PromptService,
     SystemService,
     TableService,
@@ -41,6 +43,7 @@ import {
     GitService,
     MainCLIService,
     EnvironmentService,
+    ComparisonToolsService,
     PinnedItemService,
     PromptService,
     ReplExplorerService,

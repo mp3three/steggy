@@ -104,7 +104,7 @@ export class RoutineCommandService {
       current.type,
     );
     switch (type) {
-      case ROUTINE_ACTIVATE_COMMAND.restore:
+      case ROUTINE_ACTIVATE_COMMAND.restore_state:
         return {
           command: await this.restoreService.build(
             current as RoutineRestoreCommandDTO,
@@ -112,7 +112,7 @@ export class RoutineCommandService {
           friendlyName,
           type,
         };
-      case ROUTINE_ACTIVATE_COMMAND.capture:
+      case ROUTINE_ACTIVATE_COMMAND.capture_state:
         return {
           command: await this.captureService.build(
             current as RoutineCaptureCommandDTO,
@@ -236,7 +236,9 @@ export class RoutineCommandService {
         );
         return chalk`{bold Routine:} ${triggerRoutine.friendlyName}`;
       case ROUTINE_ACTIVATE_COMMAND.stop_processing:
-        return await this.stopProcessing.header(current.command);
+        return await this.stopProcessing.header(
+          current.command as RoutineCommandStopProcessing,
+        );
       case ROUTINE_ACTIVATE_COMMAND.sleep:
         return this.promptService.objectPrinter(current.command);
       case ROUTINE_ACTIVATE_COMMAND.send_notification:

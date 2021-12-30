@@ -1,7 +1,6 @@
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { HTTP_METHODS } from '@text-based/utilities';
 import {
-  IsBoolean,
   IsEnum,
   IsNumber,
   IsObject,
@@ -12,6 +11,7 @@ import {
 
 import { RoomEntitySaveStateDTO } from '../rooms';
 import { GroupDTO, RoomDTO } from '../schemas';
+import { RoutineCommandStopProcessing } from './stop-processing.dto';
 
 export enum ROUTINE_ACTIVATE_COMMAND {
   entity_state = 'entity_state',
@@ -24,8 +24,8 @@ export enum ROUTINE_ACTIVATE_COMMAND {
   trigger_routine = 'trigger_routine',
   sleep = 'sleep',
   webhook = 'webhook',
-  capture = 'capture',
-  restore = 'restore',
+  capture_state = 'capture_state',
+  restore_state = 'restore_state',
 }
 
 export type GENERIC_COMMANDS =
@@ -77,10 +77,6 @@ export class RoutineCommandSleepDTO {
   @ApiProperty()
   @IsNumber()
   public duration: number;
-}
-
-export class RoutineCommandStopProcessing {
-  //
 }
 
 export class RoutineCommandTriggerRoutineDTO {

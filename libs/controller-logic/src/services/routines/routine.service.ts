@@ -199,7 +199,7 @@ export class RoutineService {
           command.command as RoutineCommandSleepDTO,
         );
         break;
-      case ROUTINE_ACTIVATE_COMMAND.capture:
+      case ROUTINE_ACTIVATE_COMMAND.capture_state:
         await this.captureCommand.activate(
           command as RoutineCaptureCommandDTO,
           routine,

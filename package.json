@@ -28,6 +28,7 @@
     "cache-manager": "^3.6.0",
     "cache-manager-redis-store": "^2.0.0",
     "chalk": "^4.1.1",
+    "chrono-node": "^2.3.5",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "cli-cursor": "^3.1.0",

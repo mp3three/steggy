@@ -9,12 +9,7 @@ export class StopProcessingService {
   public async build(
     current: Partial<RoutineCommandStopProcessing> = {},
   ): Promise<RoutineCommandStopProcessing> {
-    return {
-      // template: await this.promptService.editor(
-      //   `Enter template string`,
-      //   current.template,
-      // ),
-    };
+    return current as RoutineCommandStopProcessing;
   }
 
   public async header(current: RoutineCommandStopProcessing): Promise<string> {
