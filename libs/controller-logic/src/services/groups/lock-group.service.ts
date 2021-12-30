@@ -82,6 +82,29 @@ export class LockGroupService extends BaseGroupService {
     });
   }
 
+  public async setState(
+    entites: string[],
+    state: RoomEntitySaveStateDTO[],
+  ): Promise<void> {
+    if (entites.length !== state.length) {
+      this.logger.warn(`State and entity length mismatch`);
+      state = state.slice(START, entites.length);
+    }
+    await each(
+      state.map((state, index) => {
+        return [entites[index], state];
+      }) as [string, RoomEntitySaveStateDTO][],
+      async ([id, state], callback) => {
+        if (state.state === LOCK_STATES.locked) {
+          await this.lockSerivice.lock(id);
+          return callback();
+        }
+        await this.lockSerivice.unlock(id);
+        callback();
+      },
+    );
+  }
+
   /**
    * Alias for unlock
    */
@@ -109,29 +132,6 @@ export class LockGroupService extends BaseGroupService {
       await this.lockSerivice.unlock(lock);
       callback();
     });
-  }
-
-  protected async setState(
-    entites: string[],
-    state: RoomEntitySaveStateDTO[],
-  ): Promise<void> {
-    if (entites.length !== state.length) {
-      this.logger.warn(`State and entity length mismatch`);
-      state = state.slice(START, entites.length);
-    }
-    await each(
-      state.map((state, index) => {
-        return [entites[index], state];
-      }) as [string, RoomEntitySaveStateDTO][],
-      async ([id, state], callback) => {
-        if (state.state === LOCK_STATES.locked) {
-          await this.lockSerivice.lock(id);
-          return callback();
-        }
-        await this.lockSerivice.unlock(id);
-        callback();
-      },
-    );
   }
 
   private isValid(id: string | string[]): boolean {

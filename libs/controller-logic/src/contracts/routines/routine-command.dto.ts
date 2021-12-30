@@ -116,18 +116,6 @@ export class RountineCommandLightFlashDTO {
 }
 
 export class RoutineCaptureCommandDTO {
-  @IsString({ each: true })
-  @ApiProperty()
-  @IsOptional()
-  public captureAttributes?: string[];
-  @ApiProperty()
-  @IsOptional()
-  @IsBoolean()
-  public captureState?: boolean;
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString({ each: true })
-  public entity?: string[];
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString({ each: true })

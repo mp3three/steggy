@@ -128,6 +128,20 @@ export class GroupService {
     return group;
   }
 
+  public getBaseGroup(type: GROUP_TYPES): BaseGroupService {
+    switch (type) {
+      case GROUP_TYPES.switch:
+        return this.switchGroup;
+      case GROUP_TYPES.fan:
+        return this.fanGroup;
+      case GROUP_TYPES.light:
+        return this.lightGroup;
+      case GROUP_TYPES.lock:
+        return this.lockGroup;
+    }
+    throw new NotImplementedException();
+  }
+
   public async list<GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
     control: ResultControlDTO = {},
   ): Promise<GroupDTO<GROUP_TYPE>[]> {
@@ -219,19 +233,5 @@ export class GroupService {
     state.states = data.states;
     state.friendlyName = data.friendlyName;
     return await this.groupPersistence.update(group, group._id);
-  }
-
-  private getBaseGroup(type: GROUP_TYPES): BaseGroupService {
-    switch (type) {
-      case GROUP_TYPES.switch:
-        return this.switchGroup;
-      case GROUP_TYPES.fan:
-        return this.fanGroup;
-      case GROUP_TYPES.light:
-        return this.lightGroup;
-      case GROUP_TYPES.lock:
-        return this.lockGroup;
-    }
-    throw new NotImplementedException();
   }
 }

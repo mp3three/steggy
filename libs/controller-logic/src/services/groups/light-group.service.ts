@@ -167,27 +167,7 @@ export class LightGroupService extends BaseGroupService {
     );
   }
 
-  public async turnOff(group: GroupParameter): Promise<void> {
-    group = await this.loadGroup(group);
-    await this.lightManager.turnOff(group.entities);
-  }
-
-  public async turnOn(
-    group: GroupParameter,
-    circadian = false,
-    brightness?: number,
-  ): Promise<void> {
-    group = await this.loadGroup(group);
-    if (circadian) {
-      await this.lightManager.circadianLight(group.entities, brightness);
-      return;
-    }
-    await this.lightManager.turnOn(group.entities, {
-      brightness,
-    });
-  }
-
-  protected async setState(
+  public async setState(
     entites: string[],
     state: RoomEntitySaveStateDTO[],
   ): Promise<void> {
@@ -219,5 +199,25 @@ export class LightGroupService extends BaseGroupService {
         callback();
       },
     );
+  }
+
+  public async turnOff(group: GroupParameter): Promise<void> {
+    group = await this.loadGroup(group);
+    await this.lightManager.turnOff(group.entities);
+  }
+
+  public async turnOn(
+    group: GroupParameter,
+    circadian = false,
+    brightness?: number,
+  ): Promise<void> {
+    group = await this.loadGroup(group);
+    if (circadian) {
+      await this.lightManager.circadianLight(group.entities, brightness);
+      return;
+    }
+    await this.lightManager.turnOn(group.entities, {
+      brightness,
+    });
   }
 }

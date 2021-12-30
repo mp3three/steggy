@@ -42,23 +42,6 @@ export class EntityController {
     private readonly logger: AutoLogService,
   ) {}
 
-  @ApiResponse({ type: [String] })
-  @ApiBody({ type: [String] })
-  @Post('/attributes')
-  @ApiOperation({
-    description: `Generate a list of unique attributes contained on a list of entities`,
-  })
-  /**
-   * It's just easier to do this on the server than the cli
-   */
-  public attributeList(@Body() { entities }: { entities: string[] }): string[] {
-    return is.unique(
-      this.entityManager
-        .getEntities(entities)
-        .flatMap((i) => Object.keys(i.attributes)),
-    );
-  }
-
   @Put('/update-id/:id')
   @ApiGenericResponse()
   @ApiBody({

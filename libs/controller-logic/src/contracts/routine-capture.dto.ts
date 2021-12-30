@@ -1,14 +1,5 @@
-import { LightingCacheDTO } from './dto';
-
-export class RoutineCaptureEntity {
-  public attributes?: Record<string, unknown>;
-  public entity_id: string;
-  public state?: unknown;
-}
+import { RoomEntitySaveStateDTO } from './rooms';
 
 export class RoutineCaptureData {
-  public lightCache: Record<string, LightingCacheDTO>;
-  public states: RoutineCaptureEntity[];
+  public states: Record<string, RoomEntitySaveStateDTO[]>;
 }
-
-export const IGNORED_ATTRIBUTES = ['friendly_name'];

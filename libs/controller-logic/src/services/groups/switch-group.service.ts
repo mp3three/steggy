@@ -70,22 +70,7 @@ export class SwitchGroupService extends BaseGroupService {
     ].includes(domain(id));
   }
 
-  public async toggle(group: GroupDTO | string): Promise<void> {
-    group = await this.loadGroup(group);
-    await this.hassCore.toggle(group.entities);
-  }
-
-  public async turnOff(group: GroupDTO | string): Promise<void> {
-    group = await this.loadGroup(group);
-    await this.hassCore.turnOff(group.entities);
-  }
-
-  public async turnOn(group: GroupDTO | string): Promise<void> {
-    group = await this.loadGroup(group);
-    await this.hassCore.turnOn(group.entities);
-  }
-
-  protected async setState(
+  public async setState(
     entites: string[],
     state: RoomEntitySaveStateDTO[],
   ): Promise<void> {
@@ -106,5 +91,20 @@ export class SwitchGroupService extends BaseGroupService {
         callback();
       },
     );
+  }
+
+  public async toggle(group: GroupDTO | string): Promise<void> {
+    group = await this.loadGroup(group);
+    await this.hassCore.toggle(group.entities);
+  }
+
+  public async turnOff(group: GroupDTO | string): Promise<void> {
+    group = await this.loadGroup(group);
+    await this.hassCore.turnOff(group.entities);
+  }
+
+  public async turnOn(group: GroupDTO | string): Promise<void> {
+    group = await this.loadGroup(group);
+    await this.hassCore.turnOn(group.entities);
   }
 }
