@@ -5,13 +5,15 @@ import { is } from '@text-based/utilities';
 
 import { GroupCommandService } from '../../groups';
 import { EntityService } from '../../home-assistant';
+import { HomeFetchService } from '../../home-fetch.service';
 
 @Injectable()
 export class RoutineCaptureService {
   constructor(
-    private readonly promptService: PromptService,
     private readonly entityService: EntityService,
+    private readonly fetchService: HomeFetchService,
     private readonly groupCommand: GroupCommandService,
+    private readonly promptService: PromptService,
   ) {}
 
   public async build(
@@ -19,12 +21,10 @@ export class RoutineCaptureService {
   ): Promise<RoutineCaptureCommandDTO> {
     current.group ??= [];
     current.entity ??= [];
-    if (
-      !is.empty(current.key) ||
-      (await this.promptService.confirm('Custom cache key?'))
-    ) {
-      current.key = await this.promptService.string('Cache key', current.key);
-    }
+    current.key = await this.promptService.string(
+      'Cache key (blank = auto)',
+      current.key,
+    );
     const allGroups = await this.groupCommand.list();
     if (
       !is.empty(allGroups) &&
@@ -56,6 +56,26 @@ export class RoutineCaptureService {
         current.captureState,
       );
     }
+    const attributes = await this.fetchService.fetch<string[]>({
+      body: {
+        entities: is.unique([
+          ...current.entity,
+          ...allGroups
+            .filter(({ _id }) => current.group.includes(_id))
+            .flatMap(({ entities }) => entities),
+        ]),
+      },
+      method: 'post',
+      url: `/entity/attributes`,
+    });
+    current.captureAttributes = await this.promptService.listBuild({
+      current: attributes
+        .filter((i) => current.captureAttributes.includes(i))
+        .map((i) => [i, i]),
+      source: attributes
+        .filter((i) => !current.captureAttributes.includes(i))
+        .map((i) => [i, i]),
+    });
     return current as RoutineCaptureCommandDTO;
   }
 }

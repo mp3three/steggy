@@ -1,6 +1,6 @@
 import { AccountService, AccountStatus } from '@text-based/alpaca';
 import { IsDone, PromptService, Repl, ToMenuEntry } from '@text-based/tty';
-import { TitleCase } from '@text-based/utilities';
+import { is, TitleCase } from '@text-based/utilities';
 import chalk from 'chalk';
 
 @Repl({
@@ -103,11 +103,7 @@ export class AlpacaAccountService {
 
   private async listAssets(): Promise<void> {
     const result = await this.accountService.listAssets();
-    console.log(
-      result
-        .map((i) => i)
-        .filter((item, index, array) => array.indexOf(item) === index),
-    );
+    console.log(is.unique(result.map((i) => i)));
     // console.log(result);
     await this.promptService.acknowledge();
   }

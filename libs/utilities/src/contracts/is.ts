@@ -31,4 +31,7 @@ export const is = {
   undefined(test: unknown): test is undefined {
     return typeof test === 'undefined';
   },
+  unique<T>(out: T[]): T[] {
+    return out.filter((item, index, array) => array.indexOf(item) === index);
+  },
 };

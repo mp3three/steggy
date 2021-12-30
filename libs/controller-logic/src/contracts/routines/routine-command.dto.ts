@@ -139,7 +139,10 @@ export class RoutineCaptureCommandDTO {
 }
 
 export class RoutineRestoreCommandDTO {
-  //
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  public key?: string;
 }
 
 export class RoutineCommandWebhookDTO {

@@ -350,9 +350,8 @@ export class BaseDomainService {
     data: HassStateDTO[],
     type: 'all' | 'numeric' = 'all',
   ): Promise<string[]> {
-    let attributeList = data
-      .flatMap((i) => Object.keys(i.attributes))
-      .filter((item, index, array) => array.indexOf(item) === index)
+    let attributeList = is.unique(data
+      .flatMap((i) => Object.keys(i.attributes)))
       .filter((i) =>
         type === 'all'
           ? true

@@ -11,6 +11,7 @@ import {
   RoomEntitySaveStateDTO,
   RountineCommandLightFlashDTO,
   ROUTINE_ACTIVATE_COMMAND,
+  RoutineCaptureCommandDTO,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
@@ -21,6 +22,7 @@ import {
   RoutineCommandTriggerRoutineDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
+  RoutineRestoreCommandDTO,
 } from '@text-based/controller-logic';
 import {
   ICONS,
@@ -40,6 +42,8 @@ import { EntityService } from '../home-assistant/entity.service';
 import { RoomCommandService, RoomStateService } from '../rooms';
 import {
   LightFlashService,
+  RestoreService,
+  RoutineCaptureService,
   RoutineTriggerService,
   SendNotificationService,
   StopProcessingService,
@@ -60,6 +64,8 @@ export class RoutineCommandService {
     private readonly groupAction: GroupActionService,
     private readonly groupCommand: GroupCommandService,
     private readonly groupState: GroupStateService,
+    private readonly captureService: RoutineCaptureService,
+    private readonly restoreService: RestoreService,
     private readonly promptService: PromptService,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineCommand: RService,
@@ -98,6 +104,22 @@ export class RoutineCommandService {
       current.type,
     );
     switch (type) {
+      case ROUTINE_ACTIVATE_COMMAND.restore:
+        return {
+          command: await this.restoreService.build(
+            current as RoutineRestoreCommandDTO,
+          ),
+          friendlyName,
+          type,
+        };
+      case ROUTINE_ACTIVATE_COMMAND.capture:
+        return {
+          command: await this.captureService.build(
+            current as RoutineCaptureCommandDTO,
+          ),
+          friendlyName,
+          type,
+        };
       case ROUTINE_ACTIVATE_COMMAND.trigger_routine:
         return {
           command: await this.routineTrigger.build(

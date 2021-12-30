@@ -28,19 +28,36 @@ import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
 } from '@text-based/server';
-import { AutoLogService } from '@text-based/utilities';
+import { AutoLogService, is } from '@text-based/utilities';
 
 @ApiTags('entity')
 @Controller('/entity')
 @AuthStack()
 export class EntityController {
   constructor(
-    private readonly logger: AutoLogService,
-    private readonly entityManager: EntityManagerService,
     private readonly commandRouter: EntityCommandRouterService,
-    private readonly lightManager: LightManagerService,
+    private readonly entityManager: EntityManagerService,
     private readonly fetchAPI: HomeAssistantFetchAPIService,
+    private readonly lightManager: LightManagerService,
+    private readonly logger: AutoLogService,
   ) {}
+
+  @ApiResponse({ type: [String] })
+  @ApiBody({ type: [String] })
+  @Post('/attributes')
+  @ApiOperation({
+    description: `Generate a list of unique attributes contained on a list of entities`,
+  })
+  /**
+   * It's just easier to do this on the server than the cli
+   */
+  public attributeList(@Body() { entities }: { entities: string[] }): string[] {
+    return is.unique(
+      this.entityManager
+        .getEntities(entities)
+        .flatMap((i) => Object.keys(i.attributes)),
+    );
+  }
 
   @Put('/update-id/:id')
   @ApiGenericResponse()

@@ -1,25 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManagerService } from '@text-based/home-assistant';
+import {
+  domain,
+  EntityManagerService,
+  HASS_DOMAINS,
+} from '@text-based/home-assistant';
 import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
+  is,
 } from '@text-based/utilities';
 import { each } from 'async';
 
 import {
+  LightingCacheDTO,
   RoutineCaptureCommandDTO,
   RoutineCaptureData,
   RoutineCaptureEntity,
   RoutineDTO,
 } from '../../contracts';
 import { GroupService } from '../groups';
+import { LightManagerService } from '../lighting';
 
 @Injectable()
 export class CaptureCommandService {
   constructor(
     private readonly entityService: EntityManagerService,
     private readonly groupService: GroupService,
+    private readonly lightMangager: LightManagerService,
     private readonly logger: AutoLogService,
     @InjectCache() private readonly cache: CacheManagerService,
   ) {}
@@ -40,11 +48,7 @@ export class CaptureCommandService {
       }
     });
     const states = this.entityService
-      .getEntities(
-        command.entity.filter(
-          (item, index, array) => array.indexOf(item) === index,
-        ),
-      )
+      .getEntities(is.unique(command.entity))
       .map(({ entity_id, state, attributes }) => {
         const out = { entity_id } as RoutineCaptureEntity;
         if (command.captureState) {
@@ -55,8 +59,20 @@ export class CaptureCommandService {
         );
         return out;
       });
-    const data = { states } as RoutineCaptureData;
-    await this.cache.set(command.key, data);
-    this.logger.debug(`Captured temp state {${command.key}}`);
+    const lights = command.entity.filter(
+      (i) => domain(i) === HASS_DOMAINS.light,
+    );
+    const lightCache: Record<string, LightingCacheDTO> = {};
+    await each(lights, async (id, callback) => {
+      lightCache[id] = await this.lightMangager.getState(id);
+      if (callback) {
+        callback();
+      }
+    });
+    await this.cache.set(command.key, {
+      lightCache,
+      states,
+    } as RoutineCaptureData);
+    this.logger.debug(`Captured cache state {${command.key}}`);
   }
 }

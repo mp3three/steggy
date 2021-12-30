@@ -378,9 +378,7 @@ export class RoomStateService {
     const table = new Table({
       head: ['Entity ID', 'State'],
     });
-    const ids = groupStates
-      .map(({ ref }) => ref)
-      .filter((item, index, array) => array.indexOf(item) === index);
+    const ids = is.unique(groupStates.map(({ ref }) => ref));
     const groups = await this.groupService.list({
       filters: new Set([
         {

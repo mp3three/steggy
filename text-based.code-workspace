@@ -91,6 +91,8 @@
       "*tar": true,
       "**/yarn-error.log": true,
       "**/.pino-prettyrc": true,
+      "**/tsconfig.json": true,
+      "**/tsconfig.spec.json": true,
       "**/.prettierrc": true,
       "**/.yarnclean": true,
       "LICENSE": true,
