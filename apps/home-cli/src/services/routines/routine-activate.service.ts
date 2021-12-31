@@ -13,7 +13,13 @@ import {
   SolarActivateDTO,
   StateChangeActivateDTO,
 } from '@text-based/controller-logic';
-import { ICONS, IsDone, PromptService, ToMenuEntry } from '@text-based/tty';
+import {
+  ICONS,
+  IsDone,
+  PromptService,
+  TextRenderingService,
+  ToMenuEntry,
+} from '@text-based/tty';
 import { is, TitleCase } from '@text-based/utilities';
 import chalk from 'chalk';
 import Table from 'cli-table';
@@ -36,6 +42,7 @@ export class RoutineActivateService {
     private readonly stateActivate: StateChangeBuilderService,
     private readonly schduleActivate: ScheduleBuilderService,
     private readonly solarActivate: SolarBuilderService,
+    private readonly textRender: TextRenderingService,
     private readonly promptService: PromptService,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineCommand: RService,
@@ -185,7 +192,7 @@ export class RoutineActivateService {
         table.push([
           activate.friendlyName,
           TitleCase(activate.type),
-          this.promptService.objectPrinter(activate.activate),
+          this.textRender.typePrinter(activate.activate),
         ]);
       });
       console.log(table.toString());

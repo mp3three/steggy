@@ -18,6 +18,7 @@ import {
   PinnedItemService,
   PromptEntry,
   PromptService,
+  TextRenderingService,
   ToMenuEntry,
 } from '@text-based/tty';
 import { AutoLogService, is, LABEL } from '@text-based/utilities';
@@ -43,6 +44,7 @@ export class GroupStateService {
     @Inject(forwardRef(() => GroupCommandService))
     private readonly groupService: GService,
     private readonly entityService: EntityService,
+    private readonly textRender: TextRenderingService,
     private readonly pinnedItems: PinnedItemService<{ group: string }>,
   ) {}
 
@@ -267,7 +269,7 @@ export class GroupStateService {
       table.push([
         state.ref || '',
         state.state || '',
-        this.promptService.objectPrinter(state.extra) || '',
+        this.textRender.typePrinter(state.extra) || '',
       ]);
     });
     console.log(

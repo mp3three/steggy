@@ -15,6 +15,7 @@ import {
   PromptEntry,
   PromptService,
   Repl,
+  TextRenderingService,
   ToMenuEntry,
 } from '@text-based/tty';
 import {
@@ -52,6 +53,7 @@ export class RoutineService {
     @InjectCache()
     private readonly cache: CacheManagerService,
     private readonly fetchService: HomeFetchService,
+    private readonly textRender: TextRenderingService,
     private readonly promptService: PromptService,
     private readonly activateService: RoutineActivateService,
     @Inject(forwardRef(() => RoomCommandService))
@@ -384,7 +386,7 @@ export class RoutineService {
         table.push([
           activate.friendlyName,
           TitleCase(activate.type),
-          this.promptService.objectPrinter(activate.activate),
+          this.textRender.typePrinter(activate.activate),
         ]);
       });
       console.log(table.toString());

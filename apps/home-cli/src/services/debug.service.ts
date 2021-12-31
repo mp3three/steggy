@@ -4,12 +4,14 @@ import {
   ConfigBuilderService,
   ICONS,
   IsDone,
+  OBJECT_BUILDER_ELEMENT,
   PromptService,
   Repl,
   ToMenuEntry,
 } from '@text-based/tty';
 import {
   ACTIVE_APPLICATION,
+  FILTER_OPERATIONS,
   GenericVersionDTO,
   InjectConfig,
   is,
@@ -70,6 +72,27 @@ For loop example getting entity values in the weather domain:
 {%- endfor %}.`;
 
   public async exec(defaultAction?: string): Promise<void> {
+    const result = await this.promptService.objectBuilder({
+      current: {
+        friendlyName: 'Foo',
+        type: FILTER_OPERATIONS.eq,
+      },
+      elements: [
+        {
+          name: 'Friendly Name',
+          path: 'friendlyName',
+          type: OBJECT_BUILDER_ELEMENT.string,
+        },
+        {
+          name: 'Type',
+          options: { enum: Object.keys(FILTER_OPERATIONS) },
+          path: 'type',
+          type: OBJECT_BUILDER_ELEMENT.enum,
+        },
+      ],
+      mode: 'single',
+    });
+    console.log(result);
     await this.promptService.acknowledge();
     const action = await this.promptService.menu({
       keyMap: { d: MENU_ITEMS.DONE },

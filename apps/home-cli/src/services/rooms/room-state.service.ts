@@ -18,6 +18,7 @@ import {
   PinnedItemService,
   PromptEntry,
   PromptService,
+  TextRenderingService,
   ToMenuEntry,
 } from '@text-based/tty';
 import {
@@ -48,6 +49,7 @@ export class RoomStateService {
     @Inject(forwardRef(() => RoomCommandService))
     private readonly roomService: RCService,
     private readonly entityService: EntityService,
+    private readonly textRender: TextRenderingService,
     private readonly groupService: GroupCommandService,
     private readonly fetchService: HomeFetchService,
     private readonly pinnedItems: PinnedItemService<{ room: string }>,
@@ -357,7 +359,7 @@ export class RoomStateService {
           table.push([
             entity.ref ?? '',
             entity.state ?? '',
-            this.promptService.objectPrinter(entity.extra),
+            this.textRender.typePrinter(entity.extra),
           ]);
         });
       console.log(

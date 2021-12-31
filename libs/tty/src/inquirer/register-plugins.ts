@@ -8,6 +8,7 @@ import { CronPrompt } from './cron';
 import { ListBuilderPrompt } from './list-builder';
 import { MainMenuPrompt } from './main-menu';
 import { SelectLinePrompt } from './select-line';
+import { ObjectBuilderPrompt } from './settings-builder';
 import { TimeoutPrompt } from './timeout';
 
 // @ts-expect-error Probably related to missing ts defs or something
@@ -18,16 +19,19 @@ inquirer.registerPrompt('timeout', TimeoutPrompt);
 inquirer.registerPrompt('mainMenu', MainMenuPrompt);
 inquirer.registerPrompt('acknowledge', AcknowledgePrompt);
 inquirer.registerPrompt('listbuilder', ListBuilderPrompt);
+inquirer.registerPrompt('objectBuilder', ObjectBuilderPrompt);
 
 export function inquirerPreInit(app: INestApplication): void {
   // Slowly bringing inquirer into the DI environment?
   // Maybe.
   const list = [
+    CronPrompt,
     SelectLinePrompt,
     TimeoutPrompt,
     MainMenuPrompt,
     AcknowledgePrompt,
     ListBuilderPrompt,
+    ObjectBuilderPrompt,
   ] as { onPreInit?: (app: INestApplication) => void }[];
   list.forEach((i) => {
     if (!is.undefined(i.onPreInit)) {

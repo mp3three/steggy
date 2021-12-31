@@ -6,8 +6,6 @@ import {
   is,
   LABEL,
   PEAT,
-  START,
-  TitleCase,
   UP,
   VALUE,
 } from '@text-based/utilities';
@@ -25,7 +23,7 @@ import {
   PAGE_SIZE,
   SECONDARY_HEADER_FONT,
 } from '../config';
-import { DONE, PromptMenuItems } from '../contracts';
+import { DONE, ObjectBuilderOptions, PromptMenuItems } from '../contracts';
 import { ListBuilderOptions, MainMenuOptions } from '../inquirer';
 
 const name = `result`;
@@ -39,7 +37,6 @@ const MIN_BRIGHTNESS = 1;
 const BLOCK_OFFSET = '   ';
 const MAX_BRIGHTNESS = 255;
 const FROM_OFFSET = 1;
-const MAX_STRING_LENGTH = 300;
 
 @Injectable()
 export class PromptService {
@@ -312,38 +309,15 @@ export class PromptService {
     return result;
   }
 
-  public objectPrinter(item: unknown): string {
-    if (is.undefined(item)) {
-      return ``;
-    }
-    if (is.number(item)) {
-      return chalk.yellow(String(item));
-    }
-    if (is.boolean(item)) {
-      return chalk.magenta(String(item));
-    }
-    if (is.string(item)) {
-      return chalk.blue(
-        item.slice(START, MAX_STRING_LENGTH) +
-          (item.length > MAX_STRING_LENGTH ? chalk.blueBright`...` : ``),
-      );
-    }
-    if (Array.isArray(item)) {
-      return item.map((i) => this.objectPrinter(i)).join(`, `);
-    }
-    if (item === null) {
-      return chalk.gray(`null`);
-    }
-    if (is.object(item)) {
-      return Object.keys(item)
-        .sort((a, b) => (a > b ? UP : DOWN))
-        .map(
-          (key) =>
-            chalk`{bold ${TitleCase(key)}:} ${this.objectPrinter(item[key])}`,
-        )
-        .join(`\n`);
-    }
-    return chalk.gray(JSON.stringify(item));
+  public async objectBuilder<T>(options: ObjectBuilderOptions): Promise<T> {
+    const { result } = await inquirer.prompt([
+      {
+        name,
+        ...options,
+        type: 'objectBuilder',
+      },
+    ]);
+    return result;
   }
 
   public async password(

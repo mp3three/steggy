@@ -8,6 +8,7 @@ import {
   is,
   LABEL,
   START,
+  TitleCase,
   UP,
   VALUE,
 } from '@text-based/utilities';
@@ -23,6 +24,8 @@ const MAX_SEARCH_SIZE = 50;
 const SEPARATOR = chalk.blue.dim('|');
 const BUFFER_SIZE = 3;
 const MIN_SIZE = 2;
+//
+const MAX_STRING_LENGTH = 300;
 
 /**
  * Common utils for inqurirer prompt rendering
@@ -171,6 +174,40 @@ export class TextRenderingService {
       index - BUFFER_SIZE,
       this.pageSize + index - BUFFER_SIZE,
     );
+  }
+
+  public typePrinter(item: unknown): string {
+    if (is.undefined(item)) {
+      return chalk.gray(`undefined`);
+    }
+    if (is.number(item)) {
+      return chalk.yellow(String(item));
+    }
+    if (is.boolean(item)) {
+      return chalk.magenta(String(item));
+    }
+    if (is.string(item)) {
+      return chalk.blue(
+        item.slice(START, MAX_STRING_LENGTH) +
+          (item.length > MAX_STRING_LENGTH ? chalk.blueBright`...` : ``),
+      );
+    }
+    if (Array.isArray(item)) {
+      return item.map((i) => this.typePrinter(i)).join(`, `);
+    }
+    if (item === null) {
+      return chalk.gray(`null`);
+    }
+    if (is.object(item)) {
+      return Object.keys(item)
+        .sort((a, b) => (a > b ? UP : DOWN))
+        .map(
+          (key) =>
+            chalk`{bold ${TitleCase(key)}:} ${this.typePrinter(item[key])}`,
+        )
+        .join(`\n`);
+    }
+    return chalk.gray(JSON.stringify(item));
   }
 
   private highlight(result) {

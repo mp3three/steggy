@@ -29,6 +29,7 @@ import {
   IsDone,
   PromptEntry,
   PromptService,
+  TextRenderingService,
   ToMenuEntry,
 } from '@text-based/tty';
 import { is, START, TitleCase } from '@text-based/utilities';
@@ -62,6 +63,7 @@ export class RoutineCommandService {
     private readonly entityCommand: EntityService,
     private readonly flashAnimation: LightFlashService,
     private readonly groupAction: GroupActionService,
+    private readonly textRender: TextRenderingService,
     private readonly groupCommand: GroupCommandService,
     private readonly groupState: GroupStateService,
     private readonly captureService: RoutineCaptureService,
@@ -240,9 +242,9 @@ export class RoutineCommandService {
           current.command as RoutineCommandStopProcessing,
         );
       case ROUTINE_ACTIVATE_COMMAND.sleep:
-        return this.promptService.objectPrinter(current.command);
+        return this.textRender.typePrinter(current.command);
       case ROUTINE_ACTIVATE_COMMAND.send_notification:
-        return this.promptService.objectPrinter(current.command);
+        return this.textRender.typePrinter(current.command);
       case ROUTINE_ACTIVATE_COMMAND.room_state:
         const roomStateCommand = (current?.command ??
           {}) as RoutineCommandRoomStateDTO;
@@ -267,7 +269,7 @@ export class RoutineCommandService {
             : chalk`{bold Group:} ${
                 (await this.groupCommand.get(ref))?.friendlyName
               }`,
-          this.promptService.objectPrinter(lightFlashCommand),
+          this.textRender.typePrinter(lightFlashCommand),
         ].join(`\n`);
       case ROUTINE_ACTIVATE_COMMAND.webhook:
         const webhook = current.command as RoutineCommandWebhookDTO;
