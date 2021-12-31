@@ -17,16 +17,13 @@ import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';
 import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
-import { Key } from 'readline';
 
-import { ICONS } from '../contracts';
+import { ICONS, KeyDescriptor, MenuEntry } from '../contracts';
 import { ansiMaxLength, ansiPadEnd } from '../includes';
 import { TextRenderingService } from '../services';
-import { MenuEntry } from './main-menu';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 
-type KeyDescriptor = { key: Key; value?: string };
 type tCallback = (value: unknown[]) => void;
 
 export interface ListBuilderOptions<T = unknown> {
@@ -210,7 +207,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
     this.done(this.current.map((i) => i[VALUE]));
   }
 
-  private onKeypress({ key, ...extra }: KeyDescriptor): void {
+  private onKeypress({ key }: KeyDescriptor): void {
     if (this.status === 'answered') {
       return;
     }

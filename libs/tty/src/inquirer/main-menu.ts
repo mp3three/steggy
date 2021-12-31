@@ -18,23 +18,14 @@ import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';
 import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
-import { Key } from 'readline';
 
-import { ICONS } from '../contracts';
+import { ICONS, KeyDescriptor, MainMenuEntry, MenuEntry } from '../contracts';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
 import { PromptEntry, TextRenderingService } from '../services';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 
-type KeyDescriptor = { key: Key; value?: string };
 type tCallback = (value: unknown) => void;
-export type MenuEntry<T extends unknown = string> = [string, T];
-export interface MainMenuEntry<T = unknown> {
-  entry: MenuEntry<T>;
-  helpText?: string;
-  icon?: string;
-  type?: string;
-}
 
 export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
   const out: MainMenuEntry<T>[] = [];
@@ -89,7 +80,7 @@ export interface MainMenuOptions<T = unknown> {
 
 const DEFAULT_HEADER_PADDING = 4;
 const SINGLE_ITEM = 1;
-const EMPTY_TEXT = chalk`{magenta   }`;
+const EMPTY_TEXT = ' ';
 
 const BASE_HELP = [
   ['arrows', 'move cursor'],

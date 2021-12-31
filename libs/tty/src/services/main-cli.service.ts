@@ -9,9 +9,8 @@ import {
 } from '@text-based/utilities';
 import chalk from 'chalk';
 
-import { iRepl, ReplOptions } from '../contracts';
+import { iRepl, MainMenuEntry, MenuEntry, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
-import { MainMenuEntry, MenuEntry } from '../inquirer';
 import { PinnedItemDTO, PinnedItemService } from './pinned-item.service';
 import { PromptEntry, PromptService } from './prompt.service';
 import { ReplExplorerService } from './repl-explorer.service';

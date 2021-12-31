@@ -1,12 +1,12 @@
 import { INestApplication } from '@nestjs/common';
-import { START } from '@text-based/utilities';
+import { ARRAY_OFFSET, START } from '@text-based/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';
 import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
 
-import { ObjectBuilderOptions } from '../contracts';
+import { KeyDescriptor, ObjectBuilderOptions } from '../contracts';
 import { TableService, TextRenderingService } from '../services';
 
 type tCallback = (value?: unknown) => void;
@@ -23,10 +23,16 @@ export class ObjectBuilderPrompt extends Base<Question & ObjectBuilderOptions> {
     this.tableService = ObjectBuilderPrompt.app.get(TableService);
   }
 
+  private currentCol = START;
+  private currentRow = START;
   private done: tCallback;
   private rows: Record<string, unknown>[];
   private tableService: TableService;
   private textRender: TextRenderingService;
+
+  private get columns() {
+    return this.opt.elements;
+  }
 
   public _run(callback: tCallback): this {
     this.done = callback;
@@ -47,8 +53,34 @@ export class ObjectBuilderPrompt extends Base<Question & ObjectBuilderOptions> {
     this.done();
   }
 
-  private onKeypress(): void {
-    this.onEnd();
+  private onKeypress({ key }: KeyDescriptor): void {
+    if (this.status === 'answered') {
+      return;
+    }
+    const mixed = key.name ?? key.sequence;
+    switch (mixed) {
+      case 'left':
+        this.onLeft();
+        break;
+      case 'right':
+        this.onRight();
+        break;
+    }
+    this.render();
+  }
+
+  private onLeft(): void {
+    if (this.currentCol === START) {
+      return;
+    }
+    this.currentCol--;
+  }
+
+  private onRight(): void {
+    if (this.currentCol === this.columns.length - ARRAY_OFFSET) {
+      return;
+    }
+    this.currentCol++;
   }
 
   private render(): void {
@@ -57,7 +89,7 @@ export class ObjectBuilderPrompt extends Base<Question & ObjectBuilderOptions> {
       return;
     }
     this.screen.render(
-      this.tableService.renderTable(this.opt, START, START),
+      this.tableService.renderTable(this.opt, this.currentRow, this.currentCol),
       '',
     );
   }

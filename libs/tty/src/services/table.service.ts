@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { ARRAY_OFFSET, INCREMENT, is, START } from '@text-based/utilities';
+import {
+  ARRAY_OFFSET,
+  EMPTY,
+  INCREMENT,
+  is,
+  START,
+} from '@text-based/utilities';
 import chalk from 'chalk';
 import { get } from 'object-path';
 
@@ -25,13 +31,9 @@ const TABLE_PARTS = {
   top_mid: '┬',
   top_right: '┐',
 };
-const SELECTED_TABLE_PARTS = Object.fromEntries(
-  Object.entries(TABLE_PARTS).map(([a, b]) => [a, chalk.cyan(b)]),
-) as Record<keyof typeof TABLE_PARTS, string>;
 const PADDING = 1;
-const HEADER_OFFSET = 2;
 const ROW_MULTIPLIER = 2;
-const HEADER_LINE_COUNT = 3;
+const HEADER_LINE_COUNT = 4;
 
 @Injectable()
 export class TableService {
@@ -61,8 +63,7 @@ export class TableService {
       ? options.current
       : [options.current];
     this.calcColumns();
-    return [
-      //
+    return this.highlight([
       ...this.header(),
       this.rows().join(
         [
@@ -74,7 +75,7 @@ export class TableService {
         ].join(''),
       ),
       this.footer(),
-    ].join(`\n`);
+    ]).join(`\n`);
   }
 
   private calcColumns(): void {
@@ -131,40 +132,59 @@ export class TableService {
   }
 
   private highlight(lines: string[]): string[] {
+    const bottom = HEADER_LINE_COUNT + this.selectedRow * ROW_MULTIPLIER;
+    const middle = bottom - ARRAY_OFFSET;
+    const top = middle - ARRAY_OFFSET;
+    const list = this.columns
+      .slice(START, this.selectedCell)
+      .map(({ maxWidth }) => maxWidth);
+    const start = is.empty(list)
+      ? EMPTY
+      : list.reduce((a, b) => a + b) + PADDING;
+    const end =
+      start + this.columns[this.selectedCell].maxWidth + PADDING + PADDING;
     return lines.map((line, index) => {
-      const bottom = HEADER_LINE_COUNT + this.selectedCell * ROW_MULTIPLIER;
-      const middle = bottom - ARRAY_OFFSET;
-      const top = middle - ARRAY_OFFSET;
       if (![middle, top, bottom].includes(index)) {
         return line;
       }
       // const ignoreBefore =
-      if (index === top) {
-        return [...line]
-          .map((char, index) => {
-            return char;
-          })
-          .join('');
+      if ([top, bottom].includes(index)) {
+        return (
+          line.slice(START, start) +
+          this.highlightChar(line.slice(start, end)) +
+          line.slice(end)
+        );
       }
       return line;
     });
   }
 
+  private highlightChar(char: string): string {
+    return chalk.cyan.inverse(char);
+  }
+
   private rows(): string[] {
-    return this.values.map((i) => {
+    return this.values.map((i, rowIndex) => {
       return [
-        TABLE_PARTS.left,
+        rowIndex === this.selectedRow && this.selectedCell === START
+          ? this.highlightChar(TABLE_PARTS.left)
+          : TABLE_PARTS.left,
         ...this.activeOptions.elements.map((element, colIndex) => {
           const cell = ansiPadEnd(
             ' '.repeat(PADDING) +
               this.textRender.typePrinter(get(i, element.path)),
             this.columns[colIndex].maxWidth,
           );
+          const append =
+            colIndex === this.columns.length - ARRAY_OFFSET
+              ? TABLE_PARTS.right
+              : TABLE_PARTS.middle;
           return (
             cell +
-            (colIndex === this.columns.length - ARRAY_OFFSET
-              ? TABLE_PARTS.right
-              : TABLE_PARTS.middle)
+            (rowIndex === this.selectedRow &&
+            [colIndex, colIndex + INCREMENT].includes(this.selectedCell)
+              ? this.highlightChar(append)
+              : append)
           );
         }),
       ].join('');

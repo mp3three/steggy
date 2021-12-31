@@ -10,7 +10,8 @@ import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';
 import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
-import { Key } from 'readline';
+
+import { KeyDescriptor } from '../contracts';
 
 type tCallback = (value: string) => void;
 const HELP = [
@@ -51,7 +52,6 @@ const ORDER = [
 ] as CronFields[];
 const IGNORE_LETTERS = ['second', 'minute', 'hour', 'day'] as CronFields[];
 
-type KeyDescriptor = { key: Key; value?: string };
 export class CronPromptOptions {
   public value?: string;
 }

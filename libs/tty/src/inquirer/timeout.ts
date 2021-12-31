@@ -1,19 +1,18 @@
 import { InternalServerErrorException } from '@nestjs/common';
-import { ARRAY_OFFSET, FIRST, is } from '@text-based/utilities';
+import { ARRAY_OFFSET, FIRST, INCREMENT, is } from '@text-based/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';
 import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
-import { Key } from 'readline';
+
+import { KeyDescriptor } from '../contracts';
 
 export enum TimeoutIntervals {
   second = 'second',
   minute = 'minute',
   hour = 'hour',
 }
-type KeyDescriptor = { key: Key; value?: string };
-const INCREMENT = 1;
 const MINIMUM = 0;
 const REMOVE_AMOUNT = -1;
 const DEFAULT_AMOUNT = 60;

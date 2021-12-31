@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 export const EMPTY = 0;
 
+// TODO: declaration merging to allow other libs to create definitions here
+
 export const is = {
   boolean(test: unknown): test is boolean {
     return typeof test === 'boolean';
@@ -32,6 +34,7 @@ export const is = {
     return typeof test === 'undefined';
   },
   unique<T>(out: T[]): T[] {
+    // Technically this isn't an "is"... but close enough
     return out.filter((item, index, array) => array.indexOf(item) === index);
   },
 };
