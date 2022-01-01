@@ -6,14 +6,9 @@ import {
   START,
 } from '@text-based/utilities';
 import chalk from 'chalk';
-import cliCursor from 'cli-cursor';
-import { Question } from 'inquirer';
-import Base from 'inquirer/lib/prompts/base';
-import observe from 'inquirer/lib/utils/events';
 
-import { KeyDescriptor } from '../contracts';
+import { InquirerPrompt } from '../decorators';
 
-type tCallback = (value: string) => void;
 const HELP = [
   chalk.bold.white`Comma separate multiple values`,
   chalk`   {cyan Ex:} 1,2,3,4 * * * *`,
@@ -50,27 +45,38 @@ const ORDER = [
   'month',
   'dow',
 ] as CronFields[];
-const IGNORE_LETTERS = ['second', 'minute', 'hour', 'day'] as CronFields[];
+
+const ACTIVE = 'cyan.bold';
+const INACTIVE = 'gray';
 
 export class CronPromptOptions {
   public value?: string;
 }
 
-export class CronPrompt extends Base<Question & CronPromptOptions> {
-  constructor(questions, rl, answers) {
-    super(questions, rl, answers);
-    this.opt.value ??= '';
-  }
-
-  private done: tCallback;
+export class CronPrompt extends InquirerPrompt<CronPromptOptions> {
   private field = CronFields.second;
   private values: Map<CronFields, string>;
 
-  public _run(callback: tCallback): this {
-    this.done = callback;
-    const events = observe(this.rl);
-    events.keypress.forEach(this.onKeypress.bind(this));
-    events.line.forEach(this.onEnd.bind(this));
+  protected onBackspace(): void {
+    const current = this.values.get(this.field);
+    this.values.set(this.field, current.slice(START, INVERT_VALUE));
+  }
+
+  protected onDelete(): void {
+    this.values.set(this.field, '');
+  }
+
+  protected onEnd(): void {
+    super.onEnd();
+    this.done(
+      [...this.values.values()]
+        .map((item) => (is.empty(item) ? '*' : item))
+        .join(' '),
+    );
+  }
+
+  protected onInit(): void {
+    this.opt.value ??= '';
     const [second, minute, hour, day, month, dow] = this.opt.value.split(' ');
     this.values = new Map([
       [CronFields.second, second || ''],
@@ -80,74 +86,35 @@ export class CronPrompt extends Base<Question & CronPromptOptions> {
       [CronFields.month, month || ''],
       [CronFields.dow, dow || ''],
     ]);
-
-    cliCursor.hide();
-    this.render();
-    return this;
+    this.localKeyMap = new Map([
+      [{ key: 'enter' }, 'onEnd'],
+      [{ key: 'backspace' }, 'onBackspace'],
+      [{ key: ['space', 'right'] }, 'onRight'],
+      [{ key: 'left' }, 'onLeft'],
+      [{ key: 'delete' }, 'onDelete'],
+      [{ key: [...'0123456789/-,*'] }, 'onKeypress'],
+    ]);
   }
 
-  private onBackspace(): void {
-    const current = this.values.get(this.field);
-    this.values.set(this.field, current.slice(START, INVERT_VALUE));
+  protected onKeypress(key: string): void {
+    this.values.set(this.field, this.values.get(this.field) + key);
   }
 
-  private onEnd(): void {
-    this.status = 'answered';
-    this.render();
-    this.screen.done();
-    cliCursor.show();
-    this.done(
-      [...this.values.values()]
-        .map((item) => (is.empty(item) ? '*' : item))
-        .join(' '),
-    );
-  }
-
-  private onKeypress({ key }: KeyDescriptor): void {
-    const name = key.name ?? key.sequence;
-    switch (name) {
-      case 'left':
-        this.onLeft();
-        break;
-      case 'space':
-      case 'right':
-        this.onRight();
-        break;
-      case 'backspace':
-        this.onBackspace();
-        break;
-      case 'delete':
-        this.values.set(this.field, '');
-        break;
-      default:
-        if (
-          '0123456789/-,*'.includes(name) ||
-          ('abcdefghijklmnopqrstuvwxyz'.includes(name) &&
-            !IGNORE_LETTERS.includes(this.field))
-        ) {
-          this.values.set(this.field, this.values.get(this.field) + name);
-          break;
-        }
-        return;
-    }
-    this.render();
-  }
-
-  private onLeft(): void {
+  protected onLeft(): void {
     if (this.field === ORDER[START]) {
       return;
     }
     this.field = ORDER[ORDER.indexOf(this.field) - INCREMENT];
   }
 
-  private onRight(): void {
+  protected onRight(): void {
     if (this.field === ORDER[ORDER.length - ARRAY_OFFSET]) {
       return;
     }
     this.field = ORDER[ORDER.indexOf(this.field) + INCREMENT];
   }
 
-  private render(): void {
+  protected render(): void {
     if (this.status === 'answered') {
       this.screen.render(``, '');
       return;
@@ -174,12 +141,12 @@ export class CronPrompt extends Base<Question & CronPromptOptions> {
       monthColor,
       dowColor,
     ] = [
-      this.field === CronFields.second ? 'cyan.bold' : 'gray',
-      this.field === CronFields.minute ? 'cyan.bold' : 'gray',
-      this.field === CronFields.hour ? 'cyan.bold' : 'gray',
-      this.field === CronFields.day ? 'cyan.bold' : 'gray',
-      this.field === CronFields.month ? 'cyan.bold' : 'gray',
-      this.field === CronFields.dow ? 'cyan.bold' : 'gray',
+      this.field === CronFields.second ? ACTIVE : INACTIVE,
+      this.field === CronFields.minute ? ACTIVE : INACTIVE,
+      this.field === CronFields.hour ? ACTIVE : INACTIVE,
+      this.field === CronFields.day ? ACTIVE : INACTIVE,
+      this.field === CronFields.month ? ACTIVE : INACTIVE,
+      this.field === CronFields.dow ? ACTIVE : INACTIVE,
     ];
     const [second, minute, hour, day, month] = [
       this.values.get(CronFields.second) || '*',
