@@ -15,17 +15,13 @@ import {
 } from '@text-based/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
-import { Question } from 'inquirer';
-import Base from 'inquirer/lib/prompts/base';
-import observe from 'inquirer/lib/utils/events';
 
-import { ICONS, KeyDescriptor, MainMenuEntry, MenuEntry } from '../contracts';
+import { ICONS, MainMenuEntry, MenuEntry } from '../contracts';
+import { InquirerPrompt, tKeyMap } from '../decorators';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
 import { PromptEntry, TextRenderingService } from '../services';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
-
-type tCallback = (value: unknown) => void;
 
 export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
   const out: MainMenuEntry<T>[] = [];
@@ -90,16 +86,150 @@ const BASE_HELP = [
   ['tab', 'toggle find mode'],
 ] as MenuEntry[];
 
-export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
-  private static textRender: TextRenderingService;
-  public static onPreInit(app: INestApplication): void {
-    this.textRender = app.get(TextRenderingService);
+const NORMAL_KEYMAP: tKeyMap = new Map([
+  [{ catchAll: true }, 'activateKeyMap'],
+  [{ key: 'down' }, 'next'],
+  [{ key: 'enter' }, 'onEnd'],
+  [{ key: 'left' }, 'onLeft'],
+  [{ key: 'right' }, 'onRight'],
+  [{ key: 'tab' }, 'toggleFind'],
+  [{ key: 'up' }, 'previous'],
+  [{ key: [...'0123456789'] }, 'numberSelect'],
+  [{ key: ['end', 'pagedown'] }, 'bottom'],
+  [{ key: ['home', 'pageup'] }, 'top'],
+]);
+const SEARCH_KEYMAP: tKeyMap = new Map([
+  [{ catchAll: true }, 'onSearchKeyPress'],
+  [
+    { key: ['down', 'left', 'right', 'up', 'pageup', 'pagedown'] },
+    'navigateSearch',
+  ],
+  [{ key: 'enter' }, 'onEnd'],
+  [{ key: 'tab' }, 'toggleFind'],
+]);
+
+export class MainMenuPrompt extends InquirerPrompt<MainMenuOptions> {
+  private callbackOutput = '';
+  private headerPadding: number;
+  private leftHeader: string;
+  private mode: 'find' | 'select' = 'select';
+  private numericSelection = '';
+  private rightHeader: string;
+  private searchText = '';
+  private selectedType: 'left' | 'right' = 'right';
+  private showHelp = true;
+  private textRender: TextRenderingService;
+  private value: unknown;
+
+  /**
+   * Run callbacks from the keyMap
+   */
+  protected async activateKeyMap(mixed: string): Promise<boolean> {
+    const { keyMap, keyMapCallback: callback } = this.opt;
+    if (is.undefined(keyMap[mixed])) {
+      return false;
+    }
+    if (is.undefined(callback)) {
+      this.value = keyMap[mixed][VALUE];
+      this.onEnd();
+      return false;
+    }
+    const result = await callback(
+      keyMap[mixed][VALUE],
+      this.getSelected()?.entry,
+    );
+    if (is.string(result)) {
+      this.callbackOutput = result;
+      return;
+    }
+    if (result) {
+      this.value = keyMap[mixed][VALUE];
+      this.onEnd();
+      return false;
+    }
   }
 
-  constructor(questions, rl, answers) {
-    super(questions, rl, answers);
+  /**
+   * Move the cursor to the bottom of the list
+   */
+  protected bottom(): void {
+    const list = this.side();
+    this.value = list[list.length - ARRAY_OFFSET].entry[VALUE];
+  }
+
+  /**
+   * Move the cursor around
+   */
+  protected navigateSearch(key: string): void {
+    const all = this.side();
+    let available = this.filterMenu(all);
+    if (is.empty(available)) {
+      available = all;
+    }
+    if (['pageup', 'home'].includes(key)) {
+      this.value = available[START].entry[VALUE];
+      return;
+    }
+    if (['pagedown', 'end'].includes(key)) {
+      this.value = available[available.length - ARRAY_OFFSET].entry[VALUE];
+      return;
+    }
+    const index = available.findIndex(
+      ({ entry }) => entry[VALUE] === this.value,
+    );
+    if (index === NOT_FOUND) {
+      this.value = available[START].entry[VALUE];
+      return;
+    }
+    if (index === START && key === 'up') {
+      this.value = available[available.length - ARRAY_OFFSET].entry[VALUE];
+    } else if (index === available.length - ARRAY_OFFSET && key === 'down') {
+      this.value = available[START].entry[VALUE];
+    } else {
+      this.value =
+        available[key === 'up' ? index - INCREMENT : index + INCREMENT].entry[
+          VALUE
+        ];
+    }
+  }
+
+  /**
+   * Move down 1 entry
+   */
+  protected next(): void {
+    const list = this.side();
+    const index = list.findIndex((i) => i.entry[VALUE] === this.value);
+    if (index === NOT_FOUND) {
+      this.value = list[FIRST].entry[VALUE];
+      return;
+    }
+    if (index === list.length - ARRAY_OFFSET) {
+      // Loop around
+      this.value = list[FIRST].entry[VALUE];
+      return;
+    }
+    this.value = list[index + INCREMENT].entry[VALUE];
+  }
+
+  protected numberSelect(mixed: string): void {
+    this.numericSelection = mixed;
+    this.value =
+      this.side()[
+        Number(is.empty(this.numericSelection) ? '1' : this.numericSelection) -
+          ARRAY_OFFSET
+      ]?.entry[VALUE] ?? this.value;
+  }
+
+  /**
+   * Terminate the editor
+   */
+  protected onEnd(): void {
+    super.onEnd();
+    this.done(this.value);
+  }
+
+  protected onInit(app: INestApplication): void {
     this.showHelp = this.opt.showHelp ?? true;
-    this.opt = questions;
     this.opt.left ??= [];
     this.opt.item ??= 'actions';
     this.opt.right ??= [];
@@ -111,79 +241,148 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     this.headerPadding = this.opt.headerPadding ?? DEFAULT_HEADER_PADDING;
     this.rightHeader = this.opt.rightHeader ?? 'Menu';
     this.leftHeader = this.opt.leftHeader ?? 'Secondary';
-    this.textRender = MainMenuPrompt.textRender;
-  }
-
-  private callbackOutput = '';
-  private done: tCallback;
-  private headerPadding: number;
-  private leftHeader: string;
-  private mode: 'find' | 'select' = 'select';
-  private numericSelection = '';
-  private rightHeader: string;
-  private searchText = '';
-  private selectedType: 'left' | 'right' = 'right';
-  private showHelp = true;
-  private readonly textRender: TextRenderingService;
-  private value: unknown;
-
-  /**
-   * Entrypoint for inquirer
-   */
-  public _run(callback: tCallback): this {
-    this.done = callback;
+    this.textRender = app.get(TextRenderingService);
     const defaultValue = this.side('right')[START]?.entry[VALUE];
     this.value ??= defaultValue;
     this.detectSide();
+    this.setKeyMap(NORMAL_KEYMAP);
     const contained = this.side().find((i) => i.entry[VALUE] === this.value);
     if (!contained) {
       this.value = defaultValue;
     }
-    const events = observe(this.rl);
-    events.keypress.forEach(this.onKeypress.bind(this));
-    events.line.forEach(() =>
-      this.onKeypress({ key: { name: 'enter' } } as KeyDescriptor),
-    );
-
-    cliCursor.hide();
-    this.render();
-    return this;
   }
 
   /**
-   * Run callbacks from the keyMap
+   * on left key press - attempt to move to left menu
    */
-  private async activateKey(mixed: string): Promise<void> {
-    const { keyMap, keyMapCallback: callback } = this.opt;
-    if (is.undefined(keyMap[mixed])) {
+  protected onLeft(): void {
+    const [right, left] = [this.side('right'), this.side('left')];
+    if (is.empty(this.opt.left) || this.selectedType === 'left') {
       return;
     }
-    if (is.undefined(callback)) {
-      this.value = keyMap[mixed][VALUE];
-      this.onEnd();
-      return;
+    this.selectedType = 'left';
+    let current = right.findIndex((i) => i.entry[VALUE] === this.value);
+    if (current === NOT_FOUND) {
+      current = START;
     }
-    const result = await callback(
-      keyMap[mixed][VALUE],
-      this.getSelected()?.entry,
-    );
-    if (is.string(result)) {
-      this.callbackOutput = result;
-      this.render();
-      return;
+    if (current > left.length) {
+      current = left.length - ARRAY_OFFSET;
     }
-    if (result) {
-      this.value = keyMap[mixed][VALUE];
-      this.onEnd();
-    }
+    this.value =
+      left.length - ARRAY_OFFSET < current
+        ? left[left.length - ARRAY_OFFSET].entry[VALUE]
+        : left[current].entry[VALUE];
   }
 
   /**
-   * Move the cursor to the bottom of the list
+   * On right key press - attempt to move editor to right side
    */
-  private bottom(): void {
+  protected onRight(): void {
+    if (this.selectedType === 'right') {
+      return;
+    }
+    const [right, left] = [this.side('right'), this.side('left')];
+    this.selectedType = 'right';
+    let current = left.findIndex((i) => i.entry[VALUE] === this.value);
+    if (current === NOT_FOUND) {
+      current = START;
+    }
+    if (current > right.length) {
+      current = right.length - ARRAY_OFFSET;
+    }
+    this.value =
+      right.length - ARRAY_OFFSET < current
+        ? right[right.length - ARRAY_OFFSET].entry[VALUE]
+        : right[current].entry[VALUE];
+  }
+
+  /**
+   * Key handler for widget while in search mode
+   */
+  protected onSearchKeyPress(key: string): boolean {
+    if (key === 'backspace') {
+      this.searchText = this.searchText.slice(
+        START,
+        ARRAY_OFFSET * INVERT_VALUE,
+      );
+      this.render(true);
+      return false;
+    }
+    if (['up', 'down', 'home', 'pageup', 'end', 'pagedown'].includes(key)) {
+      this.navigateSearch(key);
+    }
+    if (key === 'space') {
+      this.searchText += ' ';
+      this.render(true);
+      return false;
+    }
+    if (key.length > SINGLE_ITEM) {
+      if (!is.undefined(this.opt.keyMap[key])) {
+        this.value = this.opt.keyMap[key][VALUE];
+        this.onEnd();
+      }
+      return;
+    }
+    this.searchText += key;
+    this.render(true);
+    return false;
+  }
+
+  /**
+   * Attempt to move up 1 item in the active list
+   */
+  protected previous(): void {
     const list = this.side();
-    this.value = list[list.length - ARRAY_OFFSET].entry[VALUE];
+    const index = list.findIndex((i) => i.entry[VALUE] === this.value);
+    if (index === NOT_FOUND) {
+      this.value = list[FIRST].entry[VALUE];
+      return;
+    }
+    if (index === FIRST) {
+      // Loop around
+      this.value = list[list.length - ARRAY_OFFSET].entry[VALUE];
+      return;
+    }
+    this.value = list[index - INCREMENT].entry[VALUE];
+  }
+
+  /**
+   * Entrypoint for rendering logic
+   */
+  protected render(updateValue = false): void {
+    if (this.status === 'answered') {
+      const entry = this.getSelected();
+      if (entry) {
+        this.screen.render(chalk` {magenta >} ${entry.entry[LABEL]}`, '');
+      }
+      return;
+    }
+    if (this.mode === 'select') {
+      return this.renderSelect();
+    }
+    this.renderFind(updateValue);
+  }
+
+  /**
+   * Simple toggle function
+   */
+  protected toggleFind(): void {
+    this.mode = this.mode === 'find' ? 'select' : 'find';
+    if (this.mode === 'select') {
+      this.detectSide();
+      this.setKeyMap(NORMAL_KEYMAP);
+    } else {
+      this.searchText = '';
+      this.setKeyMap(SEARCH_KEYMAP);
+    }
+  }
+
+  /**
+   * Move cursor to the top of the current list
+   */
+  protected top(): void {
+    const list = this.side();
+    this.value = list[FIRST].entry[VALUE];
   }
 
   /**
@@ -233,255 +432,6 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
     ];
     const out = list.find((i) => i.entry[VALUE] === this.value);
     return out ?? list[START];
-  }
-
-  /**
-   * Move the cursor around
-   */
-  private navigateSearch(key: string): void {
-    const all = this.side();
-    let available = this.filterMenu(all);
-    if (is.empty(available)) {
-      available = all;
-    }
-    if (['pageup', 'home'].includes(key)) {
-      this.value = available[START].entry[VALUE];
-      return this.render();
-    }
-    if (['pagedown', 'end'].includes(key)) {
-      this.value = available[available.length - ARRAY_OFFSET].entry[VALUE];
-      return this.render();
-    }
-    const index = available.findIndex(
-      ({ entry }) => entry[VALUE] === this.value,
-    );
-    if (index === NOT_FOUND) {
-      this.value = available[START].entry[VALUE];
-      return this.render();
-    }
-    if (index === START && key === 'up') {
-      this.value = available[available.length - ARRAY_OFFSET].entry[VALUE];
-    } else if (index === available.length - ARRAY_OFFSET && key === 'down') {
-      this.value = available[START].entry[VALUE];
-    } else {
-      this.value =
-        available[key === 'up' ? index - INCREMENT : index + INCREMENT].entry[
-          VALUE
-        ];
-    }
-    return this.render();
-  }
-
-  /**
-   * Move down 1 entry
-   */
-  private next(): void {
-    const list = this.side();
-    const index = list.findIndex((i) => i.entry[VALUE] === this.value);
-    if (index === NOT_FOUND) {
-      this.value = list[FIRST].entry[VALUE];
-      return;
-    }
-    if (index === list.length - ARRAY_OFFSET) {
-      // Loop around
-      this.value = list[FIRST].entry[VALUE];
-      return;
-    }
-    this.value = list[index + INCREMENT].entry[VALUE];
-  }
-
-  /**
-   * Terminate the editor
-   */
-  private onEnd(): void {
-    this.status = 'answered';
-    this.render();
-    this.screen.done();
-    cliCursor.show();
-    this.done(this.value);
-  }
-
-  /**
-   * Entrypoint for handling key presses
-   */
-  private onKeypress({ key }: KeyDescriptor): void {
-    if (this.status === 'answered') {
-      return;
-    }
-    const mixed = key.name ?? key.sequence;
-    if (mixed === 'enter') {
-      if (is.empty(this.opt.left) && is.empty(this.opt.right)) {
-        // There's nothing to select, request is invalid
-        // Also, frustrating as a user
-        return;
-      }
-      this.onEnd();
-      return;
-    }
-    if (mixed === 'tab' || (key.ctrl && mixed === 'f')) {
-      this.toggleFind();
-    }
-    if (key.ctrl || key.shift || key.meta) {
-      return;
-    }
-    if (this.mode === 'find') {
-      this.onSearchKeyPress(mixed);
-      return;
-    }
-    this.onMenuKeypress(mixed);
-  }
-
-  /**
-   * on left key press - attempt to move to left menu
-   */
-  private onLeft(): void {
-    const [right, left] = [this.side('right'), this.side('left')];
-    if (is.empty(this.opt.left) || this.selectedType === 'left') {
-      return;
-    }
-    this.selectedType = 'left';
-    let current = right.findIndex((i) => i.entry[VALUE] === this.value);
-    if (current === NOT_FOUND) {
-      current = START;
-    }
-    if (current > left.length) {
-      current = left.length - ARRAY_OFFSET;
-    }
-    this.value =
-      left.length - ARRAY_OFFSET < current
-        ? left[left.length - ARRAY_OFFSET].entry[VALUE]
-        : left[current].entry[VALUE];
-  }
-
-  /**
-   * Generic handler for keypresses while widget is in menu mode
-   */
-  private onMenuKeypress(mixed: string): void {
-    switch (mixed) {
-      case 'left':
-        this.onLeft();
-        break;
-      case 'right':
-        this.onRight();
-        break;
-      case 'home':
-      case 'pageup':
-        this.top();
-        break;
-      case 'end':
-      case 'pagedown':
-        this.bottom();
-        break;
-      case 'up':
-        this.previous();
-        break;
-      case 'down':
-        this.next();
-        break;
-      default:
-        if (!is.undefined(this.opt.keyMap[mixed])) {
-          this.activateKey(mixed);
-          return;
-        }
-        if ('0123456789'.includes(mixed)) {
-          this.numericSelection = mixed;
-          this.value =
-            this.side()[
-              Number(
-                is.empty(this.numericSelection) ? '1' : this.numericSelection,
-              ) - ARRAY_OFFSET
-            ]?.entry[VALUE] ?? this.value;
-
-          this.render();
-        }
-    }
-    this.render();
-  }
-
-  /**
-   * On right key press - attempt to move editor to right side
-   */
-  private onRight(): void {
-    if (this.selectedType === 'right') {
-      return;
-    }
-    const [right, left] = [this.side('right'), this.side('left')];
-    this.selectedType = 'right';
-    let current = left.findIndex((i) => i.entry[VALUE] === this.value);
-    if (current === NOT_FOUND) {
-      current = START;
-    }
-    if (current > right.length) {
-      current = right.length - ARRAY_OFFSET;
-    }
-    this.value =
-      right.length - ARRAY_OFFSET < current
-        ? right[right.length - ARRAY_OFFSET].entry[VALUE]
-        : right[current].entry[VALUE];
-  }
-
-  /**
-   * Key handler for widget while in search mode
-   */
-  private onSearchKeyPress(key: string): void {
-    if (key === 'backspace') {
-      this.searchText = this.searchText.slice(
-        START,
-        ARRAY_OFFSET * INVERT_VALUE,
-      );
-      return this.render(true);
-    }
-    if (['up', 'down', 'home', 'pageup', 'end', 'pagedown'].includes(key)) {
-      this.navigateSearch(key);
-    }
-    if (key === 'space') {
-      this.searchText += ' ';
-      return this.render(true);
-    }
-    if (key.length > SINGLE_ITEM) {
-      if (!is.undefined(this.opt.keyMap[key])) {
-        this.value = this.opt.keyMap[key][VALUE];
-        this.onEnd();
-      }
-      return;
-    }
-    this.searchText += key;
-    this.render(true);
-  }
-
-  /**
-   * Attempt to move up 1 item in the active list
-   */
-  private previous(): void {
-    const list = this.side();
-    const index = list.findIndex((i) => i.entry[VALUE] === this.value);
-    if (index === NOT_FOUND) {
-      this.value = list[FIRST].entry[VALUE];
-      return;
-    }
-    if (index === FIRST) {
-      // Loop around
-      this.value = list[list.length - ARRAY_OFFSET].entry[VALUE];
-      return;
-    }
-    this.value = list[index - INCREMENT].entry[VALUE];
-  }
-
-  /**
-   * Entrypoint for rendering logic
-   */
-  private render(updateValue = false): void {
-    if (this.status === 'answered') {
-      const entry = this.getSelected();
-      if (entry) {
-        this.screen.render(chalk` {magenta >} ${entry.entry[LABEL]}`, '');
-      }
-      return;
-    }
-    if (this.mode === 'select') {
-      return this.renderSelect();
-    }
-    this.renderFind(updateValue);
   }
 
   /**
@@ -646,26 +596,5 @@ export class MainMenuPrompt extends Base<Question & MainMenuOptions> {
       }
       return DOWN;
     });
-  }
-
-  /**
-   * Simple toggle function
-   */
-  private toggleFind(): void {
-    this.mode = this.mode === 'find' ? 'select' : 'find';
-    if (this.mode === 'select') {
-      this.detectSide();
-    } else {
-      this.searchText = '';
-    }
-    this.render();
-  }
-
-  /**
-   * Move cursor to the top of the current list
-   */
-  private top(): void {
-    const list = this.side();
-    this.value = list[FIRST].entry[VALUE];
   }
 }

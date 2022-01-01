@@ -14,6 +14,7 @@ export type tKeyMap<KEYS extends string = string> = Map<
   KEYS
 >;
 interface InquirerKeypressOptions {
+  catchAll?: boolean;
   key?: string | string[];
 }
 
@@ -23,7 +24,7 @@ export abstract class InquirerPrompt<
   OPTIONS extends unknown = Record<string, unknown>,
   VALUE extends unknown = unknown,
 > extends Base<Question & OPTIONS> {
-  public static loadApp(load: INestApplication) {
+  public static forRoot(load: INestApplication) {
     app = load;
   }
 
@@ -71,8 +72,14 @@ export abstract class InquirerPrompt<
     }
     const { key } = descriptor;
     const mixed = key?.name ?? key?.sequence ?? 'enter';
+    const catchAll: string[] = [];
+    let caught = false;
 
     this.localKeyMap.forEach((key, options) => {
+      if (options.catchAll) {
+        catchAll.push(key);
+        return;
+      }
       options.key ??= [];
       options.key = Array.isArray(options.key) ? options.key : [options.key];
       if (is.undefined[this[key]]) {
@@ -80,16 +87,22 @@ export abstract class InquirerPrompt<
       }
       if (is.empty(options.key)) {
         this[key](mixed);
+        caught = true;
         return;
       }
       if (!options.key.includes(mixed)) {
         return;
       }
+      caught = true;
       const result = this[key](mixed);
       if (result === false) {
         return;
       }
       this.render();
     });
+    if (caught) {
+      return;
+    }
+    catchAll.forEach((i) => this[i](mixed));
   }
 }

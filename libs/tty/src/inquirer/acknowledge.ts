@@ -4,7 +4,7 @@ import { InquirerPrompt } from '../decorators';
 
 export class AcknowledgePrompt extends InquirerPrompt {
   protected onInit(): void {
-    this.localKeyMap = new Map([[{}, 'onEnd']]);
+    this.setKeyMap(new Map([[{}, 'onEnd']]));
   }
 
   protected render(): void {

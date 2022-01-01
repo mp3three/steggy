@@ -1,5 +1,3 @@
-import { INestApplication } from '@nestjs/common';
-import { is } from '@text-based/utilities';
 import inquirer from 'inquirer';
 import datePrompt from 'inquirer-date-prompt';
 
@@ -18,21 +16,3 @@ inquirer.registerPrompt('timeout', TimeoutPrompt);
 inquirer.registerPrompt('mainMenu', MainMenuPrompt);
 inquirer.registerPrompt('acknowledge', AcknowledgePrompt);
 inquirer.registerPrompt('listbuilder', ListBuilderPrompt);
-
-export function inquirerPreInit(app: INestApplication): void {
-  // Slowly bringing inquirer into the DI environment?
-  // Maybe.
-  const list = [
-    CronPrompt,
-    SelectLinePrompt,
-    TimeoutPrompt,
-    MainMenuPrompt,
-    AcknowledgePrompt,
-    ListBuilderPrompt,
-  ] as { onPreInit?: (app: INestApplication) => void }[];
-  list.forEach((i) => {
-    if (!is.undefined(i.onPreInit)) {
-      i.onPreInit(app);
-    }
-  });
-}

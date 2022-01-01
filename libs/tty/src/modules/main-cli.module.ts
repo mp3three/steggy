@@ -4,7 +4,6 @@ import { LibraryModule, RegisterCache } from '@text-based/utilities';
 
 import { LIB_TTY } from '../config';
 import { InquirerPrompt } from '../decorators';
-import { inquirerPreInit } from '../inquirer';
 import {
   BooleanEditorService,
   ChartingService,
@@ -68,7 +67,6 @@ import {
 })
 export class MainCLIModule {
   protected onPostInit(app: INestApplication): void {
-    inquirerPreInit(app);
-    InquirerPrompt['loadApp'](app);
+    InquirerPrompt['forRoot'](app);
   }
 }
