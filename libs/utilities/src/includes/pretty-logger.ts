@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers, woke/all, radar/no-duplicate-string */
+/* eslint-disable @typescript-eslint/no-magic-numbers, radar/no-duplicate-string */
 
 import chalk from 'chalk';
 import pino from 'pino';

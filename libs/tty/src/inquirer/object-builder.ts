@@ -31,13 +31,15 @@ export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
       ? this.opt.current
       : [this.opt.current];
     this.tableService = await app.get(TableService);
-    this.localKeyMap = new Map([
-      [{ key: 'left' }, 'onLeft'],
-      [{ key: 'right' }, 'onRight'],
-      [{ key: 'up' }, 'onUp'],
-      [{ key: 'down' }, 'onDown'],
-      [{ key: 'tab' }, 'selectCell'],
-    ]);
+    this.setKeyMap(
+      new Map([
+        [{ key: 'left' }, 'onLeft'],
+        [{ key: 'right' }, 'onRight'],
+        [{ key: 'up' }, 'onUp'],
+        [{ key: 'down' }, 'onDown'],
+        [{ key: 'tab' }, 'selectCell'],
+      ]),
+    );
   }
 
   protected onLeft(): boolean {

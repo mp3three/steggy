@@ -86,14 +86,16 @@ export class CronPrompt extends InquirerPrompt<CronPromptOptions> {
       [CronFields.month, month || ''],
       [CronFields.dow, dow || ''],
     ]);
-    this.localKeyMap = new Map([
-      [{ key: 'enter' }, 'onEnd'],
-      [{ key: 'backspace' }, 'onBackspace'],
-      [{ key: ['space', 'right'] }, 'onRight'],
-      [{ key: 'left' }, 'onLeft'],
-      [{ key: 'delete' }, 'onDelete'],
-      [{ key: [...'0123456789/-,*'] }, 'onKeypress'],
-    ]);
+    this.setKeyMap(
+      new Map([
+        [{ key: 'enter' }, 'onEnd'],
+        [{ key: 'backspace' }, 'onBackspace'],
+        [{ key: ['space', 'right'] }, 'onRight'],
+        [{ key: 'left' }, 'onLeft'],
+        [{ key: 'delete' }, 'onDelete'],
+        [{ key: [...'0123456789/-,*'] }, 'onKeypress'],
+      ]),
+    );
   }
 
   protected onKeypress(key: string): void {

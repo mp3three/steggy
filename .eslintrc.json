@@ -10,8 +10,7 @@
     "security",
     "simple-import-sort",
     "sort-keys-fix",
-    "unicorn",
-    "woke"
+    "unicorn"
   ],
   "overrides": [
     {
@@ -149,7 +148,6 @@
         "security/detect-possible-timing-attacks": "off",
         "security/detect-object-injection": "off",
         "security/detect-non-literal-fs-filename": "off",
-        "woke/all": "warn",
         "sort-keys-fix/sort-keys-fix": "warn",
         "simple-import-sort/imports": "warn",
         "simple-import-sort/exports": "warn",

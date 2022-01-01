@@ -13,18 +13,13 @@ import {
   VALUE,
 } from '@text-based/utilities';
 import chalk from 'chalk';
-import cliCursor from 'cli-cursor';
-import { Question } from 'inquirer';
-import Base from 'inquirer/lib/prompts/base';
-import observe from 'inquirer/lib/utils/events';
 
-import { ICONS, KeyDescriptor, MenuEntry } from '../contracts';
+import { ICONS, MenuEntry } from '../contracts';
+import { InquirerPrompt, tKeyMap } from '../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../includes';
 import { TextRenderingService } from '../services';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
-
-type tCallback = (value: unknown[]) => void;
 
 export interface ListBuilderOptions<T = unknown> {
   current?: MenuEntry<T | string>[];
@@ -53,49 +48,48 @@ const MENU_HELP = [
 
 const SEARCH_HELP = [['f4,`', 'Toggle entry']] as MenuEntry[];
 
-export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
-  private static app: INestApplication;
-  public static onPreInit(app: INestApplication): void {
-    this.app = app;
-  }
+const KEYMAP_FIND: tKeyMap = new Map([
+  [{ key: 'backspace' }, 'searchBack'],
+  [{ key: ['f4', '`'] }, 'toggle'],
+  [{ key: 'left' }, 'onLeft'],
+  [{ key: 'tab' }, 'toggleFind'],
+  [{ key: 'right' }, 'onRight'],
+  [{}, 'searchAppend'],
+  [
+    { key: ['up', 'down', 'home', 'pageup', 'end', 'pagedown'] },
+    'navigateSearch',
+  ],
+]);
+const KEYMAP_NORMAL: tKeyMap = new Map([
+  [{ key: 'i' }, 'invert'],
+  [{ key: ['a', '['] }, 'selectAll'],
+  [{ key: ']' }, 'selectNone'],
+  [{ key: 'tab' }, 'toggleFind'],
+  [{ key: ['space', 'f4', '`'] }, 'toggle'],
+  [{ key: 'f12' }, 'reset'],
+  [{ key: 'c' }, 'cancel'],
+  [{ key: 'd' }, 'onEnd'],
+  [{ key: 'left' }, 'onLeft'],
+  [{ key: 'right' }, 'onRight'],
+  [{ key: ['home', 'pageup'] }, 'top'],
+  [{ key: ['end', 'pagedown'] }, 'bottom'],
+  [{ key: 'up' }, 'previous'],
+  [{ key: 'down' }, 'next'],
+  [{ key: [...'0123456789'] }, 'numericSelect'],
+]);
 
-  constructor(questions, rl, answers) {
-    super(questions, rl, answers);
-    this.opt = questions;
-    this.opt.source ??= [];
-    this.opt.current ??= [];
-    this.current = [...this.opt.current];
-    this.source = [...this.opt.source];
-    const { app } = ListBuilderPrompt;
-    this.textRender = app.get(TextRenderingService);
-    this.opt.items ??= `Items`;
-  }
-
+export class ListBuilderPrompt extends InquirerPrompt<ListBuilderOptions> {
   private current: MenuEntry<unknown>[];
-  private done: tCallback;
+
   private mode: 'find' | 'select' = 'select';
   private numericSelection = '';
   private searchText = '';
   private selectedType: 'current' | 'source' = 'source';
   private source: MenuEntry<unknown>[];
-  private readonly textRender: TextRenderingService;
+  private textRender: TextRenderingService;
   private value: unknown;
 
-  public _run(callback: tCallback): this {
-    this.done = callback;
-    const events = observe(this.rl);
-    events.line.forEach(this.onEnd.bind(this));
-    events.keypress.forEach(this.onKeypress.bind(this));
-    this.value ??= is.empty(this.source)
-      ? this.current[START][VALUE]
-      : this.source[START][VALUE];
-    this.detectSide();
-    cliCursor.hide();
-    this.render();
-    return this;
-  }
-
-  private add(): void {
+  protected add(): void {
     if (this.selectedType === 'current') {
       return;
     }
@@ -127,34 +121,24 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
     this.value = source[index + INCREMENT][VALUE];
   }
 
-  private bottom(): void {
+  protected bottom(): void {
     const list = this.side();
     this.value = list[list.length - ARRAY_OFFSET][VALUE];
   }
 
-  private detectSide(): void {
-    const isLeftSide = this.side('current').some(
-      (i) => i[VALUE] === this.value,
-    );
-    this.selectedType = isLeftSide ? 'current' : 'source';
+  protected cancel(): void {
+    this.reset();
+    this.onEnd();
   }
 
-  private filterMenu(data: MenuEntry[], updateValue = false): MenuEntry[] {
-    const highlighted = this.textRender.fuzzySort(this.searchText, data);
-    if (is.empty(highlighted) || updateValue === false) {
-      return highlighted;
-    }
-    this.value = highlighted[START][VALUE];
-    return highlighted;
+  protected invert(): void {
+    const temporary = this.source;
+    this.source = this.current;
+    this.current = temporary;
+    this.detectSide();
   }
 
-  private getSelected(): MenuEntry {
-    const list = [...this.opt.current, ...this.opt.source];
-    const out = list.find((i) => i[VALUE] === this.value);
-    return (out ?? list[START]) as MenuEntry;
-  }
-
-  private navigateSearch(key: string): void {
+  protected navigateSearch(key: string): void {
     const all = this.side();
     let available = this.filterMenu(all);
     if (is.empty(available)) {
@@ -181,10 +165,9 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
       this.value =
         available[key === 'up' ? index - INCREMENT : index + INCREMENT][VALUE];
     }
-    return this.render();
   }
 
-  private next(): void {
+  protected next(): void {
     const list = this.side();
     const index = list.findIndex((i) => i[VALUE] === this.value);
     if (index === NOT_FOUND) {
@@ -199,36 +182,35 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
     this.value = list[index + INCREMENT][VALUE];
   }
 
-  private onEnd(): void {
-    this.status = 'answered';
-    this.render();
-    this.screen.done();
-    cliCursor.show();
+  protected numericSelect(mixed: string): void {
+    this.numericSelection = mixed;
+    this.value =
+      this.side()[
+        Number(is.empty(this.numericSelection) ? '1' : this.numericSelection) -
+          ARRAY_OFFSET
+      ][VALUE] ?? this.value;
+  }
+
+  protected onEnd(): void {
+    super.onEnd();
     this.done(this.current.map((i) => i[VALUE]));
   }
 
-  private onKeypress({ key }: KeyDescriptor): void {
-    if (this.status === 'answered') {
-      return;
-    }
-    const mixed = key.name ?? key.sequence;
-    if ((key.ctrl && mixed === 'f') || mixed === 'tab') {
-      this.mode = this.mode === 'find' ? 'select' : 'find';
-      this.searchText = '';
-      this.render();
-      return;
-    }
-    if (key.ctrl || key.shift || key.meta) {
-      return;
-    }
-    if (this.mode === 'find') {
-      this.onSearchKeyPress(mixed);
-      return;
-    }
-    this.onMenuKeypress(mixed);
+  protected onInit(app: INestApplication): void {
+    this.opt.source ??= [];
+    this.opt.current ??= [];
+    this.current = [...this.opt.current];
+    this.source = [...this.opt.source];
+    this.textRender = app.get(TextRenderingService);
+    this.opt.items ??= `Items`;
+    this.value ??= is.empty(this.source)
+      ? this.current[START][VALUE]
+      : this.source[START][VALUE];
+    this.detectSide();
+    this.setKeyMap(KEYMAP_NORMAL);
   }
 
-  private onLeft(): void {
+  protected onLeft(): void {
     const [left, right] = [
       this.side('current', true),
       this.side('source', true),
@@ -250,81 +232,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
         : left[current][VALUE];
   }
 
-  private onMenuKeypress(mixed: string): void {
-    switch (mixed) {
-      case 'i':
-        const temporary = this.source;
-        this.source = this.current;
-        this.current = temporary;
-        this.detectSide();
-        break;
-      case '[':
-      case 'a':
-        this.current = [...this.current, ...this.source];
-        this.source = [];
-        this.detectSide();
-        break;
-      case ']':
-        this.source = [...this.current, ...this.source];
-        this.current = [];
-        this.detectSide();
-        break;
-      case 'space':
-      case '`':
-      case 'f4':
-        if (this.selectedType === 'current') {
-          this.remove();
-        } else {
-          this.add();
-        }
-        break;
-      case 'f12':
-        this.current = [...this.opt.current];
-        this.source = [...this.opt.source];
-        break;
-      case 'c':
-        this.current = [...this.opt.current];
-      // fall through
-      case 'd':
-        this.onEnd();
-        break;
-      case 'left':
-        this.onLeft();
-        break;
-      case 'right':
-        this.onRight();
-        break;
-      case 'home':
-      case 'pageup':
-        this.top();
-        break;
-      case 'end':
-      case 'pagedown':
-        this.bottom();
-        break;
-      case 'up':
-        this.previous();
-        break;
-      case 'down':
-        this.next();
-        break;
-      default:
-        if ('0123456789'.includes(mixed)) {
-          this.numericSelection = mixed;
-          this.value =
-            this.side()[
-              Number(
-                is.empty(this.numericSelection) ? '1' : this.numericSelection,
-              ) - ARRAY_OFFSET
-            ][VALUE] ?? this.value;
-
-          this.render();
-        }
-    }
-    this.render();
-  }
-
-  private onRight(): void {
+  protected onRight(): void {
     const [right, left] = [
       this.side('source', true),
       this.side('current', true),
@@ -346,56 +254,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
         : right[current][VALUE];
   }
 
-  private onSearchKeyPress(key: string): void {
-    switch (key) {
-      case 'backspace':
-        this.searchText = this.searchText.slice(
-          START,
-          ARRAY_OFFSET * INVERT_VALUE,
-        );
-        return this.render(true);
-      case '`':
-      case 'f4':
-        if (this.selectedType === 'current') {
-          this.remove();
-        } else {
-          this.add();
-        }
-        return this.render();
-      case 'left':
-        this.onLeft();
-        return this.render();
-      case 'right':
-        this.onRight();
-        return this.render();
-      case 'space':
-        this.searchText += ' ';
-        if (is.empty(this.side())) {
-          this.selectedType =
-            this.selectedType === 'source' ? 'current' : 'source';
-        }
-        return this.render(true);
-
-      case 'up':
-      case 'down':
-      case 'home':
-      case 'pageup':
-      case 'end':
-      case 'pagedown':
-        this.navigateSearch(key);
-        return;
-    }
-    if (key.length > SINGLE_ITEM) {
-      return;
-    }
-    this.searchText += key;
-    if (is.empty(this.side())) {
-      this.selectedType = this.selectedType === 'source' ? 'current' : 'source';
-    }
-    this.render(true);
-  }
-
-  private previous(): void {
+  protected previous(): void {
     const list = this.side();
     const index = list.findIndex((i) => i[VALUE] === this.value);
     if (index === NOT_FOUND) {
@@ -410,39 +269,7 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
     this.value = list[index - INCREMENT][VALUE];
   }
 
-  private remove(): void {
-    if (this.selectedType === 'source') {
-      return;
-    }
-    // retrieve current list (prior to removal)
-    const current = this.side('current', false);
-
-    // Move item to current list
-    const item = this.current.find(
-      (item) => item[VALUE] === this.value,
-    ) as MenuEntry<string>;
-    this.source.push(item);
-    // Remove from source
-    this.current = this.current.filter((check) => check[VALUE] !== this.value);
-
-    // Find move item in original source list
-    const index = current.findIndex((i) => i[VALUE] === this.value);
-
-    // If at bottom, move up one
-    if (index === current.length - ARRAY_OFFSET) {
-      // If only item, flip sides
-      if (index === START) {
-        this.selectedType = 'current';
-        return;
-      }
-      this.value = current[index - INCREMENT][VALUE];
-      return;
-    }
-    // If not bottom, move down one
-    this.value = current[index + INCREMENT][VALUE];
-  }
-
-  private render(updateValue = false): void {
+  protected render(updateValue = false): void {
     if (this.status === 'answered') {
       if (is.empty(this.current)) {
         this.screen.render(
@@ -485,6 +312,108 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
       ),
       '',
     );
+  }
+
+  protected reset(): void {
+    this.current = [...this.opt.current];
+    this.source = [...this.opt.source];
+  }
+
+  protected searchAppend(key: string): boolean {
+    if ((key.length > SINGLE_ITEM && key !== 'space') || ['`'].includes(key)) {
+      return false;
+    }
+    this.searchText += key === 'space' ? ' ' : key;
+    if (is.empty(this.side())) {
+      this.selectedType = this.selectedType === 'source' ? 'current' : 'source';
+    }
+    this.render(true);
+    return false;
+  }
+
+  protected searchBack(): boolean {
+    this.searchText = this.searchText.slice(START, ARRAY_OFFSET * INVERT_VALUE);
+    this.render(true);
+    return false;
+  }
+
+  protected selectAll(): void {
+    this.current = [...this.current, ...this.source];
+    this.source = [];
+    this.detectSide();
+  }
+
+  protected selectNone(): void {
+    this.source = [...this.current, ...this.source];
+    this.current = [];
+    this.detectSide();
+  }
+
+  protected toggle(): void {
+    if (this.selectedType === 'current') {
+      this.remove();
+      return;
+    }
+    this.add();
+  }
+
+  protected toggleFind(): void {
+    this.mode = this.mode === 'find' ? 'select' : 'find';
+    this.searchText = '';
+    this.setKeyMap(this.mode === 'find' ? KEYMAP_FIND : KEYMAP_NORMAL);
+  }
+
+  protected top(): void {
+    const list = this.side();
+    this.value = list[FIRST][VALUE];
+  }
+
+  private detectSide(): void {
+    const isLeftSide = this.side('current').some(
+      (i) => i[VALUE] === this.value,
+    );
+    this.selectedType = isLeftSide ? 'current' : 'source';
+  }
+
+  private filterMenu(data: MenuEntry[], updateValue = false): MenuEntry[] {
+    const highlighted = this.textRender.fuzzySort(this.searchText, data);
+    if (is.empty(highlighted) || updateValue === false) {
+      return highlighted;
+    }
+    this.value = highlighted[START][VALUE];
+    return highlighted;
+  }
+
+  private remove(): void {
+    if (this.selectedType === 'source') {
+      return;
+    }
+    // retrieve current list (prior to removal)
+    const current = this.side('current', false);
+
+    // Move item to current list
+    const item = this.current.find(
+      (item) => item[VALUE] === this.value,
+    ) as MenuEntry<string>;
+    this.source.push(item);
+    // Remove from source
+    this.current = this.current.filter((check) => check[VALUE] !== this.value);
+
+    // Find move item in original source list
+    const index = current.findIndex((i) => i[VALUE] === this.value);
+
+    // If at bottom, move up one
+    if (index === current.length - ARRAY_OFFSET) {
+      // If only item, flip sides
+      if (index === START) {
+        this.selectedType = 'current';
+        return;
+      }
+      this.value = current[index - INCREMENT][VALUE];
+      return;
+    }
+    // If not bottom, move down one
+    this.value = current[index + INCREMENT][VALUE];
   }
 
   private renderSide(
@@ -533,10 +462,5 @@ export class ListBuilderPrompt extends Base<Question & ListBuilderOptions> {
         ? UP
         : DOWN;
     }) as MenuEntry<T>[];
-  }
-
-  private top(): void {
-    const list = this.side();
-    this.value = list[FIRST][VALUE];
   }
 }

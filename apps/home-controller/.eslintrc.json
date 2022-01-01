@@ -5,7 +5,6 @@
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
-        "woke/all": "off",
         "radar/no-duplicate-string": "off"
       }
     },
