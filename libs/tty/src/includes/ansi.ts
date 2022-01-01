@@ -1,6 +1,7 @@
-import { DOWN, UP } from '@text-based/utilities';
+import { DOWN, START, UP } from '@text-based/utilities';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
+const ELLIPSES = '...';
 
 /**
  * Regex from ansi-regex package
@@ -18,7 +19,13 @@ export function ansiStrip(text = ''): string {
 }
 
 export function ansiPadEnd(text: string, amount: number): string {
-  const length = ansiStrip(text).length;
+  const stripped = ansiStrip(text);
+  let length = stripped.length;
+  if (length > amount) {
+    const update = stripped.slice(START, amount - ELLIPSES.length) + ELLIPSES;
+    text = text.replace(stripped, update);
+    length = update.length;
+  }
   const padding = ' '.repeat(amount - length);
   return text + padding;
 }

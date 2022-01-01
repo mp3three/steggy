@@ -39,6 +39,7 @@
     "executors": "custom",
     "external": "shared",
     "fetch-proxy": "public",
+    "editors": "svelte",
     "fetch": "flow",
     "filters": "other",
     "form": "components",

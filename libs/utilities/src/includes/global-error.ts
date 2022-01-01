@@ -38,7 +38,8 @@ const prettyError = (error: Error) => {
     const parts = line.trim().replace('(', '').replace(')', '').split(':');
     if (
       parts[START] === '<anonymous>' ||
-      parts[START] === 'Promise <anonymous>'
+      parts[START] === 'Promise <anonymous>' ||
+      parts[START] === 'Function <anonymous>'
     ) {
       maxMethod = Math.max(parts[START].length, maxMethod);
       lines.push([method, [parts[START], '', ''], false]);

@@ -3,18 +3,25 @@ import { DiscoveryModule } from '@nestjs/core';
 import { LibraryModule, RegisterCache } from '@text-based/utilities';
 
 import { LIB_TTY } from '../config';
+import { InquirerPrompt } from '../decorators';
 import { inquirerPreInit } from '../inquirer';
 import {
+  BooleanEditorService,
   ChartingService,
   ColorsService,
   ComparisonToolsService,
   ConfigBuilderService,
+  DateEditorService,
+  EnumEditorService,
   EnvironmentService,
+  FooterEntryService,
   GitService,
   MainCLIService,
+  NumberEditorService,
   PinnedItemService,
   PromptService,
   ReplExplorerService,
+  StringEditorService,
   SystemService,
   TableService,
   TextRenderingService,
@@ -24,11 +31,12 @@ import {
   exports: [
     ChartingService,
     ColorsService,
+    ComparisonToolsService,
     ConfigBuilderService,
     EnvironmentService,
+    FooterEntryService,
     GitService,
     PinnedItemService,
-    ComparisonToolsService,
     PromptService,
     SystemService,
     TableService,
@@ -37,16 +45,22 @@ import {
   imports: [DiscoveryModule, RegisterCache()],
   library: LIB_TTY,
   providers: [
+    BooleanEditorService,
     ChartingService,
     ColorsService,
+    ComparisonToolsService,
     ConfigBuilderService,
+    DateEditorService,
+    EnumEditorService,
+    EnvironmentService,
+    FooterEntryService,
     GitService,
     MainCLIService,
-    EnvironmentService,
-    ComparisonToolsService,
+    NumberEditorService,
     PinnedItemService,
     PromptService,
     ReplExplorerService,
+    StringEditorService,
     SystemService,
     TableService,
     TextRenderingService,
@@ -55,5 +69,6 @@ import {
 export class MainCLIModule {
   protected onPostInit(app: INestApplication): void {
     inquirerPreInit(app);
+    InquirerPrompt['loadApp'](app);
   }
 }

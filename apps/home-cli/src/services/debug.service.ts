@@ -73,10 +73,18 @@ For loop example getting entity values in the weather domain:
 
   public async exec(defaultAction?: string): Promise<void> {
     const result = await this.promptService.objectBuilder({
-      current: {
-        friendlyName: 'Foo',
-        type: FILTER_OPERATIONS.eq,
-      },
+      current: [
+        {
+          friendlyName: 'left',
+          type: FILTER_OPERATIONS.eq,
+          // value: 'bar',
+        },
+        {
+          friendlyName: 'Foo',
+          type: FILTER_OPERATIONS.eq,
+          value: 'bar',
+        },
+      ],
       elements: [
         {
           name: 'Friendly Name',
@@ -88,6 +96,11 @@ For loop example getting entity values in the weather domain:
           options: { enum: Object.keys(FILTER_OPERATIONS) },
           path: 'type',
           type: OBJECT_BUILDER_ELEMENT.enum,
+        },
+        {
+          name: 'Value',
+          path: 'value',
+          type: OBJECT_BUILDER_ELEMENT.string,
         },
       ],
       mode: 'single',
