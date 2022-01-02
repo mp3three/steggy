@@ -14,7 +14,6 @@ import {
   VALUE,
 } from '@text-based/utilities';
 import chalk from 'chalk';
-import cliCursor from 'cli-cursor';
 
 import { ICONS, MainMenuEntry, MenuEntry } from '../contracts';
 import { InquirerPrompt, tKeyMap } from '../decorators';

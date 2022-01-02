@@ -43,6 +43,7 @@
     "fetch": "flow",
     "filters": "other",
     "form": "components",
+    "render": "helper",
     "groups": "context",
     "home-assistant": "middleware",
     "home-cli": "admin",

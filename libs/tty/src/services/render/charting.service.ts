@@ -12,8 +12,8 @@ import {
 } from '@text-based/utilities';
 import chalk from 'chalk';
 
-import { ansiMaxLength } from '../includes';
-import { EnvironmentService } from './environment.service';
+import { ansiMaxLength } from '../../includes';
+import { EnvironmentService } from '../environment.service';
 
 const GRAPH_SYMBOLS = {
   bar: '│',

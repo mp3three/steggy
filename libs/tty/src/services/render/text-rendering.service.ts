@@ -15,9 +15,9 @@ import {
 import chalk from 'chalk';
 import fuzzy from 'fuzzysort';
 
-import { PAGE_SIZE } from '../config';
-import { MenuEntry } from '../contracts';
-import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
+import { PAGE_SIZE } from '../../config';
+import { MenuEntry } from '../../contracts';
+import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../../includes';
 
 const TEMP_TEMPLATE_SIZE = 3;
 const MAX_SEARCH_SIZE = 50;

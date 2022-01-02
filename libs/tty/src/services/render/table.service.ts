@@ -9,9 +9,9 @@ import {
 import chalk from 'chalk';
 import { get } from 'object-path';
 
-import { ColumnInfo, ObjectBuilderOptions } from '../contracts';
-import { ansiMaxLength, ansiPadEnd } from '../includes';
-import { EnvironmentService } from './environment.service';
+import { ColumnInfo, ObjectBuilderOptions } from '../../contracts';
+import { ansiMaxLength, ansiPadEnd } from '../../includes';
+import { EnvironmentService } from '../environment.service';
 import { TextRenderingService } from './text-rendering.service';
 
 const TABLE_PARTS = {

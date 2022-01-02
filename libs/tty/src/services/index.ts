@@ -1,4 +1,3 @@
-export * from './charting.service';
 export * from './colors.service';
 export * from './comparison-tools.service';
 export * from './config-builder.service';
@@ -8,7 +7,6 @@ export * from './git.service';
 export * from './main-cli.service';
 export * from './pinned-item.service';
 export * from './prompt.service';
+export * from './render';
 export * from './repl-explorer.service';
 export * from './system.service';
-export * from './table.service';
-export * from './text-rendering.service';
