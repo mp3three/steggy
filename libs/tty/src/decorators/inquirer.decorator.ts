@@ -15,7 +15,9 @@ export type tKeyMap<KEYS extends string = string> = Map<
 >;
 interface InquirerKeypressOptions {
   catchAll?: boolean;
+  description?: string;
   key?: string | string[];
+  noHelp?: boolean;
 }
 
 let app: INestApplication;

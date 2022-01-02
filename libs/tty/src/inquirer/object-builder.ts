@@ -5,10 +5,11 @@ import inquirer from 'inquirer';
 
 import { ObjectBuilderOptions } from '../contracts';
 import { InquirerPrompt } from '../decorators';
-import { TableService } from '../services';
+import { KeymapService, TableService } from '../services';
 
 export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
   private isSelected = false;
+  private keymapService: KeymapService;
   private rows: Record<string, unknown>[];
   private selectedCell = START;
   private selectedRow = START;
@@ -31,12 +32,13 @@ export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
       ? this.opt.current
       : [this.opt.current];
     this.tableService = await app.get(TableService);
+    this.keymapService = await app.get(KeymapService);
     this.setKeyMap(
       new Map([
-        [{ key: 'left' }, 'onLeft'],
-        [{ key: 'right' }, 'onRight'],
-        [{ key: 'up' }, 'onUp'],
-        [{ key: 'down' }, 'onDown'],
+        [{ description: 'cursor left', key: 'left' }, 'onLeft'],
+        [{ description: 'cursor right', key: 'right' }, 'onRight'],
+        [{ description: 'cursor up', key: 'up' }, 'onUp'],
+        [{ description: 'cursor down', key: 'down' }, 'onDown'],
         [{ key: 'tab' }, 'selectCell'],
       ]),
     );
@@ -74,7 +76,7 @@ export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
         this.selectedRow,
         this.selectedCell,
       ),
-      '',
+      this.keymapService.keymapHelp(this['localKeyMap']),
     );
   }
 

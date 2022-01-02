@@ -18,7 +18,7 @@ import chalk from 'chalk';
 import { ICONS, MainMenuEntry, MenuEntry } from '../contracts';
 import { InquirerPrompt, tKeyMap } from '../decorators';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
-import { PromptEntry, TextRenderingService } from '../services';
+import { KeymapService, PromptEntry, TextRenderingService } from '../services';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 
@@ -77,46 +77,44 @@ const DEFAULT_HEADER_PADDING = 4;
 const SINGLE_ITEM = 1;
 const EMPTY_TEXT = ' ';
 
-const BASE_HELP = [
-  ['arrows', 'move cursor'],
-  ['enter', 'select entry'],
-  ['home', 'move to top'],
-  ['end', 'move to bottom'],
-  ['tab', 'toggle find mode'],
-] as MenuEntry[];
-
 const NORMAL_KEYMAP: tKeyMap = new Map([
-  [{ catchAll: true }, 'activateKeyMap'],
+  [{ catchAll: true, noHelp: true }, 'activateKeyMap'],
   [{ key: 'down' }, 'next'],
-  [{ key: 'enter' }, 'onEnd'],
-  [{ key: 'left' }, 'onLeft'],
-  [{ key: 'right' }, 'onRight'],
-  [{ key: 'tab' }, 'toggleFind'],
+  [{ description: 'done', key: 'enter' }, 'onEnd'],
+  [{ description: 'left', key: 'left' }, 'onLeft'],
+  [{ description: 'right', key: 'right' }, 'onRight'],
+  [{ description: 'toggle find', key: 'tab' }, 'toggleFind'],
   [{ key: 'up' }, 'previous'],
-  [{ key: [...'0123456789'] }, 'numberSelect'],
+  [
+    { description: 'select item', key: [...'0123456789'], noHelp: true },
+    'numberSelect',
+  ],
   [{ key: ['end', 'pagedown'] }, 'bottom'],
   [{ key: ['home', 'pageup'] }, 'top'],
 ]);
 const SEARCH_KEYMAP: tKeyMap = new Map([
-  [{ catchAll: true }, 'onSearchKeyPress'],
+  [{ catchAll: true, noHelp: true }, 'onSearchKeyPress'],
   [
-    { key: ['down', 'left', 'right', 'up', 'pageup', 'pagedown'] },
+    {
+      description: 'move cursor',
+      key: ['down', 'up', 'pageup', 'pagedown'],
+    },
     'navigateSearch',
   ],
-  [{ key: 'enter' }, 'onEnd'],
-  [{ key: 'tab' }, 'toggleFind'],
+  [{ description: 'done', key: 'enter' }, 'onEnd'],
+  [{ description: 'toggle find', key: 'tab' }, 'toggleFind'],
 ]);
 
 export class MainMenuPrompt extends InquirerPrompt<MainMenuOptions> {
   private callbackOutput = '';
   private headerPadding: number;
+  private keymap: KeymapService;
   private leftHeader: string;
   private mode: 'find' | 'select' = 'select';
   private numericSelection = '';
   private rightHeader: string;
   private searchText = '';
   private selectedType: 'left' | 'right' = 'right';
-  private showHelp = true;
   private textRender: TextRenderingService;
   private value: unknown;
 
@@ -227,8 +225,8 @@ export class MainMenuPrompt extends InquirerPrompt<MainMenuOptions> {
     this.done(this.value);
   }
 
-  protected onInit(app: INestApplication): void {
-    this.showHelp = this.opt.showHelp ?? true;
+  protected async onInit(app: INestApplication): Promise<void> {
+    // this.showHelp = this.opt.showHelp ?? true;
     this.opt.left ??= [];
     this.opt.item ??= 'actions';
     this.opt.right ??= [];
@@ -241,6 +239,8 @@ export class MainMenuPrompt extends InquirerPrompt<MainMenuOptions> {
     this.rightHeader = this.opt.rightHeader ?? 'Menu';
     this.leftHeader = this.opt.leftHeader ?? 'Secondary';
     this.textRender = app.get(TextRenderingService);
+    this.keymap = await app.resolve(KeymapService);
+
     const defaultValue = this.side('right')[START]?.entry[VALUE];
     this.value ??= defaultValue;
     this.detectSide();
@@ -437,12 +437,13 @@ export class MainMenuPrompt extends InquirerPrompt<MainMenuOptions> {
    * Rendering for search mode
    */
   private renderFind(updateValue = false): void {
+    const message = [
+      ...this.textRender.searchBox(this.searchText),
+      ...this.renderSide(undefined, false, updateValue),
+    ].join(`\n`);
     this.screen.render(
-      [
-        ...this.textRender.searchBox(this.searchText),
-        ...this.renderSide(undefined, false, updateValue),
-      ].join(`\n`),
-      '',
+      message,
+      this.keymap.keymapHelp(this['localKeyMap'], { message }),
     );
   }
 
@@ -476,16 +477,25 @@ export class MainMenuPrompt extends InquirerPrompt<MainMenuOptions> {
         .split(`\n`)
         .map((line) => line.replace(new RegExp('^ -'), chalk.cyan('   -')))
         .join(`\n`)}`;
-    } else if (this.showHelp) {
-      message = this.textRender.appendHelp(
-        message,
-        BASE_HELP,
-        Object.keys(this.opt.keyMap)
-          .filter((key) => Array.isArray(this.opt.keyMap[key]))
-          .map((i) => [i, this.opt.keyMap[i][LABEL]]),
-      );
     }
-    this.screen.render(message, '');
+    this.screen.render(
+      message,
+      this.keymap.keymapHelp(this['localKeyMap'], {
+        message,
+        prefix: new Map(
+          Object.entries(this.opt.keyMap).map(([description, item]) => {
+            if (!Array.isArray(item)) {
+              return;
+            }
+            const [label] = item;
+            return [
+              { description: (label + '  ') as string, key: description },
+              '',
+            ];
+          }),
+        ),
+      }),
+    );
   }
 
   /**
