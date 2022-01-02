@@ -6,13 +6,13 @@ import {
 import {
   AutoLogService,
   CacheManagerService,
+  each,
   InjectCache,
   InjectConfig,
   InjectLogger,
   INVERT_VALUE,
   is,
 } from '@text-based/utilities';
-import { each } from 'async';
 import EventEmitter from 'eventemitter3';
 
 import { MIN_BRIGHTNESS } from '../../config';
@@ -55,9 +55,8 @@ export class LightManagerService {
     brightness?: number,
   ): Promise<void> {
     if (Array.isArray(entity_id)) {
-      await each(entity_id, async (id, callback) => {
+      await each(entity_id, async (id) => {
         await this.circadianLight(id, brightness);
-        callback();
       });
       return;
     }
@@ -73,9 +72,8 @@ export class LightManagerService {
   ): Promise<void> {
     const { increment = DEFAULT_INCREMENT } = data;
     const lights = await this.findDimmableLights(change);
-    await each(lights, async (entity_id: string, callback) => {
+    await each(lights, async (entity_id: string) => {
       await this.lightDim(entity_id, increment * INVERT_VALUE);
-      callback();
     });
   }
 
@@ -85,9 +83,8 @@ export class LightManagerService {
   ): Promise<void> {
     const { increment = DEFAULT_INCREMENT } = data;
     const lights = await this.findDimmableLights(change);
-    await each(lights, async (entity_id: string, callback) => {
+    await each(lights, async (entity_id: string) => {
       await this.lightDim(entity_id, increment);
-      callback();
     });
   }
 
@@ -150,9 +147,8 @@ export class LightManagerService {
       );
     }
     if (Array.isArray(entity_id)) {
-      await each(entity_id, async (id, callback) => {
+      await each(entity_id, async (id) => {
         await this.setAttributes(id, settings);
-        callback();
       });
       return;
     }
@@ -196,9 +192,8 @@ export class LightManagerService {
 
   public async turnOffEntities(entity_id: string | string[]): Promise<void> {
     if (Array.isArray(entity_id)) {
-      each(entity_id, async (entity, callback) => {
+      each(entity_id, async (entity) => {
         await this.turnOffEntities(entity);
-        callback();
       });
       return;
     }
@@ -218,14 +213,13 @@ export class LightManagerService {
 
   protected async circadianLightingUpdate(kelvin: number): Promise<void> {
     const lights = await this.getActiveLights();
-    await each(lights, async (id, callback) => {
+    await each(lights, async (id) => {
       const state = await this.getState(id);
       if (state?.mode !== 'circadian') {
         // if (state?.mode !== 'circadian' || state.kelvin === kelvin) {
         return;
       }
       await this.setAttributes(id, { kelvin });
-      callback();
     });
   }
 

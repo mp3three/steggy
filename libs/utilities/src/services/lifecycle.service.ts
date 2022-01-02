@@ -1,9 +1,8 @@
 import { INestApplication, Injectable } from '@nestjs/common';
-import { eachSeries } from 'async';
 import { Express } from 'express';
 
 import { iLifecycle } from '../contracts/lifecycle';
-import { BootstrapOptions } from '../includes';
+import { BootstrapOptions, eachSeries } from '../includes';
 import { ModuleScannerService } from './explorers/module-scanner.service';
 
 @Injectable()
@@ -26,11 +25,8 @@ export class LifecycleService {
         instances.push(instance);
       }
     });
-    await eachSeries(instances, async (instance, callback) => {
+    await eachSeries(instances, async (instance) => {
       await instance.onPostInit(app, server, options);
-      if (callback) {
-        callback();
-      }
     });
   }
 
@@ -50,11 +46,8 @@ export class LifecycleService {
         instances.push(instance);
       }
     });
-    await eachSeries(instances, async (instance, callback) => {
+    await eachSeries(instances, async (instance) => {
       await instance.onPreInit(app, server, options);
-      if (callback) {
-        callback();
-      }
     });
   }
 }

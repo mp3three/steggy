@@ -24,13 +24,13 @@ import {
 import {
   AutoLogService,
   DOWN,
+  eachSeries,
   FILTER_OPERATIONS,
   is,
   LABEL,
   UP,
   VALUE,
 } from '@text-based/utilities';
-import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';
 

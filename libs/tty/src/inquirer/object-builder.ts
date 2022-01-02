@@ -99,7 +99,8 @@ export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
         chalk.blue.dim('='.repeat(max)),
         this.stringEditor.render({
           current: '',
-          placeholder: 'test',
+          label: 'foo',
+          // placeholder: 'test',
           width: max,
         }),
         keymap,

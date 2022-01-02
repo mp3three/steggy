@@ -2,12 +2,11 @@ import { Injectable } from '@nestjs/common';
 import {
   AbstractConfig,
   AutoLogService,
-  filterUnique,
+  eachSeries,
   is,
   PACKAGE_FILE,
   WorkspaceService,
 } from '@text-based/utilities';
-import { eachSeries } from 'async';
 import chalk from 'chalk';
 import JSON from 'comment-json';
 import execa from 'execa';
@@ -41,7 +40,7 @@ export class SystemService {
   public async bumpApplications(list: string[]): Promise<void> {
     await eachSeries(
       list.filter((item) => this.projects[item].projectType === 'application'),
-      async (application: string, callback) => {
+      async (application: string) => {
         const { version } = this.workspace.PACKAGES.get(application);
         const { action } = await inquirer.prompt([
           {
@@ -79,7 +78,6 @@ export class SystemService {
           updated,
         );
         this.packageWriteVersion(application, updated);
-        callback();
       },
     );
   }
@@ -137,7 +135,7 @@ export class SystemService {
       '--format=%B',
       branch.trim(),
     ]);
-    return filterUnique(stdout.split(`\n`).filter((item) => !is.empty(item)));
+    return is.unique(stdout.split(`\n`).filter((item) => !is.empty(item)));
   }
 
   public isLibrary(project: string): boolean {

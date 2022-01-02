@@ -21,8 +21,7 @@ import {
   TextRenderingService,
   ToMenuEntry,
 } from '@text-based/tty';
-import { AutoLogService, is, LABEL } from '@text-based/utilities';
-import { eachSeries } from 'async';
+import { AutoLogService, eachSeries, is, LABEL } from '@text-based/utilities';
 import chalk from 'chalk';
 import Table from 'cli-table';
 import inquirer from 'inquirer';

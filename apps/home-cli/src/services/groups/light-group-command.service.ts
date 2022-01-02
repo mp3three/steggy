@@ -18,12 +18,13 @@ import {
 import {
   AutoLogService,
   DOWN,
+  each,
   is,
+  SINGLE,
   START,
   TitleCase,
   UP,
 } from '@text-based/utilities';
-import { each } from 'async';
 import chalk from 'chalk';
 
 import { LightService } from '../domains';
@@ -34,7 +35,6 @@ const MIN_BRIGHTNESS = 5;
 const MAX_BRIGHTNESS = 255;
 const OFF = 0;
 const R = 0;
-const SINGLE = 1;
 const G = 1;
 const B = 2;
 

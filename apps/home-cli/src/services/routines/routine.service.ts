@@ -20,13 +20,13 @@ import {
 } from '@text-based/tty';
 import {
   CacheManagerService,
+  eachSeries,
   InjectCache,
   is,
   LABEL,
   ResultControlDTO,
   TitleCase,
 } from '@text-based/utilities';
-import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';
 

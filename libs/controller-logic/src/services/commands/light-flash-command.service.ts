@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService } from '@text-based/utilities';
-import { each } from 'async';
+import { AutoLogService, each } from '@text-based/utilities';
 
 import { RountineCommandLightFlashDTO } from '../../contracts';
 import { GroupService } from '../groups';
@@ -49,7 +48,7 @@ export class LightFlashCommandService {
   }: RountineCommandLightFlashDTO): Promise<void> {
     const group = await this.groupService.get(ref);
     this.logger.debug(`Flash entity ${group.friendlyName}`);
-    await each(group.entities, async (entity, callback) => {
+    await each(group.entities, async (entity) => {
       await this.flashAnimation.flash({
         brightness,
         duration,
@@ -57,9 +56,6 @@ export class LightFlashCommandService {
         interval,
         rgb_color: rgb,
       });
-      if (callback) {
-        callback();
-      }
     });
   }
 }

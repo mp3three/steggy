@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   CacheManagerService,
+  each,
   InjectCache,
 } from '@text-based/utilities';
-import { each } from 'async';
 
 import {
   RoomEntitySaveStateDTO,
@@ -29,13 +29,10 @@ export class CaptureCommandService {
     command.key ??= routine._id;
     command.group ??= [];
     const states: Record<string, RoomEntitySaveStateDTO[]> = {};
-    await each(command.group, async (id, callback) => {
+    await each(command.group, async (id) => {
       const group = await this.groupService.get(id);
       const type = this.groupService.getBaseGroup(group.type);
       states[id] = await type.getState(group);
-      if (callback) {
-        callback();
-      }
     });
     await this.cache.set(command.key, {
       states,

@@ -1,8 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { domain } from '@text-based/home-assistant';
 import { BaseSchemaDTO } from '@text-based/persistence';
-import { AutoLogService, is, ResultControlDTO } from '@text-based/utilities';
-import { each } from 'async';
+import {
+  AutoLogService,
+  each,
+  is,
+  ResultControlDTO,
+} from '@text-based/utilities';
 import { v4 as uuid } from 'uuid';
 
 import {
@@ -36,9 +40,8 @@ export class RoomService {
     }
     this.logger.info(`[${room.friendlyName}] activate {${state.friendlyName}}`);
     await Promise.all([
-      await each(state.states, async (state, callback) => {
+      await each(state.states, async (state) => {
         if (state.type !== 'entity') {
-          callback();
           return;
         }
         await this.commandRouter.process(
@@ -46,18 +49,15 @@ export class RoomService {
           state.state,
           state.extra as Record<string, unknown>,
         );
-        callback();
       }),
-      await each(state.states, async (state, callback) => {
+      await each(state.states, async (state) => {
         if (state.type !== 'group') {
-          callback();
           return;
         }
         await this.groupService.activateState({
           group: state.ref,
           state: state.state,
         });
-        callback();
       }),
     ]);
   }

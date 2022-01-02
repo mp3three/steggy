@@ -7,12 +7,13 @@ import {
 } from '@nestjs/common';
 import {
   AutoLogService,
+  each,
+  eachSeries,
   is,
   OnEvent,
   ResultControlDTO,
   sleep,
 } from '@text-based/utilities';
-import { each, eachSeries } from 'async';
 import dayjs from 'dayjs';
 
 import {
@@ -88,16 +89,13 @@ export class RoutineService {
     let aborted = false;
     await (routine.sync ? eachSeries : each)(
       routine.command ?? [],
-      async (command, callback) => {
+      async (command) => {
         // Typescript being dumb
         const { friendlyName, sync } = routine as RoutineDTO;
         if (aborted) {
           this.logger.debug(
             `[${friendlyName}] processing stopped {${command.friendlyName}}`,
           );
-          if (callback) {
-            callback();
-          }
           return;
         }
         const result = await this.activateCommand(
@@ -105,9 +103,6 @@ export class RoutineService {
           routine as RoutineDTO,
         );
         aborted = result === false && sync;
-        if (callback) {
-          callback();
-        }
       },
     );
   }

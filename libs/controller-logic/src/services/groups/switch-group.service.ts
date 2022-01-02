@@ -6,8 +6,7 @@ import {
   HomeAssistantCoreService,
   SwitchStateDTO,
 } from '@text-based/home-assistant';
-import { AutoLogService } from '@text-based/utilities';
-import { each } from 'async';
+import { AutoLogService, each } from '@text-based/utilities';
 
 import {
   GROUP_TYPES,
@@ -82,13 +81,12 @@ export class SwitchGroupService extends BaseGroupService {
       state.map((state, index) => {
         return [entites[index], state];
       }) as [string, RoomEntitySaveStateDTO][],
-      async ([id, state], callback) => {
+      async ([id, state]) => {
         if (state.state === 'off') {
           await this.hassCore.turnOff(id);
-          return callback();
+          return;
         }
         await this.hassCore.turnOn(id);
-        callback();
       },
     );
   }

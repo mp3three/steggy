@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-magic-numbers, @typescript-eslint/ban-types */
 export const EMPTY = 0;
 
 // TODO: declaration merging to allow other libs to create definitions here
@@ -20,6 +20,13 @@ export const is = {
   },
   even(test: number): boolean {
     return test % 2 === 0;
+  },
+  function<
+    T extends (
+      ...parameters: unknown[]
+    ) => unknown | void | Promise<unknown | void>,
+  >(test: unknown): test is T {
+    return typeof test === 'function';
   },
   number(test: unknown): test is number {
     return typeof test === 'number' && !Number.isNaN(test);

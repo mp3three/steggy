@@ -11,7 +11,7 @@ import {
   Repl,
   ToMenuEntry,
 } from '@text-based/tty';
-import { AutoLogService, is } from '@text-based/utilities';
+import { AutoLogService, is, SINGLE } from '@text-based/utilities';
 import chalk from 'chalk';
 import { encode } from 'ini';
 
@@ -19,7 +19,6 @@ import { MENU_ITEMS } from '../../includes';
 import { HomeFetchService } from '../home-fetch.service';
 import { EntityService } from './entity.service';
 
-const SINGLE_ITEM = 1;
 @Repl({
   category: `Home Assistant`,
   icon: ICONS.DEVICE,
@@ -62,7 +61,7 @@ export class DeviceService {
     const devices: DeviceListItemDTO[] = await this.fetchService.fetch({
       url: `/device/list`,
     });
-    if (inList.length === SINGLE_ITEM) {
+    if (inList.length === SINGLE) {
       return devices.find(({ id }) => inList.includes(id));
     }
     return (await this.promptService.menu<DeviceListItemDTO>({

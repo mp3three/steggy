@@ -9,11 +9,11 @@ import {
   CacheManagerService,
   Cron,
   CronExpression,
+  each,
   InjectCache,
   InjectConfig,
   is,
 } from '@text-based/utilities';
-import { each } from 'async';
 import dayjs from 'dayjs';
 
 import {
@@ -78,7 +78,7 @@ export class AvailabilityMonitorService {
     )
       .toDate()
       .getTime();
-    await each(entities, async (item, callback) => {
+    await each(entities, async (item) => {
       const cache = (await this.cache.get<RecentItem>(CACHE_KEY(item))) ?? {
         entity_id: item,
         since: now,
@@ -87,9 +87,6 @@ export class AvailabilityMonitorService {
         sendAlerts.push(item);
       } else if (cache.since < since) {
         this.logger.warn(`[${item}] unavailable`);
-      }
-      if (callback) {
-        callback();
       }
     });
     if (is.empty(sendAlerts) || !notify) {

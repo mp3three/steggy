@@ -1,8 +1,12 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { domain, HASS_DOMAINS } from '@text-based/home-assistant';
 import { BaseSchemaDTO } from '@text-based/persistence';
-import { AutoLogService, is, ResultControlDTO } from '@text-based/utilities';
-import { each } from 'async';
+import {
+  AutoLogService,
+  each,
+  is,
+  ResultControlDTO,
+} from '@text-based/utilities';
 
 import type {
   GroupSaveStateDTO,
@@ -180,9 +184,8 @@ export class GroupService {
 
   public async turnOff(group: GroupDTO | string): Promise<void> {
     group = await this.load(group);
-    await each(group.entities, async (entity, callback) => {
+    await each(group.entities, async (entity) => {
       await this.commandRouter.process(entity, 'turnOff');
-      callback();
     });
   }
 
@@ -191,24 +194,23 @@ export class GroupService {
     circadian = false,
   ): Promise<void> {
     group = await this.load(group);
-    await each(group.entities, async (entity, callback) => {
+    await each(group.entities, async (entity) => {
       if ((group as GroupDTO).type === GROUP_TYPES.light) {
         if (domain(entity) !== HASS_DOMAINS.light) {
           await this.commandRouter.process(entity, 'turnOn');
           this.logger.warn({ entity }, `Invalid entity in light group`);
-          return callback();
+          return;
         }
         if (circadian) {
           await this.lightManager.turnOn(entity, {
             mode: LIGHTING_MODE.circadian,
           });
-          return callback();
+          return;
         }
         await this.lightManager.turnOn(entity);
-        return callback();
+        return;
       }
       await this.commandRouter.process(entity, 'turnOn');
-      callback();
     });
   }
 

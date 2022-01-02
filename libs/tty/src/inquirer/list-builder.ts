@@ -8,6 +8,7 @@ import {
   is,
   LABEL,
   NOT_FOUND,
+  SINGLE,
   START,
   UP,
   VALUE,
@@ -27,7 +28,6 @@ export interface ListBuilderOptions<T = unknown> {
   source: MenuEntry<T | string>[];
 }
 
-const SINGLE_ITEM = 1;
 const BASE_HELP = [
   ['arrows', 'move cursor'],
   ['enter', 'select entry'],
@@ -320,7 +320,7 @@ export class ListBuilderPrompt extends InquirerPrompt<ListBuilderOptions> {
   }
 
   protected searchAppend(key: string): boolean {
-    if ((key.length > SINGLE_ITEM && key !== 'space') || ['`'].includes(key)) {
+    if ((key.length > SINGLE && key !== 'space') || ['`'].includes(key)) {
       return false;
     }
     this.searchText += key === 'space' ? ' ' : key;

@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   CacheManagerService,
+  each,
   InjectCache,
 } from '@text-based/utilities';
-import { each } from 'async';
 
 import {
   RoutineCaptureData,
@@ -31,13 +31,10 @@ export class RestoreCommandService {
       this.logger.error(`Missing cache {${command.key}}`);
       return;
     }
-    await each(Object.entries(cache.states), async ([id, item], callback) => {
+    await each(Object.entries(cache.states), async ([id, item]) => {
       const group = await this.groupService.get(id);
       const type = this.groupService.getBaseGroup(group.type);
       await type.setState(group.entities, item);
-      if (callback) {
-        callback();
-      }
     });
     this.logger.debug(`Restored cache state ${command.key}`);
   }

@@ -4,12 +4,11 @@ import {
   FetchService,
   InjectConfig,
   is,
+  MINUTE,
 } from '@text-based/utilities';
 
 import { API_KEY, API_SECRET, API_TARGET } from '../config';
 import { ALPACA_API_KEY_HEADER, ALPACA_SECRET_KEY_HEADER } from '../contracts';
-
-const MINUTE = 60_000;
 
 export class AlpacaFetchService {
   constructor(

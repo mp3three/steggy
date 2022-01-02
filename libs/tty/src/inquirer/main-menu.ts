@@ -8,6 +8,7 @@ import {
   is,
   LABEL,
   NOT_FOUND,
+  SINGLE,
   START,
   TitleCase,
   UP,
@@ -74,7 +75,6 @@ export interface MainMenuOptions<T = unknown> {
 }
 
 const DEFAULT_HEADER_PADDING = 4;
-const SINGLE_ITEM = 1;
 const EMPTY_TEXT = ' ';
 
 const NORMAL_KEYMAP: tKeyMap = new Map([
@@ -315,7 +315,7 @@ export class MainMenuPrompt extends InquirerPrompt<MainMenuOptions> {
       this.render(true);
       return false;
     }
-    if (key.length > SINGLE_ITEM) {
+    if (key.length > SINGLE) {
       if (!is.undefined(this.opt.keyMap[key])) {
         this.value = this.opt.keyMap[key][VALUE];
         this.onEnd();

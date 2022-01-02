@@ -8,8 +8,9 @@ import observe from 'inquirer/lib/utils/events';
 
 import { ICONS, KeyDescriptor } from '../contracts';
 
+type DirectCB = (key: string) => void | boolean | Promise<void | boolean>;
 type tCallback<T = unknown> = (value?: T) => void;
-export type tKeyMap<KEYS extends string = string> = Map<
+export type tKeyMap<KEYS extends string | DirectCB = string> = Map<
   InquirerKeypressOptions,
   KEYS
 >;
@@ -68,6 +69,16 @@ export abstract class InquirerPrompt<
     });
   }
 
+  private activateKey(
+    key: string | DirectCB,
+    mixed: string,
+  ): void | boolean | Promise<void | boolean> {
+    if (is.function<DirectCB>(key)) {
+      return key(mixed);
+    }
+    return this[key](mixed);
+  }
+
   private keyPressHandler(descriptor: KeyDescriptor): void {
     if (this.status === 'answered') {
       return;
@@ -88,15 +99,15 @@ export abstract class InquirerPrompt<
         console.log(`Missing localKeyMap callback ${key}`);
       }
       if (is.empty(options.key)) {
-        this[key](mixed);
         caught = true;
+        this.activateKey(key, mixed);
         return;
       }
       if (!options.key.includes(mixed)) {
         return;
       }
       caught = true;
-      const result = this[key](mixed);
+      const result = this.activateKey(key, mixed);
       if (result === false) {
         return;
       }
@@ -105,6 +116,6 @@ export abstract class InquirerPrompt<
     if (caught) {
       return;
     }
-    catchAll.forEach((i) => this[i](mixed));
+    catchAll.forEach((i) => this.activateKey(i, mixed));
   }
 }

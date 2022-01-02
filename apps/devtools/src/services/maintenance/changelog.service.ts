@@ -7,11 +7,11 @@ import {
 } from '@text-based/tty';
 import {
   AutoLogService,
+  eachSeries,
   is,
   TitleCase,
   WorkspaceService,
 } from '@text-based/utilities';
-import { eachSeries } from 'async';
 import Table from 'cli-table';
 import execa from 'execa';
 import { inc } from 'semver';

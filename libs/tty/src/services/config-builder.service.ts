@@ -10,6 +10,7 @@ import {
   AutoLogService,
   ConfigTypeDTO,
   DOWN,
+  eachSeries,
   InjectLogger,
   is,
   SCAN_CONFIG_CONFIGURATION,
@@ -18,7 +19,6 @@ import {
   UP,
   WorkspaceService,
 } from '@text-based/utilities';
-import { eachSeries } from 'async';
 import chalk from 'chalk';
 import execa from 'execa';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
@@ -146,11 +146,8 @@ export class ConfigBuilderService {
       `Select properties to change\n`,
       entries,
     );
-    await eachSeries(list, async (item, callback) => {
+    await eachSeries(list, async (item) => {
       await this.prompt(item);
-      if (callback) {
-        callback();
-      }
     });
   }
 

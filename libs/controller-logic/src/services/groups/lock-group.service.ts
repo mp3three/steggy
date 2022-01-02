@@ -7,8 +7,7 @@ import {
   LockDomainService,
   LockStateDTO,
 } from '@text-based/home-assistant';
-import { AutoLogService, is } from '@text-based/utilities';
-import { each } from 'async';
+import { AutoLogService, each, is } from '@text-based/utilities';
 
 import {
   GROUP_TYPES,
@@ -71,14 +70,13 @@ export class LockGroupService extends BaseGroupService {
     if (is.string(group)) {
       group = await this.groupPersistence.findById(group);
     }
-    await each(group.entities, async (lock, callback) => {
+    await each(group.entities, async (lock) => {
       if (!this.isValid(lock)) {
         throw new InternalServerErrorException(
           `Invalid lock group entity: ${lock}`,
         );
       }
       await this.lockSerivice.lock(lock);
-      callback();
     });
   }
 
@@ -94,13 +92,12 @@ export class LockGroupService extends BaseGroupService {
       state.map((state, index) => {
         return [entites[index], state];
       }) as [string, RoomEntitySaveStateDTO][],
-      async ([id, state], callback) => {
+      async ([id, state]) => {
         if (state.state === LOCK_STATES.locked) {
           await this.lockSerivice.lock(id);
-          return callback();
+          return;
         }
         await this.lockSerivice.unlock(id);
-        callback();
       },
     );
   }
@@ -123,14 +120,13 @@ export class LockGroupService extends BaseGroupService {
     if (is.string(group)) {
       group = await this.groupPersistence.findById(group);
     }
-    await each(group.entities, async (lock, callback) => {
+    await each(group.entities, async (lock) => {
       if (!this.isValid(lock)) {
         throw new InternalServerErrorException(
           `Invalid lock group entity: ${lock}`,
         );
       }
       await this.lockSerivice.unlock(lock);
-      callback();
     });
   }
 

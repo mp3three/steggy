@@ -3,8 +3,13 @@ import {
   EntityManagerService,
   LightStateDTO,
 } from '@text-based/home-assistant';
-import { AutoLogService, is, PEAT, sleep } from '@text-based/utilities';
-import { eachSeries } from 'async';
+import {
+  AutoLogService,
+  eachSeries,
+  is,
+  PEAT,
+  sleep,
+} from '@text-based/utilities';
 
 import {
   FlashAnimationDTO,
@@ -41,7 +46,7 @@ export class FlashAnimationService {
     if (!is.string(animation.rgb_color)) {
       this.colorFlash(entity, animation, frames);
     }
-    await eachSeries(frames, async (state, callback) => {
+    await eachSeries(frames, async (state) => {
       this.logger.debug({ state }, animation.entity_id);
       // Merge together timeouts
       // Doing them consectively will throw off total timing
@@ -49,9 +54,6 @@ export class FlashAnimationService {
         await this.lightManager.turnOn(animation.entity_id, state),
         await sleep(animation.interval),
       ]);
-      if (callback) {
-        callback();
-      }
     });
     if (mode === LIGHTING_MODE.circadian) {
       this.logger.debug(`Restoring circadian state {${animation.entity_id}}`);
