@@ -15,7 +15,7 @@ import {
 import chalk from 'chalk';
 import fuzzy from 'fuzzysort';
 
-import { PAGE_SIZE } from '../../config';
+import { LEFT_PADDING, PAGE_SIZE } from '../../config';
 import { MenuEntry } from '../../contracts';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../../includes';
 
@@ -34,7 +34,10 @@ const MAX_STRING_LENGTH = 300;
  */
 @Injectable()
 export class TextRenderingService {
-  constructor(@InjectConfig(PAGE_SIZE) private readonly pageSize: number) {}
+  constructor(
+    @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
+    @InjectConfig(LEFT_PADDING) private readonly leftPadding: number,
+  ) {}
 
   public appendHelp(
     message: string,
@@ -139,6 +142,13 @@ export class TextRenderingService {
       return [this.highlight(result), item[VALUE]] as MenuEntry<T>;
     });
     return highlighted;
+  }
+
+  public pad(message: string, amount = this.leftPadding): string {
+    return message
+      .split(`\n`)
+      .map((i) => `${' '.repeat(amount)}${i}`)
+      .join(`\n`);
   }
 
   public searchBox(searchText: string, size = MAX_SEARCH_SIZE): string[] {

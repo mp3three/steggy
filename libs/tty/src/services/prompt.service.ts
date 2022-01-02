@@ -25,6 +25,7 @@ import {
 } from '../config';
 import { DONE, ObjectBuilderOptions, PromptMenuItems } from '../contracts';
 import { ListBuilderOptions, MainMenuOptions } from '../inquirer';
+import { TextRenderingService } from './render';
 
 const name = `result`;
 export type PROMPT_WITH_SHORT = { name: string; short: string };
@@ -48,6 +49,7 @@ export class PromptService {
     @InjectConfig(DISABLE_CLEAR) private readonly disableClear: boolean,
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
     @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
+    private readonly textRendering: TextRenderingService,
   ) {}
 
   /**
@@ -416,13 +418,7 @@ export class PromptService {
       font: this.font,
     });
     this.clear();
-    console.log(
-      `\n`,
-      chalk[color](header)
-        .split(`\n`)
-        .map((i) => `  ${i}`)
-        .join(`\n`),
-    );
+    console.log(`\n`, this.textRendering.pad(chalk[color](header)));
     return header.split(`\n`).pop().length;
   }
 
@@ -430,12 +426,7 @@ export class PromptService {
     header = figlet.textSync(header, {
       font: this.secondaryFont,
     });
-    console.log(
-      chalk[color](header)
-        .split(`\n`)
-        .map((i) => `  ${i}`)
-        .join(`\n`),
-    );
+    console.log(this.textRendering.pad(chalk[color](header)));
   }
 
   public sort<T>(entries: PromptEntry<T>[]): PromptEntry<T>[] {

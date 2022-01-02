@@ -150,7 +150,7 @@ export class TableService {
       : list.reduce((a, b) => a + b) + this.selectedCell;
     const end =
       start + this.columns[this.selectedCell].maxWidth + PADDING + PADDING;
-    return lines.map((line, index, array) => {
+    return lines.map((line, index) => {
       if (![middle, top, bottom].includes(index)) {
         return line;
       }

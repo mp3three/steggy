@@ -1,9 +1,10 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DOWN, UP } from '@text-based/utilities';
 import chalk from 'chalk';
 
 import { tKeyMap } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
+import { TextRenderingService } from './text-rendering.service';
 
 type keyItem = {
   description: string;
@@ -11,8 +12,10 @@ type keyItem = {
 };
 const LINE_PADDING = 2;
 
-@Injectable({ scope: Scope.TRANSIENT })
+@Injectable()
 export class KeymapService {
+  constructor(private readonly textRendering: TextRenderingService) {}
+
   public keymapHelp(
     map: tKeyMap,
     {
@@ -23,23 +26,22 @@ export class KeymapService {
     const a = this.buildLines(prefix);
     const b = this.buildLines(map);
 
-    const biggestLabel = Math.max(
-      ansiMaxLength(a.map((i) => i.label)),
-      ansiMaxLength(b.map((i) => i.label)),
+    const biggestLabel = ansiMaxLength(
+      a.map((i) => i.label),
+      b.map((i) => i.label),
     );
-    const help = [...a, ...b]
-      .map(
-        (item) =>
-          chalk`  {blue.dim - }${ansiPadEnd(item.label, biggestLabel)}  ${
-            item.description
-          }`,
-      )
-      .join(`\n`);
+    const help = this.textRendering.pad(
+      [...a, ...b]
+        .map(
+          (item) =>
+            chalk`{blue.dim - }${ansiPadEnd(item.label, biggestLabel)}  ${
+              item.description
+            }`,
+        )
+        .join(`\n`),
+    );
     const maxLength =
-      Math.max(
-        ansiMaxLength(help.split(`\n`)),
-        ansiMaxLength(message.split(`\n`)),
-      ) + LINE_PADDING;
+      ansiMaxLength(help.split(`\n`), message.split(`\n`)) + LINE_PADDING;
     return [' ', chalk.blue.dim('='.repeat(maxLength)), ` `, help].join(`\n`);
   }
 

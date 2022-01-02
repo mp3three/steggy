@@ -47,7 +47,12 @@ export function ansiSort(text: string[]): string[] {
 /**
  * Return back the ansi-stripped longest element / line
  */
-export function ansiMaxLength(text: string[] | string): number {
-  text = Array.isArray(text) ? text : text.split(`\n`);
-  return Math.max(...text.map((i) => ansiStrip(i).length));
+export function ansiMaxLength(...items: (string[] | string)[]): number {
+  return Math.max(
+    ...items.flatMap((list) =>
+      (Array.isArray(list) ? list : list.split(`\n`)).map(
+        (line) => ansiStrip(line).length,
+      ),
+    ),
+  );
 }

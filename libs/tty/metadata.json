@@ -41,6 +41,11 @@
       "description": "Stick some callbacks at the top of main cli. Managed from application",
       "configurable": false,
       "default": []
+    },
+    "LEFT_PADDING": {
+      "type": "number",
+      "description": "Prefix output with spaces to shift content over from screen edge",
+      "default": 2
     }
   }
 }
