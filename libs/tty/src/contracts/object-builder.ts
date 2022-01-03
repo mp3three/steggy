@@ -1,5 +1,8 @@
+import { MenuEntry } from './inquirer';
+
 export enum OBJECT_BUILDER_ELEMENT {
   string = 'string',
+  confirm = 'confirm',
   boolean = 'boolean',
   number = 'number',
   enum = 'enum',
@@ -7,20 +10,14 @@ export enum OBJECT_BUILDER_ELEMENT {
   list = 'list',
 }
 
-export class ObjectBuilderEnum {
-  public enum: string[];
-}
-
-export class ObjectBuilderElement {
+export class ObjectBuilderElement<T = unknown> {
   public name: string;
-  public options?: ObjectBuilderEnum;
+  public options?: MenuEntry<T>[];
   public path: string;
   public type: OBJECT_BUILDER_ELEMENT;
 }
 
-export class ObjectBuilderOptions<
-  T extends Record<string, unknown> = Record<string, unknown>,
-> {
+export class ObjectBuilderOptions<T extends unknown> {
   public current?: T | T[];
   public elements: ObjectBuilderElement[];
   public mode?: 'single' | 'multi';

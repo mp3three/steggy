@@ -20,6 +20,7 @@ export interface InquirerKeypressOptions {
   catchAll?: boolean;
   description?: string;
   key?: string | string[];
+  modifiers?: Partial<KeyModifiers>;
   noHelp?: boolean;
 }
 
@@ -114,6 +115,14 @@ export abstract class InquirerPrompt<
       }
       if (!options.key.includes(mixed)) {
         return;
+      }
+      if (options.modifiers) {
+        const state = Object.entries(options.modifiers).every(
+          ([type, value]) => modifiers[type] === value,
+        );
+        if (!state) {
+          return;
+        }
       }
       caught = true;
       const result = this.activateKey(key, mixed, modifiers);

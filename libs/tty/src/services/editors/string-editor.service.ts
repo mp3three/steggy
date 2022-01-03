@@ -39,30 +39,33 @@ export class StringEditorService {
   ]);
 
   public onKeyPress(
-    options: StringEditorRenderOptions,
+    config: StringEditorRenderOptions,
     key: string,
     { shift }: KeyModifiers,
   ): StringEditorRenderOptions {
     if (key === 'backspace') {
-      options.current = options.current.slice(START, INVERT_VALUE);
-      return options;
+      config.current ??= '';
+      config.current = config.current.slice(START, INVERT_VALUE);
+      return config;
     }
     if (key === 'space') {
-      options.current += ' ';
-      return options;
+      config.current ??= '';
+      config.current += ' ';
+      return config;
     }
     if (key === 'tab') {
       return undefined;
     }
     if (key === 'escape') {
-      options.current = '';
-      return options;
+      config.current = '';
+      return config;
     }
     if (key.length > SINGLE) {
-      return options;
+      return config;
     }
-    options.current += shift ? key.toUpperCase() : key;
-    return options;
+    config.current ??= '';
+    config.current += shift ? key.toUpperCase() : key;
+    return config;
   }
 
   public render(options: StringEditorRenderOptions): string {
@@ -73,16 +76,16 @@ export class StringEditorService {
   }
 
   private renderBox(
-    options: StringEditorRenderOptions,
+    config: StringEditorRenderOptions,
     bgColor: string,
   ): string {
-    const value = is.empty(options.current)
-      ? options.placeholder ?? DEFAULT_PLACEHOLDER
-      : options.current;
-    const maxLength = options.width - this.leftPadding - this.leftPadding;
+    const value = is.empty(config.current)
+      ? config.placeholder ?? DEFAULT_PLACEHOLDER
+      : config.current;
+    const maxLength = config.width - this.leftPadding - this.leftPadding;
     const out: string[] = [];
-    if (options.label) {
-      out.push(chalk.bold.magenta.dim(options.label));
+    if (config.label) {
+      out.push(chalk.bold.magenta.dim(config.label));
     }
     out.push(
       chalk[bgColor].black(ansiPadEnd(INTERNAL_PADDING + value, maxLength)),

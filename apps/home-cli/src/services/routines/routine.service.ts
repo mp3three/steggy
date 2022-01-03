@@ -33,6 +33,7 @@ import Table from 'cli-table';
 import { MENU_ITEMS } from '../../includes';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';
+import { RoutineCommandBuilderService } from './activate';
 import { RoutineActivateService } from './routine-activate.service';
 import { RoutineCommandService } from './routine-command.service';
 
@@ -55,6 +56,7 @@ export class RoutineService {
     private readonly fetchService: HomeFetchService,
     private readonly textRender: TextRenderingService,
     private readonly promptService: PromptService,
+    private readonly commandBuilder: RoutineCommandBuilderService,
     private readonly activateService: RoutineActivateService,
     @Inject(forwardRef(() => RoomCommandService))
     private readonly roomCommand: RCService,
@@ -297,7 +299,8 @@ export class RoutineService {
         routine = await this.activateService.processRoutine(routine);
         return await this.processRoutine(routine, action);
       case 'command':
-        routine = await this.routineCommand.processRoutine(routine);
+        routine = await this.commandBuilder.process(routine);
+        // routine = await this.routineCommand.processRoutine(routine);
         return await this.processRoutine(routine, action);
     }
   }

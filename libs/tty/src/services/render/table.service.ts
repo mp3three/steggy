@@ -43,29 +43,30 @@ export class TableService {
     private readonly textRender: TextRenderingService,
   ) {}
 
-  private activeOptions: ObjectBuilderOptions;
+  private activeOptions: ObjectBuilderOptions<unknown>;
   private columns: ColumnInfo[];
   private selectedCell: number;
   private selectedRow: number;
   private values: Record<string, unknown>[];
 
   public renderTable(
-    options: ObjectBuilderOptions,
+    options: ObjectBuilderOptions<unknown>,
+    renderRows: Record<string, unknown>[],
     selectedRow: number,
     selectedCell: number,
   ): string {
     this.selectedCell = selectedCell;
     this.selectedRow = selectedRow;
     this.activeOptions = options;
-    if (Array.isArray(options.current)) {
-      this.values = options.current;
-    }
-    this.values = Array.isArray(options.current)
-      ? options.current
-      : [options.current];
+    this.values = renderRows;
     this.calcColumns();
     const header = this.header();
-    const rows = this.rows()
+    const r = this.rows();
+    if (is.empty(r)) {
+      const [top, content] = header;
+      return [top, content, this.footer()].join(`\n`);
+    }
+    const rows = r
       .join(
         `\n` +
           [
@@ -149,6 +150,9 @@ export class TableService {
   }
 
   private highlight(lines: string[]): string[] {
+    if (is.empty(this.values)) {
+      return;
+    }
     const bottom = HEADER_LINE_COUNT + this.selectedRow * ROW_MULTIPLIER;
     const middle = bottom - ARRAY_OFFSET;
     const top = middle - ARRAY_OFFSET;
@@ -176,7 +180,7 @@ export class TableService {
   }
 
   private highlightChar(char: string): string {
-    return chalk.cyan.inverse(char);
+    return chalk.bold.red(char);
   }
 
   private rows(): string[] {

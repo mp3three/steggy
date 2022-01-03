@@ -1,14 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import {
-  ARRAY_OFFSET,
-  INCREMENT,
-  InjectConfig,
-  START,
-  VALUE,
-} from '@text-based/utilities';
+import { ARRAY_OFFSET, INCREMENT, START, VALUE } from '@text-based/utilities';
 import chalk from 'chalk';
 
-import { LEFT_PADDING } from '../../config';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
 import { TextRenderingService } from '../render';
 
@@ -20,10 +13,7 @@ export interface EnumEditorRenderOptions<T extends unknown = unknown> {
 
 @Injectable()
 export class EnumEditorService {
-  constructor(
-    private readonly textRendering: TextRenderingService,
-    @InjectConfig(LEFT_PADDING) private readonly leftPadding: number,
-  ) {}
+  constructor(private readonly textRendering: TextRenderingService) {}
 
   public readonly keyMap = new Map([
     [{ description: 'cancel', key: 'tab' }, ''],
@@ -53,7 +43,6 @@ export class EnumEditorService {
   }
 
   public render(config: EnumEditorRenderOptions): string {
-    config.current ||= config.options[START][VALUE];
     const items = this.textRendering.selectRange(
       config.options,
       config.current,

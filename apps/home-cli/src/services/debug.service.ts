@@ -4,20 +4,16 @@ import {
   ConfigBuilderService,
   ICONS,
   IsDone,
-  OBJECT_BUILDER_ELEMENT,
   PromptService,
   Repl,
   ToMenuEntry,
 } from '@text-based/tty';
 import {
   ACTIVE_APPLICATION,
-  DOWN,
-  FILTER_OPERATIONS,
   GenericVersionDTO,
   InjectConfig,
   is,
   PackageJsonDTO,
-  UP,
   WorkspaceService,
 } from '@text-based/utilities';
 import chalk from 'chalk';
@@ -74,57 +70,6 @@ For loop example getting entity values in the weather domain:
 {%- endfor %}.`;
 
   public async exec(defaultAction?: string): Promise<void> {
-    const result = await this.promptService.objectBuilder({
-      current: [
-        {
-          friendlyName: 'left',
-          type: FILTER_OPERATIONS.eq,
-          value: false,
-        },
-        {
-          count: 5,
-          expire: new Date(),
-          friendlyName: '',
-          type: FILTER_OPERATIONS.gt,
-          value: true,
-        },
-      ],
-      elements: [
-        {
-          name: 'Friendly Name',
-          path: 'friendlyName',
-          type: OBJECT_BUILDER_ELEMENT.string,
-        },
-        {
-          name: 'Type',
-          options: {
-            enum: Object.keys(FILTER_OPERATIONS).sort((a, b) =>
-              a > b ? UP : DOWN,
-            ),
-          },
-          path: 'type',
-          type: OBJECT_BUILDER_ELEMENT.enum,
-        },
-        {
-          name: 'Value',
-          path: 'value',
-          type: OBJECT_BUILDER_ELEMENT.boolean,
-        },
-        {
-          name: 'count',
-          path: 'count',
-          type: OBJECT_BUILDER_ELEMENT.number,
-        },
-        {
-          name: 'expire',
-          path: 'expire',
-          type: OBJECT_BUILDER_ELEMENT.date,
-        },
-      ],
-      mode: 'single',
-    });
-    console.log(result);
-    await this.promptService.acknowledge();
     const action = await this.promptService.menu({
       keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry([

@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { ARRAY_OFFSET, is, START } from '@text-based/utilities';
+import { ARRAY_OFFSET, is, START, VALUE } from '@text-based/utilities';
 import chalk from 'chalk';
 import { get, set } from 'object-path';
 
@@ -12,21 +12,33 @@ import {
 } from '../decorators';
 import { ansiMaxLength } from '../includes';
 import {
+  BooleanEditorRenderOptions,
+  BooleanEditorService,
+  ConfirmEditorRenderOptions,
+  ConfirmEditorService,
   EnumEditorRenderOptions,
   EnumEditorService,
   KeymapService,
+  NumberEditorRenderOptions,
+  NumberEditorService,
   StringEditorRenderOptions,
   StringEditorService,
   TableService,
   TextRenderingService,
 } from '../services';
 
-export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
+export class ObjectBuilderPrompt extends InquirerPrompt<
+  ObjectBuilderOptions<unknown>
+> {
+  private booleanEditor: BooleanEditorService;
+  private confirmCB: (value: boolean) => void;
+  private confirmService: ConfirmEditorService;
   private currentEditor: OBJECT_BUILDER_ELEMENT;
-  private currentEditorOptions: unknown;
+  private editorOptions: unknown;
   private enumEditor: EnumEditorService;
   private isSelected = false;
   private keymapService: KeymapService;
+  private numberEditor: NumberEditorService;
   private rows: Record<string, unknown>[];
   private selectedCell = START;
   private selectedRow = START;
@@ -38,23 +50,50 @@ export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
     return this.opt.elements;
   }
 
+  protected add(): void {
+    this.rows.push({});
+  }
+
+  protected async delete(): Promise<void> {
+    this.currentEditor = OBJECT_BUILDER_ELEMENT.confirm;
+    this.editorOptions = {
+      current: false,
+      label: `Are you sure you want to delete this?`,
+    } as ConfirmEditorRenderOptions;
+    const result = await new Promise<boolean>(
+      (done) => (this.confirmCB = done),
+    );
+    this.currentEditor = undefined;
+    this.editorOptions = undefined;
+    this.confirmCB = undefined;
+    if (!result) {
+      return;
+    }
+    this.rows = this.rows.filter((item, index) => index !== this.selectedRow);
+    if (this.selectedRow > this.rows.length - ARRAY_OFFSET) {
+      this.selectedRow = this.rows.length - ARRAY_OFFSET;
+    }
+    this.render();
+  }
+
   protected editComplete(): void {
     if (!this.currentEditor) {
       return;
     }
-    const column = this.opt.elements[this.selectedCell];
-    switch (this.currentEditor) {
-      case OBJECT_BUILDER_ELEMENT.string:
-      case OBJECT_BUILDER_ELEMENT.enum:
-        set(
-          this.rows[this.selectedRow],
-          column.path,
-          (this.currentEditorOptions as StringEditorRenderOptions).current,
-        );
-        break;
+    if (this.confirmCB) {
+      this.confirmCB(
+        (this.editorOptions as ConfirmEditorRenderOptions).current,
+      );
+      return;
     }
+    const column = this.opt.elements[this.selectedCell];
+    set(
+      this.rows[this.selectedRow],
+      column.path,
+      (this.editorOptions as StringEditorRenderOptions).current,
+    );
     this.currentEditor = undefined;
-    this.currentEditorOptions = undefined;
+    this.editorOptions = undefined;
   }
 
   protected enableEdit(): boolean {
@@ -63,19 +102,35 @@ export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
     }
     const column = this.opt.elements[this.selectedCell];
     this.currentEditor = column.type;
+    this.confirmCB = undefined;
+    const current = get(this.rows[this.selectedRow], column.path);
+    const label = column.name;
     switch (column.type) {
       case OBJECT_BUILDER_ELEMENT.string:
-        this.currentEditorOptions = {
-          current: get(this.rows[this.selectedRow], column.path),
-          label: column.name,
+        this.editorOptions = {
+          current,
+          label,
         } as StringEditorRenderOptions;
         return;
       case OBJECT_BUILDER_ELEMENT.enum:
-        this.currentEditorOptions = {
-          current: get(this.rows[this.selectedRow], column.path),
-          label: column.name,
-          options: column.options.enum.map((i) => [i, i]),
+        this.editorOptions = {
+          current: current ?? column.options[START][VALUE],
+          label,
+          options: column.options,
         } as EnumEditorRenderOptions;
+        return;
+      case OBJECT_BUILDER_ELEMENT.boolean:
+        this.editorOptions = {
+          current,
+          label,
+        } as BooleanEditorRenderOptions;
+        return;
+      case OBJECT_BUILDER_ELEMENT.number:
+        this.editorOptions = {
+          current,
+          label,
+        } as NumberEditorRenderOptions;
+        return;
     }
   }
 
@@ -84,6 +139,11 @@ export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
       return false;
     }
     this.selectedRow++;
+  }
+
+  protected onEnd(): void {
+    super.onEnd();
+    this.done(this.rows);
   }
 
   protected onInit(app: INestApplication): void {
@@ -95,6 +155,9 @@ export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
     this.textRendering = app.get(TextRenderingService);
     this.keymapService = app.get(KeymapService);
     this.stringEditor = app.get(StringEditorService);
+    this.confirmService = app.get(ConfirmEditorService);
+    this.booleanEditor = app.get(BooleanEditorService);
+    this.numberEditor = app.get(NumberEditorService);
     this.enumEditor = app.get(EnumEditorService);
     this.createKeymap();
   }
@@ -128,6 +191,7 @@ export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
     const message = this.textRendering.pad(
       this.tableService.renderTable(
         this.opt,
+        this.rows,
         this.selectedRow,
         this.selectedCell,
       ),
@@ -152,10 +216,16 @@ export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
       new Map([
         // While there is no editor
         ...[
+          [
+            { description: 'done', key: 's', modifiers: { ctrl: true } },
+            'onEnd',
+          ],
           [{ description: 'cursor left', key: 'left' }, 'onLeft'],
           [{ description: 'cursor right', key: 'right' }, 'onRight'],
           [{ description: 'cursor up', key: 'up' }, 'onUp'],
           [{ description: 'cursor down', key: 'down' }, 'onDown'],
+          [{ description: 'add row', key: '+' }, 'add'],
+          [{ description: 'delete row', key: ['-', 'delete'] }, 'delete'],
           [{ description: 'edit cell', key: 'tab' }, 'enableEdit'],
         ].map(
           ([options, key]: [{ description: string; key: string }, string]) => [
@@ -185,21 +255,38 @@ export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
   private editorKeyPress(key: string, modifiers: KeyModifiers): void {
     switch (this.currentEditor) {
       case OBJECT_BUILDER_ELEMENT.string:
-        this.currentEditorOptions = this.stringEditor.onKeyPress(
-          this.currentEditorOptions as StringEditorRenderOptions,
+        this.editorOptions = this.stringEditor.onKeyPress(
+          this.editorOptions as StringEditorRenderOptions,
           key,
           modifiers,
         );
         break;
       case OBJECT_BUILDER_ELEMENT.enum:
-        this.currentEditorOptions = this.enumEditor.onKeyPress(
-          this.currentEditorOptions as EnumEditorRenderOptions,
+        this.editorOptions = this.enumEditor.onKeyPress(
+          this.editorOptions as EnumEditorRenderOptions,
           key,
-          // modifiers,
+        );
+        break;
+      case OBJECT_BUILDER_ELEMENT.boolean:
+        this.editorOptions = this.booleanEditor.onKeyPress(
+          this.editorOptions as BooleanEditorRenderOptions,
+          key,
+        );
+        break;
+      case OBJECT_BUILDER_ELEMENT.number:
+        this.editorOptions = this.numberEditor.onKeyPress(
+          this.editorOptions as NumberEditorRenderOptions,
+          key,
+        );
+        break;
+      case OBJECT_BUILDER_ELEMENT.confirm:
+        this.editorOptions = this.confirmService.onKeyPress(
+          this.editorOptions as ConfirmEditorRenderOptions,
+          key,
         );
         break;
     }
-    if (is.undefined(this.currentEditorOptions)) {
+    if (is.undefined(this.editorOptions)) {
       // It cancelled itself
       this.currentEditor = undefined;
     }
@@ -216,7 +303,7 @@ export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
         return [
           line,
           this.stringEditor.render({
-            ...(this.currentEditorOptions as StringEditorRenderOptions),
+            ...(this.editorOptions as StringEditorRenderOptions),
             width,
           }),
         ];
@@ -224,8 +311,34 @@ export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
         return [
           line,
           this.enumEditor.render({
-            ...(this.currentEditorOptions as EnumEditorRenderOptions),
+            ...(this.editorOptions as EnumEditorRenderOptions),
           }),
+        ];
+      case OBJECT_BUILDER_ELEMENT.boolean:
+        return [
+          line,
+          this.booleanEditor.render({
+            ...(this.editorOptions as BooleanEditorRenderOptions),
+          }),
+        ];
+      case OBJECT_BUILDER_ELEMENT.number:
+        return [
+          line,
+          this.numberEditor.render(
+            {
+              ...(this.editorOptions as NumberEditorRenderOptions),
+            },
+            width,
+          ),
+        ];
+      case OBJECT_BUILDER_ELEMENT.confirm:
+        return [
+          this.confirmService.render(
+            {
+              ...(this.editorOptions as ConfirmEditorRenderOptions),
+            },
+            width,
+          ),
         ];
     }
     return [];

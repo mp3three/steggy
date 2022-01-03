@@ -311,7 +311,9 @@ export class PromptService {
     return result;
   }
 
-  public async objectBuilder<T>(options: ObjectBuilderOptions): Promise<T> {
+  public async objectBuilder<T>(
+    options: ObjectBuilderOptions<T>,
+  ): Promise<T[]> {
     const { result } = await inquirer.prompt([
       {
         name,

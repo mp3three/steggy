@@ -21,6 +21,7 @@ import {
   ColorsService,
   ComparisonToolsService,
   ConfigBuilderService,
+  ConfirmEditorService,
   DateEditorService,
   EnumEditorService,
   EnvironmentService,
@@ -38,6 +39,16 @@ import {
   TextRenderingService,
 } from '../services';
 
+inquirer.registerPrompt('objectBuilder', ObjectBuilderPrompt);
+inquirer.registerPrompt('cron', CronPrompt);
+inquirer.registerPrompt('selectLine', SelectLinePrompt);
+inquirer.registerPrompt('timeout', TimeoutPrompt);
+inquirer.registerPrompt('mainMenu', MainMenuPrompt);
+inquirer.registerPrompt('acknowledge', AcknowledgePrompt);
+inquirer.registerPrompt('listbuilder', ListBuilderPrompt);
+
+// @ts-expect-error Probably related to missing ts defs or something
+inquirer.registerPrompt('date', datePrompt);
 @LibraryModule({
   exports: [
     ChartingService,
@@ -74,6 +85,7 @@ import {
     PromptService,
     ReplExplorerService,
     StringEditorService,
+    ConfirmEditorService,
     SystemService,
     TableService,
     TextRenderingService,
@@ -82,15 +94,5 @@ import {
 export class MainCLIModule {
   protected onPreInit(app: INestApplication): void {
     InquirerPrompt['forRoot'](app);
-    inquirer.registerPrompt('objectBuilder', ObjectBuilderPrompt);
-    inquirer.registerPrompt('cron', CronPrompt);
-    inquirer.registerPrompt('selectLine', SelectLinePrompt);
-    inquirer.registerPrompt('timeout', TimeoutPrompt);
-    inquirer.registerPrompt('mainMenu', MainMenuPrompt);
-    inquirer.registerPrompt('acknowledge', AcknowledgePrompt);
-    inquirer.registerPrompt('listbuilder', ListBuilderPrompt);
-
-    // @ts-expect-error Probably related to missing ts defs or something
-    inquirer.registerPrompt('date', datePrompt);
   }
 }
