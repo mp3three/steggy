@@ -8,13 +8,15 @@ import observe from 'inquirer/lib/utils/events';
 
 import { ICONS, KeyDescriptor } from '../contracts';
 
-type DirectCB = (key: string) => void | boolean | Promise<void | boolean>;
+export type KeyModifiers = Record<'ctrl' | 'shift' | 'meta', boolean>;
+export type DirectCB = (
+  key: string,
+  mods: KeyModifiers,
+) => void | boolean | Promise<void | boolean>;
 type tCallback<T = unknown> = (value?: T) => void;
-export type tKeyMap<KEYS extends string | DirectCB = string> = Map<
-  InquirerKeypressOptions,
-  KEYS
->;
-interface InquirerKeypressOptions {
+export type tKeyMap = Map<InquirerKeypressOptions, string | DirectCB>;
+export interface InquirerKeypressOptions {
+  active?: () => boolean;
   catchAll?: boolean;
   description?: string;
   key?: string | string[];
@@ -31,8 +33,8 @@ export abstract class InquirerPrompt<
     app = load;
   }
 
+  public localKeyMap: tKeyMap;
   protected done: tCallback<VALUE>;
-  private localKeyMap: tKeyMap;
 
   protected abstract onInit(app: INestApplication): void | Promise<void>;
   protected abstract render(): void;
@@ -60,7 +62,7 @@ export abstract class InquirerPrompt<
     this.localKeyMap = map;
     // Sanity check to make sure all the methods actually exist
     map.forEach((key) => {
-      if (is.undefined(this[key])) {
+      if (is.string(key) && is.undefined(this[key])) {
         console.log(
           chalk.yellow
             .inverse` ${ICONS.WARNING}MISSING CALLBACK {bold ${key}} `,
@@ -72,42 +74,49 @@ export abstract class InquirerPrompt<
   private activateKey(
     key: string | DirectCB,
     mixed: string,
+    modifiers: KeyModifiers,
   ): void | boolean | Promise<void | boolean> {
     if (is.function<DirectCB>(key)) {
-      return key(mixed);
+      return key(mixed, modifiers);
     }
     return this[key](mixed);
   }
 
+  // eslint-disable-next-line radar/cognitive-complexity
   private keyPressHandler(descriptor: KeyDescriptor): void {
     if (this.status === 'answered') {
       return;
     }
     const { key } = descriptor;
-    const mixed = key?.name ?? key?.sequence ?? 'enter';
-    const catchAll: string[] = [];
+    const { ctrl, meta, shift, name, sequence } = key ?? {};
+    const mixed = name ?? sequence ?? 'enter';
+    const catchAll: (string | DirectCB)[] = [];
     let caught = false;
+    const modifiers: KeyModifiers = { ctrl, meta, shift };
 
     this.localKeyMap.forEach((key, options) => {
       if (options.catchAll) {
         catchAll.push(key);
         return;
       }
+      if (!is.undefined(options.active) && !options.active()) {
+        return;
+      }
       options.key ??= [];
       options.key = Array.isArray(options.key) ? options.key : [options.key];
-      if (is.undefined[this[key]]) {
+      if (is.string(key) && is.undefined(this[key])) {
         console.log(`Missing localKeyMap callback ${key}`);
       }
       if (is.empty(options.key)) {
         caught = true;
-        this.activateKey(key, mixed);
+        this.activateKey(key, mixed, modifiers);
         return;
       }
       if (!options.key.includes(mixed)) {
         return;
       }
       caught = true;
-      const result = this.activateKey(key, mixed);
+      const result = this.activateKey(key, mixed, modifiers);
       if (result === false) {
         return;
       }
@@ -116,6 +125,6 @@ export abstract class InquirerPrompt<
     if (caught) {
       return;
     }
-    catchAll.forEach((i) => this.activateKey(i, mixed));
+    catchAll.forEach((i) => this.activateKey(i, mixed, modifiers));
   }
 }

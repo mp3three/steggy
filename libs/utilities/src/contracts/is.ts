@@ -7,6 +7,9 @@ export const is = {
   boolean(test: unknown): test is boolean {
     return typeof test === 'boolean';
   },
+  date(test: unknown): test is Date {
+    return test instanceof Date;
+  },
   empty(
     type: string | Array<unknown> | Set<unknown> | Map<unknown, unknown>,
   ): boolean {

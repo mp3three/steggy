@@ -11,11 +11,13 @@ import {
 } from '@text-based/tty';
 import {
   ACTIVE_APPLICATION,
+  DOWN,
   FILTER_OPERATIONS,
   GenericVersionDTO,
   InjectConfig,
   is,
   PackageJsonDTO,
+  UP,
   WorkspaceService,
 } from '@text-based/utilities';
 import chalk from 'chalk';
@@ -77,12 +79,14 @@ For loop example getting entity values in the weather domain:
         {
           friendlyName: 'left',
           type: FILTER_OPERATIONS.eq,
-          // value: 'bar',
+          value: false,
         },
         {
-          friendlyName: 'Foo',
-          type: FILTER_OPERATIONS.eq,
-          value: 'bar',
+          count: 5,
+          expire: new Date(),
+          friendlyName: '',
+          type: FILTER_OPERATIONS.gt,
+          value: true,
         },
       ],
       elements: [
@@ -93,14 +97,28 @@ For loop example getting entity values in the weather domain:
         },
         {
           name: 'Type',
-          options: { enum: Object.keys(FILTER_OPERATIONS) },
+          options: {
+            enum: Object.keys(FILTER_OPERATIONS).sort((a, b) =>
+              a > b ? UP : DOWN,
+            ),
+          },
           path: 'type',
           type: OBJECT_BUILDER_ELEMENT.enum,
         },
         {
           name: 'Value',
           path: 'value',
-          type: OBJECT_BUILDER_ELEMENT.string,
+          type: OBJECT_BUILDER_ELEMENT.boolean,
+        },
+        {
+          name: 'count',
+          path: 'count',
+          type: OBJECT_BUILDER_ELEMENT.number,
+        },
+        {
+          name: 'expire',
+          path: 'expire',
+          type: OBJECT_BUILDER_ELEMENT.date,
         },
       ],
       mode: 'single',

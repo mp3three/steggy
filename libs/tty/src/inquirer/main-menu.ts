@@ -472,7 +472,7 @@ export class MainMenuPrompt extends InquirerPrompt<MainMenuOptions> {
     }
     message += out.map((i) => `  ${i}`).join(`\n`);
     const selectedItem = this.getSelected();
-    if (is.string(selectedItem.helpText)) {
+    if (is.string(selectedItem?.helpText)) {
       message += chalk`\n \n {blue ?} ${selectedItem.helpText
         .split(`\n`)
         .map((line) => line.replace(new RegExp('^ -'), chalk.cyan('   -')))
@@ -480,7 +480,7 @@ export class MainMenuPrompt extends InquirerPrompt<MainMenuOptions> {
     }
     this.screen.render(
       message,
-      this.keymap.keymapHelp(this['localKeyMap'], {
+      this.keymap.keymapHelp(this.localKeyMap, {
         message,
         prefix: new Map(
           Object.entries(this.opt.keyMap).map(([description, item]) => {

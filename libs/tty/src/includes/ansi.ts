@@ -51,7 +51,7 @@ export function ansiMaxLength(...items: (string[] | string)[]): number {
   return Math.max(
     ...items.flatMap((list) =>
       (Array.isArray(list) ? list : list.split(`\n`)).map(
-        (line) => ansiStrip(line).length,
+        (line) => ansiStrip(String(line)).length,
       ),
     ),
   );

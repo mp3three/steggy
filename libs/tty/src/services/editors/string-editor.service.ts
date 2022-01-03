@@ -1,14 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { InjectConfig, is } from '@text-based/utilities';
+import {
+  InjectConfig,
+  INVERT_VALUE,
+  is,
+  SINGLE,
+  START,
+} from '@text-based/utilities';
 import chalk from 'chalk';
 
 import { LEFT_PADDING } from '../../config';
+import { KeyModifiers } from '../../decorators';
 import { ansiPadEnd } from '../../includes';
 import { TextRenderingService } from '../render';
 
-interface RenderOptions {
+export interface StringEditorRenderOptions {
   current: string;
-  hideHelp?: boolean;
   label?: string;
   maxLength?: number;
   minLength?: number;
@@ -27,37 +33,60 @@ export class StringEditorService {
     @InjectConfig(LEFT_PADDING) private readonly leftPadding: number,
   ) {}
 
-  public onKeyPress(options: RenderOptions, key: string): RenderOptions {
-    options.current += key;
+  public readonly keyMap = new Map([
+    [{ description: 'cancel', key: 'tab' }, ''],
+    [{ description: 'clear', key: 'escape' }, ''],
+  ]);
+
+  public onKeyPress(
+    options: StringEditorRenderOptions,
+    key: string,
+    { shift }: KeyModifiers,
+  ): StringEditorRenderOptions {
+    if (key === 'backspace') {
+      options.current = options.current.slice(START, INVERT_VALUE);
+      return options;
+    }
+    if (key === 'space') {
+      options.current += ' ';
+      return options;
+    }
+    if (key === 'tab') {
+      return undefined;
+    }
+    if (key === 'escape') {
+      options.current = '';
+      return options;
+    }
+    if (key.length > SINGLE) {
+      return options;
+    }
+    options.current += shift ? key.toUpperCase() : key;
     return options;
   }
 
-  public render(options: RenderOptions): string {
+  public render(options: StringEditorRenderOptions): string {
     if (is.empty(options.current)) {
       return this.renderBox(options, 'bgBlue');
     }
     return this.renderBox(options, 'bgWhite');
   }
 
-  private footer(): string {
-    return [].join(`\n`);
-  }
-
-  private renderBox(options: RenderOptions, bgColor: string): string {
-    const placeholder = options.placeholder ?? DEFAULT_PLACEHOLDER;
+  private renderBox(
+    options: StringEditorRenderOptions,
+    bgColor: string,
+  ): string {
+    const value = is.empty(options.current)
+      ? options.placeholder ?? DEFAULT_PLACEHOLDER
+      : options.current;
     const maxLength = options.width - this.leftPadding - this.leftPadding;
     const out: string[] = [];
     if (options.label) {
-      out.push(chalk.bold(options.label));
+      out.push(chalk.bold.magenta.dim(options.label));
     }
     out.push(
-      chalk[bgColor].black(
-        ansiPadEnd(INTERNAL_PADDING + placeholder, maxLength),
-      ),
+      chalk[bgColor].black(ansiPadEnd(INTERNAL_PADDING + value, maxLength)),
     );
-    if (!options.hideHelp) {
-      out.push(this.footer());
-    }
     return this.textRendering.pad(out.join(`\n`));
   }
 }

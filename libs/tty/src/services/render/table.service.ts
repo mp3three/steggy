@@ -89,7 +89,17 @@ export class TableService {
         maxWidth: Math.max(
           MIN_CELL_WIDTH,
           PADDING + item.name.length + PADDING,
-          ansiMaxLength(this.values.map((row) => get(row, item.path))),
+          PADDING +
+            ansiMaxLength(
+              this.values.map((row) => {
+                const value = get(row, item.path);
+                if (is.date(value)) {
+                  return value.toLocaleString();
+                }
+                return String(value);
+              }),
+            ) +
+            PADDING,
         ),
         name: item.name,
       };

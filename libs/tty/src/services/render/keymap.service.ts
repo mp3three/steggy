@@ -21,7 +21,8 @@ export class KeymapService {
     {
       message = '',
       prefix = new Map(),
-    }: { message?: string; prefix?: tKeyMap } = {},
+      onlyHelp = false,
+    }: { message?: string; onlyHelp?: boolean; prefix?: tKeyMap } = {},
   ): string {
     const a = this.buildLines(prefix);
     const b = this.buildLines(map);
@@ -30,24 +31,37 @@ export class KeymapService {
       a.map((i) => i.label),
       b.map((i) => i.label),
     );
-    const help = this.textRendering.pad(
-      [...a, ...b]
-        .map(
-          (item) =>
-            chalk`{blue.dim - }${ansiPadEnd(item.label, biggestLabel)}  ${
-              item.description
-            }`,
-        )
-        .join(`\n`),
-    );
+    const help = [...a, ...b]
+      .map(
+        (item) =>
+          chalk`{blue.dim > }${ansiPadEnd(item.label, biggestLabel)}  ${
+            item.description
+          }`,
+      )
+      .join(`\n`);
+    if (onlyHelp) {
+      return help;
+    }
     const maxLength =
       ansiMaxLength(help.split(`\n`), message.split(`\n`)) + LINE_PADDING;
-    return [' ', chalk.blue.dim('='.repeat(maxLength)), ` `, help].join(`\n`);
+    return [
+      chalk.blue.dim('='.repeat(maxLength)),
+      ` `,
+      this.textRendering.pad(help),
+    ].join(`\n`);
   }
 
   private buildLines(map: tKeyMap): keyItem[] {
     return [...map.entries()]
-      .filter(([{ noHelp }]) => !noHelp)
+      .filter(([{ noHelp, active }]) => {
+        if (noHelp) {
+          return false;
+        }
+        if (active) {
+          return active();
+        }
+        return true;
+      })
       .map(([config, target]): keyItem => {
         const activate = config.catchAll
           ? chalk.yellow('default')

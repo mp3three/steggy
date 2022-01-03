@@ -190,6 +190,9 @@ export class TextRenderingService {
     if (is.undefined(item)) {
       return chalk.gray(`undefined`);
     }
+    if (is.date(item)) {
+      return chalk.green(item.toLocaleString());
+    }
     if (is.number(item)) {
       return chalk.yellow(String(item));
     }
