@@ -29,6 +29,7 @@ import {
   RoutineActivateService,
   RoutineCaptureService,
   RoutineCommandBuilderService,
+  RoutineCommandExplorerService,
   RoutineCommandService,
   RoutineService,
   RoutineTriggerService,
@@ -92,6 +93,7 @@ import {
       // /*
       ServerControlService,
       ServerLogsService,
+      RoutineCommandExplorerService,
       AnimationService,
       DebugService,
       DeviceService,

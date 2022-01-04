@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
 import { RoutineCommandStopProcessing } from '@text-based/controller-logic';
 import { PromptService } from '@text-based/tty';
 
-@Injectable()
+import { RoutineCommand } from '../../../decorators';
+
+@RoutineCommand({
+  type: 'stop_processing',
+})
 export class StopProcessingService {
   constructor(private readonly promptService: PromptService) {}
 

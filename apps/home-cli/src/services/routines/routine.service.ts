@@ -33,7 +33,7 @@ import Table from 'cli-table';
 import { MENU_ITEMS } from '../../includes';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';
-import { RoutineCommandBuilderService } from './activate';
+import { RoutineCommandBuilderService } from './command';
 import { RoutineActivateService } from './routine-activate.service';
 import { RoutineCommandService } from './routine-command.service';
 

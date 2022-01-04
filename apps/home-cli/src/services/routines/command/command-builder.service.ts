@@ -6,9 +6,14 @@ import {
 import { OBJECT_BUILDER_ELEMENT, PromptService } from '@text-based/tty';
 import { DOWN, is, TitleCase, UP } from '@text-based/utilities';
 
+import { RoutineCommandExplorerService } from '../../explorers';
+
 @Injectable()
 export class RoutineCommandBuilderService {
-  constructor(private readonly promptService: PromptService) {}
+  constructor(
+    private readonly promptService: PromptService,
+    private readonly commandExplorer: RoutineCommandExplorerService,
+  ) {}
 
   public async process(routine: RoutineDTO): Promise<RoutineDTO> {
     this.promptService.clear();

@@ -2,11 +2,11 @@ import { INestApplication } from '@nestjs/common';
 import { each, is } from '@text-based/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
-import { Question } from 'inquirer';
-import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
+import { ReadLine } from 'readline';
 
 import { ICONS, KeyDescriptor } from '../contracts';
+import { ScreenService } from '../services';
 
 export type KeyModifiers = Record<'ctrl' | 'shift' | 'meta', boolean>;
 export type DirectCB = (
@@ -29,28 +29,39 @@ let app: INestApplication;
 export abstract class InquirerPrompt<
   OPTIONS extends unknown = Record<string, unknown>,
   VALUE extends unknown = unknown,
-> extends Base<Question & OPTIONS> {
+> {
   public static forRoot(load: INestApplication) {
     app = load;
   }
 
+  constructor(question: OPTIONS, rl: ReadLine) {
+    this.opt = question;
+    this.rl = rl;
+  }
+
   public localKeyMap: tKeyMap;
+  public status = 'working';
   protected done: tCallback<VALUE>;
+  protected opt: OPTIONS;
+  protected screen: ScreenService;
+  private rl: ReadLine;
+
+  public async run() {
+    this.screen = app.get(ScreenService);
+    return new Promise(async (done) => {
+      await this.onInit(app);
+      this.done = done;
+      const events = observe(this.rl);
+
+      events.keypress.forEach(this.keyPressHandler.bind(this));
+      events.line.forEach(this.keyPressHandler.bind(this));
+      cliCursor.hide();
+      this.render();
+    });
+  }
 
   protected abstract onInit(app: INestApplication): void | Promise<void>;
   protected abstract render(): void;
-
-  protected async _run(callback: tCallback) {
-    await this.onInit(app);
-    this.done = callback;
-    const events = observe(this.rl);
-
-    events.keypress.forEach(this.keyPressHandler.bind(this));
-    events.line.forEach(this.keyPressHandler.bind(this));
-    cliCursor.hide();
-    this.render();
-    return this;
-  }
 
   protected onEnd(): void {
     this.status = 'answered';

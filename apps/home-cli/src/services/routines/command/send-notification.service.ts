@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
 import { RoutineCommandSendNotificationDTO } from '@text-based/controller-logic';
 import { PromptService } from '@text-based/tty';
 
-@Injectable()
+import { RoutineCommand } from '../../../decorators';
+
+@RoutineCommand({
+  type: 'send_notification',
+})
 export class SendNotificationService {
   constructor(private readonly promptService: PromptService) {}
 

@@ -18,12 +18,14 @@ import fuzzy from 'fuzzysort';
 import { LEFT_PADDING, PAGE_SIZE } from '../../config';
 import { MenuEntry } from '../../contracts';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../../includes';
+import { ScreenService } from './screen.service';
 
 const TEMP_TEMPLATE_SIZE = 3;
 const MAX_SEARCH_SIZE = 50;
 const SEPARATOR = chalk.blue.dim('|');
 const BUFFER_SIZE = 3;
 const MIN_SIZE = 2;
+const DEFAULT_WIDTH = 80;
 //
 const MAX_STRING_LENGTH = 300;
 
@@ -37,6 +39,7 @@ export class TextRenderingService {
   constructor(
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
     @InjectConfig(LEFT_PADDING) private readonly leftPadding: number,
+    private readonly screen: ScreenService,
   ) {}
 
   public appendHelp(
@@ -151,6 +154,22 @@ export class TextRenderingService {
       .join(`\n`);
   }
 
+  public render(...sections: string[]): void {
+    /**
+     * Code from inquirer, might want later
+     */
+    // const promptLine = lastLine(content);
+    // const rawPromptLine = stripAnsi(promptLine);
+    // // Remove the rl.line from our prompt. We can't rely on the content of
+    // // rl.line (mainly because of the password prompt), so just rely on it's
+    // // length.
+    // let prompt = rawPromptLine;
+    // if (this.rl.line.length) {
+    //   prompt = prompt.slice(0, -this.rl.line.length);
+    // }
+    // this.rl.setPrompt(prompt);
+  }
+
   public searchBox(searchText: string, size = MAX_SEARCH_SIZE): string[] {
     const text = is.empty(searchText)
       ? chalk.bgBlue`Type to filter`
@@ -221,6 +240,16 @@ export class TextRenderingService {
         .join(`\n`);
     }
     return chalk.gray(JSON.stringify(item));
+  }
+
+  private getWidth(): number {
+    if (process.stdout.getWindowSize) {
+      return process.stdout.getWindowSize()[START] || DEFAULT_WIDTH;
+    }
+    if (process.stdout.columns) {
+      return process.stdout.columns;
+    }
+    return DEFAULT_WIDTH;
   }
 
   private highlight(result) {

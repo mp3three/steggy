@@ -19,7 +19,7 @@ export interface EnumEditorRenderOptions<T extends unknown = unknown> {
   ]),
   type: 'enum',
 })
-export class EnumEditorService<T>
+export class EnumEditorService
   implements iBuilderEditor<EnumEditorRenderOptions>
 {
   constructor(private readonly textRendering: TextRenderingService) {}

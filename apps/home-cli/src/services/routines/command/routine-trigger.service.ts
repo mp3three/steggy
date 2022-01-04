@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
 import { RoutineCommandTriggerRoutineDTO } from '@text-based/controller-logic';
 import { PromptService } from '@text-based/tty';
 
+import { RoutineCommand } from '../../../decorators';
 import { RoutineService } from '../routine.service';
 
-@Injectable()
+@RoutineCommand({
+  type: 'trigger_routine',
+})
 export class RoutineTriggerService {
   constructor(
     private readonly promptService: PromptService,

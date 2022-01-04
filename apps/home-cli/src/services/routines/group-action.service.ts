@@ -1,17 +1,20 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { NotImplementedException } from '@nestjs/common';
 import {
   GROUP_TYPES,
   RoutineCommandGroupActionDTO,
 } from '@text-based/controller-logic';
 import { PromptService } from '@text-based/tty';
 
+import { RoutineCommand } from '../../decorators';
 import {
   GroupCommandService,
   LightGroupCommandService,
   SwitchGroupCommandService,
 } from '../groups';
 
-@Injectable()
+@RoutineCommand({
+  type: 'group_action',
+})
 export class GroupActionService {
   constructor(
     private readonly promptService: PromptService,

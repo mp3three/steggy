@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
 import { RoutineRestoreCommandDTO } from '@text-based/controller-logic';
 import { PromptService } from '@text-based/tty';
 
-@Injectable()
+import { RoutineCommand } from '../../../decorators';
+
+@RoutineCommand({
+  type: 'restore',
+})
 export class RestoreService {
   constructor(private readonly promptService: PromptService) {}
 
