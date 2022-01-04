@@ -23,6 +23,8 @@ import {
   ConfigBuilderService,
   ConfirmEditorService,
   DateEditorService,
+  DiscriminatorEditorService,
+  EditorExplorerService,
   EnumEditorService,
   EnvironmentService,
   FooterEntryService,
@@ -71,12 +73,14 @@ inquirer.registerPrompt('date', datePrompt);
     BooleanEditorService,
     ChartingService,
     ColorsService,
+    DiscriminatorEditorService,
     ComparisonToolsService,
     KeymapService,
     ConfigBuilderService,
     DateEditorService,
     EnumEditorService,
     EnvironmentService,
+    EditorExplorerService,
     FooterEntryService,
     GitService,
     MainCLIService,
@@ -93,6 +97,6 @@ inquirer.registerPrompt('date', datePrompt);
 })
 export class MainCLIModule {
   protected onPreInit(app: INestApplication): void {
-    InquirerPrompt['forRoot'](app);
+    InquirerPrompt.forRoot(app);
   }
 }

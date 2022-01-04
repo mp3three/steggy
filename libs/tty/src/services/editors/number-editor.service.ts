@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
 import { InjectConfig, INVERT_VALUE, is, START } from '@text-based/utilities';
 import chalk from 'chalk';
 
 import { LEFT_PADDING } from '../../config';
+import { Editor, iBuilderEditor } from '../../decorators';
 import { ansiPadEnd } from '../../includes';
 import { TextRenderingService } from '../render';
 
@@ -16,8 +16,17 @@ export interface NumberEditorRenderOptions {
 
 const INTERNAL_PADDING = ' ';
 
-@Injectable()
-export class NumberEditorService {
+@Editor({
+  keyMap: new Map([
+    [{ description: 'cancel', key: 'tab' }, ''],
+    [{ description: 'left', key: 'left' }, ''],
+    [{ description: 'right', key: 'right' }, ''],
+  ]),
+  type: 'number',
+})
+export class NumberEditorService
+  implements iBuilderEditor<NumberEditorRenderOptions>
+{
   constructor(
     private readonly textRendering: TextRenderingService,
     @InjectConfig(LEFT_PADDING) private readonly leftPadding: number,

@@ -1,5 +1,3 @@
-import { MenuEntry } from './inquirer';
-
 export enum OBJECT_BUILDER_ELEMENT {
   string = 'string',
   confirm = 'confirm',
@@ -7,14 +5,15 @@ export enum OBJECT_BUILDER_ELEMENT {
   number = 'number',
   enum = 'enum',
   date = 'date',
+  discriminator = 'discriminator',
   list = 'list',
 }
 
-export class ObjectBuilderElement<T = unknown> {
+export class ObjectBuilderElement<EXTRA = unknown> {
+  public extra?: EXTRA;
   public name: string;
-  public options?: MenuEntry<T>[];
   public path: string;
-  public type: OBJECT_BUILDER_ELEMENT;
+  public type: string;
 }
 
 export class ObjectBuilderOptions<T extends unknown> {

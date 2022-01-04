@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 
+import { Editor, iBuilderEditor } from '../../decorators';
 import { TextRenderingService } from '../render';
 
 export interface ConfirmEditorRenderOptions {
@@ -8,8 +8,17 @@ export interface ConfirmEditorRenderOptions {
   label?: string;
 }
 
-@Injectable()
-export class ConfirmEditorService {
+@Editor({
+  keyMap: new Map([
+    [{ description: 'cancel', key: 'tab' }, ''],
+    [{ description: 'left', key: 'left' }, ''],
+    [{ description: 'right', key: 'right' }, ''],
+  ]),
+  type: 'confirm',
+})
+export class ConfirmEditorService
+  implements iBuilderEditor<ConfirmEditorRenderOptions>
+{
   constructor(private readonly textRendering: TextRenderingService) {}
 
   public readonly keyMap = new Map([
@@ -36,8 +45,8 @@ export class ConfirmEditorService {
 
   public render(config: ConfirmEditorRenderOptions, width: number): string {
     const content = [
-      chalk`{${config.current ? 'magenta.bold' : 'gray'} yes}`, // [config.current ? 'magenta' : 'gray']('true'),
-      chalk`{${!config.current ? 'magenta.bold' : 'gray'} no}`, // [!config.current ? 'magenta' : 'gray']('false'),
+      chalk`{${config.current ? 'magenta.bold' : 'gray'} yes}`,
+      chalk`{${!config.current ? 'magenta.bold' : 'gray'} no}`,
     ].join(' ');
     return (
       chalk.yellow.dim('='.repeat(width)) +

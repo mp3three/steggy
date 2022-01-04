@@ -1,28 +1,18 @@
+import { Injectable } from '@nestjs/common';
 import { ARRAY_OFFSET, INCREMENT, START, VALUE } from '@text-based/utilities';
 import chalk from 'chalk';
 
-import { Editor, iBuilderEditor } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
 import { TextRenderingService } from '../render';
 
-export interface EnumEditorRenderOptions<T extends unknown = unknown> {
+export interface DiscriminatorEditorRenderOptions<T extends unknown = unknown> {
   current: T;
   label?: string;
   options: [string, T][];
 }
 
-@Editor({
-  keyMap: new Map([
-    [{ description: 'cancel', key: 'tab' }, ''],
-    [{ description: 'clear', key: 'escape' }, ''],
-    [{ description: 'up', key: 'up' }, ''],
-    [{ description: 'down', key: 'down' }, ''],
-  ]),
-  type: 'enum',
-})
-export class EnumEditorService
-  implements iBuilderEditor<EnumEditorRenderOptions>
-{
+@Injectable()
+export class DiscriminatorEditorService {
   constructor(private readonly textRendering: TextRenderingService) {}
 
   public readonly keyMap = new Map([
@@ -33,9 +23,9 @@ export class EnumEditorService
   ]);
 
   public onKeyPress(
-    config: EnumEditorRenderOptions,
+    config: DiscriminatorEditorRenderOptions,
     key: string,
-  ): EnumEditorRenderOptions {
+  ): DiscriminatorEditorRenderOptions {
     switch (key) {
       case 'tab':
         return undefined;
@@ -52,7 +42,7 @@ export class EnumEditorService
     return config;
   }
 
-  public render(config: EnumEditorRenderOptions): string {
+  public render(config: DiscriminatorEditorRenderOptions): string {
     const items = this.textRendering.selectRange(
       config.options,
       config.current,
@@ -70,7 +60,7 @@ export class EnumEditorService
     return this.textRendering.pad(content);
   }
 
-  private next(config: EnumEditorRenderOptions): void {
+  private next(config: DiscriminatorEditorRenderOptions): void {
     const index = config.options.findIndex(
       ([, value]) => config.current === value,
     );
@@ -81,7 +71,7 @@ export class EnumEditorService
     config.current = config.options[index + INCREMENT][VALUE];
   }
 
-  private previous(config: EnumEditorRenderOptions): void {
+  private previous(config: DiscriminatorEditorRenderOptions): void {
     const index = config.options.findIndex(
       ([, value]) => config.current === value,
     );

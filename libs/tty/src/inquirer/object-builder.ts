@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { ARRAY_OFFSET, is, START, VALUE } from '@text-based/utilities';
+import { ARRAY_OFFSET, is, START } from '@text-based/utilities';
 import chalk from 'chalk';
 import { get, set } from 'object-path';
 
@@ -12,37 +12,28 @@ import {
 } from '../decorators';
 import { ansiMaxLength } from '../includes';
 import {
-  BooleanEditorRenderOptions,
-  BooleanEditorService,
   ConfirmEditorRenderOptions,
   ConfirmEditorService,
-  EnumEditorRenderOptions,
-  EnumEditorService,
   KeymapService,
-  NumberEditorRenderOptions,
-  NumberEditorService,
   StringEditorRenderOptions,
-  StringEditorService,
   TableService,
   TextRenderingService,
 } from '../services';
+import { FooterEditorService } from '../services/render/footer-editor.service';
 
 export class ObjectBuilderPrompt extends InquirerPrompt<
   ObjectBuilderOptions<unknown>
 > {
-  private booleanEditor: BooleanEditorService;
   private confirmCB: (value: boolean) => void;
   private confirmService: ConfirmEditorService;
-  private currentEditor: OBJECT_BUILDER_ELEMENT;
+  private currentEditor: string;
   private editorOptions: unknown;
-  private enumEditor: EnumEditorService;
+  private footerEditor: FooterEditorService;
   private isSelected = false;
   private keymapService: KeymapService;
-  private numberEditor: NumberEditorService;
   private rows: Record<string, unknown>[];
   private selectedCell = START;
   private selectedRow = START;
-  private stringEditor: StringEditorService;
   private tableService: TableService;
   private textRendering: TextRenderingService;
 
@@ -104,34 +95,7 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
     this.currentEditor = column.type;
     this.confirmCB = undefined;
     const current = get(this.rows[this.selectedRow], column.path);
-    const label = column.name;
-    switch (column.type) {
-      case OBJECT_BUILDER_ELEMENT.string:
-        this.editorOptions = {
-          current,
-          label,
-        } as StringEditorRenderOptions;
-        return;
-      case OBJECT_BUILDER_ELEMENT.enum:
-        this.editorOptions = {
-          current: current ?? column.options[START][VALUE],
-          label,
-          options: column.options,
-        } as EnumEditorRenderOptions;
-        return;
-      case OBJECT_BUILDER_ELEMENT.boolean:
-        this.editorOptions = {
-          current,
-          label,
-        } as BooleanEditorRenderOptions;
-        return;
-      case OBJECT_BUILDER_ELEMENT.number:
-        this.editorOptions = {
-          current,
-          label,
-        } as NumberEditorRenderOptions;
-        return;
-    }
+    this.editorOptions = this.footerEditor.initConfig(current, column);
   }
 
   protected onDown(): boolean {
@@ -154,11 +118,7 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
     this.tableService = app.get(TableService);
     this.textRendering = app.get(TextRenderingService);
     this.keymapService = app.get(KeymapService);
-    this.stringEditor = app.get(StringEditorService);
     this.confirmService = app.get(ConfirmEditorService);
-    this.booleanEditor = app.get(BooleanEditorService);
-    this.numberEditor = app.get(NumberEditorService);
-    this.enumEditor = app.get(EnumEditorService);
     this.createKeymap();
   }
 
@@ -196,9 +156,11 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
         this.selectedCell,
       ),
     );
+    const column = this.opt.elements[this.selectedCell];
+
     const keymap = this.keymapService.keymapHelp(this.localKeyMap, {
       message,
-      prefix: this.stringEditor.keyMap,
+      prefix: this.footerEditor.getKeyMap(column),
     });
     const max = ansiMaxLength(keymap, message);
     this.screen.render(
@@ -253,39 +215,13 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
   }
 
   private editorKeyPress(key: string, modifiers: KeyModifiers): void {
-    switch (this.currentEditor) {
-      case OBJECT_BUILDER_ELEMENT.string:
-        this.editorOptions = this.stringEditor.onKeyPress(
-          this.editorOptions as StringEditorRenderOptions,
-          key,
-          modifiers,
-        );
-        break;
-      case OBJECT_BUILDER_ELEMENT.enum:
-        this.editorOptions = this.enumEditor.onKeyPress(
-          this.editorOptions as EnumEditorRenderOptions,
-          key,
-        );
-        break;
-      case OBJECT_BUILDER_ELEMENT.boolean:
-        this.editorOptions = this.booleanEditor.onKeyPress(
-          this.editorOptions as BooleanEditorRenderOptions,
-          key,
-        );
-        break;
-      case OBJECT_BUILDER_ELEMENT.number:
-        this.editorOptions = this.numberEditor.onKeyPress(
-          this.editorOptions as NumberEditorRenderOptions,
-          key,
-        );
-        break;
-      case OBJECT_BUILDER_ELEMENT.confirm:
-        this.editorOptions = this.confirmService.onKeyPress(
-          this.editorOptions as ConfirmEditorRenderOptions,
-          key,
-        );
-        break;
-    }
+    const column = this.opt.elements[this.selectedCell];
+    this.editorOptions = this.footerEditor.onKeyPress(
+      column,
+      this.editorOptions,
+      key,
+      modifiers,
+    );
     if (is.undefined(this.editorOptions)) {
       // It cancelled itself
       this.currentEditor = undefined;
@@ -297,50 +233,11 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
     if (!this.currentEditor) {
       return [];
     }
-    const line = chalk.magenta.dim('='.repeat(width));
-    switch (this.currentEditor) {
-      case OBJECT_BUILDER_ELEMENT.string:
-        return [
-          line,
-          this.stringEditor.render({
-            ...(this.editorOptions as StringEditorRenderOptions),
-            width,
-          }),
-        ];
-      case OBJECT_BUILDER_ELEMENT.enum:
-        return [
-          line,
-          this.enumEditor.render({
-            ...(this.editorOptions as EnumEditorRenderOptions),
-          }),
-        ];
-      case OBJECT_BUILDER_ELEMENT.boolean:
-        return [
-          line,
-          this.booleanEditor.render({
-            ...(this.editorOptions as BooleanEditorRenderOptions),
-          }),
-        ];
-      case OBJECT_BUILDER_ELEMENT.number:
-        return [
-          line,
-          this.numberEditor.render(
-            {
-              ...(this.editorOptions as NumberEditorRenderOptions),
-            },
-            width,
-          ),
-        ];
-      case OBJECT_BUILDER_ELEMENT.confirm:
-        return [
-          this.confirmService.render(
-            {
-              ...(this.editorOptions as ConfirmEditorRenderOptions),
-            },
-            width,
-          ),
-        ];
-    }
-    return [];
+    const column = this.opt.elements[this.selectedCell];
+    const line = chalk`{${this.footerEditor.lineColor(
+      column,
+      this.editorOptions,
+    )} ${'='.repeat(width)}}`;
+    return [line, this.footerEditor.render(column, this.editorOptions, width)];
   }
 }

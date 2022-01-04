@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import {
   InjectConfig,
   INVERT_VALUE,
@@ -9,7 +8,7 @@ import {
 import chalk from 'chalk';
 
 import { LEFT_PADDING } from '../../config';
-import { KeyModifiers } from '../../decorators';
+import { Editor, iBuilderEditor, KeyModifiers } from '../../decorators';
 import { ansiPadEnd } from '../../includes';
 import { TextRenderingService } from '../render';
 
@@ -26,8 +25,16 @@ export interface StringEditorRenderOptions {
 const DEFAULT_PLACEHOLDER = 'enter value';
 const INTERNAL_PADDING = ' ';
 
-@Injectable()
-export class StringEditorService {
+@Editor({
+  keyMap: new Map([
+    [{ description: 'cancel', key: 'tab' }, ''],
+    [{ description: 'clear', key: 'escape' }, ''],
+  ]),
+  type: 'string',
+})
+export class StringEditorService
+  implements iBuilderEditor<StringEditorRenderOptions>
+{
   constructor(
     private readonly textRendering: TextRenderingService,
     @InjectConfig(LEFT_PADDING) private readonly leftPadding: number,

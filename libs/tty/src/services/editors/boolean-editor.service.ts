@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 
+import { Editor, iBuilderEditor } from '../../decorators';
 import { TextRenderingService } from '../render';
 
 export interface BooleanEditorRenderOptions {
@@ -8,8 +8,17 @@ export interface BooleanEditorRenderOptions {
   label?: string;
 }
 
-@Injectable()
-export class BooleanEditorService {
+@Editor({
+  keyMap: new Map([
+    [{ description: 'cancel', key: 'tab' }, ''],
+    [{ description: 'left', key: 'left' }, ''],
+    [{ description: 'right', key: 'right' }, ''],
+  ]),
+  type: 'boolean',
+})
+export class BooleanEditorService
+  implements iBuilderEditor<BooleanEditorRenderOptions>
+{
   constructor(private readonly textRendering: TextRenderingService) {}
 
   public readonly keyMap = new Map([

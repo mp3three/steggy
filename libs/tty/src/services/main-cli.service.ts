@@ -11,9 +11,9 @@ import chalk from 'chalk';
 
 import { iRepl, MainMenuEntry, MenuEntry, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
+import { ReplExplorerService } from './explorers';
 import { PinnedItemDTO, PinnedItemService } from './pinned-item.service';
 import { PromptEntry, PromptService } from './prompt.service';
-import { ReplExplorerService } from './repl-explorer.service';
 
 // Filter out non-sortable characters (like emoji)
 const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');

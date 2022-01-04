@@ -1,0 +1,45 @@
+import { Injectable } from '@nestjs/common';
+import { AutoLogService, ModuleScannerService } from '@text-based/utilities';
+
+import { EDITOR_CONFIG, EditorOptions, iBuilderEditor } from '../../decorators';
+
+@Injectable()
+export class EditorExplorerService {
+  constructor(
+    private readonly scanner: ModuleScannerService,
+    private readonly logger: AutoLogService,
+  ) {}
+
+  public readonly REGISTERED_EDITORS = new Map<EditorOptions, iBuilderEditor>();
+
+  public findServiceByName(name: string): iBuilderEditor {
+    let out: iBuilderEditor;
+    this.REGISTERED_EDITORS.forEach((service, settings) => {
+      if (settings.type === name) {
+        out = service;
+      }
+    });
+    return out;
+  }
+
+  public findSettingsBytype(type: string): EditorOptions {
+    let out: EditorOptions;
+    this.REGISTERED_EDITORS.forEach((__, settings) => {
+      if (settings.type === type) {
+        out = settings;
+      }
+    });
+    return out;
+  }
+
+  protected onModuleInit(): void {
+    const providers = this.scanner.findWithSymbol<
+      EditorOptions,
+      iBuilderEditor
+    >(EDITOR_CONFIG);
+    providers.forEach((key, value) => {
+      this.REGISTERED_EDITORS.set(key, value);
+    });
+    this.logger.info(`[Editors] Initialized`);
+  }
+}

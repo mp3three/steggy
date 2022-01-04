@@ -19,10 +19,12 @@ export class RoutineCommandBuilderService {
           type: OBJECT_BUILDER_ELEMENT.string,
         },
         {
+          extra: {
+            entries: Object.keys(FILTER_OPERATIONS)
+              .sort((a, b) => (a > b ? UP : DOWN))
+              .map((i) => [i, i]),
+          },
           name: 'Type',
-          options: Object.keys(FILTER_OPERATIONS)
-            .sort((a, b) => (a > b ? UP : DOWN))
-            .map((i) => [i, i]),
           path: 'type',
           type: OBJECT_BUILDER_ELEMENT.enum,
         },
