@@ -21,11 +21,12 @@ export function Editor(options: EditorOptions): ClassDecorator {
     return Injectable()(target);
   };
 }
-export interface iBuilderEditor<T = unknown> {
+export interface iBuilderEditor<ACTIVE_CONFIG = unknown> {
+  lineColor?: (config: ACTIVE_CONFIG) => string;
   onKeyPress: (
-    config: T,
+    config: ACTIVE_CONFIG,
     key: string,
     modifiers: Record<'ctrl' | 'shift' | 'meta', boolean>,
-  ) => T | Promise<T>;
-  render(config: T, width: number): string;
+  ) => ACTIVE_CONFIG | Promise<ACTIVE_CONFIG>;
+  render(currentConfig: { width: number } & ACTIVE_CONFIG): string;
 }

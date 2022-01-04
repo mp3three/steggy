@@ -40,11 +40,6 @@ export class StringEditorService
     @InjectConfig(LEFT_PADDING) private readonly leftPadding: number,
   ) {}
 
-  public readonly keyMap = new Map([
-    [{ description: 'cancel', key: 'tab' }, ''],
-    [{ description: 'clear', key: 'escape' }, ''],
-  ]);
-
   public onKeyPress(
     config: StringEditorRenderOptions,
     key: string,

@@ -21,16 +21,7 @@ export class ConfirmEditorService
 {
   constructor(private readonly textRendering: TextRenderingService) {}
 
-  public readonly keyMap = new Map([
-    [{ description: 'cancel', key: 'tab' }, ''],
-    [{ description: 'left', key: 'left' }, ''],
-    [{ description: 'right', key: 'right' }, ''],
-  ]);
-
-  public onKeyPress(
-    config: ConfirmEditorRenderOptions,
-    key: string,
-  ): ConfirmEditorRenderOptions {
+  public onKeyPress(config, key): ConfirmEditorRenderOptions {
     if (key === 'left') {
       config.current = true;
     }
@@ -43,7 +34,7 @@ export class ConfirmEditorService
     return config;
   }
 
-  public render(config: ConfirmEditorRenderOptions, width: number): string {
+  public render({ width, ...config }): string {
     const content = [
       chalk`{${config.current ? 'magenta.bold' : 'gray'} yes}`,
       chalk`{${!config.current ? 'magenta.bold' : 'gray'} no}`,

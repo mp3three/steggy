@@ -15,13 +15,6 @@ export interface DiscriminatorEditorRenderOptions<T extends unknown = unknown> {
 export class DiscriminatorEditorService {
   constructor(private readonly textRendering: TextRenderingService) {}
 
-  public readonly keyMap = new Map([
-    [{ description: 'cancel', key: 'tab' }, ''],
-    [{ description: 'clear', key: 'escape' }, ''],
-    [{ description: 'up', key: 'up' }, ''],
-    [{ description: 'down', key: 'down' }, ''],
-  ]);
-
   public onKeyPress(
     config: DiscriminatorEditorRenderOptions,
     key: string,

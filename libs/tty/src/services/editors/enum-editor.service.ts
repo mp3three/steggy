@@ -7,8 +7,8 @@ import { TextRenderingService } from '../render';
 
 export interface EnumEditorRenderOptions<T extends unknown = unknown> {
   current: T;
+  entries: [string, T][];
   label?: string;
-  options: [string, T][];
 }
 
 @Editor({
@@ -20,21 +20,14 @@ export interface EnumEditorRenderOptions<T extends unknown = unknown> {
   ]),
   type: 'enum',
 })
-export class EnumEditorService
+export class EnumEditorService<T>
   implements iBuilderEditor<EnumEditorRenderOptions>
 {
   constructor(private readonly textRendering: TextRenderingService) {}
 
-  public readonly keyMap = new Map([
-    [{ description: 'cancel', key: 'tab' }, ''],
-    [{ description: 'clear', key: 'escape' }, ''],
-    [{ description: 'up', key: 'up' }, ''],
-    [{ description: 'down', key: 'down' }, ''],
-  ]);
-
   public onKeyPress(
     config: EnumEditorRenderOptions,
-    key: string,
+    key,
   ): EnumEditorRenderOptions {
     switch (key) {
       case 'tab':
@@ -53,8 +46,9 @@ export class EnumEditorService
   }
 
   public render(config: EnumEditorRenderOptions): string {
+    config.current ??= config.entries[START][VALUE];
     const items = this.textRendering.selectRange(
-      config.options,
+      config.entries,
       config.current,
     );
     const longest = ansiMaxLength(items.map(([i]) => i));
@@ -71,24 +65,27 @@ export class EnumEditorService
   }
 
   private next(config: EnumEditorRenderOptions): void {
-    const index = config.options.findIndex(
+    config.current ??= config.entries[START][VALUE];
+    const index = config.entries.findIndex(
       ([, value]) => config.current === value,
     );
-    if (index === config.options.length - ARRAY_OFFSET) {
-      config.current = config.options[START][VALUE];
+    if (index === config.entries.length - ARRAY_OFFSET) {
+      config.current = config.entries[START][VALUE];
       return;
     }
-    config.current = config.options[index + INCREMENT][VALUE];
+    config.current = config.entries[index + INCREMENT][VALUE];
   }
 
   private previous(config: EnumEditorRenderOptions): void {
-    const index = config.options.findIndex(
+    config.current ??= config.entries[START][VALUE];
+    const index = config.entries.findIndex(
       ([, value]) => config.current === value,
     );
     if (index === START) {
-      config.current = config.options[START][VALUE];
+      config.current =
+        config.entries[config.entries.length - ARRAY_OFFSET][VALUE];
       return;
     }
-    config.current = config.options[index - INCREMENT][VALUE];
+    config.current = config.entries[index - INCREMENT][VALUE];
   }
 }

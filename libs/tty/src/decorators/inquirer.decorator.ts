@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { is } from '@text-based/utilities';
+import { each, is } from '@text-based/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';
@@ -72,19 +72,19 @@ export abstract class InquirerPrompt<
     });
   }
 
-  private activateKey(
+  private async activateKey(
     key: string | DirectCB,
     mixed: string,
     modifiers: KeyModifiers,
-  ): void | boolean | Promise<void | boolean> {
+  ): Promise<void | boolean | Promise<void | boolean>> {
     if (is.function<DirectCB>(key)) {
-      return key(mixed, modifiers);
+      return await key(mixed, modifiers);
     }
-    return this[key](mixed);
+    return await this[key](mixed);
   }
 
   // eslint-disable-next-line radar/cognitive-complexity
-  private keyPressHandler(descriptor: KeyDescriptor): void {
+  private async keyPressHandler(descriptor: KeyDescriptor): Promise<void> {
     if (this.status === 'answered') {
       return;
     }
@@ -95,7 +95,7 @@ export abstract class InquirerPrompt<
     let caught = false;
     const modifiers: KeyModifiers = { ctrl, meta, shift };
 
-    this.localKeyMap.forEach((key, options) => {
+    await each([...this.localKeyMap.entries()], async ([options, key]) => {
       if (options.catchAll) {
         catchAll.push(key);
         return;
@@ -110,7 +110,7 @@ export abstract class InquirerPrompt<
       }
       if (is.empty(options.key)) {
         caught = true;
-        this.activateKey(key, mixed, modifiers);
+        await this.activateKey(key, mixed, modifiers);
         return;
       }
       if (!options.key.includes(mixed)) {
@@ -125,7 +125,7 @@ export abstract class InquirerPrompt<
         }
       }
       caught = true;
-      const result = this.activateKey(key, mixed, modifiers);
+      const result = await this.activateKey(key, mixed, modifiers);
       if (result === false) {
         return;
       }
@@ -134,6 +134,6 @@ export abstract class InquirerPrompt<
     if (caught) {
       return;
     }
-    catchAll.forEach((i) => this.activateKey(i, mixed, modifiers));
+    each(catchAll, async (i) => await this.activateKey(i, mixed, modifiers));
   }
 }

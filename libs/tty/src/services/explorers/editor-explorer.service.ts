@@ -12,9 +12,9 @@ export class EditorExplorerService {
 
   public readonly REGISTERED_EDITORS = new Map<EditorOptions, iBuilderEditor>();
 
-  public findServiceByName(name: string): iBuilderEditor {
-    let out: iBuilderEditor;
-    this.REGISTERED_EDITORS.forEach((service, settings) => {
+  public findServiceByType<T>(name: string): iBuilderEditor<T> {
+    let out: iBuilderEditor<T>;
+    this.REGISTERED_EDITORS.forEach((service: iBuilderEditor<T>, settings) => {
       if (settings.type === name) {
         out = service;
       }

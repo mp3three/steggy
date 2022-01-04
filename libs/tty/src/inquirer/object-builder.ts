@@ -115,6 +115,7 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
     this.rows = Array.isArray(this.opt.current)
       ? this.opt.current
       : [this.opt.current];
+    this.footerEditor = app.get(FooterEditorService);
     this.tableService = app.get(TableService);
     this.textRendering = app.get(TextRenderingService);
     this.keymapService = app.get(KeymapService);
@@ -160,7 +161,9 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
 
     const keymap = this.keymapService.keymapHelp(this.localKeyMap, {
       message,
-      prefix: this.footerEditor.getKeyMap(column),
+      prefix: this.currentEditor
+        ? this.footerEditor.getKeyMap(column)
+        : new Map(),
     });
     const max = ansiMaxLength(keymap, message);
     this.screen.render(
@@ -214,9 +217,12 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
     );
   }
 
-  private editorKeyPress(key: string, modifiers: KeyModifiers): void {
+  private async editorKeyPress(
+    key: string,
+    modifiers: KeyModifiers,
+  ): Promise<void> {
     const column = this.opt.elements[this.selectedCell];
-    this.editorOptions = this.footerEditor.onKeyPress(
+    this.editorOptions = await this.footerEditor.onKeyPress(
       column,
       this.editorOptions,
       key,

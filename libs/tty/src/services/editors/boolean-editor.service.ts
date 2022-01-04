@@ -21,12 +21,6 @@ export class BooleanEditorService
 {
   constructor(private readonly textRendering: TextRenderingService) {}
 
-  public readonly keyMap = new Map([
-    [{ description: 'cancel', key: 'tab' }, ''],
-    [{ description: 'left', key: 'left' }, ''],
-    [{ description: 'right', key: 'right' }, ''],
-  ]);
-
   public onKeyPress(
     config: BooleanEditorRenderOptions,
     key: string,

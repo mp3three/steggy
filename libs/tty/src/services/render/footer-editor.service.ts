@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { is } from '@text-based/utilities';
 
 import { ObjectBuilderElement } from '../../contracts';
 import { KeyModifiers, tKeyMap } from '../../decorators';
@@ -8,8 +9,8 @@ import { EditorExplorerService } from '../explorers';
 export class FooterEditorService {
   constructor(private readonly editorExplorer: EditorExplorerService) {}
 
-  public getKeyMap(element: ObjectBuilderElement): tKeyMap {
-    return undefined;
+  public getKeyMap({ type }: ObjectBuilderElement): tKeyMap {
+    return this.editorExplorer.findSettingsBytype(type).keyMap;
   }
 
   public initConfig(current: string, element: ObjectBuilderElement): unknown {
@@ -17,29 +18,40 @@ export class FooterEditorService {
       current,
       label: element.name,
     };
-    //
   }
 
   public lineColor(element: ObjectBuilderElement, config: unknown): string {
-    return 'magenta.dim';
+    const instance = this.editorExplorer.findServiceByType(element.type);
+    if (is.undefined(instance.lineColor)) {
+      return 'magenta.dim';
+    }
+    return instance.lineColor(config);
   }
 
-  public onKeyPress<T>(
+  public async onKeyPress<T>(
     element: ObjectBuilderElement,
     config: T,
     key: string,
     modifiers: KeyModifiers,
-  ): T {
-    modifiers;
-    return config;
+  ): Promise<T | Promise<T>> {
+    const instance = this.editorExplorer.findServiceByType<T>(element.type);
+    return await instance.onKeyPress(
+      { ...config, ...(element.extra as Record<string, unknown>) },
+      key,
+      modifiers,
+    );
   }
 
-  public render(
-    element: ObjectBuilderElement,
+  public render<T>(
+    element: ObjectBuilderElement<T>,
     config: unknown,
     width: number,
   ): string {
-    width;
-    return ``;
+    const instance = this.editorExplorer.findServiceByType(element.type);
+    return instance.render({
+      ...(config as { current: T }),
+      ...element.extra,
+      width,
+    });
   }
 }

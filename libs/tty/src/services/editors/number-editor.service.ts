@@ -32,16 +32,7 @@ export class NumberEditorService
     @InjectConfig(LEFT_PADDING) private readonly leftPadding: number,
   ) {}
 
-  public readonly keyMap = new Map([
-    [{ description: 'cancel', key: 'tab' }, ''],
-    [{ description: 'left', key: 'left' }, ''],
-    [{ description: 'right', key: 'right' }, ''],
-  ]);
-
-  public onKeyPress(
-    config: NumberEditorRenderOptions,
-    key: string,
-  ): NumberEditorRenderOptions {
+  public onKeyPress(config, key): NumberEditorRenderOptions {
     const current = config.current.toString();
     if (key === '.' && current.includes('.')) {
       return;
@@ -62,7 +53,7 @@ export class NumberEditorService
     return config;
   }
 
-  public render(config: NumberEditorRenderOptions, width: number): string {
+  public render({ width, ...config }): string {
     const out: string[] = [];
     const value = config.label
       ? config.current.toLocaleString()
