@@ -13,7 +13,6 @@ import {
 import { ansiMaxLength } from '../includes';
 import {
   ConfirmEditorRenderOptions,
-  ConfirmEditorService,
   KeymapService,
   StringEditorRenderOptions,
   TableService,
@@ -25,7 +24,6 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
   ObjectBuilderOptions<unknown>
 > {
   private confirmCB: (value: boolean) => void;
-  private confirmService: ConfirmEditorService;
   private currentEditor: string;
   private editorOptions: unknown;
   private footerEditor: FooterEditorService;
@@ -46,14 +44,15 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
   }
 
   protected async delete(): Promise<void> {
-    this.currentEditor = OBJECT_BUILDER_ELEMENT.confirm;
-    this.editorOptions = {
-      current: false,
-      label: `Are you sure you want to delete this?`,
-    } as ConfirmEditorRenderOptions;
-    const result = await new Promise<boolean>(
-      (done) => (this.confirmCB = done),
-    );
+    const result = await new Promise<boolean>((done) => {
+      this.confirmCB = done;
+      this.currentEditor = OBJECT_BUILDER_ELEMENT.confirm;
+      this.editorOptions = {
+        current: false,
+        label: `Are you sure you want to delete this?`,
+      } as ConfirmEditorRenderOptions;
+      this.render();
+    });
     this.currentEditor = undefined;
     this.editorOptions = undefined;
     this.confirmCB = undefined;
@@ -93,7 +92,6 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
     }
     const column = this.opt.elements[this.selectedCell];
     this.currentEditor = column.type;
-    this.confirmCB = undefined;
     const current = get(this.rows[this.selectedRow], column.path);
     this.editorOptions = this.footerEditor.initConfig(current, column);
   }
@@ -119,7 +117,6 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
     this.tableService = app.get(TableService);
     this.textRendering = app.get(TextRenderingService);
     this.keymapService = app.get(KeymapService);
-    this.confirmService = app.get(ConfirmEditorService);
     this.createKeymap();
   }
 
@@ -157,12 +154,11 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
         this.selectedCell,
       ),
     );
-    const column = this.opt.elements[this.selectedCell];
 
     const keymap = this.keymapService.keymapHelp(this.localKeyMap, {
       message,
       prefix: this.currentEditor
-        ? this.footerEditor.getKeyMap(column)
+        ? this.footerEditor.getKeyMap(this.currentEditor)
         : new Map(),
     });
     const max = ansiMaxLength(keymap, message);
@@ -227,6 +223,7 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
       this.editorOptions,
       key,
       modifiers,
+      this.currentEditor,
     );
     if (is.undefined(this.editorOptions)) {
       // It cancelled itself
@@ -241,9 +238,17 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
     }
     const column = this.opt.elements[this.selectedCell];
     const line = chalk`{${this.footerEditor.lineColor(
-      column,
+      this.currentEditor,
       this.editorOptions,
     )} ${'='.repeat(width)}}`;
-    return [line, this.footerEditor.render(column, this.editorOptions, width)];
+    return [
+      line,
+      this.footerEditor.render(
+        column,
+        this.editorOptions,
+        width,
+        this.currentEditor,
+      ),
+    ];
   }
 }

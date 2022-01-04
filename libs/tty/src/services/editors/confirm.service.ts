@@ -21,6 +21,10 @@ export class ConfirmEditorService
 {
   constructor(private readonly textRendering: TextRenderingService) {}
 
+  public lineColor(): string {
+    return 'yellow';
+  }
+
   public onKeyPress(config, key): ConfirmEditorRenderOptions {
     if (key === 'left') {
       config.current = true;
@@ -34,14 +38,13 @@ export class ConfirmEditorService
     return config;
   }
 
-  public render({ width, ...config }): string {
+  public render({ ...config }): string {
     const content = [
       chalk`{${config.current ? 'magenta.bold' : 'gray'} yes}`,
       chalk`{${!config.current ? 'magenta.bold' : 'gray'} no}`,
     ].join(' ');
-    return (
-      chalk.yellow.dim('='.repeat(width)) +
-      this.textRendering.pad(chalk`\n{yellow.bold ${config.label}}\n${content}`)
+    return this.textRendering.pad(
+      chalk`{yellow.bold ${config.label}}\n${content}`,
     );
   }
 }

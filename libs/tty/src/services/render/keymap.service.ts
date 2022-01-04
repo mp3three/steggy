@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DOWN, UP } from '@text-based/utilities';
+import { DOWN, is, UP } from '@text-based/utilities';
 import chalk from 'chalk';
 
 import { tKeyMap } from '../../decorators';
@@ -63,9 +63,16 @@ export class KeymapService {
         return true;
       })
       .map(([config, target]): keyItem => {
+        const active = Object.entries({ ...config.modifiers })
+          .filter(([, state]) => state)
+          .map(([name]) => name);
+        const modifiers = is.empty(active) ? '' : active.join('/') + '-';
         const activate = config.catchAll
           ? chalk.yellow('default')
-          : (Array.isArray(config.key) ? config.key : [config.key])
+          : (Array.isArray(config.key)
+              ? config.key.map((i) => modifiers + i)
+              : [modifiers + config.key]
+            )
               .map((i) => chalk.yellow.dim(i))
               .join(chalk.gray(', '));
         return {

@@ -9,19 +9,19 @@ import { EditorExplorerService } from '../explorers';
 export class FooterEditorService {
   constructor(private readonly editorExplorer: EditorExplorerService) {}
 
-  public getKeyMap({ type }: ObjectBuilderElement): tKeyMap {
+  public getKeyMap(type: string): tKeyMap {
     return this.editorExplorer.findSettingsBytype(type).keyMap;
   }
 
-  public initConfig(current: string, element: ObjectBuilderElement): unknown {
+  public initConfig(current: unknown, element: ObjectBuilderElement): unknown {
     return {
       current,
       label: element.name,
     };
   }
 
-  public lineColor(element: ObjectBuilderElement, config: unknown): string {
-    const instance = this.editorExplorer.findServiceByType(element.type);
+  public lineColor(type: string, config: unknown): string {
+    const instance = this.editorExplorer.findServiceByType(type);
     if (is.undefined(instance.lineColor)) {
       return 'magenta.dim';
     }
@@ -33,8 +33,9 @@ export class FooterEditorService {
     config: T,
     key: string,
     modifiers: KeyModifiers,
+    type: string,
   ): Promise<T | Promise<T>> {
-    const instance = this.editorExplorer.findServiceByType<T>(element.type);
+    const instance = this.editorExplorer.findServiceByType<T>(type);
     return await instance.onKeyPress(
       { ...config, ...(element.extra as Record<string, unknown>) },
       key,
@@ -46,8 +47,9 @@ export class FooterEditorService {
     element: ObjectBuilderElement<T>,
     config: unknown,
     width: number,
+    type: string,
   ): string {
-    const instance = this.editorExplorer.findServiceByType(element.type);
+    const instance = this.editorExplorer.findServiceByType(type);
     return instance.render({
       ...(config as { current: T }),
       ...element.extra,
