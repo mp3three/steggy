@@ -9,7 +9,15 @@ import { EditorExplorerService } from '../explorers';
 export class FooterEditorService {
   constructor(private readonly editorExplorer: EditorExplorerService) {}
 
-  public getKeyMap(type: string): tKeyMap {
+  public getKeyMap<T>(
+    type: string,
+    element: ObjectBuilderElement<T>,
+    current: unknown,
+  ): tKeyMap {
+    const item = this.editorExplorer.findServiceByType(type);
+    if (item.customKeymap) {
+      return item.customKeymap({ ...element, type }, current);
+    }
     return this.editorExplorer.findSettingsBytype(type).keyMap;
   }
 

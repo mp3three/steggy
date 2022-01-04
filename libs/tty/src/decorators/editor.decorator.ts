@@ -22,6 +22,10 @@ export function Editor(options: EditorOptions): ClassDecorator {
   };
 }
 export interface iBuilderEditor<ACTIVE_CONFIG = unknown> {
+  customKeymap?: (
+    config: ACTIVE_CONFIG & { type: string },
+    current: unknown,
+  ) => tKeyMap;
   lineColor?: (config: ACTIVE_CONFIG) => string;
   onKeyPress: (
     config: ACTIVE_CONFIG,

@@ -1,30 +1,40 @@
-import { Injectable } from '@nestjs/common';
 import { ARRAY_OFFSET, INCREMENT, START, VALUE } from '@text-based/utilities';
 import chalk from 'chalk';
 
+import { Editor, iBuilderEditor, tKeyMap } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
 import { TextRenderingService } from '../render';
 
 export interface DiscriminatorEditorRenderOptions<T extends unknown = unknown> {
   current: T;
+  entries: [string, T][];
   label?: string;
-  options: [string, T][];
 }
 
-@Injectable()
-export class DiscriminatorEditorService {
+@Editor({
+  keyMap: new Map([
+    [{ description: 'cancel', key: 'escape' }, ''],
+    [{ description: 'up', key: 'up' }, ''],
+    [{ description: 'down', key: 'down' }, ''],
+  ]),
+  type: 'discriminator',
+})
+export class DiscriminatorEditorService<T>
+  implements iBuilderEditor<DiscriminatorEditorRenderOptions>
+{
   constructor(private readonly textRendering: TextRenderingService) {}
+
+  public customKeymap(current: unknown): tKeyMap {
+    return;
+  }
 
   public onKeyPress(
     config: DiscriminatorEditorRenderOptions,
-    key: string,
+    key,
   ): DiscriminatorEditorRenderOptions {
     switch (key) {
-      case 'tab':
-        return undefined;
       case 'escape':
-        config.current = '';
-        break;
+        return undefined;
       case 'up':
         this.previous(config);
         break;
@@ -36,8 +46,9 @@ export class DiscriminatorEditorService {
   }
 
   public render(config: DiscriminatorEditorRenderOptions): string {
+    config.current ??= config.entries[START][VALUE];
     const items = this.textRendering.selectRange(
-      config.options,
+      config.entries,
       config.current,
     );
     const longest = ansiMaxLength(items.map(([i]) => i));
@@ -54,24 +65,27 @@ export class DiscriminatorEditorService {
   }
 
   private next(config: DiscriminatorEditorRenderOptions): void {
-    const index = config.options.findIndex(
+    config.current ??= config.entries[START][VALUE];
+    const index = config.entries.findIndex(
       ([, value]) => config.current === value,
     );
-    if (index === config.options.length - ARRAY_OFFSET) {
-      config.current = config.options[START][VALUE];
+    if (index === config.entries.length - ARRAY_OFFSET) {
+      config.current = config.entries[START][VALUE];
       return;
     }
-    config.current = config.options[index + INCREMENT][VALUE];
+    config.current = config.entries[index + INCREMENT][VALUE];
   }
 
   private previous(config: DiscriminatorEditorRenderOptions): void {
-    const index = config.options.findIndex(
+    config.current ??= config.entries[START][VALUE];
+    const index = config.entries.findIndex(
       ([, value]) => config.current === value,
     );
     if (index === START) {
-      config.current = config.options[START][VALUE];
+      config.current =
+        config.entries[config.entries.length - ARRAY_OFFSET][VALUE];
       return;
     }
-    config.current = config.options[index - INCREMENT][VALUE];
+    config.current = config.entries[index - INCREMENT][VALUE];
   }
 }

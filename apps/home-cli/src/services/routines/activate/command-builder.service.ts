@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { RoutineDTO } from '@text-based/controller-logic';
+import {
+  ROUTINE_ACTIVATE_COMMAND,
+  RoutineDTO,
+} from '@text-based/controller-logic';
 import { OBJECT_BUILDER_ELEMENT, PromptService } from '@text-based/tty';
-import { DOWN, FILTER_OPERATIONS, UP } from '@text-based/utilities';
+import { DOWN, is, TitleCase, UP } from '@text-based/utilities';
 
 @Injectable()
 export class RoutineCommandBuilderService {
@@ -20,10 +23,11 @@ export class RoutineCommandBuilderService {
         },
         {
           extra: {
-            entries: Object.keys(FILTER_OPERATIONS)
+            entries: Object.keys(ROUTINE_ACTIVATE_COMMAND)
               .sort((a, b) => (a > b ? UP : DOWN))
-              .map((i) => [i, i]),
+              .map((i) => [TitleCase(i), i]),
           },
+          format: (item: string) => (is.string(item) ? TitleCase(item) : item),
           name: 'Type',
           path: 'type',
           type: OBJECT_BUILDER_ELEMENT.enum,

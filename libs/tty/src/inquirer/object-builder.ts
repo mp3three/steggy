@@ -90,10 +90,12 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
     if (this.currentEditor) {
       return false;
     }
-    const column = this.opt.elements[this.selectedCell];
-    this.currentEditor = column.type;
-    const current = get(this.rows[this.selectedRow], column.path);
-    this.editorOptions = this.footerEditor.initConfig(current, column);
+    process.nextTick(() => {
+      const column = this.opt.elements[this.selectedCell];
+      this.currentEditor = column.type;
+      const current = get(this.rows[this.selectedRow], column.path);
+      this.editorOptions = this.footerEditor.initConfig(current, column);
+    });
   }
 
   protected onDown(): boolean {
@@ -155,10 +157,15 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
       ),
     );
 
+    const column = this.opt.elements[this.selectedCell];
     const keymap = this.keymapService.keymapHelp(this.localKeyMap, {
       message,
       prefix: this.currentEditor
-        ? this.footerEditor.getKeyMap(this.currentEditor)
+        ? this.footerEditor.getKeyMap(
+            this.currentEditor,
+            column,
+            this.rows[this.selectedRow],
+          )
         : new Map(),
     });
     const max = ansiMaxLength(keymap, message);
@@ -187,7 +194,7 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
           [{ description: 'cursor down', key: 'down' }, 'onDown'],
           [{ description: 'add row', key: '+' }, 'add'],
           [{ description: 'delete row', key: ['-', 'delete'] }, 'delete'],
-          [{ description: 'edit cell', key: 'tab' }, 'enableEdit'],
+          [{ description: 'edit cell', key: 'enter' }, 'enableEdit'],
         ].map(
           ([options, key]: [{ description: string; key: string }, string]) => [
             { active: () => is.empty(this.currentEditor), ...options },
@@ -208,7 +215,6 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
           { catchAll: true, noHelp: true },
           (key, modifiers) => this.editorKeyPress(key, modifiers),
         ],
-        // Typescript typing having a dumb here
       ] as [InquirerKeypressOptions, string | DirectCB][]),
     );
   }
@@ -217,6 +223,9 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
     key: string,
     modifiers: KeyModifiers,
   ): Promise<void> {
+    if (!this.currentEditor) {
+      return;
+    }
     const column = this.opt.elements[this.selectedCell];
     this.editorOptions = await this.footerEditor.onKeyPress(
       column,

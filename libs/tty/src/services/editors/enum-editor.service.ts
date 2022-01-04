@@ -13,8 +13,7 @@ export interface EnumEditorRenderOptions<T extends unknown = unknown> {
 
 @Editor({
   keyMap: new Map([
-    [{ description: 'cancel', key: 'tab' }, ''],
-    [{ description: 'clear', key: 'escape' }, ''],
+    [{ description: 'cancel', key: 'escape' }, ''],
     [{ description: 'up', key: 'up' }, ''],
     [{ description: 'down', key: 'down' }, ''],
   ]),
@@ -30,11 +29,8 @@ export class EnumEditorService<T>
     key,
   ): EnumEditorRenderOptions {
     switch (key) {
-      case 'tab':
-        return undefined;
       case 'escape':
-        config.current = '';
-        break;
+        return undefined;
       case 'up':
         this.previous(config);
         break;

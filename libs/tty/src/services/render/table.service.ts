@@ -94,8 +94,8 @@ export class TableService {
             ansiMaxLength(
               this.values.map((row) => {
                 const value = get(row, item.path);
-                if (is.date(value)) {
-                  return value.toLocaleString();
+                if (item.format) {
+                  return item.format(value);
                 }
                 return String(value);
               }),
@@ -190,9 +190,12 @@ export class TableService {
           ? this.highlightChar(TABLE_PARTS.left)
           : TABLE_PARTS.left,
         ...this.activeOptions.elements.map((element, colIndex) => {
+          const value = get(i, element.path);
           const content =
             ' '.repeat(PADDING) +
-            this.textRender.typePrinter(get(i, element.path));
+            this.textRender.typePrinter(
+              element.format ? element.format(value) : value,
+            );
           const cell = ansiPadEnd(content, this.columns[colIndex].maxWidth);
           const append =
             colIndex === this.columns.length - ARRAY_OFFSET

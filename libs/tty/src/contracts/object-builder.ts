@@ -11,6 +11,7 @@ export enum OBJECT_BUILDER_ELEMENT {
 
 export class ObjectBuilderElement<EXTRA = unknown> {
   public extra?: EXTRA;
+  public format?: (value: unknown) => string;
   public name: string;
   public path: string;
   public type: string;
