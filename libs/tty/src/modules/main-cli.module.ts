@@ -1,20 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 import { LibraryModule, RegisterCache } from '@text-based/utilities';
-import inquirer from 'inquirer';
-import datePrompt from 'inquirer-date-prompt';
 
 import { LIB_TTY } from '../config';
 import { InquirerPrompt } from '../decorators';
-import {
-  AcknowledgePrompt,
-  CronPrompt,
-  ListBuilderPrompt,
-  MainMenuPrompt,
-  ObjectBuilderPrompt,
-  SelectLinePrompt,
-  TimeoutPrompt,
-} from '../inquirer';
 import {
   BooleanEditorService,
   ChartingService,
@@ -43,16 +32,6 @@ import {
   TextRenderingService,
 } from '../services';
 
-inquirer.registerPrompt('objectBuilder', ObjectBuilderPrompt);
-inquirer.registerPrompt('cron', CronPrompt);
-inquirer.registerPrompt('selectLine', SelectLinePrompt);
-inquirer.registerPrompt('timeout', TimeoutPrompt);
-inquirer.registerPrompt('mainMenu', MainMenuPrompt);
-inquirer.registerPrompt('acknowledge', AcknowledgePrompt);
-inquirer.registerPrompt('listbuilder', ListBuilderPrompt);
-
-// @ts-expect-error Probably related to missing ts defs or something
-inquirer.registerPrompt('date', datePrompt);
 @LibraryModule({
   exports: [
     ChartingService,
@@ -99,8 +78,4 @@ inquirer.registerPrompt('date', datePrompt);
     TextRenderingService,
   ],
 })
-export class MainCLIModule {
-  protected onPreInit(app: INestApplication): void {
-    InquirerPrompt.forRoot(app);
-  }
-}
+export class MainCLIModule {}
