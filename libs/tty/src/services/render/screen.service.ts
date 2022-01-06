@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { EMPTY, is, SINGLE, START } from '@text-based/utilities';
 import ansiEscapes from 'ansi-escapes';
-import { ReadStream, WriteStream } from 'fs';
+import { ReadStream } from 'fs';
+import MuteStream from 'mute-stream';
 import { createInterface, Interface } from 'readline';
 
 import { ansiMaxLength, ansiStrip } from '../../includes';
@@ -10,38 +11,40 @@ const height = (content) => content.split('\n').length;
 const lastLine = (content) => content.split('\n').pop();
 const DEFAULT_WIDTH = 80;
 
+const output = new MuteStream();
+output.pipe(process.stdout);
 @Injectable()
 export class ScreenService {
   public rl = createInterface({
     input: process.stdin,
-    output: process.stdout,
+    output,
     terminal: true,
-  }) as Interface & { input: ReadStream; output: WriteStream };
+  }) as Interface & { input: ReadStream; output: MuteStream };
 
   private extraLinesUnderPrompt = EMPTY;
   private height = EMPTY;
 
   public cursorLeft(amount = SINGLE): void {
-    this.rl.emit('data', ansiEscapes.cursorBackward(amount));
+    console.log(ansiEscapes.cursorBackward(amount));
   }
 
   public cursorRight(amount = SINGLE): void {
-    this.rl.emit('data', ansiEscapes.cursorForward(amount));
+    console.log(ansiEscapes.cursorForward(amount));
   }
 
   public done() {
     this.releaseCursor();
     this.rl.setPrompt('');
-    this.rl.emit('data', '\n');
+    console.log('\n');
     // this.rl.close();
   }
 
   public down(amount = SINGLE): void {
-    this.rl.emit('data', ansiEscapes.cursorDown(amount));
+    console.log(ansiEscapes.cursorDown(amount));
   }
 
   public eraseLine(amount = SINGLE): void {
-    this.rl.emit('data', ansiEscapes.eraseLines(amount));
+    console.log(ansiEscapes.eraseLines(amount));
   }
 
   public releaseCursor() {
@@ -51,7 +54,8 @@ export class ScreenService {
   }
 
   public render(content: string, ...extra: string[]): void {
-    this.clean(this.extraLinesUnderPrompt);
+    this.rl.output.unmute();
+    this.clean(this.extraLinesUnderPrompt - 6);
     const promptLine = lastLine(content);
     const rawPromptLine = ansiStrip(promptLine);
 
@@ -79,8 +83,7 @@ export class ScreenService {
     }
 
     const fullContent = content + (bottomContent ? '\n' + bottomContent : '');
-    // this.rl.
-    this.rl.write(fullContent);
+    console.log(fullContent);
 
     // Re-adjust the cursor at the correct position.
 
@@ -105,15 +108,15 @@ export class ScreenService {
     // Set up state for next re-rendering
     this.extraLinesUnderPrompt = bottomContentHeight;
     this.height = height(fullContent);
-
-    const clear = ansiEscapes.eraseLines(20);
-    this.rl.emit('data', clear);
-
-    // this.rl.write(ansiEscapes.cursorHide);
+    this.rl.output.mute();
   }
 
   public up(amount = SINGLE): void {
-    this.rl.emit('data', ansiEscapes.cursorUp(amount));
+    console.log(ansiEscapes.cursorUp(amount));
+  }
+
+  protected onModuleInit(): void {
+    console.log(ansiEscapes.cursorHide);
   }
 
   private breakLines(content: string, width: number): string {
