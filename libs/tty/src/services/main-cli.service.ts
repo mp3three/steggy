@@ -12,7 +12,6 @@ import chalk from 'chalk';
 import { iRepl, MainMenuEntry, MenuEntry, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
 import { ApplicationManagerService } from './application-manager.service';
-import { MenuComponentOptions } from './components';
 import { ReplExplorerService } from './explorers';
 import { PinnedItemDTO, PinnedItemService } from './pinned-item.service';
 import { PromptEntry, PromptService } from './prompt.service';
@@ -45,7 +44,6 @@ export class MainCLIService implements iRepl {
       await this.pinnedItem.exec(name as PinnedItemDTO);
       return this.exec();
     }
-    this.printHeader(name as string);
     let instance: iRepl;
     this.explorer.REGISTERED_APPS.forEach((i, options) => {
       if (options.name === name) {
@@ -123,10 +121,7 @@ export class MainCLIService implements iRepl {
         );
       })?.entry[VALUE];
     }
-    const result = await this.applicationManager.activate<
-      MenuComponentOptions,
-      ENTRY_TYPE
-    >('menu', {
+    const result = await this.promptService.menu<ENTRY_TYPE>({
       keyMap,
       left,
       leftHeader: 'Pinned Items',
@@ -134,15 +129,6 @@ export class MainCLIService implements iRepl {
       titleTypes: true,
       value: this.last,
     });
-
-    // const result = await this.promptService.menu<ENTRY_TYPE>({
-    //   keyMap,
-    //   left,
-    //   leftHeader: 'Pinned Items',
-    //   right,
-    //   titleTypes: true,
-    //   value: this.last,
-    // });
     this.last = result;
     await this.cacheService.set(CACHE_KEY, result);
     return result;

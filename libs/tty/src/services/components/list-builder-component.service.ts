@@ -116,6 +116,51 @@ export class ListBuilderComponentService<VALUE = unknown>
     this.applicationManager.setKeyMap(this, KEYMAP_NORMAL);
   }
 
+  public render(updateValue = false): void {
+    // if (this.status === 'answered') {
+    //   if (is.empty(this.current)) {
+    //     this.screenService.render(
+    //       chalk` {magenta >} No ${this.opt.items} selected\n `,
+    //       '',
+    //     );
+    //     return;
+    //   }
+    //   this.screenService.render(
+    //     chalk` {magenta >} {yellow ${this.current.length}} ${this.opt.items} selected\n `,
+    //     '',
+    //   );
+    //   return;
+    // }
+    // if (this.status === 'answered') {
+    //   this.screenService.render(``, '');
+    //   return;
+    // }
+    const left = `Current ${this.opt.items}`;
+    const right = `Available ${this.opt.items}`;
+    const current = this.renderSide(
+      'current',
+      updateValue && this.selectedType === 'current',
+    );
+    const source = this.renderSide(
+      'source',
+      updateValue && this.selectedType === 'source',
+    );
+    const search = this.mode === 'find' ? this.searchText : undefined;
+    const message = this.textRender.assemble(current, source, {
+      left,
+      right,
+      search,
+    });
+    this.screenService.render(
+      this.textRender.appendHelp(
+        message.join(`\n`),
+        BASE_HELP,
+        this.mode === 'find' ? SEARCH_HELP : MENU_HELP,
+      ),
+      '',
+    );
+  }
+
   protected add(): void {
     if (this.selectedType === 'current') {
       return;
@@ -279,51 +324,6 @@ export class ListBuilderComponentService<VALUE = unknown>
       return;
     }
     this.value = list[index - INCREMENT][VALUE];
-  }
-
-  protected render(updateValue = false): void {
-    // if (this.status === 'answered') {
-    //   if (is.empty(this.current)) {
-    //     this.screenService.render(
-    //       chalk` {magenta >} No ${this.opt.items} selected\n `,
-    //       '',
-    //     );
-    //     return;
-    //   }
-    //   this.screenService.render(
-    //     chalk` {magenta >} {yellow ${this.current.length}} ${this.opt.items} selected\n `,
-    //     '',
-    //   );
-    //   return;
-    // }
-    // if (this.status === 'answered') {
-    //   this.screenService.render(``, '');
-    //   return;
-    // }
-    const left = `Current ${this.opt.items}`;
-    const right = `Available ${this.opt.items}`;
-    const current = this.renderSide(
-      'current',
-      updateValue && this.selectedType === 'current',
-    );
-    const source = this.renderSide(
-      'source',
-      updateValue && this.selectedType === 'source',
-    );
-    const search = this.mode === 'find' ? this.searchText : undefined;
-    const message = this.textRender.assemble(current, source, {
-      left,
-      right,
-      search,
-    });
-    this.screenService.render(
-      this.textRender.appendHelp(
-        message.join(`\n`),
-        BASE_HELP,
-        this.mode === 'find' ? SEARCH_HELP : MENU_HELP,
-      ),
-      '',
-    );
   }
 
   protected reset(): void {

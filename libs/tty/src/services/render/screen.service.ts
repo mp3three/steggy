@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { EMPTY, is, SINGLE, START } from '@text-based/utilities';
-import ansiEscapes from 'ansi-escapes';
 import { ReadStream } from 'fs';
 import MuteStream from 'mute-stream';
 import { createInterface, Interface } from 'readline';
 
-import { ansiMaxLength, ansiStrip } from '../../includes';
+import { ansiEscapes, ansiMaxLength, ansiStrip } from '../../includes';
 
 const height = (content) => content.split('\n').length;
 const lastLine = (content) => content.split('\n').pop();
@@ -24,6 +23,17 @@ export class ScreenService {
   private extraLinesUnderPrompt = EMPTY;
   private height = EMPTY;
 
+  public clear(): void {
+    this.extraLinesUnderPrompt = EMPTY;
+    this.height = EMPTY;
+    this.rl.output.unmute();
+    // Reset draw to top
+    this.rl.output.write('\u001B[0f');
+    // Clear screen
+    this.rl.output.write('\u001B[2J');
+    this.rl.output.mute();
+  }
+
   public cursorLeft(amount = SINGLE): void {
     console.log(ansiEscapes.cursorBackward(amount));
   }
@@ -36,7 +46,6 @@ export class ScreenService {
     this.releaseCursor();
     this.rl.setPrompt('');
     console.log('\n');
-    // this.rl.close();
   }
 
   public down(amount = SINGLE): void {
@@ -85,8 +94,6 @@ export class ScreenService {
     const fullContent = content + (bottomContent ? '\n' + bottomContent : '');
     console.log(fullContent);
 
-    // Re-adjust the cursor at the correct position.
-
     // We need to consider parts of the prompt under the cursor as part of the bottom
     // content in order to correctly cleanup and re-render.
     const promptLineUpDiff =
@@ -108,6 +115,9 @@ export class ScreenService {
     // Set up state for next re-rendering
     this.extraLinesUnderPrompt = bottomContentHeight;
     this.height = height(fullContent);
+
+    // Muting prevents user interactions from presenting to the screen directly
+    // Must rely on application rendering to display keypresses
     this.rl.output.mute();
   }
 

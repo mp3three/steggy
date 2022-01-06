@@ -13,6 +13,7 @@ import {
 } from '@text-based/controller-logic';
 import { HASS_DOMAINS } from '@text-based/home-assistant';
 import {
+  ApplicationManagerService,
   DONE,
   ICONS,
   iRepl,
@@ -85,6 +86,7 @@ export class GroupCommandService implements iRepl {
     private readonly fanGroup: FanGroupCommandService,
     private readonly lockGroup: LockGroupCommandService,
     private readonly pinnedItems: PinnedItemService,
+    private readonly applicationManager: ApplicationManagerService,
     private readonly switchGroup: SwitchGroupCommandService,
   ) {}
 
@@ -154,6 +156,7 @@ export class GroupCommandService implements iRepl {
   }
 
   public async exec(): Promise<void> {
+    this.applicationManager.setHeader('All Groups', 'test');
     const groups = await this.list();
     const action = await this.promptService.menu<GroupDTO>({
       keyMap: { c: MENU_ITEMS.CREATE, d: MENU_ITEMS.DONE },

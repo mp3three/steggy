@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { each, is } from '@text-based/utilities';
 import chalk from 'chalk';
-import observe from 'inquirer/lib/utils/events';
-import { filter, fromEvent, takeUntil } from 'rxjs';
+import { fromEvent, takeUntil } from 'rxjs';
 
 import {
   DirectCB,
@@ -82,7 +81,9 @@ export class ApplicationManagerService {
   private async keyPressHandler(descriptor: KeyDescriptor): Promise<void> {
     const { key } = descriptor;
     const { ctrl, meta, shift, name, sequence } = key ?? {};
-    const mixed = name ?? sequence ?? 'enter';
+    let mixed = name ?? sequence ?? 'enter';
+    // Standardize the "done" key
+    mixed = mixed === 'return' ? 'enter' : mixed;
     const catchAll: [unknown, string | DirectCB][] = [];
     const direct: [unknown, string | DirectCB][] = [];
     const modifiers: KeyModifiers = { ctrl, meta, shift };

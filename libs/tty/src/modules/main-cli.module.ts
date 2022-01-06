@@ -37,6 +37,7 @@ import {
 
 @LibraryModule({
   exports: [
+    ApplicationManagerService,
     ChartingService,
     ColorsService,
     ComparisonToolsService,

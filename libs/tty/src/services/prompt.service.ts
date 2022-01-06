@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   DOWN,
@@ -24,8 +24,9 @@ import {
   SECONDARY_HEADER_FONT,
 } from '../config';
 import { DONE, PromptMenuItems, TableBuilderOptions } from '../contracts';
+import { ApplicationManagerService } from './application-manager.service';
 import { ListBuilderOptions, MenuComponentOptions } from './components';
-import { TextRenderingService } from './render';
+import { ScreenService, TextRenderingService } from './render';
 
 const name = `result`;
 export type PROMPT_WITH_SHORT = { name: string; short: string };
@@ -50,6 +51,9 @@ export class PromptService {
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
     @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
     private readonly textRendering: TextRenderingService,
+    @Inject(forwardRef(() => ApplicationManagerService))
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
   ) {}
 
   /**
@@ -103,10 +107,7 @@ export class PromptService {
       console.log(chalk.bgBlue.whiteBright`clear();`);
       return;
     }
-    // Reset draw to top
-    process.stdout.write('\u001B[0f');
-    // Clear screen
-    process.stdout.write('\u001B[2J');
+    this.screenService.clear();
   }
 
   /**
@@ -283,13 +284,10 @@ export class PromptService {
     options.keyMap ??= {
       d: [chalk.bold`Done`, DONE],
     };
-    const { result } = await inquirer.prompt([
-      {
-        ...options,
-        name,
-        type: 'mainMenu',
-      } as MenuComponentOptions<T>,
-    ]);
+    const result = await this.applicationManager.activate<
+      MenuComponentOptions,
+      T
+    >('menu', options);
     return result;
   }
 
