@@ -1,52 +1,72 @@
-import { INestApplication } from '@nestjs/common';
 import { ARRAY_OFFSET, is, START } from '@text-based/utilities';
 import chalk from 'chalk';
 import { get, set } from 'object-path';
 
-import { OBJECT_BUILDER_ELEMENT, ObjectBuilderOptions } from '../../contracts';
 import {
   DirectCB,
   InquirerKeypressOptions,
-  InquirerPrompt,
   KeyModifiers,
-} from '../../decorators';
+  TABLE_CELL_TYPE,
+  TableBuilderOptions,
+} from '../../contracts';
+import { Component, iComponent } from '../../decorators';
 import { ansiMaxLength } from '../../includes';
+import { ApplicationManagerService } from '../application-manager.service';
 import {
-  ConfirmEditorRenderOptions,
+  FooterEditorService,
   KeymapService,
-  StringEditorRenderOptions,
+  ScreenService,
   TableService,
   TextRenderingService,
-} from '../../services';
-import { FooterEditorService } from '../render';
+} from '../render';
 
-export class ObjectBuilderPrompt extends InquirerPrompt<
-  ObjectBuilderOptions<unknown>
-> {
+@Component({ type: 'table' })
+export class TableBuilderComponentService<VALUE = unknown>
+  implements iComponent<TableBuilderOptions<VALUE>, VALUE>
+{
+  constructor(
+    private readonly tableService: TableService,
+    private readonly textRendering: TextRenderingService,
+    private readonly footerEditor: FooterEditorService,
+    private readonly keymapService: KeymapService,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenSErvice: ScreenService,
+  ) {}
   private confirmCB: (value: boolean) => void;
   private currentEditor: string;
+  private done: (type: VALUE[]) => void;
   private editorOptions: unknown;
-  private footerEditor: FooterEditorService;
   private isSelected = false;
-  private keymapService: KeymapService;
-  private rows: Record<string, unknown>[];
+  private opt: TableBuilderOptions<VALUE>;
+  private rows: VALUE[];
   private selectedCell = START;
   private selectedRow = START;
-  private tableService: TableService;
-  private textRendering: TextRenderingService;
+
+  public configure(
+    config: TableBuilderOptions<VALUE>,
+    done: (type: VALUE[]) => void,
+  ): void {
+    this.opt = config;
+    this.done = done;
+    this.opt.current ??= [];
+    this.rows = Array.isArray(this.opt.current)
+      ? this.opt.current
+      : [this.opt.current];
+    this.createKeymap();
+  }
 
   private get columns() {
     return this.opt.elements;
   }
 
   protected add(): void {
-    this.rows.push({});
+    this.rows.push({} as VALUE);
   }
 
   protected async delete(): Promise<void> {
     const result = await new Promise<boolean>((done) => {
       this.confirmCB = done;
-      this.currentEditor = OBJECT_BUILDER_ELEMENT.confirm;
+      this.currentEditor = TABLE_CELL_TYPE.confirm;
       this.editorOptions = {
         current: false,
         label: `Are you sure you want to delete this?`,
@@ -77,8 +97,9 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
       return;
     }
     const column = this.opt.elements[this.selectedCell];
+    const current = this.rows[this.selectedRow];
     set(
-      this.rows[this.selectedRow],
+      is.object(current) ? current : {},
       column.path,
       (this.editorOptions as StringEditorRenderOptions).current,
     );
@@ -93,7 +114,8 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
     process.nextTick(() => {
       const column = this.opt.elements[this.selectedCell];
       this.currentEditor = column.type;
-      const current = get(this.rows[this.selectedRow], column.path);
+      const row = this.rows[this.selectedRow];
+      const current = get(is.object(row) ? row : {}, column.path);
       this.editorOptions = this.footerEditor.initConfig(current, column);
     });
   }
@@ -106,20 +128,7 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
   }
 
   protected onEnd(): void {
-    super.onEnd();
     this.done(this.rows);
-  }
-
-  protected onInit(app: INestApplication): void {
-    this.opt.current ??= [];
-    this.rows = Array.isArray(this.opt.current)
-      ? this.opt.current
-      : [this.opt.current];
-    this.footerEditor = app.get(FooterEditorService);
-    this.tableService = app.get(TableService);
-    this.textRendering = app.get(TextRenderingService);
-    this.keymapService = app.get(KeymapService);
-    this.createKeymap();
   }
 
   protected onLeft(): boolean {
@@ -144,32 +153,31 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
   }
 
   protected render(): void {
-    if (this.status === 'answered') {
-      this.screen.render(chalk``, '');
-      return;
-    }
     const message = this.textRendering.pad(
       this.tableService.renderTable(
         this.opt,
-        this.rows,
+        this.rows as Record<string, unknown>[],
         this.selectedRow,
         this.selectedCell,
       ),
     );
 
     const column = this.opt.elements[this.selectedCell];
-    const keymap = this.keymapService.keymapHelp(this.localKeyMap, {
-      message,
-      prefix: this.currentEditor
-        ? this.footerEditor.getKeyMap(
-            this.currentEditor,
-            column,
-            this.rows[this.selectedRow],
-          )
-        : new Map(),
-    });
+    const keymap = this.keymapService.keymapHelp(
+      this.applicationManager.getCombinedKeyMap(),
+      {
+        message,
+        prefix: this.currentEditor
+          ? this.footerEditor.getKeyMap(
+              this.currentEditor,
+              column,
+              this.rows[this.selectedRow],
+            )
+          : new Map(),
+      },
+    );
     const max = ansiMaxLength(keymap, message);
-    this.screen.render(
+    this.screenSErvice.render(
       message,
       [` `, ...this.renderEditor(max), keymap].join(`\n`),
     );
@@ -180,7 +188,8 @@ export class ObjectBuilderPrompt extends InquirerPrompt<
   }
 
   private createKeymap(): void {
-    this.setKeyMap(
+    this.applicationManager.setKeyMap(
+      this,
       new Map([
         // While there is no editor
         ...[

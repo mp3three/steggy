@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { EMPTY, is, SINGLE, START } from '@text-based/utilities';
-import { createInterface } from 'readline';
+import ansiEscapes from 'ansi-escapes';
+import { ReadStream, WriteStream } from 'fs';
+import { createInterface, Interface } from 'readline';
 
-import { ansiEscapes, ansiMaxLength, ansiStrip } from '../../includes';
+import { ansiMaxLength, ansiStrip } from '../../includes';
 
 const height = (content) => content.split('\n').length;
 const lastLine = (content) => content.split('\n').pop();
@@ -10,13 +12,14 @@ const DEFAULT_WIDTH = 80;
 
 @Injectable()
 export class ScreenService {
-  private extraLinesUnderPrompt = EMPTY;
-  private height = EMPTY;
-  private rl = createInterface({
+  public rl = createInterface({
     input: process.stdin,
     output: process.stdout,
     terminal: true,
-  });
+  }) as Interface & { input: ReadStream; output: WriteStream };
+
+  private extraLinesUnderPrompt = EMPTY;
+  private height = EMPTY;
 
   public cursorLeft(amount = SINGLE): void {
     this.rl.emit('data', ansiEscapes.cursorBackward(amount));
@@ -30,7 +33,7 @@ export class ScreenService {
     this.releaseCursor();
     this.rl.setPrompt('');
     this.rl.emit('data', '\n');
-    this.rl.close();
+    // this.rl.close();
   }
 
   public down(amount = SINGLE): void {
@@ -86,7 +89,7 @@ export class ScreenService {
     const promptLineUpDiff =
       Math.floor(rawPromptLine.length / width) - cursorPos.rows;
     const bottomContentHeight =
-      promptLineUpDiff + (bottomContent ? height(bottomContent) : 0);
+      promptLineUpDiff + (bottomContent ? height(bottomContent) : EMPTY);
     if (bottomContentHeight > EMPTY) {
       this.up(bottomContentHeight);
     }
@@ -102,6 +105,11 @@ export class ScreenService {
     // Set up state for next re-rendering
     this.extraLinesUnderPrompt = bottomContentHeight;
     this.height = height(fullContent);
+
+    const clear = ansiEscapes.eraseLines(20);
+    this.rl.emit('data', clear);
+
+    // this.rl.write(ansiEscapes.cursorHide);
   }
 
   public up(amount = SINGLE): void {

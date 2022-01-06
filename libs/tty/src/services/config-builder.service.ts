@@ -29,7 +29,7 @@ import { homedir } from 'os';
 import { join } from 'path';
 
 import { DONE, ICONS, IsDone } from '../contracts';
-import { ToMenuEntry } from '../inquirer';
+import { ToMenuEntry } from './components';
 import { PromptEntry, PromptService } from './prompt.service';
 
 const ARGV_APP = 3;

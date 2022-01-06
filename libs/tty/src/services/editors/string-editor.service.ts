@@ -8,7 +8,8 @@ import {
 import chalk from 'chalk';
 
 import { LEFT_PADDING } from '../../config';
-import { Editor, iBuilderEditor, KeyModifiers } from '../../decorators';
+import { KeyModifiers } from '../../contracts';
+import { Editor, iBuilderEditor } from '../../decorators';
 import { ansiPadEnd } from '../../includes';
 import { TextRenderingService } from '../render';
 

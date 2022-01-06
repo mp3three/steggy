@@ -1,14 +1,14 @@
-import { INestApplication } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 import { LibraryModule, RegisterCache } from '@text-based/utilities';
 
 import { LIB_TTY } from '../config';
-import { InquirerPrompt } from '../decorators';
 import {
+  ApplicationManagerService,
   BooleanEditorService,
   ChartingService,
   ColorsService,
   ComparisonToolsService,
+  ComponentExplorerService,
   ConfigBuilderService,
   ConfirmEditorService,
   DateEditorService,
@@ -20,7 +20,9 @@ import {
   FooterEntryService,
   GitService,
   KeymapService,
+  ListBuilderComponentService,
   MainCLIService,
+  MenuComponentService,
   NumberEditorService,
   PinnedItemService,
   PromptService,
@@ -28,6 +30,7 @@ import {
   ScreenService,
   StringEditorService,
   SystemService,
+  TableBuilderComponentService,
   TableService,
   TextRenderingService,
 } from '../services';
@@ -51,28 +54,35 @@ import {
   imports: [DiscoveryModule, RegisterCache()],
   library: LIB_TTY,
   providers: [
+    ApplicationManagerService,
     BooleanEditorService,
     ChartingService,
     ColorsService,
-    DiscriminatorEditorService,
     ComparisonToolsService,
-    KeymapService,
+    ComponentExplorerService,
     ConfigBuilderService,
+    ConfirmEditorService,
     DateEditorService,
+    DiscriminatorEditorService,
+    EditorExplorerService,
     EnumEditorService,
     EnvironmentService,
-    EditorExplorerService,
+    FooterEditorService,
     FooterEntryService,
     GitService,
+
+    TableBuilderComponentService,
+    MenuComponentService,
+    ListBuilderComponentService,
+    KeymapService,
+
     MainCLIService,
     NumberEditorService,
     PinnedItemService,
-    ScreenService,
     PromptService,
     ReplExplorerService,
-    FooterEditorService,
+    ScreenService,
     StringEditorService,
-    ConfirmEditorService,
     SystemService,
     TableService,
     TextRenderingService,

@@ -1,4 +1,4 @@
-export enum OBJECT_BUILDER_ELEMENT {
+export enum TABLE_CELL_TYPE {
   string = 'string',
   confirm = 'confirm',
   boolean = 'boolean',
@@ -9,7 +9,7 @@ export enum OBJECT_BUILDER_ELEMENT {
   list = 'list',
 }
 
-export class ObjectBuilderElement<EXTRA = unknown> {
+export class TableBuilderElement<EXTRA = unknown> {
   public extra?: EXTRA;
   public format?: (value: unknown) => string;
   public name: string;
@@ -17,9 +17,9 @@ export class ObjectBuilderElement<EXTRA = unknown> {
   public type: string;
 }
 
-export class ObjectBuilderOptions<T extends unknown> {
+export class TableBuilderOptions<T extends unknown> {
   public current?: T | T[];
-  public elements: ObjectBuilderElement[];
+  public elements: TableBuilderElement[];
   public mode?: 'single' | 'multi';
 }
 

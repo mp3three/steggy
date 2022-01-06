@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { forwardRef, Inject } from '@nestjs/common';
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -15,10 +15,12 @@ import {
 } from '@text-based/utilities';
 import chalk from 'chalk';
 
-import { ICONS, MenuEntry } from '../../contracts';
-import { InquirerPrompt, tKeyMap } from '../../decorators';
+import { ICONS, MenuEntry, tKeyMap } from '../../contracts';
+import { Component, iComponent } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
 import { TextRenderingService } from '../../services';
+import { ApplicationManagerService } from '../application-manager.service';
+import { ScreenService } from '../render';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 
@@ -78,16 +80,41 @@ const KEYMAP_NORMAL: tKeyMap = new Map([
   [{ key: [...'0123456789'] }, 'numericSelect'],
 ]);
 
-export class ListBuilderPrompt extends InquirerPrompt<ListBuilderOptions> {
-  private current: MenuEntry<unknown>[];
+@Component({ type: 'list' })
+export class ListBuilderComponentService<VALUE = unknown>
+  implements iComponent<ListBuilderOptions<VALUE>, VALUE>
+{
+  constructor(
+    @Inject(forwardRef(() => TextRenderingService))
+    private readonly textRender: TextRenderingService,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
+  ) {}
+  private current: MenuEntry<VALUE | string>[];
 
+  private done: (type: VALUE[]) => void;
   private mode: 'find' | 'select' = 'select';
   private numericSelection = '';
+  private opt: ListBuilderOptions<VALUE>;
   private searchText = '';
   private selectedType: 'current' | 'source' = 'source';
-  private source: MenuEntry<unknown>[];
-  private textRender: TextRenderingService;
-  private value: unknown;
+  private source: MenuEntry<VALUE | string>[];
+  private value: VALUE;
+
+  public configure(): void {
+    this.opt.source ??= [];
+    this.opt.current ??= [];
+    this.current = [...this.opt.current];
+    this.source = [...this.opt.source];
+    this.opt.items ??= `Items`;
+    this.value ??= (
+      is.empty(this.source)
+        ? this.current[START][VALUE]
+        : this.source[START][VALUE]
+    ) as VALUE;
+    this.detectSide();
+    this.applicationManager.setKeyMap(this, KEYMAP_NORMAL);
+  }
 
   protected add(): void {
     if (this.selectedType === 'current') {
@@ -192,22 +219,7 @@ export class ListBuilderPrompt extends InquirerPrompt<ListBuilderOptions> {
   }
 
   protected onEnd(): void {
-    super.onEnd();
-    this.done(this.current.map((i) => i[VALUE]));
-  }
-
-  protected onInit(app: INestApplication): void {
-    this.opt.source ??= [];
-    this.opt.current ??= [];
-    this.current = [...this.opt.current];
-    this.source = [...this.opt.source];
-    this.textRender = app.get(TextRenderingService);
-    this.opt.items ??= `Items`;
-    this.value ??= is.empty(this.source)
-      ? this.current[START][VALUE]
-      : this.source[START][VALUE];
-    this.detectSide();
-    this.setKeyMap(KEYMAP_NORMAL);
+    this.done(this.current.map((i) => i[VALUE] as VALUE));
   }
 
   protected onLeft(): void {
@@ -270,24 +282,24 @@ export class ListBuilderPrompt extends InquirerPrompt<ListBuilderOptions> {
   }
 
   protected render(updateValue = false): void {
-    if (this.status === 'answered') {
-      if (is.empty(this.current)) {
-        this.screen.render(
-          chalk` {magenta >} No ${this.opt.items} selected\n `,
-          '',
-        );
-        return;
-      }
-      this.screen.render(
-        chalk` {magenta >} {yellow ${this.current.length}} ${this.opt.items} selected\n `,
-        '',
-      );
-      return;
-    }
-    if (this.status === 'answered') {
-      this.screen.render(``, '');
-      return;
-    }
+    // if (this.status === 'answered') {
+    //   if (is.empty(this.current)) {
+    //     this.screenService.render(
+    //       chalk` {magenta >} No ${this.opt.items} selected\n `,
+    //       '',
+    //     );
+    //     return;
+    //   }
+    //   this.screenService.render(
+    //     chalk` {magenta >} {yellow ${this.current.length}} ${this.opt.items} selected\n `,
+    //     '',
+    //   );
+    //   return;
+    // }
+    // if (this.status === 'answered') {
+    //   this.screenService.render(``, '');
+    //   return;
+    // }
     const left = `Current ${this.opt.items}`;
     const right = `Available ${this.opt.items}`;
     const current = this.renderSide(
@@ -304,7 +316,7 @@ export class ListBuilderPrompt extends InquirerPrompt<ListBuilderOptions> {
       right,
       search,
     });
-    this.screen.render(
+    this.screenService.render(
       this.textRender.appendHelp(
         message.join(`\n`),
         BASE_HELP,
@@ -360,7 +372,10 @@ export class ListBuilderPrompt extends InquirerPrompt<ListBuilderOptions> {
   protected toggleFind(): void {
     this.mode = this.mode === 'find' ? 'select' : 'find';
     this.searchText = '';
-    this.setKeyMap(this.mode === 'find' ? KEYMAP_FIND : KEYMAP_NORMAL);
+    this.applicationManager.setKeyMap(
+      this,
+      this.mode === 'find' ? KEYMAP_FIND : KEYMAP_NORMAL,
+    );
   }
 
   protected top(): void {
@@ -375,7 +390,10 @@ export class ListBuilderPrompt extends InquirerPrompt<ListBuilderOptions> {
     this.selectedType = isLeftSide ? 'current' : 'source';
   }
 
-  private filterMenu(data: MenuEntry[], updateValue = false): MenuEntry[] {
+  private filterMenu(
+    data: MenuEntry<VALUE>[],
+    updateValue = false,
+  ): MenuEntry<VALUE>[] {
     const highlighted = this.textRender.fuzzySort(this.searchText, data);
     if (is.empty(highlighted) || updateValue === false) {
       return highlighted;
@@ -444,23 +462,23 @@ export class ListBuilderPrompt extends InquirerPrompt<ListBuilderOptions> {
     return out;
   }
 
-  private side<T extends unknown = string>(
+  private side(
     side: 'current' | 'source' = this.selectedType,
     range = false,
-  ): MenuEntry<T>[] {
+  ): MenuEntry<VALUE>[] {
     if (range) {
       return this.textRender.selectRange(this.side(side, false), this.value);
     }
     if (this.mode === 'find') {
-      return this.textRender.fuzzySort<T>(
+      return this.textRender.fuzzySort<VALUE>(
         this.searchText,
-        this[side] as MenuEntry<T>[],
+        this[side] as MenuEntry<VALUE>[],
       );
     }
     return this[side].sort((a, b) => {
       return a[LABEL].replace(UNSORTABLE, '') > b[LABEL].replace(UNSORTABLE, '')
         ? UP
         : DOWN;
-    }) as MenuEntry<T>[];
+    }) as MenuEntry<VALUE>[];
   }
 }

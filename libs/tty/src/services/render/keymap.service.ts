@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DOWN, is, UP } from '@text-based/utilities';
 import chalk from 'chalk';
 
-import { tKeyMap } from '../../decorators';
+import { tKeyMap } from '../../contracts';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
 import { TextRenderingService } from './text-rendering.service';
 

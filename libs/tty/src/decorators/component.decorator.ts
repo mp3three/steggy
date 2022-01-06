@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 
-import { tKeyMap } from './inquirer.decorator';
-
 export const COMPONENT_CONFIG = Symbol('editor');
 
 export interface ComponentOptions {
@@ -15,5 +13,9 @@ export function Component(options: ComponentOptions): ClassDecorator {
   };
 }
 export interface iComponent<ACTIVE_CONFIG = unknown, VALUE_TYPE = unknown> {
-  configure(config: ACTIVE_CONFIG, done: (type: VALUE_TYPE) => void): void;
+  configure(
+    config: ACTIVE_CONFIG,
+    done: (type: VALUE_TYPE | VALUE_TYPE[]) => void,
+  ): void;
+  render(): void;
 }

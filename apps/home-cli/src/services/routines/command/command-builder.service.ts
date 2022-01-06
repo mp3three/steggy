@@ -3,7 +3,7 @@ import {
   ROUTINE_ACTIVATE_COMMAND,
   RoutineDTO,
 } from '@text-based/controller-logic';
-import { OBJECT_BUILDER_ELEMENT, PromptService } from '@text-based/tty';
+import { PromptService } from '@text-based/tty';
 import { DOWN, is, TitleCase, UP } from '@text-based/utilities';
 
 import { RoutineCommandExplorerService } from '../../explorers';
@@ -24,7 +24,7 @@ export class RoutineCommandBuilderService {
         {
           name: 'Friendly Name',
           path: 'friendlyName',
-          type: OBJECT_BUILDER_ELEMENT.string,
+          type: 'string',
         },
         {
           extra: {
@@ -35,7 +35,7 @@ export class RoutineCommandBuilderService {
           format: (item: string) => (is.string(item) ? TitleCase(item) : item),
           name: 'Type',
           path: 'type',
-          type: OBJECT_BUILDER_ELEMENT.enum,
+          type: 'enum',
         },
       ],
     });

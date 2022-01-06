@@ -7,3 +7,17 @@ export interface MainMenuEntry<T = unknown> {
   icon?: string;
   type?: string;
 }
+export type tKeyMap = Map<InquirerKeypressOptions, string | DirectCB>;
+export type KeyModifiers = Record<'ctrl' | 'shift' | 'meta', boolean>;
+export type DirectCB = (
+  key: string,
+  mods: KeyModifiers,
+) => void | boolean | Promise<void | boolean>;
+export interface InquirerKeypressOptions {
+  active?: () => boolean;
+  catchAll?: boolean;
+  description?: string;
+  key?: string | string[];
+  modifiers?: Partial<KeyModifiers>;
+  noHelp?: boolean;
+}

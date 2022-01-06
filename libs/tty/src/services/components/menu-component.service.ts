@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { forwardRef, Inject } from '@nestjs/common';
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -16,14 +16,15 @@ import {
 } from '@text-based/utilities';
 import chalk from 'chalk';
 
-import { ICONS, MainMenuEntry, MenuEntry } from '../../contracts';
-import { Component, iComponent, tKeyMap } from '../../decorators';
+import { ICONS, MainMenuEntry, MenuEntry, tKeyMap } from '../../contracts';
+import { Component, iComponent } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../../includes';
 import {
   KeymapService,
   PromptEntry,
   TextRenderingService,
 } from '../../services';
+import { ApplicationManagerService } from '../application-manager.service';
 import { ScreenService } from '../render';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
@@ -110,14 +111,15 @@ const SEARCH_KEYMAP: tKeyMap = new Map([
   [{ description: 'toggle find', key: 'tab' }, 'toggleFind'],
 ]);
 
-@Component({
-  type: 'menu',
-})
-export class MainComponentService<VALUE = unknown>
+@Component({ type: 'menu' })
+export class MenuComponentService<VALUE = unknown>
   implements iComponent<MenuComponentOptions, VALUE>
 {
   constructor(
+    private readonly applicationManager: ApplicationManagerService,
+    @Inject(forwardRef(() => KeymapService))
     private readonly keymap: KeymapService,
+    @Inject(forwardRef(() => TextRenderingService))
     private readonly textRender: TextRenderingService,
     private readonly screen: ScreenService,
   ) {}
@@ -128,7 +130,7 @@ export class MainComponentService<VALUE = unknown>
   private leftHeader: string;
   private mode: 'find' | 'select' = 'select';
   private numericSelection = '';
-  private opt: MenuComponentOptions;
+  private opt: MenuComponentOptions<VALUE>;
   private rightHeader: string;
   private searchText = '';
   private selectedType: 'left' | 'right' = 'right';
@@ -157,11 +159,21 @@ export class MainComponentService<VALUE = unknown>
     const defaultValue = this.side('right')[START]?.entry[VALUE];
     this.value ??= defaultValue;
     this.detectSide();
-    this.setKeyMap(NORMAL_KEYMAP);
+    this.applicationManager.setKeyMap(this, NORMAL_KEYMAP);
     const contained = this.side().find((i) => i.entry[VALUE] === this.value);
     if (!contained) {
       this.value = defaultValue;
     }
+  }
+
+  /**
+   * Entrypoint for rendering logic
+   */
+  public render(updateValue = false): void {
+    if (this.mode === 'select') {
+      return this.renderSelect();
+    }
+    this.renderFind(updateValue);
   }
 
   /**
@@ -365,33 +377,16 @@ export class MainComponentService<VALUE = unknown>
   }
 
   /**
-   * Entrypoint for rendering logic
-   */
-  protected render(updateValue = false): void {
-    if (this.status === 'answered') {
-      const entry = this.getSelected();
-      if (entry) {
-        this.screen.render(chalk` {magenta >} ${entry.entry[LABEL]}`, '');
-      }
-      return;
-    }
-    if (this.mode === 'select') {
-      return this.renderSelect();
-    }
-    this.renderFind(updateValue);
-  }
-
-  /**
    * Simple toggle function
    */
   protected toggleFind(): void {
     this.mode = this.mode === 'find' ? 'select' : 'find';
     if (this.mode === 'select') {
       this.detectSide();
-      this.setKeyMap(NORMAL_KEYMAP);
+      this.applicationManager.setKeyMap(this, NORMAL_KEYMAP);
     } else {
       this.searchText = '';
-      this.setKeyMap(SEARCH_KEYMAP);
+      this.applicationManager.setKeyMap(this, SEARCH_KEYMAP);
     }
   }
 
@@ -473,10 +468,6 @@ export class MainComponentService<VALUE = unknown>
    * Rendering for while not in find mode
    */
   private renderSelect() {
-    if (this.status === 'answered') {
-      this.screen.render(``, '');
-      return;
-    }
     let message = '';
     if (!is.empty(this.callbackOutput)) {
       message = this.callbackOutput + `\n\n`;
@@ -502,7 +493,7 @@ export class MainComponentService<VALUE = unknown>
     }
     this.screen.render(
       message,
-      this.keymap.keymapHelp(this.localKeyMap, {
+      this.keymap.keymapHelp(this.applicationManager.getCombinedKeyMap(), {
         message,
         prefix: new Map(
           Object.entries(this.opt.keyMap).map(([description, item]) => {

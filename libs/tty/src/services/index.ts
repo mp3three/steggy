@@ -1,5 +1,7 @@
+export * from './application-manager.service';
 export * from './colors.service';
 export * from './comparison-tools.service';
+export * from './components';
 export * from './config-builder.service';
 export * from './editors';
 export * from './environment.service';

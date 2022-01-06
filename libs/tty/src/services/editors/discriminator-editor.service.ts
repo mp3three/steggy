@@ -1,7 +1,8 @@
 import { ARRAY_OFFSET, INCREMENT, START, VALUE } from '@text-based/utilities';
 import chalk from 'chalk';
 
-import { Editor, iBuilderEditor, tKeyMap } from '../../decorators';
+import { tKeyMap } from '../../contracts';
+import { Editor, iBuilderEditor } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
 import { TextRenderingService } from '../render';
 

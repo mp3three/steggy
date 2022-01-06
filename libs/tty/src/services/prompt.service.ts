@@ -23,8 +23,8 @@ import {
   PAGE_SIZE,
   SECONDARY_HEADER_FONT,
 } from '../config';
-import { DONE, ObjectBuilderOptions, PromptMenuItems } from '../contracts';
-import { ListBuilderOptions, MainMenuOptions } from '../inquirer';
+import { DONE, PromptMenuItems, TableBuilderOptions } from '../contracts';
+import { ListBuilderOptions, MenuComponentOptions } from './components';
 import { TextRenderingService } from './render';
 
 const name = `result`;
@@ -277,7 +277,7 @@ export class PromptService {
   }
 
   public async menu<T extends unknown = string>(
-    options: MainMenuOptions<T | string>,
+    options: MenuComponentOptions<T | string>,
   ): Promise<T | string> {
     options.keyMap ??= {};
     options.keyMap ??= {
@@ -288,7 +288,7 @@ export class PromptService {
         ...options,
         name,
         type: 'mainMenu',
-      } as MainMenuOptions<T>,
+      } as MenuComponentOptions<T>,
     ]);
     return result;
   }
@@ -311,9 +311,7 @@ export class PromptService {
     return result;
   }
 
-  public async objectBuilder<T>(
-    options: ObjectBuilderOptions<T>,
-  ): Promise<T[]> {
+  public async objectBuilder<T>(options: TableBuilderOptions<T>): Promise<T[]> {
     const { result } = await inquirer.prompt([
       {
         name,

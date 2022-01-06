@@ -9,7 +9,7 @@ import {
 import chalk from 'chalk';
 import { get } from 'object-path';
 
-import { ColumnInfo, ObjectBuilderOptions } from '../../contracts';
+import { ColumnInfo, TableBuilderOptions } from '../../contracts';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
 import { EnvironmentService } from '../environment.service';
 import { TextRenderingService } from './text-rendering.service';
@@ -43,14 +43,14 @@ export class TableService {
     private readonly textRender: TextRenderingService,
   ) {}
 
-  private activeOptions: ObjectBuilderOptions<unknown>;
+  private activeOptions: TableBuilderOptions<unknown>;
   private columns: ColumnInfo[];
   private selectedCell: number;
   private selectedRow: number;
   private values: Record<string, unknown>[];
 
   public renderTable(
-    options: ObjectBuilderOptions<unknown>,
+    options: TableBuilderOptions<unknown>,
     renderRows: Record<string, unknown>[],
     selectedRow: number,
     selectedCell: number,
