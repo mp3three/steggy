@@ -13,6 +13,10 @@ import { Component, iComponent } from '../../decorators';
 import { ansiMaxLength } from '../../includes';
 import { ApplicationManagerService } from '../application-manager.service';
 import {
+  ConfirmEditorRenderOptions,
+  StringEditorRenderOptions,
+} from '../editors';
+import {
   FooterEditorService,
   KeymapService,
   ScreenService,
@@ -53,6 +57,34 @@ export class TableBuilderComponentService<VALUE = unknown>
       ? this.opt.current
       : [this.opt.current];
     this.createKeymap();
+  }
+
+  public render(): void {
+    const message = this.textRendering.pad(
+      this.tableService.renderTable(
+        this.opt,
+        this.rows as Record<string, unknown>[],
+        this.selectedRow,
+        this.selectedCell,
+      ),
+    );
+
+    const column = this.opt.elements[this.selectedCell];
+    const keymap = this.keymapService.keymapHelp({
+      message,
+      prefix: this.currentEditor
+        ? this.footerEditor.getKeyMap(
+            this.currentEditor,
+            column,
+            this.rows[this.selectedRow],
+          )
+        : new Map(),
+    });
+    const max = ansiMaxLength(keymap, message);
+    this.screenSErvice.render(
+      message,
+      [` `, ...this.renderEditor(max), keymap].join(`\n`),
+    );
   }
 
   private get columns() {
@@ -151,38 +183,6 @@ export class TableBuilderComponentService<VALUE = unknown>
     }
     this.selectedRow--;
   }
-
-  protected render(): void {
-    const message = this.textRendering.pad(
-      this.tableService.renderTable(
-        this.opt,
-        this.rows as Record<string, unknown>[],
-        this.selectedRow,
-        this.selectedCell,
-      ),
-    );
-
-    const column = this.opt.elements[this.selectedCell];
-    const keymap = this.keymapService.keymapHelp(
-      this.applicationManager.getCombinedKeyMap(),
-      {
-        message,
-        prefix: this.currentEditor
-          ? this.footerEditor.getKeyMap(
-              this.currentEditor,
-              column,
-              this.rows[this.selectedRow],
-            )
-          : new Map(),
-      },
-    );
-    const max = ansiMaxLength(keymap, message);
-    this.screenSErvice.render(
-      message,
-      [` `, ...this.renderEditor(max), keymap].join(`\n`),
-    );
-  }
-
   protected selectCell(): void {
     this.isSelected = !this.isSelected;
   }

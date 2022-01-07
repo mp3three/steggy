@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { DOWN, is, UP } from '@text-based/utilities';
 import chalk from 'chalk';
 
 import { tKeyMap } from '../../contracts';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
+import { ApplicationManagerService } from '../application-manager.service';
 import { TextRenderingService } from './text-rendering.service';
 
 type keyItem = {
@@ -14,16 +15,18 @@ const LINE_PADDING = 2;
 
 @Injectable()
 export class KeymapService {
-  constructor(private readonly textRendering: TextRenderingService) {}
+  constructor(
+    private readonly textRendering: TextRenderingService,
+    @Inject(forwardRef(() => ApplicationManagerService))
+    private readonly applicationManager: ApplicationManagerService,
+  ) {}
 
-  public keymapHelp(
-    map: tKeyMap,
-    {
-      message = '',
-      prefix = new Map(),
-      onlyHelp = false,
-    }: { message?: string; onlyHelp?: boolean; prefix?: tKeyMap } = {},
-  ): string {
+  public keymapHelp({
+    message = '',
+    prefix = new Map(),
+    onlyHelp = false,
+  }: { message?: string; onlyHelp?: boolean; prefix?: tKeyMap } = {}): string {
+    const map = this.applicationManager.getCombinedKeyMap();
     const a = this.buildLines(prefix);
     const b = this.buildLines(map);
 

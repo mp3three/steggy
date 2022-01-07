@@ -11,4 +11,5 @@ export * from './main-cli.service';
 export * from './pinned-item.service';
 export * from './prompt.service';
 export * from './render';
+export * from './stack.service';
 export * from './system.service';

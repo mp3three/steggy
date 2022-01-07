@@ -1,3 +1,4 @@
+export * from './application-stack';
 export * from './constants';
 export * from './dto';
 export * from './i-repl.interface';

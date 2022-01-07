@@ -28,6 +28,7 @@ import {
   PromptService,
   ReplExplorerService,
   ScreenService,
+  StackService,
   StringEditorService,
   SystemService,
   TableBuilderComponentService,
@@ -71,12 +72,11 @@ import {
     FooterEditorService,
     FooterEntryService,
     GitService,
-
     TableBuilderComponentService,
     MenuComponentService,
     ListBuilderComponentService,
     KeymapService,
-
+    StackService,
     MainCLIService,
     NumberEditorService,
     PinnedItemService,

@@ -264,16 +264,11 @@ export class PromptService {
     });
   }
 
-  public async listBuild<T>(
-    options: Partial<ListBuilderOptions<T>>,
-  ): Promise<T[]> {
-    const { result } = await inquirer.prompt([
-      {
-        ...options,
-        name,
-        type: 'listbuilder',
-      } as ListBuilderOptions<T>,
-    ]);
+  public async listBuild<T>(options: ListBuilderOptions<T>): Promise<T[]> {
+    const result = await this.applicationManager.activate<
+      ListBuilderOptions<T>,
+      T[]
+    >('list', options);
     return result;
   }
 
@@ -411,20 +406,23 @@ export class PromptService {
     console.log();
   }
 
-  public scriptHeader(header: string, color = 'cyan'): number {
+  public scriptHeader(header: string, color = 'cyan'): string {
     header = figlet.textSync(header, {
       font: this.font,
     });
     this.clear();
-    console.log(`\n`, this.textRendering.pad(chalk[color](header)));
-    return header.split(`\n`).pop().length;
+    const message = `\n` + this.textRendering.pad(chalk[color](header));
+    console.log(message);
+    return message;
   }
 
-  public secondaryHeader(header: string, color = 'magenta'): void {
+  public secondaryHeader(header: string, color = 'magenta'): string {
     header = figlet.textSync(header, {
       font: this.secondaryFont,
     });
-    console.log(this.textRendering.pad(chalk[color](header)));
+    const message = this.textRendering.pad(chalk[color](header));
+    console.log(message);
+    return message;
   }
 
   public sort<T>(entries: PromptEntry<T>[]): PromptEntry<T>[] {

@@ -4,27 +4,28 @@ import { ReadStream } from 'fs';
 import MuteStream from 'mute-stream';
 import { createInterface, Interface } from 'readline';
 
-import { ansiEscapes, ansiMaxLength, ansiStrip } from '../../includes';
+import { ApplicationStackItem, iStackProvider } from '../../contracts';
+import { ansiEscapes, ansiStrip } from '../../includes';
 
-const height = (content) => content.split('\n').length;
 const lastLine = (content) => content.split('\n').pop();
 const DEFAULT_WIDTH = 80;
+const PADDING = 2;
+const height = (content) => content.split('\n').length + PADDING;
 
 const output = new MuteStream();
 output.pipe(process.stdout);
 @Injectable()
-export class ScreenService {
+export class ScreenService implements iStackProvider {
   public rl = createInterface({
     input: process.stdin,
     output,
     terminal: true,
   }) as Interface & { input: ReadStream; output: MuteStream };
 
-  private extraLinesUnderPrompt = EMPTY;
+  private header = '';
   private height = EMPTY;
 
   public clear(): void {
-    this.extraLinesUnderPrompt = EMPTY;
     this.height = EMPTY;
     this.rl.output.unmute();
     // Reset draw to top
@@ -43,7 +44,6 @@ export class ScreenService {
   }
 
   public done() {
-    this.releaseCursor();
     this.rl.setPrompt('');
     console.log('\n');
   }
@@ -56,15 +56,15 @@ export class ScreenService {
     console.log(ansiEscapes.eraseLines(amount));
   }
 
-  public releaseCursor() {
-    if (this.extraLinesUnderPrompt > EMPTY) {
-      this.down(this.extraLinesUnderPrompt);
-    }
+  public load(item: ApplicationStackItem): void {
+    this.clear();
+    this.header = item.title;
+    console.log(this.header);
   }
 
   public render(content: string, ...extra: string[]): void {
     this.rl.output.unmute();
-    this.clean(this.extraLinesUnderPrompt - 6);
+    console.log(ansiEscapes.eraseLines(this.height));
     const promptLine = lastLine(content);
     const rawPromptLine = ansiStrip(promptLine);
 
@@ -74,8 +74,6 @@ export class ScreenService {
         : rawPromptLine,
     );
 
-    // SetPrompt will change cursor position, now we can get correct value
-    const cursorPos = this.rl.getCursorPos();
     const width = this.width();
 
     content = this.breakLines(content, width);
@@ -84,41 +82,27 @@ export class ScreenService {
       bottomContent = this.breakLines(bottomContent, width);
     }
 
-    // Manually insert an extra line if we're at the end of the line.
-    // This prevent the cursor from appearing at the beginning of the
-    // current line.
     if (rawPromptLine.length % width === EMPTY) {
       content += '\n';
     }
 
     const fullContent = content + (bottomContent ? '\n' + bottomContent : '');
     console.log(fullContent);
-
-    // We need to consider parts of the prompt under the cursor as part of the bottom
-    // content in order to correctly cleanup and re-render.
-    const promptLineUpDiff =
-      Math.floor(rawPromptLine.length / width) - cursorPos.rows;
-    const bottomContentHeight =
-      promptLineUpDiff + (bottomContent ? height(bottomContent) : EMPTY);
-    if (bottomContentHeight > EMPTY) {
-      this.up(bottomContentHeight);
-    }
-
-    // Reset cursor at the beginning of the line
-    this.cursorLeft(ansiMaxLength(lastLine(fullContent)));
-
-    // Adjust cursor on the right
-    if (cursorPos.cols > EMPTY) {
-      this.cursorRight(cursorPos.cols);
-    }
-
-    // Set up state for next re-rendering
-    this.extraLinesUnderPrompt = bottomContentHeight;
     this.height = height(fullContent);
 
     // Muting prevents user interactions from presenting to the screen directly
     // Must rely on application rendering to display keypresses
     this.rl.output.mute();
+  }
+
+  public save(): Partial<ApplicationStackItem> {
+    return {
+      title: this.header,
+    };
+  }
+
+  public setHeader(header: string): void {
+    this.header = header;
   }
 
   public up(amount = SINGLE): void {

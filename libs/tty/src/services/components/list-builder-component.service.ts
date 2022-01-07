@@ -151,14 +151,12 @@ export class ListBuilderComponentService<VALUE = unknown>
       right,
       search,
     });
-    this.screenService.render(
-      this.textRender.appendHelp(
-        message.join(`\n`),
-        BASE_HELP,
-        this.mode === 'find' ? SEARCH_HELP : MENU_HELP,
-      ),
-      '',
+    const content = this.textRender.appendHelp(
+      message.join(`\n`),
+      BASE_HELP,
+      this.mode === 'find' ? SEARCH_HELP : MENU_HELP,
     );
+    this.screenService.render(content);
   }
 
   protected add(): void {

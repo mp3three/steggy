@@ -278,8 +278,9 @@ export class MenuComponentService<VALUE = unknown>
   /**
    * Terminate the editor
    */
-  protected onEnd(): void {
+  protected onEnd(): boolean {
     this.done(this.value);
+    return false;
   }
 
   /**
@@ -458,10 +459,7 @@ export class MenuComponentService<VALUE = unknown>
       ...this.textRender.searchBox(this.searchText),
       ...this.renderSide(undefined, false, updateValue),
     ].join(`\n`);
-    this.screen.render(
-      message,
-      this.keymap.keymapHelp(this['localKeyMap'], { message }),
-    );
+    this.screen.render(message, this.keymap.keymapHelp({ message }));
   }
 
   /**
@@ -493,7 +491,7 @@ export class MenuComponentService<VALUE = unknown>
     }
     this.screen.render(
       message,
-      this.keymap.keymapHelp(this.applicationManager.getCombinedKeyMap(), {
+      this.keymap.keymapHelp({
         message,
         prefix: new Map(
           Object.entries(this.opt.keyMap).map(([description, item]) => {

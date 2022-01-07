@@ -4,8 +4,11 @@ import chalk from 'chalk';
 import { fromEvent, takeUntil } from 'rxjs';
 
 import {
+  ApplicationStackItem,
+  ApplicationStackProvider,
   DirectCB,
   ICONS,
+  iStackProvider,
   KeyDescriptor,
   KeyModifiers,
   tKeyMap,
@@ -14,12 +17,18 @@ import { iComponent } from '../decorators';
 import { ComponentExplorerService } from './explorers';
 import { PromptService } from './prompt.service';
 import { ScreenService } from './render';
+import { StackService } from './stack.service';
+
+// ? Is there anything else that needs to be kept track of?
+const STACK: Map<unknown, tKeyMap>[] = [];
 
 @Injectable()
-export class ApplicationManagerService {
+@ApplicationStackProvider()
+export class ApplicationManagerService implements iStackProvider {
   constructor(
     private readonly componentExplorer: ComponentExplorerService,
     private readonly promptService: PromptService,
+    private readonly stackService: StackService,
     private readonly screenService: ScreenService,
   ) {}
 
@@ -30,15 +39,18 @@ export class ApplicationManagerService {
     name: string,
     configuration: CONFIG,
   ): Promise<VALUE> {
+    STACK.push(this.activeKeymaps);
     this.reset();
-
     return await new Promise((done) => {
       const component = this.componentExplorer.findServiceByType<CONFIG, VALUE>(
         name,
       );
       // There needs to be more type work around this
       // It's a disaster
-      component.configure(configuration, (value) => done(value as VALUE));
+      component.configure(configuration, (value) => {
+        done(value as VALUE);
+        this.activeKeymaps = STACK.pop();
+      });
       this.activeApplication = component;
       component.render();
     });
@@ -50,12 +62,24 @@ export class ApplicationManagerService {
     return map;
   }
 
+  public load(item: ApplicationStackItem): void {
+    this.activeApplication = item.application;
+  }
+
+  public save(): Partial<ApplicationStackItem> {
+    return {
+      application: this.activeApplication,
+    };
+  }
+
   public setHeader(main: string, secondary?: string): void {
     this.promptService.clear();
-    this.promptService.scriptHeader(main);
+    let header = this.promptService.scriptHeader(main);
+    // this.screenService.setHeader()
     if (!is.empty(secondary)) {
-      this.promptService.secondaryHeader(secondary);
+      header += this.promptService.secondaryHeader(secondary);
     }
+    this.screenService.setHeader(header);
   }
 
   public setKeyMap(target: unknown, map: tKeyMap): void {
