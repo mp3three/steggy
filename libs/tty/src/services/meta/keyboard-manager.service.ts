@@ -24,25 +24,40 @@ export class KeyboardManagerService implements iStackProvider {
   ) {}
   private activeKeymaps: Map<unknown, tKeyMap> = new Map();
 
+  public focus<T>(
+    target: unknown,
+    map: tKeyMap,
+    value: Promise<T>,
+  ): Promise<T> {
+    return new Promise(async (done) => {
+      const currentMap = this.activeKeymaps;
+      this.activeKeymaps = new Map([[target, map]]);
+      const out = await value;
+      this.activeKeymaps = currentMap;
+      done(out);
+    });
+  }
+
   public getCombinedKeyMap(): tKeyMap {
     const map: tKeyMap = new Map();
     this.activeKeymaps.forEach((sub) => sub.forEach((a, b) => map.set(b, a)));
     return map;
   }
-
   public load(item: Map<unknown, tKeyMap>): void {
     this.activeKeymaps = item;
   }
 
   public save(): Map<unknown, tKeyMap> {
-    return this.activeKeymaps;
+    const current = this.activeKeymaps;
+    this.activeKeymaps = new Map();
+    return current;
   }
 
   public setKeyMap(target: unknown, map: tKeyMap): void {
     this.activeKeymaps.set(target, map);
     map.forEach((key) => {
       if (is.string(key) && !is.function(target[key])) {
-        console.log(
+        this.screenService.print(
           chalk.yellow
             .inverse` ${ICONS.WARNING}MISSING CALLBACK {bold ${key}} `,
         );
@@ -103,7 +118,7 @@ export class KeyboardManagerService implements iStackProvider {
       }
     });
     if (render) {
-      // this.activeApplication.render();
+      this.applicationManager.render();
     }
   }
 }

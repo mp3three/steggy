@@ -152,22 +152,6 @@ export class TextRenderingService {
       .join(`\n`);
   }
 
-  public render(...sections: string[]): void {
-    /**
-     * Code from inquirer, might want later
-     */
-    // const promptLine = lastLine(content);
-    // const rawPromptLine = stripAnsi(promptLine);
-    // // Remove the rl.line from our prompt. We can't rely on the content of
-    // // rl.line (mainly because of the password prompt), so just rely on it's
-    // // length.
-    // let prompt = rawPromptLine;
-    // if (this.rl.line.length) {
-    //   prompt = prompt.slice(0, -this.rl.line.length);
-    // }
-    // this.rl.setPrompt(prompt);
-  }
-
   public searchBox(searchText: string, size = MAX_SEARCH_SIZE): string[] {
     const text = is.empty(searchText)
       ? chalk.bgBlue`Type to filter`

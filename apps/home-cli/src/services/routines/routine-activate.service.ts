@@ -14,9 +14,11 @@ import {
   StateChangeActivateDTO,
 } from '@text-based/controller-logic';
 import {
+  ApplicationManagerService,
   ICONS,
   IsDone,
   PromptService,
+  ScreenService,
   TextRenderingService,
   ToMenuEntry,
 } from '@text-based/tty';
@@ -46,6 +48,8 @@ export class RoutineActivateService {
     private readonly promptService: PromptService,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineCommand: RService,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
   ) {}
 
   public async build(
@@ -175,16 +179,14 @@ export class RoutineActivateService {
   }
 
   private header(routine: RoutineDTO): void {
-    this.promptService.clear();
-    this.promptService.scriptHeader(`Activations`);
-    this.promptService.secondaryHeader(routine.friendlyName);
-    console.log();
+    this.applicationManager.setHeader(`Activations`, routine.friendlyName);
+    this.screenService.print();
     if (is.empty(routine.activate)) {
-      console.log(
+      this.screenService.print(
         chalk.bold`{cyan >>> }${ICONS.EVENT}{yellow No activation events}`,
       );
     } else {
-      console.log(chalk`  {blue.bold Activation Events}`);
+      this.screenService.print(chalk`  {blue.bold Activation Events}`);
       const table = new Table({
         head: ['Name', 'Type', 'Details'],
       });
@@ -195,7 +197,7 @@ export class RoutineActivateService {
           this.textRender.typePrinter(activate.activate),
         ]);
       });
-      console.log(table.toString());
+      this.screenService.print(table.toString());
     }
   }
 }

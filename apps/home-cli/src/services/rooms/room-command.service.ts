@@ -2,12 +2,14 @@ import { NotImplementedException } from '@nestjs/common';
 import { GroupDTO, RoomDTO, RoomEntityDTO } from '@text-based/controller-logic';
 import { HASS_DOMAINS } from '@text-based/home-assistant';
 import {
+  ApplicationManagerService,
   ICONS,
   IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
   Repl,
+  ScreenService,
   ToMenuEntry,
 } from '@text-based/tty';
 import {
@@ -50,6 +52,8 @@ export class RoomCommandService {
     private readonly roomState: RoomStateService,
     private readonly pinnedItems: PinnedItemService,
     private readonly routineService: RoutineService,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
   ) {}
 
   private lastRoom: string;
@@ -145,8 +149,7 @@ export class RoomCommandService {
     room: RoomDTO,
     defaultAction?: string,
   ): Promise<void> {
-    this.promptService.clear();
-    this.promptService.scriptHeader(room.friendlyName);
+    this.applicationManager.setHeader(room.friendlyName);
 
     const groups = is.empty(room.groups)
       ? []

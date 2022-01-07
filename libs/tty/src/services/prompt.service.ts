@@ -5,28 +5,18 @@ import {
   InjectConfig,
   is,
   LABEL,
-  PEAT,
   UP,
   VALUE,
 } from '@text-based/utilities';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
-import figlet, { Fonts } from 'figlet';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
 
-import {
-  BLOCK_PRINT_BG,
-  BLOCK_PRINT_FG,
-  DEFAULT_HEADER_FONT,
-  DISABLE_CLEAR,
-  PAGE_SIZE,
-  SECONDARY_HEADER_FONT,
-} from '../config';
+import { PAGE_SIZE } from '../config';
 import { DONE, PromptMenuItems, TableBuilderOptions } from '../contracts';
 import { ListBuilderOptions, MenuComponentOptions } from './components';
-import { ApplicationManagerService, ScreenService } from './meta';
-import { TextRenderingService } from './render';
+import { ApplicationManagerService } from './meta';
 
 const name = `result`;
 export type PROMPT_WITH_SHORT = { name: string; short: string };
@@ -36,7 +26,6 @@ export type PromptEntry<T = string> =
 const NO = 0;
 const OFF_BRIGHTNESS = 0;
 const MIN_BRIGHTNESS = 1;
-const BLOCK_OFFSET = '   ';
 const MAX_BRIGHTNESS = 255;
 const FROM_OFFSET = 1;
 
@@ -44,16 +33,9 @@ const FROM_OFFSET = 1;
 export class PromptService {
   constructor(
     private readonly logger: AutoLogService,
-    @InjectConfig(BLOCK_PRINT_BG) private readonly blockPrintBg: string,
-    @InjectConfig(BLOCK_PRINT_FG) private readonly blockPrintFg: string,
-    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: Fonts,
-    @InjectConfig(DISABLE_CLEAR) private readonly disableClear: boolean,
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
-    @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
-    private readonly textRendering: TextRenderingService,
     @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
-    private readonly screenService: ScreenService,
   ) {}
 
   /**
@@ -96,18 +78,6 @@ export class PromptService {
       },
     ]);
     return result;
-  }
-
-  /**
-   * - tmux: this shoves text to top then clears (history is preserved)
-   * - konsole: this just moves draw to T/L, and clears screen (on-screen history/content is lost)
-   */
-  public clear(): void {
-    if (this.disableClear) {
-      console.log(chalk.bgBlue.whiteBright`clear();`);
-      return;
-    }
-    this.screenService.clear();
   }
 
   /**
@@ -381,45 +351,6 @@ export class PromptService {
       },
     ]);
     return result;
-  }
-
-  public print(data: string): void {
-    const lines = data.trim().split(`\n`);
-    let max = 0;
-    lines.forEach((line) => (max = line.length > max ? line.length : max));
-    lines.push(``);
-    lines.unshift(``);
-    data = lines
-      .map((i) => `  ${i}${PEAT(max - i.length, ' ').join('')}  `)
-      .join(`\n`);
-    console.log();
-    console.log(
-      BLOCK_OFFSET +
-        chalk
-          .bgHex(this.blockPrintBg)
-          .hex(this.blockPrintFg)(data)
-          .replaceAll(`\n`, `\n${BLOCK_OFFSET}`),
-    );
-    console.log();
-  }
-
-  public scriptHeader(header: string, color = 'cyan'): string {
-    header = figlet.textSync(header, {
-      font: this.font,
-    });
-    this.clear();
-    const message = `\n` + this.textRendering.pad(chalk[color](header));
-    console.log(message);
-    return message;
-  }
-
-  public secondaryHeader(header: string, color = 'magenta'): string {
-    header = figlet.textSync(header, {
-      font: this.secondaryFont,
-    });
-    const message = this.textRendering.pad(chalk[color](header));
-    console.log(message);
-    return message;
   }
 
   public sort<T>(entries: PromptEntry<T>[]): PromptEntry<T>[] {

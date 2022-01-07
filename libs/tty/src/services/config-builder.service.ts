@@ -30,6 +30,7 @@ import { join } from 'path';
 
 import { DONE, ICONS, IsDone } from '../contracts';
 import { ToMenuEntry } from './components';
+import { ApplicationManagerService, ScreenService } from './meta';
 import { PromptEntry, PromptService } from './prompt.service';
 
 const ARGV_APP = 3;
@@ -49,6 +50,8 @@ export class ConfigBuilderService {
     private readonly workspace: WorkspaceService,
     private readonly promptService: PromptService,
     private readonly configService: AutoConfigService,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
   ) {}
   private config: AbstractConfig;
   private loadedApplication = '';
@@ -103,9 +106,6 @@ export class ConfigBuilderService {
       case 'edit':
         await this.buildApplication(application);
         return await this.handleConfig(application);
-      case 'describe':
-        this.promptService.print(encode(this.config));
-        return await this.handleConfig(application);
       case 'save':
         writeFileSync(
           join(homedir(), '.config', application),
@@ -136,11 +136,10 @@ export class ConfigBuilderService {
 
   private async buildApplication(application: string): Promise<void> {
     const configEntries = await this.scan(application);
-    this.promptService.clear();
-    this.promptService.scriptHeader(`Available Configs`);
-    console.log(chalk`Configuring {yellow.bold ${TitleCase(application)}}`);
-    console.log();
-    console.log();
+    this.applicationManager.setHeader(`Available Configs`);
+    this.screenService.print(
+      chalk`Configuring {yellow.bold ${TitleCase(application)}}\n\n`,
+    );
     const entries = await this.buildEntries(configEntries);
     const list = await this.promptService.pickMany(
       `Select properties to change\n`,
@@ -187,7 +186,7 @@ export class ConfigBuilderService {
         entry,
       ]);
     });
-    console.log(
+    this.screenService.print(
       [
         chalk`{bold.yellow Property colors} - {gray Lower colors take precedence}`,
         chalk` {cyan -} {white.bold Defaults}    {cyanBright :} {white System is using default value}`,

@@ -1,10 +1,13 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { is } from '@text-based/utilities';
+import { Injectable } from '@nestjs/common';
+import { InjectConfig, is } from '@text-based/utilities';
+import chalk from 'chalk';
+import figlet, { Fonts } from 'figlet';
 
+import { DEFAULT_HEADER_FONT, SECONDARY_HEADER_FONT } from '../../config';
 import { ApplicationStackProvider, iStackProvider } from '../../contracts';
 import { iComponent } from '../../decorators';
 import { ComponentExplorerService } from '../explorers';
-import { PromptService } from '../prompt.service';
+import { TextRenderingService } from '../render';
 import { ScreenService } from './screen.service';
 
 // ? Is there anything else that needs to be kept track of?
@@ -14,9 +17,10 @@ import { ScreenService } from './screen.service';
 export class ApplicationManagerService implements iStackProvider {
   constructor(
     private readonly componentExplorer: ComponentExplorerService,
-    @Inject(forwardRef(() => PromptService))
-    private readonly promptService: PromptService,
     private readonly screenService: ScreenService,
+    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: Fonts,
+    private readonly textRendering: TextRenderingService,
+    @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
   ) {}
 
   private activeApplication: iComponent;
@@ -53,16 +57,34 @@ export class ApplicationManagerService implements iStackProvider {
   }
 
   public setHeader(main: string, secondary?: string): void {
-    this.promptService.clear();
-    let header = this.promptService.scriptHeader(main);
+    this.screenService.clear();
+    let header = this.scriptHeader(main);
     // this.screenService.setHeader()
     if (!is.empty(secondary)) {
-      header += this.promptService.secondaryHeader(secondary);
+      header += this.secondaryHeader(secondary);
     }
     this.screenService.setHeader(header);
   }
 
   private reset(): void {
     this.activeApplication = undefined;
+  }
+
+  private scriptHeader(header: string, color = 'cyan'): string {
+    header = figlet.textSync(header, {
+      font: this.font,
+    });
+    const message = `\n` + this.textRendering.pad(chalk[color](header));
+    console.log(message);
+    return message;
+  }
+
+  private secondaryHeader(header: string, color = 'magenta'): string {
+    header = figlet.textSync(header, {
+      font: this.secondaryFont,
+    });
+    const message = this.textRendering.pad(chalk[color](header));
+    console.log(message);
+    return message;
   }
 }

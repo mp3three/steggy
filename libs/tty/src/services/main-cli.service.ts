@@ -7,7 +7,6 @@ import {
   UP,
   VALUE,
 } from '@text-based/utilities';
-import chalk from 'chalk';
 
 import { iRepl, MainMenuEntry, MenuEntry, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
@@ -27,7 +26,6 @@ type ENTRY_TYPE = string | PinnedItemDTO;
 })
 export class MainCLIService implements iRepl {
   constructor(
-    private readonly logger: AutoLogService,
     private readonly applicationManager: ApplicationManagerService,
     private readonly explorer: ReplExplorerService,
     private readonly promptService: PromptService,
@@ -132,24 +130,5 @@ export class MainCLIService implements iRepl {
     this.last = result;
     await this.cacheService.set(CACHE_KEY, result);
     return result;
-  }
-
-  private printHeader(scriptName: string): void {
-    const settings = this.explorer.findSettingsByName(scriptName);
-    this.promptService.scriptHeader(settings.name);
-    if (!settings.description) {
-      return;
-    }
-    settings.description ??= [];
-    settings.description = is.string(settings.description)
-      ? [settings.description]
-      : settings.description;
-
-    console.log(
-      chalk.yellow(
-        settings.description.map((line) => `      ${line}`).join(`\n`),
-      ),
-      `\n\n`,
-    );
   }
 }

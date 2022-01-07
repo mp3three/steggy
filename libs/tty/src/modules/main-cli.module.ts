@@ -50,6 +50,7 @@ import {
     KeymapService,
     PinnedItemService,
     PromptService,
+    ScreenService,
     SystemService,
     TableService,
     TextRenderingService,

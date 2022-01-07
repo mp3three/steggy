@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { ACTIVE_APPLICATION, WorkspaceService } from '@text-based/utilities';
 import { dump } from 'js-yaml';
 
-import { PromptService } from '../services';
+import { ScreenService } from '../services';
 
 /**
  * Attach to preInit
@@ -10,7 +10,7 @@ import { PromptService } from '../services';
 export function VersionPrinter(app: INestApplication): void {
   if (process.argv.includes(`--version`)) {
     const workspace = app.get(WorkspaceService);
-    const prompt = app.get(PromptService);
+    const prompt = app.get(ScreenService);
     const application = app.get<symbol>(ACTIVE_APPLICATION);
     workspace.initMetadata();
     const { rootVersion, projects: versions } = workspace.version();

@@ -13,11 +13,13 @@ import {
   RoutineCommandGroupStateDTO,
 } from '@text-based/controller-logic';
 import {
+  ApplicationManagerService,
   ICONS,
   IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
+  ScreenService,
   TextRenderingService,
   ToMenuEntry,
 } from '@text-based/tty';
@@ -44,6 +46,8 @@ export class GroupStateService {
     private readonly groupService: GService,
     private readonly entityService: EntityService,
     private readonly textRender: TextRenderingService,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
     private readonly pinnedItems: PinnedItemService<{ group: string }>,
   ) {}
 
@@ -258,9 +262,7 @@ export class GroupStateService {
   }
 
   private header(group: GroupDTO, state: GroupSaveStateDTO): void {
-    this.promptService.clear();
-    this.promptService.scriptHeader(state.friendlyName);
-    this.promptService.secondaryHeader(group.friendlyName);
+    this.applicationManager.setHeader(state.friendlyName, group.friendlyName);
     const table = new Table({
       head: ['Entity ID', 'State', 'Extra'],
     });
@@ -271,7 +273,7 @@ export class GroupStateService {
         this.textRender.typePrinter(state.extra) || '',
       ]);
     });
-    console.log(
+    this.screenService.print(
       [
         chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
           `/group/${group._id}/state/${state.id}`,

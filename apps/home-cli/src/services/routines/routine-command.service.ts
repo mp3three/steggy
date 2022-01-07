@@ -29,6 +29,7 @@ import {
   IsDone,
   PromptEntry,
   PromptService,
+  ScreenService,
   TextRenderingService,
   ToMenuEntry,
 } from '@text-based/tty';
@@ -65,6 +66,7 @@ export class RoutineCommandService {
     private readonly groupAction: GroupActionService,
     private readonly textRender: TextRenderingService,
     private readonly groupCommand: GroupCommandService,
+    private readonly screenService: ScreenService,
     private readonly groupState: GroupStateService,
     private readonly captureService: RoutineCaptureService,
     private readonly restoreService: RestoreService,
@@ -332,7 +334,7 @@ export class RoutineCommandService {
     }
     switch (action) {
       case 'describe':
-        this.promptService.print(dump(command));
+        this.screenService.print(dump(command));
         return await this.process(
           routine,
           routine.command.find(({ id }) => id === command.id),

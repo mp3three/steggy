@@ -61,17 +61,17 @@ export class AlpacaAccountService {
 
   private async header(): Promise<void> {
     const account = await this.accountService.get();
-    this.promptService.scriptHeader(
-      'Account',
-      account.status === AccountStatus.ACTIVE ? 'green' : 'yellow',
-    );
+    // this.promptService.scriptHeader(
+    //   'Account',
+    //   account.status === AccountStatus.ACTIVE ? 'green' : 'yellow',
+    // );
     if (account.account_blocked) {
-      this.promptService.secondaryHeader('Account blocked');
+      // this.promptService.secondaryHeader('Account blocked');
       return;
     }
-    this.promptService.secondaryHeader(
-      `Buying power: $${Number(account.buying_power).toLocaleString()}`,
-    );
+    // this.promptService.secondaryHeader(
+    //   `Buying power: $${Number(account.buying_power).toLocaleString()}`,
+    // );
     if (account.transfers_blocked) {
       console.log(chalk`  {red.bold Transfers blocked}`);
     }
@@ -79,7 +79,7 @@ export class AlpacaAccountService {
       console.log(chalk.bold.yellow`  Trading blocked`);
     }
     if (account.trade_suspended_by_user) {
-      this.promptService.secondaryHeader('Suspended Trading');
+      // this.promptService.secondaryHeader('Suspended Trading');
       console.log(chalk.yellow`  Trading suspended by user`);
       return;
     }

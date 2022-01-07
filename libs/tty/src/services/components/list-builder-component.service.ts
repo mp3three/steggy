@@ -121,24 +121,6 @@ export class ListBuilderComponentService<VALUE = unknown>
   }
 
   public render(updateValue = false): void {
-    // if (this.status === 'answered') {
-    //   if (is.empty(this.current)) {
-    //     this.screenService.render(
-    //       chalk` {magenta >} No ${this.opt.items} selected\n `,
-    //       '',
-    //     );
-    //     return;
-    //   }
-    //   this.screenService.render(
-    //     chalk` {magenta >} {yellow ${this.current.length}} ${this.opt.items} selected\n `,
-    //     '',
-    //   );
-    //   return;
-    // }
-    // if (this.status === 'answered') {
-    //   this.screenService.render(``, '');
-    //   return;
-    // }
     const left = `Current ${this.opt.items}`;
     const right = `Available ${this.opt.items}`;
     const current = this.renderSide(

@@ -19,6 +19,7 @@ export class KeymapService {
     private readonly textRendering: TextRenderingService,
     @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
+    @Inject(forwardRef(() => KeyboardManagerService))
     private readonly keyboardService: KeyboardManagerService,
   ) {}
 

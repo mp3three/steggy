@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { EMPTY, is, SINGLE, START } from '@text-based/utilities';
+import { EMPTY, InjectConfig, is, SINGLE, START } from '@text-based/utilities';
+import { Fonts } from 'figlet';
 import { ReadStream } from 'fs';
 import MuteStream from 'mute-stream';
 import { createInterface, Interface } from 'readline';
 
+import { DEFAULT_HEADER_FONT, SECONDARY_HEADER_FONT } from '../../config';
 import { iStackProvider } from '../../contracts';
 import { ansiEscapes, ansiStrip } from '../../includes';
+import { TextRenderingService } from '../render';
 
 const lastLine = (content) => content.split('\n').pop();
 const DEFAULT_WIDTH = 80;
@@ -16,6 +19,11 @@ const output = new MuteStream();
 output.pipe(process.stdout);
 @Injectable()
 export class ScreenService implements iStackProvider {
+  constructor(
+    private readonly textRendering: TextRenderingService,
+    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: Fonts,
+    @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
+  ) {}
   public rl = createInterface({
     input: process.stdin,
     output,
@@ -60,6 +68,10 @@ export class ScreenService implements iStackProvider {
     this.clear();
     this.header = header;
     console.log(this.header);
+  }
+
+  public print(line = ''): void {
+    console.log(line);
   }
 
   public render(content: string, ...extra: string[]): void {
