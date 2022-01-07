@@ -18,7 +18,6 @@ import fuzzy from 'fuzzysort';
 import { LEFT_PADDING, PAGE_SIZE } from '../../config';
 import { MenuEntry } from '../../contracts';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../../includes';
-import { ScreenService } from './screen.service';
 
 const TEMP_TEMPLATE_SIZE = 3;
 const MAX_SEARCH_SIZE = 50;
@@ -39,7 +38,6 @@ export class TextRenderingService {
   constructor(
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
     @InjectConfig(LEFT_PADDING) private readonly leftPadding: number,
-    private readonly screen: ScreenService,
   ) {}
 
   public appendHelp(

@@ -11,8 +11,8 @@ import chalk from 'chalk';
 
 import { iRepl, MainMenuEntry, MenuEntry, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
-import { ApplicationManagerService } from './application-manager.service';
 import { ReplExplorerService } from './explorers';
+import { ApplicationManagerService } from './meta';
 import { PinnedItemDTO, PinnedItemService } from './pinned-item.service';
 import { PromptEntry, PromptService } from './prompt.service';
 

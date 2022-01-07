@@ -4,7 +4,7 @@ import chalk from 'chalk';
 
 import { tKeyMap } from '../../contracts';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
-import { ApplicationManagerService } from '../application-manager.service';
+import { ApplicationManagerService, KeyboardManagerService } from '../meta';
 import { TextRenderingService } from './text-rendering.service';
 
 type keyItem = {
@@ -19,6 +19,7 @@ export class KeymapService {
     private readonly textRendering: TextRenderingService,
     @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
+    private readonly keyboardService: KeyboardManagerService,
   ) {}
 
   public keymapHelp({
@@ -26,7 +27,7 @@ export class KeymapService {
     prefix = new Map(),
     onlyHelp = false,
   }: { message?: string; onlyHelp?: boolean; prefix?: tKeyMap } = {}): string {
-    const map = this.applicationManager.getCombinedKeyMap();
+    const map = this.keyboardService.getCombinedKeyMap();
     const a = this.buildLines(prefix);
     const b = this.buildLines(map);
 

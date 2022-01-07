@@ -4,7 +4,7 @@ import { ReadStream } from 'fs';
 import MuteStream from 'mute-stream';
 import { createInterface, Interface } from 'readline';
 
-import { ApplicationStackItem, iStackProvider } from '../../contracts';
+import { iStackProvider } from '../../contracts';
 import { ansiEscapes, ansiStrip } from '../../includes';
 
 const lastLine = (content) => content.split('\n').pop();
@@ -56,9 +56,9 @@ export class ScreenService implements iStackProvider {
     console.log(ansiEscapes.eraseLines(amount));
   }
 
-  public load(item: ApplicationStackItem): void {
+  public load(header: string): void {
     this.clear();
-    this.header = item.title;
+    this.header = header;
     console.log(this.header);
   }
 
@@ -95,10 +95,8 @@ export class ScreenService implements iStackProvider {
     this.rl.output.mute();
   }
 
-  public save(): Partial<ApplicationStackItem> {
-    return {
-      title: this.header,
-    };
+  public save(): string {
+    return this.header;
   }
 
   public setHeader(header: string): void {

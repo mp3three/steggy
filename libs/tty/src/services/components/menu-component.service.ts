@@ -20,12 +20,12 @@ import { ICONS, MainMenuEntry, MenuEntry, tKeyMap } from '../../contracts';
 import { Component, iComponent } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../../includes';
 import {
-  KeymapService,
-  PromptEntry,
-  TextRenderingService,
-} from '../../services';
-import { ApplicationManagerService } from '../application-manager.service';
-import { ScreenService } from '../render';
+  ApplicationManagerService,
+  KeyboardManagerService,
+  ScreenService,
+} from '../meta';
+import { PromptEntry } from '../prompt.service';
+import { KeymapService, TextRenderingService } from '../render';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 
@@ -116,11 +116,13 @@ export class MenuComponentService<VALUE = unknown>
   implements iComponent<MenuComponentOptions, VALUE>
 {
   constructor(
+    @Inject(forwardRef(() => ApplicationManagerService))
     private readonly applicationManager: ApplicationManagerService,
     @Inject(forwardRef(() => KeymapService))
     private readonly keymap: KeymapService,
     @Inject(forwardRef(() => TextRenderingService))
     private readonly textRender: TextRenderingService,
+    private readonly keyboardService: KeyboardManagerService,
     private readonly screen: ScreenService,
   ) {}
 
@@ -159,7 +161,7 @@ export class MenuComponentService<VALUE = unknown>
     const defaultValue = this.side('right')[START]?.entry[VALUE];
     this.value ??= defaultValue;
     this.detectSide();
-    this.applicationManager.setKeyMap(this, NORMAL_KEYMAP);
+    this.keyboardService.setKeyMap(this, NORMAL_KEYMAP);
     const contained = this.side().find((i) => i.entry[VALUE] === this.value);
     if (!contained) {
       this.value = defaultValue;
@@ -384,10 +386,10 @@ export class MenuComponentService<VALUE = unknown>
     this.mode = this.mode === 'find' ? 'select' : 'find';
     if (this.mode === 'select') {
       this.detectSide();
-      this.applicationManager.setKeyMap(this, NORMAL_KEYMAP);
+      this.keyboardService.setKeyMap(this, NORMAL_KEYMAP);
     } else {
       this.searchText = '';
-      this.applicationManager.setKeyMap(this, SEARCH_KEYMAP);
+      this.keyboardService.setKeyMap(this, SEARCH_KEYMAP);
     }
   }
 

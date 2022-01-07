@@ -1,13 +1,6 @@
-import { iComponent } from '../decorators';
-
-export class ApplicationStackItem {
-  application: iComponent;
-  title: string;
-}
-
 export interface iStackProvider {
-  load(item: ApplicationStackItem): void;
-  save(): Partial<ApplicationStackItem>;
+  load(item: unknown): void;
+  save(): Partial<unknown>;
 }
 export const STACK_PROVIDER = Symbol('stack-provider');
 

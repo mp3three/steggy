@@ -11,15 +11,18 @@ import {
 } from '../../contracts';
 import { Component, iComponent } from '../../decorators';
 import { ansiMaxLength } from '../../includes';
-import { ApplicationManagerService } from '../application-manager.service';
 import {
   ConfirmEditorRenderOptions,
   StringEditorRenderOptions,
 } from '../editors';
 import {
+  ApplicationManagerService,
+  KeyboardManagerService,
+  ScreenService,
+} from '../meta';
+import {
   FooterEditorService,
   KeymapService,
-  ScreenService,
   TableService,
   TextRenderingService,
 } from '../render';
@@ -34,7 +37,8 @@ export class TableBuilderComponentService<VALUE = unknown>
     private readonly footerEditor: FooterEditorService,
     private readonly keymapService: KeymapService,
     private readonly applicationManager: ApplicationManagerService,
-    private readonly screenSErvice: ScreenService,
+    private readonly screenService: ScreenService,
+    private readonly keyboardService: KeyboardManagerService,
   ) {}
   private confirmCB: (value: boolean) => void;
   private currentEditor: string;
@@ -81,7 +85,7 @@ export class TableBuilderComponentService<VALUE = unknown>
         : new Map(),
     });
     const max = ansiMaxLength(keymap, message);
-    this.screenSErvice.render(
+    this.screenService.render(
       message,
       [` `, ...this.renderEditor(max), keymap].join(`\n`),
     );
@@ -188,7 +192,7 @@ export class TableBuilderComponentService<VALUE = unknown>
   }
 
   private createKeymap(): void {
-    this.applicationManager.setKeyMap(
+    this.keyboardService.setKeyMap(
       this,
       new Map([
         // While there is no editor

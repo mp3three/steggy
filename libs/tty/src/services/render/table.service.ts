@@ -11,7 +11,7 @@ import { get } from 'object-path';
 
 import { ColumnInfo, TableBuilderOptions } from '../../contracts';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
-import { EnvironmentService } from '../environment.service';
+import { EnvironmentService } from '../meta/environment.service';
 import { TextRenderingService } from './text-rendering.service';
 
 const TABLE_PARTS = {

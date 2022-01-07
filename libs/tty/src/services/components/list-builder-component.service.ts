@@ -18,9 +18,12 @@ import chalk from 'chalk';
 import { ICONS, MenuEntry, tKeyMap } from '../../contracts';
 import { Component, iComponent } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
-import { TextRenderingService } from '../../services';
-import { ApplicationManagerService } from '../application-manager.service';
-import { ScreenService } from '../render';
+import {
+  ApplicationManagerService,
+  KeyboardManagerService,
+  ScreenService,
+} from '../meta';
+import { TextRenderingService } from '../render';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 
@@ -89,6 +92,7 @@ export class ListBuilderComponentService<VALUE = unknown>
     private readonly textRender: TextRenderingService,
     private readonly applicationManager: ApplicationManagerService,
     private readonly screenService: ScreenService,
+    private readonly keyboardService: KeyboardManagerService,
   ) {}
   private current: MenuEntry<VALUE | string>[];
 
@@ -113,7 +117,7 @@ export class ListBuilderComponentService<VALUE = unknown>
         : this.source[START][VALUE]
     ) as VALUE;
     this.detectSide();
-    this.applicationManager.setKeyMap(this, KEYMAP_NORMAL);
+    this.keyboardService.setKeyMap(this, KEYMAP_NORMAL);
   }
 
   public render(updateValue = false): void {
@@ -370,7 +374,7 @@ export class ListBuilderComponentService<VALUE = unknown>
   protected toggleFind(): void {
     this.mode = this.mode === 'find' ? 'select' : 'find';
     this.searchText = '';
-    this.applicationManager.setKeyMap(
+    this.keyboardService.setKeyMap(
       this,
       this.mode === 'find' ? KEYMAP_FIND : KEYMAP_NORMAL,
     );

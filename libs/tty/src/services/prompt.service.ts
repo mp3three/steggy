@@ -24,9 +24,9 @@ import {
   SECONDARY_HEADER_FONT,
 } from '../config';
 import { DONE, PromptMenuItems, TableBuilderOptions } from '../contracts';
-import { ApplicationManagerService } from './application-manager.service';
 import { ListBuilderOptions, MenuComponentOptions } from './components';
-import { ScreenService, TextRenderingService } from './render';
+import { ApplicationManagerService, ScreenService } from './meta';
+import { TextRenderingService } from './render';
 
 const name = `result`;
 export type PROMPT_WITH_SHORT = { name: string; short: string };
@@ -305,13 +305,10 @@ export class PromptService {
   }
 
   public async objectBuilder<T>(options: TableBuilderOptions<T>): Promise<T[]> {
-    const { result } = await inquirer.prompt([
-      {
-        name,
-        ...options,
-        type: 'objectBuilder',
-      },
-    ]);
+    const result = await this.applicationManager.activate<
+      TableBuilderOptions<T>,
+      T[]
+    >('table', options);
     return result;
   }
 

@@ -13,7 +13,7 @@ import {
 import chalk from 'chalk';
 
 import { ansiMaxLength } from '../../includes';
-import { EnvironmentService } from '../environment.service';
+import { EnvironmentService } from '../meta/environment.service';
 
 const GRAPH_SYMBOLS = {
   bar: '│',

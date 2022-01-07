@@ -3,7 +3,7 @@ import {
   ROUTINE_ACTIVATE_COMMAND,
   RoutineDTO,
 } from '@text-based/controller-logic';
-import { PromptService } from '@text-based/tty';
+import { ApplicationManagerService, PromptService } from '@text-based/tty';
 import { DOWN, is, TitleCase, UP } from '@text-based/utilities';
 
 import { RoutineCommandExplorerService } from '../../explorers';
@@ -13,11 +13,11 @@ export class RoutineCommandBuilderService {
   constructor(
     private readonly promptService: PromptService,
     private readonly commandExplorer: RoutineCommandExplorerService,
+    private readonly applicationManager: ApplicationManagerService,
   ) {}
 
   public async process(routine: RoutineDTO): Promise<RoutineDTO> {
-    this.promptService.clear();
-    this.promptService.scriptHeader(routine.friendlyName);
+    this.applicationManager.setHeader(routine.friendlyName);
     routine.command = await this.promptService.objectBuilder({
       current: routine.command,
       elements: [
