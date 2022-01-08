@@ -13,18 +13,24 @@ export class StackService {
       throw new InternalServerErrorException(`Empty stack`);
     }
     const item = this.stack.pop();
-    item.forEach((item, provider) => {
-      provider.load(item);
-    });
+    item.forEach((item, provider) => provider.load(item));
   }
 
   public save(): void {
-    const providers =
-      this.scanner.findWithSymbol<iStackProvider>(STACK_PROVIDER);
+    const providers = this.scanner.findWithSymbol<unknown, iStackProvider>(
+      STACK_PROVIDER,
+    );
     const map = new Map<iStackProvider, unknown>();
-    providers.forEach((provider) => {
-      map.set(provider, provider.save());
-    });
+    providers.forEach((_, provider) => map.set(provider, provider.save()));
     this.stack.push(map);
+  }
+
+  public async wrap<T>(value: () => Promise<T>): Promise<T> {
+    return new Promise<T>(async (done) => {
+      this.save();
+      const out = await value();
+      this.load();
+      done(out);
+    });
   }
 }

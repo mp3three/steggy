@@ -1,36 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { EMPTY, InjectConfig, is, SINGLE, START } from '@text-based/utilities';
-import { Fonts } from 'figlet';
+import { EMPTY, is, SINGLE } from '@text-based/utilities';
 import { ReadStream } from 'fs';
 import MuteStream from 'mute-stream';
 import { createInterface, Interface } from 'readline';
 
-import { DEFAULT_HEADER_FONT, SECONDARY_HEADER_FONT } from '../../config';
-import { iStackProvider } from '../../contracts';
 import { ansiEscapes, ansiStrip } from '../../includes';
-import { TextRenderingService } from '../render';
+import { LayoutManagerService } from './layout-manager.service';
 
 const lastLine = (content) => content.split('\n').pop();
-const DEFAULT_WIDTH = 80;
 const PADDING = 2;
 const height = (content) => content.split('\n').length + PADDING;
 
 const output = new MuteStream();
 output.pipe(process.stdout);
 @Injectable()
-export class ScreenService implements iStackProvider {
-  constructor(
-    private readonly textRendering: TextRenderingService,
-    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: Fonts,
-    @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
-  ) {}
+export class ScreenService {
+  constructor(private readonly layout: LayoutManagerService) {}
   public rl = createInterface({
     input: process.stdin,
     output,
     terminal: true,
   }) as Interface & { input: ReadStream; output: MuteStream };
 
-  private header = '';
   private height = EMPTY;
 
   public clear(): void {
@@ -63,13 +54,6 @@ export class ScreenService implements iStackProvider {
   public eraseLine(amount = SINGLE): void {
     console.log(ansiEscapes.eraseLines(amount));
   }
-
-  public load(header: string): void {
-    this.clear();
-    this.header = header;
-    console.log(this.header);
-  }
-
   public print(line = ''): void {
     console.log(line);
   }
@@ -80,13 +64,7 @@ export class ScreenService implements iStackProvider {
     const promptLine = lastLine(content);
     const rawPromptLine = ansiStrip(promptLine);
 
-    this.rl.setPrompt(
-      this.rl.line.length > EMPTY
-        ? rawPromptLine.slice(START, -this.rl.line.length)
-        : rawPromptLine,
-    );
-
-    const width = this.width();
+    const [width] = process.stdout.getWindowSize();
 
     content = this.breakLines(content, width);
     let bottomContent = is.empty(extra) ? `` : extra.join(`\n`);
@@ -105,14 +83,6 @@ export class ScreenService implements iStackProvider {
     // Muting prevents user interactions from presenting to the screen directly
     // Must rely on application rendering to display keypresses
     this.rl.output.mute();
-  }
-
-  public save(): string {
-    return this.header;
-  }
-
-  public setHeader(header: string): void {
-    this.header = header;
   }
 
   public up(amount = SINGLE): void {
@@ -140,15 +110,5 @@ export class ScreenService implements iStackProvider {
       this.down(extraLines);
     }
     this.eraseLine(this.height);
-  }
-
-  private width(): number {
-    if (process.stdout.getWindowSize) {
-      return process.stdout.getWindowSize()[START] || DEFAULT_WIDTH;
-    }
-    if (process.stdout.columns) {
-      return process.stdout.columns;
-    }
-    return DEFAULT_WIDTH;
   }
 }

@@ -9,28 +9,11 @@ import {
 import chalk from 'chalk';
 import { get } from 'object-path';
 
-import { ColumnInfo, TableBuilderOptions } from '../../contracts';
+import { ColumnInfo, TABLE_PARTS, TableBuilderOptions } from '../../contracts';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
 import { EnvironmentService } from '../meta/environment.service';
 import { TextRenderingService } from './text-rendering.service';
 
-const TABLE_PARTS = {
-  bottom: '─',
-  bottom_left: '└',
-  bottom_mid: '┴',
-  bottom_right: '┘',
-  left: '│',
-  left_mid: '├',
-  mid: '─',
-  mid_mid: '┼',
-  middle: '│',
-  right: '│',
-  right_mid: '┤',
-  top: '─',
-  top_left: '┌',
-  top_mid: '┬',
-  top_right: '┐',
-};
 const PADDING = 1;
 const ROW_MULTIPLIER = 2;
 const HEADER_LINE_COUNT = 4;

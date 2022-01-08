@@ -36,6 +36,7 @@ import {
   TableService,
   TextRenderingService,
 } from '../services';
+import { LayoutManagerService } from '../services/meta/layout-manager.service';
 
 @LibraryModule({
   exports: [
@@ -45,12 +46,14 @@ import {
     ComparisonToolsService,
     ConfigBuilderService,
     EnvironmentService,
+    LayoutManagerService,
     FooterEntryService,
     GitService,
     KeymapService,
     PinnedItemService,
     PromptService,
     ScreenService,
+    StackService,
     SystemService,
     TableService,
     TextRenderingService,
@@ -69,6 +72,7 @@ import {
     DateEditorService,
     DiscriminatorEditorService,
     EditorExplorerService,
+    LayoutManagerService,
     EnumEditorService,
     EnvironmentService,
     FooterEditorService,

@@ -1,7 +1,6 @@
 import { InjectConfig, INVERT_VALUE, is, START } from '@text-based/utilities';
 import chalk from 'chalk';
 
-import { LEFT_PADDING } from '../../config';
 import { Editor, iBuilderEditor } from '../../decorators';
 import { ansiPadEnd } from '../../includes';
 import { TextRenderingService } from '../render';
@@ -27,10 +26,7 @@ const INTERNAL_PADDING = ' ';
 export class NumberEditorService
   implements iBuilderEditor<NumberEditorRenderOptions>
 {
-  constructor(
-    private readonly textRendering: TextRenderingService,
-    @InjectConfig(LEFT_PADDING) private readonly leftPadding: number,
-  ) {}
+  constructor(private readonly textRendering: TextRenderingService) {}
 
   public onKeyPress(config, key): NumberEditorRenderOptions {
     const current = config.current.toString();
@@ -65,7 +61,7 @@ export class NumberEditorService
     if (is.number(config.max) && config.current > config.max) {
       color = 'bgRed';
     }
-    const maxLength = width - this.leftPadding - this.leftPadding;
+    const maxLength = width; //- this.leftPadding - this.leftPadding;
     out.push(
       chalk[color].black(ansiPadEnd(INTERNAL_PADDING + value, maxLength)),
     );

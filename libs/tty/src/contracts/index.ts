@@ -6,3 +6,4 @@ export * from './icons';
 export * from './inquirer';
 export * from './object-builder';
 export * from './prompt';
+export * from './subflow';

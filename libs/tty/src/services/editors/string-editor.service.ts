@@ -7,7 +7,6 @@ import {
 } from '@text-based/utilities';
 import chalk from 'chalk';
 
-import { LEFT_PADDING } from '../../config';
 import { KeyModifiers } from '../../contracts';
 import { Editor, iBuilderEditor } from '../../decorators';
 import { ansiPadEnd } from '../../includes';
@@ -36,10 +35,7 @@ const INTERNAL_PADDING = ' ';
 export class StringEditorService
   implements iBuilderEditor<StringEditorRenderOptions>
 {
-  constructor(
-    private readonly textRendering: TextRenderingService,
-    @InjectConfig(LEFT_PADDING) private readonly leftPadding: number,
-  ) {}
+  constructor(private readonly textRendering: TextRenderingService) {}
 
   public onKeyPress(
     config: StringEditorRenderOptions,
@@ -85,7 +81,7 @@ export class StringEditorService
     const value = is.empty(config.current)
       ? config.placeholder ?? DEFAULT_PLACEHOLDER
       : config.current;
-    const maxLength = config.width - this.leftPadding - this.leftPadding;
+    const maxLength = config.width - 2;
     const out: string[] = [];
     if (config.label) {
       out.push(chalk.bold.magenta.dim(config.label));

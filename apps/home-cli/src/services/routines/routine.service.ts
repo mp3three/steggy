@@ -17,6 +17,7 @@ import {
   PromptService,
   Repl,
   ScreenService,
+  StackService,
   TextRenderingService,
   ToMenuEntry,
 } from '@text-based/tty';
@@ -67,6 +68,7 @@ export class RoutineService {
     private readonly pinnedItems: PinnedItemService,
     private readonly applicationManager: ApplicationManagerService,
     private readonly screenService: ScreenService,
+    private readonly stackService: StackService,
   ) {}
 
   private lastRoutine: string;
@@ -303,8 +305,9 @@ export class RoutineService {
         routine = await this.activateService.processRoutine(routine);
         return await this.processRoutine(routine, action);
       case 'command':
-        routine = await this.commandBuilder.process(routine);
-        // routine = await this.routineCommand.processRoutine(routine);
+        routine = await this.stackService.wrap(
+          async () => await this.commandBuilder.process(routine),
+        );
         return await this.processRoutine(routine, action);
     }
   }
@@ -376,11 +379,8 @@ export class RoutineService {
 
   private async header(routine: RoutineDTO): Promise<void> {
     this.applicationManager.setHeader(`Routine`, routine.friendlyName);
-    this.screenService.print(
-      chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
-        `/routine/${routine._id}`,
-      )}`,
-    );
+    const url = this.fetchService.getUrl(`/routine/${routine._id}`);
+    this.screenService.print(chalk`${ICONS.LINK} {bold.magenta POST} ${url}`);
     this.screenService.print();
     if (!is.empty(routine.activate)) {
       this.screenService.print(chalk`  {blue.bold Activation Events}`);

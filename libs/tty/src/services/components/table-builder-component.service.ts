@@ -1,4 +1,9 @@
-import { ARRAY_OFFSET, is, START } from '@text-based/utilities';
+import {
+  ARRAY_OFFSET,
+  is,
+  ModuleScannerService,
+  START,
+} from '@text-based/utilities';
 import chalk from 'chalk';
 import { get, set } from 'object-path';
 
@@ -34,6 +39,7 @@ export class TableBuilderComponentService<VALUE = unknown>
   constructor(
     private readonly tableService: TableService,
     private readonly textRendering: TextRenderingService,
+    private readonly moduleScanner: ModuleScannerService,
     private readonly footerEditor: FooterEditorService,
     private readonly keymapService: KeymapService,
     private readonly applicationManager: ApplicationManagerService,
@@ -143,13 +149,10 @@ export class TableBuilderComponentService<VALUE = unknown>
     this.editorOptions = undefined;
   }
 
-  protected enableEdit(): boolean {
-    if (this.currentEditor) {
-      return false;
-    }
-    process.nextTick(() => {
+  protected enableEdit(): void {
+    this.keyboardService.wrap(async () => {
       const column = this.opt.elements[this.selectedCell];
-      this.currentEditor = column.type;
+      this.currentEditor = await column.type;
       const row = this.rows[this.selectedRow];
       const current = get(is.object(row) ? row : {}, column.path);
       this.editorOptions = this.footerEditor.initConfig(current, column);

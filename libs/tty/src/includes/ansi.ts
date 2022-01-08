@@ -8,6 +8,7 @@ import {
   START,
   UP,
 } from '@text-based/utilities';
+import chalk from 'chalk';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 const ELLIPSES = '...';
@@ -27,7 +28,11 @@ export function ansiStrip(text = ''): string {
   return text.replace(ansiRegex(), '');
 }
 
-export function ansiPadEnd(text: string, amount: number): string {
+export function ansiPadEnd(
+  text: string,
+  amount: number,
+  bgColor?: string,
+): string {
   const stripped = ansiStrip(text);
   let length = stripped.length;
   if (length > amount) {
@@ -35,7 +40,10 @@ export function ansiPadEnd(text: string, amount: number): string {
     text = text.replace(stripped, update);
     length = update.length;
   }
-  const padding = ' '.repeat(amount - length);
+  let padding = ' '.repeat(amount - length);
+  if (bgColor) {
+    padding = chalk`{${bgColor} ${padding}}`;
+  }
   return text + padding;
 }
 

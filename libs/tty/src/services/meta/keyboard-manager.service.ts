@@ -65,6 +65,15 @@ export class KeyboardManagerService implements iStackProvider {
     });
   }
 
+  public wrap<T>(callback: () => Promise<T>): Promise<T> {
+    return new Promise(async (done) => {
+      const map = this.save();
+      const result = await callback();
+      this.load(map);
+      done(result);
+    });
+  }
+
   protected onApplicationBootstrap(): void {
     const rl = this.screenService.rl;
     fromEvent(rl.input, 'keypress', (value, key = {}) => ({ key, value }))

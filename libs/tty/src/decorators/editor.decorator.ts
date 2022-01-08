@@ -22,6 +22,7 @@ export function Editor(options: EditorOptions): ClassDecorator {
   };
 }
 export interface iBuilderEditor<ACTIVE_CONFIG = unknown> {
+  configure?: () => void;
   customKeymap?: (
     config: TableBuilderElement & { type: string },
     current: unknown,
