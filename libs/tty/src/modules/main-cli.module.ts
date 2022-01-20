@@ -35,6 +35,7 @@ import {
   TableBuilderComponentService,
   TableService,
   TextRenderingService,
+  ThemeService,
 } from '../services';
 import { LayoutManagerService } from '../services/meta/layout-manager.service';
 
@@ -67,6 +68,7 @@ import { LayoutManagerService } from '../services/meta/layout-manager.service';
     ColorsService,
     ComparisonToolsService,
     ComponentExplorerService,
+    ThemeService,
     ConfigBuilderService,
     ConfirmEditorService,
     DateEditorService,

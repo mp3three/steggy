@@ -32,6 +32,7 @@ export function ansiPadEnd(
   text: string,
   amount: number,
   bgColor?: string,
+  char = ' ',
 ): string {
   const stripped = ansiStrip(text);
   let length = stripped.length;
@@ -40,9 +41,9 @@ export function ansiPadEnd(
     text = text.replace(stripped, update);
     length = update.length;
   }
-  let padding = ' '.repeat(amount - length);
+  let padding = char.repeat(amount - length);
   if (bgColor) {
-    padding = chalk`{${bgColor} ${padding}}`;
+    padding = chalk.hex(bgColor)(padding);
   }
   return text + padding;
 }
