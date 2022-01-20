@@ -9,6 +9,7 @@ export const BORDER_COLOR_WARN = 'BORDER_COLOR_WARN';
 export const BORDER_COLOR_ERROR = 'BORDER_COLOR_ERROR';
 export const TEXT_IMPORTANT = 'TEXT_IMPORTANT';
 export const TEXT_INFO = 'TEXT_INFO';
+
 export const TEXT_HELP = 'TEXT_HELP';
 export const TEXT_DETAILS = 'TEXT_DETAILS';
 export const LIB_TTY = Symbol('tty');
