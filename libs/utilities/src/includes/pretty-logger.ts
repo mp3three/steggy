@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers, woke/all, radar/no-duplicate-string */
+/* eslint-disable @typescript-eslint/no-magic-numbers, radar/no-duplicate-string */
 
 import chalk from 'chalk';
 import pino from 'pino';
@@ -164,7 +164,7 @@ const prettyErrorMessage = (message: string): string => {
       ``,
       ``,
       chalk.white.bold`Stack Trace`,
-      stack.replace(new RegExp(cwd(), `g`), chalk.underline`workspace`),
+      stack.replaceAll(cwd(), chalk.underline`workspace`),
     ].join(`\n`);
   }
 

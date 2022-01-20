@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService, is, IsEmpty } from '@text-based/utilities';
+import { AutoLogService, is, is } from '@text-based/utilities';
 import {
   Client,
   IClientPublishOptions,
@@ -43,7 +43,7 @@ export class MqttService {
     return new Promise((resolve, reject) => {
       topics = is.string(topics) ? [topics] : topics;
       topics = topics.filter((topic) => !this.subscriptions.has(topic));
-      if (IsEmpty(topics)) {
+      if (is.empty(topics)) {
         return;
       }
       (topics as string[]).forEach((topic) => {
@@ -111,7 +111,7 @@ export class MqttService {
       'message',
       (topic: string, payload: Buffer, packet: Packet) => {
         const [callbacks, options] = this.callbacks.get(topic) ?? [];
-        if (IsEmpty(callbacks)) {
+        if (is.empty(callbacks)) {
           this.logger.warn(`Incoming MQTT {${topic}} with no callbacks`);
           return;
         }

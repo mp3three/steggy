@@ -6,11 +6,11 @@ import {
 } from '@text-based/home-assistant';
 import {
   AutoLogService,
+  each,
   InjectConfig,
-  IsEmpty,
+  is,
   OnEvent,
 } from '@text-based/utilities';
-import { each } from 'async';
 
 import { KUNAMI_TIMEOUT } from '../../config';
 import {
@@ -34,7 +34,7 @@ export class KunamiCodeActivateService {
   private WATCHED_SENSORS = new Map<string, KunamiWatcher[]>();
 
   public reset(): void {
-    if (!IsEmpty(this.WATCHED_SENSORS)) {
+    if (!is.empty(this.WATCHED_SENSORS)) {
       this.logger.debug(
         `[reset] Removing {${this.WATCHED_SENSORS.size}} watched entities`,
       );
@@ -81,7 +81,7 @@ export class KunamiCodeActivateService {
     });
     const state = String(data.new_state.state);
     // Append new state to each matcher, test, then run callback
-    await each(process, async (item, callback) => {
+    await each(process, async (item) => {
       const { match, reset: immediateReset } = item.watcher;
       // Append to list of observed states
       item.progress.push(state);
@@ -91,12 +91,12 @@ export class KunamiCodeActivateService {
       );
       if (!isValid) {
         item.rejected = true;
-        return callback();
+        return;
       }
       // Has appending this event completed the command?
       item.completed = item.progress.length === match.length;
       if (!item.completed) {
-        return callback();
+        return;
       }
       // Run callback
       await item.watcher.callback();
@@ -111,7 +111,6 @@ export class KunamiCodeActivateService {
         this.TIMERS.delete(data.entity_id);
         this.logger.debug(`sensor reset {${data.entity_id}}`);
       }
-      callback();
     });
   }
 

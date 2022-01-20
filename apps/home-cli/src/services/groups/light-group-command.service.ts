@@ -8,25 +8,28 @@ import {
 } from '@text-based/controller-logic';
 import { LightStateDTO } from '@text-based/home-assistant';
 import {
+  ApplicationManagerService,
   ColorsService,
   ICONS,
   KeyMap,
   PromptEntry,
   PromptService,
   RGB,
+  ScreenService,
 } from '@text-based/tty';
 import {
   AutoLogService,
   DOWN,
+  each,
   is,
+  SINGLE,
+  START,
   TitleCase,
   UP,
 } from '@text-based/utilities';
-import { each } from 'async';
 import chalk from 'chalk';
 
 import { LightService } from '../domains';
-import { EntityService } from '../home-assistant/entity.service';
 import { HomeFetchService } from '../home-fetch.service';
 
 const MIN_BRIGHTNESS = 5;
@@ -55,7 +58,8 @@ export class LightGroupCommandService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
-    private readonly entityCommand: EntityService,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
     private readonly fetchService: HomeFetchService,
     private readonly lightDomain: LightService,
     private readonly colorService: ColorsService,
@@ -164,15 +168,20 @@ export class LightGroupCommandService {
   }
 
   public async header(group: GroupDTO): Promise<void> {
-    this.promptService.scriptHeader(group.friendlyName);
-    this.promptService.secondaryHeader(`${TitleCase(group.type)} Group`);
-    console.log();
+    this.applicationManager.setHeader(
+      group.friendlyName,
+      `${TitleCase(group.type)} Group`,
+    );
     let maxId = 0;
     let maxName = 0;
     const lines: string[][] = [];
     // TODO: Refactor into 1 request, instead of n
     await each(group.entities, async (id) => {
       const content = await this.lightDomain.getState<LightStateDTO>(id);
+      if (!content) {
+        lines.push([chalk`  {red.bold Missing entity:} {yellow ${id}}`]);
+        return;
+      }
       const parts: string[] = [content.attributes.friendly_name, id];
       maxId = Math.max(maxId, id.length);
       maxName = Math.max(maxName, content.attributes.friendly_name.length);
@@ -197,15 +206,17 @@ export class LightGroupCommandService {
       // , , , ,
       .sort(([, a], [, b]) => (a > b ? UP : DOWN))
       .forEach((line) =>
-        console.log(
-          chalk` {cyan -} ${line
-            .shift()
-            .padEnd(maxName, ' ')} {yellow.bold ${line
-            .shift()
-            .padEnd(maxId, ' ')}} ${line.shift()}`,
+        this.screenService.print(
+          line.length === SINGLE
+            ? line[START]
+            : chalk` {cyan -} ${line
+                .shift()
+                .padEnd(maxName, ' ')} {yellow.bold ${line
+                .shift()
+                .padEnd(maxId, ' ')}} ${line.shift()}`,
         ),
       );
-    console.log();
+    this.screenService.print();
   }
 
   public async processAction(group: GroupDTO, action: string): Promise<void> {

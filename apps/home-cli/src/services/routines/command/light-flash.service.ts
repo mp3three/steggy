@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import {
   GROUP_TYPES,
   RountineCommandLightFlashDTO,
@@ -7,13 +6,16 @@ import { HASS_DOMAINS } from '@text-based/home-assistant';
 import { ColorsService, ICONS, PromptService } from '@text-based/tty';
 import { is } from '@text-based/utilities';
 
+import { RoutineCommand } from '../../../decorators';
 import { GroupCommandService } from '../../groups';
 import { EntityService } from '../../home-assistant/entity.service';
 
 const DEFAULT_DURATION = 1000;
 const DEFAULT_INTERVAL = 500;
 
-@Injectable()
+@RoutineCommand({
+  type: 'light_flash',
+})
 export class LightFlashService {
   constructor(
     private readonly promptService: PromptService,

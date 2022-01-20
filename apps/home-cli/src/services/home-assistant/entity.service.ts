@@ -15,7 +15,7 @@ import {
   Repl,
   ToMenuEntry,
 } from '@text-based/tty';
-import { is, IsEmpty, VALUE } from '@text-based/utilities';
+import { is, VALUE } from '@text-based/utilities';
 
 import { MENU_ITEMS } from '../../includes';
 import {
@@ -56,7 +56,7 @@ export class EntityService implements iRepl {
   ): Promise<string[]> {
     let entities = await this.list();
     entities = entities
-      .filter((entity) => IsEmpty(inList) || inList.includes(domain(entity)))
+      .filter((entity) => is.empty(inList) || inList.includes(domain(entity)))
       .filter((item) => !omit.includes(item));
     const source = entities.filter((i) => !current.includes(i));
     return await this.promptService.listBuild({
@@ -121,7 +121,7 @@ export class EntityService implements iRepl {
     const entities = await this.list();
     const list = entities
       .filter((entity) => {
-        if (!IsEmpty(inList) && !inList.includes(domain(entity))) {
+        if (!is.empty(inList) && !inList.includes(domain(entity))) {
           return false;
         }
         if (omit.includes(entity)) {
@@ -142,7 +142,7 @@ export class EntityService implements iRepl {
     current: string[] = [],
   ): Promise<string[]> {
     const entities = (await this.list())
-      .filter((i) => (IsEmpty(inList) ? true : inList.includes(i)))
+      .filter((i) => (is.empty(inList) ? true : inList.includes(i)))
       .map((i) => [i, i] as MenuEntry);
     return await this.promptService.listBuild({
       current: entities.filter((i) => current.includes(i[VALUE])),
@@ -156,7 +156,7 @@ export class EntityService implements iRepl {
     return await this.promptService.menu({
       keyMap: {},
       right: ToMenuEntry(
-        (IsEmpty(inList)
+        (is.empty(inList)
           ? entities
           : entities.filter((i) => inList.includes(i))
         ).map((i) => [i, i] as PromptEntry),

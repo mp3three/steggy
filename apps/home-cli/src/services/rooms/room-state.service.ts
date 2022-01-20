@@ -13,25 +13,28 @@ import {
 } from '@text-based/controller-logic';
 import { domain, HASS_DOMAINS } from '@text-based/home-assistant';
 import {
+  ApplicationManagerService,
   ICONS,
   IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
+  ScreenService,
+  TextRenderingService,
   ToMenuEntry,
 } from '@text-based/tty';
 import {
   AutoLogService,
   DOWN,
+  eachSeries,
   FILTER_OPERATIONS,
   is,
-  IsEmpty,
+  LABEL,
   UP,
+  VALUE,
 } from '@text-based/utilities';
-import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';
-import inquirer from 'inquirer';
 
 import { MENU_ITEMS } from '../../includes';
 import { GroupCommandService } from '../groups';
@@ -48,10 +51,20 @@ export class RoomStateService {
     @Inject(forwardRef(() => RoomCommandService))
     private readonly roomService: RCService,
     private readonly entityService: EntityService,
+    private readonly textRender: TextRenderingService,
     private readonly groupService: GroupCommandService,
     private readonly fetchService: HomeFetchService,
     private readonly pinnedItems: PinnedItemService<{ room: string }>,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
   ) {}
+
+  public async activate(room: RoomDTO, state: RoomStateDTO): Promise<void> {
+    await this.fetchService.fetch({
+      method: `post`,
+      url: `/room/${room._id}/state/${state.id}`,
+    });
+  }
 
   public async build(
     room: RoomDTO,
@@ -67,7 +80,7 @@ export class RoomStateService {
     ];
     // This log mostly exists to provide visual context after building group states
     // Easy to totally get lost
-    console.log(chalk.gray`Saving state ${current.friendlyName}`);
+    this.screenService.print(chalk.gray`Saving state ${current.friendlyName}`);
     current.states = states;
     if (!current.id) {
       return await this.fetchService.fetch({
@@ -84,21 +97,13 @@ export class RoomStateService {
   }
 
   public async pickOne(room: RoomDTO, current?: RoomStateDTO): Promise<string> {
-    const action = await this.promptService.pickOne<RoomStateDTO | string>(
-      `Which state?`,
-      [
-        [`${ICONS.CREATE}Manual create`, 'create'],
-        ...this.promptService.conditionalEntries(!IsEmpty(room.save_states), [
-          new inquirer.Separator(chalk.white(`Current states`)),
-          ...(room.save_states
-            .map((state) => [state.friendlyName, state])
-            .sort(([a], [b]) =>
-              a > b ? UP : DOWN,
-            ) as PromptEntry<RoomStateDTO>[]),
-        ]),
-      ],
-      current,
-    );
+    const action = await this.promptService.menu({
+      keyMap: { c: MENU_ITEMS.CREATE },
+      right: ToMenuEntry(
+        room.save_states.map((state) => [state.friendlyName, state]),
+      ),
+      value: current,
+    });
     if (action === 'create') {
       const state = await this.build(room);
       return state.id;
@@ -110,14 +115,20 @@ export class RoomStateService {
   }
 
   public async process(room: RoomDTO): Promise<RoomDTO> {
-    this.promptService.clear();
-    this.promptService.scriptHeader(room.friendlyName);
-    this.promptService.secondaryHeader('Room States');
+    this.applicationManager.setHeader(room.friendlyName, 'Room States');
     const action = await this.promptService.menu({
       keyMap: {
+        a: MENU_ITEMS.ACTIVATE,
         c: MENU_ITEMS.CREATE,
         d: MENU_ITEMS.DONE,
         f12: [`${ICONS.DESTRUCTIVE}Remove all save states`, 'truncate'],
+      },
+      keyMapCallback: async (action: string, [name, target]) => {
+        if (is.string(target) || action !== 'activate') {
+          return true;
+        }
+        await this.activate(room, target as RoomStateDTO);
+        return chalk.magenta.bold(MENU_ITEMS.ACTIVATE[LABEL]) + ' ' + name;
       },
       right: ToMenuEntry(
         room.save_states
@@ -160,11 +171,10 @@ export class RoomStateService {
     state: RoomStateDTO,
     defaultAction?: string,
   ): Promise<RoomDTO> {
-    this.promptService.clear();
-    this.promptService.scriptHeader(room.friendlyName);
-    this.promptService.secondaryHeader(state.friendlyName);
-
-    const action = await this.promptService.menu({
+    if (defaultAction !== 'activate') {
+      this.applicationManager.setHeader(room.friendlyName, state.friendlyName);
+    }
+    let action = await this.promptService.menu({
       keyMap: {
         a: MENU_ITEMS.ACTIVATE,
         d: MENU_ITEMS.DONE,
@@ -178,12 +188,22 @@ export class RoomStateService {
         r: [`${ICONS.ROOMS}Go to room`, `room`],
         x: MENU_ITEMS.DELETE,
       },
+      keyMapCallback: (action) => {
+        if (action !== MENU_ITEMS.ACTIVATE[VALUE]) {
+          return true;
+        }
+        process.nextTick(async () => {
+          await this.activate(room, state);
+        });
+        return chalk.magenta.bold(MENU_ITEMS.ACTIVATE[LABEL]);
+      },
       keyOnly: true,
       value: defaultAction,
     });
     if (IsDone(action)) {
       return room;
     }
+    action ??= 'activate';
     switch (action) {
       case 'describe':
         await this.header(room, state);
@@ -207,10 +227,7 @@ export class RoomStateService {
         });
         return await this.processState(room, state, action);
       case 'activate':
-        await this.fetchService.fetch({
-          method: `post`,
-          url: `/room/${room._id}/state/${state.id}`,
-        });
+        await this.activate(room, state);
         return await this.processState(room, state, action);
       case 'edit':
         const update = await this.build(room, state);
@@ -257,7 +274,7 @@ export class RoomStateService {
     room: RoomDTO,
     current: Partial<RoomStateDTO> = {},
   ): Promise<RoomEntitySaveStateDTO[]> {
-    if (IsEmpty(room.entities)) {
+    if (is.empty(room.entities)) {
       this.logger.warn(`No entities in room`);
       return [];
     }
@@ -297,7 +314,7 @@ export class RoomStateService {
     room: RoomDTO,
     current: Partial<RoomStateDTO> = {},
   ): Promise<RoomEntitySaveStateDTO[]> {
-    if (IsEmpty(room.groups)) {
+    if (is.empty(room.groups)) {
       this.logger.warn(`No groups`);
       return [];
     }
@@ -320,7 +337,7 @@ export class RoomStateService {
   }
 
   private async header(room: RoomDTO, state: RoomStateDTO): Promise<void> {
-    console.log(
+    this.screenService.print(
       chalk`  ${
         ICONS.LINK
       }{bold.magenta POST} {underline ${this.fetchService.getUrl(
@@ -328,8 +345,8 @@ export class RoomStateService {
       )}}`,
     );
     const entities = state.states.filter(({ type }) => type === 'entity');
-    if (IsEmpty(entities)) {
-      console.log(
+    if (is.empty(entities)) {
+      this.screenService.print(
         chalk`  ${ICONS.ENTITIES} {blue No entities included in save state}\n`,
       );
     } else {
@@ -342,10 +359,10 @@ export class RoomStateService {
           table.push([
             entity.ref ?? '',
             entity.state ?? '',
-            this.promptService.objectPrinter(entity.extra),
+            this.textRender.typePrinter(entity.extra),
           ]);
         });
-      console.log(
+      this.screenService.print(
         [
           ``,
           chalk`  ${ICONS.ENTITIES}{blue.bold Entity States}`,
@@ -354,8 +371,8 @@ export class RoomStateService {
       );
     }
     const groupStates = state.states.filter(({ type }) => type === 'group');
-    if (IsEmpty(groupStates)) {
-      console.log(
+    if (is.empty(groupStates)) {
+      this.screenService.print(
         chalk`  ${ICONS.GROUPS}{blue No groups included in save state}\n`,
       );
       return;
@@ -363,9 +380,7 @@ export class RoomStateService {
     const table = new Table({
       head: ['Entity ID', 'State'],
     });
-    const ids = groupStates
-      .map(({ ref }) => ref)
-      .filter((item, index, array) => array.indexOf(item) === index);
+    const ids = is.unique(groupStates.map(({ ref }) => ref));
     const groups = await this.groupService.list({
       filters: new Set([
         {
@@ -380,7 +395,7 @@ export class RoomStateService {
       const saveState = group.save_states.find(({ id }) => id === state.state);
       table.push([group.friendlyName, saveState?.friendlyName]);
     });
-    console.log(
+    this.screenService.print(
       [
         ``,
         chalk`  ${ICONS.GROUPS}{blue.bold Group States}`,

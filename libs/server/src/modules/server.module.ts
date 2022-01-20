@@ -8,7 +8,7 @@ import {
   AutoLogService,
   BootstrapOptions,
   InjectConfig,
-  IsEmpty,
+  is,
   LibraryModule,
 } from '@text-based/utilities';
 import compression from 'compression';
@@ -106,7 +106,7 @@ export class ServerModule {
       this.logger.debug(`Using [compression] middleware`);
       app.use(compression());
     }
-    if (!IsEmpty(this.cors)) {
+    if (!is.empty(this.cors)) {
       this.logger.debug(`[CORS] origin {${this.cors}}`);
       app.use(cors({ origin: this.cors }));
     }

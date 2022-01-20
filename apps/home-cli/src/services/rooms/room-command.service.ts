@@ -1,17 +1,15 @@
 import { NotImplementedException } from '@nestjs/common';
-import {
-  GroupDTO,
-  RoomDTO,
-  RoomEntityDTO,
-} from '@text-based/controller-logic';
+import { GroupDTO, RoomDTO, RoomEntityDTO } from '@text-based/controller-logic';
 import { HASS_DOMAINS } from '@text-based/home-assistant';
 import {
+  ApplicationManagerService,
   ICONS,
   IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
   Repl,
+  ScreenService,
   ToMenuEntry,
 } from '@text-based/tty';
 import {
@@ -21,7 +19,6 @@ import {
   FILTER_OPERATIONS,
   InjectCache,
   is,
-  IsEmpty,
   LABEL,
   UP,
 } from '@text-based/utilities';
@@ -55,6 +52,8 @@ export class RoomCommandService {
     private readonly roomState: RoomStateService,
     private readonly pinnedItems: PinnedItemService,
     private readonly routineService: RoutineService,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
   ) {}
 
   private lastRoom: string;
@@ -131,7 +130,7 @@ export class RoomCommandService {
       [
         [`${ICONS.CREATE}Create new`, `create`],
         ...this.promptService.conditionalEntries(
-          !IsEmpty(rooms),
+          !is.empty(rooms),
           rooms.map((room) => [room.friendlyName, room]),
         ),
       ],
@@ -150,10 +149,9 @@ export class RoomCommandService {
     room: RoomDTO,
     defaultAction?: string,
   ): Promise<void> {
-    this.promptService.clear();
-    this.promptService.scriptHeader(room.friendlyName);
+    this.applicationManager.setHeader(room.friendlyName);
 
-    const groups = IsEmpty(room.groups)
+    const groups = is.empty(room.groups)
       ? []
       : await this.groupCommand.list({
           filters: new Set([
@@ -183,13 +181,13 @@ export class RoomCommandService {
         x: MENU_ITEMS.DELETE,
       },
       left: ToMenuEntry([
-        ...this.promptService.conditionalEntries(!IsEmpty(room.entities), [
+        ...this.promptService.conditionalEntries(!is.empty(room.entities), [
           new inquirer.Separator('Entities'),
           ...(room.entities.map(({ entity_id }) => {
             return [entity_id, { entity_id }];
           }) as PromptEntry<{ entity_id: string }>[]),
         ]),
-        ...this.promptService.conditionalEntries(!IsEmpty(groups), [
+        ...this.promptService.conditionalEntries(!is.empty(groups), [
           new inquirer.Separator('Groups'),
           ...(groups.map((group) => {
             return [group.friendlyName, group];
@@ -331,7 +329,7 @@ export class RoomCommandService {
             .filter(({ _id }) => !current.includes(_id))
             .map((group) => [group.friendlyName, group]),
         );
-        if (IsEmpty(selection)) {
+        if (is.empty(selection)) {
           this.logger.warn(`No groups selected`);
         } else {
           current.push(...selection.map((item) => item._id));

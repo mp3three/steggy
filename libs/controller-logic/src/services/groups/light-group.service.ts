@@ -5,8 +5,7 @@ import {
   HASS_DOMAINS,
   LightStateDTO,
 } from '@text-based/home-assistant';
-import { AutoLogService } from '@text-based/utilities';
-import { each } from 'async';
+import { AutoLogService, each } from '@text-based/utilities';
 
 import {
   GROUP_LIGHT_COMMANDS,
@@ -76,19 +75,18 @@ export class LightGroupService extends BaseGroupService {
     { brightness, hs_color, rgb_color }: LightingCacheDTO,
   ): Promise<void> {
     group = await this.loadGroup(group);
-    await each(group.entities, async (entity, callback) => {
+    await each(group.entities, async (entity) => {
       if (!hs_color && !rgb_color) {
         await this.lightManager.setAttributes(entity, {
           brightness,
         });
-        return callback();
+        return;
       }
       await this.lightManager.turnOn(entity, {
         brightness,
         hs_color,
         rgb_color,
       });
-      callback();
     });
   }
 
@@ -96,8 +94,13 @@ export class LightGroupService extends BaseGroupService {
     group: GroupDTO<LightingCacheDTO>,
   ): Promise<RoomEntitySaveStateDTO<LightingCacheDTO>[]> {
     const out: RoomEntitySaveStateDTO<LightingCacheDTO>[] = [];
-    await each(group.entities, async (id, callback) => {
+    await each(group.entities, async (id) => {
       const light = this.entityManager.getEntity<LightStateDTO>(id);
+      if (!light) {
+        // 100% of the time this error is seen, bad times were a pre-existing condition
+        this.logger.error(`[${group.friendlyName}] missing entity {${id}}`);
+        return;
+      }
       const state = await this.lightManager.getState(id);
       out.push({
         extra:
@@ -114,7 +117,6 @@ export class LightGroupService extends BaseGroupService {
         ref: light.entity_id,
         state: light.state,
       });
-      callback();
     });
     return out;
   }
@@ -152,12 +154,44 @@ export class LightGroupService extends BaseGroupService {
       group.entities.map((entity, index) => {
         return [entity, states[index]];
       }) as [string, RoomEntitySaveStateDTO<LightingCacheDTO>][],
-      async ([id, state], callback) => {
+      async ([id, state]) => {
         if (state?.state !== 'on' && turnOn === false) {
-          return callback();
+          return;
         }
         await this.lightManager.setAttributes(id, { brightness });
-        callback();
+      },
+    );
+  }
+
+  public async setState(
+    entites: string[],
+    state: RoomEntitySaveStateDTO[],
+  ): Promise<void> {
+    if (entites.length !== state.length) {
+      this.logger.warn(`State and entity length mismatch`);
+      state = state.slice(START, entites.length);
+    }
+    await each(
+      state.map((state, index) => {
+        return [entites[index], state];
+      }) as [string, RoomEntitySaveStateDTO<LightingCacheDTO>][],
+      async ([id, state]) => {
+        if (state.state === 'off') {
+          await this.lightManager.turnOff(id);
+          return;
+        }
+        switch (state.extra.mode) {
+          case LIGHTING_MODE.circadian:
+            await this.lightManager.circadianLight(id, state.extra.brightness);
+            break;
+          case LIGHTING_MODE.on:
+          default:
+            await this.lightManager.turnOn(id, {
+              brightness: state.extra.brightness,
+              hs_color: state.extra.hs_color,
+            });
+            break;
+        }
       },
     );
   }
@@ -180,39 +214,5 @@ export class LightGroupService extends BaseGroupService {
     await this.lightManager.turnOn(group.entities, {
       brightness,
     });
-  }
-
-  protected async setState(
-    entites: string[],
-    state: RoomEntitySaveStateDTO[],
-  ): Promise<void> {
-    if (entites.length !== state.length) {
-      this.logger.warn(`State and entity length mismatch`);
-      state = state.slice(START, entites.length);
-    }
-    await each(
-      state.map((state, index) => {
-        return [entites[index], state];
-      }) as [string, RoomEntitySaveStateDTO<LightingCacheDTO>][],
-      async ([id, state], callback) => {
-        if (state.state === 'off') {
-          await this.lightManager.turnOff(id);
-          return callback();
-        }
-        switch (state.extra.mode) {
-          case LIGHTING_MODE.circadian:
-            await this.lightManager.circadianLight(id, state.extra.brightness);
-            break;
-          case LIGHTING_MODE.on:
-          default:
-            await this.lightManager.turnOn(id, {
-              brightness: state.extra.brightness,
-              hs_color: state.extra.hs_color,
-            });
-            break;
-        }
-        callback();
-      },
-    );
   }
 }

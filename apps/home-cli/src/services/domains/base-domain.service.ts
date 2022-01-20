@@ -7,6 +7,7 @@ import {
   RelatedDescriptionDTO,
 } from '@text-based/home-assistant';
 import {
+  ApplicationManagerService,
   ChartingService,
   ICONS,
   IsDone,
@@ -15,6 +16,7 @@ import {
   PinnedItemService,
   PromptEntry,
   PromptService,
+  ScreenService,
   ToMenuEntry,
 } from '@text-based/tty';
 import {
@@ -22,11 +24,9 @@ import {
   AutoLogService,
   CacheManagerService,
   DOWN,
-  EMPTY,
   InjectCache,
   InjectConfig,
   is,
-  IsEmpty,
   sleep,
   START,
   TitleCase,
@@ -45,15 +45,16 @@ import { HomeFetchService } from '../home-fetch.service';
 
 const HEADER_SEPARATOR = 0;
 const FIRST = 0;
+const A_FEW = 3;
 const HALF = 2;
-const SMALL_LIST = 4;
 const GRAPH_COLORS = [
-  'blue.bold',
-  'yellow.bold',
   'magenta.bold',
-  'cyan.bold',
   'yellow.bold',
+  'cyan.bold',
+  'red.bold',
   'green.bold',
+  'blue.bold',
+  'white.bold',
 ];
 
 const CACHE_KEY = (entity: string, type: string) =>
@@ -67,6 +68,8 @@ export class BaseDomainService {
     private readonly chartingService: ChartingService,
     protected readonly logger: AutoLogService,
     protected readonly fetchService: HomeFetchService,
+    protected readonly screenService: ScreenService,
+    protected readonly applicationManager: ApplicationManagerService,
     protected readonly promptService: PromptService,
     protected readonly deviceService: DeviceService,
     private readonly history: EntityHistoryService,
@@ -93,26 +96,53 @@ export class BaseDomainService {
   }
 
   public async graph(id: string): Promise<void> {
-    const raw = await this.history.promptEntityHistory(id);
-    if (IsEmpty(raw)) {
+    const { from, to } = await this.promptService.dateRange();
+    const history = await this.history.fetchHistory(id, from, to);
+    if (is.empty(history)) {
       this.logger.error(`No history returned`);
       await this.promptService.acknowledge();
       return;
     }
-    const attributes = await this.limitAttributes(raw, 'numeric', EMPTY);
+    const attributes = await this.limitAttributes(history, 'numeric');
     const graphs = attributes.map((key) =>
-      raw.map((point) => point.attributes[key] as number),
+      history.map((point) => point.attributes[key] as number),
     );
-    attributes.forEach((key, index) =>
-      console.log(
-        chalk`{${GRAPH_COLORS[index % GRAPH_COLORS.length]} ${TitleCase(key)}}`,
-      ),
-    );
-    const result = this.chartingService.plot(graphs, {
+    const first = dayjs(history[START].last_updated);
+    // Less than a few days range, show hour/minute as X axis
+    // More than a few days range, show month / day intead
+    const last = dayjs(history[history.length - ARRAY_OFFSET].last_updated);
+    const xAxis = !first.isBefore(last.subtract(A_FEW, 'd'))
+      ? history.map(({ last_updated }) => dayjs(last_updated).format('HH:mm'))
+      : history.map(({ last_updated }) => dayjs(last_updated).format('MM-DD'));
+    const result = await this.chartingService.plot(graphs, {
       colors: GRAPH_COLORS,
       width: this.maxGraphWidth,
+      xAxis,
     });
-    console.log(result);
+    const content = await this.getState(id);
+    this.applicationManager.setHeader(content.attributes.friendly_name, id);
+    this.screenService.print(`\n\n`);
+    this.screenService.print(result);
+    this.screenService.print(
+      [
+        chalk`  {blue -} {cyan.bold From:} ${dayjs(from).format(
+          `MMM D, YYYY h:mm A`,
+        )}`,
+        chalk`  {blue -}   {cyan.bold To:} ${dayjs(to).format(
+          `MMM D, YYYY h:mm A`,
+        )}`,
+        ``,
+      ].join(`\n`),
+    );
+    attributes.forEach((key, index) =>
+      this.screenService.print(
+        chalk`    {${GRAPH_COLORS[index % GRAPH_COLORS.length]} ${TitleCase(
+          key,
+          false,
+        )}}`,
+      ),
+    );
+    this.screenService.print('');
     await this.promptService.acknowledge();
   }
 
@@ -126,7 +156,7 @@ export class BaseDomainService {
     const filtered = entities.filter(
       (entity) =>
         domain(entity) === search &&
-        (IsEmpty(insideList) || insideList.includes(entity)),
+        (is.empty(insideList) || insideList.includes(entity)),
     );
     const entityId = await this.promptService.menu({
       keyMap: {},
@@ -171,14 +201,14 @@ export class BaseDomainService {
         await this.friendlyName(id);
         return await this.processId(id, action);
       case 'changeEntityId':
-        await this.changeEntityId(id);
+        id = await this.changeEntityId(id);
         return await this.processId(id, action);
       case 'registry':
         const item: RelatedDescriptionDTO = await this.fetchService.fetch({
           url: `/entity/registry/${id}`,
         });
-        if (IsEmpty(item.device ?? [])) {
-          console.log(
+        if (is.empty(item.device ?? [])) {
+          this.screenService.print(
             chalk`\n{bold.red !! } No devices associated with entity`,
           );
           await this.promptService.acknowledge();
@@ -199,7 +229,7 @@ export class BaseDomainService {
 
   public async showHistory(id: string): Promise<void> {
     const rawHistory = await this.history.promptEntityHistory(id);
-    if (IsEmpty(rawHistory)) {
+    if (is.empty(rawHistory)) {
       this.logger.warn(`No history returned`);
       await this.promptService.acknowledge();
       return;
@@ -232,7 +262,7 @@ export class BaseDomainService {
         }),
       ),
     );
-    console.log(table.toString());
+    this.screenService.print(table.toString());
     await this.promptService.acknowledge();
   }
 
@@ -251,18 +281,16 @@ export class BaseDomainService {
     // Somtimes the previous request impacts the state, and race conditions
     await sleep(this.refreshSleep);
     const content = await this.getState<T>(id);
-    this.promptService.clear();
-    this.promptService.scriptHeader(content.attributes.friendly_name);
-    this.promptService.secondaryHeader(id);
-    console.log(
+    this.applicationManager.setHeader(content.attributes.friendly_name, id);
+    this.screenService.print(
       chalk`\n {blue +-> }{inverse.bold.blueBright State} {cyan ${content.state}}`,
     );
     const keys = Object.keys(content.attributes)
       .filter((i) => !['supported_features', 'friendly_name'].includes(i))
       .sort((a, b) => (a > b ? UP : DOWN));
-    if (!IsEmpty(keys)) {
+    if (!is.empty(keys)) {
       const header = 'Attributes';
-      console.log(
+      this.screenService.print(
         chalk` {blue +${''.padEnd(
           Math.max(...keys.map((i) => i.length)) -
             Math.floor(header.length / HALF) -
@@ -274,8 +302,10 @@ export class BaseDomainService {
     }
 
     const max = Math.max(...keys.map((i) => i.length));
-    keys.forEach((key) => console.log(this.printItem(content, key, max)));
-    console.log();
+    keys.forEach((key) =>
+      this.screenService.print(this.printItem(content, key, max)),
+    );
+    this.screenService.print('');
     return content;
   }
 
@@ -292,13 +322,14 @@ export class BaseDomainService {
     };
   }
 
-  protected async changeEntityId(id: string): Promise<void> {
+  protected async changeEntityId(id: string): Promise<string> {
     const updateId = await this.promptService.string(`New id`, id);
     await this.fetchService.fetch({
       body: { updateId },
       method: 'put',
       url: `/entity/update-id/${id}`,
     });
+    return updateId;
   }
 
   protected async friendlyName(id: string): Promise<void> {
@@ -320,11 +351,9 @@ export class BaseDomainService {
   private async limitAttributes(
     data: HassStateDTO[],
     type: 'all' | 'numeric' = 'all',
-    all_size = SMALL_LIST,
   ): Promise<string[]> {
-    let attributeList = data
-      .flatMap((i) => Object.keys(i.attributes))
-      .filter((item, index, array) => array.indexOf(item) === index)
+    let attributeList = is
+      .unique(data.flatMap((i) => Object.keys(i.attributes)))
       .filter((i) =>
         type === 'all'
           ? true
@@ -335,16 +364,12 @@ export class BaseDomainService {
         CACHE_KEY(data[START].entity_id, type),
       )) || attributeList;
     const source = attributeList.filter((i) => !lastUsed.includes(i));
-    if (attributeList.length > all_size) {
-      console.log(
-        chalk`{yellow.inverse  Lots of attributes! } {blue Display less?}`,
-      );
-      attributeList = await this.promptService.listBuild({
-        current: lastUsed.map((i) => [i, i]),
-        items: 'Attributes',
-        source: source.map((i) => [i, i]),
-      });
-    }
+    this.screenService.print(chalk` {cyan > }{blue Plot which attributes?}`);
+    attributeList = await this.promptService.listBuild({
+      current: lastUsed.map((i) => [i, i]),
+      items: 'Attributes',
+      source: source.map((i) => [i, i]),
+    });
     await this.cache.set(CACHE_KEY(data[START].entity_id, type), attributeList);
     return attributeList;
   }
@@ -353,7 +378,7 @@ export class BaseDomainService {
     const item = content.attributes[key];
     let value: string;
     if (Array.isArray(item)) {
-      if (IsEmpty(item)) {
+      if (is.empty(item)) {
         value = chalk.gray(`empty list`);
       } else if (is.number(item[START])) {
         value = item.map((i) => chalk.yellow(i)).join(', ');
@@ -375,9 +400,7 @@ export class BaseDomainService {
       value = chalk.blue(item);
       if (key === 'icon') {
         value = `${
-          MDIIcons[
-            item.split(':').pop().replace(new RegExp('[-]', 'g'), '_')
-          ] ?? ''
+          MDIIcons[item.split(':').pop().replaceAll('-', '_')] ?? ''
         } ${value}`;
       }
     } else if (is.boolean(item)) {

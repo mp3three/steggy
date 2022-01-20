@@ -11,6 +11,7 @@ import {
 
 import { RoomEntitySaveStateDTO } from '../rooms';
 import { GroupDTO, RoomDTO } from '../schemas';
+import { RoutineCommandStopProcessing } from './stop-processing.dto';
 
 export enum ROUTINE_ACTIVATE_COMMAND {
   entity_state = 'entity_state',
@@ -23,6 +24,8 @@ export enum ROUTINE_ACTIVATE_COMMAND {
   trigger_routine = 'trigger_routine',
   sleep = 'sleep',
   webhook = 'webhook',
+  capture_state = 'capture_state',
+  restore_state = 'restore_state',
 }
 
 export type GENERIC_COMMANDS =
@@ -76,10 +79,6 @@ export class RoutineCommandSleepDTO {
   public duration: number;
 }
 
-export class RoutineCommandStopProcessing {
-  //
-}
-
 export class RoutineCommandTriggerRoutineDTO {
   @ApiProperty()
   @IsString()
@@ -89,35 +88,6 @@ export class RoutineCommandTriggerRoutineDTO {
 enum LightFlashType {
   group = 'group',
   entity = 'entity',
-}
-
-export class RoutineCommandLatchDTO {
-  /**
-   * - Routine ID
-   */
-  @ApiProperty()
-  @IsString()
-  public onActivate: string;
-  /**
-   * - Routine ID
-   */
-  @ApiProperty()
-  @IsString()
-  public onEnd: string;
-  /**
-   * Activate, then activate again before expiration
-   */
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  public onExtend?: string;
-  /**
-   * How long after activation to end
-   * - Routine ID
-   */
-  @ApiProperty()
-  @IsNumber()
-  public wait: number;
 }
 
 export class RountineCommandLightFlashDTO {
@@ -141,6 +111,24 @@ export class RountineCommandLightFlashDTO {
   public type: 'group' | 'entity';
 }
 
+export class RoutineCaptureCommandDTO {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString({ each: true })
+  public group?: string[];
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  public key?: string;
+}
+
+export class RoutineRestoreCommandDTO {
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  public key?: string;
+}
+
 export class RoutineCommandWebhookDTO {
   @IsEnum(HTTP_METHODS)
   @ApiProperty({ enum: Object.values(HTTP_METHODS) })
@@ -156,7 +144,8 @@ export class RoutineCommandDTO<
     | RountineCommandLightFlashDTO
     | RoutineCommandGroupActionDTO
     | RoutineCommandGroupStateDTO
-    | RoutineCommandLatchDTO
+    | RoutineCaptureCommandDTO
+    | RoutineRestoreCommandDTO
     | RoutineCommandRoomStateDTO
     | RoutineCommandSendNotificationDTO
     | RoutineCommandSleepDTO
@@ -170,8 +159,9 @@ export class RoutineCommandDTO<
       { $ref: getSchemaPath(RountineCommandLightFlashDTO) },
       { $ref: getSchemaPath(RoutineCommandGroupActionDTO) },
       { $ref: getSchemaPath(RoutineCommandGroupStateDTO) },
-      { $ref: getSchemaPath(RoutineCommandLatchDTO) },
       { $ref: getSchemaPath(RoutineCommandRoomStateDTO) },
+      { $ref: getSchemaPath(RoutineCaptureCommandDTO) },
+      { $ref: getSchemaPath(RoutineRestoreCommandDTO) },
       { $ref: getSchemaPath(RoutineCommandSendNotificationDTO) },
       { $ref: getSchemaPath(RoutineCommandSleepDTO) },
       { $ref: getSchemaPath(RoutineCommandStopProcessing) },

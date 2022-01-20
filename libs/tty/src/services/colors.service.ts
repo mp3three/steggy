@@ -14,6 +14,9 @@ const clamp = (input: number, min: number, max: number) => {
 };
 const OFF = 0;
 const HEX_SIZE = 2;
+const R_LUMINANCE = 0.2126;
+const G_LUMINANCE = 0.7152;
+const B_LUMINANCE = 0.722;
 
 @Injectable()
 export class ColorsService {
@@ -22,6 +25,7 @@ export class ColorsService {
   public async buildHex(current: string): Promise<string> {
     return await this.promptService.string(`Hex Color`, current);
   }
+
   public async buildRGB(
     { r, g, b }: RGB = { b: OFF, g: OFF, r: OFF },
   ): Promise<RGB> {
@@ -90,6 +94,11 @@ export class ColorsService {
       g: Math.round((g + m) * 255),
       r: Math.round((r + m) * 255),
     };
+  }
+
+  public isBright(color: string): boolean {
+    const { r, g, b } = this.hexToRGB(color);
+    return r * R_LUMINANCE + g * G_LUMINANCE + b * B_LUMINANCE < 255 / 2;
   }
 
   /**

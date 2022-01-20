@@ -1,20 +1,18 @@
-import { Injectable } from '@nestjs/common';
 import { RoutineCommandStopProcessing } from '@text-based/controller-logic';
 import { PromptService } from '@text-based/tty';
 
-@Injectable()
+import { RoutineCommand } from '../../../decorators';
+
+@RoutineCommand({
+  type: 'stop_processing',
+})
 export class StopProcessingService {
   constructor(private readonly promptService: PromptService) {}
 
   public async build(
     current: Partial<RoutineCommandStopProcessing> = {},
   ): Promise<RoutineCommandStopProcessing> {
-    return {
-      // template: await this.promptService.editor(
-      //   `Enter template string`,
-      //   current.template,
-      // ),
-    };
+    return current as RoutineCommandStopProcessing;
   }
 
   public async header(current: RoutineCommandStopProcessing): Promise<string> {

@@ -1,26 +1,69 @@
 import {
+  AutoLogService,
   FetchArguments,
   FetchService,
   InjectConfig,
+  is,
+  MINUTE,
 } from '@text-based/utilities';
 
-import { API_KEY, API_SECRET, LIVE_TRADING } from '../config';
+import { API_KEY, API_SECRET, API_TARGET } from '../config';
+import { ALPACA_API_KEY_HEADER, ALPACA_SECRET_KEY_HEADER } from '../contracts';
 
 export class AlpacaFetchService {
   constructor(
+    private readonly logger: AutoLogService,
     private readonly fetchService: FetchService,
     @InjectConfig(API_KEY) private readonly apiKey: string,
     @InjectConfig(API_SECRET) private readonly apiSecret: string,
-    @InjectConfig(LIVE_TRADING) private readonly liveTrading: string,
+    @InjectConfig(API_TARGET) private readonly apiTaget: string,
   ) {}
 
   public async fetch<T>(fetchWith: Partial<FetchArguments>): Promise<T> {
-    return this.fetchService.fetch({
-      url: ``,
+    fetchWith.headers ??= {};
+    fetchWith.headers[ALPACA_API_KEY_HEADER] = this.apiKey;
+    fetchWith.headers[ALPACA_SECRET_KEY_HEADER] = this.apiSecret;
+    const out = await this.fetchService.fetch<
+      { code: number; message: string } | T
+    >({
       ...fetchWith,
+    });
+    if (is.object(out) && !is.undefined(out.code)) {
+      this.logger.error(
+        { code: out.code },
+        `Alpaca api request failed {${out.message}}`,
+      );
+      return;
+    }
+    return out as T;
+  }
+
+  protected onApplicationBootstrap(): void {
+    this.fetchService.BASE_URL = this.apiTaget;
+    this.fetchService.bottleneck({
+      maxConcurrent: 1,
+      minTime: 200,
+      reservoir: 200,
+      reservoirRefreshAmount: 200,
+      reservoirRefreshInterval: MINUTE,
     });
   }
 }
+
+// import { DataSource } from './entities'
+
+// export default {
+//   rest: {
+//     account: 'https://api.alpaca.markets/v2',
+//     market_data_v2: 'https://data.alpaca.markets/v2',
+//     market_data_v1: 'https://data.alpaca.markets/v1',
+//   },
+//   websocket: {
+//     account: 'wss://api.alpaca.markets/stream',
+//     market_data: (source: DataSource = 'iex') =>
+//       `wss://stream.data.alpaca.markets/v2/${source}`,
+//   },
+// }
 
 // private async request<T = any>(params: {
 //   method: 'GET' | 'DELETE' | 'PUT' | 'PATCH' | 'POST'
@@ -29,36 +72,6 @@ export class AlpacaFetchService {
 //   isJSON?: boolean
 // }): Promise<T> {
 //   let headers: any = {}
-
-//   if ('access_token' in this.params.credentials) {
-//     headers[
-//       'Authorization'
-//     ] = `Bearer ${this.params.credentials.access_token}`
-//   } else {
-//     headers['APCA-API-KEY-ID'] = this.params.credentials.key
-//     headers['APCA-API-SECRET-KEY'] = this.params.credentials.secret
-//   }
-
-//   if (this.params.credentials.paper) {
-//     params.url = params.url.replace('api.', 'paper-api.')
-//   }
-
-//   let query = ''
-
-//   if (params.data) {
-//     // translate dates to ISO strings
-//     for (let [key, value] of Object.entries(params.data)) {
-//       if (value instanceof Date) {
-//         params.data[key] = (value as Date).toISOString()
-//       }
-//     }
-
-//     // build query
-//     if (!['POST', 'PATCH', 'PUT'].includes(params.method)) {
-//       query = '?'.concat(qs.stringify(params.data))
-//       params.data = undefined
-//     }
-//   }
 
 //   const makeCall = () =>
 //       unifetch(params.url.concat(query), {
@@ -69,26 +82,5 @@ export class AlpacaFetchService {
 //     func = this.params.rate_limit
 //       ? () => this.limiter.schedule(makeCall)
 //       : makeCall
-
-//   let resp,
-//     result = {}
-
-//   try {
-//     resp = await func()
-
-//     if (!(params.isJSON == undefined ? true : params.isJSON)) {
-//       return resp.ok as any
-//     }
-
-//     result = await resp.json()
-//   } catch (e) {
-//     console.error(e)
-//     throw result
-//   }
-
-//   if ('code' in result || 'message' in result) {
-//     throw result
-//   }
-
 //   return result as any
 // }

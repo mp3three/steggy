@@ -5,8 +5,7 @@
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
-        "unicorn/prevent-abbreviations": "off",
-        "woke/all": "off"
+        "unicorn/prevent-abbreviations": "off"
       }
     }
   ]

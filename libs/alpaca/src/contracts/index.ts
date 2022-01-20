@@ -7,6 +7,7 @@ export * from './calendar.dto';
 export * from './clock.dto';
 export * from './constants';
 export * from './enums';
+export * from './headers';
 export * from './history.dto';
 export * from './order.dto';
 export * from './position.dto';

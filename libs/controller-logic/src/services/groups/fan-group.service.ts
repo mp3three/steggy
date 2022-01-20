@@ -7,8 +7,7 @@ import {
   HASS_DOMAINS,
   HomeAssistantCoreService,
 } from '@text-based/home-assistant';
-import { AutoLogService } from '@text-based/utilities';
-import { each } from 'async';
+import { AutoLogService, each } from '@text-based/utilities';
 
 import {
   FanCacheDTO,
@@ -60,17 +59,15 @@ export class FanGroupService extends BaseGroupService {
 
   public async fanSpeedDown(group: GroupDTO | string): Promise<void> {
     group = await this.loadGroup(group);
-    await each(group.entities, async (entity_id, callback) => {
+    await each(group.entities, async (entity_id) => {
       await this.fanDomain.fanSpeedDown(entity_id);
-      callback();
     });
   }
 
   public async fanSpeedUp(group: GroupDTO | string): Promise<void> {
     group = await this.loadGroup(group);
-    await each(group.entities, async (entity_id, callback) => {
+    await each(group.entities, async (entity_id) => {
       await this.fanDomain.fanSpeedUp(entity_id);
-      callback();
     });
   }
 
@@ -91,17 +88,7 @@ export class FanGroupService extends BaseGroupService {
     return domain(id) === HASS_DOMAINS.fan;
   }
 
-  public async turnOff(group: GroupDTO<FanCacheDTO> | string): Promise<void> {
-    group = await this.loadGroup(group);
-    await this.hassCore.turnOff(group.entities);
-  }
-
-  public async turnOn(group: GroupDTO | string): Promise<void> {
-    group = await this.loadGroup(group);
-    await this.hassCore.turnOn(group.entities);
-  }
-
-  protected async setState(
+  public async setState(
     entites: string[],
     state: RoomEntitySaveStateDTO[],
   ): Promise<void> {
@@ -113,14 +100,23 @@ export class FanGroupService extends BaseGroupService {
       state.map((state, index) => {
         return [entites[index], state];
       }) as [string, RoomEntitySaveStateDTO<FanCacheDTO>][],
-      async ([id, state], callback) => {
+      async ([id, state]) => {
         if (state.state === 'off') {
           await this.fanDomain.turnOff(id);
-          return callback();
+          return;
         }
         await this.fanDomain.setSpeed(id, state.extra.speed);
-        callback();
       },
     );
+  }
+
+  public async turnOff(group: GroupDTO<FanCacheDTO> | string): Promise<void> {
+    group = await this.loadGroup(group);
+    await this.hassCore.turnOff(group.entities);
+  }
+
+  public async turnOn(group: GroupDTO | string): Promise<void> {
+    group = await this.loadGroup(group);
+    await this.hassCore.turnOn(group.entities);
   }
 }

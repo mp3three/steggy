@@ -404,3 +404,6 @@ export enum AlpacaSocketChannel {
   bars = 'bars',
   trade_updates = 'trade_updates',
 }
+export enum CryptoStatus {
+  PAPER_ONLY = 'PAPER_ONLY',
+}

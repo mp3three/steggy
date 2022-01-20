@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService, IsEmpty } from '@text-based/utilities';
+import { AutoLogService, is } from '@text-based/utilities';
 import dayjs from 'dayjs';
 
 import { TimeRangeDTO } from '../contracts';
@@ -13,7 +13,7 @@ export class TimeRangeService {
     const day = now.format('D,DD,dd,ddd,dddd').toLowerCase().split(',');
     const hour = now.format('H,HH').toLowerCase().split(',');
     const month = now.format('M,MM,MMM,MMMM').toLowerCase().split(',');
-    if (!IsEmpty(comparison.hours)) {
+    if (!is.empty(comparison.hours)) {
       const state = comparison.hours.some((i) =>
         hour.includes(i.toLowerCase()),
       );
@@ -21,13 +21,13 @@ export class TimeRangeService {
         return false;
       }
     }
-    if (!IsEmpty(comparison.days)) {
+    if (!is.empty(comparison.days)) {
       const state = comparison.days.some((i) => day.includes(i.toLowerCase()));
       if (state === false) {
         return false;
       }
     }
-    if (!IsEmpty(comparison.month)) {
+    if (!is.empty(comparison.month)) {
       const state = comparison.month.some((i) =>
         month.includes(i.toLowerCase()),
       );

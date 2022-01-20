@@ -1,5 +1,5 @@
 import { Injectable, Scope } from '@nestjs/common';
-import { IsEmpty } from '@text-based/utilities';
+import { is } from '@text-based/utilities';
 
 import { HASS_DOMAINS, HASSIO_WS_COMMAND, HassStateDTO } from '../contracts';
 import { HASocketAPIService } from './ha-socket-api.service';
@@ -25,7 +25,7 @@ export class HACallService {
     // Simplify logic in higher level classes
     if (
       Array.isArray(service_data.entity_id) &&
-      IsEmpty(service_data.entity_id)
+      is.empty(service_data.entity_id)
     ) {
       return;
     }

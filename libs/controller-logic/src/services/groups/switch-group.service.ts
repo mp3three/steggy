@@ -6,8 +6,7 @@ import {
   HomeAssistantCoreService,
   SwitchStateDTO,
 } from '@text-based/home-assistant';
-import { AutoLogService } from '@text-based/utilities';
-import { each } from 'async';
+import { AutoLogService, each } from '@text-based/utilities';
 
 import {
   GROUP_TYPES,
@@ -70,6 +69,28 @@ export class SwitchGroupService extends BaseGroupService {
     ].includes(domain(id));
   }
 
+  public async setState(
+    entites: string[],
+    state: RoomEntitySaveStateDTO[],
+  ): Promise<void> {
+    if (entites.length !== state.length) {
+      this.logger.warn(`State and entity length mismatch`);
+      state = state.slice(START, entites.length);
+    }
+    await each(
+      state.map((state, index) => {
+        return [entites[index], state];
+      }) as [string, RoomEntitySaveStateDTO][],
+      async ([id, state]) => {
+        if (state.state === 'off') {
+          await this.hassCore.turnOff(id);
+          return;
+        }
+        await this.hassCore.turnOn(id);
+      },
+    );
+  }
+
   public async toggle(group: GroupDTO | string): Promise<void> {
     group = await this.loadGroup(group);
     await this.hassCore.toggle(group.entities);
@@ -83,28 +104,5 @@ export class SwitchGroupService extends BaseGroupService {
   public async turnOn(group: GroupDTO | string): Promise<void> {
     group = await this.loadGroup(group);
     await this.hassCore.turnOn(group.entities);
-  }
-
-  protected async setState(
-    entites: string[],
-    state: RoomEntitySaveStateDTO[],
-  ): Promise<void> {
-    if (entites.length !== state.length) {
-      this.logger.warn(`State and entity length mismatch`);
-      state = state.slice(START, entites.length);
-    }
-    await each(
-      state.map((state, index) => {
-        return [entites[index], state];
-      }) as [string, RoomEntitySaveStateDTO][],
-      async ([id, state], callback) => {
-        if (state.state === 'off') {
-          await this.hassCore.turnOff(id);
-          return callback();
-        }
-        await this.hassCore.turnOn(id);
-        callback();
-      },
-    );
   }
 }

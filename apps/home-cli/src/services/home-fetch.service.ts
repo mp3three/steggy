@@ -37,10 +37,17 @@ export class HomeFetchService {
       await sleep();
       return await this.fetch(fetch, counter);
     }
+    // if (this.isError(result)) {
+    //   throw result as Error;
+    // }
     return result;
   }
 
   public getUrl(url: string): string {
     return this.fetchService.fetchCreateUrl({ url });
+  }
+
+  private isError(output: unknown): output is Error {
+    return !is.undefined((output as { error: string }).error);
   }
 }

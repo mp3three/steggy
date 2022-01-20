@@ -36,9 +36,12 @@ const prettyError = (error: Error) => {
       line = line.slice(hasMethod ? line.indexOf(' ') : START);
     }
     const parts = line.trim().replace('(', '').replace(')', '').split(':');
+    const PA = 'Promise.all';
     if (
       parts[START] === '<anonymous>' ||
-      parts[START] === 'Promise <anonymous>'
+      parts[START] === 'Promise <anonymous>' ||
+      parts[START] === 'Function <anonymous>' ||
+      parts[START].slice(START, PA.length) === PA
     ) {
       maxMethod = Math.max(parts[START].length, maxMethod);
       lines.push([method, [parts[START], '', ''], false]);

@@ -7,13 +7,13 @@ import {
 } from '@nestjs/common';
 import {
   AutoLogService,
+  each,
+  eachSeries,
   is,
-  IsEmpty,
   OnEvent,
   ResultControlDTO,
   sleep,
 } from '@text-based/utilities';
-import { each, eachSeries } from 'async';
 import dayjs from 'dayjs';
 
 import {
@@ -24,6 +24,7 @@ import {
   ROUTINE_ACTIVATE_TYPE,
   ROUTINE_UPDATE,
   RoutineActivateOptionsDTO,
+  RoutineCaptureCommandDTO,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
@@ -38,6 +39,7 @@ import {
   StateChangeActivateDTO,
 } from '../../contracts';
 import {
+  CaptureCommandService,
   LightFlashCommandService,
   RoutineTriggerService,
   SendNotificationService,
@@ -67,6 +69,7 @@ export class RoutineService {
     private readonly solarService: SolarActivateService,
     @Inject(forwardRef(() => RoutineTriggerService))
     private readonly triggerService: RoutineTriggerService,
+    private readonly captureCommand: CaptureCommandService,
     private readonly stateChangeActivate: StateChangeActivateService,
     @Inject(forwardRef(() => SendNotificationService))
     private readonly sendNotification: SendNotificationService,
@@ -86,23 +89,20 @@ export class RoutineService {
     let aborted = false;
     await (routine.sync ? eachSeries : each)(
       routine.command ?? [],
-      async (command, callback) => {
+      async (command) => {
         // Typescript being dumb
         const { friendlyName, sync } = routine as RoutineDTO;
         if (aborted) {
           this.logger.debug(
             `[${friendlyName}] processing stopped {${command.friendlyName}}`,
           );
-          if (callback) {
-            callback();
-          }
           return;
         }
-        const result = await this.activateCommand(command);
+        const result = await this.activateCommand(
+          command,
+          routine as RoutineDTO,
+        );
         aborted = result === false && sync;
-        if (callback) {
-          callback();
-        }
       },
     );
   }
@@ -142,7 +142,11 @@ export class RoutineService {
     await this.mount();
   }
 
-  private async activateCommand(command: RoutineCommandDTO): Promise<boolean> {
+  private async activateCommand(
+    command: RoutineCommandDTO,
+    routine: RoutineDTO,
+  ): Promise<boolean> {
+    // TODO: Some sort of automatic registration mechanism?
     this.logger.debug(` - {${command.friendlyName}}`);
     switch (command.type) {
       case ROUTINE_ACTIVATE_COMMAND.group_action:
@@ -190,6 +194,12 @@ export class RoutineService {
           command.command as RoutineCommandSleepDTO,
         );
         break;
+      case ROUTINE_ACTIVATE_COMMAND.capture_state:
+        await this.captureCommand.activate(
+          command as RoutineCaptureCommandDTO,
+          routine,
+        );
+        break;
       case ROUTINE_ACTIVATE_COMMAND.stop_processing:
 
       //
@@ -201,7 +211,7 @@ export class RoutineService {
     const allRoutines = await this.routinePersistence.findMany();
     this.logger.info(`Mounting {${allRoutines.length}} routines`);
     allRoutines.forEach((routine) => {
-      if (IsEmpty(routine.activate)) {
+      if (is.empty(routine.activate)) {
         this.logger.warn(`[${routine.friendlyName}] no activation events`);
         return;
       }

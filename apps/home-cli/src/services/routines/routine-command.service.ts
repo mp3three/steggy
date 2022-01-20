@@ -11,6 +11,7 @@ import {
   RoomEntitySaveStateDTO,
   RountineCommandLightFlashDTO,
   ROUTINE_ACTIVATE_COMMAND,
+  RoutineCaptureCommandDTO,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
@@ -21,17 +22,19 @@ import {
   RoutineCommandTriggerRoutineDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
+  RoutineRestoreCommandDTO,
 } from '@text-based/controller-logic';
 import {
   ICONS,
   IsDone,
   PromptEntry,
   PromptService,
+  ScreenService,
+  TextRenderingService,
   ToMenuEntry,
 } from '@text-based/tty';
-import { is, IsEmpty, START, TitleCase } from '@text-based/utilities';
+import { is, START, TitleCase } from '@text-based/utilities';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
 import { dump } from 'js-yaml';
 import { v4 as uuid } from 'uuid';
 
@@ -41,6 +44,8 @@ import { EntityService } from '../home-assistant/entity.service';
 import { RoomCommandService, RoomStateService } from '../rooms';
 import {
   LightFlashService,
+  RestoreService,
+  RoutineCaptureService,
   RoutineTriggerService,
   SendNotificationService,
   StopProcessingService,
@@ -59,8 +64,12 @@ export class RoutineCommandService {
     private readonly entityCommand: EntityService,
     private readonly flashAnimation: LightFlashService,
     private readonly groupAction: GroupActionService,
+    private readonly textRender: TextRenderingService,
     private readonly groupCommand: GroupCommandService,
+    private readonly screenService: ScreenService,
     private readonly groupState: GroupStateService,
+    private readonly captureService: RoutineCaptureService,
+    private readonly restoreService: RestoreService,
     private readonly promptService: PromptService,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineCommand: RService,
@@ -91,7 +100,6 @@ export class RoutineCommandService {
       room = await this.roomCommand.get(routine.room);
       room.save_states ??= [];
     }
-
     const type = await this.promptService.pickOne<ROUTINE_ACTIVATE_COMMAND>(
       `Command type`,
       Object.values(ROUTINE_ACTIVATE_COMMAND)
@@ -100,6 +108,22 @@ export class RoutineCommandService {
       current.type,
     );
     switch (type) {
+      case ROUTINE_ACTIVATE_COMMAND.restore_state:
+        return {
+          command: await this.restoreService.build(
+            current as RoutineRestoreCommandDTO,
+          ),
+          friendlyName,
+          type,
+        };
+      case ROUTINE_ACTIVATE_COMMAND.capture_state:
+        return {
+          command: await this.captureService.build(
+            current as RoutineCaptureCommandDTO,
+          ),
+          friendlyName,
+          type,
+        };
       case ROUTINE_ACTIVATE_COMMAND.trigger_routine:
         return {
           command: await this.routineTrigger.build(
@@ -216,11 +240,13 @@ export class RoutineCommandService {
         );
         return chalk`{bold Routine:} ${triggerRoutine.friendlyName}`;
       case ROUTINE_ACTIVATE_COMMAND.stop_processing:
-        return await this.stopProcessing.header(current.command);
+        return await this.stopProcessing.header(
+          current.command as RoutineCommandStopProcessing,
+        );
       case ROUTINE_ACTIVATE_COMMAND.sleep:
-        return this.promptService.objectPrinter(current.command);
+        return this.textRender.typePrinter(current.command);
       case ROUTINE_ACTIVATE_COMMAND.send_notification:
-        return this.promptService.objectPrinter(current.command);
+        return this.textRender.typePrinter(current.command);
       case ROUTINE_ACTIVATE_COMMAND.room_state:
         const roomStateCommand = (current?.command ??
           {}) as RoutineCommandRoomStateDTO;
@@ -245,7 +271,7 @@ export class RoutineCommandService {
             : chalk`{bold Group:} ${
                 (await this.groupCommand.get(ref))?.friendlyName
               }`,
-          this.promptService.objectPrinter(lightFlashCommand),
+          this.textRender.typePrinter(lightFlashCommand),
         ].join(`\n`);
       case ROUTINE_ACTIVATE_COMMAND.webhook:
         const webhook = current.command as RoutineCommandWebhookDTO;
@@ -298,21 +324,17 @@ export class RoutineCommandService {
   ): Promise<RoutineDTO> {
     const action = await this.promptService.menu({
       keyMap: {
-        d: MENU_ITEMS.DELETE,
+        d: MENU_ITEMS.DONE,
+        e: MENU_ITEMS.EDIT,
         x: MENU_ITEMS.DELETE,
       },
-      right: ToMenuEntry([
-        [`${ICONS.DESCRIBE}Describe`, 'describe'],
-        MENU_ITEMS.EDIT,
-      ]),
-      rightHeader: `Routine command actions`,
     });
     if (IsDone(action)) {
       return routine;
     }
     switch (action) {
       case 'describe':
-        this.promptService.print(dump(command));
+        this.screenService.print(dump(command));
         return await this.process(
           routine,
           routine.command.find(({ id }) => id === command.id),
@@ -344,18 +366,15 @@ export class RoutineCommandService {
   public async processRoutine(routine: RoutineDTO): Promise<RoutineDTO> {
     routine.command ??= [];
     const action = await this.promptService.menu({
-      keyMap: { d: MENU_ITEMS.DONE },
-      right: ToMenuEntry([
-        MENU_ITEMS.ADD,
-        [`${ICONS.SWAP}Sort`, 'sort'],
-        ...this.promptService.conditionalEntries(!IsEmpty(routine.command), [
-          new inquirer.Separator(chalk.white`Current commands`),
-          ...(routine.command.map((activate) => [
-            activate.friendlyName,
-            activate,
-          ]) as PromptEntry<RoutineCommandDTO>[]),
-        ]),
-      ]),
+      item: 'commands',
+      keyMap: {
+        a: MENU_ITEMS.ADD,
+        d: MENU_ITEMS.DONE,
+        s: [`${ICONS.SWAP}Sort`, 'sort'],
+      },
+      right: ToMenuEntry(
+        routine.command.map((activate) => [activate.friendlyName, activate]),
+      ),
       rightHeader: `Routine commands`,
     });
     if (IsDone(action)) {

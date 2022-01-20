@@ -1,14 +1,16 @@
 import { NotImplementedException } from '@nestjs/common';
 import { HomeAssistantServerLogItem } from '@text-based/home-assistant';
 import {
+  ApplicationManagerService,
   DONE,
   ICONS,
   IsDone,
   PromptService,
   Repl,
+  ScreenService,
   ToMenuEntry,
 } from '@text-based/tty';
-import { AutoLogService, is, IsEmpty, TitleCase } from '@text-based/utilities';
+import { AutoLogService, is, TitleCase } from '@text-based/utilities';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 
@@ -30,11 +32,12 @@ export class ServerLogsService {
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
   ) {}
 
   public async exec(defaultValue: string): Promise<void> {
-    this.promptService.clear();
-    this.promptService.scriptHeader(`Server Logs`);
+    this.applicationManager.setHeader(`Server Logs`);
     const action = await this.promptService.menu({
       keyMap: {
         d: MENU_ITEMS.DONE,
@@ -72,7 +75,7 @@ export class ServerLogsService {
     const logs = await this.fetchService.fetch<HomeAssistantServerLogItem[]>({
       url: `/admin/server/logs`,
     });
-    if (IsEmpty(logs)) {
+    if (is.empty(logs)) {
       this.logger.info(`No recent logs`);
       return;
     }
@@ -96,12 +99,9 @@ export class ServerLogsService {
     if (is.string(item)) {
       throw new NotImplementedException();
     }
-    this.promptService.clear();
-    this.promptService.scriptHeader(
-      TitleCase(item.level.toLowerCase()),
-      LEVELS.get(item.level),
-    );
-    console.log(
+    // LEVELS.get(item.level)
+    this.applicationManager.setHeader(TitleCase(item.level.toLowerCase()));
+    this.screenService.print(
       [
         chalk`{bold Logger:} ${item.name}`,
         chalk`{bold Source:} ${item.source.join(':')}`,

@@ -5,14 +5,14 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import {
   AutoLogService,
+  eachSeries,
   GlobalErrorInit,
-  IsEmpty,
+  is,
   LIB_UTILS,
   LifecycleService,
   NEST_NOOP_LOGGER,
   UsePrettyLogger,
 } from '@text-based/utilities';
-import { eachSeries } from 'async';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
 import express, { Express } from 'express';
@@ -42,7 +42,7 @@ export async function Bootstrap(
   bootOptions: BootstrapOptions,
 ): Promise<void> {
   // Environment files can append extra modules
-  if (!IsEmpty(bootOptions.imports)) {
+  if (!is.empty(bootOptions.imports)) {
     const current = Reflect.getMetadata('imports', module) ?? [];
     current.push(...bootOptions.imports);
     Reflect.defineMetadata('imports', current, module);
@@ -72,11 +72,8 @@ export async function Bootstrap(
   if (noGlobalError !== true) {
     preInit.push(GlobalErrorInit);
   }
-  await eachSeries(preInit, async (item, callback) => {
+  await eachSeries(preInit, async (item) => {
     await item(app, server, bootOptions);
-    if (callback) {
-      callback();
-    }
   });
   await lifecycle.preInit(app, { options: bootOptions, server });
   // ...init
@@ -85,13 +82,8 @@ export async function Bootstrap(
   await app.init();
   // onPostInit
   postInit ??= [];
-  await eachSeries(postInit, async (item, callback) => {
+  await eachSeries(postInit, async (item) => {
     await item(app, server, bootOptions);
-    // ??? Why is it sometimes not passing a callback?
-    // Not calling the not-existing callback doesn't seem to break it though
-    if (callback) {
-      callback();
-    }
   });
   await lifecycle.postInit(app, { options: bootOptions, server });
   logger.info(`🎓 Bootstrap control released! 🎓`);

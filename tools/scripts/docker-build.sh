@@ -1,23 +1,24 @@
+#!/bin/bash
+
 IMAGE=$1
-if [ -z $IMAGE ]
+if [ -z "$IMAGE" ]
 then
   echo "docker-build.sh IMAGE [DIR]"
   exit
 fi
 
 DIR=$2
-if [ -z $DIR ]
+if [ -z "$DIR" ]
 then
   DIR=$IMAGE
 fi
 
 # Extract metadata from local files
-JSON=$(cat "apps/$DIR/package.json")
-VERSION=$(cat package.json | jq .version | xargs)
-HOMEPAGE=$(cat package.json | jq .author.url | xargs)
-EMAIL=$(cat package.json | jq .author.email | xargs)
-PUBLISHER=$(cat package.json | jq .publisher | xargs)
-NAME=$(echo $JSON | jq .name | xargs)
+VERSION=$(jq .version < package.json | xargs)
+HOMEPAGE=$(jq .author.url < package.json | xargs)
+EMAIL=$(jq .author.email < package.json | xargs)
+PUBLISHER=$(jq .publisher < package.json | xargs)
+NAME=$(jq .name < "apps/$DIR/package.json" | xargs)
 BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 VCS_REF=$(git rev-parse --short HEAD)
 VCS_URL=$(git config --get remote.origin.url)
@@ -33,5 +34,5 @@ BUILD_ARGS="$BUILD_ARGS --build-arg NAME=$NAME"
 BUILD_ARGS="$BUILD_ARGS --build-arg VCS_REF=$VCS_REF"
 
 COMMAND="docker build -t $PUBLISHER/$1:latest -f apps/$DIR/Dockerfile $BUILD_ARGS ."
-echo $COMMAND
-echo $COMMAND | sh
+echo "$COMMAND"
+echo "$COMMAND" | sh

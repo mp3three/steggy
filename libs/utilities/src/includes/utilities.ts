@@ -1,6 +1,3 @@
-// Reused numbers
-// Apparantly these can affect type checking too. Cool!
-
 export const INVERT_VALUE = -1;
 // Sort
 export const UP = 1;
@@ -10,6 +7,8 @@ export const VALUE = 1;
 export const ARRAY_OFFSET = 1;
 // array[number +- increment]
 export const INCREMENT = 1;
+// Generic one-ness
+export const SINGLE = 1;
 // Sorting
 export const SAME = 0;
 // [LABEL,VALUE]
@@ -22,21 +21,17 @@ export const FIRST = 0;
 export const NOT_FOUND = -1;
 // Sorting
 export const DOWN = -1;
-/**
- * Want to be really lazy? Just make a short term sleep happen
- */
-const DEFAULT_SLEEP_TIME = 1000;
+export const MINUTE = 60_000;
+export const SECOND = 1000;
+
 /**
  * Defaults to 1000 (1 second)
  *
  * @example await sleep(5000);
  */
-export const sleep = (ms: number = DEFAULT_SLEEP_TIME): Promise<void> =>
+export const sleep = (ms: number = SECOND): Promise<void> =>
   new Promise((done) => setTimeout(() => done(), ms));
 
-export const filterUnique = (array: string[]): string[] => {
-  return array.filter((item, index, self) => self.indexOf(item) === index);
-};
 export function PEAT<T extends unknown = number>(
   length: number,
   fill?: T,

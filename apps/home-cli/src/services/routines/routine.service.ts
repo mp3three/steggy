@@ -9,29 +9,34 @@ import {
   RoutineDTO,
 } from '@text-based/controller-logic';
 import {
+  ApplicationManagerService,
   ICONS,
   IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
   Repl,
+  ScreenService,
+  StackService,
+  TextRenderingService,
   ToMenuEntry,
 } from '@text-based/tty';
 import {
   CacheManagerService,
+  eachSeries,
   InjectCache,
   is,
-  IsEmpty,
+  LABEL,
   ResultControlDTO,
   TitleCase,
 } from '@text-based/utilities';
-import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';
 
 import { MENU_ITEMS } from '../../includes';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';
+import { RoutineCommandBuilderService } from './command';
 import { RoutineActivateService } from './routine-activate.service';
 import { RoutineCommandService } from './routine-command.service';
 
@@ -52,16 +57,28 @@ export class RoutineService {
     @InjectCache()
     private readonly cache: CacheManagerService,
     private readonly fetchService: HomeFetchService,
+    private readonly textRender: TextRenderingService,
     private readonly promptService: PromptService,
+    private readonly commandBuilder: RoutineCommandBuilderService,
     private readonly activateService: RoutineActivateService,
     @Inject(forwardRef(() => RoomCommandService))
     private readonly roomCommand: RCService,
     @Inject(forwardRef(() => RoutineCommandService))
     private readonly routineCommand: RService,
     private readonly pinnedItems: PinnedItemService,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
+    private readonly stackService: StackService,
   ) {}
 
   private lastRoutine: string;
+
+  public async activate(routine: RoutineDTO): Promise<void> {
+    await this.fetchService.fetch({
+      method: 'post',
+      url: `/routine/${routine._id}`,
+    });
+  }
 
   public async create(room?: RoomDTO | string): Promise<RoutineDTO> {
     const friendlyName = await this.promptService.friendlyName();
@@ -90,14 +107,22 @@ export class RoutineService {
     });
     let action = await this.promptService.menu<RoutineDTO | string>({
       keyMap: {
-        a: [
+        a: MENU_ITEMS.ACTIVATE,
+        c: MENU_ITEMS.CREATE,
+        d: MENU_ITEMS.DONE,
+        t: [
           all
             ? chalk.dim.magenta('Show detached routines')
             : chalk.dim.blue('Show all routines'),
           'all',
         ],
-        c: MENU_ITEMS.CREATE,
-        d: MENU_ITEMS.DONE,
+      },
+      keyMapCallback: async (action, [label, routine]) => {
+        if (action === 'activate') {
+          await this.activate(routine as RoutineDTO);
+          return chalk.magenta.bold(MENU_ITEMS.ACTIVATE[LABEL]) + ' ' + label;
+        }
+        return true;
       },
       right: ToMenuEntry(list.map((i) => [i.friendlyName, i])),
       value: this.lastRoutine,
@@ -136,7 +161,7 @@ export class RoutineService {
     defaultValue: string | RoutineDTO,
     inList: RoutineDTO[] = [],
   ): Promise<RoutineDTO> {
-    if (IsEmpty(inList)) {
+    if (is.empty(inList)) {
       inList = await this.list();
     }
     defaultValue = inList.find(
@@ -161,7 +186,18 @@ export class RoutineService {
     }
     const current = await this.list(control);
     let action = await this.promptService.menu({
-      keyMap: { c: MENU_ITEMS.CREATE, d: MENU_ITEMS.DONE },
+      keyMap: {
+        a: MENU_ITEMS.ACTIVATE,
+        c: MENU_ITEMS.CREATE,
+        d: MENU_ITEMS.DONE,
+      },
+      keyMapCallback: async (action, [label, routine]) => {
+        if (action === 'activate') {
+          await this.activate(routine as RoutineDTO);
+          return chalk.magenta.bold(MENU_ITEMS.ACTIVATE[LABEL]) + ' ' + label;
+        }
+        return true;
+      },
       right: ToMenuEntry(
         current.map((item) => [
           item.friendlyName,
@@ -191,6 +227,12 @@ export class RoutineService {
       [`${ICONS.EVENT}Activation Events`, 'events'],
       [`${ICONS.COMMAND}Commands`, 'command'],
     ] as PromptEntry[];
+    if (is.empty(routine.activate)) {
+      events[LABEL] = chalk.red(events[LABEL]);
+    }
+    if (is.empty(routine.command)) {
+      command[LABEL] = chalk.red(command[LABEL]);
+    }
     const action = await this.promptService.menu({
       keyMap: {
         a: events,
@@ -248,13 +290,12 @@ export class RoutineService {
         });
         break;
       case 'rename':
-        const friendlyName = await this.promptService.friendlyName(
-          routine.friendlyName,
-        );
         routine = await this.fetchService.fetch({
           body: {
             ...routine,
-            friendlyName,
+            friendlyName: await this.promptService.friendlyName(
+              routine.friendlyName,
+            ),
           },
           method: `put`,
           url: `/routine/${routine._id}`,
@@ -264,7 +305,9 @@ export class RoutineService {
         routine = await this.activateService.processRoutine(routine);
         return await this.processRoutine(routine, action);
       case 'command':
-        routine = await this.routineCommand.processRoutine(routine);
+        routine = await this.stackService.wrap(
+          async () => await this.commandBuilder.process(routine),
+        );
         return await this.processRoutine(routine, action);
     }
   }
@@ -286,13 +329,10 @@ export class RoutineService {
     }
     switch (action) {
       case 'immediate':
-        await this.fetchService.fetch({
-          method: 'post',
-          url: `/routine/${routine._id}`,
-        });
+        await this.activate(routine);
         return;
       case 'timeout':
-        console.log(
+        this.screenService.print(
           chalk.yellow`${ICONS.WARNING}Timers not persisted across controller reboots`,
         );
         await this.fetchService.fetch({
@@ -304,7 +344,7 @@ export class RoutineService {
         });
         return;
       case 'datetime':
-        console.log(
+        this.screenService.print(
           chalk.yellow`${ICONS.WARNING}Timers not persisted across controller reboots`,
         );
         await this.fetchService.fetch({
@@ -338,21 +378,12 @@ export class RoutineService {
   }
 
   private async header(routine: RoutineDTO): Promise<void> {
-    await this.promptService.clear();
-    this.promptService.scriptHeader(`Routine`);
-    this.promptService.secondaryHeader(routine.friendlyName);
-    console.log(
-      chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
-        `/routine/${routine._id}`,
-      )}`,
-    );
-    console.log();
-    if (IsEmpty(routine.activate)) {
-      console.log(
-        chalk.bold`{cyan >>> }${ICONS.EVENT}{yellow No activation events}`,
-      );
-    } else {
-      console.log(chalk`  {blue.bold Activation Events}`);
+    this.applicationManager.setHeader(`Routine`, routine.friendlyName);
+    const url = this.fetchService.getUrl(`/routine/${routine._id}`);
+    this.screenService.print(chalk`${ICONS.LINK} {bold.magenta POST} ${url}`);
+    this.screenService.print();
+    if (!is.empty(routine.activate)) {
+      this.screenService.print(chalk`  {blue.bold Activation Events}`);
       const table = new Table({
         head: ['Name', 'Type', 'Details'],
       });
@@ -360,31 +391,33 @@ export class RoutineService {
         table.push([
           activate.friendlyName,
           TitleCase(activate.type),
-          this.promptService.objectPrinter(activate.activate),
+          this.textRender.typePrinter(activate.activate),
         ]);
       });
-      console.log(table.toString());
+      this.screenService.print(table.toString());
     }
-    if (IsEmpty(routine.command)) {
-      console.log(chalk.bold`{cyan >>> }${ICONS.COMMAND}{yellow No commands}`);
+    if (is.empty(routine.command)) {
       return;
     }
     const activation =
       routine.command.length === SOLO
         ? ``
         : chalk`{yellowBright (${routine.sync ? 'Series' : 'Parallel'})}`;
-    console.log(chalk`  {bold.blue Commands} ${activation}`);
+    this.screenService.print(chalk`  {bold.blue Commands} ${activation}`);
     const table = new Table({
       head: ['Name', 'Type', 'Details'],
     });
     await eachSeries(routine.command, async (command) => {
+      if (!command) {
+        return;
+      }
       table.push([
         command.friendlyName,
         TitleCase(command.type),
         await this.routineCommand.commandDetails(routine, command),
       ]);
     });
-    console.log(table.toString());
-    console.log();
+    this.screenService.print(table.toString());
+    this.screenService.print();
   }
 }

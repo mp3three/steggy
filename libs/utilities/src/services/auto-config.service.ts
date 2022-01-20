@@ -154,7 +154,7 @@ export class AutoConfigService {
     const { env } = process;
     this.metadata.forEach(({ configuration }, project) => {
       configuration ??= {};
-      const cleanedProject = project.replace(new RegExp('-', 'g'), '_');
+      const cleanedProject = project.replaceAll('-', '_');
       const isApplication = this.APPLICATION.description === project;
       const environmentPrefix = isApplication
         ? 'application'

@@ -9,11 +9,11 @@ import {
   CacheManagerService,
   Cron,
   CronExpression,
+  each,
   InjectCache,
   InjectConfig,
-  IsEmpty,
+  is,
 } from '@text-based/utilities';
-import { each } from 'async';
 import dayjs from 'dayjs';
 
 import {
@@ -22,6 +22,7 @@ import {
 } from '../config';
 
 const CACHE_KEY = (id: string) => `RECENTLY_UNAVAILABLE:${id}`;
+const WAIT_DAYS = 1;
 type RecentItem = {
   entity_id: string;
   since: number;
@@ -44,6 +45,7 @@ export class AvailabilityMonitorService {
 
   @Cron(CronExpression.EVERY_HOUR)
   protected async checkAvailability(): Promise<void> {
+    return;
     const groups = await this.groupService.list();
     const searchList = groups
       .flatMap((i) => i.entities)
@@ -51,7 +53,7 @@ export class AvailabilityMonitorService {
     const entities = searchList.filter(
       (id) => this.entityService.getEntity(id).state === 'unavailable',
     );
-    if (IsEmpty(entities)) {
+    if (is.empty(entities)) {
       this.logger.debug(`No unavailable entities`);
       return;
     }
@@ -71,12 +73,12 @@ export class AvailabilityMonitorService {
     const midnight = dayjs(dayjs().format('YYYY-MM-DD'));
     const yesterday = (
       midnight.toDate().getTime() < since
-        ? midnight.subtract(1, 'day')
+        ? midnight.subtract(WAIT_DAYS, 'day')
         : midnight
     )
       .toDate()
       .getTime();
-    await each(entities, async (item, callback) => {
+    await each(entities, async (item) => {
       const cache = (await this.cache.get<RecentItem>(CACHE_KEY(item))) ?? {
         entity_id: item,
         since: now,
@@ -86,11 +88,8 @@ export class AvailabilityMonitorService {
       } else if (cache.since < since) {
         this.logger.warn(`[${item}] unavailable`);
       }
-      if (callback) {
-        callback();
-      }
     });
-    if (IsEmpty(sendAlerts) || !notify) {
+    if (is.empty(sendAlerts) || !notify) {
       return;
     }
     await this.notifyService.notify(

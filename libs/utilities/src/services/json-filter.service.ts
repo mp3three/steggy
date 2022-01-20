@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { parseDate } from 'chrono-node';
+import { IsNumberString, isNumberString } from 'class-validator';
 import dayjs from 'dayjs';
 import { get } from 'object-path';
 
@@ -112,12 +114,28 @@ export class JSONFilterService {
   }
 
   private toNumber(value: RelativeCompare): number {
+    if (is.number(value)) {
+      return value;
+    }
+    if (is.string(value)) {
+      if (isNumberString(value)) {
+        return Number(value);
+      }
+      // Best guess attempt to resolve parse a date object out of this string
+      // https://github.com/wanasit/chrono
+      // Might need to break this part of the logic out if it gets more complex tho
+      value = parseDate(value);
+    }
     if (value instanceof Date) {
       return value.getTime();
     }
     if (value instanceof dayjs.Dayjs) {
       return value.toDate().getTime();
     }
+    this.logger.warn(
+      { value },
+      `Unknown value type/format, attempting to coerce to number`,
+    );
     return Number(value);
   }
 }

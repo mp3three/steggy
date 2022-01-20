@@ -6,6 +6,7 @@ import {
   IsDone,
   PromptService,
   Repl,
+  ScreenService,
   ToMenuEntry,
 } from '@text-based/tty';
 import {
@@ -13,7 +14,6 @@ import {
   GenericVersionDTO,
   InjectConfig,
   is,
-  IsEmpty,
   PackageJsonDTO,
   WorkspaceService,
 } from '@text-based/utilities';
@@ -38,6 +38,7 @@ export class DebugService {
   constructor(
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
+    private readonly screenService: ScreenService,
     private readonly workspace: WorkspaceService,
     private readonly configBuilder: ConfigBuilderService,
     @InjectConfig(CLI_PACKAGE) private readonly cliPackagePath: string,
@@ -94,7 +95,7 @@ For loop example getting entity values in the weather domain:
         return await this.exec(action);
       case 'version':
         const version = await this.fetchService.fetch({ url: `/version` });
-        this.promptService.print(dump(version));
+        this.screenService.print(dump(version));
         return await this.exec(action);
       case 'configure':
         await this.configBuilder.handleConfig();
@@ -109,7 +110,7 @@ For loop example getting entity values in the weather domain:
         const result = await this.fetchService.fetch({
           url: `/debug/hass-config`,
         });
-        this.promptService.print(dump(result));
+        this.screenService.print(dump(result));
         return await this.exec(action);
       case 'lightManagerCache':
         await this.lightManagerCache();
@@ -131,7 +132,7 @@ For loop example getting entity values in the weather domain:
     const notifications = await this.fetchService.fetch<HassNotificationDTO[]>({
       url: `/debug/notifications`,
     });
-    if (IsEmpty(notifications)) {
+    if (is.empty(notifications)) {
       return;
     }
     const item = await this.promptService.menu<HassNotificationDTO>({
@@ -162,7 +163,7 @@ For loop example getting entity values in the weather domain:
       url: `/debug/render-template`,
     })) as Response;
     const text = await rendered.text();
-    this.promptService.print(text);
+    this.screenService.print(text);
   }
 
   private async sendNotification(): Promise<void> {

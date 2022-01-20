@@ -3,13 +3,13 @@ import { LibraryModule, RegisterCache } from '@text-based/utilities';
 
 import { LIB_CONTROLLER_LOGIC } from '../config';
 import {
+  CaptureCommandService,
   CircadianService,
   EntityCommandRouterService,
   FanGroupService,
   FlashAnimationService,
   GroupService,
   KunamiCodeActivateService,
-  LatchCommandService,
   LightFlashCommandService,
   LightGroupService,
   LightManagerService,
@@ -41,7 +41,7 @@ const providers = [
     ScheduleActivateService,
     KunamiCodeActivateService,
     StateChangeActivateService,
-    LatchCommandService,
+    CaptureCommandService,
     SolarActivateService,
     RoutineService,
   ],

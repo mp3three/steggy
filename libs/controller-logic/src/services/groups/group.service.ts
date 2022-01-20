@@ -1,8 +1,12 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { domain, HASS_DOMAINS } from '@text-based/home-assistant';
 import { BaseSchemaDTO } from '@text-based/persistence';
-import { AutoLogService, is, ResultControlDTO } from '@text-based/utilities';
-import { each } from 'async';
+import {
+  AutoLogService,
+  each,
+  is,
+  ResultControlDTO,
+} from '@text-based/utilities';
 
 import type {
   GroupSaveStateDTO,
@@ -128,6 +132,20 @@ export class GroupService {
     return group;
   }
 
+  public getBaseGroup(type: GROUP_TYPES): BaseGroupService {
+    switch (type) {
+      case GROUP_TYPES.switch:
+        return this.switchGroup;
+      case GROUP_TYPES.fan:
+        return this.fanGroup;
+      case GROUP_TYPES.light:
+        return this.lightGroup;
+      case GROUP_TYPES.lock:
+        return this.lockGroup;
+    }
+    throw new NotImplementedException();
+  }
+
   public async list<GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
     control: ResultControlDTO = {},
   ): Promise<GroupDTO<GROUP_TYPE>[]> {
@@ -166,9 +184,8 @@ export class GroupService {
 
   public async turnOff(group: GroupDTO | string): Promise<void> {
     group = await this.load(group);
-    await each(group.entities, async (entity, callback) => {
+    await each(group.entities, async (entity) => {
       await this.commandRouter.process(entity, 'turnOff');
-      callback();
     });
   }
 
@@ -177,24 +194,23 @@ export class GroupService {
     circadian = false,
   ): Promise<void> {
     group = await this.load(group);
-    await each(group.entities, async (entity, callback) => {
+    await each(group.entities, async (entity) => {
       if ((group as GroupDTO).type === GROUP_TYPES.light) {
         if (domain(entity) !== HASS_DOMAINS.light) {
           await this.commandRouter.process(entity, 'turnOn');
           this.logger.warn({ entity }, `Invalid entity in light group`);
-          return callback();
+          return;
         }
         if (circadian) {
           await this.lightManager.turnOn(entity, {
             mode: LIGHTING_MODE.circadian,
           });
-          return callback();
+          return;
         }
         await this.lightManager.turnOn(entity);
-        return callback();
+        return;
       }
       await this.commandRouter.process(entity, 'turnOn');
-      callback();
     });
   }
 
@@ -219,19 +235,5 @@ export class GroupService {
     state.states = data.states;
     state.friendlyName = data.friendlyName;
     return await this.groupPersistence.update(group, group._id);
-  }
-
-  private getBaseGroup(type: GROUP_TYPES): BaseGroupService {
-    switch (type) {
-      case GROUP_TYPES.switch:
-        return this.switchGroup;
-      case GROUP_TYPES.fan:
-        return this.fanGroup;
-      case GROUP_TYPES.light:
-        return this.lightGroup;
-      case GROUP_TYPES.lock:
-        return this.lockGroup;
-    }
-    throw new NotImplementedException();
   }
 }

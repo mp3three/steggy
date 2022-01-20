@@ -13,8 +13,16 @@ import {
   SolarActivateDTO,
   StateChangeActivateDTO,
 } from '@text-based/controller-logic';
-import { ICONS, IsDone, PromptService, ToMenuEntry } from '@text-based/tty';
-import { is, IsEmpty, TitleCase } from '@text-based/utilities';
+import {
+  ApplicationManagerService,
+  ICONS,
+  IsDone,
+  PromptService,
+  ScreenService,
+  TextRenderingService,
+  ToMenuEntry,
+} from '@text-based/tty';
+import { is, TitleCase } from '@text-based/utilities';
 import chalk from 'chalk';
 import Table from 'cli-table';
 import { v4 as uuid } from 'uuid';
@@ -36,9 +44,12 @@ export class RoutineActivateService {
     private readonly stateActivate: StateChangeBuilderService,
     private readonly schduleActivate: ScheduleBuilderService,
     private readonly solarActivate: SolarBuilderService,
+    private readonly textRender: TextRenderingService,
     private readonly promptService: PromptService,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineCommand: RService,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
   ) {}
 
   public async build(
@@ -143,7 +154,8 @@ export class RoutineActivateService {
     this.header(routine);
     routine.activate ??= [];
     const action = await this.promptService.menu({
-      keyMap: { c: MENU_ITEMS.ADD, d: MENU_ITEMS.DONE },
+      item: 'activations',
+      keyMap: { a: MENU_ITEMS.ADD, d: MENU_ITEMS.DONE },
       right: ToMenuEntry(
         routine.activate.map((activate) => [activate.friendlyName, activate]),
       ),
@@ -167,16 +179,14 @@ export class RoutineActivateService {
   }
 
   private header(routine: RoutineDTO): void {
-    this.promptService.clear();
-    this.promptService.scriptHeader(`Activations`);
-    this.promptService.secondaryHeader(routine.friendlyName);
-    console.log();
-    if (IsEmpty(routine.activate)) {
-      console.log(
+    this.applicationManager.setHeader(`Activations`, routine.friendlyName);
+    this.screenService.print();
+    if (is.empty(routine.activate)) {
+      this.screenService.print(
         chalk.bold`{cyan >>> }${ICONS.EVENT}{yellow No activation events}`,
       );
     } else {
-      console.log(chalk`  {blue.bold Activation Events}`);
+      this.screenService.print(chalk`  {blue.bold Activation Events}`);
       const table = new Table({
         head: ['Name', 'Type', 'Details'],
       });
@@ -184,10 +194,10 @@ export class RoutineActivateService {
         table.push([
           activate.friendlyName,
           TitleCase(activate.type),
-          this.promptService.objectPrinter(activate.activate),
+          this.textRender.typePrinter(activate.activate),
         ]);
       });
-      console.log(table.toString());
+      this.screenService.print(table.toString());
     }
   }
 }

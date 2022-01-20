@@ -59,12 +59,13 @@ export class LightService extends SwitchService {
         state,
       };
     }
+    current.state = 'on';
     current.extra ??= {};
     current.extra.mode =
       state === 'circadian' ? LIGHTING_MODE.circadian : LIGHTING_MODE.on;
     if (
       !is.undefined(current?.extra?.brightness) ||
-      (await this.promptService.confirm(`Set brightness?`))
+      (await this.promptService.confirm(`Change brightness?`, true))
     ) {
       current.extra.brightness = await this.promptService.brightness(
         current?.extra?.brightness,

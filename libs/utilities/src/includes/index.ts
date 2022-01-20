@@ -1,3 +1,4 @@
+export * from './async';
 export * from './bootstrap';
 export * from './cache';
 export * from './config-scanner';

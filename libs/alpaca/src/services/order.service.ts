@@ -1,5 +1,5 @@
-import { CastResult } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
+import { CastResult } from '@text-based/utilities';
 
 import {
   ListOrdersOptions,
@@ -48,7 +48,7 @@ export class OrderService {
   }
 
   @CastResult(Order)
-  public async listOrders(options: ListOrdersOptions): Promise<Order[]> {
+  public async listOrders(options: ListOrdersOptions = {}): Promise<Order[]> {
     return await this.fetchService.fetch({
       params: { ...options },
       url: `/orders`,

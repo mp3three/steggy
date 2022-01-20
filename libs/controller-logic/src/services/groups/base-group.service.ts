@@ -25,6 +25,9 @@ export abstract class BaseGroupService {
   ): Promise<void>;
   public abstract getState(group: GroupDTO): Promise<RoomEntitySaveStateDTO[]>;
   public abstract isValidEntity(id: string): boolean;
+  public abstract setState<
+    EXTRA extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
+  >(entites: string[], state: RoomEntitySaveStateDTO<EXTRA>[]): Promise<void>;
 
   public async activateState(
     group: GroupDTO | string,
@@ -126,10 +129,6 @@ export abstract class BaseGroupService {
     await this.setState(group.entities, state.states);
     this.logger.debug({ id: state.id }, `Done`);
   }
-
-  protected abstract setState<
-    EXTRA extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
-  >(entites: string[], state: RoomEntitySaveStateDTO<EXTRA>[]): Promise<void>;
 
   protected async loadGroup<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,

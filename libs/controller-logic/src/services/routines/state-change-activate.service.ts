@@ -7,13 +7,12 @@ import {
 import {
   AutoLogService,
   CacheManagerService,
+  each,
   InjectCache,
   is,
-  IsEmpty,
   JSONFilterService,
   OnEvent,
 } from '@text-based/utilities';
-import { each } from 'async';
 
 import { StateChangeActivateDTO, StateChangeWatcher } from '../../contracts';
 
@@ -34,7 +33,7 @@ export class StateChangeActivateService {
   private WATCHED_ENTITIES = new Map<string, StateChangeWatcher[]>();
 
   public reset(): void {
-    if (!IsEmpty(this.WATCHED_ENTITIES)) {
+    if (!is.empty(this.WATCHED_ENTITIES)) {
       this.logger.debug(
         `[reset] Removing {${this.WATCHED_ENTITIES.size}} watched entities`,
       );
@@ -69,28 +68,24 @@ export class StateChangeActivateService {
       );
       return;
     }
-    await each(
-      this.WATCHED_ENTITIES.get(data.entity_id),
-      async (item, callback) => {
-        let valid = this.jsonFilter.match(
-          { value: data.new_state.state },
-          {
-            field: 'value',
-            operation: item.operation,
-            value: item.value,
-          },
-        );
-        if (await this.blockLatched(item, valid)) {
-          this.logger.debug(`${this.description(item)} currently latched`);
-          return callback();
-        }
-        valid = await this.debounce(item, valid);
-        if (valid) {
-          await item.callback();
-        }
-        callback();
-      },
-    );
+    await each(this.WATCHED_ENTITIES.get(data.entity_id), async (item) => {
+      let valid = this.jsonFilter.match(
+        { value: data.new_state.state },
+        {
+          field: 'value',
+          operation: item.operation,
+          value: item.value,
+        },
+      );
+      if (await this.blockLatched(item, valid)) {
+        this.logger.debug(`${this.description(item)} currently latched`);
+        return;
+      }
+      valid = await this.debounce(item, valid);
+      if (valid) {
+        await item.callback();
+      }
+    });
   }
 
   private async blockLatched(

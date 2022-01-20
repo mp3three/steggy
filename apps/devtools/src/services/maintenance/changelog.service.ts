@@ -7,11 +7,11 @@ import {
 } from '@text-based/tty';
 import {
   AutoLogService,
-  IsEmpty,
+  eachSeries,
+  is,
   TitleCase,
   WorkspaceService,
 } from '@text-based/utilities';
-import { eachSeries } from 'async';
 import Table from 'cli-table';
 import execa from 'execa';
 import { inc } from 'semver';
@@ -35,7 +35,7 @@ export class ChangelogService implements iRepl {
 
   public async exec(): Promise<void> {
     const affected = await this.listAffected();
-    if (IsEmpty(affected)) {
+    if (is.empty(affected)) {
       this.logger.warn(`NX reports 0 affected projects`);
       return;
     }
@@ -77,7 +77,7 @@ export class ChangelogService implements iRepl {
       'Projects to version bump',
       affected.map((i) => [TitleCase(i), i]),
     );
-    if (IsEmpty(values)) {
+    if (is.empty(values)) {
       const proceed = await this.promptService.confirm(
         `Nothing selected, continue?`,
       );

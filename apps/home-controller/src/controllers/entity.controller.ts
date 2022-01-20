@@ -28,18 +28,18 @@ import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
 } from '@text-based/server';
-import { AutoLogService } from '@text-based/utilities';
+import { AutoLogService, is } from '@text-based/utilities';
 
 @ApiTags('entity')
 @Controller('/entity')
 @AuthStack()
 export class EntityController {
   constructor(
-    private readonly logger: AutoLogService,
-    private readonly entityManager: EntityManagerService,
     private readonly commandRouter: EntityCommandRouterService,
-    private readonly lightManager: LightManagerService,
+    private readonly entityManager: EntityManagerService,
     private readonly fetchAPI: HomeAssistantFetchAPIService,
+    private readonly lightManager: LightManagerService,
+    private readonly logger: AutoLogService,
   ) {}
 
   @Put('/update-id/:id')
@@ -81,7 +81,11 @@ export class EntityController {
   public async getEntityState(
     @Param('entityId') entityId: string,
   ): Promise<HassStateDTO> {
-    return await this.entityManager.getEntity(entityId);
+    const out = await this.entityManager.getEntity(entityId);
+    if (!out) {
+      throw new NotFoundException();
+    }
+    return out;
   }
 
   @Post('/history/:entityId')
