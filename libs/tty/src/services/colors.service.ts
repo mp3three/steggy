@@ -1,7 +1,6 @@
 /* This file is full of ported code */
 /* eslint-disable @typescript-eslint/no-magic-numbers, unicorn/no-nested-ternary */
 import { Injectable } from '@nestjs/common';
-import chalk from 'chalk';
 
 import { PromptService } from './prompt.service';
 
