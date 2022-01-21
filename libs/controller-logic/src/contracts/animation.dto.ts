@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class FlashAnimationDTO {
+export abstract class FlashAnimationDTO {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsNumber()
   public brightness?: number;
   @ApiProperty()
   @IsNumber()
-  public duration: number;
+  public duration?: number;
   @ApiProperty()
   @IsString()
   public entity_id: string;
