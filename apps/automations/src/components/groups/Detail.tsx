@@ -1,18 +1,20 @@
 import { List, Typography } from 'antd';
+import PropTypes from 'prop-types';
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams, withRouter } from 'react-router-dom';
 
 import { DOWN, GroupDTO, is, sendRequest, TitleCase, UP } from '../../types';
 
 const { Title } = Typography;
 
-export class GroupList extends React.Component {
+class GroupDetailComponent extends React.Component {
   override state: { groups: GroupDTO[] } = {
     groups: [],
   };
 
   override async componentDidMount(): Promise<void> {
-    const groups = await sendRequest<GroupDTO[]>(`/group`);
+    const { id } = useParams<{ id: string }>();
+    const groups = await sendRequest<GroupDTO[]>(`/group/${id}`);
     this.setState({ groups });
   }
 
@@ -46,3 +48,4 @@ export class GroupList extends React.Component {
     }));
   }
 }
+export const GroupDetail = withRouter(GroupDetailComponent);

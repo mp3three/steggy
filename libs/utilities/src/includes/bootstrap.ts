@@ -60,7 +60,10 @@ export async function Bootstrap(
   let app: INestApplication;
   if (http) {
     server = express();
-    app = await NestFactory.create(module, new ExpressAdapter(server), options);
+    app = await NestFactory.create(module, new ExpressAdapter(server), {
+      ...options,
+      cors: true,
+    });
   } else {
     app = await NestFactory.create(module, options);
   }
@@ -72,7 +75,7 @@ export async function Bootstrap(
   if (noGlobalError !== true) {
     preInit.push(GlobalErrorInit);
   }
-  await eachSeries(preInit, async (item) => {
+  await eachSeries(preInit, async item => {
     await item(app, server, bootOptions);
   });
   await lifecycle.preInit(app, { options: bootOptions, server });
@@ -82,7 +85,7 @@ export async function Bootstrap(
   await app.init();
   // onPostInit
   postInit ??= [];
-  await eachSeries(postInit, async (item) => {
+  await eachSeries(postInit, async item => {
     await item(app, server, bootOptions);
   });
   await lifecycle.postInit(app, { options: bootOptions, server });

@@ -2,10 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 
 import { LIGHTING_MODE } from '../rooms';
-// enum LIGHTING_MODE {
-//   circadian = 'circadian',
-//   on = 'on',
-// }
+
 export enum LightingCacheMode {
   /**
    * Circadian lighting controller owns the logic for this device currently

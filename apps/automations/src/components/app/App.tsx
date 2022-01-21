@@ -1,11 +1,12 @@
-import { Breadcrumb, Layout, Typography } from 'antd';
+import { Layout, Typography } from 'antd';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 
 import { store } from '../../store';
 import { Foot } from '../footer';
-import { GroupList } from '../groups';
+import { GroupDetail, GroupList } from '../groups';
+import { HomePage } from '../home';
 import { ApplicationMenu } from '../menu';
 
 const { Title } = Typography;
@@ -26,23 +27,17 @@ export class App extends React.Component {
       <Provider store={store}>
         <Layout style={{ minHeight: '100vh' }}>
           <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
-            <div className="logo" />
             <ApplicationMenu />
           </Sider>
-
           <Layout className="site-layout">
             <Header>
               <Title>Automation Controller</Title>
             </Header>
-            <Content style={{ margin: '0 16px' }}>
+            <Content style={{ margin: '16px' }}>
               <Switch>
+                <Route path="/group/:id" component={GroupDetail} />
                 <Route path="/groups" component={GroupList} />
-                <Route path="/">
-                  <Breadcrumb style={{ margin: '16px 0' }}>
-                    <Breadcrumb.Item>User</Breadcrumb.Item>
-                    <Breadcrumb.Item>Bill</Breadcrumb.Item>
-                  </Breadcrumb>
-                </Route>
+                <Route path="/" component={HomePage} />
               </Switch>
             </Content>
             <Foot />

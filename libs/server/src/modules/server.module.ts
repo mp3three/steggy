@@ -8,12 +8,10 @@ import {
   AutoLogService,
   BootstrapOptions,
   InjectConfig,
-  is,
   LibraryModule,
 } from '@text-based/utilities';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import cors from 'cors';
 import csurf from 'csurf';
 import { Express, json } from 'express';
 import { readFileSync } from 'fs';
@@ -105,10 +103,6 @@ export class ServerModule {
     if (this.compression) {
       this.logger.debug(`Using [compression] middleware`);
       app.use(compression());
-    }
-    if (!is.empty(this.cors)) {
-      this.logger.debug(`[CORS] origin {${this.cors}}`);
-      app.use(cors({ origin: this.cors }));
     }
     const listening = this.listenHttp(server);
     if (this.sslPort) {
