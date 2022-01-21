@@ -1,4 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
 import {
@@ -25,36 +24,27 @@ export class EntityListItemDTO {
 }
 
 export class DeviceListItemDTO {
-  @ApiProperty()
   @IsString()
   public area_id: string;
-  @ApiProperty()
   @IsString({ each: true })
   public config_entries: string[];
-  @ApiProperty()
   public connections: string[][];
   @IsString()
   public disabled_by: null;
   @IsString()
   public entry_type: null;
-  @ApiProperty()
   @IsString()
   public id: string;
-  @ApiProperty()
   @IsString({ each: true })
   public identifiers: string[];
-  @ApiProperty()
   @IsString()
   public manufacturer: string;
-  @ApiProperty()
   @IsString()
   public model: string;
-  @ApiProperty()
   @IsString()
   public name: string;
   @IsString()
   public name_by_user: null;
-  @ApiProperty()
   @IsString()
   public sw_version: string;
   @IsString()

@@ -5,9 +5,12 @@ import {
   FetchService,
   InjectConfig,
 } from '@text-based/boilerplate';
+import {
+  HassStateDTO,
+  HomeAssistantServerLogItem,
+} from '@text-based/home-assistant-shared';
 
 import { BASE_URL, TOKEN } from '../config';
-import { HassStateDTO, HomeAssistantServerLogItem } from '../contracts';
 
 const TIMESTAMP_OFFSET = 1000;
 

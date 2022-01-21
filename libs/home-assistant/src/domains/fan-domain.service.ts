@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@text-based/boilerplate';
+import {
+  FanSpeeds,
+  FanStateDTO,
+  HASS_DOMAINS,
+} from '@text-based/home-assistant-shared';
 import { ARRAY_OFFSET } from '@text-based/utilities';
 
-import { FanSpeeds, FanStateDTO, HASS_DOMAINS } from '../contracts';
 import { EntityManagerService, HACallService } from '../services';
 
 const availableSpeeds = [

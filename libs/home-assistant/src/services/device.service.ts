@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService, is } from '@text-based/utilities';
-
+import { AutoLogService } from '@text-based/boilerplate';
 import {
   DeviceListItemDTO,
   HASSIO_WS_COMMAND,
   RelatedDescriptionDTO,
-} from '../contracts';
+} from '@text-based/home-assistant-shared';
+import { is } from '@text-based/utilities';
+
 import { EntityManagerService } from './entity-manager.service';
 import { HASocketAPIService } from './ha-socket-api.service';
 

@@ -1,9 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { AutoLogService, OnEvent } from '@text-based/boilerplate';
-import { sleep } from '@text-based/utilities';
-import EventEmitter from 'eventemitter3';
-import { Observable, Subscriber } from 'rxjs';
-
 import {
   ALL_ENTITIES_UPDATED,
   CapbilityList,
@@ -15,7 +11,11 @@ import {
   HassEventDTO,
   HASSIO_WS_COMMAND,
   HassStateDTO,
-} from '../contracts';
+} from '@text-based/home-assistant-shared';
+import { sleep } from '@text-based/utilities';
+import EventEmitter from 'eventemitter3';
+import { Observable, Subscriber } from 'rxjs';
+
 import { HASocketAPIService } from './ha-socket-api.service';
 
 const ONE_SECOND = 1000;

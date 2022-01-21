@@ -1,21 +1,21 @@
 {
-  "root": "libs/utilities",
-  "sourceRoot": "libs/utilities/src",
+  "root": "libs/boilerplate",
+  "sourceRoot": "libs/boilerplate/src",
   "projectType": "library",
   "targets": {
     "build": {
       "executor": "@nrwl/node:package",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/utilities",
-        "tsConfig": "libs/utilities/tsconfig.lib.json",
-        "packageJson": "libs/utilities/package.json",
+        "outputPath": "dist/libs/boilerplate",
+        "tsConfig": "libs/boilerplate/tsconfig.lib.json",
+        "packageJson": "libs/boilerplate/package.json",
         "buildableProjectDepsInPackageJsonType": "peerDependencies",
         "updateBuildableProjectDepsInPackageJson": true,
-        "main": "libs/utilities/src/index.ts",
+        "main": "libs/boilerplate/src/index.ts",
         "assets": [
-          "libs/utilities/metadata.json",
-          "libs/utilities/package.json"
+          "libs/boilerplate/metadata.json",
+          "libs/boilerplate/package.json"
         ]
       },
       "configurations": {
@@ -31,7 +31,7 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["libs/utilities/**/*.ts"]
+        "lintFilePatterns": ["libs/boilerplate/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
     },
@@ -41,7 +41,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga Utilities",
+            "command": "npx figlet-cli -f Pagga Boilerplate       ",
             "description": "Announce it"
           },
           {
@@ -49,7 +49,7 @@
             "description": "Create production optimized build"
           },
           {
-            "command": "yarn publish --cwd dist/libs/utilities --non-interactive",
+            "command": "yarn publish --cwd dist/libs/boilerplate --non-interactive",
             "description": "Publish it"
           }
         ]

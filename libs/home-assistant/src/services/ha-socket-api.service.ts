@@ -7,6 +7,23 @@ import {
   InjectConfig,
   InjectLogger,
 } from '@text-based/boilerplate';
+import {
+  ALL_ENTITIES_UPDATED,
+  AreaDTO,
+  CONNECTION_RESET,
+  DeviceListItemDTO,
+  EntityListItemDTO,
+  HA_EVENT_STATE_CHANGE,
+  HA_SOCKET_READY,
+  HassConfig,
+  HassEvents,
+  HASSIO_WS_COMMAND,
+  HassNotificationDTO,
+  HassSocketMessageTypes,
+  HassStateDTO,
+  SOCKET_MESSAGES,
+  SocketMessageDTO,
+} from '@text-based/home-assistant-shared';
 import { CronExpression, is, sleep } from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 import WS from 'ws';
@@ -20,27 +37,6 @@ import {
   WARN_REQUESTS_PER_SEC,
   WEBSOCKET_URL,
 } from '../config';
-import type {
-  HassConfig,
-  HassNotificationDTO,
-  SOCKET_MESSAGES,
-} from '../contracts';
-import {
-  ALL_ENTITIES_UPDATED,
-  AreaDTO,
-  CONNECTION_RESET,
-  DeviceListItemDTO,
-  EntityListItemDTO,
-  HA_EVENT_STATE_CHANGE,
-  HA_SOCKET_READY,
-  HassStateDTO,
-  SocketMessageDTO,
-} from '../contracts';
-import {
-  HassEvents,
-  HASSIO_WS_COMMAND,
-  HassSocketMessageTypes,
-} from '../contracts/enums';
 
 const STARTING_COUNTER_ID = 0;
 const SECOND = 1000;

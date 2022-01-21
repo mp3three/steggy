@@ -1,0 +1,59 @@
+{
+  "root": "libs/home-assistant-shared",
+  "sourceRoot": "libs/home-assistant-shared/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["libs/home-assistant-shared/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga Home Assistant Shared",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build home-assistant --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn publish --cwd dist/libs/home-assistant-shared --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/home-assistant-shared",
+        "tsConfig": "libs/home-assistant-shared/tsconfig.lib.json",
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "packageJson": "libs/home-assistant-shared/package.json",
+        "main": "libs/home-assistant-shared/src/index.ts",
+        "assets": [
+          "libs/home-assistant-shared/*.md",
+          "libs/home-assistant-shared/metadata.json",
+          "libs/home-assistant-shared/package.json"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "fileReplacements": []
+        }
+      }
+    }
+  },
+  "tags": ["nestjs"]
+}

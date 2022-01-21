@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@text-based/boilerplate';
+import { HASS_DOMAINS } from '@text-based/home-assistant-shared';
 import { is } from '@text-based/utilities';
 
-import { HASS_DOMAINS } from '../contracts';
 import { EntityService, HACallService } from '../services';
 
 /**
