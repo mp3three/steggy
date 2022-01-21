@@ -8,12 +8,12 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { RoomService } from '@text-based/controller-logic';
 import {
   RoomDTO,
   RoomEntityDTO,
-  RoomService,
   RoomStateDTO,
-} from '@text-based/controller-logic';
+} from '@text-based/controller-shared';
 import { BaseSchemaDTO } from '@text-based/persistence';
 import {
   ApiGenericResponse,

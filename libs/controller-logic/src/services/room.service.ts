@@ -1,10 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { AutoLogService } from '@text-based/boilerplate';
-import { domain } from '@text-based/home-assistant';
-import { BaseSchemaDTO } from '@text-based/persistence';
-import { each, is, ResultControlDTO } from '@text-based/utilities';
-import { v4 as uuid } from 'uuid';
-
 import {
   EntityFilters,
   GroupDTO,
@@ -12,7 +7,12 @@ import {
   RoomEntityDTO,
   RoomStateDTO,
   RoutineCommandRoomStateDTO,
-} from '../contracts';
+} from '@text-based/controller-shared';
+import { domain } from '@text-based/home-assistant-shared';
+import { BaseSchemaDTO } from '@text-based/persistence';
+import { each, is, ResultControlDTO } from '@text-based/utilities';
+import { v4 as uuid } from 'uuid';
+
 import { EntityCommandRouterService } from './entity-command-router.service';
 import { GroupService } from './groups';
 import { RoomPersistenceService } from './persistence';

@@ -1,8 +1,7 @@
 import { Inject, Provider } from '@nestjs/common';
+import { ROOM_CONTROLLER_SETTINGS } from '@text-based/controller-shared';
 import { ClassConstructor } from 'class-transformer';
 import { v4 } from 'uuid';
-
-import { ROOM_CONTROLLER_SETTINGS } from '../contracts';
 
 export const InjectedSettings = new Set<Provider>();
 export function InjectControllerSettings(

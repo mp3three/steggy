@@ -1,16 +1,20 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { AutoLogService } from '@text-based/boilerplate';
-import { domain, HASS_DOMAINS } from '@text-based/home-assistant';
-import { BaseSchemaDTO } from '@text-based/persistence';
-import { each, is, ResultControlDTO } from '@text-based/utilities';
-
 import type {
   GroupSaveStateDTO,
   ROOM_ENTITY_EXTRAS,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
-} from '../../contracts';
-import { GROUP_TYPES, GroupDTO, LIGHTING_MODE } from '../../contracts';
+} from '@text-based/controller-shared';
+import {
+  GROUP_TYPES,
+  GroupDTO,
+  LIGHTING_MODE,
+} from '@text-based/controller-shared';
+import { domain, HASS_DOMAINS } from '@text-based/home-assistant-shared';
+import { BaseSchemaDTO } from '@text-based/persistence';
+import { each, is, ResultControlDTO } from '@text-based/utilities';
+
 import { EntityCommandRouterService } from '../entity-command-router.service';
 import { LightManagerService } from '../lighting';
 import { GroupPersistenceService } from '../persistence';

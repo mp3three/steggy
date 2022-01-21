@@ -14,6 +14,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { RoutineService } from '@text-based/controller-logic';
 import {
   KunamiCodeActivateDTO,
   RoomEntitySaveStateDTO,
@@ -24,11 +25,10 @@ import {
   RoutineCommandSendNotificationDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
-  RoutineService,
   ScheduleActivateDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
-} from '@text-based/controller-logic';
+} from '@text-based/controller-shared';
 import {
   ApiGenericResponse,
   AuthStack,

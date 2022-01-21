@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@text-based/boilerplate';
+import { RoutineCommandSendNotificationDTO } from '@text-based/controller-shared';
 import {
   HASocketAPIService,
   NotifyDomainService,
 } from '@text-based/home-assistant';
-
-import { RoutineCommandSendNotificationDTO } from '../../contracts';
 
 @Injectable()
 export class SendNotificationService {

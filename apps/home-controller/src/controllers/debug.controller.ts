@@ -1,18 +1,22 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
-  LIGHTING_CACHE_SCHEMA,
-  LightingCacheDTO,
   LightManagerService,
   SolarCalcService,
 } from '@text-based/controller-logic';
 import {
+  LIGHTING_CACHE_SCHEMA,
+  LightingCacheDTO,
+} from '@text-based/controller-shared';
+import {
   HACallService,
   HASocketAPIService,
-  HassConfig,
-  HassNotificationDTO,
   NotifyDomainService,
 } from '@text-based/home-assistant';
+import {
+  HassConfig,
+  HassNotificationDTO,
+} from '@text-based/home-assistant-shared';
 import {
   ApiGenericResponse,
   AuthStack,
@@ -46,7 +50,7 @@ export class DebugController {
     const lights = await this.lightManger.getActiveLights();
     const out: Record<string, LightingCacheDTO> = {};
     await Promise.all(
-      lights.map(async (id) => (out[id] = await this.lightManger.getState(id))),
+      lights.map(async id => (out[id] = await this.lightManger.getState(id))),
     );
     return out;
   }

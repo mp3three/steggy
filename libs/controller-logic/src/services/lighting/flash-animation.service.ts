@@ -1,21 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import {
-  EntityManagerService,
-  LightStateDTO,
-} from '@text-based/home-assistant';
-import {
-  AutoLogService,
-  eachSeries,
-  is,
-  PEAT,
-  sleep,
-} from '@text-based/utilities';
-
+import { AutoLogService } from '@text-based/boilerplate';
 import {
   FlashAnimationDTO,
   LIGHTING_MODE,
   LightingCacheDTO,
-} from '../../contracts';
+} from '@text-based/controller-shared';
+import { EntityManagerService } from '@text-based/home-assistant';
+import { LightStateDTO } from '@text-based/home-assistant-shared';
+import { eachSeries, is, PEAT, sleep } from '@text-based/utilities';
+
 import { LightManagerService } from './light-manager.service';
 
 const HALF = 2;
@@ -46,7 +39,7 @@ export class FlashAnimationService {
     if (!is.string(animation.rgb_color)) {
       this.colorFlash(entity, animation, frames);
     }
-    await eachSeries(frames, async (state) => {
+    await eachSeries(frames, async state => {
       this.logger.debug({ state }, animation.entity_id);
       // Merge together timeouts
       // Doing them consectively will throw off total timing
@@ -70,12 +63,12 @@ export class FlashAnimationService {
     let current = entity?.attributes?.brightness ?? OFF;
     const distance = animation.brightness - current;
     const delta = distance / reverse;
-    frames.slice(START, reverse).forEach((i) => {
+    frames.slice(START, reverse).forEach(i => {
       current = current + delta;
       i.brightness = Math.floor(current);
     });
     current = animation.brightness;
-    frames.slice(reverse).forEach((i) => {
+    frames.slice(reverse).forEach(i => {
       current = current - delta;
       i.brightness = Math.floor(current);
     });
@@ -96,7 +89,7 @@ export class FlashAnimationService {
     const bDelta = bDistance / reverse;
     const gDelta = gDistance / reverse;
     const rDelta = rDistance / reverse;
-    frames.slice(START, reverse).forEach((i) => {
+    frames.slice(START, reverse).forEach(i => {
       b = b + bDelta;
       g = g + gDelta;
       r = r + rDelta;
@@ -105,7 +98,7 @@ export class FlashAnimationService {
     r = targetR;
     g = targetG;
     b = targetB;
-    frames.slice(reverse).forEach((i) => {
+    frames.slice(reverse).forEach(i => {
       b = b - bDelta;
       g = g - gDelta;
       r = r - rDelta;

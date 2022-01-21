@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { FanSpeeds } from '@text-based/home-assistant';
+import { FanSpeeds } from '@text-based/home-assistant-shared';
 import { IsString } from 'class-validator';
 
 export type FanCacheSpeeds = FanSpeeds | 'fanSpeedUp' | 'fanSpeedDown';

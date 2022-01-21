@@ -1,4 +1,4 @@
-import { RoomCommandScope } from '../contracts';
+import { RoomCommandScope } from '@text-based/controller-shared';
 
 const MAX = 3;
 const START = 0;

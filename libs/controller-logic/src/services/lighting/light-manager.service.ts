@@ -7,6 +7,12 @@ import {
   InjectLogger,
 } from '@text-based/boilerplate';
 import {
+  CIRCADIAN_UPDATE,
+  LIGHTING_MODE,
+  LightingCacheDTO,
+  RoomCommandDTO,
+} from '@text-based/controller-shared';
+import {
   HomeAssistantCoreService,
   LightDomainService,
 } from '@text-based/home-assistant';
@@ -14,12 +20,6 @@ import { each, INVERT_VALUE, is } from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 
 import { MIN_BRIGHTNESS } from '../../config';
-import {
-  CIRCADIAN_UPDATE,
-  LIGHTING_MODE,
-  LightingCacheDTO,
-  RoomCommandDTO,
-} from '../../contracts';
 import { CircadianService } from './circadian.service';
 
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';

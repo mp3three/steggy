@@ -3,10 +3,12 @@ import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { AutoLogService } from '@text-based/boilerplate';
 import {
   HACallService,
-  HASS_DOMAINS,
   HomeAssistantFetchAPIService,
-  HomeAssistantServerLogItem,
 } from '@text-based/home-assistant';
+import {
+  HASS_DOMAINS,
+  HomeAssistantServerLogItem,
+} from '@text-based/home-assistant-shared';
 import {
   ApiGenericResponse,
   AuthStack,

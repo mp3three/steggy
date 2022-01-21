@@ -12,18 +12,22 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AutoLogService } from '@text-based/boilerplate';
 import {
   EntityCommandRouterService,
-  EntityHistoryRequest,
-  LightingCacheDTO,
   LightManagerService,
 } from '@text-based/controller-logic';
 import {
-  domain,
+  EntityHistoryRequest,
+  LightingCacheDTO,
+} from '@text-based/controller-shared';
+import {
   EntityManagerService,
+  HomeAssistantFetchAPIService,
+} from '@text-based/home-assistant';
+import {
+  domain,
   EntityRegistryItemDTO,
   HASS_DOMAINS,
   HassStateDTO,
-  HomeAssistantFetchAPIService,
-} from '@text-based/home-assistant';
+} from '@text-based/home-assistant-shared';
 import {
   ApiGenericResponse,
   AuthStack,

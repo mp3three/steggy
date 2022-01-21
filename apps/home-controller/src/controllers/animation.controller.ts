@@ -1,9 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  FlashAnimationDTO,
-  FlashAnimationService,
-} from '@text-based/controller-logic';
+import { FlashAnimationService } from '@text-based/controller-logic';
+import { FlashAnimationDTO } from '@text-based/controller-shared';
 import {
   ApiGenericResponse,
   AuthStack,

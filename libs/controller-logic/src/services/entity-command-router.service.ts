@@ -4,20 +4,25 @@ import {
   NotImplementedException,
 } from '@nestjs/common';
 import { AutoLogService } from '@text-based/boilerplate';
+import type {
+  ROOM_ENTITY_EXTRAS,
+  RoomEntitySaveStateDTO,
+} from '@text-based/controller-shared';
+import { ClimateCacheDTO, FanCacheDTO } from '@text-based/controller-shared';
 import {
   ClimateDomainService,
-  domain,
   FanDomainService,
-  FanSpeeds,
-  HASS_DOMAINS,
   HomeAssistantFetchAPIService,
   LockDomainService,
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@text-based/home-assistant';
+import {
+  domain,
+  FanSpeeds,
+  HASS_DOMAINS,
+} from '@text-based/home-assistant-shared';
 
-import type { ROOM_ENTITY_EXTRAS, RoomEntitySaveStateDTO } from '../contracts';
-import { ClimateCacheDTO, FanCacheDTO } from '../contracts';
 import { LightManagerService } from './lighting';
 
 @Injectable()

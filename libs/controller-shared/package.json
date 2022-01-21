@@ -4,8 +4,8 @@
     "name": "Cameron Contour",
     "url": "https://github.com/ccontour/text-based"
   },
-  "name": "@text-based/home-assistant-shared",
-  "displayName": "Home Assistant Shared",
+  "name": "@text-based/controller-logic-shared",
+  "displayName": "Controller Logic Shared",
   "license": "MIT",
   "version": "0.5.17",
   "homepage": "https://github.com/ccontour/text-based",

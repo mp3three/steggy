@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { AutoLogService } from '@text-based/boilerplate';
+import { RoutineCommandTriggerRoutineDTO } from '@text-based/controller-shared';
 
-import { RoutineCommandTriggerRoutineDTO } from '../../contracts';
 import { RoutineService } from '../routines';
 
 @Injectable()

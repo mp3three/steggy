@@ -7,13 +7,15 @@ import {
   OnEvent,
 } from '@text-based/boilerplate';
 import {
-  EntityManagerService,
+  StateChangeActivateDTO,
+  StateChangeWatcher,
+} from '@text-based/controller-shared';
+import { EntityManagerService } from '@text-based/home-assistant';
+import {
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
-} from '@text-based/home-assistant';
+} from '@text-based/home-assistant-shared';
 import { each, is } from '@text-based/utilities';
-
-import { StateChangeActivateDTO, StateChangeWatcher } from '../../contracts';
 
 const LATCH_KEY = (id: string) => `STATE_LATCH:${id}`;
 const DEBOUNCE_KEY = (id: string) => `STATE_DEBOUNCE:${id}`;

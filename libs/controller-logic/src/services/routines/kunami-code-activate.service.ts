@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService, InjectConfig, OnEvent } from '@text-based/boilerplate';
 import {
-  EntityManagerService,
-  HA_EVENT_STATE_CHANGE,
-  HassEventDTO,
-} from '@text-based/home-assistant';
-import { each, is } from '@text-based/utilities';
-
-import { KUNAMI_TIMEOUT } from '../../config';
-import {
   KunamiCodeActivateDTO,
   KunamiSensorEvent,
   KunamiWatcher,
-} from '../../contracts';
+} from '@text-based/controller-shared';
+import { EntityManagerService } from '@text-based/home-assistant';
+import {
+  HA_EVENT_STATE_CHANGE,
+  HassEventDTO,
+} from '@text-based/home-assistant-shared';
+import { each, is } from '@text-based/utilities';
+
+import { KUNAMI_TIMEOUT } from '../../config';
 import { RoomService } from '../room.service';
 
 @Injectable()

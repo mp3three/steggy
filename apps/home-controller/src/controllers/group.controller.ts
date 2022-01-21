@@ -8,16 +8,13 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { GroupService } from '@text-based/controller-logic';
 import {
   ENTITY_EXTRAS_SCHEMA,
   GENERIC_COMMANDS,
   ROOM_ENTITY_EXTRAS,
-} from '@text-based/controller-logic';
-import {
-  GroupDTO,
-  GroupSaveStateDTO,
-  GroupService,
-} from '@text-based/controller-logic';
+} from '@text-based/controller-shared';
+import { GroupDTO, GroupSaveStateDTO } from '@text-based/controller-shared';
 import { BaseSchemaDTO } from '@text-based/persistence';
 import {
   ApiGenericResponse,

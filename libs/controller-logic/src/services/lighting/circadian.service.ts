@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Cron, InjectConfig } from '@text-based/boilerplate';
+import { CIRCADIAN_UPDATE } from '@text-based/controller-shared';
 import { CronExpression } from '@text-based/utilities';
 import dayjs from 'dayjs';
 import EventEmitter from 'eventemitter3';
 
 import { CIRCADIAN_MAX_TEMP, CIRCADIAN_MIN_TEMP } from '../../config';
-import { CIRCADIAN_UPDATE } from '../../contracts';
 import { SolarCalcService } from './solar-calc.service';
 
 const MIN = 0;

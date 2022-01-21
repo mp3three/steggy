@@ -4,14 +4,14 @@ import {
   CacheManagerService,
   InjectCache,
 } from '@text-based/boilerplate';
-import { each } from '@text-based/utilities';
-
 import {
   RoomEntitySaveStateDTO,
   RoutineCaptureCommandDTO,
   RoutineCaptureData,
   RoutineDTO,
-} from '../../contracts';
+} from '@text-based/controller-shared';
+import { each } from '@text-based/utilities';
+
 import { GroupService } from '../groups';
 
 @Injectable()

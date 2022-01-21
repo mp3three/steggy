@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@text-based/boilerplate';
+import { RountineCommandLightFlashDTO } from '@text-based/controller-shared';
 import { each } from '@text-based/utilities';
 
-import { RountineCommandLightFlashDTO } from '../../contracts';
 import { GroupService } from '../groups';
 import { FlashAnimationService } from '../lighting';
 

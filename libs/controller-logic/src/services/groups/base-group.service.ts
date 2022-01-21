@@ -1,15 +1,19 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { AutoLogService } from '@text-based/boilerplate';
-import { is } from '@text-based/utilities';
-import { plainToInstance } from 'class-transformer';
-import { v4 as uuid } from 'uuid';
-
 import type {
   GroupCommandDTO,
   ROOM_ENTITY_EXTRAS,
   RoomEntitySaveStateDTO,
-} from '../../contracts';
-import { GROUP_TYPES, GroupDTO, GroupSaveStateDTO } from '../../contracts';
+} from '@text-based/controller-shared';
+import {
+  GROUP_TYPES,
+  GroupDTO,
+  GroupSaveStateDTO,
+} from '@text-based/controller-shared';
+import { is } from '@text-based/utilities';
+import { plainToInstance } from 'class-transformer';
+import { v4 as uuid } from 'uuid';
+
 import { GroupPersistenceService } from '../persistence';
 
 const EXPECTED_REMOVE_AMOUNT = 1;

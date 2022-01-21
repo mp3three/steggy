@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
-
 import {
   ROOM_CONTROLLER_SETTINGS,
   RoomCommandDTO,
   RoomCommandScope,
   RoomControllerSettingsDTO,
-} from '../contracts';
+} from '@text-based/controller-shared';
 
 @Injectable()
 export class BaseRoomService {

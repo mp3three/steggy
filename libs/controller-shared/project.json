@@ -1,0 +1,59 @@
+{
+  "root": "libs/controller-logic-shared",
+  "sourceRoot": "libs/controller-logic-shared/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/controller-logic-shared",
+        "tsConfig": "libs/controller-logic-shared/tsconfig.lib.json",
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "packageJson": "libs/controller-logic-shared/package.json",
+        "main": "libs/controller-logic-shared/src/index.ts",
+        "assets": [
+          "libs/controller-logic-shared/*.md",
+          "libs/controller-logic-shared/metadata.json",
+          "libs/controller-logic-shared/package.json"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "fileReplacements": []
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["libs/controller-logic-shared/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga Controller Logic Shared",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build controller-logic --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn publish --cwd dist/libs/controller-logic-shared --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    }
+  },
+  "tags": ["shared"]
+}

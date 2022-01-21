@@ -1,9 +1,6 @@
 import { DynamicModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LibraryModule } from '@text-based/boilerplate';
-import { MongoPersistenceModule } from '@text-based/persistence';
-
-import { LIB_CONTROLLER_LOGIC } from '../config';
 import {
   GroupDTO,
   GroupSchema,
@@ -11,7 +8,10 @@ import {
   RoomSchema,
   RoutineDTO,
   RoutineSchema,
-} from '../contracts';
+} from '@text-based/controller-shared';
+import { MongoPersistenceModule } from '@text-based/persistence';
+
+import { LIB_CONTROLLER_LOGIC } from '../config';
 import { DatabaseConnectService } from '../services';
 import {
   GroupPersistenceService,

@@ -3,7 +3,7 @@ import { EmitAfter } from '@text-based/boilerplate';
 import {
   iRoomControllerMethods,
   ROOM_COMMAND,
-} from '@text-based/controller-logic';
+} from '@text-based/controller-shared';
 
 export function RelayCommand(
   rooms: string[] | '*',
