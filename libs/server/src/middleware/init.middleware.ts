@@ -1,14 +1,16 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import {
   AutoLogService,
+  HTTP_METHODS,
+  InjectConfig,
+  storage,
+} from '@text-based/boilerplate';
+import {
   buildFilter,
   FilterDTO,
   FilterValueType,
-  HTTP_METHODS,
-  InjectConfig,
   is,
   queryToControl,
-  storage,
 } from '@text-based/utilities';
 import { NextFunction } from 'express';
 import pino from 'pino';
@@ -100,7 +102,7 @@ export class InitMiddleware implements NestMiddleware {
         JSON.parse(headers.get(QUERY_HEADER));
       Object.entries(query).forEach(([key, value]) => {
         let found: FilterDTO;
-        filters.forEach((filter) => {
+        filters.forEach(filter => {
           if (filter.field === key) {
             found = filter;
           }

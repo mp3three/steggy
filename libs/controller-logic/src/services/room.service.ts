@@ -1,12 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { AutoLogService } from '@text-based/boilerplate';
 import { domain } from '@text-based/home-assistant';
 import { BaseSchemaDTO } from '@text-based/persistence';
-import {
-  AutoLogService,
-  each,
-  is,
-  ResultControlDTO,
-} from '@text-based/utilities';
+import { each, is, ResultControlDTO } from '@text-based/utilities';
 import { v4 as uuid } from 'uuid';
 
 import {
@@ -40,7 +36,7 @@ export class RoomService {
     }
     this.logger.info(`[${room.friendlyName}] activate {${state.friendlyName}}`);
     await Promise.all([
-      await each(state.states, async (state) => {
+      await each(state.states, async state => {
         if (state.type !== 'entity') {
           return;
         }
@@ -50,7 +46,7 @@ export class RoomService {
           state.extra as Record<string, unknown>,
         );
       }),
-      await each(state.states, async (state) => {
+      await each(state.states, async state => {
         if (state.type !== 'group') {
           return;
         }
@@ -122,7 +118,7 @@ export class RoomService {
   ): Promise<RoomDTO> {
     room = await this.load(room);
     room.groups ??= [];
-    room.groups = room.groups.filter((group) => group !== groupId);
+    room.groups = room.groups.filter(group => group !== groupId);
     return await this.roomPersistence.update(room, room._id);
   }
 
@@ -132,7 +128,7 @@ export class RoomService {
   ): Promise<RoomDTO> {
     room = await this.load(room);
     room.save_states ??= [];
-    room.save_states = room.save_states.filter((save) => save.id !== state);
+    room.save_states = room.save_states.filter(save => save.id !== state);
     return await this.roomPersistence.update(room, room._id);
   }
 
@@ -158,11 +154,11 @@ export class RoomService {
   ): Promise<RoomStateDTO> {
     room = await this.load(room);
     room.save_states ??= [];
-    room.save_states = room.save_states.map((i) =>
+    room.save_states = room.save_states.map(i =>
       i.id === id ? { ...update, id } : i,
     );
     await this.update(room, room._id);
-    return room.save_states.find((state) => state.id === id);
+    return room.save_states.find(state => state.id === id);
   }
 
   private filterEntities(
@@ -171,7 +167,7 @@ export class RoomService {
   ): RoomEntityDTO[] {
     if (!is.empty(filters.tags)) {
       entities = entities.filter(({ tags }) =>
-        tags.some((tag) => {
+        tags.some(tag => {
           return tags.includes(tag);
         }),
       );

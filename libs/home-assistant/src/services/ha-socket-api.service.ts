@@ -3,13 +3,11 @@ import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   Cron,
-  CronExpression,
   EmitAfter,
   InjectConfig,
   InjectLogger,
-  is,
-  sleep,
-} from '@text-based/utilities';
+} from '@text-based/boilerplate';
+import { CronExpression, is, sleep } from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 import WS from 'ws';
 
@@ -149,7 +147,7 @@ export class HASocketAPIService {
     if (!waitForResponse) {
       return;
     }
-    return new Promise((done) => this.waitingCallback.set(counter, done));
+    return new Promise(done => this.waitingCallback.set(counter, done));
   }
 
   public async updateEntity(
@@ -184,9 +182,7 @@ export class HASocketAPIService {
     }
     const now = Date.now();
     // Prune old data
-    MESSAGE_TIMESTAMPS = MESSAGE_TIMESTAMPS.filter(
-      (time) => time > now - SECOND,
-    );
+    MESSAGE_TIMESTAMPS = MESSAGE_TIMESTAMPS.filter(time => time > now - SECOND);
     try {
       const pong = await this.sendMsg({
         type: HASSIO_WS_COMMAND.ping,
@@ -207,9 +203,7 @@ export class HASocketAPIService {
     this.messageCount++;
     const now = Date.now();
     MESSAGE_TIMESTAMPS.push(now);
-    const count = MESSAGE_TIMESTAMPS.filter(
-      (time) => time > now - SECOND,
-    ).length;
+    const count = MESSAGE_TIMESTAMPS.filter(time => time > now - SECOND).length;
     if (count > this.CRASH_REQUESTS) {
       // TODO: Attempt to emit a notification via home assistant prior to dying
       // "HALP!"
@@ -250,10 +244,10 @@ export class HASocketAPIService {
             url.port ? `:${url.port}` : ``
           }/api/websocket`,
       );
-      this.connection.addEventListener('message', (message) => {
+      this.connection.addEventListener('message', message => {
         this.onMessage(JSON.parse(message.data.toString()));
       });
-      this.connection.on('error', async (error) => {
+      this.connection.on('error', async error => {
         this.logger.error({ error: error.message || error }, 'Socket error');
         if (!this.CONNECTION_ACTIVE) {
           await sleep(this.retryInterval);

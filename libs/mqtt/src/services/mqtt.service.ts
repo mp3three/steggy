@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService, is, is } from '@text-based/utilities';
+import { AutoLogService } from '@text-based/boilerplate';
+import { is } from '@text-based/utilities';
 import {
   Client,
   IClientPublishOptions,
@@ -42,11 +43,11 @@ export class MqttService {
   ): Promise<ISubscriptionGrant[]> {
     return new Promise((resolve, reject) => {
       topics = is.string(topics) ? [topics] : topics;
-      topics = topics.filter((topic) => !this.subscriptions.has(topic));
+      topics = topics.filter(topic => !this.subscriptions.has(topic));
       if (is.empty(topics)) {
         return;
       }
-      (topics as string[]).forEach((topic) => {
+      (topics as string[]).forEach(topic => {
         this.logger.debug(`Subscribe {${topic}}`);
         this.subscriptions.add(topic);
       });
@@ -118,7 +119,7 @@ export class MqttService {
         if (!options?.omitIncoming) {
           this.logger.debug(`Incoming MQTT {${topic}} (${callbacks.length})`);
         }
-        callbacks.forEach((callback) => {
+        callbacks.forEach(callback => {
           callback(this.handlePayload(payload), packet);
         });
       },

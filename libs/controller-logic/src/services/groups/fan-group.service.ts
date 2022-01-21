@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AutoLogService } from '@text-based/boilerplate';
 import {
   domain,
   EntityManagerService,
@@ -7,7 +8,7 @@ import {
   HASS_DOMAINS,
   HomeAssistantCoreService,
 } from '@text-based/home-assistant';
-import { AutoLogService, each } from '@text-based/utilities';
+import { each } from '@text-based/utilities';
 
 import {
   FanCacheDTO,
@@ -59,20 +60,20 @@ export class FanGroupService extends BaseGroupService {
 
   public async fanSpeedDown(group: GroupDTO | string): Promise<void> {
     group = await this.loadGroup(group);
-    await each(group.entities, async (entity_id) => {
+    await each(group.entities, async entity_id => {
       await this.fanDomain.fanSpeedDown(entity_id);
     });
   }
 
   public async fanSpeedUp(group: GroupDTO | string): Promise<void> {
     group = await this.loadGroup(group);
-    await each(group.entities, async (entity_id) => {
+    await each(group.entities, async entity_id => {
       await this.fanDomain.fanSpeedUp(entity_id);
     });
   }
 
   public async getState(group: GroupDTO<FanCacheDTO>): Promise<SaveState[]> {
-    return await group.entities.map((id) => {
+    return await group.entities.map(id => {
       const fan = this.entityManager.getEntity<FanStateDTO>(id);
       return {
         extra: {

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { AutoLogService, InjectConfig } from '@text-based/utilities';
 import {
   ConflictException,
   GoneException,
@@ -7,6 +6,7 @@ import {
   InternalServerErrorException,
   RequestTimeoutException,
 } from '@nestjs/common';
+import { AutoLogService, InjectConfig } from '@text-based/boilerplate';
 import { createConnection, Socket } from 'net';
 
 import { HOST, PASSWORD, PORT, TIMEOUT } from '../config';
@@ -82,9 +82,9 @@ export class RCONConnectionService {
 
   private initConnection(): void {
     this.socket = createConnection(this.port, this.host);
-    this.socket.on('error', (error) => this.onError(error));
+    this.socket.on('error', error => this.onError(error));
     this.socket.once('connect', () => this.onConnect());
-    this.socket.on('data', (data) => this.onData(data));
+    this.socket.on('data', data => this.onData(data));
     this.socket.once('end', () => this.onEnd());
   }
 

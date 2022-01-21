@@ -6,9 +6,9 @@ import {
 import {
   AutoLogService,
   FetchService,
-  is,
   JSONFilterService,
-} from '@text-based/utilities';
+} from '@text-based/boilerplate';
+import { is } from '@text-based/utilities';
 
 import { WebhookDTO } from '../contracts';
 

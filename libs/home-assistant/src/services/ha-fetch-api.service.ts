@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import type { FetchWith } from '@text-based/utilities';
+import type { FetchWith } from '@text-based/boilerplate';
 import {
   AutoLogService,
   FetchService,
   InjectConfig,
-} from '@text-based/utilities';
+} from '@text-based/boilerplate';
 
 import { BASE_URL, TOKEN } from '../config';
 import { HassStateDTO, HomeAssistantServerLogItem } from '../contracts';
@@ -86,7 +86,7 @@ export class HomeAssistantFetchAPIService {
     const results = await this.fetch<HomeAssistantServerLogItem[]>({
       url: `/api/error/all`,
     });
-    return results.map((i) => {
+    return results.map(i => {
       i.timestamp = Math.floor(i.timestamp * TIMESTAMP_OFFSET);
       i.first_occurred = Math.floor(i.first_occurred * TIMESTAMP_OFFSET);
       return i;

@@ -1,4 +1,4 @@
-import { LibraryModule } from '@text-based/utilities';
+import { LibraryModule } from '@text-based/boilerplate';
 
 import { LIB_PERSISTENCE } from '../config';
 import { ConnectService, EncryptionService } from '../services';

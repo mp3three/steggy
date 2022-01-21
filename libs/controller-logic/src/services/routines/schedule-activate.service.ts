@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService } from '@text-based/utilities';
+import { AutoLogService } from '@text-based/boilerplate';
 import { CronJob } from 'cron';
 
 import { ScheduleActivateDTO, ScheduleWatcher } from '../../contracts';

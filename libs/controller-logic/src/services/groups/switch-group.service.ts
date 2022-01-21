@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AutoLogService } from '@text-based/boilerplate';
 import {
   domain,
   EntityManagerService,
@@ -6,7 +7,7 @@ import {
   HomeAssistantCoreService,
   SwitchStateDTO,
 } from '@text-based/home-assistant';
-import { AutoLogService, each } from '@text-based/utilities';
+import { each } from '@text-based/utilities';
 
 import {
   GROUP_TYPES,
@@ -51,7 +52,7 @@ export class SwitchGroupService extends BaseGroupService {
   }
 
   public async getState(group: GroupDTO): Promise<RoomEntitySaveStateDTO[]> {
-    return await group.entities.map((id) => {
+    return await group.entities.map(id => {
       const light = this.entityManager.getEntity<SwitchStateDTO>(id);
       return {
         ref: light.entity_id,

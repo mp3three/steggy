@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { AutoLogService, OnEvent, sleep } from '@text-based/utilities';
+import { AutoLogService, OnEvent } from '@text-based/boilerplate';
+import { sleep } from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 import { Observable, Subscriber } from 'rxjs';
 
@@ -67,7 +68,7 @@ export class EntityManagerService {
   public getEntities<T extends HassStateDTO = HassStateDTO>(
     entityId: string[],
   ): T[] {
-    return entityId.map((id) => this.ENTITIES.get(id) as T);
+    return entityId.map(id => this.ENTITIES.get(id) as T);
   }
 
   /**
@@ -100,8 +101,8 @@ export class EntityManagerService {
   public async nextState<T extends HassStateDTO = HassStateDTO>(
     entityId: string,
   ): Promise<T> {
-    return new Promise<T>((done) => {
-      this.eventEmitter.once(`${entityId}/update`, (result) => {
+    return new Promise<T>(done => {
+      this.eventEmitter.once(`${entityId}/update`, result => {
         done(result);
       });
     });
@@ -149,7 +150,7 @@ export class EntityManagerService {
    */
   @OnEvent(ALL_ENTITIES_UPDATED)
   protected onAllEntitiesUpdated(allEntities: HassStateDTO[]): void {
-    allEntities.forEach((entity) => {
+    allEntities.forEach(entity => {
       this.createObservable(entity.entity_id);
       const state = this.ENTITIES.get(entity.entity_id);
       if (state?.last_changed === entity.last_changed) {
@@ -191,7 +192,7 @@ export class EntityManagerService {
     if (this.OBSERVABLES.has(entityId)) {
       return;
     }
-    const observable = new Observable<HassStateDTO>((subscriber) => {
+    const observable = new Observable<HassStateDTO>(subscriber => {
       this.SUBSCRIBERS.set(entityId, subscriber);
     });
     this.OBSERVABLES.set(entityId, observable);

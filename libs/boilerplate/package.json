@@ -12,5 +12,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ccontour/text-based.git"
-  }
+  },
+  "dependencies": {  }
 }

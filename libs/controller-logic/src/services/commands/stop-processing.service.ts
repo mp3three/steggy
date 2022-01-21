@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService } from '@text-based/utilities';
+import { AutoLogService } from '@text-based/boilerplate';
 
 import { RoutineCommandStopProcessing } from '../../contracts';
 

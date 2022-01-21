@@ -1,9 +1,9 @@
 import { applyDecorators } from '@nestjs/common';
+import { EmitAfter } from '@text-based/boilerplate';
 import {
   iRoomControllerMethods,
   ROOM_COMMAND,
 } from '@text-based/controller-logic';
-import { EmitAfter } from '@text-based/utilities';
 
 export function RelayCommand(
   rooms: string[] | '*',
@@ -18,7 +18,7 @@ export function RelayCommand(
         }),
       )(target, key, descriptor);
     }
-    const decorators = rooms.map((room) => {
+    const decorators = rooms.map(room => {
       return EmitAfter(ROOM_COMMAND(room, state), {
         emitData: 'parameters',
         onlyTruthyResults: true,

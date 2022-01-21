@@ -5,12 +5,11 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
+import { AutoLogService, OnEvent } from '@text-based/boilerplate';
 import {
-  AutoLogService,
   each,
   eachSeries,
   is,
-  OnEvent,
   ResultControlDTO,
   sleep,
 } from '@text-based/utilities';
@@ -89,7 +88,7 @@ export class RoutineService {
     let aborted = false;
     await (routine.sync ? eachSeries : each)(
       routine.command ?? [],
-      async (command) => {
+      async command => {
         // Typescript being dumb
         const { friendlyName, sync } = routine as RoutineDTO;
         if (aborted) {
@@ -210,13 +209,13 @@ export class RoutineService {
   private async mount(): Promise<void> {
     const allRoutines = await this.routinePersistence.findMany();
     this.logger.info(`Mounting {${allRoutines.length}} routines`);
-    allRoutines.forEach((routine) => {
+    allRoutines.forEach(routine => {
       if (is.empty(routine.activate)) {
         this.logger.warn(`[${routine.friendlyName}] no activation events`);
         return;
       }
       this.logger.debug(`[${routine.friendlyName}] building`);
-      routine.activate.forEach((activate) => {
+      routine.activate.forEach(activate => {
         this.logger.debug(` - ${activate.friendlyName}`);
         switch (activate.type) {
           case ROUTINE_ACTIVATE_TYPE.solar:

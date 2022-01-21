@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
-import { AutoLogService, is, LOG_CONTEXT } from '@text-based/utilities';
+import { AutoLogService, LOG_CONTEXT } from '@text-based/boilerplate';
+import { is } from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 import { Client } from 'mqtt';
 
@@ -80,7 +81,7 @@ export class MQTTExplorerService {
       this.metadataScanner.scanFromPrototype(
         instance,
         Object.getPrototypeOf(instance),
-        (key) => {
+        key => {
           const subscribeOptions: MqttSubscribeOptions =
             instance.__proto__[key][MQTT_SUBSCRIBE_OPTIONS];
 
@@ -88,7 +89,7 @@ export class MQTTExplorerService {
             const topics = is.string(subscribeOptions.topic)
               ? [subscribeOptions.topic]
               : subscribeOptions.topic;
-            topics.forEach((topic) => {
+            topics.forEach(topic => {
               this.logger.debug(
                 `${instance.constructor[LOG_CONTEXT]}#${key} subscribe {${topic}}`,
               );
@@ -115,12 +116,12 @@ export class MQTTExplorerService {
       this.eventEmitter.emit(MQTT_CONNECT);
     });
 
-    client.on('disconnect', (packet) => {
+    client.on('disconnect', packet => {
       this.logger.warn({ packet }, 'MQTT disconnected');
       this.eventEmitter.emit(MQTT_DISCONNECT);
     });
 
-    client.on('error', (error) => {
+    client.on('error', error => {
       this.logger.error({ error }, 'MQTT error');
       this.eventEmitter.emit(MQTT_ERROR);
     });

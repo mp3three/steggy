@@ -5,7 +5,7 @@ import {
   GenericVersionDTO,
   InjectConfig,
   WorkspaceService,
-} from '@text-based/utilities';
+} from '@text-based/boilerplate';
 
 import { HIDE_VERSION } from '../config';
 

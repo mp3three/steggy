@@ -1,10 +1,10 @@
+import { ApplicationModule } from '@text-based/boilerplate';
 import {
   HomeControllerCustomModule,
   HomePersistenceModule,
 } from '@text-based/controller-logic';
 import { HomeAssistantModule } from '@text-based/home-assistant';
 import { ServerModule } from '@text-based/server';
-import { ApplicationModule } from '@text-based/utilities';
 
 import {
   AdminController,

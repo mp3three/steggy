@@ -1,4 +1,4 @@
-import { LibraryModule, RegisterCache } from '@text-based/utilities';
+import { LibraryModule, RegisterCache } from '@text-based/boilerplate';
 
 import { LIB_ALPACA } from '../config';
 import {

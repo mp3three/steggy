@@ -3,7 +3,7 @@ import {
   AutoConfigService,
   BootstrapOptions,
   ScanConfig,
-} from '@text-based/utilities';
+} from '@text-based/boilerplate';
 
 AutoConfigService['USE_SCANNER_ASSETS'] = true;
 ApplicationModule.useThisConfig({

@@ -1,7 +1,7 @@
 import { DynamicModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { LibraryModule } from '@text-based/boilerplate';
 import { MongoPersistenceModule } from '@text-based/persistence';
-import { LibraryModule } from '@text-based/utilities';
 
 import { LIB_CONTROLLER_LOGIC } from '../config';
 import {

@@ -7,7 +7,7 @@
 //   MainCLIModule,
 //   PromptService,
 // } from '@text-based/tty';
-// import { BootstrapOptions } from '@text-based/utilities';
+// import { BootstrapOptions } from '@text-based/boilerplate';
 
 // export const BOOTSTRAP_OPTIONS: BootstrapOptions = {
 //   imports: [MainCLIModule],

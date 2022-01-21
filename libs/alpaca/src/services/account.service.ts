@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService, CastResult, is } from '@text-based/utilities';
+import { AutoLogService, CastResult } from '@text-based/boilerplate';
+import { is } from '@text-based/utilities';
 
 import {
   AccountConfigurationsDTO,

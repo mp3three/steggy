@@ -1,4 +1,5 @@
-import { ComparisonDTO, FetchWith, FilterDTO } from '@text-based/utilities';
+import { FetchWith } from '@text-based/boilerplate';
+import { ComparisonDTO, FilterDTO } from '@text-based/utilities';
 
 export class WebhookDTO {
   public compareAs: 'text' | 'object';

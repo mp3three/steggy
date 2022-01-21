@@ -3,6 +3,7 @@ import {
   Injectable,
   NotImplementedException,
 } from '@nestjs/common';
+import { AutoLogService } from '@text-based/boilerplate';
 import {
   ClimateDomainService,
   domain,
@@ -14,7 +15,6 @@ import {
   MediaPlayerDomainService,
   SwitchDomainService,
 } from '@text-based/home-assistant';
-import { AutoLogService } from '@text-based/utilities';
 
 import type { ROOM_ENTITY_EXTRAS, RoomEntitySaveStateDTO } from '../contracts';
 import { ClimateCacheDTO, FanCacheDTO } from '../contracts';

@@ -1,5 +1,5 @@
-import { AutoLogService, InjectConfig, OnEvent } from '@text-based/utilities';
 import { Injectable } from '@nestjs/common';
+import { AutoLogService, InjectConfig, OnEvent } from '@text-based/boilerplate';
 import WS from 'ws';
 
 import { API_KEY, API_SECRET, API_TARGET } from '../config';

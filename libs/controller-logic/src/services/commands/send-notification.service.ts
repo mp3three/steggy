@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { AutoLogService } from '@text-based/boilerplate';
 import {
   HASocketAPIService,
   NotifyDomainService,
 } from '@text-based/home-assistant';
-import { AutoLogService } from '@text-based/utilities';
 
 import { RoutineCommandSendNotificationDTO } from '../../contracts';
 

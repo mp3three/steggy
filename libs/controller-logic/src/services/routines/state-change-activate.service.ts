@@ -1,18 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import {
+  AutoLogService,
+  CacheManagerService,
+  InjectCache,
+  JSONFilterService,
+  OnEvent,
+} from '@text-based/boilerplate';
+import {
   EntityManagerService,
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
 } from '@text-based/home-assistant';
-import {
-  AutoLogService,
-  CacheManagerService,
-  each,
-  InjectCache,
-  is,
-  JSONFilterService,
-  OnEvent,
-} from '@text-based/utilities';
+import { each, is } from '@text-based/utilities';
 
 import { StateChangeActivateDTO, StateChangeWatcher } from '../../contracts';
 
@@ -68,7 +67,7 @@ export class StateChangeActivateService {
       );
       return;
     }
-    await each(this.WATCHED_ENTITIES.get(data.entity_id), async (item) => {
+    await each(this.WATCHED_ENTITIES.get(data.entity_id), async item => {
       let valid = this.jsonFilter.match(
         { value: data.new_state.state },
         {

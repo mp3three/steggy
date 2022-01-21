@@ -1,10 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ResultControlDTO } from '@text-based/utilities';
 import chalk from 'chalk';
-import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
-import dayjs from 'dayjs';
-
-// export type Identifier = { _id?: string; name?: string };
-// export type IdentifierWithParent = Partial<{ parent: string } & Identifier>;
 
 export type FetchAuth = {
   /**
@@ -132,46 +127,6 @@ export const FILTER_OPERATIONS_HELP = new Map<FILTER_OPERATIONS, string>([
     ].join(`\n`),
   ],
 ]);
-
-export type FilterValueType =
-  | string
-  | boolean
-  | number
-  | Date
-  | dayjs.Dayjs
-  | RegExp
-  | unknown
-  | Record<string, string>;
-
-export class ComparisonDTO {
-  @IsOptional()
-  @IsEnum(FILTER_OPERATIONS)
-  @ApiProperty({ required: false })
-  public operation?: FILTER_OPERATIONS;
-  @IsOptional()
-  @ApiProperty({ required: false })
-  public value?: FilterValueType | FilterValueType[];
-}
-
-export class FilterDTO extends ComparisonDTO {
-  @IsBoolean()
-  @ApiProperty({ required: false })
-  public exists?: boolean;
-  /**
-   * Dot notation object path, from object root
-   */
-  @ApiProperty({ required: false })
-  @IsString()
-  public field?: string;
-}
-
-export class ResultControlDTO {
-  public filters?: Set<FilterDTO>;
-  public limit?: number;
-  public select?: string[];
-  public skip?: number;
-  public sort?: string[];
-}
 
 export enum HTTP_METHODS {
   get = 'get',

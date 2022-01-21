@@ -1,12 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { AutoLogService, CastResult } from '@text-based/boilerplate';
 import { BaseMongoService, BaseSchemaDTO } from '@text-based/persistence';
-import {
-  AutoLogService,
-  CastResult,
-  is,
-  ResultControlDTO,
-} from '@text-based/utilities';
+import { is, ResultControlDTO } from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 import { Model } from 'mongoose';
 

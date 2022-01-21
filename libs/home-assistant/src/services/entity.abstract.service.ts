@@ -1,4 +1,5 @@
-import { AutoLogService, is, OnEvent } from '@text-based/utilities';
+import { AutoLogService, OnEvent } from '@text-based/boilerplate';
+import { is } from '@text-based/utilities';
 
 import {
   ALL_ENTITIES_UPDATED,
@@ -21,7 +22,7 @@ export abstract class EntityService {
   protected async onAllEntitiesUpdated(
     allEntities: HassStateDTO[],
   ): Promise<void> {
-    await allEntities.forEach((entity) =>
+    await allEntities.forEach(entity =>
       this.ENTITIES.set(entity.entity_id, entity),
     );
   }
@@ -39,7 +40,7 @@ export abstract class EntityService {
     if (is.string(entityId)) {
       entityId = [entityId];
     }
-    entityId.forEach((item) => {
+    entityId.forEach(item => {
       if (!this.ENTITIES.has(item)) {
         this.ENTITIES.set(item, DEFAULT_STATE);
       }

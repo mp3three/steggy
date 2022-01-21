@@ -1,19 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import {
+  AutoLogService,
+  CacheManagerService,
+  Cron,
+  InjectCache,
+  InjectConfig,
+} from '@text-based/boilerplate';
 import { GroupService } from '@text-based/controller-logic';
 import {
   EntityManagerService,
   NotifyDomainService,
 } from '@text-based/home-assistant';
-import {
-  AutoLogService,
-  CacheManagerService,
-  Cron,
-  CronExpression,
-  each,
-  InjectCache,
-  InjectConfig,
-  is,
-} from '@text-based/utilities';
+import { CronExpression, each, is } from '@text-based/utilities';
 import dayjs from 'dayjs';
 
 import {
@@ -48,10 +46,10 @@ export class AvailabilityMonitorService {
     return;
     const groups = await this.groupService.list();
     const searchList = groups
-      .flatMap((i) => i.entities)
+      .flatMap(i => i.entities)
       .filter((item, index, array) => array.indexOf(item) === index);
     const entities = searchList.filter(
-      (id) => this.entityService.getEntity(id).state === 'unavailable',
+      id => this.entityService.getEntity(id).state === 'unavailable',
     );
     if (is.empty(entities)) {
       this.logger.debug(`No unavailable entities`);
@@ -78,7 +76,7 @@ export class AvailabilityMonitorService {
     )
       .toDate()
       .getTime();
-    await each(entities, async (item) => {
+    await each(entities, async item => {
       const cache = (await this.cache.get<RecentItem>(CACHE_KEY(item))) ?? {
         entity_id: item,
         since: now,

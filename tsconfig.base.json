@@ -26,8 +26,11 @@
     "target": "esnext",
     "paths": {
       "@text-based/alpaca": ["libs/alpaca/src/index.ts"],
+      "@text-based/boilerplate": ["libs/boilerplate/src/index.ts"],
       "@text-based/controller-logic": ["libs/controller-logic/src/index.ts"],
+      "@text-based/controller-shared": ["libs/controller-shared/src/index.ts"],
       "@text-based/home-assistant": ["libs/home-assistant/src/index.ts"],
+      "@text-based/home-assistant-shared": ["libs/home-assistant-shared/src/index.ts"],
       "@text-based/mqtt": ["libs/mqtt/src/index.ts"],
       "@text-based/persistence": ["libs/persistence/src/index.ts"],
       "@text-based/portainer": ["libs/portainer/src/index.ts"],

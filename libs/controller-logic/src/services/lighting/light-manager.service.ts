@@ -1,18 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import {
-  HomeAssistantCoreService,
-  LightDomainService,
-} from '@text-based/home-assistant';
-import {
   AutoLogService,
   CacheManagerService,
-  each,
   InjectCache,
   InjectConfig,
   InjectLogger,
-  INVERT_VALUE,
-  is,
-} from '@text-based/utilities';
+} from '@text-based/boilerplate';
+import {
+  HomeAssistantCoreService,
+  LightDomainService,
+} from '@text-based/home-assistant';
+import { each, INVERT_VALUE, is } from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 
 import { MIN_BRIGHTNESS } from '../../config';
@@ -25,7 +23,7 @@ import {
 import { CircadianService } from './circadian.service';
 
 const LIGHTING_CACHE_PREFIX = 'LIGHTING:';
-const CACHE_KEY = (entity) => `${LIGHTING_CACHE_PREFIX}${entity}`;
+const CACHE_KEY = entity => `${LIGHTING_CACHE_PREFIX}${entity}`;
 const PERCENT = 100;
 const DEFAULT_INCREMENT = 50;
 const START = 0;
@@ -55,7 +53,7 @@ export class LightManagerService {
     brightness?: number,
   ): Promise<void> {
     if (Array.isArray(entity_id)) {
-      await each(entity_id, async (id) => {
+      await each(entity_id, async id => {
         await this.circadianLight(id, brightness);
       });
       return;
@@ -90,7 +88,7 @@ export class LightManagerService {
 
   public async findDimmableLights(change: string[]): Promise<string[]> {
     const lights = await this.getActiveLights();
-    return change.filter((light) => lights.includes(light));
+    return change.filter(light => lights.includes(light));
   }
 
   /**
@@ -101,11 +99,11 @@ export class LightManagerService {
     const list: string[] = await this.cache.store.keys();
     return list
       .filter(
-        (item) =>
+        item =>
           item.slice(START, LIGHTING_CACHE_PREFIX.length) ===
           LIGHTING_CACHE_PREFIX,
       )
-      .map((item) => item.slice(LIGHTING_CACHE_PREFIX.length));
+      .map(item => item.slice(LIGHTING_CACHE_PREFIX.length));
   }
 
   public async getState(entity_id: string): Promise<LightingCacheDTO> {
@@ -147,7 +145,7 @@ export class LightManagerService {
       );
     }
     if (Array.isArray(entity_id)) {
-      await each(entity_id, async (id) => {
+      await each(entity_id, async id => {
         await this.setAttributes(id, settings);
       });
       return;
@@ -177,7 +175,7 @@ export class LightManagerService {
       kelvin: settings.kelvin,
       rgb_color: settings.rgb_color,
     };
-    Object.keys(data).forEach((key) => {
+    Object.keys(data).forEach(key => {
       if (is.undefined(data[key])) {
         delete data[key];
       }
@@ -192,7 +190,7 @@ export class LightManagerService {
 
   public async turnOffEntities(entity_id: string | string[]): Promise<void> {
     if (Array.isArray(entity_id)) {
-      each(entity_id, async (entity) => {
+      each(entity_id, async entity => {
         await this.turnOffEntities(entity);
       });
       return;
@@ -213,7 +211,7 @@ export class LightManagerService {
 
   protected async circadianLightingUpdate(kelvin: number): Promise<void> {
     const lights = await this.getActiveLights();
-    await each(lights, async (id) => {
+    await each(lights, async id => {
       const state = await this.getState(id);
       if (state?.mode !== 'circadian') {
         // if (state?.mode !== 'circadian' || state.kelvin === kelvin) {
@@ -224,7 +222,7 @@ export class LightManagerService {
   }
 
   protected onModuleInit(): void {
-    this.eventEmitter.on(CIRCADIAN_UPDATE, (kelvin) =>
+    this.eventEmitter.on(CIRCADIAN_UPDATE, kelvin =>
       this.circadianLightingUpdate(kelvin),
     );
   }

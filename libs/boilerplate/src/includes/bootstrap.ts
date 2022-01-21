@@ -5,14 +5,13 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import {
   AutoLogService,
-  eachSeries,
   GlobalErrorInit,
-  is,
   LIB_UTILS,
   LifecycleService,
   NEST_NOOP_LOGGER,
   UsePrettyLogger,
-} from '@text-based/utilities';
+} from '@text-based/boilerplate';
+import { eachSeries, is } from '@text-based/utilities';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
 import express, { Express } from 'express';

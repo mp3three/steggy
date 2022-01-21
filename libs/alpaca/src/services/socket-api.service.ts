@@ -1,5 +1,5 @@
-import { AutoLogService, InjectConfig } from '@text-based/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { AutoLogService, InjectConfig } from '@text-based/boilerplate';
 import EventEmitter from 'eventemitter3';
 import WS from 'ws';
 

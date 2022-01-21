@@ -1,4 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { AutoLogService } from '@text-based/boilerplate';
 import {
   domain,
   EntityManagerService,
@@ -7,7 +8,7 @@ import {
   LockDomainService,
   LockStateDTO,
 } from '@text-based/home-assistant';
-import { AutoLogService, each, is } from '@text-based/utilities';
+import { each, is } from '@text-based/utilities';
 
 import {
   GROUP_TYPES,
@@ -53,7 +54,7 @@ export class LockGroupService extends BaseGroupService {
   public async getState(
     group: GroupDTO<LightingCacheDTO>,
   ): Promise<RoomEntitySaveStateDTO[]> {
-    return await group.entities.map((id) => {
+    return await group.entities.map(id => {
       const lock = this.entityManager.getEntity<LockStateDTO>(id);
       return {
         ref: lock.entity_id,
@@ -70,7 +71,7 @@ export class LockGroupService extends BaseGroupService {
     if (is.string(group)) {
       group = await this.groupPersistence.findById(group);
     }
-    await each(group.entities, async (lock) => {
+    await each(group.entities, async lock => {
       if (!this.isValid(lock)) {
         throw new InternalServerErrorException(
           `Invalid lock group entity: ${lock}`,
@@ -120,7 +121,7 @@ export class LockGroupService extends BaseGroupService {
     if (is.string(group)) {
       group = await this.groupPersistence.findById(group);
     }
-    await each(group.entities, async (lock) => {
+    await each(group.entities, async lock => {
       if (!this.isValid(lock)) {
         throw new InternalServerErrorException(
           `Invalid lock group entity: ${lock}`,
@@ -134,6 +135,6 @@ export class LockGroupService extends BaseGroupService {
     if (is.string(id)) {
       return domain(id) === HASS_DOMAINS.lock;
     }
-    return id.every((item) => domain(item) === HASS_DOMAINS.lock);
+    return id.every(item => domain(item) === HASS_DOMAINS.lock);
   }
 }

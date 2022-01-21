@@ -9,7 +9,7 @@ import {
   BootstrapOptions,
   InjectConfig,
   LibraryModule,
-} from '@text-based/utilities';
+} from '@text-based/boilerplate';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import csurf from 'csurf';

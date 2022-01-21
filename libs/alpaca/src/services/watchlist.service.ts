@@ -1,5 +1,5 @@
-import { CastResult } from '@text-based/utilities';
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { CastResult } from '@text-based/boilerplate';
 
 import { Watchlist } from '../contracts';
 import { AlpacaFetchService } from './alpaca-fetch.service';

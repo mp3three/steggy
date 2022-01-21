@@ -4,7 +4,7 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { AutoLogService } from '@text-based/utilities';
+import { AutoLogService } from '@text-based/boilerplate';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 
 import { APIRequest, APIResponse } from '../contracts';
@@ -26,7 +26,7 @@ export class LoggingInterceptor implements NestInterceptor {
         };
     const { locals } = context.switchToHttp().getResponse<APIResponse>();
     return next.handle().pipe(
-      tap((response) => {
+      tap(response => {
         const responseTime = Date.now() - locals.start.getTime();
         const message = prettyLogger
           ? `[${request.method}] {${request.path}}`
@@ -34,7 +34,7 @@ export class LoggingInterceptor implements NestInterceptor {
         this.logger.info({ responseTime, ...extra }, message);
         return response;
       }),
-      catchError((error) => {
+      catchError(error => {
         const responseTime = Date.now() - locals.start.getTime();
 
         const message = prettyLogger

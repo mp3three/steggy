@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CastResult } from '@text-based/utilities';
+import { CastResult } from '@text-based/boilerplate';
 
 import {
   ListOrdersOptions,

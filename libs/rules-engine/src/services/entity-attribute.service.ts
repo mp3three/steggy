@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { AutoLogService } from '@text-based/boilerplate';
 import { EntityManagerService } from '@text-based/home-assistant';
-import { AutoLogService, is } from '@text-based/utilities';
+import { is } from '@text-based/utilities';
 import { get } from 'object-path';
 
 import { EntityAttributeDTO } from '../contracts';

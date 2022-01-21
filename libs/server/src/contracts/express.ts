@@ -3,8 +3,8 @@ import {
   AutoLogService,
   FetchAuth,
   HTTP_METHODS,
-  ResultControlDTO,
-} from '@text-based/utilities';
+} from '@text-based/boilerplate';
+import { ResultControlDTO } from '@text-based/utilities';
 import { Request, Response } from 'express';
 import pino from 'pino';
 

@@ -1,12 +1,8 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
+import { AutoLogService } from '@text-based/boilerplate';
 import { domain, HASS_DOMAINS } from '@text-based/home-assistant';
 import { BaseSchemaDTO } from '@text-based/persistence';
-import {
-  AutoLogService,
-  each,
-  is,
-  ResultControlDTO,
-} from '@text-based/utilities';
+import { each, is, ResultControlDTO } from '@text-based/utilities';
 
 import type {
   GroupSaveStateDTO,
@@ -62,7 +58,7 @@ export class GroupService {
     entity = is.string(entity) ? [entity] : entity;
     group = await this.load(group);
     group.entities = [
-      ...group.entities.filter((id) => !entity.includes(id)),
+      ...group.entities.filter(id => !entity.includes(id)),
       ...entity,
     ];
     return this.update(group._id, group);
@@ -170,7 +166,7 @@ export class GroupService {
   ): Promise<GroupDTO<GROUP_TYPE>> {
     entity = is.string(entity) ? [entity] : entity;
     group = await this.load(group);
-    group.entities = group.entities.filter((id) => !entity.includes(id));
+    group.entities = group.entities.filter(id => !entity.includes(id));
     return this.update(group._id, group);
   }
 
@@ -184,7 +180,7 @@ export class GroupService {
 
   public async turnOff(group: GroupDTO | string): Promise<void> {
     group = await this.load(group);
-    await each(group.entities, async (entity) => {
+    await each(group.entities, async entity => {
       await this.commandRouter.process(entity, 'turnOff');
     });
   }
@@ -194,7 +190,7 @@ export class GroupService {
     circadian = false,
   ): Promise<void> {
     group = await this.load(group);
-    await each(group.entities, async (entity) => {
+    await each(group.entities, async entity => {
       if ((group as GroupDTO).type === GROUP_TYPES.light) {
         if (domain(entity) !== HASS_DOMAINS.light) {
           await this.commandRouter.process(entity, 'turnOn');

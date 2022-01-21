@@ -5,7 +5,7 @@
 // }
 
 import { Injectable } from '@nestjs/common';
-import { AutoLogService } from '@text-based/utilities';
+import { AutoLogService } from '@text-based/boilerplate';
 
 // public unsubscribeData(
 //   channel: AlpacaSocketChannel,

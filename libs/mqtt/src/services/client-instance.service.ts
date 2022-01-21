@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ACTIVE_APPLICATION, InjectConfig } from '@text-based/utilities';
+import { ACTIVE_APPLICATION, InjectConfig } from '@text-based/boilerplate';
 import { connect, MqttClient } from 'mqtt';
 
 import { MQTT_HOST, MQTT_PORT } from '../config';

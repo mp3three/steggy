@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   CacheManagerService,
-  each,
   InjectCache,
-} from '@text-based/utilities';
+} from '@text-based/boilerplate';
+import { each } from '@text-based/utilities';
 
 import {
   RoutineCaptureData,

@@ -1,16 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { AutoLogService, InjectConfig, OnEvent } from '@text-based/boilerplate';
 import {
   EntityManagerService,
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
 } from '@text-based/home-assistant';
-import {
-  AutoLogService,
-  each,
-  InjectConfig,
-  is,
-  OnEvent,
-} from '@text-based/utilities';
+import { each, is } from '@text-based/utilities';
 
 import { KUNAMI_TIMEOUT } from '../../config';
 import {
@@ -41,7 +36,7 @@ export class KunamiCodeActivateService {
     }
     this.WATCHED_SENSORS = new Map();
     this.ACTIVE_MATCHERS = new Map();
-    this.TIMERS.forEach((timer) => clearTimeout(timer));
+    this.TIMERS.forEach(timer => clearTimeout(timer));
     this.TIMERS = new Map();
   }
 
@@ -73,7 +68,7 @@ export class KunamiCodeActivateService {
     // Build up list of ative matchers
     const process: KunamiSensorEvent[] = [];
     const temporary = this.ACTIVE_MATCHERS.get(data.entity_id);
-    temporary.forEach((event) => {
+    temporary.forEach(event => {
       if (event.rejected || event.completed) {
         return;
       }
@@ -81,7 +76,7 @@ export class KunamiCodeActivateService {
     });
     const state = String(data.new_state.state);
     // Append new state to each matcher, test, then run callback
-    await each(process, async (item) => {
+    await each(process, async item => {
       const { match, reset: immediateReset } = item.watcher;
       // Append to list of observed states
       item.progress.push(state);
@@ -138,8 +133,8 @@ export class KunamiCodeActivateService {
     if (!this.ACTIVE_MATCHERS.has(entity_id)) {
       const initialEvents: KunamiSensorEvent[] = [];
 
-      this.WATCHED_SENSORS.forEach((watchers) => {
-        watchers.forEach((watcher) => {
+      this.WATCHED_SENSORS.forEach(watchers => {
+        watchers.forEach(watcher => {
           if (watcher.sensor !== entity_id) {
             return;
           }

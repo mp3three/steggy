@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService, is } from '@text-based/utilities';
+import { AutoLogService } from '@text-based/boilerplate';
+import { is } from '@text-based/utilities';
 
 import { HASS_DOMAINS } from '../contracts';
 import { EntityService, HACallService } from '../services';
@@ -29,7 +30,7 @@ export class LightDomainService extends EntityService {
     if (is.string(entity_id)) {
       entity_id = [entity_id];
     }
-    entity_id.forEach((id) => {
+    entity_id.forEach(id => {
       if (this.CIRCADIAN_LIGHTING.has(id)) {
         this.CIRCADIAN_LIGHTING.delete(id);
       }

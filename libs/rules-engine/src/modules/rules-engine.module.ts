@@ -1,4 +1,4 @@
-import { LibraryModule } from '@text-based/utilities';
+import { LibraryModule } from '@text-based/boilerplate';
 
 import { LIB_RULES_ENGINE } from '../config';
 import {

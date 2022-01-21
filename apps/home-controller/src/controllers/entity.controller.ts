@@ -9,6 +9,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AutoLogService } from '@text-based/boilerplate';
 import {
   EntityCommandRouterService,
   EntityHistoryRequest,
@@ -28,7 +29,6 @@ import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
 } from '@text-based/server';
-import { AutoLogService, is } from '@text-based/utilities';
 
 @ApiTags('entity')
 @Controller('/entity')

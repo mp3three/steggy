@@ -1,11 +1,12 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
+import { AutoLogService } from '@text-based/boilerplate';
 import {
   domain,
   EntityManagerService,
   HASS_DOMAINS,
   LightStateDTO,
 } from '@text-based/home-assistant';
-import { AutoLogService, each } from '@text-based/utilities';
+import { each } from '@text-based/utilities';
 
 import {
   GROUP_LIGHT_COMMANDS,
@@ -75,7 +76,7 @@ export class LightGroupService extends BaseGroupService {
     { brightness, hs_color, rgb_color }: LightingCacheDTO,
   ): Promise<void> {
     group = await this.loadGroup(group);
-    await each(group.entities, async (entity) => {
+    await each(group.entities, async entity => {
       if (!hs_color && !rgb_color) {
         await this.lightManager.setAttributes(entity, {
           brightness,
@@ -94,7 +95,7 @@ export class LightGroupService extends BaseGroupService {
     group: GroupDTO<LightingCacheDTO>,
   ): Promise<RoomEntitySaveStateDTO<LightingCacheDTO>[]> {
     const out: RoomEntitySaveStateDTO<LightingCacheDTO>[] = [];
-    await each(group.entities, async (id) => {
+    await each(group.entities, async id => {
       const light = this.entityManager.getEntity<LightStateDTO>(id);
       if (!light) {
         // 100% of the time this error is seen, bad times were a pre-existing condition

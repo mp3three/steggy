@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { AutoLogService } from '@text-based/utilities';
+import { AutoLogService } from '@text-based/boilerplate';
 
 import { RoutineCommandTriggerRoutineDTO } from '../../contracts';
 import { RoutineService } from '../routines';
