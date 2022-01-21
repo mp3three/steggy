@@ -1,9 +1,10 @@
+import { DOWN, is, TitleCase, UP } from '@text-based/utilities';
 import { List, Typography } from 'antd';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Link, useParams, withRouter } from 'react-router-dom';
 
-import { DOWN, GroupDTO, is, sendRequest, TitleCase, UP } from '../../types';
+import { sendRequest } from '../../types';
 
 const { Title } = Typography;
 

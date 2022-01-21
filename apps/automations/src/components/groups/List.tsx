@@ -1,8 +1,9 @@
+import { DOWN, is, TitleCase, UP } from '@text-based/utilities';
 import { List, Typography } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { DOWN, GroupDTO, is, sendRequest, TitleCase, UP } from '../../types';
+import { sendRequest } from '../../types';
 
 const { Title } = Typography;
 

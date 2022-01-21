@@ -1,0 +1,60 @@
+{
+  "root": "libs/utilities",
+  "sourceRoot": "libs/utilities/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/utilities",
+        "tsConfig": "libs/utilities/tsconfig.lib.json",
+        "packageJson": "libs/utilities/package.json",
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "main": "libs/utilities/src/index.ts",
+        "assets": [
+          "libs/utilities/metadata.json",
+          "libs/utilities/package.json"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "buildableProjectDepsInPackageJsonType": "peerDependencies",
+          "updateBuildableProjectDepsInPackageJson": true,
+          "fileReplacements": []
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["libs/utilities/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga Utilities",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build utilities --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn publish --cwd dist/libs/utilities --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    }
+  },
+  "tags": ["nestjs"]
+}

@@ -4,17 +4,18 @@
     "alpaca": "libs/alpaca",
     "automations": "apps/automations",
     "automations-e2e": "apps/automations-e2e",
+    "boilerplate": "libs/boilerplate",
+    "controller-shared": "libs/controller-shared",
     "controller-logic": "libs/controller-logic",
     "devtools": "apps/devtools",
     "home-assistant": "libs/home-assistant",
-    "home-cli": "apps/home-cli",
+    "home-assistant-shared": "libs/home-assistant-shared",
     "home-controller": "apps/home-controller",
     "mqtt": "libs/mqtt",
     "persistence": "libs/persistence",
     "rules-engine": "libs/rules-engine",
     "server": "libs/server",
     "trade": "apps/trade",
-    "tty": "libs/tty",
     "utilities": "libs/utilities"
   }
 }

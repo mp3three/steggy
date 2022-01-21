@@ -1,32 +1,3 @@
 {
-  "configuration": {
-    "LOG_LEVEL": {
-      "type": "string",
-      "enum": ["info", "warn", "debug"],
-      "default": "info",
-      "description": "Minimum log level to process"
-    },
-    "CACHE_PROVIDER": {
-      "type": "string",
-      "default": "memory",
-      "enum": ["redis", "memory"],
-      "description": "Redis is preferred if available"
-    },
-    "REDIS_HOST": {
-      "type": "string",
-      "default": "localhost",
-      "description": "Configuration property for redis connection"
-    },
-    "REDIS_PORT": {
-      "type": "number",
-      "default": 6379,
-      "description": "Configuration property for redis connection"
-    },
-    "REDIS_DEFAULT_TTL": {
-      "type": "number",
-      "default": 86400,
-      "description": "Configuration property for redis connection",
-      "careful": true
-    }
-  }
+  "configuration": {}
 }
