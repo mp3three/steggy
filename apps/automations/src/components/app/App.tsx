@@ -1,9 +1,11 @@
-import 'antd/dist/antd.less';
-
 import { Breadcrumb, Layout, Typography } from 'antd';
 import React from 'react';
+import { Provider } from 'react-redux';
+import { Route, Switch } from 'react-router-dom';
 
+import { store } from '../../store';
 import { Foot } from '../footer';
+import { GroupList } from '../groups';
 import { ApplicationMenu } from '../menu';
 
 const { Title } = Typography;
@@ -15,38 +17,38 @@ export class App extends React.Component {
   };
 
   onCollapse = (collapsed: boolean) => {
-    // console.log(collapsed);
     this.setState({ collapsed });
   };
 
   override render() {
     const { collapsed } = this.state;
     return (
-      <Layout style={{ minHeight: '100vh' }}>
-        <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
-          <div className="logo" />
-          <ApplicationMenu />
-        </Sider>
+      <Provider store={store}>
+        <Layout style={{ minHeight: '100vh' }}>
+          <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
+            <div className="logo" />
+            <ApplicationMenu />
+          </Sider>
 
-        <Layout className="site-layout">
-          <Header>
-            <Title>Automation Controller</Title>
-          </Header>
-          <Content style={{ margin: '0 16px' }}>
-            <Breadcrumb style={{ margin: '16px 0' }}>
-              <Breadcrumb.Item>User</Breadcrumb.Item>
-              <Breadcrumb.Item>Bill</Breadcrumb.Item>
-            </Breadcrumb>
-            <div
-              className="site-layout-background"
-              style={{ minHeight: 360, padding: 24 }}
-            >
-              Bill is a cat.
-            </div>
-          </Content>
-          <Foot />
+          <Layout className="site-layout">
+            <Header>
+              <Title>Automation Controller</Title>
+            </Header>
+            <Content style={{ margin: '0 16px' }}>
+              <Switch>
+                <Route path="/groups" component={GroupList} />
+                <Route path="/">
+                  <Breadcrumb style={{ margin: '16px 0' }}>
+                    <Breadcrumb.Item>User</Breadcrumb.Item>
+                    <Breadcrumb.Item>Bill</Breadcrumb.Item>
+                  </Breadcrumb>
+                </Route>
+              </Switch>
+            </Content>
+            <Foot />
+          </Layout>
         </Layout>
-      </Layout>
+      </Provider>
     );
   }
 }

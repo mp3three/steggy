@@ -1,43 +1,40 @@
-import 'antd/dist/antd.less';
-
 import {
-  DesktopOutlined,
-  FileOutlined,
-  PieChartOutlined,
+  BugOutlined,
+  HomeOutlined,
+  IdcardOutlined,
+  RocketOutlined,
+  SettingOutlined,
+  SolutionOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 import { Menu } from 'antd';
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export class ApplicationMenu extends React.Component {
   override render() {
     return (
       <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
-        <Menu.Item key="1" icon={<PieChartOutlined />}>
-          Home
+        <Menu.Item key="1" icon={<HomeOutlined />}>
+          <Link to="/">Home</Link>
         </Menu.Item>
-        <Menu.Item key="2" icon={<DesktopOutlined />}>
-          Groups
+        <Menu.Item key="2" icon={<TeamOutlined />}>
+          <Link to="/groups">Groups</Link>
         </Menu.Item>
-        {/* <SubMenu key="sub1" icon={<UserOutlined />} title="User">
-              <Menu.Item key="3">Tom</Menu.Item>
-              <Menu.Item key="4">Bill</Menu.Item>
-              <Menu.Item key="5">Alex</Menu.Item>
-            </SubMenu>
-            <SubMenu key="sub2" icon={<TeamOutlined />} title="Team">
-              <Menu.Item key="6">Team 1</Menu.Item>
-              <Menu.Item key="8">Team 2</Menu.Item>
-            </SubMenu> */}
-        <Menu.Item key="3" icon={<FileOutlined />}>
-          Rooms
+        <Menu.Item key="3" icon={<IdcardOutlined />}>
+          <Link to="/rooms">Rooms</Link>
         </Menu.Item>
-        <Menu.Item key="4" icon={<FileOutlined />}>
-          Routines
+        <Menu.Item key="4" icon={<SolutionOutlined />}>
+          <Link to="/routines">Routines</Link>
         </Menu.Item>
-        <Menu.Item key="5" icon={<FileOutlined />}>
-          Entities
+        <Menu.Item key="5" icon={<RocketOutlined />}>
+          <Link to="/entities">Entities</Link>
         </Menu.Item>
-        <Menu.Item key="6" icon={<FileOutlined />}>
-          Debugger
+        <Menu.Item key="6" icon={<BugOutlined />}>
+          <Link to="/debugger">Debugger</Link>
+        </Menu.Item>
+        <Menu.Item key="7" icon={<SettingOutlined />}>
+          <Link to="/settings">Settings</Link>
         </Menu.Item>
       </Menu>
     );

@@ -94,6 +94,7 @@
       "**/tsconfig.json": true,
       "**/tsconfig.spec.json": true,
       "**/.prettierrc": true,
+      "**/.browserslistrc": true,
       "**/.yarnclean": true,
       "LICENSE": true,
       "**/.gitkeep": true,

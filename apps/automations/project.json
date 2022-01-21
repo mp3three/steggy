@@ -44,7 +44,8 @@
       "executor": "@nrwl/web:dev-server",
       "options": {
         "buildTarget": "automations:build",
-        "hmr": true
+        "hmr": true,
+        "host": "0.0.0.0"
       },
       "configurations": {
         "production": {

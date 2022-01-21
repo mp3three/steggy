@@ -9,7 +9,7 @@ export class Foot extends React.Component {
     return (
       <Footer style={{ textAlign: 'center' }}>
         <Link href="https://github.com/ccontour/text-based" target="_blank">
-          GitHub - @text-based
+          @text-based
         </Link>
       </Footer>
     );
