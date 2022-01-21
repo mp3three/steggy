@@ -1,3 +1,5 @@
+import EventEmitter from 'eventemitter3';
+
 interface EmitAfterOptions {
   emitData?: 'result' | 'parameters';
   onlyTruthyResults?: boolean;
@@ -26,10 +28,13 @@ export function EmitAfter(
         if (emitData === 'parameters') {
           data = parameters;
         }
-        if (!this.eventEmitter) {
+        if (!(this as { eventEmitter: EventEmitter }).eventEmitter) {
           return;
         }
-        this.eventEmitter.emit(eventName, data);
+        (this as { eventEmitter: EventEmitter }).eventEmitter.emit(
+          eventName,
+          data,
+        );
       });
       return out;
     };

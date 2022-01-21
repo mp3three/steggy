@@ -16,13 +16,13 @@ export function filtersToMongoQuery(
 ): Map<string, unknown> {
   const out = new Map<string, unknown>();
 
-  (query.filters ?? new Set()).forEach((filter) => {
+  (query.filters ?? new Set()).forEach(filter => {
     if (!is.undefined(filter.exists)) {
       out.set(
         `$${filter.field}`,
         ['true', '1'].includes(filter.value.toString()),
       );
-      return;
+      return undefined;
     }
     resolve(filter);
     switch (filter.operation) {
@@ -57,7 +57,7 @@ export function filtersToMongoQuery(
           ? filter.value
           : filter.value.toString().split(',');
         return out.set(filter.field, {
-          [`$${filter.operation}`]: value.map((v) => cast(filter.field, v)),
+          [`$${filter.operation}`]: value.map(v => cast(filter.field, v)),
         });
       case 'gte':
       case 'lte':

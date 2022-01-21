@@ -1,8 +1,9 @@
 import { INestApplication, Injectable } from '@nestjs/common';
+import { eachSeries } from '@text-based/utilities';
 import { Express } from 'express';
 
 import { iLifecycle } from '../contracts/lifecycle';
-import { BootstrapOptions, eachSeries } from '../includes';
+import { BootstrapOptions } from '../includes';
 import { ModuleScannerService } from './explorers/module-scanner.service';
 
 @Injectable()
@@ -20,12 +21,12 @@ export class LifecycleService {
         options: BootstrapOptions,
       ): Promise<void>;
     }>[] = [];
-    this.scanner.applicationProviders<iLifecycle>().forEach((instance) => {
+    this.scanner.applicationProviders<iLifecycle>().forEach(instance => {
       if (instance.onPostInit) {
         instances.push(instance);
       }
     });
-    await eachSeries(instances, async (instance) => {
+    await eachSeries(instances, async instance => {
       await instance.onPostInit(app, server, options);
     });
   }
@@ -41,12 +42,12 @@ export class LifecycleService {
         options: BootstrapOptions,
       ): Promise<void>;
     }>[] = [];
-    this.scanner.applicationProviders<iLifecycle>().forEach((instance) => {
+    this.scanner.applicationProviders<iLifecycle>().forEach(instance => {
       if (instance.onPreInit) {
         instances.push(instance);
       }
     });
-    await eachSeries(instances, async (instance) => {
+    await eachSeries(instances, async instance => {
       await instance.onPreInit(app, server, options);
     });
   }

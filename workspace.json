@@ -14,7 +14,6 @@
     "persistence": "libs/persistence",
     "rules-engine": "libs/rules-engine",
     "server": "libs/server",
-    "trade": "apps/trade",
     "utilities": "libs/utilities"
   }
 }

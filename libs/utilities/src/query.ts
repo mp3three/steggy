@@ -133,19 +133,21 @@ export function queryToControl(
     switch (operation) {
       case 'in':
       case 'nin':
-        return out.filters.add({
+        out.filters.add({
           field: name,
           operation,
           value: value.split(','),
         });
+        return;
       case 'elem':
-        return out.filters.add({
+        out.filters.add({
           field: name,
           operation,
           value: JSON.parse(value),
         });
+        return;
       default:
-        return out.filters.add({
+        out.filters.add({
           field: name,
           operation,
           value,

@@ -1,3 +1,5 @@
+import EventEmitter from 'eventemitter3';
+
 export function SingleCall({
   emitAfter,
 }: { emitAfter?: string } = {}): MethodDecorator {
@@ -12,12 +14,15 @@ export function SingleCall({
       if (promise) {
         return promise;
       }
-      promise = new Promise(async (done) => {
+      promise = new Promise(async done => {
         const result = await Reflect.apply(original, this, parameters);
         promise = undefined;
         done(result);
         if (emitAfter) {
-          this.eventEmitter.emit(emitAfter, result);
+          (this as { eventEmitter: EventEmitter }).eventEmitter.emit(
+            emitAfter,
+            result,
+          );
         }
       });
       return promise;

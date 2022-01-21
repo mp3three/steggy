@@ -39,6 +39,7 @@
         "require-await": "off",
         "unicorn/no-empty-file": "off",
         "unicorn/no-await-expression-member": "off",
+        "unicorn/no-useless-undefined": "off",
         "@typescript-eslint/require-array-sort-compare": "error",
         "@typescript-eslint/unbound-method": "error",
         "import/no-extraneous-dependencies": ["error", { "packageDir": "./" }],

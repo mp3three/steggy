@@ -1,4 +1,4 @@
-import { sleep } from '../includes';
+import { sleep } from '@text-based/utilities';
 
 /**
  * Force a method to execute for a minimum amount of time, even if the logic inside is faster

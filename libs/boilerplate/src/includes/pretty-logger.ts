@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers, radar/no-duplicate-string */
 
+import { is } from '@text-based/utilities';
 import chalk from 'chalk';
 import pino from 'pino';
 import { cwd } from 'process';
 
-import { is } from '../contracts';
 import { AutoLogService, LoggerFunction } from '../services/auto-log.service';
 const logger = pino({
   level: AutoLogService.logger.level,
@@ -48,11 +48,11 @@ export const prettyFormatMessage = (message: string): string => {
     return ``;
   }
   message = message
-    .replace(new RegExp('([^ ]+#[^ ]+)', 'g'), (i) => chalk.bold(i))
-    .replace(new RegExp('(\\[[^\\]]+\\])', 'g'), (i) =>
+    .replace(new RegExp('([^ ]+#[^ ]+)', 'g'), i => chalk.bold(i))
+    .replace(new RegExp('(\\[[^\\]]+\\])', 'g'), i =>
       chalk.bold.magenta(i.slice(1, -1)),
     )
-    .replace(new RegExp('(\\{[^\\]}]+\\})', 'g'), (i) =>
+    .replace(new RegExp('(\\{[^\\]}]+\\})', 'g'), i =>
       chalk.bold.gray(i.slice(1, -1)),
     );
   const frontDash = ' - ';
@@ -80,7 +80,7 @@ const prettyErrorMessage = (message: string): string => {
     const ctorArguments = service
       .slice(1, -1)
       .split(',')
-      .map((item) => item.trim());
+      .map(item => item.trim());
     const match = module.match(new RegExp('in the ([^ ]+) context'));
     const [, name] = module.match(new RegExp('the argument ([^ ]+) at'));
 
@@ -92,7 +92,7 @@ const prettyErrorMessage = (message: string): string => {
     let found = false;
     const stack = message.split(`\n\n`)[2];
 
-    const coloredArguments = ctorArguments.map((parameter) => {
+    const coloredArguments = ctorArguments.map(parameter => {
       if (found === false) {
         if (parameter === '?') {
           found = true;
@@ -112,7 +112,7 @@ const prettyErrorMessage = (message: string): string => {
       `${chalk.yellow('export class')} ${PROVIDER} ${left}`,
       chalk.gray`  ...`,
       `  ${chalk.yellow('constructor')} ${chalk.blueBright(`(`)}`,
-      ...coloredArguments.map((line) => `    ${line},`),
+      ...coloredArguments.map(line => `    ${line},`),
       chalk.blueBright(` ) {}`),
       chalk.gray` ...`,
       right,
@@ -129,7 +129,7 @@ const prettyErrorMessage = (message: string): string => {
       chalk.gray` ...`,
       `  ${chalk.yellow('constructor')} ${chalk.blueBright(`(`)}`,
       ...coloredArguments
-        .map((item) => {
+        .map(item => {
           if (item === coloredName) {
             return `${chalk.magenta(`@Inject`)}${chalk.blueBright(
               '(',
@@ -139,20 +139,20 @@ const prettyErrorMessage = (message: string): string => {
           }
           return item;
         })
-        .map((line) => `    ${line},`),
+        .map(line => `    ${line},`),
       chalk.blueBright(` ) {}`),
       chalk.gray` ...`,
       chalk.whiteBright` - Verify import statement follows these standards`,
       chalk.gray`// Good imports 👍`,
       ...['"@another/library"', '"./file"', '"../directory"'].map(
-        (statement) =>
+        statement =>
           `${importWord} ${left} ${coloredName} ${right} ${fromWord} ${chalk.green(
             statement,
           )};`,
       ),
       chalk.gray`// Breaking imports 👎`,
       ...['"."', '".."', '"../.."'].map(
-        (statement) =>
+        statement =>
           `${importWord} ${left} ${coloredName} ${right} ${fromWord} ${chalk.red(
             statement,
           )};`,

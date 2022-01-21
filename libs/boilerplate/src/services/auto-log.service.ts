@@ -1,8 +1,8 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
+import { is } from '@text-based/utilities';
 import pino from 'pino';
 
-import { is } from '../contracts';
 import { iLogger, iLoggerCore, LogLevels } from '../contracts/interfaces';
 import { LOG_CONTEXT, MISSING_CONTEXT } from '../contracts/logger/constants';
 import { mappedContexts } from '../decorators/injectors';

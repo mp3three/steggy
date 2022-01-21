@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { is } from '@text-based/utilities';
 import JSON from 'comment-json';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
@@ -9,7 +10,6 @@ import { LIB_UTILS } from '../config';
 import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
-  is,
   METADATA_FILE,
   NX_METADATA_FILE,
   NX_WORKSPACE_FILE,
@@ -125,7 +125,7 @@ export class WorkspaceService {
   public list(type: NXProjectTypes): string[] {
     const { projects } = this.workspace;
     return Object.keys(projects).filter(
-      (item) => projects[item].projectType === type,
+      item => projects[item].projectType === type,
     );
   }
 
@@ -192,7 +192,7 @@ export class WorkspaceService {
         };
     const { projects } = this.workspace;
     this.logger.info(`Loading project metadata`);
-    Object.keys(projects).forEach((key) => {
+    Object.keys(projects).forEach(key => {
       const path = this.path(key, 'metadata');
       if (!existsSync(path)) {
         return;
@@ -223,7 +223,7 @@ export class WorkspaceService {
     );
     const { projects } = this.workspace;
     this.logger.info(`Loading workspace`);
-    Object.keys(projects).forEach((key) => {
+    Object.keys(projects).forEach(key => {
       // Shh... this is actually a string before this point
       const basePath = isDevelopment
         ? String(projects[key])
@@ -239,7 +239,7 @@ export class WorkspaceService {
 
   private loadPackages(): void {
     this.logger.info(`Loading package info`);
-    Object.keys(this.workspace.projects).forEach((project) => {
+    Object.keys(this.workspace.projects).forEach(project => {
       const packageFile = this.path(project, 'package');
       const exists = existsSync(packageFile);
       if (!exists) {

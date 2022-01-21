@@ -34,6 +34,11 @@
             "output": "./assets/home-assistant"
           },
           {
+            "input": "libs/home-assistant-shared",
+            "glob": "*.json",
+            "output": "./assets/home-assistant-shared"
+          },
+          {
             "input": "libs/controller-logic",
             "glob": "*.json",
             "output": "./assets/controller-logic"
@@ -49,9 +54,14 @@
             "output": "./assets/persistence"
           },
           {
-            "input": "libs/tty",
+            "input": "libs/boilerplate",
             "glob": "*.json",
-            "output": "./assets/tty"
+            "output": "./assets/boilerplate"
+          },
+          {
+            "input": "libs/controller-shared",
+            "glob": "*.json",
+            "output": "./assets/controller-shared"
           },
           {
             "input": "apps/home-controller",

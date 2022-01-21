@@ -36,13 +36,15 @@ function deepCloneArray(array: Array<unknown>) {
   });
 }
 
-function safeGetProperty(object, key: string) {
-  return key === '__proto__' ? undefined : object[key];
+function safeGetProperty(object: unknown, key: string) {
+  return key === '__proto__'
+    ? undefined
+    : (object as Record<string, unknown>)[key];
 }
 
 export function deepExtend<T>(target: T, object: T): T {
   if (typeof object !== 'object' || object === null || Array.isArray(object)) {
-    return;
+    return target;
   }
   Object.keys(object).forEach(key => {
     const source = safeGetProperty(target, key);
@@ -51,15 +53,15 @@ export function deepExtend<T>(target: T, object: T): T {
       return;
     }
     if (typeof value !== 'object' || value === null) {
-      target[key] = value;
+      (target as Record<string, unknown>)[key] = value;
       return;
     }
     if (Array.isArray(value)) {
-      target[key] = deepCloneArray(value);
+      (target as Record<string, unknown>)[key] = deepCloneArray(value);
       return;
     }
     if (isSpecificValue(value)) {
-      target[key] = cloneSpecificValue(value);
+      (target as Record<string, unknown>)[key] = cloneSpecificValue(value);
       return;
     }
     if (
@@ -67,10 +69,10 @@ export function deepExtend<T>(target: T, object: T): T {
       source === null ||
       Array.isArray(source)
     ) {
-      target[key] = deepExtend({}, value);
+      (target as Record<string, unknown>)[key] = deepExtend({}, value);
       return;
     }
-    target[key] = deepExtend(source, value);
+    (target as Record<string, unknown>)[key] = deepExtend(source, value);
   });
   return target;
 }

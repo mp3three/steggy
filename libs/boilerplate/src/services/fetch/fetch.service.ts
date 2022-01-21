@@ -10,17 +10,17 @@ import { BaseFetchService } from './base-fetch.service';
 const DEFAULT_TRUNCATE_LENGTH = 200;
 @Injectable({ scope: Scope.TRANSIENT })
 export class FetchService extends BaseFetchService {
-  constructor(protected readonly logger: AutoLogService) {
+  constructor(protected override readonly logger: AutoLogService) {
     super();
   }
 
-  public TRUNCATE_LENGTH = DEFAULT_TRUNCATE_LENGTH;
+  public override TRUNCATE_LENGTH = DEFAULT_TRUNCATE_LENGTH;
 
   private limiter: Bottleneck;
 
   public bottleneck(options: Bottleneck.ConstructorOptions): void {
     this.limiter = new Bottleneck(options);
-    this.limiter.on('error', (error) => {
+    this.limiter.on('error', error => {
       this.logger.error({ ...error }, `Error caught in limiter`);
     });
   }
@@ -35,7 +35,7 @@ export class FetchService extends BaseFetchService {
     await new Promise<void>((resolve, reject) => {
       const fileStream = createWriteStream(destination);
       response.body.pipe(fileStream);
-      response.body.on('error', (error) => reject(error));
+      response.body.on('error', error => reject(error));
       fileStream.on('finish', () => resolve());
     });
   }
@@ -61,7 +61,7 @@ export class FetchService extends BaseFetchService {
       }
       return await this.fetchHandleResponse(fetchWith, response);
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error({ error });
       return undefined;
     }
   }

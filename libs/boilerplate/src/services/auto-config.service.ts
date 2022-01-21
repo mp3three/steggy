@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Inject, Injectable, Optional } from '@nestjs/common';
+import { deepExtend, INVERT_VALUE, is } from '@text-based/utilities';
 import JSON from 'comment-json';
 import {
   existsSync,
@@ -18,13 +19,11 @@ import { cwd } from 'process';
 import { LIB_UTILS, LOG_LEVEL } from '../config';
 import {
   ConfigItem,
-  is,
   METADATA_FILE,
   RepoMetadataDTO,
   USE_THIS_CONFIG,
 } from '../contracts';
 import { AbstractConfig, ACTIVE_APPLICATION } from '../contracts/meta/config';
-import { deepExtend, INVERT_VALUE } from '../includes';
 import { AutoLogService } from './auto-log.service';
 import { WorkspaceService } from './workspace.service';
 
@@ -127,7 +126,7 @@ export class AutoConfigService {
     this.config = {};
     this.setDefaults();
     const fileConfig = this.loadFromFiles();
-    fileConfig.forEach((config) => deepExtend(this.config, config));
+    fileConfig.forEach(config => deepExtend(this.config, config));
     this.loadFromEnv();
     this.logger.setContext(LIB_UTILS, AutoConfigService);
     this.logger[
@@ -162,7 +161,7 @@ export class AutoConfigService {
       const configPrefix = isApplication
         ? 'application'
         : `libs.${cleanedProject}`;
-      Object.keys(configuration).forEach((key) => {
+      Object.keys(configuration).forEach(key => {
         const noAppPath = `${environmentPrefix}_${key}`;
         const fullPath = `${this.APPLICATION.description}__${noAppPath}`;
         const full = env[fullPath] ?? this.switches[fullPath];
@@ -198,12 +197,12 @@ export class AutoConfigService {
 
   private loadFromFile(out: Map<string, AbstractConfig>, filePath: string) {
     if (!existsSync(filePath)) {
-      return;
+      return undefined;
     }
     this.loadedConfigPath = filePath;
     const fileContent = readFileSync(filePath, 'utf-8').trim();
     this.loadedConfigFiles.push(filePath);
-    const hasExtension = extensions.some((extension) => {
+    const hasExtension = extensions.some(extension => {
       if (
         filePath.slice(extension.length * INVERT_VALUE).toLowerCase() ===
         extension
@@ -224,7 +223,7 @@ export class AutoConfigService {
       return false;
     });
     if (hasExtension) {
-      return;
+      return undefined;
     }
     // Guessing JSON
     if (fileContent[START] === '{') {
@@ -248,12 +247,12 @@ export class AutoConfigService {
 
   private loadFromFiles(): Map<string, AbstractConfig> {
     this.configFiles = this.workspace.configFilePaths;
-    if (this.switches.config) {
-      this.configFiles.push(this.switches.config);
+    if (this.switches['config']) {
+      this.configFiles.push(this.switches['config']);
     }
     this.loadedConfigFiles = [];
     const out = new Map<string, AbstractConfig>();
-    this.configFiles.forEach((filePath) => {
+    this.configFiles.forEach(filePath => {
       this.loadFromFile(out, filePath);
     });
 
@@ -271,7 +270,7 @@ export class AutoConfigService {
         )
       : join(join(__dirname, 'assets'));
     const contents = readdirSync(path);
-    contents.forEach((folder) => {
+    contents.forEach(folder => {
       const maybeFolder = join(path, folder);
       if (!lstatSync(maybeFolder).isDirectory()) {
         return;
@@ -284,7 +283,7 @@ export class AutoConfigService {
   private setDefaults(): void {
     this.metadata.forEach(({ configuration }, project) => {
       const isApplication = this.APPLICATION.description === project;
-      Object.keys(configuration).forEach((key) => {
+      Object.keys(configuration).forEach(key => {
         if (!is.undefined(configuration[key].default)) {
           set(
             this.config,

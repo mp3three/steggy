@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { DiscoveryService, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
+import { CRON_SCHEDULE } from '@text-based/utilities';
 import { CronJob } from 'cron';
 
-import { CRON_SCHEDULE } from '../../contracts/cron';
 import { LOG_CONTEXT } from '../../contracts/logger/constants';
 import { AutoLogService } from '.././auto-log.service';
 

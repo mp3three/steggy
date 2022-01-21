@@ -1,20 +1,21 @@
+import { GroupDTO } from '@text-based/controller-shared';
 import { DOWN, is, TitleCase, UP } from '@text-based/utilities';
 import { List, Typography } from 'antd';
-import PropTypes from 'prop-types';
 import React from 'react';
-import { Link, useParams, withRouter } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 
 const { Title } = Typography;
 
-class GroupDetailComponent extends React.Component {
+export class GroupDetail extends React.Component {
   override state: { groups: GroupDTO[] } = {
     groups: [],
   };
 
   override async componentDidMount(): Promise<void> {
-    const { id } = useParams<{ id: string }>();
+    // const { id } = useParams<{ id: string }>();
+    const id = '1';
     const groups = await sendRequest<GroupDTO[]>(`/group/${id}`);
     this.setState({ groups });
   }
@@ -49,4 +50,4 @@ class GroupDetailComponent extends React.Component {
     }));
   }
 }
-export const GroupDetail = withRouter(GroupDetailComponent);
+// export const GroupDetail = withRouter(GroupDetailComponent);

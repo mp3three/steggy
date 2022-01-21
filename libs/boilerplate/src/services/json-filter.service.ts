@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { FilterDTO, is, ResultControlDTO } from '@text-based/utilities';
 import { parseDate } from 'chrono-node';
-import { IsNumberString, isNumberString } from 'class-validator';
+import { isNumberString } from 'class-validator';
 import dayjs from 'dayjs';
 import { get } from 'object-path';
 
-import {
-  FILTER_OPERATIONS,
-  FilterDTO,
-  is,
-  ResultControlDTO,
-} from '../contracts';
+import { FILTER_OPERATIONS } from '../contracts';
 import { AutoLogService } from './auto-log.service';
 
 type RelativeCompare = number | Date | dayjs.Dayjs;
@@ -72,8 +68,8 @@ export class JSONFilterService {
     data: T[],
   ): T[] {
     const filters = control.filters ? [...control.filters.values()] : [];
-    data = data.filter((item) =>
-      filters.every((filter) =>
+    data = data.filter(item =>
+      filters.every(filter =>
         this.match(item as Record<string, unknown>, filter),
       ),
     );

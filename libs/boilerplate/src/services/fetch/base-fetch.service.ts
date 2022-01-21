@@ -1,12 +1,7 @@
+import { controlToQuery, is, ResultControlDTO } from '@text-based/utilities';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
-import {
-  FetchArguments,
-  FetchParameterTypes,
-  is,
-  ResultControlDTO,
-} from '../../contracts';
-import { controlToQuery } from '../../includes';
+import { FetchArguments, FetchParameterTypes } from '../../contracts';
 import { AutoLogService } from '../auto-log.service';
 
 const DEFAULT_TRUNCATE_LENGTH = 200;
@@ -128,7 +123,7 @@ export class BaseFetchService {
 
   private cast(item: FetchParameterTypes): string {
     if (Array.isArray(item)) {
-      return item.map((i) => this.cast(i)).join(',');
+      return item.map(i => this.cast(i)).join(',');
     }
     if (item instanceof Date) {
       return item.toISOString();

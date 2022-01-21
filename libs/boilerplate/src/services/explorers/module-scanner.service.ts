@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
+import { is } from '@text-based/utilities';
 
-import { is } from '../../contracts';
 import { LOGGER_LIBRARY } from '../../contracts/logger';
 import { OnceIsEnough } from '../../decorators/once-is-enough.decorator';
 
@@ -11,7 +11,7 @@ export class ModuleScannerService {
 
   @OnceIsEnough()
   public applicationProviders<T extends unknown = unknown>(): T[] {
-    return this.getProviders<T>().filter((instance) => {
+    return this.getProviders<T>().filter(instance => {
       const ctor = instance.constructor;
       return !is.undefined(ctor[LOGGER_LIBRARY]);
     });
@@ -22,7 +22,7 @@ export class ModuleScannerService {
     PROVIDER_TYPE extends unknown = unknown,
   >(find: symbol): Map<PROVIDER_TYPE, VALUE> {
     const out = new Map();
-    this.applicationProviders<PROVIDER_TYPE>().forEach((instance) => {
+    this.applicationProviders<PROVIDER_TYPE>().forEach(instance => {
       const ctor = instance.constructor;
       if (!is.undefined(ctor[find])) {
         out.set(instance, ctor[find]);
@@ -37,12 +37,12 @@ export class ModuleScannerService {
       ...this.discoveryService.getControllers(),
       ...this.discoveryService.getProviders(),
     ]
-      .filter((wrapper) => {
+      .filter(wrapper => {
         if (!wrapper.instance) {
           return false;
         }
         return true;
       })
-      .map((wrapper) => wrapper.instance);
+      .map(wrapper => wrapper.instance);
   }
 }

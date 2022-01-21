@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
+import { is } from '@text-based/utilities';
 
 import { LOG_LEVEL } from '../../config';
-import { is } from '../../contracts';
 import { LOG_CONTEXT, LOGGER_LIBRARY } from '../../contracts/logger';
 import { InjectConfig, mappedContexts } from '../../decorators/injectors';
 
@@ -23,7 +23,7 @@ export class LogExplorerService {
       ...this.discoveryService.getControllers(),
       ...this.discoveryService.getProviders(),
     ].filter(({ instance }) => !!instance);
-    providers.forEach((wrapper) => {
+    providers.forEach(wrapper => {
       const { instance, host } = wrapper;
       const proto = instance.constructor;
       if (!proto || !proto[LOGGER_LIBRARY]) {

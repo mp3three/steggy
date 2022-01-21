@@ -1,3 +1,4 @@
+import type { GroupDTO } from '@text-based/controller-shared';
 import { DOWN, is, TitleCase, UP } from '@text-based/utilities';
 import { List, Typography } from 'antd';
 import React from 'react';

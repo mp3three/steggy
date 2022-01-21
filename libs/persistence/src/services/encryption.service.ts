@@ -56,7 +56,7 @@ export class EncryptionService {
 
   public encrypt(data: unknown, secret: string = this.secret): Buffer {
     if (!data) {
-      return;
+      return undefined;
     }
     // 🧂
     const saltStart = randomBytes(this.saltStartSize)
