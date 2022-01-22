@@ -1,12 +1,18 @@
-import { LightStateDTO } from '@text-based/home-assistant-shared';
+import {
+  LightAttributesDTO,
+  LightStateDTO,
+} from '@text-based/home-assistant-shared';
 import { sleep } from '@text-based/utilities';
 import { Card, Radio, Spin } from 'antd';
 import React from 'react';
-import { ChromePicker } from 'react-color';
+import { ChromePicker, ColorResult } from 'react-color';
 
 import { sendRequest } from '../../types';
 
-type tStateType = { entity: LightStateDTO };
+type tStateType = { color: string; entity: LightStateDTO };
+const R = 0;
+const G = 1;
+const B = 2;
 
 export class LightGroupCard extends React.Component<
   { entity_id: string },
@@ -20,10 +26,10 @@ export class LightGroupCard extends React.Component<
     if (!this.state) {
       return this.renderWaiting();
     }
-    const { entity } = this.state;
+    const { color, entity } = this.state;
     const entityState = this.getCurrentState();
     return (
-      <Card title={entity.attributes.friendly_name} type="inner" hoverable>
+      <Card title={entity.attributes.friendly_name} type="inner">
         <Radio.Group
           value={entityState}
           onChange={this.onModeChange.bind(this)}
@@ -32,7 +38,20 @@ export class LightGroupCard extends React.Component<
           <Radio.Button value="circadianLight">Circadian</Radio.Button>
           <Radio.Button value="turnOn">Color</Radio.Button>
         </Radio.Group>
-        {entityState === 'on' ? <ChromePicker /> : undefined}
+        {entityState === 'turnOn' ? (
+          <ChromePicker
+            color={
+              color ?? {
+                b: entity.attributes.rgb_color[R],
+                g: entity.attributes.rgb_color[G],
+                r: entity.attributes.rgb_color[B],
+              }
+            }
+            onChange={this.updateColor.bind(this)}
+            onChangeComplete={this.sendChange.bind(this)}
+            disableAlpha={true}
+          />
+        ) : undefined}
       </Card>
     );
   }
@@ -72,5 +91,23 @@ export class LightGroupCard extends React.Component<
         <Spin />
       </Card>
     );
+  }
+
+  private async sendChange({ rgb, hex }: ColorResult): Promise<void> {
+    this.setState({ color: hex });
+    const { r, g, b } = rgb;
+    const data = {
+      rgb_color: [r, g, b],
+    } as LightAttributesDTO;
+    console.log(data);
+    await sendRequest(`/entity/light-state/${this.state.entity.entity_id}`, {
+      body: JSON.stringify(data),
+      method: 'put',
+    });
+    console.log(data);
+  }
+
+  private updateColor({ hex }: ColorResult) {
+    this.setState({ color: hex });
   }
 }

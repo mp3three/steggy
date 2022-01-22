@@ -153,7 +153,9 @@ export class LightManagerService {
       delete attributes.color_temp;
       // attributes.color_mode = ColorModes.hs;
       // attributes.rgb_color = current.attributes.rgb_color;
-      attributes.hs_color = current.attributes.hs_color;
+      if (is.undefined(attributes.rgb_color)) {
+        attributes.hs_color = current.attributes.hs_color;
+      }
     }
     Object.keys(attributes).forEach(key => {
       if (is.undefined(attributes[key])) {

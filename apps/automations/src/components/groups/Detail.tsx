@@ -3,6 +3,7 @@ import { TitleCase } from '@text-based/utilities';
 import { Layout, Spin, Typography } from 'antd';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { ChromePicker } from 'react-color';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
@@ -10,7 +11,7 @@ import { LightGroup } from './LightGroup';
 
 const { Title } = Typography;
 
-type tStateType = { group: GroupDTO };
+type tStateType = { color: string; group: GroupDTO };
 
 export const GroupDetail = withRouter(
   class extends React.Component<
@@ -19,6 +20,10 @@ export const GroupDetail = withRouter(
   > {
     static propTypes = {
       id: PropTypes.string,
+    };
+    override state = {
+      color: '#FF0000',
+      group: undefined,
     };
 
     override async componentDidMount(): Promise<void> {
@@ -43,7 +48,13 @@ export const GroupDetail = withRouter(
               <Spin size="large" tip="Loading..." />
             </Layout.Content>
           )}
-          <Layout.Sider>Foo</Layout.Sider>
+          <Layout.Sider>
+            <ChromePicker
+              onChange={i => this.setState({ color: i.hex })}
+              onChangeComplete={i => this.setState({ color: i.hex })}
+              color={this.state.color}
+            />
+          </Layout.Sider>
         </Layout>
       );
     }
