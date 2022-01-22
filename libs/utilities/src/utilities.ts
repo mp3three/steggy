@@ -23,6 +23,7 @@ export const NOT_FOUND = -1;
 export const DOWN = -1;
 export const MINUTE = 60_000;
 export const SECOND = 1000;
+export const PERCENT = 100;
 
 /**
  * Defaults to 1000 (1 second)
@@ -30,7 +31,7 @@ export const SECOND = 1000;
  * @example await sleep(5000);
  */
 export const sleep = (ms: number = SECOND): Promise<void> =>
-  new Promise((done) => setTimeout(() => done(), ms));
+  new Promise(done => setTimeout(() => done(), ms));
 
 export function PEAT<T extends unknown = number>(
   length: number,

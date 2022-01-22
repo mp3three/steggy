@@ -133,9 +133,8 @@
           "error",
           {
             "replacements": {
-              "i": {
-                "index": false
-              },
+              "temp": false,
+              "i": false,
               "e": false,
               "docs": false
             }

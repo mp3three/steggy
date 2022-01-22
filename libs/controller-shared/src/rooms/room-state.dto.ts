@@ -1,7 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  FanAttributesDTO,
+  LightAttributesDTO,
+  LockAttributesDTO,
+  SwitchAttributesDTO,
+} from '@text-based/home-assistant-shared';
 import { IsString, ValidateNested } from 'class-validator';
-
-import { ClimateCacheDTO, FanCacheDTO, LightingCacheDTO } from '../dto';
 
 export class RoomStateDTO {
   @ApiProperty()
@@ -15,15 +19,17 @@ export class RoomStateDTO {
 }
 
 export type ROOM_ENTITY_EXTRAS =
-  | LightingCacheDTO
-  | FanCacheDTO
-  | ClimateCacheDTO;
+  | LightAttributesDTO
+  | FanAttributesDTO
+  | SwitchAttributesDTO
+  | LockAttributesDTO;
 
 export const ENTITY_EXTRAS_SCHEMA = {
   oneOf: [
-    { $ref: `#/components/schemas/LightingCacheDTO` },
-    { $ref: `#/components/schemas/${FanCacheDTO.name}` },
-    { $ref: `#/components/schemas/${ClimateCacheDTO.name}` },
+    { $ref: `#/components/schemas/${LightAttributesDTO.name}` },
+    { $ref: `#/components/schemas/${FanAttributesDTO.name}` },
+    { $ref: `#/components/schemas/${SwitchAttributesDTO.name}` },
+    { $ref: `#/components/schemas/${LockAttributesDTO.name}` },
   ],
 };
 

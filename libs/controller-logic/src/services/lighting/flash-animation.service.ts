@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@text-based/boilerplate';
-import {
-  FlashAnimationDTO,
-  LIGHTING_MODE,
-  LightingCacheDTO,
-} from '@text-based/controller-shared';
+import { FlashAnimationDTO } from '@text-based/controller-shared';
 import { EntityManagerService } from '@text-based/home-assistant';
-import { LightStateDTO } from '@text-based/home-assistant-shared';
+import {
+  ColorModes,
+  LightAttributesDTO,
+  LightStateDTO,
+} from '@text-based/home-assistant-shared';
 import { eachSeries, is, PEAT, sleep } from '@text-based/utilities';
 
 import { LightManagerService } from './light-manager.service';
@@ -26,12 +26,11 @@ export class FlashAnimationService {
   public async flash(animation: FlashAnimationDTO): Promise<void> {
     this.logger.info({ animation }, `Flash animation`);
     const steps = Math.floor(animation.duration / animation.interval);
-    const frames = PEAT(steps).map(() => ({})) as LightingCacheDTO[];
+    const frames = PEAT(steps).map(() => ({})) as LightAttributesDTO[];
     const entity = this.entityManager.getEntity<LightStateDTO>(
       animation.entity_id,
     );
-    const { mode } =
-      (await this.lightManager.getState(animation.entity_id)) || {};
+    const mode = entity.attributes.color_mode;
 
     if (!is.string(animation)) {
       this.brightnessFlash(entity, animation, frames);
@@ -48,16 +47,19 @@ export class FlashAnimationService {
         await sleep(animation.interval),
       ]);
     });
-    if (mode === LIGHTING_MODE.circadian) {
+    if (mode === ColorModes.color_temp) {
       this.logger.debug(`Restoring circadian state {${animation.entity_id}}`);
-      await this.lightManager.circadianLight(animation.entity_id);
+      await this.lightManager.circadianLight(
+        animation.entity_id,
+        entity.attributes.brightness,
+      );
     }
   }
 
   private brightnessFlash(
     entity: LightStateDTO,
     animation: FlashAnimationDTO,
-    frames: LightingCacheDTO[],
+    frames: LightAttributesDTO[],
   ): void {
     const reverse = frames.length / HALF;
     let current = entity?.attributes?.brightness ?? OFF;
@@ -77,7 +79,7 @@ export class FlashAnimationService {
   private colorFlash(
     entity: LightStateDTO,
     animation: FlashAnimationDTO,
-    frames: LightingCacheDTO[],
+    frames: LightAttributesDTO[],
   ): void {
     const reverse = frames.length / HALF;
     const { r: targetR, g: targetG, b: targetB } = animation.rgb_color;

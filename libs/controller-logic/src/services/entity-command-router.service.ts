@@ -8,7 +8,6 @@ import type {
   ROOM_ENTITY_EXTRAS,
   RoomEntitySaveStateDTO,
 } from '@text-based/controller-shared';
-import { ClimateCacheDTO, FanCacheDTO } from '@text-based/controller-shared';
 import {
   ClimateDomainService,
   FanDomainService,
@@ -18,7 +17,9 @@ import {
   SwitchDomainService,
 } from '@text-based/home-assistant';
 import {
+  ClimateAttributesDTO,
   domain,
+  FanAttributesDTO,
   FanSpeeds,
   HASS_DOMAINS,
 } from '@text-based/home-assistant-shared';
@@ -69,7 +70,7 @@ export class EntityCommandRouterService {
         await this.fanEntity(
           id,
           command as keyof FanDomainService,
-          body as FanCacheDTO,
+          body as FanAttributesDTO,
         );
         return;
       case HASS_DOMAINS.lock:
@@ -79,7 +80,7 @@ export class EntityCommandRouterService {
         await this.climateEntity(
           id,
           command as keyof ClimateDomainService,
-          body as ClimateCacheDTO,
+          body as ClimateAttributesDTO,
         );
         return;
     }
@@ -90,7 +91,7 @@ export class EntityCommandRouterService {
   private async climateEntity(
     id: string,
     command: keyof ClimateDomainService,
-    body: ClimateCacheDTO = {},
+    body: Partial<ClimateAttributesDTO> = {},
   ): Promise<void> {
     switch (command) {
       case 'turnOff':
@@ -98,22 +99,23 @@ export class EntityCommandRouterService {
       case 'turnOn':
         return await this.climateService.turnOn(id);
       case 'setFanMode':
-        await this.climateService.setFanMode(id, body.mode);
+        await this.climateService.setFanMode(id, body.fan_mode);
         return;
       case 'setHvacMode':
-        await this.climateService.setHvacMode(id, body.mode);
+        await this.climateService.setHvacMode(id, body.hvac_mode);
         return;
       case 'setPresetMode':
-        await this.climateService.setPresetMode(id, body.mode);
+        await this.climateService.setPresetMode(id, body.preset_mode);
         return;
       case 'setTemperature':
         await this.climateService.setTemperature(id, body);
         return;
       case 'setHumidity':
-        await this.climateService.setHumidity(id, body.value);
+        await this.climateService.setHumidity(id, body.current_humidity);
         return;
       case 'setSwingMode':
-        await this.climateService.setSwingMode(id, body.mode);
+        // 💃
+        await this.climateService.setSwingMode(id, body.swing_mode);
         return;
     }
   }
@@ -121,7 +123,7 @@ export class EntityCommandRouterService {
   private async fanEntity(
     id: string,
     command: string,
-    { speed }: FanCacheDTO,
+    { speed }: FanAttributesDTO,
   ): Promise<void> {
     switch (command) {
       case 'turnOff':

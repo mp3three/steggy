@@ -1,28 +1,29 @@
 import { HassStateDTO } from '../hass-state.dto';
 
-export enum EcobeeHVACModes {
+export enum HVACModes {
   heat_cool = 'heat_cool',
   heat = 'heat',
   cool = 'cool',
   off = 'off',
 }
-export enum EcobeeFanModes {
+export enum FanModes {
   auto = 'auto',
   on = 'on',
 }
 
-export class EcobeeClimateAttributesDTO {
+export class ClimateAttributesDTO {
   public aux_heat: 'off';
   public climaate_mode: 'Sleep';
   public current_humidity: number;
   public current_temperature: number;
   public equipment_running: string;
   public fan_min_on_time: number;
-  public fan_mode: string | EcobeeFanModes;
-  public fan_modes: (string | `${EcobeeFanModes}`)[];
+  public fan_mode: string | FanModes;
+  public fan_modes: (string | `${FanModes}`)[];
   public friendly_name: string;
   public hvac_action: 'idle';
-  public hvac_modes: (keyof typeof EcobeeHVACModes)[];
+  public hvac_mode: keyof typeof HVACModes;
+  public hvac_modes: (keyof typeof HVACModes)[];
   public max_temp: number;
   public min_temp: number;
   public preset_mode: string;
@@ -34,7 +35,7 @@ export class EcobeeClimateAttributesDTO {
   public target_temp_low: number;
   public temperature: null;
 }
-export class EcobeeClimateStateDTO extends HassStateDTO<
-  keyof typeof EcobeeHVACModes | 'unavailable',
-  EcobeeClimateAttributesDTO
+export class ClimateStateDTO extends HassStateDTO<
+  keyof typeof HVACModes | 'unavailable',
+  ClimateAttributesDTO
 > {}

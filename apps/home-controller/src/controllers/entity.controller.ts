@@ -14,10 +14,7 @@ import {
   EntityCommandRouterService,
   LightManagerService,
 } from '@text-based/controller-logic';
-import {
-  EntityHistoryRequest,
-  LightingCacheDTO,
-} from '@text-based/controller-shared';
+import { EntityHistoryRequest } from '@text-based/controller-shared';
 import {
   EntityManagerService,
   HomeAssistantFetchAPIService,
@@ -27,6 +24,7 @@ import {
   EntityRegistryItemDTO,
   HASS_DOMAINS,
   HassStateDTO,
+  LightAttributesDTO,
 } from '@text-based/home-assistant-shared';
 import {
   ApiGenericResponse,
@@ -151,13 +149,13 @@ export class EntityController {
 
   @Put(`/light-state/:id`)
   @ApiGenericResponse()
-  @ApiBody({ type: LightingCacheDTO })
+  @ApiBody({ type: LightAttributesDTO })
   @ApiOperation({
     description: `Modify a light state using the light manager`,
   })
   public async setLightState(
     @Param('id') id: string,
-    @Body() data: Partial<LightingCacheDTO> = {},
+    @Body() data: Partial<LightAttributesDTO> = {},
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     if (
       domain(id) !== HASS_DOMAINS.light ||

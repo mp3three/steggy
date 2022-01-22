@@ -6,24 +6,23 @@ import {
   GroupCommandDTO,
   GroupDTO,
   GroupLightCommandExtra,
-  LIGHTING_MODE,
-  LightingCacheDTO,
   RoomEntitySaveStateDTO,
 } from '@text-based/controller-shared';
 import { EntityManagerService } from '@text-based/home-assistant';
 import {
+  ColorModes,
   domain,
   HASS_DOMAINS,
+  LightAttributesDTO,
   LightStateDTO,
 } from '@text-based/home-assistant-shared';
-import { each } from '@text-based/utilities';
+import { each, START } from '@text-based/utilities';
 
 import { LightManagerService } from '../lighting';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
 
-type GroupParameter = GroupDTO<LightingCacheDTO> | string;
-const START = 0;
+type GroupParameter = GroupDTO<LightAttributesDTO> | string;
 
 /**
  * Light groups are intended to work with just light domain devices
@@ -73,7 +72,7 @@ export class LightGroupService extends BaseGroupService {
 
   public async expandState(
     group: GroupDTO | string,
-    { brightness, hs_color, rgb_color }: LightingCacheDTO,
+    { brightness, hs_color, rgb_color }: LightAttributesDTO,
   ): Promise<void> {
     group = await this.loadGroup(group);
     await each(group.entities, async entity => {
@@ -85,33 +84,33 @@ export class LightGroupService extends BaseGroupService {
       }
       await this.lightManager.turnOn(entity, {
         brightness,
-        hs_color,
-        rgb_color,
+        hs_color: hs_color as [number, number],
+        rgb_color: rgb_color as [number, number, number],
       });
     });
   }
 
   public async getState(
-    group: GroupDTO<LightingCacheDTO>,
-  ): Promise<RoomEntitySaveStateDTO<LightingCacheDTO>[]> {
-    const out: RoomEntitySaveStateDTO<LightingCacheDTO>[] = [];
-    await each(group.entities, async id => {
+    group: GroupDTO<LightAttributesDTO>,
+  ): Promise<RoomEntitySaveStateDTO<LightAttributesDTO>[]> {
+    const out: RoomEntitySaveStateDTO<LightAttributesDTO>[] = [];
+    group.entities.forEach(id => {
       const light = this.entityManager.getEntity<LightStateDTO>(id);
       if (!light) {
         // 100% of the time this error is seen, bad times were a pre-existing condition
         this.logger.error(`[${group.friendlyName}] missing entity {${id}}`);
         return;
       }
-      const state = await this.lightManager.getState(id);
       out.push({
         extra:
-          state?.mode === LIGHTING_MODE.circadian
+          light.attributes.color_mode === ColorModes.color_temp
             ? {
                 brightness: light.attributes.brightness,
-                mode: LIGHTING_MODE.circadian,
+                color_mode: ColorModes.color_temp,
               }
             : {
                 brightness: light.attributes.brightness,
+                color_mode: ColorModes.hs,
                 hs_color: light.attributes.hs_color,
                 rgb_color: light.attributes.rgb_color,
               },
@@ -119,7 +118,8 @@ export class LightGroupService extends BaseGroupService {
         state: light.state,
       });
     });
-    return out;
+    // await just to keep the definitions compatible without lint warnings
+    return await out;
   }
 
   public isValidEntity(id: string): boolean {
@@ -143,7 +143,6 @@ export class LightGroupService extends BaseGroupService {
   /**
    * Set brightness for turned on entities of the group
    */
-
   public async setBrightness(
     group: GroupParameter,
     brightness: number,
@@ -154,7 +153,7 @@ export class LightGroupService extends BaseGroupService {
     await each(
       group.entities.map((entity, index) => {
         return [entity, states[index]];
-      }) as [string, RoomEntitySaveStateDTO<LightingCacheDTO>][],
+      }) as [string, RoomEntitySaveStateDTO<LightAttributesDTO>][],
       async ([id, state]) => {
         if (state?.state !== 'on' && turnOn === false) {
           return;
@@ -166,7 +165,7 @@ export class LightGroupService extends BaseGroupService {
 
   public async setState(
     entites: string[],
-    state: RoomEntitySaveStateDTO[],
+    state: RoomEntitySaveStateDTO<LightAttributesDTO>[],
   ): Promise<void> {
     if (entites.length !== state.length) {
       this.logger.warn(`State and entity length mismatch`);
@@ -175,21 +174,22 @@ export class LightGroupService extends BaseGroupService {
     await each(
       state.map((state, index) => {
         return [entites[index], state];
-      }) as [string, RoomEntitySaveStateDTO<LightingCacheDTO>][],
+      }) as [string, RoomEntitySaveStateDTO<LightAttributesDTO>][],
       async ([id, state]) => {
         if (state.state === 'off') {
           await this.lightManager.turnOff(id);
           return;
         }
-        switch (state.extra.mode) {
-          case LIGHTING_MODE.circadian:
+        switch (state.extra.color_mode) {
+          case ColorModes.color_temp:
             await this.lightManager.circadianLight(id, state.extra.brightness);
             break;
-          case LIGHTING_MODE.on:
+          case ColorModes.hs:
           default:
             await this.lightManager.turnOn(id, {
               brightness: state.extra.brightness,
-              hs_color: state.extra.hs_color,
+              hs_color: state.extra.hs_color as [number, number],
+              rgb_color: state.extra.rgb_color as [number, number, number],
             });
             break;
         }

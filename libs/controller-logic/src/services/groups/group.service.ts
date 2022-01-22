@@ -6,11 +6,7 @@ import type {
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
 } from '@text-based/controller-shared';
-import {
-  GROUP_TYPES,
-  GroupDTO,
-  LIGHTING_MODE,
-} from '@text-based/controller-shared';
+import { GROUP_TYPES, GroupDTO } from '@text-based/controller-shared';
 import { domain, HASS_DOMAINS } from '@text-based/home-assistant-shared';
 import { BaseSchemaDTO } from '@text-based/persistence';
 import { each, is, ResultControlDTO } from '@text-based/utilities';
@@ -202,9 +198,7 @@ export class GroupService {
           return;
         }
         if (circadian) {
-          await this.lightManager.turnOn(entity, {
-            mode: LIGHTING_MODE.circadian,
-          });
+          await this.lightManager.circadianLight(entity);
           return;
         }
         await this.lightManager.turnOn(entity);

@@ -5,10 +5,6 @@ import {
   SolarCalcService,
 } from '@text-based/controller-logic';
 import {
-  LIGHTING_CACHE_SCHEMA,
-  LightingCacheDTO,
-} from '@text-based/controller-shared';
-import {
   HACallService,
   HASocketAPIService,
   NotifyDomainService,
@@ -34,26 +30,6 @@ export class DebugController {
     private readonly solarCalc: SolarCalcService,
     private readonly callService: HACallService,
   ) {}
-
-  @Get(`/active-lights`)
-  @ApiResponse({
-    schema: {
-      additionalProperties: {
-        properties: LIGHTING_CACHE_SCHEMA,
-      },
-    },
-  })
-  @ApiOperation({
-    description: `Retrieve current state cache for all lights with a state of 'on'`,
-  })
-  public async activeLights(): Promise<Record<string, LightingCacheDTO>> {
-    const lights = await this.lightManger.getActiveLights();
-    const out: Record<string, LightingCacheDTO> = {};
-    await Promise.all(
-      lights.map(async id => (out[id] = await this.lightManger.getState(id))),
-    );
-    return out;
-  }
 
   @Delete(`/notification/:id`)
   @ApiGenericResponse()

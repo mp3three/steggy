@@ -2,6 +2,7 @@ import { LightStateDTO } from '@text-based/home-assistant-shared';
 import { sleep } from '@text-based/utilities';
 import { Card, Radio, Spin } from 'antd';
 import React from 'react';
+import { ChromePicker } from 'react-color';
 
 import { sendRequest } from '../../types';
 
@@ -27,10 +28,11 @@ export class LightGroupCard extends React.Component<
           value={entityState}
           onChange={this.onModeChange.bind(this)}
         >
-          <Radio.Button value="off">Off</Radio.Button>
-          <Radio.Button value="circadian">Circadian</Radio.Button>
-          <Radio.Button value="on">Color</Radio.Button>
+          <Radio.Button value="turnOff">Off</Radio.Button>
+          <Radio.Button value="circadianLight">Circadian</Radio.Button>
+          <Radio.Button value="turnOn">Color</Radio.Button>
         </Radio.Group>
+        {entityState === 'on' ? <ChromePicker /> : undefined}
       </Card>
     );
   }
@@ -38,23 +40,18 @@ export class LightGroupCard extends React.Component<
   private getCurrentState(): string {
     const { entity } = this.state;
     if (entity.state === 'off') {
-      return 'off';
+      return 'turnOff';
     }
     if (entity.attributes.color_mode === 'color_temp') {
-      return 'circadian';
+      return 'circadianLight';
     }
-    return 'on';
+    return 'turnOn';
   }
 
   private async onModeChange(e: Event): Promise<void> {
     const target = e.target as HTMLInputElement;
-    const action = {
-      circadian: 'circadianLight',
-      off: 'turnOff',
-      on: 'turnOn',
-    }[target.value];
     await sendRequest<LightStateDTO>(
-      `/entity/command/${this.props.entity_id}/${action}`,
+      `/entity/command/${this.props.entity_id}/${target.value}`,
       {
         method: 'put',
       },

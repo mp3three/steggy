@@ -4,7 +4,6 @@ import {
   GROUP_TYPES,
   GroupCommandDTO,
   GroupDTO,
-  LightingCacheDTO,
   RoomEntitySaveStateDTO,
 } from '@text-based/controller-shared';
 import {
@@ -15,6 +14,7 @@ import {
   domain,
   HASS_DOMAINS,
   LOCK_STATES,
+  LockAttributesDTO,
   LockStateDTO,
 } from '@text-based/home-assistant-shared';
 import { each, is } from '@text-based/utilities';
@@ -54,7 +54,7 @@ export class LockGroupService extends BaseGroupService {
   }
 
   public async getState(
-    group: GroupDTO<LightingCacheDTO>,
+    group: GroupDTO<LockAttributesDTO>,
   ): Promise<RoomEntitySaveStateDTO[]> {
     return await group.entities.map(id => {
       const lock = this.entityManager.getEntity<LockStateDTO>(id);

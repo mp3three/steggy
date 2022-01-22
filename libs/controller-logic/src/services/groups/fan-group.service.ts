@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@text-based/boilerplate';
 import {
-  FanCacheDTO,
   GROUP_TYPES,
   GroupCommandDTO,
   GroupDTO,
@@ -14,6 +13,7 @@ import {
 } from '@text-based/home-assistant';
 import {
   domain,
+  FanAttributesDTO,
   FanStateDTO,
   HASS_DOMAINS,
 } from '@text-based/home-assistant-shared';
@@ -22,7 +22,7 @@ import { each } from '@text-based/utilities';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
 
-type SaveState = RoomEntitySaveStateDTO<FanCacheDTO>;
+type SaveState = RoomEntitySaveStateDTO<FanAttributesDTO>;
 
 const START = 0;
 @Injectable()
@@ -39,7 +39,7 @@ export class FanGroupService extends BaseGroupService {
   public readonly GROUP_TYPE: GROUP_TYPES.fan;
 
   public async activateCommand(
-    group: GroupDTO<FanCacheDTO> | string,
+    group: GroupDTO<FanAttributesDTO> | string,
     state: GroupCommandDTO,
   ): Promise<void> {
     switch (state.command) {
@@ -74,7 +74,9 @@ export class FanGroupService extends BaseGroupService {
     });
   }
 
-  public async getState(group: GroupDTO<FanCacheDTO>): Promise<SaveState[]> {
+  public async getState(
+    group: GroupDTO<FanAttributesDTO>,
+  ): Promise<SaveState[]> {
     return await group.entities.map(id => {
       const fan = this.entityManager.getEntity<FanStateDTO>(id);
       return {
@@ -102,7 +104,7 @@ export class FanGroupService extends BaseGroupService {
     await each(
       state.map((state, index) => {
         return [entites[index], state];
-      }) as [string, RoomEntitySaveStateDTO<FanCacheDTO>][],
+      }) as [string, RoomEntitySaveStateDTO<FanAttributesDTO>][],
       async ([id, state]) => {
         if (state.state === 'off') {
           await this.fanDomain.turnOff(id);
@@ -113,7 +115,9 @@ export class FanGroupService extends BaseGroupService {
     );
   }
 
-  public async turnOff(group: GroupDTO<FanCacheDTO> | string): Promise<void> {
+  public async turnOff(
+    group: GroupDTO<FanAttributesDTO> | string,
+  ): Promise<void> {
     group = await this.loadGroup(group);
     await this.hassCore.turnOff(group.entities);
   }
