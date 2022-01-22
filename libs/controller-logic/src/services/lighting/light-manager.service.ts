@@ -149,11 +149,10 @@ export class LightManagerService {
     ) {
       attributes.color_temp = this.circadianService.CURRENT_LIGHT_TEMPERATURE;
       attributes.color_mode = ColorModes.color_temp;
-      attributes.brightness ??= current.attributes.brightness;
     } else {
       delete attributes.color_temp;
-      attributes.color_mode = ColorModes.hs;
-      attributes.rgb_color = current.attributes.rgb_color;
+      // attributes.color_mode = ColorModes.hs;
+      // attributes.rgb_color = current.attributes.rgb_color;
       attributes.hs_color = current.attributes.hs_color;
     }
     Object.keys(attributes).forEach(key => {
@@ -161,7 +160,7 @@ export class LightManagerService {
         delete attributes[key];
       }
     });
-    this.logger.debug({ attributes }, entity_id);
+    delete attributes.color_mode;
     await this.lightService.turnOn(entity_id, attributes);
   }
 

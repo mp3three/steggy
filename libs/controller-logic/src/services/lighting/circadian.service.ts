@@ -1,6 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Cron, InjectConfig } from '@text-based/boilerplate';
-import { CIRCADIAN_UPDATE } from '@text-based/controller-shared';
+import {
+  AutoLogService,
+  Cron,
+  InjectConfig,
+  OnEvent,
+} from '@text-based/boilerplate';
+import {
+  CIRCADIAN_UPDATE,
+  LOCATION_UPDATED,
+} from '@text-based/controller-shared';
 import { CronExpression } from '@text-based/utilities';
 import dayjs from 'dayjs';
 import EventEmitter from 'eventemitter3';
@@ -18,6 +26,7 @@ const MAX = 1;
 @Injectable()
 export class CircadianService {
   constructor(
+    private readonly logger: AutoLogService,
     private readonly solarCalcService: SolarCalcService,
     @InjectConfig(CIRCADIAN_MAX_TEMP)
     private readonly maxTemperature: number,
@@ -25,7 +34,13 @@ export class CircadianService {
     private readonly minTemperature: number,
     private readonly eventEmitter: EventEmitter,
   ) {}
+
   public CURRENT_LIGHT_TEMPERATURE: number;
+
+  @OnEvent(LOCATION_UPDATED)
+  protected async onLocationUpdate(): Promise<void> {
+    await this.updateKelvin();
+  }
 
   @Cron(CronExpression.EVERY_MINUTE)
   protected updateKelvin(): void {
@@ -34,6 +49,7 @@ export class CircadianService {
       return;
     }
     this.CURRENT_LIGHT_TEMPERATURE = kelvin;
+    this.logger.debug(`temperature: {${kelvin}}k`);
     this.eventEmitter.emit(CIRCADIAN_UPDATE, kelvin);
   }
 
@@ -52,7 +68,6 @@ export class CircadianService {
    * Retrive this same information from home assistant.
    * The templating service seems to be capable of doing this same work
    */
-
   private getColorOffset(): number {
     const calc = this.solarCalcService.SOLAR_CALC;
     const noon = dayjs(calc.solarNoon);
@@ -66,11 +81,11 @@ export class CircadianService {
     }
     if (now.isBefore(noon)) {
       // After dawn, but before solar noon
-      return Math.abs(noon.diff(now, 's') / noon.diff(dawn, 's') - MAX);
+      return Math.abs(noon.diff(now, 's') / noon.diff(dawn, 's'));
     }
     if (now.isBefore(dusk)) {
       // Afternoon, but before dusk
-      return Math.abs(noon.diff(now, 's') / noon.diff(dusk, 's') - MAX);
+      return Math.abs(noon.diff(now, 's') / noon.diff(dusk, 's'));
     }
     // Until midnight
     return MIN;

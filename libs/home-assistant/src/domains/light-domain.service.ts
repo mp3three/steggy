@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@text-based/boilerplate';
-import { HASS_DOMAINS } from '@text-based/home-assistant-shared';
+import {
+  HASS_DOMAINS,
+  LightAttributesDTO,
+} from '@text-based/home-assistant-shared';
 import { is } from '@text-based/utilities';
 
 import { EntityService, HACallService } from '../services';
@@ -43,12 +46,7 @@ export class LightDomainService extends EntityService {
 
   public async turnOn(
     entity_id: string | string[],
-    settings: {
-      brightness?: number;
-      hs_color?: [number, number] | number[];
-      kelvin?: number;
-      rgb_color?: [number, number, number] | number[];
-    } = {},
+    settings: LightAttributesDTO = {},
   ): Promise<void> {
     this.trackEntity(entity_id);
     return await this.callService.call('turn_on', {

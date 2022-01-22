@@ -1,4 +1,5 @@
 import { Injectable, Scope } from '@nestjs/common';
+import { AutoLogService, InjectLogger } from '@text-based/boilerplate';
 import {
   HASS_DOMAINS,
   HASSIO_WS_COMMAND,
@@ -10,7 +11,11 @@ import { HASocketAPIService } from './ha-socket-api.service';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class HACallService {
-  constructor(private readonly socketService: HASocketAPIService) {}
+  constructor(
+    private readonly socketService: HASocketAPIService,
+    @InjectLogger()
+    private readonly logger: AutoLogService,
+  ) {}
 
   public domain: HASS_DOMAINS;
 
@@ -33,6 +38,13 @@ export class HACallService {
     ) {
       return;
     }
+    // Here for sanity checking, but too spammy to leave on
+    // this.logger.debug({
+    //   domain,
+    //   service,
+    //   service_data,
+    //   type: HASSIO_WS_COMMAND.call_service,
+    // });
     return await this.socketService.sendMsg<T>(
       {
         domain,

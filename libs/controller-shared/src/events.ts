@@ -10,6 +10,7 @@ import {
 export const GROUP_UPDATE = 'GROUP_UPDATE';
 export const ROOM_UPDATE = 'ROOM_UPDATE';
 export const ROUTINE_UPDATE = 'ROUTINE_UPDATE';
+export const LOCATION_UPDATED = 'LOCATION_UPDATED';
 
 export type KunamiWatcher = KunamiCodeActivateDTO & {
   callback: () => Promise<void>;
