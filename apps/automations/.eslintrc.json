@@ -5,12 +5,15 @@
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
-        "unicorn/filename-case":"off"
+        "unicorn/filename-case":"off",
+        "no-console": "off"
       }
     },
     {
-      "files": ["*.ts", "*.tsx"],
-      "rules": {}
+      "files": ["*.tsx"],
+      "rules": {
+        "@typescript-eslint/no-magic-numbers": "off"
+      }
     },
     {
       "files": ["*.js", "*.jsx"],

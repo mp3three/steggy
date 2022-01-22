@@ -1,12 +1,14 @@
 import type { GroupDTO } from '@text-based/controller-shared';
 import { DOWN, is, TitleCase, UP } from '@text-based/utilities';
-import { List, Typography } from 'antd';
+import { Layout, List, Typography } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
+import { GroupListSidebar } from './ListSidebar';
 
 const { Title } = Typography;
+const { Content } = Layout;
 
 export class GroupList extends React.Component {
   override state: { groups: GroupDTO[] } = {
@@ -20,21 +22,25 @@ export class GroupList extends React.Component {
 
   override render() {
     return (
-      <>
-        <Title level={3}>Group List</Title>
-        {this.sort().map(({ name, groups }) => (
-          <List
-            header={<Title level={4}>{TitleCase(name)} Groups</Title>}
-            dataSource={groups}
-            pagination={{ pageSize: 10 }}
-            renderItem={item => (
-              <List.Item key={item._id}>
-                <Link to={`/group/${item._id}`}>{item.friendlyName}</Link>
-              </List.Item>
-            )}
-          ></List>
-        ))}
-      </>
+      <Layout hasSider>
+        <Content>
+          <Title level={3}>Group List</Title>
+          {this.sort().map(({ name, groups }) => (
+            <List
+              key={name}
+              header={<Title level={4}>{TitleCase(name)} Groups</Title>}
+              dataSource={groups}
+              pagination={{ pageSize: 10 }}
+              renderItem={item => (
+                <List.Item key={item._id}>
+                  <Link to={`/group/${item._id}`}>{item.friendlyName}</Link>
+                </List.Item>
+              )}
+            ></List>
+          ))}
+        </Content>
+        <GroupListSidebar />
+      </Layout>
     );
   }
 

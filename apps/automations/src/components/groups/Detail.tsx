@@ -1,53 +1,55 @@
 import { GroupDTO } from '@text-based/controller-shared';
-import { DOWN, is, TitleCase, UP } from '@text-based/utilities';
-import { List, Typography } from 'antd';
+import { TitleCase } from '@text-based/utilities';
+import { Layout, Spin, Typography } from 'antd';
+import PropTypes from 'prop-types';
 import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
+import { LightGroup } from './LightGroup';
 
 const { Title } = Typography;
 
-export class GroupDetail extends React.Component {
-  override state: { groups: GroupDTO[] } = {
-    groups: [],
-  };
+type tStateType = { group: GroupDTO };
 
-  override async componentDidMount(): Promise<void> {
-    // const { id } = useParams<{ id: string }>();
-    const id = '1';
-    const groups = await sendRequest<GroupDTO[]>(`/group/${id}`);
-    this.setState({ groups });
-  }
+export const GroupDetail = withRouter(
+  class extends React.Component<
+    { id: string } & RouteComponentProps<{ id: string }>,
+    tStateType
+  > {
+    static propTypes = {
+      id: PropTypes.string,
+    };
 
-  override render() {
-    return (
-      <>
-        <Title level={3}>Group List</Title>
-        {this.sort().map(({ name, groups }) => (
-          <List
-            header={<Title level={4}>{TitleCase(name)} Groups</Title>}
-            dataSource={groups}
-            pagination={{ pageSize: 10 }}
-            renderItem={item => (
-              <List.Item key={item._id}>
-                <Link to={`/group/${item._id}`}>{item.friendlyName}</Link>
-              </List.Item>
-            )}
-          ></List>
-        ))}
-      </>
-    );
-  }
+    override async componentDidMount(): Promise<void> {
+      const { id } = this.props.match.params;
+      const group = await sendRequest<GroupDTO>(`/group/${id}`);
+      this.setState({ group });
+    }
 
-  private sort(): { groups: GroupDTO[]; name: string }[] {
-    const types = is
-      .unique(this.state.groups?.map(i => i.type))
-      .sort((a, b) => (a > b ? UP : DOWN));
-    return types.map(name => ({
-      groups: this.state.groups.filter(({ type }) => type === name),
-      name,
-    }));
-  }
-}
-// export const GroupDetail = withRouter(GroupDetailComponent);
+    override render() {
+      return (
+        <Layout>
+          {this.state?.group ? (
+            <Layout.Content>
+              <Title level={3}>{this.state.group.friendlyName}</Title>
+              <Title level={5}>
+                {TitleCase(this.state.group.type || '')} Group
+              </Title>
+              {this.groupRendering()}
+            </Layout.Content>
+          ) : (
+            <Layout.Content>
+              <Spin size="large" tip="Loading..." />
+            </Layout.Content>
+          )}
+          <Layout.Sider>Foo</Layout.Sider>
+        </Layout>
+      );
+    }
+
+    private groupRendering() {
+      return <LightGroup group={this.state.group} />;
+    }
+  },
+);
