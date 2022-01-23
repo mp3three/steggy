@@ -1,5 +1,5 @@
 import { GroupDTO } from '@text-based/controller-shared';
-import { Button, Divider, Input, Layout, Spin } from 'antd';
+import { Button, Divider, Input, Layout, Space, Spin } from 'antd';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
@@ -53,18 +53,18 @@ export const GroupDetail = withRouter(
               onBlur={this.nameUpdate.bind(this)}
             />
             <Divider />
-            <EntityModalPicker
-              group={this.state?.group}
-              // domain={HASS_DOMAINS.light}
-              groupUpdated={this.refresh.bind(this)}
-            />
-            <Button>Create new save state</Button>
-            <Button>Capture current state</Button>
-            <Button>Delete</Button>
-            <Divider />
-            <Button>Circadian</Button>
-            <Button>Off</Button>
-            <Button>On</Button>
+            <Space direction="vertical" align="end" size={8}>
+              <EntityModalPicker
+                // domain={HASS_DOMAINS.light}
+                onAdd={this.refresh.bind(this)}
+              />
+              <Button>Create new save state</Button>
+              <Button>Capture current state</Button>
+              <Button>Delete</Button>
+              <Button>Circadian</Button>
+              <Button>Off</Button>
+              <Button>On</Button>
+            </Space>
           </Layout.Sider>
         </Layout>
       );
