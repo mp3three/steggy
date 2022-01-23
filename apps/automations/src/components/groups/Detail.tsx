@@ -1,17 +1,15 @@
 import { GroupDTO } from '@text-based/controller-shared';
-import { TitleCase } from '@text-based/utilities';
-import { Layout, Spin, Typography } from 'antd';
+import { Button, Divider, Input, Layout, Spin } from 'antd';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { ChromePicker } from 'react-color';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
+import { EntityModalPicker } from '../entities';
 import { LightGroup } from './LightGroup';
+import { GroupSaveStates } from './SaveState';
 
-const { Title } = Typography;
-
-type tStateType = { color: string; group: GroupDTO };
+type tStateType = { color: string; group: GroupDTO; name: string };
 
 export const GroupDetail = withRouter(
   class extends React.Component<
@@ -24,24 +22,20 @@ export const GroupDetail = withRouter(
     override state = {
       color: '#FF0000',
       group: undefined,
+      name: undefined,
     };
 
     override async componentDidMount(): Promise<void> {
-      const { id } = this.props.match.params;
-      const group = await sendRequest<GroupDTO>(`/group/${id}`);
-      this.setState({ group });
+      await this.refresh();
     }
 
     override render() {
       return (
-        <Layout>
+        <Layout hasSider>
           {this.state?.group ? (
             <Layout.Content>
-              <Title level={3}>{this.state.group.friendlyName}</Title>
-              <Title level={5}>
-                {TitleCase(this.state.group.type || '')} Group
-              </Title>
               {this.groupRendering()}
+              <GroupSaveStates group={this.state.group} />
             </Layout.Content>
           ) : (
             <Layout.Content>
@@ -49,11 +43,28 @@ export const GroupDetail = withRouter(
             </Layout.Content>
           )}
           <Layout.Sider>
-            <ChromePicker
-              onChange={i => this.setState({ color: i.hex })}
-              onChangeComplete={i => this.setState({ color: i.hex })}
-              color={this.state.color}
+            <Input
+              value={this.state?.name}
+              placeholder="Friendly name"
+              onChange={e =>
+                this.setState({ name: (e.target as HTMLInputElement).value })
+              }
+              onPressEnter={this.nameUpdate.bind(this)}
+              onBlur={this.nameUpdate.bind(this)}
             />
+            <Divider />
+            <EntityModalPicker
+              group={this.state?.group}
+              // domain={HASS_DOMAINS.light}
+              groupUpdated={this.refresh.bind(this)}
+            />
+            <Button>Create new save state</Button>
+            <Button>Capture current state</Button>
+            <Button>Delete</Button>
+            <Divider />
+            <Button>Circadian</Button>
+            <Button>Off</Button>
+            <Button>On</Button>
           </Layout.Sider>
         </Layout>
       );
@@ -61,6 +72,24 @@ export const GroupDetail = withRouter(
 
     private groupRendering() {
       return <LightGroup group={this.state.group} />;
+    }
+
+    private async nameUpdate(): Promise<void> {
+      if (this.state.name === this.state.group.friendlyName) {
+        return;
+      }
+      await sendRequest(`/group/${this.state.group._id}`, {
+        body: JSON.stringify({
+          friendlyName: this.state.name,
+        }),
+        method: 'put',
+      });
+    }
+    private async refresh(): Promise<void> {
+      const { id } = this.props.match.params;
+      const group = await sendRequest<GroupDTO>(`/group/${id}`);
+      const name = group.friendlyName;
+      this.setState({ group, name });
     }
   },
 );

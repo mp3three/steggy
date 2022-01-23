@@ -11,6 +11,8 @@ import {
 } from 'antd';
 import React from 'react';
 
+import { sendRequest } from '../../types';
+
 enum GROUP_TYPES {
   light = 'light',
   fan = 'fan',
@@ -21,7 +23,9 @@ enum GROUP_TYPES {
 const { Title } = Typography;
 const { Content, Sider } = Layout;
 
-export class GroupListSidebar extends React.Component {
+export class GroupListSidebar extends React.Component<{
+  groupsUpdated: () => void;
+}> {
   override state = { modalVisible: false };
   private form: FormInstance;
 
@@ -80,8 +84,12 @@ export class GroupListSidebar extends React.Component {
   private async validate(): Promise<void> {
     try {
       const values = await this.form.validateFields();
-      console.log(values);
+      await sendRequest(`/group`, {
+        body: JSON.stringify(values),
+        method: 'post',
+      });
       this.hide();
+      this.props.groupsUpdated();
     } catch (error) {
       console.error(error);
     }

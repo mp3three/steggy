@@ -16,8 +16,7 @@ export class GroupList extends React.Component {
   };
 
   override async componentDidMount(): Promise<void> {
-    const groups = await sendRequest<GroupDTO[]>(`/group`);
-    this.setState({ groups });
+    await this.refresh();
   }
 
   override render() {
@@ -39,9 +38,13 @@ export class GroupList extends React.Component {
             ></List>
           ))}
         </Content>
-        <GroupListSidebar />
+        <GroupListSidebar groupsUpdated={this.refresh.bind(this)} />
       </Layout>
     );
+  }
+  private async refresh(): Promise<void> {
+    const groups = await sendRequest<GroupDTO[]>(`/group`);
+    this.setState({ groups });
   }
 
   private sort(): { groups: GroupDTO[]; name: string }[] {
