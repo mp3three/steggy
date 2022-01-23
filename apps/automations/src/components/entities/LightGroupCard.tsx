@@ -4,13 +4,22 @@ import {
   LightStateDTO,
 } from '@text-based/home-assistant-shared';
 import { is, sleep } from '@text-based/utilities';
-import { Button, Card, Popconfirm, Radio, Spin } from 'antd';
+import {
+  Button,
+  Card,
+  Divider,
+  Popconfirm,
+  Radio,
+  Slider,
+  Spin,
+  Typography,
+} from 'antd';
 import React from 'react';
 import { ChromePicker, ColorResult } from 'react-color';
 
 import { sendRequest } from '../../types';
 
-type tStateType = { color: string; entity: LightStateDTO };
+type tStateType = { brightness?: number; color: string; entity: LightStateDTO };
 const R = 0;
 const G = 1;
 const B = 2;
@@ -27,7 +36,7 @@ export class LightGroupCard extends React.Component<
     if (!this.state) {
       return this.renderWaiting();
     }
-    const { color, entity } = this.state;
+    const { color, entity, brightness } = this.state;
     const entityState = this.getCurrentState();
     return (
       <Card
@@ -54,22 +63,48 @@ export class LightGroupCard extends React.Component<
           <Radio.Button value="circadianLight">Circadian</Radio.Button>
           <Radio.Button value="turnOn">Color</Radio.Button>
         </Radio.Group>
+        {entityState !== 'turnOff' ? (
+          <>
+            <Divider orientation="left">
+              <Typography.Text type="secondary">Brightness</Typography.Text>
+            </Divider>
+            <Slider
+              min={1}
+              max={255}
+              value={brightness}
+              onChange={this.updateBrightness.bind(this)}
+              onAfterChange={this.brightnessChanged.bind(this)}
+            />
+          </>
+        ) : undefined}
         {entityState === 'turnOn' ? (
-          <ChromePicker
-            color={
-              color ?? {
-                b: entity.attributes.rgb_color[R],
-                g: entity.attributes.rgb_color[G],
-                r: entity.attributes.rgb_color[B],
+          <>
+            {' '}
+            <Divider />{' '}
+            <ChromePicker
+              color={
+                color ?? {
+                  b: entity.attributes.rgb_color[R],
+                  g: entity.attributes.rgb_color[G],
+                  r: entity.attributes.rgb_color[B],
+                }
               }
-            }
-            onChange={this.updateColor.bind(this)}
-            onChangeComplete={this.sendChange.bind(this)}
-            disableAlpha={true}
-          />
+              onChange={this.updateColor.bind(this)}
+              onChangeComplete={this.sendColorChange.bind(this)}
+              disableAlpha={true}
+            />
+          </>
         ) : undefined}
       </Card>
     );
+  }
+
+  private async brightnessChanged(brightness: number): Promise<void> {
+    this.setState({ brightness });
+    await sendRequest(`/entity/light-state/${this.state.entity.entity_id}`, {
+      body: JSON.stringify({ brightness }),
+      method: 'put',
+    });
   }
 
   private getCurrentState(): string {
@@ -98,7 +133,7 @@ export class LightGroupCard extends React.Component<
   private async refresh(): Promise<void> {
     const { entity_id } = this.props;
     const entity = await sendRequest<LightStateDTO>(`/entity/id/${entity_id}`);
-    this.setState({ entity });
+    this.setState({ brightness: entity.attributes.brightness, entity });
   }
 
   private renderWaiting() {
@@ -109,7 +144,7 @@ export class LightGroupCard extends React.Component<
     );
   }
 
-  private async sendChange({ rgb, hex }: ColorResult): Promise<void> {
+  private async sendColorChange({ rgb, hex }: ColorResult): Promise<void> {
     this.setState({ color: hex });
     const { r, g, b } = rgb;
     const data = {
@@ -121,6 +156,10 @@ export class LightGroupCard extends React.Component<
       method: 'put',
     });
     console.log(data);
+  }
+
+  private updateBrightness(brightness: number): void {
+    this.setState({ brightness });
   }
 
   private updateColor({ hex }: ColorResult) {

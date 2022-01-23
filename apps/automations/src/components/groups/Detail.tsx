@@ -68,13 +68,7 @@ export const GroupDetail = withRouter(
               >
                 {this.groupRendering()}
               </Card>
-              <Card
-                title="Save States"
-                key="states"
-                style={{ margin: '8px 0' }}
-              >
-                <GroupSaveStates group={this.state.group} />
-              </Card>
+              <GroupSaveStates group={this.state.group} />
             </Layout.Content>
           ) : (
             <Layout.Content>
@@ -83,9 +77,7 @@ export const GroupDetail = withRouter(
           )}
           <Layout.Sider style={{ padding: '16px' }}>
             <Space direction="vertical" align="end" size={8}>
-              <Button>Create new save state</Button>
-              <Button>Capture current state</Button>
-              <Button>Delete</Button>
+              <Button danger>Delete</Button>
               <Button>Circadian</Button>
               <Button>Off</Button>
               <Button>On</Button>

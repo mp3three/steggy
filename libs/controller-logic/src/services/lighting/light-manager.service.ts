@@ -153,7 +153,11 @@ export class LightManagerService {
       delete attributes.color_temp;
       // attributes.color_mode = ColorModes.hs;
       // attributes.rgb_color = current.attributes.rgb_color;
-      if (is.undefined(attributes.rgb_color)) {
+      if (
+        is.undefined(attributes.rgb_color) &&
+        is.undefined(attributes.brightness)
+      ) {
+        // Just a standard "turn on", possibly a transition from circadian => color
         attributes.hs_color = current.attributes.hs_color;
       }
     }
@@ -163,6 +167,7 @@ export class LightManagerService {
       }
     });
     delete attributes.color_mode;
+    this.logger.info({ attributes }, entity_id);
     await this.lightService.turnOn(entity_id, attributes);
   }
 

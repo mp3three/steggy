@@ -1,11 +1,11 @@
 import {
   BugOutlined,
+  GroupOutlined,
   HomeOutlined,
   IdcardOutlined,
   RocketOutlined,
   SettingOutlined,
   SolutionOutlined,
-  TeamOutlined,
 } from '@ant-design/icons';
 import { Menu } from 'antd';
 import React from 'react';
@@ -18,7 +18,7 @@ export class ApplicationMenu extends React.Component {
         <Menu.Item key="1" icon={<HomeOutlined />}>
           <Link to="/">Home</Link>
         </Menu.Item>
-        <Menu.Item key="2" icon={<TeamOutlined />}>
+        <Menu.Item key="2" icon={<GroupOutlined />}>
           <Link to="/groups">Groups</Link>
         </Menu.Item>
         <Menu.Item key="3" icon={<IdcardOutlined />}>

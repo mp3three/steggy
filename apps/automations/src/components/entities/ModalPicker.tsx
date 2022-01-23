@@ -114,11 +114,12 @@ export class EntityModalPicker extends React.Component<
                     <List.Item>
                       <Space>
                         <Button
-                          type="primary"
+                          danger
                           shape="round"
+                          type="text"
                           size="small"
-                          onClick={() => this.addItem(item.entity_id)}
-                          icon={<FileAddOutlined />}
+                          onClick={() => this.removeItem(item.entity_id)}
+                          icon={<CloseOutlined />}
                         />
                         <Typography.Text>
                           {!is.empty(item.highlighted)
@@ -227,6 +228,13 @@ export class EntityModalPicker extends React.Component<
     this.setState({ modalVisible: false, selected: [] });
   }
 
+  private removeItem(entity_id: string): void {
+    const selected = (this.state.selected || []).filter(
+      i => i.entity_id !== entity_id,
+    );
+    this.setState({ selected });
+  }
+
   private resetSearch(): void {
     this.setState({ searchText: '' });
     this.searchInput.clearPasswordValueAttribute();
@@ -242,13 +250,20 @@ export class EntityModalPicker extends React.Component<
     if (!is.undefined(e)) {
       e.stopPropagation();
     }
-    this.setState({ modalVisible: true });
+    this.setState({
+      available: undefined,
+      modalVisible: true,
+      searchText: '',
+      selected: [],
+    });
     let available = await sendRequest<string[]>(`/entity/list`);
     if (this.props.domains) {
       available = available.filter(entity_id =>
         this.props.domains.includes(domain(entity_id)),
       );
     }
-    this.setState({ available: available.map(entity_id => ({ entity_id })) });
+    this.setState({
+      available: available.map(entity_id => ({ entity_id })),
+    });
   }
 }

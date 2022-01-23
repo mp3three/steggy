@@ -81,7 +81,7 @@ export class CircadianService {
     }
     if (now.isBefore(noon)) {
       // After dawn, but before solar noon
-      return Math.abs(noon.diff(now, 's') / noon.diff(dawn, 's'));
+      return Math.abs(noon.diff(now, 's') / noon.diff(dawn, 's') - MAX);
     }
     if (now.isBefore(dusk)) {
       // Afternoon, but before dusk
