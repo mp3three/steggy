@@ -93,6 +93,7 @@ export class CircadianService {
 
   private getCurrentTemperature() {
     const offset = this.getColorOffset();
+    this.logger.warn({ offset });
     return Math.floor(
       (this.maxTemperature - this.minTemperature) * offset +
         this.minTemperature,
