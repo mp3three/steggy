@@ -7,12 +7,12 @@
     },
     "CIRCADIAN_MAX_TEMP": {
       "type": "number",
-      "default": 200,
+      "default": 5500,
       "description": "Maximum color temperature for circadian lighting. Used at solar noon"
     },
     "CIRCADIAN_MIN_TEMP": {
       "type": "number",
-      "default": 550,
+      "default": 2000,
       "description": "Minimum color temperature for circadian lighting. Used while it's dark out"
     },
     "MIN_BRIGHTNESS": {

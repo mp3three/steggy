@@ -20,8 +20,7 @@ enum GROUP_TYPES {
   lock = 'lock',
 }
 
-const { Title } = Typography;
-const { Content, Sider } = Layout;
+const { Sider } = Layout;
 
 export class GroupListSidebar extends React.Component<{
   groupsUpdated: () => void;

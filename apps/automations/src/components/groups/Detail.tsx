@@ -1,6 +1,7 @@
 import { GroupDTO } from '@text-based/controller-shared';
 import { is, TitleCase } from '@text-based/utilities';
 import {
+  Breadcrumb,
   Button,
   Card,
   Layout,
@@ -12,7 +13,7 @@ import {
 } from 'antd';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 import { EntityModalPicker } from '../entities';
@@ -44,16 +45,20 @@ export const GroupDetail = withRouter(
         <Layout style={{ height: '100%' }}>
           {this.state?.group ? (
             <Layout.Content style={{ margin: '16px' }}>
-              <PageHeader
-                tags={[<Tag>{TitleCase(this.state.group.type)} Group</Tag>]}
-                title={
-                  <Typography.Text
-                    editable={{ onChange: name => this.nameUpdate(name) }}
-                  >
-                    {this.state.name}
-                  </Typography.Text>
-                }
-              />
+              <Breadcrumb>
+                <Breadcrumb.Item>
+                  <Link to={`/groups`}>Groups</Link>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>
+                  <Link to={`/group/${this.state.group._id}`}>
+                    <Typography.Text
+                      editable={{ onChange: name => this.nameUpdate(name) }}
+                    >
+                      {this.state.name}
+                    </Typography.Text>
+                  </Link>
+                </Breadcrumb.Item>
+              </Breadcrumb>
               <Card
                 title="Entities"
                 key="entities"
@@ -66,9 +71,15 @@ export const GroupDetail = withRouter(
                   />
                 }
               >
-                {this.groupRendering()}
+                <LightGroup
+                  group={this.state.group}
+                  groupUpdate={this.onUpdate.bind(this)}
+                />
               </Card>
-              <GroupSaveStates group={this.state.group} />
+              <GroupSaveStates
+                group={this.state.group}
+                onGroupUpdate={this.refresh.bind(this)}
+              />
             </Layout.Content>
           ) : (
             <Layout.Content>
@@ -128,25 +139,22 @@ export const GroupDetail = withRouter(
       if (name === this.state.group.friendlyName) {
         return;
       }
-      const group = await sendRequest<GroupDTO>(
-        `/group/${this.state.group._id}`,
-        {
-          body: JSON.stringify({
-            friendlyName: name,
-          }),
-          method: 'put',
-        },
-      );
-      this.setState({ group, name });
+      await sendRequest<GroupDTO>(`/group/${this.state.group._id}`, {
+        body: JSON.stringify({
+          friendlyName: name,
+        }),
+        method: 'put',
+      });
+      this.state.group.friendlyName = name;
+      this.setState({ name });
     }
 
     private async onUpdate({ _id, ...group }: GroupDTO): Promise<void> {
-      await this.setState({
-        group: await sendRequest<GroupDTO>(`/group/${_id}`, {
-          body: JSON.stringify(group),
-          method: 'put',
-        }),
+      await sendRequest<GroupDTO>(`/group/${_id}`, {
+        body: JSON.stringify(group),
+        method: 'put',
       });
+      await this.refresh();
     }
 
     private async refresh(): Promise<void> {

@@ -19,16 +19,23 @@ import { ChromePicker, ColorResult } from 'react-color';
 
 import { sendRequest } from '../../types';
 
-type tStateType = { brightness?: number; color: string; entity: LightStateDTO };
+type tStateType = { color: string; friendly_name: string } & LightAttributesDTO;
 const R = 0;
 const G = 1;
 const B = 2;
 
 export class LightGroupCard extends React.Component<
-  { entity_id: string; onRemove?: (entity_id: string) => void },
+  {
+    attributes: LightAttributesDTO;
+    entity_id: string;
+    onRemove?: (entity_id: string) => void;
+    onStateChange: (entity_id: string, state: string) => void;
+    state: string;
+  },
   tStateType
 > {
   override async componentDidMount(): Promise<void> {
+    this.setState({ brightness: this.props.attributes.brightness });
     await this.refresh();
   }
 
@@ -36,11 +43,11 @@ export class LightGroupCard extends React.Component<
     if (!this.state) {
       return this.renderWaiting();
     }
-    const { color, entity, brightness } = this.state;
+    const { color, friendly_name, brightness, rgb_color } = this.state;
     const entityState = this.getCurrentState();
     return (
       <Card
-        title={entity.attributes.friendly_name}
+        title={friendly_name}
         type="inner"
         extra={
           is.undefined(this.props.onRemove) ? undefined : (
@@ -84,9 +91,9 @@ export class LightGroupCard extends React.Component<
             <ChromePicker
               color={
                 color ?? {
-                  b: entity.attributes.rgb_color[R],
-                  g: entity.attributes.rgb_color[G],
-                  r: entity.attributes.rgb_color[B],
+                  b: (rgb_color || [])[R],
+                  g: (rgb_color || [])[G],
+                  r: (rgb_color || [])[B],
                 }
               }
               onChange={this.updateColor.bind(this)}
@@ -101,39 +108,32 @@ export class LightGroupCard extends React.Component<
 
   private async brightnessChanged(brightness: number): Promise<void> {
     this.setState({ brightness });
-    await sendRequest(`/entity/light-state/${this.state.entity.entity_id}`, {
+    await sendRequest(`/entity/light-state/${this.props.entity_id}`, {
       body: JSON.stringify({ brightness }),
       method: 'put',
     });
   }
 
   private getCurrentState(): string {
-    const { entity } = this.state;
-    if (entity.state !== 'on') {
+    const state = this.props.state;
+    if (state !== 'on') {
       return 'turnOff';
     }
-    if (entity.attributes.color_mode === 'color_temp') {
+    if (this.props.attributes.color_mode === 'color_temp') {
       return 'circadianLight';
     }
     return 'turnOn';
   }
 
-  private async onModeChange(e: Event): Promise<void> {
+  private onModeChange(e: Event): void {
     const target = e.target as HTMLInputElement;
-    await sendRequest<LightStateDTO>(
-      `/entity/command/${this.props.entity_id}/${target.value}`,
-      {
-        method: 'put',
-      },
-    );
-    await sleep(100);
-    await this.refresh();
+    this.props.onStateChange(this.props.entity_id, target.value);
   }
 
   private async refresh(): Promise<void> {
     const { entity_id } = this.props;
     const entity = await sendRequest<LightStateDTO>(`/entity/id/${entity_id}`);
-    this.setState({ brightness: entity.attributes.brightness, entity });
+    this.setState({ friendly_name: entity.attributes.friendly_name });
   }
 
   private renderWaiting() {
@@ -151,7 +151,7 @@ export class LightGroupCard extends React.Component<
       rgb_color: [r, g, b],
     } as LightAttributesDTO;
     console.log(data);
-    await sendRequest(`/entity/light-state/${this.state.entity.entity_id}`, {
+    await sendRequest(`/entity/light-state/${this.props.entity_id}`, {
       body: JSON.stringify(data),
       method: 'put',
     });

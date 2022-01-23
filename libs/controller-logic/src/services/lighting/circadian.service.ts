@@ -49,7 +49,7 @@ export class CircadianService {
       return;
     }
     this.CURRENT_LIGHT_TEMPERATURE = kelvin;
-    this.logger.debug(`temperature: {${kelvin}}k`);
+    this.logger.debug(`Circadian temperature: {${kelvin}}k`);
     this.eventEmitter.emit(CIRCADIAN_UPDATE, kelvin);
   }
 
@@ -85,7 +85,7 @@ export class CircadianService {
     }
     if (now.isBefore(dusk)) {
       // Afternoon, but before dusk
-      return Math.abs(noon.diff(now, 's') / noon.diff(dusk, 's'));
+      return Math.abs(noon.diff(now, 's') / noon.diff(dusk, 's') - MAX);
     }
     // Until midnight
     return MIN;
@@ -93,7 +93,6 @@ export class CircadianService {
 
   private getCurrentTemperature() {
     const offset = this.getColorOffset();
-    this.logger.warn({ offset });
     return Math.floor(
       (this.maxTemperature - this.minTemperature) * offset +
         this.minTemperature,

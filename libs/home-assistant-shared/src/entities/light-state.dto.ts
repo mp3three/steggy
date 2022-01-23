@@ -22,9 +22,6 @@ export class LightAttributesDTO {
   @IsEnum(ColorModes)
   public color_mode?: ColorModes;
   @ApiProperty({ required: false })
-  @IsNumber()
-  public color_temp?: number;
-  @ApiProperty({ required: false })
   @IsString()
   public effect?: 'none';
   @ApiProperty({ required: false })
@@ -35,6 +32,9 @@ export class LightAttributesDTO {
   public friendly_name?: string;
   @ApiProperty({ required: false })
   public hs_color?: [number, number];
+  @ApiProperty({ required: false })
+  @IsNumber()
+  public kelvin?: number;
   @ApiProperty({ required: false })
   @IsNumber()
   public max_mireds?: number;

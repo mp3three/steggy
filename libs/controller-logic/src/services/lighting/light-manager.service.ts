@@ -124,10 +124,7 @@ export class LightManagerService {
     entity_id: string | string[],
     attributes: Partial<LightAttributesDTO> = {},
   ): Promise<void> {
-    if (
-      attributes.color_temp &&
-      (attributes.hs_color || attributes.rgb_color)
-    ) {
+    if (attributes.kelvin && (attributes.hs_color || attributes.rgb_color)) {
       this.logger.warn(
         { entity_id, settings: attributes },
         `Both kelvin and hs color provided`,
@@ -147,10 +144,10 @@ export class LightManagerService {
       (is.empty(attributes.color_mode) &&
         current.attributes.color_mode === ColorModes.color_temp)
     ) {
-      attributes.color_temp = this.circadianService.CURRENT_LIGHT_TEMPERATURE;
+      attributes.kelvin = this.circadianService.CURRENT_LIGHT_TEMPERATURE;
       attributes.color_mode = ColorModes.color_temp;
     } else {
-      delete attributes.color_temp;
+      delete attributes.kelvin;
       // attributes.color_mode = ColorModes.hs;
       // attributes.rgb_color = current.attributes.rgb_color;
       if (
@@ -167,7 +164,7 @@ export class LightManagerService {
       }
     });
     delete attributes.color_mode;
-    this.logger.info({ attributes }, entity_id);
+    this.logger.warn({ attributes }, entity_id);
     await this.lightService.turnOn(entity_id, attributes);
   }
 
@@ -193,7 +190,7 @@ export class LightManagerService {
       );
     await this.setAttributes(
       lights.map(({ entity_id }) => entity_id),
-      { color_temp },
+      { kelvin: color_temp },
     );
   }
 
