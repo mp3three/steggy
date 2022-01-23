@@ -1,5 +1,15 @@
 import { GroupDTO } from '@text-based/controller-shared';
-import { Button, Divider, Input, Layout, Space, Spin } from 'antd';
+import { is, TitleCase } from '@text-based/utilities';
+import {
+  Button,
+  Card,
+  Layout,
+  PageHeader,
+  Space,
+  Spin,
+  Tag,
+  Typography,
+} from 'antd';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
@@ -31,33 +41,48 @@ export const GroupDetail = withRouter(
 
     override render() {
       return (
-        <Layout hasSider>
+        <Layout style={{ height: '100%' }}>
           {this.state?.group ? (
-            <Layout.Content>
-              {this.groupRendering()}
-              <GroupSaveStates group={this.state.group} />
+            <Layout.Content style={{ margin: '16px' }}>
+              <PageHeader
+                tags={[<Tag>{TitleCase(this.state.group.type)} Group</Tag>]}
+                title={
+                  <Typography.Text
+                    editable={{ onChange: name => this.nameUpdate(name) }}
+                  >
+                    {this.state.name}
+                  </Typography.Text>
+                }
+              />
+              <Card
+                title="Entities"
+                key="entities"
+                style={{ margin: '8px 0' }}
+                extra={
+                  <EntityModalPicker
+                    exclude={this.state.group.entities}
+                    domains={this.domainList()}
+                    onAdd={this.addEntities.bind(this)}
+                  />
+                }
+              >
+                {this.groupRendering()}
+              </Card>
+              <Card
+                title="Save States"
+                key="states"
+                style={{ margin: '8px 0' }}
+              >
+                <GroupSaveStates group={this.state.group} />
+              </Card>
             </Layout.Content>
           ) : (
             <Layout.Content>
               <Spin size="large" tip="Loading..." />
             </Layout.Content>
           )}
-          <Layout.Sider>
-            <Input
-              value={this.state?.name}
-              placeholder="Friendly name"
-              onChange={e =>
-                this.setState({ name: (e.target as HTMLInputElement).value })
-              }
-              onPressEnter={this.nameUpdate.bind(this)}
-              onBlur={this.nameUpdate.bind(this)}
-            />
-            <Divider />
+          <Layout.Sider style={{ padding: '16px' }}>
             <Space direction="vertical" align="end" size={8}>
-              <EntityModalPicker
-                // domain={HASS_DOMAINS.light}
-                onAdd={this.refresh.bind(this)}
-              />
               <Button>Create new save state</Button>
               <Button>Capture current state</Button>
               <Button>Delete</Button>
@@ -70,21 +95,68 @@ export const GroupDetail = withRouter(
       );
     }
 
-    private groupRendering() {
-      return <LightGroup group={this.state.group} />;
-    }
-
-    private async nameUpdate(): Promise<void> {
-      if (this.state.name === this.state.group.friendlyName) {
-        return;
-      }
-      await sendRequest(`/group/${this.state.group._id}`, {
-        body: JSON.stringify({
-          friendlyName: this.state.name,
+    private async addEntities(entities: string[]): Promise<void> {
+      const { group } = this.state as { group: GroupDTO };
+      group.entities = is.unique([...group.entities, ...entities]);
+      this.setState({
+        group: await sendRequest(`/group/${group._id}`, {
+          body: JSON.stringify({
+            entities: group.entities,
+          } as Partial<GroupDTO>),
+          method: 'put',
         }),
-        method: 'put',
       });
     }
+
+    private domainList(): string[] {
+      const group = this.state.group as GroupDTO;
+      switch (group.type) {
+        case 'light':
+          return ['light'] as string[];
+        case 'switch':
+          return ['light', 'fan', 'switch', 'climate'];
+        case 'lock':
+          return ['lock'];
+        case 'fan':
+          return ['fan'];
+      }
+      return [];
+    }
+
+    private groupRendering() {
+      return (
+        <LightGroup
+          group={this.state.group}
+          groupUpdate={this.onUpdate.bind(this)}
+        />
+      );
+    }
+
+    private async nameUpdate(name: string): Promise<void> {
+      if (name === this.state.group.friendlyName) {
+        return;
+      }
+      const group = await sendRequest<GroupDTO>(
+        `/group/${this.state.group._id}`,
+        {
+          body: JSON.stringify({
+            friendlyName: name,
+          }),
+          method: 'put',
+        },
+      );
+      this.setState({ group, name });
+    }
+
+    private async onUpdate({ _id, ...group }: GroupDTO): Promise<void> {
+      await this.setState({
+        group: await sendRequest<GroupDTO>(`/group/${_id}`, {
+          body: JSON.stringify(group),
+          method: 'put',
+        }),
+      });
+    }
+
     private async refresh(): Promise<void> {
       const { id } = this.props.match.params;
       const group = await sendRequest<GroupDTO>(`/group/${id}`);

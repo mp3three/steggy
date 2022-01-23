@@ -10,7 +10,7 @@ import { HomePage } from '../home';
 import { ApplicationMenu } from '../menu';
 
 const { Title } = Typography;
-const { Header, Content, Sider } = Layout;
+const { Header, Sider } = Layout;
 
 export class App extends React.Component {
   override state = {
@@ -33,13 +33,11 @@ export class App extends React.Component {
             <Header>
               <Title>Automation Controller</Title>
             </Header>
-            <Content style={{ margin: '16px' }}>
-              <Switch>
-                <Route path="/group/:id" component={GroupDetail} />
-                <Route path="/groups" component={GroupList} />
-                <Route path="/" component={HomePage} />
-              </Switch>
-            </Content>
+            <Switch>
+              <Route path="/group/:id" component={GroupDetail} />
+              <Route path="/groups" component={GroupList} />
+              <Route path="/" component={HomePage} />
+            </Switch>
             <Foot />
           </Layout>
         </Layout>

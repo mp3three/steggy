@@ -1,9 +1,10 @@
+import { CloseOutlined } from '@ant-design/icons';
 import {
   LightAttributesDTO,
   LightStateDTO,
 } from '@text-based/home-assistant-shared';
-import { sleep } from '@text-based/utilities';
-import { Card, Radio, Spin } from 'antd';
+import { is, sleep } from '@text-based/utilities';
+import { Button, Card, Popconfirm, Radio, Spin } from 'antd';
 import React from 'react';
 import { ChromePicker, ColorResult } from 'react-color';
 
@@ -15,7 +16,7 @@ const G = 1;
 const B = 2;
 
 export class LightGroupCard extends React.Component<
-  { entity_id: string },
+  { entity_id: string; onRemove?: (entity_id: string) => void },
   tStateType
 > {
   override async componentDidMount(): Promise<void> {
@@ -29,7 +30,22 @@ export class LightGroupCard extends React.Component<
     const { color, entity } = this.state;
     const entityState = this.getCurrentState();
     return (
-      <Card title={entity.attributes.friendly_name} type="inner">
+      <Card
+        title={entity.attributes.friendly_name}
+        type="inner"
+        extra={
+          is.undefined(this.props.onRemove) ? undefined : (
+            <Popconfirm
+              title="Are you sure you want to remove this?"
+              onConfirm={() => this.props.onRemove(this.props.entity_id)}
+            >
+              <Button size="small" type="text" danger>
+                <CloseOutlined />
+              </Button>
+            </Popconfirm>
+          )
+        }
+      >
         <Radio.Group
           value={entityState}
           onChange={this.onModeChange.bind(this)}
@@ -58,7 +74,7 @@ export class LightGroupCard extends React.Component<
 
   private getCurrentState(): string {
     const { entity } = this.state;
-    if (entity.state === 'off') {
+    if (entity.state !== 'on') {
       return 'turnOff';
     }
     if (entity.attributes.color_mode === 'color_temp') {
