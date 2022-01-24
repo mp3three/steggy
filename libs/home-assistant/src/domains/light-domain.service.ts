@@ -47,11 +47,17 @@ export class LightDomainService extends EntityService {
   public async turnOn(
     entity_id: string | string[],
     settings: LightAttributesDTO = {},
+    waitForChange = false,
   ): Promise<void> {
     this.trackEntity(entity_id);
-    return await this.callService.call('turn_on', {
-      entity_id: entity_id,
-      ...settings,
-    });
+    return await this.callService.call(
+      'turn_on',
+      {
+        entity_id: entity_id,
+        ...settings,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 }

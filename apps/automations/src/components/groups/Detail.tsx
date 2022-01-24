@@ -1,14 +1,12 @@
 import { GroupDTO } from '@text-based/controller-shared';
-import { is, TitleCase } from '@text-based/utilities';
+import { is } from '@text-based/utilities';
 import {
   Breadcrumb,
   Button,
   Card,
   Layout,
-  PageHeader,
   Space,
   Spin,
-  Tag,
   Typography,
 } from 'antd';
 import PropTypes from 'prop-types';
@@ -73,7 +71,7 @@ export const GroupDetail = withRouter(
               >
                 <LightGroup
                   group={this.state.group}
-                  groupUpdate={this.onUpdate.bind(this)}
+                  groupUpdate={this.refresh.bind(this)}
                 />
               </Card>
               <GroupSaveStates
@@ -127,12 +125,7 @@ export const GroupDetail = withRouter(
     }
 
     private groupRendering() {
-      return (
-        <LightGroup
-          group={this.state.group}
-          groupUpdate={this.onUpdate.bind(this)}
-        />
-      );
+      return <LightGroup group={this.state.group} />;
     }
 
     private async nameUpdate(name: string): Promise<void> {

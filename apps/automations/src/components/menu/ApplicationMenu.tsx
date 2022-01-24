@@ -1,12 +1,9 @@
-import {
-  BugOutlined,
-  GroupOutlined,
-  HomeOutlined,
-  IdcardOutlined,
-  RocketOutlined,
-  SettingOutlined,
-  SolutionOutlined,
-} from '@ant-design/icons';
+import AlarmBell from '@2fd/ant-design-icons/lib/AlarmBell';
+import Bug from '@2fd/ant-design-icons/lib/Bug';
+import BulletinBoard from '@2fd/ant-design-icons/lib/BulletinBoard';
+import HomeAutomation from '@2fd/ant-design-icons/lib/HomeAutomation';
+import LightbulbGroupOutline from '@2fd/ant-design-icons/lib/LightbulbGroupOutline';
+import { HomeOutlined, SettingOutlined } from '@ant-design/icons';
 import { Menu } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -14,23 +11,23 @@ import { Link } from 'react-router-dom';
 export class ApplicationMenu extends React.Component {
   override render() {
     return (
-      <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
-        <Menu.Item key="1" icon={<HomeOutlined />}>
+      <Menu theme="dark" defaultSelectedKeys={this.getSelected()} mode="inline">
+        <Menu.Item key="home" icon={<HomeOutlined />}>
           <Link to="/">Home</Link>
         </Menu.Item>
-        <Menu.Item key="2" icon={<GroupOutlined />}>
+        <Menu.Item key="group" icon={<LightbulbGroupOutline />}>
           <Link to="/groups">Groups</Link>
         </Menu.Item>
-        <Menu.Item key="3" icon={<IdcardOutlined />}>
+        <Menu.Item key="3" icon={<BulletinBoard />}>
           <Link to="/rooms">Rooms</Link>
         </Menu.Item>
-        <Menu.Item key="4" icon={<SolutionOutlined />}>
+        <Menu.Item key="4" icon={<HomeAutomation />}>
           <Link to="/routines">Routines</Link>
         </Menu.Item>
-        <Menu.Item key="5" icon={<RocketOutlined />}>
+        <Menu.Item key="5" icon={<AlarmBell />}>
           <Link to="/entities">Entities</Link>
         </Menu.Item>
-        <Menu.Item key="6" icon={<BugOutlined />}>
+        <Menu.Item key="6" icon={<Bug />}>
           <Link to="/debugger">Debugger</Link>
         </Menu.Item>
         <Menu.Item key="7" icon={<SettingOutlined />}>
@@ -38,5 +35,12 @@ export class ApplicationMenu extends React.Component {
         </Menu.Item>
       </Menu>
     );
+  }
+
+  private getSelected(): string[] {
+    if (window.location.href.includes('/group')) {
+      return ['group'];
+    }
+    return ['home'];
   }
 }

@@ -20,6 +20,7 @@ import {
   Table,
 } from 'antd';
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 import { LightGroupDescription } from './states';
@@ -68,9 +69,9 @@ export class GroupSaveStates extends React.Component<
             <Table.Column
               width={20}
               render={(text, record: GroupSaveStateDTO) => (
-                <Button onClick={() => this.editState(record)}>
+                <Link to={`/group/${this.props.group._id}/state/${record.id}`}>
                   <EditOutlined />
-                </Button>
+                </Link>
               )}
             />
             <Table.Column
@@ -144,10 +145,6 @@ export class GroupSaveStates extends React.Component<
   }
 
   private createNewState(): void {
-    //
-  }
-
-  private editState(state: GroupSaveStateDTO): void {
     //
   }
 

@@ -14,7 +14,10 @@ import {
   EntityCommandRouterService,
   LightManagerService,
 } from '@text-based/controller-logic';
-import { EntityHistoryRequest } from '@text-based/controller-shared';
+import {
+  EntityHistoryRequest,
+  RoomEntitySaveStateDTO,
+} from '@text-based/controller-shared';
 import {
   EntityManagerService,
   HomeAssistantFetchAPIService,
@@ -24,7 +27,7 @@ import {
   EntityRegistryItemDTO,
   HASS_DOMAINS,
   HassStateDTO,
-  LightAttributesDTO,
+  LightStateDTO,
 } from '@text-based/home-assistant-shared';
 import {
   ApiGenericResponse,
@@ -149,22 +152,24 @@ export class EntityController {
 
   @Put(`/light-state/:id`)
   @ApiGenericResponse()
-  @ApiBody({ type: LightAttributesDTO })
+  @ApiBody({ type: RoomEntitySaveStateDTO })
   @ApiOperation({
     description: `Modify a light state using the light manager`,
   })
   public async setLightState(
     @Param('id') id: string,
-    @Body() data: Partial<LightAttributesDTO> = {},
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    @Body() data: Partial<RoomEntitySaveStateDTO> = {},
+  ): Promise<LightStateDTO> {
     if (
       domain(id) !== HASS_DOMAINS.light ||
       !this.entityManager.isValidId(id)
     ) {
       throw new BadRequestException();
     }
-    await this.lightManager.turnOn(id, data);
-    return GENERIC_SUCCESS_RESPONSE;
+    await (data.state === 'off'
+      ? this.lightManager.turnOff(id, true)
+      : this.lightManager.turnOn(id, data, true));
+    return this.entityManager.getEntity<LightStateDTO>(id);
   }
 
   /**

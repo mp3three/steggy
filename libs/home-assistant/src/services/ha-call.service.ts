@@ -29,6 +29,7 @@ export class HACallService {
     service: string,
     service_data: Record<string, unknown> = {},
     domain: HASS_DOMAINS = this.domain,
+    waitForChange = false,
   ): Promise<T> {
     // Filter out superfluous calls here
     // Simplify logic in higher level classes
@@ -52,7 +53,7 @@ export class HACallService {
         service_data,
         type: HASSIO_WS_COMMAND.call_service,
       },
-      false,
+      waitForChange,
     );
   }
 

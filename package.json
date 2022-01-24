@@ -17,6 +17,7 @@
     "nx": "npx nx"
   },
   "dependencies": {
+    "@2fd/ant-design-icons": "^2.5.0",
     "@ant-design/colors": "^6.0.0",
     "@ant-design/icons": "^4.7.0",
     "@nestjs/common": "^8.2.6",

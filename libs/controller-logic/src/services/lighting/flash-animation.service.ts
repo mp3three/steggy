@@ -43,7 +43,7 @@ export class FlashAnimationService {
       // Merge together timeouts
       // Doing them consectively will throw off total timing
       await Promise.all([
-        await this.lightManager.turnOn(animation.entity_id, state),
+        await this.lightManager.turnOn(animation.entity_id, { extra: state }),
         await sleep(animation.interval),
       ]);
     });

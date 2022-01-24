@@ -7,6 +7,7 @@ import {
 import {
   CIRCADIAN_UPDATE,
   RoomCommandDTO,
+  RoomEntitySaveStateDTO,
 } from '@text-based/controller-shared';
 import {
   EntityManagerService,
@@ -63,6 +64,7 @@ export class LightManagerService {
     await this.setAttributes(entity_id, {
       brightness,
       color_mode: ColorModes.color_temp,
+      kelvin: this.circadianService.CURRENT_LIGHT_TEMPERATURE,
     });
   }
 
@@ -123,6 +125,7 @@ export class LightManagerService {
   public async setAttributes(
     entity_id: string | string[],
     attributes: Partial<LightAttributesDTO> = {},
+    waitForChange = false,
   ): Promise<void> {
     if (attributes.kelvin && (attributes.hs_color || attributes.rgb_color)) {
       this.logger.warn(
@@ -141,15 +144,12 @@ export class LightManagerService {
     // or there is no mode defined, and the current one is circadian
     if (
       attributes.color_mode === ColorModes.color_temp ||
-      (is.empty(attributes.color_mode) &&
-        current.attributes.color_mode === ColorModes.color_temp)
+      !is.undefined(attributes.kelvin)
     ) {
       attributes.kelvin = this.circadianService.CURRENT_LIGHT_TEMPERATURE;
       attributes.color_mode = ColorModes.color_temp;
     } else {
       delete attributes.kelvin;
-      // attributes.color_mode = ColorModes.hs;
-      // attributes.rgb_color = current.attributes.rgb_color;
       if (
         is.undefined(attributes.rgb_color) &&
         is.undefined(attributes.brightness)
@@ -164,22 +164,23 @@ export class LightManagerService {
       }
     });
     delete attributes.color_mode;
-    this.logger.warn({ attributes }, entity_id);
-    await this.lightService.turnOn(entity_id, attributes);
+    // Send turn on request, wait for completion before finishing
+    await this.lightService.turnOn(entity_id, attributes, waitForChange);
   }
 
-  public async turnOff(entity_id: string | string[]): Promise<void> {
-    return this.hassCoreService.turnOff(entity_id);
+  public async turnOff(
+    entity_id: string | string[],
+    waitForChange = false,
+  ): Promise<void> {
+    return await this.hassCoreService.turnOff(entity_id, waitForChange);
   }
 
   public async turnOn(
     entity_id: string | string[],
-    settings: Partial<LightAttributesDTO> = {},
+    settings: Partial<RoomEntitySaveStateDTO> = {},
+    waitForChange = false,
   ): Promise<void> {
-    return this.setAttributes(entity_id, {
-      ...settings,
-      color_mode: ColorModes.hs,
-    });
+    return await this.setAttributes(entity_id, settings.extra, waitForChange);
   }
 
   protected async circadianLightingUpdate(color_temp: number): Promise<void> {

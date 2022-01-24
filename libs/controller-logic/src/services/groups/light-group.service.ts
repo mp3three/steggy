@@ -83,9 +83,11 @@ export class LightGroupService extends BaseGroupService {
         return;
       }
       await this.lightManager.turnOn(entity, {
-        brightness,
-        hs_color: hs_color as [number, number],
-        rgb_color: rgb_color as [number, number, number],
+        extra: {
+          brightness,
+          hs_color: hs_color as [number, number],
+          rgb_color: rgb_color as [number, number, number],
+        },
       });
     });
   }
@@ -187,9 +189,11 @@ export class LightGroupService extends BaseGroupService {
           case ColorModes.hs:
           default:
             await this.lightManager.turnOn(id, {
-              brightness: state.extra.brightness,
-              hs_color: state.extra.hs_color as [number, number],
-              rgb_color: state.extra.rgb_color as [number, number, number],
+              extra: {
+                brightness: state.extra.brightness,
+                hs_color: state.extra.hs_color as [number, number],
+                rgb_color: state.extra.rgb_color as [number, number, number],
+              },
             });
             break;
         }
@@ -213,7 +217,9 @@ export class LightGroupService extends BaseGroupService {
       return;
     }
     await this.lightManager.turnOn(group.entities, {
-      brightness,
+      extra: {
+        brightness,
+      },
     });
   }
 }
