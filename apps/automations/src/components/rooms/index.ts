@@ -1,1 +1,2 @@
-export * from './Footer';
+export * from './RoomDetail';
+export * from './RoomList';

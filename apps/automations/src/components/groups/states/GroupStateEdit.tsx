@@ -21,7 +21,7 @@ import {
 import React from 'react';
 
 import { sendRequest } from '../../../types';
-import { LightGroupCard } from '../../entities';
+import { LightGroupCard, SwitchEntityCard } from '../../entities';
 
 export class GroupStateEdit extends React.Component<
   {
@@ -31,7 +31,7 @@ export class GroupStateEdit extends React.Component<
   },
   { dirty: boolean; drawer: boolean; friendlyName: string }
 > {
-  private cards: LightGroupCard[];
+  private cards: (LightGroupCard | SwitchEntityCard)[];
   private get group() {
     return this.props.group;
   }
@@ -78,28 +78,10 @@ export class GroupStateEdit extends React.Component<
           }
         >
           <Space direction="vertical">
-            <LightGroupCard
-              title="Bulk change"
-              onUpdate={this.onStateChange.bind(this)}
-            />
+            {this.bulkEdit()}
             <Divider orientation="left">Edit State</Divider>
             <Space wrap>
-              {this.entities.map(entity => (
-                <LightGroupCard
-                  ref={i => this.cards.push(i)}
-                  key={entity}
-                  state={
-                    this.props?.state?.states?.find(
-                      ({ ref }) => ref === entity,
-                    ) || {
-                      extra: {},
-                      ref: entity,
-                      state: undefined,
-                    }
-                  }
-                  onUpdate={this.entityUpdate.bind(this)}
-                />
-              ))}
+              {this.entities.map(entity => this.entityRender(entity))}
             </Space>
           </Space>
         </Drawer>
@@ -108,6 +90,51 @@ export class GroupStateEdit extends React.Component<
       <Layout.Content>
         <Spin size="large" tip="Loading..." />
       </Layout.Content>
+    );
+  }
+
+  private bulkEdit() {
+    if (this.group.type === 'switch') {
+      return (
+        <SwitchEntityCard
+          title="Bulk change"
+          onUpdate={this.onStateChange.bind(this)}
+        />
+      );
+    }
+    return (
+      <LightGroupCard
+        title="Bulk change"
+        onUpdate={this.onStateChange.bind(this)}
+      />
+    );
+  }
+
+  private entityRender(entity: string) {
+    const state = this.props?.state?.states?.find(
+      ({ ref }) => ref === entity,
+    ) || {
+      extra: {},
+      ref: entity,
+      state: undefined,
+    };
+    if (this.props.group.type === 'switch') {
+      return (
+        <SwitchEntityCard
+          ref={i => this.cards.push(i)}
+          key={entity}
+          state={state}
+          onUpdate={this.entityUpdate.bind(this)}
+        />
+      );
+    }
+    return (
+      <LightGroupCard
+        ref={i => this.cards.push(i)}
+        key={entity}
+        state={state}
+        onUpdate={this.entityUpdate.bind(this)}
+      />
     );
   }
 
@@ -125,26 +152,9 @@ export class GroupStateEdit extends React.Component<
     this.setState({ drawer: false });
   }
 
-  private async onSave(): Promise<void> {
-    const id = this.props.state.id;
-    const group = await sendRequest<GroupDTO>(
-      `/group/${this.group._id}/state/${id}`,
-      {
-        body: JSON.stringify({
-          friendlyName: this.state.friendlyName,
-          id,
-          states: this.cards.filter(i => !!i).map(i => i.getSaveState()),
-        } as GroupSaveStateDTO),
-        method: 'put',
-      },
-    );
-    this.setState({ dirty: false, drawer: false });
-    this.props.onUpdate(group);
-  }
-
-  private onStateChange(
+  private onLightStateChange(
     state: RoomEntitySaveStateDTO<LightAttributesDTO>,
-    type: 'state' | 'color' | 'brightness',
+    type: string,
   ): void {
     this.setState({ dirty: true });
     const set: LightAttributesDTO & { state?: string } = {};
@@ -168,6 +178,42 @@ export class GroupStateEdit extends React.Component<
         break;
     }
     console.log(set);
-    this.cards.forEach(i => i?.setState(set as RoomEntitySaveStateDTO));
+    this.cards.forEach(i =>
+      (i as LightGroupCard)?.setState(set as RoomEntitySaveStateDTO),
+    );
+  }
+
+  private async onSave(): Promise<void> {
+    const id = this.props.state.id;
+    const group = await sendRequest<GroupDTO>(
+      `/group/${this.group._id}/state/${id}`,
+      {
+        body: JSON.stringify({
+          friendlyName: this.state.friendlyName,
+          id,
+          states: this.cards.filter(i => !!i).map(i => i.getSaveState()),
+        } as GroupSaveStateDTO),
+        method: 'put',
+      },
+    );
+    this.setState({ dirty: false, drawer: false });
+    this.props.onUpdate(group);
+  }
+
+  private onStateChange(state: RoomEntitySaveStateDTO, type: string): void {
+    this.setState({ dirty: true });
+    if (this.group.type === 'light') {
+      this.onLightStateChange(state, type);
+      return;
+    }
+    this.onSwitchStateChanged(state);
+  }
+
+  private onSwitchStateChanged(state: RoomEntitySaveStateDTO): void {
+    this.cards.forEach(i =>
+      (i as SwitchEntityCard)?.setState({
+        state: state.state,
+      }),
+    );
   }
 }

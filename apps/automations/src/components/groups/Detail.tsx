@@ -4,7 +4,11 @@ import {
   Breadcrumb,
   Button,
   Card,
+  Col,
   Layout,
+  notification,
+  Popconfirm,
+  Row,
   Space,
   Spin,
   Typography,
@@ -17,6 +21,7 @@ import { sendRequest } from '../../types';
 import { EntityModalPicker } from '../entities';
 import { LightGroup } from './LightGroup';
 import { GroupSaveStates } from './SaveState';
+import { SwitchGroup } from './SwitchGroup';
 
 type tStateType = { color: string; group: GroupDTO; name: string };
 
@@ -57,23 +62,38 @@ export const GroupDetail = withRouter(
                   </Link>
                 </Breadcrumb.Item>
               </Breadcrumb>
-              <Card
-                title="Entities"
-                key="entities"
-                style={{ margin: '8px 0' }}
-                extra={
-                  <EntityModalPicker
-                    exclude={this.state.group.entities}
-                    domains={this.domainList()}
-                    onAdd={this.addEntities.bind(this)}
-                  />
-                }
-              >
-                <LightGroup
-                  group={this.state.group}
-                  groupUpdate={this.refresh.bind(this)}
-                />
-              </Card>
+              <Row style={{ margin: '8px 0' }}>
+                <Col span={15}>
+                  <Card
+                    title="Entities"
+                    key="entities"
+                    extra={
+                      <EntityModalPicker
+                        exclude={this.state.group.entities}
+                        domains={this.domainList()}
+                        onAdd={this.addEntities.bind(this)}
+                      />
+                    }
+                  >
+                    {this.groupRendering()}
+                  </Card>
+                </Col>
+                <Col span={8} offset={1}>
+                  <Card title="Group Actions">
+                    <Space>
+                      <Popconfirm
+                        title={`Are you sure?`}
+                        onConfirm={this.deleteGroup.bind(this)}
+                      >
+                        <Button danger>Delete</Button>
+                      </Popconfirm>
+                      <Button>Circadian</Button>
+                      <Button>Off</Button>
+                      <Button>On</Button>
+                    </Space>
+                  </Card>
+                </Col>
+              </Row>
               <GroupSaveStates
                 group={this.state.group}
                 onGroupUpdate={this.refresh.bind(this)}
@@ -84,14 +104,6 @@ export const GroupDetail = withRouter(
               <Spin size="large" tip="Loading..." />
             </Layout.Content>
           )}
-          <Layout.Sider style={{ padding: '16px' }}>
-            <Space direction="vertical" align="end" size={8}>
-              <Button danger>Delete</Button>
-              <Button>Circadian</Button>
-              <Button>Off</Button>
-              <Button>On</Button>
-            </Space>
-          </Layout.Sider>
         </Layout>
       );
     }
@@ -107,6 +119,16 @@ export const GroupDetail = withRouter(
           method: 'put',
         }),
       });
+    }
+
+    private async deleteGroup(): Promise<void> {
+      await sendRequest(`/group/${this.state.group._id}`, {
+        method: 'delete',
+      });
+      notification.info({
+        message: `Deleted ${this.state.name}`,
+      });
+      this.props.history.push('/groups');
     }
 
     private domainList(): string[] {
@@ -125,7 +147,20 @@ export const GroupDetail = withRouter(
     }
 
     private groupRendering() {
-      return <LightGroup group={this.state.group} />;
+      if (this.state.group.type === 'switch') {
+        return (
+          <SwitchGroup
+            group={this.state.group}
+            groupUpdate={this.refresh.bind(this)}
+          />
+        );
+      }
+      return (
+        <LightGroup
+          group={this.state.group}
+          groupUpdate={this.refresh.bind(this)}
+        />
+      );
     }
 
     private async nameUpdate(name: string): Promise<void> {

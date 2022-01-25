@@ -2,21 +2,21 @@ import {
   GroupDTO,
   RoomEntitySaveStateDTO,
 } from '@text-based/controller-shared';
-import { LightStateDTO } from '@text-based/home-assistant-shared';
+import { SwitchStateDTO } from '@text-based/home-assistant-shared';
 import { is } from '@text-based/utilities';
 import { Col, Empty, Row } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
-import { LightGroupCard } from '../entities';
+import { SwitchEntityCard } from '../entities';
 
 type tStateType = { group: GroupDTO };
 
-export class LightGroup extends React.Component<
+export class SwitchGroup extends React.Component<
   { group: GroupDTO; groupUpdate?: (group: GroupDTO) => void },
   tStateType
 > {
-  private lightCards: Record<string, LightGroupCard> = {};
+  private lightCards: Record<string, SwitchEntityCard> = {};
 
   override render() {
     return (
@@ -28,7 +28,7 @@ export class LightGroup extends React.Component<
         ) : (
           this.props.group.state.states.map(entity => (
             <Col key={entity.ref}>
-              <LightGroupCard
+              <SwitchEntityCard
                 state={entity}
                 ref={reference => (this.lightCards[entity.ref] = reference)}
                 onUpdate={this.onAttributeChange.bind(this)}
@@ -41,45 +41,22 @@ export class LightGroup extends React.Component<
     );
   }
 
-  private entityState(id: string): RoomEntitySaveStateDTO {
-    return this.props.group.state.states.find(i => i.ref === id);
-  }
-
   private async onAttributeChange(
     state: RoomEntitySaveStateDTO,
   ): Promise<void> {
-    const light = await sendRequest<LightStateDTO>(
-      `/entity/light-state/${state.ref}`,
-      {
-        body: JSON.stringify(state),
-        method: 'put',
-      },
+    const entity = await sendRequest<SwitchStateDTO>(
+      `/entity/command/${state.ref}/${state.state}`,
+      { method: 'put' },
     );
     const card = this.lightCards[state.ref];
     card.setState({
-      state: light.state,
-      ...light.attributes,
+      state: entity.state,
     });
-    if (
-      light.attributes.rgb_color &&
-      light.attributes.color_mode !== 'color_temp'
-    ) {
-      const rgb = light.attributes.rgb_color;
-      card.setState({
-        color: rgb.map(i => i.toString(16)).join(''),
-      });
-    }
   }
 
   private onRemove(entity_id: string): void {
     const { group } = this.props as { group: GroupDTO };
     group.entities = group.entities.filter(id => id !== entity_id);
     this.props.groupUpdate(group);
-  }
-
-  private async onStateChange(entity_id: string, value: string): Promise<void> {
-    await sendRequest<LightStateDTO>(`/entity/command/${entity_id}/${value}`, {
-      method: 'put',
-    });
   }
 }
