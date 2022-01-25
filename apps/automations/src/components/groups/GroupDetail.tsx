@@ -1,3 +1,4 @@
+import Lightbulb from '@2fd/ant-design-icons/lib/Lightbulb';
 import { GroupDTO } from '@text-based/controller-shared';
 import { is } from '@text-based/utilities';
 import {

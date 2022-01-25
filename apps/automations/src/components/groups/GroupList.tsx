@@ -27,8 +27,8 @@ export class GroupList extends React.Component {
               <Link to="/groups">Groups</Link>
             </Breadcrumb.Item>
           </Breadcrumb>
-          <Row style={{ margin: '16px 0 0 0' }}>
-            <Col span={10} offset={1}>
+          <Row style={{ margin: '16px 0 0 0' }} gutter={16}>
+            <Col span={12}>
               <Card
                 title="Light Groups"
                 extra={
@@ -45,7 +45,7 @@ export class GroupList extends React.Component {
                 ></List>
               </Card>
             </Col>
-            <Col span={10} offset={2}>
+            <Col span={12}>
               <Card
                 title="Switch Groups"
                 extra={
@@ -63,8 +63,8 @@ export class GroupList extends React.Component {
               </Card>
             </Col>
           </Row>
-          <Row style={{ margin: '16px 0 0 0' }}>
-            <Col span={10} offset={1}>
+          <Row style={{ margin: '16px 0 0 0' }} gutter={16}>
+            <Col span={12}>
               <Card
                 title="Fan Groups"
                 extra={
@@ -81,7 +81,7 @@ export class GroupList extends React.Component {
                 ></List>
               </Card>
             </Col>
-            <Col span={10} offset={2}>
+            <Col span={12}>
               <Card
                 title="Lock Groups"
                 extra={

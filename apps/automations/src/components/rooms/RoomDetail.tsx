@@ -1,13 +1,35 @@
+import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
+import { CloseOutlined } from '@ant-design/icons';
 import { GroupDTO, RoomDTO } from '@text-based/controller-shared';
-import { Breadcrumb, Layout, notification, Spin, Typography } from 'antd';
+import { TitleCase } from '@text-based/utilities';
+import {
+  Breadcrumb,
+  Button,
+  Card,
+  Col,
+  Layout,
+  List,
+  notification,
+  Popconfirm,
+  Popover,
+  Row,
+  Spin,
+  Typography,
+} from 'antd';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
+import { EntityModalPicker } from '../entities';
+import { GroupModalPicker } from '../groups';
 
+type PartialGroup = Pick<
+  GroupDTO,
+  '_id' | 'friendlyName' | 'type' | 'save_states'
+>;
 type tStateType = {
-  // color: string;
+  groups: PartialGroup[];
   name: string;
   room: RoomDTO;
 };
@@ -20,6 +42,10 @@ export const RoomDetail = withRouter(
     static propTypes = {
       id: PropTypes.string,
     };
+
+    private get room(): RoomDTO {
+      return this.state.room;
+    }
 
     override async componentDidMount(): Promise<void> {
       await this.refresh();
@@ -44,6 +70,40 @@ export const RoomDetail = withRouter(
                   </Link>
                 </Breadcrumb.Item>
               </Breadcrumb>
+              <Row gutter={16} style={{ margin: '16px 0 0 0' }}>
+                <Col span={12}>
+                  <Card
+                    title="Entities"
+                    extra={
+                      <EntityModalPicker
+                        onAdd={this.addEntities.bind(this)}
+                        exclude={this.room.entities.map(
+                          ({ entity_id }) => entity_id,
+                        )}
+                      />
+                    }
+                  >
+                    asdf
+                  </Card>
+                </Col>
+                <Col span={12}>
+                  <Card
+                    title="Groups"
+                    extra={
+                      <GroupModalPicker
+                        exclude={this.room.groups}
+                        onAdd={this.addGroups.bind(this)}
+                      />
+                    }
+                  >
+                    <List
+                      dataSource={this.room.groups}
+                      renderItem={item => this.groupRender(item)}
+                    />
+                  </Card>
+                </Col>
+              </Row>
+              {/*  */}
             </Layout.Content>
           ) : (
             <Layout.Content>
@@ -54,20 +114,40 @@ export const RoomDetail = withRouter(
       );
     }
 
-    private async addEntities(entities: string[]): Promise<void> {
-      // const { group } = this.state as { group: GroupDTO };
-      // group.entities = is.unique([...group.entities, ...entities]);
-      // this.setState({
-      //   group: await sendRequest(`/group/${group._id}`, {
-      //     body: JSON.stringify({
-      //       entities: group.entities,
-      //     } as Partial<GroupDTO>),
-      //     method: 'put',
-      //   }),
-      // });
+    private async activateGroupState(group: string, state: string) {
+      await sendRequest(`/group/${group}/state/${state}`, { method: 'post' });
     }
 
-    private async deleteGroup(): Promise<void> {
+    private async addEntities(entities: string[]): Promise<void> {
+      const room = this.room;
+      room.entities = [
+        ...room.entities,
+        ...entities.map(entity_id => ({ entity_id })),
+      ];
+      this.setState({
+        room: await sendRequest<RoomDTO>(`/room/${room._id}`, {
+          body: JSON.stringify({
+            entities: room.entities,
+          } as Partial<RoomDTO>),
+          method: 'put',
+        }),
+      });
+    }
+
+    private async addGroups(groups: string[]): Promise<void> {
+      const room = this.room;
+      room.groups = [...room.groups, ...groups];
+      this.setState({
+        room: await sendRequest<RoomDTO>(`/room/${room._id}`, {
+          body: JSON.stringify({
+            groups: room.groups,
+          } as Partial<RoomDTO>),
+          method: 'put',
+        }),
+      });
+    }
+
+    private async deleteRoom(): Promise<void> {
       await sendRequest(`/room/${this.state.room._id}`, {
         method: 'delete',
       });
@@ -77,21 +157,59 @@ export const RoomDetail = withRouter(
       this.props.history.push('/rooms');
     }
 
-    private groupRendering() {
-      // if (this.state.room.type === 'switch') {
-      //   return (
-      //     <SwitchGroup
-      //       group={this.state.room}
-      //       groupUpdate={this.refresh.bind(this)}
-      //     />
-      //   );
-      // }
-      // return (
-      //   <LightGroup
-      //     group={this.state.room}
-      //     groupUpdate={this.refresh.bind(this)}
-      //   />
-      // );
+    private async detachGroup(group: string): Promise<void> {
+      let room = this.room;
+      room = await sendRequest(`/room/${room._id}`, {
+        body: JSON.stringify({ groups: room.groups.filter(i => i !== group) }),
+        method: 'put',
+      });
+      this.setState({ room });
+    }
+
+    private group(id: string): PartialGroup {
+      return this.state.groups.find(({ _id }) => _id === id);
+    }
+
+    private groupRender(item: string) {
+      const group = this.group(item);
+      return (
+        <List.Item key={item}>
+          <List.Item.Meta
+            title={
+              <Popover
+                content={
+                  <List
+                    dataSource={group.save_states}
+                    renderItem={state => (
+                      <List.Item>
+                        <Button
+                          onClick={() =>
+                            this.activateGroupState(group._id, state.id)
+                          }
+                        >
+                          Activate {state.friendlyName}
+                        </Button>
+                      </List.Item>
+                    )}
+                  />
+                }
+                title="Save States"
+              >
+                <Link to={`/group/${item}`}>{group.friendlyName}</Link>
+              </Popover>
+            }
+            description={`${TitleCase(group.type)} group`}
+          />
+          <Popconfirm
+            title={`Detach group?`}
+            onConfirm={() => this.detachGroup(item)}
+          >
+            <Button danger type="text">
+              <CloseOutlined />
+            </Button>
+          </Popconfirm>
+        </List.Item>
+      );
     }
 
     private async nameUpdate(name: string): Promise<void> {
@@ -120,7 +238,13 @@ export const RoomDetail = withRouter(
       const { id } = this.props.match.params;
       // cheating refresh
       room ??= await sendRequest<RoomDTO>(`/room/${id}`);
-      this.setState({ name: room.friendlyName, room });
+      this.setState({
+        groups: await sendRequest(
+          `/group?select=friendlyName,type,save_states.friendlyName,save_states.id`,
+        ),
+        name: room.friendlyName,
+        room,
+      });
     }
   },
 );

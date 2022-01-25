@@ -158,7 +158,7 @@ export class GroupController {
   @Get(`/`)
   @ApiResponse({ type: [GroupDTO] })
   @ApiOperation({
-    description: `List all known groups`,
+    description: `List all groups`,
   })
   public async listGroups(
     @Locals() { control }: ResponseLocals,

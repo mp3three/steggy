@@ -10,29 +10,26 @@ import { HomePage } from '../home';
 import { ApplicationMenu } from '../menu';
 import { RoomDetail, RoomList } from '../rooms';
 
-const { Title } = Typography;
 const { Header, Sider } = Layout;
 
 export class App extends React.Component {
-  override state = {
-    collapsed: false,
-  };
-
-  onCollapse = (collapsed: boolean) => {
-    this.setState({ collapsed });
-  };
+  override state = { collapsed: false };
 
   override render() {
     const { collapsed } = this.state;
     return (
       <Provider store={store}>
         <Layout style={{ minHeight: '100vh' }}>
-          <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
+          <Sider
+            collapsible
+            collapsed={collapsed}
+            onCollapse={this.onCollapse.bind(this)}
+          >
             <ApplicationMenu />
           </Sider>
-          <Layout className="site-layout">
+          <Layout>
             <Header>
-              <Title>Automation Controller</Title>
+              <Typography.Title>Automation Controller</Typography.Title>
             </Header>
             <Switch>
               <Route path="/room/:id" component={RoomDetail} />
@@ -46,5 +43,9 @@ export class App extends React.Component {
         </Layout>
       </Provider>
     );
+  }
+
+  private onCollapse(collapsed: boolean) {
+    this.setState({ collapsed });
   }
 }

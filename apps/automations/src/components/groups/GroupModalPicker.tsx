@@ -1,5 +1,6 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, FileAddOutlined } from '@ant-design/icons';
+import { GroupDTO } from '@text-based/controller-shared';
 import { INCREMENT, INVERT_VALUE, is, START } from '@text-based/utilities';
 import {
   Button,
@@ -16,7 +17,7 @@ import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
 import React from 'react';
 
-import { domain, sendRequest } from '../../types';
+import { sendRequest } from '../../types';
 
 const TEMP_TEMPLATE_SIZE = 3;
 
@@ -26,11 +27,10 @@ type tState = {
   searchText?: string;
   selected: tIdList;
 };
-type tIdList = { entity_id: string; highlighted?: string }[];
+type tIdList = (GroupDTO & { highlighted?: string })[];
 
-export class EntityModalPicker extends React.Component<
+export class GroupModalPicker extends React.Component<
   {
-    domains?: string[];
     exclude?: string[];
     onAdd: (selected: string[]) => void;
   },
@@ -49,10 +49,10 @@ export class EntityModalPicker extends React.Component<
           size="small"
           icon={<PlusBoxMultiple />}
         >
-          Add entities
+          Add groups
         </Button>
         <Modal
-          title="Entity List Builder"
+          title="Group List Builder"
           visible={this.state?.modalVisible}
           onOk={this.onComplete.bind(this)}
           onCancel={this.hide.bind(this)}
@@ -77,7 +77,7 @@ export class EntityModalPicker extends React.Component<
                 }
               />
               <List
-                rowKey="entity_id"
+                rowKey="_id"
                 dataSource={this.getList()}
                 pagination={{ pageSize: 10 }}
                 renderItem={item => (
@@ -87,13 +87,13 @@ export class EntityModalPicker extends React.Component<
                         type="primary"
                         shape="round"
                         size="small"
-                        onClick={() => this.addItem(item.entity_id)}
+                        onClick={() => this.addItem(item)}
                         icon={<FileAddOutlined />}
                       />
                       <Typography.Text>
                         {!is.empty(item.highlighted)
                           ? parse(item.highlighted)
-                          : item.entity_id}
+                          : item.friendlyName}
                       </Typography.Text>
                     </Space>
                   </List.Item>
@@ -104,7 +104,7 @@ export class EntityModalPicker extends React.Component<
                 <Empty description="Nothing added yet" />
               ) : (
                 <List
-                  rowKey="entity_id"
+                  rowKey="_id"
                   dataSource={this.state.selected}
                   pagination={{ pageSize: 10 }}
                   renderItem={item => (
@@ -115,13 +115,13 @@ export class EntityModalPicker extends React.Component<
                           shape="round"
                           type="text"
                           size="small"
-                          onClick={() => this.removeItem(item.entity_id)}
+                          onClick={() => this.removeItem(item._id)}
                           icon={<CloseOutlined />}
                         />
                         <Typography.Text>
                           {!is.empty(item.highlighted)
                             ? parse(item.highlighted)
-                            : item.entity_id}
+                            : item.friendlyName}
                         </Typography.Text>
                       </Space>
                     </List.Item>
@@ -135,9 +135,9 @@ export class EntityModalPicker extends React.Component<
     );
   }
 
-  private addItem(entity_id: string): void {
+  private addItem(group: GroupDTO): void {
     const selected = this.state.selected ?? [];
-    selected.push({ entity_id });
+    selected.push(group);
     this.setState({ selected });
   }
 
@@ -146,16 +146,16 @@ export class EntityModalPicker extends React.Component<
     if (is.empty(searchText)) {
       return available;
     }
-    const fuzzyResult = fuzzy.go(searchText, available, { key: 'entity_id' });
+    const fuzzyResult = fuzzy.go(searchText, available, {
+      key: 'friendlyName',
+    });
     const highlighted = fuzzyResult.map(result => {
       const { target } = result;
       const item = available.find(option => {
-        return is.string(option)
-          ? option === target
-          : option.entity_id === target;
+        return is.string(option) ? option === target : option._id === target;
       });
       return {
-        entity_id: item.entity_id,
+        ...item,
         highlighted: this.highlight(result),
       };
     });
@@ -166,8 +166,8 @@ export class EntityModalPicker extends React.Component<
     const exclude = this.props.exclude ?? [];
     const available = this.state.available.filter(
       item =>
-        !exclude.includes(item.entity_id) &&
-        this.state.selected.every(i => item.entity_id !== i.entity_id),
+        !exclude.includes(item._id) &&
+        this.state.selected.every(i => item._id !== i._id),
     );
     if (is.empty(this.state.searchText)) {
       return available;
@@ -221,13 +221,13 @@ export class EntityModalPicker extends React.Component<
   }
 
   private onComplete(): void {
-    this.props.onAdd(this.state.selected.map(({ entity_id }) => entity_id));
+    this.props.onAdd(this.state.selected.map(({ _id }) => _id));
     this.setState({ modalVisible: false, selected: [] });
   }
 
   private removeItem(entity_id: string): void {
     const selected = (this.state.selected || []).filter(
-      i => i.entity_id !== entity_id,
+      i => i._id !== entity_id,
     );
     this.setState({ selected });
   }
@@ -253,14 +253,8 @@ export class EntityModalPicker extends React.Component<
       searchText: '',
       selected: [],
     });
-    let available = await sendRequest<string[]>(`/entity/list`);
-    if (this.props.domains) {
-      available = available.filter(entity_id =>
-        this.props.domains.includes(domain(entity_id)),
-      );
-    }
     this.setState({
-      available: available.map(entity_id => ({ entity_id })),
+      available: await sendRequest<GroupDTO[]>(`/group`),
     });
   }
 }

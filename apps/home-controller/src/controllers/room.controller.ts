@@ -64,8 +64,9 @@ export class RoomController {
   public async addState(
     @Param('room') room: string,
     @Body() state: RoomStateDTO,
-  ): Promise<RoomStateDTO> {
-    return await this.roomService.addState(room, state);
+  ): Promise<RoomDTO> {
+    await this.roomService.addState(room, state);
+    return this.describe(room);
   }
 
   @Post(`/:room/group`)
@@ -178,7 +179,8 @@ export class RoomController {
     @Param('room') room: string,
     @Param('state') state: string,
     @Body() data: RoomStateDTO,
-  ): Promise<RoomStateDTO> {
-    return await this.roomService.updateState(room, state, data);
+  ): Promise<RoomDTO> {
+    await this.roomService.updateState(room, state, data);
+    return this.describe(room);
   }
 }

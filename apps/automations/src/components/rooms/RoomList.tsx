@@ -1,23 +1,21 @@
-import type { GroupDTO, RoomDTO } from '@text-based/controller-shared';
+import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
+import type { RoomDTO } from '@text-based/controller-shared';
 import { DOWN, UP } from '@text-based/utilities';
 import {
   Breadcrumb,
   Button,
   Card,
-  Col,
   Form,
   FormInstance,
   Input,
   Layout,
   List,
   Popconfirm,
-  Row,
 } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
-import { GroupCreateButton } from './RoomCreateButton';
 
 const { Content } = Layout;
 
@@ -62,7 +60,9 @@ export class RoomList extends React.Component {
                   </Form>
                 }
               >
-                <Button>Create new</Button>
+                <Button size="small" icon={<PlusBoxMultiple />}>
+                  Create new
+                </Button>
               </Popconfirm>
             }
           >

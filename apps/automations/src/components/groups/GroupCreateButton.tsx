@@ -1,3 +1,4 @@
+import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { Button, Form, FormInstance, Input, Popconfirm } from 'antd';
 import React from 'react';
 
@@ -30,7 +31,9 @@ export class GroupCreateButton extends React.Component<{
           </Form>
         }
       >
-        <Button>Create new</Button>
+        <Button icon={<PlusBoxMultiple />} size="small">
+          Create new
+        </Button>
       </Popconfirm>
     );
   }
