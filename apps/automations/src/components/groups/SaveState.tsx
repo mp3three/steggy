@@ -1,8 +1,4 @@
-import {
-  CameraOutlined,
-  EditOutlined,
-  FolderAddOutlined,
-} from '@ant-design/icons';
+import { CameraOutlined, FolderAddOutlined } from '@ant-design/icons';
 import { GroupDTO, GroupSaveStateDTO } from '@text-based/controller-shared';
 import { is, sleep } from '@text-based/utilities';
 import {
@@ -12,7 +8,6 @@ import {
   Form,
   FormInstance,
   Input,
-  Modal,
   notification,
   Popconfirm,
   Popover,
@@ -20,20 +15,20 @@ import {
   Table,
 } from 'antd';
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
-import { LightGroupDescription } from './states';
+import { GroupStateEdit, LightGroupDescription } from './states';
 
 type tState = {
   captureCurrentVisible?: boolean;
 };
 
 export class GroupSaveStates extends React.Component<
-  { group: GroupDTO; onGroupUpdate: () => void },
+  { group: GroupDTO; onGroupUpdate: (group?: GroupDTO) => void },
   tState
 > {
-  private form: FormInstance;
+  private captureForm: FormInstance;
+  private createForm: FormInstance;
 
   override render() {
     return (
@@ -44,20 +39,50 @@ export class GroupSaveStates extends React.Component<
         style={{ margin: '8px 0' }}
         extra={
           <Space>
-            <Button
-              size="small"
-              icon={<CameraOutlined />}
-              onClick={this.captureCurrent.bind(this)}
+            <Popconfirm
+              onConfirm={this.validateCapture.bind(this)}
+              title={
+                <Form
+                  onFinish={this.validateCapture.bind(this)}
+                  layout="vertical"
+                  ref={form => (this.captureForm = form)}
+                >
+                  <Form.Item
+                    label="Friendly Name"
+                    name="friendlyName"
+                    rules={[{ required: true }]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Form>
+              }
             >
-              Capture current
-            </Button>
-            <Button
-              size="small"
-              icon={<FolderAddOutlined />}
-              onClick={this.createNewState.bind(this)}
+              <Button size="small" icon={<CameraOutlined />}>
+                Capture current
+              </Button>
+            </Popconfirm>
+            <Popconfirm
+              onConfirm={this.validateCreate.bind(this)}
+              title={
+                <Form
+                  onFinish={this.validateCreate.bind(this)}
+                  layout="vertical"
+                  ref={form => (this.createForm = form)}
+                >
+                  <Form.Item
+                    label="Friendly Name"
+                    name="friendlyName"
+                    rules={[{ required: true }]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Form>
+              }
             >
-              Create new
-            </Button>
+              <Button size="small" icon={<FolderAddOutlined />}>
+                Create new
+              </Button>
+            </Popconfirm>
           </Space>
         }
       >
@@ -69,9 +94,11 @@ export class GroupSaveStates extends React.Component<
             <Table.Column
               width={20}
               render={(text, record: GroupSaveStateDTO) => (
-                <Link to={`/group/${this.props.group._id}/state/${record.id}`}>
-                  <EditOutlined />
-                </Link>
+                <GroupStateEdit
+                  onUpdate={group => this.props.onGroupUpdate(group)}
+                  group={this.props.group}
+                  state={record}
+                />
               )}
             />
             <Table.Column
@@ -105,28 +132,6 @@ export class GroupSaveStates extends React.Component<
           </Table>
         )}
 
-        {/* Capture current modal */}
-        <Modal
-          forceRender
-          title="Capture current state"
-          visible={this.state?.captureCurrentVisible}
-          onOk={this.validate.bind(this)}
-          onCancel={this.hide.bind(this)}
-        >
-          <Form
-            onFinish={this.validate.bind(this)}
-            layout="vertical"
-            ref={form => (this.form = form)}
-          >
-            <Form.Item
-              label="Friendly Name"
-              name="name"
-              rules={[{ required: true }]}
-            >
-              <Input />
-            </Form.Item>
-          </Form>
-        </Modal>
         {/* / Capture current modal */}
       </Card>
     );
@@ -140,18 +145,6 @@ export class GroupSaveStates extends React.Component<
     this.props.onGroupUpdate();
   }
 
-  private captureCurrent(): void {
-    this.setState({ captureCurrentVisible: true });
-  }
-
-  private createNewState(): void {
-    //
-  }
-
-  private hide(): void {
-    this.setState({ captureCurrentVisible: false });
-  }
-
   private async removeState(state: GroupSaveStateDTO): Promise<void> {
     await sendRequest(`/group/${this.props.group._id}/state/${state.id}`, {
       method: 'delete',
@@ -160,18 +153,41 @@ export class GroupSaveStates extends React.Component<
     this.props.onGroupUpdate();
   }
 
-  private async validate(): Promise<void> {
+  private async validateCapture(): Promise<void> {
     try {
-      const values = await this.form.validateFields();
-      await sendRequest(`/group/${this.props.group._id}/capture`, {
-        body: JSON.stringify(values),
-        method: 'post',
-      });
-      this.hide();
+      const values = await this.captureForm.validateFields();
+      const group = await sendRequest<GroupDTO>(
+        `/group/${this.props.group._id}/capture`,
+        {
+          body: JSON.stringify(values),
+          method: 'post',
+        },
+      );
       notification.success({
-        message: `State captured: ${values.name}`,
+        message: `State captured: ${values.friendlyName}`,
       });
-      this.props.onGroupUpdate();
+      this.props.onGroupUpdate(group);
+      this.captureForm.resetFields();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  private async validateCreate(): Promise<void> {
+    try {
+      const values = await this.createForm.validateFields();
+      const group = await sendRequest<GroupDTO>(
+        `/group/${this.props.group._id}/state`,
+        {
+          body: JSON.stringify(values),
+          method: 'post',
+        },
+      );
+      notification.success({
+        message: `State created: ${values.friendlyName}`,
+      });
+      this.props.onGroupUpdate(group);
+      this.createForm.resetFields();
     } catch (error) {
       console.error(error);
     }

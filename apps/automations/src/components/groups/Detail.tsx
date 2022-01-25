@@ -150,11 +150,11 @@ export const GroupDetail = withRouter(
       await this.refresh();
     }
 
-    private async refresh(): Promise<void> {
+    private async refresh(group?: GroupDTO): Promise<void> {
       const { id } = this.props.match.params;
-      const group = await sendRequest<GroupDTO>(`/group/${id}`);
-      const name = group.friendlyName;
-      this.setState({ group, name });
+      // cheating refresh
+      group ??= await sendRequest<GroupDTO>(`/group/${id}`);
+      this.setState({ group, name: group.friendlyName });
     }
   },
 );

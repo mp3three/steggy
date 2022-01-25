@@ -40,13 +40,13 @@ export class GroupController {
     @Param('group') group: string,
     @Param('command') command: GENERIC_COMMANDS,
     @Body() extra: Record<string, unknown>,
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+  ): Promise<GroupDTO> {
     await this.groupService.activateCommand({
       command,
       extra,
       group,
     });
-    return GENERIC_SUCCESS_RESPONSE;
+    return await this.groupService.get(group);
   }
 
   @Post(`/:group/state/:state`)
@@ -57,9 +57,9 @@ export class GroupController {
   public async activateState(
     @Param('group') group: string,
     @Param('state') state: string,
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+  ): Promise<GroupDTO> {
     await this.groupService.activateState({ group, state });
-    return GENERIC_SUCCESS_RESPONSE;
+    return await this.groupService.get(group);
   }
 
   @Post(`/:group/state`)
@@ -71,23 +71,28 @@ export class GroupController {
     @Param('group') group: string,
     @Body() state: GroupSaveStateDTO,
   ): Promise<GroupDTO> {
-    return await this.groupService.addState(group, state);
+    state.states ??= [];
+    await this.groupService.addState(group, state);
+    return await this.groupService.get(group);
   }
 
   @Post('/:group/capture')
   @ApiGenericResponse()
   @ApiBody({
-    schema: { properties: { name: { type: 'string' } }, type: 'object' },
+    schema: {
+      properties: { friendlyName: { type: 'string' } },
+      type: 'object',
+    },
   })
   @ApiOperation({
     description: `Take the current state of the group, and add it as a save state`,
   })
   public async captureCurrent(
     @Param('group') group: string,
-    @Body() { name }: { name: string },
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.groupService.captureState(group, name);
-    return GENERIC_SUCCESS_RESPONSE;
+    @Body() { friendlyName }: { friendlyName: string },
+  ): Promise<GroupDTO> {
+    await this.groupService.captureState(group, friendlyName);
+    return await this.groupService.get(group);
   }
 
   @Post('/')
@@ -97,7 +102,8 @@ export class GroupController {
     description: `Create a new group`,
   })
   public async createGroup(@Body() group: GroupDTO): Promise<GroupDTO> {
-    return await this.groupService.create(BaseSchemaDTO.cleanup(group));
+    await this.groupService.create(BaseSchemaDTO.cleanup(group));
+    return await this.groupService.get(group);
   }
 
   @Delete(`/:group`)
@@ -121,7 +127,8 @@ export class GroupController {
     @Param('group') group: string,
     @Param('state') state: string,
   ): Promise<GroupDTO> {
-    return await this.groupService.deleteState(group, state);
+    await this.groupService.deleteState(group, state);
+    return await this.groupService.get(group);
   }
 
   @Get('/:group')
@@ -143,9 +150,9 @@ export class GroupController {
   public async expandState(
     @Param('group') group: string,
     @Body() state: ROOM_ENTITY_EXTRAS,
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+  ): Promise<GroupDTO> {
     await this.groupService.expandState(group, state);
-    return GENERIC_SUCCESS_RESPONSE;
+    return await this.groupService.get(group);
   }
 
   @Get(`/`)
@@ -167,7 +174,8 @@ export class GroupController {
   public async truncateStates(
     @Param('group') group: string,
   ): Promise<GroupDTO> {
-    return await this.groupService.truncate(group);
+    await this.groupService.truncate(group);
+    return await this.groupService.get(group);
   }
 
   @Put('/:group')
@@ -180,7 +188,8 @@ export class GroupController {
     @Param('group') id: string,
     @Body() body: Partial<GroupDTO>,
   ): Promise<GroupDTO> {
-    return await this.groupService.update(id, BaseSchemaDTO.cleanup(body));
+    await this.groupService.update(id, BaseSchemaDTO.cleanup(body));
+    return await this.groupService.get(id);
   }
 
   @Put(`/:group/state/:state`)
@@ -194,6 +203,7 @@ export class GroupController {
     @Param('state') state: string,
     @Body() body: GroupSaveStateDTO,
   ): Promise<GroupDTO> {
-    return await this.groupService.updateState(group, state, body);
+    await this.groupService.updateState(group, state, body);
+    return await this.groupService.get(group);
   }
 }

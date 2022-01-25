@@ -33,7 +33,10 @@ const B = 2;
 export class LightGroupCard extends React.Component<
   {
     onRemove?: (entity_id: string) => void;
-    onUpdate: (state: RoomEntitySaveStateDTO) => void;
+    onUpdate: (
+      state: RoomEntitySaveStateDTO,
+      attribute: 'state' | 'color' | 'brightness',
+    ) => void;
     state?: RoomEntitySaveStateDTO;
     title?: string;
   },
@@ -51,9 +54,22 @@ export class LightGroupCard extends React.Component<
     this.setState({
       brightness: this.attributes.brightness,
       color_mode: this.attributes.color_mode,
+      rgb_color: this.attributes.rgb_color,
       state: this.props?.state?.state,
     });
     await this.refresh();
+  }
+
+  public getSaveState(): RoomEntitySaveStateDTO {
+    return {
+      extra: {
+        brightness: this.state.brightness,
+        color_mode: this.state.color_mode,
+        rgb_color: this.state.rgb_color,
+      },
+      ref: this.ref,
+      state: this.state.state || 'off',
+    };
   }
 
   override render() {
@@ -108,9 +124,9 @@ export class LightGroupCard extends React.Component<
             <ChromePicker
               color={
                 color ?? {
-                  b: (rgb_color || [])[R],
+                  b: (rgb_color || [])[B],
                   g: (rgb_color || [])[G],
-                  r: (rgb_color || [])[B],
+                  r: (rgb_color || [])[R],
                 }
               }
               onChange={this.updateColor.bind(this)}
@@ -125,16 +141,18 @@ export class LightGroupCard extends React.Component<
 
   private brightnessChanged(brightness: number): void {
     this.setState({ brightness });
-    this.props.onUpdate({
-      extra: {
-        brightness,
-        color_mode: this.state.color_mode,
-        rgb_color: this.state.rgb_color,
+    this.props.onUpdate(
+      {
+        extra: {
+          brightness,
+          color_mode: this.state.color_mode,
+          rgb_color: this.state.rgb_color,
+        },
+        ref: this.ref,
+        state: this.state.state,
       },
-      ref: this.ref,
-      state: this.state.state,
-    });
-    this.onUpdate();
+      'brightness',
+    );
   }
 
   private getCurrentState(): string {
@@ -162,7 +180,7 @@ export class LightGroupCard extends React.Component<
         rgb_color: undefined,
         state: 'off',
       });
-      this.onUpdate();
+      this.onUpdate('state');
       return;
     }
     if (state === 'turnOn') {
@@ -170,7 +188,7 @@ export class LightGroupCard extends React.Component<
         color_mode: undefined,
         state: 'on',
       });
-      this.onUpdate();
+      this.onUpdate('state');
       return;
     }
     this.setState({
@@ -178,20 +196,12 @@ export class LightGroupCard extends React.Component<
       rgb_color: undefined,
       state: 'on',
     });
-    this.onUpdate();
+    this.onUpdate('state');
   }
 
-  private onUpdate(): void {
+  private onUpdate(type: 'color' | 'state'): void {
     setTimeout(() => {
-      this.props.onUpdate({
-        extra: {
-          brightness: this.state.brightness,
-          color_mode: this.state.color_mode,
-          rgb_color: this.state.rgb_color,
-        },
-        ref: this.ref,
-        state: this.state.state,
-      });
+      this.props.onUpdate(this.getSaveState(), type);
     }, 0);
   }
 
@@ -217,7 +227,7 @@ export class LightGroupCard extends React.Component<
   private sendColorChange({ rgb, hex }: ColorResult): void {
     const { r, g, b } = rgb;
     this.setState({ color: hex, rgb_color: [r, g, b] });
-    this.onUpdate();
+    this.onUpdate('color');
   }
 
   private updateBrightness(brightness: number): void {

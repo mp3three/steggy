@@ -78,7 +78,7 @@ export class GroupService {
   public async captureState(
     group: GroupDTO | string,
     name: string,
-  ): Promise<string> {
+  ): Promise<GroupDTO> {
     group = await this.load(group);
     const base = this.getBaseGroup(group.type);
     return await base.captureState(group, name);

@@ -5,7 +5,7 @@ import { Route, Switch } from 'react-router-dom';
 
 import { store } from '../../store';
 import { Foot } from '../footer';
-import { GroupDetail, GroupList, GroupStateEdit } from '../groups';
+import { GroupDetail, GroupList } from '../groups';
 import { HomePage } from '../home';
 import { ApplicationMenu } from '../menu';
 
@@ -34,10 +34,6 @@ export class App extends React.Component {
               <Title>Automation Controller</Title>
             </Header>
             <Switch>
-              <Route
-                path="/group/:id/state/:state"
-                component={GroupStateEdit}
-              />
               <Route path="/group/:id" component={GroupDetail} />
               <Route path="/groups" component={GroupList} />
               <Route path="/" component={HomePage} />

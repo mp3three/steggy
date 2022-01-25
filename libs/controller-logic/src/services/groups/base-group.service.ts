@@ -73,7 +73,7 @@ export abstract class BaseGroupService {
   public async captureState(
     group: GroupDTO | string,
     name: string,
-  ): Promise<string> {
+  ): Promise<GroupDTO> {
     const id = uuid();
     group = await this.loadGroup(group);
     const states = await this.getState(group);
@@ -83,8 +83,7 @@ export abstract class BaseGroupService {
       id,
       states,
     });
-    await this.groupPersistence.update(group, group._id);
-    return id;
+    return await this.groupPersistence.update(group, group._id);
   }
 
   public async deleteState<

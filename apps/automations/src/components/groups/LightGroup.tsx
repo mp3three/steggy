@@ -2,11 +2,8 @@ import {
   GroupDTO,
   RoomEntitySaveStateDTO,
 } from '@text-based/controller-shared';
-import {
-  LightAttributesDTO,
-  LightStateDTO,
-} from '@text-based/home-assistant-shared';
-import { is, sleep } from '@text-based/utilities';
+import { LightStateDTO } from '@text-based/home-assistant-shared';
+import { is } from '@text-based/utilities';
 import { Col, Empty, Row } from 'antd';
 import React from 'react';
 
