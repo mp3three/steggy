@@ -21,7 +21,7 @@ import {
 import React from 'react';
 
 import { sendRequest } from '../../../types';
-import { LightGroupCard, SwitchEntityCard } from '../../entities';
+import { LightEntityCard, SwitchEntityCard } from '../../entities';
 
 export class GroupStateEdit extends React.Component<
   {
@@ -31,7 +31,7 @@ export class GroupStateEdit extends React.Component<
   },
   { dirty: boolean; drawer: boolean; friendlyName: string }
 > {
-  private cards: (LightGroupCard | SwitchEntityCard)[];
+  private cards: (LightEntityCard | SwitchEntityCard)[];
   private get group() {
     return this.props.group;
   }
@@ -103,7 +103,7 @@ export class GroupStateEdit extends React.Component<
       );
     }
     return (
-      <LightGroupCard
+      <LightEntityCard
         title="Bulk change"
         onUpdate={this.onStateChange.bind(this)}
       />
@@ -129,7 +129,7 @@ export class GroupStateEdit extends React.Component<
       );
     }
     return (
-      <LightGroupCard
+      <LightEntityCard
         ref={i => this.cards.push(i)}
         key={entity}
         state={state}
@@ -179,7 +179,7 @@ export class GroupStateEdit extends React.Component<
     }
     console.log(set);
     this.cards.forEach(i =>
-      (i as LightGroupCard)?.setState(set as RoomEntitySaveStateDTO),
+      (i as LightEntityCard)?.setState(set as RoomEntitySaveStateDTO),
     );
   }
 

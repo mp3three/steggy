@@ -1,6 +1,9 @@
-import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined } from '@ant-design/icons';
-import { GroupDTO, RoomDTO } from '@text-based/controller-shared';
+import {
+  GroupDTO,
+  RoomDTO,
+  RoomEntityDTO,
+} from '@text-based/controller-shared';
 import { TitleCase } from '@text-based/utilities';
 import {
   Breadcrumb,
@@ -23,6 +26,7 @@ import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { sendRequest } from '../../types';
 import { EntityModalPicker } from '../entities';
 import { GroupModalPicker } from '../groups';
+import { RoomSaveStates } from './RoomSaveState';
 
 type PartialGroup = Pick<
   GroupDTO,
@@ -83,7 +87,10 @@ export const RoomDetail = withRouter(
                       />
                     }
                   >
-                    asdf
+                    <List
+                      dataSource={this.room.entities}
+                      renderItem={item => this.entityRender(item)}
+                    />
                   </Card>
                 </Col>
                 <Col span={12}>
@@ -101,6 +108,14 @@ export const RoomDetail = withRouter(
                       renderItem={item => this.groupRender(item)}
                     />
                   </Card>
+                </Col>
+              </Row>
+              <Row gutter={16} style={{ margin: '16px 0 0 0' }}>
+                <Col span={24}>
+                  <RoomSaveStates
+                    room={this.room}
+                    roomUpdated={this.onUpdate.bind(this)}
+                  />
                 </Col>
               </Row>
               {/*  */}
@@ -166,6 +181,10 @@ export const RoomDetail = withRouter(
       this.setState({ room });
     }
 
+    private entityRender({ entity_id }: RoomEntityDTO) {
+      return <List.Item>{entity_id}</List.Item>;
+    }
+
     private group(id: string): PartialGroup {
       return this.state.groups.find(({ _id }) => _id === id);
     }
@@ -226,9 +245,9 @@ export const RoomDetail = withRouter(
       this.setState({ name });
     }
 
-    private async onUpdate({ _id, ...group }: GroupDTO): Promise<void> {
-      await sendRequest<GroupDTO>(`/group/${_id}`, {
-        body: JSON.stringify(group),
+    private async onUpdate({ _id, ...rooom }: RoomDTO): Promise<void> {
+      await sendRequest<RoomDTO>(`/group/${_id}`, {
+        body: JSON.stringify(rooom),
         method: 'put',
       });
       await this.refresh();

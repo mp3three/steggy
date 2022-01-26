@@ -30,7 +30,7 @@ const R = 0;
 const G = 1;
 const B = 2;
 
-export class LightGroupCard extends React.Component<
+export class LightEntityCard extends React.Component<
   {
     onRemove?: (entity_id: string) => void;
     onUpdate: (

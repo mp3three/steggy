@@ -1,4 +1,3 @@
-import Lightbulb from '@2fd/ant-design-icons/lib/Lightbulb';
 import { GroupDTO } from '@text-based/controller-shared';
 import { is } from '@text-based/utilities';
 import {
@@ -20,8 +19,8 @@ import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 import { EntityModalPicker } from '../entities';
+import { GroupSaveStates } from './GroupSaveState';
 import { LightGroup } from './LightGroup';
-import { GroupSaveStates } from './SaveState';
 import { SwitchGroup } from './SwitchGroup';
 
 type tStateType = { color: string; group: GroupDTO; name: string };
@@ -112,14 +111,14 @@ export const GroupDetail = withRouter(
     private async addEntities(entities: string[]): Promise<void> {
       const { group } = this.state as { group: GroupDTO };
       group.entities = is.unique([...group.entities, ...entities]);
-      this.setState({
-        group: await sendRequest(`/group/${group._id}`, {
+      this.refresh(
+        await sendRequest(`/group/${group._id}`, {
           body: JSON.stringify({
             entities: group.entities,
           } as Partial<GroupDTO>),
           method: 'put',
         }),
-      });
+      );
     }
 
     private async deleteGroup(): Promise<void> {
@@ -152,14 +151,14 @@ export const GroupDetail = withRouter(
         return (
           <SwitchGroup
             group={this.state.group}
-            groupUpdate={this.refresh.bind(this)}
+            groupUpdate={this.onUpdate.bind(this)}
           />
         );
       }
       return (
         <LightGroup
           group={this.state.group}
-          groupUpdate={this.refresh.bind(this)}
+          groupUpdate={this.onUpdate.bind(this)}
         />
       );
     }
@@ -179,11 +178,12 @@ export const GroupDetail = withRouter(
     }
 
     private async onUpdate({ _id, ...group }: GroupDTO): Promise<void> {
-      await sendRequest<GroupDTO>(`/group/${_id}`, {
-        body: JSON.stringify(group),
-        method: 'put',
-      });
-      await this.refresh();
+      await this.refresh(
+        await sendRequest<GroupDTO>(`/group/${_id}`, {
+          body: JSON.stringify(group),
+          method: 'put',
+        }),
+      );
     }
 
     private async refresh(group?: GroupDTO): Promise<void> {
