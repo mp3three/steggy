@@ -1,6 +1,5 @@
 import { HassStateDTO } from '@text-based/home-assistant-shared';
-import { is } from '@text-based/utilities';
-import { Popover, Table, Typography } from 'antd';
+import { Space, Table, Typography } from 'antd';
 import React from 'react';
 
 type tStateType = {
@@ -15,11 +14,19 @@ export class EntityAttributePopover extends React.Component<
   tStateType
 > {
   override render() {
-    const data = Object.keys(this.props.state.attributes).map(key => ({
+    const attributes = this.props.state.attributes;
+    const data = Object.keys(attributes).map(key => ({
       key,
-      value: data[key],
+      value: attributes[key],
     }));
-    const { friendly_name, state } = this.state;
-    return <Table></Table>;
+    return (
+      <Space direction="vertical">
+        <Typography.Text>State: {this.props.state.state}</Typography.Text>
+        <Table dataSource={data}>
+          <Table.Column key="key" title="key" dataIndex="key" />
+          <Table.Column key="value" title="value" dataIndex="value" />
+        </Table>
+      </Space>
+    );
   }
 }

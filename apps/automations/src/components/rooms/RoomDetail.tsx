@@ -23,8 +23,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 
-import { sendRequest } from '../../types';
-import { EntityModalPicker } from '../entities';
+import { domain, sendRequest } from '../../types';
+import {
+  EntityAttributePopover,
+  EntityModalPicker,
+  LightEntityCard,
+  SwitchEntityCard,
+} from '../entities';
 import { GroupModalPicker } from '../groups';
 import { RoomSaveStates } from './RoomSaveState';
 
@@ -118,7 +123,6 @@ export const RoomDetail = withRouter(
                   />
                 </Col>
               </Row>
-              {/*  */}
             </Layout.Content>
           ) : (
             <Layout.Content>
@@ -182,7 +186,54 @@ export const RoomDetail = withRouter(
     }
 
     private entityRender({ entity_id }: RoomEntityDTO) {
-      return <List.Item>{entity_id}</List.Item>;
+      const state = this.room.entityStates.find(i => i.entity_id === entity_id);
+      let contentNode: React.ReactNode = (
+        <EntityAttributePopover state={state} />
+      );
+      switch (domain(entity_id)) {
+        case 'light':
+          contentNode = (
+            <LightEntityCard
+              state={{
+                extra: state.attributes,
+                ref: state.entity_id,
+                state: state.state as string,
+              }}
+              selfContained
+            />
+          );
+          break;
+        case 'switch':
+          contentNode = (
+            <SwitchEntityCard
+              state={{
+                extra: state.attributes,
+                ref: state.entity_id,
+                state: state.state as string,
+              }}
+              selfContained
+            />
+          );
+          break;
+      }
+      return (
+        <List.Item
+          actions={[
+            <Popconfirm
+              title="Are you sure you want to delete this?"
+              onConfirm={() => this.removeEntity(entity_id)}
+            >
+              <Button danger type="text">
+                X
+              </Button>
+            </Popconfirm>,
+          ]}
+        >
+          <Popover content={contentNode}>
+            {state.attributes.friendly_name}
+          </Popover>
+        </List.Item>
+      );
     }
 
     private group(id: string): PartialGroup {
@@ -192,7 +243,19 @@ export const RoomDetail = withRouter(
     private groupRender(item: string) {
       const group = this.group(item);
       return (
-        <List.Item key={item}>
+        <List.Item
+          key={item}
+          actions={[
+            <Popconfirm
+              title={`Detach group?`}
+              onConfirm={() => this.detachGroup(item)}
+            >
+              <Button danger type="text">
+                <CloseOutlined />
+              </Button>
+            </Popconfirm>,
+          ]}
+        >
           <List.Item.Meta
             title={
               <Popover
@@ -219,14 +282,6 @@ export const RoomDetail = withRouter(
             }
             description={`${TitleCase(group.type)} group`}
           />
-          <Popconfirm
-            title={`Detach group?`}
-            onConfirm={() => this.detachGroup(item)}
-          >
-            <Button danger type="text">
-              <CloseOutlined />
-            </Button>
-          </Popconfirm>
         </List.Item>
       );
     }
@@ -264,6 +319,14 @@ export const RoomDetail = withRouter(
         name: room.friendlyName,
         room,
       });
+    }
+
+    private async removeEntity(entity: string): Promise<void> {
+      this.refresh(
+        await sendRequest<RoomDTO>(`/room/${this.room._id}/entity/${entity}`, {
+          method: 'delete',
+        }),
+      );
     }
   },
 );

@@ -9,21 +9,45 @@ export class SwitchDomainService {
     this.callService.domain = HASS_DOMAINS.switch;
   }
 
-  public async toggle(entity_id: string | string[]): Promise<void> {
-    return await this.callService.call('toggle', {
-      entity_id,
-    });
+  public async toggle(
+    entity_id: string | string[],
+    waitForChange = false,
+  ): Promise<void> {
+    return await this.callService.call(
+      'toggle',
+      {
+        entity_id,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 
-  public async turnOff(entity_id: string | string[]): Promise<void> {
-    return await this.callService.call('turn_off', {
-      entity_id,
-    });
+  public async turnOff(
+    entity_id: string | string[],
+    waitForChange = false,
+  ): Promise<void> {
+    return await this.callService.call(
+      'turn_off',
+      {
+        entity_id,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 
-  public async turnOn(entity_id: string | string[]): Promise<void> {
-    return await this.callService.call('turn_on', {
-      entity_id,
-    });
+  public async turnOn(
+    entity_id: string | string[],
+    waitForChange = false,
+  ): Promise<void> {
+    return await this.callService.call(
+      'turn_on',
+      {
+        entity_id,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 }

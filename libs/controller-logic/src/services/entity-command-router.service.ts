@@ -55,13 +55,22 @@ export class EntityCommandRouterService {
     id: string,
     command: string,
     body: ROOM_ENTITY_EXTRAS = {},
+    waitForChange = false,
   ): Promise<void> {
     switch (domain(id)) {
       case HASS_DOMAINS.light:
-        await this.lightEntity(id, command as keyof LightManagerService);
+        await this.lightEntity(
+          id,
+          command as keyof LightManagerService,
+          waitForChange,
+        );
         return;
       case HASS_DOMAINS.switch:
-        await this.switchEntity(id, command as keyof SwitchDomainService);
+        await this.switchEntity(
+          id,
+          command as keyof SwitchDomainService,
+          waitForChange,
+        );
         return;
       case HASS_DOMAINS.media_player:
         await this.mediaEntity(id, command as keyof MediaPlayerDomainService);
@@ -153,7 +162,11 @@ export class EntityCommandRouterService {
     throw new BadRequestException(command);
   }
 
-  private async lightEntity(id: string, command: string) {
+  private async lightEntity(
+    id: string,
+    command: string,
+    waitForChange = false,
+  ) {
     switch (command) {
       case 'circadianLight':
         return await this.lightService.circadianLight(id);
@@ -163,10 +176,10 @@ export class EntityCommandRouterService {
         return await this.lightService.dimUp({}, [id]);
       case 'turnOff':
       case 'off':
-        return await this.lightService.turnOff(id);
+        return await this.lightService.turnOff(id, waitForChange);
       case 'turnOn':
       case 'on':
-        return await this.lightService.turnOn(id);
+        return await this.lightService.turnOn(id, undefined, waitForChange);
     }
     throw new BadRequestException(command);
   }
@@ -205,16 +218,20 @@ export class EntityCommandRouterService {
     throw new BadRequestException(command);
   }
 
-  private async switchEntity(id: string, command: string): Promise<void> {
+  private async switchEntity(
+    id: string,
+    command: string,
+    waitForChange = false,
+  ): Promise<void> {
     switch (command) {
       case 'toggle':
-        return await this.switchService.toggle(id);
+        return await this.switchService.toggle(id, waitForChange);
       case 'turnOn':
       case 'on':
-        return await this.switchService.turnOn(id);
+        return await this.switchService.turnOn(id, waitForChange);
       case 'turnOff':
       case 'off':
-        return await this.switchService.turnOff(id);
+        return await this.switchService.turnOff(id, waitForChange);
     }
     throw new BadRequestException(command);
   }

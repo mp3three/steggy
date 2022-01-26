@@ -52,7 +52,8 @@ export class RoomController {
     @Param('room') room: string,
     @Body() entity: RoomEntityDTO,
   ): Promise<RoomDTO> {
-    return await this.roomService.addEntity(room, entity);
+    await this.roomService.addEntity(room, entity);
+    return await this.roomService.get(room, true);
   }
 
   @Post(`/:room/state`)
@@ -66,7 +67,7 @@ export class RoomController {
     @Body() state: RoomStateDTO,
   ): Promise<RoomDTO> {
     await this.roomService.addState(room, state);
-    return this.describe(room);
+    return await this.roomService.get(room, true);
   }
 
   @Post(`/:room/group`)
@@ -78,7 +79,8 @@ export class RoomController {
     @Param('room') room: string,
     @Body() group: { id: string },
   ): Promise<RoomDTO> {
-    return await this.roomService.attachGroup(room, group.id);
+    await this.roomService.attachGroup(room, group.id);
+    return await this.roomService.get(room, true);
   }
 
   @Post(`/`)
@@ -111,7 +113,8 @@ export class RoomController {
     @Param('room') room: string,
     @Param('entity') entity: string,
   ): Promise<RoomDTO> {
-    return await this.roomService.deleteEntity(room, entity);
+    await this.roomService.deleteEntity(room, entity);
+    return await this.roomService.get(room, true);
   }
 
   @Delete(`/:room/group/:group`)
@@ -123,7 +126,8 @@ export class RoomController {
     @Param('room') room: string,
     @Param('group') group: string,
   ): Promise<RoomDTO> {
-    return await this.roomService.deleteGroup(room, group);
+    await this.roomService.deleteGroup(room, group);
+    return await this.roomService.get(room, true);
   }
 
   @Delete(`/:room/state/:state`)
@@ -135,7 +139,8 @@ export class RoomController {
     @Param('room') room: string,
     @Param('state') state: string,
   ): Promise<RoomDTO> {
-    return await this.roomService.deleteState(room, state);
+    await this.roomService.deleteState(room, state);
+    return await this.roomService.get(room, true);
   }
 
   @Get('/:room')
@@ -144,7 +149,7 @@ export class RoomController {
     description: `Retrieve room info by id`,
   })
   public async describe(@Param('room') room: string): Promise<RoomDTO> {
-    return await this.roomService.get(room);
+    return await this.roomService.get(room, true);
   }
 
   @Get('/')
@@ -166,7 +171,8 @@ export class RoomController {
     @Param('room') room: string,
     @Body() data: Partial<RoomDTO>,
   ): Promise<RoomDTO> {
-    return await this.roomService.update(BaseSchemaDTO.cleanup(data), room);
+    await this.roomService.update(BaseSchemaDTO.cleanup(data), room);
+    return await this.roomService.get(room, true);
   }
 
   @Put(`/:room/state/:state`)
@@ -181,6 +187,6 @@ export class RoomController {
     @Body() data: RoomStateDTO,
   ): Promise<RoomDTO> {
     await this.roomService.updateState(room, state, data);
-    return this.describe(room);
+    return await this.roomService.get(room, true);
   }
 }

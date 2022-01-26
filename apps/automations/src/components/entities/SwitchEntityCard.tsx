@@ -1,6 +1,9 @@
 import { CloseOutlined } from '@ant-design/icons';
 import { RoomEntitySaveStateDTO } from '@text-based/controller-shared';
-import { LightStateDTO } from '@text-based/home-assistant-shared';
+import {
+  LightStateDTO,
+  SwitchStateDTO,
+} from '@text-based/home-assistant-shared';
 import { is } from '@text-based/utilities';
 import { Button, Card, Popconfirm, Radio, Spin } from 'antd';
 import React from 'react';
@@ -15,7 +18,8 @@ type tStateType = {
 export class SwitchEntityCard extends React.Component<
   {
     onRemove?: (entity_id: string) => void;
-    onUpdate: (state: RoomEntitySaveStateDTO) => void;
+    onUpdate?: (state: RoomEntitySaveStateDTO) => void;
+    selfContained?: boolean;
     state?: RoomEntitySaveStateDTO;
     title?: string;
   },
@@ -70,11 +74,22 @@ export class SwitchEntityCard extends React.Component<
     );
   }
 
-  private onModeChange(e: Event): void {
+  private async onModeChange(e: Event): Promise<void> {
     const target = e.target as HTMLInputElement;
     const state = target.value;
     this.setState({ state });
-    this.props.onUpdate({ ref: this.ref, state });
+    if (this.props.onUpdate) {
+      this.props.onUpdate({ ref: this.ref, state });
+    }
+    if (this.props.selfContained) {
+      const result = await sendRequest<SwitchStateDTO>(
+        `/entity/command/${this.ref}/${state}`,
+        {
+          method: 'put',
+        },
+      );
+      this.setState({ state: result.state });
+    }
   }
 
   private async refresh(): Promise<void> {

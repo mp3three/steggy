@@ -1,14 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { AutoLogService } from '@text-based/boilerplate';
 import {
-  EntityFilters,
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
   RoomStateDTO,
   RoutineCommandRoomStateDTO,
 } from '@text-based/controller-shared';
-import { domain } from '@text-based/home-assistant-shared';
+import { EntityManagerService } from '@text-based/home-assistant';
 import { BaseSchemaDTO } from '@text-based/persistence';
 import { each, is, ResultControlDTO } from '@text-based/utilities';
 import { v4 as uuid } from 'uuid';
@@ -24,6 +23,7 @@ export class RoomService {
     private readonly roomPersistence: RoomPersistenceService,
     private readonly groupService: GroupService,
     private readonly commandRouter: EntityCommandRouterService,
+    private readonly entityManager: EntityManagerService,
   ) {}
 
   public async activateState(
@@ -132,8 +132,17 @@ export class RoomService {
     return await this.roomPersistence.update(room, room._id);
   }
 
-  public async get(room: RoomDTO | string): Promise<RoomDTO> {
-    return await this.load(room);
+  public async get(
+    room: RoomDTO | string,
+    withEntities = false,
+  ): Promise<RoomDTO> {
+    room = await this.load(room);
+    if (withEntities) {
+      room.entityStates = room.entities.map(({ entity_id }) =>
+        this.entityManager.getEntity(entity_id),
+      );
+    }
+    return room;
   }
 
   public async list(control: ResultControlDTO = {}): Promise<RoomDTO[]> {
@@ -159,25 +168,6 @@ export class RoomService {
     );
     await this.update(room, room._id);
     return room.save_states.find(state => state.id === id);
-  }
-
-  private filterEntities(
-    { entities }: RoomDTO,
-    filters: EntityFilters,
-  ): RoomEntityDTO[] {
-    if (!is.empty(filters.tags)) {
-      entities = entities.filter(({ tags }) =>
-        tags.some(tag => {
-          return tags.includes(tag);
-        }),
-      );
-    }
-    if (!is.empty(filters.domains)) {
-      entities = entities.filter(({ entity_id }) =>
-        filters.domains.includes(domain(entity_id)),
-      );
-    }
-    return entities;
   }
 
   private async load(room: RoomDTO | string): Promise<RoomDTO> {

@@ -146,7 +146,7 @@ export class EntityController {
     @Param('command') command: string,
     @Body() body: Record<string, unknown>,
   ): Promise<HassStateDTO> {
-    await this.commandRouter.process(id, command, body);
+    await this.commandRouter.process(id, command, body, true);
     return this.entityManager.getEntity(id);
   }
 

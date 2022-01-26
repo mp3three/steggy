@@ -12,8 +12,8 @@ import {
   Divider,
   Popconfirm,
   Radio,
+  Skeleton,
   Slider,
-  Spin,
   Typography,
 } from 'antd';
 import React from 'react';
@@ -33,10 +33,11 @@ const B = 2;
 export class LightEntityCard extends React.Component<
   {
     onRemove?: (entity_id: string) => void;
-    onUpdate: (
+    onUpdate?: (
       state: RoomEntitySaveStateDTO,
       attribute: 'state' | 'color' | 'brightness',
     ) => void;
+    selfContained?: boolean;
     state?: RoomEntitySaveStateDTO;
     title?: string;
   },
@@ -139,20 +140,33 @@ export class LightEntityCard extends React.Component<
     );
   }
 
-  private brightnessChanged(brightness: number): void {
+  private async brightnessChanged(brightness: number): Promise<void> {
     this.setState({ brightness });
-    this.props.onUpdate(
-      {
-        extra: {
-          brightness,
-          color_mode: this.state.color_mode,
-          rgb_color: this.state.rgb_color,
-        },
-        ref: this.ref,
-        state: this.state.state,
+    const saveState = {
+      extra: {
+        brightness,
+        color_mode: this.state.color_mode,
+        rgb_color: this.state.rgb_color,
       },
-      'brightness',
+      ref: this.ref,
+      state: this.state.state,
+    };
+    const state = await sendRequest<LightStateDTO>(
+      `/entity/command/${saveState.ref}/${saveState.state}`,
+      {
+        body: JSON.stringify(saveState.extra),
+        method: 'put',
+      },
     );
+    this.setState({
+      brightness: state.attributes.brightness,
+      color_mode: state.attributes.color_mode,
+      rgb_color: state.attributes.rgb_color,
+      state: state.state,
+    });
+    if (this.props.onUpdate) {
+      this.props.onUpdate(saveState, 'brightness');
+    }
   }
 
   private getCurrentState(): string {
@@ -200,8 +214,27 @@ export class LightEntityCard extends React.Component<
   }
 
   private onUpdate(type: 'color' | 'state'): void {
-    setTimeout(() => {
-      this.props.onUpdate(this.getSaveState(), type);
+    setTimeout(async () => {
+      const saveState = this.getSaveState();
+      if (this.props.onUpdate) {
+        this.props.onUpdate(saveState, type);
+      }
+      if (!this.props.selfContained) {
+        return;
+      }
+      const state = await sendRequest<LightStateDTO>(
+        `/entity/light-state/${saveState.ref}`,
+        {
+          body: JSON.stringify(saveState),
+          method: 'put',
+        },
+      );
+      this.setState({
+        brightness: state.attributes.brightness,
+        color_mode: state.attributes.color_mode,
+        rgb_color: state.attributes.rgb_color,
+        state: state.state,
+      });
     }, 0);
   }
 
@@ -214,12 +247,20 @@ export class LightEntityCard extends React.Component<
     }
     const entity = await sendRequest<LightStateDTO>(`/entity/id/${this.ref}`);
     this.setState({ friendly_name: entity.attributes.friendly_name });
+    if (this.props.selfContained) {
+      this.setState({
+        brightness: entity.attributes.brightness,
+        color_mode: entity.attributes.color_mode,
+        rgb_color: entity.attributes.rgb_color,
+        state: entity.state,
+      });
+    }
   }
 
   private renderWaiting() {
     return (
       <Card title={this.ref} type="inner">
-        <Spin />
+        <Skeleton />
       </Card>
     );
   }
