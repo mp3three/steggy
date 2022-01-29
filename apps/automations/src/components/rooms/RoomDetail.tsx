@@ -10,6 +10,7 @@ import {
   Button,
   Card,
   Col,
+  Drawer,
   Layout,
   List,
   notification,
@@ -26,6 +27,7 @@ import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { domain, sendRequest } from '../../types';
 import {
   EntityAttributePopover,
+  EntityDetailDrawer,
   EntityModalPicker,
   LightEntityCard,
   SwitchEntityCard,
@@ -119,7 +121,7 @@ export const RoomDetail = withRouter(
                 <Col span={24}>
                   <RoomSaveStates
                     room={this.room}
-                    roomUpdated={this.onUpdate.bind(this)}
+                    roomUpdated={this.refresh.bind(this)}
                   />
                 </Col>
               </Row>
@@ -187,35 +189,6 @@ export const RoomDetail = withRouter(
 
     private entityRender({ entity_id }: RoomEntityDTO) {
       const state = this.room.entityStates.find(i => i.entity_id === entity_id);
-      let contentNode: React.ReactNode = (
-        <EntityAttributePopover state={state} />
-      );
-      switch (domain(entity_id)) {
-        case 'light':
-          contentNode = (
-            <LightEntityCard
-              state={{
-                extra: state.attributes,
-                ref: state.entity_id,
-                state: state.state as string,
-              }}
-              selfContained
-            />
-          );
-          break;
-        case 'switch':
-          contentNode = (
-            <SwitchEntityCard
-              state={{
-                extra: state.attributes,
-                ref: state.entity_id,
-                state: state.state as string,
-              }}
-              selfContained
-            />
-          );
-          break;
-      }
       return (
         <List.Item
           actions={[
@@ -229,9 +202,7 @@ export const RoomDetail = withRouter(
             </Popconfirm>,
           ]}
         >
-          <Popover content={contentNode}>
-            {state.attributes.friendly_name}
-          </Popover>
+          <EntityDetailDrawer entity={state} />
         </List.Item>
       );
     }

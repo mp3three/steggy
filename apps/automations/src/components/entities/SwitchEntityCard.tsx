@@ -5,12 +5,13 @@ import {
   SwitchStateDTO,
 } from '@text-based/home-assistant-shared';
 import { is } from '@text-based/utilities';
-import { Button, Card, Popconfirm, Radio, Spin } from 'antd';
+import { Button, Card, Popconfirm, Radio, Space, Spin, Switch } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
 
 type tStateType = {
+  disabled?: boolean;
   friendly_name?: string;
   state?: string;
 };
@@ -19,12 +20,21 @@ export class SwitchEntityCard extends React.Component<
   {
     onRemove?: (entity_id: string) => void;
     onUpdate?: (state: RoomEntitySaveStateDTO) => void;
+    optional?: boolean;
     selfContained?: boolean;
     state?: RoomEntitySaveStateDTO;
+    stateOnly?: boolean;
     title?: string;
   },
   tStateType
 > {
+  private get disabled(): boolean {
+    if (!this.props.optional) {
+      return false;
+    }
+    return !!this.state.disabled;
+  }
+
   private get ref(): string {
     return this.props?.state?.ref;
   }
@@ -33,10 +43,18 @@ export class SwitchEntityCard extends React.Component<
     this.setState({
       state: this.props?.state?.state,
     });
+    if (this.props.optional) {
+      this.setState({
+        disabled: is.undefined(this.props.state?.state),
+      });
+    }
     await this.refresh();
   }
 
   public getSaveState(): RoomEntitySaveStateDTO {
+    if (this.disabled) {
+      return undefined;
+    }
     return {
       ref: this.ref,
       state: this.state.state || 'off',
@@ -47,28 +65,43 @@ export class SwitchEntityCard extends React.Component<
     if (!this.state) {
       return this.renderWaiting();
     }
-    const { friendly_name, state } = this.state;
+    const { friendly_name, state, disabled } = this.state;
     return (
       <Card
         title={friendly_name}
         type="inner"
         extra={
-          is.undefined(this.props.onRemove) ? undefined : (
-            <Popconfirm
-              title="Are you sure you want to remove this?"
-              onConfirm={() => this.props.onRemove(this.ref)}
-            >
-              <Button size="small" type="text" danger>
-                <CloseOutlined />
-              </Button>
-            </Popconfirm>
-          )
+          <Space style={{ margin: '0 -16px 0 16px' }}>
+            {this.props.optional ? (
+              <Switch
+                defaultChecked={!disabled}
+                title="test"
+                onChange={state => this.setState({ disabled: !state })}
+              />
+            ) : undefined}
+            {is.undefined(this.props.onRemove) ? undefined : (
+              <Popconfirm
+                title="Are you sure you want to remove this?"
+                onConfirm={() => this.props.onRemove(this.ref)}
+              >
+                <Button size="small" type="text" danger>
+                  <CloseOutlined />
+                </Button>
+              </Popconfirm>
+            )}
+          </Space>
         }
       >
-        <Radio.Group value={state} onChange={this.onModeChange.bind(this)}>
+        <Radio.Group
+          value={state}
+          onChange={this.onModeChange.bind(this)}
+          disabled={this.disabled}
+        >
           <Radio.Button value="off">Off</Radio.Button>
           <Radio.Button value="on">On</Radio.Button>
-          <Radio.Button value="toggle">Toggle</Radio.Button>
+          {this.props.stateOnly ? undefined : (
+            <Radio.Button value="toggle">Toggle</Radio.Button>
+          )}
         </Radio.Group>
       </Card>
     );
