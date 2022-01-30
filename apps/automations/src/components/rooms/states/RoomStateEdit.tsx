@@ -1,15 +1,10 @@
 import { EditOutlined } from '@ant-design/icons';
 import {
   GroupDTO,
-  GroupSaveStateDTO,
   RoomDTO,
   RoomEntitySaveStateDTO,
   RoomStateDTO,
 } from '@text-based/controller-shared';
-import {
-  ColorModes,
-  LightAttributesDTO,
-} from '@text-based/home-assistant-shared';
 import { DOWN, is, UP } from '@text-based/utilities';
 import {
   Button,
@@ -27,6 +22,7 @@ import React from 'react';
 
 import { domain, sendRequest } from '../../../types';
 import { LightEntityCard, SwitchEntityCard } from '../../entities';
+
 type tState = {
   dirty?: boolean;
   drawer?: boolean;
@@ -80,6 +76,7 @@ export class RoomStateEdit extends React.Component<
     }
   }
 
+  // eslint-disable-next-line radar/cognitive-complexity
   override render() {
     this.cards = [];
     return this.props.room ? (
@@ -113,7 +110,7 @@ export class RoomStateEdit extends React.Component<
             </Space>
           }
         >
-          <Space direction="vertical">
+          <Space direction="vertical" style={{ width: '100%' }}>
             {is.empty(this.entities) ? undefined : (
               <>
                 <Typography.Title level={3}>Entites</Typography.Title>
@@ -128,7 +125,12 @@ export class RoomStateEdit extends React.Component<
             {is.empty(this.groups) ? undefined : (
               <>
                 <Typography.Title level={3}>Groups</Typography.Title>
-                <Table dataSource={this.groups}>
+                <Table
+                  dataSource={this.groups.sort((a, b) =>
+                    a.friendlyName > b.friendlyName ? UP : DOWN,
+                  )}
+                  style={{ width: '100%' }}
+                >
                   <Table.Column
                     title="Group Name"
                     key="friendlyName"

@@ -1,6 +1,6 @@
 import { CameraOutlined, FolderAddOutlined } from '@ant-design/icons';
 import { GroupDTO, GroupSaveStateDTO } from '@text-based/controller-shared';
-import { is, sleep } from '@text-based/utilities';
+import { DOWN, is, sleep, UP } from '@text-based/utilities';
 import {
   Button,
   Card,
@@ -90,7 +90,11 @@ export class GroupSaveStates extends React.Component<
         {is.empty(this.props.group.save_states) ? (
           <Empty description="No save states" />
         ) : (
-          <Table dataSource={this.props.group.save_states}>
+          <Table
+            dataSource={this.props.group.save_states.sort((a, b) =>
+              a.friendlyName > b.friendlyName ? UP : DOWN,
+            )}
+          >
             <Table.Column
               width={20}
               render={(text, record: GroupSaveStateDTO) => (
@@ -183,9 +187,6 @@ export class GroupSaveStates extends React.Component<
           method: 'post',
         },
       );
-      notification.success({
-        message: `State created: ${values.friendlyName}`,
-      });
       this.props.onGroupUpdate(group);
       this.createForm.resetFields();
     } catch (error) {

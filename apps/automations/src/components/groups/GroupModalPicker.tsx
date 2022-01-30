@@ -1,7 +1,14 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, FileAddOutlined } from '@ant-design/icons';
 import { GroupDTO } from '@text-based/controller-shared';
-import { INCREMENT, INVERT_VALUE, is, START } from '@text-based/utilities';
+import {
+  DOWN,
+  INCREMENT,
+  INVERT_VALUE,
+  is,
+  START,
+  UP,
+} from '@text-based/utilities';
 import {
   Button,
   Divider,
@@ -170,7 +177,9 @@ export class GroupModalPicker extends React.Component<
         this.state.selected.every(i => item._id !== i._id),
     );
     if (is.empty(this.state.searchText)) {
-      return available;
+      return available.sort((a, b) =>
+        a.friendlyName > b.friendlyName ? UP : DOWN,
+      );
     }
     return this.fuzzySort(available);
   }

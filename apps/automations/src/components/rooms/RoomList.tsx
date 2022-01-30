@@ -1,4 +1,5 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
+import { CloseOutlined } from '@ant-design/icons';
 import type { RoomDTO } from '@text-based/controller-shared';
 import { DOWN, UP } from '@text-based/utilities';
 import {
@@ -69,7 +70,7 @@ export class RoomList extends React.Component {
             <List
               dataSource={this.sort()}
               pagination={{ pageSize: 10 }}
-              renderItem={this.renderGroup.bind(this)}
+              renderItem={this.renderRoom.bind(this)}
             ></List>
           </Card>
         </Content>
@@ -77,15 +78,30 @@ export class RoomList extends React.Component {
     );
   }
 
+  private async deleteRoom(room: RoomDTO): Promise<void> {
+    await sendRequest(`/room/${room._id}`, { method: 'delete' });
+    await this.refresh();
+  }
+
   private async refresh(): Promise<void> {
     const rooms = await sendRequest<RoomDTO[]>(`/room`);
     this.setState({ rooms });
   }
 
-  private renderGroup(item: RoomDTO) {
+  private renderRoom(room: RoomDTO) {
     return (
-      <List.Item key={item._id}>
-        <Link to={`/room/${item._id}`}>{item.friendlyName}</Link>
+      <List.Item key={room._id}>
+        <List.Item.Meta
+          title={<Link to={`/room/${room._id}`}>{room.friendlyName}</Link>}
+        />
+        <Popconfirm
+          title={`Are you sure you want to delete ${room.friendlyName}?`}
+          onConfirm={() => this.deleteRoom(room)}
+        >
+          <Button danger type="text">
+            <CloseOutlined />
+          </Button>
+        </Popconfirm>
       </List.Item>
     );
   }
@@ -103,6 +119,7 @@ export class RoomList extends React.Component {
         body: JSON.stringify(values),
         method: 'post',
       });
+      await this.refresh();
     } catch (error) {
       console.error(error);
     }

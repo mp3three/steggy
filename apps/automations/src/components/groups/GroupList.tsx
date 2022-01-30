@@ -1,6 +1,16 @@
+import { CloseOutlined } from '@ant-design/icons';
 import type { GroupDTO } from '@text-based/controller-shared';
 import { DOWN, UP } from '@text-based/utilities';
-import { Breadcrumb, Card, Col, Layout, List, Row } from 'antd';
+import {
+  Breadcrumb,
+  Button,
+  Card,
+  Col,
+  Layout,
+  List,
+  Popconfirm,
+  Row,
+} from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -104,15 +114,30 @@ export class GroupList extends React.Component {
     );
   }
 
+  private async deleteGroup(group: GroupDTO): Promise<void> {
+    await sendRequest(`/group/${group._id}`, { method: 'delete' });
+    await this.refresh();
+  }
+
   private async refresh(): Promise<void> {
     const groups = await sendRequest<GroupDTO[]>(`/group`);
     this.setState({ groups });
   }
 
-  private renderGroup(item: GroupDTO) {
+  private renderGroup(group: GroupDTO) {
     return (
-      <List.Item key={item._id}>
-        <Link to={`/group/${item._id}`}>{item.friendlyName}</Link>
+      <List.Item key={group._id}>
+        <List.Item.Meta
+          title={<Link to={`/group/${group._id}`}>{group.friendlyName}</Link>}
+        />
+        <Popconfirm
+          title={`Are you sure you want to delete ${group.friendlyName}?`}
+          onConfirm={() => this.deleteGroup(group)}
+        >
+          <Button danger type="text">
+            <CloseOutlined />
+          </Button>
+        </Popconfirm>
       </List.Item>
     );
   }

@@ -32,6 +32,7 @@ const B = 2;
 
 export class LightEntityCard extends React.Component<
   {
+    active?: boolean;
     onRemove?: (entity_id: string) => void;
     onUpdate?: (
       state: RoomEntitySaveStateDTO,
@@ -141,7 +142,6 @@ export class LightEntityCard extends React.Component<
   }
 
   private async brightnessChanged(brightness: number): Promise<void> {
-    this.setState({ brightness });
     const saveState = {
       extra: {
         brightness,
@@ -151,19 +151,24 @@ export class LightEntityCard extends React.Component<
       ref: this.ref,
       state: this.state.state,
     };
-    const state = await sendRequest<LightStateDTO>(
-      `/entity/command/${saveState.ref}/${saveState.state}`,
-      {
-        body: JSON.stringify(saveState.extra),
-        method: 'put',
-      },
-    );
-    this.setState({
-      brightness: state.attributes.brightness,
-      color_mode: state.attributes.color_mode,
-      rgb_color: state.attributes.rgb_color,
-      state: state.state,
-    });
+    if (this.props.active) {
+      const state = await sendRequest<LightStateDTO>(
+        `/entity/command/${saveState.ref}/${saveState.state}`,
+        {
+          body: JSON.stringify(saveState.extra),
+          method: 'put',
+        },
+      );
+      state.attributes ??= {};
+      this.setState({
+        brightness: state.attributes.brightness,
+        color_mode: state.attributes.color_mode,
+        rgb_color: state.attributes.rgb_color,
+        state: state.state,
+      });
+      return;
+    }
+    this.setState({ brightness });
     if (this.props.onUpdate) {
       this.props.onUpdate(saveState, 'brightness');
     }
@@ -186,7 +191,6 @@ export class LightEntityCard extends React.Component<
   private onModeChange(e: Event): void {
     const target = e.target as HTMLInputElement;
     const state = target.value;
-    console.log(state);
     if (state === 'turnOff') {
       this.setState({
         brightness: undefined,

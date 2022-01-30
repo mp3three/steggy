@@ -6,8 +6,6 @@ import {
   Card,
   Col,
   Layout,
-  notification,
-  Popconfirm,
   Row,
   Space,
   Spin,
@@ -81,12 +79,6 @@ export const GroupDetail = withRouter(
                 <Col span={8} offset={1}>
                   <Card title="Group Actions">
                     <Space>
-                      <Popconfirm
-                        title={`Are you sure?`}
-                        onConfirm={this.deleteGroup.bind(this)}
-                      >
-                        <Button danger>Delete</Button>
-                      </Popconfirm>
                       <Button>Circadian</Button>
                       <Button>Off</Button>
                       <Button>On</Button>
@@ -119,16 +111,6 @@ export const GroupDetail = withRouter(
           method: 'put',
         }),
       );
-    }
-
-    private async deleteGroup(): Promise<void> {
-      await sendRequest(`/group/${this.state.group._id}`, {
-        method: 'delete',
-      });
-      notification.info({
-        message: `Deleted ${this.state.name}`,
-      });
-      this.props.history.push('/groups');
     }
 
     private domainList(): string[] {
