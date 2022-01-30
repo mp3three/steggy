@@ -1,6 +1,5 @@
-import { CloseOutlined } from '@ant-design/icons';
+import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import type { GroupDTO } from '@text-based/controller-shared';
-import { DOWN, UP } from '@text-based/utilities';
 import {
   Breadcrumb,
   Button,
@@ -30,7 +29,7 @@ export class GroupList extends React.Component {
 
   override render() {
     return (
-      <Layout hasSider>
+      <Layout>
         <Content style={{ padding: '16px' }}>
           <Breadcrumb>
             <Breadcrumb.Item>
@@ -49,7 +48,7 @@ export class GroupList extends React.Component {
                 }
               >
                 <List
-                  dataSource={this.sort('light')}
+                  dataSource={this.filter('light')}
                   pagination={{ pageSize: 10 }}
                   renderItem={this.renderGroup.bind(this)}
                 ></List>
@@ -66,7 +65,7 @@ export class GroupList extends React.Component {
                 }
               >
                 <List
-                  dataSource={this.sort('switch')}
+                  dataSource={this.filter('switch')}
                   pagination={{ pageSize: 10 }}
                   renderItem={this.renderGroup.bind(this)}
                 ></List>
@@ -85,7 +84,7 @@ export class GroupList extends React.Component {
                 }
               >
                 <List
-                  dataSource={this.sort('fan')}
+                  dataSource={this.filter('fan')}
                   pagination={{ pageSize: 10 }}
                   renderItem={this.renderGroup.bind(this)}
                 ></List>
@@ -102,7 +101,7 @@ export class GroupList extends React.Component {
                 }
               >
                 <List
-                  dataSource={this.sort('lock')}
+                  dataSource={this.filter('lock')}
                   pagination={{ pageSize: 10 }}
                   renderItem={this.renderGroup.bind(this)}
                 ></List>
@@ -119,8 +118,12 @@ export class GroupList extends React.Component {
     await this.refresh();
   }
 
+  private filter(type: string): GroupDTO[] {
+    return this.state.groups.filter(group => group.type === type);
+  }
+
   private async refresh(): Promise<void> {
-    const groups = await sendRequest<GroupDTO[]>(`/group`);
+    const groups = await sendRequest<GroupDTO[]>(`/group?sort=friendlyName`);
     this.setState({ groups });
   }
 
@@ -131,6 +134,7 @@ export class GroupList extends React.Component {
           title={<Link to={`/group/${group._id}`}>{group.friendlyName}</Link>}
         />
         <Popconfirm
+          icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
           title={`Are you sure you want to delete ${group.friendlyName}?`}
           onConfirm={() => this.deleteGroup(group)}
         >
@@ -140,11 +144,5 @@ export class GroupList extends React.Component {
         </Popconfirm>
       </List.Item>
     );
-  }
-
-  private sort(type: string): GroupDTO[] {
-    return this.state.groups
-      .filter(group => group.type === type)
-      .sort((a, b) => (a.friendlyName > b.friendlyName ? UP : DOWN));
   }
 }

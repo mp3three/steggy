@@ -1,4 +1,5 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Button, Form, FormInstance, Input, Popconfirm } from 'antd';
 import React from 'react';
 
@@ -14,11 +15,11 @@ export class GroupCreateButton extends React.Component<{
   override render() {
     return (
       <Popconfirm
+        icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
         onConfirm={this.validate.bind(this)}
         title={
           <Form
             onFinish={this.validate.bind(this)}
-            layout="vertical"
             ref={form => (this.form = form)}
           >
             <Form.Item

@@ -1,4 +1,4 @@
-import { CloseOutlined } from '@ant-design/icons';
+import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { RoomEntitySaveStateDTO } from '@text-based/controller-shared';
 import {
   LightStateDTO,
@@ -80,6 +80,7 @@ export class SwitchEntityCard extends React.Component<
             ) : undefined}
             {is.undefined(this.props.onRemove) ? undefined : (
               <Popconfirm
+                icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
                 title="Are you sure you want to remove this?"
                 onConfirm={() => this.props.onRemove(this.ref)}
               >

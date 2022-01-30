@@ -1,1 +1,2 @@
-export * from './Footer';
+export * from './RoutineDetail';
+export * from './RoutineList';

@@ -1,6 +1,6 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import type { RoomDTO } from '@text-based/controller-shared';
+import { RoutineDTO } from '@text-based/controller-shared';
 import {
   Breadcrumb,
   Button,
@@ -17,12 +17,12 @@ import { Link } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 
-const { Content } = Layout;
+type tState = {
+  routines: RoutineDTO[];
+};
 
-export class RoomList extends React.Component {
-  override state: { rooms: RoomDTO[] } = {
-    rooms: [],
-  };
+export class RoutineList extends React.Component<{ prop: unknown }, tState> {
+  override state: tState = { routines: [] };
   private form: FormInstance;
 
   override async componentDidMount(): Promise<void> {
@@ -31,16 +31,16 @@ export class RoomList extends React.Component {
 
   override render() {
     return (
-      <Layout hasSider>
-        <Content style={{ padding: '16px' }}>
+      <Layout>
+        <Layout.Content style={{ padding: '16px' }}>
           <Breadcrumb>
             <Breadcrumb.Item>
-              <Link to="/rooms">Rooms</Link>
+              <Link to="/routines">Routines</Link>
             </Breadcrumb.Item>
           </Breadcrumb>
           <Card
             style={{ margin: '16px 0 0 0' }}
-            title="All Rooms"
+            title={'All routines'}
             extra={
               <Popconfirm
                 icon={
@@ -69,36 +69,40 @@ export class RoomList extends React.Component {
             }
           >
             <List
-              dataSource={this.state.rooms}
+              dataSource={this.state.routines}
               pagination={{ pageSize: 10 }}
-              renderItem={this.renderRoom.bind(this)}
+              renderItem={this.renderRoutine.bind(this)}
             />
           </Card>
-        </Content>
+        </Layout.Content>
       </Layout>
     );
   }
 
-  private async deleteRoom(room: RoomDTO): Promise<void> {
-    await sendRequest(`/room/${room._id}`, { method: 'delete' });
+  private async deleteRoutine(routine: RoutineDTO): Promise<void> {
+    await sendRequest(`/routine/${routine._id}`, { method: 'delete' });
     await this.refresh();
   }
 
   private async refresh(): Promise<void> {
-    const rooms = await sendRequest<RoomDTO[]>(`/room?sort=friendlyName`);
-    this.setState({ rooms });
+    const routines = await sendRequest<RoutineDTO[]>(
+      `/routine?sort=friendlyName`,
+    );
+    this.setState({ routines });
   }
 
-  private renderRoom(room: RoomDTO) {
+  private renderRoutine(routine: RoutineDTO) {
     return (
-      <List.Item key={room._id}>
+      <List.Item key={routine._id}>
         <List.Item.Meta
-          title={<Link to={`/room/${room._id}`}>{room.friendlyName}</Link>}
+          title={
+            <Link to={`/routine/${routine._id}`}>{routine.friendlyName}</Link>
+          }
         />
         <Popconfirm
           icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-          title={`Are you sure you want to delete ${room.friendlyName}?`}
-          onConfirm={() => this.deleteRoom(room)}
+          title={`Are you sure you want to delete ${routine.friendlyName}?`}
+          onConfirm={() => this.deleteRoutine(routine)}
         >
           <Button danger type="text">
             <CloseOutlined />
@@ -111,7 +115,7 @@ export class RoomList extends React.Component {
   private async validate(): Promise<void> {
     try {
       const values = await this.form.validateFields();
-      await sendRequest(`/room`, {
+      await sendRequest(`/routine`, {
         body: JSON.stringify(values),
         method: 'post',
       });

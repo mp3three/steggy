@@ -18,6 +18,7 @@ import { RoutineService } from '@text-based/controller-logic';
 import {
   KunamiCodeActivateDTO,
   RoomEntitySaveStateDTO,
+  RoutineActivateDTO,
   RoutineActivateOptionsDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
@@ -36,6 +37,7 @@ import {
   Locals,
   ResponseLocals,
 } from '@text-based/server';
+import { v4 as uuid } from 'uuid';
 
 @Controller(`/routine`)
 @AuthStack()
@@ -68,6 +70,22 @@ export class RoutineController {
       await this.routineService.activateRoutine(routine, options);
     });
     return await GENERIC_SUCCESS_RESPONSE;
+  }
+
+  @Post('/:routine/activate')
+  @ApiBody({ type: RoutineActivateDTO })
+  @ApiResponse({ type: RoutineDTO })
+  @ApiOperation({
+    description: `Add activation event to routine`,
+  })
+  public async addActivate(
+    @Param('routine') id: string,
+    @Body() activate: RoutineActivateDTO,
+  ): Promise<RoutineDTO> {
+    const routine = await this.routineService.get(id);
+    activate.id = uuid();
+    routine.activate.push(activate);
+    return await this.update(id, routine);
   }
 
   @Post(`/`)

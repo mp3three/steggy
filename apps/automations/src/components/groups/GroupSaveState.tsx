@@ -1,4 +1,8 @@
-import { CameraOutlined, FolderAddOutlined } from '@ant-design/icons';
+import {
+  CameraOutlined,
+  FolderAddOutlined,
+  QuestionCircleOutlined,
+} from '@ant-design/icons';
 import { GroupDTO, GroupSaveStateDTO } from '@text-based/controller-shared';
 import { DOWN, is, sleep, UP } from '@text-based/utilities';
 import {
@@ -40,11 +44,11 @@ export class GroupSaveStates extends React.Component<
         extra={
           <Space>
             <Popconfirm
+              icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
               onConfirm={this.validateCapture.bind(this)}
               title={
                 <Form
                   onFinish={this.validateCapture.bind(this)}
-                  layout="vertical"
                   ref={form => (this.captureForm = form)}
                 >
                   <Form.Item
@@ -62,11 +66,11 @@ export class GroupSaveStates extends React.Component<
               </Button>
             </Popconfirm>
             <Popconfirm
+              icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
               onConfirm={this.validateCreate.bind(this)}
               title={
                 <Form
                   onFinish={this.validateCreate.bind(this)}
-                  layout="vertical"
                   ref={form => (this.createForm = form)}
                 >
                   <Form.Item
@@ -126,6 +130,7 @@ export class GroupSaveStates extends React.Component<
               width={20}
               render={(text, record: GroupSaveStateDTO) => (
                 <Popconfirm
+                  icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
                   title={`Are you sure you want to delete ${record.friendlyName}`}
                   onConfirm={() => this.removeState(record)}
                 >

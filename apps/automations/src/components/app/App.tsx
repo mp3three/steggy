@@ -9,6 +9,7 @@ import { GroupDetail, GroupList } from '../groups';
 import { HomePage } from '../home';
 import { ApplicationMenu } from '../menu';
 import { RoomDetail, RoomList } from '../rooms';
+import { RoutineDetail, RoutineList } from '../routines';
 
 const { Header, Sider } = Layout;
 
@@ -32,6 +33,8 @@ export class App extends React.Component {
               <Typography.Title>Automation Controller</Typography.Title>
             </Header>
             <Switch>
+              <Route path="/routine/:id" component={RoutineDetail} />
+              <Route path="/routines" component={RoutineList} />
               <Route path="/room/:id" component={RoomDetail} />
               <Route path="/rooms" component={RoomList} />
               <Route path="/group/:id" component={GroupDetail} />

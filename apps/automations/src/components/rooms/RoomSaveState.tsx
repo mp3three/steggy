@@ -1,4 +1,5 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import { RoomDTO, RoomStateDTO } from '@text-based/controller-shared';
 import { DOWN, UP } from '@text-based/utilities';
 import {
@@ -32,11 +33,11 @@ export class RoomSaveStates extends React.Component<{
         title="Save States"
         extra={
           <Popconfirm
+            icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
             onConfirm={this.validate.bind(this)}
             title={
               <Form
                 onFinish={this.validate.bind(this)}
-                layout="vertical"
                 ref={form => (this.form = form)}
               >
                 <Form.Item
@@ -90,6 +91,7 @@ export class RoomSaveStates extends React.Component<{
             width={20}
             render={(text, record: RoomStateDTO) => (
               <Popconfirm
+                icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
                 title={`Are you sure you want to delete ${record.friendlyName}`}
                 onConfirm={() => this.removeState(record)}
               >

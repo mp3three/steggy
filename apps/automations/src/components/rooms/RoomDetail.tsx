@@ -1,4 +1,4 @@
-import { CloseOutlined } from '@ant-design/icons';
+import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import {
   GroupDTO,
   RoomDTO,
@@ -10,7 +10,6 @@ import {
   Button,
   Card,
   Col,
-  Drawer,
   Layout,
   List,
   notification,
@@ -25,13 +24,7 @@ import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { domain, sendRequest } from '../../types';
-import {
-  EntityAttributePopover,
-  EntityDetailDrawer,
-  EntityModalPicker,
-  LightEntityCard,
-  SwitchEntityCard,
-} from '../entities';
+import { EntityDetailDrawer, EntityModalPicker } from '../entities';
 import { GroupModalPicker } from '../groups';
 import { RoomSaveStates } from './RoomSaveState';
 
@@ -193,6 +186,7 @@ export const RoomDetail = withRouter(
         <List.Item
           actions={[
             <Popconfirm
+              icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
               title="Are you sure you want to delete this?"
               onConfirm={() => this.removeEntity(entity_id)}
             >
@@ -221,6 +215,7 @@ export const RoomDetail = withRouter(
           key={item}
           actions={[
             <Popconfirm
+              icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
               title={`Detach group?`}
               onConfirm={() => this.detachGroup(item)}
             >
