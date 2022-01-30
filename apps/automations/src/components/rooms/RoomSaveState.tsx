@@ -1,5 +1,6 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { RoomDTO, RoomStateDTO } from '@text-based/controller-shared';
+import { DOWN, UP } from '@text-based/utilities';
 import {
   Button,
   Card,
@@ -54,7 +55,11 @@ export class RoomSaveStates extends React.Component<{
           </Popconfirm>
         }
       >
-        <Table dataSource={this.room.save_states}>
+        <Table
+          dataSource={this.room.save_states.sort((a, b) =>
+            a.friendlyName > b.friendlyName ? UP : DOWN,
+          )}
+        >
           <Table.Column
             width={20}
             render={(text, record: RoomStateDTO) => (

@@ -135,8 +135,9 @@ export class RoomService {
   public async get(
     room: RoomDTO | string,
     withEntities = false,
+    control: ResultControlDTO = {},
   ): Promise<RoomDTO> {
-    room = await this.load(room);
+    room = await this.load(room, control);
     if (withEntities) {
       room.entityStates = room.entities.map(({ entity_id }) =>
         this.entityManager.getEntity(entity_id),
@@ -170,9 +171,12 @@ export class RoomService {
     return room.save_states.find(state => state.id === id);
   }
 
-  private async load(room: RoomDTO | string): Promise<RoomDTO> {
+  private async load(
+    room: RoomDTO | string,
+    control: ResultControlDTO = {},
+  ): Promise<RoomDTO> {
     if (is.string(room)) {
-      room = await this.roomPersistence.findById(room);
+      room = await this.roomPersistence.findById(room, { control });
     }
     if (!room) {
       throw new NotFoundException();

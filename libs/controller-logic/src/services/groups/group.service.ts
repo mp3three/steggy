@@ -119,8 +119,12 @@ export class GroupService {
 
   public async get<GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
     group: GroupDTO<GROUP_TYPE> | string,
+    control: ResultControlDTO = {},
   ): Promise<GroupDTO<GROUP_TYPE>> {
-    group = await this.load(group);
+    group = await this.load(group, control);
+    if (!is.undefined(control.select)) {
+      return group;
+    }
     const base = this.getBaseGroup(group.type);
     group.state = {
       states: await base.getState(group),
@@ -151,11 +155,12 @@ export class GroupService {
 
   public async load<T extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(
     group: GroupDTO<T> | string,
+    control: ResultControlDTO = {},
   ): Promise<GroupDTO<T>> {
     if (is.object(group)) {
       return group;
     }
-    return await this.groupPersistence.findById(group);
+    return await this.groupPersistence.findById(group, { control });
   }
 
   public async removeEntity<

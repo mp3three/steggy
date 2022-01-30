@@ -8,8 +8,9 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { RoomService } from '@text-based/controller-logic';
+import { GroupService, RoomService } from '@text-based/controller-logic';
 import {
+  GroupDTO,
   RoomDTO,
   RoomEntityDTO,
   RoomStateDTO,
@@ -22,12 +23,16 @@ import {
   Locals,
   ResponseLocals,
 } from '@text-based/server';
+import { each } from '@text-based/utilities';
 
 @Controller('/room')
 @AuthStack()
 @ApiTags('room')
 export class RoomController {
-  constructor(private readonly roomService: RoomService) {}
+  constructor(
+    private readonly roomService: RoomService,
+    private readonly groupService: GroupService,
+  ) {}
 
   @Post(`/:room/state/:state`)
   @ApiGenericResponse()
@@ -51,9 +56,10 @@ export class RoomController {
   public async addEntity(
     @Param('room') room: string,
     @Body() entity: RoomEntityDTO,
+    @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.addEntity(room, entity);
-    return await this.roomService.get(room, true);
+    return await this.roomService.get(room, true, control);
   }
 
   @Post(`/:room/state`)
@@ -65,9 +71,10 @@ export class RoomController {
   public async addState(
     @Param('room') room: string,
     @Body() state: RoomStateDTO,
+    @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.addState(room, state);
-    return await this.roomService.get(room, true);
+    return await this.roomService.get(room, true, control);
   }
 
   @Post(`/:room/group`)
@@ -78,9 +85,10 @@ export class RoomController {
   public async attachGroup(
     @Param('room') room: string,
     @Body() group: { id: string },
+    @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.attachGroup(room, group.id);
-    return await this.roomService.get(room, true);
+    return await this.roomService.get(room, true, control);
   }
 
   @Post(`/`)
@@ -112,9 +120,10 @@ export class RoomController {
   public async deleteEntity(
     @Param('room') room: string,
     @Param('entity') entity: string,
+    @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.deleteEntity(room, entity);
-    return await this.roomService.get(room, true);
+    return await this.roomService.get(room, true, control);
   }
 
   @Delete(`/:room/group/:group`)
@@ -125,9 +134,10 @@ export class RoomController {
   public async deleteGroup(
     @Param('room') room: string,
     @Param('group') group: string,
+    @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.deleteGroup(room, group);
-    return await this.roomService.get(room, true);
+    return await this.roomService.get(room, true, control);
   }
 
   @Delete(`/:room/state/:state`)
@@ -138,9 +148,10 @@ export class RoomController {
   public async deleteState(
     @Param('room') room: string,
     @Param('state') state: string,
+    @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.deleteState(room, state);
-    return await this.roomService.get(room, true);
+    return await this.roomService.get(room, true, control);
   }
 
   @Get('/:room')
@@ -148,8 +159,36 @@ export class RoomController {
   @ApiOperation({
     description: `Retrieve room info by id`,
   })
-  public async describe(@Param('room') room: string): Promise<RoomDTO> {
-    return await this.roomService.get(room, true);
+  public async get(
+    @Param('room') room: string,
+    @Locals() { control }: ResponseLocals,
+  ): Promise<RoomDTO> {
+    return await this.roomService.get(room, true, control);
+  }
+
+  @Get('/:room/group-save-states')
+  @ApiResponse({ type: [GroupDTO] })
+  @ApiOperation({
+    description: `List all the save states for all the attached groups`,
+  })
+  public async groupSaveStates(
+    @Param('room') room: string,
+  ): Promise<GroupDTO[]> {
+    const roomInfo = await this.roomService.get(room);
+    const out: GroupDTO[] = [];
+    await each(roomInfo.groups, async item => {
+      out.push(
+        await this.groupService.get(item, {
+          select: [
+            'friendlyName',
+            'type',
+            'save_states.friendlyName',
+            'save_states.id',
+          ],
+        }),
+      );
+    });
+    return out;
   }
 
   @Get('/')
@@ -170,9 +209,10 @@ export class RoomController {
   public async update(
     @Param('room') room: string,
     @Body() data: Partial<RoomDTO>,
+    @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.update(BaseSchemaDTO.cleanup(data), room);
-    return await this.roomService.get(room, true);
+    return await this.roomService.get(room, true, control);
   }
 
   @Put(`/:room/state/:state`)
@@ -185,8 +225,9 @@ export class RoomController {
     @Param('room') room: string,
     @Param('state') state: string,
     @Body() data: RoomStateDTO,
+    @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.updateState(room, state, data);
-    return await this.roomService.get(room, true);
+    return await this.roomService.get(room, true, control);
   }
 }

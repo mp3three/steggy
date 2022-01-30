@@ -202,7 +202,10 @@ export const RoomDetail = withRouter(
             </Popconfirm>,
           ]}
         >
-          <EntityDetailDrawer entity={state} />
+          <List.Item.Meta
+            description={`${TitleCase(domain(state.entity_id))} entity`}
+            title={<EntityDetailDrawer entity={state} />}
+          />
         </List.Item>
       );
     }

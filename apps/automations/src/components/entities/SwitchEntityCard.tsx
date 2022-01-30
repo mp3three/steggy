@@ -75,7 +75,6 @@ export class SwitchEntityCard extends React.Component<
             {this.props.optional ? (
               <Switch
                 defaultChecked={!disabled}
-                title="test"
                 onChange={state => this.setState({ disabled: !state })}
               />
             ) : undefined}
