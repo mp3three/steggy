@@ -125,6 +125,7 @@ export class RoomSaveStates extends React.Component<{
         body: JSON.stringify(values),
         method: 'post',
       });
+      this.form.resetFields();
       this.props.roomUpdated(room);
     } catch (error) {
       console.error(error);

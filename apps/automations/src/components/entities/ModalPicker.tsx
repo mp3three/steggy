@@ -237,9 +237,8 @@ export class EntityModalPicker extends React.Component<
     this.searchInput.clearPasswordValueAttribute();
   }
 
-  private search(e: Event): void {
-    const target = e.target as HTMLInputElement;
-    const searchText = target.value;
+  private search(e: React.ChangeEvent<HTMLInputElement>): void {
+    const searchText = e.target.value;
     this.setState({ searchText });
   }
 

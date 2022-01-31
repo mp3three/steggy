@@ -5,6 +5,7 @@ import { KunamiCodeActivateDTO } from './kunami-code-activate.dto';
 import { ScheduleActivateDTO } from './schedule-activate.dto';
 import { StateChangeActivateDTO } from './state-change-activate.dto';
 
+export type ActivateTypes = 'kunami' | 'schedule' | 'state_change' | 'solar';
 export enum ROUTINE_ACTIVATE_TYPE {
   kunami = 'kunami',
   schedule = 'schedule',
@@ -37,5 +38,5 @@ export class RoutineActivateDTO<EVENTS = ROUTINE_ACTIVATE_TYPES> {
   @ApiProperty()
   public id?: string;
   @ApiProperty({ enum: Object.values(ROUTINE_ACTIVATE_TYPE) })
-  public type: ROUTINE_ACTIVATE_TYPE;
+  public type: ActivateTypes;
 }

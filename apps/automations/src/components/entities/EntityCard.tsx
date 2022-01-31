@@ -71,9 +71,8 @@ export class EntityCard extends React.Component<
     );
   }
 
-  private onModeChange(e: Event): void {
-    const target = e.target as HTMLInputElement;
-    const state = target.value;
+  private onModeChange(e: React.ChangeEvent<HTMLInputElement>): void {
+    const state = e.target.value;
     this.setState({ state });
     this.props.onUpdate({ ref: this.ref, state });
   }

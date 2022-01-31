@@ -107,9 +107,10 @@ export class SwitchEntityCard extends React.Component<
     );
   }
 
-  private async onModeChange(e: Event): Promise<void> {
-    const target = e.target as HTMLInputElement;
-    const state = target.value;
+  private async onModeChange(
+    e: React.ChangeEvent<HTMLInputElement>,
+  ): Promise<void> {
+    const state = e.target.value;
     this.setState({ state });
     if (this.props.onUpdate) {
       this.props.onUpdate({ ref: this.ref, state });

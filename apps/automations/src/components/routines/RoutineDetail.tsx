@@ -1,6 +1,7 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import { RoutineDTO } from '@text-based/controller-shared';
+import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { RoutineActivateDTO, RoutineDTO } from '@text-based/controller-shared';
+import { TitleCase } from '@text-based/utilities';
 import {
   Breadcrumb,
   Button,
@@ -22,6 +23,7 @@ import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
+import { RoutineActivateDrawer } from './RoutineActivateDrawer';
 
 type tStateType = {
   name: string;
@@ -37,6 +39,7 @@ export const RoutineDetail = withRouter(
       id: PropTypes.string,
     };
     private activateCreateForm: FormInstance;
+    private activateDrawer: RoutineActivateDrawer;
 
     private get id(): string {
       const { id } = this.props.match.params;
@@ -49,86 +52,124 @@ export const RoutineDetail = withRouter(
 
     override render() {
       return (
-        <Layout style={{ height: '100%' }}>
+        <Layout style={{ height: '100%' }} hasSider>
           {this.state?.routine ? (
-            <Layout.Content style={{ margin: '16px' }}>
-              <Breadcrumb>
-                <Breadcrumb.Item>
-                  <Link to={`/routines`}>Routines</Link>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>
-                  <Link to={`/routine/${this.state.routine._id}`}>
-                    <Typography.Text
-                      editable={{ onChange: name => this.nameUpdate(name) }}
-                    >
-                      {this.state.name}
-                    </Typography.Text>
-                  </Link>
-                </Breadcrumb.Item>
-              </Breadcrumb>
-              <Row gutter={8} style={{ margin: '16px 0 0 0' }}>
-                <Col span={12}>
-                  <Card
-                    title="Activation events"
-                    extra={
-                      <Popconfirm
-                        onConfirm={this.validateActivate.bind(this)}
-                        icon={
-                          <QuestionCircleOutlined
-                            style={{ visibility: 'hidden' }}
-                          />
-                        }
-                        title={
-                          <Form
-                            onFinish={this.validateActivate.bind(this)}
-                            ref={form => (this.activateCreateForm = form)}
-                          >
-                            <Form.Item
-                              label="Friendly Name"
-                              name="friendlyName"
-                              rules={[{ required: true }]}
-                            >
-                              <Input />
-                            </Form.Item>
-                            <Form.Item
-                              label="Friendly Name"
-                              name="type"
-                              rules={[{ required: true }]}
-                            >
-                              <Select>
-                                <Select.Option value="kunami">
-                                  Combo Code
-                                </Select.Option>
-                                <Select.Option value="schedule">
-                                  Cron Schedule
-                                </Select.Option>
-                                <Select.Option value="state_change">
-                                  State Change
-                                </Select.Option>
-                                <Select.Option value="solar">
-                                  Solar Event
-                                </Select.Option>
-                              </Select>
-                            </Form.Item>
-                          </Form>
-                        }
+            <>
+              <Layout.Content style={{ margin: '16px' }}>
+                <Breadcrumb>
+                  <Breadcrumb.Item>
+                    <Link to={`/routines`}>Routines</Link>
+                  </Breadcrumb.Item>
+                  <Breadcrumb.Item>
+                    <Link to={`/routine/${this.state.routine._id}`}>
+                      <Typography.Text
+                        editable={{ onChange: name => this.nameUpdate(name) }}
                       >
-                        <Button size="small" icon={<PlusBoxMultiple />}>
-                          Create new
-                        </Button>
-                      </Popconfirm>
-                    }
-                  >
-                    <List />
-                  </Card>
-                </Col>
-                <Col span={12}>
-                  <Card title="Command actions">
-                    <List />
-                  </Card>
-                </Col>
-              </Row>
-            </Layout.Content>
+                        {this.state.name}
+                      </Typography.Text>
+                    </Link>
+                  </Breadcrumb.Item>
+                </Breadcrumb>
+                <Row gutter={8} style={{ margin: '16px 0 0 0' }}>
+                  <Col span={12}>
+                    <Card
+                      title="Activation events"
+                      extra={
+                        <Popconfirm
+                          onConfirm={this.validateActivate.bind(this)}
+                          icon={
+                            <QuestionCircleOutlined
+                              style={{ visibility: 'hidden' }}
+                            />
+                          }
+                          title={
+                            <Form
+                              onFinish={this.validateActivate.bind(this)}
+                              ref={form => (this.activateCreateForm = form)}
+                            >
+                              <Form.Item
+                                label="Friendly Name"
+                                name="friendlyName"
+                                rules={[{ required: true }]}
+                              >
+                                <Input />
+                              </Form.Item>
+                              <Form.Item
+                                label="Type"
+                                name="type"
+                                rules={[{ required: true }]}
+                              >
+                                <Select>
+                                  <Select.Option value="kunami">
+                                    Sequence
+                                  </Select.Option>
+                                  <Select.Option value="schedule">
+                                    Cron Schedule
+                                  </Select.Option>
+                                  <Select.Option value="state_change">
+                                    State Change
+                                  </Select.Option>
+                                  <Select.Option value="solar">
+                                    Solar Event
+                                  </Select.Option>
+                                </Select>
+                              </Form.Item>
+                            </Form>
+                          }
+                        >
+                          <Button size="small" icon={<PlusBoxMultiple />}>
+                            Add new
+                          </Button>
+                        </Popconfirm>
+                      }
+                    >
+                      <List
+                        dataSource={this.state.routine.activate}
+                        renderItem={item => (
+                          <List.Item key={item.id}>
+                            <List.Item.Meta
+                              title={
+                                <Button
+                                  onClick={() => this.activateDrawer.load(item)}
+                                  type="text"
+                                >
+                                  {item.friendlyName}
+                                </Button>
+                              }
+                              description={TitleCase(item.type)}
+                            />
+                            <Popconfirm
+                              icon={
+                                <QuestionCircleOutlined
+                                  style={{ color: 'red' }}
+                                />
+                              }
+                              title={`Are you sure you want to delete ${item.friendlyName}?`}
+                              onConfirm={() => this.deleteActivate(item)}
+                            >
+                              <Button danger type="text">
+                                <CloseOutlined />
+                              </Button>
+                            </Popconfirm>
+                          </List.Item>
+                        )}
+                      />
+                    </Card>
+                  </Col>
+                  <Col span={12}>
+                    <Card title="Command actions">
+                      <List />
+                    </Card>
+                  </Col>
+                </Row>
+              </Layout.Content>
+              <Layout.Sider>Sider</Layout.Sider>
+              <RoutineActivateDrawer
+                routine={this.state.routine}
+                onUpdate={this.refresh.bind(this)}
+                ref={i => (this.activateDrawer = i)}
+              />
+            </>
           ) : (
             <Layout.Content>
               <Spin size="large" tip="Loading..." />
@@ -136,6 +177,14 @@ export const RoutineDetail = withRouter(
           )}
         </Layout>
       );
+    }
+
+    private async deleteActivate(item: RoutineActivateDTO): Promise<void> {
+      const routine = await sendRequest<RoutineDTO>(
+        `/routine/${this.id}/activate/${item.id}`,
+        { method: 'delete' },
+      );
+      this.refresh(routine);
     }
 
     private async nameUpdate(name: string): Promise<void> {
@@ -151,23 +200,15 @@ export const RoutineDetail = withRouter(
       this.setState({ name, routine });
     }
 
-    private async refresh(): Promise<void> {
-      const routine = await sendRequest<RoutineDTO>(`/routine/${this.id}`);
+    private async refresh(routine?: RoutineDTO): Promise<void> {
+      routine ??= await sendRequest<RoutineDTO>(`/routine/${this.id}`);
       this.setState({ name: routine.friendlyName, routine });
     }
 
     private async validateActivate(): Promise<void> {
       try {
         const values = await this.activateCreateForm.validateFields();
-        const routine = await sendRequest<RoutineDTO>(
-          `/routine/${this.id}/activate`,
-          {
-            body: JSON.stringify(values),
-            method: 'post',
-          },
-        );
-        this.activateCreateForm.resetFields();
-        this.setState({ routine });
+        this.activateDrawer.load(values as RoutineActivateDTO);
       } catch (error) {
         console.error(error);
       }

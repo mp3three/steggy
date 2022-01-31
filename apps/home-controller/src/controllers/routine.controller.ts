@@ -110,6 +110,20 @@ export class RoutineController {
     return GENERIC_SUCCESS_RESPONSE;
   }
 
+  @Delete('/:routine/activate/:activate')
+  @ApiResponse({ type: RoutineDTO })
+  @ApiOperation({
+    description: `Add activation event to routine`,
+  })
+  public async deleteActivate(
+    @Param('routine') id: string,
+    @Param('activate') activateId: string,
+  ): Promise<RoutineDTO> {
+    const routine = await this.routineService.get(id);
+    routine.activate = routine.activate.filter(item => item.id !== activateId);
+    return await this.update(id, routine);
+  }
+
   @Get(`/:routine`)
   @ApiResponse({ type: RoutineDTO })
   @ApiOperation({
@@ -143,5 +157,29 @@ export class RoutineController {
     @Body() body: RoutineDTO,
   ): Promise<RoutineDTO> {
     return await this.routineService.update(routine, body);
+  }
+
+  @Put('/:routine/activate/:activate')
+  @ApiBody({ type: RoutineActivateDTO })
+  @ApiResponse({ type: RoutineDTO })
+  @ApiOperation({
+    description: `Add activation event to routine`,
+  })
+  public async updateActivate(
+    @Param('routine') id: string,
+    @Param('activate') activateId: string,
+    @Body() activate: RoutineActivateDTO,
+  ): Promise<RoutineDTO> {
+    const routine = await this.routineService.get(id);
+    routine.activate = routine.activate.map(item => {
+      if (item.id !== activateId) {
+        return item;
+      }
+      return {
+        ...activate,
+        id: activateId,
+      };
+    });
+    return await this.update(id, routine);
   }
 }

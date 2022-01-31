@@ -189,9 +189,8 @@ export class LightEntityCard extends React.Component<
     return 'turnOn';
   }
 
-  private onModeChange(e: Event): void {
-    const target = e.target as HTMLInputElement;
-    const state = target.value;
+  private onModeChange(e: React.ChangeEvent<HTMLInputElement>): void {
+    const state = e.target.value;
     if (state === 'turnOff') {
       this.setState({
         brightness: undefined,

@@ -44,6 +44,7 @@ export class GroupCreateButton extends React.Component<{
         body: JSON.stringify(values),
         method: 'post',
       });
+      this.form.resetFields();
       this.props.groupsUpdated();
     } catch (error) {
       console.error(error);
