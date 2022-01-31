@@ -197,12 +197,13 @@ export class RoutineActivateKunami extends React.Component<
         });
       },
       async () => {
-        const mach = await sendRequest<string[]>(`/entity/record/${sensor}`, {
+        const match = await sendRequest<string[]>(`/entity/record/${sensor}`, {
           body: JSON.stringify({
             duration: recordSeconds,
           }),
           method: 'post',
         });
+        console.log(match);
       },
     ]);
     this.setState({ isRecording: false });
