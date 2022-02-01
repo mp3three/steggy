@@ -6,7 +6,7 @@ type tState = {
   duration: number;
 };
 
-export class SleepCommand extends React.Component<
+export class WebhookCommand extends React.Component<
   { command?: RoutineCommandSleepDTO },
   tState
 > {

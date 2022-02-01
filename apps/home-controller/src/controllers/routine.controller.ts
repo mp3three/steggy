@@ -20,6 +20,7 @@ import {
   RoomEntitySaveStateDTO,
   RoutineActivateDTO,
   RoutineActivateOptionsDTO,
+  RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
   RoutineCommandRoomStateDTO,
@@ -88,6 +89,22 @@ export class RoutineController {
     return await this.update(id, routine);
   }
 
+  @Post('/:routine/command')
+  @ApiBody({ type: RoutineCommandDTO })
+  @ApiResponse({ type: RoutineDTO })
+  @ApiOperation({
+    description: `Add activation event to routine`,
+  })
+  public async addCommand(
+    @Param('routine') id: string,
+    @Body() command: RoutineCommandDTO,
+  ): Promise<RoutineDTO> {
+    const routine = await this.routineService.get(id);
+    command.id = uuid();
+    routine.command.push(command);
+    return await this.update(id, routine);
+  }
+
   @Post(`/`)
   @ApiBody({ type: RoutineDTO })
   @ApiResponse({ type: RoutineDTO })
@@ -121,6 +138,20 @@ export class RoutineController {
   ): Promise<RoutineDTO> {
     const routine = await this.routineService.get(id);
     routine.activate = routine.activate.filter(item => item.id !== activateId);
+    return await this.update(id, routine);
+  }
+
+  @Delete('/:routine/command/:command')
+  @ApiResponse({ type: RoutineDTO })
+  @ApiOperation({
+    description: `Add activation event to routine`,
+  })
+  public async deleteCommand(
+    @Param('routine') id: string,
+    @Param('command') commandId: string,
+  ): Promise<RoutineDTO> {
+    const routine = await this.routineService.get(id);
+    routine.command = routine.command.filter(item => item.id !== commandId);
     return await this.update(id, routine);
   }
 
@@ -178,6 +209,30 @@ export class RoutineController {
       return {
         ...activate,
         id: activateId,
+      };
+    });
+    return await this.update(id, routine);
+  }
+
+  @Put('/:routine/command/:command')
+  @ApiBody({ type: RoutineCommandDTO })
+  @ApiResponse({ type: RoutineDTO })
+  @ApiOperation({
+    description: `Add activation event to routine`,
+  })
+  public async updateCommand(
+    @Param('routine') id: string,
+    @Param('command') commandId: string,
+    @Body() command: RoutineCommandDTO,
+  ): Promise<RoutineDTO> {
+    const routine = await this.routineService.get(id);
+    routine.command = routine.command.map(item => {
+      if (item.id !== commandId) {
+        return item;
+      }
+      return {
+        ...command,
+        id: commandId,
       };
     });
     return await this.update(id, routine);

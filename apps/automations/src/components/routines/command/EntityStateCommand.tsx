@@ -27,11 +27,9 @@ export class EntityStateCommand extends React.Component<
   override async componentDidMount(): Promise<void> {
     await this.listEntities();
     const { command } = this.props;
-    this.setState({
-      entity_id: command.ref,
-      extra: command.extra,
-      state: command.state,
-    });
+    if (command) {
+      this.load(command);
+    }
   }
 
   public getValue(): RoomEntitySaveStateDTO {
@@ -40,6 +38,14 @@ export class EntityStateCommand extends React.Component<
       ref: this.state.entity_id,
       state: this.state.state,
     };
+  }
+
+  public load(command: Partial<RoomEntitySaveStateDTO> = {}): void {
+    this.setState({
+      entity_id: command.ref,
+      extra: command.extra,
+      state: command.state,
+    });
   }
 
   override render() {

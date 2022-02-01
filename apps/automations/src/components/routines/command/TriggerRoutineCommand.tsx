@@ -24,18 +24,25 @@ export class TriggerRoutineCommand extends React.Component<
     await this.listRoutines();
     const { command } = this.props;
     if (command) {
-      this.setState({ routine: command.routine });
+      this.load(command);
     }
   }
 
   public getValue(): RoutineCommandTriggerRoutineDTO {
-    return this.props.command;
+    return { routine: this.state.routine };
+  }
+
+  public load(command: RoutineCommandTriggerRoutineDTO): void {
+    this.setState({ routine: command.routine });
   }
 
   override render() {
     return (
       <Form.Item label="Routine">
-        <Select onChange={routine => this.setState({ routine })}>
+        <Select
+          value={this.state.routine}
+          onChange={routine => this.setState({ routine })}
+        >
           {this.state.routines.map(routine => (
             <Select.Option key={routine._id} value={routine._id}>
               {routine.friendlyName}

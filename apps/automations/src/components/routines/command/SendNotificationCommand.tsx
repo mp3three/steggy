@@ -1,5 +1,5 @@
 import { RoutineCommandSendNotificationDTO } from '@text-based/controller-shared';
-import { Input } from 'antd';
+import { Form, Input } from 'antd';
 import React from 'react';
 
 type tState = {
@@ -14,9 +14,7 @@ export class SendNotificationCommand extends React.Component<
 
   override componentDidMount(): void {
     const { command } = this.props;
-    if (command) {
-      this.setState({ template: command.template });
-    }
+    this.load(command);
   }
 
   public getValue(): RoutineCommandSendNotificationDTO {
@@ -25,12 +23,18 @@ export class SendNotificationCommand extends React.Component<
     };
   }
 
+  public load(command: Partial<RoutineCommandSendNotificationDTO> = {}): void {
+    this.setState({ template: command.template });
+  }
+
   override render() {
     return (
-      <Input.TextArea
-        value={this.state.template}
-        onChange={({ target }) => this.setState({ template: target.value })}
-      />
+      <Form.Item label="Template">
+        <Input.TextArea
+          value={this.state.template}
+          onChange={({ target }) => this.setState({ template: target.value })}
+        />
+      </Form.Item>
     );
   }
 }

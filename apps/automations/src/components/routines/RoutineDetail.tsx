@@ -1,6 +1,10 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { RoutineActivateDTO, RoutineDTO } from '@text-based/controller-shared';
+import {
+  RoutineActivateDTO,
+  RoutineCommandDTO,
+  RoutineDTO,
+} from '@text-based/controller-shared';
 import { TitleCase } from '@text-based/utilities';
 import {
   Breadcrumb,
@@ -24,6 +28,7 @@ import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 import { RoutineActivateDrawer } from './RoutineActivateDrawer';
+import { RoutineCommandDrawer } from './RoutineCommandDrawer';
 
 type tStateType = {
   name: string;
@@ -41,6 +46,7 @@ export const RoutineDetail = withRouter(
     private activateCreateForm: FormInstance;
     private activateDrawer: RoutineActivateDrawer;
     private commandCreateForm: FormInstance;
+    private commandDrawer: RoutineCommandDrawer;
 
     private get id(): string {
       const { id } = this.props.match.params;
@@ -162,7 +168,7 @@ export const RoutineDetail = withRouter(
                       title="Command actions"
                       extra={
                         <Popconfirm
-                          onConfirm={this.validateActivate.bind(this)}
+                          onConfirm={this.validateCommand.bind(this)}
                           icon={
                             <QuestionCircleOutlined
                               style={{ visibility: 'hidden' }}
@@ -170,7 +176,7 @@ export const RoutineDetail = withRouter(
                           }
                           title={
                             <Form
-                              onFinish={this.validateActivate.bind(this)}
+                              onFinish={this.validateCommand.bind(this)}
                               ref={form => (this.commandCreateForm = form)}
                             >
                               <Form.Item
@@ -221,7 +227,37 @@ export const RoutineDetail = withRouter(
                         </Popconfirm>
                       }
                     >
-                      <List />
+                      <List
+                        dataSource={this.state.routine.command}
+                        renderItem={item => (
+                          <List.Item key={item.id}>
+                            <List.Item.Meta
+                              title={
+                                <Button
+                                  onClick={() => this.commandDrawer.load(item)}
+                                  type="text"
+                                >
+                                  {item.friendlyName}
+                                </Button>
+                              }
+                              description={TitleCase(item.type)}
+                            />
+                            <Popconfirm
+                              icon={
+                                <QuestionCircleOutlined
+                                  style={{ color: 'red' }}
+                                />
+                              }
+                              title={`Are you sure you want to delete ${item.friendlyName}?`}
+                              onConfirm={() => this.deleteCommand(item)}
+                            >
+                              <Button danger type="text">
+                                <CloseOutlined />
+                              </Button>
+                            </Popconfirm>
+                          </List.Item>
+                        )}
+                      />
                     </Card>
                   </Col>
                 </Row>
@@ -231,6 +267,11 @@ export const RoutineDetail = withRouter(
                 routine={this.state.routine}
                 onUpdate={this.refresh.bind(this)}
                 ref={i => (this.activateDrawer = i)}
+              />
+              <RoutineCommandDrawer
+                routine={this.state.routine}
+                onUpdate={this.refresh.bind(this)}
+                ref={i => (this.commandDrawer = i)}
               />
             </>
           ) : (
@@ -245,6 +286,14 @@ export const RoutineDetail = withRouter(
     private async deleteActivate(item: RoutineActivateDTO): Promise<void> {
       const routine = await sendRequest<RoutineDTO>(
         `/routine/${this.id}/activate/${item.id}`,
+        { method: 'delete' },
+      );
+      this.refresh(routine);
+    }
+
+    private async deleteCommand(item: RoutineCommandDTO): Promise<void> {
+      const routine = await sendRequest<RoutineDTO>(
+        `/routine/${this.id}/command/${item.id}`,
         { method: 'delete' },
       );
       this.refresh(routine);
@@ -280,7 +329,7 @@ export const RoutineDetail = withRouter(
     private async validateCommand(): Promise<void> {
       try {
         const values = await this.commandCreateForm.validateFields();
-        // this.activateDrawer.load(values as RoutineCommandDTO);
+        this.commandDrawer.load(values as RoutineCommandDTO);
       } catch (error) {
         console.error(error);
       }

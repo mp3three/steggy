@@ -2,7 +2,7 @@ import {
   GroupDTO,
   RoutineCommandGroupStateDTO,
 } from '@text-based/controller-shared';
-import { Form, Select, Space } from 'antd';
+import { Form, Select, Skeleton, Space } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../../types';
@@ -17,20 +17,26 @@ export class GroupStateCommand extends React.Component<
   { command?: RoutineCommandGroupStateDTO },
   tState
 > {
+  override state = { groups: [] } as tState;
+
   override async componentDidMount(): Promise<void> {
     await this.listGroups();
     const { command } = this.props;
-    this.setState({
-      group: this.state.groups.find(({ _id }) => _id === command?.group),
-      state: command.state,
-    });
+    this.load(command);
   }
 
   public getValue(): RoutineCommandGroupStateDTO {
     return {
-      group: this.state.group,
+      group: this.state.group._id,
       state: this.state.state,
     };
+  }
+
+  public load(command: Partial<RoutineCommandGroupStateDTO> = {}): void {
+    this.setState({
+      group: this.state.groups.find(({ _id }) => _id === command?.group),
+      state: command.state,
+    });
   }
 
   override render() {
@@ -38,7 +44,7 @@ export class GroupStateCommand extends React.Component<
       <Space direction="vertical" style={{ width: '100%' }}>
         <Form.Item label="Group">
           <Select
-            value={this.state.group}
+            value={this.state?.group?._id}
             onChange={this.groupChange.bind(this)}
             showSearch
             style={{ width: '100%' }}
@@ -51,13 +57,20 @@ export class GroupStateCommand extends React.Component<
           </Select>
         </Form.Item>
         <Form.Item label="Save State">
-          <Select onChange={state => this.setState({ state })}>
-            {this.state.group.save_states.map(state => (
-              <Select.Option key={state.id} value={state.id}>
-                {state.friendlyName}
-              </Select.Option>
-            ))}
-          </Select>
+          {this.state.group ? (
+            <Select
+              value={this.state.state}
+              onChange={state => this.setState({ state })}
+            >
+              {this.state.group.save_states.map(state => (
+                <Select.Option key={state.id} value={state.id}>
+                  {state.friendlyName}
+                </Select.Option>
+              ))}
+            </Select>
+          ) : (
+            <Skeleton.Input active style={{ width: '200px' }} />
+          )}
         </Form.Item>
       </Space>
     );

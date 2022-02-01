@@ -28,6 +28,14 @@ export class GroupActionCommand extends React.Component<
     return this.props.command;
   }
 
+  public load(command: RoutineCommandGroupActionDTO): void {
+    // this.setState({
+    //   entity_id: command.ref,
+    //   extra: command.extra,
+    //   state: command.state,
+    // });
+  }
+
   override render() {
     return (
       <Space direction="vertical" style={{ width: '100%' }}>

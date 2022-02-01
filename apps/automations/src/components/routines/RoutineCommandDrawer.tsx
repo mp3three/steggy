@@ -76,6 +76,11 @@ export class RoutineCommandDrawer extends React.Component<
       name: command.friendlyName,
       visible: true,
     });
+    setTimeout(() => {
+      // FIXME: I'm lazy with types
+      // @ts-expect-error See above
+      this.widget.load(command.command);
+    }, 0);
   }
 
   override render() {
@@ -107,7 +112,7 @@ export class RoutineCommandDrawer extends React.Component<
           </Space>
         }
       >
-        <Card title="Activation event">
+        <Card title="Command action">
           <Form labelCol={{ span: 4 }}>{this.renderType()}</Form>
         </Card>
       </Drawer>
