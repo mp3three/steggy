@@ -1,9 +1,9 @@
 import { RoutineCommandSendNotificationDTO } from '@text-based/controller-shared';
-import { Drawer, Spin } from 'antd';
+import { Input } from 'antd';
 import React from 'react';
 
 type tState = {
-  name: string;
+  template: string;
 };
 
 export class SendNotificationCommand extends React.Component<
@@ -12,18 +12,25 @@ export class SendNotificationCommand extends React.Component<
 > {
   override state = {} as tState;
 
+  override componentDidMount(): void {
+    const { command } = this.props;
+    if (command) {
+      this.setState({ template: command.template });
+    }
+  }
+
   public getValue(): RoutineCommandSendNotificationDTO {
-    return this.props.command;
+    return {
+      template: this.state.template,
+    };
   }
 
   override render() {
-    if (!this.state) {
-      return (
-        <Drawer visible={false}>
-          <Spin />
-        </Drawer>
-      );
-    }
-    return <></>;
+    return (
+      <Input.TextArea
+        value={this.state.template}
+        onChange={({ target }) => this.setState({ template: target.value })}
+      />
+    );
   }
 }

@@ -1,8 +1,4 @@
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import {
-  KunamiCodeActivateDTO,
-  SolarActivateDTO,
-} from '@text-based/controller-shared';
+import { KunamiCodeActivateDTO } from '@text-based/controller-shared';
 import { eachSeries, is, PEAT, sleep } from '@text-based/utilities';
 import {
   Button,
@@ -17,10 +13,8 @@ import {
   Row,
   Select,
   Slider,
-  Space,
 } from 'antd';
 import React from 'react';
-import SolarCalc from 'solar-calc/types/solarCalc';
 
 import { sendRequest } from '../../../types';
 

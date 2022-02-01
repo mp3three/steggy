@@ -1,10 +1,6 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import {
-  RoutineActivateDTO,
-  RoutineCommandDTO,
-  RoutineDTO,
-} from '@text-based/controller-shared';
+import { RoutineActivateDTO, RoutineDTO } from '@text-based/controller-shared';
 import { TitleCase } from '@text-based/utilities';
 import {
   Breadcrumb,

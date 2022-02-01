@@ -1,9 +1,9 @@
 import { RoutineCommandSleepDTO } from '@text-based/controller-shared';
-import { Drawer, Spin } from 'antd';
+import { InputNumber } from 'antd';
 import React from 'react';
 
 type tState = {
-  name: string;
+  duration: number;
 };
 
 export class SleepCommand extends React.Component<
@@ -12,18 +12,24 @@ export class SleepCommand extends React.Component<
 > {
   override state = {} as tState;
 
+  override componentDidMount(): void {
+    const { command } = this.props;
+    if (command) {
+      this.setState({ duration: command.duration });
+    }
+  }
+
   public getValue(): RoutineCommandSleepDTO {
-    return this.props.command;
+    return { duration: this.state.duration };
   }
 
   override render() {
-    if (!this.state) {
-      return (
-        <Drawer visible={false}>
-          <Spin />
-        </Drawer>
-      );
-    }
-    return <></>;
+    return (
+      <InputNumber
+        value={this.state.duration}
+        onChange={duration => this.setState({ duration })}
+        addonAfter="seconds"
+      />
+    );
   }
 }
