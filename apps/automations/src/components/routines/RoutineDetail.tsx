@@ -1,6 +1,10 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { RoutineActivateDTO, RoutineDTO } from '@text-based/controller-shared';
+import {
+  RoutineActivateDTO,
+  RoutineCommandDTO,
+  RoutineDTO,
+} from '@text-based/controller-shared';
 import { TitleCase } from '@text-based/utilities';
 import {
   Breadcrumb,
@@ -40,6 +44,7 @@ export const RoutineDetail = withRouter(
     };
     private activateCreateForm: FormInstance;
     private activateDrawer: RoutineActivateDrawer;
+    private commandCreateForm: FormInstance;
 
     private get id(): string {
       const { id } = this.props.match.params;
@@ -157,7 +162,69 @@ export const RoutineDetail = withRouter(
                     </Card>
                   </Col>
                   <Col span={12}>
-                    <Card title="Command actions">
+                    <Card
+                      title="Command actions"
+                      extra={
+                        <Popconfirm
+                          onConfirm={this.validateActivate.bind(this)}
+                          icon={
+                            <QuestionCircleOutlined
+                              style={{ visibility: 'hidden' }}
+                            />
+                          }
+                          title={
+                            <Form
+                              onFinish={this.validateActivate.bind(this)}
+                              ref={form => (this.commandCreateForm = form)}
+                            >
+                              <Form.Item
+                                label="Friendly Name"
+                                name="friendlyName"
+                                rules={[{ required: true }]}
+                              >
+                                <Input />
+                              </Form.Item>
+                              <Form.Item
+                                label="Type"
+                                name="type"
+                                rules={[{ required: true }]}
+                              >
+                                <Select>
+                                  <Select.Option value="entity_state">
+                                    Entity State
+                                  </Select.Option>
+                                  <Select.Option value="group_state">
+                                    Group State
+                                  </Select.Option>
+                                  <Select.Option value="group_action">
+                                    Group Action
+                                  </Select.Option>
+                                  <Select.Option value="room_state">
+                                    Room State
+                                  </Select.Option>
+                                  <Select.Option value="send_notification">
+                                    Send Notification
+                                  </Select.Option>
+                                  <Select.Option value="stop_processing">
+                                    Stop Processing
+                                  </Select.Option>
+                                  <Select.Option value="trigger_routine">
+                                    Trigger Routine
+                                  </Select.Option>
+                                  <Select.Option value="webhook">
+                                    Webhook
+                                  </Select.Option>
+                                </Select>
+                              </Form.Item>
+                            </Form>
+                          }
+                        >
+                          <Button size="small" icon={<PlusBoxMultiple />}>
+                            Add new
+                          </Button>
+                        </Popconfirm>
+                      }
+                    >
                       <List />
                     </Card>
                   </Col>
@@ -209,6 +276,15 @@ export const RoutineDetail = withRouter(
       try {
         const values = await this.activateCreateForm.validateFields();
         this.activateDrawer.load(values as RoutineActivateDTO);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    private async validateCommand(): Promise<void> {
+      try {
+        const values = await this.commandCreateForm.validateFields();
+        // this.activateDrawer.load(values as RoutineCommandDTO);
       } catch (error) {
         console.error(error);
       }

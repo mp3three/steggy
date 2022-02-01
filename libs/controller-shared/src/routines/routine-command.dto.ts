@@ -13,6 +13,20 @@ import { RoomEntitySaveStateDTO } from '../rooms';
 import { GroupDTO, RoomDTO } from '../schemas';
 import { RoutineCommandStopProcessing } from './stop-processing.dto';
 
+export type ActivateCommand =
+  | 'entity_state'
+  | 'group_action'
+  | 'group_state'
+  | 'light_flash'
+  | 'room_state'
+  | 'send_notification'
+  | 'stop_processing'
+  | 'trigger_routine'
+  | 'sleep'
+  | 'webhook'
+  | 'capture_state'
+  | 'restore_state';
+
 export enum ROUTINE_ACTIVATE_COMMAND {
   entity_state = 'entity_state',
   group_action = 'group_action',
@@ -176,5 +190,5 @@ export class RoutineCommandDTO<
   @IsOptional()
   public id?: string;
   @IsEnum(ROUTINE_ACTIVATE_COMMAND)
-  public type: ROUTINE_ACTIVATE_COMMAND;
+  public type: ActivateCommand;
 }

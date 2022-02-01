@@ -12,13 +12,14 @@ import {
   HASSIO_WS_COMMAND,
   HassStateDTO,
 } from '@text-based/home-assistant-shared';
-import { sleep } from '@text-based/utilities';
+import { is, SECOND, sleep } from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 import { Observable, Subscriber } from 'rxjs';
 
 import { HASocketAPIService } from './ha-socket-api.service';
 
-const ONE_SECOND = 1000;
+const TIMEOUT = 5;
+
 /**
  * Global entity tracking, the source of truth for anything needing to retrieve the current state of anything
  *
@@ -115,7 +116,7 @@ export class EntityManagerService {
     }
     this.logger.warn(`Recording {${entityId}}`);
     this.WATCHERS.set(entityId, []);
-    await sleep(duration * ONE_SECOND); // kick back and relax
+    await sleep(duration * SECOND); // kick back and relax
     const observed = this.WATCHERS.get(entityId);
     this.WATCHERS.delete(entityId);
     return observed;
@@ -185,7 +186,21 @@ export class EntityManagerService {
 
   @OnEvent(HA_SOCKET_READY)
   protected async socketReady(): Promise<void> {
-    await this.socketService.getAllEntitities();
+    const run = await Promise.race([
+      async () => {
+        const entities = await this.socketService.getAllEntitities();
+        return !is.empty(entities);
+      },
+      async () => {
+        await sleep(TIMEOUT * SECOND);
+        return false;
+      },
+    ]);
+    const result = await run();
+    if (result) {
+      return;
+    }
+    this.logger.error(`Failed to retrieve entity list`);
   }
 
   private createObservable(entityId: string): void {

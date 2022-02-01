@@ -57,11 +57,15 @@ export class RoutineActivateKunami extends React.Component<
     }
   }
 
-  public getValue(): SolarActivateDTO {
-    if (is.empty(this.state.event)) {
+  public getValue(): KunamiCodeActivateDTO {
+    if (is.empty(this.state.sensor) || is.empty(this.state.match)) {
       return undefined;
     }
-    return { event: this.state.event as keyof SolarCalc };
+    return {
+      match: this.state.match,
+      reset: this.state.reset,
+      sensor: this.state.sensor,
+    };
   }
 
   public load(activate: KunamiCodeActivateDTO): void {
@@ -100,36 +104,16 @@ export class RoutineActivateKunami extends React.Component<
         <Divider orientation="left">Match states</Divider>
         <Row gutter={16}>
           <Col span={16}>
-            <Form.List name="match" initialValue={this.state.match}>
-              {(fields, { add, remove }) => (
-                <>
-                  {fields.map(field => (
-                    <Form.Item
-                      {...field}
-                      label="State"
-                      rules={[{ required: true }]}
-                    >
-                      <Space>
-                        <Input value={field.name} />
-                        <MinusCircleOutlined
-                          onClick={() => remove(field.name)}
-                        />
-                      </Space>
-                    </Form.Item>
-                  ))}
-                  <Form.Item>
-                    <Button
-                      type="dashed"
-                      onClick={() => add()}
-                      block
-                      icon={<PlusOutlined />}
-                    >
-                      Add state
-                    </Button>
-                  </Form.Item>
-                </>
-              )}
-            </Form.List>
+            <Form.Item label="States">
+              <Input.TextArea
+                value={this.state.match.join(`\n`)}
+                onChange={e =>
+                  this.setState({
+                    match: e.target.value.split(`\n`),
+                  })
+                }
+              />
+            </Form.Item>
           </Col>
           <Col span={8}>
             <Slider
@@ -184,7 +168,7 @@ export class RoutineActivateKunami extends React.Component<
     }
     const { recordSeconds, sensor } = this.state;
     await Promise.all([
-      async () => {
+      (async () => {
         const steps = recordSeconds * 10;
         this.setState({ isRecording: true, recordProgress: 0 });
         await eachSeries(PEAT(recordSeconds * 10), async i => {
@@ -195,8 +179,8 @@ export class RoutineActivateKunami extends React.Component<
             recordProgress: Math.floor((i / steps) * 100),
           });
         });
-      },
-      async () => {
+      })(),
+      (async () => {
         const match = await sendRequest<string[]>(`/entity/record/${sensor}`, {
           body: JSON.stringify({
             duration: recordSeconds,
@@ -204,7 +188,8 @@ export class RoutineActivateKunami extends React.Component<
           method: 'post',
         });
         console.log(match);
-      },
+        this.setState({ match });
+      })(),
     ]);
     this.setState({ isRecording: false });
   }

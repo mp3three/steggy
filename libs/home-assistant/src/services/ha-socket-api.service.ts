@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   Cron,
-  EmitAfter,
   InjectConfig,
   InjectLogger,
 } from '@text-based/boilerplate';
@@ -24,7 +23,7 @@ import {
   SOCKET_MESSAGES,
   SocketMessageDTO,
 } from '@text-based/home-assistant-shared';
-import { CronExpression, is, sleep } from '@text-based/utilities';
+import { CronExpression, is, SECOND, sleep } from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 import WS from 'ws';
 
@@ -39,7 +38,6 @@ import {
 } from '../config';
 
 const STARTING_COUNTER_ID = 0;
-const SECOND = 1000;
 let MESSAGE_TIMESTAMPS: number[] = [];
 
 @Injectable()
@@ -70,12 +68,13 @@ export class HASocketAPIService {
    *
    * This can be a pretty big list
    */
-  @EmitAfter(ALL_ENTITIES_UPDATED, { emitData: 'result' })
   public async getAllEntitities(): Promise<HassStateDTO[]> {
     this.logger.debug('Update all entities');
-    return await this.sendMsg<HassStateDTO[]>({
+    const states = await this.sendMsg<HassStateDTO[]>({
       type: HASSIO_WS_COMMAND.get_states,
     });
+    this.eventEmitter.emit(ALL_ENTITIES_UPDATED, states);
+    return states;
   }
 
   public async getAreas(): Promise<AreaDTO[]> {

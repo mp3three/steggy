@@ -9,10 +9,9 @@ import {
   HassStateDTO,
   HomeAssistantServerLogItem,
 } from '@text-based/home-assistant-shared';
+import { SECOND } from '@text-based/utilities';
 
 import { BASE_URL, TOKEN } from '../config';
-
-const TIMESTAMP_OFFSET = 1000;
 
 @Injectable()
 export class HomeAssistantFetchAPIService {
@@ -90,8 +89,8 @@ export class HomeAssistantFetchAPIService {
       url: `/api/error/all`,
     });
     return results.map(i => {
-      i.timestamp = Math.floor(i.timestamp * TIMESTAMP_OFFSET);
-      i.first_occurred = Math.floor(i.first_occurred * TIMESTAMP_OFFSET);
+      i.timestamp = Math.floor(i.timestamp * SECOND);
+      i.first_occurred = Math.floor(i.first_occurred * SECOND);
       return i;
     });
   }
