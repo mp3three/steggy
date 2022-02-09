@@ -1,3 +1,6 @@
+import Cancel from '@2fd/ant-design-icons/lib/Cancel';
+import ContentSave from '@2fd/ant-design-icons/lib/ContentSave';
+import DebugStepInto from '@2fd/ant-design-icons/lib/DebugStepInto';
 import {
   RoomEntitySaveStateDTO,
   RoutineCommandDTO,
@@ -105,10 +108,27 @@ export class RoutineCommandDrawer extends React.Component<
         }
         extra={
           <Space>
-            <Button type="primary" onClick={this.save.bind(this)}>
+            <Button
+              type="dashed"
+              icon={<DebugStepInto />}
+              onClick={this.testCommand.bind(this)}
+              disabled={is.undefined(this.state?.command?.id)}
+            >
+              Test command
+            </Button>
+            <Button
+              type="primary"
+              onClick={this.save.bind(this)}
+              icon={<ContentSave />}
+            >
               Save
             </Button>
-            <Button>Cancel</Button>
+            <Button
+              icon={<Cancel />}
+              onClick={() => this.setState({ visible: false })}
+            >
+              Cancel
+            </Button>
           </Space>
         }
       >
@@ -215,5 +235,18 @@ export class RoutineCommandDrawer extends React.Component<
       this.props.onUpdate(routine);
     }
     this.setState({ visible: false });
+  }
+
+  private async testCommand(): Promise<void> {
+    const { id } = this.state.command;
+    if (!id) {
+      notification.error({
+        message: 'Save command first',
+      });
+      return;
+    }
+    await sendRequest(`/routine/${this.props.routine._id}/command/${id}`, {
+      method: 'post',
+    });
   }
 }

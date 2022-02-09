@@ -8,6 +8,7 @@ import React from 'react';
 
 import { domain, sendRequest } from '../../../types';
 import { LightEntityCard, SwitchEntityCard } from '../../entities';
+import { FuzzySelect } from '../../misc';
 
 type tState = {
   entities: string[];
@@ -51,21 +52,15 @@ export class EntityStateCommand extends React.Component<
   override render() {
     return (
       <Space direction="vertical" style={{ width: '100%' }}>
-        <Form.Item>
-          <Select
+        <Form.Item label="Entity">
+          <FuzzySelect
             value={this.state.entity_id}
             onChange={this.entityChange.bind(this)}
-            showSearch
             style={{ width: '100%' }}
-          >
-            {this.state.entities.map(entity => (
-              <Select.Option key={entity} value={entity}>
-                {entity}
-              </Select.Option>
-            ))}
-          </Select>
+            data={this.state.entities.map(i => ({ text: i, value: i }))}
+          />
         </Form.Item>
-        <Divider />
+        <Divider orientation="left">State</Divider>
         {this.renderPicker()}
       </Space>
     );

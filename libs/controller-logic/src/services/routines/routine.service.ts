@@ -78,6 +78,75 @@ export class RoutineService {
     private readonly webhookService: WebhookService,
   ) {}
 
+  public async activateCommand(
+    command: RoutineCommandDTO | string,
+    routine: RoutineDTO | string,
+  ): Promise<boolean> {
+    routine = await this.get(routine);
+    command = is.string(command)
+      ? routine.command.find(({ id }) => id === command)
+      : command;
+    // TODO: Some sort of automatic registration mechanism?
+    this.logger.debug(` - {${command.friendlyName}}`);
+    switch (command.type) {
+      case ROUTINE_ACTIVATE_COMMAND.group_action:
+        await this.groupService.activateCommand(
+          command.command as RoutineCommandGroupActionDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.webhook:
+        await this.webhookService.activate(
+          command.command as RoutineCommandWebhookDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.group_state:
+        await this.groupService.activateState(
+          command.command as RoutineCommandGroupStateDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.room_state:
+        await this.roomService.activateState(
+          command.command as RoutineCommandRoomStateDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.entity_state:
+        await this.entityRouter.fromState(
+          command.command as RoomEntitySaveStateDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.send_notification:
+        await this.sendNotification.activate(
+          command.command as RoutineCommandSendNotificationDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.light_flash:
+        await this.flashAnimation.activate(
+          command.command as RountineCommandLightFlashDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.trigger_routine:
+        await this.triggerService.activate(
+          command.command as RoutineCommandTriggerRoutineDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.sleep:
+        await this.sleepService.activate(
+          command.command as RoutineCommandSleepDTO,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.capture_state:
+        await this.captureCommand.activate(
+          command as RoutineCaptureCommandDTO,
+          routine,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.stop_processing:
+
+      //
+    }
+    return true;
+  }
+
   public async activateRoutine(
     routine: RoutineDTO | string,
     options: RoutineActivateOptionsDTO = {},
@@ -139,71 +208,6 @@ export class RoutineService {
     this.scheduleActivate.reset();
     this.stateChangeActivate.reset();
     await this.mount();
-  }
-
-  private async activateCommand(
-    command: RoutineCommandDTO,
-    routine: RoutineDTO,
-  ): Promise<boolean> {
-    // TODO: Some sort of automatic registration mechanism?
-    this.logger.debug(` - {${command.friendlyName}}`);
-    switch (command.type) {
-      case ROUTINE_ACTIVATE_COMMAND.group_action:
-        await this.groupService.activateCommand(
-          command.command as RoutineCommandGroupActionDTO,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.webhook:
-        await this.webhookService.activate(
-          command.command as RoutineCommandWebhookDTO,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.group_state:
-        await this.groupService.activateState(
-          command.command as RoutineCommandGroupStateDTO,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.room_state:
-        await this.roomService.activateState(
-          command.command as RoutineCommandRoomStateDTO,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.entity_state:
-        await this.entityRouter.fromState(
-          command.command as RoomEntitySaveStateDTO,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.send_notification:
-        await this.sendNotification.activate(
-          command.command as RoutineCommandSendNotificationDTO,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.light_flash:
-        await this.flashAnimation.activate(
-          command.command as RountineCommandLightFlashDTO,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.trigger_routine:
-        await this.triggerService.activate(
-          command.command as RoutineCommandTriggerRoutineDTO,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.sleep:
-        await this.sleepService.activate(
-          command.command as RoutineCommandSleepDTO,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.capture_state:
-        await this.captureCommand.activate(
-          command as RoutineCaptureCommandDTO,
-          routine,
-        );
-        break;
-      case ROUTINE_ACTIVATE_COMMAND.stop_processing:
-
-      //
-    }
-    return true;
   }
 
   private async mount(): Promise<void> {

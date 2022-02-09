@@ -22,6 +22,7 @@ import {
   FanAttributesDTO,
   FanSpeeds,
   HASS_DOMAINS,
+  LightAttributesDTO,
 } from '@text-based/home-assistant-shared';
 
 import { LightManagerService } from './lighting';
@@ -62,6 +63,7 @@ export class EntityCommandRouterService {
         await this.lightEntity(
           id,
           command as keyof LightManagerService,
+          body as LightAttributesDTO,
           waitForChange,
         );
         return;
@@ -165,6 +167,7 @@ export class EntityCommandRouterService {
   private async lightEntity(
     id: string,
     command: string,
+    extra: LightAttributesDTO,
     waitForChange = false,
   ) {
     switch (command) {
@@ -179,7 +182,7 @@ export class EntityCommandRouterService {
         return await this.lightService.turnOff(id, waitForChange);
       case 'turnOn':
       case 'on':
-        return await this.lightService.turnOn(id, undefined, waitForChange);
+        return await this.lightService.turnOn(id, { extra }, waitForChange);
     }
     throw new BadRequestException(command);
   }

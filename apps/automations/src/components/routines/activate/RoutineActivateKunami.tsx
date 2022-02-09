@@ -17,6 +17,7 @@ import {
 import React from 'react';
 
 import { sendRequest } from '../../../types';
+import { FuzzySelect } from '../../misc';
 
 type tState = {
   entityList: string[];
@@ -37,7 +38,7 @@ export class RoutineActivateKunami extends React.Component<
 > {
   override state = {
     entityList: [],
-    match: ['1', '2'],
+    match: [],
     recordProgress: 30,
     recordSeconds: 5,
   } as tState;
@@ -70,23 +71,11 @@ export class RoutineActivateKunami extends React.Component<
     return (
       <>
         <Form.Item label="Listen entity" rules={[{ required: true }]}>
-          <Select
+          <FuzzySelect
             onChange={sensor => this.setState({ sensor })}
-            showSearch
-            filterOption={(input, option) =>
-              option.children
-                .toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
             value={this.state.sensor}
-          >
-            {this.state.entityList.map(id => (
-              <Select.Option key={id} value={id}>
-                {id}
-              </Select.Option>
-            ))}
-          </Select>
+            data={this.state.entityList.map(id => ({ text: id, value: id }))}
+          />
         </Form.Item>
         <Form.Item label="Reset" rules={[{ required: true }]}>
           <Radio.Group value={this.state.reset || 'none'}>

@@ -1,3 +1,4 @@
+import DebugStepIntoIcon from '@2fd/ant-design-icons/lib/DebugStepInto';
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import {
@@ -17,6 +18,7 @@ import {
   Layout,
   List,
   Popconfirm,
+  Popover,
   Row,
   Select,
   Spin,
@@ -136,14 +138,24 @@ export const RoutineDetail = withRouter(
                           <List.Item key={item.id}>
                             <List.Item.Meta
                               title={
+                                <Typography.Text
+                                  editable={{
+                                    onChange: value => {
+                                      //
+                                    },
+                                  }}
+                                >
+                                  {item.friendlyName}
+                                </Typography.Text>
+                              }
+                              description={
                                 <Button
                                   onClick={() => this.activateDrawer.load(item)}
                                   type="text"
                                 >
-                                  {item.friendlyName}
+                                  {TitleCase(item.type)}
                                 </Button>
                               }
-                              description={TitleCase(item.type)}
                             />
                             <Popconfirm
                               icon={
@@ -180,18 +192,11 @@ export const RoutineDetail = withRouter(
                               ref={form => (this.commandCreateForm = form)}
                             >
                               <Form.Item
-                                label="Friendly Name"
-                                name="friendlyName"
-                                rules={[{ required: true }]}
-                              >
-                                <Input />
-                              </Form.Item>
-                              <Form.Item
                                 label="Type"
                                 name="type"
                                 rules={[{ required: true }]}
                               >
-                                <Select>
+                                <Select style={{ width: '200px' }}>
                                   <Select.Option value="entity_state">
                                     Entity State
                                   </Select.Option>
@@ -262,7 +267,23 @@ export const RoutineDetail = withRouter(
                   </Col>
                 </Row>
               </Layout.Content>
-              <Layout.Sider>Sider</Layout.Sider>
+              <Layout.Sider style={{ padding: '16px' }}>
+                <Popover
+                  title="Activation endpoint"
+                  content={
+                    <Form.Item label="POST">
+                      <Input value={`/routine/${this.id}`} readOnly />
+                    </Form.Item>
+                  }
+                >
+                  <Button
+                    onClick={this.manualActivate.bind(this)}
+                    icon={<DebugStepIntoIcon />}
+                  >
+                    Manual activate
+                  </Button>
+                </Popover>
+              </Layout.Sider>
               <RoutineActivateDrawer
                 routine={this.state.routine}
                 onUpdate={this.refresh.bind(this)}
@@ -299,6 +320,10 @@ export const RoutineDetail = withRouter(
       this.refresh(routine);
     }
 
+    private async manualActivate(): Promise<void> {
+      await sendRequest(`/routine/${this.id}`, { method: 'post' });
+    }
+
     private async nameUpdate(name: string): Promise<void> {
       if (name === this.state.routine.friendlyName) {
         return;
@@ -317,6 +342,10 @@ export const RoutineDetail = withRouter(
       this.setState({ name: routine.friendlyName, routine });
     }
 
+    private async updateCommandName(): Promise<void> {
+      // 
+    }
+
     private async validateActivate(): Promise<void> {
       try {
         const values = await this.activateCreateForm.validateFields();
@@ -329,6 +358,7 @@ export const RoutineDetail = withRouter(
     private async validateCommand(): Promise<void> {
       try {
         const values = await this.commandCreateForm.validateFields();
+        values.friendlyName = `${TitleCase(values.type)} action`;
         this.commandDrawer.load(values as RoutineCommandDTO);
       } catch (error) {
         console.error(error);

@@ -177,6 +177,15 @@ export class RoutineController {
     return await this.routineService.list(control);
   }
 
+  @Post('/:routine/command/:command')
+  public async testCommand(
+    @Param('routine') routine: string,
+    @Param('command') command: string,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.routineService.activateCommand(command, routine);
+    return GENERIC_SUCCESS_RESPONSE;
+  }
+
   @Put(`/:routine`)
   @ApiBody({ type: RoutineDTO })
   @ApiResponse({ type: RoutineDTO })
