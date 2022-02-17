@@ -14,6 +14,7 @@ import {
   NX_METADATA_FILE,
   NX_WORKSPACE_FILE,
   NXMetadata,
+  NXProjectDTO,
   NXProjectTypes,
   NXWorkspaceDTO,
   PACKAGE_FILE,
@@ -178,12 +179,12 @@ export class WorkspaceService {
   private loadMetadata(): void {
     const root = join(isDevelopment ? cwd() : __dirname, PACKAGE_FILE);
     this.ROOT_PACKAGE = existsSync(root)
-      ? JSON.parse(
+      ? (JSON.parse(
           readFileSync(
             join(isDevelopment ? cwd() : __dirname, PACKAGE_FILE),
             'utf-8',
           ),
-        )
+        ) as unknown as PackageJsonDTO)
       : {
           description: 'unknown',
           displayName: 'unknown',
@@ -200,7 +201,7 @@ export class WorkspaceService {
       // this.logg
       const data = JSON.parse(readFileSync(path, 'utf-8'));
       this.logger.debug(` - {${key}}`);
-      this.METADATA.set(key, data);
+      this.METADATA.set(key, data as unknown as RepoMetadataDTO);
     });
   }
 
@@ -212,7 +213,7 @@ export class WorkspaceService {
           : join(__dirname, 'assets', NX_METADATA_FILE),
         'utf-8',
       ),
-    );
+    ) as unknown as NXMetadata;
     this.workspace = JSON.parse(
       readFileSync(
         isDevelopment
@@ -220,7 +221,7 @@ export class WorkspaceService {
           : join(__dirname, 'assets', NX_WORKSPACE_FILE),
         'utf-8',
       ),
-    );
+    ) as unknown as NXWorkspaceDTO;
     const { projects } = this.workspace;
     this.logger.info(`Loading workspace`);
     Object.keys(projects).forEach(key => {
@@ -233,7 +234,9 @@ export class WorkspaceService {
         return;
       }
       this.logger.debug(` - {${key}}`);
-      projects[key] = JSON.parse(readFileSync(path, 'utf-8'));
+      projects[key] = JSON.parse(
+        readFileSync(path, 'utf-8'),
+      ) as unknown as NXProjectDTO;
     });
   }
 
@@ -247,7 +250,7 @@ export class WorkspaceService {
       }
       const data = JSON.parse(
         readFileSync(packageFile, 'utf-8'),
-      ) as PackageJsonDTO;
+      ) as unknown as PackageJsonDTO;
       this.logger.debug(` - [${project}] {${data.version}}`);
       this.PACKAGES.set(project, data);
     });

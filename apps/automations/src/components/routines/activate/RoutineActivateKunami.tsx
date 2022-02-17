@@ -11,7 +11,6 @@ import {
   Progress,
   Radio,
   Row,
-  Select,
   Slider,
 } from 'antd';
 import React from 'react';

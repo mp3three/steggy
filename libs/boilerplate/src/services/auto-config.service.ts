@@ -216,7 +216,7 @@ export class AutoConfigService {
             out.set(filePath, yaml.load(fileContent));
             return true;
           case 'json':
-            out.set(filePath, JSON.parse(fileContent));
+            out.set(filePath, JSON.parse(fileContent) as AbstractConfig);
             return true;
         }
       }
@@ -227,7 +227,7 @@ export class AutoConfigService {
     }
     // Guessing JSON
     if (fileContent[START] === '{') {
-      out.set(filePath, JSON.parse(fileContent));
+      out.set(filePath, JSON.parse(fileContent) as AbstractConfig);
       return true;
     }
     // Guessing yaml
@@ -276,7 +276,7 @@ export class AutoConfigService {
         return;
       }
       const json = readFileSync(join(maybeFolder, METADATA_FILE), 'utf-8');
-      this.metadata.set(folder, JSON.parse(json));
+      this.metadata.set(folder, JSON.parse(json) as unknown as RepoMetadataDTO);
     });
   }
 
