@@ -343,7 +343,7 @@ export const RoutineDetail = withRouter(
     }
 
     private async updateCommandName(): Promise<void> {
-      // 
+      //
     }
 
     private async validateActivate(): Promise<void> {

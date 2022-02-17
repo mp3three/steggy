@@ -68,14 +68,16 @@ export class RoutineCommandGroupStateDTO {
   public state: string;
 }
 
-export class RoutineCommandGroupActionDTO {
+export class RoutineCommandGroupActionDTO<
+  EXTRA extends unknown = Record<string, unknown>,
+> {
   @IsString()
   @ApiProperty()
   public command: GENERIC_COMMANDS | string;
   @IsObject()
   @IsOptional()
   @ApiProperty()
-  public extra?: Record<string, unknown>;
+  public extra?: EXTRA;
   @IsString()
   @ApiProperty()
   public group: string | GroupDTO;

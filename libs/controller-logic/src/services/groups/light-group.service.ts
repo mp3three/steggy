@@ -60,14 +60,17 @@ export class LightGroupService extends BaseGroupService {
     }
   }
 
-  public async dimDown(group: GroupParameter, amount?: number): Promise<void> {
+  public async dimDown(
+    group: GroupParameter,
+    increment?: number,
+  ): Promise<void> {
     group = await this.loadGroup(group);
-    await this.lightManager.dimDown({ increment: amount }, group.entities);
+    await this.lightManager.dimDown({ increment }, group.entities);
   }
 
-  public async dimUp(group: GroupParameter, amount?: number): Promise<void> {
+  public async dimUp(group: GroupParameter, increment?: number): Promise<void> {
     group = await this.loadGroup(group);
-    await this.lightManager.dimUp({ increment: amount }, group.entities);
+    await this.lightManager.dimUp({ increment }, group.entities);
   }
 
   public async expandState(

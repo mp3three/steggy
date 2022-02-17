@@ -2,13 +2,17 @@ import {
   GroupDTO,
   RoutineCommandGroupActionDTO,
 } from '@text-based/controller-shared';
-import { Divider, Form, Select, Space } from 'antd';
+import { is, TitleCase } from '@text-based/utilities';
+import { Empty, Form, Select, Space } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../../types';
+import { LightGroupAction } from '../../groups';
 
 type tState = {
-  group: string;
+  command: string;
+  extra: Record<string, unknown>;
+  group: GroupDTO;
   groups: GroupDTO[];
 };
 
@@ -20,20 +24,26 @@ export class GroupActionCommand extends React.Component<
     groups: [],
   } as tState;
 
+  private picker: LightGroupAction;
   override async componentDidMount(): Promise<void> {
     await this.listGroups();
   }
 
   public getValue(): RoutineCommandGroupActionDTO {
-    return this.props.command;
+    return {
+      // 🤷
+      ...(this.picker?.getValue() ?? { command: 'turnOff' }),
+      group: this.state.group._id,
+    };
   }
 
   public load(command: RoutineCommandGroupActionDTO): void {
-    // this.setState({
-    //   entity_id: command.ref,
-    //   extra: command.extra,
-    //   state: command.state,
-    // });
+    console.log(command);
+    this.setState({
+      command: command?.command,
+      extra: command?.extra,
+      group: this.state.groups.find(({ _id }) => _id === command?.group),
+    });
   }
 
   override render() {
@@ -41,7 +51,7 @@ export class GroupActionCommand extends React.Component<
       <Space direction="vertical" style={{ width: '100%' }}>
         <Form.Item>
           <Select
-            value={this.state.group}
+            value={this.state.group?._id}
             onChange={this.groupChange.bind(this)}
             showSearch
             style={{ width: '100%' }}
@@ -53,24 +63,47 @@ export class GroupActionCommand extends React.Component<
             ))}
           </Select>
         </Form.Item>
-        <Divider />
         {this.renderPicker()}
       </Space>
     );
   }
 
   private groupChange(group: string): void {
-    this.setState({ group });
+    this.setState({
+      group: this.state.groups.find(({ _id }) => _id === group),
+    });
   }
 
   private async listGroups(): Promise<void> {
     const groups = await sendRequest<GroupDTO[]>(
-      `/group?select=friendlyName,type`,
+      `/group?select=friendlyName,type&type=light&sort=friendlyName`,
     );
     this.setState({ groups });
+    this.load(this.props.command);
   }
 
-  private renderPicker(): void {
-    return undefined;
+  private renderPicker() {
+    const { group, command, extra } = this.state;
+    if (!is.object(group)) {
+      return <Empty description="Select group" />;
+    }
+    if (group.type === 'light') {
+      return (
+        <LightGroupAction
+          ref={pick => (this.picker = pick)}
+          command={{
+            command,
+            extra: extra as { brightness: number },
+          }}
+        />
+      );
+    }
+    return (
+      <Empty
+        description={`${TitleCase(
+          group.type,
+        )} group does not have special actions`}
+      />
+    );
   }
 }

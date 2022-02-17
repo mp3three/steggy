@@ -78,7 +78,10 @@ export class RoutineActivateKunami extends React.Component<
           />
         </Form.Item>
         <Form.Item label="Reset" rules={[{ required: true }]}>
-          <Radio.Group value={this.state.reset || 'none'}>
+          <Radio.Group
+            value={this.state.reset || 'none'}
+            onChange={({ target }) => this.setState({ reset: target.value })}
+          >
             <Radio.Button value="none">None</Radio.Button>
             <Radio.Button value="self">Self</Radio.Button>
             <Radio.Button value="sensor">Sensor</Radio.Button>
@@ -156,7 +159,6 @@ export class RoutineActivateKunami extends React.Component<
         this.setState({ isRecording: true, recordProgress: 0 });
         await eachSeries(PEAT(recordSeconds * 10), async i => {
           await sleep(100);
-          console.log(Math.floor(steps / i));
           this.setState({
             recordLabel: (Math.floor((steps - i) / 10) + 1).toString(),
             recordProgress: Math.floor((i / steps) * 100),
