@@ -24,6 +24,7 @@ import {
   HASS_DOMAINS,
   LightAttributesDTO,
 } from '@text-based/home-assistant-shared';
+import { is } from '@text-based/utilities';
 
 import { LightManagerService } from './lighting';
 
@@ -82,6 +83,7 @@ export class EntityCommandRouterService {
           id,
           command as keyof FanDomainService,
           body as FanAttributesDTO,
+          waitForChange,
         );
         return;
       case HASS_DOMAINS.lock:
@@ -134,32 +136,28 @@ export class EntityCommandRouterService {
   private async fanEntity(
     id: string,
     command: string,
-    { speed }: FanAttributesDTO,
+    { percentage }: FanAttributesDTO,
+    waitForChange = false,
   ): Promise<void> {
     switch (command) {
       case 'turnOff':
       case 'off':
-        return await this.fanService.turnOff(id);
+        return await this.fanService.turnOff(id, waitForChange);
       case 'turnOn':
       case 'on':
-        if (!speed) {
-          return await this.fanService.turnOn(id);
+        if (!percentage) {
+          return await this.fanService.turnOn(id, waitForChange);
         }
       // fall through
       case 'setSpeed':
-        if (
-          !speed ||
-          ![...Object.values(FanSpeeds), 'fanSpeedUp', 'fanSpeedDown'].includes(
-            speed,
-          )
-        ) {
-          throw new BadRequestException(`Provide a valid fan speed`);
+        if (!is.number(percentage)) {
+          throw new BadRequestException(`Provide a valid fan percentage`);
         }
-        return await this.fanService.setSpeed(id, speed as FanSpeeds);
+        return await this.fanService.setSpeed(id, percentage, waitForChange);
       case 'fanSpeedUp':
-        return await this.fanService.fanSpeedUp(id);
+        return await this.fanService.fanSpeedUp(id, waitForChange);
       case 'fanSpeedDown':
-        return await this.fanService.fanSpeedDown(id);
+        return await this.fanService.fanSpeedDown(id, waitForChange);
     }
     throw new BadRequestException(command);
   }

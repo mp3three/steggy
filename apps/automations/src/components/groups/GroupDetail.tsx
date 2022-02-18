@@ -17,6 +17,7 @@ import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 import { EntityModalPicker } from '../entities';
+import { FanGroup } from './FanGroup';
 import { GroupSaveStates } from './GroupSaveState';
 import { LightGroup } from './LightGroup';
 import { SwitchGroup } from './SwitchGroup';
@@ -132,6 +133,14 @@ export const GroupDetail = withRouter(
       if (this.state.group.type === 'switch') {
         return (
           <SwitchGroup
+            group={this.state.group}
+            groupUpdate={this.onUpdate.bind(this)}
+          />
+        );
+      }
+      if (this.state.group.type === 'fan') {
+        return (
+          <FanGroup
             group={this.state.group}
             groupUpdate={this.onUpdate.bind(this)}
           />

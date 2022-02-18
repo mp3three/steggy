@@ -110,7 +110,7 @@ export class FanGroupService extends BaseGroupService {
           await this.fanDomain.turnOff(id);
           return;
         }
-        await this.fanDomain.setSpeed(id, state.extra.speed);
+        await this.fanDomain.setSpeed(id, state.extra.percentage);
       },
     );
   }

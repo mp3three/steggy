@@ -1,16 +1,20 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import type { RoomDTO } from '@text-based/controller-shared';
+import type { RoomDTO, RoomStateDTO } from '@text-based/controller-shared';
+import { DOWN, is, UP } from '@text-based/utilities';
 import {
   Breadcrumb,
   Button,
   Card,
+  Empty,
   Form,
   FormInstance,
   Input,
   Layout,
   List,
   Popconfirm,
+  Tooltip,
+  Typography,
 } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -79,6 +83,12 @@ export class RoomList extends React.Component {
     );
   }
 
+  private async activateState(room: RoomDTO, state: RoomStateDTO) {
+    await sendRequest(`/room/${room._id}/state/${state.id}`, {
+      method: 'post',
+    });
+  }
+
   private async deleteRoom(room: RoomDTO): Promise<void> {
     await sendRequest(`/room/${room._id}`, { method: 'delete' });
     await this.refresh();
@@ -93,7 +103,38 @@ export class RoomList extends React.Component {
     return (
       <List.Item key={room._id}>
         <List.Item.Meta
-          title={<Link to={`/room/${room._id}`}>{room.friendlyName}</Link>}
+          title={
+            <Tooltip
+              title={
+                is.empty(room.save_states) ? (
+                  <Empty description="No save states" />
+                ) : (
+                  <>
+                    <Typography.Title level={4} style={{ minWidth: '250px' }}>
+                      Save States
+                    </Typography.Title>
+                    <List
+                      dataSource={room.save_states.sort((a, b) =>
+                        a.friendlyName > b.friendlyName ? UP : DOWN,
+                      )}
+                      renderItem={item => (
+                        <List.Item style={{ padding: '4px 8px' }}>
+                          <Button
+                            type="primary"
+                            onClick={() => this.activateState(room, item)}
+                          >
+                            {item.friendlyName}
+                          </Button>
+                        </List.Item>
+                      )}
+                    />
+                  </>
+                )
+              }
+            >
+              <Link to={`/room/${room._id}`}>{room.friendlyName}</Link>
+            </Tooltip>
+          }
         />
         <Popconfirm
           icon={<QuestionCircleOutlined style={{ color: 'red' }} />}

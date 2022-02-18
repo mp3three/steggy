@@ -9,6 +9,8 @@ import { ARRAY_OFFSET } from '@text-based/utilities';
 
 import { EntityManagerService, HACallService } from '../services';
 
+const MAX = 100;
+const START = 0;
 const availableSpeeds = [
   FanSpeeds.off,
   FanSpeeds.low,
@@ -16,8 +18,6 @@ const availableSpeeds = [
   FanSpeeds.medium_high,
   FanSpeeds.high,
 ];
-const START = 0;
-
 /**
  * https://www.home-assistant.io/integrations/fan/
  */
@@ -31,62 +31,54 @@ export class FanDomainService {
     callService.domain = HASS_DOMAINS.fan;
   }
 
-  public async decreaseSpeed(entityId?: string): Promise<void> {
-    return await this.callService.call('descrease_speed', {
-      entity_id: entityId,
-    });
-  }
-
   public async fanDirection(entityId?: string): Promise<void> {
     return await this.callService.call('set_direction', {
       entity_id: entityId,
     });
   }
 
-  public async fanSpeedDown(entityId: string): Promise<void> {
+  public async fanSpeedDown(
+    entityId: string,
+    waitForChange = false,
+  ): Promise<void> {
+    // return await this.decreaseSpeed(entityId);
     const { attributes } = this.entityManager.getEntity<FanStateDTO>(entityId);
-    const currentSpeed = attributes.speed;
-    const index = availableSpeeds.indexOf(currentSpeed);
-    this.logger.info(
-      `[${entityId}] ${currentSpeed} => ${
-        availableSpeeds[index - ARRAY_OFFSET]
-      }`,
-    );
-    if (index === START) {
+    const currentSpeed = attributes.percentage;
+    if (currentSpeed === START) {
       this.logger.warn(`Cannot speed down`);
       return;
     }
-    return await this.callService.call('turn_on', {
-      entity_id: entityId,
-      speed: availableSpeeds[index - ARRAY_OFFSET],
-    });
+    return await this.callService.call(
+      'turn_on',
+      {
+        entity_id: entityId,
+        percentage: currentSpeed - attributes.percentage_step,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 
-  public async fanSpeedUp(entityId: string): Promise<void> {
-    const [{ attributes }] = this.entityManager.getEntities<FanStateDTO>([
-      entityId,
-    ]);
-    const currentSpeed = attributes.speed;
-    const index = availableSpeeds.indexOf(currentSpeed);
-    this.logger.info(
-      `[${entityId}] ${currentSpeed} => ${
-        availableSpeeds[index + ARRAY_OFFSET]
-      }`,
-    );
-    if (index === availableSpeeds.length - ARRAY_OFFSET) {
+  public async fanSpeedUp(
+    entityId: string,
+    waitForChange = false,
+  ): Promise<void> {
+    // return await this.increaseSpeed(entityId);
+    const { attributes } = this.entityManager.getEntity<FanStateDTO>(entityId);
+    const currentSpeed = attributes.percentage;
+    if (currentSpeed === MAX) {
       this.logger.warn(`Cannot speed up`);
       return;
     }
-    return await this.callService.call('turn_on', {
-      entity_id: entityId,
-      speed: availableSpeeds[index + ARRAY_OFFSET],
-    });
-  }
-
-  public async increaseSpeed(entityId?: string): Promise<void> {
-    return await this.callService.call('increase_speed', {
-      entity_id: entityId,
-    });
+    return await this.callService.call(
+      'turn_on',
+      {
+        entity_id: entityId,
+        percentage: currentSpeed + attributes.percentage_step,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 
   public async oscillate(entityId?: string): Promise<void> {
@@ -98,11 +90,17 @@ export class FanDomainService {
   public async setPercentage(
     entityId: string,
     percentage: number,
+    waitForChange = false,
   ): Promise<void> {
-    return await this.callService.call('set_percentage', {
-      entity_id: entityId,
-      percentage,
-    });
+    return await this.callService.call(
+      'turn_on',
+      {
+        entity_id: entityId,
+        percentage,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 
   public async setPresetMode(entityId?: string): Promise<void> {
@@ -113,35 +111,53 @@ export class FanDomainService {
 
   public async setSpeed(
     entityId: string,
-    speed: FanSpeeds | 'fanSpeedUp' | 'fanSpeedDown',
+    percentage: number,
+    waitForChange = false,
   ): Promise<void> {
-    if (speed === 'fanSpeedUp') {
-      return await this.fanSpeedUp(entityId);
-    }
-    if (speed === 'fanSpeedDown') {
-      return await this.fanSpeedDown(entityId);
-    }
-    await this.callService.call('turn_on', {
-      entity_id: entityId,
-      speed: speed,
-    });
+    await this.callService.call(
+      'turn_on',
+      {
+        entity_id: entityId,
+        percentage,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 
-  public async toggle(entityId?: string): Promise<void> {
-    return await this.callService.call('toggle', {
-      entity_id: entityId,
-    });
+  public async toggle(entityId?: string, waitForChange = false): Promise<void> {
+    return await this.callService.call(
+      'toggle',
+      {
+        entity_id: entityId,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 
-  public async turnOff(entityId?: string): Promise<void> {
-    return await this.callService.call('turn_off', {
-      entity_id: entityId,
-    });
+  public async turnOff(
+    entityId?: string,
+    waitForChange = false,
+  ): Promise<void> {
+    return await this.callService.call(
+      'turn_off',
+      {
+        entity_id: entityId,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 
-  public async turnOn(entityId?: string): Promise<void> {
-    return await this.callService.call('turn_on', {
-      entity_id: entityId,
-    });
+  public async turnOn(entityId?: string, waitForChange = false): Promise<void> {
+    return await this.callService.call(
+      'turn_on',
+      {
+        entity_id: entityId,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 }

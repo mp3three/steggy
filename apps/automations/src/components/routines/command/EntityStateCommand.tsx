@@ -7,7 +7,11 @@ import { Divider, Empty, Form, Select, Skeleton, Space } from 'antd';
 import React from 'react';
 
 import { domain, sendRequest } from '../../../types';
-import { LightEntityCard, SwitchEntityCard } from '../../entities';
+import {
+  FanEntityCard,
+  LightEntityCard,
+  SwitchEntityCard,
+} from '../../entities';
 import { FuzzySelect } from '../../misc';
 
 type tState = {
@@ -94,6 +98,14 @@ export class EntityStateCommand extends React.Component<
       case 'switch':
         return (
           <SwitchEntityCard
+            onUpdate={({ state, extra }) => this.setState({ extra, state })}
+            state={this.getValue()}
+          />
+        );
+      case 'fan':
+        return (
+          <FanEntityCard
+            relative
             onUpdate={({ state, extra }) => this.setState({ extra, state })}
             state={this.getValue()}
           />
