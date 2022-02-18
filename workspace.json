@@ -1,7 +1,6 @@
 {
   "version": 2,
   "projects": {
-    "alpaca": "libs/alpaca",
     "automations": "apps/automations",
     "automations-e2e": "apps/automations-e2e",
     "boilerplate": "libs/boilerplate",

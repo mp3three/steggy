@@ -1,6 +1,7 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { RoutineDTO } from '@text-based/controller-shared';
+import { is } from '@text-based/utilities';
 import {
   Breadcrumb,
   Button,
@@ -11,6 +12,9 @@ import {
   Layout,
   List,
   Popconfirm,
+  Space,
+  Tooltip,
+  Typography,
 } from 'antd';
 import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
@@ -19,6 +23,7 @@ import { sendRequest } from '../../types';
 
 type tState = {
   routines: RoutineDTO[];
+  search: string;
 };
 
 export const RoutineList = withRouter(
@@ -26,7 +31,7 @@ export const RoutineList = withRouter(
     { prop: unknown } & RouteComponentProps,
     tState
   > {
-    override state: tState = { routines: [] };
+    override state: tState = { routines: [], search: '' };
     private form: FormInstance;
 
     override async componentDidMount(): Promise<void> {
@@ -44,7 +49,14 @@ export const RoutineList = withRouter(
             </Breadcrumb>
             <Card
               style={{ margin: '16px 0 0 0' }}
-              title={'All routines'}
+              title={
+                <Input
+                  value={this.state.search}
+                  style={{ width: '50%' }}
+                  placeholder="Filter routines"
+                  onChange={({ target }) => this.updateSearch(target.value)}
+                />
+              }
               extra={
                 <Popconfirm
                   icon={
@@ -83,14 +95,19 @@ export const RoutineList = withRouter(
       );
     }
 
+    private async activateRoutine(routine: RoutineDTO): Promise<void> {
+      await sendRequest(`/routine/${routine._id}`, { method: 'post' });
+    }
+
     private async deleteRoutine(routine: RoutineDTO): Promise<void> {
       await sendRequest(`/routine/${routine._id}`, { method: 'delete' });
       await this.refresh();
     }
 
-    private async refresh(): Promise<void> {
+    private async refresh(text?: string): Promise<void> {
+      const search = is.empty(text) ? '' : `&friendlyName__regex=${text}`;
       const routines = await sendRequest<RoutineDTO[]>(
-        `/routine?sort=friendlyName`,
+        `/routine?sort=friendlyName${search}`,
       );
       this.setState({ routines });
     }
@@ -100,7 +117,29 @@ export const RoutineList = withRouter(
         <List.Item key={routine._id}>
           <List.Item.Meta
             title={
-              <Link to={`/routine/${routine._id}`}>{routine.friendlyName}</Link>
+              <Tooltip
+                title={
+                  <>
+                    <Typography.Text
+                      copyable={{
+                        text: sendRequest.url(`/routine/${routine._id}`),
+                      }}
+                    >
+                      Manual Activation URL
+                    </Typography.Text>
+                    <Button
+                      type="primary"
+                      onClick={() => this.activateRoutine(routine)}
+                    >
+                      Activate
+                    </Button>
+                  </>
+                }
+              >
+                <Link to={`/routine/${routine._id}`}>
+                  {routine.friendlyName}
+                </Link>
+              </Tooltip>
             }
           />
           <Popconfirm
@@ -114,6 +153,11 @@ export const RoutineList = withRouter(
           </Popconfirm>
         </List.Item>
       );
+    }
+
+    private async updateSearch(search: string) {
+      this.setState({ search });
+      await this.refresh(search.toLowerCase());
     }
 
     private async validate(): Promise<void> {

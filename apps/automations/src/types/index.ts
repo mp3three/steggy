@@ -22,6 +22,9 @@ export async function sendRequest<T>(
   });
   return await result.json();
 }
+sendRequest.url = function (info: string): string {
+  return `http://10.0.0.5:7000${info}`;
+};
 
 /**
  * This should come from home-assistant-shared, but doing so makes webpack shit a brick for no reason

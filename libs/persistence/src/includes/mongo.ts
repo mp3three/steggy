@@ -5,8 +5,11 @@ import {
   FILTER_OPERATIONS,
   FilterDTO,
   FilterValueType,
+  INCREMENT,
   is,
   ResultControlDTO,
+  SINGLE,
+  START,
 } from '@text-based/utilities';
 import { isNumberString } from 'class-validator';
 import dayjs from 'dayjs';
@@ -32,21 +35,18 @@ export function filtersToMongoQuery(
             $regex: filter.value,
           });
         }
-        const regexParts = (filter.value as string).match(
-          new RegExp('(?:/([^/]+))', 'gm'),
-        );
-        try {
+        const regexParts = (filter.value as string).split('/');
+        if (regexParts.length === SINGLE) {
           return out.set(filter.field, {
-            $options: regexParts[2] || 'i',
-            $regex: new RegExp(regexParts[1]),
-          });
-        } catch {
-          // Invalid regex?
-          return out.set(filter.field, {
-            $options: regexParts[2] || 'i',
-            $regex: null,
+            $options: 'i',
+            $regex: regexParts[START],
           });
         }
+        regexParts.shift();
+        return out.set(filter.field, {
+          $options: regexParts[INCREMENT],
+          $regex: regexParts[START],
+        });
       case 'elem':
         return out.set(filter.field, {
           $elemMatch: filter.value,
