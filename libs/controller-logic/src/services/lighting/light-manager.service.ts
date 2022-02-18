@@ -144,7 +144,9 @@ export class LightManagerService {
     // or there is no mode defined, and the current one is circadian
     if (
       attributes.color_mode === ColorModes.color_temp ||
-      !is.undefined(attributes.kelvin)
+      !is.undefined(attributes.kelvin) ||
+      (is.undefined(attributes.rgb_color) &&
+        current.attributes.color_mode === ColorModes.color_temp)
     ) {
       attributes.kelvin = this.circadianService.CURRENT_LIGHT_TEMPERATURE;
       attributes.color_mode = ColorModes.color_temp;

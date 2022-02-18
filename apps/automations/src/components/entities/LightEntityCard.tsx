@@ -32,7 +32,6 @@ const B = 2;
 
 export class LightEntityCard extends React.Component<
   {
-    active?: boolean;
     onRemove?: (entity_id: string) => void;
     onUpdate?: (
       state: RoomEntitySaveStateDTO,
@@ -62,15 +61,20 @@ export class LightEntityCard extends React.Component<
     await this.refresh();
   }
 
-  public getSaveState(): RoomEntitySaveStateDTO {
+  public getSaveState(
+    brightness = this.state.brightness,
+  ): RoomEntitySaveStateDTO {
     return {
-      extra: {
-        brightness: this.state.brightness,
-        color_mode: this.state.color_mode,
-        rgb_color: this.state.rgb_color,
-      },
+      extra:
+        this.state.color_mode !== 'color_temp'
+          ? {
+              brightness,
+              color_mode: this.state.color_mode,
+              rgb_color: this.state.rgb_color,
+            }
+          : { brightness, color_mode: this.state.color_mode },
       ref: this.ref,
-      state: this.state.state || 'off',
+      state: this.state.state,
     };
   }
 
@@ -143,20 +147,13 @@ export class LightEntityCard extends React.Component<
   }
 
   private async brightnessChanged(brightness: number): Promise<void> {
-    const saveState = {
-      extra: {
-        brightness,
-        color_mode: this.state.color_mode,
-        rgb_color: this.state.rgb_color,
-      },
-      ref: this.ref,
-      state: this.state.state,
-    };
-    if (this.props.active) {
+    const saveState = this.getSaveState(brightness);
+    if (this.props.selfContained) {
+      this.setState({ brightness });
       const state = await sendRequest<LightStateDTO>(
         `/entity/command/${saveState.ref}/${saveState.state}`,
         {
-          body: JSON.stringify(saveState.extra),
+          body: JSON.stringify({ brightness }),
           method: 'put',
         },
       );

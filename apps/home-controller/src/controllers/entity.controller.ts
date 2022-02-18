@@ -147,7 +147,8 @@ export class EntityController {
     @Body() body: Record<string, unknown>,
   ): Promise<HassStateDTO> {
     await this.commandRouter.process(id, command, body, true);
-    return this.entityManager.getEntity(id);
+    const out = this.entityManager.getEntity(id);
+    return out;
   }
 
   @Put(`/light-state/:id`)

@@ -43,9 +43,11 @@ export class LockGroupService extends BaseGroupService {
   ): Promise<void> {
     switch (state.command) {
       case 'lock':
+      case 'locked':
         await this.lock(group);
         return;
       case 'unlock':
+      case 'unlocked':
         await this.unlock(group);
         return;
       default:

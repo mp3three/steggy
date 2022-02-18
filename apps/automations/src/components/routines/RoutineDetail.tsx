@@ -135,14 +135,19 @@ export const RoutineDetail = withRouter(
                       <List
                         dataSource={this.state.routine.activate}
                         renderItem={item => (
-                          <List.Item key={item.id}>
+                          <List.Item
+                            key={item.id}
+                            onClick={() => this.activateDrawer.load(item)}
+                          >
                             <List.Item.Meta
                               title={
                                 <Typography.Text
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                  }}
                                   editable={{
-                                    onChange: value => {
-                                      //
-                                    },
+                                    onChange: value =>
+                                      this.renameActivate(item, value),
                                   }}
                                 >
                                   {item.friendlyName}
@@ -166,7 +171,11 @@ export const RoutineDetail = withRouter(
                               title={`Are you sure you want to delete ${item.friendlyName}?`}
                               onConfirm={() => this.deleteActivate(item)}
                             >
-                              <Button danger type="text">
+                              <Button
+                                danger
+                                type="text"
+                                onClick={e => e.stopPropagation()}
+                              >
                                 <CloseOutlined />
                               </Button>
                             </Popconfirm>
@@ -196,7 +205,10 @@ export const RoutineDetail = withRouter(
                                 name="type"
                                 rules={[{ required: true }]}
                               >
-                                <Select style={{ width: '200px' }}>
+                                <Select
+                                  style={{ width: '200px' }}
+                                  defaultActiveFirstOption
+                                >
                                   <Select.Option value="entity_state">
                                     Entity State
                                   </Select.Option>
@@ -235,15 +247,21 @@ export const RoutineDetail = withRouter(
                       <List
                         dataSource={this.state.routine.command}
                         renderItem={item => (
-                          <List.Item key={item.id}>
+                          <List.Item
+                            key={item.id}
+                            onClick={() => this.commandDrawer.load(item)}
+                          >
                             <List.Item.Meta
                               title={
-                                <Button
-                                  onClick={() => this.commandDrawer.load(item)}
-                                  type="text"
+                                <Typography.Text
+                                  onClick={e => e.stopPropagation()}
+                                  editable={{
+                                    onChange: value =>
+                                      this.renameCommand(item, value),
+                                  }}
                                 >
                                   {item.friendlyName}
-                                </Button>
+                                </Typography.Text>
                               }
                               description={TitleCase(item.type)}
                             />
@@ -256,7 +274,11 @@ export const RoutineDetail = withRouter(
                               title={`Are you sure you want to delete ${item.friendlyName}?`}
                               onConfirm={() => this.deleteCommand(item)}
                             >
-                              <Button danger type="text">
+                              <Button
+                                danger
+                                type="text"
+                                onClick={e => e.stopPropagation()}
+                              >
                                 <CloseOutlined />
                               </Button>
                             </Popconfirm>
@@ -342,8 +364,46 @@ export const RoutineDetail = withRouter(
       this.setState({ name: routine.friendlyName, routine });
     }
 
-    private async updateCommandName(): Promise<void> {
-      //
+    private async renameActivate(
+      activate: RoutineActivateDTO,
+      friendlyName: string,
+    ): Promise<void> {
+      const { routine } = this.state;
+      const updated = await sendRequest<RoutineDTO>(`/routine/${routine._id}`, {
+        body: JSON.stringify({
+          activate: routine.activate.map(i =>
+            i.id === activate.id
+              ? {
+                  ...activate,
+                  friendlyName,
+                }
+              : i,
+          ),
+        }),
+        method: 'put',
+      });
+      this.setState({ routine: updated });
+    }
+
+    private async renameCommand(
+      command: RoutineCommandDTO,
+      friendlyName: string,
+    ): Promise<void> {
+      const { routine } = this.state;
+      const updated = await sendRequest<RoutineDTO>(`/routine/${routine._id}`, {
+        body: JSON.stringify({
+          command: routine.command.map(i =>
+            i.id === command.id
+              ? {
+                  ...command,
+                  friendlyName,
+                }
+              : i,
+          ),
+        }),
+        method: 'put',
+      });
+      this.setState({ routine: updated });
     }
 
     private async validateActivate(): Promise<void> {

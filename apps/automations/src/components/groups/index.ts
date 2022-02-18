@@ -5,5 +5,6 @@ export * from './GroupList';
 export * from './GroupModalPicker';
 export * from './GroupSaveState';
 export * from './LightGroup';
+export * from './LockGroup';
 export * from './states';
 export * from './SwitchGroup';

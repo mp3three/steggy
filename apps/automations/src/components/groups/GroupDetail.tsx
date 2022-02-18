@@ -20,6 +20,7 @@ import { EntityModalPicker } from '../entities';
 import { FanGroup } from './FanGroup';
 import { GroupSaveStates } from './GroupSaveState';
 import { LightGroup } from './LightGroup';
+import { LockGroup } from './LockGroup';
 import { SwitchGroup } from './SwitchGroup';
 
 type tStateType = { color: string; group: GroupDTO; name: string };
@@ -130,9 +131,9 @@ export const GroupDetail = withRouter(
     }
 
     private groupRendering() {
-      if (this.state.group.type === 'switch') {
+      if (this.state.group.type === 'light') {
         return (
-          <SwitchGroup
+          <LightGroup
             group={this.state.group}
             groupUpdate={this.onUpdate.bind(this)}
           />
@@ -146,8 +147,16 @@ export const GroupDetail = withRouter(
           />
         );
       }
+      if (this.state.group.type === 'lock') {
+        return (
+          <LockGroup
+            group={this.state.group}
+            groupUpdate={this.onUpdate.bind(this)}
+          />
+        );
+      }
       return (
-        <LightGroup
+        <SwitchGroup
           group={this.state.group}
           groupUpdate={this.onUpdate.bind(this)}
         />

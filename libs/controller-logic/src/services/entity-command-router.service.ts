@@ -76,7 +76,11 @@ export class EntityCommandRouterService {
         );
         return;
       case HASS_DOMAINS.media_player:
-        await this.mediaEntity(id, command as keyof MediaPlayerDomainService);
+        await this.mediaEntity(
+          id,
+          command as keyof MediaPlayerDomainService,
+          waitForChange,
+        );
         return;
       case HASS_DOMAINS.fan:
         await this.fanEntity(
@@ -87,13 +91,18 @@ export class EntityCommandRouterService {
         );
         return;
       case HASS_DOMAINS.lock:
-        await this.lockEntity(id, command as keyof LockDomainService);
+        await this.lockEntity(
+          id,
+          command as keyof LockDomainService,
+          waitForChange,
+        );
         return;
       case HASS_DOMAINS.climate:
         await this.climateEntity(
           id,
           command as keyof ClimateDomainService,
           body as ClimateAttributesDTO,
+          waitForChange,
         );
         return;
     }
@@ -105,30 +114,47 @@ export class EntityCommandRouterService {
     id: string,
     command: keyof ClimateDomainService,
     body: Partial<ClimateAttributesDTO> = {},
+    waitForChange = false,
   ): Promise<void> {
     switch (command) {
       case 'turnOff':
-        return await this.climateService.turnOff(id);
+        return await this.climateService.turnOff(id, waitForChange);
       case 'turnOn':
-        return await this.climateService.turnOn(id);
+        return await this.climateService.turnOn(id, waitForChange);
       case 'setFanMode':
-        await this.climateService.setFanMode(id, body.fan_mode);
+        await this.climateService.setFanMode(id, body.fan_mode, waitForChange);
         return;
       case 'setHvacMode':
-        await this.climateService.setHvacMode(id, body.hvac_mode);
+        await this.climateService.setHvacMode(
+          id,
+          body.hvac_mode,
+          waitForChange,
+        );
         return;
       case 'setPresetMode':
-        await this.climateService.setPresetMode(id, body.preset_mode);
+        await this.climateService.setPresetMode(
+          id,
+          body.preset_mode,
+          waitForChange,
+        );
         return;
       case 'setTemperature':
-        await this.climateService.setTemperature(id, body);
+        await this.climateService.setTemperature(id, body, waitForChange);
         return;
       case 'setHumidity':
-        await this.climateService.setHumidity(id, body.current_humidity);
+        await this.climateService.setHumidity(
+          id,
+          body.current_humidity,
+          waitForChange,
+        );
         return;
       case 'setSwingMode':
         // 💃
-        await this.climateService.setSwingMode(id, body.swing_mode);
+        await this.climateService.setSwingMode(
+          id,
+          body.swing_mode,
+          waitForChange,
+        );
         return;
     }
   }
@@ -185,36 +211,40 @@ export class EntityCommandRouterService {
     throw new BadRequestException(command);
   }
 
-  private async lockEntity(id: string, command: string) {
+  private async lockEntity(id: string, command: string, waitForChange = false) {
     switch (command) {
       case 'lock':
       case 'locked':
-        return await this.lockService.lock(id);
+        return await this.lockService.lock(id, waitForChange);
       case 'unlock':
       case 'unlocked':
-        return await this.lockService.unlock(id);
+        return await this.lockService.unlock(id, waitForChange);
     }
     throw new BadRequestException(command);
   }
 
-  private async mediaEntity(id: string, command: string): Promise<void> {
+  private async mediaEntity(
+    id: string,
+    command: string,
+    waitForChange = false,
+  ): Promise<void> {
     switch (command) {
       case 'turnOff':
       case 'off':
-        return await this.mediaService.turnOff(id);
+        return await this.mediaService.turnOff(id, waitForChange);
       case 'turnOn':
       case 'on':
-        return await this.mediaService.turnOn(id);
+        return await this.mediaService.turnOn(id, waitForChange);
       case 'playPause':
-        return await this.mediaService.playPause(id);
+        return await this.mediaService.playPause(id, waitForChange);
       case 'mute':
-        return await this.mediaService.mute(id);
+        return await this.mediaService.mute(id, waitForChange);
       case 'volumeUp':
-        return await this.mediaService.volumeUp(id);
+        return await this.mediaService.volumeUp(id, waitForChange);
       case 'volumeDown':
-        return await this.mediaService.volumeDown(id);
+        return await this.mediaService.volumeDown(id, waitForChange);
       case 'toggle':
-        return await this.mediaService.toggle(id);
+        return await this.mediaService.toggle(id, waitForChange);
     }
     throw new BadRequestException(command);
   }

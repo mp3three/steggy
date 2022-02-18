@@ -99,12 +99,23 @@ export class RoomList extends React.Component {
     this.setState({ rooms });
   }
 
+  private async renameRoom(room: RoomDTO, friendlyName: string) {
+    await sendRequest(`/room/${room._id}`, {
+      body: JSON.stringify({
+        friendlyName,
+      }),
+      method: 'put',
+    });
+    await this.refresh();
+  }
+
   private renderRoom(room: RoomDTO) {
     return (
       <List.Item key={room._id}>
         <List.Item.Meta
           title={
             <Tooltip
+              mouseEnterDelay={1}
               title={
                 is.empty(room.save_states) ? (
                   <Empty description="No save states" />

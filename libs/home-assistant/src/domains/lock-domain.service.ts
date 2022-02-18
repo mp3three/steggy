@@ -9,21 +9,45 @@ export class LockDomainService {
     callService.domain = HASS_DOMAINS.lock;
   }
 
-  public async lock(entityId: string | string[]): Promise<void> {
-    return await this.callService.call('lock', {
-      entity_id: entityId,
-    });
+  public async lock(
+    entityId: string | string[],
+    waitForChange = false,
+  ): Promise<void> {
+    return await this.callService.call(
+      'lock',
+      {
+        entity_id: entityId,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 
-  public async open(entityId: string | string[]): Promise<void> {
-    return await this.callService.call('open', {
-      entity_id: entityId,
-    });
+  public async open(
+    entityId: string | string[],
+    waitForChange = false,
+  ): Promise<void> {
+    return await this.callService.call(
+      'open',
+      {
+        entity_id: entityId,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 
-  public async unlock(entityId: string | string[]): Promise<void> {
-    return await this.callService.call('unlock', {
-      entity_id: entityId,
-    });
+  public async unlock(
+    entityId: string | string[],
+    waitForChange = false,
+  ): Promise<void> {
+    return await this.callService.call(
+      'unlock',
+      {
+        entity_id: entityId,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 }

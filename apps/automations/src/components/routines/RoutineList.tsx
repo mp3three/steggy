@@ -12,7 +12,6 @@ import {
   Layout,
   List,
   Popconfirm,
-  Space,
   Tooltip,
   Typography,
 } from 'antd';
@@ -110,6 +109,17 @@ export const RoutineList = withRouter(
         `/routine?sort=friendlyName${search}`,
       );
       this.setState({ routines });
+    }
+
+    private async renameRoutine(
+      { _id }: RoutineDTO,
+      friendlyName: string,
+    ): Promise<void> {
+      await sendRequest<RoutineDTO>(`/routine/${_id}`, {
+        body: JSON.stringify({ friendlyName }),
+        method: 'put',
+      });
+      this.refresh(this.state.search);
     }
 
     private renderRoutine(routine: RoutineDTO) {

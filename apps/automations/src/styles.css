@@ -1,1 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Restore normal text color to more text-y links */
+.ant-typography a.text, a.text.ant-typography  {
+  color: hsla(0,0%,100%,.85)
+}
