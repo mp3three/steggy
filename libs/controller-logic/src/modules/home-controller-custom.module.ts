@@ -14,6 +14,7 @@ import {
   LightGroupService,
   LightManagerService,
   LockGroupService,
+  MetadataService,
   RoomService,
   RoutineService,
   RoutineTriggerService,
@@ -55,6 +56,7 @@ const providers = [
     SolarCalcService,
   ],
   EntityCommandRouterService,
+  MetadataService,
   RoomService,
 ];
 

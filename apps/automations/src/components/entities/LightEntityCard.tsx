@@ -126,8 +126,7 @@ export class LightEntityCard extends React.Component<
         ) : undefined}
         {entityState === 'turnOn' ? (
           <>
-            {' '}
-            <Divider />{' '}
+            <Divider />
             <ChromePicker
               color={
                 color ?? {

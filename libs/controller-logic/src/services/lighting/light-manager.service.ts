@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
+  CacheManagerService,
+  InjectCache,
   InjectConfig,
   InjectLogger,
 } from '@text-based/boilerplate';
 import {
   CIRCADIAN_UPDATE,
+  LIGHT_FORCE_CIRCADIAN,
   RoomCommandDTO,
   RoomEntitySaveStateDTO,
 } from '@text-based/controller-shared';
@@ -24,11 +27,13 @@ import { each, INVERT_VALUE, is, PERCENT } from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 
 import { MIN_BRIGHTNESS } from '../../config';
+import { MetadataService } from '../metadata.service';
 import { CircadianService } from './circadian.service';
 
 const DEFAULT_INCREMENT = 50;
 const NO_BRIGHTNESS = 0;
 const MAX_BRIGHTNESS = 255;
+const CACHE_KEY = entity_id => `ACTIVE_CIRCADIAN:${entity_id}`;
 
 /**
  * - State management for lights
@@ -39,14 +44,19 @@ const MAX_BRIGHTNESS = 255;
 export class LightManagerService {
   constructor(
     private readonly entityManager: EntityManagerService,
+    @InjectCache()
+    private readonly cacheService: CacheManagerService,
     private readonly hassCoreService: HomeAssistantCoreService,
     private readonly lightService: LightDomainService,
     @InjectLogger()
     private readonly logger: AutoLogService,
     private readonly circadianService: CircadianService,
+    private readonly metadataService: MetadataService,
     private readonly eventEmitter: EventEmitter,
     @InjectConfig(MIN_BRIGHTNESS) private readonly minBrightness: number,
   ) {}
+
+  private FORCE_CIRCADIAN: string[] = [];
 
   /**
    * Flip a light entity into color_temp mode, optionally setting brightness also
@@ -134,9 +144,10 @@ export class LightManagerService {
       );
     }
     if (Array.isArray(entity_id)) {
-      await each(entity_id, async id => {
-        await this.setAttributes(id, attributes);
-      });
+      await each(
+        entity_id,
+        async id => await this.setAttributes(id, attributes),
+      );
       return;
     }
     const current = this.entityManager.getEntity<LightStateDTO>(entity_id);
@@ -150,6 +161,9 @@ export class LightManagerService {
     ) {
       attributes.kelvin = this.circadianService.CURRENT_LIGHT_TEMPERATURE;
       attributes.color_mode = ColorModes.color_temp;
+      if (this.FORCE_CIRCADIAN.includes(entity_id)) {
+        await this.cacheService.set(CACHE_KEY(entity_id), true);
+      }
     } else {
       delete attributes.kelvin;
       if (
@@ -174,6 +188,10 @@ export class LightManagerService {
     entity_id: string | string[],
     waitForChange = false,
   ): Promise<void> {
+    await each(
+      Array.isArray(entity_id) ? entity_id : [entity_id],
+      async id => await this.cacheService.del(CACHE_KEY(id)),
+    );
     return await this.hassCoreService.turnOff(entity_id, waitForChange);
   }
 
@@ -186,20 +204,43 @@ export class LightManagerService {
   }
 
   protected async circadianLightingUpdate(color_temp: number): Promise<void> {
-    const lights = this.entityManager
-      .findByDomain<LightStateDTO>(HASS_DOMAINS.light)
-      .filter(
-        ({ attributes }) => attributes.color_mode === ColorModes.color_temp,
-      );
+    const lights = await this.findCircadianLights();
     await this.setAttributes(
       lights.map(({ entity_id }) => entity_id),
       { kelvin: color_temp },
     );
   }
 
-  protected onModuleInit(): void {
+  protected async onModuleInit(): Promise<void> {
     this.eventEmitter.on(CIRCADIAN_UPDATE, kelvin =>
       this.circadianLightingUpdate(kelvin),
     );
+    this.FORCE_CIRCADIAN = await this.metadataService.findWithFlag(
+      LIGHT_FORCE_CIRCADIAN,
+    );
+  }
+
+  private async findCircadianLights(): Promise<LightStateDTO[]> {
+    const lights = this.entityManager.findByDomain<LightStateDTO>(
+      HASS_DOMAINS.light,
+    );
+    const forceActive: string[] = [];
+    await each(this.FORCE_CIRCADIAN, async id => {
+      const entity = lights.find(({ entity_id }) => entity_id === id);
+      if (entity?.state !== 'on') {
+        return;
+      }
+      const isActive = (await this.cacheService.get(CACHE_KEY(id))) ?? false;
+      if (isActive) {
+        forceActive.push(id);
+      }
+    });
+    return [
+      ...lights.filter(
+        ({ attributes, entity_id }) =>
+          attributes.color_mode === ColorModes.color_temp ||
+          forceActive.includes(entity_id),
+      ),
+    ];
   }
 }

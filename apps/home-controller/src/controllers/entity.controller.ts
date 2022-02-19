@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -13,6 +14,7 @@ import { AutoLogService } from '@text-based/boilerplate';
 import {
   EntityCommandRouterService,
   LightManagerService,
+  MetadataService,
 } from '@text-based/controller-logic';
 import {
   EntityHistoryRequest,
@@ -45,7 +47,17 @@ export class EntityController {
     private readonly fetchAPI: HomeAssistantFetchAPIService,
     private readonly lightManager: LightManagerService,
     private readonly logger: AutoLogService,
+    private readonly metadataService: MetadataService,
   ) {}
+
+  @Post(`/flags/:id`)
+  public async addFlag(
+    @Param('id') entityId: string,
+    @Body() { flag }: { flag: string },
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    this.metadataService.addFlag(entityId, flag);
+    return await GENERIC_SUCCESS_RESPONSE;
+  }
 
   @Put('/update-id/:id')
   @ApiGenericResponse()
@@ -117,6 +129,12 @@ export class EntityController {
     return this.entityManager.listEntities();
   }
 
+  @Get('/flags/:entityId')
+  public async listFlags(@Param('entityId') entity: string): Promise<string[]> {
+    const metadata = await this.metadataService.getMetadata(entity);
+    return metadata?.flags ?? [];
+  }
+
   @Post(`/record/:entityId`)
   @ApiResponse({ schema: { items: { type: 'object' } } })
   @ApiBody({
@@ -133,6 +151,15 @@ export class EntityController {
     @Body() { duration }: Record<'duration', number>,
   ): Promise<unknown[]> {
     return await this.entityManager.record(id, duration);
+  }
+
+  @Delete(`/flags/:id/:flag`)
+  public async removeFlag(
+    @Param('id') entityId: string,
+    @Param('flag') flag: string,
+  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    this.metadataService.removeFlag(entityId, flag);
+    return await GENERIC_SUCCESS_RESPONSE;
   }
 
   @Put('/command/:id/:command')

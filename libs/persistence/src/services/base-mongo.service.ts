@@ -1,10 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import {
-  FILTER_OPERATIONS,
-  is,
-  ResultControlDTO,
-} from '@text-based/utilities';
+import { FILTER_OPERATIONS, is, ResultControlDTO } from '@text-based/utilities';
 import { Document, Query, Types } from 'mongoose';
 
 import { filtersToMongoQuery } from '../includes';
@@ -48,9 +44,7 @@ export class BaseMongoService {
     }
     if (control.select) {
       const map = new Map<string, number>();
-      control.select.forEach((field) => {
-        map.set(field, 1);
-      });
+      control.select.forEach(field => map.set(field, 1));
       query = query.select(Object.fromEntries(map.entries()));
     }
     return query;

@@ -2,6 +2,8 @@ import { DynamicModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LibraryModule } from '@text-based/boilerplate';
 import {
+  EntityMetadataDTO,
+  EntityMetadataSchema,
   GroupDTO,
   GroupSchema,
   RoomDTO,
@@ -14,6 +16,7 @@ import { MongoPersistenceModule } from '@text-based/persistence';
 import { LIB_CONTROLLER_LOGIC } from '../config';
 import { DatabaseConnectService } from '../services';
 import {
+  EntityMetadataPersistenceService,
   GroupPersistenceService,
   RoomPersistenceService,
   RoutinePersistenceService,
@@ -24,6 +27,7 @@ const services = [
   GroupPersistenceService,
   RoutinePersistenceService,
   RoomPersistenceService,
+  EntityMetadataPersistenceService,
 ];
 
 @LibraryModule({
@@ -34,6 +38,7 @@ const services = [
       { name: GroupDTO.name, schema: GroupSchema },
       { name: RoomDTO.name, schema: RoomSchema },
       { name: RoutineDTO.name, schema: RoutineSchema },
+      { name: EntityMetadataDTO.name, schema: EntityMetadataSchema },
     ]),
   ],
   library: LIB_CONTROLLER_LOGIC,
