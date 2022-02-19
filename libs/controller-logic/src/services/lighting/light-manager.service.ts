@@ -5,6 +5,7 @@ import {
   InjectCache,
   InjectConfig,
   InjectLogger,
+  OnEvent,
 } from '@text-based/boilerplate';
 import {
   CIRCADIAN_UPDATE,
@@ -26,6 +27,7 @@ import {
 import { each, INVERT_VALUE, is, PERCENT } from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
 import { MIN_BRIGHTNESS } from '../../config';
+import { ENTITY_METADATA_UPDATED } from '../../types';
 import { MetadataService } from '../metadata.service';
 import { CircadianService } from './circadian.service';
 
@@ -218,9 +220,7 @@ export class LightManagerService {
     this.eventEmitter.on(CIRCADIAN_UPDATE, kelvin =>
       this.circadianLightingUpdate(kelvin),
     );
-    this.FORCE_CIRCADIAN = await this.metadataService.findWithFlag(
-      LIGHT_FORCE_CIRCADIAN,
-    );
+    await this.refreshForceList();
   }
 
   private async findCircadianLights(): Promise<LightStateDTO[]> {
@@ -245,5 +245,13 @@ export class LightManagerService {
           forceActive.includes(entity_id),
       ),
     ];
+  }
+
+  @OnEvent(ENTITY_METADATA_UPDATED)
+  private async refreshForceList(): Promise<void> {
+    this.FORCE_CIRCADIAN = await this.metadataService.findWithFlag(
+      LIGHT_FORCE_CIRCADIAN,
+    );
+    this.logger.debug({ list: this.FORCE_CIRCADIAN }, `Force circadian list`);
   }
 }
