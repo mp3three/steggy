@@ -18,6 +18,9 @@ export function CastResult(
     const original = descriptor.value;
     descriptor.value = async function (...parameters) {
       const result = await Reflect.apply(original, this, parameters);
+      if (!result) {
+        return result;
+      }
       if (record) {
         return Object.fromEntries(
           Object.entries(result).map(([key, value]) => [
@@ -27,7 +30,7 @@ export function CastResult(
         );
       }
       if (Array.isArray(result)) {
-        return result.map((item) => {
+        return result.map(item => {
           if (item._id) {
             item._id = item._id.toString();
           }

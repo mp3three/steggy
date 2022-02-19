@@ -25,7 +25,6 @@ import {
 } from '@text-based/home-assistant-shared';
 import { each, INVERT_VALUE, is, PERCENT } from '@text-based/utilities';
 import EventEmitter from 'eventemitter3';
-
 import { MIN_BRIGHTNESS } from '../../config';
 import { MetadataService } from '../metadata.service';
 import { CircadianService } from './circadian.service';
@@ -162,6 +161,10 @@ export class LightManagerService {
       attributes.kelvin = this.circadianService.CURRENT_LIGHT_TEMPERATURE;
       attributes.color_mode = ColorModes.color_temp;
       if (this.FORCE_CIRCADIAN.includes(entity_id)) {
+        const current = await this.cacheService.get(CACHE_KEY(entity_id));
+        if (!current) {
+          this.logger.debug(`[FORCE_CIRCADIAN] {${entity_id}}`);
+        }
         await this.cacheService.set(CACHE_KEY(entity_id), true);
       }
     } else {

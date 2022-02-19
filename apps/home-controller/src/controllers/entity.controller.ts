@@ -54,9 +54,9 @@ export class EntityController {
   public async addFlag(
     @Param('id') entityId: string,
     @Body() { flag }: { flag: string },
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    this.metadataService.addFlag(entityId, flag);
-    return await GENERIC_SUCCESS_RESPONSE;
+  ): Promise<string[]> {
+    await this.metadataService.addFlag(entityId, flag);
+    return await this.listFlags(entityId);
   }
 
   @Put('/update-id/:id')
@@ -157,9 +157,9 @@ export class EntityController {
   public async removeFlag(
     @Param('id') entityId: string,
     @Param('flag') flag: string,
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    this.metadataService.removeFlag(entityId, flag);
-    return await GENERIC_SUCCESS_RESPONSE;
+  ): Promise<string[]> {
+    await this.metadataService.removeFlag(entityId, flag);
+    return await this.listFlags(entityId);
   }
 
   @Put('/command/:id/:command')

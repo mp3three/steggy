@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 
 import { store } from '../../store';
+import { EntityList } from '../entities';
 import { Foot } from '../footer';
 import { GroupDetail, GroupList } from '../groups';
 import { HomePage } from '../home';
@@ -33,6 +34,7 @@ export class App extends React.Component {
               <Typography.Title>Automation Controller</Typography.Title>
             </Header>
             <Switch>
+              <Route path="/entities" component={EntityList} />
               <Route path="/routine/:id" component={RoutineDetail} />
               <Route path="/routines" component={RoutineList} />
               <Route path="/room/:id" component={RoomDetail} />
