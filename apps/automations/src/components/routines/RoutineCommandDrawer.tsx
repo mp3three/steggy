@@ -11,8 +11,8 @@ import {
   RoutineCommandSleepDTO,
   RoutineCommandTriggerRoutineDTO,
   RoutineDTO,
-} from '@text-based/controller-shared';
-import { is } from '@text-based/utilities';
+} from '@automagical/controller-shared';
+import { is } from '@automagical/utilities';
 import {
   Button,
   Card,

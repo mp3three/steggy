@@ -1,21 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService } from '@text-based/boilerplate';
+import { AutoLogService } from '@automagical/boilerplate';
 import {
   GROUP_TYPES,
   GroupCommandDTO,
   GroupDTO,
   RoomEntitySaveStateDTO,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 import {
   EntityManagerService,
   HomeAssistantCoreService,
-} from '@text-based/home-assistant';
+} from '@automagical/home-assistant';
 import {
   domain,
   HASS_DOMAINS,
   SwitchStateDTO,
-} from '@text-based/home-assistant-shared';
-import { each } from '@text-based/utilities';
+} from '@automagical/home-assistant-shared';
+import { each } from '@automagical/utilities';
 
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';

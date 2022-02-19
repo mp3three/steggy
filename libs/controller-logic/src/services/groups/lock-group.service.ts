@@ -1,23 +1,23 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { AutoLogService } from '@text-based/boilerplate';
+import { AutoLogService } from '@automagical/boilerplate';
 import {
   GROUP_TYPES,
   GroupCommandDTO,
   GroupDTO,
   RoomEntitySaveStateDTO,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 import {
   EntityManagerService,
   LockDomainService,
-} from '@text-based/home-assistant';
+} from '@automagical/home-assistant';
 import {
   domain,
   HASS_DOMAINS,
   LOCK_STATES,
   LockAttributesDTO,
   LockStateDTO,
-} from '@text-based/home-assistant-shared';
-import { each, is } from '@text-based/utilities';
+} from '@automagical/home-assistant-shared';
+import { each, is } from '@automagical/utilities';
 
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';

@@ -22,7 +22,7 @@
     },
     "MONGO_URI": {
       "type": "string",
-      "default": "mongodb://localhost:27017/text-based",
+      "default": "mongodb://localhost:27017/automagical",
       "description": "Mongo connection string"
     },
     "MONGO_CERT": {

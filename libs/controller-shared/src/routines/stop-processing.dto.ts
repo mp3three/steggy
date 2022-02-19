@@ -1,4 +1,4 @@
-import { ComparisonDTO } from '@text-based/utilities';
+import { ComparisonDTO } from '@automagical/utilities';
 
 import { RoutineCommandWebhookDTO } from './routine-command.dto';
 

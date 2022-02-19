@@ -1,10 +1,10 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { RoomEntitySaveStateDTO } from '@text-based/controller-shared';
+import { RoomEntitySaveStateDTO } from '@automagical/controller-shared';
 import {
   FanAttributesDTO,
   FanStateDTO,
-} from '@text-based/home-assistant-shared';
-import { is, START } from '@text-based/utilities';
+} from '@automagical/home-assistant-shared';
+import { is, START } from '@automagical/utilities';
 import {
   Button,
   Card,

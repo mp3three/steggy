@@ -1,7 +1,7 @@
 import {
   RoutineCommandTriggerRoutineDTO,
   RoutineDTO,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 import { Form, Select } from 'antd';
 import React from 'react';
 

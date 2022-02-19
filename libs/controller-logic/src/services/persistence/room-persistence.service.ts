@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { AutoLogService, CastResult } from '@text-based/boilerplate';
+import { AutoLogService, CastResult } from '@automagical/boilerplate';
 import {
   ROOM_UPDATE,
   RoomDocument,
   RoomDTO,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 import {
   BaseMongoService,
   BaseSchemaDTO,
   EncryptionService,
-} from '@text-based/persistence';
-import { is, ResultControlDTO } from '@text-based/utilities';
+} from '@automagical/persistence';
+import { is, ResultControlDTO } from '@automagical/utilities';
 import EventEmitter from 'eventemitter3';
 import { Model } from 'mongoose';
 

@@ -2,16 +2,16 @@
   "author": {
     "email": "github@ccontour.com",
     "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/text-based"
+    "url": "https://github.com/ccontour/automagical"
   },
-  "name": "@text-based/utilities",
+  "name": "@automagical/utilities",
   "displayName": "Utilities",
   "license": "MIT",
   "version": "0.5.15",
-  "homepage": "https://github.com/ccontour/text-based",
+  "homepage": "https://github.com/ccontour/automagical",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ccontour/text-based.git"
+    "url": "git+https://github.com/ccontour/automagical.git"
   },
   "dependencies": {  }
 }

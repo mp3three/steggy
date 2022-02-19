@@ -1,4 +1,4 @@
-import { RoutineCommandSendNotificationDTO } from '@text-based/controller-shared';
+import { RoutineCommandSendNotificationDTO } from '@automagical/controller-shared';
 import { Form, Input } from 'antd';
 import React from 'react';
 

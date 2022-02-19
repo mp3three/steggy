@@ -1,6 +1,6 @@
-import { GroupDTO, GroupSaveStateDTO } from '@text-based/controller-shared';
-import { LightAttributesDTO } from '@text-based/home-assistant-shared';
-import { TitleCase } from '@text-based/utilities';
+import { GroupDTO, GroupSaveStateDTO } from '@automagical/controller-shared';
+import { LightAttributesDTO } from '@automagical/home-assistant-shared';
+import { TitleCase } from '@automagical/utilities';
 import { Card, Table, Typography } from 'antd';
 import React from 'react';
 

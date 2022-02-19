@@ -5,13 +5,13 @@ import {
   Cron,
   InjectCache,
   InjectConfig,
-} from '@text-based/boilerplate';
-import { GroupService } from '@text-based/controller-logic';
+} from '@automagical/boilerplate';
+import { GroupService } from '@automagical/controller-logic';
 import {
   EntityManagerService,
   NotifyDomainService,
-} from '@text-based/home-assistant';
-import { CronExpression, each, is } from '@text-based/utilities';
+} from '@automagical/home-assistant';
+import { CronExpression, each, is } from '@automagical/utilities';
 import dayjs from 'dayjs';
 
 import {

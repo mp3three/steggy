@@ -3,14 +3,14 @@ import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
-} from '@text-based/boilerplate';
+} from '@automagical/boilerplate';
 import {
   RoomEntitySaveStateDTO,
   RoutineCaptureCommandDTO,
   RoutineCaptureData,
   RoutineDTO,
-} from '@text-based/controller-shared';
-import { each } from '@text-based/utilities';
+} from '@automagical/controller-shared';
+import { each } from '@automagical/utilities';
 
 import { GroupService } from '../groups';
 

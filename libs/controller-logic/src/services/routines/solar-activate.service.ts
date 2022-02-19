@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService, Cron } from '@text-based/boilerplate';
-import { SolarActivateDTO, SolarWatcher } from '@text-based/controller-shared';
-import { CronExpression, TitleCase } from '@text-based/utilities';
+import { AutoLogService, Cron } from '@automagical/boilerplate';
+import { SolarActivateDTO, SolarWatcher } from '@automagical/controller-shared';
+import { CronExpression, TitleCase } from '@automagical/utilities';
 import { CronJob } from 'cron';
 
 import { SolarCalcService } from '../lighting';

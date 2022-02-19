@@ -1,4 +1,4 @@
-import { HassStateDTO } from '@text-based/home-assistant-shared';
+import { HassStateDTO } from '@automagical/home-assistant-shared';
 
 export class RoomInspectResponseDTO {
   /**

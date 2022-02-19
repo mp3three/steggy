@@ -7,8 +7,8 @@ import {
   AutoLogService,
   FetchService,
   JSONFilterService,
-} from '@text-based/boilerplate';
-import { is } from '@text-based/utilities';
+} from '@automagical/boilerplate';
+import { is } from '@automagical/utilities';
 
 import { WebhookDTO } from '../contracts';
 

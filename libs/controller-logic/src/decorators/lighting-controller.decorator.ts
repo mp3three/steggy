@@ -1,4 +1,4 @@
-import { LIGHTING_CONTROLLER } from '@text-based/controller-shared';
+import { LIGHTING_CONTROLLER } from '@automagical/controller-shared';
 
 export function LightingController(): PropertyDecorator {
   return function (target, key: string) {

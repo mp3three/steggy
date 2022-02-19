@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 import { Injectable } from '@nestjs/common';
-import { InjectConfig } from '@text-based/boilerplate';
-import { is } from '@text-based/utilities';
+import { InjectConfig } from '@automagical/boilerplate';
+import { is } from '@automagical/utilities';
 import {
   createCipheriv,
   createDecipheriv,

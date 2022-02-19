@@ -3,11 +3,11 @@ import {
   GroupDTO,
   GroupSaveStateDTO,
   RoomEntitySaveStateDTO,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 import {
   ColorModes,
   LightAttributesDTO,
-} from '@text-based/home-assistant-shared';
+} from '@automagical/home-assistant-shared';
 import {
   Button,
   Divider,

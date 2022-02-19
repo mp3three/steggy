@@ -1,4 +1,4 @@
-import { HASS_ENTITY_ID } from '@text-based/controller-shared';
+import { HASS_ENTITY_ID } from '@automagical/controller-shared';
 
 export function HassEntity(entity_id: string): PropertyDecorator {
   return function (target, key: string) {

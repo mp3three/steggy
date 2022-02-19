@@ -10,8 +10,8 @@ import {
   LifecycleService,
   NEST_NOOP_LOGGER,
   UsePrettyLogger,
-} from '@text-based/boilerplate';
-import { eachSeries, is } from '@text-based/utilities';
+} from '@automagical/boilerplate';
+import { eachSeries, is } from '@automagical/utilities';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
 import express, { Express } from 'express';

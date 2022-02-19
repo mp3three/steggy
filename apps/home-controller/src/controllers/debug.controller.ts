@@ -3,21 +3,21 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   LightManagerService,
   SolarCalcService,
-} from '@text-based/controller-logic';
+} from '@automagical/controller-logic';
 import {
   HACallService,
   HASocketAPIService,
   NotifyDomainService,
-} from '@text-based/home-assistant';
+} from '@automagical/home-assistant';
 import {
   HassConfig,
   HassNotificationDTO,
-} from '@text-based/home-assistant-shared';
+} from '@automagical/home-assistant-shared';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
-} from '@text-based/server';
+} from '@automagical/server';
 
 @Controller(`/debug`)
 @ApiTags('debug')

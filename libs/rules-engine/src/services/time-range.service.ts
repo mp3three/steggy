@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService } from '@text-based/boilerplate';
-import { is } from '@text-based/utilities';
+import { AutoLogService } from '@automagical/boilerplate';
+import { is } from '@automagical/utilities';
 import dayjs from 'dayjs';
 
 import { TimeRangeDTO } from '../contracts';

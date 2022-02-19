@@ -10,32 +10,32 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AutoLogService } from '@text-based/boilerplate';
+import { AutoLogService } from '@automagical/boilerplate';
 import {
   EntityCommandRouterService,
   LightManagerService,
   MetadataService,
-} from '@text-based/controller-logic';
+} from '@automagical/controller-logic';
 import {
   EntityHistoryRequest,
   RoomEntitySaveStateDTO,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 import {
   EntityManagerService,
   HomeAssistantFetchAPIService,
-} from '@text-based/home-assistant';
+} from '@automagical/home-assistant';
 import {
   domain,
   EntityRegistryItemDTO,
   HASS_DOMAINS,
   HassStateDTO,
   LightStateDTO,
-} from '@text-based/home-assistant-shared';
+} from '@automagical/home-assistant-shared';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
-} from '@text-based/server';
+} from '@automagical/server';
 
 @ApiTags('entity')
 @Controller('/entity')

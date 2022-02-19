@@ -1,6 +1,6 @@
 import Magnify from '@2fd/ant-design-icons/lib/Magnify';
-import { RoomEntitySaveStateDTO } from '@text-based/controller-shared';
-import { HassStateDTO } from '@text-based/home-assistant-shared';
+import { RoomEntitySaveStateDTO } from '@automagical/controller-shared';
+import { HassStateDTO } from '@automagical/home-assistant-shared';
 import { Button, Card, Col, Drawer, Empty, Row, Space, Table } from 'antd';
 import React from 'react';
 

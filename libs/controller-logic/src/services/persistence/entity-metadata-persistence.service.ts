@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { AutoLogService, CastResult } from '@text-based/boilerplate';
+import { AutoLogService, CastResult } from '@automagical/boilerplate';
 import {
   EntityMetadataDocument,
   EntityMetadataDTO,
-} from '@text-based/controller-shared';
-import { BaseMongoService, BaseSchemaDTO } from '@text-based/persistence';
-import { is, ResultControlDTO } from '@text-based/utilities';
+} from '@automagical/controller-shared';
+import { BaseMongoService, BaseSchemaDTO } from '@automagical/persistence';
+import { is, ResultControlDTO } from '@automagical/utilities';
 import { Model } from 'mongoose';
 
 @Injectable()

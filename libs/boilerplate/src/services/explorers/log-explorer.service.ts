@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
-import { is } from '@text-based/utilities';
+import { is } from '@automagical/utilities';
 
 import { LOG_LEVEL } from '../../config';
 import { LOG_CONTEXT, LOGGER_LIBRARY } from '../../contracts/logger';

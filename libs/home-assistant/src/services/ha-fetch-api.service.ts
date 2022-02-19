@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import type { FetchWith } from '@text-based/boilerplate';
+import type { FetchWith } from '@automagical/boilerplate';
 import {
   AutoLogService,
   FetchService,
   InjectConfig,
-} from '@text-based/boilerplate';
+} from '@automagical/boilerplate';
 import {
   HassStateDTO,
   HomeAssistantServerLogItem,
-} from '@text-based/home-assistant-shared';
-import { SECOND } from '@text-based/utilities';
+} from '@automagical/home-assistant-shared';
+import { SECOND } from '@automagical/utilities';
 
 import { BASE_URL, TOKEN } from '../config';
 

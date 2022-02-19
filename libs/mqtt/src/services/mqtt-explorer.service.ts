@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
-import { AutoLogService, LOG_CONTEXT } from '@text-based/boilerplate';
-import { is } from '@text-based/utilities';
+import { AutoLogService, LOG_CONTEXT } from '@automagical/boilerplate';
+import { is } from '@automagical/utilities';
 import EventEmitter from 'eventemitter3';
 import { Client } from 'mqtt';
 

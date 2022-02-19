@@ -1,6 +1,6 @@
-// import { APIRequest, APIResponse } from '@text-based/server';
+// import { APIRequest, APIResponse } from '@automagical/server';
 
-import { is } from '@text-based/utilities';
+import { is } from '@automagical/utilities';
 
 export const PINO_SERIALIZERS = {
   parameters(parameters: unknown[]): unknown[] {

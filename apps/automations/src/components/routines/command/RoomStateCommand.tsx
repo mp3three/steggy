@@ -1,7 +1,7 @@
 import {
   RoomDTO,
   RoutineCommandRoomStateDTO,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 import { Form, Select, Skeleton, Space } from 'antd';
 import React from 'react';
 

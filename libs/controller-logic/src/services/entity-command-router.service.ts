@@ -3,11 +3,11 @@ import {
   Injectable,
   NotImplementedException,
 } from '@nestjs/common';
-import { AutoLogService } from '@text-based/boilerplate';
+import { AutoLogService } from '@automagical/boilerplate';
 import type {
   ROOM_ENTITY_EXTRAS,
   RoomEntitySaveStateDTO,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 import {
   ClimateDomainService,
   FanDomainService,
@@ -15,7 +15,7 @@ import {
   LockDomainService,
   MediaPlayerDomainService,
   SwitchDomainService,
-} from '@text-based/home-assistant';
+} from '@automagical/home-assistant';
 import {
   ClimateAttributesDTO,
   domain,
@@ -23,8 +23,8 @@ import {
   FanSpeeds,
   HASS_DOMAINS,
   LightAttributesDTO,
-} from '@text-based/home-assistant-shared';
-import { is } from '@text-based/utilities';
+} from '@automagical/home-assistant-shared';
+import { is } from '@automagical/utilities';
 
 import { LightManagerService } from './lighting';
 

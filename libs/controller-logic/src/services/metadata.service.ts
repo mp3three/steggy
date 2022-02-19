@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService } from '@text-based/boilerplate';
-import { EntityMetadataDTO } from '@text-based/controller-shared';
+import { AutoLogService } from '@automagical/boilerplate';
+import { EntityMetadataDTO } from '@automagical/controller-shared';
 import EventEmitter from 'eventemitter3';
 
 import { ENTITY_METADATA_UPDATED } from '../types';

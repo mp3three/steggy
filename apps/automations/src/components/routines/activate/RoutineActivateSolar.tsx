@@ -1,5 +1,5 @@
-import { SolarActivateDTO } from '@text-based/controller-shared';
-import { is } from '@text-based/utilities';
+import { SolarActivateDTO } from '@automagical/controller-shared';
+import { is } from '@automagical/utilities';
 import { Form, Select } from 'antd';
 import React from 'react';
 import SolarCalc from 'solar-calc/types/solarCalc';

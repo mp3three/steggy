@@ -4,14 +4,14 @@ import {
   HTTP_METHODS,
   InjectConfig,
   storage,
-} from '@text-based/boilerplate';
+} from '@automagical/boilerplate';
 import {
   buildFilter,
   FilterDTO,
   FilterValueType,
   is,
   queryToControl,
-} from '@text-based/utilities';
+} from '@automagical/utilities';
 import { NextFunction } from 'express';
 import pino from 'pino';
 

@@ -1,5 +1,5 @@
-import { HASS_DOMAINS } from '@text-based/home-assistant-shared';
-import { is } from '@text-based/utilities';
+import { HASS_DOMAINS } from '@automagical/home-assistant-shared';
+import { is } from '@automagical/utilities';
 
 // EVERYTHING IN THIS FILE NEEDS TO BE REFACTORED
 /**

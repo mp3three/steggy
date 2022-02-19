@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService } from '@text-based/boilerplate';
-import { RoutineCommandStopProcessing } from '@text-based/controller-shared';
+import { AutoLogService } from '@automagical/boilerplate';
+import { RoutineCommandStopProcessing } from '@automagical/controller-shared';
 
 @Injectable()
 export class StopProcessingCommandService {

@@ -1,5 +1,5 @@
 import { DiscoveryModule } from '@nestjs/core';
-import { LibraryModule, RegisterCache } from '@text-based/boilerplate';
+import { LibraryModule, RegisterCache } from '@automagical/boilerplate';
 
 import { LIB_CONTROLLER_LOGIC } from '../config';
 import {

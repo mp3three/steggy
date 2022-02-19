@@ -1,10 +1,10 @@
-import { ApplicationModule } from '@text-based/boilerplate';
+import { ApplicationModule } from '@automagical/boilerplate';
 import {
   HomeControllerCustomModule,
   HomePersistenceModule,
-} from '@text-based/controller-logic';
-import { HomeAssistantModule } from '@text-based/home-assistant';
-import { ServerModule } from '@text-based/server';
+} from '@automagical/controller-logic';
+import { HomeAssistantModule } from '@automagical/home-assistant';
+import { ServerModule } from '@automagical/server';
 
 import {
   AdminController,

@@ -2,8 +2,8 @@ import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import type {
   GroupDTO,
   GroupSaveStateDTO,
-} from '@text-based/controller-shared';
-import { DOWN, is, UP } from '@text-based/utilities';
+} from '@automagical/controller-shared';
+import { DOWN, is, UP } from '@automagical/utilities';
 import {
   Breadcrumb,
   Button,

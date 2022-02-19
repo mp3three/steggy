@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { CRON_SCHEDULE, CronExpression, is } from '@text-based/utilities';
+import { CRON_SCHEDULE, CronExpression, is } from '@automagical/utilities';
 
 export enum CronObject {
   second,

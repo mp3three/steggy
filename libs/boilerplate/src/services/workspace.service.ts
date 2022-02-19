@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { is } from '@text-based/utilities';
+import { is } from '@automagical/utilities';
 import JSON from 'comment-json';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
@@ -26,7 +26,7 @@ import { AutoLogService } from './auto-log.service';
 /**
  * The workspace file is def not getting out into any builds, seems like a reasonably unique name
  */
-const isDevelopment = existsSync(join(cwd(), 'text-based.code-workspace'));
+const isDevelopment = existsSync(join(cwd(), 'automagical.code-workspace'));
 
 @Injectable()
 export class WorkspaceService {

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService } from '@text-based/boilerplate';
+import { AutoLogService } from '@automagical/boilerplate';
 
 @Injectable()
 export class CacheTestService {

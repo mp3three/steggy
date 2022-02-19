@@ -1,4 +1,4 @@
-import { is } from '@text-based/utilities';
+import { is } from '@automagical/utilities';
 
 import { HASS_DOMAINS } from '../enums';
 

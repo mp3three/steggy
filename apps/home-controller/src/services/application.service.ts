@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService, OnEvent } from '@text-based/boilerplate';
-import { NotifyDomainService } from '@text-based/home-assistant';
-import { HA_SOCKET_READY } from '@text-based/home-assistant-shared';
+import { AutoLogService, OnEvent } from '@automagical/boilerplate';
+import { NotifyDomainService } from '@automagical/home-assistant';
+import { HA_SOCKET_READY } from '@automagical/home-assistant-shared';
 
 @Injectable()
 export class ApplicationService {

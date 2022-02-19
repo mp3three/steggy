@@ -1,9 +1,9 @@
 import {
   GroupDTO,
   RoomEntitySaveStateDTO,
-} from '@text-based/controller-shared';
-import { FanStateDTO } from '@text-based/home-assistant-shared';
-import { is } from '@text-based/utilities';
+} from '@automagical/controller-shared';
+import { FanStateDTO } from '@automagical/home-assistant-shared';
+import { is } from '@automagical/utilities';
 import { Col, Empty, Row } from 'antd';
 import React from 'react';
 

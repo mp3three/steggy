@@ -1,4 +1,4 @@
-import { HassStateDTO } from '@text-based/home-assistant-shared';
+import { HassStateDTO } from '@automagical/home-assistant-shared';
 import {
   DOWN,
   INCREMENT,
@@ -6,7 +6,7 @@ import {
   is,
   START,
   UP,
-} from '@text-based/utilities';
+} from '@automagical/utilities';
 import {
   Breadcrumb,
   Button,

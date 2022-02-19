@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { InjectConfig } from '@text-based/boilerplate';
+import { InjectConfig } from '@automagical/boilerplate';
 import { Observable } from 'rxjs';
 
 import { AUTH_BYPASS } from '../config';

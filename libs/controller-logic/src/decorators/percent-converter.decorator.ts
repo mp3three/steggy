@@ -1,4 +1,4 @@
-import { is } from '@text-based/utilities';
+import { is } from '@automagical/utilities';
 
 const MULTIPLIER = 2.55;
 

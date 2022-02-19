@@ -1,7 +1,7 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { RoutineDTO } from '@text-based/controller-shared';
-import { is } from '@text-based/utilities';
+import { RoutineDTO } from '@automagical/controller-shared';
+import { is } from '@automagical/utilities';
 import {
   Breadcrumb,
   Button,

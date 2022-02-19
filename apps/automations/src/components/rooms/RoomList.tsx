@@ -1,7 +1,7 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import type { RoomDTO, RoomStateDTO } from '@text-based/controller-shared';
-import { DOWN, is, UP } from '@text-based/utilities';
+import type { RoomDTO, RoomStateDTO } from '@automagical/controller-shared';
+import { DOWN, is, UP } from '@automagical/utilities';
 import {
   Breadcrumb,
   Button,

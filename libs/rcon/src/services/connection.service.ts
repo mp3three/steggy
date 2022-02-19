@@ -6,7 +6,7 @@ import {
   InternalServerErrorException,
   RequestTimeoutException,
 } from '@nestjs/common';
-import { AutoLogService, InjectConfig } from '@text-based/boilerplate';
+import { AutoLogService, InjectConfig } from '@automagical/boilerplate';
 import { createConnection, Socket } from 'net';
 
 import { HOST, PASSWORD, PORT, TIMEOUT } from '../config';

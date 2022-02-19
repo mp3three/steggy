@@ -1,12 +1,12 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { FlashAnimationService } from '@text-based/controller-logic';
-import { FlashAnimationDTO } from '@text-based/controller-shared';
+import { FlashAnimationService } from '@automagical/controller-logic';
+import { FlashAnimationDTO } from '@automagical/controller-shared';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
-} from '@text-based/server';
+} from '@automagical/server';
 
 @Controller(`/animation`)
 @AuthStack()

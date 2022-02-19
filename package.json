@@ -1,12 +1,12 @@
 {
-  "name": "text-based",
+  "name": "automagical",
   "version": "0.5.22",
   "license": "MIT",
   "publisher": "ghcr.io/ccontour",
   "author": {
     "email": "github@ccontour.com",
     "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/text-based"
+    "url": "https://github.com/ccontour/automagical"
   },
   "scripts": {
     "pipeline": "./tools/scripts/publish-pipeline.sh",

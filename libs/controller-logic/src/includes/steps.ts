@@ -1,4 +1,4 @@
-import { RoomCommandScope } from '@text-based/controller-shared';
+import { RoomCommandScope } from '@automagical/controller-shared';
 
 const MAX = 3;
 const START = 0;

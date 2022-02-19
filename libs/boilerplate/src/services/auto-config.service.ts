@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Inject, Injectable, Optional } from '@nestjs/common';
-import { deepExtend, INVERT_VALUE, is } from '@text-based/utilities';
+import { deepExtend, INVERT_VALUE, is } from '@automagical/utilities';
 import JSON from 'comment-json';
 import {
   existsSync,

@@ -6,25 +6,25 @@ import {
   InjectConfig,
   InjectLogger,
   OnEvent,
-} from '@text-based/boilerplate';
+} from '@automagical/boilerplate';
 import {
   CIRCADIAN_UPDATE,
   LIGHT_FORCE_CIRCADIAN,
   RoomCommandDTO,
   RoomEntitySaveStateDTO,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 import {
   EntityManagerService,
   HomeAssistantCoreService,
   LightDomainService,
-} from '@text-based/home-assistant';
+} from '@automagical/home-assistant';
 import {
   ColorModes,
   HASS_DOMAINS,
   LightAttributesDTO,
   LightStateDTO,
-} from '@text-based/home-assistant-shared';
-import { each, INVERT_VALUE, is, PERCENT } from '@text-based/utilities';
+} from '@automagical/home-assistant-shared';
+import { each, INVERT_VALUE, is, PERCENT } from '@automagical/utilities';
 import EventEmitter from 'eventemitter3';
 import { MIN_BRIGHTNESS } from '../../config';
 import { ENTITY_METADATA_UPDATED } from '../../types';

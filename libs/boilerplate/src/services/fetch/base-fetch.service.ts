@@ -1,4 +1,4 @@
-import { controlToQuery, is, ResultControlDTO } from '@text-based/utilities';
+import { controlToQuery, is, ResultControlDTO } from '@automagical/utilities';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
 import { FetchArguments, FetchParameterTypes } from '../../contracts';

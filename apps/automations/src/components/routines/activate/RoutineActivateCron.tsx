@@ -1,5 +1,5 @@
-import { ScheduleActivateDTO } from '@text-based/controller-shared';
-import { CronExpression, is, TitleCase } from '@text-based/utilities';
+import { ScheduleActivateDTO } from '@automagical/controller-shared';
+import { CronExpression, is, TitleCase } from '@automagical/utilities';
 import { Divider, Form, Input, Select, Space } from 'antd';
 import React from 'react';
 

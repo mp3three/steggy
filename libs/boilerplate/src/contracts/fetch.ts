@@ -1,4 +1,4 @@
-import { ResultControlDTO } from '@text-based/utilities';
+import { ResultControlDTO } from '@automagical/utilities';
 import chalk from 'chalk';
 
 export type FetchAuth = {

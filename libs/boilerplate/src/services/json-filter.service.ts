@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { FilterDTO, is, ResultControlDTO } from '@text-based/utilities';
+import { FilterDTO, is, ResultControlDTO } from '@automagical/utilities';
 import { parseDate } from 'chrono-node';
 import { isNumberString } from 'class-validator';
 import dayjs from 'dayjs';

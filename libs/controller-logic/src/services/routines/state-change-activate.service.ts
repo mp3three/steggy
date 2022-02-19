@@ -5,17 +5,17 @@ import {
   InjectCache,
   JSONFilterService,
   OnEvent,
-} from '@text-based/boilerplate';
+} from '@automagical/boilerplate';
 import {
   StateChangeActivateDTO,
   StateChangeWatcher,
-} from '@text-based/controller-shared';
-import { EntityManagerService } from '@text-based/home-assistant';
+} from '@automagical/controller-shared';
+import { EntityManagerService } from '@automagical/home-assistant';
 import {
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
-} from '@text-based/home-assistant-shared';
-import { each, is } from '@text-based/utilities';
+} from '@automagical/home-assistant-shared';
+import { each, is } from '@automagical/utilities';
 
 const LATCH_KEY = (id: string) => `STATE_LATCH:${id}`;
 const DEBOUNCE_KEY = (id: string) => `STATE_DEBOUNCE:${id}`;

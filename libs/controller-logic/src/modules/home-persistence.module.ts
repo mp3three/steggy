@@ -1,6 +1,6 @@
 import { DynamicModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { LibraryModule } from '@text-based/boilerplate';
+import { LibraryModule } from '@automagical/boilerplate';
 import {
   EntityMetadataDTO,
   EntityMetadataSchema,
@@ -10,8 +10,8 @@ import {
   RoomSchema,
   RoutineDTO,
   RoutineSchema,
-} from '@text-based/controller-shared';
-import { MongoPersistenceModule } from '@text-based/persistence';
+} from '@automagical/controller-shared';
+import { MongoPersistenceModule } from '@automagical/persistence';
 
 import { LIB_CONTROLLER_LOGIC } from '../config';
 import { DatabaseConnectService } from '../services';

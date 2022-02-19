@@ -5,7 +5,7 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { AutoLogService, OnEvent } from '@text-based/boilerplate';
+import { AutoLogService, OnEvent } from '@automagical/boilerplate';
 import {
   KunamiCodeActivateDTO,
   RoomEntitySaveStateDTO,
@@ -27,14 +27,14 @@ import {
   ScheduleActivateDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 import {
   each,
   eachSeries,
   is,
   ResultControlDTO,
   sleep,
-} from '@text-based/utilities';
+} from '@automagical/utilities';
 import dayjs from 'dayjs';
 
 import {

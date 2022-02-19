@@ -8,22 +8,22 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { GroupService, RoomService } from '@text-based/controller-logic';
+import { GroupService, RoomService } from '@automagical/controller-logic';
 import {
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
   RoomStateDTO,
-} from '@text-based/controller-shared';
-import { BaseSchemaDTO } from '@text-based/persistence';
+} from '@automagical/controller-shared';
+import { BaseSchemaDTO } from '@automagical/persistence';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
   Locals,
   ResponseLocals,
-} from '@text-based/server';
-import { each } from '@text-based/utilities';
+} from '@automagical/server';
+import { each } from '@automagical/utilities';
 
 @Controller('/room')
 @AuthStack()

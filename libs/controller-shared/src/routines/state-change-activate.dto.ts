@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { FILTER_OPERATIONS, FilterValueType } from '@text-based/utilities';
+import { FILTER_OPERATIONS, FilterValueType } from '@automagical/utilities';
 
 export class StateChangeActivateDTO {
   @ApiProperty()

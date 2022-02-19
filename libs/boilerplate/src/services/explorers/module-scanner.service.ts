@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
-import { is } from '@text-based/utilities';
+import { is } from '@automagical/utilities';
 
 import { LOGGER_LIBRARY } from '../../contracts/logger';
 import { OnceIsEnough } from '../../decorators/once-is-enough.decorator';

@@ -1,11 +1,11 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { DeviceService, HASocketAPIService } from '@text-based/home-assistant';
+import { DeviceService, HASocketAPIService } from '@automagical/home-assistant';
 import {
   DeviceListItemDTO,
   RelatedDescriptionDTO,
-} from '@text-based/home-assistant-shared';
-import { AuthStack } from '@text-based/server';
+} from '@automagical/home-assistant-shared';
+import { AuthStack } from '@automagical/server';
 
 @Controller(`/device`)
 @ApiTags('device')

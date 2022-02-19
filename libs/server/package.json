@@ -2,15 +2,15 @@
   "author": {
     "email": "github@ccontour.com",
     "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/text-based"
+    "url": "https://github.com/ccontour/automagical"
   },
-  "name": "@text-based/server",
+  "name": "@automagical/server",
   "license": "MIT",
   "displayName": "Server",
   "version": "0.5.15",
-  "homepage": "https://github.com/ccontour/text-based",
+  "homepage": "https://github.com/ccontour/automagical",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ccontour/text-based.git"
+    "url": "git+https://github.com/ccontour/automagical.git"
   }
 }

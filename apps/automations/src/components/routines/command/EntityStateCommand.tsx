@@ -1,8 +1,8 @@
 import {
   ROOM_ENTITY_EXTRAS,
   RoomEntitySaveStateDTO,
-} from '@text-based/controller-shared';
-import { is } from '@text-based/utilities';
+} from '@automagical/controller-shared';
+import { is } from '@automagical/utilities';
 import { Divider, Empty, Form, Select, Skeleton, Space } from 'antd';
 import React from 'react';
 

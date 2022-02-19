@@ -1,5 +1,5 @@
 import { Inject, Provider } from '@nestjs/common';
-import { ROOM_CONTROLLER_SETTINGS } from '@text-based/controller-shared';
+import { ROOM_CONTROLLER_SETTINGS } from '@automagical/controller-shared';
 import { ClassConstructor } from 'class-transformer';
 import { v4 } from 'uuid';
 

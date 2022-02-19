@@ -1,16 +1,16 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { AutoLogService } from '@text-based/boilerplate';
+import { AutoLogService } from '@automagical/boilerplate';
 import type {
   GroupCommandDTO,
   ROOM_ENTITY_EXTRAS,
   RoomEntitySaveStateDTO,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 import {
   GROUP_TYPES,
   GroupDTO,
   GroupSaveStateDTO,
-} from '@text-based/controller-shared';
-import { is } from '@text-based/utilities';
+} from '@automagical/controller-shared';
+import { is } from '@automagical/utilities';
 import { plainToInstance } from 'class-transformer';
 import { v4 as uuid } from 'uuid';
 

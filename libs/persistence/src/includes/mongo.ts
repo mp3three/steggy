@@ -10,7 +10,7 @@ import {
   ResultControlDTO,
   SINGLE,
   START,
-} from '@text-based/utilities';
+} from '@automagical/utilities';
 import { isNumberString } from 'class-validator';
 import dayjs from 'dayjs';
 

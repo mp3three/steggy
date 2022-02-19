@@ -5,7 +5,7 @@ import {
   AutoLogService,
   InjectConfig,
   WorkspaceService,
-} from '@text-based/boilerplate';
+} from '@automagical/boilerplate';
 
 import { SWAGGER_PATH } from '../config';
 

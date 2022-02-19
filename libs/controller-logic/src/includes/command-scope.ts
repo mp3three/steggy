@@ -1,7 +1,7 @@
 import {
   RoomCommandDTO,
   RoomCommandScope,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 
 export function COMMAND_SCOPE(
   parameters: RoomCommandDTO,

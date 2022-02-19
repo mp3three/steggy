@@ -1,4 +1,4 @@
-import { LibraryModule } from '@text-based/boilerplate';
+import { LibraryModule } from '@automagical/boilerplate';
 
 import { LIB_RCON } from '../config';
 import { RCONConnectionService } from '../services';

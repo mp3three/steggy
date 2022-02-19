@@ -5,7 +5,7 @@ import {
   Cron,
   InjectConfig,
   InjectLogger,
-} from '@text-based/boilerplate';
+} from '@automagical/boilerplate';
 import {
   ALL_ENTITIES_UPDATED,
   AreaDTO,
@@ -22,8 +22,8 @@ import {
   HassStateDTO,
   SOCKET_MESSAGES,
   SocketMessageDTO,
-} from '@text-based/home-assistant-shared';
-import { CronExpression, is, SECOND, sleep } from '@text-based/utilities';
+} from '@automagical/home-assistant-shared';
+import { CronExpression, is, SECOND, sleep } from '@automagical/utilities';
 import EventEmitter from 'eventemitter3';
 import WS from 'ws';
 

@@ -1,6 +1,6 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, FileAddOutlined } from '@ant-design/icons';
-import { INCREMENT, INVERT_VALUE, is, START } from '@text-based/utilities';
+import { INCREMENT, INVERT_VALUE, is, START } from '@automagical/utilities';
 import {
   Button,
   Divider,

@@ -4,7 +4,7 @@ import {
   RoomCommandDTO,
   RoomCommandScope,
   RoomControllerSettingsDTO,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 
 @Injectable()
 export class BaseRoomService {

@@ -1,6 +1,6 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
-import { is } from '@text-based/utilities';
+import { is } from '@automagical/utilities';
 import pino from 'pino';
 
 import { iLogger, iLoggerCore, LogLevels } from '../contracts/interfaces';

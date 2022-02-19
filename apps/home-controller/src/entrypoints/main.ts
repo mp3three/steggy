@@ -1,4 +1,4 @@
-import { Bootstrap } from '@text-based/boilerplate';
+import { Bootstrap } from '@automagical/boilerplate';
 
 import { BOOTSTRAP_OPTIONS } from '../environments/environment';
 import { HomeControllerModule } from '../modules';

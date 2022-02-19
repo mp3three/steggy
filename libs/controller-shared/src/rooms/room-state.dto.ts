@@ -4,7 +4,7 @@ import {
   LightAttributesDTO,
   LockAttributesDTO,
   SwitchAttributesDTO,
-} from '@text-based/home-assistant-shared';
+} from '@automagical/home-assistant-shared';
 import { IsString, ValidateNested } from 'class-validator';
 
 export class RoomStateDTO {

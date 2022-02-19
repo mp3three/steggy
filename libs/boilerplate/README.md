@@ -1,13 +1,13 @@
-# @text-based/utilities
+# @automagical/utilities
 
 ## Purpose
 
-This library provides a varity of general purpose services, annotations, and supporting code for the `@text-based` repository.
+This library provides a varity of general purpose services, annotations, and supporting code for the `@automagical` repository.
 It acts as a catchall for things complicated enough to otherwise deserve their own NPM package, but fails to meet the threshold of a local library.
 
 ## Absorbed / Wrapped NPM Packages
 
-> `@text-based/utiliities` will frequently wrap / replace other NPM libraries that are too awkward to work with or are missing critical functinality
+> `@automagical/utiliities` will frequently wrap / replace other NPM libraries that are too awkward to work with or are missing critical functinality
 >
 > One it's bigger purposes in life is the reduction of external dependencies that require lots of work to integrate.
 

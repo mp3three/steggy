@@ -2,7 +2,7 @@ import {
   iRoomController,
   ROOM_CONTROLLER_SETTINGS,
   RoomControllerSettingsDTO,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 
 export function RoomSettings(
   instance: iRoomController,

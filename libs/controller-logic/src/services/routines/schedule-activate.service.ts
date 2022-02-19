@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService } from '@text-based/boilerplate';
+import { AutoLogService } from '@automagical/boilerplate';
 import {
   ScheduleActivateDTO,
   ScheduleWatcher,
-} from '@text-based/controller-shared';
+} from '@automagical/controller-shared';
 import { CronJob } from 'cron';
 
 @Injectable()

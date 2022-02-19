@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { HassStateDTO } from '@text-based/home-assistant-shared';
-import { TransformObjectId } from '@text-based/persistence';
+import { HassStateDTO } from '@automagical/home-assistant-shared';
+import { TransformObjectId } from '@automagical/persistence';
 import { Exclude, Expose, Type } from 'class-transformer';
 import {
   IsDateString,

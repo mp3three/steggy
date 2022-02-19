@@ -4,12 +4,12 @@ import {
   Cron,
   InjectConfig,
   OnEvent,
-} from '@text-based/boilerplate';
+} from '@automagical/boilerplate';
 import {
   CIRCADIAN_UPDATE,
   LOCATION_UPDATED,
-} from '@text-based/controller-shared';
-import { CronExpression } from '@text-based/utilities';
+} from '@automagical/controller-shared';
+import { CronExpression } from '@automagical/utilities';
 import dayjs from 'dayjs';
 import EventEmitter from 'eventemitter3';
 

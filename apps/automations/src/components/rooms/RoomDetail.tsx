@@ -3,8 +3,8 @@ import {
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
-} from '@text-based/controller-shared';
-import { TitleCase } from '@text-based/utilities';
+} from '@automagical/controller-shared';
+import { TitleCase } from '@automagical/utilities';
 import {
   Breadcrumb,
   Button,

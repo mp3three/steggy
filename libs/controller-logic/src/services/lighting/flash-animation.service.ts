@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService } from '@text-based/boilerplate';
-import { FlashAnimationDTO } from '@text-based/controller-shared';
-import { EntityManagerService } from '@text-based/home-assistant';
+import { AutoLogService } from '@automagical/boilerplate';
+import { FlashAnimationDTO } from '@automagical/controller-shared';
+import { EntityManagerService } from '@automagical/home-assistant';
 import {
   ColorModes,
   LightAttributesDTO,
   LightStateDTO,
-} from '@text-based/home-assistant-shared';
-import { eachSeries, is, PEAT, sleep } from '@text-based/utilities';
+} from '@automagical/home-assistant-shared';
+import { eachSeries, is, PEAT, sleep } from '@automagical/utilities';
 
 import { LightManagerService } from './light-manager.service';
 
