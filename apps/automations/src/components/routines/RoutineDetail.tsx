@@ -387,6 +387,7 @@ export const RoutineDetail = withRouter(
         }),
         method: 'put',
       });
+
       this.setState({ name, routine });
     }
 
