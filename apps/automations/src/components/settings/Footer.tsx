@@ -1,20 +1,24 @@
-import { Layout, Typography } from 'antd';
+import { Drawer, Spin } from 'antd';
 import React from 'react';
 
-const { Link } = Typography;
-const { Footer } = Layout;
+type tState = {
+  name: string;
+};
 
-export class Foot extends React.Component {
+export class EmptyComponent extends React.Component<
+  { prop?: unknown },
+  tState
+> {
+  override state = {} as tState;
+
   override render() {
-    return (
-      <Footer style={{ textAlign: 'center' }}>
-        <Link
-          href="https://git.programmable.casa/cameron/automagical"
-          target="_blank"
-        >
-          @automagical
-        </Link>
-      </Footer>
-    );
+    if (!this.state) {
+      return (
+        <Drawer visible={false}>
+          <Spin />
+        </Drawer>
+      );
+    }
+    return <></>;
   }
 }

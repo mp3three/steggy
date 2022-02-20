@@ -11,6 +11,7 @@ import {
   Breadcrumb,
   Button,
   Card,
+  Checkbox,
   Col,
   Form,
   FormInstance,
@@ -29,6 +30,7 @@ import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
+import { RelatedRoutines } from './RelatedRoutines';
 import { RoutineActivateDrawer } from './RoutineActivateDrawer';
 import { RoutineCommandDrawer } from './RoutineCommandDrawer';
 
@@ -288,6 +290,35 @@ export const RoutineDetail = withRouter(
                     </Card>
                   </Col>
                 </Row>
+                <Row gutter={8} style={{ marginTop: '16px' }}>
+                  <Col span={24}>
+                    <Card title="Meta">
+                      <Row gutter={16}>
+                        <Col span={12}>
+                          <Card
+                            type="inner"
+                            title="Settings"
+                            style={{ height: '100%' }}
+                          >
+                            <Checkbox
+                              checked={this.state.routine.sync}
+                              onChange={({ target }) =>
+                                this.setSync(target.checked)
+                              }
+                            >
+                              Synchronous command processing
+                            </Checkbox>
+                          </Card>
+                        </Col>
+                        <Col span={12}>
+                          <Card type="inner" title="Related Routines">
+                            <RelatedRoutines routine={this.state.routine} />
+                          </Card>
+                        </Col>
+                      </Row>
+                    </Card>
+                  </Col>
+                </Row>
               </Layout.Content>
               <Layout.Sider style={{ padding: '16px' }}>
                 <Popover
@@ -404,6 +435,14 @@ export const RoutineDetail = withRouter(
         method: 'put',
       });
       this.setState({ routine: updated });
+    }
+
+    private async setSync(sync: boolean) {
+      const routine = await sendRequest<RoutineDTO>(
+        `/routine/${this.state.routine._id}`,
+        { method: 'put', body: JSON.stringify({ sync }) },
+      );
+      this.setState({ routine });
     }
 
     private async validateActivate(): Promise<void> {

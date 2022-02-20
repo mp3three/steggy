@@ -15,6 +15,7 @@ export class RelatedRoutines extends React.Component<
     groupAction?: GroupDTO;
     groupState?: GroupDTO;
     entity?: string;
+    routine?: RoutineDTO;
   },
   tState
 > {
@@ -86,6 +87,12 @@ export class RelatedRoutines extends React.Component<
         `activate.type=state_change&activate.activate.entity=${this.props.entity}`,
         // Entity commands
         `command.type=entity_state&command.command.ref=${this.props.entity}`,
+      ];
+    }
+    if (this.props.routine) {
+      return [
+        // Routine Trigger
+        `command.type=trigger_routine&command.command.routine=${this.props.routine._id}`,
       ];
     }
     return [''];
