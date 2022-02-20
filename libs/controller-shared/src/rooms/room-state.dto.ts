@@ -42,7 +42,7 @@ export class RoomEntitySaveStateDTO<EXTRA = ROOM_ENTITY_EXTRAS> {
   public ref: string;
   @IsString()
   @ApiProperty()
-  public state: string;
+  public state?: string;
   @IsString()
   @ApiProperty()
   public type?: 'group' | 'entity';

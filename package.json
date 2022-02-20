@@ -10,9 +10,6 @@
   },
   "scripts": {
     "pipeline": "./tools/scripts/publish-pipeline.sh",
-    "home-controller": "npx nx serve home-controller",
-    "home-cli": "npx nx serve home-cli",
-    "devtools": "npx nx build devtools; node dist/apps/devtools/main.js",
     "lint": "npx nx run-many --all --target=lint --fix",
     "nx": "npx nx"
   },

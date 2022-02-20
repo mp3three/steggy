@@ -21,7 +21,11 @@ import {
 import React from 'react';
 
 import { domain, sendRequest } from '../../../types';
-import { LightEntityCard, SwitchEntityCard } from '../../entities';
+import {
+  FanEntityCard,
+  LightEntityCard,
+  SwitchEntityCard,
+} from '../../entities';
 
 type tState = {
   dirty?: boolean;
@@ -44,7 +48,7 @@ export class RoomStateEdit extends React.Component<
     groups: [],
   };
 
-  private cards: (LightEntityCard | SwitchEntityCard)[];
+  private cards: (LightEntityCard | SwitchEntityCard | FanEntityCard)[];
 
   private get room() {
     return this.props.room;
@@ -53,7 +57,9 @@ export class RoomStateEdit extends React.Component<
   private get entities(): string[] {
     return this.props.room.entities
       .map(({ entity_id }) => entity_id)
-      .filter(i => ['switch', 'light'].includes(domain(i)));
+      .filter(i =>
+        ['switch', 'light', 'fan', 'media_player'].includes(domain(i)),
+      );
   }
 
   private get groups() {
@@ -156,7 +162,7 @@ export class RoomStateEdit extends React.Component<
                             a.friendlyName > b.friendlyName ? UP : DOWN,
                           )
                           .map(item => (
-                            <Select.Option value={item.id}>
+                            <Select.Option value={item.id} key={item.id}>
                               {item.friendlyName}
                             </Select.Option>
                           ))}
@@ -186,6 +192,7 @@ export class RoomStateEdit extends React.Component<
     };
     switch (domain(entity)) {
       case 'switch':
+      case 'media_player':
         return (
           <SwitchEntityCard
             ref={i => this.cards.push(i)}
@@ -199,6 +206,15 @@ export class RoomStateEdit extends React.Component<
       case 'light':
         return (
           <LightEntityCard
+            ref={i => this.cards.push(i)}
+            key={entity}
+            state={state}
+            onUpdate={this.entityUpdate.bind(this)}
+          />
+        );
+      case 'fan':
+        return (
+          <FanEntityCard
             ref={i => this.cards.push(i)}
             key={entity}
             state={state}
@@ -274,14 +290,6 @@ export class RoomStateEdit extends React.Component<
     );
     this.setState({ dirty: false, drawer: false });
     this.props.onUpdate(room);
-  }
-
-  private onSwitchStateChanged(state: RoomEntitySaveStateDTO): void {
-    this.cards.forEach(i =>
-      (i as SwitchEntityCard)?.setState({
-        state: state.state,
-      }),
-    );
   }
 
   private async refreshGroups(): Promise<void> {

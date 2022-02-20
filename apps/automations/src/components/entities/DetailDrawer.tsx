@@ -5,9 +5,13 @@ import { Button, Card, Col, Drawer, Empty, Row, Space, Table } from 'antd';
 import React from 'react';
 
 import { domain } from '../../types';
+import { FanEntityCard } from './FanEntityCard';
 import { LightEntityCard } from './LightEntityCard';
 import { SwitchEntityCard } from './SwitchEntityCard';
 
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { dump } from 'js-yaml';
 type tStateType = {
   visible?: boolean;
 };
@@ -41,16 +45,11 @@ export class EntityDetailDrawer extends React.Component<
           onClose={() => this.setState({ visible: false })}
         >
           <Row gutter={8}>
+            <Col span={8}>{this.entityControl()}</Col>
             <Col span={8}>
-              <Card title="Control Entity">{this.entityControl()}</Card>
-            </Col>
-            <Col span={8}>
-              <Card title="Attributes">
-                <Table dataSource={data}>
-                  <Table.Column key="key" title="key" dataIndex="key" />
-                  <Table.Column key="value" title="value" dataIndex="value" />
-                </Table>
-              </Card>
+              <SyntaxHighlighter language="yaml" style={atomDark}>
+                {dump(this.props.entity).trimEnd()}
+              </SyntaxHighlighter>
             </Col>
           </Row>
         </Drawer>
@@ -59,29 +58,20 @@ export class EntityDetailDrawer extends React.Component<
   }
 
   private entityControl() {
-    const { entity_id, state, attributes } = this.entity;
-    switch (domain(entity_id)) {
+    const { entity } = this.props;
+    switch (domain(entity.entity_id)) {
       case 'light':
         return (
-          <LightEntityCard
-            state={{
-              extra: attributes,
-              ref: entity_id,
-              state: state as string,
-            }}
-            selfContained
-          />
+          <LightEntityCard selfContained state={{ ref: entity.entity_id }} />
         );
+      case 'media_player':
       case 'switch':
         return (
-          <SwitchEntityCard
-            state={{
-              extra: attributes,
-              ref: entity_id,
-              state: state as string,
-            }}
-            selfContained
-          />
+          <SwitchEntityCard selfContained state={{ ref: entity.entity_id }} />
+        );
+      case 'fan':
+        return (
+          <FanEntityCard selfContained state={{ ref: entity.entity_id }} />
         );
     }
     return <Empty description="No control widget" />;

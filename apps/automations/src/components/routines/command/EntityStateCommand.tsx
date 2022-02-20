@@ -78,7 +78,7 @@ export class EntityStateCommand extends React.Component<
     const entities = await sendRequest<string[]>(`/entity/list`);
     this.setState({
       entities: entities.filter(i =>
-        ['light', 'switch', 'fan', 'media', 'lock'].includes(domain(i)),
+        ['light', 'switch', 'fan', 'media_player', 'lock'].includes(domain(i)),
       ),
     });
   }
@@ -95,6 +95,7 @@ export class EntityStateCommand extends React.Component<
             state={this.getValue()}
           />
         );
+      case 'media_player':
       case 'switch':
         return (
           <SwitchEntityCard

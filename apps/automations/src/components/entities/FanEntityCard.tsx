@@ -102,7 +102,6 @@ export class FanEntityCard extends React.Component<
     }
     const { friendly_name, percentage, percentage_step, disabled, state } =
       this.state;
-    console.log(this.state);
     return (
       <Card
         title={friendly_name}
