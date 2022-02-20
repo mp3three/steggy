@@ -93,6 +93,7 @@ export class RoomStateEdit extends React.Component<
           onClick={() => this.setState({ drawer: true })}
         >
           <EditOutlined />
+          {this.props.room.friendlyName}
         </Button>
         <Drawer
           title={

@@ -135,6 +135,9 @@ export class SwitchEntityCard extends React.Component<
     }
     const entity = await sendRequest<LightStateDTO>(`/entity/id/${this.ref}`);
     this.setState({ friendly_name: entity.attributes.friendly_name });
+    if (this.props.selfContained) {
+      this.setState({ state: entity.state });
+    }
   }
 
   private renderWaiting() {

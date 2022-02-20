@@ -8,20 +8,21 @@ import { DOWN, is, sleep, UP } from '@automagical/utilities';
 import {
   Button,
   Card,
+  Col,
   Empty,
   Form,
   FormInstance,
   Input,
+  List,
   notification,
   Popconfirm,
-  Popover,
+  Row,
   Space,
-  Table,
 } from 'antd';
 import React from 'react';
-
 import { sendRequest } from '../../types';
-import { GroupStateEdit, LightGroupDescription } from './states';
+import { RelatedRoutines } from '../routines';
+import { GroupStateEdit } from './states';
 
 type tState = {
   captureCurrentVisible?: boolean;
@@ -94,51 +95,45 @@ export class GroupSaveStates extends React.Component<
         {is.empty(this.props.group.save_states) ? (
           <Empty description="No save states" />
         ) : (
-          <Table
-            dataSource={this.props.group.save_states.sort((a, b) =>
-              a.friendlyName > b.friendlyName ? UP : DOWN,
-            )}
-          >
-            <Table.Column
-              width={20}
-              render={(text, record: GroupSaveStateDTO) => (
-                <GroupStateEdit
-                  onUpdate={group => this.props.onGroupUpdate(group)}
-                  group={this.props.group}
-                  state={record}
-                />
-              )}
-            />
-            <Table.Column
-              title="Friendly Name"
-              key="friendlyName"
-              render={(text, record: GroupSaveStateDTO) => (
-                <Popover content={<LightGroupDescription state={record} />}>
-                  {record.friendlyName}
-                </Popover>
-              )}
-            />
-            <Table.Column
-              width={20}
-              render={(text, record: GroupSaveStateDTO) => (
-                <Button onClick={() => this.activateState(record)}>
-                  Activate
-                </Button>
-              )}
-            />
-            <Table.Column
-              width={20}
-              render={(text, record: GroupSaveStateDTO) => (
-                <Popconfirm
-                  icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-                  title={`Are you sure you want to delete ${record.friendlyName}`}
-                  onConfirm={() => this.removeState(record)}
-                >
-                  <Button danger>Delete</Button>
-                </Popconfirm>
-              )}
-            />
-          </Table>
+          <Row gutter={8}>
+            <Col span={12}>
+              <List
+                dataSource={this.props.group.save_states.sort((a, b) =>
+                  a.friendlyName > b.friendlyName ? UP : DOWN,
+                )}
+                renderItem={record => (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={
+                        <GroupStateEdit
+                          onUpdate={group => this.props.onGroupUpdate(group)}
+                          group={this.props.group}
+                          state={record}
+                        />
+                      }
+                    />
+                    <Button onClick={() => this.activateState(record)}>
+                      Activate
+                    </Button>
+                    <Popconfirm
+                      icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                      title={`Are you sure you want to delete ${record.friendlyName}`}
+                      onConfirm={() => this.removeState(record)}
+                    >
+                      <Button danger type="text">
+                        X
+                      </Button>
+                    </Popconfirm>
+                  </List.Item>
+                )}
+              />
+            </Col>
+            <Col span={12}>
+              <Card type="inner" title="Related Routines">
+                <RelatedRoutines groupState={this.props.group} />
+              </Card>
+            </Col>
+          </Row>
         )}
 
         {/* / Capture current modal */}

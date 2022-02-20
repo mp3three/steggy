@@ -22,7 +22,6 @@ import {
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
-
 import { domain, sendRequest } from '../../types';
 import { EntityDetailDrawer, EntityModalPicker } from '../entities';
 import { GroupModalPicker } from '../groups';

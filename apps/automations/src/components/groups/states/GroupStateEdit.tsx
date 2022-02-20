@@ -53,7 +53,7 @@ export class GroupStateEdit extends React.Component<
           type="text"
           onClick={() => this.setState({ drawer: true })}
         >
-          <EditOutlined />
+          <EditOutlined /> {this.props.state.friendlyName}
         </Button>
         <Drawer
           title={

@@ -5,16 +5,20 @@ import { DOWN, UP } from '@automagical/utilities';
 import {
   Button,
   Card,
+  Col,
   Form,
   FormInstance,
   Input,
+  List,
   Popconfirm,
   Popover,
+  Row,
   Table,
 } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
+import { RelatedRoutines } from '../routines';
 import { RoomStateEdit } from './states';
 
 export class RoomSaveStates extends React.Component<{
@@ -56,50 +60,47 @@ export class RoomSaveStates extends React.Component<{
           </Popconfirm>
         }
       >
-        <Table
-          dataSource={this.room.save_states.sort((a, b) =>
-            a.friendlyName > b.friendlyName ? UP : DOWN,
-          )}
-        >
-          <Table.Column
-            width={20}
-            render={(text, record: RoomStateDTO) => (
-              <RoomStateEdit
-                key={record.id}
-                onUpdate={group => this.props.roomUpdated(group)}
-                room={this.props.room}
-                state={record}
-              />
-            )}
-          />
-          <Table.Column
-            title="Friendly Name"
-            key="friendlyName"
-            render={(text, record: RoomStateDTO) => (
-              <Popover content="asdf">{record.friendlyName}</Popover>
-            )}
-          />
-          <Table.Column
-            width={20}
-            render={(text, record: RoomStateDTO) => (
-              <Button onClick={() => this.activateState(record)}>
-                Activate
-              </Button>
-            )}
-          />
-          <Table.Column
-            width={20}
-            render={(text, record: RoomStateDTO) => (
-              <Popconfirm
-                icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-                title={`Are you sure you want to delete ${record.friendlyName}`}
-                onConfirm={() => this.removeState(record)}
-              >
-                <Button danger>Delete</Button>
-              </Popconfirm>
-            )}
-          />
-        </Table>
+        <Row gutter={16}>
+          <Col span={12}>
+            <List
+              pagination={{ onChange: () => {} }}
+              dataSource={this.room.save_states.sort((a, b) =>
+                a.friendlyName > b.friendlyName ? UP : DOWN,
+              )}
+              renderItem={record => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={
+                      <RoomStateEdit
+                        key={record.id}
+                        onUpdate={group => this.props.roomUpdated(group)}
+                        room={this.props.room}
+                        state={record}
+                      />
+                    }
+                  />
+                  <Popconfirm
+                    icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                    title={`Are you sure you want to delete ${record.friendlyName}`}
+                    onConfirm={() => this.removeState(record)}
+                  >
+                    <Button onClick={() => this.activateState(record)}>
+                      Activate
+                    </Button>
+                    <Button danger type="text">
+                      X
+                    </Button>
+                  </Popconfirm>
+                </List.Item>
+              )}
+            />
+          </Col>
+          <Col span={12}>
+            <Card type="inner" title="Related Routines">
+              <RelatedRoutines roomState={this.props.room} />
+            </Card>
+          </Col>
+        </Row>
       </Card>
     );
   }

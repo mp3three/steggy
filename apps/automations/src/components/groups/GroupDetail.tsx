@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   Col,
+  Divider,
   Layout,
   Row,
   Space,
@@ -17,6 +18,7 @@ import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 import { EntityModalPicker } from '../entities';
+import { RelatedRoutines } from '../routines';
 import { FanGroup } from './FanGroup';
 import { GroupSaveStates } from './GroupSaveState';
 import { LightGroup } from './LightGroup';
@@ -62,8 +64,8 @@ export const GroupDetail = withRouter(
                   </Link>
                 </Breadcrumb.Item>
               </Breadcrumb>
-              <Row style={{ margin: '8px 0' }}>
-                <Col span={15}>
+              <Row style={{ margin: '8px 0' }} gutter={8}>
+                <Col span={12}>
                   <Card
                     title="Entities"
                     key="entities"
@@ -78,13 +80,20 @@ export const GroupDetail = withRouter(
                     {this.groupRendering()}
                   </Card>
                 </Col>
-                <Col span={8} offset={1}>
+                <Col span={12}>
                   <Card title="Group Actions">
                     <Space>
                       <Button>Circadian</Button>
                       <Button>Off</Button>
                       <Button>On</Button>
                     </Space>
+                    <Card
+                      type="inner"
+                      title="Related Routines"
+                      style={{ marginTop: '16px' }}
+                    >
+                      <RelatedRoutines groupAction={this.state.group} />
+                    </Card>
                   </Card>
                 </Col>
               </Row>

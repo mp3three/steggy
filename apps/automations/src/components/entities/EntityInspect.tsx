@@ -20,8 +20,10 @@ import { is } from '@automagical/utilities';
 import { LightEntityCard } from './LightEntityCard';
 import { SwitchEntityCard } from './SwitchEntityCard';
 import { FanEntityCard } from './FanEntityCard';
+import { RelatedRoutines } from '../routines';
 type tState = {
   entity: HassStateDTO;
+  entity_id: string;
   flags: string[];
 };
 
@@ -29,6 +31,7 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
   override state = { flags: [] } as tState;
 
   public async load(entity_id: string): Promise<void> {
+    this.setState({ entity_id });
     await Promise.all(
       [
         async () => {
@@ -66,6 +69,14 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
         <SyntaxHighlighter language="yaml" style={atomDark}>
           {dump(this.state.entity).trimEnd()}
         </SyntaxHighlighter>
+        <Divider orientation="left">Links</Divider>
+        <Card
+          type="inner"
+          title="Related Routines"
+          style={{ marginTop: '16px' }}
+        >
+          <RelatedRoutines entity={this.state?.entity_id} />
+        </Card>
         {this.editor()}
         {this.flags()}
       </Card>
