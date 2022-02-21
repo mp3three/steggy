@@ -55,6 +55,7 @@
     "inquirer-date-prompt": "^2.0.1",
     "js-yaml": "^4.0.0",
     "minimist": "^1.2.5",
+    "moment": "^2.29.1",
     "mongodb": "^4.4.0",
     "mongoose": "^6.2.2",
     "mqtt": "^4.3.6",

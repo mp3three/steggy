@@ -79,14 +79,14 @@ export class RoomSaveStates extends React.Component<{
                       />
                     }
                   />
+                  <Button onClick={() => this.activateState(record)}>
+                    Activate
+                  </Button>
                   <Popconfirm
                     icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
                     title={`Are you sure you want to delete ${record.friendlyName}`}
                     onConfirm={() => this.removeState(record)}
                   >
-                    <Button onClick={() => this.activateState(record)}>
-                      Activate
-                    </Button>
                     <Button danger type="text">
                       X
                     </Button>

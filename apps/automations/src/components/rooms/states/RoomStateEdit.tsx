@@ -93,7 +93,7 @@ export class RoomStateEdit extends React.Component<
           onClick={() => this.setState({ drawer: true })}
         >
           <EditOutlined />
-          {this.props.room.friendlyName}
+          {this.state.friendlyName}
         </Button>
         <Drawer
           title={
@@ -120,7 +120,7 @@ export class RoomStateEdit extends React.Component<
           <Space direction="vertical" style={{ width: '100%' }}>
             {is.empty(this.entities) ? undefined : (
               <>
-                <Typography.Title level={3}>Entites</Typography.Title>
+                <Typography.Title level={3}>Entities</Typography.Title>
                 <Space wrap>
                   {this.entities.map(entity => this.entityRender(entity))}
                 </Space>

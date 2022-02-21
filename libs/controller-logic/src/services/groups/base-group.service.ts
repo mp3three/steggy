@@ -32,7 +32,7 @@ export abstract class BaseGroupService {
   public abstract isValidEntity(id: string): boolean;
   public abstract setState<
     EXTRA extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
-  >(entites: string[], state: RoomEntitySaveStateDTO<EXTRA>[]): Promise<void>;
+  >(entities: string[], state: RoomEntitySaveStateDTO<EXTRA>[]): Promise<void>;
 
   public async activateState(
     group: GroupDTO | string,

@@ -94,16 +94,16 @@ export class FanGroupService extends BaseGroupService {
   }
 
   public async setState(
-    entites: string[],
+    entities: string[],
     state: RoomEntitySaveStateDTO[],
   ): Promise<void> {
-    if (entites.length !== state.length) {
+    if (entities.length !== state.length) {
       this.logger.warn(`State and entity length mismatch`);
-      state = state.slice(START, entites.length);
+      state = state.slice(START, entities.length);
     }
     await each(
       state.map((state, index) => {
-        return [entites[index], state];
+        return [entities[index], state];
       }) as [string, RoomEntitySaveStateDTO<FanAttributesDTO>][],
       async ([id, state]) => {
         if (state.state === 'off') {

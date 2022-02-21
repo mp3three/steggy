@@ -6,3 +6,4 @@ export * from './LightEntityCard';
 export * from './LockEntityCard';
 export * from './ModalPicker';
 export * from './SwitchEntityCard';
+export * from './EntityHistory';

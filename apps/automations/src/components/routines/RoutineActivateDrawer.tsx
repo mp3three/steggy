@@ -4,6 +4,7 @@ import {
   RoutineDTO,
   ScheduleActivateDTO,
   SolarActivateDTO,
+  StateChangeActivateDTO,
 } from '@automagical/controller-shared';
 import { is } from '@automagical/utilities';
 import {
@@ -19,14 +20,17 @@ import {
 import React from 'react';
 
 import { sendRequest } from '../../types';
+import { EntityHistory } from '../entities';
 import {
   RoutineActivateCron,
   RoutineActivateKunami,
   RoutineActivateSolar,
+  RoutineActivateStateChange,
 } from './activate';
 
 type tState = {
   activate?: RoutineActivateDTO;
+  historyEntity?: string;
   name: string;
   visible?: boolean;
 };
@@ -46,10 +50,18 @@ export class RoutineActivateDrawer extends React.Component<
   private widget:
     | RoutineActivateCron
     | RoutineActivateSolar
+    | RoutineActivateStateChange
     | RoutineActivateKunami;
 
   override componentDidMount(): void {
     if (this.props.activate) {
+      if (this.props.activate.type === 'state_change') {
+        const { activate } = this.props
+          .activate as RoutineActivateDTO<StateChangeActivateDTO>;
+        this.setState({
+          historyEntity: activate?.entity,
+        });
+      }
       this.setState({
         activate: this.props.activate,
         name: this.props.activate.friendlyName,
@@ -94,9 +106,12 @@ export class RoutineActivateDrawer extends React.Component<
           </Space>
         }
       >
-        <Card title="Activation event">
+        <Card type="inner" title="Activation Event">
           <Form labelCol={{ span: 4 }}>{this.renderType()}</Form>
         </Card>
+        {this.type === 'state_change' ? (
+          <EntityHistory entity={this.state.historyEntity} />
+        ) : undefined}
       </Drawer>
     );
   }
@@ -107,6 +122,15 @@ export class RoutineActivateDrawer extends React.Component<
         <RoutineActivateCron
           ref={i => (this.widget = i)}
           activate={this.state.activate.activate as ScheduleActivateDTO}
+        />
+      );
+    }
+    if (this.type === 'state_change') {
+      return (
+        <RoutineActivateStateChange
+          ref={i => (this.widget = i)}
+          entityUpdate={() => {}}
+          activate={this.state.activate.activate as StateChangeActivateDTO}
         />
       );
     }
