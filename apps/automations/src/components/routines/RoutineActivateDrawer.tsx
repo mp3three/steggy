@@ -75,6 +75,12 @@ export class RoutineActivateDrawer extends React.Component<
       name: activate.friendlyName,
       visible: true,
     });
+    if (activate.type === 'state_change') {
+      this.setState({
+        historyEntity: (activate as RoutineActivateDTO<StateChangeActivateDTO>)
+          .activate?.entity,
+      });
+    }
   }
 
   override render() {
@@ -129,7 +135,7 @@ export class RoutineActivateDrawer extends React.Component<
       return (
         <RoutineActivateStateChange
           ref={i => (this.widget = i)}
-          entityUpdate={() => {}}
+          entityUpdate={historyEntity => this.setState({ historyEntity })}
           activate={this.state.activate.activate as StateChangeActivateDTO}
         />
       );

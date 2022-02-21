@@ -148,6 +148,7 @@ export class RoutineActivateStateChange extends React.Component<
   }
 
   private updateEntity(entity: string) {
+    this.props.entityUpdate(entity);
     this.setState({ entity });
   }
 }

@@ -173,7 +173,10 @@ export const RoutineDetail = withRouter(
                                 />
                               }
                               title={`Are you sure you want to delete ${item.friendlyName}?`}
-                              onConfirm={() => this.deleteActivate(item)}
+                              onConfirm={e => {
+                                this.deleteActivate(item);
+                                e?.stopPropagation();
+                              }}
                             >
                               <Button
                                 danger

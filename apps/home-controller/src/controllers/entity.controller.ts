@@ -110,7 +110,7 @@ export class EntityController {
     @Param('entityId') entityId: string,
     @Body()
     { from, to }: EntityHistoryRequest,
-  ): Promise<unknown[]> {
+  ): Promise<HassStateDTO[]> {
     return await this.fetchAPI.fetchEntityHistory(
       entityId,
       new Date(from),
