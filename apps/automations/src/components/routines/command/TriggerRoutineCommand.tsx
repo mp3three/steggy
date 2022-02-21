@@ -33,7 +33,7 @@ export class TriggerRoutineCommand extends React.Component<
   }
 
   public load(command: RoutineCommandTriggerRoutineDTO): void {
-    this.setState({ routine: command.routine });
+    this.setState({ routine: command?.routine });
   }
 
   override render() {
@@ -55,7 +55,7 @@ export class TriggerRoutineCommand extends React.Component<
 
   private async listRoutines(): Promise<void> {
     const routines = await sendRequest<RoutineDTO[]>(
-      `/routine?select=friendlyName`,
+      `/routine?select=friendlyName&sort=friendlyName`,
     );
     this.setState({ routines });
   }

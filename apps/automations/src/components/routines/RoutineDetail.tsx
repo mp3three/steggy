@@ -231,6 +231,9 @@ export const RoutineDetail = withRouter(
                                   <Select.Option value="send_notification">
                                     Send Notification
                                   </Select.Option>
+                                  <Select.Option value="sleep">
+                                    Sleep
+                                  </Select.Option>
                                   <Select.Option value="stop_processing">
                                     Stop Processing
                                   </Select.Option>
@@ -279,7 +282,10 @@ export const RoutineDetail = withRouter(
                                 />
                               }
                               title={`Are you sure you want to delete ${item.friendlyName}?`}
-                              onConfirm={() => this.deleteCommand(item)}
+                              onConfirm={e => {
+                                this.deleteCommand(item);
+                                e.stopPropagation();
+                              }}
                             >
                               <Button
                                 danger

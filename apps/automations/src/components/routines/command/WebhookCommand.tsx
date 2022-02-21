@@ -1,37 +1,54 @@
-import { RoutineCommandSleepDTO } from '@automagical/controller-shared';
-import { InputNumber } from 'antd';
+import { HTTP_METHODS } from '@automagical/boilerplate';
+import { RoutineCommandWebhookDTO } from '@automagical/controller-shared';
+import { Form, Input, Radio } from 'antd';
 import React from 'react';
 
 type tState = {
-  duration: number;
+  method: HTTP_METHODS;
+  url: string;
 };
 
 export class WebhookCommand extends React.Component<
-  { command?: RoutineCommandSleepDTO },
+  { command?: RoutineCommandWebhookDTO },
   tState
 > {
-  override state = {} as tState;
+  override state = { method: 'get' } as tState;
 
   override componentDidMount(): void {
     const { command } = this.props;
     this.load(command);
   }
 
-  public getValue(): RoutineCommandSleepDTO {
-    return { duration: this.state.duration };
+  public getValue(): RoutineCommandWebhookDTO {
+    return {
+      method: this.state.method,
+      url: this.state.url,
+    };
   }
 
-  public load(command: Partial<RoutineCommandSleepDTO> = {}): void {
-    this.setState({ duration: command.duration });
+  public load({ url, method }: Partial<RoutineCommandWebhookDTO> = {}): void {
+    this.setState({ url, method });
   }
 
   override render() {
     return (
-      <InputNumber
-        value={this.state.duration}
-        onChange={duration => this.setState({ duration })}
-        addonAfter="seconds"
-      />
+      <>
+        <Form.Item label="Method">
+          <Radio.Group value={this.state.method}>
+            <Radio.Button value="get">GET</Radio.Button>
+            <Radio.Button value="post">POST</Radio.Button>
+            <Radio.Button value="put">PUT</Radio.Button>
+            <Radio.Button value="delete">DELETE</Radio.Button>
+          </Radio.Group>
+        </Form.Item>
+        <Form.Item label="URL">
+          <Input
+            value={this.state.url}
+            onChange={({ target }) => this.setState({ url: target.value })}
+            placeholder="http://some.domain/webhook/target"
+          />
+        </Form.Item>
+      </>
     );
   }
 }

@@ -10,6 +10,7 @@ import {
   RoutineCommandSendNotificationDTO,
   RoutineCommandSleepDTO,
   RoutineCommandTriggerRoutineDTO,
+  RoutineCommandWebhookDTO,
   RoutineDTO,
 } from '@automagical/controller-shared';
 import { is } from '@automagical/utilities';
@@ -35,6 +36,7 @@ import {
   SleepCommand,
   TriggerRoutineCommand,
 } from './command';
+import { WebhookCommand } from './command/WebhookCommand';
 
 type tState = {
   command?: RoutineCommandDTO;
@@ -59,6 +61,7 @@ export class RoutineCommandDrawer extends React.Component<
     | EntityStateCommand
     | GroupActionCommand
     | GroupStateCommand
+    | WebhookCommand
     | RoomStateCommand
     | SendNotificationCommand
     | SleepCommand
@@ -132,7 +135,7 @@ export class RoutineCommandDrawer extends React.Component<
           </Space>
         }
       >
-        <Card title="Command action">
+        <Card title="Command Action" type="inner">
           <Form labelCol={{ span: 4 }}>{this.renderType()}</Form>
         </Card>
       </Drawer>
@@ -192,6 +195,13 @@ export class RoutineCommandDrawer extends React.Component<
             command={
               this.state.command.command as RoutineCommandTriggerRoutineDTO
             }
+          />
+        );
+      case 'webhook':
+        return (
+          <WebhookCommand
+            ref={i => (this.widget = i)}
+            command={this.state.command.command as RoutineCommandWebhookDTO}
           />
         );
     }
