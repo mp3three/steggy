@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService, FetchService } from '@automagical/boilerplate';
 import { RoutineCommandWebhookDTO } from '@automagical/controller-shared';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class WebhookService {

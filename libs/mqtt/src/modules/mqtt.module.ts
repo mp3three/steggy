@@ -1,5 +1,5 @@
-import { DiscoveryModule } from '@nestjs/core';
 import { LibraryModule } from '@automagical/boilerplate';
+import { DiscoveryModule } from '@nestjs/core';
 
 import { LIB_MQTT } from '../config';
 import { MQTT_CLIENT_INSTANCE } from '../contracts';

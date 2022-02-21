@@ -1,13 +1,3 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-} from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GroupService } from '@automagical/controller-logic';
 import {
   ENTITY_EXTRAS_SCHEMA,
@@ -23,6 +13,16 @@ import {
   Locals,
   ResponseLocals,
 } from '@automagical/server';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('/group')
 @ApiTags('group')

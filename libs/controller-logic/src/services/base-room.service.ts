@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
 import {
   ROOM_CONTROLLER_SETTINGS,
   RoomCommandDTO,
   RoomCommandScope,
   RoomControllerSettingsDTO,
 } from '@automagical/controller-shared';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class BaseRoomService {

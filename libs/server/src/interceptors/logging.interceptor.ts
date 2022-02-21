@@ -1,10 +1,10 @@
+import { AutoLogService } from '@automagical/boilerplate';
 import {
   CallHandler,
   ExecutionContext,
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { AutoLogService } from '@automagical/boilerplate';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 
 import { APIRequest, APIResponse } from '../contracts';

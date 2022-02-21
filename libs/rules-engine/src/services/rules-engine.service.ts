@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@automagical/boilerplate';
+import { Injectable } from '@nestjs/common';
 
 import { CustomCodeService } from './custom-code.service';
 import { TimeRangeService } from './time-range.service';

@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@automagical/boilerplate';
 import {
   HASS_DOMAINS,
   LightAttributesDTO,
 } from '@automagical/home-assistant-shared';
 import { is } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 
 import { EntityService, HACallService } from '../services';
 

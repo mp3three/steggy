@@ -1,15 +1,3 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  Post,
-  Put,
-} from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AutoLogService } from '@automagical/boilerplate';
 import {
   EntityCommandRouterService,
@@ -36,6 +24,18 @@ import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
 } from '@automagical/server';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('entity')
 @Controller('/entity')

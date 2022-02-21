@@ -1,5 +1,3 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   LightManagerService,
   SolarCalcService,
@@ -18,6 +16,8 @@ import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
 } from '@automagical/server';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller(`/debug`)
 @ApiTags('debug')

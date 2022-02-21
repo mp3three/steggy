@@ -1,2 +1,2 @@
-export * from './FuzzySelect';
 export * from './FilterValue';
+export * from './FuzzySelect';

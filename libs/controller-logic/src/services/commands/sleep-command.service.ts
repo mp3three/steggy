@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@automagical/boilerplate';
 import { RoutineCommandSleepDTO } from '@automagical/controller-shared';
 import { is, sleep } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class SleepCommandService {

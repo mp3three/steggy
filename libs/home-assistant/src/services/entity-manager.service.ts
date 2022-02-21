@@ -1,4 +1,3 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
 import { AutoLogService, OnEvent } from '@automagical/boilerplate';
 import {
   ALL_ENTITIES_UPDATED,
@@ -13,6 +12,7 @@ import {
   HassStateDTO,
 } from '@automagical/home-assistant-shared';
 import { is, SECOND, sleep } from '@automagical/utilities';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 import { Observable, Subscriber } from 'rxjs';
 

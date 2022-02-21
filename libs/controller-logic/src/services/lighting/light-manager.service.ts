@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   CacheManagerService,
@@ -25,7 +24,9 @@ import {
   LightStateDTO,
 } from '@automagical/home-assistant-shared';
 import { each, INVERT_VALUE, is, PERCENT } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
+
 import { MIN_BRIGHTNESS } from '../../config';
 import { ENTITY_METADATA_UPDATED } from '../../types';
 import { MetadataService } from '../metadata.service';

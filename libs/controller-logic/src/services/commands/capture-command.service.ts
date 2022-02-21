@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   CacheManagerService,
@@ -11,6 +10,7 @@ import {
   RoutineDTO,
 } from '@automagical/controller-shared';
 import { each } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 
 import { GroupService } from '../groups';
 

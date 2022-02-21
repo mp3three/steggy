@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { BadRequestException } from '@nestjs/common';
 import {
   FILTER_OPERATIONS,
   FilterDTO,
@@ -11,6 +10,7 @@ import {
   SINGLE,
   START,
 } from '@automagical/utilities';
+import { BadRequestException } from '@nestjs/common';
 import { isNumberString } from 'class-validator';
 import dayjs from 'dayjs';
 

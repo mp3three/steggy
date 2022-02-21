@@ -1,4 +1,3 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { AutoLogService } from '@automagical/boilerplate';
 import {
   GroupDTO,
@@ -10,6 +9,7 @@ import {
 import { EntityManagerService } from '@automagical/home-assistant';
 import { BaseSchemaDTO } from '@automagical/persistence';
 import { each, is, ResultControlDTO } from '@automagical/utilities';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 
 import { EntityCommandRouterService } from './entity-command-router.service';

@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@automagical/boilerplate';
 import { is } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 import {
   Client,
   IClientPublishOptions,

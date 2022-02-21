@@ -30,6 +30,7 @@ import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
 import { domain, sendRequest } from '../../types';
 import { EntityInspect } from './EntityInspect';
 

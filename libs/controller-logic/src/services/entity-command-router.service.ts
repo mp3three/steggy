@@ -1,8 +1,3 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
 import { AutoLogService } from '@automagical/boilerplate';
 import type {
   ROOM_ENTITY_EXTRAS,
@@ -25,6 +20,11 @@ import {
   LightAttributesDTO,
 } from '@automagical/home-assistant-shared';
 import { is } from '@automagical/utilities';
+import {
+  BadRequestException,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 
 import { LightManagerService } from './lighting';
 

@@ -1,5 +1,3 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { AutoLogService, CastResult } from '@automagical/boilerplate';
 import {
   ROOM_UPDATE,
@@ -12,6 +10,8 @@ import {
   EncryptionService,
 } from '@automagical/persistence';
 import { is, ResultControlDTO } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import EventEmitter from 'eventemitter3';
 import { Model } from 'mongoose';
 

@@ -3,6 +3,7 @@ import { each } from '@automagical/utilities';
 import { Button, Drawer, List, Spin } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
+
 import { sendRequest } from '../../types';
 
 type tState = {
@@ -27,13 +28,13 @@ export class RelatedRoutines extends React.Component<
   }
 
   override async componentDidUpdate(
-    prevProps: Readonly<{
+    previousProperties: Readonly<{
       roomState?: RoomDTO;
       groupAction?: GroupDTO;
       groupState?: GroupDTO;
       entity?: string;
     }>,
-    prevState: Readonly<tState>,
+    previousState: Readonly<tState>,
     snapshot?: any,
   ): Promise<void> {
     if (this.props.entity !== this.currentEntity) {

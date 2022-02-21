@@ -468,7 +468,7 @@ export const RoutineDetail = withRouter(
     private async setSync(sync: boolean) {
       const routine = await sendRequest<RoutineDTO>(
         `/routine/${this.state.routine._id}`,
-        { method: 'put', body: JSON.stringify({ sync }) },
+        { body: JSON.stringify({ sync }), method: 'put' },
       );
       this.setState({ routine });
     }

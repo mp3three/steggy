@@ -1,4 +1,3 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { AutoLogService } from '@automagical/boilerplate';
 import type {
   GroupCommandDTO,
@@ -11,6 +10,7 @@ import {
   GroupSaveStateDTO,
 } from '@automagical/controller-shared';
 import { is } from '@automagical/utilities';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { v4 as uuid } from 'uuid';
 

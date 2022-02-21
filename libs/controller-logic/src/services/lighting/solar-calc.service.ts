@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService, OnEvent } from '@automagical/boilerplate';
 import { LOCATION_UPDATED } from '@automagical/controller-shared';
 import { HASocketAPIService } from '@automagical/home-assistant';
 import { HA_SOCKET_READY } from '@automagical/home-assistant-shared';
 import { is, sleep } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 import SolarCalc from 'solar-calc';
 import SolarCalcType from 'solar-calc/types/solarCalc';

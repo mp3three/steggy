@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   CacheManagerService,
@@ -16,6 +15,7 @@ import {
   HassEventDTO,
 } from '@automagical/home-assistant-shared';
 import { each, is } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 
 const LATCH_KEY = (id: string) => `STATE_LATCH:${id}`;
 const DEBOUNCE_KEY = (id: string) => `STATE_DEBOUNCE:${id}`;

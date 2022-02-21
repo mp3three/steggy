@@ -1,5 +1,5 @@
-import { applyDecorators } from '@nestjs/common';
 import { is } from '@automagical/utilities';
+import { applyDecorators } from '@nestjs/common';
 import { Transform } from 'class-transformer';
 import { Types } from 'mongoose';
 

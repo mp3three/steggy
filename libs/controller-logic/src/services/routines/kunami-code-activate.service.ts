@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService, InjectConfig, OnEvent } from '@automagical/boilerplate';
 import {
   KunamiCodeActivateDTO,
@@ -11,6 +10,7 @@ import {
   HassEventDTO,
 } from '@automagical/home-assistant-shared';
 import { each, is } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 
 import { KUNAMI_TIMEOUT } from '../../config';
 import { RoomService } from '../room.service';

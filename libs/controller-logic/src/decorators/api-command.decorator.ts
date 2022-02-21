@@ -1,5 +1,5 @@
-import { RequestMapping, RequestMethod } from '@nestjs/common';
 import { ROOM_API_COMMAND } from '@automagical/controller-shared';
+import { RequestMapping, RequestMethod } from '@nestjs/common';
 
 export class CommandOptions {
   method?: RequestMethod;

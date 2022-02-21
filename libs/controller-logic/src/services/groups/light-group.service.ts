@@ -1,4 +1,3 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
 import { AutoLogService } from '@automagical/boilerplate';
 import {
   GROUP_LIGHT_COMMANDS,
@@ -17,6 +16,7 @@ import {
   LightStateDTO,
 } from '@automagical/home-assistant-shared';
 import { each, START } from '@automagical/utilities';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import { LightManagerService } from '../lighting';
 import { GroupPersistenceService } from '../persistence';

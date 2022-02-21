@@ -1,4 +1,3 @@
-import { Injectable, Scope } from '@nestjs/common';
 import { AutoLogService, InjectLogger } from '@automagical/boilerplate';
 import {
   HASS_DOMAINS,
@@ -6,6 +5,7 @@ import {
   HassStateDTO,
 } from '@automagical/home-assistant-shared';
 import { is } from '@automagical/utilities';
+import { Injectable, Scope } from '@nestjs/common';
 
 import { HASocketAPIService } from './ha-socket-api.service';
 

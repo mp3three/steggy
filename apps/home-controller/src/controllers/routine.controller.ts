@@ -1,19 +1,3 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-} from '@nestjs/common';
-import {
-  ApiBody,
-  ApiExtraModels,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
 import { RoutineService } from '@automagical/controller-logic';
 import {
   KunamiCodeActivateDTO,
@@ -38,6 +22,22 @@ import {
   Locals,
   ResponseLocals,
 } from '@automagical/server';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import {
+  ApiBody,
+  ApiExtraModels,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { v4 as uuid } from 'uuid';
 
 @Controller(`/routine`)

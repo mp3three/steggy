@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@automagical/boilerplate';
+import { Injectable } from '@nestjs/common';
 import { VM } from 'vm2';
 
 import { CustomCodeDTO } from '../contracts';

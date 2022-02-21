@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@automagical/boilerplate';
 import { FlashAnimationDTO } from '@automagical/controller-shared';
 import { EntityManagerService } from '@automagical/home-assistant';
@@ -8,6 +7,7 @@ import {
   LightStateDTO,
 } from '@automagical/home-assistant-shared';
 import { eachSeries, is, PEAT, sleep } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 
 import { LightManagerService } from './light-manager.service';
 

@@ -1,5 +1,4 @@
 /* eslint-disable unicorn/no-null */
-import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   Cron,
@@ -24,6 +23,7 @@ import {
   SocketMessageDTO,
 } from '@automagical/home-assistant-shared';
 import { CronExpression, is, SECOND, sleep } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 import WS from 'ws';
 

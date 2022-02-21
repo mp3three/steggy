@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import type { FetchWith } from '@automagical/boilerplate';
 import {
   AutoLogService,
@@ -10,6 +9,7 @@ import {
   HomeAssistantServerLogItem,
 } from '@automagical/home-assistant-shared';
 import { SECOND } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 
 import { BASE_URL, TOKEN } from '../config';
 

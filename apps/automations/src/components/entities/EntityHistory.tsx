@@ -1,8 +1,9 @@
-import { Button, Card, DatePicker, Drawer, Form, Spin } from 'antd';
-import React from 'react';
-import moment from 'moment';
-import { sendRequest } from '../../types';
 import { HassStateDTO } from '@automagical/home-assistant-shared';
+import { Button, Card, DatePicker, Drawer, Form, Spin } from 'antd';
+import moment from 'moment';
+import React from 'react';
+
+import { sendRequest } from '../../types';
 
 type tState = {
   from: moment.Moment;
@@ -13,8 +14,8 @@ type tState = {
 export class EntityHistory extends React.Component<{ entity: string }, tState> {
   override state = {
     from: moment().subtract(1, 'day'),
-    to: moment(),
     history: [],
+    to: moment(),
   } as tState;
 
   override render() {
@@ -43,11 +44,11 @@ export class EntityHistory extends React.Component<{ entity: string }, tState> {
     const history = await sendRequest<HassStateDTO[]>(
       `/entity/history/${this.props.entity}`,
       {
-        method: 'post',
         body: JSON.stringify({
           from: this.state.from.toISOString(),
           to: this.state.to.toISOString(),
         }),
+        method: 'post',
       },
     );
   }

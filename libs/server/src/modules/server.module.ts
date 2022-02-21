@@ -1,15 +1,15 @@
 import {
-  INestApplication,
-  MiddlewareConsumer,
-  RequestMethod,
-  ValidationPipe,
-} from '@nestjs/common';
-import {
   AutoLogService,
   BootstrapOptions,
   InjectConfig,
   LibraryModule,
 } from '@automagical/boilerplate';
+import {
+  INestApplication,
+  MiddlewareConsumer,
+  RequestMethod,
+  ValidationPipe,
+} from '@nestjs/common';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import csurf from 'csurf';

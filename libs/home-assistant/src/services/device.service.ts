@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@automagical/boilerplate';
 import {
   DeviceListItemDTO,
@@ -6,6 +5,7 @@ import {
   RelatedDescriptionDTO,
 } from '@automagical/home-assistant-shared';
 import { is } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 
 import { EntityManagerService } from './entity-manager.service';
 import { HASocketAPIService } from './ha-socket-api.service';

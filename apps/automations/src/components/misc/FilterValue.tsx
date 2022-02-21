@@ -83,7 +83,7 @@ export class FilterValue extends React.Component<{
                 danger
                 type="text"
                 onClick={() =>
-                  this.props.onChange(value.filter((i, idx) => idx !== index))
+                  this.props.onChange(value.filter((i, index_) => index_ !== index))
                 }
               >
                 X
@@ -109,9 +109,9 @@ export class FilterValue extends React.Component<{
 
   private renderText() {
     let value: string;
-    const val = this.props.value;
-    if (Array.isArray(val)) {
-      value = val.join(`,`);
+    const value_ = this.props.value;
+    if (Array.isArray(value_)) {
+      value = value_.join(`,`);
     } else {
       value = is.string(this.props.value)
         ? this.props.value

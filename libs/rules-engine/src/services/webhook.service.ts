@@ -1,14 +1,14 @@
 import {
-  ConflictException,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
-import {
   AutoLogService,
   FetchService,
   JSONFilterService,
 } from '@automagical/boilerplate';
 import { is } from '@automagical/utilities';
+import {
+  ConflictException,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 
 import { WebhookDTO } from '../contracts';
 

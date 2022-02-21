@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@automagical/boilerplate';
 import {
   FanSpeeds,
@@ -6,6 +5,7 @@ import {
   HASS_DOMAINS,
 } from '@automagical/home-assistant-shared';
 import { ARRAY_OFFSET } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 
 import { EntityManagerService, HACallService } from '../services';
 

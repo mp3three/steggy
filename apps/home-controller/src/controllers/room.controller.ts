@@ -1,13 +1,3 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-} from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GroupService, RoomService } from '@automagical/controller-logic';
 import {
   GroupDTO,
@@ -24,6 +14,16 @@ import {
   ResponseLocals,
 } from '@automagical/server';
 import { each } from '@automagical/utilities';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('/room')
 @AuthStack()

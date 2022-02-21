@@ -1,5 +1,5 @@
-import { Provider } from '@nestjs/common';
 import { LibraryModule } from '@automagical/boilerplate';
+import { Provider } from '@nestjs/common';
 
 import { LIB_HOME_ASSISTANT } from '../config';
 import {

@@ -1,5 +1,5 @@
-import { Injectable, RequestMapping, RequestMethod } from '@nestjs/common';
 import { HTTP_METHODS } from '@automagical/boilerplate';
+import { Injectable, RequestMapping, RequestMethod } from '@nestjs/common';
 
 // Conflict between compliler and linter
 /* eslint-disable @typescript-eslint/ban-types */

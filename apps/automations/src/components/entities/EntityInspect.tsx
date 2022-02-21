@@ -1,4 +1,5 @@
 import { HassStateDTO } from '@automagical/home-assistant-shared';
+import { is } from '@automagical/utilities';
 import {
   Card,
   Checkbox,
@@ -10,17 +11,16 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
+import { dump } from 'js-yaml';
 import React from 'react';
-import { domain, sendRequest } from '../../types';
-
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { dump } from 'js-yaml';
-import { is } from '@automagical/utilities';
+
+import { domain, sendRequest } from '../../types';
+import { RelatedRoutines } from '../routines';
+import { FanEntityCard } from './FanEntityCard';
 import { LightEntityCard } from './LightEntityCard';
 import { SwitchEntityCard } from './SwitchEntityCard';
-import { FanEntityCard } from './FanEntityCard';
-import { RelatedRoutines } from '../routines';
 type tState = {
   entity: HassStateDTO;
   entity_id: string;
@@ -150,8 +150,8 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
       flags = await sendRequest<string[]>(
         `/entity/flags/${this.state.entity.entity_id}`,
         {
-          method: 'post',
           body: JSON.stringify({ flag }),
+          method: 'post',
         },
       );
       this.setState({ flags });
