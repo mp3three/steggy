@@ -9,6 +9,7 @@ import {
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
   RoutineCommandSleepDTO,
+  RoutineCommandStopProcessingDTO,
   RoutineCommandTriggerRoutineDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
@@ -34,6 +35,7 @@ import {
   RoomStateCommand,
   SendNotificationCommand,
   SleepCommand,
+  StopProcessingCommand,
   TriggerRoutineCommand,
 } from './command';
 import { WebhookCommand } from './command/WebhookCommand';
@@ -62,6 +64,7 @@ export class RoutineCommandDrawer extends React.Component<
     | GroupActionCommand
     | GroupStateCommand
     | WebhookCommand
+    | StopProcessingCommand
     | RoomStateCommand
     | SendNotificationCommand
     | SleepCommand
@@ -144,6 +147,15 @@ export class RoutineCommandDrawer extends React.Component<
 
   private renderType() {
     switch (this.type) {
+      case 'stop_processing':
+        return (
+          <StopProcessingCommand
+            ref={i => (this.widget = i)}
+            command={
+              this.state.command.command as RoutineCommandStopProcessingDTO
+            }
+          />
+        );
       case 'entity_state':
         return (
           <EntityStateCommand

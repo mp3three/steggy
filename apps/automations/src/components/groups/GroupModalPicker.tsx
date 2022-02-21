@@ -86,7 +86,7 @@ export class GroupModalPicker extends React.Component<
               <List
                 rowKey="_id"
                 dataSource={this.getList()}
-                pagination={{ pageSize: 10 }}
+                pagination={{ size: 'small' }}
                 renderItem={item => (
                   <List.Item>
                     <Space>
@@ -113,7 +113,7 @@ export class GroupModalPicker extends React.Component<
                 <List
                   rowKey="_id"
                   dataSource={this.state.selected}
-                  pagination={{ pageSize: 10 }}
+                  pagination={{ size: 'small' }}
                   renderItem={item => (
                     <List.Item>
                       <Space>

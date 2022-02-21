@@ -7,31 +7,12 @@ import {
   START,
   UP,
 } from '@automagical/utilities';
-import {
-  Breadcrumb,
-  Button,
-  Card,
-  Checkbox,
-  Col,
-  Divider,
-  Empty,
-  Input,
-  Layout,
-  List,
-  Row,
-  Space,
-  Tooltip,
-  Typography,
-} from 'antd';
+import { Breadcrumb, Button, Card, Col, Input, Layout, List, Row } from 'antd';
 import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
-import yaml from 'js-yaml';
 import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-
-import { domain, sendRequest } from '../../types';
+import { sendRequest } from '../../types';
 import { EntityInspect } from './EntityInspect';
 
 type tState = {
@@ -71,7 +52,7 @@ export const EntityList = withRouter(
                   }
                 >
                   <List
-                    pagination={{ onChange: () => ({}) }}
+                    pagination={{ size: 'small' }}
                     dataSource={this.state.search}
                     renderItem={item => (
                       <List.Item>

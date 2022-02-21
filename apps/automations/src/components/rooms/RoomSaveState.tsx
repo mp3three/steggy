@@ -63,7 +63,7 @@ export class RoomSaveStates extends React.Component<{
         <Row gutter={16}>
           <Col span={12}>
             <List
-              pagination={{ onChange: () => {} }}
+              pagination={{ size: 'small' }}
               dataSource={this.room.save_states.sort((a, b) =>
                 a.friendlyName > b.friendlyName ? UP : DOWN,
               )}

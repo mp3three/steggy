@@ -79,7 +79,7 @@ export class EntityModalPicker extends React.Component<
               <List
                 rowKey="entity_id"
                 dataSource={this.getList()}
-                pagination={{ pageSize: 10 }}
+                pagination={{ size: 'small' }}
                 renderItem={item => (
                   <List.Item>
                     <Space>
@@ -106,7 +106,7 @@ export class EntityModalPicker extends React.Component<
                 <List
                   rowKey="entity_id"
                   dataSource={this.state.selected}
-                  pagination={{ pageSize: 10 }}
+                  pagination={{ size: 'small' }}
                   renderItem={item => (
                     <List.Item>
                       <Space>

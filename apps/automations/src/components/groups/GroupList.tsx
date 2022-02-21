@@ -56,7 +56,7 @@ export class GroupList extends React.Component {
               >
                 <List
                   dataSource={this.filter('light')}
-                  pagination={{ pageSize: 10 }}
+                  pagination={{ size: 'small' }}
                   renderItem={this.renderGroup.bind(this)}
                 ></List>
               </Card>
@@ -73,7 +73,7 @@ export class GroupList extends React.Component {
               >
                 <List
                   dataSource={this.filter('switch')}
-                  pagination={{ pageSize: 10 }}
+                  pagination={{ size: 'small' }}
                   renderItem={this.renderGroup.bind(this)}
                 ></List>
               </Card>
@@ -92,7 +92,7 @@ export class GroupList extends React.Component {
               >
                 <List
                   dataSource={this.filter('fan')}
-                  pagination={{ pageSize: 10 }}
+                  pagination={{ size: 'small' }}
                   renderItem={this.renderGroup.bind(this)}
                 ></List>
               </Card>
@@ -109,7 +109,7 @@ export class GroupList extends React.Component {
               >
                 <List
                   dataSource={this.filter('lock')}
-                  pagination={{ pageSize: 10 }}
+                  pagination={{ size: 'small' }}
                   renderItem={this.renderGroup.bind(this)}
                 ></List>
               </Card>

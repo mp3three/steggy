@@ -43,7 +43,8 @@ export class RoutineComparisonDTO {
   public comparison: STOP_PROCESSING_DEFINITIONS;
   public type: STOP_PROCESSING_TYPE;
 }
-export class RoutineCommandStopProcessing {
+
+export class RoutineCommandStopProcessingDTO {
   public comparisons: RoutineComparisonDTO;
   public mode: 'all' | 'any';
 }

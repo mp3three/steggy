@@ -85,7 +85,7 @@ export const RoutineList = withRouter(
             >
               <List
                 dataSource={this.state.routines}
-                pagination={{ pageSize: 10 }}
+                pagination={{ size: 'small' }}
                 renderItem={this.renderRoutine.bind(this)}
               />
             </Card>

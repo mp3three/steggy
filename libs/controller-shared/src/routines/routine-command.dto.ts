@@ -11,7 +11,7 @@ import {
 
 import { RoomEntitySaveStateDTO } from '../rooms';
 import { GroupDTO, RoomDTO } from '../schemas';
-import { RoutineCommandStopProcessing } from './stop-processing.dto';
+import { RoutineCommandStopProcessingDTO } from './stop-processing.dto';
 
 export type ActivateCommand =
   | 'entity_state'
@@ -165,7 +165,7 @@ export class RoutineCommandDTO<
     | RoutineCommandRoomStateDTO
     | RoutineCommandSendNotificationDTO
     | RoutineCommandSleepDTO
-    | RoutineCommandStopProcessing
+    | RoutineCommandStopProcessingDTO
     | RoutineCommandTriggerRoutineDTO
     | RoutineCommandWebhookDTO,
 > {
@@ -180,7 +180,7 @@ export class RoutineCommandDTO<
       { $ref: getSchemaPath(RoutineRestoreCommandDTO) },
       { $ref: getSchemaPath(RoutineCommandSendNotificationDTO) },
       { $ref: getSchemaPath(RoutineCommandSleepDTO) },
-      { $ref: getSchemaPath(RoutineCommandStopProcessing) },
+      { $ref: getSchemaPath(RoutineCommandStopProcessingDTO) },
       { $ref: getSchemaPath(RoutineCommandTriggerRoutineDTO) },
       { $ref: getSchemaPath(RoutineCommandWebhookDTO) },
     ],

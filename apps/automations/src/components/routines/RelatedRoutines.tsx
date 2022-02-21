@@ -45,7 +45,7 @@ export class RelatedRoutines extends React.Component<
   override render() {
     return (
       <List
-        pagination={{ onChange: () => {} }}
+        pagination={{ size: 'small' }}
         dataSource={this.state.routines}
         renderItem={item => (
           <List.Item>

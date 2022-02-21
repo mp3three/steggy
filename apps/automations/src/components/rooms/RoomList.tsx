@@ -74,7 +74,7 @@ export class RoomList extends React.Component {
           >
             <List
               dataSource={this.state.rooms}
-              pagination={{ pageSize: 10 }}
+              pagination={{ size: 'small' }}
               renderItem={this.renderRoom.bind(this)}
             />
           </Card>
