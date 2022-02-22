@@ -1,28 +1,18 @@
 import {
-  RoutineCommandSleepDTO,
   RoutineCommandStopProcessingDTO,
   RoutineComparisonDTO,
 } from '@automagical/controller-shared';
-import { is } from '@automagical/utilities';
-import {
-  Button,
-  Col,
-  Divider,
-  Form,
-  InputNumber,
-  List,
-  Radio,
-  Row,
-  Select,
-  Skeleton,
-  Space,
-} from 'antd';
+import { is, TitleCase } from '@automagical/utilities';
+import { Button, Col, Divider, Form, List, Radio, Row, Select } from 'antd';
 import React from 'react';
-import { FilterValue, GenericComparison } from '../../misc';
+import { v4 as uuid } from 'uuid';
+
+import { GenericComparison } from '../../misc';
 
 type tState = {
   addComparison: 'attribute' | 'date' | 'state' | 'template' | 'webhook';
   comparisons: RoutineComparisonDTO[];
+  edit?: RoutineComparisonDTO;
   mode: 'all' | 'any';
 };
 
@@ -78,17 +68,33 @@ export class StopProcessingCommand extends React.Component<
               </Select>
             </Col>
             <Col offset={1}>
-              <Button type="primary">Add</Button>
+              <Button type="primary" onClick={this.addComparison.bind(this)}>
+                Add
+              </Button>
             </Col>
           </Row>
         </Form.Item>
         <List dataSource={this.state.comparisons} />
-        <GenericComparison
-          visible={true}
-          comparison={undefined}
-          onSave={() => {}}
-        />
+        {is.undefined(this.state.edit) ? undefined : (
+          <GenericComparison
+            visible={true}
+            comparison={this.state.edit}
+            onCancel={() => console.log(`hit`)}
+            onCommit={() => console.log(`hit`)}
+            onUpdate={edit => this.setState({ edit })}
+          />
+        )}
       </>
     );
+  }
+
+  private addComparison(): void {
+    const edit = {
+      comparison: {},
+      friendlyName: `${TitleCase(this.state.addComparison)} test`,
+      id: uuid(),
+      type: this.state.addComparison,
+    } as RoutineComparisonDTO;
+    this.setState({ comparisons: [...this.state.comparisons, edit], edit });
   }
 }

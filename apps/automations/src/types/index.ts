@@ -8,6 +8,7 @@ import { is } from '@automagical/utilities';
 export async function sendRequest<T>(
   info: RequestInfo,
   init?: RequestInit,
+  text = false,
 ): Promise<T> {
   const headers: Record<string, string> = {
     'x-admin-key':
@@ -20,6 +21,9 @@ export async function sendRequest<T>(
     ...init,
     headers,
   });
+  if (text) {
+    return (await result.text()) as unknown as T;
+  }
   return await result.json();
 }
 sendRequest.url = function (info: string): string {

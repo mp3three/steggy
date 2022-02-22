@@ -1,5 +1,5 @@
-import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { HTTP_METHODS } from '@automagical/boilerplate';
+import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import {
   IsEnum,
   IsNumber,
@@ -145,10 +145,23 @@ export class RoutineRestoreCommandDTO {
   public key?: string;
 }
 
+export class WebhookHeaderDTO {
+  @ApiProperty()
+  @IsString()
+  public header: string;
+  @ApiProperty()
+  @IsString()
+  public value: string;
+}
+
+type stringMethods = `${HTTP_METHODS}`;
 export class RoutineCommandWebhookDTO {
+  @ApiProperty()
+  @ValidateNested({ each: true })
+  public headers: WebhookHeaderDTO[];
   @IsEnum(HTTP_METHODS)
   @ApiProperty({ enum: Object.values(HTTP_METHODS) })
-  public method: HTTP_METHODS;
+  public method: HTTP_METHODS | stringMethods;
   @ApiProperty()
   @IsString()
   public url: string;

@@ -1,66 +1,58 @@
-import { RoutineComparisonDTO } from '@automagical/controller-shared';
-import { HassStateDTO } from '@automagical/home-assistant-shared';
-import { is } from '@automagical/utilities';
 import {
-  Button,
-  Card,
-  Drawer,
-  Form,
-  Input,
-  Select,
-  Skeleton,
-  Spin,
-} from 'antd';
-import { dump } from 'js-yaml';
+  RoutineAttributeComparisonDTO,
+  RoutineComparisonDTO,
+  RoutineRelativeDateComparisonDTO,
+  RoutineStateComparisonDTO,
+  RoutineTemplateComparisonDTO,
+  RoutineWebhookComparisonDTO,
+} from '@automagical/controller-shared';
+import { Button, Drawer, Typography } from 'antd';
 import React from 'react';
-import { sendRequest } from '../../types';
-import { EntityHistory } from '../entities';
-import { FilterValue } from './FilterValue';
-import { FuzzySelect } from './FuzzySelect';
 
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import {
+  AttributeComparison,
+  RelativeDate,
+  StateComparison,
+  TemplateComparison,
+  WebhookComparison,
+} from './comparisons';
 
-type tState = {
-  attribute: string;
-  entity: string;
-  entities: string[];
-  type: 'attribute' | 'date' | 'state' | 'template' | 'webhook';
-  name: string;
-  operation: string;
-  state: HassStateDTO;
-  value: string | string[];
-};
-
-export class GenericComparison extends React.Component<
-  {
-    comparison: RoutineComparisonDTO;
-    onSave: (comparison: RoutineComparisonDTO) => void;
-    visible: boolean;
-  },
-  tState
-> {
-  override state = {
-    type: 'attribute',
-    entities: [],
-  } as tState;
-
-  override async componentDidMount(): Promise<void> {
-    await this.listEntities();
-  }
-
+export class GenericComparison extends React.Component<{
+  comparison: RoutineComparisonDTO;
+  onCancel: () => void;
+  onCommit: () => void;
+  onUpdate: (comparison: RoutineComparisonDTO) => void;
+  visible: boolean;
+}> {
   override render() {
     return (
       <Drawer
         visible={this.props.visible}
+        onClose={() => this.props.onCancel()}
         size="large"
-        title="Stop Processing Comparison"
+        title={
+          <Typography.Text
+            editable={{
+              onChange: friendlyName =>
+                this.props.onUpdate({
+                  ...this.props.comparison,
+                  friendlyName,
+                }),
+            }}
+          >
+            {this.props.comparison.friendlyName}
+          </Typography.Text>
+        }
         extra={
           <>
-            <Button type="primary" style={{ marginRight: '8px' }}>
+            <Button
+              type="primary"
+              style={{ marginRight: '8px' }}
+              onClick={() => this.props.onCommit()}
+            >
               Save
             </Button>
-            <Button>Cancel</Button>
+            <Button onClick={() => this.props.onCancel()}>Cancel</Button>
           </>
         }
       >
@@ -69,124 +61,100 @@ export class GenericComparison extends React.Component<
     );
   }
 
-  private async listEntities() {
-    const entities = await sendRequest<string[]>(`/entity/list`);
-    this.setState({ entities });
-  }
-
-  private async loadEntity(entity_id: string) {
-    const state = await sendRequest<HassStateDTO>(`/entity/id/${entity_id}`);
-    this.setState({ state });
-  }
-
   private renderComparison() {
-    switch (this.state.type) {
+    switch (this.props.comparison.type) {
       case 'state':
-        return this.renderStateComparison();
+        return (
+          <StateComparison
+            comparison={
+              this.props.comparison.comparison as RoutineStateComparisonDTO
+            }
+            onUpdate={part =>
+              this.props.onUpdate({
+                ...this.props.comparison,
+                comparison: {
+                  ...(this.props.comparison
+                    .comparison as RoutineStateComparisonDTO),
+                  ...part,
+                },
+              })
+            }
+          />
+        );
       case 'attribute':
-        return this.renderAttributeComparison();
+        return (
+          <AttributeComparison
+            comparison={
+              this.props.comparison.comparison as RoutineAttributeComparisonDTO
+            }
+            onUpdate={part =>
+              this.props.onUpdate({
+                ...this.props.comparison,
+                comparison: {
+                  ...(this.props.comparison
+                    .comparison as RoutineAttributeComparisonDTO),
+                  ...part,
+                },
+              })
+            }
+          />
+        );
+      case 'date':
+        return (
+          <RelativeDate
+            comparison={
+              this.props.comparison
+                .comparison as RoutineRelativeDateComparisonDTO
+            }
+            onUpdate={part =>
+              this.props.onUpdate({
+                ...this.props.comparison,
+                comparison: {
+                  ...(this.props.comparison
+                    .comparison as RoutineRelativeDateComparisonDTO),
+                  ...part,
+                },
+              })
+            }
+          />
+        );
+      case 'template':
+        return (
+          <TemplateComparison
+            comparison={
+              this.props.comparison.comparison as RoutineTemplateComparisonDTO
+            }
+            onUpdate={part =>
+              this.props.onUpdate({
+                ...this.props.comparison,
+                comparison: {
+                  ...(this.props.comparison
+                    .comparison as RoutineTemplateComparisonDTO),
+                  ...part,
+                },
+              })
+            }
+          />
+        );
+      case 'webhook':
+        return (
+          <WebhookComparison
+            comparison={
+              this.props.comparison.comparison as RoutineWebhookComparisonDTO
+            }
+            onUpdate={part =>
+              this.props.onUpdate({
+                ...this.props.comparison,
+                comparison: {
+                  ...(this.props.comparison
+                    .comparison as RoutineWebhookComparisonDTO),
+                  ...part,
+                },
+              })
+            }
+          />
+        );
     }
     return undefined;
-  }
-
-  private renderAttributeComparison() {
-    return (
-      <>
-        <Card title="Attribute Comparison" type="inner">
-          <Form.Item label="Entity">
-            <FuzzySelect
-              value={this.state.entity}
-              data={this.state.entities.map(i => ({ text: i, value: i }))}
-              onChange={entity => this.loadEntity(entity)}
-            />
-          </Form.Item>
-          <Form.Item label="Attribute">
-            <Input placeholder="friendly_name" />
-          </Form.Item>
-          <Form.Item label="Operation">
-            <Select
-              value={this.state.operation}
-              onChange={operation => this.setState({ operation })}
-            >
-              <Select.Option value="eq">Equals</Select.Option>
-              <Select.Option value="ne">Not Equals</Select.Option>
-              <Select.Option value="in">In List</Select.Option>
-              <Select.Option value="nin">Not In List</Select.Option>
-              <Select.Option value="lt">Less Than</Select.Option>
-              <Select.Option value="lte">Less Than / Equals</Select.Option>
-              <Select.Option value="gt">Greater Than</Select.Option>
-              <Select.Option value="gte">Greater Than / Equals</Select.Option>
-              <Select.Option value="regex">Regular Expression</Select.Option>
-              <Select.Option value="elem">List Element</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item label="Value">
-            {is.empty(this.state.operation) ? (
-              <Skeleton />
-            ) : (
-              <FilterValue
-                operation={this.state.operation}
-                value={this.state.value}
-                onChange={value => this.setState({ value })}
-              />
-            )}
-          </Form.Item>
-        </Card>
-        <Card
-          title="Current Attributes"
-          type="inner"
-          style={{ marginTop: '16px' }}
-        >
-          <SyntaxHighlighter language="yaml" style={atomDark}>
-            {dump(this.state.state?.attributes).trimEnd()}
-          </SyntaxHighlighter>
-        </Card>
-      </>
-    );
-  }
-
-  private renderStateComparison() {
-    return (
-      <>
-        <Card title="State Comparison" type="inner">
-          <Form.Item label="Entity">
-            <FuzzySelect
-              value={this.state.entity}
-              data={this.state.entities.map(i => ({ text: i, value: i }))}
-              onChange={entity => this.setState({ entity })}
-            />
-          </Form.Item>
-          <Form.Item label="Operation">
-            <Select
-              value={this.state.operation}
-              onChange={operation => this.setState({ operation })}
-            >
-              <Select.Option value="eq">Equals</Select.Option>
-              <Select.Option value="ne">Not Equals</Select.Option>
-              <Select.Option value="in">In List</Select.Option>
-              <Select.Option value="nin">Not In List</Select.Option>
-              <Select.Option value="lt">Less Than</Select.Option>
-              <Select.Option value="lte">Less Than / Equals</Select.Option>
-              <Select.Option value="gt">Greater Than</Select.Option>
-              <Select.Option value="gte">Greater Than / Equals</Select.Option>
-              <Select.Option value="regex">Regular Expression</Select.Option>
-              <Select.Option value="elem">List Element</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item label="Value">
-            {is.empty(this.state.operation) ? (
-              <Skeleton />
-            ) : (
-              <FilterValue
-                operation={this.state.operation}
-                value={this.state.value}
-                onChange={value => this.setState({ value })}
-              />
-            )}
-          </Form.Item>
-        </Card>
-        <EntityHistory entity={this.state.entity} />
-      </>
-    );
   }
 }

@@ -126,6 +126,6 @@ export class StateChangeActivateService {
   }
 
   private description(item: StateChangeWatcher): string {
-    return `[${item.entity}]${item.operation}{${item.value}}`;
+    return `[${item.entity}] ${item.operation} {${item.value}}`;
   }
 }

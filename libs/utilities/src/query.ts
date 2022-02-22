@@ -8,6 +8,7 @@ export type FilterValueType =
   | RegExp
   | unknown
   | Record<string, string>;
+
 export enum FILTER_OPERATIONS {
   // "elemMatch" functionality in mongo
   // eslint-disable-next-line unicorn/prevent-abbreviations
@@ -22,8 +23,9 @@ export enum FILTER_OPERATIONS {
   ne = 'ne',
   eq = 'eq',
 }
+
 export class ComparisonDTO {
-  public operation?: FILTER_OPERATIONS;
+  public operation?: FILTER_OPERATIONS | `${FILTER_OPERATIONS}`;
   public value?: FilterValueType | FilterValueType[];
 }
 
