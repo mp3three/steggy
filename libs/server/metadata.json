@@ -3,7 +3,8 @@
     "GLOBAL_PREFIX": {
       "type": "string",
       "description": "Ex: 'api' http://localhost:7000/normal/route/path => http://localhost:7000/api/normal/route/path",
-      "careful": true
+      "careful": true,
+      "default": "/api"
     },
     "CORS": {
       "type": "string",

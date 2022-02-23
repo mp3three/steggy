@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { Inject, Injectable, Optional } from '@nestjs/common';
 import { deepExtend, INVERT_VALUE, is } from '@automagical/utilities';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import JSON from 'comment-json';
 import {
   existsSync,
@@ -200,7 +200,7 @@ export class AutoConfigService {
       return undefined;
     }
     this.loadedConfigPath = filePath;
-    const fileContent = readFileSync(filePath, 'utf-8').trim();
+    const fileContent = readFileSync(filePath, 'utf8').trim();
     this.loadedConfigFiles.push(filePath);
     const hasExtension = extensions.some(extension => {
       if (
@@ -275,7 +275,7 @@ export class AutoConfigService {
       if (!lstatSync(maybeFolder).isDirectory()) {
         return;
       }
-      const json = readFileSync(join(maybeFolder, METADATA_FILE), 'utf-8');
+      const json = readFileSync(join(maybeFolder, METADATA_FILE), 'utf8');
       this.metadata.set(folder, JSON.parse(json) as unknown as RepoMetadataDTO);
     });
   }

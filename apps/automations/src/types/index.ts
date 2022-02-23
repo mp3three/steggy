@@ -17,7 +17,7 @@ export async function sendRequest<T>(
   if (!is.undefined(init?.body)) {
     headers['Content-Type'] = 'application/json; charset=utf-8';
   }
-  const result = await fetch(`http://10.0.0.5:7000${info}`, {
+  const result = await fetch(`http://10.0.0.5:7000/api${info}`, {
     ...init,
     headers,
   });

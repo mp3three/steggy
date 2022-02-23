@@ -37,14 +37,19 @@ export class StopProcessingCommand extends React.Component<
   }
 
   public load({ mode }: Partial<RoutineCommandStopProcessingDTO> = {}): void {
-    this.setState({ mode });
+    if (mode) {
+      this.setState({ mode });
+    }
   }
 
   override render() {
     return (
       <>
         <Form.Item label="Matching Mode">
-          <Radio.Group value={this.state.mode}>
+          <Radio.Group
+            value={this.state.mode}
+            onChange={({ target }) => this.setState({ mode: target.value })}
+          >
             <Radio.Button value="all">All</Radio.Button>
             <Radio.Button value="any">Any</Radio.Button>
           </Radio.Group>
@@ -74,13 +79,46 @@ export class StopProcessingCommand extends React.Component<
             </Col>
           </Row>
         </Form.Item>
-        <List dataSource={this.state.comparisons} />
+        <List
+          dataSource={this.state.comparisons}
+          renderItem={item => (
+            <List.Item onClick={() => this.setState({ edit: item })}>
+              <List.Item.Meta
+                title={item.friendlyName}
+                description={`${TitleCase(item.type)}`}
+              />
+              <Button
+                danger
+                type="text"
+                onClick={e => {
+                  e.stopPropagation();
+                  this.setState({
+                    comparisons: [
+                      ...this.state.comparisons.filter(
+                        ({ id }) => id !== item.id,
+                      ),
+                    ],
+                  });
+                }}
+              >
+                X
+              </Button>
+            </List.Item>
+          )}
+        />
         {is.undefined(this.state.edit) ? undefined : (
           <GenericComparison
             visible={true}
             comparison={this.state.edit}
-            onCancel={() => console.log(`hit`)}
-            onCommit={() => console.log(`hit`)}
+            onCancel={() => this.setState({ edit: undefined })}
+            onCommit={() =>
+              this.setState({
+                comparisons: this.state.comparisons.map(i =>
+                  i.id === this.state.edit.id ? this.state.edit : i,
+                ),
+                edit: undefined,
+              })
+            }
             onUpdate={edit => this.setState({ edit })}
           />
         )}

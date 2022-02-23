@@ -1,10 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
 import {
   FanAttributesDTO,
   LightAttributesDTO,
   LockAttributesDTO,
   SwitchAttributesDTO,
 } from '@automagical/home-assistant-shared';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsString, ValidateNested } from 'class-validator';
 
 export class RoomStateDTO {

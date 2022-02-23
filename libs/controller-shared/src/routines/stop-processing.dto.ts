@@ -1,6 +1,6 @@
 import { ComparisonDTO } from '@automagical/utilities';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 import { RoutineCommandWebhookDTO } from './routine-command.dto';
 
@@ -22,20 +22,29 @@ export enum RELATIVE_DATE_COMPARISON_TYPE {
 type relative = `${RELATIVE_DATE_COMPARISON_TYPE}`;
 
 export class RoutineStateComparisonDTO extends ComparisonDTO {
+  @IsString()
   public entity_id: string;
 }
+
 export class RoutineAttributeComparisonDTO extends ComparisonDTO {
+  @IsString()
   public attribute: string;
+  @IsString()
   public entity_id: string;
 }
 
 export class RoutineWebhookComparisonDTO extends ComparisonDTO {
+  @IsEnum(['text', 'json'])
   public handleAs: 'text' | 'json';
+  @IsString()
+  @IsOptional()
   public property?: string;
+  @ValidateNested()
   public webhook: RoutineCommandWebhookDTO;
 }
 
 export class RoutineTemplateComparisonDTO extends ComparisonDTO {
+  @IsString()
   public template: string;
 }
 
@@ -56,13 +65,19 @@ export type STOP_PROCESSING_DEFINITIONS =
   | RoutineRelativeDateComparisonDTO;
 
 export class RoutineComparisonDTO {
+  @ValidateNested()
   public comparison: STOP_PROCESSING_DEFINITIONS;
+  @IsString()
   public friendlyName: string;
+  @IsString()
   public id: string;
+  @IsEnum(STOP_PROCESSING_TYPE)
   public type: STOP_PROCESSING_TYPE;
 }
 
 export class RoutineCommandStopProcessingDTO {
+  @ValidateNested()
   public comparisons: RoutineComparisonDTO;
+  @IsEnum(['all', 'any'])
   public mode: 'all' | 'any';
 }

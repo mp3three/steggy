@@ -90,10 +90,6 @@ export class ServerModule {
       return;
     }
     app.use(helmet());
-    if (this.prefix) {
-      this.logger.debug(`Using global http prefix {${this.prefix}}`);
-      app.setGlobalPrefix(this.prefix);
-    }
     app.useGlobalPipes(new ValidationPipe());
     app.use(json({ limit: this.limit }));
     if (this.csurf) {
@@ -119,6 +115,10 @@ export class ServerModule {
     const filter = app.get(BasicExceptionFilter);
     app.useGlobalFilters(filter);
     app.useGlobalInterceptors(interceptor);
+    if (this.prefix) {
+      this.logger.debug(`Using global http prefix {${this.prefix}}`);
+      app.setGlobalPrefix(this.prefix);
+    }
   }
 
   private listenHttp(server: Express): boolean {
@@ -132,8 +132,8 @@ export class ServerModule {
   }
 
   private listenSsl(server: Express): void {
-    const key = readFileSync(this.sslKey, 'utf-8');
-    const cert = readFileSync(this.sslCert, 'utf-8');
+    const key = readFileSync(this.sslKey, 'utf8');
+    const cert = readFileSync(this.sslCert, 'utf8');
     if (!key) {
       throw new Error(`Bad ssl key`);
     }

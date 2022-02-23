@@ -24,7 +24,7 @@ export class ApplicationMenu extends React.Component {
         <Menu.Item key="4" icon={<HomeAutomation />}>
           <Link to="/routines">Routines</Link>
         </Menu.Item>
-        <Menu.Item key="5" icon={<AlarmBell />}>
+        <Menu.Item key="entities" icon={<AlarmBell />}>
           <Link to="/entities">Entities</Link>
         </Menu.Item>
         <Menu.Item key="6" icon={<Bug />}>
@@ -40,6 +40,9 @@ export class ApplicationMenu extends React.Component {
   private getSelected(): string[] {
     if (window.location.href.includes('/room')) {
       return ['room'];
+    }
+    if (window.location.href.includes('/entities')) {
+      return ['entities'];
     }
     if (window.location.href.includes('/group')) {
       return ['group'];
