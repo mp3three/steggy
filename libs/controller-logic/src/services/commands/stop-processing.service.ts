@@ -101,19 +101,27 @@ export class StopProcessingCommandService {
       return false;
     }
     const now = dayjs();
+    // Believe it or not, the docs were written first
+    // The logic looks weird in code form
     switch (comparison.dateType) {
+      case 'in_range':
+        if (parsed.end) {
+          return (
+            now.isAfter(parsed.start.date()) && now.isBefore(parsed.end.date())
+          );
+        }
+      // fall through
       case 'after':
         return now.isBefore(parsed.start.date());
+      case 'not_in_range':
+        if (parsed.end) {
+          return (
+            now.isBefore(parsed.start.date()) || now.isAfter(parsed.end.date())
+          );
+        }
+      // fall through
       case 'before':
         return now.isAfter(parsed.start.date());
-      case 'in_range':
-        return (
-          now.isAfter(parsed.start.date()) && now.isBefore(parsed.end.date())
-        );
-      case 'not_in_range':
-        return (
-          now.isBefore(parsed.start.date()) || now.isAfter(parsed.end.date())
-        );
     }
     this.logger.error({ comparison }, `Invalid comparison [dateType]`);
     return false;

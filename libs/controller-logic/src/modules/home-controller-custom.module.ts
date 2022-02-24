@@ -24,6 +24,7 @@ import {
   SolarActivateService,
   SolarCalcService,
   StateChangeActivateService,
+  StopProcessingCommandService,
   SwitchGroupService,
   WebhookService,
 } from '../services';
@@ -52,6 +53,7 @@ const providers = [
     CircadianService,
     RoutineTriggerService,
     LightManagerService,
+    StopProcessingCommandService,
     SleepCommandService,
     SolarCalcService,
   ],

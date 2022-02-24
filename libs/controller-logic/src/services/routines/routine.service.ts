@@ -14,6 +14,7 @@ import {
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
   RoutineCommandSleepDTO,
+  RoutineCommandStopProcessingDTO,
   RoutineCommandTriggerRoutineDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
@@ -43,6 +44,7 @@ import {
   RoutineTriggerService,
   SendNotificationService,
   SleepCommandService,
+  StopProcessingCommandService,
   WebhookService,
 } from '../commands';
 import { EntityCommandRouterService } from '../entity-command-router.service';
@@ -76,6 +78,8 @@ export class RoutineService {
     private readonly sleepService: SleepCommandService,
     @Inject(forwardRef(() => WebhookService))
     private readonly webhookService: WebhookService,
+    @Inject(forwardRef(() => StopProcessingCommandService))
+    private readonly stopProcessingService: StopProcessingCommandService,
   ) {}
 
   public async activateCommand(
@@ -87,7 +91,6 @@ export class RoutineService {
     command = is.string(command)
       ? routine.command.find(({ id }) => id === command)
       : command;
-    // TODO: Some sort of automatic registration mechanism?
     this.logger.debug(` - {${command.friendlyName}}`);
     switch (command.type) {
       case ROUTINE_ACTIVATE_COMMAND.group_action:
@@ -149,8 +152,9 @@ export class RoutineService {
         );
         break;
       case ROUTINE_ACTIVATE_COMMAND.stop_processing:
-
-      //
+        return await this.stopProcessingService.activate(
+          command.command as RoutineCommandStopProcessingDTO,
+        );
     }
     return true;
   }

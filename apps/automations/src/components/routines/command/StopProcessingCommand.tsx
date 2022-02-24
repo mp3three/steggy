@@ -2,7 +2,7 @@ import {
   RoutineCommandStopProcessingDTO,
   RoutineComparisonDTO,
 } from '@automagical/controller-shared';
-import { is, TitleCase } from '@automagical/utilities';
+import { is, NOT_FOUND, TitleCase } from '@automagical/utilities';
 import { Button, Col, Divider, Form, List, Radio, Row, Select } from 'antd';
 import React from 'react';
 import { v4 as uuid } from 'uuid';
@@ -11,7 +11,6 @@ import { GenericComparison } from '../../misc';
 
 type tState = {
   addComparison: 'attribute' | 'date' | 'state' | 'template' | 'webhook';
-  comparisons: RoutineComparisonDTO[];
   edit?: RoutineComparisonDTO;
 };
 
@@ -68,7 +67,7 @@ export class StopProcessingCommand extends React.Component<
           </Row>
         </Form.Item>
         <List
-          dataSource={this.state.comparisons}
+          dataSource={this.props.command.comparisons}
           renderItem={item => (
             <List.Item onClick={() => this.setState({ edit: item })}>
               <List.Item.Meta
@@ -80,9 +79,9 @@ export class StopProcessingCommand extends React.Component<
                 type="text"
                 onClick={e => {
                   e.stopPropagation();
-                  this.setState({
+                  this.props.onUpdate({
                     comparisons: [
-                      ...this.state.comparisons.filter(
+                      ...this.props.command.comparisons.filter(
                         ({ id }) => id !== item.id,
                       ),
                     ],
@@ -99,14 +98,24 @@ export class StopProcessingCommand extends React.Component<
             visible={true}
             comparison={this.state.edit}
             onCancel={() => this.setState({ edit: undefined })}
-            onCommit={() =>
+            onCommit={() => {
+              const { edit } = this.state;
+              const { command } = this.props;
+              const index = command.comparisons.findIndex(
+                ({ id }) => edit.id === id,
+              );
+              this.props.onUpdate({
+                comparisons:
+                  index === NOT_FOUND
+                    ? [...command.comparisons, edit]
+                    : command.comparisons.map(i =>
+                        i.id === edit.id ? edit : i,
+                      ),
+              });
               this.setState({
-                comparisons: this.state.comparisons.map(i =>
-                  i.id === this.state.edit.id ? this.state.edit : i,
-                ),
                 edit: undefined,
-              })
-            }
+              });
+            }}
             onUpdate={edit => this.setState({ edit })}
           />
         )}
@@ -121,6 +130,6 @@ export class StopProcessingCommand extends React.Component<
       id: uuid(),
       type: this.state.addComparison,
     } as RoutineComparisonDTO;
-    this.setState({ comparisons: [...this.state.comparisons, edit], edit });
+    this.setState({ edit });
   }
 }
