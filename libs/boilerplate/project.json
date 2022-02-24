@@ -41,7 +41,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga Boilerplate       ",
+            "command": "npx figlet-cli -f Pagga Boilerplate",
             "description": "Announce it"
           },
           {

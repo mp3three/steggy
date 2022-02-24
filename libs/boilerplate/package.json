@@ -4,8 +4,8 @@
     "name": "Cameron Contour",
     "url": "https://github.com/ccontour/automagical"
   },
-  "name": "@automagical/utilities",
-  "displayName": "Utilities",
+  "name": "@automagical/boilerplate",
+  "displayName": "Boilerplate",
   "license": "MIT",
   "version": "0.5.15",
   "homepage": "https://github.com/ccontour/automagical",

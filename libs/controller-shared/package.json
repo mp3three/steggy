@@ -4,8 +4,8 @@
     "name": "Cameron Contour",
     "url": "https://github.com/ccontour/automagical"
   },
-  "name": "@automagical/controller-logic-shared",
-  "displayName": "Controller Logic Shared",
+  "name": "@automagical/controller-shared",
+  "displayName": "Controller Shared",
   "license": "MIT",
   "version": "0.5.17",
   "homepage": "https://github.com/ccontour/automagical",

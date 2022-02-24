@@ -1,28 +1,30 @@
 {
-  "root": "libs/controller-logic-shared",
-  "sourceRoot": "libs/controller-logic-shared/src",
+  "root": "libs/controller-shared",
+  "sourceRoot": "libs/controller-shared/src",
   "projectType": "library",
   "targets": {
     "build": {
       "executor": "@nrwl/node:package",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/controller-logic-shared",
-        "tsConfig": "libs/controller-logic-shared/tsconfig.lib.json",
+        "outputPath": "dist/libs/controller-shared",
+        "tsConfig": "libs/controller-shared/tsconfig.lib.json",
         "buildableProjectDepsInPackageJsonType": "peerDependencies",
         "updateBuildableProjectDepsInPackageJson": true,
-        "packageJson": "libs/controller-logic-shared/package.json",
-        "main": "libs/controller-logic-shared/src/index.ts",
+        "packageJson": "libs/controller-shared/package.json",
+        "main": "libs/controller-shared/src/index.ts",
         "assets": [
-          "libs/controller-logic-shared/*.md",
-          "libs/controller-logic-shared/metadata.json",
-          "libs/controller-logic-shared/package.json"
+          "libs/controller-shared/*.md",
+          "libs/controller-shared/metadata.json",
+          "libs/controller-shared/package.json"
         ]
       },
       "configurations": {
         "production": {
           "optimization": true,
           "extractLicenses": false,
+          "buildableProjectDepsInPackageJsonType": "peerDependencies",
+          "updateBuildableProjectDepsInPackageJson": true,
           "fileReplacements": []
         }
       }
@@ -30,7 +32,7 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["libs/controller-logic-shared/**/*.ts"]
+        "lintFilePatterns": ["libs/controller-shared/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
     },
@@ -48,7 +50,7 @@
             "description": "Create production optimized build"
           },
           {
-            "command": "yarn publish --cwd dist/libs/controller-logic-shared --non-interactive",
+            "command": "yarn publish --cwd dist/libs/controller-shared --non-interactive",
             "description": "Publish it"
           }
         ]

@@ -42,5 +42,40 @@
       "@automagical/utilities": ["libs/utilities/src/index.ts"]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": ["node_modules", "tmp"],
+  "references": [
+    {
+      "path": "./libs/boilerplate/tsconfig.json"
+    },
+    {
+      "path": "./libs/controller-logic/tsconfig.json"
+    },
+    {
+      "path": "./libs/controller-shared/tsconfig.json"
+    },
+    {
+      "path": "./libs/home-assistant/tsconfig.json"
+    },
+    {
+      "path": "./libs/home-assistant-shared/tsconfig.json"
+    },
+    {
+      "path": "./libs/mqtt/tsconfig.json"
+    },
+    {
+      "path": "./libs/persistence/tsconfig.json"
+    },
+    {
+      "path": "./libs/rcon/tsconfig.json"
+    },
+    {
+      "path": "./libs/rules-engine/tsconfig.json"
+    },
+    {
+      "path": "./libs/server/tsconfig.json"
+    },
+    {
+      "path": "./libs/utilities/tsconfig.json"
+    }
+  ]
 }
