@@ -107,6 +107,10 @@
         "parallel": false,
         "commands": [
           {
+            "command": "npx nx build automations --configuration=production",
+            "description": "UI Build"
+          },
+          {
             "command": "npx figlet-cli -f Pagga Home Controller",
             "description": "Announce it"
           },

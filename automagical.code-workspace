@@ -73,8 +73,6 @@
       "*tar": true,
       "**/yarn-error.log": true,
       "**/.pino-prettyrc": true,
-      "**/tsconfig.json": true,
-      "**/tsconfig.spec.json": true,
       "**/.prettierrc": true,
       "**/.browserslistrc": true,
       "**/.yarnclean": true,
@@ -87,7 +85,6 @@
       "apps/*/ios": true,
       "apps/*/android": true,
       "tmp": true,
-      "tsconfig.spec.json": true,
     },
     "prettier.arrowParens": "avoid",
 

@@ -3,6 +3,9 @@ FROM node:16-alpine AS build-app
 ARG CONFIGURATION
 WORKDIR /app
 ARG path="dist/apps/${CONFIGURATION}"
+ARG uipath="dist/apps/automations"
+
+COPY --chown=node:node $uipath ./ui
 COPY --chown=node:node $path .
 COPY --chown=node:node yarn.lock .
 RUN yarn install --production --pure-lockfile

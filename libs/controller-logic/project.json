@@ -23,6 +23,8 @@
         "production": {
           "optimization": true,
           "extractLicenses": false,
+          "buildableProjectDepsInPackageJsonType": "peerDependencies",
+          "updateBuildableProjectDepsInPackageJson": true,
           "fileReplacements": []
         }
       }
