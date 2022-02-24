@@ -83,9 +83,9 @@ export const GroupDetail = withRouter(
                 <Col span={12}>
                   <Card title="Group Actions">
                     <Space>
-                      <Button>Circadian</Button>
-                      <Button>Off</Button>
-                      <Button>On</Button>
+                      <Button type="primary">Circadian</Button>
+                      <Button type="primary">Off</Button>
+                      <Button type="primary">On</Button>
                     </Space>
                     <Card
                       type="inner"

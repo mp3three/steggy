@@ -77,7 +77,7 @@ export class RoutineComparisonDTO {
 
 export class RoutineCommandStopProcessingDTO {
   @ValidateNested()
-  public comparisons: RoutineComparisonDTO;
+  public comparisons: RoutineComparisonDTO[];
   @IsEnum(['all', 'any'])
   public mode: 'all' | 'any';
 }

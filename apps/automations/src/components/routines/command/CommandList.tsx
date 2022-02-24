@@ -5,7 +5,7 @@ import {
   QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { RoutineCommandDTO, RoutineDTO } from '@automagical/controller-shared';
-import { TitleCase } from '@automagical/utilities';
+import { is, TitleCase } from '@automagical/utilities';
 import {
   Button,
   Card,
@@ -245,8 +245,8 @@ export class CommandList extends React.Component<{
   }
 
   private draggableBodyRow({ className, style, ...restProperties }) {
+    is.undefined([className, style]);
     const dataSource = this.props.routine.command;
-    // function findIndex base on Table rowKey props and should always be a right array index
     const index = dataSource.findIndex(
       x => x.id === restProperties['data-row-key'],
     );

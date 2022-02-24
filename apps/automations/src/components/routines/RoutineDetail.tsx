@@ -1,11 +1,7 @@
 import DebugStepIntoIcon from '@2fd/ant-design-icons/lib/DebugStepInto';
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import {
-  RoutineActivateDTO,
-  RoutineCommandDTO,
-  RoutineDTO,
-} from '@automagical/controller-shared';
+import { RoutineActivateDTO, RoutineDTO } from '@automagical/controller-shared';
 import { TitleCase } from '@automagical/utilities';
 import {
   Breadcrumb,
@@ -163,7 +159,11 @@ export const RoutineDetail = withRouter(
                                   onClick={() => this.activateDrawer.load(item)}
                                   type="text"
                                 >
-                                  {TitleCase(item.type)}
+                                  {TitleCase(
+                                    item.type === 'kunami'
+                                      ? 'sequence'
+                                      : item.type,
+                                  )}
                                 </Button>
                               }
                             />

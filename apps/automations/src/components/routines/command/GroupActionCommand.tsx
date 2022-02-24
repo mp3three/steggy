@@ -2,8 +2,7 @@ import {
   GroupDTO,
   RoutineCommandGroupActionDTO,
 } from '@automagical/controller-shared';
-import { LightAttributesDTO } from '@automagical/home-assistant-shared';
-import { is, TitleCase } from '@automagical/utilities';
+import { TitleCase } from '@automagical/utilities';
 import { Empty, Form, Select, Space } from 'antd';
 import React from 'react';
 
@@ -71,11 +70,10 @@ export class GroupActionCommand extends React.Component<
   }
 
   private renderPicker() {
-    const { group } = this.props.command;
-    if (!is.object(group)) {
+    if (!this.group) {
       return <Empty description="Select group" />;
     }
-    if (group.type === 'light') {
+    if (this.group.type === 'light') {
       return (
         <LightGroupAction
           onUpdate={part => this.props.onUpdate(part)}
@@ -90,7 +88,7 @@ export class GroupActionCommand extends React.Component<
     return (
       <Empty
         description={`${TitleCase(
-          group.type,
+          this.group.type,
         )} group does not have special actions`}
       />
     );
