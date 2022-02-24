@@ -2,6 +2,7 @@ import {
   GroupDTO,
   RoutineCommandGroupActionDTO,
 } from '@automagical/controller-shared';
+import { LightAttributesDTO } from '@automagical/home-assistant-shared';
 import { is, TitleCase } from '@automagical/utilities';
 import { Empty, Form, Select, Space } from 'antd';
 import React from 'react';
@@ -10,40 +11,28 @@ import { sendRequest } from '../../../types';
 import { LightGroupAction } from '../../groups';
 
 type tState = {
-  command: string;
-  extra: Record<string, unknown>;
-  group: GroupDTO;
   groups: GroupDTO[];
 };
 
 export class GroupActionCommand extends React.Component<
-  { command?: RoutineCommandGroupActionDTO },
+  {
+    command?: RoutineCommandGroupActionDTO;
+    onUpdate: (command: Partial<RoutineCommandGroupActionDTO>) => void;
+  },
   tState
 > {
   override state = {
     groups: [],
   } as tState;
 
-  private picker: LightGroupAction;
+  private get group(): GroupDTO {
+    return this.state.groups.find(
+      ({ _id }) => _id === this.props.command?.group,
+    );
+  }
+
   override async componentDidMount(): Promise<void> {
     await this.listGroups();
-  }
-
-  public getValue(): RoutineCommandGroupActionDTO {
-    return {
-      // 🤷
-      ...(this.picker?.getValue() ?? { command: 'turnOff' }),
-      group: this.state.group._id,
-    };
-  }
-
-  public load(command: RoutineCommandGroupActionDTO): void {
-    console.log(command);
-    this.setState({
-      command: command?.command,
-      extra: command?.extra,
-      group: this.state.groups.find(({ _id }) => _id === command?.group),
-    });
   }
 
   override render() {
@@ -51,7 +40,7 @@ export class GroupActionCommand extends React.Component<
       <Space direction="vertical" style={{ width: '100%' }}>
         <Form.Item>
           <Select
-            value={this.state.group?._id}
+            value={this.group?._id}
             onChange={this.groupChange.bind(this)}
             showSearch
             style={{ width: '100%' }}
@@ -69,7 +58,7 @@ export class GroupActionCommand extends React.Component<
   }
 
   private groupChange(group: string): void {
-    this.setState({
+    this.props.onUpdate({
       group: this.state.groups.find(({ _id }) => _id === group),
     });
   }
@@ -79,22 +68,22 @@ export class GroupActionCommand extends React.Component<
       `/group?select=friendlyName,type&type=light&sort=friendlyName`,
     );
     this.setState({ groups });
-    this.load(this.props.command);
   }
 
   private renderPicker() {
-    const { group, command, extra } = this.state;
+    const { group } = this.props.command;
     if (!is.object(group)) {
       return <Empty description="Select group" />;
     }
     if (group.type === 'light') {
       return (
         <LightGroupAction
-          ref={pick => (this.picker = pick)}
-          command={{
-            command,
-            extra: extra as { brightness: number },
-          }}
+          onUpdate={part => this.props.onUpdate(part)}
+          command={
+            this.props.command as RoutineCommandGroupActionDTO<{
+              brightness: number;
+            }>
+          }
         />
       );
     }

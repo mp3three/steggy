@@ -32,6 +32,7 @@ import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
+import { CommandList } from './command';
 import { RelatedRoutines } from './RelatedRoutines';
 import { RoutineActivateDrawer } from './RoutineActivateDrawer';
 import { RoutineCommandDrawer } from './RoutineCommandDrawer';
@@ -192,113 +193,10 @@ export const RoutineDetail = withRouter(
                     </Card>
                   </Col>
                   <Col span={12}>
-                    <Card
-                      title="Command actions"
-                      extra={
-                        <Popconfirm
-                          onConfirm={this.validateCommand.bind(this)}
-                          icon={
-                            <QuestionCircleOutlined
-                              style={{ visibility: 'hidden' }}
-                            />
-                          }
-                          title={
-                            <Form
-                              onFinish={this.validateCommand.bind(this)}
-                              ref={form => (this.commandCreateForm = form)}
-                            >
-                              <Form.Item
-                                label="Type"
-                                name="type"
-                                rules={[{ required: true }]}
-                              >
-                                <Select
-                                  style={{ width: '200px' }}
-                                  defaultActiveFirstOption
-                                >
-                                  <Select.Option value="entity_state">
-                                    Entity State
-                                  </Select.Option>
-                                  <Select.Option value="group_state">
-                                    Group State
-                                  </Select.Option>
-                                  <Select.Option value="group_action">
-                                    Group Action
-                                  </Select.Option>
-                                  <Select.Option value="room_state">
-                                    Room State
-                                  </Select.Option>
-                                  <Select.Option value="send_notification">
-                                    Send Notification
-                                  </Select.Option>
-                                  <Select.Option value="sleep">
-                                    Sleep
-                                  </Select.Option>
-                                  <Select.Option value="stop_processing">
-                                    Stop Processing
-                                  </Select.Option>
-                                  <Select.Option value="trigger_routine">
-                                    Trigger Routine
-                                  </Select.Option>
-                                  <Select.Option value="webhook">
-                                    Webhook
-                                  </Select.Option>
-                                </Select>
-                              </Form.Item>
-                            </Form>
-                          }
-                        >
-                          <Button size="small" icon={<PlusBoxMultiple />}>
-                            Add new
-                          </Button>
-                        </Popconfirm>
-                      }
-                    >
-                      <List
-                        dataSource={this.state.routine.command}
-                        renderItem={item => (
-                          <List.Item
-                            key={item.id}
-                            onClick={() => this.commandDrawer.load(item)}
-                          >
-                            <List.Item.Meta
-                              title={
-                                <Typography.Text
-                                  onClick={e => e.stopPropagation()}
-                                  editable={{
-                                    onChange: value =>
-                                      this.renameCommand(item, value),
-                                  }}
-                                >
-                                  {item.friendlyName}
-                                </Typography.Text>
-                              }
-                              description={TitleCase(item.type)}
-                            />
-                            <Popconfirm
-                              icon={
-                                <QuestionCircleOutlined
-                                  style={{ color: 'red' }}
-                                />
-                              }
-                              title={`Are you sure you want to delete ${item.friendlyName}?`}
-                              onConfirm={e => {
-                                this.deleteCommand(item);
-                                e.stopPropagation();
-                              }}
-                            >
-                              <Button
-                                danger
-                                type="text"
-                                onClick={e => e.stopPropagation()}
-                              >
-                                <CloseOutlined />
-                              </Button>
-                            </Popconfirm>
-                          </List.Item>
-                        )}
-                      />
-                    </Card>
+                    <CommandList
+                      routine={this.state.routine}
+                      onUpdate={routine => this.setState({ routine })}
+                    />
                   </Col>
                 </Row>
                 <Row gutter={8} style={{ marginTop: '16px' }}>
@@ -379,11 +277,6 @@ export const RoutineDetail = withRouter(
                 onUpdate={this.refresh.bind(this)}
                 ref={i => (this.activateDrawer = i)}
               />
-              <RoutineCommandDrawer
-                routine={this.state.routine}
-                onUpdate={this.refresh.bind(this)}
-                ref={i => (this.commandDrawer = i)}
-              />
             </>
           ) : (
             <Layout.Content>
@@ -397,14 +290,6 @@ export const RoutineDetail = withRouter(
     private async deleteActivate(item: RoutineActivateDTO): Promise<void> {
       const routine = await sendRequest<RoutineDTO>(
         `/routine/${this.id}/activate/${item.id}`,
-        { method: 'delete' },
-      );
-      this.refresh(routine);
-    }
-
-    private async deleteCommand(item: RoutineCommandDTO): Promise<void> {
-      const routine = await sendRequest<RoutineDTO>(
-        `/routine/${this.id}/command/${item.id}`,
         { method: 'delete' },
       );
       this.refresh(routine);
@@ -453,27 +338,6 @@ export const RoutineDetail = withRouter(
       this.setState({ routine: updated });
     }
 
-    private async renameCommand(
-      command: RoutineCommandDTO,
-      friendlyName: string,
-    ): Promise<void> {
-      const { routine } = this.state;
-      const updated = await sendRequest<RoutineDTO>(`/routine/${routine._id}`, {
-        body: JSON.stringify({
-          command: routine.command.map(i =>
-            i.id === command.id
-              ? {
-                  ...command,
-                  friendlyName,
-                }
-              : i,
-          ),
-        }),
-        method: 'put',
-      });
-      this.setState({ routine: updated });
-    }
-
     private async setSync(sync: boolean) {
       const routine = await sendRequest<RoutineDTO>(
         `/routine/${this.state.routine._id}`,
@@ -486,16 +350,6 @@ export const RoutineDetail = withRouter(
       try {
         const values = await this.activateCreateForm.validateFields();
         this.activateDrawer.load(values as RoutineActivateDTO);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    private async validateCommand(): Promise<void> {
-      try {
-        const values = await this.commandCreateForm.validateFields();
-        values.friendlyName = `${TitleCase(values.type)} action`;
-        this.commandDrawer.load(values as RoutineCommandDTO);
       } catch (error) {
         console.error(error);
       }

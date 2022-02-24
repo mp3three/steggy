@@ -21,6 +21,7 @@ import {
   Drawer,
   Form,
   notification,
+  Skeleton,
   Space,
   Spin,
   Typography,
@@ -49,7 +50,7 @@ type tState = {
 export class RoutineCommandDrawer extends React.Component<
   {
     command?: RoutineCommandDTO;
-    onUpdate?: (routine: RoutineDTO) => void;
+    onUpdate: (routine: RoutineDTO) => void;
     routine: RoutineDTO;
   },
   tState
@@ -59,16 +60,6 @@ export class RoutineCommandDrawer extends React.Component<
   }
 
   override state = {} as tState;
-  private widget:
-    | EntityStateCommand
-    | GroupActionCommand
-    | GroupStateCommand
-    | WebhookCommand
-    | StopProcessingCommand
-    | RoomStateCommand
-    | SendNotificationCommand
-    | SleepCommand
-    | TriggerRoutineCommand;
 
   override componentDidMount(): void {
     if (this.props.command) {
@@ -85,11 +76,6 @@ export class RoutineCommandDrawer extends React.Component<
       name: command.friendlyName,
       visible: true,
     });
-    setTimeout(() => {
-      // FIXME: I'm lazy with types
-      // @ts-expect-error See above
-      this.widget.load(command.command);
-    }, 0);
   }
 
   override render() {
@@ -145,12 +131,24 @@ export class RoutineCommandDrawer extends React.Component<
     );
   }
 
+  private onUpdate(command): void {
+    this.setState({
+      command: {
+        ...this.state.command,
+        command: {
+          ...this.state.command.command,
+          ...command,
+        },
+      },
+    });
+  }
+
   private renderType() {
     switch (this.type) {
       case 'stop_processing':
         return (
           <StopProcessingCommand
-            ref={i => (this.widget = i)}
+            onUpdate={this.onUpdate.bind(this)}
             command={
               this.state.command.command as RoutineCommandStopProcessingDTO
             }
@@ -159,35 +157,35 @@ export class RoutineCommandDrawer extends React.Component<
       case 'entity_state':
         return (
           <EntityStateCommand
-            ref={i => (this.widget = i)}
+            onUpdate={this.onUpdate.bind(this)}
             command={this.state.command.command as RoomEntitySaveStateDTO}
           />
         );
       case 'group_action':
         return (
           <GroupActionCommand
-            ref={i => (this.widget = i)}
+            onUpdate={this.onUpdate.bind(this)}
             command={this.state.command.command as RoutineCommandGroupActionDTO}
           />
         );
       case 'group_state':
         return (
           <GroupStateCommand
-            ref={i => (this.widget = i)}
+            onUpdate={this.onUpdate.bind(this)}
             command={this.state.command.command as RoutineCommandGroupStateDTO}
           />
         );
       case 'room_state':
         return (
           <RoomStateCommand
-            ref={i => (this.widget = i)}
+            onUpdate={this.onUpdate.bind(this)}
             command={this.state.command.command as RoutineCommandRoomStateDTO}
           />
         );
       case 'send_notification':
         return (
           <SendNotificationCommand
-            ref={i => (this.widget = i)}
+            onUpdate={this.onUpdate.bind(this)}
             command={
               this.state.command.command as RoutineCommandSendNotificationDTO
             }
@@ -196,14 +194,14 @@ export class RoutineCommandDrawer extends React.Component<
       case 'sleep':
         return (
           <SleepCommand
-            ref={i => (this.widget = i)}
+            onUpdate={this.onUpdate.bind(this)}
             command={this.state.command.command as RoutineCommandSleepDTO}
           />
         );
       case 'trigger_routine':
         return (
           <TriggerRoutineCommand
-            ref={i => (this.widget = i)}
+            onUpdate={this.onUpdate.bind(this)}
             command={
               this.state.command.command as RoutineCommandTriggerRoutineDTO
             }
@@ -212,18 +210,17 @@ export class RoutineCommandDrawer extends React.Component<
       case 'webhook':
         return (
           <WebhookCommand
-            ref={i => (this.widget = i)}
+            onUpdate={this.onUpdate.bind(this)}
             command={this.state.command.command as RoutineCommandWebhookDTO}
           />
         );
     }
-    return undefined;
+    return <Skeleton />;
   }
 
   private async save(): Promise<void> {
-    const { id } = this.state.command;
-    const command = this.widget.getValue();
-    if (!command) {
+    const { id, type, command } = this.state.command;
+    if (!this.state.command) {
       notification.error({
         message: 'Invalid ',
       });
@@ -236,8 +233,8 @@ export class RoutineCommandDrawer extends React.Component<
             body: JSON.stringify({
               command,
               friendlyName: this.state.name,
-              type: this.state.command.type,
-            } as RoutineCommandDTO),
+              type,
+            }),
             method: 'post',
           },
         )
@@ -247,15 +244,14 @@ export class RoutineCommandDrawer extends React.Component<
             body: JSON.stringify({
               command,
               friendlyName: this.state.name,
-              type: this.state.command.type,
-            } as RoutineCommandDTO),
+              id,
+              type,
+            }),
             method: 'put',
           },
         );
 
-    if (this.props.onUpdate) {
-      this.props.onUpdate(routine);
-    }
+    this.props.onUpdate(routine);
     this.setState({ visible: false });
   }
 

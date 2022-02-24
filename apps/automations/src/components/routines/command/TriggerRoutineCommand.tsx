@@ -8,12 +8,14 @@ import React from 'react';
 import { sendRequest } from '../../../types';
 
 type tState = {
-  routine: string;
   routines: RoutineDTO[];
 };
 
 export class TriggerRoutineCommand extends React.Component<
-  { command?: RoutineCommandTriggerRoutineDTO },
+  {
+    command?: RoutineCommandTriggerRoutineDTO;
+    onUpdate: (command: Partial<RoutineCommandTriggerRoutineDTO>) => void;
+  },
   tState
 > {
   override state = {
@@ -22,26 +24,14 @@ export class TriggerRoutineCommand extends React.Component<
 
   override async componentDidMount(): Promise<void> {
     await this.listRoutines();
-    const { command } = this.props;
-    if (command) {
-      this.load(command);
-    }
-  }
-
-  public getValue(): RoutineCommandTriggerRoutineDTO {
-    return { routine: this.state.routine };
-  }
-
-  public load(command: RoutineCommandTriggerRoutineDTO): void {
-    this.setState({ routine: command?.routine });
   }
 
   override render() {
     return (
       <Form.Item label="Routine">
         <Select
-          value={this.state.routine}
-          onChange={routine => this.setState({ routine })}
+          value={this.props.command?.routine}
+          onChange={routine => this.props.onUpdate({ routine })}
         >
           {this.state.routines.map(routine => (
             <Select.Option key={routine._id} value={routine._id}>

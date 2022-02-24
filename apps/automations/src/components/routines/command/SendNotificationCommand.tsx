@@ -2,27 +2,10 @@ import { RoutineCommandSendNotificationDTO } from '@automagical/controller-share
 import { Form, Input } from 'antd';
 import React from 'react';
 
-type tState = {
-  template: string;
-};
-
-export class SendNotificationCommand extends React.Component<
-  { command?: RoutineCommandSendNotificationDTO },
-  tState
-> {
-  override state = {} as tState;
-
-  override componentDidMount(): void {
-    const { command } = this.props;
-    this.load(command);
-  }
-
-  public getValue(): RoutineCommandSendNotificationDTO {
-    return {
-      template: this.state.template,
-    };
-  }
-
+export class SendNotificationCommand extends React.Component<{
+  command?: RoutineCommandSendNotificationDTO;
+  onUpdate: (command: Partial<RoutineCommandSendNotificationDTO>) => void;
+}> {
   public load(command: Partial<RoutineCommandSendNotificationDTO> = {}): void {
     this.setState({ template: command.template });
   }
@@ -31,8 +14,10 @@ export class SendNotificationCommand extends React.Component<
     return (
       <Form.Item label="Template">
         <Input.TextArea
-          value={this.state.template}
-          onChange={({ target }) => this.setState({ template: target.value })}
+          value={this.props.command?.template}
+          onChange={({ target }) =>
+            this.props.onUpdate({ template: target.value })
+          }
         />
       </Form.Item>
     );

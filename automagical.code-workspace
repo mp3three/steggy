@@ -12,24 +12,6 @@
         "request": "attach",
         "port": 33334
       },
-      {
-        "name": "Home CLI",
-        "type": "node",
-        "request": "attach",
-        "port": 33337
-      },
-      {
-        "name": "Devtools",
-        "type": "node",
-        "request": "attach",
-        "port": 33336
-      },
-      {
-        "name": "Trade",
-        "type": "node",
-        "request": "attach",
-        "port": 33335
-      },
     ]
   },
   "extensions": {

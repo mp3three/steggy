@@ -2,16 +2,17 @@ import { RoutineCommandGroupActionDTO } from '@automagical/controller-shared';
 import { Form, Radio, Slider } from 'antd';
 import React from 'react';
 
-type tState = {
-  brightness: number;
-  command: string;
-};
+type tCommand = Omit<
+  RoutineCommandGroupActionDTO<{ brightness: number }>,
+  'group'
+>;
 
-type t = Omit<RoutineCommandGroupActionDTO<{ brightness: number }>, 'group'>;
-
-export class LightGroupAction extends React.Component<{ command: t }, tState> {
-  override state = {} as tState;
-
+export class LightGroupAction extends React.Component<{
+  command: tCommand;
+  onUpdate: (
+    command: Partial<RoutineCommandGroupActionDTO<{ brightness: number }>>,
+  ) => void;
+}> {
   override componentDidMount(): void {
     this.setState({
       brightness: this.props.command?.extra?.brightness ?? 64,
@@ -19,11 +20,11 @@ export class LightGroupAction extends React.Component<{ command: t }, tState> {
     });
   }
 
-  public getValue(): t {
+  public getValue(): tCommand {
     return {
-      command: this.state.command,
+      command: this.props.command.command,
       extra: {
-        brightness: this.state.brightness,
+        brightness: this.props.command.extra.brightness,
       },
     };
   }
@@ -33,8 +34,12 @@ export class LightGroupAction extends React.Component<{ command: t }, tState> {
       <>
         <Form.Item label="Direction">
           <Radio.Group
-            value={this.state.command}
-            onChange={({ target }) => this.setState({ command: target.value })}
+            value={this.props.command.command}
+            onChange={({ target }) =>
+              this.props.onUpdate({
+                command: target.value as string,
+              })
+            }
           >
             <Radio.Button value="dimUp">Up</Radio.Button>
             <Radio.Button value="dimDown">Down</Radio.Button>
@@ -44,8 +49,10 @@ export class LightGroupAction extends React.Component<{ command: t }, tState> {
           <Slider
             min={1}
             max={255}
-            value={this.state.brightness}
-            onChange={brightness => this.setState({ brightness })}
+            value={this.props.command.extra.brightness}
+            onChange={brightness =>
+              this.props.onUpdate({ extra: { brightness } })
+            }
             marks={{
               1: 'min',
               128: '1/2',

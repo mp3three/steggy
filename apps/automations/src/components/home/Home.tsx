@@ -1,11 +1,20 @@
-import { Layout, Typography } from 'antd';
+import { Card, Col, Layout, Row, Skeleton } from 'antd';
 import React from 'react';
-
-const { Link, Title } = Typography;
-const { Footer } = Layout;
 
 export class HomePage extends React.Component {
   override render() {
-    return <Title>Home Page</Title>;
+    return (
+      <Layout>
+        <Layout.Content style={{ padding: '16px' }}>
+          <Row>
+            <Col span={12}>
+              <Card title="Quick Access">
+                <Skeleton />
+              </Card>
+            </Col>
+          </Row>
+        </Layout.Content>
+      </Layout>
+    );
   }
 }

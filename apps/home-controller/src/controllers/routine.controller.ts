@@ -22,11 +22,13 @@ import {
   Locals,
   ResponseLocals,
 } from '@automagical/server';
+import { NOT_FOUND } from '@automagical/utilities';
 import {
   Body,
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -235,15 +237,15 @@ export class RoutineController {
     @Body() command: RoutineCommandDTO,
   ): Promise<RoutineDTO> {
     const routine = await this.routineService.get(id);
-    routine.command = routine.command.map(item => {
-      if (item.id !== commandId) {
-        return item;
-      }
-      return {
-        ...command,
-        id: commandId,
-      };
-    });
+    const index = routine.command.findIndex(({ id }) => id === commandId);
+    if (index === NOT_FOUND) {
+      throw new NotFoundException();
+    }
+    const updated = {
+      ...command,
+      id: commandId,
+    };
+    routine.command[index] = updated;
     return await this.update(id, routine);
   }
 }

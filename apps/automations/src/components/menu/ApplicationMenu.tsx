@@ -1,9 +1,8 @@
 import AlarmBell from '@2fd/ant-design-icons/lib/AlarmBell';
-import Bug from '@2fd/ant-design-icons/lib/Bug';
 import BulletinBoard from '@2fd/ant-design-icons/lib/BulletinBoard';
 import HomeAutomation from '@2fd/ant-design-icons/lib/HomeAutomation';
 import LightbulbGroupOutline from '@2fd/ant-design-icons/lib/LightbulbGroupOutline';
-import { HomeOutlined, SettingOutlined } from '@ant-design/icons';
+import { HomeOutlined } from '@ant-design/icons';
 import { Menu } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -21,18 +20,18 @@ export class ApplicationMenu extends React.Component {
         <Menu.Item key="room" icon={<BulletinBoard />}>
           <Link to="/rooms">Rooms</Link>
         </Menu.Item>
-        <Menu.Item key="4" icon={<HomeAutomation />}>
+        <Menu.Item key="routines" icon={<HomeAutomation />}>
           <Link to="/routines">Routines</Link>
         </Menu.Item>
         <Menu.Item key="entities" icon={<AlarmBell />}>
           <Link to="/entities">Entities</Link>
         </Menu.Item>
-        <Menu.Item key="6" icon={<Bug />}>
+        {/* <Menu.Item key="6" icon={<Bug />}>
           <Link to="/debugger">Debugger</Link>
         </Menu.Item>
         <Menu.Item key="7" icon={<SettingOutlined />}>
           <Link to="/settings">Settings</Link>
-        </Menu.Item>
+        </Menu.Item> */}
       </Menu>
     );
   }
@@ -41,11 +40,14 @@ export class ApplicationMenu extends React.Component {
     if (window.location.href.includes('/room')) {
       return ['room'];
     }
-    if (window.location.href.includes('/entities')) {
+    if (window.location.href.includes('/ent')) {
       return ['entities'];
     }
     if (window.location.href.includes('/group')) {
       return ['group'];
+    }
+    if (window.location.href.includes('/routine')) {
+      return ['routines'];
     }
     return ['home'];
   }

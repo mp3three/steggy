@@ -13,11 +13,13 @@ type tState = {
   addComparison: 'attribute' | 'date' | 'state' | 'template' | 'webhook';
   comparisons: RoutineComparisonDTO[];
   edit?: RoutineComparisonDTO;
-  mode: 'all' | 'any';
 };
 
 export class StopProcessingCommand extends React.Component<
-  { command?: RoutineCommandStopProcessingDTO },
+  {
+    command: RoutineCommandStopProcessingDTO;
+    onUpdate: (command: Partial<RoutineCommandStopProcessingDTO>) => void;
+  },
   tState
 > {
   override state = {
@@ -26,29 +28,15 @@ export class StopProcessingCommand extends React.Component<
     mode: 'any',
   } as tState;
 
-  override componentDidMount(): void {
-    const { command } = this.props;
-    this.load(command);
-  }
-
-  public getValue(): RoutineCommandStopProcessingDTO {
-    // return { duration: this.state.duration };
-    return undefined;
-  }
-
-  public load({ mode }: Partial<RoutineCommandStopProcessingDTO> = {}): void {
-    if (mode) {
-      this.setState({ mode });
-    }
-  }
-
   override render() {
     return (
       <>
         <Form.Item label="Matching Mode">
           <Radio.Group
-            value={this.state.mode}
-            onChange={({ target }) => this.setState({ mode: target.value })}
+            value={this.props.command?.mode}
+            onChange={({ target }) =>
+              this.props.onUpdate({ mode: target.value })
+            }
           >
             <Radio.Button value="all">All</Radio.Button>
             <Radio.Button value="any">Any</Radio.Button>
