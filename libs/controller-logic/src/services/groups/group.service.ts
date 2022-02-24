@@ -35,18 +35,20 @@ export class GroupService {
 
   public async activateCommand(
     command: RoutineCommandGroupActionDTO,
+    waitForChange = false,
   ): Promise<void> {
     const group = await this.load(command.group);
     const base = this.getBaseGroup(group.type);
-    return await base.activateCommand(group, command);
+    return await base.activateCommand(group, command, waitForChange);
   }
 
   public async activateState(
     command: RoutineCommandGroupStateDTO,
+    waitForChange = false,
   ): Promise<void> {
     const group = await this.load(command.group);
     const base = this.getBaseGroup(group.type);
-    return await base.activateState(group, command.state);
+    return await base.activateState(group, command.state, waitForChange);
   }
 
   public async addEntity<

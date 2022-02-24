@@ -23,7 +23,10 @@ export class FlashAnimationService {
     private readonly entityManager: EntityManagerService,
   ) {}
 
-  public async flash(animation: FlashAnimationDTO): Promise<void> {
+  public async flash(
+    animation: FlashAnimationDTO,
+    waitForChange = false,
+  ): Promise<void> {
     this.logger.info({ animation }, `Flash animation`);
     const steps = Math.floor(animation.duration / animation.interval);
     const frames = PEAT(steps).map(() => ({})) as LightAttributesDTO[];
@@ -43,7 +46,11 @@ export class FlashAnimationService {
       // Merge together timeouts
       // Doing them consectively will throw off total timing
       await Promise.all([
-        await this.lightManager.turnOn(animation.entity_id, { extra: state }),
+        await this.lightManager.turnOn(
+          animation.entity_id,
+          { extra: state },
+          true,
+        ),
         await sleep(animation.interval),
       ]);
     });
@@ -52,6 +59,7 @@ export class FlashAnimationService {
       await this.lightManager.circadianLight(
         animation.entity_id,
         entity.attributes.brightness,
+        waitForChange,
       );
     }
   }

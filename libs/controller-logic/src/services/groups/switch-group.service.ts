@@ -37,19 +37,20 @@ export class SwitchGroupService extends BaseGroupService {
   public async activateCommand(
     group: GroupDTO | string,
     state: GroupCommandDTO,
+    waitForChange = false,
   ): Promise<void> {
     switch (state.command) {
       case 'turnOff':
-        await this.turnOff(group);
+        await this.turnOff(group, waitForChange);
         return;
       case 'turnOn':
-        await this.turnOn(group);
+        await this.turnOn(group, waitForChange);
         return;
       case 'toggle':
-        await this.toggle(group);
+        await this.toggle(group, waitForChange);
         return;
       default:
-        await this.activateState(group, state.command);
+        await this.activateState(group, state.command, waitForChange);
     }
   }
 
@@ -94,18 +95,27 @@ export class SwitchGroupService extends BaseGroupService {
     );
   }
 
-  public async toggle(group: GroupDTO | string): Promise<void> {
+  public async toggle(
+    group: GroupDTO | string,
+    waitForChange = false,
+  ): Promise<void> {
     group = await this.loadGroup(group);
-    await this.hassCore.toggle(group.entities);
+    await this.hassCore.toggle(group.entities, waitForChange);
   }
 
-  public async turnOff(group: GroupDTO | string): Promise<void> {
+  public async turnOff(
+    group: GroupDTO | string,
+    waitForChange = false,
+  ): Promise<void> {
     group = await this.loadGroup(group);
-    await this.hassCore.turnOff(group.entities);
+    await this.hassCore.turnOff(group.entities, waitForChange);
   }
 
-  public async turnOn(group: GroupDTO | string): Promise<void> {
+  public async turnOn(
+    group: GroupDTO | string,
+    waitForChange = false,
+  ): Promise<void> {
     group = await this.loadGroup(group);
-    await this.hassCore.turnOn(group.entities);
+    await this.hassCore.turnOn(group.entities, waitForChange);
   }
 }

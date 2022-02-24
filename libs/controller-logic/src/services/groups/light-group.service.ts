@@ -43,18 +43,37 @@ export class LightGroupService extends BaseGroupService {
   public async activateCommand(
     group: GroupParameter,
     command: GroupCommandDTO<GroupLightCommandExtra, GROUP_LIGHT_COMMANDS>,
+    waitForChange = false,
   ): Promise<void> {
     switch (command.command) {
       case 'turnOff':
-        return await this.turnOff(group);
+        return await this.turnOff(group, waitForChange);
       case 'turnOn':
-        return await this.turnOn(group, false, command.extra?.brightness);
+        return await this.turnOn(
+          group,
+          false,
+          command.extra?.brightness,
+          waitForChange,
+        );
       case 'circadianOn':
-        return await this.turnOn(group, true, command.extra?.brightness);
+        return await this.turnOn(
+          group,
+          true,
+          command.extra?.brightness,
+          waitForChange,
+        );
       case 'dimDown':
-        return await this.dimDown(group, command.extra?.brightness);
+        return await this.dimDown(
+          group,
+          command.extra?.brightness,
+          waitForChange,
+        );
       case 'dimUp':
-        return await this.dimUp(group, command.extra?.brightness);
+        return await this.dimUp(
+          group,
+          command.extra?.brightness,
+          waitForChange,
+        );
       default:
         throw new NotImplementedException();
     }
@@ -63,35 +82,53 @@ export class LightGroupService extends BaseGroupService {
   public async dimDown(
     group: GroupParameter,
     increment?: number,
+    waitForChange = false,
   ): Promise<void> {
     group = await this.loadGroup(group);
-    await this.lightManager.dimDown({ increment }, group.entities);
+    await this.lightManager.dimDown(
+      { increment },
+      group.entities,
+      waitForChange,
+    );
   }
 
-  public async dimUp(group: GroupParameter, increment?: number): Promise<void> {
+  public async dimUp(
+    group: GroupParameter,
+    increment?: number,
+    waitForChange = false,
+  ): Promise<void> {
     group = await this.loadGroup(group);
-    await this.lightManager.dimUp({ increment }, group.entities);
+    await this.lightManager.dimUp({ increment }, group.entities, waitForChange);
   }
 
   public async expandState(
     group: GroupDTO | string,
     { brightness, hs_color, rgb_color }: LightAttributesDTO,
+    waitForChange = false,
   ): Promise<void> {
     group = await this.loadGroup(group);
     await each(group.entities, async entity => {
       if (!hs_color && !rgb_color) {
-        await this.lightManager.setAttributes(entity, {
-          brightness,
-        });
+        await this.lightManager.setAttributes(
+          entity,
+          {
+            brightness,
+          },
+          waitForChange,
+        );
         return;
       }
-      await this.lightManager.turnOn(entity, {
-        extra: {
-          brightness,
-          hs_color: hs_color as [number, number],
-          rgb_color: rgb_color as [number, number, number],
+      await this.lightManager.turnOn(
+        entity,
+        {
+          extra: {
+            brightness,
+            hs_color: hs_color as [number, number],
+            rgb_color: rgb_color as [number, number, number],
+          },
         },
-      });
+        waitForChange,
+      );
     });
   }
 
@@ -171,6 +208,7 @@ export class LightGroupService extends BaseGroupService {
   public async setState(
     entities: string[],
     state: RoomEntitySaveStateDTO<LightAttributesDTO>[],
+    waitForChange = false,
   ): Promise<void> {
     if (entities.length !== state.length) {
       this.logger.warn(`State and entity length mismatch`);
@@ -182,47 +220,67 @@ export class LightGroupService extends BaseGroupService {
       }) as [string, RoomEntitySaveStateDTO<LightAttributesDTO>][],
       async ([id, state]) => {
         if (state.state === 'off') {
-          await this.lightManager.turnOff(id);
+          await this.lightManager.turnOff(id, waitForChange);
           return;
         }
         switch (state.extra.color_mode) {
           case ColorModes.color_temp:
-            await this.lightManager.circadianLight(id, state.extra.brightness);
+            await this.lightManager.circadianLight(
+              id,
+              state.extra.brightness,
+              waitForChange,
+            );
             break;
           case ColorModes.hs:
           default:
-            await this.lightManager.turnOn(id, {
-              extra: {
-                brightness: state.extra.brightness,
-                hs_color: state.extra.hs_color as [number, number],
-                rgb_color: state.extra.rgb_color as [number, number, number],
+            await this.lightManager.turnOn(
+              id,
+              {
+                extra: {
+                  brightness: state.extra.brightness,
+                  hs_color: state.extra.hs_color as [number, number],
+                  rgb_color: state.extra.rgb_color as [number, number, number],
+                },
               },
-            });
+              waitForChange,
+            );
             break;
         }
       },
     );
   }
 
-  public async turnOff(group: GroupParameter): Promise<void> {
+  public async turnOff(
+    group: GroupParameter,
+    waitForChange = false,
+  ): Promise<void> {
     group = await this.loadGroup(group);
-    await this.lightManager.turnOff(group.entities);
+    await this.lightManager.turnOff(group.entities, waitForChange);
   }
 
   public async turnOn(
     group: GroupParameter,
     circadian = false,
     brightness?: number,
+    waitForChange = false,
   ): Promise<void> {
     group = await this.loadGroup(group);
     if (circadian) {
-      await this.lightManager.circadianLight(group.entities, brightness);
+      await this.lightManager.circadianLight(
+        group.entities,
+        brightness,
+        waitForChange,
+      );
       return;
     }
-    await this.lightManager.turnOn(group.entities, {
-      extra: {
-        brightness,
+    await this.lightManager.turnOn(
+      group.entities,
+      {
+        extra: {
+          brightness,
+        },
       },
-    });
+      waitForChange,
+    );
   }
 }

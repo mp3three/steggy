@@ -40,18 +40,19 @@ export class LockGroupService extends BaseGroupService {
   public async activateCommand(
     group: GroupDTO | string,
     state: GroupCommandDTO,
+    waitForChange = false,
   ): Promise<void> {
     switch (state.command) {
       case 'lock':
       case 'locked':
-        await this.lock(group);
+        await this.lock(group, waitForChange);
         return;
       case 'unlock':
       case 'unlocked':
-        await this.unlock(group);
+        await this.unlock(group, waitForChange);
         return;
       default:
-        await this.activateState(group, state.command);
+        await this.activateState(group, state.command, waitForChange);
     }
   }
 
@@ -71,7 +72,10 @@ export class LockGroupService extends BaseGroupService {
     return domain(id) === HASS_DOMAINS.fan;
   }
 
-  public async lock(group: GroupDTO | string): Promise<void> {
+  public async lock(
+    group: GroupDTO | string,
+    waitForChange = false,
+  ): Promise<void> {
     if (is.string(group)) {
       group = await this.groupPersistence.findById(group);
     }
@@ -81,13 +85,14 @@ export class LockGroupService extends BaseGroupService {
           `Invalid lock group entity: ${lock}`,
         );
       }
-      await this.lockSerivice.lock(lock);
+      await this.lockSerivice.lock(lock, waitForChange);
     });
   }
 
   public async setState(
     entities: string[],
     state: RoomEntitySaveStateDTO[],
+    waitForChange = false,
   ): Promise<void> {
     if (entities.length !== state.length) {
       this.logger.warn(`State and entity length mismatch`);
@@ -99,10 +104,10 @@ export class LockGroupService extends BaseGroupService {
       }) as [string, RoomEntitySaveStateDTO][],
       async ([id, state]) => {
         if (state.state === LOCK_STATES.locked) {
-          await this.lockSerivice.lock(id);
+          await this.lockSerivice.lock(id, waitForChange);
           return;
         }
-        await this.lockSerivice.unlock(id);
+        await this.lockSerivice.unlock(id, waitForChange);
       },
     );
   }
@@ -110,18 +115,27 @@ export class LockGroupService extends BaseGroupService {
   /**
    * Alias for unlock
    */
-  public async turnOff(group: GroupDTO | string): Promise<void> {
-    return this.unlock(group);
+  public async turnOff(
+    group: GroupDTO | string,
+    waitForChange = false,
+  ): Promise<void> {
+    return this.unlock(group, waitForChange);
   }
 
   /**
    * Alias for lock
    */
-  public async turnOn(group: GroupDTO | string): Promise<void> {
-    return this.lock(group);
+  public async turnOn(
+    group: GroupDTO | string,
+    waitForChange = false,
+  ): Promise<void> {
+    return this.lock(group, waitForChange);
   }
 
-  public async unlock(group: GroupDTO | string): Promise<void> {
+  public async unlock(
+    group: GroupDTO | string,
+    waitForChange = false,
+  ): Promise<void> {
     if (is.string(group)) {
       group = await this.groupPersistence.findById(group);
     }
@@ -131,7 +145,7 @@ export class LockGroupService extends BaseGroupService {
           `Invalid lock group entity: ${lock}`,
         );
       }
-      await this.lockSerivice.unlock(lock);
+      await this.lockSerivice.unlock(lock, waitForChange);
     });
   }
 

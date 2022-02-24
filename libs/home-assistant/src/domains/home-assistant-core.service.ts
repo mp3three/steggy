@@ -33,10 +33,18 @@ export class HomeAssistantCoreService {
     await this.callService.call('stop');
   }
 
-  public async toggle(entityId: string | string[]): Promise<void> {
-    await this.callService.call('toggle', {
-      entity_id: entityId,
-    });
+  public async toggle(
+    entityId: string | string[],
+    waitForChange = false,
+  ): Promise<void> {
+    await this.callService.call(
+      'toggle',
+      {
+        entity_id: entityId,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 
   public async turnOff(
@@ -53,10 +61,18 @@ export class HomeAssistantCoreService {
     );
   }
 
-  public async turnOn(entityId: string | string[]): Promise<void> {
-    await this.callService.call('turn_on', {
-      entity_id: entityId,
-    });
+  public async turnOn(
+    entityId: string | string[],
+    waitForChange = false,
+  ): Promise<void> {
+    await this.callService.call(
+      'turn_on',
+      {
+        entity_id: entityId,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 
   public async updateEntitiy(entityIds: string[]): Promise<void> {

@@ -66,39 +66,46 @@ export class LightManagerService {
   public async circadianLight(
     entity_id: string | string[] = [],
     brightness?: number,
+    waitForChange = false,
   ): Promise<void> {
     if (Array.isArray(entity_id)) {
       await each(entity_id, async id => {
-        await this.circadianLight(id, brightness);
+        await this.circadianLight(id, brightness, waitForChange);
       });
       return;
     }
-    await this.setAttributes(entity_id, {
-      brightness,
-      color_mode: ColorModes.color_temp,
-      kelvin: this.circadianService.CURRENT_LIGHT_TEMPERATURE,
-    });
+    await this.setAttributes(
+      entity_id,
+      {
+        brightness,
+        color_mode: ColorModes.color_temp,
+        kelvin: this.circadianService.CURRENT_LIGHT_TEMPERATURE,
+      },
+      waitForChange,
+    );
   }
 
   public async dimDown(
     data: RoomCommandDTO = {},
     change: string[],
+    waitForChange = false,
   ): Promise<void> {
     const { increment = DEFAULT_INCREMENT } = data;
     const lights = this.findDimmableLights(change);
     await each(lights, async (entity_id: string) => {
-      await this.lightDim(entity_id, increment * INVERT_VALUE);
+      await this.lightDim(entity_id, increment * INVERT_VALUE, waitForChange);
     });
   }
 
   public async dimUp(
     data: RoomCommandDTO = {},
     change: string[],
+    waitForChange = false,
   ): Promise<void> {
     const { increment = DEFAULT_INCREMENT } = data;
     const lights = this.findDimmableLights(change);
     await each(lights, async (entity_id: string) => {
-      await this.lightDim(entity_id, increment);
+      await this.lightDim(entity_id, increment, waitForChange);
     });
   }
 
@@ -115,7 +122,11 @@ export class LightManagerService {
    * To go under 5, turn off the light instead
    */
 
-  public async lightDim(entity_id: string, amount: number): Promise<void> {
+  public async lightDim(
+    entity_id: string,
+    amount: number,
+    waitForChange = false,
+  ): Promise<void> {
     const entity = this.entityManager.getEntity<LightStateDTO>(entity_id);
     let { brightness = NO_BRIGHTNESS } = entity.attributes;
     brightness += amount;
@@ -131,9 +142,10 @@ export class LightManagerService {
         (brightness * PERCENT) / MAX_BRIGHTNESS,
       )}%)}`,
     );
-    return await this.setAttributes(entity_id, { brightness });
+    return await this.setAttributes(entity_id, { brightness }, waitForChange);
   }
 
+  // eslint-disable-next-line radar/cognitive-complexity
   public async setAttributes(
     entity_id: string | string[],
     attributes: Partial<LightAttributesDTO> = {},

@@ -27,16 +27,22 @@ export abstract class BaseGroupService {
   public abstract activateCommand(
     group: GroupDTO | string,
     state: GroupCommandDTO,
+    waitForResult?: boolean,
   ): Promise<void>;
   public abstract getState(group: GroupDTO): Promise<RoomEntitySaveStateDTO[]>;
   public abstract isValidEntity(id: string): boolean;
   public abstract setState<
     EXTRA extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
-  >(entities: string[], state: RoomEntitySaveStateDTO<EXTRA>[]): Promise<void>;
+  >(
+    entities: string[],
+    state: RoomEntitySaveStateDTO<EXTRA>[],
+    waitForChange?: boolean,
+  ): Promise<void>;
 
   public async activateState(
     group: GroupDTO | string,
     stateId: string,
+    waitForChange = false,
   ): Promise<void> {
     group = await this.loadGroup(group);
     const state = group.save_states.find(({ id }) => id === stateId);
@@ -50,7 +56,7 @@ export abstract class BaseGroupService {
     this.logger.debug(
       `[${group.friendlyName}] set state {${state.friendlyName}}`,
     );
-    await this.setState(group.entities, state.states);
+    await this.setState(group.entities, state.states, waitForChange);
   }
 
   public async addState<

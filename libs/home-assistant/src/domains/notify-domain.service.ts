@@ -16,10 +16,16 @@ export class NotifyDomainService {
       target?: string;
       title?: string;
     } = {},
+    waitForChange = false,
   ): Promise<void> {
-    await this.callService.call('notify', {
-      message,
-      ...optional,
-    });
+    await this.callService.call(
+      'notify',
+      {
+        message,
+        ...optional,
+      },
+      undefined,
+      waitForChange,
+    );
   }
 }

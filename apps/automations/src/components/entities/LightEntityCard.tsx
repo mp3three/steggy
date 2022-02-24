@@ -118,6 +118,15 @@ export class LightEntityCard extends React.Component<
             <Slider
               min={1}
               max={255}
+              marks={{
+                1: 'min',
+                128: '1/2',
+                170: '2/3',
+                192: '3/4',
+                255: 'max',
+                64: '1/4',
+                85: '1/3',
+              }}
               value={brightness}
               onChange={this.updateBrightness.bind(this)}
               onAfterChange={this.brightnessChanged.bind(this)}

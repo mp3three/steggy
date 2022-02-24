@@ -41,37 +41,48 @@ export class FanGroupService extends BaseGroupService {
   public async activateCommand(
     group: GroupDTO<FanAttributesDTO> | string,
     state: GroupCommandDTO,
+    waitForChange = false,
   ): Promise<void> {
     switch (state.command) {
       case 'turnOff':
-        await this.turnOff(group);
+        await this.turnOff(group, waitForChange);
         return;
       case 'turnOn':
-        await this.turnOn(group);
+        await this.turnOn(group, waitForChange);
         return;
       case 'fanSpeedUp':
-        await this.fanSpeedUp(group);
+        await this.fanSpeedUp(group, waitForChange);
         return;
       case 'fanSpeedDown':
-        await this.fanSpeedDown(group);
+        await this.fanSpeedDown(group, waitForChange);
         return;
       default:
-        await this.activateState(group, state.command);
+        await this.activateState(group, state.command, waitForChange);
     }
   }
 
-  public async fanSpeedDown(group: GroupDTO | string): Promise<void> {
+  public async fanSpeedDown(
+    group: GroupDTO | string,
+    waitForChange = false,
+  ): Promise<void> {
     group = await this.loadGroup(group);
-    await each(group.entities, async entity_id => {
-      await this.fanDomain.fanSpeedDown(entity_id);
-    });
+    await each(
+      group.entities,
+      async entity_id =>
+        await this.fanDomain.fanSpeedDown(entity_id, waitForChange),
+    );
   }
 
-  public async fanSpeedUp(group: GroupDTO | string): Promise<void> {
+  public async fanSpeedUp(
+    group: GroupDTO | string,
+    waitForChange = false,
+  ): Promise<void> {
     group = await this.loadGroup(group);
-    await each(group.entities, async entity_id => {
-      await this.fanDomain.fanSpeedUp(entity_id);
-    });
+    await each(
+      group.entities,
+      async entity_id =>
+        await this.fanDomain.fanSpeedUp(entity_id, waitForChange),
+    );
   }
 
   public async getState(
@@ -96,6 +107,7 @@ export class FanGroupService extends BaseGroupService {
   public async setState(
     entities: string[],
     state: RoomEntitySaveStateDTO[],
+    waitForChange = false,
   ): Promise<void> {
     if (entities.length !== state.length) {
       this.logger.warn(`State and entity length mismatch`);
@@ -107,23 +119,31 @@ export class FanGroupService extends BaseGroupService {
       }) as [string, RoomEntitySaveStateDTO<FanAttributesDTO>][],
       async ([id, state]) => {
         if (state.state === 'off') {
-          await this.fanDomain.turnOff(id);
+          await this.fanDomain.turnOff(id, waitForChange);
           return;
         }
-        await this.fanDomain.setSpeed(id, state.extra.percentage);
+        await this.fanDomain.setSpeed(
+          id,
+          state.extra.percentage,
+          waitForChange,
+        );
       },
     );
   }
 
   public async turnOff(
     group: GroupDTO<FanAttributesDTO> | string,
+    waitForChange = false,
   ): Promise<void> {
     group = await this.loadGroup(group);
-    await this.hassCore.turnOff(group.entities);
+    await this.hassCore.turnOff(group.entities, waitForChange);
   }
 
-  public async turnOn(group: GroupDTO | string): Promise<void> {
+  public async turnOn(
+    group: GroupDTO | string,
+    waitForChange = false,
+  ): Promise<void> {
     group = await this.loadGroup(group);
-    await this.hassCore.turnOn(group.entities);
+    await this.hassCore.turnOn(group.entities, waitForChange);
   }
 }

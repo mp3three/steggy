@@ -13,12 +13,17 @@ export class RoutineTriggerService {
 
   public async activate(
     command: RoutineCommandTriggerRoutineDTO,
+    waitForChange = false,
   ): Promise<void> {
     const routine = await this.routineService.get(command.routine);
     if (!routine) {
       throw new NotFoundException(`Could not find routine`);
     }
     this.logger.debug(`Routine trigger {${routine.friendlyName}}`);
-    await this.routineService.activateRoutine(routine);
+    await this.routineService.activateRoutine(
+      routine,
+      undefined,
+      waitForChange,
+    );
   }
 }

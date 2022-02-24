@@ -14,49 +14,54 @@ export class LightFlashCommandService {
     private readonly groupService: GroupService,
   ) {}
 
-  public async activate(command: RountineCommandLightFlashDTO): Promise<void> {
+  public async activate(
+    command: RountineCommandLightFlashDTO,
+    waitForChange = false,
+  ): Promise<void> {
     await process.nextTick(async () => {
       if (command.type === 'group') {
-        return await this.activateGroup(command);
+        return await this.activateGroup(command, waitForChange);
       }
-      return await this.activateEntity(command);
+      return await this.activateEntity(command, waitForChange);
     });
   }
 
-  private async activateEntity({
-    ref,
-    brightness,
-    duration,
-    interval,
-    rgb,
-  }: RountineCommandLightFlashDTO): Promise<void> {
+  private async activateEntity(
+    { ref, brightness, duration, interval, rgb }: RountineCommandLightFlashDTO,
+
+    waitForChange = false,
+  ): Promise<void> {
     this.logger.debug(`Flash entity ${ref}`);
-    await this.flashAnimation.flash({
-      brightness,
-      duration,
-      entity_id: ref,
-      interval,
-      rgb_color: rgb,
-    });
+    await this.flashAnimation.flash(
+      {
+        brightness,
+        duration,
+        entity_id: ref,
+        interval,
+        rgb_color: rgb,
+      },
+      waitForChange,
+    );
   }
 
-  private async activateGroup({
-    ref,
-    brightness,
-    duration,
-    rgb,
-    interval,
-  }: RountineCommandLightFlashDTO): Promise<void> {
+  private async activateGroup(
+    { ref, brightness, duration, rgb, interval }: RountineCommandLightFlashDTO,
+
+    waitForChange = false,
+  ): Promise<void> {
     const group = await this.groupService.get(ref);
     this.logger.debug(`Flash entity ${group.friendlyName}`);
     await each(group.entities, async entity => {
-      await this.flashAnimation.flash({
-        brightness,
-        duration,
-        entity_id: entity,
-        interval,
-        rgb_color: rgb,
-      });
+      await this.flashAnimation.flash(
+        {
+          brightness,
+          duration,
+          entity_id: entity,
+          interval,
+          rgb_color: rgb,
+        },
+        waitForChange,
+      );
     });
   }
 }

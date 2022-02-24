@@ -74,6 +74,7 @@ export class HASocketAPIService {
       type: HASSIO_WS_COMMAND.get_states,
     });
     this.eventEmitter.emit(ALL_ENTITIES_UPDATED, states);
+    this.logger.info('🎆 All entities updated 🎆');
     return states;
   }
 

@@ -81,6 +81,7 @@ export class RoutineService {
   public async activateCommand(
     command: RoutineCommandDTO | string,
     routine: RoutineDTO | string,
+    waitForChange = false,
   ): Promise<boolean> {
     routine = await this.get(routine);
     command = is.string(command)
@@ -92,6 +93,7 @@ export class RoutineService {
       case ROUTINE_ACTIVATE_COMMAND.group_action:
         await this.groupService.activateCommand(
           command.command as RoutineCommandGroupActionDTO,
+          waitForChange,
         );
         break;
       case ROUTINE_ACTIVATE_COMMAND.webhook:
@@ -102,31 +104,37 @@ export class RoutineService {
       case ROUTINE_ACTIVATE_COMMAND.group_state:
         await this.groupService.activateState(
           command.command as RoutineCommandGroupStateDTO,
+          waitForChange,
         );
         break;
       case ROUTINE_ACTIVATE_COMMAND.room_state:
         await this.roomService.activateState(
           command.command as RoutineCommandRoomStateDTO,
+          waitForChange,
         );
         break;
       case ROUTINE_ACTIVATE_COMMAND.entity_state:
         await this.entityRouter.fromState(
           command.command as RoomEntitySaveStateDTO,
+          waitForChange,
         );
         break;
       case ROUTINE_ACTIVATE_COMMAND.send_notification:
         await this.sendNotification.activate(
           command.command as RoutineCommandSendNotificationDTO,
+          waitForChange,
         );
         break;
       case ROUTINE_ACTIVATE_COMMAND.light_flash:
         await this.flashAnimation.activate(
           command.command as RountineCommandLightFlashDTO,
+          waitForChange,
         );
         break;
       case ROUTINE_ACTIVATE_COMMAND.trigger_routine:
         await this.triggerService.activate(
           command.command as RoutineCommandTriggerRoutineDTO,
+          waitForChange,
         );
         break;
       case ROUTINE_ACTIVATE_COMMAND.sleep:
@@ -150,11 +158,13 @@ export class RoutineService {
   public async activateRoutine(
     routine: RoutineDTO | string,
     options: RoutineActivateOptionsDTO = {},
+    waitForChange?: boolean,
   ): Promise<void> {
     await this.wait(options);
     routine = await this.get(routine);
     this.logger.info(`[${routine.friendlyName}] activate`);
     let aborted = false;
+    waitForChange ??= routine.sync;
     await (routine.sync ? eachSeries : each)(
       routine.command ?? [],
       async command => {
@@ -166,9 +176,11 @@ export class RoutineService {
           );
           return;
         }
+        this.logger.warn({ waitForChange });
         const result = await this.activateCommand(
           command,
           routine as RoutineDTO,
+          waitForChange,
         );
         aborted = result === false && sync;
       },

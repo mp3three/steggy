@@ -15,7 +15,6 @@ import {
   ClimateAttributesDTO,
   domain,
   FanAttributesDTO,
-  FanSpeeds,
   HASS_DOMAINS,
   LightAttributesDTO,
 } from '@automagical/home-assistant-shared';
@@ -41,12 +40,11 @@ export class EntityCommandRouterService {
     private readonly fetchAPI: HomeAssistantFetchAPIService,
   ) {}
 
-  public async fromState({
-    ref,
-    state,
-    extra,
-  }: RoomEntitySaveStateDTO): Promise<void> {
-    await this.process(ref, state, extra);
+  public async fromState(
+    { ref, state, extra }: RoomEntitySaveStateDTO,
+    waitForChange = false,
+  ): Promise<void> {
+    await this.process(ref, state, extra, waitForChange);
   }
 
   public async history(): Promise<void> {

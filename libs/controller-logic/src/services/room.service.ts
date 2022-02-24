@@ -28,6 +28,7 @@ export class RoomService {
 
   public async activateState(
     command: RoutineCommandRoomStateDTO,
+    waitForChange = false,
   ): Promise<void> {
     const room = await this.load(command.room);
     const state = room.save_states.find(({ id }) => id === command.state);
@@ -44,16 +45,20 @@ export class RoomService {
           state.ref,
           state.state,
           state.extra as Record<string, unknown>,
+          waitForChange,
         );
       }),
       await each(state.states, async state => {
         if (state.type !== 'group') {
           return;
         }
-        await this.groupService.activateState({
-          group: state.ref,
-          state: state.state,
-        });
+        await this.groupService.activateState(
+          {
+            group: state.ref,
+            state: state.state,
+          },
+          waitForChange,
+        );
       }),
     ]);
   }
