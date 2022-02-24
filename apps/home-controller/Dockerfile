@@ -1,28 +1,31 @@
-# Generate node_modules
-FROM node:16-alpine AS build-app
-ARG CONFIGURATION
+# <STAGE 1>
+# Bring repo into intermedia container
+FROM node:16-alpine AS build
 WORKDIR /app
-ARG path="dist/apps/${CONFIGURATION}"
-ARG uipath="dist/apps/automations"
+RUN apk add git
+COPY --chown=node:node . .
+RUN yarn install --frozen-lockfile
+# Build UI
+RUN npx figlet-cli -f Pagga Building UI
+RUN npx nx build automations --configuration=production
+# Build Backend
+RUN npx figlet-cli -f Pagga Building Backend
+RUN npx nx build home-controller --configuration=production
+# Minify
+RUN npx terser dist/apps/home-controller/main.js -c -m --keep-classnames --module > dist/apps/home-controller/minified.js
+# </STAGE 1>
 
-COPY --chown=node:node $uipath ./ui
-COPY --chown=node:node $path .
-COPY --chown=node:node yarn.lock .
-RUN yarn install --production --pure-lockfile
+# <STAGE 2>
+# Build node_modules for final container
+FROM node:16-alpine AS dependencies
+WORKDIR /app
+COPY --from=build --chown=node:node /app/dist/apps/home-controller .
+RUN yarn install --production
+# </STAGE 2>
 
 
-# FROM node:16-alpine AS build-configure
-# ARG CONFIGURATION
-# WORKDIR /app
-# ARG path="dist/apps/${CONFIGURATION}-configuration"
-# COPY --chown=node:node $path .
-# COPY --chown=node:node yarn.lock .
-# RUN yarn install --production --pure-lockfile
 
-
-# Final build: alpine latest + latest node
-## Mental note: linter is upset about latest.
-## Not sure if there is a better option that doesn't require a ton of work to maintain
+# <STAGE 3>: FINAL
 FROM alpine:latest
 ARG BUILD_DATE
 ARG MAINTAINER
@@ -62,20 +65,15 @@ RUN sed -i -e 's/v[[:digit:]]\..*\//edge\//g' /etc/apk/repositories &&\
     apk add --upgrade \
     nodejs npm
 
-# COPY --chown=node:node libs/tty/scripts/configure-app.sh /bin/configure-app
-# RUN chmod +x /bin/configure-app
 
 # Finalize
 USER node
 WORKDIR /app
-COPY --from=build-app /app/node_modules server/node_modules
-COPY --from=build-app /app/minified.js server/main.js
-COPY --from=build-app /app/package.json server/package.json
-COPY --from=build-app /app/assets server/assets
+COPY --from=dependencies /app/node_modules ./node_modules
+COPY --from=build /app/dist/apps/home-controller/minified.js ./main.js
+COPY --from=build /app/dist/apps/home-controller/package.json ./package.json
+COPY --from=build /app/dist/apps/home-controller/assets ./assets
+COPY --from=build /app/dist/apps/automations ./ui
 
-# COPY --from=build-configure /app/node_modules configure/node_modules
-# COPY --from=build-configure /app/minified.js configure/main.js
-# COPY --from=build-configure /app/package.json configure/package.json
-# COPY --from=build-app /app/assets configure/assets
-
-CMD ["node", "./server/main.js"]
+CMD ["node", "./main.js"]
+# </STAGE 3>

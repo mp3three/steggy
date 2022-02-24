@@ -6,18 +6,28 @@ services:
     image: ghcr.io/ccontour/home-controller:latest
     container_name: home-controller
     volumes:
-      # Sync the server time with the container time
-      - /usr/share/zoneinfo/US/Central:/etc/localtime
-      - /etc/timezone:/etc/timezone
       # Configuration
-      - /root/.config:/user/node/.config
+      - /mnt/tier_1/automagical/config:/.home-controllerrc
     restart: unless-stopped
-    # depends_on:
-      # - redis
+    depends_on:
+      - redis
+      - mongo
+    links:
+      - redis
+      - mongo
     ports:
       - 7009:3000
 
-  # redis:
-  #   container_name: home-controller_redis
-  #   image: redis
-  #   restart: unless-stopped
+  redis:
+    container_name: home-controller_redis
+    image: redis
+    restart: unless-stopped
+
+  mongo:
+    container_name: home-controller_mongo
+    image: mongo:4.4.12
+    restart: unless-stopped
+    ports:
+      - 27020:27017
+    volumes:
+      - /mnt/tier_1/automagical/mongo:/data/db

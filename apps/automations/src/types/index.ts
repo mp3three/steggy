@@ -10,14 +10,11 @@ export async function sendRequest<T>(
   init?: RequestInit,
   text = false,
 ): Promise<T> {
-  const headers: Record<string, string> = {
-    'x-admin-key':
-      'mainline dolt orangery catchall cantor beck couscous knickers',
-  };
+  const headers: Record<string, string> = {};
   if (!is.undefined(init?.body)) {
     headers['Content-Type'] = 'application/json; charset=utf-8';
   }
-  const result = await fetch(`http://10.0.0.5:7000/api${info}`, {
+  const result = await fetch(`/api${info}`, {
     ...init,
     headers,
   });
@@ -27,7 +24,7 @@ export async function sendRequest<T>(
   return await result.json();
 }
 sendRequest.url = function (info: string): string {
-  return `http://10.0.0.5:7000${info}`;
+  return `/api${info}`;
 };
 
 /**

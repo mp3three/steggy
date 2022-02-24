@@ -5,6 +5,9 @@ import {
 } from '@automagical/controller-logic';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import { ServerModule } from '@automagical/server';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { existsSync } from 'fs';
+import { join } from 'path';
 
 import {
   AdminController,
@@ -17,6 +20,8 @@ import {
   RoutineController,
 } from '../controllers';
 import { ApplicationService, AvailabilityMonitorService } from '../services';
+
+const rootPath = join(__dirname, 'ui');
 
 @ApplicationModule({
   application: Symbol('home-controller'),
@@ -35,6 +40,13 @@ import { ApplicationService, AvailabilityMonitorService } from '../services';
     HomeAssistantModule,
     HomeControllerCustomModule,
     HomePersistenceModule.forRoot(),
+    ...(existsSync(rootPath)
+      ? [
+          ServeStaticModule.forRoot({
+            rootPath,
+          }),
+        ]
+      : []),
   ],
   providers: [ApplicationService, AvailabilityMonitorService],
 })
