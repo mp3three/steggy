@@ -1,16 +1,6 @@
 import { HassStateDTO } from '@automagical/home-assistant-shared';
 import { is } from '@automagical/utilities';
-import {
-  Button,
-  Card,
-  DatePicker,
-  Drawer,
-  Form,
-  List,
-  notification,
-  Spin,
-  Table,
-} from 'antd';
+import { Button, Card, DatePicker, Form, notification, Table } from 'antd';
 import moment from 'moment';
 import React from 'react';
 
@@ -18,8 +8,8 @@ import { sendRequest } from '../../types';
 
 type tState = {
   from: moment.Moment;
-  to: moment.Moment;
   history: HassStateDTO[];
+  to: moment.Moment;
 };
 
 export class EntityHistory extends React.Component<{ entity: string }, tState> {
@@ -85,21 +75,19 @@ export class EntityHistory extends React.Component<{ entity: string }, tState> {
 
   private async refresh(): Promise<void> {
     try {
-      const history = await sendRequest<HassStateDTO[]>(
-        `/entity/history/${this.props.entity}`,
-        {
-          body: JSON.stringify({
-            from: this.state.from.toISOString(),
-            to: this.state.to.toISOString(),
-          }),
-          method: 'post',
+      const history = await sendRequest<HassStateDTO[]>({
+        body: {
+          from: this.state.from.toISOString(),
+          to: this.state.to.toISOString(),
         },
-      );
+        method: 'post',
+        url: `/entity/history/${this.props.entity}`,
+      });
       this.setState({ history });
-    } catch (err) {
+    } catch {
       notification.error({
-        message: 'Invalid history response',
         description: 'No history available?',
+        message: 'Invalid history response',
       });
     }
   }

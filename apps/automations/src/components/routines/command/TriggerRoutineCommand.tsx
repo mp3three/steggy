@@ -44,9 +44,13 @@ export class TriggerRoutineCommand extends React.Component<
   }
 
   private async listRoutines(): Promise<void> {
-    const routines = await sendRequest<RoutineDTO[]>(
-      `/routine?select=friendlyName&sort=friendlyName`,
-    );
+    const routines = await sendRequest<RoutineDTO[]>({
+      control: {
+        select: ['friendlyName'],
+        sort: ['friendlyName'],
+      },
+      url: `/routine`,
+    });
     this.setState({ routines });
   }
 }

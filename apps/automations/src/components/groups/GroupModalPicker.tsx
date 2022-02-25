@@ -262,7 +262,7 @@ export class GroupModalPicker extends React.Component<
       selected: [],
     });
     this.setState({
-      available: await sendRequest<GroupDTO[]>(`/group`),
+      available: await sendRequest<GroupDTO[]>({ url: `/group` }),
     });
   }
 }

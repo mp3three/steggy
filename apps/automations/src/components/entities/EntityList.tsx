@@ -12,6 +12,7 @@ import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
 import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
+
 import { sendRequest } from '../../types';
 import { EntityInspect } from './EntityInspect';
 
@@ -81,7 +82,7 @@ export const EntityList = withRouter(
     }
 
     private async focus(entity_id: string) {
-      this.inspect.load(entity_id);
+      await this.inspect.load(entity_id);
     }
 
     private highlight(result) {
@@ -123,7 +124,7 @@ export const EntityList = withRouter(
     }
 
     private async refresh(): Promise<void> {
-      const entities = (await sendRequest<string[]>(`/entity/list`))
+      const entities = (await sendRequest<string[]>({ url: `/entity/list` }))
         // .filter(i => domain(i) === 'light')
         .sort((a, b) => (a > b ? UP : DOWN));
       this.setState({

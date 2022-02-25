@@ -124,13 +124,17 @@ export class GroupList extends React.Component {
     group: GroupDTO,
     state: GroupSaveStateDTO,
   ): Promise<void> {
-    await sendRequest(`/group/${group._id}/state/${state.id}`, {
+    await sendRequest({
       method: 'post',
+      url: `/group/${group._id}/state/${state.id}`,
     });
   }
 
   private async deleteGroup(group: GroupDTO): Promise<void> {
-    await sendRequest(`/group/${group._id}`, { method: 'delete' });
+    await sendRequest({
+      method: 'delete',
+      url: `/group/${group._id}`,
+    });
     await this.refresh();
   }
 
@@ -139,7 +143,12 @@ export class GroupList extends React.Component {
   }
 
   private async refresh(): Promise<void> {
-    const groups = await sendRequest<GroupDTO[]>(`/group?sort=friendlyName`);
+    const groups = await sendRequest<GroupDTO[]>({
+      control: {
+        sort: ['friendlyName'],
+      },
+      url: `/group`,
+    });
     this.setState({ groups });
   }
 

@@ -185,17 +185,15 @@ export class GroupStateEdit extends React.Component<
 
   private async onSave(): Promise<void> {
     const id = this.props.state.id;
-    const group = await sendRequest<GroupDTO>(
-      `/group/${this.group._id}/state/${id}`,
-      {
-        body: JSON.stringify({
-          friendlyName: this.state.friendlyName,
-          id,
-          states: this.cards.filter(i => !!i).map(i => i.getSaveState()),
-        } as GroupSaveStateDTO),
-        method: 'put',
-      },
-    );
+    const group = await sendRequest<GroupDTO>({
+      body: {
+        friendlyName: this.state.friendlyName,
+        id,
+        states: this.cards.filter(i => !!i).map(i => i.getSaveState()),
+      } as GroupSaveStateDTO,
+      method: 'put',
+      url: `/group/${this.group._id}/state/${id}`,
+    });
     this.setState({ dirty: false, drawer: false });
     this.props.onUpdate(group);
   }

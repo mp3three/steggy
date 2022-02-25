@@ -1,6 +1,6 @@
 import { GroupDTO, RoomDTO, RoutineDTO } from '@automagical/controller-shared';
-import { each } from '@automagical/utilities';
-import { Button, Drawer, List, Spin } from 'antd';
+import { each, ResultControlDTO } from '@automagical/utilities';
+import { List } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -9,13 +9,14 @@ import { sendRequest } from '../../types';
 type tState = {
   routines: RoutineDTO[];
 };
+const field = 'command.type';
 
 export class RelatedRoutines extends React.Component<
   {
-    roomState?: RoomDTO;
+    entity?: string;
     groupAction?: GroupDTO;
     groupState?: GroupDTO;
-    entity?: string;
+    roomState?: RoomDTO;
     routine?: RoutineDTO;
   },
   tState
@@ -27,16 +28,7 @@ export class RelatedRoutines extends React.Component<
     await this.refresh();
   }
 
-  override async componentDidUpdate(
-    previousProperties: Readonly<{
-      roomState?: RoomDTO;
-      groupAction?: GroupDTO;
-      groupState?: GroupDTO;
-      entity?: string;
-    }>,
-    previousState: Readonly<tState>,
-    snapshot?: any,
-  ): Promise<void> {
+  override async componentDidUpdate(): Promise<void> {
     if (this.props.entity !== this.currentEntity) {
       await this.refresh();
     }
@@ -60,50 +52,120 @@ export class RelatedRoutines extends React.Component<
     );
   }
 
-  private buildQuery(): string[] {
+  private buildQuery(): ResultControlDTO[] {
     if (this.props.roomState) {
       return [
-        // Room States
-        `command.type=room_state&command.command.room=${this.props.roomState._id}`,
+        {
+          filters: new Set([
+            {
+              field,
+              value: 'room_state',
+            },
+            {
+              field: 'command.command.room',
+              value: this.props.roomState._id,
+            },
+          ]),
+        } as ResultControlDTO,
       ];
     }
     if (this.props.groupAction) {
       return [
-        // Group Actions
-        `command.type=group_action&command.command.group=${this.props.groupAction._id}`,
+        {
+          filters: new Set([
+            {
+              field,
+              value: 'group_action',
+            },
+            {
+              field: 'command.command.group',
+              value: this.props.groupAction._id,
+            },
+          ]),
+        } as ResultControlDTO,
       ];
     }
     if (this.props.groupState) {
       return [
-        // Group States
-        `command.type=group_state&command.command.group=${this.props.groupState._id}`,
+        {
+          filters: new Set([
+            {
+              field,
+              value: 'group_state',
+            },
+            {
+              field: 'command.command.group',
+              value: this.props.groupState._id,
+            },
+          ]),
+        } as ResultControlDTO,
       ];
     }
     if (this.props.entity) {
       this.currentEntity = this.props.entity;
       return [
-        // Sequence activate
-        `activate.type=kunami&activate.activate.sensor=${this.props.entity}`,
-        // State change activate
-        `activate.type=state_change&activate.activate.entity=${this.props.entity}`,
-        // Entity commands
-        `command.type=entity_state&command.command.ref=${this.props.entity}`,
+        {
+          filters: new Set([
+            {
+              field,
+              value: 'kunami',
+            },
+            {
+              field: 'activate.activate.sensor',
+              value: this.props.entity,
+            },
+          ]),
+        } as ResultControlDTO,
+        {
+          filters: new Set([
+            {
+              field,
+              value: 'state_change',
+            },
+            {
+              field: 'activate.activate.entity',
+              value: this.props.entity,
+            },
+          ]),
+        } as ResultControlDTO,
+        {
+          filters: new Set([
+            {
+              field,
+              value: 'entity_state',
+            },
+            {
+              field: 'command.command.ref',
+              value: this.props.entity,
+            },
+          ]),
+        } as ResultControlDTO,
       ];
     }
     if (this.props.routine) {
       return [
-        // Routine Trigger
-        `command.type=trigger_routine&command.command.routine=${this.props.routine._id}`,
+        {
+          filters: new Set([
+            {
+              field,
+              value: 'trigger_routine',
+            },
+            {
+              field: 'command.command.routine',
+              value: this.props.routine._id,
+            },
+          ]),
+        } as ResultControlDTO,
       ];
     }
-    return [''];
+    return [{}];
   }
 
   private async refresh(): Promise<void> {
     const queries = this.buildQuery();
     const routines: Record<string, RoutineDTO> = {};
-    await each(queries, async query => {
-      const out = await sendRequest<RoutineDTO[]>(`/routine?${query}`);
+    await each(queries, async control => {
+      const out = await sendRequest<RoutineDTO[]>({ control, url: `/routine` });
       out.forEach(i => (routines[i._id] = i));
     });
     this.setState({ routines: Object.values(routines) });

@@ -116,12 +116,10 @@ export class MediaEntityCard extends React.Component<
       this.props.onUpdate({ ref: this.ref, state });
     }
     if (this.props.selfContained) {
-      const result = await sendRequest<SwitchStateDTO>(
-        `/entity/command/${this.ref}/${state}`,
-        {
-          method: 'put',
-        },
-      );
+      const result = await sendRequest<SwitchStateDTO>({
+        method: 'put',
+        url: `/entity/command/${this.ref}/${state}`,
+      });
       this.setState({ state: result.state });
     }
   }
@@ -133,7 +131,9 @@ export class MediaEntityCard extends React.Component<
       });
       return;
     }
-    const entity = await sendRequest<LightStateDTO>(`/entity/id/${this.ref}`);
+    const entity = await sendRequest<LightStateDTO>({
+      url: `/entity/id/${this.ref}`,
+    });
     this.setState({ friendly_name: entity.attributes.friendly_name });
   }
 

@@ -169,28 +169,24 @@ export class RoutineActivateDrawer extends React.Component<
       return;
     }
     const routine = is.empty(id)
-      ? await sendRequest<RoutineDTO>(
-          `/routine/${this.props.routine._id}/activate`,
-          {
-            body: JSON.stringify({
-              activate,
-              friendlyName: this.state.name,
-              type: this.state.activate.type,
-            } as RoutineActivateDTO),
-            method: 'post',
-          },
-        )
-      : await sendRequest<RoutineDTO>(
-          `/routine/${this.props.routine._id}/activate/${id}`,
-          {
-            body: JSON.stringify({
-              activate,
-              friendlyName: this.state.name,
-              type: this.state.activate.type,
-            } as RoutineActivateDTO),
-            method: 'put',
-          },
-        );
+      ? await sendRequest<RoutineDTO>({
+          body: {
+            activate,
+            friendlyName: this.state.name,
+            type: this.state.activate.type,
+          } as RoutineActivateDTO,
+          method: 'post',
+          url: `/routine/${this.props.routine._id}/activate`,
+        })
+      : await sendRequest<RoutineDTO>({
+          body: {
+            activate,
+            friendlyName: this.state.name,
+            type: this.state.activate.type,
+          } as RoutineActivateDTO,
+          method: 'put',
+          url: `/routine/${this.props.routine._id}/activate/${id}`,
+        });
 
     if (this.props.onUpdate) {
       this.props.onUpdate(routine);

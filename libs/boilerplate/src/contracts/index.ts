@@ -1,7 +1,6 @@
 export * from './aws';
 export * from './config';
 export * from './email';
-export * from './fetch';
 export * from './generic-version.dto';
 export * from './interfaces';
 export * from './lifecycle';

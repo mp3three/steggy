@@ -66,9 +66,13 @@ export class RoomStateCommand extends React.Component<
   }
 
   private async listRooms(): Promise<void> {
-    const rooms = await sendRequest<RoomDTO[]>(
-      `/room?select=friendlyName,save_states.id,save_states.friendlyName&sort=friendlyName`,
-    );
+    const rooms = await sendRequest<RoomDTO[]>({
+      control: {
+        select: ['friendlyName', 'save_states.id', 'save_states.friendlyName'],
+        sort: ['friendlyName'],
+      },
+      url: `/room`,
+    });
     this.setState({ rooms });
   }
 }

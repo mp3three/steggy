@@ -158,13 +158,11 @@ export class LightEntityCard extends React.Component<
     const saveState = this.getSaveState(brightness);
     if (this.props.selfContained) {
       this.setState({ brightness });
-      const state = await sendRequest<LightStateDTO>(
-        `/entity/command/${saveState.ref}/${saveState.state}`,
-        {
-          body: JSON.stringify({ brightness }),
-          method: 'put',
-        },
-      );
+      const state = await sendRequest<LightStateDTO>({
+        body: { brightness },
+        method: 'put',
+        url: `/entity/command/${saveState.ref}/${saveState.state}`,
+      });
       state.attributes ??= {};
       this.setState({
         brightness: state.attributes.brightness,
@@ -231,13 +229,11 @@ export class LightEntityCard extends React.Component<
       if (!this.props.selfContained) {
         return;
       }
-      const state = await sendRequest<LightStateDTO>(
-        `/entity/light-state/${saveState.ref}`,
-        {
-          body: JSON.stringify(saveState),
-          method: 'put',
-        },
-      );
+      const state = await sendRequest<LightStateDTO>({
+        body: saveState,
+        method: 'put',
+        url: `/entity/light-state/${saveState.ref}`,
+      });
       this.setState({
         brightness: state.attributes.brightness,
         color_mode: state.attributes.color_mode,
@@ -254,7 +250,9 @@ export class LightEntityCard extends React.Component<
       });
       return;
     }
-    const entity = await sendRequest<LightStateDTO>(`/entity/id/${this.ref}`);
+    const entity = await sendRequest<LightStateDTO>({
+      url: `/entity/id/${this.ref}`,
+    });
     this.setState({ friendly_name: entity.attributes.friendly_name });
     if (this.props.selfContained) {
       this.setState({

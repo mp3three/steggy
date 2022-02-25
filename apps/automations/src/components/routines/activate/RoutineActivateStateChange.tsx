@@ -1,14 +1,9 @@
-import { FILTER_OPERATIONS } from '@automagical/boilerplate';
-import {
-  ScheduleActivateDTO,
-  StateChangeActivateDTO,
-} from '@automagical/controller-shared';
-import { CronExpression, is, TitleCase } from '@automagical/utilities';
+import { StateChangeActivateDTO } from '@automagical/controller-shared';
+import { FILTER_OPERATIONS, is } from '@automagical/utilities';
 import {
   Checkbox,
   Divider,
   Form,
-  Input,
   InputNumber,
   Select,
   Skeleton,
@@ -16,10 +11,9 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import { sendRequest } from 'apps/automations/src/types';
 import React from 'react';
 
-import { EntityHistory } from '../../entities';
+import { sendRequest } from '../../../types';
 import { FilterValue, FuzzySelect } from '../../misc';
 
 type tState = {
@@ -143,7 +137,7 @@ export class RoutineActivateStateChange extends React.Component<
   }
 
   private async refresh(): Promise<void> {
-    const entityList = await sendRequest<string[]>(`/entity/list`);
+    const entityList = await sendRequest<string[]>({ url: `/entity/list` });
     this.setState({ entityList });
   }
 

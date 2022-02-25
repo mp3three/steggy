@@ -4,10 +4,8 @@ import {
   Card,
   Checkbox,
   Divider,
-  Drawer,
   Empty,
   Space,
-  Spin,
   Tooltip,
   Typography,
 } from 'antd';
@@ -21,6 +19,7 @@ import { RelatedRoutines } from '../routines';
 import { FanEntityCard } from './FanEntityCard';
 import { LightEntityCard } from './LightEntityCard';
 import { SwitchEntityCard } from './SwitchEntityCard';
+
 type tState = {
   entity: HassStateDTO;
   entity_id: string;
@@ -35,15 +34,15 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
     await Promise.all(
       [
         async () => {
-          const entity = await sendRequest<HassStateDTO>(
-            `/entity/id/${entity_id}`,
-          );
+          const entity = await sendRequest<HassStateDTO>({
+            url: `/entity/id/${entity_id}`,
+          });
           this.setState({ entity });
         },
         async () => {
-          const flags = await sendRequest<string[]>(
-            `/entity/flags/${entity_id}`,
-          );
+          const flags = await sendRequest<string[]>({
+            url: `/entity/flags/${entity_id}`,
+          });
           this.setState({ flags });
         },
       ].map(async f => await f()),
@@ -113,7 +112,7 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
   }
 
   private flags() {
-    const { entity } = this.state;
+    const { entity, flags } = this.state;
     if (domain(entity.entity_id) === 'light') {
       return (
         <>
@@ -132,7 +131,7 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
                 onChange={({ target }) =>
                   this.toggleFlag('LIGHT_FORCE_CIRCADIAN', target.checked)
                 }
-                checked={this.state.flags.includes('LIGHT_FORCE_CIRCADIAN')}
+                checked={flags.includes('LIGHT_FORCE_CIRCADIAN')}
               >
                 Circadian Compatibility
               </Checkbox>
@@ -147,22 +146,18 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
   private async toggleFlag(flag: string, state: boolean) {
     let flags: string[];
     if (state) {
-      flags = await sendRequest<string[]>(
-        `/entity/flags/${this.state.entity.entity_id}`,
-        {
-          body: JSON.stringify({ flag }),
-          method: 'post',
-        },
-      );
+      flags = await sendRequest<string[]>({
+        body: { flag },
+        method: 'post',
+        url: `/entity/flags/${this.state.entity.entity_id}`,
+      });
       this.setState({ flags });
       return;
     }
-    flags = await sendRequest<string[]>(
-      `/entity/flags/${this.state.entity.entity_id}/${flag}`,
-      {
-        method: 'delete',
-      },
-    );
+    flags = await sendRequest<string[]>({
+      method: 'delete',
+      url: `/entity/flags/${this.state.entity.entity_id}/${flag}`,
+    });
     this.setState({ flags });
   }
 }

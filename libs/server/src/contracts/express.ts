@@ -1,9 +1,9 @@
+import { AutoLogService } from '@automagical/boilerplate';
 import {
-  AutoLogService,
   FetchAuth,
   HTTP_METHODS,
-} from '@automagical/boilerplate';
-import { ResultControlDTO } from '@automagical/utilities';
+  ResultControlDTO,
+} from '@automagical/utilities';
 import { REQUEST } from '@nestjs/core';
 import { Request, Response } from 'express';
 import pino from 'pino';

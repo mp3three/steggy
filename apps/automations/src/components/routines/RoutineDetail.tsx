@@ -288,32 +288,36 @@ export const RoutineDetail = withRouter(
     }
 
     private async deleteActivate(item: RoutineActivateDTO): Promise<void> {
-      const routine = await sendRequest<RoutineDTO>(
-        `/routine/${this.id}/activate/${item.id}`,
-        { method: 'delete' },
-      );
+      const routine = await sendRequest<RoutineDTO>({
+        method: 'delete',
+        url: `/routine/${this.id}/activate/${item.id}`,
+      });
       this.refresh(routine);
     }
 
     private async manualActivate(): Promise<void> {
-      await sendRequest(`/routine/${this.id}`, { method: 'post' });
+      await sendRequest({
+        method: 'post',
+        url: `/routine/${this.id}`,
+      });
     }
 
     private async nameUpdate(name: string): Promise<void> {
       if (name === this.state.routine.friendlyName) {
         return;
       }
-      const routine = await sendRequest<RoutineDTO>(`/routine/${this.id}`, {
-        body: JSON.stringify({
+      const routine = await sendRequest<RoutineDTO>({
+        body: {
           friendlyName: name,
-        }),
+        },
         method: 'put',
+        url: `/routine/${this.id}`,
       });
       this.setState({ name, routine });
     }
 
     private async refresh(routine?: RoutineDTO): Promise<void> {
-      routine ??= await sendRequest<RoutineDTO>(`/routine/${this.id}`);
+      routine ??= await sendRequest<RoutineDTO>({ url: `/routine/${this.id}` });
       this.setState({ name: routine.friendlyName, routine });
     }
 
@@ -322,8 +326,8 @@ export const RoutineDetail = withRouter(
       friendlyName: string,
     ): Promise<void> {
       const { routine } = this.state;
-      const updated = await sendRequest<RoutineDTO>(`/routine/${routine._id}`, {
-        body: JSON.stringify({
+      const updated = await sendRequest<RoutineDTO>({
+        body: {
           activate: routine.activate.map(i =>
             i.id === activate.id
               ? {
@@ -332,17 +336,19 @@ export const RoutineDetail = withRouter(
                 }
               : i,
           ),
-        }),
+        },
         method: 'put',
+        url: `/routine/${routine._id}`,
       });
       this.setState({ routine: updated });
     }
 
     private async setSync(sync: boolean) {
-      const routine = await sendRequest<RoutineDTO>(
-        `/routine/${this.state.routine._id}`,
-        { body: JSON.stringify({ sync }), method: 'put' },
-      );
+      const routine = await sendRequest<RoutineDTO>({
+        body: { sync },
+        method: 'put',
+        url: `/routine/${this.state.routine._id}`,
+      });
       this.setState({ routine });
     }
 

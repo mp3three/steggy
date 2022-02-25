@@ -40,9 +40,10 @@ export class GroupCreateButton extends React.Component<{
     try {
       const values = await this.form.validateFields();
       values.type = this.props.type;
-      await sendRequest(`/group`, {
-        body: JSON.stringify(values),
+      await sendRequest({
+        body: values,
         method: 'post',
+        url: `/group`,
       });
       this.form.resetFields();
       this.props.groupsUpdated();

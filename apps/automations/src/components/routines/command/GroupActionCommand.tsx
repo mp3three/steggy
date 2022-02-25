@@ -63,9 +63,14 @@ export class GroupActionCommand extends React.Component<
   }
 
   private async listGroups(): Promise<void> {
-    const groups = await sendRequest<GroupDTO[]>(
-      `/group?select=friendlyName,type&type=light&sort=friendlyName`,
-    );
+    const groups = await sendRequest<GroupDTO[]>({
+      control: {
+        filters: new Set([{ field: 'type', value: 'light' }]),
+        select: ['friendlyName', 'type'],
+        sort: ['friendlyName'],
+      },
+      url: `/group`,
+    });
     this.setState({ groups });
   }
 

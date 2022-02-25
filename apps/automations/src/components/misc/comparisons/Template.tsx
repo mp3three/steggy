@@ -73,16 +73,14 @@ export class TemplateComparison extends React.Component<
   }
 
   private async renderTemplate() {
-    const renderedTemplate = await sendRequest<string>(
-      `/debug/render-template`,
-      {
-        body: JSON.stringify({
-          template: this.props.comparison.template,
-        }),
-        method: 'post',
+    const renderedTemplate = await sendRequest<string>({
+      body: {
+        template: this.props.comparison.template,
       },
-      true,
-    );
+      method: 'post',
+      process: 'text',
+      url: `/debug/render-template`,
+    });
     this.setState({ renderedTemplate });
   }
 }

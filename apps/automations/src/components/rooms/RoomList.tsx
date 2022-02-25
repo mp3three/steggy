@@ -84,27 +84,37 @@ export class RoomList extends React.Component {
   }
 
   private async activateState(room: RoomDTO, state: RoomStateDTO) {
-    await sendRequest(`/room/${room._id}/state/${state.id}`, {
+    await sendRequest({
       method: 'post',
+      url: `/room/${room._id}/state/${state.id}`,
     });
   }
 
   private async deleteRoom(room: RoomDTO): Promise<void> {
-    await sendRequest(`/room/${room._id}`, { method: 'delete' });
+    await sendRequest({
+      method: 'delete',
+      url: `/room/${room._id}`,
+    });
     await this.refresh();
   }
 
   private async refresh(): Promise<void> {
-    const rooms = await sendRequest<RoomDTO[]>(`/room?sort=friendlyName`);
+    const rooms = await sendRequest<RoomDTO[]>({
+      control: {
+        sort: ['friendlyName'],
+      },
+      url: `/room`,
+    });
     this.setState({ rooms });
   }
 
   private async renameRoom(room: RoomDTO, friendlyName: string) {
-    await sendRequest(`/room/${room._id}`, {
-      body: JSON.stringify({
+    await sendRequest({
+      body: {
         friendlyName,
-      }),
+      },
       method: 'put',
+      url: `/room/${room._id}`,
     });
     await this.refresh();
   }
@@ -163,9 +173,10 @@ export class RoomList extends React.Component {
   private async validate(): Promise<void> {
     try {
       const values = await this.form.validateFields();
-      await sendRequest(`/room`, {
-        body: JSON.stringify(values),
+      await sendRequest({
+        body: values,
         method: 'post',
+        url: `/room`,
       });
       this.form.resetFields();
       await this.refresh();

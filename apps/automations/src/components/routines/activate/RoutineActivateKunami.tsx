@@ -140,7 +140,7 @@ export class RoutineActivateKunami extends React.Component<
   }
 
   private async entityList(): Promise<void> {
-    const entityList = await sendRequest<string[]>(`/entity/list`);
+    const entityList = await sendRequest<string[]>({ url: `/entity/list` });
     this.setState({ entityList });
   }
 
@@ -165,11 +165,12 @@ export class RoutineActivateKunami extends React.Component<
         });
       })(),
       (async () => {
-        const match = await sendRequest<string[]>(`/entity/record/${sensor}`, {
-          body: JSON.stringify({
+        const match = await sendRequest<string[]>({
+          body: {
             duration: recordSeconds,
-          }),
+          },
           method: 'post',
+          url: `/entity/record/${sensor}`,
         });
         console.log(match);
         this.setState({ match });

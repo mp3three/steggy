@@ -68,9 +68,18 @@ export class GroupStateCommand extends React.Component<
   }
 
   private async listGroups(): Promise<void> {
-    const groups = await sendRequest<GroupDTO[]>(
-      `/group?select=friendlyName,type,save_states.id,save_states.friendlyName&sort=type,friendlyName`,
-    );
+    const groups = await sendRequest<GroupDTO[]>({
+      control: {
+        select: [
+          'friendlyName',
+          'type',
+          'save_states.id',
+          'save_states.friendlyName',
+        ],
+        sort: ['type', 'friendlyName'],
+      },
+      url: `/group`,
+    });
     this.setState({ groups });
   }
 }

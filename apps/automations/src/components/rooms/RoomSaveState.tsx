@@ -11,9 +11,7 @@ import {
   Input,
   List,
   Popconfirm,
-  Popover,
   Row,
-  Table,
 } from 'antd';
 import React from 'react';
 
@@ -106,25 +104,27 @@ export class RoomSaveStates extends React.Component<{
   }
 
   private async activateState(record: RoomStateDTO): Promise<void> {
-    await sendRequest(`/room/${this.room._id}/state/${record.id}`, {
+    await sendRequest({
       method: 'post',
+      url: `/room/${this.room._id}/state/${record.id}`,
     });
   }
 
   private async removeState(record: RoomStateDTO): Promise<void> {
-    const room = await sendRequest<RoomDTO>(
-      `/room/${this.room._id}/state/${record.id}`,
-      { method: 'delete' },
-    );
+    const room = await sendRequest<RoomDTO>({
+      method: 'delete',
+      url: `/room/${this.room._id}/state/${record.id}`,
+    });
     this.props.roomUpdated(room);
   }
 
   private async validate(): Promise<void> {
     try {
       const values = await this.form.validateFields();
-      const room = await sendRequest<RoomDTO>(`/room/${this.room._id}/state`, {
-        body: JSON.stringify(values),
+      const room = await sendRequest<RoomDTO>({
+        body: values,
         method: 'post',
+        url: `/room/${this.room._id}/state`,
       });
       this.form.resetFields();
       this.props.roomUpdated(room);

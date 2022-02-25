@@ -1,6 +1,5 @@
 import {
   AutoLogService,
-  HTTP_METHODS,
   InjectConfig,
   storage,
 } from '@automagical/boilerplate';
@@ -8,6 +7,7 @@ import {
   buildFilter,
   FilterDTO,
   FilterValueType,
+  HTTP_METHODS,
   is,
   queryToControl,
 } from '@automagical/utilities';

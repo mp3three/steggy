@@ -1,4 +1,3 @@
-import type { FetchWith } from '@automagical/boilerplate';
 import {
   AutoLogService,
   FetchService,
@@ -8,7 +7,7 @@ import {
   HassStateDTO,
   HomeAssistantServerLogItem,
 } from '@automagical/home-assistant-shared';
-import { SECOND } from '@automagical/utilities';
+import { FetchWith, SECOND } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { BASE_URL, TOKEN } from '../config';

@@ -257,46 +257,44 @@ export class RoomStateEdit extends React.Component<
   private async onSave(): Promise<void> {
     const id = this.props.state.id;
     const groupStates = this.state.groupStates;
-    const room = await sendRequest<RoomDTO>(
-      `/room/${this.room._id}/state/${id}`,
-      {
-        body: JSON.stringify({
-          friendlyName: this.state.friendlyName,
-          id,
-          states: [
-            ...this.cards
-              .filter(i => !!i)
-              .map(i => {
-                const state = i.getSaveState();
-                if (!state) {
-                  return undefined;
-                }
-                return { ...state, type: 'entity' };
-              })
-              .filter(i => !is.undefined(i)),
-            ...Object.keys(groupStates)
-              .filter(key => groupStates[key] !== 'none')
-              .map(
-                group =>
-                  ({
-                    ref: group,
-                    state: groupStates[group],
-                    type: 'group',
-                  } as RoomEntitySaveStateDTO),
-              ),
-          ],
-        } as RoomStateDTO),
-        method: 'put',
-      },
-    );
+    const room = await sendRequest<RoomDTO>({
+      body: {
+        friendlyName: this.state.friendlyName,
+        id,
+        states: [
+          ...this.cards
+            .filter(i => !!i)
+            .map(i => {
+              const state = i.getSaveState();
+              if (!state) {
+                return undefined;
+              }
+              return { ...state, type: 'entity' };
+            })
+            .filter(i => !is.undefined(i)),
+          ...Object.keys(groupStates)
+            .filter(key => groupStates[key] !== 'none')
+            .map(
+              group =>
+                ({
+                  ref: group,
+                  state: groupStates[group],
+                  type: 'group',
+                } as RoomEntitySaveStateDTO),
+            ),
+        ],
+      } as RoomStateDTO,
+      method: 'put',
+      url: `/room/${this.room._id}/state/${id}`,
+    });
     this.setState({ dirty: false, drawer: false });
     this.props.onUpdate(room);
   }
 
   private async refreshGroups(): Promise<void> {
-    const groups = await sendRequest<GroupDTO[]>(
-      `/room/${this.room._id}/group-save-states`,
-    );
+    const groups = await sendRequest<GroupDTO[]>({
+      url: `/room/${this.room._id}/group-save-states`,
+    });
     this.setState({ groups });
   }
 }

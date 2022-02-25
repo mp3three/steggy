@@ -114,11 +114,12 @@ export const GroupDetail = withRouter(
       const { group } = this.state as { group: GroupDTO };
       group.entities = is.unique([...group.entities, ...entities]);
       this.refresh(
-        await sendRequest(`/group/${group._id}`, {
-          body: JSON.stringify({
+        await sendRequest({
+          body: {
             entities: group.entities,
-          } as Partial<GroupDTO>),
+          } as Partial<GroupDTO>,
           method: 'put',
+          url: `/group/${group._id}`,
         }),
       );
     }
@@ -175,11 +176,12 @@ export const GroupDetail = withRouter(
       if (name === this.state.group.friendlyName) {
         return;
       }
-      await sendRequest<GroupDTO>(`/group/${this.state.group._id}`, {
-        body: JSON.stringify({
+      await sendRequest<GroupDTO>({
+        body: {
           friendlyName: name,
-        }),
+        },
         method: 'put',
+        url: `/group/${this.state.group._id}`,
       });
       this.state.group.friendlyName = name;
       this.setState({ name });
@@ -187,9 +189,10 @@ export const GroupDetail = withRouter(
 
     private async onUpdate({ _id, ...group }: GroupDTO): Promise<void> {
       await this.refresh(
-        await sendRequest<GroupDTO>(`/group/${_id}`, {
-          body: JSON.stringify(group),
+        await sendRequest<GroupDTO>({
+          body: group,
           method: 'put',
+          url: `/group/${_id}`,
         }),
       );
     }
@@ -197,7 +200,7 @@ export const GroupDetail = withRouter(
     private async refresh(group?: GroupDTO): Promise<void> {
       const { id } = this.props.match.params;
       // cheating refresh
-      group ??= await sendRequest<GroupDTO>(`/group/${id}`);
+      group ??= await sendRequest<GroupDTO>({ url: `/group/${id}` });
       this.setState({ group, name: group.friendlyName });
     }
   },

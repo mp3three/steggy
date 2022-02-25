@@ -237,10 +237,10 @@ export class CommandList extends React.Component<{
   }
 
   private async deleteCommand(item: RoutineCommandDTO): Promise<void> {
-    const updated = await sendRequest<RoutineDTO>(
-      `/routine/${this.id}/command/${item.id}`,
-      { method: 'delete' },
-    );
+    const updated = await sendRequest<RoutineDTO>({
+      method: 'delete',
+      url: `/routine/${this.id}/command/${item.id}`,
+    });
     this.props.onUpdate(updated);
   }
 
@@ -270,13 +270,11 @@ export class CommandList extends React.Component<{
       return;
     }
     const command = array_move(this.props.routine.command, oldIndex, newIndex);
-    const routine = await sendRequest<RoutineDTO>(
-      `/routine/${this.props.routine._id}`,
-      {
-        body: JSON.stringify({ command }),
-        method: 'put',
-      },
-    );
+    const routine = await sendRequest<RoutineDTO>({
+      body: { command },
+      method: 'put',
+      url: `/routine/${this.props.routine._id}`,
+    });
     this.props.onUpdate(routine);
   }
 
@@ -285,8 +283,8 @@ export class CommandList extends React.Component<{
     friendlyName: string,
   ): Promise<void> {
     const { routine } = this.props;
-    const updated = await sendRequest<RoutineDTO>(`/routine/${routine._id}`, {
-      body: JSON.stringify({
+    const updated = await sendRequest<RoutineDTO>({
+      body: {
         command: routine.command.map(i =>
           i.id === command.id
             ? {
@@ -295,8 +293,9 @@ export class CommandList extends React.Component<{
               }
             : i,
         ),
-      }),
+      },
       method: 'put',
+      url: `/routine/${routine._id}`,
     });
     this.props.onUpdate(updated);
   }

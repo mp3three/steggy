@@ -48,13 +48,11 @@ export class FanGroup extends React.Component<
   private async onAttributeChange(
     state: RoomEntitySaveStateDTO,
   ): Promise<void> {
-    const fan = await sendRequest<FanStateDTO>(
-      `/entity/light-state/${state.ref}`,
-      {
-        body: JSON.stringify(state),
-        method: 'put',
-      },
-    );
+    const fan = await sendRequest<FanStateDTO>({
+      body: state,
+      method: 'put',
+      url: `/entity/light-state/${state.ref}`,
+    });
     const card = this.lightCards[state.ref];
     card.load(fan);
   }

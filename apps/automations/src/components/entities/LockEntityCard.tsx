@@ -1,10 +1,6 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { RoomEntitySaveStateDTO } from '@automagical/controller-shared';
-import {
-  LightStateDTO,
-  LockStateDTO,
-  SwitchStateDTO,
-} from '@automagical/home-assistant-shared';
+import { LockStateDTO } from '@automagical/home-assistant-shared';
 import { is } from '@automagical/utilities';
 import { Button, Card, Popconfirm, Radio, Space, Spin, Switch } from 'antd';
 import React from 'react';
@@ -114,12 +110,10 @@ export class LockEntityCard extends React.Component<
       this.props.onUpdate({ ref: this.ref, state });
     }
     if (this.props.selfContained) {
-      const result = await sendRequest<LockStateDTO>(
-        `/entity/command/${this.ref}/${state}`,
-        {
-          method: 'put',
-        },
-      );
+      const result = await sendRequest<LockStateDTO>({
+        method: 'put',
+        url: `/entity/command/${this.ref}/${state}`,
+      });
       this.setState({ state: result.state });
     }
   }
@@ -131,7 +125,9 @@ export class LockEntityCard extends React.Component<
       });
       return;
     }
-    const entity = await sendRequest<LockStateDTO>(`/entity/id/${this.ref}`);
+    const entity = await sendRequest<LockStateDTO>({
+      url: `/entity/id/${this.ref}`,
+    });
     this.setState({
       friendly_name: entity.attributes.friendly_name,
       state: entity.state,

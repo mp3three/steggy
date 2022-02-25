@@ -48,7 +48,7 @@ export class EntityStateCommand extends React.Component<
   }
 
   private async listEntities(): Promise<void> {
-    const entities = await sendRequest<string[]>(`/entity/list`);
+    const entities = await sendRequest<string[]>({ url: `/entity/list` });
     this.setState({
       entities: entities.filter(i =>
         ['light', 'switch', 'fan', 'media_player', 'lock'].includes(domain(i)),

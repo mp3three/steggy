@@ -236,29 +236,25 @@ export class RoutineCommandDrawer extends React.Component<
       return;
     }
     const routine = is.empty(id)
-      ? await sendRequest<RoutineDTO>(
-          `/routine/${this.props.routine._id}/command`,
-          {
-            body: JSON.stringify({
-              command,
-              friendlyName: this.state.name,
-              type,
-            }),
-            method: 'post',
+      ? await sendRequest<RoutineDTO>({
+          body: {
+            command,
+            friendlyName: this.state.name,
+            type,
           },
-        )
-      : await sendRequest<RoutineDTO>(
-          `/routine/${this.props.routine._id}/command/${id}`,
-          {
-            body: JSON.stringify({
-              command,
-              friendlyName: this.state.name,
-              id,
-              type,
-            }),
-            method: 'put',
+          method: 'post',
+          url: `/routine/${this.props.routine._id}/command`,
+        })
+      : await sendRequest<RoutineDTO>({
+          body: {
+            command,
+            friendlyName: this.state.name,
+            id,
+            type,
           },
-        );
+          method: 'put',
+          url: `/routine/${this.props.routine._id}/command/${id}`,
+        });
 
     this.props.onUpdate(routine);
     this.setState({ visible: false });
@@ -272,8 +268,9 @@ export class RoutineCommandDrawer extends React.Component<
       });
       return;
     }
-    await sendRequest(`/routine/${this.props.routine._id}/command/${id}`, {
+    await sendRequest({
       method: 'post',
+      url: `/routine/${this.props.routine._id}/command/${id}`,
     });
   }
 }

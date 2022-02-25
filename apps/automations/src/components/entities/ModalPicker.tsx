@@ -252,7 +252,7 @@ export class EntityModalPicker extends React.Component<
       searchText: '',
       selected: [],
     });
-    let available = await sendRequest<string[]>(`/entity/list`);
+    let available = await sendRequest<string[]>({ url: `/entity/list` });
     if (this.props.domains) {
       available = available.filter(entity_id =>
         this.props.domains.includes(domain(entity_id)),

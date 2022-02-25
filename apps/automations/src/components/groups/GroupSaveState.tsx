@@ -143,16 +143,18 @@ export class GroupSaveStates extends React.Component<
   }
 
   private async activateState(state: GroupSaveStateDTO): Promise<void> {
-    await sendRequest(`/group/${this.props.group._id}/state/${state.id}`, {
+    await sendRequest({
       method: 'post',
+      url: `/group/${this.props.group._id}/state/${state.id}`,
     });
     await sleep(500);
     this.props.onGroupUpdate();
   }
 
   private async removeState(state: GroupSaveStateDTO): Promise<void> {
-    await sendRequest(`/group/${this.props.group._id}/state/${state.id}`, {
+    await sendRequest({
       method: 'delete',
+      url: `/group/${this.props.group._id}/state/${state.id}`,
     });
     await sleep(500);
     this.props.onGroupUpdate();
@@ -161,13 +163,11 @@ export class GroupSaveStates extends React.Component<
   private async validateCapture(): Promise<void> {
     try {
       const values = await this.captureForm.validateFields();
-      const group = await sendRequest<GroupDTO>(
-        `/group/${this.props.group._id}/capture`,
-        {
-          body: JSON.stringify(values),
-          method: 'post',
-        },
-      );
+      const group = await sendRequest<GroupDTO>({
+        body: values,
+        method: 'post',
+        url: `/group/${this.props.group._id}/capture`,
+      });
       notification.success({
         message: `State captured: ${values.friendlyName}`,
       });
@@ -181,13 +181,11 @@ export class GroupSaveStates extends React.Component<
   private async validateCreate(): Promise<void> {
     try {
       const values = await this.createForm.validateFields();
-      const group = await sendRequest<GroupDTO>(
-        `/group/${this.props.group._id}/state`,
-        {
-          body: JSON.stringify(values),
-          method: 'post',
-        },
-      );
+      const group = await sendRequest<GroupDTO>({
+        body: values,
+        method: 'post',
+        url: `/group/${this.props.group._id}/state`,
+      });
       this.props.onGroupUpdate(group);
       this.createForm.resetFields();
     } catch (error) {

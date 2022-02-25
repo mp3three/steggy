@@ -129,7 +129,10 @@ export const RoomDetail = withRouter(
     }
 
     private async activateGroupState(group: string, state: string) {
-      await sendRequest(`/group/${group}/state/${state}`, { method: 'post' });
+      await sendRequest({
+        method: 'post',
+        url: `/group/${group}/state/${state}`,
+      });
     }
 
     private async addEntities(entities: string[]): Promise<void> {
@@ -139,11 +142,12 @@ export const RoomDetail = withRouter(
         ...entities.map(entity_id => ({ entity_id })),
       ];
       this.setState({
-        room: await sendRequest<RoomDTO>(`/room/${room._id}`, {
-          body: JSON.stringify({
+        room: await sendRequest<RoomDTO>({
+          body: {
             entities: room.entities,
-          } as Partial<RoomDTO>),
+          } as Partial<RoomDTO>,
           method: 'put',
+          url: `/room/${room._id}`,
         }),
       });
     }
@@ -152,18 +156,20 @@ export const RoomDetail = withRouter(
       const room = this.room;
       room.groups = [...room.groups, ...groups];
       this.setState({
-        room: await sendRequest<RoomDTO>(`/room/${room._id}`, {
-          body: JSON.stringify({
+        room: await sendRequest<RoomDTO>({
+          body: {
             groups: room.groups,
-          } as Partial<RoomDTO>),
+          } as Partial<RoomDTO>,
           method: 'put',
+          url: `/room/${room._id}`,
         }),
       });
     }
 
     private async deleteRoom(): Promise<void> {
-      await sendRequest(`/room/${this.state.room._id}`, {
+      await sendRequest({
         method: 'delete',
+        url: `/room/${this.state.room._id}`,
       });
       notification.info({
         message: `Deleted ${this.state.name}`,
@@ -173,9 +179,10 @@ export const RoomDetail = withRouter(
 
     private async detachGroup(group: string): Promise<void> {
       let room = this.room;
-      room = await sendRequest(`/room/${room._id}`, {
-        body: JSON.stringify({ groups: room.groups.filter(i => i !== group) }),
+      room = await sendRequest({
+        body: { groups: room.groups.filter(i => i !== group) },
         method: 'put',
+        url: `/room/${room._id}`,
       });
       this.setState({ room });
     }
@@ -259,20 +266,22 @@ export const RoomDetail = withRouter(
       if (name === this.state.room.friendlyName) {
         return;
       }
-      await sendRequest<GroupDTO>(`/room/${this.state.room._id}`, {
-        body: JSON.stringify({
+      await sendRequest<GroupDTO>({
+        body: {
           friendlyName: name,
-        }),
+        },
         method: 'put',
+        url: `/room/${this.state.room._id}`,
       });
       this.state.room.friendlyName = name;
       this.setState({ name });
     }
 
     private async onUpdate({ _id, ...rooom }: RoomDTO): Promise<void> {
-      await sendRequest<RoomDTO>(`/group/${_id}`, {
-        body: JSON.stringify(rooom),
+      await sendRequest<RoomDTO>({
+        body: rooom,
         method: 'put',
+        url: `/group/${_id}`,
       });
       await this.refresh();
     }
@@ -280,11 +289,19 @@ export const RoomDetail = withRouter(
     private async refresh(room?: RoomDTO): Promise<void> {
       const { id } = this.props.match.params;
       // cheating refresh
-      room ??= await sendRequest<RoomDTO>(`/room/${id}`);
+      room ??= await sendRequest<RoomDTO>({ url: `/room/${id}` });
       this.setState({
-        groups: await sendRequest(
-          `/group?select=friendlyName,type,save_states.friendlyName,save_states.id`,
-        ),
+        groups: await sendRequest({
+          control: {
+            select: [
+              'friendlyName',
+              'type',
+              'save_states.friendlyName',
+              'save_states.id',
+            ],
+          },
+          url: `/group`,
+        }),
         name: room.friendlyName,
         room,
       });
@@ -292,8 +309,9 @@ export const RoomDetail = withRouter(
 
     private async removeEntity(entity: string): Promise<void> {
       this.refresh(
-        await sendRequest<RoomDTO>(`/room/${this.room._id}/entity/${entity}`, {
+        await sendRequest<RoomDTO>({
           method: 'delete',
+          url: `/room/${this.room._id}/entity/${entity}`,
         }),
       );
     }

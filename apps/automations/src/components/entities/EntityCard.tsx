@@ -84,7 +84,9 @@ export class EntityCard extends React.Component<
       });
       return;
     }
-    const entity = await sendRequest<LightStateDTO>(`/entity/id/${this.ref}`);
+    const entity = await sendRequest<LightStateDTO>({
+      url: `/entity/id/${this.ref}`,
+    });
     this.setState({ friendly_name: entity.attributes.friendly_name });
   }
 

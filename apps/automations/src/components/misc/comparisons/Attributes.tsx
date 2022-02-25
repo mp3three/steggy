@@ -63,12 +63,14 @@ export class AttributeComparison extends React.Component<
   }
 
   private async listEntities() {
-    const entities = await sendRequest<string[]>(`/entity/list`);
+    const entities = await sendRequest<string[]>({ url: `/entity/list` });
     this.setState({ entities });
   }
 
   private async loadEntity(entity_id: string) {
-    const state = await sendRequest<HassStateDTO>(`/entity/id/${entity_id}`);
+    const state = await sendRequest<HassStateDTO>({
+      url: `/entity/id/${entity_id}`,
+    });
     this.setState({ state });
     this.props.onUpdate({ entity_id });
   }

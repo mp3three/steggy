@@ -51,7 +51,7 @@ export class StateComparison extends React.Component<
   }
 
   private async listEntities() {
-    const entities = await sendRequest<string[]>(`/entity/list`);
+    const entities = await sendRequest<string[]>({ url: `/entity/list` });
     this.setState({ entities });
   }
 }

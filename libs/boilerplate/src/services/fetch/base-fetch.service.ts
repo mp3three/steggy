@@ -1,7 +1,12 @@
-import { controlToQuery, is, ResultControlDTO } from '@automagical/utilities';
+import {
+  controlToQuery,
+  FetchArguments,
+  FetchParameterTypes,
+  is,
+  ResultControlDTO,
+} from '@automagical/utilities';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
-import { FetchArguments, FetchParameterTypes } from '../../contracts';
 import { AutoLogService } from '../auto-log.service';
 
 const DEFAULT_TRUNCATE_LENGTH = 200;

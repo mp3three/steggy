@@ -1,11 +1,15 @@
-import { FilterDTO, is, ResultControlDTO } from '@automagical/utilities';
+import {
+  FILTER_OPERATIONS,
+  FilterDTO,
+  is,
+  ResultControlDTO,
+} from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { parseDate } from 'chrono-node';
 import { isNumberString } from 'class-validator';
 import dayjs from 'dayjs';
 import { get } from 'object-path';
 
-import { FILTER_OPERATIONS } from '../contracts';
 import { AutoLogService } from './auto-log.service';
 
 type RelativeCompare = number | Date | dayjs.Dayjs;

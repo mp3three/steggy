@@ -1,9 +1,9 @@
+import { FetchArguments } from '@automagical/utilities';
 import { Injectable, Scope } from '@nestjs/common';
 import Bottleneck from 'bottleneck';
 import { createWriteStream } from 'fs';
 import fetch from 'node-fetch';
 
-import { FetchArguments } from '../../contracts';
 import { AutoLogService } from '../auto-log.service';
 import { BaseFetchService } from './base-fetch.service';
 

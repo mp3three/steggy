@@ -1,6 +1,9 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { RoomEntitySaveStateDTO } from '@automagical/controller-shared';
-import { HassStateDTO, LightStateDTO } from '@automagical/home-assistant-shared';
+import {
+  HassStateDTO,
+  LightStateDTO,
+} from '@automagical/home-assistant-shared';
 import { is } from '@automagical/utilities';
 import { Button, Card, Popconfirm, Popover, Spin, Typography } from 'antd';
 import React from 'react';
@@ -69,7 +72,9 @@ export class EntityCard extends React.Component<
       });
       return;
     }
-    const entity = await sendRequest<LightStateDTO>(`/entity/id/${this.ref}`);
+    const entity = await sendRequest<LightStateDTO>({
+      url: `/entity/id/${this.ref}`,
+    });
     this.setState({ friendly_name: entity.attributes.friendly_name });
   }
 

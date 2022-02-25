@@ -48,9 +48,10 @@ export const GroupCreateButton = withRouter(
       try {
         const values = await this.form.validateFields();
         values.type = this.props.type;
-        const group = await sendRequest<GroupDTO>(`/group`, {
-          body: JSON.stringify(values),
+        const group = await sendRequest<GroupDTO>({
+          body: values,
           method: 'post',
+          url: `/group`,
         });
         this.form.resetFields();
         this.props.groupsUpdated();

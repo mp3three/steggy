@@ -179,15 +179,13 @@ export class FanEntityCard extends React.Component<
     }
     const now = new Date();
     this.latestRequest = now;
-    const entity = await sendRequest<FanStateDTO>(
-      `/entity/command/${this.ref}/setSpeed`,
-      {
-        body: JSON.stringify({
-          percentage,
-        }),
-        method: 'put',
+    const entity = await sendRequest<FanStateDTO>({
+      body: {
+        percentage,
       },
-    );
+      method: 'put',
+      url: `/entity/command/${this.ref}/setSpeed`,
+    });
     if (this.latestRequest !== now) {
       return;
     }
@@ -214,7 +212,9 @@ export class FanEntityCard extends React.Component<
       });
       return;
     }
-    const entity = await sendRequest<FanStateDTO>(`/entity/id/${this.ref}`);
+    const entity = await sendRequest<FanStateDTO>({
+      url: `/entity/id/${this.ref}`,
+    });
     this.load(entity);
   }
 

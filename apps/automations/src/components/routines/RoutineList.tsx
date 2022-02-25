@@ -1,7 +1,7 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { RoutineDTO } from '@automagical/controller-shared';
-import { is } from '@automagical/utilities';
+import { is, ResultControlDTO } from '@automagical/utilities';
 import {
   Breadcrumb,
   Button,
@@ -95,19 +95,35 @@ export const RoutineList = withRouter(
     }
 
     private async activateRoutine(routine: RoutineDTO): Promise<void> {
-      await sendRequest(`/routine/${routine._id}`, { method: 'post' });
+      await sendRequest({ method: 'post', url: `/routine/${routine._id}` });
     }
 
     private async deleteRoutine(routine: RoutineDTO): Promise<void> {
-      await sendRequest(`/routine/${routine._id}`, { method: 'delete' });
+      await sendRequest({
+        method: 'delete',
+        url: `/routine/${routine._id}`,
+      });
       await this.refresh();
     }
 
     private async refresh(text?: string): Promise<void> {
-      const search = is.empty(text) ? '' : `&friendlyName__regex=${text}`;
-      const routines = await sendRequest<RoutineDTO[]>(
-        `/routine?sort=friendlyName${search}`,
-      );
+      const routines = await sendRequest<RoutineDTO[]>({
+        control: {
+          filters: new Set(
+            is.empty(text)
+              ? []
+              : [
+                  {
+                    field: 'friendlyName',
+                    operation: 'regex',
+                    value: text,
+                  },
+                ],
+          ),
+          sort: ['friendlyName'],
+        } as ResultControlDTO,
+        url: `/routine`,
+      });
       this.setState({ routines });
     }
 
@@ -115,9 +131,10 @@ export const RoutineList = withRouter(
       { _id }: RoutineDTO,
       friendlyName: string,
     ): Promise<void> {
-      await sendRequest<RoutineDTO>(`/routine/${_id}`, {
-        body: JSON.stringify({ friendlyName }),
+      await sendRequest<RoutineDTO>({
+        body: { friendlyName },
         method: 'put',
+        url: `/routine/${_id}`,
       });
       this.refresh(this.state.search);
     }
@@ -173,9 +190,10 @@ export const RoutineList = withRouter(
     private async validate(): Promise<void> {
       try {
         const values = await this.form.validateFields();
-        const routine = await sendRequest<RoutineDTO>(`/routine`, {
-          body: JSON.stringify(values),
+        const routine = await sendRequest<RoutineDTO>({
+          body: values,
           method: 'post',
+          url: `/routine`,
         });
         this.form.resetFields();
         this.props.history.push(`/routine/${routine._id}`);

@@ -44,10 +44,10 @@ export class SwitchGroup extends React.Component<
   private async onAttributeChange(
     state: RoomEntitySaveStateDTO,
   ): Promise<void> {
-    const entity = await sendRequest<SwitchStateDTO>(
-      `/entity/command/${state.ref}/${state.state}`,
-      { method: 'put' },
-    );
+    const entity = await sendRequest<SwitchStateDTO>({
+      method: 'put',
+      url: `/entity/command/${state.ref}/${state.state}`,
+    });
     const card = this.lightCards[state.ref];
     card.setState({
       state: entity.state,
