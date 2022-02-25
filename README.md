@@ -34,8 +34,6 @@ services:
     container_name: home-controller_mongo
     image: mongo
     restart: unless-stopped
-    ports:
-      - 27020:27017
     volumes:
       - mongo:/data/db
 
