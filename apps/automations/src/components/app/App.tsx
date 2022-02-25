@@ -11,6 +11,7 @@ import { HomePage } from '../home';
 import { ApplicationMenu } from '../menu';
 import { RoomDetail, RoomList } from '../rooms';
 import { RoutineDetail, RoutineList } from '../routines';
+import { SettingsPage } from '../settings';
 
 const { Header, Sider } = Layout;
 
@@ -41,6 +42,7 @@ export class App extends React.Component {
               <Route path="/rooms" component={RoomList} />
               <Route path="/group/:id" component={GroupDetail} />
               <Route path="/groups" component={GroupList} />
+              <Route path="/settings" component={SettingsPage} />
               <Route path="/" component={HomePage} />
             </Switch>
             <Foot />

@@ -51,6 +51,7 @@
     "fuzzysort": "^1.2.1",
     "helmet": "^4.4.1",
     "html-react-parser": "^1.4.8",
+    "http-proxy-middleware": "^2.0.3",
     "ini": "^2.0.0",
     "inquirer": "^8.1.1",
     "inquirer-date-prompt": "^2.0.1",

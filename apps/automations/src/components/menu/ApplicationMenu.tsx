@@ -2,7 +2,7 @@ import AlarmBell from '@2fd/ant-design-icons/lib/AlarmBell';
 import BulletinBoard from '@2fd/ant-design-icons/lib/BulletinBoard';
 import HomeAutomation from '@2fd/ant-design-icons/lib/HomeAutomation';
 import LightbulbGroupOutline from '@2fd/ant-design-icons/lib/LightbulbGroupOutline';
-import { HomeOutlined } from '@ant-design/icons';
+import { HomeOutlined, SettingOutlined } from '@ant-design/icons';
 import { Menu } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -26,12 +26,9 @@ export class ApplicationMenu extends React.Component {
         <Menu.Item key="entities" icon={<AlarmBell />}>
           <Link to="/entities">Entities</Link>
         </Menu.Item>
-        {/* <Menu.Item key="6" icon={<Bug />}>
-          <Link to="/debugger">Debugger</Link>
-        </Menu.Item>
-        <Menu.Item key="7" icon={<SettingOutlined />}>
+        <Menu.Item key="settings" icon={<SettingOutlined />}>
           <Link to="/settings">Settings</Link>
-        </Menu.Item> */}
+        </Menu.Item>
       </Menu>
     );
   }
@@ -48,6 +45,9 @@ export class ApplicationMenu extends React.Component {
     }
     if (window.location.href.includes('/routine')) {
       return ['routines'];
+    }
+    if (window.location.href.includes('/settings')) {
+      return ['settings'];
     }
     return ['home'];
   }

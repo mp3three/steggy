@@ -11,10 +11,6 @@ export class ApplicationService {
   ) {}
   private connectionReady = false;
 
-  protected onModuleInit(): void {
-    //
-  }
-
   @OnEvent(HA_SOCKET_READY)
   protected async onSocketReset(): Promise<void> {
     if (!this.connectionReady) {

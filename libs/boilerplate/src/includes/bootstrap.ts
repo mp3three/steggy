@@ -1,8 +1,5 @@
 /* Something about bootstrapping completely breaks things with a normal reference */
 /* eslint-disable @nrwl/nx/enforce-module-boundaries, radar/no-identical-functions */
-import { INestApplication, ModuleMetadata } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import { ExpressAdapter } from '@nestjs/platform-express';
 import {
   AutoLogService,
   GlobalErrorInit,
@@ -12,11 +9,19 @@ import {
   UsePrettyLogger,
 } from '@automagical/boilerplate';
 import { eachSeries, is } from '@automagical/utilities';
+import {
+  DynamicModule,
+  INestApplication,
+  ModuleMetadata,
+} from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { ExpressAdapter } from '@nestjs/platform-express';
 import chalk from 'chalk';
 import { ClassConstructor } from 'class-transformer';
 import express, { Express } from 'express';
 
 export interface BootstrapOptions extends Pick<ModuleMetadata, 'imports'> {
+  extraModules?: DynamicModule[];
   http?: boolean;
   nestNoopLogger?: boolean;
   noGlobalError?: boolean;

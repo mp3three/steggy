@@ -65,7 +65,7 @@ export class TemplateComparison extends React.Component<
           }
         >
           <SyntaxHighlighter style={atomDark}>
-            {this.state.renderedTemplate ?? ''}
+            {this.state?.renderedTemplate ?? ''}
           </SyntaxHighlighter>
         </Card>
       </>
