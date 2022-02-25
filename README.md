@@ -43,7 +43,6 @@ services:
 
 ```ini
 [libs.boilerplate]
-  ; Default is in-memory
   CACHE_PROVIDER=redis
   REDIS_HOST=redis
   LOG_LEVEL=debug
