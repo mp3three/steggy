@@ -107,22 +107,6 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx nx build automations --configuration=production",
-            "description": "UI Build"
-          },
-          {
-            "command": "npx figlet-cli -f Pagga Home Controller",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build home-controller --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "terser dist/apps/home-controller/main.js -c -m --keep-classnames --module > dist/apps/home-controller/minified.js",
-            "description": "Minify production build"
-          },
-          {
             "command": "./tools/scripts/docker-build-publish.sh home-controller",
             "description": "Assemble docker image"
           }
