@@ -11,13 +11,17 @@ import { sendRequest } from '../../../types';
 import { CompareValue } from '../CompareValue';
 import { FuzzySelect } from '../FuzzySelect';
 
+type tState = { entities: string[]; state?: HassStateDTO };
+
 export class AttributeComparison extends React.Component<
   {
     comparison: RoutineAttributeComparisonDTO;
     onUpdate: (value: Partial<RoutineAttributeComparisonDTO>) => void;
   },
-  { entities: string[]; state: HassStateDTO }
+  tState
 > {
+  override state = { entities: [] } as tState;
+
   override async componentDidMount(): Promise<void> {
     await this.listEntities();
   }

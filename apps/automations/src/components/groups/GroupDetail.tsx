@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   Col,
+  Empty,
   Layout,
   Row,
   Space,
@@ -80,20 +81,7 @@ export const GroupDetail = withRouter(
                   </Card>
                 </Col>
                 <Col span={12}>
-                  <Card title="Group Actions">
-                    <Space>
-                      <Button type="primary">Circadian</Button>
-                      <Button type="primary">Off</Button>
-                      <Button type="primary">On</Button>
-                    </Space>
-                    <Card
-                      type="inner"
-                      title="Related Routines"
-                      style={{ marginTop: '16px' }}
-                    >
-                      <RelatedRoutines groupAction={this.state.group} />
-                    </Card>
-                  </Card>
+                  <Card title="Group Actions">{this.groupActions()}</Card>
                 </Col>
               </Row>
               <GroupSaveStates
@@ -137,6 +125,28 @@ export const GroupDetail = withRouter(
           return ['fan'];
       }
       return [];
+    }
+
+    private groupActions() {
+      if (this.state.group.type === 'light') {
+        return (
+          <>
+            <Space>
+              <Button type="primary">Circadian</Button>
+              <Button type="primary">Off</Button>
+              <Button type="primary">On</Button>
+            </Space>
+            <Card
+              type="inner"
+              title="Related Routines"
+              style={{ marginTop: '16px' }}
+            >
+              <RelatedRoutines groupAction={this.state.group} />
+            </Card>
+          </>
+        );
+      }
+      return <Empty description="No special actions for group" />;
     }
 
     private groupRendering() {

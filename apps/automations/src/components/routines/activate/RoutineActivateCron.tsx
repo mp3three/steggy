@@ -39,6 +39,7 @@ export class RoutineActivateCron extends React.Component<
           showSearch
           placeholder="Preconfigured schedules"
           style={{ width: '100%' }}
+          value={this.state.schedule}
           onChange={this.preconfigured.bind(this)}
           filterOption={(input, option) =>
             option.children

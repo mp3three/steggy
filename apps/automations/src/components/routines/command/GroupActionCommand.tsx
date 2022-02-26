@@ -58,7 +58,7 @@ export class GroupActionCommand extends React.Component<
 
   private groupChange(group: string): void {
     this.props.onUpdate({
-      group: this.state.groups.find(({ _id }) => _id === group),
+      group,
     });
   }
 

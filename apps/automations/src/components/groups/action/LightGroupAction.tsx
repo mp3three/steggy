@@ -49,7 +49,7 @@ export class LightGroupAction extends React.Component<{
           <Slider
             min={1}
             max={255}
-            value={this.props.command.extra.brightness}
+            value={this.props.command?.extra?.brightness}
             onChange={brightness =>
               this.props.onUpdate({ extra: { brightness } })
             }

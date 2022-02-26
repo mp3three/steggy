@@ -6,7 +6,10 @@ import {
 } from '@automagical/controller-shared';
 import {
   ColorModes,
+  FanAttributesDTO,
   LightAttributesDTO,
+  LockAttributesDTO,
+  LockStateDTO,
 } from '@automagical/home-assistant-shared';
 import {
   Button,
@@ -14,6 +17,7 @@ import {
   Drawer,
   Layout,
   notification,
+  Skeleton,
   Space,
   Spin,
   Typography,
@@ -21,7 +25,12 @@ import {
 import React from 'react';
 
 import { sendRequest } from '../../../types';
-import { LightEntityCard, SwitchEntityCard } from '../../entities';
+import {
+  FanEntityCard,
+  LightEntityCard,
+  LockEntityCard,
+  SwitchEntityCard,
+} from '../../entities';
 
 export class GroupStateEdit extends React.Component<
   {
@@ -31,7 +40,12 @@ export class GroupStateEdit extends React.Component<
   },
   { dirty: boolean; drawer: boolean; friendlyName: string }
 > {
-  private cards: (LightEntityCard | SwitchEntityCard)[];
+  private cards: (
+    | LightEntityCard
+    | SwitchEntityCard
+    | LockEntityCard
+    | FanEntityCard
+  )[];
   private get group() {
     return this.props.group;
   }
@@ -94,20 +108,37 @@ export class GroupStateEdit extends React.Component<
   }
 
   private bulkEdit() {
-    if (this.group.type === 'switch') {
-      return (
-        <SwitchEntityCard
-          title="Bulk change"
-          onUpdate={this.onStateChange.bind(this)}
-        />
-      );
+    switch (this.group.type) {
+      case 'light':
+        return (
+          <LightEntityCard
+            title="Bulk change"
+            onUpdate={this.onStateChange.bind(this)}
+          />
+        );
+      case 'switch':
+        return (
+          <SwitchEntityCard
+            title="Bulk change"
+            onUpdate={this.onStateChange.bind(this)}
+          />
+        );
+      case 'fan':
+        return (
+          <FanEntityCard
+            title="Bulk change"
+            onUpdate={this.onStateChange.bind(this)}
+          />
+        );
+      case 'lock':
+        return (
+          <LockEntityCard
+            title="Bulk change"
+            onUpdate={this.onStateChange.bind(this)}
+          />
+        );
     }
-    return (
-      <LightEntityCard
-        title="Bulk change"
-        onUpdate={this.onStateChange.bind(this)}
-      />
-    );
+    return <Skeleton />;
   }
 
   private entityRender(entity: string) {
@@ -118,24 +149,45 @@ export class GroupStateEdit extends React.Component<
       ref: entity,
       state: undefined,
     };
-    if (this.props.group.type === 'switch') {
-      return (
-        <SwitchEntityCard
-          ref={i => this.cards.push(i)}
-          key={entity}
-          state={state}
-          onUpdate={this.entityUpdate.bind(this)}
-        />
-      );
+    switch (this.group.type) {
+      case 'light':
+        return (
+          <LightEntityCard
+            ref={i => this.cards.push(i)}
+            key={entity}
+            state={state}
+            onUpdate={this.entityUpdate.bind(this)}
+          />
+        );
+      case 'switch':
+        return (
+          <SwitchEntityCard
+            ref={i => this.cards.push(i)}
+            key={entity}
+            state={state}
+            onUpdate={this.entityUpdate.bind(this)}
+          />
+        );
+      case 'fan':
+        return (
+          <FanEntityCard
+            ref={i => this.cards.push(i)}
+            key={entity}
+            state={state}
+            onUpdate={this.entityUpdate.bind(this)}
+          />
+        );
+      case 'lock':
+        return (
+          <LockEntityCard
+            ref={i => this.cards.push(i)}
+            key={entity}
+            state={state}
+            onUpdate={this.entityUpdate.bind(this)}
+          />
+        );
     }
-    return (
-      <LightEntityCard
-        ref={i => this.cards.push(i)}
-        key={entity}
-        state={state}
-        onUpdate={this.entityUpdate.bind(this)}
-      />
-    );
+    return <Skeleton />;
   }
 
   private entityUpdate(): void {
@@ -150,6 +202,14 @@ export class GroupStateEdit extends React.Component<
       });
     }
     this.setState({ drawer: false });
+  }
+
+  private onFanChange(state: RoomEntitySaveStateDTO<FanAttributesDTO>): void {
+    this.cards.forEach(card =>
+      (card as FanEntityCard)?.setState({
+        percentage: state.extra.percentage,
+      }),
+    );
   }
 
   private onLightStateChange(
@@ -183,6 +243,14 @@ export class GroupStateEdit extends React.Component<
     );
   }
 
+  private onLockChange(state: RoomEntitySaveStateDTO<LockAttributesDTO>): void {
+    this.cards.forEach(card => {
+      (card as LockEntityCard)?.setState({
+        state: state.state,
+      });
+    });
+  }
+
   private async onSave(): Promise<void> {
     const id = this.props.state.id;
     const group = await sendRequest<GroupDTO>({
@@ -200,11 +268,20 @@ export class GroupStateEdit extends React.Component<
 
   private onStateChange(state: RoomEntitySaveStateDTO, type: string): void {
     this.setState({ dirty: true });
-    if (this.group.type === 'light') {
-      this.onLightStateChange(state, type);
-      return;
+    switch (this.group.type) {
+      case 'light':
+        this.onLightStateChange(state, type);
+        return;
+      case 'switch':
+        this.onSwitchStateChanged(state);
+        return;
+      case 'fan':
+        this.onFanChange(state);
+        return;
+      case 'lock':
+        this.onLockChange(state);
+        return;
     }
-    this.onSwitchStateChanged(state);
   }
 
   private onSwitchStateChanged(state: RoomEntitySaveStateDTO): void {
