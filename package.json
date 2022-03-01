@@ -2,7 +2,6 @@
   "name": "automagical",
   "version": "0.5.22",
   "license": "MIT",
-  "publisher": "ghcr.io/ccontour",
   "author": {
     "email": "github@ccontour.com",
     "name": "Cameron Contour",

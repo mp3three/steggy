@@ -17,7 +17,7 @@ fi
 VERSION=$(jq .version < package.json | xargs)
 HOMEPAGE=$(jq .author.url < package.json | xargs)
 EMAIL=$(jq .author.email < package.json | xargs)
-PUBLISHER=$(jq .publisher < package.json | xargs)
+PUBLISHER="containers.programmable.work"
 NAME=$(jq .name < "apps/$DIR/package.json" | xargs)
 BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 VCS_REF=$(git rev-parse --short HEAD)

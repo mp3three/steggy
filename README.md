@@ -15,7 +15,7 @@ volumes:
 
 services:
   home-controller:
-    image: ghcr.io/ccontour/home-controller:latest
+    image: containers.programmable.work/home-controller:latest
     container_name: home-controller
     volumes:
       - /path/to/config_file:/.home-controllerrc

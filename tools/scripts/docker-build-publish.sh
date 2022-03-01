@@ -8,7 +8,7 @@ then
 fi
 # BUILD
 tools/scripts/docker-build.sh "$IMAGE" "$DIR"
-PUBLISHER=$(jq .publisher < package.json | xargs)
+PUBLISHER="containers.programmable.work"
 
 VERSION=$(jq .version < "apps/$DIR/package.json" | xargs)
 TAGS=$(npx ts-node tools/scripts/create-tags.js "$VERSION")
