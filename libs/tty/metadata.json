@@ -1,0 +1,46 @@
+{
+  "configuration": {
+    "DEFAULT_HEADER_FONT": {
+      "type": "string",
+      "default": "DOS Rebel",
+      "description": "Figlet font"
+    },
+    "SECONDARY_HEADER_FONT": {
+      "type": "string",
+      "default": "Pagga",
+      "description": "Figlet font"
+    },
+    "PAGE_SIZE": {
+      "type": "number",
+      "description": "Maxmimum number of items displayed in pickMany prompts",
+      "default": 20
+    },
+    "OUTPUT_HEADER_FONT": {
+      "type": "string",
+      "description": "Figlet font",
+      "default": "puffy"
+    },
+    "BLOCK_PRINT_BG": {
+      "type": "string",
+      "default": "#422011",
+      "description": "Color for yaml data printing"
+    },
+    "BLOCK_PRINT_FG": {
+      "type": "string",
+      "default": "#d6c2ba",
+      "description": "Color for yaml data printing"
+    },
+    "DISABLE_CLEAR": {
+      "type": "boolean",
+      "default": false,
+      "description": "For debugging",
+      "careful": true
+    },
+    "PINNED_ITEMS": {
+      "type": "internal",
+      "description": "Stick some callbacks at the top of main cli. Managed from application",
+      "configurable": false,
+      "default": []
+    }
+  }
+}

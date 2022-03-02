@@ -1,18 +1,19 @@
 {
   "version": 2,
   "projects": {
-    "automations": "apps/automations",
     "automations-e2e": "apps/automations-e2e",
+    "automations": "apps/automations",
     "boilerplate": "libs/boilerplate",
-    "controller-shared": "libs/controller-shared",
     "controller-logic": "libs/controller-logic",
-    "home-assistant": "libs/home-assistant",
+    "controller-shared": "libs/controller-shared",
     "home-assistant-shared": "libs/home-assistant-shared",
+    "home-assistant": "libs/home-assistant",
     "home-controller": "apps/home-controller",
     "mqtt": "libs/mqtt",
     "persistence": "libs/persistence",
     "rules-engine": "libs/rules-engine",
     "server": "libs/server",
+    "tty": "libs/tty",
     "utilities": "libs/utilities"
   }
 }
