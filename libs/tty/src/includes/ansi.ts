@@ -49,5 +49,5 @@ export function ansiSort(text: string[]): string[] {
  */
 export function ansiMaxLength(text: string[] | string): number {
   text = Array.isArray(text) ? text : text.split(`\n`);
-  return Math.max(...text.map((i) => ansiStrip(i).length));
+  return Math.max(...text.map(i => ansiStrip(i).length));
 }

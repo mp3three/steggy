@@ -1,5 +1,5 @@
-import { MainCLIService } from '@automagical/tty';
 import { Bootstrap } from '@automagical/boilerplate';
+import { MainCLIService } from '@automagical/tty';
 
 import { BOOTSTRAP_OPTIONS } from '../environments/environment';
 import { HomeCLIModule } from '../modules';

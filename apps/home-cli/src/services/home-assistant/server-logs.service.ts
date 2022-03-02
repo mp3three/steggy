@@ -1,6 +1,7 @@
 import { AutoLogService } from '@automagical/boilerplate';
 import { HomeAssistantServerLogItem } from '@automagical/home-assistant-shared';
 import {
+  ansiStrip,
   ICONS,
   IsDone,
   PromptService,
@@ -82,8 +83,8 @@ export class ServerLogsService {
       },
       right: ToMenuEntry(
         logs.map(i => [
-          chalk.bold[LEVELS.get(i.level) ?? 'underline']`${i.message.join(
-            chalk.cyan(' || '),
+          chalk.bold[LEVELS.get(i.level) ?? 'underline']`${ansiStrip(
+            i.message.map(s => s.trim()).join(chalk.cyan(' || ').trim()),
           )}`,
           i,
         ]),
@@ -112,7 +113,7 @@ export class ServerLogsService {
           'YYYY-MM-DD hh:mm:ss A',
         )}`,
         ``,
-        ...item.message.map(i => chalk` {cyan -} ${i}`),
+        ...item.message.map(i => chalk` {cyan -} ${i.trim()}`),
       ].join(`\n`),
     );
     await this.promptService.acknowledge();

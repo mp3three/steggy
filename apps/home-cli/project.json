@@ -62,6 +62,11 @@
             "output": "./assets/server"
           },
           {
+            "input": "libs/boilerplate",
+            "glob": "*.json",
+            "output": "./assets/boilerplate"
+          },
+          {
             "input": "libs/persistence",
             "glob": "*.json",
             "output": "./assets/persistence"

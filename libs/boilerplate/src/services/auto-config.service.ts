@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { deepExtend, INVERT_VALUE, is } from '@automagical/utilities';
-import { Inject, Injectable, Optional } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Optional,
+} from '@nestjs/common';
 import JSON from 'comment-json';
 import {
   existsSync,
@@ -146,6 +151,11 @@ export class AutoConfigService {
     }
     const [, library, property] = parts;
     const metadata = this.metadata.get(library);
+    if (!metadata) {
+      throw new InternalServerErrorException(
+        `Missing metadata asset for ${library}`,
+      );
+    }
     return metadata.configuration[property];
   }
 

@@ -33,7 +33,7 @@
     "chrono-node": "^2.3.7",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
-    "cli-cursor": "^4.0.0",
+    "cli-cursor": "^3.1.0",
     "cli-table": "^0.3.11",
     "comment-json": "^4.2.2",
     "compression": "^1.7.4",
