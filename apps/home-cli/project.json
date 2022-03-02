@@ -1,0 +1,154 @@
+{
+  "root": "apps/home-cli",
+  "sourceRoot": "apps/home-cli/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:execute",
+      "options": {
+        "buildTarget": "home-cli:build",
+        "inspect": "inspect",
+        "port": 33337
+      }
+    },
+    "prepare": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "npx nx build home-cli --configuration=config-scanner"
+          }
+        ]
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "assets": [
+          {
+            "input": "libs/utilities",
+            "glob": "*.json",
+            "output": "./assets/utilities"
+          },
+          {
+            "input": "libs/tty",
+            "glob": "*.json",
+            "output": "./assets/tty"
+          },
+          {
+            "input": "apps/home-cli",
+            "glob": "*.json",
+            "output": "./assets/home-cli"
+          },
+          {
+            "input": "libs/home-assistant",
+            "glob": "*.json",
+            "output": "./assets/home-assistant"
+          },
+          {
+            "input": "libs/controller-logic",
+            "glob": "*.json",
+            "output": "./assets/controller-logic"
+          },
+          {
+            "input": "libs/controller-shared",
+            "glob": "*.json",
+            "output": "./assets/controller-shared"
+          },
+          {
+            "input": "libs/server",
+            "glob": "*.json",
+            "output": "./assets/server"
+          },
+          {
+            "input": "libs/persistence",
+            "glob": "*.json",
+            "output": "./assets/persistence"
+          },
+          {
+            "input": "./",
+            "glob": "workspace.json",
+            "output": "./assets/"
+          },
+          {
+            "input": "./",
+            "glob": "nx.json",
+            "output": "./assets/"
+          }
+        ],
+        "outputPath": "dist/apps/home-cli",
+        "generatePackageJson": true,
+        "fileReplacements": [
+          {
+            "replace": "apps/home-cli/src/environments/environment.ts",
+            "with": "apps/home-cli/src/environments/develop.environment.ts"
+          }
+        ],
+        "main": "apps/home-cli/src/entrypoints/main.ts",
+        "tsConfig": "apps/home-cli/tsconfig.app.json"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "inspect": false,
+          "fileReplacements": []
+        },
+        "scan-config": {
+          "outputPath": "dist/config-scanner/home-cli",
+          "fileReplacements": [
+            {
+              "replace": "apps/home-cli/src/environments/environment.ts",
+              "with": "apps/home-cli/src/environments/scanner.environment.ts"
+            }
+          ]
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/home-cli/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga Home CLI",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build home-cli --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "npx nx build home-cli --configuration=scan-config",
+            "description": "Prep the config scanner"
+          },
+          {
+            "command": "npx terser dist/apps/home-cli/main.js -c -m --keep-classnames --module > dist/apps/home-cli/minified.js",
+            "description": "Minify it"
+          },
+          {
+            "command": "echo '#!/usr/bin/env node' > dist/apps/home-cli/main.js; cat dist/apps/home-cli/minified.js >> dist/apps/home-cli/main.js",
+            "description": "Replace output (can't be done in previous step)"
+          },
+          {
+            "command": "node dist/config-scanner/home-cli/main.js > dist/apps/home-cli/assets/config.json",
+            "description": "Cache the completed config"
+          },
+          {
+            "command": "npx yarn publish --cwd dist/apps/home-cli --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    }
+  },
+  "tags": []
+}

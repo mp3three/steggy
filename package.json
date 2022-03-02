@@ -3,9 +3,9 @@
   "version": "0.5.22",
   "license": "MIT",
   "author": {
-    "email": "github@ccontour.com",
+    "email": "git@programmable.work",
     "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/automagical"
+    "url": "https://git.programmable.work/cameron/automagical"
   },
   "scripts": {
     "pipeline": "./tools/scripts/publish-pipeline.sh",

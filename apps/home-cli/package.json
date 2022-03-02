@@ -1,0 +1,24 @@
+{
+  "author": {
+    "email": "git@programmable.work",
+    "name": "Cameron Contour",
+    "url": "https://github.com/ccontour/text-based"
+  },
+  "bin": {
+    "home-cli": "main.js"
+  },
+  "dependencies": {
+    "eventemitter3": "^4.0.7",
+    "pino-pretty": "^5.1.1"
+  },
+  "name": "@automagical/home-cli",
+  "license": "MIT",
+  "main": "main.js",
+  "displayName": "Home CLI",
+  "version": "0.5.52",
+  "homepage": "https://github.com/ccontour/text-based",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ccontour/text-based.git"
+  }
+}

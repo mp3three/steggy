@@ -1,13 +1,14 @@
 {
   "version": 2,
   "projects": {
-    "automations-e2e": "apps/automations-e2e",
     "automations": "apps/automations",
     "boilerplate": "libs/boilerplate",
     "controller-logic": "libs/controller-logic",
     "controller-shared": "libs/controller-shared",
+    "devtools": "apps/devtools",
     "home-assistant-shared": "libs/home-assistant-shared",
     "home-assistant": "libs/home-assistant",
+    "home-cli": "apps/home-cli",
     "home-controller": "apps/home-controller",
     "mqtt": "libs/mqtt",
     "persistence": "libs/persistence",

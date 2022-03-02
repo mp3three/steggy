@@ -3,17 +3,17 @@
     "registry": "https://npm.programmable.work"
   },
   "author": {
-    "email": "github@ccontour.com",
+    "email": "git@programmable.work",
     "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/automagical"
+    "url": "https://git.programmable.work/cameron/automagical"
   },
   "name": "@automagical/home-assistant-shared",
   "displayName": "Home Assistant Shared",
   "license": "MIT",
   "version": "0.5.17",
-  "homepage": "https://github.com/ccontour/automagical",
+  "homepage": "https://git.programmable.work/cameron/automagical",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ccontour/automagical.git"
+    "url": "git+https://git.programmable.work/cameron/automagical.git"
   }
 }

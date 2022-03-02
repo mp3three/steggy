@@ -26,7 +26,6 @@
     "sourceMap": true,
     "target": "esnext",
     "paths": {
-      "@automagical/alpaca": ["libs/alpaca/src/index.ts"],
       "@automagical/boilerplate": ["libs/boilerplate/src/index.ts"],
       "@automagical/controller-logic": ["libs/controller-logic/src/index.ts"],
       "@automagical/controller-shared": ["libs/controller-shared/src/index.ts"],
@@ -34,7 +33,6 @@
       "@automagical/home-assistant-shared": ["libs/home-assistant-shared/src/index.ts"],
       "@automagical/mqtt": ["libs/mqtt/src/index.ts"],
       "@automagical/persistence": ["libs/persistence/src/index.ts"],
-      "@automagical/portainer": ["libs/portainer/src/index.ts"],
       "@automagical/rules-engine": ["libs/rules-engine/src/index.ts"],
       "@automagical/server": ["libs/server/src/index.ts"],
       "@automagical/terminal": ["libs/terminal/src/index.ts"],
@@ -73,6 +71,9 @@
     },
     {
       "path": "./libs/server/tsconfig.json"
+    },
+    {
+      "path": "./libs/tty/tsconfig.json"
     },
     {
       "path": "./libs/utilities/tsconfig.json"
