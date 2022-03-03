@@ -1,10 +1,7 @@
 import { LibraryModule, RegisterCache } from '@automagical/boilerplate';
-import { INestApplication } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { LIB_TTY } from '../config';
-import { InquirerPrompt } from '../decorators';
-import { inquirerPreInit } from '../inquirer';
 import {
   ApplicationManagerService,
   BooleanEditorService,
@@ -13,12 +10,19 @@ import {
   ComparisonToolsService,
   ComponentExplorerService,
   ConfigBuilderService,
+  ConfirmEditorService,
   DateEditorService,
+  DiscriminatorEditorService,
+  EditorExplorerService,
   EnumEditorService,
   EnvironmentService,
+  FooterEditorService,
   GitService,
-  LayoutManagerService,
+  KeyboardManagerService,
+  KeymapService,
+  ListBuilderComponentService,
   MainCLIService,
+  MenuComponentService,
   NumberEditorService,
   PinnedItemService,
   PromptService,
@@ -27,60 +31,68 @@ import {
   StackService,
   StringEditorService,
   SystemService,
+  TableBuilderComponentService,
   TableService,
   TextRenderingService,
+  ThemeService,
 } from '../services';
+import { LayoutManagerService } from '../services/meta/layout-manager.service';
 
 @LibraryModule({
   exports: [
+    ApplicationManagerService,
     ChartingService,
     ColorsService,
     ComparisonToolsService,
     ConfigBuilderService,
     EnvironmentService,
+    LayoutManagerService,
     GitService,
-    ApplicationManagerService,
+    KeymapService,
     PinnedItemService,
     PromptService,
+    ScreenService,
     StackService,
     SystemService,
-    ScreenService,
     TableService,
     TextRenderingService,
-    ComponentExplorerService,
-    LayoutManagerService,
   ],
   imports: [DiscoveryModule, RegisterCache()],
   library: LIB_TTY,
   providers: [
+    ApplicationManagerService,
     BooleanEditorService,
     ChartingService,
     ColorsService,
     ComparisonToolsService,
+    ComponentExplorerService,
+    ThemeService,
     ConfigBuilderService,
+    ConfirmEditorService,
     DateEditorService,
+    DiscriminatorEditorService,
+    EditorExplorerService,
+    LayoutManagerService,
     EnumEditorService,
     EnvironmentService,
+    FooterEditorService,
     GitService,
+    KeyboardManagerService,
+    KeymapService,
+    ListBuilderComponentService,
     MainCLIService,
-    ComponentExplorerService,
-    LayoutManagerService,
-    StackService,
+    MenuComponentService,
     NumberEditorService,
     PinnedItemService,
     PromptService,
-    ApplicationManagerService,
-    ScreenService,
     ReplExplorerService,
+    ScreenService,
+    StackService,
     StringEditorService,
     SystemService,
+    TableBuilderComponentService,
     TableService,
     TextRenderingService,
   ],
 })
-export class MainCLIModule {
-  protected onPostInit(app: INestApplication): void {
-    inquirerPreInit(app);
-    InquirerPrompt['loadApp'](app);
-  }
-}
+export class MainCLIModule {}
