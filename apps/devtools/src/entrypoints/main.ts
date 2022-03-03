@@ -1,5 +1,5 @@
+import { Bootstrap } from '@automagical/boilerplate';
 import { MainCLIService } from '@automagical/tty';
-import { Bootstrap } from '@automagical/utilities';
 
 import { BOOTSTRAP_OPTIONS } from '../environments/environment';
 import { DevtoolsModule } from '../modules';

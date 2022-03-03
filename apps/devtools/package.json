@@ -1,5 +1,11 @@
 {
-  "name": "@automagical/devtools",
+  "publishConfig": {
+    "registry": "https://npm.programmable.work"
+  },
+  "bin": {
+    "home-cli": "main.js"
+  },
+  "name": "@internal/devtools",
   "license": "MIT",
   "description": "",
   "main": "main.js",

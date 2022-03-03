@@ -22,7 +22,7 @@
       }
     },
     "build": {
-      "executor": "@nrwl/node:build",
+      "executor": "@nrwl/node:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
         "assets": [
@@ -32,9 +32,9 @@
             "output": "./assets/utilities"
           },
           {
-            "input": "libs/alpaca",
+            "input": "libs/boilerplate",
             "glob": "*.json",
-            "output": "./assets/alpaca"
+            "output": "./assets/boilerplate"
           },
           {
             "input": "libs/tty",
@@ -52,9 +52,9 @@
             "output": "./assets/home-controller"
           },
           {
-            "input": "apps/home-cli",
+            "input": "apps/devtools",
             "glob": "*.json",
-            "output": "./assets/home-cli"
+            "output": "./assets/devtools"
           },
           {
             "input": "libs/home-assistant",
@@ -112,6 +112,42 @@
         "lintFilePatterns": ["apps/devtools/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga Devtools",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build devtools --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "npx nx build devtools --configuration=scan-config",
+            "description": "Prep the config scanner"
+          },
+          {
+            "command": "npx terser dist/apps/devtools/main.js -c -m --keep-classnames --module > dist/apps/devtools/minified.js",
+            "description": "Minify it"
+          },
+          {
+            "command": "echo '#!/usr/bin/env node' > dist/apps/devtools/main.js; cat dist/apps/devtools/minified.js >> dist/apps/devtools/main.js",
+            "description": "Replace output (can't be done in previous step)"
+          },
+          {
+            "command": "node dist/config-scanner/devtools/main.js > dist/apps/devtools/assets/config.json",
+            "description": "Cache the completed config"
+          },
+          {
+            "command": "npx yarn publish --cwd dist/apps/devtools --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
     }
   },
   "tags": []
