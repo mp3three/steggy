@@ -1,6 +1,5 @@
 import { ARRAY_OFFSET, START } from '@automagical/utilities';
 import { INestApplication } from '@nestjs/common';
-import chalk from 'chalk';
 import inquirer from 'inquirer';
 
 import { ObjectBuilderOptions } from '../contracts';
@@ -64,18 +63,18 @@ export class ObjectBuilderPrompt extends InquirerPrompt<ObjectBuilderOptions> {
   }
 
   protected render(): void {
-    if (this.status === 'answered') {
-      this.screen.render(chalk``, '');
-      return;
-    }
-    this.screen.render(
-      this.tableService.renderTable(
-        this.opt,
-        this.selectedRow,
-        this.selectedCell,
-      ),
-      '',
-    );
+    // if (this.status === 'answered') {
+    //   this.screen.render(chalk``, '');
+    //   return;
+    // }
+    // this.screen.render(
+    //   // this.tableService.renderTable(
+    //   //   this.opt,
+    //   //   this.selectedRow,
+    //   //   this.selectedCell,
+    //   ),
+    //   '',
+    // );
   }
 
   protected selectCell(): void {

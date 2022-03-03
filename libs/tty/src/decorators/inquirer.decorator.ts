@@ -6,16 +6,9 @@ import { Question } from 'inquirer';
 import Base from 'inquirer/lib/prompts/base';
 import observe from 'inquirer/lib/utils/events';
 
-import { ICONS, KeyDescriptor } from '../contracts';
+import { ICONS, KeyDescriptor, tKeyMap } from '../contracts';
 
 type tCallback<T = unknown> = (value?: T) => void;
-export type tKeyMap<KEYS extends string = string> = Map<
-  InquirerKeypressOptions,
-  KEYS
->;
-interface InquirerKeypressOptions {
-  key?: string | string[];
-}
 
 let app: INestApplication;
 
@@ -56,7 +49,7 @@ export abstract class InquirerPrompt<
     this.localKeyMap = map;
     // Sanity check to make sure all the methods actually exist
     map.forEach(key => {
-      if (is.undefined(this[key])) {
+      if (is.undefined(this[key as string])) {
         console.log(
           chalk.yellow
             .inverse` ${ICONS.WARNING}MISSING CALLBACK {bold ${key}} `,
@@ -75,17 +68,17 @@ export abstract class InquirerPrompt<
     this.localKeyMap.forEach((key, options) => {
       options.key ??= [];
       options.key = Array.isArray(options.key) ? options.key : [options.key];
-      if (is.undefined[this[key]]) {
+      if (is.undefined[this[key as string]]) {
         console.log(`Missing localKeyMap callback ${key}`);
       }
       if (is.empty(options.key)) {
-        this[key](mixed);
+        this[key as string](mixed);
         return;
       }
       if (!options.key.includes(mixed)) {
         return;
       }
-      const result = this[key](mixed);
+      const result = this[key as string](mixed);
       if (result === false) {
         return;
       }

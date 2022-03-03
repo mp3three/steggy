@@ -35,8 +35,8 @@ export class TableService {
   public renderTable(
     options: TableBuilderOptions<unknown>,
     renderRows: Record<string, unknown>[],
-    selectedRow: number,
-    selectedCell: number,
+    selectedRow: number = START,
+    selectedCell: number = START,
   ): string {
     this.selectedCell = selectedCell;
     this.selectedRow = selectedRow;

@@ -10,6 +10,7 @@ import {
 } from '@automagical/controller-shared';
 import { HASS_DOMAINS } from '@automagical/home-assistant-shared';
 import {
+  ApplicationManagerService,
   ICONS,
   IsDone,
   PinnedItemService,
@@ -51,7 +52,6 @@ export class RoomCommandService {
     private readonly pinnedItems: PinnedItemService,
     private readonly routineService: RoutineService,
     private readonly applicationManager: ApplicationManagerService,
-    private readonly screenService: ScreenService,
   ) {}
 
   private lastRoom: string;

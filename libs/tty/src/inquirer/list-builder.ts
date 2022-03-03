@@ -14,18 +14,12 @@ import {
 import { INestApplication } from '@nestjs/common';
 import chalk from 'chalk';
 
-import { ICONS, MenuEntry } from '../contracts';
-import { InquirerPrompt, tKeyMap } from '../decorators';
+import { ICONS, MenuEntry, tKeyMap } from '../contracts';
+import { InquirerPrompt } from '../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../includes';
-import { TextRenderingService } from '../services';
+import { ListBuilderOptions, TextRenderingService } from '../services';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
-
-export interface ListBuilderOptions<T = unknown> {
-  current?: MenuEntry<T | string>[];
-  items?: string;
-  source: MenuEntry<T | string>[];
-}
 
 const SINGLE_ITEM = 1;
 const BASE_HELP = [

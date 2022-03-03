@@ -21,7 +21,7 @@ import observe from 'inquirer/lib/utils/events';
 
 import { ICONS, KeyDescriptor, MainMenuEntry, MenuEntry } from '../contracts';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
-import { PromptEntry, TextRenderingService } from '../services';
+import { KeyMap, PromptEntry, TextRenderingService } from '../services';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 
@@ -42,7 +42,6 @@ export function ToMenuEntry<T>(entries: PromptEntry<T>[]): MainMenuEntry<T>[] {
   });
   return out;
 }
-export type KeyMap = Record<string, PromptEntry>;
 
 /**
  * - true to terminate menu
