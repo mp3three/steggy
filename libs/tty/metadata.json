@@ -85,6 +85,16 @@
       "type": "string",
       "description": "Color for primary header text + dividing line. Color must make sense to chalk",
       "default": "bgBlue.black"
+    },
+    "DEFAULT_HEADER_FONT": {
+      "type": "string",
+      "default": "DOS Rebel",
+      "description": "Figlet font"
+    },
+    "SECONDARY_HEADER_FONT": {
+      "type": "string",
+      "default": "Pagga",
+      "description": "Figlet font"
     }
   }
 }
