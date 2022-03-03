@@ -1,22 +1,14 @@
 import { AutoLogService, InjectConfig } from '@automagical/boilerplate';
-import { DOWN, is, LABEL, PEAT, UP, VALUE } from '@automagical/utilities';
-import { Injectable } from '@nestjs/common';
+import { DOWN, is, LABEL, UP, VALUE } from '@automagical/utilities';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
-import figlet, { Fonts } from 'figlet';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
-
-import {
-  BLOCK_PRINT_BG,
-  BLOCK_PRINT_FG,
-  DEFAULT_HEADER_FONT,
-  DISABLE_CLEAR,
-  PAGE_SIZE,
-  SECONDARY_HEADER_FONT,
-} from '../config';
-import { DONE, ObjectBuilderOptions, PromptMenuItems } from '../contracts';
-import { ListBuilderOptions, MainMenuOptions } from '../inquirer';
+import { PAGE_SIZE } from '../config';
+import { DONE, PromptMenuItems, TableBuilderOptions } from '../contracts';
+import { ListBuilderOptions, MenuComponentOptions } from './components';
+import { ApplicationManagerService } from './meta';
 
 const name = `result`;
 export type PROMPT_WITH_SHORT = { name: string; short: string };
@@ -26,7 +18,6 @@ export type PromptEntry<T = string> =
 const NO = 0;
 const OFF_BRIGHTNESS = 0;
 const MIN_BRIGHTNESS = 1;
-const BLOCK_OFFSET = '   ';
 const MAX_BRIGHTNESS = 255;
 const FROM_OFFSET = 1;
 
@@ -34,12 +25,9 @@ const FROM_OFFSET = 1;
 export class PromptService {
   constructor(
     private readonly logger: AutoLogService,
-    @InjectConfig(BLOCK_PRINT_BG) private readonly blockPrintBg: string,
-    @InjectConfig(BLOCK_PRINT_FG) private readonly blockPrintFg: string,
-    @InjectConfig(DEFAULT_HEADER_FONT) private readonly font: Fonts,
-    @InjectConfig(DISABLE_CLEAR) private readonly disableClear: boolean,
     @InjectConfig(PAGE_SIZE) private readonly pageSize: number,
-    @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
+    @Inject(forwardRef(() => ApplicationManagerService))
+    private readonly applicationManager: ApplicationManagerService,
   ) {}
 
   /**
@@ -82,21 +70,6 @@ export class PromptService {
       },
     ]);
     return result;
-  }
-
-  /**
-   * - tmux: this shoves text to top then clears (history is preserved)
-   * - konsole: this just moves draw to T/L, and clears screen (on-screen history/content is lost)
-   */
-  public clear(): void {
-    if (this.disableClear) {
-      console.log(chalk.bgBlue.whiteBright`clear();`);
-      return;
-    }
-    // Reset draw to top
-    process.stdout.write('\u001B[0f');
-    // Clear screen
-    process.stdout.write('\u001B[2J');
   }
 
   /**
@@ -245,7 +218,7 @@ export class PromptService {
               value: item[VALUE] as T,
             }
           : {
-              ...label,
+              ...(label as PROMPT_WITH_SHORT),
               value: item[VALUE] as T,
             };
       }
@@ -253,33 +226,25 @@ export class PromptService {
     });
   }
 
-  public async listBuild<T>(
-    options: Partial<ListBuilderOptions<T>>,
-  ): Promise<T[]> {
-    const { result } = await inquirer.prompt([
-      {
-        ...options,
-        name,
-        type: 'listbuilder',
-      } as ListBuilderOptions<T>,
-    ]);
+  public async listBuild<T>(options: ListBuilderOptions<T>): Promise<T[]> {
+    const result = await this.applicationManager.activate<
+      ListBuilderOptions<T>,
+      T[]
+    >('list', options);
     return result;
   }
 
   public async menu<T extends unknown = string>(
-    options: MainMenuOptions<T | string>,
+    options: MenuComponentOptions<T | string>,
   ): Promise<T | string> {
     options.keyMap ??= {};
     options.keyMap ??= {
       d: [chalk.bold`Done`, DONE],
     };
-    const { result } = await inquirer.prompt([
-      {
-        ...options,
-        name,
-        type: 'mainMenu',
-      } as MainMenuOptions<T>,
-    ]);
+    const result = await this.applicationManager.activate<
+      MenuComponentOptions,
+      T
+    >('menu', options);
     return result;
   }
 
@@ -301,14 +266,11 @@ export class PromptService {
     return result;
   }
 
-  public async objectBuilder<T>(options: ObjectBuilderOptions): Promise<T> {
-    const { result } = await inquirer.prompt([
-      {
-        name,
-        ...options,
-        type: 'objectBuilder',
-      },
-    ]);
+  public async objectBuilder<T>(options: TableBuilderOptions<T>): Promise<T[]> {
+    const result = await this.applicationManager.activate<
+      TableBuilderOptions<T>,
+      T[]
+    >('table', options);
     return result;
   }
 
@@ -381,53 +343,6 @@ export class PromptService {
       },
     ]);
     return result;
-  }
-
-  public print(data: string): void {
-    const lines = data.trim().split(`\n`);
-    let max = 0;
-    lines.forEach(line => (max = line.length > max ? line.length : max));
-    lines.push(``);
-    lines.unshift(``);
-    data = lines
-      .map(i => `  ${i}${PEAT(max - i.length, ' ').join('')}  `)
-      .join(`\n`);
-    console.log();
-    console.log(
-      BLOCK_OFFSET +
-        chalk
-          .bgHex(this.blockPrintBg)
-          .hex(this.blockPrintFg)(data)
-          .replaceAll(`\n`, `\n${BLOCK_OFFSET}`),
-    );
-    console.log();
-  }
-
-  public scriptHeader(header: string, color = 'cyan'): number {
-    header = figlet.textSync(header, {
-      font: this.font,
-    });
-    this.clear();
-    console.log(
-      `\n`,
-      chalk[color](header)
-        .split(`\n`)
-        .map(i => `  ${i}`)
-        .join(`\n`),
-    );
-    return header.split(`\n`).pop().length;
-  }
-
-  public secondaryHeader(header: string, color = 'magenta'): void {
-    header = figlet.textSync(header, {
-      font: this.secondaryFont,
-    });
-    console.log(
-      chalk[color](header)
-        .split(`\n`)
-        .map(i => `  ${i}`)
-        .join(`\n`),
-    );
   }
 
   public sort<T>(entries: PromptEntry<T>[]): PromptEntry<T>[] {

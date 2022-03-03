@@ -3,14 +3,10 @@ import { PromptService } from '@automagical/tty';
 import { Injectable } from '@nestjs/common';
 
 import { GroupCommandService } from '../../groups';
-import { EntityService } from '../../home-assistant';
-import { HomeFetchService } from '../../home-fetch.service';
 
 @Injectable()
 export class RoutineCaptureService {
   constructor(
-    private readonly entityService: EntityService,
-    private readonly fetchService: HomeFetchService,
     private readonly groupCommand: GroupCommandService,
     private readonly promptService: PromptService,
   ) {}

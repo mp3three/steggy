@@ -1,14 +1,15 @@
 import { AutoLogService } from '@automagical/boilerplate';
 import { HomeAssistantServerLogItem } from '@automagical/home-assistant-shared';
 import {
-  ansiStrip,
+  ApplicationManagerService,
   ICONS,
   IsDone,
   PromptService,
   Repl,
+  TextRenderingService,
   ToMenuEntry,
 } from '@automagical/tty';
-import { is, TitleCase } from '@automagical/utilities';
+import { is, START, TitleCase } from '@automagical/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
@@ -31,11 +32,12 @@ export class ServerLogsService {
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
     private readonly fetchService: HomeFetchService,
+    private readonly textRendering: TextRenderingService,
+    private readonly applicationManager: ApplicationManagerService,
   ) {}
 
   public async exec(defaultValue: string): Promise<void> {
-    this.promptService.clear();
-    this.promptService.scriptHeader(`Server Logs`);
+    this.applicationManager.setHeader('Server Logs');
     const action = await this.promptService.menu({
       keyMap: {
         d: MENU_ITEMS.DONE,
@@ -83,9 +85,9 @@ export class ServerLogsService {
       },
       right: ToMenuEntry(
         logs.map(i => [
-          chalk.bold[LEVELS.get(i.level) ?? 'underline']`${ansiStrip(
-            i.message.map(s => s.trim()).join(chalk.cyan(' || ').trim()),
-          )}`,
+          chalk.bold[LEVELS.get(i.level) ?? 'underline']`${i.message
+            .join(chalk.cyan(' || '))
+            .slice(START, this.textRendering.getWidth())}`,
           i,
         ]),
       ),
@@ -97,8 +99,7 @@ export class ServerLogsService {
     if (is.string(item)) {
       throw new NotImplementedException();
     }
-    this.promptService.clear();
-    this.promptService.scriptHeader(
+    this.applicationManager.setHeader(
       TitleCase(item.level.toLowerCase()),
       LEVELS.get(item.level),
     );

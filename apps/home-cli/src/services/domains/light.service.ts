@@ -1,14 +1,11 @@
-import {
-  LIGHTING_MODE,
-  RoomEntitySaveStateDTO,
-} from '@automagical/controller-shared';
+import { RoomEntitySaveStateDTO } from '@automagical/controller-shared';
 import {
   HASS_DOMAINS,
   LightAttributesDTO,
   LightStateDTO,
 } from '@automagical/home-assistant-shared';
 import { ColorsService, ICONS, KeyMap, PromptEntry } from '@automagical/tty';
-import { is, START } from '@automagical/utilities';
+import { START } from '@automagical/utilities';
 import { Inject, Injectable, NotImplementedException } from '@nestjs/common';
 import inquirer from 'inquirer';
 

@@ -95,8 +95,7 @@ export class SwitchService extends BaseDomainService {
     // sleep needed to ensure correct-ness of header information
     // Somtimes the previous request impacts the state, and race conditions
     await sleep(this.refreshSleep);
-    this.promptService.clear();
-    this.promptService.scriptHeader(TitleCase(domain(id)));
+    this.applicationManager.setHeader(TitleCase(domain(id)));
     const content = await this.getState(id);
     console.log(
       chalk` ${

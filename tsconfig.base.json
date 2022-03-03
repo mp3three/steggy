@@ -1,5 +1,9 @@
 {
   "compileOnSave": false,
+  "include": [
+    "apps/*/src/**/*ts",
+    "libs/*/src/**/*ts"
+  ],
   "compilerOptions": {
     "allowJs": false,
     "baseUrl": ".",

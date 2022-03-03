@@ -12,6 +12,7 @@ import {
   RelatedDescriptionDTO,
 } from '@automagical/home-assistant-shared';
 import {
+  ApplicationManagerService,
   ChartingService,
   ICONS,
   IsDone,
@@ -20,6 +21,7 @@ import {
   PinnedItemService,
   PromptEntry,
   PromptService,
+  ScreenService,
   ToMenuEntry,
 } from '@automagical/tty';
 import {
@@ -68,6 +70,8 @@ export class BaseDomainService {
     private readonly chartingService: ChartingService,
     protected readonly logger: AutoLogService,
     protected readonly fetchService: HomeFetchService,
+    protected readonly screenService: ScreenService,
+    protected readonly applicationManager: ApplicationManagerService,
     protected readonly promptService: PromptService,
     protected readonly deviceService: DeviceService,
     private readonly history: EntityHistoryService,
@@ -118,12 +122,10 @@ export class BaseDomainService {
       xAxis,
     });
     const content = await this.getState(id);
-    this.promptService.clear();
-    this.promptService.scriptHeader(content.attributes.friendly_name);
-    this.promptService.secondaryHeader(id);
-    console.log(`\n\n`);
-    console.log(result);
-    console.log(
+    this.applicationManager.setHeader(content.attributes.friendly_name, id);
+    this.screenService.print(`\n\n`);
+    this.screenService.print(result);
+    this.screenService.print(
       [
         chalk`  {blue -} {cyan.bold From:} ${dayjs(from).format(
           `MMM D, YYYY h:mm A`,
@@ -135,14 +137,14 @@ export class BaseDomainService {
       ].join(`\n`),
     );
     attributes.forEach((key, index) =>
-      console.log(
+      this.screenService.print(
         chalk`    {${GRAPH_COLORS[index % GRAPH_COLORS.length]} ${TitleCase(
           key,
           false,
         )}}`,
       ),
     );
-    console.log();
+    this.screenService.print('');
     await this.promptService.acknowledge();
   }
 
@@ -262,7 +264,7 @@ export class BaseDomainService {
         }),
       ),
     );
-    console.log(table.toString());
+    this.screenService.print(table.toString());
     await this.promptService.acknowledge();
   }
 
@@ -281,10 +283,8 @@ export class BaseDomainService {
     // Somtimes the previous request impacts the state, and race conditions
     await sleep(this.refreshSleep);
     const content = await this.getState<T>(id);
-    this.promptService.clear();
-    this.promptService.scriptHeader(content.attributes.friendly_name);
-    this.promptService.secondaryHeader(id);
-    console.log(
+    this.applicationManager.setHeader(content.attributes.friendly_name, id);
+    this.screenService.print(
       chalk`\n {blue +-> }{inverse.bold.blueBright State} {cyan ${content.state}}`,
     );
     const keys = Object.keys(content.attributes)
@@ -292,7 +292,7 @@ export class BaseDomainService {
       .sort((a, b) => (a > b ? UP : DOWN));
     if (!is.empty(keys)) {
       const header = 'Attributes';
-      console.log(
+      this.screenService.print(
         chalk` {blue +${''.padEnd(
           Math.max(...keys.map(i => i.length)) -
             Math.floor(header.length / HALF) -
@@ -304,8 +304,10 @@ export class BaseDomainService {
     }
 
     const max = Math.max(...keys.map(i => i.length));
-    keys.forEach(key => console.log(this.printItem(content, key, max)));
-    console.log();
+    keys.forEach(key =>
+      this.screenService.print(this.printItem(content, key, max)),
+    );
+    this.screenService.print('');
     return content;
   }
 
@@ -364,7 +366,7 @@ export class BaseDomainService {
         CACHE_KEY(data[START].entity_id, type),
       )) || attributeList;
     const source = attributeList.filter(i => !lastUsed.includes(i));
-    console.log(chalk` {cyan > }{blue Plot which attributes?}`);
+    this.screenService.print(chalk` {cyan > }{blue Plot which attributes?}`);
     attributeList = await this.promptService.listBuild({
       current: lastUsed.map(i => [i, i]),
       items: 'Attributes',

@@ -1,28 +1,25 @@
-export enum OBJECT_BUILDER_ELEMENT {
+export enum TABLE_CELL_TYPE {
   string = 'string',
+  confirm = 'confirm',
   boolean = 'boolean',
   number = 'number',
   enum = 'enum',
   date = 'date',
+  discriminator = 'discriminator',
   list = 'list',
 }
 
-export class ObjectBuilderEnum {
-  public enum: string[];
-}
-
-export class ObjectBuilderElement {
+export class TableBuilderElement<EXTRA = unknown> {
+  public extra?: EXTRA;
+  public format?: (value: unknown) => string;
   public name: string;
-  public options?: ObjectBuilderEnum;
   public path: string;
-  public type: OBJECT_BUILDER_ELEMENT;
+  public type: string;
 }
 
-export class ObjectBuilderOptions<
-  T extends Record<string, unknown> = Record<string, unknown>,
-> {
+export class TableBuilderOptions<T extends unknown> {
   public current?: T | T[];
-  public elements: ObjectBuilderElement[];
+  public elements: TableBuilderElement[];
   public mode?: 'single' | 'multi';
 }
 

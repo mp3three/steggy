@@ -9,12 +9,15 @@ import {
   RoutineDTO,
 } from '@automagical/controller-shared';
 import {
+  ApplicationManagerService,
   ICONS,
   IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
   Repl,
+  ScreenService,
+  StackService,
   TextRenderingService,
   ToMenuEntry,
 } from '@automagical/tty';
@@ -27,6 +30,7 @@ import Table from 'cli-table';
 import { MENU_ITEMS } from '../../includes';
 import { HomeFetchService } from '../home-fetch.service';
 import { RoomCommandService } from '../rooms';
+import { RoutineCommandBuilderService } from './command';
 import { RoutineActivateService } from './routine-activate.service';
 import { RoutineCommandService } from './routine-command.service';
 
@@ -55,6 +59,10 @@ export class RoutineService {
     @Inject(forwardRef(() => RoutineCommandService))
     private readonly routineCommand: RService,
     private readonly pinnedItems: PinnedItemService,
+    private readonly commandBuilder: RoutineCommandBuilderService,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
+    private readonly stackService: StackService,
   ) {}
 
   private lastRoutine: string;
@@ -291,7 +299,9 @@ export class RoutineService {
         routine = await this.activateService.processRoutine(routine);
         return await this.processRoutine(routine, action);
       case 'command':
-        routine = await this.routineCommand.processRoutine(routine);
+        routine = await this.stackService.wrap(
+          async () => await this.commandBuilder.process(routine),
+        );
         return await this.processRoutine(routine, action);
     }
   }
@@ -316,7 +326,7 @@ export class RoutineService {
         await this.activate(routine);
         return;
       case 'timeout':
-        console.log(
+        this.screenService.print(
           chalk.yellow`${ICONS.WARNING}Timers not persisted across controller reboots`,
         );
         await this.fetchService.fetch({
@@ -328,7 +338,7 @@ export class RoutineService {
         });
         return;
       case 'datetime':
-        console.log(
+        this.screenService.print(
           chalk.yellow`${ICONS.WARNING}Timers not persisted across controller reboots`,
         );
         await this.fetchService.fetch({
@@ -362,17 +372,12 @@ export class RoutineService {
   }
 
   private async header(routine: RoutineDTO): Promise<void> {
-    await this.promptService.clear();
-    this.promptService.scriptHeader(`Routine`);
-    this.promptService.secondaryHeader(routine.friendlyName);
-    console.log(
-      chalk`${ICONS.LINK} {bold.magenta POST} ${this.fetchService.getUrl(
-        `/routine/${routine._id}`,
-      )}`,
-    );
-    console.log();
+    this.applicationManager.setHeader(`Routine`, routine.friendlyName);
+    const url = this.fetchService.getUrl(`/routine/${routine._id}`);
+    this.screenService.print(chalk`${ICONS.LINK} {bold.magenta POST} ${url}`);
+    this.screenService.print();
     if (!is.empty(routine.activate)) {
-      console.log(chalk`  {blue.bold Activation Events}`);
+      this.screenService.print(chalk`  {blue.bold Activation Events}`);
       const table = new Table({
         head: ['Name', 'Type', 'Details'],
       });
@@ -383,7 +388,7 @@ export class RoutineService {
           this.textRender.typePrinter(activate.activate),
         ]);
       });
-      console.log(table.toString());
+      this.screenService.print(table.toString());
     }
     if (is.empty(routine.command)) {
       return;
@@ -392,7 +397,7 @@ export class RoutineService {
       routine.command.length === SOLO
         ? ``
         : chalk`{yellowBright (${routine.sync ? 'Series' : 'Parallel'})}`;
-    console.log(chalk`  {bold.blue Commands} ${activation}`);
+    this.screenService.print(chalk`  {bold.blue Commands} ${activation}`);
     const table = new Table({
       head: ['Name', 'Type', 'Details'],
     });
@@ -406,7 +411,7 @@ export class RoutineService {
         await this.routineCommand.commandDetails(routine, command),
       ]);
     });
-    console.log(table.toString());
-    console.log();
+    this.screenService.print(table.toString());
+    this.screenService.print();
   }
 }

@@ -15,15 +15,16 @@ import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import fuzzy from 'fuzzysort';
 
-import { PAGE_SIZE } from '../config';
-import { MenuEntry } from '../contracts';
-import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../includes';
+import { PAGE_SIZE } from '../../config';
+import { MenuEntry } from '../../contracts';
+import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../../includes';
 
 const TEMP_TEMPLATE_SIZE = 3;
 const MAX_SEARCH_SIZE = 50;
 const SEPARATOR = chalk.blue.dim('|');
 const BUFFER_SIZE = 3;
 const MIN_SIZE = 2;
+const DEFAULT_WIDTH = 80;
 //
 const MAX_STRING_LENGTH = 300;
 
@@ -85,8 +86,8 @@ export class TextRenderingService {
   ): string[] {
     const out = [...leftEntries];
     left = left ? ' ' + left : left;
-    const maxA = ansiMaxLength([...leftEntries, left]) + ARRAY_OFFSET;
-    const maxB = ansiMaxLength([...rightEntries, right]);
+    const maxA = ansiMaxLength(...leftEntries, left) + ARRAY_OFFSET;
+    const maxB = ansiMaxLength(...rightEntries, right);
     rightEntries.forEach((item, index) => {
       const current = ansiPadEnd(out[index] ?? '', maxA);
       item = ansiPadEnd(item, maxB);
@@ -141,6 +142,23 @@ export class TextRenderingService {
     return highlighted;
   }
 
+  public getWidth(): number {
+    if (process.stdout.getWindowSize) {
+      return process.stdout.getWindowSize()[START] || DEFAULT_WIDTH;
+    }
+    if (process.stdout.columns) {
+      return process.stdout.columns;
+    }
+    return DEFAULT_WIDTH;
+  }
+
+  public pad(message: string, amount = MIN_SIZE): string {
+    return message
+      .split(`\n`)
+      .map(i => `${' '.repeat(amount)}${i}`)
+      .join(`\n`);
+  }
+
   public searchBox(searchText: string, size = MAX_SEARCH_SIZE): string[] {
     const text = is.empty(searchText)
       ? chalk.bgBlue`Type to filter`
@@ -179,6 +197,9 @@ export class TextRenderingService {
   public typePrinter(item: unknown): string {
     if (is.undefined(item)) {
       return chalk.gray(`undefined`);
+    }
+    if (is.date(item)) {
+      return chalk.green(item.toLocaleString());
     }
     if (is.number(item)) {
       return chalk.yellow(String(item));

@@ -11,8 +11,8 @@ import {
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 
-import { ansiMaxLength } from '../includes';
-import { EnvironmentService } from './environment.service';
+import { ansiMaxLength } from '../../includes';
+import { EnvironmentService } from '../meta/environment.service';
 
 const GRAPH_SYMBOLS = {
   bar: '│',

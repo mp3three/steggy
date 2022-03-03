@@ -12,6 +12,7 @@ import {
 } from '@automagical/controller-shared';
 import { HASS_DOMAINS } from '@automagical/home-assistant-shared';
 import {
+  ApplicationManagerService,
   DONE,
   ICONS,
   iRepl,
@@ -87,6 +88,7 @@ export class GroupCommandService implements iRepl {
     private readonly fanGroup: FanGroupCommandService,
     private readonly lockGroup: LockGroupCommandService,
     private readonly pinnedItems: PinnedItemService,
+    private readonly applicationManager: ApplicationManagerService,
     private readonly switchGroup: SwitchGroupCommandService,
   ) {}
 
@@ -156,6 +158,7 @@ export class GroupCommandService implements iRepl {
   }
 
   public async exec(): Promise<void> {
+    this.applicationManager.setHeader('All Groups', 'test');
     const groups = await this.list();
     const action = await this.promptService.menu<GroupDTO>({
       keyMap: { c: MENU_ITEMS.CREATE, d: MENU_ITEMS.DONE },
@@ -436,7 +439,9 @@ export class GroupCommandService implements iRepl {
     if (group.type === GROUP_TYPES.light) {
       return await this.lightGroup.header(group);
     }
-    this.promptService.scriptHeader(group.friendlyName);
-    this.promptService.secondaryHeader(`${TitleCase(group.type)} Group`);
+    this.applicationManager.setHeader(
+      group.friendlyName,
+      `${TitleCase(group.type)} Group`,
+    );
   }
 }

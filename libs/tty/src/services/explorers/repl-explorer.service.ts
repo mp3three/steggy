@@ -1,7 +1,7 @@
 import { AutoLogService, ModuleScannerService } from '@automagical/boilerplate';
 import { Injectable } from '@nestjs/common';
 
-import { iRepl, REPL_CONFIG, ReplOptions } from '../contracts';
+import { iRepl, REPL_CONFIG, ReplOptions } from '../../contracts';
 
 @Injectable()
 export class ReplExplorerService {

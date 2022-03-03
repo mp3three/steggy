@@ -7,11 +7,13 @@ import {
 } from '@automagical/controller-shared';
 import { domain, HASS_DOMAINS } from '@automagical/home-assistant-shared';
 import {
+  ApplicationManagerService,
   ICONS,
   IsDone,
   PinnedItemService,
   PromptEntry,
   PromptService,
+  ScreenService,
   TextRenderingService,
   ToMenuEntry,
 } from '@automagical/tty';
@@ -53,6 +55,8 @@ export class RoomStateService {
     private readonly groupService: GroupCommandService,
     private readonly fetchService: HomeFetchService,
     private readonly pinnedItems: PinnedItemService<{ room: string }>,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
   ) {}
 
   public async activate(room: RoomDTO, state: RoomStateDTO): Promise<void> {
@@ -76,7 +80,7 @@ export class RoomStateService {
     ];
     // This log mostly exists to provide visual context after building group states
     // Easy to totally get lost
-    console.log(chalk.gray`Saving state ${current.friendlyName}`);
+    this.screenService.print(chalk.gray`Saving state ${current.friendlyName}`);
     current.states = states;
     if (!current.id) {
       return await this.fetchService.fetch({
@@ -111,9 +115,7 @@ export class RoomStateService {
   }
 
   public async process(room: RoomDTO): Promise<RoomDTO> {
-    this.promptService.clear();
-    this.promptService.scriptHeader(room.friendlyName);
-    this.promptService.secondaryHeader('Room States');
+    this.applicationManager.setHeader(room.friendlyName, 'Room States');
     const action = await this.promptService.menu({
       keyMap: {
         a: MENU_ITEMS.ACTIVATE,
@@ -170,9 +172,7 @@ export class RoomStateService {
     defaultAction?: string,
   ): Promise<RoomDTO> {
     if (defaultAction !== 'activate') {
-      this.promptService.clear();
-      this.promptService.scriptHeader(room.friendlyName);
-      this.promptService.secondaryHeader(state.friendlyName);
+      this.applicationManager.setHeader(room.friendlyName, state.friendlyName);
     }
     let action = await this.promptService.menu({
       keyMap: {
@@ -337,7 +337,7 @@ export class RoomStateService {
   }
 
   private async header(room: RoomDTO, state: RoomStateDTO): Promise<void> {
-    console.log(
+    this.screenService.print(
       chalk`  ${
         ICONS.LINK
       }{bold.magenta POST} {underline ${this.fetchService.getUrl(
@@ -346,7 +346,7 @@ export class RoomStateService {
     );
     const entities = state.states.filter(({ type }) => type === 'entity');
     if (is.empty(entities)) {
-      console.log(
+      this.screenService.print(
         chalk`  ${ICONS.ENTITIES} {blue No entities included in save state}\n`,
       );
     } else {
@@ -372,7 +372,7 @@ export class RoomStateService {
     }
     const groupStates = state.states.filter(({ type }) => type === 'group');
     if (is.empty(groupStates)) {
-      console.log(
+      this.screenService.print(
         chalk`  ${ICONS.GROUPS}{blue No groups included in save state}\n`,
       );
       return;
@@ -395,7 +395,7 @@ export class RoomStateService {
       const saveState = group.save_states.find(({ id }) => id === state.state);
       table.push([group.friendlyName, saveState?.friendlyName]);
     });
-    console.log(
+    this.screenService.print(
       [
         ``,
         chalk`  ${ICONS.GROUPS}{blue.bold Group States}`,

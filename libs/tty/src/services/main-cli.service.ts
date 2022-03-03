@@ -8,9 +8,10 @@ import chalk from 'chalk';
 
 import { iRepl, MainMenuEntry, MenuEntry, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
+import { ReplExplorerService } from './explorers';
+import { ApplicationManagerService } from './meta';
 import { PinnedItemDTO, PinnedItemService } from './pinned-item.service';
 import { PromptEntry, PromptService } from './prompt.service';
-import { ReplExplorerService } from './repl-explorer.service';
 
 // Filter out non-sortable characters (like emoji)
 const unsortable = new RegExp('[^A-Za-z0-9_ -]', 'g');
@@ -23,25 +24,22 @@ type ENTRY_TYPE = string | PinnedItemDTO;
 })
 export class MainCLIService implements iRepl {
   constructor(
-    private readonly logger: AutoLogService,
+    private readonly applicationManager: ApplicationManagerService,
     private readonly explorer: ReplExplorerService,
     private readonly promptService: PromptService,
     private readonly pinnedItem: PinnedItemService,
     @InjectCache()
     private readonly cacheService: CacheManagerService,
   ) {}
-  private last: unknown;
+  private last: ENTRY_TYPE;
 
   public async exec(): Promise<void> {
-    this.promptService.clear();
-    this.promptService.scriptHeader('Script List');
-
+    this.applicationManager.setHeader('Script List');
     const name = await this.pickOne();
     if (!is.string(name)) {
-      await this.pinnedItem.exec(name);
+      await this.pinnedItem.exec(name as PinnedItemDTO);
       return this.exec();
     }
-    this.printHeader(name);
     let instance: iRepl;
     this.explorer.REGISTERED_APPS.forEach((i, options) => {
       if (options.name === name) {
@@ -130,24 +128,5 @@ export class MainCLIService implements iRepl {
     this.last = result;
     await this.cacheService.set(CACHE_KEY, result);
     return result;
-  }
-
-  private printHeader(scriptName: string): void {
-    const settings = this.explorer.findSettingsByName(scriptName);
-    this.promptService.scriptHeader(settings.name);
-    if (!settings.description) {
-      return;
-    }
-    settings.description ??= [];
-    settings.description = is.string(settings.description)
-      ? [settings.description]
-      : settings.description;
-
-    console.log(
-      chalk.yellow(
-        settings.description.map(line => `      ${line}`).join(`\n`),
-      ),
-      `\n\n`,
-    );
   }
 }

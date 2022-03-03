@@ -10,12 +10,12 @@ import {
   ConfigBuilderService,
   ICONS,
   IsDone,
-  OBJECT_BUILDER_ELEMENT,
   PromptService,
   Repl,
+  ScreenService,
   ToMenuEntry,
 } from '@automagical/tty';
-import { FILTER_OPERATIONS, is } from '@automagical/utilities';
+import { is } from '@automagical/utilities';
 import { Inject, NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import execa from 'execa';
@@ -38,6 +38,7 @@ export class DebugService {
   constructor(
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
+    private readonly screenService: ScreenService,
     private readonly workspace: WorkspaceService,
     private readonly configBuilder: ConfigBuilderService,
     @InjectConfig(CLI_PACKAGE) private readonly cliPackagePath: string,
@@ -71,42 +72,6 @@ For loop example getting entity values in the weather domain:
 {%- endfor %}.`;
 
   public async exec(defaultAction?: string): Promise<void> {
-    await this.promptService.acknowledge();
-    const result = await this.promptService.objectBuilder({
-      current: [
-        {
-          friendlyName: 'left',
-          type: FILTER_OPERATIONS.eq,
-          // value: 'bar',
-        },
-        {
-          friendlyName: 'Foo',
-          type: FILTER_OPERATIONS.eq,
-          value: 'bar',
-        },
-      ],
-      elements: [
-        {
-          name: 'Friendly Name',
-          path: 'friendlyName',
-          type: OBJECT_BUILDER_ELEMENT.string,
-        },
-        {
-          name: 'Type',
-          options: { enum: Object.keys(FILTER_OPERATIONS) },
-          path: 'type',
-          type: OBJECT_BUILDER_ELEMENT.enum,
-        },
-        {
-          name: 'Value',
-          path: 'value',
-          type: OBJECT_BUILDER_ELEMENT.string,
-        },
-      ],
-      mode: 'single',
-    });
-    console.log(result);
-    await this.promptService.acknowledge();
     const action = await this.promptService.menu({
       keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry([
@@ -130,7 +95,7 @@ For loop example getting entity values in the weather domain:
         return await this.exec(action);
       case 'version':
         const version = await this.fetchService.fetch({ url: `/version` });
-        this.promptService.print(dump(version));
+        this.screenService.print(dump(version));
         return await this.exec(action);
       case 'configure':
         await this.configBuilder.handleConfig();
@@ -145,7 +110,7 @@ For loop example getting entity values in the weather domain:
         const result = await this.fetchService.fetch({
           url: `/debug/hass-config`,
         });
-        this.promptService.print(dump(result));
+        this.screenService.print(dump(result));
         return await this.exec(action);
       case 'lightManagerCache':
         await this.lightManagerCache();
@@ -198,7 +163,7 @@ For loop example getting entity values in the weather domain:
       url: `/debug/render-template`,
     })) as Response;
     const text = await rendered.text();
-    this.promptService.print(text);
+    this.screenService.print(text);
   }
 
   private async sendNotification(): Promise<void> {

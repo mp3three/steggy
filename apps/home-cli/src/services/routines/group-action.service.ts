@@ -2,7 +2,6 @@ import {
   GROUP_TYPES,
   RoutineCommandGroupActionDTO,
 } from '@automagical/controller-shared';
-import { PromptService } from '@automagical/tty';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import {
@@ -14,7 +13,6 @@ import {
 @Injectable()
 export class GroupActionService {
   constructor(
-    private readonly promptService: PromptService,
     private readonly groupService: GroupCommandService,
     private readonly lightGroup: LightGroupCommandService,
     private readonly switchGroup: SwitchGroupCommandService,

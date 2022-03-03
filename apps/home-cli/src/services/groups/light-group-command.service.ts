@@ -10,12 +10,14 @@ import {
   LightStateDTO,
 } from '@automagical/home-assistant-shared';
 import {
+  ApplicationManagerService,
   ColorsService,
   ICONS,
   KeyMap,
   PromptEntry,
   PromptService,
   RGB,
+  ScreenService,
 } from '@automagical/tty';
 import { DOWN, is, START, TitleCase, UP } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
@@ -52,6 +54,8 @@ export class LightGroupCommandService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
     private readonly fetchService: HomeFetchService,
     private readonly lightDomain: LightService,
     private readonly colorService: ColorsService,
@@ -160,9 +164,10 @@ export class LightGroupCommandService {
   }
 
   public async header(group: GroupDTO): Promise<void> {
-    this.promptService.scriptHeader(group.friendlyName);
-    this.promptService.secondaryHeader(`${TitleCase(group.type)} Group`);
-    console.log();
+    this.applicationManager.setHeader(
+      group.friendlyName,
+      `${TitleCase(group.type)} Group`,
+    );
     let maxId = 0;
     let maxName = 0;
     const lines: string[][] = [];
@@ -197,7 +202,7 @@ export class LightGroupCommandService {
       // , , , ,
       .sort(([, a], [, b]) => (a > b ? UP : DOWN))
       .forEach(line =>
-        console.log(
+        this.screenService.print(
           line.length === SINGLE
             ? line[START]
             : chalk` {cyan -} ${line
@@ -207,7 +212,7 @@ export class LightGroupCommandService {
                 .padEnd(maxId, ' ')}} ${line.shift()}`,
         ),
       );
-    console.log();
+    this.screenService.print();
   }
 
   public async processAction(group: GroupDTO, action: string): Promise<void> {

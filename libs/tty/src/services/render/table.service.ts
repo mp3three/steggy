@@ -9,28 +9,11 @@ import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import { get } from 'object-path';
 
-import { ColumnInfo, ObjectBuilderOptions } from '../contracts';
-import { ansiMaxLength, ansiPadEnd } from '../includes';
-import { EnvironmentService } from './environment.service';
+import { ColumnInfo, TABLE_PARTS, TableBuilderOptions } from '../../contracts';
+import { ansiMaxLength, ansiPadEnd } from '../../includes';
+import { EnvironmentService } from '../meta/environment.service';
 import { TextRenderingService } from './text-rendering.service';
 
-const TABLE_PARTS = {
-  bottom: '─',
-  bottom_left: '└',
-  bottom_mid: '┴',
-  bottom_right: '┘',
-  left: '│',
-  left_mid: '├',
-  mid: '─',
-  mid_mid: '┼',
-  middle: '│',
-  right: '│',
-  right_mid: '┤',
-  top: '─',
-  top_left: '┌',
-  top_mid: '┬',
-  top_right: '┐',
-};
 const PADDING = 1;
 const ROW_MULTIPLIER = 2;
 const HEADER_LINE_COUNT = 4;
@@ -43,29 +26,30 @@ export class TableService {
     private readonly textRender: TextRenderingService,
   ) {}
 
-  private activeOptions: ObjectBuilderOptions;
+  private activeOptions: TableBuilderOptions<unknown>;
   private columns: ColumnInfo[];
   private selectedCell: number;
   private selectedRow: number;
   private values: Record<string, unknown>[];
 
   public renderTable(
-    options: ObjectBuilderOptions,
+    options: TableBuilderOptions<unknown>,
+    renderRows: Record<string, unknown>[],
     selectedRow: number,
     selectedCell: number,
   ): string {
     this.selectedCell = selectedCell;
     this.selectedRow = selectedRow;
     this.activeOptions = options;
-    if (Array.isArray(options.current)) {
-      this.values = options.current;
-    }
-    this.values = Array.isArray(options.current)
-      ? options.current
-      : [options.current];
+    this.values = renderRows;
     this.calcColumns();
     const header = this.header();
-    const rows = this.rows()
+    const r = this.rows();
+    if (is.empty(r)) {
+      const [top, content] = header;
+      return [top, content, this.footer()].join(`\n`);
+    }
+    const rows = r
       .join(
         `\n` +
           [
@@ -89,7 +73,17 @@ export class TableService {
         maxWidth: Math.max(
           MIN_CELL_WIDTH,
           PADDING + item.name.length + PADDING,
-          ansiMaxLength(this.values.map(row => get(row, item.path))),
+          PADDING +
+            ansiMaxLength(
+              ...this.values.map(row => {
+                const value = get(row, item.path);
+                if (item.format) {
+                  return item.format(value);
+                }
+                return String(value);
+              }),
+            ) +
+            PADDING,
         ),
         name: item.name,
       };
@@ -139,6 +133,9 @@ export class TableService {
   }
 
   private highlight(lines: string[]): string[] {
+    if (is.empty(this.values)) {
+      return;
+    }
     const bottom = HEADER_LINE_COUNT + this.selectedRow * ROW_MULTIPLIER;
     const middle = bottom - ARRAY_OFFSET;
     const top = middle - ARRAY_OFFSET;
@@ -166,7 +163,7 @@ export class TableService {
   }
 
   private highlightChar(char: string): string {
-    return chalk.cyan.inverse(char);
+    return chalk.bold.red(char);
   }
 
   private rows(): string[] {
@@ -176,9 +173,12 @@ export class TableService {
           ? this.highlightChar(TABLE_PARTS.left)
           : TABLE_PARTS.left,
         ...this.activeOptions.elements.map((element, colIndex) => {
+          const value = get(i, element.path);
           const content =
             ' '.repeat(PADDING) +
-            this.textRender.typePrinter(get(i, element.path));
+            this.textRender.typePrinter(
+              element.format ? element.format(value) : value,
+            );
           const cell = ansiPadEnd(content, this.columns[colIndex].maxWidth);
           const append =
             colIndex === this.columns.length - ARRAY_OFFSET
