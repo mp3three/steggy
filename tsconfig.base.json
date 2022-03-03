@@ -50,8 +50,7 @@
       "@automagical/server": ["libs/server/src/index.ts"],
       "@automagical/terminal": ["libs/terminal/src/index.ts"],
       "@automagical/tty": ["libs/tty/src/index.ts"],
-      "@automagical/utilities": ["libs/utilities/src/index.ts"],
-      "@ccontour/test": ["libs/test/src/index.ts"]
+      "@automagical/utilities": ["libs/utilities/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"],
