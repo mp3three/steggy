@@ -1,7 +1,5 @@
-import { GroupDTO, GroupSaveStateDTO } from '@automagical/controller-shared';
-import { LightAttributesDTO } from '@automagical/home-assistant-shared';
-import { TitleCase } from '@automagical/utilities';
-import { Card, Table, Typography } from 'antd';
+import { GroupDTO } from '@automagical/controller-shared';
+import { Card } from 'antd';
 import React from 'react';
 
 type tStateType = { group: GroupDTO };

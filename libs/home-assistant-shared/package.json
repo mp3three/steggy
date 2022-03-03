@@ -10,7 +10,7 @@
   "name": "@automagical/home-assistant-shared",
   "displayName": "Home Assistant Shared",
   "license": "MIT",
-  "version": "0.5.17",
+  "version": "0.6.2",
   "homepage": "https://git.programmable.work/cameron/automagical",
   "repository": {
     "type": "git",

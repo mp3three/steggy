@@ -6,7 +6,7 @@ import { ARRAY_OFFSET, SINGLE, START } from './utilities';
 //     so these exist to replace those doing exactly what I expect
 //
 
-export async function each<T = unknown, V = unknown>(
+export async function each<T = unknown>(
   item: T[],
   callback: (item: T) => Promise<void | unknown>,
 ): Promise<void> {

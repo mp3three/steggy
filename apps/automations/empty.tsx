@@ -1,4 +1,4 @@
-import { Drawer, Spin } from 'antd';
+import { Drawer, Skeleton, Spin } from 'antd';
 import React from 'react';
 
 type tState = {
@@ -19,6 +19,6 @@ export class EmptyComponent extends React.Component<
         </Drawer>
       );
     }
-    return <></>;
+    return <Skeleton />;
   }
 }

@@ -1,10 +1,5 @@
-import {
-  AutoLogService,
-  CacheManagerService,
-  InjectCache,
-} from '@automagical/boilerplate';
+import { CacheManagerService, InjectCache } from '@automagical/boilerplate';
 import { DOWN, is, UP, VALUE } from '@automagical/utilities';
-import chalk from 'chalk';
 
 import { iRepl, MainMenuEntry, MenuEntry, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';

@@ -1,23 +1,11 @@
 import { AutoLogService } from '@automagical/boilerplate';
-import {
-  FanSpeeds,
-  FanStateDTO,
-  HASS_DOMAINS,
-} from '@automagical/home-assistant-shared';
-import { ARRAY_OFFSET } from '@automagical/utilities';
+import { FanStateDTO, HASS_DOMAINS } from '@automagical/home-assistant-shared';
 import { Injectable } from '@nestjs/common';
 
 import { EntityManagerService, HACallService } from '../services';
 
 const MAX = 100;
 const START = 0;
-const availableSpeeds = [
-  FanSpeeds.off,
-  FanSpeeds.low,
-  FanSpeeds.medium,
-  FanSpeeds.medium_high,
-  FanSpeeds.high,
-];
 /**
  * https://www.home-assistant.io/integrations/fan/
  */

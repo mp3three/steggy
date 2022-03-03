@@ -9,7 +9,6 @@ import {
   FanAttributesDTO,
   LightAttributesDTO,
   LockAttributesDTO,
-  LockStateDTO,
 } from '@automagical/home-assistant-shared';
 import {
   Button,

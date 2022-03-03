@@ -1,7 +1,6 @@
 import { is } from '@automagical/utilities';
 import {
   Button,
-  Card,
   Divider,
   Input,
   InputNumber,
@@ -11,25 +10,13 @@ import {
 } from 'antd';
 import React from 'react';
 
-type OPERATIONS =
-  | 'elem'
-  | 'regex'
-  | 'in'
-  | 'nin'
-  | 'lt'
-  | 'lte'
-  | 'gt'
-  | 'gte'
-  | 'ne'
-  | 'eq';
-
 export class FilterValue extends React.Component<{
-  operation: string;
   onChange: (value) => void;
+  operation: string;
   value: string | string[];
 }> {
-  private addInput: Input;
   override state = { data: [] };
+  private addInput: Input;
 
   override render() {
     if (['eq', 'ne', 'elem', 'regex'].includes(this.props.operation)) {
@@ -83,7 +70,9 @@ export class FilterValue extends React.Component<{
                 danger
                 type="text"
                 onClick={() =>
-                  this.props.onChange(value.filter((i, index_) => index_ !== index))
+                  this.props.onChange(
+                    value.filter((i, index_) => index_ !== index),
+                  )
                 }
               >
                 X

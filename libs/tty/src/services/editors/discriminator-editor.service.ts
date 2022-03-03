@@ -1,7 +1,6 @@
 import { ARRAY_OFFSET, INCREMENT, START, VALUE } from '@automagical/utilities';
 import chalk from 'chalk';
 
-import { tKeyMap } from '../../contracts';
 import { Editor, iBuilderEditor } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
 import { TextRenderingService } from '../render';
@@ -20,14 +19,10 @@ export interface DiscriminatorEditorRenderOptions<T extends unknown = unknown> {
   ]),
   type: 'discriminator',
 })
-export class DiscriminatorEditorService<T>
+export class DiscriminatorEditorService
   implements iBuilderEditor<DiscriminatorEditorRenderOptions>
 {
   constructor(private readonly textRendering: TextRenderingService) {}
-
-  public customKeymap(current: unknown): tKeyMap {
-    return;
-  }
 
   public onKeyPress(
     config: DiscriminatorEditorRenderOptions,

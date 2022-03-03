@@ -1,7 +1,7 @@
 import Magnify from '@2fd/ant-design-icons/lib/Magnify';
 import { RoomEntitySaveStateDTO } from '@automagical/controller-shared';
 import { HassStateDTO } from '@automagical/home-assistant-shared';
-import { Button, Card, Col, Drawer, Empty, Row, Space, Table } from 'antd';
+import { Button, Col, Drawer, Empty, Row } from 'antd';
 import { dump } from 'js-yaml';
 import React from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
@@ -11,6 +11,7 @@ import { domain } from '../../types';
 import { FanEntityCard } from './FanEntityCard';
 import { LightEntityCard } from './LightEntityCard';
 import { SwitchEntityCard } from './SwitchEntityCard';
+
 type tStateType = {
   visible?: boolean;
 };

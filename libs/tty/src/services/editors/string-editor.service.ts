@@ -18,6 +18,7 @@ export interface StringEditorRenderOptions {
 
 const DEFAULT_PLACEHOLDER = 'enter value';
 const INTERNAL_PADDING = ' ';
+const PADDING = 2;
 
 @Editor({
   keyMap: new Map([
@@ -75,7 +76,7 @@ export class StringEditorService
     const value = is.empty(config.current)
       ? config.placeholder ?? DEFAULT_PLACEHOLDER
       : config.current;
-    const maxLength = config.width - 2;
+    const maxLength = config.width - PADDING;
     const out: string[] = [];
     if (config.label) {
       out.push(chalk.bold.magenta.dim(config.label));

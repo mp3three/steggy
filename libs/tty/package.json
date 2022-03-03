@@ -10,7 +10,7 @@
   "name": "@automagical/tty",
   "license": "MIT",
   "displayName": "TTY",
-  "version": "0.5.18",
+  "version": "0.6.0",
   "homepage": "https://github.com/ccontour/text-based",
   "repository": {
     "type": "git",

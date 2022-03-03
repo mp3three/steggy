@@ -3,7 +3,6 @@ import { Injectable, Scope } from '@nestjs/common';
 
 import { TABLE_PARTS } from '../../contracts';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
-import { ThemeService } from '../meta';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class BoxService {

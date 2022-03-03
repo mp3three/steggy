@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
 import { EMPTY, is, SINGLE } from '@automagical/utilities';
+import { Injectable } from '@nestjs/common';
 import { ReadStream } from 'fs';
 import MuteStream from 'mute-stream';
 import { createInterface, Interface } from 'readline';

@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import dayjs from 'dayjs';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';
+
 import { PAGE_SIZE } from '../config';
 import { DONE, PromptMenuItems, TableBuilderOptions } from '../contracts';
 import { ListBuilderOptions, MenuComponentOptions } from './components';
