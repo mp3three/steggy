@@ -1,0 +1,24 @@
+{
+  "publishConfig": {
+    "registry": "https://npm.programmable.work"
+  },
+  "bin": {
+    "home-cli": "main.js"
+  },
+  "name": "@farmio/support-tools",
+  "license": "MIT",
+  "description": "",
+  "main": "main.js",
+  "displayName": "Support Tools",
+  "version": "0.6.0",
+  "author": {
+    "email": "git@programmable.work",
+    "name": "Cameron Contour",
+    "url": "https://github.com/ccontour/text-based"
+  },
+  "homepage": "https://github.com/ccontour/text-based",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ccontour/text-based.git"
+  }
+}

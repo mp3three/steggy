@@ -42,6 +42,7 @@ export abstract class InquirerPrompt<
     this.status = 'answered';
     this.render();
     this.screen.done();
+    this.done();
     cliCursor.show();
   }
 

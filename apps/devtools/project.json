@@ -4,7 +4,7 @@
   "projectType": "application",
   "targets": {
     "serve": {
-      "executor": "@nrwl/node:execute",
+      "executor": "@nrwl/node:node",
       "options": {
         "buildTarget": "devtools:build",
         "inspect": "inspect",

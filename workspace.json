@@ -13,6 +13,7 @@
     "mqtt": "libs/mqtt",
     "persistence": "libs/persistence",
     "rules-engine": "libs/rules-engine",
+    "support-tools": "apps/support-tools",
     "server": "libs/server",
     "tty": "libs/tty",
     "utilities": "libs/utilities"
