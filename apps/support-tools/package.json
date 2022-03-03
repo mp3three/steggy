@@ -3,14 +3,17 @@
     "registry": "https://npm.programmable.work"
   },
   "bin": {
-    "home-cli": "main.js"
+    "farmio": "main.js"
   },
   "name": "@farmio/support-tools",
   "license": "MIT",
   "description": "",
   "main": "main.js",
   "displayName": "Support Tools",
-  "version": "0.6.0",
+  "version": "0.6.4",
+  "dependencies": {
+    "pino-pretty": "^5.1.1"
+  },
   "author": {
     "email": "git@programmable.work",
     "name": "Cameron Contour",

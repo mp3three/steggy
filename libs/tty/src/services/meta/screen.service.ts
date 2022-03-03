@@ -64,7 +64,9 @@ export class ScreenService {
     const promptLine = lastLine(content);
     const rawPromptLine = ansiStrip(promptLine);
 
-    const [width] = process.stdout.getWindowSize();
+    const [width] = process.stdout.getWindowSize
+      ? process.stdout.getWindowSize() || [EMPTY]
+      : [EMPTY];
 
     content = this.breakLines(content, width);
     let bottomContent = is.empty(extra) ? `` : extra.join(`\n`);

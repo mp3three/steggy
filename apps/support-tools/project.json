@@ -45,6 +45,16 @@
             "input": "apps/support-tools",
             "glob": "*.json",
             "output": "./assets/support-tools"
+          },
+          {
+            "input": "./",
+            "glob": "workspace.json",
+            "output": "./assets"
+          },
+          {
+            "input": "./",
+            "glob": "nx.json",
+            "output": "./assets"
           }
         ],
         "outputPath": "dist/apps/support-tools",
@@ -92,20 +102,12 @@
             "description": "Create production optimized build"
           },
           {
-            "command": "npx nx build support-tools --configuration=scan-config",
-            "description": "Prep the config scanner"
-          },
-          {
             "command": "npx terser dist/apps/support-tools/main.js -c -m --keep-classnames --module > dist/apps/support-tools/minified.js",
             "description": "Minify it"
           },
           {
             "command": "echo '#!/usr/bin/env node' > dist/apps/support-tools/main.js; cat dist/apps/support-tools/minified.js >> dist/apps/support-tools/main.js",
             "description": "Replace output (can't be done in previous step)"
-          },
-          {
-            "command": "node dist/config-scanner/support-tools/main.js > dist/apps/support-tools/assets/config.json",
-            "description": "Cache the completed config"
           },
           {
             "command": "npx yarn publish --cwd dist/apps/support-tools --non-interactive",

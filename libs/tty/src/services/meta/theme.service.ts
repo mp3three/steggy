@@ -1,4 +1,5 @@
 import { InjectConfig } from '@automagical/boilerplate';
+import { EMPTY } from '@automagical/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 
@@ -39,7 +40,7 @@ export class ThemeService {
   ) {}
 
   private get maxWidth() {
-    const [width] = process.stdout.getWindowSize();
+    const [width] = process.stdout?.getWindowSize() || [EMPTY];
     return width - BORDERS;
   }
 
