@@ -1,5 +1,6 @@
 import { Bootstrap } from '@automagical/boilerplate';
 import { MainCLIService } from '@automagical/tty';
+import { show } from 'cli-cursor';
 
 import { BOOTSTRAP_OPTIONS } from '../environments/environment';
 import { DevtoolsModule } from '../modules';
@@ -14,3 +15,4 @@ BOOTSTRAP_OPTIONS.postInit.push(app => {
   }, FINISH_BOOTSTRAPPING);
 });
 Bootstrap(DevtoolsModule, BOOTSTRAP_OPTIONS);
+process.addListener('beforeExit', () => show());

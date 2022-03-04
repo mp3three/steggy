@@ -10,18 +10,12 @@
   "description": "",
   "main": "main.js",
   "displayName": "Support Tools",
-  "version": "0.6.7",
+  "version": "0.6.9",
   "dependencies": {
     "pino-pretty": "^5.1.1"
   },
   "author": {
     "email": "git@programmable.work",
-    "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/text-based"
-  },
-  "homepage": "https://github.com/ccontour/text-based",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ccontour/text-based.git"
+    "name": "Cameron Contour"
   }
 }

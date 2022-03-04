@@ -72,11 +72,6 @@
             "input": "./",
             "glob": "workspace.json",
             "output": "./assets"
-          },
-          {
-            "input": "./",
-            "glob": "nx.json",
-            "output": "./assets"
           }
         ],
         "fileReplacements": [

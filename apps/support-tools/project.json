@@ -50,16 +50,10 @@
             "input": "./",
             "glob": "workspace.json",
             "output": "./assets"
-          },
-          {
-            "input": "./",
-            "glob": "nx.json",
-            "output": "./assets"
           }
         ],
         "outputPath": "dist/apps/support-tools",
         "generatePackageJson": true,
-        "fileReplacements": [],
         "main": "apps/support-tools/src/entrypoints/main.ts",
         "tsConfig": "apps/support-tools/tsconfig.app.json"
       },
@@ -67,17 +61,7 @@
         "production": {
           "optimization": true,
           "extractLicenses": false,
-          "inspect": false,
-          "fileReplacements": []
-        },
-        "scan-config": {
-          "outputPath": "dist/config-scanner/support-tools",
-          "fileReplacements": [
-            {
-              "replace": "apps/support-tools/src/environments/environment.ts",
-              "with": "apps/support-tools/src/environments/scanner.environment.ts"
-            }
-          ]
+          "inspect": false
         }
       }
     },

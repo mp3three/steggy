@@ -20,7 +20,7 @@
   "affected": {
     "defaultBase": "origin/master"
   },
-  "npmScope": "ccontour",
+  "npmScope": "automagical",
   "tasksRunnerOptions": {
     "default": {
       "runner": "@nrwl/nx-cloud",

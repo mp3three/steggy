@@ -24,7 +24,6 @@ export class NXWorkspaceDTO {
   public projects: Record<string, NXProjectDTO>;
 }
 export const NX_WORKSPACE_FILE = 'workspace.json';
-export const NX_METADATA_FILE = 'nx.json';
 export const SCAN_CONFIG_CONFIGURATION = 'scan-config';
 
 export class NXMetadata {

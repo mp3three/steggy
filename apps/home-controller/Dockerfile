@@ -63,7 +63,7 @@ RUN adduser \
 ## More latest stuff.
 RUN sed -i -e 's/v[[:digit:]]\..*\//edge\//g' /etc/apk/repositories &&\
     apk add --upgrade \
-    nodejs npm
+    nodejs npm curl
 
 
 # Finalize
@@ -75,5 +75,6 @@ COPY --from=build /app/dist/apps/home-controller/package.json ./package.json
 COPY --from=build /app/dist/apps/home-controller/assets ./assets
 COPY --from=build /app/dist/apps/automations ./ui
 
+HEALTHCHECK CMD curl --fail http://localhost:7000/api/health
 CMD ["node", "./main.js"]
 # </STAGE 3>

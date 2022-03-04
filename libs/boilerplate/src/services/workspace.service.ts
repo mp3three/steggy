@@ -1,24 +1,21 @@
-import { Inject, Injectable } from '@nestjs/common';
 import { is } from '@automagical/utilities';
+import { Inject, Injectable } from '@nestjs/common';
 import JSON from 'comment-json';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
 import { dirname, join } from 'path';
 import { cwd } from 'process';
-
 import { LIB_UTILS } from '../config';
 import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
   METADATA_FILE,
-  NX_METADATA_FILE,
-  NX_WORKSPACE_FILE,
-  NXMetadata,
   NXProjectDTO,
   NXProjectTypes,
   NXWorkspaceDTO,
-  PACKAGE_FILE,
+  NX_WORKSPACE_FILE,
   PackageJsonDTO,
+  PACKAGE_FILE,
   RepoMetadataDTO,
 } from '../contracts';
 import { AutoLogService } from './auto-log.service';
@@ -41,7 +38,6 @@ export class WorkspaceService {
    * metadata.json
    */
   public METADATA = new Map<string, RepoMetadataDTO>();
-  public NX_METADATA: NXMetadata;
   /**
    * package.json
    */
@@ -206,14 +202,6 @@ export class WorkspaceService {
   }
 
   private loadNX(): void {
-    this.NX_METADATA = JSON.parse(
-      readFileSync(
-        isDevelopment
-          ? join(cwd(), NX_METADATA_FILE)
-          : join(__dirname, 'assets', NX_METADATA_FILE),
-        'utf-8',
-      ),
-    ) as unknown as NXMetadata;
     this.workspace = JSON.parse(
       readFileSync(
         isDevelopment

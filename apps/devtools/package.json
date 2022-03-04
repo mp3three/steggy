@@ -10,15 +10,8 @@
   "description": "",
   "main": "main.js",
   "displayName": "Devtools",
-  "version": "0.6.0",
   "author": {
     "email": "git@programmable.work",
-    "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/text-based"
+    "name": "Cameron Contour"
   },
-  "homepage": "https://github.com/ccontour/text-based",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ccontour/text-based.git"
-  }
 }
