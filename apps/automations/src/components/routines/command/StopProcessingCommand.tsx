@@ -67,7 +67,7 @@ export class StopProcessingCommand extends React.Component<
           </Row>
         </Form.Item>
         <List
-          dataSource={this.props.command.comparisons}
+          dataSource={this.props.command?.comparisons}
           renderItem={item => (
             <List.Item onClick={() => this.setState({ edit: item })}>
               <List.Item.Meta
@@ -81,7 +81,7 @@ export class StopProcessingCommand extends React.Component<
                   e.stopPropagation();
                   this.props.onUpdate({
                     comparisons: [
-                      ...this.props.command.comparisons.filter(
+                      ...(this.props.command?.comparisons ?? []).filter(
                         ({ id }) => id !== item.id,
                       ),
                     ],
@@ -98,24 +98,7 @@ export class StopProcessingCommand extends React.Component<
             visible={true}
             comparison={this.state.edit}
             onCancel={() => this.setState({ edit: undefined })}
-            onCommit={() => {
-              const { edit } = this.state;
-              const { command } = this.props;
-              const index = command.comparisons.findIndex(
-                ({ id }) => edit.id === id,
-              );
-              this.props.onUpdate({
-                comparisons:
-                  index === NOT_FOUND
-                    ? [...command.comparisons, edit]
-                    : command.comparisons.map(i =>
-                        i.id === edit.id ? edit : i,
-                      ),
-              });
-              this.setState({
-                edit: undefined,
-              });
-            }}
+            onCommit={this.onCommit.bind(this)}
             onUpdate={edit => this.setState({ edit })}
           />
         )}
@@ -131,5 +114,22 @@ export class StopProcessingCommand extends React.Component<
       type: this.state.addComparison,
     } as RoutineComparisonDTO;
     this.setState({ edit });
+  }
+
+  private onCommit(): void {
+    const { edit } = this.state;
+    const { command } = this.props;
+    const index = (command?.comparisons ?? []).findIndex(
+      ({ id }) => edit.id === id,
+    );
+    this.props.onUpdate({
+      comparisons:
+        index === NOT_FOUND
+          ? [...(command?.comparisons ?? []), edit]
+          : command.comparisons.map(i => (i.id === edit.id ? edit : i)),
+    });
+    this.setState({
+      edit: undefined,
+    });
   }
 }

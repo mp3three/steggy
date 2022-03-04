@@ -1,0 +1,12 @@
+{
+  "configuration": {
+    "API_KEY":{
+      "type": "string",
+      "description": "x-token to for authentication"
+    },
+    "LIVE_ENDPOINT":{
+      "type": "string",
+      "description": "Live endpoint for project"
+    }
+  }
+}

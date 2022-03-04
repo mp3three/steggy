@@ -22,7 +22,9 @@ export async function sendRequest<T>({
 }: Partial<FetchArguments>): Promise<T> {
   let endpoint = rawUrl
     ? url
-    : `${(fetchWith.baseUrl ?? sendRequest.BASE_URL) || ''}${url}`;
+    : `${(fetchWith.baseUrl ?? sendRequest.BASE_URL) || ''}${sendRequest.url(
+        url,
+      )}`;
   if (fetchWith.control || fetchWith.params) {
     endpoint = `${endpoint}?${buildFilterString(fetchWith)}`;
   }
@@ -34,7 +36,7 @@ export async function sendRequest<T>({
     body = JSON.stringify(body);
     headers['Content-Type'] = 'application/json; charset=utf-8';
   }
-  const result = await fetch(sendRequest.url(endpoint), {
+  const result = await fetch(endpoint, {
     body: body as string,
     headers: headers as Record<string, string>,
     method,

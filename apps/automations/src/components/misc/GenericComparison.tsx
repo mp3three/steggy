@@ -48,7 +48,7 @@ export class GenericComparison extends React.Component<{
             <Button
               type="primary"
               style={{ marginRight: '8px' }}
-              onClick={() => this.props.onCommit()}
+              onClick={this.onCommit.bind(this)}
             >
               Save
             </Button>
@@ -59,6 +59,10 @@ export class GenericComparison extends React.Component<{
         {this.renderComparison()}
       </Drawer>
     );
+  }
+
+  private onCommit(): void {
+    this.props.onCommit();
   }
 
   private renderComparison() {
