@@ -19,14 +19,14 @@ export class LoggingInterceptor implements NestInterceptor {
   ): Observable<unknown> {
     const prettyLogger = AutoLogService.prettyLogger;
     const request = context.switchToHttp().getRequest<APIRequest>();
-    const extra = prettyLogger
-      ? {}
-      : {
-          route: [request.method, request.path],
-        };
+    const extra = prettyLogger ? {} : { route: [request.method, request.path] };
     const { locals } = context.switchToHttp().getResponse<APIResponse>();
     return next.handle().pipe(
       tap(response => {
+        if (this.ignorePath(request.path)) {
+          // Request counter is still incremented, even if no logs are ever printed for request
+          return;
+        }
         const responseTime = Date.now() - locals.start.getTime();
         const message = prettyLogger
           ? `[${request.method}] {${request.path}}`
@@ -49,5 +49,9 @@ export class LoggingInterceptor implements NestInterceptor {
         return throwError(() => error);
       }),
     );
+  }
+
+  private ignorePath(path: string): boolean {
+    return ['/health'].some(str => path.endsWith(str));
   }
 }

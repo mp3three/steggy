@@ -6,6 +6,7 @@
     "controller-logic": "libs/controller-logic",
     "controller-shared": "libs/controller-shared",
     "devtools": "apps/devtools",
+    "google": "libs/google",
     "home-assistant": "libs/home-assistant",
     "home-assistant-shared": "libs/home-assistant-shared",
     "home-cli": "apps/home-cli",

@@ -1,14 +1,8 @@
 {
   "compileOnSave": false,
   "include": [
-    "apps/*/src/**/*tsx",
-    "apps/*/src/**/*ts",
-    "libs/*/src/**/*ts",
-    "libs/*/src/*ts",
-    "libs/**/*ts",
-    "libs/**/*tsx",
-    "apps/**/*ts",
-    "apps/**/*tsx"
+    "**/*.ts",
+    "**/*.tsx"
   ],
   "compilerOptions": {
     "allowJs": false,

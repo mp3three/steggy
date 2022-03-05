@@ -8,5 +8,8 @@
     "target": "ESNext"
   },
   "exclude": ["**/*.spec.ts"],
-  "include": ["**/src/*.ts"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ]
 }

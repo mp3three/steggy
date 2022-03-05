@@ -1,0 +1,20 @@
+{
+  "configuration": {
+    "API_KEY":{
+      "type": "string",
+      "description": "For authentication"
+    },
+    "CLIENT_ID":{
+      "type": "string",
+      "description": "For authentication"
+    },
+    "CLIENT_SECRET":{
+      "type": "string",
+      "description": "For authentication"
+    },
+    "REDIRECT_URL": {
+      "type": "string",
+      "description": "For authentication"
+    }
+  }
+}
