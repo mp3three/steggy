@@ -55,7 +55,7 @@ export class ConnectService {
       });
     }
     if (existsSync(url)) {
-      return readFileSync(url, 'utf-8');
+      return readFileSync(url, 'utf8');
     }
     return url;
   }

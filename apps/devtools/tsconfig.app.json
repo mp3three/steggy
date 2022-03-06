@@ -2,9 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "module": "commonjs",
-    "types": ["node"]
+    "types": ["node"],
+    "emitDecoratorMetadata": true,
+    "target": "ESNext"
   },
   "exclude": ["**/*.spec.ts"],
-  "include": ["**/*.ts", "../home-controller/src/services/command-router.service.ts"]
+  "include": ["**/*.ts"]
 }

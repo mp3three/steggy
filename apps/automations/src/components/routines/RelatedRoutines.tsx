@@ -107,7 +107,7 @@ export class RelatedRoutines extends React.Component<
         {
           filters: new Set([
             {
-              field,
+              field: 'activate.type',
               value: 'kunami',
             },
             {
@@ -119,7 +119,7 @@ export class RelatedRoutines extends React.Component<
         {
           filters: new Set([
             {
-              field,
+              field: 'activate.type',
               value: 'state_change',
             },
             {

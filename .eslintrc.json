@@ -24,9 +24,6 @@
         "plugin:unicorn/recommended",
         "prettier"
       ],
-      "parserOptions": {
-        "project": ["./tsconfig.base.json"]
-      },
       "rules": {
         // Undecided on if this is worth keeping
         "@typescript-eslint/require-await": "warn",

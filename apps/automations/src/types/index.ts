@@ -34,7 +34,7 @@ export async function sendRequest<T>({
   }
   if (is.object(body)) {
     body = JSON.stringify(body);
-    headers['Content-Type'] = 'application/json; charset=utf-8';
+    headers['Content-Type'] = 'application/json; charset=utf8';
   }
   const result = await fetch(endpoint, {
     body: body as string,

@@ -14,12 +14,14 @@ import { DynamicModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { LIB_CONTROLLER_LOGIC } from '../config';
+import { ServerMetadataDTO, ServerMetadataSchema } from '../contracts';
 import { DatabaseConnectService } from '../services';
 import {
   EntityMetadataPersistenceService,
   GroupPersistenceService,
   RoomPersistenceService,
   RoutinePersistenceService,
+  ServerMetadataPersistenceService,
 } from '../services/persistence';
 
 const services = [
@@ -28,6 +30,7 @@ const services = [
   RoutinePersistenceService,
   RoomPersistenceService,
   EntityMetadataPersistenceService,
+  ServerMetadataPersistenceService,
 ];
 
 @LibraryModule({
@@ -39,6 +42,7 @@ const services = [
       { name: RoomDTO.name, schema: RoomSchema },
       { name: RoutineDTO.name, schema: RoutineSchema },
       { name: EntityMetadataDTO.name, schema: EntityMetadataSchema },
+      { name: ServerMetadataDTO.name, schema: ServerMetadataSchema },
     ]),
   ],
   library: LIB_CONTROLLER_LOGIC,

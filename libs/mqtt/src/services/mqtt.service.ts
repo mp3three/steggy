@@ -127,7 +127,7 @@ export class MqttService {
   }
 
   private handlePayload<T>(payload: Buffer): T {
-    const text = payload.toString('utf-8');
+    const text = payload.toString('utf8');
     if (!['{', '['].includes(text.charAt(FIRST))) {
       return text as unknown as T;
     }

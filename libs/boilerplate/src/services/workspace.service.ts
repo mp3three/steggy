@@ -178,7 +178,7 @@ export class WorkspaceService {
       ? (JSON.parse(
           readFileSync(
             join(isDevelopment ? cwd() : __dirname, PACKAGE_FILE),
-            'utf-8',
+            'utf8',
           ),
         ) as unknown as PackageJsonDTO)
       : {
@@ -195,7 +195,7 @@ export class WorkspaceService {
         return;
       }
       // this.logg
-      const data = JSON.parse(readFileSync(path, 'utf-8'));
+      const data = JSON.parse(readFileSync(path, 'utf8'));
       this.logger.debug(` - {${key}}`);
       this.METADATA.set(key, data as unknown as RepoMetadataDTO);
     });
@@ -207,7 +207,7 @@ export class WorkspaceService {
         isDevelopment
           ? join(cwd(), NX_WORKSPACE_FILE)
           : join(__dirname, 'assets', NX_WORKSPACE_FILE),
-        'utf-8',
+        'utf8',
       ),
     ) as unknown as NXWorkspaceDTO;
     const { projects } = this.workspace;
@@ -223,7 +223,7 @@ export class WorkspaceService {
       }
       this.logger.debug(` - {${key}}`);
       projects[key] = JSON.parse(
-        readFileSync(path, 'utf-8'),
+        readFileSync(path, 'utf8'),
       ) as unknown as NXProjectDTO;
     });
   }
@@ -237,7 +237,7 @@ export class WorkspaceService {
         return;
       }
       const data = JSON.parse(
-        readFileSync(packageFile, 'utf-8'),
+        readFileSync(packageFile, 'utf8'),
       ) as unknown as PackageJsonDTO;
       this.logger.debug(` - [${project}] {${data.version}}`);
       this.PACKAGES.set(project, data);
