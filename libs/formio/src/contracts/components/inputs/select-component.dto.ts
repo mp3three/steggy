@@ -45,14 +45,13 @@ export class SelectComponentDTO<
   public limit?: number;
   public readOnlyValue?: boolean;
   public reference?: boolean;
-  public refreshOn?: RefreshOn;
   public refreshOnBlur?: RefreshOn;
   public searchField?: string;
   public selectFields?: string;
   public selectThreshold?: number;
   public sort?: string;
   public template?: string;
-  public type: ComponentTypes.select;
+  public declare type: ComponentTypes.select;
   /**
    * Display only unique dropdown options.
    */

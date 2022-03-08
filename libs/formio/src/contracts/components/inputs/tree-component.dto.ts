@@ -5,9 +5,9 @@ export class TreeComponentDTO extends BaseComponentDTO {
   // #region Object Properties
 
   public components: BaseComponentDTO[];
-  public input: true;
+  declare public input: true;
   public tree: boolean;
-  public type: ComponentTypes.textarea;
+  declare public type: ComponentTypes.textarea;
 
   // #endregion Object Properties
 }

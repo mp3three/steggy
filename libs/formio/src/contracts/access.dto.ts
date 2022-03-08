@@ -1,10 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
-import { CanFake } from './can-fake.dto';
 import { ACCESS_PERMISSION, PERMISSION_ACCESS_TYPES } from './constants';
 
-export class AccessDTO extends CanFake {
+export class AccessDTO {
   @IsEnum(ACCESS_PERMISSION)
   @IsOptional()
   @ApiProperty({

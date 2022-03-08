@@ -7,7 +7,7 @@ export class SelectBoxesComponentDTO extends BaseInputComponentDTO {
 
   public inputType: InputTypes;
   public optionsLabelPosition?: LabelPositions;
-  public type: ComponentTypes.selectboxes;
+  declare public type: ComponentTypes.selectboxes;
   public values?: ComponentValuesDTO[];
 
   // #endregion Object Properties

@@ -4,7 +4,7 @@ export class BaseLayoutComponentDTO extends BaseComponentDTO {
   // #region Object Properties
 
   public components?: BaseComponentDTO[];
-  public input: false;
+  public declare input: false;
 
   // #endregion Object Properties
 }

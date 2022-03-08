@@ -6,7 +6,7 @@ export class FieldSetComponentDTO extends BaseLayoutComponentDTO {
 
   public legend?: string;
   public tree?: boolean;
-  public type: ComponentTypes.fieldset;
+  declare public type: ComponentTypes.fieldset;
 
   // #endregion Object Properties
 }

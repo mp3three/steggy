@@ -8,7 +8,7 @@ export class PageComponent extends BaseLayoutComponentDTO {
   public breadcrumbClickable?: boolean;
   public buttonSettings?: ButtonSettingsDTO;
   public collapsible?: boolean;
-  public type: ComponentTypes.panel;
+  declare public type: ComponentTypes.panel;
 
   // #endregion Object Properties
 }

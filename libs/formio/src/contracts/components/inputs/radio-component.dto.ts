@@ -7,7 +7,7 @@ export class RadioComponentDTO extends BaseInputComponentDTO {
 
   public inline?: boolean;
   public optionsLabelPosition: LabelPositions;
-  public type: ComponentTypes.radio;
+  declare public type: ComponentTypes.radio;
   public values: ComponentValuesDTO[];
 
   // #endregion Object Properties

@@ -4,7 +4,7 @@ import { BaseInputComponentDTO } from '../inputs';
 export class CustomComponentDTO extends BaseInputComponentDTO {
   // #region Object Properties
 
-  public type: ComponentTypes.custom;
+  public declare type: ComponentTypes.custom;
 
   // #endregion Object Properties
 }

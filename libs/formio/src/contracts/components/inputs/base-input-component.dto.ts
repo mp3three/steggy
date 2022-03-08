@@ -60,7 +60,7 @@ export class BaseInputComponentDTO extends BaseComponentDTO {
    * Hide the input in the browser. This does not encrypt on the server. Do not use for passwords.
    */
   public hidden?: boolean;
-  public input: true;
+  public declare input: true;
   public leftIcon?: string;
   /**
    * Opens up a modal to edit the value of this component.
@@ -85,10 +85,6 @@ export class BaseInputComponentDTO extends BaseComponentDTO {
    * UI prop
    */
   public prefix?: string;
-  /**
-   * A protected field will not be returned when queried via API.
-   */
-  public protected?: boolean;
   /**
    * Redraw this component if another component changes. This is useful if interpolating parts of the component like the label.
    */

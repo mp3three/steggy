@@ -18,8 +18,8 @@ export class TabComponentDTO extends BaseComponentDTO {
    * Array of components inside a row / col grid
    */
   public components?: TabComponentTabDTO;
-  public input: false;
-  public type: ComponentTypes.tabs;
+  public declare input: false;
+  public declare type: ComponentTypes.tabs;
 
   // #endregion Object Properties
 }

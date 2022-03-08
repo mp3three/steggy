@@ -4,7 +4,7 @@ import { BaseInputComponentDTO } from './base-input-component.dto';
 export class ResourceFieldsComponentDTO extends BaseInputComponentDTO {
   // #region Object Properties
 
-  public type: ComponentTypes.resourcefields;
+  declare public type: ComponentTypes.resourcefields;
 
   // #endregion Object Properties
 }

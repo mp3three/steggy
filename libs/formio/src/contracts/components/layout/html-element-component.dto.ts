@@ -8,7 +8,7 @@ export class HtmlElementComponentDTO extends BaseComponentDTO {
   public attrs?: AttributesDTO;
   public content?: string;
   public refreshOnChange?: boolean;
-  public type: ComponentTypes.htmlelement;
+  declare public type: ComponentTypes.htmlelement;
 
   // #endregion Object Properties
 }

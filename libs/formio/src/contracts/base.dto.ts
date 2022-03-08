@@ -2,29 +2,13 @@ import { Prop } from '@nestjs/mongoose';
 import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
 import dayjs from 'dayjs';
 import { Schema as MongooseSchema } from 'mongoose';
-
-import { DBFake } from '../../classes';
 import { BaseOmitProperties } from '.';
 import { TransformObjectId } from './transform-object-id.decorator';
 
 /**
  * Common properties between all objects
  */
-export abstract class BaseDTO extends DBFake {
-  // #region Public Static Methods
-
-  public static fake(): Omit<BaseDTO, BaseOmitProperties> {
-    return {
-      ...super.fake(),
-      created: dayjs().toDate(),
-      modified: dayjs().toDate(),
-    };
-  }
-
-  // #endregion Public Static Methods
-
-  // #region Object Properties
-
+export abstract class BaseDTO {
   @IsNumber()
   @IsOptional()
   @Prop({ default: null })
@@ -71,6 +55,4 @@ export abstract class BaseDTO extends DBFake {
   @Prop({ index: true })
   @TransformObjectId()
   public owner?: string;
-
-  // #endregion Object Properties
 }

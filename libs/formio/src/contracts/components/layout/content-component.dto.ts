@@ -8,7 +8,7 @@ export class ContentComponentDTO extends BaseComponentDTO {
   public attrs?: AttributesDTO;
   public content?: string;
   public refreshOnChange?: boolean;
-  public type: ComponentTypes.content;
+  declare public type: ComponentTypes.content;
 
   // #endregion Object Properties
 }

@@ -5,9 +5,9 @@ export class EditGridComponent extends BaseComponentDTO {
   // #region Object Properties
 
   public components: BaseComponentDTO[];
-  public input: true;
+  declare public input: true;
   public rowDrafts: boolean;
-  public type: ComponentTypes.editgrid;
+  declare public type: ComponentTypes.editgrid;
 
   // #endregion Object Properties
 }

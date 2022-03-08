@@ -6,7 +6,7 @@ export class SurveyComponent extends BaseInputComponentDTO {
   // #region Object Properties
 
   public questions: LABEL_VALUE[];
-  public type: ComponentTypes.survey;
+  declare public type: ComponentTypes.survey;
   public values: LABEL_VALUE[];
 
   // #endregion Object Properties

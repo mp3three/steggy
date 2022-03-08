@@ -7,7 +7,7 @@ export class CurrencyComponentDTO extends BaseInputComponentDTO {
   public currency: Currency;
   public inputFormat: InputFormat;
   public mask: boolean;
-  public type: ComponentTypes.currency;
+  declare public type: ComponentTypes.currency;
 
   // #endregion Object Properties
 }

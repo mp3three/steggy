@@ -1,4 +1,4 @@
-import { HTTP_METHODS } from '../../fetch';
+import { HTTP_METHODS } from '@automagical/utilities';
 import { BaseComponentDTO } from '../base-component.dto';
 import { ComponentTypes } from '../enums';
 import { LABEL_VALUE } from '../include';
@@ -21,10 +21,10 @@ export class DataSourceComponentDTO extends BaseComponentDTO {
   public allowCaching: boolean;
   public dataSrc: 'url' | 'indexdb';
   public fetch?: DataSourceComponentFetchDTO;
-  public input: true;
+  public declare input: true;
   public persistent?: 'client-only';
   public trigger: Record<'init' | 'server', boolean>;
-  public type: ComponentTypes.datasource;
+  public declare type: ComponentTypes.datasource;
 
   // #endregion Object Properties
 }

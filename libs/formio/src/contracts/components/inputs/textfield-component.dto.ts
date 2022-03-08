@@ -23,7 +23,6 @@ export class TextFieldComponentDTO extends BaseInputComponentDTO {
   public customMessage?: string;
   public customPrivate?: boolean;
   public description?: string;
-  public id?: string;
   /**
    * Force the output of this field to be sanitized in a specific format.
    */
@@ -67,7 +66,7 @@ export class TextFieldComponentDTO extends BaseInputComponentDTO {
   public pattern?: string;
   public spellcheck?: boolean;
   public stringDateValidation?: boolean;
-  public type: ComponentTypes.textfield;
+  public declare type: ComponentTypes.textfield;
   /**
    * The widget is the display UI used to input the value of the field.
    */

@@ -5,7 +5,7 @@ export class TimeComponentDTO extends BaseInputComponentDTO {
   // #region Object Properties
 
   public inputMask: string;
-  public type: ComponentTypes.time;
+  declare public type: ComponentTypes.time;
 
   // #endregion Object Properties
 }

@@ -4,8 +4,8 @@ import { BaseInputComponentDTO } from './base-input-component.dto';
 export class PasswordComponentDTO extends BaseInputComponentDTO {
   // #region Object Properties
 
-  public protected: true;
-  public type: ComponentTypes.password;
+  public declare protected: true;
+  public declare type: ComponentTypes.password;
 
   // #endregion Object Properties
 }

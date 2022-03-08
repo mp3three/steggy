@@ -6,7 +6,7 @@ export class ColumnsComponentDTO extends BaseLayoutComponentDTO {
   // #region Object Properties
 
   public columns: { components: BaseComponentDTO[] }[];
-  public type: ComponentTypes.columns;
+  declare public type: ComponentTypes.columns;
 
   // #endregion Object Properties
 }

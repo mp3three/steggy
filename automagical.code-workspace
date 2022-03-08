@@ -95,8 +95,7 @@
       "**/.prettierignore": true,
       ".editorconfig": true,
       "apps/*/ios": true,
-      "apps/*/android": true,
-      "tmp": true,
+      "apps/*/android": true
     },
     "prettier.arrowParens": "avoid",
 

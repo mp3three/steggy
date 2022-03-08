@@ -5,7 +5,7 @@ export class ResourceComponentDTO extends BaseInputComponentDTO {
   // #region Object Properties
 
   public template: string;
-  public type: ComponentTypes.resource;
+  declare public type: ComponentTypes.resource;
 
   // #endregion Object Properties
 }

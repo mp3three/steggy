@@ -21,7 +21,7 @@ export class CalendarWidgetDTO extends BaseWidgetDTO {
   public noCalendar?: boolean;
   public saveAs?: 'date';
   public time_24hr?: boolean;
-  public type: WidgetTypes.calendar;
+  declare public type: WidgetTypes.calendar;
   public useLocaleSettings?: boolean;
 
   // #endregion Object Properties

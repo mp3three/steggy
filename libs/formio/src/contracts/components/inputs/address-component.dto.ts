@@ -14,7 +14,7 @@ export class AddressComponentDTO extends BaseInputComponentDTO {
   public mask?: boolean;
   public provider: AddressProviders;
   public providerOptions: AddressProviderOptionsDTO;
-  public type: ComponentTypes.address;
+  declare public type: ComponentTypes.address;
   public widget: TextWidgetDTO;
 
   // #endregion Object Properties

@@ -5,8 +5,8 @@ export class FormComponentDTO extends BaseComponentDTO {
   // #region Object Properties
 
   public form: string;
-  public input: true;
-  public type: ComponentTypes.form;
+  public declare input: true;
+  public declare type: ComponentTypes.form;
   public useOriginalRevision: boolean;
 
   // #endregion Object Properties

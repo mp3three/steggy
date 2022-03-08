@@ -5,8 +5,8 @@ export class TagpadComponentDTO extends BaseComponentDTO {
   // #region Object Properties
 
   public components: BaseComponentDTO[];
-  public input: true;
-  public type: ComponentTypes.tagpad;
+  public declare input: true;
+  public declare type: ComponentTypes.tagpad;
 
   // #endregion Object Properties
 }
