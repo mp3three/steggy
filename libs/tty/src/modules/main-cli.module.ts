@@ -3,6 +3,7 @@ import { DiscoveryModule } from '@nestjs/core';
 
 import { LIB_TTY } from '../config';
 import {
+  AcknowledgeComponentService,
   ApplicationManagerService,
   BooleanEditorService,
   ChartingService,
@@ -60,25 +61,25 @@ import { LayoutManagerService } from '../services/meta/layout-manager.service';
   imports: [DiscoveryModule, RegisterCache()],
   library: LIB_TTY,
   providers: [
+    AcknowledgeComponentService,
     ApplicationManagerService,
     BooleanEditorService,
     ChartingService,
     ColorsService,
     ComparisonToolsService,
     ComponentExplorerService,
-    ThemeService,
     ConfigBuilderService,
     ConfirmEditorService,
     DateEditorService,
     DiscriminatorEditorService,
     EditorExplorerService,
-    LayoutManagerService,
     EnumEditorService,
     EnvironmentService,
     FooterEditorService,
     GitService,
     KeyboardManagerService,
     KeymapService,
+    LayoutManagerService,
     ListBuilderComponentService,
     MainCLIService,
     MenuComponentService,
@@ -93,6 +94,7 @@ import { LayoutManagerService } from '../services/meta/layout-manager.service';
     TableBuilderComponentService,
     TableService,
     TextRenderingService,
+    ThemeService,
   ],
 })
 export class MainCLIModule {}

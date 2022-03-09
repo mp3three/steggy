@@ -33,7 +33,7 @@ export class ApplicationManagerService implements iStackProvider {
 
   public async activate<CONFIG, VALUE>(
     name: string,
-    configuration: CONFIG,
+    configuration: CONFIG = {} as CONFIG,
   ): Promise<VALUE> {
     this.reset();
     return await new Promise(done => {
