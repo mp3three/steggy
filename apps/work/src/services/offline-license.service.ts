@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import { existsSync, readFileSync } from 'fs';
 import { sign } from 'jsonwebtoken';
 
-import { KEYFILE } from '../config';
+import { LOAD_FILE } from '../config';
 
 @Repl({
   category: '',
@@ -19,7 +19,7 @@ import { KEYFILE } from '../config';
 })
 export class OfflineLicenseService {
   constructor(
-    @InjectConfig(KEYFILE) private readonly keyFile: string,
+    @InjectConfig(LOAD_FILE) private readonly keyFile: string,
     private readonly promptService: PromptService,
     private readonly app: ApplicationManagerService,
     private readonly screen: ScreenService,

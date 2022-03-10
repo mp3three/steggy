@@ -1,0 +1,14 @@
+{
+  "configuration": {
+    "LOAD_FILE": {
+      "type": "string",
+      "description": "",
+      "required": true
+    },
+    "API_URL": {
+      "type": "string",
+      "description": "",
+      "required": true
+    }
+  }
+}

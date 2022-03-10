@@ -35,7 +35,7 @@ export class AuthService {
     this.client = new google.auth.OAuth2(this.clientId, this.clientSecret);
   }
 
-  private async getAccessToken(): Promise<void> {
+  public async getAccessToken(): Promise<void> {
     const authUrl = this.client.generateAuthUrl({
       access_type: 'offline',
       scope: ['https://www.googleapis.com/auth/calendar.readonly'],
@@ -44,6 +44,7 @@ export class AuthService {
     const code = await this.promptService.string(`Enter code from url`);
     const token = await this.client.getToken(code);
     this.client.setCredentials(token.tokens);
-    // this.screenService.print(token.);
+    this.screenService.print(JSON.stringify(token));
+    await this.promptService.acknowledge();
   }
 }

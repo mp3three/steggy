@@ -1,9 +1,0 @@
-{
-  "configuration": {
-    "KEYFILE": {
-      "type": "string",
-      "description": "Location of file containing signing key",
-      "required": true
-    }
-  }
-}

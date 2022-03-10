@@ -2,7 +2,6 @@
 /dist
 /tmp
 /out-tsc
-apps/work
 apps/**/yarn.lock
 /apps/**/deployments/**/*zip
 # Private keys

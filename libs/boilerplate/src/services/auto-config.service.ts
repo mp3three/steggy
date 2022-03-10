@@ -37,6 +37,7 @@ const START = 0;
 
 @Injectable()
 export class AutoConfigService {
+  public static APP_DIR?: string;
   public static DEFAULTS = new Map<string, Record<string, unknown>>();
   protected static USE_SCANNER_ASSETS = false;
 
@@ -57,6 +58,10 @@ export class AutoConfigService {
   private loadedConfigPath: string;
   private metadata = new Map<string, RepoMetadataDTO>();
   private switches = minimist(process.argv);
+
+  private get appName(): string {
+    return AutoConfigService.APP_DIR ?? this.APPLICATION.description;
+  }
 
   public get<T extends unknown = string>(path: string | [symbol, string]): T {
     if (Array.isArray(path)) {
@@ -292,7 +297,10 @@ export class AutoConfigService {
 
   private setDefaults(): void {
     this.metadata.forEach(({ configuration }, project) => {
-      const isApplication = this.APPLICATION.description === project;
+      const isApplication = this.appName === project;
+      if (isApplication) {
+        console.log(configuration);
+      }
       Object.keys(configuration).forEach(key => {
         if (!is.undefined(configuration[key].default)) {
           set(
