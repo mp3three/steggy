@@ -5,6 +5,11 @@
       "description": "",
       "required": true
     },
+    "LOAD_FILE2": {
+      "type": "string",
+      "description": "",
+      "required": true
+    },
     "API_URL": {
       "type": "string",
       "description": "",

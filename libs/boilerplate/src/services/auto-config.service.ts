@@ -151,7 +151,7 @@ export class AutoConfigService {
   private getConfiguration(path: string): ConfigItem {
     const parts = path.split('.');
     if (parts.length === 2) {
-      const metadata = this.metadata.get(this.APPLICATION.description);
+      const metadata = this.metadata.get(this.appName);
       return metadata.configuration[parts[1]];
     }
     const [, library, property] = parts;
@@ -280,7 +280,7 @@ export class AutoConfigService {
           cwd(),
           'dist',
           AutoConfigService.USE_SCANNER_ASSETS ? 'config-scanner' : 'apps',
-          this.APPLICATION.description,
+          this.appName,
           'assets',
         )
       : join(join(__dirname, 'assets'));

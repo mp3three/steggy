@@ -14,4 +14,4 @@ import { PDFDownloader } from '../services';
   ],
   providers: [PDFDownloader],
 })
-export class SupportToolsModule {}
+export class PDFDownloadModule {}

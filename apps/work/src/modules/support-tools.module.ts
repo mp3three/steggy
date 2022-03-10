@@ -1,11 +1,12 @@
 import { ApplicationModule, UtilitiesModule } from '@automagical/boilerplate';
 import { FormioSdkModule } from '@automagical/formio';
-import { MainCLIModule } from '@automagical/tty';
+import { CONFIG_APPLICATION_TITLE, MainCLIModule } from '@automagical/tty';
 import { DiscoveryModule } from '@nestjs/core';
 import { OfflineLicenseService, PDFDownloader } from '../services';
 
 @ApplicationModule({
   application: Symbol('support-tools'),
+  globals: [{ provide: CONFIG_APPLICATION_TITLE, useValue: 'FARM.IO' }],
   imports: [
     DiscoveryModule,
     MainCLIModule,

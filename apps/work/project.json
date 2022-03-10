@@ -6,7 +6,7 @@
     "serve": {
       "executor": "@nrwl/node:node",
       "options": {
-        "buildTarget": "work:build:downloader",
+        "buildTarget": "work:build",
         "inspect": "inspect",
         "port": 33336
       }
@@ -54,7 +54,7 @@
         ],
         "outputPath": "dist/apps/work",
         "generatePackageJson": true,
-        "main": "apps/work/src/entrypoints/main.ts",
+        "main": "apps/work/src/entrypoints/downloader.main.ts",
         "tsConfig": "apps/work/tsconfig.app.json"
       },
       "configurations": {
