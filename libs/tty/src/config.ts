@@ -18,3 +18,5 @@ export const TEXT_INFO = 'TEXT_INFO';
 export const TEXT_HELP = 'TEXT_HELP';
 export const TEXT_DETAILS = 'TEXT_DETAILS';
 export const LIB_TTY = Symbol('tty');
+
+export const CONFIG_APPLICATION_TITLE = Symbol('CONFIG_APPLICATION_TITLE');

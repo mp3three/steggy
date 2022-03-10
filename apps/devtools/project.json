@@ -37,6 +37,11 @@
             "output": "./assets/boilerplate"
           },
           {
+            "input": "libs/google",
+            "glob": "*.json",
+            "output": "./assets/google"
+          },
+          {
             "input": "libs/tty",
             "glob": "*.json",
             "output": "./assets/tty"

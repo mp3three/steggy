@@ -1,5 +1,7 @@
 import { CacheManagerService, InjectCache } from '@automagical/boilerplate';
 import { DOWN, is, UP, VALUE } from '@automagical/utilities';
+import { Inject, Optional } from '@nestjs/common';
+import { CONFIG_APPLICATION_TITLE } from '../config';
 
 import { iRepl, MainMenuEntry, MenuEntry, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
@@ -25,11 +27,14 @@ export class MainCLIService implements iRepl {
     private readonly pinnedItem: PinnedItemService,
     @InjectCache()
     private readonly cacheService: CacheManagerService,
+    @Optional()
+    @Inject(CONFIG_APPLICATION_TITLE)
+    private readonly applicationTitle = 'Script List',
   ) {}
   private last: ENTRY_TYPE;
 
   public async exec(): Promise<void> {
-    this.applicationManager.setHeader('Script List');
+    this.applicationManager.setHeader(this.applicationTitle);
     const name = await this.pickOne();
     if (!is.string(name)) {
       await this.pinnedItem.exec(name as PinnedItemDTO);

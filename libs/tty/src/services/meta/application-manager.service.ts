@@ -11,11 +11,13 @@ import {
 } from '../../config';
 import { ApplicationStackProvider, iStackProvider } from '../../contracts';
 import { iComponent } from '../../decorators';
+import { ansiMaxLength } from '../../includes';
 import { ComponentExplorerService } from '../explorers';
 import { LayoutManagerService } from './layout-manager.service';
 import { ScreenService } from './screen.service';
 
 // ? Is there anything else that needs to be kept track of?
+const LINE_PADDING = 2;
 
 @Injectable()
 @ApplicationStackProvider()
@@ -29,7 +31,7 @@ export class ApplicationManagerService implements iStackProvider {
     private readonly screenService: ScreenService,
   ) {}
   private activeApplication: iComponent;
-  private header: string;
+  private header = '';
 
   public async activate<CONFIG, VALUE>(
     name: string,
@@ -48,6 +50,10 @@ export class ApplicationManagerService implements iStackProvider {
       this.activeApplication = component;
       component.render();
     });
+  }
+
+  public headerLength(): number {
+    return ansiMaxLength(this.header) + LINE_PADDING;
   }
 
   public load(item: iComponent): void {
@@ -76,20 +82,19 @@ export class ApplicationManagerService implements iStackProvider {
           .join(`\n`),
     );
     if (is.empty(secondary)) {
+      this.header = primary;
       return;
     }
     secondary = figlet.textSync(secondary, {
       font: this.secondaryFont,
     });
-    this.screenService.print(
-      chalk
-        .magenta(secondary)
-        .split(`\n`)
-        .map(i => `  ${i}`)
-        .join(`\n`),
-    );
-
-    //  header.split(`\n`).pop().length;
+    secondary = chalk
+      .magenta(secondary)
+      .split(`\n`)
+      .map(i => `  ${i}`)
+      .join(`\n`);
+    this.screenService.print(secondary);
+    this.header = `${primary}\n${secondary}`;
   }
 
   private reset(): void {

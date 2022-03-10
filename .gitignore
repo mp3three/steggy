@@ -105,5 +105,6 @@ buck-out/
 **/ios/Pods/
 /
 
-apps/auto-dash-e2e/artifacts
+apps/**/artifacts
 .config
+/.*rc

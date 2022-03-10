@@ -1,6 +1,11 @@
-import { ApplicationModule, UtilitiesModule } from '@automagical/boilerplate';
-import { MainCLIModule } from '@automagical/tty';
+import {
+  ApplicationModule,
+  InjectConfig,
+  UtilitiesModule,
+} from '@automagical/boilerplate';
+import { CONFIG_APPLICATION_TITLE, MainCLIModule } from '@automagical/tty';
 import { DiscoveryModule } from '@nestjs/core';
+import { APP_TITLE } from '../config';
 
 import {
   AnimationService,
@@ -45,6 +50,13 @@ import {
 
 @ApplicationModule({
   application: Symbol('home-cli'),
+  globals: [
+    {
+      provide: CONFIG_APPLICATION_TITLE,
+      inject: [InjectConfig.inject(APP_TITLE)],
+      useFactory: (title: string) => title,
+    },
+  ],
   imports: [DiscoveryModule, MainCLIModule, UtilitiesModule.forRoot()],
   providers: [
     ...[

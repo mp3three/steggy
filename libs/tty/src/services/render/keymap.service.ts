@@ -4,7 +4,7 @@ import chalk from 'chalk';
 
 import { tKeyMap } from '../../contracts';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
-import { KeyboardManagerService } from '../meta';
+import { ApplicationManagerService, KeyboardManagerService } from '../meta';
 import { TextRenderingService } from './text-rendering.service';
 
 type keyItem = {
@@ -19,6 +19,7 @@ export class KeymapService {
     private readonly textRendering: TextRenderingService,
     @Inject(forwardRef(() => KeyboardManagerService))
     private readonly keyboardService: KeyboardManagerService,
+    private readonly applicationManager: ApplicationManagerService,
   ) {}
 
   public keymapHelp({
@@ -48,7 +49,9 @@ export class KeymapService {
     const maxLength =
       ansiMaxLength(help.split(`\n`), message.split(`\n`)) + LINE_PADDING;
     return [
-      chalk.blue.dim('='.repeat(maxLength)),
+      chalk.blue.dim(
+        '='.repeat(Math.max(maxLength, this.applicationManager.headerLength())),
+      ),
       ` `,
       this.textRendering.pad(help),
     ].join(`\n`);

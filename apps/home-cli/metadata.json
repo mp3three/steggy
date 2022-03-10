@@ -28,6 +28,11 @@
       "type": "number",
       "description": "Max width for ascii charts",
       "default": 150
+    },
+    "APP_TITLE": {
+      "type": "string",
+      "default": "Home CLI",
+      "description": "Default title for app"
     }
   }
 }

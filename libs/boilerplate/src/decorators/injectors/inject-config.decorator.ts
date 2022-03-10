@@ -35,3 +35,21 @@ export function InjectConfig(path: string, from?: symbol): ParameterDecorator {
     return Inject(id)(target, key, index);
   };
 }
+InjectConfig.inject = function (path: string, from?: symbol) {
+  const id = uuid();
+  CONFIG_PROVIDERS.add({
+    inject: [AutoConfigService, ACTIVE_APPLICATION],
+    provide: id,
+    useFactory(config: AutoConfigService, application: symbol) {
+      const configPath: string[] = [];
+      if (from) {
+        configPath.push('libs', from.description);
+      } else {
+        configPath.push('application');
+      }
+      configPath.push(path);
+      return config.get(configPath.join('.'));
+    },
+  });
+  return id;
+};

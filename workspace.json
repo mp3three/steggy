@@ -7,16 +7,17 @@
     "controller-shared": "libs/controller-shared",
     "devtools": "apps/devtools",
     "google": "libs/google",
-    "home-assistant": "libs/home-assistant",
     "home-assistant-shared": "libs/home-assistant-shared",
+    "home-assistant": "libs/home-assistant",
     "home-cli": "apps/home-cli",
     "home-controller": "apps/home-controller",
     "mqtt": "libs/mqtt",
     "persistence": "libs/persistence",
     "rules-engine": "libs/rules-engine",
-    "support-tools": "apps/support-tools",
     "server": "libs/server",
+    "support-tools": "apps/support-tools",
     "tty": "libs/tty",
-    "utilities": "libs/utilities"
+    "utilities": "libs/utilities",
+    "work": "apps/work"
   }
 }

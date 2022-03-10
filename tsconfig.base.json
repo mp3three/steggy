@@ -34,6 +34,7 @@
       "@automagical/controller-logic": ["libs/controller-logic/src/index.ts"],
       "@automagical/controller-shared": ["libs/controller-shared/src/index.ts"],
       "@automagical/formio": ["libs/formio/src/index.ts"],
+      "@automagical/google": ["libs/google/src/index.ts"],
       "@automagical/home-assistant": ["libs/home-assistant/src/index.ts"],
       "@automagical/home-assistant-shared": [
         "libs/home-assistant-shared/src/index.ts"
