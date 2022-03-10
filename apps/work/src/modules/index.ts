@@ -1,2 +1,2 @@
-export * from './support-tools.module';
-export * from './pdf-download.module';
+// ! KEEP THIS FILE EMPTY!
+// ! NO BARRELING ALLOWED, CAUSES BUILD ISSUES

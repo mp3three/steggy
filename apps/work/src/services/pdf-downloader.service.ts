@@ -30,7 +30,7 @@ type ROW = Record<COLUMNS, string>;
 })
 export class PDFDownloader {
   constructor(
-    @InjectConfig('LOAD_FILE2') private readonly csvFile: string,
+    @InjectConfig(LOAD_FILE) private readonly csvFile: string,
     @InjectConfig(API_URL) private readonly apiUrl: string,
     private readonly promptService: PromptService,
     private readonly logger: AutoLogService,
