@@ -8,6 +8,7 @@
     "url": "https://git.programmable.work/cameron/automagical"
   },
   "scripts": {
+    "controller": "npx nx build-docker home-controller",
     "pipeline": "./tools/scripts/publish-pipeline.sh",
     "lint": "npx nx run-many --all --target=lint --fix",
     "nx": "npx nx"
