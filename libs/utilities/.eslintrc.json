@@ -4,7 +4,10 @@
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "rules": {}
+      "rules": {},
+      "parserOptions": {
+        "project": ["libs/utilities/tsconfig.lib.json"]
+      }
     },
     {
       "files": ["*.ts", "*.tsx"],

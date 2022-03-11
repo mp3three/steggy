@@ -7,6 +7,9 @@
       "rules": {
         "no-console": "off",
         "security/detect-object-injection": "off"
+      },
+      "parserOptions": {
+        "project": ["libs/tty/tsconfig.lib.json"]
       }
     },
     {

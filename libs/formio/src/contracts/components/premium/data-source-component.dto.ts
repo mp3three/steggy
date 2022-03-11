@@ -1,4 +1,5 @@
 import { HTTP_METHODS } from '@automagical/utilities';
+
 import { BaseComponentDTO } from '../base-component.dto';
 import { ComponentTypes } from '../enums';
 import { LABEL_VALUE } from '../include';

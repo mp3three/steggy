@@ -1,4 +1,4 @@
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop } from '@nestjs/mongoose';
 import {
   IsEnum,
   IsNumber,
@@ -6,8 +6,8 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { ActionConditionDTO } from './action-condition.dto';
 
+import { ActionConditionDTO } from './action-condition.dto';
 import { BaseDTO } from './base.dto';
 import { ACTION_NAMES, HANDLERS } from './constants';
 import { TransformObjectId } from './transform-object-id.decorator';
@@ -16,15 +16,24 @@ export class ActionDTO<
   SETTINGS extends Record<never, string> = Record<never, string>,
 > extends BaseDTO {
   /**
-   * Which action to run
+   * Conditionals to prevent running the action from running
    */
-  @IsEnum(ACTION_NAMES)
-  public name: ACTION_NAMES;
+  @ValidateNested()
+  @IsOptional()
+  public condition?: ActionConditionDTO;
+  @IsString()
+  @IsOptional()
+  @TransformObjectId()
+  public form: string;
   /**
    * When this action should run
    */
   @IsEnum(HANDLERS, { each: true })
   public handler: HANDLERS[];
+  @IsString()
+  @Prop()
+  @IsOptional()
+  public machineName?: string;
   /**
    * Trigger action on methods
    */
@@ -33,6 +42,11 @@ export class ActionDTO<
     required: true,
   })
   public method: string[];
+  /**
+   * Which action to run
+   */
+  @IsEnum(ACTION_NAMES)
+  public name: ACTION_NAMES;
   /**
    * FIXME: What is this? Can controlled on the UI? Which direction is it sorted?
    */
@@ -43,10 +57,12 @@ export class ActionDTO<
     index: true,
   })
   public priority?: number;
-  @IsString()
+  /**
+   * Settings provided by specific action
+   */
+  @ValidateNested()
   @IsOptional()
-  @TransformObjectId()
-  public form: string;
+  public settings?: SETTINGS;
   /**
    * User understandable title
    */
@@ -56,20 +72,4 @@ export class ActionDTO<
     required: true,
   })
   public title: string;
-  @IsString()
-  @Prop()
-  @IsOptional()
-  public machineName?: string;
-  /**
-   * Conditionals to prevent running the action from running
-   */
-  @ValidateNested()
-  @IsOptional()
-  public condition?: ActionConditionDTO;
-  /**
-   * Settings provided by specific action
-   */
-  @ValidateNested()
-  @IsOptional()
-  public settings?: SETTINGS;
 }

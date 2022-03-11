@@ -4,8 +4,9 @@
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "rules": {
-        "unicorn/no-null": "off"
+      "rules": {},
+      "parserOptions": {
+        "project": ["libs/persistence/tsconfig.lib.json"]
       }
     },
     {

@@ -15,6 +15,10 @@
     "REDIRECT_URL": {
       "type": "string",
       "description": "For authentication"
+    },
+    "AUTH_TOKEN": {
+      "type": "string",
+      "description": "For authentication"
     }
   }
 }

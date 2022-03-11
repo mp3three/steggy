@@ -1,7 +1,6 @@
 import { LibraryModule } from '@automagical/boilerplate';
-import { Global, Module } from '@nestjs/common';
-import { LIB_FORMIO } from '../config';
 
+import { LIB_FORMIO } from '../config';
 import {
   FormioFetchService,
   FormService,

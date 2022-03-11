@@ -52,6 +52,6 @@ export class LoggingInterceptor implements NestInterceptor {
   }
 
   private ignorePath(path: string): boolean {
-    return ['/health'].some(str => path.endsWith(str));
+    return ['/health'].some(string_ => path.endsWith(string_));
   }
 }

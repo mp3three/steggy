@@ -1,7 +1,7 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
 import { HassStateDTO } from '@automagical/home-assistant-shared';
 import { TransformObjectId } from '@automagical/persistence';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
 import {
   IsDateString,
@@ -12,6 +12,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+
 import { RoomStateDTO } from '../rooms';
 
 export class RoomSettingDTO {

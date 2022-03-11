@@ -4,7 +4,7 @@ import { DiscoveryModule } from '@nestjs/core';
 import { GoogleModule } from '@automagical/google';
 
 import {
-  CalendarService,
+  DevCalendarService,
   ChangelogService,
   ImgurAlbumDownloadService,
 } from '../services';
@@ -12,11 +12,16 @@ import {
 @ApplicationModule({
   application: Symbol('devtools'),
   globals: [{ provide: CONFIG_APPLICATION_TITLE, useValue: 'Devtools' }],
-  imports: [DiscoveryModule, MainCLIModule, UtilitiesModule.forRoot()],
+  imports: [
+    DiscoveryModule,
+    MainCLIModule,
+    GoogleModule,
+    UtilitiesModule.forRoot(),
+  ],
   providers: [
     ImgurAlbumDownloadService,
     ChangelogService,
-    CalendarService,
+    DevCalendarService,
     GoogleModule,
   ],
 })

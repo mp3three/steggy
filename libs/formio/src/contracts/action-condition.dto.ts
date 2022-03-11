@@ -8,7 +8,13 @@ import { ACTION_CONDITION_EQ } from './constants';
  */
 @Schema()
 export class ActionConditionDTO {
-  // #region Object Properties
+  /**
+   * Custom javascript or [JSON](https://jsonlogic.com/)
+   */
+  @IsString()
+  @IsOptional()
+  @Prop()
+  public custom?: string;
 
   /**
    * Equals vs not equals
@@ -20,13 +26,6 @@ export class ActionConditionDTO {
     type: 'enum',
   })
   public eq?: ACTION_CONDITION_EQ;
-  /**
-   * Custom javascript or [JSON](https://jsonlogic.com/)
-   */
-  @IsString()
-  @IsOptional()
-  @Prop()
-  public custom?: string;
   /**
    * Field key
    */
@@ -41,6 +40,4 @@ export class ActionConditionDTO {
   @IsOptional()
   @Prop()
   public value?: string;
-
-  // #endregion Object Properties
 }

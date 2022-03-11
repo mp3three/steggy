@@ -1,9 +1,15 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable unicorn/no-null */
 
-import { FILTER_OPERATIONS, is, ResultControlDTO } from '@automagical/utilities';
+import {
+  FILTER_OPERATIONS,
+  is,
+  ResultControlDTO,
+} from '@automagical/utilities';
 import { Document, Query, Types } from 'mongoose';
 
 import { filtersToMongoQuery } from '../includes';
+
+const SELECTED = 1;
 
 export class BaseMongoService {
   protected merge(
@@ -44,7 +50,7 @@ export class BaseMongoService {
     }
     if (control.select) {
       const map = new Map<string, number>();
-      control.select.forEach(field => map.set(field, 1));
+      control.select.forEach(field => map.set(field, SELECTED));
       query = query.select(Object.fromEntries(map.entries()));
     }
     return query;

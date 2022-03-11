@@ -40,7 +40,7 @@ InjectConfig.inject = function (path: string, from?: symbol) {
   CONFIG_PROVIDERS.add({
     inject: [AutoConfigService, ACTIVE_APPLICATION],
     provide: id,
-    useFactory(config: AutoConfigService, application: symbol) {
+    useFactory(config: AutoConfigService) {
       const configPath: string[] = [];
       if (from) {
         configPath.push('libs', from.description);

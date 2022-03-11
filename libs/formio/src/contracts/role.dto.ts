@@ -1,5 +1,5 @@
 import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
-import { Schema as MongooseSchema } from 'mongoose';
+
 import { DBFake } from './database-fake.dto';
 
 export class RoleDTO extends DBFake {

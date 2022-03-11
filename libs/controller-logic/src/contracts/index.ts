@@ -1,1 +1,1 @@
-export * from './server-metadata.dto';
+export * from './metadata.dto';

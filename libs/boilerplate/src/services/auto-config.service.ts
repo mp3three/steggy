@@ -298,9 +298,6 @@ export class AutoConfigService {
   private setDefaults(): void {
     this.metadata.forEach(({ configuration }, project) => {
       const isApplication = this.appName === project;
-      if (isApplication) {
-        console.log(configuration);
-      }
       Object.keys(configuration).forEach(key => {
         if (!is.undefined(configuration[key].default)) {
           set(

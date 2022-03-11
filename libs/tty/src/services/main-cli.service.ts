@@ -1,8 +1,8 @@
 import { CacheManagerService, InjectCache } from '@automagical/boilerplate';
 import { DOWN, is, UP, VALUE } from '@automagical/utilities';
 import { Inject, Optional } from '@nestjs/common';
-import { CONFIG_APPLICATION_TITLE } from '../config';
 
+import { CONFIG_APPLICATION_TITLE } from '../config';
 import { iRepl, MainMenuEntry, MenuEntry, ReplOptions } from '../contracts';
 import { Repl } from '../decorators';
 import { ReplExplorerService } from './explorers';

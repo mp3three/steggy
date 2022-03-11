@@ -116,6 +116,7 @@ function resolve(filter: FilterDTO) {
     filter.value = [filter.value as string, false];
   } else if (filter.value === 'null') {
     filter.operation = FILTER_OPERATIONS.in;
+    // eslint-disable-next-line unicorn/no-null
     filter.value = [filter.value as string, null];
   }
 }

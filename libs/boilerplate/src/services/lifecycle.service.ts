@@ -1,5 +1,5 @@
-import { INestApplication, Injectable } from '@nestjs/common';
 import { eachSeries } from '@automagical/utilities';
+import { INestApplication, Injectable } from '@nestjs/common';
 import { Express } from 'express';
 
 import { iLifecycle } from '../contracts/lifecycle';
