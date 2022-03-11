@@ -24,6 +24,12 @@
         "request": "attach",
         "port": 33336
       },
+      {
+        "name": "Work",
+        "type": "node",
+        "request": "attach",
+        "port": 33335
+      },
     ]
   },
   "extensions": {
@@ -66,9 +72,7 @@
       ".pino-prettyrc": "json",
       "home-controller": "ini",
       "home-cli": "ini",
-      "devtools": "ini",
-      "dashboard": "ini",
-      "trade": "ini"
+      "devtools": "ini"
     },
     "files.exclude": {
       "**/.git": true,
@@ -93,9 +97,7 @@
       "**/jest.*.js": true,
       "**/.babelrc": true,
       "**/.prettierignore": true,
-      ".editorconfig": true,
-      "apps/*/ios": true,
-      "apps/*/android": true
+      ".editorconfig": true
     },
     "prettier.arrowParens": "avoid",
 

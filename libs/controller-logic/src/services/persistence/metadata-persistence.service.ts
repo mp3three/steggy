@@ -1,14 +1,13 @@
 import { AutoLogService, CastResult } from '@automagical/boilerplate';
+import { MetadataDocument, MetadataDTO } from '@automagical/controller-shared';
 import { BaseMongoService, BaseSchemaDTO } from '@automagical/persistence';
 import { is, ResultControlDTO } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { MetadataDocument, MetadataDTO } from '../../contracts';
-
 @Injectable()
-export class ServerMetadataPersistenceService extends BaseMongoService {
+export class MetadataPersistenceService extends BaseMongoService {
   constructor(
     private readonly logger: AutoLogService,
     @InjectModel(MetadataDTO.name)
@@ -18,11 +17,13 @@ export class ServerMetadataPersistenceService extends BaseMongoService {
   }
 
   @CastResult(MetadataDTO)
-  public async create(
-    item: Omit<MetadataDTO, keyof BaseSchemaDTO>,
-  ): Promise<MetadataDTO> {
+  public async create<T>(
+    item: Omit<MetadataDTO<T>, keyof BaseSchemaDTO>,
+  ): Promise<MetadataDTO<T>> {
     // eslint-disable-next-line unicorn/no-await-expression-member
-    item = (await this.ServerMetadataModel.create(item)).toObject();
+    item = (
+      await this.ServerMetadataModel.create(item)
+    ).toObject() as MetadataDTO<T>;
     return item;
   }
 
@@ -37,10 +38,10 @@ export class ServerMetadataPersistenceService extends BaseMongoService {
   }
 
   @CastResult(MetadataDTO)
-  public async findById(
+  public async findById<T>(
     state: string,
     { control }: { control?: ResultControlDTO } = {},
-  ): Promise<MetadataDTO> {
+  ): Promise<MetadataDTO<T>> {
     const query = this.merge(state, control);
     const out = await this.modifyQuery(
       control,
@@ -48,13 +49,13 @@ export class ServerMetadataPersistenceService extends BaseMongoService {
     )
       .lean()
       .exec();
-    return out;
+    return out as MetadataDTO<T>;
   }
 
   @CastResult(MetadataDTO)
-  public async findMany(
+  public async findMany<T>(
     control: ResultControlDTO = {},
-  ): Promise<MetadataDTO[]> {
+  ): Promise<MetadataDTO<T>[]> {
     const query = this.merge(control);
     const out = await this.modifyQuery(
       control,
@@ -62,27 +63,27 @@ export class ServerMetadataPersistenceService extends BaseMongoService {
     )
       .lean()
       .exec();
-    return out;
+    return out as MetadataDTO<T>[];
   }
 
-  public async save(item: MetadataDTO): Promise<MetadataDTO> {
+  public async save<T>(item: MetadataDTO<T>): Promise<MetadataDTO<T>> {
     if (item._id) {
       return await this.update(item, item._id);
     }
     return await this.create(item);
   }
 
-  public async update(
-    state: Omit<Partial<MetadataDTO>, keyof BaseSchemaDTO>,
+  public async update<T>(
+    state: Omit<Partial<MetadataDTO<T>>, keyof BaseSchemaDTO>,
     id: string,
-  ): Promise<MetadataDTO> {
+  ): Promise<MetadataDTO<T>> {
     const query = this.merge(id);
     const result = await this.ServerMetadataModel.updateOne(
       query,
       state,
     ).exec();
     if (result.acknowledged) {
-      return await this.findById(id);
+      return await this.findById<T>(id);
     }
   }
 }

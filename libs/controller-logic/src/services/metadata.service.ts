@@ -1,62 +1,94 @@
 import { AutoLogService } from '@automagical/boilerplate';
-import { EntityMetadataDTO } from '@automagical/controller-shared';
+import { MetadataDTO } from '@automagical/controller-shared';
+import { SINGLE } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 
 import { ENTITY_METADATA_UPDATED } from '../types';
-import { EntityMetadataPersistenceService } from './persistence';
+import { MetadataPersistenceService } from './persistence';
+
+type EntityMetadata = {
+  entity: string;
+  flags?: string[];
+};
+const METADATA_TYPE = 'entity';
 
 @Injectable()
 export class MetadataService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
-    private readonly entityMetadataPersistence: EntityMetadataPersistenceService,
+    private readonly metadataPersistence: MetadataPersistenceService,
   ) {}
 
   public async addFlag(
     entity: string,
     flag: string,
-  ): Promise<EntityMetadataDTO> {
-    const metadata = (await this.entityMetadataPersistence.findByEntityId(
-      entity,
-    )) ?? { entity };
-    metadata.flags ??= [];
-    if (!metadata.flags.includes(flag)) {
-      metadata.flags.push(flag);
+  ): Promise<MetadataDTO<EntityMetadata>> {
+    const result = ((await this.findByEntityId(entity)) ?? {
+      type: METADATA_TYPE,
+    }) as MetadataDTO<EntityMetadata>;
+    result.data ??= { entity };
+    result.data.flags ??= [];
+    if (!result.data.flags.includes(flag)) {
+      result.data.flags.push(flag);
     }
-    const out = await this.entityMetadataPersistence.save(metadata);
+    const out = await this.metadataPersistence.save<EntityMetadata>(result);
     process.nextTick(() => this.eventEmitter.emit(ENTITY_METADATA_UPDATED));
     return out;
   }
 
   public async findWithFlag(flag: string): Promise<string[]> {
-    const list = await this.entityMetadataPersistence.findMany({
+    const list = await this.metadataPersistence.findMany<EntityMetadata>({
       filters: new Set([
         {
-          field: 'flags',
+          field: 'data.flags',
           value: flag,
+        },
+        {
+          field: 'type',
+          value: METADATA_TYPE,
         },
       ]),
     });
-    return list.map(({ entity }) => entity);
+    return list.map(({ data }) => data.entity);
   }
 
-  public async getMetadata(entity: string): Promise<EntityMetadataDTO> {
-    return await this.entityMetadataPersistence.findByEntityId(entity);
+  public async getMetadata(
+    entity: string,
+  ): Promise<MetadataDTO<EntityMetadata>> {
+    return await this.findByEntityId(entity);
   }
 
   public async removeFlag(
     entity: string,
     flag: string,
-  ): Promise<EntityMetadataDTO> {
-    const metadata = (await this.entityMetadataPersistence.findByEntityId(
-      entity,
-    )) ?? { entity };
-    metadata.flags ??= [];
-    metadata.flags = metadata.flags.filter(i => i !== flag);
-    const out = await this.entityMetadataPersistence.save(metadata);
+  ): Promise<MetadataDTO<EntityMetadata>> {
+    const result = ((await this.findByEntityId(entity)) ?? {
+      type: METADATA_TYPE,
+    }) as MetadataDTO<EntityMetadata>;
+    result.data ??= { entity };
+    result.data.flags ??= [];
+    result.data.flags = result.data.flags.filter(i => i !== flag);
+    const out = await this.metadataPersistence.save(result);
     process.nextTick(() => this.eventEmitter.emit(ENTITY_METADATA_UPDATED));
     return out;
+  }
+
+  private async findByEntityId(entity): Promise<MetadataDTO<EntityMetadata>> {
+    const [search] = await this.metadataPersistence.findMany<EntityMetadata>({
+      filters: new Set([
+        {
+          field: 'data.entity',
+          value: entity,
+        },
+        {
+          field: 'type',
+          value: METADATA_TYPE,
+        },
+      ]),
+      limit: SINGLE,
+    });
+    return search;
   }
 }

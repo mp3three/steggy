@@ -132,7 +132,7 @@ export class EntityController {
   @Get('/flags/:entityId')
   public async listFlags(@Param('entityId') entity: string): Promise<string[]> {
     const metadata = await this.metadataService.getMetadata(entity);
-    return metadata?.flags ?? [];
+    return metadata?.data.flags ?? [];
   }
 
   @Post(`/record/:entityId`)

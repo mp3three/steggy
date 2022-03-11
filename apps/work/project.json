@@ -8,7 +8,7 @@
       "options": {
         "buildTarget": "work:build",
         "inspect": "inspect",
-        "port": 33336
+        "port": 33335
       }
     },
     "build": {

@@ -1,13 +1,16 @@
 ---
 version: "2.1"
 
+volumes:
+  mongo:
+
 services:
   home-controller:
     image: containers.programmable.work/home-controller:latest
     container_name: home-controller
     volumes:
       # Configuration
-      - /mnt/tier_1/automagical/config:/.home-controllerrc
+      - /path/to/config:/.home-controllerrc
     restart: unless-stopped
     depends_on:
       - redis
@@ -16,7 +19,7 @@ services:
       - redis
       - mongo
     ports:
-      - 7009:3000
+      - 7000:7000
 
   redis:
     container_name: home-controller_redis
@@ -25,9 +28,7 @@ services:
 
   mongo:
     container_name: home-controller_mongo
-    image: mongo:4.4.12
+    image: mongo
     restart: unless-stopped
-    ports:
-      - 27020:27017
     volumes:
-      - /mnt/tier_1/automagical/mongo:/data/db
+      - mongo:/data/db
