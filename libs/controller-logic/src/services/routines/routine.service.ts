@@ -19,6 +19,7 @@ import {
   RoutineCommandWebhookDTO,
   RoutineDTO,
   ScheduleActivateDTO,
+  SetRoomMetadataCommandDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
 } from '@automagical/controller-shared';
@@ -43,6 +44,7 @@ import {
   LightFlashCommandService,
   RoutineTriggerService,
   SendNotificationService,
+  SetRoomMetadataService,
   SleepCommandService,
   StopProcessingCommandService,
   WebhookService,
@@ -67,6 +69,8 @@ export class RoutineService {
     private readonly roomService: RoomService,
     private readonly routinePersistence: RoutinePersistenceService,
     private readonly scheduleActivate: ScheduleActivateService,
+    @Inject(forwardRef(() => SetRoomMetadataService))
+    private readonly setMetadataService: SetRoomMetadataService,
     private readonly solarService: SolarActivateService,
     @Inject(forwardRef(() => RoutineTriggerService))
     private readonly triggerService: RoutineTriggerService,
@@ -126,6 +130,11 @@ export class RoutineService {
         await this.sendNotification.activate(
           command.command as RoutineCommandSendNotificationDTO,
           waitForChange,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.set_room_metadata:
+        await this.setMetadataService.activate(
+          command.command as SetRoomMetadataCommandDTO,
         );
         break;
       case ROUTINE_ACTIVATE_COMMAND.light_flash:

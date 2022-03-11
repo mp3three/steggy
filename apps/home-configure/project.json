@@ -1,6 +1,6 @@
 {
-  "root": "apps/automations",
-  "sourceRoot": "apps/automations/src",
+  "root": "apps/home-configure",
+  "sourceRoot": "apps/home-configure/src",
   "projectType": "application",
   "targets": {
     "build": {
@@ -8,18 +8,18 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "compiler": "babel",
-        "outputPath": "dist/apps/automations",
-        "index": "apps/automations/src/index.html",
+        "outputPath": "dist/apps/home-configure",
+        "index": "apps/home-configure/src/index.html",
         "defaultConfiguration": "development",
         "baseHref": "/",
-        "main": "apps/automations/src/main.tsx",
-        "polyfills": "apps/automations/src/polyfills.ts",
-        "tsConfig": "apps/automations/tsconfig.app.json",
+        "main": "apps/home-configure/src/main.tsx",
+        "polyfills": "apps/home-configure/src/polyfills.ts",
+        "tsConfig": "apps/home-configure/tsconfig.app.json",
         "assets": [
-          "apps/automations/src/favicon.ico",
-          "apps/automations/src/assets"
+          "apps/home-configure/src/favicon.ico",
+          "apps/home-configure/src/assets"
         ],
-        "styles": ["apps/automations/src/styles.css"],
+        "styles": ["apps/home-configure/src/styles.css"],
         "scripts": [],
         "webpackConfig": "@nrwl/react/plugins/webpack"
       },
@@ -28,8 +28,8 @@
           "defaultConfiguration": "production",
           "fileReplacements": [
             {
-              "replace": "apps/automations/src/environments/environment.ts",
-              "with": "apps/automations/src/environments/environment.prod.ts"
+              "replace": "apps/home-configure/src/environments/environment.ts",
+              "with": "apps/home-configure/src/environments/environment.prod.ts"
             }
           ],
           "optimization": true,
@@ -44,13 +44,13 @@
     "serve": {
       "executor": "@nrwl/web:dev-server",
       "options": {
-        "buildTarget": "automations:build:development",
+        "buildTarget": "home-configure:build:development",
         "hmr": true,
         "host": "0.0.0.0"
       },
       "configurations": {
         "production": {
-          "buildTarget": "automations:build:production",
+          "buildTarget": "home-configure:build:production",
           "hmr": false
         }
       }
@@ -59,14 +59,14 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/automations/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["apps/home-configure/**/*.{ts,tsx,js,jsx}"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/automations"],
+      "outputs": ["coverage/apps/home-configure"],
       "options": {
-        "jestConfig": "apps/automations/jest.config.js",
+        "jestConfig": "apps/home-configure/jest.config.js",
         "passWithNoTests": true
       }
     }

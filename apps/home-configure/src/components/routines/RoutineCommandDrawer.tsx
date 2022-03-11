@@ -13,6 +13,7 @@ import {
   RoutineCommandTriggerRoutineDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
+  SetRoomMetadataCommandDTO,
 } from '@automagical/controller-shared';
 import { is } from '@automagical/utilities';
 import {
@@ -39,6 +40,7 @@ import {
   StopProcessingCommand,
   TriggerRoutineCommand,
 } from './command';
+import { RoomSetMetadataCommand } from './command/RoomSetMetadata';
 import { WebhookCommand } from './command/WebhookCommand';
 
 type tState = {
@@ -152,6 +154,13 @@ export class RoutineCommandDrawer extends React.Component<
             command={
               this.state.command.command as RoutineCommandStopProcessingDTO
             }
+          />
+        );
+      case 'set_room_metadata':
+        return (
+          <RoomSetMetadataCommand
+            onUpdate={this.onUpdate.bind(this)}
+            command={this.state.command.command as SetRoomMetadataCommandDTO}
           />
         );
       case 'entity_state':

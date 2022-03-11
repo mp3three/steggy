@@ -110,6 +110,9 @@ export class CommandList extends React.Component<{
                         Trigger Routine
                       </Select.Option>
                       <Select.Option value="webhook">Webhook</Select.Option>
+                      <Select.Option value="set_room_metadata">
+                        Set Room Metadata
+                      </Select.Option>
                     </Select>
                   </Form.Item>
                 </Form>

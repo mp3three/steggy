@@ -9,7 +9,7 @@
         "no-console": "off"
       },
       "parserOptions": {
-        "project": ["apps/automations/tsconfig.app.json"]
+        "project": ["apps/home-configure/tsconfig.app.json"]
       }
     },
     {

@@ -7,7 +7,7 @@ COPY --chown=node:node . .
 RUN yarn install --frozen-lockfile
 # Build UI
 RUN npx figlet-cli -f Pagga Building UI
-RUN npx nx build automations --configuration=production
+RUN npx nx build home-configure --configuration=production
 # Build Backend
 RUN npx figlet-cli -f Pagga Building Backend
 RUN npx nx build home-controller --configuration=production
@@ -73,7 +73,7 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY --from=build /app/dist/apps/home-controller/minified.js ./main.js
 COPY --from=build /app/dist/apps/home-controller/package.json ./package.json
 COPY --from=build /app/dist/apps/home-controller/assets ./assets
-COPY --from=build /app/dist/apps/automations ./ui
+COPY --from=build /app/dist/apps/home-configure ./ui
 
 HEALTHCHECK CMD curl --fail http://localhost:7000/api/health
 CMD ["node", "./main.js"]
