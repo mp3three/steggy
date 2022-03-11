@@ -6,6 +6,9 @@
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
         "radar/no-duplicate-string": "off"
+      },
+      "parserOptions": {
+        "project": ["apps/home-controller/tsconfig.app.json"]
       }
     },
     {

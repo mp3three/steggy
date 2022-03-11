@@ -1,6 +1,7 @@
 import { Bootstrap, BootstrapOptions } from '@automagical/boilerplate';
 import { MainCLIService } from '@automagical/tty';
 import { show } from 'cli-cursor';
+
 import { SupportToolsModule } from '../modules/support-tools.module';
 
 const FINISH_BOOTSTRAPPING = 10;

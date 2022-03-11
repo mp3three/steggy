@@ -7,6 +7,9 @@
       "rules": {
         "security/detect-object-injection": "off",
         "no-console": "off"
+      },
+      "parserOptions": {
+        "project": ["apps/devtools/tsconfig.app.json"]
       }
     },
     {

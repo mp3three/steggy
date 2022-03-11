@@ -1,11 +1,11 @@
 import { ApplicationModule, UtilitiesModule } from '@automagical/boilerplate';
+import { GoogleModule } from '@automagical/google';
 import { CONFIG_APPLICATION_TITLE, MainCLIModule } from '@automagical/tty';
 import { DiscoveryModule } from '@nestjs/core';
-import { GoogleModule } from '@automagical/google';
 
 import {
-  DevCalendarService,
   ChangelogService,
+  DevCalendarService as DevelopmentCalendarService,
   ImgurAlbumDownloadService,
 } from '../services';
 
@@ -21,7 +21,7 @@ import {
   providers: [
     ImgurAlbumDownloadService,
     ChangelogService,
-    DevCalendarService,
+    DevelopmentCalendarService,
     GoogleModule,
   ],
 })

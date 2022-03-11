@@ -13,6 +13,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 import execa from 'execa';
 import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
+
 import { API_URL, LOAD_FILE } from '../config';
 
 type COLUMNS =
@@ -38,8 +39,8 @@ export class PDFDownloader {
     private readonly fetchService: FormioFetchService,
   ) {}
 
-  private rows: ROW[];
   private forms = new Map<string, FormDTO>();
+  private rows: ROW[];
 
   public async exec(): Promise<void> {
     this.app.setHeader('PDF Exporter');
@@ -65,7 +66,7 @@ export class PDFDownloader {
     }
   }
 
-  protected async onModuleInit(): Promise<void> {
+  protected onModuleInit(): void {
     if (!existsSync(this.csvFile)) {
       throw new InternalServerErrorException(
         `No file at path: ${this.csvFile}`,
@@ -93,9 +94,9 @@ export class PDFDownloader {
       );
     }
     const form = this.forms.get(row.FormId);
-    const dir = `${form._id} - ${form.name}`;
-    if (!existsSync(dir)) {
-      mkdirSync(dir);
+    const folder = `${form._id} - ${form.name}`;
+    if (!existsSync(folder)) {
+      mkdirSync(folder);
     }
     this.logger.debug(
       `Retrieving pdf download token for {${row.SubmissionId}}`,
@@ -103,8 +104,8 @@ export class PDFDownloader {
     const endpoint = `/project/${form.project}/form/${form._id}/submission/${row.SubmissionId}/download`;
     const token = await this.fetchService.fetch<{ key: string; token: string }>(
       {
-        url: `/token`,
         headers: { 'x-allow': `GET:${endpoint}` },
+        url: `/token`,
       },
     );
     this.logger.info(`Downloading PDF {${row.SubmissionId}}`);
@@ -112,7 +113,7 @@ export class PDFDownloader {
     await execa(`curl`, [
       `${this.apiUrl}${endpoint}?token=${token.key}`,
       '-o',
-      join(dir, file),
+      join(folder, file),
     ]);
   }
 }

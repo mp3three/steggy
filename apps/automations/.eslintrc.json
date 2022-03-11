@@ -7,6 +7,9 @@
       "rules": {
         "unicorn/filename-case":"off",
         "no-console": "off"
+      },
+      "parserOptions": {
+        "project": ["apps/automations/tsconfig.app.json"]
       }
     },
     {

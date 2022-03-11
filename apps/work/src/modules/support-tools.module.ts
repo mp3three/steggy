@@ -2,7 +2,8 @@ import { ApplicationModule, UtilitiesModule } from '@automagical/boilerplate';
 import { FormioSdkModule } from '@automagical/formio';
 import { CONFIG_APPLICATION_TITLE, MainCLIModule } from '@automagical/tty';
 import { DiscoveryModule } from '@nestjs/core';
-import { OfflineLicenseService, PDFDownloader } from '../services';
+
+import { OfflineLicenseService } from '../services';
 
 @ApplicationModule({
   application: Symbol('support-tools'),
