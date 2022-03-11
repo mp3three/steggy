@@ -16,6 +16,7 @@ import {
   DeviceController,
   EntityController,
   GroupController,
+  MetadataController,
   RoomController,
   RoutineController,
 } from '../controllers';
@@ -34,6 +35,7 @@ const rootPath = join(__dirname, 'ui');
     GroupController,
     RoomController,
     RoutineController,
+    MetadataController,
   ],
   imports: [
     ServerModule,

@@ -3,6 +3,7 @@ import {
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
+  RoomMetadataDTO,
   RoomStateDTO,
   RoutineCommandRoomStateDTO,
 } from '@automagical/controller-shared';
@@ -72,6 +73,18 @@ export class RoomService {
     return await this.roomPersistence.update(room, room._id);
   }
 
+  public async addMetadata(room: RoomDTO | string): Promise<RoomDTO> {
+    room = await this.load(room);
+    room.metadata ??= [];
+    room.metadata.push({
+      id: uuid(),
+      name: '',
+      type: 'boolean',
+      value: false,
+    });
+    return await this.roomPersistence.update(room, room._id);
+  }
+
   public async addState(
     room: RoomDTO | string,
     state: RoomStateDTO,
@@ -127,6 +140,16 @@ export class RoomService {
     return await this.roomPersistence.update(room, room._id);
   }
 
+  public async deleteMetadata(
+    room: RoomDTO | string,
+    remove: string,
+  ): Promise<RoomDTO> {
+    room = await this.load(room);
+    room.metadata ??= [];
+    room.metadata = room.metadata.filter(({ id }) => id !== remove);
+    return await this.roomPersistence.update(room, room._id);
+  }
+
   public async deleteState(
     room: RoomDTO | string,
     state: string,
@@ -160,6 +183,19 @@ export class RoomService {
     id: string,
   ): Promise<RoomDTO> {
     return await this.roomPersistence.update(room, id);
+  }
+
+  public async updateMetadata(
+    room: string | RoomDTO,
+    id: string,
+    update: Partial<RoomMetadataDTO>,
+  ): Promise<RoomDTO> {
+    room = await this.load(room);
+    room.metadata ??= [];
+    room.metadata = room.metadata.map(i =>
+      i.id === id ? { ...i, ...update, id } : i,
+    );
+    return await this.update(room, room._id);
   }
 
   public async updateState(

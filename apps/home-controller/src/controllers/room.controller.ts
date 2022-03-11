@@ -3,6 +3,7 @@ import {
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
+  RoomMetadataDTO,
   RoomStateDTO,
 } from '@automagical/controller-shared';
 import { BaseSchemaDTO } from '@automagical/persistence';
@@ -33,7 +34,6 @@ export class RoomController {
     private readonly roomService: RoomService,
     private readonly groupService: GroupService,
   ) {}
-
   @Post(`/:room/state/:state`)
   @ApiGenericResponse()
   @ApiOperation({
@@ -59,6 +59,15 @@ export class RoomController {
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.addEntity(room, entity);
+    return await this.roomService.get(room, true, control);
+  }
+
+  @Post(`/:room/metadata`)
+  public async addMetadata(
+    @Param('room') room: string | RoomDTO,
+    @Locals() { control }: ResponseLocals,
+  ): Promise<RoomDTO> {
+    await this.roomService.addMetadata(room);
     return await this.roomService.get(room, true, control);
   }
 
@@ -140,6 +149,20 @@ export class RoomController {
     return await this.roomService.get(room, true, control);
   }
 
+  @Delete(`/:room/metadata/:metadata`)
+  @ApiResponse({ type: RoomDTO })
+  @ApiOperation({
+    description: `Remove metadata from room`,
+  })
+  public async deleteMetadata(
+    @Param('room') room: string,
+    @Param('metadata') metadata: string,
+    @Locals() { control }: ResponseLocals,
+  ): Promise<RoomDTO> {
+    await this.roomService.deleteMetadata(room, metadata);
+    return await this.roomService.get(room, true, control);
+  }
+
   @Delete(`/:room/state/:state`)
   @ApiResponse({ type: RoomDTO })
   @ApiOperation({
@@ -212,6 +235,22 @@ export class RoomController {
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
     await this.roomService.update(BaseSchemaDTO.cleanup(data), room);
+    return await this.roomService.get(room, true, control);
+  }
+
+  @Put(`/:room/metadata/:metadata`)
+  @ApiBody({ type: RoomStateDTO })
+  @ApiResponse({ type: RoomStateDTO })
+  @ApiOperation({
+    description: `Modify room metadata`,
+  })
+  public async updateMetadata(
+    @Param('room') room: string,
+    @Param('metadata') metadata: string,
+    @Body() data: RoomMetadataDTO,
+    @Locals() { control }: ResponseLocals,
+  ): Promise<RoomDTO> {
+    await this.roomService.updateMetadata(room, metadata, data);
     return await this.roomService.get(room, true, control);
   }
 

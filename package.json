@@ -11,7 +11,8 @@
     "controller": "npx nx build-docker home-controller",
     "pipeline": "./tools/scripts/publish-pipeline.sh",
     "lint": "npx nx run-many --all --target=lint --fix",
-    "nx": "npx nx"
+    "nx": "npx nx",
+    "nx-migrate": "npx nx migrate --latest"
   },
   "dependencies": {
     "@2fd/ant-design-icons": "^2.5.0",

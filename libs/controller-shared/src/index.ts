@@ -5,6 +5,7 @@ export * from './entity-filters.dto';
 export * from './entity-history.dto';
 export * from './events';
 export * from './group-command.dto';
+export * from './meta';
 export * from './room-controller';
 export * from './rooms';
 export * from './routine-activate-options.dto';

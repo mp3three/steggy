@@ -13,7 +13,6 @@ export class RoutineActivateCron extends React.Component<
   tState
 > {
   override state = {} as tState;
-  private input: Input;
 
   override componentDidMount(): void {
     if (this.props.activate) {
@@ -57,7 +56,6 @@ export class RoutineActivateCron extends React.Component<
         <Divider />
         <Form.Item label="Cron Schedule">
           <Input
-            ref={i => (this.input = i)}
             value={this.state.schedule}
             onChange={this.updateValue.bind(this)}
           />

@@ -126,6 +126,9 @@ export class StateChangeActivateService {
   }
 
   private description(item: StateChangeWatcher): string {
-    return `[${item.entity}] ${item.operation} {${item.value}}`;
+    const value = Array.isArray(item.value)
+      ? item.value.join(', ')
+      : item.value;
+    return `[${item.entity}] ${item.operation} {${value}}`;
   }
 }

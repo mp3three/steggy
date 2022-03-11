@@ -38,6 +38,10 @@ export class MetadataService {
     return out;
   }
 
+  public async create<T>(value: MetadataDTO<T>): Promise<MetadataDTO<T>> {
+    return await this.metadataPersistence.create(value);
+  }
+
   public async findWithFlag(flag: string): Promise<string[]> {
     const list = await this.metadataPersistence.findMany<EntityMetadata>({
       filters: new Set([

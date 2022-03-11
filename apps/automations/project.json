@@ -6,11 +6,11 @@
     "build": {
       "executor": "@nrwl/web:webpack",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "compiler": "babel",
         "outputPath": "dist/apps/automations",
         "index": "apps/automations/src/index.html",
+        "defaultConfiguration": "development",
         "baseHref": "/",
         "main": "apps/automations/src/main.tsx",
         "polyfills": "apps/automations/src/polyfills.ts",
@@ -25,6 +25,7 @@
       },
       "configurations": {
         "production": {
+          "defaultConfiguration": "production",
           "fileReplacements": [
             {
               "replace": "apps/automations/src/environments/environment.ts",
@@ -43,7 +44,7 @@
     "serve": {
       "executor": "@nrwl/web:dev-server",
       "options": {
-        "buildTarget": "automations:build",
+        "buildTarget": "automations:build:development",
         "hmr": true,
         "host": "0.0.0.0"
       },

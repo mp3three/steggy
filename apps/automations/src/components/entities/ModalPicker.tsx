@@ -6,6 +6,7 @@ import {
   Divider,
   Empty,
   Input,
+  InputRef,
   List,
   Modal,
   Space,
@@ -39,7 +40,7 @@ export class EntityModalPicker extends React.Component<
   override state: tState = {
     selected: [],
   };
-  private searchInput: Input;
+  private searchInput: InputRef;
 
   override render() {
     return (
@@ -234,7 +235,8 @@ export class EntityModalPicker extends React.Component<
 
   private resetSearch(): void {
     this.setState({ searchText: '' });
-    this.searchInput.clearPasswordValueAttribute();
+    this.searchInput.input.value = '';
+    // this.searchInput.clearPasswordValueAttribute();
   }
 
   private search(e: React.ChangeEvent<HTMLInputElement>): void {

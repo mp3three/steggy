@@ -4,6 +4,7 @@ import {
   Divider,
   Input,
   InputNumber,
+  InputRef,
   List,
   Skeleton,
   Typography,
@@ -16,7 +17,7 @@ export class FilterValue extends React.Component<{
   value: string | string[];
 }> {
   override state = { data: [] };
-  private addInput: Input;
+  private addInput: InputRef;
 
   override render() {
     if (['eq', 'ne', 'elem', 'regex'].includes(this.props.operation)) {
@@ -44,14 +45,16 @@ export class FilterValue extends React.Component<{
           ref={input => (this.addInput = input)}
           onPressEnter={() => {
             this.props.onChange([...value, this.addInput.input.value]);
-            this.addInput.setValue('');
+            this.addInput.input.value = '';
+            // this.addInput.setValue('');
           }}
           suffix={
             <Button
               type="primary"
               onClick={() => {
                 this.props.onChange([...value, this.addInput.input.value]);
-                this.addInput.setValue('');
+                this.addInput.input.value = '';
+                // this.addInput.setValue('');
               }}
             >
               Add
