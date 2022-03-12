@@ -30,6 +30,12 @@ Send a notification through Home Assistant. Will be delivered through Home Assis
 
 [![Semd Notification Command](images/command.notification.png)](images/command.notification.png)
 
+## Set Room Metadata
+
+Update the value of a room metadata property
+
+[![Set Room Metadata Command](images/set_room_metadata.routine.png)](images/set_room_metadata.routine.png)
+
 ## Trigger Routine
 
 Trigger another routine
@@ -62,6 +68,7 @@ Stop command execution if condition triggers. Used for flow control
 | --- | --- |
 | Attribute Test | [![Attribute Test](images/stop_processing.attribute.png)](images/stop_processing.attribute.png) |
 | State Test | [![State Test](images/stop_processing.state.png)](images/stop_processing.state.png) |
-| Template | [![State Test](images/stop_processing.template.png)](images/stop_processing.template.png) |
-| Webhook Test | [![State Test](images/stop_processing.webhook.png)](images/stop_processing.webhook.png) |
-| Relative Date Test | [![State Test](images/stop_processing.relative_date.png)](images/stop_processing.relative_date.png) |
+| Template | [![Template Test](images/stop_processing.template.png)](images/stop_processing.template.png) |
+| Webhook Test | [![Webhook Test](images/stop_processing.webhook.png)](images/stop_processing.webhook.png) |
+| Room Metadata Test | [![Room Metadata Test](images/stop_processing.room_metadata.png)](images/stop_processing.room_metadata.png) |
+| Relative Date Test | [![Relative Date Test](images/stop_processing.relative_date.png)](images/stop_processing.relative_date.png) |
