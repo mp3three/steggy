@@ -3,7 +3,7 @@ import { FormioSdkModule } from '@automagical/formio';
 import { CONFIG_APPLICATION_TITLE, MainCLIModule } from '@automagical/tty';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { PDFDownloader } from '../services';
+import { PDFDownloader } from './pdf-downloader.service';
 
 @ApplicationModule({
   application: Symbol('pdf-downloader'),

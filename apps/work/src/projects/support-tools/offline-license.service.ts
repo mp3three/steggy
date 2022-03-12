@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import { existsSync, readFileSync } from 'fs';
 import { sign } from 'jsonwebtoken';
 
-import { LOAD_FILE } from '../config';
+import { LOAD_FILE } from '../../config';
 
 @Repl({
   category: '',

@@ -3,7 +3,7 @@ import { FormioSdkModule } from '@automagical/formio';
 import { CONFIG_APPLICATION_TITLE, MainCLIModule } from '@automagical/tty';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { OfflineLicenseService } from '../services';
+import { OfflineLicenseService } from './offline-license.service';
 
 @ApplicationModule({
   application: Symbol('support-tools'),

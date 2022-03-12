@@ -14,7 +14,7 @@ import execa from 'execa';
 import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-import { API_URL, LOAD_FILE } from '../config';
+import { API_URL, LOAD_FILE } from '../../config';
 
 type COLUMNS =
   | 'SubmissionId'

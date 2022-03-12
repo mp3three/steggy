@@ -54,14 +54,18 @@
         ],
         "outputPath": "dist/apps/work",
         "generatePackageJson": true,
-        "main": "apps/work/src/entrypoints/downloader.main.ts",
+        "main": "apps/work/src/entrypoints/pdf-downloader.main.ts",
         "tsConfig": "apps/work/tsconfig.app.json"
       },
       "configurations": {
-        "downloader": {
-          "main": "apps/work/src/entrypoints/downloader.main.ts"
+        "support-tools": {
+          "main": "apps/work/src/entrypoints/support-tools.main.ts",
+          "optimization": true,
+          "extractLicenses": false,
+          "inspect": false
         },
-        "production": {
+        "pdf-downloader": {
+          "main": "apps/work/src/entrypoints/pdf-downloader.main.ts",
           "optimization": true,
           "extractLicenses": false,
           "inspect": false

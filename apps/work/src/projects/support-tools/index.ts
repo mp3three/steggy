@@ -1,2 +1,2 @@
 export * from './offline-license.service';
-export * from './pdf-downloader.service';
+export * from './support-tools.module';
