@@ -31,9 +31,10 @@ export class RoomConfiguration extends React.Component<
 
   override render() {
     return (
-      <Row gutter={16} style={{ margin: '16px 0 0 0' }}>
+      <Row gutter={16}>
         <Col span={12}>
           <Card
+            type="inner"
             title="Entities"
             extra={
               <EntityModalPicker
@@ -52,6 +53,7 @@ export class RoomConfiguration extends React.Component<
         </Col>
         <Col span={12}>
           <Card
+            type="inner"
             title="Groups"
             extra={
               <GroupModalPicker

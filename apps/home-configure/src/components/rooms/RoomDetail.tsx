@@ -55,7 +55,7 @@ export const RoomDetail = withRouter(
                   </Link>
                 </Breadcrumb.Item>
               </Breadcrumb>
-              <Tabs>
+              <Tabs type="card" style={{ marginTop: '16px' }}>
                 <Tabs.TabPane tab="Configuration" key="configuration">
                   <RoomConfiguration
                     room={this.state.room}

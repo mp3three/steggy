@@ -20,6 +20,7 @@ export class RoomMetadata extends React.Component<
       <Row gutter={16}>
         <Col span={12}>
           <Card
+            type="inner"
             title="Flags"
             extra={
               <Button

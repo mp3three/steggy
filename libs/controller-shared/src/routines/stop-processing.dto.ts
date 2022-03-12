@@ -8,6 +8,7 @@ export enum STOP_PROCESSING_TYPE {
   attribute = 'attribute',
   date = 'date',
   state = 'state',
+  room_metadata = 'room_metadata',
   template = 'template',
   webhook = 'webhook',
 }
@@ -31,6 +32,12 @@ export class RoutineAttributeComparisonDTO extends ComparisonDTO {
   public attribute: string;
   @IsString()
   public entity_id: string;
+}
+export class RoomMetadataComparisonDTO extends ComparisonDTO {
+  @IsString()
+  public property: string;
+  @IsString()
+  public room: string;
 }
 
 export class RoutineWebhookComparisonDTO extends ComparisonDTO {
@@ -62,6 +69,7 @@ export type STOP_PROCESSING_DEFINITIONS =
   | RoutineAttributeComparisonDTO
   | RoutineWebhookComparisonDTO
   | RoutineTemplateComparisonDTO
+  | RoomMetadataComparisonDTO
   | RoutineRelativeDateComparisonDTO;
 
 export class RoutineComparisonDTO {

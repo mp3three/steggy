@@ -1,4 +1,5 @@
 import {
+  RoomMetadataComparisonDTO,
   RoutineAttributeComparisonDTO,
   RoutineComparisonDTO,
   RoutineRelativeDateComparisonDTO,
@@ -12,6 +13,7 @@ import React from 'react';
 import {
   AttributeComparison,
   RelativeDate,
+  RoomMetadataComparison,
   StateComparison,
   TemplateComparison,
   WebhookComparison,
@@ -67,6 +69,24 @@ export class GenericComparison extends React.Component<{
 
   private renderComparison() {
     switch (this.props.comparison.type) {
+      case 'room_metadata':
+        return (
+          <RoomMetadataComparison
+            comparison={
+              this.props.comparison.comparison as RoomMetadataComparisonDTO
+            }
+            onUpdate={part =>
+              this.props.onUpdate({
+                ...this.props.comparison,
+                comparison: {
+                  ...(this.props.comparison
+                    .comparison as RoomMetadataComparisonDTO),
+                  ...part,
+                },
+              })
+            }
+          />
+        );
       case 'state':
         return (
           <StateComparison

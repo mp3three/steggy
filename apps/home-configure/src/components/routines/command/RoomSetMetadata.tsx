@@ -2,7 +2,7 @@ import {
   RoomDTO,
   SetRoomMetadataCommandDTO,
 } from '@automagical/controller-shared';
-import { Form, Select, Skeleton, Space } from 'antd';
+import { Checkbox, Form, Input, Select, Skeleton, Space } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../../types';
@@ -78,15 +78,30 @@ export class RoomSetMetadataCommand extends React.Component<
   }
 
   private renderValue() {
-    if (!this.props.command.name) {
-      return <Skeleton />;
+    if (!this.room) {
+      return <Skeleton.Input active />;
     }
     const metadata = this.room.metadata.find(
       ({ name }) => name === this.props.command.name,
     );
     if (!metadata) {
-      return <Skeleton />;
+      return <Skeleton.Input active />;
     }
-    return this.props.command.value;
+    if (metadata.type === 'boolean') {
+      return (
+        <Checkbox
+          checked={Boolean(this.props.command.value)}
+          onChange={({ target }) =>
+            this.props.onUpdate({ value: target.checked })
+          }
+        />
+      );
+    }
+    return (
+      <Input
+        value={String(this.props.command.value)}
+        onChange={({ target }) => this.props.onUpdate({ value: target.value })}
+      />
+    );
   }
 }

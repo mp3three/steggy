@@ -31,35 +31,38 @@ export class RoomSaveStates extends React.Component<{
 
   override render() {
     return (
-      <Card
-        title="Save States"
-        extra={
-          <Popconfirm
-            icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
-            onConfirm={this.validate.bind(this)}
-            title={
-              <Form
-                onFinish={this.validate.bind(this)}
-                ref={form => (this.form = form)}
+      <Row gutter={16}>
+        <Col span={12}>
+          <Card
+            type="inner"
+            title="Save States"
+            extra={
+              <Popconfirm
+                icon={
+                  <QuestionCircleOutlined style={{ visibility: 'hidden' }} />
+                }
+                onConfirm={this.validate.bind(this)}
+                title={
+                  <Form
+                    onFinish={this.validate.bind(this)}
+                    ref={form => (this.form = form)}
+                  >
+                    <Form.Item
+                      label="Friendly Name"
+                      name="friendlyName"
+                      rules={[{ required: true }]}
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Form>
+                }
               >
-                <Form.Item
-                  label="Friendly Name"
-                  name="friendlyName"
-                  rules={[{ required: true }]}
-                >
-                  <Input />
-                </Form.Item>
-              </Form>
+                <Button size="small" icon={<PlusBoxMultiple />}>
+                  Create new
+                </Button>
+              </Popconfirm>
             }
           >
-            <Button size="small" icon={<PlusBoxMultiple />}>
-              Create new
-            </Button>
-          </Popconfirm>
-        }
-      >
-        <Row gutter={16}>
-          <Col span={12}>
             <List
               pagination={{ size: 'small' }}
               dataSource={this.room.save_states.sort((a, b) =>
@@ -92,14 +95,14 @@ export class RoomSaveStates extends React.Component<{
                 </List.Item>
               )}
             />
-          </Col>
-          <Col span={12}>
-            <Card type="inner" title="Related Routines">
-              <RelatedRoutines roomState={this.props.room} />
-            </Card>
-          </Col>
-        </Row>
-      </Card>
+          </Card>
+        </Col>
+        <Col span={12}>
+          <Card type="inner" title="Related Routines">
+            <RelatedRoutines roomState={this.props.room} />
+          </Card>
+        </Col>
+      </Row>
     );
   }
 
