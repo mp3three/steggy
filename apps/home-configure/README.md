@@ -4,18 +4,11 @@
 
 Note: This project is **NOT** inteded to be a dashboard. There is no persistent connection open from the UI to the backend, nor to Home Assistant. The UI may not always match actual entity state.
 
-### Groups
+### [Groups](docs/groups.md)
 
 Groups take a collection of entitites, and provides tools to allow them to act in a coordinated fashion. All group types have the ability to create save states, which contain state / attribute information to set. Some groups, such as *light groups* also expose specialized actions such as dimming.
 
 Entities may be shared in multiple groups.
-
-| Type | Group Detail | Save State |
-| --- | --- | --- |
-| Light | [![Group Detail](docs/light.group.png)](docs/light.group.png) | [![Save State](docs/light.group.save_state.png)](docs/light.group.save_state.png) |
-| Switch | [![Group Detail](docs/switch.group.png)](docs/light.group.png) | [![Save State](docs/switch.group.save_state.png)](docs/light.group.save_state.png) |
-| Switch | [![Group Detail](docs/fan.group.png)](docs/light.group.png) | [![Save State](docs/fan.group.save_state.png)](docs/light.group.save_state.png) |
-| Switch | [![Group Detail](docs/lock.group.png)](docs/light.group.png) | [![Save State](docs/lock.group.save_state.png)](docs/light.group.save_state.png) |
 
 ### Rooms
 
