@@ -71,6 +71,7 @@ export class CommandList extends React.Component<{
           ref={i => (this.commandDrawer = i)}
         />
         <Card
+          type="inner"
           title="Command Actions"
           extra={
             <Popconfirm

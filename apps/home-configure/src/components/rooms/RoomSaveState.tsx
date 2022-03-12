@@ -80,7 +80,10 @@ export class RoomSaveStates extends React.Component<{
                       />
                     }
                   />
-                  <Button onClick={() => this.activateState(record)}>
+                  <Button
+                    onClick={() => this.activateState(record)}
+                    type="primary"
+                  >
                     Activate
                   </Button>
                   <Popconfirm

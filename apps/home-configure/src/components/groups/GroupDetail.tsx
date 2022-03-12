@@ -10,6 +10,7 @@ import {
   Row,
   Space,
   Spin,
+  Tabs,
   Typography,
 } from 'antd';
 import PropTypes from 'prop-types';
@@ -64,30 +65,39 @@ export const GroupDetail = withRouter(
                   </Link>
                 </Breadcrumb.Item>
               </Breadcrumb>
-              <Row style={{ margin: '8px 0' }} gutter={8}>
-                <Col span={12}>
-                  <Card
-                    title="Entities"
-                    key="entities"
-                    extra={
-                      <EntityModalPicker
-                        exclude={this.state.group.entities}
-                        domains={this.domainList()}
-                        onAdd={this.addEntities.bind(this)}
-                      />
-                    }
-                  >
-                    {this.groupRendering()}
-                  </Card>
-                </Col>
-                <Col span={12}>
-                  <Card title="Group Actions">{this.groupActions()}</Card>
-                </Col>
-              </Row>
-              <GroupSaveStates
-                group={this.state.group}
-                onGroupUpdate={this.refresh.bind(this)}
-              />
+              <Tabs type="card" style={{ margin: '8px 0' }}>
+                <Tabs.TabPane tab="Setup" key="tab">
+                  <Row gutter={8}>
+                    <Col span={12}>
+                      <Card
+                        type="inner"
+                        title="Entities"
+                        key="entities"
+                        extra={
+                          <EntityModalPicker
+                            exclude={this.state.group.entities}
+                            domains={this.domainList()}
+                            onAdd={this.addEntities.bind(this)}
+                          />
+                        }
+                      >
+                        {this.groupRendering()}
+                      </Card>
+                    </Col>
+                    <Col span={12}>
+                      <Card type="inner" title="Group Actions">
+                        {this.groupActions()}
+                      </Card>
+                    </Col>
+                  </Row>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab="Save States" key="save">
+                  <GroupSaveStates
+                    group={this.state.group}
+                    onGroupUpdate={this.refresh.bind(this)}
+                  />
+                </Tabs.TabPane>
+              </Tabs>
             </Layout.Content>
           ) : (
             <Layout.Content>

@@ -4,6 +4,7 @@ import {
   JSONFilterService,
 } from '@automagical/boilerplate';
 import {
+  RoomMetadataComparisonDTO,
   RoutineAttributeComparisonDTO,
   RoutineCommandStopProcessingDTO,
   RoutineRelativeDateComparisonDTO,
@@ -23,14 +24,17 @@ import dayjs from 'dayjs';
 import { Response } from 'node-fetch';
 import { get } from 'object-path';
 
+import { RoomService } from '../room.service';
+
 @Injectable()
 export class StopProcessingCommandService {
   constructor(
-    private readonly logger: AutoLogService,
     private readonly entityManager: EntityManagerService,
-    private readonly filterService: JSONFilterService,
-    private readonly socketService: HASocketAPIService,
     private readonly fetchService: FetchService,
+    private readonly filterService: JSONFilterService,
+    private readonly logger: AutoLogService,
+    private readonly roomService: RoomService,
+    private readonly socketService: HASocketAPIService,
   ) {}
 
   public async activate(
@@ -43,6 +47,11 @@ export class StopProcessingCommandService {
       }
       let result = false;
       switch (comparison.type) {
+        case STOP_PROCESSING_TYPE.room_metadata:
+          result = await this.roomMetadata(
+            comparison.comparison as RoomMetadataComparisonDTO,
+          );
+          break;
         case STOP_PROCESSING_TYPE.attribute:
           result = this.attributeComparison(
             comparison.comparison as RoutineAttributeComparisonDTO,
@@ -85,10 +94,7 @@ export class StopProcessingCommandService {
     const attribute = get(entity, comparison.attribute);
     return this.filterService.match(
       { attribute },
-      {
-        field: 'attribute',
-        ...comparison,
-      },
+      { field: 'attribute', ...comparison },
     );
   }
 
@@ -127,14 +133,29 @@ export class StopProcessingCommandService {
     return false;
   }
 
+  private async roomMetadata(
+    comparison: RoomMetadataComparisonDTO,
+  ): Promise<boolean> {
+    const room = await this.roomService.get(comparison.room);
+    if (!room) {
+      this.logger.error({ comparison }, `Could not find room`);
+      return false;
+    }
+    const property = room.metadata.find(
+      ({ name }) => name === comparison.property,
+    );
+    const value = property?.value;
+    return this.filterService.match(
+      { value },
+      { field: 'value', ...comparison },
+    );
+  }
+
   private stateComparison(comparison: RoutineStateComparisonDTO): boolean {
     const entity = this.entityManager.getEntity(comparison.entity_id);
     return this.filterService.match(
       { state: entity.state },
-      {
-        field: 'state',
-        ...comparison,
-      },
+      { field: 'state', ...comparison },
     );
   }
 
@@ -144,10 +165,7 @@ export class StopProcessingCommandService {
     const value = await this.socketService.renderTemplate(comparison.template);
     return this.filterService.match(
       { value },
-      {
-        field: 'value',
-        ...comparison,
-      },
+      { field: 'value', ...comparison },
     );
   }
 
@@ -171,10 +189,7 @@ export class StopProcessingCommandService {
         handleAs === 'text' ? text : get(JSON.parse(text), property);
       return this.filterService.match(
         { value },
-        {
-          field: 'value',
-          ...comparison,
-        },
+        { field: 'value', ...comparison },
       );
     } catch (error) {
       this.logger.error({ error });

@@ -20,6 +20,7 @@ import {
   Row,
   Select,
   Spin,
+  Tabs,
   Tooltip,
   Typography,
 } from 'antd';
@@ -80,180 +81,183 @@ export const RoutineDetail = withRouter(
                     </Link>
                   </Breadcrumb.Item>
                 </Breadcrumb>
-                <Row gutter={8} style={{ margin: '16px 0 0 0' }}>
-                  <Col span={12}>
-                    <Card
-                      title="Activation events"
-                      extra={
-                        <Popconfirm
-                          onConfirm={this.validateActivate.bind(this)}
-                          icon={
-                            <QuestionCircleOutlined
-                              style={{ visibility: 'hidden' }}
-                            />
-                          }
-                          title={
-                            <Form
-                              onFinish={this.validateActivate.bind(this)}
-                              ref={form => (this.activateCreateForm = form)}
-                            >
-                              <Form.Item
-                                label="Friendly Name"
-                                name="friendlyName"
-                                rules={[{ required: true }]}
-                              >
-                                <Input />
-                              </Form.Item>
-                              <Form.Item
-                                label="Type"
-                                name="type"
-                                rules={[{ required: true }]}
-                              >
-                                <Select>
-                                  <Select.Option value="kunami">
-                                    Sequence
-                                  </Select.Option>
-                                  <Select.Option value="schedule">
-                                    Cron Schedule
-                                  </Select.Option>
-                                  <Select.Option value="state_change">
-                                    State Change
-                                  </Select.Option>
-                                  <Select.Option value="solar">
-                                    Solar Event
-                                  </Select.Option>
-                                </Select>
-                              </Form.Item>
-                            </Form>
-                          }
-                        >
-                          <Button size="small" icon={<PlusBoxMultiple />}>
-                            Add new
-                          </Button>
-                        </Popconfirm>
-                      }
-                    >
-                      <List
-                        dataSource={this.state.routine.activate}
-                        renderItem={item => (
-                          <List.Item
-                            key={item.id}
-                            onClick={() => this.activateDrawer.load(item)}
-                          >
-                            <List.Item.Meta
-                              title={
-                                <Typography.Text
-                                  onClick={e => {
-                                    e.stopPropagation();
-                                  }}
-                                  editable={{
-                                    onChange: value =>
-                                      this.renameActivate(item, value),
-                                  }}
-                                >
-                                  {item.friendlyName}
-                                </Typography.Text>
-                              }
-                              description={
-                                <Button
-                                  onClick={() => this.activateDrawer.load(item)}
-                                  type="text"
-                                >
-                                  {TitleCase(
-                                    item.type === 'kunami'
-                                      ? 'sequence'
-                                      : item.type,
-                                  )}
-                                </Button>
-                              }
-                            />
+                <Tabs type="card" style={{ margin: '16px 0 0 0' }}>
+                  <Tabs.TabPane tab="Configuration" key="configuration">
+                    <Row gutter={8}>
+                      <Col span={12}>
+                        <Card
+                          type="inner"
+                          title="Activation events"
+                          extra={
                             <Popconfirm
+                              onConfirm={this.validateActivate.bind(this)}
                               icon={
                                 <QuestionCircleOutlined
-                                  style={{ color: 'red' }}
+                                  style={{ visibility: 'hidden' }}
                                 />
                               }
-                              title={`Are you sure you want to delete ${item.friendlyName}?`}
-                              onConfirm={e => {
-                                this.deleteActivate(item);
-                                e?.stopPropagation();
-                              }}
-                            >
-                              <Button
-                                danger
-                                type="text"
-                                onClick={e => e.stopPropagation()}
-                              >
-                                <CloseOutlined />
-                              </Button>
-                            </Popconfirm>
-                          </List.Item>
-                        )}
-                      />
-                    </Card>
-                  </Col>
-                  <Col span={12}>
-                    <CommandList
-                      routine={this.state.routine}
-                      onUpdate={routine => this.setState({ routine })}
-                    />
-                  </Col>
-                </Row>
-                <Row gutter={8} style={{ marginTop: '16px' }}>
-                  <Col span={24}>
-                    <Card title="Meta">
-                      <Row gutter={16}>
-                        <Col span={12}>
-                          <Card
-                            type="inner"
-                            title="Settings"
-                            style={{ height: '100%' }}
-                          >
-                            <Tooltip
                               title={
-                                <Typography>
-                                  <Typography.Paragraph>
-                                    When checked, a command action must fully
-                                    complete prior to the next command running.
-                                    This allows some commands, such as
-                                    <Typography.Text code>
-                                      Stop Processing
-                                    </Typography.Text>
-                                    to affect/prevent execution of following
-                                    commands. Entity state changes require a
-                                    confirmation from Home Assistant, which may
-                                    be affected by real world conditions.
-                                  </Typography.Paragraph>
-                                  <Divider />
-                                  <Typography.Paragraph>
-                                    While unchecked, actions will be initiated
-                                    at the simultaniously, having no influence
-                                    each other. Entity state changes are
-                                    performed in a "fire and forget" manner.
-                                  </Typography.Paragraph>
-                                </Typography>
+                                <Form
+                                  onFinish={this.validateActivate.bind(this)}
+                                  ref={form => (this.activateCreateForm = form)}
+                                >
+                                  <Form.Item
+                                    label="Friendly Name"
+                                    name="friendlyName"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <Input />
+                                  </Form.Item>
+                                  <Form.Item
+                                    label="Type"
+                                    name="type"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <Select>
+                                      <Select.Option value="kunami">
+                                        Sequence
+                                      </Select.Option>
+                                      <Select.Option value="schedule">
+                                        Cron Schedule
+                                      </Select.Option>
+                                      <Select.Option value="state_change">
+                                        State Change
+                                      </Select.Option>
+                                      <Select.Option value="solar">
+                                        Solar Event
+                                      </Select.Option>
+                                    </Select>
+                                  </Form.Item>
+                                </Form>
                               }
                             >
-                              <Checkbox
-                                checked={this.state.routine.sync}
-                                onChange={({ target }) =>
-                                  this.setSync(target.checked)
-                                }
+                              <Button size="small" icon={<PlusBoxMultiple />}>
+                                Add new
+                              </Button>
+                            </Popconfirm>
+                          }
+                        >
+                          <List
+                            dataSource={this.state.routine.activate}
+                            renderItem={item => (
+                              <List.Item
+                                key={item.id}
+                                onClick={() => this.activateDrawer.load(item)}
                               >
-                                Synchronous command processing
-                              </Checkbox>
-                            </Tooltip>
-                          </Card>
-                        </Col>
-                        <Col span={12}>
-                          <Card type="inner" title="Related Routines">
-                            <RelatedRoutines routine={this.state.routine} />
-                          </Card>
-                        </Col>
-                      </Row>
-                    </Card>
-                  </Col>
-                </Row>
+                                <List.Item.Meta
+                                  title={
+                                    <Typography.Text
+                                      onClick={e => {
+                                        e.stopPropagation();
+                                      }}
+                                      editable={{
+                                        onChange: value =>
+                                          this.renameActivate(item, value),
+                                      }}
+                                    >
+                                      {item.friendlyName}
+                                    </Typography.Text>
+                                  }
+                                  description={
+                                    <Button
+                                      onClick={() =>
+                                        this.activateDrawer.load(item)
+                                      }
+                                      type="text"
+                                    >
+                                      {TitleCase(
+                                        item.type === 'kunami'
+                                          ? 'sequence'
+                                          : item.type,
+                                      )}
+                                    </Button>
+                                  }
+                                />
+                                <Popconfirm
+                                  icon={
+                                    <QuestionCircleOutlined
+                                      style={{ color: 'red' }}
+                                    />
+                                  }
+                                  title={`Are you sure you want to delete ${item.friendlyName}?`}
+                                  onConfirm={e => {
+                                    this.deleteActivate(item);
+                                    e?.stopPropagation();
+                                  }}
+                                >
+                                  <Button
+                                    danger
+                                    type="text"
+                                    onClick={e => e.stopPropagation()}
+                                  >
+                                    <CloseOutlined />
+                                  </Button>
+                                </Popconfirm>
+                              </List.Item>
+                            )}
+                          />
+                        </Card>
+                      </Col>
+                      <Col span={12}>
+                        <CommandList
+                          routine={this.state.routine}
+                          onUpdate={routine => this.setState({ routine })}
+                        />
+                      </Col>
+                    </Row>
+                  </Tabs.TabPane>
+                  <Tabs.TabPane tab="Settings" key="settings">
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Card
+                          type="inner"
+                          title="Settings"
+                          style={{ height: '100%' }}
+                        >
+                          <Tooltip
+                            title={
+                              <Typography>
+                                <Typography.Paragraph>
+                                  When checked, a command action must fully
+                                  complete prior to the next command running.
+                                  This allows some commands, such as
+                                  <Typography.Text code>
+                                    Stop Processing
+                                  </Typography.Text>
+                                  to affect/prevent execution of following
+                                  commands. Entity state changes require a
+                                  confirmation from Home Assistant, which may be
+                                  affected by real world conditions.
+                                </Typography.Paragraph>
+                                <Divider />
+                                <Typography.Paragraph>
+                                  While unchecked, actions will be initiated at
+                                  the simultaniously, having no influence each
+                                  other. Entity state changes are performed in a
+                                  "fire and forget" manner.
+                                </Typography.Paragraph>
+                              </Typography>
+                            }
+                          >
+                            <Checkbox
+                              checked={this.state.routine.sync}
+                              onChange={({ target }) =>
+                                this.setSync(target.checked)
+                              }
+                            >
+                              Synchronous command processing
+                            </Checkbox>
+                          </Tooltip>
+                        </Card>
+                      </Col>
+                      <Col span={12}>
+                        <Card type="inner" title="Related Routines">
+                          <RelatedRoutines routine={this.state.routine} />
+                        </Card>
+                      </Col>
+                    </Row>
+                  </Tabs.TabPane>
+                </Tabs>
               </Layout.Content>
               <Layout.Sider style={{ padding: '16px' }}>
                 <Popover
