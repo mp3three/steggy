@@ -4,7 +4,7 @@
 
 The sequence activation is used for testing a series of state changes inside of a time period. In this example, a [Lutron Pico](https://www.amazon.com/dp/B00KLAXFQ0) remote is set up to look for center => dim up to be pressed.
 
-[![Sequence Activate](docs/sequence.activate.png)](docs/sequence.activate.png)
+[![Sequence Activate](images/sequence.activate.png)](images/sequence.activate.png)
 
 Each change in state must happen within 1500ms of the previous change. If a series of changes occurs, without ever crossing that rolling time limit, then the activation event will fire.
 
@@ -17,19 +17,19 @@ Multiple activation events can look for different sequences on the same entity. 
 
 Cron activate can take in either a standard cron schedule, or have a preformatted expression chosen from a list.
 
-[![Cron Activate](docs/cron.activate.png)](docs/cron.activate.png)
+[![Cron Activate](images/cron.activate.png)](images/cron.activate.png)
 
 ### Activation Event: Solar
 
 Solar activation events are based off the sun's location in the sky. Math is performed using lat/long reported by Home Assistant, and current date/time.
 
-[![Solar Activate](docs/solar.activate.png)](docs/solar.activate.png)
+[![Solar Activate](images/solar.activate.png)](images/solar.activate.png)
 
 ### Activation Event: State Change
 
 State change activation events are for more complex tests performed against an entity state.
 
-[![State Change Activate](docs/state-change.activate.png)](docs/state-change.activate.png)
+[![State Change Activate](images/state-change.activate.png)](images/state-change.activate.png)
 
 The latch option is used for preventing excess activations when repeat state changes. Once the activation event fires, it will not fire again until the provided condition evaluates to false.
 

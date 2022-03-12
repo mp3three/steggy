@@ -4,43 +4,43 @@
 
 Manipulate entity state / attributes.
 
-[![Entity State Command](docs/images/command.entity_state.png)](docs/images/command.entity_state.png)
+[![Entity State Command](images/command.entity_state.png)](images/command.entity_state.png)
 
 ## Group State
 
 Trigger a previously saved group state
 
-[![Group State Command](docs/images/command.group_state.png)](docs/images/command.group_state.png)
+[![Group State Command](images/command.group_state.png)](images/command.group_state.png)
 
 ## Group Action
 
 Run a custom group action.
 
-[![Light Action Command](docs/images/command.light_group_action.png)](docs/images/command.light_group_action.png)
+[![Light Action Command](images/command.light_group_action.png)](images/command.light_group_action.png)
 
 ## Room State
 
 Trigger a previously saved room state
 
-[![Room State Command](docs/images/command.room_state.png)](docs/images/command.room_state.png)
+[![Room State Command](images/command.room_state.png)](images/command.room_state.png)
 
 ## Send Notification
 
 Send a notification through Home Assistant. Will be delivered through Home Assistant phone app
 
-[![Semd Notification Command](docs/images/command.notification.png)](docs/images/command.notification.png)
+[![Semd Notification Command](images/command.notification.png)](images/command.notification.png)
 
 ## Trigger Routine
 
 Trigger another routine
 
-[![Sleep Command](docs/images/command.routine.png)](docs/images/command.routine.png)
+[![Sleep Command](images/command.routine.png)](images/command.routine.png)
 
 ## Webhook
 
 Emit a http request to a target
 
-[![Sleep Command](docs/images/command.routine.png)](docs/images/command.routine.png)
+[![Sleep Command](images/command.routine.png)](images/command.routine.png)
 
 ## Sleep
 
@@ -48,7 +48,7 @@ Emit a http request to a target
 
 Insert a pause between commands. Only applies to routines operating in sync mode.
 
-[![Sleep Command](docs/images/command.sleep.png)](docs/images/command.sleep.png)
+[![Sleep Command](images/command.sleep.png)](images/command.sleep.png)
 
 ## Stop Processing
 
@@ -56,12 +56,12 @@ Insert a pause between commands. Only applies to routines operating in sync mode
 
 Stop command execution if condition triggers. Used for flow control
 
-[![Sleep Command](docs/images/command.routine.png)](docs/images/command.routine.png)
+[![Sleep Command](images/command.routine.png)](images/command.routine.png)
 
 | Description | Image |
 | --- | --- |
-| Attribute Test | [![Attribute Test](docs/images/stop_processing.attribute.png)](docs/images/stop_processing.attribute.png) |
-| State Test | [![State Test](docs/images/stop_processing.state.png)](docs/images/stop_processing.state.png) |
-| Template | [![State Test](docs/images/stop_processing.template.png)](docs/images/stop_processing.template.png) |
-| Webhook Test | [![State Test](docs/images/stop_processing.webhook.png)](docs/images/stop_processing.webhook.png) |
-| Relative Date Test | [![State Test](docs/images/stop_processing.relative_date.png)](docs/images/stop_processing.relative_date.png) |
+| Attribute Test | [![Attribute Test](images/stop_processing.attribute.png)](images/stop_processing.attribute.png) |
+| State Test | [![State Test](images/stop_processing.state.png)](images/stop_processing.state.png) |
+| Template | [![State Test](images/stop_processing.template.png)](images/stop_processing.template.png) |
+| Webhook Test | [![State Test](images/stop_processing.webhook.png)](images/stop_processing.webhook.png) |
+| Relative Date Test | [![State Test](images/stop_processing.relative_date.png)](images/stop_processing.relative_date.png) |

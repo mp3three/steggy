@@ -2,7 +2,7 @@
 
 | Type | Group Detail | Save State |
 | --- | --- | --- |
-| Light | [![Group Detail](docs/images/light.group.png)](docs/images/light.group.png) | [![Save State](docs/images/light.group.save_state.png)](docs/images/light.group.save_state.png) |
-| Switch | [![Group Detail](docs/images/switch.group.png)](docs/images/light.group.png) | [![Save State](docs/images/switch.group.save_state.png)](docs/images/light.group.save_state.png) |
-| Switch | [![Group Detail](docs/images/fan.group.png)](docs/images/light.group.png) | [![Save State](docs/images/fan.group.save_state.png)](docs/images/light.group.save_state.png) |
-| Switch | [![Group Detail](docs/images/lock.group.png)](docs/images/light.group.png) | [![Save State](docs/images/lock.group.save_state.png)](docs/images/light.group.save_state.png) |
+| Light | [![Group Detail](images/light.group.png)](images/light.group.png) | [![Save State](images/light.group.save_state.png)](images/light.group.save_state.png) |
+| Switch | [![Group Detail](images/switch.group.png)](images/light.group.png) | [![Save State](images/switch.group.save_state.png)](images/light.group.save_state.png) |
+| Switch | [![Group Detail](images/fan.group.png)](images/light.group.png) | [![Save State](images/fan.group.save_state.png)](images/light.group.save_state.png) |
+| Switch | [![Group Detail](images/lock.group.png)](images/light.group.png) | [![Save State](images/lock.group.save_state.png)](images/light.group.save_state.png) |
