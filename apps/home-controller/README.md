@@ -48,11 +48,11 @@ The Home Configure project acts as the primary user interface, and is delivered 
 
 [libs.controller-logic]
   ; modify the internal timing of the sequence activation event
-
   SEQUENCE_TIMEOUT=1500
-  ; light temperature (kelvin) at solar noon
 
+  ; light temperature (kelvin) at solar noon
   CIRCADIAN_MAX_TEMP=5500
+
   ; light temperature (kelvin) at night
   CIRCADIAN_MIN_TEMP=2000
 
@@ -218,9 +218,17 @@ This allows the controller to act as the primary server like what happens in doc
 
 ### Bare Metal
 
-Currently, bare metal installs are not an officially supported use case. These commands can be used to produce production optimzed code:
+Bare metal installs are not an officially supported use case. A non-dockerized production optimized build can be launched through the following commands run from the repository root
 
-- `npx nx build home-controller --configuration=production`
-- `npx nx build home-configure --configuration=production`
+```bash
+# Build backend code
+npx nx build home-controller --configuration=production
+# Build ui
+npx nx build home-configure --configuration=production
+# Make ui assets available for backend to serve
+mv dist/apps/home-configure dist/apps/home-controller/ui
+# Launch server
+node dist/apps/home-controller/main.js
+```
 
-Build output is placed in `dist` folder in repository root. The static file server for the UI is set to look for a `ui` directory (containing the build output from home-configure) in the same directory as `main.js`
+Note: production builds output json logs
