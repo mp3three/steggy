@@ -28,7 +28,7 @@
     "RENDER_TIMEOUT": {
       "type": "number",
       "default": 3,
-      "description": "TODO: add description"
+      "description": "Max time for template rendering"
     },
     "RETRY_INTERVAL": {
       "type": "number",

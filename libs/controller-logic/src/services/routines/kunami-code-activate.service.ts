@@ -1,4 +1,8 @@
-import { AutoLogService, InjectConfig, OnEvent } from '@automagical/boilerplate';
+import {
+  AutoLogService,
+  InjectConfig,
+  OnEvent,
+} from '@automagical/boilerplate';
 import {
   KunamiCodeActivateDTO,
   KunamiSensorEvent,
@@ -12,14 +16,14 @@ import {
 import { each, is } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
-import { KUNAMI_TIMEOUT } from '../../config';
+import { SEQUENCE_TIMEOUT } from '../../config';
 import { RoomService } from '../room.service';
 
 @Injectable()
 export class KunamiCodeActivateService {
   constructor(
     private readonly logger: AutoLogService,
-    @InjectConfig(KUNAMI_TIMEOUT) private readonly kunamiTimeout: number,
+    @InjectConfig(SEQUENCE_TIMEOUT) private readonly kunamiTimeout: number,
     private readonly roomService: RoomService,
     private readonly entityManager: EntityManagerService,
   ) {}
