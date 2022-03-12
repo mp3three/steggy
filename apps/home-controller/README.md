@@ -12,7 +12,9 @@ The Home Configure project acts as the primary user interface, and is delivered 
 ```ini
 [libs.boilerplate]
   CACHE_PROVIDER=redis
+
   REDIS_HOST=redis
+
   LOG_LEVEL=debug
 
 [libs.controller-logic]
@@ -20,6 +22,7 @@ The Home Configure project acts as the primary user interface, and is delivered 
 
 [libs.home-assistant]
   BASE_URL=https://homeassistant.your.domain
+
   TOKEN=
 
 [libs.server]
@@ -193,8 +196,11 @@ services:
 ### Development
 
 > Note: ALL development features are enabled while in development mode
+>
 > UI is loaded with react development tools + hot module reload enabled.
+>
 > Server will also watch local files for changes + automatic restart
+>
 > Server enables pretty logger for better human readability
 
 Recommended location for configuration file is `~/.config/home-controller`. Format of file is described above
