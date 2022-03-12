@@ -46,7 +46,7 @@ Trigger another routine
 
 Emit a http request to a target
 
-[![Sleep Command](images/command.routine.png)](images/command.routine.png)
+[![Sleep Command](images/command.webhook.png)](images/command.webhook.png)
 
 ## Sleep
 
@@ -62,7 +62,7 @@ Insert a pause between commands. Only applies to routines operating in sync mode
 
 Stop command execution if condition triggers. Used for flow control
 
-[![Sleep Command](images/command.routine.png)](images/command.routine.png)
+[![Sleep Command](images/command.stop_processing.png)](images/command.stop_processing.png)
 
 | Description | Image |
 | --- | --- |
