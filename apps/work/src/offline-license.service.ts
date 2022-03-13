@@ -1,8 +1,8 @@
-import { InjectConfig } from '@automagical/boilerplate';
+import { AutoLogService, InjectConfig } from '@automagical/boilerplate';
 import {
   ApplicationManagerService,
   PromptService,
-  Repl,
+  QuickScript,
   ScreenService,
 } from '@automagical/tty';
 import { SINGLE } from '@automagical/utilities';
@@ -11,16 +11,16 @@ import dayjs from 'dayjs';
 import { existsSync, readFileSync } from 'fs';
 import { sign } from 'jsonwebtoken';
 
-import { LOAD_FILE } from '../../config';
-
-@Repl({
-  category: '',
-  name: 'Offline License',
+@QuickScript({
+  NX_PROJECT: 'work',
+  application: Symbol('offline-license'),
 })
 export class OfflineLicenseService {
   constructor(
-    @InjectConfig(LOAD_FILE) private readonly keyFile: string,
+    @InjectConfig('KEY_FILE') private readonly keyFile: string,
+    @InjectConfig('ISSUER') private readonly issuer: string,
     private readonly promptService: PromptService,
+    private readonly logger: AutoLogService,
     private readonly app: ApplicationManagerService,
     private readonly screen: ScreenService,
   ) {}
@@ -44,7 +44,7 @@ export class OfflineLicenseService {
       {
         exp: dayjs().add(years, 'y').toDate().getTime(),
         iat: Date.now(),
-        iss: 'https://form.io',
+        iss: this.issuer,
         sub: name,
         terms: {
           formMangers: 5,
@@ -68,6 +68,7 @@ export class OfflineLicenseService {
         `Invalid keyfile path: ${this.keyFile}`,
       );
     }
+    this.logger.debug(`Loaded {${this.keyFile}}`);
     this.key = readFileSync(this.keyFile, 'utf8');
   }
 }

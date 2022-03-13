@@ -114,7 +114,10 @@ export class KeyboardManagerService implements iStackProvider {
     });
     // If there are any that directly look for this combination, then only use those
     // Otherwise, use all the catchall callbacks
-    let render = true;
+    const list = is.empty(direct) ? catchAll : direct;
+    // Do not re-render if no listeners are present at all
+    // This happens when the application releases control for inquirer to take over
+    let render = !is.empty(list);
     await each(is.empty(direct) ? catchAll : direct, async ([target, key]) => {
       const result = await (is.string(key) ? target[key].bind(target) : key)(
         mixed,

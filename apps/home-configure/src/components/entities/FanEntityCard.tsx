@@ -4,7 +4,7 @@ import {
   FanAttributesDTO,
   FanStateDTO,
 } from '@automagical/home-assistant-shared';
-import { is, START } from '@automagical/utilities';
+import { is, PERCENT, SINGLE, START } from '@automagical/utilities';
 import {
   Button,
   Card,
@@ -27,6 +27,8 @@ type tStateType = {
   percentage_step: number;
   state?: string;
 };
+const FOUR_STEP = 25;
+const OFF = 0;
 
 export class FanEntityCard extends React.Component<
   {
@@ -81,17 +83,19 @@ export class FanEntityCard extends React.Component<
   }
 
   public load(state: FanStateDTO): void {
+    const percentage_step = this.getPercentageStep(state);
     if (!this.props.selfContained) {
       this.setState({
         friendly_name: state.attributes.friendly_name,
-        percentage_step: state.attributes.percentage_step,
+        percentage_step,
       });
       return;
     }
+    const percentage = this.getPercentage(state);
     this.setState({
       friendly_name: state.attributes.friendly_name,
-      percentage: state.attributes.percentage,
-      percentage_step: state.attributes.percentage_step,
+      percentage,
+      percentage_step,
       state: state.state,
     });
   }
@@ -161,6 +165,39 @@ export class FanEntityCard extends React.Component<
       out[i] = `${i}%`;
     }
     return out;
+  }
+
+  private getPercentage(state: FanStateDTO): number {
+    if (state.state === 'off') {
+      return OFF;
+    }
+    if (
+      is.number(state.attributes.percentage) &&
+      state.attributes.percentage > OFF
+    ) {
+      return state.attributes.percentage;
+    }
+    const { speed_list, speed } = state.attributes;
+    if (is.empty(speed_list) || is.empty(speed)) {
+      return OFF;
+    }
+    const step_size = this.getPercentageStep(state);
+    return speed_list.indexOf(speed) * step_size;
+  }
+
+  private getPercentageStep(state: FanStateDTO): number {
+    if (state.attributes.percentage_step > SINGLE) {
+      return state.attributes.percentage_step;
+    }
+    if (
+      Array.isArray(state.attributes.speed_list) &&
+      !is.empty(state.attributes.speed_list)
+    ) {
+      return (
+        PERCENT / state.attributes.speed_list.filter(i => i !== 'off').length
+      );
+    }
+    return FOUR_STEP;
   }
 
   private async onSpeedChange(percentage: number): Promise<void> {

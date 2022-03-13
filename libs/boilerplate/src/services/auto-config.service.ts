@@ -37,8 +37,8 @@ const START = 0;
 
 @Injectable()
 export class AutoConfigService {
-  public static APP_DIR?: string;
   public static DEFAULTS = new Map<string, Record<string, unknown>>();
+  public static NX_PROJECT?: string;
   protected static USE_SCANNER_ASSETS = false;
 
   constructor(
@@ -60,14 +60,14 @@ export class AutoConfigService {
   private switches = minimist(process.argv);
 
   private get appName(): string {
-    return AutoConfigService.APP_DIR ?? this.APPLICATION.description;
+    return AutoConfigService.NX_PROJECT ?? this.APPLICATION.description;
   }
 
   public get<T extends unknown = string>(path: string | [symbol, string]): T {
     if (Array.isArray(path)) {
       path = ['libs', path[0].description, path[1]].join('.');
     }
-    let value = get(this.config, path, this.getDefault(path));
+    let value = get(this.config, path);
     const config = this.getConfiguration(path);
     if (config.warnDefault && value === config.default) {
       this.logger.warn(
@@ -88,6 +88,10 @@ export class AutoConfigService {
   }
 
   public getDefault<T extends unknown = unknown>(path: string): T {
+    const override = get(this.overrideConfig ?? {}, path);
+    if (!is.undefined(override)) {
+      return override;
+    }
     const configuration = this.getConfiguration(path);
     if (!configuration) {
       this.logger.fatal(
@@ -130,13 +134,11 @@ export class AutoConfigService {
 
   private earlyInit(): void {
     this.loadMetadata();
-    if (this.overrideConfig) {
-      return this.useOverrideConfig();
-    }
     this.config = {};
     this.setDefaults();
     const fileConfig = this.loadFromFiles();
     fileConfig.forEach(config => deepExtend(this.config, config));
+    deepExtend(this.config, this.overrideConfig ?? {});
     this.loadFromEnv();
     this.logger.setContext(LIB_UTILS, AutoConfigService);
     this.logger[
@@ -152,7 +154,14 @@ export class AutoConfigService {
     const parts = path.split('.');
     if (parts.length === 2) {
       const metadata = this.metadata.get(this.appName);
-      return metadata.configuration[parts[1]];
+      return (
+        metadata.configuration[parts[1]] ?? {
+          // Applications can yolo a bit harder than libraries
+          default: '',
+          type: 'string',
+          warnDefault: false,
+        }
+      );
     }
     const [, library, property] = parts;
     const metadata = this.metadata.get(library);
@@ -308,14 +317,5 @@ export class AutoConfigService {
         }
       });
     });
-  }
-
-  private useOverrideConfig(): void {
-    this.logger.setContext(LIB_UTILS, AutoConfigService);
-    this.logger[
-      'context'
-    ] = `${LIB_UTILS.description}:${AutoConfigService.name}`;
-    AutoLogService.logger.level = this.get([LIB_UTILS, LOG_LEVEL]);
-    this.logger.warn(`Using override config`);
   }
 }

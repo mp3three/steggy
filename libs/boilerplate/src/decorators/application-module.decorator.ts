@@ -3,7 +3,7 @@ import EventEmitter from 'eventemitter3';
 
 import { USE_THIS_CONFIG } from '../contracts';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
-import { AbstractConfig,ACTIVE_APPLICATION } from '../contracts/meta/config';
+import { AbstractConfig, ACTIVE_APPLICATION } from '../contracts/meta/config';
 import { RegisterCache } from '../includes';
 import { UtilitiesModule } from '../modules';
 
@@ -28,7 +28,7 @@ export function ApplicationModule(
   metadata.providers ??= [];
   metadata.globals ??= [];
   metadata.controllers ??= [];
-  [...metadata.providers, ...metadata.controllers].forEach((provider) => {
+  [...metadata.providers, ...metadata.controllers].forEach(provider => {
     provider[LOGGER_LIBRARY] = metadata.application.description;
   });
   const GLOBAL_SYMBOLS: Provider[] = [
@@ -61,11 +61,12 @@ export function ApplicationModule(
     RegisterCache(),
     ...metadata.imports,
   ];
-  return (target) => {
+  return target => {
     target[LOGGER_LIBRARY] = metadata.application.description;
-    propertiesKeys.forEach((property) => {
+    propertiesKeys.forEach(property => {
       Reflect.defineMetadata(property, metadata[property], target);
     });
+    return target;
   };
 }
 ApplicationModule.useThisConfig = function (config: AbstractConfig) {

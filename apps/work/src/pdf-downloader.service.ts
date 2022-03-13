@@ -1,11 +1,13 @@
 import { AutoLogService, InjectConfig } from '@automagical/boilerplate';
-import { FormDTO, FormioFetchService } from '@automagical/formio';
+import {
+  FormDTO,
+  FormioFetchService,
+  FormioSdkModule,
+} from '@automagical/formio';
 import {
   ApplicationManagerService,
-  DONE,
-  IsDone,
   PromptService,
-  Repl,
+  QuickScript,
   ToMenuEntry,
 } from '@automagical/tty';
 import { START } from '@automagical/utilities';
@@ -13,8 +15,6 @@ import { InternalServerErrorException } from '@nestjs/common';
 import execa from 'execa';
 import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
-
-import { API_URL, LOAD_FILE } from '../../config';
 
 type COLUMNS =
   | 'SubmissionId'
@@ -24,15 +24,20 @@ type COLUMNS =
   | 'Pat_FirstName'
   | 'Pat_LastName';
 type ROW = Record<COLUMNS, string>;
+type TOKEN_RESPONSE = { key: string; token: string };
 
-@Repl({
-  category: '',
-  name: 'PDF Exporter',
+@QuickScript({
+  NX_PROJECT: 'work',
+  OVERRIDE_DEFAULTS: {
+    libs: { tty: { DEFAULT_HEADER_FONT: 'Pagga' } },
+  },
+  application: Symbol('pdf-downloader'),
+  imports: [FormioSdkModule],
 })
 export class PDFDownloader {
   constructor(
-    @InjectConfig(LOAD_FILE) private readonly csvFile: string,
-    @InjectConfig(API_URL) private readonly apiUrl: string,
+    @InjectConfig('CSV_FILE') private readonly csvFile: string,
+    @InjectConfig('API_URL') private readonly apiUrl: string,
     private readonly promptService: PromptService,
     private readonly logger: AutoLogService,
     private readonly app: ApplicationManagerService,
@@ -45,15 +50,12 @@ export class PDFDownloader {
   public async exec(): Promise<void> {
     this.app.setHeader('PDF Exporter');
     const response = await this.promptService.menu({
-      keyMap: { d: ['Done', DONE] },
+      hideSearch: true,
       right: ToMenuEntry([
         ['Print rows', 'print'],
         ['Process first row', 'first'],
       ]),
     });
-    if (IsDone(response)) {
-      return;
-    }
     switch (response) {
       case 'print':
         console.log(this.rows);
@@ -66,13 +68,12 @@ export class PDFDownloader {
     }
   }
 
-  protected onModuleInit(): void {
-    if (!existsSync(this.csvFile)) {
-      throw new InternalServerErrorException(
-        `No file at path: ${this.csvFile}`,
-      );
+  protected onApplicationBootstrap(): void {
+    const resolved = this.csvFile;
+    if (!existsSync(resolved)) {
+      throw new InternalServerErrorException(`No file at path: ${resolved}`);
     }
-    const contents = readFileSync(this.csvFile, 'utf8');
+    const contents = readFileSync(resolved, 'utf8');
     const [header, ...rows] = contents.trim().split(`\n`);
     const headers = header.split(',').map(i => i.trim()) as COLUMNS[];
     this.rows = rows.map(i => {
@@ -84,6 +85,7 @@ export class PDFDownloader {
   }
 
   private async process(row: ROW): Promise<void> {
+    // * Add form to cache
     if (!this.forms.has(row.FormId)) {
       this.logger.debug(`Loading form {${row.FormId}}`);
       this.forms.set(
@@ -98,18 +100,20 @@ export class PDFDownloader {
     if (!existsSync(folder)) {
       mkdirSync(folder);
     }
+
+    // * Generate a download token for the pdf
     this.logger.debug(
       `Retrieving pdf download token for {${row.SubmissionId}}`,
     );
     const endpoint = `/project/${form.project}/form/${form._id}/submission/${row.SubmissionId}/download`;
-    const token = await this.fetchService.fetch<{ key: string; token: string }>(
-      {
-        headers: { 'x-allow': `GET:${endpoint}` },
-        url: `/token`,
-      },
-    );
+    const token = await this.fetchService.fetch<TOKEN_RESPONSE>({
+      headers: { 'x-allow': `GET:${endpoint}` },
+      url: `/token`,
+    });
     this.logger.info(`Downloading PDF {${row.SubmissionId}}`);
     const file = `${row.EMRNumber}-${row.Pat_LastName}-${row.Pat_FirstName}.pdf`;
+
+    // * Use curl to direct download the pdf to it's final destination
     await execa(`curl`, [
       `${this.apiUrl}${endpoint}?token=${token.key}`,
       '-o',

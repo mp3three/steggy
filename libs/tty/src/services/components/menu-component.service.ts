@@ -16,14 +16,17 @@ import {
 import { forwardRef, Inject } from '@nestjs/common';
 import chalk from 'chalk';
 
-import { ICONS, MainMenuEntry, MenuEntry, tKeyMap } from '../../contracts';
+import {
+  DirectCB,
+  ICONS,
+  InquirerKeypressOptions,
+  MainMenuEntry,
+  MenuEntry,
+  tKeyMap,
+} from '../../contracts';
 import { Component, iComponent } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd, ansiStrip } from '../../includes';
-import {
-  ApplicationManagerService,
-  KeyboardManagerService,
-  ScreenService,
-} from '../meta';
+import { KeyboardManagerService, ScreenService } from '../meta';
 import { PromptEntry } from '../prompt.service';
 import { KeymapService, TextRenderingService } from '../render';
 
@@ -61,8 +64,9 @@ export type MainMenuCB<T = unknown> = (
 
 export interface MenuComponentOptions<T = unknown> {
   headerPadding?: number;
+  hideSearch?: boolean;
   item?: string;
-  keyMap: KeyMap;
+  keyMap?: KeyMap;
   /**
    * Only run against keyMap activations
    *
@@ -82,14 +86,10 @@ export interface MenuComponentOptions<T = unknown> {
 
 const DEFAULT_HEADER_PADDING = 4;
 const EMPTY_TEXT = ' ';
-
-const NORMAL_KEYMAP: tKeyMap = new Map([
+const PARTIAL_LIST: [InquirerKeypressOptions, string | DirectCB][] = [
   [{ catchAll: true, noHelp: true }, 'activateKeyMap'],
   [{ key: 'down' }, 'next'],
-  [{ description: 'done', key: 'enter' }, 'onEnd'],
-  [{ description: 'left', key: 'left' }, 'onLeft'],
-  [{ description: 'right', key: 'right' }, 'onRight'],
-  [{ description: 'toggle find', key: 'tab' }, 'toggleFind'],
+  [{ description: 'select entry', key: 'enter' }, 'onEnd'],
   [{ key: 'up' }, 'previous'],
   [
     { description: 'select item', key: [...'0123456789'], noHelp: true },
@@ -97,17 +97,22 @@ const NORMAL_KEYMAP: tKeyMap = new Map([
   ],
   [{ key: ['end', 'pagedown'] }, 'bottom'],
   [{ key: ['home', 'pageup'] }, 'top'],
-]);
+];
+const LEFT_RIGHT: [InquirerKeypressOptions, string | DirectCB][] = [
+  [{ description: 'left', key: 'left' }, 'onLeft'],
+  [{ description: 'right', key: 'right' }, 'onRight'],
+];
+const SEARCH: [InquirerKeypressOptions, string | DirectCB][] = [
+  [{ description: 'toggle find', key: 'tab' }, 'toggleFind'],
+];
+
 const SEARCH_KEYMAP: tKeyMap = new Map([
   [{ catchAll: true, noHelp: true }, 'onSearchKeyPress'],
-  [
-    {
-      description: 'move cursor',
-      key: ['down', 'up', 'pageup', 'pagedown'],
-    },
-    'navigateSearch',
-  ],
-  [{ description: 'done', key: 'enter' }, 'onEnd'],
+  [{ description: 'next', key: 'down' }, 'navigateSearch'],
+  [{ description: 'previous', key: 'up' }, 'navigateSearch'],
+  [{ description: 'bottom', key: ['end', 'pagedown'] }, 'navigateSearch'],
+  [{ description: 'top', key: ['home', 'pageup'] }, 'navigateSearch'],
+  [{ description: 'select entry', key: 'enter' }, 'onEnd'],
   [{ description: 'toggle find', key: 'tab' }, 'toggleFind'],
 ]);
 
@@ -116,8 +121,6 @@ export class MenuComponentService<VALUE = unknown>
   implements iComponent<MenuComponentOptions, VALUE>
 {
   constructor(
-    @Inject(forwardRef(() => ApplicationManagerService))
-    private readonly applicationManager: ApplicationManagerService,
     @Inject(forwardRef(() => KeymapService))
     private readonly keymap: KeymapService,
     @Inject(forwardRef(() => TextRenderingService))
@@ -161,7 +164,7 @@ export class MenuComponentService<VALUE = unknown>
     const defaultValue = this.side('right')[START]?.entry[VALUE];
     this.value ??= defaultValue;
     this.detectSide();
-    this.keyboardService.setKeyMap(this, NORMAL_KEYMAP);
+    this.setKeymap();
     const contained = this.side().find(i => i.entry[VALUE] === this.value);
     if (!contained) {
       this.value = defaultValue;
@@ -386,7 +389,7 @@ export class MenuComponentService<VALUE = unknown>
     this.mode = this.mode === 'find' ? 'select' : 'find';
     if (this.mode === 'select') {
       this.detectSide();
-      this.keyboardService.setKeyMap(this, NORMAL_KEYMAP);
+      this.setKeymap();
     } else {
       this.searchText = '';
       this.keyboardService.setKeyMap(this, SEARCH_KEYMAP);
@@ -592,6 +595,17 @@ export class MenuComponentService<VALUE = unknown>
       out.shift();
     }
     return out;
+  }
+
+  private setKeymap(): void {
+    const keymap = new Map([
+      ...PARTIAL_LIST,
+      ...(is.empty(this.opt.left) || is.empty(this.opt.right)
+        ? LEFT_RIGHT
+        : []),
+      ...(this.opt.hideSearch ? [] : SEARCH),
+    ]);
+    this.keyboardService.setKeyMap(this, keymap);
   }
 
   /**

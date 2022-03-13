@@ -13,7 +13,6 @@ import { ApplicationStackProvider, iStackProvider } from '../../contracts';
 import { iComponent } from '../../decorators';
 import { ansiMaxLength } from '../../includes';
 import { ComponentExplorerService } from '../explorers';
-import { LayoutManagerService } from './layout-manager.service';
 import { ScreenService } from './screen.service';
 
 // ? Is there anything else that needs to be kept track of?
@@ -27,7 +26,6 @@ export class ApplicationManagerService implements iStackProvider {
     @InjectConfig(DEFAULT_HEADER_FONT) private readonly primaryFont: Fonts,
     @InjectConfig(SECONDARY_HEADER_FONT) private readonly secondaryFont: Fonts,
     private readonly componentExplorer: ComponentExplorerService,
-    private readonly layoutManager: LayoutManagerService,
     private readonly screenService: ScreenService,
   ) {}
   private activeApplication: iComponent;

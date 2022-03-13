@@ -54,18 +54,18 @@
         ],
         "outputPath": "dist/apps/work",
         "generatePackageJson": true,
-        "main": "apps/work/src/entrypoints/pdf-downloader.main.ts",
+        "main": "apps/work/src/develop.main.ts",
         "tsConfig": "apps/work/tsconfig.app.json"
       },
       "configurations": {
         "support-tools": {
-          "main": "apps/work/src/entrypoints/support-tools.main.ts",
+          "main": "apps/work/src/offline-license.service.ts",
           "optimization": true,
           "extractLicenses": false,
           "inspect": false
         },
         "pdf-downloader": {
-          "main": "apps/work/src/entrypoints/pdf-downloader.main.ts",
+          "main": "apps/work/src/pdf-downloader.service.ts",
           "optimization": true,
           "extractLicenses": false,
           "inspect": false
@@ -78,34 +78,6 @@
         "lintFilePatterns": ["apps/work/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
-    },
-    "publish": {
-      "executor": "@nrwl/workspace:run-commands",
-      "options": {
-        "parallel": false,
-        "commands": [
-          {
-            "command": "npx figlet-cli -f Pagga work",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build work --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "npx terser dist/apps/work/main.js -c -m --keep-classnames --module > dist/apps/work/minified.js",
-            "description": "Minify it"
-          },
-          {
-            "command": "echo '#!/usr/bin/env node' > dist/apps/work/main.js; cat dist/apps/work/minified.js >> dist/apps/work/main.js",
-            "description": "Replace output (can't be done in previous step)"
-          },
-          {
-            "command": "npx yarn publish --cwd dist/apps/work --non-interactive",
-            "description": "Publish it"
-          }
-        ]
-      }
     }
   },
   "tags": []
