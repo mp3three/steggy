@@ -300,7 +300,7 @@ export class RoutineCommandService {
           }`,
         ].join(`\n`);
     }
-    return JSON.stringify(current);
+    return dump(current.command);
   }
 
   public async process(
@@ -351,9 +351,9 @@ export class RoutineCommandService {
   public async processRoutine(routine: RoutineDTO): Promise<RoutineDTO> {
     routine.command ??= [];
     const action = await this.promptService.menu({
+      hideSearch: true,
       item: 'commands',
       keyMap: {
-        a: MENU_ITEMS.ADD,
         d: MENU_ITEMS.DONE,
         s: [`${ICONS.SWAP}Sort`, 'sort'],
       },

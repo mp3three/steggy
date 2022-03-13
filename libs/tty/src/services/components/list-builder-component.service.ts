@@ -18,12 +18,8 @@ import chalk from 'chalk';
 import { ICONS, MenuEntry, tKeyMap } from '../../contracts';
 import { Component, iComponent } from '../../decorators';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
-import {
-  ApplicationManagerService,
-  KeyboardManagerService,
-  ScreenService,
-} from '../meta';
-import { TextRenderingService } from '../render';
+import { KeyboardManagerService, ScreenService } from '../meta';
+import { KeymapService, TextRenderingService } from '../render';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');
 
@@ -32,26 +28,6 @@ export interface ListBuilderOptions<T = unknown> {
   items?: string;
   source: MenuEntry<T | string>[];
 }
-
-const BASE_HELP = [
-  ['arrows', 'move cursor'],
-  ['enter', 'select entry'],
-  ['home', 'move to top'],
-  ['end', 'move to bottom'],
-  ['tab', 'toggle find mode'],
-] as MenuEntry[];
-
-const MENU_HELP = [
-  ['d', 'Done'],
-  ['space,f4,`', 'Toggle'],
-  ['i', 'Inverse'],
-  ['[', `Select all`],
-  [']', 'Remove all'],
-  ['f12', 'Reset'],
-  ['c', 'Cancel'],
-] as MenuEntry[];
-
-const SEARCH_HELP = [['f4,`', 'Toggle entry']] as MenuEntry[];
 
 const KEYMAP_FIND: tKeyMap = new Map([
   [{ key: 'backspace' }, 'searchBack'],
@@ -67,20 +43,20 @@ const KEYMAP_FIND: tKeyMap = new Map([
 ]);
 const KEYMAP_NORMAL: tKeyMap = new Map([
   [{ key: 'i' }, 'invert'],
-  [{ key: ['a', '['] }, 'selectAll'],
-  [{ key: ']' }, 'selectNone'],
-  [{ key: 'tab' }, 'toggleFind'],
+  [{ description: 'select all', key: ['a', '['] }, 'selectAll'],
+  [{ description: 'select none', key: ['n', ']'] }, 'selectNone'],
+  [{ description: 'toggle find', key: 'tab' }, 'toggleFind'],
   [{ key: ['space', 'f4', '`'] }, 'toggle'],
   [{ key: 'f12' }, 'reset'],
   [{ key: 'c' }, 'cancel'],
-  [{ key: 'd' }, 'onEnd'],
-  [{ key: 'left' }, 'onLeft'],
-  [{ key: 'right' }, 'onRight'],
+  [{ description: 'done', key: 'd' }, 'onEnd'],
+  [{ description: 'left', key: 'left' }, 'onLeft'],
+  [{ description: 'right', key: 'right' }, 'onRight'],
   [{ key: ['home', 'pageup'] }, 'top'],
   [{ key: ['end', 'pagedown'] }, 'bottom'],
   [{ key: 'up' }, 'previous'],
   [{ key: 'down' }, 'next'],
-  [{ key: [...'0123456789'] }, 'numericSelect'],
+  [{ key: [...'0123456789'], noHelp: true }, 'numericSelect'],
 ]);
 
 @Component({ type: 'list' })
@@ -88,9 +64,10 @@ export class ListBuilderComponentService<VALUE = unknown>
   implements iComponent<ListBuilderOptions<VALUE>, VALUE>
 {
   constructor(
+    @Inject(forwardRef(() => KeymapService))
+    private readonly keymap: KeymapService,
     @Inject(forwardRef(() => TextRenderingService))
     private readonly textRender: TextRenderingService,
-    private readonly applicationManager: ApplicationManagerService,
     private readonly screenService: ScreenService,
     private readonly keyboardService: KeyboardManagerService,
   ) {}
@@ -105,7 +82,12 @@ export class ListBuilderComponentService<VALUE = unknown>
   private source: MenuEntry<VALUE | string>[];
   private value: VALUE;
 
-  public configure(): void {
+  public configure(
+    options: ListBuilderOptions<VALUE>,
+    done: (type: VALUE[]) => void,
+  ): void {
+    this.done = done;
+    this.opt = options;
     this.opt.source ??= [];
     this.opt.current ??= [];
     this.current = [...this.opt.current];
@@ -137,12 +119,10 @@ export class ListBuilderComponentService<VALUE = unknown>
       right,
       search,
     });
-    const content = this.textRender.appendHelp(
+    this.screenService.render(
       message.join(`\n`),
-      BASE_HELP,
-      this.mode === 'find' ? SEARCH_HELP : MENU_HELP,
+      this.keymap.keymapHelp({ message: message.join(`\n`) }),
     );
-    this.screenService.render(content);
   }
 
   protected add(): void {

@@ -12,7 +12,7 @@ import {
   ToMenuEntry,
 } from '@automagical/tty';
 import { is } from '@automagical/utilities';
-import { forwardRef, Inject } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import { encode } from 'ini';
 
@@ -21,13 +21,7 @@ import { HomeFetchService } from '../home-fetch.service';
 import { EntityService } from './entity.service';
 
 const SINGLE_ITEM = 1;
-@Repl({
-  category: `Home Assistant`,
-  icon: ICONS.DEVICE,
-  keyOnly: true,
-  keybind: 'v',
-  name: `Devices`,
-})
+@Injectable()
 export class DeviceService {
   constructor(
     private readonly logger: AutoLogService,

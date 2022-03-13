@@ -86,25 +86,6 @@ export interface MenuComponentOptions<T = unknown> {
 
 const DEFAULT_HEADER_PADDING = 4;
 const EMPTY_TEXT = ' ';
-const PARTIAL_LIST: [InquirerKeypressOptions, string | DirectCB][] = [
-  [{ catchAll: true, noHelp: true }, 'activateKeyMap'],
-  [{ key: 'down' }, 'next'],
-  [{ description: 'select entry', key: 'enter' }, 'onEnd'],
-  [{ key: 'up' }, 'previous'],
-  [
-    { description: 'select item', key: [...'0123456789'], noHelp: true },
-    'numberSelect',
-  ],
-  [{ key: ['end', 'pagedown'] }, 'bottom'],
-  [{ key: ['home', 'pageup'] }, 'top'],
-];
-const LEFT_RIGHT: [InquirerKeypressOptions, string | DirectCB][] = [
-  [{ description: 'left', key: 'left' }, 'onLeft'],
-  [{ description: 'right', key: 'right' }, 'onRight'],
-];
-const SEARCH: [InquirerKeypressOptions, string | DirectCB][] = [
-  [{ description: 'toggle find', key: 'tab' }, 'toggleFind'],
-];
 
 const SEARCH_KEYMAP: tKeyMap = new Map([
   [{ catchAll: true, noHelp: true }, 'onSearchKeyPress'],
@@ -146,7 +127,6 @@ export class MenuComponentService<VALUE = unknown>
     done: (type: VALUE) => void,
   ): void {
     this.opt = config;
-    this.done = done;
     // this.showHelp = this.opt.showHelp ?? true;
     this.opt.left ??= [];
     this.opt.item ??= 'actions';
@@ -164,6 +144,11 @@ export class MenuComponentService<VALUE = unknown>
     const defaultValue = this.side('right')[START]?.entry[VALUE];
     this.value ??= defaultValue;
     this.detectSide();
+    const oldKeymap = this.keyboardService.save();
+    this.done = value => {
+      this.keyboardService.load(oldKeymap);
+      done(value);
+    };
     this.setKeymap();
     const contained = this.side().find(i => i.entry[VALUE] === this.value);
     if (!contained) {
@@ -598,11 +583,31 @@ export class MenuComponentService<VALUE = unknown>
   }
 
   private setKeymap(): void {
+    const PARTIAL_LIST: [InquirerKeypressOptions, string | DirectCB][] = [
+      [{ catchAll: true, noHelp: true }, 'activateKeyMap'],
+      [{ key: 'down' }, 'next'],
+      [{ description: 'select entry', key: 'enter' }, 'onEnd'],
+      [{ key: 'up' }, 'previous'],
+      [
+        { description: 'select item', key: [...'0123456789'], noHelp: true },
+        'numberSelect',
+      ],
+      [{ key: ['end', 'pagedown'] }, 'bottom'],
+      [{ key: ['home', 'pageup'] }, 'top'],
+    ];
+    const LEFT_RIGHT: [InquirerKeypressOptions, string | DirectCB][] = [
+      [{ description: 'left', key: 'left' }, 'onLeft'],
+      [{ description: 'right', key: 'right' }, 'onRight'],
+    ];
+    const SEARCH: [InquirerKeypressOptions, string | DirectCB][] = [
+      [{ description: 'toggle find', key: 'tab' }, 'toggleFind'],
+    ];
+
     const keymap = new Map([
       ...PARTIAL_LIST,
       ...(is.empty(this.opt.left) || is.empty(this.opt.right)
-        ? LEFT_RIGHT
-        : []),
+        ? []
+        : LEFT_RIGHT),
       ...(this.opt.hideSearch ? [] : SEARCH),
     ]);
     this.keyboardService.setKeyMap(this, keymap);

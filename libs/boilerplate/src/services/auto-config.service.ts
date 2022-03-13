@@ -18,7 +18,7 @@ import { decode, encode } from 'ini';
 import yaml from 'js-yaml';
 import minimist from 'minimist';
 import { get, set } from 'object-path';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { cwd } from 'process';
 
 import { LIB_UTILS, LOG_LEVEL } from '../config';
@@ -272,7 +272,7 @@ export class AutoConfigService {
   private loadFromFiles(): Map<string, AbstractConfig> {
     this.configFiles = this.workspace.configFilePaths;
     if (this.switches['config']) {
-      this.configFiles.push(this.switches['config']);
+      this.configFiles.push(resolve(this.switches['config']));
     }
     this.loadedConfigFiles = [];
     const out = new Map<string, AbstractConfig>();

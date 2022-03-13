@@ -12,6 +12,7 @@ import {
 } from '@automagical/tty';
 import { START } from '@automagical/utilities';
 import { InternalServerErrorException } from '@nestjs/common';
+import { eachLimit } from 'async';
 import execa from 'execa';
 import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
@@ -25,10 +26,12 @@ type COLUMNS =
   | 'Pat_LastName';
 type ROW = Record<COLUMNS, string>;
 type TOKEN_RESPONSE = { key: string; token: string };
+const DEFAULT_LIMIT = 3;
 
 @QuickScript({
   NX_PROJECT: 'work',
   OVERRIDE_DEFAULTS: {
+    application: { LIMIT: DEFAULT_LIMIT },
     libs: { tty: { DEFAULT_HEADER_FONT: 'Pagga' } },
   },
   application: Symbol('pdf-downloader'),
@@ -36,12 +39,13 @@ type TOKEN_RESPONSE = { key: string; token: string };
 })
 export class PDFDownloader {
   constructor(
-    @InjectConfig('CSV_FILE') private readonly csvFile: string,
     @InjectConfig('API_URL') private readonly apiUrl: string,
-    private readonly promptService: PromptService,
-    private readonly logger: AutoLogService,
+    @InjectConfig('CSV_FILE') private readonly csvFile: string,
+    @InjectConfig('LIMIT') private readonly limit: number,
     private readonly app: ApplicationManagerService,
     private readonly fetchService: FormioFetchService,
+    private readonly logger: AutoLogService,
+    private readonly promptService: PromptService,
   ) {}
 
   private forms = new Map<string, FormDTO>();
@@ -54,17 +58,26 @@ export class PDFDownloader {
       right: ToMenuEntry([
         ['Print rows', 'print'],
         ['Process first row', 'first'],
+        ['Process all', 'all'],
       ]),
     });
     switch (response) {
       case 'print':
         console.log(this.rows);
         await this.promptService.acknowledge();
-        return await this.exec();
+        return;
       case 'first':
         await this.process(this.rows[START]);
         await this.promptService.acknowledge();
-        return await this.exec();
+        return;
+      case 'all':
+        await eachLimit(
+          this.rows,
+          this.limit,
+          async row => await this.process(row),
+        );
+        await this.promptService.acknowledge();
+        return;
     }
   }
 

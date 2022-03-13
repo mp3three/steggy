@@ -26,7 +26,7 @@ import { homedir } from 'os';
 import { join } from 'path';
 
 import { DONE, ICONS, IsDone } from '../contracts';
-import { ToMenuEntry } from '../inquirer';
+import { ToMenuEntry } from './components';
 import { ApplicationManagerService, ScreenService } from './meta';
 import { PromptEntry, PromptService } from './prompt.service';
 

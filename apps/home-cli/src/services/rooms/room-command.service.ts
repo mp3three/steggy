@@ -175,7 +175,6 @@ export class RoomCommandService {
         ],
         r: MENU_ITEMS.RENAME,
         s: MENU_ITEMS.STATE_MANAGER,
-        t: MENU_ITEMS.ROUTINES,
         x: MENU_ITEMS.DELETE,
       },
       left: ToMenuEntry([
@@ -217,9 +216,6 @@ export class RoomCommandService {
           id: room._id,
           script: 'room',
         });
-        return await this.processRoom(room, action);
-      case 'routines':
-        await this.routineService.processRoom(room);
         return await this.processRoom(room, action);
       case 'states':
         room = await this.roomState.process(room);

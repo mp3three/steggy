@@ -168,69 +168,14 @@ export class RoutineService {
     );
   }
 
-  public async processRoom(room?: RoomDTO | string): Promise<void> {
-    const control: ResultControlDTO = {};
-    control.sort = ['friendlyName'];
-    if (room) {
-      control.filters ??= new Set();
-      control.filters.add({
-        field: 'room',
-        value: is.string(room) ? room : room._id,
-      });
-    }
-    const current = await this.list(control);
-    let action = await this.promptService.menu({
-      keyMap: {
-        a: MENU_ITEMS.ACTIVATE,
-        c: MENU_ITEMS.CREATE,
-        d: MENU_ITEMS.DONE,
-      },
-      keyMapCallback: async (action, [label, routine]) => {
-        if (action === 'activate') {
-          await this.activate(routine as RoutineDTO);
-          return chalk.magenta.bold(MENU_ITEMS.ACTIVATE[LABEL]) + ' ' + label;
-        }
-        return true;
-      },
-      right: ToMenuEntry(
-        current.map(item => [
-          item.friendlyName,
-          item,
-        ]) as PromptEntry<RoutineDTO>[],
-      ),
-    });
-    if (IsDone(action)) {
-      return;
-    }
-    if (action === 'create') {
-      room = room || (await this.roomCommand.pickOne());
-      action = await this.create(room);
-    }
-    if (is.string(action)) {
-      throw new NotImplementedException();
-    }
-    await this.processRoutine(action);
-  }
-
   public async processRoutine(
     routine: RoutineDTO,
     defaultAction?: string,
   ): Promise<void> {
     await this.header(routine);
-    const [events, command] = [
-      [`${ICONS.EVENT}Activation Events`, 'events'],
-      [`${ICONS.COMMAND}Commands`, 'command'],
-    ] as PromptEntry[];
-    if (is.empty(routine.activate)) {
-      events[LABEL] = chalk.red(events[LABEL]);
-    }
-    if (is.empty(routine.command)) {
-      command[LABEL] = chalk.red(command[LABEL]);
-    }
+
     const action = await this.promptService.menu({
       keyMap: {
-        a: events,
-        c: command,
         d: MENU_ITEMS.DONE,
         m: MENU_ITEMS.ACTIVATE,
         p: [
@@ -246,7 +191,7 @@ export class RoutineService {
         ],
         x: [`${ICONS.DELETE}Delete`, 'delete'],
       },
-      right: ToMenuEntry([MENU_ITEMS.ACTIVATE, events, command]),
+      keyOnly: true,
       rightHeader: `Manage routine`,
       value: defaultAction,
     });
