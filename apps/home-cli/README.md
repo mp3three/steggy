@@ -35,6 +35,7 @@ Pinned items are added to configuration file
 ```ini
 [application]
   CONTROLLER_API=http://localhost:7000
+
   ADMIN_KEY=super secret password
 
 [libs.boilerplate]
