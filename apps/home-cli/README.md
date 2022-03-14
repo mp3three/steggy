@@ -7,6 +7,8 @@ This app doesn't run any background logic, a
 
 ## Install
 
+To install the `home-cli` bash command.
+
 ### Yarn
 
 ```bash
