@@ -1,8 +1,10 @@
 import {
+  ApplicationManagerService,
   ICONS,
   IsDone,
   PromptService,
   Repl,
+  ScreenService,
   ToMenuEntry,
 } from '@automagical/tty';
 import chalk from 'chalk';
@@ -20,9 +22,12 @@ export class ServerControlService {
   constructor(
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
+    private readonly applicationManager: ApplicationManagerService,
+    private readonly screenService: ScreenService,
   ) {}
 
   public async exec(defaultAction: string): Promise<void> {
+    this.applicationManager.setHeader(`Hass Control`);
     const action = await this.promptService.menu({
       keyMap: {
         d: MENU_ITEMS.DONE,
@@ -65,12 +70,14 @@ export class ServerControlService {
           method: `post`,
           url: `/admin/server/${action}`,
         });
+        await this.promptService.acknowledge();
         return await this.exec(action);
     }
     await this.fetchService.fetch({
       method: `post`,
       url: `/admin/reload/${action}`,
     });
+    await this.promptService.acknowledge();
     await this.exec(action);
   }
 
@@ -83,10 +90,16 @@ export class ServerControlService {
       url: '/admin/server/check',
     });
     if (result === 'valid') {
-      console.log(chalk.green.bold`${ICONS.EVENT} Configuration valid!`);
+      this.screenService.print(
+        chalk.green.bold`${ICONS.EVENT} Configuration valid!`,
+      );
+      await this.promptService.acknowledge();
       return;
     }
-    console.log(chalk.red.bold`${ICONS.WARNING} Configuration invalid`);
-    console.log(errors);
+    this.screenService.print(
+      chalk.red.bold`${ICONS.WARNING} Configuration invalid`,
+    );
+    this.screenService.print(errors);
+    await this.promptService.acknowledge();
   }
 }

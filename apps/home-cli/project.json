@@ -15,9 +15,7 @@
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "commands": [
-          {
-            "command": "npx nx build home-cli --configuration=config-scanner"
-          }
+          { "command": "npx nx build home-cli --configuration=config-scanner" }
         ]
       }
     },
@@ -127,20 +125,12 @@
             "description": "Create production optimized build"
           },
           {
-            "command": "npx nx build home-cli --configuration=scan-config",
-            "description": "Prep the config scanner"
-          },
-          {
             "command": "npx terser dist/apps/home-cli/main.js -c -m --keep-classnames --module > dist/apps/home-cli/minified.js",
             "description": "Minify it"
           },
           {
             "command": "echo '#!/usr/bin/env node' > dist/apps/home-cli/main.js; cat dist/apps/home-cli/minified.js >> dist/apps/home-cli/main.js",
             "description": "Replace output (can't be done in previous step)"
-          },
-          {
-            "command": "node dist/config-scanner/home-cli/main.js > dist/apps/home-cli/assets/config.json",
-            "description": "Cache the completed config"
           },
           {
             "command": "npx yarn publish --cwd dist/apps/home-cli --non-interactive",

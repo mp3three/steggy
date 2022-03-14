@@ -17,6 +17,6 @@
   "license": "MIT",
   "main": "main.js",
   "displayName": "Home CLI",
-  "version": "0.6.3",
+  "version": "0.6.5",
   "homepage": "https://github.com/ccontour/text-based"
 }

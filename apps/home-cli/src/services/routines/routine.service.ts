@@ -13,7 +13,6 @@ import {
   ICONS,
   IsDone,
   PinnedItemService,
-  PromptEntry,
   PromptService,
   Repl,
   ScreenService,

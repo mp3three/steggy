@@ -7,6 +7,7 @@ import {
 } from '@automagical/boilerplate';
 import { HassNotificationDTO } from '@automagical/home-assistant-shared';
 import {
+  ApplicationManagerService,
   ConfigBuilderService,
   ICONS,
   IsDone,
@@ -36,15 +37,16 @@ import { HomeFetchService } from './home-fetch.service';
 })
 export class DebugService {
   constructor(
+    @InjectConfig(CLI_PACKAGE) private readonly cliPackagePath: string,
+    @InjectConfig(CONTROLLER_PACKAGE)
+    private readonly controllerPackagePath: string,
+    @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
     private readonly fetchService: HomeFetchService,
     private readonly promptService: PromptService,
     private readonly screenService: ScreenService,
     private readonly workspace: WorkspaceService,
     private readonly configBuilder: ConfigBuilderService,
-    @InjectConfig(CLI_PACKAGE) private readonly cliPackagePath: string,
-    @InjectConfig(CONTROLLER_PACKAGE)
-    private readonly controllerPackagePath: string,
-    @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
+    private readonly applicationManager: ApplicationManagerService,
   ) {}
 
   /**
@@ -72,7 +74,9 @@ For loop example getting entity values in the weather domain:
 {%- endfor %}.`;
 
   public async exec(defaultAction?: string): Promise<void> {
+    this.applicationManager.setHeader('Debugger');
     const action = await this.promptService.menu({
+      hideSearch: true,
       keyMap: { d: MENU_ITEMS.DONE },
       right: ToMenuEntry([
         [`Manage configuration`, 'configure'],
@@ -95,7 +99,8 @@ For loop example getting entity values in the weather domain:
         return await this.exec(action);
       case 'version':
         const version = await this.fetchService.fetch({ url: `/version` });
-        this.screenService.print(dump(version));
+        this.screenService.print(`\n\n` + dump(version));
+        await this.promptService.acknowledge();
         return await this.exec(action);
       case 'configure':
         await this.configBuilder.handleConfig();
@@ -111,6 +116,7 @@ For loop example getting entity values in the weather domain:
           url: `/debug/hass-config`,
         });
         this.screenService.print(dump(result));
+        await this.promptService.acknowledge();
         return await this.exec(action);
       case 'lightManagerCache':
         await this.lightManagerCache();

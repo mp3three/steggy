@@ -1,5 +1,6 @@
 import { ACTIVE_APPLICATION, WorkspaceService } from '@automagical/boilerplate';
 import { INestApplication } from '@nestjs/common';
+import { show } from 'cli-cursor';
 import { dump } from 'js-yaml';
 
 import { ScreenService } from '../services';
@@ -20,6 +21,7 @@ export function VersionPrinter(app: INestApplication): void {
         ['Root Version']: rootVersion,
       }),
     );
+    show();
     // eslint-disable-next-line unicorn/no-process-exit
     process.exit();
   }

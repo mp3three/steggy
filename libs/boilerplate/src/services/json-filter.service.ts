@@ -105,6 +105,7 @@ export class JSONFilterService {
   }
 
   private regex(value: string, cmp: string | RegExp): boolean {
+    // TODO: Support regex like "/regex/flags"
     const regex = is.string(cmp) ? new RegExp(cmp, 'gi') : cmp;
     if (!(regex instanceof RegExp)) {
       this.logger.warn({ cmp }, `Bad regex filter`);
