@@ -58,7 +58,7 @@
         "tsConfig": "apps/work/tsconfig.app.json"
       },
       "configurations": {
-        "support-tools": {
+        "offline-license": {
           "main": "apps/work/src/offline-license.service.ts",
           "optimization": true,
           "extractLicenses": false,

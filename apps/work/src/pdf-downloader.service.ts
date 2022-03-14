@@ -3,6 +3,7 @@ import {
   FormDTO,
   FormioFetchService,
   FormioSdkModule,
+  SubmissionDTO,
 } from '@automagical/formio';
 import {
   ApplicationManagerService,
@@ -118,14 +119,17 @@ export class PDFDownloader {
     this.logger.debug(
       `Retrieving pdf download token for {${row.SubmissionId}}`,
     );
-    const endpoint = `/project/${form.project}/form/${form._id}/submission/${row.SubmissionId}/download`;
+    const submissionUrl = `/project/${form.project}/form/${form._id}/submission/${row.SubmissionId}`;
+    const endpoint = `${submissionUrl}/download`;
+    const { created } = await this.fetchService.fetch<SubmissionDTO>({
+      url: submissionUrl,
+    });
     const token = await this.fetchService.fetch<TOKEN_RESPONSE>({
       headers: { 'x-allow': `GET:${endpoint}` },
       url: `/token`,
     });
     this.logger.info(`Downloading PDF {${row.SubmissionId}}`);
-    const file = `${row.EMRNumber}-${row.Pat_LastName}-${row.Pat_FirstName}.pdf`;
-
+    const file = `${row.EMRNumber}-${row.Pat_LastName}-${row.Pat_FirstName}-${created}.pdf`;
     // * Use curl to direct download the pdf to it's final destination
     await execa(`curl`, [
       `${this.apiUrl}${endpoint}?token=${token.key}`,

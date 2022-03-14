@@ -1,8 +1,9 @@
 import { FetchService, InjectConfig } from '@automagical/boilerplate';
 import { FetchWith } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
+import { privateca } from 'googleapis/build/src/apis/privateca';
 
-import { API_KEY, LIVE_ENDPOINT } from '../config';
+import { API_KEY, JWT_TOKEN, LIVE_ENDPOINT } from '../config';
 
 export type FetchError = { message: string; status: number };
 
@@ -19,6 +20,7 @@ export class FormioFetchService {
   constructor(
     @InjectConfig(LIVE_ENDPOINT) private readonly liveEndpoint: string,
     @InjectConfig(API_KEY) private readonly apiKey: string,
+    @InjectConfig(JWT_TOKEN) private readonly jwtToken: string,
     private readonly fetchService: FetchService,
   ) {}
 
@@ -26,6 +28,7 @@ export class FormioFetchService {
     return await this.fetchService.fetch<T>({
       apiKey: this.apiKey,
       baseUrl: this.liveEndpoint,
+      jwtToken: this.jwtToken,
       ...fetch,
     });
   }

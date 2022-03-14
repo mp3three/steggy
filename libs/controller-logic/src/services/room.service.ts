@@ -38,7 +38,7 @@ export class RoomService {
     }
     this.logger.info(`[${room.friendlyName}] activate {${state.friendlyName}}`);
     await Promise.all([
-      await each(state.states, async state => {
+      await each(state?.states, async state => {
         if (state.type !== 'entity') {
           return;
         }

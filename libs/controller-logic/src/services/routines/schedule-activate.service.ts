@@ -21,11 +21,16 @@ export class ScheduleActivateService {
     activate: ScheduleActivateDTO,
     callback: () => Promise<void>,
   ): void {
-    const cron = new CronJob(activate.schedule, async () => await callback());
-    this.SCHEDULES.add({
-      ...activate,
-      cron,
+    process.nextTick(() => {
+      const cron = new CronJob(activate.schedule, async () => {
+        this.logger.debug(`{${activate.schedule}} Cron activate`);
+        await callback();
+      });
+      this.SCHEDULES.add({
+        ...activate,
+        cron,
+      });
+      cron.start();
     });
-    cron.start();
   }
 }

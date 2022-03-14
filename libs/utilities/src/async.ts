@@ -7,7 +7,7 @@ import { ARRAY_OFFSET, SINGLE, START } from './utilities';
 //
 
 export async function each<T = unknown>(
-  item: T[],
+  item: T[] = [],
   callback: (item: T) => Promise<void | unknown>,
 ): Promise<void> {
   await Promise.all(item.map(async i => await callback(i)));

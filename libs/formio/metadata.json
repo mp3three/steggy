@@ -1,12 +1,16 @@
 {
   "configuration": {
-    "API_KEY":{
+    "API_KEY": {
       "type": "string",
       "description": "x-token to for authentication"
     },
-    "LIVE_ENDPOINT":{
+    "LIVE_ENDPOINT": {
       "type": "string",
       "description": "Live endpoint for project"
+    },
+    "JWT_TOKEN": {
+      "type": "string",
+      "description": "Auth token to use with scripts"
     }
   }
 }
