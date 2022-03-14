@@ -158,7 +158,7 @@ export class GroupCommandService implements iRepl {
   }
 
   public async exec(): Promise<void> {
-    this.applicationManager.setHeader('All Groups', 'test');
+    this.applicationManager.setHeader('All Groups');
     const groups = await this.list();
     const action = await this.promptService.menu<GroupDTO>({
       keyMap: { c: MENU_ITEMS.CREATE, d: MENU_ITEMS.DONE },
