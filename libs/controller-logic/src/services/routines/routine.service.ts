@@ -189,7 +189,6 @@ export class RoutineService {
           );
           return;
         }
-        this.logger.warn({ waitForChange });
         const result = await this.activateCommand(
           command,
           routine as RoutineDTO,
