@@ -17,7 +17,6 @@
     "rules-engine": "libs/rules-engine",
     "server": "libs/server",
     "tty": "libs/tty",
-    "utilities": "libs/utilities",
-    "work": "apps/work"
+    "utilities": "libs/utilities"
   }
 }
