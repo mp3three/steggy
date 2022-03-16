@@ -2,7 +2,7 @@
   "license": "MIT",
   "description": "",
   "main": "main.js",
-  "version": "0.6.9",
+  "version": "0.7.0",
   "dependencies": {
     "pino-pretty": "^5.1.1"
   },

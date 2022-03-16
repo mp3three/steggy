@@ -7,7 +7,7 @@
   "name": "@automagical/server",
   "license": "MIT",
   "displayName": "Server",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "homepage": "https://github.com/ccontour/automagical",
   "repository": {
     "type": "git",

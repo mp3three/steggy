@@ -7,7 +7,7 @@
   "name": "@automagical/home-assistant-shared",
   "displayName": "Home Assistant Shared",
   "license": "MIT",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "homepage": "https://github.com/ccontour/automagical",
   "repository": {
     "type": "git",
