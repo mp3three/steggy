@@ -8,8 +8,7 @@ then
 fi
 # BUILD
 tools/scripts/docker-build.sh "$IMAGE" "$DIR"
-PUBLISHER="mp3three"
-
+PUBLISHER=$(jq .publisher < "package.json" | xargs)
 VERSION=$(jq .version < "apps/$DIR/package.json" | xargs)
 TAGS=$(npx ts-node tools/scripts/create-tags.js "$VERSION")
 IMAGE="$PUBLISHER/$IMAGE"
