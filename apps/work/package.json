@@ -1,15 +1,7 @@
 {
-  "publishConfig": {
-    "registry": "https://npm.programmable.work"
-  },
-  "bin": {
-    "farmio": "main.js"
-  },
-  "name": "@farmio/support-tools",
   "license": "MIT",
   "description": "",
   "main": "main.js",
-  "displayName": "Support Tools",
   "version": "0.6.9",
   "dependencies": {
     "pino-pretty": "^5.1.1"

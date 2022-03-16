@@ -1,7 +1,6 @@
 import { FetchService, InjectConfig } from '@automagical/boilerplate';
 import { FetchWith } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { privateca } from 'googleapis/build/src/apis/privateca';
 
 import { API_KEY, JWT_TOKEN, LIVE_ENDPOINT } from '../config';
 

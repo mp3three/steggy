@@ -3,7 +3,7 @@
 ## Description
 
 The Home CLI is a tool for issuing commands to the Controller using the rest api. It is installed indpendently from the controller, using npm.
-This app doesn't run any background logic, a
+This app doesn't run any background logic, and is intended to leave running in the background as a quick-access tool.
 
 ## Install
 
@@ -13,15 +13,15 @@ To install the `home-cli` bash command.
 
 ```bash
 # install
-yarn global add @automagical/home-cli --registry=https://npm.programmable.work
+yarn global add @automagicl/home-cli
 # update
-yarn global upgrade @automagical/home-cli
+yarn global upgrade @automagicl/home-cli
 ```
 
 ### NPM
 
 ```bash
-npm install -g @automagical/home-cli --registry=https://npm.programmable.work
+npm install -g @automagicl/home-cli
 ```
 
 ## Configuration

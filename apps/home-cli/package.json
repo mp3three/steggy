@@ -1,11 +1,4 @@
 {
-  "publishConfig": {
-    "registry": "https://npm.programmable.work"
-  },
-  "author": {
-    "email": "git@programmable.work",
-    "name": "Cameron Contour"
-  },
   "bin": {
     "home-cli": "main.js"
   },
@@ -13,10 +6,10 @@
     "eventemitter3": "^4.0.7",
     "pino-pretty": "^5.1.1"
   },
-  "name": "@automagical/home-cli",
+  "name": "@automagicl/home-cli",
   "license": "MIT",
   "main": "main.js",
   "displayName": "Home CLI",
-  "version": "0.6.5",
-  "homepage": "https://github.com/ccontour/text-based"
+  "version": "0.6.7",
+  "homepage": "https://github.com/ccontour/automagical"
 }

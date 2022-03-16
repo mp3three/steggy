@@ -6,7 +6,7 @@ volumes:
 
 services:
   home-controller:
-    image: containers.programmable.work/home-controller:latest
+    image: mp3three/home-controller:latest
     container_name: home-controller
     volumes:
       # Configuration

@@ -1,4 +1,4 @@
-# [@automagical](https://git.programmable.work/cameron/automagical) monorepo
+# [@automagical](https://github.com/ccontour/automagical) monorepo
 
 ## [Home Configure](apps/home-configure)
 

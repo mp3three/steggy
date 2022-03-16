@@ -1,7 +1,4 @@
 {
-  "publishConfig": {
-    "registry": "https://npm.programmable.work"
-  },
   "author": {
     "email": "git@programmable.work",
     "name": "Cameron Contour"

@@ -193,13 +193,7 @@
     {
       "files": ["*dto.ts"],
       "rules": {
-        "unicorn/no-null": "off"
-      }
-    },
-    {
-      "files": ["*dto.ts"],
-      "rules": {
-        // Don't see a benefit from this rule making annotations more complicated
+        "unicorn/no-null": "off",
         "@typescript-eslint/no-magic-numbers": "off"
       }
     }

@@ -1,20 +1,17 @@
 {
-  "publishConfig": {
-    "registry": "https://npm.programmable.work"
-  },
   "author": {
     "email": "git@programmable.work",
     "name": "Cameron Contour",
-    "url": "https://git.programmable.work/cameron/automagical"
+    "url": "https://github.com/ccontour/automagical"
   },
   "name": "@automagical/controller-logic",
   "displayName": "Controller Logic",
   "license": "MIT",
   "version": "0.6.0",
-  "homepage": "https://git.programmable.work/cameron/automagical",
+  "homepage": "https://github.com/ccontour/automagical",
   "repository": {
     "type": "git",
-    "url": "git+https://git.programmable.work/cameron/automagical.git"
+    "url": "git+https://github.com/ccontour/automagical.git"
   },
-  "dependencies": {  }
+  "dependencies": {}
 }

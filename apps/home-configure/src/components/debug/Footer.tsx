@@ -9,7 +9,7 @@ export class Foot extends React.Component {
     return (
       <Footer style={{ textAlign: 'center' }}>
         <Link
-          href="https://git.programmable.work/cameron/automagical"
+          href="https://github.com/ccontour/automagical"
           target="_blank"
         >
           @automagical

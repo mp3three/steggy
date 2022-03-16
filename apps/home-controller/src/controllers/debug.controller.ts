@@ -116,4 +116,26 @@ export class DebugController {
     await this.notification.notify(template);
     return template;
   }
+
+  @Get('/solar')
+  public async solar(): Promise<unknown> {
+    const calc = await this.solarCalc.getCalc();
+    return {
+      astronomicalDawn: calc.astronomicalDawn.toLocaleString(),
+      astronomicalDusk: calc.astronomicalDusk.toLocaleString(),
+      civilDawn: calc.civilDawn.toLocaleString(),
+      civilDusk: calc.civilDusk.toLocaleString(),
+      dawn: calc.dawn.toLocaleString(),
+      dusk: calc.dusk.toLocaleString(),
+      nauticalDawn: calc.nauticalDawn.toLocaleString(),
+      nauticalDusk: calc.nauticalDusk.toLocaleString(),
+      nightEnd: calc.nightEnd.toLocaleString(),
+      nightStart: calc.nightStart.toLocaleString(),
+      solarNoon: calc.solarNoon.toLocaleString(),
+      sunrise: calc.sunrise.toLocaleString(),
+      sunriseEnd: calc.sunriseEnd.toLocaleString(),
+      sunset: calc.sunset.toLocaleString(),
+      sunsetStart: calc.sunsetStart.toLocaleString(),
+    };
+  }
 }
