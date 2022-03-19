@@ -5,7 +5,6 @@ import {
   InjectCache,
   InjectConfig,
 } from '@automagical/boilerplate';
-import { GroupService } from '@automagical/controller-logic';
 import {
   EntityManagerService,
   NotifyDomainService,
@@ -18,6 +17,7 @@ import {
   NOTIFY_UNAVAILABLE_DURATION,
   UNAVAILABLE_MONITOR_HOUR,
 } from '../config';
+import { GroupService } from './groups';
 
 const CACHE_KEY = (id: string) => `RECENTLY_UNAVAILABLE:${id}`;
 const WAIT_DAYS = 1;

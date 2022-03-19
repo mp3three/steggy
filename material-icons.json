@@ -24,7 +24,6 @@
     "comparisons": "custom",
     "conf.d": "routes",
     "contracts": "contract",
-    "controller-logic": "custom",
     "controller-shared": "components",
     "cron": "ci",
     "dashboard": "mjml",

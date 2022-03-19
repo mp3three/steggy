@@ -13,7 +13,6 @@ import { MongoPersistenceModule } from '@automagical/persistence';
 import { DynamicModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { LIB_CONTROLLER_LOGIC } from '../config';
 import { DatabaseConnectService } from '../services';
 import {
   GroupPersistenceService,
@@ -41,7 +40,8 @@ const services = [
       { name: MetadataDTO.name, schema: MetadataSchema },
     ]),
   ],
-  library: LIB_CONTROLLER_LOGIC,
+  // Not constructively used
+  library: Symbol(),
   local: true,
   providers: services,
 })

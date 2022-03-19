@@ -4,7 +4,6 @@ import { ServerModule } from '@automagical/server';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { existsSync } from 'fs';
 import { join } from 'path';
-
 import {
   AdminController,
   AnimationController,
@@ -32,6 +31,7 @@ import {
   LockGroupService,
   MetadataService,
   RoomService,
+  RoutineEnabledService,
   RoutineService,
   RoutineTriggerService,
   ScheduleActivateService,
@@ -71,6 +71,7 @@ const providers = [
     LightFlashCommandService,
     CircadianService,
     RoutineTriggerService,
+    RoutineEnabledService,
     SetRoomMetadataService,
     LightManagerService,
     StopProcessingCommandService,
@@ -100,6 +101,7 @@ const providers = [
   imports: [
     ServerModule,
     HomeAssistantModule,
+    HomePersistenceModule,
     RegisterCache(),
     HomePersistenceModule.forRoot(),
     ...(existsSync(rootPath)

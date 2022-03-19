@@ -45,11 +45,6 @@
             "output": "./assets/home-assistant"
           },
           {
-            "input": "libs/controller-logic",
-            "glob": "*.json",
-            "output": "./assets/controller-logic"
-          },
-          {
             "input": "libs/controller-shared",
             "glob": "*.json",
             "output": "./assets/controller-shared"

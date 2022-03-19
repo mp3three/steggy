@@ -10,15 +10,15 @@ The Home Configure project acts as the primary user interface, and is delivered 
 ### Recommended basic setup
 
 ```ini
+[application]
+  MONGO_URI=mongodb://mongo:27017/home-controller
+
 [libs.boilerplate]
   CACHE_PROVIDER=redis
 
   REDIS_HOST=redis
 
   LOG_LEVEL=debug
-
-[libs.controller-logic]
-  MONGO_URI=mongodb://mongo:27017/home-controller
 
 [libs.home-assistant]
   BASE_URL=https://homeassistant.your.domain
@@ -32,21 +32,7 @@ The Home Configure project acts as the primary user interface, and is delivered 
 ### All Options
 
 ```ini
-[libs.boilerplate]
-  ; default = info
-  LOG_LEVEL=info | warn | debug
-
-  ; default = memory
-  CACHE_PROVIDER=redis | memory
-
-  ; only used with redis cache provider
-  REDIS_HOST=localhost
-
-  REDIS_PORT=6379
-
-  REDIS_DEFAULT_TTL=86400
-
-[libs.controller-logic]
+[application]
   ; modify the internal timing of the sequence activation event
   SEQUENCE_TIMEOUT=1500
 
@@ -73,6 +59,20 @@ The Home Configure project acts as the primary user interface, and is delivered 
 
   ; file path; optional / used with ssl connections to mongo
   MONGO_CRL=
+
+[libs.boilerplate]
+  ; default = info
+  LOG_LEVEL=info | warn | debug
+
+  ; default = memory
+  CACHE_PROVIDER=redis | memory
+
+  ; only used with redis cache provider
+  REDIS_HOST=localhost
+
+  REDIS_PORT=6379
+
+  REDIS_DEFAULT_TTL=86400
 
 [libs.home-assistant]
   ; long lived access token

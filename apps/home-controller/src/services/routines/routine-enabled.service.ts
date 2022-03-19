@@ -37,6 +37,7 @@ export class RoutineEnabledService {
     private readonly routineService: RoutineService,
     private readonly logger: AutoLogService,
     private readonly routinePersistence: RoutinePersistenceService,
+    @Inject(forwardRef(() => StopProcessingCommandService))
     private readonly stopProcessingService: StopProcessingCommandService,
   ) {}
 

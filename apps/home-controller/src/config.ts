@@ -9,4 +9,3 @@ export const MONGO_CA = 'MONGO_CA';
 export const MIN_BRIGHTNESS = 'MIN_BRIGHTNESS';
 export const MONGO_CRL = 'MONGO_CRL';
 export const SEQUENCE_TIMEOUT = 'SEQUENCE_TIMEOUT';
-export const LIB_CONTROLLER_LOGIC = Symbol('controller-logic');

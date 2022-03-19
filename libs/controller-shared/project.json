@@ -35,26 +35,6 @@
         "lintFilePatterns": ["libs/controller-shared/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
-    },
-    "publish": {
-      "executor": "@nrwl/workspace:run-commands",
-      "options": {
-        "parallel": false,
-        "commands": [
-          {
-            "command": "npx figlet-cli -f Pagga Controller Logic Shared",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build controller-logic --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "yarn publish --cwd dist/libs/controller-shared --non-interactive",
-            "description": "Publish it"
-          }
-        ]
-      }
     }
   },
   "tags": ["shared"]
