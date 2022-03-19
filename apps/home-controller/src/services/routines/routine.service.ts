@@ -287,11 +287,6 @@ export class RoutineService {
     return await this.routinePersistence.update(routine, id);
   }
 
-  protected async onApplicationBootstrap(): Promise<void> {
-    const allRoutines = await this.routineEnabled.findActive();
-    await each(allRoutines, async routine => await this.mount(routine));
-  }
-
   private async wait(options: RoutineActivateOptionsDTO = {}): Promise<void> {
     if (options.timeout && options.timestamp) {
       // Just send 2 requests

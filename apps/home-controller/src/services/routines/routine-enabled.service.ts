@@ -1,4 +1,8 @@
-import { AutoLogService, OnEvent } from '@automagical/boilerplate';
+import {
+  AutoLogService,
+  InjectConfig,
+  OnEvent,
+} from '@automagical/boilerplate';
 import {
   RoomMetadataComparisonDTO,
   ROUTINE_UPDATE,
@@ -18,6 +22,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { parse } from 'chrono-node';
 import dayjs from 'dayjs';
 
+import { SAFE_MODE } from '../../config';
 import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../../typings';
 import { StopProcessingCommandService } from '../commands';
 import { RoutinePersistenceService } from '../persistence';
@@ -27,12 +32,13 @@ type METADATA = {
   props: string[];
   room: string;
 };
-
-const SETTLE_TIME = SECOND;
+const ROOT = 'root';
 
 @Injectable()
 export class RoutineEnabledService {
   constructor(
+    @InjectConfig(SAFE_MODE)
+    private readonly safeMode: boolean,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineService: RoutineService,
     private readonly logger: AutoLogService,
@@ -46,30 +52,48 @@ export class RoutineEnabledService {
   private readonly RAW_LIST = new Map<string, RoutineDTO>();
   private readonly WATCH_ENTITIES = new Map<string, string[]>();
   private readonly WATCH_METADATA = new Map<string, METADATA[]>();
+  private ancestors = new Map<string, string[]>();
+  private initialLoad = false;
 
-  public findActive(): RoutineDTO[] {
-    const out: RoutineDTO[] = [];
-    this.ACTIVE_ROUTINES.forEach(id => out.push(this.RAW_LIST.get(id)));
-    return out;
+  protected async onApplicationBootstrap(): Promise<void> {
+    if (!this.safeMode) {
+      this.logger.warn(
+        `[SAFE_MODE] active, all routines activation events disabled`,
+      );
+    }
+    const list = await this.routinePersistence.findMany();
+    list.forEach(routine => this.RAW_LIST.set(routine._id, routine));
   }
 
   @OnEvent(ALL_ENTITIES_UPDATED)
-  protected onApplicationReady(): void {
-    if (!is.empty(this.RAW_LIST)) {
+  protected async onApplicationReady(): Promise<void> {
+    if (this.initialLoad || this.safeMode) {
+      const checkRoutines: RoutineDTO[] = [];
+      this.WATCH_ENTITIES.forEach((list, routine) =>
+        checkRoutines.push(this.RAW_LIST.get(routine)),
+      );
+      this.logger.debug(
+        `Recheck {${checkRoutines.length}} routines for entity updates`,
+      );
+      each(checkRoutines, async routine => await this.onUpdate(routine));
       return;
     }
-    setTimeout(async () => {
-      const list = await this.routinePersistence.findMany();
-      const ancestorMap = new Map<string, RoutineDTO[]>();
-      list.forEach(routine => {
-        this.RAW_LIST.set(routine._id, routine);
-        const parent = routine.parent ?? 'root';
-        const list = ancestorMap.get(parent) ?? [];
-        list.push(routine);
-        ancestorMap.set(parent, list);
-      });
-      await this.recurseActive(ancestorMap, ancestorMap.get('root'));
-    }, SETTLE_TIME);
+    this.initialLoad = true;
+    this.logger.info(
+      `Setting initial active state for {${this.RAW_LIST.size}} routines`,
+    );
+    this.ancestors = new Map();
+    this.RAW_LIST.forEach(routine => {
+      const parent = routine.parent ?? ROOT;
+      const list = this.ancestors.get(parent) ?? [];
+      list.push(routine._id);
+      this.ancestors.set(parent, list);
+    });
+    const active = await this.recurseActive(ROOT);
+    active.forEach(routine => {
+      this.start(routine);
+      this.watch(routine);
+    });
   }
 
   @OnEvent(HA_EVENT_STATE_CHANGE)
@@ -126,6 +150,9 @@ export class RoutineEnabledService {
   }
 
   private async isActive({ enable, parent }: RoutineDTO): Promise<boolean> {
+    if (this.safeMode) {
+      return false;
+    }
     if (!is.empty(parent) && !this.ACTIVE_ROUTINES.has(parent)) {
       return false;
     }
@@ -176,13 +203,19 @@ export class RoutineEnabledService {
 
   private async onUpdate(routine: RoutineDTO): Promise<void> {
     const state = await this.isActive(routine);
+    let updated = false;
     if (this.ACTIVE_ROUTINES.has(routine._id) && !state) {
       this.stop(routine);
-      return;
+      updated = true;
     }
     if (!this.ACTIVE_ROUTINES.has(routine._id) && state) {
       this.start(routine);
+      updated = true;
     }
+    if (!updated) {
+      return;
+    }
+    // if( this.)
   }
 
   private rangeTimeouts(
@@ -213,12 +246,10 @@ export class RoutineEnabledService {
     return timeouts;
   }
 
-  private async recurseActive(
-    ancestorMap: Map<string, RoutineDTO[]>,
-    list: RoutineDTO[],
-  ): Promise<RoutineDTO[]> {
+  private async recurseActive(start: string): Promise<RoutineDTO[]> {
     const activeList: RoutineDTO[] = [];
-    await each(list, async routine => {
+    await each(this.ancestors.get(start), async id => {
+      const routine = this.RAW_LIST.get(id);
       const active = await this.isActive(routine);
       if (!active) {
         return;
@@ -227,13 +258,8 @@ export class RoutineEnabledService {
       if (!this.ACTIVE_ROUTINES.has(routine._id)) {
         this.ACTIVE_ROUTINES.add(routine._id);
       }
-      if (ancestorMap.has(routine._id)) {
-        activeList.push(
-          ...(await this.recurseActive(
-            ancestorMap,
-            ancestorMap.get(routine._id),
-          )),
-        );
+      if (this.ancestors.has(routine._id)) {
+        activeList.push(...(await this.recurseActive(routine._id)));
       }
     });
     return activeList;
@@ -253,11 +279,15 @@ export class RoutineEnabledService {
       }
       disable.forEach(callback => callback());
     });
+    this.ENABLE_WATCHERS.delete(routine._id);
   }
 
   private watch(routine: RoutineDTO): void {
     let poll = false;
     const entities: string[] = [];
+    if (!routine.enable) {
+      return;
+    }
     routine.enable.comparisons.forEach(comparison => {
       switch (comparison.type) {
         case STOP_PROCESSING_TYPE.webhook:

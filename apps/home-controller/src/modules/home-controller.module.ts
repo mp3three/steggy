@@ -4,6 +4,7 @@ import { ServerModule } from '@automagical/server';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { existsSync } from 'fs';
 import { join } from 'path';
+
 import {
   AdminController,
   AnimationController,
@@ -99,18 +100,12 @@ const providers = [
     MetadataController,
   ],
   imports: [
-    ServerModule,
     HomeAssistantModule,
     HomePersistenceModule,
     RegisterCache(),
     HomePersistenceModule.forRoot(),
-    ...(existsSync(rootPath)
-      ? [
-          ServeStaticModule.forRoot({
-            rootPath,
-          }),
-        ]
-      : []),
+    ...(existsSync(rootPath) ? [ServeStaticModule.forRoot({ rootPath })] : []),
+    ServerModule,
   ],
   providers,
 })

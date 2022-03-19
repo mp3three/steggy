@@ -23,7 +23,14 @@ import {
   LightAttributesDTO,
   LightStateDTO,
 } from '@automagical/home-assistant-shared';
-import { each, INVERT_VALUE, is, PERCENT } from '@automagical/utilities';
+import {
+  DOWN,
+  each,
+  INVERT_VALUE,
+  is,
+  PERCENT,
+  UP,
+} from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 
@@ -265,6 +272,9 @@ export class LightManagerService {
     this.FORCE_CIRCADIAN = await this.metadataService.findWithFlag(
       LIGHT_FORCE_CIRCADIAN,
     );
-    this.logger.debug({ list: this.FORCE_CIRCADIAN }, `Force circadian list`);
+    this.logger.debug(`Force circadian list`);
+    this.FORCE_CIRCADIAN.sort((a, b) => (a > b ? UP : DOWN)).forEach(i =>
+      this.logger.debug(` - {${i}}`),
+    );
   }
 }
