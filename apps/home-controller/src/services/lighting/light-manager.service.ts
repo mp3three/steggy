@@ -32,9 +32,8 @@ import {
   UP,
 } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import EventEmitter from 'eventemitter3';
 
-import { MIN_BRIGHTNESS } from '../../config';
+import { MIN_BRIGHTNESS, SAFE_MODE } from '../../config';
 import { ENTITY_METADATA_UPDATED } from '../../typings';
 import { MetadataService } from '../metadata.service';
 import { CircadianService } from './circadian.service';
@@ -61,7 +60,8 @@ export class LightManagerService {
     private readonly logger: AutoLogService,
     private readonly circadianService: CircadianService,
     private readonly metadataService: MetadataService,
-    private readonly eventEmitter: EventEmitter,
+    @InjectConfig(SAFE_MODE)
+    private readonly safeMode: boolean,
     @InjectConfig(MIN_BRIGHTNESS) private readonly minBrightness: number,
   ) {}
 
@@ -228,7 +228,11 @@ export class LightManagerService {
     return await this.setAttributes(entity_id, settings.extra, waitForChange);
   }
 
+  @OnEvent(CIRCADIAN_UPDATE)
   protected async circadianLightingUpdate(color_temp: number): Promise<void> {
+    if (this.safeMode) {
+      return;
+    }
     const lights = await this.findCircadianLights();
     await this.setAttributes(
       lights.map(({ entity_id }) => entity_id),
@@ -237,9 +241,9 @@ export class LightManagerService {
   }
 
   protected async onModuleInit(): Promise<void> {
-    this.eventEmitter.on(CIRCADIAN_UPDATE, kelvin =>
-      this.circadianLightingUpdate(kelvin),
-    );
+    if (this.safeMode) {
+      this.logger.warn(`[SAFE_MODE] set, circadian lighting updates blocked`);
+    }
     await this.refreshForceList();
   }
 

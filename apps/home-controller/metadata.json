@@ -3,7 +3,12 @@
     "SAFE_MODE": {
       "type": "boolean",
       "default": false,
-      "description": "No "
+      "description": "Disable all activation events for routines"
+    },
+    "NOTIFY_CONNECTION_RESET": {
+      "type": "boolean",
+      "default": true,
+      "description": "Send a notification when home assistant connection is reset"
     },
     "NOTIFY_UNAVAILABLE_DURATION": {
       "type": "number",

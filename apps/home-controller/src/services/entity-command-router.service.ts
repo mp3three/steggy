@@ -47,10 +47,6 @@ export class EntityCommandRouterService {
     await this.process(ref, state, extra, waitForChange);
   }
 
-  public async history(): Promise<void> {
-    //
-  }
-
   public async process(
     id: string,
     command: string,

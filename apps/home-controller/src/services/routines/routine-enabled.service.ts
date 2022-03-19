@@ -56,10 +56,8 @@ export class RoutineEnabledService {
   private initialLoad = false;
 
   protected async onApplicationBootstrap(): Promise<void> {
-    if (!this.safeMode) {
-      this.logger.warn(
-        `[SAFE_MODE] active, all routines activation events disabled`,
-      );
+    if (this.safeMode) {
+      this.logger.warn(`[SAFE_MODE] set, routines will not mount`);
     }
     const list = await this.routinePersistence.findMany();
     list.forEach(routine => this.RAW_LIST.set(routine._id, routine));
@@ -67,7 +65,7 @@ export class RoutineEnabledService {
 
   @OnEvent(ALL_ENTITIES_UPDATED)
   protected async onApplicationReady(): Promise<void> {
-    if (this.initialLoad || this.safeMode) {
+    if (this.initialLoad) {
       const checkRoutines: RoutineDTO[] = [];
       this.WATCH_ENTITIES.forEach((list, routine) =>
         checkRoutines.push(this.RAW_LIST.get(routine)),
@@ -88,12 +86,10 @@ export class RoutineEnabledService {
       const list = this.ancestors.get(parent) ?? [];
       list.push(routine._id);
       this.ancestors.set(parent, list);
-    });
-    const active = await this.recurseActive(ROOT);
-    active.forEach(routine => {
-      this.start(routine);
       this.watch(routine);
     });
+    const active = await this.recurseActive(ROOT);
+    active.forEach(routine => this.start(routine));
   }
 
   @OnEvent(HA_EVENT_STATE_CHANGE)
@@ -125,12 +121,19 @@ export class RoutineEnabledService {
 
   @OnEvent(ROUTINE_UPDATE)
   protected remount(routine: RoutineDTO): void {
+    // Stop + GC
     this.stop(routine);
     if (routine.deleted) {
+      // Clean up more if deleted
+      this.RAW_LIST.delete(routine._id);
       return;
     }
+    // If newly created, start watching
+    if (!this.RAW_LIST.has(routine._id)) {
+      this.watch(routine);
+    }
+    this.RAW_LIST.set(routine._id, routine);
     this.start(routine);
-    this.watch(routine);
   }
 
   private initPolling(routine: RoutineDTO): void {
@@ -150,9 +153,6 @@ export class RoutineEnabledService {
   }
 
   private async isActive({ enable, parent }: RoutineDTO): Promise<boolean> {
-    if (this.safeMode) {
-      return false;
-    }
     if (!is.empty(parent) && !this.ACTIVE_ROUTINES.has(parent)) {
       return false;
     }
@@ -205,12 +205,14 @@ export class RoutineEnabledService {
     const state = await this.isActive(routine);
     let updated = false;
     if (this.ACTIVE_ROUTINES.has(routine._id) && !state) {
-      this.stop(routine);
+      this.logger.debug(`[${routine.friendlyName}] unload`);
       updated = true;
+      this.stop(routine);
     }
     if (!this.ACTIVE_ROUTINES.has(routine._id) && state) {
-      this.start(routine);
+      this.logger.debug(`[${routine.friendlyName}] load`);
       updated = true;
+      this.start(routine);
     }
     if (!updated) {
       return;
@@ -266,11 +268,15 @@ export class RoutineEnabledService {
   }
 
   private start(routine: RoutineDTO): void {
+    this.logger.info(`[${routine.friendlyName}] start`);
     this.ACTIVE_ROUTINES.add(routine._id);
-    this.routineService.mount(routine);
+    if (!this.safeMode) {
+      this.routineService.mount(routine);
+    }
   }
 
   private stop(routine: RoutineDTO): void {
+    this.logger.info(`[${routine.friendlyName}] stop`);
     this.routineService.unmount(routine);
     this.ACTIVE_ROUTINES.delete(routine._id);
     this.ENABLE_WATCHERS.forEach((disable, watched) => {
