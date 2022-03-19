@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 import { v4 } from 'uuid';
 
-import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../../types';
+import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../../typings';
 import { RoomService } from '../room.service';
 
 @Injectable()

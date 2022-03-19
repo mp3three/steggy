@@ -1,10 +1,5 @@
 import { AutoLogService } from '@automagical/boilerplate';
 import {
-  EntityCommandRouterService,
-  LightManagerService,
-  MetadataService,
-} from '@automagical/controller-logic';
-import {
   EntityHistoryRequest,
   RoomEntitySaveStateDTO,
 } from '@automagical/controller-shared';
@@ -36,6 +31,12 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import {
+  EntityCommandRouterService,
+  LightManagerService,
+  MetadataService,
+} from '../services';
 
 @ApiTags('entity')
 @Controller('/entity')

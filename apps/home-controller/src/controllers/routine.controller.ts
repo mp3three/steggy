@@ -1,4 +1,3 @@
-import { RoutineService } from '@automagical/controller-logic';
 import {
   KunamiCodeActivateDTO,
   RoomEntitySaveStateDTO,
@@ -41,6 +40,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { v4 as uuid } from 'uuid';
+
+import { RoutineService } from '../services';
 
 @Controller(`/routine`)
 @AuthStack()

@@ -1,4 +1,3 @@
-import { GroupService, RoomService } from '@automagical/controller-logic';
 import {
   GroupDTO,
   RoomDTO,
@@ -25,6 +24,8 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { GroupService, RoomService } from '../services';
 
 @Controller('/room')
 @AuthStack()

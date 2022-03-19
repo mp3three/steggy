@@ -2,7 +2,6 @@
   "version": 2,
   "projects": {
     "boilerplate": "libs/boilerplate",
-    "controller-logic": "libs/controller-logic",
     "controller-shared": "libs/controller-shared",
     "devtools": "apps/devtools",
     "formio": "libs/formio",

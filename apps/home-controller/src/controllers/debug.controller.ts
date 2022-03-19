@@ -1,8 +1,4 @@
 import {
-  LightManagerService,
-  SolarCalcService,
-} from '@automagical/controller-logic';
-import {
   HACallService,
   HASocketAPIService,
   NotifyDomainService,
@@ -18,6 +14,8 @@ import {
 } from '@automagical/server';
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { LightManagerService, SolarCalcService } from '../services';
 
 @Controller(`/debug`)
 @ApiTags('debug')

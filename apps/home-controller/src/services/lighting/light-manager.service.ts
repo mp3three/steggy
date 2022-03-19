@@ -28,7 +28,7 @@ import { Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 
 import { MIN_BRIGHTNESS } from '../../config';
-import { ENTITY_METADATA_UPDATED } from '../../types';
+import { ENTITY_METADATA_UPDATED } from '../../typings';
 import { MetadataService } from '../metadata.service';
 import { CircadianService } from './circadian.service';
 

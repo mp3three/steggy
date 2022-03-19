@@ -1,8 +1,4 @@
-import { ApplicationModule } from '@automagical/boilerplate';
-import {
-  HomeControllerCustomModule,
-  HomePersistenceModule,
-} from '@automagical/controller-logic';
+import { ApplicationModule, RegisterCache } from '@automagical/boilerplate';
 import { HomeAssistantModule } from '@automagical/home-assistant';
 import { ServerModule } from '@automagical/server';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -20,9 +16,73 @@ import {
   RoomController,
   RoutineController,
 } from '../controllers';
-import { ApplicationService, AvailabilityMonitorService } from '../services';
+import {
+  ApplicationService,
+  AvailabilityMonitorService,
+  CaptureCommandService,
+  CircadianService,
+  EntityCommandRouterService,
+  FanGroupService,
+  FlashAnimationService,
+  GroupService,
+  KunamiCodeActivateService,
+  LightFlashCommandService,
+  LightGroupService,
+  LightManagerService,
+  LockGroupService,
+  MetadataService,
+  RoomService,
+  RoutineService,
+  RoutineTriggerService,
+  ScheduleActivateService,
+  SendNotificationService,
+  SetRoomMetadataService,
+  SleepCommandService,
+  SolarActivateService,
+  SolarCalcService,
+  StateChangeActivateService,
+  StopProcessingCommandService,
+  SwitchGroupService,
+  WebhookService,
+} from '../services';
+import { HomePersistenceModule } from './home-persistence.module';
 
 const rootPath = join(__dirname, 'ui');
+
+const providers = [
+  ...[SendNotificationService, WebhookService],
+  ...[
+    FanGroupService,
+    GroupService,
+    LightGroupService,
+    LockGroupService,
+    SwitchGroupService,
+  ],
+  ...[
+    ScheduleActivateService,
+    KunamiCodeActivateService,
+    StateChangeActivateService,
+    CaptureCommandService,
+    SolarActivateService,
+    RoutineService,
+  ],
+  ...[
+    FlashAnimationService,
+    LightFlashCommandService,
+    CircadianService,
+    RoutineTriggerService,
+    SetRoomMetadataService,
+    LightManagerService,
+    StopProcessingCommandService,
+    SleepCommandService,
+    SolarCalcService,
+  ],
+  EntityCommandRouterService,
+  MetadataService,
+  ApplicationService,
+  AvailabilityMonitorService,
+  RoomService,
+];
 
 @ApplicationModule({
   application: Symbol('home-controller'),
@@ -40,7 +100,7 @@ const rootPath = join(__dirname, 'ui');
   imports: [
     ServerModule,
     HomeAssistantModule,
-    HomeControllerCustomModule,
+    RegisterCache(),
     HomePersistenceModule.forRoot(),
     ...(existsSync(rootPath)
       ? [
@@ -50,6 +110,6 @@ const rootPath = join(__dirname, 'ui');
         ]
       : []),
   ],
-  providers: [ApplicationService, AvailabilityMonitorService],
+  providers,
 })
 export class HomeControllerModule {}

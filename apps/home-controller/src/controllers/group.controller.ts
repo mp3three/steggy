@@ -1,4 +1,3 @@
-import { GroupService } from '@automagical/controller-logic';
 import {
   ENTITY_EXTRAS_SCHEMA,
   GENERIC_COMMANDS,
@@ -23,6 +22,8 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { GroupService } from '../services';
 
 @Controller('/group')
 @ApiTags('group')

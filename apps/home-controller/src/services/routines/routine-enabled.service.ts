@@ -18,7 +18,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { parse } from 'chrono-node';
 import dayjs from 'dayjs';
 
-import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../../types';
+import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../../typings';
 import { StopProcessingCommandService } from '../commands';
 import { RoutinePersistenceService } from '../persistence';
 import { RoutineService } from './routine.service';

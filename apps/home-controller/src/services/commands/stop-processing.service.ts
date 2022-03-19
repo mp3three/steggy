@@ -116,7 +116,7 @@ export class StopProcessingCommandService {
             now.isAfter(parsed.start.date()) && now.isBefore(parsed.end.date())
           );
         }
-      // fall through
+      // fallthrough
       case 'after':
         return now.isBefore(parsed.start.date());
       case 'not_in_range':
@@ -125,7 +125,7 @@ export class StopProcessingCommandService {
             now.isBefore(parsed.start.date()) || now.isAfter(parsed.end.date())
           );
         }
-      // fall through
+      // fallthrough
       case 'before':
         return now.isAfter(parsed.start.date());
     }

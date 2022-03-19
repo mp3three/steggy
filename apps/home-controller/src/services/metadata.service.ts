@@ -4,7 +4,7 @@ import { SINGLE } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 
-import { ENTITY_METADATA_UPDATED } from '../types';
+import { ENTITY_METADATA_UPDATED } from '../typings';
 import { MetadataPersistenceService } from './persistence';
 
 type EntityMetadata = {

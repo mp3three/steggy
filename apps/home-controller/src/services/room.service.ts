@@ -14,7 +14,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 import { v4 as uuid } from 'uuid';
 
-import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../types';
+import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../typings';
 import { EntityCommandRouterService } from './entity-command-router.service';
 import { GroupService } from './groups';
 import { RoomPersistenceService } from './persistence';

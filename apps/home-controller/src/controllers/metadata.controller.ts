@@ -1,8 +1,9 @@
-import { MetadataService } from '@automagical/controller-logic';
 import { MetadataDTO } from '@automagical/controller-shared';
 import { ApiGenericResponse, AuthStack } from '@automagical/server';
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+
+import { MetadataService } from '../services';
 
 @Controller(`/metadata`)
 @AuthStack()
