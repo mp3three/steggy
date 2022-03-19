@@ -6,6 +6,7 @@ import {
   OnEvent,
 } from '@automagical/boilerplate';
 import {
+  RoutineDTO,
   StateChangeActivateDTO,
   StateChangeWatcher,
 } from '@automagical/controller-shared';
@@ -33,6 +34,16 @@ export class StateChangeActivateService {
 
   private WATCHED_ENTITIES = new Map<string, StateChangeWatcher[]>();
 
+  public clearRoutine({ _id }: RoutineDTO): void {
+    const list = [...this.WATCHED_ENTITIES.entries()].map(([id, value]) => [
+      id,
+      value.filter(({ routine }) => routine._id !== _id),
+    ]) as [string, StateChangeWatcher[]][];
+    const empty = list.filter(([, list]) => is.empty(list));
+    empty.forEach(([id]) => this.WATCHED_ENTITIES.delete(id));
+    this.WATCHED_ENTITIES = new Map(list.filter(([, list]) => !is.empty(list)));
+  }
+
   public reset(): void {
     if (!is.empty(this.WATCHED_ENTITIES)) {
       this.logger.debug(
@@ -43,6 +54,7 @@ export class StateChangeActivateService {
   }
 
   public watch(
+    routine: RoutineDTO,
     activate: StateChangeActivateDTO,
     callback: () => Promise<void>,
   ): void {
@@ -50,6 +62,7 @@ export class StateChangeActivateService {
     list.push({
       ...activate,
       callback,
+      routine,
     });
     if (!this.WATCHED_ENTITIES.has(activate.entity)) {
       this.logger.debug(`Start watching {${activate.entity}}`);

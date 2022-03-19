@@ -45,14 +45,8 @@ export class MetadataService {
   public async findWithFlag(flag: string): Promise<string[]> {
     const list = await this.metadataPersistence.findMany<EntityMetadata>({
       filters: new Set([
-        {
-          field: 'data.flags',
-          value: flag,
-        },
-        {
-          field: 'type',
-          value: METADATA_TYPE,
-        },
+        { field: 'data.flags', value: flag },
+        { field: 'type', value: METADATA_TYPE },
       ]),
     });
     return list.map(({ data }) => data.entity);
@@ -82,14 +76,8 @@ export class MetadataService {
   private async findByEntityId(entity): Promise<MetadataDTO<EntityMetadata>> {
     const [search] = await this.metadataPersistence.findMany<EntityMetadata>({
       filters: new Set([
-        {
-          field: 'data.entity',
-          value: entity,
-        },
-        {
-          field: 'type',
-          value: METADATA_TYPE,
-        },
+        { field: 'data.entity', value: entity },
+        { field: 'type', value: METADATA_TYPE },
       ]),
       limit: SINGLE,
     });

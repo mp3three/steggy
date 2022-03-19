@@ -1,5 +1,6 @@
 import { AutoLogService } from '@automagical/boilerplate';
 import {
+  RoutineDTO,
   ScheduleActivateDTO,
   ScheduleWatcher,
 } from '@automagical/controller-shared';
@@ -12,12 +13,23 @@ export class ScheduleActivateService {
 
   private SCHEDULES = new Set<ScheduleWatcher>();
 
+  public clearRoutine({ _id }: RoutineDTO): void {
+    this.SCHEDULES.forEach(item => {
+      if (item.routine._id !== _id) {
+        return;
+      }
+      item.cron.stop();
+      this.SCHEDULES.delete(item);
+    });
+  }
+
   public reset(): void {
     this.SCHEDULES.forEach(({ cron }) => cron.stop());
     this.SCHEDULES = new Set();
   }
 
   public watch(
+    routine: RoutineDTO,
     activate: ScheduleActivateDTO,
     callback: () => Promise<void>,
   ): void {
@@ -29,6 +41,7 @@ export class ScheduleActivateService {
       this.SCHEDULES.add({
         ...activate,
         cron,
+        routine,
       });
       cron.start();
     });

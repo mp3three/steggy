@@ -22,6 +22,8 @@ export const NOT_FOUND = -1;
 // Sorting
 export const DOWN = -1;
 export const MINUTE = 60_000;
+export const HOUR = 3_600_000;
+export const DAY = 86_400_000;
 export const SECOND = 1000;
 export const PERCENT = 100;
 

@@ -25,19 +25,17 @@ export class RoutinePersistenceService extends BaseMongoService {
   @CastResult(RoutineDTO)
   public async create(state: RoutineDTO): Promise<RoutineDTO> {
     const out = (await this.model.create(state)).toObject() as RoutineDTO;
-    this.eventEmitter.emit(ROUTINE_UPDATE);
+    this.eventEmitter.emit(ROUTINE_UPDATE, out);
     return out;
   }
 
   public async delete(state: RoutineDTO | string): Promise<boolean> {
+    state = is.string(state) ? await this.findById(state) : state;
     const query = this.merge(is.string(state) ? state : state._id);
     this.logger.debug({ query }, `delete query`);
-    const result = await this.model
-      .updateOne(query, {
-        deleted: Date.now(),
-      })
-      .exec();
-    this.eventEmitter.emit(ROUTINE_UPDATE);
+    const deleted = Date.now();
+    const result = await this.model.updateOne(query, { deleted }).exec();
+    this.eventEmitter.emit(ROUTINE_UPDATE, { ...state, deleted });
     return result.acknowledged;
   }
 
@@ -68,8 +66,9 @@ export class RoutinePersistenceService extends BaseMongoService {
     const query = this.merge(id);
     const result = await this.model.updateOne(query, state).exec();
     if (result.acknowledged) {
-      this.eventEmitter.emit(ROUTINE_UPDATE);
-      return await this.findById(id);
+      const out = await this.findById(id);
+      this.eventEmitter.emit(ROUTINE_UPDATE, out);
+      return out;
     }
   }
 }

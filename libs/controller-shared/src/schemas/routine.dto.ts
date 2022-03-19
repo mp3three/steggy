@@ -12,8 +12,11 @@ import {
 } from 'class-validator';
 import { Document } from 'mongoose';
 
-import { RoutineActivateDTO } from '../routines';
-import { RoutineCommandDTO } from '../routines/routine-command.dto';
+import {
+  RoutineActivateDTO,
+  RoutineCommandDTO,
+  RoutineEnableDTO,
+} from '../routines';
 
 export enum ROUTINE_SCOPE {
   public,
@@ -52,9 +55,7 @@ export class RoutineDTO {
   @IsOptional()
   @IsDateString()
   @ApiProperty({ required: false })
-  @Prop({
-    index: true,
-  })
+  @Prop({ index: true })
   public created?: Date;
 
   @IsNumber()
@@ -62,6 +63,11 @@ export class RoutineDTO {
   @Prop({ default: null, type: 'number' })
   @ApiProperty({ required: false })
   public deleted?: number;
+
+  @ValidateNested()
+  @IsOptional()
+  @ApiProperty({ required: false, type: [RoutineEnableDTO] })
+  public enable?: RoutineEnableDTO;
 
   @IsString()
   @Prop({ required: true, type: 'string' })
@@ -77,6 +83,15 @@ export class RoutineDTO {
   @ApiProperty({ required: false })
   @Prop({ index: true })
   public modified?: Date;
+
+  /**
+   * ID reference to another routine
+   */
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ required: false })
+  @TransformObjectId()
+  public parent?: string;
 
   /**
    * Room that owns this routine
@@ -97,3 +112,5 @@ export class RoutineDTO {
 
 export type RountineDocument = RoutineDTO & Document;
 export const RoutineSchema = SchemaFactory.createForClass(RoutineDTO);
+RoutineSchema.index({ deleted: 1 });
+RoutineSchema.index({ deleted: 1, friendlyName: 1 });

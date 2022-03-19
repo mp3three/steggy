@@ -33,6 +33,7 @@ export class RoutineAttributeComparisonDTO extends ComparisonDTO {
   @IsString()
   public entity_id: string;
 }
+
 export class RoomMetadataComparisonDTO extends ComparisonDTO {
   @IsString()
   public property: string;

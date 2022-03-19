@@ -1,5 +1,9 @@
 import { AutoLogService, Cron } from '@automagical/boilerplate';
-import { SolarActivateDTO, SolarWatcher } from '@automagical/controller-shared';
+import {
+  RoutineDTO,
+  SolarActivateDTO,
+  SolarWatcher,
+} from '@automagical/controller-shared';
 import { CronExpression, TitleCase } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { CronJob } from 'cron';
@@ -15,12 +19,22 @@ export class SolarActivateService {
 
   private SCHEDULES = new Set<SolarWatcher>();
 
+  public clearRoutine({ _id }: RoutineDTO): void {
+    this.SCHEDULES.forEach(item => {
+      if (item.routine._id !== _id) {
+        return;
+      }
+      this.SCHEDULES.delete(item);
+    });
+  }
+
   public reset(): void {
     this.SCHEDULES.forEach(({ cron }) => cron?.stop());
     this.SCHEDULES = new Set();
   }
 
   public watch(
+    routine: RoutineDTO,
     activate: SolarActivateDTO,
     callback: () => Promise<void>,
   ): void {
@@ -42,6 +56,7 @@ export class SolarActivateService {
         ...activate,
         callback,
         cron,
+        routine,
       });
       if (calc.getTime() < Date.now()) {
         this.logger.debug(
@@ -57,6 +72,6 @@ export class SolarActivateService {
   protected dailyReset(): void {
     const current = this.SCHEDULES;
     this.reset();
-    current.forEach(i => this.watch(i, i.callback));
+    current.forEach(i => this.watch(i.routine, i, i.callback));
   }
 }

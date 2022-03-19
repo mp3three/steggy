@@ -7,6 +7,7 @@ import {
   KunamiCodeActivateDTO,
   KunamiSensorEvent,
   KunamiWatcher,
+  RoutineDTO,
 } from '@automagical/controller-shared';
 import { EntityManagerService } from '@automagical/home-assistant';
 import {
@@ -17,20 +18,35 @@ import { each, is } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { SEQUENCE_TIMEOUT } from '../../config';
-import { RoomService } from '../room.service';
 
 @Injectable()
 export class KunamiCodeActivateService {
   constructor(
     private readonly logger: AutoLogService,
     @InjectConfig(SEQUENCE_TIMEOUT) private readonly kunamiTimeout: number,
-    private readonly roomService: RoomService,
     private readonly entityManager: EntityManagerService,
   ) {}
 
   private ACTIVE_MATCHERS = new Map<string, KunamiSensorEvent[]>();
   private TIMERS = new Map<string, ReturnType<typeof setTimeout>>();
   private WATCHED_SENSORS = new Map<string, KunamiWatcher[]>();
+
+  public clearRoutine({ _id }: RoutineDTO): void {
+    const list = [...this.WATCHED_SENSORS.entries()].map(([id, value]) => [
+      id,
+      value.filter(({ routine }) => routine._id !== _id),
+    ]) as [string, KunamiWatcher[]][];
+    const empty = list.filter(([, list]) => is.empty(list));
+    empty.forEach(([id]) => {
+      const timer = this.TIMERS.get(id);
+      if (!timer) {
+        return;
+      }
+      clearTimeout(timer);
+      this.TIMERS.delete(id);
+    });
+    this.WATCHED_SENSORS = new Map(list.filter(([, list]) => !is.empty(list)));
+  }
 
   public reset(): void {
     if (!is.empty(this.WATCHED_SENSORS)) {
@@ -45,6 +61,7 @@ export class KunamiCodeActivateService {
   }
 
   public watch(
+    routine: RoutineDTO,
     activate: KunamiCodeActivateDTO,
     callback: () => Promise<void>,
   ): void {
@@ -52,6 +69,7 @@ export class KunamiCodeActivateService {
     watcher.push({
       ...activate,
       callback,
+      routine,
     });
     this.WATCHED_SENSORS.set(activate.sensor, watcher);
   }

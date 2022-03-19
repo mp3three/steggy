@@ -11,8 +11,10 @@ import { EntityManagerService } from '@automagical/home-assistant';
 import { BaseSchemaDTO } from '@automagical/persistence';
 import { each, is, ResultControlDTO } from '@automagical/utilities';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import EventEmitter from 'eventemitter3';
 import { v4 as uuid } from 'uuid';
 
+import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../types';
 import { EntityCommandRouterService } from './entity-command-router.service';
 import { GroupService } from './groups';
 import { RoomPersistenceService } from './persistence';
@@ -25,6 +27,7 @@ export class RoomService {
     private readonly groupService: GroupService,
     private readonly commandRouter: EntityCommandRouterService,
     private readonly entityManager: EntityManagerService,
+    private readonly eventEmitter: EventEmitter,
   ) {}
 
   public async activateState(
@@ -195,7 +198,14 @@ export class RoomService {
     room.metadata = room.metadata.map(i =>
       i.id === id ? { ...i, ...update, id } : i,
     );
-    return await this.update(room, room._id);
+    const out = await this.update(room, room._id);
+    update = room.metadata.find(item => item.id === id);
+    this.eventEmitter.emit(ROOM_METADATA_UPDATED, {
+      name: update.name,
+      room: room._id,
+      value: update.value,
+    } as MetadataUpdate);
+    return out;
   }
 
   public async updateState(
