@@ -9,6 +9,7 @@ import {
   STOP_PROCESSING_TYPE,
 } from '@automagical/controller-shared';
 import {
+  ALL_ENTITIES_UPDATED,
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
 } from '@automagical/home-assistant-shared';
@@ -27,6 +28,8 @@ type METADATA = {
   room: string;
 };
 
+const SETTLE_TIME = SECOND;
+
 @Injectable()
 export class RoutineEnabledService {
   constructor(
@@ -39,22 +42,33 @@ export class RoutineEnabledService {
 
   private readonly ACTIVE_ROUTINES = new Set<string>();
   private readonly ENABLE_WATCHERS = new Map<string, (() => void)[]>();
-  private RAW_LIST = new Map<string, RoutineDTO>();
+  private readonly RAW_LIST = new Map<string, RoutineDTO>();
   private readonly WATCH_ENTITIES = new Map<string, string[]>();
   private readonly WATCH_METADATA = new Map<string, METADATA[]>();
 
-  public async findActive(): Promise<RoutineDTO[]> {
-    this.RAW_LIST = new Map();
-    const list = await this.routinePersistence.findMany();
-    const ancestorMap = new Map<string, RoutineDTO[]>();
-    list.forEach(routine => {
-      this.RAW_LIST.set(routine._id, routine);
-      const parent = routine.parent ?? 'root';
-      const list = ancestorMap.get(parent) ?? [];
-      list.push(routine);
-      ancestorMap.set(parent, list);
-    });
-    return await this.recurseActive(ancestorMap, ancestorMap.get('root'));
+  public findActive(): RoutineDTO[] {
+    const out: RoutineDTO[] = [];
+    this.ACTIVE_ROUTINES.forEach(id => out.push(this.RAW_LIST.get(id)));
+    return out;
+  }
+
+  @OnEvent(ALL_ENTITIES_UPDATED)
+  protected onApplicationReady(): void {
+    if (!is.empty(this.RAW_LIST)) {
+      return;
+    }
+    setTimeout(async () => {
+      const list = await this.routinePersistence.findMany();
+      const ancestorMap = new Map<string, RoutineDTO[]>();
+      list.forEach(routine => {
+        this.RAW_LIST.set(routine._id, routine);
+        const parent = routine.parent ?? 'root';
+        const list = ancestorMap.get(parent) ?? [];
+        list.push(routine);
+        ancestorMap.set(parent, list);
+      });
+      await this.recurseActive(ancestorMap, ancestorMap.get('root'));
+    }, SETTLE_TIME);
   }
 
   @OnEvent(HA_EVENT_STATE_CHANGE)
@@ -110,7 +124,10 @@ export class RoutineEnabledService {
     this.ENABLE_WATCHERS.set(routine._id, watchers);
   }
 
-  private async isActive({ enable }: RoutineDTO): Promise<boolean> {
+  private async isActive({ enable, parent }: RoutineDTO): Promise<boolean> {
+    if (!is.empty(parent) && !this.ACTIVE_ROUTINES.has(parent)) {
+      return false;
+    }
     if (!is.object(enable)) {
       return true;
     }
@@ -206,6 +223,9 @@ export class RoutineEnabledService {
         return;
       }
       activeList.push(routine);
+      if (!this.ACTIVE_ROUTINES.has(routine._id)) {
+        this.ACTIVE_ROUTINES.add(routine._id);
+      }
       if (ancestorMap.has(routine._id)) {
         activeList.push(
           ...(await this.recurseActive(
