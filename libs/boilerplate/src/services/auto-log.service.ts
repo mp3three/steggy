@@ -1,8 +1,9 @@
-import { is } from '@automagical/utilities';
+import { is, START } from '@automagical/utilities';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import pino from 'pino';
 
+import { ACTIVE_APPLICATION } from '../contracts';
 import { iLogger, iLoggerCore, LogLevels } from '../contracts/interfaces';
 import { LOG_CONTEXT, MISSING_CONTEXT } from '../contracts/logger/constants';
 import { mappedContexts } from '../decorators/injectors';
@@ -93,8 +94,12 @@ export class AutoLogService implements iLogger {
     return store || AutoLogService.logger;
   }
 
-  constructor(@Inject(INQUIRER) private inquirerer: unknown) {}
+  constructor(
+    @Inject(INQUIRER) private inquirerer: unknown,
+    @Inject(ACTIVE_APPLICATION) private readonly activeApplication: symbol,
+  ) {}
 
+  #cached: string;
   #context: string;
   private contextId: string;
 
@@ -103,13 +108,14 @@ export class AutoLogService implements iLogger {
   }
 
   protected get context(): string {
-    if (this.#context) {
-      return this.#context;
+    if (!this.#cached) {
+      this.#cached ??= this.getContext();
+      const [project, provider] = this.#cached.split(':');
+      if (project === this.activeApplication.description) {
+        this.#cached = provider;
+      }
     }
-    if (this.contextId) {
-      return mappedContexts.get(this.contextId);
-    }
-    return this.inquirerer?.constructor[LOG_CONTEXT] ?? MISSING_CONTEXT;
+    return this.#cached;
   }
 
   /**
@@ -195,5 +201,15 @@ export class AutoLogService implements iLogger {
   ): void;
   public warn(...arguments_: Parameters<LoggerFunction>): void {
     AutoLogService.call('warn', this.context, ...arguments_);
+  }
+
+  private getContext(): string {
+    if (this.#context) {
+      return this.#context;
+    }
+    if (this.contextId) {
+      return mappedContexts.get(this.contextId);
+    }
+    return this.inquirerer?.constructor[LOG_CONTEXT] ?? MISSING_CONTEXT;
   }
 }
