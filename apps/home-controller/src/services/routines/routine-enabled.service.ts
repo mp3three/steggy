@@ -145,7 +145,7 @@ export class RoutineEnabledService {
     }
     const interval = setInterval(
       async () => await this.onUpdate(routine),
-      routine.enable.poll,
+      routine.enable.poll * SECOND,
     );
     const watchers = this.ENABLE_WATCHERS.get(routine._id) || [];
     watchers.push(() => clearInterval(interval));
@@ -268,8 +268,16 @@ export class RoutineEnabledService {
   }
 
   private start(routine: RoutineDTO): void {
-    this.logger.info(`[${routine.friendlyName}] start`);
     this.ACTIVE_ROUTINES.add(routine._id);
+    if (is.empty(routine.command)) {
+      this.logger.debug(`[${routine.friendlyName}] false start (no commands)`);
+      return;
+    }
+    if (is.empty(routine.activate)) {
+      this.logger.debug(`[${routine.friendlyName}] false start (no activate)`);
+      return;
+    }
+    this.logger.info(`[${routine.friendlyName}] start`);
     if (!this.safeMode) {
       this.routineService.mount(routine);
     }

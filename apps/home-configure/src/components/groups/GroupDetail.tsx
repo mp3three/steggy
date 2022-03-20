@@ -65,8 +65,8 @@ export const GroupDetail = withRouter(
                   </Link>
                 </Breadcrumb.Item>
               </Breadcrumb>
-              <Tabs type="card" style={{ margin: '8px 0' }}>
-                <Tabs.TabPane tab="Setup" key="tab">
+              <Tabs type="card" style={{ margin: '16px 0' }}>
+                <Tabs.TabPane tab="Setup" key="setup">
                   <Row gutter={8}>
                     <Col span={12}>
                       <Card

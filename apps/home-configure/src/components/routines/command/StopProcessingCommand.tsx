@@ -3,7 +3,17 @@ import {
   RoutineComparisonDTO,
 } from '@automagical/controller-shared';
 import { is, NOT_FOUND, TitleCase } from '@automagical/utilities';
-import { Button, Col, Divider, Form, List, Radio, Row, Select } from 'antd';
+import {
+  Button,
+  Col,
+  Divider,
+  Form,
+  List,
+  Radio,
+  Row,
+  Select,
+  Skeleton,
+} from 'antd';
 import React from 'react';
 import { v4 as uuid } from 'uuid';
 
@@ -17,6 +27,7 @@ type tState = {
 export class StopProcessingCommand extends React.Component<
   {
     command: RoutineCommandStopProcessingDTO;
+    disabled?: boolean;
     onUpdate: (command: Partial<RoutineCommandStopProcessingDTO>) => void;
   },
   tState
@@ -32,6 +43,7 @@ export class StopProcessingCommand extends React.Component<
       <>
         <Form.Item label="Matching Mode">
           <Radio.Group
+            disabled={this.props.disabled}
             value={this.props.command?.mode}
             onChange={({ target }) =>
               this.props.onUpdate({ mode: target.value })
@@ -46,6 +58,7 @@ export class StopProcessingCommand extends React.Component<
           <Row>
             <Col span={18}>
               <Select
+                disabled={this.props.disabled}
                 style={{ width: '100%' }}
                 value={this.state.addComparison}
                 onChange={addComparison => this.setState({ addComparison })}
@@ -63,47 +76,57 @@ export class StopProcessingCommand extends React.Component<
               </Select>
             </Col>
             <Col offset={1}>
-              <Button type="primary" onClick={this.addComparison.bind(this)}>
+              <Button
+                disabled={this.props.disabled}
+                type="primary"
+                onClick={this.addComparison.bind(this)}
+              >
                 Add
               </Button>
             </Col>
           </Row>
         </Form.Item>
-        <List
-          dataSource={this.props.command?.comparisons}
-          renderItem={item => (
-            <List.Item onClick={() => this.setState({ edit: item })}>
-              <List.Item.Meta
-                title={item.friendlyName}
-                description={`${TitleCase(item.type)}`}
+        {this.props.disabled ? (
+          <Skeleton />
+        ) : (
+          <>
+            <List
+              dataSource={this.props.command?.comparisons}
+              renderItem={item => (
+                <List.Item onClick={() => this.setState({ edit: item })}>
+                  <List.Item.Meta
+                    title={item.friendlyName}
+                    description={`${TitleCase(item.type)}`}
+                  />
+                  <Button
+                    danger
+                    type="text"
+                    onClick={e => {
+                      e.stopPropagation();
+                      this.props.onUpdate({
+                        comparisons: [
+                          ...(this.props.command?.comparisons ?? []).filter(
+                            ({ id }) => id !== item.id,
+                          ),
+                        ],
+                      });
+                    }}
+                  >
+                    X
+                  </Button>
+                </List.Item>
+              )}
+            />
+            {is.undefined(this.state.edit) ? undefined : (
+              <GenericComparison
+                visible={true}
+                comparison={this.state.edit}
+                onCancel={() => this.setState({ edit: undefined })}
+                onCommit={this.onCommit.bind(this)}
+                onUpdate={edit => this.setState({ edit })}
               />
-              <Button
-                danger
-                type="text"
-                onClick={e => {
-                  e.stopPropagation();
-                  this.props.onUpdate({
-                    comparisons: [
-                      ...(this.props.command?.comparisons ?? []).filter(
-                        ({ id }) => id !== item.id,
-                      ),
-                    ],
-                  });
-                }}
-              >
-                X
-              </Button>
-            </List.Item>
-          )}
-        />
-        {is.undefined(this.state.edit) ? undefined : (
-          <GenericComparison
-            visible={true}
-            comparison={this.state.edit}
-            onCancel={() => this.setState({ edit: undefined })}
-            onCommit={this.onCommit.bind(this)}
-            onUpdate={edit => this.setState({ edit })}
-          />
+            )}
+          </>
         )}
       </>
     );

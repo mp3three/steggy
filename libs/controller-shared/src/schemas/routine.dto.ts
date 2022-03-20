@@ -91,6 +91,7 @@ export class RoutineDTO {
   @IsString()
   @ApiProperty({ required: false })
   @TransformObjectId()
+  @Prop({ index: true })
   public parent?: string;
 
   /**
