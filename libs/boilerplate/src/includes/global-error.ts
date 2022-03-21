@@ -17,6 +17,7 @@ const basicError = (error: Error) => {
   console.error(error.stack);
   process.exit();
 };
+// eslint-disable-next-line radar/cognitive-complexity
 const prettyError = (error: Error) => {
   const stack = error.stack.split(`\n`).slice(FIRST);
   console.log();
@@ -25,6 +26,9 @@ const prettyError = (error: Error) => {
   let maxMethod = 0;
   let maxPath = 0;
   let maxLine = 0;
+  if (stack[START].startsWith('TypeError: ')) {
+    stack.shift();
+  }
   stack.forEach(line => {
     line = line.trim();
     line = line.slice(line.indexOf(' ')).trim();

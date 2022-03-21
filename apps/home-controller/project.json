@@ -25,42 +25,42 @@
         "assets": [
           {
             "input": "libs/utilities",
-            "glob": "*.json",
+            "glob": "package.json",
             "output": "./assets/utilities"
           },
           {
             "input": "libs/home-assistant",
-            "glob": "*.json",
+            "glob": "package.json",
             "output": "./assets/home-assistant"
           },
           {
             "input": "libs/home-assistant-shared",
-            "glob": "*.json",
+            "glob": "package.json",
             "output": "./assets/home-assistant-shared"
           },
           {
             "input": "libs/server",
-            "glob": "*.json",
+            "glob": "package.json",
             "output": "./assets/server"
           },
           {
             "input": "libs/persistence",
-            "glob": "*.json",
+            "glob": "package.json",
             "output": "./assets/persistence"
           },
           {
             "input": "libs/boilerplate",
-            "glob": "*.json",
+            "glob": "package.json",
             "output": "./assets/boilerplate"
           },
           {
             "input": "libs/controller-shared",
-            "glob": "*.json",
+            "glob": "package.json",
             "output": "./assets/controller-shared"
           },
           {
             "input": "apps/home-controller",
-            "glob": "*.json",
+            "glob": "package.json",
             "output": "./assets/home-controller"
           },
           {

@@ -1,22 +1,19 @@
 import { is } from '@automagical/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import JSON from 'comment-json';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { homedir } from 'os';
-import { dirname, join } from 'path';
+import { join } from 'path';
 import { cwd } from 'process';
 
 import { LIB_UTILS } from '../config';
 import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
-  NX_WORKSPACE_FILE,
-  NXProjectDTO,
-  NXProjectTypes,
-  NXWorkspaceDTO,
   PACKAGE_FILE,
   PackageJsonDTO,
 } from '../contracts';
+import { LibraryModule } from '../decorators';
 import { AutoLogService } from './auto-log.service';
 
 /**
@@ -37,13 +34,7 @@ export class WorkspaceService {
    * package.json
    */
   public PACKAGES = new Map<string, PackageJsonDTO>();
-
   public ROOT_PACKAGE: PackageJsonDTO;
-
-  /**
-   * NX workspaces
-   */
-  public workspace: NXWorkspaceDTO;
 
   private isWindows = process.platform === 'win32';
   private loaded = false;
@@ -101,41 +92,25 @@ export class WorkspaceService {
       return;
     }
     this.loaded = true;
-    this.loadNX();
     this.loadPackages();
   }
 
   public isApplication(project: string): boolean {
-    return this.workspace.projects[project].projectType === 'application';
+    return this.application.description === project;
   }
 
   public isProject(project: string): boolean {
-    return !is.undefined(this.workspace.projects[project]);
-  }
-
-  public list(type: NXProjectTypes): string[] {
-    const { projects } = this.workspace;
-    return Object.keys(projects).filter(
-      item => projects[item].projectType === type,
-    );
+    return this.application.description !== project;
   }
 
   public path(project: string): string {
     return isDevelopment
-      ? join(cwd(), String(this.workspace.projects[project].root), PACKAGE_FILE)
+      ? join(
+          cwd(),
+          `${this.isApplication(project) ? 'apps' : 'libs'}/${project}`,
+          PACKAGE_FILE,
+        )
       : join(__dirname, 'assets', project, PACKAGE_FILE);
-  }
-
-  public setPackageVersion(project: string, version: string): string {
-    const packageJson = this.PACKAGES.get(project);
-    packageJson.version = version;
-    const packageFile = this.path(project);
-    this.writeJson(packageFile, packageJson);
-    return version;
-  }
-
-  public updateRootPackage(): void {
-    this.writeJson(PACKAGE_FILE, this.ROOT_PACKAGE);
   }
 
   public version(): GenericVersionDTO {
@@ -148,45 +123,13 @@ export class WorkspaceService {
     };
   }
 
-  public writeJson(path: string, data: unknown): void {
-    mkdirSync(dirname(path), { recursive: true });
-    writeFileSync(path, JSON.stringify(data, undefined, '  ') + `\n`);
-  }
-
   protected onModuleInit(): void {
     this.initMetadata();
   }
 
-  private loadNX(): void {
-    this.workspace = JSON.parse(
-      readFileSync(
-        isDevelopment
-          ? join(cwd(), NX_WORKSPACE_FILE)
-          : join(__dirname, 'assets', NX_WORKSPACE_FILE),
-        'utf8',
-      ),
-    ) as unknown as NXWorkspaceDTO;
-    const { projects } = this.workspace;
-    this.logger.info(`Loading workspace`);
-    Object.keys(projects).forEach(key => {
-      // Shh... this is actually a string before this point
-      const basePath = isDevelopment
-        ? String(projects[key])
-        : join(`assets`, key);
-      const path = join(basePath, 'project.json');
-      if (!existsSync(path)) {
-        return;
-      }
-      this.logger.debug(` - {${key}}`);
-      projects[key] = JSON.parse(
-        readFileSync(path, 'utf8'),
-      ) as unknown as NXProjectDTO;
-    });
-  }
-
   private loadPackages(): void {
     this.logger.info(`Loading package info`);
-    Object.keys(this.workspace.projects).forEach(project => {
+    LibraryModule.configs.forEach((meta, project) => {
       const packageFile = this.path(project);
       const exists = existsSync(packageFile);
       if (!exists) {
