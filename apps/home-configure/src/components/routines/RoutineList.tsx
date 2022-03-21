@@ -1,17 +1,6 @@
-import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { RoutineDTO } from '@automagical/controller-shared';
 import { ResultControlDTO } from '@automagical/utilities';
-import {
-  Breadcrumb,
-  Button,
-  Col,
-  Layout,
-  List,
-  Popconfirm,
-  Row,
-  Tooltip,
-  Typography,
-} from 'antd';
+import { Breadcrumb, Col, Layout, Row } from 'antd';
 import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 

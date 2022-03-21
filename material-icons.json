@@ -135,7 +135,6 @@
     "license": "prolog",
     "main.ts": "exe",
     "material-icons.json": "elm",
-    "metadata.json": "dinophp",
     "package.json": "npm",
     "project.json": "nrwl",
     "sqlconnector": "prolog",

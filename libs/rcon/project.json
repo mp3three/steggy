@@ -13,11 +13,7 @@
         "updateBuildableProjectDepsInPackageJson": true,
         "packageJson": "libs/rules-engine/package.json",
         "main": "libs/rules-engine/src/index.ts",
-        "assets": [
-          "libs/rules-engine/*.md",
-          "libs/rules-engine/metadata.json",
-          "libs/rules-engine/package.json"
-        ]
+        "assets": ["libs/rules-engine/*.md", "libs/rules-engine/package.json"]
       },
       "configurations": {
         "production": {

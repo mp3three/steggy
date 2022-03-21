@@ -1,9 +1,6 @@
 {
   "implicitDependencies": {
     ".eslintrc.json": "*",
-    "metadata.json": {
-      "configuration": "*"
-    },
     "nx.json": "*",
     "package.json": {
       "dependencies": "*",

@@ -30,6 +30,7 @@ const services = [
 ];
 
 @LibraryModule({
+  configuration: {},
   exports: services,
   imports: [
     MongoPersistenceModule,

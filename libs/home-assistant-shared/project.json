@@ -42,7 +42,6 @@
         "main": "libs/home-assistant-shared/src/index.ts",
         "assets": [
           "libs/home-assistant-shared/*.md",
-          "libs/home-assistant-shared/metadata.json",
           "libs/home-assistant-shared/package.json"
         ]
       },

@@ -11,6 +11,7 @@ import {
 } from '../services';
 
 @LibraryModule({
+  configuration: {},
   exports: [RulesEngineService],
   library: LIB_RULES_ENGINE,
   providers: [

@@ -1,7 +1,14 @@
 import { DynamicModule, Provider } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 
-import { LIB_UTILS } from '../config';
+import {
+  CACHE_PROVIDER,
+  LIB_UTILS,
+  LOG_LEVEL,
+  REDIS_DEFAULT_TTL,
+  REDIS_HOST,
+  REDIS_PORT,
+} from '../config';
 import { LOGGER_PROVIDERS } from '../decorators/injectors';
 import { CONFIG_PROVIDERS } from '../decorators/injectors/inject-config.decorator';
 import { LibraryModule } from '../decorators/library-module.decorator';
@@ -21,6 +28,36 @@ import {
 } from '../services';
 
 @LibraryModule({
+  configuration: {
+    [CACHE_PROVIDER]: {
+      default: 'memory',
+      description: 'Redis is preferred if available',
+      enum: ['redis', 'memory'],
+      type: 'string',
+    },
+    [LOG_LEVEL]: {
+      default: 'info',
+      description: 'Minimum log level to process',
+      enum: ['info', 'warn', 'debug'],
+      type: 'string',
+    },
+    [REDIS_DEFAULT_TTL]: {
+      careful: true,
+      default: 86_400,
+      description: 'Configuration property for redis connection',
+      type: 'number',
+    },
+    [REDIS_HOST]: {
+      default: 'localhost',
+      description: 'Configuration property for redis connection',
+      type: 'string',
+    },
+    [REDIS_PORT]: {
+      default: 6379,
+      description: 'Configuration property for redis connection',
+      type: 'number',
+    },
+  },
   exports: [
     AutoConfigService,
     AutoLogService,

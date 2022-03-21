@@ -13,10 +13,7 @@
         "buildableProjectDepsInPackageJsonType": "peerDependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/utilities/src/index.ts",
-        "assets": [
-          "libs/utilities/metadata.json",
-          "libs/utilities/package.json"
-        ]
+        "assets": ["libs/utilities/package.json"]
       },
       "configurations": {
         "production": {

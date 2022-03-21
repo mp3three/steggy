@@ -10,14 +10,12 @@ import { LIB_UTILS } from '../config';
 import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
-  METADATA_FILE,
   NX_WORKSPACE_FILE,
   NXProjectDTO,
   NXProjectTypes,
   NXWorkspaceDTO,
   PACKAGE_FILE,
   PackageJsonDTO,
-  RepoMetadataDTO,
 } from '../contracts';
 import { AutoLogService } from './auto-log.service';
 
@@ -35,10 +33,6 @@ export class WorkspaceService {
     logger.setContext(LIB_UTILS, WorkspaceService);
   }
   public IS_DEVELOPMENT = isDevelopment;
-  /**
-   * metadata.json
-   */
-  public METADATA = new Map<string, RepoMetadataDTO>();
   /**
    * package.json
    */
@@ -109,7 +103,6 @@ export class WorkspaceService {
     this.loaded = true;
     this.loadNX();
     this.loadPackages();
-    this.loadMetadata();
   }
 
   public isApplication(project: string): boolean {
@@ -127,25 +120,16 @@ export class WorkspaceService {
     );
   }
 
-  public path(project: string, type: 'package' | 'metadata'): string {
+  public path(project: string): string {
     return isDevelopment
-      ? join(
-          cwd(),
-          String(this.workspace.projects[project].root),
-          type === 'package' ? PACKAGE_FILE : METADATA_FILE,
-        )
-      : join(
-          __dirname,
-          'assets',
-          project,
-          type === 'package' ? PACKAGE_FILE : METADATA_FILE,
-        );
+      ? join(cwd(), String(this.workspace.projects[project].root), PACKAGE_FILE)
+      : join(__dirname, 'assets', project, PACKAGE_FILE);
   }
 
   public setPackageVersion(project: string, version: string): string {
     const packageJson = this.PACKAGES.get(project);
     packageJson.version = version;
-    const packageFile = this.path(project, 'package');
+    const packageFile = this.path(project);
     this.writeJson(packageFile, packageJson);
     return version;
   }
@@ -171,35 +155,6 @@ export class WorkspaceService {
 
   protected onModuleInit(): void {
     this.initMetadata();
-  }
-
-  private loadMetadata(): void {
-    const root = join(isDevelopment ? cwd() : __dirname, PACKAGE_FILE);
-    this.ROOT_PACKAGE = existsSync(root)
-      ? (JSON.parse(
-          readFileSync(
-            join(isDevelopment ? cwd() : __dirname, PACKAGE_FILE),
-            'utf8',
-          ),
-        ) as unknown as PackageJsonDTO)
-      : {
-          description: 'unknown',
-          displayName: 'unknown',
-          name: 'unknown',
-          version: '0.0.0',
-        };
-    const { projects } = this.workspace;
-    this.logger.info(`Loading project metadata`);
-    Object.keys(projects).forEach(key => {
-      const path = this.path(key, 'metadata');
-      if (!existsSync(path)) {
-        return;
-      }
-      // this.logg
-      const data = JSON.parse(readFileSync(path, 'utf8'));
-      this.logger.debug(` - {${key}}`);
-      this.METADATA.set(key, data as unknown as RepoMetadataDTO);
-    });
   }
 
   private loadNX(): void {
@@ -232,7 +187,7 @@ export class WorkspaceService {
   private loadPackages(): void {
     this.logger.info(`Loading package info`);
     Object.keys(this.workspace.projects).forEach(project => {
-      const packageFile = this.path(project, 'package');
+      const packageFile = this.path(project);
       const exists = existsSync(packageFile);
       if (!exists) {
         return;

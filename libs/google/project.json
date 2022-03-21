@@ -40,11 +40,7 @@
         "updateBuildableProjectDepsInPackageJson": true,
         "packageJson": "libs/google/package.json",
         "main": "libs/google/src/index.ts",
-        "assets": [
-          "libs/google/*.md",
-          "libs/google/metadata.json",
-          "libs/google/package.json"
-        ]
+        "assets": ["libs/google/*.md", "libs/google/package.json"]
       },
       "configurations": {
         "production": {

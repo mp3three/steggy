@@ -15,7 +15,6 @@
         "main": "libs/controller-shared/src/index.ts",
         "assets": [
           "libs/controller-shared/*.md",
-          "libs/controller-shared/metadata.json",
           "libs/controller-shared/package.json"
         ]
       },

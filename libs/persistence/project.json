@@ -13,11 +13,7 @@
         "buildableProjectDepsInPackageJsonType": "peerDependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/persistence/src/index.ts",
-        "assets": [
-          "libs/persistence/*.md",
-          "libs/persistence/metadata.json",
-          "libs/persistence/package.json"
-        ]
+        "assets": ["libs/persistence/*.md", "libs/persistence/package.json"]
       },
       "configurations": {
         "production": {

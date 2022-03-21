@@ -13,11 +13,7 @@
         "updateBuildableProjectDepsInPackageJson": true,
         "packageJson": "libs/server/package.json",
         "main": "libs/server/src/index.ts",
-        "assets": [
-          "libs/server/*.md",
-          "libs/server/metadata.json",
-          "libs/server/package.json"
-        ]
+        "assets": ["libs/server/*.md", "libs/server/package.json"]
       },
       "configurations": {
         "production": {

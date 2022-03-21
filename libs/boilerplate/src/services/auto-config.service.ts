@@ -7,28 +7,17 @@ import {
   Optional,
 } from '@nestjs/common';
 import JSON from 'comment-json';
-import {
-  existsSync,
-  lstatSync,
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-} from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { decode, encode } from 'ini';
 import yaml from 'js-yaml';
 import minimist from 'minimist';
 import { get, set } from 'object-path';
-import { join, resolve } from 'path';
-import { cwd } from 'process';
+import { resolve } from 'path';
 
 import { LIB_UTILS, LOG_LEVEL } from '../config';
-import {
-  ConfigItem,
-  METADATA_FILE,
-  RepoMetadataDTO,
-  USE_THIS_CONFIG,
-} from '../contracts';
+import { ConfigItem, USE_THIS_CONFIG } from '../contracts';
 import { AbstractConfig, ACTIVE_APPLICATION } from '../contracts/meta/config';
+import { LibraryModule } from '../decorators';
 import { AutoLogService } from './auto-log.service';
 import { WorkspaceService } from './workspace.service';
 
@@ -55,7 +44,6 @@ export class AutoConfigService {
   public configFiles: string[];
   public loadedConfigFiles: string[];
   private loadedConfigPath: string;
-  private metadata = new Map<string, RepoMetadataDTO>();
   private switches = minimist(process.argv);
 
   private get appName(): string {
@@ -132,7 +120,6 @@ export class AutoConfigService {
   }
 
   private earlyInit(): void {
-    this.loadMetadata();
     this.config = {};
     this.setDefaults();
     const fileConfig = this.loadFromFiles();
@@ -152,7 +139,7 @@ export class AutoConfigService {
   private getConfiguration(path: string): ConfigItem {
     const parts = path.split('.');
     if (parts.length === 2) {
-      const metadata = this.metadata.get(this.appName);
+      const metadata = LibraryModule.configs.get(this.appName);
       return (
         metadata.configuration[parts[1]] ?? {
           // Applications can yolo a bit harder than libraries
@@ -163,7 +150,7 @@ export class AutoConfigService {
       );
     }
     const [, library, property] = parts;
-    const metadata = this.metadata.get(library);
+    const metadata = LibraryModule.configs.get(library);
     if (!metadata) {
       throw new InternalServerErrorException(
         `Missing metadata asset for ${library}`,
@@ -174,9 +161,11 @@ export class AutoConfigService {
 
   private loadFromEnv(): void {
     const { env } = process;
-    this.metadata.forEach(({ configuration }, project) => {
+    LibraryModule.configs.forEach(({ configuration }, project) => {
       configuration ??= {};
-      const cleanedProject = project.replaceAll('-', '_');
+      const cleanedProject = (
+        project ?? this.APPLICATION.description
+      ).replaceAll('-', '_');
       const isApplication = this.APPLICATION.description === project;
       const environmentPrefix = isApplication
         ? 'application'
@@ -282,29 +271,8 @@ export class AutoConfigService {
     return out;
   }
 
-  private loadMetadata() {
-    const path = this.workspace.IS_DEVELOPMENT
-      ? join(
-          cwd(),
-          'dist',
-          AutoConfigService.USE_SCANNER_ASSETS ? 'config-scanner' : 'apps',
-          this.appName,
-          'assets',
-        )
-      : join(join(__dirname, 'assets'));
-    const contents = readdirSync(path);
-    contents.forEach(folder => {
-      const maybeFolder = join(path, folder);
-      if (!lstatSync(maybeFolder).isDirectory()) {
-        return;
-      }
-      const json = readFileSync(join(maybeFolder, METADATA_FILE), 'utf8');
-      this.metadata.set(folder, JSON.parse(json) as unknown as RepoMetadataDTO);
-    });
-  }
-
   private setDefaults(): void {
-    this.metadata.forEach(({ configuration }, project) => {
+    LibraryModule.configs.forEach(({ configuration }, project) => {
       const isApplication = this.appName === project;
       Object.keys(configuration).forEach(key => {
         if (!is.undefined(configuration[key].default)) {

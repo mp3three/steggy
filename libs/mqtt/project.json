@@ -13,11 +13,7 @@
         "buildableProjectDepsInPackageJsonType": "peerDependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/mqtt/src/index.ts",
-        "assets": [
-          "libs/mqtt/*.md",
-          "libs/mqtt/metadata.json",
-          "libs/mqtt/package.json"
-        ]
+        "assets": ["libs/mqtt/*.md", "libs/mqtt/package.json"]
       },
       "configurations": {
         "production": {

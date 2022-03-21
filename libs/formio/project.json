@@ -40,11 +40,7 @@
         "updateBuildableProjectDepsInPackageJson": true,
         "packageJson": "libs/formio/package.json",
         "main": "libs/formio/src/index.ts",
-        "assets": [
-          "libs/formio/*.md",
-          "libs/formio/metadata.json",
-          "libs/formio/package.json"
-        ]
+        "assets": ["libs/formio/*.md", "libs/formio/package.json"]
       },
       "configurations": {
         "production": {

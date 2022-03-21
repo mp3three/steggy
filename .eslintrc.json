@@ -181,6 +181,7 @@
     {
       "files": ["*module.ts"],
       "rules": {
+        "radar/no-duplicate-string": "off",
         "unicorn/no-useless-spread": "off"
       }
     },

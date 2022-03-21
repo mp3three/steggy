@@ -6,6 +6,21 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 
 import {
+  CIRCADIAN_MAX_TEMP,
+  CIRCADIAN_MIN_TEMP,
+  MIN_BRIGHTNESS,
+  MONGO_CA,
+  MONGO_CERT,
+  MONGO_CRL,
+  MONGO_KEY,
+  MONGO_URI,
+  NOTIFY_CONNECTION_RESET,
+  NOTIFY_UNAVAILABLE_DURATION,
+  SAFE_MODE,
+  SEQUENCE_TIMEOUT,
+  UNAVAILABLE_MONITOR_HOUR,
+} from '../config';
+import {
   AdminController,
   AnimationController,
   DebugController,
@@ -88,6 +103,83 @@ const providers = [
 
 @ApplicationModule({
   application: Symbol('home-controller'),
+  configuration: {
+    [CIRCADIAN_MAX_TEMP]: {
+      default: 5500,
+      description:
+        'Maximum color temperature for circadian lighting. Used at solar noon',
+      type: 'number',
+    },
+    [CIRCADIAN_MIN_TEMP]: {
+      default: 2000,
+      description:
+        "Minimum color temperature for circadian lighting. Used while it's dark out",
+      type: 'number',
+    },
+    [MIN_BRIGHTNESS]: {
+      default: 5,
+      description:
+        'Enforce a number higher than 1 for min brightness in dimmers. Some lights do weird stuff at low numbers',
+      type: 'number',
+    },
+    [MONGO_CA]: {
+      careful: true,
+      description:
+        'Optional configuration item, used with mongo ssl connections. Provide value as absolute file path',
+      type: 'string',
+    },
+    [MONGO_CERT]: {
+      careful: true,
+      description:
+        'Optional configuration item, used with mongo ssl connections. Provide value as absolute file path',
+      type: 'string',
+    },
+    [MONGO_CRL]: {
+      careful: true,
+      description:
+        'Optional configuration item, used with mongo ssl connections. Provide value as absolute file path',
+      type: 'string',
+    },
+    [MONGO_KEY]: {
+      careful: true,
+      description:
+        'Optional configuration item, used with mongo ssl connections. Provide value as absolute file path',
+      type: 'string',
+    },
+    [MONGO_URI]: {
+      default: 'mongodb://localhost:27017/automagical',
+      description: 'Mongo connection string',
+      type: 'string',
+    },
+    [NOTIFY_CONNECTION_RESET]: {
+      default: true,
+      description:
+        'Send a notification when home assistant connection is reset',
+      type: 'boolean',
+    },
+    [NOTIFY_UNAVAILABLE_DURATION]: {
+      // 4 hours = 1000 * 60 * 60 * 4
+      default: 14_400_000,
+      description: 'Raise error if entity is unavailable for this long',
+      type: 'number',
+    },
+    [SAFE_MODE]: {
+      default: false,
+      description: 'Disable all activation events for routines',
+      type: 'boolean',
+    },
+    [SEQUENCE_TIMEOUT]: {
+      default: 1500,
+      description:
+        'When tracking state changes for a kunami event, another change must happen inside this time window',
+      type: 'number',
+    },
+    [UNAVAILABLE_MONITOR_HOUR]: {
+      default: 11,
+      description: 'When to send notifications about unavailable entities',
+      type: 'number',
+    },
+  },
   controllers: [
     AdminController,
     AnimationController,

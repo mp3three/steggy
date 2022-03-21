@@ -2,7 +2,6 @@
 export class RepoMetadataDTO {
   public configuration: Record<string, ConfigItem>;
 }
-export const METADATA_FILE = 'metadata.json';
 export type ConfigItem<T extends AnyConfig = AnyConfig> = {
   configurable?: boolean;
   default?: unknown;
@@ -12,6 +11,7 @@ export type AnyConfig =
   | StringConfig
   | BooleanConfig
   | NumberConfig
+  | InternalConfig
   | RecordConfig
   | PasswordConfig
   | UrlConfig;
@@ -31,6 +31,11 @@ export class StringConfig extends WarnDefault {
 export class BooleanConfig extends WarnDefault {
   public default?: boolean;
   public type: 'boolean';
+}
+
+export class InternalConfig extends WarnDefault {
+  public default?: unknown;
+  public type: 'internal';
 }
 
 export class NumberConfig extends WarnDefault {
