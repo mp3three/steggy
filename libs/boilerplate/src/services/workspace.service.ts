@@ -110,7 +110,12 @@ export class WorkspaceService {
           `${this.isApplication(project) ? 'apps' : 'libs'}/${project}`,
           PACKAGE_FILE,
         )
-      : join(__dirname, 'assets', project, PACKAGE_FILE);
+      : join(
+          __dirname,
+          'assets',
+          project ?? this.application.description,
+          PACKAGE_FILE,
+        );
   }
 
   public version(): GenericVersionDTO {
