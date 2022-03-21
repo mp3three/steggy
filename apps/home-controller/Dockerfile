@@ -1,8 +1,10 @@
 # <STAGE 1>
-# Bring repo into intermedia container
+# Bring repo into intermediate container
 FROM node:16-alpine AS build
 WORKDIR /app
-RUN apk add git
+RUN apk add git curl
+# Grab latest yarn
+RUN curl --compressed -o- -L https://yarnpkg.com/install.sh | sh
 COPY --chown=node:node . .
 RUN yarn install --frozen-lockfile
 # Build UI

@@ -1,5 +1,5 @@
 import { SettingOutlined } from '@ant-design/icons';
-import { RoutineDTO } from '@automagical/controller-shared';
+import { RoutineDTO, RoutineEnableDTO } from '@automagical/controller-shared';
 import {
   Button,
   Card,
@@ -12,12 +12,14 @@ import {
   Space,
   Tabs,
   Tooltip,
+  Typography,
 } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 import { StopProcessingCommand } from './command';
+import { RoutineMiniActivate } from './RoutineMiniActivate';
 
 type tState = {
   friendlyName: string;
@@ -32,8 +34,17 @@ export class RoutineListDetail extends React.Component<
 > {
   override state = {} as tState;
 
-  override componentDidMount(): void {
-    this.setState({ friendlyName: this.props.routine?.friendlyName });
+  private get disablePolling(): boolean {
+    if (
+      !['enable_rules', 'disable_rules'].includes(
+        this.props.routine?.enable?.type,
+      )
+    ) {
+      return true;
+    }
+    return !(this.props.routine.enable?.comparisons ?? []).some(({ type }) =>
+      ['webhook', 'template'].includes(type),
+    );
   }
 
   override render() {
@@ -80,20 +91,18 @@ export class RoutineListDetail extends React.Component<
           <Empty description="Select a routine" />
         ) : (
           <Space direction="vertical" style={{ width: '100%' }}>
-            <Form.Item label="Friendly Name">
-              <Input
-                value={this.state.friendlyName}
-                onChange={({ target }) =>
-                  this.setState({ friendlyName: target.value })
-                }
-                onBlur={() => this.rename()}
-              />
-            </Form.Item>
+            <Typography.Title
+              level={3}
+              editable={{ onChange: value => this.rename(value) }}
+            >
+              {this.props.routine.friendlyName}
+            </Typography.Title>
             <Tabs type="card">
               <Tabs.TabPane tab="Enabled" key="enabled">
                 <Form.Item label="Enable type">
                   <Radio.Group
                     value={this.props.routine.enable?.type ?? 'enable'}
+                    onChange={({ target }) => this.setType(target.value)}
                   >
                     <Radio.Button value="enable">Enable</Radio.Button>
                     <Radio.Button value="disable">Disable</Radio.Button>
@@ -114,23 +123,31 @@ export class RoutineListDetail extends React.Component<
                 >
                   <Input
                     type="number"
-                    value={this.props.routine.enable?.poll ?? 60 * 60}
+                    defaultValue={this.props.routine.enable?.poll ?? 60 * 60}
                     suffix="seconds"
+                    disabled={this.disablePolling}
+                    onChange={({ target }) =>
+                      this.setPolling(Number(target.value))
+                    }
                   />
                 </Form.Item>
                 <Divider orientation="left">Rules</Divider>
                 <StopProcessingCommand
-                  disabled
+                  disabled={
+                    !['enable_rules', 'disable_rules'].includes(
+                      this.props.routine?.enable?.type,
+                    )
+                  }
                   command={this.props.routine?.enable}
-                  onUpdate={() => {
-                    //
-                  }}
+                  onUpdate={update => this.updateComparisons(update)}
                 />
               </Tabs.TabPane>
-              <Tabs.TabPane
-                tab="Activate & Command"
-                key="linked"
-              ></Tabs.TabPane>
+              <Tabs.TabPane tab="Activate & Command" key="linked">
+                <RoutineMiniActivate
+                  routine={this.props.routine}
+                  onUpdate={() => this.props.onUpdate()}
+                />
+              </Tabs.TabPane>
             </Tabs>
           </Space>
         )}
@@ -153,9 +170,45 @@ export class RoutineListDetail extends React.Component<
     this.props.onUpdate();
   }
 
-  private async rename(): Promise<void> {
-    await sendRequest({
-      body: { friendlyName: this.state.friendlyName },
+  private async rename(friendlyName: string): Promise<void> {
+    await sendRequest<RoutineDTO>({
+      body: { friendlyName },
+      method: 'put',
+      url: `/routine/${this.props.routine._id}`,
+    });
+    this.props.onUpdate();
+  }
+
+  private async setPolling(poll: number): Promise<void> {
+    console.log(poll);
+    await sendRequest<RoutineDTO>({
+      body: {
+        enable: { ...this.props.routine.enable, poll },
+      } as Partial<RoutineDTO>,
+      method: 'put',
+      url: `/routine/${this.props.routine._id}`,
+    });
+    this.props.onUpdate();
+  }
+
+  private async setType(type: string): Promise<void> {
+    await sendRequest<RoutineDTO>({
+      body: {
+        enable: { ...this.props.routine.enable, type },
+      } as Partial<RoutineDTO>,
+      method: 'put',
+      url: `/routine/${this.props.routine._id}`,
+    });
+    this.props.onUpdate();
+  }
+
+  private async updateComparisons(
+    update: Partial<RoutineEnableDTO>,
+  ): Promise<void> {
+    await sendRequest<RoutineDTO>({
+      body: {
+        enable: { ...this.props.routine.enable, ...update },
+      } as Partial<RoutineDTO>,
       method: 'put',
       url: `/routine/${this.props.routine._id}`,
     });

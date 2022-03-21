@@ -67,6 +67,7 @@ export class RoutineDTO {
   @ValidateNested()
   @IsOptional()
   @ApiProperty({ required: false, type: [RoutineEnableDTO] })
+  @Prop()
   public enable?: RoutineEnableDTO;
 
   @IsString()

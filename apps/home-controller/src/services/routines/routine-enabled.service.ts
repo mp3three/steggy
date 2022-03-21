@@ -159,10 +159,17 @@ export class RoutineEnabledService {
     if (!is.object(enable)) {
       return true;
     }
-    const testState = await this.stopProcessingService.activate(enable);
     const type = enable.type ?? 'enable';
+    if (type === 'enable') {
+      return true;
+    }
+    if (type === 'disable') {
+      return false;
+    }
+    const testState = await this.stopProcessingService.activate(enable);
     return (
-      (type === 'enable' && testState) || (type === 'disable' && !testState)
+      (type === 'enable_rules' && testState) ||
+      (type === 'disable_rules' && !testState)
     );
   }
 
@@ -299,7 +306,10 @@ export class RoutineEnabledService {
   private watch(routine: RoutineDTO): void {
     let poll = false;
     const entities: string[] = [];
-    if (!routine.enable) {
+    if (
+      !routine.enable ||
+      !['enable_rules', 'disable_rules'].includes(routine.enable.type)
+    ) {
       return;
     }
     routine.enable.comparisons.forEach(comparison => {
