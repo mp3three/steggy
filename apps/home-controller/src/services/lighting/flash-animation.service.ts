@@ -6,14 +6,13 @@ import {
   LightAttributesDTO,
   LightStateDTO,
 } from '@automagical/home-assistant-shared';
-import { eachSeries, is, PEAT, sleep } from '@automagical/utilities';
+import { eachSeries, is, PEAT, sleep, START } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { LightManagerService } from './light-manager.service';
 
 const HALF = 2;
 const OFF = 0;
-const START = 0;
 
 @Injectable()
 export class FlashAnimationService {

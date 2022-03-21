@@ -1,3 +1,4 @@
+import { FIRST, START } from '@automagical/utilities';
 import { INestApplication } from '@nestjs/common';
 import chalk from 'chalk';
 
@@ -8,8 +9,6 @@ import { BootstrapOptions } from './bootstrap';
 
 let logger: AutoLogService;
 let prettyLog: boolean;
-const FIRST = 1;
-const START = 0;
 const EXTRA_PREFIX = 4;
 
 const basicError = (error: Error) => {
@@ -26,7 +25,7 @@ const prettyError = (error: Error) => {
   let maxMethod = 0;
   let maxPath = 0;
   let maxLine = 0;
-  stack.forEach((line) => {
+  stack.forEach(line => {
     line = line.trim();
     line = line.slice(line.indexOf(' ')).trim();
     const hasMethod =

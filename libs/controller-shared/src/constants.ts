@@ -8,6 +8,7 @@ export const COMPLEX_LOGIC = Symbol('COMPLEX_LOGIC');
 export const ROOM_API_COMMAND = Symbol('ROOM_API_COMMAND');
 export const CIRCADIAN_UPDATE = 'CIRCADIAN_UPDATE';
 export const LIGHT_FORCE_CIRCADIAN = 'LIGHT_FORCE_CIRCADIAN';
+export const USE_FAN_SPEEDS = 'USE_FAN_SPEEDS';
 
 export enum ControllerStates {
   on = 'on',

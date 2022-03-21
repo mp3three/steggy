@@ -1,11 +1,11 @@
 import { AutoLogService } from '@automagical/boilerplate';
 import { FanStateDTO, HASS_DOMAINS } from '@automagical/home-assistant-shared';
+import { ARRAY_OFFSET, INCREMENT, START } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { EntityManagerService, HACallService } from '../services';
 
 const MAX = 100;
-const START = 0;
 /**
  * https://www.home-assistant.io/integrations/fan/
  */
@@ -27,10 +27,27 @@ export class FanDomainService {
 
   public async fanSpeedDown(
     entityId: string,
+    useFanSpeed = false,
     waitForChange = false,
   ): Promise<void> {
-    // return await this.decreaseSpeed(entityId);
     const { attributes } = this.entityManager.getEntity<FanStateDTO>(entityId);
+    if (useFanSpeed) {
+      const { speed_list, speed } = attributes;
+      const index = speed_list.indexOf(speed);
+      if (index === START) {
+        this.logger.warn(`Cannot speed down`);
+        return;
+      }
+      return await this.callService.call(
+        'turn_on',
+        {
+          entity_id: entityId,
+          speed: speed_list[index - INCREMENT],
+        },
+        undefined,
+        waitForChange,
+      );
+    }
     const currentSpeed = attributes.percentage;
     if (currentSpeed === START) {
       this.logger.warn(`Cannot speed down`);
@@ -49,10 +66,27 @@ export class FanDomainService {
 
   public async fanSpeedUp(
     entityId: string,
+    useFanSpeed = false,
     waitForChange = false,
   ): Promise<void> {
-    // return await this.increaseSpeed(entityId);
     const { attributes } = this.entityManager.getEntity<FanStateDTO>(entityId);
+    if (useFanSpeed) {
+      const { speed_list, speed } = attributes;
+      const index = speed_list.indexOf(speed);
+      if (index === speed_list.length - ARRAY_OFFSET) {
+        this.logger.warn(`Cannot speed up`);
+        return;
+      }
+      return await this.callService.call(
+        'turn_on',
+        {
+          entity_id: entityId,
+          speed: speed_list[index + INCREMENT],
+        },
+        undefined,
+        waitForChange,
+      );
+    }
     const currentSpeed = attributes.percentage;
     if (currentSpeed === MAX) {
       this.logger.warn(`Cannot speed up`);

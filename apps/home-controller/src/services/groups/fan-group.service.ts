@@ -16,15 +16,15 @@ import {
   FanStateDTO,
   HASS_DOMAINS,
 } from '@automagical/home-assistant-shared';
-import { each } from '@automagical/utilities';
+import { each, START } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
+import { EntityCommandRouterService } from '../entity-command-router.service';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
 
 type SaveState = RoomEntitySaveStateDTO<FanAttributesDTO>;
 
-const START = 0;
 @Injectable()
 export class FanGroupService extends BaseGroupService {
   constructor(
@@ -33,6 +33,7 @@ export class FanGroupService extends BaseGroupService {
     private readonly hassCore: HomeAssistantCoreService,
     private readonly entityManager: EntityManagerService,
     private readonly fanDomain: FanDomainService,
+    private readonly commandRouter: EntityCommandRouterService,
   ) {
     super();
   }
@@ -81,7 +82,12 @@ export class FanGroupService extends BaseGroupService {
     await each(
       group.entities,
       async entity_id =>
-        await this.fanDomain.fanSpeedUp(entity_id, waitForChange),
+        await this.commandRouter.process(
+          entity_id,
+          'fanSpeedUp',
+          undefined,
+          waitForChange,
+        ),
     );
   }
 

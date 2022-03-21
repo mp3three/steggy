@@ -14,13 +14,12 @@ import {
   HASS_DOMAINS,
   SwitchStateDTO,
 } from '@automagical/home-assistant-shared';
-import { each } from '@automagical/utilities';
+import { each, START } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
 
-const START = 0;
 @Injectable()
 export class SwitchGroupService extends BaseGroupService {
   constructor(

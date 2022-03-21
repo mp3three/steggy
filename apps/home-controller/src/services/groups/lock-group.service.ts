@@ -16,13 +16,11 @@ import {
   LockAttributesDTO,
   LockStateDTO,
 } from '@automagical/home-assistant-shared';
-import { each, is } from '@automagical/utilities';
+import { each, is, START } from '@automagical/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
-
-const START = 0;
 
 @Injectable()
 export class LockGroupService extends BaseGroupService {

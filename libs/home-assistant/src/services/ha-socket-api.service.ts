@@ -22,7 +22,13 @@ import {
   SOCKET_MESSAGES,
   SocketMessageDTO,
 } from '@automagical/home-assistant-shared';
-import { CronExpression, is, SECOND, sleep } from '@automagical/utilities';
+import {
+  CronExpression,
+  is,
+  SECOND,
+  sleep,
+  START,
+} from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 import WS from 'ws';
@@ -37,7 +43,6 @@ import {
   WEBSOCKET_URL,
 } from '../config';
 
-const STARTING_COUNTER_ID = 0;
 let MESSAGE_TIMESTAMPS: number[] = [];
 
 @Injectable()
@@ -60,7 +65,7 @@ export class HASocketAPIService {
 
   private CONNECTION_ACTIVE = false;
   private connection: WS;
-  private messageCount = STARTING_COUNTER_ID;
+  private messageCount = START;
   private waitingCallback = new Map<number, (result) => void>();
 
   /**
@@ -232,7 +237,7 @@ export class HASocketAPIService {
     this.CONNECTION_ACTIVE = false;
     const url = new URL(this.baseUrl);
     try {
-      this.messageCount = STARTING_COUNTER_ID;
+      this.messageCount = START;
       this.logger.info('Creating new socket connection');
       this.connection = new WS(
         this.websocketUrl ||
@@ -271,7 +276,6 @@ export class HASocketAPIService {
    * ## result
    * Response to an outgoing emit
    */
-
   private async onMessage(message: SocketMessageDTO) {
     const id = Number(message.id);
     switch (message.type as HassSocketMessageTypes) {

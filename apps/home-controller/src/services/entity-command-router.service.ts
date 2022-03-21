@@ -1,12 +1,12 @@
-import { AutoLogService } from '@automagical/boilerplate';
-import type {
+import { AutoLogService, OnEvent } from '@automagical/boilerplate';
+import {
   ROOM_ENTITY_EXTRAS,
   RoomEntitySaveStateDTO,
+  USE_FAN_SPEEDS,
 } from '@automagical/controller-shared';
 import {
   ClimateDomainService,
   FanDomainService,
-  HomeAssistantFetchAPIService,
   LockDomainService,
   MediaPlayerDomainService,
   SwitchDomainService,
@@ -18,14 +18,16 @@ import {
   HASS_DOMAINS,
   LightAttributesDTO,
 } from '@automagical/home-assistant-shared';
-import { is } from '@automagical/utilities';
+import { DOWN, is, UP } from '@automagical/utilities';
 import {
   BadRequestException,
   Injectable,
   NotImplementedException,
 } from '@nestjs/common';
 
+import { ENTITY_METADATA_UPDATED } from '../typings';
 import { LightManagerService } from './lighting';
+import { MetadataService } from './metadata.service';
 
 @Injectable()
 export class EntityCommandRouterService {
@@ -37,8 +39,10 @@ export class EntityCommandRouterService {
     private readonly fanService: FanDomainService,
     private readonly lockService: LockDomainService,
     private readonly climateService: ClimateDomainService,
-    private readonly fetchAPI: HomeAssistantFetchAPIService,
+    private readonly metadataService: MetadataService,
   ) {}
+
+  private USE_FAN_SPEEDS: string[] = [];
 
   public async fromState(
     { ref, state, extra }: RoomEntitySaveStateDTO,
@@ -104,6 +108,20 @@ export class EntityCommandRouterService {
     throw new NotImplementedException();
   }
 
+  @OnEvent(ENTITY_METADATA_UPDATED)
+  protected async refreshForceList(): Promise<void> {
+    this.USE_FAN_SPEEDS = await this.metadataService.findWithFlag(
+      USE_FAN_SPEEDS,
+    );
+    if (is.empty(this.USE_FAN_SPEEDS)) {
+      return;
+    }
+    this.logger.debug(`Force circadian list`);
+    this.USE_FAN_SPEEDS.sort((a, b) => (a > b ? UP : DOWN)).forEach(i =>
+      this.logger.debug(` - {${i}}`),
+    );
+  }
+
   private async climateEntity(
     id: string,
     command: keyof ClimateDomainService,
@@ -159,6 +177,7 @@ export class EntityCommandRouterService {
     { percentage }: FanAttributesDTO,
     waitForChange = false,
   ): Promise<void> {
+    //
     switch (command) {
       case 'turnOff':
       case 'off':
@@ -175,9 +194,17 @@ export class EntityCommandRouterService {
         }
         return await this.fanService.setSpeed(id, percentage, waitForChange);
       case 'fanSpeedUp':
-        return await this.fanService.fanSpeedUp(id, waitForChange);
+        return await this.fanService.fanSpeedUp(
+          id,
+          this.USE_FAN_SPEEDS.includes(id),
+          waitForChange,
+        );
       case 'fanSpeedDown':
-        return await this.fanService.fanSpeedDown(id, waitForChange);
+        return await this.fanService.fanSpeedDown(
+          id,
+          this.USE_FAN_SPEEDS.includes(id),
+          waitForChange,
+        );
     }
     throw new BadRequestException(command);
   }

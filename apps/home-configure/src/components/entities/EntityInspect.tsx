@@ -112,32 +112,63 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
   }
 
   private flags() {
-    const { entity, flags } = this.state;
-    if (domain(entity.entity_id) === 'light') {
+    const { entity } = this.state;
+    if (!['light', 'fan'].includes(domain(entity.entity_id))) {
+      return undefined;
+    }
+    return (
+      <>
+        <Divider orientation="left">Flags</Divider>
+        <Space direction="vertical"></Space>
+        {this.renderFlag(domain(entity))}
+      </>
+    );
+  }
+
+  private renderFlag(type: string) {
+    if (type === 'light') {
       return (
-        <>
-          <Divider orientation="left">Flags</Divider>
-          <Space direction="vertical">
-            <Tooltip
-              title={
-                <Typography.Text>
-                  Fix for lights that do not include
-                  <Typography.Text code>color_temp</Typography.Text> in
-                  <Typography.Text code>supported_color_modes</Typography.Text>
-                </Typography.Text>
-              }
-            >
-              <Checkbox
-                onChange={({ target }) =>
-                  this.toggleFlag('LIGHT_FORCE_CIRCADIAN', target.checked)
-                }
-                checked={flags.includes('LIGHT_FORCE_CIRCADIAN')}
-              >
-                Circadian Compatibility
-              </Checkbox>
-            </Tooltip>
-          </Space>
-        </>
+        <Tooltip
+          title={
+            <Typography.Text>
+              Fix for lights that do not include
+              <Typography.Text code>color_temp</Typography.Text> in
+              <Typography.Text code>supported_color_modes</Typography.Text>
+            </Typography.Text>
+          }
+        >
+          <Checkbox
+            onChange={({ target }) =>
+              this.toggleFlag('LIGHT_FORCE_CIRCADIAN', target.checked)
+            }
+            checked={this.state.flags.includes('LIGHT_FORCE_CIRCADIAN')}
+          >
+            Circadian Compatibility
+          </Checkbox>
+        </Tooltip>
+      );
+    }
+    if (type === 'fan') {
+      return (
+        <Tooltip
+          title={
+            <Typography.Text>
+              This fan should do relative speed changes using fan_speed instead
+              of percentages. Use when{' '}
+              <Typography.Text code>percentage_step</Typography.Text> is an
+              incorrect value
+            </Typography.Text>
+          }
+        >
+          <Checkbox
+            onChange={({ target }) =>
+              this.toggleFlag('USE_FAN_SPEEDS', target.checked)
+            }
+            checked={this.state.flags.includes('USE_FAN_SPEEDS')}
+          >
+            Use Fan Speeds
+          </Checkbox>
+        </Tooltip>
       );
     }
     return undefined;

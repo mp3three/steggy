@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { deepExtend, INVERT_VALUE, is } from '@automagical/utilities';
+import { deepExtend, INVERT_VALUE, is, START } from '@automagical/utilities';
 import {
   Inject,
   Injectable,
@@ -33,7 +33,6 @@ import { AutoLogService } from './auto-log.service';
 import { WorkspaceService } from './workspace.service';
 
 const extensions = ['json', 'ini', 'yaml'];
-const START = 0;
 
 @Injectable()
 export class AutoConfigService {

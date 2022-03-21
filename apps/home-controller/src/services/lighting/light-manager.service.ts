@@ -276,6 +276,9 @@ export class LightManagerService {
     this.FORCE_CIRCADIAN = await this.metadataService.findWithFlag(
       LIGHT_FORCE_CIRCADIAN,
     );
+    if (is.empty(this.FORCE_CIRCADIAN)) {
+      return;
+    }
     this.logger.debug(`Force circadian list`);
     this.FORCE_CIRCADIAN.sort((a, b) => (a > b ? UP : DOWN)).forEach(i =>
       this.logger.debug(` - {${i}}`),
