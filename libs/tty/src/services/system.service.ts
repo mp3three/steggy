@@ -34,7 +34,8 @@ export class SystemService {
   ) {}
 
   private get projects() {
-    return this.workspace.workspace.projects;
+    return [];
+    // return this.workspace.workspace.projects;
   }
 
   public async bumpApplications(list: string[]): Promise<void> {

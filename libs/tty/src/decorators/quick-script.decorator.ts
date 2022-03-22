@@ -4,6 +4,7 @@ import {
   ApplicationModuleMetadata,
   AutoConfigService,
   Bootstrap,
+  LibraryModule,
 } from '@automagical/boilerplate';
 import { is } from '@automagical/utilities';
 import { Injectable, Provider } from '@nestjs/common';
@@ -51,6 +52,9 @@ export function QuickScript({
   // Without this, sometimes it will remain hidden
   process.addListener('beforeExit', () => show());
 
+  LibraryModule.configs.set(options.application.description, {
+    configuration: options.configuration ?? {},
+  });
   return function (target) {
     // ? When TS is apploying the @ServiceScript annotation to the target class
     // Set up a fake application module that uses it as the only provider

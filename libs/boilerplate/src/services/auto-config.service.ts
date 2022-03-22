@@ -47,7 +47,7 @@ export class AutoConfigService {
   private switches = minimist(process.argv);
 
   private get appName(): string {
-    return AutoConfigService.NX_PROJECT ?? this.APPLICATION.description;
+    return this.APPLICATION.description;
   }
 
   public get<T extends unknown = string>(path: string | [symbol, string]): T {

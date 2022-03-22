@@ -53,7 +53,7 @@ export class ChangelogService implements iRepl {
     const current = this.workspace.ROOT_PACKAGE.version;
     const updated = await this.versionBump(current, `Set root version`);
     this.workspace.ROOT_PACKAGE.version = updated;
-    this.workspace.updateRootPackage();
+    // this.workspace.updateRootPackage();
     return updated;
   }
 
@@ -87,7 +87,7 @@ export class ChangelogService implements iRepl {
         current,
         `Bump version ${project}`,
       );
-      this.workspace.setPackageVersion(project, updated);
+      // this.workspace.setPackageVersion(project, updated);
       out.push({
         from: current,
         message: {},

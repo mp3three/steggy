@@ -116,22 +116,23 @@ export class ConfigBuilderService {
   }
 
   private applicationChoices(): PromptEntry[] {
-    return this.workspace
-      .list('application')
-      .filter(item => {
-        const { projects } = this.workspace.workspace;
-        const { targets } = projects[item];
-        const scanner =
-          targets?.build?.configurations[SCAN_CONFIG_CONFIGURATION];
-        return !is.undefined(scanner);
-      })
-      .map(item => {
-        const tag = existsSync(join(homedir(), '.config', item))
-          ? chalk.green('*')
-          : chalk.yellow('*');
-        const name = this.workspace.PACKAGES.get(item).displayName;
-        return [`${tag} ${name}`, item];
-      });
+    return [];
+    // return this.workspace
+    //   .list('application')
+    //   .filter(item => {
+    //     const { projects } = this.workspace.workspace;
+    //     const { targets } = projects[item];
+    //     const scanner =
+    //       targets?.build?.configurations[SCAN_CONFIG_CONFIGURATION];
+    //     return !is.undefined(scanner);
+    //   })
+    //   .map(item => {
+    //     const tag = existsSync(join(homedir(), '.config', item))
+    //       ? chalk.green('*')
+    //       : chalk.yellow('*');
+    //     const name = this.workspace.PACKAGES.get(item).displayName;
+    //     return [`${tag} ${name}`, item];
+    //   });
   }
 
   private async buildApplication(application: string): Promise<void> {
@@ -322,37 +323,38 @@ export class ConfigBuilderService {
   }
 
   private async scan(application: string): Promise<Set<ConfigTypeDTO>> {
-    if (!this.workspace.IS_DEVELOPMENT) {
-      // Production builds ship with assembled config
-      // Running in dev environment will do live scan
-      const config: ConfigTypeDTO[] = JSON.parse(
-        readFileSync(join(__dirname, 'assets', 'config.json'), 'utf8'),
-      );
-      return new Set(config);
-    }
-    this.logger.debug(`Preparing scanner`);
-    const build = execa(`npx`, [
-      `nx`,
-      `build`,
-      application,
-      `--configuration=${SCAN_CONFIG_CONFIGURATION}`,
-    ]);
-    build.stdout.pipe(process.stdout);
-    await build;
-    this.logger.debug(`Scanning`);
-    this.workspace.initMetadata();
-    const { outputPath } =
-      this.workspace.workspace.projects[application].targets.build
-        .configurations[SCAN_CONFIG_CONFIGURATION];
-    const config: ConfigTypeDTO[] = [];
-    try {
-      const out = await execa(`node`, [join(outputPath, 'main.js')], {});
-      config.push(...(JSON.parse(out.stdout) as ConfigTypeDTO[]));
-    } catch (error) {
-      // FIXME: Kill signal error that sometimes shows up
-      // Just ignoring the error here
-      config.push(...(JSON.parse(error.stdout) as ConfigTypeDTO[]));
-    }
-    return new Set(config);
+    // if (!this.workspace.IS_DEVELOPMENT) {
+    //   // Production builds ship with assembled config
+    //   // Running in dev environment will do live scan
+    //   const config: ConfigTypeDTO[] = JSON.parse(
+    //     readFileSync(join(__dirname, 'assets', 'config.json'), 'utf8'),
+    //   );
+    //   return new Set(config);
+    // }
+    // this.logger.debug(`Preparing scanner`);
+    // const build = execa(`npx`, [
+    //   `nx`,
+    //   `build`,
+    //   application,
+    //   `--configuration=${SCAN_CONFIG_CONFIGURATION}`,
+    // ]);
+    // build.stdout.pipe(process.stdout);
+    // await build;
+    // this.logger.debug(`Scanning`);
+    // this.workspace.initMetadata();
+    // const { outputPath } =
+    //   this.workspace.workspace.projects[application].targets.build
+    //     .configurations[SCAN_CONFIG_CONFIGURATION];
+    // const config: ConfigTypeDTO[] = [];
+    // try {
+    //   const out = await execa(`node`, [join(outputPath, 'main.js')], {});
+    //   config.push(...(JSON.parse(out.stdout) as ConfigTypeDTO[]));
+    // } catch (error) {
+    //   // FIXME: Kill signal error that sometimes shows up
+    //   // Just ignoring the error here
+    //   config.push(...(JSON.parse(error.stdout) as ConfigTypeDTO[]));
+    // }
+    // return new Set(config);
+    return new Set();
   }
 }

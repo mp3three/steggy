@@ -46,6 +46,9 @@
       "options": {
         "buildTarget": "home-configure:build:development",
         "hmr": true,
+        "port": 4200,
+        // add to hosts file + use reverse proxy
+        "allowedHosts": "dev-controller.localhost",
         "host": "0.0.0.0"
       },
       "configurations": {

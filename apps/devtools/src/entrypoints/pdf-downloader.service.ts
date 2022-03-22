@@ -30,7 +30,6 @@ type TOKEN_RESPONSE = { key: string; token: string };
 const DEFAULT_LIMIT = 3;
 
 @QuickScript({
-  NX_PROJECT: 'work',
   OVERRIDE_DEFAULTS: {
     application: { LIMIT: DEFAULT_LIMIT },
     libs: { tty: { DEFAULT_HEADER_FONT: 'Pagga' } },
