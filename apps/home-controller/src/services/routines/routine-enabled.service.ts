@@ -31,6 +31,7 @@ import { RoutineService } from './routine.service';
 type METADATA = {
   props: string[];
   room: string;
+  routines: string[];
 };
 const ROOT = 'root';
 
@@ -105,7 +106,7 @@ export class RoutineEnabledService {
 
   @OnEvent(ROOM_METADATA_UPDATED)
   protected onMetadataUpdate({ room, name }: MetadataUpdate): void {
-    this.WATCH_METADATA.forEach(async (metadata, routine) => {
+    this.WATCH_METADATA.forEach(async metadata => {
       const caught = metadata.some(i => {
         if (i.room !== room) {
           return false;
@@ -115,7 +116,10 @@ export class RoutineEnabledService {
       if (!caught) {
         return;
       }
-      await this.onUpdate(this.RAW_LIST.get(routine));
+      await each(
+        is.unique(metadata.flatMap(i => i.routines)),
+        async routine => await this.onUpdate(this.RAW_LIST.get(routine)),
+      );
     });
   }
 
@@ -338,6 +342,7 @@ export class RoutineEnabledService {
         case STOP_PROCESSING_TYPE.room_metadata:
           this.watchMetadata(
             comparison.comparison as RoomMetadataComparisonDTO,
+            routine,
           );
           break;
       }
@@ -356,12 +361,18 @@ export class RoutineEnabledService {
     this.ENABLE_WATCHERS.set(routine._id, watchers);
   }
 
-  private watchMetadata(compare: RoomMetadataComparisonDTO): void {
+  private watchMetadata(
+    compare: RoomMetadataComparisonDTO,
+    { _id }: RoutineDTO,
+  ): void {
     const metadata = this.WATCH_METADATA.get(compare.room) ?? [];
     let current = metadata.find(item => item.room === compare.room);
     if (!current) {
-      current = { props: [], room: compare.room };
+      current = { props: [], room: compare.room, routines: [] };
       metadata.push(current);
+    }
+    if (!current.routines.includes(_id)) {
+      current.routines.push(_id);
     }
     if (!current.props.includes(compare.property)) {
       current.props.push(compare.property);

@@ -1,5 +1,7 @@
 # [@automagical](https://github.com/ccontour/automagical) monorepo
 
+- [Changelog](https://github.com/ccontour/automagical/wiki/Changelog)
+
 ## [Home Configure](apps/home-configure)
 
 React based web interface for setting up the the [Home Controller](apps/home-controller).
