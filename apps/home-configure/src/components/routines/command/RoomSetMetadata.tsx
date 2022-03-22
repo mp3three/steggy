@@ -99,7 +99,7 @@ export class RoomSetMetadataCommand extends React.Component<
     }
     return (
       <Input
-        value={String(this.props.command.value)}
+        value={String(this.props.command.value ?? '')}
         onChange={({ target }) => this.props.onUpdate({ value: target.value })}
       />
     );

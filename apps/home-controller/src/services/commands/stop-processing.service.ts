@@ -40,11 +40,8 @@ export class StopProcessingCommandService {
   public async activate(
     command: RoutineCommandStopProcessingDTO,
   ): Promise<boolean> {
-    let valid = true;
-    await eachSeries(command.comparisons, async comparison => {
-      if (!valid) {
-        return;
-      }
+    const results: boolean[] = [];
+    await eachSeries(command.comparisons ?? [], async comparison => {
       let result = false;
       switch (comparison.type) {
         case STOP_PROCESSING_TYPE.room_metadata:
@@ -77,14 +74,11 @@ export class StopProcessingCommandService {
             comparison.comparison as RoutineWebhookComparisonDTO,
           );
       }
-      if (
-        (command.mode === 'all' && result === false) ||
-        (command.mode === 'any' && result === true)
-      ) {
-        valid = false;
-      }
+      results.push(result);
     });
-    return valid;
+    return (
+      (command.mode === 'all' && results.every(i => i)) || results.some(i => i)
+    );
   }
 
   private attributeComparison(

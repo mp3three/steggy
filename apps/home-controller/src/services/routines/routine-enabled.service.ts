@@ -133,7 +133,7 @@ export class RoutineEnabledService {
       this.watch(routine);
     }
     this.RAW_LIST.set(routine._id, routine);
-    this.start(routine);
+    this.onUpdate(routine);
   }
 
   private initPolling(routine: RoutineDTO): void {
@@ -224,7 +224,7 @@ export class RoutineEnabledService {
     if (!updated) {
       return;
     }
-    // if( this.)
+    this.logger.debug(`[${routine.friendlyName}] changed state`);
   }
 
   private rangeTimeouts(
@@ -312,6 +312,7 @@ export class RoutineEnabledService {
     ) {
       return;
     }
+    routine.enable.comparisons ??= [];
     routine.enable.comparisons.forEach(comparison => {
       switch (comparison.type) {
         case STOP_PROCESSING_TYPE.webhook:
