@@ -264,6 +264,12 @@ export class RoutineListDetail extends React.Component<
                     )}
                   />
                 </Card>
+
+                <RoutineActivateDrawer
+                  routine={this.props.routine}
+                  onUpdate={r => this.props.onUpdate(r)}
+                  ref={i => (this.activateDrawer = i)}
+                />
               </Tabs.TabPane>
               <Tabs.TabPane tab="Commands" key="command">
                 <CommandList

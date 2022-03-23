@@ -4,6 +4,7 @@ import {
   ScheduleActivateDTO,
   ScheduleWatcher,
 } from '@automagical/controller-shared';
+import { is } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { CronJob } from 'cron';
 
@@ -34,6 +35,13 @@ export class ScheduleActivateService {
     callback: () => Promise<void>,
   ): void {
     process.nextTick(() => {
+      if (is.empty(activate?.schedule)) {
+        this.logger.error(
+          { activate },
+          `[${routine.friendlyName}] Invalid activation event`,
+        );
+        return;
+      }
       const cron = new CronJob(activate.schedule, async () => {
         this.logger.debug(`{${activate.schedule}} Cron activate`);
         await callback();
