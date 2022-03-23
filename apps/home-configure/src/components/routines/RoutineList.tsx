@@ -54,7 +54,16 @@ export const RoutineList = withRouter(
       );
     }
 
-    private async refresh(): Promise<void> {
+    private async refresh(selected?: RoutineDTO): Promise<void> {
+      if (selected) {
+        this.setState({
+          routines: this.state.routines.map(i =>
+            i._id === selected._id ? selected : i,
+          ),
+          selected,
+        });
+        return;
+      }
       const routines = await sendRequest<RoutineDTO[]>({
         control: {
           select: [

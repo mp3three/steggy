@@ -72,7 +72,6 @@ export class CommandList extends React.Component<{
         />
         <Card
           type="inner"
-          title="Command Actions"
           extra={
             <Popconfirm
               onConfirm={this.validateCommand.bind(this)}

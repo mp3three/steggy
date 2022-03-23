@@ -12,7 +12,7 @@ import { GroupDetail, GroupList } from '../groups';
 import { HomePage } from '../home';
 import { ApplicationMenu } from '../menu';
 import { RoomDetail, RoomList } from '../rooms';
-import { RoutineDetail, RoutineList } from '../routines';
+import { RoutineList } from '../routines';
 import { SettingsPage } from '../settings';
 
 const { Header, Sider, Content } = Layout;
@@ -44,7 +44,6 @@ export class App extends React.Component {
               ) : (
                 <Switch>
                   <Route path="/entities" component={EntityList} />
-                  <Route path="/routine/:id" component={RoutineDetail} />
                   <Route path="/routines" component={RoutineList} />
                   <Route path="/room/:id" component={RoomDetail} />
                   <Route path="/rooms" component={RoomList} />

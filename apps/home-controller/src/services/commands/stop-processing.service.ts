@@ -42,6 +42,10 @@ export class StopProcessingCommandService {
   ): Promise<boolean> {
     const results: boolean[] = [];
     await eachSeries(command.comparisons ?? [], async comparison => {
+      // if it's "any", and we got a match, then cut to the chase
+      if (command.mode !== 'all' && results.some(i => i)) {
+        return;
+      }
       let result = false;
       switch (comparison.type) {
         case STOP_PROCESSING_TYPE.room_metadata:
@@ -76,6 +80,7 @@ export class StopProcessingCommandService {
       }
       results.push(result);
     });
+    // default to "any"
     return (
       (command.mode === 'all' && results.every(i => i)) || results.some(i => i)
     );
