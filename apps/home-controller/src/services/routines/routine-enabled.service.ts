@@ -48,7 +48,7 @@ export class RoutineEnabledService {
     private readonly stopProcessingService: StopProcessingCommandService,
   ) {}
 
-  private readonly ACTIVE_ROUTINES = new Set<string>();
+  public readonly ACTIVE_ROUTINES = new Set<string>();
   private readonly ENABLE_WATCHERS = new Map<string, (() => void)[]>();
   private readonly RAW_LIST = new Map<string, RoutineDTO>();
   private readonly WATCH_ENTITIES = new Map<string, string[]>();

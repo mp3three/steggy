@@ -14,6 +14,8 @@ import {
   Typography,
 } from 'antd';
 import { DataNode, EventDataNode } from 'antd/lib/tree';
+import { BaseType } from 'antd/lib/typography/Base';
+import { command } from 'execa';
 import type { NodeDragEventParams } from 'rc-tree/lib/contextTypes';
 import { Key } from 'rc-tree/lib/interface';
 import React from 'react';
@@ -36,6 +38,7 @@ type DropOptions = NodeDragEventParams<HTMLDivElement> & {
 
 export class RoutineTree extends React.Component<
   {
+    enabled: string[];
     onSelect: (routine: RoutineDTO) => void;
     onUpdate: () => void;
     routines: RoutineDTO[];
@@ -142,7 +145,7 @@ export class RoutineTree extends React.Component<
   }
 
   private refresh(): void {
-    const { routines } = this.props;
+    const { routines, enabled } = this.props;
     const routineMap = new Map<
       string,
       { item: DataNode; routine: RoutineDTO }
@@ -166,6 +169,7 @@ export class RoutineTree extends React.Component<
       routineMap.get(routine.parent).item.children.push(item);
     });
     routineMap.forEach(({ item, routine }) => {
+      const isEnabled = enabled.includes(routine._id);
       item.children = item.children.sort((a, b) =>
         this.sortChildren(a, b, routineMap),
       );
@@ -174,11 +178,38 @@ export class RoutineTree extends React.Component<
         is.empty(routine.activate) &&
         is.empty(routine.command)
       ) {
+        // Routines used for grouping only get fancy
         item.title = (
-          <Typography.Text strong italic>
+          <Typography.Text
+            strong
+            italic
+            type={isEnabled ? 'success' : 'danger'}
+          >
             {routine.friendlyName}
           </Typography.Text>
         );
+        return;
+      }
+      if (is.empty(item.children)) {
+        // If the server will attempt to mount + reject, warn
+        item.title =
+          is.empty(routine.command) || is.empty(routine.activate) ? (
+            <Typography.Text
+              strong
+              italic
+              type={isEnabled ? 'warning' : 'danger'}
+            >
+              {routine.friendlyName}
+            </Typography.Text>
+          ) : (
+            <Typography.Text
+              strong
+              italic
+              type={isEnabled ? 'success' : 'danger'}
+            >
+              {routine.friendlyName}
+            </Typography.Text>
+          );
       }
     });
     this.setState({ routineMap, treeData });

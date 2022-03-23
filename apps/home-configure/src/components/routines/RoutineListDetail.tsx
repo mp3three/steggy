@@ -1,9 +1,5 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
-import {
-  CloseOutlined,
-  QuestionCircleOutlined,
-  SettingOutlined,
-} from '@ant-design/icons';
+import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import {
   RoutineActivateDTO,
   RoutineDTO,
@@ -29,7 +25,6 @@ import {
   Typography,
 } from 'antd';
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 import { CommandList, StopProcessingCommand } from './command';
@@ -264,7 +259,6 @@ export class RoutineListDetail extends React.Component<
                     )}
                   />
                 </Card>
-
                 <RoutineActivateDrawer
                   routine={this.props.routine}
                   onUpdate={r => this.props.onUpdate(r)}

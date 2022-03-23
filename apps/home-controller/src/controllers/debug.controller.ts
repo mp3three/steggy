@@ -15,7 +15,11 @@ import {
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { LightManagerService, SolarCalcService } from '../services';
+import {
+  LightManagerService,
+  RoutineEnabledService,
+  SolarCalcService,
+} from '../services';
 
 @Controller(`/debug`)
 @ApiTags('debug')
@@ -27,6 +31,7 @@ export class DebugController {
     private readonly socketService: HASocketAPIService,
     private readonly solarCalc: SolarCalcService,
     private readonly callService: HACallService,
+    private readonly routineEnabled: RoutineEnabledService,
   ) {}
 
   @Delete(`/notification/:id`)
@@ -39,6 +44,11 @@ export class DebugController {
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     await this.callService.dismissNotification(id);
     return GENERIC_SUCCESS_RESPONSE;
+  }
+
+  @Get(`/enabled-routines`)
+  public enabled(): string[] {
+    return [...this.routineEnabled.ACTIVE_ROUTINES.values()];
   }
 
   @Get('/location')
