@@ -1,5 +1,9 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
-import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  ExclamationCircleOutlined,
+  QuestionCircleOutlined,
+} from '@ant-design/icons';
 import {
   RoutineActivateDTO,
   RoutineDTO,
@@ -153,7 +157,17 @@ export class RoutineListDetail extends React.Component<
                   />
                 </Card>
               </Tabs.TabPane>
-              <Tabs.TabPane tab="Activation Events" key="activate">
+              <Tabs.TabPane
+                tab={
+                  <span>
+                    {is.empty(this.props.routine.activate) ? (
+                      <ExclamationCircleOutlined />
+                    ) : undefined}
+                    Activation Events
+                  </span>
+                }
+                key="activate"
+              >
                 <Card
                   type="inner"
                   extra={
@@ -265,7 +279,17 @@ export class RoutineListDetail extends React.Component<
                   ref={i => (this.activateDrawer = i)}
                 />
               </Tabs.TabPane>
-              <Tabs.TabPane tab="Commands" key="command">
+              <Tabs.TabPane
+                tab={
+                  <span>
+                    {is.empty(this.props.routine.command) ? (
+                      <ExclamationCircleOutlined />
+                    ) : undefined}
+                    Commands
+                  </span>
+                }
+                key="command"
+              >
                 <CommandList
                   routine={this.props.routine}
                   onUpdate={routine => this.props.onUpdate(routine)}

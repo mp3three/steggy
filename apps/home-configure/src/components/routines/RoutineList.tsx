@@ -1,5 +1,5 @@
 import { RoutineDTO } from '@automagical/controller-shared';
-import { MINUTE, ResultControlDTO, SECOND } from '@automagical/utilities';
+import { ResultControlDTO, SECOND } from '@automagical/utilities';
 import { Breadcrumb, Col, Layout, Row } from 'antd';
 import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
@@ -81,17 +81,6 @@ export const RoutineList = withRouter(
       }
       const routines = await sendRequest<RoutineDTO[]>({
         control: {
-          select: [
-            'friendlyName',
-            'command.id',
-            'command.friendlyName',
-            'command.type',
-            'enable',
-            'parent',
-            'activate.id',
-            'activate.friendlyName',
-            'activate.type',
-          ],
           sort: ['friendlyName'],
         } as ResultControlDTO,
         url: `/routine`,
