@@ -116,10 +116,7 @@ export class FanDomainService {
   ): Promise<void> {
     return await this.callService.call(
       'turn_on',
-      {
-        entity_id: entityId,
-        percentage,
-      },
+      { entity_id: entityId, percentage },
       undefined,
       waitForChange,
     );
@@ -133,15 +130,12 @@ export class FanDomainService {
 
   public async setSpeed(
     entityId: string,
-    percentage: number,
+    speed: string,
     waitForChange = false,
   ): Promise<void> {
     await this.callService.call(
       'turn_on',
-      {
-        entity_id: entityId,
-        percentage,
-      },
+      { entity_id: entityId, speed },
       undefined,
       waitForChange,
     );
@@ -150,9 +144,7 @@ export class FanDomainService {
   public async toggle(entityId?: string, waitForChange = false): Promise<void> {
     return await this.callService.call(
       'toggle',
-      {
-        entity_id: entityId,
-      },
+      { entity_id: entityId },
       undefined,
       waitForChange,
     );
@@ -164,9 +156,7 @@ export class FanDomainService {
   ): Promise<void> {
     return await this.callService.call(
       'turn_off',
-      {
-        entity_id: entityId,
-      },
+      { entity_id: entityId },
       undefined,
       waitForChange,
     );
@@ -175,9 +165,7 @@ export class FanDomainService {
   public async turnOn(entityId?: string, waitForChange = false): Promise<void> {
     return await this.callService.call(
       'turn_on',
-      {
-        entity_id: entityId,
-      },
+      { entity_id: entityId },
       undefined,
       waitForChange,
     );

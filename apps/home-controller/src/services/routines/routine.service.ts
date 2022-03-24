@@ -204,6 +204,12 @@ export class RoutineService {
   }
 
   public async delete(routine: string | RoutineDTO): Promise<boolean> {
+    routine = await this.get(routine);
+    const children = await this.routinePersistence.findMany({
+      filters: new Set([{ field: 'parent', value: routine._id }]),
+    });
+    await each(children, async child => await this.delete(child));
+    this.logger.info(`[${routine.friendlyName}] Delete routine`);
     return await this.routinePersistence.delete(routine);
   }
 

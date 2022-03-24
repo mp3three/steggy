@@ -130,6 +130,13 @@ export class RoomService {
     room.entities = room.entities.filter(
       ({ entity_id }) => entity_id !== entity,
     );
+    room.save_states ??= [];
+    room.save_states = room.save_states.map(save_state => ({
+      ...save_state,
+      states: save_state.states.filter(
+        ({ type, ref }) => type !== 'entity' || ref !== entity,
+      ),
+    }));
     return await this.roomPersistence.update(room, room._id);
   }
 
@@ -140,6 +147,13 @@ export class RoomService {
     room = await this.load(room);
     room.groups ??= [];
     room.groups = room.groups.filter(group => group !== groupId);
+    room.save_states ??= [];
+    room.save_states = room.save_states.map(save_state => ({
+      ...save_state,
+      states: save_state.states.filter(
+        ({ type, ref }) => type !== 'group' || ref !== groupId,
+      ),
+    }));
     return await this.roomPersistence.update(room, room._id);
   }
 

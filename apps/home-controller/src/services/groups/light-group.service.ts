@@ -136,6 +136,7 @@ export class LightGroupService extends BaseGroupService {
     group: GroupDTO<LightAttributesDTO>,
   ): Promise<RoomEntitySaveStateDTO<LightAttributesDTO>[]> {
     const out: RoomEntitySaveStateDTO<LightAttributesDTO>[] = [];
+    group.entities ??= [];
     group.entities.forEach(id => {
       const light = this.entityManager.getEntity<LightStateDTO>(id);
       if (!light) {

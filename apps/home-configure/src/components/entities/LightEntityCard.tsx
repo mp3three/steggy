@@ -5,7 +5,7 @@ import {
   LightAttributesDTO,
   LightStateDTO,
 } from '@automagical/home-assistant-shared';
-import { is } from '@automagical/utilities';
+import { is, START } from '@automagical/utilities';
 import {
   Button,
   Card,
@@ -154,7 +154,10 @@ export class LightEntityCard extends React.Component<
     );
   }
 
-  private async brightnessChanged(brightness: number): Promise<void> {
+  private async brightnessChanged(
+    brightness: number | number[],
+  ): Promise<void> {
+    brightness = Array.isArray(brightness) ? brightness[START] : brightness;
     const saveState = this.getSaveState(brightness);
     if (this.props.selfContained) {
       this.setState({ brightness });

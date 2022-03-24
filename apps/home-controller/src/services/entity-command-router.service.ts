@@ -174,7 +174,7 @@ export class EntityCommandRouterService {
   private async fanEntity(
     id: string,
     command: string,
-    { percentage }: FanAttributesDTO,
+    { percentage, speed }: FanAttributesDTO,
     waitForChange = false,
   ): Promise<void> {
     //
@@ -189,10 +189,18 @@ export class EntityCommandRouterService {
         }
       // fall through
       case 'setSpeed':
-        if (!is.number(percentage)) {
-          throw new BadRequestException(`Provide a valid fan percentage`);
+      case 'setFanSpeed':
+        if (is.number(percentage)) {
+          return await this.fanService.setPercentage(
+            id,
+            percentage,
+            waitForChange,
+          );
         }
-        return await this.fanService.setSpeed(id, percentage, waitForChange);
+        if (is.string(speed)) {
+          return await this.fanService.setSpeed(id, speed, waitForChange);
+        }
+        return;
       case 'fanSpeedUp':
         return await this.fanService.fanSpeedUp(
           id,

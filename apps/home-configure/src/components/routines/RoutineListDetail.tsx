@@ -5,7 +5,7 @@ import {
   RoutineDTO,
   RoutineEnableDTO,
 } from '@automagical/controller-shared';
-import { TitleCase } from '@automagical/utilities';
+import { is, TitleCase } from '@automagical/utilities';
 import {
   Button,
   Card,
@@ -74,7 +74,7 @@ export class RoutineListDetail extends React.Component<
             <Button
               type="primary"
               size="small"
-              disabled={!this.props.routine}
+              disabled={is.empty(this.props.routine?.command)}
               onClick={this.activateRoutine.bind(this)}
             >
               Manual Activate

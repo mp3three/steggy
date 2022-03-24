@@ -104,6 +104,7 @@ export const RoomDetail = withRouter(
       const { id } = this.props.match.params;
       // cheating refresh
       room ??= await sendRequest<RoomDTO>({ url: `/room/${id}` });
+      // room.groups = room.groups.filter(i => is.string(i));
       this.setState({
         name: room.friendlyName,
         room,
