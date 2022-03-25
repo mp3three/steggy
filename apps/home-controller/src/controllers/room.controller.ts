@@ -94,10 +94,13 @@ export class RoomController {
   })
   public async attachGroup(
     @Param('room') room: string,
-    @Body() group: { id: string },
+    @Body() { groups }: { groups: string[] },
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    await this.roomService.attachGroup(room, group.id);
+    await each(
+      groups,
+      async id => await this.roomService.attachGroup(room, id),
+    );
     return await this.roomService.get(room, true, control);
   }
 

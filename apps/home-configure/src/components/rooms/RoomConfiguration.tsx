@@ -98,14 +98,11 @@ export class RoomConfiguration extends React.Component<
 
   private async addGroups(groups: string[]): Promise<void> {
     const room = this.props.room;
-    room.groups = [...room.groups, ...groups];
     this.props.onUpdate(
       await sendRequest<RoomDTO>({
-        body: {
-          groups: room.groups,
-        } as Partial<RoomDTO>,
-        method: 'put',
-        url: `/room/${room._id}`,
+        body: { groups },
+        method: 'post',
+        url: `/room/${room._id}/group`,
       }),
     );
   }

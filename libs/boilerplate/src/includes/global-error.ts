@@ -10,6 +10,7 @@ import { BootstrapOptions } from './bootstrap';
 let logger: AutoLogService;
 let prettyLog: boolean;
 const EXTRA_PREFIX = 4;
+const LINE_NUMBER = 8;
 
 const basicError = (error: Error) => {
   console.error(error.name);
@@ -86,7 +87,7 @@ const prettyError = (error: Error) => {
             .replace(
               'node_modules',
               chalk.dim('node_modules'),
-            )} {cyan.bold${color} ${parts.shift().padStart(maxLine, ' ')}}${
+            )} {cyan.bold${color} ${parts.shift().padStart(LINE_NUMBER, ' ')}}${
             parts[START] ? chalk`{white :}{cyan${color} ${parts.shift()}}` : ``
           }`;
         })
