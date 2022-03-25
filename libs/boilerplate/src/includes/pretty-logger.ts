@@ -8,19 +8,22 @@ import { cwd } from 'process';
 import { AutoLogService, LoggerFunction } from '../services/auto-log.service';
 const logger = pino({
   level: AutoLogService.logger.level,
-  prettyPrint: {
-    colorize: true,
-    crlf: false,
-    customPrettifiers: {},
-    errorLikeObjectKeys: ['err', 'error'],
-    errorProps: '',
-    hideObject: false,
-    ignore: 'pid,hostname',
-    levelKey: ``,
-    messageKey: 'msg',
-    singleLine: true,
-    timestampKey: 'time',
-    translateTime: 'SYS:ddd hh:MM:ss.l',
+  transport: {
+    options: {
+      colorize: true,
+      crlf: false,
+      customPrettifiers: {},
+      errorLikeObjectKeys: ['err', 'error'],
+      errorProps: '',
+      hideObject: false,
+      ignore: 'pid,hostname',
+      levelKey: ``,
+      messageKey: 'msg',
+      singleLine: true,
+      timestampKey: 'time',
+      translateTime: 'SYS:ddd hh:MM:ss.l',
+    },
+    target: 'pino-pretty',
   },
 });
 export type CONTEXT_COLORS =
