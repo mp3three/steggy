@@ -14,7 +14,7 @@ Entities may be shared in multiple groups.
 
 Rooms are collections of groups and entities.
 
-## Routines
+## [Routines](docs/routine.md)
 
 Routines takes a list of activation events, and trigger actions.
 
