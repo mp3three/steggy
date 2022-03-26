@@ -63,6 +63,7 @@ export class HASocketAPIService {
     @InjectConfig(RETRY_INTERVAL) private readonly retryInterval: number,
   ) {}
 
+  private AUTH_TIMEOUT: ReturnType<typeof setTimeout>;
   private CONNECTION_ACTIVE = false;
   private connection: WS;
   private messageCount = START;
@@ -280,15 +281,12 @@ export class HASocketAPIService {
     const id = Number(message.id);
     switch (message.type as HassSocketMessageTypes) {
       case HassSocketMessageTypes.auth_required:
-        this.logger.debug(`Sending auth`);
-        return await this.sendMsg({
-          access_token: this.token,
-          type: HASSIO_WS_COMMAND.auth,
-        });
+        return await this.sendAuth();
 
       case HassSocketMessageTypes.auth_ok:
         this.logger.debug(`[CONNECTION_ACTIVE] = {true}`);
         this.CONNECTION_ACTIVE = true;
+        clearTimeout(this.AUTH_TIMEOUT);
         await this.sendMsg({
           type: HASSIO_WS_COMMAND.subscribe_events,
         });
@@ -355,5 +353,17 @@ export class HASocketAPIService {
       this.waitingCallback.delete(id);
       f(message.result);
     }
+  }
+
+  private async sendAuth(): Promise<void> {
+    this.logger.debug(`Sending auth`);
+    this.AUTH_TIMEOUT = setTimeout(() => {
+      this.logger.error(`Did not receive an auth response, retrying`);
+      this.sendAuth();
+    }, this.retryInterval);
+    await this.sendMsg({
+      access_token: this.token,
+      type: HASSIO_WS_COMMAND.auth,
+    });
   }
 }

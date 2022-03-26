@@ -151,7 +151,9 @@ export class FanEntityCard extends React.Component<
         <Slider
           value={percentage}
           marks={this.getMarks()}
-          disabled={this.props.relative && state !== 'setFanSpeed'}
+          disabled={
+            disabled || (this.props.relative && state !== 'setFanSpeed')
+          }
           step={percentage_step}
           onChange={this.onSpeedChange.bind(this)}
         />

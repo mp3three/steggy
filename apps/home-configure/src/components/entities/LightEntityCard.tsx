@@ -14,6 +14,8 @@ import {
   Radio,
   Skeleton,
   Slider,
+  Space,
+  Switch,
   Typography,
 } from 'antd';
 import React from 'react';
@@ -23,6 +25,7 @@ import { sendRequest } from '../../types';
 
 type tStateType = {
   color?: string;
+  disabled?: boolean;
   friendly_name?: string;
   state?: string;
 } & LightAttributesDTO;
@@ -37,6 +40,7 @@ export class LightEntityCard extends React.Component<
       state: RoomEntitySaveStateDTO,
       attribute: 'state' | 'color' | 'brightness',
     ) => void;
+    optional?: boolean;
     selfContained?: boolean;
     state?: RoomEntitySaveStateDTO;
     title?: string;
@@ -58,12 +62,20 @@ export class LightEntityCard extends React.Component<
       rgb_color: this.attributes.rgb_color,
       state: this.props?.state?.state,
     });
+    if (this.props.optional) {
+      this.setState({
+        disabled: is.undefined(this.props.state?.state),
+      });
+    }
     await this.refresh();
   }
 
   public getSaveState(
     brightness = this.state.brightness,
   ): RoomEntitySaveStateDTO {
+    if (this.props.optional && this.state.disabled) {
+      return undefined;
+    }
     return {
       extra:
         this.state.color_mode !== 'color_temp'
@@ -82,28 +94,38 @@ export class LightEntityCard extends React.Component<
     if (!this.state) {
       return this.renderWaiting();
     }
-    const { color, friendly_name, brightness, rgb_color } = this.state;
+    const { color, friendly_name, brightness, rgb_color, disabled } =
+      this.state;
     const entityState = this.getCurrentState();
     return (
       <Card
         title={friendly_name}
         type="inner"
         extra={
-          is.undefined(this.props.onRemove) ? undefined : (
-            <Popconfirm
-              icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-              title="Are you sure you want to remove this?"
-              onConfirm={() => this.props.onRemove(this.ref)}
-            >
-              <Button size="small" type="text" danger>
-                <CloseOutlined />
-              </Button>
-            </Popconfirm>
-          )
+          <Space style={{ margin: '0 -16px 0 16px' }}>
+            {this.props.optional ? (
+              <Switch
+                defaultChecked={!disabled}
+                onChange={state => this.setState({ disabled: !state })}
+              />
+            ) : undefined}
+            {is.undefined(this.props.onRemove) ? undefined : (
+              <Popconfirm
+                icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                title="Are you sure you want to remove this?"
+                onConfirm={() => this.props.onRemove(this.ref)}
+              >
+                <Button size="small" type="text" danger>
+                  <CloseOutlined />
+                </Button>
+              </Popconfirm>
+            )}
+          </Space>
         }
       >
         <Radio.Group
           value={entityState}
+          disabled={disabled}
           onChange={this.onModeChange.bind(this)}
         >
           <Radio.Button value="turnOff">Off</Radio.Button>
@@ -133,7 +155,7 @@ export class LightEntityCard extends React.Component<
             />
           </>
         ) : undefined}
-        {entityState === 'turnOn' ? (
+        {entityState === 'turnOn' && !disabled ? (
           <>
             <Divider />
             <ChromePicker

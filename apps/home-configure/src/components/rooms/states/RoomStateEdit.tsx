@@ -209,6 +209,7 @@ export class RoomStateEdit extends React.Component<
           <LightEntityCard
             ref={i => this.cards.push(i)}
             key={entity}
+            optional
             state={state}
             onUpdate={this.entityUpdate.bind(this)}
           />
@@ -218,6 +219,7 @@ export class RoomStateEdit extends React.Component<
           <FanEntityCard
             ref={i => this.cards.push(i)}
             key={entity}
+            optional
             state={state}
             onUpdate={this.entityUpdate.bind(this)}
           />
@@ -257,21 +259,24 @@ export class RoomStateEdit extends React.Component<
   private async onSave(): Promise<void> {
     const id = this.props.state.id;
     const groupStates = this.state.groupStates;
+    const entityStates = this.cards
+      // not falsy somehow
+      .filter(i => !!i)
+      .map(i => {
+        const state = i.getSaveState();
+        if (!state) {
+          return undefined;
+        }
+        return { ...state, type: 'entity' };
+      })
+      .filter(i => !is.undefined(i));
+
     const room = await sendRequest<RoomDTO>({
       body: {
         friendlyName: this.state.friendlyName,
         id,
         states: [
-          ...this.cards
-            .filter(i => !!i)
-            .map(i => {
-              const state = i.getSaveState();
-              if (!state) {
-                return undefined;
-              }
-              return { ...state, type: 'entity' };
-            })
-            .filter(i => !is.undefined(i)),
+          ...entityStates,
           ...Object.keys(groupStates)
             .filter(key => groupStates[key] !== 'none')
             .map(
