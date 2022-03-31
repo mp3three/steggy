@@ -51,10 +51,6 @@ export function QuickScript({
     AutoConfigService.NX_PROJECT = NX_PROJECT;
   }
 
-  // Release the cursor back to the terminal on process exit
-  // Without this, sometimes it will remain hidden
-  process.addListener('beforeExit', () => show());
-
   LibraryModule.configs.set(options.application.description, {
     configuration: options.configuration ?? {},
   });

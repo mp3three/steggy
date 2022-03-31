@@ -15,4 +15,3 @@ BOOTSTRAP_OPTIONS.postInit.push(app => {
   }, FINISH_BOOTSTRAPPING);
 });
 Bootstrap(HomeCLIModule, BOOTSTRAP_OPTIONS);
-process.addListener('beforeExit', () => show());
