@@ -1,5 +1,3 @@
-/* eslint-disable unicorn/no-null */
-
 import {
   FILTER_OPERATIONS,
   is,

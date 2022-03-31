@@ -31,10 +31,12 @@ const CREATE_BOOT_MODULE = (metadata: ApplicationModuleMetadata) =>
 export function QuickScript({
   NX_PROJECT,
   OVERRIDE_DEFAULTS,
+  WAIT_TIME = WAIT_BOOTSTRAP * ADDITIONAL_WAIT,
   ...options
 }: ApplicationModuleMetadata & {
   NX_PROJECT?: string;
   OVERRIDE_DEFAULTS?: AbstractConfig;
+  WAIT_TIME?: number;
 }): ClassDecorator {
   if (OVERRIDE_DEFAULTS) {
     ApplicationModule.useThisConfig(OVERRIDE_DEFAULTS);
@@ -65,11 +67,7 @@ export function QuickScript({
       () =>
         Bootstrap(CREATE_BOOT_MODULE(options), {
           postInit: [
-            app =>
-              setTimeout(
-                () => app.get(target).exec(),
-                WAIT_BOOTSTRAP * ADDITIONAL_WAIT,
-              ),
+            app => setTimeout(() => app.get(target).exec(), WAIT_TIME),
           ],
           prettyLog: true,
         }),

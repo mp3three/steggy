@@ -34,6 +34,7 @@
         "@typescript-eslint/no-throw-literal": "error",
         "unicorn/no-object-as-default-parameter": "off",
         "require-await": "off",
+        "unicorn/no-null": "off",
         "unicorn/no-empty-file": "off",
         "unicorn/no-array-callback-reference": "off",
         "unicorn/no-await-expression-member": "off",
@@ -190,13 +191,6 @@
       "files": ["*environment.ts"],
       "rules": {
         "unicorn/no-process-exit": "off"
-      }
-    },
-    {
-      "files": ["*dto.ts"],
-      "rules": {
-        "unicorn/no-null": "off",
-        "@typescript-eslint/no-magic-numbers": "off"
       }
     }
   ]

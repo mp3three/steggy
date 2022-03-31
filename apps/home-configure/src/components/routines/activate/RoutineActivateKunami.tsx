@@ -122,7 +122,6 @@ export class RoutineActivateKunami extends React.Component<
           title="Recording states..."
           maskClosable={false}
           centered
-          // eslint-disable-next-line unicorn/no-null
           footer={null}
         >
           <Progress

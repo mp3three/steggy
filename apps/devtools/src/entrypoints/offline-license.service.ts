@@ -12,9 +12,6 @@ import { existsSync, readFileSync } from 'fs';
 import { sign } from 'jsonwebtoken';
 
 @QuickScript({
-  OVERRIDE_DEFAULTS: {
-    libs: { boilerplate: { LOG_LEVEL: 'warn' } },
-  },
   application: Symbol('offline-license'),
 })
 export class OfflineLicenseService {

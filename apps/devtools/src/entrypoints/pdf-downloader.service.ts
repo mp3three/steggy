@@ -30,12 +30,6 @@ type TOKEN_RESPONSE = { key: string; token: string };
 const DEFAULT_LIMIT = 3;
 
 @QuickScript({
-  OVERRIDE_DEFAULTS: {
-    application: { LIMIT: DEFAULT_LIMIT },
-    libs: {
-      boilerplate: { LOG_LEVEL: 'warn' },
-    },
-  },
   application: Symbol('pdf-downloader'),
   imports: [FormioSdkModule],
 })
@@ -43,7 +37,7 @@ export class PDFDownloader {
   constructor(
     @InjectConfig('API_URL') private readonly apiUrl: string,
     @InjectConfig('CSV_FILE') private readonly csvFile: string,
-    @InjectConfig('LIMIT') private readonly limit: number,
+    @InjectConfig('LIMIT') private readonly limit: number = DEFAULT_LIMIT,
     private readonly app: ApplicationManagerService,
     private readonly fetchService: FormioFetchService,
     private readonly logger: AutoLogService,

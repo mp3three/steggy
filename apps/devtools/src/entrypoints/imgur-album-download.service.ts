@@ -5,36 +5,30 @@ import {
 } from '@automagical/boilerplate';
 import {
   ApplicationManagerService,
-  iRepl,
   PromptService,
   QuickScript,
-  ScreenService,
 } from '@automagical/tty';
+import { FIRST, SINGLE } from '@automagical/utilities';
 import execa from 'execa';
 import { lstatSync, mkdirSync, readdirSync, renameSync } from 'fs';
 import { join, normalize } from 'path';
 
 const SEPARATOR = ' - ';
-const PAD_SIZE = 4;
+const DEFAULT_PAD_SIZE = 4;
 
 @QuickScript({
-  OVERRIDE_DEFAULTS: {
-    libs: {
-      tty: { DEFAULT_HEADER_FONT: 'Pagga' },
-    },
-  },
   application: Symbol('album-download'),
 })
-export class ImgurAlbumDownloadService implements iRepl {
+export class ImgurAlbumDownloadService {
   constructor(
     private readonly promptService: PromptService,
     private readonly logger: AutoLogService,
     private readonly app: ApplicationManagerService,
-    private readonly screen: ScreenService,
     private readonly fetchService: FetchService,
     @InjectConfig('ALBUM_DOWNLOAD_TARGET')
     private readonly root: string = '~/Downloads',
-    @InjectConfig('ALBUM_PAD_SIZE') private readonly padSize: number = PAD_SIZE,
+    @InjectConfig('ALBUM_PAD_SIZE')
+    private readonly padSize: number = DEFAULT_PAD_SIZE,
   ) {
     this.root = normalize(this.root);
   }
@@ -81,7 +75,7 @@ export class ImgurAlbumDownloadService implements iRepl {
   }
 
   private processImgur(DIR: string, file: string) {
-    let number = file.split(SEPARATOR, 1)[0].toString();
+    let number = file.split(SEPARATOR, SINGLE)[FIRST].toString();
     const orig = number;
     number = number.padStart(this.padSize, '0');
     renameSync(
@@ -94,7 +88,7 @@ export class ImgurAlbumDownloadService implements iRepl {
   }
 
   private processRaw(DIR: string, file: string) {
-    let number = file.split('.')[0].toString();
+    let number = file.split('.')[FIRST].toString();
     const orig = number;
     number = number.padStart(this.padSize, '0');
     renameSync(

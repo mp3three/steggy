@@ -93,7 +93,6 @@ export class RoutineService {
         : new Set([
             {
               field: 'room',
-              // eslint-disable-next-line unicorn/no-null
               value: null,
             },
           ]),
