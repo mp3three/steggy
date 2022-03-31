@@ -19,8 +19,6 @@ type DataTypes =
 export class SelectComponentDTO<
   DATA_TYPE extends DataTypes = DataTypes,
 > extends BaseInputComponentDTO {
-  // #region Object Properties
-
   public addResource?: boolean;
   public addResourceLabel?: string;
   public clearOnRefresh?: boolean;
@@ -60,5 +58,5 @@ export class SelectComponentDTO<
   public valueProperty?: string;
   public widget?: 'html5' | 'choicesjs';
 
-  // #endregion Object Properties
+  
 }

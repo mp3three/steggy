@@ -1,5 +1,12 @@
 import { ApplicationModule, RegisterCache } from '@automagical/boilerplate';
+import {
+  GroupDTO,
+  MetadataDTO,
+  RoomDTO,
+  RoutineDTO,
+} from '@automagical/controller-shared';
 import { HomeAssistantModule } from '@automagical/home-assistant';
+import { QuickConnectModule } from '@automagical/persistence';
 import { ServerModule } from '@automagical/server';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { existsSync } from 'fs';
@@ -9,11 +16,6 @@ import {
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
   MIN_BRIGHTNESS,
-  MONGO_CA,
-  MONGO_CERT,
-  MONGO_CRL,
-  MONGO_KEY,
-  MONGO_URI,
   NOTIFY_CONNECTION_RESET,
   NOTIFY_UNAVAILABLE_DURATION,
   SAFE_MODE,
@@ -39,15 +41,19 @@ import {
   EntityCommandRouterService,
   FanGroupService,
   FlashAnimationService,
+  GroupPersistenceService,
   GroupService,
   KunamiCodeActivateService,
   LightFlashCommandService,
   LightGroupService,
   LightManagerService,
   LockGroupService,
+  MetadataPersistenceService,
   MetadataService,
+  RoomPersistenceService,
   RoomService,
   RoutineEnabledService,
+  RoutinePersistenceService,
   RoutineService,
   RoutineTriggerService,
   ScheduleActivateService,
@@ -99,6 +105,10 @@ const providers = [
   ApplicationService,
   AvailabilityMonitorService,
   RoomService,
+  GroupPersistenceService,
+  RoutinePersistenceService,
+  RoomPersistenceService,
+  MetadataPersistenceService,
 ];
 
 @ApplicationModule({
@@ -121,35 +131,6 @@ const providers = [
       description:
         'Enforce a number higher than 1 for min brightness in dimmers. Some lights do weird stuff at low numbers',
       type: 'number',
-    },
-    [MONGO_CA]: {
-      careful: true,
-      description:
-        'Optional configuration item, used with mongo ssl connections. Provide value as absolute file path',
-      type: 'string',
-    },
-    [MONGO_CERT]: {
-      careful: true,
-      description:
-        'Optional configuration item, used with mongo ssl connections. Provide value as absolute file path',
-      type: 'string',
-    },
-    [MONGO_CRL]: {
-      careful: true,
-      description:
-        'Optional configuration item, used with mongo ssl connections. Provide value as absolute file path',
-      type: 'string',
-    },
-    [MONGO_KEY]: {
-      careful: true,
-      description:
-        'Optional configuration item, used with mongo ssl connections. Provide value as absolute file path',
-      type: 'string',
-    },
-    [MONGO_URI]: {
-      default: 'mongodb://localhost:27017/automagical',
-      description: 'Mongo connection string',
-      type: 'string',
     },
     [NOTIFY_CONNECTION_RESET]: {
       default: true,
@@ -195,7 +176,7 @@ const providers = [
     HomeAssistantModule,
     HomePersistenceModule,
     RegisterCache(),
-    HomePersistenceModule.forRoot(),
+    ...QuickConnectModule.forRoot([GroupDTO, RoomDTO, RoutineDTO, MetadataDTO]),
     ...(existsSync(rootPath) ? [ServeStaticModule.forRoot({ rootPath })] : []),
     ServerModule,
   ],

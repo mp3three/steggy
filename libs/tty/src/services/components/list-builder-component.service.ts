@@ -228,6 +228,7 @@ export class ListBuilderComponentService<VALUE = unknown>
   }
 
   protected onEnd(): void {
+    this.mode = 'select';
     this.done(this.current.map(i => i[VALUE] as VALUE));
   }
 

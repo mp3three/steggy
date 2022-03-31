@@ -1,46 +1,34 @@
 export class EmailCustomConfig {
-  // #region Object Properties
-
   public url: string;
 
-  // #endregion Object Properties
+  
 }
 
 export class EmailGmailConfig {
-  // #region Object Properties
-
   public auth: Record<'user' | 'pass', string>;
 
-  // #endregion Object Properties
+  
 }
 
 export class EmailSendgridConfig {
-  // #region Object Properties
-
   public auth: Record<'api_user' | 'api_key', string>;
 
-  // #endregion Object Properties
+  
 }
 
 export class EmailMandrillConfig {
-  // #region Object Properties
-
   public auth: Record<'apiKey', string>;
 
-  // #endregion Object Properties
+  
 }
 
 export class EmailMailgunConfig {
-  // #region Object Properties
-
   public auth: Record<'api_key', string>;
 
-  // #endregion Object Properties
+  
 }
 
 export class EmailSMTPConfig {
-  // #region Object Properties
-
   public allowUnauthorizedCerts?: boolean | string;
   public auth?: Record<'user' | 'pass', string>;
   public host: string;
@@ -48,12 +36,10 @@ export class EmailSMTPConfig {
   public port?: number;
   public secure?: boolean | string;
 
-  // #endregion Object Properties
+  
 }
 
 export class EmailConfig {
-  // #region Object Properties
-
   public CHUNK_SIZE?: number;
   public EMAIL_DEFAULT_FROM?: string;
   public custom?: EmailCustomConfig;
@@ -63,7 +49,7 @@ export class EmailConfig {
   public sendgrid?: EmailSendgridConfig;
   public smtp?: EmailSMTPConfig;
 
-  // #endregion Object Properties
+  
 }
 
 export const EMAIL_CUSTOM_CONFIG = 'libs.email.custom';

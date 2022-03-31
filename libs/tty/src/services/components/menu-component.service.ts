@@ -269,6 +269,7 @@ export class MenuComponentService<VALUE = unknown>
    * Terminate the editor
    */
   protected onEnd(): boolean {
+    this.mode = 'select';
     this.done(this.value);
     return false;
   }

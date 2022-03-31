@@ -15,13 +15,11 @@ import { DBFake } from './database-fake.dto';
 import { TransformObjectId } from './transform-object-id.decorator';
 
 export class ExternalSubmissionIdDTO {
-  // #region Object Properties
-
   public id: string;
   public resource?: string;
   public type?: 'resource' | string;
 
-  // #endregion Object Properties
+  
 }
 
 export class SubmissionDTO<
@@ -95,5 +93,5 @@ export class SubmissionDTO<
   @IsEnum(SUBMISSION_STATES)
   @IsOptional()
   public state?: SUBMISSION_STATES;
-  // #endregion Object Properties
+  
 }

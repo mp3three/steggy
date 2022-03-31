@@ -2,9 +2,7 @@ import { ComponentTypes } from '../enums';
 import { BaseLayoutComponentDTO } from './base-layout-component.dto';
 
 export class WellComponentDTO extends BaseLayoutComponentDTO {
-  // #region Object Properties
+  public declare type: ComponentTypes.well;
 
-  declare public type: ComponentTypes.well;
-
-  // #endregion Object Properties
+  
 }

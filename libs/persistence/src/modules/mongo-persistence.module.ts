@@ -5,12 +5,21 @@ import {
   CIPER_KEY_SIZE,
   CIPHER_SECRET,
   LIB_PERSISTENCE,
+  MONGO_CA,
+  MONGO_CERT,
+  MONGO_CRL,
+  MONGO_KEY,
+  MONGO_URI,
   SALT_END_SIZE,
   SALT_START_SIZE,
 } from '../config';
-import { ConnectService, EncryptionService } from '../services';
+import {
+  BaseMongoService,
+  ConnectService,
+  EncryptionService,
+} from '../services';
 
-const providers = [ConnectService, EncryptionService];
+const providers = [ConnectService, EncryptionService, BaseMongoService];
 
 @LibraryModule({
   configuration: {
@@ -32,6 +41,35 @@ const providers = [ConnectService, EncryptionService];
       description: 'Used with database encryption',
       type: 'string',
     },
+    [MONGO_CA]: {
+      careful: true,
+      description:
+        'Optional configuration item, used with mongo ssl connections. Provide value as absolute file path',
+      type: 'string',
+    },
+    [MONGO_CERT]: {
+      careful: true,
+      description:
+        'Optional configuration item, used with mongo ssl connections. Provide value as absolute file path',
+      type: 'string',
+    },
+    [MONGO_CRL]: {
+      careful: true,
+      description:
+        'Optional configuration item, used with mongo ssl connections. Provide value as absolute file path',
+      type: 'string',
+    },
+    [MONGO_KEY]: {
+      careful: true,
+      description:
+        'Optional configuration item, used with mongo ssl connections. Provide value as absolute file path',
+      type: 'string',
+    },
+    [MONGO_URI]: {
+      default: 'mongodb://localhost:27017/automagical',
+      description: 'Mongo connection string',
+      type: 'string',
+    },
     [SALT_END_SIZE]: {
       careful: true,
       default: 20,
@@ -47,6 +85,6 @@ const providers = [ConnectService, EncryptionService];
   },
   exports: providers,
   library: LIB_PERSISTENCE,
-  providers: [...providers],
+  providers,
 })
 export class MongoPersistenceModule {}

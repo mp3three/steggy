@@ -3,8 +3,6 @@ import { DataType } from '../enums';
 import { ConditionalDTO, OverlayDTO, ValidateDTO } from '../include';
 
 export class BaseInputComponentDTO extends BaseComponentDTO {
-  // #region Object Properties
-
   /**
    * When checked, this will allow the user to manually override the calculated value.
    */
@@ -134,5 +132,5 @@ export class BaseInputComponentDTO extends BaseComponentDTO {
    */
   public validateOn?: 'blur' | 'change';
 
-  // #endregion Object Properties
+  
 }

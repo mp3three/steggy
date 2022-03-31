@@ -25,5 +25,5 @@ export class AccessDTO {
   })
   public type: PERMISSION_ACCESS_TYPES;
 
-  // #endregion Object Properties
+  
 }

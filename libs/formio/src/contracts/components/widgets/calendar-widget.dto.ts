@@ -3,8 +3,6 @@ import { Locale } from '../enums/locale';
 import { BaseWidgetDTO } from './base-widget.dto';
 
 export class CalendarWidgetDTO extends BaseWidgetDTO {
-  // #region Object Properties
-
   public allowInput?: boolean;
   public altInput?: boolean;
   public clickOpens?: boolean;
@@ -21,8 +19,8 @@ export class CalendarWidgetDTO extends BaseWidgetDTO {
   public noCalendar?: boolean;
   public saveAs?: 'date';
   public time_24hr?: boolean;
-  declare public type: WidgetTypes.calendar;
+  public declare type: WidgetTypes.calendar;
   public useLocaleSettings?: boolean;
 
-  // #endregion Object Properties
+  
 }

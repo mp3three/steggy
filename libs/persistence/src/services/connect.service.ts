@@ -1,15 +1,39 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { FetchService } from '@automagical/boilerplate';
+import { FetchService, InjectConfig } from '@automagical/boilerplate';
 import { Injectable } from '@nestjs/common';
 import { MongooseModuleOptions } from '@nestjs/mongoose';
 import { existsSync, readFileSync } from 'fs';
 
+import {
+  MONGO_CA,
+  MONGO_CERT,
+  MONGO_CRL,
+  MONGO_KEY,
+  MONGO_URI,
+} from '../config';
 import { MongoConnectDTO } from '../contracts';
 
 @Injectable()
 export class ConnectService {
-  constructor(private readonly fetchService: FetchService) {}
+  constructor(
+    private readonly fetchService: FetchService,
+    @InjectConfig(MONGO_URI) private readonly URI: string,
+    @InjectConfig(MONGO_CERT) private readonly CERT: string,
+    @InjectConfig(MONGO_CA) private readonly CA: string,
+    @InjectConfig(MONGO_KEY) private readonly KEY: string,
+    @InjectConfig(MONGO_CRL) private readonly CRL: string,
+  ) {}
+
+  public async build(): Promise<MongooseModuleOptions> {
+    return await this.buildConnectionUri({
+      ca: this.CA,
+      cert: this.CERT,
+      crl: this.CRL,
+      key: this.KEY,
+      uri: this.URI,
+    });
+  }
 
   public async buildConnectionUri(
     options: MongoConnectDTO,

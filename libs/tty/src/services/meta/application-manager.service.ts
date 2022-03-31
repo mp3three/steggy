@@ -68,17 +68,22 @@ export class ApplicationManagerService implements iStackProvider {
 
   public setHeader(primary: string, secondary = ''): void {
     this.screenService.clear();
-    primary = figlet.textSync(primary, {
-      font: this.primaryFont,
-    });
-    this.screenService.print(
-      `\n` +
-        chalk
-          .cyan(primary)
-          .split(`\n`)
-          .map(i => `  ${i}`)
-          .join(`\n`),
-    );
+    if (!is.empty(secondary)) {
+      primary = figlet.textSync(primary, {
+        font: this.primaryFont,
+      });
+      this.screenService.print(
+        `\n` +
+          chalk
+            .cyan(primary)
+            .split(`\n`)
+            .map(i => `  ${i}`)
+            .join(`\n`),
+      );
+    } else {
+      secondary = primary;
+      primary = '';
+    }
     if (is.empty(secondary)) {
       this.header = primary;
       return;

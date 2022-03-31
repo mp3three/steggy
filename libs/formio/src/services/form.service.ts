@@ -64,15 +64,9 @@ export class FormService {
     });
   }
 
-  // #endregion Public Methods
-
-  // #region Private Methods
-
   private url(form: FormDTO | string, project: ProjectDTO | string): string {
     form = is.string(form) ? form : form._id;
     project = is.string(project) ? project : project._id;
     return `/project/${project}/form/${form}`;
   }
-
-  // #endregion Private Methods
 }

@@ -28,10 +28,14 @@ export class BaseMongoService {
     query ??= {};
     query.filters ??= new Set();
 
-    query.filters.add({
-      field: 'deleted',
-      value: null,
-    });
+    let hasDeleted = false;
+    query.filters.forEach(i => (hasDeleted ||= i.field === 'deleted'));
+    if (!hasDeleted) {
+      query.filters.add({
+        field: 'deleted',
+        value: null,
+      });
+    }
     return Object.fromEntries(filtersToMongoQuery(query).entries());
   }
 

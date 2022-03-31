@@ -3,10 +3,8 @@ import { ComponentTypes } from '../enums';
 import { BaseLayoutComponentDTO } from './base-layout-component.dto';
 
 export class ColumnsComponentDTO extends BaseLayoutComponentDTO {
-  // #region Object Properties
-
   public columns: { components: BaseComponentDTO[] }[];
-  declare public type: ComponentTypes.columns;
+  public declare type: ComponentTypes.columns;
 
-  // #endregion Object Properties
+  
 }
