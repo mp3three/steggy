@@ -13,10 +13,7 @@ import { sign } from 'jsonwebtoken';
 
 @QuickScript({
   OVERRIDE_DEFAULTS: {
-    libs: {
-      boilerplate: { LOG_LEVEL: 'warn' },
-      tty: { DEFAULT_HEADER_FONT: 'Pagga' },
-    },
+    libs: { boilerplate: { LOG_LEVEL: 'warn' } },
   },
   application: Symbol('offline-license'),
 })

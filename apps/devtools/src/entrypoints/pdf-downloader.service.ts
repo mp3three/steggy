@@ -34,7 +34,6 @@ const DEFAULT_LIMIT = 3;
     application: { LIMIT: DEFAULT_LIMIT },
     libs: {
       boilerplate: { LOG_LEVEL: 'warn' },
-      tty: { DEFAULT_HEADER_FONT: 'Pagga' },
     },
   },
   application: Symbol('pdf-downloader'),

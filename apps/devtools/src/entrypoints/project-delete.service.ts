@@ -12,9 +12,6 @@ import chalk from 'chalk';
 import { Document, Model } from 'mongoose';
 
 @QuickScript({
-  OVERRIDE_DEFAULTS: {
-    libs: { tty: { DEFAULT_HEADER_FONT: 'Pagga' } },
-  },
   application: Symbol('project-delete'),
   imports: QuickConnectModule.forRoot([ProjectDTO]),
 })
