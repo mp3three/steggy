@@ -5,8 +5,6 @@ import { TextWidgetDTO } from '../widgets';
 import { BaseInputComponentDTO } from './base-input-component.dto';
 
 export class AddressComponentDTO extends BaseInputComponentDTO {
-  // #region Object Properties
-
   public components?: BaseComponentDTO[];
   public inputFormat: InputFormat;
   public inputType: InputFormat;
@@ -14,8 +12,8 @@ export class AddressComponentDTO extends BaseInputComponentDTO {
   public mask?: boolean;
   public provider: AddressProviders;
   public providerOptions: AddressProviderOptionsDTO;
-  declare public type: ComponentTypes.address;
+  public declare type: ComponentTypes.address;
   public widget: TextWidgetDTO;
 
-  // #endregion Object Properties
+  
 }

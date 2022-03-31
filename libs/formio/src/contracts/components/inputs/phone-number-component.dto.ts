@@ -1,9 +1,7 @@
 import { ComponentTypes } from '../enums';
 
 export class PhoneNumberComponentDTO {
-  // #region Object Properties
+  public declare type: ComponentTypes.phoneNumber;
 
-  declare public type: ComponentTypes.phoneNumber;
-
-  // #endregion Object Properties
+  
 }

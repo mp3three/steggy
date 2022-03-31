@@ -2,18 +2,14 @@ import { BaseComponentDTO } from '../base-component.dto';
 import { ComponentTypes } from '../enums';
 
 export class TabComponentTabDTO {
-  // #region Object Properties
-
   public components: BaseComponentDTO[];
   public key: string;
   public label: string;
 
-  // #endregion Object Properties
+  
 }
 
 export class TabComponentDTO extends BaseComponentDTO {
-  // #region Object Properties
-
   /**
    * Array of components inside a row / col grid
    */
@@ -21,5 +17,5 @@ export class TabComponentDTO extends BaseComponentDTO {
   public declare input: false;
   public declare type: ComponentTypes.tabs;
 
-  // #endregion Object Properties
+  
 }

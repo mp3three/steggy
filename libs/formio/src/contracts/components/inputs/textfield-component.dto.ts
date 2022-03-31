@@ -4,8 +4,6 @@ import { CalendarWidgetDTO, InputWidgetDTO } from '../widgets';
 import { BaseInputComponentDTO } from './base-input-component.dto';
 
 export class TextFieldComponentDTO extends BaseInputComponentDTO {
-  // #region Object Properties
-
   /**
    * Indicates whether input elements can by default have their values automatically completed by the browser.
    *
@@ -72,5 +70,5 @@ export class TextFieldComponentDTO extends BaseInputComponentDTO {
    */
   public widget?: InputWidgetDTO | CalendarWidgetDTO;
 
-  // #endregion Object Properties
+  
 }

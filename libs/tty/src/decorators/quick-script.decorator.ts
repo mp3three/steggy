@@ -17,6 +17,7 @@ import { MainCLIModule } from '../modules';
  * Magic timeout makes things work. Don't know why process.nextTick() isn't sufficient
  */
 const WAIT_BOOTSTRAP = 10;
+const ADDITIONAL_WAIT = 5;
 
 const CREATE_BOOT_MODULE = (metadata: ApplicationModuleMetadata) =>
   ApplicationModule(metadata)(class {}) as unknown as ClassConstructor<unknown>;
@@ -63,7 +64,13 @@ export function QuickScript({
     setTimeout(
       () =>
         Bootstrap(CREATE_BOOT_MODULE(options), {
-          postInit: [app => process.nextTick(() => app.get(target).exec())],
+          postInit: [
+            app =>
+              setTimeout(
+                () => app.get(target).exec(),
+                WAIT_BOOTSTRAP * ADDITIONAL_WAIT,
+              ),
+          ],
           prettyLog: true,
         }),
       WAIT_BOOTSTRAP,

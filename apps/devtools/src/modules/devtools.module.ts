@@ -6,7 +6,6 @@ import { DiscoveryModule } from '@nestjs/core';
 import {
   ChangelogService,
   DevCalendarService as DevelopmentCalendarService,
-  ImgurAlbumDownloadService,
 } from '../services';
 
 @ApplicationModule({
@@ -18,11 +17,6 @@ import {
     GoogleModule,
     UtilitiesModule.forRoot(),
   ],
-  providers: [
-    ImgurAlbumDownloadService,
-    ChangelogService,
-    DevelopmentCalendarService,
-    GoogleModule,
-  ],
+  providers: [ChangelogService, DevelopmentCalendarService, GoogleModule],
 })
 export class DevtoolsModule {}

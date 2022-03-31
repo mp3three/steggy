@@ -11,52 +11,11 @@
         "port": 33336
       }
     },
-    "prepare": {
-      "executor": "@nrwl/workspace:run-commands",
-      "options": {
-        "commands": [
-          {
-            "command": "npx nx build devtools --configuration=config-scanner"
-          }
-        ]
-      }
-    },
     "build": {
       "executor": "@nrwl/node:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "assets": [
-          {
-            "input": "libs/utilities",
-            "glob": "*.json",
-            "output": "./assets/utilities"
-          },
-          {
-            "input": "libs/boilerplate",
-            "glob": "*.json",
-            "output": "./assets/boilerplate"
-          },
-          {
-            "input": "libs/google",
-            "glob": "*.json",
-            "output": "./assets/google"
-          },
-          {
-            "input": "libs/tty",
-            "glob": "*.json",
-            "output": "./assets/tty"
-          },
-          {
-            "input": "apps/devtools",
-            "glob": "*.json",
-            "output": "./assets/devtools"
-          },
-          {
-            "input": "./",
-            "glob": "workspace.json",
-            "output": "./assets"
-          }
-        ],
+        "assets": [],
         "outputPath": "dist/apps/devtools",
         "generatePackageJson": true,
         "main": "apps/devtools/src/entrypoints/main.ts",
@@ -76,34 +35,6 @@
         "lintFilePatterns": ["apps/devtools/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
-    },
-    "publish": {
-      "executor": "@nrwl/workspace:run-commands",
-      "options": {
-        "parallel": false,
-        "commands": [
-          {
-            "command": "npx figlet-cli -f Pagga Devtools",
-            "description": "Announce it"
-          },
-          {
-            "command": "npx nx build devtools --configuration=production",
-            "description": "Create production optimized build"
-          },
-          {
-            "command": "npx terser dist/apps/devtools/main.js -c -m --keep-classnames --module > dist/apps/devtools/minified.js",
-            "description": "Minify it"
-          },
-          {
-            "command": "echo '#!/usr/bin/env node' > dist/apps/devtools/main.js; cat dist/apps/devtools/minified.js >> dist/apps/devtools/main.js",
-            "description": "Replace output (can't be done in previous step)"
-          },
-          {
-            "command": "npx yarn publish --cwd dist/apps/devtools --non-interactive",
-            "description": "Publish it"
-          }
-        ]
-      }
     }
   },
   "tags": []

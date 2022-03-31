@@ -3,62 +3,48 @@ import {
   FetchService,
   InjectConfig,
 } from '@automagical/boilerplate';
-import { ICONS, iRepl, Repl } from '@automagical/tty';
-import chalk from 'chalk';
+import {
+  ApplicationManagerService,
+  iRepl,
+  PromptService,
+  QuickScript,
+  ScreenService,
+} from '@automagical/tty';
 import execa from 'execa';
 import { lstatSync, mkdirSync, readdirSync, renameSync } from 'fs';
-import inquirer from 'inquirer';
-import { join, resolve } from 'path';
-
-import { ALBUM_DOWNLOAD_TARGET, ALBUM_PAD_SIZE } from '../../config';
-
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+import { join, normalize } from 'path';
 
 const SEPARATOR = ' - ';
-@Repl({
-  category: `Misc`,
-  description: [
-    `Download url zip from url to new folder`,
-    `Extract`,
-    `Update file name prefixes to be a consistent 4 digits`,
-    `Update file ownership`,
-  ],
-  icon: ICONS.LINK,
-  name: `Yoink`,
+const PAD_SIZE = 4;
+
+@QuickScript({
+  OVERRIDE_DEFAULTS: {
+    libs: {
+      tty: { DEFAULT_HEADER_FONT: 'Pagga' },
+    },
+  },
+  application: Symbol('album-download'),
 })
 export class ImgurAlbumDownloadService implements iRepl {
   constructor(
+    private readonly promptService: PromptService,
     private readonly logger: AutoLogService,
+    private readonly app: ApplicationManagerService,
+    private readonly screen: ScreenService,
     private readonly fetchService: FetchService,
-    @InjectConfig(ALBUM_DOWNLOAD_TARGET) private readonly root: string,
-    @InjectConfig(ALBUM_PAD_SIZE) private readonly padSize: number,
+    @InjectConfig('ALBUM_DOWNLOAD_TARGET')
+    private readonly root: string = '~/Downloads',
+    @InjectConfig('ALBUM_PAD_SIZE') private readonly padSize: number = PAD_SIZE,
   ) {
-    this.root = resolve(this.root);
+    this.root = normalize(this.root);
   }
 
   public async exec(): Promise<void> {
-    if (!this.root) {
-      console.log(chalk.bold.red('ALBUM_DOWNLOAD_TARGET config not set'));
-      return;
-    }
-    const { dirname, url, path } = await inquirer.prompt([
-      {
-        default: this.root,
-        message: 'Base Path',
-        name: 'path',
-        type: 'input',
-      },
-      {
-        message: 'Destination Folder',
-        name: 'dirname',
-        type: 'input',
-      },
-      {
-        input: 'input',
-        message: 'Album URL',
-        name: 'url',
-      },
-    ]);
+    this.app.setHeader('Album Downloader');
+    const dirname = await this.promptService.string('Base Path', this.root);
+    const path = await this.promptService.string('Destination folder');
+    const url = await this.promptService.string('Album URL');
+
     const destination = join(path, dirname);
     mkdirSync(destination, { recursive: true });
     const zip = join(destination, 'output.zip');
@@ -85,7 +71,7 @@ export class ImgurAlbumDownloadService implements iRepl {
         this.processDir(directory);
         return;
       }
-      if (!file.includes(' - ')) {
+      if (!file.includes(SEPARATOR)) {
         this.processRaw(DIR, file);
         return;
       }

@@ -1,6 +1,4 @@
 export class ValidateDTO {
-  // #region Object Properties
-
   /**
    * ## Description
    *
@@ -43,5 +41,5 @@ export class ValidateDTO {
   public pattern?: string;
   public required?: boolean;
 
-  // #endregion Object Properties
+  
 }

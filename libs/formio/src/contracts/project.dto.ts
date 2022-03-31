@@ -1,3 +1,4 @@
+import { Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
@@ -22,8 +23,6 @@ import { EmailConfig } from './email';
 import { TransformObjectId } from './transform-object-id.decorator';
 
 export class ProjectSettingsDTO {
-  // #region Object Properties
-
   @IsString()
   @IsOptional()
   public cors?: string;
@@ -36,8 +35,6 @@ export class ProjectSettingsDTO {
   @IsString()
   @IsOptional()
   public secret?: string;
-
-  // #endregion Object Properties
 }
 /**
  * # Description
@@ -52,6 +49,13 @@ export class ProjectSettingsDTO {
  *
  * A child project. Child links to parent via ProjectDTO.project. Not double linked
  */
+@Schema({
+  collection: 'projects',
+  timestamps: {
+    createdAt: 'created',
+    updatedAt: 'modified',
+  },
+})
 export class ProjectDTO<
   Settings extends Record<never, unknown> = ProjectSettingsDTO,
 > extends DBFake {
@@ -263,5 +267,5 @@ export class ProjectDTO<
   })
   public type?: PROJECT_TYPES;
 
-  // #endregion Object Properties
+  
 }

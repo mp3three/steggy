@@ -2,3 +2,5 @@
 
 // import './offline-license.service';
 // import './pdf-downloader.service';
+// import './project-delete.service';
+import './imgur-album-download.service';

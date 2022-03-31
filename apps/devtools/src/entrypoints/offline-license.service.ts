@@ -12,13 +12,20 @@ import { existsSync, readFileSync } from 'fs';
 import { sign } from 'jsonwebtoken';
 
 @QuickScript({
-  NX_PROJECT: 'work',
+  OVERRIDE_DEFAULTS: {
+    libs: {
+      boilerplate: { LOG_LEVEL: 'warn' },
+      tty: { DEFAULT_HEADER_FONT: 'Pagga' },
+    },
+  },
   application: Symbol('offline-license'),
 })
 export class OfflineLicenseService {
   constructor(
     @InjectConfig('KEY_FILE') private readonly keyFile: string,
     @InjectConfig('ISSUER') private readonly issuer: string,
+    @InjectConfig('SCOPES') private readonly scopes: string[] = [],
+    @InjectConfig('TERMS') private readonly terms: Record<string, unknown> = {},
     private readonly promptService: PromptService,
     private readonly logger: AutoLogService,
     private readonly app: ApplicationManagerService,
@@ -29,30 +36,26 @@ export class OfflineLicenseService {
 
   public async exec(): Promise<void> {
     this.app.setHeader('Offline License');
-    const name = await this.promptService.string('Company Name');
-    const scopes = await this.promptService.pickMany('Scopes', [
-      ['apiServer', 'apiServer'],
-      ['pdfServer', 'pdfServer'],
-      ['project', 'project'],
-      ['tenant', 'tenant'],
-      ['stage', 'stage'],
-      ['formManager', 'formManager'],
-    ]);
-    const projects = await this.promptService.number('Project Limit', SINGLE);
+    const sub = await this.promptService.string('Company Name');
+    const scopes = await this.promptService.pickMany(
+      'Scopes',
+      this.scopes.map(i => [i, i]),
+    );
+    const projectsNumberLimit = await this.promptService.number(
+      'Project Limit',
+      SINGLE,
+    );
     const years = await this.promptService.number('Years', SINGLE);
     const token = sign(
       {
         exp: dayjs().add(years, 'y').toDate().getTime(),
         iat: Date.now(),
         iss: this.issuer,
-        sub: name,
+        sub,
         terms: {
-          formMangers: 5,
-          livestages: 5,
-          options: { sac: true },
-          projectsNumberLimit: projects,
+          ...this.terms,
+          projectsNumberLimit,
           scopes,
-          stages: 5,
         },
       },
       this.key,

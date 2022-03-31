@@ -29,7 +29,7 @@ export interface BootstrapOptions extends Pick<ModuleMetadata, 'imports'> {
     app: INestApplication,
     expressServer: Express,
     bootOptions: BootstrapOptions,
-  ) => Promise<void> | void)[];
+  ) => Promise<void> | void | unknown | Promise<unknown>)[];
   preInit?: ((
     app: INestApplication,
     expressServer: Express,

@@ -2,8 +2,6 @@ import { BaseComponentDTO } from '../base-component.dto';
 import { ComponentTypes } from '../enums';
 
 export class DataGridComponentDTO extends BaseComponentDTO {
-  // #region Object Properties
-
   public addAnotherPosition?: 'top' | 'bottom';
   public components?: BaseComponentDTO[];
   public defaultValue?: Record<string, unknown>[];
@@ -14,5 +12,5 @@ export class DataGridComponentDTO extends BaseComponentDTO {
   public reorder?: boolean;
   public declare type: ComponentTypes.datagrid;
 
-  // #endregion Object Properties
+  
 }

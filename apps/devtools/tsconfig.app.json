@@ -1,11 +1,24 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "composite": true,
     "outDir": "../../dist/out-tsc",
     "types": ["node"],
     "emitDecoratorMetadata": true,
     "target": "ESNext"
   },
   "exclude": ["**/*.spec.ts"],
-  "include": ["**/*.ts"]
+  "include": [
+    "**/*.ts",
+    "../../libs/boilerplate/**/*.ts",
+    "../../libs/controller-shared/**/*.ts",
+    "../../libs/formio/**/*.ts",
+    "../../libs/google/**/*.ts",
+    "../../libs/home-assistant/**/*.ts",
+    "../../libs/home-assistant-shared/**/*.ts",
+    "../../libs/persistence/**/*.ts",
+    "../../libs/server/**/*.ts",
+    "../../libs/tty/**/*.ts",
+    "../../libs/utilities/**/*.ts"
+  ]
 }

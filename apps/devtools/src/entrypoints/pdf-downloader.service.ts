@@ -32,7 +32,10 @@ const DEFAULT_LIMIT = 3;
 @QuickScript({
   OVERRIDE_DEFAULTS: {
     application: { LIMIT: DEFAULT_LIMIT },
-    libs: { tty: { DEFAULT_HEADER_FONT: 'Pagga' } },
+    libs: {
+      boilerplate: { LOG_LEVEL: 'warn' },
+      tty: { DEFAULT_HEADER_FONT: 'Pagga' },
+    },
   },
   application: Symbol('pdf-downloader'),
   imports: [FormioSdkModule],

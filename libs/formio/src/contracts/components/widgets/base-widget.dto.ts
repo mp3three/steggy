@@ -1,9 +1,7 @@
 import { WidgetTypes } from '../enums';
 
 export class BaseWidgetDTO {
-  // #region Object Properties
+  public declare type: WidgetTypes;
 
-  declare public type: WidgetTypes;
-
-  // #endregion Object Properties
+  
 }

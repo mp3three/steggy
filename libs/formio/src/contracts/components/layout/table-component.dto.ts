@@ -2,8 +2,6 @@ import { BaseComponentDTO } from '../base-component.dto';
 import { ComponentTypes } from '../enums';
 
 export class TableComponentDTO extends BaseComponentDTO {
-  // #region Object Properties
-
   public cellAlignment?: 'left' | 'right' | 'center';
   public declare input: false;
   /**
@@ -12,5 +10,5 @@ export class TableComponentDTO extends BaseComponentDTO {
   public rows?: { components: BaseComponentDTO[] }[][];
   public declare type: ComponentTypes.table;
 
-  // #endregion Object Properties
+  
 }
