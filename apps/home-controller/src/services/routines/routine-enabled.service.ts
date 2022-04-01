@@ -82,15 +82,18 @@ export class RoutineEnabledService {
       `Setting initial active state for {${this.RAW_LIST.size}} routines`,
     );
     this.ancestors = new Map();
+    const root: RoutineDTO[] = [];
     this.RAW_LIST.forEach(routine => {
       const parent = routine.parent ?? ROOT;
+      if (parent === ROOT) {
+        root.push(routine);
+      }
       const list = this.ancestors.get(parent) ?? [];
       list.push(routine._id);
       this.ancestors.set(parent, list);
       this.watch(routine);
     });
-    const active = await this.recurseActive(ROOT);
-    active.forEach(routine => this.start(routine));
+    await each(root, async routine => await this.remount(routine));
   }
 
   @OnEvent(HA_EVENT_STATE_CHANGE)
@@ -124,7 +127,7 @@ export class RoutineEnabledService {
   }
 
   @OnEvent(ROUTINE_UPDATE)
-  protected remount(routine: RoutineDTO): void {
+  protected async remount(routine: RoutineDTO): Promise<void> {
     // Stop + GC
     this.stop(routine);
     if (routine.deleted) {
@@ -137,7 +140,15 @@ export class RoutineEnabledService {
       this.watch(routine);
     }
     this.RAW_LIST.set(routine._id, routine);
-    this.onUpdate(routine);
+    await this.onUpdate(routine);
+    const list: RoutineDTO[] = [];
+    this.RAW_LIST.forEach(child => {
+      if (child.parent !== routine._id) {
+        return;
+      }
+      list.push(child);
+    });
+    await each(list, async child => await this.onUpdate(child));
   }
 
   private initPolling(routine: RoutineDTO): void {
@@ -259,25 +270,6 @@ export class RoutineEnabledService {
     return timeouts;
   }
 
-  private async recurseActive(start: string): Promise<RoutineDTO[]> {
-    const activeList: RoutineDTO[] = [];
-    await each(this.ancestors.get(start), async id => {
-      const routine = this.RAW_LIST.get(id);
-      const active = await this.isActive(routine);
-      if (!active) {
-        return;
-      }
-      activeList.push(routine);
-      if (!this.ACTIVE_ROUTINES.has(routine._id)) {
-        this.ACTIVE_ROUTINES.add(routine._id);
-      }
-      if (this.ancestors.has(routine._id)) {
-        activeList.push(...(await this.recurseActive(routine._id)));
-      }
-    });
-    return activeList;
-  }
-
   private start(routine: RoutineDTO): void {
     this.ACTIVE_ROUTINES.add(routine._id);
     if (is.empty(routine.command)) {
@@ -295,6 +287,9 @@ export class RoutineEnabledService {
   }
 
   private stop(routine: RoutineDTO): void {
+    if (!this.ACTIVE_ROUTINES.has(routine._id)) {
+      return;
+    }
     this.logger.info(`[${routine.friendlyName}] stop`);
     this.routineService.unmount(routine);
     this.ACTIVE_ROUTINES.delete(routine._id);
