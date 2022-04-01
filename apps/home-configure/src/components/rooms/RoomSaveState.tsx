@@ -5,13 +5,12 @@ import { DOWN, UP } from '@automagical/utilities';
 import {
   Button,
   Card,
-  Col,
   Form,
   FormInstance,
   Input,
   List,
   Popconfirm,
-  Row,
+  Space,
 } from 'antd';
 import React from 'react';
 
@@ -20,8 +19,8 @@ import { RelatedRoutines } from '../routines';
 import { RoomStateEdit } from './states';
 
 export class RoomSaveStates extends React.Component<{
+  onUpdate: (room: RoomDTO) => void;
   room: RoomDTO;
-  roomUpdated: (room: RoomDTO) => void;
 }> {
   override state = { modalVisible: false };
   private form: FormInstance;
@@ -31,81 +30,75 @@ export class RoomSaveStates extends React.Component<{
 
   override render() {
     return (
-      <Row gutter={16}>
-        <Col span={12}>
-          <Card
-            type="inner"
-            title="Save States"
-            extra={
-              <Popconfirm
-                icon={
-                  <QuestionCircleOutlined style={{ visibility: 'hidden' }} />
-                }
-                onConfirm={this.validate.bind(this)}
-                title={
-                  <Form
-                    onFinish={this.validate.bind(this)}
-                    ref={form => (this.form = form)}
+      <Space style={{ width: '100%' }} direction="vertical" size="large">
+        <Card
+          type="inner"
+          title="Save States"
+          extra={
+            <Popconfirm
+              icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
+              onConfirm={this.validate.bind(this)}
+              title={
+                <Form
+                  onFinish={this.validate.bind(this)}
+                  ref={form => (this.form = form)}
+                >
+                  <Form.Item
+                    label="Friendly Name"
+                    name="friendlyName"
+                    rules={[{ required: true }]}
                   >
-                    <Form.Item
-                      label="Friendly Name"
-                      name="friendlyName"
-                      rules={[{ required: true }]}
-                    >
-                      <Input />
-                    </Form.Item>
-                  </Form>
-                }
-              >
-                <Button size="small" icon={<PlusBoxMultiple />}>
-                  Create new
+                    <Input />
+                  </Form.Item>
+                </Form>
+              }
+            >
+              <Button size="small" icon={<PlusBoxMultiple />}>
+                Create new
+              </Button>
+            </Popconfirm>
+          }
+        >
+          <List
+            pagination={{ size: 'small' }}
+            dataSource={this.room.save_states.sort((a, b) =>
+              a.friendlyName > b.friendlyName ? UP : DOWN,
+            )}
+            renderItem={record => (
+              <List.Item>
+                <List.Item.Meta
+                  title={
+                    <RoomStateEdit
+                      key={record.id}
+                      onUpdate={group => this.props.onUpdate(group)}
+                      room={this.props.room}
+                      state={record}
+                    />
+                  }
+                />
+                <Button
+                  onClick={() => this.activateState(record)}
+                  type="primary"
+                >
+                  Activate
                 </Button>
-              </Popconfirm>
-            }
-          >
-            <List
-              pagination={{ size: 'small' }}
-              dataSource={this.room.save_states.sort((a, b) =>
-                a.friendlyName > b.friendlyName ? UP : DOWN,
-              )}
-              renderItem={record => (
-                <List.Item>
-                  <List.Item.Meta
-                    title={
-                      <RoomStateEdit
-                        key={record.id}
-                        onUpdate={group => this.props.roomUpdated(group)}
-                        room={this.props.room}
-                        state={record}
-                      />
-                    }
-                  />
-                  <Button
-                    onClick={() => this.activateState(record)}
-                    type="primary"
-                  >
-                    Activate
+                <Popconfirm
+                  icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                  title={`Are you sure you want to delete ${record.friendlyName}`}
+                  onConfirm={() => this.removeState(record)}
+                >
+                  <Button danger type="text">
+                    X
                   </Button>
-                  <Popconfirm
-                    icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-                    title={`Are you sure you want to delete ${record.friendlyName}`}
-                    onConfirm={() => this.removeState(record)}
-                  >
-                    <Button danger type="text">
-                      X
-                    </Button>
-                  </Popconfirm>
-                </List.Item>
-              )}
-            />
-          </Card>
-        </Col>
-        <Col span={12}>
-          <Card type="inner" title="Related Routines">
-            <RelatedRoutines roomState={this.props.room} />
-          </Card>
-        </Col>
-      </Row>
+                </Popconfirm>
+              </List.Item>
+            )}
+          />
+        </Card>
+        <Card type="inner" title="Used in routines">
+          <RelatedRoutines roomState={this.props.room} />
+        </Card>
+      </Space>
     );
   }
 
@@ -121,7 +114,7 @@ export class RoomSaveStates extends React.Component<{
       method: 'delete',
       url: `/room/${this.room._id}/state/${record.id}`,
     });
-    this.props.roomUpdated(room);
+    this.props.onUpdate(room);
   }
 
   private async validate(): Promise<void> {
@@ -133,7 +126,7 @@ export class RoomSaveStates extends React.Component<{
         url: `/room/${this.room._id}/state`,
       });
       this.form.resetFields();
-      this.props.roomUpdated(room);
+      this.props.onUpdate(room);
     } catch (error) {
       console.error(error);
     }

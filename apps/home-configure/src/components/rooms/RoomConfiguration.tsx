@@ -4,13 +4,13 @@ import {
   RoomDTO,
   RoomEntityDTO,
 } from '@automagical/controller-shared';
-import { TitleCase } from '@automagical/utilities';
-import { Button, Card, Col, List, Popconfirm, Popover, Row } from 'antd';
+import { DOWN, TitleCase, UP } from '@automagical/utilities';
+import { Button, Card, List, Popconfirm, Space } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { domain, sendRequest } from '../../types';
-import { EntityDetailDrawer, EntityModalPicker } from '../entities';
+import { sendRequest } from '../../types';
+import { EntityModalPicker } from '../entities';
 import { GroupModalPicker } from '../groups';
 
 type PartialGroup = Pick<
@@ -31,52 +31,43 @@ export class RoomConfiguration extends React.Component<
 
   override render() {
     return (
-      <Row gutter={16}>
-        <Col span={12}>
-          <Card
-            type="inner"
-            title="Entities"
-            extra={
-              <EntityModalPicker
-                onAdd={this.addEntities.bind(this)}
-                exclude={this.props.room.entities.map(
-                  ({ entity_id }) => entity_id,
-                )}
-              />
-            }
-          >
-            <List
-              dataSource={this.props.room.entities}
-              renderItem={item => this.entityRender(item)}
+      <Space direction="vertical" style={{ width: '100%' }} size="large">
+        <Card
+          type="inner"
+          title="Entities"
+          extra={
+            <EntityModalPicker
+              onAdd={this.addEntities.bind(this)}
+              exclude={this.props.room.entities.map(
+                ({ entity_id }) => entity_id,
+              )}
             />
-          </Card>
-        </Col>
-        <Col span={12}>
-          <Card
-            type="inner"
-            title="Groups"
-            extra={
-              <GroupModalPicker
-                exclude={this.props.room.groups}
-                onAdd={this.addGroups.bind(this)}
-              />
-            }
-          >
-            <List
-              dataSource={this.props.room.groups}
-              renderItem={item => this.groupRender(item)}
+          }
+        >
+          <List
+            dataSource={(this.props.room.entities ?? []).sort((a, b) =>
+              a > b ? UP : DOWN,
+            )}
+            renderItem={item => this.entityRender(item)}
+          />
+        </Card>
+        <Card
+          type="inner"
+          title="Groups"
+          extra={
+            <GroupModalPicker
+              exclude={this.props.room.groups}
+              onAdd={this.addGroups.bind(this)}
             />
-          </Card>
-        </Col>
-      </Row>
+          }
+        >
+          <List
+            dataSource={this.props.room.groups}
+            renderItem={item => this.groupRender(item)}
+          />
+        </Card>
+      </Space>
     );
-  }
-
-  private async activateGroupState(group: string, state: string) {
-    await sendRequest({
-      method: 'post',
-      url: `/group/${group}/state/${state}`,
-    });
   }
 
   private async addEntities(entities: string[]): Promise<void> {
@@ -118,9 +109,6 @@ export class RoomConfiguration extends React.Component<
   }
 
   private entityRender({ entity_id }: RoomEntityDTO) {
-    const state = this.props.room.entityStates.find(
-      i => i.entity_id === entity_id,
-    );
     return (
       <List.Item
         actions={[
@@ -135,10 +123,7 @@ export class RoomConfiguration extends React.Component<
           </Popconfirm>,
         ]}
       >
-        <List.Item.Meta
-          description={`${TitleCase(domain(state.entity_id))} entity`}
-          title={<EntityDetailDrawer entity={state} />}
-        />
+        <List.Item.Meta title={entity_id} />
       </List.Item>
     );
   }
@@ -168,29 +153,7 @@ export class RoomConfiguration extends React.Component<
         ]}
       >
         <List.Item.Meta
-          title={
-            <Popover
-              content={
-                <List
-                  dataSource={group.save_states}
-                  renderItem={state => (
-                    <List.Item>
-                      <Button
-                        onClick={() =>
-                          this.activateGroupState(group._id, state.id)
-                        }
-                      >
-                        Activate {state.friendlyName}
-                      </Button>
-                    </List.Item>
-                  )}
-                />
-              }
-              title="Save States"
-            >
-              <Link to={`/group/${item}`}>{group.friendlyName}</Link>
-            </Popover>
-          }
+          title={<Link to={`/group/${item}`}>{group.friendlyName}</Link>}
           description={`${TitleCase(group.type)} group`}
         />
       </List.Item>

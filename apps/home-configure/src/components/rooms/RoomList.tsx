@@ -1,30 +1,29 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import type { RoomDTO, RoomStateDTO } from '@automagical/controller-shared';
-import { DOWN, is, UP } from '@automagical/utilities';
+import type { RoomDTO } from '@automagical/controller-shared';
+import { NOT_FOUND } from '@automagical/utilities';
 import {
-  Breadcrumb,
   Button,
   Card,
-  Empty,
+  Col,
   Form,
   FormInstance,
   Input,
   Layout,
   List,
   Popconfirm,
-  Tooltip,
-  Typography,
+  Row,
 } from 'antd';
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
+import { RoomListDetail } from './RoomListDetail';
 
 const { Content } = Layout;
 
 export class RoomList extends React.Component {
-  override state: { rooms: RoomDTO[] } = {
+  override state: { room: RoomDTO; rooms: RoomDTO[] } = {
+    room: undefined,
     rooms: [],
   };
   private form: FormInstance;
@@ -37,57 +36,57 @@ export class RoomList extends React.Component {
     return (
       <Layout hasSider>
         <Content style={{ padding: '16px' }}>
-          <Breadcrumb>
-            <Breadcrumb.Item>
-              <Link to="/rooms">Rooms</Link>
-            </Breadcrumb.Item>
-          </Breadcrumb>
-          <Card
-            style={{ margin: '16px 0 0 0' }}
-            title="All Rooms"
-            extra={
-              <Popconfirm
-                icon={
-                  <QuestionCircleOutlined style={{ visibility: 'hidden' }} />
-                }
-                onConfirm={this.validate.bind(this)}
-                title={
-                  <Form
-                    onFinish={this.validate.bind(this)}
-                    ref={form => (this.form = form)}
+          <Row gutter={8}>
+            <Col span={12}>
+              <Card
+                type="inner"
+                title="All Rooms"
+                extra={
+                  <Popconfirm
+                    icon={
+                      <QuestionCircleOutlined
+                        style={{ visibility: 'hidden' }}
+                      />
+                    }
+                    onConfirm={this.validate.bind(this)}
+                    title={
+                      <Form
+                        onFinish={this.validate.bind(this)}
+                        ref={form => (this.form = form)}
+                      >
+                        <Form.Item
+                          label="Friendly Name"
+                          name="friendlyName"
+                          rules={[{ required: true }]}
+                        >
+                          <Input />
+                        </Form.Item>
+                      </Form>
+                    }
                   >
-                    <Form.Item
-                      label="Friendly Name"
-                      name="friendlyName"
-                      rules={[{ required: true }]}
-                    >
-                      <Input />
-                    </Form.Item>
-                  </Form>
+                    <Button size="small" icon={<PlusBoxMultiple />}>
+                      Create new
+                    </Button>
+                  </Popconfirm>
                 }
               >
-                <Button size="small" icon={<PlusBoxMultiple />}>
-                  Create new
-                </Button>
-              </Popconfirm>
-            }
-          >
-            <List
-              dataSource={this.state.rooms}
-              pagination={{ size: 'small' }}
-              renderItem={this.renderRoom.bind(this)}
-            />
-          </Card>
+                <List
+                  dataSource={this.state.rooms}
+                  pagination={{ size: 'small' }}
+                  renderItem={this.renderRoom.bind(this)}
+                />
+              </Card>
+            </Col>
+            <Col span={12}>
+              <RoomListDetail
+                room={this.state.room}
+                onUpdate={update => this.updateRoom(update)}
+              />
+            </Col>
+          </Row>
         </Content>
       </Layout>
     );
-  }
-
-  private async activateState(room: RoomDTO, state: RoomStateDTO) {
-    await sendRequest({
-      method: 'post',
-      url: `/room/${room._id}/state/${state.id}`,
-    });
   }
 
   private async deleteRoom(room: RoomDTO): Promise<void> {
@@ -108,53 +107,14 @@ export class RoomList extends React.Component {
     this.setState({ rooms });
   }
 
-  private async renameRoom(room: RoomDTO, friendlyName: string) {
-    await sendRequest({
-      body: {
-        friendlyName,
-      },
-      method: 'put',
-      url: `/room/${room._id}`,
-    });
-    await this.refresh();
-  }
-
   private renderRoom(room: RoomDTO) {
     return (
       <List.Item key={room._id}>
         <List.Item.Meta
           title={
-            <Tooltip
-              mouseEnterDelay={1}
-              title={
-                is.empty(room.save_states) ? (
-                  <Empty description="No save states" />
-                ) : (
-                  <>
-                    <Typography.Title level={4} style={{ minWidth: '250px' }}>
-                      Save States
-                    </Typography.Title>
-                    <List
-                      dataSource={room.save_states.sort((a, b) =>
-                        a.friendlyName > b.friendlyName ? UP : DOWN,
-                      )}
-                      renderItem={item => (
-                        <List.Item style={{ padding: '4px 8px' }}>
-                          <Button
-                            type="primary"
-                            onClick={() => this.activateState(room, item)}
-                          >
-                            {item.friendlyName}
-                          </Button>
-                        </List.Item>
-                      )}
-                    />
-                  </>
-                )
-              }
-            >
-              <Link to={`/room/${room._id}`}>{room.friendlyName}</Link>
-            </Tooltip>
+            <Button type="text" onClick={() => this.setState({ room })}>
+              {room.friendlyName}
+            </Button>
           }
         />
         <Popconfirm
@@ -168,6 +128,22 @@ export class RoomList extends React.Component {
         </Popconfirm>
       </List.Item>
     );
+  }
+
+  private updateRoom(room: RoomDTO): void {
+    const list = this.state.rooms;
+    const index = list.findIndex(({ _id }) => _id === room._id);
+    if (index === NOT_FOUND) {
+      this.setState({
+        room,
+        rooms: [...list, room],
+      });
+      return;
+    }
+    this.setState({
+      room,
+      rooms: list.map(item => (room._id === item._id ? room : item)),
+    });
   }
 
   private async validate(): Promise<void> {

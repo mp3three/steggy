@@ -1,8 +1,8 @@
 import { RoutineDTO } from '@automagical/controller-shared';
 import { ResultControlDTO, SECOND } from '@automagical/utilities';
-import { Breadcrumb, Col, Layout, Row } from 'antd';
+import { Col, Layout, Row } from 'antd';
 import React from 'react';
-import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 import { RoutineListDetail } from './RoutineListDetail';
@@ -42,11 +42,6 @@ export const RoutineList = withRouter(
       return (
         <Layout>
           <Layout.Content style={{ padding: '16px' }}>
-            <Breadcrumb style={{ marginBottom: '16px' }}>
-              <Breadcrumb.Item>
-                <Link to="/routines">Routines</Link>
-              </Breadcrumb.Item>
-            </Breadcrumb>
             <Row gutter={8}>
               <Col span={12}>
                 <RoutineTree

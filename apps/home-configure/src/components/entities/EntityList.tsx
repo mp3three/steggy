@@ -7,11 +7,11 @@ import {
   START,
   UP,
 } from '@automagical/utilities';
-import { Breadcrumb, Button, Card, Col, Input, Layout, List, Row } from 'antd';
+import { Button, Card, Col, Input, Layout, List, Row } from 'antd';
 import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
 import React from 'react';
-import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 import { EntityInspect } from './EntityInspect';
@@ -37,12 +37,7 @@ export const EntityList = withRouter(
       return (
         <Layout>
           <Layout.Content style={{ padding: '16px' }}>
-            <Breadcrumb>
-              <Breadcrumb.Item>
-                <Link to="/entities">Entities</Link>
-              </Breadcrumb.Item>
-            </Breadcrumb>
-            <Row style={{ margin: '16px 0 0 0', width: '100%' }} gutter={8}>
+            <Row style={{ width: '100%' }} gutter={8}>
               <Col span={12}>
                 <Card
                   title={

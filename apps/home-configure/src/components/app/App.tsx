@@ -11,7 +11,7 @@ import { Foot } from '../footer';
 import { GroupDetail, GroupList } from '../groups';
 import { HomePage } from '../home';
 import { ApplicationMenu } from '../menu';
-import { RoomDetail, RoomList } from '../rooms';
+import { RoomList } from '../rooms';
 import { RoutineList } from '../routines';
 import { SettingsPage } from '../settings';
 
@@ -45,7 +45,6 @@ export class App extends React.Component {
                 <Switch>
                   <Route path="/entities" component={EntityList} />
                   <Route path="/routines" component={RoutineList} />
-                  <Route path="/room/:id" component={RoomDetail} />
                   <Route path="/rooms" component={RoomList} />
                   <Route path="/group/:id" component={GroupDetail} />
                   <Route path="/groups" component={GroupList} />

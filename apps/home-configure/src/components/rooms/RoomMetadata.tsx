@@ -1,6 +1,6 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { RoomDTO, RoomMetadataDTO } from '@automagical/controller-shared';
-import { Button, Card, Checkbox, Col, Input, Row, Select, Table } from 'antd';
+import { Button, Card, Checkbox, Input, Select, Space, Table } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
@@ -17,72 +17,70 @@ export class RoomMetadata extends React.Component<
 
   override render() {
     return (
-      <Row gutter={16}>
-        <Col span={12}>
-          <Card
-            type="inner"
-            title="Flags"
-            extra={
-              <Button
-                icon={<PlusBoxMultiple />}
-                size="small"
-                onClick={this.create.bind(this)}
-              >
-                Create new
-              </Button>
-            }
-          >
-            <Table dataSource={this.props.room.metadata}>
-              <Table.Column
-                title="Name"
-                key="name"
-                dataIndex="name"
-                render={(name: string, record: RoomMetadataDTO) => (
-                  <Input
-                    value={name}
-                    onChange={({ target }) =>
-                      this.updateMetadata({ name: target.value }, record.id)
-                    }
-                  />
-                )}
-              />
-              <Table.Column
-                title="Type"
-                key="type"
-                dataIndex="type"
-                render={(type: string, record: RoomMetadataDTO) => (
-                  <Select
-                    value={type}
-                    onChange={(type: 'boolean' | 'string') =>
-                      this.updateMetadata({ type }, record.id)
-                    }
-                  >
-                    <Select.Option value="boolean">Boolean</Select.Option>
-                    <Select.Option value="string">String</Select.Option>
-                  </Select>
-                )}
-              />
-              <Table.Column
-                title="Value"
-                key="value"
-                dataIndex="value"
-                render={(value, record: RoomMetadataDTO) =>
-                  this.renderValue(value, record.type, record.id)
-                }
-              />
-              <Table.Column
-                key="id"
-                dataIndex="id"
-                render={(id: string) => (
-                  <Button danger type="text" onClick={() => this.remove(id)}>
-                    X
-                  </Button>
-                )}
-              />
-            </Table>
-          </Card>
-        </Col>
-      </Row>
+      <Space direction="vertical" size="large">
+        <Card
+          type="inner"
+          title="Flags"
+          extra={
+            <Button
+              icon={<PlusBoxMultiple />}
+              size="small"
+              onClick={this.create.bind(this)}
+            >
+              Create new
+            </Button>
+          }
+        >
+          <Table dataSource={this.props.room.metadata}>
+            <Table.Column
+              title="Name"
+              key="name"
+              dataIndex="name"
+              render={(name: string, record: RoomMetadataDTO) => (
+                <Input
+                  value={name}
+                  onChange={({ target }) =>
+                    this.updateMetadata({ name: target.value }, record.id)
+                  }
+                />
+              )}
+            />
+            <Table.Column
+              title="Type"
+              key="type"
+              dataIndex="type"
+              render={(type: string, record: RoomMetadataDTO) => (
+                <Select
+                  value={type}
+                  onChange={(type: 'boolean' | 'string') =>
+                    this.updateMetadata({ type }, record.id)
+                  }
+                >
+                  <Select.Option value="boolean">Boolean</Select.Option>
+                  <Select.Option value="string">String</Select.Option>
+                </Select>
+              )}
+            />
+            <Table.Column
+              title="Value"
+              key="value"
+              dataIndex="value"
+              render={(value, record: RoomMetadataDTO) =>
+                this.renderValue(value, record.type, record.id)
+              }
+            />
+            <Table.Column
+              key="id"
+              dataIndex="id"
+              render={(id: string) => (
+                <Button danger type="text" onClick={() => this.remove(id)}>
+                  X
+                </Button>
+              )}
+            />
+          </Table>
+        </Card>
+      </Space>
     );
   }
 
