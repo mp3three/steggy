@@ -10,7 +10,7 @@ The Home Configure project acts as the primary user interface, and is delivered 
 ### Recommended basic setup
 
 ```ini
-[application]
+[libs.persistence]
   MONGO_URI=mongodb://mongo:27017/home-controller
 
 [libs.boilerplate]
@@ -44,21 +44,6 @@ The Home Configure project acts as the primary user interface, and is delivered 
 
   ; minimum brightness amount for dimmer operations
   MIN_BRIGHTNESS=5
-
-  ; data storage location
-  MONGO_URI=mongodb://localhost:27017/automagical
-
-  ; file path; optional / used with ssl connections to mongo
-  MONGO_CERT=
-
-  ; file path; optional / used with ssl connections to mongo
-  MONGO_KEY=
-
-  ; file path; optional / used with ssl connections to mongo
-  MONGO_CA=
-
-  ; file path; optional / used with ssl connections to mongo
-  MONGO_CRL=
 
 [libs.boilerplate]
   ; default = info
@@ -147,6 +132,23 @@ The Home Configure project acts as the primary user interface, and is delivered 
 
   ; file path; required if SSL_PORT is set
   SSL_CERT=
+
+[libs.persistence]
+
+  ; data storage location
+  MONGO_URI=mongodb://localhost:27017/automagical
+
+  ; file path; optional / used with ssl connections to mongo
+  MONGO_CERT=
+
+  ; file path; optional / used with ssl connections to mongo
+  MONGO_KEY=
+
+  ; file path; optional / used with ssl connections to mongo
+  MONGO_CA=
+
+  ; file path; optional / used with ssl connections to mongo
+  MONGO_CRL=
 
 ```
 
