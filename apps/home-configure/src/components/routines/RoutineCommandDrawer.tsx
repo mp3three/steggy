@@ -133,16 +133,15 @@ export class RoutineCommandDrawer extends React.Component<
     );
   }
 
-  private onUpdate(command): void {
-    this.setState({
+  private onUpdate(cmd): void {
+    const command = {
+      ...this.state.command,
       command: {
-        ...this.state.command,
-        command: {
-          ...this.state.command.command,
-          ...command,
-        },
+        ...this.state.command.command,
+        ...cmd,
       },
-    });
+    };
+    this.setState({ command });
   }
 
   private renderType() {

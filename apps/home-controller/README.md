@@ -134,7 +134,6 @@ The Home Configure project acts as the primary user interface, and is delivered 
   SSL_CERT=
 
 [libs.persistence]
-
   ; data storage location
   MONGO_URI=mongodb://localhost:27017/automagical
 
