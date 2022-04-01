@@ -148,7 +148,7 @@ export class RoutineEnabledService {
       }
       list.push(child);
     });
-    await each(list, async child => await this.onUpdate(child));
+    await each(list, async child => await this.remount(child));
   }
 
   private initPolling(routine: RoutineDTO): void {
@@ -280,7 +280,7 @@ export class RoutineEnabledService {
       this.logger.debug(`[${routine.friendlyName}] false start (no activate)`);
       return;
     }
-    this.logger.info(`[${routine.friendlyName}] start`);
+    this.logger.info(`${this.superFriendlyName(routine)} start`);
     if (!this.safeMode) {
       this.routineService.mount(routine);
     }
@@ -290,7 +290,7 @@ export class RoutineEnabledService {
     if (!this.ACTIVE_ROUTINES.has(routine._id)) {
       return;
     }
-    this.logger.info(`[${routine.friendlyName}] stop`);
+    this.logger.info(`${routine.friendlyName} stop`);
     this.routineService.unmount(routine);
     this.ACTIVE_ROUTINES.delete(routine._id);
     this.ENABLE_WATCHERS.forEach((disable, watched) => {
@@ -300,6 +300,15 @@ export class RoutineEnabledService {
       disable.forEach(callback => callback());
     });
     this.ENABLE_WATCHERS.delete(routine._id);
+  }
+
+  private superFriendlyName(routine: RoutineDTO, built = ''): string {
+    built = is.empty(built) ? '' : ` > ${built}`;
+    built = `[${routine.friendlyName}]${built}`;
+    if (routine.parent) {
+      return this.superFriendlyName(this.RAW_LIST.get(routine.parent), built);
+    }
+    return built;
   }
 
   private watch(routine: RoutineDTO): void {

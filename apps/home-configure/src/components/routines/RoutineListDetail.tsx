@@ -297,38 +297,44 @@ export class RoutineListDetail extends React.Component<
               </Tabs.TabPane>
               <Tabs.TabPane tab="Settings" key="settings">
                 <Card type="inner">
-                  <Tooltip
-                    title={
-                      <Typography>
-                        <Typography.Paragraph>
-                          When checked, a command action must fully complete
-                          prior to the next command running. This allows some
-                          commands, such as
-                          <Typography.Text code>
-                            Stop Processing
-                          </Typography.Text>
-                          to affect/prevent execution of following commands.
-                          Entity state changes require a confirmation from Home
-                          Assistant, which may be affected by real world
-                          conditions.
-                        </Typography.Paragraph>
-                        <Divider />
-                        <Typography.Paragraph>
-                          While unchecked, actions will be initiated at the
-                          simultaniously, having no influence each other. Entity
-                          state changes are performed in a "fire and forget"
-                          manner.
-                        </Typography.Paragraph>
-                      </Typography>
-                    }
-                  >
-                    <Checkbox
-                      checked={this.props.routine.sync}
-                      onChange={({ target }) => this.setSync(target.checked)}
+                  <Space direction="vertical">
+                    <Tooltip
+                      title={
+                        <Typography>
+                          <Typography.Paragraph>
+                            When checked, a command action must fully complete
+                            prior to the next command running. This allows some
+                            commands, such as
+                            <Typography.Text code>
+                              Stop Processing
+                            </Typography.Text>
+                            to affect/prevent execution of following commands.
+                            Entity state changes require a confirmation from
+                            Home Assistant, which may be affected by real world
+                            conditions.
+                          </Typography.Paragraph>
+                          <Divider />
+                          <Typography.Paragraph>
+                            While unchecked, actions will be initiated at the
+                            simultaniously, having no influence each other.
+                            Entity state changes are performed in a "fire and
+                            forget" manner.
+                          </Typography.Paragraph>
+                        </Typography>
+                      }
                     >
-                      Synchronous command processing
-                    </Checkbox>
-                  </Tooltip>
+                      <Checkbox
+                        checked={this.props.routine.sync}
+                        onChange={({ target }) => this.setSync(target.checked)}
+                      >
+                        Synchronous command processing
+                      </Checkbox>
+                    </Tooltip>
+
+                    <Form.Item label="ID">
+                      <Input value={this.props.routine._id} readOnly />
+                    </Form.Item>
+                  </Space>
                 </Card>
               </Tabs.TabPane>
             </Tabs>
