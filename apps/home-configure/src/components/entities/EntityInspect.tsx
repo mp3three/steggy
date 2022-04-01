@@ -112,14 +112,22 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
   }
 
   private flags() {
-    const { entity } = this.state;
-    if (!['light', 'fan'].includes(domain(entity.entity_id))) {
-      return undefined;
-    }
+    const { entity, flags } = this.state;
+
     return (
       <>
         <Divider orientation="left">Flags</Divider>
         <Space direction="vertical"></Space>
+        <Tooltip title="Add state / attribute changes to controller debug log">
+          <Checkbox
+            onChange={({ target }) =>
+              this.toggleFlag('DEBUG_LOG', target.checked)
+            }
+            checked={flags.includes('DEBUG_LOG')}
+          >
+            Log Changes
+          </Checkbox>
+        </Tooltip>
         {this.renderFlag(domain(entity))}
       </>
     );
@@ -144,29 +152,6 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
             checked={this.state.flags.includes('LIGHT_FORCE_CIRCADIAN')}
           >
             Circadian Compatibility
-          </Checkbox>
-        </Tooltip>
-      );
-    }
-    if (type === 'fan') {
-      return (
-        <Tooltip
-          title={
-            <Typography.Text>
-              This fan should do relative speed changes using fan_speed instead
-              of percentages. Use when{' '}
-              <Typography.Text code>percentage_step</Typography.Text> is an
-              incorrect value
-            </Typography.Text>
-          }
-        >
-          <Checkbox
-            onChange={({ target }) =>
-              this.toggleFlag('USE_FAN_SPEEDS', target.checked)
-            }
-            checked={this.state.flags.includes('USE_FAN_SPEEDS')}
-          >
-            Use Fan Speeds
           </Checkbox>
         </Tooltip>
       );

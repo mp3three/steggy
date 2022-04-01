@@ -65,9 +65,9 @@ import {
   StateChangeActivateService,
   StopProcessingCommandService,
   SwitchGroupService,
+  UpdateLoggerService,
   WebhookService,
 } from '../services';
-import { HomePersistenceModule } from './home-persistence.module';
 
 const rootPath = join(__dirname, 'ui');
 
@@ -104,6 +104,7 @@ const providers = [
   MetadataService,
   ApplicationService,
   AvailabilityMonitorService,
+  UpdateLoggerService,
   RoomService,
   GroupPersistenceService,
   RoutinePersistenceService,
@@ -174,7 +175,6 @@ const providers = [
   ],
   imports: [
     HomeAssistantModule,
-    HomePersistenceModule,
     RegisterCache(),
     ...QuickConnectModule.forRoot([GroupDTO, RoomDTO, RoutineDTO, MetadataDTO]),
     ...(existsSync(rootPath) ? [ServeStaticModule.forRoot({ rootPath })] : []),

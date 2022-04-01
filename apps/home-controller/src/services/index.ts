@@ -8,3 +8,4 @@ export * from './metadata.service';
 export * from './persistence';
 export * from './room.service';
 export * from './routines';
+export * from './update-logger.service';

@@ -73,7 +73,9 @@ export class MetadataService {
     return out;
   }
 
-  private async findByEntityId(entity): Promise<MetadataDTO<EntityMetadata>> {
+  private async findByEntityId(
+    entity: string,
+  ): Promise<MetadataDTO<EntityMetadata>> {
     const [search] = await this.metadataPersistence.findMany<EntityMetadata>({
       filters: new Set([
         { field: 'data.entity', value: entity },

@@ -4,6 +4,7 @@ import {
   InjectConfig,
   WorkspaceService,
 } from '@automagical/boilerplate';
+import { TitleCase } from '@automagical/utilities';
 import { INestApplication, Inject, Injectable } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
@@ -33,11 +34,11 @@ export class SwaggerService {
     const data = this.workspaceService.PACKAGES.get(
       this.activeApplication.description,
     );
-    const { displayName, description, version } = data;
+    const { displayName, description, version } = data ?? {};
     const config = new DocumentBuilder()
-      .setTitle(displayName)
-      .setDescription(description)
-      .setVersion(version)
+      .setTitle(displayName ?? TitleCase(this.activeApplication.description))
+      .setDescription(description ?? '')
+      .setVersion(version ?? '')
       .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup(this.swaggerPath, app, document);

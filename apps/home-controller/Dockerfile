@@ -19,7 +19,7 @@ RUN npx terser dist/apps/home-controller/main.js -c -m --keep-classnames --modul
 
 # <STAGE 2>
 # Build node_modules for final container
-FROM node:16-alpine AS dependencies
+FROM node:16-alpine AS node_modules
 WORKDIR /app
 COPY --from=build --chown=node:node /app/dist/apps/home-controller .
 RUN yarn install --production
@@ -66,10 +66,9 @@ RUN sed -i -e 's/v[[:digit:]]\..*\//edge\//g' /etc/apk/repositories && \
 # Finalize
 USER node
 WORKDIR /app
-COPY --from=dependencies /app/node_modules ./node_modules
+COPY --from=node_modules /app/node_modules ./node_modules
 COPY --from=build /app/dist/apps/home-controller/minified.js ./main.js
 COPY --from=build /app/dist/apps/home-controller/package.json ./package.json
-COPY --from=build /app/dist/apps/home-controller/assets ./assets
 COPY --from=build /app/dist/apps/home-configure ./ui
 
 HEALTHCHECK CMD curl --fail http://localhost:7000/api/health
