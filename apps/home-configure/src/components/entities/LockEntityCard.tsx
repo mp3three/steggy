@@ -90,6 +90,7 @@ export class LockEntityCard extends React.Component<
         }
       >
         <Radio.Group
+          buttonStyle="solid"
           value={state}
           onChange={this.onModeChange.bind(this)}
           disabled={this.disabled}

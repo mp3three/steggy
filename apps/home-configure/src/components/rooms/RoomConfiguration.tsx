@@ -11,13 +11,15 @@ import { Link } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 import { EntityModalPicker } from '../entities';
-import { GroupModalPicker } from '../groups';
+import { EntityInspectButton } from '../entities/InspectButton';
+import { GroupInspectButton, GroupModalPicker } from '../groups';
 
 type PartialGroup = Pick<
   GroupDTO,
   '_id' | 'friendlyName' | 'type' | 'save_states'
 >;
 type tStateType = {
+  group?: GroupDTO;
   groups: PartialGroup[];
 };
 
@@ -25,6 +27,8 @@ export class RoomConfiguration extends React.Component<
   { onUpdate: (room: RoomDTO) => void; room: RoomDTO },
   tStateType
 > {
+  override state = { flags: [], groups: [] } as tStateType;
+
   override async componentDidMount(): Promise<void> {
     await this.refresh();
   }
@@ -123,7 +127,7 @@ export class RoomConfiguration extends React.Component<
           </Popconfirm>,
         ]}
       >
-        <List.Item.Meta title={entity_id} />
+        <List.Item.Meta title={<EntityInspectButton entity_id={entity_id} />} />
       </List.Item>
     );
   }
@@ -153,7 +157,18 @@ export class RoomConfiguration extends React.Component<
         ]}
       >
         <List.Item.Meta
-          title={<Link to={`/group/${item}`}>{group.friendlyName}</Link>}
+          title={
+            <GroupInspectButton
+              group={group as GroupDTO}
+              onUpdate={group =>
+                this.setState({
+                  groups: this.state.groups.map(g =>
+                    g._id === group._id ? group : g,
+                  ),
+                })
+              }
+            />
+          }
           description={`${TitleCase(group.type)} group`}
         />
       </List.Item>

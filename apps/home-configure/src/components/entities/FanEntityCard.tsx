@@ -138,6 +138,7 @@ export class FanEntityCard extends React.Component<
         {this.props.relative ? (
           <>
             <Radio.Group
+              buttonStyle="solid"
               value={state}
               onChange={({ target }) => this.onTypeChange(target.value)}
             >

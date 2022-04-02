@@ -34,6 +34,7 @@ export class LightGroupAction extends React.Component<{
       <>
         <Form.Item label="Direction">
           <Radio.Group
+            buttonStyle="solid"
             value={this.props.command.command}
             onChange={({ target }) =>
               this.props.onUpdate({

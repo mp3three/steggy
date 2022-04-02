@@ -124,6 +124,7 @@ export class LightEntityCard extends React.Component<
         }
       >
         <Radio.Group
+          buttonStyle="solid"
           value={entityState}
           disabled={disabled}
           onChange={this.onModeChange.bind(this)}

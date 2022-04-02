@@ -113,7 +113,7 @@ export class RoomList extends React.Component {
           title={
             <Button
               type={this.state?.room?._id === room._id ? 'primary' : 'text'}
-              onClick={() => this.setState({ room })}
+              onClick={() => this.setRoom(room)}
             >
               {room.friendlyName}
             </Button>
@@ -130,6 +130,14 @@ export class RoomList extends React.Component {
         </Popconfirm>
       </List.Item>
     );
+  }
+
+  private async setRoom(room: RoomDTO): Promise<void> {
+    this.setState({
+      room: await sendRequest({
+        url: `/room/${room._id}`,
+      }),
+    });
   }
 
   private updateRoom(room: RoomDTO): void {

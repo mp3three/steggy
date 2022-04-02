@@ -78,6 +78,7 @@ export class RoutineActivateKunami extends React.Component<
         </Form.Item>
         <Form.Item label="Reset" rules={[{ required: true }]}>
           <Radio.Group
+            buttonStyle="solid"
             value={this.state.reset || 'none'}
             onChange={({ target }) => this.setState({ reset: target.value })}
           >

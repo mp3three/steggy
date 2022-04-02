@@ -62,7 +62,11 @@ export class EntityCard extends React.Component<
           )
         }
       >
-        <Radio.Group value={state} onChange={this.onModeChange.bind(this)}>
+        <Radio.Group
+          value={state}
+          onChange={this.onModeChange.bind(this)}
+          buttonStyle="solid"
+        >
           <Radio.Button value="off">Off</Radio.Button>
           <Radio.Button value="on">On</Radio.Button>
           <Radio.Button value="toggle">Toggle</Radio.Button>

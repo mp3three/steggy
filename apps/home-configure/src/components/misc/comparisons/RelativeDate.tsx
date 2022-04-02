@@ -46,6 +46,7 @@ export class RelativeDate extends React.Component<{
               }
             >
               <Radio.Group
+                buttonStyle="solid"
                 value={this.props.comparison.dateType}
                 onChange={({ target }) =>
                   this.props.onUpdate({ dateType: target.value })

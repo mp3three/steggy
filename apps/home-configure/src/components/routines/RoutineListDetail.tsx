@@ -114,6 +114,7 @@ export class RoutineListDetail extends React.Component<
                 <Card type="inner">
                   <Form.Item label="Enable type">
                     <Radio.Group
+                      buttonStyle="solid"
                       value={this.props.routine.enable?.type ?? 'enable'}
                       onChange={({ target }) => this.setType(target.value)}
                     >

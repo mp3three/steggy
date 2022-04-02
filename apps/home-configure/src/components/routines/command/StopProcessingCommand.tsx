@@ -43,6 +43,7 @@ export class StopProcessingCommand extends React.Component<
       <>
         <Form.Item label="Matching Mode">
           <Radio.Group
+            buttonStyle="solid"
             disabled={this.props.disabled}
             value={this.props.command?.mode}
             onChange={({ target }) =>

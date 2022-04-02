@@ -28,6 +28,7 @@ export class WebhookComparison extends React.Component<{
           <Divider orientation="left">Response</Divider>
           <Form.Item label="Handle As">
             <Radio.Group
+              buttonStyle="solid"
               value={this.props.comparison?.handleAs}
               onChange={({ target }) => this.emit({ handleAs: target.value })}
             >

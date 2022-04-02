@@ -1,3 +1,4 @@
+import { HassStateDTO } from '@automagical/home-assistant-shared';
 import {
   DOWN,
   INCREMENT,
@@ -16,13 +17,15 @@ import { EntityInspect } from './EntityInspect';
 
 type tState = {
   entities: string[];
+  entity?: HassStateDTO;
   entity_id: string;
+  flags?: string[];
   search: { text: string; value: string }[];
 };
 const TEMP_TEMPLATE_SIZE = 3;
 
 export class EntityList extends React.Component {
-  override state = { entities: [], search: [] } as tState;
+  override state = { entities: [], flags: [], search: [] } as tState;
 
   private inspect: EntityInspect;
 
@@ -65,7 +68,12 @@ export class EntityList extends React.Component {
               </Card>
             </Col>
             <Col span={12}>
-              <EntityInspect ref={i => (this.inspect = i)} />
+              <EntityInspect
+                ref={i => (this.inspect = i)}
+                entity={this.state.entity}
+                flags={this.state.flags}
+                onFlagsUpdate={flags => this.setState({ flags })}
+              />
             </Col>
           </Row>
         </Layout.Content>
@@ -75,7 +83,7 @@ export class EntityList extends React.Component {
 
   private async focus(entity_id: string) {
     this.setState({ entity_id });
-    await this.inspect.load(entity_id);
+    await this.load(entity_id);
   }
 
   private highlight(result) {
@@ -113,6 +121,26 @@ export class EntityList extends React.Component {
           TEMP_TEMPLATE_SIZE,
           TEMP_TEMPLATE_SIZE * INVERT_VALUE,
         )}</span>`,
+    );
+  }
+
+  private async load(entity_id: string): Promise<void> {
+    this.setState({ entity_id });
+    await Promise.all(
+      [
+        async () => {
+          const entity = await sendRequest<HassStateDTO>({
+            url: `/entity/id/${entity_id}`,
+          });
+          this.setState({ entity });
+        },
+        async () => {
+          const flags = await sendRequest<string[]>({
+            url: `/entity/flags/${entity_id}`,
+          });
+          this.setState({ flags });
+        },
+      ].map(async f => await f()),
     );
   }
 

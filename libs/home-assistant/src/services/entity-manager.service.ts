@@ -1,4 +1,8 @@
-import { AutoLogService, OnEvent } from '@automagical/boilerplate';
+import {
+  AutoLogService,
+  InjectConfig,
+  OnEvent,
+} from '@automagical/boilerplate';
 import {
   ALL_ENTITIES_UPDATED,
   CapbilityList,
@@ -16,6 +20,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 import { Observable, Subscriber } from 'rxjs';
 
+import { RETRY_INTERVAL } from '../config';
 import { HASocketAPIService } from './ha-socket-api.service';
 
 const TIMEOUT = 5;
@@ -29,6 +34,7 @@ const TIMEOUT = 5;
 @Injectable()
 export class EntityManagerService {
   constructor(
+    @InjectConfig(RETRY_INTERVAL) private readonly retry: number,
     private readonly logger: AutoLogService,
     private readonly socketService: HASocketAPIService,
     private readonly eventEmitter: EventEmitter,
@@ -201,6 +207,8 @@ export class EntityManagerService {
       return;
     }
     this.logger.error(`Failed to retrieve entity list`);
+    await sleep(this.retry);
+    await this.socketReady();
   }
 
   private createObservable(entityId: string): void {

@@ -52,12 +52,13 @@ export class RoomMetadata extends React.Component<
               render={(type: string, record: RoomMetadataDTO) => (
                 <Select
                   value={type}
-                  onChange={(type: 'boolean' | 'string') =>
+                  onChange={(type: 'boolean' | 'string' | 'number') =>
                     this.updateMetadata({ type }, record.id)
                   }
                 >
                   <Select.Option value="boolean">Boolean</Select.Option>
                   <Select.Option value="string">String</Select.Option>
+                  <Select.Option value="number">Number</Select.Option>
                 </Select>
               )}
             />
@@ -104,7 +105,7 @@ export class RoomMetadata extends React.Component<
 
   private renderValue(
     value: string | boolean,
-    type: 'string' | 'boolean',
+    type: 'string' | 'boolean' | 'number',
     id: string,
   ) {
     if (type === 'boolean') {
@@ -113,6 +114,17 @@ export class RoomMetadata extends React.Component<
           checked={Boolean(value)}
           onChange={({ target }) =>
             this.updateMetadata({ value: target.checked }, id)
+          }
+        />
+      );
+    }
+    if (type === 'number') {
+      return (
+        <Input
+          type="number"
+          value={Number(value)}
+          onChange={({ target }) =>
+            this.updateMetadata({ value: target.value }, id)
           }
         />
       );

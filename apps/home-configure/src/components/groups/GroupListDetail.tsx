@@ -17,54 +17,16 @@ type tState = {
 };
 
 export class GroupListDetail extends React.Component<
-  { group: GroupDTO; onUpdate: (group: GroupDTO) => void },
+  { group: GroupDTO; onUpdate: (group: GroupDTO) => void; type?: 'inner' },
   tState
 > {
   override state = {} as tState;
 
   override render() {
-    return (
-      <Card title="Group Settings">
-        {this.props.group ? (
-          <>
-            <Typography.Title
-              level={3}
-              editable={{ onChange: async name => await this.rename(name) }}
-            >
-              {this.props.group.friendlyName}
-            </Typography.Title>
-            <Tabs type="card">
-              <Tabs.TabPane key="members" tab="Members">
-                <Card
-                  type="inner"
-                  key="entities"
-                  extra={
-                    <EntityModalPicker
-                      exclude={this.props.group.entities}
-                      domains={this.domainList()}
-                      onAdd={this.addEntities.bind(this)}
-                    />
-                  }
-                >
-                  {this.groupRendering()}
-                </Card>
-              </Tabs.TabPane>
-              <Tabs.TabPane key="save_states" tab="Save States">
-                <GroupSaveStates
-                  group={this.props.group}
-                  onGroupUpdate={this.props.onUpdate.bind(this)}
-                />
-              </Tabs.TabPane>
-              <Tabs.TabPane key="actions" tab="Actions">
-                {this.groupActions()}
-              </Tabs.TabPane>
-            </Tabs>
-          </>
-        ) : (
-          <Empty description="Pick a group" />
-        )}
-      </Card>
-    );
+    if (this.props.type === 'inner') {
+      return this.renderContents();
+    }
+    return <Card title="Group Settings">{this.renderContents()}</Card>;
   }
 
   private async addEntities(entities: string[]): Promise<void> {
@@ -174,6 +136,47 @@ export class GroupListDetail extends React.Component<
         method: 'put',
         url: `/group/${this.props.group._id}`,
       }),
+    );
+  }
+
+  private renderContents() {
+    return this.props.group ? (
+      <>
+        <Typography.Title
+          level={3}
+          editable={{ onChange: async name => await this.rename(name) }}
+        >
+          {this.props.group.friendlyName}
+        </Typography.Title>
+        <Tabs type="card">
+          <Tabs.TabPane key="members" tab="Members">
+            <Card
+              type="inner"
+              key="entities"
+              extra={
+                <EntityModalPicker
+                  exclude={this.props.group.entities}
+                  domains={this.domainList()}
+                  onAdd={this.addEntities.bind(this)}
+                />
+              }
+            >
+              {this.groupRendering()}
+            </Card>
+          </Tabs.TabPane>
+          <Tabs.TabPane key="save_states" tab="Save States">
+            <GroupSaveStates
+              group={this.props.group}
+              onGroupUpdate={this.props.onUpdate.bind(this)}
+            />
+          </Tabs.TabPane>
+          <Tabs.TabPane key="actions" tab="Actions">
+            {this.groupActions()}
+          </Tabs.TabPane>
+        </Tabs>
+      </>
+    ) : (
+      <Empty description="Pick a group" />
     );
   }
 }

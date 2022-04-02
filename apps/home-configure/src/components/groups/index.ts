@@ -3,6 +3,7 @@ export * from './GroupCreateButton';
 export * from './GroupList';
 export * from './GroupModalPicker';
 export * from './GroupSaveState';
+export * from './InspectButton';
 export * from './LightGroup';
 export * from './LockGroup';
 export * from './states';

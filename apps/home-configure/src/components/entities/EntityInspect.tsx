@@ -20,37 +20,13 @@ import { FanEntityCard } from './FanEntityCard';
 import { LightEntityCard } from './LightEntityCard';
 import { SwitchEntityCard } from './SwitchEntityCard';
 
-type tState = {
+export class EntityInspect extends React.Component<{
   entity: HassStateDTO;
-  entity_id: string;
   flags: string[];
-};
-
-export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
-  override state = { flags: [] } as tState;
-
-  public async load(entity_id: string): Promise<void> {
-    this.setState({ entity_id });
-    await Promise.all(
-      [
-        async () => {
-          const entity = await sendRequest<HassStateDTO>({
-            url: `/entity/id/${entity_id}`,
-          });
-          this.setState({ entity });
-        },
-        async () => {
-          const flags = await sendRequest<string[]>({
-            url: `/entity/flags/${entity_id}`,
-          });
-          this.setState({ flags });
-        },
-      ].map(async f => await f()),
-    );
-  }
-
+  onFlagsUpdate?: (flags: string[]) => void;
+}> {
   override render() {
-    return is.undefined(this.state?.entity) ? (
+    return is.undefined(this.props?.entity) ? (
       <Card>
         <Empty description="Select an entity" />
       </Card>
@@ -58,15 +34,15 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
       <Card
         title={
           <>
-            {this.state.entity.attributes.friendly_name}
+            {this.props.entity.attributes.friendly_name}
             <Typography.Text code style={{ marginLeft: '8px' }}>
-              {this.state.entity.entity_id}
+              {this.props.entity.entity_id}
             </Typography.Text>
           </>
         }
       >
         <SyntaxHighlighter language="yaml" style={atomDark}>
-          {dump(this.state.entity).trimEnd()}
+          {dump(this.props.entity).trimEnd()}
         </SyntaxHighlighter>
         <Divider orientation="left">Links</Divider>
         <Card
@@ -74,7 +50,7 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
           title="Related Routines"
           style={{ marginTop: '16px' }}
         >
-          <RelatedRoutines entity={this.state?.entity_id} />
+          <RelatedRoutines entity={this.props?.entity?.entity_id} />
         </Card>
         {this.editor()}
         {this.flags()}
@@ -83,7 +59,7 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
   }
 
   private editor() {
-    const { entity } = this.state;
+    const { entity } = this.props;
     switch (domain(entity.entity_id)) {
       case 'light':
         return (
@@ -112,7 +88,7 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
   }
 
   private flags() {
-    const { entity, flags } = this.state;
+    const { entity, flags } = this.props;
 
     return (
       <>
@@ -149,7 +125,7 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
             onChange={({ target }) =>
               this.toggleFlag('LIGHT_FORCE_CIRCADIAN', target.checked)
             }
-            checked={this.state.flags.includes('LIGHT_FORCE_CIRCADIAN')}
+            checked={this.props.flags.includes('LIGHT_FORCE_CIRCADIAN')}
           >
             Circadian Compatibility
           </Checkbox>
@@ -165,15 +141,19 @@ export class EntityInspect extends React.Component<{ prop?: unknown }, tState> {
       flags = await sendRequest<string[]>({
         body: { flag },
         method: 'post',
-        url: `/entity/flags/${this.state.entity.entity_id}`,
+        url: `/entity/flags/${this.props.entity.entity_id}`,
       });
-      this.setState({ flags });
+      if (this.props.onFlagsUpdate) {
+        this.props.onFlagsUpdate(flags);
+      }
       return;
     }
     flags = await sendRequest<string[]>({
       method: 'delete',
-      url: `/entity/flags/${this.state.entity.entity_id}/${flag}`,
+      url: `/entity/flags/${this.props.entity.entity_id}/${flag}`,
     });
-    this.setState({ flags });
+    if (this.props.onFlagsUpdate) {
+      this.props.onFlagsUpdate(flags);
+    }
   }
 }
