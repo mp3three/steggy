@@ -186,7 +186,7 @@ export class GroupStateEdit extends React.Component<
           />
         );
     }
-    return <Skeleton />;
+    return <Skeleton key={entity} />;
   }
 
   private entityUpdate(): void {

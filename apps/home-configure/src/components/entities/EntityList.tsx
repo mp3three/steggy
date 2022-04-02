@@ -1,4 +1,3 @@
-import { HassStateDTO } from '@automagical/home-assistant-shared';
 import {
   DOWN,
   INCREMENT,

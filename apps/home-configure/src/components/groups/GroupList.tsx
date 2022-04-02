@@ -24,7 +24,7 @@ export class GroupList extends React.Component {
     return (
       <Layout>
         <Content style={{ padding: '16px' }}>
-          <Row gutter={16}>
+          <Row gutter={8}>
             <Col span={12}>
               <Tabs type="card">
                 <Tabs.TabPane

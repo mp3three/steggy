@@ -28,11 +28,6 @@ export class EntityDetailDrawer extends React.Component<
   }
 
   override render() {
-    // const attributes = this.entity.attributes;
-    // const data = Object.keys(attributes).map(key => ({
-    //   key,
-    //   value: attributes[key],
-    // }));
     return (
       <>
         <Button onClick={() => this.setState({ visible: true })} type="text">

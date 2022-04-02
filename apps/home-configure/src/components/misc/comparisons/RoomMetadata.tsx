@@ -41,7 +41,7 @@ export class RoomMetadataComparison extends React.Component<
             value={this.props.comparison.room}
           >
             {this.state.rooms.map(room => (
-              <Select.Option value={room._id}>
+              <Select.Option value={room._id} key={room._id}>
                 {room.friendlyName}
               </Select.Option>
             ))}

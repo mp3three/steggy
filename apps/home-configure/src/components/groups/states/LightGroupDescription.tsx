@@ -21,7 +21,7 @@ export class LightGroupDescription extends React.Component<
           dataIndex="extra"
           render={(value: LightAttributesDTO) =>
             Object.keys(value).map(key => (
-              <Typography.Paragraph>
+              <Typography.Paragraph key={key}>
                 {TitleCase(key)}: {value[key]}
               </Typography.Paragraph>
             ))

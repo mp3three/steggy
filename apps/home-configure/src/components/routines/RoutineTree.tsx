@@ -14,8 +14,6 @@ import {
   Typography,
 } from 'antd';
 import { DataNode, EventDataNode } from 'antd/lib/tree';
-import { BaseType } from 'antd/lib/typography/Base';
-import { command } from 'execa';
 import type { NodeDragEventParams } from 'rc-tree/lib/contextTypes';
 import { Key } from 'rc-tree/lib/interface';
 import React from 'react';
@@ -135,7 +133,6 @@ export class RoutineTree extends React.Component<
   }
 
   private onSelect(selected: string[]): void {
-    console.log(selected);
     const [item] = selected;
     if (!item) {
       return;
