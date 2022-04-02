@@ -1,10 +1,19 @@
 import { GroupDTO } from '@automagical/controller-shared';
 import { is } from '@automagical/utilities';
-import { Button, Card, Empty, Space, Tabs, Typography } from 'antd';
+import {
+  Button,
+  Card,
+  Empty,
+  List,
+  Popconfirm,
+  Space,
+  Tabs,
+  Typography,
+} from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
-import { EntityModalPicker } from '../entities';
+import { EntityInspectButton, EntityModalPicker } from '../entities';
 import { RelatedRoutines } from '../routines';
 import { FanGroup } from './FanGroup';
 import { GroupSaveStates } from './GroupSaveState';
@@ -129,6 +138,17 @@ export class GroupListDetail extends React.Component<
     });
   }
 
+  private async removeEntity(entity_id: string): Promise<void> {
+    const group = await sendRequest<GroupDTO>({
+      body: {
+        entities: this.props.group.entities.filter(i => i !== entity_id),
+      } as Partial<GroupDTO>,
+      method: 'put',
+      url: `/group/${this.props.group._id}`,
+    });
+    this.props.onUpdate(group);
+  }
+
   private async rename(friendlyName: string) {
     this.props.onUpdate(
       await sendRequest({
@@ -140,6 +160,7 @@ export class GroupListDetail extends React.Component<
   }
 
   private renderContents() {
+    console.log(this.props.group);
     return this.props.group ? (
       <>
         <Typography.Title
@@ -161,7 +182,24 @@ export class GroupListDetail extends React.Component<
                 />
               }
             >
-              {this.groupRendering()}
+              <List
+                dataSource={this.props.group.entities ?? []}
+                renderItem={entity_id => (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={<EntityInspectButton entity_id={entity_id} />}
+                    />
+                    <Popconfirm
+                      title={`Are you sure you want to remove ${entity_id}?`}
+                      onConfirm={() => this.removeEntity(entity_id)}
+                    >
+                      <Button danger type="text">
+                        X
+                      </Button>
+                    </Popconfirm>
+                  </List.Item>
+                )}
+              />
             </Card>
           </Tabs.TabPane>
           <Tabs.TabPane key="save_states" tab="Save States">
