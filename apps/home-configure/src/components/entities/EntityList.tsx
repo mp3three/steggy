@@ -11,142 +11,140 @@ import { Button, Card, Col, Input, Layout, List, Row } from 'antd';
 import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
 import React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 import { EntityInspect } from './EntityInspect';
 
 type tState = {
   entities: string[];
-  entity: HassStateDTO;
+  entity_id: string;
   search: { text: string; value: string }[];
 };
 const TEMP_TEMPLATE_SIZE = 3;
 
-export const EntityList = withRouter(
-  class extends React.Component<RouteComponentProps, tState> {
-    override state = { entities: [], search: [] } as tState;
+export class EntityList extends React.Component {
+  override state = { entities: [], search: [] } as tState;
 
-    private inspect: EntityInspect;
+  private inspect: EntityInspect;
 
-    override async componentDidMount(): Promise<void> {
-      await this.refresh();
-    }
+  override async componentDidMount(): Promise<void> {
+    await this.refresh();
+  }
 
-    override render() {
-      return (
-        <Layout>
-          <Layout.Content style={{ padding: '16px' }}>
-            <Row style={{ width: '100%' }} gutter={8}>
-              <Col span={12}>
-                <Card
-                  title={
-                    <Input
-                      placeholder="Filter"
-                      onChange={({ target }) => this.updateSearch(target.value)}
-                    />
-                  }
-                >
-                  <List
-                    pagination={{ size: 'small' }}
-                    dataSource={this.state.search}
-                    renderItem={item => (
-                      <List.Item>
-                        <Button
-                          type={
-                            item.value !== this.state.entity?.entity_id
-                              ? 'text'
-                              : 'primary'
-                          }
-                          onClick={() => this.focus(item.value)}
-                        >
-                          {parse(item.text)}
-                        </Button>
-                      </List.Item>
-                    )}
+  override render() {
+    return (
+      <Layout>
+        <Layout.Content style={{ padding: '16px' }}>
+          <Row style={{ width: '100%' }} gutter={8}>
+            <Col span={12}>
+              <Card
+                title={
+                  <Input
+                    placeholder="Filter"
+                    onChange={({ target }) => this.updateSearch(target.value)}
                   />
-                </Card>
-              </Col>
-              <Col span={12}>
-                <EntityInspect ref={i => (this.inspect = i)} />
-              </Col>
-            </Row>
-          </Layout.Content>
-        </Layout>
-      );
-    }
+                }
+              >
+                <List
+                  pagination={{ size: 'small' }}
+                  dataSource={this.state.search}
+                  renderItem={item => (
+                    <List.Item>
+                      <Button
+                        type={
+                          item.value !== this.state.entity_id
+                            ? 'text'
+                            : 'primary'
+                        }
+                        onClick={() => this.focus(item.value)}
+                      >
+                        {parse(item.text)}
+                      </Button>
+                    </List.Item>
+                  )}
+                />
+              </Card>
+            </Col>
+            <Col span={12}>
+              <EntityInspect ref={i => (this.inspect = i)} />
+            </Col>
+          </Row>
+        </Layout.Content>
+      </Layout>
+    );
+  }
 
-    private async focus(entity_id: string) {
-      await this.inspect.load(entity_id);
-    }
+  private async focus(entity_id: string) {
+    this.setState({ entity_id });
+    await this.inspect.load(entity_id);
+  }
 
-    private highlight(result) {
-      const open = '{'.repeat(TEMP_TEMPLATE_SIZE);
-      const close = '}'.repeat(TEMP_TEMPLATE_SIZE);
-      let highlighted = '';
-      let matchesIndex = 0;
-      let opened = false;
-      const { target, indexes } = result;
-      for (let i = START; i < target.length; i++) {
-        const char = target[i];
-        if (indexes[matchesIndex] === i) {
-          matchesIndex++;
-          if (!opened) {
-            opened = true;
-            highlighted += open;
-          }
-          if (matchesIndex === indexes.length) {
-            highlighted += char + close + target.slice(i + INCREMENT);
-            break;
-          }
-          highlighted += char;
-          continue;
+  private highlight(result) {
+    const open = '{'.repeat(TEMP_TEMPLATE_SIZE);
+    const close = '}'.repeat(TEMP_TEMPLATE_SIZE);
+    let highlighted = '';
+    let matchesIndex = 0;
+    let opened = false;
+    const { target, indexes } = result;
+    for (let i = START; i < target.length; i++) {
+      const char = target[i];
+      if (indexes[matchesIndex] === i) {
+        matchesIndex++;
+        if (!opened) {
+          opened = true;
+          highlighted += open;
         }
-        if (opened) {
-          opened = false;
-          highlighted += close;
+        if (matchesIndex === indexes.length) {
+          highlighted += char + close + target.slice(i + INCREMENT);
+          break;
         }
         highlighted += char;
+        continue;
       }
-      return highlighted.replace(
-        new RegExp(`${open}(.*?)${close}`, 'g'),
-        i =>
-          `<span style="color:#F66">${i.slice(
-            TEMP_TEMPLATE_SIZE,
-            TEMP_TEMPLATE_SIZE * INVERT_VALUE,
-          )}</span>`,
-      );
-    }
-
-    private async refresh(): Promise<void> {
-      const entities = (await sendRequest<string[]>({ url: `/entity/list` }))
-        // .filter(i => domain(i) === 'light')
-        .sort((a, b) => (a > b ? UP : DOWN));
-      this.setState({
-        entities,
-        search: entities.map(i => ({ text: i, value: i })),
-      });
-    }
-
-    private updateSearch(searchText: string): void {
-      if (is.empty(searchText)) {
-        return this.setState({
-          search: this.state.entities.map(i => ({ text: i, value: i })),
-        });
+      if (opened) {
+        opened = false;
+        highlighted += close;
       }
-      const available = this.state.entities.map(text => ({ text }));
-      const fuzzyResult = fuzzy.go(searchText, available, {
-        key: 'text',
-      });
-      const search = fuzzyResult.map(result => {
-        const { target } = result;
-        const value = available.find(option => option.text === target);
-        return {
-          text: this.highlight(result),
-          value: value.text,
-        };
-      });
-      this.setState({ search });
+      highlighted += char;
     }
-  },
-);
+    return highlighted.replace(
+      new RegExp(`${open}(.*?)${close}`, 'g'),
+      i =>
+        `<span style="color:#F66">${i.slice(
+          TEMP_TEMPLATE_SIZE,
+          TEMP_TEMPLATE_SIZE * INVERT_VALUE,
+        )}</span>`,
+    );
+  }
+
+  private async refresh(): Promise<void> {
+    const entities = (await sendRequest<string[]>({ url: `/entity/list` }))
+      // .filter(i => domain(i) === 'light')
+      .sort((a, b) => (a > b ? UP : DOWN));
+    this.setState({
+      entities,
+      search: entities.map(i => ({ text: i, value: i })),
+    });
+  }
+
+  private updateSearch(searchText: string): void {
+    if (is.empty(searchText)) {
+      return this.setState({
+        search: this.state.entities.map(i => ({ text: i, value: i })),
+      });
+    }
+    const available = this.state.entities.map(text => ({ text }));
+    const fuzzyResult = fuzzy.go(searchText, available, {
+      key: 'text',
+    });
+    const search = fuzzyResult.map(result => {
+      const { target } = result;
+      const value = available.find(option => option.text === target);
+      return {
+        text: this.highlight(result),
+        value: value.text,
+      };
+    });
+    this.setState({ search });
+  }
+}

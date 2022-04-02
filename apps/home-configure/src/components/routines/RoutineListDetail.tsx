@@ -71,7 +71,6 @@ export class RoutineListDetail extends React.Component<
   override render() {
     return (
       <Card
-        type="inner"
         title="Quick Edit"
         extra={
           <>

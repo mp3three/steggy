@@ -24,7 +24,7 @@ export class GroupListDetail extends React.Component<
 
   override render() {
     return (
-      <Card type="inner" title="Group Settings">
+      <Card title="Group Settings">
         {this.props.group ? (
           <>
             <Typography.Title

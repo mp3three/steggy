@@ -17,7 +17,7 @@ export class RoomMetadata extends React.Component<
 
   override render() {
     return (
-      <Space direction="vertical" size="large">
+      <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <Card
           type="inner"
           title="Flags"

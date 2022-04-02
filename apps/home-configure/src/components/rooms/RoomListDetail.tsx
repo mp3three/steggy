@@ -19,7 +19,7 @@ export class RoomListDetail extends React.Component<
 
   override render() {
     return (
-      <Card title="Room details" type="inner">
+      <Card title="Room details">
         {!this.props.room ? (
           <Empty description="Select a room" />
         ) : (

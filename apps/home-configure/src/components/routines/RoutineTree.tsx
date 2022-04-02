@@ -69,7 +69,6 @@ export class RoutineTree extends React.Component<
     return (
       <Card
         title="Routine List"
-        type="inner"
         extra={
           <Popconfirm
             icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}

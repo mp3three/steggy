@@ -39,7 +39,6 @@ export class RoomList extends React.Component {
           <Row gutter={8}>
             <Col span={12}>
               <Card
-                type="inner"
                 title="All Rooms"
                 extra={
                   <Popconfirm
