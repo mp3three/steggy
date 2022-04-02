@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "composite": true,
     "outDir": "../../dist/out-tsc",
     "types": ["node"]
   },
@@ -18,5 +19,13 @@
     "**/*.spec.jsx",
     "**/*.test.jsx"
   ],
-  "include": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../../libs/boilerplate/**/*.ts",
+    "../../libs/persistence/**/*.ts",
+    "../../libs/controller-shared/**/*.ts",
+    "../../libs/utilities/**/*.ts",
+    "../../libs/home-assistant-shared/**/*.ts"
+  ]
 }

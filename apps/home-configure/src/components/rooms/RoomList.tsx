@@ -112,7 +112,10 @@ export class RoomList extends React.Component {
       <List.Item key={room._id}>
         <List.Item.Meta
           title={
-            <Button type="text" onClick={() => this.setState({ room })}>
+            <Button
+              type={this.state?.room?._id === room._id ? 'primary' : 'text'}
+              onClick={() => this.setState({ room })}
+            >
               {room.friendlyName}
             </Button>
           }

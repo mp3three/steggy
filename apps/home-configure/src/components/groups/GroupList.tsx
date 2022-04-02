@@ -1,32 +1,18 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import type {
-  GroupDTO,
-  GroupSaveStateDTO,
-} from '@automagical/controller-shared';
-import { DOWN, is, UP } from '@automagical/utilities';
-import {
-  Breadcrumb,
-  Button,
-  Card,
-  Col,
-  Empty,
-  Layout,
-  List,
-  Popconfirm,
-  Row,
-  Tooltip,
-  Typography,
-} from 'antd';
+import type { GroupDTO } from '@automagical/controller-shared';
+import { NOT_FOUND } from '@automagical/utilities';
+import { Button, Card, Col, Layout, List, Popconfirm, Row, Tabs } from 'antd';
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 import { GroupCreateButton } from './GroupCreateButton';
+import { GroupListDetail } from './GroupListDetail';
 
 const { Content } = Layout;
 
 export class GroupList extends React.Component {
-  override state: { groups: GroupDTO[] } = {
+  override state: { group: GroupDTO; groups: GroupDTO[] } = {
+    group: undefined,
     groups: [],
   };
 
@@ -38,96 +24,101 @@ export class GroupList extends React.Component {
     return (
       <Layout>
         <Content style={{ padding: '16px' }}>
-          <Breadcrumb>
-            <Breadcrumb.Item>
-              <Link to="/groups">Groups</Link>
-            </Breadcrumb.Item>
-          </Breadcrumb>
-          <Row style={{ margin: '16px 0 0 0' }} gutter={16}>
+          <Row gutter={16}>
             <Col span={12}>
-              <Card
-                title="Light Groups"
-                extra={
-                  <GroupCreateButton
-                    type="light"
-                    groupsUpdated={this.refresh.bind(this)}
-                  />
-                }
-              >
-                <List
-                  dataSource={this.filter('light')}
-                  pagination={{ size: 'small' }}
-                  renderItem={this.renderGroup.bind(this)}
-                ></List>
-              </Card>
+              <Tabs type="card">
+                <Tabs.TabPane
+                  key="light"
+                  tab={`Light Groups (${this.filter('light').length})`}
+                >
+                  <Card
+                    type="inner"
+                    extra={
+                      <GroupCreateButton
+                        type="light"
+                        onUpdate={this.refresh.bind(this)}
+                      />
+                    }
+                  >
+                    <List
+                      dataSource={this.filter('light')}
+                      pagination={{ size: 'small' }}
+                      renderItem={this.renderGroup.bind(this)}
+                    ></List>
+                  </Card>
+                </Tabs.TabPane>
+                <Tabs.TabPane
+                  key="switch"
+                  tab={`Switch Groups (${this.filter('switch').length})`}
+                >
+                  <Card
+                    type="inner"
+                    extra={
+                      <GroupCreateButton
+                        type="switch"
+                        onUpdate={this.refresh.bind(this)}
+                      />
+                    }
+                  >
+                    <List
+                      dataSource={this.filter('switch')}
+                      pagination={{ size: 'small' }}
+                      renderItem={this.renderGroup.bind(this)}
+                    ></List>
+                  </Card>
+                </Tabs.TabPane>
+                <Tabs.TabPane
+                  key="fan"
+                  tab={`Fan Groups (${this.filter('fan').length})`}
+                >
+                  <Card
+                    type="inner"
+                    extra={
+                      <GroupCreateButton
+                        type="fan"
+                        onUpdate={this.refresh.bind(this)}
+                      />
+                    }
+                  >
+                    <List
+                      dataSource={this.filter('fan')}
+                      pagination={{ size: 'small' }}
+                      renderItem={this.renderGroup.bind(this)}
+                    ></List>
+                  </Card>
+                </Tabs.TabPane>
+                <Tabs.TabPane
+                  key="lock"
+                  tab={`Lock Groups (${this.filter('lock').length})`}
+                >
+                  <Card
+                    type="inner"
+                    extra={
+                      <GroupCreateButton
+                        type="lock"
+                        onUpdate={this.refresh.bind(this)}
+                      />
+                    }
+                  >
+                    <List
+                      dataSource={this.filter('lock')}
+                      pagination={{ size: 'small' }}
+                      renderItem={this.renderGroup.bind(this)}
+                    ></List>
+                  </Card>
+                </Tabs.TabPane>
+              </Tabs>
             </Col>
             <Col span={12}>
-              <Card
-                title="Switch Groups"
-                extra={
-                  <GroupCreateButton
-                    type="switch"
-                    groupsUpdated={this.refresh.bind(this)}
-                  />
-                }
-              >
-                <List
-                  dataSource={this.filter('switch')}
-                  pagination={{ size: 'small' }}
-                  renderItem={this.renderGroup.bind(this)}
-                ></List>
-              </Card>
-            </Col>
-          </Row>
-          <Row style={{ margin: '16px 0 0 0' }} gutter={16}>
-            <Col span={12}>
-              <Card
-                title="Fan Groups"
-                extra={
-                  <GroupCreateButton
-                    type="fan"
-                    groupsUpdated={this.refresh.bind(this)}
-                  />
-                }
-              >
-                <List
-                  dataSource={this.filter('fan')}
-                  pagination={{ size: 'small' }}
-                  renderItem={this.renderGroup.bind(this)}
-                ></List>
-              </Card>
-            </Col>
-            <Col span={12}>
-              <Card
-                title="Lock Groups"
-                extra={
-                  <GroupCreateButton
-                    type="lock"
-                    groupsUpdated={this.refresh.bind(this)}
-                  />
-                }
-              >
-                <List
-                  dataSource={this.filter('lock')}
-                  pagination={{ size: 'small' }}
-                  renderItem={this.renderGroup.bind(this)}
-                ></List>
-              </Card>
+              <GroupListDetail
+                group={this.state.group}
+                onUpdate={this.refresh.bind(this)}
+              />
             </Col>
           </Row>
         </Content>
       </Layout>
     );
-  }
-
-  private async activateState(
-    group: GroupDTO,
-    state: GroupSaveStateDTO,
-  ): Promise<void> {
-    await sendRequest({
-      method: 'post',
-      url: `/group/${group._id}/state/${state.id}`,
-    });
   }
 
   private async deleteGroup(group: GroupDTO): Promise<void> {
@@ -142,7 +133,23 @@ export class GroupList extends React.Component {
     return this.state.groups.filter(group => group.type === type);
   }
 
-  private async refresh(): Promise<void> {
+  private async refresh(group?: GroupDTO): Promise<void> {
+    if (group) {
+      const index = this.state.groups.findIndex(({ _id }) => _id === group._id);
+      if (index === NOT_FOUND) {
+        this.setState({
+          groups: [...this.state.groups, group],
+        });
+        return;
+      }
+      this.setState({
+        group,
+        groups: this.state.groups.map(item =>
+          item._id === group._id ? group : item,
+        ),
+      });
+      return;
+    }
     const groups = await sendRequest<GroupDTO[]>({
       control: {
         sort: ['friendlyName'],
@@ -157,36 +164,12 @@ export class GroupList extends React.Component {
       <List.Item key={group._id}>
         <List.Item.Meta
           title={
-            <Tooltip
-              title={
-                is.empty(group.save_states) ? (
-                  <Empty description="No save states" />
-                ) : (
-                  <>
-                    <Typography.Title level={4} style={{ minWidth: '250px' }}>
-                      Save States
-                    </Typography.Title>
-                    <List
-                      dataSource={group.save_states.sort((a, b) =>
-                        a.friendlyName > b.friendlyName ? UP : DOWN,
-                      )}
-                      renderItem={item => (
-                        <List.Item style={{ padding: '4px 8px' }}>
-                          <Button
-                            type="primary"
-                            onClick={() => this.activateState(group, item)}
-                          >
-                            {item.friendlyName}
-                          </Button>
-                        </List.Item>
-                      )}
-                    />
-                  </>
-                )
-              }
+            <Button
+              type={this.state?.group?._id === group._id ? 'primary' : 'text'}
+              onClick={() => this.setGroup(group)}
             >
-              <Link to={`/group/${group._id}`}>{group.friendlyName}</Link>
-            </Tooltip>
+              {group.friendlyName}
+            </Button>
           }
         />
         <Popconfirm
@@ -200,5 +183,13 @@ export class GroupList extends React.Component {
         </Popconfirm>
       </List.Item>
     );
+  }
+
+  private async setGroup(group: GroupDTO): Promise<void> {
+    this.setState({
+      group: await sendRequest({
+        url: `/group/${group._id}`,
+      }),
+    });
   }
 }

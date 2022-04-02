@@ -8,14 +8,12 @@ import { DOWN, sleep, UP } from '@automagical/utilities';
 import {
   Button,
   Card,
-  Col,
   Form,
   FormInstance,
   Input,
   List,
   notification,
   Popconfirm,
-  Row,
   Space,
 } from 'antd';
 import React from 'react';
@@ -37,106 +35,102 @@ export class GroupSaveStates extends React.Component<
 
   override render() {
     return (
-      <Row gutter={8}>
-        <Col span={12}>
-          <Card
-            type="inner"
-            title="Save States"
-            key="states"
-            extra={
-              <Space>
-                <Popconfirm
-                  icon={
-                    <QuestionCircleOutlined style={{ visibility: 'hidden' }} />
-                  }
-                  onConfirm={this.validateCapture.bind(this)}
-                  title={
-                    <Form
-                      onFinish={this.validateCapture.bind(this)}
-                      ref={form => (this.captureForm = form)}
+      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+        <Card
+          type="inner"
+          title="Save States"
+          key="states"
+          extra={
+            <Space>
+              <Popconfirm
+                icon={
+                  <QuestionCircleOutlined style={{ visibility: 'hidden' }} />
+                }
+                onConfirm={this.validateCapture.bind(this)}
+                title={
+                  <Form
+                    onFinish={this.validateCapture.bind(this)}
+                    ref={form => (this.captureForm = form)}
+                  >
+                    <Form.Item
+                      label="Friendly Name"
+                      name="friendlyName"
+                      rules={[{ required: true }]}
                     >
-                      <Form.Item
-                        label="Friendly Name"
-                        name="friendlyName"
-                        rules={[{ required: true }]}
-                      >
-                        <Input />
-                      </Form.Item>
-                    </Form>
+                      <Input />
+                    </Form.Item>
+                  </Form>
+                }
+              >
+                <Button size="small" icon={<CameraOutlined />}>
+                  Capture current
+                </Button>
+              </Popconfirm>
+              <Popconfirm
+                icon={
+                  <QuestionCircleOutlined style={{ visibility: 'hidden' }} />
+                }
+                onConfirm={this.validateCreate.bind(this)}
+                title={
+                  <Form
+                    onFinish={this.validateCreate.bind(this)}
+                    ref={form => (this.createForm = form)}
+                  >
+                    <Form.Item
+                      label="Friendly Name"
+                      name="friendlyName"
+                      rules={[{ required: true }]}
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Form>
+                }
+              >
+                <Button size="small" icon={<FolderAddOutlined />}>
+                  Create new
+                </Button>
+              </Popconfirm>
+            </Space>
+          }
+        >
+          <List
+            dataSource={this.props.group.save_states.sort((a, b) =>
+              a.friendlyName > b.friendlyName ? UP : DOWN,
+            )}
+            renderItem={record => (
+              <List.Item>
+                <List.Item.Meta
+                  title={
+                    <GroupStateEdit
+                      onUpdate={group => this.props.onGroupUpdate(group)}
+                      group={this.props.group}
+                      state={record}
+                    />
                   }
+                />
+                <Button
+                  onClick={() => this.activateState(record)}
+                  type="primary"
                 >
-                  <Button size="small" icon={<CameraOutlined />}>
-                    Capture current
+                  Activate
+                </Button>
+                <Popconfirm
+                  icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                  title={`Are you sure you want to delete ${record.friendlyName}`}
+                  onConfirm={() => this.removeState(record)}
+                >
+                  <Button danger type="text">
+                    X
                   </Button>
                 </Popconfirm>
-                <Popconfirm
-                  icon={
-                    <QuestionCircleOutlined style={{ visibility: 'hidden' }} />
-                  }
-                  onConfirm={this.validateCreate.bind(this)}
-                  title={
-                    <Form
-                      onFinish={this.validateCreate.bind(this)}
-                      ref={form => (this.createForm = form)}
-                    >
-                      <Form.Item
-                        label="Friendly Name"
-                        name="friendlyName"
-                        rules={[{ required: true }]}
-                      >
-                        <Input />
-                      </Form.Item>
-                    </Form>
-                  }
-                >
-                  <Button size="small" icon={<FolderAddOutlined />}>
-                    Create new
-                  </Button>
-                </Popconfirm>
-              </Space>
-            }
-          >
-            <List
-              dataSource={this.props.group.save_states.sort((a, b) =>
-                a.friendlyName > b.friendlyName ? UP : DOWN,
-              )}
-              renderItem={record => (
-                <List.Item>
-                  <List.Item.Meta
-                    title={
-                      <GroupStateEdit
-                        onUpdate={group => this.props.onGroupUpdate(group)}
-                        group={this.props.group}
-                        state={record}
-                      />
-                    }
-                  />
-                  <Button
-                    onClick={() => this.activateState(record)}
-                    type="primary"
-                  >
-                    Activate
-                  </Button>
-                  <Popconfirm
-                    icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-                    title={`Are you sure you want to delete ${record.friendlyName}`}
-                    onConfirm={() => this.removeState(record)}
-                  >
-                    <Button danger type="text">
-                      X
-                    </Button>
-                  </Popconfirm>
-                </List.Item>
-              )}
-            />
-          </Card>
-        </Col>
-        <Col span={12}>
-          <Card type="inner" title="Related Routines">
-            <RelatedRoutines groupState={this.props.group} />
-          </Card>
-        </Col>
-      </Row>
+              </List.Item>
+            )}
+          />
+        </Card>
+        <Card type="inner" title="Related Routines">
+          <RelatedRoutines groupState={this.props.group} />
+        </Card>
+      </Space>
     );
   }
 

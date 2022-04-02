@@ -8,7 +8,7 @@ import { store } from '../../store';
 import { sendRequest } from '../../types';
 import { EntityList } from '../entities';
 import { Foot } from '../footer';
-import { GroupDetail, GroupList } from '../groups';
+import { GroupList } from '../groups';
 import { HomePage } from '../home';
 import { ApplicationMenu } from '../menu';
 import { RoomList } from '../rooms';
@@ -46,7 +46,6 @@ export class App extends React.Component {
                   <Route path="/entities" component={EntityList} />
                   <Route path="/routines" component={RoutineList} />
                   <Route path="/rooms" component={RoomList} />
-                  <Route path="/group/:id" component={GroupDetail} />
                   <Route path="/groups" component={GroupList} />
                   <Route path="/settings" component={SettingsPage} />
                   <Route path="/" component={HomePage} />
