@@ -15,11 +15,7 @@ import React from 'react';
 import { sendRequest } from '../../types';
 import { EntityInspectButton, EntityModalPicker } from '../entities';
 import { RelatedRoutines } from '../routines';
-import { FanGroup } from './FanGroup';
 import { GroupSaveStates } from './GroupSaveState';
-import { LightGroup } from './LightGroup';
-import { LockGroup } from './LockGroup';
-import { SwitchGroup } from './SwitchGroup';
 
 type tState = {
   name: string;
@@ -98,39 +94,6 @@ export class GroupListDetail extends React.Component<
     return <Empty description="No special actions for group" />;
   }
 
-  private groupRendering() {
-    if (this.props.group.type === 'light') {
-      return (
-        <LightGroup
-          group={this.props.group}
-          groupUpdate={this.props.onUpdate.bind(this)}
-        />
-      );
-    }
-    if (this.props.group.type === 'fan') {
-      return (
-        <FanGroup
-          group={this.props.group}
-          groupUpdate={this.props.onUpdate.bind(this)}
-        />
-      );
-    }
-    if (this.props.group.type === 'lock') {
-      return (
-        <LockGroup
-          group={this.props.group}
-          groupUpdate={this.props.onUpdate.bind(this)}
-        />
-      );
-    }
-    return (
-      <SwitchGroup
-        group={this.props.group}
-        groupUpdate={this.props.onUpdate.bind(this)}
-      />
-    );
-  }
-
   private async lightCommand(command: string): Promise<void> {
     await sendRequest({
       method: 'put',
@@ -160,7 +123,6 @@ export class GroupListDetail extends React.Component<
   }
 
   private renderContents() {
-    console.log(this.props.group);
     return this.props.group ? (
       <>
         <Typography.Title

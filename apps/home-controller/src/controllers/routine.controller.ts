@@ -243,6 +243,7 @@ export class RoutineController {
       throw new NotFoundException();
     }
     const updated = {
+      ...routine.command[index],
       ...command,
       id: commandId,
     };

@@ -1,24 +1,11 @@
-import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import {
   CloseOutlined,
   MenuOutlined,
   QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { RoutineCommandDTO, RoutineDTO } from '@automagical/controller-shared';
-import { is, TitleCase } from '@automagical/utilities';
-import {
-  Button,
-  Card,
-  Form,
-  FormInstance,
-  List,
-  Popconfirm,
-  Select,
-  Space,
-  Table,
-  Typography,
-} from 'antd';
-import PropTypes from 'prop-types';
+import { ARRAY_OFFSET, is, TitleCase } from '@automagical/utilities';
+import { Button, Card, List, Popconfirm, Space, Table } from 'antd';
 import React from 'react';
 import {
   SortableContainer,
@@ -28,6 +15,7 @@ import {
 
 import { sendRequest } from '../../../types';
 import { RoutineCommandDrawer } from '../RoutineCommandDrawer';
+import { CommandAdd } from './CommandAdd';
 
 const DragHandle = SortableHandle(() => (
   <MenuOutlined style={{ color: '#999', cursor: 'grab' }} />
@@ -47,16 +35,16 @@ function array_move<T>(array: T[], old_index: number, new_index: number): T[] {
   array.splice(new_index, 0, array.splice(old_index, 1)[0]);
   return array; // for testing
 }
+type tState = { command?: RoutineCommandDTO };
 
-export class CommandList extends React.Component<{
-  onUpdate: (routine: RoutineDTO) => void;
-  routine: RoutineDTO;
-}> {
-  static propTypes = {
-    id: PropTypes.string,
-  };
-  private commandCreateForm: FormInstance;
-  private commandDrawer: RoutineCommandDrawer;
+export class CommandList extends React.Component<
+  {
+    onUpdate: (routine: RoutineDTO) => void;
+    routine: RoutineDTO;
+  },
+  tState
+> {
+  override state = {} as tState;
 
   private get id() {
     return this.props.routine._id;
@@ -67,61 +55,17 @@ export class CommandList extends React.Component<{
       <>
         <RoutineCommandDrawer
           routine={this.props.routine}
-          onUpdate={routine => this.props.onUpdate(routine)}
-          ref={i => (this.commandDrawer = i)}
+          onComplete={() => this.setState({ command: undefined })}
+          onUpdate={routine => this.updateCommand(routine)}
+          command={this.state.command}
         />
         <Card
           type="inner"
           extra={
-            <Popconfirm
-              onConfirm={this.validateCommand.bind(this)}
-              icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
-              title={
-                <Form
-                  onFinish={this.validateCommand.bind(this)}
-                  ref={form => (this.commandCreateForm = form)}
-                >
-                  <Form.Item
-                    label="Type"
-                    name="type"
-                    rules={[{ required: true }]}
-                  >
-                    <Select style={{ width: '200px' }} defaultActiveFirstOption>
-                      <Select.Option value="entity_state">
-                        Entity State
-                      </Select.Option>
-                      <Select.Option value="group_state">
-                        Group State
-                      </Select.Option>
-                      <Select.Option value="group_action">
-                        Group Action
-                      </Select.Option>
-                      <Select.Option value="room_state">
-                        Room State
-                      </Select.Option>
-                      <Select.Option value="send_notification">
-                        Send Notification
-                      </Select.Option>
-                      <Select.Option value="sleep">Sleep</Select.Option>
-                      <Select.Option value="stop_processing">
-                        Stop Processing
-                      </Select.Option>
-                      <Select.Option value="trigger_routine">
-                        Trigger Routine
-                      </Select.Option>
-                      <Select.Option value="webhook">Webhook</Select.Option>
-                      <Select.Option value="set_room_metadata">
-                        Set Room Metadata
-                      </Select.Option>
-                    </Select>
-                  </Form.Item>
-                </Form>
-              }
-            >
-              <Button size="small" icon={<PlusBoxMultiple />}>
-                Add new
-              </Button>
-            </Popconfirm>
+            <CommandAdd
+              routine={this.props.routine}
+              onCreate={routine => this.addCommand(routine)}
+            />
           }
         >
           {this.props.routine.sync ? (
@@ -146,25 +90,10 @@ export class CommandList extends React.Component<{
                 title="Friendly Name"
                 dataIndex="friendlyName"
                 render={(item, record: RoutineCommandDTO) => (
-                  <Space onClick={() => this.commandDrawer.load(record)}>
+                  <Space onClick={() => this.setState({ command: record })}>
                     <List.Item.Meta
                       style={{ minWidth: '250px' }}
-                      title={
-                        <Typography.Text
-                          onClick={e => e.stopPropagation()}
-                          style={{
-                            minWidth: '250px',
-                            whiteSpace: 'nowrap',
-                            width: '100%',
-                          }}
-                          editable={{
-                            onChange: value =>
-                              this.renameCommand(record, value),
-                          }}
-                        >
-                          {record.friendlyName}
-                        </Typography.Text>
-                      }
+                      title={record.friendlyName}
                       description={TitleCase(record.type)}
                     />
                   </Space>
@@ -199,19 +128,10 @@ export class CommandList extends React.Component<{
               renderItem={item => (
                 <List.Item
                   key={item.id}
-                  onClick={() => this.commandDrawer.load(item)}
+                  onClick={() => this.setState({ command: item })}
                 >
                   <List.Item.Meta
-                    title={
-                      <Typography.Text
-                        onClick={e => e.stopPropagation()}
-                        editable={{
-                          onChange: value => this.renameCommand(item, value),
-                        }}
-                      >
-                        {item.friendlyName}
-                      </Typography.Text>
-                    }
+                    title={item.friendlyName}
                     description={TitleCase(item.type)}
                   />
                   <Popconfirm
@@ -237,6 +157,12 @@ export class CommandList extends React.Component<{
         </Card>
       </>
     );
+  }
+
+  private addCommand(routine: RoutineDTO): void {
+    const command = routine.command[routine.command.length - ARRAY_OFFSET];
+    this.setState({ command });
+    this.props.onUpdate(routine);
   }
 
   private async deleteCommand(item: RoutineCommandDTO): Promise<void> {
@@ -281,35 +207,17 @@ export class CommandList extends React.Component<{
     this.props.onUpdate(routine);
   }
 
-  private async renameCommand(
-    command: RoutineCommandDTO,
-    friendlyName: string,
+  private async updateCommand(
+    command: Partial<RoutineCommandDTO>,
   ): Promise<void> {
-    const { routine } = this.props;
     const updated = await sendRequest<RoutineDTO>({
-      body: {
-        command: routine.command.map(i =>
-          i.id === command.id
-            ? {
-                ...command,
-                friendlyName,
-              }
-            : i,
-        ),
-      },
+      body: command,
       method: 'put',
-      url: `/routine/${routine._id}`,
+      url: `/routine/${this.props.routine._id}/command/${this.state.command.id}`,
+    });
+    this.setState({
+      command: updated.command.find(({ id }) => id === this.state.command.id),
     });
     this.props.onUpdate(updated);
-  }
-
-  private async validateCommand(): Promise<void> {
-    try {
-      const values = await this.commandCreateForm.validateFields();
-      values.friendlyName = `${TitleCase(values.type)} action`;
-      this.commandDrawer.load(values as RoutineCommandDTO);
-    } catch (error) {
-      console.error(error);
-    }
   }
 }

@@ -1,3 +1,4 @@
+export * from './CommandAdd';
 export * from './CommandList';
 export * from './EntityStateCommand';
 export * from './GroupActionCommand';

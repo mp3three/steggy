@@ -2,7 +2,16 @@ import {
   RoomDTO,
   SetRoomMetadataCommandDTO,
 } from '@automagical/controller-shared';
-import { Checkbox, Form, Input, Select, Skeleton, Space } from 'antd';
+import { is } from '@automagical/utilities';
+import {
+  Checkbox,
+  Form,
+  Input,
+  Select,
+  Skeleton,
+  Space,
+  Typography,
+} from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../../types';
@@ -47,16 +56,22 @@ export class RoomSetMetadataCommand extends React.Component<
         </Form.Item>
         <Form.Item label="Property">
           {this.room ? (
-            <Select
-              value={this.props.command?.name}
-              onChange={name => this.props.onUpdate({ name })}
-            >
-              {(this.room.metadata ?? []).map(state => (
-                <Select.Option key={state.id} value={state.name}>
-                  {state.name}
-                </Select.Option>
-              ))}
-            </Select>
+            is.empty(this.room.metadata) ? (
+              <Typography.Text type="warning">
+                Room does not have metadata
+              </Typography.Text>
+            ) : (
+              <Select
+                value={this.props.command?.name}
+                onChange={name => this.props.onUpdate({ name })}
+              >
+                {(this.room.metadata ?? []).map(state => (
+                  <Select.Option key={state.id} value={state.name}>
+                    {state.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            )
           ) : (
             <Skeleton.Input style={{ width: '200px' }} active />
           )}
@@ -78,7 +93,7 @@ export class RoomSetMetadataCommand extends React.Component<
   }
 
   private renderValue() {
-    if (!this.room) {
+    if (!this.room || is.empty(this.room.metadata)) {
       return <Skeleton.Input active />;
     }
     const metadata = this.room.metadata.find(

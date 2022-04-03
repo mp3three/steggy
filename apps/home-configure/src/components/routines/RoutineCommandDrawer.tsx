@@ -1,5 +1,3 @@
-import Cancel from '@2fd/ant-design-icons/lib/Cancel';
-import ContentSave from '@2fd/ant-design-icons/lib/ContentSave';
 import DebugStepInto from '@2fd/ant-design-icons/lib/DebugStepInto';
 import {
   RoomEntitySaveStateDTO,
@@ -43,25 +41,15 @@ import {
 import { RoomSetMetadataCommand } from './command/RoomSetMetadata';
 import { WebhookCommand } from './command/WebhookCommand';
 
-type tState = {
+export class RoutineCommandDrawer extends React.Component<{
   command?: RoutineCommandDTO;
-  name: string;
-  visible?: boolean;
-};
-
-export class RoutineCommandDrawer extends React.Component<
-  {
-    command?: RoutineCommandDTO;
-    onUpdate: (routine: RoutineDTO) => void;
-    routine: RoutineDTO;
-  },
-  tState
-> {
+  onComplete: () => void;
+  onUpdate: (command: Partial<RoutineCommandDTO>) => void;
+  routine: RoutineDTO;
+}> {
   private get type() {
-    return this.state.command.type;
+    return this.props.command.type;
   }
-
-  override state = {} as tState;
 
   override componentDidMount(): void {
     if (this.props.command) {
@@ -81,7 +69,7 @@ export class RoutineCommandDrawer extends React.Component<
   }
 
   override render() {
-    if (!this.state.command) {
+    if (!this.props.command) {
       return (
         <Drawer visible={false}>
           <Spin />
@@ -90,14 +78,16 @@ export class RoutineCommandDrawer extends React.Component<
     }
     return (
       <Drawer
-        visible={this.state.visible}
-        onClose={() => this.setState({ visible: false })}
+        visible={is.object(this.props.command)}
+        onClose={() => this.props.onComplete()}
         size="large"
         title={
           <Typography.Text
-            editable={{ onChange: name => this.setState({ name }) }}
+            editable={{
+              onChange: friendlyName => this.props.onUpdate({ friendlyName }),
+            }}
           >
-            {this.state.name}
+            {this.props.command.friendlyName}
           </Typography.Text>
         }
         extra={
@@ -106,22 +96,9 @@ export class RoutineCommandDrawer extends React.Component<
               type="dashed"
               icon={<DebugStepInto />}
               onClick={this.testCommand.bind(this)}
-              disabled={is.undefined(this.state?.command?.id)}
+              disabled={is.undefined(this.props?.command?.id)}
             >
               Test command
-            </Button>
-            <Button
-              type="primary"
-              onClick={this.save.bind(this)}
-              icon={<ContentSave />}
-            >
-              Save
-            </Button>
-            <Button
-              icon={<Cancel />}
-              onClick={() => this.setState({ visible: false })}
-            >
-              Cancel
             </Button>
           </Space>
         }
@@ -133,15 +110,14 @@ export class RoutineCommandDrawer extends React.Component<
     );
   }
 
-  private onUpdate(cmd): void {
-    const command = {
-      ...this.state.command,
+  private onUpdate(command): void {
+    this.props.onUpdate({
+      ...this.props.command,
       command: {
-        ...this.state.command.command,
-        ...cmd,
+        ...this.props.command.command,
+        ...command,
       },
-    };
-    this.setState({ command });
+    });
   }
 
   private renderType() {
@@ -151,7 +127,7 @@ export class RoutineCommandDrawer extends React.Component<
           <StopProcessingCommand
             onUpdate={this.onUpdate.bind(this)}
             command={
-              this.state.command.command as RoutineCommandStopProcessingDTO
+              this.props.command.command as RoutineCommandStopProcessingDTO
             }
           />
         );
@@ -159,35 +135,35 @@ export class RoutineCommandDrawer extends React.Component<
         return (
           <RoomSetMetadataCommand
             onUpdate={this.onUpdate.bind(this)}
-            command={this.state.command.command as SetRoomMetadataCommandDTO}
+            command={this.props.command.command as SetRoomMetadataCommandDTO}
           />
         );
       case 'entity_state':
         return (
           <EntityStateCommand
             onUpdate={this.onUpdate.bind(this)}
-            command={this.state.command.command as RoomEntitySaveStateDTO}
+            command={this.props.command.command as RoomEntitySaveStateDTO}
           />
         );
       case 'group_action':
         return (
           <GroupActionCommand
             onUpdate={this.onUpdate.bind(this)}
-            command={this.state.command.command as RoutineCommandGroupActionDTO}
+            command={this.props.command.command as RoutineCommandGroupActionDTO}
           />
         );
       case 'group_state':
         return (
           <GroupStateCommand
             onUpdate={this.onUpdate.bind(this)}
-            command={this.state.command.command as RoutineCommandGroupStateDTO}
+            command={this.props.command.command as RoutineCommandGroupStateDTO}
           />
         );
       case 'room_state':
         return (
           <RoomStateCommand
             onUpdate={this.onUpdate.bind(this)}
-            command={this.state.command.command as RoutineCommandRoomStateDTO}
+            command={this.props.command.command as RoutineCommandRoomStateDTO}
           />
         );
       case 'send_notification':
@@ -195,7 +171,7 @@ export class RoutineCommandDrawer extends React.Component<
           <SendNotificationCommand
             onUpdate={this.onUpdate.bind(this)}
             command={
-              this.state.command.command as RoutineCommandSendNotificationDTO
+              this.props.command.command as RoutineCommandSendNotificationDTO
             }
           />
         );
@@ -203,7 +179,7 @@ export class RoutineCommandDrawer extends React.Component<
         return (
           <SleepCommand
             onUpdate={this.onUpdate.bind(this)}
-            command={this.state.command.command as RoutineCommandSleepDTO}
+            command={this.props.command.command as RoutineCommandSleepDTO}
           />
         );
       case 'trigger_routine':
@@ -211,7 +187,7 @@ export class RoutineCommandDrawer extends React.Component<
           <TriggerRoutineCommand
             onUpdate={this.onUpdate.bind(this)}
             command={
-              this.state.command.command as RoutineCommandTriggerRoutineDTO
+              this.props.command.command as RoutineCommandTriggerRoutineDTO
             }
           />
         );
@@ -219,48 +195,15 @@ export class RoutineCommandDrawer extends React.Component<
         return (
           <WebhookCommand
             onUpdate={this.onUpdate.bind(this)}
-            command={this.state.command.command as RoutineCommandWebhookDTO}
+            command={this.props.command.command as RoutineCommandWebhookDTO}
           />
         );
     }
     return <Skeleton />;
   }
 
-  private async save(): Promise<void> {
-    const { id, type, command } = this.state.command;
-    if (!this.state.command) {
-      notification.error({
-        message: 'Invalid ',
-      });
-      return;
-    }
-    const routine = is.empty(id)
-      ? await sendRequest<RoutineDTO>({
-          body: {
-            command,
-            friendlyName: this.state.name,
-            type,
-          },
-          method: 'post',
-          url: `/routine/${this.props.routine._id}/command`,
-        })
-      : await sendRequest<RoutineDTO>({
-          body: {
-            command,
-            friendlyName: this.state.name,
-            id,
-            type,
-          },
-          method: 'put',
-          url: `/routine/${this.props.routine._id}/command/${id}`,
-        });
-
-    this.props.onUpdate(routine);
-    this.setState({ visible: false });
-  }
-
   private async testCommand(): Promise<void> {
-    const { id } = this.state.command;
+    const { id } = this.props.command;
     if (!id) {
       notification.error({
         message: 'Save command first',
