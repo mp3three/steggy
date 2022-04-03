@@ -118,6 +118,9 @@ export class JSONFilterService {
     if (is.number(value)) {
       return value;
     }
+    if (is.undefined(value)) {
+      return Number.NaN;
+    }
     if (is.string(value)) {
       if (isNumberString(value)) {
         return Number(value);

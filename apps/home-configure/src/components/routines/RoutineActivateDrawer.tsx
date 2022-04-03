@@ -74,10 +74,10 @@ export class RoutineActivateDrawer extends React.Component<{
     if (this.props.activate.type === 'state_change') {
       return (
         <RoutineActivateStateChange
+          activate={this.props.activate.activate as StateChangeActivateDTO}
           onUpdate={activate =>
             this.updateActivate(activate as Partial<StateChangeActivateDTO>)
           }
-          activate={this.props.activate.activate as StateChangeActivateDTO}
         />
       );
     }
@@ -85,6 +85,9 @@ export class RoutineActivateDrawer extends React.Component<{
       return (
         <RoutineActivateSolar
           activate={this.props.activate.activate as SolarActivateDTO}
+          onUpdate={activate =>
+            this.updateActivate(activate as Partial<SolarActivateDTO>)
+          }
         />
       );
     }
@@ -92,6 +95,9 @@ export class RoutineActivateDrawer extends React.Component<{
       return (
         <RoutineActivateKunami
           activate={this.props.activate.activate as KunamiCodeActivateDTO}
+          onUpdate={activate =>
+            this.updateActivate(activate as Partial<KunamiCodeActivateDTO>)
+          }
         />
       );
     }

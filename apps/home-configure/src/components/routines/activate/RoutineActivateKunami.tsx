@@ -20,19 +20,17 @@ import { FuzzySelect } from '../../misc';
 
 type tState = {
   entityList: string[];
-  event?: string;
   isRecording?: boolean;
-  match: string[];
-  name?: string;
   recordLabel?: string;
   recordProgress?: number;
   recordSeconds: number;
-  reset?: 'self' | 'sensor';
-  sensor: string;
 };
 
 export class RoutineActivateKunami extends React.Component<
-  { activate?: KunamiCodeActivateDTO },
+  {
+    activate: KunamiCodeActivateDTO;
+    onUpdate: (activate: Partial<KunamiCodeActivateDTO>) => void;
+  },
   tState
 > {
   override state = {
@@ -46,24 +44,6 @@ export class RoutineActivateKunami extends React.Component<
 
   override async componentDidMount(): Promise<void> {
     await this.entityList();
-    if (this.props.activate) {
-      this.load(this.props.activate);
-    }
-  }
-
-  public getValue(): KunamiCodeActivateDTO {
-    if (is.empty(this.state.sensor) || is.empty(this.state.match)) {
-      return undefined;
-    }
-    return {
-      match: this.state.match,
-      reset: this.state.reset,
-      sensor: this.state.sensor,
-    };
-  }
-
-  public load(activate: KunamiCodeActivateDTO): void {
-    this.setState(activate);
   }
 
   override render() {
@@ -71,16 +51,18 @@ export class RoutineActivateKunami extends React.Component<
       <>
         <Form.Item label="Listen entity" rules={[{ required: true }]}>
           <FuzzySelect
-            onChange={sensor => this.setState({ sensor })}
-            value={this.state.sensor}
+            onChange={sensor => this.props.onUpdate({ sensor })}
+            value={this.props.activate?.sensor}
             data={this.state.entityList.map(id => ({ text: id, value: id }))}
           />
         </Form.Item>
         <Form.Item label="Reset" rules={[{ required: true }]}>
           <Radio.Group
             buttonStyle="solid"
-            value={this.state.reset || 'none'}
-            onChange={({ target }) => this.setState({ reset: target.value })}
+            value={this.props.activate?.reset || 'none'}
+            onChange={({ target }) =>
+              this.props.onUpdate({ reset: target.value })
+            }
           >
             <Radio.Button value="none">None</Radio.Button>
             <Radio.Button value="self">Self</Radio.Button>
@@ -92,9 +74,9 @@ export class RoutineActivateKunami extends React.Component<
           <Col span={16}>
             <Form.Item label="States">
               <Input.TextArea
-                value={this.state.match.join(`\n`)}
+                value={(this.props.activate?.match ?? []).join(`\n`)}
                 onChange={e =>
-                  this.setState({
+                  this.props.onUpdate({
                     match: e.target.value.split(`\n`),
                   })
                 }
@@ -145,13 +127,14 @@ export class RoutineActivateKunami extends React.Component<
   }
 
   private async record(): Promise<void> {
-    if (is.empty(this.state.sensor)) {
+    if (is.empty(this.props.activate?.sensor)) {
       notification.error({
         message: `Select an entity!`,
       });
       return;
     }
-    const { recordSeconds, sensor } = this.state;
+    const { sensor } = this.props.activate;
+    const { recordSeconds } = this.state;
     await Promise.all([
       (async () => {
         const steps = recordSeconds * 10;
@@ -172,8 +155,7 @@ export class RoutineActivateKunami extends React.Component<
           method: 'post',
           url: `/entity/record/${sensor}`,
         });
-        console.log(match);
-        this.setState({ match });
+        this.props.onUpdate({ match });
       })(),
     ]);
     this.setState({ isRecording: false });

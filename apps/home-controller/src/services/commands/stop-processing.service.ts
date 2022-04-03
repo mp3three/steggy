@@ -17,7 +17,7 @@ import {
   EntityManagerService,
   HASocketAPIService,
 } from '@automagical/home-assistant';
-import { eachSeries } from '@automagical/utilities';
+import { eachSeries, is } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
 import { parse } from 'chrono-node';
 import dayjs from 'dayjs';
@@ -152,6 +152,12 @@ export class StopProcessingCommandService {
 
   private stateComparison(comparison: RoutineStateComparisonDTO): boolean {
     const entity = this.entityManager.getEntity(comparison.entity_id);
+    if (is.undefined(entity)) {
+      this.logger.error(
+        `Failed to load {${comparison.entity_id}} for state comparison`,
+      );
+      return false;
+    }
     return this.filterService.match(
       { state: entity.state },
       { field: 'state', ...comparison },

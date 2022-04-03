@@ -45,7 +45,7 @@ export class StopProcessingCommand extends React.Component<
           <Radio.Group
             buttonStyle="solid"
             disabled={this.props.disabled}
-            value={this.props.command?.mode}
+            value={this.props.command?.mode ?? 'any'}
             onChange={({ target }) =>
               this.props.onUpdate({ mode: target.value })
             }

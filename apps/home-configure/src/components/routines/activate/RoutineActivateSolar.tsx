@@ -1,9 +1,10 @@
+import Information from '@2fd/ant-design-icons/lib/Information';
 import { SolarActivateDTO } from '@automagical/controller-shared';
-import { DOWN, is, UP } from '@automagical/utilities';
-import { Form, Select } from 'antd';
+import { DOWN, UP } from '@automagical/utilities';
+import { Button, List, Tooltip, Typography } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
-import type SolarCalcType from 'solar-calc/types/solarCalc';
+import SolarCalc from 'solar-calc/types/solarCalc';
 
 import { sendRequest } from '../../../types';
 
@@ -14,7 +15,6 @@ type tState = {
   civilDusk?: string;
   dawn?: string;
   dusk?: string;
-  event?: string;
   goldenHourEnd?: string;
   goldenHourStart?: string;
   name: string;
@@ -44,69 +44,82 @@ const LABELS = new Map([
   ['sunriseEnd', 'Sunrise End'],
   ['sunset', 'Sunset'],
   ['sunsetStart', 'Sunset Start'],
+  // These move between sunrise and sunset
+  ['goldenHourStart', 'Golden Hour Start'],
+  ['goldenHourEnd', 'Golden Hour End'],
 ]);
 
 export class RoutineActivateSolar extends React.Component<
-  { activate?: SolarActivateDTO },
+  {
+    activate: SolarActivateDTO;
+    onUpdate: (activate: Partial<SolarActivateDTO>) => void;
+  },
   tState
 > {
   override state = {} as tState;
 
   override async componentDidMount(): Promise<void> {
-    if (this.props.activate) {
-      this.load(this.props.activate);
-    }
     await this.refresh();
-  }
-
-  public getValue(): SolarActivateDTO {
-    if (is.empty(this.state.event)) {
-      return undefined;
-    }
-    return { event: this.state.event as keyof SolarCalcType };
-  }
-
-  public load({ event }: SolarActivateDTO): void {
-    this.setState({ event });
   }
 
   override render() {
     return (
-      <Form.Item label="Solar Event">
-        <Select
-          style={{ width: '100%' }}
-          value={this.state.event}
-          onChange={event => this.setState({ event })}
-        >
-          {[
-            'astronomicalDawn',
-            'astronomicalDusk',
-            'civilDawn',
-            'civilDusk',
-            'dawn',
-            'dusk',
-            'nauticalDawn',
-            'nauticalDusk',
-            'nightEnd',
-            'nightStart',
-            'solarNoon',
-            'sunrise',
-            'sunriseEnd',
-            'sunset',
-            'sunsetStart',
-          ]
-            .map(event => [event, dayjs(this.state[event])])
-            .sort(
-              ([, a]: [string, dayjs.Dayjs], [, b]: [string, dayjs.Dayjs]) =>
-                a.isAfter(b) ? UP : DOWN,
-            )
-            .map(([eventName, day]: [string, dayjs.Dayjs]) => (
-              <Select.Option key={eventName} value={eventName}>
-                {LABELS.get(eventName)} {day.format('hh:mm:ss A')}
-              </Select.Option>
-            ))}
-        </Select>
-      </Form.Item>
+      <List
+        dataSource={[
+          'astronomicalDawn',
+          'astronomicalDusk',
+          'civilDawn',
+          'civilDusk',
+          'dawn',
+          'dusk',
+          // 'goldenHourStart',
+          // 'goldenHourEnd',
+          'nauticalDawn',
+          'nauticalDusk',
+          'nightEnd',
+          'nightStart',
+          'solarNoon',
+          'sunrise',
+          'sunriseEnd',
+          'sunset',
+          'sunsetStart',
+        ]
+          .map(event => [event, dayjs(this.state[event])])
+          .sort(([, a]: [string, dayjs.Dayjs], [, b]: [string, dayjs.Dayjs]) =>
+            a.isAfter(b) ? UP : DOWN,
+          )}
+        header={
+          <div style={{ textAlign: 'right' }}>
+            <Tooltip
+              title="Times vary based on coordinates provided by Home Assistant and current date"
+              placement="topLeft"
+            >
+              <Information />
+            </Tooltip>
+          </div>
+        }
+        renderItem={([eventName, day]: [keyof SolarCalc, dayjs.Dayjs]) => (
+          <List.Item>
+            <List.Item.Meta
+              title={
+                <Button
+                  type={
+                    this.props.activate?.event !== eventName
+                      ? 'text'
+                      : 'primary'
+                  }
+                  onClick={() => this.props.onUpdate({ event: eventName })}
+                >
+                  {LABELS.get(eventName)}
+                </Button>
+              }
+            />
+            <Typography.Text type="secondary">
+              {day.format('hh:mm:ss A')}
+            </Typography.Text>
+          </List.Item>
+        )}
+      />
     );
   }
 
