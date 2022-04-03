@@ -219,6 +219,7 @@ export class RoutineController {
         return item;
       }
       return {
+        ...item,
         ...activate,
         id: activateId,
       };

@@ -1,5 +1,5 @@
 import { StateChangeActivateDTO } from '@automagical/controller-shared';
-import { FILTER_OPERATIONS, is } from '@automagical/utilities';
+import { is } from '@automagical/utilities';
 import {
   Checkbox,
   Divider,
@@ -17,60 +17,37 @@ import { sendRequest } from '../../../types';
 import { FilterValue, FuzzySelect } from '../../misc';
 
 type tState = {
-  debounce?: number;
-  entity?: string;
   entityList?: string[];
-  latch?: boolean;
-  operation?: string;
-  value: string | string[];
 };
 
 export class RoutineActivateStateChange extends React.Component<
-  { activate?: StateChangeActivateDTO; entityUpdate: (entity: string) => void },
+  {
+    activate: StateChangeActivateDTO;
+    onUpdate: (activate: Partial<StateChangeActivateDTO>) => void;
+  },
   tState
 > {
   override state = { entityList: [] } as tState;
 
   override async componentDidMount(): Promise<void> {
-    if (this.props.activate) {
-      this.load(this.props.activate);
-    }
     await this.refresh();
   }
 
-  public getValue(): Omit<StateChangeActivateDTO, 'id'> {
-    return {
-      entity: this.state.entity,
-      latch: this.state.latch,
-      operation: this.state.operation as FILTER_OPERATIONS,
-      value: this.state.value,
-    };
-  }
-
-  public load(activate: StateChangeActivateDTO): void {
-    this.setState({
-      entity: activate.entity,
-      latch: activate.latch,
-      operation: activate.operation,
-      value: activate.value as string | string[],
-    });
-  }
-
   override render() {
-    const value = this.state.value;
+    const value = this.props.activate?.value;
     return (
       <Space direction="vertical" style={{ width: '100%' }}>
         <Form.Item label="Entity">
           <FuzzySelect
-            onChange={entity => this.updateEntity(entity)}
-            value={this.state.entity}
+            onChange={entity => this.props.onUpdate({ entity })}
+            value={this.props.activate?.entity}
             data={this.state.entityList.map(id => ({ text: id, value: id }))}
           />
         </Form.Item>
         <Form.Item label="Operation">
           <Select
-            value={this.state.operation}
-            onChange={operation => this.setState({ operation })}
+            value={this.props.activate?.operation}
+            onChange={operation => this.props.onUpdate({ operation })}
           >
             <Select.Option value="eq">Equals</Select.Option>
             <Select.Option value="ne">Not Equals</Select.Option>
@@ -85,13 +62,13 @@ export class RoutineActivateStateChange extends React.Component<
           </Select>
         </Form.Item>
         <Form.Item label="Value">
-          {is.empty(this.state.operation) ? (
+          {is.empty(this.props.activate?.operation) ? (
             <Skeleton />
           ) : (
             <FilterValue
-              operation={this.state.operation}
-              value={value}
-              onChange={value => this.setState({ value })}
+              operation={this.props.activate?.operation}
+              value={value as string | string[]}
+              onChange={value => this.props.onUpdate({ value })}
             />
           )}
         </Form.Item>
@@ -120,15 +97,17 @@ export class RoutineActivateStateChange extends React.Component<
           }
         >
           <Checkbox
-            checked={this.state.latch}
-            onChange={({ target }) => this.setState({ latch: target.checked })}
+            checked={this.props.activate?.latch}
+            onChange={({ target }) =>
+              this.props.onUpdate({ latch: target.checked })
+            }
           />
         </Form.Item>
         <Form.Item label="Debouce">
           <InputNumber
-            value={this.state.debounce ?? -1}
+            value={this.props.activate?.debounce ?? -1}
             min={-1}
-            onChange={debounce => this.setState({ debounce })}
+            onChange={debounce => this.props.onUpdate({ debounce })}
             addonAfter={'ms'}
           />
         </Form.Item>
@@ -139,10 +118,5 @@ export class RoutineActivateStateChange extends React.Component<
   private async refresh(): Promise<void> {
     const entityList = await sendRequest<string[]>({ url: `/entity/list` });
     this.setState({ entityList });
-  }
-
-  private updateEntity(entity: string) {
-    this.props.entityUpdate(entity);
-    this.setState({ entity });
   }
 }

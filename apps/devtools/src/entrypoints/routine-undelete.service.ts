@@ -30,15 +30,16 @@ export class RoutineUndelete extends BaseMongoService {
   public async exec(): Promise<void> {
     this.app.setHeader('Routine Undelete');
     const list = await this.findMany({
-      filters: new Set([
-        {
-          field: 'deleted',
-          operation: 'ne',
-          value: null,
-        },
-      ]),
-      sort: ['deleted', 'friendlyName'],
+      // filters: new Set([
+      //   // {
+      //   //   field: 'deleted',
+      //   //   operation: 'ne',
+      //   //   value: null,
+      //   // },
+      // ]),
+      // sort: ['deleted', 'friendlyName'],
     });
+    console.log(list.length);
     const restore = await this.promptService.pickMany(
       'Pick routines to restore',
       list.map(project => [

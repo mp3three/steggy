@@ -1,15 +1,10 @@
-import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
-import {
-  CloseOutlined,
-  ExclamationCircleOutlined,
-  QuestionCircleOutlined,
-} from '@ant-design/icons';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import {
   RoutineActivateDTO,
   RoutineDTO,
   RoutineEnableDTO,
 } from '@automagical/controller-shared';
-import { is, TitleCase } from '@automagical/utilities';
+import { is } from '@automagical/utilities';
 import {
   Button,
   Card,
@@ -19,10 +14,8 @@ import {
   Form,
   FormInstance,
   Input,
-  List,
   Popconfirm,
   Radio,
-  Select,
   Space,
   Tabs,
   Tooltip,
@@ -31,9 +24,9 @@ import {
 import React from 'react';
 
 import { sendRequest } from '../../types';
+import { ActivateList } from './activate';
 import { CommandList, StopProcessingCommand } from './command';
 import { RoutineActivateDrawer } from './RoutineActivateDrawer';
-import { RoutineCommandDrawer } from './RoutineCommandDrawer';
 
 type tState = {
   friendlyName: string;
@@ -49,8 +42,6 @@ export class RoutineListDetail extends React.Component<
   override state = {} as tState;
   private activateCreateForm: FormInstance;
   private activateDrawer: RoutineActivateDrawer;
-  private commandCreateForm: FormInstance;
-  private commandDrawer: RoutineCommandDrawer;
   private get id(): string {
     return this.props.routine._id;
   }
@@ -168,115 +159,9 @@ export class RoutineListDetail extends React.Component<
                 }
                 key="activate"
               >
-                <Card
-                  type="inner"
-                  extra={
-                    <Popconfirm
-                      onConfirm={this.validateActivate.bind(this)}
-                      icon={
-                        <QuestionCircleOutlined
-                          style={{ visibility: 'hidden' }}
-                        />
-                      }
-                      title={
-                        <Form
-                          onFinish={this.validateActivate.bind(this)}
-                          ref={form => (this.activateCreateForm = form)}
-                        >
-                          <Form.Item
-                            label="Friendly Name"
-                            name="friendlyName"
-                            rules={[{ required: true }]}
-                          >
-                            <Input />
-                          </Form.Item>
-                          <Form.Item
-                            label="Type"
-                            name="type"
-                            rules={[{ required: true }]}
-                          >
-                            <Select>
-                              <Select.Option value="kunami">
-                                Sequence
-                              </Select.Option>
-                              <Select.Option value="schedule">
-                                Cron Schedule
-                              </Select.Option>
-                              <Select.Option value="state_change">
-                                State Change
-                              </Select.Option>
-                              <Select.Option value="solar">
-                                Solar Event
-                              </Select.Option>
-                            </Select>
-                          </Form.Item>
-                        </Form>
-                      }
-                    >
-                      <Button size="small" icon={<PlusBoxMultiple />}>
-                        Add new
-                      </Button>
-                    </Popconfirm>
-                  }
-                >
-                  <List
-                    dataSource={this.props.routine.activate}
-                    renderItem={item => (
-                      <List.Item
-                        key={item.id}
-                        onClick={() => this.activateDrawer.load(item)}
-                      >
-                        <List.Item.Meta
-                          title={
-                            <Typography.Text
-                              onClick={e => {
-                                e.stopPropagation();
-                              }}
-                              editable={{
-                                onChange: value =>
-                                  this.renameActivate(item, value),
-                              }}
-                            >
-                              {item.friendlyName}
-                            </Typography.Text>
-                          }
-                          description={
-                            <Button
-                              onClick={() => this.activateDrawer.load(item)}
-                              type="text"
-                            >
-                              {TitleCase(
-                                item.type === 'kunami' ? 'sequence' : item.type,
-                              )}
-                            </Button>
-                          }
-                        />
-                        <Popconfirm
-                          icon={
-                            <QuestionCircleOutlined style={{ color: 'red' }} />
-                          }
-                          title={`Are you sure you want to delete ${item.friendlyName}?`}
-                          onConfirm={e => {
-                            this.deleteActivate(item);
-                            e?.stopPropagation();
-                          }}
-                        >
-                          <Button
-                            danger
-                            type="text"
-                            onClick={e => e.stopPropagation()}
-                          >
-                            <CloseOutlined />
-                          </Button>
-                        </Popconfirm>
-                      </List.Item>
-                    )}
-                  />
-                </Card>
-                <RoutineActivateDrawer
+                <ActivateList
                   routine={this.props.routine}
-                  onUpdate={r => this.props.onUpdate(r)}
-                  ref={i => (this.activateDrawer = i)}
+                  onUpdate={routine => this.props.onUpdate(routine)}
                 />
               </Tabs.TabPane>
               <Tabs.TabPane
@@ -441,14 +326,5 @@ export class RoutineListDetail extends React.Component<
       url: `/routine/${this.props.routine._id}`,
     });
     this.props.onUpdate(updated);
-  }
-
-  private async validateActivate(): Promise<void> {
-    try {
-      const values = await this.activateCreateForm.validateFields();
-      this.activateDrawer.load(values as RoutineActivateDTO);
-    } catch (error) {
-      console.error(error);
-    }
   }
 }

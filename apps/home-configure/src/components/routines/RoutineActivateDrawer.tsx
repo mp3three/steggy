@@ -1,5 +1,6 @@
 import {
   KunamiCodeActivateDTO,
+  ROUTINE_ACTIVATE_TYPES,
   RoutineActivateDTO,
   RoutineDTO,
   ScheduleActivateDTO,
@@ -7,19 +8,9 @@ import {
   StateChangeActivateDTO,
 } from '@automagical/controller-shared';
 import { is } from '@automagical/utilities';
-import {
-  Button,
-  Card,
-  Drawer,
-  Form,
-  notification,
-  Space,
-  Spin,
-  Typography,
-} from 'antd';
+import { Card, Drawer, Form, Spin, Typography } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
 import { EntityHistory } from '../entities';
 import {
   RoutineActivateCron,
@@ -28,169 +19,95 @@ import {
   RoutineActivateStateChange,
 } from './activate';
 
-type tState = {
-  activate?: RoutineActivateDTO;
-  historyEntity?: string;
-  name: string;
-  visible?: boolean;
-};
-
-export class RoutineActivateDrawer extends React.Component<
-  {
-    activate?: RoutineActivateDTO;
-    onUpdate?: (routine: RoutineDTO) => void;
-    routine: RoutineDTO;
-  },
-  tState
-> {
-  private get type() {
-    return this.state.activate.type;
-  }
-  override state = {} as tState;
-  private widget:
-    | RoutineActivateCron
-    | RoutineActivateSolar
-    | RoutineActivateStateChange
-    | RoutineActivateKunami;
-
-  override componentDidMount(): void {
-    if (this.props.activate) {
-      if (this.props.activate.type === 'state_change') {
-        const { activate } = this.props
-          .activate as RoutineActivateDTO<StateChangeActivateDTO>;
-        this.setState({
-          historyEntity: activate?.entity,
-        });
-      }
-      this.setState({
-        activate: this.props.activate,
-        name: this.props.activate.friendlyName,
-      });
-    }
-  }
-
-  public load(activate: Partial<RoutineActivateDTO>): void {
-    this.setState({
-      activate: activate as RoutineActivateDTO,
-      name: activate.friendlyName,
-      visible: true,
-    });
-    if (activate.type === 'state_change') {
-      this.setState({
-        historyEntity: (activate as RoutineActivateDTO<StateChangeActivateDTO>)
-          .activate?.entity,
-      });
-    }
-  }
-
+export class RoutineActivateDrawer extends React.Component<{
+  activate: RoutineActivateDTO;
+  onComplete: () => void;
+  onUpdate?: (routine: Partial<RoutineActivateDTO>) => void;
+  routine: RoutineDTO;
+}> {
   override render() {
-    if (!this.state.activate) {
+    if (!this.props.activate) {
       return (
         <Drawer visible={false}>
           <Spin />
         </Drawer>
       );
     }
+    const activate = this.props
+      .activate as RoutineActivateDTO<StateChangeActivateDTO>;
     return (
       <Drawer
-        visible={this.state.visible}
-        onClose={() => this.setState({ visible: false })}
+        visible
+        onClose={() => this.props.onComplete()}
         size="large"
         title={
           <Typography.Text
-            editable={{ onChange: name => this.setState({ name }) }}
+            editable={{
+              onChange: friendlyName => this.props.onUpdate({ friendlyName }),
+            }}
           >
-            {this.state.name}
+            {this.props.activate.friendlyName}
           </Typography.Text>
-        }
-        extra={
-          <Space>
-            <Button type="primary" onClick={this.save.bind(this)}>
-              Save
-            </Button>
-            <Button>Cancel</Button>
-          </Space>
         }
       >
         <Card type="inner" title="Activation Event">
           <Form labelCol={{ span: 4 }}>{this.renderType()}</Form>
         </Card>
-        {this.type === 'state_change' ? (
-          <EntityHistory entity={this.state.historyEntity} />
+        {this.props.activate.type === 'state_change' ? (
+          <EntityHistory entity={activate.activate?.entity} />
         ) : undefined}
       </Drawer>
     );
   }
 
   private renderType() {
-    if (this.type === 'schedule') {
+    if (this.props.activate.type === 'schedule') {
       return (
         <RoutineActivateCron
-          ref={i => (this.widget = i)}
-          activate={this.state.activate.activate as ScheduleActivateDTO}
+          activate={this.props.activate.activate as ScheduleActivateDTO}
+          onUpdate={activate =>
+            this.updateActivate(activate as Partial<RoutineActivateDTO>)
+          }
         />
       );
     }
-    if (this.type === 'state_change') {
+    if (this.props.activate.type === 'state_change') {
       return (
         <RoutineActivateStateChange
-          ref={i => (this.widget = i)}
-          entityUpdate={historyEntity => this.setState({ historyEntity })}
-          activate={this.state.activate.activate as StateChangeActivateDTO}
+          onUpdate={activate =>
+            this.updateActivate(activate as Partial<StateChangeActivateDTO>)
+          }
+          activate={this.props.activate.activate as StateChangeActivateDTO}
         />
       );
     }
-    if (this.type === 'solar') {
+    if (this.props.activate.type === 'solar') {
       return (
         <RoutineActivateSolar
-          ref={i => (this.widget = i)}
-          activate={this.state.activate.activate as SolarActivateDTO}
+          activate={this.props.activate.activate as SolarActivateDTO}
         />
       );
     }
-    if (this.type === 'kunami') {
+    if (this.props.activate.type === 'kunami') {
       return (
         <RoutineActivateKunami
-          ref={i => (this.widget = i)}
-          activate={this.state.activate.activate as KunamiCodeActivateDTO}
+          activate={this.props.activate.activate as KunamiCodeActivateDTO}
         />
       );
     }
     return undefined;
   }
 
-  private async save(): Promise<void> {
-    const { id } = this.state.activate;
-    const activate = this.widget.getValue();
-    if (!activate) {
-      notification.error({
-        message: 'Invalid ',
-      });
-      return;
+  private updateActivate(activate: Partial<ROUTINE_ACTIVATE_TYPES>): void {
+    const historyEntity = (activate as StateChangeActivateDTO).entity;
+    if (!is.empty(historyEntity)) {
+      this.setState({ historyEntity });
     }
-    const routine = is.empty(id)
-      ? await sendRequest<RoutineDTO>({
-          body: {
-            activate,
-            friendlyName: this.state.name,
-            type: this.state.activate.type,
-          } as RoutineActivateDTO,
-          method: 'post',
-          url: `/routine/${this.props.routine._id}/activate`,
-        })
-      : await sendRequest<RoutineDTO>({
-          body: {
-            activate,
-            friendlyName: this.state.name,
-            type: this.state.activate.type,
-          } as RoutineActivateDTO,
-          method: 'put',
-          url: `/routine/${this.props.routine._id}/activate/${id}`,
-        });
-
-    if (this.props.onUpdate) {
-      this.props.onUpdate(routine);
-    }
-    this.setState({ visible: false });
+    this.props.onUpdate({
+      activate: {
+        ...this.props.activate.activate,
+        ...activate,
+      },
+    } as unknown as Partial<RoutineActivateDTO>);
   }
 }
