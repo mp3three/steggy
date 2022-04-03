@@ -42,6 +42,7 @@ export class RoutineList extends React.Component<{ prop: unknown }, tState> {
               <RoutineTree
                 enabled={this.state.enabled}
                 routines={this.state.routines}
+                routine={this.state.selected}
                 onUpdate={this.refresh.bind(this)}
                 onSelect={selected => this.setState({ selected })}
               />

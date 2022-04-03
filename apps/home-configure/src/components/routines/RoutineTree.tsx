@@ -39,6 +39,7 @@ export class RoutineTree extends React.Component<
     enabled: string[];
     onSelect: (routine: RoutineDTO) => void;
     onUpdate: () => void;
+    routine: RoutineDTO;
     routines: RoutineDTO[];
   },
   tState
@@ -110,6 +111,7 @@ export class RoutineTree extends React.Component<
             className="draggable-tree"
             draggable
             showIcon
+            selectedKeys={[this.props.routine?._id]}
             onDrop={this.onDrop.bind(this)}
             onSelect={this.onSelect.bind(this)}
             blockNode
