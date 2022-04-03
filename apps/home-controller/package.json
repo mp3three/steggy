@@ -3,7 +3,7 @@
   "license": "MIT",
   "displayName": "Home Controller",
   "description": "[Visit the wiki](https://github.com/ccontour/automagical/wiki) for more information",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "dependencies": {
     "pino-pretty": "^7.6.0"
   }
