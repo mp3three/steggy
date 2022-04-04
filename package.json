@@ -62,6 +62,7 @@
     "inquirer-date-prompt": "^2.0.1",
     "js-yaml": "^4.0.0",
     "jsonwebtoken": "^8.5.1",
+    "mathjs": "^10.4.2",
     "minimist": ">=1.2.5",
     "moment": "^2.29.1",
     "mongodb": "^4.4.0",

@@ -1,17 +1,8 @@
 import { RoutineRelativeDateComparisonDTO } from '@automagical/controller-shared';
-import {
-  Card,
-  Divider,
-  Form,
-  Input,
-  List,
-  Radio,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from 'antd';
-import { parse } from 'chrono-node';
+import { Card, Divider, Form, Input, Radio, Tooltip, Typography } from 'antd';
 import React from 'react';
+
+import { ChronoExamples } from '../ChronoExamples';
 
 export class RelativeDate extends React.Component<{
   comparison: RoutineRelativeDateComparisonDTO;
@@ -68,64 +59,13 @@ export class RelativeDate extends React.Component<{
             />
           </Form.Item>
           <Form.Item label="Current Value">
-            {this.renderDateExpression(
+            {ChronoExamples.renderDateExpression(
               this.props.comparison.expression as string,
             )}
           </Form.Item>
         </Card>
-        <Card type="inner" title="Examples" style={{ marginTop: '16px' }}>
-          <List
-            dataSource={[
-              'today at 11:30PM',
-              '8am - 5pm',
-              'tomorrow',
-              'yesterday',
-              'last friday at 8am',
-              '17 August 2013 - 19 August 2013',
-              'This Friday from 13:00 - 16.00',
-              '5 days ago',
-              '2 weeks from now',
-              'Sat Aug 17 2013 18:40:39 GMT+0900 (JST)',
-              '2014-11-30T08:15:30-05:30',
-            ]}
-            renderItem={expression => (
-              <List.Item>
-                <List.Item.Meta
-                  title={
-                    <Typography.Title level={5}>{expression}</Typography.Title>
-                  }
-                />
-                {this.renderDateExpression(expression)}
-              </List.Item>
-            )}
-          />
-        </Card>
+        <ChronoExamples range />
       </>
-    );
-  }
-
-  private renderDateExpression(expression: string) {
-    const [parsed] = parse(expression);
-    if (!parsed) {
-      return <Skeleton.Input style={{ width: 200 }} />;
-    }
-    if (parsed.end) {
-      return (
-        <>
-          <Typography.Text code>
-            {parsed.start.date().toLocaleString()}
-          </Typography.Text>
-          -
-          <Typography.Text code>
-            {parsed.end.date().toLocaleString()}
-          </Typography.Text>
-        </>
-      );
-    }
-    return (
-      <Typography.Text code>
-        {parsed.start.date().toLocaleString()}
-      </Typography.Text>
     );
   }
 }

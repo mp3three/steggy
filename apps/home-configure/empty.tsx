@@ -1,4 +1,4 @@
-import { Drawer, Skeleton, Spin } from 'antd';
+import { Skeleton } from 'antd';
 import React from 'react';
 
 type tState = {
@@ -12,13 +12,6 @@ export class EmptyComponent extends React.Component<
   override state = {} as tState;
 
   override render() {
-    if (!this.state) {
-      return (
-        <Drawer visible={false}>
-          <Spin />
-        </Drawer>
-      );
-    }
     return <Skeleton />;
   }
 }

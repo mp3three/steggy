@@ -1,12 +1,14 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { RoomDTO, RoomMetadataDTO } from '@automagical/controller-shared';
-import { Button, Card, Checkbox, Input, Select, Space, Table } from 'antd';
+import { ARRAY_OFFSET, is } from '@automagical/utilities';
+import { Button, Card, List, Popconfirm, Space, Typography } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
+import { MetadataEdit } from './MetadataEdit';
 
 type tState = {
-  name: string;
+  metadata?: RoomMetadataDTO;
 };
 
 export class RoomMetadata extends React.Component<
@@ -17,81 +19,78 @@ export class RoomMetadata extends React.Component<
 
   override render() {
     return (
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <Card
-          type="inner"
-          title="Flags"
-          extra={
-            <Button
-              icon={<PlusBoxMultiple />}
-              size="small"
-              onClick={this.create.bind(this)}
-            >
-              Create new
-            </Button>
-          }
-        >
-          <Table dataSource={this.props.room.metadata}>
-            <Table.Column
-              title="Name"
-              key="name"
-              dataIndex="name"
-              render={(name: string, record: RoomMetadataDTO) => (
-                <Input
-                  value={name}
-                  onChange={({ target }) =>
-                    this.updateMetadata({ name: target.value }, record.id)
-                  }
-                />
+      <>
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <Card
+            type="inner"
+            title="Flags"
+            extra={
+              <Button
+                icon={<PlusBoxMultiple />}
+                size="small"
+                onClick={this.create.bind(this)}
+              >
+                Create new
+              </Button>
+            }
+          >
+            <List
+              dataSource={this.props.room.metadata}
+              renderItem={record => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={
+                      <Button
+                        type={
+                          this.state.metadata?.id === record.id
+                            ? 'primary'
+                            : 'text'
+                        }
+                        onClick={() => this.setState({ metadata: record })}
+                      >
+                        {is.empty(record.name) ? (
+                          <Typography.Text type="danger">
+                            NO NAME
+                          </Typography.Text>
+                        ) : (
+                          record.name
+                        )}
+                      </Button>
+                    }
+                    description={record.type}
+                  />
+                  <Popconfirm
+                    title={`Are you sure you want to remove ${record.name}?`}
+                    onConfirm={() => this.remove(record.id)}
+                  >
+                    <Button danger type="text">
+                      X
+                    </Button>
+                  </Popconfirm>
+                </List.Item>
               )}
             />
-            <Table.Column
-              title="Type"
-              key="type"
-              dataIndex="type"
-              render={(type: string, record: RoomMetadataDTO) => (
-                <Select
-                  value={type}
-                  onChange={(type: 'boolean' | 'string' | 'number') =>
-                    this.updateMetadata({ type }, record.id)
-                  }
-                >
-                  <Select.Option value="boolean">Boolean</Select.Option>
-                  <Select.Option value="string">String</Select.Option>
-                  <Select.Option value="number">Number</Select.Option>
-                </Select>
-              )}
-            />
-            <Table.Column
-              title="Value"
-              key="value"
-              dataIndex="value"
-              render={(value, record: RoomMetadataDTO) =>
-                this.renderValue(value, record.type, record.id)
-              }
-            />
-            <Table.Column
-              key="id"
-              dataIndex="id"
-              render={(id: string) => (
-                <Button danger type="text" onClick={() => this.remove(id)}>
-                  X
-                </Button>
-              )}
-            />
-          </Table>
-        </Card>
-      </Space>
+          </Card>
+        </Space>
+        <MetadataEdit
+          room={this.props.room}
+          metadata={this.state.metadata}
+          onUpdate={metadata => this.updateMetadata(metadata)}
+          onComplete={() => this.setState({ metadata: undefined })}
+        />
+      </>
     );
   }
 
   private async create(): Promise<void> {
-    this.props.onUpdate(
-      await sendRequest<RoomDTO>({
-        method: 'post',
-        url: `/room/${this.props.room._id}/metadata`,
-      }),
-    );
+    const room = await sendRequest<RoomDTO>({
+      body: { name: Date.now().toString() } as Partial<RoomMetadataDTO>,
+      method: 'post',
+      url: `/room/${this.props.room._id}/metadata`,
+    });
+    this.props.onUpdate(room);
+    const metadata = room.metadata[room.metadata.length - ARRAY_OFFSET];
+    this.setState({ metadata });
   }
 
   private async remove(id: string) {
@@ -103,52 +102,18 @@ export class RoomMetadata extends React.Component<
     );
   }
 
-  private renderValue(
-    value: string | boolean,
-    type: 'string' | 'boolean' | 'number',
-    id: string,
-  ) {
-    if (type === 'boolean') {
-      return (
-        <Checkbox
-          checked={Boolean(value)}
-          onChange={({ target }) =>
-            this.updateMetadata({ value: target.checked }, id)
-          }
-        />
-      );
-    }
-    if (type === 'number') {
-      return (
-        <Input
-          type="number"
-          value={Number(value)}
-          onChange={({ target }) =>
-            this.updateMetadata({ value: target.value }, id)
-          }
-        />
-      );
-    }
-    return (
-      <Input
-        value={String(value)}
-        onChange={({ target }) =>
-          this.updateMetadata({ value: target.value }, id)
-        }
-      />
-    );
-  }
-
   private async updateMetadata(
     metadata: Partial<RoomMetadataDTO>,
-    id: string,
   ): Promise<void> {
-    this.props.onUpdate(
-      await sendRequest({
-        body: metadata,
-        method: 'put',
-        url: `/room/${this.props.room._id}/metadata/${id}`,
-      }),
+    const room = await sendRequest<RoomDTO>({
+      body: metadata,
+      method: 'put',
+      url: `/room/${this.props.room._id}/metadata/${this.state.metadata.id}`,
+    });
+    this.props.onUpdate(room);
+    const updated = room.metadata.find(
+      ({ id }) => id === this.state.metadata?.id,
     );
+    this.setState({ metadata: updated });
   }
 }

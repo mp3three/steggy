@@ -164,7 +164,11 @@ export class SetRoomMetadataCommandDTO {
   @IsString()
   public room: string;
   @ApiProperty()
-  public value: boolean | string;
+  @IsString()
+  @IsOptional()
+  public type?: string;
+  @ApiProperty()
+  public value: boolean | string | number;
 }
 
 type stringMethods = `${HTTP_METHODS}`;
