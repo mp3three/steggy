@@ -131,7 +131,7 @@ export class CommandList extends React.Component<
                   onClick={() => this.setState({ command: item })}
                 >
                   <List.Item.Meta
-                    title={item.friendlyName}
+                    title={<Button type="text">{item.friendlyName}</Button>}
                     description={TitleCase(item.type)}
                   />
                   <Popconfirm

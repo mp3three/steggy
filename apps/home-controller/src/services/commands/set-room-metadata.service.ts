@@ -7,6 +7,7 @@ import {
 import { EMPTY, is, START } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { parse } from 'chrono-node';
+import { isNumberString } from 'class-validator';
 import EventEmitter from 'eventemitter3';
 import { parse as MathParse } from 'mathjs';
 
@@ -58,6 +59,7 @@ export class SetRoomMetadataService {
         { options: metadata.options, value: command.value },
         `Value not contained in list of enum options`,
       );
+      // Opting to be extra safe here
       return metadata.options[START];
     }
     return command.value;
@@ -69,22 +71,23 @@ export class SetRoomMetadataService {
     metadata: RoomMetadataDTO,
   ): number {
     const valueType = (command.type ?? 'set_value') as NumberTypes;
-    if (valueType === 'set_value') {
-      return command.value as number;
-    }
-    if (valueType === 'decrement') {
-      return Number(metadata.value) - Number(command.value);
-    }
-    if (valueType === 'increment') {
-      return Number(metadata.value) + Number(command.value);
-    }
+    let setValue = command.value;
     if (valueType === 'formula') {
+      if (!is.string(setValue)) {
+        this.logger.error(
+          { formula: setValue },
+          `Math formula is not a string`,
+        );
+        return EMPTY;
+      }
       try {
-        const node = MathParse(metadata.value as string);
+        const node = MathParse(setValue);
         if (!node) {
           return EMPTY;
         }
         return node.evaluate(
+          // Inject all numeric metadata for the same room
+          // TODO: entity info also?
           Object.fromEntries(
             room.metadata
               .filter(({ type }) => type === 'number')
@@ -96,7 +99,29 @@ export class SetRoomMetadataService {
         return EMPTY;
       }
     }
-    throw new NotImplementedException();
+    if (!is.number(setValue)) {
+      setValue = isNumberString(setValue) ? Number(setValue) : EMPTY;
+    }
+    let currentValue = metadata.value;
+    if (!is.number(currentValue)) {
+      this.logger.warn(
+        { currentValue },
+        `Current value is not a number, resetting to 0`,
+      );
+      currentValue = EMPTY;
+    }
+    if (valueType === 'set_value') {
+      return setValue;
+    }
+    if (valueType === 'decrement') {
+      return currentValue - setValue;
+    }
+    if (valueType === 'increment') {
+      return currentValue + setValue;
+    }
+    throw new NotImplementedException(
+      `Unknown number operation type: ${valueType}`,
+    );
   }
 
   private getValue(
@@ -115,7 +140,7 @@ export class SetRoomMetadataService {
       if (!is.string(command.value)) {
         this.logger.error({ command }, `Value is not string`);
         // 🤷
-        return String(command.value);
+        return String(command.value ?? '');
       }
       return command.value;
     }

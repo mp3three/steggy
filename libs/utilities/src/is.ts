@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers, @typescript-eslint/ban-types */
-export const EMPTY = 0;
+import { EMPTY, EVEN } from './utilities';
 
 // TODO: declaration merging to allow other libs to create definitions here
 
@@ -22,7 +21,7 @@ export const is = {
     return true;
   },
   even(test: number): boolean {
-    return test % 2 === 0;
+    return test % EVEN === EMPTY;
   },
   function<
     T extends (

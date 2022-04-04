@@ -1,3 +1,5 @@
+//
+export const EVEN = 2;
 export const INVERT_VALUE = -1;
 // Sort
 export const UP = 1;
@@ -16,6 +18,7 @@ export const LABEL = 0;
 // Generic start of something
 export const START = 0;
 export const FIRST = 0;
+export const EMPTY = 0;
 
 // Testing of indexes
 export const NOT_FOUND = -1;

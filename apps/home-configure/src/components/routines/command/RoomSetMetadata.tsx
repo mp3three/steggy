@@ -164,7 +164,10 @@ export class RoomSetMetadataCommand extends React.Component<
 
   private renderValueEnum(metadata: RoomMetadataDTO) {
     return (
-      <Select>
+      <Select
+        value={this.props.command.value}
+        onChange={(value: string) => this.props.onUpdate({ value })}
+      >
         {metadata.options.map(option => (
           <Select.Option value={option} key={option}>
             {option}
