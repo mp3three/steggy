@@ -1,5 +1,6 @@
 export * from './application.service';
 export * from './availability-monitor.service';
+export * from './chrono.service';
 export * from './commands';
 export * from './entity-command-router.service';
 export * from './groups';

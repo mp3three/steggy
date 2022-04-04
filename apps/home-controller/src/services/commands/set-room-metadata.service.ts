@@ -6,12 +6,12 @@ import {
 } from '@automagical/controller-shared';
 import { EMPTY, is, START } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
-import { parse } from 'chrono-node';
 import { isNumberString } from 'class-validator';
 import EventEmitter from 'eventemitter3';
-import { parse as MathParse } from 'mathjs';
+import { parse } from 'mathjs';
 
 import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../../typings';
+import { ChronoService } from '../chrono.service';
 import { RoomService } from '../room.service';
 
 type NumberTypes = 'set_value' | 'increment' | 'decrement' | 'formula';
@@ -22,6 +22,7 @@ export class SetRoomMetadataService {
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
     private readonly roomService: RoomService,
+    private readonly chronoService: ChronoService,
   ) {}
 
   public async activate(command: SetRoomMetadataCommandDTO): Promise<void> {
@@ -81,7 +82,7 @@ export class SetRoomMetadataService {
         return EMPTY;
       }
       try {
-        const node = MathParse(setValue);
+        const node = parse(setValue);
         if (!node) {
           return EMPTY;
         }
@@ -148,16 +149,8 @@ export class SetRoomMetadataService {
       return this.getEnumValue(command, metadata);
     }
     if (metadata.type === 'date') {
-      const [parsed] = parse(String(command.value));
-      if (!parsed) {
-        this.logger.error(
-          { expression: command.value },
-          `Expression failed parsing`,
-        );
-        // 🤷
-        return new Date().toISOString();
-      }
-      return parsed.start.date().toISOString();
+      const [start] = this.chronoService.parse(String(command.value));
+      return (start as Date).toISOString();
     }
     if (metadata.type === 'number') {
       return this.getNumberValue(command, room, metadata);

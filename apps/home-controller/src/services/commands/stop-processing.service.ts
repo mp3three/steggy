@@ -19,11 +19,11 @@ import {
 } from '@automagical/home-assistant';
 import { eachSeries, is } from '@automagical/utilities';
 import { Injectable } from '@nestjs/common';
-import { parse } from 'chrono-node';
 import dayjs from 'dayjs';
 import { Response } from 'node-fetch';
 import { get } from 'object-path';
 
+import { ChronoService } from '../chrono.service';
 import { RoomService } from '../room.service';
 
 @Injectable()
@@ -35,6 +35,7 @@ export class StopProcessingCommandService {
     private readonly logger: AutoLogService,
     private readonly roomService: RoomService,
     private readonly socketService: HASocketAPIService,
+    private readonly chronoService: ChronoService,
   ) {}
 
   public async activate(
@@ -100,9 +101,11 @@ export class StopProcessingCommandService {
   private dateComparison(
     comparison: RoutineRelativeDateComparisonDTO,
   ): boolean {
-    const [parsed] = parse(comparison.expression);
-    if (!parsed) {
-      this.logger.error({ comparison }, `Expression failed parsing`);
+    const [start, end] = this.chronoService.parse<boolean>(
+      comparison.expression,
+      false,
+    );
+    if (is.boolean(start)) {
       return false;
     }
     const now = dayjs();
@@ -110,23 +113,19 @@ export class StopProcessingCommandService {
     // The logic looks weird in code form
     switch (comparison.dateType) {
       case 'in_range':
-        if (parsed.end) {
-          return (
-            now.isAfter(parsed.start.date()) && now.isBefore(parsed.end.date())
-          );
+        if (end) {
+          return now.isAfter(start) && now.isBefore(end);
         }
       // fallthrough
       case 'after':
-        return now.isBefore(parsed.start.date());
+        return now.isBefore(start);
       case 'not_in_range':
-        if (parsed.end) {
-          return (
-            now.isBefore(parsed.start.date()) || now.isAfter(parsed.end.date())
-          );
+        if (end) {
+          return now.isBefore(start) || now.isAfter(end);
         }
       // fallthrough
       case 'before':
-        return now.isAfter(parsed.start.date());
+        return now.isAfter(start);
     }
     this.logger.error({ comparison }, `Invalid comparison [dateType]`);
     return false;

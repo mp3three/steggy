@@ -31,11 +31,23 @@ export class SolarCalcService {
     return new SolarCalc(new Date(), this.latitude, this.longitude);
   }
 
-  public async getCalc(): Promise<SolarCalcType> {
+  public async getCalc(referenceDate?: Date): Promise<SolarCalcType> {
+    if (referenceDate) {
+      // @ts-expect-error Typescript is wrong this time, this works as expected
+      return new SolarCalc(referenceDate, this.latitude, this.longitude);
+    }
     if (!is.number(this.latitude)) {
       this.logger.debug(`Waiting for {lat}/{long}`);
       await sleep();
       return await this.getCalc();
+    }
+    return this.SOLAR_CALC;
+  }
+
+  public getCalcSync(referenceDate?: Date): SolarCalcType {
+    if (referenceDate) {
+      // @ts-expect-error Typescript is wrong this time, this works as expected
+      return new SolarCalc(referenceDate, this.latitude, this.longitude);
     }
     return this.SOLAR_CALC;
   }

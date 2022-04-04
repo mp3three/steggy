@@ -19,11 +19,11 @@ import {
 } from '@automagical/home-assistant-shared';
 import { each, INCREMENT, is, SECOND } from '@automagical/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { parse } from 'chrono-node';
 import dayjs from 'dayjs';
 
 import { SAFE_MODE } from '../../config';
 import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../../typings';
+import { ChronoService } from '../chrono.service';
 import { StopProcessingCommandService } from '../commands';
 import { RoutinePersistenceService } from '../persistence';
 import { RoutineService } from './routine.service';
@@ -46,6 +46,7 @@ export class RoutineEnabledService {
     private readonly routinePersistence: RoutinePersistenceService,
     @Inject(forwardRef(() => StopProcessingCommandService))
     private readonly stopProcessingService: StopProcessingCommandService,
+    private readonly chronoService: ChronoService,
   ) {}
 
   public readonly ACTIVE_ROUTINES = new Set<string>();
@@ -193,8 +194,11 @@ export class RoutineEnabledService {
     routine: RoutineDTO,
   ): void {
     const watchers = this.ENABLE_WATCHERS.get(routine._id) || [];
-    const [parsed] = parse(comparison.expression);
-    if (!parsed) {
+    const [parsed] = this.chronoService.parse<boolean>(
+      comparison.expression,
+      false,
+    );
+    if (!is.boolean(parsed)) {
       this.logger.error({ comparison }, `Expression failed parsing`);
       return;
     }
@@ -206,11 +210,11 @@ export class RoutineEnabledService {
         return;
       }
       // re-parse the expression
-      const [parsed] = parse(comparison.expression);
+      const [start] = this.chronoService.parse<Date>(comparison.expression);
       const now = dayjs();
       // wait until the expression results in future dates before setting up timeouts again
       // ex: 'tuesday' will return a date in the past for most of the week
-      if (now.isAfter(parsed.start.date())) {
+      if (now.isAfter(start)) {
         return;
       }
       timeouts = this.rangeTimeouts(comparison, routine);
@@ -246,9 +250,9 @@ export class RoutineEnabledService {
     comparison: RoutineRelativeDateComparisonDTO,
     routine: RoutineDTO,
   ) {
-    const [parsed] = parse(comparison.expression);
+    const [start, end] = this.chronoService.parse(comparison.expression, false);
     const now = Date.now();
-    if (!parsed) {
+    if (is.boolean(start)) {
       this.logger.error({ comparison }, `Expression failed parsing`);
       return;
     }
@@ -257,14 +261,14 @@ export class RoutineEnabledService {
       setTimeout(async () => {
         await this.onUpdate(routine);
         timeouts.shift();
-      }, parsed.start.date().getTime() - now + INCREMENT),
+      }, start.getTime() - now + INCREMENT),
     );
-    if (parsed.end) {
+    if (end) {
       timeouts.push(
         setTimeout(async () => {
           await this.onUpdate(routine);
           timeouts.shift();
-        }, parsed.end.date().getTime() - now + INCREMENT),
+        }, end.getTime() - now + INCREMENT),
       );
     }
     return timeouts;
