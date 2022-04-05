@@ -38,7 +38,7 @@ import {
   StopProcessingCommand,
   TriggerRoutineCommand,
 } from './command';
-import { RoomSetMetadataCommand } from './command/RoomSetMetadata';
+import { SetRoomMetadataCommand } from './command/SetRoomMetadata';
 import { WebhookCommand } from './command/WebhookCommand';
 
 export class RoutineCommandDrawer extends React.Component<{
@@ -133,7 +133,7 @@ export class RoutineCommandDrawer extends React.Component<{
         );
       case 'set_room_metadata':
         return (
-          <RoomSetMetadataCommand
+          <SetRoomMetadataCommand
             onUpdate={this.onUpdate.bind(this)}
             command={this.props.command.command as SetRoomMetadataCommandDTO}
           />

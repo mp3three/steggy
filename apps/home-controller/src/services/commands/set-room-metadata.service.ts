@@ -4,6 +4,7 @@ import {
   RoomMetadataDTO,
   SetRoomMetadataCommandDTO,
 } from '@automagical/controller-shared';
+import { HASocketAPIService } from '@automagical/home-assistant';
 import { EMPTY, is, START } from '@automagical/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { isNumberString } from 'class-validator';
@@ -13,6 +14,7 @@ import { parse } from 'mathjs';
 import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../../typings';
 import { ChronoService } from '../chrono.service';
 import { RoomService } from '../room.service';
+import { VMService } from '../vm.service';
 
 type NumberTypes = 'set_value' | 'increment' | 'decrement' | 'formula';
 
@@ -23,9 +25,14 @@ export class SetRoomMetadataService {
     private readonly eventEmitter: EventEmitter,
     private readonly roomService: RoomService,
     private readonly chronoService: ChronoService,
+    private readonly socketService: HASocketAPIService,
+    private readonly vmService: VMService,
   ) {}
 
-  public async activate(command: SetRoomMetadataCommandDTO): Promise<void> {
+  public async activate(
+    command: SetRoomMetadataCommandDTO,
+    runId: string,
+  ): Promise<void> {
     const room = await this.roomService.get(command.room);
     room.metadata ??= [];
     const entry = room.metadata.find(({ name }) => name === command.name);
@@ -35,7 +42,7 @@ export class SetRoomMetadataService {
       );
       return;
     }
-    entry.value = this.getValue(command, room, entry);
+    entry.value = await this.getValue(command, room, entry, runId);
     await this.roomService.update({ metadata: room.metadata }, room._id);
     this.logger.debug(`${room.friendlyName}#${entry.name} = ${entry.value}`);
     this.eventEmitter.emit(ROOM_METADATA_UPDATED, {
@@ -125,11 +132,41 @@ export class SetRoomMetadataService {
     );
   }
 
-  private getValue(
+  private async getStringValue(
+    command: SetRoomMetadataCommandDTO,
+    runId: string,
+  ): Promise<string> {
+    if (!is.string(command.value)) {
+      // 🤷
+      this.logger.error({ command }, `Value is not string`);
+      return ``;
+    }
+    const type = command.type ?? 'simple';
+    if (type === 'simple') {
+      return command.value;
+    }
+    if (type === 'template') {
+      return await this.socketService.renderTemplate(command.value);
+    }
+    const result = await this.vmService.exec(command.value, {
+      runId,
+    });
+    if (!is.string(result)) {
+      this.logger.error(
+        { command, result },
+        `Code did not return string result`,
+      );
+      return ``;
+    }
+    return result;
+  }
+
+  private async getValue(
     command: SetRoomMetadataCommandDTO,
     room: RoomDTO,
     metadata: RoomMetadataDTO,
-  ): string | number | boolean {
+    runId: string,
+  ): Promise<string | number | boolean> {
     if (metadata.type === 'boolean') {
       if (is.boolean(command.value)) {
         return command.value;
@@ -138,12 +175,7 @@ export class SetRoomMetadataService {
       return !metadata.value;
     }
     if (metadata.type === 'string') {
-      if (!is.string(command.value)) {
-        this.logger.error({ command }, `Value is not string`);
-        // 🤷
-        return String(command.value ?? '');
-      }
-      return command.value;
+      return await this.getStringValue(command, runId);
     }
     if (metadata.type === 'enum') {
       return this.getEnumValue(command, metadata);

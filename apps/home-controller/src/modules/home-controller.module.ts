@@ -67,6 +67,7 @@ import {
   StopProcessingCommandService,
   SwitchGroupService,
   UpdateLoggerService,
+  VMService,
   WebhookService,
 } from '../services';
 
@@ -101,17 +102,18 @@ const providers = [
     SleepCommandService,
     SolarCalcService,
   ],
-  EntityCommandRouterService,
-  MetadataService,
   ApplicationService,
   AvailabilityMonitorService,
-  UpdateLoggerService,
-  RoomService,
-  GroupPersistenceService,
   ChronoService,
-  RoutinePersistenceService,
-  RoomPersistenceService,
+  EntityCommandRouterService,
+  GroupPersistenceService,
   MetadataPersistenceService,
+  MetadataService,
+  RoomPersistenceService,
+  RoomService,
+  RoutinePersistenceService,
+  UpdateLoggerService,
+  VMService,
 ];
 
 @ApplicationModule({

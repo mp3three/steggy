@@ -1,5 +1,5 @@
 import { RoomDTO } from '@automagical/controller-shared';
-import { Card, Empty, Tabs, Typography } from 'antd';
+import { Card, Empty, Form, Input, Tabs, Typography } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
@@ -26,7 +26,9 @@ export class RoomListDetail extends React.Component<
           <>
             <Typography.Title
               level={3}
-              editable={{ onChange: value => this.rename(value) }}
+              editable={{
+                onChange: friendlyName => this.update({ friendlyName }),
+              }}
             >
               {this.props.room.friendlyName}
             </Typography.Title>
@@ -49,6 +51,20 @@ export class RoomListDetail extends React.Component<
                   onUpdate={room => this.props.onUpdate(room)}
                 />
               </Tabs.TabPane>
+              <Tabs.TabPane key="settings" tab="Settings">
+                <Card>
+                  <Form.Item label="Internal Name">
+                    <Input
+                      defaultValue={
+                        this.props.room.name ?? `room_${this.props.room._id}`
+                      }
+                      onBlur={({ target }) =>
+                        this.update({ name: target.value })
+                      }
+                    />
+                  </Form.Item>
+                </Card>
+              </Tabs.TabPane>
             </Tabs>
           </>
         )}
@@ -56,9 +72,9 @@ export class RoomListDetail extends React.Component<
     );
   }
 
-  private async rename(friendlyName: string): Promise<void> {
+  private async update(body: Partial<RoomDTO>): Promise<void> {
     const room = await sendRequest<RoomDTO>({
-      body: { friendlyName },
+      body,
       method: 'put',
       url: `/room/${this.props.room._id}`,
     });

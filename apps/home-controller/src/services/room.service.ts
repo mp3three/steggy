@@ -110,6 +110,25 @@ export class RoomService {
     return await this.roomPersistence.update(room, room._id);
   }
 
+  public async buildMetadata(): Promise<
+    Record<string, Record<string, unknown>>
+  > {
+    const rooms = await this.list();
+    return Object.fromEntries(
+      rooms.map(room => [
+        room.name ?? `room_${room._id}`,
+        Object.fromEntries(
+          (room.metadata ?? []).map(metadata => [
+            metadata.name,
+            metadata.type === 'date' && is.string(metadata.value)
+              ? new Date(metadata.value as string)
+              : metadata.value,
+          ]),
+        ),
+      ]),
+    );
+  }
+
   public async create(
     room: Omit<RoomDTO, keyof BaseSchemaDTO>,
   ): Promise<RoomDTO> {

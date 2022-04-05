@@ -102,6 +102,7 @@ export class RoutineService {
     command: RoutineCommandDTO | string,
     routine: RoutineDTO | string,
     waitForChange = false,
+    runId?: string,
   ): Promise<boolean> {
     routine = await this.get(routine);
     command = is.string(command)
@@ -142,11 +143,13 @@ export class RoutineService {
         await this.sendNotification.activate(
           command.command as RoutineCommandSendNotificationDTO,
           waitForChange,
+          runId,
         );
         break;
       case ROUTINE_ACTIVATE_COMMAND.set_room_metadata:
         await this.setMetadataService.activate(
           command.command as SetRoomMetadataCommandDTO,
+          runId,
         );
         break;
       case ROUTINE_ACTIVATE_COMMAND.light_flash:
@@ -213,6 +216,7 @@ export class RoutineService {
           command,
           routine as RoutineDTO,
           waitForChange,
+          runId,
         );
         aborted = result === false && sync;
         if (aborted) {

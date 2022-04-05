@@ -107,6 +107,14 @@ export class RoomDTO {
   @Prop({ index: true })
   public modified?: Date;
 
+  /**
+   * Javascript referenceable name for vmservice
+   */
+  @IsOptional()
+  @IsString()
+  @Prop()
+  public name?: string;
+
   @IsOptional()
   @ApiProperty({ required: false, type: [RoomStateDTO] })
   @ValidateNested()
