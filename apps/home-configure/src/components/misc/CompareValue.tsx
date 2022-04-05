@@ -4,7 +4,20 @@ import React from 'react';
 
 import { FilterValue } from './FilterValue';
 
+export const ALL_OPERATIONS = new Map<`${FILTER_OPERATIONS}`, string>([
+  ['eq', 'Equals'],
+  ['ne', 'Not Equals'],
+  ['in', 'In List'],
+  ['nin', 'Not In List'],
+  ['lt', 'Less Than'],
+  ['lte', 'Less Than / Equals'],
+  ['gt', 'Greater Than'],
+  ['gte', 'Greater Than / Equals'],
+  ['regex', 'Regular Expression'],
+  ['elem', 'List Element'],
+]);
 export class CompareValue extends React.Component<{
+  availableOperations?: `${FILTER_OPERATIONS}`[];
   onUpdate: (
     value: Partial<{
       operation: `${FILTER_OPERATIONS}`;
@@ -13,6 +26,7 @@ export class CompareValue extends React.Component<{
   ) => void;
   operation: `${FILTER_OPERATIONS}`;
   value: string | string[];
+  valueOptions?: string[];
 }> {
   override render() {
     return (
@@ -22,16 +36,17 @@ export class CompareValue extends React.Component<{
             value={this.props.operation}
             onChange={operation => this.props.onUpdate({ operation })}
           >
-            <Select.Option value="eq">Equals</Select.Option>
-            <Select.Option value="ne">Not Equals</Select.Option>
-            <Select.Option value="in">In List</Select.Option>
-            <Select.Option value="nin">Not In List</Select.Option>
-            <Select.Option value="lt">Less Than</Select.Option>
-            <Select.Option value="lte">Less Than / Equals</Select.Option>
-            <Select.Option value="gt">Greater Than</Select.Option>
-            <Select.Option value="gte">Greater Than / Equals</Select.Option>
-            <Select.Option value="regex">Regular Expression</Select.Option>
-            <Select.Option value="elem">List Element</Select.Option>
+            {[...ALL_OPERATIONS.entries()]
+              .filter(
+                ([type]) =>
+                  is.empty(this.props.availableOperations) ||
+                  this.props.availableOperations.includes(type),
+              )
+              .map(([type, label]) => (
+                <Select.Option key={type} value={type}>
+                  {label}
+                </Select.Option>
+              ))}
           </Select>
         </Form.Item>
         <Form.Item label="Value">
@@ -39,6 +54,7 @@ export class CompareValue extends React.Component<{
             <Skeleton />
           ) : (
             <FilterValue
+              options={this.props.valueOptions}
               operation={this.props.operation}
               value={this.props.value}
               onChange={value => this.props.onUpdate({ value })}

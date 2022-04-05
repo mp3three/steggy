@@ -1,4 +1,5 @@
 import {
+  ROOM_METADATA_TYPES,
   RoomDTO,
   RoomMetadataComparisonDTO,
   RoomMetadataDTO,
@@ -12,6 +13,20 @@ import { CompareValue } from '../CompareValue';
 import { FuzzySelect } from '../FuzzySelect';
 
 type tState = { rooms: RoomDTO[] };
+
+const AVAILABLE_OPERATIONS = new Map<
+  `${ROOM_METADATA_TYPES}`,
+  `${FILTER_OPERATIONS}`[]
+>([
+  ['string', ['eq', 'ne', 'in', 'nin', 'regex']],
+  // Is there any other relevant options?
+  ['boolean', ['eq', 'ne']],
+  ['number', ['eq', 'ne', 'in', 'nin', 'lt', 'lte', 'gt', 'gte']],
+  ['enum', ['eq', 'ne', 'in', 'nin', 'regex']],
+  // Should gte / lte be allowed?
+  // Unclear if it's possible for dates to "equal" for more than 1 ms
+  ['date', ['gt', 'gte', 'lt', 'lte']],
+]);
 
 export class RoomMetadataComparison extends React.Component<
   {
@@ -28,13 +43,23 @@ export class RoomMetadataComparison extends React.Component<
     );
   }
 
+  private get metadata(): RoomMetadataDTO {
+    const room = this.room;
+    const metadata = (room?.metadata ?? []).find(
+      ({ name }) => name === this.props.comparison?.property,
+    );
+    return metadata;
+  }
+
   override async componentDidMount(): Promise<void> {
     await this.listEntities();
   }
 
   override render() {
+    const metadata = this.metadata;
+    const type = metadata?.type;
     return (
-      <Card title="State Comparison" type="inner">
+      <Card title="Metadata Comparison" type="inner">
         <Form.Item label="Room">
           <Select
             onChange={room => this.props.onUpdate({ room })}
@@ -62,7 +87,9 @@ export class RoomMetadataComparison extends React.Component<
           )}
         </Form.Item>
         <CompareValue
+          valueOptions={type === 'enum' ? metadata.options ?? [] : undefined}
           operation={this.props.comparison.operation}
+          availableOperations={AVAILABLE_OPERATIONS.get(type)}
           value={this.props.comparison.value as FILTER_OPERATIONS}
           onUpdate={({ value, operation }) => {
             if (!is.undefined(value)) {
