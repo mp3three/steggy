@@ -88,7 +88,11 @@ export class RoutineCommandGroupActionDTO<
 export class RoutineCommandSendNotificationDTO {
   @ApiProperty()
   @IsString()
-  public template: string;
+  public template?: string;
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  public type?: 'simple' | 'javascript' | 'template';
 }
 
 export class RoutineCommandSleepDTO {

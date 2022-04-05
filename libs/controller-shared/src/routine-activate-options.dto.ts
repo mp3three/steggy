@@ -1,7 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsNumber, IsOptional } from 'class-validator';
+import { IsBoolean, IsDateString, IsNumber, IsOptional } from 'class-validator';
 
 export class RoutineActivateOptionsDTO {
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({ required: false })
+  public bypassRepeat?: boolean;
   @IsOptional()
   @IsNumber()
   @ApiProperty({ required: false })

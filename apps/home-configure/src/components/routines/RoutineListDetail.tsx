@@ -64,7 +64,7 @@ export class RoutineListDetail extends React.Component<
                 <Typography.Paragraph>
                   <Typography.Text strong>POST </Typography.Text>
                   <Typography.Text code>
-                    {sendRequest.url(`/routine/${this.props.routine._id}`)}
+                    {sendRequest.url(`/routine/${this.props?.routine?._id}`)}
                   </Typography.Text>
                 </Typography.Paragraph>
               }

@@ -1,4 +1,8 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import {
+  AutoLogService,
+  CacheManagerService,
+  InjectCache,
+} from '@automagical/boilerplate';
 import {
   KunamiCodeActivateDTO,
   RoomEntitySaveStateDTO,
@@ -35,8 +39,10 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import dayjs from 'dayjs';
+import { v4 as uuid } from 'uuid';
 
 import {
   CaptureCommandService,
@@ -53,14 +59,18 @@ import { GroupService } from '../groups';
 import { RoutinePersistenceService } from '../persistence';
 import { RoomService } from '../room.service';
 import { KunamiCodeActivateService } from './kunami-code-activate.service';
-import { RoutineEnabledService } from './routine-enabled.service';
 import { ScheduleActivateService } from './schedule-activate.service';
 import { SolarActivateService } from './solar-activate.service';
 import { StateChangeActivateService } from './state-change-activate.service';
 
+const INSTANCE_ID = uuid();
+const RUN_CACHE = (routine: RoutineDTO) => `${INSTANCE_ID}_${routine._id}`;
+
 @Injectable()
 export class RoutineService {
   constructor(
+    @InjectCache()
+    private readonly cacheService: CacheManagerService,
     private readonly entityRouter: EntityCommandRouterService,
     private readonly flashAnimation: LightFlashCommandService,
     private readonly groupService: GroupService,
@@ -68,7 +78,6 @@ export class RoutineService {
     private readonly logger: AutoLogService,
     private readonly roomService: RoomService,
     private readonly routinePersistence: RoutinePersistenceService,
-    private readonly routineEnabled: RoutineEnabledService,
     private readonly scheduleActivate: ScheduleActivateService,
     @Inject(forwardRef(() => SetRoomMetadataService))
     private readonly setMetadataService: SetRoomMetadataService,
@@ -86,6 +95,8 @@ export class RoutineService {
     @Inject(forwardRef(() => StopProcessingCommandService))
     private readonly stopProcessingService: StopProcessingCommandService,
   ) {}
+
+  private readonly runQueue = new Map<string, (() => void)[]>();
 
   public async activateCommand(
     command: RoutineCommandDTO | string,
@@ -176,7 +187,8 @@ export class RoutineService {
   ): Promise<void> {
     await this.wait(options);
     routine = await this.get(routine);
-    this.logger.info(`[${routine.friendlyName}] activate`);
+    const runId = await this.interruptCheck(routine, options);
+    this.logger.info({ runId }, `[${routine.friendlyName}] activate`);
     let aborted = false;
     waitForChange ??= routine.sync;
     await (routine.sync ? eachSeries : each)(
@@ -184,10 +196,18 @@ export class RoutineService {
       async command => {
         const { friendlyName, sync } = routine as RoutineDTO;
         if (aborted) {
-          this.logger.debug(
-            `[${friendlyName}] processing stopped {${command.friendlyName}}`,
-          );
           return;
+        }
+        if (sync && routine.repeat === 'interrupt') {
+          const currentId = await this.cacheService.get(RUN_CACHE(routine));
+          if (currentId !== runId) {
+            aborted = true;
+            this.logger.debug(
+              { currentId, runId },
+              `[${friendlyName}] processing interrupted`,
+            );
+            return;
+          }
         }
         const result = await this.activateCommand(
           command,
@@ -195,6 +215,11 @@ export class RoutineService {
           waitForChange,
         );
         aborted = result === false && sync;
+        if (aborted) {
+          this.logger.debug(
+            `[${friendlyName}] processing stopped {${command.friendlyName}}`,
+          );
+        }
       },
     );
   }
@@ -293,6 +318,52 @@ export class RoutineService {
     return await this.routinePersistence.update(routine, id);
   }
 
+  private async interruptCheck(
+    routine: RoutineDTO,
+    options: RoutineActivateOptionsDTO,
+  ): Promise<string> {
+    const runId = uuid();
+    if (!routine.sync || options.bypassRepeat) {
+      return runId;
+    }
+    const id = RUN_CACHE(routine);
+    const currentlyRunning = await this.cacheService.get<string>(id);
+    if (routine.repeat === 'block') {
+      if (is.empty(currentlyRunning)) {
+        await this.cacheService.set(id, runId);
+        return runId;
+      }
+      return undefined;
+    }
+    if (routine.repeat === 'queue') {
+      const list = this.runQueue.get(routine._id) ?? [];
+      if (currentlyRunning) {
+        return new Promise(done => {
+          list.push(async () => {
+            await this.cacheService.set(id, runId);
+            done(runId);
+          });
+          this.runQueue.set(routine._id, list);
+        });
+      }
+      await this.cacheService.set(id, runId);
+      return runId;
+    }
+    if (routine.repeat === 'interrupt') {
+      await this.cacheService.set(id, runId);
+      return runId;
+    }
+    if (is.empty(routine.repeat) || routine.repeat === 'normal') {
+      return runId;
+    }
+    throw new InternalServerErrorException(
+      `Unknown repeat type: ${routine.repeat}`,
+    );
+  }
+
+  /**
+   * Used with activations via http calls
+   */
   private async wait(options: RoutineActivateOptionsDTO = {}): Promise<void> {
     if (options.timeout && options.timestamp) {
       // Just send 2 requests

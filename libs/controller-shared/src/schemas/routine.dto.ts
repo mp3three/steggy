@@ -1,10 +1,10 @@
 import { TransformObjectId } from '@automagical/persistence';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
 import {
   IsBoolean,
   IsDateString,
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -73,7 +73,6 @@ export class RoutineDTO {
   @IsString()
   @Prop({ required: true, type: 'string' })
   @ApiProperty()
-  @Expose()
   public friendlyName: string;
 
   /**
@@ -94,6 +93,11 @@ export class RoutineDTO {
   @TransformObjectId()
   @Prop({ index: true })
   public parent?: string;
+
+  @IsOptional()
+  @Prop()
+  @IsEnum(['normal', 'queue', 'block', 'interrupt'])
+  public repeat?: 'normal' | 'queue' | 'block' | 'interrupt';
 
   /**
    * Room that owns this routine
