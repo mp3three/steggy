@@ -31,15 +31,6 @@ export class AuthService {
 
   public client: OAuth2Client;
 
-  protected onModuleInit(): void {
-    this.client = new google.auth.OAuth2(
-      this.clientId,
-      this.clientSecret,
-      this.redirectUrl,
-    );
-    this.client.setCredentials({});
-  }
-
   public async getAccessToken(): Promise<void> {
     const authUrl = this.client.generateAuthUrl({
       access_type: 'offline',
@@ -52,5 +43,14 @@ export class AuthService {
     // this.client
     this.screenService.print(JSON.stringify(token));
     await this.promptService.acknowledge();
+  }
+
+  protected onModuleInit(): void {
+    this.client = new google.auth.OAuth2(
+      this.clientId,
+      this.clientSecret,
+      this.redirectUrl,
+    );
+    this.client.setCredentials({});
   }
 }
