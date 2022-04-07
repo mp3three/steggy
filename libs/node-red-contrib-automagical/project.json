@@ -1,0 +1,58 @@
+{
+  "root": "libs/node-red-contrib-automagical",
+  "sourceRoot": "libs/node-red-contrib-automagical/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/node-red-contrib-automagical",
+        "tsConfig": "libs/node-red-contrib-automagical/tsconfig.lib.json",
+        "packageJson": "libs/node-red-contrib-automagical/package.json",
+        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "main": "libs/node-red-contrib-automagical/src/index.ts",
+        "assets": [
+          "libs/node-red-contrib-automagical/*.md",
+          "libs/node-red-contrib-automagical/package.json"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "fileReplacements": []
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/node-red-contrib-automagical/**/*.ts"]
+      }
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "npx figlet-cli -f Pagga node-red-contrib-automagical",
+            "description": "Announce it"
+          },
+          {
+            "command": "npx nx build node-red-contrib-automagical --configuration=production",
+            "description": "Create production optimized build"
+          },
+          {
+            "command": "yarn publish --cwd dist/libs/node-red-contrib-automagical --non-interactive",
+            "description": "Publish it"
+          }
+        ]
+      }
+    }
+  },
+  "tags": []
+}

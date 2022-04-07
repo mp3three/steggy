@@ -12,7 +12,7 @@
     "home-configure": "apps/home-configure",
     "home-controller": "apps/home-controller",
     "mqtt": "libs/mqtt",
-    "node-red-contrib-automagical": "apps/node-red-contrib-automagical",
+    "node-red-contrib-automagical": "libs/node-red-contrib-automagical",
     "persistence": "libs/persistence",
     "rules-engine": "libs/rules-engine",
     "server": "libs/server",
