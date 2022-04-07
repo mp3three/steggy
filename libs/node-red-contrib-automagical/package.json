@@ -2,7 +2,7 @@
   "name": "node-red-contrib-automagical",
   "node-red": {
     "nodes": {
-      "lower-case": "lower-case.js"
+      "remote-server": "src/nodes/configure/configure.js"
     }
   }
 }

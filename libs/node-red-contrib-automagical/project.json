@@ -14,7 +14,7 @@
         "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/node-red-contrib-automagical/src/index.ts",
         "assets": [
-          "libs/node-red-contrib-automagical/*.md",
+          "libs/node-red-contrib-automagical/**/*.html",
           "libs/node-red-contrib-automagical/package.json"
         ]
       },

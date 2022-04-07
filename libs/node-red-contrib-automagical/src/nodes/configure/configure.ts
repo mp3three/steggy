@@ -1,4 +1,6 @@
-export default function (RED) {
+import { NodeAPI } from 'node-red';
+
+export default function (RED: NodeAPI) {
   function RemoteServerNode(n) {
     RED.nodes.createNode(this, n);
     this.host = n.host;
