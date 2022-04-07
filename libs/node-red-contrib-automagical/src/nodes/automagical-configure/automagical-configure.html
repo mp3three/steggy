@@ -1,0 +1,27 @@
+<script type="text/javascript">
+  RED.nodes.registerType('automagical-configure', {
+    category: 'config',
+    defaults: {
+      host: { value: 'http://localhost:7000', required: true },
+      admin_key: { required: true, value: ''}
+    },
+    label: function () {
+      return this.host
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="automagical-configure">
+  <div class="form-row">
+    <label for="node-config-input-host"
+      ><i class="fa fa-bookmark"></i> Controller</label
+    >
+    <input type="text" id="node-config-input-host" />
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-admin_key"
+      ><i class="fa fa-bookmark"></i> Admin Key</label
+    >
+    <input type="text" id="node-config-input-admin_key" />
+  </div>
+</script>
