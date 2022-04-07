@@ -1,8 +1,8 @@
 import { Node, NodeAPI, NodeDef } from 'node-red';
 
-import { AutomagicalConfiguration } from '../../types';
+import { AutomagicalConfiguration } from './types';
 
-export default function (RED: NodeAPI) {
+module.exports = function (RED: NodeAPI) {
   RED.nodes.registerType(
     'automagical-configure',
     function AutomagicalConfigure(
@@ -14,4 +14,4 @@ export default function (RED: NodeAPI) {
       this.admin_key = node.admin_key;
     },
   );
-}
+};

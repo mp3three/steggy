@@ -2,8 +2,8 @@
   "name": "node-red-contrib-automagical",
   "node-red": {
     "nodes": {
-      "automagical-configure": "src/nodes/automagical-configure/automagical-configure.js",
-      "trigger-routine": "src/nodes/trigger-routine/trigger-routine.js"
+      "automagical-configure": "src/automagical-configure.js",
+      "trigger-routine": "src/trigger-routine.js"
     }
   }
 }
