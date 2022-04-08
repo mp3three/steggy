@@ -2,13 +2,13 @@ import {
   AutoLogService,
   FetchService,
   InjectConfig,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   ApplicationManagerService,
   PromptService,
   QuickScript,
-} from '@automagical/tty';
-import { FIRST, SINGLE } from '@automagical/utilities';
+} from '@steggy/tty';
+import { FIRST, SINGLE } from '@steggy/utilities';
 import execa from 'execa';
 import { lstatSync, mkdirSync, readdirSync, renameSync } from 'fs';
 import { join, normalize } from 'path';

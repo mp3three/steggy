@@ -1,6 +1,6 @@
-import { AutoLogService } from '@automagical/boilerplate';
-import { RountineCommandLightFlashDTO } from '@automagical/controller-shared';
-import { each } from '@automagical/utilities';
+import { AutoLogService } from '@steggy/boilerplate';
+import { RountineCommandLightFlashDTO } from '@steggy/controller-shared';
+import { each } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { GroupService } from '../groups';

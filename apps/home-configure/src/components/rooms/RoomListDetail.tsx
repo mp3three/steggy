@@ -1,4 +1,4 @@
-import { RoomDTO } from '@automagical/controller-shared';
+import { RoomDTO } from '@steggy/controller-shared';
 import { Card, Empty, Form, Input, Tabs, Typography } from 'antd';
 import React from 'react';
 

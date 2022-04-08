@@ -1,4 +1,4 @@
-import { is } from '@automagical/utilities';
+import { is } from '@steggy/utilities';
 import { Injectable, Scope } from '@nestjs/common';
 
 import { TABLE_PARTS } from '../../contracts';

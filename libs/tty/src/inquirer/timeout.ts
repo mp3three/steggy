@@ -1,4 +1,4 @@
-import { ARRAY_OFFSET, FIRST, INCREMENT, is } from '@automagical/utilities';
+import { ARRAY_OFFSET, FIRST, INCREMENT, is } from '@steggy/utilities';
 import { InternalServerErrorException } from '@nestjs/common';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';

@@ -135,7 +135,7 @@ The Home Configure project acts as the primary user interface, and is delivered 
 
 [libs.persistence]
   ; data storage location
-  MONGO_URI=mongodb://localhost:27017/automagical
+  MONGO_URI=mongodb://localhost:27017/steggy
 
   ; file path; optional / used with ssl connections to mongo
   MONGO_CERT=

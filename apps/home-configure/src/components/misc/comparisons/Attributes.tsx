@@ -1,6 +1,6 @@
-import { RoutineAttributeComparisonDTO } from '@automagical/controller-shared';
-import { HassStateDTO } from '@automagical/home-assistant-shared';
-import { is } from '@automagical/utilities';
+import { RoutineAttributeComparisonDTO } from '@steggy/controller-shared';
+import { HassStateDTO } from '@steggy/home-assistant-shared';
+import { is } from '@steggy/utilities';
 import { Card, Form, Input } from 'antd';
 import { dump } from 'js-yaml';
 import React from 'react';

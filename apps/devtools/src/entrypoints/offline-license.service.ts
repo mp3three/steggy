@@ -1,11 +1,11 @@
-import { AutoLogService, InjectConfig } from '@automagical/boilerplate';
+import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
 import {
   ApplicationManagerService,
   PromptService,
   QuickScript,
   ScreenService,
-} from '@automagical/tty';
-import { SINGLE } from '@automagical/utilities';
+} from '@steggy/tty';
+import { SINGLE } from '@steggy/utilities';
 import { InternalServerErrorException } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { existsSync, readFileSync } from 'fs';

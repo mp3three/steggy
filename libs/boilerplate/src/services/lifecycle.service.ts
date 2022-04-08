@@ -1,4 +1,4 @@
-import { eachSeries } from '@automagical/utilities';
+import { eachSeries } from '@steggy/utilities';
 import { INestApplication, Injectable } from '@nestjs/common';
 import { Express } from 'express';
 

@@ -2,7 +2,7 @@ import {
   FILTER_OPERATIONS,
   is,
   ResultControlDTO,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import { Document, Query, Types } from 'mongoose';
 
 import { filtersToMongoQuery } from '../includes';

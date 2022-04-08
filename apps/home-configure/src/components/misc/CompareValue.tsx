@@ -1,4 +1,4 @@
-import { FILTER_OPERATIONS, is } from '@automagical/utilities';
+import { FILTER_OPERATIONS, is } from '@steggy/utilities';
 import { Form, Select, Skeleton } from 'antd';
 import React from 'react';
 

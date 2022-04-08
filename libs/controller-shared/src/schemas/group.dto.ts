@@ -1,5 +1,5 @@
-import { TransformObjectId } from '@automagical/persistence';
-import { is } from '@automagical/utilities';
+import { TransformObjectId } from '@steggy/persistence';
+import { is } from '@steggy/utilities';
 import { Optional } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';

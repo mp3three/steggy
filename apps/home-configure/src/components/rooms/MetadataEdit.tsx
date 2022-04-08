@@ -1,5 +1,5 @@
-import { RoomDTO, RoomMetadataDTO } from '@automagical/controller-shared';
-import { is } from '@automagical/utilities';
+import { RoomDTO, RoomMetadataDTO } from '@steggy/controller-shared';
+import { is } from '@steggy/utilities';
 import {
   Checkbox,
   DatePicker,

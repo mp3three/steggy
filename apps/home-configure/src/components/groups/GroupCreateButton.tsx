@@ -1,6 +1,6 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import { GroupDTO } from '@automagical/controller-shared';
+import { GroupDTO } from '@steggy/controller-shared';
 import { Button, Form, FormInstance, Input, Popconfirm } from 'antd';
 import React from 'react';
 

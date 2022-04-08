@@ -1,4 +1,4 @@
-import { is, START } from '@automagical/utilities';
+import { is, START } from '@steggy/utilities';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
 import pino from 'pino';

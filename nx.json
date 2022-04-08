@@ -17,7 +17,7 @@
   "affected": {
     "defaultBase": "origin/master"
   },
-  "npmScope": "automagical",
+  "npmScope": "steggy",
   "tasksRunnerOptions": {
     "default": {
       "runner": "@nrwl/nx-cloud",

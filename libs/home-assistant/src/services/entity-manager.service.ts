@@ -2,7 +2,7 @@ import {
   AutoLogService,
   InjectConfig,
   OnEvent,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   ALL_ENTITIES_UPDATED,
   CapbilityList,
@@ -14,8 +14,8 @@ import {
   HassEventDTO,
   HASSIO_WS_COMMAND,
   HassStateDTO,
-} from '@automagical/home-assistant-shared';
-import { is, SECOND, sleep } from '@automagical/utilities';
+} from '@steggy/home-assistant-shared';
+import { is, SECOND, sleep } from '@steggy/utilities';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 import { Observable, Subscriber } from 'rxjs';

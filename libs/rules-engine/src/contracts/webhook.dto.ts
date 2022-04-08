@@ -1,4 +1,4 @@
-import { ComparisonDTO, FetchWith, FilterDTO } from '@automagical/utilities';
+import { ComparisonDTO, FetchWith, FilterDTO } from '@steggy/utilities';
 
 export class WebhookDTO {
   public compareAs: 'text' | 'object';

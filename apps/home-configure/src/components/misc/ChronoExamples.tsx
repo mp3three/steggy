@@ -1,4 +1,4 @@
-import { is } from '@automagical/utilities';
+import { is } from '@steggy/utilities';
 import { Card, List, Skeleton, Typography } from 'antd';
 import { parse } from 'chrono-node';
 import React from 'react';

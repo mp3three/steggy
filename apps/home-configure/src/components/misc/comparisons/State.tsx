@@ -1,5 +1,5 @@
-import { RoutineStateComparisonDTO } from '@automagical/controller-shared';
-import { FILTER_OPERATIONS, is } from '@automagical/utilities';
+import { RoutineStateComparisonDTO } from '@steggy/controller-shared';
+import { FILTER_OPERATIONS, is } from '@steggy/utilities';
 import { Card, Form } from 'antd';
 import React from 'react';
 

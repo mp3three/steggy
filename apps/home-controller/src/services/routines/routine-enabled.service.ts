@@ -2,7 +2,7 @@ import {
   AutoLogService,
   InjectConfig,
   OnEvent,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   RoomMetadataComparisonDTO,
   ROUTINE_UPDATE,
@@ -11,13 +11,13 @@ import {
   RoutineRelativeDateComparisonDTO,
   RoutineStateComparisonDTO,
   STOP_PROCESSING_TYPE,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   ALL_ENTITIES_UPDATED,
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
-} from '@automagical/home-assistant-shared';
-import { each, INCREMENT, is, SECOND } from '@automagical/utilities';
+} from '@steggy/home-assistant-shared';
+import { each, INCREMENT, is, SECOND } from '@steggy/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 

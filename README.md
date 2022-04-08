@@ -1,6 +1,6 @@
-# [@automagical](https://github.com/ccontour/automagical) monorepo
+# [@steggy](https://github.com/ccontour/steggy) monorepo
 
-- [Changelog](https://github.com/ccontour/automagical/wiki/Changelog)
+- [Changelog](https://github.com/ccontour/steggy/wiki/Changelog)
 
 ## [Home Configure](apps/home-configure)
 

@@ -2,15 +2,15 @@ import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   GROUP_DEFINITIONS,
   GROUP_TYPES,
   GroupDTO,
   GroupSaveStateDTO,
   RoomEntitySaveStateDTO,
-} from '@automagical/controller-shared';
-import { HASS_DOMAINS } from '@automagical/home-assistant-shared';
+} from '@steggy/controller-shared';
+import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
   DONE,
@@ -23,7 +23,7 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@automagical/tty';
+} from '@steggy/tty';
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -31,7 +31,7 @@ import {
   ResultControlDTO,
   TitleCase,
   UP,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import {
   forwardRef,
   Inject,

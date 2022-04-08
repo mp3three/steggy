@@ -1,6 +1,6 @@
-import { SolarActivateDTO } from '@automagical/controller-shared';
-import { ICONS, PromptEntry, PromptService } from '@automagical/tty';
-import { DOWN, TitleCase, UP } from '@automagical/utilities';
+import { SolarActivateDTO } from '@steggy/controller-shared';
+import { ICONS, PromptEntry, PromptService } from '@steggy/tty';
+import { DOWN, TitleCase, UP } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';

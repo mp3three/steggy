@@ -1,11 +1,11 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import {
   GroupDTO,
   GroupSaveStateDTO,
   RoomDTO,
   RoomEntitySaveStateDTO,
   RoutineCommandGroupStateDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   ApplicationManagerService,
   ICONS,
@@ -16,8 +16,8 @@ import {
   ScreenService,
   TextRenderingService,
   ToMenuEntry,
-} from '@automagical/tty';
-import { is, LABEL } from '@automagical/utilities';
+} from '@steggy/tty';
+import { is, LABEL } from '@steggy/utilities';
 import {
   forwardRef,
   Inject,

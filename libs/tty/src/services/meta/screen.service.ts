@@ -1,4 +1,4 @@
-import { EMPTY, is, SINGLE } from '@automagical/utilities';
+import { EMPTY, is, SINGLE } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import { ReadStream } from 'fs';
 import MuteStream from 'mute-stream';

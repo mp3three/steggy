@@ -1,4 +1,4 @@
-import { EMPTY } from '@automagical/utilities';
+import { EMPTY } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

@@ -13,15 +13,15 @@ import {
   ScheduleActivateDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
   Locals,
   ResponseLocals,
-} from '@automagical/server';
-import { NOT_FOUND } from '@automagical/utilities';
+} from '@steggy/server';
+import { NOT_FOUND } from '@steggy/utilities';
 import {
   Body,
   Controller,

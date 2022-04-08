@@ -6,7 +6,7 @@ import {
   ScheduleActivateDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   ApplicationManagerService,
   ICONS,
@@ -15,8 +15,8 @@ import {
   ScreenService,
   TextRenderingService,
   ToMenuEntry,
-} from '@automagical/tty';
-import { is, TitleCase } from '@automagical/utilities';
+} from '@steggy/tty';
+import { is, TitleCase } from '@steggy/utilities';
 import {
   forwardRef,
   Inject,

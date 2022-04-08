@@ -1,11 +1,11 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { RoomEntitySaveStateDTO } from '@automagical/controller-shared';
+import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
 import {
   ColorModes,
   LightAttributesDTO,
   LightStateDTO,
-} from '@automagical/home-assistant-shared';
-import { is, START } from '@automagical/utilities';
+} from '@steggy/home-assistant-shared';
+import { is, START } from '@steggy/utilities';
 import {
   Button,
   Card,

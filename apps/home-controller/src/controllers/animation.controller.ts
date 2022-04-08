@@ -1,9 +1,9 @@
-import { FlashAnimationDTO } from '@automagical/controller-shared';
+import { FlashAnimationDTO } from '@steggy/controller-shared';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
-} from '@automagical/server';
+} from '@steggy/server';
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 

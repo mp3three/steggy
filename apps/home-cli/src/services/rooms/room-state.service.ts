@@ -1,11 +1,11 @@
 /* eslint-disable radar/no-identical-functions */
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import {
   RoomDTO,
   RoomEntitySaveStateDTO,
   RoomStateDTO,
-} from '@automagical/controller-shared';
-import { domain, HASS_DOMAINS } from '@automagical/home-assistant-shared';
+} from '@steggy/controller-shared';
+import { domain, HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
   ICONS,
@@ -16,7 +16,7 @@ import {
   ScreenService,
   TextRenderingService,
   ToMenuEntry,
-} from '@automagical/tty';
+} from '@steggy/tty';
 import {
   DOWN,
   FILTER_OPERATIONS,
@@ -24,7 +24,7 @@ import {
   LABEL,
   UP,
   VALUE,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import {
   forwardRef,
   Inject,

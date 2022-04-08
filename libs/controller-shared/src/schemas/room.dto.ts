@@ -1,5 +1,5 @@
-import { HassStateDTO } from '@automagical/home-assistant-shared';
-import { TransformObjectId } from '@automagical/persistence';
+import { HassStateDTO } from '@steggy/home-assistant-shared';
+import { TransformObjectId } from '@steggy/persistence';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';

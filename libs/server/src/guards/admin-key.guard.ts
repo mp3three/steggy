@@ -1,4 +1,4 @@
-import { AutoLogService, InjectConfig } from '@automagical/boilerplate';
+import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
 import { ADMIN_KEY } from '../config';

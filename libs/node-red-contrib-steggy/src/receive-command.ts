@@ -4,7 +4,7 @@ type TriggerOptions = { name: string; target: string };
 
 module.exports = function (RED: NodeAPI) {
   RED.httpNode.post(
-    `/automagical/routine-command/:command`,
+    `/steggy/routine-command/:command`,
     function ({ params, body }, response) {
       response.send({ success: true });
       const { command } = params;

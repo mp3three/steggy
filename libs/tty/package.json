@@ -3,7 +3,7 @@
     "email": "git@programmable.work",
     "name": "Cameron Contour"
   },
-  "name": "@automagical/tty",
+  "name": "@steggy/tty",
   "license": "MIT",
   "displayName": "TTY",
   "version": "0.7.0"

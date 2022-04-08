@@ -1,5 +1,5 @@
-import { ModuleScannerService } from '@automagical/boilerplate';
-import { ARRAY_OFFSET, is, START } from '@automagical/utilities';
+import { ModuleScannerService } from '@steggy/boilerplate';
+import { ARRAY_OFFSET, is, START } from '@steggy/utilities';
 import chalk from 'chalk';
 import { get, set } from 'object-path';
 

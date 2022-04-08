@@ -1,22 +1,22 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import {
   GROUP_TYPES,
   GroupCommandDTO,
   GroupDTO,
   RoomEntitySaveStateDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   EntityManagerService,
   FanDomainService,
   HomeAssistantCoreService,
-} from '@automagical/home-assistant';
+} from '@steggy/home-assistant';
 import {
   domain,
   FanAttributesDTO,
   FanStateDTO,
   HASS_DOMAINS,
-} from '@automagical/home-assistant-shared';
-import { each, START } from '@automagical/utilities';
+} from '@steggy/home-assistant-shared';
+import { each, START } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { EntityCommandRouterService } from '../entity-command-router.service';

@@ -6,7 +6,7 @@ import {
   RoutineStateComparisonDTO,
   RoutineTemplateComparisonDTO,
   RoutineWebhookComparisonDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import { Button, Drawer, Typography } from 'antd';
 import React from 'react';
 

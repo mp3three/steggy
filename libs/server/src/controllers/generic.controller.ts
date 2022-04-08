@@ -3,7 +3,7 @@ import {
   GenericVersionDTO,
   InjectConfig,
   WorkspaceService,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import { Controller, Get, Inject, NotFoundException } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 

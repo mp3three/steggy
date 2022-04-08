@@ -4,12 +4,12 @@ import {
   Cron,
   InjectCache,
   InjectConfig,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   EntityManagerService,
   NotifyDomainService,
-} from '@automagical/home-assistant';
-import { CronExpression, each, is } from '@automagical/utilities';
+} from '@steggy/home-assistant';
+import { CronExpression, each, is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 

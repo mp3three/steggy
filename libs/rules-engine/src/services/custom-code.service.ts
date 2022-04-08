@@ -1,4 +1,4 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import { Injectable } from '@nestjs/common';
 import { VM } from 'vm2';
 

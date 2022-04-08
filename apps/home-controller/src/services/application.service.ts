@@ -2,9 +2,9 @@ import {
   AutoLogService,
   InjectConfig,
   OnEvent,
-} from '@automagical/boilerplate';
-import { NotifyDomainService } from '@automagical/home-assistant';
-import { HA_SOCKET_READY } from '@automagical/home-assistant-shared';
+} from '@steggy/boilerplate';
+import { NotifyDomainService } from '@steggy/home-assistant';
+import { HA_SOCKET_READY } from '@steggy/home-assistant-shared';
 import { Injectable } from '@nestjs/common';
 
 import { NOTIFY_CONNECTION_RESET, SAFE_MODE } from '../config';

@@ -1,5 +1,5 @@
-import { ScheduleActivateDTO } from '@automagical/controller-shared';
-import { CronExpression, TitleCase } from '@automagical/utilities';
+import { ScheduleActivateDTO } from '@steggy/controller-shared';
+import { CronExpression, TitleCase } from '@steggy/utilities';
 import { Divider, Form, Input, Select, Space } from 'antd';
 import React from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';

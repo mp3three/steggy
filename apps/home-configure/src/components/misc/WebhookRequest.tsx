@@ -1,4 +1,4 @@
-import { RoutineCommandWebhookDTO } from '@automagical/controller-shared';
+import { RoutineCommandWebhookDTO } from '@steggy/controller-shared';
 import { Button, Form, Input, Select, Table } from 'antd';
 import React from 'react';
 

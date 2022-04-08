@@ -1,4 +1,4 @@
-import { RoutineDTO, RoutineEnableDTO } from '@automagical/controller-shared';
+import { RoutineDTO, RoutineEnableDTO } from '@steggy/controller-shared';
 import { Card, Divider, Form, Input, Radio, Tooltip } from 'antd';
 import React from 'react';
 

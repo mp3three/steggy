@@ -1,4 +1,4 @@
-import { is } from '@automagical/utilities';
+import { is } from '@steggy/utilities';
 import { INestApplication } from '@nestjs/common';
 import inquirer from 'inquirer';
 import datePrompt from 'inquirer-date-prompt';

@@ -1,4 +1,4 @@
-import { is } from '@automagical/utilities';
+import { is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { KeyModifiers, TableBuilderElement, tKeyMap } from '../../contracts';

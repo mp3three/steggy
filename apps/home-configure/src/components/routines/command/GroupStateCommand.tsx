@@ -1,7 +1,7 @@
 import {
   GroupDTO,
   RoutineCommandGroupStateDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import { Form, Select, Skeleton, Space } from 'antd';
 import React from 'react';
 

@@ -1,4 +1,4 @@
-import { FILTER_OPERATIONS, FilterValueType } from '@automagical/utilities';
+import { FILTER_OPERATIONS, FilterValueType } from '@steggy/utilities';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class StateChangeActivateDTO {

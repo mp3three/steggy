@@ -1,4 +1,4 @@
-import { ACTIVE_APPLICATION, WorkspaceService } from '@automagical/boilerplate';
+import { ACTIVE_APPLICATION, WorkspaceService } from '@steggy/boilerplate';
 import { INestApplication } from '@nestjs/common';
 import { show } from 'cli-cursor';
 import { dump } from 'js-yaml';

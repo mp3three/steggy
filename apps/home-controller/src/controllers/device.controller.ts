@@ -1,9 +1,9 @@
-import { DeviceService, HASocketAPIService } from '@automagical/home-assistant';
+import { DeviceService, HASocketAPIService } from '@steggy/home-assistant';
 import {
   DeviceListItemDTO,
   RelatedDescriptionDTO,
-} from '@automagical/home-assistant-shared';
-import { AuthStack } from '@automagical/server';
+} from '@steggy/home-assistant-shared';
+import { AuthStack } from '@steggy/server';
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 

@@ -1,15 +1,15 @@
-import { AutoLogService, CastResult } from '@automagical/boilerplate';
+import { AutoLogService, CastResult } from '@steggy/boilerplate';
 import {
   ROOM_UPDATE,
   RoomDocument,
   RoomDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   BaseMongoService,
   BaseSchemaDTO,
   EncryptionService,
-} from '@automagical/persistence';
-import { is, ResultControlDTO } from '@automagical/utilities';
+} from '@steggy/persistence';
+import { is, ResultControlDTO } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import EventEmitter from 'eventemitter3';

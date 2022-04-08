@@ -7,7 +7,7 @@ import {
   is,
   PEAT,
   START,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 

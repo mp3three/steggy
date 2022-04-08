@@ -1,5 +1,5 @@
-import { HassStateDTO } from '@automagical/home-assistant-shared';
-import { is } from '@automagical/utilities';
+import { HassStateDTO } from '@steggy/home-assistant-shared';
+import { is } from '@steggy/utilities';
 import { Button, Card, DatePicker, Form, notification, Table } from 'antd';
 import moment from 'moment';
 import React from 'react';

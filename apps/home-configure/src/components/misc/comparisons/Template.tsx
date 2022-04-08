@@ -1,6 +1,6 @@
 import { QuestionOutlined } from '@ant-design/icons';
-import { RoutineTemplateComparisonDTO } from '@automagical/controller-shared';
-import { is } from '@automagical/utilities';
+import { RoutineTemplateComparisonDTO } from '@steggy/controller-shared';
+import { is } from '@steggy/utilities';
 import { Button, Card, Form, Input, Tooltip } from 'antd';
 import React from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';

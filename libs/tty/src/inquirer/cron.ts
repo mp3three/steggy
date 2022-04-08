@@ -4,7 +4,7 @@ import {
   INVERT_VALUE,
   is,
   START,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import chalk from 'chalk';
 
 import { InquirerPrompt } from '../decorators';

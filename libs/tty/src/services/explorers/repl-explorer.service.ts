@@ -1,4 +1,4 @@
-import { AutoLogService, ModuleScannerService } from '@automagical/boilerplate';
+import { AutoLogService, ModuleScannerService } from '@steggy/boilerplate';
 import { Injectable } from '@nestjs/common';
 
 import { iRepl, REPL_CONFIG, ReplOptions } from '../../contracts';

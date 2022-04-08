@@ -3,7 +3,7 @@ import BulletinBoard from '@2fd/ant-design-icons/lib/BulletinBoard';
 import HomeAutomation from '@2fd/ant-design-icons/lib/HomeAutomation';
 import LightbulbGroupOutline from '@2fd/ant-design-icons/lib/LightbulbGroupOutline';
 import { HomeOutlined, SettingOutlined } from '@ant-design/icons';
-import { is } from '@automagical/utilities';
+import { is } from '@steggy/utilities';
 import { Menu } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';

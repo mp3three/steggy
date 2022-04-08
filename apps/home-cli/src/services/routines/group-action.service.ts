@@ -1,7 +1,7 @@
 import {
   GROUP_TYPES,
   RoutineCommandGroupActionDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import {

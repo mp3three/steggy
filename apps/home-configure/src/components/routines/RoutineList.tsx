@@ -1,5 +1,5 @@
-import { RoutineDTO } from '@automagical/controller-shared';
-import { ResultControlDTO, SECOND } from '@automagical/utilities';
+import { RoutineDTO } from '@steggy/controller-shared';
+import { ResultControlDTO, SECOND } from '@steggy/utilities';
 import { Col, Layout, Row } from 'antd';
 import React from 'react';
 

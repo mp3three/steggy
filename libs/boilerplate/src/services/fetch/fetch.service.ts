@@ -1,4 +1,4 @@
-import { FetchArguments } from '@automagical/utilities';
+import { FetchArguments } from '@steggy/utilities';
 import { Injectable, Scope } from '@nestjs/common';
 import Bottleneck from 'bottleneck';
 import { createWriteStream } from 'fs';

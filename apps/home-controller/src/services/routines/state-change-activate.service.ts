@@ -4,18 +4,18 @@ import {
   InjectCache,
   JSONFilterService,
   OnEvent,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   RoutineDTO,
   StateChangeActivateDTO,
   StateChangeWatcher,
-} from '@automagical/controller-shared';
-import { EntityManagerService } from '@automagical/home-assistant';
+} from '@steggy/controller-shared';
+import { EntityManagerService } from '@steggy/home-assistant';
 import {
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
-} from '@automagical/home-assistant-shared';
-import { each, is } from '@automagical/utilities';
+} from '@steggy/home-assistant-shared';
+import { each, is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 const LATCH_KEY = (id: string) => `STATE_LATCH:${id}`;

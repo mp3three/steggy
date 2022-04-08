@@ -11,7 +11,7 @@ import {
   START,
   UP,
   VALUE,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import { forwardRef, Inject } from '@nestjs/common';
 import chalk from 'chalk';
 

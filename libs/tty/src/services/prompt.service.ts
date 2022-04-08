@@ -1,5 +1,5 @@
-import { AutoLogService, InjectConfig } from '@automagical/boilerplate';
-import { DOWN, is, LABEL, UP, VALUE } from '@automagical/utilities';
+import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
+import { DOWN, is, LABEL, UP, VALUE } from '@steggy/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import inquirer from 'inquirer';

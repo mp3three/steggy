@@ -1,5 +1,5 @@
-import { KunamiCodeActivateDTO } from '@automagical/controller-shared';
-import { eachSeries, is, PEAT, sleep } from '@automagical/utilities';
+import { KunamiCodeActivateDTO } from '@steggy/controller-shared';
+import { eachSeries, is, PEAT, sleep } from '@steggy/utilities';
 import {
   Button,
   Col,

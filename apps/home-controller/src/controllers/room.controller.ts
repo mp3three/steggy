@@ -4,16 +4,16 @@ import {
   RoomEntityDTO,
   RoomMetadataDTO,
   RoomStateDTO,
-} from '@automagical/controller-shared';
-import { BaseSchemaDTO } from '@automagical/persistence';
+} from '@steggy/controller-shared';
+import { BaseSchemaDTO } from '@steggy/persistence';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
   Locals,
   ResponseLocals,
-} from '@automagical/server';
-import { each } from '@automagical/utilities';
+} from '@steggy/server';
+import { each } from '@steggy/utilities';
 import {
   Body,
   Controller,

@@ -1,4 +1,4 @@
-import { LibraryModule } from '@automagical/boilerplate';
+import { LibraryModule } from '@steggy/boilerplate';
 
 import {
   CIPER_ALGORITHM,
@@ -66,7 +66,7 @@ const providers = [ConnectService, EncryptionService, BaseMongoService];
       type: 'string',
     },
     [MONGO_URI]: {
-      default: 'mongodb://localhost:27017/automagical',
+      default: 'mongodb://localhost:27017/steggy',
       description: 'Mongo connection string',
       type: 'string',
     },

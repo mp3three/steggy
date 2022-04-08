@@ -1,5 +1,5 @@
-import { ModuleScannerService } from '@automagical/boilerplate';
-import { is } from '@automagical/utilities';
+import { ModuleScannerService } from '@steggy/boilerplate';
+import { is } from '@steggy/utilities';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 import { iStackProvider, STACK_PROVIDER } from '../../contracts';

@@ -1,4 +1,4 @@
-import { LibraryModule } from '@automagical/boilerplate';
+import { LibraryModule } from '@steggy/boilerplate';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { LIB_MQTT, MQTT_HOST, MQTT_PORT } from '../config';

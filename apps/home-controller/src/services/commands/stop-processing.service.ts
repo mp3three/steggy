@@ -2,7 +2,7 @@ import {
   AutoLogService,
   FetchService,
   JSONFilterService,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   RoomMetadataComparisonDTO,
   RoutineAttributeComparisonDTO,
@@ -12,12 +12,12 @@ import {
   RoutineTemplateComparisonDTO,
   RoutineWebhookComparisonDTO,
   STOP_PROCESSING_TYPE,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   EntityManagerService,
   HASocketAPIService,
-} from '@automagical/home-assistant';
-import { eachSeries, is } from '@automagical/utilities';
+} from '@steggy/home-assistant';
+import { eachSeries, is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { Response } from 'node-fetch';

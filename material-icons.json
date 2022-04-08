@@ -18,7 +18,7 @@
     "adapters": "custom",
     "alpaca": "vm",
     "app": "vscode",
-    "automagical": "home",
+    "steggy": "home",
     "boilerplate": "core",
     "canvas": "interface",
     "comparisons": "custom",

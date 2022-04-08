@@ -1,4 +1,4 @@
-import { is } from '@automagical/utilities';
+import { is } from '@steggy/utilities';
 
 const MULTIPLIER = 2.55;
 

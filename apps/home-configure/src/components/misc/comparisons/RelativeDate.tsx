@@ -1,4 +1,4 @@
-import { RoutineRelativeDateComparisonDTO } from '@automagical/controller-shared';
+import { RoutineRelativeDateComparisonDTO } from '@steggy/controller-shared';
 import { Card, Divider, Form, Input, Radio, Tooltip, Typography } from 'antd';
 import React from 'react';
 

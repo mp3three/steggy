@@ -1,4 +1,4 @@
-import { START } from '@automagical/utilities';
+import { START } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { ansiMaxLength, ansiPadEnd } from '../../includes';

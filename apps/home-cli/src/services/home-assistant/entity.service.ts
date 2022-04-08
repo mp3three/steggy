@@ -1,11 +1,11 @@
-import { RoomEntitySaveStateDTO } from '@automagical/controller-shared';
+import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
 import {
   domain,
   FanAttributesDTO,
   HASS_DOMAINS,
   HassStateDTO,
   LightAttributesDTO,
-} from '@automagical/home-assistant-shared';
+} from '@steggy/home-assistant-shared';
 import {
   ICONS,
   iRepl,
@@ -16,8 +16,8 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@automagical/tty';
-import { is, VALUE } from '@automagical/utilities';
+} from '@steggy/tty';
+import { is, VALUE } from '@steggy/utilities';
 
 import { MENU_ITEMS } from '../../includes';
 import {

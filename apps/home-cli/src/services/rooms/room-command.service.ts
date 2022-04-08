@@ -2,13 +2,13 @@ import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
-} from '@automagical/controller-shared';
-import { HASS_DOMAINS } from '@automagical/home-assistant-shared';
+} from '@steggy/controller-shared';
+import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
   ICONS,
@@ -18,8 +18,8 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@automagical/tty';
-import { DOWN, FILTER_OPERATIONS, is, LABEL, UP } from '@automagical/utilities';
+} from '@steggy/tty';
+import { DOWN, FILTER_OPERATIONS, is, LABEL, UP } from '@steggy/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';

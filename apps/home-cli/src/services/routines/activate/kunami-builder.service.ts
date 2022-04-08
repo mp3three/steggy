@@ -1,8 +1,8 @@
-import { AutoLogService } from '@automagical/boilerplate';
-import { KunamiCodeActivateDTO } from '@automagical/controller-shared';
-import { HASS_DOMAINS } from '@automagical/home-assistant-shared';
-import { PromptService } from '@automagical/tty';
-import { is } from '@automagical/utilities';
+import { AutoLogService } from '@steggy/boilerplate';
+import { KunamiCodeActivateDTO } from '@steggy/controller-shared';
+import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
+import { PromptService } from '@steggy/tty';
+import { is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 

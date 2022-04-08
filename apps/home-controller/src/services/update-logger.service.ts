@@ -1,10 +1,10 @@
-import { AutoLogService, OnEvent } from '@automagical/boilerplate';
-import { DEBUG_LOG } from '@automagical/controller-shared';
+import { AutoLogService, OnEvent } from '@steggy/boilerplate';
+import { DEBUG_LOG } from '@steggy/controller-shared';
 import {
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
-} from '@automagical/home-assistant-shared';
-import { is } from '@automagical/utilities';
+} from '@steggy/home-assistant-shared';
+import { is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { ENTITY_METADATA_UPDATED } from '../typings';

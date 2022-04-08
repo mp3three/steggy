@@ -3,7 +3,7 @@ import {
   LightAttributesDTO,
   LockAttributesDTO,
   SwitchAttributesDTO,
-} from '@automagical/home-assistant-shared';
+} from '@steggy/home-assistant-shared';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, ValidateNested } from 'class-validator';
 

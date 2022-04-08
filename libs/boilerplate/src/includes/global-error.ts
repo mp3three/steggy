@@ -1,4 +1,4 @@
-import { FIRST, START } from '@automagical/utilities';
+import { FIRST, START } from '@steggy/utilities';
 import { INestApplication } from '@nestjs/common';
 import chalk from 'chalk';
 

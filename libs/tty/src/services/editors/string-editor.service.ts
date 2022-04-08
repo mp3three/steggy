@@ -1,4 +1,4 @@
-import { INVERT_VALUE, is, SINGLE, START } from '@automagical/utilities';
+import { INVERT_VALUE, is, SINGLE, START } from '@steggy/utilities';
 import chalk from 'chalk';
 
 import { KeyModifiers } from '../../contracts';

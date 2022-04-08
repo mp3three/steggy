@@ -1,5 +1,5 @@
-import { InjectConfig } from '@automagical/boilerplate';
-import { ConnectService } from '@automagical/persistence';
+import { InjectConfig } from '@steggy/boilerplate';
+import { ConnectService } from '@steggy/persistence';
 import { Injectable } from '@nestjs/common';
 import { MongooseModuleOptions } from '@nestjs/mongoose';
 

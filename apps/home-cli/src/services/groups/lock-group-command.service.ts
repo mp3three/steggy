@@ -1,11 +1,11 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import {
   GENERIC_COMMANDS,
   GroupDTO,
   RoutineCommandGroupActionDTO,
-} from '@automagical/controller-shared';
-import { ICONS, KeyMap, PromptEntry, PromptService } from '@automagical/tty';
-import { is } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { ICONS, KeyMap, PromptEntry, PromptService } from '@steggy/tty';
+import { is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { HomeFetchService } from '../home-fetch.service';

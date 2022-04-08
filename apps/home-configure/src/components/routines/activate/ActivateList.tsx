@@ -3,8 +3,8 @@ import {
   ROUTINE_ACTIVATE_TYPES,
   RoutineActivateDTO,
   RoutineDTO,
-} from '@automagical/controller-shared';
-import { ARRAY_OFFSET, TitleCase } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { ARRAY_OFFSET, TitleCase } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm, Typography } from 'antd';
 import React from 'react';
 

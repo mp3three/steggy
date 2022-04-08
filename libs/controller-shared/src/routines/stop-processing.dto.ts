@@ -1,4 +1,4 @@
-import { ComparisonDTO } from '@automagical/utilities';
+import { ComparisonDTO } from '@steggy/utilities';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
 

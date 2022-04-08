@@ -1,4 +1,4 @@
-import { AutoLogService, InjectConfig } from '@automagical/boilerplate';
+import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
 import { Injectable } from '@nestjs/common';
 import { google } from 'googleapis';
 

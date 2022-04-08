@@ -1,14 +1,14 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import type {
   GroupSaveStateDTO,
   ROOM_ENTITY_EXTRAS,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
-} from '@automagical/controller-shared';
-import { GROUP_TYPES, GroupDTO } from '@automagical/controller-shared';
-import { domain, HASS_DOMAINS } from '@automagical/home-assistant-shared';
-import { BaseSchemaDTO } from '@automagical/persistence';
-import { each, is, ResultControlDTO } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { GROUP_TYPES, GroupDTO } from '@steggy/controller-shared';
+import { domain, HASS_DOMAINS } from '@steggy/home-assistant-shared';
+import { BaseSchemaDTO } from '@steggy/persistence';
+import { each, is, ResultControlDTO } from '@steggy/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import { EntityCommandRouterService } from '../entity-command-router.service';

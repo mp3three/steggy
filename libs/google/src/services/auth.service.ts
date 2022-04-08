@@ -2,12 +2,12 @@ import {
   AutoLogService,
   InjectConfig,
   WorkspaceService,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   ApplicationManagerService,
   PromptService,
   ScreenService,
-} from '@automagical/tty';
+} from '@steggy/tty';
 import { Injectable } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import { google } from 'googleapis';

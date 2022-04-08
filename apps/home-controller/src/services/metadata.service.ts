@@ -1,6 +1,6 @@
-import { AutoLogService } from '@automagical/boilerplate';
-import { MetadataDTO } from '@automagical/controller-shared';
-import { SINGLE } from '@automagical/utilities';
+import { AutoLogService } from '@steggy/boilerplate';
+import { MetadataDTO } from '@steggy/controller-shared';
+import { SINGLE } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 

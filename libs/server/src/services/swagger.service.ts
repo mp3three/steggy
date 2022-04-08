@@ -3,8 +3,8 @@ import {
   AutoLogService,
   InjectConfig,
   WorkspaceService,
-} from '@automagical/boilerplate';
-import { TitleCase } from '@automagical/utilities';
+} from '@steggy/boilerplate';
+import { TitleCase } from '@steggy/utilities';
 import { INestApplication, Inject, Injectable } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 

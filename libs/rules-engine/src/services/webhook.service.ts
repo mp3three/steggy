@@ -2,8 +2,8 @@ import {
   AutoLogService,
   FetchService,
   JSONFilterService,
-} from '@automagical/boilerplate';
-import { is } from '@automagical/utilities';
+} from '@steggy/boilerplate';
+import { is } from '@steggy/utilities';
 import {
   ConflictException,
   Injectable,

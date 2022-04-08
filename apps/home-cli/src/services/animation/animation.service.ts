@@ -1,5 +1,5 @@
-import { FlashAnimationDTO } from '@automagical/controller-shared';
-import { HASS_DOMAINS } from '@automagical/home-assistant-shared';
+import { FlashAnimationDTO } from '@steggy/controller-shared';
+import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import {
   ColorsService,
   DONE,
@@ -8,7 +8,7 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@automagical/tty';
+} from '@steggy/tty';
 import chalk from 'chalk';
 
 import { EntityService } from '../home-assistant/entity.service';

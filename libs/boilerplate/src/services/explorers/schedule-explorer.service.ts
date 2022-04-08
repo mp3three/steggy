@@ -1,4 +1,4 @@
-import { CRON_SCHEDULE } from '@automagical/utilities';
+import { CRON_SCHEDULE } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';

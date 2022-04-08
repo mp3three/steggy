@@ -1,4 +1,4 @@
-import { DONE, ICONS, MenuEntry } from '@automagical/tty';
+import { DONE, ICONS, MenuEntry } from '@steggy/tty';
 import chalk from 'chalk';
 
 const menu = {

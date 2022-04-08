@@ -1,15 +1,15 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import type {
   GroupCommandDTO,
   ROOM_ENTITY_EXTRAS,
   RoomEntitySaveStateDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   GROUP_TYPES,
   GroupDTO,
   GroupSaveStateDTO,
-} from '@automagical/controller-shared';
-import { is } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { is } from '@steggy/utilities';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { v4 as uuid } from 'uuid';

@@ -1,4 +1,4 @@
-import { FILTER_OPERATIONS } from '@automagical/utilities';
+import { FILTER_OPERATIONS } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 

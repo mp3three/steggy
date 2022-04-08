@@ -2,12 +2,12 @@
 // Really don't care if a simple map function is duplicated
 /* eslint-disable radar/no-identical-functions */
 
-import { CacheManagerService, InjectCache } from '@automagical/boilerplate';
+import { CacheManagerService, InjectCache } from '@steggy/boilerplate';
 import {
   RoomDTO,
   RoutineActivateOptionsDTO,
   RoutineDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   ApplicationManagerService,
   ICONS,
@@ -19,8 +19,8 @@ import {
   StackService,
   TextRenderingService,
   ToMenuEntry,
-} from '@automagical/tty';
-import { is, LABEL, ResultControlDTO, TitleCase } from '@automagical/utilities';
+} from '@steggy/tty';
+import { is, LABEL, ResultControlDTO, TitleCase } from '@steggy/utilities';
 import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';

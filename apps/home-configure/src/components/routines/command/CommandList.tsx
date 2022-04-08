@@ -3,8 +3,8 @@ import {
   MenuOutlined,
   QuestionCircleOutlined,
 } from '@ant-design/icons';
-import { RoutineCommandDTO, RoutineDTO } from '@automagical/controller-shared';
-import { ARRAY_OFFSET, is, TitleCase } from '@automagical/utilities';
+import { RoutineCommandDTO, RoutineDTO } from '@steggy/controller-shared';
+import { ARRAY_OFFSET, is, TitleCase } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm, Space, Table } from 'antd';
 import React from 'react';
 import {

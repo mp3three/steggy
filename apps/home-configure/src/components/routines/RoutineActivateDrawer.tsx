@@ -6,8 +6,8 @@ import {
   ScheduleActivateDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
-} from '@automagical/controller-shared';
-import { is } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { is } from '@steggy/utilities';
 import { Card, Drawer, Form, Spin, Typography } from 'antd';
 import React from 'react';
 

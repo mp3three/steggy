@@ -4,7 +4,7 @@ import {
   FetchParameterTypes,
   is,
   ResultControlDTO,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import { BodyInit, RequestInit, Response } from 'node-fetch';
 
 import { AutoLogService } from '../auto-log.service';

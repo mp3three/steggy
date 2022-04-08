@@ -3,8 +3,8 @@ import {
   RoomDTO,
   RoomMetadataDTO,
   SetRoomMetadataCommandDTO,
-} from '@automagical/controller-shared';
-import { EMPTY, is, SINGLE } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { EMPTY, is, SINGLE } from '@steggy/utilities';
 import {
   Form,
   Input,

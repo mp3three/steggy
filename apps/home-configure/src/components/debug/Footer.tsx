@@ -9,10 +9,10 @@ export class Foot extends React.Component {
     return (
       <Footer style={{ textAlign: 'center' }}>
         <Link
-          href="https://github.com/ccontour/automagical"
+          href="https://github.com/ccontour/steggy"
           target="_blank"
         >
-          @automagical
+          @steggy
         </Link>
       </Footer>
     );

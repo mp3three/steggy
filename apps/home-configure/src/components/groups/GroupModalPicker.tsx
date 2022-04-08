@@ -1,6 +1,6 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, FileAddOutlined } from '@ant-design/icons';
-import { GroupDTO } from '@automagical/controller-shared';
+import { GroupDTO } from '@steggy/controller-shared';
 import {
   DOWN,
   INCREMENT,
@@ -8,7 +8,7 @@ import {
   is,
   START,
   UP,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import {
   Button,
   Divider,

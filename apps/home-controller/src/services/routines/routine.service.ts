@@ -2,7 +2,7 @@ import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   KunamiCodeActivateDTO,
   RoomEntitySaveStateDTO,
@@ -25,14 +25,14 @@ import {
   SetRoomMetadataCommandDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   each,
   eachSeries,
   is,
   ResultControlDTO,
   sleep,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import {
   BadRequestException,
   ConflictException,

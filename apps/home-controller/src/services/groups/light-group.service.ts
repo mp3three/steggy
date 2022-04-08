@@ -1,4 +1,4 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import {
   GROUP_LIGHT_COMMANDS,
   GROUP_TYPES,
@@ -6,16 +6,16 @@ import {
   GroupDTO,
   GroupLightCommandExtra,
   RoomEntitySaveStateDTO,
-} from '@automagical/controller-shared';
-import { EntityManagerService } from '@automagical/home-assistant';
+} from '@steggy/controller-shared';
+import { EntityManagerService } from '@steggy/home-assistant';
 import {
   ColorModes,
   domain,
   HASS_DOMAINS,
   LightAttributesDTO,
   LightStateDTO,
-} from '@automagical/home-assistant-shared';
-import { each, START } from '@automagical/utilities';
+} from '@steggy/home-assistant-shared';
+import { each, START } from '@steggy/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import { LightManagerService } from '../lighting';

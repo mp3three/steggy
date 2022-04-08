@@ -1,4 +1,4 @@
-import { GroupDTO } from '@automagical/controller-shared';
+import { GroupDTO } from '@steggy/controller-shared';
 import { Button, Drawer } from 'antd';
 import React from 'react';
 

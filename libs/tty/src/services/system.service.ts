@@ -3,8 +3,8 @@ import {
   AutoLogService,
   PACKAGE_FILE,
   WorkspaceService,
-} from '@automagical/boilerplate';
-import { is } from '@automagical/utilities';
+} from '@steggy/boilerplate';
+import { is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';

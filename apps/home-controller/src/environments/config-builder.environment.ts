@@ -6,8 +6,8 @@
 //   ConfigBuilderService,
 //   MainCLIModule,
 //   PromptService,
-// } from '@automagical/tty';
-// import { BootstrapOptions } from '@automagical/boilerplate';
+// } from '@steggy/tty';
+// import { BootstrapOptions } from '@steggy/boilerplate';
 
 // export const BOOTSTRAP_OPTIONS: BootstrapOptions = {
 //   imports: [MainCLIModule],

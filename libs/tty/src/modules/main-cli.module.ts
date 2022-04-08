@@ -1,4 +1,4 @@
-import { LibraryModule, RegisterCache } from '@automagical/boilerplate';
+import { LibraryModule, RegisterCache } from '@steggy/boilerplate';
 import { DiscoveryModule } from '@nestjs/core';
 
 import {

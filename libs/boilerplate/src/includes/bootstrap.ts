@@ -7,8 +7,8 @@ import {
   LifecycleService,
   NEST_NOOP_LOGGER,
   UsePrettyLogger,
-} from '@automagical/boilerplate';
-import { eachSeries, is } from '@automagical/utilities';
+} from '@steggy/boilerplate';
+import { eachSeries, is } from '@steggy/utilities';
 import {
   DynamicModule,
   INestApplication,

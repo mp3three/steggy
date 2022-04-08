@@ -16,7 +16,7 @@ import {
   RoutineCommandWebhookDTO,
   RoutineDTO,
   RoutineRestoreCommandDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   ICONS,
   IsDone,
@@ -25,8 +25,8 @@ import {
   ScreenService,
   TextRenderingService,
   ToMenuEntry,
-} from '@automagical/tty';
-import { is, START, TitleCase } from '@automagical/utilities';
+} from '@steggy/tty';
+import { is, START, TitleCase } from '@steggy/utilities';
 import {
   forwardRef,
   Inject,

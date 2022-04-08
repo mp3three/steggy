@@ -1,10 +1,10 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { RoomEntitySaveStateDTO } from '@automagical/controller-shared';
+import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
 import {
   HassStateDTO,
   LightStateDTO,
-} from '@automagical/home-assistant-shared';
-import { is } from '@automagical/utilities';
+} from '@steggy/home-assistant-shared';
+import { is } from '@steggy/utilities';
 import { Button, Card, Popconfirm, Popover, Spin, Typography } from 'antd';
 import React from 'react';
 

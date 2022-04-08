@@ -1,4 +1,4 @@
-import { RoutineCommandWebhookDTO } from '@automagical/controller-shared';
+import { RoutineCommandWebhookDTO } from '@steggy/controller-shared';
 import React from 'react';
 
 import { WebhookRequest } from '../../misc/WebhookRequest';

@@ -1,14 +1,14 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import {
   GENERIC_COMMANDS,
   GroupDTO,
   RoomEntitySaveStateDTO,
   RoutineCommandGroupActionDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   LightAttributesDTO,
   LightStateDTO,
-} from '@automagical/home-assistant-shared';
+} from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
   ColorsService,
@@ -18,8 +18,8 @@ import {
   PromptService,
   RGB,
   ScreenService,
-} from '@automagical/tty';
-import { DOWN, is, START, TitleCase, UP } from '@automagical/utilities';
+} from '@steggy/tty';
+import { DOWN, is, START, TitleCase, UP } from '@steggy/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 import chalk from 'chalk';

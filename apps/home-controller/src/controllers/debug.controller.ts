@@ -2,16 +2,16 @@ import {
   HACallService,
   HASocketAPIService,
   NotifyDomainService,
-} from '@automagical/home-assistant';
+} from '@steggy/home-assistant';
 import {
   HassConfig,
   HassNotificationDTO,
-} from '@automagical/home-assistant-shared';
+} from '@steggy/home-assistant-shared';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
-} from '@automagical/server';
+} from '@steggy/server';
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 

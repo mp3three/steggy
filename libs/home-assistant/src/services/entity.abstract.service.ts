@@ -1,11 +1,11 @@
-import { AutoLogService, OnEvent } from '@automagical/boilerplate';
+import { AutoLogService, OnEvent } from '@steggy/boilerplate';
 import {
   ALL_ENTITIES_UPDATED,
   HA_EVENT_STATE_CHANGE,
   HassEventDTO,
   HassStateDTO,
-} from '@automagical/home-assistant-shared';
-import { is } from '@automagical/utilities';
+} from '@steggy/home-assistant-shared';
+import { is } from '@steggy/utilities';
 
 const DEFAULT_STATE: HassStateDTO = undefined;
 

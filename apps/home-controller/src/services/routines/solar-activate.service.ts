@@ -1,10 +1,10 @@
-import { AutoLogService, Cron } from '@automagical/boilerplate';
+import { AutoLogService, Cron } from '@steggy/boilerplate';
 import {
   RoutineDTO,
   SolarActivateDTO,
   SolarWatcher,
-} from '@automagical/controller-shared';
-import { CronExpression, TitleCase } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { CronExpression, TitleCase } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import { CronJob } from 'cron';
 

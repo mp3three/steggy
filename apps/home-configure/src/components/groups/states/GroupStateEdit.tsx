@@ -3,13 +3,13 @@ import {
   GroupDTO,
   GroupSaveStateDTO,
   RoomEntitySaveStateDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   ColorModes,
   FanAttributesDTO,
   LightAttributesDTO,
   LockAttributesDTO,
-} from '@automagical/home-assistant-shared';
+} from '@steggy/home-assistant-shared';
 import {
   Button,
   Divider,

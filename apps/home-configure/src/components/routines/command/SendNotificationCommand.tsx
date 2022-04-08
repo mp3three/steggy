@@ -1,4 +1,4 @@
-import { RoutineCommandSendNotificationDTO } from '@automagical/controller-shared';
+import { RoutineCommandSendNotificationDTO } from '@steggy/controller-shared';
 import { Form, Input, Select, Typography } from 'antd';
 import React from 'react';
 

@@ -1,10 +1,10 @@
 import {
   GROUP_TYPES,
   RountineCommandLightFlashDTO,
-} from '@automagical/controller-shared';
-import { HASS_DOMAINS } from '@automagical/home-assistant-shared';
-import { ColorsService, ICONS, PromptService } from '@automagical/tty';
-import { is } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
+import { ColorsService, ICONS, PromptService } from '@steggy/tty';
+import { is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { GroupCommandService } from '../../groups';

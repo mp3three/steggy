@@ -1,4 +1,4 @@
-import { sleep } from '@automagical/utilities';
+import { sleep } from '@steggy/utilities';
 
 /**
  * Force a method to execute for a minimum amount of time, even if the logic inside is faster

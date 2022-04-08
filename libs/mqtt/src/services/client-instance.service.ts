@@ -1,4 +1,4 @@
-import { ACTIVE_APPLICATION, InjectConfig } from '@automagical/boilerplate';
+import { ACTIVE_APPLICATION, InjectConfig } from '@steggy/boilerplate';
 import { Inject, Injectable } from '@nestjs/common';
 import { connect, MqttClient } from 'mqtt';
 

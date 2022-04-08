@@ -1,4 +1,4 @@
-import { DOWN, is, UP } from '@automagical/utilities';
+import { DOWN, is, UP } from '@steggy/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 

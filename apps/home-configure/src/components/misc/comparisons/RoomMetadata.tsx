@@ -3,8 +3,8 @@ import {
   RoomDTO,
   RoomMetadataComparisonDTO,
   RoomMetadataDTO,
-} from '@automagical/controller-shared';
-import { FILTER_OPERATIONS, is } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { FILTER_OPERATIONS, is } from '@steggy/utilities';
 import { Card, Form, Select, Skeleton } from 'antd';
 import React from 'react';
 

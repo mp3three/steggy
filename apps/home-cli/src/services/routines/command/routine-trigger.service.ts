@@ -1,4 +1,4 @@
-import { RoutineCommandTriggerRoutineDTO } from '@automagical/controller-shared';
+import { RoutineCommandTriggerRoutineDTO } from '@steggy/controller-shared';
 import { Injectable } from '@nestjs/common';
 
 import { RoutineService } from '../routine.service';

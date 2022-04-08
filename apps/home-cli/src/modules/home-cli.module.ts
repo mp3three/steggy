@@ -2,8 +2,8 @@ import {
   ApplicationModule,
   InjectConfig,
   UtilitiesModule,
-} from '@automagical/boilerplate';
-import { CONFIG_APPLICATION_TITLE, MainCLIModule } from '@automagical/tty';
+} from '@steggy/boilerplate';
+import { CONFIG_APPLICATION_TITLE, MainCLIModule } from '@steggy/tty';
 import { DiscoveryModule } from '@nestjs/core';
 
 import { APP_TITLE } from '../config';

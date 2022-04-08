@@ -1,5 +1,5 @@
-import { AutoLogService } from '@automagical/boilerplate';
-import { is } from '@automagical/utilities';
+import { AutoLogService } from '@steggy/boilerplate';
+import { is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import {
   Client,

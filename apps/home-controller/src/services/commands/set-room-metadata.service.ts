@@ -1,11 +1,11 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import {
   RoomDTO,
   RoomMetadataDTO,
   SetRoomMetadataCommandDTO,
-} from '@automagical/controller-shared';
-import { HASocketAPIService } from '@automagical/home-assistant';
-import { EMPTY, is, START } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { HASocketAPIService } from '@steggy/home-assistant';
+import { EMPTY, is, START } from '@steggy/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { isNumberString } from 'class-validator';
 import EventEmitter from 'eventemitter3';

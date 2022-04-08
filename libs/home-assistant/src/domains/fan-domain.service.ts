@@ -1,6 +1,6 @@
-import { AutoLogService } from '@automagical/boilerplate';
-import { FanStateDTO, HASS_DOMAINS } from '@automagical/home-assistant-shared';
-import { START } from '@automagical/utilities';
+import { AutoLogService } from '@steggy/boilerplate';
+import { FanStateDTO, HASS_DOMAINS } from '@steggy/home-assistant-shared';
+import { START } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { EntityManagerService, HACallService } from '../services';

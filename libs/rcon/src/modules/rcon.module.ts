@@ -1,4 +1,4 @@
-import { LibraryModule } from '@automagical/boilerplate';
+import { LibraryModule } from '@steggy/boilerplate';
 
 import { HOST, LIB_RCON, PASSWORD, PORT, TIMEOUT } from '../config';
 import { RCONConnectionService } from '../services';

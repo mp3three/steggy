@@ -1,4 +1,4 @@
-import { EMPTY } from '@automagical/utilities';
+import { EMPTY } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import execa from 'execa';
 import { decode } from 'ini';

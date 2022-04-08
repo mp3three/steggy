@@ -5,7 +5,7 @@ import {
   START,
   UP,
   VALUE,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question, Separator } from 'inquirer';

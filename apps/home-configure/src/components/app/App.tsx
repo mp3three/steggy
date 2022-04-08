@@ -1,4 +1,4 @@
-import { is } from '@automagical/utilities';
+import { is } from '@steggy/utilities';
 import { Layout, Typography } from 'antd';
 import React from 'react';
 import { Provider } from 'react-redux';

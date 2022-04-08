@@ -1,8 +1,8 @@
 import {
   RoutineCommandStopProcessingDTO,
   RoutineComparisonDTO,
-} from '@automagical/controller-shared';
-import { is, NOT_FOUND, TitleCase } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { is, NOT_FOUND, TitleCase } from '@steggy/utilities';
 import {
   Button,
   Col,

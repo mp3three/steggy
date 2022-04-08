@@ -1,4 +1,4 @@
-import { LibraryModule } from '@automagical/boilerplate';
+import { LibraryModule } from '@steggy/boilerplate';
 import { MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 
 import {

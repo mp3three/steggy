@@ -1,4 +1,4 @@
-import { InjectConfig } from '@automagical/boilerplate';
+import { InjectConfig } from '@steggy/boilerplate';
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -10,7 +10,7 @@ import {
   TitleCase,
   UP,
   VALUE,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import fuzzy from 'fuzzysort';

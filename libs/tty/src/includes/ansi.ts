@@ -7,7 +7,7 @@ import {
   SINGLE,
   START,
   UP,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import chalk from 'chalk';
 
 const UNSORTABLE = new RegExp('[^A-Za-z0-9]', 'g');

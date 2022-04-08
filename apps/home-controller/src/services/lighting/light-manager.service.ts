@@ -5,24 +5,24 @@ import {
   InjectConfig,
   InjectLogger,
   OnEvent,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   CIRCADIAN_UPDATE,
   LIGHT_FORCE_CIRCADIAN,
   RoomCommandDTO,
   RoomEntitySaveStateDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   EntityManagerService,
   HomeAssistantCoreService,
   LightDomainService,
-} from '@automagical/home-assistant';
+} from '@steggy/home-assistant';
 import {
   ColorModes,
   HASS_DOMAINS,
   LightAttributesDTO,
   LightStateDTO,
-} from '@automagical/home-assistant-shared';
+} from '@steggy/home-assistant-shared';
 import {
   DOWN,
   each,
@@ -30,7 +30,7 @@ import {
   is,
   PERCENT,
   UP,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { MIN_BRIGHTNESS, SAFE_MODE } from '../../config';

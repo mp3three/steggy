@@ -1,10 +1,10 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import {
   FetchWith,
   HTTP_METHODS,
   is,
   ResultControlDTO,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { FormDTO, SDKCrudOptions, SubmissionDTO } from '../contracts';

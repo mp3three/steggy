@@ -3,7 +3,7 @@ import {
   Cron,
   InjectConfig,
   InjectLogger,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   ALL_ENTITIES_UPDATED,
   AreaDTO,
@@ -20,14 +20,14 @@ import {
   HassStateDTO,
   SOCKET_MESSAGES,
   SocketMessageDTO,
-} from '@automagical/home-assistant-shared';
+} from '@steggy/home-assistant-shared';
 import {
   CronExpression,
   is,
   SECOND,
   sleep,
   START,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 import WS from 'ws';

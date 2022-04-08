@@ -26,21 +26,21 @@
     "sourceMap": true,
     "target": "esnext",
     "paths": {
-      "@automagical/boilerplate": ["libs/boilerplate/src/index.ts"],
-      "@automagical/controller-shared": ["libs/controller-shared/src/index.ts"],
-      "@automagical/formio": ["libs/formio/src/index.ts"],
-      "@automagical/google": ["libs/google/src/index.ts"],
-      "@automagical/home-assistant": ["libs/home-assistant/src/index.ts"],
-      "@automagical/home-assistant-shared": [
+      "@steggy/boilerplate": ["libs/boilerplate/src/index.ts"],
+      "@steggy/controller-shared": ["libs/controller-shared/src/index.ts"],
+      "@steggy/formio": ["libs/formio/src/index.ts"],
+      "@steggy/google": ["libs/google/src/index.ts"],
+      "@steggy/home-assistant": ["libs/home-assistant/src/index.ts"],
+      "@steggy/home-assistant-shared": [
         "libs/home-assistant-shared/src/index.ts"
       ],
-      "@automagical/mqtt": ["libs/mqtt/src/index.ts"],
-      "@automagical/persistence": ["libs/persistence/src/index.ts"],
-      "@automagical/rules-engine": ["libs/rules-engine/src/index.ts"],
-      "@automagical/server": ["libs/server/src/index.ts"],
-      "@automagical/terminal": ["libs/terminal/src/index.ts"],
-      "@automagical/tty": ["libs/tty/src/index.ts"],
-      "@automagical/utilities": ["libs/utilities/src/index.ts"]
+      "@steggy/mqtt": ["libs/mqtt/src/index.ts"],
+      "@steggy/persistence": ["libs/persistence/src/index.ts"],
+      "@steggy/rules-engine": ["libs/rules-engine/src/index.ts"],
+      "@steggy/server": ["libs/server/src/index.ts"],
+      "@steggy/terminal": ["libs/terminal/src/index.ts"],
+      "@steggy/tty": ["libs/tty/src/index.ts"],
+      "@steggy/utilities": ["libs/utilities/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"],

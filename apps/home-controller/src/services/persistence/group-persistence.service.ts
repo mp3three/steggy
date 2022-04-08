@@ -1,8 +1,8 @@
-import { AutoLogService, CastResult } from '@automagical/boilerplate';
-import type { ROOM_ENTITY_EXTRAS } from '@automagical/controller-shared';
-import { GroupDocument, GroupDTO } from '@automagical/controller-shared';
-import { BaseMongoService, BaseSchemaDTO } from '@automagical/persistence';
-import { is, ResultControlDTO } from '@automagical/utilities';
+import { AutoLogService, CastResult } from '@steggy/boilerplate';
+import type { ROOM_ENTITY_EXTRAS } from '@steggy/controller-shared';
+import { GroupDocument, GroupDTO } from '@steggy/controller-shared';
+import { BaseMongoService, BaseSchemaDTO } from '@steggy/persistence';
+import { is, ResultControlDTO } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';

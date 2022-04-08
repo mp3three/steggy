@@ -1,4 +1,4 @@
-import { RoutineCommandSleepDTO } from '@automagical/controller-shared';
+import { RoutineCommandSleepDTO } from '@steggy/controller-shared';
 import { InputNumber } from 'antd';
 import React from 'react';
 

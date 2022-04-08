@@ -1,6 +1,6 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import type { GroupDTO } from '@automagical/controller-shared';
-import { NOT_FOUND } from '@automagical/utilities';
+import type { GroupDTO } from '@steggy/controller-shared';
+import { NOT_FOUND } from '@steggy/utilities';
 import { Button, Card, Col, Layout, List, Popconfirm, Row, Tabs } from 'antd';
 import React from 'react';
 

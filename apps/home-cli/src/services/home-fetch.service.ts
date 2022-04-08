@@ -1,5 +1,5 @@
-import { FetchService, InjectConfig } from '@automagical/boilerplate';
-import { FetchWith, is, sleep, START } from '@automagical/utilities';
+import { FetchService, InjectConfig } from '@steggy/boilerplate';
+import { FetchWith, is, sleep, START } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 

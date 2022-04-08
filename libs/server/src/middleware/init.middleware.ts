@@ -2,7 +2,7 @@ import {
   AutoLogService,
   InjectConfig,
   storage,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   buildFilter,
   FilterDTO,
@@ -10,7 +10,7 @@ import {
   HTTP_METHODS,
   is,
   queryToControl,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction } from 'express';
 import pino from 'pino';

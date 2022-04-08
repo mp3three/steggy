@@ -5,7 +5,7 @@ import {
   FetchWith,
   is,
   ResultControlDTO,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import fetch from 'node-fetch';
 
 export async function sendRequest<T>({

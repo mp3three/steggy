@@ -1,8 +1,8 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import {
   DeviceListItemDTO,
   RelatedDescriptionDTO,
-} from '@automagical/home-assistant-shared';
+} from '@steggy/home-assistant-shared';
 import {
   DONE,
   ICONS,
@@ -10,8 +10,8 @@ import {
   PromptService,
   Repl,
   ToMenuEntry,
-} from '@automagical/tty';
-import { is } from '@automagical/utilities';
+} from '@steggy/tty';
+import { is } from '@steggy/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import { encode } from 'ini';

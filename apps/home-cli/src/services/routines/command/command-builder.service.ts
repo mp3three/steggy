@@ -1,9 +1,9 @@
 import {
   ROUTINE_ACTIVATE_COMMAND,
   RoutineDTO,
-} from '@automagical/controller-shared';
-import { ApplicationManagerService, PromptService } from '@automagical/tty';
-import { DOWN, is, TitleCase, UP } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { ApplicationManagerService, PromptService } from '@steggy/tty';
+import { DOWN, is, TitleCase, UP } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

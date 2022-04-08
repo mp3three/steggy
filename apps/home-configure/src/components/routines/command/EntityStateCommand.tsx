@@ -1,5 +1,5 @@
-import { RoomEntitySaveStateDTO } from '@automagical/controller-shared';
-import { is } from '@automagical/utilities';
+import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { is } from '@steggy/utilities';
 import { Divider, Empty, Form, Skeleton, Space } from 'antd';
 import React from 'react';
 

@@ -1,6 +1,6 @@
-import { ClimateStateDTO } from '@automagical/home-assistant-shared';
-import { IsDone, PromptEntry, ToMenuEntry } from '@automagical/tty';
-import { TitleCase } from '@automagical/utilities';
+import { ClimateStateDTO } from '@steggy/home-assistant-shared';
+import { IsDone, PromptEntry, ToMenuEntry } from '@steggy/tty';
+import { TitleCase } from '@steggy/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import { MENU_ITEMS } from '../../includes';

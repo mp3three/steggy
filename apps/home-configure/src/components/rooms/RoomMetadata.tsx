@@ -1,6 +1,6 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
-import { RoomDTO, RoomMetadataDTO } from '@automagical/controller-shared';
-import { ARRAY_OFFSET, is } from '@automagical/utilities';
+import { RoomDTO, RoomMetadataDTO } from '@steggy/controller-shared';
+import { ARRAY_OFFSET, is } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm, Space, Typography } from 'antd';
 import React from 'react';
 

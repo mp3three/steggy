@@ -2,14 +2,14 @@ import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   RoomEntitySaveStateDTO,
   RoutineCaptureCommandDTO,
   RoutineCaptureData,
   RoutineDTO,
-} from '@automagical/controller-shared';
-import { each } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { each } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { GroupService } from '../groups';

@@ -9,7 +9,7 @@ import {
   ResultControlDTO,
   SINGLE,
   START,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import { BadRequestException } from '@nestjs/common';
 import { isNumberString } from 'class-validator';
 import dayjs from 'dayjs';

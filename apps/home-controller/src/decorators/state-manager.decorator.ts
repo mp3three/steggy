@@ -1,4 +1,4 @@
-import { STATE_MANAGER } from '@automagical/controller-shared';
+import { STATE_MANAGER } from '@steggy/controller-shared';
 import { Inject } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 

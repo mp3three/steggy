@@ -1,10 +1,10 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import {
   DeviceListItemDTO,
   HASSIO_WS_COMMAND,
   RelatedDescriptionDTO,
-} from '@automagical/home-assistant-shared';
-import { is } from '@automagical/utilities';
+} from '@steggy/home-assistant-shared';
+import { is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { EntityManagerService } from './entity-manager.service';

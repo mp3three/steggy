@@ -1,9 +1,9 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import {
   FetchAuth,
   HTTP_METHODS,
   ResultControlDTO,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import { REQUEST } from '@nestjs/core';
 import { Request, Response } from 'express';
 import pino from 'pino';

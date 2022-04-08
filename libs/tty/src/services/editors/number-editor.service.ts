@@ -1,4 +1,4 @@
-import { INVERT_VALUE, is, START } from '@automagical/utilities';
+import { INVERT_VALUE, is, START } from '@steggy/utilities';
 import chalk from 'chalk';
 
 import { Editor, iBuilderEditor } from '../../decorators';

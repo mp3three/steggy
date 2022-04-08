@@ -1,5 +1,5 @@
-import { FetchService, InjectConfig } from '@automagical/boilerplate';
-import { FetchWith } from '@automagical/utilities';
+import { FetchService, InjectConfig } from '@steggy/boilerplate';
+import { FetchWith } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { API_KEY, JWT_TOKEN, LIVE_ENDPOINT } from '../config';

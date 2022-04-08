@@ -6,7 +6,7 @@ import {
   Repl,
   ScreenService,
   ToMenuEntry,
-} from '@automagical/tty';
+} from '@steggy/tty';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 

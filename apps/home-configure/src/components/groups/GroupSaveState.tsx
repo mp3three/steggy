@@ -3,8 +3,8 @@ import {
   FolderAddOutlined,
   QuestionCircleOutlined,
 } from '@ant-design/icons';
-import { GroupDTO, GroupSaveStateDTO } from '@automagical/controller-shared';
-import { DOWN, sleep, UP } from '@automagical/utilities';
+import { GroupDTO, GroupSaveStateDTO } from '@steggy/controller-shared';
+import { DOWN, sleep, UP } from '@steggy/utilities';
 import {
   Button,
   Card,

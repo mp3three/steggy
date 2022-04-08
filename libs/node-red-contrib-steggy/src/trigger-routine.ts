@@ -1,4 +1,4 @@
-import { is } from '@automagical/utilities';
+import { is } from '@steggy/utilities';
 import { Node, NodeAPI, NodeDef } from 'node-red';
 
 import { AutomagicalConfiguration } from './types';

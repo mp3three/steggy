@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers, radar/no-duplicate-string */
 
-import { is } from '@automagical/utilities';
+import { is } from '@steggy/utilities';
 import chalk from 'chalk';
 import pino from 'pino';
 import { cwd } from 'process';
@@ -202,7 +202,7 @@ export const PrettyNestLogger: Record<
       // Nothing actually useful for debugging
       message = prettyErrorMessage(context);
       // 🚩 I hereby stake my claim on this error message 🚩
-      context = `@automagical:BootErrorMessage`;
+      context = `@steggy:BootErrorMessage`;
     }
     logger.error(
       `${highlightContext(context, 'bgRed')} ${

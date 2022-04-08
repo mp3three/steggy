@@ -1,6 +1,6 @@
-import { ScheduleActivateDTO } from '@automagical/controller-shared';
-import { ICONS, PromptService, ToMenuEntry } from '@automagical/tty';
-import { CronExpression, is } from '@automagical/utilities';
+import { ScheduleActivateDTO } from '@steggy/controller-shared';
+import { ICONS, PromptService, ToMenuEntry } from '@steggy/tty';
+import { CronExpression, is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

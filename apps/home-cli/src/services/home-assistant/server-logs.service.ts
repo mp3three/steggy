@@ -1,5 +1,5 @@
-import { AutoLogService } from '@automagical/boilerplate';
-import { HomeAssistantServerLogItem } from '@automagical/home-assistant-shared';
+import { AutoLogService } from '@steggy/boilerplate';
+import { HomeAssistantServerLogItem } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
   ICONS,
@@ -8,8 +8,8 @@ import {
   Repl,
   TextRenderingService,
   ToMenuEntry,
-} from '@automagical/tty';
-import { is, START, TitleCase } from '@automagical/utilities';
+} from '@steggy/tty';
+import { is, START, TitleCase } from '@steggy/utilities';
 import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import dayjs from 'dayjs';

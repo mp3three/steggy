@@ -2,12 +2,12 @@ import {
   AutoLogService,
   FetchService,
   InjectConfig,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   HassStateDTO,
   HomeAssistantServerLogItem,
-} from '@automagical/home-assistant-shared';
-import { FetchWith, SECOND } from '@automagical/utilities';
+} from '@steggy/home-assistant-shared';
+import { FetchWith, SECOND } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { BASE_URL, TOKEN } from '../config';

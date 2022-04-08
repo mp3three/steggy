@@ -1,6 +1,6 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import TimelinePlus from '@2fd/ant-design-icons/lib/TimelinePlus';
-import { RoutineActivateDTO, RoutineDTO } from '@automagical/controller-shared';
+import { RoutineActivateDTO, RoutineDTO } from '@steggy/controller-shared';
 import { Button, Drawer, Empty, List } from 'antd';
 import React from 'react';
 

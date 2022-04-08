@@ -8,8 +8,8 @@ import {
   SCAN_CONFIG_CONFIGURATION,
   StringConfig,
   WorkspaceService,
-} from '@automagical/boilerplate';
-import { DOWN, is, TitleCase, UP } from '@automagical/utilities';
+} from '@steggy/boilerplate';
+import { DOWN, is, TitleCase, UP } from '@steggy/utilities';
 import {
   Inject,
   Injectable,

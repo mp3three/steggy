@@ -1,5 +1,5 @@
-import { BootstrapOptions } from '@automagical/boilerplate';
-import { VersionPrinter } from '@automagical/tty';
+import { BootstrapOptions } from '@steggy/boilerplate';
+import { VersionPrinter } from '@steggy/tty';
 
 export const BOOTSTRAP_OPTIONS: BootstrapOptions = {
   nestNoopLogger: false,

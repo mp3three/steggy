@@ -12,8 +12,8 @@ import {
   RoutineCommandWebhookDTO,
   RoutineDTO,
   SetRoomMetadataCommandDTO,
-} from '@automagical/controller-shared';
-import { is } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { is } from '@steggy/utilities';
 import {
   Button,
   Card,

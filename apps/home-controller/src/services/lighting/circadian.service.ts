@@ -3,12 +3,12 @@ import {
   Cron,
   InjectConfig,
   OnEvent,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import {
   CIRCADIAN_UPDATE,
   LOCATION_UPDATED,
-} from '@automagical/controller-shared';
-import { CronExpression } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { CronExpression } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import EventEmitter from 'eventemitter3';

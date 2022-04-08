@@ -1,21 +1,21 @@
 {
-  "root": "libs/node-red-contrib-automagical",
-  "sourceRoot": "libs/node-red-contrib-automagical/src",
+  "root": "libs/node-red-contrib-steggy",
+  "sourceRoot": "libs/node-red-contrib-steggy/src",
   "projectType": "library",
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/node-red-contrib-automagical",
-        "tsConfig": "libs/node-red-contrib-automagical/tsconfig.lib.json",
-        "packageJson": "libs/node-red-contrib-automagical/package.json",
+        "outputPath": "dist/libs/node-red-contrib-steggy",
+        "tsConfig": "libs/node-red-contrib-steggy/tsconfig.lib.json",
+        "packageJson": "libs/node-red-contrib-steggy/package.json",
         "buildableProjectDepsInPackageJsonType": "peerDependencies",
         "updateBuildableProjectDepsInPackageJson": true,
-        "main": "libs/node-red-contrib-automagical/src/index.ts",
+        "main": "libs/node-red-contrib-steggy/src/index.ts",
         "assets": [
-          "libs/node-red-contrib-automagical/**/*.html",
-          "libs/node-red-contrib-automagical/package.json"
+          "libs/node-red-contrib-steggy/**/*.html",
+          "libs/node-red-contrib-steggy/package.json"
         ]
       },
       "configurations": {
@@ -30,7 +30,7 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/node-red-contrib-automagical/**/*.ts"]
+        "lintFilePatterns": ["libs/node-red-contrib-steggy/**/*.ts"]
       }
     },
     "publish": {
@@ -39,15 +39,15 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga node-red-contrib-automagical",
+            "command": "npx figlet-cli -f Pagga node-red-contrib-steggy",
             "description": "Announce it"
           },
           {
-            "command": "npx nx build node-red-contrib-automagical --configuration=production",
+            "command": "npx nx build node-red-contrib-steggy --configuration=production",
             "description": "Create production optimized build"
           },
           {
-            "command": "yarn publish --cwd dist/libs/node-red-contrib-automagical --non-interactive",
+            "command": "yarn publish --cwd dist/libs/node-red-contrib-steggy --non-interactive",
             "description": "Publish it"
           }
         ]

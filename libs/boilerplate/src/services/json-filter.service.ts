@@ -3,7 +3,7 @@ import {
   FilterDTO,
   is,
   ResultControlDTO,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import { parseDate } from 'chrono-node';
 import { isNumberString } from 'class-validator';

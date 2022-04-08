@@ -1,4 +1,4 @@
-import { DOWN, UP } from '@automagical/utilities';
+import { DOWN, UP } from '@steggy/utilities';
 
 type listItem = Record<'type' | 'name' | 'description', string>;
 export const ROUTINE_COMMAND_LIST = [

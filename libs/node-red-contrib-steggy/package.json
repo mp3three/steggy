@@ -1,8 +1,8 @@
 {
-  "name": "node-red-contrib-automagical",
+  "name": "node-red-contrib-steggy",
   "node-red": {
     "nodes": {
-      "automagical-configure": "src/automagical-configure.js",
+      "steggy-configure": "src/steggy-configure.js",
       "group-state": "src/group-state.js",
       "receive-command": "src/receive-command.js",
       "room-state": "src/room-state.js",

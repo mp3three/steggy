@@ -1,5 +1,5 @@
-import { RoutineWebhookComparisonDTO } from '@automagical/controller-shared';
-import { is } from '@automagical/utilities';
+import { RoutineWebhookComparisonDTO } from '@steggy/controller-shared';
+import { is } from '@steggy/utilities';
 import { Button, Card, Divider, Form, Input, Radio } from 'antd';
 import React from 'react';
 

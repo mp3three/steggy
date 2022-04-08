@@ -1,5 +1,5 @@
-import { GroupDTO, RoomDTO, RoutineDTO } from '@automagical/controller-shared';
-import { each, ResultControlDTO } from '@automagical/utilities';
+import { GroupDTO, RoomDTO, RoutineDTO } from '@steggy/controller-shared';
+import { each, ResultControlDTO } from '@steggy/utilities';
 import { List } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';

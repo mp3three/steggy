@@ -2,15 +2,15 @@ import {
   AutoLogService,
   FetchService,
   InjectConfig,
-} from '@automagical/boilerplate';
-import { FormDTO, SubmissionDTO } from '@automagical/formio';
+} from '@steggy/boilerplate';
+import { FormDTO, SubmissionDTO } from '@steggy/formio';
 import {
   ApplicationManagerService,
   PromptService,
   QuickScript,
   ToMenuEntry,
-} from '@automagical/tty';
-import { START } from '@automagical/utilities';
+} from '@steggy/tty';
+import { START } from '@steggy/utilities';
 import { InternalServerErrorException } from '@nestjs/common';
 import { eachLimit } from 'async';
 import execa from 'execa';

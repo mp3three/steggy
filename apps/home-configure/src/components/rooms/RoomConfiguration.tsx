@@ -3,8 +3,8 @@ import {
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
-} from '@automagical/controller-shared';
-import { DOWN, TitleCase, UP } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { DOWN, TitleCase, UP } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm, Space } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';

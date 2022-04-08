@@ -1,4 +1,4 @@
-import { CrudOptions } from '@automagical/server';
+import { CrudOptions } from '@steggy/server';
 
 import { FormDTO } from './form.dto';
 import { ProjectDTO } from './project.dto';

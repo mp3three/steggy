@@ -1,4 +1,4 @@
-import { HassStateDTO } from '@automagical/home-assistant-shared';
+import { HassStateDTO } from '@steggy/home-assistant-shared';
 import {
   DOWN,
   INCREMENT,
@@ -6,7 +6,7 @@ import {
   is,
   START,
   UP,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import { Button, Card, Col, Input, Layout, List, Row } from 'antd';
 import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';

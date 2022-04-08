@@ -1,15 +1,15 @@
-import { AutoLogService, InjectConfig } from '@automagical/boilerplate';
+import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
 import {
   FormDTO,
   FormioFetchService,
   FormioSdkModule,
-} from '@automagical/formio';
+} from '@steggy/formio';
 import {
   ApplicationManagerService,
   PromptService,
   QuickScript,
   ToMenuEntry,
-} from '@automagical/tty';
+} from '@steggy/tty';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 

@@ -1,4 +1,4 @@
-import { INCREMENT, INVERT_VALUE, is, START } from '@automagical/utilities';
+import { INCREMENT, INVERT_VALUE, is, START } from '@steggy/utilities';
 import { Select } from 'antd';
 import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';

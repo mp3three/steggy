@@ -1,6 +1,6 @@
-import { AutoLogService } from '@automagical/boilerplate';
-import { EntityManagerService } from '@automagical/home-assistant';
-import { is } from '@automagical/utilities';
+import { AutoLogService } from '@steggy/boilerplate';
+import { EntityManagerService } from '@steggy/home-assistant';
+import { is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import { get } from 'object-path';
 

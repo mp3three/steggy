@@ -2,16 +2,16 @@ import {
   ENTITY_EXTRAS_SCHEMA,
   GENERIC_COMMANDS,
   ROOM_ENTITY_EXTRAS,
-} from '@automagical/controller-shared';
-import { GroupDTO, GroupSaveStateDTO } from '@automagical/controller-shared';
-import { BaseSchemaDTO } from '@automagical/persistence';
+} from '@steggy/controller-shared';
+import { GroupDTO, GroupSaveStateDTO } from '@steggy/controller-shared';
+import { BaseSchemaDTO } from '@steggy/persistence';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
   Locals,
   ResponseLocals,
-} from '@automagical/server';
+} from '@steggy/server';
 import {
   Body,
   Controller,

@@ -1,4 +1,4 @@
-import { ARRAY_OFFSET, INCREMENT, START, VALUE } from '@automagical/utilities';
+import { ARRAY_OFFSET, INCREMENT, START, VALUE } from '@steggy/utilities';
 import chalk from 'chalk';
 
 import { Editor, iBuilderEditor } from '../../decorators';

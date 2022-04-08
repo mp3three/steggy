@@ -1,7 +1,7 @@
-import { RoomEntitySaveStateDTO } from '@automagical/controller-shared';
-import { domain } from '@automagical/home-assistant-shared';
-import { ICONS, KeyMap, PromptEntry } from '@automagical/tty';
-import { sleep, TitleCase } from '@automagical/utilities';
+import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { domain } from '@steggy/home-assistant-shared';
+import { ICONS, KeyMap, PromptEntry } from '@steggy/tty';
+import { sleep, TitleCase } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';

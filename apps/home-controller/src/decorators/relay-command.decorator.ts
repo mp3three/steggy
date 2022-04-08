@@ -1,8 +1,8 @@
-import { EmitAfter } from '@automagical/boilerplate';
+import { EmitAfter } from '@steggy/boilerplate';
 import {
   iRoomControllerMethods,
   ROOM_COMMAND,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import { applyDecorators } from '@nestjs/common';
 
 export function RelayCommand(

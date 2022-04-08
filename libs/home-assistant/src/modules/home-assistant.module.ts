@@ -1,4 +1,4 @@
-import { LibraryModule } from '@automagical/boilerplate';
+import { LibraryModule } from '@steggy/boilerplate';
 import { Provider } from '@nestjs/common';
 
 import {

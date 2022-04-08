@@ -1,5 +1,5 @@
-import { CacheManagerService, InjectCache } from '@automagical/boilerplate';
-import { DOWN, is, UP, VALUE } from '@automagical/utilities';
+import { CacheManagerService, InjectCache } from '@steggy/boilerplate';
+import { DOWN, is, UP, VALUE } from '@steggy/utilities';
 import { Inject, Optional } from '@nestjs/common';
 
 import { CONFIG_APPLICATION_TITLE } from '../config';

@@ -3,14 +3,14 @@ import {
   CacheManagerService,
   InjectCache,
   InjectConfig,
-} from '@automagical/boilerplate';
-import { RoomEntitySaveStateDTO } from '@automagical/controller-shared';
+} from '@steggy/boilerplate';
+import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
 import {
   domain,
   HASS_DOMAINS,
   HassStateDTO,
   RelatedDescriptionDTO,
-} from '@automagical/home-assistant-shared';
+} from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
   ChartingService,
@@ -23,7 +23,7 @@ import {
   PromptService,
   ScreenService,
   ToMenuEntry,
-} from '@automagical/tty';
+} from '@steggy/tty';
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -32,7 +32,7 @@ import {
   START,
   TitleCase,
   UP,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import Table from 'cli-table';

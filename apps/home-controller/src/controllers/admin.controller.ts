@@ -1,17 +1,17 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import {
   HACallService,
   HomeAssistantFetchAPIService,
-} from '@automagical/home-assistant';
+} from '@steggy/home-assistant';
 import {
   HASS_DOMAINS,
   HomeAssistantServerLogItem,
-} from '@automagical/home-assistant-shared';
+} from '@steggy/home-assistant-shared';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
-} from '@automagical/server';
+} from '@steggy/server';
 import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 

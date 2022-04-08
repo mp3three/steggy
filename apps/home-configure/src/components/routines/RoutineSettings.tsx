@@ -1,6 +1,6 @@
 import InformationIcon from '@2fd/ant-design-icons/lib/Information';
-import { RoutineDTO } from '@automagical/controller-shared';
-import { is } from '@automagical/utilities';
+import { RoutineDTO } from '@steggy/controller-shared';
+import { is } from '@steggy/utilities';
 import {
   Card,
   Checkbox,

@@ -1,6 +1,6 @@
-import { StateChangeActivateDTO } from '@automagical/controller-shared';
-import { PromptEntry, PromptService } from '@automagical/tty';
-import { FILTER_OPERATIONS, FilterValueType, is } from '@automagical/utilities';
+import { StateChangeActivateDTO } from '@steggy/controller-shared';
+import { PromptEntry, PromptService } from '@steggy/tty';
+import { FILTER_OPERATIONS, FilterValueType, is } from '@steggy/utilities';
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 

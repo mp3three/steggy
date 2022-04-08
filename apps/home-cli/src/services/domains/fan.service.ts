@@ -1,17 +1,17 @@
-import { RoomEntitySaveStateDTO } from '@automagical/controller-shared';
+import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
 import {
   FanAttributesDTO,
   FanSpeeds,
   FanStateDTO,
-} from '@automagical/home-assistant-shared';
+} from '@steggy/home-assistant-shared';
 import {
   ICONS,
   IsDone,
   KeyMap,
   PromptEntry,
   ToMenuEntry,
-} from '@automagical/tty';
-import { TitleCase } from '@automagical/utilities';
+} from '@steggy/tty';
+import { TitleCase } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';

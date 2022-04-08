@@ -1,5 +1,5 @@
-import { InjectConfig } from '@automagical/boilerplate';
-import { EMPTY } from '@automagical/utilities';
+import { InjectConfig } from '@steggy/boilerplate';
+import { EMPTY } from '@steggy/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 

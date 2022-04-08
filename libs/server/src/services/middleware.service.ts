@@ -2,7 +2,7 @@ import {
   AutoLogService,
   BootstrapOptions,
   InjectConfig,
-} from '@automagical/boilerplate';
+} from '@steggy/boilerplate';
 import { INestApplication, Injectable, ValidationPipe } from '@nestjs/common';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';

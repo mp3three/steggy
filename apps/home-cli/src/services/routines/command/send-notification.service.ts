@@ -1,5 +1,5 @@
-import { RoutineCommandSendNotificationDTO } from '@automagical/controller-shared';
-import { PromptService } from '@automagical/tty';
+import { RoutineCommandSendNotificationDTO } from '@steggy/controller-shared';
+import { PromptService } from '@steggy/tty';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

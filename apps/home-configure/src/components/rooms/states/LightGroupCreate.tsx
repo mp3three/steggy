@@ -1,6 +1,6 @@
-import { GroupDTO, GroupSaveStateDTO } from '@automagical/controller-shared';
-import { LightAttributesDTO } from '@automagical/home-assistant-shared';
-import { TitleCase } from '@automagical/utilities';
+import { GroupDTO, GroupSaveStateDTO } from '@steggy/controller-shared';
+import { LightAttributesDTO } from '@steggy/home-assistant-shared';
+import { TitleCase } from '@steggy/utilities';
 import { Table, Typography } from 'antd';
 import React from 'react';
 

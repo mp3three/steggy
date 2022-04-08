@@ -1,4 +1,4 @@
-import { HASS_DOMAINS } from '@automagical/home-assistant-shared';
+import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import {
   controlToQuery,
   FetchArguments,
@@ -6,7 +6,7 @@ import {
   FetchWith,
   is,
   ResultControlDTO,
-} from '@automagical/utilities';
+} from '@steggy/utilities';
 
 import { ADMIN_KEY, BASE_URL } from './constants';
 

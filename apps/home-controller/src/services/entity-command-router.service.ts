@@ -1,23 +1,23 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import {
   ROOM_ENTITY_EXTRAS,
   RoomEntitySaveStateDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   ClimateDomainService,
   FanDomainService,
   LockDomainService,
   MediaPlayerDomainService,
   SwitchDomainService,
-} from '@automagical/home-assistant';
+} from '@steggy/home-assistant';
 import {
   ClimateAttributesDTO,
   domain,
   FanAttributesDTO,
   HASS_DOMAINS,
   LightAttributesDTO,
-} from '@automagical/home-assistant-shared';
-import { is } from '@automagical/utilities';
+} from '@steggy/home-assistant-shared';
+import { is } from '@steggy/utilities';
 import {
   BadRequestException,
   Injectable,

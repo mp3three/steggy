@@ -1,6 +1,6 @@
-import { AutoLogService } from '@automagical/boilerplate';
-import { RoutineCommandSleepDTO } from '@automagical/controller-shared';
-import { is, sleep } from '@automagical/utilities';
+import { AutoLogService } from '@steggy/boilerplate';
+import { RoutineCommandSleepDTO } from '@steggy/controller-shared';
+import { is, sleep } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

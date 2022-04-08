@@ -1,5 +1,5 @@
-import { GroupDTO } from '@automagical/controller-shared';
-import { is } from '@automagical/utilities';
+import { GroupDTO } from '@steggy/controller-shared';
+import { is } from '@steggy/utilities';
 import { Col, Empty, Row } from 'antd';
 import React from 'react';
 

@@ -1,10 +1,10 @@
-import { AutoLogService } from '@automagical/boilerplate';
-import { RoutineCommandSendNotificationDTO } from '@automagical/controller-shared';
+import { AutoLogService } from '@steggy/boilerplate';
+import { RoutineCommandSendNotificationDTO } from '@steggy/controller-shared';
 import {
   HASocketAPIService,
   NotifyDomainService,
-} from '@automagical/home-assistant';
-import { is } from '@automagical/utilities';
+} from '@steggy/home-assistant';
+import { is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { VMService } from '../vm.service';

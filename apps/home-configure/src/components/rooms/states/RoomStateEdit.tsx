@@ -4,8 +4,8 @@ import {
   RoomDTO,
   RoomEntitySaveStateDTO,
   RoomStateDTO,
-} from '@automagical/controller-shared';
-import { DOWN, is, UP } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { DOWN, is, UP } from '@steggy/utilities';
 import {
   Button,
   Divider,

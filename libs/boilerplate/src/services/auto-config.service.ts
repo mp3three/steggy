@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { deepExtend, INVERT_VALUE, is, START } from '@automagical/utilities';
+import { deepExtend, INVERT_VALUE, is, START } from '@steggy/utilities';
 import {
   Inject,
   Injectable,

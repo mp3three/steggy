@@ -1,8 +1,8 @@
-import { AutoLogService, OnEvent } from '@automagical/boilerplate';
-import { LOCATION_UPDATED } from '@automagical/controller-shared';
-import { HASocketAPIService } from '@automagical/home-assistant';
-import { HA_SOCKET_READY } from '@automagical/home-assistant-shared';
-import { is, sleep } from '@automagical/utilities';
+import { AutoLogService, OnEvent } from '@steggy/boilerplate';
+import { LOCATION_UPDATED } from '@steggy/controller-shared';
+import { HASocketAPIService } from '@steggy/home-assistant';
+import { HA_SOCKET_READY } from '@steggy/home-assistant-shared';
+import { is, sleep } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 import SolarCalc from 'solar-calc';

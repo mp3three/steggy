@@ -1,6 +1,6 @@
 import Information from '@2fd/ant-design-icons/lib/Information';
-import { SolarActivateDTO } from '@automagical/controller-shared';
-import { DOWN, UP } from '@automagical/utilities';
+import { SolarActivateDTO } from '@steggy/controller-shared';
+import { DOWN, UP } from '@steggy/utilities';
 import { Button, List, Tooltip, Typography } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';

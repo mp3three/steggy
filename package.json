@@ -1,12 +1,12 @@
 {
-  "name": "automagical",
+  "name": "steggy",
   "publisher": "mp3three",
   "version": "0.8.0",
   "license": "MIT",
   "author": {
     "email": "git@programmable.work",
     "name": "Cameron Contour",
-    "url": "https://github.com/ccontour/automagical"
+    "url": "https://github.com/ccontour/steggy"
   },
   "scripts": {
     "dev-controller": "npx nx serve home-controller & npx nx serve home-configure",

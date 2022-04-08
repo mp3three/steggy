@@ -1,24 +1,24 @@
-import { AutoLogService } from '@automagical/boilerplate';
+import { AutoLogService } from '@steggy/boilerplate';
 import {
   EntityHistoryRequest,
   RoomEntitySaveStateDTO,
-} from '@automagical/controller-shared';
+} from '@steggy/controller-shared';
 import {
   EntityManagerService,
   HomeAssistantFetchAPIService,
-} from '@automagical/home-assistant';
+} from '@steggy/home-assistant';
 import {
   domain,
   EntityRegistryItemDTO,
   HASS_DOMAINS,
   HassStateDTO,
   LightStateDTO,
-} from '@automagical/home-assistant-shared';
+} from '@steggy/home-assistant-shared';
 import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
-} from '@automagical/server';
+} from '@steggy/server';
 import {
   BadRequestException,
   Body,

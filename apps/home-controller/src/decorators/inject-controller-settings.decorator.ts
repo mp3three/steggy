@@ -1,4 +1,4 @@
-import { ROOM_CONTROLLER_SETTINGS } from '@automagical/controller-shared';
+import { ROOM_CONTROLLER_SETTINGS } from '@steggy/controller-shared';
 import { Inject, Provider } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { v4 } from 'uuid';

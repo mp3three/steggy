@@ -1,4 +1,4 @@
-import { HTTP_METHODS } from '@automagical/utilities';
+import { HTTP_METHODS } from '@steggy/utilities';
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import {
   IsEnum,

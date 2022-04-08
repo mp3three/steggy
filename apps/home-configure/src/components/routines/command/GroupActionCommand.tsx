@@ -1,8 +1,8 @@
 import {
   GroupDTO,
   RoutineCommandGroupActionDTO,
-} from '@automagical/controller-shared';
-import { TitleCase } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { TitleCase } from '@steggy/utilities';
 import { Empty, Form, Select, Space } from 'antd';
 import React from 'react';
 

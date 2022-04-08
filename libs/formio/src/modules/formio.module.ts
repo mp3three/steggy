@@ -1,4 +1,4 @@
-import { LibraryModule } from '@automagical/boilerplate';
+import { LibraryModule } from '@steggy/boilerplate';
 
 import { API_KEY, JWT_TOKEN, LIB_FORMIO, LIVE_ENDPOINT } from '../config';
 import {

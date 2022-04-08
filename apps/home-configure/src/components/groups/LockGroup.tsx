@@ -1,9 +1,9 @@
 import {
   GroupDTO,
   RoomEntitySaveStateDTO,
-} from '@automagical/controller-shared';
-import { SwitchStateDTO } from '@automagical/home-assistant-shared';
-import { is } from '@automagical/utilities';
+} from '@steggy/controller-shared';
+import { SwitchStateDTO } from '@steggy/home-assistant-shared';
+import { is } from '@steggy/utilities';
 import { Col, Empty, Row } from 'antd';
 import React from 'react';
 

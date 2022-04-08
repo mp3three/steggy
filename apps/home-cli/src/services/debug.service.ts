@@ -4,8 +4,8 @@ import {
   InjectConfig,
   PackageJsonDTO,
   WorkspaceService,
-} from '@automagical/boilerplate';
-import { HassNotificationDTO } from '@automagical/home-assistant-shared';
+} from '@steggy/boilerplate';
+import { HassNotificationDTO } from '@steggy/home-assistant-shared';
 import {
   ApplicationManagerService,
   ConfigBuilderService,
@@ -15,8 +15,8 @@ import {
   Repl,
   ScreenService,
   ToMenuEntry,
-} from '@automagical/tty';
-import { is } from '@automagical/utilities';
+} from '@steggy/tty';
+import { is } from '@steggy/utilities';
 import { Inject, NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import execa from 'execa';

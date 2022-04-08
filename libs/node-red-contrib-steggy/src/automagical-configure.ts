@@ -4,7 +4,7 @@ import { AutomagicalConfiguration } from './types';
 
 module.exports = function (RED: NodeAPI) {
   RED.nodes.registerType(
-    'automagical-configure',
+    'steggy-configure',
     function AutomagicalConfigure(
       this: Node & AutomagicalConfiguration,
       node: NodeDef & AutomagicalConfiguration,

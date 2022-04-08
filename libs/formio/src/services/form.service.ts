@@ -1,4 +1,4 @@
-import { HTTP_METHODS, is, ResultControlDTO } from '@automagical/utilities';
+import { HTTP_METHODS, is, ResultControlDTO } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
 
 import { FormDTO, ProjectDTO, SDKCrudOptions } from '../contracts';

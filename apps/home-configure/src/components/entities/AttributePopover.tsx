@@ -1,4 +1,4 @@
-import { HassStateDTO } from '@automagical/home-assistant-shared';
+import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { Space, Table, Typography } from 'antd';
 import React from 'react';
 

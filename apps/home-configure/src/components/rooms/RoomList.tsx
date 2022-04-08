@@ -1,7 +1,7 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import type { RoomDTO } from '@automagical/controller-shared';
-import { NOT_FOUND } from '@automagical/utilities';
+import type { RoomDTO } from '@steggy/controller-shared';
+import { NOT_FOUND } from '@steggy/utilities';
 import {
   Button,
   Card,

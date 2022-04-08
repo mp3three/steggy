@@ -2,7 +2,7 @@
   "name": "home-controller",
   "license": "MIT",
   "displayName": "Home Controller",
-  "description": "[Visit the wiki](https://github.com/ccontour/automagical/wiki) for more information",
+  "description": "[Visit the wiki](https://github.com/ccontour/steggy/wiki) for more information",
   "version": "0.9.1",
   "dependencies": {
     "pino-pretty": "^7.6.0"
