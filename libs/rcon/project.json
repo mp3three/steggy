@@ -1,19 +1,19 @@
 {
-  "root": "libs/rules-engine",
-  "sourceRoot": "libs/rules-engine/src",
+  "root": "libs/rcon",
+  "sourceRoot": "libs/rcon/src",
   "projectType": "library",
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/rules-engine",
-        "tsConfig": "libs/rules-engine/tsconfig.lib.json",
+        "outputPath": "dist/libs/rcon",
+        "tsConfig": "libs/rcon/tsconfig.lib.json",
         "buildableProjectDepsInPackageJsonType": "peerDependencies",
         "updateBuildableProjectDepsInPackageJson": true,
-        "packageJson": "libs/rules-engine/package.json",
-        "main": "libs/rules-engine/src/index.ts",
-        "assets": ["libs/rules-engine/*.md", "libs/rules-engine/package.json"]
+        "packageJson": "libs/rcon/package.json",
+        "main": "libs/rcon/src/index.ts",
+        "assets": ["libs/rcon/*.md", "libs/rcon/package.json"]
       },
       "configurations": {
         "production": {
@@ -27,7 +27,7 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/rules-engine/**/*.ts"]
+        "lintFilePatterns": ["libs/rcon/**/*.ts"]
       }
     },
     "publish": {
@@ -40,11 +40,11 @@
             "description": "Announce it"
           },
           {
-            "command": "npx nx build rules-engine --configuration=production",
+            "command": "npx nx build rcon --configuration=production",
             "description": "Create production optimized build"
           },
           {
-            "command": "yarn publish --cwd dist/libs/rules-engine --non-interactive",
+            "command": "yarn publish --cwd dist/libs/rcon --non-interactive",
             "description": "Publish it"
           }
         ]
