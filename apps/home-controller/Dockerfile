@@ -5,8 +5,18 @@ WORKDIR /app
 RUN apk add git curl
 # Grab latest yarn
 RUN curl --compressed -o- -L https://yarnpkg.com/install.sh | sh
-COPY --chown=node:node . .
-RUN yarn install --frozen-lockfile
+
+# Build dev environment
+# Only copy necessary stuff for install up front to cache better
+COPY --chown=node:node package.json yarn.lock ./
+RUN yarn install --frozen-lockfile --non-interactive --no-progress
+# Having the files present before install causes nx to freak out
+COPY --chown=node:node workspace.json nx.json tsconfig.base.json babel.config.json  ./
+# Now folders
+COPY --chown=node:node .git ./.git
+COPY --chown=node:node apps ./apps
+COPY --chown=node:node libs ./libs
+
 # Build UI
 RUN npx figlet-cli -f Pagga Building UI
 RUN npx nx build home-configure --configuration=production
@@ -24,8 +34,6 @@ WORKDIR /app
 COPY --from=build --chown=node:node /app/dist/apps/home-controller .
 RUN yarn install --production
 # </STAGE 2>
-
-
 
 # <STAGE 3>: FINAL
 FROM alpine:latest
@@ -61,7 +69,6 @@ RUN adduser --disabled-password --gecos "" --ingroup node \
 ## More latest stuff.
 RUN sed -i -e 's/v[[:digit:]]\..*\//edge\//g' /etc/apk/repositories && \
     apk add --upgrade nodejs npm curl
-
 
 # Finalize
 USER node

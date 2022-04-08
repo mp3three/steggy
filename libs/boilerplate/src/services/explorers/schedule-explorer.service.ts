@@ -6,7 +6,7 @@ import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import { CronJob } from 'cron';
 
 import { LOG_CONTEXT } from '../../contracts/logger/constants';
-import { AutoLogService } from '.././auto-log.service';
+import { AutoLogService } from '../auto-log.service';
 
 @Injectable()
 export class ScheduleExplorerService {
