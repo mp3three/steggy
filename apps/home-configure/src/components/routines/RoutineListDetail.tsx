@@ -10,7 +10,6 @@ import {
   Popconfirm,
   Space,
   Tabs,
-  Tooltip,
   Typography,
 } from 'antd';
 import React from 'react';
@@ -59,25 +58,14 @@ export class RoutineListDetail extends React.Component<
         title="Quick Edit"
         extra={
           <>
-            <Tooltip
-              title={
-                <Typography.Paragraph>
-                  <Typography.Text strong>POST </Typography.Text>
-                  <Typography.Text code>
-                    {sendRequest.url(`/routine/${this.props?.routine?._id}`)}
-                  </Typography.Text>
-                </Typography.Paragraph>
-              }
+            <Button
+              type="primary"
+              size="small"
+              disabled={is.empty(this.props.routine?.command)}
+              onClick={() => this.activateRoutine()}
             >
-              <Button
-                type="primary"
-                size="small"
-                disabled={is.empty(this.props.routine?.command)}
-                onClick={() => this.activateRoutine()}
-              >
-                Manual Activate
-              </Button>
-            </Tooltip>
+              Manual Activate
+            </Button>
             <Divider type="vertical" />
             <Popconfirm
               title={`Are you sure you want to delete ${this.props?.routine?.friendlyName}?`}

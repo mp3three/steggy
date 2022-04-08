@@ -97,6 +97,13 @@ export class GroupStateEdit extends React.Component<
               {this.entities.map(entity => this.entityRender(entity))}
             </Space>
           </Space>
+          <Divider orientation="left">
+            <Typography.Title level={4}>Identifiers</Typography.Title>
+          </Divider>
+          <Typography.Title level={5}>Group ID</Typography.Title>
+          <Typography.Text code>{this.props.group._id}</Typography.Text>
+          <Typography.Title level={5}>State ID</Typography.Title>
+          <Typography.Text code>{this.props.state.id}</Typography.Text>
         </Drawer>
       </>
     ) : (

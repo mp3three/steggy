@@ -66,14 +66,14 @@ export class RoutineController {
   @ApiOperation({
     description: `Activate a routine`,
   })
-  public async activate(
+  public activate(
     @Param('routine') routine: string,
     @Body() options: RoutineActivateOptionsDTO,
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    process.nextTick(async () => {
-      await this.routineService.activateRoutine(routine, options);
-    });
-    return await GENERIC_SUCCESS_RESPONSE;
+  ): typeof GENERIC_SUCCESS_RESPONSE {
+    process.nextTick(
+      async () => await this.routineService.activateRoutine(routine, options),
+    );
+    return GENERIC_SUCCESS_RESPONSE;
   }
 
   @Post('/:routine/activate')

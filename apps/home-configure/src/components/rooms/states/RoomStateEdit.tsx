@@ -110,7 +110,7 @@ export class RoomStateEdit extends React.Component<
           onClose={() => this.onClose(true)}
           extra={
             <Space>
-              <Button type="primary" onClick={this.onSave.bind(this)}>
+              <Button type="primary" onClick={() => this.onSave()}>
                 Save
               </Button>
               <Button onClick={() => this.onClose(false)}>Cancel</Button>
@@ -120,18 +120,19 @@ export class RoomStateEdit extends React.Component<
           <Space direction="vertical" style={{ width: '100%' }}>
             {is.empty(this.entities) ? undefined : (
               <>
-                <Typography.Title level={3}>Entities</Typography.Title>
+                <Divider orientation="left">
+                  <Typography.Title level={4}>Entities</Typography.Title>
+                </Divider>
                 <Space wrap>
                   {this.entities.map(entity => this.entityRender(entity))}
                 </Space>
               </>
             )}
-            {is.empty(this.entities) || is.empty(this.groups) ? undefined : (
-              <Divider />
-            )}
             {is.empty(this.groups) ? undefined : (
               <>
-                <Typography.Title level={3}>Groups</Typography.Title>
+                <Divider orientation="left">
+                  <Typography.Title level={4}>Groups</Typography.Title>
+                </Divider>
                 <Table
                   dataSource={this.groups.sort((a, b) =>
                     a.friendlyName > b.friendlyName ? UP : DOWN,
@@ -173,6 +174,13 @@ export class RoomStateEdit extends React.Component<
                 </Table>
               </>
             )}
+            <Divider orientation="left">
+              <Typography.Title level={4}>Identifiers</Typography.Title>
+            </Divider>
+            <Typography.Title level={5}>Room ID</Typography.Title>
+            <Typography.Text code>{this.props.room._id}</Typography.Text>
+            <Typography.Title level={5}>State ID</Typography.Title>
+            <Typography.Text code>{this.props.state.id}</Typography.Text>
           </Space>
         </Drawer>
       </>

@@ -1,10 +1,9 @@
-import { AutoLogService, InjectConfig } from '@automagical/boilerplate';
 import {
-  FormDTO,
-  FormioFetchService,
-  FormioSdkModule,
-  SubmissionDTO,
-} from '@automagical/formio';
+  AutoLogService,
+  FetchService,
+  InjectConfig,
+} from '@automagical/boilerplate';
+import { FormDTO, SubmissionDTO } from '@automagical/formio';
 import {
   ApplicationManagerService,
   PromptService,
@@ -30,16 +29,41 @@ type TOKEN_RESPONSE = { key: string; token: string };
 const DEFAULT_LIMIT = 3;
 
 @QuickScript({
+  OVERRIDE_DEFAULTS: {
+    libs: {
+      boilerplate: {
+        // enable debug logs by default
+        LOG_LEVEL: 'debug',
+      },
+    },
+  },
+  // controls name of config file
   application: Symbol('pdf-downloader'),
-  imports: [FormioSdkModule],
 })
 export class PDFDownloader {
   constructor(
+    /**
+     * @example https://api.form.io
+     */
     @InjectConfig('API_URL') private readonly apiUrl: string,
+    /**
+     * Absolute file path to csv file
+     */
     @InjectConfig('CSV_FILE') private readonly csvFile: string,
+    /**
+     * Number of simultanious downloads
+     */
     @InjectConfig('LIMIT') private readonly limit: number = DEFAULT_LIMIT,
+    /**
+     * Reference URL for portal, should contain project info but not a trailing slash
+     *
+     * @example https://azzly.form.io
+     * @example https://api.form.io/azzly
+     * @example https://api.form.io/project/{project_id}
+     */
+    @InjectConfig('BASE_URL') private readonly baseUrl: string,
     private readonly app: ApplicationManagerService,
-    private readonly fetchService: FormioFetchService,
+    private readonly fetchService: FetchService,
     private readonly logger: AutoLogService,
     private readonly promptService: PromptService,
   ) {}
@@ -94,12 +118,13 @@ export class PDFDownloader {
   }
 
   private async process(row: ROW): Promise<void> {
-    // * Add form to cache
+    // * Add form to cache + pre-create destination folders based on form name
     if (!this.forms.has(row.FormId)) {
       this.logger.debug(`Loading form {${row.FormId}}`);
       this.forms.set(
         row.FormId,
         await this.fetchService.fetch<FormDTO>({
+          baseUrl: this.baseUrl,
           url: `/form/${row.FormId}`,
         }),
       );
@@ -111,21 +136,26 @@ export class PDFDownloader {
     }
 
     // * Generate a download token for the pdf
+    const submissionUrl = `/project/${form.project}/form/${form._id}/submission/${row.SubmissionId}`;
     this.logger.debug(
+      { submissionUrl },
       `Retrieving pdf download token for {${row.SubmissionId}}`,
     );
-    const submissionUrl = `/project/${form.project}/form/${form._id}/submission/${row.SubmissionId}`;
     const endpoint = `${submissionUrl}/download`;
-    const { created } = await this.fetchService.fetch<SubmissionDTO>({
-      url: submissionUrl,
-    });
     const token = await this.fetchService.fetch<TOKEN_RESPONSE>({
+      baseUrl: this.baseUrl,
       headers: { 'x-allow': `GET:${endpoint}` },
       url: `/token`,
     });
+
     this.logger.info(`Downloading PDF {${row.SubmissionId}}`);
+    // * Retrieve the created date of the submission to use in file name
+    const { created } = await this.fetchService.fetch<SubmissionDTO>({
+      url: submissionUrl,
+    });
     const file = `${row.EMRNumber}-${row.Pat_LastName}-${row.Pat_FirstName}-${created}.pdf`;
-    // * Use curl to direct download the pdf to it's final destination
+
+    // * Use a curl call to download the pdf and output to it's final destination in 1 step
     await execa(`curl`, [
       `${this.apiUrl}${endpoint}?token=${token.key}`,
       '-o',

@@ -22,6 +22,64 @@ export class RoutineSettings extends React.Component<{
     return (
       <Card type="inner">
         <Space direction="vertical" style={{ width: '100%' }}>
+          <Typography.Paragraph>
+            <Typography.Title level={5}>Routine Identifier</Typography.Title>
+            <Typography.Text code>{this.props.routine._id}</Typography.Text>
+            <Typography.Title level={5}>API Activate</Typography.Title>
+            <Tooltip
+              placement="left"
+              title={
+                <Space direction="vertical">
+                  <Typography>
+                    <Typography.Title level={4}>POSTDATA</Typography.Title>
+                    <Typography.Paragraph>
+                      Body is optional, but may contain a json object to modify
+                      the way the routine is processed for the individual call.
+                    </Typography.Paragraph>
+                    <table>
+                      <tr style={{ backgroundColor: '#666' }}>
+                        <th>Field</th>
+                        <th>Description</th>
+                      </tr>
+                      <tr>
+                        <td>bypassRepeat</td>
+                        <td>
+                          <Typography.Text strong>
+                            {`boolean (default:false). `}
+                          </Typography.Text>
+                          Ignore the repeat run restrictions of this routine if
+                          present.
+                        </td>
+                      </tr>
+                      <tr style={{ backgroundColor: '#666' }}>
+                        <td>timeout</td>
+                        <td>
+                          <Typography.Text strong>number. </Typography.Text>
+                          Delay ms before executing routine.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>timestamp</td>
+                        <td>
+                          <Typography.Text strong>
+                            {`parsable date string. `}
+                          </Typography.Text>
+                          Execute routine at timestamp, cannot be combined with
+                          timeout.
+                        </td>
+                      </tr>
+                    </table>
+                  </Typography>
+                </Space>
+              }
+            >
+              <Typography.Text strong>POST </Typography.Text>
+              <Typography.Text code>
+                {sendRequest.url(`/routine/${this.props?.routine?._id}`)}
+              </Typography.Text>
+            </Tooltip>
+          </Typography.Paragraph>
+          <Divider />
           <Checkbox
             checked={this.props.routine.sync}
             onChange={({ target }) => this.update({ sync: target.checked })}

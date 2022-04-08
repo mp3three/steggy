@@ -1,0 +1,38 @@
+<script type="text/javascript">
+  RED.nodes.registerType('trigger-routine', {
+    category: 'automagical',
+    color: '#a6bbcf',
+    defaults: {
+      name: { value: '' },
+      server: { value: '', type: 'automagical-configure' },
+      routine: { value: '' },
+    },
+    inputs: 1,
+    outputs: 0,
+    icon: 'function.png',
+    label: function () {
+      return this.name || 'trigger routine';
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="trigger-routine">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name" />
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-server"
+      ><i class="fa fa-tag"></i> Server</label
+    >
+    <input type="text" id="node-input-server" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-routine"><i class="fa fa-tag"></i> Routine</label>
+    <input type="text" id="node-input-routine" />
+  </div>
+</script>
+
+<script type="text/html" data-help-name="trigger-routine">
+  <p>Actvate a save state on a room.</p>
+</script>

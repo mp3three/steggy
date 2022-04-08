@@ -26,7 +26,7 @@ export class ActivateAdd extends React.Component<
     return (
       <>
         <Drawer
-          title="Add Command"
+          title="Add Activation Event"
           visible={this.state.visible}
           onClose={() => this.setState({ visible: false })}
         >
