@@ -1,7 +1,3 @@
-import {
-  RoutineActivateOptionsDTO,
-  RoutineDTO,
-} from '@automagical/controller-shared';
 import { is } from '@automagical/utilities';
 import { Node, NodeAPI, NodeDef } from 'node-red';
 
@@ -10,7 +6,7 @@ import { sendRequest } from './types/fetch';
 
 type tServer = Node & AutomagicalConfiguration;
 type TriggerOptions = { routine: string };
-type Payload = { routine: string | RoutineDTO };
+type Payload = { routine: string };
 
 module.exports = function (RED: NodeAPI) {
   RED.nodes.registerType(
@@ -22,14 +18,10 @@ module.exports = function (RED: NodeAPI) {
       RED.nodes.createNode(this, config);
 
       const server = RED.nodes.getNode(config.server) as tServer;
-      const activate = async (
-        routine: string,
-        body?: RoutineActivateOptionsDTO,
-      ) => {
+      const activate = async (routine: string) => {
         await sendRequest({
           adminKey: server.admin_key,
           baseUrl: server.host,
-          body,
           method: 'post',
           url: `/routine/${routine}`,
         });
@@ -37,19 +29,12 @@ module.exports = function (RED: NodeAPI) {
 
       this.on('input', async message => {
         const payload = message.payload as Payload;
-        if (payload.routine) {
-          if (is.string(payload.routine)) {
-            await activate(payload.routine);
-            return;
-          }
-          await activate(payload.routine._id);
-          return;
-        }
-        if (is.empty(this.routine)) {
+        const routine = payload.routine || this.routine;
+        if (is.empty(routine)) {
           this.error('Cannot identify routine to activate');
           return;
         }
-        await activate(this.routine);
+        await activate(routine);
       });
     },
   );

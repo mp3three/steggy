@@ -1,4 +1,3 @@
-import { is } from '@automagical/utilities';
 import { Node, NodeAPI, NodeDef } from 'node-red';
 
 import { AutomagicalConfiguration } from './types';
@@ -31,14 +30,7 @@ module.exports = function (RED: NodeAPI) {
         const payload = message.payload as Payload;
         const group = payload.group || this.group;
         const state = payload.state || this.state;
-        if (is.empty(group)) {
-          this.error('Cannot identify group to activate save state on');
-          return;
-        }
-        if (is.empty(state)) {
-          this.error('Cannot identify group state to activate');
-          return;
-        }
+
         await activate(group, state);
       });
     },

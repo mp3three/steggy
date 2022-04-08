@@ -6,8 +6,8 @@
     "outDir": "../../dist/out-tsc",
     "declaration": true,
     "types": ["node"],
-    "target": "ESNext"
+    "target": "ES2018"
   },
   "exclude": ["**/*.spec.ts"],
-  "include": ["**/*.ts", "../controller-shared/**/*.ts"]
+  "include": ["**/*.ts"]
 }

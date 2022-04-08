@@ -13,7 +13,7 @@ module.exports = function (RED: NodeAPI) {
     'room-state',
     function TriggerRoutineNode(
       this: Node & TriggerOptions,
-      config: NodeDef & { server: string },
+      config: NodeDef & TriggerOptions & { server: string },
     ) {
       RED.nodes.createNode(this, config);
 
@@ -29,14 +29,14 @@ module.exports = function (RED: NodeAPI) {
 
       this.on('input', async message => {
         const payload = message.payload as Payload;
-        const room = payload.room || this.room;
-        const state = payload.state || this.state;
+        const room = payload.room || config.room;
+        const state = payload.state || config.state;
         if (is.empty(room)) {
           this.error('Cannot identify room to activate save state on');
           return;
         }
         if (is.empty(state)) {
-          this.error('Cannot identify room state to activate');
+          this.error('Cannot identify room state to activate save state on');
           return;
         }
         await activate(room, state);

@@ -6,7 +6,7 @@ import {
   is,
   ResultControlDTO,
 } from '@automagical/utilities';
-import { fetch } from 'node-fetch';
+import fetch from 'node-fetch';
 
 export async function sendRequest<T>({
   rawUrl,
