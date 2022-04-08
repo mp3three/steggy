@@ -11,3 +11,4 @@ export const MONGO_CRL = 'MONGO_CRL';
 export const SEQUENCE_TIMEOUT = 'SEQUENCE_TIMEOUT';
 export const SAFE_MODE = 'SAFE_MODE';
 export const NOTIFY_CONNECTION_RESET = 'NOTIFY_CONNECTION_RESET';
+export const NODE_RED_URL = 'NODE_RED_URL';

@@ -24,6 +24,7 @@ export type ActivateCommand =
   | 'set_room_metadata'
   | 'trigger_routine'
   | 'sleep'
+  | 'node_red'
   | 'webhook'
   | 'capture_state'
   | 'restore_state';
@@ -38,6 +39,7 @@ export enum ROUTINE_ACTIVATE_COMMAND {
   stop_processing = 'stop_processing',
   trigger_routine = 'trigger_routine',
   set_room_metadata = 'set_room_metadata',
+  node_red = 'node_red',
   sleep = 'sleep',
   webhook = 'webhook',
   capture_state = 'capture_state',
@@ -175,6 +177,12 @@ export class SetRoomMetadataCommandDTO {
   public value: boolean | string | number;
 }
 
+export class RoutineCommandNodeRedDTO {
+  @ApiProperty()
+  @IsString()
+  public name: string;
+}
+
 type stringMethods = `${HTTP_METHODS}`;
 export class RoutineCommandWebhookDTO {
   @ApiProperty()
@@ -201,6 +209,7 @@ export class RoutineCommandDTO<
     | RoutineCommandSendNotificationDTO
     | RoutineCommandSleepDTO
     | RoutineCommandStopProcessingDTO
+    | RoutineCommandNodeRedDTO
     | RoutineCommandTriggerRoutineDTO
     | RoutineCommandWebhookDTO,
 > {
@@ -218,6 +227,7 @@ export class RoutineCommandDTO<
       { $ref: getSchemaPath(SetRoomMetadataCommandDTO) },
       { $ref: getSchemaPath(RoutineCommandStopProcessingDTO) },
       { $ref: getSchemaPath(RoutineCommandTriggerRoutineDTO) },
+      { $ref: getSchemaPath(RoutineCommandNodeRedDTO) },
       { $ref: getSchemaPath(RoutineCommandWebhookDTO) },
     ],
   })

@@ -15,11 +15,23 @@ module.exports = function (RED: NodeAPI) {
       item(body);
     },
   );
+  RED.httpNode.get(`/steggy/routine-command`, function (request, response) {
+    response.send({
+      list: [...commands.keys()],
+    });
+  });
+
   const commands = new Map();
   RED.nodes.registerType(
     'receive-command',
     function TriggerRoutineNode(this: Node, config: NodeDef & TriggerOptions) {
       RED.nodes.createNode(this, config);
+      if (commands.has(config.target)) {
+        this.error(
+          `Steggy hook {${config.target}} attempted repeat registration`,
+        );
+        return;
+      }
       commands.set(config.target, payload => this.send({ payload }));
       this.on('close', () => commands.delete(config.name));
     },

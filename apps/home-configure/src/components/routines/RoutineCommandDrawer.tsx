@@ -4,6 +4,7 @@ import {
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
+  RoutineCommandNodeRedDTO,
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
   RoutineCommandSleepDTO,
@@ -32,6 +33,7 @@ import {
   EntityStateCommand,
   GroupActionCommand,
   GroupStateCommand,
+  NodeRedCommand,
   RoomStateCommand,
   SendNotificationCommand,
   SleepCommand,
@@ -150,6 +152,13 @@ export class RoutineCommandDrawer extends React.Component<{
           <GroupActionCommand
             onUpdate={this.onUpdate.bind(this)}
             command={this.props.command.command as RoutineCommandGroupActionDTO}
+          />
+        );
+      case 'node_red':
+        return (
+          <NodeRedCommand
+            onUpdate={this.onUpdate.bind(this)}
+            command={this.props.command.command as RoutineCommandNodeRedDTO}
           />
         );
       case 'group_state':

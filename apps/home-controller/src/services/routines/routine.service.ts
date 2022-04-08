@@ -22,6 +22,7 @@ import {
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
+  RoutineCommandNodeRedDTO,
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
   RoutineCommandSleepDTO,
@@ -47,6 +48,7 @@ import { v4 as uuid } from 'uuid';
 import {
   CaptureCommandService,
   LightFlashCommandService,
+  NodeRedCommand,
   RoutineTriggerService,
   SendNotificationService,
   SetRoomMetadataService,
@@ -78,6 +80,8 @@ export class RoutineService {
     private readonly logger: AutoLogService,
     private readonly roomService: RoomService,
     private readonly routinePersistence: RoutinePersistenceService,
+    @Inject(forwardRef(() => NodeRedCommand))
+    private readonly nodeRedCommand: NodeRedCommand,
     private readonly scheduleActivate: ScheduleActivateService,
     @Inject(forwardRef(() => SetRoomMetadataService))
     private readonly setMetadataService: SetRoomMetadataService,
@@ -144,6 +148,11 @@ export class RoutineService {
           command.command as RoutineCommandSendNotificationDTO,
           waitForChange,
           runId,
+        );
+        break;
+      case ROUTINE_ACTIVATE_COMMAND.node_red:
+        await this.nodeRedCommand.activate(
+          command.command as RoutineCommandNodeRedDTO,
         );
         break;
       case ROUTINE_ACTIVATE_COMMAND.set_room_metadata:

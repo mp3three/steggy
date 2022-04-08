@@ -3,6 +3,7 @@ export * from './CommandList';
 export * from './EntityStateCommand';
 export * from './GroupActionCommand';
 export * from './GroupStateCommand';
+export * from './NodeRedCommand';
 export * from './RoomStateCommand';
 export * from './SendNotificationCommand';
 export * from './SleepCommand';

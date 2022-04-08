@@ -5,10 +5,7 @@ import {
   HASocketAPIService,
   NotifyDomainService,
 } from '@steggy/home-assistant';
-import {
-  HassConfig,
-  HassNotificationDTO,
-} from '@steggy/home-assistant-shared';
+import { HassConfig, HassNotificationDTO } from '@steggy/home-assistant-shared';
 import {
   ApiGenericResponse,
   AuthStack,
@@ -17,6 +14,7 @@ import {
 
 import {
   LightManagerService,
+  NodeRedCommand,
   RoutineEnabledService,
   SolarCalcService,
 } from '../services';
@@ -32,6 +30,7 @@ export class DebugController {
     private readonly solarCalc: SolarCalcService,
     private readonly callService: HACallService,
     private readonly routineEnabled: RoutineEnabledService,
+    private readonly nodeRed: NodeRedCommand,
   ) {}
 
   @Delete(`/notification/:id`)
@@ -87,6 +86,11 @@ export class DebugController {
   })
   public async hassConfig(): Promise<HassConfig> {
     return await this.socketService.getConfig();
+  }
+
+  @Get(`/node-red/commands`)
+  public async nodeRedCommands(): Promise<string[]> {
+    return await this.nodeRed.listAvailable();
   }
 
   @Post(`/render-template`)

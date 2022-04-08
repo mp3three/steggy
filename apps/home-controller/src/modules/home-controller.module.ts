@@ -16,6 +16,7 @@ import {
   CIRCADIAN_MAX_TEMP,
   CIRCADIAN_MIN_TEMP,
   MIN_BRIGHTNESS,
+  NODE_RED_URL,
   NOTIFY_CONNECTION_RESET,
   NOTIFY_UNAVAILABLE_DURATION,
   SAFE_MODE,
@@ -51,6 +52,7 @@ import {
   LockGroupService,
   MetadataPersistenceService,
   MetadataService,
+  NodeRedCommand,
   RoomPersistenceService,
   RoomService,
   RoutineEnabledService,
@@ -97,6 +99,7 @@ const providers = [
     RoutineTriggerService,
     RoutineEnabledService,
     SetRoomMetadataService,
+    NodeRedCommand,
     LightManagerService,
     StopProcessingCommandService,
     SleepCommandService,
@@ -136,6 +139,10 @@ const providers = [
       description:
         'Enforce a number higher than 1 for min brightness in dimmers. Some lights do weird stuff at low numbers',
       type: 'number',
+    },
+    [NODE_RED_URL]: {
+      description: 'API target for outgoing node red hooks.',
+      type: 'string',
     },
     [NOTIFY_CONNECTION_RESET]: {
       default: true,

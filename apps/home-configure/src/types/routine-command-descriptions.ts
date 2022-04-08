@@ -8,6 +8,11 @@ export const ROUTINE_COMMAND_LIST = [
     type: 'entity_state',
   },
   {
+    description: 'Activate a node in Node Red',
+    name: 'Node Red',
+    type: 'node_red',
+  },
+  {
     description: 'Activate a previously saved group state',
     name: 'Group State',
     type: 'group_state',
