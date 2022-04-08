@@ -1,3 +1,4 @@
+import { NotImplementedException } from '@nestjs/common';
 import {
   AutoLogService,
   CacheManagerService,
@@ -20,7 +21,6 @@ import {
   ToMenuEntry,
 } from '@steggy/tty';
 import { DOWN, FILTER_OPERATIONS, is, LABEL, UP } from '@steggy/utilities';
-import { NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 

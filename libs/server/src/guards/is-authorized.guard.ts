@@ -1,5 +1,5 @@
-import { InjectConfig } from '@steggy/boilerplate';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { InjectConfig } from '@steggy/boilerplate';
 import { Observable } from 'rxjs';
 
 import { AUTH_BYPASS } from '../config';

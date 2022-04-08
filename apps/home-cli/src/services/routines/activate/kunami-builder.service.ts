@@ -1,9 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { KunamiCodeActivateDTO } from '@steggy/controller-shared';
 import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import { PromptService } from '@steggy/tty';
 import { is } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 
 import { EntityService } from '../../home-assistant/entity.service';

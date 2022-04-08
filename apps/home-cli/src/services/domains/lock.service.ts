@@ -1,6 +1,6 @@
+import { Injectable } from '@nestjs/common';
 import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
 import { ICONS, PromptEntry } from '@steggy/tty';
-import { Injectable } from '@nestjs/common';
 import inquirer from 'inquirer';
 
 import { BaseDomainService } from './base-domain.service';

@@ -1,3 +1,4 @@
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import {
   AutoLogService,
   InjectConfig,
@@ -11,7 +12,6 @@ import {
   is,
   queryToControl,
 } from '@steggy/utilities';
-import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction } from 'express';
 import pino from 'pino';
 

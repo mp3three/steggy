@@ -1,13 +1,13 @@
 import { Node, NodeAPI, NodeDef } from 'node-red';
 
-import { AutomagicalConfiguration } from './types';
+import { ControllerConfiguration } from './types';
 
 module.exports = function (RED: NodeAPI) {
   RED.nodes.registerType(
     'steggy-configure',
-    function AutomagicalConfigure(
-      this: Node & AutomagicalConfiguration,
-      node: NodeDef & AutomagicalConfiguration,
+    function SteggyConfigure(
+      this: Node & ControllerConfiguration,
+      node: NodeDef & ControllerConfiguration,
     ) {
       RED.nodes.createNode(this, node);
       this.host = node.host;

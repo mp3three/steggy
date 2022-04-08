@@ -1,5 +1,5 @@
-import { LibraryModule, RegisterCache } from '@steggy/boilerplate';
 import { DiscoveryModule } from '@nestjs/core';
+import { LibraryModule, RegisterCache } from '@steggy/boilerplate';
 
 import {
   BACKGROUND_MENU,

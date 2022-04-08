@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   GROUP_TYPES,
@@ -15,7 +16,6 @@ import {
   SwitchStateDTO,
 } from '@steggy/home-assistant-shared';
 import { each, START } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';

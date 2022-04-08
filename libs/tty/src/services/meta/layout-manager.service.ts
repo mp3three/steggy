@@ -1,5 +1,5 @@
-import { START } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
+import { START } from '@steggy/utilities';
 
 import { ansiMaxLength, ansiPadEnd } from '../../includes';
 import { BoxService } from '../render/box.service';

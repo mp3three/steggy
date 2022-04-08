@@ -1,7 +1,7 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { EntityManagerService } from '@steggy/home-assistant';
 import { is } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 import { get } from 'object-path';
 
 import { EntityAttributeDTO } from '../contracts';

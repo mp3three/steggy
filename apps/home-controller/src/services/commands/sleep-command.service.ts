@@ -1,7 +1,7 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { RoutineCommandSleepDTO } from '@steggy/controller-shared';
 import { is, sleep } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class SleepCommandService {

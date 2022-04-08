@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   AbstractConfig,
   AutoLogService,
@@ -5,7 +6,6 @@ import {
   WorkspaceService,
 } from '@steggy/boilerplate';
 import { is } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import JSON from 'comment-json';

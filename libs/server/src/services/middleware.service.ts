@@ -1,9 +1,9 @@
+import { INestApplication, Injectable, ValidationPipe } from '@nestjs/common';
 import {
   AutoLogService,
   BootstrapOptions,
   InjectConfig,
 } from '@steggy/boilerplate';
-import { INestApplication, Injectable, ValidationPipe } from '@nestjs/common';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import csurf from 'csurf';

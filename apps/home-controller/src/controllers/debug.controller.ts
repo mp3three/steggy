@@ -1,3 +1,5 @@
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   HACallService,
   HASocketAPIService,
@@ -12,8 +14,6 @@ import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
 } from '@steggy/server';
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import {
   LightManagerService,

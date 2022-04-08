@@ -1,5 +1,5 @@
-import { is } from '@steggy/utilities';
 import { Inject, Injectable } from '@nestjs/common';
+import { is } from '@steggy/utilities';
 import JSON from 'comment-json';
 import { existsSync, readFileSync } from 'fs';
 import { homedir } from 'os';

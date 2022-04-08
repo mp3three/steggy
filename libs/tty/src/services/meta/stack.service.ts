@@ -1,6 +1,6 @@
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ModuleScannerService } from '@steggy/boilerplate';
 import { is } from '@steggy/utilities';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 import { iStackProvider, STACK_PROVIDER } from '../../contracts';
 

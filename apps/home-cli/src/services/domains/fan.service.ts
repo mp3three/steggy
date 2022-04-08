@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
 import {
   FanAttributesDTO,
@@ -12,7 +13,6 @@ import {
   ToMenuEntry,
 } from '@steggy/tty';
 import { TitleCase } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 

@@ -1,3 +1,4 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   GroupDTO,
@@ -10,7 +11,6 @@ import {
 import { EntityManagerService } from '@steggy/home-assistant';
 import { BaseSchemaDTO } from '@steggy/persistence';
 import { each, is, ResultControlDTO } from '@steggy/utilities';
-import { Injectable, NotFoundException } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 import { v4 as uuid } from 'uuid';
 

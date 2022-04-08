@@ -1,7 +1,7 @@
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { ClimateStateDTO } from '@steggy/home-assistant-shared';
 import { IsDone, PromptEntry, ToMenuEntry } from '@steggy/tty';
 import { TitleCase } from '@steggy/utilities';
-import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import { MENU_ITEMS } from '../../includes';
 import { SwitchService } from './switch.service';

@@ -1,7 +1,7 @@
-import { InjectConfig } from '@steggy/boilerplate';
-import { ConnectService } from '@steggy/persistence';
 import { Injectable } from '@nestjs/common';
 import { MongooseModuleOptions } from '@nestjs/mongoose';
+import { InjectConfig } from '@steggy/boilerplate';
+import { ConnectService } from '@steggy/persistence';
 
 import {
   MONGO_CA,

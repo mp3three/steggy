@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { InjectConfig } from '@steggy/boilerplate';
 import {
   ARRAY_OFFSET,
@@ -11,7 +12,6 @@ import {
   UP,
   VALUE,
 } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import fuzzy from 'fuzzysort';
 

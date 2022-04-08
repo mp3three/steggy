@@ -1,5 +1,5 @@
-import { DOWN, is, UP } from '@steggy/utilities';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { DOWN, is, UP } from '@steggy/utilities';
 import chalk from 'chalk';
 
 import { tKeyMap } from '../../contracts';

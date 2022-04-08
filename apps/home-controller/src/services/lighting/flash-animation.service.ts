@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { FlashAnimationDTO } from '@steggy/controller-shared';
 import { EntityManagerService } from '@steggy/home-assistant';
@@ -7,7 +8,6 @@ import {
   LightStateDTO,
 } from '@steggy/home-assistant-shared';
 import { eachSeries, is, PEAT, sleep, START } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 
 import { LightManagerService } from './light-manager.service';
 

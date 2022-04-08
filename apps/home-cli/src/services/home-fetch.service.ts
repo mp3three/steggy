@@ -1,6 +1,6 @@
+import { Injectable } from '@nestjs/common';
 import { FetchService, InjectConfig } from '@steggy/boilerplate';
 import { FetchWith, is, sleep, START } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 
 import { ADMIN_KEY, CONTROLLER_API } from '../config';

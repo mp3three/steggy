@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService, Cron } from '@steggy/boilerplate';
 import {
   RoutineDTO,
@@ -5,7 +6,6 @@ import {
   SolarWatcher,
 } from '@steggy/controller-shared';
 import { CronExpression, TitleCase } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 import { CronJob } from 'cron';
 
 import { SolarCalcService } from '../lighting';

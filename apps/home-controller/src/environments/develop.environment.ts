@@ -1,5 +1,5 @@
-import { BootstrapOptions } from '@steggy/boilerplate';
 import { INestApplication } from '@nestjs/common';
+import { BootstrapOptions } from '@steggy/boilerplate';
 import { Express } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 

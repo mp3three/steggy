@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   InjectConfig,
@@ -8,7 +9,6 @@ import {
   PromptService,
   ScreenService,
 } from '@steggy/tty';
-import { Injectable } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import { google } from 'googleapis';
 

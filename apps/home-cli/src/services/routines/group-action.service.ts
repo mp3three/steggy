@@ -1,8 +1,8 @@
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import {
   GROUP_TYPES,
   RoutineCommandGroupActionDTO,
 } from '@steggy/controller-shared';
-import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import {
   GroupCommandService,

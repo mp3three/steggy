@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   Cron,
@@ -9,7 +10,6 @@ import {
   LOCATION_UPDATED,
 } from '@steggy/controller-shared';
 import { CronExpression } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import EventEmitter from 'eventemitter3';
 

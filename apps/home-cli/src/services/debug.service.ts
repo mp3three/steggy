@@ -1,3 +1,4 @@
+import { Inject, NotImplementedException } from '@nestjs/common';
 import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
@@ -17,7 +18,6 @@ import {
   ToMenuEntry,
 } from '@steggy/tty';
 import { is } from '@steggy/utilities';
-import { Inject, NotImplementedException } from '@nestjs/common';
 import chalk from 'chalk';
 import execa from 'execa';
 import { dump } from 'js-yaml';

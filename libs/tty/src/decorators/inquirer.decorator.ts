@@ -1,5 +1,5 @@
-import { is } from '@steggy/utilities';
 import { INestApplication } from '@nestjs/common';
+import { is } from '@steggy/utilities';
 import chalk from 'chalk';
 import cliCursor from 'cli-cursor';
 import { Question } from 'inquirer';

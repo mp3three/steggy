@@ -1,5 +1,5 @@
-import { STATE_MANAGER } from '@steggy/controller-shared';
 import { Inject } from '@nestjs/common';
+import { STATE_MANAGER } from '@steggy/controller-shared';
 import { ClassConstructor } from 'class-transformer';
 
 export function StateManager(): PropertyDecorator {

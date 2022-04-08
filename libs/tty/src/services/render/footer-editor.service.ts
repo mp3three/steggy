@@ -1,5 +1,5 @@
-import { is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
+import { is } from '@steggy/utilities';
 
 import { KeyModifiers, TableBuilderElement, tKeyMap } from '../../contracts';
 import { EditorExplorerService } from '../explorers';

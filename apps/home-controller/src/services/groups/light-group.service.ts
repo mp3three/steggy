@@ -1,3 +1,4 @@
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   GROUP_LIGHT_COMMANDS,
@@ -16,7 +17,6 @@ import {
   LightStateDTO,
 } from '@steggy/home-assistant-shared';
 import { each, START } from '@steggy/utilities';
-import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import { LightManagerService } from '../lighting';
 import { GroupPersistenceService } from '../persistence';

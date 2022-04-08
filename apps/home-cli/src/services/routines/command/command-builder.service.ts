@@ -1,10 +1,10 @@
+import { Injectable } from '@nestjs/common';
 import {
   ROUTINE_ACTIVATE_COMMAND,
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { ApplicationManagerService, PromptService } from '@steggy/tty';
 import { DOWN, is, TitleCase, UP } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class RoutineCommandBuilderService {

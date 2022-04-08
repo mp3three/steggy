@@ -1,3 +1,4 @@
+import { InjectModel } from '@nestjs/mongoose';
 import { AutoLogService, CastResult } from '@steggy/boilerplate';
 import { RoutineDTO } from '@steggy/controller-shared';
 import { BaseMongoService, QuickConnectModule } from '@steggy/persistence';
@@ -7,7 +8,6 @@ import {
   QuickScript,
 } from '@steggy/tty';
 import { ResultControlDTO } from '@steggy/utilities';
-import { InjectModel } from '@nestjs/mongoose';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 import { Document, Model } from 'mongoose';

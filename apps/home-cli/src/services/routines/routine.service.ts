@@ -2,6 +2,7 @@
 // Really don't care if a simple map function is duplicated
 /* eslint-disable radar/no-identical-functions */
 
+import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
 import { CacheManagerService, InjectCache } from '@steggy/boilerplate';
 import {
   RoomDTO,
@@ -21,7 +22,6 @@ import {
   ToMenuEntry,
 } from '@steggy/tty';
 import { is, LABEL, ResultControlDTO, TitleCase } from '@steggy/utilities';
-import { forwardRef, Inject, NotImplementedException } from '@nestjs/common';
 import { eachSeries } from 'async';
 import chalk from 'chalk';
 import Table from 'cli-table';

@@ -1,4 +1,21 @@
 import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import {
+  ApiBody,
+  ApiExtraModels,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
   KunamiCodeActivateDTO,
   RoomEntitySaveStateDTO,
   RoutineActivateDTO,
@@ -22,23 +39,6 @@ import {
   ResponseLocals,
 } from '@steggy/server';
 import { NOT_FOUND } from '@steggy/utilities';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  Post,
-  Put,
-} from '@nestjs/common';
-import {
-  ApiBody,
-  ApiExtraModels,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
 import { v4 as uuid } from 'uuid';
 
 import { RoutineService } from '../services';

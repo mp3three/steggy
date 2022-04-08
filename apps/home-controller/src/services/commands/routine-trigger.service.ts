@@ -1,6 +1,6 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { RoutineCommandTriggerRoutineDTO } from '@steggy/controller-shared';
-import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { RoutineService } from '../routines';
 

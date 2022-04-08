@@ -1,3 +1,4 @@
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   DeviceListItemDTO,
@@ -12,7 +13,6 @@ import {
   ToMenuEntry,
 } from '@steggy/tty';
 import { is } from '@steggy/utilities';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import { encode } from 'ini';
 

@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   GROUP_TYPES,
   RountineCommandLightFlashDTO,
@@ -5,7 +6,6 @@ import {
 import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import { ColorsService, ICONS, PromptService } from '@steggy/tty';
 import { is } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 
 import { GroupCommandService } from '../../groups';
 import { EntityService } from '../../home-assistant/entity.service';

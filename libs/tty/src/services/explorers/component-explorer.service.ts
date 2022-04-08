@@ -1,5 +1,5 @@
-import { AutoLogService, ModuleScannerService } from '@steggy/boilerplate';
 import { Injectable } from '@nestjs/common';
+import { AutoLogService, ModuleScannerService } from '@steggy/boilerplate';
 
 import {
   COMPONENT_CONFIG,

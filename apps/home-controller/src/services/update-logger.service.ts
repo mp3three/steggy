@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService, OnEvent } from '@steggy/boilerplate';
 import { DEBUG_LOG } from '@steggy/controller-shared';
 import {
@@ -5,7 +6,6 @@ import {
   HassEventDTO,
 } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 
 import { ENTITY_METADATA_UPDATED } from '../typings';
 import { MetadataService } from './metadata.service';

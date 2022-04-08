@@ -1,6 +1,6 @@
+import { Injectable } from '@nestjs/common';
 import { InjectConfig } from '@steggy/boilerplate';
 import { is } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import figlet, { Fonts } from 'figlet';
 

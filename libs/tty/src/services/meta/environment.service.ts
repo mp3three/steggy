@@ -1,5 +1,5 @@
-import { EMPTY } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
+import { EMPTY } from '@steggy/utilities';
 
 @Injectable()
 export class EnvironmentService {

@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   RoutineDTO,
@@ -5,7 +6,6 @@ import {
   ScheduleWatcher,
 } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 import { CronJob } from 'cron';
 
 @Injectable()

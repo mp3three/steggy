@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   ARRAY_OFFSET,
   EMPTY,
@@ -5,7 +6,6 @@ import {
   is,
   START,
 } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 import chalk from 'chalk';
 import { get } from 'object-path';
 

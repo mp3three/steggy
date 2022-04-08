@@ -1,6 +1,6 @@
-import { TransformObjectId } from '@steggy/persistence';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
+import { TransformObjectId } from '@steggy/persistence';
 import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Document } from 'mongoose';
 

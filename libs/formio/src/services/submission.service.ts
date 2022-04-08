@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   FetchWith,
@@ -5,7 +6,6 @@ import {
   is,
   ResultControlDTO,
 } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 
 import { FormDTO, SDKCrudOptions, SubmissionDTO } from '../contracts';
 import { FormioFetchService } from './formio-fetch.service';

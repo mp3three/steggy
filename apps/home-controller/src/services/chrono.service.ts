@@ -1,5 +1,5 @@
-import { AutoLogService } from '@steggy/boilerplate';
 import { Injectable } from '@nestjs/common';
+import { AutoLogService } from '@steggy/boilerplate';
 import { casual, Chrono } from 'chrono-node';
 
 import { SolarCalcService } from './lighting';

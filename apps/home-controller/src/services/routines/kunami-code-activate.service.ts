@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   InjectConfig,
@@ -15,7 +16,6 @@ import {
   HassEventDTO,
 } from '@steggy/home-assistant-shared';
 import { each, is } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 
 import { SEQUENCE_TIMEOUT } from '../../config';
 

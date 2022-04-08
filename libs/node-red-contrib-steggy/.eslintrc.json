@@ -8,7 +8,7 @@
         "radar/no-duplicate-string": "off"
       },
       "parserOptions": {
-        "project": ["libs/node-red-contrib-automagical/tsconfig.lib.json"]
+        "project": ["libs/node-red-contrib-steggy/tsconfig.lib.json"]
       }
     },
     {

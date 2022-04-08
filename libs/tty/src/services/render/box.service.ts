@@ -1,5 +1,5 @@
-import { is } from '@steggy/utilities';
 import { Injectable, Scope } from '@nestjs/common';
+import { is } from '@steggy/utilities';
 
 import { TABLE_PARTS } from '../../contracts';
 import { ansiMaxLength, ansiPadEnd } from '../../includes';

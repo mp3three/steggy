@@ -1,5 +1,5 @@
-import { is } from '@steggy/utilities';
 import { INestApplication } from '@nestjs/common';
+import { is } from '@steggy/utilities';
 import inquirer from 'inquirer';
 import datePrompt from 'inquirer-date-prompt';
 

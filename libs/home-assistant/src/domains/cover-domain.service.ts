@@ -1,5 +1,5 @@
-import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import { Injectable } from '@nestjs/common';
+import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 
 import { HACallService } from '../services';
 

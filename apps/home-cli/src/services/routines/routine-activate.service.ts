@@ -1,4 +1,10 @@
 import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
+import {
   KunamiCodeActivateDTO,
   ROUTINE_ACTIVATE_TYPE,
   RoutineActivateDTO,
@@ -17,12 +23,6 @@ import {
   ToMenuEntry,
 } from '@steggy/tty';
 import { is, TitleCase } from '@steggy/utilities';
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
 import chalk from 'chalk';
 import Table from 'cli-table';
 import { v4 as uuid } from 'uuid';

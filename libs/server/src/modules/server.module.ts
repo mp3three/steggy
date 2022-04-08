@@ -1,5 +1,5 @@
-import { LibraryModule } from '@steggy/boilerplate';
 import { MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { LibraryModule } from '@steggy/boilerplate';
 
 import {
   ADMIN_KEY,

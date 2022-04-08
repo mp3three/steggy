@@ -1,3 +1,4 @@
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { ApplicationModule, RegisterCache } from '@steggy/boilerplate';
 import {
   GroupDTO,
@@ -8,7 +9,6 @@ import {
 import { HomeAssistantModule } from '@steggy/home-assistant';
 import { QuickConnectModule } from '@steggy/persistence';
 import { ServerModule } from '@steggy/server';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { existsSync } from 'fs';
 import { join } from 'path';
 

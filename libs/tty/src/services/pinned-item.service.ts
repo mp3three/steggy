@@ -1,6 +1,6 @@
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { AutoConfigService, InjectConfig } from '@steggy/boilerplate';
 import { is } from '@steggy/utilities';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 import { LIB_TTY, PINNED_ITEMS } from '../config';
 import { PromptEntry } from './prompt.service';

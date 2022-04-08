@@ -1,7 +1,7 @@
-import { MetadataDTO } from '@steggy/controller-shared';
-import { ApiGenericResponse, AuthStack } from '@steggy/server';
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { MetadataDTO } from '@steggy/controller-shared';
+import { ApiGenericResponse, AuthStack } from '@steggy/server';
 
 import { MetadataService } from '../services';
 

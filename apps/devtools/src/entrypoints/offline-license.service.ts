@@ -1,3 +1,4 @@
+import { InternalServerErrorException } from '@nestjs/common';
 import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
 import {
   ApplicationManagerService,
@@ -6,7 +7,6 @@ import {
   ScreenService,
 } from '@steggy/tty';
 import { SINGLE } from '@steggy/utilities';
-import { InternalServerErrorException } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { existsSync, readFileSync } from 'fs';
 import { sign } from 'jsonwebtoken';

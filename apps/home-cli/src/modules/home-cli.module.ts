@@ -1,10 +1,10 @@
+import { DiscoveryModule } from '@nestjs/core';
 import {
   ApplicationModule,
   InjectConfig,
   UtilitiesModule,
 } from '@steggy/boilerplate';
 import { CONFIG_APPLICATION_TITLE, MainCLIModule } from '@steggy/tty';
-import { DiscoveryModule } from '@nestjs/core';
 
 import { APP_TITLE } from '../config';
 import {

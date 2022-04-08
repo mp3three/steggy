@@ -1,3 +1,4 @@
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   GENERIC_COMMANDS,
@@ -20,7 +21,6 @@ import {
   ScreenService,
 } from '@steggy/tty';
 import { DOWN, is, START, TitleCase, UP } from '@steggy/utilities';
-import { Injectable, NotImplementedException } from '@nestjs/common';
 import { each } from 'async';
 import chalk from 'chalk';
 

@@ -1,3 +1,4 @@
+import { forwardRef, Inject } from '@nestjs/common';
 import {
   ARRAY_OFFSET,
   DOWN,
@@ -12,7 +13,6 @@ import {
   UP,
   VALUE,
 } from '@steggy/utilities';
-import { forwardRef, Inject } from '@nestjs/common';
 import chalk from 'chalk';
 
 import { ICONS, MenuEntry, tKeyMap } from '../../contracts';

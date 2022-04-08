@@ -1,7 +1,7 @@
+import { Injectable } from '@nestjs/common';
 import { EntityHistoryRequest } from '@steggy/controller-shared';
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { PromptService } from '@steggy/tty';
-import { Injectable } from '@nestjs/common';
 
 import { HomeFetchService } from '../home-fetch.service';
 

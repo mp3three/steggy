@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   GENERIC_COMMANDS,
@@ -6,7 +7,6 @@ import {
 } from '@steggy/controller-shared';
 import { ICONS, KeyMap, PromptEntry, PromptService } from '@steggy/tty';
 import { is } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 
 import { HomeFetchService } from '../home-fetch.service';
 

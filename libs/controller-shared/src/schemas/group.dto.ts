@@ -1,8 +1,8 @@
-import { TransformObjectId } from '@steggy/persistence';
-import { is } from '@steggy/utilities';
 import { Optional } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
+import { TransformObjectId } from '@steggy/persistence';
+import { is } from '@steggy/utilities';
 import { Expose, Type } from 'class-transformer';
 import {
   IsArray,

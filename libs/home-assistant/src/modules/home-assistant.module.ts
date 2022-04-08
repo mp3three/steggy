@@ -1,5 +1,5 @@
-import { LibraryModule } from '@steggy/boilerplate';
 import { Provider } from '@nestjs/common';
+import { LibraryModule } from '@steggy/boilerplate';
 
 import {
   BASE_URL,

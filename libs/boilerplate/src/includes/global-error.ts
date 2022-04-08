@@ -1,5 +1,5 @@
-import { FIRST, START } from '@steggy/utilities';
 import { INestApplication } from '@nestjs/common';
+import { FIRST, START } from '@steggy/utilities';
 import chalk from 'chalk';
 
 import { AutoLogService } from '../services';

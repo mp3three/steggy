@@ -1,4 +1,10 @@
 import {
+  forwardRef,
+  Inject,
+  InternalServerErrorException,
+  NotImplementedException,
+} from '@nestjs/common';
+import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
@@ -32,12 +38,6 @@ import {
   TitleCase,
   UP,
 } from '@steggy/utilities';
-import {
-  forwardRef,
-  Inject,
-  InternalServerErrorException,
-  NotImplementedException,
-} from '@nestjs/common';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 

@@ -1,11 +1,11 @@
+import { Controller, Get, Inject, NotFoundException } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   ACTIVE_APPLICATION,
   GenericVersionDTO,
   InjectConfig,
   WorkspaceService,
 } from '@steggy/boilerplate';
-import { Controller, Get, Inject, NotFoundException } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { HIDE_VERSION } from '../config';
 

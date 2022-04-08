@@ -1,6 +1,6 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { is } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 import {
   Client,
   IClientPublishOptions,

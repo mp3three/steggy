@@ -1,3 +1,8 @@
+import {
+  BadRequestException,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   ROOM_ENTITY_EXTRAS,
@@ -18,11 +23,6 @@ import {
   LightAttributesDTO,
 } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
-import {
-  BadRequestException,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
 
 import { LightManagerService } from './lighting';
 import { MetadataService } from './metadata.service';

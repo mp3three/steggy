@@ -1,6 +1,6 @@
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
 import { DOWN, is, LABEL, UP, VALUE } from '@steggy/utilities';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import inquirer from 'inquirer';
 import Separator from 'inquirer/lib/objects/separator';

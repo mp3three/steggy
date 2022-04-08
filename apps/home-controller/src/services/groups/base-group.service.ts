@@ -1,3 +1,4 @@
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import type {
   GroupCommandDTO,
@@ -10,7 +11,6 @@ import {
   GroupSaveStateDTO,
 } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { v4 as uuid } from 'uuid';
 

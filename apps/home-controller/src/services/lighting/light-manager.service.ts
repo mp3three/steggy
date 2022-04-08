@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   CacheManagerService,
@@ -31,7 +32,6 @@ import {
   PERCENT,
   UP,
 } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 
 import { MIN_BRIGHTNESS, SAFE_MODE } from '../../config';
 import { ENTITY_METADATA_UPDATED } from '../../typings';

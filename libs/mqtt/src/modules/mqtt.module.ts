@@ -1,5 +1,5 @@
-import { LibraryModule } from '@steggy/boilerplate';
 import { DiscoveryModule } from '@nestjs/core';
+import { LibraryModule } from '@steggy/boilerplate';
 
 import { LIB_MQTT, MQTT_HOST, MQTT_PORT } from '../config';
 import { MQTT_CLIENT_INSTANCE } from '../contracts';

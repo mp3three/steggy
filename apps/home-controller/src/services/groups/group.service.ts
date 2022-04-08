@@ -1,3 +1,4 @@
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import type {
   GroupSaveStateDTO,
@@ -9,7 +10,6 @@ import { GROUP_TYPES, GroupDTO } from '@steggy/controller-shared';
 import { domain, HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import { BaseSchemaDTO } from '@steggy/persistence';
 import { each, is, ResultControlDTO } from '@steggy/utilities';
-import { Injectable, NotImplementedException } from '@nestjs/common';
 
 import { EntityCommandRouterService } from '../entity-command-router.service';
 import { LightManagerService } from '../lighting';

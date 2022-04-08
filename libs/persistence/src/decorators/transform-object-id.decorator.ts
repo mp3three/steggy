@@ -1,5 +1,5 @@
-import { is } from '@steggy/utilities';
 import { applyDecorators } from '@nestjs/common';
+import { is } from '@steggy/utilities';
 import { Transform } from 'class-transformer';
 import { Types } from 'mongoose';
 

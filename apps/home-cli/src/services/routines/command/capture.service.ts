@@ -1,6 +1,6 @@
+import { Injectable } from '@nestjs/common';
 import { RoutineCaptureCommandDTO } from '@steggy/controller-shared';
 import { PromptService } from '@steggy/tty';
-import { Injectable } from '@nestjs/common';
 
 import { GroupCommandService } from '../../groups';
 

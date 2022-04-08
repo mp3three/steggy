@@ -1,3 +1,4 @@
+import { Injectable, Provider } from '@nestjs/common';
 import {
   AbstractConfig,
   ApplicationModule,
@@ -7,7 +8,6 @@ import {
   LibraryModule,
 } from '@steggy/boilerplate';
 import { is } from '@steggy/utilities';
-import { Injectable, Provider } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { show } from 'cli-cursor';
 

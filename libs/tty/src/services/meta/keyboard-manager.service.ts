@@ -1,5 +1,5 @@
-import { each, is } from '@steggy/utilities';
 import { Injectable } from '@nestjs/common';
+import { each, is } from '@steggy/utilities';
 import chalk from 'chalk';
 import { fromEvent, takeUntil } from 'rxjs';
 

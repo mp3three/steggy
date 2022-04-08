@@ -1,5 +1,5 @@
-import { ComparisonDTO } from '@steggy/utilities';
 import { ApiProperty } from '@nestjs/swagger';
+import { ComparisonDTO } from '@steggy/utilities';
 import { IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 import { RoutineCommandWebhookDTO } from './routine-command.dto';

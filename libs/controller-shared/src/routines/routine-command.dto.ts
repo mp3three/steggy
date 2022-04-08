@@ -1,5 +1,5 @@
-import { HTTP_METHODS } from '@steggy/utilities';
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { HTTP_METHODS } from '@steggy/utilities';
 import {
   IsEnum,
   IsNumber,

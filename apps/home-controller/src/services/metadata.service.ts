@@ -1,7 +1,7 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { MetadataDTO } from '@steggy/controller-shared';
 import { SINGLE } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 
 import { ENTITY_METADATA_UPDATED } from '../typings';

@@ -1,10 +1,10 @@
 import { is } from '@steggy/utilities';
 import { Node, NodeAPI, NodeDef } from 'node-red';
 
-import { AutomagicalConfiguration } from './types';
+import { ControllerConfiguration } from './types';
 import { sendRequest } from './types/fetch';
 
-type tServer = Node & AutomagicalConfiguration;
+type tServer = Node & ControllerConfiguration;
 type TriggerOptions = { routine: string };
 type Payload = { routine: string };
 

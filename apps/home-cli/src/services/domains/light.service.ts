@@ -1,3 +1,4 @@
+import { Inject, Injectable, NotImplementedException } from '@nestjs/common';
 import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
 import {
   HASS_DOMAINS,
@@ -6,7 +7,6 @@ import {
 } from '@steggy/home-assistant-shared';
 import { ColorsService, ICONS, KeyMap, PromptEntry } from '@steggy/tty';
 import { START } from '@steggy/utilities';
-import { Inject, Injectable, NotImplementedException } from '@nestjs/common';
 import inquirer from 'inquirer';
 
 import { SwitchService } from './switch.service';

@@ -1,7 +1,7 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { FanStateDTO, HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import { START } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 
 import { EntityManagerService, HACallService } from '../services';
 

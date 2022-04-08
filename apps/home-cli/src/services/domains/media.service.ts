@@ -1,5 +1,5 @@
-import { PromptEntry } from '@steggy/tty';
 import { Injectable } from '@nestjs/common';
+import { PromptEntry } from '@steggy/tty';
 
 import { SwitchService } from './switch.service';
 

@@ -1,3 +1,4 @@
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   InjectConfig,
@@ -18,7 +19,6 @@ import {
   HassEventDTO,
 } from '@steggy/home-assistant-shared';
 import { each, INCREMENT, is, SECOND } from '@steggy/utilities';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 
 import { SAFE_MODE } from '../../config';

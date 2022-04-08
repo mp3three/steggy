@@ -1,3 +1,5 @@
+import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   HACallService,
@@ -12,8 +14,6 @@ import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
 } from '@steggy/server';
-import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
 @Controller('/admin')
 @AuthStack()

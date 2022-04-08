@@ -1,5 +1,5 @@
-import { FILTER_OPERATIONS, FilterValueType } from '@steggy/utilities';
 import { ApiProperty } from '@nestjs/swagger';
+import { FILTER_OPERATIONS, FilterValueType } from '@steggy/utilities';
 
 export class StateChangeActivateDTO {
   @ApiProperty()

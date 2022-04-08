@@ -1,4 +1,14 @@
 import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
@@ -14,16 +24,6 @@ import {
   ResponseLocals,
 } from '@steggy/server';
 import { each } from '@steggy/utilities';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-} from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { GroupService, RoomService } from '../services';
 

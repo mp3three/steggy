@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   FetchService,
@@ -8,7 +9,6 @@ import {
   HomeAssistantServerLogItem,
 } from '@steggy/home-assistant-shared';
 import { FetchWith, SECOND } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 
 import { BASE_URL, TOKEN } from '../config';
 

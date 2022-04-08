@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-import { FetchService, InjectConfig } from '@steggy/boilerplate';
 import { Injectable } from '@nestjs/common';
 import { MongooseModuleOptions } from '@nestjs/mongoose';
+import { FetchService, InjectConfig } from '@steggy/boilerplate';
 import { existsSync, readFileSync } from 'fs';
 
 import {

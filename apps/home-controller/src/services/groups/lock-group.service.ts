@@ -1,3 +1,4 @@
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   GROUP_TYPES,
@@ -17,7 +18,6 @@ import {
   LockStateDTO,
 } from '@steggy/home-assistant-shared';
 import { each, is, START } from '@steggy/utilities';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';

@@ -13,15 +13,15 @@ To install the `home-cli` bash command.
 
 ```bash
 # install
-yarn global add @automagicl/home-cli
+yarn global add @steggy/home-cli
 # update
-yarn global upgrade @automagicl/home-cli
+yarn global upgrade @steggy/home-cli
 ```
 
 ### NPM
 
 ```bash
-npm install -g @automagicl/home-cli
+npm install -g @steggy/home-cli
 ```
 
 ## Configuration

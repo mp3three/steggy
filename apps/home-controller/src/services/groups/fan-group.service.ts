@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   GROUP_TYPES,
@@ -17,7 +18,6 @@ import {
   HASS_DOMAINS,
 } from '@steggy/home-assistant-shared';
 import { each, START } from '@steggy/utilities';
-import { Injectable } from '@nestjs/common';
 
 import { EntityCommandRouterService } from '../entity-command-router.service';
 import { GroupPersistenceService } from '../persistence';

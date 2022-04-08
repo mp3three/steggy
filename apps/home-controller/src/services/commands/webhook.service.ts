@@ -1,6 +1,6 @@
+import { Injectable } from '@nestjs/common';
 import { AutoLogService, FetchService } from '@steggy/boilerplate';
 import { RoutineCommandWebhookDTO } from '@steggy/controller-shared';
-import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class WebhookService {

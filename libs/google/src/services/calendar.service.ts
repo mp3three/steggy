@@ -1,5 +1,5 @@
-import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
 import { Injectable } from '@nestjs/common';
+import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
 import { google } from 'googleapis';
 
 import { AUTH_TOKEN } from '../config';

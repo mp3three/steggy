@@ -6,7 +6,7 @@
     "eventemitter3": "^4.0.7",
     "pino-pretty": "^5.1.1"
   },
-  "name": "@automagicl/home-cli",
+  "name": "@steggy/home-cli",
   "license": "MIT",
   "main": "main.js",
   "displayName": "Home CLI",

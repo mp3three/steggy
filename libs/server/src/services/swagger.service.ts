@@ -1,3 +1,5 @@
+import { INestApplication, Inject, Injectable } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import {
   ACTIVE_APPLICATION,
   AutoLogService,
@@ -5,8 +7,6 @@ import {
   WorkspaceService,
 } from '@steggy/boilerplate';
 import { TitleCase } from '@steggy/utilities';
-import { INestApplication, Inject, Injectable } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { SWAGGER_PATH } from '../config';
 
