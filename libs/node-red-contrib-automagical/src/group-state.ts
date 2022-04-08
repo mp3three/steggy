@@ -1,7 +1,3 @@
-import {
-  RoutineActivateOptionsDTO,
-  RoutineDTO,
-} from '@automagical/controller-shared';
 import { is } from '@automagical/utilities';
 import { Node, NodeAPI, NodeDef } from 'node-red';
 
@@ -9,12 +5,12 @@ import { AutomagicalConfiguration } from './types';
 import { sendRequest } from './types/fetch';
 
 type tServer = Node & AutomagicalConfiguration;
-type TriggerOptions = { routine: string };
-type Payload = { routine: string | RoutineDTO };
+type TriggerOptions = { group?: string; state?: string };
+type Payload = { group?: string; state?: string };
 
 module.exports = function (RED: NodeAPI) {
   RED.nodes.registerType(
-    'trigger-routine',
+    'group-state',
     function TriggerRoutineNode(
       this: Node & TriggerOptions,
       config: NodeDef & { server: string },
@@ -22,34 +18,28 @@ module.exports = function (RED: NodeAPI) {
       RED.nodes.createNode(this, config);
 
       const server = RED.nodes.getNode(config.server) as tServer;
-      const activate = async (
-        routine: string,
-        body?: RoutineActivateOptionsDTO,
-      ) => {
+      const activate = async (group: string, state: string) => {
         await sendRequest({
           adminKey: server.admin_key,
           baseUrl: server.host,
-          body,
           method: 'post',
-          url: `/routine/${routine}`,
+          url: `/group/${group}/state/${state}`,
         });
       };
 
       this.on('input', async message => {
         const payload = message.payload as Payload;
-        if (payload.routine) {
-          if (is.string(payload.routine)) {
-            await activate(payload.routine);
-            return;
-          }
-          await activate(payload.routine._id);
+        const group = payload.group || this.group;
+        const state = payload.state || this.state;
+        if (is.empty(group)) {
+          this.error('Cannot identify group to activate save state on');
           return;
         }
-        if (is.empty(this.routine)) {
-          this.error('Cannot identify routine to activate');
+        if (is.empty(state)) {
+          this.error('Cannot identify group state to activate');
           return;
         }
-        await activate(this.routine);
+        await activate(group, state);
       });
     },
   );

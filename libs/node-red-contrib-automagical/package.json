@@ -3,6 +3,7 @@
   "node-red": {
     "nodes": {
       "automagical-configure": "src/automagical-configure.js",
+      "room-state": "src/room-state.js",
       "trigger-routine": "src/trigger-routine.js"
     }
   }

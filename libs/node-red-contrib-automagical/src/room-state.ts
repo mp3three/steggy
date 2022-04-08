@@ -1,7 +1,3 @@
-import {
-  RoutineActivateOptionsDTO,
-  RoutineDTO,
-} from '@automagical/controller-shared';
 import { is } from '@automagical/utilities';
 import { Node, NodeAPI, NodeDef } from 'node-red';
 
@@ -9,12 +5,12 @@ import { AutomagicalConfiguration } from './types';
 import { sendRequest } from './types/fetch';
 
 type tServer = Node & AutomagicalConfiguration;
-type TriggerOptions = { routine: string };
-type Payload = { routine: string | RoutineDTO };
+type TriggerOptions = { room?: string; state?: string };
+type Payload = { room?: string; state?: string };
 
 module.exports = function (RED: NodeAPI) {
   RED.nodes.registerType(
-    'trigger-routine',
+    'room-state',
     function TriggerRoutineNode(
       this: Node & TriggerOptions,
       config: NodeDef & { server: string },
@@ -22,34 +18,28 @@ module.exports = function (RED: NodeAPI) {
       RED.nodes.createNode(this, config);
 
       const server = RED.nodes.getNode(config.server) as tServer;
-      const activate = async (
-        routine: string,
-        body?: RoutineActivateOptionsDTO,
-      ) => {
+      const activate = async (room: string, state: string) => {
         await sendRequest({
           adminKey: server.admin_key,
           baseUrl: server.host,
-          body,
           method: 'post',
-          url: `/routine/${routine}`,
+          url: `/room/${room}/state/${state}`,
         });
       };
 
       this.on('input', async message => {
         const payload = message.payload as Payload;
-        if (payload.routine) {
-          if (is.string(payload.routine)) {
-            await activate(payload.routine);
-            return;
-          }
-          await activate(payload.routine._id);
+        const room = payload.room || this.room;
+        const state = payload.state || this.state;
+        if (is.empty(room)) {
+          this.error('Cannot identify room to activate save state on');
           return;
         }
-        if (is.empty(this.routine)) {
-          this.error('Cannot identify routine to activate');
+        if (is.empty(state)) {
+          this.error('Cannot identify room state to activate');
           return;
         }
-        await activate(this.routine);
+        await activate(room, state);
       });
     },
   );

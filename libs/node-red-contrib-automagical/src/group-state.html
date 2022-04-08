@@ -1,22 +1,23 @@
 <script type="text/javascript">
-  RED.nodes.registerType('trigger-routine', {
+  RED.nodes.registerType('group-state', {
     category: 'automagical',
     color: '#a6bbcf',
     defaults: {
       name: { value: '' },
       server: { value: '', type: 'automagical-configure' },
-      routine: { value: '' },
+      group: { value: '' },
+      state: { value: '' },
     },
     inputs: 1,
     outputs: 0,
     icon: 'function.png',
     label: function () {
-      return this.name || 'trigger routine';
+      return this.name || 'group state';
     },
   });
 </script>
 
-<script type="text/html" data-template-name="trigger-routine">
+<script type="text/html" data-template-name="group-state">
   <div class="form-row">
     <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
     <input type="text" id="node-input-name" placeholder="Name" />
@@ -28,11 +29,15 @@
     <input type="text" id="node-input-server" />
   </div>
   <div class="form-row">
-    <label for="node-input-routine"><i class="fa fa-tag"></i> Routine</label>
+    <label for="node-input-routine"><i class="fa fa-tag"></i> group</label>
+    <input type="text" id="node-input-routine" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-routine"><i class="fa fa-tag"></i> State</label>
     <input type="text" id="node-input-routine" />
   </div>
 </script>
 
-<script type="text/html" data-help-name="trigger-routine">
-  <p>Actvate a save state on a room.</p>
+<script type="text/html" data-help-name="group-state">
+  <p>Send a manual activation request to a routine.</p>
 </script>
