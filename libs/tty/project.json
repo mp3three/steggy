@@ -8,7 +8,7 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/tty",
-        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "tsConfig": "libs/tty/tsconfig.lib.json",
         "packageJson": "libs/tty/package.json",

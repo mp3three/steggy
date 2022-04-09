@@ -10,7 +10,7 @@
         "outputPath": "dist/libs/node-red-contrib-steggy",
         "tsConfig": "libs/node-red-contrib-steggy/tsconfig.lib.json",
         "packageJson": "libs/node-red-contrib-steggy/package.json",
-        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/node-red-contrib-steggy/src/index.ts",
         "assets": [

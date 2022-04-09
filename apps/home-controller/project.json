@@ -17,7 +17,7 @@
       "options": {
         "outputPath": "dist/apps/home-controller",
         "generatePackageJson": false,
-        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "extractLicenses": false,
         "main": "apps/home-controller/src/entrypoints/main.ts",

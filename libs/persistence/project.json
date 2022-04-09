@@ -10,7 +10,7 @@
         "outputPath": "dist/libs/persistence",
         "tsConfig": "libs/persistence/tsconfig.lib.json",
         "packageJson": "libs/persistence/package.json",
-        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/persistence/src/index.ts",
         "assets": ["libs/persistence/*.md", "libs/persistence/package.json"]

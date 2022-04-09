@@ -9,7 +9,7 @@
       "options": {
         "outputPath": "dist/libs/rcon",
         "tsConfig": "libs/rcon/tsconfig.lib.json",
-        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "packageJson": "libs/rcon/package.json",
         "main": "libs/rcon/src/index.ts",

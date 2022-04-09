@@ -10,7 +10,7 @@
         "outputPath": "dist/libs/utilities",
         "tsConfig": "libs/utilities/tsconfig.lib.json",
         "packageJson": "libs/utilities/package.json",
-        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/utilities/src/index.ts",
         "assets": ["libs/utilities/package.json"]
@@ -19,7 +19,7 @@
         "production": {
           "optimization": true,
           "extractLicenses": false,
-          "buildableProjectDepsInPackageJsonType": "peerDependencies",
+          "buildableProjectDepsInPackageJsonType": "dependencies",
           "updateBuildableProjectDepsInPackageJson": true,
           "fileReplacements": []
         }

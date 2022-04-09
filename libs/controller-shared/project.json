@@ -9,7 +9,7 @@
       "options": {
         "outputPath": "dist/libs/controller-shared",
         "tsConfig": "libs/controller-shared/tsconfig.lib.json",
-        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "packageJson": "libs/controller-shared/package.json",
         "main": "libs/controller-shared/src/index.ts",
@@ -22,7 +22,7 @@
         "production": {
           "optimization": true,
           "extractLicenses": false,
-          "buildableProjectDepsInPackageJsonType": "peerDependencies",
+          "buildableProjectDepsInPackageJsonType": "dependencies",
           "updateBuildableProjectDepsInPackageJson": true,
           "fileReplacements": []
         }

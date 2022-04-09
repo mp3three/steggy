@@ -10,7 +10,7 @@
         "outputPath": "dist/libs/boilerplate",
         "tsConfig": "libs/boilerplate/tsconfig.lib.json",
         "packageJson": "libs/boilerplate/package.json",
-        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/boilerplate/src/index.ts",
         "assets": ["libs/boilerplate/package.json"]
@@ -19,7 +19,7 @@
         "production": {
           "optimization": true,
           "extractLicenses": false,
-          "buildableProjectDepsInPackageJsonType": "peerDependencies",
+          "buildableProjectDepsInPackageJsonType": "dependencies",
           "updateBuildableProjectDepsInPackageJson": true,
           "fileReplacements": []
         }

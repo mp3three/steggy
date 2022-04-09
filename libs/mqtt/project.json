@@ -10,7 +10,7 @@
         "outputPath": "dist/libs/mqtt",
         "tsConfig": "libs/mqtt/tsconfig.lib.json",
         "packageJson": "libs/mqtt/package.json",
-        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "main": "libs/mqtt/src/index.ts",
         "assets": ["libs/mqtt/*.md", "libs/mqtt/package.json"]

@@ -36,7 +36,7 @@
       "options": {
         "outputPath": "dist/libs/formio",
         "tsConfig": "libs/formio/tsconfig.lib.json",
-        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "packageJson": "libs/formio/package.json",
         "main": "libs/formio/src/index.ts",

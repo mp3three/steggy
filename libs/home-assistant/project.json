@@ -36,7 +36,7 @@
       "options": {
         "outputPath": "dist/libs/home-assistant",
         "tsConfig": "libs/home-assistant/tsconfig.lib.json",
-        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "packageJson": "libs/home-assistant/package.json",
         "main": "libs/home-assistant/src/index.ts",

@@ -9,7 +9,7 @@
       "options": {
         "outputPath": "dist/libs/rules-engine",
         "tsConfig": "libs/rules-engine/tsconfig.lib.json",
-        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "packageJson": "libs/rules-engine/package.json",
         "main": "libs/rules-engine/src/index.ts",

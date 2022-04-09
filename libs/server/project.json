@@ -9,7 +9,7 @@
       "options": {
         "outputPath": "dist/libs/server",
         "tsConfig": "libs/server/tsconfig.lib.json",
-        "buildableProjectDepsInPackageJsonType": "peerDependencies",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true,
         "packageJson": "libs/server/package.json",
         "main": "libs/server/src/index.ts",
