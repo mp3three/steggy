@@ -131,6 +131,5 @@ export class UtilitiesModule {
 
   protected configure(): void {
     this.discoveryService.load();
-    this.logger.info(`Logger contexts initialized`);
   }
 }

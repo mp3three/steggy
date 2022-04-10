@@ -36,9 +36,6 @@ export class ReplExplorerService {
     const providers = this.scanner.findWithSymbol<ReplOptions, iRepl>(
       REPL_CONFIG,
     );
-    providers.forEach((key, value) => {
-      this.REGISTERED_APPS.set(key, value);
-    });
-    this.logger.info(`[Repl] Initialized`);
+    providers.forEach((key, value) => this.REGISTERED_APPS.set(key, value));
   }
 }

@@ -133,7 +133,6 @@ export class WorkspaceService {
   }
 
   private loadPackages(): void {
-    this.logger.info(`Loading package info`);
     LibraryModule.configs.forEach((meta, project) => {
       const packageFile = this.path(project);
       const exists = existsSync(packageFile);

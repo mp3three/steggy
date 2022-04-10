@@ -47,6 +47,5 @@ export class ComponentExplorerService {
     providers.forEach((key, value) => {
       this.REGISTERED_EDITORS.set(key, value);
     });
-    this.logger.info(`[Editors] Initialized`);
   }
 }

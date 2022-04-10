@@ -46,6 +46,5 @@ export class ScheduleExplorerService {
         },
       );
     });
-    this.logger.info(`[Scheduler] initialized`);
   }
 }

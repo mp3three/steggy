@@ -54,7 +54,7 @@ export class AutoConfigService {
     if (Array.isArray(path)) {
       path = ['libs', path[0].description, path[1]].join('.');
     }
-    let value = get(this.config, path);
+    let value = get(this.config, path) ?? this.getConfiguration(path)?.default;
     const config = this.getConfiguration(path);
     if (config.warnDefault && value === config.default) {
       this.logger.warn(
@@ -137,26 +137,40 @@ export class AutoConfigService {
   }
 
   private getConfiguration(path: string): ConfigItem {
+    const { configs } = LibraryModule;
     const parts = path.split('.');
     if (parts.length === 2) {
-      const metadata = LibraryModule.configs.get(this.appName);
-      return (
-        metadata.configuration[parts[1]] ?? {
-          // Applications can yolo a bit harder than libraries
-          default: '',
-          type: 'string',
-          warnDefault: false,
-        }
-      );
+      const metadata = configs.get(this.appName);
+      const config = metadata.configuration[parts[1]];
+      if (!is.empty(Object.keys(config ?? {}))) {
+        return config;
+      }
+      const defaultValue = this.loadAppDefault(parts[1]) as string;
+      return {
+        // Applications can yolo a bit harder than libraries
+        default: defaultValue,
+        type: 'string',
+        warnDefault: false,
+      };
     }
     const [, library, property] = parts;
-    const metadata = LibraryModule.configs.get(library);
+    const metadata = configs.get(library);
     if (!metadata) {
       throw new InternalServerErrorException(
         `Missing metadata asset for ${library}`,
       );
     }
     return metadata.configuration[property];
+  }
+
+  private loadAppDefault(property: string): unknown {
+    const { env } = process;
+    const result =
+      env[property] ??
+      env[property.toLowerCase()] ??
+      this.switches[property] ??
+      this.switches[property.toLowerCase()];
+    return result;
   }
 
   private loadFromEnv(): void {
@@ -178,7 +192,8 @@ export class AutoConfigService {
         const fullPath = `${this.APPLICATION.description}__${noAppPath}`;
         const full = env[fullPath] ?? this.switches[fullPath];
         const noApp = env[noAppPath] ?? this.switches[noAppPath];
-        const lazy = env[key] ?? this.switches[key];
+        const lazy =
+          env[key] ?? this.switches[key] ?? this.switches[key.toLowerCase()];
         const configPath = `${configPrefix}.${key}`;
         if (!is.undefined(full)) {
           set(

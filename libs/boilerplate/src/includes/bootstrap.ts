@@ -93,5 +93,4 @@ export async function Bootstrap(
     await item(app, server, bootOptions);
   });
   await lifecycle.postInit(app, { options: bootOptions, server });
-  logger.info(`🎓 Bootstrap control released! 🎓`);
 }

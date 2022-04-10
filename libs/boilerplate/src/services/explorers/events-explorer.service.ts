@@ -30,8 +30,8 @@ export class EventsExplorerService {
     const providers = this.discoveryService.getProviders();
     const controllers = this.discoveryService.getControllers();
     [...providers, ...controllers]
-      .filter((wrapper) => wrapper.isDependencyTreeStatic())
-      .filter((wrapper) => wrapper.instance)
+      .filter(wrapper => wrapper.isDependencyTreeStatic())
+      .filter(wrapper => wrapper.instance)
       .forEach((wrapper: InstanceWrapper) => {
         const { instance } = wrapper;
         const prototype = Object.getPrototypeOf(instance);
@@ -47,7 +47,6 @@ export class EventsExplorerService {
 
   protected onApplicationBootstrap(): void {
     this.loadEventListeners();
-    this.logger.info(`[Events] initialized`);
   }
 
   protected onApplicationShutdown(): void {

@@ -37,9 +37,6 @@ export class EditorExplorerService {
       EditorOptions,
       iBuilderEditor
     >(EDITOR_CONFIG);
-    providers.forEach((key, value) => {
-      this.REGISTERED_EDITORS.set(key, value);
-    });
-    this.logger.info(`[Editors] Initialized`);
+    providers.forEach((key, value) => this.REGISTERED_EDITORS.set(key, value));
   }
 }

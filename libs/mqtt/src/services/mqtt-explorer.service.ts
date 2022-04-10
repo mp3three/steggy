@@ -105,7 +105,6 @@ export class MQTTExplorerService {
         },
       );
     });
-    this.logger.info(`[MQTT] initialized`);
   }
 
   protected onModuleInit(): void {
