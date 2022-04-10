@@ -1,11 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { AutoLogService, CastResult } from '@steggy/boilerplate';
-import {
-  ROOM_UPDATE,
-  RoomDocument,
-  RoomDTO,
-} from '@steggy/controller-shared';
+import { ROOM_UPDATE, RoomDocument, RoomDTO } from '@steggy/controller-shared';
 import {
   BaseMongoService,
   BaseSchemaDTO,

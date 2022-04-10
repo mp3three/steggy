@@ -31,11 +31,11 @@ export class NodeRedCommand {
     this.logger.debug({ result });
   }
 
-  public async listAvailable(): Promise<string[]> {
+  public async listAvailable(): Promise<Record<'id' | 'name', string>[]> {
     if (is.empty(this.nodeRed)) {
       throw new InternalServerErrorException(`NodeRed not configured`);
     }
-    return await this.fetchService.fetch<string[]>({
+    return await this.fetchService.fetch<Record<'id' | 'name', string>[]>({
       url: `/steggy/routine-command`,
     });
   }

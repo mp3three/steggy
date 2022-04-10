@@ -89,7 +89,7 @@ export class DebugController {
   }
 
   @Get(`/node-red/commands`)
-  public async nodeRedCommands(): Promise<string[]> {
+  public async nodeRedCommands(): Promise<Record<'id' | 'name', string>[]> {
     return await this.nodeRed.listAvailable();
   }
 

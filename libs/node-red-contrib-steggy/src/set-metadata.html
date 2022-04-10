@@ -1,0 +1,117 @@
+<script type="text/javascript">
+  (() => {
+    {
+      let roomsList = [];
+      let selectedRoom = false;
+
+      async function updateRoom(currentRoom) {
+        const room = roomsList.find(({ _id }) => _id === currentRoom);
+        if (!room) {
+          return;
+        }
+        const options = (room.metadata ?? [])
+          .sort((a, b) => (a.name > b.name ? 1 : -1))
+          .map(item => ({
+            label: `[${item.type}] ${item.name}`,
+            value: item.id,
+          }));
+        console.log(options);
+        if (selectedRoom !== currentRoom) {
+          selectedRoom = currentRoom;
+          $('#node-input-property').typedInput('types', [{ options }]);
+          return;
+        }
+        $('#node-input-property').typedInput({
+          types: [{ options }],
+        });
+        selectedRoom = currentRoom;
+      }
+
+      async function updateRoomList(config, currentRoom) {
+        selectedRoom = false;
+        const result = await fetch(
+          // Only find rooms with non-empty lists of metadata
+          `${config.host}/api/room?select=friendlyName,metadata.name,metadata.type&metadata.0__exists=true`,
+          { headers: { [`x-admin-key`]: config.admin_key } },
+        );
+        roomsList = await result.json();
+        $('#node-input-room').typedInput({
+          types: [
+            {
+              value: '',
+              options: roomsList
+                .sort((a, b) => (a.friendlyName > b.friendlyName ? 1 : -1))
+                .map(item => ({
+                  label: item.friendlyName,
+                  value: item._id,
+                })),
+            },
+          ],
+        });
+        if (currentRoom) {
+          updateRoom(currentRoom);
+        }
+      }
+
+      RED.nodes.registerType('set-metadata', {
+        category: 'steggy',
+        color: '#AAAA66',
+        defaults: {
+          name: { value: '' },
+          server: { value: '', type: 'steggy-configure' },
+          room: {
+            value: '',
+            validate(room) {
+              updateRoom(room);
+              return true;
+            },
+          },
+          property: { value: '' },
+          value: { value: '' },
+        },
+        inputs: 1,
+        outputs: 0,
+        icon: 'font-awesome/fa-pencil-square-o',
+        paletteLabel: () => 'set metadata',
+        oneditprepare() {
+          if (this.server) {
+            updateRoomList(RED.nodes.node(this.server));
+            return;
+          }
+        },
+        label: function () {
+          return this.name || 'set metadata';
+        },
+      });
+    }
+  })();
+</script>
+
+<script type="text/html" data-template-name="set-metadata">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name" />
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-server"
+      ><i class="fa fa-tag"></i> Server</label
+    >
+    <input type="text" id="node-input-server" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-room"><i class="fa fa-tag"></i> Room</label>
+    <input type="text" id="node-input-room" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-property"><i class="fa fa-tag"></i> Property</label>
+    <input type="text" id="node-input-property" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-value"><i class="fa fa-tag"></i> Value</label>
+    <input type="text" id="node-input-value" />
+  </div>
+</script>
+
+<script type="text/html" data-help-name="set-metadata">
+  <p>Modify a metadata property for a room.</p>
+</script>

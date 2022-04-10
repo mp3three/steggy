@@ -32,7 +32,7 @@
     async function updateRoomList(config, currentRoom) {
       selectedRoom = false;
       const result = await fetch(
-        `${config.host}/api/room?select=friendlyName,save_states.friendlyName,save_states.id`,
+        `${config.host}/api/room?select=friendlyName,save_states.friendlyName,save_states.id&save_states.0__exists=true`,
         { headers: { [`x-admin-key`]: config.admin_key } },
       );
       roomsList = await result.json();
@@ -60,7 +60,7 @@
 
     RED.nodes.registerType('room-state', {
       category: 'steggy',
-      color: '#a6bbcf',
+      color: '#AAAA66',
       defaults: {
         name: { value: '' },
         server: { value: '', type: 'steggy-configure' },
@@ -75,7 +75,8 @@
       },
       inputs: 1,
       outputs: 0,
-      icon: 'function.png',
+      icon: 'font-awesome/fa-object-group',
+      paletteLabel: () => 'room state',
       oneditprepare() {
         if (this.server) {
           updateRoomList(RED.nodes.node(this.server));

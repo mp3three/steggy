@@ -53,7 +53,7 @@
   }
   RED.nodes.registerType('trigger-routine', {
     category: 'steggy',
-    color: '#a6bbcf',
+    color: '#AAAA66',
     defaults: {
       name: { value: '' },
       server: { value: '', type: 'steggy-configure' },
@@ -79,7 +79,8 @@
         return;
       }
     },
-    icon: 'function.png',
+    icon: 'font-awesome/motorcycle',
+    paletteLabel: () => 'trigger routine',
     label: function () {
       return this.name || 'trigger routine';
     },
@@ -108,5 +109,5 @@
 </script>
 
 <script type="text/html" data-help-name="trigger-routine">
-  <p>Trigger a routine</p>
+  <p>Trigger a routine.</p>
 </script>

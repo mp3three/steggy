@@ -3,10 +3,11 @@
     category: 'config',
     defaults: {
       host: { value: 'http://localhost:7000', required: true },
-      admin_key: { required: true, value: ''}
+      admin_key: { required: true, value: '' },
     },
+    paletteLabel: () => 'steggy configure',
     label: function () {
-      return this.host
+      return this.host;
     },
   });
 </script>

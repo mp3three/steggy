@@ -12,13 +12,14 @@ module.exports = function (RED: NodeAPI) {
       if (!item) {
         return;
       }
-      item(body);
+      item.exec(body);
     },
   );
+
   RED.httpNode.get(`/steggy/routine-command`, function (request, response) {
-    response.send({
-      list: [...commands.keys()],
-    });
+    const list = [] as Record<'id' | 'name', string>[];
+    commands.forEach(({ name }, id) => list.push({ id, name }));
+    response.send({ list });
   });
 
   const commands = new Map();
@@ -26,13 +27,10 @@ module.exports = function (RED: NodeAPI) {
     'receive-command',
     function TriggerRoutineNode(this: Node, config: NodeDef & TriggerOptions) {
       RED.nodes.createNode(this, config);
-      if (commands.has(config.target)) {
-        this.error(
-          `Steggy hook {${config.target}} attempted repeat registration`,
-        );
-        return;
-      }
-      commands.set(config.target, payload => this.send({ payload }));
+      commands.set(config.id, {
+        exec: payload => this.send({ payload }),
+        name: config.name,
+      });
       this.on('close', () => commands.delete(config.name));
     },
   );

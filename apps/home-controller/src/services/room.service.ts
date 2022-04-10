@@ -249,7 +249,7 @@ export class RoomService {
     room = await this.load(room);
     room.save_states ??= [];
     room.save_states = room.save_states.map(i =>
-      i.id === id ? { ...update, id } : i,
+      i.id === id ? { ...i, ...update, id } : i,
     );
     await this.update(room, room._id);
     return room.save_states.find(state => state.id === id);

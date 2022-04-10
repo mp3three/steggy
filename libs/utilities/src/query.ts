@@ -113,6 +113,7 @@ export enum FILTER_OPERATIONS {
   lte = 'lte',
   gt = 'gt',
   gte = 'gte',
+  exists = 'exists',
   ne = 'ne',
   eq = 'eq',
 }

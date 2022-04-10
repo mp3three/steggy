@@ -258,6 +258,24 @@ export class RoomController {
     return await this.roomService.get(room, true, control);
   }
 
+  @Put(`/:room/metadata-name/:metadata`)
+  @ApiBody({ type: RoomStateDTO })
+  @ApiResponse({ type: RoomStateDTO })
+  @ApiOperation({
+    description: `Modify room metadata`,
+  })
+  public async updateMetadataByName(
+    @Param('room') roomId: string,
+    @Param('metadata') metadata: string,
+    @Body() data: RoomMetadataDTO,
+    @Locals() { control }: ResponseLocals,
+  ): Promise<RoomDTO> {
+    const room = await this.roomService.get(roomId);
+    const meta = room.metadata.find(({ name }) => name === metadata);
+    await this.roomService.updateMetadata(room, meta.id, data);
+    return await this.roomService.get(room, true, control);
+  }
+
   @Put(`/:room/state/:state`)
   @ApiBody({ type: RoomStateDTO })
   @ApiResponse({ type: RoomStateDTO })

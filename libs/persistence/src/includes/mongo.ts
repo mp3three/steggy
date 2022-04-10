@@ -20,15 +20,12 @@ export function filtersToMongoQuery(
   const out = new Map<string, unknown>();
 
   (query.filters ?? new Set()).forEach(filter => {
-    if (!is.undefined(filter.exists)) {
-      out.set(
-        `$${filter.field}`,
-        ['true', '1'].includes(filter.value.toString()),
-      );
-      return undefined;
-    }
     resolve(filter);
     switch (filter.operation) {
+      case 'exists':
+        return out.set(filter.field, {
+          $exists: ['true', '1'].includes(filter.value.toString()),
+        });
       case 'regex':
         if (filter.value instanceof RegExp) {
           return out.set(filter.field, {
@@ -91,6 +88,9 @@ function cast(field: string, value) {
  */
 function resolve(filter: FilterDTO) {
   filter.operation ??= FILTER_OPERATIONS.eq;
+  if (filter.operation === 'exists') {
+    return;
+  }
   if (isNumberString(filter.value)) {
     const value = Number(filter.value);
     const values = [filter.value as string, value] as FilterValueType[];

@@ -32,7 +32,7 @@
     async function updateGroupList(config, currentGroup) {
       selectedGroup = false;
       const result = await fetch(
-        `${config.host}/api/group?select=friendlyName,save_states.friendlyName,save_states.id,type`,
+        `${config.host}/api/group?select=friendlyName,save_states.friendlyName,save_states.id,type&save_states.0__exists=true`,
         { headers: { [`x-admin-key`]: config.admin_key } },
       );
       groupList = await result.json();
@@ -63,7 +63,7 @@
 
     RED.nodes.registerType('group-state', {
       category: 'steggy',
-      color: '#a6bbcf',
+      color: '#AAAA66',
       defaults: {
         name: { value: '' },
         server: { value: '', type: 'steggy-configure' },
@@ -78,7 +78,8 @@
       },
       inputs: 1,
       outputs: 0,
-      icon: 'function.png',
+      paletteLabel: () => 'group state',
+      icon: 'font-awesome/fa-object-group',
       oneditprepare() {
         if (this.server) {
           updateGroupList(RED.nodes.node(this.server), this.group);

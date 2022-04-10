@@ -13,6 +13,7 @@
       "group-state": "src/group-state.js",
       "receive-command": "src/receive-command.js",
       "room-state": "src/room-state.js",
+      "set-metadata": "src/set-metadata.js",
       "trigger-routine": "src/trigger-routine.js"
     }
   },
