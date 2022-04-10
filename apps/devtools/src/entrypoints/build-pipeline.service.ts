@@ -1,9 +1,12 @@
 import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
 import { QuickScript } from '@steggy/tty';
+import { is, SINGLE } from '@steggy/utilities';
 import execa from 'execa';
-import { readFileSync, writeFile, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { inc } from 'semver';
+
+type AffectedList = { apps: string[]; libs: string[] };
 
 /**
  * Basic build pipeline.
@@ -14,7 +17,8 @@ import { inc } from 'semver';
 })
 export class BuildPipelineService {
   constructor(
-    @InjectConfig('DRY_RUN') private readonly dryRun: boolean = false,
+    @InjectConfig('DRY') private readonly dryRun: boolean = false,
+    @InjectConfig('PARALLEL') private readonly parallel: number = SINGLE,
     private readonly logger: AutoLogService,
   ) {}
 
@@ -24,27 +28,58 @@ export class BuildPipelineService {
       this.logger.info({ affected });
       return;
     }
+    // Bump relevant package.json versions
+    this.bump(affected);
+
+    this.logger.info(`Publishing NPM Packages`);
+    const publish = execa(`npx`, [
+      `nx`,
+      `affected`,
+      `--target=publish`,
+      `--parallel=${this.parallel}`,
+    ]);
+    publish.stdout.pipe(process.stdout);
+    await publish;
+
+    this.logger.info(`Publishing Docker Images`);
+    const buildDocker = execa(`npx`, [
+      `nx`,
+      `affected`,
+      `--target=build-docker`,
+      `--parallel=${this.parallel}`,
+    ]);
+    buildDocker.stdout.pipe(process.stdout);
+    await buildDocker;
+  }
+
+  private bump(affected: AffectedList): void {
     affected.libs.forEach(library => {
+      this.logger.info(`Bumping {${library}}`);
       const file = join('libs', library, 'package.json');
       const packageJSON = JSON.parse(readFileSync(file, 'utf8')) as {
         version: string;
       };
       packageJSON.version = inc(packageJSON.version, 'patch');
-      writeFileSync(file, JSON.stringify(packageJSON, undefined, '  '));
+      writeFileSync(file, JSON.stringify(packageJSON, undefined, '  ') + `\n`);
     });
-    affected.libs.forEach(application => {
+    affected.apps.forEach(application => {
+      this.logger.info(`Bumping {${application}}`);
       const file = join('apps', application, 'package.json');
+      if (!existsSync(file)) {
+        return;
+      }
       const packageJSON = JSON.parse(readFileSync(file, 'utf8')) as {
         version: string;
       };
+      if (!is.string(packageJSON.version)) {
+        return;
+      }
       packageJSON.version = inc(packageJSON.version, 'patch');
-      writeFileSync(file, JSON.stringify(packageJSON, undefined, '  '));
+      writeFileSync(file, JSON.stringify(packageJSON, undefined, '  ') + `\n`);
     });
-    // console.log(affected);
-    // update.stdout.pipe(process.stdout);
   }
 
-  private async listAffected(): Promise<{ apps: string[]; libs: string[] }> {
+  private async listAffected(): Promise<AffectedList> {
     const rawApps = await execa(`npx`, ['nx', 'affected:apps', '--plain']);
     const rawLibs = await execa(`npx`, ['nx', 'affected:libs', '--plain']);
     const libs: string[] = rawLibs.stdout.split(' ');

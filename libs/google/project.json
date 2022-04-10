@@ -16,7 +16,7 @@
         "parallel": false,
         "commands": [
           {
-            "command": "npx figlet-cli -f Pagga Home Assistant",
+            "command": "npx figlet-cli -f Pagga Google",
             "description": "Announce it"
           },
           {

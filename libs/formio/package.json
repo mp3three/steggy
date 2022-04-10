@@ -7,7 +7,7 @@
   "name": "@steggy/formio",
   "displayName": "formio sdk",
   "license": "MIT",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "homepage": "https://github.com/ccontour/steggy",
   "repository": {
     "type": "git",
