@@ -1,20 +1,92 @@
 <script type="text/javascript">
-  RED.nodes.registerType('room-state', {
-    category: 'steggy',
-    color: '#a6bbcf',
-    defaults: {
-      name: { value: '' },
-      server: { value: '', type: 'steggy-configure' },
-      room: { value: '' },
-      state: { value: '' },
-    },
-    inputs: 1,
-    outputs: 0,
-    icon: 'function.png',
-    label: function () {
-      return this.name || 'room state';
-    },
-  });
+  {
+    let roomsList = [];
+    let selectedRoom = false;
+
+    async function updateRoom(currentRoom) {
+      const room = roomsList.find(({ _id }) => _id === currentRoom);
+      if (!room) {
+        return;
+      }
+      const options = room.save_states
+        .sort((a, b) => {
+          return a.friendlyName > b.friendlyName ? 1 : -1;
+        })
+        .map(item => {
+          return {
+            label: item.friendlyName,
+            value: item.id,
+          };
+        });
+      if (selectedRoom !== currentRoom) {
+        selectedRoom = currentRoom;
+        $('#node-input-state').typedInput('types', [{ options }]);
+        return;
+      }
+      $('#node-input-state').typedInput({
+        types: [{ options }],
+      });
+      selectedRoom = currentRoom;
+    }
+
+    async function updateRoomList(config, currentRoom) {
+      selectedRoom = false;
+      const result = await fetch(
+        `${config.host}/api/room?select=friendlyName,save_states.friendlyName,save_states.id`,
+        { headers: { [`x-admin-key`]: config.admin_key } },
+      );
+      roomsList = await result.json();
+      $('#node-input-room').typedInput({
+        types: [
+          {
+            value: '',
+            options: roomsList
+              .sort((a, b) => {
+                return a.friendlyName > b.friendlyName ? 1 : -1;
+              })
+              .map(item => {
+                return {
+                  label: item.friendlyName,
+                  value: item._id,
+                };
+              }),
+          },
+        ],
+      });
+      if (currentRoom) {
+        updateRoom(currentRoom);
+      }
+    }
+
+    RED.nodes.registerType('room-state', {
+      category: 'steggy',
+      color: '#a6bbcf',
+      defaults: {
+        name: { value: '' },
+        server: { value: '', type: 'steggy-configure' },
+        room: {
+          value: '',
+          validate(room) {
+            updateRoom(room);
+            return true;
+          },
+        },
+        state: { value: '' },
+      },
+      inputs: 1,
+      outputs: 0,
+      icon: 'function.png',
+      oneditprepare() {
+        if (this.server) {
+          updateRoomList(RED.nodes.node(this.server));
+          return;
+        }
+      },
+      label: function () {
+        return this.name || 'room state';
+      },
+    });
+  }
 </script>
 
 <script type="text/html" data-template-name="room-state">

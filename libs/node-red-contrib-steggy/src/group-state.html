@@ -1,20 +1,95 @@
 <script type="text/javascript">
-  RED.nodes.registerType('group-state', {
-    category: 'steggy',
-    color: '#a6bbcf',
-    defaults: {
-      name: { value: '' },
-      server: { value: '', type: 'steggy-configure' },
-      group: { value: '' },
-      state: { value: '' },
-    },
-    inputs: 1,
-    outputs: 0,
-    icon: 'function.png',
-    label: function () {
-      return this.name || 'group state';
-    },
-  });
+  {
+    let groupList = [];
+    let selectedGroup = false;
+
+    async function updateGroup(currentGroup) {
+      const group = groupList.find(({ _id }) => _id === currentGroup);
+      if (!group) {
+        return;
+      }
+      const options = group.save_states
+        .sort((a, b) => {
+          return a.friendlyName > b.friendlyName ? 1 : -1;
+        })
+        .map(item => {
+          return {
+            label: item.friendlyName,
+            value: item.id,
+          };
+        });
+      if (selectedGroup !== currentGroup) {
+        selectedGroup = currentGroup;
+        $('#node-input-state').typedInput('types', [{ options }]);
+        return;
+      }
+      $('#node-input-state').typedInput({
+        types: [{ options }],
+      });
+      selectedGroup = currentGroup;
+    }
+
+    async function updateGroupList(config, currentGroup) {
+      selectedGroup = false;
+      const result = await fetch(
+        `${config.host}/api/group?select=friendlyName,save_states.friendlyName,save_states.id,type`,
+        { headers: { [`x-admin-key`]: config.admin_key } },
+      );
+      groupList = await result.json();
+      $('#node-input-group').typedInput({
+        types: [
+          {
+            value: '',
+            options: groupList
+              .sort((a, b) => {
+                if (a.type !== b.type) {
+                  return a.type > b.type ? 1 : -1;
+                }
+                return a.friendlyName > b.friendlyName ? 1 : -1;
+              })
+              .map(item => {
+                return {
+                  label: `[${item.type}] ${item.friendlyName}`,
+                  value: item._id,
+                };
+              }),
+          },
+        ],
+      });
+      if (currentGroup) {
+        updateGroup(currentGroup);
+      }
+    }
+
+    RED.nodes.registerType('group-state', {
+      category: 'steggy',
+      color: '#a6bbcf',
+      defaults: {
+        name: { value: '' },
+        server: { value: '', type: 'steggy-configure' },
+        group: {
+          value: '',
+          validate(group) {
+            updateGroup(group);
+            return true;
+          },
+        },
+        state: { value: '' },
+      },
+      inputs: 1,
+      outputs: 0,
+      icon: 'function.png',
+      oneditprepare() {
+        if (this.server) {
+          updateGroupList(RED.nodes.node(this.server), this.group);
+          return;
+        }
+      },
+      label: function () {
+        return this.name || 'group state';
+      },
+    });
+  }
 </script>
 
 <script type="text/html" data-template-name="group-state">
@@ -29,7 +104,7 @@
     <input type="text" id="node-input-server" />
   </div>
   <div class="form-row">
-    <label for="node-input-group"><i class="fa fa-tag"></i> group</label>
+    <label for="node-input-group"><i class="fa fa-tag"></i> Group</label>
     <input type="text" id="node-input-group" />
   </div>
   <div class="form-row">
