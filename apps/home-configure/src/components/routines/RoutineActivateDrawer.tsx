@@ -1,9 +1,10 @@
 import {
-  KunamiCodeActivateDTO,
+  MetadataChangeDTO,
   ROUTINE_ACTIVATE_TYPES,
   RoutineActivateDTO,
   RoutineDTO,
   ScheduleActivateDTO,
+  SequenceActivateDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
 } from '@steggy/controller-shared';
@@ -15,6 +16,7 @@ import { EntityHistory } from '../entities';
 import {
   RoutineActivateCron,
   RoutineActivateKunami,
+  RoutineActivateMetadataChange,
   RoutineActivateSolar,
   RoutineActivateStateChange,
 } from './activate';
@@ -61,6 +63,16 @@ export class RoutineActivateDrawer extends React.Component<{
   }
 
   private renderType() {
+    if (this.props.activate.type === 'room_metadata') {
+      return (
+        <RoutineActivateMetadataChange
+          activate={this.props.activate.activate as MetadataChangeDTO}
+          onUpdate={activate =>
+            this.updateActivate(activate as Partial<MetadataChangeDTO>)
+          }
+        />
+      );
+    }
     if (this.props.activate.type === 'schedule') {
       return (
         <RoutineActivateCron
@@ -94,9 +106,9 @@ export class RoutineActivateDrawer extends React.Component<{
     if (this.props.activate.type === 'kunami') {
       return (
         <RoutineActivateKunami
-          activate={this.props.activate.activate as KunamiCodeActivateDTO}
+          activate={this.props.activate.activate as SequenceActivateDTO}
           onUpdate={activate =>
-            this.updateActivate(activate as Partial<KunamiCodeActivateDTO>)
+            this.updateActivate(activate as Partial<SequenceActivateDTO>)
           }
         />
       );

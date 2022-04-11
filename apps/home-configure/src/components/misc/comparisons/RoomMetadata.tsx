@@ -32,6 +32,7 @@ export class RoomMetadataComparison extends React.Component<
   {
     comparison: RoomMetadataComparisonDTO;
     onUpdate: (value: Partial<RoomMetadataComparisonDTO>) => void;
+    unwrap?: boolean;
   },
   tState
 > {
@@ -39,7 +40,7 @@ export class RoomMetadataComparison extends React.Component<
 
   private get room(): RoomDTO {
     return this.state.rooms.find(
-      ({ _id }) => _id === this.props.comparison.room,
+      ({ _id }) => _id === this.props.comparison?.room,
     );
   }
 
@@ -56,14 +57,43 @@ export class RoomMetadataComparison extends React.Component<
   }
 
   override render() {
+    if (this.props.unwrap) {
+      return this.renderBody();
+    }
+    return (
+      <Card title="Metadata Comparison" type="inner">
+        {this.renderBody()}
+      </Card>
+    );
+  }
+
+  private async listEntities() {
+    const rooms = await sendRequest<RoomDTO[]>({
+      control: {
+        filters: new Set([
+          {
+            field: 'metadata.0',
+            operation: 'exists',
+            value: true,
+          },
+        ]),
+        select: ['friendlyName', 'metadata'],
+        sort: ['friendlyName'],
+      },
+      url: `/room`,
+    });
+    this.setState({ rooms });
+  }
+
+  private renderBody() {
     const metadata = this.metadata;
     const type = metadata?.type;
     return (
-      <Card title="Metadata Comparison" type="inner">
+      <>
         <Form.Item label="Room">
           <Select
             onChange={room => this.props.onUpdate({ room })}
-            value={this.props.comparison.room}
+            value={this.props.comparison?.room}
           >
             {this.state.rooms.map(room => (
               <Select.Option value={room._id} key={room._id}>
@@ -75,7 +105,8 @@ export class RoomMetadataComparison extends React.Component<
         <Form.Item label="Property">
           {this.room ? (
             <FuzzySelect
-              value={this.props.comparison.property}
+              disabled={is.empty(this.props.comparison.room)}
+              value={this.props.comparison?.property}
               data={this.room.metadata.map((i: RoomMetadataDTO) => ({
                 text: i.name,
                 value: i.name,
@@ -87,10 +118,11 @@ export class RoomMetadataComparison extends React.Component<
           )}
         </Form.Item>
         <CompareValue
+          disabled={is.empty(this.props.comparison?.room)}
           valueOptions={type === 'enum' ? metadata.options ?? [] : undefined}
-          operation={this.props.comparison.operation}
+          operation={this.props.comparison?.operation}
           availableOperations={AVAILABLE_OPERATIONS.get(type)}
-          value={this.props.comparison.value as FILTER_OPERATIONS}
+          value={this.props.comparison?.value as FILTER_OPERATIONS}
           onUpdate={({ value, operation }) => {
             if (!is.undefined(value)) {
               this.props.onUpdate({ value });
@@ -100,15 +132,7 @@ export class RoomMetadataComparison extends React.Component<
             }
           }}
         />
-      </Card>
+      </>
     );
-  }
-
-  private async listEntities() {
-    const rooms = await sendRequest<RoomDTO[]>({
-      control: { select: ['friendlyName', 'metadata'], sort: ['friendlyName'] },
-      url: `/room`,
-    });
-    this.setState({ rooms });
   }
 }

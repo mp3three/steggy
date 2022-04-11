@@ -13,6 +13,11 @@ export const ROUTINE_ACTIVATE_LIST = [
     type: 'schedule',
   },
   {
+    description: 'Activate when room metadata changes',
+    name: 'Room Metadata Change',
+    type: 'room_metadata',
+  },
+  {
     description: 'Activate in reponse to an entity state comparison',
     name: 'State Change',
     type: 'state_change',

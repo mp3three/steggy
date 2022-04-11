@@ -12,11 +12,12 @@ import {
   InjectCache,
 } from '@steggy/boilerplate';
 import {
-  KunamiCodeActivateDTO,
+  MetadataChangeDTO,
   RoomEntitySaveStateDTO,
   RountineCommandLightFlashDTO,
   ROUTINE_ACTIVATE_COMMAND,
   ROUTINE_ACTIVATE_TYPE,
+  RoutineActivateDTO,
   RoutineActivateOptionsDTO,
   RoutineCaptureCommandDTO,
   RoutineCommandDTO,
@@ -31,6 +32,7 @@ import {
   RoutineCommandWebhookDTO,
   RoutineDTO,
   ScheduleActivateDTO,
+  SequenceActivateDTO,
   SetRoomMetadataCommandDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
@@ -60,8 +62,9 @@ import { EntityCommandRouterService } from '../entity-command-router.service';
 import { GroupService } from '../groups';
 import { RoutinePersistenceService } from '../persistence';
 import { RoomService } from '../room.service';
-import { KunamiCodeActivateService } from './kunami-code-activate.service';
+import { MetadataChangeService } from './metadata-change.service';
 import { ScheduleActivateService } from './schedule-activate.service';
+import { SequenceActivateService } from './sequence-activate.service';
 import { SolarActivateService } from './solar-activate.service';
 import { StateChangeActivateService } from './state-change-activate.service';
 
@@ -76,7 +79,7 @@ export class RoutineService {
     private readonly entityRouter: EntityCommandRouterService,
     private readonly flashAnimation: LightFlashCommandService,
     private readonly groupService: GroupService,
-    private readonly kunamiCode: KunamiCodeActivateService,
+    private readonly sequenceActivate: SequenceActivateService,
     private readonly logger: AutoLogService,
     private readonly roomService: RoomService,
     private readonly routinePersistence: RoutinePersistenceService,
@@ -98,6 +101,8 @@ export class RoutineService {
     private readonly webhookService: WebhookService,
     @Inject(forwardRef(() => StopProcessingCommandService))
     private readonly stopProcessingService: StopProcessingCommandService,
+    @Inject(forwardRef(() => MetadataChangeService))
+    private readonly metadataChangeService: MetadataChangeService,
   ) {}
 
   private readonly runQueue = new Map<string, (() => void)[]>();
@@ -280,9 +285,9 @@ export class RoutineService {
           );
           return;
         case ROUTINE_ACTIVATE_TYPE.kunami:
-          this.kunamiCode.watch(
+          this.sequenceActivate.watch(
             routine,
-            activate.activate as KunamiCodeActivateDTO,
+            activate.activate as SequenceActivateDTO,
             async () => await this.activateRoutine(routine),
           );
           return;
@@ -297,6 +302,13 @@ export class RoutineService {
           this.scheduleActivate.watch(
             routine,
             activate.activate as ScheduleActivateDTO,
+            async () => await this.activateRoutine(routine),
+          );
+          return;
+        case ROUTINE_ACTIVATE_TYPE.room_metadata:
+          this.metadataChangeService.watch(
+            routine,
+            activate as RoutineActivateDTO<MetadataChangeDTO>,
             async () => await this.activateRoutine(routine),
           );
           return;
@@ -316,13 +328,16 @@ export class RoutineService {
           this.solarService.clearRoutine(routine);
           return;
         case ROUTINE_ACTIVATE_TYPE.kunami:
-          this.kunamiCode.clearRoutine(routine);
+          this.sequenceActivate.clearRoutine(routine);
           return;
         case ROUTINE_ACTIVATE_TYPE.state_change:
           this.stateChangeActivate.clearRoutine(routine);
           return;
         case ROUTINE_ACTIVATE_TYPE.schedule:
           this.scheduleActivate.clearRoutine(routine);
+          return;
+        case ROUTINE_ACTIVATE_TYPE.room_metadata:
+          this.metadataChangeService.clearRoutine(routine);
           return;
       }
     });

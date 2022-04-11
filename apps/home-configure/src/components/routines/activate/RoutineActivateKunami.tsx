@@ -1,4 +1,4 @@
-import { KunamiCodeActivateDTO } from '@steggy/controller-shared';
+import { SequenceActivateDTO } from '@steggy/controller-shared';
 import { eachSeries, is, PEAT, sleep } from '@steggy/utilities';
 import {
   Button,
@@ -28,8 +28,8 @@ type tState = {
 
 export class RoutineActivateKunami extends React.Component<
   {
-    activate: KunamiCodeActivateDTO;
-    onUpdate: (activate: Partial<KunamiCodeActivateDTO>) => void;
+    activate: SequenceActivateDTO;
+    onUpdate: (activate: Partial<SequenceActivateDTO>) => void;
   },
   tState
 > {

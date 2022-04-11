@@ -1,8 +1,8 @@
 import { CronJob } from 'cron';
 
 import {
-  KunamiCodeActivateDTO,
   ScheduleActivateDTO,
+  SequenceActivateDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
 } from './routines';
@@ -13,16 +13,16 @@ export const ROOM_UPDATE = 'ROOM_UPDATE';
 export const ROUTINE_UPDATE = 'ROUTINE_UPDATE';
 export const LOCATION_UPDATED = 'LOCATION_UPDATED';
 
-export type KunamiWatcher = KunamiCodeActivateDTO & {
+export type SequenceWatcher = SequenceActivateDTO & {
   callback: () => Promise<void>;
   routine: RoutineDTO;
 };
 
-export class KunamiSensorEvent {
+export class SequenceSensorEvent {
   public completed?: boolean;
   public progress: string[];
   public rejected: boolean;
-  public watcher: KunamiWatcher;
+  public watcher: SequenceWatcher;
 }
 
 export type StateChangeWatcher = StateChangeActivateDTO & {

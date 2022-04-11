@@ -95,6 +95,13 @@ export class SetRoomMetadataCommand extends React.Component<
   private async listRooms(): Promise<void> {
     const rooms = await sendRequest<RoomDTO[]>({
       control: {
+        filters: new Set([
+          {
+            field: 'metadata.0',
+            operation: 'exists',
+            value: true,
+          },
+        ]),
         select: ['friendlyName', 'metadata'],
         sort: ['friendlyName'],
       },

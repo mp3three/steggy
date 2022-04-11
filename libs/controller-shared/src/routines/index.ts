@@ -1,4 +1,5 @@
 export * from './kunami-code-activate.dto';
+export * from './metadata-change.dto';
 export * from './routine-activate.dto';
 export * from './routine-command.dto';
 export * from './routine-enable.dto';

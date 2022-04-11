@@ -1,14 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { AutoLogService, InjectConfig, OnEvent } from '@steggy/boilerplate';
 import {
-  AutoLogService,
-  InjectConfig,
-  OnEvent,
-} from '@steggy/boilerplate';
-import {
-  KunamiCodeActivateDTO,
-  KunamiSensorEvent,
-  KunamiWatcher,
   RoutineDTO,
+  SequenceActivateDTO,
+  SequenceSensorEvent,
+  SequenceWatcher,
 } from '@steggy/controller-shared';
 import { EntityManagerService } from '@steggy/home-assistant';
 import {
@@ -20,22 +16,22 @@ import { each, is } from '@steggy/utilities';
 import { SEQUENCE_TIMEOUT } from '../../config';
 
 @Injectable()
-export class KunamiCodeActivateService {
+export class SequenceActivateService {
   constructor(
     private readonly logger: AutoLogService,
     @InjectConfig(SEQUENCE_TIMEOUT) private readonly kunamiTimeout: number,
     private readonly entityManager: EntityManagerService,
   ) {}
 
-  private ACTIVE_MATCHERS = new Map<string, KunamiSensorEvent[]>();
+  private ACTIVE_MATCHERS = new Map<string, SequenceSensorEvent[]>();
   private TIMERS = new Map<string, ReturnType<typeof setTimeout>>();
-  private WATCHED_SENSORS = new Map<string, KunamiWatcher[]>();
+  private WATCHED_SENSORS = new Map<string, SequenceWatcher[]>();
 
   public clearRoutine({ _id }: RoutineDTO): void {
     const list = [...this.WATCHED_SENSORS.entries()].map(([id, value]) => [
       id,
       value.filter(({ routine }) => routine._id !== _id),
-    ]) as [string, KunamiWatcher[]][];
+    ]) as [string, SequenceWatcher[]][];
     const empty = list.filter(([, list]) => is.empty(list));
     empty.forEach(([id]) => {
       const timer = this.TIMERS.get(id);
@@ -62,7 +58,7 @@ export class KunamiCodeActivateService {
 
   public watch(
     routine: RoutineDTO,
-    activate: KunamiCodeActivateDTO,
+    activate: SequenceActivateDTO,
     callback: () => Promise<void>,
   ): void {
     const watcher = this.WATCHED_SENSORS.get(activate.sensor) || [];
@@ -88,7 +84,7 @@ export class KunamiCodeActivateService {
     }
     this.initWatchers(data.entity_id);
     // Build up list of ative matchers
-    const process: KunamiSensorEvent[] = [];
+    const process: SequenceSensorEvent[] = [];
     const temporary = this.ACTIVE_MATCHERS.get(data.entity_id);
     temporary.forEach(event => {
       if (event.rejected || event.completed) {
@@ -153,7 +149,7 @@ export class KunamiCodeActivateService {
 
     // Set up active macher if does not exist
     if (!this.ACTIVE_MATCHERS.has(entity_id)) {
-      const initialEvents: KunamiSensorEvent[] = [];
+      const initialEvents: SequenceSensorEvent[] = [];
 
       this.WATCHED_SENSORS.forEach(watchers => {
         watchers.forEach(watcher => {

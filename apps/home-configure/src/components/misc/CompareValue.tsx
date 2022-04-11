@@ -18,6 +18,7 @@ export const ALL_OPERATIONS = new Map<`${FILTER_OPERATIONS}`, string>([
 ]);
 export class CompareValue extends React.Component<{
   availableOperations?: `${FILTER_OPERATIONS}`[];
+  disabled?: boolean;
   onUpdate: (
     value: Partial<{
       operation: `${FILTER_OPERATIONS}`;
@@ -33,6 +34,7 @@ export class CompareValue extends React.Component<{
       <>
         <Form.Item label="Operation">
           <Select
+            disabled={this.props.disabled}
             value={this.props.operation}
             onChange={operation => this.props.onUpdate({ operation })}
           >
@@ -50,7 +52,7 @@ export class CompareValue extends React.Component<{
           </Select>
         </Form.Item>
         <Form.Item label="Value">
-          {is.empty(this.props.operation) ? (
+          {is.empty(this.props.operation) || this.props.disabled ? (
             <Skeleton />
           ) : (
             <FilterValue

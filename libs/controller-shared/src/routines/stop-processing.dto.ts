@@ -24,35 +24,44 @@ type relative = `${RELATIVE_DATE_COMPARISON_TYPE}`;
 
 export class RoutineStateComparisonDTO extends ComparisonDTO {
   @IsString()
+  @ApiProperty()
   public entity_id: string;
 }
 
 export class RoutineAttributeComparisonDTO extends ComparisonDTO {
   @IsString()
+  @ApiProperty()
   public attribute: string;
   @IsString()
+  @ApiProperty()
   public entity_id: string;
 }
 
 export class RoomMetadataComparisonDTO extends ComparisonDTO {
   @IsString()
+  @ApiProperty()
   public property: string;
   @IsString()
+  @ApiProperty()
   public room: string;
 }
 
 export class RoutineWebhookComparisonDTO extends ComparisonDTO {
   @IsEnum(['text', 'json'])
+  @ApiProperty()
   public handleAs: 'text' | 'json';
   @IsString()
   @IsOptional()
+  @ApiProperty()
   public property?: string;
   @ValidateNested()
+  @ApiProperty()
   public webhook: RoutineCommandWebhookDTO;
 }
 
 export class RoutineTemplateComparisonDTO extends ComparisonDTO {
   @IsString()
+  @ApiProperty()
   public template: string;
 }
 
@@ -75,18 +84,24 @@ export type STOP_PROCESSING_DEFINITIONS =
 
 export class RoutineComparisonDTO {
   @ValidateNested()
+  @ApiProperty()
   public comparison: STOP_PROCESSING_DEFINITIONS;
   @IsString()
+  @ApiProperty()
   public friendlyName: string;
   @IsString()
+  @ApiProperty()
   public id: string;
   @IsEnum(STOP_PROCESSING_TYPE)
+  @ApiProperty()
   public type: STOP_PROCESSING_TYPE;
 }
 
 export class RoutineCommandStopProcessingDTO {
   @ValidateNested()
+  @ApiProperty()
   public comparisons: RoutineComparisonDTO[];
   @IsEnum(['all', 'any'])
+  @ApiProperty()
   public mode: 'all' | 'any';
 }

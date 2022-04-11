@@ -6,7 +6,7 @@
   "name": "@steggy/tty",
   "license": "MIT",
   "displayName": "TTY",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "dependencies": {
     "pino-pretty": "^7.6.1"
   }

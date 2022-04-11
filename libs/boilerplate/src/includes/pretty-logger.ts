@@ -54,7 +54,7 @@ export const prettyFormatMessage = (message: string): string => {
     return ``;
   }
   message = message
-    .replace(new RegExp('([^ ]+#[^ ]+)', 'g'), i => chalk.bold(i))
+    .replace(new RegExp('([^ ]+#[^ ]+)', 'g'), i => chalk.yellow(i))
     .replace(new RegExp('(\\[[^\\]]+\\])', 'g'), i =>
       chalk.bold.magenta(i.slice(1, -1)),
     )

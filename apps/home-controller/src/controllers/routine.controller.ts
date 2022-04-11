@@ -16,7 +16,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import {
-  KunamiCodeActivateDTO,
   RoomEntitySaveStateDTO,
   RoutineActivateDTO,
   RoutineActivateOptionsDTO,
@@ -28,6 +27,7 @@ import {
   RoutineCommandWebhookDTO,
   RoutineDTO,
   ScheduleActivateDTO,
+  SequenceActivateDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
 } from '@steggy/controller-shared';
@@ -47,7 +47,7 @@ import { RoutineService } from '../services';
 @AuthStack()
 @ApiTags('routine')
 @ApiExtraModels(
-  KunamiCodeActivateDTO,
+  SequenceActivateDTO,
   SolarActivateDTO,
   ScheduleActivateDTO,
   StateChangeActivateDTO,

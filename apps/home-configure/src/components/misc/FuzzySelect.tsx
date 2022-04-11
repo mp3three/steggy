@@ -8,6 +8,7 @@ const TEMP_TEMPLATE_SIZE = 3;
 export class FuzzySelect extends React.Component<
   {
     data: { text: string; value: string }[];
+    disabled?: boolean;
     onChange: (value) => void;
     style?: React.CSSProperties;
     value: string;
@@ -34,6 +35,7 @@ export class FuzzySelect extends React.Component<
         style={this.props.style}
         filterOption={false}
         showArrow={false}
+        disabled={this.props.disabled}
         defaultActiveFirstOption={false}
         onSearch={this.updateSearch.bind(this)}
       >
