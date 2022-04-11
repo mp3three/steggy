@@ -11,10 +11,12 @@ import {
 import { EntityManagerService } from '@steggy/home-assistant';
 import { BaseSchemaDTO } from '@steggy/persistence';
 import { each, is, ResultControlDTO } from '@steggy/utilities';
+import { isDateString, isNumberString } from 'class-validator';
 import EventEmitter from 'eventemitter3';
 import { v4 as uuid } from 'uuid';
 
 import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../typings';
+import { ChronoService } from './chrono.service';
 import { EntityCommandRouterService } from './entity-command-router.service';
 import { GroupService } from './groups';
 import { RoomPersistenceService } from './persistence';
@@ -28,6 +30,7 @@ export class RoomService {
     private readonly commandRouter: EntityCommandRouterService,
     private readonly entityManager: EntityManagerService,
     private readonly eventEmitter: EventEmitter,
+    private readonly chronoService: ChronoService,
   ) {}
 
   public async activateState(
@@ -228,6 +231,12 @@ export class RoomService {
   ): Promise<RoomDTO> {
     room = await this.load(room);
     room.metadata ??= [];
+    if (!is.undefined(update.value)) {
+      update.value = this.resolveValue(
+        room.metadata.find(metadata => metadata.id === id),
+        update.value,
+      );
+    }
     room.metadata = room.metadata.map(i =>
       i.id === id ? { ...i, ...update, id } : i,
     );
@@ -266,5 +275,69 @@ export class RoomService {
       throw new NotFoundException();
     }
     return room;
+  }
+
+  // eslint-disable-next-line radar/cognitive-complexity
+  private resolveValue(
+    metadata: RoomMetadataDTO,
+    value: unknown,
+  ): string | number | boolean | Date {
+    switch (metadata.type) {
+      case 'boolean':
+        if (is.boolean(value)) {
+          return value;
+        }
+        if (is.string(value)) {
+          return ['true', 'y', 'checked'].includes(value.toLowerCase());
+        }
+        this.logger.error(
+          { metadata, value },
+          `Cannot coerce value to boolean`,
+        );
+        return false;
+      case 'string':
+        if (!is.string(value)) {
+          this.logger.warn({ metadata, value }, `Value not provided as string`);
+          return String(value);
+        }
+        return value;
+      case 'date':
+        if (is.date(value)) {
+          return value;
+        }
+        if (is.string(value)) {
+          if (isDateString(value)) {
+            return new Date(value);
+          }
+          const [start] = this.chronoService.parse(value, false);
+          if (is.date(start)) {
+            return start;
+          }
+        }
+        if (is.number(value)) {
+          return new Date(value);
+        }
+        this.logger.error({ metadata, value }, `Cannot convert value to date`);
+        return undefined;
+      case 'number':
+        if (is.number(value)) {
+          return value;
+        }
+        if (is.string(value) && isNumberString(value)) {
+          return Number(value);
+        }
+        this.logger.error(
+          { metadata, value },
+          `Cannot convert value to number`,
+        );
+        return undefined;
+      case 'enum':
+        if ((metadata.options ?? []).includes(value as string)) {
+          return value as string;
+        }
+        this.logger.error({ metadata, value }, ``);
+        return undefined;
+    }
+    //
   }
 }

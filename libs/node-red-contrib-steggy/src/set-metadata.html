@@ -13,12 +13,15 @@
           .sort((a, b) => (a.name > b.name ? 1 : -1))
           .map(item => ({
             label: `[${item.type}] ${item.name}`,
-            value: item.id,
+            value: item.name,
           }));
-        console.log(options);
         if (selectedRoom !== currentRoom) {
           selectedRoom = currentRoom;
-          $('#node-input-property').typedInput('types', [{ options }]);
+          try {
+            // Sometimes this fires before stuff is properly initialized
+            // Don't care about errors from that
+            $('#node-input-property').typedInput('types', [{ options }]);
+          } catch (err) {}
           return;
         }
         $('#node-input-property').typedInput({

@@ -19,3 +19,7 @@ NestJS based application that connects to Home Assistant through the websocket a
 Terminal application for manipulating entities, groups, and rooms through the [Home Controller](apps/home-controller).
 
 [![Example Screenshot](apps/home-cli/docs/images/main.png)](apps/home-cli)
+
+## [node-red-contrib-steggy](libs/node-red-contrib-steggy)
+
+[![Example Screenshot](libs/node-red-contrib-steggy/docs/main.png)](libs/node-red-contrib-steggy)
