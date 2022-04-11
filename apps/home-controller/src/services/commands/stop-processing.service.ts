@@ -108,6 +108,7 @@ export class StopProcessingCommandService {
     if (is.boolean(start)) {
       return false;
     }
+    this.logger.warn({ now: new Date(), start });
     const now = dayjs();
     // Believe it or not, the docs were written first
     // The logic looks weird in code form
@@ -117,14 +118,14 @@ export class StopProcessingCommandService {
           return now.isAfter(start) && now.isBefore(end);
         }
       // fallthrough
-      case 'after':
+      case 'before':
         return now.isBefore(start);
       case 'not_in_range':
         if (end) {
           return now.isBefore(start) || now.isAfter(end);
         }
       // fallthrough
-      case 'before':
+      case 'after':
         return now.isAfter(start);
     }
     this.logger.error({ comparison }, `Invalid comparison [dateType]`);

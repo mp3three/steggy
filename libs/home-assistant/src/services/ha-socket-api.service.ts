@@ -22,13 +22,7 @@ import {
   SOCKET_MESSAGES,
   SocketMessageDTO,
 } from '@steggy/home-assistant-shared';
-import {
-  CronExpression,
-  is,
-  SECOND,
-  sleep,
-  START,
-} from '@steggy/utilities';
+import { CronExpression, is, SECOND, sleep, START } from '@steggy/utilities';
 import EventEmitter from 'eventemitter3';
 import WS from 'ws';
 
@@ -171,6 +165,7 @@ export class HASocketAPIService {
     //
     // That causes some race conditions that screw with the state managers
     // The current flow forces the auth frames to get sent after app is started
+    this.logger.debug(`Init connection`);
     await this.initConnection();
   }
 
@@ -245,7 +240,12 @@ export class HASocketAPIService {
             url.port ? `:${url.port}` : ``
           }/api/websocket`,
       );
+      let first = true;
       this.connection.addEventListener('message', message => {
+        if (first) {
+          first = false;
+          this.logger.debug(`Hello message received`);
+        }
         this.onMessage(JSON.parse(message.data.toString()));
       });
       this.connection.on('error', async error => {
@@ -280,17 +280,20 @@ export class HASocketAPIService {
     const id = Number(message.id);
     switch (message.type as HassSocketMessageTypes) {
       case HassSocketMessageTypes.auth_required:
+        this.logger.debug(`Sending authentication`);
         return await this.sendAuth();
 
       case HassSocketMessageTypes.auth_ok:
         this.logger.debug(`[CONNECTION_ACTIVE] = {true}`);
         this.CONNECTION_ACTIVE = true;
         clearTimeout(this.AUTH_TIMEOUT);
+        this.logger.debug(`subscribe_events`);
         await this.sendMsg({
           type: HASSIO_WS_COMMAND.subscribe_events,
         });
         this.logger.info('🏡 Home Assistant socket ready 🏡');
         this.eventEmitter.emit(HA_SOCKET_READY);
+        this.logger.debug('done emitting');
         return;
 
       case HassSocketMessageTypes.event:

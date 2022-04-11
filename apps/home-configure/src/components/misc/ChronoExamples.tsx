@@ -1,5 +1,5 @@
 import { is } from '@steggy/utilities';
-import { Card, List, Skeleton, Typography } from 'antd';
+import { Card, Divider, List, Skeleton, Typography } from 'antd';
 import { parse } from 'chrono-node';
 import React from 'react';
 type tState = {
@@ -71,6 +71,19 @@ export class ChronoExamples extends React.Component<
             </List.Item>
           )}
         />
+        <Divider orientation="left">Custom Resolvers</Divider>
+        <Typography.Text type="secondary">
+          The controller will also resolve these strings in addition to the
+          examples above. Values will be calculated using current day as
+          reference point due to internal library limitations. Expressions such
+          as "2 months from now at sunset" won't be accurate.
+        </Typography.Text>
+        <ul>
+          <li>dawn</li>
+          <li>dusk</li>
+          <li>sunrise</li>
+          <li>sunset</li>
+        </ul>
       </Card>
     );
   }

@@ -185,9 +185,10 @@ export class RoutineService {
         );
         break;
       case ROUTINE_ACTIVATE_COMMAND.stop_processing:
-        return await this.stopProcessingService.activate(
+        const out = await this.stopProcessingService.activate(
           command.command as RoutineCommandStopProcessingDTO,
         );
+        return !out;
     }
     return true;
   }
