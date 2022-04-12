@@ -6,7 +6,7 @@ const initialState = {
   sideBarMenuItemKey: '',
 };
 
-function currentComponetReducer(
+function currentComponentReducer(
   state = initialState,
   action: {
     payload: { component: unknown; sideBarMenuKey: string };
@@ -23,5 +23,7 @@ function currentComponetReducer(
   return state;
 }
 
-const rootReducer = combineReducers({ currentComponetReducer });
+const rootReducer = combineReducers({
+  currentComponentReducer: currentComponentReducer,
+});
 export const store = createStore(rootReducer);

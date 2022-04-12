@@ -1,3 +1,4 @@
+import { is } from '@steggy/utilities';
 import { Card, Col, Form, Input, Layout, Row, Tabs } from 'antd';
 import React from 'react';
 
@@ -9,7 +10,15 @@ type tState = {
   KEY: string;
 };
 
-export class SettingsPage extends React.Component<{ prop?: unknown }, tState> {
+export class SettingsPage extends React.Component<
+  {
+    onConnectionUpdate?: (properties: {
+      ADMIN_KEY?: string;
+      BASE_URL?: string;
+    }) => void;
+  },
+  tState
+> {
   override state = {} as tState;
 
   override componentDidMount(): void {
@@ -46,7 +55,11 @@ export class SettingsPage extends React.Component<{ prop?: unknown }, tState> {
                 </Col>
               </Row>
             </Tabs.TabPane>
-            <Tabs.TabPane key="Integrations" tab="Integrations">
+            <Tabs.TabPane
+              key="Integrations"
+              tab="Integrations"
+              disabled={is.empty(this.state.KEY)}
+            >
               <IntegrationSettings />
             </Tabs.TabPane>
           </Tabs>
@@ -55,14 +68,20 @@ export class SettingsPage extends React.Component<{ prop?: unknown }, tState> {
     );
   }
 
-  private baseUrlUpdate(BASE): void {
+  private baseUrlUpdate(BASE: string): void {
     this.setState({ BASE });
+    if (this.props.onConnectionUpdate) {
+      this.props.onConnectionUpdate({ BASE_URL: BASE });
+    }
     sendRequest.BASE_URL = BASE;
     localStorage.setItem(BASE_URL, BASE);
   }
 
   private passwordUpdate(KEY: string): void {
     this.setState({ KEY });
+    if (this.props.onConnectionUpdate) {
+      this.props.onConnectionUpdate({ ADMIN_KEY: KEY });
+    }
     sendRequest.ADMIN_KEY = KEY;
     localStorage.setItem(ADMIN_KEY, KEY);
   }

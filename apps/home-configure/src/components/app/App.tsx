@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 
 import { store } from '../../store';
-import { sendRequest } from '../../types';
+import { ADMIN_KEY, BASE_URL } from '../../types';
 import { EntityList } from '../entities';
 import { Foot } from '../footer';
 import { GroupList } from '../groups';
@@ -17,8 +17,18 @@ import { SettingsPage } from '../settings';
 
 const { Header, Sider, Content } = Layout;
 
+type tState = {
+  ADMIN_KEY: string;
+  BASE_URL: string;
+  collapsed: boolean;
+};
+
 export class App extends React.Component {
-  override state = { collapsed: false };
+  override state = {
+    ADMIN_KEY: localStorage.getItem(ADMIN_KEY),
+    BASE_URL: localStorage.getItem(BASE_URL),
+    collapsed: false,
+  } as tState;
 
   override render() {
     const { collapsed } = this.state;
@@ -39,8 +49,10 @@ export class App extends React.Component {
               </Typography.Title>
             </Header>
             <Content>
-              {is.empty(sendRequest.ADMIN_KEY) ? (
-                <SettingsPage />
+              {is.empty(this.state.ADMIN_KEY) ? (
+                <SettingsPage
+                  onConnectionUpdate={update => this.setState(update)}
+                />
               ) : (
                 <Switch>
                   <Route path="/entities" component={EntityList} />
