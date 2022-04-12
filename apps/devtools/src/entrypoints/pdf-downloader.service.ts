@@ -27,6 +27,7 @@ type COLUMNS =
 type ROW = Record<COLUMNS, string>;
 type TOKEN_RESPONSE = { key: string; token: string };
 const DEFAULT_LIMIT = 3;
+const REMOTE_TOKEN_HEADER = `x-remote-token`;
 
 @QuickScript({
   OVERRIDE_DEFAULTS: {
@@ -43,15 +44,11 @@ const DEFAULT_LIMIT = 3;
 export class PDFDownloader {
   constructor(
     /**
-     * @example https://api.form.io
-     */
-    @InjectConfig('API_URL') private readonly apiUrl: string,
-    /**
      * Absolute file path to csv file
      */
     @InjectConfig('CSV_FILE') private readonly csvFile: string,
     /**
-     * Number of simultanious downloads
+     * Number of simultaneous downloads
      */
     @InjectConfig('LIMIT') private readonly limit: number = DEFAULT_LIMIT,
     /**
@@ -62,6 +59,7 @@ export class PDFDownloader {
      * @example https://api.form.io/project/{project_id}
      */
     @InjectConfig('BASE_URL') private readonly baseUrl: string,
+    @InjectConfig('REMOTE_TOKEN') private readonly remoteToken: string,
     private readonly app: ApplicationManagerService,
     private readonly fetchService: FetchService,
     private readonly logger: AutoLogService,
@@ -121,13 +119,12 @@ export class PDFDownloader {
     // * Add form to cache + pre-create destination folders based on form name
     if (!this.forms.has(row.FormId)) {
       this.logger.debug(`Loading form {${row.FormId}}`);
-      this.forms.set(
-        row.FormId,
-        await this.fetchService.fetch<FormDTO>({
-          baseUrl: this.baseUrl,
-          url: `/form/${row.FormId}`,
-        }),
-      );
+      const form = await this.fetchService.fetch<FormDTO>({
+        baseUrl: this.baseUrl,
+        headers: { [REMOTE_TOKEN_HEADER]: this.remoteToken },
+        url: `/form/${row.FormId}`,
+      });
+      this.forms.set(row.FormId, form);
     }
     const form = this.forms.get(row.FormId);
     const folder = `${form._id} - ${form.name}`;
@@ -136,7 +133,7 @@ export class PDFDownloader {
     }
 
     // * Generate a download token for the pdf
-    const submissionUrl = `/project/${form.project}/form/${form._id}/submission/${row.SubmissionId}`;
+    const submissionUrl = `/form/${form._id}/submission/${row.SubmissionId}`;
     this.logger.debug(
       { submissionUrl },
       `Retrieving pdf download token for {${row.SubmissionId}}`,
@@ -144,22 +141,24 @@ export class PDFDownloader {
     const endpoint = `${submissionUrl}/download`;
     const token = await this.fetchService.fetch<TOKEN_RESPONSE>({
       baseUrl: this.baseUrl,
-      headers: { 'x-allow': `GET:${endpoint}` },
+      headers: {
+        [REMOTE_TOKEN_HEADER]: this.remoteToken,
+        'x-allow': `GET:${endpoint}`,
+      },
       url: `/token`,
     });
 
     this.logger.info(`Downloading PDF {${row.SubmissionId}}`);
     // * Retrieve the created date of the submission to use in file name
     const { created } = await this.fetchService.fetch<SubmissionDTO>({
+      baseUrl: this.baseUrl,
+      headers: { [REMOTE_TOKEN_HEADER]: this.remoteToken },
       url: submissionUrl,
     });
     const file = `${row.EMRNumber}-${row.Pat_LastName}-${row.Pat_FirstName}-${created}.pdf`;
-
+    const url = `${this.baseUrl}${endpoint}?token=${token.key}&project=${form.project}`;
+    this.logger.debug(url);
     // * Use a curl call to download the pdf and output to it's final destination in 1 step
-    await execa(`curl`, [
-      `${this.apiUrl}${endpoint}?token=${token.key}`,
-      '-o',
-      join(folder, file),
-    ]);
+    await execa(`curl`, [url, '-o', join(folder, file)]);
   }
 }

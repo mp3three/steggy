@@ -11,7 +11,7 @@ export type FetchError = { message: string; status: number };
  * It contains methods for interacting with projects, and high level portal interactions
  *
  * For interacting with resources / forms: Resource Service
- * For interacting with submmissions: Submission Service
+ * For interacting with submissions: Submission Service
  * For more nuanced interactions, view ../tools
  */
 @Injectable()

@@ -47,6 +47,12 @@
               "lightbulb",
               "href",
               "sider",
+
+              "downloader",
+              "csv",
+              "pdf",
+              "imgur",
+              "undelete",
               "integrations",
               "popconfirm",
               "formio",
