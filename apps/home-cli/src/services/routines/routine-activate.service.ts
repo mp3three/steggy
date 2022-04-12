@@ -5,11 +5,11 @@ import {
   NotImplementedException,
 } from '@nestjs/common';
 import {
-  KunamiCodeActivateDTO,
   ROUTINE_ACTIVATE_TYPE,
   RoutineActivateDTO,
   RoutineDTO,
   ScheduleActivateDTO,
+  SequenceActivateDTO,
   SolarActivateDTO,
   StateChangeActivateDTO,
 } from '@steggy/controller-shared';
@@ -42,7 +42,7 @@ export class RoutineActivateService {
   constructor(
     private readonly kunamiActivate: KunamiBuilderService,
     private readonly stateActivate: StateChangeBuilderService,
-    private readonly schduleActivate: ScheduleBuilderService,
+    private readonly scheduleActivate: ScheduleBuilderService,
     private readonly solarActivate: SolarBuilderService,
     private readonly textRender: TextRenderingService,
     private readonly promptService: PromptService,
@@ -71,7 +71,7 @@ export class RoutineActivateService {
       case ROUTINE_ACTIVATE_TYPE.kunami:
         return {
           activate: await this.kunamiActivate.build(
-            current.activate as KunamiCodeActivateDTO,
+            current.activate as SequenceActivateDTO,
           ),
           friendlyName,
           type,
@@ -94,7 +94,7 @@ export class RoutineActivateService {
         };
       case ROUTINE_ACTIVATE_TYPE.schedule:
         return {
-          activate: await this.schduleActivate.build(
+          activate: await this.scheduleActivate.build(
             current.activate as ScheduleActivateDTO,
           ),
           friendlyName,

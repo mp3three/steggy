@@ -4,6 +4,10 @@ import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
 import React from 'react';
 const TEMP_TEMPLATE_SIZE = 3;
+type tState = {
+  data: { text: string; value: string }[];
+  searchText?: string;
+};
 
 export class FuzzySelect extends React.Component<
   {
@@ -13,23 +17,28 @@ export class FuzzySelect extends React.Component<
     style?: React.CSSProperties;
     value: string;
   },
-  {
-    data: { text: string; value: string }[];
-  }
+  tState
 > {
-  override state = { data: [] };
+  override state = { data: [] } as tState;
 
-  override componentDidMount(): void {
-    this.setState({ data: this.props.data });
+  private get options() {
+    if (!is.empty(this.state.data)) {
+      return this.state.data;
+    }
+    return is.empty(this.state.data) && !is.empty(this.state.searchText)
+      ? []
+      : this.props.data;
   }
 
   override render() {
-    const options = this.state.data.map(d => (
-      <Select.Option key={d.value}>{parse(d.text)}</Select.Option>
+    const options = this.options.map(d => (
+      <Select.Option key={d.value} value={d.value}>
+        {parse(d.text)}
+      </Select.Option>
     ));
     return (
       <Select
-        onChange={this.props.onChange}
+        onChange={value => this.onChange(value)}
         value={this.props.value}
         showSearch
         style={this.props.style}
@@ -37,7 +46,7 @@ export class FuzzySelect extends React.Component<
         showArrow={false}
         disabled={this.props.disabled}
         defaultActiveFirstOption={false}
-        onSearch={this.updateSearch.bind(this)}
+        onSearch={search => this.updateSearch(search)}
       >
         {options}
       </Select>
@@ -80,6 +89,13 @@ export class FuzzySelect extends React.Component<
           TEMP_TEMPLATE_SIZE * INVERT_VALUE,
         )}</span>`,
     );
+  }
+
+  private onChange(value: string): void {
+    this.props.onChange(value);
+    // Reset the data mostly to remove highlighting
+    // It's oddly uncomfortable as a user, even if it's only visual
+    this.setState({ data: this.props.data });
   }
 
   private updateSearch(searchText: string): void {

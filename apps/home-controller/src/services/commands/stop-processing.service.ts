@@ -108,7 +108,6 @@ export class StopProcessingCommandService {
     if (is.boolean(start)) {
       return false;
     }
-    this.logger.warn({ now: new Date(), start });
     const now = dayjs();
     // Believe it or not, the docs were written first
     // The logic looks weird in code form

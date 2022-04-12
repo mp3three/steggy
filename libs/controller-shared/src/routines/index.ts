@@ -1,3 +1,4 @@
+export * from './attribute-change-activate.dto';
 export * from './kunami-code-activate.dto';
 export * from './metadata-change.dto';
 export * from './routine-activate.dto';

@@ -1,4 +1,5 @@
 import {
+  AttributeChangeActivateDTO,
   MetadataChangeDTO,
   ROUTINE_ACTIVATE_TYPES,
   RoutineActivateDTO,
@@ -20,6 +21,7 @@ import {
   RoutineActivateSolar,
   RoutineActivateStateChange,
 } from './activate';
+import { RoutineActivateAttributeChange } from './activate/RoutineActivateAttributeChange';
 
 export class RoutineActivateDrawer extends React.Component<{
   activate: RoutineActivateDTO;
@@ -63,6 +65,16 @@ export class RoutineActivateDrawer extends React.Component<{
   }
 
   private renderType() {
+    if (this.props.activate.type === 'attribute') {
+      return (
+        <RoutineActivateAttributeChange
+          activate={this.props.activate.activate as AttributeChangeActivateDTO}
+          onUpdate={activate =>
+            this.updateActivate(activate as Partial<AttributeChangeActivateDTO>)
+          }
+        />
+      );
+    }
     if (this.props.activate.type === 'room_metadata') {
       return (
         <RoutineActivateMetadataChange

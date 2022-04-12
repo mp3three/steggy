@@ -10,7 +10,8 @@
     "security",
     "simple-import-sort",
     "sort-keys-fix",
-    "unicorn"
+    "unicorn",
+    "spellcheck"
   ],
   "overrides": [
     {
@@ -25,7 +26,29 @@
         "prettier"
       ],
       "rules": {
-        // Undecided on if this is worth keeping
+        "spellcheck/spell-checker": [
+          "warn",
+          {
+            "lang": "en_US",
+            "comments": true,
+            "strings": true,
+            "identifiers": true,
+            "skipWords": [
+              "gte",
+              "lte",
+              "lt",
+              "nin",
+              "yaml",
+              "tooltip",
+              "checkbox",
+              "kunami",
+              "cron",
+              "hass",
+              "debounce",
+              "activations"
+            ]
+          }
+        ],
         "@typescript-eslint/require-await": "warn",
         "security/detect-non-literal-regexp": "off",
         "unicorn/prefer-module": "off",
