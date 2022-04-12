@@ -1,10 +1,10 @@
 import { CronJob } from 'cron';
 
 import {
+  AttributeChangeActivateDTO,
   ScheduleActivateDTO,
   SequenceActivateDTO,
   SolarActivateDTO,
-  StateChangeActivateDTO,
 } from './routines';
 import { RoutineDTO } from './schemas';
 
@@ -25,7 +25,7 @@ export class SequenceSensorEvent {
   public watcher: SequenceWatcher;
 }
 
-export type StateChangeWatcher = StateChangeActivateDTO & {
+export type StateChangeWatcher = Partial<AttributeChangeActivateDTO> & {
   callback: () => Promise<void>;
   routine: RoutineDTO;
 };

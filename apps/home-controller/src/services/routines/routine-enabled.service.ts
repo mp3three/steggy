@@ -1,9 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import {
-  AutoLogService,
-  InjectConfig,
-  OnEvent,
-} from '@steggy/boilerplate';
+import { AutoLogService, InjectConfig, OnEvent } from '@steggy/boilerplate';
 import {
   RoomMetadataComparisonDTO,
   ROUTINE_UPDATE,
@@ -198,7 +194,7 @@ export class RoutineEnabledService {
       comparison.expression,
       false,
     );
-    if (!is.boolean(parsed)) {
+    if (is.boolean(parsed)) {
       this.logger.error({ comparison }, `Expression failed parsing`);
       return;
     }
@@ -212,8 +208,6 @@ export class RoutineEnabledService {
       // re-parse the expression
       const [start] = this.chronoService.parse<Date>(comparison.expression);
       const now = dayjs();
-      // wait until the expression results in future dates before setting up timeouts again
-      // ex: 'tuesday' will return a date in the past for most of the week
       if (now.isAfter(start)) {
         return;
       }

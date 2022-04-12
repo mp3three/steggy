@@ -1,3 +1,4 @@
+export * from './attribute-change-activate.service';
 export * from './metadata-change.service';
 export * from './routine.service';
 export * from './routine-enabled.service';

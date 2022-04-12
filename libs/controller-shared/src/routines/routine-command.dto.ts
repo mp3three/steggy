@@ -114,7 +114,7 @@ enum LightFlashType {
   entity = 'entity',
 }
 
-export class RountineCommandLightFlashDTO {
+export class RoutineCommandLightFlashDTO {
   @ApiProperty({ required: false })
   @IsNumber()
   public brightness?: number;
@@ -199,7 +199,7 @@ export class RoutineCommandWebhookDTO {
 export class RoutineCommandDTO<
   COMMAND =
     | RoomEntitySaveStateDTO
-    | RountineCommandLightFlashDTO
+    | RoutineCommandLightFlashDTO
     | RoutineCommandGroupActionDTO
     | RoutineCommandGroupStateDTO
     | SetRoomMetadataCommandDTO
@@ -216,7 +216,7 @@ export class RoutineCommandDTO<
   @ApiProperty({
     oneOf: [
       { $ref: getSchemaPath(RoomEntitySaveStateDTO) },
-      { $ref: getSchemaPath(RountineCommandLightFlashDTO) },
+      { $ref: getSchemaPath(RoutineCommandLightFlashDTO) },
       { $ref: getSchemaPath(RoutineCommandGroupActionDTO) },
       { $ref: getSchemaPath(RoutineCommandGroupStateDTO) },
       { $ref: getSchemaPath(RoutineCommandRoomStateDTO) },

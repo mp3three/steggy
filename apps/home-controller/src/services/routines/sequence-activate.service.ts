@@ -83,7 +83,7 @@ export class SequenceActivateService {
       return;
     }
     this.initWatchers(data.entity_id);
-    // Build up list of ative matchers
+    // Build up list of active matchers
     const process: SequenceSensorEvent[] = [];
     const temporary = this.ACTIVE_MATCHERS.get(data.entity_id);
     temporary.forEach(event => {
@@ -147,7 +147,7 @@ export class SequenceActivateService {
     }, this.kunamiTimeout);
     this.TIMERS.set(entity_id, timer);
 
-    // Set up active macher if does not exist
+    // Set up active matcher if does not exist
     if (!this.ACTIVE_MATCHERS.has(entity_id)) {
       const initialEvents: SequenceSensorEvent[] = [];
 

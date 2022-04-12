@@ -36,6 +36,7 @@ import {
 } from '../controllers';
 import {
   ApplicationService,
+  AttributeChangeActivateService,
   AvailabilityMonitorService,
   CaptureCommandService,
   ChronoService,
@@ -90,6 +91,7 @@ const providers = [
     SequenceActivateService,
     StateChangeActivateService,
     MetadataChangeService,
+    AttributeChangeActivateService,
     CaptureCommandService,
     SolarActivateService,
     RoutineService,

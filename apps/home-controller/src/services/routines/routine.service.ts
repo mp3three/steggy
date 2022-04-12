@@ -12,9 +12,9 @@ import {
   InjectCache,
 } from '@steggy/boilerplate';
 import {
+  AttributeChangeActivateDTO,
   MetadataChangeDTO,
   RoomEntitySaveStateDTO,
-  RountineCommandLightFlashDTO,
   ROUTINE_ACTIVATE_COMMAND,
   ROUTINE_ACTIVATE_TYPE,
   RoutineActivateDTO,
@@ -23,6 +23,7 @@ import {
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
+  RoutineCommandLightFlashDTO,
   RoutineCommandNodeRedDTO,
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
@@ -62,6 +63,7 @@ import { EntityCommandRouterService } from '../entity-command-router.service';
 import { GroupService } from '../groups';
 import { RoutinePersistenceService } from '../persistence';
 import { RoomService } from '../room.service';
+import { AttributeChangeActivateService } from './attribute-change-activate.service';
 import { MetadataChangeService } from './metadata-change.service';
 import { ScheduleActivateService } from './schedule-activate.service';
 import { SequenceActivateService } from './sequence-activate.service';
@@ -103,6 +105,8 @@ export class RoutineService {
     private readonly stopProcessingService: StopProcessingCommandService,
     @Inject(forwardRef(() => MetadataChangeService))
     private readonly metadataChangeService: MetadataChangeService,
+    @Inject(forwardRef(() => AttributeChangeActivateService))
+    private readonly attributeChangeService: AttributeChangeActivateService,
   ) {}
 
   private readonly runQueue = new Map<string, (() => void)[]>();
@@ -168,7 +172,7 @@ export class RoutineService {
         break;
       case ROUTINE_ACTIVATE_COMMAND.light_flash:
         await this.flashAnimation.activate(
-          command.command as RountineCommandLightFlashDTO,
+          command.command as RoutineCommandLightFlashDTO,
           waitForChange,
         );
         break;
@@ -277,6 +281,13 @@ export class RoutineService {
     routine.activate.forEach(activate => {
       this.logger.debug(` - ${activate.friendlyName}`);
       switch (activate.type) {
+        case ROUTINE_ACTIVATE_TYPE.attribute:
+          this.attributeChangeService.watch(
+            routine,
+            activate.activate as AttributeChangeActivateDTO,
+            async () => await this.activateRoutine(routine),
+          );
+          return;
         case ROUTINE_ACTIVATE_TYPE.solar:
           this.solarService.watch(
             routine,
@@ -324,6 +335,9 @@ export class RoutineService {
     routine.activate.forEach(activate => {
       this.logger.debug(` - ${activate.friendlyName}`);
       switch (activate.type) {
+        case ROUTINE_ACTIVATE_TYPE.attribute:
+          this.attributeChangeService.clearRoutine(routine);
+          return;
         case ROUTINE_ACTIVATE_TYPE.solar:
           this.solarService.clearRoutine(routine);
           return;

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
-import { RountineCommandLightFlashDTO } from '@steggy/controller-shared';
+import { RoutineCommandLightFlashDTO } from '@steggy/controller-shared';
 import { each } from '@steggy/utilities';
 
 import { GroupService } from '../groups';
@@ -15,7 +15,7 @@ export class LightFlashCommandService {
   ) {}
 
   public async activate(
-    command: RountineCommandLightFlashDTO,
+    command: RoutineCommandLightFlashDTO,
     waitForChange = false,
   ): Promise<void> {
     await process.nextTick(async () => {
@@ -27,7 +27,7 @@ export class LightFlashCommandService {
   }
 
   private async activateEntity(
-    { ref, brightness, duration, interval, rgb }: RountineCommandLightFlashDTO,
+    { ref, brightness, duration, interval, rgb }: RoutineCommandLightFlashDTO,
 
     waitForChange = false,
   ): Promise<void> {
@@ -45,7 +45,7 @@ export class LightFlashCommandService {
   }
 
   private async activateGroup(
-    { ref, brightness, duration, rgb, interval }: RountineCommandLightFlashDTO,
+    { ref, brightness, duration, rgb, interval }: RoutineCommandLightFlashDTO,
 
     waitForChange = false,
   ): Promise<void> {

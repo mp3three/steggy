@@ -7,8 +7,8 @@ import {
   OnEvent,
 } from '@steggy/boilerplate';
 import {
+  AttributeChangeActivateDTO,
   RoutineDTO,
-  StateChangeActivateDTO,
   StateChangeWatcher,
 } from '@steggy/controller-shared';
 import { EntityManagerService } from '@steggy/home-assistant';
@@ -17,6 +17,7 @@ import {
   HassEventDTO,
 } from '@steggy/home-assistant-shared';
 import { each, is } from '@steggy/utilities';
+import { get } from 'object-path';
 
 const LATCH_KEY = (id: string) => `ATTRIBUTE_LATCH:${id}`;
 const DEBOUNCE_KEY = (id: string) => `ATTRIBUTE_DEBOUNCE:${id}`;
@@ -55,9 +56,12 @@ export class AttributeChangeActivateService {
 
   public watch(
     routine: RoutineDTO,
-    activate: StateChangeActivateDTO,
+    activate: AttributeChangeActivateDTO,
     callback: () => Promise<void>,
   ): void {
+    this.logger.error('HIT!');
+    this.logger.error('HIT!');
+    this.logger.error('HIT!');
     const list = this.WATCHED_ENTITIES.get(activate.entity) || [];
     list.push({
       ...activate,
@@ -65,7 +69,7 @@ export class AttributeChangeActivateService {
       routine,
     });
     if (!this.WATCHED_ENTITIES.has(activate.entity)) {
-      this.logger.debug(`Start watching {${activate.entity}}`);
+      this.logger.error(`Start watching {${activate.entity}}`);
     }
     this.WATCHED_ENTITIES.set(activate.entity, list);
   }
@@ -84,7 +88,7 @@ export class AttributeChangeActivateService {
     }
     await each(this.WATCHED_ENTITIES.get(data.entity_id), async item => {
       let valid = this.jsonFilter.match(
-        { value: data.new_state.state },
+        { value: get(data.new_state.attributes, item.attribute) },
         {
           field: 'value',
           operation: item.operation,
