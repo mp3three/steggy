@@ -48,6 +48,7 @@
               "href",
               "sider",
               "integrations",
+              "popconfirm",
               "formio",
               "migrator",
               "charset",

@@ -1,15 +1,15 @@
 import { GroupDTO, RoomDTO, RoutineDTO } from '@steggy/controller-shared';
-import { each, ResultControlDTO } from '@steggy/utilities';
-import { List } from 'antd';
+import { each, is, ResultControlDTO } from '@steggy/utilities';
+import { Button, Drawer, List, Tabs } from 'antd';
 import React from 'react';
-import { Link } from 'react-router-dom';
 
-import { sendRequest } from '../../types';
+import { RELATED_ROUTINES, sendRequest } from '../../types';
+import { RoutineListDetail } from './RoutineListDetail';
 
 type tState = {
+  routine: RoutineDTO;
   routines: RoutineDTO[];
 };
-const field = 'command.type';
 
 export class RelatedRoutines extends React.Component<
   {
@@ -36,138 +36,78 @@ export class RelatedRoutines extends React.Component<
 
   override render() {
     return (
-      <List
-        pagination={{ size: 'small' }}
-        dataSource={this.state.routines}
-        renderItem={item => (
-          <List.Item>
-            <List.Item.Meta
-              title={
-                <Link to={`/routine/${item._id}`}>{item.friendlyName}</Link>
-              }
+      <>
+        <Tabs>
+          <Tabs.TabPane tab="Routines" key="routine">
+            <List
+              pagination={{ size: 'small' }}
+              dataSource={this.state.routines}
+              renderItem={item => (
+                <List.Item>
+                  <Button
+                    type="text"
+                    onClick={() => this.setState({ routine: item })}
+                  >
+                    {item.friendlyName}
+                  </Button>
+                </List.Item>
+              )}
             />
-          </List.Item>
-        )}
-      />
+          </Tabs.TabPane>
+          {is.undefined(this.props.groupState) ? undefined : (
+            <Tabs.TabPane tab="Room States" key="roomStates">
+              <List pagination={{ size: 'small' }} />
+            </Tabs.TabPane>
+          )}
+        </Tabs>
+        {this.state.routine ? (
+          <Drawer
+            title="Edit routine"
+            size="large"
+            onClose={() => this.setState({ routine: undefined })}
+            visible={!is.undefined(this.state.routine)}
+          >
+            <RoutineListDetail
+              nested
+              routine={this.state.routine}
+              onUpdate={routine => this.updateRoutine(routine)}
+            />
+          </Drawer>
+        ) : undefined}
+      </>
     );
   }
-
-  private buildQuery(): ResultControlDTO[] {
-    if (this.props.roomState) {
-      return [
-        {
-          filters: new Set([
-            {
-              field,
-              value: 'room_state',
-            },
-            {
-              field: 'command.command.room',
-              value: this.props.roomState._id,
-            },
-          ]),
-        } as ResultControlDTO,
-      ];
-    }
-    if (this.props.groupAction) {
-      return [
-        {
-          filters: new Set([
-            {
-              field,
-              value: 'group_action',
-            },
-            {
-              field: 'command.command.group',
-              value: this.props.groupAction._id,
-            },
-          ]),
-        } as ResultControlDTO,
-      ];
-    }
-    if (this.props.groupState) {
-      return [
-        {
-          filters: new Set([
-            {
-              field,
-              value: 'group_state',
-            },
-            {
-              field: 'command.command.group',
-              value: this.props.groupState._id,
-            },
-          ]),
-        } as ResultControlDTO,
-      ];
-    }
-    if (this.props.entity) {
-      this.currentEntity = this.props.entity;
-      return [
-        {
-          filters: new Set([
-            {
-              field: 'activate.type',
-              value: 'kunami',
-            },
-            {
-              field: 'activate.activate.sensor',
-              value: this.props.entity,
-            },
-          ]),
-        } as ResultControlDTO,
-        {
-          filters: new Set([
-            {
-              field: 'activate.type',
-              value: 'state_change',
-            },
-            {
-              field: 'activate.activate.entity',
-              value: this.props.entity,
-            },
-          ]),
-        } as ResultControlDTO,
-        {
-          filters: new Set([
-            {
-              field,
-              value: 'entity_state',
-            },
-            {
-              field: 'command.command.ref',
-              value: this.props.entity,
-            },
-          ]),
-        } as ResultControlDTO,
-      ];
-    }
-    if (this.props.routine) {
-      return [
-        {
-          filters: new Set([
-            {
-              field,
-              value: 'trigger_routine',
-            },
-            {
-              field: 'command.command.routine',
-              value: this.props.routine._id,
-            },
-          ]),
-        } as ResultControlDTO,
-      ];
-    }
-    return [{}];
-  }
-
   private async refresh(): Promise<void> {
-    const queries = this.buildQuery();
+    const queries = this.routineQueries();
     const routines: Record<string, RoutineDTO> = {};
     await each(queries, async control => {
       const out = await sendRequest<RoutineDTO[]>({ control, url: `/routine` });
       out.forEach(i => (routines[i._id] = i));
     });
     this.setState({ routines: Object.values(routines) });
+  }
+
+  private routineQueries(): ResultControlDTO[] {
+    if (this.props.roomState) {
+      return RELATED_ROUTINES.room_state(this.props.roomState._id);
+    }
+    if (this.props.groupAction) {
+      return RELATED_ROUTINES.group_action(this.props.groupAction._id);
+    }
+    if (this.props.groupState) {
+      return RELATED_ROUTINES.group_state(this.props.groupState._id);
+    }
+    if (this.props.entity) {
+      this.currentEntity = this.props.entity;
+      return RELATED_ROUTINES.entity(this.currentEntity);
+    }
+    if (this.props.routine) {
+      return RELATED_ROUTINES.routine(this.props.routine._id);
+    }
+    return [{}];
+  }
+
+  private updateRoutine(routine: RoutineDTO): void {
+    this.setState({ routine });
   }
 }

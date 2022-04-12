@@ -39,7 +39,7 @@ export class RoomListDetail extends React.Component<
                   onUpdate={room => this.props.onUpdate(room)}
                 />
               </Tabs.TabPane>
-              <Tabs.TabPane key="savestates" tab="Save States">
+              <Tabs.TabPane key="save_states" tab="Save States">
                 <RoomSaveStates
                   room={this.props.room}
                   onUpdate={room => this.props.onUpdate(room)}
