@@ -5,7 +5,7 @@ import {
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { each, is, ResultControlDTO } from '@steggy/utilities';
-import { Button, Drawer, List, Tabs } from 'antd';
+import { Button, Drawer, List, Skeleton, Tabs } from 'antd';
 import React from 'react';
 
 import { RELATED_ROUTINES, sendRequest } from '../../types';
@@ -84,20 +84,22 @@ export class RelatedRoutines extends React.Component<
             </Tabs.TabPane>
           )}
         </Tabs>
-        {this.state.routine ? (
-          <Drawer
-            title="Edit routine"
-            size="large"
-            onClose={() => this.setState({ routine: undefined })}
-            visible={!is.undefined(this.state.routine)}
-          >
+        <Drawer
+          title="Edit routine"
+          size="large"
+          onClose={() => this.setState({ routine: undefined })}
+          visible={!is.undefined(this.state.routine)}
+        >
+          {is.undefined(this.state.routine) ? (
+            <Skeleton />
+          ) : (
             <RoutineListDetail
               nested
               routine={this.state.routine}
               onUpdate={routine => this.updateRoutine(routine)}
             />
-          </Drawer>
-        ) : undefined}
+          )}
+        </Drawer>
       </>
     );
   }
