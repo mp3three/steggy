@@ -12,63 +12,68 @@ type tState = {
 };
 
 export class RoomListDetail extends React.Component<
-  { onUpdate: (room: RoomDTO) => void; room?: RoomDTO },
+  {
+    nested?: boolean;
+    onUpdate: (room: RoomDTO) => void;
+    room?: RoomDTO;
+  },
   tState
 > {
   override state = {} as tState;
 
   override render() {
-    return (
-      <Card title="Room details">
-        {!this.props.room ? (
-          <Empty description="Select a room" />
-        ) : (
-          <>
-            <Typography.Title
-              level={3}
-              editable={{
-                onChange: friendlyName => this.update({ friendlyName }),
-              }}
-            >
-              {this.props.room.friendlyName}
-            </Typography.Title>
-            <Tabs>
-              <Tabs.TabPane key="members" tab="Members">
-                <RoomConfiguration
-                  room={this.props.room}
-                  onUpdate={room => this.props.onUpdate(room)}
+    if (this.props.nested) {
+      return this.renderBody();
+    }
+    return <Card title="Room details">{this.renderBody()}</Card>;
+  }
+
+  private renderBody() {
+    return !this.props.room ? (
+      <Empty description="Select a room" />
+    ) : (
+      <>
+        <Typography.Title
+          level={3}
+          editable={{
+            onChange: friendlyName => this.update({ friendlyName }),
+          }}
+        >
+          {this.props.room.friendlyName}
+        </Typography.Title>
+        <Tabs>
+          <Tabs.TabPane key="members" tab="Members">
+            <RoomConfiguration
+              room={this.props.room}
+              onUpdate={room => this.props.onUpdate(room)}
+            />
+          </Tabs.TabPane>
+          <Tabs.TabPane key="save_states" tab="Save States">
+            <RoomSaveStates
+              room={this.props.room}
+              onUpdate={room => this.props.onUpdate(room)}
+            />
+          </Tabs.TabPane>
+          <Tabs.TabPane key="metadata" tab="Metadata">
+            <RoomMetadata
+              room={this.props.room}
+              onUpdate={room => this.props.onUpdate(room)}
+            />
+          </Tabs.TabPane>
+          <Tabs.TabPane key="settings" tab="Settings">
+            <Card>
+              <Form.Item label="Internal Name">
+                <Input
+                  defaultValue={
+                    this.props.room.name ?? `room_${this.props.room._id}`
+                  }
+                  onBlur={({ target }) => this.update({ name: target.value })}
                 />
-              </Tabs.TabPane>
-              <Tabs.TabPane key="save_states" tab="Save States">
-                <RoomSaveStates
-                  room={this.props.room}
-                  onUpdate={room => this.props.onUpdate(room)}
-                />
-              </Tabs.TabPane>
-              <Tabs.TabPane key="metadata" tab="Metadata">
-                <RoomMetadata
-                  room={this.props.room}
-                  onUpdate={room => this.props.onUpdate(room)}
-                />
-              </Tabs.TabPane>
-              <Tabs.TabPane key="settings" tab="Settings">
-                <Card>
-                  <Form.Item label="Internal Name">
-                    <Input
-                      defaultValue={
-                        this.props.room.name ?? `room_${this.props.room._id}`
-                      }
-                      onBlur={({ target }) =>
-                        this.update({ name: target.value })
-                      }
-                    />
-                  </Form.Item>
-                </Card>
-              </Tabs.TabPane>
-            </Tabs>
-          </>
-        )}
-      </Card>
+              </Form.Item>
+            </Card>
+          </Tabs.TabPane>
+        </Tabs>
+      </>
     );
   }
 

@@ -127,7 +127,7 @@ export class GroupSaveStates extends React.Component<
             )}
           />
         </Card>
-        <Card type="inner" title="Related Routines">
+        <Card type="inner">
           <RelatedRoutines groupState={this.props.group} />
         </Card>
       </Space>

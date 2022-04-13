@@ -37,7 +37,7 @@ type tState = {
 
 export class RoomStateEdit extends React.Component<
   {
-    onUpdate: (group: RoomDTO) => void;
+    onUpdate?: (group: RoomDTO) => void;
     room: RoomDTO;
     state: RoomStateDTO;
   },
@@ -301,7 +301,9 @@ export class RoomStateEdit extends React.Component<
       url: `/room/${this.room._id}/state/${id}`,
     });
     this.setState({ dirty: false, drawer: false });
-    this.props.onUpdate(room);
+    if (this.props.onUpdate) {
+      this.props.onUpdate(room);
+    }
   }
 
   private async refreshGroups(): Promise<void> {

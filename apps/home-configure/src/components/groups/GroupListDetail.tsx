@@ -16,6 +16,7 @@ import { sendRequest } from '../../types';
 import { EntityInspectButton, EntityModalPicker } from '../entities';
 import { RelatedRoutines } from '../routines';
 import { GroupSaveStates } from './GroupSaveState';
+import { GroupUsedIn } from './GroupUsedIn';
 
 type tState = {
   name: string;
@@ -172,6 +173,9 @@ export class GroupListDetail extends React.Component<
           </Tabs.TabPane>
           <Tabs.TabPane key="actions" tab="Actions">
             {this.groupActions()}
+          </Tabs.TabPane>
+          <Tabs.TabPane key="used_in" tab="Used In">
+            <GroupUsedIn group={this.props.group} />
           </Tabs.TabPane>
         </Tabs>
       </>

@@ -1,12 +1,23 @@
-import { GroupDTO, RoomDTO, RoutineDTO } from '@steggy/controller-shared';
+import {
+  GroupDTO,
+  RoomDTO,
+  RoomStateDTO,
+  RoutineDTO,
+} from '@steggy/controller-shared';
 import { each, is, ResultControlDTO } from '@steggy/utilities';
 import { Button, Drawer, List, Tabs } from 'antd';
 import React from 'react';
 
 import { RELATED_ROUTINES, sendRequest } from '../../types';
+import { RoomStateEdit } from '../rooms/states';
 import { RoutineListDetail } from './RoutineListDetail';
 
+type list = { room: RoomDTO; state: RoomStateDTO }[];
+
 type tState = {
+  room?: RoomDTO;
+  room_state?: RoomStateDTO;
+  room_states?: list;
   routine: RoutineDTO;
   routines: RoutineDTO[];
 };
@@ -56,7 +67,20 @@ export class RelatedRoutines extends React.Component<
           </Tabs.TabPane>
           {is.undefined(this.props.groupState) ? undefined : (
             <Tabs.TabPane tab="Room States" key="roomStates">
-              <List pagination={{ size: 'small' }} />
+              <List
+                pagination={{ size: 'small' }}
+                dataSource={this.state.room_states}
+                renderItem={room => (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={
+                        <RoomStateEdit room={room.room} state={room.state} />
+                      }
+                      description={room.room.friendlyName}
+                    />
+                  </List.Item>
+                )}
+              />
             </Tabs.TabPane>
           )}
         </Tabs>
@@ -77,6 +101,7 @@ export class RelatedRoutines extends React.Component<
       </>
     );
   }
+
   private async refresh(): Promise<void> {
     const queries = this.routineQueries();
     const routines: Record<string, RoutineDTO> = {};
@@ -85,6 +110,35 @@ export class RelatedRoutines extends React.Component<
       out.forEach(i => (routines[i._id] = i));
     });
     this.setState({ routines: Object.values(routines) });
+    if (!is.undefined(this.props.groupState)) {
+      const rooms = await sendRequest<RoomDTO[]>({
+        control: {
+          filters: new Set([
+            {
+              field: 'save_states.states.type',
+              value: 'group',
+            },
+            {
+              field: 'save_states.states.ref',
+              value: this.props.groupState._id,
+            },
+          ]),
+        },
+        url: `/room`,
+      });
+      const room_states: list = [];
+      rooms.forEach(room => {
+        room.save_states ??= [];
+        room.save_states.forEach(state => {
+          state.states.forEach(i => {
+            if (i.type === 'group' && i.ref === this.props.groupState._id) {
+              room_states.push({ room, state });
+            }
+          });
+        });
+      });
+      this.setState({ room_states });
+    }
   }
 
   private routineQueries(): ResultControlDTO[] {
