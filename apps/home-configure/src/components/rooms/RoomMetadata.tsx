@@ -31,8 +31,8 @@ type tState = {
   stop_processing: RoutineDTO[];
 };
 const TAB_LIST = [
-  ['activate', 'Activate'],
   ['enable', 'Enable'],
+  ['activate', 'Activate'],
   ['set_metadata', 'Set Metadata'],
   ['stop_processing', 'Stop Processing'],
 ];
@@ -52,6 +52,7 @@ export class RoomMetadata extends React.Component<
       <>
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           <Card
+            type="inner"
             extra={
               <Button
                 icon={<PlusBoxMultiple />}
@@ -99,7 +100,7 @@ export class RoomMetadata extends React.Component<
               )}
             />
           </Card>
-          <Card>
+          <Card type="inner" title="Related Routines">
             <Tabs>
               {TAB_LIST.map(([key, label]) => (
                 <Tabs.TabPane tab={label} key={key}>
