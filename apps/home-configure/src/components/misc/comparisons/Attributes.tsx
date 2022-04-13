@@ -27,6 +27,12 @@ export class AttributeComparison extends React.Component<
   }
 
   override render() {
+    if (
+      !is.empty(this.props.comparison?.entity_id) &&
+      this.state.state?.entity_id !== this.props.comparison?.entity_id
+    ) {
+      this.loadEntity(this.props.comparison.entity_id);
+    }
     return (
       <>
         <Card title="Attribute Comparison" type="inner">
@@ -38,7 +44,13 @@ export class AttributeComparison extends React.Component<
             />
           </Form.Item>
           <Form.Item label="Attribute">
-            <Input placeholder="friendly_name" />
+            <Input
+              placeholder="friendly_name"
+              onBlur={({ target }) =>
+                this.props.onUpdate({ attribute: target.value })
+              }
+              defaultValue={this.props.comparison?.attribute}
+            />
           </Form.Item>
           <CompareValue
             operation={this.props.comparison.operation}

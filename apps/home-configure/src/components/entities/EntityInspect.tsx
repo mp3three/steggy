@@ -6,6 +6,7 @@ import {
   Divider,
   Empty,
   Space,
+  Tabs,
   Tooltip,
   Typography,
 } from 'antd';
@@ -41,19 +42,20 @@ export class EntityInspect extends React.Component<{
           </>
         }
       >
-        <SyntaxHighlighter language="yaml" style={atomDark}>
-          {dump(this.props.entity).trimEnd()}
-        </SyntaxHighlighter>
-        <Divider orientation="left">Links</Divider>
-        <Card
-          type="inner"
-          title="Related Routines"
-          style={{ marginTop: '16px' }}
-        >
-          <RelatedRoutines entity={this.props?.entity?.entity_id} />
-        </Card>
-        {this.editor()}
-        {this.flags()}
+        <Tabs type="card">
+          <Tabs.TabPane key="description" tab="Description">
+            <SyntaxHighlighter language="yaml" style={atomDark}>
+              {dump(this.props.entity).trimEnd()}
+            </SyntaxHighlighter>
+            {this.editor()}
+          </Tabs.TabPane>
+          <Tabs.TabPane key="used_in" tab="Used In">
+            <RelatedRoutines entity={this.props?.entity?.entity_id} />
+          </Tabs.TabPane>
+          <Tabs.TabPane key="flags" tab="Flags">
+            {this.flags()}
+          </Tabs.TabPane>
+        </Tabs>
       </Card>
     );
   }
