@@ -1,20 +1,19 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
-import {
-  FanAttributesDTO,
-  FanStateDTO,
-} from '@steggy/home-assistant-shared';
+import { FanAttributesDTO, FanStateDTO } from '@steggy/home-assistant-shared';
 import { is, PERCENT, SINGLE, START } from '@steggy/utilities';
 import {
   Button,
   Card,
   Divider,
+  notification,
   Popconfirm,
   Radio,
   Slider,
   Space,
   Spin,
   Switch,
+  Typography,
 } from 'antd';
 import React from 'react';
 
@@ -255,6 +254,19 @@ export class FanEntityCard extends React.Component<
     const entity = await sendRequest<FanStateDTO>({
       url: `/entity/id/${this.ref}`,
     });
+    if (is.undefined(entity.attributes)) {
+      notification.open({
+        description: (
+          <Typography>
+            {`Server returned bad response. Verify that `}
+            <Typography.Text code>{this.ref}</Typography.Text> still exists?
+          </Typography>
+        ),
+        message: 'Entity not found',
+        type: 'error',
+      });
+      return;
+    }
     this.load(entity);
   }
 

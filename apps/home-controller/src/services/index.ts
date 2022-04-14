@@ -3,6 +3,7 @@ export * from './availability-monitor.service';
 export * from './chrono.service';
 export * from './commands';
 export * from './entity-command-router.service';
+export * from './entity-rename.service';
 export * from './groups';
 export * from './lighting';
 export * from './metadata.service';

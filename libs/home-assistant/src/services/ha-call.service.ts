@@ -39,14 +39,14 @@ export class HACallService {
     ) {
       return;
     }
-    // Here for sanity checking, but too spammy to leave on
+    // Here for sanity checking, but too noisy to leave on
     // this.logger.debug({
     //   domain,
     //   service,
     //   service_data,
     //   type: HASSIO_WS_COMMAND.call_service,
     // });
-    return await this.socketService.sendMsg<T>(
+    return await this.socketService.sendMessage<T>(
       {
         domain,
         service,
@@ -72,7 +72,7 @@ export class HACallService {
     topic: string,
     payload: Record<string, unknown>,
   ): Promise<T> {
-    return await this.socketService.sendMsg<T>({
+    return await this.socketService.sendMessage<T>({
       domain: HASS_DOMAINS.mqtt,
       service: 'publish',
       service_data: {
@@ -107,7 +107,7 @@ export class HACallService {
   public async updateEntity(
     entityId: string | string[],
   ): Promise<HASS_DOMAINS> {
-    return await this.socketService.sendMsg({
+    return await this.socketService.sendMessage({
       domain: HASS_DOMAINS.homeassistant,
       service: 'update_entity',
       service_data: {

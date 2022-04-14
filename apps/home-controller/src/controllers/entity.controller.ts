@@ -14,6 +14,7 @@ import { AutoLogService } from '@steggy/boilerplate';
 import {
   EntityHistoryRequest,
   RoomEntitySaveStateDTO,
+  UpdateEntityIdDTO,
 } from '@steggy/controller-shared';
 import {
   EntityManagerService,
@@ -34,6 +35,7 @@ import {
 
 import {
   EntityCommandRouterService,
+  EntityRenameService,
   LightManagerService,
   MetadataService,
 } from '../services';
@@ -48,6 +50,7 @@ export class EntityController {
     private readonly fetchAPI: HomeAssistantFetchAPIService,
     private readonly lightManager: LightManagerService,
     private readonly logger: AutoLogService,
+    private readonly entityRename: EntityRenameService,
     private readonly metadataService: MetadataService,
   ) {}
 
@@ -72,18 +75,17 @@ export class EntityController {
     description: `Update an entity id in the home assistant registry`,
   })
   public async changeId(
-    @Body() { updateId }: Record<'updateId', string>,
+    @Body() update: UpdateEntityIdDTO,
     @Param('id') entityId: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    const result = await this.entityManager.updateId(entityId, updateId);
-    this.logger.info({ result });
+    await this.entityRename.changeId(entityId, update);
     return GENERIC_SUCCESS_RESPONSE;
   }
 
   @Get(`/registry/:id`)
   @ApiResponse({ type: EntityRegistryItemDTO })
   @ApiOperation({
-    description: `Retreive entity regristry data`,
+    description: `Retrieve entity registry data`,
   })
   public async fromRegistry(
     @Param('id') id: string,

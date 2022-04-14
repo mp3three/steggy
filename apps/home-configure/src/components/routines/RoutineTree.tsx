@@ -188,7 +188,11 @@ export class RoutineTree extends React.Component<
         );
         return;
       }
-      if (is.empty(item.children)) {
+      if (
+        is.empty(item.children) ||
+        !is.empty(routine.command) ||
+        !is.empty(routine.activate)
+      ) {
         // If the server will attempt to mount + reject, warn
         item.title =
           is.empty(routine.command) || is.empty(routine.activate) ? (

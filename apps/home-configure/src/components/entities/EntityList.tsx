@@ -7,7 +7,17 @@ import {
   START,
   UP,
 } from '@steggy/utilities';
-import { Button, Card, Col, Input, Layout, List, Row } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Input,
+  Layout,
+  List,
+  notification,
+  Row,
+  Typography,
+} from 'antd';
 import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
 import React from 'react';
@@ -26,8 +36,6 @@ const TEMP_TEMPLATE_SIZE = 3;
 
 export class EntityList extends React.Component {
   override state = { entities: [], flags: [], search: [] } as tState;
-
-  private inspect: EntityInspect;
 
   override async componentDidMount(): Promise<void> {
     await this.refresh();
@@ -69,9 +77,9 @@ export class EntityList extends React.Component {
             </Col>
             <Col span={12}>
               <EntityInspect
-                ref={i => (this.inspect = i)}
                 entity={this.state.entity}
                 flags={this.state.flags}
+                onRename={name => this.onRename(name)}
                 onFlagsUpdate={flags => this.setState({ flags })}
               />
             </Col>
@@ -132,6 +140,20 @@ export class EntityList extends React.Component {
           const entity = await sendRequest<HassStateDTO>({
             url: `/entity/id/${entity_id}`,
           });
+          if (is.undefined(entity.attributes)) {
+            notification.open({
+              description: (
+                <Typography>
+                  {`Server returned bad response. Verify that `}
+                  <Typography.Text code>{entity_id}</Typography.Text> still
+                  exists?
+                </Typography>
+              ),
+              message: 'Entity not found',
+              type: 'error',
+            });
+            return;
+          }
           this.setState({ entity });
         },
         async () => {
@@ -144,10 +166,15 @@ export class EntityList extends React.Component {
     );
   }
 
+  private async onRename(name: string): Promise<void> {
+    await this.refresh();
+    await this.load(name);
+  }
+
   private async refresh(): Promise<void> {
-    const entities = (await sendRequest<string[]>({ url: `/entity/list` }))
-      // .filter(i => domain(i) === 'light')
-      .sort((a, b) => (a > b ? UP : DOWN));
+    const entities = (
+      await sendRequest<string[]>({ url: `/entity/list` })
+    ).sort((a, b) => (a > b ? UP : DOWN));
     this.setState({
       entities,
       search: entities.map(i => ({ text: i, value: i })),

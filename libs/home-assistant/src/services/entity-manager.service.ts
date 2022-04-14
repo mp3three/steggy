@@ -1,12 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import {
-  AutoLogService,
-  InjectConfig,
-  OnEvent,
-} from '@steggy/boilerplate';
+import { AutoLogService, InjectConfig, OnEvent } from '@steggy/boilerplate';
 import {
   ALL_ENTITIES_UPDATED,
-  CapbilityList,
+  CapabilityList,
   domain,
   EntityRegistryItemDTO,
   HA_EVENT_STATE_CHANGE,
@@ -29,7 +25,7 @@ const TIMEOUT = 5;
  * Global entity tracking, the source of truth for anything needing to retrieve the current state of anything
  *
  * Keeps a local cache of all observed entities with the most up to date state available.
- * Observables can be retrieved for monitoring a single entity's state.
+ * An observable can be retrieved for monitoring a single entity's state.
  */
 @Injectable()
 export class EntityManagerService {
@@ -57,9 +53,9 @@ export class EntityManagerService {
   }
 
   public async fromRegistry<
-    CAPABILITIES extends CapbilityList = Record<string, unknown>,
+    CAPABILITIES extends CapabilityList = Record<string, unknown>,
   >(entity_id: string): Promise<EntityRegistryItemDTO<CAPABILITIES>> {
-    const out = await this.socketService.sendMsg<
+    const out = await this.socketService.sendMessage<
       EntityRegistryItemDTO<CAPABILITIES>
     >({
       entity_id,
@@ -87,9 +83,8 @@ export class EntityManagerService {
   }
 
   /**
-   * Retrieve an onbservable that contains an entity's state
+   * Retrieve an observable that contains an entity's state
    */
-
   public getObservable<T extends HassStateDTO = HassStateDTO>(
     entityId: string,
   ): Observable<T> {
@@ -194,7 +189,7 @@ export class EntityManagerService {
   protected async socketReady(): Promise<void> {
     const run = await Promise.race([
       async () => {
-        const entities = await this.socketService.getAllEntitities();
+        const entities = await this.socketService.getAllEntities();
         return !is.empty(entities);
       },
       async () => {

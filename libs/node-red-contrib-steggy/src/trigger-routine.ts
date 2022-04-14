@@ -5,15 +5,15 @@ import { ControllerConfiguration } from './types';
 import { sendRequest } from './types/fetch';
 
 type tServer = Node & ControllerConfiguration;
-type TriggerOptions = { repeat: boolean; routine: string };
-type Payload = { repeat: boolean; routine: string };
+type TriggerOptions = { repeat: string; routine: string };
+type Payload = { repeat: string; routine: string };
 
 module.exports = function (RED: NodeAPI) {
   RED.nodes.registerType(
     'trigger-routine',
     function TriggerRoutineNode(
       this: Node & TriggerOptions,
-      config: NodeDef & { server: string },
+      config: NodeDef & { server: string } & Payload,
     ) {
       RED.nodes.createNode(this, config);
 
@@ -30,13 +30,15 @@ module.exports = function (RED: NodeAPI) {
 
       this.on('input', async message => {
         const payload = message.payload as Payload;
-        const routine = payload.routine || this.routine;
-        const bypassRepeat = payload.repeat ?? this.repeat;
+        const routine = payload.routine || this.routine || config.routine;
+        const bypassRepeat = payload.repeat ?? this.repeat ?? config.repeat;
         if (is.empty(routine)) {
           this.error('Cannot identify routine to activate');
           return;
         }
-        await activate(routine, { bypassRepeat });
+        await activate(routine, {
+          bypassRepeat: bypassRepeat === 'false' ? false : true,
+        });
       });
     },
   );

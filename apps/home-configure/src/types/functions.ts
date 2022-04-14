@@ -59,7 +59,7 @@ sendRequest.BASE_URL = localStorage.getItem(BASE_URL);
  * This should come from home-assistant-shared, but doing so makes webpack shit a brick for no reason
  */
 export function split(
-  entity: { entity_id: string } | string,
+  entity: { entity_id: string } | string = '',
 ): [HASS_DOMAINS, string] {
   if (is.object(entity)) {
     entity = entity.entity_id;

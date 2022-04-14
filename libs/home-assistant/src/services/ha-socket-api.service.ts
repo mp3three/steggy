@@ -67,9 +67,9 @@ export class HASocketAPIService {
    *
    * This can be a pretty big list
    */
-  public async getAllEntitities(): Promise<HassStateDTO[]> {
+  public async getAllEntities(): Promise<HassStateDTO[]> {
     this.logger.debug('Update all entities');
-    const states = await this.sendMsg<HassStateDTO[]>({
+    const states = await this.sendMessage<HassStateDTO[]>({
       type: HASSIO_WS_COMMAND.get_states,
     });
     this.eventEmitter.emit(ALL_ENTITIES_UPDATED, states);
@@ -78,37 +78,37 @@ export class HASocketAPIService {
   }
 
   public async getAreas(): Promise<AreaDTO[]> {
-    return await this.sendMsg({
+    return await this.sendMessage({
       type: HASSIO_WS_COMMAND.area_list,
     });
   }
 
   public async getConfig(): Promise<HassConfig> {
-    return await this.sendMsg({
+    return await this.sendMessage({
       type: HASSIO_WS_COMMAND.get_config,
     });
   }
 
   public async getNotifications(): Promise<HassNotificationDTO[]> {
-    return await this.sendMsg({
+    return await this.sendMessage({
       type: HASSIO_WS_COMMAND.persistent_notification,
     });
   }
 
   public async listDevices(): Promise<DeviceListItemDTO[]> {
-    return await this.sendMsg({
+    return await this.sendMessage({
       type: HASSIO_WS_COMMAND.device_list,
     });
   }
 
   public async listEntities(): Promise<EntityListItemDTO[]> {
-    return await this.sendMsg({
+    return await this.sendMessage({
       type: HASSIO_WS_COMMAND.entity_list,
     });
   }
 
   public async renderTemplate(template: string): Promise<string> {
-    const out: string = await this.sendMsg({
+    const out: string = await this.sendMessage({
       template,
       timeout: this.renderTimeout,
       type: HASSIO_WS_COMMAND.render_template,
@@ -120,7 +120,7 @@ export class HASocketAPIService {
    * Send a message to HomeAssistant. Optionally, wait for a reply to come back & return
    */
 
-  public async sendMsg<T extends unknown = unknown>(
+  public async sendMessage<T extends unknown = unknown>(
     data: SOCKET_MESSAGES,
     waitForResponse = true,
   ): Promise<T> {
@@ -149,7 +149,7 @@ export class HASocketAPIService {
     entity: string,
     data: { name?: string; new_entity_id?: string },
   ): Promise<unknown> {
-    return await this.sendMsg({
+    return await this.sendMessage({
       area_id: null,
       entity_id: entity,
       icon: null,
@@ -171,8 +171,6 @@ export class HASocketAPIService {
 
   @Cron(CronExpression.EVERY_10_SECONDS)
   protected async ping(): Promise<void> {
-    // Race conditions where ping fires before socket finishes it's init is freakily common
-    // Doesn't actually hurt anything, but it leaves an annoying boot error message
     if (!this.CONNECTION_ACTIVE) {
       return;
     }
@@ -180,7 +178,7 @@ export class HASocketAPIService {
     // Prune old data
     MESSAGE_TIMESTAMPS = MESSAGE_TIMESTAMPS.filter(time => time > now - SECOND);
     try {
-      const pong = await this.sendMsg({
+      const pong = await this.sendMessage({
         type: HASSIO_WS_COMMAND.ping,
       });
       if (pong) {
@@ -288,7 +286,7 @@ export class HASocketAPIService {
         this.CONNECTION_ACTIVE = true;
         clearTimeout(this.AUTH_TIMEOUT);
         this.logger.debug(`subscribe_events`);
-        await this.sendMsg({
+        await this.sendMessage({
           type: HASSIO_WS_COMMAND.subscribe_events,
         });
         this.logger.info('🏡 Home Assistant socket ready 🏡');
@@ -363,7 +361,7 @@ export class HASocketAPIService {
       this.logger.error(`Did not receive an auth response, retrying`);
       this.sendAuth();
     }, this.retryInterval);
-    await this.sendMsg({
+    await this.sendMessage({
       access_token: this.token,
       type: HASSIO_WS_COMMAND.auth,
     });

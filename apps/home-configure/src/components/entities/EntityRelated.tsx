@@ -19,10 +19,7 @@ type tState = {
   routines?: RoutineDTO[];
 };
 
-export class RelatedRoutines extends React.Component<
-  { entity?: string },
-  tState
-> {
+export class EntityRelated extends React.Component<{ entity: string }, tState> {
   override state = { routines: [] } as tState;
   private currentEntity: string;
 
@@ -142,6 +139,10 @@ export class RelatedRoutines extends React.Component<
   }
 
   private async refresh(): Promise<void> {
+    if (this.props.entity === this.currentEntity) {
+      return;
+    }
+    this.currentEntity = this.props.entity;
     await Promise.all([
       (async () => {
         const rooms = await sendRequest<RoomDTO[]>({

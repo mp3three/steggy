@@ -2,7 +2,17 @@ import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
 import { LockStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
-import { Button, Card, Popconfirm, Radio, Space, Spin, Switch } from 'antd';
+import {
+  Button,
+  Card,
+  notification,
+  Popconfirm,
+  Radio,
+  Space,
+  Spin,
+  Switch,
+  Typography,
+} from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
@@ -129,6 +139,19 @@ export class LockEntityCard extends React.Component<
     const entity = await sendRequest<LockStateDTO>({
       url: `/entity/id/${this.ref}`,
     });
+    if (is.undefined(entity.attributes)) {
+      notification.open({
+        description: (
+          <Typography>
+            {`Server returned bad response. Verify that `}
+            <Typography.Text code>{this.ref}</Typography.Text> still exists?
+          </Typography>
+        ),
+        message: 'Entity not found',
+        type: 'error',
+      });
+      return;
+    }
     this.setState({
       friendly_name: entity.attributes.friendly_name,
       state: entity.state,

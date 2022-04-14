@@ -1,11 +1,16 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
-import {
-  HassStateDTO,
-  LightStateDTO,
-} from '@steggy/home-assistant-shared';
+import { HassStateDTO, LightStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
-import { Button, Card, Popconfirm, Popover, Spin, Typography } from 'antd';
+import {
+  Button,
+  Card,
+  notification,
+  Popconfirm,
+  Popover,
+  Spin,
+  Typography,
+} from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
@@ -75,6 +80,19 @@ export class EntityCard extends React.Component<
     const entity = await sendRequest<LightStateDTO>({
       url: `/entity/id/${this.ref}`,
     });
+    if (is.undefined(entity.attributes)) {
+      notification.open({
+        description: (
+          <Typography>
+            {`Server returned bad response. Verify that `}
+            <Typography.Text code>{this.ref}</Typography.Text> still exists?
+          </Typography>
+        ),
+        message: 'Entity not found',
+        type: 'error',
+      });
+      return;
+    }
     this.setState({ friendly_name: entity.attributes.friendly_name });
   }
 

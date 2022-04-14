@@ -1,6 +1,6 @@
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
-import { Button, Drawer } from 'antd';
+import { Button, Drawer, notification, Typography } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
@@ -49,6 +49,22 @@ export class EntityInspectButton extends React.Component<
           const entity = await sendRequest<HassStateDTO>({
             url: `/entity/id/${this.props.entity_id}`,
           });
+          if (is.undefined(entity.attributes)) {
+            notification.open({
+              description: (
+                <Typography>
+                  {`Server returned bad response. Verify that `}
+                  <Typography.Text code>
+                    {this.props.entity_id}
+                  </Typography.Text>{' '}
+                  still exists?
+                </Typography>
+              ),
+              message: 'Entity not found',
+              type: 'error',
+            });
+            return;
+          }
           this.setState({ entity });
         },
         async () => {

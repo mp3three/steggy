@@ -10,6 +10,7 @@ import {
   Button,
   Card,
   Divider,
+  notification,
   Popconfirm,
   Radio,
   Skeleton,
@@ -279,7 +280,20 @@ export class LightEntityCard extends React.Component<
     const entity = await sendRequest<LightStateDTO>({
       url: `/entity/id/${this.ref}`,
     });
-    this.setState({ friendly_name: entity.attributes.friendly_name });
+    if (is.undefined(entity.attributes)) {
+      notification.open({
+        description: (
+          <Typography>
+            {`Server returned bad response. Verify that `}
+            <Typography.Text code>{this.ref}</Typography.Text> still exists?
+          </Typography>
+        ),
+        message: 'Entity not found',
+        type: 'error',
+      });
+      return;
+    }
+    this.setState({ friendly_name: entity?.attributes?.friendly_name });
     if (this.props.selfContained) {
       this.setState({
         brightness: entity.attributes.brightness,

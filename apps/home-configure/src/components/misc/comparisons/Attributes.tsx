@@ -1,7 +1,7 @@
 import { RoutineAttributeComparisonDTO } from '@steggy/controller-shared';
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
-import { Card, Form, Input } from 'antd';
+import { Card, Form, Input, notification, Typography } from 'antd';
 import { dump } from 'js-yaml';
 import React from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
@@ -84,10 +84,23 @@ export class AttributeComparison extends React.Component<
   }
 
   private async loadEntity(entity_id: string) {
-    const state = await sendRequest<HassStateDTO>({
+    const entity = await sendRequest<HassStateDTO>({
       url: `/entity/id/${entity_id}`,
     });
-    this.setState({ state });
+    if (is.undefined(entity.attributes)) {
+      notification.open({
+        description: (
+          <Typography>
+            {`Server returned bad response. Verify that `}
+            <Typography.Text code>{entity_id}</Typography.Text> still exists?
+          </Typography>
+        ),
+        message: 'Entity not found',
+        type: 'error',
+      });
+      return;
+    }
+    this.setState({ state: entity });
     this.props.onUpdate({ entity_id });
   }
 }

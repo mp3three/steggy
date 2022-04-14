@@ -1,10 +1,14 @@
+import MenuIcon from '@2fd/ant-design-icons/lib/Menu';
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import {
+  Button,
   Card,
   Checkbox,
   Divider,
+  Dropdown,
   Empty,
+  Menu,
   Space,
   Tabs,
   Tooltip,
@@ -16,7 +20,8 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import { domain, sendRequest } from '../../types';
-import { RelatedRoutines } from '../routines';
+import { EntityIdChange } from './EntityIdChange';
+import { EntityRelated } from './EntityRelated';
 import { FanEntityCard } from './FanEntityCard';
 import { LightEntityCard } from './LightEntityCard';
 import { SwitchEntityCard } from './SwitchEntityCard';
@@ -25,6 +30,7 @@ export class EntityInspect extends React.Component<{
   entity: HassStateDTO;
   flags: string[];
   onFlagsUpdate?: (flags: string[]) => void;
+  onRename?: (name: string) => void;
 }> {
   override render() {
     return is.undefined(this.props?.entity) ? (
@@ -33,9 +39,28 @@ export class EntityInspect extends React.Component<{
       </Card>
     ) : (
       <Card
+        extra={
+          <Dropdown
+            placement="bottomRight"
+            overlay={
+              <Menu>
+                <Menu.Item>
+                  <EntityIdChange
+                    entity={this.props.entity?.entity_id}
+                    onRename={name => this.props.onRename(name)}
+                  />
+                </Menu.Item>
+              </Menu>
+            }
+          >
+            <Button type="text">
+              <MenuIcon />
+            </Button>
+          </Dropdown>
+        }
         title={
           <>
-            {this.props.entity.attributes.friendly_name}
+            {this.props.entity?.attributes?.friendly_name}
             <Typography.Text code style={{ marginLeft: '8px' }}>
               {this.props.entity.entity_id}
             </Typography.Text>
@@ -50,7 +75,7 @@ export class EntityInspect extends React.Component<{
             {this.editor()}
           </Tabs.TabPane>
           <Tabs.TabPane key="used_in" tab="Used In">
-            <RelatedRoutines entity={this.props?.entity?.entity_id} />
+            <EntityRelated entity={this.props?.entity?.entity_id} />
           </Tabs.TabPane>
           <Tabs.TabPane key="flags" tab="Flags">
             {this.flags()}
@@ -62,7 +87,10 @@ export class EntityInspect extends React.Component<{
 
   private editor() {
     const { entity } = this.props;
-    switch (domain(entity.entity_id)) {
+    if (!entity?.entity_id) {
+      return undefined;
+    }
+    switch (domain(entity?.entity_id)) {
       case 'light':
         return (
           <>

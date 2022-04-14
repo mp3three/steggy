@@ -3,10 +3,10 @@ import { IsObject, IsString } from 'class-validator';
 
 import { LightCapabilities } from './entities';
 
-export type CapbilityList = LightCapabilities | Record<string, unknown>;
+export type CapabilityList = LightCapabilities | Record<string, unknown>;
 
 export class EntityRegistryItemDTO<
-  CAPABILITIES extends CapbilityList = Record<string, unknown>,
+  CAPABILITIES extends CapabilityList = Record<string, unknown>,
 > {
   @IsString()
   @ApiProperty()

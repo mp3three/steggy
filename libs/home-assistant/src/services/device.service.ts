@@ -22,7 +22,7 @@ export class DeviceService {
     device: DeviceListItemDTO | string,
   ): Promise<RelatedDescriptionDTO> {
     device = is.string(device) ? device : device.id;
-    return await this.socketService.sendMsg<RelatedDescriptionDTO>({
+    return await this.socketService.sendMessage<RelatedDescriptionDTO>({
       item_id: device,
       item_type: 'device',
       type: HASSIO_WS_COMMAND.search_related,
@@ -30,7 +30,7 @@ export class DeviceService {
   }
 
   public async list(): Promise<DeviceListItemDTO[]> {
-    return await this.socketService.sendMsg({
+    return await this.socketService.sendMessage({
       type: HASSIO_WS_COMMAND.device_list,
     });
   }

@@ -70,6 +70,9 @@ export class RoutineController {
     @Param('routine') routine: string,
     @Body() options: RoutineActivateOptionsDTO,
   ): typeof GENERIC_SUCCESS_RESPONSE {
+    // if( options.bypassRepeat === 'false') {
+    // options
+    // }
     process.nextTick(
       async () => await this.routineService.activateRoutine(routine, options),
     );

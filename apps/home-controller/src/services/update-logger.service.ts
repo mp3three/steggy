@@ -23,7 +23,7 @@ export class UpdateLoggerService {
   protected async onApplicationBootstrap(): Promise<void> {
     this.entities = await this.metadataPersistence.findWithFlag(DEBUG_LOG);
     if (is.empty(this.entities)) {
-      this.logger.info(`No entitites to log changes for`);
+      this.logger.info(`No entities to log changes for`);
       return;
     }
     this.logger.info(`Watching {${this.entities.length}} entities for changes`);
@@ -33,7 +33,7 @@ export class UpdateLoggerService {
   @OnEvent(HA_EVENT_STATE_CHANGE)
   protected onEntityUpdate({ data }: HassEventDTO): void {
     const { new_state } = data;
-    if (!this.entities.includes(new_state.entity_id)) {
+    if (!this.entities.includes(new_state?.entity_id)) {
       return;
     }
     this.logger.debug(
