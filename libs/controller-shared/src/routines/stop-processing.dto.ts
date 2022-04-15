@@ -82,10 +82,18 @@ export type STOP_PROCESSING_DEFINITIONS =
   | RoomMetadataComparisonDTO
   | RoutineRelativeDateComparisonDTO;
 
-export class RoutineComparisonDTO {
+export class RoutineComparisonDTO<
+  TYPE =
+    | RoutineStateComparisonDTO
+    | RoutineAttributeComparisonDTO
+    | RoutineWebhookComparisonDTO
+    | RoutineTemplateComparisonDTO
+    | RoomMetadataComparisonDTO
+    | RoutineRelativeDateComparisonDTO,
+> {
   @ValidateNested()
   @ApiProperty()
-  public comparison: STOP_PROCESSING_DEFINITIONS;
+  public comparison: TYPE;
   @IsString()
   @ApiProperty()
   public friendlyName: string;
@@ -97,10 +105,10 @@ export class RoutineComparisonDTO {
   public type: STOP_PROCESSING_TYPE;
 }
 
-export class RoutineCommandStopProcessingDTO {
+export class RoutineCommandStopProcessingDTO<T = STOP_PROCESSING_DEFINITIONS> {
   @ValidateNested()
   @ApiProperty()
-  public comparisons: RoutineComparisonDTO[];
+  public comparisons: RoutineComparisonDTO<T>[];
   @IsEnum(['all', 'any'])
   @ApiProperty()
   public mode: 'all' | 'any';

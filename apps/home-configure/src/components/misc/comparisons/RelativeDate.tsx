@@ -17,7 +17,8 @@ export class RelativeDate extends React.Component<{
               title={
                 <Typography>
                   <Typography.Paragraph>
-                    <Typography.Text code>before</Typography.Text> /{' '}
+                    <Typography.Text code>before</Typography.Text>
+                    {' / '}
                     <Typography.Text code>after</Typography.Text>: if the
                     expression results in a range, start date is used
                   </Typography.Paragraph>

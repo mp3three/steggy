@@ -54,10 +54,8 @@ export class EntityInspectButton extends React.Component<
               description: (
                 <Typography>
                   {`Server returned bad response. Verify that `}
-                  <Typography.Text code>
-                    {this.props.entity_id}
-                  </Typography.Text>{' '}
-                  still exists?
+                  <Typography.Text code>{this.props.entity_id}</Typography.Text>
+                  {' still exists?'}
                 </Typography>
               ),
               message: 'Entity not found',

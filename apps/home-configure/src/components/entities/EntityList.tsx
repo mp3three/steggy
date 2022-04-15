@@ -31,6 +31,7 @@ type tState = {
   entity_id: string;
   flags?: string[];
   search: { text: string; value: string }[];
+  searchText: string;
 };
 const TEMP_TEMPLATE_SIZE = 3;
 
@@ -169,6 +170,9 @@ export class EntityList extends React.Component {
   private async onRename(name: string): Promise<void> {
     await this.refresh();
     await this.load(name);
+    if (!is.empty(this.state.searchText)) {
+      this.updateSearch(this.state.searchText);
+    }
   }
 
   private async refresh(): Promise<void> {
@@ -199,6 +203,6 @@ export class EntityList extends React.Component {
         value: value.text,
       };
     });
-    this.setState({ search });
+    this.setState({ search, searchText });
   }
 }

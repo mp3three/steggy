@@ -24,14 +24,7 @@ import {
   LightAttributesDTO,
   LightStateDTO,
 } from '@steggy/home-assistant-shared';
-import {
-  DOWN,
-  each,
-  INVERT_VALUE,
-  is,
-  PERCENT,
-  UP,
-} from '@steggy/utilities';
+import { DOWN, each, INVERT_VALUE, is, PERCENT, UP } from '@steggy/utilities';
 
 import { MIN_BRIGHTNESS, SAFE_MODE } from '../../config';
 import { ENTITY_METADATA_UPDATED } from '../../typings';
@@ -271,7 +264,7 @@ export class LightManagerService {
     ];
   }
 
-  @OnEvent(ENTITY_METADATA_UPDATED)
+  @OnEvent(ENTITY_METADATA_UPDATED(LIGHT_FORCE_CIRCADIAN))
   private async refreshForceList(): Promise<void> {
     this.FORCE_CIRCADIAN = await this.metadataService.findWithFlag(
       LIGHT_FORCE_CIRCADIAN,

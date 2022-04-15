@@ -11,6 +11,8 @@ import dayjs from 'dayjs';
 import { existsSync, readFileSync } from 'fs';
 import { sign } from 'jsonwebtoken';
 
+/* eslint-disable spellcheck/spell-checker */
+
 @QuickScript({
   application: Symbol('offline-license'),
 })

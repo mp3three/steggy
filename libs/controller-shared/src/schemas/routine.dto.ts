@@ -116,7 +116,7 @@ export class RoutineDTO {
   public sync?: boolean;
 }
 
-export type RountineDocument = RoutineDTO & Document;
+export type RoutineDocument = RoutineDTO & Document;
 export const RoutineSchema = SchemaFactory.createForClass(RoutineDTO);
 RoutineSchema.index({ deleted: 1 });
 RoutineSchema.index({ deleted: 1, friendlyName: 1 });

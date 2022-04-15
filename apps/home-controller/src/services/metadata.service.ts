@@ -33,9 +33,7 @@ export class MetadataService {
     if (!result.data.flags.includes(flag)) {
       result.data.flags.push(flag);
     }
-    const out = await this.metadataPersistence.save<EntityMetadata>(result);
-    process.nextTick(() => this.eventEmitter.emit(ENTITY_METADATA_UPDATED));
-    return out;
+    return await this.save(flag, result);
   }
 
   public async create<T>(value: MetadataDTO<T>): Promise<MetadataDTO<T>> {
@@ -49,7 +47,9 @@ export class MetadataService {
         { field: 'type', value: METADATA_TYPE },
       ]),
     });
-    return list.map(({ data }) => data.entity);
+    return list
+      .map(({ data }) => data.entity)
+      .filter((item, index, array) => array.indexOf(item) === index);
   }
 
   public async getMetadata(
@@ -68,9 +68,7 @@ export class MetadataService {
     result.data ??= { entity };
     result.data.flags ??= [];
     result.data.flags = result.data.flags.filter(i => i !== flag);
-    const out = await this.metadataPersistence.save(result);
-    process.nextTick(() => this.eventEmitter.emit(ENTITY_METADATA_UPDATED));
-    return out;
+    return await this.save(flag, result);
   }
 
   private async findByEntityId(
@@ -84,5 +82,16 @@ export class MetadataService {
       limit: SINGLE,
     });
     return search;
+  }
+
+  private async save(
+    flag: string,
+    metadata: MetadataDTO<EntityMetadata>,
+  ): Promise<MetadataDTO<EntityMetadata>> {
+    const out = await this.metadataPersistence.save<EntityMetadata>(metadata);
+    process.nextTick(() =>
+      this.eventEmitter.emit(ENTITY_METADATA_UPDATED(flag)),
+    );
+    return out;
   }
 }

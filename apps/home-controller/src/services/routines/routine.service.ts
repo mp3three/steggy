@@ -279,7 +279,11 @@ export class RoutineService {
     }
     this.logger.debug(`[${routine.friendlyName}] building`);
     routine.activate.forEach(activate => {
-      this.logger.debug(` - ${activate.friendlyName}`);
+      if (!activate.activate) {
+        this.logger.error(` - {${activate.friendlyName} }INVALID`);
+        return;
+      }
+      this.logger.debug(` - {${activate.friendlyName}}`);
       switch (activate.type) {
         case ROUTINE_ACTIVATE_TYPE.attribute:
           this.attributeChangeService.watch(

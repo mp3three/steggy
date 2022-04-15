@@ -35,8 +35,8 @@ export class EntityManagerService {
     private readonly socketService: HASocketAPIService,
     private readonly eventEmitter: EventEmitter,
   ) {}
+  public readonly ENTITIES = new Map<string, HassStateDTO>();
   public readonly WATCHERS = new Map<string, unknown[]>();
-  private readonly ENTITIES = new Map<string, HassStateDTO>();
   private readonly OBSERVABLES = new Map<string, Observable<HassStateDTO>>();
   private readonly SUBSCRIBERS = new Map<string, Subscriber<HassStateDTO>>();
 
@@ -49,7 +49,7 @@ export class EntityManagerService {
         out.push(state as T);
       }
     });
-    return out;
+    return out.filter(i => is.object(i));
   }
 
   public async fromRegistry<
@@ -137,7 +137,6 @@ export class EntityManagerService {
     entityId: string,
     newEntityId: string,
   ): Promise<unknown> {
-    this.ENTITIES.set(newEntityId, this.ENTITIES.get(entityId));
     this.ENTITIES.delete(entityId);
     return await this.socketService.updateEntity(entityId, {
       new_entity_id: newEntityId,
@@ -174,7 +173,10 @@ export class EntityManagerService {
   protected onUpdate(event: HassEventDTO): void {
     const { entity_id, new_state } = event.data;
     if (this.WATCHERS.has(entity_id)) {
-      this.logger.debug(`[${entity_id}] state change {${new_state.state}}`);
+      this.logger.debug(
+        { attributes: new_state.attributes },
+        `[${entity_id}] state change {${new_state.state}}`,
+      );
       this.WATCHERS.get(entity_id).push(new_state.state);
       return;
     }

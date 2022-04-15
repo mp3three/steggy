@@ -19,7 +19,7 @@ export class UpdateLoggerService {
 
   private entities: string[] = [];
 
-  @OnEvent(ENTITY_METADATA_UPDATED)
+  @OnEvent(ENTITY_METADATA_UPDATED(DEBUG_LOG))
   protected async onApplicationBootstrap(): Promise<void> {
     this.entities = await this.metadataPersistence.findWithFlag(DEBUG_LOG);
     if (is.empty(this.entities)) {

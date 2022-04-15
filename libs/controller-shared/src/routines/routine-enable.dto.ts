@@ -1,6 +1,11 @@
-import { RoutineCommandStopProcessingDTO } from './stop-processing.dto';
+import {
+  RoutineCommandStopProcessingDTO,
+  STOP_PROCESSING_DEFINITIONS,
+} from './stop-processing.dto';
 
-export class RoutineEnableDTO extends RoutineCommandStopProcessingDTO {
+export class RoutineEnableDTO<
+  T = STOP_PROCESSING_DEFINITIONS,
+> extends RoutineCommandStopProcessingDTO<T> {
   /**
    * Re-check interval for items such as webhook tests
    */

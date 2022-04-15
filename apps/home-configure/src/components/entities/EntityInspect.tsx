@@ -121,9 +121,8 @@ export class EntityInspect extends React.Component<{
     const { entity, flags } = this.props;
 
     return (
-      <>
+      <Space direction="vertical" style={{ width: '100%' }}>
         <Divider orientation="left">Flags</Divider>
-        <Space direction="vertical"></Space>
         <Tooltip title="Add state / attribute changes to controller debug log">
           <Checkbox
             onChange={({ target }) =>
@@ -134,8 +133,26 @@ export class EntityInspect extends React.Component<{
             Log Changes
           </Checkbox>
         </Tooltip>
+        <Tooltip
+          title={
+            <Typography>
+              Don't include this entity on any entity lists by default. Does not
+              affect the processing of any logic, and entity will still appear
+              inside any rooms/groups/routines it is already part of.
+            </Typography>
+          }
+        >
+          <Checkbox
+            onChange={({ target }) =>
+              this.toggleFlag('IGNORE_ENTITY', target.checked)
+            }
+            checked={flags.includes('IGNORE_ENTITY')}
+          >
+            Ignore Entity
+          </Checkbox>
+        </Tooltip>
         {this.renderFlag(domain(entity))}
-      </>
+      </Space>
     );
   }
 

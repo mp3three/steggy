@@ -31,11 +31,14 @@ import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
+  Locals,
+  ResponseLocals,
 } from '@steggy/server';
 
 import {
   EntityCommandRouterService,
   EntityRenameService,
+  EntityService,
   LightManagerService,
   MetadataService,
 } from '../services';
@@ -52,6 +55,7 @@ export class EntityController {
     private readonly logger: AutoLogService,
     private readonly entityRename: EntityRenameService,
     private readonly metadataService: MetadataService,
+    private readonly entityService: EntityService,
   ) {}
 
   @Post(`/flags/:id`)
@@ -126,7 +130,18 @@ export class EntityController {
     schema: { items: { type: 'string' } },
   })
   @ApiOperation({
-    description: `List all known entity ids`,
+    description: `List not-ignored entity ids, supports result control.`,
+  })
+  public listAllEntities(@Locals() { control }: ResponseLocals): string[] {
+    return this.entityService.list(control).map(({ entity_id }) => entity_id);
+  }
+
+  @Get('/list-all')
+  @ApiResponse({
+    schema: { items: { type: 'string' } },
+  })
+  @ApiOperation({
+    description: `List all known entity ids. Provided as unfiltered list.`,
   })
   public listEntities(): string[] {
     return this.entityManager.listEntities();
