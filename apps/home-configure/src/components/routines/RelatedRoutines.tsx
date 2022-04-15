@@ -132,6 +132,7 @@ export class RelatedRoutines extends React.Component<
       rooms.forEach(room => {
         room.save_states ??= [];
         room.save_states.forEach(state => {
+          state.states ??= [];
           state.states.forEach(i => {
             if (i.type === 'group' && i.ref === this.props.groupState._id) {
               room_states.push({ room, state });

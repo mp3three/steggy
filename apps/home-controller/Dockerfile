@@ -3,8 +3,6 @@
 FROM node:16-alpine AS build
 WORKDIR /app
 RUN apk add git curl
-# Grab latest yarn
-RUN curl --compressed -o- -L https://yarnpkg.com/install.sh | sh
 
 # Build dev environment
 # Only copy necessary stuff for install up front to cache better
@@ -67,8 +65,7 @@ RUN adduser --disabled-password --gecos "" --ingroup node \
 
 # Add container deps
 ## More latest stuff.
-RUN sed -i -e 's/v[[:digit:]]\..*\//edge\//g' /etc/apk/repositories && \
-    apk add --upgrade nodejs npm curl
+RUN sed -i -e 's/v[[:digit:]]\..*\//edge\//g' /etc/apk/repositories && apk add --upgrade nodejs npm curl
 
 # Finalize
 USER node

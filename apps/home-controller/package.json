@@ -3,7 +3,7 @@
   "license": "MIT",
   "displayName": "Home Controller",
   "description": "[Visit the wiki](https://github.com/ccontour/steggy/wiki) for more information",
-  "version": "0.9.10",
+  "version": "0.9.11",
   "dependencies": {
     "pino-pretty": "^7.6.0"
   }
