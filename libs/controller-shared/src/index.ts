@@ -1,5 +1,6 @@
 export * from './animation.dto';
 export * from './constants';
+export * from './debug-report.dto';
 export * from './dto';
 export * from './entity-filters.dto';
 export * from './entity-history.dto';

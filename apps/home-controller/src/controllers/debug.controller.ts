@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { DebugReportDTO } from '@steggy/controller-shared';
 import {
   HACallService,
   HASocketAPIService,
@@ -13,7 +14,7 @@ import {
 } from '@steggy/server';
 
 import {
-  LightManagerService,
+  DebuggerService,
   NodeRedCommand,
   RoutineEnabledService,
   SolarCalcService,
@@ -24,7 +25,7 @@ import {
 @AuthStack()
 export class DebugController {
   constructor(
-    private readonly lightManger: LightManagerService,
+    private readonly debugService: DebuggerService,
     private readonly notification: NotifyDomainService,
     private readonly socketService: HASocketAPIService,
     private readonly solarCalc: SolarCalcService,
@@ -48,6 +49,12 @@ export class DebugController {
   @Get(`/enabled-routines`)
   public enabled(): string[] {
     return [...this.routineEnabled.ACTIVE_ROUTINES.values()];
+  }
+
+  @Get('/find-broken')
+  @ApiResponse({ type: [DebugReportDTO] })
+  public async findBroken(): Promise<DebugReportDTO> {
+    return await this.debugService.sanityCheck();
   }
 
   @Get('/location')

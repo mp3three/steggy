@@ -3,7 +3,7 @@ import { Card, Col, Form, Input, Layout, Row, Tabs } from 'antd';
 import React from 'react';
 
 import { ADMIN_KEY, BASE_URL, sendRequest } from '../../types';
-import { IntegrationSettings } from './IntegrationSettings';
+import { DebuggerSettings } from './DebuggerSettings';
 
 type tState = {
   BASE: string;
@@ -27,10 +27,13 @@ export class SettingsPage extends React.Component<
 
   override render() {
     return (
-      <Layout>
-        <Layout.Content style={{ padding: '16px' }}>
-          <Tabs tabPosition="left" style={{ marginTop: '16px' }}>
-            <Tabs.TabPane key="General" tab="General">
+      <Layout style={{ height: '100%' }}>
+        <Layout.Content style={{ height: '100%', padding: '16px' }}>
+          <Tabs
+            tabPosition="left"
+            style={{ marginTop: '16px', minHeight: '50%' }}
+          >
+            <Tabs.TabPane key="connection" tab="Connection">
               <Row>
                 <Col span={12}>
                   <Card title="Connection Settings" type="inner">
@@ -56,12 +59,19 @@ export class SettingsPage extends React.Component<
               </Row>
             </Tabs.TabPane>
             <Tabs.TabPane
+              key="debugger"
+              tab="Debugger"
+              disabled={is.empty(this.state.KEY)}
+            >
+              <DebuggerSettings />
+            </Tabs.TabPane>
+            {/* <Tabs.TabPane
               key="Integrations"
               tab="Integrations"
               disabled={is.empty(this.state.KEY)}
             >
               <IntegrationSettings />
-            </Tabs.TabPane>
+            </Tabs.TabPane> */}
           </Tabs>
         </Layout.Content>
       </Layout>
