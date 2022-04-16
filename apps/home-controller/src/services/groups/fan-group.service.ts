@@ -96,6 +96,10 @@ export class FanGroupService extends BaseGroupService {
   ): Promise<SaveState[]> {
     return await group.entities.map(id => {
       const fan = this.entityManager.getEntity<FanStateDTO>(id);
+      if (!fan) {
+        this.logger.warn(`[${group.friendlyName}] missing entity {${id}}`);
+        return { ref: id };
+      }
       return {
         extra: {
           speed: fan.attributes.speed,

@@ -72,7 +72,10 @@ export class HASocketAPIService {
     const states = await this.sendMessage<HassStateDTO[]>({
       type: HASSIO_WS_COMMAND.get_states,
     });
+    // NOT SURE IF IT MAKES IT TO HERE YET
+    this.logger.debug('Received all entity update');
     this.eventEmitter.emit(ALL_ENTITIES_UPDATED, states);
+    // DEFINITELY DOES NOT MAKE IT HERE
     this.logger.info('🎆 All entities updated 🎆');
     return states;
   }

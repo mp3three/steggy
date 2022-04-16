@@ -9,6 +9,7 @@ import {
   RoomMetadataComparisonDTO,
   RoutineActivateDTO,
   RoutineCommandGroupActionDTO,
+  RoutineCommandGroupStateDTO,
   RoutineCommandRoomStateDTO,
   RoutineCommandStopProcessingDTO,
   RoutineCommandTriggerRoutineDTO,
@@ -138,6 +139,25 @@ export class DebuggerService {
                   (command.command as RoutineCommandGroupActionDTO).group
                 }}`,
               );
+            } else if (command.type === 'group_state') {
+              const group = groupList.find(
+                ({ _id }) =>
+                  _id ===
+                  (command.command as RoutineCommandGroupActionDTO).group,
+              );
+              exists = group.save_states.some(
+                ({ id }) =>
+                  id === (command.command as RoutineCommandGroupStateDTO).state,
+              );
+              if (!exists) {
+                this.logger.warn(
+                  `Routine command [${routine.friendlyName}]>[${
+                    command.friendlyName
+                  }] refers to missing state {${
+                    (command.command as RoutineCommandGroupStateDTO).state
+                  }} in group [${group.friendlyName}]`,
+                );
+              }
             }
             return exists;
 
@@ -203,7 +223,7 @@ export class DebuggerService {
                 `Routine command [${routine.friendlyName}]>[${
                   command.friendlyName
                 }] refers to missing state {${
-                  (command.command as RoutineCommandRoomStateDTO).room
+                  (command.command as RoutineCommandRoomStateDTO).state
                 }} in room [${room.friendlyName}]`,
               );
             }
