@@ -23,6 +23,10 @@ import { GroupService } from './groups';
 import { RoomService } from './room.service';
 import { RoutineService } from './routines';
 
+// Probably worth a refactor in the future
+// The reality of the complexity in this case isn't too bad
+/* eslint-disable radar/cognitive-complexity */
+
 @Injectable()
 export class DebuggerService {
   constructor(
@@ -41,7 +45,15 @@ export class DebuggerService {
     const entities = this.entityManager.listEntities();
     return groups.filter(group => {
       group.entities ??= [];
-      return group.entities.every(entity => entities.includes(entity));
+      return !group.entities.every(entity => {
+        const exists = entities.includes(entity);
+        if (!exists) {
+          this.logger.warn(
+            `Group [${group.friendlyName}] missing entity {${entity}}`,
+          );
+        }
+        return exists;
+      });
     });
   }
 
@@ -56,8 +68,24 @@ export class DebuggerService {
     return rooms.filter(room => {
       room.entities ??= [];
       return (
-        room.entities.every(({ entity_id }) => entities.includes(entity_id)) ||
-        room.groups.every(group => groups.has(group))
+        !room.entities.every(({ entity_id }) => {
+          const exists = entities.includes(entity_id);
+          if (!exists) {
+            this.logger.warn(
+              `Room [${room.friendlyName}] missing entity {${entity_id}}`,
+            );
+          }
+          return exists;
+        }) ||
+        !room.groups.every(group => {
+          const exists = groups.has(group);
+          if (!exists) {
+            this.logger.warn(
+              `Room [${room.friendlyName}] missing group {${group}}`,
+            );
+          }
+          return exists;
+        })
       );
     });
   }
@@ -88,26 +116,65 @@ export class DebuggerService {
           roomList,
         );
         if (!validEnable) {
+          this.logger.warn(`[${routine.friendlyName}] broken enable`);
           return true;
         }
       }
-      return routine.command.every(command => {
+      return !routine.command.every(command => {
         let room: RoomDTO;
+        let exists = true;
         switch (command.type) {
+          // GROUP STUFF
           case 'group_action':
           case 'group_state':
-            return groups.has(
+            exists = groups.has(
               (command.command as RoutineCommandGroupActionDTO).group as string,
             );
+            if (!exists) {
+              this.logger.warn(
+                `Routine command [${routine.friendlyName}]>[${
+                  command.friendlyName
+                }] refers to missing group {${
+                  (command.command as RoutineCommandGroupActionDTO).group
+                }}`,
+              );
+            }
+            return exists;
+
+          // ENTITIES
           case 'entity_state':
-            return entities.includes(
+            exists = entities.includes(
               (command.command as RoomEntitySaveStateDTO).ref,
             );
+            if (!exists) {
+              this.logger.warn(
+                `Routine command [${routine.friendlyName}]>[${
+                  command.friendlyName
+                }] refers to missing entity {${
+                  (command.command as RoomEntitySaveStateDTO).ref
+                }}`,
+              );
+            }
+            return exists;
+
+          // ROUTINE
           case 'trigger_routine':
-            return routines.has(
+            exists = routines.has(
               (command.command as RoutineCommandTriggerRoutineDTO)
                 .routine as string,
             );
+            if (!exists) {
+              this.logger.warn(
+                `Routine command [${routine.friendlyName}]>[${
+                  command.friendlyName
+                }] refers to missing routine {${
+                  (command.command as RoutineCommandTriggerRoutineDTO).routine
+                }}`,
+              );
+            }
+            return exists;
+
+          // ROOM STATE
           case 'room_state':
             room = roomList.find(
               ({ _id }) =>
@@ -116,33 +183,80 @@ export class DebuggerService {
                   .room as string),
             );
             if (!room) {
+              this.logger.warn(
+                `Routine command [${routine.friendlyName}]>[${
+                  command.friendlyName
+                }] refers to state from missing room {${
+                  (command.command as RoutineCommandRoomStateDTO).room
+                }}`,
+              );
               return false;
             }
-            return room.save_states.some(
+            exists = room.save_states.some(
               ({ id }) =>
                 id ===
                 ((command.command as RoutineCommandRoomStateDTO)
                   .state as string),
             );
+            if (!exists) {
+              this.logger.warn(
+                `Routine command [${routine.friendlyName}]>[${
+                  command.friendlyName
+                }] refers to missing state {${
+                  (command.command as RoutineCommandRoomStateDTO).room
+                }} in room [${room.friendlyName}]`,
+              );
+            }
+            return exists;
+
+          // ROOM METADATA
           case 'set_room_metadata':
             room = roomList.find(
               ({ _id }) =>
                 _id ===
                 ((command.command as SetRoomMetadataCommandDTO).room as string),
             );
-            return room.metadata.some(
+            if (!room) {
+              this.logger.warn(
+                `Routine command [${routine.friendlyName}]>[${
+                  command.friendlyName
+                }] refers to metadata from missing room {${
+                  (command.command as SetRoomMetadataCommandDTO).room
+                }}`,
+              );
+              return false;
+            }
+            exists = room.metadata.some(
               ({ name }) =>
                 name ===
                 ((command.command as SetRoomMetadataCommandDTO).name as string),
             );
+            if (!exists) {
+              this.logger.warn(
+                `Routine command [${routine.friendlyName}]>[${
+                  command.friendlyName
+                }] refers to missing metadata {${
+                  (command.command as RoutineCommandRoomStateDTO).room
+                }} in room [${room.friendlyName}]`,
+              );
+            }
+            return exists;
+
+          // STOP PROCESSING
           case 'stop_processing':
-            return this.validateStopProcessing(
+            exists = this.validateStopProcessing(
               command.command as RoutineCommandStopProcessingDTO,
               entities,
               roomList,
             );
+            if (!exists) {
+              this.logger.warn(
+                `Routine command [${routine.friendlyName}]>[${command.friendlyName}] contains broken stop processing comparison`,
+              );
+            }
+            return exists;
         }
-        return true;
+        return exists;
       });
     });
   }
@@ -161,24 +275,55 @@ export class DebuggerService {
   ): boolean {
     stop.comparisons ??= [];
     return stop.comparisons.every(compare => {
+      let exists = true;
       switch (compare.type) {
         case 'attribute':
         case 'state':
-          return entities.includes(
+          exists = entities.includes(
             (compare.comparison as RoutineStateComparisonDTO).entity_id,
           );
+          if (!exists) {
+            this.logger.warn(
+              `Stop comparison [${
+                compare.friendlyName
+              }] refers to missing entity {${
+                (compare.comparison as RoutineStateComparisonDTO).entity_id
+              }}`,
+            );
+          }
+          return exists;
         case 'room_metadata':
           const room = rooms.find(
             ({ _id }) =>
               _id === (compare.comparison as RoomMetadataComparisonDTO).room,
           );
-          return room.metadata.some(
+          if (!room) {
+            this.logger.warn(
+              `Stop comparison [${
+                compare.friendlyName
+              }] refers to metadata from missing room {${
+                (compare.comparison as RoomMetadataComparisonDTO).room
+              }}`,
+            );
+            return false;
+          }
+          exists = room.metadata.some(
             ({ name }) =>
               name ===
               (compare.comparison as RoomMetadataComparisonDTO).property,
           );
+          if (!exists) {
+            this.logger.warn(
+              `Stop comparison [${
+                compare.friendlyName
+              }] refers to missing metadata {${
+                (compare.comparison as RoomMetadataComparisonDTO).property
+              }} in room [${room.friendlyName}]`,
+            );
+          }
+          return exists;
       }
-      return true;
+      return exists;
     });
   }
 }

@@ -5,7 +5,7 @@ import {
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
-import { Button, Card, Empty, List, Tabs } from 'antd';
+import { Button, Card, Empty, List, Tabs, Tooltip } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
@@ -26,9 +26,23 @@ export class DebuggerSettings extends React.Component {
     ]);
   }
 
+  override async componentDidMount(): Promise<void> {
+    await this.refresh();
+  }
+
   override render() {
     return (
-      <Card extra={<Button onClick={() => this.refresh()}>Refresh</Button>}>
+      <Card
+        extra={
+          <Tooltip
+            title="Additional information available in server logs as warning level messages."
+            placement="topLeft"
+            color="blue"
+          >
+            <Button onClick={() => this.refresh()}>Refresh</Button>
+          </Tooltip>
+        }
+      >
         {this.valid ? (
           <Empty description="Everything is valid!" />
         ) : (
