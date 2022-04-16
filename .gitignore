@@ -3,11 +3,7 @@
 /tmp
 /out-tsc
 apps/**/yarn.lock
-/apps/**/deployments/**/*zip
 # Private keys
-/apps/**/config/*
-# /apps/support-tools/**/*key
-/apps/living-docs/docker/*yaml
 **/*vsix
 
 # dependencies

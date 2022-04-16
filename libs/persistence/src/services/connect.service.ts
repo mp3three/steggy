@@ -18,11 +18,11 @@ import { MongoConnectDTO } from '../contracts';
 export class ConnectService {
   constructor(
     private readonly fetchService: FetchService,
-    @InjectConfig(MONGO_URI) private readonly URI: string,
-    @InjectConfig(MONGO_CERT) private readonly CERT: string,
     @InjectConfig(MONGO_CA) private readonly CA: string,
-    @InjectConfig(MONGO_KEY) private readonly KEY: string,
+    @InjectConfig(MONGO_CERT) private readonly CERT: string,
     @InjectConfig(MONGO_CRL) private readonly CRL: string,
+    @InjectConfig(MONGO_KEY) private readonly KEY: string,
+    @InjectConfig(MONGO_URI) private readonly URI: string,
   ) {}
 
   public async build(): Promise<MongooseModuleOptions> {
@@ -57,7 +57,6 @@ export class ConnectService {
     if (options.crl) {
       sslCRL = await this.resolveUrl(options.crl);
     }
-
     return {
       connectTimeoutMS: 300_000,
       socketTimeoutMS: 300_000,

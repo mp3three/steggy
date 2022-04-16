@@ -1,4 +1,3 @@
-export * from './database-connect.service';
 export * from './group-persistence.service';
 export * from './metadata-persistence.service';
 export * from './room-persistence.service';

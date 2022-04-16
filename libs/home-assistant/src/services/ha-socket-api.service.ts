@@ -60,6 +60,7 @@ export class HASocketAPIService {
   private CONNECTION_ACTIVE = false;
   private connection: WS;
   private messageCount = START;
+  private subscribeEvents = false;
   private waitingCallback = new Map<number, (result) => void>();
 
   /**
@@ -72,10 +73,15 @@ export class HASocketAPIService {
     const states = await this.sendMessage<HassStateDTO[]>({
       type: HASSIO_WS_COMMAND.get_states,
     });
-    // NOT SURE IF IT MAKES IT TO HERE YET
-    this.logger.debug('Received all entity update');
     this.eventEmitter.emit(ALL_ENTITIES_UPDATED, states);
-    // DEFINITELY DOES NOT MAKE IT HERE
+
+    if (!this.subscribeEvents) {
+      // Some weirdness can occur if entity updates are received prior to loading
+      this.subscribeEvents = true;
+      await this.sendMessage({
+        type: HASSIO_WS_COMMAND.subscribe_events,
+      });
+    }
     this.logger.info('🎆 All entities updated 🎆');
     return states;
   }
@@ -245,6 +251,7 @@ export class HASocketAPIService {
       this.connection.addEventListener('message', message => {
         if (first) {
           first = false;
+          this.subscribeEvents = false;
           this.logger.debug(`Hello message received`);
         }
         this.onMessage(JSON.parse(message.data.toString()));
@@ -288,10 +295,6 @@ export class HASocketAPIService {
         this.logger.debug(`[CONNECTION_ACTIVE] = {true}`);
         this.CONNECTION_ACTIVE = true;
         clearTimeout(this.AUTH_TIMEOUT);
-        this.logger.debug(`subscribe_events`);
-        await this.sendMessage({
-          type: HASSIO_WS_COMMAND.subscribe_events,
-        });
         this.logger.info('🏡 Home Assistant socket ready 🏡');
         this.eventEmitter.emit(HA_SOCKET_READY);
         this.logger.debug('done emitting');
@@ -359,7 +362,6 @@ export class HASocketAPIService {
   }
 
   private async sendAuth(): Promise<void> {
-    this.logger.debug(`Sending auth`);
     this.AUTH_TIMEOUT = setTimeout(() => {
       this.logger.error(`Did not receive an auth response, retrying`);
       this.sendAuth();

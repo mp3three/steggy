@@ -33,19 +33,19 @@ export class EncryptionService {
   ) {}
 
   public decrypt<T extends Record<never, unknown> = Record<string, unknown>>(
-    cipherbuffer: Buffer | Binary,
+    cipherBuffer: Buffer | Binary,
     secret: string = this.secret,
   ): T {
-    if (!this.isBuffer(cipherbuffer)) {
-      return cipherbuffer as unknown as T;
+    if (!this.isBuffer(cipherBuffer)) {
+      return cipherBuffer as unknown as T;
     }
-    cipherbuffer = this.coerceBuffer(cipherbuffer);
+    cipherBuffer = this.coerceBuffer(cipherBuffer);
 
     const key = scryptSync(secret, 'GfG', this.keySize);
     const iv = Buffer.alloc(16, 0);
     const decipher = createDecipheriv(this.algorithm, key, iv);
     const decryptedJSON = Buffer.concat([
-      decipher.update(cipherbuffer),
+      decipher.update(cipherBuffer),
       decipher.final(),
     ]).toString();
 
@@ -74,14 +74,14 @@ export class EncryptionService {
     return Buffer.concat([cipher.update(saveValue), cipher.final()]);
   }
 
-  private coerceBuffer(cipherbuffer: Buffer | Binary): Buffer {
-    return Buffer.isBuffer(cipherbuffer) ? cipherbuffer : cipherbuffer.buffer;
+  private coerceBuffer(cipherBuffer: Buffer | Binary): Buffer {
+    return Buffer.isBuffer(cipherBuffer) ? cipherBuffer : cipherBuffer.buffer;
   }
 
-  private isBuffer(cipherbuffer: Buffer | Binary): boolean {
+  private isBuffer(cipherBuffer: Buffer | Binary): boolean {
     return (
-      !cipherbuffer ||
-      !(cipherbuffer instanceof Buffer || !is.undefined(cipherbuffer.buffer))
+      !cipherBuffer ||
+      !(cipherBuffer instanceof Buffer || !is.undefined(cipherBuffer.buffer))
     );
   }
 }
