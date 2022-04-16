@@ -4,7 +4,7 @@ import {
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { DOWN, is, UP } from '@steggy/utilities';
-import { Empty, Typography } from 'antd';
+import { Checkbox, Divider, Empty, Space, Typography } from 'antd';
 import Tree, { DataNode } from 'antd/lib/tree';
 import React from 'react';
 
@@ -40,30 +40,41 @@ export class TriggerRoutineCommand extends React.Component<
     return is.empty(children) ? (
       <Empty />
     ) : (
-      <Tree
-        treeData={[
-          {
-            children: children.sort((a, b) =>
-              this.sortChildren(a, b, this.state.routineMap),
+      <Space direction="vertical" style={{ width: '100%' }}>
+        <Tree
+          treeData={[
+            {
+              children: children.sort((a, b) =>
+                this.sortChildren(a, b, this.state.routineMap),
+              ),
+              icon: <NodeIndexOutlined />,
+              key: 'root',
+              selectable: false,
+              title: <Typography.Text strong>Root</Typography.Text>,
+            },
+          ]}
+          className="draggable-tree"
+          onSelect={([routine]: string[]) => this.props.onUpdate({ routine })}
+          showIcon
+          blockNode
+          selectedKeys={selected}
+          defaultExpandedKeys={this.getDefaultExpandedKeys(
+            this.state.routines.find(
+              ({ _id }) => _id === this.props.command?.routine,
             ),
-            icon: <NodeIndexOutlined />,
-            key: 'root',
-            selectable: false,
-            title: <Typography.Text strong>Root</Typography.Text>,
-          },
-        ]}
-        className="draggable-tree"
-        onSelect={([routine]: string[]) => this.props.onUpdate({ routine })}
-        showIcon
-        blockNode
-        selectedKeys={selected}
-        defaultExpandedKeys={this.getDefaultExpandedKeys(
-          this.state.routines.find(
-            ({ _id }) => _id === this.props.command?.routine,
-          ),
-          ['root'],
-        )}
-      />
+            ['root'],
+          )}
+        />
+        <Divider orientation="left">Flags</Divider>
+        <Checkbox
+          checked={this.props?.command?.ignoreEnabled}
+          onChange={({ target }) =>
+            this.props.onUpdate({ ignoreEnabled: target.checked })
+          }
+        >
+          Bypass disabled state
+        </Checkbox>
+      </Space>
     );
   }
 

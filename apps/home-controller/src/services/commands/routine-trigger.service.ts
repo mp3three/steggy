@@ -2,13 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { RoutineCommandTriggerRoutineDTO } from '@steggy/controller-shared';
 
-import { RoutineService } from '../routines';
+import { RoutineEnabledService, RoutineService } from '../routines';
 
 @Injectable()
 export class RoutineTriggerService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly routineService: RoutineService,
+    private readonly routineEnabled: RoutineEnabledService,
   ) {}
 
   public async activate(
@@ -18,6 +19,15 @@ export class RoutineTriggerService {
     const routine = await this.routineService.get(command.routine);
     if (!routine) {
       throw new NotFoundException(`Could not find routine`);
+    }
+    if (!command.ignoreEnabled) {
+      const isEnabled = this.routineEnabled.ACTIVE_ROUTINES.has(routine._id);
+      if (!isEnabled) {
+        this.logger.debug(
+          `Attempted to trigger disabled routine [${routine.friendlyName}]`,
+        );
+        return;
+      }
     }
     this.logger.debug(`Routine trigger {${routine.friendlyName}}`);
     await this.routineService.activateRoutine(

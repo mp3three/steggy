@@ -1,6 +1,7 @@
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { HTTP_METHODS } from '@steggy/utilities';
 import {
+  IsBoolean,
   IsEnum,
   IsNumber,
   IsObject,
@@ -104,6 +105,10 @@ export class RoutineCommandSleepDTO {
 }
 
 export class RoutineCommandTriggerRoutineDTO {
+  @IsOptional()
+  @ApiProperty()
+  @IsBoolean()
+  public ignoreEnabled: boolean;
   @ApiProperty()
   @IsString()
   public routine: string;
