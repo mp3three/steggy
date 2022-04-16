@@ -30,6 +30,7 @@ export class EntityInspectButton extends React.Component<
           size="large"
         >
           <EntityInspect
+            onUpdate={entity => this.setState({ entity })}
             entity={this.state.entity}
             flags={this.state.flags}
             onFlagsUpdate={flags => this.setState({ flags })}

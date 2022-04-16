@@ -78,6 +78,7 @@ export class EntityList extends React.Component {
             </Col>
             <Col span={12}>
               <EntityInspect
+                onUpdate={entity => this.setState({ entity })}
                 entity={this.state.entity}
                 flags={this.state.flags}
                 onRename={name => this.onRename(name)}

@@ -31,6 +31,7 @@ export class EntityInspect extends React.Component<{
   flags: string[];
   onFlagsUpdate?: (flags: string[]) => void;
   onRename?: (name: string) => void;
+  onUpdate?: (entity: HassStateDTO) => void;
 }> {
   override render() {
     return is.undefined(this.props?.entity) ? (
@@ -60,7 +61,13 @@ export class EntityInspect extends React.Component<{
         }
         title={
           <>
-            {this.props.entity?.attributes?.friendly_name}
+            <Typography.Text
+              editable={{
+                onChange: friendlyName => this.updateName(friendlyName),
+              }}
+            >
+              {this.props.entity?.attributes?.friendly_name}
+            </Typography.Text>
             <Typography.Text code style={{ marginLeft: '8px' }}>
               {this.props.entity.entity_id}
             </Typography.Text>
@@ -201,6 +208,17 @@ export class EntityInspect extends React.Component<{
     });
     if (this.props.onFlagsUpdate) {
       this.props.onFlagsUpdate(flags);
+    }
+  }
+
+  private async updateName(name: string): Promise<void> {
+    const entity = await sendRequest<HassStateDTO>({
+      body: { name },
+      method: 'put',
+      url: `/entity/rename/${this.props.entity.entity_id}`,
+    });
+    if (this.props.onUpdate) {
+      this.props.onUpdate(entity);
     }
   }
 }

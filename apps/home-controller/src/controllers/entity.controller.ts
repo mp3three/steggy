@@ -235,7 +235,7 @@ export class EntityController {
   public async updateEntity(
     @Param('entityId') entityId: string,
     @Body() body: Record<'name', string>,
-  ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+  ): Promise<HassStateDTO> {
     if (!body?.name) {
       throw new BadRequestException(`No name provided`);
     }
@@ -246,7 +246,6 @@ export class EntityController {
       entityId,
       body.name,
     );
-    this.logger.info({ result });
-    return GENERIC_SUCCESS_RESPONSE;
+    return result.entity_entry;
   }
 }

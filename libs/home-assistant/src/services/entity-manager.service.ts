@@ -126,7 +126,7 @@ export class EntityManagerService {
   public async updateFriendlyName(
     entityId: string,
     friendly_name: string,
-  ): Promise<unknown> {
+  ): Promise<{ entity_entry: HassStateDTO }> {
     return await this.socketService.updateEntity(entityId, {
       name: friendly_name,
       new_entity_id: entityId,
