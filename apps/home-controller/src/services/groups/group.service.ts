@@ -1,8 +1,14 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import type {
   GroupSaveStateDTO,
   ROOM_ENTITY_EXTRAS,
+  RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
 } from '@steggy/controller-shared';
@@ -14,6 +20,8 @@ import { each, is, ResultControlDTO } from '@steggy/utilities';
 import { EntityCommandRouterService } from '../entity-command-router.service';
 import { LightManagerService } from '../lighting';
 import { GroupPersistenceService } from '../persistence';
+import { RoomService } from '../room.service';
+import { RoutineService } from '../routines';
 import { BaseGroupService } from './base-group.service';
 import { FanGroupService } from './fan-group.service';
 import { LightGroupService } from './light-group.service';
@@ -31,6 +39,9 @@ export class GroupService {
     private readonly switchGroup: SwitchGroupService,
     private readonly lightManager: LightManagerService,
     private readonly commandRouter: EntityCommandRouterService,
+    @Inject(forwardRef(() => RoomService))
+    private readonly roomService: RoomService,
+    private readonly routineService: RoutineService,
   ) {}
 
   public async activateCommand(
@@ -92,18 +103,81 @@ export class GroupService {
     return await this.groupPersistence.create<T>(group);
   }
 
-  public async delete(group: GroupDTO | string): Promise<boolean> {
-    group = is.string(group) ? group : group._id;
-    return await this.groupPersistence.delete(group);
+  public async delete(item: GroupDTO | string): Promise<boolean> {
+    const group = is.string(item) ? item : item._id;
+    const groupObject = await this.get(group);
+    this.logger.info(`Removing [${groupObject.friendlyName}]`);
+    const rooms = await this.roomService.list({
+      filters: new Set([{ field: 'groups', value: group }]),
+    });
+    if (!is.empty(rooms)) {
+      this.logger.debug(
+        `[${groupObject.friendlyName}] detaching from {${rooms.length}} rooms`,
+      );
+    }
+    await each(
+      rooms,
+      async room => await this.roomService.deleteGroup(room, group),
+    );
+    const routines = await this.routineService.list({
+      filters: new Set([{ field: 'command.command.group', value: group }]),
+    });
+    await each(routines, async routine => {
+      this.logger.debug(
+        `Removing group [${groupObject.friendlyName}] from routine [${routine.friendlyName}]`,
+      );
+      await this.routineService.update(routine._id, {
+        command: routine.command.filter(
+          (command: RoutineCommandDTO<RoutineCommandGroupStateDTO>) =>
+            !(
+              ['group_action', 'group_state'].includes(command.type) &&
+              command.command.group === group
+            ),
+        ),
+      });
+    });
+    const out = await this.groupPersistence.delete(group);
+    return out;
   }
 
   public async deleteState<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(
-    group: GroupDTO<GROUP_TYPE> | string,
+    item: GroupDTO<GROUP_TYPE> | string,
     state: string,
   ): Promise<GroupDTO<GROUP_TYPE>> {
-    group = await this.load<GROUP_TYPE>(group);
+    const group = await this.load<GROUP_TYPE>(item);
+
+    // Remove state from room states
+    const rooms = await this.roomService.list({
+      filters: new Set([{ field: 'save_states.states.ref', value: group }]),
+    });
+    await each(
+      rooms,
+      // Just detach the states, not the group
+      async room => await this.roomService.deleteGroup(room, group._id, true),
+    );
+
+    // Remove commands setting it
+    const routines = await this.routineService.list({
+      filters: new Set([
+        { field: 'command.command.group', value: group._id },
+        { field: 'command.type', value: 'group_state' },
+      ]),
+    });
+    await each(routines, async routine => {
+      this.logger.debug(
+        `Removing group [${group.friendlyName}] states from routine [${routine.friendlyName}]`,
+      );
+      await this.routineService.update(routine._id, {
+        command: routine.command.filter(
+          (command: RoutineCommandDTO<RoutineCommandGroupStateDTO>) =>
+            !(
+              command.type === 'group_state' && command.command.group === group
+            ),
+        ),
+      });
+    });
     const base = this.getBaseGroup(group.type);
     return await base.deleteState(group, state);
   }

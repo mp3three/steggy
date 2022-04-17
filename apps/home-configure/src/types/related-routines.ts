@@ -45,7 +45,7 @@ export const RELATED_ROUTINES = {
       {
         filters: new Set([
           { field: commandType, value: 'group_state' },
-          { field: 'command.command.room', value },
+          { field: 'command.command.group', value },
         ]),
         sort: ['friendlyName'],
       },

@@ -108,7 +108,7 @@ export class RoomDTO {
   public modified?: Date;
 
   /**
-   * Javascript referenceable name for vmservice
+   * Javascript referenceable name for VMService
    */
   @IsOptional()
   @IsString()

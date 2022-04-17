@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { RoutineCommandTriggerRoutineDTO } from '@steggy/controller-shared';
 
@@ -8,7 +13,9 @@ import { RoutineEnabledService, RoutineService } from '../routines';
 export class RoutineTriggerService {
   constructor(
     private readonly logger: AutoLogService,
+    @Inject(forwardRef(() => RoutineService))
     private readonly routineService: RoutineService,
+    @Inject(forwardRef(() => RoutineEnabledService))
     private readonly routineEnabled: RoutineEnabledService,
   ) {}
 

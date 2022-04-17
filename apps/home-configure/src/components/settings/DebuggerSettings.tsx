@@ -55,7 +55,7 @@ export class DebuggerSettings extends React.Component {
                     <List.Item>
                       <GroupInspectButton
                         group={group}
-                        onUpdate={group => this.updateGroup(group)}
+                        onUpdate={update => this.updateGroup(update, group)}
                       />
                     </List.Item>
                   )}
@@ -105,7 +105,13 @@ export class DebuggerSettings extends React.Component {
     this.setState(result);
   }
 
-  private updateGroup(group: GroupDTO): void {
+  private updateGroup(group: GroupDTO, reference: GroupDTO): void {
+    if (!group) {
+      this.setState({
+        groups: this.state.groups.filter(({ _id }) => _id !== reference._id),
+      });
+      return;
+    }
     this.setState({
       groups: this.state.groups.map(g => (g._id === group._id ? group : g)),
     });

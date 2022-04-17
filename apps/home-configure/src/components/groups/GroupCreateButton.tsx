@@ -17,10 +17,10 @@ export class GroupCreateButton extends React.Component<{
     return (
       <Popconfirm
         icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
-        onConfirm={this.validate.bind(this)}
+        onConfirm={() => this.validate()}
         title={
           <Form
-            onFinish={this.validate.bind(this)}
+            onFinish={() => this.validate()}
             ref={form => (this.form = form)}
           >
             <Form.Item

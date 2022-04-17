@@ -94,7 +94,7 @@ export class GroupSaveStates extends React.Component<
           }
         >
           <List
-            dataSource={this.props.group.save_states.sort((a, b) =>
+            dataSource={(this.props.group?.save_states ?? []).sort((a, b) =>
               a.friendlyName > b.friendlyName ? UP : DOWN,
             )}
             renderItem={record => (

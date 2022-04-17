@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   GroupDTO,
@@ -26,6 +31,7 @@ export class RoomService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly roomPersistence: RoomPersistenceService,
+    @Inject(forwardRef(() => GroupService))
     private readonly groupService: GroupService,
     private readonly commandRouter: EntityCommandRouterService,
     private readonly entityManager: EntityManagerService,
@@ -165,10 +171,13 @@ export class RoomService {
   public async deleteGroup(
     room: RoomDTO | string,
     groupId: string,
+    stateOnly = false,
   ): Promise<RoomDTO> {
     room = await this.load(room);
-    room.groups ??= [];
-    room.groups = room.groups.filter(group => group !== groupId);
+    if (!stateOnly) {
+      room.groups ??= [];
+      room.groups = room.groups.filter(group => group !== groupId);
+    }
     room.save_states ??= [];
     room.save_states = room.save_states.map(save_state => ({
       ...save_state,

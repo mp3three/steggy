@@ -103,7 +103,7 @@ export class GroupController {
     description: `Create a new group`,
   })
   public async createGroup(@Body() group: GroupDTO): Promise<GroupDTO> {
-    await this.groupService.create(BaseSchemaDTO.cleanup(group));
+    group = await this.groupService.create(BaseSchemaDTO.cleanup(group));
     return await this.groupService.get(group);
   }
 

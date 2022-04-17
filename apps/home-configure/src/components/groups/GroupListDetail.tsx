@@ -1,10 +1,14 @@
+import MenuIcon from '@2fd/ant-design-icons/lib/Menu';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import { GroupDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import {
   Button,
   Card,
+  Dropdown,
   Empty,
   List,
+  Menu,
   Popconfirm,
   Space,
   Tabs,
@@ -23,7 +27,7 @@ type tState = {
 };
 
 export class GroupListDetail extends React.Component<
-  { group: GroupDTO; onUpdate: (group: GroupDTO) => void; type?: 'inner' },
+  { group: GroupDTO; onUpdate: (group?: GroupDTO) => void; type?: 'inner' },
   tState
 > {
   override state = {} as tState;
@@ -32,7 +36,38 @@ export class GroupListDetail extends React.Component<
     if (this.props.type === 'inner') {
       return this.renderContents();
     }
-    return <Card title="Group Settings">{this.renderContents()}</Card>;
+    return (
+      <Card
+        title="Group Settings"
+        extra={
+          !is.object(this.props.group) ? undefined : (
+            <Dropdown
+              overlay={
+                <Menu>
+                  <Menu.Item key="delete">
+                    <Popconfirm
+                      icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                      title={`Are you sure you want to delete ${this.props.group.friendlyName}?`}
+                      onConfirm={() => this.delete()}
+                    >
+                      <Button danger type="text">
+                        Delete Group
+                      </Button>
+                    </Popconfirm>
+                  </Menu.Item>
+                </Menu>
+              }
+            >
+              <Button type="text">
+                <MenuIcon />
+              </Button>
+            </Dropdown>
+          )
+        }
+      >
+        {this.renderContents()}
+      </Card>
+    );
   }
 
   private async addEntities(entities: string[]): Promise<void> {
@@ -47,6 +82,14 @@ export class GroupListDetail extends React.Component<
         url: `/group/${group._id}`,
       }),
     );
+  }
+
+  private async delete(): Promise<void> {
+    await sendRequest({
+      method: 'delete',
+      url: `/group/${this.props.group._id}`,
+    });
+    this.props.onUpdate();
   }
 
   private domainList(): string[] {

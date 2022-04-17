@@ -1,7 +1,6 @@
-import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import type { GroupDTO } from '@steggy/controller-shared';
 import { NOT_FOUND } from '@steggy/utilities';
-import { Button, Card, Col, Layout, List, Popconfirm, Row, Tabs } from 'antd';
+import { Button, Card, Col, Layout, List, Row, Tabs } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
@@ -36,14 +35,14 @@ export class GroupList extends React.Component {
                     extra={
                       <GroupCreateButton
                         type="light"
-                        onUpdate={this.refresh.bind(this)}
+                        onUpdate={group => this.refresh(group)}
                       />
                     }
                   >
                     <List
                       dataSource={this.filter('light')}
                       pagination={{ size: 'small' }}
-                      renderItem={this.renderGroup.bind(this)}
+                      renderItem={item => this.renderGroup(item)}
                     ></List>
                   </Card>
                 </Tabs.TabPane>
@@ -56,14 +55,14 @@ export class GroupList extends React.Component {
                     extra={
                       <GroupCreateButton
                         type="switch"
-                        onUpdate={this.refresh.bind(this)}
+                        onUpdate={group => this.refresh(group)}
                       />
                     }
                   >
                     <List
                       dataSource={this.filter('switch')}
                       pagination={{ size: 'small' }}
-                      renderItem={this.renderGroup.bind(this)}
+                      renderItem={item => this.renderGroup(item)}
                     ></List>
                   </Card>
                 </Tabs.TabPane>
@@ -76,14 +75,14 @@ export class GroupList extends React.Component {
                     extra={
                       <GroupCreateButton
                         type="fan"
-                        onUpdate={this.refresh.bind(this)}
+                        onUpdate={group => this.refresh(group)}
                       />
                     }
                   >
                     <List
                       dataSource={this.filter('fan')}
                       pagination={{ size: 'small' }}
-                      renderItem={this.renderGroup.bind(this)}
+                      renderItem={item => this.renderGroup(item)}
                     ></List>
                   </Card>
                 </Tabs.TabPane>
@@ -96,14 +95,14 @@ export class GroupList extends React.Component {
                     extra={
                       <GroupCreateButton
                         type="lock"
-                        onUpdate={this.refresh.bind(this)}
+                        onUpdate={group => this.refresh(group)}
                       />
                     }
                   >
                     <List
                       dataSource={this.filter('lock')}
                       pagination={{ size: 'small' }}
-                      renderItem={this.renderGroup.bind(this)}
+                      renderItem={item => this.renderGroup(item)}
                     ></List>
                   </Card>
                 </Tabs.TabPane>
@@ -112,7 +111,7 @@ export class GroupList extends React.Component {
             <Col span={12}>
               <GroupListDetail
                 group={this.state.group}
-                onUpdate={this.refresh.bind(this)}
+                onUpdate={group => this.refresh(group)}
               />
             </Col>
           </Row>
@@ -120,15 +119,6 @@ export class GroupList extends React.Component {
       </Layout>
     );
   }
-
-  private async deleteGroup(group: GroupDTO): Promise<void> {
-    await sendRequest({
-      method: 'delete',
-      url: `/group/${group._id}`,
-    });
-    await this.refresh();
-  }
-
   private filter(type: string): GroupDTO[] {
     return this.state.groups.filter(group => group.type === type);
   }
@@ -138,6 +128,7 @@ export class GroupList extends React.Component {
       const index = this.state.groups.findIndex(({ _id }) => _id === group._id);
       if (index === NOT_FOUND) {
         this.setState({
+          group,
           groups: [...this.state.groups, group],
         });
         return;
@@ -156,7 +147,7 @@ export class GroupList extends React.Component {
       },
       url: `/group`,
     });
-    this.setState({ groups });
+    this.setState({ group: undefined, groups });
   }
 
   private renderGroup(group: GroupDTO) {
@@ -172,15 +163,6 @@ export class GroupList extends React.Component {
             </Button>
           }
         />
-        <Popconfirm
-          icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-          title={`Are you sure you want to delete ${group.friendlyName}?`}
-          onConfirm={() => this.deleteGroup(group)}
-        >
-          <Button danger type="text">
-            <CloseOutlined />
-          </Button>
-        </Popconfirm>
       </List.Item>
     );
   }

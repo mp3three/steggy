@@ -241,7 +241,11 @@ export class EntityRelated extends React.Component<{ entity: string }, tState> {
     ]);
   }
 
-  private updateGroup(update: GroupDTO): void {
+  private async updateGroup(update: GroupDTO): Promise<void> {
+    if (is.undefined(update)) {
+      await this.refresh();
+      return;
+    }
     const groups = this.state.groups.map(item =>
       item._id === this.state.group._id
         ? {

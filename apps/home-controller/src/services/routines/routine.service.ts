@@ -80,6 +80,7 @@ export class RoutineService {
     private readonly cacheService: CacheManagerService,
     private readonly entityRouter: EntityCommandRouterService,
     private readonly flashAnimation: LightFlashCommandService,
+    @Inject(forwardRef(() => GroupService))
     private readonly groupService: GroupService,
     private readonly sequenceActivate: SequenceActivateService,
     private readonly logger: AutoLogService,
@@ -361,7 +362,10 @@ export class RoutineService {
     });
   }
 
-  public async update(id: string, routine: RoutineDTO): Promise<RoutineDTO> {
+  public async update(
+    id: string,
+    routine: Partial<RoutineDTO>,
+  ): Promise<RoutineDTO> {
     return await this.routinePersistence.update(routine, id);
   }
 

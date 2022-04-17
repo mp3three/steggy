@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   CacheManagerService,
@@ -17,6 +17,7 @@ import { GroupService } from '../groups';
 @Injectable()
 export class CaptureCommandService {
   constructor(
+    @Inject(forwardRef(() => GroupService))
     private readonly groupService: GroupService,
     private readonly logger: AutoLogService,
     @InjectCache() private readonly cache: CacheManagerService,

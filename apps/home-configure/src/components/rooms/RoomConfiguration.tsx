@@ -1,13 +1,8 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import {
-  GroupDTO,
-  RoomDTO,
-  RoomEntityDTO,
-} from '@steggy/controller-shared';
+import { GroupDTO, RoomDTO, RoomEntityDTO } from '@steggy/controller-shared';
 import { DOWN, TitleCase, UP } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm, Space } from 'antd';
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 import { sendRequest } from '../../types';
 import { EntityModalPicker } from '../entities';
@@ -160,13 +155,7 @@ export class RoomConfiguration extends React.Component<
           title={
             <GroupInspectButton
               group={group as GroupDTO}
-              onUpdate={group =>
-                this.setState({
-                  groups: this.state.groups.map(g =>
-                    g._id === group._id ? group : g,
-                  ),
-                })
-              }
+              onUpdate={group => this.updateGroup(group)}
             />
           }
           description={`${TitleCase(group.type)} group`}
@@ -198,5 +187,20 @@ export class RoomConfiguration extends React.Component<
         url: `/room/${this.props.room._id}/entity/${entity}`,
       }),
     );
+  }
+
+  private updateGroup(group: GroupDTO): void {
+    if (!group) {
+      this.setState({
+        group: undefined,
+        groups: this.state.groups.filter(
+          ({ _id }) => _id !== this.state.group._id,
+        ),
+      });
+      return;
+    }
+    this.setState({
+      groups: this.state.groups.map(g => (g._id === group._id ? group : g)),
+    });
   }
 }
