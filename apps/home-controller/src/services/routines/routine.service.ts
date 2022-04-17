@@ -13,6 +13,7 @@ import {
   InjectCache,
 } from '@steggy/boilerplate';
 import {
+  ActivateCommand,
   AttributeChangeActivateDTO,
   CloneRoutineDTO,
   MetadataChangeDTO,
@@ -216,7 +217,11 @@ export class RoutineService {
     const runId = await this.interruptCheck(routine, options);
     this.logger.info({ runId }, `[${routine.friendlyName}] activate`);
     let aborted = false;
-    waitForChange ??= routine.sync;
+    waitForChange ??=
+      routine.sync ||
+      routine.command.some(({ type }) =>
+        (['stop_processing', 'sleep'] as ActivateCommand[]).includes(type),
+      );
     await (routine.sync ? eachSeries : each)(
       routine.command ?? [],
       async command => {

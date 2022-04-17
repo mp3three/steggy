@@ -3,7 +3,11 @@ import {
   MenuOutlined,
   QuestionCircleOutlined,
 } from '@ant-design/icons';
-import { RoutineCommandDTO, RoutineDTO } from '@steggy/controller-shared';
+import {
+  ActivateCommand,
+  RoutineCommandDTO,
+  RoutineDTO,
+} from '@steggy/controller-shared';
 import { ARRAY_OFFSET, is, TitleCase } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm, Space, Table } from 'antd';
 import React from 'react';
@@ -50,6 +54,12 @@ export class CommandList extends React.Component<
     return this.props.routine._id;
   }
 
+  private get overrideSync() {
+    return this.props.routine.command.some(({ type }) =>
+      (['sleep', 'stop_processing'] as ActivateCommand[]).includes(type),
+    );
+  }
+
   override render() {
     return (
       <>
@@ -68,7 +78,7 @@ export class CommandList extends React.Component<
             />
           }
         >
-          {this.props.routine.sync ? (
+          {this.props.routine.sync || this.overrideSync ? (
             <Table
               dataSource={this.props.routine.command}
               showHeader={false}

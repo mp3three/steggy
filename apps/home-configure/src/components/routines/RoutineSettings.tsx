@@ -1,4 +1,4 @@
-import { RoutineDTO } from '@steggy/controller-shared';
+import { ActivateCommand, RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import {
   Card,
@@ -81,6 +81,11 @@ export class RoutineSettings extends React.Component<{
           <Divider />
           <Checkbox
             checked={this.props.routine.sync}
+            disabled={this.props.routine.command.some(({ type }) =>
+              (['sleep', 'stop_processing'] as ActivateCommand[]).includes(
+                type,
+              ),
+            )}
             onChange={({ target }) => this.update({ sync: target.checked })}
           >
             {`Synchronous command processing `}
