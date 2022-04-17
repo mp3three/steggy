@@ -65,6 +65,7 @@ export class EntityList extends React.Component {
                       <Input
                         placeholder="Filter"
                         style={{ width: '100%' }}
+                        size="small"
                         onChange={({ target }) =>
                           this.updateSearch(target.value)
                         }
@@ -103,8 +104,12 @@ export class EntityList extends React.Component {
                           </Menu>
                         }
                       >
-                        <Button type="text" style={{ width: '100%' }}>
-                          {FD_ICONS.get('menu')}
+                        <Button
+                          type="text"
+                          style={{ width: '100%' }}
+                          size="small"
+                        >
+                          {FD_ICONS.get('filter')}
                         </Button>
                       </Dropdown>
                     </Col>
@@ -117,6 +122,7 @@ export class EntityList extends React.Component {
                   renderItem={item => (
                     <List.Item>
                       <Button
+                        size="small"
                         type={
                           item.value !== this.state.entity_id
                             ? 'text'

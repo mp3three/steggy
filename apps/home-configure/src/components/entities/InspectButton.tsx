@@ -36,7 +36,7 @@ export class EntityInspectButton extends React.Component<
             onFlagsUpdate={flags => this.setState({ flags })}
           />
         </Drawer>
-        <Button type="text" onClick={() => this.load()}>
+        <Button size="small" type="text" onClick={() => this.load()}>
           {this.props.entity_id}
         </Button>
       </>

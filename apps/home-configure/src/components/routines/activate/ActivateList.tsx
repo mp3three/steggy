@@ -5,7 +5,7 @@ import {
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { ARRAY_OFFSET, TitleCase } from '@steggy/utilities';
-import { Button, Card, List, Popconfirm, Typography } from 'antd';
+import { Button, Card, List, Popconfirm } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../../types';
@@ -46,27 +46,17 @@ export class ActivateList extends React.Component<
               >
                 <List.Item.Meta
                   title={
-                    <Typography.Text
-                      onClick={e => {
-                        e.stopPropagation();
-                      }}
-                      editable={{
-                        onChange: value => this.rename(item, value),
-                      }}
-                    >
-                      {item.friendlyName}
-                    </Typography.Text>
-                  }
-                  description={
                     <Button
+                      size="small"
                       onClick={() => this.setState({ activate: item })}
                       type="text"
                     >
-                      {TitleCase(
-                        item.type === 'kunami' ? 'sequence' : item.type,
-                      )}
+                      {item.friendlyName}
                     </Button>
                   }
+                  description={TitleCase(
+                    item.type === 'kunami' ? 'sequence' : item.type,
+                  )}
                 />
                 <Popconfirm
                   icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
@@ -106,28 +96,6 @@ export class ActivateList extends React.Component<
     const activate = routine.activate[routine.activate.length - ARRAY_OFFSET];
     this.setState({ activate });
     this.props.onUpdate(routine);
-  }
-
-  private async rename(
-    activate: RoutineActivateDTO,
-    friendlyName: string,
-  ): Promise<void> {
-    const { routine } = this.props;
-    const updated = await sendRequest<RoutineDTO>({
-      body: {
-        activate: routine.activate.map(i =>
-          i.id === activate.id
-            ? {
-                ...activate,
-                friendlyName,
-              }
-            : i,
-        ),
-      },
-      method: 'put',
-      url: `/routine/${routine._id}`,
-    });
-    this.props.onUpdate(updated);
   }
 
   private async updateActivate(

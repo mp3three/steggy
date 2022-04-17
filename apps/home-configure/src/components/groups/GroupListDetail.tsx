@@ -42,7 +42,7 @@ export class GroupListDetail extends React.Component<
     }
     return (
       <Card
-        title="Group Settings"
+        title="Group details"
         extra={
           !is.object(this.props.group) ? undefined : (
             <Dropdown
@@ -71,7 +71,9 @@ export class GroupListDetail extends React.Component<
                 </Menu>
               }
             >
-              <Button type="text">{FD_ICONS.get('menu')}</Button>
+              <Button type="text" size="small">
+                {FD_ICONS.get('menu')}
+              </Button>
             </Dropdown>
           )
         }
@@ -244,7 +246,7 @@ export class GroupListDetail extends React.Component<
         </Tabs>
       </>
     ) : (
-      <Empty description="Pick a group" />
+      <Empty description="Select a group" />
     );
   }
 }

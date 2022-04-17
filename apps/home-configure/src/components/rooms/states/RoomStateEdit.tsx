@@ -1,4 +1,3 @@
-import { EditOutlined } from '@ant-design/icons';
 import {
   GroupDTO,
   RoomDTO,
@@ -92,7 +91,6 @@ export class RoomStateEdit extends React.Component<
           type="text"
           onClick={() => this.setState({ drawer: true })}
         >
-          <EditOutlined />
           {this.state.friendlyName}
         </Button>
         <Drawer

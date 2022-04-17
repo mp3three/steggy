@@ -116,7 +116,7 @@ export class RoomConfiguration extends React.Component<
             title="Are you sure you want to delete this?"
             onConfirm={() => this.removeEntity(entity_id)}
           >
-            <Button danger type="text">
+            <Button danger type="text" size="small">
               X
             </Button>
           </Popconfirm>,

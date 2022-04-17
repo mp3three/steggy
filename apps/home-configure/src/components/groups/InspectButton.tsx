@@ -30,7 +30,7 @@ export class GroupInspectButton extends React.Component<
             onUpdate={group => this.props.onUpdate(group)}
           />
         </Drawer>
-        <Button type="text" onClick={() => this.load()}>
+        <Button type="text" size="small" onClick={() => this.load()}>
           {this.props.group.friendlyName}
         </Button>
       </>

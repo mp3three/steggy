@@ -78,6 +78,7 @@ export class RoomSaveStates extends React.Component<{
                 <Button
                   onClick={() => this.activateState(record)}
                   type="primary"
+                  size="small"
                   icon={FD_ICONS.get('execute')}
                 >
                   Activate
@@ -87,7 +88,7 @@ export class RoomSaveStates extends React.Component<{
                   title={`Are you sure you want to delete ${record.friendlyName}`}
                   onConfirm={() => this.removeState(record)}
                 >
-                  <Button danger type="text">
+                  <Button danger size="small" type="text">
                     X
                   </Button>
                 </Popconfirm>

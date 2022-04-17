@@ -56,6 +56,7 @@ export class RelatedRoutines extends React.Component<
               renderItem={item => (
                 <List.Item>
                   <Button
+                    size="small"
                     type="text"
                     onClick={() => this.setState({ routine: item })}
                   >

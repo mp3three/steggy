@@ -69,6 +69,7 @@ export class RoomMetadata extends React.Component<
                   <List.Item.Meta
                     title={
                       <Button
+                        size="small"
                         type={
                           this.state.metadata?.id === record.id
                             ? 'primary'

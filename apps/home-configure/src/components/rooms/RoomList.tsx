@@ -39,7 +39,6 @@ export class RoomList extends React.Component {
           <Row gutter={8}>
             <Col span={12}>
               <Card
-                title="All Rooms"
                 extra={
                   <Popconfirm
                     icon={
@@ -105,6 +104,7 @@ export class RoomList extends React.Component {
         <List.Item.Meta
           title={
             <Button
+              size="small"
               type={this.state?.room?._id === room._id ? 'primary' : 'text'}
               onClick={() => this.setRoom(room)}
             >

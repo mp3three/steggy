@@ -59,6 +59,7 @@
               "decipheriv",
               "decrement",
               "decrypt",
+              "nowrap",
               "decrypted",
               "dimmable",
               "downloader",

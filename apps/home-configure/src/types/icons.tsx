@@ -4,7 +4,7 @@ import BulletinBoard from '@2fd/ant-design-icons/lib/BulletinBoard';
 import CardRemove from '@2fd/ant-design-icons/lib/CardRemove';
 import ContentCopy from '@2fd/ant-design-icons/lib/ContentCopy';
 import DebugStepInto from '@2fd/ant-design-icons/lib/DebugStepInto';
-import Filter from '@2fd/ant-design-icons/lib/Filter';
+import FilterVariant from '@2fd/ant-design-icons/lib/FilterVariant';
 import HomeAutomation from '@2fd/ant-design-icons/lib/HomeAutomation';
 import InformationIcon from '@2fd/ant-design-icons/lib/Information';
 import LightbulbGroupOutline from '@2fd/ant-design-icons/lib/LightbulbGroupOutline';
@@ -42,7 +42,7 @@ export const FD_ICONS = new Map<iconTypes, JSX.Element>([
   ['groups', <LightbulbGroupOutline />],
   ['home', <HomeOutlined />],
   ['information', <InformationIcon />],
-  ['filter', <Filter />],
+  ['filter', <FilterVariant />],
   ['clone', <ContentCopy />],
   ['list_add', <TimelinePlus />],
   ['magnify', <Magnify />],

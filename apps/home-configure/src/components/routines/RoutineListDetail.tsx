@@ -40,42 +40,46 @@ export class RoutineListDetail extends React.Component<
     }
     return (
       <Card
-        title="Quick Edit"
+        title="Routine details"
         extra={
-          <Dropdown
-            overlay={
-              <Menu>
-                <Menu.Item>
-                  <Button
-                    type="primary"
-                    style={{ width: '100%' }}
-                    icon={FD_ICONS.get('execute')}
-                    disabled={is.empty(this.props.routine?.command)}
-                    onClick={() => this.activateRoutine()}
-                  >
-                    Manual Activate
-                  </Button>
-                </Menu.Item>
-                <Menu.Item>
-                  <Popconfirm
-                    title={`Are you sure you want to delete ${this.props?.routine?.friendlyName}?`}
-                    onConfirm={() => this.deleteRoutine()}
-                  >
+          !this.props.routine ? undefined : (
+            <Dropdown
+              overlay={
+                <Menu>
+                  <Menu.Item>
                     <Button
-                      danger
-                      icon={FD_ICONS.get('remove')}
+                      type="primary"
                       style={{ width: '100%' }}
-                      disabled={!this.props.routine}
+                      icon={FD_ICONS.get('execute')}
+                      disabled={is.empty(this.props.routine?.command)}
+                      onClick={() => this.activateRoutine()}
                     >
-                      Delete
+                      Manual Activate
                     </Button>
-                  </Popconfirm>
-                </Menu.Item>
-              </Menu>
-            }
-          >
-            <Button type="text">{FD_ICONS.get('menu')}</Button>
-          </Dropdown>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <Popconfirm
+                      title={`Are you sure you want to delete ${this.props?.routine?.friendlyName}?`}
+                      onConfirm={() => this.deleteRoutine()}
+                    >
+                      <Button
+                        danger
+                        icon={FD_ICONS.get('remove')}
+                        style={{ width: '100%' }}
+                        disabled={!this.props.routine}
+                      >
+                        Delete
+                      </Button>
+                    </Popconfirm>
+                  </Menu.Item>
+                </Menu>
+              }
+            >
+              <Button type="text" size="small">
+                {FD_ICONS.get('menu')}
+              </Button>
+            </Dropdown>
+          )
         }
       >
         {this.renderCard()}

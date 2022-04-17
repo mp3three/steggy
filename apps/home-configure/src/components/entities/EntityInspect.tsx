@@ -53,7 +53,9 @@ export class EntityInspect extends React.Component<{
               </Menu>
             }
           >
-            <Button type="text">{FD_ICONS.get('menu')}</Button>
+            <Button type="text" size="small">
+              {FD_ICONS.get('menu')}
+            </Button>
           </Dropdown>
         }
         title={
