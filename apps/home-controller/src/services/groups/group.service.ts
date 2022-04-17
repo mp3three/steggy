@@ -2,10 +2,12 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  NotFoundException,
   NotImplementedException,
 } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import type {
+  CloneGroupDTO,
   GroupSaveStateDTO,
   ROOM_ENTITY_EXTRAS,
   RoutineCommandDTO,
@@ -16,6 +18,7 @@ import { GROUP_TYPES, GroupDTO } from '@steggy/controller-shared';
 import { domain, HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import { BaseSchemaDTO } from '@steggy/persistence';
 import { each, is, ResultControlDTO } from '@steggy/utilities';
+import { v4 } from 'uuid';
 
 import { EntityCommandRouterService } from '../entity-command-router.service';
 import { LightManagerService } from '../lighting';
@@ -95,6 +98,24 @@ export class GroupService {
     group = await this.load(group);
     const base = this.getBaseGroup(group.type);
     return await base.captureState(group, name);
+  }
+
+  public async clone(
+    target: string,
+    { name, omitStates }: CloneGroupDTO,
+  ): Promise<GroupDTO> {
+    const source = await this.get(target);
+    if (!source) {
+      throw new NotFoundException();
+    }
+    return await this.create({
+      entities: source.entities,
+      friendlyName: name ?? `Copy of ${source.friendlyName}`,
+      save_states: omitStates
+        ? []
+        : source.save_states.map(state => ({ ...state, id: v4() })),
+      type: source.type,
+    });
   }
 
   public async create<T extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS>(

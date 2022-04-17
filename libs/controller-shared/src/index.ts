@@ -1,4 +1,5 @@
 export * from './animation.dto';
+export * from './clone-group.dto';
 export * from './constants';
 export * from './debug-report.dto';
 export * from './dto';

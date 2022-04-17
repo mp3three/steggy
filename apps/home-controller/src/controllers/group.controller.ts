@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
+  CloneGroupDTO,
   ENTITY_EXTRAS_SCHEMA,
   GENERIC_COMMANDS,
   ROOM_ENTITY_EXTRAS,
@@ -94,6 +95,18 @@ export class GroupController {
   ): Promise<GroupDTO> {
     await this.groupService.captureState(group, friendlyName);
     return await this.groupService.get(group);
+  }
+
+  @Post(`/:group/clone`)
+  @ApiOperation({
+    description: `Duplicate a group`,
+  })
+  @ApiResponse({ type: GroupDTO })
+  public async cloneGroup(
+    @Param('group') group: string,
+    @Body() cloneInfo: CloneGroupDTO = {},
+  ): Promise<GroupDTO> {
+    return await this.groupService.clone(group, cloneInfo);
   }
 
   @Post('/')

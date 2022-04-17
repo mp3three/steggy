@@ -111,6 +111,7 @@ export class GroupList extends React.Component {
             <Col span={12}>
               <GroupListDetail
                 group={this.state.group}
+                onClone={group => this.onClone(group)}
                 onUpdate={group => this.refresh(group)}
               />
             </Col>
@@ -121,6 +122,13 @@ export class GroupList extends React.Component {
   }
   private filter(type: string): GroupDTO[] {
     return this.state.groups.filter(group => group.type === type);
+  }
+
+  private onClone(group: GroupDTO): void {
+    this.setState({
+      group,
+      groups: [...this.state.groups, group],
+    });
   }
 
   private async refresh(group?: GroupDTO): Promise<void> {

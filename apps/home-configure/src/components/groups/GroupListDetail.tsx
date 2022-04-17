@@ -26,7 +26,12 @@ type tState = {
 };
 
 export class GroupListDetail extends React.Component<
-  { group: GroupDTO; onUpdate: (group?: GroupDTO) => void; type?: 'inner' },
+  {
+    group: GroupDTO;
+    onClone?: (group: GroupDTO) => void;
+    onUpdate: (group?: GroupDTO) => void;
+    type?: 'inner';
+  },
   tState
 > {
   override state = {} as tState;
@@ -54,6 +59,15 @@ export class GroupListDetail extends React.Component<
                       </Button>
                     </Popconfirm>
                   </Menu.Item>
+                  <Menu.Item key="clone">
+                    <Button
+                      onClick={() => this.clone()}
+                      icon={FD_ICONS.get('clone')}
+                      style={{ width: '100%' }}
+                    >
+                      Clone
+                    </Button>
+                  </Menu.Item>
                 </Menu>
               }
             >
@@ -79,6 +93,16 @@ export class GroupListDetail extends React.Component<
         url: `/group/${group._id}`,
       }),
     );
+  }
+
+  private async clone(): Promise<void> {
+    const updated = await sendRequest<GroupDTO>({
+      method: 'post',
+      url: `/group/${this.props.group._id}/clone`,
+    });
+    if (this.props.onClone) {
+      this.props.onClone(updated);
+    }
   }
 
   private async delete(): Promise<void> {
