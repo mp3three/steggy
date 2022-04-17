@@ -1,12 +1,13 @@
+import MenuIcon from '@2fd/ant-design-icons/lib/Menu';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import {
   Button,
   Card,
-  Divider,
+  Dropdown,
   Empty,
-  FormInstance,
+  Menu,
   Popconfirm,
   Space,
   Tabs,
@@ -17,7 +18,6 @@ import React from 'react';
 import { sendRequest } from '../../types';
 import { ActivateList } from './activate';
 import { CommandList } from './command';
-import { RoutineActivateDrawer } from './RoutineActivateDrawer';
 import { RoutineEnabled } from './RoutineEnabled';
 import { RoutineSettings } from './RoutineSettings';
 
@@ -34,24 +34,6 @@ export class RoutineListDetail extends React.Component<
   tState
 > {
   override state = {} as tState;
-  private activateCreateForm: FormInstance;
-  private activateDrawer: RoutineActivateDrawer;
-  private get id(): string {
-    return this.props.routine._id;
-  }
-
-  private get disablePolling(): boolean {
-    if (
-      !['enable_rules', 'disable_rules'].includes(
-        this.props.routine?.enable?.type,
-      )
-    ) {
-      return true;
-    }
-    return !(this.props.routine.enable?.comparisons ?? []).some(({ type }) =>
-      ['webhook', 'template'].includes(type),
-    );
-  }
 
   override render() {
     if (this.props.nested) {
@@ -61,30 +43,43 @@ export class RoutineListDetail extends React.Component<
       <Card
         title="Quick Edit"
         extra={
-          <>
-            <Button
-              type="primary"
-              size="small"
-              disabled={is.empty(this.props.routine?.command)}
-              onClick={() => this.activateRoutine()}
-            >
-              Manual Activate
+          <Dropdown
+            overlay={
+              <Menu>
+                <Menu.Item>
+                  <Button
+                    type="primary"
+                    style={{ width: '100%' }}
+                    size="small"
+                    disabled={is.empty(this.props.routine?.command)}
+                    onClick={() => this.activateRoutine()}
+                  >
+                    Manual Activate
+                  </Button>
+                </Menu.Item>
+                <Menu.Item>
+                  <Popconfirm
+                    title={`Are you sure you want to delete ${this.props?.routine?.friendlyName}?`}
+                    onConfirm={() => this.deleteRoutine()}
+                  >
+                    <Button
+                      danger
+                      type="primary"
+                      style={{ width: '100%' }}
+                      size="small"
+                      disabled={!this.props.routine}
+                    >
+                      Delete
+                    </Button>
+                  </Popconfirm>
+                </Menu.Item>
+              </Menu>
+            }
+          >
+            <Button type="text">
+              <MenuIcon />
             </Button>
-            <Divider type="vertical" />
-            <Popconfirm
-              title={`Are you sure you want to delete ${this.props?.routine?.friendlyName}?`}
-              onConfirm={() => this.deleteRoutine()}
-            >
-              <Button
-                danger
-                type="primary"
-                size="small"
-                disabled={!this.props.routine}
-              >
-                Delete
-              </Button>
-            </Popconfirm>
-          </>
+          </Dropdown>
         }
       >
         {this.renderCard()}
