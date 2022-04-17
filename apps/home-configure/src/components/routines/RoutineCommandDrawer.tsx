@@ -1,4 +1,3 @@
-import DebugStepInto from '@2fd/ant-design-icons/lib/DebugStepInto';
 import {
   RoomEntitySaveStateDTO,
   RoutineCommandDTO,
@@ -28,7 +27,7 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 import {
   EntityStateCommand,
   GroupActionCommand,
@@ -96,7 +95,7 @@ export class RoutineCommandDrawer extends React.Component<{
           <Space>
             <Button
               type="dashed"
-              icon={<DebugStepInto />}
+              icon={FD_ICONS.get('run')}
               onClick={this.testCommand.bind(this)}
               disabled={is.undefined(this.props?.command?.id)}
             >

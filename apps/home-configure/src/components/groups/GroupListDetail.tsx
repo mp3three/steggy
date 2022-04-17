@@ -1,4 +1,3 @@
-import MenuIcon from '@2fd/ant-design-icons/lib/Menu';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { GroupDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
@@ -16,7 +15,7 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 import { EntityInspectButton, EntityModalPicker } from '../entities';
 import { RelatedRoutines } from '../routines';
 import { GroupSaveStates } from './GroupSaveState';
@@ -50,7 +49,7 @@ export class GroupListDetail extends React.Component<
                       title={`Are you sure you want to delete ${this.props.group.friendlyName}?`}
                       onConfirm={() => this.delete()}
                     >
-                      <Button danger type="text">
+                      <Button danger icon={FD_ICONS.get('remove')}>
                         Delete Group
                       </Button>
                     </Popconfirm>
@@ -58,9 +57,7 @@ export class GroupListDetail extends React.Component<
                 </Menu>
               }
             >
-              <Button type="text">
-                <MenuIcon />
-              </Button>
+              <Button type="text">{FD_ICONS.get('menu')}</Button>
             </Dropdown>
           )
         }

@@ -1,10 +1,8 @@
-import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
-import TimelinePlus from '@2fd/ant-design-icons/lib/TimelinePlus';
 import { RoutineCommandDTO, RoutineDTO } from '@steggy/controller-shared';
 import { Button, Drawer, Empty, List } from 'antd';
 import React from 'react';
 
-import { ROUTINE_COMMAND_LIST, sendRequest } from '../../../types';
+import { FD_ICONS, ROUTINE_COMMAND_LIST, sendRequest } from '../../../types';
 
 type tState = {
   visible: boolean;
@@ -39,7 +37,7 @@ export class CommandAdd extends React.Component<
                   description={item.description}
                 />
                 <Button
-                  icon={<TimelinePlus />}
+                  icon={FD_ICONS.get('list_add')}
                   type="primary"
                   shape="round"
                   onClick={() => this.addCommand(item.type, item.name)}
@@ -50,7 +48,7 @@ export class CommandAdd extends React.Component<
         </Drawer>
         <Button
           size="small"
-          icon={<PlusBoxMultiple />}
+          icon={FD_ICONS.get('plus_box')}
           onClick={() => this.setState({ visible: true })}
         >
           Add new

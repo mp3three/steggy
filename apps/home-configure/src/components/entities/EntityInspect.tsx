@@ -1,4 +1,3 @@
-import MenuIcon from '@2fd/ant-design-icons/lib/Menu';
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import {
@@ -19,7 +18,7 @@ import React from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-import { domain, sendRequest } from '../../types';
+import { domain, FD_ICONS, sendRequest } from '../../types';
 import { EntityIdChange } from './EntityIdChange';
 import { EntityRelated } from './EntityRelated';
 import { FanEntityCard } from './FanEntityCard';
@@ -54,9 +53,7 @@ export class EntityInspect extends React.Component<{
               </Menu>
             }
           >
-            <Button type="text">
-              <MenuIcon />
-            </Button>
+            <Button type="text">{FD_ICONS.get('menu')}</Button>
           </Dropdown>
         }
         title={

@@ -1,10 +1,9 @@
-import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { GroupDTO } from '@steggy/controller-shared';
 import { Button, Form, FormInstance, Input, Popconfirm } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 
 export class GroupCreateButton extends React.Component<{
   onUpdate: (group: GroupDTO) => void;
@@ -33,7 +32,7 @@ export class GroupCreateButton extends React.Component<{
           </Form>
         }
       >
-        <Button icon={<PlusBoxMultiple />} size="small">
+        <Button icon={FD_ICONS.get('plus_box')} size="small">
           Create new
         </Button>
       </Popconfirm>

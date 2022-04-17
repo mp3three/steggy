@@ -1,4 +1,3 @@
-import InformationIcon from '@2fd/ant-design-icons/lib/Information';
 import {
   RoomDTO,
   RoomMetadataDTO,
@@ -18,7 +17,7 @@ import {
 import { parse } from 'mathjs';
 import React from 'react';
 
-import { sendRequest } from '../../../types';
+import { FD_ICONS, sendRequest } from '../../../types';
 import { ChronoExamples } from '../../misc';
 
 type tState = {
@@ -251,7 +250,7 @@ export class SetRoomMetadataCommand extends React.Component<
                     </Typography>
                   }
                 >
-                  <InformationIcon />
+                  {FD_ICONS.get('information')}
                 </Tooltip>
               </div>
               <Input.TextArea

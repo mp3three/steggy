@@ -1,4 +1,3 @@
-import Information from '@2fd/ant-design-icons/lib/Information';
 import { SolarActivateDTO } from '@steggy/controller-shared';
 import { DOWN, UP } from '@steggy/utilities';
 import { Button, List, Tooltip, Typography } from 'antd';
@@ -6,7 +5,7 @@ import dayjs from 'dayjs';
 import React from 'react';
 import SolarCalc from 'solar-calc/types/solarCalc';
 
-import { sendRequest } from '../../../types';
+import { FD_ICONS, sendRequest } from '../../../types';
 
 type tState = {
   astronomicalDawn?: string;
@@ -94,7 +93,7 @@ export class RoutineActivateSolar extends React.Component<
               title="Times vary based on coordinates provided by Home Assistant and current date"
               placement="topLeft"
             >
-              <Information />
+              {FD_ICONS.get('information')}
             </Tooltip>
           </div>
         }

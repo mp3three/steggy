@@ -1,14 +1,9 @@
-import AlarmBell from '@2fd/ant-design-icons/lib/AlarmBell';
-import BulletinBoard from '@2fd/ant-design-icons/lib/BulletinBoard';
-import HomeAutomation from '@2fd/ant-design-icons/lib/HomeAutomation';
-import LightbulbGroupOutline from '@2fd/ant-design-icons/lib/LightbulbGroupOutline';
-import { HomeOutlined, SettingOutlined } from '@ant-design/icons';
 import { is } from '@steggy/utilities';
 import { Menu } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 
 export class ApplicationMenu extends React.Component {
   override render() {
@@ -16,24 +11,24 @@ export class ApplicationMenu extends React.Component {
       <Menu theme="dark" defaultSelectedKeys={this.getSelected()} mode="inline">
         {is.empty(sendRequest.ADMIN_KEY) ? undefined : (
           <>
-            <Menu.Item key="home" icon={<HomeOutlined />}>
+            <Menu.Item key="home" icon={FD_ICONS.get('home')}>
               <Link to="/">Home</Link>
             </Menu.Item>
-            <Menu.Item key="group" icon={<LightbulbGroupOutline />}>
+            <Menu.Item key="groups" icon={FD_ICONS.get('groups')}>
               <Link to="/groups">Groups</Link>
             </Menu.Item>
-            <Menu.Item key="room" icon={<BulletinBoard />}>
+            <Menu.Item key="rooms" icon={FD_ICONS.get('rooms')}>
               <Link to="/rooms">Rooms</Link>
             </Menu.Item>
-            <Menu.Item key="routines" icon={<HomeAutomation />}>
+            <Menu.Item key="routines" icon={FD_ICONS.get('routines')}>
               <Link to="/routines">Routines</Link>
             </Menu.Item>
-            <Menu.Item key="entities" icon={<AlarmBell />}>
+            <Menu.Item key="entities" icon={FD_ICONS.get('entities')}>
               <Link to="/entities">Entities</Link>
             </Menu.Item>
           </>
         )}
-        <Menu.Item key="settings" icon={<SettingOutlined />}>
+        <Menu.Item key="settings" icon={FD_ICONS.get('settings')}>
           <Link to="/settings">Settings</Link>
         </Menu.Item>
       </Menu>
@@ -45,15 +40,15 @@ export class ApplicationMenu extends React.Component {
       return ['settings'];
     }
     if (window.location.href.includes('/room')) {
-      return ['room'];
+      return ['rooms'];
     }
-    if (window.location.href.includes('/ent')) {
+    if (window.location.href.includes('/entities')) {
       return ['entities'];
     }
-    if (window.location.href.includes('/group')) {
-      return ['group'];
+    if (window.location.href.includes('/groups')) {
+      return ['groups'];
     }
-    if (window.location.href.includes('/routine')) {
+    if (window.location.href.includes('/routines')) {
       return ['routines'];
     }
     if (window.location.href.includes('/settings')) {

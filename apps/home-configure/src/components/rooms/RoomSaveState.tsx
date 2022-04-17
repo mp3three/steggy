@@ -1,4 +1,3 @@
-import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { RoomDTO, RoomStateDTO } from '@steggy/controller-shared';
 import { DOWN, UP } from '@steggy/utilities';
@@ -14,7 +13,7 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 import { RelatedRoutines } from '../routines';
 import { RoomStateEdit } from './states';
 
@@ -53,7 +52,7 @@ export class RoomSaveStates extends React.Component<{
                 </Form>
               }
             >
-              <Button size="small" icon={<PlusBoxMultiple />}>
+              <Button size="small" icon={FD_ICONS.get('plus_box')}>
                 Create new
               </Button>
             </Popconfirm>
@@ -79,6 +78,7 @@ export class RoomSaveStates extends React.Component<{
                 <Button
                   onClick={() => this.activateState(record)}
                   type="primary"
+                  icon={FD_ICONS.get('execute')}
                 >
                   Activate
                 </Button>

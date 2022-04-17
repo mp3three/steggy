@@ -1,4 +1,3 @@
-import Magnify from '@2fd/ant-design-icons/lib/Magnify';
 import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { Button, Col, Drawer, Empty, Row } from 'antd';
@@ -7,7 +6,7 @@ import React from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-import { domain } from '../../types';
+import { domain, FD_ICONS } from '../../types';
 import { FanEntityCard } from './FanEntityCard';
 import { LightEntityCard } from './LightEntityCard';
 import { SwitchEntityCard } from './SwitchEntityCard';
@@ -31,7 +30,7 @@ export class EntityDetailDrawer extends React.Component<
     return (
       <>
         <Button onClick={() => this.setState({ visible: true })} type="text">
-          <Magnify /> {this.props.entity.attributes.friendly_name}
+          {FD_ICONS.get('magnify')} {this.props.entity.attributes.friendly_name}
         </Button>
         <Drawer
           size="large"

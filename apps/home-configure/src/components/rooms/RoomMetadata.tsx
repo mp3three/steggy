@@ -1,4 +1,3 @@
-import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import {
   RoomDTO,
   RoomMetadataDTO,
@@ -18,7 +17,7 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 import { RoutineListDetail } from '../routines';
 import { MetadataEdit } from './MetadataEdit';
 
@@ -55,7 +54,7 @@ export class RoomMetadata extends React.Component<
             type="inner"
             extra={
               <Button
-                icon={<PlusBoxMultiple />}
+                icon={FD_ICONS.get('plus_box')}
                 size="small"
                 onClick={this.create.bind(this)}
               >

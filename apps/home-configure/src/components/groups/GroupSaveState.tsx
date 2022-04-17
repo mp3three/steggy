@@ -18,7 +18,7 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 import { RelatedRoutines } from '../routines';
 import { GroupStateEdit } from './states';
 
@@ -111,6 +111,7 @@ export class GroupSaveStates extends React.Component<
                 <Button
                   onClick={() => this.activateState(record)}
                   type="primary"
+                  icon={FD_ICONS.get('execute')}
                 >
                   Activate
                 </Button>

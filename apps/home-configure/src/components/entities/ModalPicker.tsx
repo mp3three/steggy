@@ -1,4 +1,3 @@
-import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, FileAddOutlined } from '@ant-design/icons';
 import { INCREMENT, INVERT_VALUE, is, START } from '@steggy/utilities';
 import {
@@ -17,7 +16,7 @@ import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
 import React from 'react';
 
-import { domain, sendRequest } from '../../types';
+import { domain, FD_ICONS, sendRequest } from '../../types';
 
 const TEMP_TEMPLATE_SIZE = 3;
 
@@ -48,7 +47,7 @@ export class EntityModalPicker extends React.Component<
         <Button
           onClick={this.show.bind(this)}
           size="small"
-          icon={<PlusBoxMultiple />}
+          icon={FD_ICONS.get('plus_box')}
         >
           Add entities
         </Button>

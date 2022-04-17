@@ -1,4 +1,3 @@
-import MenuIcon from '@2fd/ant-design-icons/lib/Menu';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
@@ -15,7 +14,7 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 import { ActivateList } from './activate';
 import { CommandList } from './command';
 import { RoutineEnabled } from './RoutineEnabled';
@@ -50,7 +49,7 @@ export class RoutineListDetail extends React.Component<
                   <Button
                     type="primary"
                     style={{ width: '100%' }}
-                    size="small"
+                    icon={FD_ICONS.get('execute')}
                     disabled={is.empty(this.props.routine?.command)}
                     onClick={() => this.activateRoutine()}
                   >
@@ -64,9 +63,8 @@ export class RoutineListDetail extends React.Component<
                   >
                     <Button
                       danger
-                      type="primary"
+                      icon={FD_ICONS.get('remove')}
                       style={{ width: '100%' }}
-                      size="small"
                       disabled={!this.props.routine}
                     >
                       Delete
@@ -76,9 +74,7 @@ export class RoutineListDetail extends React.Component<
               </Menu>
             }
           >
-            <Button type="text">
-              <MenuIcon />
-            </Button>
+            <Button type="text">{FD_ICONS.get('menu')}</Button>
           </Dropdown>
         }
       >

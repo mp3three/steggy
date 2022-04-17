@@ -1,4 +1,3 @@
-import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { NodeIndexOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { RoutineDTO } from '@steggy/controller-shared';
 import { DOWN, is, UP } from '@steggy/utilities';
@@ -18,7 +17,7 @@ import type { NodeDragEventParams } from 'rc-tree/lib/contextTypes';
 import { Key } from 'rc-tree/lib/interface';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 
 type tRoutineMap = Map<string, { item: DataNode; routine: RoutineDTO }>;
 type tState = {
@@ -87,7 +86,7 @@ export class RoutineTree extends React.Component<
               </Form>
             }
           >
-            <Button size="small" icon={<PlusBoxMultiple />}>
+            <Button size="small" icon={FD_ICONS.get('plus_box')}>
               Create new
             </Button>
           </Popconfirm>

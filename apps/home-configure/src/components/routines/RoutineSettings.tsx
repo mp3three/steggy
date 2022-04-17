@@ -1,4 +1,3 @@
-import InformationIcon from '@2fd/ant-design-icons/lib/Information';
 import { RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import {
@@ -12,7 +11,7 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 
 export class RoutineSettings extends React.Component<{
   onUpdate: (routine: RoutineDTO) => void;
@@ -105,7 +104,7 @@ export class RoutineSettings extends React.Component<{
                 </Typography>
               }
             >
-              <InformationIcon />
+              {FD_ICONS.get('information')}
             </Tooltip>
           </Checkbox>
           <Divider orientation="left">
@@ -120,7 +119,7 @@ export class RoutineSettings extends React.Component<{
                 </Typography>
               }
             >
-              <InformationIcon />
+              {FD_ICONS.get('information')}
             </Tooltip>
             {` Repeat Runs`}
           </Divider>

@@ -1,4 +1,3 @@
-import MenuIcon from '@2fd/ant-design-icons/lib/Menu';
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import {
   DOWN,
@@ -25,7 +24,7 @@ import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 import { EntityInspect } from './EntityInspect';
 
 type showTypes = 'default' | 'all';
@@ -105,7 +104,7 @@ export class EntityList extends React.Component {
                         }
                       >
                         <Button type="text" style={{ width: '100%' }}>
-                          <MenuIcon />
+                          {FD_ICONS.get('menu')}
                         </Button>
                       </Dropdown>
                     </Col>

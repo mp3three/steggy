@@ -1,4 +1,3 @@
-import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import type { RoomDTO } from '@steggy/controller-shared';
 import { NOT_FOUND } from '@steggy/utilities';
@@ -16,7 +15,7 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 import { RoomListDetail } from './RoomListDetail';
 
 const { Content } = Layout;
@@ -64,7 +63,7 @@ export class RoomList extends React.Component {
                       </Form>
                     }
                   >
-                    <Button size="small" icon={<PlusBoxMultiple />}>
+                    <Button size="small" icon={FD_ICONS.get('plus_box')}>
                       Create new
                     </Button>
                   </Popconfirm>

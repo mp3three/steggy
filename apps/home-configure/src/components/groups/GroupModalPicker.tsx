@@ -1,4 +1,3 @@
-import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import { CloseOutlined, FileAddOutlined } from '@ant-design/icons';
 import { GroupDTO } from '@steggy/controller-shared';
 import {
@@ -25,7 +24,7 @@ import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 
 const TEMP_TEMPLATE_SIZE = 3;
 
@@ -55,7 +54,7 @@ export class GroupModalPicker extends React.Component<
         <Button
           onClick={this.show.bind(this)}
           size="small"
-          icon={<PlusBoxMultiple />}
+          icon={FD_ICONS.get('plus_box')}
         >
           Add groups
         </Button>
@@ -245,7 +244,6 @@ export class GroupModalPicker extends React.Component<
   private resetSearch(): void {
     this.setState({ searchText: '' });
     this.searchInput.input.value = '';
-    // this.searchInput.clearPasswordVazlueAttribute();
   }
 
   private search(e: React.ChangeEvent<HTMLInputElement>): void {
