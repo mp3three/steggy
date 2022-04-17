@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   CacheManagerService,
@@ -34,6 +34,7 @@ const CACHE_KEY = (type: string) => `${CACHE_PREFIX}${type}`;
 export class MetadataChangeService {
   constructor(
     private readonly logger: AutoLogService,
+    @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
     private readonly jsonFilter: JSONFilterService,
     @InjectCache()

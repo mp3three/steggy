@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import moment from 'moment';
 import { VM } from 'vm2';
@@ -7,7 +7,10 @@ import { RoomService } from './room.service';
 
 @Injectable()
 export class VMService {
-  constructor(private readonly roomService: RoomService) {}
+  constructor(
+    @Inject(forwardRef(() => RoomService))
+    private readonly roomService: RoomService,
+  ) {}
 
   public async exec<T>(
     code: string,

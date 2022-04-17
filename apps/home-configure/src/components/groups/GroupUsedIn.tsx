@@ -65,6 +65,15 @@ export class GroupUsedIn extends React.Component<{ group: GroupDTO }, tState> {
   }
 
   private updateRoom(update: RoomDTO): void {
+    if (!update) {
+      this.setState({
+        room: undefined,
+        rooms: this.state.rooms.filter(
+          ({ _id }) => _id !== this.state.room._id,
+        ),
+      });
+      return;
+    }
     const rooms = this.state.rooms.map(r =>
       r._id === this.state.room._id ? { ...r, ...update } : r,
     );

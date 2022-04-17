@@ -84,6 +84,7 @@ export class RoutineService {
     private readonly groupService: GroupService,
     private readonly sequenceActivate: SequenceActivateService,
     private readonly logger: AutoLogService,
+    @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
     private readonly routinePersistence: RoutinePersistenceService,
     @Inject(forwardRef(() => NodeRedCommand))

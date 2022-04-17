@@ -1,4 +1,9 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotImplementedException,
+} from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   RoomDTO,
@@ -23,6 +28,7 @@ export class SetRoomMetadataService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
+    @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
     private readonly chronoService: ChronoService,
     private readonly socketService: HASocketAPIService,

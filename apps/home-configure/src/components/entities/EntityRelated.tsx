@@ -259,6 +259,15 @@ export class EntityRelated extends React.Component<{ entity: string }, tState> {
   }
 
   private updateRoom(update: RoomDTO): void {
+    if (!update) {
+      this.setState({
+        room: undefined,
+        rooms: this.state.rooms.filter(
+          ({ _id }) => _id !== this.state.room._id,
+        ),
+      });
+      return;
+    }
     const rooms = this.state.rooms.map(item =>
       item._id === this.state.room._id
         ? {

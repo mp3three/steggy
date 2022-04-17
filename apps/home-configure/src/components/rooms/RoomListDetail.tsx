@@ -1,5 +1,19 @@
+import MenuIcon from '@2fd/ant-design-icons/lib/Menu';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import { RoomDTO } from '@steggy/controller-shared';
-import { Card, Empty, Form, Input, Tabs, Typography } from 'antd';
+import { is } from '@steggy/utilities';
+import {
+  Button,
+  Card,
+  Dropdown,
+  Empty,
+  Form,
+  Input,
+  Menu,
+  Popconfirm,
+  Tabs,
+  Typography,
+} from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
@@ -14,7 +28,7 @@ type tState = {
 export class RoomListDetail extends React.Component<
   {
     nested?: boolean;
-    onUpdate: (room: RoomDTO) => void;
+    onUpdate: (room?: RoomDTO) => void;
     room?: RoomDTO;
   },
   tState
@@ -25,7 +39,46 @@ export class RoomListDetail extends React.Component<
     if (this.props.nested) {
       return this.renderBody();
     }
-    return <Card title="Room details">{this.renderBody()}</Card>;
+    return (
+      <Card
+        title="Room details"
+        extra={
+          !is.object(this.props.room) ? undefined : (
+            <Dropdown
+              overlay={
+                <Menu>
+                  <Menu.Item key="delete">
+                    <Popconfirm
+                      icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                      title={`Are you sure you want to delete ${this.props.room.friendlyName}?`}
+                      onConfirm={() => this.delete()}
+                    >
+                      <Button danger type="text">
+                        Delete Group
+                      </Button>
+                    </Popconfirm>
+                  </Menu.Item>
+                </Menu>
+              }
+            >
+              <Button type="text">
+                <MenuIcon />
+              </Button>
+            </Dropdown>
+          )
+        }
+      >
+        {this.renderBody()}
+      </Card>
+    );
+  }
+
+  private async delete(): Promise<void> {
+    await sendRequest({
+      method: 'delete',
+      url: `/room/${this.props.room._id}`,
+    });
+    this.props.onUpdate();
   }
 
   private renderBody() {

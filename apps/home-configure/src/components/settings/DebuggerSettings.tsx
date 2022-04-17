@@ -117,7 +117,11 @@ export class DebuggerSettings extends React.Component {
     });
   }
 
-  private updateRoom(room: RoomDTO): void {
+  private async updateRoom(room: RoomDTO): Promise<void> {
+    if (!room) {
+      await this.refresh();
+      return;
+    }
     this.setState({
       rooms: this.state.rooms.map(r => (r._id === room._id ? room : r)),
     });

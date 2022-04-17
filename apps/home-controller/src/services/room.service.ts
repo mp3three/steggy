@@ -11,6 +11,7 @@ import {
   RoomEntityDTO,
   RoomMetadataDTO,
   RoomStateDTO,
+  RoutineCommandDTO,
   RoutineCommandRoomStateDTO,
 } from '@steggy/controller-shared';
 import { EntityManagerService } from '@steggy/home-assistant';
@@ -25,12 +26,14 @@ import { ChronoService } from './chrono.service';
 import { EntityCommandRouterService } from './entity-command-router.service';
 import { GroupService } from './groups';
 import { RoomPersistenceService } from './persistence';
+import { RoutineService } from './routines';
 
 @Injectable()
 export class RoomService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly roomPersistence: RoomPersistenceService,
+    private readonly routineService: RoutineService,
     @Inject(forwardRef(() => GroupService))
     private readonly groupService: GroupService,
     private readonly commandRouter: EntityCommandRouterService,
@@ -46,7 +49,10 @@ export class RoomService {
     const room = await this.load(command.room);
     const state = room.save_states.find(({ id }) => id === command.state);
     if (!state) {
-      throw new NotFoundException(`Cannot find save state ${command.state}`);
+      this.logger.error(
+        `[${room.friendlyName}] Cannot find save state {${command.state}}`,
+      );
+      return;
     }
     this.logger.info(`[${room.friendlyName}] activate {${state.friendlyName}}`);
     await Promise.all([
@@ -66,10 +72,7 @@ export class RoomService {
           return;
         }
         await this.groupService.activateState(
-          {
-            group: state.ref,
-            state: state.state,
-          },
+          { group: state.ref, state: state.state },
           waitForChange,
         );
       }),
@@ -78,10 +81,17 @@ export class RoomService {
 
   public async addEntity(
     room: RoomDTO | string,
-    entity: RoomEntityDTO,
+    { entity_id }: RoomEntityDTO,
   ): Promise<RoomDTO> {
     room = await this.load(room);
-    room.entities.push(entity);
+    if (!this.entityManager.ENTITIES.has(entity_id)) {
+      this.logger.error(
+        `[${room.friendlyName}] cannot attach {${entity_id}}. Entity does not exist`,
+      );
+      return;
+    }
+    this.logger.info(`[${room.friendlyName}] adding entity {${entity_id}}`);
+    room.entities.push({ entity_id });
     return await this.roomPersistence.update(room, room._id);
   }
 
@@ -105,6 +115,9 @@ export class RoomService {
     state.id = uuid();
     room.save_states ??= [];
     room.save_states.push(state);
+    this.logger.info(
+      `[${room.friendlyName}] added state {${state.friendlyName ?? 'unnamed'}}`,
+    );
     await this.roomPersistence.update(room, room._id);
     return state;
   }
@@ -114,8 +127,18 @@ export class RoomService {
     group: GroupDTO | string,
   ): Promise<RoomDTO> {
     room = await this.load(room);
-    group = await this.groupService.get(group);
-    room.groups.push(group._id);
+    const attachGroup = await this.groupService.get(group);
+    if (!group) {
+      const id = is.string(group) ? group : group._id;
+      this.logger.error(
+        `[${room.friendlyName}] Cannot attach invalid group {${id}}`,
+      );
+      return;
+    }
+    this.logger.info(
+      `[${room.friendlyName}] attach group [${attachGroup.friendlyName}]`,
+    );
+    room.groups.push(attachGroup._id);
     return await this.roomPersistence.update(room, room._id);
   }
 
@@ -144,8 +167,27 @@ export class RoomService {
     return await this.roomPersistence.create(room);
   }
 
-  public async delete(room: RoomDTO | string): Promise<boolean> {
-    room = is.string(room) ? room : room._id;
+  public async delete(item: RoomDTO | string): Promise<boolean> {
+    const id = is.string(item) ? item : item._id;
+    const room = await this.load(id);
+    const routines = await this.routineService.list({
+      filters: new Set([{ field: 'command.command.room', value: room._id }]),
+    });
+    if (!is.empty(routines)) {
+      this.logger.info(
+        `[${room.friendlyName}] removing deleted save state reference from {${routines.length}} routines`,
+      );
+    }
+    await each(
+      routines,
+      async routine =>
+        await this.routineService.update(routine._id, {
+          command: routine.command.filter(
+            (command: RoutineCommandDTO<RoutineCommandRoomStateDTO>) =>
+              !(command.type === 'room_state' && command.command.room === id),
+          ),
+        }),
+    );
     return await this.roomPersistence.delete(room);
   }
 
@@ -188,6 +230,9 @@ export class RoomService {
     return await this.roomPersistence.update(room, room._id);
   }
 
+  /**
+   * Deliberate choice to not follow through and delete references
+   */
   public async deleteMetadata(
     room: RoomDTO | string,
     remove: string,
@@ -205,6 +250,26 @@ export class RoomService {
     room = await this.load(room);
     room.save_states ??= [];
     room.save_states = room.save_states.filter(save => save.id !== state);
+    const routines = await this.routineService.list({
+      filters: new Set([{ field: 'command.command.room', value: room._id }]),
+    });
+    if (!is.empty(routines)) {
+      this.logger.info(
+        `[${room.friendlyName}] removing deleted save state reference from {${routines.length}} routines`,
+      );
+    }
+    await each(
+      routines,
+      async routine =>
+        await this.routineService.update(routine._id, {
+          command: routine.command.filter(
+            (command: RoutineCommandDTO<RoutineCommandRoomStateDTO>) =>
+              !(
+                command.type === 'room_state' && command.command.state === state
+              ),
+          ),
+        }),
+    );
     return await this.roomPersistence.update(room, room._id);
   }
 
@@ -234,12 +299,17 @@ export class RoomService {
   }
 
   public async updateMetadata(
-    room: string | RoomDTO,
+    target: string | RoomDTO,
     id: string,
     update: Partial<RoomMetadataDTO>,
   ): Promise<RoomDTO> {
-    room = await this.load(room);
+    const room = await this.load(target);
     room.metadata ??= [];
+    const metadata = room.metadata.find(item => item.id === id);
+    if (is.undefined(metadata)) {
+      this.logger.error(`[${room.friendlyName}] cannot find metadata {${id}}`);
+      return room;
+    }
     if (!is.undefined(update.value)) {
       update.value = this.resolveValue(
         room.metadata.find(metadata => metadata.id === id),
@@ -344,9 +414,8 @@ export class RoomService {
         if ((metadata.options ?? []).includes(value as string)) {
           return value as string;
         }
-        this.logger.error({ metadata, value }, ``);
+        this.logger.error({ metadata, value });
         return undefined;
     }
-    //
   }
 }

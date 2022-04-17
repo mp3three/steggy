@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
   AutoLogService,
   FetchService,
@@ -33,6 +33,7 @@ export class StopProcessingCommandService {
     private readonly fetchService: FetchService,
     private readonly filterService: JSONFilterService,
     private readonly logger: AutoLogService,
+    @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
     private readonly socketService: HASocketAPIService,
     private readonly chronoService: ChronoService,
@@ -44,7 +45,7 @@ export class StopProcessingCommandService {
     const results: boolean[] = [];
     await eachSeries(command.comparisons ?? [], async comparison => {
       // if it's "any", and we got a match, then cut to the chase
-      if (command.mode !== 'all' && results.some(i => i)) {
+      if (command.mode !== 'all' && results.some(Boolean)) {
         return;
       }
       let result = false;
@@ -83,7 +84,8 @@ export class StopProcessingCommandService {
     });
     // default to "any"
     return (
-      (command.mode === 'all' && results.every(i => i)) || results.some(i => i)
+      (command.mode === 'all' && results.every(Boolean)) ||
+      results.some(Boolean)
     );
   }
 

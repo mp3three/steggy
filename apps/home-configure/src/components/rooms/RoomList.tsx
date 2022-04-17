@@ -1,5 +1,5 @@
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
-import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import type { RoomDTO } from '@steggy/controller-shared';
 import { NOT_FOUND } from '@steggy/utilities';
 import {
@@ -20,12 +20,13 @@ import { sendRequest } from '../../types';
 import { RoomListDetail } from './RoomListDetail';
 
 const { Content } = Layout;
+type tState = { room: RoomDTO; rooms: RoomDTO[] };
 
 export class RoomList extends React.Component {
-  override state: { room: RoomDTO; rooms: RoomDTO[] } = {
+  override state = {
     room: undefined,
     rooms: [],
-  };
+  } as tState;
   private form: FormInstance;
 
   override async componentDidMount(): Promise<void> {
@@ -47,10 +48,10 @@ export class RoomList extends React.Component {
                         style={{ visibility: 'hidden' }}
                       />
                     }
-                    onConfirm={this.validate.bind(this)}
+                    onConfirm={() => this.validate()}
                     title={
                       <Form
-                        onFinish={this.validate.bind(this)}
+                        onFinish={() => this.validate()}
                         ref={form => (this.form = form)}
                       >
                         <Form.Item
@@ -72,7 +73,7 @@ export class RoomList extends React.Component {
                 <List
                   dataSource={this.state.rooms}
                   pagination={{ size: 'small' }}
-                  renderItem={this.renderRoom.bind(this)}
+                  renderItem={room => this.renderRoom(room)}
                 />
               </Card>
             </Col>
@@ -88,15 +89,7 @@ export class RoomList extends React.Component {
     );
   }
 
-  private async deleteRoom(room: RoomDTO): Promise<void> {
-    await sendRequest({
-      method: 'delete',
-      url: `/room/${room._id}`,
-    });
-    await this.refresh();
-  }
-
-  private async refresh(): Promise<void> {
+  private async refresh(): Promise<RoomDTO[]> {
     const rooms = await sendRequest<RoomDTO[]>({
       control: {
         sort: ['friendlyName'],
@@ -104,6 +97,7 @@ export class RoomList extends React.Component {
       url: `/room`,
     });
     this.setState({ rooms });
+    return rooms;
   }
 
   private renderRoom(room: RoomDTO) {
@@ -119,15 +113,6 @@ export class RoomList extends React.Component {
             </Button>
           }
         />
-        <Popconfirm
-          icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-          title={`Are you sure you want to delete ${room.friendlyName}?`}
-          onConfirm={() => this.deleteRoom(room)}
-        >
-          <Button danger type="text">
-            <CloseOutlined />
-          </Button>
-        </Popconfirm>
       </List.Item>
     );
   }
@@ -141,6 +126,15 @@ export class RoomList extends React.Component {
   }
 
   private updateRoom(room: RoomDTO): void {
+    if (!room) {
+      this.setState({
+        room: undefined,
+        rooms: this.state.rooms.filter(
+          ({ _id }) => _id !== this.state.room._id,
+        ),
+      });
+      return;
+    }
     const list = this.state.rooms;
     const index = list.findIndex(({ _id }) => _id === room._id);
     if (index === NOT_FOUND) {
@@ -159,13 +153,16 @@ export class RoomList extends React.Component {
   private async validate(): Promise<void> {
     try {
       const values = await this.form.validateFields();
-      await sendRequest({
+      const created = await sendRequest<RoomDTO>({
         body: values,
         method: 'post',
         url: `/room`,
       });
       this.form.resetFields();
-      await this.refresh();
+      const rooms = await this.refresh();
+      this.setState({
+        room: rooms.find(({ _id }) => _id === created._id),
+      });
     } catch (error) {
       console.error(error);
     }
