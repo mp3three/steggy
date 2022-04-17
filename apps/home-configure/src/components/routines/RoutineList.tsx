@@ -1,5 +1,5 @@
 import { RoutineDTO } from '@steggy/controller-shared';
-import { ResultControlDTO, SECOND } from '@steggy/utilities';
+import { is, ResultControlDTO, SECOND } from '@steggy/utilities';
 import { Col, Layout, Row } from 'antd';
 import React from 'react';
 
@@ -49,8 +49,9 @@ export class RoutineList extends React.Component<{ prop: unknown }, tState> {
             </Col>
             <Col span={12}>
               <RoutineListDetail
+                onClone={routine => this.onClone(routine)}
                 routine={this.state.selected}
-                onUpdate={this.refresh.bind(this)}
+                onUpdate={routine => this.refresh(routine)}
               />
             </Col>
           </Row>
@@ -59,9 +60,14 @@ export class RoutineList extends React.Component<{ prop: unknown }, tState> {
     );
   }
 
-  private async refresh(selected?: RoutineDTO): Promise<void> {
+  private async onClone(selected: RoutineDTO) {
+    await this.refresh(false);
+    this.setState({ selected });
+  }
+
+  private async refresh(selected?: RoutineDTO | boolean): Promise<void> {
     await this.refreshEnabled();
-    if (selected) {
+    if (is.object(selected)) {
       this.setState({
         routines: this.state.routines.map(i =>
           i._id === selected._id ? selected : i,
@@ -77,7 +83,7 @@ export class RoutineList extends React.Component<{ prop: unknown }, tState> {
       url: `/routine`,
     });
     this.setState({ routines });
-    if (this.state.selected) {
+    if (this.state.selected && selected !== false) {
       const selected = routines.find(
         ({ _id }) => _id === this.state.selected._id,
       );

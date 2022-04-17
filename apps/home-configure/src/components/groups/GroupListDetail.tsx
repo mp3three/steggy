@@ -54,7 +54,11 @@ export class GroupListDetail extends React.Component<
                       title={`Are you sure you want to delete ${this.props.group.friendlyName}?`}
                       onConfirm={() => this.delete()}
                     >
-                      <Button danger icon={FD_ICONS.get('remove')}>
+                      <Button
+                        danger
+                        style={{ textAlign: 'start', width: '100%' }}
+                        icon={FD_ICONS.get('remove')}
+                      >
                         Delete Group
                       </Button>
                     </Popconfirm>
@@ -63,7 +67,7 @@ export class GroupListDetail extends React.Component<
                     <Button
                       onClick={() => this.clone()}
                       icon={FD_ICONS.get('clone')}
-                      style={{ width: '100%' }}
+                      style={{ textAlign: 'start', width: '100%' }}
                     >
                       Clone
                     </Button>

@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   AutoLogService,
@@ -13,6 +14,7 @@ import {
 } from '@steggy/boilerplate';
 import {
   AttributeChangeActivateDTO,
+  CloneRoutineDTO,
   MetadataChangeDTO,
   RoomEntitySaveStateDTO,
   ROUTINE_ACTIVATE_COMMAND,
@@ -46,7 +48,7 @@ import {
   sleep,
 } from '@steggy/utilities';
 import dayjs from 'dayjs';
-import { v4 as uuid } from 'uuid';
+import { v4 as uuid, v4 } from 'uuid';
 
 import {
   CaptureCommandService,
@@ -249,6 +251,59 @@ export class RoutineService {
     );
   }
 
+  public async clone(
+    target: string,
+    {
+      name,
+      replaceParent,
+      omitActivate,
+      omitCommand,
+      noRecurse,
+    }: CloneRoutineDTO,
+  ): Promise<RoutineDTO> {
+    const source = await this.get(target);
+    if (!source) {
+      throw new NotFoundException();
+    }
+    this.logger.info(`Clone [${source.friendlyName}]`);
+    const cloned = await this.create({
+      activate: omitActivate
+        ? []
+        : source.activate.map(activate => ({ ...activate, id: v4() })),
+      command: omitCommand
+        ? []
+        : source.command.map(command => ({ ...command, id: v4() })),
+      enable: source.enable,
+      friendlyName: name ?? `Copy of ${source.friendlyName}`,
+      parent: replaceParent ?? source.parent,
+      repeat: source.repeat,
+      sync: source.sync,
+    });
+    if (!noRecurse) {
+      const children = await this.list({
+        filters: new Set([
+          {
+            field: 'parent',
+            value: target,
+          },
+        ]),
+      });
+      if (!is.empty(children)) {
+        this.logger.info(
+          `[${source.friendlyName}] cloning {${children.length}} child routines`,
+        );
+      }
+      await eachSeries(children, async routine => {
+        await this.clone(routine._id, {
+          omitActivate,
+          omitCommand,
+          replaceParent: cloned._id,
+        });
+      });
+    }
+    return cloned;
+  }
+
   public async create(routine: RoutineDTO): Promise<RoutineDTO> {
     return await this.routinePersistence.create(routine);
   }
@@ -258,6 +313,11 @@ export class RoutineService {
     const children = await this.routinePersistence.findMany({
       filters: new Set([{ field: 'parent', value: routine._id }]),
     });
+    if (!is.empty(children)) {
+      this.logger.info(
+        `[${routine.friendlyName}] removing {${children.length}} child routines`,
+      );
+    }
     await each(children, async child => await this.delete(child));
     this.logger.info(`[${routine.friendlyName}] Delete routine`);
     return await this.routinePersistence.delete(routine);

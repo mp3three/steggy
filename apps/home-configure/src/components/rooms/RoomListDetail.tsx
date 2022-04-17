@@ -53,7 +53,11 @@ export class RoomListDetail extends React.Component<
                       title={`Are you sure you want to delete ${this.props.room.friendlyName}?`}
                       onConfirm={() => this.delete()}
                     >
-                      <Button danger icon={FD_ICONS.get('remove')}>
+                      <Button
+                        style={{ textAlign: 'start', width: '100%' }}
+                        danger
+                        icon={FD_ICONS.get('remove')}
+                      >
                         Delete
                       </Button>
                     </Popconfirm>
@@ -62,7 +66,7 @@ export class RoomListDetail extends React.Component<
                     <Button
                       onClick={() => this.clone()}
                       icon={FD_ICONS.get('clone')}
-                      style={{ width: '100%' }}
+                      style={{ textAlign: 'start', width: '100%' }}
                     >
                       Clone
                     </Button>

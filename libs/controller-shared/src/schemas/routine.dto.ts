@@ -99,16 +99,6 @@ export class RoutineDTO {
   @IsEnum(['normal', 'queue', 'block', 'interrupt'])
   public repeat?: 'normal' | 'queue' | 'block' | 'interrupt';
 
-  /**
-   * Room that owns this routine
-   */
-  @Prop({ index: true })
-  @IsString()
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @TransformObjectId()
-  public room?: string;
-
   @Prop()
   @IsOptional()
   @ApiProperty({ required: false })

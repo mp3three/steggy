@@ -16,6 +16,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import {
+  CloneRoutineDTO,
   RoomEntitySaveStateDTO,
   RoutineActivateDTO,
   RoutineActivateOptionsDTO,
@@ -109,6 +110,20 @@ export class RoutineController {
     command.id = uuid();
     routine.command.push(command);
     return await this.update(id, routine);
+  }
+
+  @Post(`/:routine/clone`)
+  @ApiBody({ type: CloneRoutineDTO })
+  @ApiResponse({ type: RoutineDTO })
+  @ApiOperation({
+    description: `Clone a routine`,
+  })
+  public async clone(
+    @Param('routine') routine: string,
+    @Body()
+    options: CloneRoutineDTO,
+  ): Promise<RoutineDTO> {
+    return await this.routineService.clone(routine, options);
   }
 
   @Post(`/`)

@@ -58,6 +58,7 @@
               "fallthrough",
               "decipheriv",
               "decrement",
+              "recurse",
               "decrypt",
               "nowrap",
               "decrypted",

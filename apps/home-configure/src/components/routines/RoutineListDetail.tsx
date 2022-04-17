@@ -27,6 +27,7 @@ type tState = {
 export class RoutineListDetail extends React.Component<
   {
     nested?: boolean;
+    onClone?: (routine: RoutineDTO) => void;
     onUpdate: (routine: RoutineDTO) => void;
     routine: RoutineDTO;
   },
@@ -46,10 +47,10 @@ export class RoutineListDetail extends React.Component<
             <Dropdown
               overlay={
                 <Menu>
-                  <Menu.Item>
+                  <Menu.Item key="activate">
                     <Button
                       type="primary"
-                      style={{ width: '100%' }}
+                      style={{ textAlign: 'start', width: '100%' }}
                       icon={FD_ICONS.get('execute')}
                       disabled={is.empty(this.props.routine?.command)}
                       onClick={() => this.activateRoutine()}
@@ -57,20 +58,29 @@ export class RoutineListDetail extends React.Component<
                       Manual Activate
                     </Button>
                   </Menu.Item>
-                  <Menu.Item>
+                  <Menu.Item key="delete">
                     <Popconfirm
                       title={`Are you sure you want to delete ${this.props?.routine?.friendlyName}?`}
                       onConfirm={() => this.deleteRoutine()}
                     >
                       <Button
                         danger
+                        style={{ textAlign: 'start', width: '100%' }}
                         icon={FD_ICONS.get('remove')}
-                        style={{ width: '100%' }}
                         disabled={!this.props.routine}
                       >
                         Delete
                       </Button>
                     </Popconfirm>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <Button
+                      onClick={() => this.clone()}
+                      icon={FD_ICONS.get('clone')}
+                      style={{ textAlign: 'start', width: '100%' }}
+                    >
+                      Clone
+                    </Button>
                   </Menu.Item>
                 </Menu>
               }
@@ -92,6 +102,16 @@ export class RoutineListDetail extends React.Component<
       method: 'post',
       url: `/routine/${this.props.routine._id}`,
     });
+  }
+
+  private async clone(): Promise<void> {
+    const cloned = await sendRequest<RoutineDTO>({
+      method: 'post',
+      url: `/routine/${this.props.routine._id}/clone`,
+    });
+    if (this.props.onClone) {
+      this.props.onClone(cloned);
+    }
   }
 
   private async deleteRoutine(): Promise<void> {
