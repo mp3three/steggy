@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
+  CloneRoomDTO,
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
@@ -159,6 +160,25 @@ export class RoomService {
         ),
       ]),
     );
+  }
+
+  public async clone(
+    target: string,
+    { name, omitStates, omitMetadata }: CloneRoomDTO,
+  ): Promise<RoomDTO> {
+    const source = await this.get(target);
+    if (!source) {
+      throw new NotFoundException();
+    }
+    return await this.create({
+      entities: source.entities,
+      friendlyName: name ?? `Copy of ${source.friendlyName}`,
+      groups: source.groups,
+      metadata: omitMetadata ? [] : source.metadata,
+      save_states: omitStates ? [] : source.save_states,
+      settings: source.settings,
+      storage: source.storage,
+    });
   }
 
   public async create(

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
+  CloneRoomDTO,
   GroupDTO,
   RoomDTO,
   RoomEntityDTO,
@@ -102,6 +103,18 @@ export class RoomController {
       async id => await this.roomService.attachGroup(room, id),
     );
     return await this.roomService.get(room, true, control);
+  }
+
+  @Post(`/:room/clone`)
+  @ApiResponse({ type: RoomDTO })
+  @ApiOperation({
+    description: `Clone an existing group`,
+  })
+  public async clone(
+    @Param('room') room: string,
+    @Body() options: CloneRoomDTO = {},
+  ): Promise<RoomDTO> {
+    return await this.roomService.clone(room, options);
   }
 
   @Post(`/`)

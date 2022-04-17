@@ -27,6 +27,7 @@ type tState = {
 export class RoomListDetail extends React.Component<
   {
     nested?: boolean;
+    onClone?: (room: RoomDTO) => void;
     onUpdate: (room?: RoomDTO) => void;
     room?: RoomDTO;
   },
@@ -57,6 +58,15 @@ export class RoomListDetail extends React.Component<
                       </Button>
                     </Popconfirm>
                   </Menu.Item>
+                  <Menu.Item key="clone">
+                    <Button
+                      onClick={() => this.clone()}
+                      icon={FD_ICONS.get('clone')}
+                      style={{ width: '100%' }}
+                    >
+                      Clone
+                    </Button>
+                  </Menu.Item>
                 </Menu>
               }
             >
@@ -70,6 +80,16 @@ export class RoomListDetail extends React.Component<
         {this.renderBody()}
       </Card>
     );
+  }
+
+  private async clone(): Promise<void> {
+    const cloned = await sendRequest<RoomDTO>({
+      method: 'post',
+      url: `/room/${this.props.room._id}/clone`,
+    });
+    if (this.props.onClone) {
+      this.props.onClone(cloned);
+    }
   }
 
   private async delete(): Promise<void> {

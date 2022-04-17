@@ -170,6 +170,7 @@ export class RoomMetadata extends React.Component<
   }
 
   private async refreshActivate() {
+    this.props.room.metadata ??= [];
     const routines = await sendRequest<RoutineDTO[]>({
       control: {
         filters: new Set([
@@ -190,6 +191,7 @@ export class RoomMetadata extends React.Component<
   }
 
   private async refreshEnable() {
+    this.props.room.metadata ??= [];
     const routines = await sendRequest<RoutineDTO[]>({
       control: {
         filters: new Set([

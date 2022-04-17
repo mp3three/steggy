@@ -77,6 +77,7 @@ export class RoomList extends React.Component {
             </Col>
             <Col span={12}>
               <RoomListDetail
+                onClone={room => this.onClone(room)}
                 room={this.state.room}
                 onUpdate={update => this.updateRoom(update)}
               />
@@ -85,6 +86,13 @@ export class RoomList extends React.Component {
         </Content>
       </Layout>
     );
+  }
+
+  private onClone(room: RoomDTO) {
+    this.setState({
+      room,
+      rooms: [...this.state.rooms, room],
+    });
   }
 
   private async refresh(): Promise<RoomDTO[]> {
