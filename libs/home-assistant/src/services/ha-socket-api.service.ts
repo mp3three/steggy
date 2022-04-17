@@ -157,7 +157,7 @@ export class HASocketAPIService {
   public async updateEntity(
     entity: string,
     data: { name?: string; new_entity_id?: string },
-  ): Promise<{ entity_entry: HassStateDTO }> {
+  ): Promise<{ entity_entry: unknown }> {
     return await this.sendMessage({
       area_id: null,
       entity_id: entity,

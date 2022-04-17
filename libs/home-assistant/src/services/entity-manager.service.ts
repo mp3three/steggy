@@ -126,11 +126,16 @@ export class EntityManagerService {
   public async updateFriendlyName(
     entityId: string,
     friendly_name: string,
-  ): Promise<{ entity_entry: HassStateDTO }> {
-    return await this.socketService.updateEntity(entityId, {
+  ): Promise<HassStateDTO> {
+    // UpdateEntity returns a weird object that seems to be more internal to home assistant
+    // Names of properties DO NOT align with normal type definitions
+    //
+    // TODO:: This function needs validation that it isn't subject to race conditions
+    await this.socketService.updateEntity(entityId, {
       name: friendly_name,
       new_entity_id: entityId,
     });
+    return this.getEntity(entityId);
   }
 
   public async updateId(

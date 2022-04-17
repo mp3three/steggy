@@ -242,10 +242,10 @@ export class EntityController {
     if (!this.entityManager.isValidId(entityId)) {
       throw new NotFoundException(`Could not find entity ${entityId}`);
     }
-    const result = await this.entityManager.updateFriendlyName(
+    const entity = await this.entityManager.updateFriendlyName(
       entityId,
       body.name,
     );
-    return result.entity_entry;
+    return entity;
   }
 }

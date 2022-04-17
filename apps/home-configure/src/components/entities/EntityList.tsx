@@ -1,3 +1,4 @@
+import MenuIcon from '@2fd/ant-design-icons/lib/Menu';
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import {
   DOWN,
@@ -11,9 +12,11 @@ import {
   Button,
   Card,
   Col,
+  Dropdown,
   Input,
   Layout,
   List,
+  Menu,
   notification,
   Row,
   Typography,
@@ -25,6 +28,8 @@ import React from 'react';
 import { sendRequest } from '../../types';
 import { EntityInspect } from './EntityInspect';
 
+type showTypes = 'default' | 'all';
+
 type tState = {
   entities: string[];
   entity?: HassStateDTO;
@@ -32,11 +37,17 @@ type tState = {
   flags?: string[];
   search: { text: string; value: string }[];
   searchText: string;
+  showType: showTypes;
 };
 const TEMP_TEMPLATE_SIZE = 3;
 
 export class EntityList extends React.Component {
-  override state = { entities: [], flags: [], search: [] } as tState;
+  override state = {
+    entities: [],
+    flags: [],
+    search: [],
+    showType: 'default',
+  } as tState;
 
   override async componentDidMount(): Promise<void> {
     await this.refresh();
@@ -50,10 +61,55 @@ export class EntityList extends React.Component {
             <Col span={12}>
               <Card
                 title={
-                  <Input
-                    placeholder="Filter"
-                    onChange={({ target }) => this.updateSearch(target.value)}
-                  />
+                  <Row gutter={8}>
+                    <Col span={22}>
+                      <Input
+                        placeholder="Filter"
+                        style={{ width: '100%' }}
+                        onChange={({ target }) =>
+                          this.updateSearch(target.value)
+                        }
+                      />
+                    </Col>
+                    <Col span={2}>
+                      <Dropdown
+                        overlay={
+                          <Menu>
+                            <Menu.Item>
+                              <Button
+                                style={{ width: '100%' }}
+                                onClick={() => this.setShowType('default')}
+                                type={
+                                  this.state.showType === 'default'
+                                    ? 'primary'
+                                    : 'default'
+                                }
+                              >
+                                Default List
+                              </Button>
+                            </Menu.Item>
+                            <Menu.Item>
+                              <Button
+                                style={{ width: '100%' }}
+                                onClick={() => this.setShowType('all')}
+                                type={
+                                  this.state.showType === 'all'
+                                    ? 'primary'
+                                    : 'default'
+                                }
+                              >
+                                Show All
+                              </Button>
+                            </Menu.Item>
+                          </Menu>
+                        }
+                      >
+                        <Button type="text" style={{ width: '100%' }}>
+                          <MenuIcon />
+                        </Button>
+                      </Dropdown>
+                    </Col>
+                  </Row>
                 }
               >
                 <List
@@ -176,14 +232,24 @@ export class EntityList extends React.Component {
     }
   }
 
-  private async refresh(): Promise<void> {
+  private async refresh(type = this.state.showType): Promise<void> {
     const entities = (
-      await sendRequest<string[]>({ url: `/entity/list` })
+      await sendRequest<string[]>({
+        url: type === 'default' ? `/entity/list` : '/entity/list-all',
+      })
     ).sort((a, b) => (a > b ? UP : DOWN));
     this.setState({
       entities,
       search: entities.map(i => ({ text: i, value: i })),
     });
+  }
+
+  private async setShowType(showType: showTypes): Promise<void> {
+    if (this.state.showType === showType) {
+      return;
+    }
+    this.setState({ showType });
+    await this.refresh(showType);
   }
 
   private updateSearch(searchText: string): void {
