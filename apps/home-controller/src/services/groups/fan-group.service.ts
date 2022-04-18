@@ -19,7 +19,7 @@ import {
 } from '@steggy/home-assistant-shared';
 import { each, START } from '@steggy/utilities';
 
-import { EntityCommandRouterService } from '../entity-command-router.service';
+import { EntityCommandRouterService } from '../entities/entity-command-router.service';
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
 

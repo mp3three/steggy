@@ -24,10 +24,10 @@ import { v4 as uuid } from 'uuid';
 
 import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../typings';
 import { ChronoService } from './chrono.service';
-import { EntityCommandRouterService } from './entity-command-router.service';
-import { GroupService } from './groups';
+import { EntityCommandRouterService } from './entities/entity-command-router.service';
+import { GroupService } from './group.service';
 import { RoomPersistenceService } from './persistence';
-import { RoutineService } from './routines';
+import { RoutineService } from './routine.service';
 
 @Injectable()
 export class RoomService {

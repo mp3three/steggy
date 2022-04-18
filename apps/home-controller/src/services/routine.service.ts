@@ -51,6 +51,12 @@ import {
 import dayjs from 'dayjs';
 import { v4 as uuid, v4 } from 'uuid';
 
+import { AttributeChangeActivateService } from './activate/attribute-change-activate.service';
+import { MetadataChangeService } from './activate/metadata-change.service';
+import { ScheduleActivateService } from './activate/schedule-activate.service';
+import { SequenceActivateService } from './activate/sequence-activate.service';
+import { SolarActivateService } from './activate/solar-activate.service';
+import { StateChangeActivateService } from './activate/state-change-activate.service';
 import {
   CaptureCommandService,
   LightFlashCommandService,
@@ -61,17 +67,11 @@ import {
   SleepCommandService,
   StopProcessingCommandService,
   WebhookService,
-} from '../commands';
-import { EntityCommandRouterService } from '../entity-command-router.service';
-import { GroupService } from '../groups';
-import { RoutinePersistenceService } from '../persistence';
-import { RoomService } from '../room.service';
-import { AttributeChangeActivateService } from './attribute-change-activate.service';
-import { MetadataChangeService } from './metadata-change.service';
-import { ScheduleActivateService } from './schedule-activate.service';
-import { SequenceActivateService } from './sequence-activate.service';
-import { SolarActivateService } from './solar-activate.service';
-import { StateChangeActivateService } from './state-change-activate.service';
+} from './commands';
+import { EntityCommandRouterService } from './entities/entity-command-router.service';
+import { GroupService } from './group.service';
+import { RoutinePersistenceService } from './persistence';
+import { RoomService } from './room.service';
 
 const INSTANCE_ID = uuid();
 const RUN_CACHE = (routine: RoutineDTO) => `${INSTANCE_ID}_${routine._id}`;
@@ -82,6 +82,7 @@ export class RoutineService {
     @InjectCache()
     private readonly cacheService: CacheManagerService,
     private readonly entityRouter: EntityCommandRouterService,
+    @Inject(forwardRef(() => LightFlashCommandService))
     private readonly flashAnimation: LightFlashCommandService,
     @Inject(forwardRef(() => GroupService))
     private readonly groupService: GroupService,
@@ -98,6 +99,7 @@ export class RoutineService {
     private readonly solarService: SolarActivateService,
     @Inject(forwardRef(() => RoutineTriggerService))
     private readonly triggerService: RoutineTriggerService,
+    @Inject(forwardRef(() => CaptureCommandService))
     private readonly captureCommand: CaptureCommandService,
     private readonly stateChangeActivate: StateChangeActivateService,
     @Inject(forwardRef(() => SendNotificationService))

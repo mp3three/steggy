@@ -7,7 +7,8 @@ import {
 import { AutoLogService } from '@steggy/boilerplate';
 import { RoutineCommandTriggerRoutineDTO } from '@steggy/controller-shared';
 
-import { RoutineEnabledService, RoutineService } from '../routines';
+import { RoutineEnabledService } from '../activate';
+import { RoutineService } from '../routine.service';
 
 @Injectable()
 export class RoutineTriggerService {

@@ -22,7 +22,7 @@ import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../../typings';
 import { ChronoService } from '../chrono.service';
 import { StopProcessingCommandService } from '../commands';
 import { RoutinePersistenceService } from '../persistence';
-import { RoutineService } from './routine.service';
+import { RoutineService } from '../routine.service';
 
 type METADATA = {
   props: string[];

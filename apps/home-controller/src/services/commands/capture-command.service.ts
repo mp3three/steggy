@@ -12,7 +12,7 @@ import {
 } from '@steggy/controller-shared';
 import { each } from '@steggy/utilities';
 
-import { GroupService } from '../groups';
+import { GroupService } from '../group.service';
 
 @Injectable()
 export class CaptureCommandService {

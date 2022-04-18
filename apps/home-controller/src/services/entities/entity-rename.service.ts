@@ -14,9 +14,9 @@ import {
 import { EntityManagerService } from '@steggy/home-assistant';
 import { eachSeries, ResultControlDTO } from '@steggy/utilities';
 
-import { GroupService } from './groups';
-import { RoomService } from './room.service';
-import { RoutineService } from './routines';
+import { GroupService } from '../group.service';
+import { RoomService } from '../room.service';
+import { RoutineService } from '../routine.service';
 
 type tStopProcessing = RoutineCommandDTO<
   RoutineCommandStopProcessingDTO<RoutineStateComparisonDTO>

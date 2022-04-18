@@ -5,7 +5,7 @@ import {
   LockAttributesDTO,
   SwitchAttributesDTO,
 } from '@steggy/home-assistant-shared';
-import { IsString, ValidateNested } from 'class-validator';
+import { IsEnum, IsString, ValidateNested } from 'class-validator';
 
 export class RoomStateDTO {
   @ApiProperty()
@@ -43,7 +43,7 @@ export class RoomEntitySaveStateDTO<EXTRA = ROOM_ENTITY_EXTRAS> {
   @IsString()
   @ApiProperty()
   public state?: string;
-  @IsString()
+  @IsEnum(['group', 'entity', 'room'])
   @ApiProperty()
-  public type?: 'group' | 'entity';
+  public type?: 'group' | 'entity' | 'room';
 }

@@ -3,6 +3,7 @@ import { ApplicationModule, RegisterCache } from '@steggy/boilerplate';
 import {
   GroupDTO,
   MetadataDTO,
+  PersonDTO,
   RoomDTO,
   RoutineDTO,
 } from '@steggy/controller-shared';
@@ -37,7 +38,6 @@ import {
 import {
   ApplicationService,
   AttributeChangeActivateService,
-  AvailabilityMonitorService,
   CaptureCommandService,
   ChronoService,
   CircadianService,
@@ -113,7 +113,6 @@ const providers = [
     StopProcessingCommandService,
   ],
   ApplicationService,
-  AvailabilityMonitorService,
   ChronoService,
   DebuggerService,
   EntityCommandRouterService,
@@ -197,7 +196,13 @@ const providers = [
   imports: [
     HomeAssistantModule,
     RegisterCache(),
-    ...QuickConnectModule.forRoot([GroupDTO, RoomDTO, RoutineDTO, MetadataDTO]),
+    ...QuickConnectModule.forRoot([
+      GroupDTO,
+      RoomDTO,
+      RoutineDTO,
+      MetadataDTO,
+      PersonDTO,
+    ]),
     ...(existsSync(rootPath) ? [ServeStaticModule.forRoot({ rootPath })] : []),
     ServerModule,
   ],

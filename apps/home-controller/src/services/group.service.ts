@@ -20,16 +20,16 @@ import { BaseSchemaDTO } from '@steggy/persistence';
 import { each, is, ResultControlDTO } from '@steggy/utilities';
 import { v4 } from 'uuid';
 
-import { EntityCommandRouterService } from '../entity-command-router.service';
-import { LightManagerService } from '../lighting';
-import { GroupPersistenceService } from '../persistence';
-import { RoomService } from '../room.service';
-import { RoutineService } from '../routines';
-import { BaseGroupService } from './base-group.service';
-import { FanGroupService } from './fan-group.service';
-import { LightGroupService } from './light-group.service';
-import { LockGroupService } from './lock-group.service';
-import { SwitchGroupService } from './switch-group.service';
+import { EntityCommandRouterService } from './entities/entity-command-router.service';
+import { BaseGroupService } from './groups/base-group.service';
+import { FanGroupService } from './groups/fan-group.service';
+import { LightGroupService } from './groups/light-group.service';
+import { LockGroupService } from './groups/lock-group.service';
+import { SwitchGroupService } from './groups/switch-group.service';
+import { LightManagerService } from './lighting';
+import { GroupPersistenceService } from './persistence';
+import { RoomService } from './room.service';
+import { RoutineService } from './routine.service';
 
 @Injectable()
 export class GroupService {

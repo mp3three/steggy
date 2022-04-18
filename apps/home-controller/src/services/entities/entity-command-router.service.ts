@@ -24,8 +24,8 @@ import {
 } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 
-import { LightManagerService } from './lighting';
-import { MetadataService } from './metadata.service';
+import { LightManagerService } from '../lighting';
+import { MetadataService } from '../metadata.service';
 
 @Injectable()
 export class EntityCommandRouterService {

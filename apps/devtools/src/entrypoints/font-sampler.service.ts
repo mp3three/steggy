@@ -3,7 +3,6 @@ import chalk from 'chalk';
 import { Fonts, textSync } from 'figlet';
 
 /* eslint-disable spellcheck/spell-checker */
-
 const ALL_FONTS = [
   '3-D',
   '3D Diagonal',
