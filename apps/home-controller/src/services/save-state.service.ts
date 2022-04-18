@@ -12,6 +12,7 @@ export class SaveStateService {
     @Inject(forwardRef(() => GroupService))
     private readonly groupService: GroupService,
     private readonly commandRouter: EntityCommandRouterService,
+    @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
   ) {}
 

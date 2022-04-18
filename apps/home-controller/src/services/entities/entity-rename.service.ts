@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   AttributeChangeActivateDTO,
@@ -27,6 +27,7 @@ export class EntityRenameService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly groupService: GroupService,
+    @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
     private readonly routineService: RoutineService,
     private readonly entityManager: EntityManagerService,

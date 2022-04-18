@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { casual, Chrono } from 'chrono-node';
 
@@ -26,6 +26,7 @@ const SOLAR_INJECT = [
 export class ChronoService {
   constructor(
     private readonly logger: AutoLogService,
+    @Inject(forwardRef(() => SolarCalcService))
     private readonly solarCalc: SolarCalcService,
   ) {}
 
