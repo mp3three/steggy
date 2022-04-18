@@ -45,13 +45,34 @@ export class RoutineEnabledService {
     private readonly chronoService: ChronoService,
   ) {}
 
-  public readonly ACTIVE_ROUTINES = new Set<string>();
-  private readonly ENABLE_WATCHERS = new Map<string, (() => void)[]>();
-  private readonly RAW_LIST = new Map<string, RoutineDTO>();
-  private readonly WATCH_ENTITIES = new Map<string, string[]>();
-  private readonly WATCH_METADATA = new Map<string, METADATA[]>();
+  public ACTIVE_ROUTINES = new Set<string>();
+  private ENABLE_WATCHERS = new Map<string, (() => void)[]>();
+  private RAW_LIST = new Map<string, RoutineDTO>();
+  private WATCH_ENTITIES = new Map<string, string[]>();
+  private WATCH_METADATA = new Map<string, METADATA[]>();
   private ancestors = new Map<string, string[]>();
   private initialLoad = false;
+
+  public async reload(): Promise<void> {
+    this.logger.warn(`Performing full routine refresh`);
+
+    // Stop all active routines
+    this.ACTIVE_ROUTINES.forEach(id => this.stop(this.RAW_LIST.get(id)));
+
+    // Clear out all initial data
+    this.RAW_LIST = new Map();
+
+    // Extra resetting (probably unnecessary)
+    this.ACTIVE_ROUTINES = new Set();
+    this.WATCH_ENTITIES = new Map();
+    this.WATCH_METADATA = new Map();
+    this.ancestors = new Map();
+
+    // Loading as if fresh
+    this.initialLoad = false;
+    await this.onApplicationBootstrap();
+    await this.onApplicationReady();
+  }
 
   protected async onApplicationBootstrap(): Promise<void> {
     if (this.safeMode) {

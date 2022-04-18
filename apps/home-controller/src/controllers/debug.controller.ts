@@ -100,6 +100,15 @@ export class DebugController {
     return await this.nodeRed.listAvailable();
   }
 
+  @Post('/reload')
+  @ApiOperation({
+    description: `Stop all routine listeners, reload caches from database, then start again.`,
+  })
+  public async reload(): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
+    await this.routineEnabled.reload();
+    return GENERIC_SUCCESS_RESPONSE;
+  }
+
   @Post(`/render-template`)
   @ApiResponse({ schema: { type: 'string' } })
   @ApiBody({
