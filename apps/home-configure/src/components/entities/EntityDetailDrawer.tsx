@@ -7,9 +7,9 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import { domain, FD_ICONS } from '../../types';
-import { FanEntityCard } from './FanEntityCard';
-import { LightEntityCard } from './LightEntityCard';
-import { SwitchEntityCard } from './SwitchEntityCard';
+import { EntityCardFan } from './EntityCardFan';
+import { EntityCardLight } from './EntityCardLight';
+import { EntityCardSwitch } from './EntityCardSwitch';
 
 type tStateType = {
   visible?: boolean;
@@ -56,16 +56,16 @@ export class EntityDetailDrawer extends React.Component<
     switch (domain(entity.entity_id)) {
       case 'light':
         return (
-          <LightEntityCard selfContained state={{ ref: entity.entity_id }} />
+          <EntityCardLight selfContained state={{ ref: entity.entity_id }} />
         );
       case 'media_player':
       case 'switch':
         return (
-          <SwitchEntityCard selfContained state={{ ref: entity.entity_id }} />
+          <EntityCardSwitch selfContained state={{ ref: entity.entity_id }} />
         );
       case 'fan':
         return (
-          <FanEntityCard selfContained state={{ ref: entity.entity_id }} />
+          <EntityCardFan selfContained state={{ ref: entity.entity_id }} />
         );
     }
     return <Empty description="No control widget" />;

@@ -7,7 +7,7 @@ import { Empty, Form, Select, Space } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../../types';
-import { LightGroupAction } from '../../groups';
+import { GroupActionLight } from '../../groups';
 
 type tState = {
   groups: GroupDTO[];
@@ -80,7 +80,7 @@ export class GroupActionCommand extends React.Component<
     }
     if (this.group.type === 'light') {
       return (
-        <LightGroupAction
+        <GroupActionLight
           onUpdate={part => this.props.onUpdate(part)}
           command={
             this.props.command as RoutineCommandGroupActionDTO<{

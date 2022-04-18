@@ -19,7 +19,7 @@ import React from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 import { RoutineListDetail } from '../routines';
-import { MetadataEdit } from './MetadataEdit';
+import { RoomMetadataEdit } from './RoomMetadataEdit';
 
 type tState = {
   activate: RoutineDTO[];
@@ -123,7 +123,7 @@ export class RoomMetadata extends React.Component<
             </Tabs>
           </Card>
         </Space>
-        <MetadataEdit
+        <RoomMetadataEdit
           room={this.props.room}
           metadata={this.state.metadata}
           onUpdate={metadata => this.updateMetadata(metadata)}

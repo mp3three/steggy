@@ -23,7 +23,7 @@ type tStateType = {
   state?: string;
 };
 
-export class MediaEntityCard extends React.Component<
+export class EntityCardMedia extends React.Component<
   {
     onRemove?: (entity_id: string) => void;
     onUpdate?: (state: RoomEntitySaveStateDTO) => void;

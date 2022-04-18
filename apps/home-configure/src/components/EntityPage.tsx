@@ -24,8 +24,8 @@ import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
 import React from 'react';
 
-import { FD_ICONS, sendRequest } from '../../types';
-import { EntityInspect } from './EntityInspect';
+import { FD_ICONS, sendRequest } from '../types';
+import { EntityInspect } from './entities';
 
 type showTypes = 'default' | 'all';
 

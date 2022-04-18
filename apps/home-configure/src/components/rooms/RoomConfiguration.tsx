@@ -6,7 +6,7 @@ import React from 'react';
 
 import { sendRequest } from '../../types';
 import { EntityModalPicker } from '../entities';
-import { EntityInspectButton } from '../entities/InspectButton';
+import { EntityInspectButton } from '../entities/EntityInspectButton';
 import { GroupInspectButton, GroupModalPicker } from '../groups';
 
 type PartialGroup = Pick<

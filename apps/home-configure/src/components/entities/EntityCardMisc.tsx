@@ -14,14 +14,14 @@ import {
 import React from 'react';
 
 import { sendRequest } from '../../types';
-import { EntityAttributePopover } from './AttributePopover';
+import { EntityAttributePopover } from './EntityAttributePopover';
 
 type tStateType = {
   friendly_name?: string;
   state?: string;
 };
 
-export class EntityCard extends React.Component<
+export class EntityCardMisc extends React.Component<
   {
     onRemove?: (entity_id: string) => void;
     onUpdate: (state: RoomEntitySaveStateDTO) => void;

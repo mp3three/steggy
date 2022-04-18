@@ -3,9 +3,8 @@ import { is, ResultControlDTO, SECOND } from '@steggy/utilities';
 import { Col, Layout, Row } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
-import { RoutineListDetail } from './RoutineListDetail';
-import { RoutineTree } from './RoutineTree';
+import { sendRequest } from '../types';
+import { RoutineListDetail, RoutineTree } from './routines';
 
 type tState = {
   enabled: string[];

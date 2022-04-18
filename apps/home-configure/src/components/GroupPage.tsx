@@ -3,9 +3,8 @@ import { NOT_FOUND } from '@steggy/utilities';
 import { Button, Card, Col, Layout, List, Row, Tabs } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
-import { GroupCreateButton } from './GroupCreateButton';
-import { GroupListDetail } from './GroupListDetail';
+import { sendRequest } from '../types';
+import { GroupCreateButton, GroupListDetail } from './groups';
 
 const { Content } = Layout;
 

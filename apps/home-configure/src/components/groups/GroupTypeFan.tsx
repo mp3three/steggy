@@ -1,25 +1,22 @@
-import {
-  GroupDTO,
-  RoomEntitySaveStateDTO,
-} from '@steggy/controller-shared';
+import { GroupDTO, RoomEntitySaveStateDTO } from '@steggy/controller-shared';
 import { FanStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import { Col, Empty, Row } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
-import { FanEntityCard } from '../entities';
+import { EntityCardFan } from '../entities';
 
 type tStateType = { group: GroupDTO };
 
-export class FanGroup extends React.Component<
+export class GroupTypeFan extends React.Component<
   {
     group: GroupDTO;
     groupUpdate?: (group: GroupDTO) => void;
   },
   tStateType
 > {
-  private lightCards: Record<string, FanEntityCard> = {};
+  private lightCards: Record<string, EntityCardFan> = {};
 
   override render() {
     return (
@@ -31,7 +28,7 @@ export class FanGroup extends React.Component<
         ) : (
           this.props.group.state.states.map(entity => (
             <Col key={entity.ref}>
-              <FanEntityCard
+              <EntityCardFan
                 state={entity}
                 selfContained
                 ref={reference => (this.lightCards[entity.ref] = reference)}

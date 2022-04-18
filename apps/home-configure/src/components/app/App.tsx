@@ -1,19 +1,19 @@
 import { is } from '@steggy/utilities';
 import { Layout, Typography } from 'antd';
+import { Footer } from 'antd/lib/layout/layout';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { Route, Switch } from 'react-router-dom';
+import { Link, Route, Switch } from 'react-router-dom';
 
 import { store } from '../../store';
 import { ADMIN_KEY, BASE_URL } from '../../types';
-import { EntityList } from '../entities';
-import { Foot } from '../footer';
-import { GroupList } from '../groups';
-import { HomePage } from '../home';
-import { ApplicationMenu } from '../menu';
-import { RoomList } from '../rooms';
-import { RoutineList } from '../routines';
-import { SettingsPage } from '../settings';
+import { EntityList } from '../EntityPage';
+import { GroupList } from '../GroupPage';
+import { HomePage } from '../HomePage';
+import { RoomList } from '../RoomPage';
+import { RoutineList } from '../RoutinePage';
+import { SettingsPage } from '../SettingsPage';
+import { ApplicationMenu } from './ApplicationMenu';
 
 const { Header, Sider, Content } = Layout;
 
@@ -64,7 +64,11 @@ export class App extends React.Component {
                 </Switch>
               )}
             </Content>
-            <Foot />
+            <Footer style={{ textAlign: 'center' }}>
+              <Link to="https://github.com/ccontour/steggy" target="_blank">
+                @steggy
+              </Link>
+            </Footer>
           </Layout>
         </Layout>
       </Provider>

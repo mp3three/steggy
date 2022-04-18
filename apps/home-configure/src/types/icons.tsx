@@ -10,6 +10,7 @@ import InformationIcon from '@2fd/ant-design-icons/lib/Information';
 import LightbulbGroupOutline from '@2fd/ant-design-icons/lib/LightbulbGroupOutline';
 import Magnify from '@2fd/ant-design-icons/lib/Magnify';
 import Menu from '@2fd/ant-design-icons/lib/Menu';
+import NaturePeople from '@2fd/ant-design-icons/lib/NaturePeople';
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import StepForward from '@2fd/ant-design-icons/lib/StepForward';
 import TimelinePlus from '@2fd/ant-design-icons/lib/TimelinePlus';
@@ -30,6 +31,7 @@ type iconTypes =
   | 'settings'
   | 'rooms'
   | 'metadata'
+  | 'people'
   | 'run'
   | 'groups'
   | 'home';
@@ -49,6 +51,7 @@ export const FD_ICONS = new Map<iconTypes, JSX.Element>([
   ['menu', <Menu />],
   ['metadata', <ApplicationVariable />],
   ['execute', <StepForward />],
+  ['people', <NaturePeople />],
   ['remove', <CardRemove />],
   ['plus_box', <PlusBoxMultiple />],
   ['rooms', <BulletinBoard />],

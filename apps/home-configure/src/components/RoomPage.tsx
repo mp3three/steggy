@@ -15,8 +15,8 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { FD_ICONS, sendRequest } from '../../types';
-import { RoomListDetail } from './RoomListDetail';
+import { FD_ICONS, sendRequest } from '../types';
+import { RoomListDetail } from './rooms';
 
 const { Content } = Layout;
 type tState = { room: RoomDTO; rooms: RoomDTO[] };

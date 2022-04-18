@@ -5,9 +5,9 @@ import React from 'react';
 
 import { domain, sendRequest } from '../../../types';
 import {
-  FanEntityCard,
-  LightEntityCard,
-  SwitchEntityCard,
+  EntityCardFan,
+  EntityCardLight,
+  EntityCardSwitch,
 } from '../../entities';
 import { FuzzySelect } from '../../misc';
 
@@ -63,7 +63,7 @@ export class EntityStateCommand extends React.Component<
     switch (domain(this.props.command?.ref)) {
       case 'light':
         return (
-          <LightEntityCard
+          <EntityCardLight
             onUpdate={update => this.props.onUpdate(update)}
             state={this.props.command}
           />
@@ -71,14 +71,14 @@ export class EntityStateCommand extends React.Component<
       case 'media_player':
       case 'switch':
         return (
-          <SwitchEntityCard
+          <EntityCardSwitch
             onUpdate={update => this.props.onUpdate(update)}
             state={this.props.command}
           />
         );
       case 'fan':
         return (
-          <FanEntityCard
+          <EntityCardFan
             relative
             onUpdate={update => this.props.onUpdate(update)}
             state={this.props.command}

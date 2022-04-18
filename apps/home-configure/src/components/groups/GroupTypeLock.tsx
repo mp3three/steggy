@@ -1,16 +1,20 @@
-import { GroupDTO } from '@steggy/controller-shared';
+import { GroupDTO, RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { SwitchStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import { Col, Empty, Row } from 'antd';
 import React from 'react';
 
-import { LightEntityCard } from '../entities';
+import { sendRequest } from '../../types';
+import { EntityCardLock } from '../entities';
 
 type tStateType = { group: GroupDTO };
 
-export class LightGroup extends React.Component<
+export class GroupTypeLock extends React.Component<
   { group: GroupDTO; groupUpdate?: (group: GroupDTO) => void },
   tStateType
 > {
+  private lightCards: Record<string, EntityCardLock> = {};
+
   override render() {
     return (
       <Row gutter={[16, 16]}>
@@ -21,9 +25,11 @@ export class LightGroup extends React.Component<
         ) : (
           this.props.group.state.states.map(entity => (
             <Col key={entity.ref}>
-              <LightEntityCard
+              <EntityCardLock
                 state={entity}
                 selfContained
+                ref={reference => (this.lightCards[entity.ref] = reference)}
+                onUpdate={this.onAttributeChange.bind(this)}
                 onRemove={this.onRemove.bind(this)}
               />
             </Col>
@@ -31,6 +37,19 @@ export class LightGroup extends React.Component<
         )}
       </Row>
     );
+  }
+
+  private async onAttributeChange(
+    state: RoomEntitySaveStateDTO,
+  ): Promise<void> {
+    const entity = await sendRequest<SwitchStateDTO>({
+      method: 'put',
+      url: `/entity/command/${state.ref}/${state.state}`,
+    });
+    const card = this.lightCards[state.ref];
+    card.setState({
+      state: entity.state,
+    });
   }
 
   private onRemove(entity_id: string): void {
