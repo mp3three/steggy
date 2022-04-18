@@ -7,7 +7,7 @@ import {
 } from '@steggy/home-assistant';
 import { is } from '@steggy/utilities';
 
-import { VMService } from '../vm.service';
+import { VMService } from '../misc';
 
 @Injectable()
 export class SendNotificationService {

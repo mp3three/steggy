@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { casual, Chrono } from 'chrono-node';
 
-import { SolarCalcService } from './lighting';
+import { SolarCalcService } from '../lighting';
 
 const SOLAR_INJECT = [
   // 'astronomicalDawn',

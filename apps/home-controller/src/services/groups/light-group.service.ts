@@ -224,29 +224,25 @@ export class LightGroupService extends BaseGroupService {
           await this.lightManager.turnOff(id, waitForChange);
           return;
         }
-        switch (state.extra.color_mode) {
-          case ColorModes.color_temp:
-            await this.lightManager.circadianLight(
-              id,
-              state.extra.brightness,
-              waitForChange,
-            );
-            break;
-          case ColorModes.hs:
-          default:
-            await this.lightManager.turnOn(
-              id,
-              {
-                extra: {
-                  brightness: state.extra.brightness,
-                  hs_color: state.extra.hs_color as [number, number],
-                  rgb_color: state.extra.rgb_color as [number, number, number],
-                },
-              },
-              waitForChange,
-            );
-            break;
+        if (state.extra.color_mode === ColorModes.color_temp) {
+          await this.lightManager.circadianLight(
+            id,
+            state.extra.brightness,
+            waitForChange,
+          );
+          return;
         }
+        await this.lightManager.turnOn(
+          id,
+          {
+            extra: {
+              brightness: state.extra.brightness,
+              hs_color: state.extra.hs_color as [number, number],
+              rgb_color: state.extra.rgb_color as [number, number, number],
+            },
+          },
+          waitForChange,
+        );
       },
     );
   }

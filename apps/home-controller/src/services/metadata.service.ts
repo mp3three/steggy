@@ -6,7 +6,7 @@ import { isDateString, isNumberString } from 'class-validator';
 import EventEmitter from 'eventemitter3';
 
 import { ENTITY_METADATA_UPDATED } from '../typings';
-import { ChronoService } from './chrono.service';
+import { ChronoService } from './misc/chrono.service';
 import { MetadataPersistenceService } from './persistence';
 
 type EntityMetadata = {

@@ -5,10 +5,7 @@ import {
   InjectConfig,
   OnEvent,
 } from '@steggy/boilerplate';
-import {
-  CIRCADIAN_UPDATE,
-  LOCATION_UPDATED,
-} from '@steggy/controller-shared';
+import { CIRCADIAN_UPDATE, LOCATION_UPDATED } from '@steggy/controller-shared';
 import { CronExpression } from '@steggy/utilities';
 import dayjs from 'dayjs';
 import EventEmitter from 'eventemitter3';
@@ -19,7 +16,7 @@ import { SolarCalcService } from './solar-calc.service';
 const MIN = 0;
 const MAX = 1;
 /**
- * This service is responsible for managing the current temperature for circadian lightining
+ * This service is responsible for managing the current temperature for circadian lighting
  *
  * The temperature can be looked up on demand, and subscribed to via an observable
  */

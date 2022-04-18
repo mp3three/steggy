@@ -7,8 +7,8 @@ import {
 } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 
-import { ENTITY_METADATA_UPDATED } from '../typings';
-import { MetadataService } from './metadata.service';
+import { ENTITY_METADATA_UPDATED } from '../../typings';
+import { MetadataService } from '../metadata.service';
 
 @Injectable()
 export class UpdateLoggerService {

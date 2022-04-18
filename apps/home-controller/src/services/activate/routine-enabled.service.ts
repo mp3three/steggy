@@ -19,8 +19,8 @@ import dayjs from 'dayjs';
 
 import { SAFE_MODE } from '../../config';
 import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../../typings';
-import { ChronoService } from '../chrono.service';
 import { StopProcessingCommandService } from '../commands';
+import { ChronoService } from '../misc/chrono.service';
 import { RoutinePersistenceService } from '../persistence';
 import { RoutineService } from '../routine.service';
 

@@ -20,9 +20,9 @@ import {
 import { EntityManagerService } from '@steggy/home-assistant';
 import { is } from '@steggy/utilities';
 
-import { GroupService } from './group.service';
-import { RoomService } from './room.service';
-import { RoutineService } from './routine.service';
+import { GroupService } from '../group.service';
+import { RoomService } from '../room.service';
+import { RoutineService } from '../routine.service';
 
 // Probably worth a refactor in the future
 // The reality of the complexity in this case isn't too bad

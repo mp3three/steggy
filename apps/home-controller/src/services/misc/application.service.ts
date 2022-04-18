@@ -1,13 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import {
-  AutoLogService,
-  InjectConfig,
-  OnEvent,
-} from '@steggy/boilerplate';
+import { AutoLogService, InjectConfig, OnEvent } from '@steggy/boilerplate';
 import { NotifyDomainService } from '@steggy/home-assistant';
 import { HA_SOCKET_READY } from '@steggy/home-assistant-shared';
 
-import { NOTIFY_CONNECTION_RESET, SAFE_MODE } from '../config';
+import { NOTIFY_CONNECTION_RESET, SAFE_MODE } from '../../config';
 
 @Injectable()
 export class ApplicationService {

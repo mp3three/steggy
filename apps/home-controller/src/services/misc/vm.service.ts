@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import moment from 'moment';
 import { VM } from 'vm2';
 
-import { RoomService } from './room.service';
+import { RoomService } from '../room.service';
 
 @Injectable()
 export class VMService {

@@ -17,9 +17,9 @@ import EventEmitter from 'eventemitter3';
 import { parse } from 'mathjs';
 
 import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../../typings';
-import { ChronoService } from '../chrono.service';
+import { VMService } from '../misc';
+import { ChronoService } from '../misc/chrono.service';
 import { RoomService } from '../room.service';
-import { VMService } from '../vm.service';
 
 type NumberTypes = 'set_value' | 'increment' | 'decrement' | 'formula';
 

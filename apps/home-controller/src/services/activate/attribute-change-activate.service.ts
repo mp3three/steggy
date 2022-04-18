@@ -59,9 +59,6 @@ export class AttributeChangeActivateService {
     activate: AttributeChangeActivateDTO,
     callback: () => Promise<void>,
   ): void {
-    this.logger.error('HIT!');
-    this.logger.error('HIT!');
-    this.logger.error('HIT!');
     const list = this.WATCHED_ENTITIES.get(activate.entity) || [];
     list.push({
       ...activate,

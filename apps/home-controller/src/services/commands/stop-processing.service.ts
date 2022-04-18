@@ -23,7 +23,7 @@ import dayjs from 'dayjs';
 import { Response } from 'node-fetch';
 import { get } from 'object-path';
 
-import { ChronoService } from '../chrono.service';
+import { ChronoService } from '../misc/chrono.service';
 import { RoomService } from '../room.service';
 
 @Injectable()
