@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
+import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { TransformObjectId } from '@steggy/persistence';
 import { Expose } from 'class-transformer';
 import {
@@ -50,6 +51,14 @@ export class PersonDTO {
   @IsString({ each: true })
   public entities?: RoomEntityDTO[];
 
+  @Expose()
+  @ApiProperty({ required: false, type: [RoomEntityDTO] })
+  @IsOptional()
+  /**
+   * Dynamic data, current state for all items in entities array
+   */
+  public entityStates?: HassStateDTO[];
+
   @IsString()
   @Prop({ required: true, type: 'string' })
   @ApiProperty()
@@ -79,6 +88,14 @@ export class PersonDTO {
   @ApiProperty({ required: false })
   @Prop({ index: true })
   public modified?: Date;
+
+  /**
+   * Javascript referenceable name for VMService
+   */
+  @IsOptional()
+  @IsString()
+  @Prop()
+  public name?: string;
 
   /**
    * Reference to room entries

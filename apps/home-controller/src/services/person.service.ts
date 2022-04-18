@@ -1,14 +1,9 @@
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   CloneRoomDTO,
   GroupDTO,
-  RoomDTO,
+  PersonDTO,
   RoomEntityDTO,
   RoomMetadataDTO,
   RoomStateDTO,
@@ -19,27 +14,26 @@ import { EntityManagerService } from '@steggy/home-assistant';
 import { BaseSchemaDTO } from '@steggy/persistence';
 import { each, is, ResultControlDTO } from '@steggy/utilities';
 import EventEmitter from 'eventemitter3';
-import { v4 as uuid } from 'uuid';
+import { v4 } from 'uuid';
 
-import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../typings';
+import { MetadataUpdate, PERSON_METADATA_UPDATED } from '../typings';
 import { GroupService } from './group.service';
 import { MetadataService } from './metadata.service';
-import { RoomPersistenceService } from './persistence';
+import { PersonPersistenceService } from './persistence';
 import { RoutineService } from './routine.service';
 import { SaveStateService } from './save-state.service';
 
 @Injectable()
-export class RoomService {
+export class PersonService {
   constructor(
     private readonly logger: AutoLogService,
-    private readonly roomPersistence: RoomPersistenceService,
-    private readonly routineService: RoutineService,
-    @Inject(forwardRef(() => GroupService))
-    private readonly groupService: GroupService,
+    private readonly personPersistence: PersonPersistenceService,
     private readonly entityManager: EntityManagerService,
-    private readonly eventEmitter: EventEmitter,
+    private readonly groupService: GroupService,
+    private readonly routineService: RoutineService,
     private readonly metadataService: MetadataService,
-    private readonly saveState: SaveStateService,
+    private readonly saveStateService: SaveStateService,
+    private readonly eventEmitter: EventEmitter,
   ) {}
 
   public async activateState(
@@ -55,13 +49,13 @@ export class RoomService {
       return;
     }
     this.logger.info(`[${room.friendlyName}] activate {${state.friendlyName}}`);
-    await this.saveState.activateState(state, waitForChange);
+    await this.saveStateService.activateState(state, waitForChange);
   }
 
   public async addEntity(
-    room: RoomDTO | string,
+    room: PersonDTO | string,
     { entity_id }: RoomEntityDTO,
-  ): Promise<RoomDTO> {
+  ): Promise<PersonDTO> {
     room = await this.load(room);
     if (!this.entityManager.ENTITIES.has(entity_id)) {
       this.logger.error(
@@ -71,40 +65,40 @@ export class RoomService {
     }
     this.logger.info(`[${room.friendlyName}] adding entity {${entity_id}}`);
     room.entities.push({ entity_id });
-    return await this.roomPersistence.update(room, room._id);
+    return await this.personPersistence.update(room, room._id);
   }
 
-  public async addMetadata(room: RoomDTO | string): Promise<RoomDTO> {
+  public async addMetadata(room: PersonDTO | string): Promise<PersonDTO> {
     room = await this.load(room);
     room.metadata ??= [];
     room.metadata.push({
-      id: uuid(),
+      id: v4(),
       name: '',
       type: 'boolean',
       value: false,
     });
-    return await this.roomPersistence.update(room, room._id);
+    return await this.personPersistence.update(room, room._id);
   }
 
   public async addState(
-    room: RoomDTO | string,
+    room: PersonDTO | string,
     state: RoomStateDTO,
   ): Promise<RoomStateDTO> {
     room = await this.load(room);
-    state.id = uuid();
+    state.id = v4();
     room.save_states ??= [];
     room.save_states.push(state);
     this.logger.info(
       `[${room.friendlyName}] added state {${state.friendlyName ?? 'unnamed'}}`,
     );
-    await this.roomPersistence.update(room, room._id);
+    await this.personPersistence.update(room, room._id);
     return state;
   }
 
   public async attachGroup(
-    room: RoomDTO | string,
+    room: PersonDTO | string,
     group: GroupDTO | string,
-  ): Promise<RoomDTO> {
+  ): Promise<PersonDTO> {
     room = await this.load(room);
     const attachGroup = await this.groupService.get(group);
     if (!group) {
@@ -118,7 +112,7 @@ export class RoomService {
       `[${room.friendlyName}] attach group [${attachGroup.friendlyName}]`,
     );
     room.groups.push(attachGroup._id);
-    return await this.roomPersistence.update(room, room._id);
+    return await this.personPersistence.update(room, room._id);
   }
 
   public async buildMetadata(): Promise<
@@ -139,11 +133,10 @@ export class RoomService {
       ]),
     );
   }
-
   public async clone(
     target: string,
     { name, omitStates, omitMetadata }: CloneRoomDTO,
-  ): Promise<RoomDTO> {
+  ): Promise<PersonDTO> {
     const source = await this.get(target);
     if (!source) {
       throw new NotFoundException();
@@ -154,18 +147,16 @@ export class RoomService {
       groups: source.groups,
       metadata: omitMetadata ? [] : source.metadata,
       save_states: omitStates ? [] : source.save_states,
-      settings: source.settings,
-      storage: source.storage,
     });
   }
 
   public async create(
-    room: Omit<RoomDTO, keyof BaseSchemaDTO>,
-  ): Promise<RoomDTO> {
-    return await this.roomPersistence.create(room);
+    person: Omit<PersonDTO, keyof BaseSchemaDTO>,
+  ): Promise<PersonDTO> {
+    return await this.personPersistence.create(person);
   }
 
-  public async delete(item: RoomDTO | string): Promise<boolean> {
+  public async delete(item: PersonDTO | string): Promise<boolean> {
     const id = is.string(item) ? item : item._id;
     const room = await this.load(id);
     const routines = await this.routineService.list({
@@ -186,13 +177,13 @@ export class RoomService {
           ),
         }),
     );
-    return await this.roomPersistence.delete(room);
+    return await this.personPersistence.delete(room);
   }
 
   public async deleteEntity(
-    room: RoomDTO | string,
+    room: PersonDTO | string,
     entity: string,
-  ): Promise<RoomDTO> {
+  ): Promise<PersonDTO> {
     room = await this.load(room);
     room.entities ??= [];
     room.entities = room.entities.filter(
@@ -205,14 +196,14 @@ export class RoomService {
         ({ type, ref }) => type !== 'entity' || ref !== entity,
       ),
     }));
-    return await this.roomPersistence.update(room, room._id);
+    return await this.personPersistence.update(room, room._id);
   }
 
   public async deleteGroup(
-    room: RoomDTO | string,
+    room: PersonDTO | string,
     groupId: string,
     stateOnly = false,
-  ): Promise<RoomDTO> {
+  ): Promise<PersonDTO> {
     room = await this.load(room);
     if (!stateOnly) {
       room.groups ??= [];
@@ -225,26 +216,26 @@ export class RoomService {
         ({ type, ref }) => type !== 'group' || ref !== groupId,
       ),
     }));
-    return await this.roomPersistence.update(room, room._id);
+    return await this.personPersistence.update(room, room._id);
   }
 
   /**
    * Deliberate choice to not follow through and delete references
    */
   public async deleteMetadata(
-    room: RoomDTO | string,
+    room: PersonDTO | string,
     remove: string,
-  ): Promise<RoomDTO> {
+  ): Promise<PersonDTO> {
     room = await this.load(room);
     room.metadata ??= [];
     room.metadata = room.metadata.filter(({ id }) => id !== remove);
-    return await this.roomPersistence.update(room, room._id);
+    return await this.personPersistence.update(room, room._id);
   }
 
   public async deleteState(
-    room: RoomDTO | string,
+    room: PersonDTO | string,
     state: string,
-  ): Promise<RoomDTO> {
+  ): Promise<PersonDTO> {
     room = await this.load(room);
     room.save_states ??= [];
     room.save_states = room.save_states.filter(save => save.id !== state);
@@ -268,14 +259,14 @@ export class RoomService {
           ),
         }),
     );
-    return await this.roomPersistence.update(room, room._id);
+    return await this.personPersistence.update(room, room._id);
   }
 
   public async get(
-    room: RoomDTO | string,
+    room: PersonDTO | string,
     withEntities = false,
     control: ResultControlDTO = {},
-  ): Promise<RoomDTO> {
+  ): Promise<PersonDTO> {
     room = await this.load(room, control);
     if (withEntities) {
       room.entityStates = room.entities.map(({ entity_id }) =>
@@ -285,22 +276,22 @@ export class RoomService {
     return room;
   }
 
-  public async list(control: ResultControlDTO = {}): Promise<RoomDTO[]> {
-    return await this.roomPersistence.findMany(control);
+  public async list(control: ResultControlDTO = {}): Promise<PersonDTO[]> {
+    return await this.personPersistence.findMany(control);
   }
 
   public async update(
-    room: Omit<Partial<RoomDTO>, keyof BaseSchemaDTO>,
+    room: Omit<Partial<PersonDTO>, keyof BaseSchemaDTO>,
     id: string,
-  ): Promise<RoomDTO> {
-    return await this.roomPersistence.update(room, id);
+  ): Promise<PersonDTO> {
+    return await this.personPersistence.update(room, id);
   }
 
   public async updateMetadata(
-    target: string | RoomDTO,
+    target: string | PersonDTO,
     id: string,
     update: Partial<RoomMetadataDTO>,
-  ): Promise<RoomDTO> {
+  ): Promise<PersonDTO> {
     const room = await this.load(target);
     room.metadata ??= [];
     const metadata = room.metadata.find(item => item.id === id);
@@ -319,7 +310,7 @@ export class RoomService {
     );
     const out = await this.update(room, room._id);
     update = room.metadata.find(item => item.id === id);
-    this.eventEmitter.emit(ROOM_METADATA_UPDATED, {
+    this.eventEmitter.emit(PERSON_METADATA_UPDATED, {
       name: update.name,
       room: room._id,
       value: update.value,
@@ -328,7 +319,7 @@ export class RoomService {
   }
 
   public async updateState(
-    room: string | RoomDTO,
+    room: string | PersonDTO,
     id: string,
     update: RoomStateDTO,
   ): Promise<RoomStateDTO> {
@@ -342,11 +333,11 @@ export class RoomService {
   }
 
   private async load(
-    room: RoomDTO | string,
+    room: PersonDTO | string,
     control: ResultControlDTO = {},
-  ): Promise<RoomDTO> {
+  ): Promise<PersonDTO> {
     if (is.string(room)) {
-      room = await this.roomPersistence.findById(room, { control });
+      room = await this.personPersistence.findById(room, { control });
     }
     if (!room) {
       throw new NotFoundException();

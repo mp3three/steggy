@@ -9,6 +9,7 @@ export * from './groups';
 export * from './lighting';
 export * from './metadata.service';
 export * from './persistence';
+export * from './person.service';
 export * from './room.service';
 export * from './routine.service';
 export * from './update-logger.service';
