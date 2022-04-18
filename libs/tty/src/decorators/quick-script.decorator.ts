@@ -9,7 +9,6 @@ import {
 } from '@steggy/boilerplate';
 import { is } from '@steggy/utilities';
 import { ClassConstructor } from 'class-transformer';
-import { show } from 'cli-cursor';
 
 import { MainCLIModule } from '../modules';
 
@@ -37,7 +36,7 @@ export function QuickScript({
   NX_PROJECT?: string;
   OVERRIDE_DEFAULTS?: AbstractConfig;
   WAIT_TIME?: number;
-}): ClassDecorator {
+} = {}): ClassDecorator {
   if (OVERRIDE_DEFAULTS) {
     ApplicationModule.useThisConfig(OVERRIDE_DEFAULTS);
   }
@@ -55,7 +54,7 @@ export function QuickScript({
     configuration: options.configuration ?? {},
   });
   return function (target) {
-    // ? When TS is apploying the @ServiceScript annotation to the target class
+    // ? When TS is applying the @ServiceScript annotation to the target class
     // Set up a fake application module that uses it as the only provider
     // Bootstrap that module, and call the `exec()` method on the target class to officially "start" the app
     //

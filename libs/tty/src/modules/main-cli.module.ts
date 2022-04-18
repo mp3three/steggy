@@ -83,7 +83,7 @@ import {
       type: 'string',
     },
     [DEFAULT_HEADER_FONT]: {
-      default: 'DOS Rebel',
+      default: 'ANSI Regular',
       description: 'Figlet font',
       type: 'string',
     },
@@ -95,7 +95,7 @@ import {
     },
     [PAGE_SIZE]: {
       default: 20,
-      description: 'Maxmimum number of items displayed in pickMany prompts',
+      description: 'Maximum number of items displayed in pickMany prompts',
       type: 'number',
     },
     [PINNED_ITEMS]: {

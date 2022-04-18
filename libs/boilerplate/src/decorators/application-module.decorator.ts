@@ -9,7 +9,7 @@ import { UtilitiesModule } from '../modules';
 import { LibraryModule } from './library-module.decorator';
 
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
-  application: symbol;
+  application?: symbol;
   configuration?: Record<string, ConfigItem>;
   /**
    * If omitted, will default to all
@@ -26,6 +26,9 @@ export function ApplicationModule(
   metadata: ApplicationModuleMetadata,
 ): ClassDecorator {
   const propertiesKeys = Object.keys(metadata);
+  // No symbol applications, for when you really just don't care
+  // Doesn't meaningfully need imports I guess
+  metadata.application ??= Symbol('steggy');
   metadata.imports ??= [];
   metadata.providers ??= [];
   metadata.globals ??= [];
