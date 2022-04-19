@@ -40,7 +40,7 @@ type tState = {
 };
 const TEMP_TEMPLATE_SIZE = 3;
 
-export class EntityList extends React.Component {
+export class EntityPage extends React.Component {
   override state = {
     entities: [],
     flags: [],

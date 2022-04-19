@@ -20,6 +20,9 @@ export class ApplicationMenu extends React.Component {
             <Menu.Item key="rooms" icon={FD_ICONS.get('rooms')}>
               <Link to="/rooms">Rooms</Link>
             </Menu.Item>
+            <Menu.Item key="people" icon={FD_ICONS.get('people')}>
+              <Link to="/people">People</Link>
+            </Menu.Item>
             <Menu.Item key="routines" icon={FD_ICONS.get('routines')}>
               <Link to="/routines">Routines</Link>
             </Menu.Item>
@@ -41,6 +44,9 @@ export class ApplicationMenu extends React.Component {
     }
     if (window.location.href.includes('/room')) {
       return ['rooms'];
+    }
+    if (window.location.href.includes('/people')) {
+      return ['people'];
     }
     if (window.location.href.includes('/entities')) {
       return ['entities'];

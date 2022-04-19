@@ -32,6 +32,7 @@ import {
   EntityController,
   GroupController,
   MetadataController,
+  PersonController,
   RoomController,
   RoutineController,
 } from '../controllers';
@@ -190,9 +191,10 @@ const providers = [
     DeviceController,
     EntityController,
     GroupController,
+    MetadataController,
+    PersonController,
     RoomController,
     RoutineController,
-    MetadataController,
   ],
   imports: [
     HomeAssistantModule,

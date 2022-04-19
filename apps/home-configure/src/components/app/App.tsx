@@ -6,9 +6,10 @@ import { Route, Switch } from 'react-router-dom';
 
 import { store } from '../../store';
 import { ADMIN_KEY, BASE_URL } from '../../types';
-import { EntityList } from '../entities';
+import { EntityPage } from '../entities';
 import { GroupPage } from '../groups';
 import { HomePage } from '../home';
+import { PeoplePage } from '../people';
 import { RoomPage } from '../rooms';
 import { RoutinePage } from '../routines';
 import { SettingsPage } from '../settings';
@@ -55,7 +56,8 @@ export class App extends React.Component {
                 />
               ) : (
                 <Switch>
-                  <Route path="/entities" component={EntityList} />
+                  <Route path="/people" component={PeoplePage} />
+                  <Route path="/entities" component={EntityPage} />
                   <Route path="/routines" component={RoutinePage} />
                   <Route path="/rooms" component={RoomPage} />
                   <Route path="/groups" component={GroupPage} />

@@ -2,7 +2,7 @@ export * from './AttributePopover';
 export * from './DetailDrawer';
 export * from './EntityHistory';
 export * from './EntityInspect';
-export * from './EntityList';
+export * from './EntityPage';
 export * from './FanEntityCard';
 export * from './InspectButton';
 export * from './LightEntityCard';

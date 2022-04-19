@@ -1,5 +1,5 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import { RoomDTO } from '@steggy/controller-shared';
+import { PersonDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import {
   Button,
@@ -17,19 +17,19 @@ import React from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 import { RoomMetadata } from '../misc';
-import { RoomConfiguration } from './RoomConfiguration';
-import { RoomSaveStates } from './RoomSaveState';
+import { PersonConfiguration } from './PersonConfiguration';
+// import { RoomSaveStates } from './RoomSaveState';
 
 type tState = {
   name: string;
 };
 
-export class RoomListDetail extends React.Component<
+export class PeopleDetail extends React.Component<
   {
     nested?: boolean;
-    onClone?: (room: RoomDTO) => void;
-    onUpdate: (room?: RoomDTO) => void;
-    room?: RoomDTO;
+    onClone?: (room: PersonDTO) => void;
+    onUpdate: (room?: PersonDTO) => void;
+    room?: PersonDTO;
   },
   tState
 > {
@@ -41,7 +41,7 @@ export class RoomListDetail extends React.Component<
     }
     return (
       <Card
-        title="Room details"
+        title="Person details"
         extra={
           !is.object(this.props.room) ? undefined : (
             <Dropdown
@@ -87,7 +87,7 @@ export class RoomListDetail extends React.Component<
   }
 
   private async clone(): Promise<void> {
-    const cloned = await sendRequest<RoomDTO>({
+    const cloned = await sendRequest<PersonDTO>({
       method: 'post',
       url: `/room/${this.props.room._id}/clone`,
     });
@@ -119,16 +119,16 @@ export class RoomListDetail extends React.Component<
         </Typography.Title>
         <Tabs>
           <Tabs.TabPane key="members" tab="Members">
-            <RoomConfiguration
+            <PersonConfiguration
               room={this.props.room}
               onUpdate={room => this.props.onUpdate(room)}
             />
           </Tabs.TabPane>
           <Tabs.TabPane key="save_states" tab="Save States">
-            <RoomSaveStates
+            {/* <RoomSaveStates
               room={this.props.room}
               onUpdate={room => this.props.onUpdate(room)}
-            />
+            /> */}
           </Tabs.TabPane>
           <Tabs.TabPane key="metadata" tab="Metadata">
             <RoomMetadata
@@ -153,8 +153,8 @@ export class RoomListDetail extends React.Component<
     );
   }
 
-  private async update(body: Partial<RoomDTO>): Promise<void> {
-    const room = await sendRequest<RoomDTO>({
+  private async update(body: Partial<PersonDTO>): Promise<void> {
+    const room = await sendRequest<PersonDTO>({
       body,
       method: 'put',
       url: `/room/${this.props.room._id}`,

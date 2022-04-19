@@ -61,6 +61,8 @@ export function QuickScript({
     setTimeout(
       () =>
         Bootstrap(CREATE_BOOT_MODULE(options), {
+          nestNoopLogger: true,
+          noGlobalError: true,
           postInit: [
             app => setTimeout(() => app.get(target).exec(), WAIT_TIME),
           ],

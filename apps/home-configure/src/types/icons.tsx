@@ -10,47 +10,50 @@ import InformationIcon from '@2fd/ant-design-icons/lib/Information';
 import LightbulbGroupOutline from '@2fd/ant-design-icons/lib/LightbulbGroupOutline';
 import Magnify from '@2fd/ant-design-icons/lib/Magnify';
 import Menu from '@2fd/ant-design-icons/lib/Menu';
+import NaturePeople from '@2fd/ant-design-icons/lib/NaturePeople';
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import StepForward from '@2fd/ant-design-icons/lib/StepForward';
 import TimelinePlus from '@2fd/ant-design-icons/lib/TimelinePlus';
 import { HomeOutlined, SettingOutlined } from '@ant-design/icons';
 
 type iconTypes =
-  | 'magnify'
-  | 'menu'
-  | 'plus_box'
-  | 'routines'
+  | 'clone'
   | 'entities'
   | 'execute'
-  | 'information'
   | 'filter'
-  | 'clone'
-  | 'list_add'
-  | 'remove'
-  | 'settings'
-  | 'rooms'
-  | 'metadata'
-  | 'run'
   | 'groups'
-  | 'home';
+  | 'home'
+  | 'information'
+  | 'list_add'
+  | 'magnify'
+  | 'menu'
+  | 'metadata'
+  | 'people'
+  | 'plus_box'
+  | 'remove'
+  | 'rooms'
+  | 'routines'
+  | 'run'
+  | 'settings';
 
 /**
  * Partially for consistent icons, partially because of the annoying way @2fd exports their stuff
  */
 export const FD_ICONS = new Map<iconTypes, JSX.Element>([
+  ['clone', <ContentCopy />],
   ['entities', <AlarmBell />],
+  ['execute', <StepForward />],
+  ['filter', <FilterVariant />],
   ['groups', <LightbulbGroupOutline />],
   ['home', <HomeOutlined />],
   ['information', <InformationIcon />],
-  ['filter', <FilterVariant />],
-  ['clone', <ContentCopy />],
   ['list_add', <TimelinePlus />],
   ['magnify', <Magnify />],
   ['menu', <Menu />],
   ['metadata', <ApplicationVariable />],
-  ['execute', <StepForward />],
-  ['remove', <CardRemove />],
+  ['people', <NaturePeople />],
   ['plus_box', <PlusBoxMultiple />],
+  ['remove', <CardRemove />],
   ['rooms', <BulletinBoard />],
   ['routines', <HomeAutomation />],
   ['run', <DebugStepInto />],

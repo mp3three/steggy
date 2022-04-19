@@ -5,5 +5,6 @@ export * from './device.controller';
 export * from './entity.controller';
 export * from './group.controller';
 export * from './metadata.controller';
+export * from './person.controller';
 export * from './room.controller';
 export * from './routine.controller';
