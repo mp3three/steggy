@@ -15,13 +15,13 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { FD_ICONS, sendRequest } from '../types';
-import { RoomListDetail } from './rooms';
+import { FD_ICONS, sendRequest } from '../../types';
+import { RoomListDetail } from './RoomListDetail';
 
 const { Content } = Layout;
 type tState = { room: RoomDTO; rooms: RoomDTO[] };
 
-export class RoomList extends React.Component {
+export class RoomPage extends React.Component {
   override state = {
     room: undefined,
     rooms: [],

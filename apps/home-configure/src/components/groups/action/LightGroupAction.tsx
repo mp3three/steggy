@@ -7,7 +7,7 @@ type tCommand = Omit<
   'group'
 >;
 
-export class GroupActionLight extends React.Component<{
+export class LightGroupAction extends React.Component<{
   command: tCommand;
   onUpdate: (
     command: Partial<RoutineCommandGroupActionDTO<{ brightness: number }>>,

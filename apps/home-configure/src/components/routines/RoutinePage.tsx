@@ -3,8 +3,9 @@ import { is, ResultControlDTO, SECOND } from '@steggy/utilities';
 import { Col, Layout, Row } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../types';
-import { RoutineListDetail, RoutineTree } from './routines';
+import { sendRequest } from '../../types';
+import { RoutineListDetail } from './RoutineListDetail';
+import { RoutineTree } from './RoutineTree';
 
 type tState = {
   enabled: string[];
@@ -13,7 +14,7 @@ type tState = {
   selected?: RoutineDTO;
 };
 
-export class RoutineList extends React.Component<{ prop: unknown }, tState> {
+export class RoutinePage extends React.Component<{ prop: unknown }, tState> {
   override state: tState = { enabled: [], routines: [], search: '' };
   private interval: ReturnType<typeof setInterval>;
 

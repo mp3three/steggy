@@ -2,8 +2,8 @@ import { is } from '@steggy/utilities';
 import { Card, Col, Form, Input, Layout, Row, Tabs } from 'antd';
 import React from 'react';
 
-import { ADMIN_KEY, BASE_URL, sendRequest } from '../types';
-import { DebuggerSettings } from './settings';
+import { ADMIN_KEY, BASE_URL, sendRequest } from '../../types';
+import { DebuggerSettings } from './DebuggerSettings';
 
 type tState = {
   BASE: string;

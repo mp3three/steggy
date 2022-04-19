@@ -1,1 +1,1 @@
-export * from './GroupActionLight';
+export * from './LightGroupAction';

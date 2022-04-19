@@ -1,6 +1,6 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
-import { LockStateDTO } from '@steggy/home-assistant-shared';
+import { LightStateDTO, SwitchStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import {
   Button,
@@ -23,7 +23,7 @@ type tStateType = {
   state?: string;
 };
 
-export class EntityCardLock extends React.Component<
+export class SwitchEntityCard extends React.Component<
   {
     onRemove?: (entity_id: string) => void;
     onUpdate?: (state: RoomEntitySaveStateDTO) => void;
@@ -105,8 +105,11 @@ export class EntityCardLock extends React.Component<
           onChange={this.onModeChange.bind(this)}
           disabled={this.disabled}
         >
-          <Radio.Button value="locked">Lock</Radio.Button>
-          <Radio.Button value="unlocked">Unlock</Radio.Button>
+          <Radio.Button value="off">Off</Radio.Button>
+          <Radio.Button value="on">On</Radio.Button>
+          {this.props.stateOnly ? undefined : (
+            <Radio.Button value="toggle">Toggle</Radio.Button>
+          )}
         </Radio.Group>
       </Card>
     );
@@ -121,7 +124,7 @@ export class EntityCardLock extends React.Component<
       this.props.onUpdate({ ref: this.ref, state });
     }
     if (this.props.selfContained) {
-      const result = await sendRequest<LockStateDTO>({
+      const result = await sendRequest<SwitchStateDTO>({
         method: 'put',
         url: `/entity/command/${this.ref}/${state}`,
       });
@@ -136,7 +139,7 @@ export class EntityCardLock extends React.Component<
       });
       return;
     }
-    const entity = await sendRequest<LockStateDTO>({
+    const entity = await sendRequest<LightStateDTO>({
       url: `/entity/id/${this.ref}`,
     });
     if (is.undefined(entity.attributes)) {
@@ -152,10 +155,10 @@ export class EntityCardLock extends React.Component<
       });
       return;
     }
-    this.setState({
-      friendly_name: entity.attributes.friendly_name,
-      state: entity.state,
-    });
+    this.setState({ friendly_name: entity.attributes.friendly_name });
+    if (this.props.selfContained) {
+      this.setState({ state: entity.state });
+    }
   }
 
   private renderWaiting() {

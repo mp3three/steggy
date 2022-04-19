@@ -17,7 +17,7 @@ type tState = {
   // name: string;
 };
 
-export class RoomMetadataEdit extends React.Component<
+export class MetadataEdit extends React.Component<
   {
     metadata: RoomMetadataDTO;
     onComplete: () => void;

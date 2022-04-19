@@ -19,11 +19,11 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import { domain, FD_ICONS, sendRequest } from '../../types';
-import { EntityCardFan } from './EntityCardFan';
-import { EntityCardLight } from './EntityCardLight';
-import { EntityCardSwitch } from './EntityCardSwitch';
 import { EntityIdChange } from './EntityIdChange';
 import { EntityRelated } from './EntityRelated';
+import { FanEntityCard } from './FanEntityCard';
+import { LightEntityCard } from './LightEntityCard';
+import { SwitchEntityCard } from './SwitchEntityCard';
 
 export class EntityInspect extends React.Component<{
   entity: HassStateDTO;
@@ -101,7 +101,7 @@ export class EntityInspect extends React.Component<{
         return (
           <>
             <Divider orientation="left">Control</Divider>
-            <EntityCardLight selfContained state={{ ref: entity.entity_id }} />
+            <LightEntityCard selfContained state={{ ref: entity.entity_id }} />
           </>
         );
       case 'media_player':
@@ -109,14 +109,14 @@ export class EntityInspect extends React.Component<{
         return (
           <>
             <Divider orientation="left">Control</Divider>
-            <EntityCardSwitch selfContained state={{ ref: entity.entity_id }} />
+            <SwitchEntityCard selfContained state={{ ref: entity.entity_id }} />
           </>
         );
       case 'fan':
         return (
           <>
             <Divider orientation="left">Control</Divider>
-            <EntityCardFan selfContained state={{ ref: entity.entity_id }} />
+            <FanEntityCard selfContained state={{ ref: entity.entity_id }} />
           </>
         );
     }

@@ -25,10 +25,10 @@ import React from 'react';
 
 import { sendRequest } from '../../../types';
 import {
-  EntityCardFan,
-  EntityCardLight,
-  EntityCardLock,
-  EntityCardSwitch,
+  FanEntityCard,
+  LightEntityCard,
+  LockEntityCard,
+  SwitchEntityCard,
 } from '../../entities';
 
 export class GroupStateEdit extends React.Component<
@@ -40,10 +40,10 @@ export class GroupStateEdit extends React.Component<
   { dirty: boolean; drawer: boolean; friendlyName: string }
 > {
   private cards: (
-    | EntityCardLight
-    | EntityCardSwitch
-    | EntityCardLock
-    | EntityCardFan
+    | LightEntityCard
+    | SwitchEntityCard
+    | LockEntityCard
+    | FanEntityCard
   )[];
   private get group() {
     return this.props.group;
@@ -117,28 +117,28 @@ export class GroupStateEdit extends React.Component<
     switch (this.group.type) {
       case 'light':
         return (
-          <EntityCardLight
+          <LightEntityCard
             title="Bulk change"
             onUpdate={this.onStateChange.bind(this)}
           />
         );
       case 'switch':
         return (
-          <EntityCardSwitch
+          <SwitchEntityCard
             title="Bulk change"
             onUpdate={this.onStateChange.bind(this)}
           />
         );
       case 'fan':
         return (
-          <EntityCardFan
+          <FanEntityCard
             title="Bulk change"
             onUpdate={this.onStateChange.bind(this)}
           />
         );
       case 'lock':
         return (
-          <EntityCardLock
+          <LockEntityCard
             title="Bulk change"
             onUpdate={this.onStateChange.bind(this)}
           />
@@ -158,7 +158,7 @@ export class GroupStateEdit extends React.Component<
     switch (this.group.type) {
       case 'light':
         return (
-          <EntityCardLight
+          <LightEntityCard
             ref={i => this.cards.push(i)}
             key={entity}
             state={state}
@@ -167,7 +167,7 @@ export class GroupStateEdit extends React.Component<
         );
       case 'switch':
         return (
-          <EntityCardSwitch
+          <SwitchEntityCard
             ref={i => this.cards.push(i)}
             key={entity}
             state={state}
@@ -176,7 +176,7 @@ export class GroupStateEdit extends React.Component<
         );
       case 'fan':
         return (
-          <EntityCardFan
+          <FanEntityCard
             ref={i => this.cards.push(i)}
             key={entity}
             state={state}
@@ -185,7 +185,7 @@ export class GroupStateEdit extends React.Component<
         );
       case 'lock':
         return (
-          <EntityCardLock
+          <LockEntityCard
             ref={i => this.cards.push(i)}
             key={entity}
             state={state}
@@ -212,7 +212,7 @@ export class GroupStateEdit extends React.Component<
 
   private onFanChange(state: RoomEntitySaveStateDTO<FanAttributesDTO>): void {
     this.cards.forEach(card =>
-      (card as EntityCardFan)?.setState({
+      (card as FanEntityCard)?.setState({
         percentage: state.extra.percentage,
       }),
     );
@@ -245,13 +245,13 @@ export class GroupStateEdit extends React.Component<
     }
     console.log(set);
     this.cards.forEach(i =>
-      (i as EntityCardLight)?.setState(set as RoomEntitySaveStateDTO),
+      (i as LightEntityCard)?.setState(set as RoomEntitySaveStateDTO),
     );
   }
 
   private onLockChange(state: RoomEntitySaveStateDTO<LockAttributesDTO>): void {
     this.cards.forEach(card => {
-      (card as EntityCardLock)?.setState({
+      (card as LockEntityCard)?.setState({
         state: state.state,
       });
     });
@@ -292,7 +292,7 @@ export class GroupStateEdit extends React.Component<
 
   private onSwitchStateChanged(state: RoomEntitySaveStateDTO): void {
     this.cards.forEach(i =>
-      (i as EntityCardSwitch)?.setState({
+      (i as SwitchEntityCard)?.setState({
         state: state.state,
       }),
     );

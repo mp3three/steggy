@@ -1,6 +1,5 @@
 export * from './ActivateAdd';
 export * from './ActivateList';
-export * from './RoutineActivateAttributeChange';
 export * from './RoutineActivateCron';
 export * from './RoutineActivateKunami';
 export * from './RoutineActivateMetadataChange';

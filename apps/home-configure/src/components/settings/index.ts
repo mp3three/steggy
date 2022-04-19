@@ -1,2 +1,1 @@
-export * from './DebuggerSettings';
-export * from './IntegrationSettings';
+export * from './SettingsPage';

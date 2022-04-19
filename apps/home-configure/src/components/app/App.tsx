@@ -1,18 +1,17 @@
 import { is } from '@steggy/utilities';
 import { Layout, Typography } from 'antd';
-import { Footer } from 'antd/lib/layout/layout';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { Link, Route, Switch } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 
 import { store } from '../../store';
 import { ADMIN_KEY, BASE_URL } from '../../types';
-import { EntityList } from '../EntityPage';
-import { GroupList } from '../GroupPage';
-import { HomePage } from '../HomePage';
-import { RoomList } from '../RoomPage';
-import { RoutineList } from '../RoutinePage';
-import { SettingsPage } from '../SettingsPage';
+import { EntityList } from '../entities';
+import { GroupPage } from '../groups';
+import { HomePage } from '../home';
+import { RoomPage } from '../rooms';
+import { RoutinePage } from '../routines';
+import { SettingsPage } from '../settings';
 import { ApplicationMenu } from './ApplicationMenu';
 
 const { Header, Sider, Content } = Layout;
@@ -34,6 +33,7 @@ export class App extends React.Component {
     const { collapsed } = this.state;
     return (
       <Provider store={store}>
+        {/* eslint-disable-next-line spellcheck/spell-checker */}
         <Layout style={{ minHeight: '100vh' }}>
           <Sider
             collapsible
@@ -56,19 +56,22 @@ export class App extends React.Component {
               ) : (
                 <Switch>
                   <Route path="/entities" component={EntityList} />
-                  <Route path="/routines" component={RoutineList} />
-                  <Route path="/rooms" component={RoomList} />
-                  <Route path="/groups" component={GroupList} />
+                  <Route path="/routines" component={RoutinePage} />
+                  <Route path="/rooms" component={RoomPage} />
+                  <Route path="/groups" component={GroupPage} />
                   <Route path="/settings" component={SettingsPage} />
                   <Route path="/" component={HomePage} />
                 </Switch>
               )}
             </Content>
-            <Footer style={{ textAlign: 'center' }}>
-              <Link to="https://github.com/ccontour/steggy" target="_blank">
+            <Layout.Footer style={{ textAlign: 'center' }}>
+              <Typography.Link
+                href="https://github.com/ccontour/steggy"
+                target="_blank"
+              >
                 @steggy
-              </Link>
-            </Footer>
+              </Typography.Link>
+            </Layout.Footer>
           </Layout>
         </Layout>
       </Provider>

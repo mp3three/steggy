@@ -29,7 +29,7 @@ type tStateType = {
 const FOUR_STEP = 25;
 const OFF = 0;
 
-export class EntityCardFan extends React.Component<
+export class FanEntityCard extends React.Component<
   {
     onRemove?: (entity_id: string) => void;
     onUpdate?: (state: RoomEntitySaveStateDTO) => void;

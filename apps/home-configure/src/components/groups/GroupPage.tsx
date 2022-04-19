@@ -3,12 +3,13 @@ import { NOT_FOUND } from '@steggy/utilities';
 import { Button, Card, Col, Layout, List, Row, Tabs } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../types';
-import { GroupCreateButton, GroupListDetail } from './groups';
+import { sendRequest } from '../../types';
+import { GroupCreateButton } from './GroupCreateButton';
+import { GroupListDetail } from './GroupListDetail';
 
 const { Content } = Layout;
 
-export class GroupList extends React.Component {
+export class GroupPage extends React.Component {
   override state: { group: GroupDTO; groups: GroupDTO[] } = {
     group: undefined,
     groups: [],

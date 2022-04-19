@@ -21,9 +21,9 @@ import React from 'react';
 
 import { domain, sendRequest } from '../../../types';
 import {
-  EntityCardFan,
-  EntityCardLight,
-  EntityCardSwitch,
+  FanEntityCard,
+  LightEntityCard,
+  SwitchEntityCard,
 } from '../../entities';
 
 type tState = {
@@ -47,7 +47,7 @@ export class RoomStateEdit extends React.Component<
     groups: [],
   };
 
-  private cards: (EntityCardLight | EntityCardSwitch | EntityCardFan)[];
+  private cards: (LightEntityCard | SwitchEntityCard | FanEntityCard)[];
 
   private get room() {
     return this.props.room;
@@ -201,7 +201,7 @@ export class RoomStateEdit extends React.Component<
       case 'switch':
       case 'media_player':
         return (
-          <EntityCardSwitch
+          <SwitchEntityCard
             ref={i => this.cards.push(i)}
             key={entity}
             state={state}
@@ -212,7 +212,7 @@ export class RoomStateEdit extends React.Component<
         );
       case 'light':
         return (
-          <EntityCardLight
+          <LightEntityCard
             ref={i => this.cards.push(i)}
             key={entity}
             optional
@@ -222,7 +222,7 @@ export class RoomStateEdit extends React.Component<
         );
       case 'fan':
         return (
-          <EntityCardFan
+          <FanEntityCard
             ref={i => this.cards.push(i)}
             key={entity}
             optional
