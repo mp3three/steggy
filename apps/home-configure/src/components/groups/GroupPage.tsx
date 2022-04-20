@@ -1,19 +1,25 @@
-import type { GroupDTO } from '@steggy/controller-shared';
+import type { GROUP_TYPES, GroupDTO } from '@steggy/controller-shared';
 import { NOT_FOUND } from '@steggy/utilities';
 import { Button, Card, Col, Layout, List, Row, Tabs } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { GROUP_DESCRIPTIONS, sendRequest } from '../../types';
 import { GroupCreateButton } from './GroupCreateButton';
 import { GroupListDetail } from './GroupListDetail';
 
 const { Content } = Layout;
+type tState = {
+  group: GroupDTO;
+  groups: GroupDTO[];
+};
 
 export class GroupPage extends React.Component {
-  override state: { group: GroupDTO; groups: GroupDTO[] } = {
+  override state = {
     group: undefined,
     groups: [],
-  };
+  } as tState;
+
+  private lastTab: `${GROUP_TYPES}` = 'light';
 
   override async componentDidMount(): Promise<void> {
     await this.refresh();
@@ -25,7 +31,10 @@ export class GroupPage extends React.Component {
         <Content style={{ padding: '16px' }}>
           <Row gutter={8}>
             <Col span={12}>
-              <Tabs type="card">
+              <Tabs
+                type="card"
+                onTabClick={tab => this.tabChange(tab as GROUP_TYPES)}
+              >
                 <Tabs.TabPane
                   key="light"
                   tab={`Light Groups (${this.filter('light').length})`}
@@ -110,6 +119,7 @@ export class GroupPage extends React.Component {
             </Col>
             <Col span={12}>
               <GroupListDetail
+                description={GROUP_DESCRIPTIONS.get(this.lastTab)}
                 group={this.state.group}
                 onClone={group => this.onClone(group)}
                 onUpdate={group => this.refresh(group)}
@@ -181,5 +191,13 @@ export class GroupPage extends React.Component {
         url: `/group/${group._id}`,
       }),
     });
+  }
+
+  private tabChange(type: GROUP_TYPES): void {
+    if (this.lastTab === type) {
+      return;
+    }
+    this.lastTab = type;
+    this.setState({ group: undefined });
   }
 }

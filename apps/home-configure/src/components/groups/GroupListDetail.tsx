@@ -27,6 +27,7 @@ type tState = {
 
 export class GroupListDetail extends React.Component<
   {
+    description?: React.ReactElement;
     group: GroupDTO;
     onClone?: (group: GroupDTO) => void;
     onUpdate: (group?: GroupDTO) => void;
@@ -250,7 +251,7 @@ export class GroupListDetail extends React.Component<
         </Tabs>
       </>
     ) : (
-      <Empty description="Select a group" />
+      <Empty description={this.props.description ?? 'Select a group'} />
     );
   }
 }

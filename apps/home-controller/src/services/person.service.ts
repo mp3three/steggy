@@ -4,6 +4,7 @@ import {
   CloneRoomDTO,
   GroupDTO,
   PersonDTO,
+  RoomDTO,
   RoomEntityDTO,
   RoomMetadataDTO,
   RoomStateDTO,
@@ -20,6 +21,7 @@ import { MetadataUpdate, PERSON_METADATA_UPDATED } from '../typings';
 import { GroupService } from './group.service';
 import { MetadataService } from './metadata.service';
 import { PersonPersistenceService } from './persistence';
+import { RoomService } from './room.service';
 import { RoutineService } from './routine.service';
 import { SaveStateService } from './save-state.service';
 
@@ -31,6 +33,7 @@ export class PersonService {
     private readonly entityManager: EntityManagerService,
     private readonly groupService: GroupService,
     private readonly routineService: RoutineService,
+    private readonly roomService: RoomService,
     private readonly metadataService: MetadataService,
     private readonly saveStateService: SaveStateService,
     private readonly eventEmitter: EventEmitter,
@@ -40,90 +43,114 @@ export class PersonService {
     command: RoutineCommandRoomStateDTO,
     waitForChange = false,
   ): Promise<void> {
-    const room = await this.load(command.room);
-    const state = room.save_states.find(({ id }) => id === command.state);
+    const person = await this.load(command.room);
+    const state = person.save_states.find(({ id }) => id === command.state);
     if (!state) {
       this.logger.error(
-        `[${room.friendlyName}] Cannot find save state {${command.state}}`,
+        `[${person.friendlyName}] Cannot find save state {${command.state}}`,
       );
       return;
     }
-    this.logger.info(`[${room.friendlyName}] activate {${state.friendlyName}}`);
+    this.logger.info(
+      `[${person.friendlyName}] activate {${state.friendlyName}}`,
+    );
     await this.saveStateService.activateState(state, waitForChange);
   }
 
   public async addEntity(
-    room: PersonDTO | string,
+    person: PersonDTO | string,
     { entity_id }: RoomEntityDTO,
   ): Promise<PersonDTO> {
-    room = await this.load(room);
+    person = await this.load(person);
     if (!this.entityManager.ENTITIES.has(entity_id)) {
       this.logger.error(
-        `[${room.friendlyName}] cannot attach {${entity_id}}. Entity does not exist`,
+        `[${person.friendlyName}] cannot attach {${entity_id}}. Entity does not exist`,
       );
       return;
     }
-    this.logger.info(`[${room.friendlyName}] adding entity {${entity_id}}`);
-    room.entities.push({ entity_id });
-    return await this.personPersistence.update(room, room._id);
+    this.logger.info(`[${person.friendlyName}] adding entity {${entity_id}}`);
+    person.entities.push({ entity_id });
+    return await this.personPersistence.update(person, person._id);
   }
 
-  public async addMetadata(room: PersonDTO | string): Promise<PersonDTO> {
-    room = await this.load(room);
-    room.metadata ??= [];
-    room.metadata.push({
+  public async addMetadata(person: PersonDTO | string): Promise<PersonDTO> {
+    person = await this.load(person);
+    person.metadata ??= [];
+    person.metadata.push({
       id: v4(),
       name: '',
       type: 'boolean',
       value: false,
     });
-    return await this.personPersistence.update(room, room._id);
+    return await this.personPersistence.update(person, person._id);
   }
 
   public async addState(
-    room: PersonDTO | string,
+    person: PersonDTO | string,
     state: RoomStateDTO,
   ): Promise<RoomStateDTO> {
-    room = await this.load(room);
+    person = await this.load(person);
     state.id = v4();
-    room.save_states ??= [];
-    room.save_states.push(state);
+    person.save_states ??= [];
+    person.save_states.push(state);
     this.logger.info(
-      `[${room.friendlyName}] added state {${state.friendlyName ?? 'unnamed'}}`,
+      `[${person.friendlyName}] added state {${
+        state.friendlyName ?? 'unnamed'
+      }}`,
     );
-    await this.personPersistence.update(room, room._id);
+    await this.personPersistence.update(person, person._id);
     return state;
   }
 
   public async attachGroup(
-    room: PersonDTO | string,
+    person: PersonDTO | string,
     group: GroupDTO | string,
   ): Promise<PersonDTO> {
-    room = await this.load(room);
+    person = await this.load(person);
     const attachGroup = await this.groupService.get(group);
     if (!group) {
       const id = is.string(group) ? group : group._id;
       this.logger.error(
-        `[${room.friendlyName}] Cannot attach invalid group {${id}}`,
+        `[${person.friendlyName}] Cannot attach invalid group {${id}}`,
       );
       return;
     }
     this.logger.info(
-      `[${room.friendlyName}] attach group [${attachGroup.friendlyName}]`,
+      `[${person.friendlyName}] attach group [${attachGroup.friendlyName}]`,
     );
-    room.groups.push(attachGroup._id);
-    return await this.personPersistence.update(room, room._id);
+    person.groups.push(attachGroup._id);
+    return await this.personPersistence.update(person, person._id);
+  }
+
+  public async attachRoom(
+    person: PersonDTO | string,
+    room: RoomDTO | string,
+  ): Promise<PersonDTO> {
+    person = await this.load(person);
+    const attachRoom = await this.roomService.get(room);
+    if (!room) {
+      const id = is.string(room) ? room : room._id;
+      this.logger.error(
+        `[${person.friendlyName}] Cannot attach invalid room {${id}}`,
+      );
+      return;
+    }
+    this.logger.info(
+      `[${person.friendlyName}] attach room [${attachRoom.friendlyName}]`,
+    );
+    person.rooms.push(attachRoom._id);
+    return await this.personPersistence.update(person, person._id);
   }
 
   public async buildMetadata(): Promise<
     Record<string, Record<string, unknown>>
   > {
-    const rooms = await this.list();
+    const people = await this.list();
     return Object.fromEntries(
-      rooms.map(room => [
-        room.name ?? `room_${room._id}`,
+      people.map(person => [
+        person.name ?? `person${person._id}`,
         Object.fromEntries(
-          (room.metadata ?? []).map(metadata => [
+          (person.metadata ?? []).map(metadata => [
             metadata.name,
             metadata.type === 'date' && is.string(metadata.value)
               ? new Date(metadata.value as string)
@@ -158,13 +185,13 @@ export class PersonService {
 
   public async delete(item: PersonDTO | string): Promise<boolean> {
     const id = is.string(item) ? item : item._id;
-    const room = await this.load(id);
+    const person = await this.load(id);
     const routines = await this.routineService.list({
-      filters: new Set([{ field: 'command.command.room', value: room._id }]),
+      filters: new Set([{ field: 'command.command.room', value: person._id }]),
     });
     if (!is.empty(routines)) {
       this.logger.info(
-        `[${room.friendlyName}] removing deleted save state reference from {${routines.length}} routines`,
+        `[${person.friendlyName}] removing deleted save state reference from {${routines.length}} routines`,
       );
     }
     await each(
@@ -177,74 +204,94 @@ export class PersonService {
           ),
         }),
     );
-    return await this.personPersistence.delete(room);
+    return await this.personPersistence.delete(person);
   }
 
   public async deleteEntity(
-    room: PersonDTO | string,
+    person: PersonDTO | string,
     entity: string,
   ): Promise<PersonDTO> {
-    room = await this.load(room);
-    room.entities ??= [];
-    room.entities = room.entities.filter(
+    person = await this.load(person);
+    person.entities ??= [];
+    person.entities = person.entities.filter(
       ({ entity_id }) => entity_id !== entity,
     );
-    room.save_states ??= [];
-    room.save_states = room.save_states.map(save_state => ({
+    person.save_states ??= [];
+    person.save_states = person.save_states.map(save_state => ({
       ...save_state,
       states: save_state.states.filter(
         ({ type, ref }) => type !== 'entity' || ref !== entity,
       ),
     }));
-    return await this.personPersistence.update(room, room._id);
+    return await this.personPersistence.update(person, person._id);
   }
 
   public async deleteGroup(
-    room: PersonDTO | string,
+    person: PersonDTO | string,
     groupId: string,
     stateOnly = false,
   ): Promise<PersonDTO> {
-    room = await this.load(room);
+    person = await this.load(person);
     if (!stateOnly) {
-      room.groups ??= [];
-      room.groups = room.groups.filter(group => group !== groupId);
+      person.groups ??= [];
+      person.groups = person.groups.filter(group => group !== groupId);
     }
-    room.save_states ??= [];
-    room.save_states = room.save_states.map(save_state => ({
+    person.save_states ??= [];
+    person.save_states = person.save_states.map(save_state => ({
       ...save_state,
       states: save_state.states.filter(
         ({ type, ref }) => type !== 'group' || ref !== groupId,
       ),
     }));
-    return await this.personPersistence.update(room, room._id);
+    return await this.personPersistence.update(person, person._id);
   }
 
   /**
    * Deliberate choice to not follow through and delete references
    */
   public async deleteMetadata(
-    room: PersonDTO | string,
+    person: PersonDTO | string,
     remove: string,
   ): Promise<PersonDTO> {
-    room = await this.load(room);
-    room.metadata ??= [];
-    room.metadata = room.metadata.filter(({ id }) => id !== remove);
-    return await this.personPersistence.update(room, room._id);
+    person = await this.load(person);
+    person.metadata ??= [];
+    person.metadata = person.metadata.filter(({ id }) => id !== remove);
+    return await this.personPersistence.update(person, person._id);
+  }
+
+  public async deleteRoom(
+    person: PersonDTO | string,
+    roomId: string,
+    stateOnly = false,
+  ): Promise<PersonDTO> {
+    person = await this.load(person);
+    if (!stateOnly) {
+      person.rooms ??= [];
+      person.rooms = person.rooms.filter(room => room !== roomId);
+    }
+    person.save_states ??= [];
+    person.save_states = person.save_states.map(save_state => ({
+      ...save_state,
+      states: save_state.states.filter(
+        ({ type, ref }) => type !== 'room' || ref !== roomId,
+      ),
+    }));
+    return await this.personPersistence.update(person, person._id);
   }
 
   public async deleteState(
-    room: PersonDTO | string,
+    person: PersonDTO | string,
     state: string,
   ): Promise<PersonDTO> {
-    room = await this.load(room);
-    room.save_states ??= [];
-    room.save_states = room.save_states.filter(save => save.id !== state);
+    person = await this.load(person);
+    person.save_states ??= [];
+    person.save_states = person.save_states.filter(save => save.id !== state);
     const routines = await this.routineService.list({
-      filters: new Set([{ field: 'command.command.room', value: room._id }]),
+      filters: new Set([{ field: 'command.command.room', value: person._id }]),
     });
     if (!is.empty(routines)) {
       this.logger.info(
-        `[${room.friendlyName}] removing deleted save state reference from {${routines.length}} routines`,
+        `[${person.friendlyName}] removing deleted save state reference from {${routines.length}} routines`,
       );
     }
     await each(
@@ -259,21 +306,21 @@ export class PersonService {
           ),
         }),
     );
-    return await this.personPersistence.update(room, room._id);
+    return await this.personPersistence.update(person, person._id);
   }
 
   public async get(
-    room: PersonDTO | string,
+    person: PersonDTO | string,
     withEntities = false,
     control: ResultControlDTO = {},
   ): Promise<PersonDTO> {
-    room = await this.load(room, control);
+    person = await this.load(person, control);
     if (withEntities) {
-      room.entityStates = room.entities.map(({ entity_id }) =>
+      person.entityStates = person.entities.map(({ entity_id }) =>
         this.entityManager.getEntity(entity_id),
       );
     }
-    return room;
+    return person;
   }
 
   public async list(control: ResultControlDTO = {}): Promise<PersonDTO[]> {
@@ -281,10 +328,10 @@ export class PersonService {
   }
 
   public async update(
-    room: Omit<Partial<PersonDTO>, keyof BaseSchemaDTO>,
+    person: Omit<Partial<PersonDTO>, keyof BaseSchemaDTO>,
     id: string,
   ): Promise<PersonDTO> {
-    return await this.personPersistence.update(room, id);
+    return await this.personPersistence.update(person, id);
   }
 
   public async updateMetadata(
@@ -292,56 +339,58 @@ export class PersonService {
     id: string,
     update: Partial<RoomMetadataDTO>,
   ): Promise<PersonDTO> {
-    const room = await this.load(target);
-    room.metadata ??= [];
-    const metadata = room.metadata.find(item => item.id === id);
+    const person = await this.load(target);
+    person.metadata ??= [];
+    const metadata = person.metadata.find(item => item.id === id);
     if (is.undefined(metadata)) {
-      this.logger.error(`[${room.friendlyName}] cannot find metadata {${id}}`);
-      return room;
+      this.logger.error(
+        `[${person.friendlyName}] cannot find metadata {${id}}`,
+      );
+      return person;
     }
     if (!is.undefined(update.value)) {
       update.value = this.metadataService.resolveValue(
-        room.metadata.find(metadata => metadata.id === id),
+        person.metadata.find(metadata => metadata.id === id),
         update.value,
       );
     }
-    room.metadata = room.metadata.map(i =>
+    person.metadata = person.metadata.map(i =>
       i.id === id ? { ...i, ...update, id } : i,
     );
-    const out = await this.update(room, room._id);
-    update = room.metadata.find(item => item.id === id);
+    const out = await this.update(person, person._id);
+    update = person.metadata.find(item => item.id === id);
     this.eventEmitter.emit(PERSON_METADATA_UPDATED, {
       name: update.name,
-      room: room._id,
+      person: person._id,
       value: update.value,
     } as MetadataUpdate);
     return out;
   }
 
   public async updateState(
-    room: string | PersonDTO,
+    person: string | PersonDTO,
     id: string,
     update: RoomStateDTO,
   ): Promise<RoomStateDTO> {
-    room = await this.load(room);
-    room.save_states ??= [];
-    room.save_states = room.save_states.map(i =>
+    person = await this.load(person);
+    person.save_states ??= [];
+    person.save_states = person.save_states.map(i =>
       i.id === id ? { ...i, ...update, id } : i,
     );
-    await this.update(room, room._id);
-    return room.save_states.find(state => state.id === id);
+    await this.update(person, person._id);
+    return person.save_states.find(state => state.id === id);
   }
 
   private async load(
-    room: PersonDTO | string,
+    person: PersonDTO | string,
     control: ResultControlDTO = {},
   ): Promise<PersonDTO> {
-    if (is.string(room)) {
-      room = await this.personPersistence.findById(room, { control });
+    if (is.string(person)) {
+      person = await this.personPersistence.findById(person, { control });
     }
-    if (!room) {
+    if (!person) {
       throw new NotFoundException();
     }
-    return room;
+    return person;
   }
 }

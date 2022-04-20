@@ -9,6 +9,7 @@ export const PERSON_METADATA_UPDATED = 'PERSON_METADATA_UPDATED';
 
 export interface MetadataUpdate {
   name: string;
-  room: string;
+  person?: string;
+  room?: string;
   value: unknown;
 }

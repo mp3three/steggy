@@ -1,5 +1,10 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { GroupDTO, PersonDTO, RoomEntityDTO } from '@steggy/controller-shared';
+import {
+  GroupDTO,
+  PersonDTO,
+  RoomDTO,
+  RoomEntityDTO,
+} from '@steggy/controller-shared';
 import { DOWN, TitleCase, UP } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm, Space } from 'antd';
 import React from 'react';
@@ -8,6 +13,7 @@ import { sendRequest } from '../../types';
 import { EntityModalPicker } from '../entities';
 import { EntityInspectButton } from '../entities/InspectButton';
 import { GroupInspectButton, GroupModalPicker } from '../groups';
+import { RoomInsectButton, RoomModalPicker } from '../rooms';
 
 type PartialGroup = Pick<
   GroupDTO,
@@ -16,13 +22,15 @@ type PartialGroup = Pick<
 type tStateType = {
   group?: GroupDTO;
   groups: PartialGroup[];
+  room?: RoomDTO;
+  rooms: RoomDTO[];
 };
 
 export class PersonConfiguration extends React.Component<
-  { onUpdate: (room: PersonDTO) => void; room: PersonDTO },
+  { onUpdate: (person: PersonDTO) => void; person: PersonDTO },
   tStateType
 > {
-  override state = { flags: [], groups: [] } as tStateType;
+  override state = { flags: [], groups: [], rooms: [] } as tStateType;
 
   override async componentDidMount(): Promise<void> {
     await this.refresh();
@@ -37,14 +45,14 @@ export class PersonConfiguration extends React.Component<
           extra={
             <EntityModalPicker
               onAdd={this.addEntities.bind(this)}
-              exclude={this.props.room.entities.map(
+              exclude={this.props.person.entities.map(
                 ({ entity_id }) => entity_id,
               )}
             />
           }
         >
           <List
-            dataSource={(this.props.room.entities ?? []).sort((a, b) =>
+            dataSource={(this.props.person.entities ?? []).sort((a, b) =>
               a > b ? UP : DOWN,
             )}
             renderItem={item => this.entityRender(item)}
@@ -55,14 +63,29 @@ export class PersonConfiguration extends React.Component<
           title="Groups"
           extra={
             <GroupModalPicker
-              exclude={this.props.room.groups}
+              exclude={this.props.person.groups}
               onAdd={this.addGroups.bind(this)}
             />
           }
         >
           <List
-            dataSource={this.props.room.groups}
+            dataSource={this.props.person.groups}
             renderItem={item => this.groupRender(item)}
+          />
+        </Card>
+        <Card
+          type="inner"
+          title="Rooms"
+          extra={
+            <RoomModalPicker
+              exclude={this.props.person.rooms}
+              onAdd={this.addRooms.bind(this)}
+            />
+          }
+        >
+          <List
+            dataSource={this.props.person.rooms}
+            renderItem={item => this.roomRender(item)}
           />
         </Card>
       </Space>
@@ -70,41 +93,62 @@ export class PersonConfiguration extends React.Component<
   }
 
   private async addEntities(entities: string[]): Promise<void> {
-    const room = this.props.room;
-    room.entities = [
-      ...room.entities,
+    const person = this.props.person;
+    person.entities = [
+      ...person.entities,
       ...entities.map(entity_id => ({ entity_id })),
     ];
     this.props.onUpdate(
       await sendRequest<PersonDTO>({
         body: {
-          entities: room.entities,
+          entities: person.entities,
         } as Partial<PersonDTO>,
         method: 'put',
-        url: `/room/${room._id}`,
+        url: `/person/${person._id}`,
       }),
     );
   }
 
   private async addGroups(groups: string[]): Promise<void> {
-    const room = this.props.room;
+    const person = this.props.person;
     this.props.onUpdate(
       await sendRequest<PersonDTO>({
         body: { groups },
         method: 'post',
-        url: `/room/${room._id}/group`,
+        url: `/person/${person._id}/group`,
+      }),
+    );
+  }
+
+  private async addRooms(rooms: string[]): Promise<void> {
+    const person = this.props.person;
+    this.props.onUpdate(
+      await sendRequest<PersonDTO>({
+        body: { rooms },
+        method: 'post',
+        url: `/person/${person._id}/room`,
       }),
     );
   }
 
   private async detachGroup(group: string): Promise<void> {
-    let room = this.props.room;
-    room = await sendRequest({
-      body: { groups: room.groups.filter(i => i !== group) },
+    let person = this.props.person;
+    person = await sendRequest({
+      body: { groups: person.groups.filter(i => i !== group) },
       method: 'put',
-      url: `/room/${room._id}`,
+      url: `/person/${person._id}`,
     });
-    this.props.onUpdate(room);
+    this.props.onUpdate(person);
+  }
+
+  private async detachRoom(room: string): Promise<void> {
+    let person = this.props.person;
+    person = await sendRequest({
+      body: { rooms: person.rooms.filter(i => i !== room) },
+      method: 'put',
+      url: `/person/${person._id}`,
+    });
+    this.props.onUpdate(person);
   }
 
   private entityRender({ entity_id }: RoomEntityDTO) {
@@ -177,6 +221,9 @@ export class PersonConfiguration extends React.Component<
         },
         url: `/group`,
       }),
+      rooms: await sendRequest({
+        url: `/room`,
+      }),
     });
   }
 
@@ -184,8 +231,44 @@ export class PersonConfiguration extends React.Component<
     this.props.onUpdate(
       await sendRequest<PersonDTO>({
         method: 'delete',
-        url: `/room/${this.props.room._id}/entity/${entity}`,
+        url: `/person/${this.props.person._id}/entity/${entity}`,
       }),
+    );
+  }
+
+  private room(id: string): RoomDTO {
+    return this.state.rooms.find(({ _id }) => _id === id);
+  }
+
+  private roomRender(item: string) {
+    const room = this.room(item);
+    if (!room) {
+      return undefined;
+    }
+    return (
+      <List.Item
+        key={item}
+        actions={[
+          <Popconfirm
+            icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+            title={`Detach room?`}
+            onConfirm={() => this.detachRoom(item)}
+          >
+            <Button danger type="text">
+              <CloseOutlined />
+            </Button>
+          </Popconfirm>,
+        ]}
+      >
+        <List.Item.Meta
+          title={
+            <RoomInsectButton
+              room={room}
+              onUpdate={room => this.updateRoom(room)}
+            />
+          }
+        />
+      </List.Item>
     );
   }
 
@@ -201,6 +284,21 @@ export class PersonConfiguration extends React.Component<
     }
     this.setState({
       groups: this.state.groups.map(g => (g._id === group._id ? group : g)),
+    });
+  }
+
+  private updateRoom(room: RoomDTO): void {
+    if (!room) {
+      this.setState({
+        room: undefined,
+        rooms: this.state.rooms.filter(
+          ({ _id }) => _id !== this.state.group._id,
+        ),
+      });
+      return;
+    }
+    this.setState({
+      rooms: this.state.rooms.map(g => (g._id === room._id ? room : g)),
     });
   }
 }

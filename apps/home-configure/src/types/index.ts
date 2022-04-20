@@ -1,5 +1,6 @@
 export * from './constants';
 export * from './functions';
+export * from './group.description';
 export * from './icons';
 export * from './related-routines';
 export * from './routine-activate-descriptions';

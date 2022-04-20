@@ -59,21 +59,21 @@ export class PersonController {
     description: `Add an entity to the room`,
   })
   public async addEntity(
-    @Param('person') room: string,
+    @Param('person') person: string,
     @Body() entity: RoomEntityDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.addEntity(room, entity);
-    return await this.personService.get(room, true, control);
+    await this.personService.addEntity(person, entity);
+    return await this.personService.get(person, true, control);
   }
 
   @Post(`/:person/metadata`)
   public async addMetadata(
-    @Param('person') room: string | PersonDTO,
+    @Param('person') person: string | PersonDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.addMetadata(room);
-    return await this.personService.get(room, true, control);
+    await this.personService.addMetadata(person);
+    return await this.personService.get(person, true, control);
   }
 
   @Post(`/:person/state`)
@@ -83,12 +83,12 @@ export class PersonController {
     description: `Add state to room`,
   })
   public async addState(
-    @Param('person') room: string,
+    @Param('person') person: string,
     @Body() state: RoomStateDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.addState(room, state);
-    return await this.personService.get(room, true, control);
+    await this.personService.addState(person, state);
+    return await this.personService.get(person, true, control);
   }
 
   @Post(`/:person/group`)
@@ -97,15 +97,32 @@ export class PersonController {
     description: `Add link to existing group`,
   })
   public async attachGroup(
-    @Param('person') room: string,
+    @Param('person') person: string,
     @Body() { groups }: { groups: string[] },
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
     await each(
       groups,
-      async id => await this.personService.attachGroup(room, id),
+      async id => await this.personService.attachGroup(person, id),
     );
-    return await this.personService.get(room, true, control);
+    return await this.personService.get(person, true, control);
+  }
+
+  @Post(`/:person/room`)
+  @ApiResponse({ type: PersonDTO })
+  @ApiOperation({
+    description: `Add link to existing group`,
+  })
+  public async attachRoom(
+    @Param('person') person: string,
+    @Body() { rooms }: { rooms: string[] },
+    @Locals() { control }: ResponseLocals,
+  ): Promise<PersonDTO> {
+    await each(
+      rooms,
+      async id => await this.personService.attachRoom(person, id),
+    );
+    return await this.personService.get(person, true, control);
   }
 
   @Post(`/:person/clone`)
@@ -114,17 +131,17 @@ export class PersonController {
     description: `Clone an existing group`,
   })
   public async clone(
-    @Param('person') room: string,
+    @Param('person') person: string,
     @Body() options: CloneRoomDTO = {},
   ): Promise<PersonDTO> {
-    return await this.personService.clone(room, options);
+    return await this.personService.clone(person, options);
   }
 
   @Post(`/`)
   @ApiBody({ type: PersonDTO })
   @ApiResponse({ type: PersonDTO })
   @ApiOperation({
-    description: `Add a new room`,
+    description: `Add a new person`,
   })
   public async create(@Body() data: PersonDTO): Promise<PersonDTO> {
     return await this.personService.create(BaseSchemaDTO.cleanup(data));
@@ -132,81 +149,95 @@ export class PersonController {
 
   @Delete(`/:person`)
   @ApiOperation({
-    description: `Soft delete room`,
+    description: `Soft delete person`,
   })
   public async delete(
-    @Param('person') room: string,
+    @Param('person') person: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.personService.delete(room);
+    await this.personService.delete(person);
     return GENERIC_SUCCESS_RESPONSE;
   }
 
   @Delete(`/:person/entity/:entity`)
   @ApiResponse({ type: PersonDTO })
   @ApiOperation({
-    description: `Remove entity from room`,
+    description: `Remove entity from person`,
   })
   public async deleteEntity(
-    @Param('person') room: string,
+    @Param('person') person: string,
     @Param('entity') entity: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.deleteEntity(room, entity);
-    return await this.personService.get(room, true, control);
+    await this.personService.deleteEntity(person, entity);
+    return await this.personService.get(person, true, control);
   }
 
   @Delete(`/:person/group/:group`)
   @ApiResponse({ type: PersonDTO })
   @ApiOperation({
-    description: `Detach group from room`,
+    description: `Detach group from person`,
   })
   public async deleteGroup(
-    @Param('person') room: string,
+    @Param('person') person: string,
     @Param('group') group: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.deleteGroup(room, group);
-    return await this.personService.get(room, true, control);
+    await this.personService.deleteGroup(person, group);
+    return await this.personService.get(person, true, control);
   }
 
   @Delete(`/:person/metadata/:metadata`)
   @ApiResponse({ type: PersonDTO })
   @ApiOperation({
-    description: `Remove metadata from room`,
+    description: `Remove metadata from person`,
   })
   public async deleteMetadata(
-    @Param('person') room: string,
+    @Param('person') person: string,
     @Param('metadata') metadata: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.deleteMetadata(room, metadata);
-    return await this.personService.get(room, true, control);
+    await this.personService.deleteMetadata(person, metadata);
+    return await this.personService.get(person, true, control);
+  }
+
+  @Delete(`/:person/person/:person`)
+  @ApiResponse({ type: PersonDTO })
+  @ApiOperation({
+    description: `Detach person from person`,
+  })
+  public async deleteRoom(
+    @Param('person') person: string,
+    @Param('room') room: string,
+    @Locals() { control }: ResponseLocals,
+  ): Promise<PersonDTO> {
+    await this.personService.deleteRoom(person, room);
+    return await this.personService.get(person, true, control);
   }
 
   @Delete(`/:person/state/:state`)
   @ApiResponse({ type: PersonDTO })
   @ApiOperation({
-    description: `Remove state from room`,
+    description: `Remove state from person`,
   })
   public async deleteState(
-    @Param('person') room: string,
+    @Param('person') person: string,
     @Param('state') state: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.deleteState(room, state);
-    return await this.personService.get(room, true, control);
+    await this.personService.deleteState(person, state);
+    return await this.personService.get(person, true, control);
   }
 
   @Get('/:person')
   @ApiResponse({ type: PersonDTO })
   @ApiOperation({
-    description: `Retrieve room info by id`,
+    description: `Retrieve person info by id`,
   })
   public async get(
-    @Param('person') room: string,
+    @Param('person') person: string,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    return await this.personService.get(room, true, control);
+    return await this.personService.get(person, true, control);
   }
 
   @Get('/:person/group-save-states')
@@ -215,11 +246,11 @@ export class PersonController {
     description: `List all the save states for all the attached groups`,
   })
   public async groupSaveStates(
-    @Param('person') room: string,
+    @Param('person') person: string,
   ): Promise<GroupDTO[]> {
-    const roomInfo = await this.personService.get(room);
+    const personInfo = await this.personService.get(person);
     const out: GroupDTO[] = [];
-    await each(roomInfo.groups, async item => {
+    await each(personInfo.groups, async item => {
       out.push(
         await this.groupService.get(item, {
           select: [
@@ -237,7 +268,7 @@ export class PersonController {
   @Get('/')
   @ApiResponse({ type: [PersonDTO] })
   @ApiOperation({
-    description: `List all rooms`,
+    description: `List all people`,
   })
   public async list(
     @Locals() { control }: ResponseLocals,
@@ -274,31 +305,31 @@ export class PersonController {
   @ApiBody({ type: PersonDTO })
   @ApiResponse({ type: PersonDTO })
   @ApiOperation({
-    description: `Modify a room`,
+    description: `Modify a person`,
   })
   public async update(
-    @Param('person') room: string,
+    @Param('person') person: string,
     @Body() data: Partial<PersonDTO>,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.update(BaseSchemaDTO.cleanup(data), room);
-    return await this.personService.get(room, true, control);
+    await this.personService.update(BaseSchemaDTO.cleanup(data), person);
+    return await this.personService.get(person, true, control);
   }
 
   @Put(`/:person/metadata/:metadata`)
   @ApiBody({ type: RoomStateDTO })
   @ApiResponse({ type: RoomStateDTO })
   @ApiOperation({
-    description: `Modify room metadata`,
+    description: `Modify person metadata`,
   })
   public async updateMetadata(
-    @Param('person') room: string,
+    @Param('person') person: string,
     @Param('metadata') metadata: string,
     @Body() data: RoomMetadataDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.updateMetadata(room, metadata, data);
-    return await this.personService.get(room, true, control);
+    await this.personService.updateMetadata(person, metadata, data);
+    return await this.personService.get(person, true, control);
   }
 
   @Put(`/:person/metadata-name/:metadata`)
@@ -308,30 +339,30 @@ export class PersonController {
     description: `Modify room metadata`,
   })
   public async updateMetadataByName(
-    @Param('person') roomId: string,
+    @Param('person') personId: string,
     @Param('metadata') metadata: string,
     @Body() data: RoomMetadataDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    const room = await this.personService.get(roomId);
-    const meta = room.metadata.find(({ name }) => name === metadata);
-    await this.personService.updateMetadata(room, meta.id, data);
-    return await this.personService.get(room, true, control);
+    const person = await this.personService.get(personId);
+    const meta = person.metadata.find(({ name }) => name === metadata);
+    await this.personService.updateMetadata(person, meta.id, data);
+    return await this.personService.get(person, true, control);
   }
 
   @Put(`/:person/state/:state`)
   @ApiBody({ type: RoomStateDTO })
   @ApiResponse({ type: RoomStateDTO })
   @ApiOperation({
-    description: `Remove a room state`,
+    description: `Remove a person state`,
   })
   public async updateState(
-    @Param('person') room: string,
+    @Param('person') person: string,
     @Param('state') state: string,
     @Body() data: RoomStateDTO,
     @Locals() { control }: ResponseLocals,
   ): Promise<PersonDTO> {
-    await this.personService.updateState(room, state, data);
-    return await this.personService.get(room, true, control);
+    await this.personService.updateState(person, state, data);
+    return await this.personService.get(person, true, control);
   }
 }

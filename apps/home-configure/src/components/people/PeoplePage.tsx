@@ -16,14 +16,18 @@ import {
 import React from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
+import { PeopleDetail } from './PeopleDetail';
 
 const { Content } = Layout;
-type tState = { room: PersonDTO; rooms: PersonDTO[] };
+type tState = {
+  people: PersonDTO[];
+  person: PersonDTO;
+};
 
 export class PeoplePage extends React.Component {
   override state = {
-    room: undefined,
-    rooms: [],
+    people: [],
+    person: undefined,
   } as tState;
   private form: FormInstance;
 
@@ -68,18 +72,18 @@ export class PeoplePage extends React.Component {
                 }
               >
                 <List
-                  dataSource={this.state.rooms ?? []}
+                  dataSource={this.state.people ?? []}
                   pagination={{ size: 'small' }}
-                  renderItem={room => this.renderRoom(room)}
+                  renderItem={person => this.renderPerson(person)}
                 />
               </Card>
             </Col>
             <Col span={12}>
-              {/* <RoomListDetail
-                onClone={room => this.onClone(room)}
-                room={this.state.room}
-                onUpdate={update => this.updateRoom(update)}
-              /> */}
+              <PeopleDetail
+                onClone={person => this.onClone(person)}
+                person={this.state.person}
+                onUpdate={update => this.updatePerson(update)}
+              />
             </Col>
           </Row>
         </Content>
@@ -87,35 +91,35 @@ export class PeoplePage extends React.Component {
     );
   }
 
-  private onClone(room: PersonDTO) {
+  private onClone(person: PersonDTO) {
     this.setState({
-      room,
-      rooms: [...this.state.rooms, room],
+      people: [...this.state.people, person],
+      person,
     });
   }
 
   private async refresh(): Promise<PersonDTO[]> {
-    const rooms = await sendRequest<PersonDTO[]>({
+    const people = await sendRequest<PersonDTO[]>({
       control: {
         sort: ['friendlyName'],
       },
       url: `/person`,
     });
-    this.setState({ rooms });
-    return rooms;
+    this.setState({ people });
+    return people;
   }
 
-  private renderRoom(room: PersonDTO) {
+  private renderPerson(person: PersonDTO) {
     return (
-      <List.Item key={room._id}>
+      <List.Item key={person._id}>
         <List.Item.Meta
           title={
             <Button
               size="small"
-              type={this.state?.room?._id === room._id ? 'primary' : 'text'}
-              onClick={() => this.setRoom(room)}
+              type={this.state?.person?._id === person._id ? 'primary' : 'text'}
+              onClick={() => this.setPerson(person)}
             >
-              {room.friendlyName}
+              {person.friendlyName}
             </Button>
           }
         />
@@ -123,36 +127,36 @@ export class PeoplePage extends React.Component {
     );
   }
 
-  private async setRoom(room: PersonDTO): Promise<void> {
+  private async setPerson(person: PersonDTO): Promise<void> {
     this.setState({
-      room: await sendRequest({
-        url: `/person/${room._id}`,
+      person: await sendRequest({
+        url: `/person/${person._id}`,
       }),
     });
   }
 
-  private updateRoom(room: PersonDTO): void {
-    if (!room) {
+  private updatePerson(person: PersonDTO): void {
+    if (!person) {
       this.setState({
-        room: undefined,
-        rooms: this.state.rooms.filter(
-          ({ _id }) => _id !== this.state.room._id,
+        people: this.state.people.filter(
+          ({ _id }) => _id !== this.state.person._id,
         ),
+        person: undefined,
       });
       return;
     }
-    const list = this.state.rooms;
-    const index = list.findIndex(({ _id }) => _id === room._id);
+    const list = this.state.people;
+    const index = list.findIndex(({ _id }) => _id === person._id);
     if (index === NOT_FOUND) {
       this.setState({
-        room,
-        rooms: [...list, room],
+        people: [...list, person],
+        person,
       });
       return;
     }
     this.setState({
-      room,
-      rooms: list.map(item => (room._id === item._id ? room : item)),
+      people: list.map(item => (person._id === item._id ? person : item)),
+      person,
     });
   }
 
@@ -165,9 +169,9 @@ export class PeoplePage extends React.Component {
         url: `/person`,
       });
       this.form.resetFields();
-      const rooms = await this.refresh();
+      const people = await this.refresh();
       this.setState({
-        room: rooms.find(({ _id }) => _id === created._id),
+        people: people.find(({ _id }) => _id === created._id),
       });
     } catch (error) {
       console.error(error);

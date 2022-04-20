@@ -27,9 +27,9 @@ type tState = {
 export class PeopleDetail extends React.Component<
   {
     nested?: boolean;
-    onClone?: (room: PersonDTO) => void;
-    onUpdate: (room?: PersonDTO) => void;
-    room?: PersonDTO;
+    onClone?: (person: PersonDTO) => void;
+    onUpdate: (person?: PersonDTO) => void;
+    person?: PersonDTO;
   },
   tState
 > {
@@ -43,14 +43,14 @@ export class PeopleDetail extends React.Component<
       <Card
         title="Person details"
         extra={
-          !is.object(this.props.room) ? undefined : (
+          !is.object(this.props.person) ? undefined : (
             <Dropdown
               overlay={
                 <Menu>
                   <Menu.Item key="delete">
                     <Popconfirm
                       icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-                      title={`Are you sure you want to delete ${this.props.room.friendlyName}?`}
+                      title={`Are you sure you want to delete ${this.props.person.friendlyName}?`}
                       onConfirm={() => this.delete()}
                     >
                       <Button
@@ -89,7 +89,7 @@ export class PeopleDetail extends React.Component<
   private async clone(): Promise<void> {
     const cloned = await sendRequest<PersonDTO>({
       method: 'post',
-      url: `/room/${this.props.room._id}/clone`,
+      url: `/person/${this.props.person._id}/clone`,
     });
     if (this.props.onClone) {
       this.props.onClone(cloned);
@@ -99,14 +99,14 @@ export class PeopleDetail extends React.Component<
   private async delete(): Promise<void> {
     await sendRequest({
       method: 'delete',
-      url: `/room/${this.props.room._id}`,
+      url: `/person/${this.props.person._id}`,
     });
     this.props.onUpdate();
   }
 
   private renderBody() {
-    return !this.props.room ? (
-      <Empty description="Select a room" />
+    return !this.props.person ? (
+      <Empty description="Select a person" />
     ) : (
       <>
         <Typography.Title
@@ -115,13 +115,13 @@ export class PeopleDetail extends React.Component<
             onChange: friendlyName => this.update({ friendlyName }),
           }}
         >
-          {this.props.room.friendlyName}
+          {this.props.person.friendlyName}
         </Typography.Title>
         <Tabs>
           <Tabs.TabPane key="members" tab="Members">
             <PersonConfiguration
-              room={this.props.room}
-              onUpdate={room => this.props.onUpdate(room)}
+              person={this.props.person}
+              onUpdate={person => this.props.onUpdate(person)}
             />
           </Tabs.TabPane>
           <Tabs.TabPane key="save_states" tab="Save States">
@@ -132,8 +132,8 @@ export class PeopleDetail extends React.Component<
           </Tabs.TabPane>
           <Tabs.TabPane key="metadata" tab="Metadata">
             <RoomMetadata
-              room={this.props.room}
-              onUpdate={room => this.props.onUpdate(room)}
+              room={this.props.person}
+              onUpdate={person => this.props.onUpdate(person)}
             />
           </Tabs.TabPane>
           <Tabs.TabPane key="settings" tab="Settings">
@@ -141,7 +141,7 @@ export class PeopleDetail extends React.Component<
               <Form.Item label="Internal Name">
                 <Input
                   defaultValue={
-                    this.props.room.name ?? `room_${this.props.room._id}`
+                    this.props.person.name ?? `person_${this.props.person._id}`
                   }
                   onBlur={({ target }) => this.update({ name: target.value })}
                 />
@@ -157,7 +157,7 @@ export class PeopleDetail extends React.Component<
     const room = await sendRequest<PersonDTO>({
       body,
       method: 'put',
-      url: `/room/${this.props.room._id}`,
+      url: `/person/${this.props.person._id}`,
     });
     this.props.onUpdate(room);
   }
