@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   AttributeChangeActivateDTO,
-  RoomEntitySaveStateDTO,
+  GeneralSaveStateDTO,
   RoutineActivateDTO,
   RoutineCommandDTO,
   RoutineCommandStopProcessingDTO,
@@ -224,7 +224,7 @@ export class EntityRenameService {
     );
     await eachSeries(list, async routine => {
       routine.command = routine.command.map(
-        (command: RoutineCommandDTO<RoomEntitySaveStateDTO>) => {
+        (command: RoutineCommandDTO<GeneralSaveStateDTO>) => {
           if (command.type !== 'entity_state') {
             return command;
           }

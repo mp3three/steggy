@@ -1,4 +1,4 @@
-import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { Button, Col, Drawer, Empty, Row } from 'antd';
 import { dump } from 'js-yaml';
@@ -18,7 +18,7 @@ type tStateType = {
 export class EntityDetailDrawer extends React.Component<
   {
     entity: HassStateDTO;
-    onUpdate?: (state: RoomEntitySaveStateDTO) => void;
+    onUpdate?: (state: GeneralSaveStateDTO) => void;
   },
   tStateType
 > {

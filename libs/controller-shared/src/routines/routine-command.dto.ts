@@ -10,7 +10,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { RoomEntitySaveStateDTO } from '../rooms';
+import { GeneralSaveStateDTO } from '../rooms';
 import { GroupDTO, RoomDTO } from '../schemas';
 import { RoutineCommandStopProcessingDTO } from './stop-processing.dto';
 
@@ -203,7 +203,7 @@ export class RoutineCommandWebhookDTO {
 
 export class RoutineCommandDTO<
   COMMAND =
-    | RoomEntitySaveStateDTO
+    | GeneralSaveStateDTO
     | RoutineCommandLightFlashDTO
     | RoutineCommandGroupActionDTO
     | RoutineCommandGroupStateDTO
@@ -220,7 +220,7 @@ export class RoutineCommandDTO<
 > {
   @ApiProperty({
     oneOf: [
-      { $ref: getSchemaPath(RoomEntitySaveStateDTO) },
+      { $ref: getSchemaPath(GeneralSaveStateDTO) },
       { $ref: getSchemaPath(RoutineCommandLightFlashDTO) },
       { $ref: getSchemaPath(RoutineCommandGroupActionDTO) },
       { $ref: getSchemaPath(RoutineCommandGroupStateDTO) },

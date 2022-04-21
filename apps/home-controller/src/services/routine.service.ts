@@ -16,8 +16,8 @@ import {
   ActivateCommand,
   AttributeChangeActivateDTO,
   CloneRoutineDTO,
+  GeneralSaveStateDTO,
   MetadataChangeDTO,
-  RoomEntitySaveStateDTO,
   ROUTINE_ACTIVATE_COMMAND,
   ROUTINE_ACTIVATE_TYPE,
   RoutineActivateDTO,
@@ -155,7 +155,7 @@ export class RoutineService {
         break;
       case ROUTINE_ACTIVATE_COMMAND.entity_state:
         await this.entityRouter.fromState(
-          command.command as RoomEntitySaveStateDTO,
+          command.command as GeneralSaveStateDTO,
           waitForChange,
         );
         break;

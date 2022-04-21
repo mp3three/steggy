@@ -10,11 +10,11 @@ import {
   InjectCache,
 } from '@steggy/boilerplate';
 import {
+  GeneralSaveStateDTO,
   GROUP_DEFINITIONS,
   GROUP_TYPES,
   GroupDTO,
   GroupSaveStateDTO,
-  RoomEntitySaveStateDTO,
 } from '@steggy/controller-shared';
 import { HASS_DOMAINS } from '@steggy/home-assistant-shared';
 import {
@@ -124,8 +124,8 @@ export class GroupCommandService implements iRepl {
 
   public async createSaveCommand(
     group: GroupDTO,
-    current: Partial<RoomEntitySaveStateDTO> = {},
-  ): Promise<RoomEntitySaveStateDTO> {
+    current: Partial<GeneralSaveStateDTO> = {},
+  ): Promise<GeneralSaveStateDTO> {
     let state = await this.promptService.pickOne<GroupSaveStateDTO | string>(
       `${chalk.magenta.bold(group.friendlyName)} save state`,
       [

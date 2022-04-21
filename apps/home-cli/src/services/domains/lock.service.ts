@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { ICONS, PromptEntry } from '@steggy/tty';
 import inquirer from 'inquirer';
 
@@ -9,8 +9,8 @@ import { BaseDomainService } from './base-domain.service';
 export class LockService extends BaseDomainService {
   public async createSaveCommand(
     entity_id: string,
-    current?: RoomEntitySaveStateDTO,
-  ): Promise<RoomEntitySaveStateDTO> {
+    current?: GeneralSaveStateDTO,
+  ): Promise<GeneralSaveStateDTO> {
     const state = await this.promptService.pickOne(
       `Set lock`,
       [

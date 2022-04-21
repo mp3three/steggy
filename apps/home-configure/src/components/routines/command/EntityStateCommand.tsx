@@ -1,4 +1,4 @@
-import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Divider, Empty, Form, Skeleton, Space } from 'antd';
 import React from 'react';
@@ -17,8 +17,8 @@ type tState = {
 
 export class EntityStateCommand extends React.Component<
   {
-    command: RoomEntitySaveStateDTO;
-    onUpdate: (command: Partial<RoomEntitySaveStateDTO>) => void;
+    command: GeneralSaveStateDTO;
+    onUpdate: (command: Partial<GeneralSaveStateDTO>) => void;
   },
   tState
 > {

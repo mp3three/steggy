@@ -5,8 +5,8 @@ import {
 } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
+  GeneralSaveStateDTO,
   ROOM_ENTITY_EXTRAS,
-  RoomEntitySaveStateDTO,
 } from '@steggy/controller-shared';
 import {
   ClimateDomainService,
@@ -41,7 +41,7 @@ export class EntityCommandRouterService {
   ) {}
 
   public async fromState(
-    { ref, state, extra }: RoomEntitySaveStateDTO,
+    { ref, state, extra }: GeneralSaveStateDTO,
     waitForChange = false,
   ): Promise<void> {
     await this.process(ref, state, extra, waitForChange);

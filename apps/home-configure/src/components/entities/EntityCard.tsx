@@ -1,5 +1,5 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { LightStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import {
@@ -23,8 +23,8 @@ type tStateType = {
 export class EntityCard extends React.Component<
   {
     onRemove?: (entity_id: string) => void;
-    onUpdate: (state: RoomEntitySaveStateDTO) => void;
-    state: RoomEntitySaveStateDTO;
+    onUpdate: (state: GeneralSaveStateDTO) => void;
+    state: GeneralSaveStateDTO;
     title?: string;
   },
   tStateType
@@ -40,7 +40,7 @@ export class EntityCard extends React.Component<
     await this.refresh();
   }
 
-  public getSaveState(): RoomEntitySaveStateDTO {
+  public getSaveState(): GeneralSaveStateDTO {
     return {
       ref: this.ref,
       state: this.state.state || 'off',

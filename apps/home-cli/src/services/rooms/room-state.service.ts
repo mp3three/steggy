@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
+  GeneralSaveStateDTO,
   RoomDTO,
-  RoomEntitySaveStateDTO,
   RoomStateDTO,
 } from '@steggy/controller-shared';
 import { domain, HASS_DOMAINS } from '@steggy/home-assistant-shared';
@@ -74,7 +74,7 @@ export class RoomStateService {
       current.friendlyName ??
       (await this.promptService.friendlyName(current.friendlyName));
     current.states ??= [];
-    const states: RoomEntitySaveStateDTO[] = [
+    const states: GeneralSaveStateDTO[] = [
       ...(await this.buildEntities(room, current)),
       ...(await this.buildGroups(room, current)),
     ];
@@ -273,13 +273,13 @@ export class RoomStateService {
   private async buildEntities(
     room: RoomDTO,
     current: Partial<RoomStateDTO> = {},
-  ): Promise<RoomEntitySaveStateDTO[]> {
+  ): Promise<GeneralSaveStateDTO[]> {
     if (is.empty(room.entities)) {
       this.logger.warn(`No entities in room`);
       return [];
     }
 
-    const states: RoomEntitySaveStateDTO[] = [];
+    const states: GeneralSaveStateDTO[] = [];
     const list = await this.entityService.pickMany(
       // Filter out non-actionable domains
       room.entities
@@ -293,7 +293,7 @@ export class RoomStateService {
     );
     // Things tend to do the same thing
     // Makes initial setup easier
-    let lastState: RoomEntitySaveStateDTO;
+    let lastState: GeneralSaveStateDTO;
     await eachSeries(list, async entity_id => {
       const found = current.states.find(i => i.ref === entity_id) || {
         ...lastState,
@@ -313,12 +313,12 @@ export class RoomStateService {
   private async buildGroups(
     room: RoomDTO,
     current: Partial<RoomStateDTO> = {},
-  ): Promise<RoomEntitySaveStateDTO[]> {
+  ): Promise<GeneralSaveStateDTO[]> {
     if (is.empty(room.groups)) {
       this.logger.warn(`No groups`);
       return [];
     }
-    const states: RoomEntitySaveStateDTO[] = [];
+    const states: GeneralSaveStateDTO[] = [];
     const list = await this.groupService.pickMany(
       room.groups,
       current.states

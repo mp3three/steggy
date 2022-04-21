@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotImplementedException } from '@nestjs/common';
-import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import {
   HASS_DOMAINS,
   LightAttributesDTO,
@@ -32,10 +32,10 @@ export class LightService extends SwitchService {
 
   public async createSaveCommand(
     entity_id: string,
-    current: Partial<RoomEntitySaveStateDTO<LightAttributesDTO>> = {},
-  ): Promise<RoomEntitySaveStateDTO> {
+    current: Partial<GeneralSaveStateDTO<LightAttributesDTO>> = {},
+  ): Promise<GeneralSaveStateDTO> {
     throw new NotImplementedException();
-    return await new Promise(done => done(current as RoomEntitySaveStateDTO));
+    return await new Promise(done => done(current as GeneralSaveStateDTO));
     // let defaultValue: string;
     // if (!is.undefined(current.state)) {
     //   if (current.state === 'off') {
@@ -82,7 +82,7 @@ export class LightService extends SwitchService {
     //   const rgb = await this.colorService.buildRGB({ b, g, r });
     //   current.extra.rgb_color = [rgb.r, rgb.g, rgb.b];
     // }
-    // return current as RoomEntitySaveStateDTO;
+    // return current as GeneralSaveStateDTO;
   }
 
   public async dimDown(id: string): Promise<void> {

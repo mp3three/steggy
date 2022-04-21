@@ -1,7 +1,7 @@
 import {
+  GeneralSaveStateDTO,
   GroupDTO,
   RoomDTO,
-  RoomEntitySaveStateDTO,
   RoomStateDTO,
 } from '@steggy/controller-shared';
 import { DOWN, is, UP } from '@steggy/utilities';
@@ -291,7 +291,7 @@ export class RoomStateEdit extends React.Component<
                   ref: group,
                   state: groupStates[group],
                   type: 'group',
-                } as RoomEntitySaveStateDTO),
+                } as GeneralSaveStateDTO),
             ),
         ],
       } as RoomStateDTO,

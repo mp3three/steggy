@@ -13,7 +13,7 @@ export class RoomStateDTO {
   @ApiProperty()
   public id: string;
   @ApiProperty()
-  public states: RoomEntitySaveStateDTO[];
+  public states: GeneralSaveStateDTO[];
   @ApiProperty({ required: false })
   public tags?: string[];
 }
@@ -33,7 +33,7 @@ export const ENTITY_EXTRAS_SCHEMA = {
   ],
 };
 
-export class RoomEntitySaveStateDTO<EXTRA = ROOM_ENTITY_EXTRAS> {
+export class GeneralSaveStateDTO<EXTRA = ROOM_ENTITY_EXTRAS> {
   @ValidateNested()
   @ApiProperty(ENTITY_EXTRAS_SCHEMA)
   public extra?: EXTRA;

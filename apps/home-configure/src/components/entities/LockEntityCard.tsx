@@ -1,5 +1,5 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { LockStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import {
@@ -26,10 +26,10 @@ type tStateType = {
 export class LockEntityCard extends React.Component<
   {
     onRemove?: (entity_id: string) => void;
-    onUpdate?: (state: RoomEntitySaveStateDTO) => void;
+    onUpdate?: (state: GeneralSaveStateDTO) => void;
     optional?: boolean;
     selfContained?: boolean;
-    state?: RoomEntitySaveStateDTO;
+    state?: GeneralSaveStateDTO;
     stateOnly?: boolean;
     title?: string;
   },
@@ -58,7 +58,7 @@ export class LockEntityCard extends React.Component<
     await this.refresh();
   }
 
-  public getSaveState(): RoomEntitySaveStateDTO {
+  public getSaveState(): GeneralSaveStateDTO {
     if (this.disabled) {
       return undefined;
     }

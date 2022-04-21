@@ -9,9 +9,9 @@ import {
 } from '@steggy/boilerplate';
 import {
   CIRCADIAN_UPDATE,
+  GeneralSaveStateDTO,
   LIGHT_FORCE_CIRCADIAN,
   RoomCommandDTO,
-  RoomEntitySaveStateDTO,
 } from '@steggy/controller-shared';
 import {
   EntityManagerService,
@@ -215,7 +215,7 @@ export class LightManagerService {
 
   public async turnOn(
     entity_id: string | string[],
-    settings: Partial<RoomEntitySaveStateDTO> = {},
+    settings: Partial<GeneralSaveStateDTO> = {},
     waitForChange = false,
   ): Promise<void> {
     return await this.setAttributes(entity_id, settings.extra, waitForChange);

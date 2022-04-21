@@ -3,9 +3,9 @@ import { AutoLogService } from '@steggy/boilerplate';
 import {
   AttributeChangeActivateDTO,
   DebugReportDTO,
+  GeneralSaveStateDTO,
   GroupDTO,
   RoomDTO,
-  RoomEntitySaveStateDTO,
   RoomMetadataComparisonDTO,
   RoutineActivateDTO,
   RoutineCommandGroupActionDTO,
@@ -167,14 +167,14 @@ export class DebuggerService {
           // ENTITIES
           case 'entity_state':
             exists = entities.includes(
-              (command.command as RoomEntitySaveStateDTO).ref,
+              (command.command as GeneralSaveStateDTO).ref,
             );
             if (!exists) {
               this.logger.warn(
                 `Routine command [${routine.friendlyName}]>[${
                   command.friendlyName
                 }] refers to missing entity {${
-                  (command.command as RoomEntitySaveStateDTO).ref
+                  (command.command as GeneralSaveStateDTO).ref
                 }}`,
               );
             }

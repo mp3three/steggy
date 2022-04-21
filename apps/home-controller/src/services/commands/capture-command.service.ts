@@ -5,7 +5,7 @@ import {
   InjectCache,
 } from '@steggy/boilerplate';
 import {
-  RoomEntitySaveStateDTO,
+  GeneralSaveStateDTO,
   RoutineCaptureCommandDTO,
   RoutineCaptureData,
   RoutineDTO,
@@ -29,7 +29,7 @@ export class CaptureCommandService {
   ): Promise<void> {
     command.key ??= routine._id;
     command.group ??= [];
-    const states: Record<string, RoomEntitySaveStateDTO[]> = {};
+    const states: Record<string, GeneralSaveStateDTO[]> = {};
     await each(command.group, async id => {
       const group = await this.groupService.get(id);
       const type = this.groupService.getBaseGroup(group.type);

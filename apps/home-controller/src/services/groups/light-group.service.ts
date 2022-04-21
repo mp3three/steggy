@@ -1,12 +1,12 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
+  GeneralSaveStateDTO,
   GROUP_LIGHT_COMMANDS,
   GROUP_TYPES,
   GroupCommandDTO,
   GroupDTO,
   GroupLightCommandExtra,
-  RoomEntitySaveStateDTO,
 } from '@steggy/controller-shared';
 import { EntityManagerService } from '@steggy/home-assistant';
 import {
@@ -134,8 +134,8 @@ export class LightGroupService extends BaseGroupService {
 
   public async getState(
     group: GroupDTO<LightAttributesDTO>,
-  ): Promise<RoomEntitySaveStateDTO<LightAttributesDTO>[]> {
-    const out: RoomEntitySaveStateDTO<LightAttributesDTO>[] = [];
+  ): Promise<GeneralSaveStateDTO<LightAttributesDTO>[]> {
+    const out: GeneralSaveStateDTO<LightAttributesDTO>[] = [];
     group.entities ??= [];
     group.entities.forEach(id => {
       const light = this.entityManager.getEntity<LightStateDTO>(id);
@@ -196,7 +196,7 @@ export class LightGroupService extends BaseGroupService {
     await each(
       group.entities.map((entity, index) => {
         return [entity, states[index]];
-      }) as [string, RoomEntitySaveStateDTO<LightAttributesDTO>][],
+      }) as [string, GeneralSaveStateDTO<LightAttributesDTO>][],
       async ([id, state]) => {
         if (state?.state !== 'on' && turnOn === false) {
           return;
@@ -208,7 +208,7 @@ export class LightGroupService extends BaseGroupService {
 
   public async setState(
     entities: string[],
-    state: RoomEntitySaveStateDTO<LightAttributesDTO>[],
+    state: GeneralSaveStateDTO<LightAttributesDTO>[],
     waitForChange = false,
   ): Promise<void> {
     if (entities.length !== state.length) {
@@ -218,7 +218,7 @@ export class LightGroupService extends BaseGroupService {
     await each(
       state.map((state, index) => {
         return [entities[index], state];
-      }) as [string, RoomEntitySaveStateDTO<LightAttributesDTO>][],
+      }) as [string, GeneralSaveStateDTO<LightAttributesDTO>][],
       async ([id, state]) => {
         if (state.state === 'off') {
           await this.lightManager.turnOff(id, waitForChange);

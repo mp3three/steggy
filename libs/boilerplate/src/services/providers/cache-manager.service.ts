@@ -1,6 +1,6 @@
 import { Cache } from 'cache-manager';
 // Because Cache collides with a nodejs variable
-// Trying to import it with autocomplets is annoying
+// Trying to import it with autocomplete is annoying
 
 /**
  * Use with `@InjectCache()`

@@ -1,6 +1,6 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { INQUIRER } from '@nestjs/core';
-import { is, START } from '@steggy/utilities';
+import { is } from '@steggy/utilities';
 import pino from 'pino';
 
 import { ACTIVE_APPLICATION } from '../contracts';

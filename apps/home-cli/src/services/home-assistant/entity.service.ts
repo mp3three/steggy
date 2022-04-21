@@ -1,4 +1,4 @@
-import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import {
   domain,
   FanAttributesDTO,
@@ -70,20 +70,20 @@ export class EntityService implements iRepl {
 
   public async createSaveCommand(
     entity_id: string,
-    current?: RoomEntitySaveStateDTO,
-  ): Promise<RoomEntitySaveStateDTO> {
+    current?: GeneralSaveStateDTO,
+  ): Promise<GeneralSaveStateDTO> {
     switch (domain(entity_id)) {
       case HASS_DOMAINS.light:
         return await this.lightService.createSaveCommand(
           entity_id,
-          current as RoomEntitySaveStateDTO<LightAttributesDTO>,
+          current as GeneralSaveStateDTO<LightAttributesDTO>,
         );
       case HASS_DOMAINS.switch:
         return await this.switchService.createSaveCommand(entity_id, current);
       case HASS_DOMAINS.fan:
         return await this.fanService.createSaveCommand(
           entity_id,
-          current as RoomEntitySaveStateDTO<FanAttributesDTO>,
+          current as GeneralSaveStateDTO<FanAttributesDTO>,
         );
       case HASS_DOMAINS.media_player:
         return await this.mediaService.createSaveCommand(entity_id, current);

@@ -7,10 +7,10 @@ import {
 } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
+  GeneralSaveStateDTO,
   GroupDTO,
   GroupSaveStateDTO,
   RoomDTO,
-  RoomEntitySaveStateDTO,
   RoutineCommandGroupStateDTO,
 } from '@steggy/controller-shared';
 import {
@@ -83,9 +83,9 @@ export class GroupStateService {
         `Enter save state data in yaml format`,
         dump(current.states),
       );
-      states.push(...(load(result) as RoomEntitySaveStateDTO[]));
+      states.push(...(load(result) as GeneralSaveStateDTO[]));
     } else if (action === 'guided') {
-      let lastState: RoomEntitySaveStateDTO;
+      let lastState: GeneralSaveStateDTO;
       await eachSeries(
         group.entities.map((item, index) => [item, index]),
         async ([entity, index]: [string, number]) => {

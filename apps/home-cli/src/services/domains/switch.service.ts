@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { domain } from '@steggy/home-assistant-shared';
 import { ICONS, KeyMap, PromptEntry } from '@steggy/tty';
 import { sleep, TitleCase } from '@steggy/utilities';
@@ -12,8 +12,8 @@ import { BaseDomainService } from './base-domain.service';
 export class SwitchService extends BaseDomainService {
   public async createSaveCommand(
     entity_id: string,
-    current: Partial<RoomEntitySaveStateDTO> = {},
-  ): Promise<RoomEntitySaveStateDTO> {
+    current: Partial<GeneralSaveStateDTO> = {},
+  ): Promise<GeneralSaveStateDTO> {
     const state = await this.promptService.pickOne(
       entity_id,
       [

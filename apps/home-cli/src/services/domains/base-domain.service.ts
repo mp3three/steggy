@@ -5,7 +5,7 @@ import {
   InjectCache,
   InjectConfig,
 } from '@steggy/boilerplate';
-import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import {
   domain,
   HASS_DOMAINS,
@@ -83,8 +83,8 @@ export class BaseDomainService {
 
   public async createSaveCommand(
     entity_id: string,
-    current?: RoomEntitySaveStateDTO,
-  ): Promise<RoomEntitySaveStateDTO> {
+    current?: GeneralSaveStateDTO,
+  ): Promise<GeneralSaveStateDTO> {
     throw new NotImplementedException();
     await entity_id;
     current;

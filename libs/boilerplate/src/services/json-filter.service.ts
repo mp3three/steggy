@@ -61,7 +61,7 @@ export class JSONFilterService {
           return false;
         }
         return value.includes(filter.value);
-      case FILTER_OPERATIONS.eq:
+      // case FILTER_OPERATIONS.eq:
       default:
         return value === filter.value;
     }

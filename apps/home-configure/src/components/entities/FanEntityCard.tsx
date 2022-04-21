@@ -1,5 +1,5 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { FanAttributesDTO, FanStateDTO } from '@steggy/home-assistant-shared';
 import { is, PERCENT, SINGLE, START } from '@steggy/utilities';
 import {
@@ -32,11 +32,11 @@ const OFF = 0;
 export class FanEntityCard extends React.Component<
   {
     onRemove?: (entity_id: string) => void;
-    onUpdate?: (state: RoomEntitySaveStateDTO) => void;
+    onUpdate?: (state: GeneralSaveStateDTO) => void;
     optional?: boolean;
     relative?: boolean;
     selfContained?: boolean;
-    state?: RoomEntitySaveStateDTO<FanAttributesDTO>;
+    state?: GeneralSaveStateDTO<FanAttributesDTO>;
     stateOnly?: boolean;
     title?: string;
   },
@@ -68,7 +68,7 @@ export class FanEntityCard extends React.Component<
     await this.refresh();
   }
 
-  public getSaveState(): RoomEntitySaveStateDTO {
+  public getSaveState(): GeneralSaveStateDTO {
     if (this.disabled) {
       return undefined;
     }

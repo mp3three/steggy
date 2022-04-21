@@ -1,5 +1,5 @@
 import {
-  RoomEntitySaveStateDTO,
+  GeneralSaveStateDTO,
   RoutineCommandDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
@@ -143,7 +143,7 @@ export class RoutineCommandDrawer extends React.Component<{
         return (
           <EntityStateCommand
             onUpdate={this.onUpdate.bind(this)}
-            command={this.props.command.command as RoomEntitySaveStateDTO}
+            command={this.props.command.command as GeneralSaveStateDTO}
           />
         );
       case 'group_action':

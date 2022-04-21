@@ -1,17 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import {
   FanAttributesDTO,
   FanSpeeds,
   FanStateDTO,
 } from '@steggy/home-assistant-shared';
-import {
-  ICONS,
-  IsDone,
-  KeyMap,
-  PromptEntry,
-  ToMenuEntry,
-} from '@steggy/tty';
+import { ICONS, IsDone, KeyMap, PromptEntry, ToMenuEntry } from '@steggy/tty';
 import { TitleCase } from '@steggy/utilities';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
@@ -23,8 +17,8 @@ import { SwitchService } from './switch.service';
 export class FanService extends SwitchService {
   public async createSaveCommand(
     entity_id: string,
-    current?: RoomEntitySaveStateDTO<FanAttributesDTO>,
-  ): Promise<RoomEntitySaveStateDTO> {
+    current?: GeneralSaveStateDTO<FanAttributesDTO>,
+  ): Promise<GeneralSaveStateDTO> {
     const entity = await this.fetchService.fetch<FanStateDTO>({
       url: `/entity/id/${entity_id}`,
     });

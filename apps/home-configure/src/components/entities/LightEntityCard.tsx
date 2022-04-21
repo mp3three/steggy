@@ -1,5 +1,5 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import {
   ColorModes,
   LightAttributesDTO,
@@ -38,12 +38,12 @@ export class LightEntityCard extends React.Component<
   {
     onRemove?: (entity_id: string) => void;
     onUpdate?: (
-      state: RoomEntitySaveStateDTO,
+      state: GeneralSaveStateDTO,
       attribute: 'state' | 'color' | 'brightness',
     ) => void;
     optional?: boolean;
     selfContained?: boolean;
-    state?: RoomEntitySaveStateDTO;
+    state?: GeneralSaveStateDTO;
     title?: string;
   },
   tStateType
@@ -71,9 +71,7 @@ export class LightEntityCard extends React.Component<
     await this.refresh();
   }
 
-  public getSaveState(
-    brightness = this.state.brightness,
-  ): RoomEntitySaveStateDTO {
+  public getSaveState(brightness = this.state.brightness): GeneralSaveStateDTO {
     if (this.props.optional && this.state.disabled) {
       return undefined;
     }

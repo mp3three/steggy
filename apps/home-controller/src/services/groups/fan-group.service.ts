@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
+  GeneralSaveStateDTO,
   GROUP_TYPES,
   GroupCommandDTO,
   GroupDTO,
-  RoomEntitySaveStateDTO,
 } from '@steggy/controller-shared';
 import {
   EntityManagerService,
@@ -23,7 +23,7 @@ import { EntityCommandRouterService } from '../entities/entity-command-router.se
 import { GroupPersistenceService } from '../persistence';
 import { BaseGroupService } from './base-group.service';
 
-type SaveState = RoomEntitySaveStateDTO<FanAttributesDTO>;
+type SaveState = GeneralSaveStateDTO<FanAttributesDTO>;
 
 @Injectable()
 export class FanGroupService extends BaseGroupService {
@@ -116,7 +116,7 @@ export class FanGroupService extends BaseGroupService {
 
   public async setState(
     entities: string[],
-    state: RoomEntitySaveStateDTO[],
+    state: GeneralSaveStateDTO[],
     waitForChange = false,
   ): Promise<void> {
     if (entities.length !== state.length) {
@@ -126,7 +126,7 @@ export class FanGroupService extends BaseGroupService {
     await each(
       state.map((state, index) => {
         return [entities[index], state];
-      }) as [string, RoomEntitySaveStateDTO<FanAttributesDTO>][],
+      }) as [string, GeneralSaveStateDTO<FanAttributesDTO>][],
       async ([id, state]) => {
         if (state.state === 'off') {
           await this.fanDomain.turnOff(id, waitForChange);

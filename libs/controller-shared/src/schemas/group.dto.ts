@@ -16,7 +16,7 @@ import {
 } from 'class-validator';
 import { Document } from 'mongoose';
 
-import { ROOM_ENTITY_EXTRAS, RoomEntitySaveStateDTO } from '../rooms';
+import { GeneralSaveStateDTO, ROOM_ENTITY_EXTRAS } from '../rooms';
 
 export enum GROUP_TYPES {
   light = 'light',
@@ -168,7 +168,7 @@ export class GroupSaveStateDTO<SAVE_STATE = ROOM_ENTITY_EXTRAS> {
   @IsArray()
   @ApiProperty()
   @Expose()
-  public states: RoomEntitySaveStateDTO<SAVE_STATE>[];
+  public states: GeneralSaveStateDTO<SAVE_STATE>[];
 }
 
 export type GroupDocument = GroupDTO & Document;

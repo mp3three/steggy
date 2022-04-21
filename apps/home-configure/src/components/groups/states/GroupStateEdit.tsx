@@ -1,8 +1,8 @@
 import { EditOutlined } from '@ant-design/icons';
 import {
+  GeneralSaveStateDTO,
   GroupDTO,
   GroupSaveStateDTO,
-  RoomEntitySaveStateDTO,
 } from '@steggy/controller-shared';
 import {
   ColorModes,
@@ -210,7 +210,7 @@ export class GroupStateEdit extends React.Component<
     this.setState({ drawer: false });
   }
 
-  private onFanChange(state: RoomEntitySaveStateDTO<FanAttributesDTO>): void {
+  private onFanChange(state: GeneralSaveStateDTO<FanAttributesDTO>): void {
     this.cards.forEach(card =>
       (card as FanEntityCard)?.setState({
         percentage: state.extra.percentage,
@@ -219,7 +219,7 @@ export class GroupStateEdit extends React.Component<
   }
 
   private onLightStateChange(
-    state: RoomEntitySaveStateDTO<LightAttributesDTO>,
+    state: GeneralSaveStateDTO<LightAttributesDTO>,
     type: string,
   ): void {
     this.setState({ dirty: true });
@@ -245,11 +245,11 @@ export class GroupStateEdit extends React.Component<
     }
     console.log(set);
     this.cards.forEach(i =>
-      (i as LightEntityCard)?.setState(set as RoomEntitySaveStateDTO),
+      (i as LightEntityCard)?.setState(set as GeneralSaveStateDTO),
     );
   }
 
-  private onLockChange(state: RoomEntitySaveStateDTO<LockAttributesDTO>): void {
+  private onLockChange(state: GeneralSaveStateDTO<LockAttributesDTO>): void {
     this.cards.forEach(card => {
       (card as LockEntityCard)?.setState({
         state: state.state,
@@ -272,7 +272,7 @@ export class GroupStateEdit extends React.Component<
     this.props.onUpdate(group);
   }
 
-  private onStateChange(state: RoomEntitySaveStateDTO, type: string): void {
+  private onStateChange(state: GeneralSaveStateDTO, type: string): void {
     this.setState({ dirty: true });
     switch (this.group.type) {
       case 'light':
@@ -290,7 +290,7 @@ export class GroupStateEdit extends React.Component<
     }
   }
 
-  private onSwitchStateChanged(state: RoomEntitySaveStateDTO): void {
+  private onSwitchStateChanged(state: GeneralSaveStateDTO): void {
     this.cards.forEach(i =>
       (i as SwitchEntityCard)?.setState({
         state: state.state,

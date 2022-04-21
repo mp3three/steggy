@@ -13,7 +13,7 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   EntityHistoryRequest,
-  RoomEntitySaveStateDTO,
+  GeneralSaveStateDTO,
   UpdateEntityIdDTO,
 } from '@steggy/controller-shared';
 import {
@@ -198,13 +198,13 @@ export class EntityController {
 
   @Put(`/light-state/:id`)
   @ApiGenericResponse()
-  @ApiBody({ type: RoomEntitySaveStateDTO })
+  @ApiBody({ type: GeneralSaveStateDTO })
   @ApiOperation({
     description: `Modify a light state using the light manager`,
   })
   public async setLightState(
     @Param('id') id: string,
-    @Body() data: Partial<RoomEntitySaveStateDTO> = {},
+    @Body() data: Partial<GeneralSaveStateDTO> = {},
   ): Promise<LightStateDTO> {
     if (
       domain(id) !== HASS_DOMAINS.light ||

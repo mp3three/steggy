@@ -1,5 +1,5 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { RoomEntitySaveStateDTO } from '@steggy/controller-shared';
+import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { HassStateDTO, LightStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import {
@@ -24,7 +24,7 @@ type tStateType = {
 export class EntityCard extends React.Component<
   {
     onRemove?: (entity_id: string) => void;
-    onUpdate: (state: RoomEntitySaveStateDTO) => void;
+    onUpdate: (state: GeneralSaveStateDTO) => void;
     state: HassStateDTO;
     title?: string;
   },

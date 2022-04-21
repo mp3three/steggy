@@ -1,10 +1,10 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
+  GeneralSaveStateDTO,
   GROUP_TYPES,
   GroupCommandDTO,
   GroupDTO,
-  RoomEntitySaveStateDTO,
 } from '@steggy/controller-shared';
 import {
   EntityManagerService,
@@ -56,7 +56,7 @@ export class LockGroupService extends BaseGroupService {
 
   public async getState(
     group: GroupDTO<LockAttributesDTO>,
-  ): Promise<RoomEntitySaveStateDTO[]> {
+  ): Promise<GeneralSaveStateDTO[]> {
     return await group.entities.map(id => {
       const lock = this.entityManager.getEntity<LockStateDTO>(id);
       return {
@@ -89,7 +89,7 @@ export class LockGroupService extends BaseGroupService {
 
   public async setState(
     entities: string[],
-    state: RoomEntitySaveStateDTO[],
+    state: GeneralSaveStateDTO[],
     waitForChange = false,
   ): Promise<void> {
     if (entities.length !== state.length) {
@@ -99,7 +99,7 @@ export class LockGroupService extends BaseGroupService {
     await each(
       state.map((state, index) => {
         return [entities[index], state];
-      }) as [string, RoomEntitySaveStateDTO][],
+      }) as [string, GeneralSaveStateDTO][],
       async ([id, state]) => {
         if (state.state === LOCK_STATES.locked) {
           await this.lockService.lock(id, waitForChange);

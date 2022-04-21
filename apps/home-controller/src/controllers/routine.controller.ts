@@ -17,7 +17,7 @@ import {
 } from '@nestjs/swagger';
 import {
   CloneRoutineDTO,
-  RoomEntitySaveStateDTO,
+  GeneralSaveStateDTO,
   RoutineActivateDTO,
   RoutineActivateOptionsDTO,
   RoutineCommandDTO,
@@ -55,7 +55,7 @@ import { RoutineService } from '../services';
   RoutineCommandGroupActionDTO,
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
-  RoomEntitySaveStateDTO,
+  GeneralSaveStateDTO,
   RoutineCommandWebhookDTO,
   RoutineCommandGroupStateDTO,
 )

@@ -1,9 +1,9 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
+  GeneralSaveStateDTO,
   GENERIC_COMMANDS,
   GroupDTO,
-  RoomEntitySaveStateDTO,
   RoutineCommandGroupActionDTO,
 } from '@steggy/controller-shared';
 import {
@@ -241,7 +241,7 @@ export class LightGroupCommandService {
     let current = 0;
     const onList = group.state.states.filter(
       item => item.state === 'on',
-    ) as RoomEntitySaveStateDTO<LightAttributesDTO>[];
+    ) as GeneralSaveStateDTO<LightAttributesDTO>[];
     onList.forEach(item => {
       current += item.extra.brightness;
     });
@@ -263,7 +263,7 @@ export class LightGroupCommandService {
     let [r, g, b, divisor] = [OFF, OFF, OFF, OFF];
     const onList = group.state.states.filter(
       item => item.state === 'on',
-    ) as RoomEntitySaveStateDTO<LightAttributesDTO>[];
+    ) as GeneralSaveStateDTO<LightAttributesDTO>[];
     onList.forEach(item => {
       r += item.extra.rgb_color[R];
       g += item.extra.rgb_color[G];

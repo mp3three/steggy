@@ -5,10 +5,10 @@ import {
   NotImplementedException,
 } from '@nestjs/common';
 import {
+  GeneralSaveStateDTO,
   GroupDTO,
   RoomCommandDTO,
   RoomDTO,
-  RoomEntitySaveStateDTO,
   RountineCommandLightFlashDTO,
   ROUTINE_ACTIVATE_COMMAND,
   RoutineCaptureCommandDTO,
@@ -149,9 +149,9 @@ export class RoutineCommandService {
           command: await this.entityCommand.createSaveCommand(
             await this.entityCommand.pickOne(
               undefined,
-              (current.command as RoomEntitySaveStateDTO)?.ref,
+              (current.command as GeneralSaveStateDTO)?.ref,
             ),
-            current.command as RoomEntitySaveStateDTO,
+            current.command as GeneralSaveStateDTO,
           ),
           friendlyName,
           type,
@@ -265,7 +265,7 @@ export class RoutineCommandService {
           chalk`{bold Target:} ${webhook.url}`,
         ].join(`\n`);
       case ROUTINE_ACTIVATE_COMMAND.entity_state:
-        const entityState = current.command as RoomEntitySaveStateDTO;
+        const entityState = current.command as GeneralSaveStateDTO;
         return [
           chalk`{bold Entity:} ${entityState.ref}`,
           chalk`{bold State:} ${entityState.state}`,

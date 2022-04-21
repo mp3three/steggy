@@ -1,7 +1,4 @@
-import {
-  GroupDTO,
-  RoomEntitySaveStateDTO,
-} from '@steggy/controller-shared';
+import { GeneralSaveStateDTO, GroupDTO } from '@steggy/controller-shared';
 import { SwitchStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import { Col, Empty, Row } from 'antd';
@@ -41,9 +38,7 @@ export class SwitchGroup extends React.Component<
     );
   }
 
-  private async onAttributeChange(
-    state: RoomEntitySaveStateDTO,
-  ): Promise<void> {
+  private async onAttributeChange(state: GeneralSaveStateDTO): Promise<void> {
     const entity = await sendRequest<SwitchStateDTO>({
       method: 'put',
       url: `/entity/command/${state.ref}/${state.state}`,

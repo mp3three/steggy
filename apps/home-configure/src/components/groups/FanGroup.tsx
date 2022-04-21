@@ -1,7 +1,4 @@
-import {
-  GroupDTO,
-  RoomEntitySaveStateDTO,
-} from '@steggy/controller-shared';
+import { GeneralSaveStateDTO, GroupDTO } from '@steggy/controller-shared';
 import { FanStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import { Col, Empty, Row } from 'antd';
@@ -45,9 +42,7 @@ export class FanGroup extends React.Component<
     );
   }
 
-  private async onAttributeChange(
-    state: RoomEntitySaveStateDTO,
-  ): Promise<void> {
+  private async onAttributeChange(state: GeneralSaveStateDTO): Promise<void> {
     const fan = await sendRequest<FanStateDTO>({
       body: state,
       method: 'put',

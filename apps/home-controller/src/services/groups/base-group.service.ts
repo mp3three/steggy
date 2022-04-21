@@ -1,9 +1,9 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import type {
+  GeneralSaveStateDTO,
   GroupCommandDTO,
   ROOM_ENTITY_EXTRAS,
-  RoomEntitySaveStateDTO,
 } from '@steggy/controller-shared';
 import {
   GROUP_TYPES,
@@ -29,13 +29,13 @@ export abstract class BaseGroupService {
     state: GroupCommandDTO,
     waitForResult?: boolean,
   ): Promise<void>;
-  public abstract getState(group: GroupDTO): Promise<RoomEntitySaveStateDTO[]>;
+  public abstract getState(group: GroupDTO): Promise<GeneralSaveStateDTO[]>;
   public abstract isValidEntity(id: string): boolean;
   public abstract setState<
     EXTRA extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(
     entities: string[],
-    state: RoomEntitySaveStateDTO<EXTRA>[],
+    state: GeneralSaveStateDTO<EXTRA>[],
     waitForChange?: boolean,
   ): Promise<void>;
 
