@@ -17,7 +17,9 @@ import React from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 import { RoomMetadata } from '../misc';
+import { SaveStateEditor } from '../misc/SaveStateEditor';
 import { PersonConfiguration } from './PersonConfiguration';
+
 // import { RoomSaveStates } from './RoomSaveState';
 
 type tState = {
@@ -125,14 +127,14 @@ export class PeopleDetail extends React.Component<
             />
           </Tabs.TabPane>
           <Tabs.TabPane key="save_states" tab="Save States">
-            {/* <RoomSaveStates
-              room={this.props.room}
+            <SaveStateEditor
+              person={this.props.person}
               onUpdate={room => this.props.onUpdate(room)}
-            /> */}
+            />
           </Tabs.TabPane>
           <Tabs.TabPane key="metadata" tab="Metadata">
             <RoomMetadata
-              room={this.props.person}
+              person={this.props.person}
               onUpdate={person => this.props.onUpdate(person)}
             />
           </Tabs.TabPane>

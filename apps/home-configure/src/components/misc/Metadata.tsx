@@ -1,4 +1,5 @@
 import {
+  PersonDTO,
   RoomDTO,
   RoomMetadataDTO,
   RoutineDTO,
@@ -37,13 +38,25 @@ const TAB_LIST = [
 ];
 
 export class RoomMetadata extends React.Component<
-  { onUpdate: (room: RoomDTO) => void; room: RoomDTO },
+  {
+    onUpdate: (room: RoomDTO) => void;
+    person?: PersonDTO;
+    room?: RoomDTO;
+  },
   tState
 > {
   override state = {} as tState;
 
   override componentDidMount(): void {
     this.refresh();
+  }
+
+  private get base() {
+    return this.props.room ? 'room' : 'person';
+  }
+
+  private get item() {
+    return this.props.room ?? this.props.person;
   }
 
   override render() {
@@ -63,7 +76,7 @@ export class RoomMetadata extends React.Component<
             }
           >
             <List
-              dataSource={this.props.room.metadata}
+              dataSource={this.item.metadata}
               renderItem={record => (
                 <List.Item>
                   <List.Item.Meta
@@ -124,7 +137,7 @@ export class RoomMetadata extends React.Component<
           </Card>
         </Space>
         <MetadataEdit
-          room={this.props.room}
+          room={this.item}
           metadata={this.state.metadata}
           onUpdate={metadata => this.updateMetadata(metadata)}
           onComplete={() => this.setState({ metadata: undefined })}
@@ -153,7 +166,7 @@ export class RoomMetadata extends React.Component<
     const room = await sendRequest<RoomDTO>({
       body: { name: Date.now().toString() } as Partial<RoomMetadataDTO>,
       method: 'post',
-      url: `/room/${this.props.room._id}/metadata`,
+      url: `/${this.base}/${this.item._id}/metadata`,
     });
     this.props.onUpdate(room);
     const metadata = room.metadata[room.metadata.length - ARRAY_OFFSET];
@@ -170,7 +183,7 @@ export class RoomMetadata extends React.Component<
   }
 
   private async refreshActivate() {
-    this.props.room.metadata ??= [];
+    this.item.metadata ??= [];
     const routines = await sendRequest<RoutineDTO[]>({
       control: {
         filters: new Set([
@@ -181,7 +194,7 @@ export class RoomMetadata extends React.Component<
           {
             field: 'activate.activate.property',
             operation: 'in',
-            value: this.props.room.metadata.map(({ name }) => name),
+            value: this.item.metadata.map(({ name }) => name),
           },
         ]),
       },
@@ -191,7 +204,7 @@ export class RoomMetadata extends React.Component<
   }
 
   private async refreshEnable() {
-    this.props.room.metadata ??= [];
+    this.item.metadata ??= [];
     const routines = await sendRequest<RoutineDTO[]>({
       control: {
         filters: new Set([
@@ -202,7 +215,7 @@ export class RoomMetadata extends React.Component<
           {
             field: 'enable.comparisons.comparisons.property',
             operation: 'in',
-            value: this.props.room.metadata.map(({ name }) => name),
+            value: this.item.metadata.map(({ name }) => name),
           },
         ]),
       },
@@ -222,7 +235,7 @@ export class RoomMetadata extends React.Component<
           {
             field: 'command.command.name',
             operation: 'in',
-            value: this.props.room.metadata.map(({ name }) => name),
+            value: this.item.metadata.map(({ name }) => name),
           },
         ]),
       },
@@ -246,7 +259,7 @@ export class RoomMetadata extends React.Component<
           {
             field: 'command.command.comparison.property',
             operation: 'in',
-            value: this.props.room.metadata.map(({ name }) => name),
+            value: this.item.metadata.map(({ name }) => name),
           },
         ]),
       },
@@ -259,7 +272,7 @@ export class RoomMetadata extends React.Component<
     this.props.onUpdate(
       await sendRequest({
         method: 'delete',
-        url: `/room/${this.props.room._id}/metadata/${id}`,
+        url: `/${this.base}/${this.item._id}/metadata/${id}`,
       }),
     );
   }
@@ -270,7 +283,7 @@ export class RoomMetadata extends React.Component<
     const room = await sendRequest<RoomDTO>({
       body: metadata,
       method: 'put',
-      url: `/room/${this.props.room._id}/metadata/${this.state.metadata.id}`,
+      url: `/${this.base}/${this.item._id}/metadata/${this.state.metadata.id}`,
     });
     this.props.onUpdate(room);
     const updated = room.metadata.find(

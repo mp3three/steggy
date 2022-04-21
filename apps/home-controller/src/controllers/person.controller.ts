@@ -286,7 +286,7 @@ export class PersonController {
   ): Promise<RoomDTO[]> {
     const roomInfo = await this.personService.get(room);
     const out: RoomDTO[] = [];
-    await each(roomInfo.groups, async item => {
+    await each(roomInfo.rooms, async item => {
       out.push(
         await this.roomService.get(item, false, {
           select: [

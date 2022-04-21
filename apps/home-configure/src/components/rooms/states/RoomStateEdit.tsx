@@ -1,6 +1,7 @@
 import {
   GeneralSaveStateDTO,
   GroupDTO,
+  PersonDTO,
   RoomDTO,
   RoomStateDTO,
 } from '@steggy/controller-shared';
@@ -32,12 +33,15 @@ type tState = {
   friendlyName?: string;
   groupStates?: Record<string, string>;
   groups?: GroupDTO[];
+  roomStates?: Record<string, string>;
+  rooms?: RoomDTO[];
 };
 
 export class RoomStateEdit extends React.Component<
   {
     onUpdate?: (group: RoomDTO) => void;
-    room: RoomDTO;
+    person?: PersonDTO;
+    room?: RoomDTO;
     state: RoomStateDTO;
   },
   tState
@@ -45,16 +49,25 @@ export class RoomStateEdit extends React.Component<
   override state: tState = {
     groupStates: {},
     groups: [],
+    roomStates: {},
+    rooms: [],
   };
 
   private cards: (LightEntityCard | SwitchEntityCard | FanEntityCard)[];
 
   private get room() {
-    return this.props.room;
+    return this.props.room ?? this.props.person;
+  }
+
+  private get routeBase() {
+    if (this.props.person) {
+      return `person`;
+    }
+    return `room`;
   }
 
   private get entities(): string[] {
-    return this.props.room.entities
+    return this.room.entities
       .map(({ entity_id }) => entity_id)
       .filter(i =>
         ['switch', 'light', 'fan', 'media_player'].includes(domain(i)),
@@ -65,9 +78,13 @@ export class RoomStateEdit extends React.Component<
     return this.state?.groups;
   }
 
+  private get rooms() {
+    return this.state?.rooms;
+  }
+
   override componentDidMount(): void {
     this.setState({ friendlyName: this.props.state.friendlyName });
-    if (!is.empty(this.props.room.groups)) {
+    if (!is.empty(this.room.groups)) {
       this.refreshGroups();
       const groupStates: Record<string, string> = {};
       this.props.state.states ??= [];
@@ -79,12 +96,25 @@ export class RoomStateEdit extends React.Component<
       });
       this.setState({ groupStates });
     }
+
+    if (!is.empty(this.props?.person?.rooms)) {
+      this.refreshRooms();
+      const roomStates: Record<string, string> = {};
+      this.props.state.states ??= [];
+      this.props.state.states.forEach(state => {
+        if (state.type !== 'room') {
+          return;
+        }
+        roomStates[state.ref] = state.state;
+      });
+      this.setState({ roomStates });
+    }
   }
 
   // eslint-disable-next-line radar/cognitive-complexity
   override render() {
     this.cards = [];
-    return this.props.room ? (
+    return this.room ? (
       <>
         <Button
           size="small"
@@ -172,11 +202,58 @@ export class RoomStateEdit extends React.Component<
                 </Table>
               </>
             )}
+            {is.empty(this.rooms) ? undefined : (
+              <>
+                <Divider orientation="left">
+                  <Typography.Title level={4}>Rooms</Typography.Title>
+                </Divider>
+                <Table
+                  dataSource={this.rooms.sort((a, b) =>
+                    a.friendlyName > b.friendlyName ? UP : DOWN,
+                  )}
+                  style={{ width: '100%' }}
+                >
+                  <Table.Column
+                    title="Room Name"
+                    key="friendlyName"
+                    dataIndex="friendlyName"
+                  />
+                  <Table.Column
+                    title="Room State"
+                    render={(text, record: RoomDTO) => (
+                      <Select
+                        key={record._id}
+                        value={this.roomState(record._id)}
+                        onChange={value => this.roomChange(record._id, value)}
+                        defaultActiveFirstOption
+                        style={{ width: '100%' }}
+                      >
+                        <Select.Option value="none">
+                          <Typography.Text type="secondary">
+                            No change
+                          </Typography.Text>
+                        </Select.Option>
+                        {record.save_states
+                          .sort((a, b) =>
+                            a.friendlyName > b.friendlyName ? UP : DOWN,
+                          )
+                          // eslint-disable-next-line radar/no-identical-functions
+                          .map(item => (
+                            <Select.Option value={item.id} key={item.id}>
+                              {item.friendlyName}
+                            </Select.Option>
+                          ))}
+                      </Select>
+                    )}
+                  />
+                </Table>
+              </>
+            )}
             <Divider orientation="left">
               <Typography.Title level={4}>Identifiers</Typography.Title>
             </Divider>
             <Typography.Title level={5}>Room ID</Typography.Title>
-            <Typography.Text code>{this.props.room._id}</Typography.Text>
+            <Typography.Text code>{this.room._id}</Typography.Text>
             <Typography.Title level={5}>State ID</Typography.Title>
             <Typography.Text code>{this.props.state.id}</Typography.Text>
           </Space>
@@ -296,7 +373,7 @@ export class RoomStateEdit extends React.Component<
         ],
       } as RoomStateDTO,
       method: 'put',
-      url: `/room/${this.room._id}/state/${id}`,
+      url: `/${this.routeBase}/${this.room._id}/state/${id}`,
     });
     this.setState({ dirty: false, drawer: false });
     if (this.props.onUpdate) {
@@ -306,8 +383,29 @@ export class RoomStateEdit extends React.Component<
 
   private async refreshGroups(): Promise<void> {
     const groups = await sendRequest<GroupDTO[]>({
-      url: `/room/${this.room._id}/group-save-states`,
+      url: `/${this.routeBase}/${this.room._id}/group-save-states`,
     });
     this.setState({ groups });
+  }
+
+  private async refreshRooms(): Promise<void> {
+    const rooms = await sendRequest<RoomDTO[]>({
+      url: `/${this.routeBase}/${this.room._id}/room-save-states`,
+    });
+    this.setState({ rooms });
+  }
+
+  private roomChange(room: string, value: string): void {
+    const { roomStates } = this.state;
+    this.setState({
+      roomStates: {
+        ...roomStates,
+        [room]: value,
+      },
+    });
+  }
+
+  private roomState(room: string): string {
+    return this.state.roomStates[room] ?? 'none';
   }
 }
