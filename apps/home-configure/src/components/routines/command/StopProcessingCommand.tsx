@@ -72,7 +72,7 @@ export class StopProcessingCommand extends React.Component<
                 <Select.Option value="webhook">Webhook Test</Select.Option>
                 <Select.Option value="date">Relative Date Test</Select.Option>
                 <Select.Option value="room_metadata">
-                  Room Metadata Test
+                  Metadata Test
                 </Select.Option>
               </Select>
             </Col>

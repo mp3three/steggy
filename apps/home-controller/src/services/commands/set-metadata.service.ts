@@ -16,20 +16,26 @@ import { isNumberString } from 'class-validator';
 import EventEmitter from 'eventemitter3';
 import { parse } from 'mathjs';
 
-import { MetadataUpdate, ROOM_METADATA_UPDATED } from '../../typings';
+import {
+  MetadataUpdate,
+  PERSON_METADATA_UPDATED,
+  ROOM_METADATA_UPDATED,
+} from '../../typings';
 import { VMService } from '../misc';
 import { ChronoService } from '../misc/chrono.service';
+import { PersonService } from '../person.service';
 import { RoomService } from '../room.service';
 
 type NumberTypes = 'set_value' | 'increment' | 'decrement' | 'formula';
 
 @Injectable()
-export class SetRoomMetadataService {
+export class SetMetadataService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
     @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
+    private readonly personService: PersonService,
     private readonly chronoService: ChronoService,
     private readonly socketService: HASocketAPIService,
     private readonly vmService: VMService,
@@ -39,7 +45,10 @@ export class SetRoomMetadataService {
     command: SetRoomMetadataCommandDTO,
     runId: string,
   ): Promise<void> {
-    const room = await this.roomService.get(command.room);
+    const room =
+      command.type === 'person'
+        ? await this.personService.get(command.room)
+        : await this.roomService.get(command.room);
     room.metadata ??= [];
     const entry = room.metadata.find(({ name }) => name === command.name);
     if (!entry) {
@@ -49,13 +58,20 @@ export class SetRoomMetadataService {
       return;
     }
     entry.value = await this.getValue(command, room, entry, runId);
-    await this.roomService.update({ metadata: room.metadata }, room._id);
+    await (command.type === 'person'
+      ? this.personService.update({ metadata: room.metadata }, room._id)
+      : this.roomService.update({ metadata: room.metadata }, room._id));
     this.logger.debug(`${room.friendlyName}#${entry.name} = ${entry.value}`);
-    this.eventEmitter.emit(ROOM_METADATA_UPDATED, {
-      name: entry.name,
-      room: room._id,
-      value: entry.value,
-    } as MetadataUpdate);
+    this.eventEmitter.emit(
+      command.type === 'person'
+        ? PERSON_METADATA_UPDATED
+        : ROOM_METADATA_UPDATED,
+      {
+        name: entry.name,
+        room: room._id,
+        value: entry.value,
+      } as MetadataUpdate,
+    );
   }
 
   private getEnumValue(

@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
   CloneRoomDTO,
@@ -31,8 +36,11 @@ export class PersonService {
     private readonly logger: AutoLogService,
     private readonly personPersistence: PersonPersistenceService,
     private readonly entityManager: EntityManagerService,
+    @Inject(forwardRef(() => GroupService))
     private readonly groupService: GroupService,
+    @Inject(forwardRef(() => RoutineService))
     private readonly routineService: RoutineService,
+    @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
     private readonly metadataService: MetadataService,
     private readonly saveStateService: SaveStateService,

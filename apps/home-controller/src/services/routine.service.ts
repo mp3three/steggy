@@ -63,7 +63,7 @@ import {
   NodeRedCommand,
   RoutineTriggerService,
   SendNotificationService,
-  SetRoomMetadataService,
+  SetMetadataService,
   SleepCommandService,
   StopProcessingCommandService,
   WebhookService,
@@ -94,8 +94,8 @@ export class RoutineService {
     @Inject(forwardRef(() => NodeRedCommand))
     private readonly nodeRedCommand: NodeRedCommand,
     private readonly scheduleActivate: ScheduleActivateService,
-    @Inject(forwardRef(() => SetRoomMetadataService))
-    private readonly setMetadataService: SetRoomMetadataService,
+    @Inject(forwardRef(() => SetMetadataService))
+    private readonly setMetadataService: SetMetadataService,
     private readonly solarService: SolarActivateService,
     @Inject(forwardRef(() => RoutineTriggerService))
     private readonly triggerService: RoutineTriggerService,

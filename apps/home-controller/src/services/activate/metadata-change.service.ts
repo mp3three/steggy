@@ -14,7 +14,11 @@ import {
 } from '@steggy/controller-shared';
 import { each, is } from '@steggy/utilities';
 
-import { ROOM_METADATA_UPDATED } from '../../typings';
+import {
+  MetadataUpdate,
+  PERSON_METADATA_UPDATED,
+  ROOM_METADATA_UPDATED,
+} from '../../typings';
 import { RoomService } from '../room.service';
 
 type tWatchType = {
@@ -77,16 +81,17 @@ export class MetadataChangeService {
     });
   }
 
+  @OnEvent(PERSON_METADATA_UPDATED)
+  protected async onPersonUpdate(data: MetadataUpdate): Promise<void> {
+    await this.check(data);
+  }
+
   @OnEvent(ROOM_METADATA_UPDATED)
-  protected async onMetadataUpdate({
-    room,
-    name,
-    value,
-  }: {
-    name: string;
-    room: string;
-    value: unknown;
-  }): Promise<void> {
+  protected async onRoomUpdate(data: MetadataUpdate): Promise<void> {
+    await this.check(data);
+  }
+
+  private async check({ room, name, value }: MetadataUpdate): Promise<void> {
     const testList: tWatchType[] = [];
     this.WATCHERS.forEach(watcher => {
       const item = watcher.activate;

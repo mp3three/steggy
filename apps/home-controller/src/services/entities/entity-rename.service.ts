@@ -26,9 +26,11 @@ type tStopProcessing = RoutineCommandDTO<
 export class EntityRenameService {
   constructor(
     private readonly logger: AutoLogService,
+    @Inject(forwardRef(() => GroupService))
     private readonly groupService: GroupService,
     @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
+    @Inject(forwardRef(() => RoutineService))
     private readonly routineService: RoutineService,
     private readonly entityManager: EntityManagerService,
   ) {}
