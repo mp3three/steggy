@@ -8,19 +8,19 @@ import { ScheduleActivateDTO } from './schedule-activate.dto';
 import { StateChangeActivateDTO } from './state-change-activate.dto';
 
 export type ActivateTypes =
-  | 'kunami'
-  | 'schedule'
-  | 'state_change'
   | 'attribute'
+  | 'kunami'
+  | 'room_metadata'
+  | 'schedule'
   | 'solar'
-  | 'room_metadata';
+  | 'state_change';
 export enum ROUTINE_ACTIVATE_TYPE {
-  kunami = 'kunami',
   attribute = 'attribute',
-  schedule = 'schedule',
-  state_change = 'state_change',
+  kunami = 'kunami',
   room_metadata = 'room_metadata',
+  schedule = 'schedule',
   solar = 'solar',
+  state_change = 'state_change',
 }
 
 export class SolarActivateDTO {

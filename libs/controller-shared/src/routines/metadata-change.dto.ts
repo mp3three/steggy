@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean } from 'class-validator';
 
-import { RoomMetadataComparisonDTO } from './stop-processing.dto';
+import { MetadataComparisonDTO } from './stop-processing.dto';
 
-export class MetadataChangeDTO extends RoomMetadataComparisonDTO {
+export class MetadataChangeDTO extends MetadataComparisonDTO {
   @IsBoolean()
   @ApiProperty()
   public latch: boolean;

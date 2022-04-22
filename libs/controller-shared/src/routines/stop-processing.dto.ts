@@ -37,13 +37,18 @@ export class RoutineAttributeComparisonDTO extends ComparisonDTO {
   public entity_id: string;
 }
 
-export class RoomMetadataComparisonDTO extends ComparisonDTO {
+export class MetadataComparisonDTO extends ComparisonDTO {
   @IsString()
   @ApiProperty()
   public property: string;
   @IsString()
   @ApiProperty()
+  @IsOptional()
   public room: string;
+  @ApiProperty()
+  @IsOptional()
+  @IsEnum(['room', 'person'])
+  public type?: 'room' | 'person';
 }
 
 export class RoutineWebhookComparisonDTO extends ComparisonDTO {
@@ -79,7 +84,7 @@ export type STOP_PROCESSING_DEFINITIONS =
   | RoutineAttributeComparisonDTO
   | RoutineWebhookComparisonDTO
   | RoutineTemplateComparisonDTO
-  | RoomMetadataComparisonDTO
+  | MetadataComparisonDTO
   | RoutineRelativeDateComparisonDTO;
 
 export class RoutineComparisonDTO<
@@ -88,7 +93,7 @@ export class RoutineComparisonDTO<
     | RoutineAttributeComparisonDTO
     | RoutineWebhookComparisonDTO
     | RoutineTemplateComparisonDTO
-    | RoomMetadataComparisonDTO
+    | MetadataComparisonDTO
     | RoutineRelativeDateComparisonDTO,
 > {
   @ValidateNested()

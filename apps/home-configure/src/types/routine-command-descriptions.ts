@@ -50,13 +50,13 @@ export const ROUTINE_COMMAND_LIST = [
   },
   {
     description:
-      'Pause processing for a period of time. Only usable with synchoronous command processing',
+      'Pause processing for a period of time. Only usable with synchronous command processing',
     name: 'Sleep',
     type: 'sleep',
   },
   {
-    description: 'Update metadata for a room',
-    name: 'Set Room Metadata',
+    description: 'Update metadata for a person/room',
+    name: 'Set Metadata',
     type: 'set_room_metadata',
   },
 ].sort((a, b) => (a.name > b.name ? UP : DOWN)) as listItem[];

@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService, InjectConfig, OnEvent } from '@steggy/boilerplate';
 import {
-  RoomMetadataComparisonDTO,
+  MetadataComparisonDTO,
   ROUTINE_UPDATE,
   RoutineAttributeComparisonDTO,
   RoutineDTO,
@@ -364,7 +364,7 @@ export class RoutineEnabledService {
           break;
         case STOP_PROCESSING_TYPE.room_metadata:
           this.watchMetadata(
-            comparison.comparison as RoomMetadataComparisonDTO,
+            comparison.comparison as MetadataComparisonDTO,
             routine,
           );
           break;
@@ -385,7 +385,7 @@ export class RoutineEnabledService {
   }
 
   private watchMetadata(
-    compare: RoomMetadataComparisonDTO,
+    compare: MetadataComparisonDTO,
     { _id }: RoutineDTO,
   ): void {
     const metadata = this.WATCH_METADATA.get(compare.room) ?? [];

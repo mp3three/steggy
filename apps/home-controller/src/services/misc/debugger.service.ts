@@ -5,8 +5,8 @@ import {
   DebugReportDTO,
   GeneralSaveStateDTO,
   GroupDTO,
+  MetadataComparisonDTO,
   RoomDTO,
-  RoomMetadataComparisonDTO,
   RoutineActivateDTO,
   RoutineCommandGroupActionDTO,
   RoutineCommandGroupStateDTO,
@@ -318,29 +318,28 @@ export class DebuggerService {
         case 'room_metadata':
           const room = rooms.find(
             ({ _id }) =>
-              _id === (compare.comparison as RoomMetadataComparisonDTO).room,
+              _id === (compare.comparison as MetadataComparisonDTO).room,
           );
           if (!room) {
             this.logger.warn(
               `Stop comparison [${
                 compare.friendlyName
               }] refers to metadata from missing room {${
-                (compare.comparison as RoomMetadataComparisonDTO).room
+                (compare.comparison as MetadataComparisonDTO).room
               }}`,
             );
             return false;
           }
           exists = room.metadata.some(
             ({ name }) =>
-              name ===
-              (compare.comparison as RoomMetadataComparisonDTO).property,
+              name === (compare.comparison as MetadataComparisonDTO).property,
           );
           if (!exists) {
             this.logger.warn(
               `Stop comparison [${
                 compare.friendlyName
               }] refers to missing metadata {${
-                (compare.comparison as RoomMetadataComparisonDTO).property
+                (compare.comparison as MetadataComparisonDTO).property
               }} in room [${room.friendlyName}]`,
             );
           }

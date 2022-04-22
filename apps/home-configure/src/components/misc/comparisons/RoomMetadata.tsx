@@ -1,7 +1,8 @@
 import {
+  MetadataComparisonDTO,
+  PersonDTO,
   ROOM_METADATA_TYPES,
   RoomDTO,
-  RoomMetadataComparisonDTO,
   RoomMetadataDTO,
 } from '@steggy/controller-shared';
 import { FILTER_OPERATIONS, is } from '@steggy/utilities';
@@ -12,7 +13,10 @@ import { sendRequest } from '../../../types';
 import { CompareValue } from '../CompareValue';
 import { FuzzySelect } from '../FuzzySelect';
 
-type tState = { rooms: RoomDTO[] };
+type tState = {
+  people: PersonDTO[];
+  rooms: RoomDTO[];
+};
 
 const AVAILABLE_OPERATIONS = new Map<
   `${ROOM_METADATA_TYPES}`,
@@ -30,22 +34,28 @@ const AVAILABLE_OPERATIONS = new Map<
 
 export class RoomMetadataComparison extends React.Component<
   {
-    comparison: RoomMetadataComparisonDTO;
-    onUpdate: (value: Partial<RoomMetadataComparisonDTO>) => void;
+    comparison: MetadataComparisonDTO;
+    onUpdate: (value: Partial<MetadataComparisonDTO>) => void;
     unwrap?: boolean;
   },
   tState
 > {
-  override state = { rooms: [] } as tState;
+  override state = { people: [], rooms: [] } as tState;
 
-  private get room(): RoomDTO {
+  private get target(): RoomDTO {
+    const person = this.state.people.find(
+      ({ _id }) => _id === this.props.comparison?.room,
+    );
+    if (person) {
+      return person;
+    }
     return this.state.rooms.find(
       ({ _id }) => _id === this.props.comparison?.room,
     );
   }
 
   private get metadata(): RoomMetadataDTO {
-    const room = this.room;
+    const room = this.target;
     const metadata = (room?.metadata ?? []).find(
       ({ name }) => name === this.props.comparison?.property,
     );
@@ -82,7 +92,21 @@ export class RoomMetadataComparison extends React.Component<
       },
       url: `/room`,
     });
-    this.setState({ rooms });
+    const people = await sendRequest<PersonDTO[]>({
+      control: {
+        filters: new Set([
+          {
+            field: 'metadata.0',
+            operation: 'exists',
+            value: true,
+          },
+        ]),
+        select: ['friendlyName', 'metadata'],
+        sort: ['friendlyName'],
+      },
+      url: `/person`,
+    });
+    this.setState({ people, rooms });
   }
 
   private renderBody() {
@@ -90,24 +114,33 @@ export class RoomMetadataComparison extends React.Component<
     const type = metadata?.type;
     return (
       <>
-        <Form.Item label="Room">
+        <Form.Item label="Source">
           <Select
-            onChange={room => this.props.onUpdate({ room })}
+            onChange={room => this.sourceUpdate(room)}
             value={this.props.comparison?.room}
           >
-            {this.state.rooms.map(room => (
-              <Select.Option value={room._id} key={room._id}>
-                {room.friendlyName}
-              </Select.Option>
-            ))}
+            <Select.OptGroup label="Room">
+              {this.state.rooms.map(room => (
+                <Select.Option value={room._id} key={room._id}>
+                  {room.friendlyName}
+                </Select.Option>
+              ))}
+            </Select.OptGroup>
+            <Select.OptGroup label="Person">
+              {this.state.people.map(person => (
+                <Select.Option value={person._id} key={person._id}>
+                  {person.friendlyName}
+                </Select.Option>
+              ))}
+            </Select.OptGroup>
           </Select>
         </Form.Item>
         <Form.Item label="Property">
-          {this.room ? (
+          {this.target ? (
             <FuzzySelect
               disabled={is.empty(this.props.comparison.room)}
               value={this.props.comparison?.property}
-              data={this.room.metadata.map((i: RoomMetadataDTO) => ({
+              data={this.target.metadata.map((i: RoomMetadataDTO) => ({
                 text: i.name,
                 value: i.name,
               }))}
@@ -134,5 +167,18 @@ export class RoomMetadataComparison extends React.Component<
         />
       </>
     );
+  }
+
+  private sourceUpdate(room: string): void {
+    const type = is.object(this.state.rooms.find(({ _id }) => _id === room))
+      ? 'room'
+      : 'person';
+    this.props.onUpdate({
+      operation: undefined,
+      property: undefined,
+      room,
+      type,
+      value: undefined,
+    });
   }
 }

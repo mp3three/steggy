@@ -21,6 +21,19 @@ export class FuzzySelect extends React.Component<
 > {
   override state = { data: [] } as tState;
 
+  override componentDidUpdate(
+    previousProperties: Readonly<{
+      data: {
+        text: string;
+        value: string;
+      }[];
+    }>,
+  ): void {
+    if (previousProperties.data !== this.props.data) {
+      this.setState({ data: this.props.data });
+    }
+  }
+
   private get options() {
     if (!is.empty(this.state.data)) {
       return this.state.data;

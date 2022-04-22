@@ -1,5 +1,5 @@
 import {
-  RoomMetadataComparisonDTO,
+  MetadataComparisonDTO,
   RoutineAttributeComparisonDTO,
   RoutineComparisonDTO,
   RoutineRelativeDateComparisonDTO,
@@ -73,14 +73,14 @@ export class GenericComparison extends React.Component<{
         return (
           <RoomMetadataComparison
             comparison={
-              this.props.comparison.comparison as RoomMetadataComparisonDTO
+              this.props.comparison.comparison as MetadataComparisonDTO
             }
             onUpdate={part =>
               this.props.onUpdate({
                 ...this.props.comparison,
                 comparison: {
                   ...(this.props.comparison
-                    .comparison as RoomMetadataComparisonDTO),
+                    .comparison as MetadataComparisonDTO),
                   ...part,
                 },
               })

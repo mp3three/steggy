@@ -17,8 +17,8 @@ export const ROUTINE_ACTIVATE_LIST = (
       type: 'schedule',
     },
     {
-      description: 'Activate when room metadata changes',
-      name: 'Room Metadata Change',
+      description: 'Activate when person/room metadata changes',
+      name: 'Metadata Change',
       type: 'room_metadata',
     },
     {

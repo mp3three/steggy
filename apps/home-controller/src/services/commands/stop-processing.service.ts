@@ -5,7 +5,7 @@ import {
   JSONFilterService,
 } from '@steggy/boilerplate';
 import {
-  RoomMetadataComparisonDTO,
+  MetadataComparisonDTO,
   RoutineAttributeComparisonDTO,
   RoutineCommandStopProcessingDTO,
   RoutineRelativeDateComparisonDTO,
@@ -52,7 +52,7 @@ export class StopProcessingCommandService {
       switch (comparison.type) {
         case STOP_PROCESSING_TYPE.room_metadata:
           result = await this.roomMetadata(
-            comparison.comparison as RoomMetadataComparisonDTO,
+            comparison.comparison as MetadataComparisonDTO,
           );
           break;
         case STOP_PROCESSING_TYPE.attribute:
@@ -134,7 +134,7 @@ export class StopProcessingCommandService {
   }
 
   private async roomMetadata(
-    comparison: RoomMetadataComparisonDTO,
+    comparison: MetadataComparisonDTO,
   ): Promise<boolean> {
     const room = await this.roomService.get(comparison.room);
     if (!room) {
