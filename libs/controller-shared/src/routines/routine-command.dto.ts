@@ -15,36 +15,38 @@ import { GroupDTO, RoomDTO } from '../schemas';
 import { RoutineCommandStopProcessingDTO } from './stop-processing.dto';
 
 export type ActivateCommand =
+  | 'capture_state'
   | 'entity_state'
   | 'group_action'
   | 'group_state'
   | 'light_flash'
+  | 'node_red'
+  | 'person_state'
+  | 'restore_state'
   | 'room_state'
   | 'send_notification'
-  | 'stop_processing'
   | 'set_room_metadata'
-  | 'trigger_routine'
   | 'sleep'
-  | 'node_red'
-  | 'webhook'
-  | 'capture_state'
-  | 'restore_state';
+  | 'stop_processing'
+  | 'trigger_routine'
+  | 'webhook';
 
 export enum ROUTINE_ACTIVATE_COMMAND {
+  capture_state = 'capture_state',
   entity_state = 'entity_state',
   group_action = 'group_action',
   group_state = 'group_state',
   light_flash = 'light_flash',
+  node_red = 'node_red',
+  person_state = 'person_state',
+  restore_state = 'restore_state',
   room_state = 'room_state',
   send_notification = 'send_notification',
+  set_room_metadata = 'set_room_metadata',
+  sleep = 'sleep',
   stop_processing = 'stop_processing',
   trigger_routine = 'trigger_routine',
-  set_room_metadata = 'set_room_metadata',
-  node_red = 'node_red',
-  sleep = 'sleep',
   webhook = 'webhook',
-  capture_state = 'capture_state',
-  restore_state = 'restore_state',
 }
 
 export type GENERIC_COMMANDS =
@@ -59,6 +61,15 @@ export class RoutineCommandRoomStateDTO {
   @IsString()
   @ApiProperty({ type: 'string' })
   public room: string | RoomDTO;
+  @IsString()
+  @ApiProperty()
+  public state: string;
+}
+
+export class RoutineCommandPersonStateDTO {
+  @IsString()
+  @ApiProperty({ type: 'string' })
+  public person: string;
   @IsString()
   @ApiProperty()
   public state: string;
@@ -210,6 +221,7 @@ export class RoutineCommandDTO<
     | SetRoomMetadataCommandDTO
     | RoutineCaptureCommandDTO
     | RoutineRestoreCommandDTO
+    | RoutineCommandPersonStateDTO
     | RoutineCommandRoomStateDTO
     | RoutineCommandSendNotificationDTO
     | RoutineCommandSleepDTO
@@ -221,19 +233,20 @@ export class RoutineCommandDTO<
   @ApiProperty({
     oneOf: [
       { $ref: getSchemaPath(GeneralSaveStateDTO) },
-      { $ref: getSchemaPath(RoutineCommandLightFlashDTO) },
+      { $ref: getSchemaPath(RoutineCaptureCommandDTO) },
       { $ref: getSchemaPath(RoutineCommandGroupActionDTO) },
       { $ref: getSchemaPath(RoutineCommandGroupStateDTO) },
+      { $ref: getSchemaPath(RoutineCommandLightFlashDTO) },
+      { $ref: getSchemaPath(RoutineCommandNodeRedDTO) },
+      { $ref: getSchemaPath(RoutineCommandPersonStateDTO) },
       { $ref: getSchemaPath(RoutineCommandRoomStateDTO) },
-      { $ref: getSchemaPath(RoutineCaptureCommandDTO) },
-      { $ref: getSchemaPath(RoutineRestoreCommandDTO) },
       { $ref: getSchemaPath(RoutineCommandSendNotificationDTO) },
       { $ref: getSchemaPath(RoutineCommandSleepDTO) },
-      { $ref: getSchemaPath(SetRoomMetadataCommandDTO) },
       { $ref: getSchemaPath(RoutineCommandStopProcessingDTO) },
       { $ref: getSchemaPath(RoutineCommandTriggerRoutineDTO) },
-      { $ref: getSchemaPath(RoutineCommandNodeRedDTO) },
       { $ref: getSchemaPath(RoutineCommandWebhookDTO) },
+      { $ref: getSchemaPath(RoutineRestoreCommandDTO) },
+      { $ref: getSchemaPath(SetRoomMetadataCommandDTO) },
     ],
   })
   public command: COMMAND;

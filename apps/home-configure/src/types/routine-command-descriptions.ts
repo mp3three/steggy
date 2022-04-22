@@ -28,6 +28,11 @@ export const ROUTINE_COMMAND_LIST = [
     type: 'room_state',
   },
   {
+    description: 'Activate a previously saved person state',
+    name: 'Person State',
+    type: 'person_state',
+  },
+  {
     description: 'Send notification using Home Assistant',
     name: 'Send Notification',
     type: 'send_notification',

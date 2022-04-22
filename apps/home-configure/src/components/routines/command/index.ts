@@ -4,6 +4,7 @@ export * from './EntityStateCommand';
 export * from './GroupActionCommand';
 export * from './GroupStateCommand';
 export * from './NodeRedCommand';
+export * from './PersonStateCommand';
 export * from './RoomStateCommand';
 export * from './SendNotificationCommand';
 export * from './SetMetadata';

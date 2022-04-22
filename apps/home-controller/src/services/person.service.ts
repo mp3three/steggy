@@ -14,6 +14,7 @@ import {
   RoomMetadataDTO,
   RoomStateDTO,
   RoutineCommandDTO,
+  RoutineCommandPersonStateDTO,
   RoutineCommandRoomStateDTO,
 } from '@steggy/controller-shared';
 import { EntityManagerService } from '@steggy/home-assistant';
@@ -48,10 +49,10 @@ export class PersonService {
   ) {}
 
   public async activateState(
-    command: RoutineCommandRoomStateDTO,
+    command: RoutineCommandPersonStateDTO,
     waitForChange = false,
   ): Promise<void> {
-    const person = await this.load(command.room);
+    const person = await this.load(command.person);
     const state = person.save_states.find(({ id }) => id === command.state);
     if (!state) {
       this.logger.error(

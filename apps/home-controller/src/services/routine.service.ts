@@ -28,6 +28,7 @@ import {
   RoutineCommandGroupStateDTO,
   RoutineCommandLightFlashDTO,
   RoutineCommandNodeRedDTO,
+  RoutineCommandPersonStateDTO,
   RoutineCommandRoomStateDTO,
   RoutineCommandSendNotificationDTO,
   RoutineCommandSleepDTO,
@@ -71,6 +72,7 @@ import {
 import { EntityCommandRouterService } from './entities/entity-command-router.service';
 import { GroupService } from './group.service';
 import { RoutinePersistenceService } from './persistence';
+import { PersonService } from './person.service';
 import { RoomService } from './room.service';
 
 const INSTANCE_ID = uuid();
@@ -114,6 +116,7 @@ export class RoutineService {
     private readonly metadataChangeService: MetadataChangeService,
     @Inject(forwardRef(() => AttributeChangeActivateService))
     private readonly attributeChangeService: AttributeChangeActivateService,
+    private readonly personService: PersonService,
   ) {}
 
   private readonly runQueue = new Map<string, (() => void)[]>();
@@ -130,6 +133,12 @@ export class RoutineService {
       : command;
     this.logger.debug(` - {${command.friendlyName}}`);
     switch (command.type) {
+      case ROUTINE_ACTIVATE_COMMAND.person_state:
+        await this.personService.activateState(
+          command.command as RoutineCommandPersonStateDTO,
+          waitForChange,
+        );
+        break;
       case ROUTINE_ACTIVATE_COMMAND.group_action:
         await this.groupService.activateCommand(
           command.command as RoutineCommandGroupActionDTO,

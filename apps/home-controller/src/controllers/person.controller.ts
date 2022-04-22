@@ -45,10 +45,10 @@ export class PersonController {
     description: `Activate a group state`,
   })
   public async activateState(
-    @Param('person') room: string,
+    @Param('person') person: string,
     @Param('state') state: string,
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
-    await this.personService.activateState({ room, state });
+    await this.personService.activateState({ person, state });
     return GENERIC_SUCCESS_RESPONSE;
   }
 
