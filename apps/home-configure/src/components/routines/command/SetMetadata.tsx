@@ -1,4 +1,5 @@
 import {
+  PersonDTO,
   RoomDTO,
   RoomMetadataDTO,
   SetRoomMetadataCommandDTO,
@@ -21,6 +22,7 @@ import { FD_ICONS, sendRequest } from '../../../types';
 import { ChronoExamples } from '../../misc';
 
 type tState = {
+  people: Pick<PersonDTO, '_id' | 'friendlyName' | 'metadata'>[];
   rooms: Pick<RoomDTO, '_id' | 'friendlyName' | 'metadata'>[];
 };
 
@@ -31,10 +33,13 @@ export class SetRoomMetadataCommand extends React.Component<
   },
   tState
 > {
-  override state = { rooms: [] } as tState;
+  override state = { people: [], rooms: [] } as tState;
 
   private get room(): RoomDTO {
-    return this.state.rooms.find(({ _id }) => _id === this.props.command?.room);
+    return (
+      this.state.rooms.find(({ _id }) => _id === this.props.command?.room) ||
+      this.state.people.find(({ _id }) => _id === this.props.command?.room)
+    );
   }
 
   private get value() {
@@ -44,24 +49,33 @@ export class SetRoomMetadataCommand extends React.Component<
   }
 
   override async componentDidMount(): Promise<void> {
-    await this.listRooms();
+    await this.refresh();
   }
 
   override render() {
     return (
       <Space direction="vertical" style={{ width: '100%' }}>
-        <Form.Item label="Room">
+        <Form.Item label="Target">
           <Select
             value={this.room?._id}
-            onChange={room => this.props.onUpdate({ room })}
+            onChange={room => this.onTargetUpdate(room)}
             showSearch
             style={{ width: '100%' }}
           >
-            {this.state.rooms.map(group => (
-              <Select.Option key={group._id} value={group._id}>
-                {group.friendlyName}
-              </Select.Option>
-            ))}
+            <Select.OptGroup label="Room">
+              {this.state.rooms.map(room => (
+                <Select.Option key={room._id} value={room._id}>
+                  {room.friendlyName}
+                </Select.Option>
+              ))}
+            </Select.OptGroup>
+            <Select.OptGroup label="Person">
+              {this.state.people.map(person => (
+                <Select.Option key={person._id} value={person._id}>
+                  {person.friendlyName}
+                </Select.Option>
+              ))}
+            </Select.OptGroup>
           </Select>
         </Form.Item>
         <Form.Item label="Property">
@@ -91,7 +105,18 @@ export class SetRoomMetadataCommand extends React.Component<
     );
   }
 
-  private async listRooms(): Promise<void> {
+  private onTargetUpdate(room: string): void {
+    this.props.onUpdate({
+      name: undefined,
+      room,
+      type: this.state.rooms.some(({ _id }) => _id === room)
+        ? 'room'
+        : 'person',
+      value: undefined,
+    });
+  }
+
+  private async refresh(): Promise<void> {
     const rooms = await sendRequest<RoomDTO[]>({
       control: {
         filters: new Set([
@@ -106,7 +131,21 @@ export class SetRoomMetadataCommand extends React.Component<
       },
       url: `/room`,
     });
-    this.setState({ rooms });
+    const people = await sendRequest<RoomDTO[]>({
+      control: {
+        filters: new Set([
+          {
+            field: 'metadata.0',
+            operation: 'exists',
+            value: true,
+          },
+        ]),
+        select: ['friendlyName', 'metadata'],
+        sort: ['friendlyName'],
+      },
+      url: `/person`,
+    });
+    this.setState({ people, rooms });
   }
 
   private renderValue() {

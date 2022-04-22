@@ -6,6 +6,8 @@ export * from './GroupStateCommand';
 export * from './NodeRedCommand';
 export * from './RoomStateCommand';
 export * from './SendNotificationCommand';
+export * from './SetMetadata';
 export * from './SleepCommand';
 export * from './StopProcessingCommand';
 export * from './TriggerRoutineCommand';
+export * from './WebhookCommand';

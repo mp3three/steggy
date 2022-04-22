@@ -35,12 +35,12 @@ import {
   NodeRedCommand,
   RoomStateCommand,
   SendNotificationCommand,
+  SetRoomMetadataCommand,
   SleepCommand,
   StopProcessingCommand,
   TriggerRoutineCommand,
+  WebhookCommand,
 } from './command';
-import { SetRoomMetadataCommand } from './command/SetRoomMetadata';
-import { WebhookCommand } from './command/WebhookCommand';
 
 export class RoutineCommandDrawer extends React.Component<{
   command?: RoutineCommandDTO;
