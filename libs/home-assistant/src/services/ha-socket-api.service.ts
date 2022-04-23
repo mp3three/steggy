@@ -56,11 +56,13 @@ export class HASocketAPIService {
     @InjectConfig(RETRY_INTERVAL) private readonly retryInterval: number,
   ) {}
 
+  protected caught = false;
   private AUTH_TIMEOUT: ReturnType<typeof setTimeout>;
   private CONNECTION_ACTIVE = false;
   private connection: WS;
   private messageCount = START;
   private subscribeEvents = false;
+  private subscriptionCallbacks = new Map<number, (result) => void>();
   private waitingCallback = new Map<number, (result) => void>();
 
   /**
@@ -70,13 +72,14 @@ export class HASocketAPIService {
    */
   public async getAllEntities(): Promise<HassStateDTO[]> {
     this.logger.debug('Update all entities');
+    this.caught = false;
     const states = await this.sendMessage<HassStateDTO[]>({
       type: HASSIO_WS_COMMAND.get_states,
     });
     this.logger.debug('Received all entity update');
     this.eventEmitter.emit(ALL_ENTITIES_UPDATED, states);
     this.logger.debug('AFTER ALL_ENTITIES_UPDATED');
-
+    this.caught = true;
     if (!this.subscribeEvents) {
       // Some weirdness can occur if entity updates are received prior to loading
       this.subscribeEvents = true;
@@ -134,6 +137,7 @@ export class HASocketAPIService {
   public async sendMessage<T extends unknown = unknown>(
     data: SOCKET_MESSAGES,
     waitForResponse = true,
+    subscription?: () => void,
   ): Promise<T> {
     this.countMessage();
     const counter = this.messageCount;
@@ -149,9 +153,16 @@ export class HASocketAPIService {
       return;
     }
     const json = JSON.stringify(data);
+    if (data.type === HASSIO_WS_COMMAND.get_states) {
+      this.logger.debug(`Sending ${HASSIO_WS_COMMAND.get_states}`);
+    }
     this.connection.send(json);
     if (!waitForResponse) {
       return;
+    }
+    if (subscription) {
+      // ( this.subscriptionCallbacks.set(counter, done));
+      return counter as T;
     }
     return new Promise(done => this.waitingCallback.set(counter, done));
   }
@@ -287,6 +298,9 @@ export class HASocketAPIService {
    * Response to an outgoing emit
    */
   private async onMessage(message: SocketMessageDTO) {
+    if (!this.caught) {
+      this.logger.debug({ message });
+    }
     const id = Number(message.id);
     switch (message.type as HassSocketMessageTypes) {
       case HassSocketMessageTypes.auth_required:
@@ -334,9 +348,12 @@ export class HASocketAPIService {
       this.eventEmitter.emit(HA_EVENT_STATE_CHANGE, message.event);
     }
     if (this.waitingCallback.has(id)) {
-      // Template rendering
       const f = this.waitingCallback.get(id);
       this.waitingCallback.delete(id);
+      f(message.event.result);
+    }
+    if (this.subscriptionCallbacks.has(id)) {
+      const f = this.subscriptionCallbacks.get(id);
       f(message.event.result);
     }
   }

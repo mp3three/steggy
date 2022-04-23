@@ -2,7 +2,7 @@
 # Bring repo into intermediate container
 FROM node:16-alpine AS build
 WORKDIR /app
-RUN apk add git curl
+RUN apk add git curl; npm install -g npm@8.7.0
 
 # Build dev environment
 # Only copy necessary stuff for install up front to cache better

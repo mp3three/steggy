@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import SolarCalcType from 'solar-calc/types/solarCalc';
 
 import { AttributeChangeActivateDTO } from './attribute-change-activate.dto';
+import { DeviceTriggerActivateDTO } from './device-trigger-activate.dto';
 import { InternalEventActivateDTO } from './internal-event.dto';
 import { SequenceActivateDTO } from './kunami-code-activate.dto';
 import { MetadataChangeDTO } from './metadata-change.dto';
@@ -10,6 +11,7 @@ import { StateChangeActivateDTO } from './state-change-activate.dto';
 
 export type ActivateTypes =
   | 'attribute'
+  | 'device_trigger'
   | 'kunami'
   | 'room_metadata'
   | 'schedule'
@@ -18,6 +20,7 @@ export type ActivateTypes =
   | 'state_change';
 export enum ROUTINE_ACTIVATE_TYPE {
   attribute = 'attribute',
+  device_trigger = 'device_trigger',
   kunami = 'kunami',
   internal_event = 'internal_event',
   room_metadata = 'room_metadata',
@@ -38,6 +41,7 @@ export type ROUTINE_ACTIVATE_TYPES =
   | InternalEventActivateDTO
   | AttributeChangeActivateDTO
   | ScheduleActivateDTO
+  | DeviceTriggerActivateDTO
   | StateChangeActivateDTO;
 export class RoutineActivateDTO<EVENTS = ROUTINE_ACTIVATE_TYPES> {
   @ApiProperty({
@@ -49,6 +53,7 @@ export class RoutineActivateDTO<EVENTS = ROUTINE_ACTIVATE_TYPES> {
       { $ref: `#/components/schemas/${MetadataChangeDTO.name}` },
       { $ref: `#/components/schemas/${InternalEventActivateDTO.name}` },
       { $ref: `#/components/schemas/${StateChangeActivateDTO.name}` },
+      { $ref: `#/components/schemas/${DeviceTriggerActivateDTO.name}` },
     ],
   })
   public activate: EVENTS;

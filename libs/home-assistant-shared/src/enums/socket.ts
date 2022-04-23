@@ -55,6 +55,7 @@ export enum HASSIO_WS_COMMAND {
   registry_get = 'config/entity_registry/get',
   render_template = 'render_template',
   search_related = 'search/related',
+  subscribe_trigger = 'subscribe_trigger',
   subscribe_events = 'subscribe_events',
   // Haven't decided
   core_update = 'config/core/update',

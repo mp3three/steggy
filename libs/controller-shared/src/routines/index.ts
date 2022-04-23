@@ -1,4 +1,5 @@
 export * from './attribute-change-activate.dto';
+export * from './device-trigger-activate.dto';
 export * from './internal-event.dto';
 export * from './kunami-code-activate.dto';
 export * from './metadata-change.dto';

@@ -16,6 +16,7 @@ import {
   ActivateCommand,
   AttributeChangeActivateDTO,
   CloneRoutineDTO,
+  DeviceTriggerActivateDTO,
   GeneralSaveStateDTO,
   InternalEventActivateDTO,
   MetadataChangeDTO,
@@ -55,6 +56,7 @@ import { v4 as uuid, v4 } from 'uuid';
 
 import {
   AttributeChangeActivateService,
+  DeviceTriggerActivateService,
   InternalEventChangeService,
   MetadataChangeService,
   ScheduleActivateService,
@@ -129,6 +131,7 @@ export class RoutineService {
     private readonly personService: PersonService,
     @Inject(forwardRef(() => InternalEventChangeService))
     private readonly internalEventActivate: InternalEventChangeService,
+    private readonly deviceTriggerActivate: DeviceTriggerActivateService,
   ) {}
 
   private readonly runQueue = new Map<string, (() => void)[]>();
@@ -370,7 +373,7 @@ export class RoutineService {
     this.logger.debug(`[${routine.friendlyName}] building`);
     routine.activate.forEach(activate => {
       if (!activate.activate) {
-        this.logger.error(` - {${activate.friendlyName} }INVALID`);
+        this.logger.error(` - {${activate.friendlyName}} INVALID`);
         return;
       }
       this.logger.debug(` - {${activate.friendlyName}}`);
@@ -379,6 +382,13 @@ export class RoutineService {
           this.internalEventActivate.watch(
             routine,
             activate.activate as InternalEventActivateDTO,
+            async () => await this.activateRoutine(routine),
+          );
+          return;
+        case ROUTINE_ACTIVATE_TYPE.device_trigger:
+          this.deviceTriggerActivate.watch(
+            routine,
+            activate.activate as DeviceTriggerActivateDTO,
             async () => await this.activateRoutine(routine),
           );
           return;
@@ -438,6 +448,9 @@ export class RoutineService {
       switch (activate.type) {
         case ROUTINE_ACTIVATE_TYPE.attribute:
           this.attributeChangeService.clearRoutine(routine);
+          return;
+        case ROUTINE_ACTIVATE_TYPE.device_trigger:
+          this.deviceTriggerActivate.clearRoutine(routine);
           return;
         case ROUTINE_ACTIVATE_TYPE.internal_event:
           this.internalEventActivate.clearRoutine(routine);

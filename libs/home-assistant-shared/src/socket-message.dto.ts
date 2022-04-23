@@ -117,9 +117,23 @@ export class RenderTemplateDTO {
   public type: HASSIO_WS_COMMAND.render_template;
 }
 
+export class SubscribeTriggerDTO {
+  public id?: number;
+  public trigger: Record<string, unknown>;
+  public type: HASSIO_WS_COMMAND.subscribe_trigger;
+}
+
+export class UnsubscribeEventsDTO {
+  public id?: number;
+  public subscription: number;
+  public type: HASSIO_WS_COMMAND.unsubscribe_events;
+}
+
 export type SOCKET_MESSAGES =
   | SendSocketMessageDTO
   | RenderTemplateDTO
+  | UnsubscribeEventsDTO
+  | SubscribeTriggerDTO
   | UpdateEntityMessageDTO
   | FindRelatedDTO
   | RegistryGetDTO;

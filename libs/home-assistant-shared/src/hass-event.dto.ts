@@ -37,4 +37,5 @@ export class HassEventDTO<
   public origin: 'local';
   public result?: string;
   public time_fired: Date;
+  public variables: Record<string, unknown>;
 }

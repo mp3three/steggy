@@ -32,6 +32,7 @@ import {
   HACallService,
   HASocketAPIService,
   HomeAssistantFetchAPIService,
+  TriggerService,
 } from '../services';
 
 const services: Provider[] = [
@@ -57,6 +58,7 @@ const services: Provider[] = [
     HomeAssistantFetchAPIService,
     HASocketAPIService,
     EntityManagerService,
+    TriggerService,
   ],
 ];
 
