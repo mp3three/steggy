@@ -1,9 +1,17 @@
-import { RoutineCommandWebhookDTO } from '@steggy/controller-shared';
-import { Button, Form, Input, Select, Table } from 'antd';
+import {
+  PersonDTO,
+  RoomDTO,
+  RoutineCommandWebhookDTO,
+} from '@steggy/controller-shared';
+import { Button, Form, Input, Select, Space, Table, Typography } from 'antd';
 import React from 'react';
+
+import { sendRequest } from '../../types';
 
 type tState = {
   name: string;
+  people: PersonDTO[];
+  rooms: RoomDTO[];
 };
 
 export class WebhookRequest extends React.Component<
@@ -13,11 +21,33 @@ export class WebhookRequest extends React.Component<
   },
   tState
 > {
-  override state = {} as tState;
+  override state = { people: [], rooms: [] } as tState;
+
+  private get assignTarget() {
+    const room = this.state.rooms.find(
+      ({ _id }) => _id === this.props.webhook.assignTo,
+    );
+    if (room) {
+      return room.metadata;
+    }
+    const person = this.state.people.find(
+      ({ _id }) => _id === this.props.webhook.assignTo,
+    );
+    if (person) {
+      return person.metadata;
+    }
+    return undefined;
+  }
+
+  override async componentDidMount(): Promise<void> {
+    await this.refresh();
+  }
 
   override render() {
+    const parse = this.props.webhook?.parse ?? 'none';
+    const target = this.assignTarget;
     return (
-      <>
+      <Space direction="vertical" style={{ width: '100%' }}>
         <Form.Item label="URL">
           <Input
             placeholder="http://some.domain/api/target"
@@ -98,7 +128,102 @@ export class WebhookRequest extends React.Component<
             />
           </Table>
         </Form.Item>
-      </>
+        <Form.Item label="Response">
+          <Select
+            value={parse}
+            onChange={parse => this.props.onUpdate({ parse })}
+          >
+            <Select.Option value="none">Ignore</Select.Option>
+            <Select.Option value="text">Text</Select.Option>
+            <Select.Option value="json">JSON</Select.Option>
+          </Select>
+        </Form.Item>
+        {parse === 'json' ? (
+          <Form.Item label="Data Path">
+            <Input
+              placeholder="object.path.to.value"
+              defaultValue={this.props.webhook?.objectPath}
+              onBlur={({ target }) =>
+                this.props.onUpdate({ objectPath: target.value })
+              }
+            />
+          </Form.Item>
+        ) : undefined}
+        {parse === 'none' ? undefined : (
+          <Form.Item label="Assign To">
+            <Select
+              value={this.props.webhook.assignTo}
+              onChange={assignTo => this.assignTo(assignTo)}
+            >
+              <Select.OptGroup label="Room">
+                {this.state.rooms.map(room => (
+                  <Select.Option key={room._id} value={room._id}>
+                    {room.friendlyName}
+                  </Select.Option>
+                ))}
+              </Select.OptGroup>
+              <Select.OptGroup label="Person">
+                {this.state.people.map(person => (
+                  <Select.Option key={person._id} value={person._id}>
+                    {person.friendlyName}
+                  </Select.Option>
+                ))}
+              </Select.OptGroup>
+            </Select>
+          </Form.Item>
+        )}
+        {target ? (
+          <Form.Item label="Property">
+            <Select>
+              {target.map(metadata => (
+                <Select.Option value={metadata.name} key={metadata.id}>
+                  <Typography.Text code>{metadata.type}</Typography.Text>
+                  {` ${metadata.name}`}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        ) : undefined}
+      </Space>
     );
+  }
+
+  private assignTo(assignTo: string): void {
+    const assignType = this.state.rooms.some(({ _id }) => _id === assignTo)
+      ? 'room'
+      : 'person';
+    this.props.onUpdate({ assignTo, assignType });
+  }
+
+  private async refresh(): Promise<void> {
+    const rooms = await sendRequest<RoomDTO[]>({
+      control: {
+        filters: new Set([
+          {
+            field: 'metadata.0',
+            operation: 'exists',
+            value: true,
+          },
+        ]),
+        select: ['friendlyName', 'metadata'],
+        sort: ['friendlyName'],
+      },
+      url: `/room`,
+    });
+    const people = await sendRequest<RoomDTO[]>({
+      control: {
+        filters: new Set([
+          {
+            field: 'metadata.0',
+            operation: 'exists',
+            value: true,
+          },
+        ]),
+        select: ['friendlyName', 'metadata'],
+        sort: ['friendlyName'],
+      },
+      url: `/person`,
+    });
+    this.setState({ people, rooms });
   }
 }

@@ -199,14 +199,28 @@ export class RoutineCommandNodeRedDTO {
   public name: string;
 }
 
-type stringMethods = `${HTTP_METHODS}`;
 export class RoutineCommandWebhookDTO {
+  @ApiProperty()
+  @IsString()
+  public assignProperty?: string;
+  @ApiProperty()
+  @IsString()
+  public assignTo?: string;
+  @ApiProperty()
+  @IsString()
+  public assignType?: 'person' | 'room';
   @ApiProperty()
   @ValidateNested({ each: true })
   public headers: WebhookHeaderDTO[];
   @IsEnum(HTTP_METHODS)
   @ApiProperty({ enum: Object.values(HTTP_METHODS) })
-  public method: HTTP_METHODS | stringMethods;
+  public method: HTTP_METHODS | `${HTTP_METHODS}`;
+  @ApiProperty()
+  @IsString()
+  public objectPath?: string;
+  @ApiProperty()
+  @IsEnum(['none', 'text', 'json'])
+  public parse?: 'none' | 'text' | 'json';
   @ApiProperty()
   @IsString()
   public url: string;

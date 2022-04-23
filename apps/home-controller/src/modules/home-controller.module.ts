@@ -21,6 +21,7 @@ import {
   NOTIFY_CONNECTION_RESET,
   NOTIFY_UNAVAILABLE_DURATION,
   SAFE_MODE,
+  SECRETS_FILE,
   SEQUENCE_TIMEOUT,
   UNAVAILABLE_MONITOR_HOUR,
 } from '../config';
@@ -68,6 +69,7 @@ import {
   RoutineTriggerService,
   SaveStateService,
   ScheduleActivateService,
+  SecretsService,
   SendNotificationService,
   SequenceActivateService,
   SetMetadataService,
@@ -114,6 +116,7 @@ const providers = [
   RoutinePersistenceService,
   RoutineService,
   RoutineTriggerService,
+  SecretsService,
   SaveStateService,
   ScheduleActivateService,
   SendNotificationService,
@@ -171,6 +174,11 @@ const providers = [
       default: false,
       description: 'Disable all activation events for routines',
       type: 'boolean',
+    },
+    [SECRETS_FILE]: {
+      description:
+        'Newline separated token=value. Usable in some substitutions locations, like webhook headers',
+      type: 'string',
     },
     [SEQUENCE_TIMEOUT]: {
       default: 1500,

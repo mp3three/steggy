@@ -12,3 +12,4 @@ export * from './person.service';
 export * from './room.service';
 export * from './routine.service';
 export * from './save-state.service';
+export * from './secrets.service';
