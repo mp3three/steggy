@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { RoutineCommandSendNotificationDTO } from '@steggy/controller-shared';
 import {
@@ -15,6 +15,7 @@ export class SendNotificationService {
     private readonly logger: AutoLogService,
     private readonly socketService: HASocketAPIService,
     private readonly notification: NotifyDomainService,
+    @Inject(forwardRef(() => VMService))
     private readonly vmService: VMService,
   ) {}
 

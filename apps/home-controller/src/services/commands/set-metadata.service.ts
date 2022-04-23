@@ -38,6 +38,7 @@ export class SetMetadataService {
     private readonly personService: PersonService,
     private readonly chronoService: ChronoService,
     private readonly socketService: HASocketAPIService,
+    @Inject(forwardRef(() => VMService))
     private readonly vmService: VMService,
   ) {}
 

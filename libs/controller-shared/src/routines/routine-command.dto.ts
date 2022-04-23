@@ -12,6 +12,7 @@ import {
 
 import { GeneralSaveStateDTO } from '../rooms';
 import { GroupDTO, RoomDTO } from '../schemas';
+import { InternalEventActivateDTO } from './internal-event.dto';
 import { RoutineCommandStopProcessingDTO } from './stop-processing.dto';
 
 export type ActivateCommand =
@@ -229,17 +230,18 @@ export class RoutineCommandWebhookDTO {
 export class RoutineCommandDTO<
   COMMAND =
     | GeneralSaveStateDTO
-    | RoutineCommandLightFlashDTO
+    | InternalEventActivateDTO
+    | RoutineCaptureCommandDTO
     | RoutineCommandGroupActionDTO
     | RoutineCommandGroupStateDTO
-    | SetRoomMetadataCommandDTO
-    | RoutineCaptureCommandDTO
-    | RoutineRestoreCommandDTO
+    | RoutineCommandLightFlashDTO
     | RoutineCommandPersonStateDTO
     | RoutineCommandRoomStateDTO
     | RoutineCommandSendNotificationDTO
     | RoutineCommandSleepDTO
     | RoutineCommandStopProcessingDTO
+    | RoutineRestoreCommandDTO
+    | SetRoomMetadataCommandDTO
     | RoutineCommandNodeRedDTO
     | RoutineCommandTriggerRoutineDTO
     | RoutineCommandWebhookDTO,
@@ -247,6 +249,7 @@ export class RoutineCommandDTO<
   @ApiProperty({
     oneOf: [
       { $ref: getSchemaPath(GeneralSaveStateDTO) },
+      { $ref: getSchemaPath(InternalEventActivateDTO) },
       { $ref: getSchemaPath(RoutineCaptureCommandDTO) },
       { $ref: getSchemaPath(RoutineCommandGroupActionDTO) },
       { $ref: getSchemaPath(RoutineCommandGroupStateDTO) },

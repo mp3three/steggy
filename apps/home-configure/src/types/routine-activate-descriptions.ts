@@ -37,5 +37,11 @@ export const ROUTINE_ACTIVATE_LIST = (
       name: 'Solar Event',
       type: 'solar',
     },
+    {
+      description:
+        'Trigger a routine in response to an (otherwise) internal controller event.',
+      name: 'Internal Event',
+      type: 'internal_event',
+    },
   ] as listItem[]
 ).sort((a, b) => (a.name > b.name ? UP : DOWN));

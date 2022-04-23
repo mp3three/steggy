@@ -17,6 +17,7 @@ import {
   AttributeChangeActivateDTO,
   CloneRoutineDTO,
   GeneralSaveStateDTO,
+  InternalEventActivateDTO,
   MetadataChangeDTO,
   ROUTINE_ACTIVATE_COMMAND,
   ROUTINE_ACTIVATE_TYPE,
@@ -52,12 +53,15 @@ import {
 import dayjs from 'dayjs';
 import { v4 as uuid, v4 } from 'uuid';
 
-import { AttributeChangeActivateService } from './activate/attribute-change-activate.service';
-import { MetadataChangeService } from './activate/metadata-change.service';
-import { ScheduleActivateService } from './activate/schedule-activate.service';
-import { SequenceActivateService } from './activate/sequence-activate.service';
-import { SolarActivateService } from './activate/solar-activate.service';
-import { StateChangeActivateService } from './activate/state-change-activate.service';
+import {
+  AttributeChangeActivateService,
+  InternalEventChangeService,
+  MetadataChangeService,
+  ScheduleActivateService,
+  SequenceActivateService,
+  SolarActivateService,
+  StateChangeActivateService,
+} from './activate';
 import {
   CaptureCommandService,
   LightFlashCommandService,
@@ -69,7 +73,7 @@ import {
   StopProcessingCommandService,
   WebhookService,
 } from './commands';
-import { EntityCommandRouterService } from './entities/entity-command-router.service';
+import { EntityCommandRouterService } from './entities';
 import { GroupService } from './group.service';
 import { RoutinePersistenceService } from './persistence';
 import { PersonService } from './person.service';
@@ -77,6 +81,8 @@ import { RoomService } from './room.service';
 
 const INSTANCE_ID = uuid();
 const RUN_CACHE = (routine: RoutineDTO) => `${INSTANCE_ID}_${routine._id}`;
+
+// So many @Injects. Remove any, and 💣
 
 @Injectable()
 export class RoutineService {
@@ -88,6 +94,7 @@ export class RoutineService {
     private readonly flashAnimation: LightFlashCommandService,
     @Inject(forwardRef(() => GroupService))
     private readonly groupService: GroupService,
+    @Inject(forwardRef(() => SequenceActivateService))
     private readonly sequenceActivate: SequenceActivateService,
     private readonly logger: AutoLogService,
     @Inject(forwardRef(() => RoomService))
@@ -95,14 +102,17 @@ export class RoutineService {
     private readonly routinePersistence: RoutinePersistenceService,
     @Inject(forwardRef(() => NodeRedCommand))
     private readonly nodeRedCommand: NodeRedCommand,
+    @Inject(forwardRef(() => ScheduleActivateService))
     private readonly scheduleActivate: ScheduleActivateService,
     @Inject(forwardRef(() => SetMetadataService))
     private readonly setMetadataService: SetMetadataService,
+    @Inject(forwardRef(() => SolarActivateService))
     private readonly solarService: SolarActivateService,
     @Inject(forwardRef(() => RoutineTriggerService))
     private readonly triggerService: RoutineTriggerService,
     @Inject(forwardRef(() => CaptureCommandService))
     private readonly captureCommand: CaptureCommandService,
+    @Inject(forwardRef(() => StateChangeActivateService))
     private readonly stateChangeActivate: StateChangeActivateService,
     @Inject(forwardRef(() => SendNotificationService))
     private readonly sendNotification: SendNotificationService,
@@ -117,6 +127,8 @@ export class RoutineService {
     @Inject(forwardRef(() => AttributeChangeActivateService))
     private readonly attributeChangeService: AttributeChangeActivateService,
     private readonly personService: PersonService,
+    @Inject(forwardRef(() => InternalEventChangeService))
+    private readonly internalEventActivate: InternalEventChangeService,
   ) {}
 
   private readonly runQueue = new Map<string, (() => void)[]>();
@@ -363,6 +375,13 @@ export class RoutineService {
       }
       this.logger.debug(` - {${activate.friendlyName}}`);
       switch (activate.type) {
+        case ROUTINE_ACTIVATE_TYPE.internal_event:
+          this.internalEventActivate.watch(
+            routine,
+            activate.activate as InternalEventActivateDTO,
+            async () => await this.activateRoutine(routine),
+          );
+          return;
         case ROUTINE_ACTIVATE_TYPE.attribute:
           this.attributeChangeService.watch(
             routine,
@@ -419,6 +438,9 @@ export class RoutineService {
       switch (activate.type) {
         case ROUTINE_ACTIVATE_TYPE.attribute:
           this.attributeChangeService.clearRoutine(routine);
+          return;
+        case ROUTINE_ACTIVATE_TYPE.internal_event:
+          this.internalEventActivate.clearRoutine(routine);
           return;
         case ROUTINE_ACTIVATE_TYPE.solar:
           this.solarService.clearRoutine(routine);

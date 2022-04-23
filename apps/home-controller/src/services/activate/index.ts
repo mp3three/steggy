@@ -1,4 +1,5 @@
 export * from './attribute-change-activate.service';
+export * from './internal-event-activate.service';
 export * from './metadata-change.service';
 export * from './routine-enabled.service';
 export * from './schedule-activate.service';

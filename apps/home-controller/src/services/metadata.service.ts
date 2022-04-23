@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import { MetadataDTO, RoomMetadataDTO } from '@steggy/controller-shared';
 import { is, SINGLE } from '@steggy/utilities';
@@ -20,6 +20,7 @@ export class MetadataService {
   constructor(
     private readonly logger: AutoLogService,
     private readonly eventEmitter: EventEmitter,
+    @Inject(forwardRef(() => ChronoService))
     private readonly chronoService: ChronoService,
     private readonly metadataPersistence: MetadataPersistenceService,
   ) {}

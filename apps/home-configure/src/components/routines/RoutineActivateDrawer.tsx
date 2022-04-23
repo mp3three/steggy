@@ -1,5 +1,6 @@
 import {
   AttributeChangeActivateDTO,
+  InternalEventActivateDTO,
   MetadataChangeDTO,
   ROUTINE_ACTIVATE_TYPES,
   RoutineActivateDTO,
@@ -22,6 +23,7 @@ import {
   RoutineActivateStateChange,
 } from './activate';
 import { RoutineActivateAttributeChange } from './activate/RoutineActivateAttributeChange';
+import { RoutineActivateInternalEvent } from './activate/RoutineActivateInternalEvent';
 
 export class RoutineActivateDrawer extends React.Component<{
   activate: RoutineActivateDTO;
@@ -81,6 +83,16 @@ export class RoutineActivateDrawer extends React.Component<{
           activate={this.props.activate.activate as MetadataChangeDTO}
           onUpdate={activate =>
             this.updateActivate(activate as Partial<MetadataChangeDTO>)
+          }
+        />
+      );
+    }
+    if (this.props.activate.type === 'internal_event') {
+      return (
+        <RoutineActivateInternalEvent
+          activate={this.props.activate.activate as InternalEventActivateDTO}
+          onUpdate={activate =>
+            this.updateActivate(activate as Partial<InternalEventActivateDTO>)
           }
         />
       );

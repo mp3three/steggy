@@ -73,7 +73,9 @@ export class HASocketAPIService {
     const states = await this.sendMessage<HassStateDTO[]>({
       type: HASSIO_WS_COMMAND.get_states,
     });
+    this.logger.debug('Received all entity update');
     this.eventEmitter.emit(ALL_ENTITIES_UPDATED, states);
+    this.logger.debug('AFTER ALL_ENTITIES_UPDATED');
 
     if (!this.subscribeEvents) {
       // Some weirdness can occur if entity updates are received prior to loading
