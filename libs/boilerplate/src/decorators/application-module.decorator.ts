@@ -5,7 +5,7 @@ import { ConfigItem, USE_THIS_CONFIG } from '../contracts';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
 import { AbstractConfig, ACTIVE_APPLICATION } from '../contracts/meta/config';
 import { RegisterCache } from '../includes';
-import { UtilitiesModule } from '../modules';
+import { BoilerplateModule } from '../modules';
 import { LibraryModule } from './library-module.decorator';
 
 export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
@@ -56,7 +56,7 @@ export function ApplicationModule(
     });
   }
   metadata.imports = [
-    UtilitiesModule.forRoot(),
+    BoilerplateModule.forRoot(),
     {
       exports: GLOBAL_SYMBOLS,
       global: true,

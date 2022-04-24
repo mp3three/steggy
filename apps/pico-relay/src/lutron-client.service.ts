@@ -50,9 +50,11 @@ export class LutronClientService {
 
   private authenticate(line: string): void {
     if (line.startsWith('login')) {
+      this.logger.debug(`Sending login`);
       this.socket.write(`${this.username}\r\n`);
     }
     if (line.startsWith('password')) {
+      this.logger.debug(`Sending password`);
       this.socket.write(`${this.password}\r\n`);
     }
     if (line.startsWith('GNET')) {

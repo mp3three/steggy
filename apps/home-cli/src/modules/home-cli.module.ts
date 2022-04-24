@@ -1,8 +1,8 @@
 import { DiscoveryModule } from '@nestjs/core';
 import {
   ApplicationModule,
+  BoilerplateModule,
   InjectConfig,
-  UtilitiesModule,
 } from '@steggy/boilerplate';
 import { CONFIG_APPLICATION_TITLE, TTYModule } from '@steggy/tty';
 
@@ -57,7 +57,7 @@ import {
       useFactory: (title: string) => title,
     },
   ],
-  imports: [DiscoveryModule, TTYModule, UtilitiesModule.forRoot()],
+  imports: [DiscoveryModule, TTYModule, BoilerplateModule.forRoot()],
   providers: [
     ...[
       // domains/*

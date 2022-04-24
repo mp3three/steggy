@@ -1,1 +1,1 @@
-export * from './utilities.module';
+export * from './boilerplate.module';

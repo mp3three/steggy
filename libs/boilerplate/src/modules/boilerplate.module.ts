@@ -82,7 +82,7 @@ import {
     WorkspaceService,
   ],
 })
-export class UtilitiesModule {
+export class BoilerplateModule {
   public static RegisterCache = RegisterCache;
   public static forRoot(extra: Provider[] = []): DynamicModule {
     // @InjectConfig()
@@ -104,7 +104,7 @@ export class UtilitiesModule {
       ],
       global: true,
       imports: [RegisterCache(), DiscoveryModule],
-      module: UtilitiesModule,
+      module: BoilerplateModule,
       providers: [
         ...extra,
         ...config,
