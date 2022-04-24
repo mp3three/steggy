@@ -111,6 +111,8 @@ export class LutronRelay {
     if (!this.mappings[id]) {
       return;
     }
+    const resolved =
+      direction !== PicoDirection.down ? PicoButtons.none : button;
     const translated = translation.get(
       direction !== PicoDirection.down ? PicoButtons.none : button,
     );
@@ -118,11 +120,12 @@ export class LutronRelay {
       this.logger.error(`Unknown argument: {${button}}`);
       return;
     }
-    await this.syncHomeAssistant(this.mappings[id], translated);
+    await this.syncHomeAssistant(this.mappings[id], translated, resolved);
   }
 
   private async syncHomeAssistant(
     entity_id: string,
+    translated: string,
     state: string,
   ): Promise<void> {
     if (!this.token) {
@@ -132,7 +135,7 @@ export class LutronRelay {
     await this.fetchService.fetch({
       baseUrl: this.url,
       bearer: this.token,
-      body: { state },
+      body: { attributes: { translated }, state },
       method: 'post',
       url: `/api/states/${entity_id}`,
     });
