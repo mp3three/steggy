@@ -3,10 +3,13 @@
   "license": "MIT",
   "description": "",
   "main": "main.js",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "displayName": "Pico Relay",
   "author": {
     "email": "git@programmable.work",
     "name": "Cameron Contour"
+  },
+  "dependencies": {
+    "pino-pretty": "^7.6.0"
   }
 }
