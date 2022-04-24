@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
+import {
+  AutoConfigService,
+  AutoLogService,
+  InjectConfig,
+} from '@steggy/boilerplate';
 import { is, START } from '@steggy/utilities';
 import EventEmitter from 'eventemitter3';
 import { Socket } from 'net';
@@ -17,6 +21,7 @@ import { LUTRON_EVENT } from './constants';
 export class LutronClientService {
   constructor(
     private readonly logger: AutoLogService,
+    private readonly config: AutoConfigService,
     @InjectConfig(LUTRON_HOST) private readonly host: string,
     @InjectConfig(LUTRON_PORT) private readonly port: number,
     @InjectConfig(LUTRON_USERNAME) private readonly username: string,
@@ -30,7 +35,10 @@ export class LutronClientService {
   private socket: Socket;
 
   protected onModuleInit(): void {
-    if (!this.host) {
+    if (is.empty(this.host)) {
+      this.logger.info({
+        config: this.config.config,
+      });
       this.logger.error(`No host`);
       return;
     }
@@ -89,6 +97,7 @@ export class LutronClientService {
         if (is.empty(line)) {
           return;
         }
+        this.logger.info(line);
         if (!this.authenticated) {
           this.authenticate(line);
           return;

@@ -11,6 +11,7 @@
   "include": [
     "**/*.ts",
     "../../libs/boilerplate/**/*.ts",
+    "../../libs/utilities/**/*.ts",
     "../../libs/lutron/**/*.ts"
   ]
 }

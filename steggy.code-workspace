@@ -10,16 +10,22 @@
         "port": 33334
       },
       {
+        "name": "Devtools",
+        "type": "node",
+        "request": "attach",
+        "port": 33336
+      },
+      {
         "name": "Home CLI",
         "type": "node",
         "request": "attach",
         "port": 33337
       },
       {
-        "name": "Devtools",
+        "name": "Lutron Relay",
         "type": "node",
         "request": "attach",
-        "port": 33336
+        "port": 33338
       }
     ]
   },
@@ -53,6 +59,7 @@
       ".pino-prettyrc": "json",
       "home-controller": "ini",
       "home-cli": "ini",
+      "lutron-relay": "ini",
       "devtools": "ini"
     },
     "files.exclude": {

@@ -8,7 +8,7 @@
       "options": {
         "buildTarget": "lutron-relay:build",
         "inspect": "inspect",
-        "port": 33336
+        "port": 33338
       }
     },
     "build": {
@@ -18,7 +18,7 @@
         "assets": [],
         "outputPath": "dist/apps/lutron-relay",
         "generatePackageJson": true,
-        "main": "apps/lutron-relay/src/entrypoints/main.ts",
+        "main": "apps/lutron-relay/src/main.ts",
         "tsConfig": "apps/lutron-relay/tsconfig.app.json"
       },
       "configurations": {
