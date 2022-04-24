@@ -157,12 +157,12 @@ export class HASocketAPIService {
       this.logger.debug(`Sending ${HASSIO_WS_COMMAND.get_states}`);
     }
     this.connection.send(json);
-    if (!waitForResponse) {
-      return;
-    }
     if (subscription) {
       // ( this.subscriptionCallbacks.set(counter, done));
-      return counter as T;
+      return data.id as T;
+    }
+    if (!waitForResponse) {
+      return;
     }
     return new Promise(done => this.waitingCallback.set(counter, done));
   }
@@ -376,7 +376,13 @@ export class HASocketAPIService {
       }
       const f = this.waitingCallback.get(id);
       this.waitingCallback.delete(id);
+      if (!this.caught) {
+        this.logger.debug('pre-callback');
+      }
       f(message.result);
+      if (!this.caught) {
+        this.logger.debug('post callback');
+      }
     }
   }
 

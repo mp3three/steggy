@@ -1,8 +1,9 @@
 export * from './ActivateAdd';
 export * from './ActivateList';
 export * from './RoutineActivateCron';
+export * from './RoutineActivateDeviceTrigger';
+export * from './RoutineActivateInternalEvent';
 export * from './RoutineActivateKunami';
 export * from './RoutineActivateMetadataChange';
 export * from './RoutineActivateSolar';
 export * from './RoutineActivateStateChange';
-// export * from './RoutineActivateInternalEvent';

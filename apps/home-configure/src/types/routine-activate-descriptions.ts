@@ -17,6 +17,14 @@ export const ROUTINE_ACTIVATE_LIST = (
       type: 'schedule',
     },
     {
+      // Coded per home assistant docs
+      // Have not actually seen it work / used it in real use cases yet
+      description:
+        '(EXPERIMENTRAL) Use a Home Assistant trigger as an activation event',
+      name: 'Device trigger',
+      type: 'device_trigger',
+    },
+    {
       description: 'Activate when person/room metadata changes',
       name: 'Metadata Change',
       type: 'room_metadata',
@@ -39,7 +47,7 @@ export const ROUTINE_ACTIVATE_LIST = (
     },
     {
       description:
-        'Trigger a routine in response to an (otherwise) internal controller event.',
+        'Trigger a routine in response to an (otherwise) internal controller event',
       name: 'Internal Event',
       type: 'internal_event',
     },

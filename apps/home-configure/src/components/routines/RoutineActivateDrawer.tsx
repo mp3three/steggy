@@ -1,5 +1,6 @@
 import {
   AttributeChangeActivateDTO,
+  DeviceTriggerActivateDTO,
   InternalEventActivateDTO,
   MetadataChangeDTO,
   ROUTINE_ACTIVATE_TYPES,
@@ -17,6 +18,7 @@ import React from 'react';
 import { EntityHistory } from '../entities';
 import {
   RoutineActivateCron,
+  RoutineActivateDeviceTrigger,
   RoutineActivateKunami,
   RoutineActivateMetadataChange,
   RoutineActivateSolar,
@@ -103,6 +105,16 @@ export class RoutineActivateDrawer extends React.Component<{
           activate={this.props.activate.activate as ScheduleActivateDTO}
           onUpdate={activate =>
             this.updateActivate(activate as Partial<RoutineActivateDTO>)
+          }
+        />
+      );
+    }
+    if (this.props.activate.type === 'device_trigger') {
+      return (
+        <RoutineActivateDeviceTrigger
+          activate={this.props.activate.activate as DeviceTriggerActivateDTO}
+          onUpdate={activate =>
+            this.updateActivate(activate as Partial<DeviceTriggerActivateDTO>)
           }
         />
       );

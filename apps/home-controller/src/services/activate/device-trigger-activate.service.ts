@@ -6,7 +6,7 @@ import {
 } from '@steggy/controller-shared';
 import { TriggerService } from '@steggy/home-assistant';
 import { is } from '@steggy/utilities';
-import { parse } from 'ini';
+import { load } from 'js-yaml';
 
 type tWatchType = {
   remove: () => void;
@@ -45,7 +45,7 @@ export class DeviceTriggerActivateService {
     callback: () => Promise<void>,
   ): Promise<void> {
     const subscription = await this.triggerService.subscribe(
-      parse(activate.trigger),
+      load(activate.trigger) as Record<string, unknown>,
       () => callback(),
     );
     this.WATCHERS.add({

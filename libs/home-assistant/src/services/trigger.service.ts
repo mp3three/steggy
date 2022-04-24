@@ -15,11 +15,10 @@ export class TriggerService {
     trigger: Record<string, unknown>,
     callback: () => void,
   ): Promise<number> {
-    const id = await this.socketApi.sendMessage<number>(
-      { trigger, type: HASSIO_WS_COMMAND.subscribe_trigger },
-      false,
-      () => callback(),
-    );
+    const data = { trigger, type: HASSIO_WS_COMMAND.subscribe_trigger };
+    const id = await this.socketApi.sendMessage<number>(data, false, () => {
+      callback();
+    });
     this.logger.debug({ trigger }, `Added device trigger {${id}}`);
     return id;
   }
