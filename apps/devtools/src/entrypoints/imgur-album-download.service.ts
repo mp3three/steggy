@@ -2,11 +2,12 @@ import {
   AutoLogService,
   FetchService,
   InjectConfig,
+  QuickScript,
 } from '@steggy/boilerplate';
 import {
   ApplicationManagerService,
   PromptService,
-  QuickScript,
+  TTYModule,
 } from '@steggy/tty';
 import { FIRST, SINGLE } from '@steggy/utilities';
 import execa from 'execa';
@@ -18,6 +19,7 @@ const DEFAULT_PAD_SIZE = 4;
 
 @QuickScript({
   application: Symbol('album-download'),
+  imports: [TTYModule],
 })
 export class ImgurAlbumDownloadService {
   constructor(

@@ -4,13 +4,13 @@
 
 // import {
 //   ConfigBuilderService,
-//   MainCLIModule,
+//   TTYModule,
 //   PromptService,
 // } from '@steggy/tty';
 // import { BootstrapOptions } from '@steggy/boilerplate';
 
 // export const BOOTSTRAP_OPTIONS: BootstrapOptions = {
-//   imports: [MainCLIModule],
+//   imports: [TTYModule],
 //   // nestNoopLogger: true,
 //   preInit: [
 //     async (app) => {

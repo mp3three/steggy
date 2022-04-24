@@ -1,0 +1,41 @@
+{
+  "root": "apps/lutron-relay",
+  "sourceRoot": "apps/lutron-relay/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "lutron-relay:build",
+        "inspect": "inspect",
+        "port": 33336
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "assets": [],
+        "outputPath": "dist/apps/lutron-relay",
+        "generatePackageJson": true,
+        "main": "apps/lutron-relay/src/entrypoints/main.ts",
+        "tsConfig": "apps/lutron-relay/tsconfig.app.json"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": false,
+          "inspect": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/lutron-relay/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    }
+  },
+  "tags": []
+}

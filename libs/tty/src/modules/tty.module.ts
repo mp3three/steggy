@@ -188,4 +188,4 @@ import {
     ThemeService,
   ],
 })
-export class MainCLIModule {}
+export class TTYModule {}

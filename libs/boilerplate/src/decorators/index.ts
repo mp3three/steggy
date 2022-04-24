@@ -10,3 +10,4 @@ export * from './schedule.decorator';
 export * from './single-call.decorator';
 export * from './string.decorator';
 export * from './try-catch.decorator';
+export * from './quick-script.decorator';

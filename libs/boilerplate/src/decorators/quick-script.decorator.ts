@@ -1,16 +1,15 @@
 import { Injectable, Provider } from '@nestjs/common';
-import {
-  AbstractConfig,
-  ApplicationModule,
-  ApplicationModuleMetadata,
-  AutoConfigService,
-  Bootstrap,
-  LibraryModule,
-} from '@steggy/boilerplate';
 import { is } from '@steggy/utilities';
 import { ClassConstructor } from 'class-transformer';
 
-import { MainCLIModule } from '../modules';
+import { AbstractConfig } from '../contracts';
+import { Bootstrap } from '../includes';
+import { AutoConfigService } from '../services';
+import {
+  ApplicationModule,
+  ApplicationModuleMetadata,
+} from './application-module.decorator';
+import { LibraryModule } from './library-module.decorator';
 
 /**
  * Magic timeout makes things work. Don't know why process.nextTick() isn't sufficient
@@ -43,7 +42,6 @@ export function QuickScript({
   // Add in the MainCLI module to enable TTY functionality
   options.imports ??= [];
   options.providers ??= [];
-  options.imports.push(MainCLIModule);
 
   // Corrective measures for loading metadata
   if (!is.empty(NX_PROJECT)) {
@@ -64,7 +62,13 @@ export function QuickScript({
           nestNoopLogger: true,
           noGlobalError: true,
           postInit: [
-            app => setTimeout(() => app.get(target).exec(), WAIT_TIME),
+            app =>
+              setTimeout(() => {
+                const provider = app.get(target);
+                if (is.function(provider.exec)) {
+                  provider.exec();
+                }
+              }, WAIT_TIME),
           ],
           prettyLog: true,
         }),

@@ -1,21 +1,17 @@
-import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
-import {
-  FormDTO,
-  FormioFetchService,
-  FormioSdkModule,
-} from '@steggy/formio';
+import { AutoLogService, InjectConfig, QuickScript } from '@steggy/boilerplate';
+import { FormDTO, FormioFetchService, FormioSdkModule } from '@steggy/formio';
 import {
   ApplicationManagerService,
   PromptService,
-  QuickScript,
   ToMenuEntry,
+  TTYModule,
 } from '@steggy/tty';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 @QuickScript({
   application: Symbol('form-migrations'),
-  imports: [FormioSdkModule],
+  imports: [FormioSdkModule, TTYModule],
 })
 export class FormMigrator {
   constructor(

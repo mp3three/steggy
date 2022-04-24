@@ -1,4 +1,5 @@
-import { PromptService, QuickScript, ScreenService } from '@steggy/tty';
+import { QuickScript } from '@steggy/boilerplate';
+import { PromptService, ScreenService, TTYModule } from '@steggy/tty';
 import chalk from 'chalk';
 import { Fonts, textSync } from 'figlet';
 
@@ -111,7 +112,9 @@ const ALL_FONTS = [
   'Whimsy',
 ] as Fonts[];
 
-@QuickScript()
+@QuickScript({
+  imports: [TTYModule],
+})
 export class FontSampler {
   constructor(
     private readonly promptService: PromptService,

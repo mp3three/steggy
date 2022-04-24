@@ -11,6 +11,7 @@
     "home-cli": "apps/home-cli",
     "home-configure": "apps/home-configure",
     "home-controller": "apps/home-controller",
+    "lutron-relay": "apps/lutron-relay",
     "mqtt": "libs/mqtt",
     "node-red-contrib-steggy": "libs/node-red-contrib-steggy",
     "persistence": "libs/persistence",

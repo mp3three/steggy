@@ -1,1 +1,1 @@
-export * from './main-cli.module';
+export * from './tty.module';

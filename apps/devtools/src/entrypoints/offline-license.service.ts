@@ -1,10 +1,10 @@
 import { InternalServerErrorException } from '@nestjs/common';
-import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
+import { AutoLogService, InjectConfig, QuickScript } from '@steggy/boilerplate';
 import {
   ApplicationManagerService,
   PromptService,
-  QuickScript,
   ScreenService,
+  TTYModule,
 } from '@steggy/tty';
 import { SINGLE } from '@steggy/utilities';
 import dayjs from 'dayjs';
@@ -15,6 +15,7 @@ import { sign } from 'jsonwebtoken';
 
 @QuickScript({
   application: Symbol('offline-license'),
+  imports: [TTYModule],
 })
 export class OfflineLicenseService {
   constructor(

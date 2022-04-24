@@ -1,5 +1,4 @@
-import { AutoLogService, InjectConfig } from '@steggy/boilerplate';
-import { QuickScript } from '@steggy/tty';
+import { AutoLogService, InjectConfig, QuickScript } from '@steggy/boilerplate';
 import { is, SINGLE } from '@steggy/utilities';
 import execa from 'execa';
 import { existsSync, readFileSync, writeFileSync } from 'fs';

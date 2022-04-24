@@ -4,7 +4,7 @@ import {
   InjectConfig,
   UtilitiesModule,
 } from '@steggy/boilerplate';
-import { CONFIG_APPLICATION_TITLE, MainCLIModule } from '@steggy/tty';
+import { CONFIG_APPLICATION_TITLE, TTYModule } from '@steggy/tty';
 
 import { APP_TITLE } from '../config';
 import {
@@ -57,7 +57,7 @@ import {
       useFactory: (title: string) => title,
     },
   ],
-  imports: [DiscoveryModule, MainCLIModule, UtilitiesModule.forRoot()],
+  imports: [DiscoveryModule, TTYModule, UtilitiesModule.forRoot()],
   providers: [
     ...[
       // domains/*

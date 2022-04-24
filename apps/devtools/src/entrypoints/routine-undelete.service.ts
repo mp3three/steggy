@@ -1,11 +1,11 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { AutoLogService, CastResult } from '@steggy/boilerplate';
+import { AutoLogService, CastResult, QuickScript } from '@steggy/boilerplate';
 import { RoutineDTO } from '@steggy/controller-shared';
 import { BaseMongoService, QuickConnectModule } from '@steggy/persistence';
 import {
   ApplicationManagerService,
   PromptService,
-  QuickScript,
+  TTYModule,
 } from '@steggy/tty';
 import { ResultControlDTO } from '@steggy/utilities';
 import chalk from 'chalk';
@@ -14,7 +14,7 @@ import { Document, Model } from 'mongoose';
 
 @QuickScript({
   application: Symbol('routine-undelete'),
-  imports: QuickConnectModule.forRoot([RoutineDTO]),
+  imports: [TTYModule, ...QuickConnectModule.forRoot([RoutineDTO])],
 })
 export class RoutineUndelete extends BaseMongoService {
   constructor(
