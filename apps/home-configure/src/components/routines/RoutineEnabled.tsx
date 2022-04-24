@@ -58,7 +58,7 @@ export class RoutineEnabled extends React.Component<
             defaultValue={this.props.routine.enable?.poll ?? 60 * 60}
             suffix="seconds"
             disabled={this.disablePolling}
-            onChange={({ target }) => this.setPolling(Number(target.value))}
+            onBlur={({ target }) => this.setPolling(Number(target.value))}
           />
         </Form.Item>
         <Divider orientation="left">Rules</Divider>

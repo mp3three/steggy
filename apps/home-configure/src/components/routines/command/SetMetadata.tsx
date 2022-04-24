@@ -303,8 +303,8 @@ export class SetRoomMetadataCommand extends React.Component<
           ) : (
             <Input
               type="number"
-              value={Number(this.props.command.value ?? SINGLE)}
-              onChange={({ target }) =>
+              defaultValue={Number(this.props.command.value ?? SINGLE)}
+              onBlur={({ target }) =>
                 this.props.onUpdate({ value: target.value })
               }
             />

@@ -39,8 +39,8 @@ export class SettingsPage extends React.Component<
                   <Card title="Connection Settings" type="inner">
                     <Form.Item label="Server Admin Key">
                       <Input.Password
-                        value={this.state.KEY}
-                        onChange={({ target }) =>
+                        defaultValue={this.state.KEY}
+                        onBlur={({ target }) =>
                           this.passwordUpdate(target.value)
                         }
                       />
@@ -48,8 +48,8 @@ export class SettingsPage extends React.Component<
                     <Form.Item label="Server Base URL">
                       <Input
                         placeholder="Leave blank for same domain / default operation"
-                        value={this.state.BASE}
-                        onChange={({ target }) =>
+                        defaultValue={this.state.BASE}
+                        onBlur={({ target }) =>
                           this.baseUrlUpdate(target.value)
                         }
                       />

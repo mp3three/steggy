@@ -31,8 +31,8 @@ export class TemplateComparison extends React.Component<
           <Form.Item label="Template">
             <Input.TextArea
               autoSize={{ maxRows: 20, minRows: 5 }}
-              value={this.props.comparison.template}
-              onChange={({ target }) =>
+              defaultValue={this.props.comparison.template}
+              onBlur={({ target }) =>
                 this.props.onUpdate({ template: target.value })
               }
             />

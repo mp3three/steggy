@@ -58,6 +58,7 @@
               "charset",
               "checkbox",
               "chrono",
+              "templating",
               "cipheriv",
               "cmp",
               "configurator",

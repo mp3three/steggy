@@ -36,3 +36,11 @@ services:
       - /path/to/config_file:/.pico-relayrc
     restart: unless-stopped
 ```
+
+### Finding Sensor IDs
+
+Example debug log line:
+
+> {"action":"~DEVICE","button":"4","direction":"4","id":"13"}
+
+The ID property ("13" in this example) is the value that can be used in the PICO_MAPPINGS config.

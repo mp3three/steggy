@@ -49,8 +49,8 @@ export class RoutineActivateCron extends React.Component<{
         </Form.Item>
         <Form.Item label="Manual">
           <Input
-            value={this.props.activate?.schedule}
-            onChange={({ target }) =>
+            defaultValue={this.props.activate?.schedule}
+            onBlur={({ target }) =>
               this.props.onUpdate({ schedule: target.value })
             }
           />

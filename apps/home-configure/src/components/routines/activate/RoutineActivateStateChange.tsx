@@ -103,9 +103,9 @@ export class RoutineActivateStateChange extends React.Component<
             }
           />
         </Form.Item>
-        <Form.Item label="Debouce">
+        <Form.Item label="Debounce">
           <InputNumber
-            value={this.props.activate?.debounce ?? -1}
+            defaultValue={this.props.activate?.debounce ?? -1}
             min={-1}
             onChange={debounce => this.props.onUpdate({ debounce })}
             addonAfter={'ms'}

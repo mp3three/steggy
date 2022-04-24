@@ -75,9 +75,10 @@ export class RoutineActivateKunami extends React.Component<
             <Form.Item label="States">
               <Input.TextArea
                 value={(this.props.activate?.match ?? []).join(`\n`)}
-                onChange={e =>
+                style={{ minHeight: '250px' }}
+                onBlur={({ target }) =>
                   this.props.onUpdate({
-                    match: e.target.value.split(`\n`),
+                    match: target.value.split(`\n`),
                   })
                 }
               />

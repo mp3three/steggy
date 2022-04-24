@@ -51,10 +51,8 @@ export class WebhookRequest extends React.Component<
         <Form.Item label="URL">
           <Input
             placeholder="http://some.domain/api/target"
-            value={this.props.webhook?.url}
-            onChange={({ target }) =>
-              this.props.onUpdate({ url: target.value })
-            }
+            defaultValue={this.props.webhook?.url}
+            onBlur={({ target }) => this.props.onUpdate({ url: target.value })}
           />
         </Form.Item>
         <Form.Item label="Method">
@@ -112,8 +110,8 @@ export class WebhookRequest extends React.Component<
               key="value"
               render={(i, record, index) => (
                 <Input
-                  value={i}
-                  onChange={({ target }) =>
+                  defaultValue={i}
+                  onBlur={({ target }) =>
                     this.props.onUpdate({
                       headers: this.props.webhook.headers.map(
                         ({ header, value }, index_) =>

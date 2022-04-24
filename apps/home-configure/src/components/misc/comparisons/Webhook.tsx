@@ -38,8 +38,8 @@ export class WebhookComparison extends React.Component<{
           </Form.Item>
           <Form.Item label="Object Path">
             <Input
-              value={this.props.comparison.property}
-              onChange={({ target }) => this.emit({ property: target.value })}
+              defaultValue={this.props.comparison.property}
+              onBlur={({ target }) => this.emit({ property: target.value })}
             />
           </Form.Item>
           <Divider orientation="left">Comparison</Divider>

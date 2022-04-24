@@ -53,8 +53,8 @@ export class RelativeDate extends React.Component<{
           </Form.Item>
           <Form.Item label="Expression">
             <Input
-              value={this.props.comparison.expression}
-              onChange={({ target }) =>
+              defaultValue={this.props.comparison.expression}
+              onBlur={({ target }) =>
                 this.props.onUpdate({ expression: target.value })
               }
             />
