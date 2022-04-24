@@ -5,11 +5,10 @@
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
-        "security/detect-object-injection": "off",
-        "no-console": "off"
+        "@typescript-eslint/no-magic-numbers": "off"
       },
       "parserOptions": {
-        "project": ["apps/lutron-relay/tsconfig.app.json"]
+        "project": ["apps/pico-relay/tsconfig.app.json"]
       }
     },
     {

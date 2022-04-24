@@ -1,9 +1,9 @@
 {
-  "name": "@steggy/lutron-relay",
+  "name": "@steggy/pico-relay",
   "license": "MIT",
   "description": "",
   "main": "main.js",
-  "displayName": "Devtools",
+  "displayName": "Pico Relay",
   "author": {
     "email": "git@programmable.work",
     "name": "Cameron Contour"

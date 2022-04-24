@@ -1,12 +1,12 @@
 {
-  "root": "apps/lutron-relay",
-  "sourceRoot": "apps/lutron-relay/src",
+  "root": "apps/pico-relay",
+  "sourceRoot": "apps/pico-relay/src",
   "projectType": "application",
   "targets": {
     "serve": {
       "executor": "@nrwl/node:node",
       "options": {
-        "buildTarget": "lutron-relay:build",
+        "buildTarget": "pico-relay:build",
         "inspect": "inspect",
         "port": 33338
       }
@@ -16,10 +16,10 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "assets": [],
-        "outputPath": "dist/apps/lutron-relay",
+        "outputPath": "dist/apps/pico-relay",
         "generatePackageJson": true,
-        "main": "apps/lutron-relay/src/main.ts",
-        "tsConfig": "apps/lutron-relay/tsconfig.app.json"
+        "main": "apps/pico-relay/src/main.ts",
+        "tsConfig": "apps/pico-relay/tsconfig.app.json"
       },
       "configurations": {
         "production": {
@@ -32,9 +32,21 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["apps/lutron-relay/**/*.ts"]
+        "lintFilePatterns": ["apps/pico-relay/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
+    },
+    "build-docker": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "./tools/scripts/docker-build-publish.sh pico-relay",
+            "description": "Assemble docker image"
+          }
+        ]
+      }
     }
   },
   "tags": []

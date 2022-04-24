@@ -49,7 +49,7 @@
     { "path": "./apps/home-cli/tsconfig.json" },
     { "path": "./apps/home-configure/tsconfig.json" },
     { "path": "./apps/home-controller/tsconfig.json" },
-    { "path": "./apps/lutron-relay/tsconfig.json" },
+    { "path": "./apps/pico-relay/tsconfig.json" },
     { "path": "./libs/boilerplate/tsconfig.json" },
     { "path": "./libs/controller-shared/tsconfig.json" },
     { "path": "./libs/formio/tsconfig.json" },

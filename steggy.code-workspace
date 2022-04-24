@@ -59,7 +59,7 @@
       ".pino-prettyrc": "json",
       "home-controller": "ini",
       "home-cli": "ini",
-      "lutron-relay": "ini",
+      "pico-relay": "ini",
       "devtools": "ini"
     },
     "files.exclude": {

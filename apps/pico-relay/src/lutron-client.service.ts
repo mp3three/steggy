@@ -36,10 +36,7 @@ export class LutronClientService {
 
   protected onModuleInit(): void {
     if (is.empty(this.host)) {
-      this.logger.info({
-        config: this.config.config,
-      });
-      this.logger.error(`No host`);
+      this.logger.error(`No host provided`);
       return;
     }
     this.socket = new Socket();
@@ -47,6 +44,7 @@ export class LutronClientService {
     this.socket.on('connect', () => this.onConnect());
     this.socket.on('data', data => this.onData(data));
     this.socket.on('error', error => this.onError(error));
+    this.logger.info(`Connecting`);
     this.connect();
   }
 
@@ -74,7 +72,7 @@ export class LutronClientService {
       if (this.connected) {
         return;
       }
-      this.logger.debug(`Reconnecting`);
+      this.logger.info(`Reconnecting`);
       this.connect();
     }, this.reconnectInterval);
   }
@@ -84,7 +82,7 @@ export class LutronClientService {
   }
 
   private onConnect(): void {
-    this.logger.debug(`Connected`);
+    this.logger.info(`Connected`);
     this.connected = true;
     this.authenticated = false;
   }
@@ -97,7 +95,6 @@ export class LutronClientService {
         if (is.empty(line)) {
           return;
         }
-        this.logger.info(line);
         if (!this.authenticated) {
           this.authenticate(line);
           return;
