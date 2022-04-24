@@ -87,7 +87,7 @@ const translation = new Map([
   },
   providers: [LutronClientService],
 })
-export class LutronRelay {
+export class PicoRelay {
   constructor(
     private readonly logger: AutoLogService,
     @InjectConfig(PICO_MAPPINGS)
