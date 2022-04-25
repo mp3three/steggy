@@ -42,7 +42,8 @@ import {
 import { NOT_FOUND } from '@steggy/utilities';
 import { v4 as uuid } from 'uuid';
 
-import { RoutineService } from '../services';
+import { RecorderService, RoutineService } from '../services';
+import { RoutineTriggerEvent } from '../typings';
 
 @Controller(`/routine`)
 @AuthStack()
@@ -60,7 +61,10 @@ import { RoutineService } from '../services';
   RoutineCommandGroupStateDTO,
 )
 export class RoutineController {
-  constructor(private readonly routineService: RoutineService) {}
+  constructor(
+    private readonly routineService: RoutineService,
+    private readonly recorderService: RecorderService,
+  ) {}
 
   @Post('/:routine')
   @ApiGenericResponse()
@@ -196,6 +200,12 @@ export class RoutineController {
     @Locals() { control }: ResponseLocals,
   ): Promise<RoutineDTO[]> {
     return await this.routineService.list(control);
+  }
+
+  @Get('/recent-activations')
+  @ApiResponse({ type: [RoutineTriggerEvent] })
+  public async recentActivations(): Promise<RoutineTriggerEvent[]> {
+    return await this.recorderService.recentRoutines();
   }
 
   @Post('/:routine/command/:command')
