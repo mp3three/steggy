@@ -8,5 +8,8 @@
   "author": {
     "email": "git@programmable.work",
     "name": "Cameron Contour"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }

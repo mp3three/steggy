@@ -8,5 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/ccontour/steggy.git"
   },
-  "dependencies": {}
+  "engines": {
+    "node": ">=16.0.0"
+  }
 }
