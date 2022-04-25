@@ -30,7 +30,7 @@ export async function eachSeries<T = unknown>(
  */
 export async function eachLimit<T = unknown>(
   items: T[],
-  callback: (item: T) => Promise<void>,
+  callback: (item: T) => Promise<void | unknown>,
   limit: number = Number.POSITIVE_INFINITY,
 ): Promise<void> {
   if (is.empty(items)) {

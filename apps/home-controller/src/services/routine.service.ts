@@ -52,8 +52,10 @@ import {
   sleep,
 } from '@steggy/utilities';
 import dayjs from 'dayjs';
+import EventEmitter from 'eventemitter3';
 import { v4 as uuid, v4 } from 'uuid';
 
+import { ROUTINE_ACTIVATE, RoutineTriggerEvent } from '../typings';
 import {
   AttributeChangeActivateService,
   DeviceTriggerActivateService,
@@ -132,6 +134,7 @@ export class RoutineService {
     @Inject(forwardRef(() => InternalEventChangeService))
     private readonly internalEventActivate: InternalEventChangeService,
     private readonly deviceTriggerActivate: DeviceTriggerActivateService,
+    private readonly eventEmitter: EventEmitter,
   ) {}
 
   private readonly runQueue = new Map<string, (() => void)[]>();
@@ -242,6 +245,12 @@ export class RoutineService {
     routine = await this.get(routine);
     const runId = await this.interruptCheck(routine, options);
     this.logger.info({ runId }, `[${routine.friendlyName}] activate`);
+    this.eventEmitter.emit(ROUTINE_ACTIVATE, {
+      routine: routine._id,
+      runId,
+      source: options.source,
+      time: Date.now(),
+    } as RoutineTriggerEvent);
     let aborted = false;
     waitForChange ??=
       routine.sync ||

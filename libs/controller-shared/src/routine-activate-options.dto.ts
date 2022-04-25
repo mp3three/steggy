@@ -7,6 +7,10 @@ export class RoutineActivateOptionsDTO {
   @ApiProperty({ required: false })
   public bypassRepeat?: boolean;
   @IsOptional()
+  @IsDateString()
+  @ApiProperty({ required: false })
+  public source?: string;
+  @IsOptional()
   @IsNumber()
   @ApiProperty({ required: false })
   public timeout?: number;
