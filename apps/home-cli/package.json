@@ -2,10 +2,6 @@
   "bin": {
     "home-cli": "main.js"
   },
-  "dependencies": {
-    "eventemitter3": "^4.0.7",
-    "pino-pretty": "^5.1.1"
-  },
   "name": "@steggy/home-cli",
   "license": "MIT",
   "main": "main.js",

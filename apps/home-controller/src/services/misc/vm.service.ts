@@ -1,6 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
-import moment from 'moment';
 import { VM } from 'vm2';
 
 import { RoomService } from '../room.service';
@@ -21,7 +20,6 @@ export class VMService {
       fixAsync: true,
       sandbox: {
         dayjs,
-        moment,
         ...(await this.roomService.buildMetadata()),
         ...parameters,
       },

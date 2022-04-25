@@ -8,8 +8,5 @@
   "author": {
     "email": "git@programmable.work",
     "name": "Cameron Contour"
-  },
-  "dependencies": {
-    "pino-pretty": "^7.6.0"
   }
 }

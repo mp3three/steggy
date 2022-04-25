@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers, radar/no-duplicate-string */
+// import is required for proper dependency generation in package.json for builds
+import 'pino-pretty';
 
 import { is } from '@steggy/utilities';
 import chalk from 'chalk';
