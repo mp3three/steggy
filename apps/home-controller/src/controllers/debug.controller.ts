@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { DebugReportDTO } from '@steggy/controller-shared';
+import { DebugReportDTO, RoutineTriggerEvent } from '@steggy/controller-shared';
 import {
   HACallService,
   HASocketAPIService,
@@ -16,6 +16,7 @@ import {
 import {
   DebuggerService,
   NodeRedCommand,
+  RecorderService,
   RoutineEnabledService,
   SolarCalcService,
 } from '../services';
@@ -25,13 +26,14 @@ import {
 @AuthStack()
 export class DebugController {
   constructor(
+    private readonly callService: HACallService,
     private readonly debugService: DebuggerService,
+    private readonly nodeRed: NodeRedCommand,
     private readonly notification: NotifyDomainService,
+    private readonly recorderService: RecorderService,
+    private readonly routineEnabled: RoutineEnabledService,
     private readonly socketService: HASocketAPIService,
     private readonly solarCalc: SolarCalcService,
-    private readonly callService: HACallService,
-    private readonly routineEnabled: RoutineEnabledService,
-    private readonly nodeRed: NodeRedCommand,
   ) {}
 
   @Delete(`/notification/:id`)
@@ -98,6 +100,12 @@ export class DebugController {
   @Get(`/node-red/commands`)
   public async nodeRedCommands(): Promise<Record<'id' | 'name', string>[]> {
     return await this.nodeRed.listAvailable();
+  }
+
+  @Get('/recent-activations')
+  @ApiResponse({ type: [RoutineTriggerEvent] })
+  public async recentActivations(): Promise<RoutineTriggerEvent[]> {
+    return await this.recorderService.recentRoutines();
   }
 
   @Post('/reload')

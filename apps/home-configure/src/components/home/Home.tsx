@@ -1,5 +1,7 @@
-import { Card, Col, Layout, Row, Skeleton } from 'antd';
+import { Col, Layout, Row } from 'antd';
 import React from 'react';
+
+import { RecentActivations } from './RecentActivations';
 
 export class HomePage extends React.Component {
   override render() {
@@ -8,9 +10,7 @@ export class HomePage extends React.Component {
         <Layout.Content style={{ padding: '16px' }}>
           <Row>
             <Col span={12}>
-              <Card title="Quick Access">
-                <Skeleton />
-              </Card>
+              <RecentActivations />
             </Col>
           </Row>
         </Layout.Content>

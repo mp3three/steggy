@@ -13,9 +13,3 @@ export interface MetadataUpdate {
   room?: string;
   value: unknown;
 }
-export class RoutineTriggerEvent {
-  public routine: string;
-  public runId: string;
-  public source: string;
-  public time: number;
-}

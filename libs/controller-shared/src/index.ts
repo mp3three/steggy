@@ -14,6 +14,7 @@ export * from './room-controller';
 export * from './rooms';
 export * from './routine-activate-options.dto';
 export * from './routine-capture.dto';
+export * from './routine-trigger-event.dto';
 export * from './routines';
 export * from './schemas';
 export * from './update-entity-id.dto';

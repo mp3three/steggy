@@ -5,7 +5,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
-import { RoutineCommandTriggerRoutineDTO } from '@steggy/controller-shared';
+import {
+  RoutineCommandTriggerRoutineDTO,
+  RoutineDTO,
+} from '@steggy/controller-shared';
 
 import { RoutineEnabledService } from '../activate';
 import { RoutineService } from '../routine.service';
@@ -22,25 +25,28 @@ export class RoutineTriggerService {
 
   public async activate(
     command: RoutineCommandTriggerRoutineDTO,
+    routine: RoutineDTO,
     waitForChange = false,
   ): Promise<void> {
-    const routine = await this.routineService.get(command.routine);
-    if (!routine) {
+    const target = await this.routineService.get(command.routine);
+    if (!target) {
       throw new NotFoundException(`Could not find routine`);
     }
     if (!command.ignoreEnabled) {
-      const isEnabled = this.routineEnabled.ACTIVE_ROUTINES.has(routine._id);
+      const isEnabled = this.routineEnabled.ACTIVE_ROUTINES.has(target._id);
       if (!isEnabled) {
         this.logger.debug(
-          `Attempted to trigger disabled routine [${routine.friendlyName}]`,
+          `Attempted to trigger disabled routine [${target.friendlyName}]`,
         );
         return;
       }
     }
-    this.logger.debug(`Routine trigger {${routine.friendlyName}}`);
+    this.logger.debug(`Routine trigger {${target.friendlyName}}`);
     await this.routineService.activateRoutine(
-      routine,
-      undefined,
+      target,
+      {
+        source: routine.friendlyName,
+      },
       waitForChange,
     );
   }

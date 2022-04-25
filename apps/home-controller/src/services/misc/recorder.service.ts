@@ -3,11 +3,14 @@ import {
   AutoLogService,
   CacheManagerService,
   InjectCache,
+  InjectConfig,
   OnEvent,
 } from '@steggy/boilerplate';
-import { eachLimit } from '@steggy/utilities';
+import { RoutineTriggerEvent } from '@steggy/controller-shared';
+import { eachLimit } from 'async';
 
-import { ROUTINE_ACTIVATE, RoutineTriggerEvent } from '../../typings';
+import { RECENT_ROUTINE_TTL } from '../../config';
+import { ROUTINE_ACTIVATE } from '../../typings';
 
 const ROUTINE_KEY_PREFIX = 'RECORDER_';
 const ROUTINE_CACHE_KEY = ({ runId }: RoutineTriggerEvent) =>
@@ -20,16 +23,16 @@ export class RecorderService {
     private readonly logger: AutoLogService,
     @InjectCache()
     private readonly cacheService: CacheManagerService,
+    @InjectConfig(RECENT_ROUTINE_TTL) private readonly ttl: number,
   ) {}
 
   public async recentRoutines(): Promise<RoutineTriggerEvent[]> {
-    const list: string[] = await this.cacheService.store.keys('RECORDER_*');
+    const list: string[] = await this.cacheService.store.keys(
+      `${ROUTINE_KEY_PREFIX}*`,
+    );
     const out: RoutineTriggerEvent[] = [];
-    await eachLimit(
-      list,
-      async key =>
-        out.push(await this.cacheService.get<RoutineTriggerEvent>(key)),
-      LOAD_CHUNKS,
+    await eachLimit(list, LOAD_CHUNKS, async key =>
+      out.push(await this.cacheService.get<RoutineTriggerEvent>(key)),
     );
     return out;
   }
@@ -38,7 +41,9 @@ export class RecorderService {
   protected async trackRoutineActivation(
     details: RoutineTriggerEvent,
   ): Promise<void> {
-    await this.cacheService.set(ROUTINE_CACHE_KEY(details), details);
+    await this.cacheService.set(ROUTINE_CACHE_KEY(details), details, {
+      ttl: this.ttl,
+    });
     this.recentRoutines();
   }
 }

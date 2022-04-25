@@ -17,7 +17,10 @@ export class RoutineInspectButton extends React.Component<{
   override render() {
     return (
       <>
-        <Button type="text" onClick={() => this.setState({ visible: true })}>
+        <Button
+          type={this.state.visible ? 'primary' : 'text'}
+          onClick={() => this.setState({ visible: true })}
+        >
           {this.props.routine?.friendlyName}
         </Button>
         <Drawer
@@ -27,6 +30,7 @@ export class RoutineInspectButton extends React.Component<{
           onClose={() => this.setState({ visible: false })}
         >
           <RoutineListDetail
+            nested
             routine={this.props.routine}
             onUpdate={update => this.props.onUpdate(update)}
           />

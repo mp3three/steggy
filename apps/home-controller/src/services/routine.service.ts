@@ -38,6 +38,7 @@ import {
   RoutineCommandTriggerRoutineDTO,
   RoutineCommandWebhookDTO,
   RoutineDTO,
+  RoutineTriggerEvent,
   ScheduleActivateDTO,
   SequenceActivateDTO,
   SetRoomMetadataCommandDTO,
@@ -55,7 +56,7 @@ import dayjs from 'dayjs';
 import EventEmitter from 'eventemitter3';
 import { v4 as uuid, v4 } from 'uuid';
 
-import { ROUTINE_ACTIVATE, RoutineTriggerEvent } from '../typings';
+import { ROUTINE_ACTIVATE } from '../typings';
 import {
   AttributeChangeActivateService,
   DeviceTriggerActivateService,
@@ -213,6 +214,7 @@ export class RoutineService {
       case ROUTINE_ACTIVATE_COMMAND.trigger_routine:
         await this.triggerService.activate(
           command.command as RoutineCommandTriggerRoutineDTO,
+          routine,
           waitForChange,
         );
         break;
@@ -386,61 +388,63 @@ export class RoutineService {
         return;
       }
       this.logger.debug(` - {${activate.friendlyName}}`);
+      const callback = async () =>
+        await this.activateRoutine(routine, { source: activate.id });
       switch (activate.type) {
         case ROUTINE_ACTIVATE_TYPE.internal_event:
           this.internalEventActivate.watch(
             routine,
             activate.activate as InternalEventActivateDTO,
-            async () => await this.activateRoutine(routine),
+            callback,
           );
           return;
         case ROUTINE_ACTIVATE_TYPE.device_trigger:
           this.deviceTriggerActivate.watch(
             routine,
             activate.activate as DeviceTriggerActivateDTO,
-            async () => await this.activateRoutine(routine),
+            callback,
           );
           return;
         case ROUTINE_ACTIVATE_TYPE.attribute:
           this.attributeChangeService.watch(
             routine,
             activate.activate as AttributeChangeActivateDTO,
-            async () => await this.activateRoutine(routine),
+            callback,
           );
           return;
         case ROUTINE_ACTIVATE_TYPE.solar:
           this.solarService.watch(
             routine,
             activate.activate as SolarActivateDTO,
-            async () => await this.activateRoutine(routine),
+            callback,
           );
           return;
         case ROUTINE_ACTIVATE_TYPE.kunami:
           this.sequenceActivate.watch(
             routine,
             activate.activate as SequenceActivateDTO,
-            async () => await this.activateRoutine(routine),
+            callback,
           );
           return;
         case ROUTINE_ACTIVATE_TYPE.state_change:
           this.stateChangeActivate.watch(
             routine,
             activate.activate as StateChangeActivateDTO,
-            async () => await this.activateRoutine(routine),
+            callback,
           );
           return;
         case ROUTINE_ACTIVATE_TYPE.schedule:
           this.scheduleActivate.watch(
             routine,
             activate.activate as ScheduleActivateDTO,
-            async () => await this.activateRoutine(routine),
+            callback,
           );
           return;
         case ROUTINE_ACTIVATE_TYPE.room_metadata:
           this.metadataChangeService.watch(
             routine,
             activate as RoutineActivateDTO<MetadataChangeDTO>,
-            async () => await this.activateRoutine(routine),
+            callback,
           );
           return;
       }

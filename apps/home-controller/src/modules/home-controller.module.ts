@@ -20,6 +20,7 @@ import {
   NODE_RED_URL,
   NOTIFY_CONNECTION_RESET,
   NOTIFY_UNAVAILABLE_DURATION,
+  RECENT_ROUTINE_TTL,
   SAFE_MODE,
   SECRETS_FILE,
   SEQUENCE_TIMEOUT,
@@ -174,6 +175,12 @@ const providers = [
       // 4 hours = 1000 * 60 * 60 * 4
       default: 14_400_000,
       description: 'Raise error if entity is unavailable for this long',
+      type: 'number',
+    },
+    [RECENT_ROUTINE_TTL]: {
+      // 3 days (measured in seconds)
+      default: 259_200,
+      description: 'How long to track recent routine activations for',
       type: 'number',
     },
     [SAFE_MODE]: {
