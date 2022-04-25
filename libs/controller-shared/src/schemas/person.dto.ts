@@ -13,6 +13,7 @@ import {
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
 import { RoomMetadataDTO } from '../meta';
+import { PinnedItemDTO } from '../pinned-item.dto';
 import { RoomStateDTO } from '../rooms';
 import { RoomEntityDTO } from './room.dto';
 
@@ -94,8 +95,18 @@ export class PersonDTO {
    */
   @IsOptional()
   @IsString()
+  @ApiProperty({ required: false })
   @Prop()
   public name?: string;
+
+  /**
+   * For UI purposes. Track frequently accessed items
+   */
+  @IsOptional()
+  @Prop()
+  @ApiProperty({ required: false })
+  @ValidateNested({ each: true })
+  public pinned_items?: PinnedItemDTO[];
 
   /**
    * Reference to room entries
