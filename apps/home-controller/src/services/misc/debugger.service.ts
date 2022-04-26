@@ -6,6 +6,7 @@ import {
   GeneralSaveStateDTO,
   GroupDTO,
   MetadataComparisonDTO,
+  PersonDTO,
   RoomDTO,
   RoutineActivateDTO,
   RoutineCommandGroupActionDTO,
@@ -21,6 +22,7 @@ import { EntityManagerService } from '@steggy/home-assistant';
 import { is } from '@steggy/utilities';
 
 import { GroupService } from '../group.service';
+import { PersonService } from '../person.service';
 import { RoomService } from '../room.service';
 import { RoutineService } from '../routine.service';
 
@@ -39,6 +41,7 @@ export class DebuggerService {
     private readonly entityManager: EntityManagerService,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineService: RoutineService,
+    private readonly personService: PersonService,
   ) {}
 
   /**
@@ -97,6 +100,7 @@ export class DebuggerService {
   public async findRoutines(): Promise<RoutineDTO[]> {
     const routineList = await this.routineService.list();
     const roomList = await this.roomService.list({ select: [] });
+    const personList = await this.personService.list({ select: [] });
     const groupList = await this.groupService.list({ select: [] });
     const entities = this.entityManager.listEntities();
     const groups = new Set(groupList.map(({ _id }) => _id));
@@ -126,6 +130,7 @@ export class DebuggerService {
       }
       return !routine.command.every(command => {
         let room: RoomDTO;
+        let person: PersonDTO;
         let exists = true;
         switch (command.type) {
           // GROUP STUFF
@@ -232,8 +237,44 @@ export class DebuggerService {
             }
             return exists;
 
-          // ROOM METADATA
-          case 'set_room_metadata':
+          // SET METADATA
+          case 'set_metadata':
+            if (
+              (command.command as SetRoomMetadataCommandDTO).type === 'person'
+            ) {
+              person = personList.find(
+                ({ _id }) =>
+                  _id ===
+                  ((command.command as SetRoomMetadataCommandDTO)
+                    .room as string),
+              );
+              if (!person) {
+                this.logger.warn(
+                  `Routine command [${routine.friendlyName}]>[${
+                    command.friendlyName
+                  }] refers to metadata from missing person {${
+                    (command.command as SetRoomMetadataCommandDTO).room
+                  }}`,
+                );
+                return false;
+              }
+              exists = person.metadata.some(
+                ({ name }) =>
+                  name ===
+                  ((command.command as SetRoomMetadataCommandDTO)
+                    .name as string),
+              );
+              if (!exists) {
+                this.logger.warn(
+                  `Routine command [${routine.friendlyName}]>[${
+                    command.friendlyName
+                  }] refers to missing metadata {${
+                    (command.command as RoutineCommandRoomStateDTO).room
+                  }} in person [${person.friendlyName}]`,
+                );
+              }
+              return exists;
+            }
             room = roomList.find(
               ({ _id }) =>
                 _id ===

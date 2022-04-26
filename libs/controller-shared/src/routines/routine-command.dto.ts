@@ -26,7 +26,7 @@ export type ActivateCommand =
   | 'restore_state'
   | 'room_state'
   | 'send_notification'
-  | 'set_room_metadata'
+  | 'set_metadata'
   | 'sleep'
   | 'stop_processing'
   | 'trigger_routine'
@@ -43,7 +43,7 @@ export enum ROUTINE_ACTIVATE_COMMAND {
   restore_state = 'restore_state',
   room_state = 'room_state',
   send_notification = 'send_notification',
-  set_room_metadata = 'set_room_metadata',
+  set_metadata = 'set_metadata',
   sleep = 'sleep',
   stop_processing = 'stop_processing',
   trigger_routine = 'trigger_routine',

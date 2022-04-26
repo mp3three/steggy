@@ -61,7 +61,7 @@ export const ROUTINE_COMMAND_LIST = [
   },
   {
     description: 'Update metadata for a person/room',
-    name: 'Set Metadata',
-    type: 'set_room_metadata',
+    name: 'Metadata Set',
+    type: 'set_metadata',
   },
 ].sort((a, b) => (a.name > b.name ? UP : DOWN)) as listItem[];

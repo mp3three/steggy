@@ -134,7 +134,7 @@ export class RoutineCommandDrawer extends React.Component<{
             }
           />
         );
-      case 'set_room_metadata':
+      case 'set_metadata':
         return (
           <SetRoomMetadataCommand
             onUpdate={this.onUpdate.bind(this)}

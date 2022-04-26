@@ -230,7 +230,7 @@ export class RoomMetadata extends React.Component<
         filters: new Set([
           {
             field: 'command.type',
-            value: 'set_room_metadata',
+            value: 'set_metadata',
           },
           {
             field: 'command.command.name',

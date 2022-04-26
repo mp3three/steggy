@@ -34,7 +34,7 @@ Send a notification through Home Assistant. Will be delivered through Home Assis
 
 Update the value of a room metadata property
 
-[![Set Room Metadata Command](images/set_room_metadata.routine.png)](images/set_room_metadata.routine.png)
+[![Set Room Metadata Command](images/set_metadata.routine.png)](images/set_metadata.routine.png)
 
 ## Trigger Routine
 

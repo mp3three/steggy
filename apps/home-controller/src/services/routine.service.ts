@@ -199,7 +199,7 @@ export class RoutineService {
           command.command as RoutineCommandNodeRedDTO,
         );
         break;
-      case ROUTINE_ACTIVATE_COMMAND.set_room_metadata:
+      case ROUTINE_ACTIVATE_COMMAND.set_metadata:
         await this.setMetadataService.activate(
           command.command as SetRoomMetadataCommandDTO,
           runId,
