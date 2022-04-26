@@ -37,10 +37,7 @@ export class RecentActivations extends React.Component {
           </>
         }
       >
-        <Table
-          dataSource={this.state.events}
-          pagination={{ pageSize: 5, size: 'small' }}
-        >
+        <Table dataSource={this.state.events} pagination={{ size: 'small' }}>
           <Table.Column
             title="Time"
             key="time"
