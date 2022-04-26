@@ -2,6 +2,7 @@ import { RoomDTO } from '@steggy/controller-shared';
 import { Button, Drawer } from 'antd';
 import React from 'react';
 
+import { RoomExtraActions } from './RoomExtraActions';
 import { RoomListDetail } from './RoomListDetail';
 
 type tState = {
@@ -27,6 +28,12 @@ export class RoomInsectButton extends React.Component<
           title="Room Details"
           size="large"
           visible={this.state.visible}
+          extra={
+            <RoomExtraActions
+              room={this.props.room}
+              onUpdate={this.props.onUpdate}
+            />
+          }
           onClose={() => this.setState({ visible: false })}
         >
           <RoomListDetail

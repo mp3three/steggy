@@ -2,6 +2,7 @@ import { RoutineDTO } from '@steggy/controller-shared';
 import { Button, Drawer } from 'antd';
 import React from 'react';
 
+import { RoutineExtraActions } from './RoutineExtraActions';
 import { RoutineListDetail } from './RoutineListDetail';
 
 type tState = {
@@ -26,6 +27,12 @@ export class RoutineInspectButton extends React.Component<{
         <Drawer
           title="Routine Details"
           size="large"
+          extra={
+            <RoutineExtraActions
+              routine={this.props.routine}
+              onUpdate={this.props.onUpdate}
+            />
+          }
           visible={this.state.visible}
           onClose={() => this.setState({ visible: false })}
         >

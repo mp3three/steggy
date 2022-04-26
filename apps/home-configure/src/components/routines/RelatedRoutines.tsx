@@ -10,6 +10,7 @@ import React from 'react';
 
 import { RELATED_ROUTINES, sendRequest } from '../../types';
 import { RoomStateEdit } from '../rooms/states';
+import { RoutineExtraActions } from './RoutineExtraActions';
 import { RoutineListDetail } from './RoutineListDetail';
 
 type list = { room: RoomDTO; state: RoomStateDTO }[];
@@ -88,6 +89,12 @@ export class RelatedRoutines extends React.Component<
         <Drawer
           title="Edit routine"
           size="large"
+          extra={
+            <RoutineExtraActions
+              routine={this.state.routine}
+              onUpdate={routine => this.updateRoutine(routine)}
+            />
+          }
           onClose={() => this.setState({ routine: undefined })}
           visible={!is.undefined(this.state.routine)}
         >
