@@ -11,11 +11,13 @@ import LightbulbGroupOutline from '@2fd/ant-design-icons/lib/LightbulbGroupOutli
 import Magnify from '@2fd/ant-design-icons/lib/Magnify';
 import Menu from '@2fd/ant-design-icons/lib/Menu';
 import NaturePeople from '@2fd/ant-design-icons/lib/NaturePeople';
+import Pin from '@2fd/ant-design-icons/lib/Pin';
+import PinOutline from '@2fd/ant-design-icons/lib/PinOutline';
 import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
+import RefreshCircle from '@2fd/ant-design-icons/lib/RefreshCircle';
 import StepForward from '@2fd/ant-design-icons/lib/StepForward';
 import TimelinePlus from '@2fd/ant-design-icons/lib/TimelinePlus';
 import { HomeOutlined, SettingOutlined } from '@ant-design/icons';
-
 type iconTypes =
   | 'clone'
   | 'entities'
@@ -30,7 +32,10 @@ type iconTypes =
   | 'metadata'
   | 'people'
   | 'plus_box'
+  | 'refresh'
   | 'remove'
+  | 'pin'
+  | 'pin_off'
   | 'rooms'
   | 'routines'
   | 'run'
@@ -51,10 +56,13 @@ export const FD_ICONS = new Map<iconTypes, JSX.Element>([
   ['magnify', <Magnify />],
   ['menu', <Menu />],
   ['metadata', <ApplicationVariable />],
+  ['refresh', <RefreshCircle />],
   ['people', <NaturePeople />],
   ['plus_box', <PlusBoxMultiple />],
   ['remove', <CardRemove />],
   ['rooms', <BulletinBoard />],
+  ['pin', <Pin />],
+  ['pin_off', <PinOutline />],
   ['routines', <HomeAutomation />],
   ['run', <DebugStepInto />],
   ['settings', <SettingOutlined />],

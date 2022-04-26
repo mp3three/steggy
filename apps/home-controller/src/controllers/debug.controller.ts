@@ -12,6 +12,7 @@ import {
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
 } from '@steggy/server';
+import { DOWN, UP } from '@steggy/utilities';
 
 import {
   DebuggerService,
@@ -105,7 +106,8 @@ export class DebugController {
   @Get('/recent-activations')
   @ApiResponse({ type: [RoutineTriggerEvent] })
   public async recentActivations(): Promise<RoutineTriggerEvent[]> {
-    return await this.recorderService.recentRoutines();
+    const list = await this.recorderService.recentRoutines();
+    return list.sort((a, b) => (a.time < b.time ? UP : DOWN));
   }
 
   @Post('/reload')

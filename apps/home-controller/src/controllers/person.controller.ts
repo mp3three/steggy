@@ -265,6 +265,32 @@ export class PersonController {
     return out;
   }
 
+  @Post(`/:person/pin/:type/:target`)
+  @ApiResponse({ type: PersonDTO })
+  public async itemPin(
+    @Param('person')
+    person: string,
+    @Param('type')
+    type: string,
+    @Param('target')
+    target: string,
+  ): Promise<PersonDTO> {
+    return await this.personService.itemPin(person, type, target);
+  }
+
+  @Delete(`/:person/pin/:type/:target`)
+  @ApiResponse({ type: PersonDTO })
+  public async itemUnpin(
+    @Param('person')
+    person: string,
+    @Param('type')
+    type: string,
+    @Param('target')
+    target: string,
+  ): Promise<PersonDTO> {
+    return await this.personService.itemUnpin(person, type, target);
+  }
+
   @Get('/')
   @ApiResponse({ type: [PersonDTO] })
   @ApiOperation({

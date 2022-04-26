@@ -3,6 +3,7 @@ import { Button, Drawer } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
+import { GroupExtraActions } from './GroupExtraActions';
 import { GroupListDetail } from './GroupListDetail';
 
 type tState = {
@@ -23,6 +24,12 @@ export class GroupInspectButton extends React.Component<
           onClose={() => this.setState({ visible: false })}
           title="Group Settings"
           size="large"
+          extra={
+            <GroupExtraActions
+              group={this.props.group}
+              onUpdate={group => this.props.onUpdate(group)}
+            />
+          }
         >
           <GroupListDetail
             type="inner"

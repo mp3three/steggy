@@ -332,6 +332,30 @@ export class PersonService {
     return person;
   }
 
+  public async itemPin(
+    person: string | PersonDTO,
+    type: string,
+    target: string,
+  ): Promise<PersonDTO> {
+    person = await this.get(person);
+    person.pinned_items ??= [];
+    person.pinned_items.push({ target, type });
+    return await this.update(person, person._id);
+  }
+
+  public async itemUnpin(
+    person: string | PersonDTO,
+    type: string,
+    target: string,
+  ): Promise<PersonDTO> {
+    person = await this.get(person);
+    person.pinned_items ??= [];
+    person.pinned_items = person.pinned_items.filter(
+      item => !(item.target === target && item.type === type),
+    );
+    return await this.update(person, person._id);
+  }
+
   public async list(control: ResultControlDTO = {}): Promise<PersonDTO[]> {
     return await this.personPersistence.findMany(control);
   }

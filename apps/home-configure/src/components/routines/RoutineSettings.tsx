@@ -3,13 +3,17 @@ import { is } from '@steggy/utilities';
 import {
   Card,
   Checkbox,
+  Descriptions,
   Divider,
+  Popover,
   Select,
   Space,
   Tooltip,
   Typography,
 } from 'antd';
 import React from 'react';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import { FD_ICONS, sendRequest } from '../../types';
 
@@ -25,50 +29,71 @@ export class RoutineSettings extends React.Component<{
             <Typography.Title level={5}>Routine Identifier</Typography.Title>
             <Typography.Text code>{this.props.routine._id}</Typography.Text>
             <Typography.Title level={5}>API Activate</Typography.Title>
-            <Tooltip
+            <Popover
               placement="left"
-              title={
+              title={<Typography.Title level={4}>POSTDATA</Typography.Title>}
+              content={
                 <Space direction="vertical">
-                  <Typography>
-                    <Typography.Title level={4}>POSTDATA</Typography.Title>
-                    <Typography.Paragraph>
-                      Body is optional, but may contain a json object to modify
-                      the way the routine is processed for the individual call.
-                    </Typography.Paragraph>
-                    <table>
-                      <tr style={{ backgroundColor: '#666' }}>
-                        <th>Field</th>
-                        <th>Description</th>
-                      </tr>
-                      <tr>
-                        <td>bypassRepeat</td>
-                        <td>
-                          <Typography.Text strong>
-                            {`boolean (default:false). `}
-                          </Typography.Text>
-                          Ignore the repeat run restrictions of this routine if
-                          present.
-                        </td>
-                      </tr>
-                      <tr style={{ backgroundColor: '#666' }}>
-                        <td>timeout</td>
-                        <td>
-                          <Typography.Text strong>number. </Typography.Text>
-                          Delay ms before executing routine.
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>timestamp</td>
-                        <td>
-                          <Typography.Text strong>
-                            {`parsable date string. `}
-                          </Typography.Text>
-                          Execute routine at timestamp, cannot be combined with
-                          timeout.
-                        </td>
-                      </tr>
-                    </table>
-                  </Typography>
+                  <Typography.Paragraph>
+                    Body is optional, but may contain a json object to modify
+                    the way the routine is processed for the individual call.
+                  </Typography.Paragraph>
+                  <Descriptions bordered>
+                    <Descriptions.Item
+                      span={1}
+                      label={
+                        <Typography.Text code>bypassRepeat</Typography.Text>
+                      }
+                    >
+                      boolean
+                    </Descriptions.Item>
+                    <Descriptions.Item span={2}>
+                      Pass <Typography.Text code>true</Typography.Text> to
+                      ignore the repeat run restrictions of this routine, if
+                      present.
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      span={1}
+                      label={<Typography.Text code>timeout</Typography.Text>}
+                    >
+                      number
+                    </Descriptions.Item>
+                    <Descriptions.Item span={2}>
+                      Delay ms before executing routine.
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      span={1}
+                      label={<Typography.Text code>timestamp</Typography.Text>}
+                    >
+                      parsable date string
+                    </Descriptions.Item>
+                    <Descriptions.Item span={2}>
+                      Execute routine at timestamp, cannot be combined with
+                      timeout.
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      span={1}
+                      label={<Typography.Text code>source</Typography.Text>}
+                    >
+                      string
+                    </Descriptions.Item>
+                    <Descriptions.Item span={2}>
+                      Explicitly set the activation source for the routine.
+                    </Descriptions.Item>
+                    <Descriptions.Item span={3} label="Example">
+                      <SyntaxHighlighter language="yaml" style={atomDark}>
+                        {JSON.stringify(
+                          {
+                            bypassRepeat: false,
+                            source: 'Special activation with extra description',
+                            timestamp: '2022-04-25T16:24:40.685Z',
+                          },
+                          undefined,
+                          '  ',
+                        )}
+                      </SyntaxHighlighter>
+                    </Descriptions.Item>
+                  </Descriptions>
                 </Space>
               }
             >
@@ -76,7 +101,7 @@ export class RoutineSettings extends React.Component<{
               <Typography.Text code>
                 {sendRequest.url(`/routine/${this.props?.routine?._id}`)}
               </Typography.Text>
-            </Tooltip>
+            </Popover>
           </Typography.Paragraph>
           <Divider />
           <Checkbox

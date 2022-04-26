@@ -1,9 +1,9 @@
 import { RoutineDTO, RoutineTriggerEvent } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
-import { Card, Table, Typography } from 'antd';
+import { Button, Card, Table, Typography } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 import { RoutineInspectButton } from '../routines/RoutineInspectButton';
 
 type tState = {
@@ -20,8 +20,27 @@ export class RecentActivations extends React.Component {
 
   override render(): React.ReactNode {
     return (
-      <Card title="Recent Routine Activations">
-        <Table dataSource={this.state.events}>
+      <Card
+        title={
+          <Typography.Title level={5}>
+            Recent Routine Activations
+          </Typography.Title>
+        }
+        extra={
+          <>
+            <Typography.Text code>
+              {this.state.events.length} activations
+            </Typography.Text>
+            <Button type="text" size="small" onClick={() => this.refresh()}>
+              {FD_ICONS.get('refresh')}
+            </Button>
+          </>
+        }
+      >
+        <Table
+          dataSource={this.state.events}
+          pagination={{ pageSize: 5, size: 'small' }}
+        >
           <Table.Column
             title="Time"
             key="time"

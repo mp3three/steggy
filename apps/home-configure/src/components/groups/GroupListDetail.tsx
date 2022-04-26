@@ -1,15 +1,13 @@
-import { QuestionCircleOutlined } from '@ant-design/icons';
 import { GroupDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import {
   Button,
   Card,
-  Dropdown,
   Empty,
   List,
-  Menu,
   Popconfirm,
   Space,
+  Switch,
   Tabs,
   Typography,
 } from 'antd';
@@ -18,6 +16,7 @@ import React from 'react';
 import { FD_ICONS, sendRequest } from '../../types';
 import { EntityInspectButton, EntityModalPicker } from '../entities';
 import { RelatedRoutines } from '../routines';
+import { GroupExtraActions } from './GroupExtraActions';
 import { GroupSaveStates } from './GroupSaveState';
 import { GroupUsedIn } from './GroupUsedIn';
 
@@ -46,40 +45,11 @@ export class GroupListDetail extends React.Component<
         title="Group details"
         extra={
           !is.object(this.props.group) ? undefined : (
-            <Dropdown
-              overlay={
-                <Menu>
-                  <Menu.Item key="delete">
-                    <Popconfirm
-                      icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-                      title={`Are you sure you want to delete ${this.props.group.friendlyName}?`}
-                      onConfirm={() => this.delete()}
-                    >
-                      <Button
-                        danger
-                        style={{ textAlign: 'start', width: '100%' }}
-                        icon={FD_ICONS.get('remove')}
-                      >
-                        Delete Group
-                      </Button>
-                    </Popconfirm>
-                  </Menu.Item>
-                  <Menu.Item key="clone">
-                    <Button
-                      onClick={() => this.clone()}
-                      icon={FD_ICONS.get('clone')}
-                      style={{ textAlign: 'start', width: '100%' }}
-                    >
-                      Clone
-                    </Button>
-                  </Menu.Item>
-                </Menu>
-              }
-            >
-              <Button type="text" size="small">
-                {FD_ICONS.get('menu')}
-              </Button>
-            </Dropdown>
+            <GroupExtraActions
+              group={this.props.group}
+              onClone={group => this.props.onClone(group)}
+              onUpdate={group => this.props.onUpdate(group)}
+            />
           )
         }
       >
@@ -100,24 +70,6 @@ export class GroupListDetail extends React.Component<
         url: `/group/${group._id}`,
       }),
     );
-  }
-
-  private async clone(): Promise<void> {
-    const updated = await sendRequest<GroupDTO>({
-      method: 'post',
-      url: `/group/${this.props.group._id}/clone`,
-    });
-    if (this.props.onClone) {
-      this.props.onClone(updated);
-    }
-  }
-
-  private async delete(): Promise<void> {
-    await sendRequest({
-      method: 'delete',
-      url: `/group/${this.props.group._id}`,
-    });
-    this.props.onUpdate();
   }
 
   private domainList(): string[] {
@@ -197,12 +149,18 @@ export class GroupListDetail extends React.Component<
   private renderContents() {
     return this.props.group ? (
       <>
-        <Typography.Title
-          level={3}
-          editable={{ onChange: async name => await this.rename(name) }}
-        >
-          {this.props.group.friendlyName}
-        </Typography.Title>
+        <Space>
+          <Switch
+            checkedChildren={FD_ICONS.get('pin')}
+            unCheckedChildren={FD_ICONS.get('pin_off')}
+          />
+          <Typography.Title
+            level={3}
+            editable={{ onChange: async name => await this.rename(name) }}
+          >
+            {this.props.group.friendlyName}
+          </Typography.Title>
+        </Space>
         <Tabs type="card">
           <Tabs.TabPane key="members" tab="Members">
             <Card
