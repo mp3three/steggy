@@ -79,7 +79,7 @@ export class RoutineActivateDrawer extends React.Component<{
         />
       );
     }
-    if (this.props.activate.type === 'room_metadata') {
+    if (this.props.activate.type === 'metadata') {
       return (
         <RoutineActivateMetadataChange
           activate={this.props.activate.activate as MetadataChangeDTO}

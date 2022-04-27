@@ -299,7 +299,9 @@ export class HASocketAPIService {
    */
   private async onMessage(message: SocketMessageDTO) {
     if (!this.caught) {
-      this.logger.debug({ message });
+      // This message is CHONKY, but needed for current debugging
+      // Trace log to keep it out of normal debug logs
+      this.logger.trace({ message });
     }
     const id = Number(message.id);
     switch (message.type as HassSocketMessageTypes) {

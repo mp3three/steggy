@@ -50,7 +50,7 @@ export class StopProcessingCommandService {
       }
       let result = false;
       switch (comparison.type) {
-        case STOP_PROCESSING_TYPE.room_metadata:
+        case STOP_PROCESSING_TYPE.metadata:
           result = await this.roomMetadata(
             comparison.comparison as MetadataComparisonDTO,
           );

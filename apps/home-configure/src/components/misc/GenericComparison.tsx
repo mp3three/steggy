@@ -69,7 +69,7 @@ export class GenericComparison extends React.Component<{
 
   private renderComparison() {
     switch (this.props.comparison.type) {
-      case 'room_metadata':
+      case 'metadata':
         return (
           <RoomMetadataComparison
             comparison={

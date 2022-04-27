@@ -189,7 +189,7 @@ export class RoomMetadata extends React.Component<
         filters: new Set([
           {
             field: 'activate.type',
-            value: 'room_metadata',
+            value: 'metadata',
           },
           {
             field: 'activate.activate.property',
@@ -210,7 +210,7 @@ export class RoomMetadata extends React.Component<
         filters: new Set([
           {
             field: 'enable.comparisons.type',
-            value: 'room_metadata',
+            value: 'metadata',
           },
           {
             field: 'enable.comparisons.comparisons.property',
@@ -254,7 +254,7 @@ export class RoomMetadata extends React.Component<
           },
           {
             field: 'command.command.type',
-            value: 'room_metadata',
+            value: 'metadata',
           },
           {
             field: 'command.command.comparison.property',

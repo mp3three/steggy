@@ -27,7 +27,7 @@ export const ROUTINE_ACTIVATE_LIST = (
     {
       description: 'Activate when person/room metadata changes',
       name: 'Metadata Change',
-      type: 'room_metadata',
+      type: 'metadata',
     },
     {
       description: 'Activate in response to an entity state comparison',

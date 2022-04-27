@@ -5,6 +5,8 @@ import React from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
+import { CRON_MESSAGE } from '../../../types';
+
 export class RoutineActivateCron extends React.Component<{
   activate: ScheduleActivateDTO;
   onUpdate: (activate: Partial<ScheduleActivateDTO>) => void;
@@ -36,15 +38,7 @@ export class RoutineActivateCron extends React.Component<{
         <Divider />
         <Form.Item label=" " colon={false}>
           <SyntaxHighlighter language="yaml" style={atomDark}>
-            {`┌────────────── second (optional)
-│ ┌──────────── minute
-│ │ ┌────────── hour
-│ │ │ ┌──────── day of month
-│ │ │ │ ┌────── month
-│ │ │ │ │ ┌──── day of week
-│ │ │ │ │ │
-│ │ │ │ │ │
-* * * * * *`}
+            {CRON_MESSAGE}
           </SyntaxHighlighter>
         </Form.Item>
         <Form.Item label="Manual">

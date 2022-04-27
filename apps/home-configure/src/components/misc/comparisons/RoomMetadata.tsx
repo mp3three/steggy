@@ -156,6 +156,7 @@ export class RoomMetadataComparison extends React.Component<
           operation={this.props.comparison?.operation}
           availableOperations={AVAILABLE_OPERATIONS.get(type)}
           value={this.props.comparison?.value as FILTER_OPERATIONS}
+          numberType={type}
           onUpdate={({ value, operation }) => {
             if (!is.undefined(value)) {
               this.props.onUpdate({ value });

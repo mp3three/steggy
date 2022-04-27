@@ -18,6 +18,7 @@ type tState = {
 
 export class FilterValue extends React.Component<
   {
+    numberType?: string;
     onChange: (value) => void;
     operation: string;
     options?: string[];
@@ -138,6 +139,9 @@ export class FilterValue extends React.Component<
   }
 
   private renderNumber() {
+    if (this.props.numberType === 'date') {
+      return this.renderText();
+    }
     const value = is.number(this.props.value)
       ? this.props.value
       : Number(this.props.value ?? 0);

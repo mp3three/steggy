@@ -13,7 +13,7 @@ export type ActivateTypes =
   | 'attribute'
   | 'device_trigger'
   | 'kunami'
-  | 'room_metadata'
+  | 'metadata'
   | 'schedule'
   | 'solar'
   | 'internal_event'
@@ -23,7 +23,7 @@ export enum ROUTINE_ACTIVATE_TYPE {
   device_trigger = 'device_trigger',
   kunami = 'kunami',
   internal_event = 'internal_event',
-  room_metadata = 'room_metadata',
+  metadata = 'metadata',
   schedule = 'schedule',
   solar = 'solar',
   state_change = 'state_change',

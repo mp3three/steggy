@@ -362,7 +362,7 @@ export class RoutineEnabledService {
             routine,
           );
           break;
-        case STOP_PROCESSING_TYPE.room_metadata:
+        case STOP_PROCESSING_TYPE.metadata:
           this.watchMetadata(
             comparison.comparison as MetadataComparisonDTO,
             routine,

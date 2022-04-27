@@ -8,7 +8,7 @@ export enum STOP_PROCESSING_TYPE {
   attribute = 'attribute',
   date = 'date',
   state = 'state',
-  room_metadata = 'room_metadata',
+  metadata = 'metadata',
   template = 'template',
   webhook = 'webhook',
 }
