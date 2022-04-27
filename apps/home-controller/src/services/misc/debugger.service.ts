@@ -356,7 +356,7 @@ export class DebuggerService {
             );
           }
           return exists;
-        case 'room_metadata':
+        case 'metadata':
           const room = rooms.find(
             ({ _id }) =>
               _id === (compare.comparison as MetadataComparisonDTO).room,

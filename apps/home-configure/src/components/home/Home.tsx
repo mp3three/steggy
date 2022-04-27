@@ -9,7 +9,7 @@ export class HomePage extends React.Component {
       <Layout>
         <Layout.Content style={{ padding: '16px' }}>
           <Row>
-            <Col span={12}>
+            <Col span={24}>
               <RecentActivations />
             </Col>
           </Row>

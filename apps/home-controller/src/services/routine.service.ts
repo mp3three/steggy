@@ -440,7 +440,7 @@ export class RoutineService {
             callback,
           );
           return;
-        case ROUTINE_ACTIVATE_TYPE.room_metadata:
+        case ROUTINE_ACTIVATE_TYPE.metadata:
           this.metadataChangeService.watch(
             routine,
             activate as RoutineActivateDTO<MetadataChangeDTO>,
@@ -480,7 +480,7 @@ export class RoutineService {
         case ROUTINE_ACTIVATE_TYPE.schedule:
           this.scheduleActivate.clearRoutine(routine);
           return;
-        case ROUTINE_ACTIVATE_TYPE.room_metadata:
+        case ROUTINE_ACTIVATE_TYPE.metadata:
           this.metadataChangeService.clearRoutine(routine);
           return;
       }
