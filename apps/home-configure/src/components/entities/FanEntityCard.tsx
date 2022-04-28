@@ -46,12 +46,12 @@ export function FanEntityCard(props: {
   const [state, setState] = useState<string>(
     props.state.state ?? 'setFanSpeed',
   );
-  const reference = props?.state?.ref;
+  const ref = props?.state?.ref;
 
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reference]);
+  }, [ref]);
 
   function getMarks() {
     const out: Record<number, string> = {};
@@ -67,14 +67,14 @@ export function FanEntityCard(props: {
       return;
     }
     const entity = await sendRequest<FanStateDTO>({
-      url: `/entity/id/${reference}`,
+      url: `/entity/id/${ref}`,
     });
     if (is.undefined(entity.attributes)) {
       notification.open({
         description: (
           <Typography>
             {`Server returned bad response. Verify that `}
-            <Typography.Text code>{reference}</Typography.Text> still exists?
+            <Typography.Text code>{ref}</Typography.Text> still exists?
           </Typography>
         ),
         message: 'Entity not found',
@@ -92,7 +92,7 @@ export function FanEntityCard(props: {
         extra: {
           percentage: percentage,
         },
-        ref: reference,
+        ref,
         state: state,
       });
     }
@@ -120,7 +120,7 @@ export function FanEntityCard(props: {
         extra: {
           percentage,
         },
-        ref: reference,
+        ref: ref,
         state: 'setFanSpeed',
       });
     }
@@ -134,7 +134,7 @@ export function FanEntityCard(props: {
         percentage,
       },
       method: 'put',
-      url: `/entity/command/${reference}/setSpeed`,
+      url: `/entity/command/${ref}/setSpeed`,
     });
     if (latestRequest !== now) {
       return;
@@ -177,7 +177,7 @@ export function FanEntityCard(props: {
 
   if (is.empty(state)) {
     return (
-      <Card title={reference} type="inner">
+      <Card title={ref} type="inner">
         <Spin />
       </Card>
     );
@@ -201,7 +201,7 @@ export function FanEntityCard(props: {
             <Popconfirm
               icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
               title="Are you sure you want to remove this?"
-              onConfirm={() => props.onRemove(reference)}
+              onConfirm={() => props.onRemove(ref)}
             >
               <Button size="small" type="text" danger>
                 <CloseOutlined />

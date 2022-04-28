@@ -285,6 +285,7 @@
             "replacements": {
               "temp": false,
               "i": false,
+              "ref": false,
               "e": false,
               "props": false,
               "docs": false

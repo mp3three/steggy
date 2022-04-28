@@ -53,7 +53,7 @@ export function LightEntityCard(props: {
     color_mode: attributes?.color_mode,
     rgb_color: attributes?.rgb_color,
   });
-  const reference = props?.state?.ref;
+  const ref = props?.state?.ref;
 
   useEffect(() => {
     async function refresh() {
@@ -62,14 +62,14 @@ export function LightEntityCard(props: {
         return;
       }
       const entity = await sendRequest<LightStateDTO>({
-        url: `/entity/id/${reference}`,
+        url: `/entity/id/${ref}`,
       });
       if (is.undefined(entity.attributes)) {
         notification.open({
           description: (
             <Typography>
               {`Server returned bad response. Verify that `}
-              <Typography.Text code>{reference}</Typography.Text> still exists?
+              <Typography.Text code>{ref}</Typography.Text> still exists?
             </Typography>
           ),
           message: 'Entity not found',
@@ -89,7 +89,7 @@ export function LightEntityCard(props: {
       }
     }
     refresh();
-  }, [props.selfContained, props.title, reference]);
+  }, [props.selfContained, props.title, ref]);
 
   function getSaveState(updateBrightness = brightness): GeneralSaveStateDTO {
     if (props.optional && disabled) {
@@ -104,7 +104,7 @@ export function LightEntityCard(props: {
               rgb_color: rgb_color,
             }
           : { brightness: updateBrightness, color_mode: entity.color_mode },
-      ref: reference,
+      ref: ref,
       state: state,
     };
   }
@@ -215,7 +215,7 @@ export function LightEntityCard(props: {
 
   if (!entity) {
     return (
-      <Card title={reference} type="inner">
+      <Card title={ref} type="inner">
         <Skeleton />
       </Card>
     );
@@ -238,7 +238,7 @@ export function LightEntityCard(props: {
             <Popconfirm
               icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
               title="Are you sure you want to remove this?"
-              onConfirm={() => props.onRemove(reference)}
+              onConfirm={() => props.onRemove(ref)}
             >
               <Button size="small" type="text" danger>
                 <CloseOutlined />
