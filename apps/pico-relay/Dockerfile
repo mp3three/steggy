@@ -70,6 +70,5 @@ COPY --from=node_modules /app/node_modules ./node_modules
 COPY --from=build /app/dist/apps/pico-relay/minified.js ./main.js
 COPY --from=build /app/dist/apps/pico-relay/package.json ./package.json
 
-HEALTHCHECK CMD curl --fail http://localhost:7000/api/health
 CMD ["node", "./main.js"]
 # </STAGE 3>
