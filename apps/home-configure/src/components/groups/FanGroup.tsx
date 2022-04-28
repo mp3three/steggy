@@ -16,7 +16,7 @@ export class FanGroup extends React.Component<
   },
   tStateType
 > {
-  private lightCards: Record<string, FanEntityCard> = {};
+  private lightCards: Record<string, typeof FanEntityCard> = {};
 
   override render() {
     return (

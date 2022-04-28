@@ -1,61 +1,28 @@
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import { Button, Drawer, notification, Typography } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { sendRequest } from '../../types';
 import { EntityInspect } from './EntityInspect';
 
-type tState = {
-  entity: HassStateDTO;
-  flags: string[];
-};
+export function EntityInspectButton(props: { entity_id: string }) {
+  const [entity, setEntity] = useState<HassStateDTO>();
+  const [flags, setFlags] = useState<string[]>();
 
-export class EntityInspectButton extends React.Component<
-  { entity_id: string },
-  tState
-> {
-  override state = { flags: [] } as tState;
-
-  override render() {
-    return (
-      <>
-        <Drawer
-          visible={!is.undefined(this.state.entity)}
-          onClose={() => this.setState({ entity: undefined, flags: [] })}
-          title={
-            this.state?.entity?.attributes?.friendly_name ??
-            this.props.entity_id
-          }
-          size="large"
-        >
-          <EntityInspect
-            onUpdate={entity => this.setState({ entity })}
-            entity={this.state.entity}
-            flags={this.state.flags}
-            onFlagsUpdate={flags => this.setState({ flags })}
-          />
-        </Drawer>
-        <Button size="small" type="text" onClick={() => this.load()}>
-          {this.props.entity_id}
-        </Button>
-      </>
-    );
-  }
-
-  private async load(): Promise<void> {
+  async function load(): Promise<void> {
     await Promise.all(
       [
         async () => {
           const entity = await sendRequest<HassStateDTO>({
-            url: `/entity/id/${this.props.entity_id}`,
+            url: `/entity/id/${props.entity_id}`,
           });
           if (is.undefined(entity.attributes)) {
             notification.open({
               description: (
                 <Typography>
                   {`Server returned bad response. Verify that `}
-                  <Typography.Text code>{this.props.entity_id}</Typography.Text>
+                  <Typography.Text code>{props.entity_id}</Typography.Text>
                   {' still exists?'}
                 </Typography>
               ),
@@ -64,15 +31,39 @@ export class EntityInspectButton extends React.Component<
             });
             return;
           }
-          this.setState({ entity });
+          setEntity(entity);
         },
         async () => {
           const flags = await sendRequest<string[]>({
-            url: `/entity/flags/${this.props.entity_id}`,
+            url: `/entity/flags/${props.entity_id}`,
           });
-          this.setState({ flags });
+          setFlags(flags);
         },
       ].map(async f => await f()),
     );
   }
+
+  return (
+    <>
+      <Drawer
+        visible={!is.undefined(entity)}
+        onClose={() => {
+          setEntity(undefined);
+          setFlags([]);
+        }}
+        title={entity?.attributes?.friendly_name ?? props.entity_id}
+        size="large"
+      >
+        <EntityInspect
+          onUpdate={entity => setEntity(entity)}
+          entity={entity}
+          flags={flags}
+          onFlagsUpdate={flags => setFlags(flags)}
+        />
+      </Drawer>
+      <Button size="small" type="text" onClick={() => load()}>
+        {props.entity_id}
+      </Button>
+    </>
+  );
 }

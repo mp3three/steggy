@@ -10,121 +10,109 @@ import {
   Space,
   Typography,
 } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { domain, sendRequest } from '../../types';
 
-type tState = UpdateEntityIdDTO & {
-  id: string;
-  visible: boolean;
-};
+export function EntityIdChange(props: {
+  entity: string;
+  onRename: (entity: string) => void;
+}) {
+  const [update, setUpdate] = useState<UpdateEntityIdDTO>(
+    {} as UpdateEntityIdDTO,
+  );
+  const [id, setId] = useState('');
+  const [visible, setVisible] = useState(false);
 
-export class EntityIdChange extends React.Component<
-  { entity: string; onRename: (entity: string) => void },
-  tState
-> {
-  override state = {} as tState;
-
-  private get defaultId() {
-    return this.props.entity.split('.')[1];
-  }
-
-  override render() {
-    return (
-      <>
-        <Modal
-          onCancel={() => this.setState({ visible: false })}
-          onOk={() => this.change()}
-          visible={this.state.visible}
-          title={
-            <Typography>
-              {`Change Entity ID: `}
-              <Typography.Text code>{this.props.entity}</Typography.Text>
-            </Typography>
-          }
-        >
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Form.Item label="Entity ID">
-              <Input
-                prefix={
-                  <Typography.Text code>
-                    {domain(this.props.entity)}
-                  </Typography.Text>
-                }
-                value={this.state.id}
-                onChange={({ target }) => this.setState({ id: target.value })}
-              />
-            </Form.Item>
-            <Divider orientation="left">Update References</Divider>
-            <Checkbox
-              onChange={({ target }) =>
-                this.setState({ groups: target.checked })
-              }
-              checked={this.state.groups}
-            >
-              Update Groups + Save States
-            </Checkbox>
-            <Checkbox
-              onChange={({ target }) =>
-                this.setState({ rooms: target.checked })
-              }
-              checked={this.state.rooms}
-            >
-              Update Rooms + Save States
-            </Checkbox>
-            <Checkbox
-              onChange={({ target }) =>
-                this.setState({ routines: target.checked })
-              }
-              checked={this.state.routines}
-            >
-              Update Routines
-            </Checkbox>
-          </Space>
-        </Modal>
-        <Button
-          type="text"
-          onClick={() =>
-            this.setState({
-              id: this.defaultId,
-              visible: true,
-            })
-          }
-        >
-          Change Entity ID
-        </Button>
-      </>
-    );
-  }
-
-  private async change(): Promise<void> {
-    if (this.state.id === this.defaultId) {
+  async function change(): Promise<void> {
+    if (id === props.entity.split('.')[1]) {
       notification.error({
         message: `entity_id not changed`,
       });
       return;
     }
-    const id = `${domain(this.props.entity)}.${this.state.id}`;
+    const updateId = `${domain(props.entity)}.${id}`;
     await sendRequest({
       body: {
-        groups: this.state.groups,
+        groups: update.groups,
         id,
-        rooms: this.state.rooms,
-        routines: this.state.routines,
+        rooms: update.rooms,
+        routines: update.routines,
       } as UpdateEntityIdDTO,
       method: 'put',
-      url: `/entity/update-id/${this.props.entity}`,
+      url: `/entity/update-id/${props.entity}`,
     });
-    this.props.onRename(id);
-    this.setState({ visible: false });
+    props.onRename(updateId);
+    setVisible(false);
     notification.success({
       message: (
         <Typography>
-          <Typography.Text code>{this.props.entity}</Typography.Text>
+          <Typography.Text code>{props.entity}</Typography.Text>
           {` renamed to `}
-          <Typography.Text code>{id}</Typography.Text>
+          <Typography.Text code>{updateId}</Typography.Text>
         </Typography>
       ),
     });
   }
+  return (
+    <>
+      <Modal
+        onCancel={() => setVisible(false)}
+        onOk={() => change()}
+        visible={visible}
+        title={
+          <Typography>
+            {`Change Entity ID: `}
+            <Typography.Text code>{props.entity}</Typography.Text>
+          </Typography>
+        }
+      >
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <Form.Item label="Entity ID">
+            <Input
+              prefix={
+                <Typography.Text code>{domain(props.entity)}</Typography.Text>
+              }
+              value={id}
+              onChange={({ target }) => setId(target.value)}
+            />
+          </Form.Item>
+          <Divider orientation="left">Update References</Divider>
+          <Checkbox
+            onChange={({ target }) =>
+              setUpdate({ ...update, groups: target.checked })
+            }
+            checked={update.groups}
+          >
+            Update Groups + Save States
+          </Checkbox>
+          <Checkbox
+            onChange={({ target }) =>
+              setUpdate({ ...update, rooms: target.checked })
+            }
+            checked={update.rooms}
+          >
+            Update Rooms + Save States
+          </Checkbox>
+          <Checkbox
+            onChange={({ target }) =>
+              setUpdate({ ...update, routines: target.checked })
+            }
+            checked={update.routines}
+          >
+            Update Routines
+          </Checkbox>
+        </Space>
+      </Modal>
+      <Button
+        type="text"
+        onClick={() => {
+          setVisible(true);
+          setId(props.entity.split('.')[1]);
+        }}
+      >
+        Change Entity ID
+      </Button>
+    </>
+  );
 }

@@ -286,6 +286,7 @@
               "temp": false,
               "i": false,
               "e": false,
+              "props": false,
               "docs": false
             }
           }

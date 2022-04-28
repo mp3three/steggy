@@ -1,7 +1,7 @@
 import { GroupDTO, RoomDTO, RoutineDTO } from '@steggy/controller-shared';
 import { is, ResultControlDTO } from '@steggy/utilities';
 import { Button, Drawer, List, Skeleton, Tabs } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
 import { GroupListDetail } from '../groups/GroupListDetail';
@@ -10,139 +10,20 @@ import { RoutineListDetail } from '../routines';
 
 /* eslint-disable radar/no-duplicate-string */
 
-type tState = {
-  group?: GroupDTO;
-  groups?: GroupDTO[];
-  room?: RoomDTO;
-  rooms?: RoomDTO[];
-  routine?: RoutineDTO;
-  routines?: RoutineDTO[];
-};
+// eslint-disable-next-line radar/cognitive-complexity
+export function EntityRelated(props: { entity: string }) {
+  const [group, setGroup] = useState<GroupDTO>();
+  const [groups, setGroups] = useState<GroupDTO[]>([]);
+  const [room, setRoom] = useState<RoomDTO>();
+  const [rooms, setRooms] = useState<RoomDTO[]>([]);
+  const [routine, setRoutine] = useState<RoutineDTO>();
+  const [routines, setRoutines] = useState<RoutineDTO[]>([]);
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.entity]);
 
-export class EntityRelated extends React.Component<{ entity: string }, tState> {
-  override state = { routines: [] } as tState;
-  private currentEntity: string;
-
-  override async componentDidMount(): Promise<void> {
-    await this.refresh();
-  }
-
-  override async componentDidUpdate(): Promise<void> {
-    if (this.props.entity !== this.currentEntity) {
-      await this.refresh();
-    }
-  }
-
-  override render() {
-    return (
-      <>
-        <Tabs>
-          <Tabs.TabPane tab="Rooms" key="rooms">
-            <List
-              pagination={{ size: 'small' }}
-              dataSource={this.state.rooms}
-              renderItem={item => (
-                <List.Item>
-                  <Button
-                    type="text"
-                    onClick={() => this.setState({ room: item })}
-                  >
-                    {item.friendlyName}
-                  </Button>
-                </List.Item>
-              )}
-            />
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Groups" key="groups">
-            <List
-              pagination={{ size: 'small' }}
-              dataSource={this.state.groups}
-              renderItem={item => (
-                <List.Item>
-                  <Button
-                    type="text"
-                    onClick={() => this.setState({ group: item })}
-                  >
-                    {item.friendlyName}
-                  </Button>
-                </List.Item>
-              )}
-            />
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Routines" key="routine">
-            <List
-              pagination={{ size: 'small' }}
-              dataSource={this.state.routines}
-              renderItem={item => (
-                <List.Item>
-                  <Button
-                    type="text"
-                    onClick={() => this.setState({ routine: item })}
-                  >
-                    {item.friendlyName}
-                  </Button>
-                </List.Item>
-              )}
-            />
-          </Tabs.TabPane>
-        </Tabs>
-        <Drawer
-          title="Edit routine"
-          size="large"
-          onClose={() => this.setState({ routine: undefined })}
-          visible={!is.undefined(this.state.routine)}
-        >
-          {is.undefined(this.state.routine) ? (
-            <Skeleton />
-          ) : (
-            <RoutineListDetail
-              nested
-              routine={this.state.routine}
-              onUpdate={routine => this.updateRoutine(routine)}
-            />
-          )}
-        </Drawer>
-        <Drawer
-          title="Edit group"
-          size="large"
-          onClose={() => this.setState({ group: undefined })}
-          visible={!is.undefined(this.state.group)}
-        >
-          {is.undefined(this.state.group) ? (
-            <Skeleton />
-          ) : (
-            <GroupListDetail
-              type="inner"
-              group={this.state.group}
-              onUpdate={group => this.updateGroup(group)}
-            />
-          )}
-        </Drawer>
-        <Drawer
-          title="Edit room"
-          size="large"
-          onClose={() => this.setState({ room: undefined })}
-          visible={!is.undefined(this.state.room)}
-        >
-          {is.undefined(this.state.room) ? (
-            <Skeleton />
-          ) : (
-            <RoomListDetail
-              nested
-              room={this.state.room}
-              onUpdate={room => this.updateRoom(room)}
-            />
-          )}
-        </Drawer>
-      </>
-    );
-  }
-
-  private async refresh(): Promise<void> {
-    if (this.props.entity === this.currentEntity) {
-      return;
-    }
-    this.currentEntity = this.props.entity;
+  async function refresh(): Promise<void> {
     await Promise.all([
       (async () => {
         const rooms = await sendRequest<RoomDTO[]>({
@@ -150,13 +31,14 @@ export class EntityRelated extends React.Component<{ entity: string }, tState> {
             filters: new Set([
               {
                 field: 'entities',
-                value: this.props.entity,
+                value: props.entity,
               },
             ]),
           },
           url: `/room`,
         });
-        this.setState({ room: undefined, rooms });
+        setRoom(undefined);
+        setRooms(rooms);
       })(),
       (async () => {
         const groups = await sendRequest<GroupDTO[]>({
@@ -164,13 +46,14 @@ export class EntityRelated extends React.Component<{ entity: string }, tState> {
             filters: new Set([
               {
                 field: 'entities',
-                value: this.props.entity,
+                value: props.entity,
               },
             ]),
           },
           url: `/group`,
         });
-        this.setState({ group: undefined, groups });
+        setGroup(group);
+        setGroups(groups);
       })(),
       (async () => {
         const routines: RoutineDTO[] = [];
@@ -184,7 +67,7 @@ export class EntityRelated extends React.Component<{ entity: string }, tState> {
                   { field: 'activate.type', value: 'attribute' },
                   {
                     field: 'activate.activate.entity',
-                    value: this.props.entity,
+                    value: props.entity,
                   },
                 ]),
               },
@@ -193,7 +76,7 @@ export class EntityRelated extends React.Component<{ entity: string }, tState> {
                   { field: 'activate.type', value: 'kunami' },
                   {
                     field: 'activate.activate.sensor',
-                    value: this.props.entity,
+                    value: props.entity,
                   },
                 ]),
               },
@@ -202,7 +85,7 @@ export class EntityRelated extends React.Component<{ entity: string }, tState> {
                   { field: 'activate.type', value: 'state_change' },
                   {
                     field: 'activate.activate.entity',
-                    value: this.props.entity,
+                    value: props.entity,
                   },
                 ]),
               },
@@ -212,14 +95,14 @@ export class EntityRelated extends React.Component<{ entity: string }, tState> {
                   { field: 'command.type', value: 'stop_processing' },
                   {
                     field: 'command.command.comparisons.comparison.entity_id',
-                    value: this.props.entity,
+                    value: props.entity,
                   },
                 ]),
               },
               {
                 filters: new Set([
                   { field: 'command.type', value: 'entity_state' },
-                  { field: 'command.command.ref', value: this.props.entity },
+                  { field: 'command.command.ref', value: props.entity },
                 ]),
               },
             ] as ResultControlDTO[]
@@ -236,60 +119,154 @@ export class EntityRelated extends React.Component<{ entity: string }, tState> {
             });
           }),
         );
-        this.setState({ routine: undefined, routines });
+        setRoutine(undefined);
+        setRoutines(routines);
       })(),
     ]);
   }
 
-  private async updateGroup(update: GroupDTO): Promise<void> {
+  async function updateGroup(update: GroupDTO): Promise<void> {
     if (is.undefined(update)) {
-      await this.refresh();
+      await refresh();
       return;
     }
-    const groups = this.state.groups.map(item =>
-      item._id === this.state.group._id
+    const mapped = groups.map(item =>
+      item._id === group._id
         ? {
             ...item,
             ...update,
           }
         : item,
     );
-    const group = groups.find(({ _id }) => _id === this.state.group._id);
-    this.setState({ group, groups });
+    const found = mapped.find(({ _id }) => _id === group._id);
+    setGroup(found);
+    setGroups(mapped);
   }
 
-  private updateRoom(update: RoomDTO): void {
+  function updateRoom(update: RoomDTO): void {
     if (!update) {
-      this.setState({
-        room: undefined,
-        rooms: this.state.rooms.filter(
-          ({ _id }) => _id !== this.state.room._id,
-        ),
-      });
+      setRoom(undefined);
+      setRooms(rooms.filter(({ _id }) => _id !== room._id));
       return;
     }
-    const rooms = this.state.rooms.map(item =>
-      item._id === this.state.room._id
+    const mapped = rooms.map(item =>
+      item._id === room._id
         ? {
             ...item,
             ...update,
           }
         : item,
     );
-    const room = rooms.find(({ _id }) => _id === this.state.room._id);
-    this.setState({ room, rooms });
+    const room = mapped.find(({ _id }) => _id === room._id);
+    setRoom(room);
+    setRooms(mapped);
   }
 
-  private updateRoutine(update: RoutineDTO): void {
-    const routines = this.state.routines.map(item =>
-      item._id === this.state.routine._id
+  function updateRoutine(update: RoutineDTO): void {
+    const mapped = routines.map(item =>
+      item._id === routine._id
         ? {
             ...item,
             ...update,
           }
         : item,
     );
-    const routine = routines.find(({ _id }) => _id === this.state.routine._id);
-    this.setState({ routine, routines });
+    const routine = mapped.find(({ _id }) => _id === routine._id);
+    setRoutines(mapped);
+    setRoutine(routine);
   }
+
+  return (
+    <>
+      <Tabs>
+        <Tabs.TabPane tab="Rooms" key="rooms">
+          <List
+            pagination={{ size: 'small' }}
+            dataSource={rooms}
+            renderItem={item => (
+              <List.Item>
+                <Button type="text" onClick={() => setRoom(item)}>
+                  {item.friendlyName}
+                </Button>
+              </List.Item>
+            )}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Groups" key="groups">
+          <List
+            pagination={{ size: 'small' }}
+            dataSource={groups}
+            renderItem={item => (
+              <List.Item>
+                <Button type="text" onClick={() => setGroup(item)}>
+                  {item.friendlyName}
+                </Button>
+              </List.Item>
+            )}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Routines" key="routine">
+          <List
+            pagination={{ size: 'small' }}
+            dataSource={routines}
+            renderItem={item => (
+              <List.Item>
+                <Button type="text" onClick={() => setRoutine(item)}>
+                  {item.friendlyName}
+                </Button>
+              </List.Item>
+            )}
+          />
+        </Tabs.TabPane>
+      </Tabs>
+      <Drawer
+        title="Edit routine"
+        size="large"
+        onClose={() => setRoutine(undefined)}
+        visible={!is.undefined(routine)}
+      >
+        {is.undefined(routine) ? (
+          <Skeleton />
+        ) : (
+          <RoutineListDetail
+            nested
+            routine={routine}
+            onUpdate={routine => updateRoutine(routine)}
+          />
+        )}
+      </Drawer>
+      <Drawer
+        title="Edit group"
+        size="large"
+        onClose={() => setGroup(undefined)}
+        visible={!is.undefined(group)}
+      >
+        {is.undefined(group) ? (
+          <Skeleton />
+        ) : (
+          <GroupListDetail
+            type="inner"
+            group={group}
+            onUpdate={group => updateGroup(group)}
+          />
+        )}
+      </Drawer>
+      <Drawer
+        title="Edit room"
+        size="large"
+        onClose={() => setRoom(undefined)}
+        visible={!is.undefined(room)}
+      >
+        {is.undefined(room) ? (
+          <Skeleton />
+        ) : (
+          <RoomListDetail
+            nested
+            room={room}
+            onUpdate={room => updateRoom(room)}
+          />
+        )}
+      </Drawer>
+    </>
+  );
 }

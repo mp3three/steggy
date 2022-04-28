@@ -53,7 +53,7 @@ export class RoomStateEdit extends React.Component<
     rooms: [],
   };
 
-  private cards: (LightEntityCard | SwitchEntityCard | FanEntityCard)[];
+  private cards: (LightEntityCard | SwitchEntityCard | typeof FanEntityCard)[];
 
   private get room() {
     return this.props.room ?? this.props.person;
@@ -279,7 +279,7 @@ export class RoomStateEdit extends React.Component<
       case 'media_player':
         return (
           <SwitchEntityCard
-            ref={i => this.cards.push(i)}
+            // ref={i => this.cards.push(i)}
             key={entity}
             state={state}
             stateOnly
@@ -290,7 +290,7 @@ export class RoomStateEdit extends React.Component<
       case 'light':
         return (
           <LightEntityCard
-            ref={i => this.cards.push(i)}
+            // ref={i => this.cards.push(i)}
             key={entity}
             optional
             state={state}
@@ -300,7 +300,7 @@ export class RoomStateEdit extends React.Component<
       case 'fan':
         return (
           <FanEntityCard
-            ref={i => this.cards.push(i)}
+            // ref={(i:FanEntityCard) => this.cards.push(i )}
             key={entity}
             optional
             state={state}
@@ -346,11 +346,11 @@ export class RoomStateEdit extends React.Component<
       // not falsy somehow
       .filter(i => !!i)
       .map(i => {
-        const state = i.getSaveState();
-        if (!state) {
-          return undefined;
-        }
-        return { ...state, type: 'entity' };
+        // const state = i.getSaveState();
+        // if (!state) {
+        return undefined;
+        // }
+        // return { ...state, type: 'entity' };
       })
       .filter(i => !is.undefined(i));
 

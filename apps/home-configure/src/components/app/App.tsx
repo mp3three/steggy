@@ -20,16 +20,14 @@ const { Header, Sider, Content } = Layout;
 type tState = {
   ADMIN_KEY?: string;
   BASE_URL?: string;
-  collapsed?: boolean;
 };
 
 export function App() {
+  const [collapsed, setCollapsed] = useState(false);
   const [state, setState] = useState<tState>({
     ADMIN_KEY: localStorage.getItem(ADMIN_KEY),
     BASE_URL: localStorage.getItem(BASE_URL),
-    collapsed: false,
   });
-  const { collapsed } = state;
   return (
     <Provider store={store}>
       {/* eslint-disable-next-line spellcheck/spell-checker */}
@@ -37,7 +35,8 @@ export function App() {
         <Sider
           collapsible
           collapsed={collapsed}
-          onCollapse={() => setState({ collapsed: true })}
+          // on
+          onCollapse={state => setCollapsed(state)}
         >
           <ApplicationMenu />
         </Sider>

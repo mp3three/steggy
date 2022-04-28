@@ -25,74 +25,16 @@ import { FanEntityCard } from './FanEntityCard';
 import { LightEntityCard } from './LightEntityCard';
 import { SwitchEntityCard } from './SwitchEntityCard';
 
-export class EntityInspect extends React.Component<{
+// eslint-disable-next-line radar/cognitive-complexity
+export function EntityInspect(props: {
   entity: HassStateDTO;
   flags: string[];
   onFlagsUpdate?: (flags: string[]) => void;
   onRename?: (name: string) => void;
   onUpdate?: (entity: HassStateDTO) => void;
-}> {
-  override render() {
-    return is.undefined(this.props?.entity) ? (
-      <Card>
-        <Empty description="Select an entity" />
-      </Card>
-    ) : (
-      <Card
-        extra={
-          <Dropdown
-            placement="bottomRight"
-            overlay={
-              <Menu>
-                <Menu.Item>
-                  <EntityIdChange
-                    entity={this.props.entity?.entity_id}
-                    onRename={name => this.props.onRename(name)}
-                  />
-                </Menu.Item>
-              </Menu>
-            }
-          >
-            <Button type="text" size="small">
-              {FD_ICONS.get('menu')}
-            </Button>
-          </Dropdown>
-        }
-        title={
-          <>
-            <Typography.Text
-              editable={{
-                onChange: friendlyName => this.updateName(friendlyName),
-              }}
-            >
-              {this.props.entity?.attributes?.friendly_name}
-            </Typography.Text>
-            <Typography.Text code style={{ marginLeft: '8px' }}>
-              {this.props.entity.entity_id}
-            </Typography.Text>
-          </>
-        }
-      >
-        <Tabs type="card">
-          <Tabs.TabPane key="description" tab="Description">
-            <SyntaxHighlighter language="yaml" style={atomDark}>
-              {dump(this.props.entity).trimEnd()}
-            </SyntaxHighlighter>
-            {this.editor()}
-          </Tabs.TabPane>
-          <Tabs.TabPane key="used_in" tab="Used In">
-            <EntityRelated entity={this.props?.entity?.entity_id} />
-          </Tabs.TabPane>
-          <Tabs.TabPane key="flags" tab="Flags">
-            {this.flags()}
-          </Tabs.TabPane>
-        </Tabs>
-      </Card>
-    );
-  }
-
-  private editor() {
-    const { entity } = this.props;
+}) {
+  function editor() {
+    const { entity } = props;
     if (!entity?.entity_id) {
       return undefined;
     }
@@ -123,17 +65,74 @@ export class EntityInspect extends React.Component<{
     return undefined;
   }
 
-  private flags() {
-    const { entity, flags } = this.props;
+  async function updateName(name: string): Promise<void> {
+    const entity = await sendRequest<HassStateDTO>({
+      body: { name },
+      method: 'put',
+      url: `/entity/rename/${props.entity.entity_id}`,
+    });
+    if (props.onUpdate) {
+      props.onUpdate(entity);
+    }
+  }
+
+  function renderFlag(type: string) {
+    if (type === 'light') {
+      return (
+        <Tooltip
+          title={
+            <Typography.Text>
+              Fix for lights that do not include
+              <Typography.Text code>color_temp</Typography.Text> in
+              <Typography.Text code>supported_color_modes</Typography.Text>
+            </Typography.Text>
+          }
+        >
+          <Checkbox
+            onChange={({ target }) =>
+              toggleFlag('LIGHT_FORCE_CIRCADIAN', target.checked)
+            }
+            checked={props.flags.includes('LIGHT_FORCE_CIRCADIAN')}
+          >
+            Circadian Compatibility
+          </Checkbox>
+        </Tooltip>
+      );
+    }
+    return undefined;
+  }
+
+  async function toggleFlag(flag: string, state: boolean) {
+    let flags: string[];
+    if (state) {
+      flags = await sendRequest<string[]>({
+        body: { flag },
+        method: 'post',
+        url: `/entity/flags/${props.entity.entity_id}`,
+      });
+      if (props.onFlagsUpdate) {
+        props.onFlagsUpdate(flags);
+      }
+      return;
+    }
+    flags = await sendRequest<string[]>({
+      method: 'delete',
+      url: `/entity/flags/${props.entity.entity_id}/${flag}`,
+    });
+    if (props.onFlagsUpdate) {
+      props.onFlagsUpdate(flags);
+    }
+  }
+
+  function flags() {
+    const { entity, flags } = props;
 
     return (
       <Space direction="vertical" style={{ width: '100%' }}>
         <Divider orientation="left">Flags</Divider>
         <Tooltip title="Add state / attribute changes to controller debug log">
           <Checkbox
-            onChange={({ target }) =>
-              this.toggleFlag('DEBUG_LOG', target.checked)
-            }
+            onChange={({ target }) => toggleFlag('DEBUG_LOG', target.checked)}
             checked={flags.includes('DEBUG_LOG')}
           >
             Log Changes
@@ -150,74 +149,72 @@ export class EntityInspect extends React.Component<{
         >
           <Checkbox
             onChange={({ target }) =>
-              this.toggleFlag('IGNORE_ENTITY', target.checked)
+              toggleFlag('IGNORE_ENTITY', target.checked)
             }
             checked={flags.includes('IGNORE_ENTITY')}
           >
             Ignore Entity
           </Checkbox>
         </Tooltip>
-        {this.renderFlag(domain(entity))}
+        {renderFlag(domain(entity))}
       </Space>
     );
   }
 
-  private renderFlag(type: string) {
-    if (type === 'light') {
-      return (
-        <Tooltip
-          title={
-            <Typography.Text>
-              Fix for lights that do not include
-              <Typography.Text code>color_temp</Typography.Text> in
-              <Typography.Text code>supported_color_modes</Typography.Text>
-            </Typography.Text>
+  return is.undefined(props?.entity) ? (
+    <Card>
+      <Empty description="Select an entity" />
+    </Card>
+  ) : (
+    <Card
+      extra={
+        <Dropdown
+          placement="bottomRight"
+          overlay={
+            <Menu>
+              <Menu.Item>
+                <EntityIdChange
+                  entity={props.entity?.entity_id}
+                  onRename={name => props.onRename(name)}
+                />
+              </Menu.Item>
+            </Menu>
           }
         >
-          <Checkbox
-            onChange={({ target }) =>
-              this.toggleFlag('LIGHT_FORCE_CIRCADIAN', target.checked)
-            }
-            checked={this.props.flags.includes('LIGHT_FORCE_CIRCADIAN')}
-          >
-            Circadian Compatibility
-          </Checkbox>
-        </Tooltip>
-      );
-    }
-    return undefined;
-  }
-
-  private async toggleFlag(flag: string, state: boolean) {
-    let flags: string[];
-    if (state) {
-      flags = await sendRequest<string[]>({
-        body: { flag },
-        method: 'post',
-        url: `/entity/flags/${this.props.entity.entity_id}`,
-      });
-      if (this.props.onFlagsUpdate) {
-        this.props.onFlagsUpdate(flags);
+          <Button type="text" size="small">
+            {FD_ICONS.get('menu')}
+          </Button>
+        </Dropdown>
       }
-      return;
-    }
-    flags = await sendRequest<string[]>({
-      method: 'delete',
-      url: `/entity/flags/${this.props.entity.entity_id}/${flag}`,
-    });
-    if (this.props.onFlagsUpdate) {
-      this.props.onFlagsUpdate(flags);
-    }
-  }
-
-  private async updateName(name: string): Promise<void> {
-    const entity = await sendRequest<HassStateDTO>({
-      body: { name },
-      method: 'put',
-      url: `/entity/rename/${this.props.entity.entity_id}`,
-    });
-    if (this.props.onUpdate) {
-      this.props.onUpdate(entity);
-    }
-  }
+      title={
+        <>
+          <Typography.Text
+            editable={{
+              onChange: friendlyName => updateName(friendlyName),
+            }}
+          >
+            {props.entity?.attributes?.friendly_name}
+          </Typography.Text>
+          <Typography.Text code style={{ marginLeft: '8px' }}>
+            {props.entity.entity_id}
+          </Typography.Text>
+        </>
+      }
+    >
+      <Tabs type="card">
+        <Tabs.TabPane key="description" tab="Description">
+          <SyntaxHighlighter language="yaml" style={atomDark}>
+            {dump(props.entity).trimEnd()}
+          </SyntaxHighlighter>
+          {editor()}
+        </Tabs.TabPane>
+        <Tabs.TabPane key="used_in" tab="Used In">
+          <EntityRelated entity={props?.entity?.entity_id} />
+        </Tabs.TabPane>
+        <Tabs.TabPane key="flags" tab="Flags">
+          {flags()}
+        </Tabs.TabPane>
+      </Tabs>
+    </Card>
+  );
 }

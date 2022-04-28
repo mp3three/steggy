@@ -2,7 +2,7 @@ import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { Button, Col, Drawer, Empty, Row } from 'antd';
 import { dump } from 'js-yaml';
-import React from 'react';
+import React, { useState } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -11,48 +11,14 @@ import { FanEntityCard } from './FanEntityCard';
 import { LightEntityCard } from './LightEntityCard';
 import { SwitchEntityCard } from './SwitchEntityCard';
 
-type tStateType = {
-  visible?: boolean;
-};
-
-export class EntityDetailDrawer extends React.Component<
-  {
-    entity: HassStateDTO;
-    onUpdate?: (state: GeneralSaveStateDTO) => void;
-  },
-  tStateType
-> {
-  private get entity() {
-    return this.props.entity;
-  }
-
-  override render() {
-    return (
-      <>
-        <Button onClick={() => this.setState({ visible: true })} type="text">
-          {FD_ICONS.get('magnify')} {this.props.entity.attributes.friendly_name}
-        </Button>
-        <Drawer
-          size="large"
-          visible={this.state?.visible}
-          placement="bottom"
-          onClose={() => this.setState({ visible: false })}
-        >
-          <Row gutter={8}>
-            <Col span={8}>{this.entityControl()}</Col>
-            <Col span={8}>
-              <SyntaxHighlighter language="yaml" style={atomDark}>
-                {dump(this.props.entity).trimEnd()}
-              </SyntaxHighlighter>
-            </Col>
-          </Row>
-        </Drawer>
-      </>
-    );
-  }
-
-  private entityControl() {
-    const { entity } = this.props;
+export function EntityDetailDrawer({
+  entity,
+}: {
+  entity: HassStateDTO;
+  onUpdate?: (state: GeneralSaveStateDTO) => void;
+}) {
+  const [visible, setVisible] = useState(false);
+  function entityControl() {
     switch (domain(entity.entity_id)) {
       case 'light':
         return (
@@ -70,4 +36,26 @@ export class EntityDetailDrawer extends React.Component<
     }
     return <Empty description="No control widget" />;
   }
+  return (
+    <>
+      <Button onClick={() => setVisible(true)} type="text">
+        {FD_ICONS.get('magnify')} {entity.attributes.friendly_name}
+      </Button>
+      <Drawer
+        size="large"
+        visible={visible}
+        placement="bottom"
+        onClose={() => setVisible(false)}
+      >
+        <Row gutter={8}>
+          <Col span={8}>{entityControl()}</Col>
+          <Col span={8}>
+            <SyntaxHighlighter language="yaml" style={atomDark}>
+              {dump(entity).trimEnd()}
+            </SyntaxHighlighter>
+          </Col>
+        </Row>
+      </Drawer>
+    </>
+  );
 }
