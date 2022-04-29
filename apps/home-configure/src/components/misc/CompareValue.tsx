@@ -16,7 +16,7 @@ export const ALL_OPERATIONS = new Map<`${FILTER_OPERATIONS}`, string>([
   ['regex', 'Regular Expression'],
   ['elem', 'List Element'],
 ]);
-export class CompareValue extends React.Component<{
+export function CompareValue(props: {
   availableOperations?: `${FILTER_OPERATIONS}`[];
   disabled?: boolean;
   numberType?: string;
@@ -29,43 +29,41 @@ export class CompareValue extends React.Component<{
   operation: `${FILTER_OPERATIONS}`;
   value: string | string[];
   valueOptions?: string[];
-}> {
-  override render() {
-    return (
-      <>
-        <Form.Item label="Operation">
-          <Select
-            disabled={this.props.disabled}
-            value={this.props.operation}
-            onChange={operation => this.props.onUpdate({ operation })}
-          >
-            {[...ALL_OPERATIONS.entries()]
-              .filter(
-                ([type]) =>
-                  is.empty(this.props.availableOperations) ||
-                  this.props.availableOperations.includes(type),
-              )
-              .map(([type, label]) => (
-                <Select.Option key={type} value={type}>
-                  {label}
-                </Select.Option>
-              ))}
-          </Select>
-        </Form.Item>
-        <Form.Item label="Value">
-          {is.empty(this.props.operation) || this.props.disabled ? (
-            <Skeleton />
-          ) : (
-            <FilterValue
-              options={this.props.valueOptions}
-              numberType={this.props.numberType}
-              operation={this.props.operation}
-              value={this.props.value}
-              onChange={value => this.props.onUpdate({ value })}
-            />
-          )}
-        </Form.Item>
-      </>
-    );
-  }
+}) {
+  return (
+    <>
+      <Form.Item label="Operation">
+        <Select
+          disabled={props.disabled}
+          value={props.operation}
+          onChange={operation => props.onUpdate({ operation })}
+        >
+          {[...ALL_OPERATIONS.entries()]
+            .filter(
+              ([type]) =>
+                is.empty(props.availableOperations) ||
+                props.availableOperations.includes(type),
+            )
+            .map(([type, label]) => (
+              <Select.Option key={type} value={type}>
+                {label}
+              </Select.Option>
+            ))}
+        </Select>
+      </Form.Item>
+      <Form.Item label="Value">
+        {is.empty(props.operation) || props.disabled ? (
+          <Skeleton />
+        ) : (
+          <FilterValue
+            options={props.valueOptions}
+            numberType={props.numberType}
+            operation={props.operation}
+            value={props.value}
+            onChange={value => props.onUpdate({ value })}
+          />
+        )}
+      </Form.Item>
+    </>
+  );
 }

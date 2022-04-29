@@ -19,68 +19,28 @@ import {
   WebhookComparison,
 } from './comparisons';
 
-export class GenericComparison extends React.Component<{
+export function GenericComparison(props: {
   comparison: RoutineComparisonDTO;
   onCancel: () => void;
   onCommit: () => void;
   onUpdate: (comparison: RoutineComparisonDTO) => void;
   visible: boolean;
-}> {
-  override render() {
-    return (
-      <Drawer
-        visible={this.props.visible}
-        onClose={() => this.props.onCancel()}
-        size="large"
-        title={
-          <Typography.Text
-            editable={{
-              onChange: friendlyName =>
-                this.props.onUpdate({
-                  ...this.props.comparison,
-                  friendlyName,
-                }),
-            }}
-          >
-            {this.props.comparison.friendlyName}
-          </Typography.Text>
-        }
-        extra={
-          <>
-            <Button
-              type="primary"
-              style={{ marginRight: '8px' }}
-              onClick={this.onCommit.bind(this)}
-            >
-              Save
-            </Button>
-            <Button onClick={() => this.props.onCancel()}>Cancel</Button>
-          </>
-        }
-      >
-        {this.renderComparison()}
-      </Drawer>
-    );
+}) {
+  function onCommit(): void {
+    props.onCommit();
   }
 
-  private onCommit(): void {
-    this.props.onCommit();
-  }
-
-  private renderComparison() {
-    switch (this.props.comparison.type) {
+  function renderComparison() {
+    switch (props.comparison.type) {
       case 'metadata':
         return (
           <RoomMetadataComparison
-            comparison={
-              this.props.comparison.comparison as MetadataComparisonDTO
-            }
+            comparison={props.comparison.comparison as MetadataComparisonDTO}
             onUpdate={part =>
-              this.props.onUpdate({
-                ...this.props.comparison,
+              props.onUpdate({
+                ...props.comparison,
                 comparison: {
-                  ...(this.props.comparison
-                    .comparison as MetadataComparisonDTO),
+                  ...(props.comparison.comparison as MetadataComparisonDTO),
                   ...part,
                 },
               })
@@ -91,14 +51,13 @@ export class GenericComparison extends React.Component<{
         return (
           <StateComparison
             comparison={
-              this.props.comparison.comparison as RoutineStateComparisonDTO
+              props.comparison.comparison as RoutineStateComparisonDTO
             }
             onUpdate={part =>
-              this.props.onUpdate({
-                ...this.props.comparison,
+              props.onUpdate({
+                ...props.comparison,
                 comparison: {
-                  ...(this.props.comparison
-                    .comparison as RoutineStateComparisonDTO),
+                  ...(props.comparison.comparison as RoutineStateComparisonDTO),
                   ...part,
                 },
               })
@@ -109,13 +68,13 @@ export class GenericComparison extends React.Component<{
         return (
           <AttributeComparison
             comparison={
-              this.props.comparison.comparison as RoutineAttributeComparisonDTO
+              props.comparison.comparison as RoutineAttributeComparisonDTO
             }
             onUpdate={part =>
-              this.props.onUpdate({
-                ...this.props.comparison,
+              props.onUpdate({
+                ...props.comparison,
                 comparison: {
-                  ...(this.props.comparison
+                  ...(props.comparison
                     .comparison as RoutineAttributeComparisonDTO),
                   ...part,
                 },
@@ -127,14 +86,13 @@ export class GenericComparison extends React.Component<{
         return (
           <RelativeDate
             comparison={
-              this.props.comparison
-                .comparison as RoutineRelativeDateComparisonDTO
+              props.comparison.comparison as RoutineRelativeDateComparisonDTO
             }
             onUpdate={part =>
-              this.props.onUpdate({
-                ...this.props.comparison,
+              props.onUpdate({
+                ...props.comparison,
                 comparison: {
-                  ...(this.props.comparison
+                  ...(props.comparison
                     .comparison as RoutineRelativeDateComparisonDTO),
                   ...part,
                 },
@@ -146,13 +104,13 @@ export class GenericComparison extends React.Component<{
         return (
           <TemplateComparison
             comparison={
-              this.props.comparison.comparison as RoutineTemplateComparisonDTO
+              props.comparison.comparison as RoutineTemplateComparisonDTO
             }
             onUpdate={part =>
-              this.props.onUpdate({
-                ...this.props.comparison,
+              props.onUpdate({
+                ...props.comparison,
                 comparison: {
-                  ...(this.props.comparison
+                  ...(props.comparison
                     .comparison as RoutineTemplateComparisonDTO),
                   ...part,
                 },
@@ -164,13 +122,13 @@ export class GenericComparison extends React.Component<{
         return (
           <WebhookComparison
             comparison={
-              this.props.comparison.comparison as RoutineWebhookComparisonDTO
+              props.comparison.comparison as RoutineWebhookComparisonDTO
             }
             onUpdate={part =>
-              this.props.onUpdate({
-                ...this.props.comparison,
+              props.onUpdate({
+                ...props.comparison,
                 comparison: {
-                  ...(this.props.comparison
+                  ...(props.comparison
                     .comparison as RoutineWebhookComparisonDTO),
                   ...part,
                 },
@@ -181,4 +139,39 @@ export class GenericComparison extends React.Component<{
     }
     return undefined;
   }
+
+  return (
+    <Drawer
+      visible={props.visible}
+      onClose={() => props.onCancel()}
+      size="large"
+      title={
+        <Typography.Text
+          editable={{
+            onChange: friendlyName =>
+              props.onUpdate({
+                ...props.comparison,
+                friendlyName,
+              }),
+          }}
+        >
+          {props.comparison.friendlyName}
+        </Typography.Text>
+      }
+      extra={
+        <>
+          <Button
+            type="primary"
+            style={{ marginRight: '8px' }}
+            onClick={() => onCommit()}
+          >
+            Save
+          </Button>
+          <Button onClick={() => props.onCancel()}>Cancel</Button>
+        </>
+      }
+    >
+      {renderComparison()}
+    </Drawer>
+  );
 }

@@ -16,20 +16,12 @@ import {
   Tabs,
   Typography,
 } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 import { RoutineListDetail } from '../routines';
 import { MetadataEdit } from './MetadataEdit';
 
-type tState = {
-  activate: RoutineDTO[];
-  enable: RoutineDTO[];
-  metadata?: RoomMetadataDTO;
-  routine: RoutineDTO;
-  set_metadata: RoutineDTO[];
-  stop_processing: RoutineDTO[];
-};
 const TAB_LIST = [
   ['enable', 'Enable'],
   ['activate', 'Activate'],
@@ -37,277 +29,274 @@ const TAB_LIST = [
   ['stop_processing', 'Stop Processing'],
 ];
 
-export class RoomMetadata extends React.Component<
-  {
-    onUpdate: (room: RoomDTO) => void;
-    person?: PersonDTO;
-    room?: RoomDTO;
-  },
-  tState
-> {
-  override state = {} as tState;
+export function RoomMetadata(props: {
+  onUpdate: (room: RoomDTO) => void;
+  person?: PersonDTO;
+  room?: RoomDTO;
+}) {
+  const [activate, setActivate] = useState<RoutineDTO[]>([]);
+  const [enable, setEnable] = useState<RoutineDTO[]>([]);
+  const [metadata, setMetadata] = useState<RoomMetadataDTO>();
+  const [routine, setRoutine] = useState<RoutineDTO>();
+  const [set_metadata, setSetMetadata] = useState<RoutineDTO[]>([]);
+  const [stop_processing, setStopProcessing] = useState<RoutineDTO[]>([]);
+  // This seems like the best refactor for my terrible original solution
+  // Don't judge me
+  const getMap = new Map<string, unknown>([
+    ['activate', activate],
+    ['enable', enable],
+    ['metadata', metadata],
+    ['routine', routine],
+    ['set_metadata', set_metadata],
+    ['stop_processing', stop_processing],
+  ]);
+  const setMap = new Map<string, (...i) => void>([
+    ['activate', setActivate],
+    ['enable', setEnable],
+    ['metadata', setMetadata],
+    ['routine', setRoutine],
+    ['set_metadata', setSetMetadata],
+    ['stop_processing', setStopProcessing],
+  ]);
+  const item = props.room ?? props.person;
+  const base = props.room ? 'room' : 'person';
 
-  override componentDidMount(): void {
-    this.refresh();
-  }
+  useEffect(() => {
+    async function refreshActivate() {
+      item.metadata ??= [];
+      const routines = await sendRequest<RoutineDTO[]>({
+        control: {
+          filters: new Set([
+            {
+              field: 'activate.type',
+              value: 'metadata',
+            },
+            {
+              field: 'activate.activate.property',
+              operation: 'in',
+              value: item.metadata.map(({ name }) => name),
+            },
+          ]),
+        },
+        url: `/routine`,
+      });
+      setActivate(routines);
+    }
 
-  private get base() {
-    return this.props.room ? 'room' : 'person';
-  }
+    async function refreshEnable() {
+      item.metadata ??= [];
+      const routines = await sendRequest<RoutineDTO[]>({
+        control: {
+          filters: new Set([
+            {
+              field: 'enable.comparisons.type',
+              value: 'metadata',
+            },
+            {
+              field: 'enable.comparisons.comparisons.property',
+              operation: 'in',
+              value: item.metadata.map(({ name }) => name),
+            },
+          ]),
+        },
+        url: `/routine`,
+      });
+      setEnable(routines);
+    }
 
-  private get item() {
-    return this.props.room ?? this.props.person;
-  }
+    async function refreshSetMetadata() {
+      const routines = await sendRequest<RoutineDTO[]>({
+        control: {
+          filters: new Set([
+            {
+              field: 'command.type',
+              value: 'set_metadata',
+            },
+            {
+              field: 'command.command.name',
+              operation: 'in',
+              value: item.metadata.map(({ name }) => name),
+            },
+          ]),
+        },
+        url: `/routine`,
+      });
+      setSetMetadata(routines);
+    }
 
-  override render() {
-    return (
-      <>
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-          <Card
-            type="inner"
-            extra={
-              <Button
-                icon={FD_ICONS.get('plus_box')}
-                size="small"
-                onClick={this.create.bind(this)}
-              >
-                Create new
-              </Button>
-            }
-          >
-            <List
-              dataSource={this.item.metadata}
-              renderItem={record => (
-                <List.Item>
-                  <List.Item.Meta
-                    title={
-                      <Button
-                        size="small"
-                        type={
-                          this.state.metadata?.id === record.id
-                            ? 'primary'
-                            : 'text'
-                        }
-                        onClick={() => this.setState({ metadata: record })}
-                      >
-                        {is.empty(record.name) ? (
-                          <Typography.Text type="danger">
-                            NO NAME
-                          </Typography.Text>
-                        ) : (
-                          record.name
-                        )}
-                      </Button>
-                    }
-                    description={record.type}
-                  />
-                  <Popconfirm
-                    title={`Are you sure you want to remove ${record.name}?`}
-                    onConfirm={() => this.remove(record.id)}
-                  >
-                    <Button danger type="text">
-                      X
-                    </Button>
-                  </Popconfirm>
-                </List.Item>
-              )}
-            />
-          </Card>
-          <Card type="inner" title="Related Routines">
-            <Tabs>
-              {TAB_LIST.map(([key, label]) => (
-                <Tabs.TabPane tab={label} key={key}>
-                  <List
-                    pagination={{ pageSize: 5, size: 'small' }}
-                    dataSource={this.state[key] as RoutineDTO[]}
-                    renderItem={item => (
-                      <List.Item>
-                        <Button
-                          type="text"
-                          onClick={() => this.setState({ routine: item })}
-                        >
-                          {item.friendlyName}
-                        </Button>
-                      </List.Item>
-                    )}
-                  />
-                </Tabs.TabPane>
-              ))}
-            </Tabs>
-          </Card>
-        </Space>
-        <MetadataEdit
-          room={this.item}
-          metadata={this.state.metadata}
-          onUpdate={metadata => this.updateMetadata(metadata)}
-          onComplete={() => this.setState({ metadata: undefined })}
-        />
-        <Drawer
-          title="Edit routine"
-          size="large"
-          onClose={() => this.setState({ routine: undefined })}
-          visible={!is.undefined(this.state.routine)}
-        >
-          {is.undefined(this.state.routine) ? (
-            <Skeleton />
-          ) : (
-            <RoutineListDetail
-              nested
-              routine={this.state.routine}
-              onUpdate={routine => this.updateRoutine(routine)}
-            />
-          )}
-        </Drawer>
-      </>
-    );
-  }
+    async function refreshStopProcessing() {
+      const routines = await sendRequest<RoutineDTO[]>({
+        control: {
+          filters: new Set([
+            {
+              field: 'command.type',
+              value: 'stop_processing',
+            },
+            {
+              field: 'command.command.type',
+              value: 'metadata',
+            },
+            {
+              field: 'command.command.comparison.property',
+              operation: 'in',
+              value: item.metadata.map(({ name }) => name),
+            },
+          ]),
+        },
+        url: `/routine`,
+      });
+      setStopProcessing(routines);
+    }
+    async function refresh(): Promise<void> {
+      await Promise.all([
+        refreshActivate(),
+        refreshEnable(),
+        refreshSetMetadata(),
+        refreshStopProcessing(),
+      ]);
+    }
+    refresh();
+  }, [item]);
 
-  private async create(): Promise<void> {
+  async function create(): Promise<void> {
     const room = await sendRequest<RoomDTO>({
       body: { name: Date.now().toString() } as Partial<RoomMetadataDTO>,
       method: 'post',
-      url: `/${this.base}/${this.item._id}/metadata`,
+      url: `/${base}/${item._id}/metadata`,
     });
-    this.props.onUpdate(room);
+    props.onUpdate(room);
     const metadata = room.metadata[room.metadata.length - ARRAY_OFFSET];
-    this.setState({ metadata });
+    setMetadata(metadata);
   }
 
-  private async refresh(): Promise<void> {
-    await Promise.all([
-      this.refreshActivate(),
-      this.refreshEnable(),
-      this.refreshSetMetadata(),
-      this.refreshStopProcessing(),
-    ]);
-  }
-
-  private async refreshActivate() {
-    this.item.metadata ??= [];
-    const routines = await sendRequest<RoutineDTO[]>({
-      control: {
-        filters: new Set([
-          {
-            field: 'activate.type',
-            value: 'metadata',
-          },
-          {
-            field: 'activate.activate.property',
-            operation: 'in',
-            value: this.item.metadata.map(({ name }) => name),
-          },
-        ]),
-      },
-      url: `/routine`,
-    });
-    this.setState({ activate: routines });
-  }
-
-  private async refreshEnable() {
-    this.item.metadata ??= [];
-    const routines = await sendRequest<RoutineDTO[]>({
-      control: {
-        filters: new Set([
-          {
-            field: 'enable.comparisons.type',
-            value: 'metadata',
-          },
-          {
-            field: 'enable.comparisons.comparisons.property',
-            operation: 'in',
-            value: this.item.metadata.map(({ name }) => name),
-          },
-        ]),
-      },
-      url: `/routine`,
-    });
-    this.setState({ enable: routines });
-  }
-
-  private async refreshSetMetadata() {
-    const routines = await sendRequest<RoutineDTO[]>({
-      control: {
-        filters: new Set([
-          {
-            field: 'command.type',
-            value: 'set_metadata',
-          },
-          {
-            field: 'command.command.name',
-            operation: 'in',
-            value: this.item.metadata.map(({ name }) => name),
-          },
-        ]),
-      },
-      url: `/routine`,
-    });
-    this.setState({ set_metadata: routines });
-  }
-
-  private async refreshStopProcessing() {
-    const routines = await sendRequest<RoutineDTO[]>({
-      control: {
-        filters: new Set([
-          {
-            field: 'command.type',
-            value: 'stop_processing',
-          },
-          {
-            field: 'command.command.type',
-            value: 'metadata',
-          },
-          {
-            field: 'command.command.comparison.property',
-            operation: 'in',
-            value: this.item.metadata.map(({ name }) => name),
-          },
-        ]),
-      },
-      url: `/routine`,
-    });
-    this.setState({ stop_processing: routines });
-  }
-
-  private async remove(id: string) {
-    this.props.onUpdate(
+  async function remove(id: string) {
+    props.onUpdate(
       await sendRequest({
         method: 'delete',
-        url: `/${this.base}/${this.item._id}/metadata/${id}`,
+        url: `/${base}/${item._id}/metadata/${id}`,
       }),
     );
   }
 
-  private async updateMetadata(
+  async function updateMetadata(
     metadata: Partial<RoomMetadataDTO>,
   ): Promise<void> {
     const room = await sendRequest<RoomDTO>({
       body: metadata,
       method: 'put',
-      url: `/${this.base}/${this.item._id}/metadata/${this.state.metadata.id}`,
+      url: `/${base}/${item._id}/metadata/${metadata.id}`,
     });
-    this.props.onUpdate(room);
-    const updated = room.metadata.find(
-      ({ id }) => id === this.state.metadata?.id,
-    );
-    this.setState({ metadata: updated });
+    props.onUpdate(room);
+    const updated = room.metadata.find(({ id }) => id === metadata?.id);
+    setMetadata(updated);
   }
 
-  private updateRoutine(routine: RoutineDTO): void {
+  function updateRoutine(routine: RoutineDTO): void {
     TAB_LIST.forEach(([type]) => {
-      const list = (this.state[type] as RoutineDTO[]).map(item => {
-        if (item._id === this.state.routine._id) {
+      const list = (getMap.get(type) as RoutineDTO[]).map(item => {
+        if (item._id === routine._id) {
           const updated = {
             ...item,
             ...routine,
           };
-          this.setState({ routine: updated });
+          setRoutine(updated);
           return updated;
         }
         return item;
       });
-      this.setState({
-        [type]: list,
-      } as unknown as tState);
+      setMap.get(type)(list);
     });
   }
+
+  return (
+    <>
+      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+        <Card
+          type="inner"
+          extra={
+            <Button
+              icon={FD_ICONS.get('plus_box')}
+              size="small"
+              onClick={() => create()}
+            >
+              Create new
+            </Button>
+          }
+        >
+          <List
+            dataSource={item.metadata}
+            renderItem={record => (
+              <List.Item>
+                <List.Item.Meta
+                  title={
+                    <Button
+                      size="small"
+                      type={metadata?.id === record.id ? 'primary' : 'text'}
+                      onClick={() => setMetadata(record)}
+                    >
+                      {is.empty(record.name) ? (
+                        <Typography.Text type="danger">NO NAME</Typography.Text>
+                      ) : (
+                        record.name
+                      )}
+                    </Button>
+                  }
+                  description={record.type}
+                />
+                <Popconfirm
+                  title={`Are you sure you want to remove ${record.name}?`}
+                  onConfirm={() => remove(record.id)}
+                >
+                  <Button danger type="text">
+                    X
+                  </Button>
+                </Popconfirm>
+              </List.Item>
+            )}
+          />
+        </Card>
+        <Card type="inner" title="Related Routines">
+          <Tabs>
+            {TAB_LIST.map(([key, label]) => (
+              <Tabs.TabPane tab={label} key={key}>
+                <List
+                  pagination={{ pageSize: 5, size: 'small' }}
+                  dataSource={getMap.get(key) as RoutineDTO[]}
+                  renderItem={item => (
+                    <List.Item>
+                      <Button type="text" onClick={() => setRoutine(item)}>
+                        {item.friendlyName}
+                      </Button>
+                    </List.Item>
+                  )}
+                />
+              </Tabs.TabPane>
+            ))}
+          </Tabs>
+        </Card>
+      </Space>
+      <MetadataEdit
+        room={item}
+        metadata={metadata}
+        onUpdate={metadata => updateMetadata(metadata)}
+        onComplete={() => setMetadata(undefined)}
+      />
+      <Drawer
+        title="Edit routine"
+        size="large"
+        onClose={() => setRoutine(undefined)}
+        visible={!is.undefined(routine)}
+      >
+        {is.undefined(routine) ? (
+          <Skeleton />
+        ) : (
+          <RoutineListDetail
+            nested
+            routine={routine}
+            onUpdate={routine => updateRoutine(routine)}
+          />
+        )}
+      </Drawer>
+    </>
+  );
 }

@@ -10,60 +10,34 @@ import {
   Space,
   Typography,
 } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 
-type tState = {
-  inAdd: string;
-};
+// eslint-disable-next-line radar/cognitive-complexity
+export function FilterValue(props: {
+  numberType?: string;
+  onChange: (value) => void;
+  operation: string;
+  options?: string[];
+  value: string | string[];
+}) {
+  const [inAdd, setInAdd] = useState('');
 
-export class FilterValue extends React.Component<
-  {
-    numberType?: string;
-    onChange: (value) => void;
-    operation: string;
-    options?: string[];
-    value: string | string[];
-  },
-  tState
-> {
-  override state = {} as tState;
-
-  override render() {
-    if (['eq', 'ne', 'elem'].includes(this.props.operation)) {
-      return !is.undefined(this.props?.options)
-        ? this.renderEnumSingle()
-        : this.renderText();
-    }
-    if (['regex'].includes(this.props.operation)) {
-      return this.renderText();
-    }
-    if (['lt', 'lte', 'gt', 'gte'].includes(this.props.operation)) {
-      return this.renderNumber();
-    }
-    if (['in', 'nin'].includes(this.props.operation)) {
-      return this.renderList();
-    }
-    return <Skeleton />;
+  function addItem(value: string[]): void {
+    props.onChange([...value, inAdd]);
+    setInAdd('');
   }
 
-  private addItem(value: string[]): void {
-    this.props.onChange([...value, this.state.inAdd]);
-    this.setState({ inAdd: '' });
-  }
-
-  private renderEnumSingle() {
+  function renderEnumSingle() {
     let value: string;
-    const value_ = this.props.value;
+    const value_ = props.value;
     if (Array.isArray(value_)) {
       value = value_.join(`,`);
     } else {
-      value = is.string(this.props.value)
-        ? this.props.value
-        : String(this.props.value ?? '');
+      value = is.string(props.value) ? props.value : String(props.value ?? '');
     }
     return (
-      <Select value={value} onChange={value => this.props.onChange(value)}>
-        {(this.props.options ?? []).map(option => (
+      <Select value={value} onChange={value => props.onChange(value)}>
+        {(props.options ?? []).map(option => (
           <Select.Option key={option} value={option}>
             {option}
           </Select.Option>
@@ -72,23 +46,23 @@ export class FilterValue extends React.Component<
     );
   }
 
-  private renderList() {
+  function renderList() {
     let value: string[];
-    if (Array.isArray(this.props.value)) {
-      value = this.props.value;
+    if (Array.isArray(props.value)) {
+      value = props.value;
     } else {
-      value = is.undefined(this.props.value) ? [] : [this.props.value];
+      value = is.undefined(props.value) ? [] : [props.value];
     }
     return (
       <>
-        {!is.undefined(this.props.options) ? (
+        {!is.undefined(props.options) ? (
           <Space style={{ width: '100%' }}>
             <Select
-              value={this.state.inAdd}
+              value={inAdd}
               style={{ width: '250px' }}
-              onChange={inAdd => this.setState({ inAdd })}
+              onChange={inAdd => setInAdd(inAdd)}
             >
-              {(this.props.options ?? [])
+              {(props.options ?? [])
                 .filter(i => !value.includes(i))
                 .map(option => (
                   <Select.Option key={option} value={option}>
@@ -96,17 +70,17 @@ export class FilterValue extends React.Component<
                   </Select.Option>
                 ))}
             </Select>
-            <Button type="primary" onClick={() => this.addItem(value)}>
+            <Button type="primary" onClick={() => addItem(value)}>
               Add
             </Button>
           </Space>
         ) : (
           <Input
-            value={this.state.inAdd}
-            onChange={({ target }) => this.setState({ inAdd: target.value })}
-            onPressEnter={() => this.addItem(value)}
+            value={inAdd}
+            onChange={({ target }) => setInAdd(target.value)}
+            onPressEnter={() => addItem(value)}
             suffix={
-              <Button type="primary" onClick={() => this.addItem(value)}>
+              <Button type="primary" onClick={() => addItem(value)}>
                 Add
               </Button>
             }
@@ -124,9 +98,7 @@ export class FilterValue extends React.Component<
                 danger
                 type="text"
                 onClick={() =>
-                  this.props.onChange(
-                    value.filter((i, index_) => index_ !== index),
-                  )
+                  props.onChange(value.filter((i, index_) => index_ !== index))
                 }
               >
                 X
@@ -138,36 +110,45 @@ export class FilterValue extends React.Component<
     );
   }
 
-  private renderNumber() {
-    if (this.props.numberType === 'date') {
-      return this.renderText();
+  function renderNumber() {
+    if (props.numberType === 'date') {
+      return renderText();
     }
-    const value = is.number(this.props.value)
-      ? this.props.value
-      : Number(this.props.value ?? 0);
+    const value = is.number(props.value)
+      ? props.value
+      : Number(props.value ?? 0);
     return (
-      <InputNumber
-        value={value}
-        onChange={value => this.props.onChange(value)}
-      />
+      <InputNumber value={value} onChange={value => props.onChange(value)} />
     );
   }
 
-  private renderText() {
+  function renderText() {
     let value: string;
-    const value_ = this.props.value;
+    const value_ = props.value;
     if (Array.isArray(value_)) {
       value = value_.join(`,`);
     } else {
-      value = is.string(this.props.value)
-        ? this.props.value
-        : String(this.props.value ?? '');
+      value = is.string(props.value) ? props.value : String(props.value ?? '');
     }
     return (
       <Input
         value={value}
-        onChange={({ target }) => this.props.onChange(target.value)}
+        onChange={({ target }) => props.onChange(target.value)}
       />
     );
   }
+
+  if (['eq', 'ne', 'elem'].includes(props.operation)) {
+    return !is.undefined(props?.options) ? renderEnumSingle() : renderText();
+  }
+  if (['regex'].includes(props.operation)) {
+    return renderText();
+  }
+  if (['lt', 'lte', 'gt', 'gte'].includes(props.operation)) {
+    return renderNumber();
+  }
+  if (['in', 'nin'].includes(props.operation)) {
+    return renderList();
+  }
+  return <Skeleton />;
 }

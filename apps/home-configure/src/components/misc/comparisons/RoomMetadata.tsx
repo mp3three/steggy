@@ -7,16 +7,11 @@ import {
 } from '@steggy/controller-shared';
 import { FILTER_OPERATIONS, is } from '@steggy/utilities';
 import { Card, Form, Select, Skeleton } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../../types';
 import { CompareValue } from '../CompareValue';
 import { FuzzySelect } from '../FuzzySelect';
-
-type tState = {
-  people: PersonDTO[];
-  rooms: RoomDTO[];
-};
 
 const AVAILABLE_OPERATIONS = new Map<
   `${ROOM_METADATA_TYPES}`,
@@ -32,102 +27,90 @@ const AVAILABLE_OPERATIONS = new Map<
   ['date', ['gt', 'gte', 'lt', 'lte']],
 ]);
 
-export class RoomMetadataComparison extends React.Component<
-  {
-    comparison: MetadataComparisonDTO;
-    onUpdate: (value: Partial<MetadataComparisonDTO>) => void;
-    unwrap?: boolean;
-  },
-  tState
-> {
-  override state = { people: [], rooms: [] } as tState;
+// eslint-disable-next-line radar/cognitive-complexity
+export function RoomMetadataComparison(props: {
+  comparison: MetadataComparisonDTO;
+  onUpdate: (value: Partial<MetadataComparisonDTO>) => void;
+  unwrap?: boolean;
+}) {
+  const [people, setPeople] = useState<PersonDTO[]>();
+  const [rooms, setRooms] = useState<RoomDTO[]>();
 
-  private get target(): RoomDTO {
-    const person = this.state.people.find(
-      ({ _id }) => _id === this.props.comparison?.room,
-    );
+  // override async componentDidMount(): Promise<void> {
+  //   await this.listEntities();
+  // }
+  useEffect(() => {
+    async function listEntities() {
+      const rooms = await sendRequest<RoomDTO[]>({
+        control: {
+          filters: new Set([
+            {
+              field: 'metadata.0',
+              operation: 'exists',
+              value: true,
+            },
+          ]),
+          select: ['friendlyName', 'metadata'],
+          sort: ['friendlyName'],
+        },
+        url: `/room`,
+      });
+      const people = await sendRequest<PersonDTO[]>({
+        control: {
+          filters: new Set([
+            {
+              field: 'metadata.0',
+              operation: 'exists',
+              value: true,
+            },
+          ]),
+          select: ['friendlyName', 'metadata'],
+          sort: ['friendlyName'],
+        },
+        url: `/person`,
+      });
+      setPeople(people);
+      setRooms(rooms);
+    }
+    listEntities();
+  }, []);
+
+  function target(): RoomDTO {
+    const person = people.find(({ _id }) => _id === props.comparison?.room);
     if (person) {
       return person;
     }
-    return this.state.rooms.find(
-      ({ _id }) => _id === this.props.comparison?.room,
-    );
+    return rooms.find(({ _id }) => _id === props.comparison?.room);
   }
 
-  private get metadata(): RoomMetadataDTO {
-    const room = this.target;
+  function metadata(): RoomMetadataDTO {
+    const room = target();
     const metadata = (room?.metadata ?? []).find(
-      ({ name }) => name === this.props.comparison?.property,
+      ({ name }) => name === props.comparison?.property,
     );
     return metadata;
   }
 
-  override async componentDidMount(): Promise<void> {
-    await this.listEntities();
-  }
-
-  override render() {
-    if (this.props.unwrap) {
-      return this.renderBody();
-    }
-    return (
-      <Card title="Metadata Comparison" type="inner">
-        {this.renderBody()}
-      </Card>
-    );
-  }
-
-  private async listEntities() {
-    const rooms = await sendRequest<RoomDTO[]>({
-      control: {
-        filters: new Set([
-          {
-            field: 'metadata.0',
-            operation: 'exists',
-            value: true,
-          },
-        ]),
-        select: ['friendlyName', 'metadata'],
-        sort: ['friendlyName'],
-      },
-      url: `/room`,
-    });
-    const people = await sendRequest<PersonDTO[]>({
-      control: {
-        filters: new Set([
-          {
-            field: 'metadata.0',
-            operation: 'exists',
-            value: true,
-          },
-        ]),
-        select: ['friendlyName', 'metadata'],
-        sort: ['friendlyName'],
-      },
-      url: `/person`,
-    });
-    this.setState({ people, rooms });
-  }
-
-  private renderBody() {
-    const metadata = this.metadata;
-    const type = metadata?.type;
+  function renderBody() {
+    const meta = metadata();
+    const type = meta?.type;
+    const item = target();
     return (
       <>
         <Form.Item label="Source">
           <Select
-            onChange={room => this.sourceUpdate(room)}
-            value={this.props.comparison?.room}
+            onChange={room => sourceUpdate(room)}
+            value={props.comparison?.room}
           >
             <Select.OptGroup label="Room">
-              {this.state.rooms.map(room => (
+              {rooms.map(room => (
                 <Select.Option value={room._id} key={room._id}>
                   {room.friendlyName}
                 </Select.Option>
               ))}
             </Select.OptGroup>
             <Select.OptGroup label="Person">
-              {this.state.people.map(person => (
+              {people.map(person => (
                 <Select.Option value={person._id} key={person._id}>
                   {person.friendlyName}
                 </Select.Option>
@@ -136,33 +119,33 @@ export class RoomMetadataComparison extends React.Component<
           </Select>
         </Form.Item>
         <Form.Item label="Property">
-          {this.target ? (
+          {item ? (
             <FuzzySelect
-              disabled={is.empty(this.props.comparison.room)}
-              value={this.props.comparison?.property}
-              data={this.target.metadata.map((i: RoomMetadataDTO) => ({
+              disabled={is.empty(props.comparison.room)}
+              value={props.comparison?.property}
+              data={item.metadata.map((i: RoomMetadataDTO) => ({
                 text: i.name,
                 value: i.name,
               }))}
-              onChange={property => this.props.onUpdate({ property })}
+              onChange={property => props.onUpdate({ property })}
             />
           ) : (
             <Skeleton.Input />
           )}
         </Form.Item>
         <CompareValue
-          disabled={is.empty(this.props.comparison?.room)}
-          valueOptions={type === 'enum' ? metadata.options ?? [] : undefined}
-          operation={this.props.comparison?.operation}
+          disabled={is.empty(props.comparison?.room)}
+          valueOptions={type === 'enum' ? meta.options ?? [] : undefined}
+          operation={props.comparison?.operation}
           availableOperations={AVAILABLE_OPERATIONS.get(type)}
-          value={this.props.comparison?.value as FILTER_OPERATIONS}
+          value={props.comparison?.value as FILTER_OPERATIONS}
           numberType={type}
           onUpdate={({ value, operation }) => {
             if (!is.undefined(value)) {
-              this.props.onUpdate({ value });
+              props.onUpdate({ value });
             }
             if (!is.undefined(operation)) {
-              this.props.onUpdate({ operation });
+              props.onUpdate({ operation });
             }
           }}
         />
@@ -170,11 +153,11 @@ export class RoomMetadataComparison extends React.Component<
     );
   }
 
-  private sourceUpdate(room: string): void {
-    const type = is.object(this.state.rooms.find(({ _id }) => _id === room))
+  function sourceUpdate(room: string): void {
+    const type = is.object(rooms.find(({ _id }) => _id === room))
       ? 'room'
       : 'person';
-    this.props.onUpdate({
+    props.onUpdate({
       operation: undefined,
       property: undefined,
       room,
@@ -182,4 +165,13 @@ export class RoomMetadataComparison extends React.Component<
       value: undefined,
     });
   }
+
+  if (props.unwrap) {
+    return renderBody();
+  }
+  return (
+    <Card title="Metadata Comparison" type="inner">
+      {renderBody()}
+    </Card>
+  );
 }
