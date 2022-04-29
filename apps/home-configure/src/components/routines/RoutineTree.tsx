@@ -15,16 +15,11 @@ import {
 import { DataNode, EventDataNode } from 'antd/lib/tree';
 import type { NodeDragEventParams } from 'rc-tree/lib/contextTypes';
 import { Key } from 'rc-tree/lib/interface';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 
 type tRoutineMap = Map<string, { item: DataNode; routine: RoutineDTO }>;
-type tState = {
-  name: string;
-  routineMap: tRoutineMap;
-  treeData: DataNode[];
-};
 
 type DropOptions = NodeDragEventParams<HTMLDivElement> & {
   dragNode: EventDataNode;
@@ -33,115 +28,34 @@ type DropOptions = NodeDragEventParams<HTMLDivElement> & {
   dropToGap: boolean;
 };
 
-export class RoutineTree extends React.Component<
-  {
-    enabled: string[];
-    onSelect: (routine: RoutineDTO) => void;
-    onUpdate: () => void;
-    routine: RoutineDTO;
-    routines: RoutineDTO[];
-  },
-  tState
-> {
-  override state = {} as tState;
-  private form: FormInstance;
+// eslint-disable-next-line radar/cognitive-complexity
+export function RoutineTree(props: {
+  enabled: string[];
+  onSelect: (routine: RoutineDTO) => void;
+  onUpdate: () => void;
+  routine: RoutineDTO;
+  routines: RoutineDTO[];
+}) {
+  const [routineMap, setRoutineMap] = useState<tRoutineMap>(new Map());
+  const [treeData, setTreeData] = useState<DataNode[]>([]);
 
-  override componentDidMount(): void {
-    if (is.empty(this.state.treeData)) {
-      this.refresh();
-    }
-  }
+  let form: FormInstance;
 
-  override componentDidUpdate(
-    previousProperties: Readonly<{ routines: RoutineDTO[] }>,
-  ): void {
-    const { routines } = this.props;
-    if (previousProperties.routines === routines) {
-      return;
-    }
-    this.refresh();
-  }
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.routines]);
 
-  override render() {
-    const children = this.state.treeData ?? [];
-    return (
-      <Card
-        extra={
-          <Popconfirm
-            icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
-            onConfirm={this.validate.bind(this)}
-            title={
-              <Form
-                onFinish={this.validate.bind(this)}
-                ref={form => (this.form = form)}
-              >
-                <Form.Item
-                  label="Friendly Name"
-                  name="friendlyName"
-                  rules={[{ required: true }]}
-                >
-                  <Input />
-                </Form.Item>
-              </Form>
-            }
-          >
-            <Button size="small" icon={FD_ICONS.get('plus_box')}>
-              Create new
-            </Button>
-          </Popconfirm>
-        }
-      >
-        {is.empty(children) ? (
-          <Empty />
-        ) : (
-          <Tree
-            treeData={[
-              {
-                children: children.sort((a, b) =>
-                  this.sortChildren(a, b, this.state.routineMap),
-                ),
-                icon: <NodeIndexOutlined />,
-                key: 'root',
-                selectable: false,
-                title: <Typography.Text strong>Root</Typography.Text>,
-              },
-            ]}
-            className="draggable-tree"
-            draggable
-            showIcon
-            selectedKeys={[this.props.routine?._id]}
-            onDrop={this.onDrop.bind(this)}
-            onSelect={this.onSelect.bind(this)}
-            blockNode
-            defaultExpandedKeys={['root']}
-          />
-        )}
-      </Card>
-    );
-  }
-
-  private async onDrop(info: DropOptions): Promise<void> {
-    const dropKey = info.node.key;
-    const dragKey = info.dragNode.key;
-    const parent = dropKey === 'root' ? '' : dropKey;
-    await sendRequest({
-      body: { parent } as Partial<RoutineDTO>,
-      method: 'put',
-      url: `/routine/${dragKey}`,
-    });
-    this.props.onUpdate();
-  }
-
-  private onSelect(selected: string[]): void {
+  function onSelect(selected: string[]): void {
     const [item] = selected;
     if (!item) {
       return;
     }
-    this.props.onSelect(this.state.routineMap.get(item).routine);
+    props.onSelect(routineMap.get(item).routine);
   }
 
-  private refresh(): void {
-    const { routines, enabled } = this.props;
+  function refresh(): void {
+    const { routines, enabled } = props;
     const routineMap = new Map<
       string,
       { item: DataNode; routine: RoutineDTO }
@@ -167,7 +81,7 @@ export class RoutineTree extends React.Component<
     routineMap.forEach(({ item, routine }) => {
       const isEnabled = enabled.includes(routine._id);
       item.children = item.children.sort((a, b) =>
-        this.sortChildren(a, b, routineMap),
+        sortChildren(a, b, routineMap),
       );
       if (
         !is.empty(item.children) &&
@@ -212,10 +126,11 @@ export class RoutineTree extends React.Component<
           );
       }
     });
-    this.setState({ routineMap, treeData });
+    setRoutineMap(routineMap);
+    setTreeData(treeData);
   }
 
-  private sortChildren(a: DataNode, b: DataNode, routineMap: tRoutineMap) {
+  function sortChildren(a: DataNode, b: DataNode, routineMap: tRoutineMap) {
     const aRoutine = routineMap.get(a.key as string).routine;
     const bRoutine = routineMap.get(b.key as string).routine;
     if (!is.empty(a.children) && is.empty(b.children)) {
@@ -227,19 +142,81 @@ export class RoutineTree extends React.Component<
     return aRoutine.friendlyName > bRoutine.friendlyName ? UP : DOWN;
   }
 
-  private async validate(): Promise<void> {
+  async function validate(): Promise<void> {
     try {
-      const values = await this.form.validateFields();
+      const values = await form.validateFields();
       const routine = await sendRequest<RoutineDTO>({
         body: values,
         method: 'post',
         url: `/routine`,
       });
-      this.form.resetFields();
-      this.props.onUpdate();
-      this.props.onSelect(routine);
+      form.resetFields();
+      props.onUpdate();
+      props.onSelect(routine);
     } catch (error) {
       console.error(error);
     }
   }
+
+  async function onDrop(info: DropOptions): Promise<void> {
+    const dropKey = info.node.key;
+    const dragKey = info.dragNode.key;
+    const parent = dropKey === 'root' ? '' : dropKey;
+    await sendRequest({
+      body: { parent } as Partial<RoutineDTO>,
+      method: 'put',
+      url: `/routine/${dragKey}`,
+    });
+    props.onUpdate();
+  }
+
+  return (
+    <Card
+      extra={
+        <Popconfirm
+          icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
+          onConfirm={() => validate()}
+          title={
+            <Form onFinish={() => validate()} ref={ref => (form = ref)}>
+              <Form.Item
+                label="Friendly Name"
+                name="friendlyName"
+                rules={[{ required: true }]}
+              >
+                <Input />
+              </Form.Item>
+            </Form>
+          }
+        >
+          <Button size="small" icon={FD_ICONS.get('plus_box')}>
+            Create new
+          </Button>
+        </Popconfirm>
+      }
+    >
+      {is.empty(treeData) ? (
+        <Empty />
+      ) : (
+        <Tree
+          treeData={[
+            {
+              children: treeData.sort((a, b) => sortChildren(a, b, routineMap)),
+              icon: <NodeIndexOutlined />,
+              key: 'root',
+              selectable: false,
+              title: <Typography.Text strong>Root</Typography.Text>,
+            },
+          ]}
+          className="draggable-tree"
+          draggable
+          showIcon
+          selectedKeys={[props.routine?._id]}
+          onDrop={options => onDrop(options)}
+          onSelect={(keys: string[]) => onSelect(keys)}
+          blockNode
+          defaultExpandedKeys={['root']}
+        />
+      )}
+    </Card>
+  );
 }

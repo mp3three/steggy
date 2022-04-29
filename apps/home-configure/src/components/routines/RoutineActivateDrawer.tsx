@@ -11,140 +11,104 @@ import {
   SolarActivateDTO,
   StateChangeActivateDTO,
 } from '@steggy/controller-shared';
-import { is } from '@steggy/utilities';
 import { Card, Drawer, Form, Spin, Typography } from 'antd';
-import React from 'react';
 
 import { EntityHistory } from '../entities';
 import {
+  RoutineActivateAttributeChange,
   RoutineActivateCron,
   RoutineActivateDeviceTrigger,
+  RoutineActivateInternalEvent,
   RoutineActivateKunami,
   RoutineActivateMetadataChange,
   RoutineActivateSolar,
   RoutineActivateStateChange,
 } from './activate';
-import { RoutineActivateAttributeChange } from './activate/RoutineActivateAttributeChange';
-import { RoutineActivateInternalEvent } from './activate/RoutineActivateInternalEvent';
 
-export class RoutineActivateDrawer extends React.Component<{
+// eslint-disable-next-line radar/cognitive-complexity
+export function RoutineActivateDrawer(props: {
   activate: RoutineActivateDTO;
   onComplete: () => void;
   onUpdate?: (routine: Partial<RoutineActivateDTO>) => void;
   routine: RoutineDTO;
-}> {
-  override render() {
-    if (!this.props.activate) {
-      return (
-        <Drawer visible={false}>
-          <Spin />
-        </Drawer>
-      );
-    }
-    const activate = this.props
-      .activate as RoutineActivateDTO<StateChangeActivateDTO>;
-    return (
-      <Drawer
-        visible
-        onClose={() => this.props.onComplete()}
-        size="large"
-        title={
-          <Typography.Text
-            editable={{
-              onChange: friendlyName => this.props.onUpdate({ friendlyName }),
-            }}
-          >
-            {this.props.activate.friendlyName}
-          </Typography.Text>
-        }
-      >
-        <Card type="inner" title="Activation Event">
-          <Form labelCol={{ span: 4 }}>{this.renderType()}</Form>
-        </Card>
-        {this.props.activate.type === 'state_change' ? (
-          <EntityHistory entity={activate.activate?.entity} />
-        ) : undefined}
-      </Drawer>
-    );
-  }
-
-  private renderType() {
-    if (this.props.activate.type === 'attribute') {
+}) {
+  function renderType() {
+    if (props.activate.type === 'attribute') {
       return (
         <RoutineActivateAttributeChange
-          activate={this.props.activate.activate as AttributeChangeActivateDTO}
+          activate={props.activate.activate as AttributeChangeActivateDTO}
           onUpdate={activate =>
-            this.updateActivate(activate as Partial<AttributeChangeActivateDTO>)
+            updateActivate(activate as Partial<AttributeChangeActivateDTO>)
           }
         />
       );
     }
-    if (this.props.activate.type === 'metadata') {
+    if (props.activate.type === 'metadata') {
       return (
         <RoutineActivateMetadataChange
-          activate={this.props.activate.activate as MetadataChangeDTO}
+          activate={props.activate.activate as MetadataChangeDTO}
           onUpdate={activate =>
-            this.updateActivate(activate as Partial<MetadataChangeDTO>)
+            updateActivate(activate as Partial<MetadataChangeDTO>)
           }
         />
       );
     }
-    if (this.props.activate.type === 'internal_event') {
+    if (props.activate.type === 'internal_event') {
       return (
         <RoutineActivateInternalEvent
-          activate={this.props.activate.activate as InternalEventActivateDTO}
+          activate={props.activate.activate as InternalEventActivateDTO}
           onUpdate={activate =>
-            this.updateActivate(activate as Partial<InternalEventActivateDTO>)
+            updateActivate(activate as Partial<InternalEventActivateDTO>)
           }
         />
       );
     }
-    if (this.props.activate.type === 'schedule') {
+    if (props.activate.type === 'schedule') {
       return (
         <RoutineActivateCron
-          activate={this.props.activate.activate as ScheduleActivateDTO}
+          activate={props.activate.activate as ScheduleActivateDTO}
           onUpdate={activate =>
-            this.updateActivate(activate as Partial<RoutineActivateDTO>)
+            updateActivate(activate as Partial<RoutineActivateDTO>)
           }
         />
       );
     }
-    if (this.props.activate.type === 'device_trigger') {
+    if (props.activate.type === 'device_trigger') {
       return (
         <RoutineActivateDeviceTrigger
-          activate={this.props.activate.activate as DeviceTriggerActivateDTO}
+          activate={props.activate.activate as DeviceTriggerActivateDTO}
           onUpdate={activate =>
-            this.updateActivate(activate as Partial<DeviceTriggerActivateDTO>)
+            updateActivate(activate as Partial<DeviceTriggerActivateDTO>)
           }
         />
       );
     }
-    if (this.props.activate.type === 'state_change') {
+    if (props.activate.type === 'state_change') {
       return (
         <RoutineActivateStateChange
-          activate={this.props.activate.activate as StateChangeActivateDTO}
+          activate={props.activate.activate as StateChangeActivateDTO}
           onUpdate={activate =>
-            this.updateActivate(activate as Partial<StateChangeActivateDTO>)
+            updateActivate(activate as Partial<StateChangeActivateDTO>)
           }
         />
       );
     }
-    if (this.props.activate.type === 'solar') {
+    if (props.activate.type === 'solar') {
       return (
         <RoutineActivateSolar
-          activate={this.props.activate.activate as SolarActivateDTO}
+          activate={props.activate.activate as SolarActivateDTO}
           onUpdate={activate =>
-            this.updateActivate(activate as Partial<SolarActivateDTO>)
+            updateActivate(activate as Partial<SolarActivateDTO>)
           }
         />
       );
     }
-    if (this.props.activate.type === 'kunami') {
+    if (props.activate.type === 'kunami') {
       return (
         <RoutineActivateKunami
-          activate={this.props.activate.activate as SequenceActivateDTO}
+          activate={props.activate.activate as SequenceActivateDTO}
           onUpdate={activate =>
-            this.updateActivate(activate as Partial<SequenceActivateDTO>)
+            updateActivate(activate as Partial<SequenceActivateDTO>)
           }
         />
       );
@@ -152,16 +116,44 @@ export class RoutineActivateDrawer extends React.Component<{
     return undefined;
   }
 
-  private updateActivate(activate: Partial<ROUTINE_ACTIVATE_TYPES>): void {
-    const historyEntity = (activate as StateChangeActivateDTO).entity;
-    if (!is.empty(historyEntity)) {
-      this.setState({ historyEntity });
-    }
-    this.props.onUpdate({
+  function updateActivate(activate: Partial<ROUTINE_ACTIVATE_TYPES>): void {
+    props.onUpdate({
       activate: {
-        ...this.props.activate.activate,
+        ...props.activate.activate,
         ...activate,
       },
     } as unknown as Partial<RoutineActivateDTO>);
   }
+
+  if (!props.activate) {
+    return (
+      <Drawer visible={false}>
+        <Spin />
+      </Drawer>
+    );
+  }
+  const activate = props.activate as RoutineActivateDTO<StateChangeActivateDTO>;
+  return (
+    <Drawer
+      visible
+      onClose={() => props.onComplete()}
+      size="large"
+      title={
+        <Typography.Text
+          editable={{
+            onChange: friendlyName => props.onUpdate({ friendlyName }),
+          }}
+        >
+          {props.activate.friendlyName}
+        </Typography.Text>
+      }
+    >
+      <Card type="inner" title="Activation Event">
+        <Form labelCol={{ span: 4 }}>{renderType()}</Form>
+      </Card>
+      {props.activate.type === 'state_change' ? (
+        <EntityHistory entity={activate.activate?.entity} />
+      ) : undefined}
+    </Drawer>
+  );
 }
