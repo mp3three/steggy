@@ -20,122 +20,60 @@ import { RoomMetadata } from '../misc';
 import { SaveStateEditor } from '../misc/SaveStateEditor';
 import { PersonConfiguration } from './PersonConfiguration';
 
-// import { RoomSaveStates } from './RoomSaveState';
-
-type tState = {
-  name: string;
-};
-
-export class PeopleDetail extends React.Component<
-  {
-    nested?: boolean;
-    onClone?: (person: PersonDTO) => void;
-    onUpdate: (person?: PersonDTO) => void;
-    person?: PersonDTO;
-  },
-  tState
-> {
-  override state = {} as tState;
-
-  override render() {
-    if (this.props.nested) {
-      return this.renderBody();
-    }
-    return (
-      <Card
-        title="Person details"
-        extra={
-          !is.object(this.props.person) ? undefined : (
-            <Dropdown
-              overlay={
-                <Menu>
-                  <Menu.Item key="delete">
-                    <Popconfirm
-                      icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-                      title={`Are you sure you want to delete ${this.props.person.friendlyName}?`}
-                      onConfirm={() => this.delete()}
-                    >
-                      <Button
-                        style={{ textAlign: 'start', width: '100%' }}
-                        danger
-                        icon={FD_ICONS.get('remove')}
-                      >
-                        Delete
-                      </Button>
-                    </Popconfirm>
-                  </Menu.Item>
-                  <Menu.Item key="clone">
-                    <Button
-                      onClick={() => this.clone()}
-                      icon={FD_ICONS.get('clone')}
-                      style={{ textAlign: 'start', width: '100%' }}
-                    >
-                      Clone
-                    </Button>
-                  </Menu.Item>
-                </Menu>
-              }
-            >
-              <Button type="text" size="small">
-                {FD_ICONS.get('menu')}
-              </Button>
-            </Dropdown>
-          )
-        }
-      >
-        {this.renderBody()}
-      </Card>
-    );
-  }
-
-  private async clone(): Promise<void> {
+export function PeopleDetail(props: {
+  nested?: boolean;
+  onClone?: (person: PersonDTO) => void;
+  onUpdate: (person?: PersonDTO) => void;
+  person?: PersonDTO;
+}) {
+  async function clone(): Promise<void> {
     const cloned = await sendRequest<PersonDTO>({
       method: 'post',
-      url: `/person/${this.props.person._id}/clone`,
+      url: `/person/${props.person._id}/clone`,
     });
-    if (this.props.onClone) {
-      this.props.onClone(cloned);
+    if (props.onClone) {
+      props.onClone(cloned);
     }
   }
 
-  private async delete(): Promise<void> {
+  async function remove(): Promise<void> {
     await sendRequest({
       method: 'delete',
-      url: `/person/${this.props.person._id}`,
+      url: `/person/${props.person._id}`,
     });
-    this.props.onUpdate();
+    props.onUpdate();
   }
 
-  private renderBody() {
-    return !this.props.person ? (
+  function renderBody() {
+    return !props.person ? (
       <Empty description="Select a person" />
     ) : (
       <>
         <Typography.Title
           level={3}
           editable={{
-            onChange: friendlyName => this.update({ friendlyName }),
+            onChange: friendlyName => update({ friendlyName }),
           }}
         >
-          {this.props.person.friendlyName}
+          {props.person.friendlyName}
         </Typography.Title>
         <Tabs>
           <Tabs.TabPane key="members" tab="Members">
             <PersonConfiguration
-              person={this.props.person}
-              onUpdate={person => this.props.onUpdate(person)}
+              person={props.person}
+              onUpdate={person => props.onUpdate(person)}
             />
           </Tabs.TabPane>
           <Tabs.TabPane key="save_states" tab="Save States">
             <SaveStateEditor
-              person={this.props.person}
-              onUpdate={room => this.props.onUpdate(room)}
+              person={props.person}
+              onUpdate={room => props.onUpdate(room)}
             />
           </Tabs.TabPane>
           <Tabs.TabPane key="metadata" tab="Metadata">
             <RoomMetadata
-              person={this.props.person}
-              onUpdate={person => this.props.onUpdate(person)}
+              person={props.person}
+              onUpdate={person => props.onUpdate(person)}
             />
           </Tabs.TabPane>
           <Tabs.TabPane key="settings" tab="Settings">
@@ -143,9 +81,9 @@ export class PeopleDetail extends React.Component<
               <Form.Item label="Internal Name">
                 <Input
                   defaultValue={
-                    this.props.person.name ?? `person_${this.props.person._id}`
+                    props.person.name ?? `person_${props.person._id}`
                   }
-                  onBlur={({ target }) => this.update({ name: target.value })}
+                  onBlur={({ target }) => update({ name: target.value })}
                 />
               </Form.Item>
             </Card>
@@ -155,12 +93,61 @@ export class PeopleDetail extends React.Component<
     );
   }
 
-  private async update(body: Partial<PersonDTO>): Promise<void> {
+  async function update(body: Partial<PersonDTO>): Promise<void> {
     const room = await sendRequest<PersonDTO>({
       body,
       method: 'put',
-      url: `/person/${this.props.person._id}`,
+      url: `/person/${props.person._id}`,
     });
-    this.props.onUpdate(room);
+    props.onUpdate(room);
   }
+
+  if (props.nested) {
+    return renderBody();
+  }
+  return (
+    <Card
+      title="Person details"
+      extra={
+        !is.object(props.person) ? undefined : (
+          <Dropdown
+            overlay={
+              <Menu>
+                <Menu.Item key="delete">
+                  <Popconfirm
+                    icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                    title={`Are you sure you want to delete ${props.person.friendlyName}?`}
+                    onConfirm={() => remove()}
+                  >
+                    <Button
+                      style={{ textAlign: 'start', width: '100%' }}
+                      danger
+                      icon={FD_ICONS.get('remove')}
+                    >
+                      Delete
+                    </Button>
+                  </Popconfirm>
+                </Menu.Item>
+                <Menu.Item key="clone">
+                  <Button
+                    onClick={() => clone()}
+                    icon={FD_ICONS.get('clone')}
+                    style={{ textAlign: 'start', width: '100%' }}
+                  >
+                    Clone
+                  </Button>
+                </Menu.Item>
+              </Menu>
+            }
+          >
+            <Button type="text" size="small">
+              {FD_ICONS.get('menu')}
+            </Button>
+          </Dropdown>
+        )
+      }
+    >
+      {renderBody()}
+    </Card>
+  );
 }
