@@ -1,14 +1,6 @@
 import { GroupDTO } from '@steggy/controller-shared';
 import { Card } from 'antd';
-import React from 'react';
 
-type tStateType = { group: GroupDTO };
-
-export class GroupStatePicker extends React.Component<
-  { group: GroupDTO },
-  tStateType
-> {
-  override render() {
-    return <Card title={this.props.group.friendlyName + ' save states'}></Card>;
-  }
+export function GroupStatePicker(props: { group: GroupDTO }) {
+  return <Card title={props.group.friendlyName + ' save states'}></Card>;
 }

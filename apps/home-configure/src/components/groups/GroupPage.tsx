@@ -1,183 +1,65 @@
 import type { GROUP_TYPES, GroupDTO } from '@steggy/controller-shared';
 import { NOT_FOUND } from '@steggy/utilities';
 import { Button, Card, Col, Layout, List, Row, Tabs } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { GROUP_DESCRIPTIONS, sendRequest } from '../../types';
 import { GroupCreateButton } from './GroupCreateButton';
 import { GroupListDetail } from './GroupListDetail';
 
 const { Content } = Layout;
-type tState = {
-  group: GroupDTO;
-  groups: GroupDTO[];
-};
 
-export class GroupPage extends React.Component {
-  override state = {
-    group: undefined,
-    groups: [],
-  } as tState;
+let lastTab: `${GROUP_TYPES}` = 'light';
 
-  private lastTab: `${GROUP_TYPES}` = 'light';
+export function GroupPage() {
+  const [group, setGroup] = useState<GroupDTO>();
+  const [groups, setGroups] = useState<GroupDTO[]>([]);
 
-  override async componentDidMount(): Promise<void> {
-    await this.refresh();
+  useEffect(() => {
+    refresh();
+  });
+
+  function filter(type: string): GroupDTO[] {
+    return groups.filter(group => group.type === type);
   }
 
-  override render() {
-    return (
-      <Layout>
-        <Content style={{ padding: '16px' }}>
-          <Row gutter={8}>
-            <Col span={12}>
-              <Tabs
-                type="card"
-                onTabClick={tab => this.tabChange(tab as GROUP_TYPES)}
-              >
-                <Tabs.TabPane
-                  key="light"
-                  tab={`Light Groups (${this.filter('light').length})`}
-                >
-                  <Card
-                    type="inner"
-                    extra={
-                      <GroupCreateButton
-                        type="light"
-                        onUpdate={group => this.refresh(group)}
-                      />
-                    }
-                  >
-                    <List
-                      dataSource={this.filter('light')}
-                      pagination={{ size: 'small' }}
-                      renderItem={item => this.renderGroup(item)}
-                    ></List>
-                  </Card>
-                </Tabs.TabPane>
-                <Tabs.TabPane
-                  key="switch"
-                  tab={`Switch Groups (${this.filter('switch').length})`}
-                >
-                  <Card
-                    type="inner"
-                    extra={
-                      <GroupCreateButton
-                        type="switch"
-                        onUpdate={group => this.refresh(group)}
-                      />
-                    }
-                  >
-                    <List
-                      dataSource={this.filter('switch')}
-                      pagination={{ size: 'small' }}
-                      renderItem={item => this.renderGroup(item)}
-                    ></List>
-                  </Card>
-                </Tabs.TabPane>
-                <Tabs.TabPane
-                  key="fan"
-                  tab={`Fan Groups (${this.filter('fan').length})`}
-                >
-                  <Card
-                    type="inner"
-                    extra={
-                      <GroupCreateButton
-                        type="fan"
-                        onUpdate={group => this.refresh(group)}
-                      />
-                    }
-                  >
-                    <List
-                      dataSource={this.filter('fan')}
-                      pagination={{ size: 'small' }}
-                      renderItem={item => this.renderGroup(item)}
-                    ></List>
-                  </Card>
-                </Tabs.TabPane>
-                <Tabs.TabPane
-                  key="lock"
-                  tab={`Lock Groups (${this.filter('lock').length})`}
-                >
-                  <Card
-                    type="inner"
-                    extra={
-                      <GroupCreateButton
-                        type="lock"
-                        onUpdate={group => this.refresh(group)}
-                      />
-                    }
-                  >
-                    <List
-                      dataSource={this.filter('lock')}
-                      pagination={{ size: 'small' }}
-                      renderItem={item => this.renderGroup(item)}
-                    ></List>
-                  </Card>
-                </Tabs.TabPane>
-              </Tabs>
-            </Col>
-            <Col span={12}>
-              <GroupListDetail
-                description={GROUP_DESCRIPTIONS.get(this.lastTab)}
-                group={this.state.group}
-                onClone={group => this.onClone(group)}
-                onUpdate={group => this.refresh(group)}
-              />
-            </Col>
-          </Row>
-        </Content>
-      </Layout>
-    );
-  }
-  private filter(type: string): GroupDTO[] {
-    return this.state.groups.filter(group => group.type === type);
+  function onClone(group: GroupDTO): void {
+    setGroup(group);
+    setGroups([...groups, group]);
   }
 
-  private onClone(group: GroupDTO): void {
-    this.setState({
-      group,
-      groups: [...this.state.groups, group],
-    });
-  }
-
-  private async refresh(group?: GroupDTO): Promise<void> {
-    if (group) {
-      const index = this.state.groups.findIndex(({ _id }) => _id === group._id);
+  async function refresh(target?: GroupDTO): Promise<void> {
+    if (target) {
+      const index = groups.findIndex(({ _id }) => _id === target._id);
+      setGroup(target);
       if (index === NOT_FOUND) {
-        this.setState({
-          group,
-          groups: [...this.state.groups, group],
-        });
+        setGroups([...groups, target]);
         return;
       }
-      this.setState({
-        group,
-        groups: this.state.groups.map(item =>
-          item._id === group._id ? group : item,
-        ),
-      });
+      setGroups(groups.map(item => (item._id === target._id ? target : item)));
       return;
     }
-    const groups = await sendRequest<GroupDTO[]>({
-      control: {
-        sort: ['friendlyName'],
-      },
-      url: `/group`,
-    });
-    this.setState({ group: undefined, groups });
+    setGroup(undefined);
+    setGroups(
+      await sendRequest<GroupDTO[]>({
+        control: {
+          sort: ['friendlyName'],
+        },
+        url: `/group`,
+      }),
+    );
   }
 
-  private renderGroup(group: GroupDTO) {
+  function renderGroup(target: GroupDTO) {
     return (
-      <List.Item key={group._id}>
+      <List.Item key={target._id}>
         <List.Item.Meta
           title={
             <Button
-              type={this.state?.group?._id === group._id ? 'primary' : 'text'}
-              onClick={() => this.setGroup(group)}
+              type={group?._id === target._id ? 'primary' : 'text'}
+              onClick={() => updateGroup(target)}
             >
-              {group.friendlyName}
+              {target.friendlyName}
             </Button>
           }
         />
@@ -185,19 +67,120 @@ export class GroupPage extends React.Component {
     );
   }
 
-  private async setGroup(group: GroupDTO): Promise<void> {
-    this.setState({
-      group: await sendRequest({
+  async function updateGroup(group: GroupDTO): Promise<void> {
+    setGroup(
+      await sendRequest({
         url: `/group/${group._id}`,
       }),
-    });
+    );
   }
 
-  private tabChange(type: GROUP_TYPES): void {
-    if (this.lastTab === type) {
+  function tabChange(type: GROUP_TYPES): void {
+    if (lastTab === type) {
       return;
     }
-    this.lastTab = type;
-    this.setState({ group: undefined });
+    lastTab = type;
+    setGroup(undefined);
   }
+
+  return (
+    <Layout>
+      <Content style={{ padding: '16px' }}>
+        <Row gutter={8}>
+          <Col span={12}>
+            <Tabs type="card" onTabClick={tab => tabChange(tab as GROUP_TYPES)}>
+              <Tabs.TabPane
+                key="light"
+                tab={`Light Groups (${filter('light').length})`}
+              >
+                <Card
+                  type="inner"
+                  extra={
+                    <GroupCreateButton
+                      type="light"
+                      onUpdate={group => refresh(group)}
+                    />
+                  }
+                >
+                  <List
+                    dataSource={filter('light')}
+                    pagination={{ size: 'small' }}
+                    renderItem={item => renderGroup(item)}
+                  ></List>
+                </Card>
+              </Tabs.TabPane>
+              <Tabs.TabPane
+                key="switch"
+                tab={`Switch Groups (${filter('switch').length})`}
+              >
+                <Card
+                  type="inner"
+                  extra={
+                    <GroupCreateButton
+                      type="switch"
+                      onUpdate={group => refresh(group)}
+                    />
+                  }
+                >
+                  <List
+                    dataSource={filter('switch')}
+                    pagination={{ size: 'small' }}
+                    renderItem={item => renderGroup(item)}
+                  ></List>
+                </Card>
+              </Tabs.TabPane>
+              <Tabs.TabPane
+                key="fan"
+                tab={`Fan Groups (${filter('fan').length})`}
+              >
+                <Card
+                  type="inner"
+                  extra={
+                    <GroupCreateButton
+                      type="fan"
+                      onUpdate={group => refresh(group)}
+                    />
+                  }
+                >
+                  <List
+                    dataSource={filter('fan')}
+                    pagination={{ size: 'small' }}
+                    renderItem={item => renderGroup(item)}
+                  ></List>
+                </Card>
+              </Tabs.TabPane>
+              <Tabs.TabPane
+                key="lock"
+                tab={`Lock Groups (${filter('lock').length})`}
+              >
+                <Card
+                  type="inner"
+                  extra={
+                    <GroupCreateButton
+                      type="lock"
+                      onUpdate={group => refresh(group)}
+                    />
+                  }
+                >
+                  <List
+                    dataSource={filter('lock')}
+                    pagination={{ size: 'small' }}
+                    renderItem={item => renderGroup(item)}
+                  ></List>
+                </Card>
+              </Tabs.TabPane>
+            </Tabs>
+          </Col>
+          <Col span={12}>
+            <GroupListDetail
+              description={GROUP_DESCRIPTIONS.get(lastTab)}
+              group={group}
+              onClone={group => onClone(group)}
+              onUpdate={group => refresh(group)}
+            />
+          </Col>
+        </Row>
+      </Content>
+    </Layout>
+  );
 }

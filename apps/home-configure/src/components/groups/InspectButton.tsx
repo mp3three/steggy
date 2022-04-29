@@ -1,54 +1,48 @@
 import { GroupDTO } from '@steggy/controller-shared';
 import { Button, Drawer } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { sendRequest } from '../../types';
 import { GroupExtraActions } from './GroupExtraActions';
 import { GroupListDetail } from './GroupListDetail';
 
-type tState = {
-  visible?: boolean;
-};
+export function GroupInspectButton(props: {
+  group: GroupDTO;
+  onUpdate?: (group: GroupDTO) => void;
+}) {
+  const [visible, setVisible] = useState(false);
 
-export class GroupInspectButton extends React.Component<
-  { group: GroupDTO; onUpdate?: (group: GroupDTO) => void },
-  tState
-> {
-  override state = { flags: [] } as tState;
-
-  override render() {
-    return (
-      <>
-        <Drawer
-          visible={this.state.visible}
-          onClose={() => this.setState({ visible: false })}
-          title="Group Settings"
-          size="large"
-          extra={
-            <GroupExtraActions
-              group={this.props.group}
-              onUpdate={group => this.props.onUpdate(group)}
-            />
-          }
-        >
-          <GroupListDetail
-            type="inner"
-            group={this.props.group}
-            onUpdate={group => this.props.onUpdate(group)}
-          />
-        </Drawer>
-        <Button type="text" size="small" onClick={() => this.load()}>
-          {this.props.group.friendlyName}
-        </Button>
-      </>
-    );
-  }
-
-  private async load(): Promise<void> {
+  async function load(): Promise<void> {
     const group = await sendRequest<GroupDTO>({
-      url: `/group/${this.props.group._id}`,
+      url: `/group/${props.group._id}`,
     });
-    this.props.onUpdate(group);
-    this.setState({ visible: true });
+    props.onUpdate(group);
+    setVisible(true);
   }
+
+  return (
+    <>
+      <Drawer
+        visible={visible}
+        onClose={() => setVisible(false)}
+        title="Group Settings"
+        size="large"
+        extra={
+          <GroupExtraActions
+            group={props.group}
+            onUpdate={group => props.onUpdate(group)}
+          />
+        }
+      >
+        <GroupListDetail
+          type="inner"
+          group={props.group}
+          onUpdate={group => props.onUpdate(group)}
+        />
+      </Drawer>
+      <Button type="text" size="small" onClick={() => load()}>
+        {props.group.friendlyName}
+      </Button>
+    </>
+  );
 }
