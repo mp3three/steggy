@@ -4,51 +4,45 @@ import React from 'react';
 
 import { sendRequest } from '../../types';
 
-export class GroupCreateButton extends React.Component<{
+export function GroupCreateButton(props: {
   groupsUpdated: () => void;
   type: string;
-}> {
-  override state = { modalVisible: false };
-  private form: FormInstance;
+}) {
+  let form: FormInstance;
 
-  override render() {
-    return (
-      <Popconfirm
-        icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
-        onConfirm={this.validate.bind(this)}
-        title={
-          <Form
-            onFinish={this.validate.bind(this)}
-            ref={form => (this.form = form)}
-          >
-            <Form.Item
-              label="Friendly Name"
-              name="friendlyName"
-              rules={[{ required: true }]}
-            >
-              <Input />
-            </Form.Item>
-          </Form>
-        }
-      >
-        <Button>Create new</Button>
-      </Popconfirm>
-    );
-  }
-
-  private async validate(): Promise<void> {
+  async function validate(): Promise<void> {
     try {
-      const values = await this.form.validateFields();
-      values.type = this.props.type;
+      const values = await form.validateFields();
+      values.type = props.type;
       await sendRequest({
         body: values,
         method: 'post',
         url: `/group`,
       });
-      this.form.resetFields();
-      this.props.groupsUpdated();
+      form.resetFields();
+      props.groupsUpdated();
     } catch (error) {
       console.error(error);
     }
   }
+
+  return (
+    <Popconfirm
+      icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
+      onConfirm={() => validate()}
+      title={
+        <Form onFinish={() => validate()} ref={target => (form = target)}>
+          <Form.Item
+            label="Friendly Name"
+            name="friendlyName"
+            rules={[{ required: true }]}
+          >
+            <Input />
+          </Form.Item>
+        </Form>
+      }
+    >
+      <Button>Create new</Button>
+    </Popconfirm>
+  );
 }

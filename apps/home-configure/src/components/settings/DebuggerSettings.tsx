@@ -6,132 +6,117 @@ import {
 } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Button, Card, Empty, List, Tabs, Tooltip } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
 import { GroupInspectButton } from '../groups';
 import { RoomInsectButton } from '../rooms';
 import { RoutineInspectButton } from '../routines/RoutineInspectButton';
 
-type tState = DebugReportDTO;
+// eslint-disable-next-line radar/cognitive-complexity
+export function DebuggerSettings() {
+  const [groups, setGroups] = useState<GroupDTO[]>([]);
+  const [rooms, setRooms] = useState<RoomDTO[]>([]);
+  const [routines, setRoutines] = useState<RoutineDTO[]>([]);
 
-export class DebuggerSettings extends React.Component {
-  override state = { groups: [], rooms: [], routines: [] } as tState;
+  const valid = is.empty([...groups, ...rooms, ...routines]);
 
-  private get valid() {
-    return is.empty([
-      ...this.state.groups,
-      ...this.state.rooms,
-      ...this.state.routines,
-    ]);
-  }
+  useEffect(() => {
+    refresh();
+  }, []);
 
-  override async componentDidMount(): Promise<void> {
-    await this.refresh();
-  }
-
-  override render() {
-    return (
-      <Card
-        extra={
-          <Tooltip
-            title="Additional information available in server logs as warning level messages."
-            placement="topLeft"
-            color="blue"
-          >
-            <Button onClick={() => this.refresh()}>Refresh</Button>
-          </Tooltip>
-        }
-      >
-        {this.valid ? (
-          <Empty description="Everything is valid!" />
-        ) : (
-          <Tabs>
-            {is.empty(this.state.groups) ? undefined : (
-              <Tabs.TabPane tab="Groups" key="group">
-                <List
-                  dataSource={this.state.groups}
-                  renderItem={group => (
-                    <List.Item>
-                      <GroupInspectButton
-                        group={group}
-                        onUpdate={update => this.updateGroup(update, group)}
-                      />
-                    </List.Item>
-                  )}
-                />
-              </Tabs.TabPane>
-            )}
-            {is.empty(this.state.rooms) ? undefined : (
-              <Tabs.TabPane tab="Rooms" key="room">
-                <List
-                  dataSource={this.state.rooms}
-                  renderItem={room => (
-                    <List.Item>
-                      <RoomInsectButton
-                        room={room}
-                        onUpdate={update => this.updateRoom(update)}
-                      />
-                    </List.Item>
-                  )}
-                />
-              </Tabs.TabPane>
-            )}
-            {is.empty(this.state.routines) ? undefined : (
-              <Tabs.TabPane tab="Routines" key="routine">
-                <List
-                  dataSource={this.state.routines}
-                  renderItem={routine => (
-                    <List.Item>
-                      <RoutineInspectButton
-                        routine={routine}
-                        onUpdate={update => this.updateRoutine(update)}
-                      />
-                    </List.Item>
-                  )}
-                />
-              </Tabs.TabPane>
-            )}
-          </Tabs>
-        )}
-      </Card>
-    );
-  }
-
-  private async refresh(): Promise<void> {
+  async function refresh(): Promise<void> {
     const result = await sendRequest<DebugReportDTO>({
       url: `/debug/find-broken`,
     });
-    this.setState(result);
+    setGroups(result.groups);
+    setRooms(result.rooms);
+    setRoutines(result.routines);
   }
 
-  private updateGroup(group: GroupDTO, reference: GroupDTO): void {
+  function updateGroup(group: GroupDTO, reference: GroupDTO): void {
     if (!group) {
-      this.setState({
-        groups: this.state.groups.filter(({ _id }) => _id !== reference._id),
-      });
+      setGroups(groups.filter(({ _id }) => _id !== reference._id));
       return;
     }
-    this.setState({
-      groups: this.state.groups.map(g => (g._id === group._id ? group : g)),
-    });
+    setGroups(groups.map(g => (g._id === group._id ? group : g)));
   }
 
-  private async updateRoom(room: RoomDTO): Promise<void> {
+  async function updateRoom(room: RoomDTO): Promise<void> {
     if (!room) {
-      await this.refresh();
+      await refresh();
       return;
     }
-    this.setState({
-      rooms: this.state.rooms.map(r => (r._id === room._id ? room : r)),
-    });
+    setRooms(rooms.map(r => (r._id === room._id ? room : r)));
   }
 
-  private updateRoutine(routine: RoutineDTO): void {
-    this.setState({
-      routines: this.state.routines.map(r =>
-        r._id === routine._id ? routine : r,
-      ),
-    });
+  function updateRoutine(routine: RoutineDTO): void {
+    setRoutines(routines.map(r => (r._id === routine._id ? routine : r)));
   }
+
+  return (
+    <Card
+      extra={
+        <Tooltip
+          title="Additional information available in server logs as warning level messages."
+          placement="topLeft"
+          color="blue"
+        >
+          <Button onClick={() => refresh()}>Refresh</Button>
+        </Tooltip>
+      }
+    >
+      {valid ? (
+        <Empty description="Everything is valid!" />
+      ) : (
+        <Tabs>
+          {is.empty(groups) ? undefined : (
+            <Tabs.TabPane tab="Groups" key="group">
+              <List
+                dataSource={groups}
+                renderItem={group => (
+                  <List.Item>
+                    <GroupInspectButton
+                      group={group}
+                      onUpdate={update => updateGroup(update, group)}
+                    />
+                  </List.Item>
+                )}
+              />
+            </Tabs.TabPane>
+          )}
+          {is.empty(rooms) ? undefined : (
+            <Tabs.TabPane tab="Rooms" key="room">
+              <List
+                dataSource={rooms}
+                renderItem={room => (
+                  <List.Item>
+                    <RoomInsectButton
+                      room={room}
+                      onUpdate={update => updateRoom(update)}
+                    />
+                  </List.Item>
+                )}
+              />
+            </Tabs.TabPane>
+          )}
+          {is.empty(routines) ? undefined : (
+            <Tabs.TabPane tab="Routines" key="routine">
+              <List
+                dataSource={routines}
+                renderItem={routine => (
+                  <List.Item>
+                    <RoutineInspectButton
+                      routine={routine}
+                      onUpdate={update => updateRoutine(update)}
+                    />
+                  </List.Item>
+                )}
+              />
+            </Tabs.TabPane>
+          )}
+        </Tabs>
+      )}
+    </Card>
+  );
 }

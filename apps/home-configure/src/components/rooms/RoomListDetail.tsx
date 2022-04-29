@@ -9,83 +9,50 @@ import { RoomConfiguration } from './RoomConfiguration';
 import { RoomExtraActions } from './RoomExtraActions';
 import { RoomSaveStates } from './RoomSaveState';
 
-type tState = {
-  name: string;
-};
-
-export class RoomListDetail extends React.Component<
-  {
-    nested?: boolean;
-    onClone?: (room: RoomDTO) => void;
-    onUpdate: (room?: RoomDTO) => void;
-    room?: RoomDTO;
-  },
-  tState
-> {
-  override state = {} as tState;
-
-  override render() {
-    if (this.props.nested) {
-      return this.renderBody();
-    }
-    return (
-      <Card
-        title="Room details"
-        extra={
-          !is.object(this.props.room) ? undefined : (
-            <RoomExtraActions
-              room={this.props.room}
-              onClone={this.props.onClone}
-              onUpdate={this.props.onUpdate}
-            />
-          )
-        }
-      >
-        {this.renderBody()}
-      </Card>
-    );
-  }
-
-  private renderBody() {
-    return !this.props.room ? (
+export function RoomListDetail(props: {
+  nested?: boolean;
+  onClone?: (room: RoomDTO) => void;
+  onUpdate: (room?: RoomDTO) => void;
+  room?: RoomDTO;
+}) {
+  function renderBody() {
+    return !props.room ? (
       <Empty description="Select a room" />
     ) : (
       <>
         <Typography.Title
           level={3}
           editable={{
-            onChange: friendlyName => this.update({ friendlyName }),
+            onChange: friendlyName => update({ friendlyName }),
           }}
         >
-          {this.props.room.friendlyName}
+          {props.room.friendlyName}
         </Typography.Title>
         <Tabs>
           <Tabs.TabPane key="members" tab="Members">
             <RoomConfiguration
-              room={this.props.room}
-              onUpdate={room => this.props.onUpdate(room)}
+              room={props.room}
+              onUpdate={room => props.onUpdate(room)}
             />
           </Tabs.TabPane>
           <Tabs.TabPane key="save_states" tab="Save States">
             <RoomSaveStates
-              room={this.props.room}
-              onUpdate={room => this.props.onUpdate(room)}
+              room={props.room}
+              onUpdate={room => props.onUpdate(room)}
             />
           </Tabs.TabPane>
           <Tabs.TabPane key="metadata" tab="Metadata">
             <RoomMetadata
-              room={this.props.room}
-              onUpdate={room => this.props.onUpdate(room)}
+              room={props.room}
+              onUpdate={room => props.onUpdate(room)}
             />
           </Tabs.TabPane>
           <Tabs.TabPane key="settings" tab="Settings">
             <Card>
               <Form.Item label="Internal Name">
                 <Input
-                  defaultValue={
-                    this.props.room.name ?? `room_${this.props.room._id}`
-                  }
-                  onBlur={({ target }) => this.update({ name: target.value })}
+                  defaultValue={props.room.name ?? `room_${props.room._id}`}
+                  onBlur={({ target }) => update({ name: target.value })}
                 />
               </Form.Item>
             </Card>
@@ -95,12 +62,32 @@ export class RoomListDetail extends React.Component<
     );
   }
 
-  private async update(body: Partial<RoomDTO>): Promise<void> {
+  async function update(body: Partial<RoomDTO>): Promise<void> {
     const room = await sendRequest<RoomDTO>({
       body,
       method: 'put',
-      url: `/room/${this.props.room._id}`,
+      url: `/room/${props.room._id}`,
     });
-    this.props.onUpdate(room);
+    props.onUpdate(room);
   }
+
+  if (props.nested) {
+    return renderBody();
+  }
+  return (
+    <Card
+      title="Room details"
+      extra={
+        !is.object(props.room) ? undefined : (
+          <RoomExtraActions
+            room={props.room}
+            onClone={props.onClone}
+            onUpdate={props.onUpdate}
+          />
+        )
+      }
+    >
+      {renderBody()}
+    </Card>
+  );
 }

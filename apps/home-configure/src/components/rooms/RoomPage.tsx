@@ -13,108 +13,47 @@ import {
   Popconfirm,
   Row,
 } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 import { RoomListDetail } from './RoomListDetail';
 
 const { Content } = Layout;
-type tState = { room: RoomDTO; rooms: RoomDTO[] };
 
-export class RoomPage extends React.Component {
-  override state = {
-    room: undefined,
-    rooms: [],
-  } as tState;
-  private form: FormInstance;
+export function RoomPage() {
+  const [room, setRoom] = useState<RoomDTO>();
+  const [rooms, setRooms] = useState<RoomDTO[]>();
+  let form: FormInstance;
 
-  override async componentDidMount(): Promise<void> {
-    await this.refresh();
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  function onClone(room: RoomDTO) {
+    setRoom(room);
+    setRooms([...rooms, room]);
   }
 
-  override render() {
-    return (
-      <Layout hasSider>
-        <Content style={{ padding: '16px' }}>
-          <Row gutter={8}>
-            <Col span={12}>
-              <Card
-                extra={
-                  <Popconfirm
-                    icon={
-                      <QuestionCircleOutlined
-                        style={{ visibility: 'hidden' }}
-                      />
-                    }
-                    onConfirm={() => this.validate()}
-                    title={
-                      <Form
-                        onFinish={() => this.validate()}
-                        ref={form => (this.form = form)}
-                      >
-                        <Form.Item
-                          label="Friendly Name"
-                          name="friendlyName"
-                          rules={[{ required: true }]}
-                        >
-                          <Input />
-                        </Form.Item>
-                      </Form>
-                    }
-                  >
-                    <Button size="small" icon={FD_ICONS.get('plus_box')}>
-                      Create new
-                    </Button>
-                  </Popconfirm>
-                }
-              >
-                <List
-                  dataSource={this.state.rooms}
-                  pagination={{ size: 'small' }}
-                  renderItem={room => this.renderRoom(room)}
-                />
-              </Card>
-            </Col>
-            <Col span={12}>
-              <RoomListDetail
-                onClone={room => this.onClone(room)}
-                room={this.state.room}
-                onUpdate={update => this.updateRoom(update)}
-              />
-            </Col>
-          </Row>
-        </Content>
-      </Layout>
-    );
-  }
-
-  private onClone(room: RoomDTO) {
-    this.setState({
-      room,
-      rooms: [...this.state.rooms, room],
-    });
-  }
-
-  private async refresh(): Promise<RoomDTO[]> {
+  async function refresh(): Promise<RoomDTO[]> {
     const rooms = await sendRequest<RoomDTO[]>({
       control: {
         sort: ['friendlyName'],
       },
       url: `/room`,
     });
-    this.setState({ rooms });
+    setRooms(rooms);
     return rooms;
   }
 
-  private renderRoom(room: RoomDTO) {
+  function renderRoom(room: RoomDTO) {
     return (
       <List.Item key={room._id}>
         <List.Item.Meta
           title={
             <Button
               size="small"
-              type={this.state?.room?._id === room._id ? 'primary' : 'text'}
-              onClick={() => this.setRoom(room)}
+              type={room?._id === room._id ? 'primary' : 'text'}
+              onClick={() => loadRoom(room)}
             >
               {room.friendlyName}
             </Button>
@@ -124,54 +63,94 @@ export class RoomPage extends React.Component {
     );
   }
 
-  private async setRoom(room: RoomDTO): Promise<void> {
-    this.setState({
-      room: await sendRequest({
+  async function loadRoom(room: RoomDTO): Promise<void> {
+    setRoom(
+      await sendRequest({
         url: `/room/${room._id}`,
       }),
-    });
+    );
   }
 
-  private updateRoom(room: RoomDTO): void {
-    if (!room) {
-      this.setState({
-        room: undefined,
-        rooms: this.state.rooms.filter(
-          ({ _id }) => _id !== this.state.room._id,
-        ),
-      });
+  function updateRoom(target: RoomDTO): void {
+    if (!target) {
+      setRoom(undefined);
+      setRooms(rooms.filter(({ _id }) => _id !== room._id));
       return;
     }
-    const list = this.state.rooms;
-    const index = list.findIndex(({ _id }) => _id === room._id);
+    const index = rooms.findIndex(({ _id }) => _id === target._id);
+    setRoom(target);
     if (index === NOT_FOUND) {
-      this.setState({
-        room,
-        rooms: [...list, room],
-      });
+      setRooms([...rooms, target]);
       return;
     }
-    this.setState({
-      room,
-      rooms: list.map(item => (room._id === item._id ? room : item)),
-    });
+    setRooms(rooms.map(item => (target._id === item._id ? target : item)));
   }
 
-  private async validate(): Promise<void> {
+  async function validate(): Promise<void> {
     try {
-      const values = await this.form.validateFields();
+      const values = await form.validateFields();
       const created = await sendRequest<RoomDTO>({
         body: values,
         method: 'post',
         url: `/room`,
       });
-      this.form.resetFields();
-      const rooms = await this.refresh();
-      this.setState({
-        room: rooms.find(({ _id }) => _id === created._id),
-      });
+      form.resetFields();
+      const rooms = await refresh();
+      setRoom(rooms.find(({ _id }) => _id === created._id));
     } catch (error) {
       console.error(error);
     }
   }
+
+  return (
+    <Layout hasSider>
+      <Content style={{ padding: '16px' }}>
+        <Row gutter={8}>
+          <Col span={12}>
+            <Card
+              extra={
+                <Popconfirm
+                  icon={
+                    <QuestionCircleOutlined style={{ visibility: 'hidden' }} />
+                  }
+                  onConfirm={() => validate()}
+                  title={
+                    <Form
+                      onFinish={() => validate()}
+                      ref={target => (form = target)}
+                    >
+                      <Form.Item
+                        label="Friendly Name"
+                        name="friendlyName"
+                        rules={[{ required: true }]}
+                      >
+                        <Input />
+                      </Form.Item>
+                    </Form>
+                  }
+                >
+                  <Button size="small" icon={FD_ICONS.get('plus_box')}>
+                    Create new
+                  </Button>
+                </Popconfirm>
+              }
+            >
+              <List
+                dataSource={rooms}
+                pagination={{ size: 'small' }}
+                renderItem={room => renderRoom(room)}
+              />
+            </Card>
+          </Col>
+          <Col span={12}>
+            <RoomListDetail
+              onClone={room => onClone(room)}
+              room={room}
+              onUpdate={update => updateRoom(update)}
+            />
+          </Col>
+        </Row>
+      </Content>
+    </Layout>
+  );
 }

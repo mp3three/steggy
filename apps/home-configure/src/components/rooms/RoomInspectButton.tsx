@@ -1,48 +1,34 @@
 import { RoomDTO } from '@steggy/controller-shared';
 import { Button, Drawer } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { RoomExtraActions } from './RoomExtraActions';
 import { RoomListDetail } from './RoomListDetail';
 
-type tState = {
-  visible: boolean;
-};
+export function RoomInsectButton(props: {
+  onUpdate: (room: RoomDTO) => void;
+  room: RoomDTO;
+}) {
+  const [visible, setVisible] = useState(false);
 
-export class RoomInsectButton extends React.Component<
-  {
-    onUpdate: (room: RoomDTO) => void;
-    room: RoomDTO;
-  },
-  tState
-> {
-  override state = {} as tState;
-
-  override render(): React.ReactNode {
-    return (
-      <>
-        <Button type="text" onClick={() => this.setState({ visible: true })}>
-          {this.props.room?.friendlyName}
-        </Button>
-        <Drawer
-          title="Room Details"
-          size="large"
-          visible={this.state.visible}
-          extra={
-            <RoomExtraActions
-              room={this.props.room}
-              onUpdate={this.props.onUpdate}
-            />
-          }
-          onClose={() => this.setState({ visible: false })}
-        >
-          <RoomListDetail
-            nested
-            onUpdate={update => this.props.onUpdate(update)}
-            room={this.props.room}
-          />
-        </Drawer>
-      </>
-    );
-  }
+  return (
+    <>
+      <Button type="text" onClick={() => setVisible(true)}>
+        {props.room?.friendlyName}
+      </Button>
+      <Drawer
+        title="Room Details"
+        size="large"
+        visible={visible}
+        extra={<RoomExtraActions room={props.room} onUpdate={props.onUpdate} />}
+        onClose={() => setVisible(false)}
+      >
+        <RoomListDetail
+          nested
+          onUpdate={update => props.onUpdate(update)}
+          room={props.room}
+        />
+      </Drawer>
+    </>
+  );
 }

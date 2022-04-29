@@ -13,7 +13,6 @@ import {
   Divider,
   Empty,
   Input,
-  InputRef,
   List,
   Modal,
   Space,
@@ -22,134 +21,63 @@ import {
 } from 'antd';
 import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 
 const TEMP_TEMPLATE_SIZE = 3;
 
-type tState = {
-  available?: tIdList;
-  modalVisible?: boolean;
-  searchText?: string;
-  selected: tIdList;
-};
+function highlight(result) {
+  const open = '{'.repeat(TEMP_TEMPLATE_SIZE);
+  const close = '}'.repeat(TEMP_TEMPLATE_SIZE);
+  let highlighted = '';
+  let matchesIndex = 0;
+  let opened = false;
+  const { target, indexes } = result;
+  for (let i = START; i < target.length; i++) {
+    const char = target[i];
+    if (indexes[matchesIndex] === i) {
+      matchesIndex++;
+      if (!opened) {
+        opened = true;
+        highlighted += open;
+      }
+      if (matchesIndex === indexes.length) {
+        highlighted += char + close + target.slice(i + INCREMENT);
+        break;
+      }
+      highlighted += char;
+      continue;
+    }
+    if (opened) {
+      opened = false;
+      highlighted += close;
+    }
+    highlighted += char;
+  }
+  return highlighted.replace(
+    new RegExp(`${open}(.*?)${close}`, 'g'),
+    i =>
+      `<span style="color:#F66">${i.slice(
+        TEMP_TEMPLATE_SIZE,
+        TEMP_TEMPLATE_SIZE * INVERT_VALUE,
+      )}</span>`,
+  );
+}
+
 type tIdList = (RoomDTO & { highlighted?: string })[];
 
-export class RoomModalPicker extends React.Component<
-  {
-    exclude?: string[];
-    onAdd: (selected: string[]) => void;
-  },
-  tState
-> {
-  override state: tState = {
-    selected: [],
-  };
-  private searchInput: InputRef;
+// eslint-disable-next-line radar/cognitive-complexity
+export function RoomModalPicker(props: {
+  exclude?: string[];
+  onAdd: (selected: string[]) => void;
+}) {
+  const [available, setAvailable] = useState<tIdList>([]);
+  const [modalVisible, setModalVisible] = useState<boolean>();
+  const [searchText, setSearchText] = useState<string>();
+  const [selected, setSelected] = useState<tIdList>([]);
 
-  override render() {
-    return (
-      <>
-        <Button
-          onClick={this.show.bind(this)}
-          size="small"
-          icon={FD_ICONS.get('plus_box')}
-        >
-          Add groups
-        </Button>
-        <Modal
-          title="Room List Builder"
-          visible={this.state?.modalVisible}
-          onOk={this.onComplete.bind(this)}
-          onCancel={this.hide.bind(this)}
-        >
-          {!this.state?.available ? (
-            <Spin tip="Loading" />
-          ) : (
-            <>
-              <Input
-                placeholder="Filter List"
-                onChange={this.search.bind(this)}
-                ref={input => (this.searchInput = input)}
-                value={this.state.searchText}
-                suffix={
-                  <Button
-                    onClick={this.resetSearch.bind(this)}
-                    type="text"
-                    size="small"
-                  >
-                    <CloseOutlined />
-                  </Button>
-                }
-              />
-              <List
-                rowKey="_id"
-                dataSource={this.getList()}
-                pagination={{ size: 'small' }}
-                renderItem={item => (
-                  <List.Item>
-                    <Space>
-                      <Button
-                        type="primary"
-                        shape="round"
-                        size="small"
-                        onClick={() => this.addItem(item)}
-                        icon={<FileAddOutlined />}
-                      />
-                      <Typography.Text>
-                        {!is.empty(item.highlighted)
-                          ? parse(item.highlighted)
-                          : item.friendlyName}
-                      </Typography.Text>
-                    </Space>
-                  </List.Item>
-                )}
-              />
-              <Divider />
-              {is.empty(this.state.selected) ? (
-                <Empty description="Nothing added yet" />
-              ) : (
-                <List
-                  rowKey="_id"
-                  dataSource={this.state.selected}
-                  pagination={{ size: 'small' }}
-                  renderItem={item => (
-                    <List.Item>
-                      <Space>
-                        <Button
-                          danger
-                          shape="round"
-                          type="text"
-                          size="small"
-                          onClick={() => this.removeItem(item._id)}
-                          icon={<CloseOutlined />}
-                        />
-                        <Typography.Text>
-                          {!is.empty(item.highlighted)
-                            ? parse(item.highlighted)
-                            : item.friendlyName}
-                        </Typography.Text>
-                      </Space>
-                    </List.Item>
-                  )}
-                />
-              )}
-            </>
-          )}
-        </Modal>
-      </>
-    );
-  }
-
-  private addItem(group: RoomDTO): void {
-    const selected = this.state.selected ?? [];
-    selected.push(group);
-    this.setState({ selected });
-  }
-
-  private fuzzySort(available: tIdList): tIdList {
-    const { searchText } = this.state;
+  function fuzzySort(available: tIdList): tIdList {
     if (is.empty(searchText)) {
       return available;
     }
@@ -163,106 +91,139 @@ export class RoomModalPicker extends React.Component<
       });
       return {
         ...item,
-        highlighted: this.highlight(result),
+        highlighted: highlight(result),
       };
     });
     return highlighted;
   }
 
-  private getList() {
-    const exclude = this.props.exclude ?? [];
-    const available = this.state.available.filter(
+  function getList() {
+    const exclude = props.exclude ?? [];
+    const list = available.filter(
       item =>
-        !exclude.includes(item._id) &&
-        this.state.selected.every(i => item._id !== i._id),
+        !exclude.includes(item._id) && selected.every(i => item._id !== i._id),
     );
-    if (is.empty(this.state.searchText)) {
-      return available.sort((a, b) =>
-        a.friendlyName > b.friendlyName ? UP : DOWN,
-      );
+    if (is.empty(searchText)) {
+      return list.sort((a, b) => (a.friendlyName > b.friendlyName ? UP : DOWN));
     }
-    return this.fuzzySort(available);
+    return fuzzySort(list);
   }
 
-  private hide(e?: Event): void {
+  function hide(e?: React.MouseEvent): void {
     if (!is.undefined(e)) {
       e.stopPropagation();
     }
-    this.setState({ modalVisible: false });
+    setModalVisible(false);
   }
 
-  private highlight(result) {
-    const open = '{'.repeat(TEMP_TEMPLATE_SIZE);
-    const close = '}'.repeat(TEMP_TEMPLATE_SIZE);
-    let highlighted = '';
-    let matchesIndex = 0;
-    let opened = false;
-    const { target, indexes } = result;
-    for (let i = START; i < target.length; i++) {
-      const char = target[i];
-      if (indexes[matchesIndex] === i) {
-        matchesIndex++;
-        if (!opened) {
-          opened = true;
-          highlighted += open;
-        }
-        if (matchesIndex === indexes.length) {
-          highlighted += char + close + target.slice(i + INCREMENT);
-          break;
-        }
-        highlighted += char;
-        continue;
-      }
-      if (opened) {
-        opened = false;
-        highlighted += close;
-      }
-      highlighted += char;
-    }
-    return highlighted.replace(
-      new RegExp(`${open}(.*?)${close}`, 'g'),
-      i =>
-        `<span style="color:#F66">${i.slice(
-          TEMP_TEMPLATE_SIZE,
-          TEMP_TEMPLATE_SIZE * INVERT_VALUE,
-        )}</span>`,
-    );
+  function onComplete(): void {
+    props.onAdd(selected.map(({ _id }) => _id));
+    setSelected([]);
+    setModalVisible(false);
   }
 
-  private onComplete(): void {
-    this.props.onAdd(this.state.selected.map(({ _id }) => _id));
-    this.setState({ modalVisible: false, selected: [] });
+  function removeItem(entity_id: string): void {
+    setSelected((selected || []).filter(i => i._id !== entity_id));
   }
 
-  private removeItem(entity_id: string): void {
-    const selected = (this.state.selected || []).filter(
-      i => i._id !== entity_id,
-    );
-    this.setState({ selected });
-  }
-
-  private resetSearch(): void {
-    this.setState({ searchText: '' });
-    this.searchInput.input.value = '';
-  }
-
-  private search(e: React.ChangeEvent<HTMLInputElement>): void {
-    const searchText = e.target.value;
-    this.setState({ searchText });
-  }
-
-  private async show(e?: Event): Promise<void> {
+  async function show(e?: React.MouseEvent): Promise<void> {
     if (!is.undefined(e)) {
       e.stopPropagation();
     }
-    this.setState({
-      available: undefined,
-      modalVisible: true,
-      searchText: '',
-      selected: [],
-    });
-    this.setState({
-      available: await sendRequest<RoomDTO[]>({ url: `/room` }),
-    });
+    setAvailable(await sendRequest<RoomDTO[]>({ url: `/room` }));
+    setModalVisible(true);
+    setSearchText('');
+    setSelected([]);
   }
+
+  return (
+    <>
+      <Button
+        onClick={e => show(e)}
+        size="small"
+        icon={FD_ICONS.get('plus_box')}
+      >
+        Add groups
+      </Button>
+      <Modal
+        title="Room List Builder"
+        visible={modalVisible}
+        onOk={() => onComplete()}
+        onCancel={e => hide(e)}
+      >
+        {!available ? (
+          <Spin tip="Loading" />
+        ) : (
+          <>
+            <Input
+              placeholder="Filter List"
+              onChange={({ target }) => setSearchText(target.value)}
+              value={searchText}
+              suffix={
+                <Button
+                  onClick={() => setSearchText('')}
+                  type="text"
+                  size="small"
+                >
+                  <CloseOutlined />
+                </Button>
+              }
+            />
+            <List
+              rowKey="_id"
+              dataSource={getList()}
+              pagination={{ size: 'small' }}
+              renderItem={item => (
+                <List.Item>
+                  <Space>
+                    <Button
+                      type="primary"
+                      shape="round"
+                      size="small"
+                      onClick={() => setSelected([...selected, item])}
+                      icon={<FileAddOutlined />}
+                    />
+                    <Typography.Text>
+                      {!is.empty(item.highlighted)
+                        ? parse(item.highlighted)
+                        : item.friendlyName}
+                    </Typography.Text>
+                  </Space>
+                </List.Item>
+              )}
+            />
+            <Divider />
+            {is.empty(selected) ? (
+              <Empty description="Nothing added yet" />
+            ) : (
+              <List
+                rowKey="_id"
+                dataSource={selected}
+                pagination={{ size: 'small' }}
+                renderItem={item => (
+                  <List.Item>
+                    <Space>
+                      <Button
+                        danger
+                        shape="round"
+                        type="text"
+                        size="small"
+                        onClick={() => removeItem(item._id)}
+                        icon={<CloseOutlined />}
+                      />
+                      <Typography.Text>
+                        {!is.empty(item.highlighted)
+                          ? parse(item.highlighted)
+                          : item.friendlyName}
+                      </Typography.Text>
+                    </Space>
+                  </List.Item>
+                )}
+              />
+            )}
+          </>
+        )}
+      </Modal>
+    </>
+  );
 }
