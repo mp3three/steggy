@@ -3,16 +3,14 @@ import React from 'react';
 
 import { WebhookRequest } from '../../misc/WebhookRequest';
 
-export class WebhookCommand extends React.Component<{
+export function WebhookCommand(props: {
   command?: RoutineCommandWebhookDTO;
   onUpdate: (command: Partial<RoutineCommandWebhookDTO>) => void;
-}> {
-  override render() {
-    return (
-      <WebhookRequest
-        webhook={this.props.command}
-        onUpdate={this.props.onUpdate.bind(this)}
-      />
-    );
-  }
+}) {
+  return (
+    <WebhookRequest
+      webhook={props.command}
+      onUpdate={command => props.onUpdate(command)}
+    />
+  );
 }

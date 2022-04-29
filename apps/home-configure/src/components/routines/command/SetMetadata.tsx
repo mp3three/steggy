@@ -16,174 +16,108 @@ import {
   Typography,
 } from 'antd';
 import { parse } from 'mathjs';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../../types';
-import { ChronoExamples } from '../../misc';
+import { ChronoExamples, renderDateExpression } from '../../misc';
 
-type tState = {
-  people: Pick<PersonDTO, '_id' | 'friendlyName' | 'metadata'>[];
-  rooms: Pick<RoomDTO, '_id' | 'friendlyName' | 'metadata'>[];
-};
+// eslint-disable-next-line radar/cognitive-complexity
+export function SetRoomMetadataCommand(props: {
+  command?: SetRoomMetadataCommandDTO;
+  onUpdate: (command: Partial<SetRoomMetadataCommandDTO>) => void;
+}) {
+  const [people, setPeople] =
+    useState<Pick<PersonDTO, '_id' | 'friendlyName' | 'metadata'>[]>();
+  const [rooms, setRooms] =
+    useState<Pick<RoomDTO, '_id' | 'friendlyName' | 'metadata'>[]>();
 
-export class SetRoomMetadataCommand extends React.Component<
-  {
-    command?: SetRoomMetadataCommandDTO;
-    onUpdate: (command: Partial<SetRoomMetadataCommandDTO>) => void;
-  },
-  tState
-> {
-  override state = { people: [], rooms: [] } as tState;
+  const room =
+    rooms.find(({ _id }) => _id === props.command?.room) ||
+    people.find(({ _id }) => _id === props.command?.room);
 
-  private get room(): RoomDTO {
-    return (
-      this.state.rooms.find(({ _id }) => _id === this.props.command?.room) ||
-      this.state.people.find(({ _id }) => _id === this.props.command?.room)
-    );
-  }
+  const value = room.metadata.find(
+    ({ name }) => name === props.command.name,
+  ).value;
 
-  private get value() {
-    const room = this.room;
-    return room.metadata.find(({ name }) => name === this.props.command.name)
-      .value;
-  }
+  useEffect(() => {
+    async function refresh(): Promise<void> {
+      const rooms = await sendRequest<RoomDTO[]>({
+        control: {
+          filters: new Set([
+            {
+              field: 'metadata.0',
+              operation: 'exists',
+              value: true,
+            },
+          ]),
+          select: ['friendlyName', 'metadata'],
+          sort: ['friendlyName'],
+        },
+        url: `/room`,
+      });
+      const people = await sendRequest<RoomDTO[]>({
+        control: {
+          filters: new Set([
+            {
+              field: 'metadata.0',
+              operation: 'exists',
+              value: true,
+            },
+          ]),
+          select: ['friendlyName', 'metadata'],
+          sort: ['friendlyName'],
+        },
+        url: `/person`,
+      });
+      setPeople(people);
+      setRooms(rooms);
+    }
+    refresh();
+  }, []);
 
-  override async componentDidMount(): Promise<void> {
-    await this.refresh();
-  }
-
-  override render() {
-    return (
-      <Space direction="vertical" style={{ width: '100%' }}>
-        <Form.Item label="Target">
-          <Select
-            value={this.room?._id}
-            onChange={room => this.onTargetUpdate(room)}
-            showSearch
-            style={{ width: '100%' }}
-          >
-            <Select.OptGroup label="Room">
-              {this.state.rooms.map(room => (
-                <Select.Option key={room._id} value={room._id}>
-                  {room.friendlyName}
-                </Select.Option>
-              ))}
-            </Select.OptGroup>
-            <Select.OptGroup label="Person">
-              {this.state.people.map(person => (
-                <Select.Option key={person._id} value={person._id}>
-                  {person.friendlyName}
-                </Select.Option>
-              ))}
-            </Select.OptGroup>
-          </Select>
-        </Form.Item>
-        <Form.Item label="Property">
-          {this.room ? (
-            is.empty(this.room.metadata) ? (
-              <Typography.Text type="warning">
-                Room does not have metadata
-              </Typography.Text>
-            ) : (
-              <Select
-                value={this.props.command?.name}
-                onChange={name => this.props.onUpdate({ name })}
-              >
-                {(this.room.metadata ?? []).map(state => (
-                  <Select.Option key={state.id} value={state.name}>
-                    {state.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            )
-          ) : (
-            <Skeleton.Input style={{ width: '200px' }} active />
-          )}
-        </Form.Item>
-        {this.renderValue()}
-      </Space>
-    );
-  }
-
-  private onTargetUpdate(room: string): void {
-    this.props.onUpdate({
+  function onTargetUpdate(room: string): void {
+    props.onUpdate({
       name: undefined,
       room,
-      type: this.state.rooms.some(({ _id }) => _id === room)
-        ? 'room'
-        : 'person',
+      type: rooms.some(({ _id }) => _id === room) ? 'room' : 'person',
       value: undefined,
     });
   }
 
-  private async refresh(): Promise<void> {
-    const rooms = await sendRequest<RoomDTO[]>({
-      control: {
-        filters: new Set([
-          {
-            field: 'metadata.0',
-            operation: 'exists',
-            value: true,
-          },
-        ]),
-        select: ['friendlyName', 'metadata'],
-        sort: ['friendlyName'],
-      },
-      url: `/room`,
-    });
-    const people = await sendRequest<RoomDTO[]>({
-      control: {
-        filters: new Set([
-          {
-            field: 'metadata.0',
-            operation: 'exists',
-            value: true,
-          },
-        ]),
-        select: ['friendlyName', 'metadata'],
-        sort: ['friendlyName'],
-      },
-      url: `/person`,
-    });
-    this.setState({ people, rooms });
-  }
-
-  private renderValue() {
-    if (!this.room || is.empty(this.room.metadata)) {
+  function renderValue() {
+    if (!room || is.empty(room.metadata)) {
       return <Skeleton.Input active />;
     }
-    const metadata = this.room.metadata.find(
-      ({ name }) => name === this.props.command.name,
+    const metadata = room.metadata.find(
+      ({ name }) => name === props.command.name,
     );
     if (!metadata) {
       return <Skeleton.Input active />;
     }
     if (metadata.type === 'boolean') {
-      return this.renderValueBoolean();
+      return renderValueBoolean();
     }
     if (metadata.type === 'enum') {
-      return this.renderValueEnum(metadata);
+      return renderValueEnum(metadata);
     }
     if (metadata.type === 'string') {
-      return this.renderValueString();
+      return renderValueString();
     }
     if (metadata.type === 'number') {
-      return this.renderValueNumber();
+      return renderValueNumber();
     }
     if (metadata.type === 'date') {
-      return this.renderValueDate();
+      return renderValueDate();
     }
     return undefined;
   }
 
-  private renderValueBoolean() {
+  function renderValueBoolean() {
     return (
       <Form.Item label="Value">
         <Radio.Group
-          value={this.props.command.value ?? 'toggle'}
-          onChange={({ target }) =>
-            this.props.onUpdate({ value: target.value })
-          }
+          value={props.command.value ?? 'toggle'}
+          onChange={({ target }) => props.onUpdate({ value: target.value })}
         >
           <Radio.Button value={true}>Checked</Radio.Button>
           <Radio.Button value={false}>Unchecked</Radio.Button>
@@ -193,21 +127,17 @@ export class SetRoomMetadataCommand extends React.Component<
     );
   }
 
-  private renderValueDate() {
+  function renderValueDate() {
     return (
       <Form.Item label="Value">
         <Space direction="vertical" style={{ width: '100%' }}>
           <Input
             placeholder="tomorrow"
-            defaultValue={String(this.props.command.value)}
-            onBlur={({ target }) =>
-              this.props.onUpdate({ value: target.value })
-            }
+            defaultValue={String(props.command.value)}
+            onBlur={({ target }) => props.onUpdate({ value: target.value })}
           />
           <Typography.Paragraph>
-            {ChronoExamples.renderDateExpression(
-              this.props.command.value as string,
-            )}
+            {renderDateExpression(props.command.value as string)}
           </Typography.Paragraph>
           <ChronoExamples />
         </Space>
@@ -215,12 +145,12 @@ export class SetRoomMetadataCommand extends React.Component<
     );
   }
 
-  private renderValueEnum(metadata: RoomMetadataDTO) {
+  function renderValueEnum(metadata: RoomMetadataDTO) {
     return (
       <Form.Item label="Value">
         <Select
-          value={this.props.command.value}
-          onChange={(value: string) => this.props.onUpdate({ value })}
+          value={props.command.value}
+          onChange={(value: string) => props.onUpdate({ value })}
         >
           {metadata.options.map(option => (
             <Select.Option value={option} key={option}>
@@ -232,29 +162,26 @@ export class SetRoomMetadataCommand extends React.Component<
     );
   }
 
-  private renderValueNumber() {
-    const exampleA = `${this.props.command.name} + 5`;
+  function renderValueNumber() {
+    const exampleA = `${props.command.name} + 5`;
     const nodeA = parse(exampleA);
     const exampleB = `cos(45 deg)`;
     const nodeB = parse(exampleB);
-    const value = this.value;
     const currentValue = is.number(value) ? value : EMPTY;
 
     return (
       <Form.Item label="Value">
         <Space direction="vertical">
           <Radio.Group
-            value={this.props.command?.type ?? 'set_value'}
-            onChange={({ target }) =>
-              this.props.onUpdate({ type: target.value })
-            }
+            value={props.command?.type ?? 'set_value'}
+            onChange={({ target }) => props.onUpdate({ type: target.value })}
           >
             <Radio.Button value="set_value">Set value</Radio.Button>
             <Radio.Button value="increment">Increment</Radio.Button>
             <Radio.Button value="decrement">Decrement</Radio.Button>
             <Radio.Button value="formula">Formula</Radio.Button>
           </Radio.Group>
-          {this.props.command?.type === 'formula' ? (
+          {props.command?.type === 'formula' ? (
             <Space direction="vertical" style={{ width: '100%' }}>
               <div style={{ textAlign: 'right' }}>
                 <Tooltip
@@ -271,7 +198,7 @@ export class SetRoomMetadataCommand extends React.Component<
                         <Typography.Text code>
                           {String(
                             nodeA.evaluate({
-                              [this.props.command.name]: currentValue,
+                              [props.command.name]: currentValue,
                             }),
                           )}
                         </Typography.Text>
@@ -281,7 +208,7 @@ export class SetRoomMetadataCommand extends React.Component<
                         <Typography.Text code>
                           {String(
                             nodeB.evaluate({
-                              [this.props.command.name]: currentValue,
+                              [props.command.name]: currentValue,
                             }),
                           )}
                         </Typography.Text>
@@ -294,19 +221,15 @@ export class SetRoomMetadataCommand extends React.Component<
               </div>
               <Input.TextArea
                 style={{ width: '100%' }}
-                defaultValue={String(this.props.command?.value)}
-                onBlur={({ target }) =>
-                  this.props.onUpdate({ value: target.value })
-                }
+                defaultValue={String(props.command?.value)}
+                onBlur={({ target }) => props.onUpdate({ value: target.value })}
               />
             </Space>
           ) : (
             <Input
               type="number"
-              defaultValue={Number(this.props.command.value ?? SINGLE)}
-              onBlur={({ target }) =>
-                this.props.onUpdate({ value: target.value })
-              }
+              defaultValue={Number(props.command.value ?? SINGLE)}
+              onBlur={({ target }) => props.onUpdate({ value: target.value })}
             />
           )}
         </Space>
@@ -314,15 +237,15 @@ export class SetRoomMetadataCommand extends React.Component<
     );
   }
 
-  private renderValueString() {
-    const type = this.props.command?.type ?? 'simple';
+  function renderValueString() {
+    const type = props.command?.type ?? 'simple';
     return (
       <>
         <Form.Item label="Type">
           <Select
             style={{ width: '250px' }}
             value={type}
-            onChange={type => this.props.onUpdate({ type })}
+            onChange={type => props.onUpdate({ type })}
           >
             <Select.Option value="simple">Plain Text</Select.Option>
             <Select.Option value="template">
@@ -333,13 +256,62 @@ export class SetRoomMetadataCommand extends React.Component<
         </Form.Item>
         <Form.Item label="Value">
           <Input.TextArea
-            defaultValue={this.props.command.value as string}
-            onBlur={({ target }) =>
-              this.props.onUpdate({ value: target.value })
-            }
+            defaultValue={props.command.value as string}
+            onBlur={({ target }) => props.onUpdate({ value: target.value })}
           />
         </Form.Item>
       </>
     );
   }
+
+  return (
+    <Space direction="vertical" style={{ width: '100%' }}>
+      <Form.Item label="Target">
+        <Select
+          value={room?._id}
+          onChange={room => onTargetUpdate(room)}
+          showSearch
+          style={{ width: '100%' }}
+        >
+          <Select.OptGroup label="Room">
+            {rooms.map(room => (
+              <Select.Option key={room._id} value={room._id}>
+                {room.friendlyName}
+              </Select.Option>
+            ))}
+          </Select.OptGroup>
+          <Select.OptGroup label="Person">
+            {people.map(person => (
+              <Select.Option key={person._id} value={person._id}>
+                {person.friendlyName}
+              </Select.Option>
+            ))}
+          </Select.OptGroup>
+        </Select>
+      </Form.Item>
+      <Form.Item label="Property">
+        {room ? (
+          is.empty(room.metadata) ? (
+            <Typography.Text type="warning">
+              Room does not have metadata
+            </Typography.Text>
+          ) : (
+            <Select
+              value={props.command?.name}
+              onChange={name => props.onUpdate({ name })}
+            >
+              {(room.metadata ?? []).map(state => (
+                <Select.Option key={state.id} value={state.name}>
+                  {state.name}
+                </Select.Option>
+              ))}
+            </Select>
+          )
+        ) : (
+          <Skeleton.Input style={{ width: '200px' }} active />
+        )}
+      </Form.Item>
+      {renderValue()}
+    </Space>
+  );
 }

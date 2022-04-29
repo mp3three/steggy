@@ -14,26 +14,30 @@ export const ALL_EVENTS = [
   'HA_EVENT_STATE_CHANGE',
 ];
 
-export class RoutineActivateInternalEvent extends React.Component<{
+export function RoutineActivateInternalEvent(props: {
   activate: InternalEventActivateDTO;
   onUpdate: (activate: Partial<InternalEventActivateDTO>) => void;
-}> {
-  override render() {
-    return (
-      <Space direction="vertical" style={{ width: '100%' }}>
-        <Form.Item label="Event Stream">
-          <Select>
-            {ALL_EVENTS.map(event => (
-              <Select.Option key={event} value={event}>
-                {event}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item label="Filter events">
-          <Input.TextArea />
-        </Form.Item>
-      </Space>
-    );
-  }
+}) {
+  return (
+    <Space direction="vertical" style={{ width: '100%' }}>
+      <Form.Item label="Event Stream">
+        <Select
+          value={props.activate.event}
+          onChange={event => props.onUpdate({ event })}
+        >
+          {ALL_EVENTS.map(event => (
+            <Select.Option key={event} value={event}>
+              {event}
+            </Select.Option>
+          ))}
+        </Select>
+      </Form.Item>
+      <Form.Item label="Filter events">
+        <Input.TextArea
+          defaultValue={props.activate.validate}
+          onBlur={({ target }) => props.onUpdate({ validate: target.value })}
+        />
+      </Form.Item>
+    </Space>
+  );
 }

@@ -7,49 +7,45 @@ import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import { CRON_MESSAGE } from '../../../types';
 
-export class RoutineActivateCron extends React.Component<{
+export function RoutineActivateCron(props: {
   activate: ScheduleActivateDTO;
   onUpdate: (activate: Partial<ScheduleActivateDTO>) => void;
-}> {
-  override render() {
-    return (
-      <Space direction="vertical" style={{ width: '100%' }}>
-        <Form.Item label="Preformatted">
-          <Select
-            showSearch
-            placeholder="Preconfigured schedules"
-            style={{ width: '100%' }}
-            value={this.props.activate?.schedule}
-            onChange={schedule => this.props.onUpdate({ schedule })}
-            filterOption={(input, option) =>
-              option.children
-                .toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-          >
-            {Object.keys(CronExpression).map(key => (
-              <Select.Option key={key} value={CronExpression[key]}>
-                {TitleCase(key.toLowerCase(), false)}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Divider />
-        <Form.Item label=" " colon={false}>
-          <SyntaxHighlighter language="yaml" style={atomDark}>
-            {CRON_MESSAGE}
-          </SyntaxHighlighter>
-        </Form.Item>
-        <Form.Item label="Manual">
-          <Input
-            defaultValue={this.props.activate?.schedule}
-            onBlur={({ target }) =>
-              this.props.onUpdate({ schedule: target.value })
-            }
-          />
-        </Form.Item>
-      </Space>
-    );
-  }
+}) {
+  return (
+    <Space direction="vertical" style={{ width: '100%' }}>
+      <Form.Item label="Preformatted">
+        <Select
+          showSearch
+          placeholder="Preconfigured schedules"
+          style={{ width: '100%' }}
+          value={props.activate?.schedule}
+          onChange={schedule => props.onUpdate({ schedule })}
+          filterOption={(input, option) =>
+            option.children
+              .toString()
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+        >
+          {Object.keys(CronExpression).map(key => (
+            <Select.Option key={key} value={CronExpression[key]}>
+              {TitleCase(key.toLowerCase(), false)}
+            </Select.Option>
+          ))}
+        </Select>
+      </Form.Item>
+      <Divider />
+      <Form.Item label=" " colon={false}>
+        <SyntaxHighlighter language="yaml" style={atomDark}>
+          {CRON_MESSAGE}
+        </SyntaxHighlighter>
+      </Form.Item>
+      <Form.Item label="Manual">
+        <Input
+          defaultValue={props.activate?.schedule}
+          onBlur={({ target }) => props.onUpdate({ schedule: target.value })}
+        />
+      </Form.Item>
+    </Space>
+  );
 }

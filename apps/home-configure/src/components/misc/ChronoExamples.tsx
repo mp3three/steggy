@@ -19,7 +19,7 @@ const range = [
   'This Friday from 13:00 - 16.00',
 ];
 
-function renderDateExpression(expression: string) {
+export function renderDateExpression(expression: string) {
   if (is.empty(expression)) {
     return <Skeleton.Input style={{ width: 200 }} />;
   }
