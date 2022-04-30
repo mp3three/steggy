@@ -10,7 +10,6 @@ import {
   Input,
   Menu,
   Popconfirm,
-  Space,
   Tabs,
   Typography,
 } from 'antd';
@@ -50,17 +49,14 @@ export function PeopleDetail(props: {
       <Empty description="Select a person" />
     ) : (
       <>
-        <Space>
-          <ItemPin type="person" target={props.person._id} />
-          <Typography.Title
-            level={3}
-            editable={{
-              onChange: friendlyName => update({ friendlyName }),
-            }}
-          >
-            {props.person.friendlyName}
-          </Typography.Title>
-        </Space>
+        <Typography.Title
+          level={3}
+          editable={{
+            onChange: friendlyName => update({ friendlyName }),
+          }}
+        >
+          {props.person.friendlyName}
+        </Typography.Title>
         <Tabs>
           <Tabs.TabPane key="members" tab="Members">
             <PersonConfiguration
@@ -141,6 +137,7 @@ export function PeopleDetail(props: {
                     Clone
                   </Button>
                 </Menu.Item>
+                <ItemPin type="person" target={props.person._id} menuItem />
               </Menu>
             }
           >

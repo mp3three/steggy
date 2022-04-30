@@ -14,7 +14,6 @@ import React from 'react';
 
 import { sendRequest } from '../../types';
 import { EntityInspectButton, EntityModalPicker } from '../entities';
-import { ItemPin } from '../misc';
 import { RelatedRoutines } from '../routines';
 import { GroupExtraActions } from './GroupExtraActions';
 import { GroupSaveStates } from './GroupSaveState';
@@ -115,15 +114,12 @@ export function GroupListDetail(props: {
   function renderContents() {
     return props.group ? (
       <>
-        <Space>
-          <ItemPin type="group" target={props.group._id} />
-          <Typography.Title
-            level={3}
-            editable={{ onChange: async name => await rename(name) }}
-          >
-            {props.group.friendlyName}
-          </Typography.Title>
-        </Space>
+        <Typography.Title
+          level={3}
+          editable={{ onChange: async name => await rename(name) }}
+        >
+          {props.group.friendlyName}
+        </Typography.Title>
         <Tabs type="card">
           <Tabs.TabPane key="members" tab="Members">
             <Card

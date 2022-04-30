@@ -179,10 +179,7 @@ export function EntityInspect(props: {
                   onRename={name => props.onRename(name)}
                 />
               </Menu.Item>
-              <Menu.Item>
-                <ItemPin type="entity" target={props.entity.entity_id} />
-                Pinned
-              </Menu.Item>
+              <ItemPin type="entity" target={props.entity.entity_id} menuItem />
             </Menu>
           }
         >

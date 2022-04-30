@@ -105,7 +105,7 @@ export function EntityIdChange(props: {
         </Space>
       </Modal>
       <Button
-        type="text"
+        danger
         onClick={() => {
           setVisible(true);
           setId(props.entity.split('.')[1]);

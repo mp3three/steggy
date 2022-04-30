@@ -4,6 +4,7 @@ import { Button, Dropdown, Menu, Popconfirm } from 'antd';
 import React from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
+import { ItemPin } from '../misc';
 
 export function RoutineExtraActions(props: {
   onClone?: (routine: RoutineDTO) => void;
@@ -73,6 +74,7 @@ export function RoutineExtraActions(props: {
               Clone
             </Button>
           </Menu.Item>
+          <ItemPin type="routine" target={props.routine._id} menuItem />
         </Menu>
       }
     >

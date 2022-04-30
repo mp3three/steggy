@@ -4,6 +4,7 @@ import { Button, Dropdown, Menu, Popconfirm } from 'antd';
 import React from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
+import { ItemPin } from '../misc';
 
 export function RoomExtraActions(props: {
   onClone?: (room: RoomDTO) => void;
@@ -56,6 +57,7 @@ export function RoomExtraActions(props: {
               Clone
             </Button>
           </Menu.Item>
+          <ItemPin type="room" target={props.room._id} menuItem />
         </Menu>
       }
     >

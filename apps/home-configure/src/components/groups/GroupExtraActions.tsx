@@ -4,6 +4,7 @@ import { Button, Dropdown, Menu, Popconfirm } from 'antd';
 import React from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
+import { ItemPin } from '../misc';
 
 export function GroupExtraActions(props: {
   group: GroupDTO;
@@ -56,6 +57,7 @@ export function GroupExtraActions(props: {
               Clone
             </Button>
           </Menu.Item>
+          <ItemPin type="group" target={props.group._id} menuItem />
         </Menu>
       }
     >
