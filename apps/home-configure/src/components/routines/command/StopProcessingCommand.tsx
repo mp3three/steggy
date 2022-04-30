@@ -103,9 +103,17 @@ export function StopProcessingCommand(props: {
           <List
             dataSource={props.command?.comparisons}
             renderItem={item => (
-              <List.Item onClick={() => setEdit(undefined)}>
+              <List.Item>
                 <List.Item.Meta
-                  title={item.friendlyName}
+                  title={
+                    <Button
+                      onClick={() => setEdit(item)}
+                      size="small"
+                      type="text"
+                    >
+                      {item.friendlyName}
+                    </Button>
+                  }
                   description={`${TitleCase(item.type)}`}
                 />
                 <Button

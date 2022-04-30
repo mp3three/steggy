@@ -45,17 +45,17 @@ export function PeoplePage() {
     return people;
   }
 
-  function renderPerson(person: PersonDTO) {
+  function renderPerson(item: PersonDTO) {
     return (
-      <List.Item key={person._id}>
+      <List.Item key={item._id}>
         <List.Item.Meta
           title={
             <Button
               size="small"
-              type={person?._id === person._id ? 'primary' : 'text'}
-              onClick={() => loadPerson(person)}
+              type={person?._id === item._id ? 'primary' : 'text'}
+              onClick={() => loadPerson(item)}
             >
-              {person.friendlyName}
+              {item.friendlyName}
             </Button>
           }
         />

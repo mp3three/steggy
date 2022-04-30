@@ -17,7 +17,8 @@ export function GroupPage() {
 
   useEffect(() => {
     refresh();
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function filter(type: string): GroupDTO[] {
     return groups.filter(group => group.type === type);

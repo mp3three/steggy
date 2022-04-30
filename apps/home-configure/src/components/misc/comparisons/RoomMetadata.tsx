@@ -33,8 +33,8 @@ export function RoomMetadataComparison(props: {
   onUpdate: (value: Partial<MetadataComparisonDTO>) => void;
   unwrap?: boolean;
 }) {
-  const [people, setPeople] = useState<PersonDTO[]>();
-  const [rooms, setRooms] = useState<RoomDTO[]>();
+  const [people, setPeople] = useState<PersonDTO[]>([]);
+  const [rooms, setRooms] = useState<RoomDTO[]>([]);
 
   // override async componentDidMount(): Promise<void> {
   //   await this.listEntities();

@@ -28,11 +28,13 @@ export function RoutinePage() {
     setSelected(selected);
   }
 
-  async function refresh(selected?: RoutineDTO | boolean): Promise<void> {
+  async function refresh(selectedItem?: RoutineDTO | boolean): Promise<void> {
     await refreshEnabled();
-    if (is.object(selected)) {
-      setRoutines(routines.map(i => (i._id === selected._id ? selected : i)));
-      setSelected(selected);
+    if (is.object(selectedItem)) {
+      setRoutines(
+        routines.map(i => (i._id === selectedItem._id ? selectedItem : i)),
+      );
+      setSelected(selectedItem);
       return;
     }
     const list = await sendRequest<RoutineDTO[]>({
@@ -42,10 +44,10 @@ export function RoutinePage() {
       url: `/routine`,
     });
     setRoutines(list);
-    if (selected !== false) {
-      const selected = list.find(({ _id }) => _id === selected._id);
+    if (selected && selectedItem !== false) {
+      const found = list.find(({ _id }) => _id === selected._id);
       // More to clear out selected on delete than update object references
-      setSelected(selected);
+      setSelected(found);
     }
   }
 

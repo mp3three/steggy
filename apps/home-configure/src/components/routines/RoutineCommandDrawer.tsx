@@ -50,7 +50,7 @@ export function RoutineCommandDrawer(props: {
   onUpdate: (command: Partial<RoutineCommandDTO>) => void;
   routine: RoutineDTO;
 }) {
-  const type = props.command.type;
+  const type = props.command?.type;
 
   function onUpdate(command): void {
     props.onUpdate({

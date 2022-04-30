@@ -92,7 +92,7 @@ export function EntityInspect(props: {
             onChange={({ target }) =>
               toggleFlag('LIGHT_FORCE_CIRCADIAN', target.checked)
             }
-            checked={props.flags.includes('LIGHT_FORCE_CIRCADIAN')}
+            checked={props.flags?.includes('LIGHT_FORCE_CIRCADIAN')}
           >
             Circadian Compatibility
           </Checkbox>
@@ -133,7 +133,7 @@ export function EntityInspect(props: {
         <Tooltip title="Add state / attribute changes to controller debug log">
           <Checkbox
             onChange={({ target }) => toggleFlag('DEBUG_LOG', target.checked)}
-            checked={flags.includes('DEBUG_LOG')}
+            checked={flags?.includes('DEBUG_LOG')}
           >
             Log Changes
           </Checkbox>
@@ -151,7 +151,7 @@ export function EntityInspect(props: {
             onChange={({ target }) =>
               toggleFlag('IGNORE_ENTITY', target.checked)
             }
-            checked={flags.includes('IGNORE_ENTITY')}
+            checked={flags?.includes('IGNORE_ENTITY')}
           >
             Ignore Entity
           </Checkbox>

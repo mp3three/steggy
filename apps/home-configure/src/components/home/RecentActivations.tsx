@@ -7,8 +7,8 @@ import { FD_ICONS, sendRequest } from '../../types';
 import { RoutineInspectButton } from '../routines/RoutineInspectButton';
 
 export function RecentActivations() {
-  const [events, setEvents] = useState<RoutineTriggerEvent[]>();
-  const [routines, setRoutines] = useState<RoutineDTO[]>();
+  const [events, setEvents] = useState<RoutineTriggerEvent[]>([]);
+  const [routines, setRoutines] = useState<RoutineDTO[]>([]);
 
   useEffect(() => {
     refresh();

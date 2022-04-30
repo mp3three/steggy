@@ -45,17 +45,17 @@ export function RoomPage() {
     return rooms;
   }
 
-  function renderRoom(room: RoomDTO) {
+  function renderRoom(item: RoomDTO) {
     return (
-      <List.Item key={room._id}>
+      <List.Item key={item._id}>
         <List.Item.Meta
           title={
             <Button
               size="small"
-              type={room?._id === room._id ? 'primary' : 'text'}
-              onClick={() => loadRoom(room)}
+              type={room?._id === item._id ? 'primary' : 'text'}
+              onClick={() => loadRoom(item)}
             >
-              {room.friendlyName}
+              {item.friendlyName}
             </Button>
           }
         />

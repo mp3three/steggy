@@ -55,9 +55,7 @@ export function ChronoExamples(props: { range?: boolean }) {
         renderItem={expression => (
           <List.Item>
             <List.Item.Meta
-              title={
-                <Typography.Title level={5}>{expression}</Typography.Title>
-              }
+              title={<Typography.Text strong>{expression}</Typography.Text>}
             />
             {renderDateExpression(expression)}
           </List.Item>
