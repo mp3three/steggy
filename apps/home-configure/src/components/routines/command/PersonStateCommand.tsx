@@ -11,7 +11,7 @@ export function PersonStateCommand(props: {
   command?: RoutineCommandPersonStateDTO;
   onUpdate: (command: Partial<RoutineCommandPersonStateDTO>) => void;
 }) {
-  const [people, setPeople] = useState<PersonDTO[]>();
+  const [people, setPeople] = useState<PersonDTO[]>([]);
 
   const person = people.find(({ _id }) => _id === props.command?.person);
 

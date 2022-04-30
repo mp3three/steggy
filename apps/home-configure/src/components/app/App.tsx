@@ -21,6 +21,7 @@ type tState = {
   ADMIN_KEY?: string;
   BASE_URL?: string;
 };
+export const CredentialsProvider = React.createContext({});
 
 export function App() {
   const [collapsed, setCollapsed] = useState(false);
@@ -29,48 +30,51 @@ export function App() {
     BASE_URL: localStorage.getItem(BASE_URL),
   });
   return (
-    <Provider store={store}>
-      {/* eslint-disable-next-line spellcheck/spell-checker */}
-      <Layout style={{ minHeight: '100vh' }}>
-        <Sider
-          collapsible
-          collapsed={collapsed}
-          // on
-          onCollapse={state => setCollapsed(state)}
-        >
-          <ApplicationMenu />
-        </Sider>
-        <Layout>
-          <Header>
-            <Typography.Title level={2} style={{ padding: '8px' }}>
-              Automation Controller
-            </Typography.Title>
-          </Header>
-          <Content>
-            {is.empty(state.ADMIN_KEY) ? (
-              <SettingsPage onConnectionUpdate={update => setState(update)} />
-            ) : (
-              <Switch>
-                <Route path="/people" component={PeoplePage} />
-                <Route path="/entities" component={EntityPage} />
-                <Route path="/routines" component={RoutinePage} />
-                <Route path="/rooms" component={RoomPage} />
-                <Route path="/groups" component={GroupPage} />
-                <Route path="/settings" component={SettingsPage} />
-                <Route path="/" component={HomePage} />
-              </Switch>
-            )}
-          </Content>
-          <Layout.Footer style={{ textAlign: 'center' }}>
-            <Typography.Link
-              href="https://github.com/ccontour/steggy"
-              target="_blank"
-            >
-              @steggy
-            </Typography.Link>
-          </Layout.Footer>
+    <CredentialsProvider.Provider value={state}>
+      <Provider store={store}>
+        {/* eslint-disable-next-line spellcheck/spell-checker */}
+        <Layout style={{ minHeight: '100vh' }}>
+          <Sider
+            collapsible
+            collapsed={collapsed}
+            // on
+            onCollapse={state => setCollapsed(state)}
+          >
+            <ApplicationMenu isConfigured={!is.empty(state.ADMIN_KEY)} />
+          </Sider>
+          <Layout>
+            <Header>
+              <Typography.Title level={2} style={{ padding: '8px' }}>
+                Automation Controller
+              </Typography.Title>
+            </Header>
+            <Content>
+              {is.empty(state.ADMIN_KEY) ? (
+                <SettingsPage onConnectionUpdate={update => setState(update)} />
+              ) : (
+                <Switch>
+                  <Route path="/entities" component={EntityPage} />
+                  <Route path="/groups" component={GroupPage} />
+                  <Route path="/people" component={PeoplePage} />
+                  <Route path="/rooms" component={RoomPage} />
+                  <Route path="/routines" component={RoutinePage} />
+                  <Route path="/settings" component={SettingsPage} />
+                  {/* Order matters, derp */}
+                  <Route path="/" component={HomePage} />
+                </Switch>
+              )}
+            </Content>
+            <Layout.Footer style={{ textAlign: 'center' }}>
+              <Typography.Link
+                href="https://github.com/ccontour/steggy"
+                target="_blank"
+              >
+                @steggy
+              </Typography.Link>
+            </Layout.Footer>
+          </Layout>
         </Layout>
-      </Layout>
-    </Provider>
+      </Provider>
+    </CredentialsProvider.Provider>
   );
 }

@@ -50,7 +50,7 @@ export function FuzzySelect(props: {
   style?: React.CSSProperties;
   value: string;
 }) {
-  const [data, setData] = useState<{ text: string; value: string }[]>();
+  const [data, setData] = useState<{ text: string; value: string }[]>([]);
   const [searchText, setSearchText] = useState<string>();
 
   useEffect(() => {

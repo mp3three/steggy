@@ -52,6 +52,7 @@ export async function sendRequest<T>({
 sendRequest.url = function (info: string): string {
   return `/api${info}`;
 };
+
 sendRequest.ADMIN_KEY = localStorage.getItem(ADMIN_KEY);
 sendRequest.BASE_URL = localStorage.getItem(BASE_URL);
 

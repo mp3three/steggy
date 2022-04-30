@@ -1,12 +1,10 @@
-import { is } from '@steggy/utilities';
 import { Menu } from 'antd';
-import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { FD_ICONS, sendRequest } from '../../types';
+import { FD_ICONS } from '../../types';
 
-function getSelected(): string[] {
-  if (is.empty(sendRequest.ADMIN_KEY)) {
+function getSelected(isConfigured: boolean): string[] {
+  if (!isConfigured) {
     return ['settings'];
   }
   if (window.location.href.includes('/room')) {
@@ -30,10 +28,14 @@ function getSelected(): string[] {
   return ['home'];
 }
 
-export function ApplicationMenu() {
+export function ApplicationMenu(props: { isConfigured: boolean }) {
   return (
-    <Menu theme="dark" defaultSelectedKeys={getSelected()} mode="inline">
-      {is.empty(sendRequest.ADMIN_KEY) ? undefined : (
+    <Menu
+      theme="dark"
+      defaultSelectedKeys={getSelected(props.isConfigured)}
+      mode="inline"
+    >
+      {!props.isConfigured ? undefined : (
         <>
           <Menu.Item key="home" icon={FD_ICONS.get('home')}>
             <Link to="/">Home</Link>

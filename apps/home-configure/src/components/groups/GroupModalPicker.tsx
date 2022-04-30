@@ -75,7 +75,7 @@ export function GroupModalPicker(props: {
   const [available, setAvailable] = useState<tIdList>([]);
   const [modalVisible, setModalVisible] = useState<boolean>();
   const [searchText, setSearchText] = useState<string>();
-  const [selected, setSelected] = useState<tIdList>();
+  const [selected, setSelected] = useState<tIdList>([]);
 
   function fuzzySort(available: tIdList): tIdList {
     if (is.empty(searchText)) {

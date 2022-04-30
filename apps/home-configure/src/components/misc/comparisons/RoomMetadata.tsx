@@ -36,9 +36,6 @@ export function RoomMetadataComparison(props: {
   const [people, setPeople] = useState<PersonDTO[]>([]);
   const [rooms, setRooms] = useState<RoomDTO[]>([]);
 
-  // override async componentDidMount(): Promise<void> {
-  //   await this.listEntities();
-  // }
   useEffect(() => {
     async function listEntities() {
       const rooms = await sendRequest<RoomDTO[]>({

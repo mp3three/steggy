@@ -13,8 +13,8 @@ export function WebhookRequest(props: {
   onUpdate?: (value: Partial<RoutineCommandWebhookDTO>) => void;
   webhook?: RoutineCommandWebhookDTO;
 }) {
-  const [people, setPeople] = useState<PersonDTO[]>();
-  const [rooms, setRooms] = useState<RoomDTO[]>();
+  const [people, setPeople] = useState<PersonDTO[]>([]);
+  const [rooms, setRooms] = useState<RoomDTO[]>([]);
   // override state = { people: [], rooms: [] } as tState;
 
   function assignTarget() {

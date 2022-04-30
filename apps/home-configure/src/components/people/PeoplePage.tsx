@@ -21,7 +21,7 @@ import { PeopleDetail } from './PeopleDetail';
 const { Content } = Layout;
 
 export function PeoplePage() {
-  const [people, setPeople] = useState<PersonDTO[]>();
+  const [people, setPeople] = useState<PersonDTO[]>([]);
   const [person, setPerson] = useState<PersonDTO>();
   let form: FormInstance;
 

@@ -15,7 +15,7 @@ export function AttributeComparison(props: {
   comparison: RoutineAttributeComparisonDTO;
   onUpdate: (value: Partial<RoutineAttributeComparisonDTO>) => void;
 }) {
-  const [entities, setEntities] = useState<string[]>();
+  const [entities, setEntities] = useState<string[]>([]);
   const [state, setState] = useState<HassStateDTO>();
 
   useEffect(() => {

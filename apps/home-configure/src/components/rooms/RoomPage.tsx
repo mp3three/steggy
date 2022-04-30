@@ -22,7 +22,7 @@ const { Content } = Layout;
 
 export function RoomPage() {
   const [room, setRoom] = useState<RoomDTO>();
-  const [rooms, setRooms] = useState<RoomDTO[]>();
+  const [rooms, setRooms] = useState<RoomDTO[]>([]);
   let form: FormInstance;
 
   useEffect(() => {
