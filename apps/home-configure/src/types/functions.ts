@@ -10,6 +10,8 @@ import {
 
 import { ADMIN_KEY, BASE_URL } from './constants';
 
+let KEY = localStorage.getItem(ADMIN_KEY);
+let URL = localStorage.getItem(BASE_URL);
 export async function sendRequest<T>({
   rawUrl,
   url,
@@ -21,15 +23,13 @@ export async function sendRequest<T>({
 }: Partial<FetchArguments>): Promise<T> {
   let endpoint = rawUrl
     ? url
-    : `${(fetchWith.baseUrl ?? sendRequest.BASE_URL) || ''}${sendRequest.url(
-        url,
-      )}`;
+    : `${(fetchWith.baseUrl ?? URL ?? '') || ''}${sendRequest.url(url)}`;
   if (fetchWith.control || fetchWith.params) {
     endpoint = `${endpoint}?${buildFilterString(fetchWith)}`;
   }
   headers ??= {};
-  if (sendRequest.ADMIN_KEY) {
-    headers['x-admin-key'] ??= sendRequest.ADMIN_KEY;
+  if (KEY) {
+    headers['x-admin-key'] ??= KEY;
   }
   if (is.object(body)) {
     body = JSON.stringify(body);
@@ -52,9 +52,14 @@ export async function sendRequest<T>({
 sendRequest.url = function (info: string): string {
   return `/api${info}`;
 };
-
-sendRequest.ADMIN_KEY = localStorage.getItem(ADMIN_KEY);
-sendRequest.BASE_URL = localStorage.getItem(BASE_URL);
+sendRequest.configure = ({ key, base }: { base?: string; key?: string }) => {
+  if (!is.undefined(key)) {
+    KEY = key;
+  }
+  if (!is.undefined(base)) {
+    URL = base;
+  }
+};
 
 /**
  * This should come from home-assistant-shared, but doing so makes webpack shit a brick for no reason

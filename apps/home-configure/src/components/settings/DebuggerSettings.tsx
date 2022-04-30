@@ -62,7 +62,9 @@ export function DebuggerSettings() {
           placement="topLeft"
           color="blue"
         >
-          <Button onClick={() => refresh()}>Refresh</Button>
+          <Button onClick={() => refresh()} size="small">
+            Refresh
+          </Button>
         </Tooltip>
       }
     >

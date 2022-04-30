@@ -36,9 +36,7 @@ export function PeoplePage() {
 
   async function refresh(): Promise<PersonDTO[]> {
     const people = await sendRequest<PersonDTO[]>({
-      control: {
-        sort: ['friendlyName'],
-      },
+      control: { sort: ['friendlyName'] },
       url: `/person`,
     });
     setPeople(people);
@@ -71,18 +69,16 @@ export function PeoplePage() {
     );
   }
 
-  function updatePerson(person: PersonDTO): void {
-    if (!person) {
+  function updatePerson(item: PersonDTO): void {
+    if (!item) {
       setPeople(people.filter(({ _id }) => _id !== person._id));
       setPerson(undefined);
-
       return;
     }
-    setPerson(person);
-    const index = people.findIndex(({ _id }) => _id === person._id);
+    setPerson(item);
+    const index = people.findIndex(({ _id }) => _id === item._id);
     if (index === NOT_FOUND) {
-      setPeople([...people, person]);
-
+      setPeople([...people, item]);
       return;
     }
     setPeople(people.map(item => (person._id === item._id ? person : item)));
@@ -103,6 +99,7 @@ export function PeoplePage() {
       console.error(error);
     }
   }
+
   return (
     <Layout hasSider>
       <Content style={{ padding: '16px' }}>

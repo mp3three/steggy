@@ -1,11 +1,19 @@
+import { PersonDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Layout, Typography } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 
 import { store } from '../../store';
-import { ADMIN_KEY, BASE_URL } from '../../types';
+import {
+  ADMIN_KEY,
+  BASE_URL,
+  CurrentUserContext,
+  IsAuthContext,
+  PROFILE_ID,
+  sendRequest,
+} from '../../types';
 import { EntityPage } from '../entities';
 import { GroupPage } from '../groups';
 import { HomePage } from '../home';
@@ -14,67 +22,105 @@ import { RoomPage } from '../rooms';
 import { RoutinePage } from '../routines';
 import { SettingsPage } from '../settings';
 import { ApplicationMenu } from './ApplicationMenu';
+import { Header } from './Header';
 
-const { Header, Sider, Content } = Layout;
-
-type tState = {
-  ADMIN_KEY?: string;
-  BASE_URL?: string;
-};
-export const CredentialsProvider = React.createContext({});
+const { Sider, Content } = Layout;
 
 export function App() {
   const [collapsed, setCollapsed] = useState(false);
-  const [state, setState] = useState<tState>({
-    ADMIN_KEY: localStorage.getItem(ADMIN_KEY),
-    BASE_URL: localStorage.getItem(BASE_URL),
-  });
+  const [baseUrl, setBaseURL] = useState(localStorage.getItem(BASE_URL));
+  const [adminKey, setAdminKey] = useState(localStorage.getItem(ADMIN_KEY));
+
+  const [profile, setProfile] = useState<PersonDTO>();
+  const [profileId, setProfileId] = useState<string>(
+    localStorage.getItem(PROFILE_ID),
+  );
+  sendRequest.configure({ key: adminKey });
+  sendRequest.configure({ base: baseUrl });
+
+  //
+  // Selected user profile
+  useEffect(() => {
+    if (is.empty(profileId)) {
+      setProfile(undefined);
+      localStorage.removeItem(PROFILE_ID);
+      return;
+    }
+    localStorage.setItem(PROFILE_ID, profileId);
+    async function load() {
+      const person = await sendRequest<PersonDTO>({
+        url: `/person/${profileId}`,
+      });
+      setProfile(person);
+    }
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileId, adminKey, baseUrl]);
+  //
+  // Admin key
+  useEffect(() => {
+    localStorage.setItem(ADMIN_KEY, adminKey);
+    sendRequest.configure({ key: adminKey });
+  }, [adminKey]);
+  //
+  // Base url
+  useEffect(() => {
+    localStorage.setItem(BASE_URL, baseUrl);
+    sendRequest.configure({ base: baseUrl });
+  }, [baseUrl]);
+
   return (
-    <CredentialsProvider.Provider value={state}>
-      <Provider store={store}>
-        {/* eslint-disable-next-line spellcheck/spell-checker */}
-        <Layout style={{ minHeight: '100vh' }}>
-          <Sider
-            collapsible
-            collapsed={collapsed}
-            // on
-            onCollapse={state => setCollapsed(state)}
-          >
-            <ApplicationMenu isConfigured={!is.empty(state.ADMIN_KEY)} />
-          </Sider>
-          <Layout>
-            <Header>
-              <Typography.Title level={2} style={{ padding: '8px' }}>
-                Automation Controller
-              </Typography.Title>
-            </Header>
-            <Content>
-              {is.empty(state.ADMIN_KEY) ? (
-                <SettingsPage onConnectionUpdate={update => setState(update)} />
-              ) : (
-                <Switch>
-                  <Route path="/entities" component={EntityPage} />
-                  <Route path="/groups" component={GroupPage} />
-                  <Route path="/people" component={PeoplePage} />
-                  <Route path="/rooms" component={RoomPage} />
-                  <Route path="/routines" component={RoutinePage} />
-                  <Route path="/settings" component={SettingsPage} />
-                  {/* Order matters, derp */}
-                  <Route path="/" component={HomePage} />
-                </Switch>
-              )}
-            </Content>
-            <Layout.Footer style={{ textAlign: 'center' }}>
-              <Typography.Link
-                href="https://github.com/ccontour/steggy"
-                target="_blank"
-              >
-                @steggy
-              </Typography.Link>
-            </Layout.Footer>
+    <IsAuthContext.Provider
+      value={{
+        base: baseUrl,
+        key: adminKey,
+        updateBase: base => setBaseURL(base),
+        updateKey: key => setAdminKey(key),
+      }}
+    >
+      <CurrentUserContext.Provider
+        value={{ load: id => setProfileId(id), person: profile }}
+      >
+        <Provider store={store}>
+          {/* eslint-disable-next-line spellcheck/spell-checker */}
+          <Layout style={{ minHeight: '100vh' }}>
+            <Sider
+              collapsible
+              collapsed={collapsed}
+              onCollapse={state => setCollapsed(state)}
+            >
+              <ApplicationMenu isConfigured={!is.empty(adminKey)} />
+            </Sider>
+            <Layout>
+              <Header />
+              <Content>
+                {is.empty(adminKey) ? (
+                  <SettingsPage />
+                ) : (
+                  <Switch>
+                    <Route path="/entities" component={EntityPage} />
+                    <Route path="/groups" component={GroupPage} />
+                    <Route path="/people" component={PeoplePage} />
+                    <Route path="/rooms" component={RoomPage} />
+                    <Route path="/routines" component={RoutinePage} />
+                    <Route path="/settings" component={SettingsPage} />
+                    {/* Order matters, derp */}
+                    <Route path="/" component={HomePage} />
+                  </Switch>
+                )}
+              </Content>
+              <Layout.Footer style={{ textAlign: 'center' }}>
+                <Typography.Link
+                  href="https://github.com/ccontour/steggy"
+                  target="_blank"
+                >
+                  @steggy
+                </Typography.Link>
+              </Layout.Footer>
+            </Layout>
           </Layout>
-        </Layout>
-      </Provider>
-    </CredentialsProvider.Provider>
+        </Provider>
+      </CurrentUserContext.Provider>
+    </IsAuthContext.Provider>
   );
 }
