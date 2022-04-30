@@ -29,6 +29,7 @@ export function RoutineMiniActivate(props: {
     <Space direction="vertical" style={{ width: '100%' }}>
       <Typography.Title level={5}>Activation Events</Typography.Title>
       <List
+        pagination={{ size: 'small' }}
         dataSource={props.routine.activate}
         renderItem={item => (
           <List.Item>
@@ -50,6 +51,7 @@ export function RoutineMiniActivate(props: {
       <Divider />
       <Typography.Title level={5}>Commands</Typography.Title>
       <List
+        pagination={{ size: 'small' }}
         dataSource={props.routine.command}
         renderItem={item => (
           <List.Item>

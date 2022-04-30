@@ -101,6 +101,7 @@ export function StopProcessingCommand(props: {
       ) : (
         <>
           <List
+            pagination={{ size: 'small' }}
             dataSource={props.command?.comparisons}
             renderItem={item => (
               <List.Item>

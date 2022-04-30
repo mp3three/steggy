@@ -57,6 +57,7 @@ export function ActivateList(props: {
         }
       >
         <List
+          pagination={false}
           dataSource={props.routine.activate}
           renderItem={item => (
             <List.Item key={item.id} onClick={() => setActivate(item)}>

@@ -40,6 +40,7 @@ export function GroupUsedIn(props: { group: GroupDTO }) {
   return (
     <Card title="Rooms" type="inner">
       <List
+        pagination={{ size: 'small' }}
         dataSource={rooms}
         renderItem={room => (
           <List.Item>

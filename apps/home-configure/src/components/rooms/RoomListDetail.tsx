@@ -1,10 +1,10 @@
 import { RoomDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
-import { Card, Empty, Form, Input, Tabs, Typography } from 'antd';
+import { Card, Empty, Form, Input, Space, Tabs, Typography } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
-import { RoomMetadata } from '../misc';
+import { ItemPin, RoomMetadata } from '../misc';
 import { RoomConfiguration } from './RoomConfiguration';
 import { RoomExtraActions } from './RoomExtraActions';
 import { RoomSaveStates } from './RoomSaveState';
@@ -20,14 +20,17 @@ export function RoomListDetail(props: {
       <Empty description="Select a room" />
     ) : (
       <>
-        <Typography.Title
-          level={3}
-          editable={{
-            onChange: friendlyName => update({ friendlyName }),
-          }}
-        >
-          {props.room.friendlyName}
-        </Typography.Title>
+        <Space>
+          <ItemPin type="room" target={props.room._id} />
+          <Typography.Title
+            level={3}
+            editable={{
+              onChange: friendlyName => update({ friendlyName }),
+            }}
+          >
+            {props.room.friendlyName}
+          </Typography.Title>
+        </Space>
         <Tabs>
           <Tabs.TabPane key="members" tab="Members">
             <RoomConfiguration

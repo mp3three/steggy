@@ -26,13 +26,7 @@ export function PersonConfiguration(props: {
 }) {
   const [group, setGroup] = useState<GroupDTO>();
   const [groups, setGroups] = useState<PartialGroup[]>([]);
-  // const [room, setRoom] = useState<RoomDTO>();
   const [rooms, setRooms] = useState<RoomDTO[]>([]);
-  // override state = { flags: [], groups: [], rooms: [] } as tStateType;
-
-  // override async componentDidMount(): Promise<void> {
-  //   await this.refresh();
-  // }
 
   useEffect(() => {
     async function refresh(): Promise<void> {
@@ -243,6 +237,7 @@ export function PersonConfiguration(props: {
           dataSource={(props.person.entities ?? []).sort((a, b) =>
             a > b ? UP : DOWN,
           )}
+          pagination={{ size: 'small' }}
           renderItem={item => entityRender(item)}
         />
       </Card>
@@ -257,6 +252,7 @@ export function PersonConfiguration(props: {
         }
       >
         <List
+          pagination={{ size: 'small' }}
           dataSource={props.person.groups}
           renderItem={item => groupRender(item)}
         />
@@ -272,6 +268,7 @@ export function PersonConfiguration(props: {
         }
       >
         <List
+          pagination={{ size: 'small' }}
           dataSource={props.person.rooms}
           renderItem={item => roomRender(item)}
         />

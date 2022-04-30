@@ -18,7 +18,7 @@ import {
   Table,
   Typography,
 } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { domain, sendRequest } from '../../../types';
 import {
@@ -26,250 +26,68 @@ import {
   LightEntityCard,
   SwitchEntityCard,
 } from '../../entities';
+import { ItemPin } from '../../misc';
 
-type tState = {
-  dirty?: boolean;
-  drawer?: boolean;
-  friendlyName?: string;
-  groupStates?: Record<string, string>;
-  groups?: GroupDTO[];
-  roomStates?: Record<string, string>;
-  rooms?: RoomDTO[];
-};
+// eslint-disable-next-line radar/cognitive-complexity
+export function RoomStateEdit(props: {
+  onUpdate?: (group: RoomDTO) => void;
+  person?: PersonDTO;
+  room?: RoomDTO;
+  state: RoomStateDTO;
+}) {
+  const [dirty, setDirty] = useState<boolean>();
+  const [drawer, setDrawer] = useState<boolean>();
+  const [friendlyName, setFriendlyName] = useState<string>(
+    props.state.friendlyName,
+  );
+  const [groupStates, setGroupStates] = useState<Record<string, string>>();
+  const [groups, setGroups] = useState<GroupDTO[]>([]);
+  const [roomStates, setRoomStates] = useState<Record<string, string>>({});
+  const [rooms, setRooms] = useState<RoomDTO[]>([]);
 
-export class RoomStateEdit extends React.Component<
-  {
-    onUpdate?: (group: RoomDTO) => void;
-    person?: PersonDTO;
-    room?: RoomDTO;
-    state: RoomStateDTO;
-  },
-  tState
-> {
-  override state: tState = {
-    groupStates: {},
-    groups: [],
-    roomStates: {},
-    rooms: [],
-  };
+  const cards: (LightEntityCard | SwitchEntityCard | FanEntityCard)[] = [];
 
-  private cards: (LightEntityCard | SwitchEntityCard | FanEntityCard)[];
+  const room = props.room ?? props.person;
 
-  private get room() {
-    return this.props.room ?? this.props.person;
-  }
+  const routeBase = props.person ? `person` : `room`;
 
-  private get routeBase() {
-    if (this.props.person) {
-      return `person`;
-    }
-    return `room`;
-  }
+  const entities = room.entities
+    .map(({ entity_id }) => entity_id)
+    .filter(i =>
+      ['switch', 'light', 'fan', 'media_player'].includes(domain(i)),
+    );
 
-  private get entities(): string[] {
-    return this.room.entities
-      .map(({ entity_id }) => entity_id)
-      .filter(i =>
-        ['switch', 'light', 'fan', 'media_player'].includes(domain(i)),
-      );
-  }
-
-  private get groups() {
-    return this.state?.groups;
-  }
-
-  private get rooms() {
-    return this.state?.rooms;
-  }
-
-  override componentDidMount(): void {
-    this.setState({ friendlyName: this.props.state.friendlyName });
-    if (!is.empty(this.room.groups)) {
-      this.refreshGroups();
+  useEffect(() => {
+    if (!is.empty(room.groups)) {
+      refreshGroups();
       const groupStates: Record<string, string> = {};
-      this.props.state.states ??= [];
-      this.props.state.states.forEach(state => {
+      props.state.states ??= [];
+      props.state.states.forEach(state => {
         if (state.type !== 'group') {
           return;
         }
         groupStates[state.ref] = state.state;
       });
-      this.setState({ groupStates });
+      setGroupStates(groupStates);
     }
 
-    if (!is.empty(this.props?.person?.rooms)) {
-      this.refreshRooms();
+    if (!is.empty(props?.person?.rooms)) {
+      refreshRooms();
       const roomStates: Record<string, string> = {};
-      this.props.state.states ??= [];
-      this.props.state.states.forEach(state => {
+      props.state.states ??= [];
+      props.state.states.forEach(state => {
         if (state.type !== 'room') {
           return;
         }
         roomStates[state.ref] = state.state;
       });
-      this.setState({ roomStates });
+      setGroupStates(roomStates);
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room?._id]);
 
-  // eslint-disable-next-line radar/cognitive-complexity
-  override render() {
-    this.cards = [];
-    return this.room ? (
-      <>
-        <Button
-          size="small"
-          type="text"
-          onClick={() => this.setState({ drawer: true })}
-        >
-          {this.state.friendlyName}
-        </Button>
-        <Drawer
-          title={
-            <Typography.Text
-              editable={{
-                onChange: friendlyName => this.setState({ friendlyName }),
-              }}
-            >
-              {this.state?.friendlyName}
-            </Typography.Text>
-          }
-          size="large"
-          visible={this.state?.drawer}
-          onClose={() => this.onClose(true)}
-          extra={
-            <Space>
-              <Button type="primary" onClick={() => this.onSave()}>
-                Save
-              </Button>
-              <Button onClick={() => this.onClose(false)}>Cancel</Button>
-            </Space>
-          }
-        >
-          <Space direction="vertical" style={{ width: '100%' }}>
-            {is.empty(this.entities) ? undefined : (
-              <>
-                <Divider orientation="left">
-                  <Typography.Title level={4}>Entities</Typography.Title>
-                </Divider>
-                <Space wrap>
-                  {this.entities.map(entity => this.entityRender(entity))}
-                </Space>
-              </>
-            )}
-            {is.empty(this.groups) ? undefined : (
-              <>
-                <Divider orientation="left">
-                  <Typography.Title level={4}>Groups</Typography.Title>
-                </Divider>
-                <Table
-                  dataSource={this.groups.sort((a, b) =>
-                    a.friendlyName > b.friendlyName ? UP : DOWN,
-                  )}
-                  style={{ width: '100%' }}
-                >
-                  <Table.Column
-                    title="Group Name"
-                    key="friendlyName"
-                    dataIndex="friendlyName"
-                  />
-                  <Table.Column
-                    title="Group State"
-                    render={(text, record: GroupDTO) => (
-                      <Select
-                        key={record._id}
-                        value={this.groupState(record._id)}
-                        onChange={value => this.groupChange(record._id, value)}
-                        defaultActiveFirstOption
-                        style={{ width: '100%' }}
-                      >
-                        <Select.Option value="none">
-                          <Typography.Text type="secondary">
-                            No change
-                          </Typography.Text>
-                        </Select.Option>
-                        {record.save_states
-                          .sort((a, b) =>
-                            a.friendlyName > b.friendlyName ? UP : DOWN,
-                          )
-                          .map(item => (
-                            <Select.Option value={item.id} key={item.id}>
-                              {item.friendlyName}
-                            </Select.Option>
-                          ))}
-                      </Select>
-                    )}
-                  />
-                </Table>
-              </>
-            )}
-            {is.empty(this.rooms) ? undefined : (
-              <>
-                <Divider orientation="left">
-                  <Typography.Title level={4}>Rooms</Typography.Title>
-                </Divider>
-                <Table
-                  dataSource={this.rooms.sort((a, b) =>
-                    a.friendlyName > b.friendlyName ? UP : DOWN,
-                  )}
-                  style={{ width: '100%' }}
-                >
-                  <Table.Column
-                    title="Room Name"
-                    key="friendlyName"
-                    dataIndex="friendlyName"
-                  />
-                  <Table.Column
-                    title="Room State"
-                    render={(text, record: RoomDTO) => (
-                      <Select
-                        key={record._id}
-                        value={this.roomState(record._id)}
-                        onChange={value => this.roomChange(record._id, value)}
-                        defaultActiveFirstOption
-                        style={{ width: '100%' }}
-                      >
-                        <Select.Option value="none">
-                          <Typography.Text type="secondary">
-                            No change
-                          </Typography.Text>
-                        </Select.Option>
-                        {record.save_states
-                          .sort((a, b) =>
-                            a.friendlyName > b.friendlyName ? UP : DOWN,
-                          )
-                          // eslint-disable-next-line radar/no-identical-functions
-                          .map(item => (
-                            <Select.Option value={item.id} key={item.id}>
-                              {item.friendlyName}
-                            </Select.Option>
-                          ))}
-                      </Select>
-                    )}
-                  />
-                </Table>
-              </>
-            )}
-            <Divider orientation="left">
-              <Typography.Title level={4}>Identifiers</Typography.Title>
-            </Divider>
-            <Typography.Title level={5}>Room ID</Typography.Title>
-            <Typography.Text code>{this.room._id}</Typography.Text>
-            <Typography.Title level={5}>State ID</Typography.Title>
-            <Typography.Text code>{this.props.state.id}</Typography.Text>
-          </Space>
-        </Drawer>
-      </>
-    ) : (
-      <Layout.Content>
-        <Spin size="large" tip="Loading..." />
-      </Layout.Content>
-    );
-  }
-
-  private entityRender(entity: string) {
-    const state = this.props?.state?.states?.find(
-      ({ ref }) => ref === entity,
-    ) || {
+  function entityRender(entity: string) {
+    const state = props?.state?.states?.find(({ ref }) => ref === entity) || {
       extra: {},
       ref: entity,
       state: undefined,
@@ -279,70 +97,62 @@ export class RoomStateEdit extends React.Component<
       case 'media_player':
         return (
           <SwitchEntityCard
-            ref={i => this.cards.push(i)}
+            ref={i => cards.push(i)}
             key={entity}
             state={state}
             stateOnly
             optional
-            onUpdate={this.entityUpdate.bind(this)}
+            onUpdate={() => setDirty(true)}
           />
         );
       case 'light':
         return (
           <LightEntityCard
-            ref={i => this.cards.push(i)}
+            ref={i => cards.push(i)}
             key={entity}
             optional
             state={state}
-            onUpdate={this.entityUpdate.bind(this)}
+            onUpdate={() => setDirty(true)}
           />
         );
       case 'fan':
         return (
           <FanEntityCard
-            ref={i => this.cards.push(i)}
+            ref={i => cards.push(i)}
             key={entity}
             optional
             state={state}
-            onUpdate={this.entityUpdate.bind(this)}
+            onUpdate={() => setDirty(true)}
           />
         );
     }
     return undefined;
   }
 
-  private entityUpdate(): void {
-    this.setState({ dirty: true });
-  }
-
-  private groupChange(group: string, value: string): void {
-    const { groupStates } = this.state;
-    this.setState({
-      groupStates: {
-        ...groupStates,
-        [group]: value,
-      },
+  function groupChange(group: string, value: string): void {
+    setGroupStates({
+      ...groupStates,
+      [group]: value,
     });
   }
 
-  private groupState(group: string): string {
-    return this.state.groupStates[group] ?? 'none';
+  function groupState(group: string): string {
+    return groupStates[group] ?? 'none';
   }
 
-  private onClose(warn: boolean): void {
-    if (this.state.dirty && warn) {
+  function onClose(warn: boolean): void {
+    if (dirty && warn) {
       notification.warn({
-        description: `Changes to ${this.props.state.friendlyName} were not saved`,
+        description: `Changes to ${props.state.friendlyName} were not saved`,
         message: 'Unsaved changes',
       });
     }
-    this.setState({ drawer: false });
+    setDrawer(false);
   }
 
-  private async onSave(): Promise<void> {
-    const id = this.props.state.id;
-    const groupStates = this.state.groupStates;
-    const entityStates = this.cards
+  async function onSave(): Promise<void> {
+    const id = props.state.id;
+    const entityStates = cards
       // not falsy somehow
       .filter(i => !!i)
       .map(i => {
@@ -354,9 +164,9 @@ export class RoomStateEdit extends React.Component<
       })
       .filter(i => !is.undefined(i));
 
-    const room = await sendRequest<RoomDTO>({
+    const item = await sendRequest<RoomDTO>({
       body: {
-        friendlyName: this.state.friendlyName,
+        friendlyName: friendlyName,
         id,
         states: [
           ...entityStates,
@@ -373,39 +183,183 @@ export class RoomStateEdit extends React.Component<
         ],
       } as RoomStateDTO,
       method: 'put',
-      url: `/${this.routeBase}/${this.room._id}/state/${id}`,
+      url: `/${routeBase}/${room?._id}/state/${id}`,
     });
-    this.setState({ dirty: false, drawer: false });
-    if (this.props.onUpdate) {
-      this.props.onUpdate(room);
+    setDirty(false);
+    setDrawer(false);
+    if (props.onUpdate) {
+      props.onUpdate(item);
     }
   }
 
-  private async refreshGroups(): Promise<void> {
+  async function refreshGroups(): Promise<void> {
     const groups = await sendRequest<GroupDTO[]>({
-      url: `/${this.routeBase}/${this.room._id}/group-save-states`,
+      url: `/${routeBase}/${room?._id}/group-save-states`,
     });
-    this.setState({ groups });
+    setGroups(groups);
   }
 
-  private async refreshRooms(): Promise<void> {
+  async function refreshRooms(): Promise<void> {
     const rooms = await sendRequest<RoomDTO[]>({
-      url: `/${this.routeBase}/${this.room._id}/room-save-states`,
+      url: `/${routeBase}/${room?._id}/room-save-states`,
     });
-    this.setState({ rooms });
+    setRooms(rooms);
   }
 
-  private roomChange(room: string, value: string): void {
-    const { roomStates } = this.state;
-    this.setState({
-      roomStates: {
-        ...roomStates,
-        [room]: value,
-      },
+  function roomChange(room: string, value: string): void {
+    setRoomStates({
+      ...roomStates,
+      [room]: value,
     });
   }
 
-  private roomState(room: string): string {
-    return this.state.roomStates[room] ?? 'none';
+  function roomState(room: string): string {
+    return roomStates[room] ?? 'none';
   }
+
+  return room ? (
+    <>
+      <Button size="small" type="text" onClick={() => setDrawer(true)}>
+        {friendlyName}
+      </Button>
+      <Drawer
+        title={
+          <Typography.Text
+            editable={{
+              onChange: friendlyName => setFriendlyName(friendlyName),
+            }}
+          >
+            {friendlyName}
+          </Typography.Text>
+        }
+        size="large"
+        visible={drawer}
+        onClose={() => onClose(true)}
+        extra={
+          <Space>
+            <ItemPin type={routeBase} target={room?._id} />
+            <Button type="primary" onClick={() => onSave()}>
+              Save
+            </Button>
+            <Button onClick={() => onClose(false)}>Cancel</Button>
+          </Space>
+        }
+      >
+        <Space direction="vertical" style={{ width: '100%' }}>
+          {is.empty(entities) ? undefined : (
+            <>
+              <Divider orientation="left">
+                <Typography.Title level={4}>Entities</Typography.Title>
+              </Divider>
+              <Space wrap>{entities.map(entity => entityRender(entity))}</Space>
+            </>
+          )}
+          {is.empty(groups) ? undefined : (
+            <>
+              <Divider orientation="left">
+                <Typography.Title level={4}>Groups</Typography.Title>
+              </Divider>
+              <Table
+                dataSource={groups.sort((a, b) =>
+                  a.friendlyName > b.friendlyName ? UP : DOWN,
+                )}
+                style={{ width: '100%' }}
+              >
+                <Table.Column
+                  title="Group Name"
+                  key="friendlyName"
+                  dataIndex="friendlyName"
+                />
+                <Table.Column
+                  title="Group State"
+                  render={(text, record: GroupDTO) => (
+                    <Select
+                      key={record._id}
+                      value={groupState(record._id)}
+                      onChange={value => groupChange(record._id, value)}
+                      defaultActiveFirstOption
+                      style={{ width: '100%' }}
+                    >
+                      <Select.Option value="none">
+                        <Typography.Text type="secondary">
+                          No change
+                        </Typography.Text>
+                      </Select.Option>
+                      {record.save_states
+                        .sort((a, b) =>
+                          a.friendlyName > b.friendlyName ? UP : DOWN,
+                        )
+                        .map(item => (
+                          <Select.Option value={item.id} key={item.id}>
+                            {item.friendlyName}
+                          </Select.Option>
+                        ))}
+                    </Select>
+                  )}
+                />
+              </Table>
+            </>
+          )}
+          {is.empty(rooms) ? undefined : (
+            <>
+              <Divider orientation="left">
+                <Typography.Title level={4}>Rooms</Typography.Title>
+              </Divider>
+              <Table
+                dataSource={rooms.sort((a, b) =>
+                  a.friendlyName > b.friendlyName ? UP : DOWN,
+                )}
+                style={{ width: '100%' }}
+              >
+                <Table.Column
+                  title="Room Name"
+                  key="friendlyName"
+                  dataIndex="friendlyName"
+                />
+                <Table.Column
+                  title="Room State"
+                  render={(text, record: RoomDTO) => (
+                    <Select
+                      key={record._id}
+                      value={roomState(record._id)}
+                      onChange={value => roomChange(record._id, value)}
+                      defaultActiveFirstOption
+                      style={{ width: '100%' }}
+                    >
+                      <Select.Option value="none">
+                        <Typography.Text type="secondary">
+                          No change
+                        </Typography.Text>
+                      </Select.Option>
+                      {record.save_states
+                        .sort((a, b) =>
+                          a.friendlyName > b.friendlyName ? UP : DOWN,
+                        )
+                        // eslint-disable-next-line radar/no-identical-functions
+                        .map(item => (
+                          <Select.Option value={item.id} key={item.id}>
+                            {item.friendlyName}
+                          </Select.Option>
+                        ))}
+                    </Select>
+                  )}
+                />
+              </Table>
+            </>
+          )}
+          <Divider orientation="left">
+            <Typography.Title level={4}>Identifiers</Typography.Title>
+          </Divider>
+          <Typography.Title level={5}>Room ID</Typography.Title>
+          <Typography.Text code>{room?._id}</Typography.Text>
+          <Typography.Title level={5}>State ID</Typography.Title>
+          <Typography.Text code>{props.state.id}</Typography.Text>
+        </Space>
+      </Drawer>
+    </>
+  ) : (
+    <Layout.Content>
+      <Spin size="large" tip="Loading..." />
+    </Layout.Content>
+  );
 }

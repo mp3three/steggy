@@ -4,6 +4,7 @@ export * from './comparisons';
 export * from './FilterValue';
 export * from './FuzzySelect';
 export * from './GenericComparison';
+export * from './ItemPin';
 export * from './Metadata';
 export * from './MetadataEdit';
 export * from './WebhookRequest';

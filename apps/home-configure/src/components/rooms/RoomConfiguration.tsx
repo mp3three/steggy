@@ -18,7 +18,7 @@ export function RoomConfiguration(props: {
   onUpdate: (room: RoomDTO) => void;
   room: RoomDTO;
 }) {
-  const [groups, setGroups] = useState<PartialGroup[]>();
+  const [groups, setGroups] = useState<PartialGroup[]>([]);
 
   useEffect(() => {
     refresh();
@@ -161,6 +161,7 @@ export function RoomConfiguration(props: {
         }
       >
         <List
+          pagination={{ size: 'small' }}
           dataSource={(props.room.entities ?? []).sort((a, b) =>
             a > b ? UP : DOWN,
           )}
@@ -178,6 +179,7 @@ export function RoomConfiguration(props: {
         }
       >
         <List
+          pagination={{ size: 'small' }}
           dataSource={props.room.groups}
           renderItem={item => groupRender(item)}
         />

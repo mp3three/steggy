@@ -67,6 +67,7 @@ export function RoutineActivateSolar(props: {
 
   return (
     <List
+      pagination={{ size: 'small' }}
       dataSource={[
         'astronomicalDawn',
         'astronomicalDusk',

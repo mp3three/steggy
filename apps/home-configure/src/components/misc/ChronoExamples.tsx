@@ -51,6 +51,7 @@ export function ChronoExamples(props: { range?: boolean }) {
   return (
     <Card type="inner" title="Examples" style={{ marginTop: '16px' }}>
       <List
+        pagination={{ size: 'small' }}
         dataSource={[...single, ...(props.range ? range : [])]}
         renderItem={expression => (
           <List.Item>

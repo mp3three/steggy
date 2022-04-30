@@ -88,6 +88,7 @@ export function FilterValue(props: {
         )}
         <Divider />
         <List
+          pagination={{ size: 'small' }}
           dataSource={value.map((item, index) => [item, index])}
           renderItem={([item, index]) => (
             <List.Item>

@@ -4,11 +4,15 @@ import React from 'react';
 export const CurrentUserContext = React.createContext<{
   load: (person: string) => void;
   person: PersonDTO;
+  togglePin: (type: string, target: string, add: boolean) => void;
 }>({
   load: () => {
     return;
   },
   person: undefined,
+  togglePin: () => {
+    return;
+  },
 });
 
 export const IsAuthContext = React.createContext<{

@@ -10,13 +10,14 @@ import {
   Input,
   Menu,
   Popconfirm,
+  Space,
   Tabs,
   Typography,
 } from 'antd';
 import React from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
-import { RoomMetadata } from '../misc';
+import { ItemPin, RoomMetadata } from '../misc';
 import { SaveStateEditor } from '../misc/SaveStateEditor';
 import { PersonConfiguration } from './PersonConfiguration';
 
@@ -49,14 +50,17 @@ export function PeopleDetail(props: {
       <Empty description="Select a person" />
     ) : (
       <>
-        <Typography.Title
-          level={3}
-          editable={{
-            onChange: friendlyName => update({ friendlyName }),
-          }}
-        >
-          {props.person.friendlyName}
-        </Typography.Title>
+        <Space>
+          <ItemPin type="person" target={props.person._id} />
+          <Typography.Title
+            level={3}
+            editable={{
+              onChange: friendlyName => update({ friendlyName }),
+            }}
+          >
+            {props.person.friendlyName}
+          </Typography.Title>
+        </Space>
         <Tabs>
           <Tabs.TabPane key="members" tab="Members">
             <PersonConfiguration

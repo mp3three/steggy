@@ -23,7 +23,7 @@ export function SaveStateEditor(props: {
 }) {
   let form: FormInstance;
 
-  const room = props.room ?? props.room;
+  const room = props.room ?? props.person;
   const routeBase = props.person ? 'person' : 'room';
 
   async function activateState(record: RoomStateDTO): Promise<void> {

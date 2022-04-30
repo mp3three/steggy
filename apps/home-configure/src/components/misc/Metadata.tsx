@@ -224,6 +224,7 @@ export function RoomMetadata(props: {
           }
         >
           <List
+            pagination={{ size: 'small' }}
             dataSource={item.metadata}
             renderItem={record => (
               <List.Item>
@@ -260,7 +261,7 @@ export function RoomMetadata(props: {
             {TAB_LIST.map(([key, label]) => (
               <Tabs.TabPane tab={label} key={key}>
                 <List
-                  pagination={{ pageSize: 5, size: 'small' }}
+                  pagination={{ size: 'small' }}
                   dataSource={getMap.get(key) as RoutineDTO[]}
                   renderItem={item => (
                     <List.Item>

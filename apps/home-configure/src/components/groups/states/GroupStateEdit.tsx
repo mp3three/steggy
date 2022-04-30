@@ -30,6 +30,7 @@ import {
   LockEntityCard,
   SwitchEntityCard,
 } from '../../entities';
+import { ItemPin } from '../../misc';
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function GroupStateEdit(props: {
@@ -247,6 +248,7 @@ export function GroupStateEdit(props: {
         onClose={() => onClose(true)}
         extra={
           <Space>
+            <ItemPin type="group_state" target={props.state.id} />
             <Button type="primary" onClick={() => onSave()}>
               Save
             </Button>

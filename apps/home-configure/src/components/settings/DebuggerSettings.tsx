@@ -75,6 +75,7 @@ export function DebuggerSettings() {
           {is.empty(groups) ? undefined : (
             <Tabs.TabPane tab="Groups" key="group">
               <List
+                pagination={{ size: 'small' }}
                 dataSource={groups}
                 renderItem={group => (
                   <List.Item>
@@ -90,6 +91,7 @@ export function DebuggerSettings() {
           {is.empty(rooms) ? undefined : (
             <Tabs.TabPane tab="Rooms" key="room">
               <List
+                pagination={{ size: 'small' }}
                 dataSource={rooms}
                 renderItem={room => (
                   <List.Item>
@@ -105,6 +107,7 @@ export function DebuggerSettings() {
           {is.empty(routines) ? undefined : (
             <Tabs.TabPane tab="Routines" key="routine">
               <List
+                pagination={{ size: 'small' }}
                 dataSource={routines}
                 renderItem={routine => (
                   <List.Item>

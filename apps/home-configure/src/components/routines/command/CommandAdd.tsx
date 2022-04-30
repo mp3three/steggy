@@ -34,6 +34,7 @@ export function CommandAdd(props: {
         onClose={() => setVisible(false)}
       >
         <List
+          pagination={{ size: 'small' }}
           dataSource={ROUTINE_COMMAND_LIST}
           renderItem={item => (
             <List.Item>

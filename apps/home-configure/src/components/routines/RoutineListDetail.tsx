@@ -5,6 +5,7 @@ import { Card, Empty, Space, Tabs, Typography } from 'antd';
 import React from 'react';
 
 import { sendRequest } from '../../types';
+import { ItemPin } from '../misc';
 import { ActivateList } from './activate';
 import { CommandList } from './command';
 import { RoutineEnabled } from './RoutineEnabled';
@@ -31,12 +32,15 @@ export function RoutineListDetail(props: {
       <Empty description="Select a routine" />
     ) : (
       <Space direction="vertical" style={{ width: '100%' }}>
-        <Typography.Title
-          level={3}
-          editable={{ onChange: value => rename(value) }}
-        >
-          {props.routine.friendlyName}
-        </Typography.Title>
+        <Space>
+          <ItemPin type="routine" target={props.routine._id} />
+          <Typography.Title
+            level={3}
+            editable={{ onChange: value => rename(value) }}
+          >
+            {props.routine.friendlyName}
+          </Typography.Title>
+        </Space>
         <Tabs type="card">
           <Tabs.TabPane tab="Enabled" key="enabled">
             <RoutineEnabled

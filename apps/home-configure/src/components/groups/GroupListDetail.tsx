@@ -7,14 +7,14 @@ import {
   List,
   Popconfirm,
   Space,
-  Switch,
   Tabs,
   Typography,
 } from 'antd';
 import React from 'react';
 
-import { FD_ICONS, sendRequest } from '../../types';
+import { sendRequest } from '../../types';
 import { EntityInspectButton, EntityModalPicker } from '../entities';
+import { ItemPin } from '../misc';
 import { RelatedRoutines } from '../routines';
 import { GroupExtraActions } from './GroupExtraActions';
 import { GroupSaveStates } from './GroupSaveState';
@@ -116,10 +116,7 @@ export function GroupListDetail(props: {
     return props.group ? (
       <>
         <Space>
-          <Switch
-            checkedChildren={FD_ICONS.get('pin')}
-            unCheckedChildren={FD_ICONS.get('pin_off')}
-          />
+          <ItemPin type="group" target={props.group._id} />
           <Typography.Title
             level={3}
             editable={{ onChange: async name => await rename(name) }}
@@ -141,6 +138,7 @@ export function GroupListDetail(props: {
               }
             >
               <List
+                pagination={{ size: 'small' }}
                 dataSource={props.group.entities ?? []}
                 renderItem={entity_id => (
                   <List.Item>

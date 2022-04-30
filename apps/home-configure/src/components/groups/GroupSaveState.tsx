@@ -135,6 +135,7 @@ export function GroupSaveStates(props: {
         }
       >
         <List
+          pagination={{ size: 'small' }}
           dataSource={(props.group?.save_states ?? []).sort((a, b) =>
             a.friendlyName > b.friendlyName ? UP : DOWN,
           )}

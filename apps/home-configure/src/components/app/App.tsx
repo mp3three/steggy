@@ -1,6 +1,6 @@
 import { PersonDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
-import { Layout, Typography } from 'antd';
+import { Layout, notification, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
@@ -69,6 +69,37 @@ export function App() {
     sendRequest.configure({ base: baseUrl });
   }, [baseUrl]);
 
+  async function updatePin(
+    type: string,
+    target: string,
+    add: boolean,
+  ): Promise<void> {
+    if (!profile) {
+      notification.error({
+        message: `Cannot toggle pins without a selected profile. How did you call this?!`,
+      });
+      return;
+    }
+    let pinned_items = profile?.pinned_items ?? [];
+    if (add) {
+      if (
+        !pinned_items.some(item => item.type === type && item.target === target)
+      ) {
+        pinned_items.push({ target, type });
+      }
+    } else {
+      pinned_items = pinned_items.filter(
+        item => !(item.type === type && item.target === target),
+      );
+    }
+    const person = await sendRequest<PersonDTO>({
+      body: { pinned_items } as Partial<PersonDTO>,
+      method: 'put',
+      url: `/person/${profileId}`,
+    });
+    setProfile(person);
+  }
+
   return (
     <IsAuthContext.Provider
       value={{
@@ -79,7 +110,11 @@ export function App() {
       }}
     >
       <CurrentUserContext.Provider
-        value={{ load: id => setProfileId(id), person: profile }}
+        value={{
+          load: id => setProfileId(id),
+          person: profile,
+          togglePin: (type, target, add) => updatePin(type, target, add),
+        }}
       >
         <Provider store={store}>
           {/* eslint-disable-next-line spellcheck/spell-checker */}

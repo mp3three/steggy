@@ -34,6 +34,7 @@ export function ActivateAdd(props: {
         onClose={() => setVisible(false)}
       >
         <List
+          pagination={{ size: 'small' }}
           dataSource={ROUTINE_ACTIVATE_LIST}
           renderItem={item => (
             <List.Item>

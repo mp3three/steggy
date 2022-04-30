@@ -19,6 +19,7 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import { domain, FD_ICONS, sendRequest } from '../../types';
+import { ItemPin } from '../misc';
 import { EntityIdChange } from './EntityIdChange';
 import { EntityRelated } from './EntityRelated';
 import { FanEntityCard } from './FanEntityCard';
@@ -177,6 +178,10 @@ export function EntityInspect(props: {
                   entity={props.entity?.entity_id}
                   onRename={name => props.onRename(name)}
                 />
+              </Menu.Item>
+              <Menu.Item>
+                <ItemPin type="entity" target={props.entity.entity_id} />
+                Pinned
               </Menu.Item>
             </Menu>
           }
