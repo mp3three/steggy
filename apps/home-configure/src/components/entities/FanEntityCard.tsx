@@ -15,134 +15,179 @@ import {
   Switch,
   Typography,
 } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 import { sendRequest } from '../../types';
 
+type tStateType = {
+  disabled?: boolean;
+  friendly_name?: string;
+  percentage: number;
+  percentage_step: number;
+  state?: string;
+};
 const FOUR_STEP = 25;
 const OFF = 0;
 
-let latestRequest: Date;
+export class FanEntityCard extends React.Component<
+  {
+    onRemove?: (entity_id: string) => void;
+    onUpdate?: (state: GeneralSaveStateDTO) => void;
+    optional?: boolean;
+    relative?: boolean;
+    selfContained?: boolean;
+    state?: GeneralSaveStateDTO<FanAttributesDTO>;
+    stateOnly?: boolean;
+    title?: string;
+  },
+  tStateType
+> {
+  private latestRequest: Date;
+  private get disabled(): boolean {
+    if (!this.props.optional) {
+      return false;
+    }
+    return !!this.state.disabled;
+  }
 
-// eslint-disable-next-line radar/cognitive-complexity
-export function FanEntityCard(props: {
-  onRemove?: (entity_id: string) => void;
-  onUpdate?: (state: GeneralSaveStateDTO) => void;
-  optional?: boolean;
-  relative?: boolean;
-  selfContained?: boolean;
-  state?: GeneralSaveStateDTO<FanAttributesDTO>;
-  stateOnly?: boolean;
-  title?: string;
-}) {
-  const [disabled, setDisabled] = useState<boolean>(
-    props.optional && is.undefined(props.state?.state),
-  );
-  const [friendly_name, setFriendlyName] = useState<string>();
-  const [percentage, setPercentage] = useState<number>(
-    props?.state?.extra?.percentage,
-  );
-  const [percentage_step, setPercentageStep] = useState<number>();
-  const [state, setState] = useState<string>(
-    props.state.state ?? 'setFanSpeed',
-  );
-  const ref = props?.state?.ref;
+  private get ref(): string {
+    return this.props?.state?.ref;
+  }
 
-  useEffect(() => {
-    refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ref]);
+  override async componentDidMount(): Promise<void> {
+    this.setState({
+      percentage: this.props?.state?.extra?.percentage,
+      state: this.props?.state?.state ?? 'setFanSpeed',
+    });
+    if (this.props.optional) {
+      this.setState({
+        disabled: is.undefined(this.props.state?.state),
+      });
+    }
 
-  function getMarks() {
+    await this.refresh();
+  }
+
+  public getSaveState(): GeneralSaveStateDTO {
+    if (this.disabled) {
+      return undefined;
+    }
+    return {
+      extra: {
+        percentage: this.state.percentage,
+      },
+      ref: this.ref,
+      state: this.state.state || 'off',
+    };
+  }
+
+  public load(state: FanStateDTO): void {
+    const percentage_step = this.getPercentageStep(state);
+    if (!this.props.selfContained) {
+      this.setState({
+        friendly_name: state.attributes.friendly_name,
+        percentage_step,
+      });
+      return;
+    }
+    const percentage = this.getPercentage(state);
+    this.setState({
+      friendly_name: state.attributes.friendly_name,
+      percentage,
+      percentage_step,
+      state: state.state,
+    });
+  }
+
+  override render() {
+    if (!this.state) {
+      return this.renderWaiting();
+    }
+    const { friendly_name, percentage, percentage_step, disabled, state } =
+      this.state;
+    return (
+      <Card
+        title={friendly_name}
+        type="inner"
+        style={{
+          minWidth: '300px',
+        }}
+        extra={
+          <Space style={{ margin: '0 -16px 0 16px' }}>
+            {this.props.optional ? (
+              <Switch
+                defaultChecked={!disabled}
+                onChange={state => this.setState({ disabled: !state })}
+              />
+            ) : undefined}
+            {is.undefined(this.props.onRemove) ? undefined : (
+              <Popconfirm
+                icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                title="Are you sure you want to remove this?"
+                onConfirm={() => this.props.onRemove(this.ref)}
+              >
+                <Button size="small" type="text" danger>
+                  <CloseOutlined />
+                </Button>
+              </Popconfirm>
+            )}
+          </Space>
+        }
+      >
+        {this.props.relative ? (
+          <>
+            <Radio.Group
+              buttonStyle="solid"
+              value={state}
+              onChange={({ target }) => this.onTypeChange(target.value)}
+            >
+              <Radio value="fanSpeedUp">Speed Up</Radio>
+              <Radio value="fanSpeedDown">Speed Down</Radio>
+              <Radio value="setFanSpeed">Absolute</Radio>
+            </Radio.Group>
+            <Divider />
+          </>
+        ) : undefined}
+        <Slider
+          value={percentage}
+          marks={this.getMarks()}
+          disabled={
+            disabled || (this.props.relative && state !== 'setFanSpeed')
+          }
+          step={percentage_step}
+          onChange={this.onSpeedChange.bind(this)}
+        />
+      </Card>
+    );
+  }
+
+  private getMarks() {
     const out: Record<number, string> = {};
-    for (let i = START; i <= 100; i = i + percentage_step) {
+    for (let i = START; i <= 100; i = i + this.state.percentage_step) {
       out[i] = `${i}%`;
     }
     return out;
   }
 
-  async function refresh(): Promise<void> {
-    if (!is.empty(props.title)) {
-      setFriendlyName(props.title);
-      return;
+  private getPercentage(state: FanStateDTO): number {
+    if (state.state === 'off') {
+      return OFF;
     }
-    const entity = await sendRequest<FanStateDTO>({
-      url: `/entity/id/${ref}`,
-    });
-    if (is.undefined(entity.attributes)) {
-      notification.open({
-        description: (
-          <Typography>
-            {`Server returned bad response. Verify that `}
-            <Typography.Text code>{ref}</Typography.Text> still exists?
-          </Typography>
-        ),
-        message: 'Entity not found',
-        type: 'error',
-      });
-      return;
+    if (
+      is.number(state.attributes.percentage) &&
+      state.attributes.percentage > OFF
+    ) {
+      return state.attributes.percentage;
     }
-    load(entity);
+    const { speed_list, speed } = state.attributes;
+    if (is.empty(speed_list) || is.empty(speed)) {
+      return OFF;
+    }
+    const step_size = this.getPercentageStep(state);
+    return speed_list.indexOf(speed) * step_size;
   }
 
-  function onTypeChange(state: string): void {
-    setState(state);
-    if (props.onUpdate) {
-      props.onUpdate({
-        extra: {
-          percentage: percentage,
-        },
-        ref,
-        state: state,
-      });
-    }
-  }
-
-  function load(state: FanStateDTO): void {
-    const percentage_step = getPercentageStep(state);
-    if (!props.selfContained) {
-      setFriendlyName(state.attributes.friendly_name);
-      setPercentageStep(percentage_step);
-      return;
-    }
-    const percentage = getPercentage(state);
-    setFriendlyName(state.attributes.friendly_name);
-    setPercentageStep(percentage_step);
-    setPercentage(percentage);
-    setState(state.state);
-  }
-
-  async function onSpeedChange(percentage: number): Promise<void> {
-    setPercentage(percentage);
-    setState('setFanSpeed');
-    if (props.onUpdate) {
-      props.onUpdate({
-        extra: {
-          percentage,
-        },
-        ref: ref,
-        state: 'setFanSpeed',
-      });
-    }
-    if (!props.selfContained) {
-      return;
-    }
-    const now = new Date();
-    latestRequest = now;
-    const entity = await sendRequest<FanStateDTO>({
-      body: {
-        percentage,
-      },
-      method: 'put',
-      url: `/entity/command/${ref}/setSpeed`,
-    });
-    if (latestRequest !== now) {
-      return;
-    }
-    load(entity);
-  }
-
-  function getPercentageStep(state: FanStateDTO): number {
+  private getPercentageStep(state: FanStateDTO): number {
     if (state.attributes.percentage_step > SINGLE) {
       return state.attributes.percentage_step;
     }
@@ -157,81 +202,79 @@ export function FanEntityCard(props: {
     return FOUR_STEP;
   }
 
-  function getPercentage(state: FanStateDTO): number {
-    if (state.state === 'off') {
-      return OFF;
+  private async onSpeedChange(percentage: number): Promise<void> {
+    await this.setState({ percentage, state: 'setFanSpeed' });
+    if (this.props.onUpdate) {
+      this.props.onUpdate({
+        extra: {
+          percentage: this.state.percentage,
+        },
+        ref: this.ref,
+        state: 'setFanSpeed',
+      });
     }
-    if (
-      is.number(state.attributes.percentage) &&
-      state.attributes.percentage > OFF
-    ) {
-      return state.attributes.percentage;
+    if (!this.props.selfContained) {
+      return;
     }
-    const { speed_list, speed } = state.attributes;
-    if (is.empty(speed_list) || is.empty(speed)) {
-      return OFF;
+    const now = new Date();
+    this.latestRequest = now;
+    const entity = await sendRequest<FanStateDTO>({
+      body: {
+        percentage,
+      },
+      method: 'put',
+      url: `/entity/command/${this.ref}/setSpeed`,
+    });
+    if (this.latestRequest !== now) {
+      return;
     }
-    const step_size = getPercentageStep(state);
-    return speed_list.indexOf(speed) * step_size;
+    this.load(entity);
   }
 
-  if (is.empty(state)) {
+  private onTypeChange(state: string): void {
+    this.setState({ state });
+    if (this.props.onUpdate) {
+      this.props.onUpdate({
+        extra: {
+          percentage: this.state.percentage,
+        },
+        ref: this.ref,
+        state: state,
+      });
+    }
+  }
+
+  private async refresh(): Promise<void> {
+    if (!is.empty(this.props.title)) {
+      this.setState({
+        friendly_name: this.props.title,
+      });
+      return;
+    }
+    const entity = await sendRequest<FanStateDTO>({
+      url: `/entity/id/${this.ref}`,
+    });
+    if (is.undefined(entity.attributes)) {
+      notification.open({
+        description: (
+          <Typography>
+            {`Server returned bad response. Verify that `}
+            <Typography.Text code>{this.ref}</Typography.Text> still exists?
+          </Typography>
+        ),
+        message: 'Entity not found',
+        type: 'error',
+      });
+      return;
+    }
+    this.load(entity);
+  }
+
+  private renderWaiting() {
     return (
-      <Card title={ref} type="inner">
+      <Card title={this.ref} type="inner">
         <Spin />
       </Card>
     );
   }
-  return (
-    <Card
-      title={friendly_name}
-      type="inner"
-      style={{
-        minWidth: '300px',
-      }}
-      extra={
-        <Space style={{ margin: '0 -16px 0 16px' }}>
-          {props.optional ? (
-            <Switch
-              defaultChecked={!disabled}
-              onChange={state => setDisabled(!state)}
-            />
-          ) : undefined}
-          {is.undefined(props.onRemove) ? undefined : (
-            <Popconfirm
-              icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-              title="Are you sure you want to remove this?"
-              onConfirm={() => props.onRemove(ref)}
-            >
-              <Button size="small" type="text" danger>
-                <CloseOutlined />
-              </Button>
-            </Popconfirm>
-          )}
-        </Space>
-      }
-    >
-      {props.relative ? (
-        <>
-          <Radio.Group
-            buttonStyle="solid"
-            value={state}
-            onChange={({ target }) => onTypeChange(target.value)}
-          >
-            <Radio value="fanSpeedUp">Speed Up</Radio>
-            <Radio value="fanSpeedDown">Speed Down</Radio>
-            <Radio value="setFanSpeed">Absolute</Radio>
-          </Radio.Group>
-          <Divider />
-        </>
-      ) : undefined}
-      <Slider
-        value={percentage}
-        marks={getMarks()}
-        disabled={disabled || (props.relative && state !== 'setFanSpeed')}
-        step={percentage_step}
-        onChange={speed => onSpeedChange(speed)}
-      />
-    </Card>
-  );
 }

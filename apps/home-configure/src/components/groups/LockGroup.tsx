@@ -7,11 +7,39 @@ import React from 'react';
 import { sendRequest } from '../../types';
 import { LockEntityCard } from '../entities';
 
-export function LockGroup(props: {
-  group: GroupDTO;
-  groupUpdate?: (group: GroupDTO) => void;
-}) {
-  async function onAttributeChange(state: GeneralSaveStateDTO): Promise<void> {
+type tStateType = { group: GroupDTO };
+
+export class LockGroup extends React.Component<
+  { group: GroupDTO; groupUpdate?: (group: GroupDTO) => void },
+  tStateType
+> {
+  private lightCards: Record<string, LockEntityCard> = {};
+
+  override render() {
+    return (
+      <Row gutter={[16, 16]}>
+        {is.empty(this.props?.group?.state?.states) ? (
+          <Col span={8} offset={8}>
+            <Empty description="No entities in group" />
+          </Col>
+        ) : (
+          this.props.group.state.states.map(entity => (
+            <Col key={entity.ref}>
+              <LockEntityCard
+                state={entity}
+                selfContained
+                ref={reference => (this.lightCards[entity.ref] = reference)}
+                onUpdate={this.onAttributeChange.bind(this)}
+                onRemove={this.onRemove.bind(this)}
+              />
+            </Col>
+          ))
+        )}
+      </Row>
+    );
+  }
+
+  private async onAttributeChange(state: GeneralSaveStateDTO): Promise<void> {
     const entity = await sendRequest<SwitchStateDTO>({
       method: 'put',
       url: `/entity/command/${state.ref}/${state.state}`,
@@ -22,30 +50,9 @@ export function LockGroup(props: {
     });
   }
 
-  function onRemove(entity_id: string): void {
-    props.group.entities = props.group.entities.filter(id => id !== entity_id);
-    props.groupUpdate(props.group);
+  private onRemove(entity_id: string): void {
+    const { group } = this.props as { group: GroupDTO };
+    group.entities = group.entities.filter(id => id !== entity_id);
+    this.props.groupUpdate(group);
   }
-
-  return (
-    <Row gutter={[16, 16]}>
-      {is.empty(props?.group?.state?.states) ? (
-        <Col span={8} offset={8}>
-          <Empty description="No entities in group" />
-        </Col>
-      ) : (
-        props.group.state.states.map(entity => (
-          <Col key={entity.ref}>
-            <LockEntityCard
-              state={entity}
-              selfContained
-              ref={reference => (this.lightCards[entity.ref] = reference)}
-              onUpdate={state => onAttributeChange(state)}
-              onRemove={id => onRemove(id)}
-            />
-          </Col>
-        ))
-      )}
-    </Row>
-  );
 }

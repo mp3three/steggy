@@ -19,176 +19,239 @@ import {
   Switch,
   Typography,
 } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ChromePicker, ColorResult } from 'react-color';
 
 import { sendRequest } from '../../types';
 
+type tStateType = {
+  color?: string;
+  disabled?: boolean;
+  friendly_name?: string;
+  state?: string;
+} & LightAttributesDTO;
 const R = 0;
 const G = 1;
 const B = 2;
 
-// eslint-disable-next-line radar/cognitive-complexity
-export function LightEntityCard(props: {
-  onRemove?: (entity_id: string) => void;
-  onUpdate?: (
-    state: GeneralSaveStateDTO,
-    attribute: 'state' | 'color' | 'brightness',
-  ) => void;
-  optional?: boolean;
-  selfContained?: boolean;
-  state?: GeneralSaveStateDTO;
-  title?: string;
-}) {
-  const attributes: LightAttributesDTO = props?.state?.extra ?? {};
+export class LightEntityCard extends React.Component<
+  {
+    onRemove?: (entity_id: string) => void;
+    onUpdate?: (
+      state: GeneralSaveStateDTO,
+      attribute: 'state' | 'color' | 'brightness',
+    ) => void;
+    optional?: boolean;
+    selfContained?: boolean;
+    state?: GeneralSaveStateDTO;
+    title?: string;
+  },
+  tStateType
+> {
+  private get attributes(): LightAttributesDTO {
+    return this.props?.state?.extra ?? {};
+  }
 
-  const [color, setColor] = useState<string>();
-  const [disabled, setDisabled] = useState<boolean>(
-    props.optional && is.undefined(props.state?.state),
-  );
-  const [friendly_name, setFriendlyName] = useState<string>();
-  const [state, setState] = useState<string>(props.state.state);
-  const [entity, setEntity] = useState<LightAttributesDTO>({
-    brightness: attributes?.brightness,
-    color_mode: attributes?.color_mode,
-    rgb_color: attributes?.rgb_color,
-  });
-  const ref = props?.state?.ref;
+  private get ref(): string {
+    return this.props?.state?.ref;
+  }
 
-  useEffect(() => {
-    async function refresh() {
-      if (!is.empty(props.title)) {
-        setFriendlyName(props.title);
-        return;
-      }
-      const entity = await sendRequest<LightStateDTO>({
-        url: `/entity/id/${ref}`,
+  override async componentDidMount(): Promise<void> {
+    this.setState({
+      brightness: this.attributes.brightness,
+      color_mode: this.attributes.color_mode,
+      rgb_color: this.attributes.rgb_color,
+      state: this.props?.state?.state,
+    });
+    if (this.props.optional) {
+      this.setState({
+        disabled: is.undefined(this.props.state?.state),
       });
-      if (is.undefined(entity.attributes)) {
-        notification.open({
-          description: (
-            <Typography>
-              {`Server returned bad response. Verify that `}
-              <Typography.Text code>{ref}</Typography.Text> still exists?
-            </Typography>
-          ),
-          message: 'Entity not found',
-          type: 'error',
-        });
-        return;
-      }
-      setFriendlyName(entity?.attributes?.friendly_name);
-      if (props.selfContained) {
-        setEntity({
-          ...entity,
-          brightness: entity.attributes.brightness,
-          color_mode: entity.attributes.color_mode,
-          rgb_color: entity.attributes.rgb_color,
-        });
-        setState(entity.state);
-      }
     }
-    refresh();
-  }, [props.selfContained, props.title, ref]);
+    await this.refresh();
+  }
 
-  function getSaveState(updateBrightness = brightness): GeneralSaveStateDTO {
-    if (props.optional && disabled) {
+  public getSaveState(brightness = this.state.brightness): GeneralSaveStateDTO {
+    if (this.props.optional && this.state.disabled) {
       return undefined;
     }
     return {
       extra:
-        entity.color_mode !== 'color_temp'
+        this.state.color_mode !== 'color_temp'
           ? {
-              brightness: updateBrightness,
-              color_mode: entity.color_mode,
-              rgb_color: rgb_color,
+              brightness,
+              color_mode: this.state.color_mode,
+              rgb_color: this.state.rgb_color,
             }
-          : { brightness: updateBrightness, color_mode: entity.color_mode },
-      ref: ref,
-      state: state,
+          : { brightness, color_mode: this.state.color_mode },
+      ref: this.ref,
+      state: this.state.state,
     };
   }
 
-  async function brightnessChanged(
+  override render() {
+    if (!this.state) {
+      return this.renderWaiting();
+    }
+    const { color, friendly_name, brightness, rgb_color, disabled } =
+      this.state;
+    const entityState = this.getCurrentState();
+    return (
+      <Card
+        title={friendly_name}
+        type="inner"
+        extra={
+          <Space style={{ margin: '0 -16px 0 16px' }}>
+            {this.props.optional ? (
+              <Switch
+                defaultChecked={!disabled}
+                onChange={state => this.setState({ disabled: !state })}
+              />
+            ) : undefined}
+            {is.undefined(this.props.onRemove) ? undefined : (
+              <Popconfirm
+                icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                title="Are you sure you want to remove this?"
+                onConfirm={() => this.props.onRemove(this.ref)}
+              >
+                <Button size="small" type="text" danger>
+                  <CloseOutlined />
+                </Button>
+              </Popconfirm>
+            )}
+          </Space>
+        }
+      >
+        <Radio.Group
+          buttonStyle="solid"
+          value={entityState}
+          disabled={disabled}
+          onChange={this.onModeChange.bind(this)}
+        >
+          <Radio.Button value="turnOff">Off</Radio.Button>
+          <Radio.Button value="circadianLight">Circadian</Radio.Button>
+          <Radio.Button value="turnOn">Color</Radio.Button>
+        </Radio.Group>
+        {entityState !== 'turnOff' ? (
+          <>
+            <Divider orientation="left">
+              <Typography.Text type="secondary">Brightness</Typography.Text>
+            </Divider>
+            <Slider
+              min={1}
+              max={255}
+              marks={{
+                1: 'min',
+                128: '1/2',
+                170: '2/3',
+                192: '3/4',
+                255: 'max',
+                64: '1/4',
+                85: '1/3',
+              }}
+              value={brightness}
+              onChange={this.updateBrightness.bind(this)}
+              onAfterChange={this.brightnessChanged.bind(this)}
+            />
+          </>
+        ) : undefined}
+        {entityState === 'turnOn' && !disabled ? (
+          <>
+            <Divider />
+            <ChromePicker
+              color={
+                color ?? {
+                  b: (rgb_color || [])[B],
+                  g: (rgb_color || [])[G],
+                  r: (rgb_color || [])[R],
+                }
+              }
+              onChange={this.updateColor.bind(this)}
+              onChangeComplete={this.sendColorChange.bind(this)}
+              disableAlpha={true}
+            />
+          </>
+        ) : undefined}
+      </Card>
+    );
+  }
+
+  private async brightnessChanged(
     brightness: number | number[],
   ): Promise<void> {
     brightness = Array.isArray(brightness) ? brightness[START] : brightness;
-    const saveState = getSaveState(brightness);
-    if (props.selfContained) {
-      setEntity({
-        ...entity,
-      });
+    const saveState = this.getSaveState(brightness);
+    if (this.props.selfContained) {
+      this.setState({ brightness });
       const state = await sendRequest<LightStateDTO>({
         body: { brightness },
         method: 'put',
         url: `/entity/command/${saveState.ref}/${saveState.state}`,
       });
       state.attributes ??= {};
-      setEntity({
-        ...entity,
+      this.setState({
         brightness: state.attributes.brightness,
         color_mode: state.attributes.color_mode,
         rgb_color: state.attributes.rgb_color,
+        state: state.state,
       });
-      setState(state.state);
       return;
     }
-    setEntity({ ...entity, brightness });
-    if (props.onUpdate) {
-      props.onUpdate(saveState, 'brightness');
+    this.setState({ brightness });
+    if (this.props.onUpdate) {
+      this.props.onUpdate(saveState, 'brightness');
     }
   }
 
-  function getCurrentState(): string {
-    if (is.empty(state) && !props.state) {
+  private getCurrentState(): string {
+    const state = this.state?.state;
+    if (is.empty(state) && !this.props.state) {
       return undefined;
     }
     if (state !== 'on') {
       return 'turnOff';
     }
-    if (entity.color_mode === 'color_temp') {
+    if (this.state.color_mode === 'color_temp') {
       return 'circadianLight';
     }
     return 'turnOn';
   }
 
-  function onModeChange(state: string): void {
+  private onModeChange(e: React.ChangeEvent<HTMLInputElement>): void {
+    const state = e.target.value;
     if (state === 'turnOff') {
-      setEntity({
-        ...entity,
+      this.setState({
         brightness: undefined,
         color_mode: undefined,
         rgb_color: undefined,
+        state: 'off',
       });
-      setState('off');
-      onUpdate('state');
+      this.onUpdate('state');
       return;
     }
     if (state === 'turnOn') {
-      setEntity({
-        ...entity,
+      this.setState({
         color_mode: undefined,
+        state: 'on',
       });
-      setState('on');
-      onUpdate('state');
+      this.onUpdate('state');
       return;
     }
-    setEntity({
-      ...entity,
+    this.setState({
       color_mode: 'color_temp' as ColorModes,
       rgb_color: undefined,
+      state: 'on',
     });
-    setState('on');
-    onUpdate('state');
+    this.onUpdate('state');
   }
 
-  function onUpdate(type: 'color' | 'state'): void {
+  private onUpdate(type: 'color' | 'state'): void {
     setTimeout(async () => {
-      const saveState = getSaveState();
-      if (props.onUpdate) {
-        props.onUpdate(saveState, type);
+      const saveState = this.getSaveState();
+      if (this.props.onUpdate) {
+        this.props.onUpdate(saveState, type);
       }
-      if (!props.selfContained) {
+      if (!this.props.selfContained) {
         return;
       }
       const state = await sendRequest<LightStateDTO>({
@@ -196,108 +259,68 @@ export function LightEntityCard(props: {
         method: 'put',
         url: `/entity/light-state/${saveState.ref}`,
       });
-      setEntity({
-        ...entity,
+      this.setState({
         brightness: state.attributes.brightness,
         color_mode: state.attributes.color_mode,
         rgb_color: state.attributes.rgb_color,
+        state: state.state,
       });
-      setState(state.state);
     }, 0);
   }
 
-  function sendColorChange({ rgb, hex }: ColorResult): void {
-    const { r, g, b } = rgb;
-    setColor(hex);
-    setEntity({ ...entity, rgb_color: [r, g, b] });
-    onUpdate('color');
+  private async refresh(): Promise<void> {
+    if (!is.empty(this.props.title)) {
+      this.setState({
+        friendly_name: this.props.title,
+      });
+      return;
+    }
+    const entity = await sendRequest<LightStateDTO>({
+      url: `/entity/id/${this.ref}`,
+    });
+    if (is.undefined(entity.attributes)) {
+      notification.open({
+        description: (
+          <Typography>
+            {`Server returned bad response. Verify that `}
+            <Typography.Text code>{this.ref}</Typography.Text> still exists?
+          </Typography>
+        ),
+        message: 'Entity not found',
+        type: 'error',
+      });
+      return;
+    }
+    this.setState({ friendly_name: entity?.attributes?.friendly_name });
+    if (this.props.selfContained) {
+      this.setState({
+        brightness: entity.attributes.brightness,
+        color_mode: entity.attributes.color_mode,
+        rgb_color: entity.attributes.rgb_color,
+        state: entity.state,
+      });
+    }
   }
 
-  if (!entity) {
+  private renderWaiting() {
     return (
-      <Card title={ref} type="inner">
+      <Card title={this.ref} type="inner">
         <Skeleton />
       </Card>
     );
   }
-  const { brightness, rgb_color } = entity;
-  const entityState = getCurrentState();
-  return (
-    <Card
-      title={friendly_name}
-      type="inner"
-      extra={
-        <Space style={{ margin: '0 -16px 0 16px' }}>
-          {props.optional ? (
-            <Switch
-              defaultChecked={!disabled}
-              onChange={state => setDisabled(!state)}
-            />
-          ) : undefined}
-          {is.undefined(props.onRemove) ? undefined : (
-            <Popconfirm
-              icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-              title="Are you sure you want to remove this?"
-              onConfirm={() => props.onRemove(ref)}
-            >
-              <Button size="small" type="text" danger>
-                <CloseOutlined />
-              </Button>
-            </Popconfirm>
-          )}
-        </Space>
-      }
-    >
-      <Radio.Group
-        buttonStyle="solid"
-        value={entityState}
-        disabled={disabled}
-        onChange={({ target }) => onModeChange(target.value)}
-      >
-        <Radio.Button value="turnOff">Off</Radio.Button>
-        <Radio.Button value="circadianLight">Circadian</Radio.Button>
-        <Radio.Button value="turnOn">Color</Radio.Button>
-      </Radio.Group>
-      {entityState !== 'turnOff' ? (
-        <>
-          <Divider orientation="left">
-            <Typography.Text type="secondary">Brightness</Typography.Text>
-          </Divider>
-          <Slider
-            min={1}
-            max={255}
-            marks={{
-              1: 'min',
-              128: '1/2',
-              170: '2/3',
-              192: '3/4',
-              255: 'max',
-              64: '1/4',
-              85: '1/3',
-            }}
-            value={brightness}
-            onChange={brightness => setEntity({ ...entity, brightness })}
-            onAfterChange={brightness => brightnessChanged(brightness)}
-          />
-        </>
-      ) : undefined}
-      {entityState === 'turnOn' && !disabled ? (
-        <>
-          <Divider />
-          <ChromePicker
-            color={
-              color ?? {
-                b: (rgb_color || [])[B],
-                g: (rgb_color || [])[G],
-                r: (rgb_color || [])[R],
-              }
-            }
-            onChange={({ hex }) => setColor(hex)}
-            onChangeComplete={change => sendColorChange(change)}
-            disableAlpha={true}
-          />
-        </>
-      ) : undefined}
-    </Card>
-  );
+
+  private sendColorChange({ rgb, hex }: ColorResult): void {
+    const { r, g, b } = rgb;
+    this.setState({ color: hex, rgb_color: [r, g, b] });
+    this.onUpdate('color');
+  }
+
+  private updateBrightness(brightness: number): void {
+    this.setState({ brightness });
+  }
+
+  private updateColor({ hex }: ColorResult) {
+    this.setState({ color: hex });
+  }
 }

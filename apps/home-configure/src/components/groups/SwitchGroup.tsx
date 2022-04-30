@@ -9,47 +9,49 @@ import { SwitchEntityCard } from '../entities';
 
 type tStateType = { group: GroupDTO };
 
-export function SwitchGroup(props: {
-  group: GroupDTO;
-  groupUpdate?: (group: GroupDTO) => void;
-}) {
-  let lightCards: Record<string, typeof SwitchEntityCard> = {};
-  //
-  async function onAttributeChange(state: GeneralSaveStateDTO): Promise<void> {
+export class SwitchGroup extends React.Component<
+  { group: GroupDTO; groupUpdate?: (group: GroupDTO) => void },
+  tStateType
+> {
+  private lightCards: Record<string, SwitchEntityCard> = {};
+
+  override render() {
+    return (
+      <Row gutter={[16, 16]}>
+        {is.empty(this.props?.group?.state?.states) ? (
+          <Col span={8} offset={8}>
+            <Empty description="No entities in group" />
+          </Col>
+        ) : (
+          this.props.group.state.states.map(entity => (
+            <Col key={entity.ref}>
+              <SwitchEntityCard
+                state={entity}
+                ref={reference => (this.lightCards[entity.ref] = reference)}
+                onUpdate={this.onAttributeChange.bind(this)}
+                onRemove={this.onRemove.bind(this)}
+              />
+            </Col>
+          ))
+        )}
+      </Row>
+    );
+  }
+
+  private async onAttributeChange(state: GeneralSaveStateDTO): Promise<void> {
     const entity = await sendRequest<SwitchStateDTO>({
       method: 'put',
       url: `/entity/command/${state.ref}/${state.state}`,
     });
-    const card = lightCards[state.ref];
+    const card = this.lightCards[state.ref];
     card.setState({
       state: entity.state,
     });
   }
 
-  function onRemove(entity_id: string): void {
+  private onRemove(entity_id: string): void {
     const { group } = this.props as { group: GroupDTO };
     group.entities = group.entities.filter(id => id !== entity_id);
     this.props.groupUpdate(group);
   }
-
-  return (
-    <Row gutter={[16, 16]}>
-      {is.empty(this.props?.group?.state?.states) ? (
-        <Col span={8} offset={8}>
-          <Empty description="No entities in group" />
-        </Col>
-      ) : (
-        this.props.group.state.states.map(entity => (
-          <Col key={entity.ref}>
-            <SwitchEntityCard
-              state={entity}
-              ref={reference => (this.lightCards[entity.ref] = reference)}
-              onUpdate={this.onAttributeChange.bind(this)}
-              onRemove={this.onRemove.bind(this)}
-            />
-          </Col>
-        ))
-      )}
-    </Row>
-  );
 }

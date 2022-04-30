@@ -1,7 +1,7 @@
 import { RoutineRelativeDateComparisonDTO } from '@steggy/controller-shared';
 import { Card, Divider, Form, Input, Radio, Tooltip, Typography } from 'antd';
 
-import { ChronoExamples } from '../ChronoExamples';
+import { ChronoExamples, renderDateExpression } from '../ChronoExamples';
 
 export function RelativeDate(props: {
   comparison: RoutineRelativeDateComparisonDTO;
@@ -58,9 +58,7 @@ export function RelativeDate(props: {
           />
         </Form.Item>
         <Form.Item label="Current Value">
-          {ChronoExamples.renderDateExpression(
-            props.comparison.expression as string,
-          )}
+          {renderDateExpression(props.comparison.expression as string)}
         </Form.Item>
       </Card>
       <ChronoExamples range />

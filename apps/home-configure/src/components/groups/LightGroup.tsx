@@ -1,35 +1,41 @@
 import { GroupDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Col, Empty, Row } from 'antd';
+import React from 'react';
 
 import { LightEntityCard } from '../entities';
 
-export function LightGroup(props: {
-  group: GroupDTO;
-  groupUpdate?: (group: GroupDTO) => void;
-}) {
-  function onRemove(entity_id: string): void {
-    props.group.entities = props.group.entities.filter(id => id !== entity_id);
-    props.groupUpdate(props.group);
+type tStateType = { group: GroupDTO };
+
+export class LightGroup extends React.Component<
+  { group: GroupDTO; groupUpdate?: (group: GroupDTO) => void },
+  tStateType
+> {
+  override render() {
+    return (
+      <Row gutter={[16, 16]}>
+        {is.empty(this.props?.group?.state?.states) ? (
+          <Col span={8} offset={8}>
+            <Empty description="No entities in group" />
+          </Col>
+        ) : (
+          this.props.group.state.states.map(entity => (
+            <Col key={entity.ref}>
+              <LightEntityCard
+                state={entity}
+                selfContained
+                onRemove={this.onRemove.bind(this)}
+              />
+            </Col>
+          ))
+        )}
+      </Row>
+    );
   }
 
-  return (
-    <Row gutter={[16, 16]}>
-      {is.empty(props?.group?.state?.states) ? (
-        <Col span={8} offset={8}>
-          <Empty description="No entities in group" />
-        </Col>
-      ) : (
-        props.group.state.states.map(entity => (
-          <Col key={entity.ref}>
-            <LightEntityCard
-              state={entity}
-              selfContained
-              onRemove={id => onRemove(id)}
-            />
-          </Col>
-        ))
-      )}
-    </Row>
-  );
+  private onRemove(entity_id: string): void {
+    const { group } = this.props as { group: GroupDTO };
+    group.entities = group.entities.filter(id => id !== entity_id);
+    this.props.groupUpdate(group);
+  }
 }
