@@ -1,8 +1,4 @@
-import {
-  CameraOutlined,
-  FolderAddOutlined,
-  QuestionCircleOutlined,
-} from '@ant-design/icons';
+import { FolderAddOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { GroupDTO, GroupSaveStateDTO } from '@steggy/controller-shared';
 import { DOWN, sleep, UP } from '@steggy/utilities';
 import {
@@ -105,7 +101,7 @@ export function GroupSaveStates(props: {
                 </Form>
               }
             >
-              <Button size="small" icon={<CameraOutlined />}>
+              <Button size="small" icon={FD_ICONS.get('capture')}>
                 Capture current
               </Button>
             </Popconfirm>
@@ -153,6 +149,7 @@ export function GroupSaveStates(props: {
               <Button
                 onClick={() => activateState(record)}
                 type="primary"
+                size="small"
                 icon={FD_ICONS.get('execute')}
               >
                 Activate
@@ -162,7 +159,7 @@ export function GroupSaveStates(props: {
                 title={`Are you sure you want to delete ${record.friendlyName}`}
                 onConfirm={() => removeState(record)}
               >
-                <Button danger type="text">
+                <Button danger type="text" size="small">
                   X
                 </Button>
               </Popconfirm>

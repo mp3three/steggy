@@ -48,10 +48,9 @@ export function RecentActivations() {
 
   return (
     <Card
+      type="inner"
       title={
-        <Typography.Title level={5}>
-          Recent Routine Activations
-        </Typography.Title>
+        <Typography.Text strong>Recent Routine Activations</Typography.Text>
       }
       extra={
         <>

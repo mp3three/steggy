@@ -17,7 +17,11 @@ import PlusBoxMultiple from '@2fd/ant-design-icons/lib/PlusBoxMultiple';
 import RefreshCircle from '@2fd/ant-design-icons/lib/RefreshCircle';
 import StepForward from '@2fd/ant-design-icons/lib/StepForward';
 import TimelinePlus from '@2fd/ant-design-icons/lib/TimelinePlus';
-import { HomeOutlined, SettingOutlined } from '@ant-design/icons';
+import {
+  CameraOutlined,
+  HomeOutlined,
+  SettingOutlined,
+} from '@ant-design/icons';
 type iconTypes =
   | 'clone'
   | 'entities'
@@ -29,6 +33,7 @@ type iconTypes =
   | 'list_add'
   | 'magnify'
   | 'menu'
+  | 'capture'
   | 'metadata'
   | 'people'
   | 'plus_box'
@@ -51,6 +56,7 @@ export const FD_ICONS = new Map<iconTypes, JSX.Element>([
   ['filter', <FilterVariant />],
   ['groups', <LightbulbGroupOutline />],
   ['home', <HomeOutlined />],
+  ['capture', <CameraOutlined />],
   ['information', <InformationIcon />],
   ['list_add', <TimelinePlus />],
   ['magnify', <Magnify />],

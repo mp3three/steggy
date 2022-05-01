@@ -8,7 +8,7 @@ import { ItemPin } from '../misc';
 
 export function RoutineExtraActions(props: {
   onClone?: (routine: RoutineDTO) => void;
-  onUpdate: (routine: RoutineDTO) => void;
+  onUpdate?: (routine: RoutineDTO) => void;
   routine: RoutineDTO;
 }) {
   async function activateRoutine(): Promise<void> {
@@ -33,7 +33,9 @@ export function RoutineExtraActions(props: {
       method: 'delete',
       url: `/routine/${props.routine._id}`,
     });
-    props.onUpdate(undefined);
+    if (props.onUpdate) {
+      props.onUpdate(undefined);
+    }
   }
   return (
     <Dropdown

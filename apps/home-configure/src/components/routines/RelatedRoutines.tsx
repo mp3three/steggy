@@ -111,7 +111,7 @@ export function RelatedRoutines(props: {
               <List.Item>
                 <Button
                   size="small"
-                  type="text"
+                  type={routine?._id === item._id ? 'primary' : 'text'}
                   onClick={() => setRoutine(item)}
                 >
                   {item.friendlyName}

@@ -10,7 +10,7 @@ import React, { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
 import { GroupInspectButton } from '../groups';
-import { RoomInsectButton } from '../rooms';
+import { RoomInspectButton } from '../rooms';
 import { RoutineInspectButton } from '../routines/RoutineInspectButton';
 
 // eslint-disable-next-line radar/cognitive-complexity
@@ -95,7 +95,7 @@ export function DebuggerSettings() {
                 dataSource={rooms}
                 renderItem={room => (
                   <List.Item>
-                    <RoomInsectButton
+                    <RoomInspectButton
                       room={room}
                       onUpdate={update => updateRoom(update)}
                     />

@@ -19,6 +19,7 @@ import { v4 as uuid } from 'uuid';
 
 import { GenericComparison } from '../../misc';
 
+// eslint-disable-next-line radar/cognitive-complexity
 export function StopProcessingCommand(props: {
   command: RoutineCommandStopProcessingDTO;
   disabled?: boolean;
@@ -110,7 +111,7 @@ export function StopProcessingCommand(props: {
                     <Button
                       onClick={() => setEdit(item)}
                       size="small"
-                      type="text"
+                      type={edit?.id === item.id ? 'primary' : 'text'}
                     >
                       {item.friendlyName}
                     </Button>

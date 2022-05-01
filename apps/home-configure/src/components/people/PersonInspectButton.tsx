@@ -1,56 +1,56 @@
-import { RoomDTO } from '@steggy/controller-shared';
+import { PersonDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Button, Drawer } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
-import { RoomExtraActions } from './RoomExtraActions';
-import { RoomListDetail } from './RoomListDetail';
+import { PeopleDetail } from './PeopleDetail';
 
-export function RoomInspectButton(props: {
-  onUpdate?: (room: RoomDTO) => void;
-  room: RoomDTO | string;
+export function PersonInspectButton(props: {
+  onUpdate?: (room: PersonDTO) => void;
+  person: PersonDTO | string;
 }) {
   const [visible, setVisible] = useState(false);
-  const [room, setRoom] = useState<RoomDTO>();
+  const [person, setPerson] = useState<PersonDTO>();
 
   async function load(visible?: boolean): Promise<void> {
-    const room = await sendRequest<RoomDTO>({
-      url: `/room/${is.string(props.room) ? props.room : props.room._id}`,
+    const room = await sendRequest<PersonDTO>({
+      url: `/person/${
+        is.string(props.person) ? props.person : props.person._id
+      }`,
     });
     if (props.onUpdate) {
       props.onUpdate(room);
     }
-    setRoom(room);
+    setPerson(room);
     if (visible) {
       setVisible(true);
     }
   }
 
   useEffect(() => {
-    if (is.string(props.room)) {
+    if (is.string(props.person)) {
       load();
       return;
     }
-    setRoom(props.room);
+    setPerson(props.person);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.room]);
+  }, [props.person]);
 
   return (
     <>
       <Drawer
-        title="Room Details"
+        title="Person Details"
         size="large"
         visible={visible}
-        extra={<RoomExtraActions room={room} onUpdate={props.onUpdate} />}
         onClose={() => setVisible(false)}
       >
-        <RoomListDetail
+        <PeopleDetail
           nested
           onUpdate={update =>
             props.onUpdate ? props.onUpdate(update) : undefined
           }
-          room={room}
+          person={person}
         />
       </Drawer>
       <Button
@@ -58,7 +58,7 @@ export function RoomInspectButton(props: {
         type={visible ? 'primary' : 'text'}
         onClick={() => setVisible(true)}
       >
-        {room?.friendlyName}
+        {person?.friendlyName}
       </Button>
     </>
   );

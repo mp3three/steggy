@@ -219,7 +219,11 @@ export function RoomStateEdit(props: {
 
   return room ? (
     <>
-      <Button size="small" type="text" onClick={() => setDrawer(true)}>
+      <Button
+        size="small"
+        type={drawer ? 'primary' : 'text'}
+        onClick={() => setDrawer(true)}
+      >
         {friendlyName}
       </Button>
       <Drawer
@@ -237,7 +241,7 @@ export function RoomStateEdit(props: {
         onClose={() => onClose(true)}
         extra={
           <Space>
-            <ItemPin type={routeBase} target={room?._id} />
+            <ItemPin type={routeBase} target={props.state.id} />
             <Button type="primary" onClick={() => onSave()}>
               Save
             </Button>

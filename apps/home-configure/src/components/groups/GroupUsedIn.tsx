@@ -44,7 +44,10 @@ export function GroupUsedIn(props: { group: GroupDTO }) {
         dataSource={rooms}
         renderItem={room => (
           <List.Item>
-            <Button type="text" onClick={() => setRoom(room)}>
+            <Button
+              type={room ? 'primary' : 'text'}
+              onClick={() => setRoom(room)}
+            >
               {room.friendlyName}
             </Button>
           </List.Item>

@@ -13,7 +13,7 @@ import { sendRequest } from '../../types';
 import { EntityModalPicker } from '../entities';
 import { EntityInspectButton } from '../entities/InspectButton';
 import { GroupInspectButton, GroupModalPicker } from '../groups';
-import { RoomInsectButton, RoomModalPicker } from '../rooms';
+import { RoomInspectButton, RoomModalPicker } from '../rooms';
 
 type PartialGroup = Pick<
   GroupDTO,
@@ -195,7 +195,10 @@ export function PersonConfiguration(props: {
       >
         <List.Item.Meta
           title={
-            <RoomInsectButton room={room} onUpdate={room => updateRoom(room)} />
+            <RoomInspectButton
+              room={room}
+              onUpdate={room => updateRoom(room)}
+            />
           }
         />
       </List.Item>

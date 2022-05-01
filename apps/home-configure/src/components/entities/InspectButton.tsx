@@ -34,12 +34,13 @@ export function EntityInspectButton(props: { entity_id: string }) {
           setEntity(entity);
         },
         async () => {
-          const flags = await sendRequest<string[]>({
-            url: `/entity/flags/${props.entity_id}`,
-          });
-          setFlags(flags);
+          setFlags(
+            await sendRequest<string[]>({
+              url: `/entity/flags/${props.entity_id}`,
+            }),
+          );
         },
-      ].map(async f => await f()),
+      ].map(f => f()),
     );
   }
 
@@ -61,7 +62,11 @@ export function EntityInspectButton(props: { entity_id: string }) {
           onFlagsUpdate={flags => setFlags(flags)}
         />
       </Drawer>
-      <Button size="small" type="text" onClick={() => load()}>
+      <Button
+        size="small"
+        type={is.undefined(entity) ? 'text' : 'primary'}
+        onClick={() => load()}
+      >
         {props.entity_id}
       </Button>
     </>

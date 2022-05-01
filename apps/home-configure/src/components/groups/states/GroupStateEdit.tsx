@@ -1,4 +1,3 @@
-import { EditOutlined } from '@ant-design/icons';
 import {
   GeneralSaveStateDTO,
   GroupDTO,
@@ -10,6 +9,7 @@ import {
   LightAttributesDTO,
   LockAttributesDTO,
 } from '@steggy/home-assistant-shared';
+import { is, START } from '@steggy/utilities';
 import {
   Button,
   Divider,
@@ -18,10 +18,9 @@ import {
   notification,
   Skeleton,
   Space,
-  Spin,
   Typography,
 } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../../types';
 import {
@@ -34,25 +33,73 @@ import { ItemPin } from '../../misc';
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function GroupStateEdit(props: {
-  group: GroupDTO;
-  onUpdate: (group: GroupDTO) => void;
-  state: GroupSaveStateDTO;
+  group?: GroupDTO;
+  onUpdate?: (group: GroupDTO) => void;
+  state: GroupSaveStateDTO | string;
 }) {
   const [dirty, setDirty] = useState(false);
   const [drawer, setDrawer] = useState(false);
-  const [friendlyName, setFriendlyName] = useState(props.state.friendlyName);
+  const [friendlyName, setFriendlyName] = useState('');
+  const [state, setState] = useState<GroupSaveStateDTO>();
+  const [group, setGroup] = useState<GroupDTO>();
   const cards: (
     | LightEntityCard
     | SwitchEntityCard
     | LockEntityCard
     | FanEntityCard
   )[] = [];
-  const group = props.group;
 
-  const entities = props.group.entities;
+  const entities = group?.entities ?? [];
+
+  async function load() {
+    const groups = await sendRequest<GroupDTO[]>({
+      control: {
+        filters: new Set([
+          {
+            field: 'save_states.id',
+            value: props.state,
+          },
+        ]),
+      },
+      url: `/group`,
+    });
+    if (is.empty(groups)) {
+      notification.error({
+        duration: 15,
+        message: (
+          <Typography>
+            {'Unable to load information for group state: '}
+            <Typography.Text code>{props.state}</Typography.Text>
+          </Typography>
+        ),
+      });
+      return;
+    }
+    const group = groups[START];
+    const state = group.save_states.find(({ id }) => id === props.state);
+    if (is.undefined(state)) {
+      return;
+    }
+    setState(state);
+    setGroup(group);
+  }
+  useEffect(() => {
+    if (is.undefined(props.group)) {
+      return;
+    }
+    setGroup(props.group);
+  }, [props.group]);
+  useEffect(() => {
+    if (is.string(props.state)) {
+      load();
+      return;
+    }
+    setState(props.state);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.state]);
 
   function bulkEdit() {
-    switch (group.type) {
+    switch (group?.type) {
       case 'light':
         return (
           <LightEntityCard
@@ -86,18 +133,18 @@ export function GroupStateEdit(props: {
   }
 
   function entityRender(entity: string) {
-    const state = props?.state?.states?.find(({ ref }) => ref === entity) || {
+    const item = state?.states?.find(({ ref }) => ref === entity) || {
       extra: {},
       ref: entity,
       state: undefined,
     };
-    switch (group.type) {
+    switch (group?.type) {
       case 'light':
         return (
           <LightEntityCard
             ref={i => cards.push(i)}
             key={entity}
-            state={state}
+            state={item}
             onUpdate={() => setDirty(true)}
           />
         );
@@ -106,7 +153,7 @@ export function GroupStateEdit(props: {
           <SwitchEntityCard
             ref={i => cards.push(i)}
             key={entity}
-            state={state}
+            state={item}
             onUpdate={() => setDirty(true)}
           />
         );
@@ -115,7 +162,7 @@ export function GroupStateEdit(props: {
           <FanEntityCard
             ref={i => cards.push(i)}
             key={entity}
-            state={state}
+            state={item}
             onUpdate={() => setDirty(true)}
           />
         );
@@ -124,7 +171,7 @@ export function GroupStateEdit(props: {
           <LockEntityCard
             ref={i => cards.push(i)}
             key={entity}
-            state={state}
+            state={item}
             onUpdate={() => setDirty(true)}
           />
         );
@@ -135,7 +182,7 @@ export function GroupStateEdit(props: {
   function onClose(warn: boolean): void {
     if (dirty && warn) {
       notification.warn({
-        description: `Changes to ${props.state.friendlyName} were not saved`,
+        description: `Changes to ${state?.friendlyName} were not saved`,
         message: 'Unsaved changes',
       });
     }
@@ -145,7 +192,7 @@ export function GroupStateEdit(props: {
   function onFanChange(state: GeneralSaveStateDTO<FanAttributesDTO>): void {
     cards.forEach(card =>
       (card as FanEntityCard)?.setState({
-        percentage: state.extra.percentage,
+        percentage: state?.extra.percentage,
       }),
     );
   }
@@ -158,20 +205,20 @@ export function GroupStateEdit(props: {
     const set: LightAttributesDTO & { state?: string } = {};
     switch (type) {
       case 'state':
-        set.state = state.state;
-        if (state.extra.color_mode === 'color_temp') {
+        set.state = state?.state;
+        if (state?.extra.color_mode === 'color_temp') {
           set.color_mode = 'color_temp' as ColorModes;
         } else {
-          set.rgb_color = state.extra.rgb_color;
+          set.rgb_color = state?.extra.rgb_color;
           set.color_mode = 'hs' as ColorModes;
         }
         break;
       case 'brightness':
-        set.brightness = state.extra.brightness;
+        set.brightness = state?.extra.brightness;
         break;
       case 'color':
         set.state = 'on';
-        set.rgb_color = state.extra.rgb_color;
+        set.rgb_color = state?.extra.rgb_color;
         set.color_mode = 'hs' as ColorModes;
         break;
     }
@@ -184,27 +231,29 @@ export function GroupStateEdit(props: {
   function onLockChange(state: GeneralSaveStateDTO<LockAttributesDTO>): void {
     cards.forEach(card => {
       (card as LockEntityCard)?.setState({
-        state: state.state,
+        state: state?.state,
       });
     });
   }
 
   async function onSave(): Promise<void> {
-    const id = props.state.id;
+    const id = state?.id;
     const states = cards.filter(i => !!i).map(i => i.getSaveState());
     const item = await sendRequest<GroupDTO>({
       body: { friendlyName, id, states } as GroupSaveStateDTO,
       method: 'put',
-      url: `/group/${group._id}/state/${id}`,
+      url: `/group/${group?._id}/state/${id}`,
     });
     setDirty(false);
     setDrawer(false);
-    props.onUpdate(item);
+    if (props.onUpdate) {
+      props.onUpdate(item);
+    }
   }
 
   function onStateChange(state: GeneralSaveStateDTO, type?: string): void {
     setDirty(true);
-    switch (group.type) {
+    switch (group?.type) {
       case 'light':
         onLightStateChange(state, type);
         return;
@@ -223,16 +272,13 @@ export function GroupStateEdit(props: {
   function onSwitchStateChanged(state: GeneralSaveStateDTO): void {
     cards.forEach(i =>
       (i as SwitchEntityCard)?.setState({
-        state: state.state,
+        state: state?.state,
       }),
     );
   }
 
-  return props.group ? (
+  return group ? (
     <>
-      <Button size="small" type="text" onClick={() => setDrawer(true)}>
-        <EditOutlined /> {props.state.friendlyName}
-      </Button>
       <Drawer
         title={
           <Typography.Text
@@ -248,7 +294,7 @@ export function GroupStateEdit(props: {
         onClose={() => onClose(true)}
         extra={
           <Space>
-            <ItemPin type="group_state" target={props.state.id} />
+            <ItemPin type="group_state" target={state?.id} />
             <Button type="primary" onClick={() => onSave()}>
               Save
             </Button>
@@ -265,14 +311,21 @@ export function GroupStateEdit(props: {
           <Typography.Title level={4}>Identifiers</Typography.Title>
         </Divider>
         <Typography.Title level={5}>Group ID</Typography.Title>
-        <Typography.Text code>{props.group._id}</Typography.Text>
+        <Typography.Text code>{props.group?._id}</Typography.Text>
         <Typography.Title level={5}>State ID</Typography.Title>
-        <Typography.Text code>{props.state.id}</Typography.Text>
+        <Typography.Text code>{state?.id}</Typography.Text>
       </Drawer>
+      <Button
+        size="small"
+        type={drawer ? 'primary' : 'text'}
+        onClick={() => setDrawer(true)}
+      >
+        {state?.friendlyName}
+      </Button>
     </>
   ) : (
     <Layout.Content>
-      <Spin size="large" tip="Loading..." />
+      <Skeleton.Button active />
     </Layout.Content>
   );
 }

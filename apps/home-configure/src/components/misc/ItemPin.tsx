@@ -40,6 +40,7 @@ export function ItemPin(props: {
       </Menu.Item>
     );
   }
+
   return (
     <CurrentUserContext.Consumer>
       {({ person, togglePin }) =>

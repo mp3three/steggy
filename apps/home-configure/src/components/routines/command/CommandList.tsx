@@ -184,7 +184,10 @@ export function CommandList(props: {
               <List.Item key={item.id} onClick={() => setCommand(item)}>
                 <List.Item.Meta
                   title={
-                    <Button size="small" type="text">
+                    <Button
+                      size="small"
+                      type={command?.id === item.id ? 'primary' : 'text'}
+                    >
                       {item.friendlyName}
                     </Button>
                   }

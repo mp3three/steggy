@@ -66,7 +66,7 @@ export function ActivateList(props: {
                   <Button
                     size="small"
                     onClick={() => setActivate(item)}
-                    type="text"
+                    type={activate?.id === item.id ? 'primary' : 'text'}
                   >
                     {item.friendlyName}
                   </Button>

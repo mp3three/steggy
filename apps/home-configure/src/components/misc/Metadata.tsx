@@ -265,7 +265,10 @@ export function RoomMetadata(props: {
                   dataSource={getMap.get(key) as RoutineDTO[]}
                   renderItem={item => (
                     <List.Item>
-                      <Button type="text" onClick={() => setRoutine(item)}>
+                      <Button
+                        type={routine?._id === item._id ? 'primary' : 'text'}
+                        onClick={() => setRoutine(item)}
+                      >
                         {item.friendlyName}
                       </Button>
                     </List.Item>

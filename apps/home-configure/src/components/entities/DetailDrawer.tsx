@@ -38,7 +38,10 @@ export function EntityDetailDrawer({
   }
   return (
     <>
-      <Button onClick={() => setVisible(true)} type="text">
+      <Button
+        onClick={() => setVisible(true)}
+        type={visible ? 'primary' : 'text'}
+      >
         {FD_ICONS.get('magnify')} {entity.attributes.friendly_name}
       </Button>
       <Drawer

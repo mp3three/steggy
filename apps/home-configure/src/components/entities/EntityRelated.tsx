@@ -185,7 +185,10 @@ export function EntityRelated(props: { entity: string }) {
             dataSource={rooms}
             renderItem={item => (
               <List.Item>
-                <Button type="text" onClick={() => setRoom(item)}>
+                <Button
+                  type={room?._id === item._id ? 'primary' : 'text'}
+                  onClick={() => setRoom(item)}
+                >
                   {item.friendlyName}
                 </Button>
               </List.Item>
@@ -198,7 +201,10 @@ export function EntityRelated(props: { entity: string }) {
             dataSource={groups}
             renderItem={item => (
               <List.Item>
-                <Button type="text" onClick={() => setGroup(item)}>
+                <Button
+                  type={group?._id === item._id ? 'primary' : 'text'}
+                  onClick={() => setGroup(item)}
+                >
                   {item.friendlyName}
                 </Button>
               </List.Item>
@@ -211,7 +217,10 @@ export function EntityRelated(props: { entity: string }) {
             dataSource={routines}
             renderItem={item => (
               <List.Item>
-                <Button type="text" onClick={() => setRoutine(item)}>
+                <Button
+                  type={routine?._id === item._id ? 'primary' : 'text'}
+                  onClick={() => setRoutine(item)}
+                >
                   {item.friendlyName}
                 </Button>
               </List.Item>
