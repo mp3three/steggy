@@ -57,7 +57,7 @@ export function EntityHistory(props: { entity: string }) {
   return (
     <Card
       type="inner"
-      title="History"
+      title={<Typography.Text strong>History</Typography.Text>}
       style={{ marginTop: '16px' }}
       extra={
         <Button

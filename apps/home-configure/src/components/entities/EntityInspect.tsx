@@ -129,7 +129,6 @@ export function EntityInspect(props: {
 
     return (
       <Space direction="vertical" style={{ width: '100%' }}>
-        <Divider orientation="left">Flags</Divider>
         <Tooltip title="Add state / attribute changes to controller debug log">
           <Checkbox
             onChange={({ target }) => toggleFlag('DEBUG_LOG', target.checked)}
