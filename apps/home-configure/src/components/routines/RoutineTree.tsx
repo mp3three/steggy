@@ -188,7 +188,11 @@ export function RoutineTree(props: {
             </Form>
           }
         >
-          <Button size="small" icon={FD_ICONS.get('plus_box')}>
+          <Button
+            size="small"
+            type={!is.empty(treeData) ? 'text' : 'primary'}
+            icon={FD_ICONS.get('plus_box')}
+          >
             Create new
           </Button>
         </Popconfirm>

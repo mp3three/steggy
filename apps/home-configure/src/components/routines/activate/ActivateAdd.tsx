@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { FD_ICONS, ROUTINE_ACTIVATE_LIST, sendRequest } from '../../../types';
 
 export function ActivateAdd(props: {
+  highlight: boolean;
   onCreate: (routine: RoutineDTO) => void;
   routine: RoutineDTO;
 }) {
@@ -54,6 +55,7 @@ export function ActivateAdd(props: {
       </Drawer>
       <Button
         size="small"
+        type={props.highlight ? 'primary' : 'text'}
         icon={FD_ICONS.get('plus_box')}
         onClick={() => setVisible(true)}
       >

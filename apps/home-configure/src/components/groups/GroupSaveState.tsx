@@ -1,4 +1,4 @@
-import { FolderAddOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import { GroupDTO, GroupSaveStateDTO } from '@steggy/controller-shared';
 import { DOWN, sleep, UP } from '@steggy/utilities';
 import {
@@ -11,6 +11,7 @@ import {
   notification,
   Popconfirm,
   Space,
+  Typography,
 } from 'antd';
 
 import { FD_ICONS, sendRequest } from '../../types';
@@ -79,7 +80,7 @@ export function GroupSaveStates(props: {
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
       <Card
         type="inner"
-        title="Save States"
+        title={<Typography.Text strong>Save States</Typography.Text>}
         key="states"
         extra={
           <Space>
@@ -101,7 +102,7 @@ export function GroupSaveStates(props: {
                 </Form>
               }
             >
-              <Button size="small" icon={FD_ICONS.get('capture')}>
+              <Button size="small" type="text" icon={FD_ICONS.get('capture')}>
                 Capture current
               </Button>
             </Popconfirm>
@@ -123,7 +124,7 @@ export function GroupSaveStates(props: {
                 </Form>
               }
             >
-              <Button size="small" icon={<FolderAddOutlined />}>
+              <Button size="small" type="text" icon={FD_ICONS.get('plus_box')}>
                 Create new
               </Button>
             </Popconfirm>
@@ -167,7 +168,10 @@ export function GroupSaveStates(props: {
           )}
         />
       </Card>
-      <Card type="inner" title="Used In">
+      <Card
+        type="inner"
+        title={<Typography.Text strong>Used In</Typography.Text>}
+      >
         <RelatedRoutines groupState={props.group} />
       </Card>
     </Space>

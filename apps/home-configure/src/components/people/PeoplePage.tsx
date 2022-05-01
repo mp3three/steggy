@@ -1,6 +1,6 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import type { PersonDTO } from '@steggy/controller-shared';
-import { NOT_FOUND } from '@steggy/utilities';
+import { is, NOT_FOUND } from '@steggy/utilities';
 import {
   Button,
   Card,
@@ -124,7 +124,11 @@ export function PeoplePage() {
                     </Form>
                   }
                 >
-                  <Button size="small" icon={FD_ICONS.get('plus_box')}>
+                  <Button
+                    size="small"
+                    type={is.empty(people) ? 'primary' : 'text'}
+                    icon={FD_ICONS.get('plus_box')}
+                  >
                     Create new
                   </Button>
                 </Popconfirm>

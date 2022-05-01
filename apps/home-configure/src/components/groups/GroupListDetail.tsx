@@ -178,7 +178,7 @@ export function GroupListDetail(props: {
   }
   return (
     <Card
-      title="Group details"
+      title={<Typography.Text strong>Group details</Typography.Text>}
       extra={
         !is.object(props.group) ? undefined : (
           <GroupExtraActions

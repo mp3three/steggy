@@ -13,6 +13,7 @@ import { RoutineActivateDrawer } from '../RoutineActivateDrawer';
 import { ActivateAdd } from './ActivateAdd';
 
 export function ActivateList(props: {
+  highlight: boolean;
   onUpdate: (routine: RoutineDTO) => void;
   routine: RoutineDTO;
 }) {
@@ -51,6 +52,7 @@ export function ActivateList(props: {
         type="inner"
         extra={
           <ActivateAdd
+            highlight={props.highlight}
             routine={props.routine}
             onCreate={routine => onAdd(routine)}
           />

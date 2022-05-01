@@ -1,6 +1,6 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import type { RoomDTO } from '@steggy/controller-shared';
-import { NOT_FOUND } from '@steggy/utilities';
+import { is, NOT_FOUND } from '@steggy/utilities';
 import {
   Button,
   Card,
@@ -129,7 +129,11 @@ export function RoomPage() {
                     </Form>
                   }
                 >
-                  <Button size="small" icon={FD_ICONS.get('plus_box')}>
+                  <Button
+                    size="small"
+                    type={!is.empty(rooms) ? 'text' : 'primary'}
+                    icon={FD_ICONS.get('plus_box')}
+                  >
                     Create new
                   </Button>
                 </Popconfirm>

@@ -33,81 +33,88 @@ export function RoutineSettings(props: {
   return (
     <Card type="inner">
       <Space direction="vertical" style={{ width: '100%' }}>
-        <Typography.Paragraph>
-          <Typography.Title level={5}>Routine Identifier</Typography.Title>
-          <Typography.Text code>{props.routine._id}</Typography.Text>
-          <Typography.Title level={5}>API Activate</Typography.Title>
-          <Popover
-            placement="left"
-            title={<Typography.Title level={4}>POSTDATA</Typography.Title>}
-            content={
-              <Space direction="vertical">
-                <Typography.Paragraph>
-                  Body is optional, but may contain a json object to modify the
-                  way the routine is processed for the individual call.
-                </Typography.Paragraph>
-                <Descriptions bordered>
-                  <Descriptions.Item
-                    span={1}
-                    label={<Typography.Text code>bypassRepeat</Typography.Text>}
-                  >
-                    boolean
-                  </Descriptions.Item>
-                  <Descriptions.Item span={2}>
-                    Pass <Typography.Text code>true</Typography.Text> to ignore
-                    the repeat run restrictions of this routine, if present.
-                  </Descriptions.Item>
-                  <Descriptions.Item
-                    span={1}
-                    label={<Typography.Text code>timeout</Typography.Text>}
-                  >
-                    number
-                  </Descriptions.Item>
-                  <Descriptions.Item span={2}>
-                    Delay ms before executing routine.
-                  </Descriptions.Item>
-                  <Descriptions.Item
-                    span={1}
-                    label={<Typography.Text code>timestamp</Typography.Text>}
-                  >
-                    parsable date string
-                  </Descriptions.Item>
-                  <Descriptions.Item span={2}>
-                    Execute routine at timestamp, cannot be combined with
-                    timeout.
-                  </Descriptions.Item>
-                  <Descriptions.Item
-                    span={1}
-                    label={<Typography.Text code>source</Typography.Text>}
-                  >
-                    string
-                  </Descriptions.Item>
-                  <Descriptions.Item span={2}>
-                    Explicitly set the activation source for the routine.
-                  </Descriptions.Item>
-                  <Descriptions.Item span={3} label="Example">
-                    <SyntaxHighlighter language="yaml" style={atomDark}>
-                      {JSON.stringify(
-                        {
-                          bypassRepeat: false,
-                          source: 'Special activation with extra description',
-                          timestamp: '2022-04-25T16:24:40.685Z',
-                        },
-                        undefined,
-                        '  ',
-                      )}
-                    </SyntaxHighlighter>
-                  </Descriptions.Item>
-                </Descriptions>
-              </Space>
-            }
-          >
-            <Typography.Text strong>POST </Typography.Text>
-            <Typography.Text code>
-              {sendRequest.url(`/routine/${props?.routine?._id}`)}
-            </Typography.Text>
-          </Popover>
-        </Typography.Paragraph>
+        <Descriptions bordered>
+          <Descriptions.Item span={3} label="Routine Identifier">
+            <Typography.Text code>{props.routine._id}</Typography.Text>
+          </Descriptions.Item>
+          <Descriptions.Item span={3} label="API Activate">
+            <Popover
+              placement="left"
+              title={<Typography.Title level={4}>POSTDATA</Typography.Title>}
+              content={
+                <Space direction="vertical">
+                  <Typography.Paragraph>
+                    Body is optional, but may contain a json object to modify
+                    the way the routine is processed for the individual call.
+                  </Typography.Paragraph>
+                  <Descriptions bordered>
+                    <Descriptions.Item
+                      span={1}
+                      label={
+                        <Typography.Text code>bypassRepeat</Typography.Text>
+                      }
+                    >
+                      boolean
+                    </Descriptions.Item>
+                    <Descriptions.Item span={2}>
+                      Pass <Typography.Text code>true</Typography.Text> to
+                      ignore the repeat run restrictions of this routine, if
+                      present.
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      span={1}
+                      label={<Typography.Text code>timeout</Typography.Text>}
+                    >
+                      number
+                    </Descriptions.Item>
+                    <Descriptions.Item span={2}>
+                      Delay ms before executing routine.
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      span={1}
+                      label={<Typography.Text code>timestamp</Typography.Text>}
+                    >
+                      parsable date string
+                    </Descriptions.Item>
+                    <Descriptions.Item span={2}>
+                      Execute routine at timestamp, cannot be combined with
+                      timeout.
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      span={1}
+                      label={<Typography.Text code>source</Typography.Text>}
+                    >
+                      string
+                    </Descriptions.Item>
+                    <Descriptions.Item span={2}>
+                      Explicitly set the activation source for the routine.
+                    </Descriptions.Item>
+                    <Descriptions.Item span={3} label="Example">
+                      <SyntaxHighlighter language="yaml" style={atomDark}>
+                        {JSON.stringify(
+                          {
+                            bypassRepeat: false,
+                            source: 'Special activation with extra description',
+                            timestamp: '2022-04-25T16:24:40.685Z',
+                          },
+                          undefined,
+                          '  ',
+                        )}
+                      </SyntaxHighlighter>
+                    </Descriptions.Item>
+                  </Descriptions>
+                </Space>
+              }
+            >
+              {FD_ICONS.get('information')}
+              <Typography.Text strong> POST </Typography.Text>
+              <Typography.Text code>
+                {sendRequest.url(`/routine/${props?.routine?._id}`)}
+              </Typography.Text>
+            </Popover>
+          </Descriptions.Item>
+        </Descriptions>
+
         <Divider />
         <Checkbox
           checked={props.routine.sync}
@@ -116,29 +123,32 @@ export function RoutineSettings(props: {
           )}
           onChange={({ target }) => update({ sync: target.checked })}
         >
-          {`Synchronous command processing `}
-          <Tooltip
-            title={
-              <Typography>
-                <Typography.Paragraph>
-                  When checked, a command action must fully complete prior to
-                  the next command running. This allows some commands, such as
-                  <Typography.Text code>Stop Processing</Typography.Text>
-                  to affect/prevent execution of following commands. Entity
-                  state changes require a confirmation from Home Assistant,
-                  which may be affected by real world conditions.
-                </Typography.Paragraph>
-                <Divider />
-                <Typography.Paragraph>
-                  While unchecked, actions will be initiated at the
-                  simultaniously, having no influence each other. Entity state
-                  changes are performed in a "fire and forget" manner.
-                </Typography.Paragraph>
-              </Typography>
+          <Popover
+            content={
+              <Descriptions bordered>
+                <Descriptions.Item span={3} label="When checked">
+                  <Typography.Paragraph>
+                    A command action must fully complete prior to the next
+                    command running. This allows some commands, such as
+                    <Typography.Text code>Stop Processing</Typography.Text>
+                    to affect/prevent execution of following commands.
+                  </Typography.Paragraph>
+                  <Typography.Paragraph>
+                    Entity state changes require a confirmation from Home
+                    Assistant, which may not always be instant.
+                  </Typography.Paragraph>
+                </Descriptions.Item>
+                <Descriptions.Item span={3} label="When unchecked">
+                  Actions will be initiated at the simultaniously, having no
+                  influence each other. Entity state changes are performed in a
+                  "fire and forget" manner.
+                </Descriptions.Item>
+              </Descriptions>
             }
           >
+            {`Synchronous command processing `}
             {FD_ICONS.get('information')}
-          </Tooltip>
+          </Popover>
         </Checkbox>
         <Divider orientation="left">
           <Tooltip

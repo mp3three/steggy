@@ -41,6 +41,7 @@ function array_move<T>(array: T[], old_index: number, new_index: number): T[] {
 }
 
 export function CommandList(props: {
+  highlight: boolean;
   onUpdate: (routine: RoutineDTO) => void;
   routine: RoutineDTO;
 }) {
@@ -122,6 +123,7 @@ export function CommandList(props: {
         type="inner"
         extra={
           <CommandAdd
+            highlight={props.highlight}
             routine={props.routine}
             onCreate={routine => addCommand(routine)}
           />

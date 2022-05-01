@@ -96,6 +96,14 @@ export function EntityIdChange(props: {
           </Checkbox>
           <Checkbox
             onChange={({ target }) =>
+              setUpdate({ ...update, people: target.checked })
+            }
+            checked={update.people}
+          >
+            Update People + Save States
+          </Checkbox>
+          <Checkbox
+            onChange={({ target }) =>
               setUpdate({ ...update, routines: target.checked })
             }
             checked={update.routines}

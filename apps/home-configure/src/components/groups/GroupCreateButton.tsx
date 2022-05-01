@@ -5,6 +5,7 @@ import { Button, Form, FormInstance, Input, Popconfirm } from 'antd';
 import { FD_ICONS, sendRequest } from '../../types';
 
 export function GroupCreateButton(props: {
+  highlight: boolean;
   onUpdate: (group: GroupDTO) => void;
   type: string;
 }) {
@@ -42,7 +43,11 @@ export function GroupCreateButton(props: {
         </Form>
       }
     >
-      <Button icon={FD_ICONS.get('plus_box')} size="small">
+      <Button
+        icon={FD_ICONS.get('plus_box')}
+        type={!props.highlight ? 'text' : 'primary'}
+        size="small"
+      >
         Create new
       </Button>
     </Popconfirm>

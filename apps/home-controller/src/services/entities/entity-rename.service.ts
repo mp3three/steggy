@@ -1,3 +1,4 @@
+/* eslint-disable radar/no-identical-functions */
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
 import {
@@ -15,6 +16,7 @@ import { EntityManagerService } from '@steggy/home-assistant';
 import { eachSeries, ResultControlDTO } from '@steggy/utilities';
 
 import { GroupService } from '../group.service';
+import { PersonService } from '../person.service';
 import { RoomService } from '../room.service';
 import { RoutineService } from '../routine.service';
 
@@ -32,12 +34,14 @@ export class EntityRenameService {
     private readonly roomService: RoomService,
     @Inject(forwardRef(() => RoutineService))
     private readonly routineService: RoutineService,
+    @Inject(forwardRef(() => PersonService))
+    private readonly personService: PersonService,
     private readonly entityManager: EntityManagerService,
   ) {}
 
   public async changeId(
     entityId: string,
-    { id, rooms, groups }: UpdateEntityIdDTO,
+    { id, rooms, groups, people }: UpdateEntityIdDTO,
   ): Promise<void> {
     this.logger.warn(
       `Beginning migration of entity ${entityId} to new entity_id ${id}`,
@@ -52,6 +56,9 @@ export class EntityRenameService {
     }
     if (groups) {
       await this.renameInRoutines(entityId, id);
+    }
+    if (people) {
+      await this.renameInPeople(entityId, id);
     }
   }
 
@@ -89,6 +96,41 @@ export class EntityRenameService {
     });
   }
 
+  private async renameInPeople(from: string, to: string): Promise<void> {
+    const list = await this.personService.list({
+      filters: new Set([
+        {
+          field: 'entities',
+          value: from,
+        },
+      ]),
+    });
+    this.logger.info(`Updating ${list.length} people`);
+    await eachSeries(list, async person => {
+      this.logger.debug(
+        `(person) [${person.friendlyName}] rename entity {${from}} => {${to}} `,
+      );
+      await this.personService.update(
+        {
+          // update entity references
+          entities: person.entities.map(i =>
+            i.entity_id === from ? { entity_id: to } : i,
+          ),
+          // search out and update save state references
+          save_states: person.save_states.map(state => {
+            state.states = state.states.map(change => {
+              if (change.ref === from) {
+                change.ref = to;
+              }
+              return change;
+            });
+            return state;
+          }),
+        },
+        person._id,
+      );
+    });
+  }
   private async renameInRooms(from: string, to: string): Promise<void> {
     const list = await this.roomService.list({
       filters: new Set([

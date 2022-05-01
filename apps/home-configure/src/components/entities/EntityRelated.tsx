@@ -1,4 +1,9 @@
-import { GroupDTO, RoomDTO, RoutineDTO } from '@steggy/controller-shared';
+import {
+  GroupDTO,
+  PersonDTO,
+  RoomDTO,
+  RoutineDTO,
+} from '@steggy/controller-shared';
 import { is, ResultControlDTO } from '@steggy/utilities';
 import { Button, Drawer, List, Skeleton, Tabs } from 'antd';
 import React, { useEffect, useState } from 'react';
@@ -16,6 +21,8 @@ export function EntityRelated(props: { entity: string }) {
   const [groups, setGroups] = useState<GroupDTO[]>([]);
   const [room, setRoom] = useState<RoomDTO>();
   const [rooms, setRooms] = useState<RoomDTO[]>([]);
+  const [person, setPerson] = useState<PersonDTO>();
+  const [people, setPeople] = useState<PersonDTO[]>([]);
   const [routine, setRoutine] = useState<RoutineDTO>();
   const [routines, setRoutines] = useState<RoutineDTO[]>([]);
   useEffect(() => {
@@ -39,6 +46,21 @@ export function EntityRelated(props: { entity: string }) {
         });
         setRoom(undefined);
         setRooms(rooms);
+      })(),
+      (async () => {
+        const people = await sendRequest<PersonDTO[]>({
+          control: {
+            filters: new Set([
+              {
+                field: 'entities',
+                value: props.entity,
+              },
+            ]),
+          },
+          url: `/person`,
+        });
+        setPerson(undefined);
+        setPeople(people);
       })(),
       (async () => {
         const groups = await sendRequest<GroupDTO[]>({
@@ -188,6 +210,22 @@ export function EntityRelated(props: { entity: string }) {
                 <Button
                   type={room?._id === item._id ? 'primary' : 'text'}
                   onClick={() => setRoom(item)}
+                >
+                  {item.friendlyName}
+                </Button>
+              </List.Item>
+            )}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="People" key="people">
+          <List
+            pagination={{ size: 'small' }}
+            dataSource={people}
+            renderItem={item => (
+              <List.Item>
+                <Button
+                  type={person?._id === item._id ? 'primary' : 'text'}
+                  onClick={() => setPerson(item)}
                 >
                   {item.friendlyName}
                 </Button>

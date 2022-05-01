@@ -19,6 +19,7 @@ import StepForward from '@2fd/ant-design-icons/lib/StepForward';
 import TimelinePlus from '@2fd/ant-design-icons/lib/TimelinePlus';
 import {
   CameraOutlined,
+  ExclamationCircleOutlined,
   HomeOutlined,
   LoadingOutlined,
   SettingOutlined,
@@ -41,6 +42,7 @@ type iconTypes =
   | 'refresh'
   | 'remove'
   | 'loading'
+  | 'warning'
   | 'pin'
   | 'pin_off'
   | 'rooms'
@@ -70,6 +72,7 @@ export const FD_ICONS = new Map<iconTypes, JSX.Element>([
   ['plus_box', <PlusBoxMultiple />],
   ['remove', <CardRemove />],
   ['rooms', <BulletinBoard />],
+  ['warning', <ExclamationCircleOutlined />],
   ['pin', <Pin />],
   ['pin_off', <PinOutline />],
   ['routines', <HomeAutomation />],

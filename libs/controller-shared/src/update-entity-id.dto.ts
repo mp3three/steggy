@@ -12,6 +12,10 @@ export class UpdateEntityIdDTO {
   @IsBoolean()
   @ApiProperty()
   @IsOptional()
+  public people?: boolean;
+  @IsBoolean()
+  @ApiProperty()
+  @IsOptional()
   public rooms?: boolean;
   @IsBoolean()
   @ApiProperty()

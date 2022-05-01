@@ -116,6 +116,7 @@ export function SetRoomMetadataCommand(props: {
     return (
       <Form.Item label="Value">
         <Radio.Group
+          buttonStyle="solid"
           value={props.command.value ?? 'toggle'}
           onChange={({ target }) => props.onUpdate({ value: target.value })}
         >
@@ -173,6 +174,7 @@ export function SetRoomMetadataCommand(props: {
       <Form.Item label="Value">
         <Space direction="vertical">
           <Radio.Group
+            buttonStyle="solid"
             value={props.command?.type ?? 'set_value'}
             onChange={({ target }) => props.onUpdate({ type: target.value })}
           >

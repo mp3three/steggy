@@ -1,10 +1,9 @@
-import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Card, Empty, Space, Tabs, Typography } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 import { ActivateList } from './activate';
 import { CommandList } from './command';
 import { RoutineEnabled } from './RoutineEnabled';
@@ -46,32 +45,34 @@ export function RoutineListDetail(props: {
           </Tabs.TabPane>
           <Tabs.TabPane
             tab={
-              <span>
-                {is.empty(props.routine.activate) ? (
-                  <ExclamationCircleOutlined />
-                ) : undefined}
+              <>
+                {is.empty(props.routine.activate)
+                  ? FD_ICONS.get('warning')
+                  : undefined}
                 Activation Events
-              </span>
+              </>
             }
             key="activate"
           >
             <ActivateList
+              highlight={is.empty(props.routine.activate)}
               routine={props.routine}
               onUpdate={routine => props.onUpdate(routine)}
             />
           </Tabs.TabPane>
           <Tabs.TabPane
             tab={
-              <span>
-                {is.empty(props.routine.command) ? (
-                  <ExclamationCircleOutlined />
-                ) : undefined}
+              <>
+                {is.empty(props.routine.command)
+                  ? FD_ICONS.get('warning')
+                  : undefined}
                 Commands
-              </span>
+              </>
             }
             key="command"
           >
             <CommandList
+              highlight={is.empty(props.routine.command)}
               routine={props.routine}
               onUpdate={routine => props.onUpdate(routine)}
             />
@@ -92,7 +93,7 @@ export function RoutineListDetail(props: {
   }
   return (
     <Card
-      title="Routine details"
+      title={<Typography.Text strong>Routine details</Typography.Text>}
       extra={
         !props.routine ? undefined : (
           <RoutineExtraActions

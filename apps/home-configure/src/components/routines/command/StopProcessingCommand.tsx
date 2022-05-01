@@ -58,6 +58,7 @@ export function StopProcessingCommand(props: {
       <Form.Item label="Matching Mode">
         <Radio.Group
           buttonStyle="solid"
+          size="small"
           disabled={props.disabled}
           value={props.command?.mode ?? 'any'}
           onChange={({ target }) => props.onUpdate({ mode: target.value })}
@@ -71,6 +72,7 @@ export function StopProcessingCommand(props: {
         <Row>
           <Col span={18}>
             <Select
+              size="small"
               disabled={props.disabled}
               style={{ width: '100%' }}
               value={addComparison}
@@ -88,6 +90,7 @@ export function StopProcessingCommand(props: {
           </Col>
           <Col offset={1}>
             <Button
+              size="small"
               disabled={props.disabled}
               type="primary"
               onClick={() => append()}

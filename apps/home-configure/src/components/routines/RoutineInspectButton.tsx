@@ -1,6 +1,6 @@
 import { RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
-import { Button, Drawer } from 'antd';
+import { Button, Drawer, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
@@ -41,7 +41,7 @@ export function RoutineInspectButton(props: {
   return (
     <>
       <Drawer
-        title="Routine Details"
+        title={<Typography.Text strong>Routine details</Typography.Text>}
         size="large"
         extra={
           <RoutineExtraActions routine={routine} onUpdate={props.onUpdate} />

@@ -1,5 +1,5 @@
 import type { GROUP_TYPES, GroupDTO } from '@steggy/controller-shared';
-import { NOT_FOUND } from '@steggy/utilities';
+import { is, NOT_FOUND } from '@steggy/utilities';
 import { Button, Card, Col, Layout, List, Row, Tabs } from 'antd';
 import React, { useEffect, useState } from 'react';
 
@@ -99,6 +99,7 @@ export function GroupPage() {
                   extra={
                     <GroupCreateButton
                       type="light"
+                      highlight={is.empty(filter('light'))}
                       onUpdate={group => refresh(group)}
                     />
                   }
@@ -118,6 +119,7 @@ export function GroupPage() {
                   type="inner"
                   extra={
                     <GroupCreateButton
+                      highlight={is.empty(filter('switch'))}
                       type="switch"
                       onUpdate={group => refresh(group)}
                     />
@@ -138,6 +140,7 @@ export function GroupPage() {
                   type="inner"
                   extra={
                     <GroupCreateButton
+                      highlight={is.empty(filter('fan'))}
                       type="fan"
                       onUpdate={group => refresh(group)}
                     />
@@ -158,6 +161,7 @@ export function GroupPage() {
                   type="inner"
                   extra={
                     <GroupCreateButton
+                      highlight={is.empty(filter('lock'))}
                       type="lock"
                       onUpdate={group => refresh(group)}
                     />

@@ -57,8 +57,18 @@ export function RoutineEnabled(props: {
 
   return (
     <Card type="inner">
-      <Form.Item label="Enable type">
+      <Form.Item
+        label="Enable type"
+        style={
+          ['enable_rules', 'disable_rules'].includes(
+            props.routine?.enable?.type,
+          )
+            ? undefined
+            : { margin: '0' }
+        }
+      >
         <Radio.Group
+          size="small"
           buttonStyle="solid"
           value={props.routine.enable?.type ?? 'enable'}
           onChange={({ target }) => setType(target.value)}
@@ -69,31 +79,39 @@ export function RoutineEnabled(props: {
           <Radio.Button value="disable_rules">Disable w/ rules</Radio.Button>
         </Radio.Group>
       </Form.Item>
-      <Form.Item
-        label={
-          <Tooltip title="Rules involving template / webhook tests work through polling">
-            Polling Interval
-          </Tooltip>
-        }
-      >
-        <Input
-          type="number"
-          defaultValue={props.routine.enable?.poll ?? 60 * 60}
-          suffix="seconds"
-          disabled={disablePolling()}
-          onBlur={({ target }) => setPolling(Number(target.value))}
-        />
-      </Form.Item>
-      <Divider orientation="left">Rules</Divider>
-      <StopProcessingCommand
-        disabled={
-          !['enable_rules', 'disable_rules'].includes(
-            props.routine?.enable?.type,
-          )
-        }
-        command={props.routine?.enable}
-        onUpdate={update => updateComparisons(update)}
-      />
+      {disablePolling() ? undefined : (
+        <Form.Item
+          label={
+            <Tooltip title="Rules involving template / webhook tests work through polling">
+              Polling Interval
+            </Tooltip>
+          }
+        >
+          <Input
+            type="number"
+            defaultValue={props.routine.enable?.poll ?? 60 * 60}
+            suffix="seconds"
+            disabled={disablePolling()}
+            onBlur={({ target }) => setPolling(Number(target.value))}
+          />
+        </Form.Item>
+      )}
+      {['enable_rules', 'disable_rules'].includes(
+        props.routine?.enable?.type,
+      ) ? (
+        <>
+          <Divider orientation="left">Rules</Divider>
+          <StopProcessingCommand
+            disabled={
+              !['enable_rules', 'disable_rules'].includes(
+                props.routine?.enable?.type,
+              )
+            }
+            command={props.routine?.enable}
+            onUpdate={update => updateComparisons(update)}
+          />
+        </>
+      ) : undefined}
     </Card>
   );
 }

@@ -187,18 +187,13 @@ export function EntityInspect(props: {
         </Dropdown>
       }
       title={
-        <>
-          <Typography.Text
-            editable={{
-              onChange: friendlyName => updateName(friendlyName),
-            }}
-          >
-            {props.entity?.attributes?.friendly_name}
-          </Typography.Text>
-          <Typography.Text code style={{ marginLeft: '8px' }}>
-            {props.entity.entity_id}
-          </Typography.Text>
-        </>
+        <Typography.Text
+          editable={{
+            onChange: friendlyName => updateName(friendlyName),
+          }}
+        >
+          {props.entity?.attributes?.friendly_name}
+        </Typography.Text>
       }
     >
       <Tabs type="card">
