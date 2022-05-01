@@ -64,8 +64,28 @@ export class FanEntityCard extends React.Component<
         disabled: is.undefined(this.props.state?.state),
       });
     }
-
     await this.refresh();
+  }
+
+  override async componentDidUpdate(
+    previousProps: Readonly<{
+      onRemove?: (entity_id: string) => void;
+      onUpdate?: (state: GeneralSaveStateDTO) => void;
+      optional?: boolean;
+      relative?: boolean;
+      selfContained?: boolean;
+      state?: GeneralSaveStateDTO<FanAttributesDTO>;
+      stateOnly?: boolean;
+      title?: string;
+    }>,
+  ): Promise<void> {
+    if (this.props.state !== previousProps.state) {
+      this.setState({
+        percentage: this.props?.state?.extra?.percentage,
+        state: this.props?.state?.state ?? 'setFanSpeed',
+      });
+      await this.refresh();
+    }
   }
 
   public getSaveState(): GeneralSaveStateDTO {

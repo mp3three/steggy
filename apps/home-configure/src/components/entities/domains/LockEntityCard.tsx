@@ -58,6 +58,25 @@ export class LockEntityCard extends React.Component<
     await this.refresh();
   }
 
+  override async componentDidUpdate(
+    previousProps: Readonly<{
+      onRemove?: (entity_id: string) => void;
+      onUpdate?: (state: GeneralSaveStateDTO) => void;
+      optional?: boolean;
+      selfContained?: boolean;
+      state?: GeneralSaveStateDTO;
+      stateOnly?: boolean;
+      title?: string;
+    }>,
+  ): Promise<void> {
+    if (previousProps.state !== this.props.state) {
+      this.setState({
+        state: this.props?.state?.state,
+      });
+      await this.refresh();
+    }
+  }
+
   public getSaveState(): GeneralSaveStateDTO {
     if (this.disabled) {
       return undefined;

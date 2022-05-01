@@ -15,7 +15,7 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../../types';
+import { FD_ICONS, sendRequest } from '../../../types';
 
 type tStateType = {
   disabled?: boolean;
@@ -56,6 +56,25 @@ export class SwitchEntityCard extends React.Component<
       });
     }
     await this.refresh();
+  }
+
+  override async componentDidUpdate(
+    previousProps: Readonly<{
+      onRemove?: (entity_id: string) => void;
+      onUpdate?: (state: GeneralSaveStateDTO) => void;
+      optional?: boolean;
+      selfContained?: boolean;
+      state?: GeneralSaveStateDTO;
+      stateOnly?: boolean;
+      title?: string;
+    }>,
+  ): Promise<void> {
+    if (previousProps.state !== this.props.state) {
+      this.setState({
+        state: this.props?.state?.state,
+      });
+      await this.refresh();
+    }
   }
 
   public getSaveState(): GeneralSaveStateDTO {
@@ -108,7 +127,9 @@ export class SwitchEntityCard extends React.Component<
           <Radio.Button value="off">Off</Radio.Button>
           <Radio.Button value="on">On</Radio.Button>
           {this.props.stateOnly ? undefined : (
-            <Radio.Button value="toggle">Toggle</Radio.Button>
+            <Radio.Button value="toggle">
+              {state === 'toggle' ? FD_ICONS.get('loading') : undefined} Toggle
+            </Radio.Button>
           )}
         </Radio.Group>
       </Card>

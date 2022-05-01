@@ -38,6 +38,19 @@ export class EntityCard extends React.Component<
     await this.refresh();
   }
 
+  override async componentDidUpdate(
+    previousProps: Readonly<{
+      onRemove?: (entity_id: string) => void;
+      onUpdate: (state: GeneralSaveStateDTO) => void;
+      state: HassStateDTO;
+      title?: string;
+    }>,
+  ): Promise<void> {
+    if (previousProps.state !== this.props.state) {
+      await this.refresh();
+    }
+  }
+
   override render() {
     if (!this.state) {
       return this.renderWaiting();

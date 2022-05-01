@@ -71,6 +71,30 @@ export class LightEntityCard extends React.Component<
     await this.refresh();
   }
 
+  override async componentDidUpdate(
+    previousProps: Readonly<{
+      onRemove?: (entity_id: string) => void;
+      onUpdate?: (
+        state: GeneralSaveStateDTO,
+        attribute: 'state' | 'color' | 'brightness',
+      ) => void;
+      optional?: boolean;
+      selfContained?: boolean;
+      state?: GeneralSaveStateDTO;
+      title?: string;
+    }>,
+  ): Promise<void> {
+    if (this.props.state !== previousProps.state) {
+      this.setState({
+        brightness: this.attributes.brightness,
+        color_mode: this.attributes.color_mode,
+        rgb_color: this.attributes.rgb_color,
+        state: this.props?.state?.state,
+      });
+      await this.refresh();
+    }
+  }
+
   public getSaveState(brightness = this.state.brightness): GeneralSaveStateDTO {
     if (this.props.optional && this.state.disabled) {
       return undefined;

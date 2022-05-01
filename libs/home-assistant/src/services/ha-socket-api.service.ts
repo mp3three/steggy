@@ -37,7 +37,7 @@ import {
 } from '../config';
 
 let MESSAGE_TIMESTAMPS: number[] = [];
-const SHORT_DELAY = 100;
+// const SHORT_DELAY = 50;
 
 @Injectable()
 export class HASocketAPIService {
@@ -57,7 +57,7 @@ export class HASocketAPIService {
     @InjectConfig(RETRY_INTERVAL) private readonly retryInterval: number,
   ) {}
 
-  protected caught = false;
+  // protected caught = false;
   private AUTH_TIMEOUT: ReturnType<typeof setTimeout>;
   private CONNECTION_ACTIVE = false;
   private connection: WS;
@@ -73,7 +73,7 @@ export class HASocketAPIService {
    */
   public async getAllEntities(): Promise<HassStateDTO[]> {
     this.logger.debug('Update all entities');
-    this.caught = false;
+    // this.caught = false;
     const states = await this.sendMessage<HassStateDTO[]>({
       type: HASSIO_WS_COMMAND.get_states,
     });
@@ -82,11 +82,11 @@ export class HASocketAPIService {
     //
     // Note: DID observe the issue with this configuration but w/ this.caught (+related log statements) deleted
     //
-    await sleep(SHORT_DELAY);
+    // await sleep(SHORT_DELAY);
     this.logger.debug('Received all entity update');
     this.eventEmitter.emit(ALL_ENTITIES_UPDATED, states);
     this.logger.debug('AFTER ALL_ENTITIES_UPDATED');
-    this.caught = true;
+    // this.caught = true;
     if (!this.subscribeEvents) {
       // Some weirdness can occur if entity updates are received prior to loading
       this.subscribeEvents = true;
@@ -129,12 +129,11 @@ export class HASocketAPIService {
   }
 
   public async renderTemplate(template: string): Promise<string> {
-    const out: string = await this.sendMessage({
+    return await this.sendMessage({
       template,
       timeout: this.renderTimeout,
       type: HASSIO_WS_COMMAND.render_template,
     });
-    return out;
   }
 
   /**
@@ -383,13 +382,13 @@ export class HASocketAPIService {
       }
       const f = this.waitingCallback.get(id);
       this.waitingCallback.delete(id);
-      if (!this.caught) {
-        this.logger.debug('pre-callback');
-      }
+      // if (!this.caught) {
+      //   this.logger.debug('pre-callback');
+      // }
       f(message.result);
-      if (!this.caught) {
-        this.logger.debug('post callback');
-      }
+      // if (!this.caught) {
+      //   this.logger.debug('post callback');
+      // }
     }
   }
 

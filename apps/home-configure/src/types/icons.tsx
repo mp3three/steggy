@@ -20,6 +20,7 @@ import TimelinePlus from '@2fd/ant-design-icons/lib/TimelinePlus';
 import {
   CameraOutlined,
   HomeOutlined,
+  LoadingOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
 type iconTypes =
@@ -39,6 +40,7 @@ type iconTypes =
   | 'plus_box'
   | 'refresh'
   | 'remove'
+  | 'loading'
   | 'pin'
   | 'pin_off'
   | 'rooms'
@@ -61,6 +63,7 @@ export const FD_ICONS = new Map<iconTypes, JSX.Element>([
   ['list_add', <TimelinePlus />],
   ['magnify', <Magnify />],
   ['menu', <Menu />],
+  ['loading', <LoadingOutlined />],
   ['metadata', <ApplicationVariable />],
   ['refresh', <RefreshCircle />],
   ['people', <NaturePeople />],
