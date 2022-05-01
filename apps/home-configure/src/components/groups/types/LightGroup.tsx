@@ -3,7 +3,7 @@ import { is } from '@steggy/utilities';
 import { Col, Empty, Row } from 'antd';
 import React from 'react';
 
-import { LightEntityCard } from '../entities';
+import { LightEntityCard } from '../../entities';
 
 type tStateType = { group: GroupDTO };
 

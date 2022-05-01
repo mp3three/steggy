@@ -13,8 +13,8 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
-import { EntityAttributePopover } from './AttributePopover';
+import { sendRequest } from '../../../types';
+import { EntityAttributePopover } from '../AttributePopover';
 
 type tStateType = {
   friendly_name?: string;

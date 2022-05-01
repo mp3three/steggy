@@ -4,8 +4,8 @@ import { is } from '@steggy/utilities';
 import { Col, Empty, Row } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
-import { FanEntityCard } from '../entities';
+import { sendRequest } from '../../../types';
+import { FanEntityCard } from '../../entities';
 
 export function FanGroup(props: {
   group: GroupDTO;

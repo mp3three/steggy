@@ -20,12 +20,10 @@ import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import { domain, FD_ICONS, sendRequest } from '../../types';
 import { ItemPin } from '../misc';
+import { FanEntityCard, LightEntityCard, SwitchEntityCard } from './domains';
 import { EntityHistory } from './EntityHistory';
 import { EntityIdChange } from './EntityIdChange';
 import { EntityRelated } from './EntityRelated';
-import { FanEntityCard } from './FanEntityCard';
-import { LightEntityCard } from './LightEntityCard';
-import { SwitchEntityCard } from './SwitchEntityCard';
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function EntityInspect(props: {

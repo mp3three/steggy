@@ -4,7 +4,5 @@ export * from './GroupModalPicker';
 export * from './GroupPage';
 export * from './GroupSaveState';
 export * from './InspectButton';
-export * from './LightGroup';
-export * from './LockGroup';
 export * from './states';
-export * from './SwitchGroup';
+export * from './types';

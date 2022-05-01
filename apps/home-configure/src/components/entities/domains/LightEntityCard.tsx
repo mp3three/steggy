@@ -22,7 +22,7 @@ import {
 import React from 'react';
 import { ChromePicker, ColorResult } from 'react-color';
 
-import { sendRequest } from '../../types';
+import { sendRequest } from '../../../types';
 
 type tStateType = {
   color?: string;

@@ -7,9 +7,7 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import { domain, FD_ICONS } from '../../types';
-import { FanEntityCard } from './FanEntityCard';
-import { LightEntityCard } from './LightEntityCard';
-import { SwitchEntityCard } from './SwitchEntityCard';
+import { FanEntityCard, LightEntityCard, SwitchEntityCard } from './domains';
 
 export function EntityDetailDrawer({
   entity,

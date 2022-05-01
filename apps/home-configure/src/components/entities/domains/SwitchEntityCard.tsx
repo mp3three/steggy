@@ -15,7 +15,7 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../types';
+import { sendRequest } from '../../../types';
 
 type tStateType = {
   disabled?: boolean;
