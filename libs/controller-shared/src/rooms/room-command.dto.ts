@@ -13,7 +13,7 @@ export enum RoomCommandScope {
 }
 
 /**
- * Affect the way a command is processeded by the system
+ * Affect the way a command is processed by the system
  */
 export class RoomCommandDTO {
   increment?: number;

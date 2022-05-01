@@ -18,8 +18,6 @@ export class MediaPlayerAttributesDTO {
   @ApiProperty({ required: false })
   public shuffle?: boolean;
   @ApiProperty({ required: false })
-  public sonos_group?: string[];
-  @ApiProperty({ required: false })
   public source_list?: string[];
   @ApiProperty({ required: false })
   public supported_features?: number;

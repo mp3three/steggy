@@ -1,11 +1,11 @@
 import { IsString } from 'class-validator';
 
+import { HassEventDTO } from './hass-event.dto';
 import {
   HASS_DOMAINS,
   HASSIO_WS_COMMAND,
   HassSocketMessageTypes,
-} from './enums/socket';
-import { HassEventDTO } from './hass-event.dto';
+} from './socket';
 
 export class AreaDTO {
   public area_id: string;

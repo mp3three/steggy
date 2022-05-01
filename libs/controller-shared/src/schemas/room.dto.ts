@@ -13,7 +13,7 @@ import {
 } from 'class-validator';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
-import { RoomMetadataDTO } from '../meta';
+import { RoomMetadataDTO } from '../room-metadata';
 import { RoomStateDTO } from '../rooms';
 
 export class RoomSettingDTO {

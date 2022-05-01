@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
-import { HassEvents } from './enums/socket';
 import { HassStateDTO } from './hass-state.dto';
+import { HassEvents } from './socket';
 
 export class EventDataDTO<
   STATE extends Record<never, unknown> = unknown,

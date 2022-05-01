@@ -12,8 +12,8 @@ import {
 } from 'class-validator';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
-import { RoomMetadataDTO } from '../meta';
 import { PinnedItemDTO } from '../pinned-item.dto';
+import { RoomMetadataDTO } from '../room-metadata';
 import { RoomStateDTO } from '../rooms';
 import { RoomEntityDTO } from './room.dto';
 

@@ -4,7 +4,7 @@ export class UpdateEntityResponseDTO {
   area_id: string;
   capabilities: Pick<
     LightAttributesDTO,
-    'min_minreds' | 'max_mireds' | 'effect_list'
+    'min_minreds' | 'max_minreds' | 'effect_list'
   > & { supported_color_modes: ColorModes[] };
   config_entry_id: string;
   device_id: string;

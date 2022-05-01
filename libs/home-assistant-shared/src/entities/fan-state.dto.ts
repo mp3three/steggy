@@ -1,4 +1,3 @@
-import { FanSpeeds } from '../enums';
 import { HassStateDTO } from '../hass-state.dto';
 
 export class FanAttributesDTO {
@@ -9,8 +8,8 @@ export class FanAttributesDTO {
   percentage_step?: number;
   preset_mode?: unknown;
   preset_modes?: unknown[];
-  speed?: FanSpeeds;
-  speed_list?: FanSpeeds[];
+  speed?: string;
+  speed_list?: string[];
   supported_features?: number;
 }
 

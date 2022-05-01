@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 import { HassStateDTO } from '../hass-state.dto';
 
@@ -9,7 +15,6 @@ export enum LightEffectsList {
 }
 
 export enum ColorModes {
-  // eslint-disable-next-line unicorn/prevent-abbreviations
   color_temp = 'color_temp',
   hs = 'hs',
 }
@@ -37,7 +42,7 @@ export class LightAttributesDTO {
   public kelvin?: number;
   @ApiProperty({ required: false })
   @IsNumber()
-  public max_mireds?: number;
+  public max_minreds?: number;
   @ApiProperty({ required: false })
   @IsNumber()
   public min_minreds?: number;
@@ -56,30 +61,20 @@ export class LightStateDTO extends HassStateDTO<
 > {}
 
 export class LightCapabilities {
+  @ValidateNested({ each: true })
+  @ApiProperty({ required: false })
+  @IsOptional()
   public effect_list?: LightEffectsList[];
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
   public max_minreds?: number;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
   public min_minreds?: number;
+  @ValidateNested({ each: true })
+  @ApiProperty({ required: false })
+  @IsOptional()
   public supported_color_modes?: ColorModes[];
 }
-
-// const foo = {
-//   result: {
-//     area_id: null,
-//     capabilities: {
-//       effect_list: ['colorloop', 'random'],
-//       max_mireds: 495,
-//       min_mireds: 158,
-//       supported_color_modes: ['color_temp', 'hs'],
-//     },
-//     config_entry_id: '2f480debe2d4fc091ffb872aaa7a9eba',
-//     device_id: '4cb0e0e42d08b69222ebd0e17c5d8f31',
-//     disabled_by: null,
-//     entity_id: 'light.tower_right_1',
-//     icon: null,
-//     name: 'Tower Right: 1',
-//     original_icon: null,
-//     original_name: 'Tower 1',
-//     platform: 'hue',
-//     unique_id: '80:4b:50:ff:fe:41:6b:2c-0b',
-//   },
-// };

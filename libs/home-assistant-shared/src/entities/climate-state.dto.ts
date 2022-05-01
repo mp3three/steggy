@@ -13,7 +13,7 @@ export enum FanModes {
 
 export class ClimateAttributesDTO {
   public aux_heat: 'off';
-  public climaate_mode: 'Sleep';
+  public climate_mode: 'Sleep';
   public current_humidity: number;
   public current_temperature: number;
   public equipment_running: string;

@@ -1,6 +1,6 @@
 import { is } from '@steggy/utilities';
 
-import { HASS_DOMAINS } from '../enums';
+import { HASS_DOMAINS } from './socket';
 
 export function split(
   entity: { entity_id: string } | string,

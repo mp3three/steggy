@@ -1,7 +1,7 @@
 import { HassStateDTO } from '../hass-state.dto';
 
 export class LockAttributesDTO {
-  battey_level?: number;
+  battery_level?: number;
   friendly_name?: string;
 }
 

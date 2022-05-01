@@ -37,6 +37,7 @@ import {
 } from '../config';
 
 let MESSAGE_TIMESTAMPS: number[] = [];
+const SHORT_DELAY = 100;
 
 @Injectable()
 export class HASocketAPIService {
@@ -76,6 +77,12 @@ export class HASocketAPIService {
     const states = await this.sendMessage<HassStateDTO[]>({
       type: HASSIO_WS_COMMAND.get_states,
     });
+    // Have not observed race condition as long as the previous message had it's contents being logged
+    // Experimentally adding a sleep to see if that is sufficient to break the intermittent race condition
+    //
+    // Note: DID observe the issue with this configuration but w/ this.caught (+related log statements) deleted
+    //
+    await sleep(SHORT_DELAY);
     this.logger.debug('Received all entity update');
     this.eventEmitter.emit(ALL_ENTITIES_UPDATED, states);
     this.logger.debug('AFTER ALL_ENTITIES_UPDATED');
@@ -298,11 +305,9 @@ export class HASocketAPIService {
    * Response to an outgoing emit
    */
   private async onMessage(message: SocketMessageDTO) {
-    if (!this.caught) {
-      // This message is CHONKY, but needed for current debugging
-      // Trace log to keep it out of normal debug logs
-      this.logger.trace({ message });
-    }
+    // This message is CHONKY, but needed for current debugging
+    // Trace log to keep it out of normal debug logs
+    this.logger.trace({ message });
     const id = Number(message.id);
     switch (message.type as HassSocketMessageTypes) {
       case HassSocketMessageTypes.auth_required:
