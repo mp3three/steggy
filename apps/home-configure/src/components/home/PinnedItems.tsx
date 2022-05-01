@@ -1,12 +1,12 @@
 import { PinnedItemDTO } from '@steggy/controller-shared';
-import { TitleCase } from '@steggy/utilities';
+import { DOWN, TitleCase, UP } from '@steggy/utilities';
 import { Card, Empty, List, Typography } from 'antd';
 
 import { CurrentUserContext } from '../../types';
 import { EntityInspectButton } from '../entities';
 import { GroupInspectButton, GroupStateEdit } from '../groups';
 import { PersonInspectButton } from '../people';
-import { RoomInspectButton } from '../rooms';
+import { RoomInspectButton, RoomStateEdit } from '../rooms';
 import { RoutineInspectButton } from '../routines/RoutineInspectButton';
 
 function renderPin(item: PinnedItemDTO) {
@@ -23,6 +23,10 @@ function renderPin(item: PinnedItemDTO) {
       return <GroupStateEdit state={item.target} />;
     case 'person':
       return <PersonInspectButton person={item.target} />;
+    case 'person_state':
+      return <RoomStateEdit person_state={item.target} />;
+    case 'room_state':
+      return <RoomStateEdit room_state={item.target} />;
   }
   return undefined;
 }
@@ -38,7 +42,9 @@ export function PinnedItems() {
           person ? (
             <List
               pagination={{ size: 'small' }}
-              dataSource={person.pinned_items ?? []}
+              dataSource={(person.pinned_items ?? []).sort((a, b) =>
+                a.type > b.type ? UP : DOWN,
+              )}
               renderItem={item => (
                 <List.Item>
                   <List.Item.Meta

@@ -5,7 +5,7 @@ import {
   RoomDTO,
   RoomStateDTO,
 } from '@steggy/controller-shared';
-import { DOWN, is, UP } from '@steggy/utilities';
+import { DOWN, is, START, UP } from '@steggy/utilities';
 import {
   Button,
   Divider,
@@ -31,63 +31,150 @@ import { ItemPin } from '../../misc';
 // eslint-disable-next-line radar/cognitive-complexity
 export function RoomStateEdit(props: {
   onUpdate?: (group: RoomDTO) => void;
-  person?: PersonDTO;
-  room?: RoomDTO;
-  state: RoomStateDTO;
+  person?: PersonDTO | string;
+  person_state?: string;
+  room?: RoomDTO | string;
+  room_state?: string;
+  state?: RoomStateDTO;
 }) {
   const [dirty, setDirty] = useState<boolean>();
   const [drawer, setDrawer] = useState<boolean>();
-  const [friendlyName, setFriendlyName] = useState<string>(
-    props.state.friendlyName,
-  );
+  const [friendlyName, setFriendlyName] = useState<string>();
   const [groupStates, setGroupStates] = useState<Record<string, string>>();
   const [groups, setGroups] = useState<GroupDTO[]>([]);
   const [roomStates, setRoomStates] = useState<Record<string, string>>({});
   const [rooms, setRooms] = useState<RoomDTO[]>([]);
-
+  const [room, setRoom] = useState<RoomDTO>();
+  const [person, setPerson] = useState<PersonDTO>();
+  const [state, setState] = useState<RoomStateDTO>({} as RoomStateDTO);
   const cards: (LightEntityCard | SwitchEntityCard | FanEntityCard)[] = [];
+  const targetItem = room ?? person;
+  const routeBase = person ? `person` : `room`;
 
-  const room = props.room ?? props.person;
+  useEffect(() => {
+    setFriendlyName(state?.friendlyName);
+  }, [state]);
+  useEffect(() => {
+    setState(props.state);
+  }, [props.state]);
 
-  const routeBase = props.person ? `person` : `room`;
+  useEffect(() => {
+    async function load() {
+      if (is.string(props.room)) {
+        const room = await sendRequest<RoomDTO>({
+          url: `/room/${props.room}`,
+        });
+        setRoom(room);
+      }
+      if (is.object(props.room)) {
+        setRoom(props.room);
+      }
+      if (is.string(props.person)) {
+        const person = await sendRequest<PersonDTO>({
+          url: `/person/${props.person}`,
+        });
+        setPerson(person);
+      }
+      if (is.object(props.person)) {
+        setPerson(props.person);
+      }
+      if (!is.empty(props.person_state)) {
+        const people = await sendRequest<PersonDTO[]>({
+          control: {
+            filters: new Set([
+              {
+                field: 'save_states.id',
+                value: props.person_state,
+              },
+            ]),
+          },
+          url: `/person`,
+        });
+        if (is.empty(people)) {
+          notification.error({
+            message: `Cannot find save person state ${props.person_state}`,
+          });
+        } else {
+          setPerson(people[START]);
+          setState(
+            people[START].save_states.find(
+              ({ id }) => props.person_state === id,
+            ),
+          );
+        }
+      }
+      if (!is.empty(props.room_state)) {
+        const room = await sendRequest<RoomDTO[]>({
+          control: {
+            filters: new Set([
+              {
+                field: 'save_states.id',
+                value: props.room_state,
+              },
+            ]),
+          },
+          url: `/room`,
+        });
+        if (is.empty(room)) {
+          notification.error({
+            message: `Cannot find save room state ${props.room_state}`,
+          });
+        } else {
+          setRoom(room[START]);
+          setState(
+            room[START].save_states.find(({ id }) => props.room_state === id),
+          );
+        }
+      }
+    }
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.room, props.person]);
 
-  const entities = room.entities
+  const entities = targetItem?.entities
     .map(({ entity_id }) => entity_id)
     .filter(i =>
       ['switch', 'light', 'fan', 'media_player'].includes(domain(i)),
     );
 
   useEffect(() => {
-    if (!is.empty(room.groups)) {
+    if (!is.empty(targetItem?.groups)) {
       refreshGroups();
       const groupStates: Record<string, string> = {};
-      props.state.states ??= [];
-      props.state.states.forEach(state => {
-        if (state.type !== 'group') {
-          return;
-        }
-        groupStates[state.ref] = state.state;
-      });
-      setGroupStates(groupStates);
+      if (is.object(state)) {
+        state.states ??= [];
+        state.states.forEach(state => {
+          if (state?.type !== 'group') {
+            return;
+          }
+          groupStates[state?.ref] = state?.state;
+        });
+        setGroupStates(groupStates);
+      }
     }
 
-    if (!is.empty(props?.person?.rooms)) {
+    if (!is.empty(person?.rooms)) {
       refreshRooms();
       const roomStates: Record<string, string> = {};
-      props.state.states ??= [];
-      props.state.states.forEach(state => {
-        if (state.type !== 'room') {
-          return;
-        }
-        roomStates[state.ref] = state.state;
-      });
-      setGroupStates(roomStates);
+      if (is.object(state)) {
+        state.states ??= [];
+        state.states.forEach(state => {
+          if (state?.type !== 'room') {
+            return;
+          }
+          roomStates[state?.ref] = state?.state;
+        });
+        setGroupStates(roomStates);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [room?._id]);
+  }, [targetItem?._id, state]);
 
   function entityRender(entity: string) {
-    const state = props?.state?.states?.find(({ ref }) => ref === entity) || {
+    if (!state) {
+      return undefined;
+    }
+    const target = state.states?.find(({ ref }) => ref === entity) || {
       extra: {},
       ref: entity,
       state: undefined,
@@ -99,7 +186,7 @@ export function RoomStateEdit(props: {
           <SwitchEntityCard
             ref={i => cards.push(i)}
             key={entity}
-            state={state}
+            state={target}
             stateOnly
             optional
             onUpdate={() => setDirty(true)}
@@ -111,7 +198,7 @@ export function RoomStateEdit(props: {
             ref={i => cards.push(i)}
             key={entity}
             optional
-            state={state}
+            state={target}
             onUpdate={() => setDirty(true)}
           />
         );
@@ -121,7 +208,7 @@ export function RoomStateEdit(props: {
             ref={i => cards.push(i)}
             key={entity}
             optional
-            state={state}
+            state={target}
             onUpdate={() => setDirty(true)}
           />
         );
@@ -143,7 +230,7 @@ export function RoomStateEdit(props: {
   function onClose(warn: boolean): void {
     if (dirty && warn) {
       notification.warn({
-        description: `Changes to ${props.state.friendlyName} were not saved`,
+        description: `Changes to ${state?.friendlyName} were not saved`,
         message: 'Unsaved changes',
       });
     }
@@ -151,7 +238,7 @@ export function RoomStateEdit(props: {
   }
 
   async function onSave(): Promise<void> {
-    const id = props.state.id;
+    const id = state?.id;
     const entityStates = cards
       // not falsy somehow
       .filter(i => !!i)
@@ -183,7 +270,7 @@ export function RoomStateEdit(props: {
         ],
       } as RoomStateDTO,
       method: 'put',
-      url: `/${routeBase}/${room?._id}/state/${id}`,
+      url: `/${routeBase}/${targetItem?._id}/state/${id}`,
     });
     setDirty(false);
     setDrawer(false);
@@ -194,14 +281,14 @@ export function RoomStateEdit(props: {
 
   async function refreshGroups(): Promise<void> {
     const groups = await sendRequest<GroupDTO[]>({
-      url: `/${routeBase}/${room?._id}/group-save-states`,
+      url: `/${routeBase}/${targetItem?._id}/group-save-states`,
     });
     setGroups(groups);
   }
 
   async function refreshRooms(): Promise<void> {
     const rooms = await sendRequest<RoomDTO[]>({
-      url: `/${routeBase}/${room?._id}/room-save-states`,
+      url: `/${routeBase}/${targetItem?._id}/room-save-states`,
     });
     setRooms(rooms);
   }
@@ -217,15 +304,8 @@ export function RoomStateEdit(props: {
     return roomStates[room] ?? 'none';
   }
 
-  return room ? (
+  return targetItem ? (
     <>
-      <Button
-        size="small"
-        type={drawer ? 'primary' : 'text'}
-        onClick={() => setDrawer(true)}
-      >
-        {friendlyName}
-      </Button>
       <Drawer
         title={
           <Typography.Text
@@ -241,7 +321,7 @@ export function RoomStateEdit(props: {
         onClose={() => onClose(true)}
         extra={
           <Space>
-            <ItemPin type={routeBase} target={props.state.id} />
+            <ItemPin type={`${routeBase}_state`} target={state?.id} />
             <Button type="primary" onClick={() => onSave()}>
               Save
             </Button>
@@ -355,11 +435,18 @@ export function RoomStateEdit(props: {
             <Typography.Title level={4}>Identifiers</Typography.Title>
           </Divider>
           <Typography.Title level={5}>Room ID</Typography.Title>
-          <Typography.Text code>{room?._id}</Typography.Text>
+          <Typography.Text code>{targetItem?._id}</Typography.Text>
           <Typography.Title level={5}>State ID</Typography.Title>
-          <Typography.Text code>{props.state.id}</Typography.Text>
+          <Typography.Text code>{state?.id}</Typography.Text>
         </Space>
       </Drawer>
+      <Button
+        size="small"
+        type={drawer ? 'primary' : 'text'}
+        onClick={() => setDrawer(true)}
+      >
+        {friendlyName}
+      </Button>
     </>
   ) : (
     <Layout.Content>

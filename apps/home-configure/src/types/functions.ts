@@ -47,7 +47,12 @@ export async function sendRequest<T>({
   if (process === 'text') {
     return text as unknown as T;
   }
-  return JSON.parse(text) as T;
+  const output = JSON.parse(text) as T;
+  if (is.string((output as unknown as { error: string }).error)) {
+    console.error(output);
+    console.trace();
+  }
+  return output;
 }
 sendRequest.url = function (info: string): string {
   return `/api${info}`;
