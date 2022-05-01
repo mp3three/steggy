@@ -30,6 +30,7 @@ import { ItemPin } from '../../misc';
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function RoomStateEdit(props: {
+  onBaseLoad?: (base: string, state: string) => void;
   onUpdate?: (group: RoomDTO) => void;
   person?: PersonDTO | string;
   person_state?: string;
@@ -102,6 +103,9 @@ export function RoomStateEdit(props: {
             ),
           );
         }
+        if (props.onBaseLoad) {
+          props.onBaseLoad(people[START]._id, props.person_state);
+        }
       }
       if (!is.empty(props.room_state)) {
         const room = await sendRequest<RoomDTO[]>({
@@ -124,6 +128,9 @@ export function RoomStateEdit(props: {
           setState(
             room[START].save_states.find(({ id }) => props.room_state === id),
           );
+          if (props.onBaseLoad) {
+            props.onBaseLoad(room[START]._id, props.room_state);
+          }
         }
       }
     }

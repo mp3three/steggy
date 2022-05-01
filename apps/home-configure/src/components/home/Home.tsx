@@ -12,7 +12,7 @@ export function HomePage() {
           <Col span={20} offset={2}>
             <RecentActivations />
           </Col>
-          <Col span={20} offset={2}>
+          <Col span={10} offset={2}>
             <PinnedItems />
           </Col>
         </Row>

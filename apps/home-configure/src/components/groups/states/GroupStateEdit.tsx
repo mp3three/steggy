@@ -34,6 +34,7 @@ import { ItemPin } from '../../misc';
 // eslint-disable-next-line radar/cognitive-complexity
 export function GroupStateEdit(props: {
   group?: GroupDTO;
+  onBaseLoad?: (base: string, state: string) => void;
   onUpdate?: (group: GroupDTO) => void;
   state: GroupSaveStateDTO | string;
 }) {
@@ -77,6 +78,9 @@ export function GroupStateEdit(props: {
     }
     const group = groups[START];
     const state = group.save_states.find(({ id }) => id === props.state);
+    if (props.onBaseLoad) {
+      props.onBaseLoad(group._id, props.state as string);
+    }
     if (is.undefined(state)) {
       return;
     }
