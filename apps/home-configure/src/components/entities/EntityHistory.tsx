@@ -1,8 +1,20 @@
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
-import { Button, Card, DatePicker, Form, notification, Table } from 'antd';
+import {
+  Button,
+  Card,
+  DatePicker,
+  Form,
+  notification,
+  Popover,
+  Table,
+  Typography,
+} from 'antd';
+import { dump } from 'js-yaml';
 import moment from 'moment';
 import React, { useState } from 'react';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import { sendRequest } from '../../types';
 
@@ -73,7 +85,23 @@ export function EntityHistory(props: { entity: string }) {
         />
       </Form.Item>
       <Table pagination={{ size: 'small' }} dataSource={filterHistory()}>
-        <Table.Column title="State" dataIndex="state" key="state" />
+        <Table.Column
+          title="State"
+          dataIndex="state"
+          key="state"
+          render={(state, item: HassStateDTO) => (
+            <Popover
+              title={<Typography.Text strong>Attributes</Typography.Text>}
+              content={
+                <SyntaxHighlighter language="yaml" style={atomDark}>
+                  {dump(item.attributes).trimEnd()}
+                </SyntaxHighlighter>
+              }
+            >
+              {state}
+            </Popover>
+          )}
+        />
         <Table.Column
           title="Date Changed"
           dataIndex="last_changed"
