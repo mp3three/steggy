@@ -351,6 +351,7 @@ export function RoomStateEdit(props: {
                 <Typography.Title level={4}>Groups</Typography.Title>
               </Divider>
               <Table
+                pagination={{ size: 'small' }}
                 dataSource={groups.sort((a, b) =>
                   a.friendlyName > b.friendlyName ? UP : DOWN,
                 )}
@@ -397,6 +398,7 @@ export function RoomStateEdit(props: {
                 <Typography.Title level={4}>Rooms</Typography.Title>
               </Divider>
               <Table
+                pagination={{ size: 'small' }}
                 dataSource={rooms.sort((a, b) =>
                   a.friendlyName > b.friendlyName ? UP : DOWN,
                 )}

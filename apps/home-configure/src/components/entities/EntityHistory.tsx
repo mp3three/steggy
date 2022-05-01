@@ -72,7 +72,7 @@ export function EntityHistory(props: { entity: string }) {
           showTime
         />
       </Form.Item>
-      <Table dataSource={filterHistory()}>
+      <Table pagination={{ size: 'small' }} dataSource={filterHistory()}>
         <Table.Column title="State" dataIndex="state" key="state" />
         <Table.Column
           title="Date Changed"

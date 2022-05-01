@@ -20,6 +20,7 @@ import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import { domain, FD_ICONS, sendRequest } from '../../types';
 import { ItemPin } from '../misc';
+import { EntityHistory } from './EntityHistory';
 import { EntityIdChange } from './EntityIdChange';
 import { EntityRelated } from './EntityRelated';
 import { FanEntityCard } from './FanEntityCard';
@@ -212,6 +213,9 @@ export function EntityInspect(props: {
         </Tabs.TabPane>
         <Tabs.TabPane key="used_in" tab="Used In">
           <EntityRelated entity={props?.entity?.entity_id} />
+        </Tabs.TabPane>
+        <Tabs.TabPane key="history" tab="History">
+          <EntityHistory entity={props?.entity?.entity_id} />
         </Tabs.TabPane>
         <Tabs.TabPane key="flags" tab="Flags">
           {flags()}

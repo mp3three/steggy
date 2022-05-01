@@ -6,7 +6,7 @@ import React from 'react';
 
 export function LightGroupDescription(props: { state: GroupSaveStateDTO }) {
   return (
-    <Table dataSource={props.state.states}>
+    <Table dataSource={props.state.states} pagination={{ size: 'small' }}>
       <Table.Column title="Entity" key="ref" dataIndex="ref" />
       <Table.Column title="State" key="state" dataIndex="state" />
       <Table.Column

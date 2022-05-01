@@ -76,7 +76,7 @@ export function RoutineExtraActions(props: {
               Clone
             </Button>
           </Menu.Item>
-          <ItemPin type="routine" target={props.routine._id} menuItem />
+          <ItemPin type="routine" target={props.routine?._id} menuItem />
         </Menu>
       }
     >
