@@ -72,7 +72,7 @@ export function GroupListDetail(props: {
           </Space>
           <Card
             type="inner"
-            title="Related Routines"
+            title={<Typography.Text strong>Related Routines</Typography.Text>}
             style={{ marginTop: '16px' }}
           >
             <RelatedRoutines groupAction={props.group} />
@@ -120,7 +120,7 @@ export function GroupListDetail(props: {
         >
           {props.group.friendlyName}
         </Typography.Title>
-        <Tabs type="card">
+        <Tabs>
           <Tabs.TabPane key="members" tab="Members">
             <Card
               type="inner"
@@ -128,6 +128,7 @@ export function GroupListDetail(props: {
               extra={
                 <EntityModalPicker
                   exclude={props.group.entities}
+                  highlight={is.empty(props.group.entities)}
                   domains={domainList()}
                   onAdd={entities => addEntities(entities)}
                 />

@@ -70,6 +70,7 @@ function highlight(result) {
 // eslint-disable-next-line radar/cognitive-complexity
 export function GroupModalPicker(props: {
   exclude?: string[];
+  highlight: boolean;
   onAdd: (selected: string[]) => void;
 }) {
   const [available, setAvailable] = useState<tIdList>([]);
@@ -145,6 +146,7 @@ export function GroupModalPicker(props: {
         onClick={() => show()}
         size="small"
         icon={FD_ICONS.get('plus_box')}
+        type={props.highlight ? 'primary' : 'text'}
       >
         Add groups
       </Button>

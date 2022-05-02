@@ -122,7 +122,7 @@ export class LightEntityCard extends React.Component<
     const entityState = this.getCurrentState();
     return (
       <Card
-        title={friendly_name}
+        title={<Typography.Text strong>{friendly_name}</Typography.Text>}
         type="inner"
         extra={
           <Space style={{ margin: '0 -16px 0 16px' }}>

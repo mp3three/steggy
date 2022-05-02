@@ -29,8 +29,9 @@ const TAB_LIST = [
   ['stop_processing', 'Stop Processing'],
 ];
 
+// eslint-disable-next-line radar/cognitive-complexity
 export function RoomMetadata(props: {
-  onUpdate: (room: RoomDTO) => void;
+  onUpdate?: (room: RoomDTO) => void;
   person?: PersonDTO;
   room?: RoomDTO;
 }) {
@@ -179,16 +180,18 @@ export function RoomMetadata(props: {
   }
 
   async function updateMetadata(
-    metadata: Partial<RoomMetadataDTO>,
+    update: Partial<RoomMetadataDTO>,
   ): Promise<void> {
     const room = await sendRequest<RoomDTO>({
-      body: metadata,
+      body: update,
       method: 'put',
       url: `/${base}/${item._id}/metadata/${metadata.id}`,
     });
-    props.onUpdate(room);
-    const updated = room.metadata.find(({ id }) => id === metadata?.id);
+    const updated = room.metadata.find(({ id }) => id === metadata.id);
     setMetadata(updated);
+    if (props.onUpdate) {
+      props.onUpdate(room);
+    }
   }
 
   function updateRoutine(routine: RoutineDTO): void {
@@ -217,6 +220,7 @@ export function RoomMetadata(props: {
             <Button
               icon={FD_ICONS.get('plus_box')}
               size="small"
+              type={is.empty(item.metadata) ? 'primary' : 'text'}
               onClick={() => create()}
             >
               Create new
@@ -256,7 +260,10 @@ export function RoomMetadata(props: {
             )}
           />
         </Card>
-        <Card type="inner" title="Related Routines">
+        <Card
+          type="inner"
+          title={<Typography.Text strong>Related Routines</Typography.Text>}
+        >
           <Tabs>
             {TAB_LIST.map(([key, label]) => (
               <Tabs.TabPane tab={label} key={key}>

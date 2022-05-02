@@ -12,12 +12,14 @@ import {
 import { is, START } from '@steggy/utilities';
 import {
   Button,
+  Descriptions,
   Divider,
   Drawer,
   Layout,
   notification,
   Skeleton,
   Space,
+  Tabs,
   Typography,
 } from 'antd';
 import React, { useEffect, useState } from 'react';
@@ -85,6 +87,7 @@ export function GroupStateEdit(props: {
       return;
     }
     setState(state);
+    setFriendlyName(state.friendlyName);
     setGroup(group);
   }
   useEffect(() => {
@@ -99,6 +102,7 @@ export function GroupStateEdit(props: {
       return;
     }
     setState(props.state);
+    setFriendlyName(props.state?.friendlyName);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.state]);
 
@@ -134,6 +138,10 @@ export function GroupStateEdit(props: {
         );
     }
     return <Skeleton />;
+  }
+
+  function updateFriendlyName(name: string) {
+    setFriendlyName(name);
   }
 
   function entityRender(entity: string) {
@@ -287,7 +295,7 @@ export function GroupStateEdit(props: {
         title={
           <Typography.Text
             editable={{
-              onChange: friendlyName => setFriendlyName(friendlyName),
+              onChange: friendlyName => updateFriendlyName(friendlyName),
             }}
           >
             {friendlyName}
@@ -306,18 +314,30 @@ export function GroupStateEdit(props: {
           </Space>
         }
       >
-        <Space direction="vertical">
-          {bulkEdit()}
-          <Divider orientation="left">Edit State</Divider>
-          <Space wrap>{entities.map(entity => entityRender(entity))}</Space>
-        </Space>
-        <Divider orientation="left">
-          <Typography.Title level={4}>Identifiers</Typography.Title>
-        </Divider>
-        <Typography.Title level={5}>Group ID</Typography.Title>
-        <Typography.Text code>{props.group?._id}</Typography.Text>
-        <Typography.Title level={5}>State ID</Typography.Title>
-        <Typography.Text code>{state?.id}</Typography.Text>
+        <Tabs>
+          <Tabs.TabPane tab="State" key="state">
+            <Space direction="vertical">
+              {bulkEdit()}
+              <Divider orientation="left">
+                <Typography.Text strong>Edit State</Typography.Text>
+              </Divider>
+              <Space wrap>{entities.map(entity => entityRender(entity))}</Space>
+            </Space>
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="Extra Information" key="info">
+            <Descriptions bordered>
+              <Descriptions.Item span={2} label="Group Name">
+                {group?.friendlyName}
+              </Descriptions.Item>
+              <Descriptions.Item span={1} label="Group ID">
+                <Typography.Text code>{group?._id}</Typography.Text>
+              </Descriptions.Item>
+              <Descriptions.Item span={3} label="State ID">
+                <Typography.Text code>{state?.id}</Typography.Text>
+              </Descriptions.Item>
+            </Descriptions>
+          </Tabs.TabPane>
+        </Tabs>
       </Drawer>
       <Button
         size="small"

@@ -198,7 +198,7 @@ export function EntityPage() {
                               onClick={() => setShowType('all')}
                               type={showType === 'all' ? 'primary' : 'default'}
                             >
-                              Show All
+                              Include Hidden
                             </Button>
                           </Menu.Item>
                         </Menu>

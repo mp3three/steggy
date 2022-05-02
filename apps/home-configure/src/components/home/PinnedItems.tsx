@@ -96,9 +96,12 @@ export function PinnedItems() {
           person ? (
             <List
               pagination={{ size: 'small' }}
-              dataSource={(person.pinned_items ?? []).sort((a, b) =>
-                a.type > b.type ? UP : DOWN,
-              )}
+              dataSource={(person.pinned_items ?? [])
+                .filter(
+                  ({ type }) =>
+                    !['room_metadata', 'person_metadata'].includes(type),
+                )
+                .sort((a, b) => (a.type > b.type ? UP : DOWN))}
               renderItem={item => (
                 <List.Item>
                   <List.Item.Meta

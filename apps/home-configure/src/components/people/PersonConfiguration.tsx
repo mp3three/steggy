@@ -5,8 +5,8 @@ import {
   RoomDTO,
   RoomEntityDTO,
 } from '@steggy/controller-shared';
-import { DOWN, TitleCase, UP } from '@steggy/utilities';
-import { Button, Card, List, Popconfirm, Space } from 'antd';
+import { DOWN, is, TitleCase, UP } from '@steggy/utilities';
+import { Button, Card, List, Popconfirm, Space, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
@@ -228,9 +228,10 @@ export function PersonConfiguration(props: {
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <Card
         type="inner"
-        title="Entities"
+        title={<Typography.Text strong>Entities</Typography.Text>}
         extra={
           <EntityModalPicker
+            highlight={is.empty(props.person.entities)}
             onAdd={items => addEntities(items)}
             exclude={props.person.entities.map(({ entity_id }) => entity_id)}
           />
@@ -246,9 +247,10 @@ export function PersonConfiguration(props: {
       </Card>
       <Card
         type="inner"
-        title="Groups"
+        title={<Typography.Text strong>Groups</Typography.Text>}
         extra={
           <GroupModalPicker
+            highlight={is.empty(props.person.groups)}
             exclude={props.person.groups}
             onAdd={groups => addGroups(groups)}
           />
@@ -262,9 +264,10 @@ export function PersonConfiguration(props: {
       </Card>
       <Card
         type="inner"
-        title="Rooms"
+        title={<Typography.Text strong>Rooms</Typography.Text>}
         extra={
           <RoomModalPicker
+            highlight={is.empty(props.person.rooms)}
             exclude={props.person.rooms}
             onAdd={rooms => addRooms(rooms)}
           />

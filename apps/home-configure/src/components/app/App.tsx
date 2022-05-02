@@ -149,7 +149,10 @@ export function App() {
                   href="https://github.com/ccontour/steggy"
                   target="_blank"
                 >
-                  @steggy
+                  {'@steggy '}
+                  <span role="img" aria-label="dinosaur icon">
+                    🦕
+                  </span>
                 </Typography.Link>
               </Layout.Footer>
             </Layout>

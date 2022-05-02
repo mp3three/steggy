@@ -1,6 +1,6 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { PersonDTO, RoomDTO, RoomStateDTO } from '@steggy/controller-shared';
-import { DOWN, UP } from '@steggy/utilities';
+import { DOWN, is, UP } from '@steggy/utilities';
 import {
   Button,
   Card,
@@ -77,7 +77,11 @@ export function SaveStateEditor(props: {
               </Form>
             }
           >
-            <Button size="small" icon={FD_ICONS.get('plus_box')}>
+            <Button
+              size="small"
+              type={is.empty(room.save_states) ? 'primary' : 'text'}
+              icon={FD_ICONS.get('plus_box')}
+            >
               Create new
             </Button>
           </Popconfirm>

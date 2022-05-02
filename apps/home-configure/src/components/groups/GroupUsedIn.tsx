@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
 import { RoomListDetail } from '../rooms';
+import { RoomExtraActions } from '../rooms/RoomExtraActions';
 
 export function GroupUsedIn(props: { group: GroupDTO }) {
   const [room, setRoom] = useState<RoomDTO>();
@@ -42,19 +43,25 @@ export function GroupUsedIn(props: { group: GroupDTO }) {
       <List
         pagination={{ size: 'small' }}
         dataSource={rooms}
-        renderItem={room => (
+        renderItem={item => (
           <List.Item>
             <Button
               type={room ? 'primary' : 'text'}
-              onClick={() => setRoom(room)}
+              onClick={() => setRoom(item)}
             >
-              {room.friendlyName}
+              {item.friendlyName}
             </Button>
           </List.Item>
         )}
       />
       <Drawer
         title="Room Details"
+        extra={
+          <RoomExtraActions
+            room={room}
+            onUpdate={update => updateRoom(update)}
+          />
+        }
         size="large"
         visible={!is.undefined(room)}
         onClose={() => setRoom(undefined)}

@@ -76,7 +76,7 @@ export function RoomListDetail(props: {
   }
   return (
     <Card
-      title="Room details"
+      title={<Typography.Text strong>Room details</Typography.Text>}
       extra={
         !is.object(props.room) ? undefined : (
           <RoomExtraActions

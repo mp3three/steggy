@@ -70,6 +70,7 @@ type tIdList = (RoomDTO & { highlighted?: string })[];
 // eslint-disable-next-line radar/cognitive-complexity
 export function RoomModalPicker(props: {
   exclude?: string[];
+  highlight: boolean;
   onAdd: (selected: string[]) => void;
 }) {
   const [available, setAvailable] = useState<tIdList>([]);
@@ -141,6 +142,7 @@ export function RoomModalPicker(props: {
       <Button
         onClick={e => show(e)}
         size="small"
+        type={props.highlight ? 'primary' : 'text'}
         icon={FD_ICONS.get('plus_box')}
       >
         Add groups

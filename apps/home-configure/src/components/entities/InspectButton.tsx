@@ -44,6 +44,15 @@ export function EntityInspectButton(props: { entity_id: string }) {
     );
   }
 
+  async function updateName(name: string): Promise<void> {
+    const update = await sendRequest<HassStateDTO>({
+      body: { name },
+      method: 'put',
+      url: `/entity/rename/${entity.entity_id}`,
+    });
+    setEntity(update);
+  }
+
   return (
     <>
       <Drawer
@@ -52,13 +61,22 @@ export function EntityInspectButton(props: { entity_id: string }) {
           setEntity(undefined);
           setFlags([]);
         }}
-        title={entity?.attributes?.friendly_name ?? props.entity_id}
+        title={
+          <Typography.Text
+            editable={{
+              onChange: friendlyName => updateName(friendlyName),
+            }}
+          >
+            {entity?.attributes?.friendly_name}
+          </Typography.Text>
+        }
         size="large"
       >
         <EntityInspect
           onUpdate={entity => setEntity(entity)}
           entity={entity}
           flags={flags}
+          nested
           onFlagsUpdate={flags => setFlags(flags)}
         />
       </Drawer>

@@ -63,6 +63,7 @@ function highlight(result) {
 export function EntityModalPicker(props: {
   domains?: string[];
   exclude?: string[];
+  highlight: boolean;
   onAdd: (selected: string[]) => void;
 }) {
   const [available, setAvailable] = useState<tIdList>([]);
@@ -133,6 +134,7 @@ export function EntityModalPicker(props: {
           setAvailable(available.map(entity_id => ({ entity_id })));
         }}
         size="small"
+        type={props.highlight ? 'primary' : 'text'}
         icon={FD_ICONS.get('plus_box')}
       >
         Add entities

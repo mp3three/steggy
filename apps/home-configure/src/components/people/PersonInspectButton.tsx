@@ -1,6 +1,6 @@
 import { PersonDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
-import { Button, Drawer } from 'antd';
+import { Button, Drawer, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
@@ -37,19 +37,27 @@ export function PersonInspectButton(props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.person]);
 
+  function onUpdate(update: PersonDTO) {
+    setPerson({
+      ...person,
+      ...update,
+    });
+    if (props.onUpdate) {
+      props.onUpdate(update);
+    }
+  }
+
   return (
     <>
       <Drawer
-        title="Person Details"
+        title={<Typography.Text strong>Person details</Typography.Text>}
         size="large"
         visible={visible}
         onClose={() => setVisible(false)}
       >
         <PeopleDetail
           nested
-          onUpdate={update =>
-            props.onUpdate ? props.onUpdate(update) : undefined
-          }
+          onUpdate={update => onUpdate(update)}
           person={person}
         />
       </Drawer>

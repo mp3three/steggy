@@ -38,13 +38,26 @@ export function RoutineInspectButton(props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.routine]);
 
+  function onUpdate(update: RoutineDTO) {
+    setRoutine({
+      ...routine,
+      ...update,
+    });
+    if (props.onUpdate) {
+      props.onUpdate(update);
+    }
+  }
+
   return (
     <>
       <Drawer
         title={<Typography.Text strong>Routine details</Typography.Text>}
         size="large"
         extra={
-          <RoutineExtraActions routine={routine} onUpdate={props.onUpdate} />
+          <RoutineExtraActions
+            routine={routine}
+            onUpdate={update => onUpdate(update)}
+          />
         }
         visible={visible}
         onClose={() => setVisible(false)}
@@ -52,7 +65,7 @@ export function RoutineInspectButton(props: {
         <RoutineListDetail
           nested
           routine={routine}
-          onUpdate={update => props.onUpdate(update)}
+          onUpdate={update => onUpdate(update)}
         />
       </Drawer>
       <Button

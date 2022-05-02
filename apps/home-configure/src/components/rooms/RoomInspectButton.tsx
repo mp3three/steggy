@@ -36,6 +36,16 @@ export function RoomInspectButton(props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.room]);
 
+  function onUpdate(update: RoomDTO) {
+    setRoom({
+      ...room,
+      ...update,
+    });
+    if (props.onUpdate) {
+      props.onUpdate(update);
+    }
+  }
+
   return (
     <>
       <Drawer
@@ -47,9 +57,7 @@ export function RoomInspectButton(props: {
       >
         <RoomListDetail
           nested
-          onUpdate={update =>
-            props.onUpdate ? props.onUpdate(update) : undefined
-          }
+          onUpdate={update => onUpdate(update)}
           room={room}
         />
       </Drawer>

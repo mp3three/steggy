@@ -29,6 +29,7 @@ import { EntityRelated } from './EntityRelated';
 export function EntityInspect(props: {
   entity: HassStateDTO;
   flags: string[];
+  nested?: boolean;
   onFlagsUpdate?: (flags: string[]) => void;
   onRename?: (name: string) => void;
   onUpdate?: (entity: HassStateDTO) => void;
@@ -160,11 +161,39 @@ export function EntityInspect(props: {
     );
   }
 
-  return is.undefined(props?.entity) ? (
-    <Card>
-      <Empty description="Select an entity" />
-    </Card>
-  ) : (
+  function renderTabs() {
+    return (
+      <Tabs>
+        <Tabs.TabPane key="description" tab="Description">
+          <SyntaxHighlighter language="yaml" style={atomDark}>
+            {dump(props.entity).trimEnd()}
+          </SyntaxHighlighter>
+          {editor()}
+        </Tabs.TabPane>
+        <Tabs.TabPane key="used_in" tab="Used In">
+          <EntityRelated entity={props?.entity?.entity_id} />
+        </Tabs.TabPane>
+        <Tabs.TabPane key="history" tab="History">
+          <EntityHistory entity={props?.entity?.entity_id} />
+        </Tabs.TabPane>
+        <Tabs.TabPane key="flags" tab="Flags">
+          <Card>{flags()}</Card>
+        </Tabs.TabPane>
+      </Tabs>
+    );
+  }
+  if (is.undefined(props?.entity)) {
+    return (
+      <Card>
+        <Empty description="Select an entity" />
+      </Card>
+    );
+  }
+  if (props.nested) {
+    return renderTabs();
+  }
+
+  return (
     <Card
       extra={
         <Dropdown
@@ -196,23 +225,7 @@ export function EntityInspect(props: {
         </Typography.Text>
       }
     >
-      <Tabs type="card">
-        <Tabs.TabPane key="description" tab="Description">
-          <SyntaxHighlighter language="yaml" style={atomDark}>
-            {dump(props.entity).trimEnd()}
-          </SyntaxHighlighter>
-          {editor()}
-        </Tabs.TabPane>
-        <Tabs.TabPane key="used_in" tab="Used In">
-          <EntityRelated entity={props?.entity?.entity_id} />
-        </Tabs.TabPane>
-        <Tabs.TabPane key="history" tab="History">
-          <EntityHistory entity={props?.entity?.entity_id} />
-        </Tabs.TabPane>
-        <Tabs.TabPane key="flags" tab="Flags">
-          {flags()}
-        </Tabs.TabPane>
-      </Tabs>
+      {renderTabs()}
     </Card>
   );
 }

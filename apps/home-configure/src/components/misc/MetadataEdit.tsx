@@ -9,9 +9,13 @@ import {
   Input,
   Select,
   Space,
+  Typography,
 } from 'antd';
 import moment from 'moment';
 import React from 'react';
+
+const DESCRIPTION_PLACEHOLDER = property =>
+  `Note to self: why does ${property} exist?`;
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function MetadataEdit(props: {
@@ -20,6 +24,10 @@ export function MetadataEdit(props: {
   onUpdate: (metadata: Partial<RoomMetadataDTO>) => void;
   room: RoomDTO;
 }) {
+  function onComplete() {
+    console.log('hit!!');
+    props.onComplete();
+  }
   function renderValue() {
     const { type, value, options } = props.metadata;
     if (type === 'boolean') {
@@ -71,12 +79,13 @@ export function MetadataEdit(props: {
 
   return (
     <Drawer
+      size="large"
       visible={!is.undefined(props.metadata)}
-      title="Edit Metadata"
-      onClose={() => props.onComplete()}
+      title={<Typography.Text strong>Edit Metadata</Typography.Text>}
+      onClose={() => onComplete()}
     >
       {is.undefined(props.metadata) ? undefined : (
-        <Space direction="vertical">
+        <Space direction="vertical" style={{ width: '100%' }}>
           <Form.Item label="Property name">
             <Input
               defaultValue={props.metadata.name}
@@ -112,6 +121,19 @@ export function MetadataEdit(props: {
               />
             </>
           )}
+          <Divider orientation="left">Description</Divider>
+          <Form.Item>
+            <Input.TextArea
+              style={{ minHeight: '150px' }}
+              defaultValue={props.metadata.description}
+              onBlur={({ target }) =>
+                props.onUpdate({ description: target.value })
+              }
+              placeholder={DESCRIPTION_PLACEHOLDER(
+                props.metadata.name || 'this property',
+              )}
+            />
+          </Form.Item>
         </Space>
       )}
     </Drawer>

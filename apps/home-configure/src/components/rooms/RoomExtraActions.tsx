@@ -36,7 +36,7 @@ export function RoomExtraActions(props: {
           <Menu.Item key="delete">
             <Popconfirm
               icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-              title={`Are you sure you want to delete ${props.room.friendlyName}?`}
+              title={`Are you sure you want to delete ${props.room?.friendlyName}?`}
               onConfirm={() => remove()}
             >
               <Button
@@ -57,7 +57,7 @@ export function RoomExtraActions(props: {
               Clone
             </Button>
           </Menu.Item>
-          <ItemPin type="room" target={props.room._id} menuItem />
+          <ItemPin type="room" target={props.room?._id} menuItem />
         </Menu>
       }
     >

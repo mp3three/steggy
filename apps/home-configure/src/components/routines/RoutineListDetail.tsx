@@ -36,7 +36,7 @@ export function RoutineListDetail(props: {
         >
           {props.routine.friendlyName}
         </Typography.Title>
-        <Tabs type="card">
+        <Tabs>
           <Tabs.TabPane tab="Enabled" key="enabled">
             <RoutineEnabled
               routine={props.routine}

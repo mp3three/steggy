@@ -107,7 +107,7 @@ export function PeopleDetail(props: {
   }
   return (
     <Card
-      title="Person details"
+      title={<Typography.Text strong>Person details</Typography.Text>}
       extra={
         !is.object(props.person) ? undefined : (
           <Dropdown

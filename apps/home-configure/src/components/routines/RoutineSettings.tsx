@@ -163,8 +163,8 @@ export function RoutineSettings(props: {
             }
           >
             {FD_ICONS.get('information')}
+            {` Repeat Runs`}
           </Tooltip>
-          {` Repeat Runs`}
         </Divider>
         <Select
           style={{ width: '250px' }}

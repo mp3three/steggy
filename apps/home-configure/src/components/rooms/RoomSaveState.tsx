@@ -1,6 +1,6 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { RoomDTO, RoomStateDTO } from '@steggy/controller-shared';
-import { DOWN, UP } from '@steggy/utilities';
+import { DOWN, is, UP } from '@steggy/utilities';
 import {
   Button,
   Card,
@@ -10,6 +10,7 @@ import {
   List,
   Popconfirm,
   Space,
+  Typography,
 } from 'antd';
 
 import { FD_ICONS, sendRequest } from '../../types';
@@ -56,7 +57,7 @@ export function RoomSaveStates(props: {
     <Space style={{ width: '100%' }} direction="vertical" size="large">
       <Card
         type="inner"
-        title="Save States"
+        title={<Typography.Text strong>Save States</Typography.Text>}
         extra={
           <Popconfirm
             icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
@@ -73,7 +74,11 @@ export function RoomSaveStates(props: {
               </Form>
             }
           >
-            <Button size="small" icon={FD_ICONS.get('plus_box')}>
+            <Button
+              size="small"
+              type={is.empty(props.room.save_states) ? 'primary' : 'text'}
+              icon={FD_ICONS.get('plus_box')}
+            >
               Create new
             </Button>
           </Popconfirm>
@@ -117,7 +122,10 @@ export function RoomSaveStates(props: {
           )}
         />
       </Card>
-      <Card type="inner" title="Used in routines">
+      <Card
+        type="inner"
+        title={<Typography.Text strong>Used in routines</Typography.Text>}
+      >
         <RelatedRoutines roomState={props.room} />
       </Card>
     </Space>

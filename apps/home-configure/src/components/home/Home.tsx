@@ -2,6 +2,7 @@ import { Col, Layout, Row } from 'antd';
 import React from 'react';
 
 import { PinnedItems } from './PinnedItems';
+import { PinnedMetadata } from './PinnedMetadata';
 import { RecentActivations } from './RecentActivations';
 
 export function HomePage() {
@@ -14,6 +15,9 @@ export function HomePage() {
           </Col>
           <Col span={10} offset={2}>
             <PinnedItems />
+          </Col>
+          <Col span={10}>
+            <PinnedMetadata />
           </Col>
         </Row>
       </Layout.Content>

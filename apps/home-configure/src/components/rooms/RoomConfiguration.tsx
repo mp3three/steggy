@@ -1,7 +1,7 @@
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { GroupDTO, RoomDTO, RoomEntityDTO } from '@steggy/controller-shared';
-import { DOWN, TitleCase, UP } from '@steggy/utilities';
-import { Button, Card, List, Popconfirm, Space } from 'antd';
+import { DOWN, is, TitleCase, UP } from '@steggy/utilities';
+import { Button, Card, List, Popconfirm, Space, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
@@ -152,9 +152,10 @@ export function RoomConfiguration(props: {
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <Card
         type="inner"
-        title="Entities"
+        title={<Typography.Text strong>Entities</Typography.Text>}
         extra={
           <EntityModalPicker
+            highlight={is.empty(props.room.entities)}
             onAdd={entities => addEntities(entities)}
             exclude={props.room.entities.map(({ entity_id }) => entity_id)}
           />
@@ -170,9 +171,10 @@ export function RoomConfiguration(props: {
       </Card>
       <Card
         type="inner"
-        title="Groups"
+        title={<Typography.Text strong>Groups</Typography.Text>}
         extra={
           <GroupModalPicker
+            highlight={is.empty(props.room.groups)}
             exclude={props.room.groups}
             onAdd={groups => addGroups(groups)}
           />

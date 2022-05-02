@@ -36,6 +36,16 @@ export function GroupInspectButton(props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.group]);
 
+  function onUpdate(update: GroupDTO) {
+    setGroup({
+      ...group,
+      ...update,
+    });
+    if (props.onUpdate) {
+      props.onUpdate(update);
+    }
+  }
+
   return (
     <>
       <Drawer
@@ -46,14 +56,14 @@ export function GroupInspectButton(props: {
         extra={
           <GroupExtraActions
             group={group}
-            onUpdate={group => props.onUpdate(group)}
+            onUpdate={group => onUpdate(group)}
           />
         }
       >
         <GroupListDetail
           type="inner"
           group={group}
-          onUpdate={group => props.onUpdate(group)}
+          onUpdate={group => onUpdate(group)}
         />
       </Drawer>
       <Button
