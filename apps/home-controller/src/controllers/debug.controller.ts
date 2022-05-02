@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { JSONFilterService } from '@steggy/boilerplate';
 import { DebugReportDTO, RoutineTriggerEvent } from '@steggy/controller-shared';
 import {
   HACallService,
@@ -11,8 +12,9 @@ import {
   ApiGenericResponse,
   AuthStack,
   GENERIC_SUCCESS_RESPONSE,
+  Locals,
+  ResponseLocals,
 } from '@steggy/server';
-import { DOWN, UP } from '@steggy/utilities';
 
 import {
   DebuggerService,
@@ -35,6 +37,7 @@ export class DebugController {
     private readonly routineEnabled: RoutineEnabledService,
     private readonly socketService: HASocketAPIService,
     private readonly solarCalc: SolarCalcService,
+    private readonly jsonFilter: JSONFilterService,
   ) {}
 
   @Delete(`/notification/:id`)
@@ -105,9 +108,11 @@ export class DebugController {
 
   @Get('/recent-activations')
   @ApiResponse({ type: [RoutineTriggerEvent] })
-  public async recentActivations(): Promise<RoutineTriggerEvent[]> {
+  public async recentActivations(
+    @Locals() { control }: ResponseLocals,
+  ): Promise<RoutineTriggerEvent[]> {
     const list = await this.recorderService.recentRoutines();
-    return list.sort((a, b) => (a.time < b.time ? UP : DOWN));
+    return this.jsonFilter.query(control, list);
   }
 
   @Post('/reload')

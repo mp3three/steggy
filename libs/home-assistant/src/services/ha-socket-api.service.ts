@@ -37,7 +37,7 @@ import {
 } from '../config';
 
 let MESSAGE_TIMESTAMPS: number[] = [];
-// const SHORT_DELAY = 50;
+const SHORT_DELAY = 50;
 
 @Injectable()
 export class HASocketAPIService {
@@ -72,6 +72,7 @@ export class HASocketAPIService {
    * This can be a pretty big list
    */
   public async getAllEntities(): Promise<HassStateDTO[]> {
+    await sleep(SHORT_DELAY);
     this.logger.debug('Update all entities');
     // this.caught = false;
     const states = await this.sendMessage<HassStateDTO[]>({
@@ -82,7 +83,6 @@ export class HASocketAPIService {
     //
     // Note: DID observe the issue with this configuration but w/ this.caught (+related log statements) deleted
     //
-    // await sleep(SHORT_DELAY);
     this.logger.debug('Received all entity update');
     this.eventEmitter.emit(ALL_ENTITIES_UPDATED, states);
     this.logger.debug('AFTER ALL_ENTITIES_UPDATED');

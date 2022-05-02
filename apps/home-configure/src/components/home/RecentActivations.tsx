@@ -21,6 +21,9 @@ export function RecentActivations() {
   async function refresh(): Promise<void> {
     setEvents(
       await sendRequest<RoutineTriggerEvent[]>({
+        control: {
+          sort: ['time'],
+        },
         url: `/debug/recent-activations`,
       }),
     );
