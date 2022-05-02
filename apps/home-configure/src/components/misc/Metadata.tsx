@@ -288,6 +288,7 @@ export function RoomMetadata(props: {
       </Space>
       <MetadataEdit
         room={item}
+        type={base}
         metadata={metadata}
         onUpdate={metadata => updateMetadata(metadata)}
         onComplete={() => setMetadata(undefined)}

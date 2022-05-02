@@ -42,6 +42,9 @@ export function SelectedPerson() {
             }
           >
             <Select value={person?._id} onChange={value => load(value)}>
+              <Select.Option key={undefined} value={undefined}>
+                <Typography.Text type="warning">None</Typography.Text>
+              </Select.Option>
               {people.map(person => (
                 <Select.Option key={person._id} value={person._id}>
                   {person.friendlyName}

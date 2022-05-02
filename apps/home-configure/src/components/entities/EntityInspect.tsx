@@ -13,6 +13,7 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
+import dayjs from 'dayjs';
 import { dump } from 'js-yaml';
 import React from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
@@ -25,6 +26,7 @@ import { EntityHistory } from './EntityHistory';
 import { EntityIdChange } from './EntityIdChange';
 import { EntityRelated } from './EntityRelated';
 
+const LOAD_TIME = dayjs();
 // eslint-disable-next-line radar/cognitive-complexity
 export function EntityInspect(props: {
   entity: HassStateDTO;
@@ -185,7 +187,17 @@ export function EntityInspect(props: {
   if (is.undefined(props?.entity)) {
     return (
       <Card>
-        <Empty description="Select an entity" />
+        {dayjs().subtract(1, 'hour').isBefore(LOAD_TIME) ? (
+          <Empty description="Select an entity" />
+        ) : (
+          <Empty
+            description={
+              <Tooltip title={`Hurry up! 🦕 Steggy is getting bored `}>
+                Select an entity
+              </Tooltip>
+            }
+          />
+        )}
       </Card>
     );
   }

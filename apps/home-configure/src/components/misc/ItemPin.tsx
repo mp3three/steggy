@@ -17,7 +17,15 @@ export function ItemPin(props: {
       <Menu.Item>
         <CurrentUserContext.Consumer>
           {({ person, togglePin }) =>
-            isPinned(person) ? (
+            !person ? (
+              <Button
+                disabled
+                icon={FD_ICONS.get('pin_off')}
+                style={{ textAlign: 'start', width: '100%' }}
+              >
+                Pin
+              </Button>
+            ) : isPinned(person) ? (
               <Button
                 style={{ textAlign: 'start', width: '100%' }}
                 onClick={() => togglePin(props.type, props.target, false)}

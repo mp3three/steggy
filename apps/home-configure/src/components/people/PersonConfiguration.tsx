@@ -233,7 +233,9 @@ export function PersonConfiguration(props: {
           <EntityModalPicker
             highlight={is.empty(props.person.entities)}
             onAdd={items => addEntities(items)}
-            exclude={props.person.entities.map(({ entity_id }) => entity_id)}
+            exclude={(props.person?.entities ?? []).map(
+              ({ entity_id }) => entity_id,
+            )}
           />
         }
       >

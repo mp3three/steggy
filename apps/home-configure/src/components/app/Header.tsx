@@ -2,6 +2,7 @@ import { START } from '@steggy/utilities';
 import { Avatar, Col, Layout, Row, Typography } from 'antd';
 
 import { CurrentUserContext } from '../../types';
+import { PersonInspectButton } from '../people';
 
 export function Header() {
   return (
@@ -19,7 +20,9 @@ export function Header() {
                 {(person?.friendlyName ?? '?').charAt(START)}
               </Avatar>
               <Typography.Text strong>
-                {person?.friendlyName ?? (
+                {person ? (
+                  <PersonInspectButton person={person} />
+                ) : (
                   <Typography.Text code>None Selected</Typography.Text>
                 )}
               </Typography.Text>

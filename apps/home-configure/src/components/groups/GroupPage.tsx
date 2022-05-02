@@ -9,11 +9,10 @@ import { GroupListDetail } from './GroupListDetail';
 
 const { Content } = Layout;
 
-let lastTab: `${GROUP_TYPES}` = 'light';
-
 export function GroupPage() {
   const [group, setGroup] = useState<GroupDTO>();
   const [groups, setGroups] = useState<GroupDTO[]>([]);
+  const [lastTab, setLastTab] = useState<`${GROUP_TYPES}`>('light');
 
   useEffect(() => {
     refresh();
@@ -80,7 +79,7 @@ export function GroupPage() {
     if (lastTab === type) {
       return;
     }
-    lastTab = type;
+    setLastTab(type);
     setGroup(undefined);
   }
 

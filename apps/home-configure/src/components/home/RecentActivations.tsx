@@ -35,11 +35,12 @@ export function RecentActivations() {
     if (is.empty(source)) {
       return <Typography.Text type="secondary">None listed</Typography.Text>;
     }
-    const activate = routine.activate.find(({ id }) => id === source);
+
+    const activate = (routine?.activate ?? []).find(({ id }) => id === source);
     if (activate) {
       return (
         <Typography.Text code>
-          Activation event: {activate.friendlyName}
+          Activation event: {activate?.friendlyName}
         </Typography.Text>
       );
     }
