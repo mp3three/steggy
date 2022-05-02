@@ -15,7 +15,7 @@ import {
 import { DataNode, EventDataNode } from 'antd/lib/tree';
 import type { NodeDragEventParams } from 'rc-tree/lib/contextTypes';
 import { Key } from 'rc-tree/lib/interface';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 

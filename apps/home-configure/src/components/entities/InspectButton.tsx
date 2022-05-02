@@ -1,7 +1,7 @@
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
 import { Button, Drawer, notification, Typography } from 'antd';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { sendRequest } from '../../types';
 import { EntityInspect } from './EntityInspect';

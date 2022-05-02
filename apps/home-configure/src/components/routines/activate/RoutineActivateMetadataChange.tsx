@@ -1,6 +1,5 @@
 import { MetadataChangeDTO } from '@steggy/controller-shared';
 import { Checkbox, Divider, Form, Space, Tooltip, Typography } from 'antd';
-import React from 'react';
 
 import { RoomMetadataComparison } from '../../misc';
 

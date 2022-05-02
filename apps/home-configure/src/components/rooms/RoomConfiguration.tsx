@@ -2,7 +2,7 @@ import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { GroupDTO, RoomDTO, RoomEntityDTO } from '@steggy/controller-shared';
 import { DOWN, is, TitleCase, UP } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm, Space, Typography } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
 import { EntityModalPicker } from '../entities';

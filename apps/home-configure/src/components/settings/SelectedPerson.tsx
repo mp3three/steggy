@@ -1,6 +1,6 @@
 import { PersonDTO } from '@steggy/controller-shared';
 import { Card, Form, Select, Tooltip, Typography } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { CurrentUserContext, FD_ICONS, sendRequest } from '../../types';
 

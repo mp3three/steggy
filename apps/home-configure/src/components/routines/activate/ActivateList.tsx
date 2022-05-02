@@ -6,7 +6,7 @@ import {
 } from '@steggy/controller-shared';
 import { ARRAY_OFFSET, TitleCase } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm } from 'antd';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { sendRequest } from '../../../types';
 import { RoutineActivateDrawer } from '../RoutineActivateDrawer';

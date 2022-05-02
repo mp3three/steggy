@@ -13,7 +13,6 @@ import {
   Tabs,
   Typography,
 } from 'antd';
-import React from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 import { ItemPin, RoomMetadata } from '../misc';

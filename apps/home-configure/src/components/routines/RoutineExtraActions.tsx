@@ -1,7 +1,6 @@
 import { RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Button, Dropdown, Menu, Popconfirm } from 'antd';
-import React from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 import { ItemPin } from '../misc';

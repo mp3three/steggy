@@ -6,7 +6,7 @@ import {
 } from '@steggy/controller-shared';
 import { each, is, ResultControlDTO } from '@steggy/utilities';
 import { Button, Drawer, List, Skeleton, Tabs } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { RELATED_ROUTINES, sendRequest } from '../../types';
 import { RoomStateEdit } from '../rooms/states';

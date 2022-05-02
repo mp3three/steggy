@@ -1,5 +1,4 @@
 import { Col, Layout, Row, Tabs } from 'antd';
-import React from 'react';
 
 import { FD_ICONS } from '../../types';
 import { PinnedItems } from './PinnedItems';

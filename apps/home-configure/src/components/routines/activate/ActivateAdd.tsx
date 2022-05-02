@@ -1,6 +1,6 @@
 import { RoutineActivateDTO, RoutineDTO } from '@steggy/controller-shared';
 import { Button, Drawer, Empty, List } from 'antd';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { FD_ICONS, ROUTINE_ACTIVATE_LIST, sendRequest } from '../../../types';
 

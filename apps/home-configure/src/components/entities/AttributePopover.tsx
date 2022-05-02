@@ -1,6 +1,5 @@
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { Space, Table, Typography } from 'antd';
-import React from 'react';
 
 export function EntityAttributePopover({ state }: { state: HassStateDTO }) {
   const attributes = state.attributes;

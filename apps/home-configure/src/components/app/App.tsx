@@ -1,7 +1,7 @@
 import { PersonDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Layout, notification, Typography } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 

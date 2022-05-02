@@ -16,7 +16,7 @@ import {
   Tabs,
   Typography,
 } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 import { RoutineListDetail } from '../routines';

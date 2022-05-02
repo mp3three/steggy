@@ -2,7 +2,7 @@ import { DeviceTriggerActivateDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Divider, Empty, Form, Input, Space, Tooltip } from 'antd';
 import { dump, load } from 'js-yaml';
-import React from 'react';
+
 import { Link } from 'react-router-dom';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';

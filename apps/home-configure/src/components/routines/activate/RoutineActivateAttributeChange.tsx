@@ -14,7 +14,7 @@ import {
   Typography,
 } from 'antd';
 import { dump } from 'js-yaml';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 

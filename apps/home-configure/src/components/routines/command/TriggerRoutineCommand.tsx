@@ -6,7 +6,7 @@ import {
 import { DOWN, is, UP } from '@steggy/utilities';
 import { Checkbox, Divider, Empty, Space, Typography } from 'antd';
 import Tree, { DataNode } from 'antd/lib/tree';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../../types';
 

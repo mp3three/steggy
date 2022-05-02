@@ -10,7 +10,6 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import React from 'react';
 
 import { IsAuthContext } from '../../types';
 import { DebuggerSettings } from './DebuggerSettings';

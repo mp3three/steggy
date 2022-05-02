@@ -2,7 +2,7 @@ import { SolarActivateDTO } from '@steggy/controller-shared';
 import { DOWN, UP } from '@steggy/utilities';
 import { Button, List, Tooltip, Typography } from 'antd';
 import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import SolarCalc from 'solar-calc/types/solarCalc';
 
 import { FD_ICONS, sendRequest } from '../../../types';

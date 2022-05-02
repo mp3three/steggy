@@ -10,7 +10,7 @@ import {
   Space,
   Typography,
 } from 'antd';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function FilterValue(props: {

@@ -10,7 +10,7 @@ import {
 } from '@steggy/controller-shared';
 import { ARRAY_OFFSET, is, TitleCase } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm, Space, Table } from 'antd';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   SortableContainer,
   SortableElement,

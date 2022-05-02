@@ -1,7 +1,6 @@
 import { RoomDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Card, Empty, Form, Input, Tabs, Typography } from 'antd';
-import React from 'react';
 
 import { sendRequest } from '../../types';
 import { RoomMetadata } from '../misc';

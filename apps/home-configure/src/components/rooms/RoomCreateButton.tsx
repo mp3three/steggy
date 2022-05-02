@@ -1,6 +1,5 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Button, Form, FormInstance, Input, Popconfirm } from 'antd';
-import React from 'react';
 
 import { sendRequest } from '../../types';
 

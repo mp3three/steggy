@@ -8,7 +8,6 @@ import {
   RoutineWebhookComparisonDTO,
 } from '@steggy/controller-shared';
 import { Button, Drawer, Typography } from 'antd';
-import React from 'react';
 
 import {
   AttributeComparison,

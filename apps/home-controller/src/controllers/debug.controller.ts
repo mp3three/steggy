@@ -93,6 +93,7 @@ export class DebugController {
   @ApiOperation({
     description: `Retrieve home assistant persistent notifications`,
   })
+  @UseInterceptors(JSONFilterInterceptor)
   public async getNotifications(): Promise<HassNotificationDTO[]> {
     return await this.socketService.getNotifications();
   }
@@ -107,6 +108,7 @@ export class DebugController {
   }
 
   @Get(`/node-red/commands`)
+  @UseInterceptors(JSONFilterInterceptor)
   public async nodeRedCommands(): Promise<Record<'id' | 'name', string>[]> {
     return await this.nodeRed.listAvailable();
   }

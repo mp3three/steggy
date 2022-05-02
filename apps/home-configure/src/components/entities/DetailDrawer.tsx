@@ -2,7 +2,7 @@ import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { HassStateDTO } from '@steggy/home-assistant-shared';
 import { Button, Col, Drawer, Empty, Row } from 'antd';
 import { dump } from 'js-yaml';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 

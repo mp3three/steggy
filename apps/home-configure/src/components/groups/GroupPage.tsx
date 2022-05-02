@@ -1,7 +1,7 @@
 import type { GROUP_TYPES, GroupDTO } from '@steggy/controller-shared';
 import { is, NOT_FOUND } from '@steggy/utilities';
 import { Button, Card, Col, Layout, List, Row, Tabs } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { GROUP_DESCRIPTIONS, sendRequest } from '../../types';
 import { GroupCreateButton } from './GroupCreateButton';

@@ -10,7 +10,6 @@ import {
   Tabs,
   Typography,
 } from 'antd';
-import React from 'react';
 
 import { sendRequest } from '../../types';
 import { EntityInspectButton, EntityModalPicker } from '../entities';

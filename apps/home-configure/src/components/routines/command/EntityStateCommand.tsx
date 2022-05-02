@@ -1,7 +1,7 @@
 import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Divider, Empty, Form, Skeleton, Space } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { domain, sendRequest } from '../../../types';
 import {

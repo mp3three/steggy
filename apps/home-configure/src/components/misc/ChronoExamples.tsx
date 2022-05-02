@@ -1,7 +1,6 @@
 import { is } from '@steggy/utilities';
 import { Card, Divider, List, Skeleton, Typography } from 'antd';
 import { parse } from 'chrono-node';
-import React from 'react';
 
 const single = [
   'today at 11:30PM',

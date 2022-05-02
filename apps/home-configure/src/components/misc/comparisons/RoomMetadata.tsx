@@ -7,7 +7,7 @@ import {
 } from '@steggy/controller-shared';
 import { FILTER_OPERATIONS, is } from '@steggy/utilities';
 import { Card, Form, Select, Skeleton } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../../types';
 import { CompareValue } from '../CompareValue';

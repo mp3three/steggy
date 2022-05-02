@@ -18,7 +18,7 @@ import {
   Table,
   Typography,
 } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { domain, sendRequest } from '../../../types';
 import {

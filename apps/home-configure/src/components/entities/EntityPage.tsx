@@ -22,7 +22,7 @@ import {
 } from 'antd';
 import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 import { EntityInspect } from './EntityInspect';

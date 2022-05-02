@@ -1,10 +1,10 @@
 import { RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Card, Empty, Space, Tabs, Typography } from 'antd';
-import React from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 import { ActivateList } from './activate';
+import { ActivateHistory } from './ActivateHistory';
 import { CommandList } from './command';
 import { RoutineEnabled } from './RoutineEnabled';
 import { RoutineExtraActions } from './RoutineExtraActions';
@@ -22,7 +22,13 @@ export function RoutineListDetail(props: {
       method: 'put',
       url: `/routine/${props.routine._id}`,
     });
-    props.onUpdate(routine);
+    onUpdate(routine);
+  }
+
+  function onUpdate(routine: RoutineDTO) {
+    if (onUpdate) {
+      onUpdate(routine);
+    }
   }
 
   function renderCard() {
@@ -40,7 +46,7 @@ export function RoutineListDetail(props: {
           <Tabs.TabPane tab="Enabled" key="enabled">
             <RoutineEnabled
               routine={props.routine}
-              onUpdate={routine => props.onUpdate(routine)}
+              onUpdate={routine => onUpdate(routine)}
             />
           </Tabs.TabPane>
           <Tabs.TabPane
@@ -49,7 +55,7 @@ export function RoutineListDetail(props: {
                 {is.empty(props.routine.activate)
                   ? FD_ICONS.get('warning')
                   : undefined}
-                Activation Events
+                Activations
               </>
             }
             key="activate"
@@ -57,7 +63,7 @@ export function RoutineListDetail(props: {
             <ActivateList
               highlight={is.empty(props.routine.activate)}
               routine={props.routine}
-              onUpdate={routine => props.onUpdate(routine)}
+              onUpdate={routine => onUpdate(routine)}
             />
           </Tabs.TabPane>
           <Tabs.TabPane
@@ -74,13 +80,19 @@ export function RoutineListDetail(props: {
             <CommandList
               highlight={is.empty(props.routine.command)}
               routine={props.routine}
-              onUpdate={routine => props.onUpdate(routine)}
+              onUpdate={routine => onUpdate(routine)}
+            />
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="History" key="history">
+            <ActivateHistory
+              routine={props.routine}
+              onUpdate={update => onUpdate(update)}
             />
           </Tabs.TabPane>
           <Tabs.TabPane tab="Settings" key="settings">
             <RoutineSettings
               routine={props.routine}
-              onUpdate={routine => props.onUpdate(routine)}
+              onUpdate={routine => onUpdate(routine)}
             />
           </Tabs.TabPane>
         </Tabs>
@@ -99,7 +111,7 @@ export function RoutineListDetail(props: {
           <RoutineExtraActions
             routine={props.routine}
             onClone={props.onClone}
-            onUpdate={props.onUpdate}
+            onUpdate={update => onUpdate(update)}
           />
         )
       }

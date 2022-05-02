@@ -1,7 +1,6 @@
 import { RoutineDTO } from '@steggy/controller-shared';
 import { TitleCase } from '@steggy/utilities';
 import { Button, Divider, List, Popconfirm, Space, Typography } from 'antd';
-import React from 'react';
 
 import { sendRequest } from '../../types';
 

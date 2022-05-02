@@ -1,7 +1,7 @@
 import { GroupDTO, RoomDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Button, Card, Drawer, List } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
 import { RoomListDetail } from '../rooms';

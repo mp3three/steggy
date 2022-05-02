@@ -1,6 +1,6 @@
 import { RoutineCommandNodeRedDTO } from '@steggy/controller-shared';
 import { Select, Space, Typography } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../../types';
 

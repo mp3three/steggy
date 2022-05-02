@@ -21,7 +21,7 @@ import {
 } from 'antd';
 import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 

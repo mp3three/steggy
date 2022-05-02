@@ -1,7 +1,7 @@
 import { PersonDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Button, Drawer, Typography } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
 import { PeopleDetail } from './PeopleDetail';

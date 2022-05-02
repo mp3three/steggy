@@ -14,7 +14,7 @@ import {
   Select,
   Skeleton,
 } from 'antd';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { v4 as uuid } from 'uuid';
 
 import { GenericComparison } from '../../misc';

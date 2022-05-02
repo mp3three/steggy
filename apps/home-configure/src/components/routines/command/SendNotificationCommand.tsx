@@ -1,6 +1,5 @@
 import { RoutineCommandSendNotificationDTO } from '@steggy/controller-shared';
 import { Form, Input, Select, Typography } from 'antd';
-import React from 'react';
 
 export function SendNotificationCommand(props: {
   command?: RoutineCommandSendNotificationDTO;

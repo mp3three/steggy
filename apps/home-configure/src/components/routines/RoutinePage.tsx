@@ -1,7 +1,7 @@
 import { RoutineDTO } from '@steggy/controller-shared';
 import { is, SECOND } from '@steggy/utilities';
 import { Col, Layout, Row } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
 import { RoutineListDetail } from './RoutineListDetail';

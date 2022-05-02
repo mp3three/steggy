@@ -2,7 +2,7 @@ import { INCREMENT, INVERT_VALUE, is, START } from '@steggy/utilities';
 import { Select } from 'antd';
 import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 const TEMP_TEMPLATE_SIZE = 3;
 
 function highlight(result) {

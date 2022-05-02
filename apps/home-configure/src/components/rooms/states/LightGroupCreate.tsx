@@ -2,7 +2,6 @@ import { GroupSaveStateDTO } from '@steggy/controller-shared';
 import { LightAttributesDTO } from '@steggy/home-assistant-shared';
 import { TitleCase } from '@steggy/utilities';
 import { Table, Typography } from 'antd';
-import React from 'react';
 
 export function LightGroupCreate(props: { state: GroupSaveStateDTO }) {
   return (

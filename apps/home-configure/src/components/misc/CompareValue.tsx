@@ -1,6 +1,5 @@
 import { FILTER_OPERATIONS, is } from '@steggy/utilities';
 import { Form, Select, Skeleton } from 'antd';
-import React from 'react';
 
 import { FilterValue } from './FilterValue';
 

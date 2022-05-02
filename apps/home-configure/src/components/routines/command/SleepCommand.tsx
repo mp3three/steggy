@@ -1,6 +1,5 @@
 import { RoutineCommandSleepDTO } from '@steggy/controller-shared';
 import { InputNumber } from 'antd';
-import React from 'react';
 
 export function SleepCommand(props: {
   command?: RoutineCommandSleepDTO;

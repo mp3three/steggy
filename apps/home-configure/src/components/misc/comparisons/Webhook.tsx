@@ -1,7 +1,6 @@
 import { RoutineWebhookComparisonDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Button, Card, Divider, Form, Input, Radio } from 'antd';
-import React from 'react';
 
 import { CompareValue } from '../CompareValue';
 import { WebhookRequest } from '../WebhookRequest';

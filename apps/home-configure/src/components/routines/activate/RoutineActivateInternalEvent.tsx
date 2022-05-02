@@ -1,6 +1,5 @@
 import { InternalEventActivateDTO } from '@steggy/controller-shared';
 import { Form, Input, Select, Space } from 'antd';
-import React from 'react';
 
 export const ALL_EVENTS = [
   'GROUP_UPDATE',

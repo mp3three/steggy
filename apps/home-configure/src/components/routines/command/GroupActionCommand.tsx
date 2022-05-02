@@ -4,7 +4,7 @@ import {
 } from '@steggy/controller-shared';
 import { TitleCase } from '@steggy/utilities';
 import { Empty, Form, Select, Space } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../../types';
 import { LightGroupAction } from '../../groups';

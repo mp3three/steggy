@@ -1,6 +1,5 @@
 import { GROUP_TYPES } from '@steggy/controller-shared';
 import { Descriptions, Typography } from 'antd';
-import React from 'react';
 
 export const GROUP_DESCRIPTIONS = new Map<`${GROUP_TYPES}`, React.ReactElement>(
   [

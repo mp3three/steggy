@@ -2,7 +2,7 @@ import { QuestionOutlined } from '@ant-design/icons';
 import { RoutineTemplateComparisonDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Button, Card, Form, Input, Tooltip } from 'antd';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 

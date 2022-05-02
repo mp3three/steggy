@@ -1,6 +1,6 @@
 import { RoomDTO, RoutineCommandRoomStateDTO } from '@steggy/controller-shared';
 import { Form, Select, Skeleton, Space } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../../types';
 

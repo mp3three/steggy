@@ -4,7 +4,7 @@ import {
   RoutineCommandWebhookDTO,
 } from '@steggy/controller-shared';
 import { Button, Form, Input, Select, Space, Table, Typography } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
 

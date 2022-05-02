@@ -1,6 +1,5 @@
 import { RoutineCommandGroupActionDTO } from '@steggy/controller-shared';
 import { Form, Radio, Slider } from 'antd';
-import React from 'react';
 
 type tCommand = Omit<
   RoutineCommandGroupActionDTO<{ brightness: number }>,
