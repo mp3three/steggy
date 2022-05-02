@@ -21,7 +21,7 @@ import {
 import { GenericController } from '../controllers';
 import { BasicExceptionFilter } from '../filters';
 import { AdminKeyGuard, IsAuthorizedGuard } from '../guards';
-import { LoggingInterceptor } from '../interceptors';
+import { JSONFilterInterceptor, LoggingInterceptor } from '../interceptors';
 import { InitMiddleware } from '../middleware';
 import { MiddlewareService, RouteInjector, SwaggerService } from '../services';
 
@@ -109,6 +109,7 @@ import { MiddlewareService, RouteInjector, SwaggerService } from '../services';
     GenericController,
     InitMiddleware,
     IsAuthorizedGuard,
+    JSONFilterInterceptor,
     LoggingInterceptor,
     MiddlewareService,
     RouteInjector,
