@@ -26,8 +26,8 @@ export function RoutineListDetail(props: {
   }
 
   function onUpdate(routine: RoutineDTO) {
-    if (onUpdate) {
-      onUpdate(routine);
+    if (props.onUpdate) {
+      props.onUpdate(routine);
     }
   }
 

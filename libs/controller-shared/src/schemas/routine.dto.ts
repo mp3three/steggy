@@ -64,6 +64,15 @@ export class RoutineDTO {
   @ApiProperty({ required: false })
   public deleted?: number;
 
+  /**
+   * Human readable/provided long form description
+   */
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ required: false })
+  @Prop()
+  public description?: string;
+
   @ValidateNested()
   @IsOptional()
   @ApiProperty({ required: false, type: [RoutineEnableDTO] })

@@ -22,7 +22,7 @@ export function RoutineActivateKunami(props: {
   activate: SequenceActivateDTO;
   onUpdate: (activate: Partial<SequenceActivateDTO>) => void;
 }) {
-  const [entityList, setEntityList] = useState<string[]>();
+  const [entityList, setEntityList] = useState<string[]>([]);
   const [isRecording, setIsRecording] = useState<boolean>();
   const [recordLabel, setRecordLabel] = useState<string>();
   const [recordProgress, setRecordProgress] = useState<number>();

@@ -48,7 +48,11 @@ export function renderDateExpression(expression: string) {
 
 export function ChronoExamples(props: { range?: boolean }) {
   return (
-    <Card type="inner" title="Examples" style={{ marginTop: '16px' }}>
+    <Card
+      type="inner"
+      title={<Typography.Text strong>Examples</Typography.Text>}
+      style={{ marginTop: '16px' }}
+    >
       <List
         pagination={{ size: 'small' }}
         dataSource={[...single, ...(props.range ? range : [])]}

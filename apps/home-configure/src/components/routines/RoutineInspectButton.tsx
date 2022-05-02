@@ -1,6 +1,6 @@
 import { RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
-import { Button, Drawer, Typography } from 'antd';
+import { Button, Drawer, Tooltip, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
@@ -48,6 +48,16 @@ export function RoutineInspectButton(props: {
     }
   }
 
+  const ACTIVATE_BUTTON = (
+    <Button
+      size="small"
+      type={visible ? 'primary' : 'text'}
+      onClick={() => setVisible(true)}
+    >
+      {routine?.friendlyName}
+    </Button>
+  );
+
   return (
     <>
       <Drawer
@@ -68,13 +78,11 @@ export function RoutineInspectButton(props: {
           onUpdate={update => onUpdate(update)}
         />
       </Drawer>
-      <Button
-        size="small"
-        type={visible ? 'primary' : 'text'}
-        onClick={() => setVisible(true)}
-      >
-        {routine?.friendlyName}
-      </Button>
+      {is.empty(routine.description) ? (
+        ACTIVATE_BUTTON
+      ) : (
+        <Tooltip title={routine.description}>{ACTIVATE_BUTTON}</Tooltip>
+      )}
     </>
   );
 }

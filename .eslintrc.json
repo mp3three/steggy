@@ -34,8 +34,11 @@
             "strings": true,
             "minLength": 3,
             "identifiers": true,
+            "skipIfMatch": [
+              // Anything with a number is fine
+              "[0-9]"
+            ],
             "skipWords": [
-              "2fd",
               "abortable",
               "activations",
               "aes",
@@ -174,7 +177,6 @@
               "uri",
               "urls",
               "utf",
-              "utf8",
               "vm",
               "wasm",
               "webhook",

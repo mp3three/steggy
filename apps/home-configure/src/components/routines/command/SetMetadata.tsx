@@ -26,18 +26,20 @@ export function SetRoomMetadataCommand(props: {
   command?: SetRoomMetadataCommandDTO;
   onUpdate: (command: Partial<SetRoomMetadataCommandDTO>) => void;
 }) {
-  const [people, setPeople] =
-    useState<Pick<PersonDTO, '_id' | 'friendlyName' | 'metadata'>[]>();
-  const [rooms, setRooms] =
-    useState<Pick<RoomDTO, '_id' | 'friendlyName' | 'metadata'>[]>();
+  const [people, setPeople] = useState<
+    Pick<PersonDTO, '_id' | 'friendlyName' | 'metadata'>[]
+  >([]);
+  const [rooms, setRooms] = useState<
+    Pick<RoomDTO, '_id' | 'friendlyName' | 'metadata'>[]
+  >([]);
 
   const room =
     rooms.find(({ _id }) => _id === props.command?.room) ||
     people.find(({ _id }) => _id === props.command?.room);
 
-  const value = room.metadata.find(
+  const value = (room?.metadata ?? []).find(
     ({ name }) => name === props.command.name,
-  ).value;
+  )?.value;
 
   useEffect(() => {
     async function refresh(): Promise<void> {
@@ -85,7 +87,7 @@ export function SetRoomMetadataCommand(props: {
   }
 
   function renderValue() {
-    if (!room || is.empty(room.metadata)) {
+    if (is.empty(room?.metadata)) {
       return <Skeleton.Input active />;
     }
     const metadata = room.metadata.find(
@@ -130,19 +132,21 @@ export function SetRoomMetadataCommand(props: {
 
   function renderValueDate() {
     return (
-      <Form.Item label="Value">
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <Input
-            placeholder="tomorrow"
-            defaultValue={String(props.command.value)}
-            onBlur={({ target }) => props.onUpdate({ value: target.value })}
-          />
-          <Typography.Paragraph>
-            {renderDateExpression(props.command.value as string)}
-          </Typography.Paragraph>
-          <ChronoExamples />
-        </Space>
-      </Form.Item>
+      <>
+        <Form.Item label="Value">
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <Input
+              placeholder="tomorrow"
+              defaultValue={String(props.command.value)}
+              onBlur={({ target }) => props.onUpdate({ value: target.value })}
+            />
+            <Typography.Paragraph>
+              {renderDateExpression(props.command.value as string)}
+            </Typography.Paragraph>
+          </Space>
+        </Form.Item>
+        <ChronoExamples />
+      </>
     );
   }
 

@@ -148,7 +148,10 @@ export function RoutineActivateDrawer(props: {
         </Typography.Text>
       }
     >
-      <Card type="inner" title="Activation Event">
+      <Card
+        type="inner"
+        title={<Typography.Text strong>Activation Event</Typography.Text>}
+      >
         <Form labelCol={{ span: 4 }}>{renderType()}</Form>
       </Card>
       {props.activate.type === 'state_change' ? (

@@ -45,7 +45,7 @@ export class LoggingInterceptor implements NestInterceptor {
           message,
         );
         // This results in double errors
-        // One coming from here, one from nestsjs (with undefined context?)
+        // One coming from here, one from nestjs (with undefined context?)
         return throwError(() => error);
       }),
     );

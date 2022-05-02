@@ -5,13 +5,14 @@ import {
   Checkbox,
   Descriptions,
   Divider,
+  Input,
   Popover,
   Select,
   Space,
   Tooltip,
   Typography,
 } from 'antd';
-
+import { useEffect, useState } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -21,6 +22,8 @@ export function RoutineSettings(props: {
   onUpdate: (routine: RoutineDTO) => void;
   routine: RoutineDTO;
 }) {
+  const [description, setDescription] = useState('');
+
   async function update(body: Partial<RoutineDTO>): Promise<void> {
     const routine = await sendRequest<RoutineDTO>({
       body,
@@ -29,6 +32,14 @@ export function RoutineSettings(props: {
     });
     props.onUpdate(routine);
   }
+
+  function updateDescription() {
+    update({ description });
+  }
+
+  useEffect(() => {
+    setDescription(props.routine.description);
+  }, [props.routine.description, props.routine._id]);
 
   return (
     <Card type="inner">
@@ -114,7 +125,6 @@ export function RoutineSettings(props: {
             </Popover>
           </Descriptions.Item>
         </Descriptions>
-
         <Divider />
         <Checkbox
           checked={props.routine.sync}
@@ -198,6 +208,14 @@ export function RoutineSettings(props: {
               : undefined}
           </Typography.Paragraph>
         )}
+        <Divider orientation="left">Description</Divider>
+        <Input.TextArea
+          value={description}
+          placeholder="Long form text description for personal use."
+          onChange={({ target }) => setDescription(target.value)}
+          onBlur={() => updateDescription()}
+          style={{ minHeight: '150px' }}
+        />
       </Space>
     </Card>
   );

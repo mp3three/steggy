@@ -199,7 +199,10 @@ export function RoutineCommandDrawer(props: {
         </Space>
       }
     >
-      <Card title="Command Action" type="inner">
+      <Card
+        title={<Typography.Text strong>Command Action</Typography.Text>}
+        type="inner"
+      >
         <Form labelCol={{ span: 4 }}>{renderType()}</Form>
       </Card>
     </Drawer>

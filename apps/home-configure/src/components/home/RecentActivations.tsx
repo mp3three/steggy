@@ -1,14 +1,21 @@
-import { RoutineDTO, RoutineTriggerEvent } from '@steggy/controller-shared';
+import {
+  ROUTINE_ACTIVATE_TYPES,
+  RoutineActivateDTO,
+  RoutineDTO,
+  RoutineTriggerEvent,
+} from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Button, Card, Table, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
-import { RoutineInspectButton } from '../routines/RoutineInspectButton';
+import { RoutineActivateDrawer, RoutineInspectButton } from '../routines';
 
 export function RecentActivations() {
   const [events, setEvents] = useState<RoutineTriggerEvent[]>([]);
   const [routines, setRoutines] = useState<RoutineDTO[]>([]);
+  const [routine, setRoutine] = useState<RoutineDTO>();
+  const [activate, setActivate] = useState<RoutineActivateDTO>();
 
   useEffect(() => {
     refresh();
@@ -38,16 +45,43 @@ export function RecentActivations() {
     if (is.empty(source)) {
       return <Typography.Text type="secondary">None listed</Typography.Text>;
     }
-
-    const activate = (routine?.activate ?? []).find(({ id }) => id === source);
-    if (activate) {
+    const item = (routine?.activate ?? []).find(({ id }) => id === source);
+    // If the activation event is deleted, then the text id will be printed
+    // Better than nothing 🤷
+    //
+    // Also may print plain text descriptions (ex: manual activate)
+    //
+    if (item) {
       return (
-        <Typography.Text code>
-          Activation event: {activate?.friendlyName}
-        </Typography.Text>
+        <Button
+          size="small"
+          onClick={() => {
+            setActivate(item);
+            setRoutine(routine);
+          }}
+          type={item.id === activate?.id ? 'primary' : 'text'}
+        >
+          {item?.friendlyName}
+        </Button>
       );
     }
     return source;
+  }
+
+  async function updateActivate(
+    body: Partial<ROUTINE_ACTIVATE_TYPES>,
+  ): Promise<void> {
+    const update = await sendRequest<RoutineDTO>({
+      body,
+      method: 'put',
+      url: `/routine/${routine._id}/activate/${activate.id}`,
+    });
+    body = routine.activate.find(({ id }) => id === activate.id);
+    setRoutine(update);
+    setRoutines(
+      routines.map(item => (item._id === update._id ? update : item)),
+    );
+    setActivate(update.activate.find(({ id }) => id === activate.id));
   }
 
   return (
@@ -95,6 +129,12 @@ export function RecentActivations() {
           }
         />
       </Table>
+      <RoutineActivateDrawer
+        routine={routine}
+        onUpdate={activate => updateActivate(activate)}
+        onComplete={() => setActivate(undefined)}
+        activate={activate}
+      />
     </Card>
   );
 }
