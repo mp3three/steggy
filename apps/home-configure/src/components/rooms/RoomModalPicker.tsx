@@ -139,14 +139,6 @@ export function RoomModalPicker(props: {
 
   return (
     <>
-      <Button
-        onClick={e => show(e)}
-        size="small"
-        type={props.highlight ? 'primary' : 'text'}
-        icon={FD_ICONS.get('plus_box')}
-      >
-        Add groups
-      </Button>
       <Modal
         title="Room List Builder"
         visible={modalVisible}
@@ -226,6 +218,14 @@ export function RoomModalPicker(props: {
           </>
         )}
       </Modal>
+      <Button
+        onClick={e => show(e)}
+        size="small"
+        type={props.highlight ? 'primary' : 'text'}
+        icon={FD_ICONS.get('plus_box')}
+      >
+        Add rooms
+      </Button>
     </>
   );
 }

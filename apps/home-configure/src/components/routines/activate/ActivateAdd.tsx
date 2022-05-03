@@ -1,5 +1,5 @@
 import { RoutineActivateDTO, RoutineDTO } from '@steggy/controller-shared';
-import { Button, Drawer, Empty, List } from 'antd';
+import { Button, Drawer, Empty, List, Typography } from 'antd';
 import { useState } from 'react';
 
 import { FD_ICONS, ROUTINE_ACTIVATE_LIST, sendRequest } from '../../../types';
@@ -30,12 +30,11 @@ export function ActivateAdd(props: {
   return (
     <>
       <Drawer
-        title="Add Activation Event"
+        title={<Typography.Text strong>Add Activation Event</Typography.Text>}
         visible={visible}
         onClose={() => setVisible(false)}
       >
         <List
-          pagination={{ size: 'small' }}
           dataSource={ROUTINE_ACTIVATE_LIST}
           renderItem={item => (
             <List.Item>

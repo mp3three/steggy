@@ -26,7 +26,7 @@ export function RoutineActivateKunami(props: {
   const [isRecording, setIsRecording] = useState<boolean>();
   const [recordLabel, setRecordLabel] = useState<string>();
   const [recordProgress, setRecordProgress] = useState<number>();
-  const [recordSeconds, setRecordSeconds] = useState<number>();
+  const [recordSeconds, setRecordSeconds] = useState<number>(5);
 
   useEffect(() => {
     async function entityList(): Promise<void> {

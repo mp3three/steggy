@@ -27,6 +27,11 @@ export function RoutineActivateAttributeChange(props: {
 }) {
   const [entity, setEntity] = useState<HassStateDTO>();
   const [entityList, setEntityList] = useState<string[]>([]);
+  const [debounce, setDebounce] = useState<number>();
+
+  useEffect(() => {
+    setDebounce(props.activate?.debounce ?? -1);
+  }, [props.activate?.debounce]);
 
   useEffect(() => {
     async function updateEntity(entity: string): Promise<void> {
@@ -37,7 +42,9 @@ export function RoutineActivateAttributeChange(props: {
         }),
       );
     }
-    updateEntity(props.activate.entity);
+    if (!is.empty(props.activate?.entity)) {
+      updateEntity(props.activate.entity);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props?.activate?.entity]);
 
@@ -139,9 +146,10 @@ export function RoutineActivateAttributeChange(props: {
       </Form.Item>
       <Form.Item label="Debounce">
         <InputNumber
-          value={props.activate?.debounce ?? -1}
+          value={debounce}
           min={-1}
-          onChange={debounce => props.onUpdate({ debounce })}
+          onChange={debounce => setDebounce(debounce)}
+          onBlur={() => props.onUpdate({ debounce })}
           addonAfter={'ms'}
         />
       </Form.Item>

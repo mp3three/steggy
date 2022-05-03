@@ -1,5 +1,5 @@
 import type { GROUP_TYPES, GroupDTO } from '@steggy/controller-shared';
-import { is, NOT_FOUND } from '@steggy/utilities';
+import { DOWN, is, NOT_FOUND, UP } from '@steggy/utilities';
 import { Button, Card, Col, Layout, List, Row, Tabs } from 'antd';
 import { useEffect, useState } from 'react';
 
@@ -25,7 +25,11 @@ export function GroupPage() {
 
   function onClone(group: GroupDTO): void {
     setGroup(group);
-    setGroups([...groups, group]);
+    setGroups(
+      [...groups, group].sort((a, b) =>
+        a.friendlyName > b.friendlyName ? UP : DOWN,
+      ),
+    );
   }
 
   async function refresh(target?: GroupDTO): Promise<void> {
@@ -33,10 +37,18 @@ export function GroupPage() {
       const index = groups.findIndex(({ _id }) => _id === target._id);
       setGroup(target);
       if (index === NOT_FOUND) {
-        setGroups([...groups, target]);
+        setGroups(
+          [...groups, target].sort((a, b) =>
+            a.friendlyName > b.friendlyName ? UP : DOWN,
+          ),
+        );
         return;
       }
-      setGroups(groups.map(item => (item._id === target._id ? target : item)));
+      setGroups(
+        groups
+          .map(item => (item._id === target._id ? target : item))
+          .sort((a, b) => (a.friendlyName > b.friendlyName ? UP : DOWN)),
+      );
       return;
     }
     setGroup(undefined);

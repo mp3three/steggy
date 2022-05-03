@@ -1,5 +1,5 @@
 import { RoutineCommandDTO, RoutineDTO } from '@steggy/controller-shared';
-import { Button, Drawer, Empty, List } from 'antd';
+import { Button, Drawer, Empty, List, Typography } from 'antd';
 import { useState } from 'react';
 
 import { FD_ICONS, ROUTINE_COMMAND_LIST, sendRequest } from '../../../types';
@@ -30,12 +30,12 @@ export function CommandAdd(props: {
   return (
     <>
       <Drawer
-        title="Add Command"
+        title={<Typography.Text strong>Add Command</Typography.Text>}
         visible={visible}
         onClose={() => setVisible(false)}
       >
         <List
-          pagination={{ size: 'small' }}
+          pagination={{ pageSize: 20, size: 'small' }}
           dataSource={ROUTINE_COMMAND_LIST}
           renderItem={item => (
             <List.Item>

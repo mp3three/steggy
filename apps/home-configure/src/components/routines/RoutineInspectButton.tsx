@@ -78,7 +78,7 @@ export function RoutineInspectButton(props: {
           onUpdate={update => onUpdate(update)}
         />
       </Drawer>
-      {is.empty(routine.description) ? (
+      {is.empty(routine?.description) ? (
         ACTIVATE_BUTTON
       ) : (
         <Tooltip title={routine.description}>{ACTIVATE_BUTTON}</Tooltip>

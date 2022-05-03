@@ -16,14 +16,14 @@ export const ROUTINE_ACTIVATE_LIST = (
       name: 'Cron Schedule',
       type: 'schedule',
     },
-    {
-      // Coded per home assistant docs
-      // Have not actually seen it work / used it in real use cases yet
-      description:
-        '(EXPERIMENTRAL) Use a Home Assistant trigger as an activation event',
-      name: 'Device trigger',
-      type: 'device_trigger',
-    },
+    // {
+    //   // Coded per home assistant docs
+    //   // Have not actually seen it work / used it in real use cases yet
+    //   description:
+    //     '(EXPERIMENTRAL) Use a Home Assistant trigger as an activation event',
+    //   name: 'Device trigger',
+    //   type: 'device_trigger',
+    // },
     {
       description: 'Activate when person/room metadata changes',
       name: 'Metadata Change',

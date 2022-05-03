@@ -21,7 +21,7 @@ export function RoutineActivateInternalEvent(props: {
     <Space direction="vertical" style={{ width: '100%' }}>
       <Form.Item label="Event Stream">
         <Select
-          value={props.activate.event}
+          value={props.activate?.event}
           onChange={event => props.onUpdate({ event })}
         >
           {ALL_EVENTS.map(event => (
@@ -33,7 +33,8 @@ export function RoutineActivateInternalEvent(props: {
       </Form.Item>
       <Form.Item label="Filter events">
         <Input.TextArea
-          defaultValue={props.activate.validate}
+          defaultValue={props.activate?.validate}
+          style={{ minHeight: '150px' }}
           onBlur={({ target }) => props.onUpdate({ validate: target.value })}
         />
       </Form.Item>

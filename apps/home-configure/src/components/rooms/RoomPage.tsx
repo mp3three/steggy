@@ -1,6 +1,6 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import type { RoomDTO } from '@steggy/controller-shared';
-import { is, NOT_FOUND } from '@steggy/utilities';
+import { DOWN, is, NOT_FOUND, UP } from '@steggy/utilities';
 import {
   Button,
   Card,
@@ -20,6 +20,7 @@ import { RoomListDetail } from './RoomListDetail';
 
 const { Content } = Layout;
 
+// eslint-disable-next-line radar/cognitive-complexity
 export function RoomPage() {
   const [room, setRoom] = useState<RoomDTO>();
   const [rooms, setRooms] = useState<RoomDTO[]>([]);
@@ -31,7 +32,11 @@ export function RoomPage() {
 
   function onClone(room: RoomDTO) {
     setRoom(room);
-    setRooms([...rooms, room]);
+    setRooms(
+      [...rooms, room].sort((a, b) =>
+        a.friendlyName > b.friendlyName ? UP : DOWN,
+      ),
+    );
   }
 
   async function refresh(): Promise<RoomDTO[]> {
@@ -80,7 +85,11 @@ export function RoomPage() {
     const index = rooms.findIndex(({ _id }) => _id === target._id);
     setRoom(target);
     if (index === NOT_FOUND) {
-      setRooms([...rooms, target]);
+      setRooms(
+        [...rooms, target].sort((a, b) =>
+          a.friendlyName > b.friendlyName ? UP : DOWN,
+        ),
+      );
       return;
     }
     setRooms(rooms.map(item => (target._id === item._id ? target : item)));

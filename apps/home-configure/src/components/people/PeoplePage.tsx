@@ -1,6 +1,6 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import type { PersonDTO } from '@steggy/controller-shared';
-import { is, NOT_FOUND } from '@steggy/utilities';
+import { DOWN, is, NOT_FOUND, UP } from '@steggy/utilities';
 import {
   Button,
   Card,
@@ -20,6 +20,7 @@ import { PeopleDetail } from './PeopleDetail';
 
 const { Content } = Layout;
 
+// eslint-disable-next-line radar/cognitive-complexity
 export function PeoplePage() {
   const [people, setPeople] = useState<PersonDTO[]>([]);
   const [person, setPerson] = useState<PersonDTO>();
@@ -30,7 +31,11 @@ export function PeoplePage() {
   }, []);
 
   function onClone(person: PersonDTO) {
-    setPeople([...people, person]);
+    setPeople(
+      [...people, person].sort((a, b) =>
+        a.friendlyName > b.friendlyName ? UP : DOWN,
+      ),
+    );
     setPerson(person);
   }
 
@@ -78,7 +83,11 @@ export function PeoplePage() {
     setPerson(item);
     const index = people.findIndex(({ _id }) => _id === item._id);
     if (index === NOT_FOUND) {
-      setPeople([...people, item]);
+      setPeople(
+        [...people, item].sort((a, b) =>
+          a.friendlyName > b.friendlyName ? UP : DOWN,
+        ),
+      );
       return;
     }
     setPeople(people.map(item => (person._id === item._id ? person : item)));

@@ -30,17 +30,19 @@ export function SendNotificationCommand(props: {
       </Form.Item>
       <Form.Item label=" " colon={false}>
         {type === 'simple' ? (
-          <Typography>Send message as is.</Typography>
+          <Typography.Text type="secondary">
+            Send message as is.
+          </Typography.Text>
         ) : undefined}
         {type === 'template' ? (
-          <Typography>
+          <Typography.Text type="secondary">
             Process as template in Home Assistant, then send.
-          </Typography>
+          </Typography.Text>
         ) : undefined}
         {type === 'javascript' ? (
-          <Typography>
+          <Typography.Text type="secondary">
             Process message as javascript. Result is sent as notification.
-          </Typography>
+          </Typography.Text>
         ) : undefined}
       </Form.Item>
     </>

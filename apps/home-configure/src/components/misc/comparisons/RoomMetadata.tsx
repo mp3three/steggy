@@ -6,7 +6,7 @@ import {
   RoomMetadataDTO,
 } from '@steggy/controller-shared';
 import { FILTER_OPERATIONS, is } from '@steggy/utilities';
-import { Card, Form, Select, Skeleton } from 'antd';
+import { Card, Form, Select, Skeleton, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../../types';
@@ -167,7 +167,10 @@ export function RoomMetadataComparison(props: {
     return renderBody();
   }
   return (
-    <Card title="Metadata Comparison" type="inner">
+    <Card
+      title={<Typography.Text strong>Metadata Comparison</Typography.Text>}
+      type="inner"
+    >
       {renderBody()}
     </Card>
   );

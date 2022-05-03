@@ -35,9 +35,12 @@ export class NodeRedCommand {
     if (is.empty(this.nodeRed)) {
       throw new InternalServerErrorException(`NodeRed not configured`);
     }
-    return await this.fetchService.fetch<Record<'id' | 'name', string>[]>({
+    const { list } = await this.fetchService.fetch<{
+      list: Record<'id' | 'name', string>[];
+    }>({
       url: `/steggy/routine-command`,
     });
+    return list;
   }
 
   protected onModuleInit(): void {

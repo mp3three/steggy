@@ -16,6 +16,8 @@ NestJS based application that connects to Home Assistant through the websocket a
 
 ## [node-red-contrib-steggy](libs/node-red-contrib-steggy)
 
+Node Red nodes for Home Controller.
+
 [![Example Screenshot](libs/node-red-contrib-steggy/docs/main.png)](libs/node-red-contrib-steggy)
 
 ## [pico-relay](apps/pico-relay)
@@ -27,5 +29,9 @@ Lightweight docker container that connects to a Lutron hub, creates / maintains 
 ## [Home CLI](apps/home-cli)
 
 Terminal application for manipulating entities, groups, and rooms through the [Home Controller](apps/home-controller).
+
+> **Dev note**: for fun type of project. The web interface is the intended primary way of interacting with the controller
+>
+> Updates to this application will be more limited
 
 [![Example Screenshot](apps/home-cli/docs/images/main.png)](apps/home-cli)

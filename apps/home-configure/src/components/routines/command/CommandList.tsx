@@ -100,10 +100,10 @@ export function CommandList(props: {
   }
 
   async function updateCommand(
-    command: Partial<RoutineCommandDTO>,
+    body: Partial<RoutineCommandDTO>,
   ): Promise<void> {
     const updated = await sendRequest<RoutineDTO>({
-      body: command,
+      body: body,
       method: 'put',
       url: `/routine/${props.routine._id}/command/${command.id}`,
     });

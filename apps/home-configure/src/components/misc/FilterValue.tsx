@@ -10,7 +10,7 @@ import {
   Space,
   Typography,
 } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function FilterValue(props: {
@@ -18,9 +18,14 @@ export function FilterValue(props: {
   onChange: (value) => void;
   operation: string;
   options?: string[];
-  value: string | string[];
+  value: number | string | string[];
 }) {
   const [inAdd, setInAdd] = useState('');
+  const [numberValue, setNumberValue] = useState<number>();
+
+  useEffect(() => {
+    setNumberValue(props.value as number);
+  }, [props.value]);
 
   function addItem(value: string[]): void {
     props.onChange([...value, inAdd]);
@@ -51,7 +56,7 @@ export function FilterValue(props: {
     if (Array.isArray(props.value)) {
       value = props.value;
     } else {
-      value = is.undefined(props.value) ? [] : [props.value];
+      value = is.undefined(props.value) ? [] : [props.value as string];
     }
     return (
       <>
@@ -115,11 +120,15 @@ export function FilterValue(props: {
     if (props.numberType === 'date') {
       return renderText();
     }
-    const value = is.number(props.value)
-      ? props.value
-      : Number(props.value ?? 0);
+    const value = is.number(numberValue)
+      ? numberValue
+      : Number(numberValue ?? 0);
     return (
-      <InputNumber value={value} onChange={value => props.onChange(value)} />
+      <InputNumber
+        value={value}
+        onChange={value => setNumberValue(value)}
+        onBlur={() => props.onChange(numberValue)}
+      />
     );
   }
 
@@ -133,8 +142,8 @@ export function FilterValue(props: {
     }
     return (
       <Input
-        value={value}
-        onChange={({ target }) => props.onChange(target.value)}
+        defaultValue={value}
+        onBlur={({ target }) => props.onChange(target.value)}
       />
     );
   }

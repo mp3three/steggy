@@ -12,12 +12,10 @@ export function NodeRedCommand(props: {
 
   useEffect(() => {
     async function refresh(): Promise<void> {
-      const targets = await sendRequest<{
-        list: Record<'id' | 'name', string>[];
-      }>({
+      const targets = await sendRequest<Record<'id' | 'name', string>[]>({
         url: `/debug/node-red/commands`,
       });
-      setTargets(targets.list);
+      setTargets(targets);
     }
     refresh();
   }, []);

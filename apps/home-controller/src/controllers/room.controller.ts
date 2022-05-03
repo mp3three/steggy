@@ -24,7 +24,7 @@ import {
   Locals,
   ResponseLocals,
 } from '@steggy/server';
-import { each } from '@steggy/utilities';
+import { each, eachSeries } from '@steggy/utilities';
 
 import { GroupService, RoomService } from '../services';
 
@@ -98,10 +98,9 @@ export class RoomController {
     @Body() { groups }: { groups: string[] },
     @Locals() { control }: ResponseLocals,
   ): Promise<RoomDTO> {
-    await each(
-      groups,
-      async id => await this.roomService.attachGroup(room, id),
-    );
+    await eachSeries(groups, async id => {
+      await this.roomService.attachGroup(room, id);
+    });
     return await this.roomService.get(room, true, control);
   }
 

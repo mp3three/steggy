@@ -31,6 +31,7 @@ export function GroupCreateButton(props: {
     <Popconfirm
       icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
       onConfirm={() => validate()}
+      placement="bottomRight"
       title={
         <Form onFinish={() => validate()} ref={ref => (form = ref)}>
           <Form.Item

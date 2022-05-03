@@ -15,14 +15,13 @@ export function WebhookRequest(props: {
 }) {
   const [people, setPeople] = useState<PersonDTO[]>([]);
   const [rooms, setRooms] = useState<RoomDTO[]>([]);
-  // override state = { people: [], rooms: [] } as tState;
 
   function assignTarget() {
-    const room = rooms.find(({ _id }) => _id === props.webhook.assignTo);
+    const room = rooms.find(({ _id }) => _id === props.webhook?.assignTo);
     if (room) {
       return room.metadata;
     }
-    const person = people.find(({ _id }) => _id === props.webhook.assignTo);
+    const person = people.find(({ _id }) => _id === props.webhook?.assignTo);
     if (person) {
       return person.metadata;
     }

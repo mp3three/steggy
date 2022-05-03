@@ -52,7 +52,7 @@ export function RoutineActivateSolar(props: {
   activate: SolarActivateDTO;
   onUpdate: (activate: Partial<SolarActivateDTO>) => void;
 }) {
-  const [state, setState] = useState<tState>();
+  const [state, setState] = useState<tState>({} as tState);
 
   useEffect(() => {
     async function refresh(): Promise<void> {
@@ -67,7 +67,7 @@ export function RoutineActivateSolar(props: {
 
   return (
     <List
-      pagination={{ size: 'small' }}
+      pagination={{ pageSize: 20 }}
       dataSource={[
         'astronomicalDawn',
         'astronomicalDusk',
@@ -106,6 +106,7 @@ export function RoutineActivateSolar(props: {
           <List.Item.Meta
             title={
               <Button
+                size="small"
                 type={props.activate?.event !== eventName ? 'text' : 'primary'}
                 onClick={() => props.onUpdate({ event: eventName })}
               >
