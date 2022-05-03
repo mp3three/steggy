@@ -11,7 +11,6 @@ import {
 } from '@steggy/boilerplate';
 import {
   GeneralSaveStateDTO,
-  GROUP_DEFINITIONS,
   GROUP_TYPES,
   GroupDTO,
   GroupSaveStateDTO,
@@ -51,6 +50,29 @@ import { LockGroupCommandService } from './lock-group-command.service';
 import { SwitchGroupCommandService } from './switch-group-command.service';
 
 export type GroupItem = { entities: string[]; name: string; room: string };
+
+export const GROUP_DEFINITIONS = new Map<GROUP_TYPES, string>([
+  [
+    GROUP_TYPES.light,
+    [
+      'Light groups may only contain light entities.',
+      'Allow a set of lights to operate together performing the same function.',
+    ].join(`\n`),
+  ],
+  [GROUP_TYPES.fan, 'Fan groups may only contain fan entities'],
+  [
+    GROUP_TYPES.switch,
+    [
+      'Switch groups may contain entities from the following domains:',
+      ` - switch`,
+      ` - light`,
+      ` - climate`,
+      ` - media`,
+      ` - fan`,
+    ].join(`\n`),
+  ],
+  [GROUP_TYPES.lock, 'Lock groups may only contain locks'],
+]);
 
 const GROUP_DOMAINS = new Map([
   [GROUP_TYPES.light, [HASS_DOMAINS.light]],

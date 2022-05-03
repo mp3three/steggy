@@ -5,6 +5,7 @@ import {
   INVERT_VALUE,
   is,
   START,
+  TitleCase,
   UP,
 } from '@steggy/utilities';
 import {
@@ -75,7 +76,9 @@ export function EntityPage() {
   const [entity, setEntity] = useState<HassStateDTO>(undefined);
   const [entity_id, setEntityId] = useState('');
   const [flags, setFlags] = useState([]);
-  const [search, setSearch] = useState<{ text: string; value: string }[]>([]);
+  const [search, setSearch] = useState<
+    { text: string | JSX.Element; value: string }[]
+  >([]);
   const [searchText, setSearchText] = useState('');
   const [showType, setShowType] = useState<showTypes>('default');
 
@@ -86,7 +89,7 @@ export function EntityPage() {
 
   function updateSearch(searchText: string): void {
     if (is.empty(searchText)) {
-      return setSearch(entities.map(i => ({ text: i, value: i })));
+      return loadDefault();
     }
     const available = entities.map(text => ({ text }));
     const fuzzyResult = fuzzy.go(searchText, available, {
@@ -102,6 +105,25 @@ export function EntityPage() {
     });
     setSearch(search);
     setSearchText(searchText);
+  }
+
+  function loadDefault(list = entities) {
+    setSearch(
+      list.map(i => {
+        const [domain, id] = i.split('.');
+        return {
+          text: (
+            <>
+              <Typography.Text type="secondary" code>
+                {TitleCase(domain)}
+              </Typography.Text>
+              {id}
+            </>
+          ),
+          value: i,
+        };
+      }),
+    );
   }
 
   async function focus(entity_id: string) {
@@ -150,7 +172,7 @@ export function EntityPage() {
       })
     ).sort((a, b) => (a > b ? UP : DOWN));
     setEntities(entities);
-    setSearch(entities.map(i => ({ text: i, value: i })));
+    loadDefault(entities);
   }
 
   async function onRename(name: string): Promise<void> {
@@ -226,7 +248,7 @@ export function EntityPage() {
                       type={item.value !== entity_id ? 'text' : 'primary'}
                       onClick={() => focus(item.value)}
                     >
-                      {parse(item.text)}
+                      {is.string(item.text) ? parse(item.text) : item.text}
                     </Button>
                   </List.Item>
                 )}

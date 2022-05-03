@@ -1,4 +1,4 @@
-import { NodeIndexOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import { RoutineDTO } from '@steggy/controller-shared';
 import { DOWN, is, UP } from '@steggy/utilities';
 import {
@@ -161,7 +161,8 @@ export function RoutineTree(props: {
   async function onDrop(info: DropOptions): Promise<void> {
     const dropKey = info.node.key;
     const dragKey = info.dragNode.key;
-    const parent = dropKey === 'root' ? '' : dropKey;
+    const parent = info.dropToGap ? '' : dropKey;
+
     await sendRequest({
       body: { parent } as Partial<RoutineDTO>,
       method: 'put',
@@ -202,15 +203,7 @@ export function RoutineTree(props: {
         <Empty />
       ) : (
         <Tree
-          treeData={[
-            {
-              children: treeData.sort((a, b) => sortChildren(a, b, routineMap)),
-              icon: <NodeIndexOutlined />,
-              key: 'root',
-              selectable: false,
-              title: <Typography.Text strong>Root</Typography.Text>,
-            },
-          ]}
+          treeData={treeData.sort((a, b) => sortChildren(a, b, routineMap))}
           className="draggable-tree"
           draggable
           showIcon
@@ -218,7 +211,6 @@ export function RoutineTree(props: {
           onDrop={options => onDrop(options)}
           onSelect={(keys: string[]) => onSelect(keys)}
           blockNode
-          defaultExpandedKeys={['root']}
         />
       )}
     </Card>

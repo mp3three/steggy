@@ -9,10 +9,12 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  MinLength,
   ValidateNested,
 } from 'class-validator';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
+import { MINIMUM_NAME_SIZE } from '../constants';
 import { RoomMetadataDTO } from '../room-metadata';
 import { RoomStateDTO } from '../rooms';
 
@@ -80,6 +82,7 @@ export class RoomDTO {
   @Prop({ required: true, type: 'string' })
   @ApiProperty()
   @Expose()
+  @MinLength(MINIMUM_NAME_SIZE)
   public friendlyName: string;
 
   /**

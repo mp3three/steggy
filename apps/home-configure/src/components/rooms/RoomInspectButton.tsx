@@ -46,6 +46,11 @@ export function RoomInspectButton(props: {
     }
   }
 
+  async function loadRoom() {
+    await load(true);
+    setVisible(true);
+  }
+
   return (
     <>
       <Drawer
@@ -64,7 +69,7 @@ export function RoomInspectButton(props: {
       <Button
         size="small"
         type={visible ? 'primary' : 'text'}
-        onClick={() => setVisible(true)}
+        onClick={() => loadRoom()}
       >
         {room?.friendlyName}
       </Button>

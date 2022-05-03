@@ -7,9 +7,11 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  MinLength,
   ValidateNested,
 } from 'class-validator';
 
+import { MINIMUM_NAME_SIZE } from '../constants';
 import { GeneralSaveStateDTO } from '../rooms';
 import { GroupDTO, RoomDTO } from '../schemas';
 import { InternalEventActivateDTO } from './internal-event.dto';
@@ -266,7 +268,9 @@ export class RoutineCommandDTO<
       { $ref: getSchemaPath(SetRoomMetadataCommandDTO) },
     ],
   })
+  @ValidateNested()
   public command: COMMAND;
+  @MinLength(MINIMUM_NAME_SIZE)
   @IsString()
   public friendlyName: string;
   @IsString()

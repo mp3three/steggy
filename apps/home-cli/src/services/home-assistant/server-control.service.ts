@@ -87,7 +87,7 @@ export class ServerControlService {
       result: string;
     }>({
       method: 'post',
-      url: '/admin/server/check',
+      url: `/admin/server/check`,
     });
     if (result === 'valid') {
       this.screenService.print(

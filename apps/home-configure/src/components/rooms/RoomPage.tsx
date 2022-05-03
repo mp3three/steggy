@@ -42,6 +42,7 @@ export function RoomPage() {
   async function refresh(): Promise<RoomDTO[]> {
     const rooms = await sendRequest<RoomDTO[]>({
       control: {
+        select: ['friendlyName'],
         sort: ['friendlyName'],
       },
       url: `/room`,

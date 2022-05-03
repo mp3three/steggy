@@ -111,7 +111,7 @@ export class BaseDomainService {
     );
     const first = dayjs(history[START].last_updated);
     // Less than a few days range, show hour/minute as X axis
-    // More than a few days range, show month / day intead
+    // More than a few days range, show month / day instead
     const last = dayjs(history[history.length - ARRAY_OFFSET].last_updated);
     const xAxis = !first.isBefore(last.subtract(A_FEW, 'd'))
       ? history.map(({ last_updated }) => dayjs(last_updated).format('HH:mm'))
@@ -153,7 +153,7 @@ export class BaseDomainService {
     insideList: string[] = [],
   ): Promise<T> {
     const entities = await this.fetchService.fetch<string[]>({
-      url: '/entity/list',
+      url: `/entity/list`,
     });
     const filtered = entities.filter(
       entity =>

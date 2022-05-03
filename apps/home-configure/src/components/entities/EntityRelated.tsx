@@ -5,7 +5,7 @@ import {
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { is, ResultControlDTO } from '@steggy/utilities';
-import { Button, Drawer, List, Skeleton, Tabs } from 'antd';
+import { Button, Drawer, Empty, List, Skeleton, Tabs } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
@@ -198,10 +198,18 @@ export function EntityRelated(props: { entity: string }) {
     setRoutine(routine);
   }
 
-  return (
+  const notUsed = [rooms, people, routines, groups].every(i => is.empty(i));
+
+  return notUsed ? (
+    <Empty description="This entity is not used" />
+  ) : (
     <>
       <Tabs>
-        <Tabs.TabPane tab="Rooms" key="rooms">
+        <Tabs.TabPane
+          disabled={is.empty(rooms)}
+          tab={is.empty(rooms) ? 'Rooms' : `Rooms (${rooms.length})`}
+          key="rooms"
+        >
           <List
             pagination={{ size: 'small' }}
             dataSource={rooms}
@@ -217,7 +225,11 @@ export function EntityRelated(props: { entity: string }) {
             )}
           />
         </Tabs.TabPane>
-        <Tabs.TabPane tab="People" key="people">
+        <Tabs.TabPane
+          disabled={is.empty(people)}
+          tab={is.empty(people) ? 'People' : `People (${people.length})`}
+          key="people"
+        >
           <List
             pagination={{ size: 'small' }}
             dataSource={people}
@@ -233,7 +245,11 @@ export function EntityRelated(props: { entity: string }) {
             )}
           />
         </Tabs.TabPane>
-        <Tabs.TabPane tab="Groups" key="groups">
+        <Tabs.TabPane
+          disabled={is.empty(groups)}
+          tab={is.empty(groups) ? 'Groups' : `Groups (${groups.length})`}
+          key="groups"
+        >
           <List
             pagination={{ size: 'small' }}
             dataSource={groups}
@@ -249,7 +265,13 @@ export function EntityRelated(props: { entity: string }) {
             )}
           />
         </Tabs.TabPane>
-        <Tabs.TabPane tab="Routines" key="routine">
+        <Tabs.TabPane
+          disabled={is.empty(routines)}
+          tab={
+            is.empty(routines) ? 'Routines' : `Routines (${routines.length})`
+          }
+          key="routine"
+        >
           <List
             pagination={{ size: 'small' }}
             dataSource={routines}

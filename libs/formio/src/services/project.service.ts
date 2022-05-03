@@ -38,7 +38,7 @@ export class ProjectService {
     return await await this.formioSdkService.fetch({
       ...auth,
       control: query,
-      url: '/',
+      url: `/`,
     });
   }
 

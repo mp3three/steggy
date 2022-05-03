@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum, IsString, MinLength, ValidateNested } from 'class-validator';
 import SolarCalcType from 'solar-calc/types/solarCalc';
 
+import { MINIMUM_NAME_SIZE } from '../constants';
 import { AttributeChangeActivateDTO } from './attribute-change-activate.dto';
 import { DeviceTriggerActivateDTO } from './device-trigger-activate.dto';
 import { InternalEventActivateDTO } from './internal-event.dto';
@@ -56,11 +58,15 @@ export class RoutineActivateDTO<EVENTS = ROUTINE_ACTIVATE_TYPES> {
       { $ref: `#/components/schemas/${DeviceTriggerActivateDTO.name}` },
     ],
   })
+  @ValidateNested()
   public activate: EVENTS;
   @ApiProperty()
+  @IsString()
+  @MinLength(MINIMUM_NAME_SIZE)
   public friendlyName: string;
   @ApiProperty()
   public id?: string;
   @ApiProperty({ enum: Object.values(ROUTINE_ACTIVATE_TYPE) })
+  @IsEnum(ROUTINE_ACTIVATE_TYPE)
   public type: ActivateTypes;
 }

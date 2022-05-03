@@ -8,10 +8,12 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  MinLength,
   ValidateNested,
 } from 'class-validator';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
+import { MINIMUM_NAME_SIZE } from '../constants';
 import { PinnedItemDTO } from '../pinned-item.dto';
 import { RoomMetadataDTO } from '../room-metadata';
 import { RoomStateDTO } from '../rooms';
@@ -63,6 +65,7 @@ export class PersonDTO {
   @IsString()
   @Prop({ required: true, type: 'string' })
   @ApiProperty()
+  @MinLength(MINIMUM_NAME_SIZE)
   public friendlyName: string;
 
   /**

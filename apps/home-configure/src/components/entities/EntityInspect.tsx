@@ -15,7 +15,6 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import { dump } from 'js-yaml';
-
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -176,10 +175,10 @@ export function EntityInspect(props: {
           <EntityRelated entity={props?.entity?.entity_id} />
         </Tabs.TabPane>
         <Tabs.TabPane key="history" tab="History">
-          <EntityHistory entity={props?.entity?.entity_id} />
+          <EntityHistory nested entity={props?.entity?.entity_id} />
         </Tabs.TabPane>
         <Tabs.TabPane key="flags" tab="Flags">
-          <Card>{flags()}</Card>
+          {flags()}
         </Tabs.TabPane>
       </Tabs>
     );

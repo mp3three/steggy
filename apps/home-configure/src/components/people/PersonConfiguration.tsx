@@ -24,7 +24,6 @@ export function PersonConfiguration(props: {
   onUpdate: (person: PersonDTO) => void;
   person: PersonDTO;
 }) {
-  const [group, setGroup] = useState<GroupDTO>();
   const [groups, setGroups] = useState<PartialGroup[]>([]);
   const [rooms, setRooms] = useState<RoomDTO[]>([]);
 
@@ -45,6 +44,9 @@ export function PersonConfiguration(props: {
       );
       setRooms(
         await sendRequest({
+          control: {
+            select: ['friendlyName'],
+          },
           url: `/room`,
         }),
       );
@@ -207,7 +209,6 @@ export function PersonConfiguration(props: {
 
   function updateGroup(group: GroupDTO): void {
     if (!group) {
-      setGroup(undefined);
       setGroups(groups.filter(({ _id }) => _id !== group._id));
       return;
     }
@@ -217,8 +218,7 @@ export function PersonConfiguration(props: {
   function updateRoom(room: RoomDTO): void {
     if (!room) {
       // setRoom(undefined);
-      setRooms(rooms.filter(({ _id }) => _id !== group._id));
-
+      setRooms(rooms.filter(({ _id }) => _id !== room._id));
       return;
     }
     setRooms(rooms.map(g => (g._id === room._id ? room : g)));

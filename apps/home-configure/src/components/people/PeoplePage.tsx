@@ -41,7 +41,10 @@ export function PeoplePage() {
 
   async function refresh(): Promise<PersonDTO[]> {
     const people = await sendRequest<PersonDTO[]>({
-      control: { sort: ['friendlyName'] },
+      control: {
+        select: ['friendlyName'],
+        sort: ['friendlyName'],
+      },
       url: `/person`,
     });
     setPeople(people);

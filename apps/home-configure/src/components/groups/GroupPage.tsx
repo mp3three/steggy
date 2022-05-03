@@ -1,6 +1,24 @@
 import type { GROUP_TYPES, GroupDTO } from '@steggy/controller-shared';
-import { DOWN, is, NOT_FOUND, UP } from '@steggy/utilities';
-import { Button, Card, Col, Layout, List, Row, Tabs } from 'antd';
+import {
+  DOWN,
+  is,
+  LABEL,
+  NOT_FOUND,
+  TitleCase,
+  UP,
+  VALUE,
+} from '@steggy/utilities';
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Layout,
+  List,
+  Row,
+  Select,
+  Typography,
+} from 'antd';
 import { useEffect, useState } from 'react';
 
 import { GROUP_DESCRIPTIONS, sendRequest } from '../../types';
@@ -12,14 +30,22 @@ const { Content } = Layout;
 export function GroupPage() {
   const [group, setGroup] = useState<GroupDTO>();
   const [groups, setGroups] = useState<GroupDTO[]>([]);
-  const [lastTab, setLastTab] = useState<`${GROUP_TYPES}`>('light');
+  const [groupType, setGroupType] = useState<`${GROUP_TYPES}` | 'all'>('all');
 
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const countMap = new Map<string, number>();
+  groups.forEach(({ type }) =>
+    countMap.set(type, (countMap.get(type) ?? 0) + 1),
+  );
+
   function filter(type: string): GroupDTO[] {
+    if (type === 'all') {
+      return groups;
+    }
     return groups.filter(group => group.type === type);
   }
 
@@ -55,6 +81,7 @@ export function GroupPage() {
     setGroups(
       await sendRequest<GroupDTO[]>({
         control: {
+          select: ['type', 'friendlyName'],
           sort: ['friendlyName'],
         },
         url: `/group`,
@@ -75,6 +102,17 @@ export function GroupPage() {
             </Button>
           }
         />
+        {groupType === 'all' ? (
+          <Button
+            type="text"
+            size="small"
+            onClick={() => setGroupType(target.type)}
+          >
+            <Typography.Text type="secondary">
+              {TitleCase(target.type)} Group
+            </Typography.Text>
+          </Button>
+        ) : undefined}
       </List.Item>
     );
   }
@@ -88,108 +126,70 @@ export function GroupPage() {
   }
 
   function tabChange(type: GROUP_TYPES): void {
-    if (lastTab === type) {
-      return;
-    }
-    setLastTab(type);
+    setGroupType(type);
     setGroup(undefined);
   }
+  const filtered = filter(groupType);
 
   return (
     <Layout>
       <Content style={{ padding: '16px' }}>
         <Row gutter={8}>
           <Col span={12}>
-            <Tabs type="card" onTabClick={tab => tabChange(tab as GROUP_TYPES)}>
-              <Tabs.TabPane
-                key="light"
-                tab={`Light Groups (${filter('light').length})`}
-              >
-                <Card
-                  type="inner"
-                  extra={
-                    <GroupCreateButton
-                      type="light"
-                      highlight={is.empty(filter('light'))}
-                      onUpdate={group => refresh(group)}
-                    />
-                  }
+            <Card
+              type="inner"
+              title={
+                <Form.Item
+                  label={<Typography.Text strong>Type</Typography.Text>}
+                  style={{ marginBottom: 0 }}
                 >
-                  <List
-                    dataSource={filter('light')}
-                    pagination={{ size: 'small' }}
-                    renderItem={item => renderGroup(item)}
-                  ></List>
-                </Card>
-              </Tabs.TabPane>
-              <Tabs.TabPane
-                key="switch"
-                tab={`Switch Groups (${filter('switch').length})`}
-              >
-                <Card
-                  type="inner"
-                  extra={
-                    <GroupCreateButton
-                      highlight={is.empty(filter('switch'))}
-                      type="switch"
-                      onUpdate={group => refresh(group)}
-                    />
-                  }
-                >
-                  <List
-                    dataSource={filter('switch')}
-                    pagination={{ size: 'small' }}
-                    renderItem={item => renderGroup(item)}
-                  ></List>
-                </Card>
-              </Tabs.TabPane>
-              <Tabs.TabPane
-                key="fan"
-                tab={`Fan Groups (${filter('fan').length})`}
-              >
-                <Card
-                  type="inner"
-                  extra={
-                    <GroupCreateButton
-                      highlight={is.empty(filter('fan'))}
-                      type="fan"
-                      onUpdate={group => refresh(group)}
-                    />
-                  }
-                >
-                  <List
-                    dataSource={filter('fan')}
-                    pagination={{ size: 'small' }}
-                    renderItem={item => renderGroup(item)}
-                  ></List>
-                </Card>
-              </Tabs.TabPane>
-              <Tabs.TabPane
-                key="lock"
-                tab={`Lock Groups (${filter('lock').length})`}
-              >
-                <Card
-                  type="inner"
-                  extra={
-                    <GroupCreateButton
-                      highlight={is.empty(filter('lock'))}
-                      type="lock"
-                      onUpdate={group => refresh(group)}
-                    />
-                  }
-                >
-                  <List
-                    dataSource={filter('lock')}
-                    pagination={{ size: 'small' }}
-                    renderItem={item => renderGroup(item)}
-                  ></List>
-                </Card>
-              </Tabs.TabPane>
-            </Tabs>
+                  <Select
+                    style={{ width: '60%' }}
+                    value={groupType}
+                    onChange={value => tabChange(value as GROUP_TYPES)}
+                  >
+                    <Select.Option value="all">
+                      <Typography.Text type="secondary">
+                        ({groups.length}) Show All
+                      </Typography.Text>
+                    </Select.Option>
+                    {[...countMap.entries()]
+                      .sort((a, b) => {
+                        // Sort groups with highest counts to top
+                        // Then alphabetically
+                        if (a[VALUE] < b[VALUE]) {
+                          return UP;
+                        }
+                        if (a[VALUE] > b[VALUE]) {
+                          return DOWN;
+                        }
+                        return a[LABEL] > b[LABEL] ? UP : DOWN;
+                      })
+                      .map(([type, count]) => (
+                        <Select.Option key={type} value={type}>
+                          ({count}) {TitleCase(type)}
+                        </Select.Option>
+                      ))}
+                  </Select>
+                </Form.Item>
+              }
+              extra={
+                <GroupCreateButton
+                  highlight={is.empty(filtered)}
+                  onUpdate={group => refresh(group)}
+                />
+              }
+            >
+              <List
+                dataSource={filtered}
+                pagination={{ size: 'small' }}
+                renderItem={item => renderGroup(item)}
+              ></List>
+            </Card>
           </Col>
           <Col span={12}>
             <GroupListDetail
-              description={GROUP_DESCRIPTIONS.get(lastTab)}
+              description={GROUP_DESCRIPTIONS.get(groupType as GROUP_TYPES)}
               group={group}
               onClone={group => onClone(group)}
               onUpdate={group => refresh(group)}

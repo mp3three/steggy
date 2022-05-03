@@ -107,7 +107,7 @@ export function PinnedItems() {
                   <List.Item.Meta
                     title={renderPin(item)}
                     description={
-                      <Typography.Text code>
+                      <Typography.Text type="secondary">
                         {TitleCase(item.type)}
                       </Typography.Text>
                     }

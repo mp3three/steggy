@@ -16,37 +16,18 @@ import {
 } from 'class-validator';
 import { Document } from 'mongoose';
 
+import { MINIMUM_NAME_SIZE } from '../constants';
 import { GeneralSaveStateDTO, ROOM_ENTITY_EXTRAS } from '../rooms';
 
 export enum GROUP_TYPES {
-  light = 'light',
   fan = 'fan',
-  switch = 'switch',
+  group = 'group',
+  light = 'light',
   lock = 'lock',
+  people = 'people',
+  room = 'room',
+  switch = 'switch',
 }
-
-export const GROUP_DEFINITIONS = new Map<GROUP_TYPES, string>([
-  [
-    GROUP_TYPES.light,
-    [
-      'Light groups may only contain light entities.',
-      'Allow a set of lights to operate together performing the same function.',
-    ].join(`\n`),
-  ],
-  [GROUP_TYPES.fan, 'Fan groups may only contain fan entities'],
-  [
-    GROUP_TYPES.switch,
-    [
-      'Switch groups may contain entities from the following domains:',
-      ` - switch`,
-      ` - light`,
-      ` - climate`,
-      ` - media`,
-      ` - fan`,
-    ].join(`\n`),
-  ],
-  [GROUP_TYPES.lock, 'Lock groups may only contain locks'],
-]);
 
 @Schema({
   collection: `group`,
@@ -101,6 +82,7 @@ export class GroupDTO<
   @Prop({ required: true, type: 'string' })
   @ApiProperty()
   @Expose()
+  @MinLength(MINIMUM_NAME_SIZE)
   public friendlyName: string;
 
   /**
@@ -150,7 +132,7 @@ export class GroupSaveStateDTO<SAVE_STATE = ROOM_ENTITY_EXTRAS> {
   @IsString()
   @Expose()
   @ApiProperty()
-  @MinLength(2)
+  @MinLength(MINIMUM_NAME_SIZE)
   public friendlyName: string;
 
   /**

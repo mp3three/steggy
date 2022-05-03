@@ -111,7 +111,7 @@ export class EntityService implements iRepl {
 
   public async list(): Promise<string[]> {
     return await this.fetchService.fetch<string[]>({
-      url: '/entity/list',
+      url: `/entity/list`,
     });
   }
 

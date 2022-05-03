@@ -8,10 +8,12 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  MinLength,
   ValidateNested,
 } from 'class-validator';
 import { Document } from 'mongoose';
 
+import { MINIMUM_NAME_SIZE } from '../constants';
 import {
   RoutineActivateDTO,
   RoutineCommandDTO,
@@ -82,6 +84,7 @@ export class RoutineDTO {
   @IsString()
   @Prop({ required: true, type: 'string' })
   @ApiProperty()
+  @MinLength(MINIMUM_NAME_SIZE)
   public friendlyName: string;
 
   /**

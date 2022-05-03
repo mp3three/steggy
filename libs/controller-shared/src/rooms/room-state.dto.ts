@@ -5,10 +5,13 @@ import {
   LockAttributesDTO,
   SwitchAttributesDTO,
 } from '@steggy/home-assistant-shared';
-import { IsEnum, IsString, ValidateNested } from 'class-validator';
+import { IsEnum, IsString, MinLength, ValidateNested } from 'class-validator';
+
+import { MINIMUM_NAME_SIZE } from '../constants';
 
 export class RoomStateDTO {
   @ApiProperty()
+  @MinLength(MINIMUM_NAME_SIZE)
   public friendlyName: string;
   @ApiProperty()
   public id: string;

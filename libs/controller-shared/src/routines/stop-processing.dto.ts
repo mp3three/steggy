@@ -1,7 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ComparisonDTO } from '@steggy/utilities';
-import { IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
 
+import { MINIMUM_NAME_SIZE } from '../constants';
 import { RoutineCommandWebhookDTO } from './routine-command.dto';
 
 export enum STOP_PROCESSING_TYPE {
@@ -101,6 +108,7 @@ export class RoutineComparisonDTO<
   public comparison: TYPE;
   @IsString()
   @ApiProperty()
+  @MinLength(MINIMUM_NAME_SIZE)
   public friendlyName: string;
   @IsString()
   @ApiProperty()
