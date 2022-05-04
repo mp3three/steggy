@@ -43,6 +43,7 @@ export class PersonService {
     private readonly routineService: RoutineService,
     @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
+    @Inject(forwardRef(() => MetadataService))
     private readonly metadataService: MetadataService,
     private readonly saveStateService: SaveStateService,
     private readonly eventEmitter: EventEmitter,

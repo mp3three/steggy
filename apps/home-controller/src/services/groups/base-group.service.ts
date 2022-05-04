@@ -29,15 +29,16 @@ export abstract class BaseGroupService {
     state: GroupCommandDTO,
     waitForResult?: boolean,
   ): Promise<void>;
-  public abstract getState(group: GroupDTO): Promise<GeneralSaveStateDTO[]>;
-  public abstract isValidEntity(id: string): boolean;
+  public abstract getState(
+    group: GroupDTO,
+  ): Promise<GeneralSaveStateDTO[]> | GeneralSaveStateDTO[];
   public abstract setState<
     EXTRA extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(
     entities: string[],
     state: GeneralSaveStateDTO<EXTRA>[],
     waitForChange?: boolean,
-  ): Promise<void>;
+  ): Promise<void> | void;
 
   public async activateState(
     group: GroupDTO | string,

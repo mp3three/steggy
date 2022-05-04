@@ -21,6 +21,11 @@ import { each, is, ResultControlDTO } from '@steggy/utilities';
 import { v4 } from 'uuid';
 
 import { EntityCommandRouterService } from './entities/entity-command-router.service';
+import {
+  GroupGroupService,
+  PersonGroupService,
+  RoomGroupService,
+} from './groups';
 import { BaseGroupService } from './groups/base-group.service';
 import { FanGroupService } from './groups/fan-group.service';
 import { LightGroupService } from './groups/light-group.service';
@@ -34,14 +39,17 @@ import { RoutineService } from './routine.service';
 @Injectable()
 export class GroupService {
   constructor(
-    private readonly logger: AutoLogService,
+    private readonly commandRouter: EntityCommandRouterService,
+    private readonly fanGroup: FanGroupService,
     private readonly groupPersistence: GroupPersistenceService,
     private readonly lightGroup: LightGroupService,
-    private readonly lockGroup: LockGroupService,
-    private readonly fanGroup: FanGroupService,
-    private readonly switchGroup: SwitchGroupService,
     private readonly lightManager: LightManagerService,
-    private readonly commandRouter: EntityCommandRouterService,
+    private readonly lockGroup: LockGroupService,
+    private readonly groupGroup: GroupGroupService, // i am group
+    private readonly roomGroup: RoomGroupService,
+    private readonly peopleGroup: PersonGroupService,
+    private readonly logger: AutoLogService,
+    private readonly switchGroup: SwitchGroupService,
     @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
     private readonly routineService: RoutineService,
@@ -239,6 +247,12 @@ export class GroupService {
         return this.lightGroup;
       case GROUP_TYPES.lock:
         return this.lockGroup;
+      case GROUP_TYPES.group:
+        return this.groupGroup;
+      case GROUP_TYPES.room:
+        return this.roomGroup;
+      case GROUP_TYPES.people:
+        return this.peopleGroup;
     }
     throw new NotImplementedException();
   }

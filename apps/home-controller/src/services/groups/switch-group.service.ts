@@ -10,11 +10,7 @@ import {
   EntityManagerService,
   HomeAssistantCoreService,
 } from '@steggy/home-assistant';
-import {
-  domain,
-  HASS_DOMAINS,
-  SwitchStateDTO,
-} from '@steggy/home-assistant-shared';
+import { SwitchStateDTO } from '@steggy/home-assistant-shared';
 import { each, START } from '@steggy/utilities';
 
 import { GroupPersistenceService } from '../persistence';
@@ -62,15 +58,6 @@ export class SwitchGroupService extends BaseGroupService {
         state: light.state,
       };
     });
-  }
-
-  public isValidEntity(id: string): boolean {
-    return [
-      HASS_DOMAINS.switch,
-      HASS_DOMAINS.fan,
-      HASS_DOMAINS.light,
-      HASS_DOMAINS.media_player,
-    ].includes(domain(id));
   }
 
   public async setState(

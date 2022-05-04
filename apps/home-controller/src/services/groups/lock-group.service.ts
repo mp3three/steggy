@@ -66,10 +66,6 @@ export class LockGroupService extends BaseGroupService {
     });
   }
 
-  public isValidEntity(id: string): boolean {
-    return domain(id) === HASS_DOMAINS.fan;
-  }
-
   public async lock(
     group: GroupDTO | string,
     waitForChange = false,

@@ -131,6 +131,7 @@ export class RoutineService {
     private readonly metadataChangeService: MetadataChangeService,
     @Inject(forwardRef(() => AttributeChangeActivateService))
     private readonly attributeChangeService: AttributeChangeActivateService,
+    @Inject(forwardRef(() => PersonService))
     private readonly personService: PersonService,
     @Inject(forwardRef(() => InternalEventChangeService))
     private readonly internalEventActivate: InternalEventChangeService,

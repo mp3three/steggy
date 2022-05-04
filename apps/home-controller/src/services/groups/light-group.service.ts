@@ -11,8 +11,6 @@ import {
 import { EntityManagerService } from '@steggy/home-assistant';
 import {
   ColorModes,
-  domain,
-  HASS_DOMAINS,
   LightAttributesDTO,
   LightStateDTO,
 } from '@steggy/home-assistant-shared';
@@ -164,11 +162,6 @@ export class LightGroupService extends BaseGroupService {
     // await just to keep the definitions compatible without lint warnings
     return await out;
   }
-
-  public isValidEntity(id: string): boolean {
-    return domain(id) === HASS_DOMAINS.light;
-  }
-
   public async rotateColors(
     group: GroupParameter,
     direction: 'forward' | 'reverse' = 'forward',

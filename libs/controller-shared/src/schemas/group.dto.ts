@@ -96,6 +96,12 @@ export class GroupDTO<
   })
   public modified?: Date;
 
+  @ApiProperty({ required: false })
+  @Prop()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  public references?: GroupReferenceDTO[];
+
   /**
    * Captured save states
    */
@@ -123,6 +129,19 @@ export class GroupDTO<
   @ApiProperty()
   @Expose()
   public type: GROUP_TYPES;
+}
+
+export enum GROUP_REFERENCE_TYPES {
+  group = 'group',
+  room = 'room',
+  person = 'person',
+}
+
+export class GroupReferenceDTO {
+  @IsString()
+  public target: string;
+  @IsEnum(GROUP_REFERENCE_TYPES)
+  public type: `${GROUP_REFERENCE_TYPES}`;
 }
 
 export class GroupSaveStateDTO<SAVE_STATE = ROOM_ENTITY_EXTRAS> {

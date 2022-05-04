@@ -11,12 +11,7 @@ import {
   FanDomainService,
   HomeAssistantCoreService,
 } from '@steggy/home-assistant';
-import {
-  domain,
-  FanAttributesDTO,
-  FanStateDTO,
-  HASS_DOMAINS,
-} from '@steggy/home-assistant-shared';
+import { FanAttributesDTO, FanStateDTO } from '@steggy/home-assistant-shared';
 import { each, START } from '@steggy/utilities';
 
 import { EntityCommandRouterService } from '../entities/entity-command-router.service';
@@ -108,10 +103,6 @@ export class FanGroupService extends BaseGroupService {
         state: fan.state,
       } as SaveState;
     });
-  }
-
-  public isValidEntity(id: string): boolean {
-    return domain(id) === HASS_DOMAINS.fan;
   }
 
   public async setState(

@@ -95,10 +95,21 @@ export function GroupPage() {
         <List.Item.Meta
           title={
             <Button
-              type={group?._id === target._id ? 'primary' : 'text'}
+              size="small"
+              type={
+                group?._id === target._id
+                  ? 'primary'
+                  : !is.empty(target.friendlyName)
+                  ? 'text'
+                  : 'dashed'
+              }
               onClick={() => updateGroup(target)}
             >
-              {target.friendlyName}
+              {target.friendlyName || (
+                <Typography.Text type="danger" strong>
+                  No Name
+                </Typography.Text>
+              )}
             </Button>
           }
         />

@@ -35,6 +35,7 @@ export class SetMetadataService {
     private readonly eventEmitter: EventEmitter,
     @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
+    @Inject(forwardRef(() => PersonService))
     private readonly personService: PersonService,
     private readonly chronoService: ChronoService,
     private readonly socketService: HASocketAPIService,
