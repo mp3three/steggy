@@ -31,7 +31,7 @@ export class PersonGroupService extends BaseGroupService {
     super();
   }
 
-  public readonly GROUP_TYPE = GROUP_TYPES.people;
+  public readonly GROUP_TYPE = GROUP_TYPES.person;
 
   public async activateCommand(
     group: GroupDTO | string,

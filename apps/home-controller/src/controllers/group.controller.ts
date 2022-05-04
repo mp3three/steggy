@@ -12,9 +12,11 @@ import {
   CloneGroupDTO,
   ENTITY_EXTRAS_SCHEMA,
   GENERIC_COMMANDS,
+  GROUP_REFERENCE_TYPES,
+  GroupDTO,
+  GroupSaveStateDTO,
   ROOM_ENTITY_EXTRAS,
 } from '@steggy/controller-shared';
-import { GroupDTO, GroupSaveStateDTO } from '@steggy/controller-shared';
 import { BaseSchemaDTO } from '@steggy/persistence';
 import {
   ApiGenericResponse,
@@ -33,7 +35,7 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Put(`/:group/command/:command`)
-  @ApiGenericResponse()
+  @ApiResponse({ type: GroupDTO })
   @ApiBody({ schema: { type: 'object' } })
   @ApiOperation({
     description: `Activate a group command`,
@@ -52,7 +54,7 @@ export class GroupController {
   }
 
   @Post(`/:group/state/:state`)
-  @ApiGenericResponse()
+  @ApiResponse({ type: GroupDTO })
   @ApiOperation({
     description: `Activate a group state`,
   })
@@ -62,6 +64,23 @@ export class GroupController {
   ): Promise<GroupDTO> {
     await this.groupService.activateState({ group, state });
     return await this.groupService.get(group);
+  }
+
+  @Post(`/:group/reference`)
+  @ApiResponse({ type: GroupDTO })
+  public async addReference(
+    @Param('group') group: string,
+    @Body()
+    body: { references: string[]; type: `${GROUP_REFERENCE_TYPES}` },
+  ): Promise<GroupDTO> {
+    const target = await this.groupService.get(group);
+    target.references ??= [];
+    return await this.groupService.update(group, {
+      references: [
+        ...target.references,
+        ...body.references.map(target => ({ target, type: body.type })),
+      ],
+    });
   }
 
   @Post(`/:group/state`)
@@ -79,7 +98,7 @@ export class GroupController {
   }
 
   @Post('/:group/capture')
-  @ApiGenericResponse()
+  @ApiResponse({ type: GroupDTO })
   @ApiBody({
     schema: {
       properties: { friendlyName: { type: 'string' } },
@@ -130,6 +149,27 @@ export class GroupController {
   ): Promise<typeof GENERIC_SUCCESS_RESPONSE> {
     await this.groupService.delete(group);
     return GENERIC_SUCCESS_RESPONSE;
+  }
+
+  @Delete(`/:group/reference/:reference`)
+  @ApiOperation({
+    description: `Remove a reference from a group`,
+  })
+  public async deleteReference(
+    @Param('group') group: string,
+    @Param('reference') reference: string,
+  ): Promise<GroupDTO> {
+    const target = await this.groupService.get(group);
+    target.references ??= [];
+    return await this.groupService.update(group, {
+      references: target.references.filter(
+        ({ target }) => target !== reference,
+      ),
+      save_states: target.save_states.map(type => ({
+        ...type,
+        states: type.states.filter(({ ref }) => ref === reference),
+      })),
+    });
   }
 
   @Delete(`/:group/state/:state`)

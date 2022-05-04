@@ -1,16 +1,16 @@
-import { QuestionCircleOutlined } from '@ant-design/icons';
 import { PersonDTO, RoomDTO, RoomStateDTO } from '@steggy/controller-shared';
 import { DOWN, is, UP } from '@steggy/utilities';
 import {
   Button,
   Card,
   Form,
-  FormInstance,
   Input,
   List,
+  notification,
   Popconfirm,
   Space,
 } from 'antd';
+import { useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 import { RoomStateEdit } from '../rooms';
@@ -21,7 +21,7 @@ export function SaveStateEditor(props: {
   person?: PersonDTO;
   room?: RoomDTO;
 }) {
-  let form: FormInstance;
+  const [friendlyName, setFriendlyName] = useState('');
 
   const room = props.room ?? props.person;
   const routeBase = props.person ? 'person' : 'room';
@@ -43,13 +43,18 @@ export function SaveStateEditor(props: {
 
   async function validate(): Promise<void> {
     try {
-      const values = await form.validateFields();
+      if (is.empty(friendlyName)) {
+        notification.error({
+          message: 'Cannot have empty name',
+        });
+        return;
+      }
       const item = await sendRequest<RoomDTO>({
-        body: values,
+        body: { friendlyName },
         method: 'post',
         url: `/${routeBase}/${room._id}/state`,
       });
-      form.resetFields();
+      setFriendlyName('');
       props.onUpdate(item);
     } catch (error) {
       console.error(error);
@@ -63,18 +68,19 @@ export function SaveStateEditor(props: {
         title="Save States"
         extra={
           <Popconfirm
-            icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
+            icon=""
             onConfirm={() => validate()}
             title={
-              <Form onFinish={() => validate()} ref={item => (form = item)}>
-                <Form.Item
-                  label="Friendly Name"
-                  name="friendlyName"
-                  rules={[{ required: true }]}
-                >
-                  <Input />
-                </Form.Item>
-              </Form>
+              <Form.Item
+                label="Friendly Name"
+                name="friendlyName"
+                rules={[{ required: true }]}
+              >
+                <Input
+                  value={friendlyName}
+                  onChange={({ target }) => setFriendlyName(target.value)}
+                />
+              </Form.Item>
             }
           >
             <Button
@@ -114,7 +120,7 @@ export function SaveStateEditor(props: {
                 Activate
               </Button>
               <Popconfirm
-                icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                icon={FD_ICONS.get('delete')}
                 title={`Are you sure you want to delete ${record.friendlyName}`}
                 onConfirm={() => removeState(record)}
               >

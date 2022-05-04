@@ -251,7 +251,7 @@ export class GroupService {
         return this.groupGroup;
       case GROUP_TYPES.room:
         return this.roomGroup;
-      case GROUP_TYPES.people:
+      case GROUP_TYPES.person:
         return this.peopleGroup;
     }
     throw new NotImplementedException();

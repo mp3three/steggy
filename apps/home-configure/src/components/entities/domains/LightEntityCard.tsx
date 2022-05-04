@@ -1,4 +1,3 @@
-import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import {
   ColorModes,
@@ -22,7 +21,7 @@ import {
 import React from 'react';
 import { ChromePicker, ColorResult } from 'react-color';
 
-import { sendRequest } from '../../../types';
+import { FD_ICONS, sendRequest } from '../../../types';
 
 type tStateType = {
   color?: string;
@@ -134,12 +133,12 @@ export class LightEntityCard extends React.Component<
             ) : undefined}
             {is.undefined(this.props.onRemove) ? undefined : (
               <Popconfirm
-                icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                icon={FD_ICONS.get('delete')}
                 title="Are you sure you want to remove this?"
                 onConfirm={() => this.props.onRemove(this.ref)}
               >
                 <Button size="small" type="text" danger>
-                  <CloseOutlined />
+                  {FD_ICONS.get('item_remove')}
                 </Button>
               </Popconfirm>
             )}

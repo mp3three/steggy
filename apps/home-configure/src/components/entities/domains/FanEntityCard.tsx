@@ -1,4 +1,3 @@
-import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { FanAttributesDTO, FanStateDTO } from '@steggy/home-assistant-shared';
 import { is, PERCENT, SINGLE, START } from '@steggy/utilities';
@@ -17,7 +16,7 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../../types';
+import { FD_ICONS, sendRequest } from '../../../types';
 
 type tStateType = {
   disabled?: boolean;
@@ -142,12 +141,12 @@ export class FanEntityCard extends React.Component<
             ) : undefined}
             {is.undefined(this.props.onRemove) ? undefined : (
               <Popconfirm
-                icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                icon={FD_ICONS.get('delete')}
                 title="Are you sure you want to remove this?"
                 onConfirm={() => this.props.onRemove(this.ref)}
               >
                 <Button size="small" type="text" danger>
-                  <CloseOutlined />
+                  {FD_ICONS.get('item_remove')}
                 </Button>
               </Popconfirm>
             )}

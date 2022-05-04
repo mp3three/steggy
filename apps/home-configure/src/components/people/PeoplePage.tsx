@@ -1,4 +1,3 @@
-import { QuestionCircleOutlined } from '@ant-design/icons';
 import type { PersonDTO } from '@steggy/controller-shared';
 import { DOWN, is, NOT_FOUND, UP } from '@steggy/utilities';
 import {
@@ -6,7 +5,6 @@ import {
   Card,
   Col,
   Form,
-  FormInstance,
   Input,
   Layout,
   List,
@@ -24,7 +22,7 @@ const { Content } = Layout;
 export function PeoplePage() {
   const [people, setPeople] = useState<PersonDTO[]>([]);
   const [person, setPerson] = useState<PersonDTO>();
-  let form: FormInstance;
+  const [friendlyName, setFriendlyName] = useState('');
 
   useEffect(() => {
     refresh();
@@ -98,15 +96,14 @@ export function PeoplePage() {
 
   async function validate(): Promise<void> {
     try {
-      const values = await form.validateFields();
       const created = await sendRequest<PersonDTO>({
-        body: values,
+        body: { friendlyName },
         method: 'post',
         url: `/person`,
       });
-      form.resetFields();
       const people = await refresh();
       setPerson(people.find(({ _id }) => _id === created._id));
+      setFriendlyName('');
     } catch (error) {
       console.error(error);
     }
@@ -120,20 +117,19 @@ export function PeoplePage() {
             <Card
               extra={
                 <Popconfirm
-                  icon={
-                    <QuestionCircleOutlined style={{ visibility: 'hidden' }} />
-                  }
+                  icon=""
                   onConfirm={() => validate()}
                   title={
-                    <Form onFinish={() => validate()} ref={ref => (form = ref)}>
-                      <Form.Item
-                        label="Friendly Name"
-                        name="friendlyName"
-                        rules={[{ required: true }]}
-                      >
-                        <Input />
-                      </Form.Item>
-                    </Form>
+                    <Form.Item
+                      label="Friendly Name"
+                      name="friendlyName"
+                      rules={[{ required: true }]}
+                    >
+                      <Input
+                        value={friendlyName}
+                        onChange={({ target }) => setFriendlyName(target.value)}
+                      />
+                    </Form.Item>
                   }
                 >
                   <Button

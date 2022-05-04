@@ -1,4 +1,3 @@
-import { QuestionCircleOutlined } from '@ant-design/icons';
 import { RoutineDTO } from '@steggy/controller-shared';
 import { DOWN, is, UP } from '@steggy/utilities';
 import {
@@ -6,7 +5,6 @@ import {
   Card,
   Empty,
   Form,
-  FormInstance,
   Input,
   Popconfirm,
   Tree,
@@ -38,8 +36,7 @@ export function RoutineTree(props: {
 }) {
   const [routineMap, setRoutineMap] = useState<tRoutineMap>(new Map());
   const [treeData, setTreeData] = useState<DataNode[]>([]);
-
-  let form: FormInstance;
+  const [friendlyName, setFriendlyName] = useState('');
 
   useEffect(() => {
     refresh();
@@ -144,15 +141,14 @@ export function RoutineTree(props: {
 
   async function validate(): Promise<void> {
     try {
-      const values = await form.validateFields();
       const routine = await sendRequest<RoutineDTO>({
-        body: values,
+        body: { friendlyName },
         method: 'post',
         url: `/routine`,
       });
-      form.resetFields();
       props.onUpdate();
       props.onSelect(routine);
+      setFriendlyName('');
     } catch (error) {
       console.error(error);
     }
@@ -175,18 +171,19 @@ export function RoutineTree(props: {
     <Card
       extra={
         <Popconfirm
-          icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
+          icon=""
           onConfirm={() => validate()}
           title={
-            <Form onFinish={() => validate()} ref={ref => (form = ref)}>
-              <Form.Item
-                label="Friendly Name"
-                name="friendlyName"
-                rules={[{ required: true }]}
-              >
-                <Input />
-              </Form.Item>
-            </Form>
+            <Form.Item
+              label="Friendly Name"
+              name="friendlyName"
+              rules={[{ required: true }]}
+            >
+              <Input
+                value={friendlyName}
+                onChange={({ target }) => setFriendlyName(target.value)}
+              />
+            </Form.Item>
           }
         >
           <Button

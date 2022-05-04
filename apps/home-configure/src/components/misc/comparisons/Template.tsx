@@ -1,4 +1,3 @@
-import { QuestionOutlined } from '@ant-design/icons';
 import { RoutineTemplateComparisonDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Button, Card, Form, Input, Tooltip } from 'antd';
@@ -6,7 +5,7 @@ import { useState } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-import { sendRequest } from '../../../types';
+import { FD_ICONS, sendRequest } from '../../../types';
 import { CompareValue } from '../CompareValue';
 
 export function TemplateComparison(props: {
@@ -34,7 +33,7 @@ export function TemplateComparison(props: {
         type="inner"
         extra={
           <Tooltip title="Template is parsed with Home Assistant's templating service. The result is used in comparison">
-            <QuestionOutlined />
+            {FD_ICONS.get('information')}
           </Tooltip>
         }
       >

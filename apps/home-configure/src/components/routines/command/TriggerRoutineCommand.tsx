@@ -1,10 +1,9 @@
-import { NodeIndexOutlined } from '@ant-design/icons';
 import {
   RoutineCommandTriggerRoutineDTO,
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { DOWN, is, UP } from '@steggy/utilities';
-import { Checkbox, Divider, Empty, Space, Typography } from 'antd';
+import { Checkbox, Divider, Empty, Space } from 'antd';
 import Tree, { DataNode } from 'antd/lib/tree';
 import { useEffect, useState } from 'react';
 
@@ -58,7 +57,7 @@ export function TriggerRoutineCommand(props: {
 
   function getDefaultExpandedKeys(
     routine: RoutineDTO,
-    list: string[],
+    list: string[] = [],
   ): string[] {
     if (is.empty(routine?.parent)) {
       return list;
@@ -89,15 +88,7 @@ export function TriggerRoutineCommand(props: {
   ) : (
     <Space direction="vertical" style={{ width: '100%' }}>
       <Tree
-        treeData={[
-          {
-            children: treeData.sort((a, b) => sortChildren(a, b, routineMap)),
-            icon: <NodeIndexOutlined />,
-            key: 'root',
-            selectable: false,
-            title: <Typography.Text strong>Root</Typography.Text>,
-          },
-        ]}
+        treeData={treeData.sort((a, b) => sortChildren(a, b, routineMap))}
         className="draggable-tree"
         onSelect={([routine]: string[]) => props.onUpdate({ routine })}
         showIcon
@@ -105,7 +96,6 @@ export function TriggerRoutineCommand(props: {
         selectedKeys={selected}
         defaultExpandedKeys={getDefaultExpandedKeys(
           routines.find(({ _id }) => _id === props.command?.routine),
-          ['root'],
         )}
       />
       <Divider orientation="left">Flags</Divider>

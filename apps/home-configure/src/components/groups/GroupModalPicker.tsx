@@ -1,4 +1,3 @@
-import { CloseOutlined, FileAddOutlined } from '@ant-design/icons';
 import { GroupDTO } from '@steggy/controller-shared';
 import {
   DOWN,
@@ -170,7 +169,7 @@ export function GroupModalPicker(props: {
                   type="text"
                   size="small"
                 >
-                  <CloseOutlined />
+                  {FD_ICONS.get('item_remove')}
                 </Button>
               }
             />
@@ -186,7 +185,7 @@ export function GroupModalPicker(props: {
                       shape="round"
                       size="small"
                       onClick={() => setSelected([...selected, item])}
-                      icon={<FileAddOutlined />}
+                      icon={FD_ICONS.get('plus_box')}
                     />
                     <Typography.Text>
                       {!is.empty(item.highlighted)
@@ -214,7 +213,7 @@ export function GroupModalPicker(props: {
                         type="text"
                         size="small"
                         onClick={() => removeItem(item._id)}
-                        icon={<CloseOutlined />}
+                        icon={FD_ICONS.get('item_remove')}
                       />
                       <Typography.Text>
                         {!is.empty(item.highlighted)

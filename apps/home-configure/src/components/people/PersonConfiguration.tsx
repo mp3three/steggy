@@ -1,4 +1,3 @@
-import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import {
   GroupDTO,
   PersonDTO,
@@ -9,7 +8,7 @@ import { DOWN, is, TitleCase, UP } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 import { EntityModalPicker } from '../entities';
 import { EntityInspectButton } from '../entities/InspectButton';
 import { GroupInspectButton, GroupModalPicker } from '../groups';
@@ -118,7 +117,7 @@ export function PersonConfiguration(props: {
       <List.Item
         actions={[
           <Popconfirm
-            icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+            icon={FD_ICONS.get('delete')}
             title="Are you sure you want to delete this?"
             onConfirm={() => removeEntity(entity_id)}
           >
@@ -143,12 +142,12 @@ export function PersonConfiguration(props: {
         key={item}
         actions={[
           <Popconfirm
-            icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+            icon={FD_ICONS.get('delete')}
             title={`Detach group?`}
             onConfirm={() => detachGroup(item)}
           >
             <Button danger type="text">
-              <CloseOutlined />
+              {FD_ICONS.get('item_remove')}
             </Button>
           </Popconfirm>,
         ]}
@@ -185,12 +184,12 @@ export function PersonConfiguration(props: {
         key={item}
         actions={[
           <Popconfirm
-            icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+            icon={FD_ICONS.get('delete')}
             title={`Detach room?`}
             onConfirm={() => detachRoom(item)}
           >
             <Button danger type="text">
-              <CloseOutlined />
+              {FD_ICONS.get('item_remove')}
             </Button>
           </Popconfirm>,
         ]}

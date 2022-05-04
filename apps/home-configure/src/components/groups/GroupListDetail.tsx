@@ -1,4 +1,4 @@
-import { GroupDTO } from '@steggy/controller-shared';
+import { GroupDTO, GroupReferenceDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import {
   Button,
@@ -13,11 +13,16 @@ import {
 
 import { sendRequest } from '../../types';
 import { EntityInspectButton, EntityModalPicker } from '../entities';
+import { PersonInspectButton, PersonModalPicker } from '../people';
+import { RoomInspectButton, RoomModalPicker } from '../rooms';
 import { RelatedRoutines } from '../routines';
 import { GroupExtraActions } from './GroupExtraActions';
+import { GroupModalPicker } from './GroupModalPicker';
 import { GroupSaveStates } from './GroupSaveState';
 import { GroupUsedIn } from './GroupUsedIn';
+import { GroupInspectButton } from './InspectButton';
 
+// eslint-disable-next-line radar/cognitive-complexity
 export function GroupListDetail(props: {
   description?: React.ReactElement;
   group: GroupDTO;
@@ -35,6 +40,20 @@ export function GroupListDetail(props: {
         } as Partial<GroupDTO>,
         method: 'put',
         url: `/group/${group._id}`,
+      }),
+    );
+  }
+
+  async function addReference(
+    type: string,
+    references: string[],
+  ): Promise<void> {
+    const { group } = props;
+    props.onUpdate(
+      await sendRequest({
+        body: { references, type },
+        method: 'post',
+        url: `/group/${group._id}/reference`,
       }),
     );
   }
@@ -100,6 +119,14 @@ export function GroupListDetail(props: {
     props.onUpdate(group);
   }
 
+  async function removeReference(target: string): Promise<void> {
+    const group = await sendRequest<GroupDTO>({
+      method: 'delete',
+      url: `/group/${props.group._id}/reference/${target}`,
+    });
+    props.onUpdate(group);
+  }
+
   async function rename(friendlyName: string) {
     props.onUpdate(
       await sendRequest({
@@ -108,6 +135,158 @@ export function GroupListDetail(props: {
         url: `/group/${props.group._id}`,
       }),
     );
+  }
+
+  function entityRef() {
+    return (
+      <Card
+        type="inner"
+        key="entities"
+        extra={
+          <EntityModalPicker
+            exclude={props.group.entities}
+            highlight={is.empty(props.group.entities)}
+            domains={domainList()}
+            onAdd={entities => addEntities(entities)}
+          />
+        }
+      >
+        <List
+          pagination={{ size: 'small' }}
+          dataSource={props.group.entities ?? []}
+          renderItem={entity_id => (
+            <List.Item>
+              <List.Item.Meta
+                title={<EntityInspectButton entity_id={entity_id} />}
+              />
+              <Popconfirm
+                title={`Are you sure you want to remove ${entity_id}?`}
+                onConfirm={() => removeEntity(entity_id)}
+              >
+                <Button danger type="text">
+                  X
+                </Button>
+              </Popconfirm>
+            </List.Item>
+          )}
+        />
+      </Card>
+    );
+  }
+
+  function groupReferences(groups: GroupReferenceDTO[]) {
+    return (
+      <Card
+        type="inner"
+        key="entities"
+        extra={
+          <GroupModalPicker
+            exclude={groups.map(({ target }) => target)}
+            onAdd={selected => addReference('group', selected)}
+            highlight={is.empty(groups)}
+          />
+        }
+      >
+        <List
+          dataSource={groups}
+          renderItem={({ target }) => (
+            <List.Item>
+              <List.Item.Meta title={<GroupInspectButton group={target} />} />
+              <Popconfirm
+                title={`Are you sure you want to remove this group?`}
+                onConfirm={() => removeReference(target)}
+              >
+                <Button danger type="text">
+                  X
+                </Button>
+              </Popconfirm>
+            </List.Item>
+          )}
+        />
+      </Card>
+    );
+  }
+
+  function peopleReferences(people: GroupReferenceDTO[]) {
+    return (
+      <Card
+        type="inner"
+        key="entities"
+        extra={
+          <PersonModalPicker
+            exclude={people.map(({ target }) => target)}
+            onAdd={selected => addReference('person', selected)}
+            highlight={is.empty(people)}
+          />
+        }
+      >
+        <List
+          dataSource={people}
+          renderItem={({ target }) => (
+            <List.Item>
+              <List.Item.Meta title={<PersonInspectButton person={target} />} />
+              <Popconfirm
+                title={`Are you sure you want to remove this person?`}
+                onConfirm={() => removeReference(target)}
+              >
+                <Button danger type="text">
+                  X
+                </Button>
+              </Popconfirm>
+            </List.Item>
+          )}
+        />
+      </Card>
+    );
+  }
+
+  function roomReferences(rooms: GroupReferenceDTO[]) {
+    return (
+      <Card
+        type="inner"
+        key="entities"
+        extra={
+          <RoomModalPicker
+            exclude={rooms.map(({ target }) => target)}
+            onAdd={selected => addReference('room', selected)}
+            highlight={is.empty(rooms)}
+          />
+        }
+      >
+        <List
+          dataSource={rooms}
+          renderItem={({ target }) => (
+            <List.Item>
+              <List.Item.Meta title={<RoomInspectButton room={target} />} />
+              <Popconfirm
+                title={`Are you sure you want to remove this room?`}
+                onConfirm={() => removeReference(target)}
+              >
+                <Button danger type="text">
+                  X
+                </Button>
+              </Popconfirm>
+            </List.Item>
+          )}
+        />
+      </Card>
+    );
+  }
+
+  function memberEditor() {
+    const references = props.group?.references ?? [];
+    if (props.group.type === 'group') {
+      return groupReferences(references.filter(({ type }) => type === 'group'));
+    }
+    if (props.group.type === 'room') {
+      return roomReferences(references.filter(({ type }) => type === 'room'));
+    }
+    if (props.group.type === 'person') {
+      return peopleReferences(
+        references.filter(({ type }) => type === 'person'),
+      );
+    }
+    return entityRef();
   }
 
   function renderContents() {
@@ -121,38 +300,7 @@ export function GroupListDetail(props: {
         </Typography.Title>
         <Tabs>
           <Tabs.TabPane key="members" tab="Members">
-            <Card
-              type="inner"
-              key="entities"
-              extra={
-                <EntityModalPicker
-                  exclude={props.group.entities}
-                  highlight={is.empty(props.group.entities)}
-                  domains={domainList()}
-                  onAdd={entities => addEntities(entities)}
-                />
-              }
-            >
-              <List
-                pagination={{ size: 'small' }}
-                dataSource={props.group.entities ?? []}
-                renderItem={entity_id => (
-                  <List.Item>
-                    <List.Item.Meta
-                      title={<EntityInspectButton entity_id={entity_id} />}
-                    />
-                    <Popconfirm
-                      title={`Are you sure you want to remove ${entity_id}?`}
-                      onConfirm={() => removeEntity(entity_id)}
-                    >
-                      <Button danger type="text">
-                        X
-                      </Button>
-                    </Popconfirm>
-                  </List.Item>
-                )}
-              />
-            </Card>
+            {memberEditor()}
           </Tabs.TabPane>
           <Tabs.TabPane key="save_states" tab="Save States">
             <GroupSaveStates

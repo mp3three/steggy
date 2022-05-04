@@ -1,4 +1,3 @@
-import { QuestionCircleOutlined } from '@ant-design/icons';
 import { RoomDTO } from '@steggy/controller-shared';
 import { Button, Dropdown, Menu, Popconfirm } from 'antd';
 
@@ -34,7 +33,7 @@ export function RoomExtraActions(props: {
         <Menu>
           <Menu.Item key="delete">
             <Popconfirm
-              icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+              icon={FD_ICONS.get('delete')}
               title={`Are you sure you want to delete ${props.room?.friendlyName}?`}
               onConfirm={() => remove()}
             >

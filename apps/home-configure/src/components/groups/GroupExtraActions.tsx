@@ -1,4 +1,3 @@
-import { QuestionCircleOutlined } from '@ant-design/icons';
 import { GroupDTO } from '@steggy/controller-shared';
 import { Button, Dropdown, Menu, Popconfirm } from 'antd';
 
@@ -34,7 +33,7 @@ export function GroupExtraActions(props: {
         <Menu>
           <Menu.Item key="delete">
             <Popconfirm
-              icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+              icon={FD_ICONS.get('item_remove')}
               title={`Are you sure you want to delete ${props.group.friendlyName}?`}
               onConfirm={() => remove()}
             >

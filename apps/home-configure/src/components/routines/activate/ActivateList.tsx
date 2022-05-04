@@ -1,4 +1,3 @@
-import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import {
   ROUTINE_ACTIVATE_TYPES,
   RoutineActivateDTO,
@@ -8,7 +7,7 @@ import { ARRAY_OFFSET, TitleCase } from '@steggy/utilities';
 import { Button, Card, List, Popconfirm } from 'antd';
 import { useState } from 'react';
 
-import { sendRequest } from '../../../types';
+import { FD_ICONS, sendRequest } from '../../../types';
 import { RoutineActivateDrawer } from '../RoutineActivateDrawer';
 import { ActivateAdd } from './ActivateAdd';
 
@@ -78,7 +77,7 @@ export function ActivateList(props: {
                 )}
               />
               <Popconfirm
-                icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                icon={FD_ICONS.get('delete')}
                 title={`Are you sure you want to delete ${item.friendlyName}?`}
                 onConfirm={e => {
                   deleteActivate(item);
@@ -86,7 +85,7 @@ export function ActivateList(props: {
                 }}
               >
                 <Button danger type="text" onClick={e => e.stopPropagation()}>
-                  <CloseOutlined />
+                  {FD_ICONS.get('item_remove')}
                 </Button>
               </Popconfirm>
             </List.Item>

@@ -1,4 +1,3 @@
-import { CloseOutlined, FileAddOutlined } from '@ant-design/icons';
 import { RoomDTO } from '@steggy/controller-shared';
 import {
   DOWN,
@@ -159,7 +158,7 @@ export function RoomModalPicker(props: {
                   type="text"
                   size="small"
                 >
-                  <CloseOutlined />
+                  {FD_ICONS.get('item_remove')}
                 </Button>
               }
             />
@@ -175,7 +174,7 @@ export function RoomModalPicker(props: {
                       shape="round"
                       size="small"
                       onClick={() => setSelected([...selected, item])}
-                      icon={<FileAddOutlined />}
+                      icon={FD_ICONS.get('plus_box')}
                     />
                     <Typography.Text>
                       {!is.empty(item.highlighted)
@@ -203,7 +202,7 @@ export function RoomModalPicker(props: {
                         type="text"
                         size="small"
                         onClick={() => removeItem(item._id)}
-                        icon={<CloseOutlined />}
+                        icon={FD_ICONS.get('delete')}
                       />
                       <Typography.Text>
                         {!is.empty(item.highlighted)

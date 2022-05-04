@@ -1,5 +1,5 @@
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import { Button, Form, FormInstance, Input, Popconfirm } from 'antd';
+import { Button, Form, Input, Popconfirm } from 'antd';
+import { useState } from 'react';
 
 import { sendRequest } from '../../types';
 
@@ -7,19 +7,17 @@ export function GroupCreateButton(props: {
   groupsUpdated: () => void;
   type: string;
 }) {
-  let form: FormInstance;
+  const [friendlyName, setFriendlyName] = useState('');
 
   async function validate(): Promise<void> {
     try {
-      const values = await form.validateFields();
-      values.type = props.type;
       await sendRequest({
-        body: values,
+        body: { friendlyName, type: props.type },
         method: 'post',
         url: `/group`,
       });
-      form.resetFields();
       props.groupsUpdated();
+      setFriendlyName('');
     } catch (error) {
       console.error(error);
     }
@@ -27,18 +25,19 @@ export function GroupCreateButton(props: {
 
   return (
     <Popconfirm
-      icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
+      icon=""
       onConfirm={() => validate()}
       title={
-        <Form onFinish={() => validate()} ref={target => (form = target)}>
-          <Form.Item
-            label="Friendly Name"
-            name="friendlyName"
-            rules={[{ required: true }]}
-          >
-            <Input />
-          </Form.Item>
-        </Form>
+        <Form.Item
+          label="Friendly Name"
+          name="friendlyName"
+          rules={[{ required: true }]}
+        >
+          <Input
+            value={friendlyName}
+            onChange={({ target }) => setFriendlyName(target.value)}
+          />
+        </Form.Item>
       }
     >
       <Button>Create new</Button>

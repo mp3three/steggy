@@ -1,9 +1,4 @@
 import {
-  CloseOutlined,
-  MenuOutlined,
-  QuestionCircleOutlined,
-} from '@ant-design/icons';
-import {
   ActivateCommand,
   RoutineCommandDTO,
   RoutineDTO,
@@ -17,13 +12,11 @@ import {
   SortableHandle,
 } from 'react-sortable-hoc';
 
-import { sendRequest } from '../../../types';
+import { FD_ICONS, sendRequest } from '../../../types';
 import { RoutineCommandDrawer } from '../RoutineCommandDrawer';
 import { CommandAdd } from './CommandAdd';
 
-const DragHandle = SortableHandle(() => (
-  <MenuOutlined style={{ color: '#999', cursor: 'grab' }} />
-));
+const DragHandle = SortableHandle(() => FD_ICONS.get('drag_handle'));
 const SortableBody = SortableContainer(properties => <tbody {...properties} />);
 const SortableItem = SortableElement(properties => (
   <tr {...properties} style={{ whiteSpace: 'nowrap' }} />
@@ -164,7 +157,7 @@ export function CommandList(props: {
               width={30}
               render={(_, item: RoutineCommandDTO) => (
                 <Popconfirm
-                  icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                  icon={FD_ICONS.get('delete')}
                   title={`Are you sure you want to delete ${item.friendlyName}?`}
                   onConfirm={e => {
                     deleteCommand(item);
@@ -172,7 +165,7 @@ export function CommandList(props: {
                   }}
                 >
                   <Button danger type="text" onClick={e => e.stopPropagation()}>
-                    <CloseOutlined />
+                    {FD_ICONS.get('item_remove')}
                   </Button>
                 </Popconfirm>
               )}
@@ -196,7 +189,7 @@ export function CommandList(props: {
                   description={TitleCase(item.type)}
                 />
                 <Popconfirm
-                  icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                  icon={FD_ICONS.get('delete')}
                   title={`Are you sure you want to delete ${item.friendlyName}?`}
                   onConfirm={e => {
                     deleteCommand(item);
@@ -204,7 +197,7 @@ export function CommandList(props: {
                   }}
                 >
                   <Button danger type="text" onClick={e => e.stopPropagation()}>
-                    <CloseOutlined />
+                    {FD_ICONS.get('item_remove')}
                   </Button>
                 </Popconfirm>
               </List.Item>

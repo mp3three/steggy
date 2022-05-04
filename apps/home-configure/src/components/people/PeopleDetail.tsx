@@ -1,4 +1,3 @@
-import { QuestionCircleOutlined } from '@ant-design/icons';
 import { PersonDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import {
@@ -114,7 +113,7 @@ export function PeopleDetail(props: {
               <Menu>
                 <Menu.Item key="delete">
                   <Popconfirm
-                    icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                    icon={FD_ICONS.get('delete')}
                     title={`Are you sure you want to delete ${props.person.friendlyName}?`}
                     onConfirm={() => remove()}
                   >

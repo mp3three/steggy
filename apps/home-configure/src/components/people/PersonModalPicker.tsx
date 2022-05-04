@@ -1,4 +1,12 @@
-import { INCREMENT, INVERT_VALUE, is, START } from '@steggy/utilities';
+import { PersonDTO } from '@steggy/controller-shared';
+import {
+  DOWN,
+  INCREMENT,
+  INVERT_VALUE,
+  is,
+  START,
+  UP,
+} from '@steggy/utilities';
 import {
   Button,
   Divider,
@@ -14,11 +22,9 @@ import fuzzy from 'fuzzysort';
 import parse from 'html-react-parser';
 import { useState } from 'react';
 
-import { domain, FD_ICONS, sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 
 const TEMP_TEMPLATE_SIZE = 3;
-
-type tIdList = { entity_id: string; highlighted?: string }[];
 
 function highlight(result) {
   const open = '{'.repeat(TEMP_TEMPLATE_SIZE);
@@ -58,36 +64,33 @@ function highlight(result) {
   );
 }
 
+type tIdList = (PersonDTO & { highlighted?: string })[];
+
 // eslint-disable-next-line radar/cognitive-complexity
-export function EntityModalPicker(props: {
-  domains?: string[];
+export function PersonModalPicker(props: {
   exclude?: string[];
   highlight: boolean;
   onAdd: (selected: string[]) => void;
 }) {
   const [available, setAvailable] = useState<tIdList>([]);
-  const [modalVisible, setVisible] = useState<boolean>();
+  const [modalVisible, setModalVisible] = useState<boolean>();
   const [searchText, setSearchText] = useState<string>();
   const [selected, setSelected] = useState<tIdList>([]);
-
-  function addItem(entity_id: string): void {
-    setSelected([...selected, { entity_id }]);
-  }
 
   function fuzzySort(available: tIdList): tIdList {
     if (is.empty(searchText)) {
       return available;
     }
-    const fuzzyResult = fuzzy.go(searchText, available, { key: 'entity_id' });
+    const fuzzyResult = fuzzy.go(searchText, available, {
+      key: 'friendlyName',
+    });
     const highlighted = fuzzyResult.map(result => {
       const { target } = result;
       const item = available.find(option => {
-        return is.string(option)
-          ? option === target
-          : option.entity_id === target;
+        return is.string(option) ? option === target : option._id === target;
       });
       return {
-        entity_id: item.entity_id,
+        ...item,
         highlighted: highlight(result),
       };
     });
@@ -96,58 +99,50 @@ export function EntityModalPicker(props: {
 
   function getList() {
     const exclude = props.exclude ?? [];
-    const filtered = available.filter(
+    const list = available.filter(
       item =>
-        !exclude.includes(item.entity_id) &&
-        selected.every(i => item.entity_id !== i.entity_id),
+        !exclude.includes(item._id) && selected.every(i => item._id !== i._id),
     );
     if (is.empty(searchText)) {
-      return filtered;
+      return list.sort((a, b) => (a.friendlyName > b.friendlyName ? UP : DOWN));
     }
-    return fuzzySort(filtered);
+    return fuzzySort(list);
   }
+
+  function hide(e?: React.MouseEvent): void {
+    if (!is.undefined(e)) {
+      e.stopPropagation();
+    }
+    setModalVisible(false);
+  }
+
   function onComplete(): void {
-    props.onAdd(selected.map(({ entity_id }) => entity_id));
+    props.onAdd(selected.map(({ _id }) => _id));
     setSelected([]);
-    setVisible(false);
+    setModalVisible(false);
+  }
+
+  function removeItem(entity_id: string): void {
+    setSelected((selected || []).filter(i => i._id !== entity_id));
+  }
+
+  async function show(e?: React.MouseEvent): Promise<void> {
+    if (!is.undefined(e)) {
+      e.stopPropagation();
+    }
+    setAvailable(await sendRequest<PersonDTO[]>({ url: `/person` }));
+    setModalVisible(true);
+    setSearchText('');
+    setSelected([]);
   }
 
   return (
     <>
-      <Button
-        onClick={async e => {
-          if (!is.undefined(e)) {
-            e.stopPropagation();
-          }
-          setAvailable(undefined);
-          setVisible(true);
-          setSearchText('');
-          setSelected([]);
-
-          let available = await sendRequest<string[]>({ url: `/entity/list` });
-          if (props.domains) {
-            available = available.filter(entity_id =>
-              props.domains.includes(domain(entity_id)),
-            );
-          }
-          setAvailable(available.map(entity_id => ({ entity_id })));
-        }}
-        size="small"
-        type={props.highlight ? 'primary' : 'text'}
-        icon={FD_ICONS.get('plus_box')}
-      >
-        Add entities
-      </Button>
       <Modal
-        title="Entity List Builder"
+        title="Person List Builder"
         visible={modalVisible}
         onOk={() => onComplete()}
-        onCancel={e => {
-          if (!is.undefined(e)) {
-            e.stopPropagation();
-          }
-          setVisible(false);
-        }}
+        onCancel={e => hide(e)}
       >
         {!available ? (
           <Spin tip="Loading" />
@@ -168,7 +163,7 @@ export function EntityModalPicker(props: {
               }
             />
             <List
-              rowKey="entity_id"
+              rowKey="_id"
               dataSource={getList()}
               pagination={{ size: 'small' }}
               renderItem={item => (
@@ -178,13 +173,13 @@ export function EntityModalPicker(props: {
                       type="primary"
                       shape="round"
                       size="small"
-                      onClick={() => addItem(item.entity_id)}
+                      onClick={() => setSelected([...selected, item])}
                       icon={FD_ICONS.get('plus_box')}
                     />
                     <Typography.Text>
                       {!is.empty(item.highlighted)
                         ? parse(item.highlighted)
-                        : item.entity_id}
+                        : item.friendlyName}
                     </Typography.Text>
                   </Space>
                 </List.Item>
@@ -195,7 +190,7 @@ export function EntityModalPicker(props: {
               <Empty description="Nothing added yet" />
             ) : (
               <List
-                rowKey="entity_id"
+                rowKey="_id"
                 dataSource={selected}
                 pagination={{ size: 'small' }}
                 renderItem={item => (
@@ -206,19 +201,13 @@ export function EntityModalPicker(props: {
                         shape="round"
                         type="text"
                         size="small"
-                        onClick={() =>
-                          setSelected(
-                            selected.filter(
-                              i => i.entity_id !== item.entity_id,
-                            ),
-                          )
-                        }
+                        onClick={() => removeItem(item._id)}
                         icon={FD_ICONS.get('item_remove')}
                       />
                       <Typography.Text>
                         {!is.empty(item.highlighted)
                           ? parse(item.highlighted)
-                          : item.entity_id}
+                          : item.friendlyName}
                       </Typography.Text>
                     </Space>
                   </List.Item>
@@ -228,6 +217,14 @@ export function EntityModalPicker(props: {
           </>
         )}
       </Modal>
+      <Button
+        onClick={e => show(e)}
+        size="small"
+        type={props.highlight ? 'primary' : 'text'}
+        icon={FD_ICONS.get('plus_box')}
+      >
+        Add people
+      </Button>
     </>
   );
 }

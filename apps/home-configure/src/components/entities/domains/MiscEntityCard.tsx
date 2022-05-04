@@ -1,4 +1,3 @@
-import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { HassStateDTO, LightStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
@@ -13,7 +12,7 @@ import {
 } from 'antd';
 import React from 'react';
 
-import { sendRequest } from '../../../types';
+import { FD_ICONS, sendRequest } from '../../../types';
 import { EntityAttributePopover } from '../AttributePopover';
 
 type tStateType = {
@@ -63,12 +62,12 @@ export class EntityCard extends React.Component<
         extra={
           is.undefined(this.props.onRemove) ? undefined : (
             <Popconfirm
-              icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+              icon={FD_ICONS.get('delete')}
               title="Are you sure you want to remove this?"
               onConfirm={() => this.props.onRemove(this.ref)}
             >
               <Button size="small" type="text" danger>
-                <CloseOutlined />
+                {FD_ICONS.get('item_remove')}
               </Button>
             </Popconfirm>
           )

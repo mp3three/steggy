@@ -24,7 +24,7 @@ export enum GROUP_TYPES {
   group = 'group',
   light = 'light',
   lock = 'lock',
-  people = 'people',
+  person = 'person',
   room = 'room',
   switch = 'switch',
 }

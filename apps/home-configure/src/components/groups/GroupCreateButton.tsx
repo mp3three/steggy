@@ -1,4 +1,3 @@
-import { QuestionCircleOutlined } from '@ant-design/icons';
 import { GroupDTO } from '@steggy/controller-shared';
 import { TitleCase } from '@steggy/utilities';
 import { Button, Form, Popconfirm, Select, Typography } from 'antd';
@@ -30,7 +29,7 @@ export function GroupCreateButton(props: {
 
   return (
     <Popconfirm
-      icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
+      icon={''}
       onConfirm={() => create()}
       placement="bottomRight"
       title={

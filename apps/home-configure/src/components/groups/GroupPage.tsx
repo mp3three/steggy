@@ -120,7 +120,7 @@ export function GroupPage() {
             onClick={() => setGroupType(target.type)}
           >
             <Typography.Text type="secondary">
-              {TitleCase(target.type)} Group
+              {TitleCase(target?.type)} Group
             </Typography.Text>
           </Button>
         ) : undefined}

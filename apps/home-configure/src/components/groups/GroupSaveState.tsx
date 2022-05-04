@@ -1,11 +1,9 @@
-import { QuestionCircleOutlined } from '@ant-design/icons';
 import { GroupDTO, GroupSaveStateDTO } from '@steggy/controller-shared';
-import { DOWN, sleep, UP } from '@steggy/utilities';
+import { DOWN, is, sleep, UP } from '@steggy/utilities';
 import {
   Button,
   Card,
   Form,
-  FormInstance,
   Input,
   List,
   notification,
@@ -13,6 +11,7 @@ import {
   Space,
   Typography,
 } from 'antd';
+import { useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 import { RelatedRoutines } from '../routines';
@@ -22,8 +21,10 @@ export function GroupSaveStates(props: {
   group: GroupDTO;
   onGroupUpdate: (group?: GroupDTO) => void;
 }) {
-  let captureForm: FormInstance;
-  let createForm: FormInstance;
+  const [friendlyName, setFriendlyName] = useState('');
+  const HAS_ENTITIES = ['light', 'switch', 'fan', 'lock'].includes(
+    props.group.type,
+  );
 
   async function activateState(state: GroupSaveStateDTO): Promise<void> {
     await sendRequest({
@@ -45,17 +46,22 @@ export function GroupSaveStates(props: {
 
   async function validateCapture(): Promise<void> {
     try {
-      const values = await captureForm.validateFields();
+      if (is.empty(friendlyName)) {
+        notification.error({
+          message: 'Cannot have empty name',
+        });
+        return;
+      }
       const group = await sendRequest<GroupDTO>({
-        body: values,
+        body: { friendlyName },
         method: 'post',
         url: `/group/${props.group._id}/capture`,
       });
       notification.success({
-        message: `State captured: ${values.friendlyName}`,
+        message: `State captured: ${friendlyName}`,
       });
       props.onGroupUpdate(group);
-      captureForm.resetFields();
+      setFriendlyName('');
     } catch (error) {
       console.error(error);
     }
@@ -63,14 +69,19 @@ export function GroupSaveStates(props: {
 
   async function validateCreate(): Promise<void> {
     try {
-      const values = await createForm.validateFields();
+      if (is.empty(friendlyName)) {
+        notification.error({
+          message: 'Cannot have empty name',
+        });
+        return;
+      }
       const group = await sendRequest<GroupDTO>({
-        body: values,
+        body: { friendlyName },
         method: 'post',
         url: `/group/${props.group._id}/state`,
       });
       props.onGroupUpdate(group);
-      createForm.resetFields();
+      setFriendlyName('');
     } catch (error) {
       console.error(error);
     }
@@ -84,44 +95,44 @@ export function GroupSaveStates(props: {
         key="states"
         extra={
           <Space>
-            <Popconfirm
-              icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
-              onConfirm={() => validateCapture()}
-              title={
-                <Form
-                  onFinish={() => validateCapture()}
-                  ref={form => (captureForm = form)}
-                >
+            {HAS_ENTITIES ? (
+              <Popconfirm
+                icon={''}
+                onConfirm={() => validateCapture()}
+                title={
                   <Form.Item
                     label="Friendly Name"
                     name="friendlyName"
                     rules={[{ required: true }]}
                   >
-                    <Input />
+                    <Input
+                      value={friendlyName}
+                      onChange={({ target }) => setFriendlyName(target.value)}
+                    />
                   </Form.Item>
-                </Form>
-              }
-            >
-              <Button size="small" type="text" icon={FD_ICONS.get('capture')}>
-                Capture current
-              </Button>
-            </Popconfirm>
+                }
+                placement="bottomLeft"
+              >
+                <Button size="small" type="text" icon={FD_ICONS.get('capture')}>
+                  Capture current
+                </Button>
+              </Popconfirm>
+            ) : undefined}
             <Popconfirm
-              icon={<QuestionCircleOutlined style={{ visibility: 'hidden' }} />}
+              placement="bottomLeft"
+              icon={''}
               onConfirm={() => validateCreate()}
               title={
-                <Form
-                  onFinish={() => validateCreate()}
-                  ref={form => (createForm = form)}
+                <Form.Item
+                  label="Friendly Name"
+                  name="friendlyName"
+                  rules={[{ required: true }]}
                 >
-                  <Form.Item
-                    label="Friendly Name"
-                    name="friendlyName"
-                    rules={[{ required: true }]}
-                  >
-                    <Input />
-                  </Form.Item>
-                </Form>
+                  <Input
+                    value={friendlyName}
+                    onChange={({ target }) => setFriendlyName(target.value)}
+                  />
+                </Form.Item>
               }
             >
               <Button size="small" type="text" icon={FD_ICONS.get('plus_box')}>
@@ -156,7 +167,7 @@ export function GroupSaveStates(props: {
                 Activate
               </Button>
               <Popconfirm
-                icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                icon={FD_ICONS.get('delete')}
                 title={`Are you sure you want to delete ${record.friendlyName}`}
                 onConfirm={() => removeState(record)}
               >

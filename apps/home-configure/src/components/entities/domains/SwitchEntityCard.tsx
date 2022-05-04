@@ -1,4 +1,3 @@
-import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { GeneralSaveStateDTO } from '@steggy/controller-shared';
 import { LightStateDTO, SwitchStateDTO } from '@steggy/home-assistant-shared';
 import { is } from '@steggy/utilities';
@@ -106,12 +105,12 @@ export class SwitchEntityCard extends React.Component<
             ) : undefined}
             {is.undefined(this.props.onRemove) ? undefined : (
               <Popconfirm
-                icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                icon={FD_ICONS.get('delete')}
                 title="Are you sure you want to remove this?"
                 onConfirm={() => this.props.onRemove(this.ref)}
               >
                 <Button size="small" type="text" danger>
-                  <CloseOutlined />
+                  {FD_ICONS.get('item_remove')}
                 </Button>
               </Popconfirm>
             )}
