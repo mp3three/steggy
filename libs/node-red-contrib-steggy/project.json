@@ -1,5 +1,4 @@
 {
-  "root": "libs/node-red-contrib-steggy",
   "sourceRoot": "libs/node-red-contrib-steggy/src",
   "projectType": "library",
   "targets": {

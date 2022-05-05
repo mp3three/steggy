@@ -1,5 +1,4 @@
 {
-  "root": "libs/google",
   "sourceRoot": "libs/google/src",
   "projectType": "library",
   "targets": {

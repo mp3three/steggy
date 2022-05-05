@@ -1,5 +1,4 @@
 {
-  "root": "libs/formio",
   "sourceRoot": "libs/formio/src",
   "projectType": "library",
   "targets": {

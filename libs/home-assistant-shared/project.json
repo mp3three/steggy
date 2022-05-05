@@ -1,5 +1,4 @@
 {
-  "root": "libs/home-assistant-shared",
   "sourceRoot": "libs/home-assistant-shared/src",
   "projectType": "library",
   "targets": {

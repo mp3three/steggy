@@ -3,7 +3,7 @@ import './styles.css';
 
 import { ConfigProvider } from 'antd';
 import { StrictMode } from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
 import { App } from './components';
@@ -14,7 +14,10 @@ ConfigProvider.config({
   },
 });
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(
+  document.querySelector('#root') as HTMLElement,
+);
+root.render(
   <StrictMode>
     <BrowserRouter>
       <ConfigProvider>
@@ -22,5 +25,4 @@ ReactDOM.render(
       </ConfigProvider>
     </BrowserRouter>
   </StrictMode>,
-  document.querySelector('#root'),
 );

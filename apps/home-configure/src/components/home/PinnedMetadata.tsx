@@ -91,7 +91,7 @@ export function PinnedMetadata() {
     );
   }
 
-  function renderValue(data: RoomMetadataDTO) {
+  function renderValue(data: RoomMetadataDTO): string {
     if (is.empty(data?.type)) {
       return undefined;
     }
@@ -99,7 +99,7 @@ export function PinnedMetadata() {
       return String(data.value as boolean);
     }
     if (data.type === 'string' || data.type === 'enum') {
-      return data.value;
+      return data.value as string;
     }
     if (data.type === 'date') {
       return new Date(data.value as string).toLocaleString();

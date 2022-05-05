@@ -1,5 +1,4 @@
 {
-  "root": "apps/pico-relay",
   "sourceRoot": "apps/pico-relay/src",
   "projectType": "application",
   "targets": {

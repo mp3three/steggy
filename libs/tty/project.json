@@ -1,5 +1,4 @@
 {
-  "root": "libs/tty",
   "sourceRoot": "libs/tty/src",
   "projectType": "library",
   "targets": {

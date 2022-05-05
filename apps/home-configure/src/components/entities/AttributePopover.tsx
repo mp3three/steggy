@@ -9,7 +9,7 @@ export function EntityAttributePopover({ state }: { state: HassStateDTO }) {
   }));
   return (
     <Space direction="vertical">
-      <Typography.Text>State: {state.state}</Typography.Text>
+      <Typography.Text>State: {state.state as string}</Typography.Text>
       <Table dataSource={data} pagination={{ size: 'small' }}>
         <Table.Column key="key" title="key" dataIndex="key" />
         <Table.Column key="value" title="value" dataIndex="value" />

@@ -1,5 +1,4 @@
 {
-  "root": "libs/utilities",
   "sourceRoot": "libs/utilities/src",
   "projectType": "library",
   "targets": {
