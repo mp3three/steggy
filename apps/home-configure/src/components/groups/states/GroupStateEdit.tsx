@@ -1,7 +1,10 @@
+/* eslint-disable radar/no-duplicate-string */
 import {
   GeneralSaveStateDTO,
   GroupDTO,
   GroupSaveStateDTO,
+  PersonDTO,
+  RoomDTO,
 } from '@steggy/controller-shared';
 import {
   ColorModes,
@@ -15,8 +18,9 @@ import {
   Descriptions,
   Divider,
   Drawer,
-  Layout,
+  Form,
   notification,
+  Select,
   Skeleton,
   Space,
   Tabs,
@@ -45,6 +49,9 @@ export function GroupStateEdit(props: {
   const [friendlyName, setFriendlyName] = useState('');
   const [state, setState] = useState<GroupSaveStateDTO>();
   const [group, setGroup] = useState<GroupDTO>();
+  const [groups, setGroups] = useState<GroupDTO[]>([]);
+  const [rooms, setRooms] = useState<RoomDTO[]>([]);
+  const [people, setPeople] = useState<PersonDTO[]>([]);
   const cards: (
     | LightEntityCard
     | SwitchEntityCard
@@ -54,7 +61,7 @@ export function GroupStateEdit(props: {
 
   const entities = group?.entities ?? [];
 
-  async function load() {
+  async function loadEntities() {
     const groups = await sendRequest<GroupDTO[]>({
       control: {
         filters: new Set([
@@ -90,21 +97,129 @@ export function GroupStateEdit(props: {
     setFriendlyName(state.friendlyName);
     setGroup(group);
   }
+
   useEffect(() => {
     if (is.undefined(props.group)) {
       return;
     }
     setGroup(props.group);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.group]);
+
+  useEffect(() => {
+    const references = group?.references ?? [];
+    async function fetchGroups() {
+      const groups = references.filter(({ type }) => type === 'group');
+      if (is.empty(groups)) {
+        setGroups([]);
+        return;
+      }
+      setGroups(
+        await sendRequest({
+          control: {
+            filters: new Set([
+              {
+                field: '_id',
+                operation: 'in',
+                value: groups.map(({ target }) => target),
+              },
+            ]),
+            select: [
+              'friendlyName',
+              'save_states.id',
+              'save_states.friendlyName',
+            ],
+          },
+          url: `/group`,
+        }),
+      );
+    }
+
+    async function fetchRooms() {
+      const rooms = references.filter(({ type }) => type === 'room');
+      if (is.empty(rooms)) {
+        setRooms([]);
+        return;
+      }
+      setRooms(
+        await sendRequest({
+          control: {
+            filters: new Set([
+              {
+                field: '_id',
+                operation: 'in',
+                value: rooms.map(({ target }) => target),
+              },
+            ]),
+            select: [
+              'friendlyName',
+              'save_states.id',
+              'save_states.friendlyName',
+            ],
+          },
+          url: `/room`,
+        }),
+      );
+    }
+
+    async function fetchPeople() {
+      const people = references.filter(({ type }) => type === 'person');
+      if (is.empty(people)) {
+        setPeople([]);
+        return;
+      }
+      setPeople(
+        await sendRequest({
+          control: {
+            filters: new Set([
+              {
+                field: '_id',
+                operation: 'in',
+                value: people.map(({ target }) => target),
+              },
+            ]),
+            select: [
+              'friendlyName',
+              'save_states.id',
+              'save_states.friendlyName',
+            ],
+          },
+          url: `/person`,
+        }),
+      );
+    }
+
+    fetchPeople();
+    fetchGroups();
+    fetchRooms();
+  }, [group?.references]);
+
   useEffect(() => {
     if (is.string(props.state)) {
-      load();
+      loadEntities();
       return;
     }
     setState(props.state);
     setFriendlyName(props.state?.friendlyName);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.state]);
+
+  function referenceEdit() {
+    return [...groups, ...rooms, ...people].map(item => (
+      <Form.Item key={item._id} label={item.friendlyName}>
+        <Select>
+          <Select.Option value="">
+            <Typography.Text type="secondary">No Change</Typography.Text>
+          </Select.Option>
+          {item.save_states.map((state: GroupSaveStateDTO) => (
+            <Select.Option key={state.id} value={state.id}>
+              {state.friendlyName}
+            </Select.Option>
+          ))}
+        </Select>
+      </Form.Item>
+    ));
+  }
 
   function bulkEdit() {
     switch (group?.type) {
@@ -136,6 +251,10 @@ export function GroupStateEdit(props: {
             onUpdate={state => onStateChange(state)}
           />
         );
+      case 'room':
+      case 'person':
+      case 'group':
+        return referenceEdit();
     }
     return <Skeleton />;
   }
@@ -316,12 +435,18 @@ export function GroupStateEdit(props: {
       >
         <Tabs>
           <Tabs.TabPane tab="State" key="state">
-            <Space direction="vertical">
+            <Space direction="vertical" style={{ width: '100%' }}>
               {bulkEdit()}
-              <Divider orientation="left">
-                <Typography.Text strong>Edit State</Typography.Text>
-              </Divider>
-              <Space wrap>{entities.map(entity => entityRender(entity))}</Space>
+              {!is.empty(entities) ? (
+                <>
+                  <Divider orientation="left">
+                    <Typography.Text strong>Edit State</Typography.Text>
+                  </Divider>
+                  <Space wrap>
+                    {entities.map(entity => entityRender(entity))}
+                  </Space>
+                </>
+              ) : undefined}
             </Space>
           </Tabs.TabPane>
           <Tabs.TabPane tab="Extra Information" key="info">
@@ -348,8 +473,6 @@ export function GroupStateEdit(props: {
       </Button>
     </>
   ) : (
-    <Layout.Content>
-      <Skeleton.Button active />
-    </Layout.Content>
+    <Skeleton.Button active />
   );
 }
