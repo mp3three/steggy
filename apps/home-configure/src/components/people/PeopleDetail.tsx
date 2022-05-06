@@ -43,6 +43,11 @@ export function PeopleDetail(props: {
   }
 
   function renderBody() {
+    const members = [
+      ...(props.person?.rooms ?? []),
+      ...(props.person?.groups ?? []),
+      ...(props.person?.entities ?? []),
+    ].length;
     return !props.person ? (
       <Empty description="Select a person" />
     ) : (
@@ -56,19 +61,47 @@ export function PeopleDetail(props: {
           {props.person.friendlyName}
         </Typography.Title>
         <Tabs>
-          <Tabs.TabPane key="members" tab="Members">
+          <Tabs.TabPane
+            key="members"
+            tab={
+              <>
+                <Typography.Text type="secondary">({members}) </Typography.Text>
+                Members
+              </>
+            }
+          >
             <PersonConfiguration
               person={props.person}
               onUpdate={person => props.onUpdate(person)}
             />
           </Tabs.TabPane>
-          <Tabs.TabPane key="save_states" tab="Save States">
+          <Tabs.TabPane
+            key="save_states"
+            tab={
+              <>
+                <Typography.Text type="secondary">
+                  ({props.person?.save_states?.length ?? 0})
+                </Typography.Text>
+                {' Save States'}
+              </>
+            }
+          >
             <SaveStateEditor
               person={props.person}
               onUpdate={room => props.onUpdate(room)}
             />
           </Tabs.TabPane>
-          <Tabs.TabPane key="metadata" tab="Metadata">
+          <Tabs.TabPane
+            key="metadata"
+            tab={
+              <>
+                <Typography.Text type="secondary">
+                  ({props.person?.metadata?.length ?? 0})
+                </Typography.Text>
+                {' Metadata'}
+              </>
+            }
+          >
             <RoomMetadata
               person={props.person}
               onUpdate={person => props.onUpdate(person)}

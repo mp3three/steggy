@@ -35,10 +35,10 @@ export function RoomListDetail(props: {
           <Tabs.TabPane
             key="members"
             tab={
-              <Typography>
+              <>
                 <Typography.Text type="secondary">{`(${count}) `}</Typography.Text>
                 Members
-              </Typography>
+              </>
             }
           >
             <RoomConfiguration
@@ -49,12 +49,12 @@ export function RoomListDetail(props: {
           <Tabs.TabPane
             key="save_states"
             tab={
-              <Typography>
+              <>
                 <Typography.Text type="secondary">{`(${
                   (props.room?.save_states ?? []).length
                 }) `}</Typography.Text>
                 Save States
-              </Typography>
+              </>
             }
           >
             <RoomSaveStates
@@ -65,12 +65,12 @@ export function RoomListDetail(props: {
           <Tabs.TabPane
             key="metadata"
             tab={
-              <Typography>
+              <>
                 <Typography.Text type="secondary">{`(${
                   (props.room?.metadata ?? []).length
                 }) `}</Typography.Text>
                 Metadata
-              </Typography>
+              </>
             }
           >
             <RoomMetadata

@@ -354,10 +354,10 @@ export function GroupListDetail(props: {
           <Tabs.TabPane
             key="members"
             tab={
-              <Typography>
+              <>
                 <Typography.Text type="secondary">{`(${memberCount}) `}</Typography.Text>
                 Members
-              </Typography>
+              </>
             }
           >
             {memberEditor()}
@@ -365,10 +365,10 @@ export function GroupListDetail(props: {
           <Tabs.TabPane
             key="save_states"
             tab={
-              <Typography>
+              <>
                 <Typography.Text type="secondary">{`(${props.group.save_states.length}) `}</Typography.Text>
                 Save States
-              </Typography>
+              </>
             }
           >
             <GroupSaveStates

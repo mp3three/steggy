@@ -277,12 +277,12 @@ export function RoomMetadata(props: {
                 is.empty(getMap.get(key) as RoutineDTO[]) ? undefined : (
                   <Tabs.TabPane
                     tab={
-                      <Typography>
+                      <>
                         <Typography.Text type="secondary">{`(${
                           (getMap.get(key) as RoutineDTO[]).length
                         })`}</Typography.Text>
                         {` ${label}`}
-                      </Typography>
+                      </>
                     }
                     key={key}
                   >

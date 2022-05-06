@@ -132,7 +132,7 @@ export function SaveStateEditor(props: {
           )}
         />
       </Card>
-      <Card type="inner" title="Used in routines">
+      <Card type="inner" title="Used in">
         <UsedIn roomState={room} />
       </Card>
     </Space>

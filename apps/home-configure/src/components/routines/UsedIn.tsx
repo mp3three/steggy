@@ -195,12 +195,12 @@ export function UsedIn(props: {
       {is.empty(routines) ? undefined : (
         <Tabs.TabPane
           tab={
-            <Typography>
+            <>
               <Typography.Text type="secondary">
                 {`(${routines.length}) `}
               </Typography.Text>
               Routines
-            </Typography>
+            </>
           }
           key="routine"
         >
@@ -221,12 +221,12 @@ export function UsedIn(props: {
       {is.empty(room_states) ? undefined : (
         <Tabs.TabPane
           tab={
-            <Typography>
+            <>
               <Typography.Text type="secondary">
                 {`(${room_states.length}) `}
               </Typography.Text>
               Room States
-            </Typography>
+            </>
           }
           key="roomStates"
         >
@@ -247,12 +247,12 @@ export function UsedIn(props: {
       {is.empty(people_states) ? undefined : (
         <Tabs.TabPane
           tab={
-            <Typography>
+            <>
               <Typography.Text type="secondary">
                 {`(${people_states.length}) `}
               </Typography.Text>
               People States
-            </Typography>
+            </>
           }
           key="roomStates"
         >
@@ -278,12 +278,12 @@ export function UsedIn(props: {
       {is.empty(group_states) ? undefined : (
         <Tabs.TabPane
           tab={
-            <Typography>
+            <>
               <Typography.Text type="secondary">
                 {`(${group_states.length}) `}
               </Typography.Text>
               Group States
-            </Typography>
+            </>
           }
           key="groupStates"
         >

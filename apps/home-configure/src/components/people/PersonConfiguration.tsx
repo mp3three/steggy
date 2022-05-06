@@ -227,7 +227,14 @@ export function PersonConfiguration(props: {
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <Card
         type="inner"
-        title={<Typography.Text strong>Entities</Typography.Text>}
+        title={
+          <>
+            <Typography.Text type="secondary">
+              ({props.person.entities.length})
+            </Typography.Text>
+            <Typography.Text strong> Entities</Typography.Text>
+          </>
+        }
         extra={
           <EntityModalPicker
             highlight={is.empty(props.person.entities)}
@@ -248,7 +255,14 @@ export function PersonConfiguration(props: {
       </Card>
       <Card
         type="inner"
-        title={<Typography.Text strong>Groups</Typography.Text>}
+        title={
+          <>
+            <Typography.Text type="secondary">
+              ({props.person.groups.length})
+            </Typography.Text>
+            <Typography.Text strong> Groups</Typography.Text>
+          </>
+        }
         extra={
           <GroupModalPicker
             highlight={is.empty(props.person.groups)}
@@ -265,7 +279,14 @@ export function PersonConfiguration(props: {
       </Card>
       <Card
         type="inner"
-        title={<Typography.Text strong>Rooms</Typography.Text>}
+        title={
+          <>
+            <Typography.Text type="secondary">
+              ({props.person.rooms.length})
+            </Typography.Text>
+            <Typography.Text strong> Rooms</Typography.Text>
+          </>
+        }
         extra={
           <RoomModalPicker
             highlight={is.empty(props.person.rooms)}
