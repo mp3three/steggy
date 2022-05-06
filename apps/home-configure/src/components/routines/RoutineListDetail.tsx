@@ -2,7 +2,7 @@ import { RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Card, Empty, Space, Tabs, Typography } from 'antd';
 
-import { FD_ICONS, sendRequest } from '../../types';
+import { sendRequest } from '../../types';
 import { ActivateList } from './activate';
 import { ActivateHistory } from './ActivateHistory';
 import { CommandList } from './command';
@@ -52,10 +52,10 @@ export function RoutineListDetail(props: {
           <Tabs.TabPane
             tab={
               <>
-                {is.empty(props.routine.activate)
-                  ? FD_ICONS.get('warning')
-                  : undefined}
-                Activations
+                <Typography.Text type="secondary">
+                  ({props.routine.activate.length})
+                </Typography.Text>
+                {` Activations`}
               </>
             }
             key="activate"
@@ -69,10 +69,10 @@ export function RoutineListDetail(props: {
           <Tabs.TabPane
             tab={
               <>
-                {is.empty(props.routine.command)
-                  ? FD_ICONS.get('warning')
-                  : undefined}
-                Commands
+                <Typography.Text type="secondary">
+                  ({props.routine.command.length})
+                </Typography.Text>
+                {` Commands`}
               </>
             }
             key="command"

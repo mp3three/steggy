@@ -1,3 +1,4 @@
+/* eslint-disable radar/no-identical-functions */
 import {
   GroupDTO,
   PersonDTO,
@@ -5,25 +6,22 @@ import {
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { is, ResultControlDTO } from '@steggy/utilities';
-import { Button, Drawer, Empty, List, Skeleton, Tabs } from 'antd';
+import { Empty, List, Tabs, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { sendRequest } from '../../types';
-import { GroupListDetail } from '../groups/GroupListDetail';
-import { RoomListDetail } from '../rooms';
-import { RoutineListDetail } from '../routines';
+import { GroupInspectButton } from '../groups';
+import { PersonInspectButton } from '../people';
+import { RoomInspectButton } from '../rooms';
+import { RoutineInspectButton } from '../routines';
 
 /* eslint-disable radar/no-duplicate-string */
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function EntityRelated(props: { entity: string }) {
-  const [group, setGroup] = useState<GroupDTO>();
   const [groups, setGroups] = useState<GroupDTO[]>([]);
-  const [room, setRoom] = useState<RoomDTO>();
   const [rooms, setRooms] = useState<RoomDTO[]>([]);
-  const [person, setPerson] = useState<PersonDTO>();
   const [people, setPeople] = useState<PersonDTO[]>([]);
-  const [routine, setRoutine] = useState<RoutineDTO>();
   const [routines, setRoutines] = useState<RoutineDTO[]>([]);
   useEffect(() => {
     refresh();
@@ -44,7 +42,6 @@ export function EntityRelated(props: { entity: string }) {
           },
           url: `/room`,
         });
-        setRoom(undefined);
         setRooms(rooms);
       })(),
       (async () => {
@@ -59,7 +56,6 @@ export function EntityRelated(props: { entity: string }) {
           },
           url: `/person`,
         });
-        setPerson(undefined);
         setPeople(people);
       })(),
       (async () => {
@@ -74,7 +70,6 @@ export function EntityRelated(props: { entity: string }) {
           },
           url: `/group`,
         });
-        setGroup(group);
         setGroups(groups);
       })(),
       (async () => {
@@ -141,7 +136,6 @@ export function EntityRelated(props: { entity: string }) {
             });
           }),
         );
-        setRoutine(undefined);
         setRoutines(routines);
       })(),
     ]);
@@ -152,36 +146,49 @@ export function EntityRelated(props: { entity: string }) {
       await refresh();
       return;
     }
-    const mapped = groups.map(item =>
-      item._id === group._id
-        ? {
-            ...item,
-            ...update,
-          }
-        : item,
+    setGroups(
+      groups.map(item =>
+        item._id === update._id
+          ? {
+              ...item,
+              ...update,
+            }
+          : item,
+      ),
     );
-    const found = mapped.find(({ _id }) => _id === group._id);
-    setGroup(found);
-    setGroups(mapped);
   }
 
-  function updateRoom(update: RoomDTO): void {
+  function updatePeople(update: PersonDTO): void {
     if (!update) {
-      setRoom(undefined);
-      setRooms(rooms.filter(({ _id }) => _id !== room._id));
+      setPeople(people.filter(({ _id }) => _id !== update._id));
       return;
     }
-    const mapped = rooms.map(item =>
-      item._id === room._id
-        ? {
-            ...item,
-            ...update,
-          }
-        : item,
+    setPeople(
+      people.map(item =>
+        item._id === update._id
+          ? {
+              ...item,
+              ...update,
+            }
+          : item,
+      ),
     );
-    const room = mapped.find(({ _id }) => _id === room._id);
-    setRoom(room);
-    setRooms(mapped);
+  }
+  function updateRoom(update: RoomDTO): void {
+    if (!update) {
+      setRooms(rooms.filter(({ _id }) => _id !== update._id));
+      return;
+    }
+    setRooms(
+      rooms.map(item =>
+        item._id === update._id
+          ? {
+              ...item,
+              ...update,
+            }
+          : item,
+      ),
+    );
   }
 
   function updateRoutine(update: RoutineDTO): void {
@@ -195,7 +202,6 @@ export function EntityRelated(props: { entity: string }) {
     );
     const routine = mapped.find(({ _id }) => _id === routine._id);
     setRoutines(mapped);
-    setRoutine(routine);
   }
 
   const notUsed = [rooms, people, routines, groups].every(i => is.empty(i));
@@ -203,11 +209,17 @@ export function EntityRelated(props: { entity: string }) {
   return notUsed ? (
     <Empty description="This entity is not used" />
   ) : (
-    <>
-      <Tabs>
+    <Tabs>
+      {is.empty(rooms) ? undefined : (
         <Tabs.TabPane
-          disabled={is.empty(rooms)}
-          tab={is.empty(rooms) ? 'Rooms' : `Rooms (${rooms.length})`}
+          tab={
+            <>
+              <Typography.Text type="secondary">
+                ({rooms.length})
+              </Typography.Text>
+              {` Rooms`}
+            </>
+          }
           key="rooms"
         >
           <List
@@ -215,19 +227,26 @@ export function EntityRelated(props: { entity: string }) {
             dataSource={rooms}
             renderItem={item => (
               <List.Item>
-                <Button
-                  type={room?._id === item._id ? 'primary' : 'text'}
-                  onClick={() => setRoom(item)}
-                >
-                  {item.friendlyName}
-                </Button>
+                <RoomInspectButton
+                  room={item}
+                  onUpdate={room => updateRoom(room)}
+                />
               </List.Item>
             )}
           />
         </Tabs.TabPane>
+      )}
+      {is.empty(people) ? undefined : (
         <Tabs.TabPane
           disabled={is.empty(people)}
-          tab={is.empty(people) ? 'People' : `People (${people.length})`}
+          tab={
+            <>
+              <Typography.Text type="secondary">
+                ({people.length})
+              </Typography.Text>
+              {` People`}
+            </>
+          }
           key="people"
         >
           <List
@@ -235,19 +254,25 @@ export function EntityRelated(props: { entity: string }) {
             dataSource={people}
             renderItem={item => (
               <List.Item>
-                <Button
-                  type={person?._id === item._id ? 'primary' : 'text'}
-                  onClick={() => setPerson(item)}
-                >
-                  {item.friendlyName}
-                </Button>
+                <PersonInspectButton
+                  person={item}
+                  onUpdate={person => updatePeople(person)}
+                />
               </List.Item>
             )}
           />
         </Tabs.TabPane>
+      )}
+      {is.empty(groups) ? undefined : (
         <Tabs.TabPane
-          disabled={is.empty(groups)}
-          tab={is.empty(groups) ? 'Groups' : `Groups (${groups.length})`}
+          tab={
+            <>
+              <Typography.Text type="secondary">
+                ({groups.length})
+              </Typography.Text>
+              {` Groups`}
+            </>
+          }
           key="groups"
         >
           <List
@@ -255,20 +280,24 @@ export function EntityRelated(props: { entity: string }) {
             dataSource={groups}
             renderItem={item => (
               <List.Item>
-                <Button
-                  type={group?._id === item._id ? 'primary' : 'text'}
-                  onClick={() => setGroup(item)}
-                >
-                  {item.friendlyName}
-                </Button>
+                <GroupInspectButton
+                  group={item}
+                  onUpdate={update => updateGroup(update)}
+                />
               </List.Item>
             )}
           />
         </Tabs.TabPane>
+      )}
+      {is.empty(routines) ? undefined : (
         <Tabs.TabPane
-          disabled={is.empty(routines)}
           tab={
-            is.empty(routines) ? 'Routines' : `Routines (${routines.length})`
+            <>
+              <Typography.Text type="secondary">
+                ({routines.length})
+              </Typography.Text>
+              {` Routines`}
+            </>
           }
           key="routine"
         >
@@ -277,65 +306,15 @@ export function EntityRelated(props: { entity: string }) {
             dataSource={routines}
             renderItem={item => (
               <List.Item>
-                <Button
-                  type={routine?._id === item._id ? 'primary' : 'text'}
-                  onClick={() => setRoutine(item)}
-                >
-                  {item.friendlyName}
-                </Button>
+                <RoutineInspectButton
+                  routine={item}
+                  onUpdate={update => updateRoutine(update)}
+                />
               </List.Item>
             )}
           />
         </Tabs.TabPane>
-      </Tabs>
-      <Drawer
-        title="Edit routine"
-        size="large"
-        onClose={() => setRoutine(undefined)}
-        visible={!is.undefined(routine)}
-      >
-        {is.undefined(routine) ? (
-          <Skeleton />
-        ) : (
-          <RoutineListDetail
-            nested
-            routine={routine}
-            onUpdate={routine => updateRoutine(routine)}
-          />
-        )}
-      </Drawer>
-      <Drawer
-        title="Edit group"
-        size="large"
-        onClose={() => setGroup(undefined)}
-        visible={!is.undefined(group)}
-      >
-        {is.undefined(group) ? (
-          <Skeleton />
-        ) : (
-          <GroupListDetail
-            type="inner"
-            group={group}
-            onUpdate={group => updateGroup(group)}
-          />
-        )}
-      </Drawer>
-      <Drawer
-        title="Edit room"
-        size="large"
-        onClose={() => setRoom(undefined)}
-        visible={!is.undefined(room)}
-      >
-        {is.undefined(room) ? (
-          <Skeleton />
-        ) : (
-          <RoomListDetail
-            nested
-            room={room}
-            onUpdate={room => updateRoom(room)}
-          />
-        )}
-      </Drawer>
-    </>
+      )}
+    </Tabs>
   );
 }

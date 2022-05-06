@@ -7,6 +7,7 @@ import {
   Form,
   Input,
   Popconfirm,
+  Tooltip,
   Tree,
   Typography,
 } from 'antd';
@@ -169,6 +170,22 @@ export function RoutineTree(props: {
 
   return (
     <Card
+      title={
+        <>
+          <Typography.Text type="secondary">
+            ({props.routines?.length ?? 0})
+          </Typography.Text>
+          <Tooltip
+            title={
+              <Typography.Text type="success">
+                {props.enabled.length ?? 0} enabled
+              </Typography.Text>
+            }
+          >
+            <Typography.Text strong> Routines</Typography.Text>
+          </Tooltip>
+        </>
+      }
       extra={
         <Popconfirm
           icon=""
