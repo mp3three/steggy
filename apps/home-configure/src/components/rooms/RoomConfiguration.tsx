@@ -151,7 +151,14 @@ export function RoomConfiguration(props: {
     <Space direction="vertical" style={{ width: '100%' }} size="large">
       <Card
         type="inner"
-        title={<Typography.Text strong>Entities</Typography.Text>}
+        title={
+          <>
+            <Typography.Text type="secondary">{`(${
+              props.room?.entities?.length ?? 0
+            }) `}</Typography.Text>
+            <Typography.Text strong>Entities</Typography.Text>
+          </>
+        }
         extra={
           <EntityModalPicker
             highlight={is.empty(props.room.entities)}
@@ -170,7 +177,14 @@ export function RoomConfiguration(props: {
       </Card>
       <Card
         type="inner"
-        title={<Typography.Text strong>Groups</Typography.Text>}
+        title={
+          <>
+            <Typography.Text type="secondary">{`(${
+              props.room?.groups?.length ?? 0
+            }) `}</Typography.Text>
+            <Typography.Text strong>Groups</Typography.Text>
+          </>
+        }
         extra={
           <GroupModalPicker
             highlight={is.empty(props.room.groups)}

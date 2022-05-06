@@ -6,6 +6,7 @@ import {
   Col,
   Empty,
   List,
+  notification,
   Popconfirm,
   Row,
   Space,
@@ -18,7 +19,7 @@ import { sendRequest } from '../../types';
 import { EntityInspectButton, EntityModalPicker } from '../entities';
 import { PersonInspectButton, PersonModalPicker } from '../people';
 import { RoomInspectButton, RoomModalPicker } from '../rooms';
-import { RelatedRoutines } from '../routines';
+import { UsedIn } from '../routines';
 import { GroupExtraActions } from './GroupExtraActions';
 import { GroupModalPicker } from './GroupModalPicker';
 import { GroupSaveStates } from './GroupSaveState';
@@ -51,6 +52,16 @@ export function GroupListDetail(props: {
     type: string,
     references: string[],
   ): Promise<void> {
+    if (references.includes(props.group._id)) {
+      // It is OBVIOUSLY wrong when this happens, reject the entire attempt
+      // This is a 1 stop way to infinite loops
+      //
+      notification.error({
+        description: `🦶🔫 Don't do that, bad human.`,
+        message: 'A group cannot contain itself.',
+      });
+      return;
+    }
     const { group } = props;
     props.onUpdate(
       await sendRequest({
@@ -130,7 +141,7 @@ export function GroupListDetail(props: {
             title={<Typography.Text strong>Related Routines</Typography.Text>}
             style={{ marginTop: '16px' }}
           >
-            <RelatedRoutines groupAction={props.group} />
+            <UsedIn groupAction={props.group} />
           </Card>
         </Space>
       );

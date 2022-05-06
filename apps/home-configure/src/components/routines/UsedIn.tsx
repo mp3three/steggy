@@ -21,7 +21,7 @@ type tGroupList = { group: GroupDTO; state: GroupSaveStateDTO }[];
 type tPeopleList = { person: PersonDTO; state: RoomStateDTO }[];
 
 // eslint-disable-next-line radar/cognitive-complexity
-export function RelatedRoutines(props: {
+export function UsedIn(props: {
   entity?: string;
   groupAction?: GroupDTO;
   groupState?: GroupDTO;
@@ -50,7 +50,8 @@ export function RelatedRoutines(props: {
     }
 
     async function loadRooms(): Promise<void> {
-      if (!props.groupState) {
+      const search = props.groupState?._id ?? props.roomState?._id;
+      if (!search) {
         return;
       }
       const rooms = await sendRequest<RoomDTO[]>({
@@ -58,7 +59,7 @@ export function RelatedRoutines(props: {
           filters: new Set([
             {
               field: 'save_states.states.ref',
-              value: props.groupState._id,
+              value: search,
             },
           ]),
         },
@@ -70,7 +71,7 @@ export function RelatedRoutines(props: {
         room.save_states.forEach(state => {
           state.states ??= [];
           state.states.forEach(i => {
-            if (i.type === 'group' && i.ref === props.groupState._id) {
+            if (i.ref === search) {
               room_states.push({ room, state });
             }
           });
@@ -80,7 +81,8 @@ export function RelatedRoutines(props: {
     }
 
     async function loadPeople(): Promise<void> {
-      if (!props.groupState) {
+      const search = props.groupState?._id ?? props.roomState?._id;
+      if (!search) {
         return;
       }
       const people = await sendRequest<PersonDTO[]>({
@@ -88,7 +90,7 @@ export function RelatedRoutines(props: {
           filters: new Set([
             {
               field: 'save_states.states.ref',
-              value: props.groupState._id,
+              value: search,
             },
           ]),
         },
@@ -100,7 +102,7 @@ export function RelatedRoutines(props: {
         person.save_states.forEach(state => {
           state.states ??= [];
           state.states.forEach(i => {
-            if (i.type === 'group' && i.ref === props.groupState._id) {
+            if (i.ref === search) {
               people_states.push({ person, state });
             }
           });
@@ -110,7 +112,8 @@ export function RelatedRoutines(props: {
     }
 
     async function loadGroups() {
-      if (!props.groupState) {
+      const search = props.groupState?._id ?? props.roomState?._id;
+      if (!search) {
         return;
       }
       const groups = await sendRequest<GroupDTO[]>({
@@ -118,7 +121,7 @@ export function RelatedRoutines(props: {
           filters: new Set([
             {
               field: 'save_states.states.ref',
-              value: props.groupState._id,
+              value: search,
             },
           ]),
         },
@@ -130,7 +133,7 @@ export function RelatedRoutines(props: {
         group.save_states.forEach(state => {
           state.states ??= [];
           state.states.forEach(i => {
-            if (i.type === 'group' && i.ref === props.groupState._id) {
+            if (i.ref === search) {
               group_states.push({ group, state });
             }
           });
@@ -190,7 +193,17 @@ export function RelatedRoutines(props: {
   return (
     <Tabs>
       {is.empty(routines) ? undefined : (
-        <Tabs.TabPane tab="Routines" key="routine">
+        <Tabs.TabPane
+          tab={
+            <Typography>
+              <Typography.Text type="secondary">
+                {`(${routines.length}) `}
+              </Typography.Text>
+              Routines
+            </Typography>
+          }
+          key="routine"
+        >
           <List
             pagination={{ size: 'small' }}
             dataSource={routines}

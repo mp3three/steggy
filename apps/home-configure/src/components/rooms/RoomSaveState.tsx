@@ -13,7 +13,7 @@ import {
 import { useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
-import { RelatedRoutines } from '../routines';
+import { UsedIn } from '../routines';
 import { RoomStateEdit } from './states';
 
 export function RoomSaveStates(props: {
@@ -123,9 +123,9 @@ export function RoomSaveStates(props: {
       </Card>
       <Card
         type="inner"
-        title={<Typography.Text strong>Used in routines</Typography.Text>}
+        title={<Typography.Text strong>Used in</Typography.Text>}
       >
-        <RelatedRoutines roomState={props.room} />
+        <UsedIn roomState={props.room} />
       </Card>
     </Space>
   );

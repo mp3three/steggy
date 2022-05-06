@@ -14,7 +14,7 @@ import { useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 import { RoomStateEdit } from '../rooms';
-import { RelatedRoutines } from '../routines';
+import { UsedIn } from '../routines';
 
 export function SaveStateEditor(props: {
   onUpdate: (room: PersonDTO) => void;
@@ -133,7 +133,7 @@ export function SaveStateEditor(props: {
         />
       </Card>
       <Card type="inner" title="Used in routines">
-        <RelatedRoutines roomState={room} />
+        <UsedIn roomState={room} />
       </Card>
     </Space>
   );

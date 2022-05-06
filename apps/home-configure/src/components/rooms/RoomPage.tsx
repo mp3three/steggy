@@ -10,6 +10,7 @@ import {
   List,
   Popconfirm,
   Row,
+  Typography,
 } from 'antd';
 import { useEffect, useState } from 'react';
 
@@ -115,6 +116,12 @@ export function RoomPage() {
         <Row gutter={8}>
           <Col span={12}>
             <Card
+              title={
+                <Typography>
+                  <Typography.Text type="secondary">{`(${rooms.length})`}</Typography.Text>
+                  <Typography.Text strong> Rooms</Typography.Text>
+                </Typography>
+              }
               extra={
                 <Popconfirm
                   icon=""

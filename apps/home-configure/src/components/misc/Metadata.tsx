@@ -9,6 +9,7 @@ import {
   Button,
   Card,
   Drawer,
+  Empty,
   List,
   Popconfirm,
   Skeleton,
@@ -50,6 +51,12 @@ export function RoomMetadata(props: {
     ['routine', routine],
     ['set_metadata', set_metadata],
     ['stop_processing', stop_processing],
+  ]);
+  const HAS_RELATED = !is.empty([
+    ...activate,
+    ...enable,
+    ...set_metadata,
+    ...stop_processing,
   ]);
   const setMap = new Map<string, (...i) => void>([
     ['activate', setActivate],
@@ -264,26 +271,44 @@ export function RoomMetadata(props: {
           type="inner"
           title={<Typography.Text strong>Related Routines</Typography.Text>}
         >
-          <Tabs>
-            {TAB_LIST.map(([key, label]) => (
-              <Tabs.TabPane tab={label} key={key}>
-                <List
-                  pagination={{ size: 'small' }}
-                  dataSource={getMap.get(key) as RoutineDTO[]}
-                  renderItem={item => (
-                    <List.Item>
-                      <Button
-                        type={routine?._id === item._id ? 'primary' : 'text'}
-                        onClick={() => setRoutine(item)}
-                      >
-                        {item.friendlyName}
-                      </Button>
-                    </List.Item>
-                  )}
-                />
-              </Tabs.TabPane>
-            ))}
-          </Tabs>
+          {HAS_RELATED ? (
+            <Tabs>
+              {TAB_LIST.map(([key, label]) =>
+                is.empty(getMap.get(key) as RoutineDTO[]) ? undefined : (
+                  <Tabs.TabPane
+                    tab={
+                      <Typography>
+                        <Typography.Text type="secondary">{`(${
+                          (getMap.get(key) as RoutineDTO[]).length
+                        })`}</Typography.Text>
+                        {` ${label}`}
+                      </Typography>
+                    }
+                    key={key}
+                  >
+                    <List
+                      pagination={{ size: 'small' }}
+                      dataSource={getMap.get(key) as RoutineDTO[]}
+                      renderItem={item => (
+                        <List.Item>
+                          <Button
+                            type={
+                              routine?._id === item._id ? 'primary' : 'text'
+                            }
+                            onClick={() => setRoutine(item)}
+                          >
+                            {item.friendlyName}
+                          </Button>
+                        </List.Item>
+                      )}
+                    />
+                  </Tabs.TabPane>
+                ),
+              )}
+            </Tabs>
+          ) : (
+            <Empty />
+          )}
         </Card>
       </Space>
       <MetadataEdit

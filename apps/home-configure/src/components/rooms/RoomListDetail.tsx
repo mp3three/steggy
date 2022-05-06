@@ -15,6 +15,10 @@ export function RoomListDetail(props: {
   room?: RoomDTO;
 }) {
   function renderBody() {
+    const count = [
+      ...(props.room?.groups ?? []),
+      ...(props.room?.entities ?? []),
+    ].length;
     return !props.room ? (
       <Empty description="Select a room" />
     ) : (
@@ -28,19 +32,47 @@ export function RoomListDetail(props: {
           {props.room.friendlyName}
         </Typography.Title>
         <Tabs>
-          <Tabs.TabPane key="members" tab="Members">
+          <Tabs.TabPane
+            key="members"
+            tab={
+              <Typography>
+                <Typography.Text type="secondary">{`(${count}) `}</Typography.Text>
+                Members
+              </Typography>
+            }
+          >
             <RoomConfiguration
               room={props.room}
               onUpdate={room => props.onUpdate(room)}
             />
           </Tabs.TabPane>
-          <Tabs.TabPane key="save_states" tab="Save States">
+          <Tabs.TabPane
+            key="save_states"
+            tab={
+              <Typography>
+                <Typography.Text type="secondary">{`(${
+                  (props.room?.save_states ?? []).length
+                }) `}</Typography.Text>
+                Save States
+              </Typography>
+            }
+          >
             <RoomSaveStates
               room={props.room}
               onUpdate={room => props.onUpdate(room)}
             />
           </Tabs.TabPane>
-          <Tabs.TabPane key="metadata" tab="Metadata">
+          <Tabs.TabPane
+            key="metadata"
+            tab={
+              <Typography>
+                <Typography.Text type="secondary">{`(${
+                  (props.room?.metadata ?? []).length
+                }) `}</Typography.Text>
+                Metadata
+              </Typography>
+            }
+          >
             <RoomMetadata
               room={props.room}
               onUpdate={room => props.onUpdate(room)}

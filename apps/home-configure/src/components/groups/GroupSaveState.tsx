@@ -14,7 +14,7 @@ import {
 import { useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
-import { RelatedRoutines } from '../routines';
+import { UsedIn } from '../routines';
 import { GroupStateEdit } from './states';
 
 export function GroupSaveStates(props: {
@@ -183,7 +183,7 @@ export function GroupSaveStates(props: {
         type="inner"
         title={<Typography.Text strong>Used In</Typography.Text>}
       >
-        <RelatedRoutines groupState={props.group} />
+        <UsedIn groupState={props.group} />
       </Card>
     </Space>
   );
