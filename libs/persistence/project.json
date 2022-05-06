@@ -1,4 +1,5 @@
 {
+  "root": "libs/persistence",
   "sourceRoot": "libs/persistence/src",
   "projectType": "library",
   "targets": {

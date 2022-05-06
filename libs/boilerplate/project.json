@@ -1,4 +1,5 @@
 {
+  "root": "libs/boilerplate",
   "sourceRoot": "libs/boilerplate/src",
   "projectType": "library",
   "targets": {

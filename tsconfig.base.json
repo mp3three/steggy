@@ -45,59 +45,23 @@
   },
   "exclude": ["node_modules", "tmp"],
   "references": [
-    {
-      "path": "./apps/devtools/tsconfig.json"
-    },
-    {
-      "path": "./apps/home-cli/tsconfig.json"
-    },
-    {
-      "path": "./apps/home-configure/tsconfig.json"
-    },
-    {
-      "path": "./apps/home-controller/tsconfig.json"
-    },
-    {
-      "path": "./apps/pico-relay/tsconfig.json"
-    },
-    {
-      "path": "./libs/boilerplate/tsconfig.json"
-    },
-    {
-      "path": "./libs/controller-shared/tsconfig.json"
-    },
-    {
-      "path": "./libs/formio/tsconfig.json"
-    },
-    {
-      "path": "./libs/google/tsconfig.json"
-    },
-    {
-      "path": "./libs/home-assistant-shared/tsconfig.json"
-    },
-    {
-      "path": "./libs/home-assistant/tsconfig.json"
-    },
-    {
-      "path": "./libs/mqtt/tsconfig.json"
-    },
-    {
-      "path": "./libs/node-red-contrib-steggy/tsconfig.json"
-    },
-    {
-      "path": "./libs/persistence/tsconfig.json"
-    },
-    {
-      "path": "./libs/rules-engine/tsconfig.json"
-    },
-    {
-      "path": "./libs/server/tsconfig.json"
-    },
-    {
-      "path": "./libs/tty/tsconfig.json"
-    },
-    {
-      "path": "./libs/utilities/tsconfig.json"
-    }
+    { "path": "./apps/devtools/tsconfig.json" },
+    { "path": "./apps/home-cli/tsconfig.json" },
+    { "path": "./apps/home-configure/tsconfig.json" },
+    { "path": "./apps/home-controller/tsconfig.json" },
+    { "path": "./apps/pico-relay/tsconfig.json" },
+    { "path": "./libs/boilerplate/tsconfig.json" },
+    { "path": "./libs/controller-shared/tsconfig.json" },
+    { "path": "./libs/formio/tsconfig.json" },
+    { "path": "./libs/google/tsconfig.json" },
+    { "path": "./libs/home-assistant-shared/tsconfig.json" },
+    { "path": "./libs/home-assistant/tsconfig.json" },
+    { "path": "./libs/mqtt/tsconfig.json" },
+    { "path": "./libs/node-red-contrib-steggy/tsconfig.json" },
+    { "path": "./libs/persistence/tsconfig.json" },
+    { "path": "./libs/rules-engine/tsconfig.json" },
+    { "path": "./libs/server/tsconfig.json" },
+    { "path": "./libs/tty/tsconfig.json" },
+    { "path": "./libs/utilities/tsconfig.json" }
   ]
 }

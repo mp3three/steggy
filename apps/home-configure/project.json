@@ -1,4 +1,5 @@
 {
+  "root": "apps/home-configure",
   "sourceRoot": "apps/home-configure/src",
   "projectType": "application",
   "targets": {
@@ -37,15 +38,8 @@
           "namedChunks": false,
           "extractLicenses": true,
           "vendorChunk": false
-        },
-        "development": {
-          "extractLicenses": false,
-          "optimization": false,
-          "sourceMap": true,
-          "vendorChunk": true
         }
-      },
-      "defaultConfiguration": "production"
+      }
     },
     "serve": {
       "executor": "@nrwl/web:dev-server",
@@ -53,6 +47,7 @@
         "buildTarget": "home-configure:build:development",
         "hmr": true,
         "port": 4200,
+        // add to hosts file + use reverse proxy
         "allowedHosts": "dev-controller.localhost",
         "host": "0.0.0.0"
       },
@@ -60,12 +55,8 @@
         "production": {
           "buildTarget": "home-configure:build:production",
           "hmr": false
-        },
-        "development": {
-          "buildTarget": "home-configure:build:development"
         }
-      },
-      "defaultConfiguration": "development"
+      }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
@@ -78,7 +69,7 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/apps/home-configure"],
       "options": {
-        "jestConfig": "apps/home-configure/jest.config.ts",
+        "jestConfig": "apps/home-configure/jest.config.js",
         "passWithNoTests": true
       }
     }

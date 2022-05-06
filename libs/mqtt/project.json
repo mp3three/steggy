@@ -1,4 +1,5 @@
 {
+  "root": "libs/mqtt",
   "sourceRoot": "libs/mqtt/src",
   "projectType": "library",
   "targets": {

@@ -1,4 +1,5 @@
 {
+  "root": "libs/rules-engine",
   "sourceRoot": "libs/rules-engine/src",
   "projectType": "library",
   "targets": {

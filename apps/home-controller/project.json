@@ -1,4 +1,5 @@
 {
+  "root": "apps/home-controller",
   "sourceRoot": "apps/home-controller/src",
   "projectType": "application",
   "targets": {

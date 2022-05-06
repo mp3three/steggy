@@ -1,4 +1,5 @@
 {
+  "root": "libs/controller-shared",
   "sourceRoot": "libs/controller-shared/src",
   "projectType": "library",
   "targets": {

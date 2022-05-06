@@ -3,7 +3,7 @@ import { is } from '@steggy/utilities';
 import { Layout, notification, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 
 import { store } from '../../store';
 import {
@@ -132,16 +132,16 @@ export function App() {
                 {is.empty(adminKey) ? (
                   <SettingsPage />
                 ) : (
-                  <Routes>
-                    <Route path="/entities" element={<EntityPage />} />
-                    <Route path="/groups" element={<GroupPage />} />
-                    <Route path="/people" element={<PeoplePage />} />
-                    <Route path="/rooms" element={<RoomPage />} />
-                    <Route path="/routines" element={<RoutinePage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
+                  <Switch>
+                    <Route path="/entities" component={EntityPage} />
+                    <Route path="/groups" component={GroupPage} />
+                    <Route path="/people" component={PeoplePage} />
+                    <Route path="/rooms" component={RoomPage} />
+                    <Route path="/routines" component={RoutinePage} />
+                    <Route path="/settings" component={SettingsPage} />
                     {/* Order matters, derp */}
-                    <Route path="/" element={<HomePage />} />
-                  </Routes>
+                    <Route path="/" component={HomePage} />
+                  </Switch>
                 )}
               </Content>
               <Layout.Footer style={{ textAlign: 'center' }}>

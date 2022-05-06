@@ -1,4 +1,5 @@
 {
+  "root": "apps/devtools",
   "sourceRoot": "apps/devtools/src",
   "projectType": "application",
   "targets": {

@@ -1,4 +1,5 @@
 {
+  "root": "libs/home-assistant",
   "sourceRoot": "libs/home-assistant/src",
   "projectType": "library",
   "targets": {

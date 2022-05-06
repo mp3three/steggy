@@ -1,4 +1,5 @@
 {
+  "root": "apps/home-cli",
   "sourceRoot": "apps/home-cli/src",
   "projectType": "application",
   "targets": {
@@ -14,9 +15,7 @@
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "commands": [
-          {
-            "command": "npx nx build home-cli --configuration=config-scanner"
-          }
+          { "command": "npx nx build home-cli --configuration=config-scanner" }
         ]
       }
     },

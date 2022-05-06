@@ -12,8 +12,6 @@
       }
     },
     "tsconfig.base.json": "*",
-    "tsconfig.json": "*",
-    "tsconfig.lib.json": "*",
     "workspace.json": "*"
   },
   "affected": {
