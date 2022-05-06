@@ -75,12 +75,13 @@ export class GroupController {
   ): Promise<GroupDTO> {
     const target = await this.groupService.get(group);
     target.references ??= [];
-    return await this.groupService.update(group, {
+    await this.groupService.update(group, {
       references: [
         ...target.references,
         ...body.references.map(target => ({ target, type: body.type })),
       ],
     });
+    return await this.groupService.get(group);
   }
 
   @Post(`/:group/state`)
@@ -159,17 +160,8 @@ export class GroupController {
     @Param('group') group: string,
     @Param('reference') reference: string,
   ): Promise<GroupDTO> {
-    const target = await this.groupService.get(group);
-    target.references ??= [];
-    return await this.groupService.update(group, {
-      references: target.references.filter(
-        ({ target }) => target !== reference,
-      ),
-      save_states: target.save_states.map(type => ({
-        ...type,
-        states: type.states.filter(({ ref }) => ref === reference),
-      })),
-    });
+    await this.groupService.deleteReference(group, reference);
+    return await this.groupService.get(group);
   }
 
   @Delete(`/:group/state/:state`)

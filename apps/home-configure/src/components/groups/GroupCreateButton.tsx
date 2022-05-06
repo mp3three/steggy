@@ -1,4 +1,4 @@
-import { GroupDTO } from '@steggy/controller-shared';
+import { GROUP_TYPES, GroupDTO } from '@steggy/controller-shared';
 import { TitleCase } from '@steggy/utilities';
 import { Button, Form, Popconfirm, Select, Typography } from 'antd';
 import { useState } from 'react';
@@ -7,9 +7,10 @@ import { FD_ICONS, sendRequest } from '../../types';
 
 export function GroupCreateButton(props: {
   highlight: boolean;
+  onCreateType: (type: `${GROUP_TYPES}`) => void;
   onUpdate: (group: GroupDTO) => void;
 }) {
-  const [type, setSetType] = useState<string>('');
+  const [type, setSetType] = useState<`${GROUP_TYPES}` | ''>('');
 
   async function create(): Promise<void> {
     try {
@@ -22,6 +23,7 @@ export function GroupCreateButton(props: {
         url: `/group`,
       });
       props.onUpdate(group);
+      props.onCreateType(type as `${GROUP_TYPES}`);
     } catch (error) {
       console.error(error);
     }
@@ -29,7 +31,7 @@ export function GroupCreateButton(props: {
 
   return (
     <Popconfirm
-      icon={''}
+      icon=""
       onConfirm={() => create()}
       placement="bottomRight"
       title={
@@ -48,7 +50,7 @@ export function GroupCreateButton(props: {
             <Select.Option value="switch">Switch</Select.Option>
             <Select.Option value="group">Group</Select.Option>
             <Select.Option value="room">Room</Select.Option>
-            <Select.Option value="people">People</Select.Option>
+            <Select.Option value="person">Person</Select.Option>
           </Select>
         </Form.Item>
       }

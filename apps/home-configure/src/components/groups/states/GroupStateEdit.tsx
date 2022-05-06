@@ -37,6 +37,8 @@ import {
 } from '../../entities';
 import { ItemPin } from '../../misc';
 
+const DEFAULT_VALUE = 'none';
+
 // eslint-disable-next-line radar/cognitive-complexity
 export function GroupStateEdit(props: {
   group?: GroupDTO;
@@ -47,11 +49,16 @@ export function GroupStateEdit(props: {
   const [dirty, setDirty] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const [friendlyName, setFriendlyName] = useState('');
-  const [state, setState] = useState<GroupSaveStateDTO>();
+  const [state, setState] = useState<GroupSaveStateDTO>(
+    {} as GroupSaveStateDTO,
+  );
   const [group, setGroup] = useState<GroupDTO>();
   const [groups, setGroups] = useState<GroupDTO[]>([]);
   const [rooms, setRooms] = useState<RoomDTO[]>([]);
   const [people, setPeople] = useState<PersonDTO[]>([]);
+  const [referenceStates, setReferenceStates] = useState<
+    Record<string, string>
+  >({});
   const cards: (
     | LightEntityCard
     | SwitchEntityCard
@@ -97,6 +104,22 @@ export function GroupStateEdit(props: {
     setFriendlyName(state.friendlyName);
     setGroup(group);
   }
+
+  useEffect(() => {
+    state.states ??= [];
+    if (!drawer) {
+      setReferenceStates({});
+      return;
+    }
+
+    setReferenceStates(
+      Object.fromEntries(
+        state.states
+          .filter(({ type }) => ['group', 'room', 'person'].includes(type))
+          .map(i => [i.ref, i.state]),
+      ),
+    );
+  }, [state, drawer]);
 
   useEffect(() => {
     if (is.undefined(props.group)) {
@@ -207,8 +230,16 @@ export function GroupStateEdit(props: {
   function referenceEdit() {
     return [...groups, ...rooms, ...people].map(item => (
       <Form.Item key={item._id} label={item.friendlyName}>
-        <Select>
-          <Select.Option value="">
+        <Select
+          value={referenceStates[item._id] ?? DEFAULT_VALUE}
+          onChange={value =>
+            setReferenceStates({
+              ...referenceStates,
+              [item._id]: value,
+            })
+          }
+        >
+          <Select.Option value={DEFAULT_VALUE}>
             <Typography.Text type="secondary">No Change</Typography.Text>
           </Select.Option>
           {item.save_states.map((state: GroupSaveStateDTO) => (
@@ -369,7 +400,19 @@ export function GroupStateEdit(props: {
 
   async function onSave(): Promise<void> {
     const id = state?.id;
-    const states = cards.filter(i => !!i).map(i => i.getSaveState());
+    const refTypes = new Map();
+    groups.forEach(({ _id }) => refTypes.set(_id, 'group'));
+    rooms.forEach(({ _id }) => refTypes.set(_id, 'room'));
+    people.forEach(({ _id }) => refTypes.set(_id, 'person'));
+    const states = [
+      ...cards.filter(i => !!i).map(i => i.getSaveState()),
+      ...Object.entries(referenceStates)
+        .filter(([, value]) => value !== DEFAULT_VALUE)
+        .map(
+          ([ref, state]) =>
+            ({ ref, state, type: refTypes.get(ref) } as GeneralSaveStateDTO),
+        ),
+    ];
     const item = await sendRequest<GroupDTO>({
       body: { friendlyName, id, states } as GroupSaveStateDTO,
       method: 'put',

@@ -139,7 +139,7 @@ export function RoomModalPicker(props: {
   return (
     <>
       <Modal
-        title="Room List Builder"
+        title={<Typography.Text strong>Room List Builder</Typography.Text>}
         visible={modalVisible}
         onOk={() => onComplete()}
         onCancel={e => hide(e)}
@@ -202,7 +202,7 @@ export function RoomModalPicker(props: {
                         type="text"
                         size="small"
                         onClick={() => removeItem(item._id)}
-                        icon={FD_ICONS.get('delete')}
+                        icon={FD_ICONS.get('item_remove')}
                       />
                       <Typography.Text>
                         {!is.empty(item.highlighted)

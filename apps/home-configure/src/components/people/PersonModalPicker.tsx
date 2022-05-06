@@ -139,7 +139,7 @@ export function PersonModalPicker(props: {
   return (
     <>
       <Modal
-        title="Person List Builder"
+        title={<Typography.Text strong>Person List Builder</Typography.Text>}
         visible={modalVisible}
         onOk={() => onComplete()}
         onCancel={e => hide(e)}

@@ -139,7 +139,7 @@ export function EntityModalPicker(props: {
         Add entities
       </Button>
       <Modal
-        title="Entity List Builder"
+        title={<Typography.Text strong>Entity List Builder</Typography.Text>}
         visible={modalVisible}
         onOk={() => onComplete()}
         onCancel={e => {

@@ -1,19 +1,21 @@
 import {
   GroupDTO,
+  GroupSaveStateDTO,
   RoomDTO,
   RoomStateDTO,
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { each, is, ResultControlDTO } from '@steggy/utilities';
-import { Button, Drawer, List, Skeleton, Tabs } from 'antd';
+import { List, Tabs } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { RELATED_ROUTINES, sendRequest } from '../../types';
-import { RoomStateEdit } from '../rooms/states';
-import { RoutineExtraActions } from './RoutineExtraActions';
-import { RoutineListDetail } from './RoutineListDetail';
+import { GroupStateEdit } from '../groups';
+import { RoomStateEdit } from '../rooms';
+import { RoutineInspectButton } from './RoutineInspectButton';
 
-type list = { room: RoomDTO; state: RoomStateDTO }[];
+type tRoomList = { room: RoomDTO; state: RoomStateDTO }[];
+type tGroupList = { group: GroupDTO; state: GroupSaveStateDTO }[];
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function RelatedRoutines(props: {
@@ -25,12 +27,12 @@ export function RelatedRoutines(props: {
 }) {
   // const [room, setRoom] = useState<RoomDTO>();
   // const [room_state, setRoom_state] = useState<RoomStateDTO>();
-  const [room_states, setRoom_states] = useState<list>();
-  const [routine, setRoutine] = useState<RoutineDTO>();
+  const [room_states, setRoom_states] = useState<tRoomList>([]);
+  const [group_states, setGroup_states] = useState<tGroupList>([]);
   const [routines, setRoutines] = useState<RoutineDTO[]>([]);
 
   useEffect(() => {
-    async function refresh(): Promise<void> {
+    async function loadRoutines() {
       const queries = routineQueries();
       const routines: Record<string, RoutineDTO> = {};
       await each(queries, async control => {
@@ -41,37 +43,68 @@ export function RelatedRoutines(props: {
         out.forEach(i => (routines[i._id] = i));
       });
       setRoutines(Object.values(routines));
-      if (!is.undefined(props.groupState)) {
-        const rooms = await sendRequest<RoomDTO[]>({
-          control: {
-            filters: new Set([
-              {
-                field: 'save_states.states.type',
-                value: 'group',
-              },
-              {
-                field: 'save_states.states.ref',
-                value: props.groupState._id,
-              },
-            ]),
-          },
-          url: `/room`,
-        });
-        const room_states: list = [];
-        rooms.forEach(room => {
-          room.save_states ??= [];
-          room.save_states.forEach(state => {
-            state.states ??= [];
-            state.states.forEach(i => {
-              if (i.type === 'group' && i.ref === props.groupState._id) {
-                room_states.push({ room, state });
-              }
-            });
+    }
+
+    async function loadRooms(): Promise<void> {
+      if (!props.groupState) {
+        return;
+      }
+      const rooms = await sendRequest<RoomDTO[]>({
+        control: {
+          filters: new Set([
+            {
+              field: 'save_states.states.ref',
+              value: props.groupState._id,
+            },
+          ]),
+        },
+        url: `/room`,
+      });
+      const room_states: tRoomList = [];
+      rooms.forEach(room => {
+        room.save_states ??= [];
+        room.save_states.forEach(state => {
+          state.states ??= [];
+          state.states.forEach(i => {
+            if (i.type === 'group' && i.ref === props.groupState._id) {
+              room_states.push({ room, state });
+            }
           });
         });
-        setRoom_states(room_states);
-      }
+      });
+      setRoom_states(room_states);
     }
+
+    async function loadGroups() {
+      if (!props.groupState) {
+        return;
+      }
+      const groups = await sendRequest<GroupDTO[]>({
+        control: {
+          filters: new Set([
+            {
+              field: 'save_states.states.ref',
+              value: props.groupState._id,
+            },
+          ]),
+        },
+        url: `/group`,
+      });
+      const group_states: tGroupList = [];
+      groups.forEach(group => {
+        group.save_states ??= [];
+        group.save_states.forEach(state => {
+          state.states ??= [];
+          state.states.forEach(i => {
+            if (i.type === 'group' && i.ref === props.groupState._id) {
+              group_states.push({ group, state });
+            }
+          });
+        });
+      });
+      setGroup_states(group_states);
+    }
+
     function routineQueries(): ResultControlDTO[] {
       if (props.roomState) {
         return RELATED_ROUTINES.room_state(props.roomState._id);
@@ -91,7 +124,9 @@ export function RelatedRoutines(props: {
       return [{}];
     }
 
-    refresh();
+    loadGroups();
+    loadRooms();
+    loadRoutines();
   }, [
     props.entity,
     props.groupAction,
@@ -100,27 +135,30 @@ export function RelatedRoutines(props: {
     props.routine,
   ]);
 
+  function updateRoutine(routine: RoutineDTO, update: RoutineDTO) {
+    setRoutines(
+      routines.map(i => (i._id === routine._id ? { ...i, ...update } : i)),
+    );
+  }
+
   return (
-    <>
-      <Tabs>
-        <Tabs.TabPane tab="Routines" key="routine">
-          <List
-            pagination={{ size: 'small' }}
-            dataSource={routines}
-            renderItem={item => (
-              <List.Item>
-                <Button
-                  size="small"
-                  type={routine?._id === item._id ? 'primary' : 'text'}
-                  onClick={() => setRoutine(item)}
-                >
-                  {item.friendlyName}
-                </Button>
-              </List.Item>
-            )}
-          />
-        </Tabs.TabPane>
-        {is.undefined(props.groupState) ? undefined : (
+    <Tabs>
+      <Tabs.TabPane tab="Routines" key="routine">
+        <List
+          pagination={{ size: 'small' }}
+          dataSource={routines}
+          renderItem={item => (
+            <List.Item>
+              <RoutineInspectButton
+                routine={item}
+                onUpdate={update => updateRoutine(item, update)}
+              />
+            </List.Item>
+          )}
+        />
+      </Tabs.TabPane>
+      {is.undefined(props.groupState) ? undefined : (
+        <>
           <Tabs.TabPane tab="Room States" key="roomStates">
             <List
               pagination={{ size: 'small' }}
@@ -137,30 +175,24 @@ export function RelatedRoutines(props: {
               )}
             />
           </Tabs.TabPane>
-        )}
-      </Tabs>
-      <Drawer
-        title="Edit routine"
-        size="large"
-        extra={
-          <RoutineExtraActions
-            routine={routine}
-            onUpdate={routine => setRoutine(routine)}
-          />
-        }
-        onClose={() => setRoutine(undefined)}
-        visible={!is.undefined(routine)}
-      >
-        {is.undefined(routine) ? (
-          <Skeleton />
-        ) : (
-          <RoutineListDetail
-            nested
-            routine={routine}
-            onUpdate={routine => setRoutine(routine)}
-          />
-        )}
-      </Drawer>
-    </>
+          <Tabs.TabPane tab="Group States" key="groupStates">
+            <List
+              pagination={{ size: 'small' }}
+              dataSource={group_states}
+              renderItem={group => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={
+                      <GroupStateEdit group={group.group} state={group.state} />
+                    }
+                    description={group.group.friendlyName}
+                  />
+                </List.Item>
+              )}
+            />
+          </Tabs.TabPane>
+        </>
+      )}
+    </Tabs>
   );
 }

@@ -37,6 +37,16 @@ export function GroupPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (groupType === 'all') {
+      return;
+    }
+    const count = groups.filter(({ type }) => type === groupType).length;
+    if (!count) {
+      setGroupType('all');
+    }
+  }, [groupType, groups]);
+
   const countMap = new Map<string, number>();
   groups.forEach(({ type }) =>
     countMap.set(type, (countMap.get(type) ?? 0) + 1),
@@ -155,6 +165,7 @@ export function GroupPage() {
                   style={{ marginBottom: 0 }}
                 >
                   <Select
+                    size="small"
                     style={{ width: '60%' }}
                     value={groupType}
                     onChange={value => tabChange(value as GROUP_TYPES)}
@@ -178,7 +189,7 @@ export function GroupPage() {
                       })
                       .map(([type, count]) => (
                         <Select.Option key={type} value={type}>
-                          ({count}) {TitleCase(type)}
+                          ({count}) {TitleCase(type ?? 'UNKNOWN')}
                         </Select.Option>
                       ))}
                   </Select>
@@ -186,6 +197,7 @@ export function GroupPage() {
               }
               extra={
                 <GroupCreateButton
+                  onCreateType={type => setGroupType(type)}
                   highlight={is.empty(filtered)}
                   onUpdate={group => refresh(group)}
                 />

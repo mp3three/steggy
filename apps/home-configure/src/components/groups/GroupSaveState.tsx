@@ -27,21 +27,21 @@ export function GroupSaveStates(props: {
   );
 
   async function activateState(state: GroupSaveStateDTO): Promise<void> {
-    await sendRequest({
+    const group = await sendRequest<GroupDTO>({
       method: 'post',
       url: `/group/${props.group._id}/state/${state.id}`,
     });
     await sleep(500);
-    props.onGroupUpdate();
+    props.onGroupUpdate(group);
   }
 
   async function removeState(state: GroupSaveStateDTO): Promise<void> {
-    await sendRequest({
+    const group = await sendRequest<GroupDTO>({
       method: 'delete',
       url: `/group/${props.group._id}/state/${state.id}`,
     });
     await sleep(500);
-    props.onGroupUpdate();
+    props.onGroupUpdate(group);
   }
 
   async function validateCapture(): Promise<void> {
@@ -97,7 +97,7 @@ export function GroupSaveStates(props: {
           <Space>
             {HAS_ENTITIES ? (
               <Popconfirm
-                icon={''}
+                icon=""
                 onConfirm={() => validateCapture()}
                 title={
                   <Form.Item
@@ -120,7 +120,7 @@ export function GroupSaveStates(props: {
             ) : undefined}
             <Popconfirm
               placement="bottomLeft"
-              icon={''}
+              icon=""
               onConfirm={() => validateCreate()}
               title={
                 <Form.Item

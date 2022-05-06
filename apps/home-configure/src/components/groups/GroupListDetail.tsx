@@ -3,11 +3,14 @@ import { is } from '@steggy/utilities';
 import {
   Button,
   Card,
+  Col,
   Empty,
   List,
   Popconfirm,
+  Row,
   Space,
   Tabs,
+  Tooltip,
   Typography,
 } from 'antd';
 
@@ -73,21 +76,55 @@ export function GroupListDetail(props: {
     return [];
   }
 
+  const HAS_ACTIONS = ['light'].includes(props.group?.type);
+
   function groupActions() {
     if (props.group.type === 'light') {
       return (
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
-          <Space size="large">
-            <Button type="primary" onClick={() => lightCommand('circadianOn')}>
-              Circadian
-            </Button>
-            <Button type="primary" onClick={() => lightCommand('turnOff')}>
-              Off
-            </Button>
-            <Button type="primary" onClick={() => lightCommand('turnOn')}>
-              On
-            </Button>
-          </Space>
+          <Card
+            type="inner"
+            title={
+              <Typography.Text strong>Light Group Actions</Typography.Text>
+            }
+          >
+            <Row gutter={[8, 8]}>
+              <Col span={8}>
+                <Tooltip title="Turn on, and manage light temperature">
+                  <Button
+                    type="primary"
+                    onClick={() => lightCommand('circadianOn')}
+                  >
+                    Circadian
+                  </Button>
+                </Tooltip>
+              </Col>
+              <Col span={8}>
+                <Tooltip title="Turn on, and set to color">
+                  <Button type="primary" onClick={() => lightCommand('turnOn')}>
+                    On
+                  </Button>
+                </Tooltip>
+              </Col>
+              <Col span={8}>
+                <Button type="primary" onClick={() => lightCommand('turnOff')}>
+                  Off
+                </Button>
+              </Col>
+              <Col>
+                <Space>
+                  {/* The button is a lie, but the feature is real! */}
+                  {/* Might add a slider in here later to let the button be real */}
+                  <Button type="primary" disabled>
+                    Dim Up / Down
+                  </Button>
+                  <Typography.Text type="secondary">
+                    Available as routine group actions
+                  </Typography.Text>
+                </Space>
+              </Col>
+            </Row>
+          </Card>
           <Card
             type="inner"
             title={<Typography.Text strong>Related Routines</Typography.Text>}
@@ -308,9 +345,11 @@ export function GroupListDetail(props: {
               onGroupUpdate={update => props.onUpdate(update)}
             />
           </Tabs.TabPane>
-          <Tabs.TabPane key="actions" tab="Actions">
-            {groupActions()}
-          </Tabs.TabPane>
+          {HAS_ACTIONS ? (
+            <Tabs.TabPane key="actions" tab="Actions">
+              {groupActions()}
+            </Tabs.TabPane>
+          ) : undefined}
           <Tabs.TabPane key="used_in" tab="Used In">
             <GroupUsedIn group={props.group} />
           </Tabs.TabPane>

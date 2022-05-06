@@ -169,6 +169,26 @@ export class GroupService {
     return out;
   }
 
+  public async deleteReference(
+    target: GroupDTO | string,
+    reference: string,
+  ): Promise<GroupDTO> {
+    const group = await this.load(target);
+    group.references ??= [];
+    const references = group.references.filter(
+      ({ target }) => target !== reference,
+    );
+    return await this.update(group._id, {
+      references,
+      save_states: group.save_states.map(type => ({
+        ...type,
+        states: type.states.filter(({ ref }) =>
+          references.some(({ target }) => target === ref),
+        ),
+      })),
+    });
+  }
+
   public async deleteState<
     GROUP_TYPE extends ROOM_ENTITY_EXTRAS = ROOM_ENTITY_EXTRAS,
   >(

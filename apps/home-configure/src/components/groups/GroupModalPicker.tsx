@@ -85,9 +85,9 @@ export function GroupModalPicker(props: {
       key: 'friendlyName',
     });
     const highlighted = fuzzyResult.map(result => {
-      const { target } = result;
+      const { obj } = result;
       const item = available.find(option => {
-        return is.string(option) ? option === target : option._id === target;
+        return is.string(option) ? option === obj._id : option._id === obj._id;
       });
       return {
         ...item,
@@ -108,7 +108,7 @@ export function GroupModalPicker(props: {
         a.friendlyName > b.friendlyName ? UP : DOWN,
       );
     }
-    return fuzzySort(available);
+    return fuzzySort(filtered);
   }
 
   function hide(e?: Event): void {
@@ -150,7 +150,7 @@ export function GroupModalPicker(props: {
         Add groups
       </Button>
       <Modal
-        title="Group List Builder"
+        title={<Typography.Text strong>Group List Builder</Typography.Text>}
         visible={modalVisible}
         onOk={() => onComplete()}
         onCancel={() => hide()}
