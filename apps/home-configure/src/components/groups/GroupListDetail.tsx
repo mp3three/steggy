@@ -327,6 +327,10 @@ export function GroupListDetail(props: {
   }
 
   function renderContents() {
+    const memberCount = [
+      ...(props.group?.entities ?? []),
+      ...(props.group?.references ?? []),
+    ].length;
     return props.group ? (
       <>
         <Typography.Title
@@ -336,10 +340,26 @@ export function GroupListDetail(props: {
           {props.group.friendlyName}
         </Typography.Title>
         <Tabs>
-          <Tabs.TabPane key="members" tab="Members">
+          <Tabs.TabPane
+            key="members"
+            tab={
+              <Typography>
+                <Typography.Text type="secondary">{`(${memberCount}) `}</Typography.Text>
+                Members
+              </Typography>
+            }
+          >
             {memberEditor()}
           </Tabs.TabPane>
-          <Tabs.TabPane key="save_states" tab="Save States">
+          <Tabs.TabPane
+            key="save_states"
+            tab={
+              <Typography>
+                <Typography.Text type="secondary">{`(${props.group.save_states.length}) `}</Typography.Text>
+                Save States
+              </Typography>
+            }
+          >
             <GroupSaveStates
               group={props.group}
               onGroupUpdate={update => props.onUpdate(update)}

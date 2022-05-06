@@ -189,7 +189,10 @@ export function GroupPage() {
                       })
                       .map(([type, count]) => (
                         <Select.Option key={type} value={type}>
-                          ({count}) {TitleCase(type ?? 'UNKNOWN')}
+                          <Typography>
+                            <Typography.Text type="secondary">{`(${count}) `}</Typography.Text>
+                            {TitleCase(type ?? 'UNKNOWN')}
+                          </Typography>
                         </Select.Option>
                       ))}
                   </Select>

@@ -1,12 +1,14 @@
+/* eslint-disable radar/no-duplicate-string */
 import {
   GroupDTO,
   GroupSaveStateDTO,
+  PersonDTO,
   RoomDTO,
   RoomStateDTO,
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { each, is, ResultControlDTO } from '@steggy/utilities';
-import { List, Tabs } from 'antd';
+import { Empty, List, Tabs, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { RELATED_ROUTINES, sendRequest } from '../../types';
@@ -16,6 +18,7 @@ import { RoutineInspectButton } from './RoutineInspectButton';
 
 type tRoomList = { room: RoomDTO; state: RoomStateDTO }[];
 type tGroupList = { group: GroupDTO; state: GroupSaveStateDTO }[];
+type tPeopleList = { person: PersonDTO; state: RoomStateDTO }[];
 
 // eslint-disable-next-line radar/cognitive-complexity
 export function RelatedRoutines(props: {
@@ -29,6 +32,7 @@ export function RelatedRoutines(props: {
   // const [room_state, setRoom_state] = useState<RoomStateDTO>();
   const [room_states, setRoom_states] = useState<tRoomList>([]);
   const [group_states, setGroup_states] = useState<tGroupList>([]);
+  const [people_states, setPeople_states] = useState<tPeopleList>([]);
   const [routines, setRoutines] = useState<RoutineDTO[]>([]);
 
   useEffect(() => {
@@ -73,6 +77,36 @@ export function RelatedRoutines(props: {
         });
       });
       setRoom_states(room_states);
+    }
+
+    async function loadPeople(): Promise<void> {
+      if (!props.groupState) {
+        return;
+      }
+      const people = await sendRequest<PersonDTO[]>({
+        control: {
+          filters: new Set([
+            {
+              field: 'save_states.states.ref',
+              value: props.groupState._id,
+            },
+          ]),
+        },
+        url: `/person`,
+      });
+      const people_states: tPeopleList = [];
+      people.forEach(person => {
+        person.save_states ??= [];
+        person.save_states.forEach(state => {
+          state.states ??= [];
+          state.states.forEach(i => {
+            if (i.type === 'group' && i.ref === props.groupState._id) {
+              people_states.push({ person, state });
+            }
+          });
+        });
+      });
+      setPeople_states(people_states);
     }
 
     async function loadGroups() {
@@ -124,6 +158,7 @@ export function RelatedRoutines(props: {
       return [{}];
     }
 
+    loadPeople();
     loadGroups();
     loadRooms();
     loadRoutines();
@@ -141,57 +176,119 @@ export function RelatedRoutines(props: {
     );
   }
 
+  const IS_USED = !is.empty([
+    ...people_states,
+    ...group_states,
+    ...room_states,
+    ...routines,
+  ]);
+
+  if (!IS_USED) {
+    return <Empty />;
+  }
+
   return (
     <Tabs>
-      <Tabs.TabPane tab="Routines" key="routine">
-        <List
-          pagination={{ size: 'small' }}
-          dataSource={routines}
-          renderItem={item => (
-            <List.Item>
-              <RoutineInspectButton
-                routine={item}
-                onUpdate={update => updateRoutine(item, update)}
-              />
-            </List.Item>
-          )}
-        />
-      </Tabs.TabPane>
-      {is.undefined(props.groupState) ? undefined : (
-        <>
-          <Tabs.TabPane tab="Room States" key="roomStates">
-            <List
-              pagination={{ size: 'small' }}
-              dataSource={room_states}
-              renderItem={room => (
-                <List.Item>
-                  <List.Item.Meta
-                    title={
-                      <RoomStateEdit room={room.room} state={room.state} />
-                    }
-                    description={room.room.friendlyName}
-                  />
-                </List.Item>
-              )}
-            />
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Group States" key="groupStates">
-            <List
-              pagination={{ size: 'small' }}
-              dataSource={group_states}
-              renderItem={group => (
-                <List.Item>
-                  <List.Item.Meta
-                    title={
-                      <GroupStateEdit group={group.group} state={group.state} />
-                    }
-                    description={group.group.friendlyName}
-                  />
-                </List.Item>
-              )}
-            />
-          </Tabs.TabPane>
-        </>
+      {is.empty(routines) ? undefined : (
+        <Tabs.TabPane tab="Routines" key="routine">
+          <List
+            pagination={{ size: 'small' }}
+            dataSource={routines}
+            renderItem={item => (
+              <List.Item>
+                <RoutineInspectButton
+                  routine={item}
+                  onUpdate={update => updateRoutine(item, update)}
+                />
+              </List.Item>
+            )}
+          />
+        </Tabs.TabPane>
+      )}
+      {is.empty(room_states) ? undefined : (
+        <Tabs.TabPane
+          tab={
+            <Typography>
+              <Typography.Text type="secondary">
+                {`(${room_states.length}) `}
+              </Typography.Text>
+              Room States
+            </Typography>
+          }
+          key="roomStates"
+        >
+          <List
+            pagination={{ size: 'small' }}
+            dataSource={room_states}
+            renderItem={room => (
+              <List.Item>
+                <List.Item.Meta
+                  title={<RoomStateEdit room={room.room} state={room.state} />}
+                  description={room.room.friendlyName}
+                />
+              </List.Item>
+            )}
+          />
+        </Tabs.TabPane>
+      )}
+      {is.empty(people_states) ? undefined : (
+        <Tabs.TabPane
+          tab={
+            <Typography>
+              <Typography.Text type="secondary">
+                {`(${people_states.length}) `}
+              </Typography.Text>
+              People States
+            </Typography>
+          }
+          key="roomStates"
+        >
+          <List
+            pagination={{ size: 'small' }}
+            dataSource={people_states}
+            renderItem={person => (
+              <List.Item>
+                <List.Item.Meta
+                  title={
+                    <RoomStateEdit
+                      person={person.person}
+                      state={person.state}
+                    />
+                  }
+                  description={person.person.friendlyName}
+                />
+              </List.Item>
+            )}
+          />
+        </Tabs.TabPane>
+      )}
+      {is.empty(group_states) ? undefined : (
+        <Tabs.TabPane
+          tab={
+            <Typography>
+              <Typography.Text type="secondary">
+                {`(${group_states.length}) `}
+              </Typography.Text>
+              Group States
+            </Typography>
+          }
+          key="groupStates"
+        >
+          <List
+            pagination={{ size: 'small' }}
+            dataSource={group_states}
+            renderItem={group => (
+              <List.Item>
+                <List.Item.Meta
+                  title={
+                    <GroupStateEdit group={group.group} state={group.state} />
+                  }
+                  description={group.group.friendlyName}
+                />
+              </List.Item>
+            )}
+          />
+        </Tabs.TabPane>
       )}
     </Tabs>
   );
