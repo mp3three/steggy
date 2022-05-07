@@ -1,93 +1,122 @@
 <script type="text/javascript">
-  (() => {
-    {
-      let roomsList = [];
-      let selectedRoom = false;
+  {
+    let roomsList = [];
+    let peopleList = [];
+    let selectedSource = false;
 
-      async function updateRoom(currentRoom) {
-        const room = roomsList.find(({ _id }) => _id === currentRoom);
-        if (!room) {
-          return;
-        }
-        const options = (room.metadata ?? [])
-          .sort((a, b) => (a.name > b.name ? 1 : -1))
-          .map(item => ({
-            label: `[${item.type}] ${item.name}`,
-            value: item.name,
-          }));
-        if (selectedRoom !== currentRoom) {
-          selectedRoom = currentRoom;
-          try {
-            // Sometimes this fires before stuff is properly initialized
-            // Don't care about errors from that
-            $('#node-input-property').typedInput('types', [{ options }]);
-          } catch (err) {}
-          return;
-        }
-        $('#node-input-property').typedInput({
-          types: [{ options }],
-        });
-        selectedRoom = currentRoom;
+    async function updateSource(id) {
+      const [, currentSource] = id.split(':');
+      const source = [...roomsList, ...peopleList].find(
+        ({ _id }) => _id === currentSource,
+      );
+      if (!source) {
+        return;
       }
+      const options = (source.metadata ?? [])
+        .sort((a, b) => (a.name > b.name ? 1 : -1))
+        .map(item => ({
+          label: `[${item.type}] ${item.name}`,
+          value: item.name,
+        }));
+      if (selectedSource !== currentSource) {
+        selectedSource = currentSource;
+        try {
+          // Sometimes this fires before stuff is properly initialized
+          // Don't care about errors from that
+          $('#node-input-property').typedInput('types', [{ options }]);
+        } catch (err) {}
+        return;
+      }
+      $('#node-input-property').typedInput({
+        types: [{ options }],
+      });
+      selectedSource = currentSource;
+    }
 
-      async function updateRoomList(config, currentRoom) {
-        selectedRoom = false;
-        const result = await fetch(
-          // Only find rooms with non-empty lists of metadata
-          `${config.host}/api/room?select=friendlyName,metadata.name,metadata.type&metadata.0__exists=true`,
-          { headers: { [`x-admin-key`]: config.admin_key } },
-        );
-        roomsList = await result.json();
-        $('#node-input-room').typedInput({
-          types: [
-            {
-              value: '',
-              options: roomsList
+    async function updateSourceList(config, currentSource) {
+      selectedSource = false;
+      let result = await fetch(
+        // Only find sources with non-empty lists of metadata
+        `${config.host}/api/room?select=friendlyName,metadata.name,metadata.type&metadata.0__exists=true`,
+        { headers: { [`x-admin-key`]: config.admin_key } },
+      );
+      roomsList = await result.json();
+      result = await fetch(
+        // Only find sources with non-empty lists of metadata
+        `${config.host}/api/person?select=friendlyName,metadata.name,metadata.type&metadata.0__exists=true`,
+        { headers: { [`x-admin-key`]: config.admin_key } },
+      );
+      peopleList = await result.json();
+      $('#node-input-source').typedInput({
+        types: [
+          {
+            value: '',
+            options: [
+              ...roomsList
                 .sort((a, b) => (a.friendlyName > b.friendlyName ? 1 : -1))
                 .map(item => ({
-                  label: item.friendlyName,
-                  value: item._id,
+                  label: `Room: ${item.friendlyName}`,
+                  value: `room:${item._id}`,
                 })),
-            },
-          ],
-        });
-        if (currentRoom) {
-          updateRoom(currentRoom);
-        }
-      }
-
-      RED.nodes.registerType('set-metadata', {
-        category: 'steggy',
-        color: '#AAAA66',
-        defaults: {
-          name: { value: '' },
-          server: { value: '', type: 'steggy-configure' },
-          room: {
-            value: '',
-            validate(room) {
-              updateRoom(room);
-              return true;
-            },
+              ...peopleList
+                .sort((a, b) => (a.friendlyName > b.friendlyName ? 1 : -1))
+                .map(item => ({
+                  label: `Person: ${item.friendlyName}`,
+                  value: `person:${item._id}`,
+                })),
+            ],
           },
-          property: { value: '' },
-          value: { value: '' },
-        },
-        inputs: 1,
-        outputs: 0,
-        icon: 'font-awesome/fa-pencil-square-o',
-        paletteLabel: () => 'set metadata',
-        oneditprepare() {
-          if (this.server) {
-            updateRoomList(RED.nodes.node(this.server));
-            return;
-          }
-        },
-        label: function () {
-          return this.name || 'set metadata';
-        },
+        ],
       });
+      if (currentSource) {
+        updateSource(currentSource);
+      }
     }
-  })();
+
+    RED.nodes.registerType('set-metadata', {
+      category: 'steggy',
+      color: '#AAAA66',
+      defaults: {
+        name: { value: '' },
+        server: {
+          value: '',
+          type: 'steggy-configure',
+          validate(server) {
+            if (server === '_ADD_' || server.length === 0) {
+              return false;
+            }
+            // There's probably an onchange or something that'd be better
+            setTimeout(() => {
+              updateSourceList(RED.nodes.node(server));
+            }, 100);
+            return true;
+          },
+        },
+        source: {
+          value: '',
+          validate(source) {
+            updateSource(source);
+            return true;
+          },
+        },
+        property: { value: '' },
+        value: { value: '' },
+      },
+      inputs: 1,
+      outputs: 0,
+      icon: 'font-awesome/fa-pencil-square-o',
+      paletteLabel: () => 'set metadata',
+      oneditprepare() {
+        if (this.server) {
+          updateSourceList(RED.nodes.node(this.server));
+          return;
+        }
+      },
+      label: function () {
+        return this.name || 'set metadata';
+      },
+    });
+  }
 </script>
 
 <script type="text/html" data-template-name="set-metadata">
@@ -102,8 +131,8 @@
     <input type="text" id="node-input-server" />
   </div>
   <div class="form-row">
-    <label for="node-input-room"><i class="fa fa-tag"></i> Room</label>
-    <input type="text" id="node-input-room" />
+    <label for="node-input-source"><i class="fa fa-tag"></i> Source</label>
+    <input type="text" id="node-input-source" />
   </div>
   <div class="form-row">
     <label for="node-input-property"><i class="fa fa-tag"></i> Property</label>
@@ -116,5 +145,5 @@
 </script>
 
 <script type="text/html" data-help-name="set-metadata">
-  <p>Modify a metadata property for a room.</p>
+  <p>Modify a metadata property.</p>
 </script>

@@ -1,18 +1,20 @@
 <script type="text/javascript">
-  RED.nodes.registerType('receive-command', {
-    category: 'steggy',
-    color: '#AAAA66',
-    defaults: {
-      name: { value: '' },
-    },
-    inputs: 0,
-    outputs: 1,
-    paletteLabel: () => 'command in',
-    icon: 'inject.png',
-    label: function () {
-      return this.name || 'receive command';
-    },
-  });
+  {
+    RED.nodes.registerType('receive-command', {
+      category: 'steggy',
+      color: '#AAAA66',
+      defaults: {
+        name: { value: '', required: true },
+      },
+      inputs: 0,
+      outputs: 1,
+      paletteLabel: () => 'command in',
+      icon: 'inject.png',
+      label: function () {
+        return this.name || 'receive command';
+      },
+    });
+  }
 </script>
 
 <script type="text/html" data-template-name="receive-command">
@@ -23,5 +25,5 @@
 </script>
 
 <script type="text/html" data-help-name="receive-command">
-  <p>Actvate a save state on a room.</p>
+  <p>Command receive target for Home Controller</p>
 </script>

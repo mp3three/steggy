@@ -1,6 +1,7 @@
 <script type="text/javascript">
   {
     let roomsList = [];
+    let lastFetch = Date.now() - 6000;
     let selectedRoom = false;
 
     async function updateRoom(currentRoom) {
@@ -29,7 +30,16 @@
       selectedRoom = currentRoom;
     }
 
-    async function updateRoomList(config, currentRoom) {
+    async function updateRoomList(config) {
+      if (typeof config !== 'object' || !config.host) {
+        return;
+      }
+      // These are cheap queries, but this function gets called obnoxiously often
+      // There should be a better way than on validate
+      if (Date.now() - lastFetch < 100) {
+        return;
+      }
+      lastFetch = Date.now();
       selectedRoom = false;
       const result = await fetch(
         `${config.host}/api/room?select=friendlyName,save_states.friendlyName,save_states.id&save_states.0__exists=true`,
@@ -53,9 +63,6 @@
           },
         ],
       });
-      if (currentRoom) {
-        updateRoom(currentRoom);
-      }
     }
 
     RED.nodes.registerType('room-state', {
@@ -63,24 +70,51 @@
       color: '#AAAA66',
       defaults: {
         name: { value: '' },
-        server: { value: '', type: 'steggy-configure' },
+        server: {
+          value: '',
+          type: 'steggy-configure',
+          validate(server) {
+            if (server === '_ADD_' || server.length === 0) {
+              return false;
+            }
+            // There's probably an onchange or something that'd be better
+            setTimeout(() => {
+              const config = RED.nodes.node(server);
+              updateRoomList(config, this.group);
+            }, 100);
+            return true;
+          },
+        },
         room: {
           value: '',
           validate(room) {
+            if (room === '_ADD_' || room.length === 0) {
+              return false;
+            }
             updateRoom(room);
             return true;
           },
         },
-        state: { value: '' },
+        state: {
+          value: '',
+          validate(state) {
+            if (state === '_ADD_' || state.length === 0) {
+              return false;
+            }
+            return true;
+          },
+        },
       },
       inputs: 1,
       outputs: 0,
       icon: 'font-awesome/fa-object-group',
       paletteLabel: () => 'room state',
       oneditprepare() {
+        console.log(this, this.server);
         if (this.server) {
-          updateRoomList(RED.nodes.node(this.server));
-          return;
+          const config = RED.nodes.node(this.server);
+          console.log(config);
+          setTimeout(() => updateRoomList(config), 500);
         }
       },
       label: function () {
@@ -112,5 +146,5 @@
 </script>
 
 <script type="text/html" data-help-name="room-state">
-  <p>Send a manual activation request to a routine.</p>
+  <p>Activate a room state.</p>
 </script>

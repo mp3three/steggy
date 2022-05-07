@@ -2,6 +2,7 @@
   {
     let groupList = [];
     let selectedGroup = false;
+    let lastFetch = Date.now() - 6000;
 
     async function updateGroup(currentGroup) {
       const group = groupList.find(({ _id }) => _id === currentGroup);
@@ -30,6 +31,13 @@
     }
 
     async function updateGroupList(config, currentGroup) {
+      if (typeof config !== 'object') {
+        return;
+      }
+      if (Date.now() - lastFetch < 5000) {
+        return;
+      }
+      lastFetch = Date.now();
       selectedGroup = false;
       const result = await fetch(
         `${config.host}/api/group?select=friendlyName,save_states.friendlyName,save_states.id,type&save_states.0__exists=true`,
@@ -66,15 +74,40 @@
       color: '#AAAA66',
       defaults: {
         name: { value: '' },
-        server: { value: '', type: 'steggy-configure' },
+        server: {
+          value: '',
+          type: 'steggy-configure',
+          validate(server) {
+            if (server === '_ADD_' || server.length === 0) {
+              return false;
+            }
+            // There's probably an onchange or something that'd be better
+            setTimeout(() => {
+              const config = RED.nodes.node(server);
+              updateGroupList(config, this.group);
+            }, 100);
+            return true;
+          },
+        },
         group: {
           value: '',
           validate(group) {
+            if (group === '_ADD_' || group.length === 0) {
+              return false;
+            }
             updateGroup(group);
             return true;
           },
         },
-        state: { value: '' },
+        state: {
+          value: '',
+          validate(state) {
+            if (state === '_ADD_' || state.length === 0) {
+              return false;
+            }
+            return true;
+          },
+        },
       },
       inputs: 1,
       outputs: 0,
@@ -115,5 +148,5 @@
 </script>
 
 <script type="text/html" data-help-name="group-state">
-  <p>Send a manual activation request to a routine.</p>
+  <p>Activate a group state.</p>
 </script>

@@ -1,90 +1,114 @@
 <script type="text/javascript">
-  async function updateList(config) {
-    const list = await fetch(
-      `${config.host}/api/routine?select=friendlyName,parent`,
-      { headers: { [`x-admin-key`]: config.admin_key } },
-    );
-    const result = await list.json();
-    const indexed = new Map();
-    const top = [];
-    result.forEach(item => {
-      indexed.set(item._id, item);
-      item.children ??= [];
-      if (!item.parent) {
-        top.push(item);
+  {
+    let lastFetch = Date.now() - 6000;
+    async function updateList(config) {
+      if (typeof config !== 'object') {
+        return;
       }
-    });
-    result.forEach(item => {
-      if (item.parent) {
-        indexed.get(item.parent).children.push(item);
+      if (Date.now() - lastFetch < 100) {
+        return;
       }
-    });
-    const recurse = (item, prefix) => {
-      item.label = `${prefix}${item.friendlyName}`;
-      if (item.children.length) {
-        item.children.forEach(child => recurse(child, item.label + ` > `));
-      }
-    };
-    top.forEach(parent => recurse(parent, ''));
+      lastFetch = Date.now();
+      const list = await fetch(
+        `${config.host}/api/routine?select=friendlyName,parent`,
+        { headers: { [`x-admin-key`]: config.admin_key } },
+      );
+      const result = await list.json();
+      const indexed = new Map();
+      const top = [];
+      result.forEach(item => {
+        indexed.set(item._id, item);
+        item.children ??= [];
+        if (!item.parent) {
+          top.push(item);
+        }
+      });
+      result.forEach(item => {
+        if (item.parent) {
+          indexed.get(item.parent).children.push(item);
+        }
+      });
+      const recurse = (item, prefix) => {
+        item.label = `${prefix}${item.friendlyName}`;
+        if (item.children.length) {
+          item.children.forEach(child => recurse(child, item.label + ` > `));
+        }
+      };
+      top.forEach(parent => recurse(parent, ''));
 
-    $('#node-input-routine').typedInput({
-      types: [
-        {
-          value: '',
-          options: result
-            .sort((a, b) => {
-              if (a.children.length && !b.children.length) {
-                return -1;
-              }
-              if (!a.children.length && b.children.length) {
-                return 1;
-              }
-              return a.label > b.label ? 1 : -1;
-            })
-            .map(item => {
-              return {
-                label: item.label,
-                value: item._id,
-              };
-            }),
-        },
-      ],
-    });
-  }
-  RED.nodes.registerType('trigger-routine', {
-    category: 'steggy',
-    color: '#AAAA66',
-    defaults: {
-      name: { value: '' },
-      server: { value: '', type: 'steggy-configure' },
-      routine: { value: '' },
-      force: { value: true },
-    },
-    inputs: 1,
-    outputs: 0,
-    oneditprepare() {
-      $('#node-input-force').typedInput({
+      $('#node-input-routine').typedInput({
         types: [
           {
             value: '',
-            options: [
-              { label: 'Process Normally', value: false },
-              { label: 'Ignore Settings', value: true },
-            ],
+            options: result
+              .sort((a, b) => {
+                if (a.children.length && !b.children.length) {
+                  return -1;
+                }
+                if (!a.children.length && b.children.length) {
+                  return 1;
+                }
+                return a.label > b.label ? 1 : -1;
+              })
+              .map(item => {
+                return {
+                  label: item.label,
+                  value: item._id,
+                };
+              }),
           },
         ],
       });
-      if (this.server) {
-        updateList(RED.nodes.node(this.server));
-        return;
-      }
-    },
-    icon: 'font-awesome/motorcycle',
-    paletteLabel: () => 'trigger routine',
-    label: function () {
-      return this.name || 'trigger routine';
-    },
-  });
+    }
+    RED.nodes.registerType('trigger-routine', {
+      category: 'steggy',
+      color: '#AAAA66',
+      defaults: {
+        name: { value: '', required: true },
+        server: {
+          value: '',
+          type: 'steggy-configure',
+          validate(server) {
+            if (server === '_ADD_' || server.length === 0) {
+              return false;
+            }
+            // There's probably an onchange or something that'd be better
+            setTimeout(() => {
+              const config = RED.nodes.node(server);
+              updateList(config, this.group);
+            }, 100);
+            return true;
+          },
+        },
+        routine: { value: '', required: true },
+        force: { value: true },
+      },
+      inputs: 1,
+      outputs: 0,
+      oneditprepare() {
+        $('#node-input-force').typedInput({
+          types: [
+            {
+              value: '',
+              options: [
+                { label: 'Process Normally', value: false },
+                { label: 'Ignore Disabled State', value: true },
+              ],
+            },
+          ],
+        });
+        if (this.server) {
+          updateList(RED.nodes.node(this.server));
+          return;
+        }
+      },
+      icon: 'font-awesome/motorcycle',
+      paletteLabel: () => 'trigger routine',
+      label: function () {
+        return this.name || 'trigger routine';
+      },
+    });
+  }
 </script>
 
 <script type="text/html" data-template-name="trigger-routine">

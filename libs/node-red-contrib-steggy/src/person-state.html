@@ -1,6 +1,7 @@
 <script type="text/javascript">
   {
     let peopleList = [];
+    let lastFetch = Date.now() - 6000;
     let selectedPerson = false;
 
     async function updatePerson(currentPerson) {
@@ -30,6 +31,13 @@
     }
 
     async function updatePersonList(config, currentPerson) {
+      if (typeof config !== 'object' || !config.host) {
+        return;
+      }
+      if (Date.now() - lastFetch < 100) {
+        return;
+      }
+      lastFetch = Date.now();
       selectedPerson = false;
       const result = await fetch(
         `${config.host}/api/person?select=friendlyName,save_states.friendlyName,save_states.id&save_states.0__exists=true`,
@@ -63,15 +71,39 @@
       color: '#AAAA66',
       defaults: {
         name: { value: '' },
-        server: { value: '', type: 'steggy-configure' },
+        server: {
+          value: '',
+          type: 'steggy-configure',
+          validate(server) {
+            if (server === '_ADD_' || server.length === 0) {
+              return false;
+            }
+            // There's probably an onchange or something that'd be better
+            setTimeout(() => {
+              updatePersonList(RED.nodes.node(server));
+            }, 100);
+            return true;
+          },
+        },
         person: {
           value: '',
           validate(person) {
+            if (person === '_ADD_' || person.length === 0) {
+              return false;
+            }
             updatePerson(person);
             return true;
           },
         },
-        state: { value: '' },
+        state: {
+          value: '',
+          validate(state) {
+            if (state === '_ADD_' || state.length === 0) {
+              return false;
+            }
+            return true;
+          },
+        },
       },
       inputs: 1,
       outputs: 0,
@@ -112,5 +144,5 @@
 </script>
 
 <script type="text/html" data-help-name="person-state">
-  <p>Send a manual activation request to a routine.</p>
+  <p>Activate a person save state</p>
 </script>

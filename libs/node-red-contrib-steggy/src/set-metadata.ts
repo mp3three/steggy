@@ -26,13 +26,14 @@ module.exports = function (RED: NodeAPI) {
       RED.nodes.createNode(this, config);
 
       const server = RED.nodes.getNode(config.server) as tServer;
-      const send = async (room: string, property: string, value: unknown) => {
+      const send = async (target: string, property: string, value: unknown) => {
+        const [base, room] = target.split(':');
         await sendRequest({
           adminKey: server.admin_key,
           baseUrl: server.host,
           body: { value },
           method: 'put',
-          url: `/room/${room}/metadata-name/${property}`,
+          url: `/${base}/${room}/metadata-name/${property}`,
         });
       };
 
@@ -42,7 +43,7 @@ module.exports = function (RED: NodeAPI) {
         const property = payload.property || config.property;
         const value = payload.value ?? config.value;
         if (is.empty(room)) {
-          this.error('No room provided to set metadata on');
+          this.error('No target provided to set metadata on');
           return;
         }
         if (is.empty(property)) {
