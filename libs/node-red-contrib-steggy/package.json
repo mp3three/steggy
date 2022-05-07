@@ -4,7 +4,7 @@
     "name": "Cameron Contour",
     "url": "https://github.com/ccontour/steggy"
   },
-  "version": "0.9.3",
+  "version": "0.9.4",
   "name": "node-red-contrib-steggy",
   "homepage": "https://github.com/ccontour/steggy",
   "node-red": {
@@ -13,6 +13,7 @@
       "group-state": "src/group-state.js",
       "receive-command": "src/receive-command.js",
       "room-state": "src/room-state.js",
+      "person-state": "src/person-state.js",
       "set-metadata": "src/set-metadata.js",
       "trigger-routine": "src/trigger-routine.js"
     }

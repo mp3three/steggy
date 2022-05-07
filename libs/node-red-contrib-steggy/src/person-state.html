@@ -1,0 +1,116 @@
+<script type="text/javascript">
+  {
+    let peopleList = [];
+    let selectedPerson = false;
+
+    async function updatePerson(currentPerson) {
+      const person = peopleList.find(({ _id }) => _id === currentPerson);
+      if (!person) {
+        return;
+      }
+      const options = person.save_states
+        .sort((a, b) => {
+          return a.friendlyName > b.friendlyName ? 1 : -1;
+        })
+        .map(item => {
+          return {
+            label: item.friendlyName,
+            value: item.id,
+          };
+        });
+      if (selectedPerson !== currentPerson) {
+        selectedPerson = currentPerson;
+        $('#node-input-state').typedInput('types', [{ options }]);
+        return;
+      }
+      $('#node-input-state').typedInput({
+        types: [{ options }],
+      });
+      selectedPerson = currentPerson;
+    }
+
+    async function updatePersonList(config, currentPerson) {
+      selectedPerson = false;
+      const result = await fetch(
+        `${config.host}/api/person?select=friendlyName,save_states.friendlyName,save_states.id&save_states.0__exists=true`,
+        { headers: { [`x-admin-key`]: config.admin_key } },
+      );
+      peopleList = await result.json();
+      $('#node-input-person').typedInput({
+        types: [
+          {
+            value: '',
+            options: peopleList
+              .sort((a, b) => {
+                return a.friendlyName > b.friendlyName ? 1 : -1;
+              })
+              .map(item => {
+                return {
+                  label: item.friendlyName,
+                  value: item._id,
+                };
+              }),
+          },
+        ],
+      });
+      if (currentPerson) {
+        updatePerson(currentPerson);
+      }
+    }
+
+    RED.nodes.registerType('person-state', {
+      category: 'steggy',
+      color: '#AAAA66',
+      defaults: {
+        name: { value: '' },
+        server: { value: '', type: 'steggy-configure' },
+        person: {
+          value: '',
+          validate(person) {
+            updatePerson(person);
+            return true;
+          },
+        },
+        state: { value: '' },
+      },
+      inputs: 1,
+      outputs: 0,
+      icon: 'font-awesome/fa-object-group',
+      paletteLabel: () => 'person state',
+      oneditprepare() {
+        if (this.server) {
+          updatePersonList(RED.nodes.node(this.server));
+          return;
+        }
+      },
+      label: function () {
+        return this.name || 'person state';
+      },
+    });
+  }
+</script>
+
+<script type="text/html" data-template-name="person-state">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name" />
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-server"
+      ><i class="fa fa-tag"></i> Server</label
+    >
+    <input type="text" id="node-input-server" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-person"><i class="fa fa-tag"></i> Person</label>
+    <input type="text" id="node-input-person" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-state"><i class="fa fa-tag"></i> State</label>
+    <input type="text" id="node-input-state" />
+  </div>
+</script>
+
+<script type="text/html" data-help-name="person-state">
+  <p>Send a manual activation request to a routine.</p>
+</script>

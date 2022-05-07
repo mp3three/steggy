@@ -1,3 +1,4 @@
+import { RoutineActivateOptionsDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Node, NodeAPI, NodeDef } from 'node-red';
 
@@ -18,7 +19,10 @@ module.exports = function (RED: NodeAPI) {
       RED.nodes.createNode(this, config);
 
       const server = RED.nodes.getNode(config.server) as tServer;
-      const activate = async (routine: string, body) => {
+      const activate = async (
+        routine: string,
+        body: RoutineActivateOptionsDTO,
+      ) => {
         await sendRequest({
           adminKey: server.admin_key,
           baseUrl: server.host,
@@ -38,6 +42,7 @@ module.exports = function (RED: NodeAPI) {
         }
         await activate(routine, {
           force: force === 'false' ? false : true,
+          source: `[Node Red] ${config.name}`,
         });
       });
     },

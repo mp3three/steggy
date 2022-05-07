@@ -9,5 +9,5 @@
     "target": "ES2018"
   },
   "exclude": ["**/*.spec.ts"],
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts", "../controller-shared/**/*ts", "../utilities/**/*ts"]
 }

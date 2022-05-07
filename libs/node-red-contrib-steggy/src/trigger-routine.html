@@ -58,12 +58,12 @@
       name: { value: '' },
       server: { value: '', type: 'steggy-configure' },
       routine: { value: '' },
-      repeat: { value: true },
+      force: { value: true },
     },
     inputs: 1,
     outputs: 0,
     oneditprepare() {
-      $('#node-input-repeat').typedInput({
+      $('#node-input-force').typedInput({
         types: [
           {
             value: '',
@@ -103,8 +103,8 @@
     <input type="text" id="node-input-routine" style="width: 70%" />
   </div>
   <div class="form-row">
-    <label for="node-input-repeat"><i class="fa fa-tag"></i> Repeat</label>
-    <input type="text" id="node-input-repeat" />
+    <label for="node-input-force"><i class="fa fa-tag"></i> Force</label>
+    <input type="text" id="node-input-force" />
   </div>
 </script>
 
