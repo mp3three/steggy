@@ -5,11 +5,13 @@ import {
   RoutineTriggerEvent,
 } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
-import { Button, Card, Table, Typography } from 'antd';
+import { Button, Card, Table, Tag, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { FD_ICONS, sendRequest } from '../../types';
 import { RoutineActivateDrawer, RoutineInspectButton } from '../routines';
+
+const NODERED_TAG = '[Node Red]';
 
 export function RecentActivations() {
   const [events, setEvents] = useState<RoutineTriggerEvent[]>([]);
@@ -59,11 +61,22 @@ export function RecentActivations() {
             setActivate(item);
             setRoutine(routine);
           }}
-          type={item.id === activate?.id ? 'primary' : 'text'}
+          type={item.id === activate?.id ? 'primary' : 'dashed'}
         >
           {item?.friendlyName}
         </Button>
       );
+    }
+    if (source.startsWith(NODERED_TAG)) {
+      return (
+        <>
+          <Tag color="red">Node Red</Tag>
+          {source.slice(NODERED_TAG.length)}
+        </>
+      );
+    }
+    if (source === 'Manual Activate') {
+      return <Tag color="volcano">Manual Activate</Tag>;
     }
     return source;
   }
