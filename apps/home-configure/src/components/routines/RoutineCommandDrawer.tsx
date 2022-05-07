@@ -137,6 +137,7 @@ export function RoutineCommandDrawer(props: {
         return (
           <TriggerRoutineCommand
             onUpdate={update => onUpdate(update)}
+            routine={props.routine}
             command={props.command.command as RoutineCommandTriggerRoutineDTO}
           />
         );

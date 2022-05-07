@@ -31,13 +31,13 @@ module.exports = function (RED: NodeAPI) {
       this.on('input', async message => {
         const payload = message.payload as Payload;
         const routine = payload.routine || this.routine || config.routine;
-        const bypassRepeat = payload.repeat ?? this.repeat ?? config.repeat;
+        const force = payload.repeat ?? this.repeat ?? config.repeat;
         if (is.empty(routine)) {
           this.error('Cannot identify routine to activate');
           return;
         }
         await activate(routine, {
-          bypassRepeat: bypassRepeat === 'false' ? false : true,
+          force: force === 'false' ? false : true,
         });
       });
     },

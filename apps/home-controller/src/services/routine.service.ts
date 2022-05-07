@@ -4,7 +4,6 @@ import {
   forwardRef,
   Inject,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -62,6 +61,7 @@ import {
   DeviceTriggerActivateService,
   InternalEventChangeService,
   MetadataChangeService,
+  RoutineEnabledService,
   ScheduleActivateService,
   SequenceActivateService,
   SolarActivateService,
@@ -135,6 +135,8 @@ export class RoutineService {
     private readonly personService: PersonService,
     @Inject(forwardRef(() => InternalEventChangeService))
     private readonly internalEventActivate: InternalEventChangeService,
+    @Inject(forwardRef(() => RoutineEnabledService))
+    private readonly routineEnabled: RoutineEnabledService,
     private readonly deviceTriggerActivate: DeviceTriggerActivateService,
     private readonly eventEmitter: EventEmitter,
   ) {}
@@ -247,6 +249,9 @@ export class RoutineService {
     await this.wait(options);
     routine = await this.get(routine);
     const runId = await this.interruptCheck(routine, options);
+    if (!runId) {
+      return;
+    }
     this.logger.info({ runId }, `[${routine.friendlyName}] activate`);
     this.eventEmitter.emit(ROUTINE_ACTIVATE, {
       routine: routine._id,
@@ -499,8 +504,15 @@ export class RoutineService {
     routine: RoutineDTO,
     options: RoutineActivateOptionsDTO,
   ): Promise<string> {
+    const isActive = this.routineEnabled.ACTIVE_ROUTINES.has(routine._id);
+    if (!isActive && !options.force) {
+      this.logger.debug(
+        `[${routine.friendlyName}] is disabled, blocking activation`,
+      );
+      return undefined;
+    }
     const runId = uuid();
-    if (!routine.sync || options.bypassRepeat) {
+    if (!routine.sync || options.force) {
       return runId;
     }
     const id = RUN_CACHE(routine);
@@ -533,9 +545,8 @@ export class RoutineService {
     if (is.empty(routine.repeat) || routine.repeat === 'normal') {
       return runId;
     }
-    throw new InternalServerErrorException(
-      `Unknown repeat type: ${routine.repeat}`,
-    );
+    this.logger.error(`Unknown repeat type: ${routine.repeat}`);
+    return undefined;
   }
 
   /**

@@ -1,4 +1,7 @@
-import { RoutineDTO } from '@steggy/controller-shared';
+import {
+  RoutineActivateOptionsDTO,
+  RoutineDTO,
+} from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
 import { Button, Dropdown, Menu, Popconfirm } from 'antd';
 
@@ -12,6 +15,10 @@ export function RoutineExtraActions(props: {
 }) {
   async function activateRoutine(): Promise<void> {
     await sendRequest({
+      body: {
+        force: true,
+        source: 'Manual Activate',
+      } as RoutineActivateOptionsDTO,
       method: 'post',
       url: `/routine/${props.routine._id}`,
     });
@@ -36,6 +43,7 @@ export function RoutineExtraActions(props: {
       props.onUpdate(undefined);
     }
   }
+
   return (
     <Dropdown
       overlay={

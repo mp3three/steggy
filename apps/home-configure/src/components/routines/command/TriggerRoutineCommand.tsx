@@ -3,7 +3,7 @@ import {
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { DOWN, is, UP } from '@steggy/utilities';
-import { Checkbox, Divider, Empty, Space } from 'antd';
+import { Checkbox, Divider, Empty, Space, Tooltip } from 'antd';
 import Tree, { DataNode } from 'antd/lib/tree';
 import { useEffect, useState } from 'react';
 
@@ -15,6 +15,7 @@ type tRoutineMap = Map<string, { item: DataNode; routine: RoutineDTO }>;
 export function TriggerRoutineCommand(props: {
   command?: RoutineCommandTriggerRoutineDTO;
   onUpdate: (command: Partial<RoutineCommandTriggerRoutineDTO>) => void;
+  routine: RoutineDTO;
 }) {
   const [routineMap, setRoutineMap] = useState<tRoutineMap>();
   const [routines, setRoutines] = useState<RoutineDTO[]>([]);
@@ -68,6 +69,10 @@ export function TriggerRoutineCommand(props: {
     );
   }
 
+  function onUpdate(routine: string) {
+    props.onUpdate({ routine });
+  }
+
   function sortChildren(a: DataNode, b: DataNode, routineMap: tRoutineMap) {
     const aRoutine = routineMap.get(a.key as string).routine;
     const bRoutine = routineMap.get(b.key as string).routine;
@@ -90,7 +95,7 @@ export function TriggerRoutineCommand(props: {
       <Tree
         treeData={treeData.sort((a, b) => sortChildren(a, b, routineMap))}
         className="draggable-tree"
-        onSelect={([routine]: string[]) => props.onUpdate({ routine })}
+        onSelect={([routine]: string[]) => onUpdate(routine)}
         showIcon
         blockNode
         selectedKeys={selected}
@@ -99,14 +104,14 @@ export function TriggerRoutineCommand(props: {
         )}
       />
       <Divider orientation="left">Flags</Divider>
-      <Checkbox
-        checked={props?.command?.ignoreEnabled}
-        onChange={({ target }) =>
-          props.onUpdate({ ignoreEnabled: target.checked })
-        }
-      >
-        Bypass disabled state
-      </Checkbox>
+      <Tooltip title="Ignore the disabled + repeat activation states to forcibly run the routine.">
+        <Checkbox
+          checked={props?.command?.force}
+          onChange={({ target }) => props.onUpdate({ force: target.checked })}
+        >
+          Force activation
+        </Checkbox>
+      </Tooltip>
     </Space>
   );
 }

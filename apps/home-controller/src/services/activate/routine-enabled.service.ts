@@ -185,7 +185,10 @@ export class RoutineEnabledService {
     this.ENABLE_WATCHERS.set(routine._id, watchers);
   }
 
-  private async isActive({ enable, parent }: RoutineDTO): Promise<boolean> {
+  private async isActive({
+    enable,
+    parent,
+  }: Pick<RoutineDTO, 'enable' | 'parent'> = {}): Promise<boolean> {
     if (!is.empty(parent) && !this.ACTIVE_ROUTINES.has(parent)) {
       return false;
     }

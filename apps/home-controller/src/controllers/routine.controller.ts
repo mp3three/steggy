@@ -71,7 +71,7 @@ export class RoutineController {
     @Param('routine') routine: string,
     @Body() options: RoutineActivateOptionsDTO,
   ): typeof GENERIC_SUCCESS_RESPONSE {
-    // if( options.bypassRepeat === 'false') {
+    // if( options.force === 'false') {
     // options
     // }
     process.nextTick(

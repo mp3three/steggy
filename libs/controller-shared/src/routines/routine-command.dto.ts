@@ -122,7 +122,7 @@ export class RoutineCommandTriggerRoutineDTO {
   @IsOptional()
   @ApiProperty()
   @IsBoolean()
-  public ignoreEnabled: boolean;
+  public force: boolean;
   @ApiProperty()
   @IsString()
   public routine: string;

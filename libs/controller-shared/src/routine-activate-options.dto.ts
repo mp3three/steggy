@@ -5,7 +5,7 @@ export class RoutineActivateOptionsDTO {
   @IsOptional()
   @IsBoolean()
   @ApiProperty({ required: false })
-  public bypassRepeat?: boolean;
+  public force?: boolean;
   @IsOptional()
   @IsDateString()
   @ApiProperty({ required: false })

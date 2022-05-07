@@ -61,9 +61,7 @@ export function RoutineSettings(props: {
                   <Descriptions bordered>
                     <Descriptions.Item
                       span={1}
-                      label={
-                        <Typography.Text code>bypassRepeat</Typography.Text>
-                      }
+                      label={<Typography.Text code>force</Typography.Text>}
                     >
                       boolean
                     </Descriptions.Item>
@@ -104,7 +102,7 @@ export function RoutineSettings(props: {
                       <SyntaxHighlighter language="yaml" style={atomDark}>
                         {JSON.stringify(
                           {
-                            bypassRepeat: false,
+                            force: false,
                             source: 'Special activation with extra description',
                             timestamp: '2022-04-25T16:24:40.685Z',
                           },
@@ -167,7 +165,7 @@ export function RoutineSettings(props: {
                 {
                   'Manual activation via api call may ignore this setting by adding including '
                 }
-                <Typography.Text code>bypassRepeat: true</Typography.Text>
+                <Typography.Text code>force: true</Typography.Text>
                 {' option'}
               </Typography>
             }
