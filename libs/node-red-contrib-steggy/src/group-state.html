@@ -5,8 +5,13 @@
     let lastFetch = Date.now() - 6000;
 
     async function updateGroup(currentGroup) {
+      if (groupList.length === 0) {
+        // Groups not loaded yet
+        return;
+      }
       const group = groupList.find(({ _id }) => _id === currentGroup);
       if (!group) {
+        console.log(`cannot find group`, groupList, currentGroup);
         return;
       }
       const options = group.save_states
@@ -34,7 +39,10 @@
       if (typeof config !== 'object') {
         return;
       }
-      if (Date.now() - lastFetch < 5000) {
+      if (Date.now() - lastFetch < 1000 && groupList.length !== 0) {
+        if (currentGroup || selectedGroup) {
+          updateGroup(currentGroup || selectedGroup);
+        }
         return;
       }
       lastFetch = Date.now();

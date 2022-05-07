@@ -1,7 +1,6 @@
 import { Node, NodeAPI, NodeDef } from 'node-red';
 
-import { ControllerConfiguration } from './types';
-import { sendRequest } from './types/fetch';
+import { ControllerConfiguration, sendRequest } from './types';
 
 type tServer = Node & ControllerConfiguration;
 type TriggerOptions = { group?: string; state?: string };
@@ -12,7 +11,7 @@ module.exports = function (RED: NodeAPI) {
     'group-state',
     function TriggerRoutineNode(
       this: Node & TriggerOptions,
-      config: NodeDef & { server: string },
+      config: NodeDef & { server: string } & Payload,
     ) {
       RED.nodes.createNode(this, config);
 
@@ -28,8 +27,8 @@ module.exports = function (RED: NodeAPI) {
 
       this.on('input', async message => {
         const payload = message.payload as Payload;
-        const group = payload.group || this.group;
-        const state = payload.state || this.state;
+        const group = payload.group || config.group;
+        const state = payload.state || config.state;
 
         await activate(group, state);
       });

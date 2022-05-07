@@ -34,6 +34,12 @@
       if (typeof config !== 'object' || !config.host) {
         return;
       }
+      if (Date.now() - lastFetch < 1000 && peopleList.length !== 0) {
+        if (currentPerson || selectedPerson) {
+          updatePerson(currentPerson || selectedPerson);
+        }
+        return;
+      }
       if (Date.now() - lastFetch < 100) {
         return;
       }

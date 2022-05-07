@@ -1,8 +1,7 @@
 import { is } from '@steggy/utilities';
 import { Node, NodeAPI, NodeDef } from 'node-red';
 
-import { ControllerConfiguration } from './types';
-import { sendRequest } from './types/fetch';
+import { ControllerConfiguration, sendRequest } from './types';
 
 type tServer = Node & ControllerConfiguration;
 type TriggerOptions = { room?: string; state?: string };

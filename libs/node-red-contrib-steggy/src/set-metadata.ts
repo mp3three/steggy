@@ -1,18 +1,17 @@
 import { is } from '@steggy/utilities';
 import { Node, NodeAPI, NodeDef } from 'node-red';
 
-import { ControllerConfiguration } from './types';
-import { sendRequest } from './types/fetch';
+import { ControllerConfiguration, sendRequest } from './types';
 
 type tServer = Node & ControllerConfiguration;
 type TriggerOptions = {
   property: string;
-  room?: string;
+  source?: string;
   value?: unknown;
 };
 type Payload = {
   property: string;
-  room?: string;
+  source?: string;
   value?: unknown;
 };
 
@@ -27,22 +26,22 @@ module.exports = function (RED: NodeAPI) {
 
       const server = RED.nodes.getNode(config.server) as tServer;
       const send = async (target: string, property: string, value: unknown) => {
-        const [base, room] = target.split(':');
+        const [base, source] = target.split(':');
         await sendRequest({
           adminKey: server.admin_key,
           baseUrl: server.host,
           body: { value },
           method: 'put',
-          url: `/${base}/${room}/metadata-name/${property}`,
+          url: `/${base}/${source}/metadata-name/${property}`,
         });
       };
 
       this.on('input', async message => {
         const payload = message.payload as Payload;
-        const room = payload.room || config.room;
+        const source = payload.source || config.source;
         const property = payload.property || config.property;
         const value = payload.value ?? config.value;
-        if (is.empty(room)) {
+        if (is.empty(source)) {
           this.error('No target provided to set metadata on');
           return;
         }
@@ -50,7 +49,7 @@ module.exports = function (RED: NodeAPI) {
           this.error('Cannot identify property to modify');
           return;
         }
-        await send(room, property, value);
+        await send(source, property, value);
       });
     },
   );

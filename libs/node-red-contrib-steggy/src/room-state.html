@@ -5,8 +5,12 @@
     let selectedRoom = false;
 
     async function updateRoom(currentRoom) {
+      if (roomsList.length === 0) {
+        return;
+      }
       const room = roomsList.find(({ _id }) => _id === currentRoom);
       if (!room) {
+        console.log(`cannot find room`, roomsList, currentRoom);
         return;
       }
       const options = room.save_states
@@ -36,7 +40,10 @@
       }
       // These are cheap queries, but this function gets called obnoxiously often
       // There should be a better way than on validate
-      if (Date.now() - lastFetch < 100) {
+      if (Date.now() - lastFetch < 1000 && roomList.length !== 0) {
+        if (currentRoom || selectedRoom) {
+          updateRoom(currentRoom || selectedRoom);
+        }
         return;
       }
       lastFetch = Date.now();
@@ -80,7 +87,7 @@
             // There's probably an onchange or something that'd be better
             setTimeout(() => {
               const config = RED.nodes.node(server);
-              updateRoomList(config, this.group);
+              updateRoomList(config, this.room);
             }, 100);
             return true;
           },

@@ -2,6 +2,7 @@
   {
     let roomsList = [];
     let peopleList = [];
+    let lastFetch = Date.now() - 6000;
     let selectedSource = false;
 
     async function updateSource(id) {
@@ -34,6 +35,20 @@
     }
 
     async function updateSourceList(config, currentSource) {
+      if (typeof config !== 'object') {
+        return;
+      }
+      // I guess it'll still spam if the db is empty
+      // Don't do that 🤷
+      if (
+        Date.now() - lastFetch < 1000 &&
+        (roomsList.length !== 0 || peopleList.length !== 0)
+      ) {
+        if (currentSource || selectedSource) {
+          updateSource(currentSource || selectedSource);
+        }
+        return;
+      }
       selectedSource = false;
       let result = await fetch(
         // Only find sources with non-empty lists of metadata
