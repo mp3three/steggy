@@ -1,9 +1,9 @@
-import { ModuleMetadata, Provider } from '@nestjs/common';
+import { DynamicModule, ModuleMetadata, Provider } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 
-import { ConfigItem, USE_THIS_CONFIG } from '../contracts';
+import { ConfigItem } from '../contracts';
 import { LOGGER_LIBRARY } from '../contracts/logger/constants';
-import { AbstractConfig, ACTIVE_APPLICATION } from '../contracts/meta/config';
+import { ACTIVE_APPLICATION } from '../contracts/meta/config';
 import { RegisterCache } from '../includes';
 import { BoilerplateModule } from '../modules';
 import { LibraryModule } from './library-module.decorator';
@@ -16,7 +16,6 @@ export interface ApplicationModuleMetadata extends Partial<ModuleMetadata> {
    */
   globals?: Provider[];
 }
-let useThisConfig: AbstractConfig;
 
 /**
  * Intended to extend on the logic of nest's `@Controller` annotation.
@@ -49,12 +48,6 @@ export function ApplicationModule(
     },
     ...metadata.globals,
   ];
-  if (useThisConfig) {
-    GLOBAL_SYMBOLS.push({
-      provide: USE_THIS_CONFIG,
-      useValue: useThisConfig,
-    });
-  }
   metadata.imports = [
     BoilerplateModule.forRoot(),
     {
@@ -62,7 +55,10 @@ export function ApplicationModule(
       global: true,
       module: class {},
       providers: GLOBAL_SYMBOLS,
-    },
+      // Adding in 'type' for this one
+      // Bootstrap will search it out, and maybe add even more symbols
+      type: 'GLOBAL_SYMBOLS',
+    } as DynamicModule,
     RegisterCache(),
     ...metadata.imports,
   ];
@@ -77,6 +73,3 @@ export function ApplicationModule(
     return target;
   };
 }
-ApplicationModule.useThisConfig = function (config: AbstractConfig) {
-  useThisConfig = config;
-};

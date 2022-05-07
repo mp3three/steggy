@@ -36,9 +36,6 @@ export function QuickScript({
   OVERRIDE_DEFAULTS?: AbstractConfig;
   WAIT_TIME?: number;
 } = {}): ClassDecorator {
-  if (OVERRIDE_DEFAULTS) {
-    ApplicationModule.useThisConfig(OVERRIDE_DEFAULTS);
-  }
   // Add in the MainCLI module to enable TTY functionality
   options.imports ??= [];
   options.providers ??= [];
@@ -59,6 +56,7 @@ export function QuickScript({
     setTimeout(
       () =>
         Bootstrap(CREATE_BOOT_MODULE(options), {
+          config: OVERRIDE_DEFAULTS,
           nestNoopLogger: true,
           noGlobalError: true,
           postInit: [
