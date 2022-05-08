@@ -25,6 +25,7 @@
     "../../libs/boilerplate/**/*.ts",
     "../../libs/persistence/**/*.ts",
     "../../libs/controller-shared/**/*.ts",
+    "../../libs/server/**/*.ts",
     "../../libs/utilities/**/*.ts",
     "../../libs/home-assistant-shared/**/*.ts"
   ]

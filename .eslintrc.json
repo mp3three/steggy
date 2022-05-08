@@ -56,6 +56,7 @@
               "bson",
               "cachable",
               "calc",
+              "uptime",
               "cbc",
               "changeme",
               "charset",

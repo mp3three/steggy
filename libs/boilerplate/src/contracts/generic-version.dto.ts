@@ -1,5 +1,8 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class GenericVersionDTO {
+  @ApiProperty()
   public projects: Record<string, string>;
-  public rootVersion: string;
+  @ApiProperty()
   public version: string;
 }

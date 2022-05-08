@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "composite": true,
     "module": "commonjs",
     "outDir": "../../dist/out-tsc",
     "declaration": true,
@@ -8,8 +9,5 @@
     "target": "ESNext"
   },
   "exclude": ["**/*.spec.ts"],
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"]
 }

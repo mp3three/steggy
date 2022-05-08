@@ -5,6 +5,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { AutoLogService } from '@steggy/boilerplate';
+import { is } from '@steggy/utilities';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 
 import { APIRequest, APIResponse } from '../contracts';
@@ -25,7 +26,7 @@ export class LoggingInterceptor implements NestInterceptor {
       tap(response => {
         if (this.ignorePath(request.path)) {
           // Request counter is still incremented, even if no logs are ever printed for request
-          return;
+          return undefined;
         }
         const responseTime = Date.now() - locals.start.getTime();
         const message = prettyLogger
@@ -36,14 +37,14 @@ export class LoggingInterceptor implements NestInterceptor {
       }),
       catchError(error => {
         const responseTime = Date.now() - locals.start.getTime();
-
         const message = prettyLogger
           ? `[${request.method}] {${request.path}} ${error.message}`
           : `Request errored ${error.message}`;
-        this.logger.error(
-          { responseTime, stack: error.stack, ...extra },
-          message,
-        );
+        this.logger.error({ responseTime, ...extra }, message);
+        if (is.string(error.stack)) {
+          const [, ...stack] = (error.stack as string).split(`\n`);
+          stack.forEach(line => this.logger.debug(` - ${line.trim()}`));
+        }
         // This results in double errors
         // One coming from here, one from nestjs (with undefined context?)
         return throwError(() => error);

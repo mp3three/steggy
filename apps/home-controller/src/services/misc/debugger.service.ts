@@ -337,6 +337,10 @@ export class DebuggerService {
     entities: string[],
     rooms: RoomDTO[],
   ): boolean {
+    if (!stop) {
+      // Super duper invalid
+      return false;
+    }
     stop.comparisons ??= [];
     return stop.comparisons.every(compare => {
       let exists = true;

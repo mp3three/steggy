@@ -74,6 +74,7 @@ COPY --from=node_modules /app/node_modules ./node_modules
 COPY --from=build /app/dist/apps/home-controller/minified.js ./main.js
 COPY --from=build /app/dist/apps/home-controller/package.json ./package.json
 COPY --from=build /app/dist/apps/home-configure ./ui
+COPY --from=build /app/dist/apps/home-controller/assets ./assets
 
 HEALTHCHECK CMD curl --fail http://localhost:7000/api/health
 CMD ["node", "./main.js"]

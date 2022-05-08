@@ -83,6 +83,7 @@ export async function Bootstrap(
   }
   let server: Express;
   const options = {
+    // Shh... no talky
     logger: nestNoopLogger ? NEST_NOOP_LOGGER : AutoLogService.nestLogger,
   };
   let app: INestApplication;

@@ -34,7 +34,6 @@ export class WorkspaceService {
    * package.json
    */
   public PACKAGES = new Map<string, PackageJsonDTO>();
-  public ROOT_PACKAGE: PackageJsonDTO;
 
   private isWindows = process.platform === 'win32';
   private loaded = false;
@@ -123,7 +122,6 @@ export class WorkspaceService {
     this.PACKAGES.forEach(({ version }, name) => (versions[name] = version));
     return {
       projects: versions,
-      rootVersion: this.ROOT_PACKAGE.version,
       version: versions[this.application.description],
     };
   }

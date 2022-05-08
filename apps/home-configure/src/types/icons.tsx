@@ -54,6 +54,7 @@ type iconTypes =
   | 'routines'
   | 'run'
   | 'warning'
+  | 'error'
   | 'settings';
 
 export const FD_ICONS = new Map<iconTypes, JSX.Element>([
@@ -83,5 +84,6 @@ export const FD_ICONS = new Map<iconTypes, JSX.Element>([
   ['routines', <HomeAutomation />],
   ['run', <DebugStepInto />],
   ['settings', <SettingOutlined />],
+  ['error', <ExclamationCircleOutlined style={{ color: '#AA0000' }} />],
   ['warning', <ExclamationCircleOutlined style={{ color: '#AAAA00' }} />],
 ]);

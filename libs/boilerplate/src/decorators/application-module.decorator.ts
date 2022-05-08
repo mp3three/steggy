@@ -1,9 +1,7 @@
 import { DynamicModule, ModuleMetadata, Provider } from '@nestjs/common';
 import EventEmitter from 'eventemitter3';
 
-import { ConfigItem } from '../contracts';
-import { LOGGER_LIBRARY } from '../contracts/logger/constants';
-import { ACTIVE_APPLICATION } from '../contracts/meta/config';
+import { ACTIVE_APPLICATION, ConfigItem, LOGGER_LIBRARY } from '../contracts';
 import { RegisterCache } from '../includes';
 import { BoilerplateModule } from '../modules';
 import { LibraryModule } from './library-module.decorator';
@@ -36,16 +34,8 @@ export function ApplicationModule(
     provider[LOGGER_LIBRARY] = metadata.application.description;
   });
   const GLOBAL_SYMBOLS: Provider[] = [
-    {
-      provide: ACTIVE_APPLICATION,
-      useValue: metadata.application,
-    },
-    {
-      provide: EventEmitter,
-      useFactory() {
-        return new EventEmitter();
-      },
-    },
+    { provide: ACTIVE_APPLICATION, useValue: metadata.application },
+    { provide: EventEmitter, useValue: new EventEmitter() },
     ...metadata.globals,
   ];
   metadata.imports = [
