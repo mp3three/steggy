@@ -14,11 +14,10 @@ export function VersionPrinter(app: INestApplication): void {
     const prompt = app.get(ScreenService);
     const application = app.get<symbol>(ACTIVE_APPLICATION);
     workspace.initMetadata();
-    const { rootVersion, projects: versions } = workspace.version();
+    const { projects: versions } = workspace.version();
     prompt.print(
       dump({
         ['Application Version']: versions[application.description],
-        ['Root Version']: rootVersion,
       }),
     );
     show();
