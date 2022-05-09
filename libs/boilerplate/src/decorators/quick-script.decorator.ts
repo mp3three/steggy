@@ -3,7 +3,7 @@ import { is } from '@steggy/utilities';
 import { ClassConstructor } from 'class-transformer';
 
 import { AbstractConfig } from '../contracts';
-import { Bootstrap } from '../includes';
+import { Bootstrap, BootstrapOptions } from '../includes';
 import { AutoConfigService } from '../services';
 import {
   ApplicationModule,
@@ -30,11 +30,13 @@ export function QuickScript({
   NX_PROJECT,
   OVERRIDE_DEFAULTS,
   WAIT_TIME = WAIT_BOOTSTRAP * ADDITIONAL_WAIT,
+  bootstrap,
   ...options
 }: ApplicationModuleMetadata & {
   NX_PROJECT?: string;
   OVERRIDE_DEFAULTS?: AbstractConfig;
   WAIT_TIME?: number;
+  bootstrap?: BootstrapOptions;
 } = {}): ClassDecorator {
   // Add in the MainCLI module to enable TTY functionality
   options.imports ??= [];
@@ -69,6 +71,7 @@ export function QuickScript({
               }, WAIT_TIME),
           ],
           prettyLog: true,
+          ...bootstrap,
         }),
       WAIT_BOOTSTRAP,
     );

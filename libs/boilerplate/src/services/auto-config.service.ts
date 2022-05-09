@@ -139,6 +139,9 @@ export class AutoConfigService {
   private getConfiguration(path: string): ConfigItem {
     const { configs } = LibraryModule;
     const parts = path.split('.');
+    if (parts.length === 1) {
+      parts.unshift(this.appName);
+    }
     if (parts.length === 2) {
       const metadata = configs.get(this.appName);
       const config = metadata.configuration[parts[1]];
@@ -157,7 +160,7 @@ export class AutoConfigService {
     const metadata = configs.get(library);
     if (!metadata) {
       throw new InternalServerErrorException(
-        `Missing metadata asset for ${library}`,
+        `Missing metadata asset for ${library} (via ${path})`,
       );
     }
     return metadata.configuration[property];
