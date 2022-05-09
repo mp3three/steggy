@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
+
 import { HassStateDTO } from '../hass-state.dto';
 
 export enum HVACModes {
@@ -12,30 +16,147 @@ export enum FanModes {
 }
 
 export class ClimateAttributesDTO {
-  public aux_heat: 'off';
-  public climate_mode: 'Sleep';
-  public current_humidity: number;
-  public current_temperature: number;
-  public equipment_running: string;
-  public fan_min_on_time: number;
-  public fan_mode: string | FanModes;
-  public fan_modes: (string | `${FanModes}`)[];
-  public friendly_name: string;
-  public hvac_action: 'idle';
-  public hvac_mode: keyof typeof HVACModes;
-  public hvac_modes: (keyof typeof HVACModes)[];
-  public max_temp: number;
-  public min_temp: number;
-  public preset_mode: string;
-  public preset_modes: string[];
-  public supported_features: number;
-  public swing_mode: string;
-  public swing_modes: string[];
-  public target_temp_high: number;
-  public target_temp_low: number;
-  public temperature: null;
+  public static LIST_FEATURES(
+    supportedFeatures: number,
+  ): `${ClimateFeatures}`[] {
+    const out = [];
+    SUPPORTED_FEATURES.forEach((value, key) => {
+      if ((supportedFeatures & value) !== 0) {
+        out.push(key);
+      }
+    });
+    return out;
+  }
+
+  @IsString()
+  @ApiProperty()
+  @IsOptional()
+  public aux_heat?: 'off';
+
+  @IsString()
+  @ApiProperty()
+  @IsOptional()
+  public climate_mode?: 'Sleep';
+
+  @IsNumber()
+  @ApiProperty()
+  @IsOptional()
+  public current_humidity?: number;
+
+  @IsNumber()
+  @ApiProperty()
+  @IsOptional()
+  public current_temperature?: number;
+
+  @IsString()
+  @ApiProperty()
+  @IsOptional()
+  public equipment_running?: string;
+
+  @IsNumber()
+  @ApiProperty()
+  @IsOptional()
+  public fan_min_on_time?: number;
+
+  @IsString()
+  @ApiProperty()
+  @IsOptional()
+  public fan_mode?: string | FanModes;
+
+  @IsString({ each: true })
+  @ApiProperty()
+  @IsOptional()
+  public fan_modes?: (string | `${FanModes}`)[];
+
+  @ApiProperty()
+  @IsOptional()
+  public friendly_name?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  public hvac_action?: 'idle';
+
+  @IsString()
+  @ApiProperty()
+  @IsOptional()
+  public hvac_mode?: keyof typeof HVACModes;
+
+  @IsString({ each: true })
+  @ApiProperty()
+  @IsOptional()
+  public hvac_modes?: (keyof typeof HVACModes)[];
+
+  @IsNumber()
+  @ApiProperty()
+  @IsOptional()
+  public max_temp?: number;
+
+  @IsNumber()
+  @ApiProperty()
+  @IsOptional()
+  public min_temp?: number;
+
+  @IsString()
+  @ApiProperty()
+  @IsOptional()
+  public preset_mode?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  public preset_modes?: string[];
+
+  @IsNumber()
+  @ApiProperty()
+  @IsOptional()
+  public supported_features?: number;
+
+  @IsString()
+  @ApiProperty()
+  @IsOptional()
+  public swing_mode?: string;
+
+  @IsString({ each: true })
+  @ApiProperty()
+  @IsOptional()
+  public swing_modes?: string[];
+
+  @IsNumber()
+  @ApiProperty()
+  @IsOptional()
+  public target_temp_high?: number;
+
+  @IsNumber()
+  @ApiProperty()
+  @IsOptional()
+  public target_temp_low?: number;
+
+  @IsNumber()
+  @ApiProperty()
+  @IsOptional()
+  public temperature?: number;
 }
+
 export class ClimateStateDTO extends HassStateDTO<
   keyof typeof HVACModes | 'unavailable',
   ClimateAttributesDTO
 > {}
+
+export enum ClimateFeatures {
+  TARGET_TEMPERATURE = 'TARGET_TEMPERATURE',
+  TARGET_TEMPERATURE_RANGE = 'TARGET_TEMPERATURE_RANGE',
+  TARGET_HUMIDITY = 'TARGET_HUMIDITY',
+  FAN_MODE = 'FAN_MODE',
+  PRESET_MODE = 'PRESET_MODE',
+  SWING_MODE = 'SWING_MODE',
+  AUX_HEAT = 'AUX_HEAT',
+}
+
+const SUPPORTED_FEATURES = new Map([
+  [ClimateFeatures.TARGET_TEMPERATURE, 1],
+  [ClimateFeatures.TARGET_TEMPERATURE_RANGE, 2],
+  [ClimateFeatures.TARGET_HUMIDITY, 4],
+  [ClimateFeatures.FAN_MODE, 8],
+  [ClimateFeatures.PRESET_MODE, 16],
+  [ClimateFeatures.SWING_MODE, 32],
+  [ClimateFeatures.AUX_HEAT, 64],
+]);

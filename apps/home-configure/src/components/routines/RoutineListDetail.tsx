@@ -1,6 +1,6 @@
 import { RoutineDTO } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
-import { Card, Empty, Space, Tabs, Typography } from 'antd';
+import { Card, Descriptions, Empty, Space, Tabs, Typography } from 'antd';
 
 import { sendRequest } from '../../types';
 import { ActivateList } from './activate';
@@ -31,10 +31,39 @@ export function RoutineListDetail(props: {
     }
   }
 
+  function renderEmpty() {
+    return (
+      <Space style={{ width: '100%' }} align="center" direction="vertical">
+        <Empty description="Select a routine" />
+        <Descriptions bordered style={{ width: '100%' }}>
+          <Descriptions.Item
+            label={<Typography.Text type="success">Enabled</Typography.Text>}
+            span={3}
+          >
+            asdf
+          </Descriptions.Item>
+          <Descriptions.Item
+            label={<Typography.Text type="warning">Enabled</Typography.Text>}
+            span={3}
+          >
+            asdf
+          </Descriptions.Item>
+          <Descriptions.Item
+            label={<Typography.Text type="danger">Disabled</Typography.Text>}
+            span={3}
+          >
+            asdf
+          </Descriptions.Item>
+        </Descriptions>
+      </Space>
+    );
+  }
+
   function renderCard() {
-    return !props.routine ? (
-      <Empty description="Select a routine" />
-    ) : (
+    if (!props.routine) {
+      return renderEmpty();
+    }
+    return (
       <Space direction="vertical" style={{ width: '100%' }}>
         <Typography.Title
           level={3}

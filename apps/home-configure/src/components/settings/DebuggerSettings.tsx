@@ -5,10 +5,10 @@ import {
   RoutineDTO,
 } from '@steggy/controller-shared';
 import { is } from '@steggy/utilities';
-import { Button, Card, Empty, List, Tabs, Tooltip } from 'antd';
+import { Button, Card, Col, Empty, List, Row, Tabs, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 
-import { sendRequest } from '../../types';
+import { FD_ICONS, sendRequest } from '../../types';
 import { GroupInspectButton } from '../groups';
 import { RoomInspectButton } from '../rooms';
 import { RoutineInspectButton } from '../routines/RoutineInspectButton';
@@ -55,73 +55,81 @@ export function DebuggerSettings() {
   }
 
   return (
-    <Card
-      extra={
-        <Tooltip
-          title="Additional information available in server logs as warning level messages."
-          placement="topLeft"
-          color="blue"
+    <Row>
+      <Col span={20} offset={2}>
+        <Card
+          extra={
+            <Tooltip
+              title="Additional information available in server logs as warning level messages."
+              placement="bottomLeft"
+              color="blue"
+            >
+              <Button
+                onClick={() => refresh()}
+                size="small"
+                icon={FD_ICONS.get('information')}
+              >
+                Refresh
+              </Button>
+            </Tooltip>
+          }
         >
-          <Button onClick={() => refresh()} size="small">
-            Refresh
-          </Button>
-        </Tooltip>
-      }
-    >
-      {valid ? (
-        <Empty description="Everything is valid!" />
-      ) : (
-        <Tabs>
-          {is.empty(groups) ? undefined : (
-            <Tabs.TabPane tab="Groups" key="group">
-              <List
-                pagination={{ size: 'small' }}
-                dataSource={groups}
-                renderItem={group => (
-                  <List.Item>
-                    <GroupInspectButton
-                      group={group}
-                      onUpdate={update => updateGroup(update, group)}
-                    />
-                  </List.Item>
-                )}
-              />
-            </Tabs.TabPane>
+          {valid ? (
+            <Empty description="Everything is valid!" />
+          ) : (
+            <Tabs>
+              {is.empty(groups) ? undefined : (
+                <Tabs.TabPane tab="Groups" key="group">
+                  <List
+                    pagination={{ size: 'small' }}
+                    dataSource={groups}
+                    renderItem={group => (
+                      <List.Item>
+                        <GroupInspectButton
+                          group={group}
+                          onUpdate={update => updateGroup(update, group)}
+                        />
+                      </List.Item>
+                    )}
+                  />
+                </Tabs.TabPane>
+              )}
+              {is.empty(rooms) ? undefined : (
+                <Tabs.TabPane tab="Rooms" key="room">
+                  <List
+                    pagination={{ size: 'small' }}
+                    dataSource={rooms}
+                    renderItem={room => (
+                      <List.Item>
+                        <RoomInspectButton
+                          room={room}
+                          onUpdate={update => updateRoom(update)}
+                        />
+                      </List.Item>
+                    )}
+                  />
+                </Tabs.TabPane>
+              )}
+              {is.empty(routines) ? undefined : (
+                <Tabs.TabPane tab="Routines" key="routine">
+                  <List
+                    pagination={{ size: 'small' }}
+                    dataSource={routines}
+                    renderItem={routine => (
+                      <List.Item>
+                        <RoutineInspectButton
+                          routine={routine}
+                          onUpdate={update => updateRoutine(update)}
+                        />
+                      </List.Item>
+                    )}
+                  />
+                </Tabs.TabPane>
+              )}
+            </Tabs>
           )}
-          {is.empty(rooms) ? undefined : (
-            <Tabs.TabPane tab="Rooms" key="room">
-              <List
-                pagination={{ size: 'small' }}
-                dataSource={rooms}
-                renderItem={room => (
-                  <List.Item>
-                    <RoomInspectButton
-                      room={room}
-                      onUpdate={update => updateRoom(update)}
-                    />
-                  </List.Item>
-                )}
-              />
-            </Tabs.TabPane>
-          )}
-          {is.empty(routines) ? undefined : (
-            <Tabs.TabPane tab="Routines" key="routine">
-              <List
-                pagination={{ size: 'small' }}
-                dataSource={routines}
-                renderItem={routine => (
-                  <List.Item>
-                    <RoutineInspectButton
-                      routine={routine}
-                      onUpdate={update => updateRoutine(update)}
-                    />
-                  </List.Item>
-                )}
-              />
-            </Tabs.TabPane>
-          )}
-        </Tabs>
-      )}
-    </Card>
+        </Card>
+      </Col>
+    </Row>
   );
 }

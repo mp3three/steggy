@@ -4,6 +4,8 @@ import { LibraryModule } from '@steggy/boilerplate';
 import {
   ADMIN_KEY,
   AUTH_BYPASS,
+  BASIC_AUTH_PASSWORD,
+  BASIC_AUTH_USERNAME,
   BODY_SIZE,
   COMPRESSION,
   CORS,
@@ -20,7 +22,7 @@ import {
 } from '../config';
 import { GenericController } from '../controllers';
 import { BasicExceptionFilter } from '../filters';
-import { AdminKeyGuard, IsAuthorizedGuard } from '../guards';
+import { AdminKeyGuard, BasicAuthGuard, IsAuthorizedGuard } from '../guards';
 import { JSONFilterInterceptor, LoggingInterceptor } from '../interceptors';
 import { InitMiddleware } from '../middleware';
 import { MiddlewareService, RouteInjector, SwaggerService } from '../services';
@@ -38,6 +40,16 @@ import { MiddlewareService, RouteInjector, SwaggerService } from '../services';
       default: false,
       description: 'Ignore all authentication, and just let requests through',
       type: 'boolean',
+    },
+    [BASIC_AUTH_PASSWORD]: {
+      description:
+        'Used to configure BasicAuthGuard. Only utilized if guard is applied in code.',
+      type: 'string',
+    },
+    [BASIC_AUTH_USERNAME]: {
+      description:
+        'Used to configure BasicAuthGuard. Only utilized if guard is applied in code.',
+      type: 'string',
     },
     [BODY_SIZE]: {
       default: '100kb',
@@ -105,6 +117,7 @@ import { MiddlewareService, RouteInjector, SwaggerService } from '../services';
   library: LIB_SERVER,
   providers: [
     AdminKeyGuard,
+    BasicAuthGuard,
     BasicExceptionFilter,
     GenericController,
     InitMiddleware,
