@@ -13,7 +13,7 @@ import {
   Typography,
 } from 'antd';
 
-import { FD_ICONS, sendRequest } from '../../types';
+import { FD_ICONS, MenuItem, sendRequest } from '../../types';
 import { ItemPin, RoomMetadata } from '../misc';
 import { SaveStateEditor } from '../misc/SaveStateEditor';
 import { PersonConfiguration } from './PersonConfiguration';
@@ -143,33 +143,49 @@ export function PeopleDetail(props: {
         !is.object(props.person) ? undefined : (
           <Dropdown
             overlay={
-              <Menu>
-                <Menu.Item key="delete">
-                  <Popconfirm
-                    icon={FD_ICONS.get('delete')}
-                    title={`Are you sure you want to delete ${props.person.friendlyName}?`}
-                    onConfirm={() => remove()}
-                  >
-                    <Button
-                      style={{ textAlign: 'start', width: '100%' }}
-                      danger
-                      icon={FD_ICONS.get('remove')}
-                    >
-                      Delete
-                    </Button>
-                  </Popconfirm>
-                </Menu.Item>
-                <Menu.Item key="clone">
-                  <Button
-                    onClick={() => clone()}
-                    icon={FD_ICONS.get('clone')}
-                    style={{ textAlign: 'start', width: '100%' }}
-                  >
-                    Clone
-                  </Button>
-                </Menu.Item>
-                <ItemPin type="person" target={props.person._id} menuItem />
-              </Menu>
+              <Menu
+                items={
+                  [
+                    {
+                      label: (
+                        <Popconfirm
+                          icon={FD_ICONS.get('delete')}
+                          title={`Are you sure you want to delete ${props.person.friendlyName}?`}
+                          onConfirm={() => remove()}
+                        >
+                          <Button
+                            style={{ textAlign: 'start', width: '100%' }}
+                            danger
+                            icon={FD_ICONS.get('remove')}
+                          >
+                            Delete
+                          </Button>
+                        </Popconfirm>
+                      ),
+                    },
+                    {
+                      label: (
+                        <Button
+                          onClick={() => clone()}
+                          icon={FD_ICONS.get('clone')}
+                          style={{ textAlign: 'start', width: '100%' }}
+                        >
+                          Clone
+                        </Button>
+                      ),
+                    },
+                    {
+                      label: (
+                        <ItemPin
+                          type="person"
+                          target={props.person._id}
+                          menuItem
+                        />
+                      ),
+                    },
+                  ] as MenuItem[]
+                }
+              />
             }
           >
             <Button type="text" size="small">

@@ -1,5 +1,5 @@
 import { PersonDTO } from '@steggy/controller-shared';
-import { Button, Menu, Switch } from 'antd';
+import { Button, Switch } from 'antd';
 
 import { CurrentUserContext, FD_ICONS } from '../../types';
 
@@ -14,38 +14,36 @@ export function ItemPin(props: {
     );
   if (props.menuItem) {
     return (
-      <Menu.Item>
-        <CurrentUserContext.Consumer>
-          {({ person, togglePin }) =>
-            !person ? (
-              <Button
-                disabled
-                icon={FD_ICONS.get('pin_off')}
-                style={{ textAlign: 'start', width: '100%' }}
-              >
-                Pin
-              </Button>
-            ) : isPinned(person) ? (
-              <Button
-                style={{ textAlign: 'start', width: '100%' }}
-                onClick={() => togglePin(props.type, props.target, false)}
-                icon={FD_ICONS.get('pin_off')}
-                type="dashed"
-              >
-                Unpin
-              </Button>
-            ) : (
-              <Button
-                style={{ textAlign: 'start', width: '100%' }}
-                onClick={() => togglePin(props.type, props.target, true)}
-                icon={FD_ICONS.get('pin')}
-              >
-                Pin
-              </Button>
-            )
-          }
-        </CurrentUserContext.Consumer>
-      </Menu.Item>
+      <CurrentUserContext.Consumer>
+        {({ person, togglePin }) =>
+          !person ? (
+            <Button
+              disabled
+              icon={FD_ICONS.get('pin_off')}
+              style={{ textAlign: 'start', width: '100%' }}
+            >
+              Pin
+            </Button>
+          ) : isPinned(person) ? (
+            <Button
+              style={{ textAlign: 'start', width: '100%' }}
+              onClick={() => togglePin(props.type, props.target, false)}
+              icon={FD_ICONS.get('pin_off')}
+              type="dashed"
+            >
+              Unpin
+            </Button>
+          ) : (
+            <Button
+              style={{ textAlign: 'start', width: '100%' }}
+              onClick={() => togglePin(props.type, props.target, true)}
+              icon={FD_ICONS.get('pin')}
+            >
+              Pin
+            </Button>
+          )
+        }
+      </CurrentUserContext.Consumer>
     );
   }
 

@@ -6,7 +6,7 @@
   },
   "name": "@steggy/mqtt",
   "license": "MIT",
-  "version": "0.10.28",
+  "version": "0.10.29",
   "homepage": "https://github.com/ccontour/steggy",
   "repository": {
     "type": "git",

@@ -61,7 +61,7 @@ export function ActivateList(props: {
           pagination={false}
           dataSource={props.routine.activate}
           renderItem={item => (
-            <List.Item key={item.id} onClick={() => setActivate(item)}>
+            <List.Item key={item.id}>
               <List.Item.Meta
                 title={
                   <Button

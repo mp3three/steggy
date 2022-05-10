@@ -114,20 +114,17 @@ export function PersonConfiguration(props: {
 
   function entityRender({ entity_id }: RoomEntityDTO) {
     return (
-      <List.Item
-        actions={[
-          <Popconfirm
-            icon={FD_ICONS.get('delete')}
-            title="Are you sure you want to delete this?"
-            onConfirm={() => removeEntity(entity_id)}
-          >
-            <Button danger type="text" size="small">
-              X
-            </Button>
-          </Popconfirm>,
-        ]}
-      >
+      <List.Item>
         <List.Item.Meta title={<EntityInspectButton entity_id={entity_id} />} />
+        <Popconfirm
+          icon={FD_ICONS.get('delete')}
+          title="Are you sure you want to delete this?"
+          onConfirm={() => removeEntity(entity_id)}
+        >
+          <Button danger type="text" size="small">
+            X
+          </Button>
+        </Popconfirm>
       </List.Item>
     );
   }
@@ -138,20 +135,7 @@ export function PersonConfiguration(props: {
       return undefined;
     }
     return (
-      <List.Item
-        key={item}
-        actions={[
-          <Popconfirm
-            icon={FD_ICONS.get('delete')}
-            title={`Detach group?`}
-            onConfirm={() => detachGroup(item)}
-          >
-            <Button danger type="text">
-              {FD_ICONS.get('item_remove')}
-            </Button>
-          </Popconfirm>,
-        ]}
-      >
+      <List.Item key={item}>
         <List.Item.Meta
           title={
             <GroupInspectButton
@@ -161,6 +145,15 @@ export function PersonConfiguration(props: {
           }
           description={`${TitleCase(group.type)} group`}
         />
+        <Popconfirm
+          icon={FD_ICONS.get('delete')}
+          title={`Detach group?`}
+          onConfirm={() => detachGroup(item)}
+        >
+          <Button danger type="text">
+            {FD_ICONS.get('item_remove')}
+          </Button>
+        </Popconfirm>
       </List.Item>
     );
   }
@@ -180,20 +173,7 @@ export function PersonConfiguration(props: {
       return undefined;
     }
     return (
-      <List.Item
-        key={item}
-        actions={[
-          <Popconfirm
-            icon={FD_ICONS.get('delete')}
-            title={`Detach room?`}
-            onConfirm={() => detachRoom(item)}
-          >
-            <Button danger type="text">
-              {FD_ICONS.get('item_remove')}
-            </Button>
-          </Popconfirm>,
-        ]}
-      >
+      <List.Item key={item}>
         <List.Item.Meta
           title={
             <RoomInspectButton
@@ -202,6 +182,15 @@ export function PersonConfiguration(props: {
             />
           }
         />
+        <Popconfirm
+          icon={FD_ICONS.get('delete')}
+          title={`Detach room?`}
+          onConfirm={() => detachRoom(item)}
+        >
+          <Button danger type="text">
+            {FD_ICONS.get('item_remove')}
+          </Button>
+        </Popconfirm>
       </List.Item>
     );
   }

@@ -37,22 +37,36 @@ export function RoutineListDetail(props: {
         <Empty description="Select a routine" />
         <Descriptions bordered style={{ width: '100%' }}>
           <Descriptions.Item
-            label={<Typography.Text type="success">Enabled</Typography.Text>}
+            label={
+              <Typography.Text type="success" strong>
+                Enabled
+              </Typography.Text>
+            }
             span={3}
           >
-            asdf
+            Routine is enabled, has commands to execute, and activation events
+            to self activate.
           </Descriptions.Item>
           <Descriptions.Item
-            label={<Typography.Text type="warning">Enabled</Typography.Text>}
+            label={
+              <Typography.Text type="warning" strong>
+                Enabled
+              </Typography.Text>
+            }
             span={3}
           >
-            asdf
+            Routine is enabled, but is missing activation events, commands, or
+            both.
           </Descriptions.Item>
           <Descriptions.Item
-            label={<Typography.Text type="danger">Disabled</Typography.Text>}
+            label={
+              <Typography.Text type="danger" strong>
+                Disabled
+              </Typography.Text>
+            }
             span={3}
           >
-            asdf
+            Routine is disabled.
           </Descriptions.Item>
         </Descriptions>
       </Space>

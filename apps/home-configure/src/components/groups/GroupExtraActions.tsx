@@ -1,7 +1,7 @@
 import { GroupDTO } from '@steggy/controller-shared';
 import { Button, Dropdown, Menu, Popconfirm } from 'antd';
 
-import { FD_ICONS, sendRequest } from '../../types';
+import { FD_ICONS, MenuItem, sendRequest } from '../../types';
 import { ItemPin } from '../misc';
 
 export function GroupExtraActions(props: {
@@ -30,33 +30,46 @@ export function GroupExtraActions(props: {
   return (
     <Dropdown
       overlay={
-        <Menu>
-          <Menu.Item key="delete">
-            <Popconfirm
-              icon={FD_ICONS.get('item_remove')}
-              title={`Are you sure you want to delete ${props.group.friendlyName}?`}
-              onConfirm={() => remove()}
-            >
-              <Button
-                danger
-                style={{ textAlign: 'start', width: '100%' }}
-                icon={FD_ICONS.get('remove')}
-              >
-                Delete Group
-              </Button>
-            </Popconfirm>
-          </Menu.Item>
-          <Menu.Item key="clone">
-            <Button
-              onClick={() => clone()}
-              icon={FD_ICONS.get('clone')}
-              style={{ textAlign: 'start', width: '100%' }}
-            >
-              Clone
-            </Button>
-          </Menu.Item>
-          <ItemPin type="group" target={props.group._id} menuItem />
-        </Menu>
+        <Menu
+          items={
+            [
+              {
+                label: (
+                  <Popconfirm
+                    icon={FD_ICONS.get('item_remove')}
+                    title={`Are you sure you want to delete ${props.group.friendlyName}?`}
+                    onConfirm={() => remove()}
+                  >
+                    <Button
+                      danger
+                      style={{ textAlign: 'start', width: '100%' }}
+                      icon={FD_ICONS.get('remove')}
+                    >
+                      Delete Group
+                    </Button>
+                  </Popconfirm>
+                ),
+              },
+              {
+                label: (
+                  <Button
+                    onClick={() => clone()}
+                    icon={FD_ICONS.get('clone')}
+                    style={{ textAlign: 'start', width: '100%' }}
+                  >
+                    Clone
+                  </Button>
+                ),
+              },
+
+              {
+                label: (
+                  <ItemPin type="group" target={props.group._id} menuItem />
+                ),
+              },
+            ] as MenuItem[]
+          }
+        ></Menu>
       }
     >
       <Button type="text" size="small">
