@@ -4,7 +4,7 @@
     "name": "Cameron Contour",
     "url": "https://github.com/ccontour/steggy"
   },
-  "version": "0.10.27",
+  "version": "0.10.28",
   "name": "node-red-contrib-steggy",
   "homepage": "https://github.com/ccontour/steggy",
   "node-red": {
